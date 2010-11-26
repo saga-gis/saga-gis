@@ -59,7 +59,7 @@
 CLakeFloodInteractive::CLakeFloodInteractive(void)
 {
 	Set_Name		(_TL("Lake Flood"));
-	Set_Author		(_TL("Volker Wichmann (c) 2005-2010"));
+	Set_Author		(SG_T("Volker Wichmann (c) 2005-2010"));
 	Parameters.Set_Description(_TW(
 		"This module works interactively and can be used to flood a digital elevation model for a given water depth or water level. "
 		"Execute the module and use the action tool on a cell to flood the digital elevation model from this "

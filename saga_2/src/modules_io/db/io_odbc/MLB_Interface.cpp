@@ -74,7 +74,7 @@ const SG_Char *	Get_Info(int i)
 		return( _TL("Import/Export - ODBC/OTL") );
 
 	case MLB_INFO_Author:
-		return( _TL("O.Conrad (c) 2010") );
+		return( SG_T("O.Conrad (c) 2010") );
 
 	case MLB_INFO_Description:
 		return( _TW(

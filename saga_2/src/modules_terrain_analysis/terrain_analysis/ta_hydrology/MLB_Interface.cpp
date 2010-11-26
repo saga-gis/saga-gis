@@ -70,7 +70,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Terrain Analysis - Hydrology") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2001-4") );
+		return( SG_T("O. Conrad, V. Olaya (c) 2001-4") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for digital terrain analysis.") );

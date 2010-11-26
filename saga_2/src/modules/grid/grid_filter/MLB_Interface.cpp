@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Grid - Filter") );
 
 	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002-2010") );
+		return( SG_T("SAGA User Group Associaton (c) 2002-10") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the manipulation of gridded data.") );

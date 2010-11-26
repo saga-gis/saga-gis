@@ -30,7 +30,7 @@
 CForecasting::CForecasting(void){
 
 	Set_Name		(_TL("Fire Risk Analysis"));
-	Set_Author		(_TL("(c) 2004 Victor Olaya"));
+	Set_Author		(SG_T("(c) 2004 Victor Olaya"));
 	Set_Description	(_TW(
 		"Fire risk analysis based on the BEHAVE fire modeling system "
 		"supported by the U.S. Forest Service, Fire and Aviation Management. "

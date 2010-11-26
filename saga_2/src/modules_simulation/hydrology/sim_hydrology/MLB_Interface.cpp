@@ -74,7 +74,7 @@ const SG_Char *	Get_Info(int i)
 		return( _TL("Simulation - Hydrology") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2001") );
+		return( SG_T("O. Conrad (c) 2001") );
 
 	case MLB_INFO_Description:
 		return( _TL("Modelling hydrological processes.") );

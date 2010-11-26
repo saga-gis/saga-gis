@@ -165,7 +165,7 @@ bool CLife::On_Execute(void)
 	{
 		DataObject_Update(pLife);
 
-		Process_Set_Text(CSG_String::Format(_TL("%d. Life Cycle"), i));
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %d"), _TL("Life Cycle"), i));
 	}
 
 	//-----------------------------------------------------
@@ -173,7 +173,7 @@ bool CLife::On_Execute(void)
 
 	if( is_Progress() )
 	{
-		Message_Add(CSG_String::Format(_TL("Dead after %d Life Cycles\n"), i));
+		Message_Add(CSG_String::Format(SG_T("%s %d %s"), _TL("Dead after"), i, _TL("Life Cycles")));
 	}
 
 	return( true );

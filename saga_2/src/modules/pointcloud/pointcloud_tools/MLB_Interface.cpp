@@ -68,7 +68,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Shapes - Point Clouds") );
 
 	case MLB_INFO_Author:
-		return( _TL("O.Conrad, Volker Wichmann (c) 2009-10") );
+		return( SG_T("O.Conrad, Volker Wichmann (c) 2009-10") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for point clouds.") );

@@ -23,7 +23,7 @@
 CCost_PolarToRect::CCost_PolarToRect(void){
 
 	Set_Name		(_TL("Polar To Rect"));
-	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Author		(SG_T("Copyrights (c) 2004 by Victor Olaya"));
 	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Polar to Rect conversion for paired Vector data."));
 

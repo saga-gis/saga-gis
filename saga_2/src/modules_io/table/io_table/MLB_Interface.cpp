@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Import/Export - Tables") );
 
 	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2008") );
+		return( SG_T("SAGA User Group Associaton (c) 2002-10") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the import and export of tables.") );

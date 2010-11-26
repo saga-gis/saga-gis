@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Shapes - Tools") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-2009") );
+		return( SG_T("O. Conrad, V. Olaya (c) 2002-2009") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the manipulation of vector data.") );

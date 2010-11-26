@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Lectures - Introducing Module Programming" ));
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2003" ));
+		return( SG_T("O. Conrad (c) 2003" ));
 
 	case MLB_INFO_Description:
 		return( _TL("A set of basic SAGA module programming lectures." ));

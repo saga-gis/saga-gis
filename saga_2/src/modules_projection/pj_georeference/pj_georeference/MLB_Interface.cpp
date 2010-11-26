@@ -72,7 +72,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Projection - Georeferencing") );
 
 	case MLB_INFO_Author:
-		return( _TL("(c) 2004 A.Ringeler, (c) 2008 O.Conrad") );
+		return( SG_T("A. Ringeler (c) 2004, O. Conrad (c) 2008") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the georeferencing of spatial data (grids/shapes).") );

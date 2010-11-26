@@ -147,7 +147,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("POINTS")		->asShapes();
-	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), _TL("TIN"), pTIN->Get_Name()));
 
 	pShapes->Add_Field("POINT_ID", SG_DATATYPE_Int);
 	for(j=0; j<pTIN->Get_Field_Count(); j++)
@@ -171,7 +171,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("EDGES")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("%s [TIN Edges]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), _TL("TIN Edges"), pTIN->Get_Name()));
 
 	pShapes->Add_Field("ID"			, SG_DATATYPE_Int);
 	pShapes->Add_Field("POINT_ID_A"	, SG_DATATYPE_Int);
@@ -192,7 +192,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("TRIANGLES")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN Triangles]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), _TL("TIN Triangles"), pTIN->Get_Name()));
 
 	pShapes->Add_Field("ID"			, SG_DATATYPE_Int);
 	pShapes->Add_Field("POINT_ID_A"	, SG_DATATYPE_Int);
@@ -216,7 +216,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("CENTER")		->asShapes();
-	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN Centroids]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), _TL("TIN Centroids"), pTIN->Get_Name()));
 
 	pShapes->Add_Field("ID"			, SG_DATATYPE_Int);
 	pShapes->Add_Field("POINT_ID_A"	, SG_DATATYPE_Int);
@@ -240,7 +240,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 	CSG_Points	Points;
 
 	pShapes		= Parameters("POLYGONS")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN Voronoi]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), _TL("TIN Voronoi"), pTIN->Get_Name()));
 
 	pShapes->Add_Field("POINT_ID", SG_DATATYPE_Int);
 	for(j=0; j<pTIN->Get_Field_Count(); j++)

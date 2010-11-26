@@ -398,7 +398,7 @@ bool CLAS_Export::On_Execute(void)
 		for( int i=0; i<MAX_NUM_RETURN; i++ )
 		{
 			header.SetPointRecordsByReturnCount(i, binPulse[i]);
-			SG_UI_Msg_Add(CSG_String::Format(_TL("Return %d: \t\t%d points"), i+1, binPulse[i]), true);
+			SG_UI_Msg_Add(CSG_String::Format(SG_T("%s %d:\t\t%d %s"), _TL("return"), i + 1, binPulse[i], _TL("points")), true);
 		}
 
 		header.SetPointRecordsCount(cntWrite);
@@ -408,8 +408,8 @@ bool CLAS_Export::On_Execute(void)
 	writer.WriteHeader(header);
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(_TL("Points read: \t%d"), cntRead), true);
-	SG_UI_Msg_Add(CSG_String::Format(_TL("Points written: \t%d"), cntWrite), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s:\t%d"), _TL("points read")   , cntRead ), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s:\t%d"), _TL("points written"), cntWrite), true);
 
 	return( true );
 }

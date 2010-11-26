@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Grid - Calculus") );
 
 	case MLB_INFO_Author:
-		return( _TL("O. Conrad, A. Ringeler, V. Olaya (c) 2001-4") );
+		return( SG_T("O. Conrad, A. Ringeler, V. Olaya (c) 2001-4") );
 
 	case MLB_INFO_Description:
 		return( _TL("Grid based or related calculations.") );

@@ -69,7 +69,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Terrain Analysis - Lighting, Visibility" ));
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Goettingen (c) 2003" ));
+		return( SG_T("O. Conrad (c) 2003-10") );
 
 	case MLB_INFO_Description:
 		return( _TL("Lighting and visibility calculations for digital terrain models." ));

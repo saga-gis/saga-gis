@@ -23,7 +23,7 @@
 CCost_RectToPolar::CCost_RectToPolar(void){
 
 	Set_Name(_TL("Rect To Polar"));
-	Set_Author(_TL("Victor Olaya & Volker Wichmann (c) 2004-2010"));
+	Set_Author(SG_T("Victor Olaya & Volker Wichmann (c) 2004-2010"));
 	Set_Description(_TW(
 					"Rect to polar conversion for paired vector data.\n"
 					"The module supports two conventions on how to measure and "

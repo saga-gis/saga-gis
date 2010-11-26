@@ -140,7 +140,7 @@ bool CTIN_Gradient::On_Execute(void)
 	bDegree		= Parameters("DEGREE")		->asInt() == 1;
 
 	//-----------------------------------------------------
-	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("TIN_Gradient [%s], TIN [%s]"), pTIN->Get_Field_Name(zField), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s], %s [%s]"), _TL("TIN_Gradient"), pTIN->Get_Field_Name(zField), _TL("TIN"), pTIN->Get_Name()));
 
 	pShapes->Add_Field(_TL("ID")		, SG_DATATYPE_Int);
 	pShapes->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);

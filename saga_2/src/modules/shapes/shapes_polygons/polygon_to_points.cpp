@@ -73,7 +73,7 @@ CPolygon_To_Points::CPolygon_To_Points(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Convert Polygon/Line Vertices to Points"));
 
-	Set_Author		(_TL("(c) 2008 by O. Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2008"));
 
 	Set_Description	(_TW(
 		""

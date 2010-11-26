@@ -534,10 +534,10 @@ bool CGrid_Classify_Supervised::Finalise(void)
 
 	for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 	{
-		pTable->Add_Field(CSG_String::Format(_TL("%02d_ROI_M")  , iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_M
-		pTable->Add_Field(CSG_String::Format(_TL("%02d_ROI_S")  , iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_S
-		pTable->Add_Field(CSG_String::Format(_TL("%02d_ROI_MIN"), iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_MIN
-		pTable->Add_Field(CSG_String::Format(_TL("%02d_ROI_MAX"), iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_MAX
+		pTable->Add_Field(CSG_String::Format(SG_T("%02d_ROI_M")  , iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_M
+		pTable->Add_Field(CSG_String::Format(SG_T("%02d_ROI_S")  , iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_S
+		pTable->Add_Field(CSG_String::Format(SG_T("%02d_ROI_MIN"), iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_MIN
+		pTable->Add_Field(CSG_String::Format(SG_T("%02d_ROI_MAX"), iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_MAX
 	}
 
 	for(iClass=0; iClass<m_Class_Info.Get_Count(); iClass++)

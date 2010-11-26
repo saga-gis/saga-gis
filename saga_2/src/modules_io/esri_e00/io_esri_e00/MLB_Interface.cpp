@@ -22,7 +22,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Import/Export - ESRI E00") );
 
 	case MLB_INFO_Author:
-		return( _TL("(c) 2004 by Olaf Conrad, Goettingen") );
+		return( SG_T("O. Conrad (c) 2004") );
 
 	case MLB_INFO_Description:
 		return( _TL("Import and export filter for ESRI's E00 file exchange format.") );

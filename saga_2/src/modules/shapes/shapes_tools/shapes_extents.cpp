@@ -73,7 +73,7 @@ CShapes_Extents::CShapes_Extents(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Get Shapes Extents"));
 
-	Set_Author		(_TL("(c) 2008 by O. Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2008"));
 
 	Set_Description	(_TW(
 		""

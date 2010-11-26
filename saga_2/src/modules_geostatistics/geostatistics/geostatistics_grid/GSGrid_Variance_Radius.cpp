@@ -146,7 +146,7 @@ bool CGSGrid_Variance_Radius::On_Execute(void)
 
 	pGrid			= Parameters("INPUT")	->asGrid();
 	pResult			= Parameters("RESULT")	->asGrid();
-	pResult->Set_Name(CSG_String::Format(_TL("Radius with Variance >= %f"), stopVariance));
+	pResult->Set_Name(CSG_String::Format(SG_T("%s >= %f"), _TL("Radius with Variance"), stopVariance));
 
 	//-----------------------------------------------------
 	Initialize();

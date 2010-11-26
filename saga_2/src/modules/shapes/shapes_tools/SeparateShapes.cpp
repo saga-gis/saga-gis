@@ -27,7 +27,7 @@ CSeparateShapes::CSeparateShapes(void)
 	CSG_Parameter *pNode;
 
 	Set_Name		(_TL("Separate Shapes"));
-	Set_Author		(_TL("(c) 2005 by Victor Olaya"));
+	Set_Author		(SG_T("(c) 2005 by Victor Olaya"));
 	Set_Description	(_TW("Separate Shapes."));
 
 	pNode = Parameters.Add_Shapes(

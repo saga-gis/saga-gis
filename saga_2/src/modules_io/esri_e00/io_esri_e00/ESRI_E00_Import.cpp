@@ -205,7 +205,7 @@ bool CESRI_E00_Import::Open(const SG_Char *FileName)
 	//-----------------------------------------------------
 	if( FileName == NULL || (hReadPtr = E00ReadOpen(CSG_String(FileName).b_str())) == NULL )
 	{
-		Error_Set(CSG_String::Format(_TL("%s - not found\n"), FileName));
+		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("file not found"), FileName));
 
 		return( false );
 	}
@@ -213,7 +213,7 @@ bool CESRI_E00_Import::Open(const SG_Char *FileName)
 	//-----------------------------------------------------
 	if( (Line = E00ReadNextLine(hReadPtr)) == NULL )
 	{
-		Error_Set(CSG_String::Format(_TL("\"%s\" is not an Arc-info_Table Export file !\n"), FileName));
+		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("invalid E00 file"), FileName));
 
 		return( false );
 	}
@@ -221,7 +221,7 @@ bool CESRI_E00_Import::Open(const SG_Char *FileName)
 	//-----------------------------------------------------
 	if( strncmp(Line, "EXP", 3) )
 	{
-		Error_Set(CSG_String::Format(_TL("\"%s\" is not an Arc-info_Table Export file !\n"), FileName));
+		Error_Set(CSG_String::Format(SG_T("%s: %d"), _TL("invalid E00 file"), FileName));
 
 		return( false );
 	}

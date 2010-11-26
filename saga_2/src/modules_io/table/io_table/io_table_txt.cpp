@@ -102,8 +102,8 @@ CTable_Text_Export::CTable_Text_Export(void)
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("tabulator"),
-			_TL(";"),
-			_TL(","),
+			SG_T(";"),
+			SG_T(","),
 			_TL("other")
 		), 0
 	);

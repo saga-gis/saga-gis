@@ -74,7 +74,7 @@ CPC_Reclass_Extract::CPC_Reclass_Extract(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Point Cloud Reclassifier / Subset Extractor"));
 
-	Set_Author(_TL("Volker Wichmann (c) 2009, LASERDATA GmbH"));
+	Set_Author(SG_T("Volker Wichmann (c) 2009, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
 		"The module can be used to either reclassify a Point Cloud attribute or to extract "

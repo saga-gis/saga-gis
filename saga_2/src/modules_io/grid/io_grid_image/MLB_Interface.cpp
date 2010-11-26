@@ -74,7 +74,7 @@ const SG_Char *	Get_Info(int i)
 		return( _TL("Import/Export - Images") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2005") );
+		return( SG_T("O. Conrad (c) 2005") );
 
 	case MLB_INFO_Description:
 		return( _TL("Image Import/Export.") );

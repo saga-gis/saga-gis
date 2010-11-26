@@ -159,8 +159,8 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 
 	if( Formula.Get_Error(&err_pos, &Msg) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Syntax error in formula at position #%d\n%s"), err_pos, pFormula));
-		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("%s"), Msg.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: #%d\n%s"), _TL("syntax error in formula at position"), err_pos, pFormula));
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s"), Msg.c_str()));
 		return (false);
 	}
 

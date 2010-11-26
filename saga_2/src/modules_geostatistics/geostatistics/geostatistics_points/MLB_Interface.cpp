@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Geostatistics - Points") );
 
 	case MLB_INFO_Author:
-		return( _TL("O.Conrad (c) 2002-10") );
+		return( SG_T("O.Conrad (c) 2002-10") );
 
 	case MLB_INFO_Description:
 		return( _TL("Spatial and geostatistical analyses of point data.") );

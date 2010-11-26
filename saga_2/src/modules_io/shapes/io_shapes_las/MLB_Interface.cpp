@@ -72,7 +72,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Import/Export - LAS") );
 
 	case MLB_INFO_Author:
-		return( _TL("O. Conrad, V. Wichmann (c) 2009-10") );
+		return( SG_T("O. Conrad, V. Wichmann (c) 2009-10") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the import and export of ASPRS LAS files.") );

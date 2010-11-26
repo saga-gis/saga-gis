@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Grid - Tools") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya, Volker Wichmann (c) 2002-10") );
+		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-10") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the manipulation of gridded data.") );
