@@ -127,6 +127,8 @@ public:
 	bool						Del_Child			(int Index);
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
 
+	bool						Del_Children		(int Depth = 0);
+
 	const CSG_MetaData &		operator []			(int Index)					const	{	CSG_MetaData	*pData	= Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL;	return( *pData );	}
 	const CSG_MetaData &		operator []			(const CSG_String &Name)	const	{	return( *Get_Child(_Get_Child(Name)) );	}
 

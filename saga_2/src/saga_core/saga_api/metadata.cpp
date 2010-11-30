@@ -230,6 +230,11 @@ bool CSG_MetaData::Del_Child(int Index)
 
 		m_nChildren--;
 
+		for(int i=Index; i<m_nChildren; i++)
+		{
+			m_pChildren[i]	= m_pChildren[i + 1];
+		}
+
 		if( (m_nChildren - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
 		{
 			CSG_MetaData	**pChildren	= (CSG_MetaData **)SG_Realloc(m_pChildren, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_MetaData *));
@@ -239,6 +244,40 @@ bool CSG_MetaData::Del_Child(int Index)
 				m_pChildren	= pChildren;
 				m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
 			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Del_Children(int Depth)
+{
+	if( Depth == 0 )
+	{
+		if( m_pChildren )
+		{
+			for(int i=0; i<m_nChildren; i++)
+			{
+				delete(m_pChildren[i]);
+			}
+
+			SG_Free(m_pChildren);
+
+			m_pChildren	= NULL;
+			m_nChildren	= 0;
+			m_nBuffer	= 0;
+
+			return( true );
+		}
+	}
+	else if( Depth > 0 )
+	{
+		for(int i=0; i<Get_Children_Count(); i++)
+		{
+			Get_Child(i)->Del_Children(Depth - 1);
 		}
 
 		return( true );
