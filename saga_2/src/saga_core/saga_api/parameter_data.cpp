@@ -60,8 +60,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "parameters.h"
 
 
@@ -80,6 +78,50 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+const SG_Char * SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
+{
+	switch( Type )
+	{
+	default:								return( LNG("[PRM] Parameter") );
+
+	case PARAMETER_TYPE_Node:				return( LNG("[PRM] Node") );
+
+	case PARAMETER_TYPE_Bool:				return( LNG("[PRM] Boolean") );
+	case PARAMETER_TYPE_Int:				return( LNG("[PRM] Integer") );
+	case PARAMETER_TYPE_Double:				return( LNG("[PRM] Floating point") );
+	case PARAMETER_TYPE_Degree:				return( LNG("[PRM] Degree") );
+	case PARAMETER_TYPE_Range:				return( LNG("[PRM] Value range") );
+	case PARAMETER_TYPE_Choice:				return( LNG("[PRM] Choice") );
+
+	case PARAMETER_TYPE_String:				return( LNG("[PRM] Text") );
+	case PARAMETER_TYPE_Text:				return( LNG("[PRM] Long text") );
+	case PARAMETER_TYPE_FilePath:			return( LNG("[PRM] File path") );
+
+	case PARAMETER_TYPE_Font:				return( LNG("[PRM] Font") );
+	case PARAMETER_TYPE_Color:				return( LNG("[PRM] Color") );
+	case PARAMETER_TYPE_Colors:				return( LNG("[PRM] Colors") );
+	case PARAMETER_TYPE_FixedTable:			return( LNG("[PRM] Static table") );
+	case PARAMETER_TYPE_Grid_System:		return( LNG("[PRM] Grid system") );
+	case PARAMETER_TYPE_Table_Field:		return( LNG("[PRM] Table field") );
+
+	case PARAMETER_TYPE_DataObject_Output:	return( LNG("[PRM] Data Object") );
+	case PARAMETER_TYPE_Grid:				return( LNG("[PRM] Grid") );
+	case PARAMETER_TYPE_Table:				return( LNG("[PRM] Table") );
+	case PARAMETER_TYPE_Shapes:				return( LNG("[PRM] Shapes") );
+	case PARAMETER_TYPE_TIN:				return( LNG("[PRM] TIN") );
+	case PARAMETER_TYPE_PointCloud:			return( LNG("[PRM] Point Cloud") );
+
+	case PARAMETER_TYPE_Grid_List:			return( LNG("[PRM] Grid list") );
+	case PARAMETER_TYPE_Table_List:			return( LNG("[PRM] Table list") );
+	case PARAMETER_TYPE_Shapes_List:		return( LNG("[PRM] Shapes list") );
+	case PARAMETER_TYPE_TIN_List:			return( LNG("[PRM] TIN list") );
+	case PARAMETER_TYPE_PointCloud_List:	return( LNG("[PRM] Point Cloud list") );
+
+	case PARAMETER_TYPE_Parameters:			return( LNG("[PRM] Parameters") );
+	}
+}
 
 //---------------------------------------------------------
 const SG_Char * SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
@@ -126,47 +168,43 @@ const SG_Char * SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
 }
 
 //---------------------------------------------------------
-const SG_Char * SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
+TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 {
-	switch( Type )
-	{
-	default:								return( LNG("[PRM] Parameter") );
+	if( !Identifier.Cmp(SG_T("node"			)) )	{	return( PARAMETER_TYPE_Node					);	}
+	if( !Identifier.Cmp(SG_T("boolean"		)) )	{	return( PARAMETER_TYPE_Bool					);	}
+	if( !Identifier.Cmp(SG_T("integer"		)) )	{	return( PARAMETER_TYPE_Int					);	}
+	if( !Identifier.Cmp(SG_T("double"		)) )	{	return( PARAMETER_TYPE_Double				);	}
+	if( !Identifier.Cmp(SG_T("degree"		)) )	{	return( PARAMETER_TYPE_Degree				);	}
+	if( !Identifier.Cmp(SG_T("range"		)) )	{	return( PARAMETER_TYPE_Range				);	}
+	if( !Identifier.Cmp(SG_T("choice"		)) )	{	return( PARAMETER_TYPE_Choice				);	}
 
-	case PARAMETER_TYPE_Node:				return( LNG("[PRM] Node") );
+	if( !Identifier.Cmp(SG_T("text"			)) )	{	return( PARAMETER_TYPE_String				);	}
+	if( !Identifier.Cmp(SG_T("long_text"	)) )	{	return( PARAMETER_TYPE_Text					);	}
+	if( !Identifier.Cmp(SG_T("file"			)) )	{	return( PARAMETER_TYPE_FilePath				);	}
 
-	case PARAMETER_TYPE_Bool:				return( LNG("[PRM] Boolean") );
-	case PARAMETER_TYPE_Int:				return( LNG("[PRM] Integer") );
-	case PARAMETER_TYPE_Double:				return( LNG("[PRM] Floating point") );
-	case PARAMETER_TYPE_Degree:				return( LNG("[PRM] Degree") );
-	case PARAMETER_TYPE_Range:				return( LNG("[PRM] Value range") );
-	case PARAMETER_TYPE_Choice:				return( LNG("[PRM] Choice") );
+	if( !Identifier.Cmp(SG_T("font"			)) )	{	return( PARAMETER_TYPE_Font					);	}
+	if( !Identifier.Cmp(SG_T("color"		)) )	{	return( PARAMETER_TYPE_Color				);	}
+	if( !Identifier.Cmp(SG_T("colors"		)) )	{	return( PARAMETER_TYPE_Colors				);	}
+	if( !Identifier.Cmp(SG_T("static_table"	)) )	{	return( PARAMETER_TYPE_FixedTable			);	}
+	if( !Identifier.Cmp(SG_T("grid_system"	)) )	{	return( PARAMETER_TYPE_Grid_System			);	}
+	if( !Identifier.Cmp(SG_T("table_field"	)) )	{	return( PARAMETER_TYPE_Table_Field			);	}
 
-	case PARAMETER_TYPE_String:				return( LNG("[PRM] Text") );
-	case PARAMETER_TYPE_Text:				return( LNG("[PRM] Long text") );
-	case PARAMETER_TYPE_FilePath:			return( LNG("[PRM] File path") );
+	if( !Identifier.Cmp(SG_T("data_object"	)) )	{	return( PARAMETER_TYPE_DataObject_Output	);	}
+	if( !Identifier.Cmp(SG_T("grid"			)) )	{	return( PARAMETER_TYPE_Grid					);	}
+	if( !Identifier.Cmp(SG_T("table"		)) )	{	return( PARAMETER_TYPE_Table				);	}
+	if( !Identifier.Cmp(SG_T("shapes"		)) )	{	return( PARAMETER_TYPE_Shapes				);	}
+	if( !Identifier.Cmp(SG_T("tin"			)) )	{	return( PARAMETER_TYPE_TIN					);	}
+	if( !Identifier.Cmp(SG_T("points"		)) )	{	return( PARAMETER_TYPE_PointCloud			);	}
 
-	case PARAMETER_TYPE_Font:				return( LNG("[PRM] Font") );
-	case PARAMETER_TYPE_Color:				return( LNG("[PRM] Color") );
-	case PARAMETER_TYPE_Colors:				return( LNG("[PRM] Colors") );
-	case PARAMETER_TYPE_FixedTable:			return( LNG("[PRM] Static table") );
-	case PARAMETER_TYPE_Grid_System:		return( LNG("[PRM] Grid system") );
-	case PARAMETER_TYPE_Table_Field:		return( LNG("[PRM] Table field") );
+	if( !Identifier.Cmp(SG_T("grid_list"	)) )	{	return( PARAMETER_TYPE_Grid_List			);	}
+	if( !Identifier.Cmp(SG_T("table_list"	)) )	{	return( PARAMETER_TYPE_Table_List			);	}
+	if( !Identifier.Cmp(SG_T("shapes_list"	)) )	{	return( PARAMETER_TYPE_Shapes_List			);	}
+	if( !Identifier.Cmp(SG_T("tin_list"		)) )	{	return( PARAMETER_TYPE_TIN_List				);	}
+	if( !Identifier.Cmp(SG_T("points_list"	)) )	{	return( PARAMETER_TYPE_PointCloud_List		);	}
 
-	case PARAMETER_TYPE_DataObject_Output:	return( LNG("[PRM] Data Object") );
-	case PARAMETER_TYPE_Grid:				return( LNG("[PRM] Grid") );
-	case PARAMETER_TYPE_Table:				return( LNG("[PRM] Table") );
-	case PARAMETER_TYPE_Shapes:				return( LNG("[PRM] Shapes") );
-	case PARAMETER_TYPE_TIN:				return( LNG("[PRM] TIN") );
-	case PARAMETER_TYPE_PointCloud:			return( LNG("[PRM] Point Cloud") );
+	if( !Identifier.Cmp(SG_T("parameters"	)) )	{	return( PARAMETER_TYPE_Parameters			);	}
 
-	case PARAMETER_TYPE_Grid_List:			return( LNG("[PRM] Grid list") );
-	case PARAMETER_TYPE_Table_List:			return( LNG("[PRM] Table list") );
-	case PARAMETER_TYPE_Shapes_List:		return( LNG("[PRM] Shapes list") );
-	case PARAMETER_TYPE_TIN_List:			return( LNG("[PRM] TIN list") );
-	case PARAMETER_TYPE_PointCloud_List:	return( LNG("[PRM] Point Cloud list") );
-
-	case PARAMETER_TYPE_Parameters:			return( LNG("[PRM] Parameters") );
-	}
+	return( PARAMETER_TYPE_Undefined );
 }
 
 

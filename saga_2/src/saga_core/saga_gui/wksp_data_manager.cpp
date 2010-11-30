@@ -229,6 +229,18 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		LNG("Leading zeros for data set numbering. Set to -1 for not using numbers at all."),
 		PARAMETER_TYPE_Int, m_Numbering = lValue, -1, true
 	);
+
+	//-----------------------------------------------------
+	if( CONFIG_Read(wxT("/DATA"), wxT("HISTORY_DEPTH")			, lValue) == true )
+	{
+		SG_Set_History_Depth(lValue);
+	}
+
+	m_Parameters.Add_Value(
+		pNode	, "HISTORY_DEPTH"			, LNG("History Depth"),
+		LNG("Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off."),
+		PARAMETER_TYPE_Int, SG_Get_History_Depth(), -1, true
+	);
 }
 
 //---------------------------------------------------------
@@ -288,11 +300,13 @@ bool CWKSP_Data_Manager::Finalise(void)
 	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_THRESHOLD")	, (long)SG_Grid_Cache_Get_Threshold());
 	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_CONFIRM")		, (long)SG_Grid_Cache_Get_Confirm  ());
 
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("DISPLAY_RANGEFIT")	, (long)m_Parameters("GRID_DISPLAY_RANGEFIT")->asInt());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("DISPLAY_RANGEFIT")	, (long)m_Parameters("GRID_DISPLAY_RANGEFIT")	->asInt());
 
-	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")		, (long)m_Parameters("PROJECT_START")->asInt());
-	CONFIG_Write(wxT("/DATA")		, wxT("NUMBERING")			, (long)m_Parameters("NUMBERING")->asInt());
+	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")		, (long)m_Parameters("PROJECT_START")			->asInt());
+	CONFIG_Write(wxT("/DATA")		, wxT("NUMBERING")			, (long)m_Parameters("NUMBERING")				->asInt());
 
+	CONFIG_Write(wxT("/DATA")		, wxT("HISTORY_DEPTH")		, (long)m_Parameters("HISTORY_DEPTH")			->asInt());
+	
 	if( Get_Count() == 0 )
 	{
 		wxRemoveFile(fProject.GetFullPath());
@@ -526,6 +540,8 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	SG_Grid_Cache_Set_Directory		(m_Parameters("GRID_MEM_CACHE_TMPDIR")	->asString());
 
 	m_Numbering	= m_Parameters("NUMBERING")->asInt();
+
+	SG_Set_History_Depth(m_Parameters("HISTORY_DEPTH")->asInt());
 
 	CWKSP_Base_Manager::Parameters_Changed();
 }

@@ -149,6 +149,15 @@ SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name			(TSG_Data_Object_Ty
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT void			SG_Set_History_Depth			(int Depth);
+SAGA_API_DLL_EXPORT int				SG_Get_History_Depth			(void);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 /**
   * CSG_Data_Object is the base class for all types of data
   * sets, which are provided by the SAGA API.

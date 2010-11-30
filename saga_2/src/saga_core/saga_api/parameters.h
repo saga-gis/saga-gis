@@ -85,11 +85,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PARAMETER_INPUT					0x01
+#define PARAMETER_INPUT						0x01
 #define PARAMETER_OUTPUT					0x02
 #define PARAMETER_OPTIONAL					0x04
 #define PARAMETER_INFORMATION				0x08
-#define PARAMETER_IGNORE_PROJECTION		0x10
+#define PARAMETER_IGNORE_PROJECTION			0x10
 
 #define PARAMETER_INPUT_OPTIONAL			(PARAMETER_INPUT  | PARAMETER_OPTIONAL)
 #define PARAMETER_OUTPUT_OPTIONAL			(PARAMETER_OUTPUT | PARAMETER_OPTIONAL)
@@ -164,8 +164,9 @@ TSG_Parameter_Type;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const SG_Char *		SG_Parameter_Type_Get_Identifier	(TSG_Parameter_Type Type);
 SAGA_API_DLL_EXPORT const SG_Char *		SG_Parameter_Type_Get_Name			(TSG_Parameter_Type Type);
+SAGA_API_DLL_EXPORT const SG_Char *		SG_Parameter_Type_Get_Identifier	(TSG_Parameter_Type Type);
+SAGA_API_DLL_EXPORT TSG_Parameter_Type	SG_Parameter_Type_Get_Type			(const CSG_String &Identifier);
 
 
 ///////////////////////////////////////////////////////////
