@@ -127,6 +127,8 @@ bool CFillSinks_WL_XXL::On_Execute(void)
 	pFilled		= Parameters("FILLED")->asGrid();
 	minslope	= Parameters("MINSLOPE")->asDouble();		
 
+	pFilled->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pElev->Get_Name(), _TL("no sinks")));
+
 
 	if( minslope > 0.0 )
 	{

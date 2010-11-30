@@ -120,6 +120,8 @@ bool CFillSinks::On_Execute(void)
 	pDEM		= Parameters("DEM")->asGrid();
 	pResult		= Parameters("RESULT")->asGrid();
 
+	pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pDEM->Get_Name(), _TL("no sinks")));
+
 	minslope	= tan(Parameters("MINSLOPE")->asDouble() * M_DEG_TO_RAD);
 
 	pW			= new CSG_Grid(SG_DATATYPE_Double, pDEM->Get_NX(), pDEM->Get_NY(), pDEM->Get_Cellsize(), pDEM->Get_XMin(), pDEM->Get_YMin());
