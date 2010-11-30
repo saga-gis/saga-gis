@@ -85,15 +85,16 @@ class CACTIVE_History : public wxTreeCtrl
 
 public:
 	CACTIVE_History(wxWindow *pParent);
-	virtual ~CACTIVE_History(void);
 
+	void				On_Mouse_RDown			(wxMouseEvent   &event);
+	void				On_Clear				(wxCommandEvent &event);
 
 	bool				Set_Item				(class CWKSP_Base_Item *pItem);
 
 
 private:
-
-
+	
+	int					_Get_Image				(const CSG_String &Identifier);
 	bool				_Add_History			(wxTreeItemId Parent, CSG_MetaData &History);
 
 

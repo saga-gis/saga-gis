@@ -85,9 +85,13 @@ class CACTIVE_Legend : public wxScrolledWindow
 
 public:
 	CACTIVE_Legend(wxWindow *pParent);
-	virtual ~CACTIVE_Legend(void);
 
-	void						On_Key_Down		(wxKeyEvent &event);
+	void						On_Key_Down		(wxKeyEvent   &event);
+	void						On_Mouse_RDown	(wxMouseEvent &event);
+
+	void						On_Copy			(wxCommandEvent &event);
+	void						On_Size_Inc		(wxCommandEvent &event);
+	void						On_Size_Dec		(wxCommandEvent &event);
 
 	virtual void				OnDraw			(wxDC &dc);
 
@@ -98,7 +102,8 @@ private:
 
 	int							m_xScroll, m_yScroll, m_Layout;
 
-	double						m_Zoom;
+	static double				m_Zoom;
+
 
 	class CWKSP_Base_Item		*m_pItem;
 

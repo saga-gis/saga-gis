@@ -59,6 +59,7 @@
 
 //---------------------------------------------------------
 #include "res_controls.h"
+#include "res_commands.h"
 
 #include "helper.h"
 
@@ -94,7 +95,16 @@ IMPLEMENT_CLASS(CACTIVE_Legend, wxScrolledWindow)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CACTIVE_Legend, wxScrolledWindow)
 	EVT_KEY_DOWN		(CACTIVE_Legend::On_Key_Down)
+	EVT_RIGHT_DOWN		(CACTIVE_Legend::On_Mouse_RDown)
+
+	EVT_MENU			(ID_CMD_DATA_LEGEND_COPY				, CACTIVE_Legend::On_Copy)
+	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND	, CACTIVE_Legend::On_Copy)
+	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_INC			, CACTIVE_Legend::On_Size_Inc)
+	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_DEC			, CACTIVE_Legend::On_Size_Dec)
 END_EVENT_TABLE()
+
+//---------------------------------------------------------
+double CACTIVE_Legend::m_Zoom	= 1.0;
 
 
 ///////////////////////////////////////////////////////////
@@ -115,12 +125,6 @@ CACTIVE_Legend::CACTIVE_Legend(wxWindow *pParent)
 	m_yScroll	= 0;
 
 	m_Layout	= LEGEND_LAYOUT_VERTICAL;	// LEGEND_LAYOUT_HORIZONTAL;
-	m_Zoom		= 1.0;
-}
-
-//---------------------------------------------------------
-CACTIVE_Legend::~CACTIVE_Legend(void)
-{
 }
 
 
@@ -151,6 +155,92 @@ void CACTIVE_Legend::On_Key_Down(wxKeyEvent &event)
 	event.Skip();
 }
 
+//---------------------------------------------------------
+void CACTIVE_Legend::On_Mouse_RDown(wxMouseEvent &event)
+{
+	if( !m_pItem || !m_pItem->GetId().IsOk() )
+	{
+		return;
+	}
+
+	wxMenu	Menu(LNG("Legend"));
+
+	CMD_Menu_Add_Item(&Menu, false, m_pItem->Get_Type() == WKSP_ITEM_Map ? ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND : ID_CMD_DATA_LEGEND_COPY);
+	Menu.AppendSeparator();
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_LEGEND_SIZE_INC);
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_LEGEND_SIZE_DEC);
+
+	PopupMenu(&Menu, event.GetPosition());
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+#include <wx/clipbrd.h>
+
+void CACTIVE_Legend::On_Copy(wxCommandEvent &event)
+{
+	if( !m_pItem || !m_pItem->GetId().IsOk() )
+	{
+		return;
+	}
+
+	if( event.GetId() == ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND )
+	{
+		((CWKSP_Map   *)m_pItem)->SaveAs_Image_Clipboard(true);
+
+		return;
+	}
+
+	if(	m_pItem->Get_Type() != WKSP_ITEM_Grid
+	&&	m_pItem->Get_Type() != WKSP_ITEM_Shapes
+	&&	m_pItem->Get_Type() != WKSP_ITEM_TIN
+	&&	m_pItem->Get_Type() != WKSP_ITEM_PointCloud )
+	{
+		return;
+	}
+
+	wxPoint		p(5, 5);
+	wxSize		s(0, 0);
+	wxBitmap	BMP;
+	wxMemoryDC	dc;
+	
+	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s, (m_Layout & LEGEND_LAYOUT_VERTICAL) != 0);
+
+	BMP.Create(s.GetWidth() + p.x, s.GetHeight(), + p.y);
+	dc.SelectObject(BMP);
+	dc.SetBackground(*wxWHITE_BRUSH);
+	dc.Clear();
+
+	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, NULL, (m_Layout & LEGEND_LAYOUT_VERTICAL) != 0);
+
+	dc.SelectObject(wxNullBitmap);
+
+	if( wxTheClipboard->Open() )
+	{
+		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		pBMP->SetBitmap(BMP);
+		wxTheClipboard->SetData(pBMP);
+		wxTheClipboard->Close();
+	}
+}
+
+//---------------------------------------------------------
+void CACTIVE_Legend::On_Size_Inc(wxCommandEvent &event)
+{
+	m_Zoom	*= 1.25;
+
+	Refresh();
+}
+
+//---------------------------------------------------------
+void CACTIVE_Legend::On_Size_Dec(wxCommandEvent &event)
+{
+	m_Zoom	/= 1.25;
+
+	Refresh();
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -179,7 +269,7 @@ void CACTIVE_Legend::OnDraw(wxDC &dc)
 			break;
 
 		case WKSP_ITEM_Map:
-			((CWKSP_Map   *)m_pItem)->Draw_Legend(dc, m_Zoom, 1.0, p, &s, m_Layout);
+			((CWKSP_Map   *)m_pItem)->Draw_Legend(dc, 1.0, m_Zoom, p, &s, m_Layout);
 			break;
 		}
 	}

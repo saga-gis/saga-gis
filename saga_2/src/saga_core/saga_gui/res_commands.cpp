@@ -123,6 +123,10 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( LNG("[CMD] Add Project") );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( LNG("[CMD] Save Project") );
 	case ID_CMD_DATA_PROJECT_SAVE_AS:	return( LNG("[CMD] Save Project As...") );
+	case ID_CMD_DATA_LEGEND_COPY:		return( LNG("[CMD] Copy Legend to Clipboard...") );
+	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( LNG("[CMD] Increase Legend Size") );
+	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( LNG("[CMD] Decrease Legend Size") );
+	case ID_CMD_DATA_HISTORY_CLEAR:		return( LNG("[CMD] Clear History") );
 
 	case ID_CMD_GRIDS_OPEN:				return( LNG("[CMD] Load Grid") );
 	case ID_CMD_GRIDS_SAVE:				return( LNG("[CMD] Save Grid") );
@@ -179,8 +183,8 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:	return( LNG("[CMD] Save As Image when changed") );
 	case ID_CMD_MAP_SAVE_IMAGE:
 	case ID_CMD_MAPS_SAVE_IMAGE:		return( LNG("[CMD] Save As Image...") );
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:	return( LNG("[CMD] Save to Clipboard [Ctrl+C]") );
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( LNG("[CMD] Save Legend to Clipboard [Ctrl+L]") );
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( LNG("[CMD] Copy Map to Clipboard [Ctrl+C]") );
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( LNG("[CMD] Copy Legend to Clipboard [Ctrl+L]") );
 	case ID_CMD_MAP_SYNCHRONIZE:
 	case ID_CMD_MAPS_SYNCHRONIZE:		return( LNG("[CMD] Synchronise Map Extents") );
 
@@ -318,9 +322,9 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAPS_3D_SHOW:			return( ID_IMG_TB_MAP_3D_SHOW );
 	case ID_CMD_MAP_LAYOUT_SHOW:		return( ID_IMG_TB_MAP_LAYOUT_SHOW );
 	case ID_CMD_MAPS_LAYOUT_SHOW:		return( ID_IMG_TB_MAP_LAYOUT_SHOW );
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:
-	case ID_CMD_MAPS_SAVE_IMAGE:
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			break;
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	break;
+	case ID_CMD_MAPS_SAVE_IMAGE:				break;
 	case ID_CMD_MAPS_SYNCHRONIZE:		return( ID_IMG_TB_MAP_SYNCHRONIZE );
 	case ID_CMD_MAP_LEGEND_VERTICAL:	return( ID_IMG_TB_MAP_LEGEND_VERTICAL );
 	case ID_CMD_MAP_LEGEND_HORIZONTAL:	return( ID_IMG_TB_MAP_LEGEND_HORIZONTAL );
