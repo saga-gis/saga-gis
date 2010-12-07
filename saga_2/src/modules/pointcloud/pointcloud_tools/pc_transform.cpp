@@ -208,7 +208,7 @@ bool CPC_Transform::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	for (int iPoint=0; iPoint<pIn->Get_Point_Count(); ++iPoint)
+	for (int iPoint=0; iPoint<pIn->Get_Point_Count(); iPoint++)
 	{
 		P	= pIn->Get_Point(iPoint);
 
@@ -221,8 +221,8 @@ bool CPC_Transform::On_Execute(void)
 
 		pOut->Add_Point(Q.x, Q.y, Q.z);
 
-		for (int iField=0; iField<pIn->Get_Attribute_Count(); ++iField)
-			pOut->Set_Attribute(iField, pIn->Get_Attribute(iField));
+		for (int iField=0; iField<pIn->Get_Attribute_Count(); iField++)
+			pOut->Set_Attribute(iPoint, iField, pIn->Get_Attribute(iPoint, iField));
 	}
 
 	//-----------------------------------------------------
