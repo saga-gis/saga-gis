@@ -76,7 +76,6 @@ class CGrid_Classes_To_Shapes : public CSG_Module_Grid
 {
 public:
 	CGrid_Classes_To_Shapes(void);
-	virtual ~CGrid_Classes_To_Shapes(void);
 
 
 protected:
@@ -86,19 +85,17 @@ protected:
 
 private:
 
-	CSG_Grid				*m_pGrid, m_Edge;
+	CSG_Grid				m_Classes, m_Edges;
 
-	CSG_Shape				*m_pShape;
+	CSG_Shapes				*m_pPolygons;
 
 
-	bool					Split_Polygons	(CSG_Shapes *pShapes, double Value, const CSG_String &ID);
+	bool					Get_Classes		(void);
 
-	bool					Get_Class		(double Value);
+	bool					Get_Edges		(void);
+	bool					Get_Edge		(int x, int y, int i, int Class);
 
-	void					Get_Square		(int x, int y);
-
-	bool					Get_Polygons	(void);
-	void					Get_Polygon		(int x, int y, int iPart);
+	bool					Split_Polygons	(void);
 
 };
 
