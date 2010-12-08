@@ -72,27 +72,35 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSegment
+class CGrid_Segmentation : public CSG_Module_Grid
 {
 public:
-	CSegment(int Segment, double Value, int xSeed, int ySeed);
-	~CSegment(void);
+	CGrid_Segmentation(void);
 
-	int					Get_Segment(int jSegment);
-	void				Set_Segment(int jSegment, int jConnect);
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Segmentation") );	}
 
-	double				Get_Value(void)	{	return( Value );	}
-	int					Get_xSeed(void)	{	return( xSeed );	}
-	int					Get_ySeed(void)	{	return( ySeed );	}
+
+protected:
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	int					iSegment, xSeed, ySeed,
-						nConnects, maxConnects,
-						*Connect, *Segment;
+	bool						m_bDown;
 
-	double				Value;
+	CSG_Grid					*m_pGrid, *m_pSegments, m_Dir;
+
+	CSG_Shapes					*m_pSeeds;
+
+
+	bool						Get_Seeds				(void);
+
+	bool						Get_Segments			(void);
+	bool						Segment_Change			(int ID, int new_ID);
+
+	bool						Get_Borders				(void);
+
 };
 
 
@@ -103,39 +111,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Segmentation : public CSG_Module_Grid
-{
-public:
-	CGrid_Segmentation(void);
-	virtual ~CGrid_Segmentation(void);
-
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Segmentation") );	}
-
-
-protected:
-
-	virtual bool		On_Execute(void);
-
-
-private:
-
-	int					nSegments;
-
-	CSG_Grid				*pGrid, *pSegments;
-
-	CSegment			**Segments;
-
-
-	void				Do_Grid_Segmentation(double Threshold);
-
-	bool				Get_Initials(void);
-	void				Get_Junctions(void);
-
-	void				Segment_Change(int iFrom, int iTo);
-	bool				Segment_Change(int iFrom, int iTo, int x, int y);
-
-	void				UnPrepareNoBorders(void);
-	void				UnPrepareBorders(void);
-};
-
 #endif // #ifndef HEADER_INCLUDED__Grid_Segmentation_H

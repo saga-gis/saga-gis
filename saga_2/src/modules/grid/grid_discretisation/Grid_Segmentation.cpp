@@ -63,59 +63,19 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						CSegment						 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSegment::CSegment(int aSegment, double aValue, int axSeed, int aySeed)
+enum
 {
-	iSegment		= aSegment;
-	Value			= aValue;
-	xSeed			= axSeed;
-	ySeed			= aySeed;
-
-	nConnects		= 0;
-	maxConnects		= 10;
-
-	Connect			= (int *)SG_Malloc(maxConnects * sizeof(int));
-	Segment			= (int *)SG_Malloc(maxConnects * sizeof(int));
-}
-
-//---------------------------------------------------------
-CSegment::~CSegment(void)
-{
-	SG_Free(Connect);
-	SG_Free(Segment);
-}
-
-//---------------------------------------------------------
-inline int CSegment::Get_Segment(int jSegment)
-{
-	int		i;
-
-	for(i=0; i<nConnects; i++)
-		if( Segment[i] == jSegment )
-			return( Connect[i] );
-
-	return(0);
-}
-
-//---------------------------------------------------------
-inline void CSegment::Set_Segment(int jSegment, int jConnect)
-{
-	if( nConnects >= maxConnects )
-	{
-		maxConnects		+= 10;
-		Connect			= (int *)SG_Realloc(Connect,maxConnects * sizeof(int));
-		Segment			= (int *)SG_Realloc(Segment,maxConnects * sizeof(int));
-	}
-
-	Connect[nConnects]	= jConnect;
-	Segment[nConnects]	= jSegment;
-
-	nConnects++;
-}
+	SEED_X	= 0,
+	SEED_Y,
+	SEED_Z,
+	SEED_ID,
+	SEED_JOIN
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -127,55 +87,45 @@ inline void CSegment::Set_Segment(int jSegment, int jConnect)
 //---------------------------------------------------------
 CGrid_Segmentation::CGrid_Segmentation(void)
 {
+	CSG_Parameter	*pNode;
+
 	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Watershed Segmentation"));
 
-	Set_Name		(_TL("Grid Segmentation"));
-
-	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2002"));
 
 	Set_Description	(_TW(
-		"Segmentation with the local maximum method.\n"
+		"Watershed segmentation."
 	));
 
 
 	//-----------------------------------------------------
-	// 2. Grids...
-
 	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Grid"),
+		NULL	, "GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Segments"),
+	pNode	= Parameters.Add_Grid(
+		NULL	, "SEGMENTS"	, _TL("Segments"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Shapes(
+		NULL	, "SEEDS"		, _TL("Seed Points"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Grid_Output(
+		NULL	, "BORDERS"		, _TL("Borders"),
+		_TL("")
+	);
 
 	//-----------------------------------------------------
-	// 3. General Parameters...
-
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
-		_TL("Choose if you want to segmentate either on minima or on maxima."),
-
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Minima"),
-			_TL("Maxima")
-		), 0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "BORDERS"		, _TL("Borders"),
-		_TL("Keep the borders between segments as special values."),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	Parameters.Add_Choice(
-		Parameters("RESULT"), "OUTPUT_TYPE", _TL("Output"),
+		pNode	, "OUTPUT"		, _TL("Output"),
 		_TL("The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id."),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Seed Value"),
@@ -183,16 +133,43 @@ CGrid_Segmentation::CGrid_Segmentation(void)
 		), 1
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "DOWN"		, _TL("Method"),
+		_TL("Choose if you want to segmentate either on minima or on maxima."),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Minima"),
+			_TL("Maxima")
+		), 1
+	);
+
+	pNode	= Parameters.Add_Choice(
+		NULL	, "JOIN"		, _TL("Join Segments based on Threshold Value"),
+		_TL("Join segments based on threshold value."),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("do not join"),
+			_TL("seed to saddle difference"),
+			_TL("seeds difference")
+		), 0
+	);
+
 	Parameters.Add_Value(
-		NULL	, "THRESHOLD"	, _TL("Threshold"),
+		pNode	, "THRESHOLD"	, _TL("Threshold"),
 		_TL("Specify a threshold value as minimum difference between neighboured segments."),
-		PARAMETER_TYPE_Double
+		PARAMETER_TYPE_Double, 0.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "EDGE"		, _TL("Allow Edge Pixels to be Seeds"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BBORDERS"	, _TL("Borders"),
+		_TL("Create borders between segments as new grid."),
+		PARAMETER_TYPE_Bool, false
 	);
 }
-
-//---------------------------------------------------------
-CGrid_Segmentation::~CGrid_Segmentation(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -204,64 +181,64 @@ CGrid_Segmentation::~CGrid_Segmentation(void)
 //---------------------------------------------------------
 bool CGrid_Segmentation::On_Execute(void)
 {
-	bool	bDown, bBorder, bWriteID;
-
-	int		x, y;
-
-	double	Threshold;
+	//-----------------------------------------------------
+	m_pGrid		= Parameters("GRID")		->asGrid();
+	m_pSeeds	= Parameters("SEEDS")		->asShapes();
+	m_pSegments	= Parameters("SEGMENTS")	->asGrid();
+	m_bDown		= Parameters("DOWN")		->asInt() == 1;
 
 	//-----------------------------------------------------
-	pGrid		= Parameters("INPUT")->asGrid();
-	pSegments	= Parameters("RESULT")->asGrid();
+	m_pSeeds->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), m_pGrid->Get_Name(), _TL("Seeds")));
 
-	bDown		= Parameters("METHOD")->asInt() == 1;
-	bBorder		= Parameters("BORDERS")->asBool();
-	bWriteID	= Parameters("OUTPUT_TYPE")->asInt() == 1;
-	Threshold	= Parameters("THRESHOLD")->asDouble();
+	m_pSeeds->Add_Field(SG_T("XCELL")	, SG_DATATYPE_Int);		// SEED_X
+	m_pSeeds->Add_Field(SG_T("YCELL")	, SG_DATATYPE_Int);		// SEED_Y
+	m_pSeeds->Add_Field(SG_T("VALUE")	, SG_DATATYPE_Double);	// SEED_Z
+	m_pSeeds->Add_Field(SG_T("ID")		, SG_DATATYPE_Int);		// SEED_ID
+	m_pSeeds->Add_Field(SG_T("ID_JOIN")	, SG_DATATYPE_Int);		// SEED_JOIN
 
 	//-----------------------------------------------------
-	if( !bDown )
+	m_pSegments->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pGrid->Get_Name(), _TL("Segments")));
+	m_pSegments->Set_NoData_Value(-999999.0);
+
+	m_Dir.Create(*Get_System(), SG_DATATYPE_Char);
+
+	//-----------------------------------------------------
+	if( !Get_Seeds() )
 	{
-		pGrid->Invert();
+		Message_Add(_TL("no seed points identified"));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	pSegments->Assign();
+	Get_Segments();
 
 	//-----------------------------------------------------
-	Do_Grid_Segmentation( Threshold );
-
-	//-----------------------------------------------------
-	if( bBorder )
-		UnPrepareBorders();
-	else
-		UnPrepareNoBorders();
-
-	//-----------------------------------------------------
-	if( Segments )
+	if( Parameters("OUTPUT")->asInt() == 0 )
 	{
-		if( !bWriteID )
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			for(y=0; y<Get_NY(); y++)
-				for(x=0; x<Get_NX(); x++)
-					if( pSegments->asInt(x,y) > 0 )
-						pSegments->Set_Value(x,y, Segments[pSegments->asInt(x,y)-1]->Get_Value() );
+			for(int x=0; x<Get_NX(); x++)
+			{
+				int	ID	= m_pSegments->asInt(x, y);
+
+				if( ID >= 0 )
+				{
+					m_pSegments->Set_Value(x, y, m_pSeeds->Get_Shape(ID)->asDouble(SEED_Z));
+				}
+			}
 		}
-
-		for(y=0; y<nSegments; y++)
-			delete(Segments[y]);
-
-		SG_Free(Segments);
 	}
 
 	//-----------------------------------------------------
-	if( !bDown )
+	if( Parameters("BBORDERS")->asBool() )
 	{
-		pGrid->Invert();
-		pGrid->Set_Index(false);
+		Get_Borders();
 	}
 
 	//-----------------------------------------------------
+	m_Dir.Destroy();
+
 	return( true );
 }
 
@@ -273,185 +250,70 @@ bool CGrid_Segmentation::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Segmentation::Do_Grid_Segmentation(double Threshold)
+bool CGrid_Segmentation::Get_Seeds(void)
 {
-	int		x, y, i,
-			iConnect, nConnects,
-			SegmentA, SegmentB;
+	Process_Set_Text(_TL("Seeds"));
 
-	long	n;
-
-	double	aVal, bVal;
+	bool	bEdge, bEdge_Seeds;
+	int		x, y, i, ix, iy, iMax;
+	double	z, dz, dzMax;
 
 	//-----------------------------------------------------
-	if( Get_Initials() )
-	{
-		nConnects	= -2;
-
-		for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
-		{
-			pGrid->Get_Sorted(n,x,y);
-
-			if( !Get_System()->is_InGrid(x, y, 1) )
-			{
-				pSegments->Set_Value(x,y,-1);
-			}
-			else if(pSegments->asInt(x,y) <= 0)
-			{
-				iConnect	= 0;
-				SegmentB	= 0;
-
-				for(i=0; i<8; i++)
-				{
-					SegmentA	= pSegments->asInt(Get_System()->Get_xTo(i,x),Get_System()->Get_yTo(i,y));
-
-					if( SegmentA >0 )	// <0=Border, 0=noch undefined, >0=iSegment
-					{
-						if( SegmentB == 0 )
-						{
-							SegmentB	= SegmentA;
-						}
-						else if( SegmentB != SegmentA )
-						{
-							iConnect	= Segments[SegmentA-1]->Get_Segment(SegmentB);
-
-							if( iConnect==0 )
-							{
-								aVal	= Segments[SegmentA-1]->Get_Value();
-								bVal	= Segments[SegmentB-1]->Get_Value();
-
-								if( fabs(aVal - bVal) < Threshold)
-								{
-									if( aVal < bVal )
-									{
-										Segment_Change(SegmentA,SegmentB);
-									}
-									else
-									{
-										Segment_Change(SegmentB,SegmentA);
-										SegmentB	= SegmentA;
-									}
-								}
-								else
-								{
-									iConnect	= nConnects--;
-									Segments[SegmentA-1]->Set_Segment(SegmentA,iConnect);
-									Segments[SegmentB-1]->Set_Segment(SegmentB,iConnect);
-								}
-							}
-
-							break;
-						}
-					}
-				}
-
-				pSegments->Set_Value(x,y, iConnect ? iConnect : SegmentB);
-			}
-		}
-
-		Get_Junctions();
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGrid_Segmentation::Get_Initials(void)
-{
-	bool	bSegment;
-	int		x, y, ix, iy, i;
-	long	n;
-	double	d;
-
-	nSegments	= 0;
-	Segments	= NULL;
-
-	//-----------------------------------------------------
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
-	{
-		pGrid->Get_Sorted(n,x,y);
-
-		if( Get_System()->is_InGrid(x,y,1) )
-		{
-			d			= pGrid->asDouble(x,y);
-			bSegment	= true;
-
-			for(i=0; i<8; i++)
-			{
-				ix	= Get_System()->Get_xTo(i,x);
-				iy	= Get_System()->Get_yTo(i,y);
-
-				if( Get_System()->is_InGrid(ix,iy,1) )
-				{
-					if( d < pGrid->asDouble(ix,iy) )
-						bSegment	= false;
-				}
-			}
-
-			//---------------------------------------------
-			if( bSegment )
-			{
-				nSegments++;
-				pSegments->Set_Value(x,y, nSegments);
-				Segments				= (CSegment **)SG_Realloc(Segments,nSegments * sizeof(CSegment *));
-				Segments[nSegments-1]	= (CSegment  *)new CSegment(nSegments,d,x,y);
-			}
-		}
-	}
-
-	return( nSegments > 1 );
-}
-
-//---------------------------------------------------------
-void CGrid_Segmentation::Get_Junctions(void)
-{
-	int		x, y, ix, iy, i,
-			p, p1, p2;
+	bEdge_Seeds	= Parameters("EDGE")	->asBool();
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( pSegments->asInt(x,y) < 0 )
+			if( !m_pGrid->is_InGrid(x, y) )
 			{
-				p1	= p2	= 0;
-
-				for(i=0; i<8; i++)
+				m_Dir.Set_Value(x, y, -1);
+				m_pSegments->Set_NoData(x, y);
+			}
+			else
+			{
+				for(i=0, iMax=-1, dzMax=0.0, z=m_pGrid->asDouble(x, y), bEdge=false; i<8; i++)
 				{
-					ix	= Get_System()->Get_xTo(i,x);
-					iy	= Get_System()->Get_yTo(i,y);
-
-					p	= !Get_System()->is_InGrid(ix,iy) ? 1 : pSegments->asInt(ix,iy);
-
-					if( p > 0 )
+					if( !m_pGrid->is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
 					{
-						if(!p1)
-						{
-							p1	= p;
-						}
-						else if(p1!=p)
-						{
-							if(!p2)
-							{
-								p2	= p;
-							}
-							else if(p2!=p)
-							{
-								pSegments->Set_Value(x,y,-1);
-								break;
-							}
-						}
+						bEdge	= true;
 					}
+					else if( dzMax < (dz = (m_bDown ? m_pGrid->asDouble(ix, iy) - z : z - m_pGrid->asDouble(ix, iy)) / Get_Length(i)) )
+					{
+						dzMax	= dz;
+						iMax	= i;
+					}
+				}
+
+				//---------------------------------------------
+				m_Dir.Set_Value(x, y, iMax);
+
+				if( iMax < 0 && (bEdge_Seeds || !bEdge) )
+				{
+					int			ID	= m_pSeeds->Get_Count();
+
+					CSG_Shape	*pSeed	= m_pSeeds->Add_Shape();
+
+					pSeed->Set_Point(Get_System()->Get_Grid_to_World(x, y), 0);
+
+					pSeed->Set_Value(SEED_X		, x);
+					pSeed->Set_Value(SEED_Y		, y);
+					pSeed->Set_Value(SEED_Z		, z);
+					pSeed->Set_Value(SEED_ID	, ID);
+					pSeed->Set_Value(SEED_JOIN	, -1);
+				
+					m_pSegments->Set_Value(x, y, ID);
+				}
+				else
+				{
+					m_pSegments->Set_Value(x, y, -1);
 				}
 			}
 		}
 	}
+
+	return( m_pSeeds->Get_Count() > 1 );
 }
 
 
@@ -462,59 +324,138 @@ void CGrid_Segmentation::Get_Junctions(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Segmentation::Segment_Change(int iFrom, int iTo)
+bool CGrid_Segmentation::Get_Segments(void)
 {
-	bool	bContinue;
-	int		ax, ay, bx, by, x, y;
+	Process_Set_Text(_TL("Segments"));
+
+	double	Threshold	= Parameters("THRESHOLD")->asDouble();
+	int		Join		= Threshold > 0.0 ? Parameters("JOIN")->asInt() : 0;
 
 	//-----------------------------------------------------
-	ax	= bx	= Segments[iFrom-1]->Get_xSeed();
-	ay	= by	= Segments[iFrom-1]->Get_ySeed();
+	for(int n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)	
+	{
+		int		x, y, i, ID, iID;
+
+		if( m_pGrid->Get_Sorted(n, x, y, m_bDown) && (i = m_Dir.asInt(x, y)) >= 0 )
+		{
+			m_pSegments->Set_Value(x, y, ID = m_pSegments->asInt(Get_xTo(i, x), Get_yTo(i, y)));
+
+			if( Join != 0 && ID >= 0 )
+			{
+				double	z	= m_pGrid->asDouble(x, y);
+
+				for(int i=0; i<8; i++)
+				{
+					int	ix	= Get_xTo(i, x);
+					int	iy	= Get_yTo(i, y);
+
+					if( m_pSegments->is_InGrid(ix, iy) && (iID = m_pSegments->asInt(ix, iy)) >= 0 )	// Border < 0, Segment >= 0
+					{
+						if( ID != iID )
+						{
+							bool	bJoin;
+
+							if( Join == 1 )
+							{
+								bJoin	=  (Threshold >= fabs(m_pSeeds->Get_Shape(iID)->asDouble(SEED_Z) - z))
+										|| (Threshold >= fabs(m_pSeeds->Get_Shape( ID)->asDouble(SEED_Z) - z));
+							}
+							else
+							{
+								bJoin	=  Threshold >= fabs(m_pSeeds->Get_Shape(iID)->asDouble(SEED_Z) - m_pSeeds->Get_Shape(ID)->asDouble(SEED_Z));
+							}
+
+							if( bJoin )
+							{
+								if(	(m_bDown == true  && m_pSeeds->Get_Shape(iID)->asDouble(SEED_Z) < m_pSeeds->Get_Shape(ID)->asDouble(SEED_Z))
+								||	(m_bDown == false && m_pSeeds->Get_Shape(iID)->asDouble(SEED_Z) > m_pSeeds->Get_Shape(ID)->asDouble(SEED_Z)) )
+								{
+									Segment_Change(iID, ID);
+								}
+								else
+								{
+									Segment_Change(ID, iID);
+
+									ID	= iID;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Segmentation::Segment_Change(int ID, int new_ID)
+{
+	bool	bContinue;
+	int		ax, ay, bx, by;
+
+	//-----------------------------------------------------
+	CSG_Shape	*pSeed	= m_pSeeds->Get_Shape(ID);
+
+	pSeed->Set_Value(SEED_JOIN, new_ID);
+
+	ax	= bx	= pSeed->asInt(SEED_X);
+	ay	= by	= pSeed->asInt(SEED_Y);
 
 	do
 	{
 		bContinue	= false;
 
-		for(x=ax; x<=bx; x++)
+		for(int x=ax; x<=bx; x++)
 		{
-			if(Segment_Change(x,ay,iFrom,iTo))
-				bContinue		= true;
+			if( m_pSegments->asInt( x, ay) == ID )
+			{
+				m_pSegments->Set_Value( x, ay, new_ID);
 
-			if(Segment_Change(x,by,iFrom,iTo))
-				bContinue		= true;
+				bContinue	= true;
+			}
+
+			if( m_pSegments->asInt( x, by) == ID )
+			{
+				m_pSegments->Set_Value( x, by, new_ID);
+
+				bContinue	= true;
+			}
 		}
 
-		for(y=ay; y<=by; y++)
+		for(int y=ay; y<=by; y++)
 		{
-			if(Segment_Change(ax,y,iFrom,iTo))
-				bContinue		= true;
+			if( m_pSegments->asInt(ax,  y) == ID )
+			{
+				m_pSegments->Set_Value(ax,  y, new_ID);
 
-			if(Segment_Change(bx,y,iFrom,iTo))
-				bContinue		= true;
+				bContinue	= true;
+			}
+
+			if( m_pSegments->asInt(bx,  y) == ID )
+			{
+				m_pSegments->Set_Value(bx,  y, new_ID);
+
+				bContinue	= true;
+			}
 		}
 
-		if(ax>0)
-			ax--;
-		if(ay>0)
-			ay--;
-		if(bx<Get_NX()-1)
-			bx++;
-		if(by<Get_NY()-1)
-			by++;
+		if( ax > 0 )			ax--;
+		if( ay > 0 )			ay--;
+		if( bx < Get_NX() - 1 )	bx++;
+		if( by < Get_NY() - 1 )	by++;
 	}
 	while( bContinue );
-}
 
-//---------------------------------------------------------
-inline bool CGrid_Segmentation::Segment_Change(int x, int y, int iFrom, int iTo)
-{
-	if( pSegments->asInt(x,y) == iFrom )
-	{
-		pSegments->Set_Value(x,y,iTo);
-		return( true );
-	}
-
-	return( false );
+	return( true );
 }
 
 
@@ -525,89 +466,47 @@ inline bool CGrid_Segmentation::Segment_Change(int x, int y, int iFrom, int iTo)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Segmentation::UnPrepareNoBorders(void)
+bool CGrid_Segmentation::Get_Borders(void)
 {
-	bool	bRepeat, bRoger;
-	int		x, y, i, ix, iy, nRepeats;
+	Process_Set_Text(_TL("Borders"));
 
-	nRepeats	= 0;
+	CSG_Grid	*pBorders	= SG_Create_Grid(SG_DATATYPE_Byte, Get_NX() + 2, Get_NY() + 2, Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
 
-	do
+	pBorders->Set_NoData_Value(0);
+
+	Parameters("BORDERS")->Set_Value(pBorders);
+
+	for(int y=0, yy=1; yy<Get_NY() && Set_Progress(yy); y++, yy++)
 	{
-		bRepeat	= false;
-
-		for(y=0; y<Get_NY(); y++)
+		for(int x=0, xx=1; xx<Get_NX(); x++, xx++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			int		id	= m_pSegments->asInt(x, y);
+
+			if( id != m_pSegments->asInt(xx,  y) )
 			{
-				if( pSegments->asInt(x,y) < 0 )
-				{
-					bRoger	= false;
+				pBorders->Set_Value(xx,  y, 1);
+			}
 
-					for(i=0; i<8; i++)
-					{
-						ix	= Get_System()->Get_xTo(i,x);
-						iy	= Get_System()->Get_yTo(i,y);
+			if( id != m_pSegments->asInt( x, yy) )
+			{
+				pBorders->Set_Value( x, yy, 1);
+			}
 
-						if(Get_System()->is_InGrid(ix,iy))
-						{
-							if( pSegments->asInt(ix,iy) > 0 )
-							{
-								pSegments->Set_Value(x,y,pSegments->asInt(ix,iy));
-								bRoger	= true;
-								break;
-							}
-						}
-					}
-
-					if(!bRoger)
-						bRepeat	= true;
-				}
+			if( id != m_pSegments->asInt(xx, yy) )
+			{
+				pBorders->Set_Value(xx, yy, 1);
 			}
 		}
 	}
-	while( bRepeat && nRepeats++ < 10 );
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Segmentation::UnPrepareBorders(void)
-{
-	bool	bKill;
-	int		x, y, i, ix, iy, z;
-
-	for(y=0; y<Get_NY(); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( pSegments->asInt(x,y) < 0 )
-			{
-				z		= -1;
-				bKill	= true;
-
-				for(i=0; i<8; i++)
-				{
-					ix	= Get_System()->Get_xTo(i,x);
-					iy	= Get_System()->Get_yTo(i,y);
-
-					if( Get_System()->is_InGrid(ix,iy) )
-					{
-						if( pSegments->asInt(ix,iy) > 0 )
-						{
-							if( z < 0 )
-							{
-								z	= pSegments->asInt(ix,iy);
-							}
-							else if( z != pSegments->asInt(ix,iy) )
-							{
-								bKill	= false;
-								break;
-							}
-						}
-					}
-				}
-
-				pSegments->Set_Value(x,y, z > 0 && bKill ? z : -1);
-			}
-		}
-	}
-}
