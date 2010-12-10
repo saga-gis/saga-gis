@@ -94,10 +94,9 @@ const SG_Char * Get_Info(int i)
 #include "Grid_Classify_Supervised.h"
 #include "Grid_Cluster_Analysis.h"
 #include "Grid_Segmentation.h"
-#include "Grid_FastSegments.h"
 #include "Grid_Skeletonize.h"
-#include "rga_basic.h"
 #include "grid_seeds.h"
+#include "rga_basic.h"
 
 
 //---------------------------------------------------------
@@ -110,10 +109,9 @@ CSG_Module *		Create_Module(int i)
 	case  0:	return( new CGrid_Classify_Supervised );
 	case  1:	return( new CGrid_Cluster_Analysis );
 	case  2:	return( new CGrid_Segmentation );
-	case  3:	return( new CGrid_FastSegments );
-	case  4:	return( new CGrid_Skeletonize );
+	case  3:	return( new CGrid_Skeletonize );
+	case  4:	return( new CGrid_Seeds );
 	case  5:	return( new CRGA_Basic );
-	case  6:	return( new CGrid_Seeds );
 	}
 
 	return( NULL );

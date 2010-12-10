@@ -560,7 +560,6 @@
   <ItemGroup>
     <ClCompile Include="Grid_Classify_Supervised.cpp" />
     <ClCompile Include="Grid_Cluster_Analysis.cpp" />
-    <ClCompile Include="Grid_FastSegments.cpp" />
     <ClCompile Include="grid_seeds.cpp" />
     <ClCompile Include="Grid_Segmentation.cpp" />
     <ClCompile Include="Grid_Skeletonize.cpp" />
@@ -593,7 +592,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="Grid_Classify_Supervised.h" />
     <ClInclude Include="Grid_Cluster_Analysis.h" />
-    <ClInclude Include="Grid_FastSegments.h" />
     <ClInclude Include="grid_seeds.h" />
     <ClInclude Include="Grid_Segmentation.h" />
     <ClInclude Include="Grid_Skeletonize.h" />

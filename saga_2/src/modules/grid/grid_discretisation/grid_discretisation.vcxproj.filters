@@ -23,9 +23,6 @@
     <ClCompile Include="Grid_Cluster_Analysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Grid_FastSegments.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="grid_seeds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -98,9 +95,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Grid_Cluster_Analysis.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Grid_FastSegments.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_seeds.h">

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.11 2010-07-13 16:08:11 oconrad Exp $
+# $Id: Makefile.am,v 1.12 2010-12-10 10:56:55 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -15,7 +15,6 @@ pkglib_LTLIBRARIES = libgrid_discretisation.la
 libgrid_discretisation_la_SOURCES =\
 Grid_Classify_Supervised.cpp\
 Grid_Cluster_Analysis.cpp\
-Grid_FastSegments.cpp\
 Grid_Segmentation.cpp\
 Grid_Skeletonize.cpp\
 grid_seeds.cpp\
@@ -23,7 +22,6 @@ MLB_Interface.cpp\
 rga_basic.cpp\
 Grid_Classify_Supervised.h\
 Grid_Cluster_Analysis.h\
-Grid_FastSegments.h\
 Grid_Segmentation.h\
 Grid_Skeletonize.h\
 grid_seeds.h\
