@@ -117,7 +117,7 @@ public:
 
 private:
 
-	int								m_Method, m_xField, m_yField;
+	int								m_Method, m_maxSamples, m_xField, m_yField;
 
 	CSG_Grid						*m_pGrid_X, *m_pGrid_Y;
 
@@ -135,14 +135,9 @@ private:
 	void							_On_Construction			(void);
 
 	bool							_Initialize					(void);
-
-	bool							_Initialize_Grids			(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y);
-	bool							_Initialize_Grid_Equal		(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y);
-	bool							_Initialize_Grid_Unequal	(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y);
-
-	bool							_Initialize_Shapes			(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, int Field);
-
-	bool							_Initialize_Table			(CSG_Table *pTable, int Field_X, int Field_Y);
+	bool							_Initialize_Grids			(void);
+	bool							_Initialize_Shapes			(void);
+	bool							_Initialize_Table			(void);
 
 	wxRect							_Draw_Get_rDiagram			(wxRect r);
 	void							_Draw_Image					(wxDC &dc, wxRect r, double dx, double dy);
