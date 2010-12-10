@@ -99,6 +99,8 @@ const SG_Char * Get_Info(int i)
 #include "FilterClumps.h"
 #include "Filter_Majority.h"
 #include "Filter_Terrain_SlopeBased.h"
+#include "Filter_Morphology.h"
+#include "Filter_Rank.h"
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -115,6 +117,8 @@ CSG_Module *		Create_Module(int i)
 	case  5:	return( new CFilterClumps );
 	case  6:	return( new CFilter_Majority );
 	case  7:	return( new CFilter_Terrain_SlopeBased );
+	case  8:	return( new CFilter_Morphology );
+	case  9:	return( new CFilter_Rank );
 	}
 
 	return( NULL );
