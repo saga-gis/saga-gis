@@ -635,6 +635,8 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 		case SG_DATATYPE_Double:	*((double *)pPoint)	= (double)Value;	break;
 		}
 
+		m_Field_Stats[iField]->Invalidate();
+
 		return( true );
 	}
 
