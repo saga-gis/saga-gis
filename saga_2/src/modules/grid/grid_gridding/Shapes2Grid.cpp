@@ -106,9 +106,20 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	pNode_0	= Parameters.Add_Choice(
+		NULL	, "MULTIPLE"	, _TL("Method for Multiple Values"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("first"),
+			_TL("last"),
+			_TL("minimum"),
+			_TL("maximum"),
+			_TL("mean")
+		), 1
+	);
+
+	pNode_0	= Parameters.Add_Choice(
 		NULL	, "LINE_TYPE"	, _TL("Method for Lines"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("thin"),
 			_TL("thick")
@@ -139,6 +150,14 @@ CShapes2Grid::CShapes2Grid(void)
 
 	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
 	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+
+	m_Grid_Target.Add_Grid_Parameter(SG_T("COUNT"), _TL("Number of Values"), true);
+
+	Get_Parameters("USER")->Add_Value(
+		NULL	, "BCOUNT"		, _TL("Number of Values"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -186,11 +205,12 @@ TSG_Data_Type CShapes2Grid::Get_Grid_Type(int iType)
 //---------------------------------------------------------
 bool CShapes2Grid::On_Execute(void)
 {
-	int		iField, iShape, iType;
+	int		iField, iType;
 
 	//-----------------------------------------------------
 	m_pShapes		= Parameters("INPUT")		->asShapes();
 	m_Method_Lines	= Parameters("LINE_TYPE")	->asInt();
+	m_Method_Multi	= Parameters("MULTIPLE")	->asInt();
 	iField			= Parameters("FIELD")		->asInt();
 	iType			= Parameters("GRID_TYPE")	->asInt();
 
@@ -203,20 +223,23 @@ bool CShapes2Grid::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_pGrid		= NULL;
+	m_pCount	= NULL;
 
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
 		if( m_Grid_Target.Init_User(m_pShapes->Get_Extent()) && Dlg_Parameters("USER") )
 		{
-			m_pGrid	= m_Grid_Target.Get_User(Get_Grid_Type(iType));
+			m_pGrid		= m_Grid_Target.Get_User(Get_Grid_Type(iType));
+			m_pCount	= Get_Parameters("USER")->Get_Parameter("BCOUNT")->asBool() ? m_Grid_Target.Get_User(SG_T("COUNT")) : NULL;
 		}
 		break;
 
 	case 1:	// grid...
 		if( Dlg_Parameters("GRID") )
 		{
-			m_pGrid	= m_Grid_Target.Get_Grid(Get_Grid_Type(iType));
+			m_pGrid		= m_Grid_Target.Get_Grid(Get_Grid_Type(iType));
+			m_pCount	= m_Grid_Target.Get_Grid(SG_T("COUNT"));
 		}
 		break;
 	}
@@ -230,10 +253,19 @@ bool CShapes2Grid::On_Execute(void)
 	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), iField < 0 ? _TL("ID") : m_pShapes->Get_Field_Name(iField)));
 	m_pGrid->Assign_NoData();
 
-	m_pLock	= m_pShapes->Get_Type() == SHAPE_TYPE_Point ? NULL : SG_Create_Grid(m_pGrid, SG_DATATYPE_Byte);
+	if( m_pCount == NULL )
+	{
+		m_Count.Create(m_pGrid->Get_System(), SG_DATATYPE_Int);
+
+		m_pCount	= &m_Count;
+	}
+
+	m_pCount->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), _TL("Count")));
+	m_pCount->Set_NoData_Value(0.0);
+	m_pCount->Assign(0.0);
 
 	//-----------------------------------------------------
-	for(iShape=0, m_Lock_ID=1; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++, m_Lock_ID++)
+	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 
@@ -258,10 +290,22 @@ bool CShapes2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( m_pLock )
+	if( m_Method_Multi == 4 )	// mean
 	{
-		delete(m_pLock);
+		for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
+		{
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
+			{
+				if( m_pCount->asInt(x, y) > 1 )
+				{
+					m_pGrid->Mul_Value(x, y, 1.0 / m_pCount->asDouble(x, y));
+				}
+			}
+		}
 	}
+
+	//-----------------------------------------------------
+	m_Count.Destroy();
 
 	return( true );
 }
@@ -278,26 +322,39 @@ inline void CShapes2Grid::Set_Value(int x, int y)
 {
 	if( m_pGrid->is_InGrid(x, y, false) )
 	{
-		if( m_pLock )
+		if( m_pCount->asInt(x, y) == 0 )
 		{
-			if( m_Lock_ID >= 255 )
-			{
-				m_Lock_ID	= 1;
-
-				m_pLock->Assign(0.0);
-			}
-
-			if( m_pLock->asInt(x, y) != m_Lock_ID )
-			{
-				m_pLock	->Set_Value(x, y, m_Lock_ID);
-
-				m_pGrid	->Set_Value(x, y, m_pGrid->is_NoData(x, y) ? m_Value : (m_Value + m_pGrid->asDouble(x, y)) / 2.0);
-			}
+			m_pGrid->Set_Value(x, y, m_Value);
 		}
-		else
+		else switch( m_Method_Multi )
 		{
-			m_pGrid	->Set_Value(x, y, m_pGrid->is_NoData(x, y) ? m_Value : (m_Value + m_pGrid->asDouble(x, y)) / 2.0);
+		case 0:	// first
+			break;
+
+		case 1:	// last
+			m_pGrid->Set_Value(x, y, m_Value);
+			break;
+
+		case 2:	// minimum
+			if( m_pGrid->asDouble(x, y) > m_Value )
+			{
+				m_pGrid->Set_Value(x, y, m_Value);
+			}
+			break;
+
+		case 3:	// maximum
+			if( m_pGrid->asDouble(x, y) < m_Value )
+			{
+				m_pGrid->Set_Value(x, y, m_Value);
+			}
+			break;
+
+		case 4:	// mean
+			m_pGrid->Add_Value(x, y, m_Value);
+			break;
 		}
+
+		m_pCount->Add_Value(x, y, 1);
 	}
 }
 
