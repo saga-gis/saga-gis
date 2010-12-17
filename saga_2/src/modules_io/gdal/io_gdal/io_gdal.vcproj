@@ -209,7 +209,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy *.lng.txt ..\..\..\..\bin\saga_vc8\modules\"
+
 			/>
 		</Configuration>
 		<Configuration
@@ -598,7 +598,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy *.lng.txt ..\..\..\..\bin\saga_vc8\modules\"
+
 			/>
 		</Configuration>
 		<Configuration
