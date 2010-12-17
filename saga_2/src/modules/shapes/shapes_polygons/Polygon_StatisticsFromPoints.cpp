@@ -228,7 +228,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 			{
 				for(i=0; i<pPoints->Get_Field_Count(); i++)
 				{
-					if( bAttribute[i] )
+					if( bAttribute[i] && !pPoint->is_NoData(i))
 					{
 						Statistics[i].Add_Value(pPoint->asDouble(i));
 					}
