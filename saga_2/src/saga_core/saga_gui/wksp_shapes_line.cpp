@@ -389,7 +389,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 	double			d;
 	TSG_Point_Int	A, B;
 	wxCoord			sx, sy;
-	wxString		s(pShape->asString(m_iLabel, m_Label_Prec));
+	wxString		s(pShape->asString(m_iLabel, m_Label_Prec));	s.Trim(true).Trim(false);
 
 	m_Label_Freq	= 10;
 

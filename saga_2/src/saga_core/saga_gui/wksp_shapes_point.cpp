@@ -512,21 +512,24 @@ void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bo
 void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
+	wxString		s(pShape->asString(m_iLabel, m_Label_Prec));
+
+	s.Trim(true).Trim(false);
 
 	if( m_iLabel_Angle < 0 )
 	{
 		if( m_Label_Angle == 0.0 )
 		{
-			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asString(m_iLabel, m_Label_Prec));
+			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, s);
 		}
 		else
 		{
-			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, m_Label_Angle, pShape->asString(m_iLabel, m_Label_Prec));
+			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, m_Label_Angle, s);
 		}
 	}
 	else
 	{
-		Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asDouble(m_iLabel_Angle), pShape->asString(m_iLabel, m_Label_Prec));
+		Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asDouble(m_iLabel_Angle), s);
 	}
 }
 

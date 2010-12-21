@@ -276,29 +276,23 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, 
 //---------------------------------------------------------
 void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
-	int			iPart;
-	TSG_Point	p;
+	wxString	s(pShape->asString(m_iLabel, m_Label_Prec));	s.Trim(true).Trim(false);
 
 	if( 0 )
 	{
-//		p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
-		p	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
-		p.x	= dc_Map.xWorld2DC(p.x);
-		p.y	= dc_Map.yWorld2DC(p.y);
+		TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, m_Label_Prec));
+		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, s);
 	}
 	else
 	{
-		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
 			if( !((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 			{
-				p	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid(iPart);
-				p.x	= dc_Map.xWorld2DC(p.x);
-				p.y	= dc_Map.yWorld2DC(p.y);
+				TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, m_Label_Prec));
+				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, s);
 			}
 		}
 	}
