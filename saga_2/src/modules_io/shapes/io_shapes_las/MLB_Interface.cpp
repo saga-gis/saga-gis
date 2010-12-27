@@ -89,8 +89,9 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "las_import.h"
 #include "las_export.h"
+#include "las_import.h"
+#include "las_info.h"
 
 
 //---------------------------------------------------------
@@ -100,8 +101,9 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CLAS_Import );
-	case  1:	return( new CLAS_Export );
+	case  0:	return( new CLAS_Export );
+	case  1:	return( new CLAS_Import );
+	case  2:	return( new CLAS_Info );
 	default:	return( NULL );
 	}
 

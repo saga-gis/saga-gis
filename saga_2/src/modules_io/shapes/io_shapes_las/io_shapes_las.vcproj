@@ -695,7 +695,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -792,7 +791,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 	</Configurations>
@@ -809,6 +807,10 @@
 			</File>
 			<File
 				RelativePath=".\las_import.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\las_info.cpp"
 				>
 			</File>
 			<File
@@ -898,6 +900,10 @@
 			</File>
 			<File
 				RelativePath=".\las_import.h"
+				>
+			</File>
+			<File
+				RelativePath=".\las_info.h"
 				>
 			</File>
 			<File
