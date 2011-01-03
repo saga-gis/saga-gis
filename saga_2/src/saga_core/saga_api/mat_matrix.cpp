@@ -60,8 +60,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <memory.h>
-
 #include "mat_tools.h"
 
 
@@ -72,8 +70,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_Matrix_LU_Decomposition	(int n, int *Permutation, double **Matrix, bool bSilent);
-bool		SG_Matrix_LU_Solve			(int n, int *Permutation, double **Matrix, double *Vector, bool bSilent);
+bool		SG_Matrix_LU_Decomposition			(int n, int *Permutation, double **Matrix, bool bSilent);
+bool		SG_Matrix_LU_Solve					(int n, int *Permutation, double **Matrix, double *Vector, bool bSilent);
+
+//---------------------------------------------------------
+bool		SG_Matrix_Triangular_Decomposition	(CSG_Matrix &A, CSG_Vector &d, CSG_Vector &e);
+bool		SG_Matrix_Tridiagonal_QL			(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e);
 
 
 ///////////////////////////////////////////////////////////
@@ -1245,6 +1247,23 @@ bool		SG_Matrix_Solve(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent)
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		SG_Matrix_Eigen_Reduction(const CSG_Matrix &Matrix, CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Values, bool bSilent)
+{
+	CSG_Vector	Intermediate;
+
+	Eigen_Vectors	= Matrix;
+
+	return(	SG_Matrix_Triangular_Decomposition	(Eigen_Vectors, Eigen_Values, Intermediate)	// Triangular decomposition (Householder's method)
+		&&	SG_Matrix_Tridiagonal_QL			(Eigen_Vectors, Eigen_Values, Intermediate)	// Reduction of symetric tridiagonal matrix
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -1343,6 +1362,11 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 	return( bSilent || SG_UI_Process_Get_Okay(false) );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool		SG_Matrix_LU_Solve(int n, int *Permutation, double **Matrix, double *Vector, bool bSilent)
 {
@@ -1379,6 +1403,239 @@ bool		SG_Matrix_LU_Solve(int n, int *Permutation, double **Matrix, double *Vecto
 		}
 
 		Vector[i]	= Sum / Matrix[i][i];
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+// Householder reduction of matrix a to tridiagonal form.
+
+bool SG_Matrix_Triangular_Decomposition(CSG_Matrix &A, CSG_Vector &d, CSG_Vector &e)
+{
+	if( A.Get_NX() != A.Get_NY() )
+	{
+		return( false );
+	}
+
+	int		l, k, j, i, n;
+	double	scale, hh, h, g, f;
+
+	n	= A.Get_NX();
+
+	d.Create(n);
+	e.Create(n);
+
+	for(i=n-1; i>=1; i--)
+	{
+		l	= i - 1;
+		h	= scale = 0.0;
+
+		if( l > 0 )
+		{
+			for(k=0; k<=l; k++)
+			{
+				scale	+= fabs(A[i][k]);
+			}
+
+			if( scale == 0.0 )
+			{
+				e[i]	= A[i][l];
+			}
+			else
+			{
+				for(k=0; k<=l; k++)
+				{
+					A[i][k]	/= scale;
+					h		+= A[i][k] * A[i][k];
+				}
+
+				f		= A[i][l];
+				g		= f > 0.0 ? -sqrt(h) : sqrt(h);
+				e[i]	= scale * g;
+				h		-= f * g;
+				A[i][l]	= f - g;
+				f		= 0.0;
+
+				for(j=0; j<=l; j++)
+				{
+					A[j][i]	= A[i][j]/h;
+					g		= 0.0;
+
+					for(k=0; k<=j; k++)
+					{
+						g	+= A[j][k] * A[i][k];
+					}
+
+					for(k=j+1; k<=l; k++)
+					{
+						g	+= A[k][j] * A[i][k];
+					}
+
+					e[j]	= g / h;
+					f		+= e[j] * A[i][j];
+				}
+
+				hh	= f / (h + h);
+
+				for(j=0; j<=l; j++)
+				{
+					f		= A[i][j];
+					e[j]	= g = e[j] - hh * f;
+
+					for(k=0; k<=j; k++)
+					{
+						A[j][k]	-= (f * e[k] + g * A[i][k]);
+					}
+				}
+			}
+		}
+		else
+		{
+			e[i]	= A[i][l];
+		}
+
+		d[i]	= h;
+	}
+
+	d[0]	= 0.0;
+	e[0]	= 0.0;
+
+	for(i=0; i<n; i++)
+	{
+		l	= i - 1;
+
+		if( d[i] )
+		{	
+			for(j=0; j<=l; j++)
+			{
+				g	= 0.0;
+
+				for(k=0; k<=l; k++)
+				{
+					g		+= A[i][k] * A[k][j];
+				}
+
+				for(k=0; k<=l; k++)
+				{
+					A[k][j]	-= g * A[k][i];
+				}
+			}
+		}
+
+		d[i]	= A[i][i];
+		A[i][i]	= 1.0;
+
+		for(j=0; j<=l; j++)
+		{
+			A[j][i]	= A[i][j] = 0.0;
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+// Tridiagonal QL algorithm -- Implicit
+
+bool SG_Matrix_Tridiagonal_QL(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e)
+{
+	if( Q.Get_NX() != Q.Get_NY() || Q.Get_NX() != d.Get_N() || Q.Get_NX() != e.Get_N() )
+	{
+		return( false );
+	}
+
+	int		m, l, iter, i, k, n;
+	double	s, r, p, g, f, dd, c, b;
+
+	n	= d.Get_N();
+
+	for(i=1; i<n; i++)
+	{
+		e[i - 1]	= e[i];
+	}
+
+	e[n - 1]	= 0.0;
+
+	for(l=0; l<n; l++)
+	{
+		iter	= 0;
+
+		do
+		{
+			for(m=l; m<n-1; m++)
+			{
+				dd	= fabs(d[m]) + fabs(d[m + 1]);
+
+				if( fabs(e[m]) + dd == dd )
+				{
+					break;
+				}
+			}
+
+			if( m != l )
+			{
+				if( iter++ == 30 )
+				{
+					return( false );	// erhand("No convergence in TLQI.");
+				}
+
+				g	= (d[l+1] - d[l]) / (2.0 * e[l]);
+				r	= sqrt((g * g) + 1.0);
+				g	= d[m] - d[l] + e[l] / (g + M_SET_SIGN(r, g));
+				s	= c = 1.0;
+				p	= 0.0;
+
+				for(i = m-1; i >= l; i--)
+				{
+					f = s * e[i];
+					b = c * e[i];
+
+					if (fabs(f) >= fabs(g))
+					{
+						c = g / f;
+						r = sqrt((c * c) + 1.0);
+						e[i+1] = f * r;
+						c *= (s = 1.0/r);
+					}
+					else
+					{
+						s = f / g;
+						r = sqrt((s * s) + 1.0);
+						e[i+1] = g * r;
+						s *= (c = 1.0/r);
+					}
+
+					g		= d[i+1] - p;
+					r		= (d[i] - g) * s + 2.0 * c * b;
+					p		= s * r;
+					d[i+1]	= g + p;
+					g		= c * r - b;
+
+					for(k=0; k<n; k++)
+					{
+						f			= Q[k][i+1];
+						Q[k][i+1]	= s * Q[k][i] + c * f;
+						Q[k][i]		= c * Q[k][i] - s * f;
+					}
+				}
+
+				d[l] = d[l] - p;
+				e[l] = g;
+				e[m] = 0.0;
+			}
+		}
+		while( m != l );
 	}
 
 	return( true );

@@ -116,6 +116,8 @@
 #define M_GET_MAX(a, b)				(((a) > (b)) ? (a) : (b))
 #define M_SET_MINMAX(min, max, x)	if( min > x ) { min = x; } else if( max < x ) { max = x; }
 
+#define M_SET_SIGN(x, sign)			((sign) < 0 ? (x < 0 ? x : -x) : (x > 0 ? x : -x))
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -345,7 +347,8 @@ private:
 SAGA_API_DLL_EXPORT CSG_Matrix	operator *			(double Scalar, const CSG_Matrix &Matrix);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool		SG_Matrix_Solve		(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent = true);
+SAGA_API_DLL_EXPORT bool		SG_Matrix_Solve				(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent = true);
+SAGA_API_DLL_EXPORT bool		SG_Matrix_Eigen_Reduction	(const CSG_Matrix &Matrix, CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Values, bool bSilent = true);
 
 
 ///////////////////////////////////////////////////////////
