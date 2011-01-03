@@ -77,20 +77,16 @@ private:
 
 	int						m_Method;
 
-	CSG_Matrix				m_SymMat;
-
-	CSG_Parameter_Grid_List	*m_pGrids, *m_pPCA;
+	CSG_Parameter_Grid_List	*m_pGrids;
 
 
 	int						Get_NGrids		(void);
-	double					Get_Mean		(int iFeature);
-	double					Get_StdDev		(int iFeature);
+	bool					is_NoData		(int iCell);
 	double					Get_Value		(int iFeature, int iElement);
-	void					Set_Value		(int iFeature, int iElement, double Value);
 	
-	bool					Get_Matrix		(void);
+	bool					Get_Matrix		(CSG_Matrix &Matrix);
 
-	bool					Get_Reduction	(void);
+	bool					Get_Components	(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Values);
 
 };
 
