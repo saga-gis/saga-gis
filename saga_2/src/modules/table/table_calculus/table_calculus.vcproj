@@ -501,7 +501,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -598,7 +597,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -1188,6 +1186,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\table_pca.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\table_running_average.cpp"
 				>
 			</File>
@@ -1294,6 +1296,10 @@
 			</File>
 			<File
 				RelativePath=".\table_cluster_analysis.h"
+				>
+			</File>
+			<File
+				RelativePath=".\table_pca.h"
 				>
 			</File>
 			<File
