@@ -581,6 +581,7 @@
     <ClCompile Include="Table_Calculator.cpp" />
     <ClCompile Include="Table_CalculatorShapes.cpp" />
     <ClCompile Include="table_cluster_analysis.cpp" />
+    <ClCompile Include="table_pca.cpp" />
     <ClCompile Include="table_running_average.cpp" />
     <ClCompile Include="Table_Trend.cpp" />
   </ItemGroup>
@@ -608,6 +609,7 @@
     <ClInclude Include="Table_Calculator.h" />
     <ClInclude Include="Table_CalculatorShapes.h" />
     <ClInclude Include="table_cluster_analysis.h" />
+    <ClInclude Include="table_pca.h" />
     <ClInclude Include="table_running_average.h" />
     <ClInclude Include="Table_Trend.h" />
   </ItemGroup>
