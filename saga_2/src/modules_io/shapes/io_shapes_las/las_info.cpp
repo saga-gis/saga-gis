@@ -482,48 +482,48 @@ bool CLAS_Info::Summarize_Points(liblas::LASReader *pReader, LASPointSummary *pS
 		SG_UI_Process_Set_Progress(i, headerPts);
 
 		pSummary->x = p.GetX();
-		pSummary->x < pSummary->pmin.GetX() ? pSummary->pmin.SetX(pSummary->x) : NULL;
-		pSummary->x > pSummary->pmax.GetX() ? pSummary->pmax.SetX(pSummary->x) : NULL;
+		if( pSummary->x < pSummary->pmin.GetX() )					pSummary->pmin.SetX(pSummary->x);
+		if( pSummary->x > pSummary->pmax.GetX() )					pSummary->pmax.SetX(pSummary->x);
 
 		pSummary->y = p.GetY();
-		pSummary->y < pSummary->pmin.GetY() ? pSummary->pmin.SetY(pSummary->y) : NULL;
-		pSummary->y > pSummary->pmax.GetY() ? pSummary->pmax.SetY(pSummary->y) : NULL;
+		if( pSummary->y < pSummary->pmin.GetY() )					pSummary->pmin.SetY(pSummary->y);
+		if( pSummary->y > pSummary->pmax.GetY() )					pSummary->pmax.SetY(pSummary->y);
 
 		pSummary->z = p.GetZ();
-		pSummary->z < pSummary->pmin.GetZ() ? pSummary->pmin.SetZ(pSummary->z) : NULL;
-		pSummary->z > pSummary->pmax.GetZ() ? pSummary->pmax.SetZ(pSummary->z) : NULL;
+		if( pSummary->z < pSummary->pmin.GetZ() )					pSummary->pmin.SetZ(pSummary->z);
+		if( pSummary->z > pSummary->pmax.GetZ() )					pSummary->pmax.SetZ(pSummary->z);
 
 		pSummary->intensity = p.GetIntensity();
-		pSummary->intensity < pSummary->pmin.GetIntensity() ? pSummary->pmin.SetIntensity(pSummary->intensity) : NULL;
-		pSummary->intensity > pSummary->pmax.GetIntensity() ? pSummary->pmax.SetIntensity(pSummary->intensity) : NULL;
+		if( pSummary->intensity < pSummary->pmin.GetIntensity() )	pSummary->pmin.SetIntensity(pSummary->intensity);
+		if( pSummary->intensity > pSummary->pmax.GetIntensity() )	pSummary->pmax.SetIntensity(pSummary->intensity);
 
 		pSummary->t = p.GetTime();
-		pSummary->t < pSummary->pmin.GetTime() ? pSummary->pmin.SetTime(pSummary->t) : NULL;
-		pSummary->t > pSummary->pmax.GetTime() ? pSummary->pmax.SetTime(pSummary->t) : NULL;
+		if( pSummary->t < pSummary->pmin.GetTime() )				pSummary->pmin.SetTime(pSummary->t);
+		if( pSummary->t > pSummary->pmax.GetTime() )				pSummary->pmax.SetTime(pSummary->t);
 
 		pSummary->retnum = p.GetReturnNumber();
-		pSummary->retnum < pSummary->pmin.GetReturnNumber() ? pSummary->pmin.SetReturnNumber(pSummary->retnum) : NULL;
-		pSummary->retnum > pSummary->pmax.GetReturnNumber() ? pSummary->pmax.SetReturnNumber(pSummary->retnum) : NULL;
+		if( pSummary->retnum < pSummary->pmin.GetReturnNumber() )	pSummary->pmin.SetReturnNumber(pSummary->retnum);
+		if( pSummary->retnum > pSummary->pmax.GetReturnNumber() )	pSummary->pmax.SetReturnNumber(pSummary->retnum);
 
 		pSummary->numret = p.GetNumberOfReturns();
-		pSummary->numret < pSummary->pmin.GetNumberOfReturns() ? pSummary->pmin.SetNumberOfReturns(pSummary->numret) : NULL;
-		pSummary->numret > pSummary->pmax.GetNumberOfReturns() ? pSummary->pmax.SetNumberOfReturns(pSummary->numret) : NULL;
+		if( pSummary->numret < pSummary->pmin.GetNumberOfReturns() )pSummary->pmin.SetNumberOfReturns(pSummary->numret);
+		if( pSummary->numret > pSummary->pmax.GetNumberOfReturns() )pSummary->pmax.SetNumberOfReturns(pSummary->numret);
 
 		pSummary->scandir = p.GetScanDirection();
-		pSummary->scandir < pSummary->pmin.GetScanDirection() ? pSummary->pmin.SetScanDirection(pSummary->scandir) : NULL;
-		pSummary->scandir > pSummary->pmax.GetScanDirection() ? pSummary->pmax.SetScanDirection(pSummary->scandir) : NULL;
+		if( pSummary->scandir < pSummary->pmin.GetScanDirection() )	pSummary->pmin.SetScanDirection(pSummary->scandir);
+		if( pSummary->scandir > pSummary->pmax.GetScanDirection() )	pSummary->pmax.SetScanDirection(pSummary->scandir);
 
 		pSummary->fedge = p.GetFlightLineEdge();
-		pSummary->fedge < pSummary->pmin.GetFlightLineEdge() ? pSummary->pmin.SetFlightLineEdge(pSummary->fedge) : NULL;
-		pSummary->fedge > pSummary->pmax.GetFlightLineEdge() ? pSummary->pmax.SetFlightLineEdge(pSummary->fedge) : NULL;
+		if( pSummary->fedge < pSummary->pmin.GetFlightLineEdge() )	pSummary->pmin.SetFlightLineEdge(pSummary->fedge);
+		if( pSummary->fedge > pSummary->pmax.GetFlightLineEdge() )	pSummary->pmax.SetFlightLineEdge(pSummary->fedge);
 
 		pSummary->scan_angle = p.GetScanAngleRank();
-		pSummary->scan_angle < pSummary->pmin.GetScanAngleRank() ? pSummary->pmin.SetScanAngleRank(pSummary->scan_angle) : NULL;
-		pSummary->scan_angle > pSummary->pmax.GetScanAngleRank() ? pSummary->pmax.SetScanAngleRank(pSummary->scan_angle) : NULL;
+		if( pSummary->scan_angle < pSummary->pmin.GetScanAngleRank() )	pSummary->pmin.SetScanAngleRank(pSummary->scan_angle);
+		if( pSummary->scan_angle > pSummary->pmax.GetScanAngleRank() )	pSummary->pmax.SetScanAngleRank(pSummary->scan_angle);
 
 		pSummary->user_data = p.GetUserData();
-		pSummary->user_data < pSummary->pmin.GetUserData() ? pSummary->pmin.SetUserData(pSummary->user_data) : NULL;
-		pSummary->user_data > pSummary->pmax.GetUserData() ? pSummary->pmax.SetUserData(pSummary->user_data) : NULL;
+		if( pSummary->user_data < pSummary->pmin.GetUserData() )	pSummary->pmin.SetUserData(pSummary->user_data);
+		if( pSummary->user_data > pSummary->pmax.GetUserData() )	pSummary->pmax.SetUserData(pSummary->user_data);
 
 		pSummary->number_of_point_records = i;
 
@@ -535,12 +535,12 @@ bool CLAS_Info::Summarize_Points(liblas::LASReader *pReader, LASPointSummary *pS
 		pSummary->number_of_returns_of_given_pulse[p.GetNumberOfReturns()]++;
 
 		cls = p.GetClassification();
-		cls < pSummary->pmin.GetClassification() ? pSummary->pmin.SetClassification(cls) : NULL;
-		cls > pSummary->pmax.GetClassification() ? pSummary->pmax.SetClassification(cls) : NULL;
+		if( cls < pSummary->pmin.GetClassification() )				pSummary->pmin.SetClassification(cls);
+		if( cls > pSummary->pmax.GetClassification() )				pSummary->pmax.SetClassification(cls);
 
 		ptsrc = p.GetPointSourceID();
-		ptsrc < pSummary->pmin.GetPointSourceID() ? pSummary->pmin.SetPointSourceID(ptsrc) : NULL;
-		ptsrc > pSummary->pmax.GetPointSourceID() ? pSummary->pmax.SetPointSourceID(ptsrc) : NULL;
+		if( ptsrc < pSummary->pmin.GetPointSourceID() )				pSummary->pmin.SetPointSourceID(ptsrc);
+		if( ptsrc > pSummary->pmax.GetPointSourceID() )				pSummary->pmax.SetPointSourceID(ptsrc);
 
 		color = p.GetColor();
 		min_color = pSummary->pmin.GetColor();
