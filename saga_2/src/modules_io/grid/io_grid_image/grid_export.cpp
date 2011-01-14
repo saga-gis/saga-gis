@@ -73,12 +73,14 @@
 //---------------------------------------------------------
 CGrid_Export::CGrid_Export(void)
 {
-	Set_Name		(_TL("Export Image (bmp, jpg, png)"));
+	Set_Name		(_TL("Export Image (bmp, jpg, pcx, png, tif)"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2005"));
 
 	Set_Description	(_TW(
-		"Saves a grid as image using display properties as used by the graphical user interface.\n")
+		"Saves a grid as image using display properties as used by the graphical user interface.\n\n"
+		"On the command line there are further parameters available to either use one of the default "
+		"palettes or to use a Lookup Table for coloring.\n")
 	);
 
 	Parameters.Add_Grid(
@@ -154,6 +156,12 @@ CGrid_Export::CGrid_Export(void)
 			_TL(""),
 			PARAMETER_TYPE_Bool, false
 		);
+
+		Parameters.Add_Table(
+			NULL, "LUT"	, _TL("Lookup Table"),
+			_TL(""),
+			PARAMETER_INPUT_OPTIONAL
+		);
 	}
 }
 
@@ -218,6 +226,14 @@ bool CGrid_Export::On_Execute(void)
 	{
 		int			nColors	= Parameters("COL_COUNT")->asInt();
 		CSG_Colors	Colors(nColors, Parameters("COL_PALETTE")->asInt(), Parameters("COL_REVERT")->asBool());
+		CSG_Table	*pLUT(Parameters("LUT")->asTable());
+
+		if( pLUT && pLUT->Get_Field_Count() < 5 )
+		{
+			SG_UI_Msg_Add_Error(_TL("Improperly formatted Lookup Table."));
+			return( false );
+		}
+
 
 		Grid.Create(*Get_System(), SG_DATATYPE_Int);
 
@@ -225,12 +241,36 @@ bool CGrid_Export::On_Execute(void)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
-				if( pGrid->is_NoData(x, y) )
-					Grid.Set_NoData(x, Get_NY() - 1 - y);
+				if( pLUT )
+				{
+					bool	bFound = false;
+
+					d = pGrid->asDouble(x, y);
+					
+					for(int i=0; i<pLUT->Get_Record_Count(); i++)
+					{
+						if( d >= pLUT->Get_Record(i)->asDouble(3) && d <= pLUT->Get_Record(i)->asDouble(4) )
+						{
+							nColors	= i;
+							bFound	= true;
+							break;
+						}
+					}
+					
+					if( !bFound )
+						Grid.Set_NoData(x, Get_NY() - 1 - y);
+					else
+						Grid.Set_Value(x, Get_NY() - 1 - y, pLUT->Get_Record(nColors)->asInt(0));
+				}
 				else
-					Grid.Set_Value(x, Get_NY() - 1 - y, Colors[(int)(
-						nColors * (pGrid->asDouble(x, y) - pGrid->Get_ZMin()) / pGrid->Get_ZRange()
-					)]);
+				{
+					if( pGrid->is_NoData(x, y) )
+						Grid.Set_NoData(x, Get_NY() - 1 - y);
+					else
+						Grid.Set_Value(x, Get_NY() - 1 - y, Colors[(int)(
+							nColors * (pGrid->asDouble(x, y) - pGrid->Get_ZMin()) / pGrid->Get_ZRange()
+						)]);
+				}
 			}
 		}
 	}
