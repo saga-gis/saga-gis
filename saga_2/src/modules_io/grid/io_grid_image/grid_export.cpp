@@ -249,7 +249,7 @@ bool CGrid_Export::On_Execute(void)
 					
 					for(int i=0; i<pLUT->Get_Record_Count(); i++)
 					{
-						if( d >= pLUT->Get_Record(i)->asDouble(3) && d <= pLUT->Get_Record(i)->asDouble(4) )
+						if( d >= pLUT->Get_Record(i)->asDouble(3) && d < pLUT->Get_Record(i)->asDouble(4) )
 						{
 							nColors	= i;
 							bFound	= true;
