@@ -399,39 +399,42 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			for(iy=y-1, bRecalculate=false; iy<=y+1 && !bRecalculate; iy++)
+			if( !H.is_NoData(x, y) )
 			{
-				for(ix=x-1; ix<=x+1 && !bRecalculate; ix++)
+				for(iy=y-1, bRecalculate=false; iy<=y+1 && !bRecalculate; iy++)
 				{
-					if( H.is_InGrid(ix, iy) && pH->is_InGrid(ix, iy) && H.asDouble(ix, iy) > pH->asDouble(ix, iy) )
+					for(ix=x-1; ix<=x+1 && !bRecalculate; ix++)
 					{
-						bRecalculate	= true;
-					}
-				}
-			}
-
-			if( bRecalculate )
-			{
-				for(iy=y-1, z=0.0, n=0; iy<=y+1; iy++)
-				{
-					for(ix=x-1; ix<=x+1; ix++)
-					{
-						if( H.is_InGrid(ix, iy) )
+						if( H.is_InGrid(ix, iy) && pH->is_InGrid(ix, iy) && H.asDouble(ix, iy) > pH->asDouble(ix, iy) )
 						{
-							n++;
-							z	+= H.asDouble(ix, iy);
+							bRecalculate	= true;
 						}
 					}
 				}
 
-				z	= z / (double)n;
-			}
-			else	
-			{
-				z	= H.asDouble(x, y);
-			}
+				if( bRecalculate )
+				{
+					for(iy=y-1, z=0.0, n=0; iy<=y+1; iy++)
+					{
+						for(ix=x-1; ix<=x+1; ix++)
+						{
+							if( H.is_InGrid(ix, iy) )
+							{
+								n++;
+								z	+= H.asDouble(ix, iy);
+							}
+						}
+					}
 
-			pH->Set_Value(x, y, pow(z, 1.0 / e));
+					z	= z / (double)n;
+				}
+				else	
+				{
+					z	= H.asDouble(x, y);
+				}
+
+				pH->Set_Value(x, y, pow(z, 1.0 / e));
+			}
 		}
 	}
 
