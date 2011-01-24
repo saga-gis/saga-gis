@@ -73,11 +73,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Values_AddTo_Shapes : public CSG_Module  
+class CGrid_Values_AddTo_Shapes : public CSG_Module
 {
 public:
 	CGrid_Values_AddTo_Shapes(void);
-	virtual ~CGrid_Values_AddTo_Shapes(void);
 
 
 protected:
@@ -87,17 +86,18 @@ protected:
 
 private:
 
-	int							Interpol;
-
-	CSG_Shapes						*pResult;
-
-	CSG_Parameter_Grid_List		*pGrids;
-
-
-	void						Get_Data_Point		(CSG_Shape *pShape );
-	void						Get_Data_Line		(CSG_Shape *pShape );
-	void						Get_Data_Polygon	(CSG_Shape *pShape );
+	bool						Get_Data_Point		(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid, int Interpolation);
+	bool						Get_Data_Line		(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid);
+	bool						Get_Data_Polygon	(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Values_AddTo_Shapes_H

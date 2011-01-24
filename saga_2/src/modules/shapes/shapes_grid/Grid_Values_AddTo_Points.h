@@ -77,7 +77,6 @@ class CGrid_Values_AddTo_Points : public CSG_Module
 {
 public:
 	CGrid_Values_AddTo_Points(void);
-	virtual ~CGrid_Values_AddTo_Points(void);
 
 
 protected:
@@ -85,8 +84,14 @@ protected:
 	virtual bool		On_Execute(void);
 
 
-private:
-
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Values_AddTo_Points_H

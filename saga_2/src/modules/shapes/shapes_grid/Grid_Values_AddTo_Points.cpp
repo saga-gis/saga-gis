@@ -73,11 +73,11 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Add Grid Values to Points"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Retrieves information from the selected grids at the positions of the points of "
-		"the selected points layer and adds it to the resulting layer."
+		"Spatial Join: Retrieves information from the selected grids at the positions "
+		"of the points of the selected points layer and adds it to the resulting layer."
 	));
 
 
@@ -97,13 +97,12 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 	Parameters.Add_Shapes(
 		NULL	, "RESULT"		, _TL("Result"),
 		_TL(""),
-		PARAMETER_OUTPUT		, SHAPE_TYPE_Point
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "INTERPOL"	, _TL("Interpolation"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
@@ -113,10 +112,6 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 		), 4
 	);
 }
-
-//---------------------------------------------------------
-CGrid_Values_AddTo_Points::~CGrid_Values_AddTo_Points(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -128,54 +123,74 @@ CGrid_Values_AddTo_Points::~CGrid_Values_AddTo_Points(void)
 //---------------------------------------------------------
 bool CGrid_Values_AddTo_Points::On_Execute(void)
 {
-	bool					bZFactor;
-	int						iShape, iGrid, iField, nFields, Interpol;
-	TSG_Point				Point;
-	CSG_Grid					*pGrid;
+	int						iShape, iGrid, iField, Offset, Interpolation;
+	double					Value;
+	CSG_Shapes				*pShapes;
 	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Shape					*pShape;
-	CSG_Shapes					*pShapes;
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS" )	->asGridList();
-	pShapes		= Parameters("SHAPES")	->asShapes();
+	pShapes			= Parameters("RESULT")		->asShapes();
+	pGrids			= Parameters("GRIDS" )		->asGridList();
+	Interpolation	= Parameters("INTERPOL")	->asInt();
 
-	Interpol	= Parameters("INTERPOL")->asInt();
-	bZFactor	= true;
-
-	if( pGrids->Get_Count() > 0 && pShapes->Get_Type() == SHAPE_TYPE_Point )
+	//-----------------------------------------------------
+	if( pGrids->Get_Count() <= 0 )
 	{
-		if( pShapes != Parameters("RESULT")->asShapes() )
-		{
-			pShapes		= Parameters("RESULT")->asShapes();
-			pShapes->Assign(Parameters("SHAPES")->asShapes());
-		}
-
-		nFields		= pShapes->Get_Field_Count();
-
-		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
-		{
-			pShapes->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
-		}
-
-		//-------------------------------------------------
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			pShape	= pShapes->Get_Shape(iShape);
-			Point	= pShape->Get_Point(0);
-
-			for(iGrid=0, iField=nFields; iGrid<pGrids->Get_Count(); iGrid++, iField++)
-			{
-				pGrid	= pGrids->asGrid(iGrid);
-
-				pShape->Set_Value(iField,
-					pGrid->is_InGrid_byPos(Point) ? pGrid->Get_Value(Point, Interpol, bZFactor) : -99999
-				);
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	if( pShapes == NULL )
+	{
+		pShapes		= Parameters("SHAPES")->asShapes();
+	}
+	else if( pShapes != Parameters("SHAPES")->asShapes() )
+	{
+		pShapes->Create(*Parameters("SHAPES")->asShapes());
+	}
+
+	Offset		= pShapes->Get_Field_Count();
+
+	//-----------------------------------------------------
+	for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+	{
+		pShapes->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
+	}
+
+	//-----------------------------------------------------
+	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		for(iGrid=0, iField=Offset; iGrid<pGrids->Get_Count(); iGrid++, iField++)
+		{
+			CSG_Grid	*pGrid	= pGrids->asGrid(iGrid);
+
+			if( pGrid->Get_Value(pShape->Get_Point(0), Value, Interpolation) )
+			{
+				pShape->Set_Value(iField, Value);
+			}
+			else
+			{
+				pShape->Set_NoData(iField);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pShapes == Parameters("SHAPES")->asShapes() )
+	{
+		DataObject_Update(pShapes);
+	}
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

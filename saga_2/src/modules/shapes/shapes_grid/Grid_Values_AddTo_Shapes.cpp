@@ -71,13 +71,16 @@
 CGrid_Values_AddTo_Shapes::CGrid_Values_AddTo_Shapes(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Get Grid Data for Shapes"));
+	Set_Name		(_TL("Add Grid Values to Shapes"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Retrieves information from the selected grids at the positions of the shapes of "
-		"the selected shapes layer and adds it to the resulting shapes layer."
+		"Spatial Join: Retrieves information from the selected grids at the positions "
+		"of the shapes of the selected shapes layer and adds it to the resulting shapes layer. "
+		"For points this is similar to 'Add Grid Values to Points' module. "
+		"For lines and polygons average values will be calculated from interfering grid cells. "
+		"For polygons the 'Grid Statistics for Polygons' module offers more advanced options. "
 	));
 
 
@@ -95,15 +98,14 @@ CGrid_Values_AddTo_Shapes::CGrid_Values_AddTo_Shapes(void)
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "RESULT"		, _TL("Shapes (Grid Information)"),
+		NULL	, "RESULT"		, _TL("Result"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "INTERPOL"	, _TL("Interpolation"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
@@ -113,10 +115,6 @@ CGrid_Values_AddTo_Shapes::CGrid_Values_AddTo_Shapes(void)
 		), 4
 	);
 }
-
-//---------------------------------------------------------
-CGrid_Values_AddTo_Shapes::~CGrid_Values_AddTo_Shapes(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -128,58 +126,121 @@ CGrid_Values_AddTo_Shapes::~CGrid_Values_AddTo_Shapes(void)
 //---------------------------------------------------------
 bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 {
-	int			iGrid, iShape;
-	CSG_Shapes		*pShapes;
+	int						Interpolation;
+	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Shapes				*pShapes;
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")->asGridList();
+	pShapes			= Parameters("RESULT")		->asShapes();
+	pGrids			= Parameters("GRIDS")		->asGridList();
+	Interpolation	= Parameters("INTERPOL")	->asInt();
 
-	if( pGrids->Get_Count() > 0 )
+	//-----------------------------------------------------
+	if( pGrids->Get_Count() <= 0 )
 	{
-		pResult		= Parameters("RESULT")->asShapes();
-		Interpol	= Parameters("INTERPOL")->asInt();
+		return( false );
+	}
 
-		if( pResult == Parameters("SHAPES")->asShapes() )
-		{
-			pShapes		= SG_Create_Shapes(*pResult);
-		}
-		else
-		{
-			pShapes		= Parameters("SHAPES")->asShapes();
-		}
+	//-----------------------------------------------------
+	if( pShapes == NULL )
+	{
+		pShapes		= Parameters("SHAPES")->asShapes();
+	}
+	else if( pShapes != Parameters("SHAPES")->asShapes() )
+	{
+		pShapes->Create(*Parameters("SHAPES")->asShapes());
+	}
 
-		pResult->Create(pShapes->Get_Type());
+	//-----------------------------------------------------
+	for(int iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+	{
+		CSG_Grid	*pGrid	= pGrids->asGrid(iGrid);
 
-		//-------------------------------------------------
-		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
-		{
-			pResult->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
-		}
+		pShapes->Add_Field(pGrid->Get_Name(), SG_DATATYPE_Double);
 
-		//-------------------------------------------------
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
-			switch( pShapes->Get_Type() )
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+			if( pShape->Get_Extent().Intersects(pGrid->Get_Extent()) )
 			{
-			case SHAPE_TYPE_Point:
-				Get_Data_Point(		pShapes->Get_Shape(iShape) );
-				break;
+				bool	bResult;
+				double	Value;
 
-			case SHAPE_TYPE_Line:
-				Get_Data_Line(		pShapes->Get_Shape(iShape) );
-				break;
+				switch( pShapes->Get_Type() )
+				{
+				default:
+				case SHAPE_TYPE_Point:
+				case SHAPE_TYPE_Points:
+					bResult	= Get_Data_Point	(Value, pShape, pGrid, Interpolation);
+					break;
 
-			case SHAPE_TYPE_Polygon:
-				Get_Data_Polygon(	pShapes->Get_Shape(iShape) );
-				break;
+				case SHAPE_TYPE_Line:
+					bResult	= Get_Data_Line		(Value, pShape, pGrid);
+					break;
+
+				case SHAPE_TYPE_Polygon:
+					bResult	= Get_Data_Polygon	(Value, pShape, pGrid);
+					break;
+				}
+
+				if( bResult )
+				{
+					pShape->Set_Value(pShapes->Get_Field_Count() - 1, Value);
+				}
+				else
+				{
+					pShape->Set_NoData(pShapes->Get_Field_Count() - 1);
+				}
+			}
+			else
+			{
+				pShape->Set_NoData(pShapes->Get_Field_Count() - 1);
 			}
 		}
+	}
 
-		//-------------------------------------------------
-		if( pResult == Parameters("SHAPES")->asShapes() )
+	//-----------------------------------------------------
+	if( pShapes == Parameters("SHAPES")->asShapes() )
+	{
+		DataObject_Update(pShapes);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Values_AddTo_Shapes::Get_Data_Point(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid, int Interpolation)
+{
+	Value	= 0.0;
+	int	n	= 0;
+
+	//-----------------------------------------------------
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	{
+		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			delete(pShapes);
+			TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+
+			if( pGrid->is_InGrid_byPos(Point) )
+			{
+				Value	+= pGrid->Get_Value(Point, Interpolation, true);
+				n		++;
+			}
 		}
+	}
+
+	//-----------------------------------------------------
+	if( n > 0 )
+	{
+		Value	/= (double)n;
 
 		return( true );
 	}
@@ -187,60 +248,87 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 	return( false );
 }
 
-//---------------------------------------------------------
-void CGrid_Values_AddTo_Shapes::Get_Data_Point(CSG_Shape *pShape)
-{
-	int			iPart, iPoint, nValues, iGrid, Interpolation = 1;
-	double		Value_Sum;
-	TSG_Point	Point;
-	CSG_Grid		*pGrid;
-	CSG_Shape		*pShape_Result;
 
-	pShape_Result	= pResult->Add_Shape();
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Values_AddTo_Shapes::Get_Data_Line(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid)
+{
+	Value	= 0.0;
+	int	n	= 0;
 
 	//-----------------------------------------------------
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+
+	//-----------------------------------------------------
+	if( n > 0 )
 	{
-		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-		{
-			pShape_Result->Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
-		}
+		Value	/= (double)n;
+
+		return( true );
 	}
 
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Values_AddTo_Shapes::Get_Data_Polygon(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid)
+{
+	Value	= 0.0;
+	int	n	= 0;
+
 	//-----------------------------------------------------
-	for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+	int			x, y, xMin, yMin, xMax, yMax;
+	double		d;
+	TSG_Point	p;
+
+	d		= pGrid->Get_System().Get_xWorld_to_Grid(pShape->Get_Extent().Get_XMin());
+	xMin	= d < -0.5 ? 0 : d >= pGrid->Get_NX() ? pGrid->Get_NX() - 1 : (int)(0.5 + d);
+	d		= pGrid->Get_System().Get_xWorld_to_Grid(pShape->Get_Extent().Get_XMax());
+	xMax	= d < -0.5 ? 0 : d >= pGrid->Get_NX() ? pGrid->Get_NX() - 1 : (int)(0.5 + d);
+	d		= pGrid->Get_System().Get_yWorld_to_Grid(pShape->Get_Extent().Get_YMin());
+	yMin	= d < -0.5 ? 0 : d >= pGrid->Get_NY() ? pGrid->Get_NY() - 1 : (int)(0.5 + d);
+	d		= pGrid->Get_System().Get_yWorld_to_Grid(pShape->Get_Extent().Get_YMax());
+	yMax	= d < -0.5 ? 0 : d >= pGrid->Get_NY() ? pGrid->Get_NY() - 1 : (int)(0.5 + d);
+
+	for(y=yMin, p.y=pGrid->Get_System().Get_yGrid_to_World(yMin); y<=yMax; y++, p.y+=pGrid->Get_Cellsize())
 	{
-		Value_Sum	= 0.0;
-		nValues		= 0;
-		pGrid		= pGrids->asGrid(iGrid);
-
-		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		for(x=xMin, p.x=pGrid->Get_System().Get_xGrid_to_World(xMin); x<=xMax; x++, p.x+=pGrid->Get_Cellsize())
 		{
-			for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			if( pGrid->is_InGrid(x, y) && ((CSG_Shape_Polygon *)pShape)->is_Containing(p) )
 			{
-				Point	= pShape->Get_Point(iPoint, iPart);
-
-				if( pGrid->is_InGrid_byPos(Point) )
-				{
-					Value_Sum	+= pGrid->Get_Value(Point, Interpol, true);
-					nValues		++;
-				}
+				Value	+= pGrid->asDouble(x, y);
+				n		++;
 			}
 		}
-
-		if( nValues > 0 )
-		{
-			pShape_Result->Set_Value(iGrid, Value_Sum / (double)nValues);
-		}
 	}
+
+	//-----------------------------------------------------
+	if( n > 0 )
+	{
+		Value	/= (double)n;
+
+		return( true );
+	}
+
+	return( false );
 }
 
-//---------------------------------------------------------
-void CGrid_Values_AddTo_Shapes::Get_Data_Line(CSG_Shape *pShape)
-{
-}
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Values_AddTo_Shapes::Get_Data_Polygon(CSG_Shape *pShape)
-{
-}
