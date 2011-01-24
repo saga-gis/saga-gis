@@ -467,7 +467,7 @@ bool CGrid_Classify_Supervised::Initialise(void)
 	}
 
 	//-----------------------------------------------------
-	return( m_Class_Info.Get_Count() > 1 );
+	return( m_Class_Info.Get_Count() > 0 );
 }
 
 
