@@ -305,8 +305,8 @@ void CFlow::Init_Cell(int x, int y)
 {
 	double	Weight, Material, Slope, Aspect;
 
-	Weight	= pWeight ? pWeight->asDouble(x, y) : 1.0;
-	Material = pMaterial ? pMaterial->asDouble(x, y) : 1.0;
+	Weight		= pWeight   ? pWeight  ->asDouble(x, y) : 1.0;
+	Material	= pMaterial ? pMaterial->asDouble(x, y) : 1.0;
 
 	if( pCatch )
 	{
@@ -315,7 +315,7 @@ void CFlow::Init_Cell(int x, int y)
 
 	if( pCatch_Height )
 	{
-		pCatch_Height	->Add_Value(x, y, Weight * pDTM->asDouble(x,y));
+		pCatch_Height	->Add_Value(x, y, Weight * pDTM->asDouble(x, y));
 	}
 
 	if( pCatch_Slope )
@@ -360,122 +360,76 @@ void CFlow::Init_Cell(int x, int y)
 //---------------------------------------------------------
 void CFlow::Finalize(void)
 {
-	long	n;
-	double	z, CellSize, Catch, Contour, dContour, G, H;
-	double  Weight, Mat;
-
-	//-----------------------------------------------------
-	CellSize	= Get_Cellsize() * Get_Cellsize();
-	Contour		= 1.0;
-	dContour	= 0.02 * M_PI * sqrt(CellSize / M_PI);
-
-	//-----------------------------------------------------
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(int n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( pDTM->is_NoData(n) )
 		{
-			if( pCatch )
-			{
-				pCatch			->Set_NoData(n);
-			}
-
-			if( pCatch_Height )
-			{
-				pCatch_Height	->Set_NoData(n);
-			}
-
-			if( pCatch_Slope )
-			{
-				pCatch_Slope	->Set_NoData(n);
-			}
-
-			if( pCatch_Aspect )
-			{
-				pCatch_Aspect	->Set_NoData(n);
-			}
-
-			if( pFlowPath )
-			{
-				pFlowPath		->Set_NoData(n);
-			}
-			
-			if( pAccu_Tot )
-			{
-				pAccu_Tot		->Set_NoData(n);
-			}
-			
-			if( pAccu_Left )
-			{
-				pAccu_Left		->Set_NoData(n);
-			}
-			
-			if( pAccu_Right )
-			{
-				pAccu_Right		->Set_NoData(n);
-			}
+			if( pCatch )		{	pCatch			->Set_NoData(n);	}
+			if( pCatch_Height )	{	pCatch_Height	->Set_NoData(n);	}
+			if( pCatch_Slope )	{	pCatch_Slope	->Set_NoData(n);	}
+			if( pCatch_Aspect )	{	pCatch_Aspect	->Set_NoData(n);	}
+			if( pFlowPath )		{	pFlowPath		->Set_NoData(n);	}
+			if( pAccu_Tot )		{	pAccu_Tot		->Set_NoData(n);	}
+			if( pAccu_Left )	{	pAccu_Left		->Set_NoData(n);	}
+			if( pAccu_Right )	{	pAccu_Right		->Set_NoData(n);	}
 		}
 		else
 		{
-			z		= pDTM->asDouble(n);
-
 			//---------------------------------------------
-			Catch	= 1.0 / pCatch->asDouble(n);
-			Mat		= pMaterial ? pMaterial->asDouble(n) : 1.0;
-			Weight	= pWeight ? pWeight->asDouble(n) : 1.0;
-
-			if( pCatch_Height )
-			{
-				pCatch_Height	->Set_Value(n, Catch * pCatch_Height->asDouble(n) - z);
-			}
-
-			if( pCatch_Slope )
-			{
-				pCatch_Slope	->Mul_Value(n, Catch);
-			}
-
-			if( pFlowPath )
-			{
-				pFlowPath		->Mul_Value(n, Catch);
-			}
-
-			//---------------------------------------------
-			Catch	= CellSize / Catch;
+			double	Catch	= pCatch->asDouble(n);
 
 			if( pCatch )
 			{
-				pCatch			->Set_Value(n, Catch);
+				pCatch	->Set_Value(n, Catch * Get_System()->Get_Cellarea());
+			}
+
+			if( Catch > 0.0 )
+			{
+				if( pCatch_Height )	{	pCatch_Height	->Set_Value(n, pCatch_Height->asDouble(n) / Catch - pDTM->asDouble(n));	}
+				if( pCatch_Slope )	{	pCatch_Slope	->Mul_Value(n, 1.0 / Catch);	}
+				if( pFlowPath )		{	pFlowPath		->Mul_Value(n, 1.0 / Catch);	}
+			}
+			else
+			{
+				if( pCatch_Height )	{	pCatch_Height	->Set_Value(n, pDTM->asDouble(n));	}
+				if( pCatch_Slope )	{	pCatch_Slope	->Set_Value(n, 0.0);	}
+				if( pFlowPath )		{	pFlowPath		->Set_Value(n, 0.0);	}
 			}
 
 			//---------------------------------------------
 			if( pCatch_Aspect && pCatch_AspectY )
 			{
-				G	= pCatch_Aspect	->asDouble(n);
-				H	= pCatch_AspectY->asDouble(n);
+				double	G	= pCatch_Aspect	->asDouble(n);
+				double	H	= pCatch_AspectY->asDouble(n);
 
 				pCatch_Aspect	->Set_Value(n, G ? fmod(M_PI_270 + atan2(H, G), M_PI_360) : (H > 0 ? M_PI_270 : (H < 0 ? M_PI_090 : -1)));
 			}
 			
-			if( pAccu_Left && pTarget)
+			//---------------------------------------------
+			double	Material	= pMaterial ? pMaterial->asDouble(n) : 1.0;
+			double	Weight		= pWeight   ? pWeight  ->asDouble(n) : 1.0;
+
+			if( pAccu_Left && pTarget )
 			{
-				if ( pTarget->is_NoData(n) )
-					{	
-						pAccu_Left		->Set_NoData(n);
-					}
-					else
-					{
-						pAccu_Left -> Add_Value(n, - 0.5 * Weight * Mat);
-					}
-			}
-			
-			if( pAccu_Right && pTarget)
-			{
-				if ( pTarget->is_NoData(n) )
-				{	
-					pAccu_Right		->Set_NoData(n);
+				if( pTarget->is_NoData(n) )
+				{
+					pAccu_Left	->Set_NoData(n);
 				}
 				else
 				{
-					pAccu_Right -> Add_Value(n, - 0.5 * Weight * Mat);
+					pAccu_Left	->Add_Value(n, - 0.5 * Weight * Material);
+				}
+			}
+			
+			if( pAccu_Right && pTarget )
+			{
+				if( pTarget->is_NoData(n) )
+				{	
+					pAccu_Right	->Set_NoData(n);
+				}
+				else
+				{
+					pAccu_Right	->Add_Value(n, - 0.5 * Weight * Material);
 				}
 			}			
 		}
@@ -485,6 +439,7 @@ void CFlow::Finalize(void)
 	if( pCatch_AspectY )
 	{
 		delete(pCatch_AspectY);
+
 		pCatch_AspectY	= NULL;
 	}
 }
