@@ -194,7 +194,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	//-----------------------------------------------------
 	for(int iGrid=0; iGrid<pGrids->Get_Count() && Process_Get_Okay(); iGrid++)
 	{
-		std::vector<std::list<double>>	Values(pShapes->Get_Count());
+		std::vector<std::list<double> >	Values(pShapes->Get_Count());
 
 		CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pShapes->Get_Count()];
 
