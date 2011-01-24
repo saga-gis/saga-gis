@@ -132,13 +132,9 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL("ESRI E00 Files|*.e00;*.e0*|All Files|*.*")
+		_TL("ESRI E00 Files|*.e00|All Files|*.*")
 	);
 }
-
-//---------------------------------------------------------
-CESRI_E00_Import::~CESRI_E00_Import(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -153,16 +149,17 @@ bool CESRI_E00_Import::On_Execute(void)
 	bool	bResult;
 
 	bResult		= false;
-	hReadPtr	= NULL;
+	m_hReadPtr	= NULL;
+	m_iFile		= 0;
 
 	if( Open(Parameters("FILE")->asString()) )
 	{
 		bResult	= Load();
 	}
 
-	if( hReadPtr )
+	if( m_hReadPtr )
 	{
-		E00ReadClose(hReadPtr);
+		E00ReadClose(m_hReadPtr);
 	}
 
 	return( bResult );
@@ -176,15 +173,53 @@ bool CESRI_E00_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CESRI_E00_Import::E00GotoLine(int iLine)
+const char * CESRI_E00_Import::E00_Read_Line(void)
 {
-	if( hReadPtr )
+	const char	*line	= E00ReadNextLine(m_hReadPtr);
+
+	if( line == NULL )
 	{
-		E00ReadRewind(hReadPtr);
+		FILE	*fp	= fopen(SG_File_Make_Path(NULL, m_e00_Name, CSG_String::Format(SG_T("e%02d"), m_iFile + 1)).b_str(), "rb");
 
-		while( E00ReadNextLine(hReadPtr) && hReadPtr->nInputLineNo != iLine );
+		if( fp )
+		{
+			m_iFile++;
 
-		return( hReadPtr->nInputLineNo == iLine );
+			int	nInputLineNo	= m_hReadPtr->nInputLineNo;
+
+			E00ReadRewind(m_hReadPtr);
+
+			fclose(m_hReadPtr->fp);
+
+			m_hReadPtr->fp				= fp;
+			m_hReadPtr->nInputLineNo	= nInputLineNo - 1;
+
+			line	= E00ReadNextLine(m_hReadPtr);
+		}
+	}
+
+	return( line );
+}
+
+//---------------------------------------------------------
+bool CESRI_E00_Import::E00_Goto_Line(int iLine)
+{
+	if( m_hReadPtr )
+	{
+		if( m_iFile == 0 )
+		{
+			E00ReadRewind(m_hReadPtr);
+		}
+		else
+		{
+			E00ReadClose(m_hReadPtr);
+			m_hReadPtr	= E00ReadOpen(m_e00_Name.b_str());
+			m_iFile		= 0;
+		}
+
+		while( E00_Read_Line() && m_hReadPtr->nInputLineNo < iLine );
+
+		return( m_hReadPtr->nInputLineNo == iLine );
 	}
 
 	return( false );
@@ -203,7 +238,7 @@ bool CESRI_E00_Import::Open(const SG_Char *FileName)
 	const char	*Line;
 
 	//-----------------------------------------------------
-	if( FileName == NULL || (hReadPtr = E00ReadOpen(CSG_String(FileName).b_str())) == NULL )
+	if( FileName == NULL || (m_hReadPtr = E00ReadOpen(CSG_String(FileName).b_str())) == NULL )
 	{
 		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("file not found"), FileName));
 
@@ -211,7 +246,7 @@ bool CESRI_E00_Import::Open(const SG_Char *FileName)
 	}
 
 	//-----------------------------------------------------
-	if( (Line = E00ReadNextLine(hReadPtr)) == NULL )
+	if( (Line = E00_Read_Line()) == NULL )
 	{
 		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("invalid E00 file"), FileName));
 
@@ -227,7 +262,7 @@ bool CESRI_E00_Import::Open(const SG_Char *FileName)
 	}
 
 	//-----------------------------------------------------
-	e00_Name	= FileName;
+	m_e00_Name	= FileName;
 
 	return( true );
 }
@@ -261,13 +296,13 @@ bool CESRI_E00_Import::Load(void)
 	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
-	pPAT	= NULL;
-	pAAT	= NULL;
+	m_pPAT	= NULL;
+	m_pAAT	= NULL;
 
 	//-----------------------------------------------------
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL && strncmp(line, "EOS", 3) )
+	while( (line = E00_Read_Line()) != NULL && strncmp(line, "EOS", 3) )
 	{
-		current_line = hReadPtr->nInputLineNo;
+		current_line = m_hReadPtr->nInputLineNo;
 
 		// GRID SECTION
 		if( !strncmp(line, "GRD  ", 5) )
@@ -402,21 +437,21 @@ bool CESRI_E00_Import::Load(void)
 	}
 
 	//-----------------------------------------------------
-	switch( pPAT ? (pAAT ? 3 : 2) : (pAAT ? 1 : 0) )
+	switch( m_pPAT ? (m_pAAT ? 3 : 2) : (m_pAAT ? 1 : 0) )
 	{
 	case 0: default:
 		shape_type	= offset_arc != 0 ? SHAPE_TYPE_Line : SHAPE_TYPE_Point;
 		break;
 
-	case 1:	// pAAT
+	case 1:	// m_pAAT
 		shape_type	= SHAPE_TYPE_Line;
 		break;
 
-	case 2:	// pPAT
+	case 2:	// m_pPAT
 		shape_type	= offset_arc != 0 ? SHAPE_TYPE_Polygon : SHAPE_TYPE_Point;
 		break;
 
-	case 3:	// pAAT && pPAT
+	case 3:	// m_pAAT && m_pPAT
 		shape_type	= offset_pal != 0 || offset_lab != 0 ? SHAPE_TYPE_Polygon : SHAPE_TYPE_Line;
 		break;
 	}
@@ -427,11 +462,11 @@ bool CESRI_E00_Import::Load(void)
 	//-----------------------------------------------------
 	if( offset_grd > 0 )
 	{
-		E00GotoLine(offset_grd);
+		E00_Goto_Line(offset_grd);
 
 		if( (pGrid = getraster	(prec_grd, scale)) != NULL )
 		{
-			pGrid->Set_Name(e00_Name);
+			pGrid->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
 			Parameters("GRID")->Set_Value(pGrid);
 		}
@@ -440,11 +475,11 @@ bool CESRI_E00_Import::Load(void)
 	//-----------------------------------------------------
 	if( offset_arc != 0 )
 	{
-		E00GotoLine(offset_arc);
+		E00_Goto_Line(offset_arc);
 
 		if( (pShapes = getarcs	(prec_arc, scale, shape_type)) != NULL )
 		{
-			pShapes->Set_Name(e00_Name);
+			pShapes->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
 			Parameters("ARCS")->Set_Value(pShapes);
 		}
@@ -453,11 +488,11 @@ bool CESRI_E00_Import::Load(void)
 	//-----------------------------------------------------
 	if( offset_lab != 0 && shape_type == SHAPE_TYPE_Point )
 	{
-		E00GotoLine(offset_lab);
+		E00_Goto_Line(offset_lab);
 
 		if( (pShapes = getsites	(prec_lab, scale)) != NULL )
 		{
-			pShapes->Set_Name(e00_Name);
+			pShapes->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
 			Parameters("SITES")->Set_Value(pShapes);
 		}
@@ -466,11 +501,11 @@ bool CESRI_E00_Import::Load(void)
 	//-----------------------------------------------------
 	if( offset_lab != 0 && shape_type != SHAPE_TYPE_Point )
 	{
-		E00GotoLine(offset_lab);
+		E00_Goto_Line(offset_lab);
 
 		if( (pShapes = getlabels(prec_lab, scale)) != NULL )
 		{
-			pShapes->Set_Name(e00_Name);
+			pShapes->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
 			Parameters("LABELS")->Set_Value(pShapes);
 		}
@@ -499,20 +534,20 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
-	if( (line = E00ReadNextLine(hReadPtr)) == NULL )
+	if( (line = E00_Read_Line()) == NULL )
 		return( NULL );
 //	sscanf(line, "%ld%ld%ld", &cols, &rows, &depth, &nul_val);
 	sscanf(line, "%ld%ld%ld%lf", &cols, &rows, &depth, &nul_val);
 
-	if( (line = E00ReadNextLine(hReadPtr)) == NULL )
+	if( (line = E00_Read_Line()) == NULL )
 		return( NULL );
 	sscanf(line, "%lf%lf", &xres, &yres);
 
-	if( (line = E00ReadNextLine(hReadPtr)) == NULL )
+	if( (line = E00_Read_Line()) == NULL )
 		return( NULL );
 	sscanf(line, "%lf%lf", &xmin, &ymin);
 
-	if( (line = E00ReadNextLine(hReadPtr)) == NULL )
+	if( (line = E00_Read_Line()) == NULL )
 		return( NULL );
 	sscanf(line, "%lf%lf", &xmax, &ymax);
 
@@ -547,7 +582,7 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 		{
 			for(x=0; x<cols; x+= 5)
 			{
-				if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+				if( (line = E00_Read_Line()) != NULL )
 				{
 					sscanf(line, "%ld%ld%ld%ld%ld", p, p+1, p+2, p+3, p+4);
 
@@ -569,7 +604,7 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 		{
 			for(x=0; x<cols; x+= 5)
 			{
-				if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+				if( (line = E00_Read_Line()) != NULL )
 				{
 					sscanf(line, "%f%f%f%f%f", f, f+1, f+2, f+3, f+4);
 
@@ -591,7 +626,7 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 		{
 			for(x=0; x<cols; x+= 3)
 			{
-				if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+				if( (line = E00_Read_Line()) != NULL )
 				{
 					sscanf(line, "%lf%lf%lf", d, d+1, d+2);
 
@@ -650,7 +685,7 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 	{
 		Process_Set_Text(CSG_String::Format(SG_T("Loaded arcs: %d"), pShapes->Get_Count()));
 
-		if( (line = E00ReadNextLine(hReadPtr)) == NULL )
+		if( (line = E00_Read_Line()) == NULL )
 		{
 			covnum	= -1;
 		}
@@ -675,7 +710,7 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 			{
 				for(iPoint=0; iPoint<nPoints && line; iPoint++)
 				{
-					if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+					if( (line = E00_Read_Line()) != NULL )
 					{
 						sscanf(line, "%lf %lf", x_buf, y_buf);
 
@@ -689,7 +724,7 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 			{
 				for(iPoint=0; iPoint<nPoints && line; iPoint+=2)
 				{
-					if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+					if( (line = E00_Read_Line()) != NULL )
 					{
 						sscanf(line, "%lf %lf %lf %lf", x_buf, y_buf, x_buf + 1, y_buf + 1);
 
@@ -888,7 +923,7 @@ CSG_Shapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: 
 	pShapes->Add_Field("ID#"	, SG_DATATYPE_Int);
 	pShapes->Add_Field("ID"	, SG_DATATYPE_Int);
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	while( (line = E00_Read_Line()) != NULL )
 	{
 		sscanf(line, "%d %d %lf %lf", &id, &num, &x, &y);
 
@@ -906,11 +941,11 @@ CSG_Shapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: 
 			pShape->Set_Value(1, id);
 
 			//---------------------------------------------
-			E00ReadNextLine(hReadPtr);		// 4 values to skip
+			E00_Read_Line();		// 4 values to skip
 
 			if( prec )
 			{
-				E00ReadNextLine(hReadPtr);	// on 2nd line when double precision
+				E00_Read_Line();	// on 2nd line when double precision
 			}
 		}
 	}
@@ -944,7 +979,7 @@ CSG_Shapes * CESRI_E00_Import::getsites(int prec, double scale)
 	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
 	pShapes->Add_Field("ID", SG_DATATYPE_Int);
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	while( (line = E00_Read_Line()) != NULL )
 	{
 		sscanf(line, "%d %*d %lf %lf", &id, &x, &y);
 
@@ -959,11 +994,11 @@ CSG_Shapes * CESRI_E00_Import::getsites(int prec, double scale)
 		pShape->Set_Value(0, id);
 
 		//-------------------------------------------------
-		E00ReadNextLine(hReadPtr);		// 4 values to skip
+		E00_Read_Line();		// 4 values to skip
 
 		if( prec )
 		{
-			E00ReadNextLine(hReadPtr);	// on 2nd line when double precision
+			E00_Read_Line();	// on 2nd line when double precision
 		}
 	}
 
@@ -994,7 +1029,7 @@ double CESRI_E00_Import::getproj(void)
 
 	double	scale	= 1.0;
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL && strncmp(line, "EOP", 3) )
+	while( (line = E00_Read_Line()) != NULL && strncmp(line, "EOP", 3) )
 	{
 		if( !strncmp(line, "Units", 5) )
 		{
@@ -1053,7 +1088,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 	struct info_Table	info;
 
 	//-----------------------------------------------------
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL && strncmp(line, "EOI", 3) )
+	while( (line = E00_Read_Line()) != NULL && strncmp(line, "EOI", 3) )
 	{
 		strncpy(info.Name, line, 32);
 		info.Name[32]	= 0;
@@ -1079,7 +1114,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 		//---------------------------------------------
 		for(i=0; i<info.nFields; i++)
 		{
-			if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+			if( (line = E00_Read_Line()) != NULL )
 			{
 				sscanf(line, "%16s", info.Field[i].Name);
 				info.Field[i].Size	= atoi(&line[16]);
@@ -1127,13 +1162,13 @@ int CESRI_E00_Import::info_Get_Tables(void)
 		//---------------------------------------------
 		pTable	= NULL;
 
-		if     ( !s.CmpNoCase(SG_T("aat")) && pAAT == NULL )
+		if     ( !s.CmpNoCase(SG_T("aat")) && m_pAAT == NULL )
 		{
-			pTable	= pAAT	= info_Get_Table(info);
+			pTable	= m_pAAT	= info_Get_Table(info);
 		}
-		else if( !s.CmpNoCase(SG_T("pat")) && pPAT == NULL )
+		else if( !s.CmpNoCase(SG_T("pat")) && m_pPAT == NULL )
 		{
-			pTable	= pPAT	= info_Get_Table(info);
+			pTable	= m_pPAT	= info_Get_Table(info);
 		}
 	//	else if( !s.CmpNoCase("vat") )		// value table (grid)
 	//	else if( !s.CmpNoCase("bnd") )		// coverage boundaries
@@ -1204,7 +1239,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 
 	//-----------------------------------------------------
 	// 0 if none, 1 if AAT, 2 if PAT, 3 if both
-	return( pPAT ? (pAAT ? 3 : 2) : (pAAT ? 1 : 0) );
+	return( m_pPAT ? (m_pAAT ? 3 : 2) : (m_pAAT ? 1 : 0) );
 }
 
 //---------------------------------------------------------
@@ -1316,7 +1351,7 @@ void CESRI_E00_Import::info_Get_Record(char *buffer, int buffer_length)
 	l	= 0;
 
 	//-----------------------------------------------------
-	if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	if( (line = E00_Read_Line()) != NULL )
 	{
 		strncpy(buffer, line, buffer_length < 84 ? buffer_length : 84);
 
@@ -1334,7 +1369,7 @@ void CESRI_E00_Import::info_Get_Record(char *buffer, int buffer_length)
 				{
 					break;
 				}
-				else if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+				else if( (line = E00_Read_Line()) != NULL )
 				{
 					strncpy(p, line, buffer_length - l < 84 ? buffer_length - l : 84);
 
@@ -1371,15 +1406,15 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 	CSG_Table_Record	*pRec;
 	CSG_Shape			*pShape;
 
-	if( pShapes && pShapes->Get_Field_Count() > 0 && pPAT && pPAT->Get_Field_Count() > 2 )
+	if( pShapes && pShapes->Get_Field_Count() > 0 && m_pPAT && m_pPAT->Get_Field_Count() > 2 )
 	{
 		Process_Set_Text(_TL("Assign attributes to shapes..."));
 
 		oField	= pShapes->Get_Field_Count();
 
-		for(iField=0; iField<pPAT->Get_Field_Count(); iField++)
+		for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
 		{
-			pShapes->Add_Field(pPAT->Get_Field_Name(iField), pPAT->Get_Field_Type(iField));
+			pShapes->Add_Field(m_pPAT->Get_Field_Name(iField), m_pPAT->Get_Field_Type(iField));
 		}
 
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
@@ -1387,15 +1422,15 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 			pShape	= pShapes->Get_Shape(iShape);
 			id		= pShape->asInt(0);
 
-			for(iRecord=0; iRecord<pPAT->Get_Record_Count(); iRecord++)
+			for(iRecord=0; iRecord<m_pPAT->Get_Record_Count(); iRecord++)
 			{
-				pRec	= pPAT->Get_Record(iRecord);
+				pRec	= m_pPAT->Get_Record(iRecord);
 
 				if( id == pRec->asInt(2) )
 				{
-					for(iField=0; iField<pPAT->Get_Field_Count(); iField++)
+					for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
 					{
-						switch( pPAT->Get_Field_Type(iField) )
+						switch( m_pPAT->Get_Field_Type(iField) )
 						{
 						case SG_DATATYPE_String:
 							pShape->Set_Value(oField + iField, pRec->asString(iField));
@@ -1433,7 +1468,7 @@ void CESRI_E00_Import::skip(char *end)
 
 	int		l	= strlen(end);
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL && strncmp(line, end, l) );
+	while( (line = E00_Read_Line()) != NULL && strncmp(line, end, l) );
 }
 
 //---------------------------------------------------------
@@ -1443,7 +1478,7 @@ void CESRI_E00_Import::skip_dat(void)
 
 	int		i	= 0;
 	
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL && i != -1 )
+	while( (line = E00_Read_Line()) != NULL && i != -1 )
 	{
 		sscanf(line, "%d", &i);
 	}
@@ -1457,11 +1492,11 @@ void CESRI_E00_Import::skip_msk(void)
 	double	xmin, ymin, xmax, ymax, res, sk;
 	long	xsize, ysize, nskip;
 
-	if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	if( (line = E00_Read_Line()) != NULL )
 	{
 		sscanf(line, "%lf %lf %lf", &xmin, &ymin, &xmax);
 
-		if( (line = E00ReadNextLine(hReadPtr)) != NULL )
+		if( (line = E00_Read_Line()) != NULL )
 		{
 			sscanf(line, "%lf %lf %ld %ld", &ymax, &res, &xsize, &ysize);
 
@@ -1470,7 +1505,7 @@ void CESRI_E00_Import::skip_msk(void)
 
 			while( nskip-- )
 			{
-				E00ReadNextLine(hReadPtr);
+				E00_Read_Line();
 			}
 		}
 	}
@@ -1483,7 +1518,7 @@ void CESRI_E00_Import::skip_arc(int prec)
 
 	int		i, covnum, nPoints;
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	while( (line = E00_Read_Line()) != NULL )
 	{
 		sscanf(line, "%d %*d %*d %*d %*d %*d %d", &covnum, &nPoints);
 
@@ -1495,7 +1530,7 @@ void CESRI_E00_Import::skip_arc(int prec)
 
 		for(i=0; i<nPoints; i++)
 		{
-			E00ReadNextLine(hReadPtr);
+			E00_Read_Line();
 		}
 	}
 }
@@ -1507,17 +1542,17 @@ void CESRI_E00_Import::skip_lab(int prec)
 
 	long	covid;
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	while( (line = E00_Read_Line()) != NULL )
 	{
 		sscanf(line, "%ld", &covid);
 
 		if( covid == -1 )
 			break;
 
-		E00ReadNextLine(hReadPtr);
+		E00_Read_Line();
 
 		if( prec )	// two lines of coordinates in double precision
-			E00ReadNextLine(hReadPtr);
+			E00_Read_Line();
 	}
 }
 
@@ -1528,18 +1563,18 @@ void CESRI_E00_Import::skip_pal(int prec)
 
 	int		i, narcs;
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	while( (line = E00_Read_Line()) != NULL )
 	{
 		sscanf(line, "%d", &narcs);
 
 		if( prec )	// two lines of coordinates in double precision
-			E00ReadNextLine(hReadPtr);
+			E00_Read_Line();
 
 		if( narcs == -1 )
 			break;
 
 		for(i=(narcs+1)/2; i; i--)
-			E00ReadNextLine(hReadPtr);
+			E00_Read_Line();
 	}
 }
 
@@ -1552,7 +1587,7 @@ void CESRI_E00_Import::skip_txt(int prec)
 
 	nskip	= prec ? 7 : 5;
 
-	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
+	while( (line = E00_Read_Line()) != NULL )
 	{
 		sscanf( line, "%d", &n);
 
@@ -1560,7 +1595,7 @@ void CESRI_E00_Import::skip_txt(int prec)
 			break;
 
 		for(i=0; i<nskip; i++)
-			E00ReadNextLine(hReadPtr);
+			E00_Read_Line();
 	}
 }
 

@@ -71,7 +71,6 @@ class CESRI_E00_Import : public CSG_Module
 {
 public:
 	CESRI_E00_Import(void);
-	virtual ~CESRI_E00_Import(void);
 
 
 protected:
@@ -81,17 +80,20 @@ protected:
 
 private:
 
-	E00ReadPtr				hReadPtr;
+	int						m_iFile;
 
-	CSG_String				e00_Name;
+	E00ReadPtr				m_hReadPtr;
 
-	CSG_Table				*pPAT, *pAAT;
+	CSG_String				m_e00_Name;
+
+	CSG_Table				*m_pPAT, *m_pAAT;
 
 
 	bool					Open(const SG_Char *FileName);
 	bool					Load(void);
 
-	bool					E00GotoLine(int iLine);
+	const char *			E00_Read_Line	(void);
+	bool					E00_Goto_Line	(int iLine);
 
 	CSG_Grid *				getraster	(int prec, double scale);
 	CSG_Shapes *			getarcs		(int prec, double scale, TSG_Shape_Type &shape_type);
