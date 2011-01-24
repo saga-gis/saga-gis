@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//						FuzzyAND.h						 //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//           Antonio Boggia and Gianluca Massei          //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,99 +37,60 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     boggia@unipg.it						 //
+//				  g_massa@libero.it				     	 //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    Antonio Boggia                         //
+//                Gianluca Massei                        //
+//                Department of Economics and Appraisal  //
+//                University of Perugia - Italy			 //
+//                www.unipg.it                           //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 
-
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__FuzzyAND_H
+#define HEADER_INCLUDED__FuzzyAND_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CFuzzyAND : public CSG_Module_Grid  
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Calculus") );
+public:
+	CFuzzyAND(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, A. Ringeler, V. Olaya (c) 2001-4") );
-
-	case MLB_INFO_Description:
-		return( _TL("Grid based or related calculations.") );
-
-	case MLB_INFO_Version:
-		return( _TL("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Calculus" ));
-	}
-}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("Fuzzy Logic") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Grid_Normalise.h"
-#include "Grid_Calculator.h"
-#include "Grid_Volume.h"
-#include "grid_difference.h"
-#include "Grid_Plotter.h"
-#include "Grid_Geometric_Figures.h"
-#include "Grid_Random_Terrain.h"
-#include "Grid_Random_Field.h"
+	virtual bool			On_Execute		(void);
 
-#include "Fuzzify.h"
-#include "FuzzyAND.h"
-#include "FuzzyOR.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:		return( new CGrid_Normalise );
-	case  1:		return( new CGrid_Calculator );
-	case  2:		return( new CGrid_Volume );
-	case  3:		return( new CGrid_Difference );
-	case  4:		return( new CGrid_Plotter );
-	case  5:		return( new CGrid_Geometric_Figures );
-	case  6:		return( new CGrid_Random_Terrain );
-	case  7:		return( new CGrid_Random_Field );
-	case  8:		return( new CGrids_Sum );
-	case  9:		return( new CGrids_Product );
-
-	case 10:		return( new CFuzzify );
-	case 11:		return( new CFuzzyAND );
-	case 12:		return( new CFuzzyOR );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -139,8 +100,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // HEADER_INCLUDED__FuzzyAND_H

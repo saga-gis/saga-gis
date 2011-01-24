@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2010-07-08 14:11:50 johanvdw Exp $
+# $Id: Makefile.am,v 1.8 2011-01-24 11:34:05 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,6 +13,9 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libgrid_calculus.la
 libgrid_calculus_la_SOURCES =\
+Fuzzify.cpp\
+FuzzyAND.cpp\
+FuzzyOR.cpp\
 Grid_Calculator.cpp\
 grid_difference.cpp\
 Grid_Geometric_Figures.cpp\
@@ -22,6 +25,9 @@ Grid_Random_Field.cpp\
 Grid_Random_Terrain.cpp\
 Grid_Volume.cpp\
 MLB_Interface.cpp\
+Fuzzify.h\
+FuzzyAND.h\
+FuzzyOR.h\
 Grid_Calculator.h\
 grid_difference.h\
 Grid_Geometric_Figures.h\

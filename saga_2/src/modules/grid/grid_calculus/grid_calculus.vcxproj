@@ -558,6 +558,9 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Fuzzify.cpp" />
+    <ClCompile Include="FuzzyAND.cpp" />
+    <ClCompile Include="FuzzyOR.cpp" />
     <ClCompile Include="Grid_Calculator.cpp" />
     <ClCompile Include="grid_difference.cpp" />
     <ClCompile Include="Grid_Geometric_Figures.cpp" />
@@ -592,6 +595,9 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="Fuzzify.h" />
+    <ClInclude Include="FuzzyAND.h" />
+    <ClInclude Include="FuzzyOR.h" />
     <ClInclude Include="Grid_Calculator.h" />
     <ClInclude Include="grid_difference.h" />
     <ClInclude Include="Grid_Geometric_Figures.h" />
