@@ -226,6 +226,8 @@ bool CFilter_Morphology::On_Execute(void)
 		m_pInput->Assign(pResult);
 
 		delete(pResult);
+
+		DataObject_Update(m_pInput);
 	}
 
 	m_Kernel.Destroy();

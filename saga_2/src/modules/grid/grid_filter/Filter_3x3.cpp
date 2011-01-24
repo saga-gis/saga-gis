@@ -219,6 +219,8 @@ bool CFilter_3x3::On_Execute(void)
 		pInput->Assign(pResult);
 
 		delete(pResult);
+
+		DataObject_Update(pInput);
 	}
 
 	return( true );
