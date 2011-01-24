@@ -162,21 +162,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "grid_discretisation"=.\modules\grid\grid_discretisation\grid_discretisation.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name saga_api
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "grid_filter"=.\modules\grid\grid_filter\grid_filter.dsp - Package Owner=<4>
 
 Package=<5>
@@ -264,6 +249,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "imagery_classification"=.\modules_images\modules_imagery\imagery_classification\imagery_classification.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "imagery_rga"=.\modules_images\modules_imagery\imagery_rga\imagery_rga.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "imagery_segmentation"=.\modules_images\modules_imagery\imagery_segmentation\imagery_segmentation.dsp - Package Owner=<4>
 
 Package=<5>
@@ -275,6 +284,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name saga_api
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "imagery_tools"=.\modules_images\modules_imagery\imagery_tools\imagery_tools.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
