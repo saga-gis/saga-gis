@@ -279,6 +279,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_html", "modules_io\doc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_pdf", "modules_io\docs\docs_pdf\docs_pdf.vcproj", "{6FABD1D7-3342-41D7-9D34-179DFBFBA4FB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_classification", "modules_images\modules_imagery\imagery_classification\imagery_classification.vcproj", "{741D349E-20F7-4723-A754-C5CC89612EFA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_rga", "modules_images\modules_imagery\imagery_rga\imagery_rga.vcproj", "{2EB00861-F09A-40AB-92F9-D2E62A49D98B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_tools", "modules_images\modules_imagery\imagery_tools\imagery_tools.vcproj", "{4805A2A8-E531-4567-B492-B3173AB97350}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -1307,6 +1313,42 @@ Global
 		{6FABD1D7-3342-41D7-9D34-179DFBFBA4FB}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{6FABD1D7-3342-41D7-9D34-179DFBFBA4FB}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 		{6FABD1D7-3342-41D7-9D34-179DFBFBA4FB}.Unicode Release|x64.ActiveCfg = Unicode Release|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Debug|Win32.Build.0 = Debug|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Debug|x64.ActiveCfg = Debug|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Release|Win32.ActiveCfg = Release|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Release|Win32.Build.0 = Release|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Release|x64.ActiveCfg = Release|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Unicode Debug|x64.ActiveCfg = Unicode Debug|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{741D349E-20F7-4723-A754-C5CC89612EFA}.Unicode Release|x64.ActiveCfg = Unicode Release|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Debug|Win32.Build.0 = Debug|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Debug|x64.ActiveCfg = Debug|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Release|Win32.ActiveCfg = Release|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Release|Win32.Build.0 = Release|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Release|x64.ActiveCfg = Release|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Unicode Debug|x64.ActiveCfg = Unicode Debug|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{2EB00861-F09A-40AB-92F9-D2E62A49D98B}.Unicode Release|x64.ActiveCfg = Unicode Release|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Debug|Win32.Build.0 = Debug|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Debug|x64.ActiveCfg = Debug|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Release|Win32.ActiveCfg = Release|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Release|Win32.Build.0 = Release|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Release|x64.ActiveCfg = Release|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Debug|x64.ActiveCfg = Unicode Debug|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Release|x64.ActiveCfg = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

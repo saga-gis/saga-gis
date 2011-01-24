@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="imagery_rga"
-	ProjectGUID="{082B6E2B-15FD-41A0-9F86-CBF933B94B6B}"
+	ProjectGUID="{2EB00861-F09A-40AB-92F9-D2E62A49D98B}"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -111,7 +111,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -500,7 +499,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
