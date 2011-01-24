@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   skeletonization.h                   //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2003 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,88 +37,89 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__skeletonization_H
+#define HEADER_INCLUDED__skeletonization_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Segmentation") );
-
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Assoc. (c) 2009") );
-
-	case MLB_INFO_Description:
-		return( _TL("Image segmentation algorithms.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|Segmentation") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "watershed_segmentation.h"
-#include "skeletonization.h"
-#include "grid_seeds.h"
-#include "rga_basic.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CWatershed_Segmentation );
-	case  1:	return( new CSkeletonization );
-	case  2:	return( new CGrid_Seeds );
-	case  3:	return( new CRGA_Basic );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CSkeletonization : public CSG_Module_Grid
+{
+public:
+	CSkeletonization(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual bool		On_Execute			(void);
+
+
+private:
+
+	CSG_Grid			*pResult;
+
+
+	int					Get_Neighbours		(int x, int y, CSG_Grid *pGrid, bool Neighbours[8]);
+
+	int					Vectorize			(CSG_Shapes *pShapes);
+	bool				Vectorize_Trace		(int x, int y, CSG_Shape *pShape);
+
+	void				Standard_Execute	(void);
+	int					Standard_Step		(int iDir, CSG_Grid *pPrev, CSG_Grid *pNext);
+	bool				Standard_Check		(int iDir, bool z[8]);
+
+	void				Hilditch_Execute	(void);
+	int					Hilditch_Step		(CSG_Grid *pPrev, CSG_Grid *pNext, CSG_Grid *pNC_Gaps);
+	bool				Hilditch_Check		(CSG_Grid *pNC_Gaps, int x, int y, int i0, bool z[8]);
+
+	void				SK_Execute			(void);
+	int					SK_Connectivity		(int NB[8]);
+	bool				SK_Filter			(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__skeletonization_H

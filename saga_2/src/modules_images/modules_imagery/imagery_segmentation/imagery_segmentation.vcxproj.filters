@@ -17,7 +17,16 @@
     <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fast_region_growing.cpp">
+    <ClCompile Include="grid_seeds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rga_basic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="skeletonization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="watershed_segmentation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -76,7 +85,16 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="fast_region_growing.h">
+    <ClInclude Include="grid_seeds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rga_basic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="skeletonization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="watershed_segmentation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                   Library Template                    //
+//                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

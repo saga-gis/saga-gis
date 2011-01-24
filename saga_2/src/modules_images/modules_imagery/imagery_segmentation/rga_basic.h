@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     rga_basic.h                       //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2008 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,77 +37,82 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__rga_basic_H
+#define HEADER_INCLUDED__rga_basic_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+typedef struct SCandidate
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Segmentation") );
+	int						x, y, Segment;
 
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Assoc. (c) 2009") );
-
-	case MLB_INFO_Description:
-		return( _TL("Image segmentation algorithms.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|Segmentation") );
-	}
+	double					Similarity;
 }
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "watershed_segmentation.h"
-#include "skeletonization.h"
-#include "grid_seeds.h"
-#include "rga_basic.h"
-
+TCandidate;
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+class CCandidates
 {
-	switch( i )
-	{
-	case  0:	return( new CWatershed_Segmentation );
-	case  1:	return( new CSkeletonization );
-	case  2:	return( new CGrid_Seeds );
-	case  3:	return( new CRGA_Basic );
-	}
+public:
+	CCandidates(void);
+	CCandidates(int nMax);
+	~CCandidates(void);
 
-	return( NULL );
-}
+	void					Create			(void);
+	void					Create			(int nMax);
+	void					Destroy			(void);
+
+	void					Add				(int x, int y, int Segment, double Similarity);
+	bool					Get				(int &x, int &y, int &Segment);
+
+	int						Get_Count		(void)	{	return( m_nCandidates );	}
+
+	double					Get_Minimum		(void);
+	double					Get_Maximum		(void);
+
+
+private:
+
+	int						m_nCandidates, m_nMax;
+
+	TCandidate				*m_Candidates;
+
+	CCandidates				*m_pLow, *m_pHigh;
+
+
+	int						_Find			(double Similarity);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -117,8 +122,48 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CRGA_Basic : public CSG_Module_Grid
+{
+public:
+	CRGA_Basic(void);
 
-	MLB_INTERFACE
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Segmentation") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+
+private:
+
+	int						m_Method, m_nFeatures, m_dNeighbour;
+
+	double					m_Var_1, m_Var_2, m_Threshold;
+
+	CSG_Table				*m_pSeeds;
+
+	CSG_Grid				*m_pSegments, *m_pSimilarity;
+
+	CSG_Parameter_Grid_List	*m_pFeatures;
+
+	CCandidates				m_Candidates;
+
+
+	bool					Get_Next_Candidate	(int &x, int &y, int &Segment);
+
+	bool					Add_To_Segment		(int  x, int  y, int  Segment);
+
+	double					Get_Similarity		(int  x, int  y, int  Segment);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__rga_basic_H

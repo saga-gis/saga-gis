@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                watershed_segmentation.h               //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2003 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,77 +37,69 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__watershed_segmentation_H
+#define HEADER_INCLUDED__watershed_segmentation_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CWatershed_Segmentation : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Segmentation") );
-
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Assoc. (c) 2009") );
-
-	case MLB_INFO_Description:
-		return( _TL("Image segmentation algorithms.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|Segmentation") );
-	}
-}
+public:
+	CWatershed_Segmentation(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "watershed_segmentation.h"
-#include "skeletonization.h"
-#include "grid_seeds.h"
-#include "rga_basic.h"
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CWatershed_Segmentation );
-	case  1:	return( new CSkeletonization );
-	case  2:	return( new CGrid_Seeds );
-	case  3:	return( new CRGA_Basic );
-	}
+	bool						m_bDown;
 
-	return( NULL );
-}
+	CSG_Grid					*m_pGrid, *m_pSegments, m_Dir;
+
+	CSG_Shapes					*m_pSeeds;
+
+
+	bool						Get_Seeds				(void);
+
+	bool						Get_Segments			(void);
+	bool						Segment_Change			(int ID, int new_ID);
+
+	bool						Get_Borders				(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -117,8 +109,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__watershed_segmentation_H
