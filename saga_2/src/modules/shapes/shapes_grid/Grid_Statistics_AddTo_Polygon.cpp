@@ -62,7 +62,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <memory.h>
 #include <vector>
 #include <list>
 
@@ -78,6 +77,8 @@
 //---------------------------------------------------------
 CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 {
+	CSG_Parameter	*pNode;
+
 	//-----------------------------------------------------
 	// 1. Info...
 
@@ -93,40 +94,38 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	Parameters.Add_Grid(
-		NULL, "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "POLY"	, _TL("Polygons"),
+		NULL	, "POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL, "RESULT"	, _TL("Result"),
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "RESULT"		, _TL("Statistics"),
 		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
+
+	Parameters.Add_Value(pNode, "COUNT" , _TL("Number of Cells")	, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "MIN"   , _TL("Minimum")			, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "MAX"   , _TL("Maximum")			, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "RANGE" , _TL("Range")				, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "MEAN"  , _TL("Mean")				, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "VAR"   , _TL("Variance")			, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "STDDEV", _TL("Standard Deviation")	, _TL(""), PARAMETER_TYPE_Bool, true);
 
 	Parameters.Add_Value(
-		NULL, "QUANTILES", _TL("Quantiles"), 
-		_TL("Calculate distribution Quantiles"),
-		PARAMETER_TYPE_Bool, 0.0
-	);
-
-	Parameters.Add_Choice(
-		NULL, "QUANTILE_STEP", _TL("Quantile Step"),
-		_TL("Choose which quantiles you would like to calculate"),
-		_TL("median|quartiles|deciles|5% interval|"),
-		1
+		NULL	, "QUANTILE"	, _TL("Quantiles"), 
+		_TL("Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation."),
+		PARAMETER_TYPE_Int, 0, 0, true, 50, true
 	);
 }
-//---------------------------------------------------------
-CGrid_Statistics_AddTo_Polygon::~CGrid_Statistics_AddTo_Polygon(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -138,175 +137,164 @@ CGrid_Statistics_AddTo_Polygon::~CGrid_Statistics_AddTo_Polygon(void)
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 {
-	bool				bQuantiles;
-	int					x, y, iShape, nShapes, *Num,
-						field_CELLS, field_MEAN, field_MIN, field_MAX, field_VARI, field_STDDEV, field_QUANTILES, quantile_step;
-	double				*Sum, *Dif, *Min, *Max, d;
-	CSG_Table_Record	*pRecord;
-	CSG_Grid			*pGrid, ShapeIDs;
-	CSG_Shapes			*pShapes;
+	int						iShape, Quantile, nFields, fCOUNT, fMIN, fMAX, fRANGE, fMEAN, fVAR, fSTDDEV, fQUANTILE;
+	CSG_Grid				ShapeIDs;
+	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Shapes				*pShapes;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("POLY")		->asShapes();
-	pGrid		= Parameters("GRID")		->asGrid();
-	bQuantiles	= Parameters("QUANTILES")	->asBool();
+	pGrids		= Parameters("GRIDS")		->asGridList();
+	pShapes		= Parameters("POLYGONS")	->asShapes();
+	Quantile	= Parameters("QUANTILE")	->asInt();
 
-	switch(Parameters("QUANTILE_STEP")->asInt())
+	nFields		= 0;
+
+	fCOUNT		= Parameters("COUNT")		->asBool() ? nFields++ : -1;
+	fMIN		= Parameters("MIN")			->asBool() ? nFields++ : -1;
+	fMAX		= Parameters("MAX")			->asBool() ? nFields++ : -1;
+	fRANGE		= Parameters("RANGE")		->asBool() ? nFields++ : -1;
+	fMEAN		= Parameters("MEAN")		->asBool() ? nFields++ : -1;
+	fVAR		= Parameters("VAR")			->asBool() ? nFields++ : -1;
+	fSTDDEV		= Parameters("STDDEV")		->asBool() ? nFields++ : -1;
+	fQUANTILE	= Quantile > 0                         ? nFields++ : -1;
+
+	if( nFields == 0 )
 	{
-	case 0:				quantile_step	= 50;	break;
-	case 1:				quantile_step	= 25;	break;
-	case 2:				quantile_step	= 10;	break;
-	case 3: default:	quantile_step	= 5;	break;
+		Error_Set(_TL("no output parameter in selection"));
+
+		return( false );
+	}
+
+	if( pShapes->Get_Count() <= 0 )
+	{
+		Error_Set(_TL("no polygons in polygon layer"));
+
+		return( false );
+	}
+
+	if( !Get_System()->Get_Extent().Intersects(pShapes->Get_Extent()) )
+	{
+		Error_Set(_TL("no spatial intersection between grid(s) and polygon layer"));
+
+		return( false );
+	}
+
+	if( !Get_ShapeIDs(pShapes, &ShapeIDs) )
+	{
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	if(	pShapes->Get_Type() == SHAPE_TYPE_Polygon && pShapes->Get_Count() > 0
-	&&	pGrid->is_Intersecting(pShapes->Get_Extent()) )
+	if( Parameters("RESULT")->asShapes() != NULL && Parameters("RESULT")->asShapes() != pShapes )
 	{
-		ShapeIDs.Create(pGrid, SG_DATATYPE_Int);
-		ShapeIDs.Assign(-1.0);
+		pShapes		= Parameters("RESULT")->asShapes();
+		pShapes		->Assign(Parameters("POLYGONS")->asShapes());
+	}
 
-		//-------------------------------------------------
-		if( Get_ShapeIDs(pShapes, &ShapeIDs) )
+	//-----------------------------------------------------
+	for(int iGrid=0; iGrid<pGrids->Get_Count() && Process_Get_Okay(); iGrid++)
+	{
+		std::vector<std::list<double>>	Values(pShapes->Get_Count());
+
+		CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pShapes->Get_Count()];
+
+		CSG_Grid				*pGrid		= pGrids->asGrid(iGrid);
+
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			nShapes	= pShapes->Get_Count();
-
-			Num		= (int    *)calloc(nShapes, sizeof(int   ));
-			Sum		= (double *)calloc(nShapes, sizeof(double));
-			Min		= (double *)calloc(nShapes, sizeof(double));
-			Max		= (double *)calloc(nShapes, sizeof(double));
-			Dif		= (double *)calloc(nShapes, sizeof(double));
-
-			std::vector<std::list<double> >ShapePixels(nShapes);
-
-			//---------------------------------------------
-			for(y=0; y<Get_NY() && Set_Progress(y); y++)
+			for(int x=0; x<Get_NX(); x++)
 			{
-				for(x=0; x<Get_NX(); x++)
+				if( !pGrid->is_NoData(x, y) && (iShape = ShapeIDs.asInt(x, y)) >= 0 && iShape < pShapes->Get_Count() )
 				{
-					if( !pGrid->is_NoData(x, y) && (iShape = ShapeIDs.asInt(x, y)) >= 0 && iShape < nShapes )
+					Statistics[iShape].Add_Value(pGrid->asDouble(x, y));
+
+					if( fQUANTILE >= 0 )
 					{
-						d			= pGrid->asDouble(x, y);
-						Sum[iShape]	+= d;
-						Dif[iShape]	+= d * d;
-						Num[iShape]	++;
-
-						if( Num[iShape] == 1 )
-						{
-							Min[iShape]	= Max[iShape]	= d;
-						}
-						else if( Min[iShape] > d )
-						{
-							Min[iShape]	= d;
-						}
-						else if( Max[iShape] < d )
-						{
-							Max[iShape]	= d;
-						}
-
-						if( bQuantiles )
-						{
-							ShapePixels[iShape].push_back(d);
-						}
+						Values[iShape].push_back(pGrid->asDouble(x, y));
 					}
 				}
 			}
-			
-			//---------------------------------------------
-			pShapes	= Parameters("RESULT")->asShapes();
-			pShapes->Assign(Parameters("POLY")->asShapes());
-
-			field_CELLS		= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("CELLS")		, SG_DATATYPE_Int);
-
-			field_MIN		= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("MIN")		, SG_DATATYPE_Double);
-
-			field_MAX		= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("MAX")		, SG_DATATYPE_Double);
-
-			field_MEAN		= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("MEAN")		, SG_DATATYPE_Double);
-
-			field_VARI		= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("VARIANCE")	, SG_DATATYPE_Double);
-
-			field_STDDEV	= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("STDDEV")	, SG_DATATYPE_Double);
-
-			if( bQuantiles )
-			{
-				field_QUANTILES = pShapes->Get_Field_Count();
-
-				for(int i=quantile_step; i<100; i+=quantile_step)
-				{
-					pShapes->Add_Field(CSG_String::Format(SG_T("Q%d"), i).c_str(), SG_DATATYPE_Double);
-				}
-			}
-
-			for(iShape=0; iShape<nShapes; iShape++)
-			{
-				pRecord	= pShapes->Get_Shape(iShape);
-
-				if( Num[iShape] > 0 )
-				{
-					d		= Sum[iShape] / (double)Num[iShape];
-
-					pRecord->Set_Value(field_CELLS	, Num[iShape]);
-					pRecord->Set_Value(field_MIN	, Min[iShape]);
-					pRecord->Set_Value(field_MAX	, Max[iShape]);
-					pRecord->Set_Value(field_MEAN	, d);
-					pRecord->Set_Value(field_VARI	, d = Dif[iShape] / (double)Num[iShape] - d * d);
-					pRecord->Set_Value(field_STDDEV	, sqrt(d));
-
-					if( bQuantiles )
-					{
-						Set_Progress(iShape,nShapes);
-						ShapePixels[iShape].sort();	
-
-						int		i	= 0;	// Used to iterate over the different quantiles
-						int		k	= 0;	// Used to count at which position in the list we are j: iterates over the list
-
-						for(std::list<double>::iterator j=ShapePixels[iShape].begin(); j!=ShapePixels[iShape].end(); j++)
-						{
-							k++;
-
-						// Konstantin Stricker (stricker@iawg.de) reported an error in indexing the search for quantils.
-						// Original code:
-						//	while( ((double)k / (Num[iShape])) > ((double)i * quantile_step / 100.0) )
-						// His solution:
-							while( ((double)k / (Num[iShape])) > ((double)(i + 1) * quantile_step / 100.0) )
-							{
-								pRecord->Set_Value(field_QUANTILES + i, *j);
-								i++;
-							}
-						}
-					}	
-				}
-				else
-				{
-					pRecord->Set_NoData(field_CELLS);
-					pRecord->Set_NoData(field_MIN);
-					pRecord->Set_NoData(field_MAX);
-					pRecord->Set_NoData(field_MEAN);
-					pRecord->Set_NoData(field_VARI);
-					pRecord->Set_NoData(field_STDDEV);
-				}
-			}
-
-			//---------------------------------------------
-			free(Num);
-			free(Min);
-			free(Max);
-			free(Sum);
-			free(Dif);
-
-			return( true );
 		}
+			
+		//-------------------------------------------------
+		nFields		= pShapes->Get_Field_Count();
+
+		if( fCOUNT    >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("CELLS")   ), SG_DATATYPE_Int   );
+		if( fMIN      >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("MIN")     ), SG_DATATYPE_Double);
+		if( fMAX      >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("MAX")     ), SG_DATATYPE_Double);
+		if( fRANGE    >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("RANGE")   ), SG_DATATYPE_Double);
+		if( fMEAN     >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("MEAN")    ), SG_DATATYPE_Double);
+		if( fVAR      >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("VARIANCE")), SG_DATATYPE_Double);
+		if( fSTDDEV   >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("STDDEV")  ), SG_DATATYPE_Double);
+		if( fQUANTILE >= 0 )
+		{
+			for(int iQuantile=Quantile; iQuantile<100; iQuantile+=Quantile)
+			{
+				pShapes->Add_Field(CSG_String::Format(SG_T("%s [Q%d]"), pGrid->Get_Name(), iQuantile), SG_DATATYPE_Double);
+			}
+		}
+
+		//-------------------------------------------------
+		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+			if( Statistics[iShape].Get_Count() == 0 )
+			{
+				if( fCOUNT    >= 0 )	pShape->Set_NoData(nFields + fCOUNT);
+				if( fMIN      >= 0 )	pShape->Set_NoData(nFields + fMIN);
+				if( fMAX      >= 0 )	pShape->Set_NoData(nFields + fMAX);
+				if( fRANGE    >= 0 )	pShape->Set_NoData(nFields + fRANGE);
+				if( fMEAN     >= 0 )	pShape->Set_NoData(nFields + fMEAN);
+				if( fVAR      >= 0 )	pShape->Set_NoData(nFields + fVAR);
+				if( fSTDDEV   >= 0 )	pShape->Set_NoData(nFields + fSTDDEV);
+				if( fQUANTILE >= 0 )	pShape->Set_NoData(nFields + fQUANTILE);
+			}
+			else
+			{
+				if( fCOUNT    >= 0 )	pShape->Set_Value(nFields + fCOUNT	, Statistics[iShape].Get_Count   ());
+				if( fMIN      >= 0 )	pShape->Set_Value(nFields + fMIN	, Statistics[iShape].Get_Minimum ());
+				if( fMAX      >= 0 )	pShape->Set_Value(nFields + fMAX	, Statistics[iShape].Get_Maximum ());
+				if( fRANGE    >= 0 )	pShape->Set_Value(nFields + fRANGE	, Statistics[iShape].Get_Range   ());
+				if( fMEAN     >= 0 )	pShape->Set_Value(nFields + fMEAN	, Statistics[iShape].Get_Mean    ());
+				if( fVAR      >= 0 )	pShape->Set_Value(nFields + fVAR	, Statistics[iShape].Get_Variance());
+				if( fSTDDEV   >= 0 )	pShape->Set_Value(nFields + fSTDDEV	, Statistics[iShape].Get_StdDev  ());
+				if( fQUANTILE >= 0 )
+				{
+					int		iQuantile, iValue;
+
+					std::list<double>::iterator	Value;
+
+					Values[iShape].sort();	
+
+					for(iQuantile=0, iValue=0, Value=Values[iShape].begin(); Value!=Values[iShape].end(); Value++, iValue++)
+					{
+						while( ((double)iValue / (Statistics[iShape].Get_Count())) > ((double)(iQuantile + 1) * Quantile / 100.0) )
+						{
+							pShape->Set_Value(nFields + fQUANTILE + (iQuantile++), *Value);
+						}
+					}
+
+					Values[iShape].clear();
+				}	
+			}
+		}
+
+		delete[](Statistics);
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	DataObject_Update(pShapes);
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid *pShapeIDs)
@@ -319,6 +307,9 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid 
 	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
+	pShapeIDs->Create(*Get_System(), SG_DATATYPE_Int);
+	pShapeIDs->Assign(-1.0);
+
 	bCrossing	= (bool *)SG_Malloc(pShapeIDs->Get_NX() * sizeof(bool));
 
 	//-----------------------------------------------------
@@ -397,3 +388,10 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid 
 }
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

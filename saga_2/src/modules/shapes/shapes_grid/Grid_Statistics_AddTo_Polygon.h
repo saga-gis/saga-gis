@@ -61,29 +61,47 @@
 #ifndef HEADER_INCLUDED__Grid_Statistics_AddTo_Polygon_H
 #define HEADER_INCLUDED__Grid_Statistics_AddTo_Polygon_H
 
-//---------------------------------------------------------
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CGrid_Statistics_AddTo_Polygon : public CSG_Module_Grid  
 {
 public:
 	CGrid_Statistics_AddTo_Polygon(void);
-	virtual ~CGrid_Statistics_AddTo_Polygon(void);
 
 
 protected:
 
-	virtual bool		On_Execute(void);
+	virtual bool		On_Execute		(void);
 
 
 private:
 
-	bool				Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid *pShapeIDs);
+	bool				Get_ShapeIDs	(CSG_Shapes *pShapes, CSG_Grid *pShapeIDs);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Statistics_AddTo_Polygon_H
