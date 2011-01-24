@@ -333,7 +333,14 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Valu
 	//-----------------------------------------------------
 	for(int iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
 	{
-		if( !is_NoData(iCell) )
+		if( is_NoData(iCell) )
+		{
+			for(i=0; i<n; i++)
+			{
+				pPCA->asGrid(i)->Set_NoData(iCell);
+			}
+		}
+		else
 		{
 			for(i=0, j=Get_NGrids()-1; i<n; i++, j--)
 			{
