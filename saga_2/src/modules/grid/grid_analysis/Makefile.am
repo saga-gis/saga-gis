@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.10 2010-09-11 00:07:46 reklov_w Exp $
+# $Id: Makefile.am,v 1.11 2011-01-24 11:35:45 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -23,16 +23,11 @@ fragmentation_base.cpp\
 fragmentation_classify.cpp\
 fragmentation_resampling.cpp\
 fragmentation_standard.cpp\
-Fuzzify.cpp\
-FuzzyAND.cpp\
-FuzzyOR.cpp\
 Grid_AggregationIndex.cpp\
 Grid_AHP.cpp\
 Grid_CVA.cpp\
 Grid_LayerOfMaximumValue.cpp\
 Grid_Pattern.cpp\
-Image_VI_Distance.cpp\
-Image_VI_Slope.cpp\
 LeastCostPathProfile.cpp\
 LeastCostPathProfile_Points.cpp\
 MLB_Interface.cpp\
@@ -49,16 +44,11 @@ fragmentation_base.h\
 fragmentation_classify.h\
 fragmentation_resampling.h\
 fragmentation_standard.h\
-Fuzzify.h\
-FuzzyAND.h\
-FuzzyOR.h\
 Grid_AggregationIndex.h\
 Grid_AHP.h\
 Grid_CVA.h\
 Grid_LayerOfMaximumValue.h\
 Grid_Pattern.h\
-Image_VI_Distance.h\
-Image_VI_Slope.h\
 LeastCostPathProfile.h\
 LeastCostPathProfile_Points.h\
 MLB_Interface.h\

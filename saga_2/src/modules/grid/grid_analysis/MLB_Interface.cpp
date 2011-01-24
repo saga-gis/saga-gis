@@ -86,15 +86,6 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "Grid_CVA.h"
-#include "CoveredDistance.h"
-#include "Grid_Pattern.h"
-#include "CrossClassification.h"
-#include "Grid_LayerOfMaximumValue.h"
-#include "Grid_AggregationIndex.h"
-#include "Grid_AHP.h"
-#include "owa.h"
-
 #include "Cost_Isotropic.h"
 #include "Cost_Anisotropic.h"
 #include "Cost_PolarToRect.h"
@@ -102,12 +93,14 @@ const SG_Char * Get_Info(int i)
 #include "LeastCostPathProfile.h"
 #include "LeastCostPathProfile_Points.h"
 
-#include "Image_VI_Distance.h"
-#include "Image_VI_Slope.h"
-
-#include "FuzzyAND.h"
-#include "FuzzyOR.h"
-#include "Fuzzify.h"
+#include "Grid_CVA.h"
+#include "CoveredDistance.h"
+#include "Grid_Pattern.h"
+#include "Grid_LayerOfMaximumValue.h"
+#include "Grid_AHP.h"
+#include "owa.h"
+#include "Grid_AggregationIndex.h"
+#include "CrossClassification.h"
 
 #include "Soil_Texture.h"
 
@@ -123,29 +116,27 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CCost_Isotropic );
-	case 1:		return( new CCost_Anisotropic );
-	case 2:		return( new CCost_PolarToRect );
-	case 3:		return( new CCost_RectToPolar );
-	case 4:		return( new CLeastCostPathProfile );
-	case 5:		return( new CImage_VI_Distance );
-	case 6:		return( new CImage_VI_Slope );
-	case 7:		return( new CFuzzyAND );
-	case 8:		return( new CFuzzyOR );
-	case 9:		return( new CFuzzify );
-	case 10:	return( new CGrid_CVA );
-	case 11:	return( new CCoveredDistance );
-	case 12:	return( new CGrid_Pattern );
-	case 13:	return( new CLayerOfMaximumValue );
-	case 14:	return( new CAHP );
-	case 15:	return( new COWA );
-	case 16:	return( new CAggregationIndex );
-	case 17:	return( new CCrossClassification );
-	case 18:	return( new CSoil_Texture );
-	case 19:	return( new CFragmentation_Standard );
-	case 20:	return( new CFragmentation_Resampling );
-	case 21:	return( new CFragmentation_Classify );
-	case 22:	return( new CLeastCostPathProfile_Points );
+	case  0:	return( new CCost_Isotropic );
+	case  1:	return( new CCost_Anisotropic );
+	case  2:	return( new CCost_PolarToRect );
+	case  3:	return( new CCost_RectToPolar );
+	case  4:	return( new CLeastCostPathProfile );
+	case  5:	return( new CLeastCostPathProfile_Points );
+
+	case  6:	return( new CGrid_CVA );
+	case  7:	return( new CCoveredDistance );
+	case  8:	return( new CGrid_Pattern );
+	case  9:	return( new CLayerOfMaximumValue );
+	case 10:	return( new CAHP );
+	case 11:	return( new COWA );
+	case 12:	return( new CAggregationIndex );
+	case 13:	return( new CCrossClassification );
+
+	case 14:	return( new CSoil_Texture );
+
+	case 15:	return( new CFragmentation_Standard );
+	case 16:	return( new CFragmentation_Resampling );
+	case 17:	return( new CFragmentation_Classify );
 	}
 
 	return( NULL );
