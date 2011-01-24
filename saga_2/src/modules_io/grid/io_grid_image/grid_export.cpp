@@ -226,7 +226,7 @@ bool CGrid_Export::On_Execute(void)
 	{
 		int			nColors	= Parameters("COL_COUNT")->asInt();
 		CSG_Colors	Colors(nColors, Parameters("COL_PALETTE")->asInt(), Parameters("COL_REVERT")->asBool());
-		CSG_Table	*pLUT(Parameters("LUT")->asTable());
+		CSG_Table	*pLUT	= Parameters("LUT")->asTable();
 
 		if( pLUT && pLUT->Get_Field_Count() < 5 )
 		{
