@@ -317,15 +317,21 @@ void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, d
 //---------------------------------------------------------
 inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(double Value, int iClass)
 {
-	double				d;
 	CSG_Table_Record	*pClass	= m_pLUT->Get_Record_byIndex(iClass);
 
-	if( (d = pClass->asDouble(LUT_MIN)) <= Value && Value <= pClass->asDouble(LUT_MAX) )
+	double	min	= pClass->asDouble(LUT_MIN);
+
+	if( Value < min )
 	{
-		return( 0 );
+		return( 1 );
 	}
 
-	return( d < Value ? -1 : 1 );
+	double	max	= pClass->asDouble(LUT_MAX);
+
+	return( min < max
+		?	(Value < max ?  0 : -1)
+		:	(Value > min ? -1 :  0)
+	);
 }
 
 //---------------------------------------------------------
