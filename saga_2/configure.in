@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.38 2010-11-09 22:12:00 johanvdw Exp $
+# $Id: configure.in,v 1.39 2011-01-24 13:13:51 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -120,7 +120,6 @@ AC_OUTPUT(Makefile \
 	src/modules/grid/grid_analysis/Makefile \
 	src/modules/grid/grid_calculus/Makefile \
 	src/modules/grid/grid_calculus_bsl/Makefile \
-	src/modules/grid/grid_discretisation/Makefile \
 	src/modules/grid/grid_filter/Makefile \
 	src/modules/grid/grid_gridding/Makefile \
 	src/modules/grid/grid_spline/Makefile \
@@ -153,8 +152,11 @@ AC_OUTPUT(Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_kriging/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_regression/Makefile \
     src/modules_images/Makefile \
-    src/modules_images/modules_imagery/imagery_segmentation/Makefile \
     src/modules_images/modules_imagery/Makefile \
+    src/modules_images/modules_imagery/imagery_classification/Makefile \
+    src/modules_images/modules_imagery/imagery_rga/Makefile \
+    src/modules_images/modules_imagery/imagery_segmentation/Makefile \
+    src/modules_images/modules_imagery/imagery_tools/Makefile \
     src/modules_images/modules_opencv/Makefile \
     src/modules_images/modules_opencv/opencv/Makefile \
     src/modules_images/modules_vigra/Makefile \
