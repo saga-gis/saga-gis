@@ -127,8 +127,6 @@ class CRGA_Basic : public CSG_Module_Grid
 public:
 	CRGA_Basic(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Segmentation") );	}
-
 
 protected:
 

@@ -31,7 +31,7 @@ public:
 	CImage_VI_Distance(void);
 	virtual ~CImage_VI_Distance(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Image Analysis") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
 
 
 protected:
