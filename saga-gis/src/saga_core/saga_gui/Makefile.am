@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.21 2010-10-22 09:15:15 oconrad Exp $
+# $Id$
 #
 INCS = -I.. -I.
 if DEBUG

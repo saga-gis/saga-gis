@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2011-01-24 14:50:49 oconrad Exp $
+# $Id$
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG

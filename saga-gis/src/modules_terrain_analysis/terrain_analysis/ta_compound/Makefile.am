@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2010-07-08 14:11:50 johanvdw Exp $
+# $Id$
 #
 ADD_MLBS = ../ta_channels/libta_channels.la ../ta_hydrology/libta_hydrology.la ../ta_lighting/libta_lighting.la ../ta_morphometry/libta_morphometry.la ../ta_preprocessor/libta_preprocessor.la
 if DEBUG

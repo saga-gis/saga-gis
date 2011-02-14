@@ -2,7 +2,7 @@
  * Version $Id$
  *********************************************************/
 /**********************************************************************
- * $Id: cpl_error.c,v 1.1.1.1 2006-06-26 15:38:25 oconrad Exp $
+ * $Id$
  *
  * Name:     cpl_error.cpp
  * Project:  CPL - Common Portability Library

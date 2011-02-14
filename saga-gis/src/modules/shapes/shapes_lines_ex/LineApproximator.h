@@ -615,7 +615,7 @@ namespace priv
 //
 //  File        : $RCSfile: LineApproximator.h,v $
 //
-//  Version     : $Id: LineApproximator.h,v 1.1.1.1 2006-06-26 15:37:52 oconrad Exp $
+//  Version     : $Id$
 //
 //  Description : defines algoirthms for comparing 2 floating point values
 // ***************************************************************************

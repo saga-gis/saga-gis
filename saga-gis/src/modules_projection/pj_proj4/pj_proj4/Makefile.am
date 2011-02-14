@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2010-09-07 15:59:03 oconrad Exp $
+# $Id$
 #
 DEP_LIBS = -lproj
 if DEBUG
