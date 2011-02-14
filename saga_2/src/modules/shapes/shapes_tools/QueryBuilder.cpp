@@ -16,118 +16,169 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "QueryBuilder.h"
-#include "QueryParser.h"
 
-#define METHOD_NEW_SEL 0
-#define METHOD_ADD_TO_SEL 1
-#define METHOD_SELECT_FROM_SEL 2
 
-CQueryBuilder::CQueryBuilder(void){
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Set_Name(_TL("Query builder for shapes"));
+//---------------------------------------------------------
+CSelect_Numeric::CSelect_Numeric(void)
+{
+	CSG_Parameter	*pNode;
 
-	Parameters.Set_Description(_TW("(c) 2004 by Victor Olaya. Query builder for shapes"));
+	//-----------------------------------------------------
+	Set_Name		(_TL("Select by Attributes... (Numerical Expression)"));
 
-	Parameters.Add_Shapes(NULL,
-						"SHAPES",
-						_TL("Shapes"),
-						_TL(""),
-						PARAMETER_INPUT);
+	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
 
-	Parameters.Add_String(NULL, "QUERY", _TL("Expression"), _TL(""), _TL(""));
+	Set_Description	(_TW(
+		"Selects records for which the expression is true."
+	));
 
-	Parameters.Add_Choice(NULL, 
-						"METHOD", 
-						_TL("Method"), 
-						_TL(""), 
-						_TW(
-						"New selection|"
-						"Add to current selection|"
-						"Select from current selection|"),
-						0);
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "SHAPES"		, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-}//constructor
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"		, _TL("Attribute"),
+		_TL("attribute to be searched; if not set all attributes will be searched"),
+		true
+	);
 
-CQueryBuilder::~CQueryBuilder(void){}
+	Parameters.Add_String(
+		NULL	, "EXPRESSION"	, _TL("Expression"),
+		_TL(""),
+		SG_T("a > 0")
+	);
 
-bool CQueryBuilder::On_Execute(void){
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("new selection"),
+			_TL("add to current selection"),
+			_TL("select from current selection"),
+			_TL("remove from current selection")
+		), 0
+	);
+}
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSelect_Numeric::On_Execute(void)
+{
+	int				Method, Field;
+	CSG_String		Expression;
 	CSG_Shapes		*pShapes;
-	CSG_Table		*pTable;
-	CSG_String		sExpression;
-	CQueryParser	*pParser;	
-	bool			*pRecordWasSelected;
-	int				*pSelectedRecords;
-	int				iNumSelectedRecords = 0;
-	int				iMethod;
-	int				iRecord;
-	int				i;
+	CSG_Formula		Formula;
 
-	pShapes		= Parameters("SHAPES")->asShapes();
-	pTable		= Parameters("SHAPES")->asTable();
-	sExpression = Parameters("QUERY")->asString();
-	iMethod		= Parameters("METHOD")->asInt();
+	//-----------------------------------------------------
+	pShapes		= Parameters("SHAPES")		->asShapes();
+	Field		= Parameters("FIELD")		->asInt();
+	Expression	= Parameters("EXPRESSION")	->asString();
+	Method		= Parameters("METHOD")		->asInt();
 
-	pRecordWasSelected = new bool[pTable->Get_Record_Count()];
-
-	if (iMethod == METHOD_SELECT_FROM_SEL){
-		for (i = 0; i < pTable->Get_Record_Count(); i++){
-			if (pTable->Get_Record(i)->is_Selected()){
-				pRecordWasSelected[i] = true;
-			}//if
-			else{
-				pRecordWasSelected[i] = false;
-			}//else
-		}//for
-	}//if
-
-	if (iMethod != METHOD_ADD_TO_SEL){
-		for (i = 0; i < pTable->Get_Record_Count(); i++){
-			if (pTable->Get_Record(i)->is_Selected()){
-				pTable->Select(i, true);
-			}//if
-		}//for
-	}//if
-
-	pParser = new CQueryParser(pShapes, sExpression);
-	if( pParser->is_Initialized() )
+	//-----------------------------------------------------
+	if( !Formula.Set_Formula(Expression) )
 	{
-		iNumSelectedRecords = pParser->GetSelectedRecordsCount();
+		CSG_String	Message;
 
-		if( iNumSelectedRecords <= 0 )
+		if( Formula.Get_Error(Message) )
 		{
-			SG_UI_Msg_Add(_TL("No records selected."), true);
-			delete (pRecordWasSelected);
-			return (true);
+			Error_Set(Message);
 		}
 
-		pSelectedRecords = &pParser->GetSelectedRecords();
-
-		for (i = 0; i < iNumSelectedRecords; i++){
-			iRecord = pSelectedRecords[i];
-			if (!pTable->Get_Record(iRecord)->is_Selected()){
-				if (iMethod == METHOD_SELECT_FROM_SEL){
-					if (pRecordWasSelected[iRecord]){
-						pTable->Select(iRecord, true);
-					}//if
-				}//if
-				else{
-					pTable->Select(iRecord, true);
-				}//else
-			}//if
-		}//for
-
-		pTable = NULL;
-		DataObject_Update(pShapes, true);
-		
-		delete (pRecordWasSelected);
-		return (true);
+		return( false );
 	}
-	else
+
+	//-----------------------------------------------------
+	double	*Values	= new double[pShapes->Get_Field_Count()];
+
+	for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 	{
-		delete (pRecordWasSelected);
-		return (false);
+		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
+
+		if( Field >= pShapes->Get_Field_Count() )
+		{
+			for(int j=0; j<pShapes->Get_Field_Count(); j++)
+			{
+				Values[j]	= pShape->asDouble(j);
+			}
+		}
+		else
+		{
+			Values[0]	= pShape->asDouble(Field);
+		}
+
+		switch( Method )
+		{
+		case 0:	// New selection
+			if( ( pShape->is_Selected() && !Formula.Get_Value(Values, pShapes->Get_Field_Count()))
+			||	(!pShape->is_Selected() &&  Formula.Get_Value(Values, pShapes->Get_Field_Count())) )
+			{
+				pShapes->Select(i, true);
+			}
+			break;
+
+		case 1:	// Add to current selection
+			if(  !pShape->is_Selected() &&  Formula.Get_Value(Values, pShapes->Get_Field_Count()) )
+			{
+				pShapes->Select(i, true);
+			}
+			break;
+
+		case 2:	// Select from current selection
+			if(   pShape->is_Selected() && !Formula.Get_Value(Values, pShapes->Get_Field_Count()) )
+			{
+				pShapes->Select(i, true);
+			}
+			break;
+
+		case 3:	// Remove from current selection
+			if(   pShape->is_Selected() &&  Formula.Get_Value(Values, pShapes->Get_Field_Count()) )
+			{
+				pShapes->Select(i, true);
+			}
+			break;
+		}
 	}
-	
-}//method
+
+	delete[](Values);
+
+	//-----------------------------------------------------
+	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), pShapes->Get_Selection_Count()));
+
+	DataObject_Update(pShapes);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

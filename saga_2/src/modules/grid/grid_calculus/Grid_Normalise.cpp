@@ -70,15 +70,15 @@
 //---------------------------------------------------------
 CGrid_Normalise::CGrid_Normalise(void)
 {
-	Set_Name(_TL("Grid Normalisation"));
+	Set_Name		(_TL("Grid Normalisation"));
 
-	Set_Author	(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
-	Set_Description(_TW(
+	Set_Description	(_TW(
 		"Normalise the values of a grid. "
-		"The arithmetic mean and the standard deviation is calculated based on "
-		"all grid cell values to create a grid with normalised values. ")
-	);
+		"Rescales all grid values to fall in the range 'Minimum' to 'Maximum', "
+		"usually 0 to 1. "
+	));
 
 	Parameters.Add_Grid(
 		NULL	, "INPUT"	,_TL("Grid"),
@@ -92,64 +92,156 @@ CGrid_Normalise::CGrid_Normalise(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"	, _TL("Method"),
+	Parameters.Add_Range(
+		NULL	, "RANGE"	, _TL("Target Range"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"), _TL("Standard Deviation"), _TL("(0.0 < x < 1.0)"))
+		0.0, 1.0
 	);
 }
 
-//---------------------------------------------------------
-CGrid_Normalise::~CGrid_Normalise(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Normalise::On_Execute(void)
 {
-	int		x, y;
-	double	Minimum, Range;
-	CSG_Grid	*pInput, *pOutput;
+	CSG_Grid	*pGrid	= Parameters("INPUT")->asGrid();
 
-	//-----------------------------------------------------
-	pInput	= Parameters("INPUT")	->asGrid();
-	pOutput	= Parameters("OUTPUT")	->asGrid();
-
-	if( pInput != pOutput )
+	if( pGrid->Get_StdDev() <= 0.0 )
 	{
-		pOutput->Assign(pInput);
+		return( false );
 	}
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pInput->Get_Name(), _TL("Grid_Normalised")));
+	if( pGrid != Parameters("OUTPUT")->asGrid() )
+	{
+		pGrid	= Parameters("OUTPUT")->asGrid();
+		pGrid	->Assign(Parameters("INPUT")->asGrid());
+	}
+
+	pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pGrid->Get_Name(), _TL("Normalised")));
 
 	//-----------------------------------------------------
-	switch( Parameters("METHOD")->asInt() )
+	double		Minimum, Maximum, zMin, Stretch;
+
+	Minimum	= Parameters("RANGE")->asRange()->Get_LoVal();
+	Maximum	= Parameters("RANGE")->asRange()->Get_HiVal();
+	zMin	= pGrid->Get_ZMin();
+	Stretch	= (Maximum - Minimum) / pGrid->Get_ZRange();
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
-	case 0:
-		pOutput->Normalise();
-		break;
-
-	case 1:
-		if( (Minimum = pInput->Get_ZMin()) < (Range = pInput->Get_ZMax()) )
+		for(int x=0; x<Get_NX(); x++)
 		{
-			Range	= 1.0 / (Range - Minimum);
-
-			for(y=0; y<Get_NY() && Set_Progress(y); y++)
+			if( !pGrid->is_NoData(x, y) )
 			{
-				for(x=0; x<Get_NX(); x++)
-				{
-					pOutput->Set_Value(x, y, (pInput->asDouble(x, y) - Minimum) * Range);
-				}
+				pGrid->Set_Value(x, y, Minimum + Stretch * (pGrid->asDouble(x, y) - zMin));
 			}
 		}
-		break;
+	}
+
+	//-----------------------------------------------------
+	if( pGrid == Parameters("INPUT")->asGrid() )
+	{
+		DataObject_Update(pGrid);
 	}
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGrid_Standardise::CGrid_Standardise(void)
+{
+	Set_Name		(_TL("Grid Standardisation"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
+
+	Set_Description	(_TW(
+		"Standardise the values of a grid. "
+		"The standard score (z) is calculated as raw score (x) less "
+		"arithmetic mean (m) divided by standard deviation (s).\n"
+		"z = (x - m) * s"
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "INPUT"	,_TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "OUTPUT"	, _TL("Standardised Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL	, "STRETCH"	, _TL("Stretch Factor"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Standardise::On_Execute(void)
+{
+	CSG_Grid	*pGrid	= Parameters("INPUT")->asGrid();
+
+	if( pGrid->Get_StdDev() <= 0.0 )
+	{
+		return( false );
+	}
+
+	if( pGrid != Parameters("OUTPUT")->asGrid() )
+	{
+		pGrid	= Parameters("OUTPUT")->asGrid();
+		pGrid	->Assign(Parameters("INPUT")->asGrid());
+	}
+
+	pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pGrid->Get_Name(), _TL("Standard Score")));
+
+	//-----------------------------------------------------
+	double	Mean	= pGrid->Get_ArithMean();
+	double	Stretch	= Parameters("STRETCH")->asDouble() / pGrid->Get_StdDev();
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !pGrid->is_NoData(x, y) )
+			{
+				pGrid->Set_Value(x, y, Stretch * (pGrid->asDouble(x, y) - Mean));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pGrid == Parameters("INPUT")->asGrid() )
+	{
+		DataObject_Update(pGrid);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

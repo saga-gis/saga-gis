@@ -16,58 +16,168 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "NewLayerFromSelectedShapes.h"
-#include <string>
-
-CNewLayerFromSelectedShapes::CNewLayerFromSelectedShapes(void){
-
-	
-	Parameters.Set_Name(_TL("New layer from selected shapes"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. New layer from selected shapes"));
-
-	Parameters.Add_Shapes(NULL, 
-						"INPUT", 
-						_TL("Input"), 
-						_TL(""), 
-						PARAMETER_INPUT);
-
-	/*Parameters.Add_Shapes(NULL, 
-						"OUTPUT", 
-						"Output", 
-						_TL(""), 
-						PARAMETER_OUTPUT);*/
-	
-}//constructor
 
 
-CNewLayerFromSelectedShapes::~CNewLayerFromSelectedShapes(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CNewLayerFromSelectedShapes::On_Execute(void){
+//---------------------------------------------------------
+CSelection_Copy::CSelection_Copy(void)
+{	
+	Set_Name		(_TL("Copy Selection to New Shapes Layer"));
 
-	int i;
-	CSG_Shapes *pInput = Parameters("INPUT")->asShapes();
-	CSG_Shapes *pOutput; //= Parameters("OUTPUT")->asShapes();
-	CSG_Table *pTable;
-	CSG_String sName;
+	Set_Author		(SG_T("Victor Olaya (c) 2004"));
 
-	pTable	= pInput;
-	pOutput = SG_Create_Shapes(pInput->Get_Type());
-	
-	sName = CSG_String(pInput->Get_Name()) + _TL("(Selected)");
-	pOutput->Set_Name(sName.c_str());
+	Set_Description	(_TW(
+		"Copies selected shapes to new shapes layer."
+	));
 
-	for (i=0; i<pTable->Get_Field_Count(); i++){
-		pOutput->Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));	
-	}//for
+	Parameters.Add_Shapes(
+		NULL	, "INPUT"	, _TL("Input"), 
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	for (i = 0; i < pInput->Get_Selection_Count(); i++){
-		pOutput->Add_Shape()->Assign(pInput->Get_Selection(i));
-	}//for
+	Parameters.Add_Shapes(
+		NULL	, "OUTPUT"	, _TL("Output"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
 
-	DataObject_Add(pOutput, true);
+//---------------------------------------------------------
+bool CSelection_Copy::On_Execute(void)
+{
+	CSG_Shapes	*pInput, *pOutput;
 
-	return true;
+	pInput	= Parameters("INPUT") ->asShapes();
+	pOutput	= Parameters("OUTPUT")->asShapes();
 
-}//method
+	if( pInput->Get_Selection_Count() <= 0 )
+	{
+		Error_Set(_TL("no shapes in selection"));
+
+		return( false );
+	}
+
+	if( pOutput->Get_Type() != SHAPE_TYPE_Undefined && pOutput->Get_Type() != pInput->Get_Type() )
+	{
+		Parameters("OUTPUT")->Set_Value(pOutput	= SG_Create_Shapes());
+	}
+
+	pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Selection")), pInput);
+
+	for(int i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
+	{
+		pOutput->Add_Shape(pInput->Get_Selection(i));
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSelection_Delete::CSelection_Delete(void)
+{	
+	Set_Name		(_TL("Delete Selection from Shapes Layer"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2011"));
+
+	Set_Description	(_TW(
+		"Deletes selected shapes from shapes layer."
+	));
+
+	Parameters.Add_Shapes(
+		NULL	, "INPUT"	, _TL("Input"), 
+		_TL(""),
+		PARAMETER_INPUT
+	);
+}
+
+//---------------------------------------------------------
+bool CSelection_Delete::On_Execute(void)
+{
+	CSG_Shapes	*pInput;
+
+	pInput	= Parameters("INPUT") ->asShapes();
+
+	if( pInput->Get_Selection_Count() <= 0 )
+	{
+		Error_Set(_TL("no shapes in selection"));
+
+		return( false );
+	}
+
+	pInput->Del_Selection();
+
+	DataObject_Update(pInput);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSelection_Invert::CSelection_Invert(void)
+{	
+	Set_Name		(_TL("Invert Selection of Shapes Layer"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2011"));
+
+	Set_Description	(_TW(
+		"Deselects selected and selects unselected shapes of given shapes layer."
+	));
+
+	Parameters.Add_Shapes(
+		NULL	, "INPUT"	, _TL("Input"), 
+		_TL(""),
+		PARAMETER_INPUT
+	);
+}
+
+//---------------------------------------------------------
+bool CSelection_Invert::On_Execute(void)
+{
+	CSG_Shapes	*pInput;
+
+	pInput	= Parameters("INPUT") ->asShapes();
+
+	pInput->Inv_Selection();
+
+	DataObject_Update(pInput);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -504,8 +504,11 @@ public:		///////////////////////////////////////////////
 	void						Mirror						(void);
 	void						Invert						(void);
 
-	void						Normalise					(void);
-	void						DeNormalise					(double ArithMean, double Variance);
+	bool						Normalise					(void);
+	bool						DeNormalise					(double Minimum, double Maximum);
+
+	bool						Standardise					(void);
+	bool						DeStandardise				(double Mean, double StdDev);
 
 	int							Get_Gradient_NeighborDir	(int x, int y, bool bMustBeLower = true)			const;
 	bool						Get_Gradient				(int x, int y, double &Decline, double &Azimuth)	const;

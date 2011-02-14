@@ -435,7 +435,7 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(void)
 
 				for(int kPart=0; kPart<pPolygon->Get_Part_Count(); kPart++)
 				{
-					if( pPolygon->is_Lake(kPart) && pPolygon->is_Containing(pPolygon->Get_Point(0, kPart), iPart) )
+					if( pPolygon->is_Lake(kPart) && pPolygon->Contains(pPolygon->Get_Point(0, kPart), iPart) )
 					{
 						jPart++;
 

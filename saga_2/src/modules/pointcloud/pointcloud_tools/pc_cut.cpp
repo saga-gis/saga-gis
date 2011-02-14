@@ -267,7 +267,7 @@ bool CPC_Cut::Contains(CSG_Shapes *pPolygons, double x, double y)
 		{
 			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-			if( pPolygon->is_Containing(x, y) )
+			if( pPolygon->Contains(x, y) )
 			{
 				return( true );
 			}

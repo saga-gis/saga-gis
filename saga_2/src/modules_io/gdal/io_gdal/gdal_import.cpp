@@ -164,58 +164,93 @@ bool CGDAL_Import::On_Execute(void)
 //---------------------------------------------------------
 bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 {
+	int		n	= 0;
+
 	if( DataSet.is_Reading() )
 	{
 		const char	**pMetaData	= DataSet.Get_MetaData("SUBDATASETS");
 
 		if( pMetaData && pMetaData[0] )
 		{
-			int				i, n;
-			CSG_String		s, sID, sName, sDesc;
+			int				i, n	= 0;
+			CSG_String		s, sFile, sName;
 			CSG_Parameters	P;
 
-			for(i=0; pMetaData[i]!=NULL; i++)
+			//---------------------------------------------
+			if( SG_UI_Get_Window_Main() == NULL )	// without gui
 			{
-				Message_Add(CSG_String::Format(SG_T("  %s\n"), pMetaData[i]), false);
-
-				s		= pMetaData[i];
-
-				if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_NAME=")) )
+				for(i=0, n=0; pMetaData[i]!=NULL; i++)
 				{
-					sID		= s.AfterFirst('_').BeforeFirst('_');
-					sName	= s.AfterFirst('=');
-					sDesc	= _TL("no description available");
+					Message_Add(CSG_String::Format(SG_T("  %s\n"), pMetaData[i]), false);
 
-					if( pMetaData[i + 1] != NULL )
+					s		= pMetaData[i];
+
+					if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_NAME=")) )
 					{
-						s		= pMetaData[i + 1];
+						sFile	= s.AfterFirst('=');
+						sName	= _TL("unnamed");
 
-						if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_DESC")) )
+						if( pMetaData[i + 1] != NULL )
 						{
-							sDesc	= s.AfterFirst ('=');
+							s		= pMetaData[i + 1];
+
+							if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_DESC")) )
+							{
+								sName	= s.AfterFirst ('=');
+							}
+						}
+
+						if( DataSet.Open_Read(sFile) && Load(DataSet, sName) )
+						{
+							n++;
 						}
 					}
-
-					P.Add_Value(NULL, sName, sDesc, SG_T(""), PARAMETER_TYPE_Bool, false);
 				}
 			}
 
-			if( Dlg_Parameters(&P, _TL("Select from Subdatasets...")) )
+			//---------------------------------------------
+			else									// with gui
 			{
-				for(i=0, n=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
+				for(i=0; pMetaData[i]!=NULL; i++)
 				{
-					if( P(i)->asBool() && DataSet.Open_Read(P(i)->Get_Identifier()) && Load(DataSet, P(i)->Get_Name()) )
+					Message_Add(CSG_String::Format(SG_T("  %s\n"), pMetaData[i]), false);
+
+					s		= pMetaData[i];
+
+					if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_NAME=")) )
 					{
-						n++;
+						sFile	= s.AfterFirst('=');
+						sName	= _TL("unnamed");
+
+						if( pMetaData[i + 1] != NULL )
+						{
+							s		= pMetaData[i + 1];
+
+							if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_DESC")) )
+							{
+								sName	= s.AfterFirst ('=');
+							}
+						}
+
+						P.Add_Value(NULL, sFile, sName, SG_T(""), PARAMETER_TYPE_Bool, false);
 					}
 				}
 
-				return( n > 0 );
+				if( Dlg_Parameters(&P, _TL("Select from Subdatasets...")) )
+				{
+					for(i=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
+					{
+						if( P(i)->asBool() && DataSet.Open_Read(P(i)->Get_Identifier()) && Load(DataSet, P(i)->Get_Name()) )
+						{
+							n++;
+						}
+					}
+				}
 			}
 		}
 	}
 
-	return( false );
+	return( n > 0 );
 }
 
 

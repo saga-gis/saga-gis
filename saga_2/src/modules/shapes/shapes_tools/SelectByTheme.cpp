@@ -17,187 +17,232 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-//---------------------------------------------------------
-#include "Polygon_Clipper.h"
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 #include "SelectByTheme.h"
 
-//---------------------------------------------------------
-#define METHOD_NEW_SEL			0
-#define METHOD_ADD_TO_SEL		1
-#define METHOD_SELECT_FROM_SEL	2
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSelectByTheme::CSelectByTheme(void){
+CSelect_Location::CSelect_Location(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Select by Location..."));
 
-	Set_Name		(_TL("Select by theme"));
-
-	Set_Author		(SG_T("(c) 2004 by Victor Olaya"));
+	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
 
 	Set_Description	(_TW(
-		"Select by Theme. Currently both input layers have to be of type polygon!"
+		"Select by location."
 	));
 
+	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL, "SHAPES"		, _TL("Shapes"),
+		NULL	, "SHAPES"		, _TL("Shapes to Select From"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "SHAPES2"		, _TL("Shapes 2"),
+		NULL	, "LOCATIONS"	, _TL("Locations"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL, "CONDITION"	, _TL("Condition"), 
-		_TL("Select features in Shapes 1 that fulfil this condition"),
+		NULL	, "CONDITION"	, _TL("Condition"), 
+		_TL("Select shapes that fulfil this condition"),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Intersect"),
-			_TL("Are completely within"),
-			_TL("Completely contain"),
-			_TL("Have their center in"),
-			_TL("Contain the center of")
+			_TL("intersect"),
+			_TL("are completely within"),
+			_TL("completely contain"),
+			_TL("have their centroid in"),
+			_TL("contain the centeroid of")
 		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL, "METHOD"		, _TL("Method"),
+		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("New selection"),
-			_TL("Add to current selection"),
-			_TL("Select from current selection")
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("new selection"),
+			_TL("add to current selection"),
+			_TL("select from current selection"),
+			_TL("remove from current selection")
 		), 0
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CSelectByTheme::On_Execute(void)
+bool CSelect_Location::On_Execute(void)
 {
-	bool		*WasSelected;
-	int			i, iMethod, iCondition;
-	CSG_Shapes	*pShapes, *pShapes2;
+	int		Method, Condition;
 
-	pShapes		= Parameters("SHAPES")		->asShapes();
-	pShapes2	= Parameters("SHAPES2")		->asShapes();
-	iCondition	= Parameters("CONDITION")	->asInt();
-	iMethod		= Parameters("METHOD")		->asInt();
+	m_pShapes		= Parameters("SHAPES")		->asShapes();
+	m_pLocations	= Parameters("LOCATIONS")	->asShapes();
+	Condition		= Parameters("CONDITION")	->asInt();
+	Method			= Parameters("METHOD")		->asInt();
 
 	//-----------------------------------------------------
-	if( iMethod == METHOD_SELECT_FROM_SEL )
+	switch( Condition )
 	{
-		WasSelected	= new bool[pShapes->Get_Count()];
-
-		for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	case 0:	// intersect
+		if( ((m_pShapes   ->Get_Type() == SHAPE_TYPE_Point || m_pShapes   ->Get_Type() == SHAPE_TYPE_Points) && m_pLocations->Get_Type() != SHAPE_TYPE_Polygon)
+		||	((m_pLocations->Get_Type() == SHAPE_TYPE_Point || m_pLocations->Get_Type() == SHAPE_TYPE_Points) && m_pShapes   ->Get_Type() != SHAPE_TYPE_Polygon) )
 		{
-			WasSelected[i]	= pShapes->Get_Record(i)->is_Selected();
+			Error_Set(_TL("points can only intersect with polygons"));
+
+			return( false );
 		}
-	}
+		break;
 
-	if( iMethod != METHOD_ADD_TO_SEL )
-	{
-		pShapes->Select();
+	case 1:	// are completely within
+	case 3:	// have their centroid in
+		if( m_pLocations->Get_Type() != SHAPE_TYPE_Polygon )
+		{
+			Error_Set(_TL("this operation requires locations to be of type polygon"));
+
+			return( false );
+		}
+		break;
+
+	case 2:	// completely contain
+	case 4:	// contain the centroid of
+		if( m_pShapes->Get_Type() != SHAPE_TYPE_Polygon )
+		{
+			Error_Set(_TL("this operation requires selectable shapes to be of type polygon"));
+
+			return( false );
+		}
+		break;
 	}
 
 	//-----------------------------------------------------
-	if( Select(pShapes, pShapes2, iCondition, false) )
+	for(int i=0; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++)
 	{
-		for(i=0; i<m_Selection.size() && Set_Progress(i, m_Selection.size()); i++)
-		{
-			int	iSelection	= m_Selection[i];
+		CSG_Shape	*pShape	= m_pShapes->Get_Shape(i);
 
-			if( !pShapes->Get_Record(iSelection)->is_Selected() )
+		switch( Method )
+		{
+		case 0:	// New selection
+			if( ( pShape->is_Selected() && !Do_Select(pShape, Condition))
+			||	(!pShape->is_Selected() &&  Do_Select(pShape, Condition)) )
 			{
-				if( iMethod != METHOD_SELECT_FROM_SEL || WasSelected[iSelection] )
-				{
-					((CSG_Table *)pShapes)->Select(iSelection, true);
-				}
+				m_pShapes->Select(i, true);
 			}
+			break;
+
+		case 1:	// Add to current selection
+			if(  !pShape->is_Selected() &&  Do_Select(pShape, Condition) )
+			{
+				m_pShapes->Select(i, true);
+			}
+			break;
+
+		case 2:	// Select from current selection
+			if(   pShape->is_Selected() && !Do_Select(pShape, Condition) )
+			{
+				m_pShapes->Select(i, true);
+			}
+			break;
+
+		case 3:	// Remove from current selection
+			if(   pShape->is_Selected() &&  Do_Select(pShape, Condition) )
+			{
+				m_pShapes->Select(i, true);
+			}
+			break;
 		}
 	}
 
 	//-----------------------------------------------------
-	if( iMethod == METHOD_SELECT_FROM_SEL )
-	{
-		delete(WasSelected);
-	}
+	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), m_pShapes->Get_Selection_Count()));
 
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), m_Selection.size()));
-
-	DataObject_Update(pShapes);
+	DataObject_Update(m_pShapes);
 
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CSelectByTheme::Select(CSG_Shapes *pShapes, CSG_Shapes *pShapes2, int iCondition, bool bFromSelection)
+bool CSelect_Location::Do_Select(CSG_Shape *pShape, int Condition)
 {
-	CSG_Shapes			Intersect(SHAPE_TYPE_Polygon);
-	CSG_Shape_Polygon	*pIntersect	= (CSG_Shape_Polygon *)Intersect.Add_Shape();
-
-	m_Selection.clear();
-
-	for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	for(int i=0; i<m_pLocations->Get_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Shape_Polygon	*pShape	= (CSG_Shape_Polygon *)pShapes->Get_Shape(i);
+		CSG_Shape	*pLocation	= m_pLocations->Get_Shape(i);
 
-		bool	bSelect	= false;
-
-		for(int j=0; !bSelect && j<pShapes2->Get_Count(); j++)
+		if( pShape->Intersects(pLocation->Get_Extent()) )
 		{
-			if( !bFromSelection || pShapes2->Get_Record(j)->is_Selected() )
+			switch( Condition )
 			{
-				CSG_Shape_Polygon	*pShape2 = (CSG_Shape_Polygon *)pShapes2->Get_Shape(j);
-
-				switch( iCondition )
+			case 0: // intersect
+				if( pLocation->Intersects(pShape) )
 				{
-				case 0: //intersect
-					if( GPC_Intersection(pShape, pShape2, pIntersect) )
-					{
-						bSelect = true;
-					}
-					break;
-
-				case 1: //are completely within
-					if( GPC_Intersection(pShape, pShape2, pIntersect)
-					&&  pIntersect->Get_Area() == pShape->Get_Area() )
-					{
-						bSelect = true;
-					}
-					break;
-
-				case 2: //Completely contain
-					if( GPC_Intersection(pShape, pShape2, pIntersect)
-					&&	pIntersect->Get_Area() == pShape2->Get_Area() )
-					{
-						bSelect = true;
-					}
-					break;
-
-				case 3: //have their center in
-					if( pShape2->is_Containing(pShape->Get_Centroid()) )
-					{
-						bSelect = true;
-					}
-					break;
-
-				case 4: //contain center of
-					if( pShape->is_Containing(pShape2->Get_Centroid()) )
-					{
-						bSelect = true;
-					}
-					break;
+					return( true );
 				}
+				break;
 
-				if( bSelect )
+			case 1: // are completely within
+				if( pLocation->Intersects(pShape) == INTERSECTION_Contains )
 				{
-					m_Selection.push_back(i);
+					return( true );
 				}
+				break;
+
+			case 2: // completely contain
+				if( pShape->Intersects(pLocation) == INTERSECTION_Contains )
+				{
+					return( true );
+				}
+				break;
+
+			case 3: // have their centroid in
+				if( ((CSG_Shape_Polygon *)pLocation)->Contains(pShape->Get_Centroid()) )
+				{
+					return( true );
+				}
+				break;
+
+			case 4: // contain the centroid of
+				if( ((CSG_Shape_Polygon *)pShape)->Contains(pLocation->Get_Centroid()) )
+				{
+					return( true );
+				}
+				break;
 			}
 		}
 	}
 
-	return( m_Selection.size() > 0 );
+	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

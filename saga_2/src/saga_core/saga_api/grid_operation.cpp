@@ -922,78 +922,121 @@ void CSG_Grid::Mirror(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define NORMALISED_NODATA	9.0
-
-//---------------------------------------------------------
-void CSG_Grid::Normalise(void)
+bool CSG_Grid::Normalise(void)
 {
-	if( is_Valid() )
+	if( !is_Valid() || Get_ZRange() <= 0.0 )
 	{
-		Update();
+		return( false );
+	}
 
-		if( m_zStats.Get_StdDev() > 0.0 )
+	SG_UI_Process_Set_Text(LNG("Normalisation"));
+
+	double	zMin	= Get_ZMin();
+	double	zRange	= Get_ZRange();
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
 		{
-			int		x, y;
-
-			if(	(Get_NoData_hiValue() > -NORMALISED_NODATA && Get_NoData_hiValue() < NORMALISED_NODATA)
-			||	(Get_NoData_Value  () > -NORMALISED_NODATA && Get_NoData_Value  () < NORMALISED_NODATA) )
+			if( !is_NoData(x, y) )
 			{
-				for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-				{
-					for(x=0; x<Get_NX(); x++)
-					{
-						if( is_NoData(x, y) )
-						{
-							Set_Value(x, y, -NORMALISED_NODATA);
-						}
-					}
-				}
-
-				Set_NoData_Value(-NORMALISED_NODATA);
+				Set_Value(x, y, (asDouble(x, y) - zMin) / zRange);
 			}
-
-			for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-			{
-				for(x=0; x<Get_NX(); x++)
-				{
-					if( !is_NoData(x, y) )
-					{
-						Set_Value(x, y, (asDouble(x, y) - m_zStats.Get_Mean()) / m_zStats.Get_StdDev() );
-					}
-				}
-			}
-
-			SG_UI_Process_Set_Ready();
-
-			Get_History().Add_Child(SG_T("GRID_OPERATION"), LNG("Normalisation"));
 		}
 	}
+
+	SG_UI_Process_Set_Ready();
+
+	Get_History().Add_Child(SG_T("GRID_OPERATION"), LNG("Normalisation"));
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CSG_Grid::DeNormalise(double ArithMean, double Variance)
+bool CSG_Grid::DeNormalise(double Minimum, double Maximum)
 {
-	int		x, y;
-
-	if( is_Valid() )
+	if( !is_Valid() || Minimum > Maximum )
 	{
-		Variance	= sqrt(Variance);
+		return( false );
+	}
 
-		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	SG_UI_Process_Set_Text(LNG("Denormalisation"));
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			if( !is_NoData(x, y) )
 			{
-				if( !is_NoData(x, y) )
-				{
-					Set_Value(x, y, Variance * asDouble(x, y) + ArithMean);
-				}
+				Set_Value(x, y, Minimum + asDouble(x, y) * (Maximum - Minimum));
 			}
 		}
-
-		SG_UI_Process_Set_Ready();
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), LNG("Denormalisation"));
 	}
+
+	SG_UI_Process_Set_Ready();
+
+	Get_History().Add_Child(SG_T("GRID_OPERATION"), LNG("Denormalisation"));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid::Standardise(void)
+{
+	if( !is_Valid() || Get_StdDev() <= 0.0 )
+	{
+		return( false );
+	}
+
+	SG_UI_Process_Set_Text(LNG("Standardisation"));
+
+	double	Mean	= Get_ArithMean();
+	double	StdDev	= Get_StdDev();
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !is_NoData(x, y) )
+			{
+				Set_Value(x, y, (asDouble(x, y) - Mean) / StdDev);
+			}
+		}
+	}
+
+	SG_UI_Process_Set_Ready();
+
+	Get_History().Add_Child(SG_T("GRID_OPERATION"), LNG("Standardisation"));
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid::DeStandardise(double Mean, double StdDev)
+{
+	if( !is_Valid() || StdDev <= 0.0 )
+	{
+		return( false );
+	}
+
+	SG_UI_Process_Set_Text(LNG("Destandardisation"));
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !is_NoData(x, y) )
+			{
+				Set_Value(x, y, Mean + asDouble(x, y) * StdDev);
+			}
+		}
+	}
+
+	SG_UI_Process_Set_Ready();
+
+	Get_History().Add_Child(SG_T("GRID_OPERATION"), LNG("Destandardisation"));
+
+	return( true );
 }
 
 

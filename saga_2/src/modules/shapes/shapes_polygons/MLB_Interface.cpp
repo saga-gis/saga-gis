@@ -113,7 +113,7 @@ CSG_Module *		Create_Module(int i)
 	case 2:		return( new CPolygon_Geometrics );
 	case 3:		return( new CPolygons_From_Lines );
 	case 4:		return( new CPolygonStatisticsFromPoints );
-	case 5:		return( new CPolygon_Union );
+	case 5:		return( new CPolygon_Dissolve );
 	case 6:		return( new CPolygon_To_Points );
 	case 7:		return( new CShape_Index );
 	}

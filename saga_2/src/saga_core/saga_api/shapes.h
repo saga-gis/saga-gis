@@ -158,7 +158,10 @@ public:
 	virtual const CSG_Rect &	Get_Extent			(void)											= 0;
 	virtual const CSG_Rect &	Get_Extent			(int iPart)	{	return( Get_Extent() );		}
 
-	int							Intersects			(TSG_Rect Extent);
+	virtual TSG_Point			Get_Centroid		(void)											= 0;
+
+	TSG_Intersection			Intersects			(CSG_Shape *pShape);
+	TSG_Intersection			Intersects			(TSG_Rect Extent);
 
 	virtual double				Get_Distance		(TSG_Point Point)								= 0;
 	virtual double				Get_Distance		(TSG_Point Point, int iPart)					= 0;
@@ -172,7 +175,8 @@ protected:
 	virtual ~CSG_Shape(void);
 
 	virtual bool				On_Assign			(CSG_Shape *pShape)								= 0;
-	virtual int					On_Intersects		(TSG_Rect Extent)								= 0;
+	virtual TSG_Intersection	On_Intersects		(CSG_Shape *pShape)								= 0;
+	virtual TSG_Intersection	On_Intersects		(TSG_Rect Extent)								= 0;
 
 	virtual void				_Invalidate			(void);
 
@@ -208,6 +212,8 @@ public:
 
 	virtual const CSG_Rect &	Get_Extent			(void);
 
+	virtual TSG_Point			Get_Centroid		(void)												{	return( m_Point );			}
+
 	virtual double				Get_Distance		(TSG_Point Point)									{	return( SG_Get_Distance(Point, m_Point) );	}
 	virtual double				Get_Distance		(TSG_Point Point, int iPart)						{	return( SG_Get_Distance(Point, m_Point) );	}
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next)					{	Next = m_Point; return( SG_Get_Distance(Point, m_Point) );	}
@@ -224,7 +230,8 @@ protected:
 
 
 	virtual bool				On_Assign			(CSG_Shape *pShape);
-	virtual int					On_Intersects		(TSG_Rect Region);
+	virtual TSG_Intersection	On_Intersects		(CSG_Shape *pShape);
+	virtual TSG_Intersection	On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -465,6 +472,8 @@ public:
 
 	virtual const CSG_Rect &	Get_Extent			(void)		{	_Update_Extent();	return( m_Extent );	}
 
+	virtual TSG_Point			Get_Centroid		(void);
+
 	virtual double				Get_Distance		(TSG_Point Point);
 	virtual double				Get_Distance		(TSG_Point Point, int iPart);
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next);
@@ -505,8 +514,8 @@ protected:
 	void						_Update_Extent		(void);
 
 	virtual bool				On_Assign			(CSG_Shape *pShape);
-
-	virtual int					On_Intersects		(TSG_Rect Region);
+	virtual TSG_Intersection	On_Intersects		(CSG_Shape *pShape);
+	virtual TSG_Intersection	On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -526,6 +535,8 @@ public:
 
 	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_pParts[0]->Get_Count() > 1 );	}
 
+	virtual TSG_Point			Get_Centroid		(void);
+
 	double						Get_Length			(void);
 	double						Get_Length			(int iPart);
 
@@ -537,7 +548,8 @@ protected:
 	CSG_Shape_Line(class CSG_Shapes *pOwner, int Index);
 	virtual ~CSG_Shape_Line(void);
 
-	virtual int					On_Intersects		(TSG_Rect Region);
+	virtual TSG_Intersection	On_Intersects		(CSG_Shape *pShape);
+	virtual TSG_Intersection	On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -563,8 +575,8 @@ public:
 
 	const TSG_Point &			Get_Centroid		(void)	{	_Update_Area();	return( m_Centroid );	}
 
-	bool						is_Containing		(const TSG_Point &Point);
-	bool						is_Containing		(double x, double y);
+	bool						Contains			(const TSG_Point &Point);
+	bool						Contains			(double x, double y);
 
 	double						Get_Distance		(TSG_Point Point, TSG_Point &Next);
 
@@ -613,10 +625,10 @@ public:
 	TSG_Point					Get_Centroid		(int iPart);
 	TSG_Point					Get_Centroid		(void);
 
-	bool						is_Containing		(const TSG_Point &Point, int iPart);
-	bool						is_Containing		(const TSG_Point &Point);
-	bool						is_Containing		(double x, double y, int iPart);
-	bool						is_Containing		(double x, double y);
+	bool						Contains			(const TSG_Point &Point, int iPart);
+	bool						Contains			(const TSG_Point &Point);
+	bool						Contains			(double x, double y, int iPart);
+	bool						Contains			(double x, double y);
 
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
 
@@ -634,7 +646,8 @@ protected:
 
 	virtual void				_Invalidate			(void);
 
-	virtual int					On_Intersects		(TSG_Rect Region);
+	virtual TSG_Intersection	On_Intersects		(CSG_Shape *pShape);
+	virtual TSG_Intersection	On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -713,9 +726,10 @@ public:
 	virtual CSG_Shape *				Get_Selection			(int Index = 0)			{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
 	virtual const CSG_Rect &		Get_Selection_Extent	(void);
 
-	virtual bool					Select					(CSG_Shape *pShape = NULL, bool bInvert = false);
-	virtual bool					Select					(TSG_Rect Extent         , bool bInvert = false);
-	virtual bool					Select					(TSG_Point Point         , bool bInvert = false);
+	virtual bool					Select					(int Index					, bool bInvert = false);
+	virtual bool					Select					(CSG_Shape *pShape = NULL	, bool bInvert = false);
+	virtual bool					Select					(TSG_Rect Extent			, bool bInvert = false);
+	virtual bool					Select					(TSG_Point Point			, bool bInvert = false);
 
 
 protected:

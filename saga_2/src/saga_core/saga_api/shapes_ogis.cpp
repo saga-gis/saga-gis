@@ -318,7 +318,7 @@ inline bool CSG_Shapes_OGIS_Converter::_WKT_Write_Polygon(CSG_String &Text, CSG_
 
 			for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
 			{
-				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(jPart) && ((CSG_Shape_Polygon *)pShape)->is_Containing(pShape->Get_Point(0, jPart), iPart) )
+				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(jPart) && ((CSG_Shape_Polygon *)pShape)->Contains(pShape->Get_Point(0, jPart), iPart) )
 				{
 					Text	+= SG_T(", ");
 
@@ -632,7 +632,7 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Write_MultiPolygon(CSG_Bytes &Bytes, CSG_Sh
 
 			for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
 			{
-				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(jPart) && ((CSG_Shape_Polygon *)pShape)->is_Containing(pShape->Get_Point(0, jPart), iPart) )
+				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(jPart) && ((CSG_Shape_Polygon *)pShape)->Contains(pShape->Get_Point(0, jPart), iPart) )
 				{
 					nRings  [iPart]++;
 					iPolygon[jPart]	= iPart;

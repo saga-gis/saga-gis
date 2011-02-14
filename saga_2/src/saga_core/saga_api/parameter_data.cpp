@@ -556,7 +556,7 @@ bool CSG_Parameter_Int::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Set_Content(CSG_String::Format(SG_T("%d"), m_Value));
+		Entry.Fmt_Content(SG_T("%d"), m_Value);
 	}
 	else
 	{
@@ -641,7 +641,7 @@ bool CSG_Parameter_Double::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Set_Content(CSG_String::Format(SG_T("%f"), m_Value));
+		Entry.Fmt_Content(SG_T("%f"), m_Value);
 	}
 	else
 	{
@@ -771,7 +771,7 @@ bool CSG_Parameter_Range::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Set_Content(CSG_String::Format(SG_T("%f; %f"), Get_LoVal(), Get_HiVal()));
+		Entry.Fmt_Content(SG_T("%f; %f"), Get_LoVal(), Get_HiVal());
 
 		return( true );
 	}
@@ -1305,7 +1305,7 @@ bool CSG_Parameter_Color::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Set_Content(SG_T("R%03d G%03d B%03d"), SG_GET_R(m_Value), SG_GET_G(m_Value), SG_GET_B(m_Value));
+		Entry.Fmt_Content(SG_T("R%03d G%03d B%03d"), SG_GET_R(m_Value), SG_GET_G(m_Value), SG_GET_B(m_Value));
 	}
 	else
 	{

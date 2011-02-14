@@ -17,19 +17,57 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CSearchInTable : public CSG_Module
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSelect_String : public CSG_Module
 {
 public:
-	CSearchInTable(void);
+	CSelect_String(void);
+
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+
 
 protected:
 
-	virtual bool On_Execute(void);
+	virtual bool				On_Execute		(void);
+
+
+private:
+
+	bool						m_Case;
+
+	int							m_Field, m_Compare;
+
+	CSG_String					m_Expression;
+
+
+	bool						Do_Compare		(const SG_Char *Value);
+
+	bool						Do_Select		(CSG_Shape *pShape);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

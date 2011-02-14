@@ -305,7 +305,7 @@ bool CGrid_Values_AddTo_Shapes::Get_Data_Polygon(double &Value, CSG_Shape *pShap
 	{
 		for(x=xMin, p.x=pGrid->Get_System().Get_xGrid_to_World(xMin); x<=xMax; x++, p.x+=pGrid->Get_Cellsize())
 		{
-			if( pGrid->is_InGrid(x, y) && ((CSG_Shape_Polygon *)pShape)->is_Containing(p) )
+			if( pGrid->is_InGrid(x, y) && ((CSG_Shape_Polygon *)pShape)->Contains(p) )
 			{
 				Value	+= pGrid->asDouble(x, y);
 				n		++;

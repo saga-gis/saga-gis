@@ -17,30 +17,50 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <vector>
-
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-class CSelectByTheme : public CSG_Module  
+class CSelect_Location : public CSG_Module  
 {
 public:
-	CSelectByTheme(void);
+	CSelect_Location(void);
+
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+
 
 protected:
 
-	virtual bool		On_Execute	(void);
+	virtual bool				On_Execute		(void);
+
 
 private:
 
-	std::vector <int>	m_Selection;
+	CSG_Shapes					*m_pShapes, *m_pLocations;
 
 
-	bool				Select		(CSG_Shapes *pShapes, CSG_Shapes *pShapes2, int iCondition, bool bFromSelection);
+	bool						Do_Select		(CSG_Shape *pShape, int Condition);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

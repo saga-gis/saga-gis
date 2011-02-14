@@ -378,7 +378,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 		{
 			Grids[i]	= SG_Create_Grid(pGrids->asGrid(i), SG_DATATYPE_Float);
 			Grids[i]	->Assign(pGrids->asGrid(i));
-			Grids[i]	->Normalise();
+			Grids[i]	->Standardise();
 		}
 	}
 	else

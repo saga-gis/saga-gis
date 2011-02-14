@@ -758,7 +758,7 @@ bool CCRS_Transform_Grid::is_In_Target_Area(const TSG_Point &Point)
 {
 	if( m_Target_Area.Get_Count() == 1 )
 	{
-		return( ((CSG_Shape_Polygon *)m_Target_Area.Get_Shape(0))->is_Containing(Point) );
+		return( ((CSG_Shape_Polygon *)m_Target_Area.Get_Shape(0))->Contains(Point) );
 	}
 
 	return( true );

@@ -86,7 +86,89 @@ CSG_Shape_Line::~CSG_Shape_Line(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Shape_Line::On_Intersects(TSG_Rect Extent)
+TSG_Intersection CSG_Shape_Line::On_Intersects(CSG_Shape *pShape)
+{
+	//-----------------------------------------------------
+	if( pShape->Get_Type() == SHAPE_TYPE_Point || pShape->Get_Type() == SHAPE_TYPE_Points )
+	{
+		bool	bIn		= false;
+		bool	bOut	= false;
+
+		for(int iPart=0; iPart<m_nParts; iPart++)
+		{
+			for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
+			{
+				for(int jPoint=1; jPoint<pShape->Get_Point_Count(jPart); jPoint++)
+				{
+					TSG_Point	Point;
+
+					if( Get_Distance(pShape->Get_Point(jPoint, jPart), Point, iPart) == 0.0 )
+					{
+						bIn		= true;
+					}
+					else
+					{
+						bOut	= true;
+					}
+
+					if( bIn && bOut )
+					{
+						return( INTERSECTION_Overlaps );
+					}
+				}
+			}
+		}
+
+		if( bIn )
+		{
+			return( INTERSECTION_Contained );
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( pShape->Get_Type() == SHAPE_TYPE_Line )
+	{
+		TSG_Point	iA, iB, jA, jB, Crossing;
+
+		for(int iPart=0; iPart<m_nParts; iPart++)
+		{
+			if( Get_Point_Count(iPart) > 1 )
+			{
+				iA	= Get_Point(0, iPart);
+
+				for(int iPoint=1; iPoint<Get_Point_Count(iPart); iPoint++)
+				{
+					iB	= iA;
+					iA	= Get_Point(iPoint, iPart);
+
+					for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
+					{
+						if( pShape->Get_Point_Count(jPart) > 1 )
+						{
+							jA	= pShape->Get_Point(0, jPart);
+
+							for(int jPoint=1; jPoint<pShape->Get_Point_Count(jPart); jPoint++)
+							{
+								jB	= jA;
+								jA	= pShape->Get_Point(jPoint, jPart);
+
+								if( SG_Get_Crossing(Crossing, iA, iB, jA, jB) )
+								{
+									return( INTERSECTION_Overlaps );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return( INTERSECTION_None );
+}
+
+//---------------------------------------------------------
+TSG_Intersection CSG_Shape_Line::On_Intersects(TSG_Rect Extent)
 {
 	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
@@ -108,6 +190,19 @@ int CSG_Shape_Line::On_Intersects(TSG_Rect Extent)
 	}
 
 	return( INTERSECTION_None );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+TSG_Point CSG_Shape_Line::Get_Centroid(void)
+{
+	return( Get_Extent().Get_Center() );
 }
 
 

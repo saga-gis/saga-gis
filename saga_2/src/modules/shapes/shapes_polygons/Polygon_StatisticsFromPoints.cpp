@@ -224,7 +224,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 
-			if( pPolygon->is_Containing(pPoint->Get_Point(0)) )
+			if( pPolygon->Contains(pPoint->Get_Point(0)) )
 			{
 				for(i=0; i<pPoints->Get_Field_Count(); i++)
 				{

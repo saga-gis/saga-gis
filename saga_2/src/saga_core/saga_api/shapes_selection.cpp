@@ -70,6 +70,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Shapes::Select(int Index, bool bInvert)
+{
+	return( CSG_Table::Select(Index, bInvert) );
+}
+
+//---------------------------------------------------------
 bool CSG_Shapes::Select(CSG_Shape *pShape, bool bInvert)
 {
 	return( CSG_Table::Select(pShape, bInvert) );
@@ -109,7 +115,7 @@ bool CSG_Shapes::Select(TSG_Point Point, bool bInvert)
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( ((CSG_Shape_Polygon *)Get_Shape(i))->is_Containing(Point) )
+		if( ((CSG_Shape_Polygon *)Get_Shape(i))->Contains(Point) )
 		{
 			CSG_Table::Select(i, true);
 		}

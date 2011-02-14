@@ -27,11 +27,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus", "modules\gr
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_discretisation", "modules\grid\grid_discretisation\grid_discretisation.vcproj", "{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_filter", "modules\grid\grid_filter\grid_filter.vcproj", "{F24FDE51-C1B8-4639-992A-44BD502DB1EC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
@@ -251,16 +246,31 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_tools", "modules\pointcloud\pointcloud_tools\pointcloud_tools.vcproj", "{56E4370E-B2ED-4614-98A2-C02B35DC84DA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ihacres", "modules_contrib\contrib_s_liersch\ihacres\ihacres.vcproj", "{605032F8-0499-49B2-BADC-7A29E7F91FFF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vigra", "modules_images\modules_vigra\vigra\vigra.vcproj", "{30183561-A0E0-4B89-A901-F168C1F8C575}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opencv", "modules_images\modules_opencv\opencv\opencv.vcproj", "{78592E2D-FD78-4ECA-B601-6ECADA4249CD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_segmentation", "modules_images\modules_imagery\imagery_segmentation\imagery_segmentation.vcproj", "{082B6E2B-15FD-41A0-9F86-CBF933B94B6B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus_bsl", "modules\grid\grid_calculus_bsl\grid_calculus_bsl.vcproj", "{768659E7-E338-409F-A6EA-A9082D902933}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_regression", "modules_geostatistics\geostatistics\geostatistics_regression\geostatistics_regression.vcproj", "{BD4DF3B2-3426-45DC-B67E-661D703F3049}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_odbc", "saga_core\saga_odbc\saga_odbc.vcproj", "{9E4C619C-B279-4532-8F60-6C64FE0A2091}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -284,6 +294,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_rga", "modules_images\modules_imagery\imagery_rga\imagery_rga.vcproj", "{2EB00861-F09A-40AB-92F9-D2E62A49D98B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_tools", "modules_images\modules_imagery\imagery_tools\imagery_tools.vcproj", "{4805A2A8-E531-4567-B492-B3173AB97350}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -377,22 +390,6 @@ Global
 		{35FC23E3-F92A-4355-B8F2-1A958543AF30}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 		{35FC23E3-F92A-4355-B8F2-1A958543AF30}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
 		{35FC23E3-F92A-4355-B8F2-1A958543AF30}.Unicode Release|x64.Build.0 = Unicode Release|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Debug|Win32.Build.0 = Debug|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Debug|x64.ActiveCfg = Debug|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Debug|x64.Build.0 = Debug|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Release|Win32.ActiveCfg = Release|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Release|Win32.Build.0 = Release|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Release|x64.ActiveCfg = Release|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Release|x64.Build.0 = Release|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Debug|x64.ActiveCfg = Unicode Debug|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Debug|x64.Build.0 = Unicode Debug|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
-		{8545A0C7-F6F9-4DCC-8615-F265ACE2B393}.Unicode Release|x64.Build.0 = Unicode Release|x64
 		{F24FDE51-C1B8-4639-992A-44BD502DB1EC}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F24FDE51-C1B8-4639-992A-44BD502DB1EC}.Debug|Win32.Build.0 = Debug|Win32
 		{F24FDE51-C1B8-4639-992A-44BD502DB1EC}.Debug|x64.ActiveCfg = Debug|x64

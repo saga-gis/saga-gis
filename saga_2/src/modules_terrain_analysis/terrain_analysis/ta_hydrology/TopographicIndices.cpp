@@ -75,7 +75,7 @@ CTopographicIndices::CTopographicIndices(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Topographic Indices"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Calculation of slope and catchment area based topographic indices "
@@ -83,12 +83,16 @@ CTopographicIndices::CTopographicIndices(void)
 		"\n"
 		"References:\n"
 		"\n"
+		"Beven, K.J., Kirkby, M.J. (1979):\n"
+		"A physically-based variable contributing area model of basin hydrology'\n"
+		"Hydrology Science Bulletin 24(1), p.43-69\n"
+		"\n"
 		"Boehner, J., Selige, T. (2006):\n"
 		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation'\n"
 		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA – Analysis and Modelling Applications', "
 		"Goettinger Geographische Abhandlungen, Vol.115, p.13-27\n"
 		"\n"
-		"Desmot & Govers (1996):\n"
+		"Desmet & Govers (1996):\n"
 		"'A GIS Procedure for Automatically Calculating the USLE LS Factor on Topographically Complex Landscape Units'\n"
 		"Journal of Soil and Water Conservation, 51(5):427.433\n"
 		"\n"
@@ -163,14 +167,14 @@ CTopographicIndices::CTopographicIndices(void)
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Moore et al. 1991"),
-			_TL("Desmot & Govers 1996"),
+			_TL("Desmet & Govers 1996"),
 			_TL("Boehner & Selige 2006")
 		), 0
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "LS_AREA"			, _TL("Area to Length Conversion"),
-		_TL("Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmot & Govers' method."),
+		_TL("Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmet & Govers' method."),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("no conversion (areas already given as specific catchment area)"),
 			_TL("1 / cell size (specific catchment area)"),
@@ -178,7 +182,7 @@ CTopographicIndices::CTopographicIndices(void)
 		), 0
 	);
 
-	pSNode	= Parameters.Add_Node(pNode, "LS_DG", _TL("Desmot & Govers"), _TL(""));
+	pSNode	= Parameters.Add_Node(pNode, "LS_DG", _TL("Desmet & Govers"), _TL(""));
 
 	Parameters.Add_Value(
 		pSNode	, "DG_EROSIVITY"	, _TL("Rill/Interrill Erosivity"),

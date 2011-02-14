@@ -208,7 +208,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -597,7 +596,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -803,6 +801,18 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
+			<File
+				RelativePath=".\Fuzzify.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FuzzyAND.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FuzzyOR.cpp"
+				>
+			</File>
 			<File
 				RelativePath="Grid_Calculator.cpp"
 				>
@@ -1420,6 +1430,18 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\Fuzzify.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FuzzyAND.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FuzzyOR.h"
+				>
+			</File>
 			<File
 				RelativePath="Grid_Calculator.h"
 				>

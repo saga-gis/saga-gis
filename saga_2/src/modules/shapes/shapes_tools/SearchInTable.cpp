@@ -17,120 +17,212 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-//---------------------------------------------------------
-#include <vector>
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 #include "SearchInTable.h"
 
-//---------------------------------------------------------
-#define METHOD_NEW_SEL			0
-#define METHOD_ADD_TO_SEL		1
-#define METHOD_SELECT_FROM_SEL	2
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSearchInTable::CSearchInTable(void)
+CSelect_String::CSelect_String(void)
 {
-	Set_Name		(_TL("Search in attributes table"));
+	CSG_Parameter	*pNode;
 
-	Set_Author		(SG_T("(c) 2004 by Victor Olaya"));
+	//-----------------------------------------------------
+	Set_Name		(_TL("Select by Attributes... (String Expression)"));
+
+	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
 
 	Set_Description	(_TW(
-		"(c) 2004 Victor Olaya. Searches for an expression in the attributes table and selects records where the expression is found"
+		"Searches for an character string expression in the attributes table and selects records where the expression is found."
 	));
 
-	Parameters.Add_Shapes(
-		NULL, "SHAPES"		, _TL("Shapes"),
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"		, _TL("Attribute"),
+		_TL("attribute to be searched; if not set all attributes will be searched"),
+		true
+	);
+
 	Parameters.Add_String(
-		NULL, "EXPRESSION"	, _TL("Expression"),
+		NULL	, "EXPRESSION"	, _TL("Expression"),
 		_TL(""),
 		SG_T("")
 	);
 
+	Parameters.Add_Value(
+		NULL	, "CASE"		, _TL("Case Sensitive"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
 	Parameters.Add_Choice(
-		NULL, "METHOD"		, _TL("Method"),
+		NULL	, "COMPARE"		, _TL("Select if..."),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("New selection"),
-			_TL("Add to current selection"),
-			_TL("Select from current selection")
+			_TL("attribute is identical with search expression"),
+			_TL("attribute contains search expression"),
+			_TL("attribute is contained in search expression")
+		), 1
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("new selection"),
+			_TL("add to current selection"),
+			_TL("select from current selection"),
+			_TL("remove from current selection")
 		), 0
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CSearchInTable::On_Execute(void)
+bool CSelect_String::On_Execute(void)
 {
-	bool		*WasSelected;
-	int			i, iMethod;
-	CSG_String	sExpression;
+	int			Method;
 	CSG_Shapes	*pShapes;
 
-	pShapes		= Parameters("SHAPES")		->asShapes();
-	sExpression	= Parameters("EXPRESSION")	->asString();
-	iMethod		= Parameters("METHOD")		->asInt();
+	//-----------------------------------------------------
+	pShapes			= Parameters("SHAPES")		->asShapes();
+	m_Field			= Parameters("FIELD")		->asInt();
+	m_Expression	= Parameters("EXPRESSION")	->asString();
+	m_Case			= Parameters("CASE")		->asBool();
+	m_Compare		= Parameters("COMPARE")		->asInt();
+	Method			= Parameters("METHOD")		->asInt();
 
 	//-----------------------------------------------------
-	if( iMethod == METHOD_SELECT_FROM_SEL )
+	if( m_Case == false )
 	{
-		WasSelected	= new bool[pShapes->Get_Count()];
-
-		for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
-		{
-			WasSelected[i]	= pShapes->Get_Record(i)->is_Selected();
-		}
-	}
-
-	if( iMethod != METHOD_ADD_TO_SEL )
-	{
-		pShapes->Select();
+		m_Expression.Make_Upper();
 	}
 
 	//-----------------------------------------------------
-	std::vector <int> m_Selection;
-
-	for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-		for(int j=0; j<pShapes->Get_Field_Count(); j++)
+		switch( Method )
 		{
-			CSG_String	sValue	= pShape->asString(j);
-
-			if( sValue.Find(sExpression) != -1 )
+		case 0:	// New selection
+			if( ( pShape->is_Selected() && !Do_Select(pShape))
+			||	(!pShape->is_Selected() &&  Do_Select(pShape)) )
 			{
-				m_Selection.push_back(i);
-				break;
+				pShapes->Select(i, true);
 			}
+			break;
+
+		case 1:	// Add to current selection
+			if(  !pShape->is_Selected() &&  Do_Select(pShape) )
+			{
+				pShapes->Select(i, true);
+			}
+			break;
+
+		case 2:	// Select from current selection
+			if(   pShape->is_Selected() && !Do_Select(pShape) )
+			{
+				pShapes->Select(i, true);
+			}
+			break;
+
+		case 3:	// Remove from current selection
+			if(   pShape->is_Selected() &&  Do_Select(pShape) )
+			{
+				pShapes->Select(i, true);
+			}
+			break;
 		}
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<m_Selection.size() && Set_Progress(i, m_Selection.size()); i++)
-	{
-		int	iSelection = m_Selection[i];
-
-		if( !pShapes->Get_Record(iSelection)->is_Selected() )
-		{
-			if( iMethod != METHOD_SELECT_FROM_SEL || WasSelected[iSelection] )
-			{
-				((CSG_Table *)pShapes)->Select(iSelection, true);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( iMethod == METHOD_SELECT_FROM_SEL )
-	{
-		delete(WasSelected);
-	}
-
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), m_Selection.size()));
+	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), pShapes->Get_Selection_Count()));
 
 	DataObject_Update(pShapes);
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline bool CSelect_String::Do_Compare(const SG_Char *Value)
+{
+	CSG_String	s(Value);
+
+	if( m_Case == false )
+	{
+		s.Make_Upper();
+	}
+
+	switch( m_Compare )
+	{
+	case 0:	// identical
+		return( m_Expression.Cmp(s) == 0 );
+
+	case 1:	// contains
+		return( s.Find(m_Expression) >= 0 );
+
+	case 2:	// contained
+		return( m_Expression.Find(s) >= 0 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+inline bool CSelect_String::Do_Select(CSG_Shape *pShape)
+{
+	if( m_Field >= 0 && m_Field < pShape->Get_Table()->Get_Field_Count() )
+	{
+		return( Do_Compare(pShape->asString(m_Field)) );
+	}
+
+	for(int i=0; i<pShape->Get_Table()->Get_Field_Count(); i++)
+	{
+		if( Do_Compare(pShape->asString(i)) )
+		{
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

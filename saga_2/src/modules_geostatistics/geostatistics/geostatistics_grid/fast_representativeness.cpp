@@ -294,7 +294,7 @@ void CFast_Representativeness::FastRep_Initialize(void)
 		}
 	}	
 	
-	Pow2Grid->Normalise();
+	Pow2Grid->Standardise();
 
 	pOutput->Assign_NoData();
 		

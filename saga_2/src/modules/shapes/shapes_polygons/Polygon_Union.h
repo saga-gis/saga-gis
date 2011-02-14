@@ -79,16 +79,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Union : public CSG_Module  
+class CPolygon_Dissolve : public CSG_Module  
 {
 public:
-	CPolygon_Union(void);
-	virtual ~CPolygon_Union(void);
+	CPolygon_Dissolve(void);
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute				(void);
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:

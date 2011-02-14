@@ -197,14 +197,14 @@ Altura de llama
 Altura de llama (m)	
 Anaglyph	
 Analytical Hierarchy Process	Analytischer hierarchischer Prozess
-Analytical Hillshading	
-Analytical hillshading calculation.	
+Analytical Hillshading	Beleuchtungsmodell
+Analytical hillshading calculation.	Berechnung eines Beleuchtungsmodells.
 Anchor Point	Ankerpunkt
 Angle	Winkel
-Angle (in degrees)	
-Angle [Degree]	
+Angle (in degrees)	Winkel [Grad]
+Angle [Degree]	Winkel [Grad]
 Angle in degrees, counting clockwise from north	Winkel in Grad, Zählung im Uhrzeigersinn von Nord
-Angle. In radians	Winkel. In Radiant
+Angle. In radians	Winkel [Bogenmaß]
 Applies also to the binary format header file.	
 Apply Move	
 Apply offset?	Versatz zufügen?
@@ -358,15 +358,15 @@ COUNT	ANZAHL
 CRS Database	
 CRS Dictionary	
 CSV Files (*.csv)	
-Calculate distribution Quantiles	Kalkuliere das Wahrscheinlichkeitsquantil
+Calculate distribution Quantiles	Berechne Quantile
 Calculate the volume under the grid's surface. This is mainly useful for Digital Elevation Models (DEM).	Kalkuliere das Volumen unter der Rasteroberfläche. Dieses ist hauptsächlich sinnvoll für Digitale Geländemodelle (DGM).
 Calculates the gradient based on the values of each triangle's points.\n\n	Berechnet den Gradient basierend auf dem Wert eines jeden Dreieckspunktes.\n\n
 Calculates weights for distance plus one, avoiding division by zero for zero distances	
 Calculating Catchment Area...	
 Calculating Subbasins...	
 Calculating danger...	
-Calculation	
-Cancel	
+Calculation	Berechnung
+Cancel	Abbrechen
 Canny	
 Carbon Cycle Simulation	
 Carbonization Factor	
@@ -391,16 +391,16 @@ Cell Size Specification	Zellgröße Beschreibung
 Cell Sizes	Zellengröße
 CellSize to S-N Extent	Zellgröße in S-N Ausdehnung
 CellSize to W-E Extent	Zellgröße in W-E Ausdehnung
-Cells	
+Cells	Zellen
 Cellsize	Zellgröße
-Cellular Automata	
+Cellular Automata	Zelluläre Automaten
 Center Versus Neighbours	Mitte versus Nachbarn
 Center of Triangles	Mitte des Dreiecks
-Centered	
-Central Meridian	
+Centered	Zentriert
+Central Meridian	Zentralmeridian
 Central Parallel	
 Central Projection	Zentralprojektion
-Centre	
+Centre	Zentrum
 Centroid X	
 Centroid Y	
 Centroids	Schwerpunkt
@@ -423,15 +423,15 @@ Channel Network: Pass 6
 Channel Skeleton	Kanalgerüst
 Channel definition threshold	
 Channel side slope(m/m)	
-Channels	
-Channels (Raster)	
-Channels (Vector)	
+Channels	Gerinne
+Channels (Raster)	Gerinne (Raster)
+Channels (Vector)	Gerinne (Vektor)
 Charcoal to Environment	
 Chart (bars):	Diagramm (Balken)
 Chart (sectors):	Diagramm (Sektoren)
 Chart Type	Diagrammtyp
 Check Point Validity	
-Chessboard	
+Chessboard	Schachbrett
 Choose Attribute	Wähle Attribut
 Choose Cut from ...	Wähle Zuschnitt von..
 Choose Documentation Folder	Wähle Dokumentenordner
@@ -439,10 +439,10 @@ Choose Grid	Wähle Raster
 Choose Grid Project	Wähle Rasterprojekt
 Choose Grid System	
 Choose ODBC Connection	Wähle ODBC Verbindung
-Choose Shapes	
-Choose Time Range	
+Choose Shapes	Wähle Vektordatensatz
+Choose Time Range	Wähle Zeitspanne
 Choose a flow routing algorithm that shall be used for the overland flow distance calculation:\n- D8\n- MFD	
-Choose a method	
+Choose a method	Wähle eine Methode
 Choose case: Rook's case contiguity compares only cell wich share an edge. Queen's case contiguity compares also cells which share just corners.	
 Choose if you want to segmentate either on minima or on maxima.	Wähle bei einer Aufteilung entweder minima oder maxima.
 Choose method how to adjust input values.	Wähle Methode wie die Eingabewerte anzupassen sind
@@ -453,8 +453,8 @@ Choose whether to reclassify a Point Cloud or to extract a subset from a Point C
 Choose which quantiles you would like to calculate	Wähle das zu berechnende Quantil
 Circle	Kreis
 Circle Point Distance [Degree]	Entfernung der Kreislinienpunkte [in Grad]
-Circles	
-Circular	rund
+Circles	Kreise
+Circular	Kreisförmig
 Class	Klasse
 Class 1	Klasse 1
 Class 2	Klasse 2
@@ -466,15 +466,15 @@ Classification	Klassifizierung
 Classification Constant	
 Classification Quality	Klassifizierungsqualität
 Classification and segmentation tools for metric gridded data.	Klassifizierungs- und Segmentierungswerkzeuge für Rasterdaten
-Classify	
-Clay	Kleie
-Clay-Loam	Kleie-Lehm
+Classify	Klassifiziere
+Clay	Ton
+Clay-Loam	Ton-Lehm
 Clear	Löschen
 Clear Fast Representativeness	
 Clear Generalisation	
 Clear RGA	
-Climate Data	
-Climate Data (P, EP)	
+Climate Data	Klimadaten
+Climate Data (P, EP)	Klimadaten (Niederschlag, Verdunstung)
 Clip Grid with Polygon	Schneide Rasterdaten mit Polygon zu
 Clip Points with Polygons	Schneide Punkte mit Polygon aus
 Clipped Points	Ausgeschnittene Punkte
@@ -490,19 +490,19 @@ Closing Pt. X
 Closing Pt. Y	
 Cluster	Gruppe
 Cluster Analysis	Clusteranalyse
-Cluster Analysis PC	
+Cluster Analysis PC	Clusteranalyse für Punktwolken
 Cluster Analysis for Grids	Clusteranalyse für Raster
-Cluster Analysis for Point Clouds	
-ClusterID	GruppenID
-Clusters	Gruppen
-Coefficient of Determination	
+Cluster Analysis for Point Clouds	Clusteranalyse für Punktwolken
+ClusterID	Cluster ID
+Clusters	Cluster
+Coefficient of Determination	Bestimmtheitsmaß
 Collect values	Sammele Werte
 Color	Farbe
 Color Attribute	Farbattribute
 Color Blending	Farbe Mischung
-Color Palette	
+Color Palette	Farbverlauf
 Color Palette Rotation	Farbe Palettenwechsel
-Color Stretch	
+Color Stretch	Farbverlaufsstreckung
 Color Triangle Composite	Farbe Dreiecksgemisch
 Colors	Farben
 Colors Value Range	Farbwertebereich
@@ -514,9 +514,9 @@ Combination A
 Combination B	
 Combine Grids	Verbinde Raster
 Combined Minimum Distance / Hillclimbing	kombinierte Minimalentfernung / Bergsteigeralgorithmus
-Combined Shading	
-Command Line Arguments	
-Comment	
+Combined Shading	Kombinationsschummerung
+Command Line Arguments	Kommandozeilenargumente
+Comment	Kommentar
 Commit	
 Compare with...	Vergleiche mit..
 Complete Intersection	Komplette Schnittmenge
@@ -860,7 +860,7 @@ Efective friction = stated friction ^f , where f = cos(DifAngle)^k.	effektive Re
 Effective Air Flow Heights	
 Element Shape	
 Elements	Elemente
-Elevation	Erhöhung
+Elevation	Höhe
 Elevation Grid	
 Elevation [m]	
 Elevation at Reference Station [m]	
@@ -1567,8 +1567,9 @@ Linear: a + b * x
 Lines	Linien
 Lines and Points	Linien und Punkte
 Lines with Property Attributes added	Linien mit erzeugten Eigenschaftenattributen
-List of Grids	
-List of Shapes Layers	
+List	Liste
+List of Grids	Rasterdatensätze
+List of Shapes Layers	Vektordatensätze
 Litter to Humus	
 Litterfall Rate [g/m\xc2\xb2/a]	
 Little Endian (Intel)	
@@ -3309,14 +3310,14 @@ Zsoft Paintbrush (*.pcx)
 Zuckerrueben	
 [BTN] Add	Hinzufügen
 [BTN] Add All	
-[BTN] Apply	Anwenden
+[BTN] Apply	Übernehnen
 [BTN] Button	Knopf
 [BTN] Cancel	Abbrechen
 [BTN] Clear	Hau Wech!
 [BTN] Count	Anzahl
 [BTN] Delete	Löschen
 [BTN] Down	Ab
-[BTN] Execute	Mach Hinne
+[BTN] Execute	Los
 [BTN] Insert	Einfügen
 [BTN] Invert	Invertieren
 [BTN] Load	Laden

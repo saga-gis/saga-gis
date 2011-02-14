@@ -582,7 +582,6 @@
     <ClCompile Include="Polygon_Clipper.cpp" />
     <ClCompile Include="quadtree_structure.cpp" />
     <ClCompile Include="QueryBuilder.cpp" />
-    <ClCompile Include="QueryParser.cpp" />
     <ClCompile Include="SearchInTable.cpp" />
     <ClCompile Include="SelectByTheme.cpp" />
     <ClCompile Include="SeparateShapes.cpp" />
@@ -623,7 +622,6 @@
     <ClInclude Include="Polygon_Clipper.h" />
     <ClInclude Include="quadtree_structure.h" />
     <ClInclude Include="QueryBuilder.h" />
-    <ClInclude Include="QueryParser.h" />
     <ClInclude Include="SearchInTable.h" />
     <ClInclude Include="SelectByTheme.h" />
     <ClInclude Include="SeparateShapes.h" />

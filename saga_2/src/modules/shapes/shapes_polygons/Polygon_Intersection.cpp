@@ -500,7 +500,7 @@ void CPolygon_Intersection::Add_Polygon(CSG_Shape *pShape, int iShape_A, int iSh
 					for(jPart=0, nParts=0; jPart<pShape->Get_Part_Count(); jPart++)
 					{
 						if(	((CSG_Shape_Polygon *)pShape)->is_Lake(jPart)
-						&&	((CSG_Shape_Polygon *)pShape)->is_Containing(pShape->Get_Point(0, jPart), iPart) )
+						&&	((CSG_Shape_Polygon *)pShape)->Contains(pShape->Get_Point(0, jPart), iPart) )
 						{
 							nParts++;
 

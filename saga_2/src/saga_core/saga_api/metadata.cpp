@@ -306,7 +306,7 @@ int CSG_MetaData::_Get_Child(const CSG_String &Name) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_MetaData::Set_Content(const SG_Char *Format, ...)
+void CSG_MetaData::Fmt_Content(const SG_Char *Format, ...)
 {
 	wxString	s;
 	va_list		argptr;

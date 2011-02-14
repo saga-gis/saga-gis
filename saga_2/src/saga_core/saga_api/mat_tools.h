@@ -874,6 +874,7 @@ public:
 	static CSG_String			Get_Help_Usage		(void);
 
 	bool						Get_Error			(int *pPosition = NULL, CSG_String *pMessage = NULL);
+	bool						Get_Error			(CSG_String &Message);
 
 	int							Add_Function		(SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
 	int							Del_Function		(SG_Char *Name);

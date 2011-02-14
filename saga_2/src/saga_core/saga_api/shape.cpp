@@ -166,21 +166,71 @@ inline void CSG_Shape::_Invalidate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Shape::Intersects(TSG_Rect _Region)
+TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 {
-	switch( Get_Extent().Intersects(_Region) )
+	//-----------------------------------------------------
+	if( !pShape || !Intersects(pShape->Get_Extent()) )
 	{
-	case INTERSECTION_None:
 		return( INTERSECTION_None );
+	}
 
-	case INTERSECTION_Identical:
-	case INTERSECTION_Contained:
-		return( INTERSECTION_Contained );
+	//-----------------------------------------------------
+	if( Get_Part_Count() == pShape->Get_Part_Count() && Get_Point_Count() == pShape->Get_Point_Count() )
+	{
+		bool	bIdentical	= true;
 
-	default:
+		for(int iPart=0; iPart<Get_Part_Count() && bIdentical; iPart++)
+		{
+			if( Get_Point_Count(iPart) != pShape->Get_Point_Count(iPart) )
+			{
+				bIdentical	= false;
+			}
+			else
+			{
+				for(int iPoint=0; iPoint<Get_Point_Count(iPart) && bIdentical; iPoint++)
+				{
+					CSG_Point	Point(Get_Point(iPoint, iPart));
+
+					if( !Point.is_Equal(pShape->Get_Point(iPoint, iPart)) )
+					{
+						bIdentical	= false;
+					}
+				}
+			}
+		}
+
+		if( bIdentical )
+		{
+			return( INTERSECTION_Identical );
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Get_Type() >= pShape->Get_Type() )
+	{
+		return( On_Intersects(pShape) );
+	}
+
+	TSG_Intersection	Intersection	= pShape->On_Intersects(this);
+
+	switch( Intersection )
+	{
+	default:						return( Intersection );
+	case INTERSECTION_Contained:	return( INTERSECTION_Contains );
+	case INTERSECTION_Contains:		return( INTERSECTION_Contained );
+	}
+}
+
+//---------------------------------------------------------
+TSG_Intersection CSG_Shape::Intersects(TSG_Rect Region)
+{
+	TSG_Intersection	Intersection	= Get_Extent().Intersects(Region);
+
+	switch( Intersection )
+	{
+	default:						return( Intersection );
 	case INTERSECTION_Contains:
-	case INTERSECTION_Overlaps:
-		return( On_Intersects(_Region) );
+	case INTERSECTION_Overlaps:		return( On_Intersects(Region) );
 	}
 }
 

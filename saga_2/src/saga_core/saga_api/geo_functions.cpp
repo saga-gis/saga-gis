@@ -146,6 +146,15 @@ bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &
 {
 	double	lambda, div, a_dx, a_dy, b_dx, b_dy;
 
+	if( bExactMatch
+	&&	(	(M_GET_MAX(a1.x, a2.x) < M_GET_MIN(b1.x, b2.x))
+		||	(M_GET_MIN(a1.x, a2.x) > M_GET_MAX(b1.x, b2.x))
+		||	(M_GET_MAX(a1.y, a2.y) < M_GET_MIN(b1.y, b2.y))
+		||	(M_GET_MIN(a1.y, a2.y) > M_GET_MAX(b1.y, b2.y))	) )
+	{
+		return( false );
+	}
+
 	a_dx	= a2.x - a1.x;
 	a_dy	= a2.y - a1.y;
 

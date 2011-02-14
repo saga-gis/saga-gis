@@ -96,6 +96,7 @@ const SG_Char * Get_Info(int i)
 #include "line_properties.h"
 #include "line_polygon_intersection.h"
 #include "line_simplification.h"
+#include "line_dissolve.h"
 
 
 //---------------------------------------------------------
@@ -110,6 +111,7 @@ CSG_Module *		Create_Module(int i)
 	case  2:	return( new CLine_Properties );
 	case  3:	return( new CLine_Polygon_Intersection );
 	case  4:	return( new CLine_Simplification );
+	case  5:	return( new CLine_Dissolve );
 	}
 
 	return( NULL );

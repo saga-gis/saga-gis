@@ -122,10 +122,11 @@ CSG_Module *		Create_Module(int i)
 	case  7:		return( new CGrid_Random_Field );
 	case  8:		return( new CGrids_Sum );
 	case  9:		return( new CGrids_Product );
+	case 10:		return( new CGrid_Standardise );
 
-	case 10:		return( new CFuzzify );
-	case 11:		return( new CFuzzyAND );
-	case 12:		return( new CFuzzyOR );
+	case 11:		return( new CFuzzify );
+	case 12:		return( new CFuzzyAND );
+	case 13:		return( new CFuzzyOR );
 	}
 
 	return( NULL );

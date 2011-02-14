@@ -137,7 +137,13 @@ const CSG_Rect & CSG_Shape_Point::Get_Extent(void)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Point::On_Intersects(TSG_Rect Extent)
+TSG_Intersection CSG_Shape_Point::On_Intersects(CSG_Shape *pShape)
+{
+	return( INTERSECTION_None );
+}
+
+//---------------------------------------------------------
+TSG_Intersection CSG_Shape_Point::On_Intersects(TSG_Rect Extent)
 {
 	if(	Extent.xMin <= m_Point.x && m_Point.x <= Extent.xMax
 	&&	Extent.yMin <= m_Point.y && m_Point.y <= Extent.yMax )

@@ -114,7 +114,7 @@ public:
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
 	const CSG_String &			Get_Content			(void)						const	{	return( m_Content );	}
 	void						Set_Content			(const CSG_String &Content)			{	m_Content	= Content;	}
-	void						Set_Content			(const SG_Char *Format, ...);
+	void						Fmt_Content			(const SG_Char *Format, ...);
 	bool						Cmp_Content			(const CSG_String &String, bool bNoCase = false)	const;
 
 	int							Get_Children_Count	(void)						const	{	return( m_nChildren );	}

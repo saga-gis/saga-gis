@@ -16,62 +16,91 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "CountPoints.h"
 
-CCountPoints::CCountPoints(void){
 
-	
-	Parameters.Set_Name(_TL("Count Points in Polygons"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Count Points in Polygons."));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Shapes(NULL, 
-						"POINTS", 
-						_TL("Points"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+//---------------------------------------------------------
+CCountPoints::CCountPoints(void)
+{	
+	Set_Name		(_TL("Count Points in Polygons"));
 
-	Parameters.Add_Shapes(NULL, 
-						"POLYGONS", 
-						_TL("Polygons"), 
-						_TL(""), 
-						PARAMETER_INPUT);
-	
-}//constructor
+	Set_Author		(SG_T("Victor Olaya (c) 2004"));
+
+	Set_Description	(_TW(
+		"Count Points in Polygons."
+	));
+
+	Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""), 
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "POLYGONS"	, _TL("Polygons"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+}
 
 
-CCountPoints::~CCountPoints(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CCountPoints::On_Execute(void){
+//---------------------------------------------------------
+bool CCountPoints::On_Execute(void)
+{
+	CSG_Shapes *pPoints		= Parameters("POINTS")  ->asShapes();
+	CSG_Shapes *pPolygons	= Parameters("POLYGONS")->asShapes();
 
-	int i,j,k;
-	int iPoly;
-	int iField;
-	int iPoints;
-	CSG_Shapes *pPoints = Parameters("POINTS")->asShapes();
-	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
-	CSG_Shape *pShape, *pPoly;
+	int	Field	= pPolygons->Get_Field_Count();
 
-	pPolygons->Add_Field(_TL("Points"),SG_DATATYPE_Int);
-	iField = pPolygons->Get_Field_Count()-1;
+	pPolygons->Add_Field(_TL("Points"), SG_DATATYPE_Int);
 
-	for(iPoly = 0; iPoly < pPolygons->Get_Count(); iPoly++){
-		pPoly = pPolygons->Get_Shape(iPoly);
-		iPoints = 0;
-		for(i = 0; i < pPoints->Get_Count(); i++){			
-			pShape = pPoints->Get_Shape(i);					
-			for(j = 0; j < pShape->Get_Part_Count(); j++){	
-				for(k = 0; k < pShape->Get_Point_Count(j); k++){
-					if (((CSG_Shape_Polygon*)pPoly)->is_Containing(pShape->Get_Point(k, j))){
-						iPoints++;
-					}//if
-				}//for
-			}//for
-		}//for
-		pPoly->Set_Value(iField, iPoints);
-	}//for
+	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	{
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-	return true;
+		int	nPoints	= 0;
 
-}//method
+		for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
+		{
+			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
+
+			if( pPolygon->Contains(pPoint->Get_Point(iPoint)) )
+			{
+				nPoints++;
+			}
+		}
+
+		pPolygon->Set_Value(Field, nPoints);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

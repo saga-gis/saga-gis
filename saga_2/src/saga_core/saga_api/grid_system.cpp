@@ -378,7 +378,7 @@ bool CSG_Grid_Cell_Addressor::Set_Sector(int Radius, double Direction, double To
 	{
 		for(int x=-Radius; x<=Radius; x++)
 		{
-			if( (d = SG_Get_Length(x, y)) <= Radius && pPolygon->is_Containing(x, y) )
+			if( (d = SG_Get_Length(x, y)) <= Radius && pPolygon->Contains(x, y) )
 			{
 				CSG_Table_Record	*pRecord	= m_Cells.Add_Record();
 

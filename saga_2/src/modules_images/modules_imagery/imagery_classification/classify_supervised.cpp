@@ -454,7 +454,7 @@ bool CGrid_Classify_Supervised::Initialise(void)
 					CSG_Simple_Statistics	*pClass;
 					CSG_Shape_Polygon		*pROI	= (CSG_Shape_Polygon *)pROIs->Get_Shape(iROI);
 
-					if( pROI->is_Containing(p) && (pClass = m_Class_Info.Get_Statistics(pROI->asString(iROI_ID))) != NULL )
+					if( pROI->Contains(p) && (pClass = m_Class_Info.Get_Statistics(pROI->asString(iROI_ID))) != NULL )
 					{
 						for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 						{

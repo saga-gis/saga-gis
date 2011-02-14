@@ -68,7 +68,7 @@
 //---------------------------------------------------------
 CChange_Detection::CChange_Detection(void)
 {
-	CSG_Parameter	*pNode;
+	CSG_Parameter	*pNode, *pTable;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Change Detection"));
@@ -80,17 +80,27 @@ CChange_Detection::CChange_Detection(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
+	pNode	= Parameters.Add_Grid(
 		NULL	, "INITIAL"		, _TL("Initial State"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
+	pTable	= Parameters.Add_Table(pNode, "INI_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Table_Field(pTable, "INI_LUT_MIN", _TL("Value")			, _TL(""), false);
+	Parameters.Add_Table_Field(pTable, "INI_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
+	Parameters.Add_Table_Field(pTable, "INI_LUT_NAM", _TL("Name")			, _TL(""), true);
+
+	pNode	= Parameters.Add_Grid(
 		NULL	, "FINAL"		, _TL("Final State"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
+
+	pTable	= Parameters.Add_Table(pNode, "FIN_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Table_Field(pTable, "FIN_LUT_MIN", _TL("Value")			, _TL(""), false);
+	Parameters.Add_Table_Field(pTable, "FIN_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
+	Parameters.Add_Table_Field(pTable, "FIN_LUT_NAM", _TL("Name")			, _TL(""), true);
 
 	Parameters.Add_Grid(
 		NULL	, "CHANGE"		, _TL("Changes"),
@@ -98,40 +108,26 @@ CChange_Detection::CChange_Detection(void)
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Value(
+	Parameters.Add_Value(
 		NULL	, "NOCHANGE"	, _TL("Report Unchanged Classes"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "STATS"		, _TL("Changes"),
+	pNode	= Parameters.Add_Table(
+		NULL	, "CHANGES"		, _TL("Changes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Table(
-		NULL	, "CLASSES"		, _TL("Look-up Table"),
+	Parameters.Add_Choice(
+		pNode	, "OUTPUT"		, _TL("Output as..."),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "CLASSES_MIN"	, _TL("Value"),
-		_TL(""),
-		false
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "CLASSES_MAX"	, _TL("Value (Maximum)"),
-		_TL(""),
-		true
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "CLASSES_NAM"	, _TL("Value (High)"),
-		_TL(""),
-		true
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("cells"),
+			_TL("percent"),
+			_TL("area")
+		), 0
 	);
 }
 
@@ -144,19 +140,34 @@ CChange_Detection::CChange_Detection(void)
 bool CChange_Detection::On_Execute(void)
 {
 	bool		bNoChange;
+	int			iInitial, iFinal;
+	CSG_Matrix	Identity;
+	CSG_Table	Initial, Final, *pChanges;
 	CSG_Grid	*pInitial, *pFinal, *pChange;
 
 	//-----------------------------------------------------
 	pInitial	= Parameters("INITIAL")	->asGrid();
 	pFinal		= Parameters("FINAL")	->asGrid();
 	pChange		= Parameters("CHANGE")	->asGrid();
-	m_pChanges	= Parameters("STATS")	->asTable();
+	pChanges	= Parameters("CHANGES")	->asTable();
 	bNoChange	= Parameters("NOCHANGE")->asBool();
 
-	if( !Initialise() )
+	if( !Get_Classes(Initial, pInitial, true) )
 	{
-		Error_Set(_TL("initialsation failed"));
+		Error_Set(_TL("no class definitions for initial state"));
 
+		return( false );
+	}
+
+	if( !Get_Classes(Final, pFinal, false) )
+	{
+		Error_Set(_TL("no class definitions for final state"));
+
+		return( false );
+	}
+
+	if( !Get_Changes(Initial, Final, pChanges, Identity) )
+	{
 		return( false );
 	}
 
@@ -165,14 +176,14 @@ bool CChange_Detection::On_Execute(void)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int	iInitial	= Get_Class(pInitial->asDouble(x, y));
-			int	iFinal		= Get_Class(pFinal  ->asDouble(x, y));
+			iInitial	= Get_Class(Initial, pInitial->asDouble(x, y));
+			iFinal		= Get_Class(Final  , pFinal  ->asDouble(x, y));
 
-			if( bNoChange || iInitial != iFinal )
+			if( bNoChange || !Identity[iInitial][iFinal] )
 			{
-				m_pChanges->Get_Record(iInitial)->Add_Value(1 + iFinal, 1);
+				pChanges->Get_Record(iInitial)->Add_Value(1 + iFinal, 1);
 
-				pChange->Set_Value(x, y, m_pChanges->Get_Count() * iInitial + iFinal);
+				pChange->Set_Value(x, y, Final.Get_Count() * iInitial + iFinal);
 			}
 			else
 			{
@@ -188,29 +199,29 @@ bool CChange_Detection::On_Execute(void)
 	{
 		CSG_Table	*pLUT	= P("LUT")->asTable();
 
-		CSG_Colors	cRandom(m_pChanges->Get_Count());
+		CSG_Colors	cRandom(pChanges->Get_Count());
 
 		cRandom.Random();
 
 		pLUT->Del_Records();
 
-		for(int iInitial=0; iInitial<m_pChanges->Get_Count(); iInitial++)
+		for(iInitial=0; iInitial<pChanges->Get_Count(); iInitial++)
 		{
-			CSG_Colors	cRamp(m_pChanges->Get_Count());
+			CSG_Colors	cRamp(pChanges->Get_Field_Count() - 1);
 
 			cRamp.Set_Ramp(cRandom[iInitial], cRandom[iInitial]);
 			cRamp.Set_Ramp_Brighness(225, 50);
 
-			for(int iFinal=0; iFinal<m_pChanges->Get_Count(); iFinal++)
+			for(iFinal=0; iFinal<pChanges->Get_Field_Count()-1; iFinal++)
 			{
-				if( m_pChanges->Get_Record(iInitial)->asInt(1 + iFinal) > 0 )
+				if( pChanges->Get_Record(iInitial)->asInt(1 + iFinal) > 0 )
 				{
 					CSG_Table_Record	*pClass	= pLUT->Add_Record();
 
 					pClass->Set_Value(0, cRamp.Get_Color(iFinal));
-					pClass->Set_Value(1, CSG_String::Format(SG_T("%s >> %s"), m_pChanges->Get_Record(iInitial)->asString(0), m_pChanges->Get_Record(iFinal)->asString(0)));
-					pClass->Set_Value(3, m_pChanges->Get_Count() * iInitial + iFinal);
-					pClass->Set_Value(4, m_pChanges->Get_Count() * iInitial + iFinal);
+					pClass->Set_Value(1, CSG_String::Format(SG_T("%s >> %s"), pChanges->Get_Record(iInitial)->asString(0), pChanges->Get_Field_Name(1 + iFinal)));
+					pClass->Set_Value(3, Final.Get_Count() * iInitial + iFinal);
+					pClass->Set_Value(4, Final.Get_Count() * iInitial + iFinal);
 				}
 			}
 		}
@@ -221,7 +232,28 @@ bool CChange_Detection::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pChanges	->Set_Name(CSG_String::Format(SG_T("%s [%s >> %s]"), _TL("Changes"), pInitial->Get_Name(), pFinal->Get_Name()));
+	double	Factor;
+
+	switch( Parameters("OUTPUT")->asInt() )
+	{
+	default:	Factor	= 1.0;						break;	// cells
+	case 1:		Factor	= 100.0 / Get_NCells();		break;	// percent
+	case 2:		Factor	= M_SQR(Get_Cellsize());	break;	// area
+	}
+
+	if( Factor != 1.0 )
+	{
+		for(iInitial=0; iInitial<pChanges->Get_Count(); iInitial++)
+		{
+			for(iFinal=0; iFinal<pChanges->Get_Field_Count()-1; iFinal++)
+			{
+				pChanges->Get_Record(iInitial)->Mul_Value(1 + iFinal, Factor);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	pChanges	->Set_Name(CSG_String::Format(SG_T("%s [%s >> %s]"), _TL("Changes"), pInitial->Get_Name(), pFinal->Get_Name()));
 
 	pChange		->Set_Name(CSG_String::Format(SG_T("%s [%s >> %s]"), _TL("Changes"), pInitial->Get_Name(), pFinal->Get_Name()));
 	pChange		->Set_NoData_Value(-1);
@@ -237,66 +269,61 @@ bool CChange_Detection::On_Execute(void)
 //---------------------------------------------------------
 enum
 {
-	CLASS_ID	= 0,
-	CLASS_NAME,
+	CLASS_NAM	= 0,
 	CLASS_MIN,
 	CLASS_MAX
 };
 
 //---------------------------------------------------------
-bool CChange_Detection::Initialise(void)
+bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bInitial)
 {
 	CSG_Table	*pClasses;
 
-	m_Classes.Destroy();
+	Classes.Destroy();
 
-	m_Classes.Add_Field(_TL("ID")	, SG_DATATYPE_Int);
-	m_Classes.Add_Field(_TL("NAME")	, SG_DATATYPE_String);
-	m_Classes.Add_Field(_TL("MIN")	, SG_DATATYPE_Double);
-	m_Classes.Add_Field(_TL("MAX")	, SG_DATATYPE_Double);
+	Classes.Add_Field(_TL("NAME")	, SG_DATATYPE_String);
+	Classes.Add_Field(_TL("MIN")	, SG_DATATYPE_Double);
+	Classes.Add_Field(_TL("MAX")	, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	if( (pClasses = Parameters("CLASSES")->asTable()) != NULL )
+	if( (pClasses = Parameters(bInitial ? "INI_LUT" : "FIN_LUT")->asTable()) != NULL )
 	{
-		int	fNam	= Parameters("CLASSES_NAM")->asInt();
-		int	fMin	= Parameters("CLASSES_MIN")->asInt();
-		int	fMax	= Parameters("CLASSES_MAX")->asInt();
+		int	fNam	= Parameters(bInitial ? "INI_LUT_NAM" : "FIN_LUT_NAM")->asInt();
+		int	fMin	= Parameters(bInitial ? "INI_LUT_MIN" : "FIN_LUT_MIN")->asInt();
+		int	fMax	= Parameters(bInitial ? "INI_LUT_MAX" : "FIN_LUT_MAX")->asInt();
 
 		if( fNam < 0 || fNam >= pClasses->Get_Field_Count() )	{	fNam	= fMin;	}
 		if( fMax < 0 || fMax >= pClasses->Get_Field_Count() )	{	fMax	= fMin;	}
 
 		for(int iClass=0; iClass<pClasses->Get_Count(); iClass++)
 		{
-			CSG_Table_Record	*pClass	= m_Classes.Add_Record();
+			CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-			pClass->Set_Value(0, m_Classes.Get_Count());
-			pClass->Set_Value(1, pClasses->Get_Record(iClass)->asString(fNam));
-			pClass->Set_Value(2, pClasses->Get_Record(iClass)->asDouble(fMin));
-			pClass->Set_Value(3, pClasses->Get_Record(iClass)->asDouble(fMax));
+			pClass->Set_Value(CLASS_NAM, pClasses->Get_Record(iClass)->asString(fNam));
+			pClass->Set_Value(CLASS_MIN, pClasses->Get_Record(iClass)->asDouble(fMin));
+			pClass->Set_Value(CLASS_MAX, pClasses->Get_Record(iClass)->asDouble(fMax));
 		}
 	}
 
 	//-----------------------------------------------------
-	else if( DataObject_Get_Parameter(Parameters("INITIAL")->asGrid(), "LUT") )
+	else if( DataObject_Get_Parameter(pGrid, "LUT") )
 	{
-		pClasses	= DataObject_Get_Parameter(Parameters("INITIAL")->asGrid(), "LUT")->asTable();
+		pClasses	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
 
 		for(int iClass=0; iClass<pClasses->Get_Count(); iClass++)
 		{
-			CSG_Table_Record	*pClass	= m_Classes.Add_Record();
+			CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-			pClass->Set_Value(0, m_Classes.Get_Count());
-			pClass->Set_Value(1, pClasses->Get_Record(iClass)->asString(1));
-			pClass->Set_Value(2, pClasses->Get_Record(iClass)->asDouble(3));
-			pClass->Set_Value(3, pClasses->Get_Record(iClass)->asDouble(4));
+			pClass->Set_Value(CLASS_NAM, pClasses->Get_Record(iClass)->asString(1));
+			pClass->Set_Value(CLASS_MIN, pClasses->Get_Record(iClass)->asDouble(3));
+			pClass->Set_Value(CLASS_MAX, pClasses->Get_Record(iClass)->asDouble(4));
 		}
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		double		z;
-		CSG_Grid	*pGrid	= Parameters("INITIAL")->asGrid();
+		double	z;
 
 		for(int i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
@@ -304,39 +331,63 @@ bool CChange_Detection::Initialise(void)
 
 			if( i == 0 || iz != z )
 			{
-				CSG_Table_Record	*pClass	= m_Classes.Add_Record();
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-				pClass->Set_Value(0, m_Classes.Get_Count());
-				pClass->Set_Value(1, z = iz);
-				pClass->Set_Value(2, z);
-				pClass->Set_Value(3, z);
+				pClass->Set_Value(CLASS_NAM, z = iz);
+				pClass->Set_Value(CLASS_MIN, z);
+				pClass->Set_Value(CLASS_MAX, z);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( m_Classes.Get_Count() == 0 )
+	return( Classes.Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CChange_Detection::Get_Changes(CSG_Table &Initial, CSG_Table &Final, CSG_Table *pChanges, CSG_Matrix &Identity)
+{
+	int		iInitial, iFinal;
+
+	//-----------------------------------------------------
+	Identity.Create(Final.Get_Count() + 1, Initial.Get_Count() + 1);
+
+	for(iInitial=0; iInitial<Initial.Get_Count(); iInitial++)
 	{
-		return( false );
+		CSG_String	s	= Initial[iInitial].asString(CLASS_NAM);
+
+		for(iFinal=0; iFinal<Final.Get_Count(); iFinal++)
+		{
+			Identity[iInitial][iFinal]	= s.Cmp(Final[iFinal].asString(CLASS_NAM)) ? 0 : 1;
+		}
 	}
 
-	m_pChanges->Destroy();
+	Identity[Initial.Get_Count()][Final.Get_Count()]	= 1;	// unclassified
 
-	m_pChanges->Add_Field(_TL("NAME"), SG_DATATYPE_String);
+	//-----------------------------------------------------
+	pChanges->Destroy();
 
-	for(int iFinal=0; iFinal<m_Classes.Get_Count(); iFinal++)
+	pChanges->Add_Field(_TL("Name"), SG_DATATYPE_String);
+
+	for(iFinal=0; iFinal<Final.Get_Count(); iFinal++)
 	{
-		m_pChanges->Add_Field(m_Classes[iFinal].asString(1), SG_DATATYPE_Int);
+		pChanges->Add_Field(Final[iFinal].asString(CLASS_NAM), SG_DATATYPE_Double);
 	}
 
-	m_pChanges->Add_Field(_TL("UNCLASSIFIED"), SG_DATATYPE_Int);
+	pChanges->Add_Field(_TL("Unclassified"), SG_DATATYPE_Double);
 
-	for(int iInitial=0; iInitial<m_Classes.Get_Count(); iInitial++)
+	//-----------------------------------------------------
+	for(iInitial=0; iInitial<Initial.Get_Count(); iInitial++)
 	{
-		m_pChanges->Add_Record()->Set_Value(0, m_Classes[iInitial].asString(1));
+		pChanges->Add_Record()->Set_Value(0, Initial[iInitial].asString(CLASS_NAM));
 	}
 
-	m_pChanges->Add_Record()->Set_Value(0, _TL("UNCLASSIFIED"));
+	pChanges->Add_Record()->Set_Value(0, _TL("Unclassified"));
 
 	return( true );
 }
@@ -347,9 +398,9 @@ bool CChange_Detection::Initialise(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline int CChange_Detection::Cmp_Class(double Value, int iClass)
+inline int CChange_Detection::Cmp_Class(CSG_Table &Classes, double Value, int iClass)
 {
-	CSG_Table_Record	*pClass	= m_Classes.Get_Record_byIndex(iClass);
+	CSG_Table_Record	*pClass	= Classes.Get_Record_byIndex(iClass);
 
 	double	min	= pClass->asDouble(CLASS_MIN);
 
@@ -367,21 +418,21 @@ inline int CChange_Detection::Cmp_Class(double Value, int iClass)
 }
 
 //---------------------------------------------------------
-int CChange_Detection::Get_Class(double Value)
+int CChange_Detection::Get_Class(CSG_Table &Classes, double Value)
 {
 	int		a, b, i, c;
 
-	if( m_Classes.Get_Count() > 0 )
+	if( Classes.Get_Count() > 0 )
 	{
-		if( m_Classes.Get_Index_Field(0) != CLASS_MIN || m_Classes.Get_Index_Order(0) != TABLE_INDEX_Ascending )
+		if( Classes.Get_Index_Field(0) != CLASS_MIN || Classes.Get_Index_Order(0) != TABLE_INDEX_Ascending )
 		{
-			m_Classes.Set_Index(CLASS_MIN, TABLE_INDEX_Ascending);
+			Classes.Set_Index(CLASS_MIN, TABLE_INDEX_Ascending);
 		}
 
-		for(a=0, b=m_Classes.Get_Record_Count()-1; a < b; )
+		for(a=0, b=Classes.Get_Record_Count()-1; a < b; )
 		{
 			i	= a + (b - a) / 2;
-			c	= Cmp_Class(Value, i);
+			c	= Cmp_Class(Classes, Value, i);
 
 			if( c > 0 )
 			{
@@ -393,22 +444,22 @@ int CChange_Detection::Get_Class(double Value)
 			}
 			else
 			{
-				return( m_Classes.Get_Record_byIndex(i)->Get_Index() );
+				return( Classes.Get_Record_byIndex(i)->Get_Index() );
 			}
 		}
 
-		if( Cmp_Class(Value, a) == 0 )
+		if( Cmp_Class(Classes, Value, a) == 0 )
 		{
-			return( m_Classes.Get_Record_byIndex(a)->Get_Index() );
+			return( Classes.Get_Record_byIndex(a)->Get_Index() );
 		}
 
-		if( a != b && Cmp_Class(Value, b) == 0 )
+		if( a != b && Cmp_Class(Classes, Value, b) == 0 )
 		{
-			return( m_Classes.Get_Record_byIndex(b)->Get_Index() );
+			return( Classes.Get_Record_byIndex(b)->Get_Index() );
 		}
 	}
 
-	return( m_Classes.Get_Count() );	// := unclassified
+	return( Classes.Get_Count() );	// := unclassified
 }
 
 

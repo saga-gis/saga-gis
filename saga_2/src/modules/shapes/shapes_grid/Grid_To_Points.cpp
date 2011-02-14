@@ -220,7 +220,7 @@ inline bool CGrid_To_Points::is_Contained(double x, double y, CSG_Shapes *pPolyg
 		{
 			CSG_Shape_Polygon *pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-			if( pPolygon->is_Containing(x, y) )
+			if( pPolygon->Contains(x, y) )
 			{
 				return( true );
 			}

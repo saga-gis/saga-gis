@@ -90,13 +90,11 @@ protected:
 
 private:
 
-	CSG_Table				*m_pChanges, m_Classes;
+	bool					Get_Classes		(CSG_Table &Classes, CSG_Grid *pGrid, bool bInitial);
+	bool					Get_Changes		(CSG_Table &Initial, CSG_Table &Final, CSG_Table *pChanges, CSG_Matrix &Identity);
 
-
-	bool					Initialise		(void);
-
-	int						Cmp_Class		(double Value, int iClass);
-	int						Get_Class		(double Value);
+	int						Cmp_Class		(CSG_Table &Classes, double Value, int iClass);
+	int						Get_Class		(CSG_Table &Classes, double Value);
 
 };
 

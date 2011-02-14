@@ -560,6 +560,7 @@
   <ItemGroup>
     <ClCompile Include="Lines_From_Points.cpp" />
     <ClCompile Include="Lines_From_Polygons.cpp" />
+    <ClCompile Include="line_dissolve.cpp" />
     <ClCompile Include="line_polygon_intersection.cpp" />
     <ClCompile Include="line_properties.cpp" />
     <ClCompile Include="line_simplification.cpp" />
@@ -591,6 +592,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="Lines_From_Points.h" />
     <ClInclude Include="Lines_From_Polygons.h" />
+    <ClInclude Include="line_dissolve.h" />
     <ClInclude Include="line_polygon_intersection.h" />
     <ClInclude Include="line_properties.h" />
     <ClInclude Include="line_simplification.h" />

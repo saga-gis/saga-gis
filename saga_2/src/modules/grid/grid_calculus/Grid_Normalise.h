@@ -62,24 +62,59 @@
 #define HEADER_INCLUDED__Grid_Normalise_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CGrid_Normalise : public CSG_Module_Grid  
 {
 public:
 	CGrid_Normalise(void);
-	virtual ~CGrid_Normalise(void);
-
-//	virtual const SG_Char *	Get_MenuPath(void)		{	return( NULL );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute	(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Standardise : public CSG_Module_Grid  
+{
+public:
+	CGrid_Standardise(void);
+
+
+protected:
+
+	virtual bool			On_Execute	(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Normalise_H

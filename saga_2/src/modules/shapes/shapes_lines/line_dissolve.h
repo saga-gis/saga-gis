@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    line_dissolve.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,77 +51,50 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__line_dissolve_H
+#define HEADER_INCLUDED__line_dissolve_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CLine_Dissolve : public CSG_Module  
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Grids") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O.Conrad, V.Wichmann (c) 2002-10" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (geo)statistical analyses.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Grids") );
-	}
-}
+public:
+	CLine_Dissolve(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "fast_representativeness.h"
-#include "GSGrid_Residuals.h"
-#include "GSGrid_Variance.h"
-#include "GSGrid_Variance_Radius.h"
-#include "GSGrid_Statistics.h"
-#include "GSGrid_Zonal_Statistics.h"
-#include "GSGrid_Directional_Statistics.h"
-#include "grid_autocorrelation.h"
-#include "grid_pca.h"
-#include "multiband_variation.h"
+	virtual bool			On_Execute				(void);
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFast_Representativeness );
-	case  1:	return( new CGSGrid_Residuals );
-	case  2:	return( new CGSGrid_Variance );
-	case  3:	return( new CGSGrid_Variance_Radius );
-	case  4:	return( new CGSGrid_Statistics );
-	case  5:	return( new CGSGrid_Zonal_Statistics );
-	case  6:	return( new CGSGrid_Directional_Statistics );
-	case  7:	return( new CGrid_Autocorrelation );
-	case  8:	return( new CGrid_PCA );
-	case  9:	return( new CMultiBand_Variation );
-	}
+	bool					Add_Line				(CSG_Shape *pLine, CSG_Shape *pAdd);
 
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -133,8 +104,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__line_dissolve_H
