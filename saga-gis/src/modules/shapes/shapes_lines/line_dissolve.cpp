@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: line_dissolve.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ CLine_Dissolve::CLine_Dissolve(void)
 	Set_Author		(SG_T("O.Conrad (c) 2011"));
 
 	Set_Description	(_TW(
-		"The dissolves line shapes, which share the same attribute value(s)."
+		"Dissolves line shapes, which share the same attribute value(s)."
 	));
 
 	//-----------------------------------------------------
