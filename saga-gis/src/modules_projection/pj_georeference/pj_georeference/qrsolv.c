@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 /* qrsolv.c -- solve a system of equations */
 #include <math.h>
 #include "cminpak.h"

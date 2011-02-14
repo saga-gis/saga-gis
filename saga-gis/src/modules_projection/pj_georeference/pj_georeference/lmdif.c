@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 /* lmdif.c -- levenberg-marquardt algorithm */
 #include <stdio.h>
 #include <math.h>

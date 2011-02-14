@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 #ifndef USE_PNG
 #include "grib2.h"
  int enc_png(char *data,g2int width,g2int height,g2int nbits,char *pngbuf)	{	return( 0 );	}

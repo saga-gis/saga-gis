@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 #include "grib2.h"
 
 void gbit(unsigned char *in,g2int *iout,g2int iskip,g2int nbyte)

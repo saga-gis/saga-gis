@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 
 #if !defined(AFX_DEBUGSTREAM_H__2EA05226_A91E_4396_A8DF_8311F9CF2F48__INCLUDED_)
 #define AFX_DEBUGSTREAM_H__2EA05226_A91E_4396_A8DF_8311F9CF2F48__INCLUDED_

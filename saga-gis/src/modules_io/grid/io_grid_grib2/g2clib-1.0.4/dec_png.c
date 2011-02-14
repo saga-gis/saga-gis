@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 #ifndef USE_PNG
 #include "grib2.h"
  int dec_png(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)

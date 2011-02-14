@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 /* reduce.f -- translated by f2c (version 20031025).
    You must link the resulting object file with libf2c:
 	on Microsoft Windows system, link with libf2c.lib;

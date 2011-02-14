@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 /* fdjac2.c -- calculate approximation to jacobian matrix. */
 #include <math.h>
 #include "cminpak.h"

@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 /* dpmpar.h -- IEEE double precision machine parameters. */
 #ifndef dpmparH
 #define dpmparH

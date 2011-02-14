@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 #include "model_tools.h"
 #include <math.h>
 #include <stdlib.h> // random numbers

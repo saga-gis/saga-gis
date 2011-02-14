@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 /**** NOTE: Modified 1-12-1999 to include parameter mask ****/
 #ifndef minpakH
 #define minpakH

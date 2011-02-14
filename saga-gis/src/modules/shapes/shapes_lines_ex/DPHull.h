@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 
 #if !defined(AFX_DPHULL1_H__6CE88E63_3AC7_4E18_87FB_CACF5BE62BE4__INCLUDED_)
 #define AFX_DPHULL1_H__6CE88E63_3AC7_4E18_87FB_CACF5BE62BE4__INCLUDED_

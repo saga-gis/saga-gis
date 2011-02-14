@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 #ifndef USE_JPEG2000
 #include "grib2.h"
  int dec_jpeg2000(char *injpc,g2int bufsize,g2int *outfld)

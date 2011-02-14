@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 
 #if !defined(AFX_NODATAVALUEERROR_H__F8600AD2_4EE3_4B0C_B30A_B4F2D9F3C127__INCLUDED_)
 #define AFX_NODATAVALUEERROR_H__F8600AD2_4EE3_4B0C_B30A_B4F2D9F3C127__INCLUDED_

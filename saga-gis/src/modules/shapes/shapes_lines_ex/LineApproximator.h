@@ -1,3 +1,6 @@
+/**********************************************************
+ * Version $Id$
+ *********************************************************/
 /* Plot Graphic Library
 
 	Copyright (C) 2002 Pelikhan, Inc. All rights reserved
