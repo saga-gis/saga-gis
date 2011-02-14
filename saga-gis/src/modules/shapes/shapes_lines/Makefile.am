@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: Makefile.am 911 2011-02-14 16:38:15Z reklov_w $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,12 +13,14 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libshapes_lines.la
 libshapes_lines_la_SOURCES =\
+line_dissolve.cpp\
 Lines_From_Points.cpp\
 Lines_From_Polygons.cpp\
 line_polygon_intersection.cpp\
 line_properties.cpp\
 line_simplification.cpp\
 MLB_Interface.cpp\
+line_dissolve.h\
 Lines_From_Points.h\
 Lines_From_Polygons.h\
 line_polygon_intersection.h\
