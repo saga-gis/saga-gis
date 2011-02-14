@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: wksp_shapes_edit.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -475,7 +475,7 @@ bool CWKSP_Shapes::_Edit_Shape_Add(void)
 	{
 		if( m_pShapes->Get_Selection_Count() > 0 )
 		{
-			m_pShapes->Select(NULL);
+			m_pShapes->Select((CSG_Shape*)NULL);
 		}
 
 		m_Edit_pShape	= m_Edit_Shapes.Add_Shape();
