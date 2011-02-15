@@ -10,6 +10,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_cmd", "saga_core\saga_cmd\saga_cmd.vcxproj", "{2C30DA1F-994C-4358-91C1-217C38BB375F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gui", "saga_core\saga_gui\saga_gui.vcxproj", "{160C7E9B-CD3D-44D7-A20B-AABA043CE290}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_analysis", "modules\grid\grid_analysis\grid_analysis.vcxproj", "{299C86F5-B0AE-44BC-87EC-7B09067AE1AD}"
 EndProject
@@ -30,10 +33,17 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_tools", "modules\pointcloud\pointcloud_tools\pointcloud_tools.vcxproj", "{78096DDC-4C51-4EC9-ADBB-D177FE4010D2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_viewer", "modules\pointcloud\pointcloud_viewer\pointcloud_viewer.vcxproj", "{DDA1A204-CD62-427C-97C0-C4AC8FCFC58B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_grid", "modules\shapes\shapes_grid\shapes_grid.vcxproj", "{5461E577-DAA6-4EF9-87B7-31D78C4ABA46}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_lines", "modules\shapes\shapes_lines\shapes_lines.vcxproj", "{A1EC809F-A906-499A-9B60-C5641C773744}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_points", "modules\shapes\shapes_points\shapes_points.vcxproj", "{D1B647EC-297E-4E96-9835-298EEAE83F85}"
 EndProject
@@ -48,24 +58,40 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_tools", "modules\tin\tin_tools\tin_tools.vcxproj", "{30B03B8A-93AD-4C4F-B2CA-88D465C66D31}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "contrib_a_perego", "modules_contrib\contrib_a_perego\contrib_a_perego\contrib_a_perego.vcxproj", "{0C537B2A-9B75-4CB9-9271-4CFDC471E865}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ihacres", "modules_contrib\contrib_s_liersch\ihacres\ihacres.vcxproj", "{A3252A1C-CF6A-4370-8B1E-B2F10A78F9A5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_grid", "modules_geostatistics\geostatistics\geostatistics_grid\geostatistics_grid.vcxproj", "{6AAE33B1-8598-46E2-B9C2-96155E923835}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_kriging", "modules_geostatistics\geostatistics\geostatistics_kriging\geostatistics_kriging.vcxproj", "{D9D425E8-68D2-4E7F-BA7C-A3036756736D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_points", "modules_geostatistics\geostatistics\geostatistics_points\geostatistics_points.vcxproj", "{D321C022-2424-43C5-99F4-C5DACCA89465}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_regression", "modules_geostatistics\geostatistics\geostatistics_regression\geostatistics_regression.vcxproj", "{93FF371F-57A6-422B-B15E-7B202039896D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_segmentation", "modules_images\modules_imagery\imagery_segmentation\imagery_segmentation.vcxproj", "{0DAF1789-55BC-46D5-BA4E-B964DB4A360B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opencv", "modules_images\modules_opencv\opencv\opencv.vcxproj", "{AC303E9F-28C5-4F95-8E25-A5D59E8DB01D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vigra", "modules_images\modules_vigra\vigra\vigra.vcxproj", "{596A318C-D642-4397-BC7E-6B68BEAA95FC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_odbc", "modules_io\db\io_odbc\io_odbc.vcxproj", "{92EB3478-3A80-46AE-9289-27EC77C77925}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9E4C619C-B279-4532-8F60-6C64FE0A2091} = {9E4C619C-B279-4532-8F60-6C64FE0A2091}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_esri_e00", "modules_io\esri_e00\io_esri_e00\io_esri_e00.vcxproj", "{953ED9E4-1771-4F8A-A9C9-31436B122D0A}"
 EndProject
@@ -108,10 +134,16 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_hydrology", "modules_simulation\hydrology\sim_hydrology\sim_hydrology.vcxproj", "{066F3C43-B3D4-4DA3-85A1-E8689911D75D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_channels", "modules_terrain_analysis\terrain_analysis\ta_channels\ta_channels.vcxproj", "{87413146-7080-434B-B515-09E51DD32453}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_compound", "modules_terrain_analysis\terrain_analysis\ta_compound\ta_compound.vcxproj", "{4D0F256A-8D05-457C-8B45-7D889329A381}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_hydrology", "modules_terrain_analysis\terrain_analysis\ta_hydrology\ta_hydrology.vcxproj", "{F3D0170D-EEE3-4ACA-AAAB-F6583C49657A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_lighting", "modules_terrain_analysis\terrain_analysis\ta_lighting\ta_lighting.vcxproj", "{4CF536D1-03E8-4912-9BBB-F27AEA8A903D}"
 EndProject
@@ -122,8 +154,14 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_profiles", "modules_terrain_analysis\terrain_analysis\ta_profiles\ta_profiles.vcxproj", "{9BE5CD6A-2989-4D36-AA0D-7B0CE5B4207E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_html", "modules_io\docs\docs_html\docs_html.vcxproj", "{90A4146C-4A4F-45D8-956F-BF38C5675F1D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_pdf", "modules_io\docs\docs_pdf\docs_pdf.vcxproj", "{D32A5075-9393-4541-9631-4DE087FAABAC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_tools", "modules\shapes\shapes_tools\shapes_tools.vcxproj", "{8952050D-158C-4AE7-A5D4-98E0F60A6186}"
 EndProject
