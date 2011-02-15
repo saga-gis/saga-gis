@@ -96,10 +96,6 @@ CPolygon_To_Points::CPolygon_To_Points(void)
 	);
 }
 
-//---------------------------------------------------------
-CPolygon_To_Points::~CPolygon_To_Points(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -112,8 +108,8 @@ bool CPolygon_To_Points::On_Execute(void)
 {
 	CSG_Shapes		*pShapes, *pPoints;
 
-	pShapes			= Parameters("SHAPES")	->asShapes();
-	pPoints			= Parameters("POINTS")	->asShapes();
+	pShapes		= Parameters("SHAPES")	->asShapes();
+	pPoints		= Parameters("POINTS")	->asShapes();
 
 	//-----------------------------------------------------
 	if( pShapes->is_Valid() )

@@ -1,6 +1,7 @@
 /**********************************************************
  * Version $Id$
  *********************************************************/
+
 /*******************************************************************************
     Points_From_Table.cpp
     Copyright (C) Victor Olaya
@@ -20,21 +21,34 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#include <string.h>
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 #include "Points_From_Table.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CPoints_From_Table::CPoints_From_Table(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name(_TL("Convert a Table to Points"));
+	Set_Name		(_TL("Convert Table to Points"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Author		(_TL("Victor Olaya (c) 2004"));
 
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Create Point Theme From Table"));
+		"Create Point Theme From Table"
+	));
 
 	Parameters.Add_Shapes(
 		NULL	, "POINTS"	, _TL("Points"),
@@ -57,43 +71,54 @@ CPoints_From_Table::CPoints_From_Table(void)
 		pNode	, "Y"		, _TL("Y"),
 		_TL("")
 	);
-}//constructor
+}
 
-CPoints_From_Table::~CPoints_From_Table(void)
-{}
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CPoints_From_Table::On_Execute(void)
 {
-	int				iRecord, iXField, iYField;
-	double			dX, dY;
-	CSG_Table			*pTable;
-	CSG_Table_Record	*pRecord;
-	CSG_Shapes			*pShapes;
-	CSG_Shape			*pShape;
+	int			xField, yField;
+	CSG_Table	*pTable;
+	CSG_Shapes	*pShapes;
 
 	pTable	= Parameters("TABLE")	->asTable();
 	pShapes	= Parameters("POINTS")	->asShapes();
+	xField	= Parameters("X")		->asInt();
+	yField	= Parameters("Y")		->asInt();
 
-	iXField	= Parameters("X")		->asInt();
-	iYField	= Parameters("Y")		->asInt();
+	if( pTable->Get_Field_Count() < 1 || pTable->Get_Record_Count() <= 0 )
+	{
+		return( false );
+	}
 
 	pShapes->Create(SHAPE_TYPE_Point, pTable->Get_Name(), pTable);
 
-	if( pTable->Get_Field_Count() > 1 && pTable->Get_Record_Count() > 0 )
+	for(int iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
 	{
-		for(iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+
+		if( !pRecord->is_NoData(xField) && !pRecord->is_NoData(yField) )
 		{
-			pRecord	= pTable->Get_Record(iRecord);
+			CSG_Shape	*pShape	= pShapes->Add_Shape(pRecord, SHAPE_COPY_ATTR);
 
-			dX		= pRecord->asDouble(iXField);
-			dY		= pRecord->asDouble(iYField);
+			pShape->Add_Point(pRecord->asDouble(xField), pRecord->asDouble(yField));
+		}
+	}
 
-			pShape	= pShapes->Add_Shape(pRecord, SHAPE_COPY_ATTR);
-			pShape->Add_Point(dX, dY);
-		}//for
+	return( true );
+}
 
-		return( true );
-	}//if
 
-	return( false );
-}//method
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

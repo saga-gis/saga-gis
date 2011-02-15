@@ -79,12 +79,13 @@ class CPolygon_To_Points : public CSG_Module
 {
 public:
 	CPolygon_To_Points(void);
-	virtual ~CPolygon_To_Points(void);
+
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool				On_Execute		(void);
 
 
 private:

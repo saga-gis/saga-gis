@@ -86,12 +86,13 @@ class CLines_From_Polygons : public CSG_Module
 {
 public:
 	CLines_From_Polygons(void);
-	virtual ~CLines_From_Polygons(void);
+
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool				On_Execute		(void);
 
 
 private:

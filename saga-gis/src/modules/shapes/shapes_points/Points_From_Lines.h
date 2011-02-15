@@ -1,6 +1,7 @@
 /**********************************************************
  * Version $Id$
  *********************************************************/
+
 /*******************************************************************************
     Points_From_Lines.h
     Copyright (C) Victor Olaya
@@ -19,21 +20,55 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Points_From_Lines_H
 #define HEADER_INCLUDED__Points_From_Lines_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CPoints_From_Lines : public CSG_Module {
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPoints_From_Lines : public CSG_Module
+{
 public:
 	CPoints_From_Lines(void);
-	virtual ~CPoints_From_Lines(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
+
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
+
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual bool				On_Execute		(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Points_From_Lines_H

@@ -78,10 +78,10 @@ CPolygons_From_Lines::CPolygons_From_Lines(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Convert Lines to Polygons"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
 	Set_Description	(_TW(
-		"Converts line shapes to polygon shapes. Line arcs are closed to polygons simply by connecting the last point with the first."
+		"Converts lines to polygons. Line arcs are closed to polygons simply by connecting the last point with the first."
 	));
 
 	//-----------------------------------------------------
@@ -98,10 +98,6 @@ CPolygons_From_Lines::CPolygons_From_Lines(void)
 	);
 }
 
-//---------------------------------------------------------
-CPolygons_From_Lines::~CPolygons_From_Lines(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -112,36 +108,34 @@ CPolygons_From_Lines::~CPolygons_From_Lines(void)
 //---------------------------------------------------------
 bool CPolygons_From_Lines::On_Execute(void)
 {
-	int				iShape, iPart, iPoint;
-	CSG_Shape			*pLine , *pPolygon;
-	CSG_Shapes			*pLines, *pPolygons;
+	CSG_Shapes	*pLines, *pPolygons;
 
 	pPolygons	= Parameters("POLYGONS")	->asShapes();
 	pLines		= Parameters("LINES")		->asShapes();
 
-	if(	pLines->Get_Count() > 0 )
+	if(	pLines->Get_Count() <= 0 )
 	{
-		pPolygons->Create(SHAPE_TYPE_Polygon, pLines->Get_Name(), pLines);
-
-		//-------------------------------------------------
-		for(iShape=0; iShape<pLines->Get_Count(); iShape++)
-		{
-			pLine		= pLines	->Get_Shape(iShape);
-			pPolygon	= pPolygons	->Add_Shape(pLine, SHAPE_COPY_ATTR);
-
-			for(iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
-			{
-				for(iPoint=0; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
-				{
-					pPolygon->Add_Point(pLine->Get_Point(iPoint, iPart), iPart);
-				}
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	pPolygons->Create(SHAPE_TYPE_Polygon, pLines->Get_Name(), pLines);
+
+	//-----------------------------------------------------
+	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	{
+		CSG_Shape	*pLine		= pLines	->Get_Shape(iLine);
+		CSG_Shape	*pPolygon	= pPolygons	->Add_Shape(pLine, SHAPE_COPY_ATTR);
+
+		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		{
+			for(int iPoint=0; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
+			{
+				pPolygon->Add_Point(pLine->Get_Point(iPoint, iPart), iPart);
+			}
+		}
+	}
+
+	return( true );
 }
 
 

@@ -78,10 +78,10 @@ CLines_From_Polygons::CLines_From_Polygons(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Convert Polygons to Lines"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
 	Set_Description	(_TW(
-		"Converts polygon shapes to line shapes."
+		"Convert polygons to lines."
 	));
 
 	//-----------------------------------------------------
@@ -98,10 +98,6 @@ CLines_From_Polygons::CLines_From_Polygons(void)
 	);
 }
 
-//---------------------------------------------------------
-CLines_From_Polygons::~CLines_From_Polygons(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -112,38 +108,39 @@ CLines_From_Polygons::~CLines_From_Polygons(void)
 //---------------------------------------------------------
 bool CLines_From_Polygons::On_Execute(void)
 {
-	int				iShape, iPart, iPoint;
-	CSG_Shape			*pLine , *pPolygon;
-	CSG_Shapes			*pLines, *pPolygons;
+	CSG_Shapes	*pLines, *pPolygons;
 
 	pPolygons	= Parameters("POLYGONS")	->asShapes();
 	pLines		= Parameters("LINES")		->asShapes();
 
-	if(	pPolygons->Get_Count() > 0 )
+	//-----------------------------------------------------
+	if(	pPolygons->Get_Count() <= 0 )
 	{
-		pLines->Create(SHAPE_TYPE_Line, pPolygons->Get_Name(), pPolygons);
+		Error_Set(_TL("no polygons in input"));
 
-		//-------------------------------------------------
-		for(iShape=0; iShape<pPolygons->Get_Count(); iShape++)
-		{
-			pPolygon	= pPolygons	->Get_Shape(iShape);
-			pLine		= pLines	->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
-
-			for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
-			{
-				for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
-				{
-					pLine->Add_Point(pPolygon->Get_Point(iPoint, iPart), iPart);
-				}
-
-				pLine->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	pLines->Create(SHAPE_TYPE_Line, pPolygons->Get_Name(), pPolygons);
+
+	for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+	{
+		CSG_Shape	*pPolygon	= pPolygons	->Get_Shape(iPolygon);
+		CSG_Shape	*pLine		= pLines	->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
+
+		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+		{
+			for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+			{
+				pLine->Add_Point(pPolygon->Get_Point(iPoint, iPart), iPart);
+			}
+
+			pLine->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
+		}
+	}
+
+	return( true );
 }
 
 

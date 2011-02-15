@@ -76,12 +76,12 @@ CLines_From_Points::CLines_From_Points(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Convert Points to Line"));
+	Set_Name		(_TL("Convert Points to Line(s)"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"Converts points to a line."
+		"Converts points to line(s)."
 	));
 
 	//-----------------------------------------------------
@@ -102,11 +102,13 @@ CLines_From_Points::CLines_From_Points(void)
 		_TL(""),
 		true
 	);
-}
 
-//---------------------------------------------------------
-CLines_From_Points::~CLines_From_Points(void)
-{}
+	Parameters.Add_Table_Field(
+		pNode	, "SEPARATE"	, _TL("Separate by..."),
+		_TL(""),
+		true
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -118,32 +120,59 @@ CLines_From_Points::~CLines_From_Points(void)
 //---------------------------------------------------------
 bool CLines_From_Points::On_Execute(void)
 {
+	int			Order, Separate;
+	CSG_String	s;
 	CSG_Shape	*pLine , *pPoint;
 	CSG_Shapes	*pLines, *pPoints;
 
-	pPoints	= Parameters("POINTS")	->asShapes();
-	pLines	= Parameters("LINES")	->asShapes();
+	pPoints		= Parameters("POINTS")		->asShapes();
+	pLines		= Parameters("LINES")		->asShapes();
+	Order		= Parameters("ORDER")		->asInt();
+	Separate	= Parameters("SEPARATE")	->asInt();
 
-	if(	pPoints->Get_Count() > 0 )
+	//-------------------------------------------------
+	if(	pPoints->Get_Count() < 1 )
 	{
-		pPoints->Set_Index(Parameters("ORDER")->asInt(), TABLE_INDEX_Ascending);
-
-		pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), pPoints);
-		pLines->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-		pLine	= pLines->Add_Shape();
-
-		//-------------------------------------------------
-		for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
-		{
-			pPoint	= pPoints->Get_Shape_byIndex(iPoint);
-
-			pLine->Add_Point(pPoint->Get_Point(0));
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-------------------------------------------------
+	pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name());
+
+	pLines->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
+
+	if( Separate >= 0 )
+	{
+		pLines->Add_Field(pPoints->Get_Field_Name(Separate), pPoints->Get_Field_Type(Separate));
+
+		pPoints->Set_Index(Separate, TABLE_INDEX_Ascending, Order, TABLE_INDEX_Ascending);
+	}
+	else
+	{
+		pPoints->Set_Index(Order, TABLE_INDEX_Ascending);
+	}
+
+	//-------------------------------------------------
+	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
+	{
+		pPoint	= pPoints->Get_Shape_byIndex(iPoint);
+
+		if( pLines->Get_Count() == 0 || (Separate >= 0 && s.Cmp(pPoint->asString(Separate))) )
+		{
+			pLine	= pLines->Add_Shape();
+
+			pLine->Set_Value(0, pLines->Get_Count());
+
+			if( Separate >= 0 )
+			{
+				pLine->Set_Value(1, s = pPoint->asString(Separate));
+			}
+		}
+
+		pLine->Add_Point(pPoint->Get_Point(0));
+	}
+
+	return( true );
 }
 
 

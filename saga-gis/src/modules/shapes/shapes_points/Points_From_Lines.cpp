@@ -1,6 +1,7 @@
 /**********************************************************
  * Version $Id$
  *********************************************************/
+
 /*******************************************************************************
     Points_From_Lines.cpp
     Copyright (C) Victor Olaya
@@ -20,18 +21,31 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "Points_From_Lines.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CPoints_From_Lines::CPoints_From_Lines(void){
+CPoints_From_Lines::CPoints_From_Lines(void)
+{
+	Set_Name		(_TL("Convert Lines to Points"));
 
-	Set_Name		(_TL("Points from Lines"));
-
-	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Author		(_TL("Victor Olaya (c) 2004"));
 
 	Set_Description	(_TW(
-		"Converts a line theme to a points theme. "
+		"Converts lines to points. "
 		"Optionally inserts additional points in user-defined distances. "
 	));
 
@@ -60,9 +74,12 @@ CPoints_From_Lines::CPoints_From_Lines(void){
 	);
 }
 
-//---------------------------------------------------------
-CPoints_From_Lines::~CPoints_From_Lines(void)
-{}
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPoints_From_Lines::On_Execute(void)
@@ -70,8 +87,8 @@ bool CPoints_From_Lines::On_Execute(void)
 	int			iLine, iPart, iPoint, jPoint, nPoints;
 	double		dx, dy, dDist;
 	TSG_Point	Pt_A, Pt_B;	
-	CSG_Shapes		*pLines, *pPoints;
-	CSG_Shape		*pLine, *pPoint;
+	CSG_Shapes	*pLines, *pPoints;
+	CSG_Shape	*pLine, *pPoint;
 
 	//-----------------------------------------------------
 	pLines	= Parameters("LINES")	->asShapes();
@@ -130,3 +147,12 @@ bool CPoints_From_Lines::On_Execute(void)
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
