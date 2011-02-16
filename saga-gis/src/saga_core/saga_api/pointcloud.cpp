@@ -955,20 +955,23 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 		Set_Value(1, pShape->Get_Point(0).y);
 	}
 
-	if( iPoint != m_Shapes_Index && iPoint >= 0 && iPoint < Get_Count() )
+	if( iPoint >= 0 && iPoint < Get_Count() )
 	{
-		m_Cursor	= m_Points[iPoint];
-
-		pShape->Set_Point(Get_X(), Get_Y(), 0, 0);
-
-		for(int i=0; i<Get_Field_Count(); i++)
+		if( iPoint != m_Shapes_Index )
 		{
-			pShape->Set_Value(i, Get_Value(i));
+			m_Cursor	= m_Points[iPoint];
+
+			pShape->Set_Point(Get_X(), Get_Y(), 0, 0);
+
+			for(int i=0; i<Get_Field_Count(); i++)
+			{
+				pShape->Set_Value(i, Get_Value(i));
+			}
+
+			m_Shapes_Index	= iPoint;
 		}
 
 		m_Shapes.Set_Modified(false);
-
-		m_Shapes_Index	= iPoint;
 
 		SG_UI_Progress_Lock(false);
 
