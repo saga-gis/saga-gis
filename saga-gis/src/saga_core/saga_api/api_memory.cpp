@@ -757,9 +757,9 @@ bool CSG_Bytes::fromHexString(const CSG_String &HexString)
 
 	const SG_Char	*s	= HexString.c_str();
 
-	for(size_t i=0; i<HexString.Length(); i+=2)
+	for(size_t i=0; i<HexString.Length(); i+=2, s+=2)
 	{
-		Add(SG_Hex_to_Byte(*(s++)) + 16 * SG_Hex_to_Byte(*(s++)));
+		Add(SG_Hex_to_Byte(s[1]) + 16 * SG_Hex_to_Byte(s[0]));
 	}
 
 	return( true );
