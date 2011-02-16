@@ -21,6 +21,7 @@ CreatePointGrid.cpp\
 DistanceMatrix.cpp\
 FitNPointsToShape.cpp\
 MLB_Interface.cpp\
+points_filter.cpp\
 Points_From_Lines.cpp\
 Points_From_Table.cpp\
 remove_duplicates.cpp\
@@ -33,6 +34,7 @@ CreatePointGrid.h\
 DistanceMatrix.h\
 FitNPointsToShape.h\
 MLB_Interface.h\
+points_filter.cpp\
 Points_From_Lines.h\
 Points_From_Table.h\
 remove_duplicates.h\

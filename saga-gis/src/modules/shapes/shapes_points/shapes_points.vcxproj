@@ -583,6 +583,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="points_filter.cpp" />
     <ClCompile Include="Points_From_Lines.cpp" />
     <ClCompile Include="Points_From_Table.cpp" />
     <ClCompile Include="remove_duplicates.cpp" />
@@ -614,6 +615,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="points_filter.h" />
     <ClInclude Include="Points_From_Lines.h" />
     <ClInclude Include="Points_From_Table.h" />
     <ClInclude Include="remove_duplicates.h" />

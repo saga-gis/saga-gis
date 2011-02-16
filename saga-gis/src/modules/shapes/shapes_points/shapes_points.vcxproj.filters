@@ -50,6 +50,9 @@
     <ClCompile Include="separate_by_direction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="points_filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -137,6 +140,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="separate_by_direction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="points_filter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
