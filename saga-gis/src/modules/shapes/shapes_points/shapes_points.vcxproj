@@ -561,6 +561,7 @@
     <ClCompile Include="AddCoordinates.cpp" />
     <ClCompile Include="add_polygon_attributes.cpp" />
     <ClCompile Include="Clip_Points.cpp" />
+    <ClCompile Include="convex_hull.cpp" />
     <ClCompile Include="CountPoints.cpp" />
     <ClCompile Include="CreatePointGrid.cpp" />
     <ClCompile Include="DistanceMatrix.cpp" />
@@ -599,6 +600,7 @@
     <ClInclude Include="AddCoordinates.h" />
     <ClInclude Include="add_polygon_attributes.h" />
     <ClInclude Include="Clip_Points.h" />
+    <ClInclude Include="convex_hull.h" />
     <ClInclude Include="CountPoints.h" />
     <ClInclude Include="CreatePointGrid.h" />
     <ClInclude Include="DistanceMatrix.h" />

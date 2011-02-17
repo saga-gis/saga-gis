@@ -16,6 +16,7 @@ libshapes_points_la_SOURCES =\
 add_polygon_attributes.cpp\
 AddCoordinates.cpp\
 Clip_Points.cpp\
+convex_hull.cpp\
 CountPoints.cpp\
 CreatePointGrid.cpp\
 DistanceMatrix.cpp\
@@ -28,13 +29,14 @@ remove_duplicates.cpp\
 separate_by_direction.cpp\
 add_polygon_attributes.h\
 AddCoordinates.h\
+convex_hull.h\
 CountPoints.h\
 Clip_Points.h\
 CreatePointGrid.h\
 DistanceMatrix.h\
 FitNPointsToShape.h\
 MLB_Interface.h\
-points_filter.cpp\
+points_filter.h\
 Points_From_Lines.h\
 Points_From_Table.h\
 remove_duplicates.h\
