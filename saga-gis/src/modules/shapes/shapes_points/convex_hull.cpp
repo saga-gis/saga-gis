@@ -78,6 +78,7 @@ CConvex_Hull::CConvex_Hull(void)
 	Set_Description	(_TW(
 		"Implementation of 'Andrew's Monotone Chain Algorithm' for convex hull construction. "
 		"\nReferences:\n"
+		"Algorithmist (2011): <a target=\"_blank\" href=\"http://www.algorithmist.com/index.php/Monotone_Chain_Convex_Hull.cpp\">Monotone Chain Convex Hull</a>. algorithmist.com.\n"
 		"Andrew, A.M. (1979): Another Efficient Algorithm for Convex Hulls in Two Dimensions. Info. Proc. Letters 9, pp.216-219.\n"
 		"Sunday, D. (2001-2006): <a target=\"_blank\" href=\"http://www.softsurfer.com/Archive/algorithm_0109\">The Convex Hull of a 2D Point Set or Polygon</a>. Softsurfer.com.\n"
 	));
@@ -95,10 +96,14 @@ CConvex_Hull::CConvex_Hull(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PARTS"		, _TL("One Hull per Shape"),
-		_TL("If checked a separate hull will be constructed for each shape. Does not apply to simple point layers."),
-		PARAMETER_TYPE_Bool, true
+	Parameters.Add_Choice(
+		NULL	, "POLYPOINTS"	, _TL("Hull Construction"),
+		_TL("This option does not apply to simple point layers."),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("one hull for all shapes"),
+			_TL("one hull per shape"),
+			_TL("one hull per shape part")
+		), 1
 	);
 }
 
@@ -120,6 +125,7 @@ bool CConvex_Hull::On_Execute(void)
 
 	//-----------------------------------------------------
 	pHulls->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Convex Hull")));
+	pHulls->Add_Field(_TL("ID")			, SG_DATATYPE_Int);
 	pHulls->Add_Field(_TL("AREA")		, SG_DATATYPE_Double);
 	pHulls->Add_Field(_TL("PERIMETER")	, SG_DATATYPE_Double);
 
@@ -130,55 +136,42 @@ bool CConvex_Hull::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("PARTS")->asBool() )
+	CSG_Shapes	Points(SHAPE_TYPE_Point);
+
+	int	Construction	= Parameters("POLYPOINTS")->asInt();
+	int	nOkay			= 0;
+	int	nFailed			= 0;
+
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			CSG_Shapes	Points(SHAPE_TYPE_Point);
-
-			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
-
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					Points.Add_Shape()->Add_Point(pShape->Get_Point(iPoint, iPart));
-				}
+				Points.Add_Shape()->Add_Point(pShape->Get_Point(iPoint, iPart));
 			}
 
-			if( Get_Chain_Hull(&Points, pHulls) )
+			if( Construction == 2 )	// one hull per shape part
 			{
+				if( Get_Chain_Hull(&Points, pHulls) )	nOkay	++;	else	nFailed	++;	Points.Del_Records();
 			}
 		}
 
-		if( pShapes->Get_Count() != pHulls->Get_Count() )
+		if( Construction == 1 )	// one hull per shape
 		{
-			Message_Add(_TL("not all shapes have been processed successfully"));
-
-			return( false );
+			if( Get_Chain_Hull(&Points, pHulls) )	nOkay	++;	else	nFailed	++;	Points.Del_Records();
 		}
-
-		return( true );
 	}
-	else
+
+	if( Construction == 0 )	// one hull for all shapes
 	{
-		CSG_Shapes	Points(SHAPE_TYPE_Point);
-
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
-
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					Points.Add_Shape()->Add_Point(pShape->Get_Point(iPoint, iPart));
-				}
-			}
-		}
-
-		return( Get_Chain_Hull(&Points, pHulls) );
+		if( Get_Chain_Hull(&Points, pHulls) )	nOkay	++;	else	nFailed	++;	Points.Del_Records();
 	}
+		
+	//-----------------------------------------------------
+	return( nOkay > 0 && nFailed == 0 );
 }
 
 
@@ -226,13 +219,14 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls)
 	//-----------------------------------------------------
 	CSG_Shape	*pHull	= pHulls->Add_Shape();
 
-	for(i=0; i<n && Set_Progress(i, n); i++)
+	for(i=0; i<n && Process_Get_Okay(); i++)
 	{
 		pHull->Add_Point(Hull[i]);
 	}
 
-	pHull->Set_Value(0, ((CSG_Shape_Polygon *)pHull)->Get_Area());
-	pHull->Set_Value(1, ((CSG_Shape_Polygon *)pHull)->Get_Perimeter());
+	pHull->Set_Value(0, pHulls->Get_Count());
+	pHull->Set_Value(1, ((CSG_Shape_Polygon *)pHull)->Get_Area());
+	pHull->Set_Value(2, ((CSG_Shape_Polygon *)pHull)->Get_Perimeter());
 
 	//-----------------------------------------------------
 	return( true );
@@ -316,7 +310,7 @@ int CConvex_Hull::Get_Chain_Hull(CSG_Points &P, CSG_Points &H)
 
 	n	= P.Get_Count();
 
-	H.Set_Count(n);
+	H.Set_Count(2 * n);
 
 	bot	=  0;	// index for bottom of the stack
 	top	= -1;	// index for top of the stack
