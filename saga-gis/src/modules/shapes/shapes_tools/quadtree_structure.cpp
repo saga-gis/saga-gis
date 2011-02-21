@@ -149,6 +149,7 @@ bool CQuadTree_Structure::Get_Shapes(CSG_Shapes *pShapes, CSG_PRQuadTree_Item *p
 			pShapes->Create(SHAPE_TYPE_Polygon, _TL("QuadTree - Squares"));
 			pShapes->Add_Field("LEVEL", SG_DATATYPE_Int);
 			pShapes->Add_Field("VALUE", SG_DATATYPE_Double);
+			pShapes->Add_Field("COUNT", SG_DATATYPE_Int);
 			break;
 		}
 
@@ -197,6 +198,7 @@ void CQuadTree_Structure::Get_Shapes(CSG_Shapes *pShapes, CSG_PRQuadTree_Item *p
 				CSG_Shape	*pShape	= pShapes->Add_Shape();
 				pShape->Set_Value(0, Level + 1);
 				pShape->Set_Value(1, pItem->asLeaf()->Get_Z());
+				pShape->Set_Value(2, pItem->has_Statistics() ? ((CSG_PRQuadTree_Leaf_List *)pItem)->Get_Count() : 1);
 				pShape->Add_Point(pItem->Get_xMin(), pItem->Get_yMin());
 				pShape->Add_Point(pItem->Get_xMin(), pItem->Get_yMax());
 				pShape->Add_Point(pItem->Get_xMax(), pItem->Get_yMax());
