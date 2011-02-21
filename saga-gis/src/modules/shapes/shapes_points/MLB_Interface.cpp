@@ -104,6 +104,7 @@ const SG_Char * Get_Info(int i)
 #include "add_polygon_attributes.h"
 #include "points_filter.h"
 #include "convex_hull.h"
+#include "select_points.h"
 
 
 //---------------------------------------------------------
@@ -126,6 +127,7 @@ CSG_Module *		Create_Module(int i)
 	case 10:	return( new CAdd_Polygon_Attributes );
 	case 11:	return( new CPoints_Filter );
 	case 12:	return( new CConvex_Hull );
+	case 13:	return( new CSelect_Points );
 	}
 
 	return( NULL );

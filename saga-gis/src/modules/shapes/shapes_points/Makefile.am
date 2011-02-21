@@ -26,6 +26,7 @@ points_filter.cpp\
 Points_From_Lines.cpp\
 Points_From_Table.cpp\
 remove_duplicates.cpp\
+select_points.cpp\
 separate_by_direction.cpp\
 add_polygon_attributes.h\
 AddCoordinates.h\
@@ -40,6 +41,7 @@ points_filter.h\
 Points_From_Lines.h\
 Points_From_Table.h\
 remove_duplicates.h\
+select_points.h\
 separate_by_direction.h
 
 libshapes_points_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
