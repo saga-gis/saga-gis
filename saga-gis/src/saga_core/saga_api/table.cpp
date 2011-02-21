@@ -552,7 +552,7 @@ int CSG_Table::Get_Field_Length(int iField)	const
 
 			if( s && s[0] )
 			{
-				int		n	= SG_STR_LEN(s);
+				int		n	= (int)SG_STR_LEN(s);
 
 				if( Length < n )
 				{

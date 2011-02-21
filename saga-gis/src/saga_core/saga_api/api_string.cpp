@@ -211,7 +211,7 @@ int CSG_String::Printf(const SG_Char *Format, ...)
 
 	va_end(argptr);
 
-	return( Length() );
+	return( (int)Length() );
 }
 
 //---------------------------------------------------------
@@ -418,11 +418,11 @@ CSG_String & CSG_String::Remove(size_t pos, size_t len)
 //---------------------------------------------------------
 int CSG_String::Trim(bool fromRight)
 {
-	int		n	= m_pString->Length();
+	size_t	n	= m_pString->Length();
 
 	m_pString->Trim(fromRight);
 
-	return( n - m_pString->Length() );
+	return( (int)(n - m_pString->Length()) );
 }
 
 

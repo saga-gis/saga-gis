@@ -208,7 +208,7 @@ bool CSG_Trend::Set_Formula(const SG_Char *Formula)
 			}
 		}
 
-		return( m_Params.Create(vars.c_str(), vars.Length()) );
+		return( m_Params.Create(vars.c_str(), (int)vars.Length()) );
 	}
 
 	m_Params.Destroy();

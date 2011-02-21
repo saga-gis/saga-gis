@@ -694,7 +694,7 @@ bool CSG_Table_DBase::Set_Value(int iField, double Value)
 				sprintf(s, "%d", (int)Value);
 			}
 
-			if( (n = strlen(s)) > FieldDesc[iField].Width )
+			if( (n = (int)strlen(s)) > FieldDesc[iField].Width )
 			{
 				n	= FieldDesc[iField].Width;
 			}
@@ -715,7 +715,7 @@ bool CSG_Table_DBase::Set_Value(int iField, double Value)
 
 			sprintf(s, "%04d%02d%02d", y, m, d);
 
-			if( (n = strlen(s)) > FieldDesc[iField].Width )
+			if( (n = (int)strlen(s)) > FieldDesc[iField].Width )
 			{
 				n	= FieldDesc[iField].Width;
 			}
@@ -735,7 +735,7 @@ bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
 {
 	if( bOpen && iField >= 0 && iField < nFields && FieldDesc[iField].Width > 0 )
 	{
-		int		n	= Value && Value[0] ? strlen(Value) : 0;
+		int		n	= Value && Value[0] ? (int)strlen(Value) : 0;
 
 		if( FieldDesc[iField].Type == DBF_FT_CHARACTER )
 		{

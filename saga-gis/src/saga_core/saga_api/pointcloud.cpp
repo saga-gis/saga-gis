@@ -404,7 +404,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 	{
 		Stream.Write(&m_Field_Type[i], sizeof(TSG_Data_Type));
 
-		iBuffer	= m_Field_Name[i]->Length();	if( iBuffer >= 1024 - 1 )	iBuffer	= 1024 - 1;
+		iBuffer	= (int)m_Field_Name[i]->Length();	if( iBuffer >= 1024 - 1 )	iBuffer	= 1024 - 1;
 		Stream.Write(&iBuffer, sizeof(int));
 		Stream.Write((void *)m_Field_Name[i]->b_str(), sizeof(char), iBuffer);
 	}
@@ -520,14 +520,14 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iFi
 	m_Field_Name  [m_nFields]	= new CSG_String(Name);
 	m_Field_Type  [m_nFields]	= Type;
 	m_Field_Stats [m_nFields]	= new CSG_Simple_Statistics();
-	m_Field_Offset[m_nFields]	= m_nFields == 0 ? 1 : m_Field_Offset[m_nFields - 1] + SG_Data_Type_Get_Size(m_Field_Type[m_nFields - 1]);
+	m_Field_Offset[m_nFields]	= m_nFields == 0 ? 1 : m_Field_Offset[m_nFields - 1] + (int)SG_Data_Type_Get_Size(m_Field_Type[m_nFields - 1]);
 
 	if( m_nFields == 0 )
 	{
 		m_nPointBytes	= 1;
 	}
 
-	m_nPointBytes	+= SG_Data_Type_Get_Size(m_Field_Type[m_nFields]);
+	m_nPointBytes	+= (int)SG_Data_Type_Get_Size(m_Field_Type[m_nFields]);
 	m_nFields		++;
 
 	m_Shapes.Add_Field(Name, Type);
@@ -578,7 +578,7 @@ bool CSG_PointCloud::Del_Field(int iField)
 
 	//-----------------------------------------------------
 	m_nFields		--;
-	m_nPointBytes	-= SG_Data_Type_Get_Size(m_Field_Type[iField]);
+	m_nPointBytes	-= (int)SG_Data_Type_Get_Size(m_Field_Type[iField]);
 
 	for(i=0; i<m_nRecords; i++)
 	{
@@ -603,7 +603,7 @@ bool CSG_PointCloud::Del_Field(int iField)
 		m_Field_Name  [i]	= m_Field_Name  [i + 1];
 		m_Field_Type  [i]	= m_Field_Type  [i + 1];
 		m_Field_Stats [i]	= m_Field_Stats [i + 1];
-		m_Field_Offset[i]	= m_Field_Offset[i - 1] + SG_Data_Type_Get_Size(m_Field_Type[i - 1]);
+		m_Field_Offset[i]	= m_Field_Offset[i - 1] + (int)SG_Data_Type_Get_Size(m_Field_Type[i - 1]);
 	}
 
 	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name  , m_nFields * sizeof(CSG_String *));

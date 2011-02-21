@@ -269,7 +269,7 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFli
 		//-------------------------------------------------
 		else
 		{
-			nValueBytes	= SG_Data_Type_Get_Size(File_Type);
+			nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
 			nxBytes		= Get_NX() * nValueBytes;
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
@@ -382,7 +382,7 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TS
 		//-------------------------------------------------
 		else
 		{
-			nValueBytes	= SG_Data_Type_Get_Size(File_Type);
+			nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
 			nxBytes		= xN * nValueBytes;
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
