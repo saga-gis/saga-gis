@@ -89,7 +89,8 @@ CTable_Enumerate::CTable_Enumerate(void)
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD"	, _TL("Attribute"),
-		_TL("")
+		_TL(""),
+		true
 	);
 
 	Parameters.Add_Table(
@@ -113,11 +114,8 @@ CTable_Enumerate::~CTable_Enumerate(void)
 //---------------------------------------------------------
 bool CTable_Enumerate::On_Execute(void)
 {
-	int					iField, iField_ID, iID, iRecord, old_Field;
-	TSG_Table_Index_Order	old_Order;
-	CSG_String			Value;
-	CSG_Table				*pTable, *pOutput;
-	CSG_Table_Record		*pRecord;
+	int			iField, iField_ID;
+	CSG_Table	*pTable, *pOutput;
 
 	//-----------------------------------------------------
 	pTable	= Parameters("INPUT")	->asTable();
@@ -125,32 +123,42 @@ bool CTable_Enumerate::On_Execute(void)
 	iField	= Parameters("FIELD")	->asInt();
 
 	//-----------------------------------------------------
-	if( iField >= 0 && iField < pTable->Get_Field_Count() && pTable->Get_Record_Count() > 0 )
+	if( pTable->Get_Record_Count() <= 0 )
 	{
-		if( pOutput != NULL && pOutput != pTable )
-		{
-			pOutput->Create		(*pTable);
-			pOutput->Set_Name	( pTable->Get_Name());
-			pTable	= pOutput;
-		}
+		Error_Set(_TL("no records in data set"));
 
-		//-------------------------------------------------
-		pTable->Add_Field(_TL("ENUM_ID"), SG_DATATYPE_Int);
-		iField_ID	= pTable->Get_Field_Count() - 1;
+		return( false );
+	}
 
-		old_Order	= pTable->Get_Index_Order(0);
-		old_Field	= pTable->Get_Index_Field(0);
+	//-----------------------------------------------------
+	if( pOutput != NULL && pOutput != pTable )
+	{
+		pOutput->Create		(*pTable);
+		pOutput->Set_Name	( pTable->Get_Name());
+		pTable	= pOutput;
+	}
+
+	pTable->Add_Field(_TL("ENUM_ID"), SG_DATATYPE_Int);
+	iField_ID	= pTable->Get_Field_Count() - 1;
+
+	//-----------------------------------------------------
+	if( iField >= 0 && iField < pTable->Get_Field_Count() )
+	{
+		TSG_Table_Index_Order	old_Order	= pTable->Get_Index_Order(0);
+		int						old_Field	= pTable->Get_Index_Field(0);
 
 		pTable->Set_Index(iField, TABLE_INDEX_Descending);
-		Value		= pTable->Get_Record_byIndex(0)->asString(iField);
 
-		for(iRecord=0, iID=1; iRecord<pTable->Get_Record_Count(); iRecord++)
+		CSG_String	Value	= pTable->Get_Record_byIndex(0)->asString(iField);
+
+		for(int iRecord=0, iID=1; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 		{
-			pRecord	= pTable->Get_Record_byIndex(iRecord);
+			CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(iRecord);
 
 			if( Value.Cmp(pRecord->asString(iField)) )
 			{
 				Value	= pRecord->asString(iField);
+
 				iID++;
 			}
 
@@ -158,11 +166,24 @@ bool CTable_Enumerate::On_Execute(void)
 		}
 
 		pTable->Set_Index(old_Field, old_Order);
+	}
+	else
+	{
+		for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+		{
+			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-		return( true );
+			pRecord->Set_Value(iField_ID, iRecord + 1);
+		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	if( pTable == Parameters("INPUT")->asTable() )
+	{
+		DataObject_Update(pTable);
+	}
+
+	return( true );
 }
 
 
