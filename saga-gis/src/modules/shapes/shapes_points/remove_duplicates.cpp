@@ -72,7 +72,7 @@ CRemove_Duplicates::CRemove_Duplicates(void)
 {
 	Set_Name		(_TL("Remove Duplicate Points"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
 		""
@@ -92,28 +92,16 @@ CRemove_Duplicates::CRemove_Duplicates(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD_NUM"	, _TL("Numerical Values"),
+		NULL	, "METHOD"		, _TL("Value Aggregation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("first"),
-			_TL("last"),
-			_TL("mean")
-		), 0
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "METHOD_STR"	, _TL("Text"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("first"),
-			_TL("last")
-		), 0
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("first value"),
+			_TL("mean value"),
+			_TL("minimun value"),
+			_TL("maximun value")
+		), 1
 	);
 }
-
-//---------------------------------------------------------
-CRemove_Duplicates::~CRemove_Duplicates(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -125,124 +113,124 @@ CRemove_Duplicates::~CRemove_Duplicates(void)
 //---------------------------------------------------------
 bool CRemove_Duplicates::On_Execute(void)
 {
-	int					i, j;
-	double				Epsilon	= 0.00001;
-	CSG_Point			Point;
-	CSG_Shape			*pPoint, *pDuplicate;
-	CSG_Shapes			*pPoints, *pInput;
-	CSG_Shapes_Search	Search;
+	CSG_PRQuadTree	Search;
 
 	//-----------------------------------------------------
-	pInput			= Parameters("POINTS")		->asShapes();
-	pPoints			= Parameters("RESULT")		->asShapes();
+	m_pPoints	= Parameters("RESULT")	->asShapes();
+	m_Method	= Parameters("METHOD")	->asInt();
 
-	m_Method_Num	= Parameters("METHOD_NUM")	->asInt();
-	m_Method_Str	= Parameters("METHOD_STR")	->asInt();
-
-	if( pPoints == NULL )
+	//-----------------------------------------------------
+	if( m_pPoints == NULL )
 	{
-		pPoints	= pInput;
+		m_pPoints	= Parameters("POINTS")->asShapes();
 	}
-	else if( pPoints != pInput )
+	else if( m_pPoints != Parameters("POINTS")->asShapes() )
 	{
-		pPoints->Assign(pInput);
+		m_pPoints	->Assign(Parameters("POINTS")->asShapes());
 	}
 
 	//-----------------------------------------------------
-	if( !pPoints->is_Valid() )
+	if( !m_pPoints->is_Valid() )
 	{
-		Message_Add(_TL("Invalid shapes layer."));
-
-		return( false );
-	}
-	else if( !Search.Create(pPoints) )
-	{
-		Message_Add(_TL("Failed to initialise search engine."));
+		Error_Set(_TL("invalid points layer"));
 
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	pPoints->Select();
-
-	for(i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
+	if( m_pPoints->Get_Count() <= 0 )
 	{
-		pPoint	= pPoints->Get_Shape(i);
+		Error_Set(_TL("no points in layer"));
+
+		return( false );
+	}
+
+	if( !Search.Create(m_pPoints, -1) )
+	{
+		Error_Set(_TL("failed to initialise search engine"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	m_pPoints->Add_Field(_TL("Duplicates"), SG_DATATYPE_Int);
+
+	m_pPoints->Select();
+
+	for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
+	{
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
 		if( !pPoint->is_Selected() )
 		{
-			Point	= pPoint->Get_Point(0);
+			double	Distance;
 
-			if( Search.Select_Radius(Point.Get_X(), Point.Get_Y(), Epsilon) > 1 )
+			CSG_PRQuadTree_Leaf	*pLeaf	= Search.Get_Nearest_Leaf(pPoint->Get_Point(0), Distance);
+
+			if( Distance == 0.0 && pLeaf && pLeaf->has_Statistics() )
 			{
-				for(j=0; j<Search.Get_Selected_Count(); j++)
-				{
-					pDuplicate	= Search.Get_Selected_Point(j);
-
-					if( pDuplicate && pDuplicate != pPoint && Point == pDuplicate->Get_Point(0) )
-					{
-						pPoints->Select(pDuplicate, true);
-
-						Set_Attributes(pPoint, pDuplicate);
-					}
-				}
+				Set_Attributes(pPoint, (CSG_PRQuadTree_Leaf_List *)pLeaf);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pPoints->Get_Selection_Count() == 0 )
+	if( m_pPoints->Get_Selection_Count() == 0 )
 	{
 		Message_Add(_TL("No duplicates found."));
 	}
 	else
 	{
-		Message_Add(CSG_String::Format(SG_T("%d %s"), pPoints->Get_Selection_Count(), _TL("duplicates have been identified.")));
+		Message_Add(CSG_String::Format(SG_T("%d %s"), m_pPoints->Get_Selection_Count(), _TL("duplicates have been identified.")));
 
-		pPoints->Del_Selection();
+		m_pPoints->Del_Selection();
 	}
 
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-void CRemove_Duplicates::Set_Attributes(CSG_Table_Record *pTarget, CSG_Table_Record *pSource)
+void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_List *pList)
 {
-	if( m_Method_Num == 0 && m_Method_Str == 0 )
-	{
-		// nothing to do...
-	}
-	else if( m_Method_Num == 1 && m_Method_Str == 1 )
-	{
-		pTarget->Assign(pSource);
-	}
-	else
-	{
-		CSG_Table	*pTable	= pTarget->Get_Table();
+	int		iDuplicate, Index;
 
-		for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
+	//-----------------------------------------------------
+	for(iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
+	{
+		if( (Index = (int)pList->Get_Value(iDuplicate)) != pPoint->Get_Index() )
 		{
-			switch( pTable->Get_Field_Type(iField) )
-			{
-			case SG_DATATYPE_String:
-			case SG_DATATYPE_Color:
-			case SG_DATATYPE_Date:
-				if( m_Method_Str == 1 )
-				{
-					pTarget->Set_Value(iField, pSource->asString(iField));
-				}
-				break;
+			m_pPoints->Select(Index, true);
+		}
+	}
 
-			default:
-				if( m_Method_Num == 1 )
+	pPoint->Set_Value(m_pPoints->Get_Field_Count() - 1, pList->Get_Count());
+
+	//-----------------------------------------------------
+	if( m_Method > 0 )	// not: first value
+	{
+		for(int iField=0; iField<m_pPoints->Get_Field_Count()-1; iField++)
+		{
+			if( SG_Data_Type_is_Numeric(m_pPoints->Get_Field_Type(iField)) )
+			{
+				CSG_Simple_Statistics	s;
+
+				for(iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
 				{
-					pTarget->Set_Value(iField, pSource->asDouble(iField));
+					s	+= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate))->asDouble(iField);
 				}
-				else if( m_Method_Num == 2 )
+
+				switch( m_Method )
 				{
-					pTarget->Set_Value(iField, (pSource->asDouble(iField) + pTarget->asDouble(iField)) / 2.0);
+				case 1:	pPoint->Set_Value(iField, s.Get_Mean());	break;	// mean value
+				case 2:	pPoint->Set_Value(iField, s.Get_Minimum());	break;	// minimun value
+				case 3:	pPoint->Set_Value(iField, s.Get_Maximum());	break;	// maximum value
 				}
-				break;
 			}
 		}
 	}

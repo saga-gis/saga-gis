@@ -90,7 +90,7 @@ private:
 	CSG_PRQuadTree			m_Search;
 
 
-	bool					Keep_Point		(TSG_Point Point, double zPoint, int Quadrant = -1);
+	bool					Do_Filter		(TSG_Point Point, double zPoint, int Quadrant = -1);
 
 };
 

@@ -76,7 +76,6 @@ class CRemove_Duplicates : public CSG_Module
 {
 public:
 	CRemove_Duplicates(void);
-	virtual ~CRemove_Duplicates(void);
 
 
 protected:
@@ -86,10 +85,12 @@ protected:
 
 private:
 
-	int							m_Method_Num, m_Method_Str;
+	int							m_Method;
+
+	CSG_Shapes					*m_pPoints;
 
 
-	void						Set_Attributes			(CSG_Table_Record *pTarget, CSG_Table_Record *pSource);
+	void						Set_Attributes			(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_List *pList);
 
 };
 

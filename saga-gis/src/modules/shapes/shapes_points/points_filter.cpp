@@ -94,7 +94,7 @@ CPoints_Filter::CPoints_Filter(void)
 	Parameters.Add_Shapes(
 		NULL	, "FILTER"		, _TL("Filtered Points"),
 		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Value(
@@ -122,13 +122,15 @@ CPoints_Filter::CPoints_Filter(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+		NULL	, "METHOD"		, _TL("Filter Criterion"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("maximum with tolerance"),
-			_TL("minimum with tolerance"),
-			_TL("above percentile"),
-			_TL("below percentile")
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+			_TL("keep maxima (with tolerance)"),
+			_TL("keep minima (with tolerance)"),
+			_TL("remove maxima (with tolerance)"),
+			_TL("remove minima (with tolerance)"),
+			_TL("remove below percentile"),
+			_TL("remove above percentile")
 		), 0
 	);
 
@@ -174,20 +176,37 @@ bool CPoints_Filter::On_Execute(void)
 	//-----------------------------------------------------
 	if( !pPoints->is_Valid() )
 	{
-		Error_Set(_TL("invalid points layer."));
+		Error_Set(_TL("invalid points layer"));
+
+		return( false );
+	}
+
+	if( pPoints->Get_Count() <= 0 )
+	{
+		Error_Set(_TL("no points in layer"));
 
 		return( false );
 	}
 
 	if( !m_Search.Create(pPoints, zField) )
 	{
-		Error_Set(_TL("failed to initialise search engine."));
+		Error_Set(_TL("failed to initialise search engine"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	pFilter->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Filtered")), pPoints);
+	if( pFilter )
+	{
+		pFilter->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Filtered")), pPoints);
+	}
+	else
+	{
+		pPoints->Select();
+	}
+
+	//-----------------------------------------------------
+	int	nFiltered	= 0;
 
 	for(int i=0; i<pPoints->Get_Count() && Set_Progress(i, pPoints->Get_Count()); i++)
 	{
@@ -195,28 +214,38 @@ bool CPoints_Filter::On_Execute(void)
 
 		if( pPoint )
 		{
-			if( bQuadrants )
+			bool	bFilter	= bQuadrants
+				? 		Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 0)
+					||	Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 1)
+					||	Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 2)
+					||	Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField), 3)
+				:		Do_Filter(pPoint->Get_Point(0), pPoint->asDouble(zField));
+
+			if( bFilter )
 			{
-				if(	Keep_Point(pPoint->Get_Point(0), pPoint->asDouble(zField), 0)
-				||	Keep_Point(pPoint->Get_Point(0), pPoint->asDouble(zField), 1)
-				||	Keep_Point(pPoint->Get_Point(0), pPoint->asDouble(zField), 2)
-				||	Keep_Point(pPoint->Get_Point(0), pPoint->asDouble(zField), 3) )
+				nFiltered++;
+
+				if( !pFilter )
 				{
-					pFilter->Add_Shape(pPoint);
+					pPoints->Select(i, true);
 				}
 			}
-			else
+			else if( pFilter )
 			{
-				if( Keep_Point(pPoint->Get_Point(0), pPoint->asDouble(zField)) )
-				{
-					pFilter->Add_Shape(pPoint);
-				}
+				pFilter->Add_Shape(pPoint);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(SG_T("%d %s"), pPoints->Get_Count() - pFilter->Get_Count(), _TL("points have been filtered")));
+	if( !pFilter )
+	{
+		pPoints->Del_Selection();
+
+		DataObject_Update(pPoints);
+	}
+
+	Message_Add(CSG_String::Format(SG_T("%d %s"), nFiltered, _TL("points have been filtered")));
 
 	return( true );
 }
@@ -229,7 +258,7 @@ bool CPoints_Filter::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPoints_Filter::Keep_Point(TSG_Point Point, double zPoint, int Quadrant)
+bool CPoints_Filter::Do_Filter(TSG_Point Point, double zPoint, int Quadrant)
 {
 	if( !m_Search.Select_Nearest_Points(Point.x, Point.y, m_nMaxPoints, m_Radius, Quadrant) )
 	{
@@ -244,43 +273,79 @@ bool CPoints_Filter::Keep_Point(TSG_Point Point, double zPoint, int Quadrant)
 	switch( m_Method )
 	{
 	//-----------------------------------------------------
-	case 0:	// maximum
-	case 1:	// minimum
+	case 0:	// keep maxima
+	case 1:	// keep minima
+	case 2:	// remove maxima
+	case 3:	// remove minima
 		{
 			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
 			{
-				double	x, y, z;
+				CSG_PRQuadTree_Leaf	*pLeaf	= m_Search.Get_Selected_Leaf(i);
 
-				if( m_Search.Get_Selected_Point(i, x, y, z)
-				&&	(	(m_Method == 0 && zPoint < (z - m_Tolerance))
-					||	(m_Method == 1 && zPoint > (z + m_Tolerance)) ) )
+				if( pLeaf )
 				{
-					return( false );
+					double	z;
+
+					if( pLeaf->has_Statistics() )
+					{
+						switch( m_Method )
+						{
+						case 0:	z	= ((CSG_PRQuadTree_Leaf_List *)pLeaf)->Get_Maximum();	break;	// keep maxima
+						case 1:	z	= ((CSG_PRQuadTree_Leaf_List *)pLeaf)->Get_Minimum();	break;	// keep minima
+						case 2:	z	= ((CSG_PRQuadTree_Leaf_List *)pLeaf)->Get_Maximum();	break;	// remove maxima
+						case 3:	z	= ((CSG_PRQuadTree_Leaf_List *)pLeaf)->Get_Minimum();	break;	// remove minima
+						}
+					}
+					else
+					{
+						z	= pLeaf->Get_Z();
+					}
+
+					switch( m_Method )
+					{
+					case 0:	if( zPoint < (z - m_Tolerance) )	return(  true );	break;	// keep maxima
+					case 1:	if( zPoint > (z + m_Tolerance) )	return(  true );	break;	// keep minima
+					case 2:	if( zPoint < (z - m_Tolerance) )	return( false );	break;	// remove maxima
+					case 3:	if( zPoint > (z + m_Tolerance) )	return( false );	break;	// remove minima
+					}
 				}
 			}
 
-			return( true );
+			return( m_Method <= 1 ? false : true );
 		}
 
 	//-----------------------------------------------------
-	case 2:	// above percentile
-	case 3:	// below percentile
+	case 4:	// remove below percentile
+	case 5:	// remove above percentile
 		{
 			double	n	= 0.0;
 
 			for(int i=0; i<m_Search.Get_Selected_Count(); i++)
 			{
-				double	x, y, z;
+				CSG_PRQuadTree_Leaf	*pLeaf	= m_Search.Get_Selected_Leaf(i);
 
-				if( m_Search.Get_Selected_Point(i, x, y, z) && zPoint > z )
+				if( pLeaf )
 				{
-					n++;
+					if( pLeaf->has_Statistics() )
+					{
+						for(int j=0; j<((CSG_PRQuadTree_Leaf_List *)pLeaf)->Get_Count(); j++)
+						{
+							if( zPoint > ((CSG_PRQuadTree_Leaf_List *)pLeaf)->Get_Value(j) )
+							{
+								n++;
+							}
+						}
+					}
+					else if( zPoint > pLeaf->Get_Z() )
+					{
+						n++;
+					}
 				}
 			}
 
 			n	*= 100.0 / m_Search.Get_Selected_Count();
 
-			return( m_Method == 2 ? n > m_Percentile : n < m_Percentile );
+			return( m_Method == 4 ? n < m_Percentile : n > m_Percentile );
 		}
 	}
 
