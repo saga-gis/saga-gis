@@ -302,7 +302,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
-	if(	pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
+	if(	pObject && pObject->is_Valid() && (pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes || pObject->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud) )
 	{
 		pShapes	= (CSG_Shapes *)pObject;
 
