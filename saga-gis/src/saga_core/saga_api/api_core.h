@@ -386,14 +386,20 @@ public:
 	CSG_Array(void);
 	~CSG_Array(void);
 
+						CSG_Array		(const CSG_Array &Array);
+	void *				Create			(const CSG_Array &Array);
+
 						CSG_Array		(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
 	void *				Create			(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
 
 	void				Destroy			(void);
 
+	CSG_Array &			operator =		(const CSG_Array &Array)	{	Create(Array);	return( *this );	}
+
 	bool				Set_Growth		(TSG_Array_Growth Growth);
 	int					Get_Growth		(void)	const			{	return( m_Growth );		}
 
+	size_t				Get_Value_Size	(void)	const			{	return( m_Value_Size );	}
 	size_t				Get_Size		(void)	const			{	return( m_nValues );	}
 
 	void *				Get_Entry		(size_t Index)	const	{	return( Index >= 0 && Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );		}

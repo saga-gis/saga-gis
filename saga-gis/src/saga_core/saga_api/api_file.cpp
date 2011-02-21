@@ -290,7 +290,7 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 	if( m_pStream )
 	{
 		char	*b	= (char *)SG_Calloc(Size + 1, sizeof(char));
-		int		i	= fread(b, sizeof(char), Size, m_pStream);
+		size_t	 i	= fread(b, sizeof(char), Size, m_pStream);
 		Buffer		= b;
 		SG_Free(b);
 

@@ -251,6 +251,29 @@ CSG_Array::CSG_Array(void)
 }
 
 //---------------------------------------------------------
+CSG_Array::CSG_Array(const CSG_Array &Array)
+{
+	Create(Array);
+}
+
+void * CSG_Array::Create(const CSG_Array &Array)
+{
+	m_Value_Size	= Array.m_Value_Size;
+	m_Growth		= Array.m_Growth;
+
+	m_nBuffer		= 0;
+	m_nValues		= 0;
+	m_Values		= NULL;
+
+	if( Array.m_nValues > 0 && Get_Array(Array.m_nValues) )
+	{
+		memcpy(m_Values, Array.m_Values, Array.m_nValues * Array.m_Value_Size);
+	}
+
+	return( Get_Array() );
+}
+
+//---------------------------------------------------------
 CSG_Array::CSG_Array(size_t Value_Size, size_t nValues, TSG_Array_Growth Growth)
 {
 	Create(Value_Size, nValues, Growth);
@@ -587,9 +610,9 @@ bool CSG_Bytes::Create(const SG_Char *Bytes)
 	}
 
 #ifndef _SAGA_UNICODE
-	int	nBytes	= SG_STR_LEN(Bytes);
+	int	nBytes	= (int)SG_STR_LEN(Bytes);
 #else
-	int	nBytes	= SG_STR_LEN(Bytes) * 2;
+	int	nBytes	= (int)SG_STR_LEN(Bytes) * 2;
 #endif
 
 	return( Add((void *)Bytes, nBytes, false) );
