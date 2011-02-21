@@ -88,7 +88,47 @@ double			SG_Get_Square(double x)
 //---------------------------------------------------------
 CSG_Simple_Statistics::CSG_Simple_Statistics(void)
 {
+	Create(false);
+}
+
+CSG_Simple_Statistics::CSG_Simple_Statistics(bool bHoldValues)
+{
+	Create(bHoldValues);
+}
+
+CSG_Simple_Statistics::CSG_Simple_Statistics(const CSG_Simple_Statistics &Statistics)
+{
+	Create(Statistics);
+}
+
+//---------------------------------------------------------
+bool CSG_Simple_Statistics::Create(bool bHoldValues)
+{
 	Invalidate();
+
+	m_Values.Create(bHoldValues ? sizeof(double) : 0, 0, SG_ARRAY_GROWTH_1);
+
+	return( true );
+}
+
+bool CSG_Simple_Statistics::Create(const CSG_Simple_Statistics &Statistics)
+{
+	m_bEvaluated	= Statistics.m_bEvaluated;
+	m_nValues		= Statistics.m_nValues;
+	m_Weights		= Statistics.m_Weights;
+	m_Sum			= Statistics.m_Sum;
+	m_Sum2			= Statistics.m_Sum2;
+
+	m_Minimum		= Statistics.m_Minimum;
+	m_Maximum		= Statistics.m_Maximum;
+	m_Range			= Statistics.m_Range;
+	m_Mean			= Statistics.m_Mean;
+	m_Variance		= Statistics.m_Variance;
+	m_StdDev		= Statistics.m_StdDev;
+
+	m_Values		.Create(Statistics.m_Values);
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -106,6 +146,8 @@ void CSG_Simple_Statistics::Invalidate(void)
 	m_Mean			= 0.0;
 	m_Variance		= 0.0;
 	m_StdDev		= 0.0;
+
+	m_Values		.Destroy();
 }
 
 //---------------------------------------------------------
@@ -124,8 +166,6 @@ void CSG_Simple_Statistics::Add_Value(double Value, double Weight)
 		m_Maximum	= Value;
 	}
 
-	m_nValues++;
-
 	if( Weight > 0.0 )
 	{
 		m_Weights		+= Weight;
@@ -134,6 +174,13 @@ void CSG_Simple_Statistics::Add_Value(double Value, double Weight)
 
 		m_bEvaluated	= false;
 	}
+
+	if( m_Values.Get_Value_Size() > 0 && m_Values.Inc_Array() )
+	{
+		((double *)m_Values.Get_Array())[m_nValues]	= Value;
+	}
+
+	m_nValues++;
 }
 
 //---------------------------------------------------------
