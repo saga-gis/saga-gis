@@ -797,6 +797,7 @@ public:
 
 	virtual bool			is_Leaf			(void)	const	{	return( false );	}
 	virtual bool			is_Node			(void)	const	{	return( false );	}
+	virtual bool			has_Statistics	(void)	const	{	return( false );	}
 
 	CSG_Rect				Get_Extent		(void)	const	{	return( CSG_Rect(m_xCenter - m_Size, m_yCenter - m_Size, m_xCenter + m_Size, m_yCenter + m_Size) );	}
 	double					Get_xMin		(void)	const	{	return( m_xCenter - m_Size );	}
@@ -864,6 +865,47 @@ protected:
 };
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_PRQuadTree_Leaf_List : public CSG_PRQuadTree_Leaf
+{
+	friend class CSG_PRQuadTree_Node;
+
+public:
+
+	virtual bool			has_Statistics	(void)	const	{	return( true );	}
+
+	int						Get_Count		(void)	{	return( s_z.Get_Count   () );	}
+	double					Get_Value		(int i)	{	return( s_z.Get_Value  (i) );	}
+	double					Get_Minimum		(void)	{	return( s_z.Get_Minimum () );	}
+	double					Get_Maximum		(void)	{	return( s_z.Get_Maximum () );	}
+	double					Get_Range		(void)	{	return( s_z.Get_Range   () );	}
+	double					Get_Sum			(void)	{	return( s_z.Get_Sum     () );	}
+	double					Get_Mean		(void)	{	return( s_z.Get_Mean    () );	}
+	double					Get_Variance	(void)	{	return( s_z.Get_Variance() );	}
+	double					Get_StdDev		(void)	{	return( s_z.Get_StdDev  () );	}
+
+
+protected:
+
+	CSG_PRQuadTree_Leaf_List(double xCenter, double yCenter, double Size, double x, double y, double z)
+		: CSG_PRQuadTree_Leaf(xCenter, yCenter, Size, x, y, z)
+	{
+		s_z.Create(true);
+
+		s_z.Add_Value(z);
+	}
+
+	void					Add_Value		(double z)
+	{
+		s_z.Add_Value(z);
+
+		m_z	= s_z.Get_Mean();
+	}
+
+	CSG_Simple_Statistics	s_z;
+
+};
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_PRQuadTree_Node : public CSG_PRQuadTree_Item
 {
 	friend class CSG_PRQuadTree;
@@ -873,8 +915,13 @@ public:
 	virtual bool			is_Node			(void)	const	{	return( true );		}
 
 	CSG_PRQuadTree_Item *	Get_Child		(int i)	const	{	return( i >= 0 && i < 4 ? m_pChildren[i] : NULL );	}
+	CSG_PRQuadTree_Item *	Get_Child		(double x, double y);
 
 	bool					Add_Point		(double x, double y, double z);
+
+	virtual CSG_Simple_Statistics *	Get_X	(void)			{	return( NULL );	}
+	virtual CSG_Simple_Statistics *	Get_Y	(void)			{	return( NULL );	}
+	virtual CSG_Simple_Statistics *	Get_Z	(void)			{	return( NULL );	}
 
 
 protected:
@@ -889,38 +936,77 @@ protected:
 };
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_PRQuadTree_Node_Statistics : public CSG_PRQuadTree_Node
+{
+	friend class CSG_PRQuadTree;
+	friend class CSG_PRQuadTree_Node;
+
+public:
+
+	virtual bool			has_Statistics	(void)	const	{	return( true );	}
+
+	virtual CSG_Simple_Statistics *	Get_X	(void)			{	return( &m_x );	}
+	virtual CSG_Simple_Statistics *	Get_Y	(void)			{	return( &m_y );	}
+	virtual CSG_Simple_Statistics *	Get_Z	(void)			{	return( &m_z );	}
+
+
+protected:
+
+	CSG_PRQuadTree_Node_Statistics(double xCenter, double yCenter, double Size)
+		: CSG_PRQuadTree_Node(xCenter, yCenter, Size)
+	{}
+
+	CSG_PRQuadTree_Node_Statistics(CSG_PRQuadTree_Leaf *pLeaf)
+		: CSG_PRQuadTree_Node(pLeaf)
+	{}
+
+
+	CSG_Simple_Statistics	m_x, m_y, m_z;
+
+};
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_PRQuadTree
 {
 public:
 	CSG_PRQuadTree(void);
-	CSG_PRQuadTree(const TSG_Rect &Extent);
-	CSG_PRQuadTree(CSG_Shapes *pShapes, int Attribute);
+	CSG_PRQuadTree(const TSG_Rect &Extent, bool bStatistics = false);
+	CSG_PRQuadTree(CSG_Shapes *pShapes, int Attribute, bool bStatistics = false);
 	virtual ~CSG_PRQuadTree(void);
 
-	bool						Create					(const CSG_Rect &Extent);
-	bool						Create					(CSG_Shapes *pShapes, int Attribute);
+	bool						Create					(const CSG_Rect &Extent, bool bStatistics = false);
+	bool						Create					(CSG_Shapes *pShapes, int Attribute, bool bStatistics = false);
 	void						Destroy					(void);
 
 	bool						Add_Point				(double x, double y, double z);
 	int							Get_Point_Count			(void)	const	{	return( m_nPoints );		}
 
 	const CSG_PRQuadTree_Node &	Get_Root				(void)	const	{	return( *m_pRoot );			}
+	CSG_PRQuadTree_Node *		Get_Root_Pointer		(void)	const	{	return(  m_pRoot );			}
 
 	bool						is_Okay					(void)	const	{	return( m_pRoot != NULL );	}
 
+	CSG_PRQuadTree_Leaf *		Get_Nearest_Leaf		(const TSG_Point &p, double &Distance);
+	CSG_PRQuadTree_Leaf *		Get_Nearest_Leaf		(double x, double y, double &Distance);
+	bool						Get_Nearest_Point		(const TSG_Point &p, TSG_Point &Point, double &Value, double &Distance);
 	bool						Get_Nearest_Point		(double x, double y, TSG_Point &Point, double &Value, double &Distance);
 
+	int							Select_Nearest_Points	(const TSG_Point &p, int maxPoints, double Radius = 0.0, int iQuadrant = -1);
 	int							Select_Nearest_Points	(double x, double y, int maxPoints, double Radius = 0.0, int iQuadrant = -1);
 
-	int							Get_Selected_Count		(void)	const	{	return( m_nSelected );		}
-
+	int							Get_Selected_Count		(void)	const	{	return( (int)m_Selected.Get_Size() );	}
+	CSG_PRQuadTree_Leaf *		Get_Selected_Leaf		(int i) const	{	TLeaf *pLeaf = _Get_Selected(i); return( pLeaf ? pLeaf->pLeaf          : NULL );	}
+	double						Get_Selected_Z			(int i) const	{	TLeaf *pLeaf = _Get_Selected(i); return( pLeaf ? pLeaf->pLeaf->Get_Z() :  0.0 );	}
+	double						Get_Selected_Distance	(int i) const	{	TLeaf *pLeaf = _Get_Selected(i); return( pLeaf ? pLeaf->Distance       : -1.0 );	}
 	bool						Get_Selected_Point		(int i, double &x, double &y, double &z) const
 	{
-		if( i >= 0 && i < m_nSelected )
+		CSG_PRQuadTree_Leaf	*pLeaf	= Get_Selected_Leaf(i);
+
+		if( pLeaf )
 		{
-			x	= m_Selected[i][0];
-			y	= m_Selected[i][1];
-			z	= m_Selected[i][2];
+			x	= pLeaf->Get_X();
+			y	= pLeaf->Get_Y();
+			z	= pLeaf->Get_Z();
 
 			return( true );
 		}
@@ -931,11 +1017,26 @@ public:
 
 private:
 
-	int							m_nSelected, m_nPoints;
+	typedef struct SLeaf
+	{
+		CSG_PRQuadTree_Leaf		*pLeaf;
 
-	CSG_Matrix					m_Selected;
+		double					Distance;
+	}
+	TLeaf;
+
+
+private:
+
+	int							m_nPoints;
+
+	CSG_Array					m_Selected;
 
 	CSG_PRQuadTree_Node			*m_pRoot;
+
+	TLeaf *						_Get_Selected			(int i)	const	{	return( i >= 0 && i < (int)m_Selected.Get_Size() ? ((TLeaf *)m_Selected.Get_Array()) + i : NULL );	}
+	bool						_Add_Selected			(CSG_PRQuadTree_Leaf *pLeaf, double Distance);
+	bool						_Set_Selected			(int i, CSG_PRQuadTree_Leaf *pLeaf, double Distance);
 
 	bool						_Quadrant_Contains		(double x, double y, int iQuadrant, const TSG_Point &p);
 	bool						_Radius_Contains		(double x, double y, double r, const TSG_Point &p);
@@ -944,8 +1045,8 @@ private:
 	bool						_Radius_Intersects		(double x, double y, double r, CSG_PRQuadTree_Item *pItem);
 	bool						_Radius_Intersects		(double x, double y, double r, int iQuadrant, CSG_PRQuadTree_Item *pItem);
 
-	void						_Get_Nearest_Point		(CSG_PRQuadTree_Item *pItem, double x, double y, double &maxDistance, double Point[4]);
-	void						_Get_Nearest_Points		(CSG_PRQuadTree_Item *pItem, double x, double y, double &maxDistance, double Radius, int iQuadrant);
+	CSG_PRQuadTree_Leaf	*		_Get_Nearest_Point		(CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance);
+	void						_Get_Nearest_Points		(CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance, double Radius, int maxPoints, int iQuadrant);
 
 };
 
