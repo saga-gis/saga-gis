@@ -60,7 +60,8 @@ module1 = Extension(
 		'-D_TYPEDEF_BYTE',
 		'-D_TYPEDEF_WORD',
 		'-D_SAGA_API_EXPORTS',
-		'-DDEBUG'
+		'-DDEBUG',
+		'-D_SAGA_PYTHON'
 	]
 )
 

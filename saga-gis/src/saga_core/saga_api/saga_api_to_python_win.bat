@@ -5,7 +5,7 @@ rem set PYTHON=E:\develop\Python-2.4.6
 set PYTHON=E:\develop\libs\Python-2.4.6
 
 echo SWIG compilation...
-"%SWIG%\swig" -c++ -python -includeall saga_api.h
+"%SWIG%\swig" -c++ -python -includeall -D_SAGA_PYTHON saga_api.h
 echo SWIG compilation finished.
 
 echo Python compilation...

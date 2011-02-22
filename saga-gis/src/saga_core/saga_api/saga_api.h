@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: saga_api.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@
 #ifdef SWIG
 
 //---------------------------------------------------------
-#ifdef _SAGA_UNICODE
+#if defined(_SAGA_PYTHON) && defined(_SAGA_UNICODE)
 %include <typemaps.i>
 %include <python/cwstring.i>
 #endif
