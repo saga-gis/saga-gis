@@ -1,1 +1,1 @@
-SUBDIRS = tin_tools
+SUBDIRS = tin_tools tin_viewer

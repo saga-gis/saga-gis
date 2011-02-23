@@ -140,6 +140,7 @@ AC_OUTPUT(Makefile \
 	src/modules/table/table_tools/Makefile \
 	src/modules/tin/Makefile \
 	src/modules/tin/tin_tools/Makefile \
+	src/modules/tin/tin_viewer/Makefile \
 	src/modules_contrib/Makefile \
 	src/modules_contrib/contrib_a_perego/Makefile \
 	src/modules_contrib/contrib_a_perego/contrib_a_perego/Makefile \
