@@ -77,7 +77,7 @@ CShapes_Buffer::CShapes_Buffer(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Shapes Buffer"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
 		"A vector based buffer construction partly based on the method supposed by Dong et al. 2003. "
@@ -139,6 +139,12 @@ CShapes_Buffer::CShapes_Buffer(void)
 		NULL	, "DCIRCLE"		, _TL("Circle Point Distance [Degree]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 5.0, 0.01, true, 45.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "DISSOLVE"	, _TL("Dissolve Buffers"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 }
 
@@ -218,10 +224,19 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pBuffers, double dZone)
 	//-----------------------------------------------------
 	if( pBuffers )
 	{
-		pBuffers	->Create(SHAPE_TYPE_Polygon);
-		pBuffers	->Add_Field(_TL("ID"), SG_DATATYPE_Int);
-		m_pBuffer	= pBuffers->Add_Shape();
-		m_pBuffer	->Set_Value(0, 1);
+		bool	bDissolve	= Parameters("DISSOLVE")	->asBool();
+
+		if( bDissolve )
+		{
+			pBuffers	->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), _TL("Buffer")));
+			pBuffers	->Add_Field(_TL("ID"), SG_DATATYPE_Int);
+			m_pBuffer	= pBuffers->Add_Shape();
+			m_pBuffer	->Set_Value(0, 1);
+		}
+		else
+		{
+			pBuffers	->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), _TL("Buffer")), m_pShapes);
+		}
 
 		m_Distance	= dZone * Parameters("BUF_DIST")	->asDouble();
 		m_Scale		= dZone * Parameters("BUF_SCALE")	->asDouble();
@@ -233,6 +248,11 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pBuffers, double dZone)
 
 			if( m_Type == 0 || (m_Distance = m_Scale * pShape->asDouble(m_Field)) > 0.0 )
 			{
+				if( !bDissolve )
+				{
+					m_pBuffer	= pBuffers->Add_Shape(pShape, SHAPE_COPY_ATTR);
+				}
+
 				switch( m_pShapes->Get_Type() )
 				{
 				case SHAPE_TYPE_Point:		Get_Buffer_Point	(pShape);	break;
