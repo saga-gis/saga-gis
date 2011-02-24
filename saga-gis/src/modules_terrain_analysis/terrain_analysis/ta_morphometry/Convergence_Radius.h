@@ -86,27 +86,25 @@ class CConvergence_Radius : public CSG_Module_Grid
 {
 public:
 	CConvergence_Radius(void);
-	virtual ~CConvergence_Radius(void);
 
 
 protected:
 
-	virtual bool		On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	int					m_Radius, m_Diameter, *m_iCnt;
+	bool						m_bSlope, m_bDifference;
 
-	double				*m_iSum;
+	CSG_Vector					m_Direction;
 
-	CSG_Grid				m_Slope, m_Aspect, m_Dir, m_Dst;
+	CSG_Grid_Cell_Addressor		m_Cells;
+
+	CSG_Grid					*m_pDTM, m_Slope, m_Aspect;
 
 
-	bool				Initialize				(CSG_Grid *pDTM, int Radius);
-	void				Finalize				(void);
-
-	void				Get_Convergence_Radius	(CSG_Grid *pDTM, CSG_Grid *pConvergence_Radius, bool bSlope, bool bCenterDiff, int Method);
+	bool						Get_Convergence			(int x, int y, double &Convergence);
 
 };
 

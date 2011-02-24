@@ -77,7 +77,7 @@ CConvergence_Radius::CConvergence_Radius(void)
 {
 	Set_Name	(_TL("Convergence Index (Search Radius)"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Reference:\n"
@@ -92,46 +92,37 @@ CConvergence_Radius::CConvergence_Radius(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Convergence_Radius Index"),
+		NULL	, "CONVERGENCE"	, _TL("Convergence Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius"),
+		NULL	, "RADIUS"		, _TL("Radius [Cells]"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 10, 1, true
+		PARAMETER_TYPE_Double, 10.0, 1.0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("Standard"),
-			_TL("Distance Weighted (Linear)"),
-			_TL("Distance Weighted (Inverse)")
-		), 0
-	);
+	Parameters.Add_Parameters(
+		NULL	, "WEIGHTING"	, _TL("Weighting"),
+		_TL("")
+	)->asParameters()->Assign(m_Cells.Get_Weighting().Get_Parameters());
 
 	Parameters.Add_Value(
 		NULL	, "SLOPE"		, _TL("Gradient"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, 0.0
+		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "DIFF"		, _TL("Difference"),
+		NULL	, "DIFFERENCE"	, _TL("Difference"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("direction to the center cell"),
-			_TL("center cell's aspect direcion")
+			_TL("center cell's aspect direction")
 		), 0
 	);
 }
-
-//---------------------------------------------------------
-CConvergence_Radius::~CConvergence_Radius(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -143,238 +134,153 @@ CConvergence_Radius::~CConvergence_Radius(void)
 //---------------------------------------------------------
 bool CConvergence_Radius::On_Execute(void)
 {
-	CSG_Grid	*pDTM, *pConvergence_Radius;
+	int			x, y;
+	double		d;
+	CSG_Grid	*pConvergence;
 
-	pDTM				= Parameters("ELEVATION")	->asGrid();
-	pConvergence_Radius	= Parameters("RESULT")		->asGrid();
+	//-----------------------------------------------------
+	m_pDTM			= Parameters("ELEVATION")	->asGrid();
+	pConvergence	= Parameters("CONVERGENCE")	->asGrid();
+	m_bSlope		= Parameters("SLOPE")		->asBool();
+	m_bDifference	= Parameters("DIFFERENCE")	->asInt() == 0;
 
-	if( Initialize(pDTM, Parameters("RADIUS")->asInt()) )
+	//-----------------------------------------------------
+	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
+
+	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asDouble()) )
 	{
-		DataObject_Set_Colors(pConvergence_Radius, 100, SG_COLORS_RED_GREY_BLUE, true);
-
-		pConvergence_Radius->Assign_NoData();
-
-		Get_Convergence_Radius(
-			pDTM,
-			pConvergence_Radius,
-			Parameters("SLOPE")	->asBool(),
-			Parameters("DIFF")	->asInt() == 0 ? true : false,
-			Parameters("METHOD")->asInt()
-		);
-
-		Finalize();
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
-}
+	//-----------------------------------------------------
+	DataObject_Set_Colors(pConvergence, 100, SG_COLORS_RED_GREY_BLUE, true);
 
+	//-----------------------------------------------------
+	m_Direction.Create(m_Cells.Get_Count());
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CConvergence_Radius::Initialize(CSG_Grid *pDTM, int Radius)
-{
-	int		x, y, ix, iy;
-	double	Slope, Aspect, d;
-
-	if( Radius > 0 )
+	for(int i=0; i<m_Cells.Get_Count(); i++)
 	{
-		//-------------------------------------------------
-		m_Radius	= Radius;
-		m_Diameter	= 1 + 2 * Radius;
-
-		m_Dir.Create(SG_DATATYPE_Double, m_Diameter, m_Diameter);
-		m_Dst.Create(SG_DATATYPE_Double, m_Diameter, m_Diameter);
-
-		for(iy=0, y=-m_Radius; iy<m_Diameter; iy++, y++)
+		if( m_Cells.Get_Values(i, x, y, d, d, false) )
 		{
-			for(ix=0, x=-m_Radius; ix<m_Diameter; ix++, x++)
-			{
-				d	= M_GET_LENGTH(x, y);
-
-				if( d < 1 || d > m_Radius )
-				{
-					m_Dir.Set_NoData(ix, iy);
-					m_Dst.Set_Value	(ix, iy, 0);
-				}
-				else
-				{
-					m_Dir.Set_Value	(ix, iy, y != 0.0 ? M_PI_180 + atan2((double)x, (double)y) : (x > 0.0 ? M_PI_270 : M_PI_090));
-					m_Dst.Set_Value	(ix, iy, d - 1);
-				}
-			}
+			m_Direction[i]	= SG_Get_Angle_Of_Direction(0.0, 0.0, x, y);
+			m_Direction[i]	= y != 0 ? (M_PI_180 + atan2((double)x, (double)y)) : (x > 0 ? M_PI_270 : M_PI_090);
 		}
-
-		//-------------------------------------------------
-		m_Slope	.Create(pDTM, SG_DATATYPE_Float);
-		m_Aspect.Create(pDTM, SG_DATATYPE_Float);
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			for(x=0; x<Get_NX(); x++)
-			{
-				if( pDTM->is_InGrid(x, y) && pDTM->Get_Gradient(x, y, Slope, Aspect) && Aspect >= 0.0 )
-				{
-					m_Slope	.Set_Value(x, y, Slope);
-					m_Aspect.Set_Value(x, y, Aspect);
-				}
-				else
-				{
-					m_Slope	.Set_NoData(x, y);
-					m_Aspect.Set_NoData(x, y);
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		m_iSum		= (double *)malloc(m_Radius * sizeof(double));
-		m_iCnt		= (int    *)malloc(m_Radius * sizeof(int   ));
-
-		return( true );
 	}
 
-	return( false );
-}
+	//-----------------------------------------------------
+	m_Slope	.Create(*Get_System(), SG_DATATYPE_Float);
+	m_Aspect.Create(*Get_System(), SG_DATATYPE_Float);
 
-//---------------------------------------------------------
-void CConvergence_Radius::Finalize(void)
-{
-	m_Dir	.Destroy();
-	m_Dst	.Destroy();
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			double	Slope, Aspect;
 
-	m_Slope	.Destroy();
-	m_Aspect.Destroy();
-
-	free(m_iSum);
-	free(m_iCnt);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define PI2PERC	(100.0 / M_PI_090)
-
-//---------------------------------------------------------
-void CConvergence_Radius::Get_Convergence_Radius(CSG_Grid *pDTM, CSG_Grid *pConvergence_Radius, bool bSlope, bool bCenterDiff, int Method)
-{
-	int		x, y, ix, iy, jx, jy, iDst;
-	double	Slope, Aspect, d, dSum, dCnt, z, dSlope, Dir;
-
-	dSlope	= Get_Cellsize();
+			if( m_pDTM->is_InGrid(x, y) && m_pDTM->Get_Gradient(x, y, Slope, Aspect) && Aspect >= 0.0 )
+			{
+				m_Slope	.Set_Value(x, y, Slope);
+				m_Aspect.Set_Value(x, y, Aspect);
+			}
+			else
+			{
+				m_Slope	.Set_NoData(x, y);
+				m_Aspect.Set_NoData(x, y);
+			}
+		}
+	}
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( m_Aspect.is_InGrid(x, y) )
+			if( Get_Convergence(x, y, d) )
 			{
-				z		= pDTM->asDouble(x, y);
-
-				memset(m_iSum, 0, m_Radius * sizeof(double));
-				memset(m_iCnt, 0, m_Radius * sizeof(int   ));
-
-				for(iy=0, jy=y-m_Radius; iy<m_Diameter; iy++, jy++)
-				{
-					for(ix=0, jx=x-m_Radius; ix<m_Diameter; ix++, jx++)
-					{
-						if( m_Dir.is_InGrid(ix, iy) && m_Aspect.is_InGrid(jx, jy) && (Aspect = m_Aspect.asDouble(jx, jy)) >= 0.0 )
-						{
-							Dir	= bCenterDiff
-								? m_Dir		.asDouble(ix, iy)
-								: m_Aspect	.asDouble( x,  y) + M_PI_360;
-
-							if( bSlope )
-							{
-								Slope	= bCenterDiff
-										? m_Slope.asDouble(jx, jy)
-										: m_Slope.asDouble(jx, jy) - m_Slope.asDouble(x, y) + M_PI_360;
-
-								d		= atan((pDTM->asDouble(jx, jy) - z) / (dSlope * m_Dst.asDouble(ix, iy)));
-								d		= acos(sin(Slope) * sin(d) + cos(Slope) * cos(d) * cos(Dir - Aspect));
-							}
-							else
-							{
-								d		= Aspect - Dir;
-							}
-
-							//-----------------------------
-							d		= fmod(d, M_PI_360);
-
-							if( d < -M_PI_180 )
-							{
-								d	+= M_PI_360;
-							}
-							else if( d > M_PI_180 )
-							{
-								d	-= M_PI_360;
-							}
-
-							//-----------------------------
-							iDst			= m_Dst.asInt(ix, iy);
-							m_iSum[iDst]	+= fabs(d);
-							m_iCnt[iDst]++;
-						}
-					}
-				}
-
-				//-----------------------------------------
-				for(iDst=1; iDst<m_Radius; iDst++)
-				{
-					m_iCnt[iDst]	+= m_iCnt[iDst - 1];
-					m_iSum[iDst]	+= m_iSum[iDst - 1];
-				}
-
-				switch( Method )
-				{
-				case 0:	// Standard
-					if( (dCnt = m_iCnt[m_Radius - 1]) > 0 )
-					{
-						pConvergence_Radius->Set_Value(x, y, PI2PERC * (m_iSum[m_Radius - 1] / dCnt - M_PI_090));
-					}
-					break;
-
-				case 1:	// Distance Weighted (Linear)
-					for(iDst=0, dSum=0.0; iDst<m_Radius; iDst++)
-					{
-						if( m_iCnt[iDst] > 0 )
-						{
-							dSum	+=  PI2PERC * (m_iSum[iDst] / (double)m_iCnt[iDst] - M_PI_090);
-						}
-					}
-
-					pConvergence_Radius->Set_Value(x, y, dSum / (double)m_Radius);
-					break;
-
-				case 2:	// Distance Weighted (Inverse)
-					for(iDst=0, dSum=0.0, dCnt=0.0; iDst<m_Radius; iDst++)
-					{
-						if( m_iCnt[iDst] > 0 )
-						{
-							d		= 1.0 / (1.0 + iDst);
-
-							dCnt	+= d;
-							dSum	+= d * PI2PERC * (m_iSum[iDst] / (double)m_iCnt[iDst] - M_PI_090);
-						}
-					}
-
-					pConvergence_Radius->Set_Value(x, y, dSum / (double)dCnt);
-					break;
-				}
+				pConvergence->Set_Value(x, y, d);
+			}
+			else
+			{
+				pConvergence->Set_NoData(x, y);
 			}
 		}
 	}
+
+	//-----------------------------------------------------
+	m_Cells		.Destroy();
+	m_Direction	.Destroy();
+	m_Slope		.Destroy();
+	m_Aspect	.Destroy();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CConvergence_Radius::Get_Convergence(int x, int y, double &Convergence)
+{
+	//-----------------------------------------------------
+	if( !m_Aspect.is_InGrid(x, y) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int		i, ix, iy;
+	double	iDistance, iWeight, z;
+
+	CSG_Simple_Statistics	s;
+
+	//-----------------------------------------------------
+	for(i=0, z=m_pDTM->asDouble(x, y); i<m_Cells.Get_Count(); i++)
+	{
+		if( m_Cells.Get_Values(i, ix = x, iy = y, iDistance, iWeight, true) && iDistance > 0.0 && m_Aspect.is_InGrid(ix, iy) )
+		{
+			double	d, Direction	= m_bDifference ? m_Direction[i] : m_Aspect.asDouble(x, y);
+
+			if( m_bSlope )
+			{
+				double	Slope	= m_bDifference ? m_Slope.asDouble(ix, iy) : m_Slope.asDouble(ix, iy) - m_Slope.asDouble(x, y) + M_PI_360;
+
+				d		= atan((m_pDTM->asDouble(ix, iy) - z) / (Get_Cellsize() * iDistance));
+				d		= acos(sin(Slope) * sin(d) + cos(Slope) * cos(d) * cos(Direction - m_Aspect.asDouble(ix, iy)));
+			}
+			else
+			{
+				d		= m_Aspect.asDouble(ix, iy) - Direction;
+			}
+
+			//---------------------------------------------
+			d		= fmod(d, M_PI_360);
+
+			if( d < -M_PI_180 )
+			{
+				d	+= M_PI_360;
+			}
+			else if( d > M_PI_180 )
+			{
+				d	-= M_PI_360;
+			}
+
+			s.Add_Value(fabs(d), iWeight);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( s.Get_Count() > 0 )
+	{
+		Convergence	= s.Get_Mean() * 100.0 / M_PI_090;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
