@@ -957,8 +957,8 @@ public:
 
 	CSG_Distance_Weighting &	Get_Weighting		(void)								{	return( m_Weighting );		}
 
-	bool						Set_Radius			(int Radius);
-	bool						Set_Sector			(int Radius, double Direction, double Tolerance);
+	bool						Set_Radius			(double Radius);
+	bool						Set_Sector			(double Radius, double Direction, double Tolerance);
 
 	int							Get_Count			(void)	const						{	return( m_Cells.Get_Count() );	}
 

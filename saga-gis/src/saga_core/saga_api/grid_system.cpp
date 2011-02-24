@@ -301,104 +301,117 @@ bool CSG_Grid_Cell_Addressor::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_Cell_Addressor::Set_Radius(int Radius)
+#define	ADD_CELL(x, y, d)	{\
+	CSG_Table_Record	*pRecord	= m_Cells.Add_Record();\
+	pRecord->Set_Value(0, x);\
+	pRecord->Set_Value(1, y);\
+	pRecord->Set_Value(2, d);\
+	pRecord->Set_Value(3, m_Weighting.Get_Weight(d));\
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius)
 {
 	Destroy();
 
 	//-----------------------------------------------------
-	for(int y=-Radius; y<=Radius; y++)
+	if( Radius > 0.0 )
 	{
-		for(int x=-Radius; x<=Radius; x++)
+		ADD_CELL(0.0, 0.0, 0.0);
+
+		for(double y=1.0; y<=Radius; y++)
 		{
-			double	d	= SG_Get_Length(x, y);
-
-			if( d <= Radius )
+			for(double x=0.0; x<=Radius; x++)
 			{
-				CSG_Table_Record	*pRecord	= m_Cells.Add_Record();
+				double	d	= SG_Get_Length(x, y);
 
-				pRecord->Set_Value(0, x);
-				pRecord->Set_Value(1, y);
-				pRecord->Set_Value(2, d);
-				pRecord->Set_Value(3, m_Weighting.Get_Weight(d));
+				if( d <= Radius )
+				{
+					ADD_CELL( x,  y, d);
+					ADD_CELL( y, -x, d);
+					ADD_CELL(-x, -y, d);
+					ADD_CELL(-y,  x, d);
+				}
 			}
 		}
-	}
 
-	//-----------------------------------------------------
-	if( m_Cells.Get_Count() > 0 )
-	{
-		m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
+		//-------------------------------------------------
+		if( m_Cells.Get_Count() > 0 )
+		{
+			m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
 
-		return( true );
+			return( true );
+		}
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid_Cell_Addressor::Set_Sector(int Radius, double Direction, double Tolerance)
+bool CSG_Grid_Cell_Addressor::Set_Sector(double Radius, double Direction, double Tolerance)
 {
 	Destroy();
 
 	//-----------------------------------------------------
-	TSG_Point			a, b;
-	CSG_Shapes			Polygons(SHAPE_TYPE_Polygon);	// Polygons.Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-	CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Add_Shape();
-
-	Direction	= fmod(Direction, M_PI_360);	if( Direction < 0.0 )	Direction	+= M_PI_360;
-
-	if( Direction < M_PI_090 )
+	if( Radius > 0.0 )
 	{
-		a.x	= -0.5;	b.x	=  0.5;
-		a.y	=  0.5;	b.y	= -0.5;
-	}
-	else if( Direction < M_PI_180 )
-	{
-		a.x	=  0.5;	b.x	= -0.5;
-		a.y	=  0.5;	b.y	= -0.5;
-	}
-	else if( Direction < M_PI_270 )
-	{
-		a.x	=  0.5;	b.x	= -0.5;
-		a.y	= -0.5;	b.y	=  0.5;
-	}
-	else // if( Direction < M_PI_360 )
-	{
-		a.x	= -0.5;	b.x	=  0.5;
-		a.y	= -0.5;	b.y	=  0.5;
-	}
+		TSG_Point			a, b;
+		CSG_Shapes			Polygons(SHAPE_TYPE_Polygon);	// Polygons.Add_Field(SG_T("ID"), SG_DATATYPE_Int);
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Add_Shape();
 
-	double	d	= 10.0 * SG_Get_Length(Radius, Radius);
+		Direction	= fmod(Direction, M_PI_360);	if( Direction < 0.0 )	Direction	+= M_PI_360;
 
-	pPolygon->Add_Point(b.x, b.y);
-	pPolygon->Add_Point(a.x, a.y);
-	pPolygon->Add_Point(a.x + d * sin(Direction - Tolerance), a.y + d * cos(Direction - Tolerance));
-	pPolygon->Add_Point(      d * sin(Direction)            ,       d * cos(Direction));
-	pPolygon->Add_Point(b.x + d * sin(Direction + Tolerance), a.y + d * cos(Direction + Tolerance));
-
-	//-----------------------------------------------------
-	for(int y=-Radius; y<=Radius; y++)
-	{
-		for(int x=-Radius; x<=Radius; x++)
+		if( Direction < M_PI_090 )
 		{
-			if( (d = SG_Get_Length(x, y)) <= Radius && pPolygon->Contains(x, y) )
-			{
-				CSG_Table_Record	*pRecord	= m_Cells.Add_Record();
+			a.x	= -0.5;	b.x	=  0.5;
+			a.y	=  0.5;	b.y	= -0.5;
+		}
+		else if( Direction < M_PI_180 )
+		{
+			a.x	=  0.5;	b.x	= -0.5;
+			a.y	=  0.5;	b.y	= -0.5;
+		}
+		else if( Direction < M_PI_270 )
+		{
+			a.x	=  0.5;	b.x	= -0.5;
+			a.y	= -0.5;	b.y	=  0.5;
+		}
+		else // if( Direction < M_PI_360 )
+		{
+			a.x	= -0.5;	b.x	=  0.5;
+			a.y	= -0.5;	b.y	=  0.5;
+		}
 
-				pRecord->Set_Value(0, x);
-				pRecord->Set_Value(1, y);
-				pRecord->Set_Value(2, d);
-				pRecord->Set_Value(3, m_Weighting.Get_Weight(d));
+		double	d	= 10.0 * SG_Get_Length(Radius, Radius);
+
+		pPolygon->Add_Point(b.x, b.y);
+		pPolygon->Add_Point(a.x, a.y);
+		pPolygon->Add_Point(a.x + d * sin(Direction - Tolerance), a.y + d * cos(Direction - Tolerance));
+		pPolygon->Add_Point(      d * sin(Direction)            ,       d * cos(Direction));
+		pPolygon->Add_Point(b.x + d * sin(Direction + Tolerance), a.y + d * cos(Direction + Tolerance));
+
+		//-------------------------------------------------
+		for(double y=1.0; y<=Radius; y++)
+		{
+			for(double x=0.0; x<=Radius; x++)
+			{
+				if( (d = SG_Get_Length(x, y)) <= Radius )
+				{
+					if( pPolygon->Contains( x,  y) )	ADD_CELL( x,  y, d);
+					if( pPolygon->Contains( y, -x) )	ADD_CELL( y, -x, d);
+					if( pPolygon->Contains(-x, -y) )	ADD_CELL(-x, -y, d);
+					if( pPolygon->Contains(-y,  x) )	ADD_CELL(-y,  x, d);
+				}
 			}
 		}
-	}
 
-	//-----------------------------------------------------
-	if( m_Cells.Get_Count() > 0 )
-	{
-		m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
+		//-------------------------------------------------
+		if( m_Cells.Get_Count() > 0 )
+		{
+			m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
 
-		return( true );
+			return( true );
+		}
 	}
 
 	return( false );
