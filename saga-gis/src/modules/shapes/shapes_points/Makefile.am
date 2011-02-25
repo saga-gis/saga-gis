@@ -25,6 +25,7 @@ MLB_Interface.cpp\
 points_filter.cpp\
 Points_From_Lines.cpp\
 Points_From_Table.cpp\
+points_thinning.cpp\
 remove_duplicates.cpp\
 select_points.cpp\
 separate_by_direction.cpp\
@@ -40,6 +41,7 @@ MLB_Interface.h\
 points_filter.h\
 Points_From_Lines.h\
 Points_From_Table.h\
+points_thinning.h\
 remove_duplicates.h\
 select_points.h\
 separate_by_direction.h
