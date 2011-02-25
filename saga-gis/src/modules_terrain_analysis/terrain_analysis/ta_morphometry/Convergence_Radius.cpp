@@ -226,7 +226,7 @@ bool CConvergence_Radius::On_Execute(void)
 bool CConvergence_Radius::Get_Convergence(int x, int y, double &Convergence)
 {
 	//-----------------------------------------------------
-	if( !m_Aspect.is_InGrid(x, y) )
+	if( !m_pDTM->is_InGrid(x, y) )
 	{
 		return( false );
 	}
@@ -244,20 +244,7 @@ bool CConvergence_Radius::Get_Convergence(int x, int y, double &Convergence)
 		{
 			double	d, Direction	= m_bDifference ? m_Direction[i] : m_Aspect.asDouble(x, y);
 
-			if( m_bSlope )
-			{
-				double	Slope	= m_bDifference ? m_Slope.asDouble(ix, iy) : m_Slope.asDouble(ix, iy) - m_Slope.asDouble(x, y) + M_PI_360;
-
-				d		= atan((m_pDTM->asDouble(ix, iy) - z) / (Get_Cellsize() * iDistance));
-				d		= acos(sin(Slope) * sin(d) + cos(Slope) * cos(d) * cos(Direction - m_Aspect.asDouble(ix, iy)));
-			}
-			else
-			{
-				d		= m_Aspect.asDouble(ix, iy) - Direction;
-			}
-
-			//---------------------------------------------
-			d		= fmod(d, M_PI_360);
+			d		= fmod(m_Aspect.asDouble(ix, iy) - Direction, M_PI_360);
 
 			if( d < -M_PI_180 )
 			{
@@ -268,7 +255,8 @@ bool CConvergence_Radius::Get_Convergence(int x, int y, double &Convergence)
 				d	-= M_PI_360;
 			}
 
-			s.Add_Value(fabs(d), iWeight);
+		//	s.Add_Value(m_bSlope ? fabs(d) * tan(m_Slope(ix, iy)) : fabs(d), iWeight);
+			s.Add_Value(fabs(d), m_bSlope ? iWeight * tan(m_Slope(ix, iy)) : iWeight);
 		}
 	}
 
