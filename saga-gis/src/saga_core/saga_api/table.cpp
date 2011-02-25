@@ -323,7 +323,11 @@ bool CSG_Table::_Assign(CSG_Data_Object *pObject)
 	int			i;
 	CSG_Table	*pTable;
 
-	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
+	if( pObject && pObject->is_Valid()
+	&&	(	pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table
+		||	pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+		||	pObject->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud
+		) )
 	{
 		_Destroy();
 

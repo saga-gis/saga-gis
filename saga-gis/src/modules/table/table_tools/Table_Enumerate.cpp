@@ -75,11 +75,11 @@ CTable_Enumerate::CTable_Enumerate(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name(_TL("Enumerate a Table Attribute"));
+	Set_Name(_TL("Enumerate a Table"));
 
-	Set_Description(
-		_TL("Enumerate attribute of a table, i.e. assign to identical values of choosen attribute field unique identifiers.\n")
-	);
+	Set_Description(_TW(
+		"Enumerate attribute of a table, i.e. assign to identical values of choosen attribute field unique identifiers."
+	));
 
 	pNode	= Parameters.Add_Table(
 		NULL	, "INPUT"	, _TL("Input"),
