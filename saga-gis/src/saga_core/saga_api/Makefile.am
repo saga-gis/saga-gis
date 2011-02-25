@@ -113,7 +113,7 @@ python_LTLIBRARIES = _saga_api.la
 python_PYTHON = saga_api.py
 
 saga_api_wrap.cxx:
-	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) $(DISABLELIBHARU) ./saga_api.h 
+	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) $(DISABLELIBHARU) $(SAGAPYTHONFLAGS) ./saga_api.h 
 endif
 
 CLEANFILES = saga_api_wrap.cxx
