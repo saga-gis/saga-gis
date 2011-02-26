@@ -250,7 +250,7 @@ void CWatersheds_ext::CalculateBasin() {
 	
 	//DataObject_Add(m_pDistanceGrid);
 
-	
+	delete[] bCalculated;
 }// method
 
 void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin. 
@@ -516,6 +516,8 @@ out2:
 		pRecord->Set_Value(6, fSoilLoss[iCode]);
 		iX = (pRecord->asInt(1) - m_pDEM->Get_XMin()) / m_pDEM->Get_Cellsize();
 		iY = (pRecord->asInt(2) - m_pDEM->Get_YMin()) / m_pDEM->Get_Cellsize();
+		if (!is_InGrid(iX, iY))
+			continue;
 		fMinHeight = m_pDEM->asFloat(iX,iY);
 		fConcTime = pow(0.87 * pow(m_fMaxDistance[iCode] / 1000.0, 3.0)
                 / (m_fHeightDif[iCode]-fMinHeight),  0.385);
@@ -534,6 +536,10 @@ out2:
 	pRecord->Set_Value(2, pRecord2->asInt(2));
 	pRecord->Set_Value(17, m_fMaxDistance[0]);
 
+	delete[] fCN;
+	delete[] fCNValidCells;
+	delete[] fSoilLoss;
+	delete[] fSoilLossValidCells;
 }//method
 
 bool CWatersheds_ext::isHeader(int iX, int iY){
@@ -583,7 +589,7 @@ void CWatersheds_ext::WriteBasin(int iX, int iY, int iBasinNumber) {
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
                 if (!(i == 0) || !(j == 0)) {
-                    if (m_pBasinGrid->asInt(iX + i, iY + j) == 0) {
+                    if (is_InGrid(iX + i, iY + j) && m_pBasinGrid->asInt(iX + i, iY + j) == 0) {
                         getNextCell(m_pDEM, iX + i, iY + j, iNextX, iNextY);
                         if (iNextX == iX && iNextY == iY) {
 							fDistance = m_pDistanceGrid->asDouble(iX,iY)
@@ -613,7 +619,7 @@ void CWatersheds_ext::DeleteBasin(int iX, int iY, int iBasinNumber) {
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
                 if (!(i == 0) || !(j == 0)) {
-                    if (m_pBasinGrid->asInt(iX + i, iY + j) == iBasinNumber) {
+                    if (is_InGrid(iX + i, iY + j) && m_pBasinGrid->asInt(iX + i, iY + j) == iBasinNumber) {
                         getNextCell(m_pDEM, iX + i, iY + j, iNextX, iNextY);
                         if (iNextX == iX && iNextY == iY) {
 							DeleteBasin(iX + i, iY + j, iBasinNumber);
