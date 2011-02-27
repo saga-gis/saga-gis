@@ -119,6 +119,22 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 		SG_T("a+b")
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "TYPE"		, _TL("Field data type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("1 bit"),
+			_TL("1 byte unsigned integer"),
+			_TL("1 byte signed integer"),
+			_TL("2 byte unsigned integer"),
+			_TL("2 byte signed integer"),
+			_TL("4 byte unsigned integer"),
+			_TL("4 byte signed integer"),
+			_TL("4 byte floating point"),
+			_TL("8 byte floating point")
+		), 7
+	);
+
 }
 
 
@@ -144,16 +160,30 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 	const SG_Char	*pFormula;
 	CSG_Formula		Formula;
 	CSG_String		Msg;
+	TSG_Data_Type	Type;
 
 
 	//---------------------------------------------------------
 	pInput		= Parameters("PC_IN")->asPointCloud();
 	pResult		= Parameters("PC_OUT")->asPointCloud();
 
+	switch( Parameters("TYPE")->asInt() )
+	{
+	case 0:				Type	= SG_DATATYPE_Bit;		break;
+	case 1:				Type	= SG_DATATYPE_Byte;		break;
+	case 2:				Type	= SG_DATATYPE_Char;		break;
+	case 3:				Type	= SG_DATATYPE_Word;		break;
+	case 4:				Type	= SG_DATATYPE_Short;	break;
+	case 5:				Type	= SG_DATATYPE_DWord;	break;
+	case 6:				Type	= SG_DATATYPE_Int;		break;
+	case 7: default:	Type	= SG_DATATYPE_Float;	break;
+	case 8:				Type	= SG_DATATYPE_Double;	break;
+	}
+
 	pResult->Create(pInput);
 	pResult->Set_Name(CSG_String::Format(SG_T("%s_%s"), pInput->Get_Name(), Parameters("NAME")->asString()));
 
-	pResult->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
+	pResult->Add_Field(Parameters("NAME")->asString(), Type);
 
 	pFormula	= Parameters("FORMULA")->asString();
 	iFields		= pInput->Get_Field_Count();
