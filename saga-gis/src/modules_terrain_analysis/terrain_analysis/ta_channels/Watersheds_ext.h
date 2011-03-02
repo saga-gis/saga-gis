@@ -19,52 +19,52 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
-#define FRAGMENTATION_TO_MAIN 0
-#define FRAGMENTATION_ALL 1
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CWatersheds_ext : public CSG_Module_Grid {
 
-private:
-	CSG_Grid *m_pDEM;
-	CSG_Grid* m_pCNGrid;
-	CSG_Grid* m_pSoilLossGrid;
-	CSG_Grid* m_pChannelsGrid;
-	CSG_Grid *m_pBasinGrid;
-	CSG_Grid *m_pDistanceGrid;
-	CSG_Shapes* m_pBasins;
-	CSG_Shapes* m_pHeaders;
-	CSG_Points	m_Headers;
-	int m_fCells;
-	int m_iNumBasins;
-	float *m_fMaxDistance;
-	float *m_fHeightDif;
-	int m_iClosingX, m_iClosingY;
-	int m_iFragmentationType;
-	void CalculateBasin();
-	void CreateShapesLayer();
-	bool isHeader(int,int);
-	bool isLastCell(int,int);
-	bool isTopHeader(CSG_Points &,int, bool*);
-	void WriteBasin(int,int,int);
-	void DeleteBasin(int,int,int);
-	float DistanceToClosingPoint(int,int);
-	float OrographicIndex(float,float);
-	float MassivityIndex(float,float);
-	CSG_String GraveliusType(float,float);
-	void EquivalentRectangle(float,float,float&,float&);
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+class CWatersheds_ext : public CSG_Module_Grid
+{
 public:
 	CWatersheds_ext(void);
-	virtual ~CWatersheds_ext(void);
+
 
 protected:
-	virtual bool		On_Execute(void);
+
+	virtual bool		On_Execute		(void);
+
+
+private:
+
+	CSG_Grid			*m_pDEM, *m_pChannels, m_Distance, m_Direction;
+
+
+	bool				Get_Basin		(CSG_Grid *pBasins, CSG_Shapes *pPolygons, int xMouth, int yMouth, int Main_ID);
+	CSG_Shape *			Get_Basin		(CSG_Grid *pBasins, CSG_Shapes *pPolygons);
+
+	bool				is_Outlet		(int x, int y);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
