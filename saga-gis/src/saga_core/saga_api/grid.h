@@ -310,7 +310,7 @@ public:
 		return( is_InGrid(xPos = Get_xTo(Direction, x), yPos = Get_yTo(Direction, y)) );
 	}
 
-	int							Get_xTo				(int Direction, int x = 0)	const
+	static int					Get_xTo				(int Direction, int x = 0)
 	{
 		static int	ix[8]	= { 0, 1, 1, 1, 0,-1,-1,-1 };
 
@@ -324,7 +324,7 @@ public:
 		return( x + ix[Direction] );
 	}
 
-	int							Get_yTo				(int Direction, int y = 0)	const
+	static int					Get_yTo				(int Direction, int y = 0)
 	{
 		static int	iy[8]	= { 1, 1, 0,-1,-1,-1, 0, 1 };
 
@@ -338,8 +338,9 @@ public:
 		return( y + iy[Direction] );
 	}
 
-	int							Get_xFrom			(int Direction, int x = 0)	const	{	return( Get_xTo(Direction + 4, x) );	}
-	int							Get_yFrom			(int Direction, int y = 0)	const	{	return( Get_yTo(Direction + 4, y) );	}
+	static int					Get_xFrom			(int Direction, int x = 0)			{	return( Get_xTo(Direction + 4, x) );	}
+	static int					Get_yFrom			(int Direction, int y = 0)			{	return( Get_yTo(Direction + 4, y) );	}
+
 	int							Get_xToSave			(int Direction, int x)		const	{	return( (x = Get_xTo  (Direction, x)) < 0 ? 0 : (x >= m_NX ? m_NX - 1 : x) );	}
 	int							Get_yToSave			(int Direction, int y)		const	{	return( (y = Get_yTo  (Direction, y)) < 0 ? 0 : (y >= m_NY ? m_NY - 1 : y) );	}
 	int							Get_xFromSave		(int Direction, int x)		const	{	return( (x = Get_xFrom(Direction, x)) < 0 ? 0 : (x >= m_NX ? m_NX - 1 : x) );	}
@@ -349,7 +350,7 @@ public:
 	bool						is_InGrid			(int x, int y, int Rand)	const	{	return(	x >= Rand && x < m_NX - Rand && y >= Rand && y < m_NY - Rand );	}
 
 	double						Get_Length			(int Direction)				const	{	return( Direction % 2 ? m_Diagonal : m_Cellsize );	}
-	double						Get_UnitLength		(int Direction)				const	{	return( Direction % 2 ? sqrt(2.0)  : 1.0 );			}
+	static double				Get_UnitLength		(int Direction)						{	return( Direction % 2 ? sqrt(2.0)  : 1.0 );			}
 
 
 private:	///////////////////////////////////////////////
