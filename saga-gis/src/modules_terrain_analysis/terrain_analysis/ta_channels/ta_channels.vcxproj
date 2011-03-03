@@ -562,7 +562,6 @@
     <ClCompile Include="ChannelNetwork_Altitude.cpp" />
     <ClCompile Include="ChannelNetwork_Distance.cpp" />
     <ClCompile Include="D8_Flow_Analysis.cpp" />
-    <ClCompile Include="Helper.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -596,7 +595,6 @@
     <ClInclude Include="ChannelNetwork_Altitude.h" />
     <ClInclude Include="ChannelNetwork_Distance.h" />
     <ClInclude Include="D8_Flow_Analysis.h" />
-    <ClInclude Include="Helper.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

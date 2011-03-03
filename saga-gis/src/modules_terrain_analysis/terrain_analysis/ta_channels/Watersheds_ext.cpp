@@ -244,20 +244,22 @@ bool CWatersheds_ext::On_Execute(void)
 					}
 				}
 
-				if( Direction < 0 )
+				if( !m_pChannels->is_NoData(x, y) )
+				{
+					if( Direction >= 0 )
+					{
+						int	ix	= Get_xTo(Direction, x);
+						int	iy	= Get_yTo(Direction, y);
+
+						if( m_pDEM->is_InGrid(ix, iy) )
+						{
+							Inflows.Add_Value(ix, iy, 1);
+						}
+					}
+				}
+				else if( Direction < 0 )
 				{
 					Direction	= m_pDEM->Get_Gradient_NeighborDir(x, y);
-				}
-
-				if( !m_pChannels->is_NoData(x, y) && Direction >= 0 )
-				{
-					int	ix	= Get_xTo(Direction, x);
-					int	iy	= Get_yTo(Direction, y);
-
-					if( m_pDEM->is_InGrid(ix, iy) )
-					{
-						Inflows.Add_Value(ix, iy, 1);
-					}
 				}
 			}
 
@@ -391,7 +393,7 @@ inline bool CWatersheds_ext::is_Outlet(int x, int y)
 		int	ix	= Get_xTo(Direction, x);
 		int	iy	= Get_yTo(Direction, y);
 
-		if( m_pChannels->is_InGrid(ix, iy) )
+		if( m_pDEM->is_InGrid(ix, iy) )
 		{
 			return( false );
 		}
@@ -519,12 +521,11 @@ bool CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons, int xM
 //---------------------------------------------------------
 CSG_Shape * CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons)
 {
-	int			x, y, i, xFirst, yFirst, iFirst, nEdges, Basin_ID;
+	int			x, y, nEdges, Basin_ID;
 	CSG_Grid	Edge;
 	CSG_Shape	*pPolygon	= NULL;
 
 	Basin_ID	= 1 + pPolygons->Get_Count();
-	pPolygon	= NULL;
 
 	//-----------------------------------------------------
 	Edge.Create(SG_DATATYPE_Char, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
@@ -536,7 +537,7 @@ CSG_Shape * CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons)
 		{
 			if( pBasins->asInt(x, y) == Basin_ID )
 			{
-				for(i=0; i<8; i+=2)
+				for(int i=0; i<8; i+=2)
 				{
 					int	ix	= Get_xTo(i, x);
 					int	iy	= Get_yTo(i, y);
@@ -550,12 +551,7 @@ CSG_Shape * CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons)
 						Edge.Set_Value(Get_xTo(i    , ix), Get_yTo(i    , iy), -1);
 						Edge.Set_Value(Get_xTo(i - 1, ix), Get_yTo(i - 1, iy), -1);
 
-						if( nEdges++ == 0 )
-						{
-							xFirst	= Get_xTo(i    , ix);
-							yFirst	= Get_yTo(i    , iy);
-							iFirst	= i;
-						}
+						nEdges++;
 					}
 				}
 			}
@@ -565,62 +561,75 @@ CSG_Shape * CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons)
 	//-----------------------------------------------------
 	if( nEdges > 0 )
 	{
-		x	= xFirst;
-		y	= yFirst;
-		i	= iFirst;
-
-		pPolygon	= pPolygons->Add_Shape();
-		pPolygon	->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y));
-
-		do
+		for(int yEdge=0; yEdge<Edge.Get_NY(); yEdge++)	for(int xEdge=0; xEdge<Edge.Get_NX(); xEdge++)
 		{
-			int	ix	= Get_xTo(i + 2, x);
-			int	iy	= Get_yTo(i + 2, y);
+			int	i	= 4;
 
-			if( Edge.is_InGrid(ix, iy) && Edge.asInt(ix, iy) == -1 )			// go right ?
+			if( Edge.asInt(xEdge, yEdge) == 1 && Edge.asInt(Get_xTo(i, xEdge), Get_yTo(i, yEdge)) == -1 )
 			{
-				pPolygon->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y));
-
-				i	= (i + 2) % 8;
-			}
-			else
-			{
-				if( Edge.asInt(ix, iy) == 1 )
+				if( pPolygon == NULL )
 				{
-					Edge.Set_NoData(ix, iy);	// erase class id in right cells
+					pPolygon	= pPolygons->Add_Shape();
 				}
 
-				ix	= Get_xTo(i, x);
-				iy	= Get_yTo(i, y);
+				int	iPart	= pPolygon->Get_Part_Count();
+				int	xFirst	= x	= Get_xTo(i, xEdge);
+				int	yFirst	= y	= Get_yTo(i, yEdge);
+				i	= i + 2;
 
-				if( Edge.is_InGrid(ix, iy) && Edge.asInt(ix, iy) == -1 )		// go ahead ?
-				{
-					// nop
-				}
-				else
-				{
-					ix	= Get_xTo(i + 6, x);
-					iy	= Get_yTo(i + 6, y);
+				pPolygon	->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y), iPart);
 
-					if( Edge.is_InGrid(ix, iy) && Edge.asInt(ix, iy) == -1 )	// go left ?
+				do
+				{
+					int	ix	= Get_xTo(i + 2, x);
+					int	iy	= Get_yTo(i + 2, y);
+
+					if( Edge.is_InGrid(ix, iy) && Edge.asInt(ix, iy) == -1 )			// go right ?
 					{
-						pPolygon->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y));
+						pPolygon->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y), iPart);
 
-						i	= (i + 6) % 8;
+						i	= (i + 2) % 8;
 					}
 					else
 					{
-						return( false );
+						if( Edge.asInt(ix, iy) == 1 )
+						{
+							Edge.Set_NoData(ix, iy);	// erase class id in right cells
+						}
+
+						ix	= Get_xTo(i, x);
+						iy	= Get_yTo(i, y);
+
+						if( Edge.is_InGrid(ix, iy) && Edge.asInt(ix, iy) == -1 )		// go ahead ?
+						{
+							// nop
+						}
+						else
+						{
+							ix	= Get_xTo(i + 6, x);
+							iy	= Get_yTo(i + 6, y);
+
+							if( Edge.is_InGrid(ix, iy) && Edge.asInt(ix, iy) == -1 )	// go left ?
+							{
+								pPolygon->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y), iPart);
+
+								i	= (i + 6) % 8;
+							}
+							else
+							{
+								return( false );
+							}
+						}
 					}
+
+					x	= ix;
+					y	= iy;
 				}
+				while( x != xFirst || y != yFirst );
+
+				pPolygon->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y), iPart);
 			}
-
-			x	= ix;
-			y	= iy;
 		}
-		while( x != xFirst || y != yFirst );
-
-		pPolygon->Add_Point(Edge.Get_System().Get_Grid_to_World(x, y));
 	}
 
 	//-----------------------------------------------------
