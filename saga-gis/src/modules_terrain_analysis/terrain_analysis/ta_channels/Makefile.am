@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: Makefile.am 911 2011-02-14 16:38:15Z reklov_w $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -17,7 +17,6 @@ ChannelNetwork.cpp\
 ChannelNetwork_Altitude.cpp\
 ChannelNetwork_Distance.cpp\
 D8_Flow_Analysis.cpp\
-Helper.cpp\
 MLB_Interface.cpp\
 Strahler.cpp\
 Watersheds.cpp\
@@ -26,7 +25,6 @@ ChannelNetwork.h\
 ChannelNetwork_Altitude.h\
 ChannelNetwork_Distance.h\
 D8_Flow_Analysis.h\
-Helper.h\
 MLB_Interface.h\
 Strahler.h\
 Watersheds.h\
