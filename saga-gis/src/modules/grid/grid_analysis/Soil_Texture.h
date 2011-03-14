@@ -75,36 +75,18 @@ class CSoil_Texture : public CSG_Module_Grid
 {
 public:
 	CSoil_Texture(void);
-	virtual ~CSoil_Texture(void);
 
 	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Soil Analysis") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute		(void);
 
 
 private:
 
-
-	///////////////////////////////////////
-	/* Declare specific texture function */
-	///////////////////////////////////////
-
-	int Clay_Texture(float, float);                   // 1 define Clay soils function
-	int SiltyClay_Texture(float, float);              // 2 define SiltyClay soils function
-	int SiltyClayLoam_Texture(float, float);          // 3 define SiltyClayLoam soils function
-	int SandyClay_Texture(float, float);              // 4 define SandyClay soils function
-	int SandyClayLoam_Texture(float, float);          // 5 define SandyClayLoam soils function
-	int ClayLoam_Texture(float, float);               // 6 define ClayLoam soils function
-	int Silt_Texture(float, float);                   // 7 define Silt soils function
-	int SiltLoam_Texture(float, float);               // 8 define SiltLoam soils function
-	int Loam_Texture(float, float);                   // 9 define Loam soils function
-	int Sand_Texture(float, float);                   // 10 define Sand soils function
-	int LoamySand_Texture(float, float);              // 11 define LoamySand soils function
-	int SandyLoam_Texture(float, float);              // 12 define SandyLoam soils function
-	int OutTexture(float, float);                     //function output   
+	int						Get_Texture		(double Sand, double Clay);
 
 };
 
