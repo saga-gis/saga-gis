@@ -979,6 +979,8 @@ public:
 	void						Destroy					(void);
 
 	bool						Add_Point				(double x, double y, double z);
+	bool						Add_Point				(const TSG_Point &p, double z);
+
 	int							Get_Point_Count			(void)	const	{	return( m_nPoints );		}
 
 	const CSG_PRQuadTree_Node &	Get_Root				(void)	const	{	return( *m_pRoot );			}
@@ -1033,6 +1035,8 @@ private:
 	CSG_Array					m_Selected;
 
 	CSG_PRQuadTree_Node			*m_pRoot;
+
+	bool						_Check_Root				(double x, double y);
 
 	TLeaf *						_Get_Selected			(int i)	const	{	return( i >= 0 && i < (int)m_Selected.Get_Size() ? ((TLeaf *)m_Selected.Get_Array()) + i : NULL );	}
 	bool						_Add_Selected			(CSG_PRQuadTree_Leaf *pLeaf, double Distance);

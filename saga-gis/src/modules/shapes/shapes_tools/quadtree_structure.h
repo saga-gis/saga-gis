@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    quadtree_structure.h                    //
+//                  quadtree_structure.h                 //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -95,7 +95,7 @@ protected:
 
 private:
 
-	bool					Get_Shapes		(CSG_Shapes *pShapes, CSG_PRQuadTree_Item *pItem, TSG_Shape_Type Type);
+	bool					Get_Shapes		(CSG_Shapes *pShapes, CSG_PRQuadTree_Item *pItem);
 	void					Get_Shapes		(CSG_Shapes *pShapes, CSG_PRQuadTree_Item *pItem, int Level);
 
 };

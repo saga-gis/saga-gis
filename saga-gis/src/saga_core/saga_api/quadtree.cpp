@@ -343,7 +343,7 @@ void CSG_PRQuadTree::Destroy(void)
 //---------------------------------------------------------
 bool CSG_PRQuadTree::Add_Point(double x, double y, double z)
 {
-	if( m_pRoot && m_pRoot->Add_Point(x, y, z) )
+	if( _Check_Root(x, y) && m_pRoot->Add_Point(x, y, z) )
 	{
 		m_nPoints++;
 
@@ -351,6 +351,69 @@ bool CSG_PRQuadTree::Add_Point(double x, double y, double z)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_PRQuadTree::Add_Point(const TSG_Point &p, double z)
+{
+	return( Add_Point(p.x, p.y, z) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_PRQuadTree::_Check_Root(double x, double y)
+{
+	if( !m_pRoot )
+	{
+		return( false );
+	}
+	
+	if( m_pRoot->Get_Extent().Contains(x, y) )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	CSG_PRQuadTree_Node	*pRoot;
+
+	if( m_pRoot->has_Statistics() )
+	{
+		CSG_PRQuadTree_Node_Statistics	*pNode	= new CSG_PRQuadTree_Node_Statistics(
+			x < m_pRoot->Get_xMin() ? m_pRoot->Get_xMin() : m_pRoot->Get_xMax(),
+			y < m_pRoot->Get_yMin() ? m_pRoot->Get_yMin() : m_pRoot->Get_yMax(),
+			2.0 * m_pRoot->Get_Size()
+		);
+
+		pNode->m_x	= ((CSG_PRQuadTree_Node_Statistics *)m_pRoot)->m_x;
+		pNode->m_y	= ((CSG_PRQuadTree_Node_Statistics *)m_pRoot)->m_y;
+		pNode->m_z	= ((CSG_PRQuadTree_Node_Statistics *)m_pRoot)->m_z;
+
+		pRoot	= pNode;
+	}
+	else
+	{
+		pRoot	= new CSG_PRQuadTree_Node(
+			x < m_pRoot->Get_xMin() ? m_pRoot->Get_xMin() : m_pRoot->Get_xMax(),
+			y < m_pRoot->Get_yMin() ? m_pRoot->Get_yMin() : m_pRoot->Get_yMax(),
+			2.0 * m_pRoot->Get_Size()
+		);
+	}
+
+	int	i	=  m_pRoot->Get_yCenter() < pRoot->Get_yCenter()
+			? (m_pRoot->Get_xCenter() < pRoot->Get_xCenter() ? 0 : 3)
+			: (m_pRoot->Get_xCenter() < pRoot->Get_xCenter() ? 1 : 2);
+
+	pRoot->m_pChildren[i]	= m_pRoot;
+
+	m_pRoot	= pRoot;
+
+	return( _Check_Root(x, y) );
 }
 
 
