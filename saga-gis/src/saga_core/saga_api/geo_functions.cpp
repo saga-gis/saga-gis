@@ -190,71 +190,48 @@ bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &
 }
 
 //---------------------------------------------------------
-bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, const TSG_Point &_a, const TSG_Point &_b, const TSG_Rect &Region)
+bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, const TSG_Point &a, const TSG_Point &b, const TSG_Rect &Region)
 {
-	bool		bResult;
-	TSG_Point	a, b, pExt_XY, pExt_X, pExt_Y;
-	CSG_Rect	r(Region);
-
-	a	= _a;
-	b	= _b;
+	TSG_Point	ra, rb;
 
 	//-----------------------------------------------------
-	if( !r.Contains(a) && r.Contains(b) )
+	ra.y			= Region.yMin;
+	rb.y			= Region.yMax;
+
+	ra.x	= rb.x	= Region.xMin;
+
+	if(	SG_Get_Crossing(Crossing, a, b, ra, rb, true) )
 	{
-		pExt_X	= a;
-		a		= b;
-		b		= pExt_X;
-		bResult	= true;
-	}
-	else if( r.Contains(a) && !r.Contains(b) )
-	{
-		bResult	= true;
-	}
-	else
-	{
-		bResult	= false;
+		return( true );
 	}
 
 	//-----------------------------------------------------
-	if( bResult )
-	{
-		if( a.x > b.x )
-		{
-			pExt_XY.x	= Region.xMin;
-			pExt_X.x	= Region.xMin;
-			pExt_Y.x	= Region.xMax;
-		}
-		else
-		{
-			pExt_XY.x	= Region.xMax;
-			pExt_X.x	= Region.xMax;
-			pExt_Y.x	= Region.xMin;
-		}
-		if( a.y > b.y )
-		{
-			pExt_XY.y	= Region.yMin;
-			pExt_Y.y	= Region.yMin;
-			pExt_X.y	= Region.yMax;
-		}
-		else
-		{
-			pExt_XY.y	= Region.yMax;
-			pExt_Y.y	= Region.yMax;
-			pExt_X.y	= Region.yMin;
-		}
+	ra.x	= rb.x	= Region.xMax;
 
-		//-------------------------------------------------
-		if( !SG_Get_Crossing(Crossing, a, b, pExt_X, pExt_XY) )
-		{
-			if( !SG_Get_Crossing(Crossing, a, b, pExt_Y, pExt_XY) )
-			{
-				bResult	= false;
-			}
-		}
+	if(	SG_Get_Crossing(Crossing, a, b, ra, rb, true) )
+	{
+		return( true );
 	}
 
-	return( bResult );
+	//-----------------------------------------------------
+	ra.x			= Region.xMin;
+	ra.y			= Region.yMax;
+
+	if(	SG_Get_Crossing(Crossing, a, b, ra, rb, true) )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	ra.y	= rb.y	= Region.yMin;
+
+	if(	SG_Get_Crossing(Crossing, a, b, ra, rb, true) )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	return( false );
 }
 
 
