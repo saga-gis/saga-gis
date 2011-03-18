@@ -185,38 +185,38 @@ bool CSG_Shapes_OGIS_Converter::from_WKText(const CSG_String &Text, CSG_Shape *p
 	switch( pShape->Get_Type() )
 	{
 	case SHAPE_TYPE_Point:
-		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_Point) )
+		if( !Text.BeforeFirst('(').CmpNoCase(SG_OGIS_TYPE_STR_Point) )
 		{
 			return( _WKT_Read_Point(Text.AfterFirst('(').BeforeFirst(')'), pShape, 0) );
 		}
 		break;
 
 	case SHAPE_TYPE_Points:
-		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_MultiPoint) )
+		if( !Text.BeforeFirst('(').CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint) )
 		{
 			return( _WKT_Read_Parts(Text, pShape) );
 		}
 		break;
 
 	case SHAPE_TYPE_Line:
-		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_Line) )
+		if( !Text.BeforeFirst('(').CmpNoCase(SG_OGIS_TYPE_STR_Line) )
 		{
 			return( _WKT_Read_Points(Text, pShape) );
 		}
 
-		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_MultiLine) )
+		if( !Text.BeforeFirst('(').CmpNoCase(SG_OGIS_TYPE_STR_MultiLine) )
 		{
 			return( _WKT_Read_Parts(Text, pShape) );
 		}
 		break;
 
 	case SHAPE_TYPE_Polygon:
-		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_Polygon) )
+		if( !Text.BeforeFirst('(').CmpNoCase(SG_OGIS_TYPE_STR_Polygon) )
 		{
 			return( _WKT_Read_Parts(Text, pShape) );
 		}
 
-		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_MultiPolygon) )
+		if( !Text.BeforeFirst('(').CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon) )
 		{
 			return( _WKT_Read_Polygon(Text, pShape) );
 		}
