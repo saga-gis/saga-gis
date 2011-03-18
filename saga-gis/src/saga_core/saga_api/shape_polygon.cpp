@@ -309,8 +309,6 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 		return( bIn ? INTERSECTION_Contains : INTERSECTION_None );
 	}
 
-	return( bIn ? INTERSECTION_Contains : INTERSECTION_None );
-
 	//-----------------------------------------------------
 	TSG_Point	iA, iB, jA, jB, Crossing;
 
@@ -320,7 +318,7 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 		{
 			iA	= Get_Point(Get_Point_Count(iPart) - 1, iPart);
 
-			for(int iPoint=1; iPoint<Get_Point_Count(iPart); iPoint++)
+			for(iPoint=0; iPoint<Get_Point_Count(iPart); iPoint++)
 			{
 				iB	= iA;
 				iA	= Get_Point(iPoint, iPart);
@@ -369,15 +367,8 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 //---------------------------------------------------------
 TSG_Intersection CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 {
-	TSG_Point	*pa, *pb, r00, r10, r01, r11, c;
-
 	//-----------------------------------------------------
 	// 1. Line Intersection...
-
-	r00.x	= r01.x	= Region.xMin;
-	r11.x	= r10.x	= Region.xMax;
-	r00.y	= r10.y	= Region.yMin;
-	r11.y	= r01.y	= Region.yMax;
 
 	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
@@ -385,17 +376,14 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 
 		if( pPart->Get_Extent().Intersects(Region) )
 		{
-			pb	= m_pParts[iPart]->m_Points + m_pParts[iPart]->m_nPoints - 1;
+			TSG_Point	*pa, *pb, c;
 
-			for(int iPoint=0; iPoint<m_pParts[iPart]->m_nPoints; iPoint++)
+			pa	= m_pParts[iPart]->m_Points;
+			pb	= pa + m_pParts[iPart]->m_nPoints - 1;
+
+			for(int iPoint=0; iPoint<m_pParts[iPart]->m_nPoints; iPoint++, pb=pa++)
 			{
-				pa	= pb;
-				pb	= m_pParts[iPart]->m_Points + iPoint;
-
-				if(	SG_Get_Crossing(c, *pa, *pb, r00, r10, true)
-				||	SG_Get_Crossing(c, *pa, *pb, r00, r01, true)
-				||	SG_Get_Crossing(c, *pa, *pb, r11, r10, true)
-				||	SG_Get_Crossing(c, *pa, *pb, r11, r01, true)	)
+				if(	SG_Get_Crossing_InRegion(c, *pa, *pb, Region) )
 				{
 					return( INTERSECTION_Overlaps );
 				}
@@ -407,10 +395,7 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 	//-----------------------------------------------------
 	// 2. Is region completly within polygon...
 
-	if(	Contains(r00)
-	||	Contains(r01)
-	||	Contains(r11)
-	||	Contains(r10)	)
+	if( Contains(Region.xMin, Region.yMin) )
 	{
 		return( INTERSECTION_Contains );
 	}
