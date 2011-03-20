@@ -910,7 +910,7 @@ bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 		pParameter	= pParameters->Get_Parameter(i);
 
 		if(	pParameter->Get_Type() == PARAMETER_TYPE_Bool && (bSaveAll || pParameter->asBool())
-		&&	SG_SSCANF(pParameter->Get_Identifier(), wxT("%d"), (int *)(&pObject)) == 1 && g_pData->Exists(pObject)	)
+		&&	SG_SSCANF(pParameter->Get_Identifier(), wxT("%lld"), (int *)(&pObject)) == 1 && g_pData->Exists(pObject)	)
 		{
 			CSG_String	fPath;
 
