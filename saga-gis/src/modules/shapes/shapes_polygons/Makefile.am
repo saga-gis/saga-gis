@@ -21,6 +21,8 @@ Polygon_Clipper.cpp\
 Polygon_StatisticsFromPoints.cpp\
 Polygon_Union.cpp\
 Polygons_From_Lines.cpp\
+polygon_line_intersection.cpp\
+polygon_to_edges_nodes.cpp\
 polygon_to_points.cpp\
 shape_index.cpp\
 MLB_Interface.h\
@@ -31,6 +33,8 @@ Polygon_Clipper.h\
 Polygon_StatisticsFromPoints.h\
 Polygon_Union.h\
 Polygons_From_Lines.h\
+polygon_line_intersection.h\
+polygon_to_edges_nodes.h\
 polygon_to_points.h\
 shape_index.h
 
