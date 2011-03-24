@@ -660,6 +660,8 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Write_MultiPolygon(CSG_Bytes &Bytes, CSG_Sh
 				{
 					if( !_WKB_Write_Points(Bytes, pShape, jPart) )
 					{
+						delete[](nRings);
+						delete[](iPolygon);
 						return( false );
 					}
 				}
