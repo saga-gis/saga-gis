@@ -91,8 +91,6 @@ const SG_Char * Get_Info(int i)
 
 #include "Cost_Isotropic.h"
 #include "Cost_Anisotropic.h"
-#include "Cost_PolarToRect.h"
-#include "Cost_RectToPolar.h"
 #include "LeastCostPathProfile.h"
 #include "LeastCostPathProfile_Points.h"
 
@@ -121,8 +119,8 @@ CSG_Module *		Create_Module(int i)
 	{
 	case  0:	return( new CCost_Isotropic );
 	case  1:	return( new CCost_Anisotropic );
-	case  2:	return( new CCost_PolarToRect );
-	case  3:	return( new CCost_RectToPolar );
+	case  2:	return( MLB_INTERFACE_SKIP_MODULE );	// removed: CCost_PolarToRect
+	case  3:	return( MLB_INTERFACE_SKIP_MODULE );	// removed: CCost_RectToPolar
 	case  4:	return( new CLeastCostPathProfile );
 	case  5:	return( new CLeastCostPathProfile_Points );
 

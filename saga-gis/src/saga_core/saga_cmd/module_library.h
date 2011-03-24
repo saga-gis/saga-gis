@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/dynlib.h>
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -118,12 +118,8 @@ public:
 	bool						Create					(const SG_Char *FileName, const SG_Char *FilePath);
 	void						Destroy					(void);
 
-	int							Get_Count				(void)		{	return( m_nModules );	}
-	class CSG_Module *			Get_Module				(int i)		{	return( i >= 0 && i < m_nModules ? m_Modules[i] : NULL );	}
-
-	bool						is_Valid				(void)		{	return( m_nModules > 0 );	}
-
-	wxString					Get_FileName			(void)		{	return( m_FileName );	}
+	int							Get_Count				(void)		{	return( m_Library.Get_Count() );	}
+	CSG_Module *				Get_Module				(int i)		{	return( m_Library.Get_Module(i) );	}
 
 	class CSG_Module *			Select					(const SG_Char *ModuleName);
 	class CSG_Module *			Get_Selected			(void)		{	return( m_pSelected );	}
@@ -136,17 +132,13 @@ public:
 
 private:
 
-	int							m_nModules;
+	CSG_Module					*m_pSelected;
 
-	class CSG_Module			**m_Modules, *m_pSelected;
-
-	wxString					m_FileName;
-
-	wxDynamicLibrary			m_Library;
-
-	class wxCmdLineParser		*m_pCMD;
+	CSG_Module_Library			m_Library;
 
 	CData_Objects				m_Data_Objects;
+
+	class wxCmdLineParser		*m_pCMD;
 
 
 	void						_Set_CMD				(class CSG_Parameters *pParameters, bool bExtra);

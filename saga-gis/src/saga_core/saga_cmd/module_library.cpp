@@ -93,8 +93,6 @@
 //---------------------------------------------------------
 CModule_Library::CModule_Library(void)
 {
-	m_nModules	= 0;
-	m_Modules	= NULL;
 	m_pSelected	= NULL;
 	m_pCMD		= NULL;
 }
@@ -115,50 +113,26 @@ CModule_Library::~CModule_Library(void)
 //---------------------------------------------------------
 bool CModule_Library::Create(const SG_Char *FileName, const SG_Char *FilePath)
 {
-	TSG_PFNC_MLB_Initialize		MLB_Initialize;
-	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
-
-	CSG_Module_Library_Interface	*pInterface;
-	CSG_Module						*pModule;
-
-	//-----------------------------------------------------
 	Destroy();
 
-	m_FileName	= SG_File_Make_Path(FilePath, FileName, NULL).c_str();
-
-	m_Library.Load(m_FileName);
-
-	//-----------------------------------------------------
-	if( !m_Library.IsLoaded() )
+	if( !m_Library.Create(SG_File_Make_Path(FilePath, FileName, NULL).c_str()) )
 	{
 		Print_Error(LNG("[ERR] Library could not be loaded"), FileName);
 	}
 	else
 	{
-		MLB_Initialize		= (TSG_PFNC_MLB_Initialize)		m_Library.GetSymbol(SYMBOL_MLB_Initialize);
-		MLB_Get_Interface	= (TSG_PFNC_MLB_Get_Interface)	m_Library.GetSymbol(SYMBOL_MLB_Get_Interface);
-
-		if(	!MLB_Get_Interface	|| !(pInterface = MLB_Get_Interface())
-		||	!MLB_Initialize		|| !MLB_Initialize(m_FileName) )
+		for(int i=0; i<m_Library.Get_Count(); i++)
 		{
-			Print_Error(LNG("[ERR] Invalid library"), FileName);
-		}
-		else
-		{
-			while( (pModule = pInterface->Get_Module(m_nModules)) != NULL )
-			{
-				m_Modules	= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
-				m_Modules[m_nModules++]	= pModule;
-			}
-
-			if( m_nModules > 0 )
+			if( m_Library.Get_Module(i) && !m_Library.Get_Module(i)->is_Interactive() )
 			{
 				return( true );
 			}
-
-			Print_Error(LNG("[ERR] Library does not contain any modules"), FileName);
 		}
+
+		Print_Error(LNG("[ERR] Library does not contain executable modules"), FileName);
 	}
+
+	Destroy();
 
 	return( false );
 }
@@ -166,24 +140,15 @@ bool CModule_Library::Create(const SG_Char *FileName, const SG_Char *FilePath)
 //---------------------------------------------------------
 void CModule_Library::Destroy(void)
 {
-	if( m_nModules > 0 )
-	{
-		SG_Free(m_Modules);
-		m_nModules	= 0;
-		m_Modules	= NULL;
-		m_pSelected	= NULL;
-	}
-
 	if( m_pCMD )
 	{
 		delete(m_pCMD);
-		m_pCMD		= NULL;
 	}
 
-	if( m_Library.IsLoaded() )
-	{
-		m_Library.Unload();
-	}
+	m_pCMD		= NULL;
+	m_pSelected	= NULL;
+
+	m_Library.Destroy();
 }
 
 
@@ -206,9 +171,9 @@ CSG_Module * CModule_Library::Select(const SG_Char *ModuleName)
 		m_pCMD	= NULL;
 	}
 
-	for(i=0, m_pSelected=NULL; i<m_nModules && !m_pSelected; i++)
+	for(i=0, m_pSelected=NULL; i<Get_Count() && !m_pSelected; i++)
 	{
-		if( !SG_STR_CMP(ModuleName, Get_Module(i)->Get_Name()) )
+		if( Get_Module(i) && !SG_STR_CMP(ModuleName, Get_Module(i)->Get_Name()) )
 		{
 			m_pSelected	= Get_Module(i);
 		}
@@ -316,6 +281,8 @@ void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 			Description	= pParameter->Get_Description(
 							PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
 						).c_str();
+
+			Description.Replace(wxT("\xb2"), wxT("2"));	// unicode problem: quick'n'dirty bug fix, to be replaced
 
 			if( pParameter->is_Input() || pParameter->is_Output() )
 			{

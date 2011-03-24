@@ -105,8 +105,8 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_GUI_VERSION		wxT("2.0.6")
-#define SAGA_GUI_BUILD			wxT("20100719")
+#define SAGA_GUI_VERSION		wxT("2.0.7")
+#define SAGA_GUI_BUILD			wxT("20110401")
 
 //---------------------------------------------------------
 const wxChar *	SAGA_GUI_Get_Version(void)

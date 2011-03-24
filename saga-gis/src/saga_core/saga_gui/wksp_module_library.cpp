@@ -140,7 +140,10 @@ CWKSP_Module_Library::CWKSP_Module_Library(const wxChar *FileName)
 		{
 			while( (pModule = m_pInterface->Get_Module(Get_Count())) != NULL )
 			{
-				Add_Item(new CWKSP_Module(pModule, Get_Info(MLB_INFO_Menu_Path)));
+				if( pModule != MLB_INTERFACE_SKIP_MODULE )
+				{
+					Add_Item(new CWKSP_Module(pModule, Get_Info(MLB_INFO_Menu_Path)));
+				}
 			}
 
 			if( Get_Count() == 0 )

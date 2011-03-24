@@ -264,39 +264,46 @@ bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *M
 {
 	CModule_Library	Library;
 
+	//-----------------------------------------------------
 	if( !Library.Create(FileName, MLB_Path) )
 	{
 		Error_Library(MLB_Path);
+
+		return( false );
 	}
-	else if( !Library.Select(ModuleName) )
+
+	if( !Library.Select(ModuleName) )
 	{
+		Library.Destroy();
+
 		Print_Error(LNG("module not found"), ModuleName);
 
 		Error_Module(MLB_Path, FileName);
+
+		return( false );
 	}
-	else if( Library.Get_Selected()->is_Interactive() )
+
+	if( Library.Get_Selected()->is_Interactive() )
 	{
+		Library.Destroy();
+
 		Print_Error(LNG("cannot execute interactive module"), ModuleName);
 
 		Error_Module(MLB_Path, FileName);
-	}
-	else
-	{
-		Print_Execution(MLB_Path, FileName, Library.Get_Selected()->Get_Name(), Library.Get_Selected()->Get_Author());
 
-		Set_Library(&Library);
-
-		if( Library.Execute(argc, argv) )
-		{
-			Set_Library(NULL);
-
-			return( true );
-		}
-
-		Set_Library(NULL);
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	Print_Execution(MLB_Path, FileName, Library.Get_Selected()->Get_Name(), Library.Get_Selected()->Get_Author());
+
+	Set_Library(&Library);
+
+	bool	bResult	= Library.Execute(argc, argv);
+
+	Set_Library(NULL);
+
+	return( bResult );
 }
 
 
@@ -318,9 +325,9 @@ void		Error_Library	(const SG_Char *MLB_Path)
 	{
 		Print_Error(LNG("invalid module libraries path"), MLB_Path);
 	}
-	else if(	!Dir.GetFirst(&FileName, wxT("*.dll"), wxDIR_FILES|wxDIR_HIDDEN)
-			&&	!Dir.GetFirst(&FileName, wxT("*.so" ), wxDIR_FILES|wxDIR_HIDDEN) 
-			&&	!Dir.GetFirst(&FileName, wxT("*.dylib" ), wxDIR_FILES|wxDIR_HIDDEN))
+	else if(	!Dir.GetFirst(&FileName, wxT("*.dll"  ), wxDIR_FILES|wxDIR_HIDDEN)
+			&&	!Dir.GetFirst(&FileName, wxT("*.so"   ), wxDIR_FILES|wxDIR_HIDDEN) 
+			&&	!Dir.GetFirst(&FileName, wxT("*.dylib"), wxDIR_FILES|wxDIR_HIDDEN) )
 	{
 		Print_Error(LNG("no valid module library found in path"), MLB_Path);
 	}
@@ -376,15 +383,11 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 
 	if( !Get_Silent() )
 	{
-		SG_PRINTF(SG_T("\n%s:\n"), LNG("available modules"));
+		SG_PRINTF(SG_T("\n%s:\n"), LNG("executable modules"));
 
 		for(int i=0; i<Library.Get_Count(); i++)
 		{
-			if( Library.Get_Module(i)->is_Interactive() )
-			{
-				SG_PRINTF(SG_T("[%d]\t- [%s] %s\n"), i, LNG("interactive"), Library.Get_Module(i)->Get_Name());
-			}
-			else
+			if( Library.Get_Module(i) && !Library.Get_Module(i)->is_Interactive() )
 			{
 				SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name());
 			}

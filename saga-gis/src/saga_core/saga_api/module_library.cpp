@@ -185,7 +185,12 @@ bool CSG_Module_Library::Create(const CSG_String &File_Name)
 	if( Get_Count() > 0 )
 	{
 		for(int i=0; i<Get_Count(); i++)
-			Get_Module(i)->Set_Managed(false);
+		{
+			if( Get_Module(i) )
+			{
+				Get_Module(i)->Set_Managed(false);
+			}
+		}
 
 		return( true );
 	}
@@ -283,7 +288,10 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
 
 		for(int i=0; i<Get_Count(); i++)
 		{
-			s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name()));
+			if( Get_Module(i) )
+			{
+				s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name()));
+			}
 		}
 
 		s.Append(SG_T("</ul>"));
@@ -305,7 +313,10 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
 
 		for(int i=0; i<Get_Count(); i++)
 		{
-			s.Append(CSG_String::Format(SG_T("- %s\n"), Get_Module(i)->Get_Name()));
+			if( Get_Module(i) )
+			{
+				s.Append(CSG_String::Format(SG_T("- %s\n"), Get_Module(i)->Get_Name()));
+			}
 		}
 	}
 
@@ -324,7 +335,7 @@ CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( !SG_STR_CMP(Name, Get_Module(i)->Get_Name()) )
+		if( Get_Module(i) && !SG_STR_CMP(Name, Get_Module(i)->Get_Name()) )
 		{
 			return( Get_Module(i) );
 		}
@@ -402,7 +413,7 @@ CSG_String CSG_Module_Library::Get_Menu(int i)
 {
 	CSG_String	sMenu;
 
-	if( Get_Module(i) != NULL )
+	if( Get_Module(i) )
 	{
 		bool		bAbsolute	= false;
 		const SG_Char	*sModule	= Get_Module(i)->Get_MenuPath();

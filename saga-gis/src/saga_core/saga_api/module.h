@@ -550,6 +550,9 @@ typedef bool							(* TSG_PFNC_MLB_Finalize)		(void);
 typedef CSG_Module_Library_Interface *	(* TSG_PFNC_MLB_Get_Interface)	(void);
 
 //---------------------------------------------------------
+#define MLB_INTERFACE_SKIP_MODULE		((CSG_Module *)0x1)
+
+//---------------------------------------------------------
 #define MLB_INTERFACE_CORE	CSG_Module_Library_Interface	MLB_Interface;\
 \
 extern "C" _SAGA_DLL_EXPORT CSG_Module_Library_Interface *	MLB_Get_Interface   (void)\
