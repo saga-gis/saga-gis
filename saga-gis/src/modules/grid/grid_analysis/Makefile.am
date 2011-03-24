@@ -15,8 +15,6 @@ pkglib_LTLIBRARIES = libgrid_analysis.la
 libgrid_analysis_la_SOURCES =\
 Cost_Anisotropic.cpp\
 Cost_Isotropic.cpp\
-Cost_PolarToRect.cpp\
-Cost_RectToPolar.cpp\
 CoveredDistance.cpp\
 CrossClassification.cpp\
 fragmentation_base.cpp\
