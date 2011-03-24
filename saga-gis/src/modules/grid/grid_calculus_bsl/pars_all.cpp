@@ -226,7 +226,6 @@ void pars_ausdruck(int& zeile, int& pos)
 	long size = 0;
 	for (int i1=0; i1 < InputText.size(); i1++)
 		size += InputText[i1].size() + size_of_crlf;
-	char *s_buff = new char[size+1];
 	//s.reserve(size);
 	
 	InputZeilenNummer.reserve(5000);
@@ -240,6 +239,7 @@ void pars_ausdruck(int& zeile, int& pos)
 	}
 
 	// erste Zeile 
+	char *s_buff = new char[size+1];
 	s = InputText[zeile].substr(pos);
 	InputZeilenNummer.push_back(pos); // ????
 
