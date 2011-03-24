@@ -50,6 +50,12 @@
     <ClCompile Include="FuzzyOR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gradient_cartes_polar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grid_metric_conversion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -137,6 +143,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FuzzyOR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gradient_cartes_polar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_metric_conversion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: grid_metric_conversion.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//               grid_metric_conversion.cpp              //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//                 Copyright (C) 2011 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,11 +42,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,91 +54,107 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Calculus") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, A. Ringeler, V. Olaya (c) 2001-4") );
-
-	case MLB_INFO_Description:
-		return( _TL("Grid based or related calculations.") );
-
-	case MLB_INFO_Version:
-		return( _TL("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Calculus" ));
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Grid_Normalise.h"
-#include "Grid_Calculator.h"
-#include "Grid_Volume.h"
-#include "grid_difference.h"
-#include "Grid_Plotter.h"
-#include "Grid_Geometric_Figures.h"
-#include "Grid_Random_Terrain.h"
-#include "Grid_Random_Field.h"
-
-#include "Fuzzify.h"
-#include "FuzzyAND.h"
-#include "FuzzyOR.h"
-
 #include "grid_metric_conversion.h"
-#include "gradient_cartes_polar.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+CGrid_Metric_Conversion::CGrid_Metric_Conversion(void)
 {
-	switch( i )
+	Set_Name		(_TL("Metric Conversions"));
+
+	Set_Author		(SG_T("O. Conrad (c) 2011"));
+
+	Set_Description	(_TW(
+		""
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "GRID"		, _TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "CONV"		, _TL("Converted Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "CONVERSION"	, _TL("Conversion"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("radians to degree"),
+			_TL("degree to radians"),
+			_TL("Celsius to Fahrenheit"),
+			_TL("Fahrenheit to Celsius")
+		)
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Metric_Conversion::On_Execute(void)
+{
+	int			Conversion;
+	CSG_Grid	*pGrid, *pConv;
+
+	//-----------------------------------------------------
+	pGrid		= Parameters("GRID")		->asGrid();
+	pConv		= Parameters("CONV")		->asGrid();
+	Conversion	= Parameters("CONVERSION")	->asInt();
+
+	switch( Conversion )
 	{
-	case  0:		return( new CGrid_Normalise );
-	case  1:		return( new CGrid_Calculator );
-	case  2:		return( new CGrid_Volume );
-	case  3:		return( new CGrid_Difference );
-	case  4:		return( new CGrid_Plotter );
-	case  5:		return( new CGrid_Geometric_Figures );
-	case  6:		return( new CGrid_Random_Terrain );
-	case  7:		return( new CGrid_Random_Field );
-	case  8:		return( new CGrids_Sum );
-	case  9:		return( new CGrids_Product );
-	case 10:		return( new CGrid_Standardise );
-
-	case 11:		return( new CFuzzify );
-	case 12:		return( new CFuzzyAND );
-	case 13:		return( new CFuzzyOR );
-
-	case 14:		return( new CGrid_Metric_Conversion );
-
-	case 15:		return( new CGradient_Cartes_To_Polar );
-	case 16:		return( new CGradient_Polar_To_Cartes );
+	case  0:	pConv->Set_Unit(SG_T("\xbo"));		break;	// radians to degree
+	case  1:	pConv->Set_Unit(SG_T("\xbo"));		break;	// degree to radians
+	case  2:	pConv->Set_Unit(SG_T("\xboF"));		break;	// Celsius to Fahrenheit
+	case  3:	pConv->Set_Unit(SG_T("\xboC"));		break;	// Fahrenheit to Celsius
 	}
 
-	return( NULL );
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( pGrid->is_NoData(x, y) )
+			{
+				pConv->Set_NoData(x, y);
+			}
+			else
+			{
+				double	z	= pGrid->asDouble(x, y);
+
+				switch( Conversion )
+				{
+				case  0:	z	= z * M_RAD_TO_DEG;					break;	// radians to degree
+				case  1:	z	= z * M_DEG_TO_RAD;					break;	// degree to radians
+				case  2:	z	= z * 1.8 + 32.0;					break;	// Celsius to Fahrenheit
+				case  3:	z	= (z - 32.0) / 1.8;					break;	// Fahrenheit to Celsius
+				}
+
+				pConv->Set_Value(x, y, z);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -151,8 +165,3 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: grid_metric_conversion.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                grid_metric_conversion.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//                 Copyright (C) 2011 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,11 +42,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,103 +54,52 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__grid_metric_conversion_H
+#define HEADER_INCLUDED__grid_metric_conversion_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Calculus") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, A. Ringeler, V. Olaya (c) 2001-4") );
-
-	case MLB_INFO_Description:
-		return( _TL("Grid based or related calculations.") );
-
-	case MLB_INFO_Version:
-		return( _TL("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Calculus" ));
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Grid_Normalise.h"
-#include "Grid_Calculator.h"
-#include "Grid_Volume.h"
-#include "grid_difference.h"
-#include "Grid_Plotter.h"
-#include "Grid_Geometric_Figures.h"
-#include "Grid_Random_Terrain.h"
-#include "Grid_Random_Field.h"
-
-#include "Fuzzify.h"
-#include "FuzzyAND.h"
-#include "FuzzyOR.h"
-
-#include "grid_metric_conversion.h"
-#include "gradient_cartes_polar.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:		return( new CGrid_Normalise );
-	case  1:		return( new CGrid_Calculator );
-	case  2:		return( new CGrid_Volume );
-	case  3:		return( new CGrid_Difference );
-	case  4:		return( new CGrid_Plotter );
-	case  5:		return( new CGrid_Geometric_Figures );
-	case  6:		return( new CGrid_Random_Terrain );
-	case  7:		return( new CGrid_Random_Field );
-	case  8:		return( new CGrids_Sum );
-	case  9:		return( new CGrids_Product );
-	case 10:		return( new CGrid_Standardise );
-
-	case 11:		return( new CFuzzify );
-	case 12:		return( new CFuzzyAND );
-	case 13:		return( new CFuzzyOR );
-
-	case 14:		return( new CGrid_Metric_Conversion );
-
-	case 15:		return( new CGradient_Cartes_To_Polar );
-	case 16:		return( new CGradient_Polar_To_Cartes );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CGrid_Metric_Conversion : public CSG_Module_Grid  
+{
+public:
+	CGrid_Metric_Conversion(void);
 
-	MLB_INTERFACE
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Conversions") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__grid_metric_conversion_H

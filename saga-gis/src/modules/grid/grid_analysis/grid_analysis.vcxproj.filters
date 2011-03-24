@@ -20,12 +20,6 @@
     <ClCompile Include="Cost_Isotropic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cost_PolarToRect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cost_RectToPolar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CoveredDistance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -83,12 +77,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Cost_Isotropic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cost_PolarToRect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cost_RectToPolar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoveredDistance.h">
