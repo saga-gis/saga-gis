@@ -122,11 +122,11 @@ bool COWA::On_Execute(void){
 				}//else
 			}//for
 		}//for
-	}//if
 
 	delete [] pCoefs;
 	delete [] pOrderedValues;
 
+	}//if
 	return true;
 
 }//method
