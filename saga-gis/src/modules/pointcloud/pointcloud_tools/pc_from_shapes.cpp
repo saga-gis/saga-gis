@@ -173,7 +173,7 @@ bool CPC_From_Shapes::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	delete(Fields);
+	delete [] Fields;
 
 	return( pPoints->Get_Count() > 0 );
 }
