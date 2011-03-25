@@ -82,7 +82,7 @@ double dot(double *A, double *B, double *C){
 //Compute the cross product AB x AC
 double cross(double *A, double *B, double *C){
     
-    double AB[2],BC[2];
+    double AB[2],AC[2];
     AB[0] = B[0]-A[0];
     AB[1] = B[1]-A[1];
     AC[0] = C[0]-A[0];

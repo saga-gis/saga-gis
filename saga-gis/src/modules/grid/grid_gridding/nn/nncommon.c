@@ -137,7 +137,7 @@ void points_thin(int* pn, point** ppoints, int nx, int ny)
             fprintf(stderr, "0 points");
 			free(sumx);
 			free(sumy);
-			free(sumze);
+			free(sumz);
 			free(count);
         return;
     }
