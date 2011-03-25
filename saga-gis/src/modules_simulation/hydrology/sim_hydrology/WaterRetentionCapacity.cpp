@@ -182,6 +182,7 @@ void CWaterRetentionCapacity::CalculateWaterRetention(float **pData,
 	pRecord->Set_Value(iField - 1, fHe);
 	pRecord->Set_Value(iField, fWaterRetention);
 
+	delete[]pCRA;
 }//method
 
 void CWaterRetentionCapacity::CorrectWithSlope(){
