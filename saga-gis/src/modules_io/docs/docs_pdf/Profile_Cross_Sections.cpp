@@ -68,8 +68,7 @@
 //Compute the dot product AB ? BC
 double dot(double *A, double *B, double *C){
     
-	double *AB = new double[2];
-    double *BC = new double[2];
+    double AB[2],BC[2];
     AB[0] = B[0]-A[0];
     AB[1] = B[1]-A[1];
     BC[0] = C[0]-B[0];
@@ -83,8 +82,7 @@ double dot(double *A, double *B, double *C){
 //Compute the cross product AB x AC
 double cross(double *A, double *B, double *C){
     
-	double *AB = new double[2];
-    double *AC = new double[2];
+    double AB[2],BC[2];
     AB[0] = B[0]-A[0];
     AB[1] = B[1]-A[1];
     AC[0] = C[0]-A[0];
