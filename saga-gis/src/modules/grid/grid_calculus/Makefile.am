@@ -16,6 +16,8 @@ libgrid_calculus_la_SOURCES =\
 Fuzzify.cpp\
 FuzzyAND.cpp\
 FuzzyOR.cpp\
+gradient_cartes_polar.cpp\
+grid_metric_conversion.cpp\
 Grid_Calculator.cpp\
 grid_difference.cpp\
 Grid_Geometric_Figures.cpp\
@@ -28,6 +30,8 @@ MLB_Interface.cpp\
 Fuzzify.h\
 FuzzyAND.h\
 FuzzyOR.h\
+gradient_cartes_polar.h\
+grid_metric_conversion.h\
 Grid_Calculator.h\
 grid_difference.h\
 Grid_Geometric_Figures.h\
