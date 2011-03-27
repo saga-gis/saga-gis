@@ -386,7 +386,9 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save point cloud"), File_Name.c_str()), true);
 
-	if( Stream.Open(File_Name, SG_FILE_W, true) == false )
+	CSG_String	sFile_Name = SG_File_Make_Path(NULL, File_Name, SG_T("spc"));
+
+	if( Stream.Open(sFile_Name, SG_FILE_W, true) == false )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 		SG_UI_Msg_Add_Error(LNG("[ERR] unable to create file."));
@@ -418,7 +420,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	Set_Modified(false);
 
-	Set_File_Name(SG_File_Make_Path(NULL, File_Name, SG_T("spc")));
+	Set_File_Name(sFile_Name);
 
 	Save_MetaData(File_Name);
 
