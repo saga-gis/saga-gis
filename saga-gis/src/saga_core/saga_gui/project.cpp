@@ -449,6 +449,8 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 
 		_Set_Project_Name();
 
+		PROGRESSBAR_Set_Position(0);
+
 		return( true );
 	}
 
@@ -458,6 +460,8 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 		g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
 
 	MSG_General_Add(LNG("[MSG] Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
+
+	PROGRESSBAR_Set_Position(0);
 
 	return( false );
 }
