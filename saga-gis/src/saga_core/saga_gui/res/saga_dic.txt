@@ -151,7 +151,7 @@ lat_2	 	standard_parallel_2	Latitude of second standard parallel
 lat_ts	>	latitude_of_origin	Latitude of true scale
 lon_0	 	central_meridian	Central meridian
 lon_0	<	longitude_of_center	Longitude of center
-lonc	 	longitude_of_center	? Longitude used with Oblique Mercator and possibly a few others
+lonc	>	longitude_of_center	? Longitude used with Oblique Mercator and possibly a few others
 x_0	 	false_easting	False easting
 y_0	 	false_northing	False northing
 azi	 		

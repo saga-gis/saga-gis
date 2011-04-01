@@ -314,6 +314,8 @@ bool CSG_Projection::Load(const CSG_MetaData &Projection)
 //---------------------------------------------------------
 bool CSG_Projection::Save(CSG_MetaData &Projection) const
 {
+	Projection.Del_Children();
+
 	Projection.Add_Child(SG_T("OGC_WKT"), m_WKT  );
 	Projection.Add_Child(SG_T("PROJ4")  , m_Proj4);
 	Projection.Add_Child(SG_T("EPSG")   , Get_EPSG() );
@@ -1189,8 +1191,14 @@ bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj
 		{
 			Value	+= CSG_String::Format(SG_T(",TOWGS84[%s]"), ToWGS84.c_str());
 		}
+		else
+		{
+			Value	+= SG_T(",TOWGS84[0,0,0,0,0,0,0]");
+		}
 
 		Value	+= SG_T("]");
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
