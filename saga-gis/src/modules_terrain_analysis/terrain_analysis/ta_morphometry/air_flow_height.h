@@ -80,21 +80,33 @@ class CAir_Flow_Height : public CSG_Module_Grid
 public:
 	CAir_Flow_Height(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Wind" ));	}
+
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
 
 
 private:
 
-	double				m_dLee, m_dLuv, m_Distance_Max;
+	bool					m_bTrace;
 
-	CSG_Grid			*m_pDEM, *m_pAFH;
+	double					m_dLee, m_dLuv, m_maxDistance, m_Acceleration, m_dx, m_dy;
+
+	CSG_Grid				*m_pDEM, m_DX, m_DY;
+
+	CSG_Grid_Pyramid		m_DEM;
 
 
-	double				Get_Sum			(int x, int y, double dx, double dy, double Factor);
-	void				Get_Sum			(int x, int y, double dx, double dy, double FactorA, double &SumA, double FactorB, double &SumB);
+	bool					Get_Next		(TSG_Point &Position, double Distance, bool bReverse);
+	bool					Get_Z			(const TSG_Point &Position, double Distance, double &z);
+
+	void					Get_Luv			(int x, int y, double &Sum_A);
+	void					Get_Lee			(int x, int y, double &Sum_A, double &Sum_B);
+
+	void					Get_Luv			(int x, int y, double dx, double dy, double &Sum_A);
+	void					Get_Lee			(int x, int y, double dx, double dy, double &Sum_A, double &Sum_B);
 
 };
 

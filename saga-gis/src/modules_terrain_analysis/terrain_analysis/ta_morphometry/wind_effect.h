@@ -80,21 +80,33 @@ class CWind_Effect : public CSG_Module_Grid
 public:
 	CWind_Effect(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Wind" ));	}
+
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
 
 
 private:
 
-	double				factor_Lee, factor_Luv, max_Distance;
+	bool					m_bTrace;
 
-	CSG_Grid			*pDTM, *pLeeLuv;
+	double					m_maxDistance, m_Acceleration, m_dx, m_dy;
+
+	CSG_Grid				*m_pDEM, m_DX, m_DY;
+
+	CSG_Grid_Pyramid		m_DEM;
 
 
-	double				Get_LUV			(int x, int y, double dx, double dy);
-	void				Get_LEE_LUV		(int x, int y, double dx, double dy, double &SumA, double &SumB);
+	bool					Get_Next		(TSG_Point &Position, double Distance, bool bReverse);
+	bool					Get_Z			(const TSG_Point &Position, double Distance, double &z);
+
+	void					Get_Luv			(int x, int y, double &Sum_A);
+	void					Get_Lee			(int x, int y, double &Sum_A, double &Sum_B);
+
+	void					Get_Luv			(int x, int y, double dx, double dy, double &Sum_A);
+	void					Get_Lee			(int x, int y, double dx, double dy, double &Sum_A, double &Sum_B);
 
 };
 
