@@ -211,9 +211,7 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, double x
 		return( Assign(Cellsize, xMin, yMin, 1 + (int)(0.5 + (xMax - xMin) / Cellsize), 1 + (int)(0.5 + (yMax - yMin) / Cellsize)) );
 	}
 
-	m_Cellsize	= -1.0;
-
-	return( false );
+	return( Assign(0.0, 0.0, 0.0, 0, 0) );
 }
 
 //---------------------------------------------------------
@@ -247,7 +245,15 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 		return( true );
 	}
 
-	m_Cellsize	= -1.0;
+	m_Cellsize		= -1.0;
+	m_NX			= 0;
+	m_NY			= 0;
+	m_NCells		= 0;
+	m_Cellsize		= 0.0;
+	m_Cellarea		= 0.0;
+	m_Diagonal		= 0.0;
+	m_Extent		.Assign(0.0, 0.0, 0.0, 0.0);
+	m_Extent_Cells	.Assign(0.0, 0.0, 0.0, 0.0);
 
 	return( false );
 }
