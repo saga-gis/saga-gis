@@ -563,6 +563,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 		if( DLG_Parameters(&Parameters) )
 		{
 			iField		= Parameters("FIELD")	->asInt();
+			pColors		= Parameters("COLOR")	->asColors();
 
 			if( pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
 			{
@@ -574,50 +575,71 @@ void CWKSP_Shapes::_LUT_Create(void)
 				iID		= iField;
 			}
 
-			pLUT		= m_Parameters("LUT")	->asTable();
-			pLUT		->Del_Records();
+			pLUT	= m_Parameters("LUT")	->asTable();
+			pLUT	->Del_Records();
 
-			old_Order	= pTable->Get_Index_Order(0);
-			old_Field	= pTable->Get_Index_Field(0);
-
-			pTable->Set_Index(iField, TABLE_INDEX_Ascending);
-			sValue		= pTable->Get_Record_byIndex(0)->asString(iField);
-			dValue		= iID != iField ? 1.0 : pTable->Get_Record_byIndex(0)->asDouble(iField);
-
-			for(iRecord=0; iRecord<pTable->Get_Record_Count(); iRecord++)
+			if( pColors->Get_Count() < pTable->Get_Count() )	// equal intervals
 			{
-				pRecord	= pTable->Get_Record_byIndex(iRecord);
+				double	dClass;
 
-				if( iRecord == 0 || sValue.Cmp(pRecord->asString(iField)) )
+				dValue	= pTable->Get_Minimum(iField);
+				dClass	= pTable->Get_Range  (iField) / pColors->Get_Count();
+
+				for(iRecord=0; iRecord<pColors->Get_Count(); iRecord++, dValue+=dClass)
 				{
-					if( iRecord > 0 )
-					{
-						sValue		= pRecord->asString(iField);
-						dValue		= iID != iField ? dValue + 1.0 : pRecord->asDouble(iField);
-					}
+					sValue.Printf(SG_T("%f - %f"), dValue, dValue + dClass);
 
 					pRecord_LUT	= pLUT->Add_Record();
-					pRecord_LUT	->Set_Value(1, sValue.c_str());	// Name
-					pRecord_LUT	->Set_Value(2, sValue.c_str());	// Description
-					pRecord_LUT	->Set_Value(3, dValue);			// Minimum
-					pRecord_LUT	->Set_Value(4, dValue);			// Maximum
-				}
-
-				if( iID != iField )
-				{
-					pRecord->Set_Value(iID, dValue);
+					pRecord_LUT	->Set_Value(0, pColors->Get_Color(iRecord));
+					pRecord_LUT	->Set_Value(1, sValue.c_str());		// Name
+					pRecord_LUT	->Set_Value(2, sValue.c_str());		// Description
+					pRecord_LUT	->Set_Value(3, dValue);				// Minimum
+					pRecord_LUT	->Set_Value(4, dValue + dClass);	// Maximum
 				}
 			}
-
-			pColors	= Parameters("COLOR")->asColors();
-			pColors->Set_Count(pLUT->Get_Record_Count());
-
-			for(iRecord=0; iRecord<pLUT->Get_Record_Count(); iRecord++)
+			else	// unique values
 			{
-				pLUT->Get_Record(iRecord)->Set_Value(0, pColors->Get_Color(iRecord));
-			}
+				old_Order	= pTable->Get_Index_Order(0);
+				old_Field	= pTable->Get_Index_Field(0);
 
-			pTable->Set_Index(old_Field, old_Order);
+				pTable->Set_Index(iField, TABLE_INDEX_Ascending);
+				sValue		= pTable->Get_Record_byIndex(0)->asString(iField);
+				dValue		= iID != iField ? 1.0 : pTable->Get_Record_byIndex(0)->asDouble(iField);
+
+				for(iRecord=0; iRecord<pTable->Get_Record_Count(); iRecord++)
+				{
+					pRecord	= pTable->Get_Record_byIndex(iRecord);
+
+					if( iRecord == 0 || sValue.Cmp(pRecord->asString(iField)) )
+					{
+						if( iRecord > 0 )
+						{
+							sValue		= pRecord->asString(iField);
+							dValue		= iID != iField ? dValue + 1.0 : pRecord->asDouble(iField);
+						}
+
+						pRecord_LUT	= pLUT->Add_Record();
+						pRecord_LUT	->Set_Value(1, sValue.c_str());	// Name
+						pRecord_LUT	->Set_Value(2, sValue.c_str());	// Description
+						pRecord_LUT	->Set_Value(3, dValue);			// Minimum
+						pRecord_LUT	->Set_Value(4, dValue);			// Maximum
+					}
+
+					if( iID != iField )
+					{
+						pRecord->Set_Value(iID, dValue);
+					}
+				}
+
+				pColors->Set_Count(pLUT->Get_Record_Count());
+
+				for(iRecord=0; iRecord<pLUT->Get_Record_Count(); iRecord++)
+				{
+					pLUT->Get_Record(iRecord)->Set_Value(0, pColors->Get_Color(iRecord));
+				}
+
+				pTable->Set_Index(old_Field, old_Order);
+			}
 
 			DataObject_Changed();
 
@@ -753,7 +775,8 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			{
 				pShape	= m_pShapes->Get_Shape(iShape);
 
-				if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
+				if( (m_pClassify->Get_Mode() != CLASSIFY_METRIC || m_iColor < 0 || !pShape->is_NoData(m_iColor))
+				&&	dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 				{
 					_Draw_Shape(dc, pShape, false);
 				}
