@@ -151,6 +151,10 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 		{
 			Result	= g_pModule->Execute(Param_1.True) ? 1 : 0;
 		}
+		else if( g_pModule && g_pModule->is_Interactive() )
+		{
+			Result	= g_pModule->Execute(Param_1.True) ? 1 : 0;
+		}
 
 		break;
 
