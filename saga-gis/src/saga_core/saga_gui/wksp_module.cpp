@@ -721,15 +721,18 @@ bool CWKSP_Module::Execute(bool bDialog)
 			}
 			else if( m_pModule->is_Interactive() )
 			{
-				bResult		= ((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
-				g_pModule	= NULL;
+				if( !bDialog || DLG_Message_Confirm(LNG("[MSG] Shall execution be stopped?"), LNG("[CAP] Module Execution")) )
+				{
+					bResult		= ((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
+					g_pModule	= NULL;
 
-				PROCESS_Set_Okay(true);
+					PROCESS_Set_Okay(true);
 
-				MSG_ADD2(bResult,
-					LNG("[MSG] Interactive module execution has been stopped"),
-					LNG("[MSG] Interactive module execution failed")
-				);
+					MSG_ADD2(bResult,
+						LNG("[MSG] Interactive module execution has been stopped"),
+						LNG("[MSG] Interactive module execution failed")
+					);
+				}
 			}
 		}
 		else
