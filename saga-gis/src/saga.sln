@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_grid", "modules_geostatistics\geostatistics\geostatistics_grid\geostatistics_grid.vcproj", "{97988762-27EE-42B2-9135-F0B640A57F1B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
@@ -297,6 +297,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_tools", "modules_im
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_viewer", "modules\tin\tin_viewer\tin_viewer.vcproj", "{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1346,6 +1348,22 @@ Global
 		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 		{4805A2A8-E531-4567-B492-B3173AB97350}.Unicode Release|x64.ActiveCfg = Unicode Release|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Debug|Win32.Build.0 = Debug|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Debug|x64.ActiveCfg = Debug|x64
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Debug|x64.Build.0 = Debug|x64
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Release|Win32.ActiveCfg = Release|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Release|Win32.Build.0 = Release|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Release|x64.ActiveCfg = Release|x64
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Release|x64.Build.0 = Release|x64
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Debug|x64.ActiveCfg = Unicode Debug|x64
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Debug|x64.Build.0 = Unicode Debug|x64
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
+		{72228C5A-6C20-4721-BEF7-5FBB6A9E5CF3}.Unicode Release|x64.Build.0 = Unicode Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
