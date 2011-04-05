@@ -241,7 +241,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 		switch( Parameters("TARGET_TYPE")->asInt() )
 		{
 		case 0:	// create new user defined grid...
-			if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
+			if( Get_Target_Extent(pSource, Extent) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
 			{
 				pGrid	= m_Grid_Target.Get_User(Type);
 			}
@@ -305,7 +305,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 		switch( Parameters("TARGET_TYPE")->asInt() )
 		{
 		case 0:	// create new user defined grid...
-			if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
+			if( Get_Target_Extent(pSource, Extent) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
 			{
 				pGrid	= m_Grid_Target.Get_User(Type);
 			}
@@ -623,48 +623,72 @@ inline void CPROJ4_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 }
 
 //---------------------------------------------------------
-bool CPROJ4_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge)
+bool CPROJ4_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent)
 {
 	if( !pSource )
 	{
 		return( false );
 	}
 
-	int			x, y;
+	int			x, y, Resolution;
+
+	Resolution	= 256;
 
 	Extent.xMin	= Extent.yMin	= 1.0;
 	Extent.xMax	= Extent.yMax	= 0.0;
 
-	if( bEdge )
+	switch( 1 )
 	{
-		double		d;
-
-		for(y=0, d=pSource->Get_YMin(); y<pSource->Get_NY(); y++, d+=pSource->Get_Cellsize())
+	case 0:	// corners
 		{
-			Get_MinMax(Extent, pSource->Get_XMin(), d);
-			Get_MinMax(Extent, pSource->Get_XMax(), d);
+			Get_MinMax(Extent, pSource->Get_XMin(), pSource->Get_YMin());
+			Get_MinMax(Extent, pSource->Get_XMax(), pSource->Get_YMin());
+			Get_MinMax(Extent, pSource->Get_XMin(), pSource->Get_YMax());
+			Get_MinMax(Extent, pSource->Get_XMax(), pSource->Get_YMax());
 		}
+		break;
 
-		for(x=0, d=pSource->Get_XMin(); x<pSource->Get_NX(); x++, d+=pSource->Get_Cellsize())
+	case 1:	// edges
 		{
-			Get_MinMax(Extent, d, pSource->Get_YMin());
-			Get_MinMax(Extent, d, pSource->Get_YMax());
-		}
-	}
-	else
-	{
-		TSG_Point	p;
+			double	d;
 
-		for(y=0, p.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, p.y+=pSource->Get_Cellsize())
-		{
-			for(x=0, p.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, p.x+=pSource->Get_Cellsize())
+			int	yStep	= 1 + pSource->Get_NY() / Resolution;
+
+			for(y=0, d=pSource->Get_YMin(); y<pSource->Get_NY(); y+=yStep, d+=yStep*pSource->Get_Cellsize())
 			{
-				if( !pSource->is_NoData(x, y) )
+				Get_MinMax(Extent, pSource->Get_XMin(), d);
+				Get_MinMax(Extent, pSource->Get_XMax(), d);
+			}
+
+			int	xStep	= 1 + pSource->Get_NX() / Resolution;
+
+			for(x=0, d=pSource->Get_XMin(); x<pSource->Get_NX(); x+=xStep, d+=xStep*pSource->Get_Cellsize())
+			{
+				Get_MinMax(Extent, d, pSource->Get_YMin());
+				Get_MinMax(Extent, d, pSource->Get_YMax());
+			}
+		}
+		break;
+
+	case 2:	// all cells
+		{
+			TSG_Point	p;
+
+			int	xStep	= 1 + pSource->Get_NX() / Resolution;
+			int	yStep	= 1 + pSource->Get_NY() / Resolution;
+
+			for(y=0, p.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y+=yStep, p.y+=yStep*pSource->Get_Cellsize())
+			{
+				for(x=0, p.x=pSource->Get_XMin(); x<pSource->Get_NX(); x+=xStep, p.x+=xStep*pSource->Get_Cellsize())
 				{
-					Get_MinMax(Extent, p.x, p.y);
+					if( !pSource->is_NoData(x, y) )
+					{
+						Get_MinMax(Extent, p.x, p.y);
+					}
 				}
 			}
 		}
+		break;
 	}
 
 	return( is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax );

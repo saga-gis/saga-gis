@@ -659,47 +659,62 @@ inline void CCRS_Transform_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Get_Target_System(const CSG_Grid_System &System, bool bEdge)
 {
-	int			x, y;
+	int			x, y, Resolution;
 	TSG_Rect	Extent;
 
 	Extent.xMin	= Extent.yMin	= 1.0;
 	Extent.xMax	= Extent.yMax	= 0.0;
 
-	if( !bEdge )
+	Get_MinMax(Extent, System.Get_XMin(), System.Get_YMin());
+	Get_MinMax(Extent, System.Get_XMax(), System.Get_YMin());
+	Get_MinMax(Extent, System.Get_XMin(), System.Get_YMax());
+	Get_MinMax(Extent, System.Get_XMax(), System.Get_YMax());
+
+	Resolution	= 256;
+
+	switch( 1 )
 	{
-		double		d;
-
-		for(y=0, d=System.Get_YMin(); y<System.Get_NY(); y++, d+=System.Get_Cellsize())
+	case 1:	// edges
 		{
-			Get_MinMax(Extent, System.Get_XMin(), d);
-			Get_MinMax(Extent, System.Get_XMax(), d);
-		}
+			double	d;
 
-		for(x=0, d=System.Get_XMin(); x<System.Get_NX(); x++, d+=System.Get_Cellsize())
-		{
-			Get_MinMax(Extent, d, System.Get_YMin());
-			Get_MinMax(Extent, d, System.Get_YMax());
-		}
-	}
-	else
-	{
-		TSG_Point	p;
+			int	yStep	= 1 + System.Get_NY() / Resolution;
 
-		for(y=0, p.y=System.Get_YMin(); y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++, p.y+=System.Get_Cellsize())
-		{
-			for(x=0, p.x=System.Get_XMin(); x<System.Get_NX(); x++, p.x+=System.Get_Cellsize())
+			for(y=0, d=System.Get_YMin(); y<System.Get_NY(); y+=yStep, d+=yStep*System.Get_Cellsize())
 			{
-				Get_MinMax(Extent, p.x, p.y);
+				Get_MinMax(Extent, System.Get_XMin(), d);
+				Get_MinMax(Extent, System.Get_XMax(), d);
+			}
+
+			int	xStep	= 1 + System.Get_NX() / Resolution;
+
+			for(x=0, d=System.Get_XMin(); x<System.Get_NX(); x+=xStep, d+=xStep*System.Get_Cellsize())
+			{
+				Get_MinMax(Extent, d, System.Get_YMin());
+				Get_MinMax(Extent, d, System.Get_YMax());
 			}
 		}
+		break;
 
-		if( !is_Progress() )
+	case 2:	// all cells
 		{
-			return( false );
+			TSG_Point	p;
+
+			int	xStep	= 1 + System.Get_NX() / Resolution;
+			int	yStep	= 1 + System.Get_NY() / Resolution;
+
+			for(y=0, p.y=System.Get_YMin(); y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y+=yStep, p.y+=yStep*System.Get_Cellsize())
+			{
+				for(x=0, p.x=System.Get_XMin(); x<System.Get_NX(); x+=xStep, p.x+=xStep*System.Get_Cellsize())
+				{
+					Get_MinMax(Extent, p.x, p.y);
+				}
+			}
 		}
+		break;
 	}
 
-	return(	Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax
+	return(	is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax
 		&&	m_Grid_Target.Init_User(Extent, System.Get_NY())
 		&&	Dlg_Parameters("GET_USER")
 	);

@@ -106,7 +106,7 @@ private:
 	bool						Init_Target				(CSG_Grid *pSource, CSG_Grid *pTarget);
 
 	void						Get_MinMax				(TSG_Rect &r, double x, double y);
-	bool						Get_Target_Extent		(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge);
+	bool						Get_Target_Extent		(CSG_Grid *pSource, TSG_Rect &Extent);
 
 };
 

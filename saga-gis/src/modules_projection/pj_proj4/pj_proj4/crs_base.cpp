@@ -76,21 +76,22 @@ CCRS_Base::CCRS_Base(void)
 	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "CRS_METHOD"		, _TL("Get CRS Definition from..."),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("Proj4 Parameters"),
-			_TL("EPSG Code"),
-			_TL("Well Known Text File")
-		), 0
-	);
+	if( SG_UI_Get_Window_Main() == NULL )
+	{
+		Parameters.Add_Choice(
+			NULL	, "CRS_METHOD"		, _TL("Get CRS Definition from..."),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|"),
+				_TL("Proj4 Parameters"),
+				_TL("EPSG Code"),
+				_TL("Well Known Text File")
+			), 0
+		);
+	}
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(NULL, "NODE_PROJ4", _TL("Proj4 Parameters"), _TL(""));
-
-	pNode_1	= Parameters.Add_String(
-		pNode_0	, "CRS_PROJ4"		, _TL("Proj4 Parameters"),
+	pNode_0	= Parameters.Add_String(
+		NULL	, "CRS_PROJ4"		, _TL("Proj4 Parameters"),
 		_TL(""),
 		SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"), true
 	);
@@ -98,7 +99,7 @@ CCRS_Base::CCRS_Base(void)
 	if( SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_Parameters(
-			pNode_1	, "CRS_DIALOG"		, _TL("Dialog"),
+			pNode_0	, "CRS_DIALOG"		, _TL("Dialog"),
 			_TL("")
 		);
 
@@ -106,11 +107,20 @@ CCRS_Base::CCRS_Base(void)
 	}
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "NODE_EPSG"	, _TL("EPSG"),
-		_TL("")
+	Parameters.Add_FilePath(
+		pNode_0	, "CRS_FILE"		, _TL("Well Known Text File"),
+		_TL(""),
+		CSG_String::Format(
+			SG_T("%s|*.prj;*.wkt;*.txt|%s|*.prj|%s|*.wkt|%s|*.txt|%s|*.*"),
+			_TL("All Recognized Files"),
+			_TL("ESRI WKT Files (*.prj)"),
+			_TL("WKT Files (*.wkt)"),
+			_TL("Text Files (*.txt)"),
+			_TL("All Files")
+		)
 	);
 
+	//-----------------------------------------------------
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "CRS_EPSG"	, _TL("EPSG Code"),
 		_TL(""),
@@ -131,22 +141,6 @@ CCRS_Base::CCRS_Base(void)
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 		);
 	}
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(NULL, "NODE_FILE", _TL("Well Known Text File"), _TL(""));
-
-	Parameters.Add_FilePath(
-		pNode_0	, "CRS_FILE"		, _TL("Well Known Text File"),
-		_TL(""),
-		CSG_String::Format(
-			SG_T("%s|*.prj;*.wkt;*.txt|%s|*.prj|%s|*.wkt|%s|*.txt|%s|*.*"),
-			_TL("All Recognized Files"),
-			_TL("ESRI WKT Files (*.prj)"),
-			_TL("WKT Files (*.wkt)"),
-			_TL("Text Files (*.txt)"),
-			_TL("All Files")
-		)
-	);
 
 	//-----------------------------------------------------
 	if( SG_UI_Get_Window_Main() )
@@ -261,7 +255,7 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
-	switch( Parameters("CRS_METHOD")->asInt() )
+	switch( Parameters("CRS_METHOD") ? Parameters("CRS_METHOD")->asInt() : 0 )
 	{
 	case 0:	default:	// Proj4 Parameters"),
 		Projection.Create	(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);

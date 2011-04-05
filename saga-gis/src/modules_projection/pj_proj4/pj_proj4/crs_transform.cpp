@@ -106,6 +106,8 @@ bool CCRS_Transform::On_Execute(void)
 		return( false );
 	}
 
+	Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("target"), m_Target.Get_Proj4().c_str()), false);
+
 	//-----------------------------------------------------
 	m_bInverse	= false;
 
@@ -151,6 +153,8 @@ bool CCRS_Transform::_Set_Projection(const CSG_Projection &Projection, void **pp
 //---------------------------------------------------------
 bool CCRS_Transform::Set_Source(const CSG_Projection &Projection)
 {
+	Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("source"), Projection.Get_Proj4().c_str()), false);
+
 	return( _Set_Projection(Projection, &m_Proj4_pSource, true) );
 }
 
