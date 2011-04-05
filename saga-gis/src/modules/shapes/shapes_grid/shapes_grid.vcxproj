@@ -559,6 +559,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Grid_Classes_To_Shapes.cpp" />
+    <ClCompile Include="grid_extent.cpp" />
     <ClCompile Include="grid_local_extremes_to_points.cpp" />
     <ClCompile Include="Grid_Polygon_Clip.cpp" />
     <ClCompile Include="Grid_Statistics_AddTo_Polygon.cpp" />
@@ -595,6 +596,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="Grid_Classes_To_Shapes.h" />
+    <ClInclude Include="grid_extent.h" />
     <ClInclude Include="grid_local_extremes_to_points.h" />
     <ClInclude Include="Grid_Polygon_Clip.h" />
     <ClInclude Include="Grid_Statistics_AddTo_Polygon.h" />

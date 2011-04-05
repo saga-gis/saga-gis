@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: grid_extent.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    grid_extent.cpp                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,78 +54,47 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Grid") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools related to gridded and vector data (conversions, combinations, etc.).") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Grid") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Grid_Values_AddTo_Points.h"
-#include "Grid_Values_AddTo_Shapes.h"
-#include "Grid_Statistics_AddTo_Polygon.h"
-#include "Grid_To_Points.h"
-#include "Grid_To_Points_Random.h"
-#include "Grid_To_Contour.h"
-#include "Grid_Classes_To_Shapes.h"
-#include "Grid_Polygon_Clip.h"
-#include "Grid_To_Gradient.h"
-#include "grid_local_extremes_to_points.h"
 #include "grid_extent.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+CGrid_Extent::CGrid_Extent(void)
 {
-	switch( i )
-	{
-	case  0:	return( new CGrid_Values_AddTo_Points );
-	case  1:	return( new CGrid_Values_AddTo_Shapes );
-	case  2:	return( new CGrid_Statistics_AddTo_Polygon );
-	case  3:	return( new CGrid_To_Points );
-	case  4:	return( new CGrid_To_Points_Random );
-	case  5:	return( new CGrid_To_Contour );
-	case  6:	return( new CGrid_Classes_To_Shapes );
-	case  7:	return( new CGrid_Polygon_Clip );
-	case  8:	return( new CGrid_To_Gradient );
-	case  9:	return( new CGrid_Local_Extremes_to_Points );
-	case 10:	return( new CGrid_Extent );
-	}
+	//-----------------------------------------------------
+	Set_Name		(_TL("Grid System Extent"));
 
-	return( NULL );
+	Set_Author		(_TL("O. Conrad (c) 2011"));
+
+	Set_Description	(_TW(
+		"Creates a polygon (rectangle) from a grid system's extent."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(
+		NULL	, "SHAPES"		, _TL("Extent"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "CELLS"		, _TL("Border"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("grid cells"),
+			_TL("grid nodes")
+		), 0
+	);
 }
 
 
@@ -138,8 +105,52 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+bool CGrid_Extent::On_Execute(void)
+{
+	bool			bCells;
+	CSG_Grid_System	*pSystem;
+	CSG_Shapes		*pShapes;
 
-	MLB_INTERFACE
+	//-----------------------------------------------------
+	pSystem		= Get_System();
+	pShapes		= Parameters("SHAPES")	->asShapes();
+	bCells		= Parameters("CELLS")	->asInt() == 0;
 
-//}}AFX_SAGA
+	//-----------------------------------------------------
+	if(	pSystem == NULL || !pSystem->is_Valid() )
+	{
+		Error_Set(_TL("invalid grid system"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pShapes->Create(SHAPE_TYPE_Polygon, _TL("Grid System Extent"));
+
+	pShapes->Add_Field(_TL("NX")		, SG_DATATYPE_Int);
+	pShapes->Add_Field(_TL("NY")		, SG_DATATYPE_Int);
+	pShapes->Add_Field(_TL("CELLSIZE")	, SG_DATATYPE_Double);
+
+	CSG_Shape	*pExtent	= pShapes->Add_Shape();
+
+	pExtent->Set_Value(0, pSystem->Get_NX());
+	pExtent->Set_Value(1, pSystem->Get_NY());
+	pExtent->Set_Value(2, pSystem->Get_Cellsize());
+
+	pExtent->Add_Point(pSystem->Get_XMin(bCells), pSystem->Get_YMin(bCells));
+	pExtent->Add_Point(pSystem->Get_XMin(bCells), pSystem->Get_YMax(bCells));
+	pExtent->Add_Point(pSystem->Get_XMax(bCells), pSystem->Get_YMax(bCells));
+	pExtent->Add_Point(pSystem->Get_XMax(bCells), pSystem->Get_YMin(bCells));
+	pExtent->Add_Point(pSystem->Get_XMin(bCells), pSystem->Get_YMin(bCells));
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
