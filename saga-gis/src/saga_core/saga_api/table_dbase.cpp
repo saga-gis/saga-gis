@@ -643,6 +643,8 @@ CSG_String CSG_Table_DBase::asString(int iField)
 			{
 				Value	+= *c;
 			}
+
+			Value.Trim(true);
 		}
 
 		else // if( FieldDesc[iField].Type == DBF_FT_DATE )	// SAGA(DD.MM.YYYY) from DBASE(YYYYMMDD)
