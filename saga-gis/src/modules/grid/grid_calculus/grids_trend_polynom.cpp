@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: grids_trend_polynom.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Grid_Difference.cpp                  //
+//                grids_trend_polynom.cpp                //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -59,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "grid_difference.h"
+#include "grids_trend_polynom.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,33 +69,80 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid_Difference::CGrid_Difference(void)
+CGrids_Trend::CGrids_Trend(void)
 {
-	Set_Name		(_TL("Grid Difference"));
+	//-----------------------------------------------------
+	Set_Name		(_TL("Polynomial Trend from Grids"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2009"));
+	Set_Author		(SG_T("O. Conrad (c) 2011"));
 
 	Set_Description	(_TW(
-		""
+		"Fits for each cell a polynomial trend function. "
+		"Output are the polynomial coefficients for the chosen trend function. "
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "A"	, _TL("A"),
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"	, _TL("Dependent Variables"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "B"	, _TL("B"),
+	Parameters.Add_Grid_List(
+		NULL	, "Y_GRIDS"	, _TL("Independent Variable (per Grid and Cell)"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "C"	, _TL("Difference (A - B)"),
+	Parameters.Add_FixedTable(
+		NULL	, "Y_TABLE"	, _TL("Independent Variable (per Grid)"),
+		_TL("")
+	)->asTable()->Add_Field(_TL("Value"), SG_DATATYPE_Double);
+
+	Parameters.Add_Grid_List(
+		NULL	, "PARMS"	, _TL("Polynomial Coefficients"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Grid(
+		NULL	, "QUALITY"	, _TL("Coefficient of Determination"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "POLYNOM"	, _TL("Type of Approximated Function"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("first order polynom (linear regression)"),
+			_TL("second order polynom"),
+			_TL("third order polynom"),
+			_TL("fourth order polynom"),
+			_TL("fifth order polynom")
+		), 2
+	);
+
+	//-----------------------------------------------------
+	CSG_Table	*pTable	= Parameters("Y_TABLE")->asTable();
+
+	pTable->Add_Record()->Set_Value(0, 1000.0);
+	pTable->Add_Record()->Set_Value(0,  925.0);
+	pTable->Add_Record()->Set_Value(0,  850.0);
+	pTable->Add_Record()->Set_Value(0,  700.0);
+	pTable->Add_Record()->Set_Value(0,  600.0);
+	pTable->Add_Record()->Set_Value(0,  500.0);
+	pTable->Add_Record()->Set_Value(0,  400.0);
+	pTable->Add_Record()->Set_Value(0,  300.0);
+	pTable->Add_Record()->Set_Value(0,  250.0);
+	pTable->Add_Record()->Set_Value(0,  200.0);
+	pTable->Add_Record()->Set_Value(0,  150.0);
+	pTable->Add_Record()->Set_Value(0,  100.0);
+	pTable->Add_Record()->Set_Value(0,   70.0);
+	pTable->Add_Record()->Set_Value(0,   50.0);
+	pTable->Add_Record()->Set_Value(0,   30.0);
+	pTable->Add_Record()->Set_Value(0,   20.0);
+	pTable->Add_Record()->Set_Value(0,   10.0);
 }
 
 
@@ -104,175 +151,60 @@ CGrid_Difference::CGrid_Difference(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Difference::On_Execute(void)
+bool CGrids_Trend::On_Execute(void)
 {
-	CSG_Grid	*pA, *pB, *pC;
+	int						i, nGrids;
+	CSG_Trend				Trend;
+	CSG_Table				*pYTable;
+	CSG_Grid				*pQuality;
+	CSG_Parameter_Grid_List	*pGrids, *pYGrids, *pParms;
 
 	//-----------------------------------------------------
-	pA	= Parameters("A")->asGrid();
-	pB	= Parameters("B")->asGrid();
-	pC	= Parameters("C")->asGrid();
-
-	DataObject_Set_Colors(pC, 100, SG_COLORS_RED_GREY_BLUE);
+	pGrids		= Parameters("GRIDS")	->asGridList();
+	pYGrids		= Parameters("Y_GRIDS")	->asGridList();
+	pYTable		= Parameters("Y_TABLE")	->asTable();
+	pParms		= Parameters("PARMS")	->asGridList();
+	pQuality	= Parameters("QUALITY")	->asGrid();
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	nGrids		= pYGrids->Get_Count() > 0 ? pYGrids->Get_Count() : pYTable->Get_Count();
+
+	if( nGrids > pGrids->Get_Count() )
 	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			if( pA->is_NoData(x, y) || pB->is_NoData(x, y) )
-			{
-				pC->Set_NoData(x, y);
-			}
-			else
-			{
-				pC->Set_Value(x, y, pA->asDouble(x, y) - pB->asDouble(x, y));
-			}
-		}
+		nGrids	= pGrids->Get_Count();
 	}
 
 	//-----------------------------------------------------
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CGrids_Sum::CGrids_Sum(void)
-{
-	Set_Name		(_TL("Grids Sum"));
-
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
-
-	Set_Description	(_TW(
-		"Cellwise addition of grid values."
-	));
-
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, _TL("Grids"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "RESULT"	, _TL("Sum"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGrids_Sum::On_Execute(void)
-{
-	CSG_Grid				*pResult;
-	CSG_Parameter_Grid_List	*pGrids;
-
-	//-----------------------------------------------------
-	pGrids	= Parameters("GRIDS")	->asGridList();
-	pResult	= Parameters("RESULT")	->asGrid();
-
-	//-----------------------------------------------------
-	if( pGrids->Get_Count() < 1 )
+	switch( Parameters("POLYNOM")->asInt() )
 	{
-		Error_Set(_TL("no grid in list"));
+	default:
+	case 0:	Trend.Set_Formula(SG_T("a+b*x"));							break;
+	case 1:	Trend.Set_Formula(SG_T("a+b*x+c*x*x"));						break;
+	case 2:	Trend.Set_Formula(SG_T("a+b*x+c*x*x+d*x^3"));				break;
+	case 3:	Trend.Set_Formula(SG_T("a+b*x+c*x*x+d*x^3+e*x^4"));			break;
+	case 4:	Trend.Set_Formula(SG_T("a+b*x+c*x*x+d*x^3+e*x^4+f*x^5"));	break;
+	}
+
+	if( nGrids < Trend.Get_Parameter_Count() + 1 )
+	{
+		Error_Set(_TL("fitting a polynom of ith order needs at least i + 1 parameter sets given"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	pParms->Del_Items();
+
+	for(i=0; i<Trend.Get_Parameter_Count(); i++)
 	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			int		n	= 0;
-			double	d	= 0.0;
-
-			for(int i=0; i<pGrids->Get_Count(); i++)
-			{
-				if( pGrids->asGrid(i)->is_InGrid(x, y) )
-				{
-					n	++;
-					d	+= pGrids->asGrid(i)->asDouble(x, y);
-				}
-			}
-
-			if( n > 0 )
-			{
-				pResult->Set_Value(x, y, d);
-			}
-			else
-			{
-				pResult->Set_NoData(x, y);
-			}
-		}
+		pParms->Add_Item(SG_Create_Grid(*Get_System()));
+		pParms->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), _TL("Polynomial Coefficient"), i + 1));
 	}
 
 	//-----------------------------------------------------
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CGrids_Product::CGrids_Product(void)
-{
-	Set_Name		(_TL("Grids Product"));
-
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
-
-	Set_Description	(_TW(
-		"Cellwise multiplication of grid values."
-	));
-
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, _TL("Grids"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "RESULT"	, _TL("Product"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGrids_Product::On_Execute(void)
-{
-	CSG_Grid				*pResult;
-	CSG_Parameter_Grid_List	*pGrids;
-
-	//-----------------------------------------------------
-	pGrids	= Parameters("GRIDS")	->asGridList();
-	pResult	= Parameters("RESULT")	->asGrid();
-
-	//-----------------------------------------------------
-	if( pGrids->Get_Count() < 1 )
+	if( pQuality )
 	{
-		Error_Set(_TL("no grid in list"));
-
-		return( false );
+		pQuality->Set_Name(CSG_String::Format(SG_T("%s"), _TL("Polynomial Trend Quality")));
 	}
 
 	//-----------------------------------------------------
@@ -280,31 +212,40 @@ bool CGrids_Product::On_Execute(void)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int		n	= 0;
-			double	d	= 0.0;
+			Trend.Clr_Data();
 
-			for(int i=0; i<pGrids->Get_Count(); i++)
+			for(i=0; i<nGrids; i++)
 			{
-				if( pGrids->asGrid(i)->is_InGrid(x, y) )
+				if( !pGrids->asGrid(i)->is_NoData(x, y) )
 				{
-					if( n++ < 1 )
+					if( pYGrids )
 					{
-						d 	 = pGrids->asGrid(i)->asDouble(x, y);
+						Trend.Add_Data(pYGrids->asGrid(i)->asDouble(x, y) , pGrids->asGrid(i)->asDouble(x, y));
 					}
 					else
 					{
-						d	*= pGrids->asGrid(i)->asDouble(x, y);
+						Trend.Add_Data(pYTable->Get_Record(i)->asDouble(0), pGrids->asGrid(i)->asDouble(x, y));
 					}
 				}
 			}
 
-			if( n > 0 )
+			if( Trend.Get_Trend() )
 			{
-				pResult->Set_Value(x, y, d);
+				for(i=0; i<Trend.Get_Parameter_Count(); i++)
+				{
+					pParms->asGrid(i)->Set_Value(x, y, Trend.Get_Parameters()[i]);
+				}
+
+				if( pQuality )	pQuality->Set_Value(x, y, Trend.Get_R2());
 			}
 			else
 			{
-				pResult->Set_NoData(x, y);
+				for(i=0; i<Trend.Get_Parameter_Count(); i++)
+				{
+					pParms->asGrid(i)->Set_NoData(x, y);
+				}
+
+				if( pQuality )	pQuality->Set_NoData(x, y);
 			}
 		}
 	}

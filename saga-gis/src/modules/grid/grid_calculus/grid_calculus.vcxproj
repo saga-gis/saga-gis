@@ -562,6 +562,7 @@
     <ClCompile Include="FuzzyAND.cpp" />
     <ClCompile Include="FuzzyOR.cpp" />
     <ClCompile Include="gradient_cartes_polar.cpp" />
+    <ClCompile Include="grids_trend_polynom.cpp" />
     <ClCompile Include="Grid_Calculator.cpp" />
     <ClCompile Include="grid_difference.cpp" />
     <ClCompile Include="Grid_Geometric_Figures.cpp" />
@@ -601,6 +602,7 @@
     <ClInclude Include="FuzzyAND.h" />
     <ClInclude Include="FuzzyOR.h" />
     <ClInclude Include="gradient_cartes_polar.h" />
+    <ClInclude Include="grids_trend_polynom.h" />
     <ClInclude Include="Grid_Calculator.h" />
     <ClInclude Include="grid_difference.h" />
     <ClInclude Include="Grid_Geometric_Figures.h" />

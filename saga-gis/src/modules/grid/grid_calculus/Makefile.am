@@ -26,6 +26,7 @@ Grid_Plotter.cpp\
 Grid_Random_Field.cpp\
 Grid_Random_Terrain.cpp\
 Grid_Volume.cpp\
+grids_trend_polynom.cpp\
 MLB_Interface.cpp\
 Fuzzify.h\
 FuzzyAND.h\
@@ -40,6 +41,7 @@ Grid_Plotter.h\
 Grid_Random_Field.h\
 Grid_Random_Terrain.h\
 Grid_Volume.h\
+grids_trend_polynom.h\
 MLB_Interface.h
 
 libgrid_calculus_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

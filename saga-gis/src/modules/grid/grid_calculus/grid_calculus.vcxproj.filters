@@ -56,6 +56,9 @@
     <ClCompile Include="grid_metric_conversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grids_trend_polynom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -149,6 +152,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_metric_conversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grids_trend_polynom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
