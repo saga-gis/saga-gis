@@ -541,90 +541,161 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 //---------------------------------------------------------
 void CWKSP_Grid::_LUT_Create(void)
 {
+	int				Type;
+	CSG_Colors		*pColors;
+	CSG_Table		*pLUT;
+
+	//-----------------------------------------------------
 	static CSG_Parameters	Parameters;
 
 	if( Parameters.Get_Count() == 0 )
 	{
 		Parameters.Create(NULL, LNG("Create Lookup Table"), LNG(""));
-		Parameters.Add_Colors(NULL, "COLOR"	, LNG("Colors")	, LNG(""));
+
+		Parameters.Add_Colors(
+			NULL, "COLOR"	, LNG("Colors"),
+			LNG("")
+		)->asColors()->Set_Count(10);
+
+		Parameters.Add_Choice(
+			NULL, "TYPE"	, LNG("Classification Type"),
+			LNG(""),
+			CSG_String::Format(SG_T("%s|%s|%s|"),
+				LNG("unique values"),
+				LNG("equal intervals"),
+				LNG("quantiles")
+			), 1
+		);
+	}
+
+	if( !DLG_Parameters(&Parameters) )
+	{
+		return;
 	}
 
 	//-----------------------------------------------------
-	if( DLG_Parameters(&Parameters) )
+	pColors	= Parameters("COLOR")	->asColors();
+	Type	= Parameters("TYPE")	->asInt();
+
+	pLUT	= m_Parameters("LUT")	->asTable();
+	pLUT	->Del_Records();
+
+	switch( Type )
 	{
-		int					i, n, x, y;
-		double				dValue, dStep, eValue;
-		CSG_String			sValue;
-		CSG_Colors			*pColors;
-		CSG_Table_Record	*pRecord_LUT;
-		CSG_Table			*pLUT;
-
-		//-------------------------------------------------
-		pColors	= Parameters("COLOR")->asColors();
-
-		pLUT	= m_Parameters("LUT")->asTable();
-		pLUT	->Del_Records();
-
-		for(i=0, n=0; i<m_pGrid->Get_NCells() && n < pColors->Get_Count() && PROGRESSBAR_Set_Position(i, m_pGrid->Get_NCells()); i++)
+	//-----------------------------------------------------
+	case 0:	// unique values
 		{
-			if( m_pGrid->Get_Sorted(i, x, y) && (n == 0 || dValue != m_pGrid->asDouble(x, y)) )
+			double		Value;
+
+			for(long iCell=0, jCell; iCell<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(iCell, m_pGrid->Get_NCells()); iCell++)
 			{
-				dValue		= m_pGrid->asDouble(x, y);
-				n++;
-			}
-		}
-
-		//-------------------------------------------------
-		if( n >= pColors->Get_Count() )
-		{
-			dValue	= m_pGrid->Get_ZMin();
-			dStep	= m_pGrid->Get_ZRange() / pColors->Get_Count();
-
-			for(i=0; i<pColors->Get_Count(); i++)
-			{
-				eValue		 = dValue;
-				dValue		+= dStep;
-				sValue		 = SG_Get_String(eValue, SG_Get_Significant_Decimals(eValue), false);
-				sValue		+= SG_T(" - ");
-				sValue		+= SG_Get_String(dValue, SG_Get_Significant_Decimals(dValue), false);
-
-				pRecord_LUT	= pLUT->Add_Record();
-				pRecord_LUT	->Set_Value(0, pColors->Get_Color(i));
-				pRecord_LUT	->Set_Value(1, sValue);			// Name
-				pRecord_LUT	->Set_Value(2, sValue);			// Description
-				pRecord_LUT	->Set_Value(3, eValue);			// Minimum
-				pRecord_LUT	->Set_Value(4, dValue);			// Maximum
-			}
-		}
-		else
-		{
-			pColors->Set_Count(n);
-
-			for(i=0, n=0; i<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, m_pGrid->Get_NCells()); i++)
-			{
-				if( m_pGrid->Get_Sorted(i, x, y) && (pLUT->Get_Record_Count() == 0 || dValue != m_pGrid->asDouble(x, y)) )
+				if( m_pGrid->Get_Sorted(iCell, jCell, false) && (pLUT->Get_Record_Count() == 0 || Value != m_pGrid->asDouble(jCell)) )
 				{
-					dValue		= m_pGrid->asDouble(x, y);
-					sValue		= SG_Get_String(dValue, SG_Get_Significant_Decimals(dValue), false);
+					Value	= m_pGrid->asDouble(jCell);
 
-					pRecord_LUT	= pLUT->Add_Record();
-					pRecord_LUT	->Set_Value(0, pColors->Get_Color(n++));
-					pRecord_LUT	->Set_Value(1, sValue);		// Name
-					pRecord_LUT	->Set_Value(2, sValue);		// Description
-					pRecord_LUT	->Set_Value(3, dValue);		// Minimum
-					pRecord_LUT	->Set_Value(4, dValue);		// Maximum
+					CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+					pClass->Set_Value(1, SG_Get_String(Value, -2));		// Name
+					pClass->Set_Value(2, SG_Get_String(Value, -2));		// Description
+					pClass->Set_Value(3, Value);						// Minimum
+					pClass->Set_Value(4, Value);						// Maximum
 				}
 			}
+
+			pColors->Set_Count(pLUT->Get_Count());
+
+			for(int iClass=0; iClass<pLUT->Get_Count(); iClass++)
+			{
+				pLUT->Get_Record(iClass)->Set_Value(0, pColors->Get_Color(iClass));
+			}
 		}
+		break;
 
-		PROGRESSBAR_Set_Position(0);
+	//-----------------------------------------------------
+	case 1:	// equal intervals
+		{
+			double	Minimum, Maximum, Interval;
 
-		DataObject_Changed();
+			Interval	= m_pGrid->Get_ZRange() / (double)pColors->Get_Count();
+			Minimum		= m_pGrid->Get_ZMin  ();
 
-		m_Parameters("COLORS_TYPE")		->Set_Value(1);		// Lookup Table
+			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, Minimum+=Interval)
+			{
+				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : m_pGrid->Get_ZMax() + 1.0;
 
-		Parameters_Changed();
+				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
+					SG_Get_String(Minimum, -2).c_str(),
+					SG_Get_String(Maximum, -2).c_str()
+				);
+
+				CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+				pClass->Set_Value(0, pColors->Get_Color(iClass));
+				pClass->Set_Value(1, sValue);	// Name
+				pClass->Set_Value(2, sValue);	// Description
+				pClass->Set_Value(3, Minimum);	// Minimum
+				pClass->Set_Value(4, Maximum);	// Maximum
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case 2:	// quantiles
+		{
+			if( m_pGrid->Get_NCells() < pColors->Get_Count() )
+			{
+				pColors->Set_Count(m_pGrid->Get_NCells());
+			}
+
+			long	jCell, nCells;
+			double	Minimum, Maximum, iCell, Count;
+
+			Maximum	= m_pGrid->Get_ZMin();
+			nCells	= m_pGrid->Get_NCells() - m_pGrid->Get_NoData_Count();
+			iCell	= Count	= nCells / (double)pColors->Get_Count();
+
+			for(iCell=0.0; iCell<m_pGrid->Get_NCells(); iCell++)
+			{
+				if( m_pGrid->Get_Sorted((long)iCell, jCell, false) )
+				{
+					break;
+				}
+			}
+
+			iCell	+= Count;
+
+			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iCell+=Count)
+			{
+				m_pGrid->Get_Sorted((long)iCell, jCell, false);
+
+				Minimum	= Maximum;
+				Maximum	= iCell < m_pGrid->Get_NCells() ? m_pGrid->asDouble(jCell) : m_pGrid->Get_ZMax() + 1.0;
+
+				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
+					SG_Get_String(Minimum, -2).c_str(),
+					SG_Get_String(Maximum, -2).c_str()
+				);
+
+				CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+				pClass->Set_Value(0, pColors->Get_Color(iClass));
+				pClass->Set_Value(1, sValue);	// Name
+				pClass->Set_Value(2, sValue);	// Description
+				pClass->Set_Value(3, Minimum);	// Minimum
+				pClass->Set_Value(4, Maximum);	// Maximum
+			}
+		}
+		break;
 	}
+
+	//-----------------------------------------------------
+	PROGRESSBAR_Set_Position(0);
+
+	DataObject_Changed();
+
+	m_Parameters("COLORS_TYPE")->Set_Value(1);	// Lookup Table
+
+	Parameters_Changed();
 }
 
 

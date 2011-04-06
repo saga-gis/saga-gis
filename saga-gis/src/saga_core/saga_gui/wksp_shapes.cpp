@@ -533,122 +533,204 @@ void CWKSP_Shapes::On_Update_Views(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::_LUT_Create(void)
 {
-	int						iField, iRecord, old_Field, iID;
-	double					dValue;
-	TSG_Table_Index_Order	old_Order;
-	CSG_Colors				*pColors;
-	CSG_String				sFields, sValue;
-	CSG_Table_Record		*pRecord, *pRecord_LUT;
-	CSG_Table				*pTable, *pLUT;
-	CSG_Parameters			Parameters;
+	int				iField, jField, Type;
+	CSG_Colors		*pColors;
+	CSG_Table		*pTable, *pLUT;
 
+	//-----------------------------------------------------
 	pTable	= Get_Table()->Get_Table();
 
 	if( pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() < 1 )
 	{
 		DLG_Message_Show(LNG("Function failed because no attributes are available"), LNG("Create Lookup Table"));
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	static CSG_Parameters	Parameters;
+
+	if( Parameters.Get_Count() == 0 )
+	{
+		CSG_String	sFields;
+
+		for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+		{
+			sFields	+= pTable->Get_Field_Name(iField);	sFields	+= SG_T("|");
+		}
+
+		Parameters.Create(NULL, LNG("Create Lookup Table"), LNG(""));
+
+		Parameters.Add_Choice(
+			NULL, "FIELD"	, LNG("Attribute"),
+			LNG(""),
+			sFields
+		);
+
+		Parameters.Add_Colors(
+			NULL, "COLOR"	, LNG("Colors"),
+			LNG("")
+		)->asColors()->Set_Count(10);
+
+		Parameters.Add_Choice(
+			NULL, "TYPE"	, LNG("Classification Type"),
+			LNG(""),
+			CSG_String::Format(SG_T("%s|%s|%s|"),
+				LNG("unique values"),
+				LNG("equal intervals"),
+				LNG("quantiles")
+			), 0
+		);
+	}
+
+	if( !DLG_Parameters(&Parameters) )
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
+	pColors	= Parameters("COLOR")	->asColors();
+	iField	= Parameters("FIELD")	->asInt();
+
+	if( pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
+	{
+		Type	= 0;	// unique values
+		jField	= pTable->Get_Field_Count();
+		pTable->Add_Field(CSG_String::Format(wxT("%s_LUT"), pTable->Get_Field_Name(iField)), SG_DATATYPE_Int);
 	}
 	else
 	{
-		for(iField=0; iField<pTable->Get_Field_Count(); iField++)
-		{
-			sFields.Append(pTable->Get_Field_Name(iField));
-			sFields.Append(wxT("|"));
-		}
-
-		Parameters.Create(NULL, LNG("Choose Attribute"), LNG(""));
-		Parameters.Add_Choice(NULL, "FIELD"	, LNG("Attribute")	, LNG(""), sFields);
-		Parameters.Add_Colors(NULL, "COLOR"	, LNG("Colors")		, LNG(""));
-
-		if( DLG_Parameters(&Parameters) )
-		{
-			iField		= Parameters("FIELD")	->asInt();
-			pColors		= Parameters("COLOR")	->asColors();
-
-			if( pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
-			{
-				pTable->Add_Field(CSG_String::Format(wxT("%s_LUT"), pTable->Get_Field_Name(iField)), SG_DATATYPE_Int);
-				iID		= pTable->Get_Field_Count() - 1;
-			}
-			else
-			{
-				iID		= iField;
-			}
-
-			pLUT	= m_Parameters("LUT")	->asTable();
-			pLUT	->Del_Records();
-
-			if( pColors->Get_Count() < pTable->Get_Count() )	// equal intervals
-			{
-				double	dClass;
-
-				dValue	= pTable->Get_Minimum(iField);
-				dClass	= pTable->Get_Range  (iField) / pColors->Get_Count();
-
-				for(iRecord=0; iRecord<pColors->Get_Count(); iRecord++, dValue+=dClass)
-				{
-					sValue.Printf(SG_T("%f - %f"), dValue, dValue + dClass);
-
-					pRecord_LUT	= pLUT->Add_Record();
-					pRecord_LUT	->Set_Value(0, pColors->Get_Color(iRecord));
-					pRecord_LUT	->Set_Value(1, sValue.c_str());		// Name
-					pRecord_LUT	->Set_Value(2, sValue.c_str());		// Description
-					pRecord_LUT	->Set_Value(3, dValue);				// Minimum
-					pRecord_LUT	->Set_Value(4, dValue + dClass);	// Maximum
-				}
-			}
-			else	// unique values
-			{
-				old_Order	= pTable->Get_Index_Order(0);
-				old_Field	= pTable->Get_Index_Field(0);
-
-				pTable->Set_Index(iField, TABLE_INDEX_Ascending);
-				sValue		= pTable->Get_Record_byIndex(0)->asString(iField);
-				dValue		= iID != iField ? 1.0 : pTable->Get_Record_byIndex(0)->asDouble(iField);
-
-				for(iRecord=0; iRecord<pTable->Get_Record_Count(); iRecord++)
-				{
-					pRecord	= pTable->Get_Record_byIndex(iRecord);
-
-					if( iRecord == 0 || sValue.Cmp(pRecord->asString(iField)) )
-					{
-						if( iRecord > 0 )
-						{
-							sValue		= pRecord->asString(iField);
-							dValue		= iID != iField ? dValue + 1.0 : pRecord->asDouble(iField);
-						}
-
-						pRecord_LUT	= pLUT->Add_Record();
-						pRecord_LUT	->Set_Value(1, sValue.c_str());	// Name
-						pRecord_LUT	->Set_Value(2, sValue.c_str());	// Description
-						pRecord_LUT	->Set_Value(3, dValue);			// Minimum
-						pRecord_LUT	->Set_Value(4, dValue);			// Maximum
-					}
-
-					if( iID != iField )
-					{
-						pRecord->Set_Value(iID, dValue);
-					}
-				}
-
-				pColors->Set_Count(pLUT->Get_Record_Count());
-
-				for(iRecord=0; iRecord<pLUT->Get_Record_Count(); iRecord++)
-				{
-					pLUT->Get_Record(iRecord)->Set_Value(0, pColors->Get_Color(iRecord));
-				}
-
-				pTable->Set_Index(old_Field, old_Order);
-			}
-
-			DataObject_Changed();
-
-			m_Parameters("COLORS_TYPE")		->Set_Value(1);		// Lookup Table
-			m_Parameters("COLORS_ATTRIB")	->Set_Value(iID);
-
-			Parameters_Changed();
-		}
+		Type	= Parameters("TYPE")->asInt();
+		jField	= iField;
 	}
+
+	pLUT	= m_Parameters("LUT")->asTable();
+	pLUT	->Del_Records();
+
+	switch( Type )
+	{
+	//-----------------------------------------------------
+	case 0:	// unique values
+		{
+			TSG_Table_Index_Order	old_Order	= pTable->Get_Index_Order(0);
+			int						old_Field	= pTable->Get_Index_Field(0);
+
+			pTable->Set_Index(iField, TABLE_INDEX_Ascending);
+
+			double		dValue;
+			CSG_String	sValue;
+
+			for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+			{
+				CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(iRecord);
+
+				if( iRecord == 0 || sValue.Cmp(pRecord->asString(iField)) )
+				{
+					sValue	= pRecord->asString(iField);
+					dValue	= jField != iField ? 1 + iRecord : pRecord->asDouble(iField);
+
+					CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+					pClass->Set_Value(1, sValue);	// Name
+					pClass->Set_Value(2, sValue);	// Description
+					pClass->Set_Value(3, dValue);	// Minimum
+					pClass->Set_Value(4, dValue);	// Maximum
+				}
+
+				if( jField != iField )
+				{
+					pRecord->Set_Value(jField, dValue);
+				}
+			}
+
+			pColors->Set_Count(pLUT->Get_Count());
+
+			for(int iClass=0; iClass<pLUT->Get_Count(); iClass++)
+			{
+				pLUT->Get_Record(iClass)->Set_Value(0, pColors->Get_Color(iClass));
+			}
+
+			pTable->Set_Index(old_Field, old_Order);
+		}
+		break;
+
+	//-----------------------------------------------------
+	case 1:	// equal intervals
+		{
+			double	Minimum, Maximum, Interval;
+
+			Interval	= pTable->Get_Range  (iField) / (double)pColors->Get_Count();
+			Minimum		= pTable->Get_Minimum(iField);
+
+			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, Minimum+=Interval)
+			{
+				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : pTable->Get_Maximum(iField) + 1.0;
+
+				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
+					SG_Get_String(Minimum, -2).c_str(),
+					SG_Get_String(Maximum, -2).c_str()
+				);
+
+				CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+				pClass->Set_Value(0, pColors->Get_Color(iClass));
+				pClass->Set_Value(1, sValue);	// Name
+				pClass->Set_Value(2, sValue);	// Description
+				pClass->Set_Value(3, Minimum);	// Minimum
+				pClass->Set_Value(4, Maximum);	// Maximum
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case 2:	// quantiles
+		{
+			TSG_Table_Index_Order	old_Order	= pTable->Get_Index_Order(0);
+			int						old_Field	= pTable->Get_Index_Field(0);
+
+			pTable->Set_Index(iField, TABLE_INDEX_Ascending);
+
+			if( pTable->Get_Count() < pColors->Get_Count() )
+			{
+				pColors->Set_Count(pTable->Get_Count());
+			}
+
+			double	Minimum, Maximum, Count, iRecord;
+
+			Maximum	= pTable->Get_Minimum(iField);
+			iRecord	= Count	= pTable->Get_Count() / (double)pColors->Get_Count();
+
+			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iRecord+=Count)
+			{
+				Minimum	= Maximum;
+				Maximum	= iRecord < pTable->Get_Count() ? pTable->Get_Record_byIndex((int)iRecord)->asDouble(iField) : pTable->Get_Maximum(iField) + 1.0;
+
+				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
+					SG_Get_String(Minimum, -2).c_str(),
+					SG_Get_String(Maximum, -2).c_str()
+				);
+
+				CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+				pClass->Set_Value(0, pColors->Get_Color(iClass));
+				pClass->Set_Value(1, sValue);	// Name
+				pClass->Set_Value(2, sValue);	// Description
+				pClass->Set_Value(3, Minimum);	// Minimum
+				pClass->Set_Value(4, Maximum);	// Maximum
+			}
+
+			pTable->Set_Index(old_Field, old_Order);
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	DataObject_Changed();
+
+	m_Parameters("COLORS_TYPE")  ->Set_Value(1);	// Lookup Table
+	m_Parameters("COLORS_ATTRIB")->Set_Value(jField);
+
+	Parameters_Changed();
 }
 
 
