@@ -93,7 +93,7 @@
 //---------------------------------------------------------
 CModule_Library::CModule_Library(void)
 {
-	m_pSelected	= NULL;
+	m_pModule	= NULL;
 	m_pCMD		= NULL;
 }
 
@@ -146,7 +146,7 @@ void CModule_Library::Destroy(void)
 	}
 
 	m_pCMD		= NULL;
-	m_pSelected	= NULL;
+	m_pModule	= NULL;
 
 	m_Library.Destroy();
 }
@@ -171,39 +171,41 @@ CSG_Module * CModule_Library::Select(const SG_Char *ModuleName)
 		m_pCMD	= NULL;
 	}
 
-	for(i=0, m_pSelected=NULL; i<Get_Count() && !m_pSelected; i++)
+	for(i=0, m_pModule=NULL; i<Get_Count() && !m_pModule; i++)
 	{
 		if( Get_Module(i) && !SG_STR_CMP(ModuleName, Get_Module(i)->Get_Name()) )
 		{
-			m_pSelected	= Get_Module(i);
+			m_pModule	= Get_Module(i);
 		}
 	}
 
-	if( !m_pSelected )
+	if( !m_pModule )
 	{
 		long		l;
 		wxString	s(ModuleName);
 
 		if( s.ToLong(&l) )
 		{
-			m_pSelected	= Get_Module((int)l);
+			m_pModule	= Get_Module((int)l);
 		}
 	}
 
 	//-----------------------------------------------------
-	if( m_pSelected )
+	if( m_pModule )
 	{
 		m_pCMD	= new wxCmdLineParser;
 
-		_Set_CMD(m_pSelected->Get_Parameters(), false);
+		m_pModule->Set_Managed();
 
-		for(i=0; i<m_pSelected->Get_Parameters_Count(); i++)
+		_Set_CMD(m_pModule->Get_Parameters(), false);
+
+		for(i=0; i<m_pModule->Get_Parameters_Count(); i++)
 		{
-			_Set_CMD(m_pSelected->Get_Parameters(i), true);
+			_Set_CMD(m_pModule->Get_Parameters(i), true);
 		}
 	}
 
-	return( m_pSelected );
+	return( m_pModule );
 }
 
 
@@ -218,7 +220,7 @@ bool CModule_Library::Execute(int argc, char *argv[])
 {
 	bool	bResult	= false;
 
-	if( m_pSelected && m_pCMD )
+	if( m_pModule && m_pCMD )
 	{
 		m_Data_Objects.Clear();
 
@@ -231,11 +233,11 @@ bool CModule_Library::Execute(int argc, char *argv[])
 			return( true );
 		}
 
-		if( _Get_CMD(m_pSelected->Get_Parameters()) && m_pSelected->On_Before_Execution() )
+		if( _Get_CMD(m_pModule->Get_Parameters()) && m_pModule->On_Before_Execution() )
 		{
-			bResult	= m_pSelected->Execute();
+			bResult	= m_pModule->Execute();
 
-			m_pSelected->On_After_Execution();
+			m_pModule->On_After_Execution();
 		}
 
 		_Destroy_DataObjects(bResult);
@@ -245,7 +247,7 @@ bool CModule_Library::Execute(int argc, char *argv[])
 
 	if( !bResult )
 	{
-		Print_Error(LNG("executing module"), m_pSelected->Get_Name());
+		Print_Error(LNG("executing module"), m_pModule->Get_Name());
 	}
 
 	return( bResult );
@@ -713,13 +715,13 @@ bool CModule_Library::Add_DataObject(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 bool CModule_Library::_Destroy_DataObjects(bool bSave)
 {
-	if( m_pSelected && m_pCMD )
+	if( m_pModule && m_pCMD )
 	{
-		_Destroy_DataObjects(bSave, m_pSelected->Get_Parameters());
+		_Destroy_DataObjects(bSave, m_pModule->Get_Parameters());
 
-		for(int i=0; i<m_pSelected->Get_Parameters_Count(); i++)
+		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
 		{
-			_Destroy_DataObjects(bSave, m_pSelected->Get_Parameters(i));
+			_Destroy_DataObjects(bSave, m_pModule->Get_Parameters(i));
 		}
 
 		return( true );

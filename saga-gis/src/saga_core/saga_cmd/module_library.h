@@ -122,7 +122,7 @@ public:
 	CSG_Module *				Get_Module				(int i)		{	return( m_Library.Get_Module(i) );	}
 
 	class CSG_Module *			Select					(const SG_Char *ModuleName);
-	class CSG_Module *			Get_Selected			(void)		{	return( m_pSelected );	}
+	class CSG_Module *			Get_Selected			(void)		{	return( m_pModule );	}
 
 	bool						Execute					(int argc, char *argv[]);
 
@@ -132,7 +132,7 @@ public:
 
 private:
 
-	CSG_Module					*m_pSelected;
+	CSG_Module					*m_pModule;
 
 	CSG_Module_Library			m_Library;
 
