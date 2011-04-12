@@ -74,7 +74,7 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Trend Surface"));
+	Set_Name		(_TL("Polynomial Regression"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
@@ -95,12 +95,6 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Details"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
 	Parameters.Add_Shapes(
 		NULL	, "RESIDUALS"	, _TL("Residuals"),
 		_TL(""),
@@ -108,12 +102,38 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Trend Surface Type"),
+		NULL	, "POLYNOM"		, _TL("Polynom"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("first order polynom"),
-			_TL("second order polynom")
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("simple planar surface"),	// a + bx + cy
+			_TL("bi-linear saddle"),		// a + bx + cy + dxy
+			_TL("quadratic surface"),		// a + bx + cy + dxy + ex2 + fy2
+			_TL("cubic surface"),			// a + bx + cy + dxy + ex2 + fy2 + gx2y + hxy2 + ix3 + iy3
+			_TL("user defined")
 		), 0
+	);
+
+	pNode	= Parameters.Add_Node(
+		NULL	, "NODE_USER"	, _TL("User Defined Polynomial"),
+		_TL("")
+	);
+
+	Parameters.Add_Value(
+		pNode	, "XORDER"		, _TL("Maximum X Order"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 4, 1, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "YORDER"		, _TL("Maximum Y Order"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 4, 1, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "TORDER"		, _TL("Maximum Total Order"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 4, 0, true
 	);
 
 	//-----------------------------------------------------
@@ -153,25 +173,35 @@ int CPoint_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CPoint_Trend_Surface::On_Execute(void)
 {
-	int			iAttribute, Type;
-	CSG_Table	*pTable;
+	int			iAttribute;
 	CSG_Shapes	*pPoints, *pResiduals;
 	CSG_Grid	*pRegression;
 
 	//-----------------------------------------------------
-	pTable		= Parameters("TABLE")		->asTable();
 	pPoints		= Parameters("POINTS")		->asShapes();
 	pResiduals	= Parameters("RESIDUALS")	->asShapes();
 	iAttribute	= Parameters("ATTRIBUTE")	->asInt();
-	Type		= Parameters("TYPE")		->asInt();
+
+	switch( Parameters("POLYNOM")->asInt() )
+	{
+	case 0:	m_xOrder = 1; m_yOrder = 1; m_tOrder = 1;	break;	// simple planar surface	// a + bx + cy
+	case 1:	m_xOrder = 1; m_yOrder = 1; m_tOrder = 2;	break;	// bi-linear saddle"),		// a + bx + cy + dxy
+	case 2:	m_xOrder = 2; m_yOrder = 2; m_tOrder = 2;	break;	// quadratic surface"),		// a + bx + cy + dxy + ex2 + fy2
+	case 3:	m_xOrder = 3; m_yOrder = 3; m_tOrder = 3;	break;	// cubic surface"),			// a + bx + cy + dxy + ex2 + fy2 + gx2y + hxy2 + ix3 + iy3
+	case 4:
+		m_xOrder	= Parameters("XORDER")->asInt();
+		m_yOrder	= Parameters("YORDER")->asInt();
+		m_tOrder	= Parameters("TORDER")->asInt();
+		break;
+	}
 
 	//-----------------------------------------------------
-	if( !Get_Regression(pPoints, iAttribute, Type) )
+	if( !Get_Regression(pPoints, iAttribute) )
 	{
 		return( false );
 	}
 
-	Set_Message(Type);
+	Set_Message();
 
 	//-----------------------------------------------------
 	pRegression		= NULL;
@@ -201,18 +231,11 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	//-----------------------------------------------------
 	pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pPoints->Get_Name(), Get_Name()));
 
-	Set_Regression(pRegression, Type);
+	Set_Regression(pRegression);
 
 	Set_Residuals(pPoints, iAttribute, pResiduals, pRegression);
 
-	if( pTable )
-	{
-		pTable->Assign(m_Regression.Get_Result());
-
-		pTable->Set_Name(_TL("Trend Surface Analysis"));
-	}
-
-	m_Regression.Destroy();
+	m_Coefficients.Destroy();
 
 	return( true );
 }
@@ -225,22 +248,65 @@ bool CPoint_Trend_Surface::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute, int Type)
+CSG_String CPoint_Trend_Surface::Get_Power(const SG_Char *Value, int Power)
+{
+	if( Power > 0 )
+	{
+		if( Power > 1 )
+		{
+			return( CSG_String::Format(SG_T("%s%d"), Value, Power) );
+		}
+
+		return( Value );
+	}
+
+	return( SG_T("") );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 {
 	//-----------------------------------------------------
-	CSG_Table	Table;
+	int		i, j, Field;
 
-	Table.Add_Field(pPoints->Get_Name(), SG_DATATYPE_Double);
+	m_Names.Clear();
 
-	Table.Add_Field(SG_T("X"), SG_DATATYPE_Double);
-	Table.Add_Field(SG_T("Y"), SG_DATATYPE_Double);
+	m_Names	+= pPoints->Get_Name();
 
-	if( Type == 1 )
+	for(i=1; i<=m_xOrder; i++)
 	{
-		Table.Add_Field(SG_T("XY"), SG_DATATYPE_Double);
-		Table.Add_Field(SG_T("X2"), SG_DATATYPE_Double);
-		Table.Add_Field(SG_T("Y2"), SG_DATATYPE_Double);
+		m_Names	+= Get_Power(SG_T("x"), i);
 	}
+
+	for(i=1; i<=m_yOrder; i++)
+	{
+		m_Names	+= Get_Power(SG_T("y"), i);
+
+		for(j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
+		{
+			m_Names	+= Get_Power(SG_T("x"), j) + Get_Power(SG_T("y"), i);
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Vector	Y, xPow, yPow;
+	CSG_Matrix	X;
+
+	Y.Create(pPoints->Get_Count());
+	X.Create(m_Names.Get_Count(), pPoints->Get_Count());
+	
+	xPow.Create(m_xOrder + 1);
+	yPow.Create(m_yOrder + 1);
+
+	xPow[0]	= 1.0;
+	yPow[0]	= 1.0;
 
 	//-----------------------------------------------------
 	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
@@ -249,59 +315,76 @@ bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute, i
 
 		if( !pShape->is_NoData(iAttribute) )
 		{
-			double	zShape	= pShape->asDouble(iAttribute);
+			double		zShape	= pShape->asDouble(iAttribute);
+			TSG_Point	Point	= pShape->Get_Point(0);
 
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			Y[iShape]		= zShape;
+			X[iShape][0]	= 1.0;
+
+			for(i=1, Field=1; i<=m_xOrder; i++)
 			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				X[iShape][Field++]	= xPow[i]	= xPow[i - 1] * Point.x;
+			}
+
+			for(i=1; i<=m_yOrder; i++)
+			{
+				X[iShape][Field++]	= yPow[i]	= yPow[i - 1] * Point.y;
+
+				for(j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
 				{
-					TSG_Point			Point		= pShape->Get_Point(iPoint, iPart);
-					CSG_Table_Record	*pRecord	= Table.Add_Record();
-
-					pRecord->Set_Value(0, zShape);
-
-					pRecord->Set_Value(1, Point.x);
-					pRecord->Set_Value(2, Point.y);
-
-					if( Type == 1 )
-					{
-						pRecord->Set_Value(3, Point.x * Point.y);
-						pRecord->Set_Value(4, Point.x * Point.x);
-						pRecord->Set_Value(5, Point.y * Point.y);
-					}
+					X[iShape][Field++]	= xPow[j] * yPow[i];
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	return( m_Regression.Calculate(Table) );
+	CSG_Matrix	Xt, XtXinv;
+
+	Xt		= X;
+	Xt		.Set_Transpose();
+
+	XtXinv	= Xt * X;
+	XtXinv	.Set_Inverse();
+
+	m_Coefficients	= XtXinv * Xt * Y;
+
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CPoint_Trend_Surface::Set_Regression(CSG_Grid *pRegression, int Type)
+bool CPoint_Trend_Surface::Set_Regression(CSG_Grid *pRegression)
 {
-	int			x, y;
+	int			x, y, i, j, Field;
 	double		z;
-	TSG_Point	p;
+	TSG_Point	Point;
+	CSG_Vector	xPow(m_xOrder + 1), yPow(m_yOrder + 1);
 
-	for(y=0, p.y=pRegression->Get_YMin(); y<pRegression->Get_NY() && Set_Progress(y, pRegression->Get_NY()); y++, p.y+=pRegression->Get_Cellsize())
+	xPow[0]	= 1.0;
+	yPow[0]	= 1.0;
+
+	for(y=0, Point.y=pRegression->Get_YMin(); y<pRegression->Get_NY() && Set_Progress(y, pRegression->Get_NY()); y++, Point.y+=pRegression->Get_Cellsize())
 	{
-		for(x=0, p.x=pRegression->Get_XMin(); x<pRegression->Get_NX(); x++, p.x+=pRegression->Get_Cellsize())
+		for(x=0, Point.x=pRegression->Get_XMin(); x<pRegression->Get_NX(); x++, Point.x+=pRegression->Get_Cellsize())
 		{
-			z	 = m_Regression.Get_RConst();
+			z	 = m_Coefficients[0];
 
-			z	+= m_Regression.Get_RCoeff(0) * p.x;
-			z	+= m_Regression.Get_RCoeff(1) * p.y;
-
-			if( Type == 1 )
+			for(i=1, Field=1; i<=m_xOrder; i++)
 			{
-				z	+= m_Regression.Get_RCoeff(2) * p.x * p.y;
-				z	+= m_Regression.Get_RCoeff(3) * p.x * p.x;
-				z	+= m_Regression.Get_RCoeff(4) * p.y * p.y;
+				z	+= m_Coefficients[Field++] * (xPow[i] = xPow[i - 1] * Point.x);
 			}
 
-			pRegression->Set_Value (x, y, z);
+			for(i=1; i<=m_yOrder; i++)
+			{
+				z	+= m_Coefficients[Field++] * (yPow[i] = yPow[i - 1] * Point.y);
+
+				for(j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
+				{
+					z	+= m_Coefficients[Field++] * xPow[j] * yPow[i];
+				}
+			}
+
+			pRegression->Set_Value(x, y, z);
 		}
 	}
 
@@ -323,7 +406,7 @@ bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CS
 	{
 		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Residuals")));
 		pResiduals->Add_Field(pPoints->Get_Field_Name(iAttribute), SG_DATATYPE_Double);
-		pResiduals->Add_Field("TREND"	, SG_DATATYPE_Double);
+		pResiduals->Add_Field("POLYNOM" , SG_DATATYPE_Double);
 		pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
 		//-------------------------------------------------
@@ -360,36 +443,30 @@ bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CS
 }
 
 //---------------------------------------------------------
-void CPoint_Trend_Surface::Set_Message(int Type)
+void CPoint_Trend_Surface::Set_Message(void)
 {
+	int			i;
 	CSG_String	s;
 
 	//-----------------------------------------------------
 	s	+= CSG_String::Format(SG_T("\n%s:"), _TL("Regression"));
-	s	+= CSG_String::Format(SG_T("\n Y = %f"), m_Regression.Get_RConst( ));
-	s	+= CSG_String::Format(SG_T(" %+f*x")   , m_Regression.Get_RCoeff(0));
-	s	+= CSG_String::Format(SG_T(" %+f*y")   , m_Regression.Get_RCoeff(1));
 
-	if( Type == 1 )
+	//-----------------------------------------------------
+	s	+= CSG_String::Format(SG_T("\n z = A"));
+
+	for(i=1; i<m_Coefficients.Get_N(); i++)
 	{
-		s	+= CSG_String::Format(SG_T(" %+f*xy"), m_Regression.Get_RCoeff(2));
-		s	+= CSG_String::Format(SG_T(" %+f*xx"), m_Regression.Get_RCoeff(3));
-		s	+= CSG_String::Format(SG_T(" %+f*yy"), m_Regression.Get_RCoeff(4));
+		s	+= CSG_String::Format(SG_T(" + %c%s"), 'A' + i, m_Names[i].c_str());
 	}
 
 	s	+= SG_T("\n");
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("\n%s:"), _TL("Correlation"));
+	s	+= CSG_String::Format(SG_T("\n z = %f"), m_Coefficients[0]);
 
-	s	+= CSG_String::Format(SG_T("\nR\xc2\xb2 = %2.2f%% [%02.2f%%] -> x"), 100.0 * m_Regression.Get_R2(0), 100.0 * m_Regression.Get_R2_Change(0));
-	s	+= CSG_String::Format(SG_T("\nR\xc2\xb2 = %2.2f%% [%02.2f%%] -> y"), 100.0 * m_Regression.Get_R2(1), 100.0 * m_Regression.Get_R2_Change(1));
-
-	if( Type == 1 )
+	for(i=1; i<m_Coefficients.Get_N(); i++)
 	{
-		s	+= CSG_String::Format(SG_T("\nR\xc2\xb2 = %2.2f%% [%02.2f%%] -> xy"), 100.0 * m_Regression.Get_R2(2), 100.0 * m_Regression.Get_R2_Change(2));
-		s	+= CSG_String::Format(SG_T("\nR\xc2\xb2 = %2.2f%% [%02.2f%%] -> xx"), 100.0 * m_Regression.Get_R2(3), 100.0 * m_Regression.Get_R2_Change(3));
-		s	+= CSG_String::Format(SG_T("\nR\xc2\xb2 = %2.2f%% [%02.2f%%] -> yy"), 100.0 * m_Regression.Get_R2(4), 100.0 * m_Regression.Get_R2_Change(4));
+		s	+= CSG_String::Format(SG_T(" %+f*%s"), m_Coefficients[i], m_Names[i].c_str());
 	}
 
 	s	+= SG_T("\n");

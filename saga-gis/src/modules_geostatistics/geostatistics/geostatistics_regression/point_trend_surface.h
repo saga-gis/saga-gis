@@ -88,15 +88,21 @@ protected:
 
 private:
 
+	int							m_xOrder, m_yOrder, m_tOrder;
+
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Regression_Multiple		m_Regression;
+	CSG_Vector					m_Coefficients;
 
+	CSG_Strings					m_Names;
 
-	bool						Get_Regression			(CSG_Shapes *pPoints, int iAttribute, int Type);
-	bool						Set_Regression			(CSG_Grid *pRegression, int Type);
+	CSG_String					Get_Power				(const SG_Char *Value, int Power);
+
+	bool						Get_Regression			(CSG_Shapes *pPoints, int iAttribute);
+	bool						Set_Regression			(CSG_Grid *pRegression);
+
 	bool						Set_Residuals			(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
-	void						Set_Message				(int Type);
+	void						Set_Message				(void);
 
 };
 
