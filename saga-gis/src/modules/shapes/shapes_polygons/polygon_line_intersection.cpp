@@ -748,11 +748,14 @@ bool Trace_Polygon(CSG_Shape *pPolygon, CSG_Network &Network, int iEdge)
 		iEdge		= Network.Get_Node(End_Node).Get_Edge_Next(iEdge, false);
 		pEdge		= Network.Get_Edges().Get_Shape(iEdge);
 
-		bAscending	= pEdge->asInt(3) == SHAPE_TYPE_Polygon || End_Node == pEdge->asInt(1);
-
-		if( (pEdge->asInt(4) & (bAscending ? 0x1 : 0x2)) )
+		if( pEdge )
 		{
-			pEdge	= NULL;
+			bAscending	= pEdge->asInt(3) == SHAPE_TYPE_Polygon || End_Node == pEdge->asInt(1);
+
+			if( (pEdge->asInt(4) & (bAscending ? 0x1 : 0x2)) )
+			{
+				pEdge	= NULL;
+			}
 		}
 	}
 
