@@ -73,46 +73,54 @@
 //---------------------------------------------------------
 CGrid_Profile_From_Lines::CGrid_Profile_From_Lines(void)
 {
+	CSG_Parameter	*pNode;
+
 	Set_Name		(_TL("Profiles from Lines"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2006"));
 
 	Set_Description	(_TW(
 		"Create profiles from a grid based DEM for each line of a lines layer. "
 	));
 
 	Parameters.Add_Grid(
-		NULL, "DEM"			, _TL("DEM"),
+		NULL	, "DEM"			, _TL("DEM"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL, "VALUES"		, _TL("Values"),
+		NULL	, "VALUES"		, _TL("Values"),
 		_TL("Additional values that shall be saved to the output table."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL, "LINES"		, _TL("Lines"),
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "LINES"		, _TL("Lines"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
+	Parameters.Add_Table_Field(
+		pNode	, "NAME"		, _TL("Name"),
+		_TL("naming for splitted lines"),
+		true
+	);
+
 	Parameters.Add_Shapes(
-		NULL, "PROFILE"		, _TL("Profiles"),
+		NULL	, "PROFILE"		, _TL("Profiles"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL, "PROFILES"	, _TL("Profiles"),
+		NULL	, "PROFILES"	, _TL("Profiles"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Value(
-		NULL, "SPLIT"		, _TL("Each Line as new Profile"),
+		NULL	, "SPLIT"		, _TL("Each Line as new Profile"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
@@ -132,13 +140,13 @@ CGrid_Profile_From_Lines::~CGrid_Profile_From_Lines(void)
 //---------------------------------------------------------
 bool CGrid_Profile_From_Lines::On_Execute(void)
 {
-	int			iLine;
-	CSG_String	Name;
+	int			iLine, iName;
 
 	//-----------------------------------------------------
 	m_pDEM		= Parameters("DEM")		->asGrid();
 	m_pValues	= Parameters("VALUES")	->asGridList();
 	m_pLines	= Parameters("LINES")	->asShapes();
+	iName		= Parameters("NAME")	->asInt();
 
 	//-----------------------------------------------------
 	if( Parameters("SPLIT")->asBool() == false )
@@ -148,8 +156,7 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 			Parameters("PROFILE")->Set_Value(m_pProfile = SG_Create_Shapes(SHAPE_TYPE_Point));
 		}
 
-		Name.Printf(SG_T("%s [%s]"), _TL("Profile"), m_pDEM->Get_Name());
-		Init_Profile(m_pProfile, Name);
+		Init_Profile(m_pProfile, CSG_String::Format(SG_T("%s [%s]"), _TL("Profile"), m_pDEM->Get_Name()));
 
 		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
 		{
@@ -166,8 +173,10 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 
 		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
 		{
-			Name.Printf(SG_T("%s [%d, %s]"), _TL("Profile"), iLine, m_pDEM->Get_Name());
-			Init_Profile(m_pProfile = SG_Create_Shapes(), Name);
+			Init_Profile(m_pProfile = SG_Create_Shapes(), iName < 0
+				? CSG_String::Format(SG_T("%s [%s, %d]"), m_pDEM->Get_Name(), _TL("Profile"), iName)
+				: CSG_String::Format(SG_T("%s [%s, %s]"), m_pDEM->Get_Name(), _TL("Profile"), m_pLines->Get_Shape(iLine)->asInt(iName))
+			);
 
 			Set_Profile(iLine, m_pLines->Get_Shape(iLine));
 
