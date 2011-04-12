@@ -126,6 +126,21 @@ bool CPolygon_To_Points::On_Execute(void)
 			pPoints->Add_Field(SG_T("LAKE")		, SG_DATATYPE_String);
 		}
 
+		switch( pShapes->Get_Vertex_Type() )
+		{
+		case SG_VERTEX_TYPE_XY:
+			break;
+
+		case SG_VERTEX_TYPE_XYZ:
+			pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Double);
+			break;
+
+		case SG_VERTEX_TYPE_XYZM:
+			pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Double);
+			pPoints->Add_Field(SG_T("M"), SG_DATATYPE_Double);
+			break;
+		}
+
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
@@ -138,15 +153,32 @@ bool CPolygon_To_Points::On_Execute(void)
 
 					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
 
-					pPoint->Set_Value(0, CSG_String::Format(SG_T("%d/%d/%d"), iShape, iPart, iPoint));
-					pPoint->Set_Value(1, iShape);
-					pPoint->Set_Value(2, iPart);
-					pPoint->Set_Value(3, iPoint);
+					int	n	= 0;
+
+					pPoint->Set_Value(n++, CSG_String::Format(SG_T("%d/%d/%d"), iShape, iPart, iPoint));
+					pPoint->Set_Value(n++, iShape);
+					pPoint->Set_Value(n++, iPart);
+					pPoint->Set_Value(n++, iPoint);
 
 					if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
 					{
-						pPoint->Set_Value(4, ((CSG_Shape_Polygon *)pShape)->is_Clockwise(iPart) ? SG_T("Y") : SG_T("N"));
-						pPoint->Set_Value(5, ((CSG_Shape_Polygon *)pShape)->is_Lake     (iPart) ? SG_T("Y") : SG_T("N"));
+						pPoint->Set_Value(n++, ((CSG_Shape_Polygon *)pShape)->is_Clockwise(iPart) ? SG_T("Y") : SG_T("N"));
+						pPoint->Set_Value(n++, ((CSG_Shape_Polygon *)pShape)->is_Lake     (iPart) ? SG_T("Y") : SG_T("N"));
+					}
+
+					switch( pShapes->Get_Vertex_Type() )
+					{
+					case SG_VERTEX_TYPE_XY:
+						break;
+
+					case SG_VERTEX_TYPE_XYZ:
+						pPoint->Set_Value(n++, pShape->Get_Z(iPoint, iPart));
+						break;
+
+					case SG_VERTEX_TYPE_XYZM:
+						pPoint->Set_Value(n++, pShape->Get_Z(iPoint, iPart));
+						pPoint->Set_Value(n++, pShape->Get_M(iPoint, iPart));
+						break;
 					}
 				}
 			}
