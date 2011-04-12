@@ -324,15 +324,15 @@ public:
 	int							Set_Point			(double x, double y, int iPoint);
 	int							Del_Point			(                    int iPoint);
 
-	virtual void				Set_Z				(double z, int iPoint)	{			}
-	virtual double				Get_Z				(int iPoint)	{	return( 0.0 );	}
-	virtual double				Get_ZMin			(void)			{	return( 0.0 );	}
-	virtual double				Get_ZMax			(void)			{	return( 0.0 );	}
+	void						Set_Z				(double z, int iPoint)	{	if( m_Z && iPoint >= 0 && iPoint < m_nPoints )	{	m_Z[iPoint]	= z; _Invalidate();	}	}
+	double						Get_Z				(int iPoint)			{	return( m_Z && iPoint >= 0 && iPoint < m_nPoints ?	m_Z[iPoint]	: 0.0 );	}
+	double						Get_ZMin			(void)					{	_Update_Extent(); return( m_ZMin );	}
+	double						Get_ZMax			(void)					{	_Update_Extent(); return( m_ZMax );	}
 
-	virtual void				Set_M				(double m, int iPoint)	{			}
-	virtual double				Get_M				(int iPoint)	{	return( 0.0 );	}
-	virtual double				Get_MMin			(void)			{	return( 0.0 );	}
-	virtual double				Get_MMax			(void)			{	return( 0.0 );	}
+	void						Set_M				(double m, int iPoint)	{	if( m_M && iPoint >= 0 && iPoint < m_nPoints ) {	m_M[iPoint]	= m; _Invalidate();	}	}
+	double						Get_M				(int iPoint)			{	return( m_M && iPoint >= 0 && iPoint < m_nPoints ?	m_M[iPoint]	: 0.0 );	}
+	double						Get_MMin			(void)					{	_Update_Extent(); return( m_MMin );	}
+	double						Get_MMax			(void)					{	_Update_Extent(); return( m_MMax );	}
 
 
 protected:
@@ -345,6 +345,8 @@ protected:
 
 	int							m_nPoints, m_nBuffer;
 
+	double						*m_Z, m_ZMin, m_ZMax, *m_M, m_MMin, m_MMax;
+
 	TSG_Point					*m_Points;
 
 	CSG_Rect					m_Extent;
@@ -354,70 +356,6 @@ protected:
 
 	virtual bool				_Alloc_Memory		(int nPoints);
 	virtual void				_Invalidate			(void);
-	virtual void				_Update_Extent		(void);
-
-};
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Shape_Part_Z : public CSG_Shape_Part
-{
-	friend class CSG_Shape_Points;
-	friend class CSG_Shape_Line;
-	friend class CSG_Shape_Polygon;
-
-public:
-
-	virtual bool				Destroy				(void);
-	virtual bool				Assign				(CSG_Shape_Part *pPart);
-
-	virtual void				Set_Z				(double z, int iPoint)	{	if( iPoint >= 0 && iPoint < m_nPoints )	{	m_Z[iPoint]	= z; _Invalidate();	}	}
-	virtual double				Get_Z				(int iPoint)			{	return( iPoint >= 0 && iPoint < m_nPoints ?	m_Z[iPoint]	: 0.0 );	}
-	virtual double				Get_ZMin			(void)					{	_Update_Extent(); return( m_ZMin );	}
-	virtual double				Get_ZMax			(void)					{	_Update_Extent(); return( m_ZMax );	}
-
-
-protected:
-
-	CSG_Shape_Part_Z(class CSG_Shape_Points *pOwner);
-	virtual ~CSG_Shape_Part_Z(void);
-
-
-	double						*m_Z, m_ZMin, m_ZMax;
-
-
-	virtual bool				_Alloc_Memory		(int nPoints);
-	virtual void				_Update_Extent		(void);
-
-};
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Shape_Part_ZM : public CSG_Shape_Part_Z
-{
-	friend class CSG_Shape_Points;
-	friend class CSG_Shape_Line;
-	friend class CSG_Shape_Polygon;
-
-public:
-
-	virtual bool				Destroy				(void);
-	virtual bool				Assign				(CSG_Shape_Part *pPart);
-
-	virtual void				Set_M				(double m, int iPoint)	{	if( iPoint >= 0 && iPoint < m_nPoints ) {	m_M[iPoint]	= m; _Invalidate();	}	}
-	virtual double				Get_M				(int iPoint)			{	return( iPoint >= 0 && iPoint < m_nPoints ?	m_M[iPoint]	: 0.0 );	}
-	virtual double				Get_MMin			(void)					{	_Update_Extent(); return( m_MMin );	}
-	virtual double				Get_MMax			(void)					{	_Update_Extent(); return( m_MMax );	}
-
-
-protected:
-
-	CSG_Shape_Part_ZM(class CSG_Shape_Points *pOwner);
-	virtual ~CSG_Shape_Part_ZM(void);
-
-
-	double						*m_M, m_MMin, m_MMax;
-
-
-	virtual bool				_Alloc_Memory		(int nPoints);
 	virtual void				_Update_Extent		(void);
 
 };
@@ -502,7 +440,7 @@ protected:
 
 	int							_Add_Part			(void);
 
-	virtual CSG_Shape_Part *	_Get_Part			(void);
+	virtual CSG_Shape_Part *	_Get_Part			(void)	{	return( new CSG_Shape_Part(this) );	}
 
 	virtual void				_Invalidate			(void)
 	{

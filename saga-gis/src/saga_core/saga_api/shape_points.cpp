@@ -145,19 +145,6 @@ int CSG_Shape_Points::_Add_Part(void)
 }
 
 //---------------------------------------------------------
-CSG_Shape_Part * CSG_Shape_Points::_Get_Part(void)
-{
-	switch( ((CSG_Shapes *)Get_Table())->Get_Vertex_Type() )
-	{
-	default:
-	case SG_VERTEX_TYPE_XY:		return( new CSG_Shape_Part   (this) );
-	case SG_VERTEX_TYPE_XYZ:	return( new CSG_Shape_Part_Z (this) );
-	case SG_VERTEX_TYPE_XYZM:	return( new CSG_Shape_Part_ZM(this) );
-	}
-}
-
-
-//---------------------------------------------------------
 int CSG_Shape_Points::Del_Part(int del_Part)
 {
 	if( del_Part >= 0 && del_Part < m_nParts )
