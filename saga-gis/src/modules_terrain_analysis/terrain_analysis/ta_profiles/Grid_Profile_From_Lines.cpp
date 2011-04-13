@@ -156,7 +156,7 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 			Parameters("PROFILE")->Set_Value(m_pProfile = SG_Create_Shapes(SHAPE_TYPE_Point));
 		}
 
-		Init_Profile(m_pProfile, CSG_String::Format(SG_T("%s [%s]"), _TL("Profile"), m_pDEM->Get_Name()));
+		Init_Profile(m_pProfile, CSG_String::Format(SG_T("%s [%s]"), m_pDEM->Get_Name(), _TL("Profile")));
 
 		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
 		{
@@ -174,8 +174,8 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
 		{
 			Init_Profile(m_pProfile = SG_Create_Shapes(), iName < 0
-				? CSG_String::Format(SG_T("%s [%s, %d]"), m_pDEM->Get_Name(), _TL("Profile"), iName)
-				: CSG_String::Format(SG_T("%s [%s, %s]"), m_pDEM->Get_Name(), _TL("Profile"), m_pLines->Get_Shape(iLine)->asInt(iName))
+				? CSG_String::Format(SG_T("%s [%s %d]"), m_pDEM->Get_Name(), _TL("Profile"), iLine + 1)
+				: CSG_String::Format(SG_T("%s [%s %s]"), m_pDEM->Get_Name(), _TL("Profile"), m_pLines->Get_Shape(iLine)->asString(iName))
 			);
 
 			Set_Profile(iLine, m_pLines->Get_Shape(iLine));
