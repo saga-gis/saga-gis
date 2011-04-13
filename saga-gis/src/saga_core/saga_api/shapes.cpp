@@ -555,15 +555,18 @@ bool CSG_Shapes::Make_Clean(void)
 			//--------------------------------------------
 			// ring direction !
 
-			if( (pPolygon->is_Lake(iPart) == false && pPolygon->is_Clockwise(iPart) == false)
-			||	(pPolygon->is_Lake(iPart) ==  true && pPolygon->is_Clockwise(iPart) ==  true) )
+			if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart) == false) )
 			{
 				for(int i=0, j=pPolygon->Get_Point_Count(iPart)-1; i<j; i++, j--)
 				{
 					TSG_Point	iPoint	= pPolygon->Get_Point(i, iPart);
 					TSG_Point	jPoint	= pPolygon->Get_Point(j, iPart);
+
 					pPolygon->Set_Point(iPoint.x, iPoint.y, j, iPart);
 					pPolygon->Set_Point(jPoint.x, jPoint.y, i, iPart);
+
+					double	z	= pPolygon->Get_Z(i, iPart); pPolygon->Set_Z(pPolygon->Get_Z(j), i, iPart); pPolygon->Set_Z(z, j, iPart);
+					double	m	= pPolygon->Get_M(i, iPart); pPolygon->Set_M(pPolygon->Get_M(j), i, iPart); pPolygon->Set_M(m, j, iPart);
 				}
 			}
 
