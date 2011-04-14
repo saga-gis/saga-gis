@@ -254,12 +254,32 @@ int CSG_Shape_Part::Ins_Point(double x, double y, int iPoint)
 		for(int i=m_nPoints; i>iPoint; i--)
 		{
 			m_Points[i]	= m_Points[i - 1];
+
+			if( m_Z )
+			{
+				m_Z[i]	= m_Z[i - 1];
+
+				if( m_M )
+				{
+					m_M[i]	= m_M[i - 1];
+				}
+			}
 		}
 
 		m_nPoints++;
 
 		m_Points[iPoint].x	= x;
 		m_Points[iPoint].y	= y;
+
+		if( m_Z )
+		{
+			m_Z[iPoint]	= 0.0;
+
+			if( m_M )
+			{
+				m_M[iPoint]	= 0.0;
+			}
+		}
 
 		_Invalidate();
 
@@ -286,15 +306,25 @@ int CSG_Shape_Part::Set_Point(double x, double y, int iPoint)
 }
 
 //---------------------------------------------------------
-int CSG_Shape_Part::Del_Point(int del_Point)
+int CSG_Shape_Part::Del_Point(int iPoint)
 {
-	if( del_Point >= 0 && del_Point < m_nPoints )
+	if( iPoint >= 0 && iPoint < m_nPoints )
 	{
 		m_nPoints--;
 
-		for(int iPoint=del_Point; iPoint<m_nPoints; iPoint++)
+		for(int i=iPoint; i<m_nPoints; i++)
 		{
-			m_Points[iPoint]	= m_Points[iPoint + 1];
+			m_Points[i]	= m_Points[i + 1];
+
+			if( m_Z )
+			{
+				m_Z[i]	= m_Z[i + 1];
+
+				if( m_M )
+				{
+					m_M[i]	= m_M[i + 1];
+				}
+			}
 		}
 
 		_Alloc_Memory(m_nPoints);
@@ -334,23 +364,23 @@ void CSG_Shape_Part::_Update_Extent(void)
 	}
 
 	//-----------------------------------------------------
+	int						i;
+	TSG_Point				*p;
 	CSG_Simple_Statistics	x, y, z, m;
 
-	for(int i=0; i<m_nPoints; i++)
+	for(i=0, p=m_Points; i<m_nPoints; i++, p++)
 	{
-		TSG_Point	*p	= m_Points + i;
-
 		x.Add_Value(p->x);
 		y.Add_Value(p->y);
 
 		if( m_Z )
 		{
 			z.Add_Value(m_Z[i]);
-		}
 
-		if( m_M )
-		{
-			m.Add_Value(m_M[i]);
+			if( m_M )
+			{
+				m.Add_Value(m_M[i]);
+			}
 		}
 	}
 

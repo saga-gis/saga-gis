@@ -88,8 +88,9 @@ public:
 	bool						Can_Read			(int Index)					const;
 	bool						Can_Write			(int Index)					const;
 
-	static TSG_Shape_Type		Get_Shape_Type		(int            Type);
-	static int					Get_Shape_Type		(TSG_Shape_Type Type);
+	static TSG_Vertex_Type		Get_Vertex_Type		(int Type);
+	static TSG_Shape_Type		Get_Shape_Type		(int Type);
+	static int					Get_Shape_Type		(TSG_Shape_Type Type, bool bZ);
 
 	static TSG_Data_Type		Get_Data_Type		(int            Type);
 	static int					Get_Data_Type		(TSG_Data_Type  Type);
@@ -125,6 +126,7 @@ public:
 	int							Get_Count			(void);
 	class OGRLayer *			Get_Layer			(int iLayer);
 	TSG_Shape_Type				Get_Type			(int iLayer);
+	TSG_Vertex_Type				Get_Coordinate_Type	(int iLayer);
 
 	CSG_Shapes *				Read				(int iLayer);
 	bool						Write				(CSG_Shapes *pShapes);
@@ -139,8 +141,8 @@ private:
 	bool						_Read_Line			(CSG_Shape *pShape, class OGRLineString *pLine);
 	bool						_Read_Polygon		(CSG_Shape *pShape, class OGRPolygon *pPolygon);
 
-	bool						_Write_Geometry		(CSG_Shape *pShape, class OGRFeature *pFeature);
-	bool						_Write_Line			(CSG_Shape *pShape, class OGRLineString *pLine, int iPart);
+	bool						_Write_Geometry		(CSG_Shape *pShape, class OGRFeature *pFeature, bool bZ);
+	bool						_Write_Line			(CSG_Shape *pShape, class OGRLineString *pLine, int iPart, bool bZ);
 
 };
 

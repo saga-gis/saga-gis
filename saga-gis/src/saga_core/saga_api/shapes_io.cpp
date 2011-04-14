@@ -670,7 +670,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 					}
 				}
 
-				if( m_Vertex_Type == SG_VERTEX_TYPE_XYZM )
+			//	if( m_Vertex_Type == SG_VERTEX_TYPE_XYZM )
 				{
 					fSHP.Write_Double(pShape->Get_MMin());
 					fSHP.Write_Double(pShape->Get_MMax());

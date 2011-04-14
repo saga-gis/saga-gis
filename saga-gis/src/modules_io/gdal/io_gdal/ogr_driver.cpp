@@ -180,51 +180,70 @@ bool CSG_OGR_Drivers::Can_Write(int Index) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+TSG_Vertex_Type CSG_OGR_Drivers::Get_Vertex_Type(int Type)
+{
+	switch( Type )
+	{
+	case wkbPoint25D:				// 2.5D extension as per 99-402
+	case wkbMultiPoint25D:			// 2.5D extension as per 99-402
+	case wkbLineString25D:			// 2.5D extension as per 99-402
+	case wkbMultiLineString25D:		// 2.5D extension as per 99-402
+	case wkbPolygon25D:				// 2.5D extension as per 99-402
+	case wkbMultiPolygon25D:		// 2.5D extension as per 99-402
+	case wkbGeometryCollection25D:	// 2.5D extension as per 99-402 
+		return( SG_VERTEX_TYPE_XYZ );
+
+	default:
+		return( SG_VERTEX_TYPE_XY );
+	}
+}
+
+//---------------------------------------------------------
 TSG_Shape_Type CSG_OGR_Drivers::Get_Shape_Type(int Type)
 {
 	switch( Type )
 	{
 	case wkbPoint:					// 0-dimensional geometric object, standard WKB
+	case wkbPoint25D:				// 2.5D extension as per 99-402
 		return( SHAPE_TYPE_Point );
 
 	case wkbMultiPoint:				// GeometryCollection of Points, standard WKB
+	case wkbMultiPoint25D:			// 2.5D extension as per 99-402
 		return( SHAPE_TYPE_Points );
 
 	case wkbLineString:				// 1-dimensional geometric object with linear interpolation between Points, standard WKB
 	case wkbMultiLineString:		// GeometryCollection of LineStrings, standard WKB
+	case wkbLineString25D:			// 2.5D extension as per 99-402
+	case wkbMultiLineString25D:		// 2.5D extension as per 99-402
 		return( SHAPE_TYPE_Line );
 
 	case wkbPolygon:				// planar 2-dimensional geometric object defined by 1 exterior boundary and 0 or more interior boundaries, standard WKB
 	case wkbMultiPolygon:			// GeometryCollection of Polygons, standard WKB
+	case wkbPolygon25D:				// 2.5D extension as per 99-402
+	case wkbMultiPolygon25D:		// 2.5D extension as per 99-402
 		return( SHAPE_TYPE_Polygon );
 
 	default:
 	case wkbUnknown:				// unknown type, non-standard
-	case wkbGeometryCollection:		// geometric object that is a collection of 1 or more geometric objects, standard WKB
 	case wkbNone:					// non-standard, for pure attribute records
 	case wkbLinearRing:				// non-standard, just for createGeometry()
-	case wkbPoint25D:				// 2.5D extension as per 99-402
-	case wkbLineString25D:			// 2.5D extension as per 99-402
-	case wkbPolygon25D:				// 2.5D extension as per 99-402
-	case wkbMultiPoint25D:			// 2.5D extension as per 99-402
-	case wkbMultiLineString25D:		// 2.5D extension as per 99-402
-	case wkbMultiPolygon25D:		// 2.5D extension as per 99-402
+	case wkbGeometryCollection:		// geometric object that is a collection of 1 or more geometric objects, standard WKB
 	case wkbGeometryCollection25D:	// 2.5D extension as per 99-402 
 		return( SHAPE_TYPE_Undefined );
 	}
 }
 
 //---------------------------------------------------------
-int CSG_OGR_Drivers::Get_Shape_Type(TSG_Shape_Type Type)
+int CSG_OGR_Drivers::Get_Shape_Type(TSG_Shape_Type Type, bool bZ)
 {
 	switch( Type )
 	{
-	case SHAPE_TYPE_Point:	 	return( wkbPoint );				// point
-	case SHAPE_TYPE_Points: 	return( wkbMultiPoint );		// points
-	case SHAPE_TYPE_Line: 		return( wkbMultiLineString );	// line
-	case SHAPE_TYPE_Polygon:	return( wkbMultiPolygon );		// polygon
+	case SHAPE_TYPE_Point:	 	return( bZ ? wkbPoint25D           : wkbPoint           );	// point
+	case SHAPE_TYPE_Points: 	return( bZ ? wkbMultiPoint25D      : wkbMultiPoint      );	// points
+	case SHAPE_TYPE_Line: 		return( bZ ? wkbMultiLineString25D : wkbMultiLineString );	// line
+	case SHAPE_TYPE_Polygon:	return( bZ ? wkbMultiPolygon25D    : wkbMultiPolygon    );	// polygon
 
-	default:					return( wkbUnknown );
+	default:	return( wkbUnknown );
 	}
 }
 
@@ -380,12 +399,23 @@ OGRLayer * CSG_OGR_DataSource::Get_Layer(int iLayer)
 //---------------------------------------------------------
 TSG_Shape_Type CSG_OGR_DataSource::Get_Type(int iLayer)
 {
-	if( m_pDataSource && iLayer >= 0 && iLayer < m_pDataSource->GetLayerCount() )
+	if( Get_Layer(iLayer) )
 	{
-		return( CSG_OGR_Drivers::Get_Shape_Type(m_pDataSource->GetLayer(iLayer)->GetLayerDefn()->GetGeomType()) );
+		return( CSG_OGR_Drivers::Get_Shape_Type(Get_Layer(iLayer)->GetLayerDefn()->GetGeomType()) );
 	}
 
 	return( SHAPE_TYPE_Undefined );
+}
+
+//---------------------------------------------------------
+TSG_Vertex_Type CSG_OGR_DataSource::Get_Coordinate_Type(int iLayer)
+{
+	if( Get_Layer(iLayer) )
+	{
+		return( CSG_OGR_Drivers::Get_Vertex_Type(Get_Layer(iLayer)->GetLayerDefn()->GetGeomType()) );
+	}
+
+	return( SG_VERTEX_TYPE_XY );
 }
 
 
@@ -406,7 +436,7 @@ CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer)
 		int				iField;
 		OGRFeature		*pFeature;
 		OGRFeatureDefn	*pDef		= pLayer->GetLayerDefn();
-		CSG_Shapes		*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(pDef->GetName()));
+		CSG_Shapes		*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(pDef->GetName()), NULL, Get_Coordinate_Type(iLayer));
 
 		for(iField=0; iField<pDef->GetFieldCount(); iField++)
 		{
@@ -465,21 +495,27 @@ bool CSG_OGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometr
 		{
 		//-------------------------------------------------
 		case wkbPoint:				// 0-dimensional geometric object, standard WKB
+		case wkbPoint25D:			// 2.5D extension as per 99-402
 			pShape->Add_Point(((OGRPoint *)pGeometry)->getX(), ((OGRPoint *)pGeometry)->getY());
 			return( true );
 
 		//-------------------------------------------------
 		case wkbLineString:			// 1-dimensional geometric object with linear interpolation between Points, standard WKB
+		case wkbLineString25D:		// 2.5D extension as per 99-402
 			return( _Read_Line(pShape, (OGRLineString *)pGeometry) );
 
 		//-------------------------------------------------
 		case wkbPolygon:			// planar 2-dimensional geometric object defined by 1 exterior boundary and 0 or more interior boundaries, standard WKB
+		case wkbPolygon25D:			// 2.5D extension as per 99-402
 			return( _Read_Polygon(pShape, (OGRPolygon *)pGeometry) );
 
 		//-------------------------------------------------
 		case wkbMultiPoint:			// GeometryCollection of Points, standard WKB
+		case wkbMultiPoint25D:		// 2.5D extension as per 99-402
 		case wkbMultiLineString:	// GeometryCollection of LineStrings, standard WKB
+		case wkbMultiLineString25D:	// 2.5D extension as per 99-402
 		case wkbMultiPolygon:		// GeometryCollection of Polygons, standard WKB
+		case wkbMultiPolygon25D:	// 2.5D extension as per 99-402
 			{
 				for(int i=0; i<((OGRGeometryCollection *)pGeometry)->getNumGeometries(); i++)
 				{
@@ -511,6 +547,8 @@ bool CSG_OGR_DataSource::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
 		for(int iPoint=0; iPoint<pLine->getNumPoints(); iPoint++)
 		{
 			pShape->Add_Point(pLine->getX(iPoint), pLine->getY(iPoint), iPart);
+
+			pShape->Set_Z(pLine->getZ(iPoint), iPoint, iPart);
 		}
 
 		return( true );
@@ -547,10 +585,11 @@ bool CSG_OGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 //---------------------------------------------------------
 bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 {
+	bool		bZ	= pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY;
 	OGRLayer	*pLayer;
 
 	//-----------------------------------------------------
-	if( m_pDataSource && pShapes && pShapes->is_Valid() && (pLayer = m_pDataSource->CreateLayer(SG_STR_SGTOMB(pShapes->Get_Name()), NULL, (OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type()))) != NULL )
+	if( m_pDataSource && pShapes && pShapes->is_Valid() && (pLayer = m_pDataSource->CreateLayer(SG_STR_SGTOMB(pShapes->Get_Name()), NULL, (OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), bZ))) != NULL )
 	{
 		bool			bResult	= true;
 		int				iField;
@@ -599,7 +638,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 				}
 			}
 
-			if( !_Write_Geometry(pShape, pFeature) || pLayer->CreateFeature(pFeature) != OGRERR_NONE )
+			if( !_Write_Geometry(pShape, pFeature, bZ) || pLayer->CreateFeature(pFeature) != OGRERR_NONE )
 			{
 				bResult	= false;
 			}
@@ -615,7 +654,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature)
+bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, bool bZ)
 {
 	if( pShape && pFeature )
 	{
@@ -636,6 +675,11 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 			Point.setX(sgPoint.x);
 			Point.setY(sgPoint.y);
 
+			if( bZ )
+			{
+				Point.setZ(pShape->Get_Z(0));
+			}
+
 			return( pFeature->SetGeometry(&Point) == OGRERR_NONE );
 
 		//-------------------------------------------------
@@ -648,6 +692,11 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 					Point.setX(sgPoint.x);
 					Point.setY(sgPoint.y);
 
+					if( bZ )
+					{
+						Point.setZ(pShape->Get_Z(0));
+					}
+
 					Points.addGeometry(&Point);
 				}
 			}
@@ -658,7 +707,7 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 		case SHAPE_TYPE_Line:
 			if( pShape->Get_Part_Count() == 1 )
 			{
-				_Write_Line(pShape, &Line, 0);
+				_Write_Line(pShape, &Line, 0, bZ);
 
 				return( pFeature->SetGeometry(&Line) == OGRERR_NONE );
 			}
@@ -666,7 +715,7 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 			{
 				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					if( _Write_Line(pShape, &Line, iPart) )
+					if( _Write_Line(pShape, &Line, iPart, bZ) )
 					{
 						Lines.addGeometry(&Line);
 					}
@@ -679,7 +728,7 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 		case SHAPE_TYPE_Polygon:
 			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				if( _Write_Line(pShape, &Ring, iPart) )
+				if( _Write_Line(pShape, &Ring, iPart, bZ) )
 				{
 					Polygon.addRing(&Ring);
 				}
@@ -697,7 +746,7 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, int iPart)
+bool CSG_OGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, int iPart, bool bZ)
 {
 	if( pLine && pShape && iPart >= 0 && iPart < pShape->Get_Part_Count() )
 	{
@@ -707,7 +756,14 @@ bool CSG_OGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, in
 		{
 			TSG_Point	sgPoint	= pShape->Get_Point(iPoint, iPart);
 
-			pLine->addPoint(sgPoint.x, sgPoint.y);
+			if( bZ )
+			{
+				pLine->addPoint(sgPoint.x, sgPoint.y);
+			}
+			else
+			{
+				pLine->addPoint(sgPoint.x, sgPoint.y, pShape->Get_Z(iPoint, iPart));
+			}
 		}
 
 		return( true );
