@@ -545,14 +545,6 @@ bool CSG_Shapes::Make_Clean(void)
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 		{
 			//--------------------------------------------
-			// last point == first point !
-
-			if( !CSG_Point(pPolygon->Get_Point(0, iPart)).is_Equal(pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart)) )
-			{
-				((CSG_Shape *)pPolygon)->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
-			}
-
-			//--------------------------------------------
 			// ring direction: outer rings > clockwise, inner rings (lakes) > counterclockwise !
 
 			if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart)) )
@@ -577,6 +569,24 @@ bool CSG_Shapes::Make_Clean(void)
 							pPolygon->Set_M(pPolygon->Get_M(j, iPart), i, iPart);
 							pPolygon->Set_M(d                        , j, iPart);
 						}
+					}
+				}
+			}
+
+			//--------------------------------------------
+			// last point == first point !
+
+			if( !CSG_Point(pPolygon->Get_Point(0, iPart)).is_Equal(pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart)) )
+			{
+				((CSG_Shape *)pPolygon)->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
+
+				if( m_Vertex_Type != SG_VERTEX_TYPE_XY )
+				{
+					pPolygon->Set_Z(pPolygon->Get_Z(0, iPart), pPolygon->Get_Point_Count(iPart) - 1, iPart);
+
+					if( m_Vertex_Type == SG_VERTEX_TYPE_XYZM )
+					{
+						pPolygon->Set_M(pPolygon->Get_M(0, iPart), pPolygon->Get_Point_Count(iPart) - 1, iPart);
 					}
 				}
 			}
