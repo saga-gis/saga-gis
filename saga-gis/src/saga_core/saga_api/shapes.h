@@ -147,15 +147,15 @@ public:
 	virtual int					Get_Point_Count		(int iPart)										= 0;
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0, bool bAscending = true)	= 0;
 
-	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)	{		}
-	virtual double				Get_Z				(int iPoint, int iPart = 0)	{	return( 0.0 );	}
-	virtual double				Get_ZMin			(void)						{	return( 0.0 );	}
-	virtual double				Get_ZMax			(void)						{	return( 0.0 );	}
+	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)				{		}
+	virtual double				Get_Z				(int iPoint, int iPart = 0, bool bAscending = true)	{	return( 0.0 );	}
+	virtual double				Get_ZMin			(void)												{	return( 0.0 );	}
+	virtual double				Get_ZMax			(void)												{	return( 0.0 );	}
 
-	virtual void				Set_M				(double m, int iPoint, int iPart = 0)	{		}
-	virtual double				Get_M				(int iPoint, int iPart = 0)	{	return( 0.0 );	}
-	virtual double				Get_MMin			(void)						{	return( 0.0 );	}
-	virtual double				Get_MMax			(void)						{	return( 0.0 );	}
+	virtual void				Set_M				(double m, int iPoint, int iPart = 0)				{		}
+	virtual double				Get_M				(int iPoint, int iPart = 0, bool bAscending = true)	{	return( 0.0 );	}
+	virtual double				Get_MMin			(void)												{	return( 0.0 );	}
+	virtual double				Get_MMax			(void)												{	return( 0.0 );	}
 
 	//-----------------------------------------------------
 	virtual const CSG_Rect &	Get_Extent			(void)											= 0;
@@ -170,6 +170,8 @@ public:
 	virtual double				Get_Distance		(TSG_Point Point, int iPart)					= 0;
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next)				= 0;
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	= 0;
+
+	virtual bool				Revert_Points		(int iPart)	{	return( true );	}
 
 
 protected:
@@ -245,12 +247,12 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Point_Z : public CSG_Shape_Point
 
 public:
 
-	CSG_Shape_Point_Z(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point(pOwner, Index)		{	m_Z	= 0.0;	}
+	CSG_Shape_Point_Z(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point(pOwner, Index)				{	m_Z	= 0.0;	}
 
-	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)		{	m_Z	= z;	_Invalidate();	}
-	virtual double				Get_Z				(int iPoint, int iPart = 0)					{	return( m_Z );	}
-	virtual double				Get_ZMin			(void)										{	return( m_Z );	}
-	virtual double				Get_ZMax			(void)										{	return( m_Z );	}
+	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)				{	m_Z	= z;	_Invalidate();	}
+	virtual double				Get_Z				(int iPoint, int iPart = 0, bool bAscending = true)	{	return( m_Z );	}
+	virtual double				Get_ZMin			(void)												{	return( m_Z );	}
+	virtual double				Get_ZMax			(void)												{	return( m_Z );	}
 
 
 private:
@@ -266,12 +268,12 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Point_ZM : public CSG_Shape_Point_Z
 
 public:
 
-	CSG_Shape_Point_ZM(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point_Z(pOwner, Index)	{	m_M	= 0.0;	}
+	CSG_Shape_Point_ZM(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point_Z(pOwner, Index)			{	m_M	= 0.0;	}
 
-	virtual void				Set_M				(double m, int iPoint, int iPart = 0)		{	m_M	= m;	_Invalidate();	}
-	virtual double				Get_M				(int iPoint, int iPart = 0)					{	return( m_M );	}
-	virtual double				Get_MMin			(void)										{	return( m_M );	}
-	virtual double				Get_MMax			(void)										{	return( m_M );	}
+	virtual void				Set_M				(double m, int iPoint, int iPart = 0)				{	m_M	= m;	_Invalidate();	}
+	virtual double				Get_M				(int iPoint, int iPart = 0, bool bAscending = true)	{	return( m_M );	}
+	virtual double				Get_MMin			(void)												{	return( m_M );	}
+	virtual double				Get_MMax			(void)												{	return( m_M );	}
 
 
 private:
@@ -315,24 +317,26 @@ public:
 		return( CSG_Point(0.0, 0.0) );
 	}
 
-	int							Add_Point			(TSG_Point Point               )	{	return( Add_Point(Point.x, Point.y)         );	}
-	int							Ins_Point			(TSG_Point Point,    int iPoint)	{	return( Ins_Point(Point.x, Point.y, iPoint) );	}
-	int							Set_Point			(TSG_Point Point,    int iPoint)	{	return( Set_Point(Point.x, Point.y, iPoint) );	}
+	int							Add_Point			(TSG_Point Point               )		{	return( Add_Point(Point.x, Point.y)         );	}
+	int							Ins_Point			(TSG_Point Point,    int iPoint)		{	return( Ins_Point(Point.x, Point.y, iPoint) );	}
+	int							Set_Point			(TSG_Point Point,    int iPoint)		{	return( Set_Point(Point.x, Point.y, iPoint) );	}
 
 	int							Add_Point			(double x, double y            );
 	int							Ins_Point			(double x, double y, int iPoint);
 	int							Set_Point			(double x, double y, int iPoint);
 	int							Del_Point			(                    int iPoint);
 
-	void						Set_Z				(double z, int iPoint)	{	if( m_Z && iPoint >= 0 && iPoint < m_nPoints )	{	m_Z[iPoint]	= z; _Invalidate();	}	}
-	double						Get_Z				(int iPoint)			{	return( m_Z && iPoint >= 0 && iPoint < m_nPoints ?	m_Z[iPoint]	: 0.0 );	}
-	double						Get_ZMin			(void)					{	_Update_Extent(); return( m_ZMin );	}
-	double						Get_ZMax			(void)					{	_Update_Extent(); return( m_ZMax );	}
+	void						Set_Z				(double z, int iPoint)					{	if    ( m_Z && iPoint >= 0 && iPoint < m_nPoints ) { m_Z[iPoint] = z; _Invalidate(); }	}
+	double						Get_Z				(int iPoint, bool bAscending = true)	{	return( m_Z && iPoint >= 0 && iPoint < m_nPoints ?   m_Z[bAscending ? iPoint : m_nPoints - 1 - iPoint] : 0.0 );	}
+	double						Get_ZMin			(void)									{	_Update_Extent(); return( m_ZMin );	}
+	double						Get_ZMax			(void)									{	_Update_Extent(); return( m_ZMax );	}
 
-	void						Set_M				(double m, int iPoint)	{	if( m_M && iPoint >= 0 && iPoint < m_nPoints ) {	m_M[iPoint]	= m; _Invalidate();	}	}
-	double						Get_M				(int iPoint)			{	return( m_M && iPoint >= 0 && iPoint < m_nPoints ?	m_M[iPoint]	: 0.0 );	}
-	double						Get_MMin			(void)					{	_Update_Extent(); return( m_MMin );	}
-	double						Get_MMax			(void)					{	_Update_Extent(); return( m_MMax );	}
+	void						Set_M				(double m, int iPoint)					{	if    ( m_M && iPoint >= 0 && iPoint < m_nPoints ) { m_M[iPoint] = m; _Invalidate(); }	}
+	double						Get_M				(int iPoint, bool bAscending = true)	{	return( m_M && iPoint >= 0 && iPoint < m_nPoints ?	 m_M[bAscending ? iPoint : m_nPoints - 1 - iPoint] : 0.0 );	}
+	double						Get_MMin			(void)									{	_Update_Extent(); return( m_MMin );	}
+	double						Get_MMax			(void)									{	_Update_Extent(); return( m_MMax );	}
+
+	bool						Revert_Points		(void);
 
 
 protected:
@@ -405,13 +409,13 @@ public:
 		return( CSG_Point(0.0, 0.0) );
 	}
 
-	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)	{	if( iPart >= 0 && iPart < m_nParts ) m_pParts[iPart]->Set_Z(z, iPoint);	}
-	virtual double				Get_Z				(          int iPoint, int iPart = 0)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_Z(iPoint) : 0.0 );	}
+	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)							{	if    ( iPart >= 0 && iPart < m_nParts ) m_pParts[iPart]->Set_Z(z, iPoint);	}
+	virtual double				Get_Z				(          int iPoint, int iPart = 0, bool bAscending = true)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_Z(   iPoint, bAscending) : 0.0 );	}
 	virtual double				Get_ZMin			(void)		{	_Update_Extent();	return( m_ZMin );	}
 	virtual double				Get_ZMax			(void)		{	_Update_Extent();	return( m_ZMax );	}
 
-	virtual void				Set_M				(double m, int iPoint, int iPart = 0)	{	if( iPart >= 0 && iPart < m_nParts ) m_pParts[iPart]->Set_M(m, iPoint);	}
-	virtual double				Get_M				(          int iPoint, int iPart = 0)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_M(iPoint) : 0.0 );	}
+	virtual void				Set_M				(double m, int iPoint, int iPart = 0)							{	if    ( iPart >= 0 && iPart < m_nParts ) m_pParts[iPart]->Set_M(m, iPoint);	}
+	virtual double				Get_M				(          int iPoint, int iPart = 0, bool bAscending = true)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_M(   iPoint, bAscending) : 0.0 );	}
 	virtual double				Get_MMin			(void)		{	_Update_Extent();	return( m_MMin );	}
 	virtual double				Get_MMax			(void)		{	_Update_Extent();	return( m_MMax );	}
 
@@ -423,6 +427,8 @@ public:
 	virtual double				Get_Distance		(TSG_Point Point, int iPart);
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next);
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
+
+	virtual bool				Revert_Points		(int iPart)	{	if( iPart >= 0 && iPart < m_nParts )	return( m_pParts[iPart]->Revert_Points() );	}
 
 
 protected:

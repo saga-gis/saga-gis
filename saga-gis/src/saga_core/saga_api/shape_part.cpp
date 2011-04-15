@@ -345,6 +345,42 @@ int CSG_Shape_Part::Del_Point(int iPoint)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Shape_Part::Revert_Points(void)
+{
+	for(int i=0, j=m_nPoints-1; i<j; i++, j--)
+	{
+		TSG_Point	p	= m_Points[i];
+		m_Points[i]		= m_Points[j];
+		m_Points[j]		= p;
+
+		if( m_Z )
+		{
+			double	d;
+					
+			d		= m_Z[i];
+			m_Z[i]	= m_Z[j];
+			m_Z[j]	= d;
+
+			if( m_M )
+			{
+				d		= m_M[i];
+				m_M[i]	= m_M[j];
+				m_M[j]	= d;
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 inline void CSG_Shape_Part::_Invalidate(void)
 {
 	m_bUpdate	= true;

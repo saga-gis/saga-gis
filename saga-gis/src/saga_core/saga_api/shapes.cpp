@@ -549,28 +549,7 @@ bool CSG_Shapes::Make_Clean(void)
 
 			if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart)) )
 			{
-				for(int i=0, j=pPolygon->Get_Point_Count(iPart)-1; i<j; i++, j--)
-				{
-					TSG_Point	p	=   pPolygon->Get_Point(i, iPart);
-					pPolygon->Set_Point(pPolygon->Get_Point(j, iPart), i, iPart);
-					pPolygon->Set_Point(p                            , j, iPart);
-
-					if( m_Vertex_Type != SG_VERTEX_TYPE_XY )
-					{
-						double	d;
-					
-						d	=           pPolygon->Get_Z(i, iPart);
-						pPolygon->Set_Z(pPolygon->Get_Z(j, iPart), i, iPart);
-						pPolygon->Set_Z(d                        , j, iPart);
-
-						if( m_Vertex_Type == SG_VERTEX_TYPE_XYZM )
-						{
-							d	=           pPolygon->Get_M(i, iPart);
-							pPolygon->Set_M(pPolygon->Get_M(j, iPart), i, iPart);
-							pPolygon->Set_M(d                        , j, iPart);
-						}
-					}
-				}
+				pPolygon->Revert_Points(iPart);
 			}
 
 			//--------------------------------------------
