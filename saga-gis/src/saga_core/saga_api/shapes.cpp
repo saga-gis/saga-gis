@@ -553,20 +553,31 @@ bool CSG_Shapes::Make_Clean(void)
 			}
 
 			//--------------------------------------------
-			// ring direction !
+			// ring direction: outer rings > clockwise, inner rings (lakes) > counterclockwise !
 
-			if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart) == false) )
+			if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart)) )
 			{
 				for(int i=0, j=pPolygon->Get_Point_Count(iPart)-1; i<j; i++, j--)
 				{
-					TSG_Point	iPoint	= pPolygon->Get_Point(i, iPart);
-					TSG_Point	jPoint	= pPolygon->Get_Point(j, iPart);
+					TSG_Point	p	=   pPolygon->Get_Point(i, iPart);
+					pPolygon->Set_Point(pPolygon->Get_Point(j, iPart), i, iPart);
+					pPolygon->Set_Point(p                            , j, iPart);
 
-					pPolygon->Set_Point(iPoint.x, iPoint.y, j, iPart);
-					pPolygon->Set_Point(jPoint.x, jPoint.y, i, iPart);
+					if( m_Vertex_Type != SG_VERTEX_TYPE_XY )
+					{
+						double	d;
+					
+						d	=           pPolygon->Get_Z(i, iPart);
+						pPolygon->Set_Z(pPolygon->Get_Z(j, iPart), i, iPart);
+						pPolygon->Set_Z(d                        , j, iPart);
 
-					double	z	= pPolygon->Get_Z(i, iPart); pPolygon->Set_Z(pPolygon->Get_Z(j), i, iPart); pPolygon->Set_Z(z, j, iPart);
-					double	m	= pPolygon->Get_M(i, iPart); pPolygon->Set_M(pPolygon->Get_M(j), i, iPart); pPolygon->Set_M(m, j, iPart);
+						if( m_Vertex_Type == SG_VERTEX_TYPE_XYZM )
+						{
+							d	=           pPolygon->Get_M(i, iPart);
+							pPolygon->Set_M(pPolygon->Get_M(j, iPart), i, iPart);
+							pPolygon->Set_M(d                        , j, iPart);
+						}
+					}
 				}
 			}
 

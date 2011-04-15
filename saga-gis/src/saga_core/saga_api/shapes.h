@@ -384,6 +384,10 @@ public:
 	virtual int					Set_Point			(double x, double y, int iPoint, int iPart = 0);
 	virtual int					Del_Point			(                    int iPoint, int iPart = 0);
 
+	int							Add_Point			(const TSG_Point &p,             int iPart = 0)	{	return( Add_Point(p.x, p.y        , iPart) );	}
+	int							Ins_Point			(const TSG_Point &p, int iPoint, int iPart = 0)	{	return( Ins_Point(p.x, p.y, iPoint, iPart) );	}
+	int							Set_Point			(const TSG_Point &p, int iPoint, int iPart = 0)	{	return( Set_Point(p.x, p.y, iPoint, iPart) );	}
+
 	virtual int					Del_Part			(int iPart);
 	virtual int					Del_Parts			(void);
 

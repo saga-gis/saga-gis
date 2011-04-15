@@ -427,10 +427,12 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	default:	return( false );
 	}
 
-	switch( m_Vertex_Type )
+	TSG_Vertex_Type	Vertex_Type	= m_Vertex_Type == 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZM;
+
+	switch( Vertex_Type )
 	{
 	case SG_VERTEX_TYPE_XY:						break;
-	case SG_VERTEX_TYPE_XYZ://	Type	+= 20;	break;	// M
+	case SG_VERTEX_TYPE_XYZ:	Type	+= 20;	break;	// M
 	case SG_VERTEX_TYPE_XYZM:	Type	+= 10;	break;	// Z (+M)
 	default:	return( false );
 	}
@@ -563,10 +565,10 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		case SHAPE_TYPE_Point:		///////////////////////
 
-			switch( m_Vertex_Type )
+			switch( Vertex_Type )
 			{
 			case SG_VERTEX_TYPE_XY:		Set_Content_Length(10);	break;
-			case SG_VERTEX_TYPE_XYZ://	Set_Content_Length(14);	break;
+			case SG_VERTEX_TYPE_XYZ:	Set_Content_Length(14);	break;
 			case SG_VERTEX_TYPE_XYZM:	Set_Content_Length(18);	break;
 			}
 
@@ -577,10 +579,10 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		case SHAPE_TYPE_Points:		///////////////////////
 
-			switch( m_Vertex_Type )
+			switch( Vertex_Type )
 			{
 			case SG_VERTEX_TYPE_XY:		Set_Content_Length(20 +  8 * nPoints);	break;
-			case SG_VERTEX_TYPE_XYZ://	Set_Content_Length(28 + 12 * nPoints);	break;
+			case SG_VERTEX_TYPE_XYZ:	Set_Content_Length(28 + 12 * nPoints);	break;
 			case SG_VERTEX_TYPE_XYZM:	Set_Content_Length(36 + 16 * nPoints);	break;
 			}
 
@@ -597,10 +599,10 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		case SHAPE_TYPE_Line:		///////////////////////
 		case SHAPE_TYPE_Polygon:	///////////////////////
 
-			switch( m_Vertex_Type )
+			switch( Vertex_Type )
 			{
 			case SG_VERTEX_TYPE_XY:		Set_Content_Length(22 + 2 * pShape->Get_Part_Count() +  8 * nPoints);	break;
-			case SG_VERTEX_TYPE_XYZ://	Set_Content_Length(30 + 2 * pShape->Get_Part_Count() + 12 * nPoints);	break;
+			case SG_VERTEX_TYPE_XYZ:	Set_Content_Length(30 + 2 * pShape->Get_Part_Count() + 12 * nPoints);	break;
 			case SG_VERTEX_TYPE_XYZM:	Set_Content_Length(38 + 2 * pShape->Get_Part_Count() + 16 * nPoints);	break;
 			}
 
@@ -631,11 +633,11 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			fSHP.Write(&(Point = pShape->Get_Point(0)), sizeof(TSG_Point));
 
 			//---------------------------------------------
-			if( m_Vertex_Type != SG_VERTEX_TYPE_XY )
+			if( Vertex_Type != SG_VERTEX_TYPE_XY )
 			{
 				fSHP.Write_Double(pShape->Get_Z(0));
 
-				if( m_Vertex_Type == SG_VERTEX_TYPE_XYZM )
+				if( Vertex_Type == SG_VERTEX_TYPE_XYZM )
 				{
 					fSHP.Write_Double(pShape->Get_M(0));
 				}
@@ -657,7 +659,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			}
 
 			//---------------------------------------------
-			if( m_Vertex_Type != SG_VERTEX_TYPE_XY )
+			if( Vertex_Type != SG_VERTEX_TYPE_XY )
 			{
 				fSHP.Write_Double(pShape->Get_ZMin());
 				fSHP.Write_Double(pShape->Get_ZMax());
@@ -670,7 +672,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 					}
 				}
 
-			//	if( m_Vertex_Type == SG_VERTEX_TYPE_XYZM )
+				if( Vertex_Type == SG_VERTEX_TYPE_XYZM )
 				{
 					fSHP.Write_Double(pShape->Get_MMin());
 					fSHP.Write_Double(pShape->Get_MMax());
