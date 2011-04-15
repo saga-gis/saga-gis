@@ -428,7 +428,7 @@ public:
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next);
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
 
-	virtual bool				Revert_Points		(int iPart)	{	if( iPart >= 0 && iPart < m_nParts )	return( m_pParts[iPart]->Revert_Points() );	}
+	virtual bool				Revert_Points		(int iPart)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Revert_Points() : false );	}
 
 
 protected:
