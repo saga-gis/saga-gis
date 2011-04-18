@@ -1218,7 +1218,7 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 
 	for(y=ayMap, yDC=ayDC; yDC>=byDC; y+=dc_Map.m_DC2World, yDC--)
 	{
-		for(x=axMap, xDC=axDC; xDC<bxDC; x+=dc_Map.m_DC2World, xDC++)
+		for(x=axMap, xDC=axDC; xDC<=bxDC; x+=dc_Map.m_DC2World, xDC++)
 		{
 			if( m_pGrid->Get_Value(x, y, z, Interpolation, false, bByteWise, true) )
 			{

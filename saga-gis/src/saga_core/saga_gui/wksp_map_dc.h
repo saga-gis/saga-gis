@@ -119,16 +119,16 @@ public:
 	//-----------------------------------------------------
 	double						xWorld2DC				(double x, bool bRound = true)
 	{
-		x	=  (x - m_rWorld.Get_XMin()) * m_World2DC;
+		x	= (x - m_rWorld.Get_XMin()) * m_World2DC;
 
-		return( bRound ? (int)(0.5 + x) : x );
+		return( bRound ? (int)(x < 0.0 ? x - 0.5 : x + 0.5) : x );
 	}
 
 	double						yWorld2DC				(double y, bool bRound = true)
 	{
-		y	= -(y - m_rWorld.Get_YMin()) * m_World2DC + (m_rDC.GetHeight());
+		y	= (m_rWorld.Get_YMax() - y) * m_World2DC - 1;
 
-		return( bRound ? (int)(0.5 + y) : y );
+		return( bRound ? (int)(y < 0.0 ? y - 0.5 : y + 0.5) : y );
 	}
 
 	TSG_Point_Int				World2DC				(TSG_Point p)	{	TSG_Point_Int _p; _p.x = (int)xWorld2DC(p.x), _p.y = (int)yWorld2DC(p.y); return( _p );	}
@@ -136,12 +136,12 @@ public:
 	//-----------------------------------------------------
 	double						xDC2World				(double x)
 	{
-		return( m_rWorld.Get_XMin() + x * m_DC2World );
+		return( m_rWorld.Get_XMin() + m_DC2World * x );
 	}
 
 	double						yDC2World				(double y)
 	{
-		return( m_rWorld.Get_YMin() + (m_rDC.GetHeight() - y) * m_DC2World );
+		return( m_rWorld.Get_YMax() - m_DC2World * (y + 1) );
 	}
 
 	//-----------------------------------------------------
