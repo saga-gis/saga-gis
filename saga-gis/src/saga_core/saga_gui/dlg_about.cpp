@@ -224,7 +224,7 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxString::Format(
 		wxT("SAGA GUI\nSAGA Graphical User Interface - Version: %s\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2005-2010 by Olaf Conrad\n")
+		wxT("Copyrights (c) 2005-2011 by Olaf Conrad\n")
 		wxT("\n")
 		wxT("GNU General Public License (GPL)\n"),
 		SAGA_GUI_Get_Version()
@@ -235,7 +235,7 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxString::Format(
 		wxT("SAGA API\n%s\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2002-2010 by Olaf Conrad\n")
+		wxT("Copyrights (c) 2002-2011 by Olaf Conrad\n")
 		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
 		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
 		wxT("\n")
