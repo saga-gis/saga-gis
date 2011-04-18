@@ -521,22 +521,16 @@ int CSG_String::asInt(void) const
 	asInt(Value);
 
 	return( Value );
-
-//	return( asInt(Value) ? Value : 0 );
 }
 
 bool CSG_String::asInt(int &Value) const
 {
-	long	lValue	= 0;
+	const wxChar	*start = m_pString->c_str();
+	wxChar			*end;
 
-	if( m_pString->ToLong(&lValue) || lValue != 0 )
-	{
-		Value	= (int)lValue;
+	Value	= wxStrtol(start, &end, 10);
 
-		return( true );
-	}
-
-	return( false );
+	return( end > start );
 }
 
 //---------------------------------------------------------
