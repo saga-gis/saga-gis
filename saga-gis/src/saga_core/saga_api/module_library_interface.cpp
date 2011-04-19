@@ -126,7 +126,7 @@ int CSG_Module_Library_Interface::Get_Count(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule)
+bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 {
 	if( pModule )
 	{
@@ -136,6 +136,7 @@ bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule)
 		}
 		else
 		{
+			pModule->m_ID	= ID;
 			pModule->Set_Managed(true);
 			pModule->Set_Translation(m_Translator);
 		}

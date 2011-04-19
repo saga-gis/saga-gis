@@ -126,6 +126,7 @@ TSG_Module_Error;
 class SAGA_API_DLL_EXPORT CSG_Module
 {
 	friend class CSG_Module_Interactive_Base;
+	friend class CSG_Module_Library_Interface;
 
 public:
 
@@ -135,6 +136,8 @@ public:
 	virtual void				Destroy						(void);
 
 	virtual TSG_Module_Type		Get_Type					(void)	{	return( MODULE_TYPE_Base );	}
+
+	int							Get_ID						(void)	{	return( m_ID );	}
 
 	const SG_Char *				Get_Name					(void);
 	const SG_Char *				Get_Description				(void);
@@ -158,6 +161,7 @@ public:
 
 	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
 
+	virtual bool				is_Grid						(void)	{	return( false );	}
 	virtual bool				is_Interactive				(void)	{	return( false );	}
 	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
@@ -246,7 +250,7 @@ private:
 
 	bool						m_bExecutes, m_bError_Ignore, m_bManaged, m_bShow_Progress;
 
-	int							m_npParameters, m_nGarbage;
+	int							m_ID, m_npParameters, m_nGarbage;
 
 	CSG_Data_Object				**m_Garbage;
 
@@ -286,6 +290,8 @@ public:
 	virtual TSG_Module_Type		Get_Type				(void)			{	return( MODULE_TYPE_Grid );	}
 
 	CSG_Grid_System *			Get_System				(void)			{	return( Parameters.Get_Grid_System() );	}
+
+	virtual bool				is_Grid					(void)			{	return( true );	}
 
 
 protected:
@@ -516,7 +522,7 @@ public:
 	const SG_Char *				Get_Info				(int ID);
 
 	int							Get_Count				(void);
-	bool						Add_Module				(CSG_Module *pModule);
+	bool						Add_Module				(CSG_Module *pModule, int ID);
 	CSG_Module *				Get_Module				(int iModule);
 
 	void						Set_File_Name			(const CSG_String &File_Name);
@@ -572,7 +578,7 @@ extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_API_Version		(void)\
 \
 	int		i	= 0;\
 \
-	while( MLB_Interface.Add_Module(Create_Module(i++)) );\
+	while( MLB_Interface.Add_Module(Create_Module(i), i) ) i++;\
 \
 	for(i=0; i<MLB_INFO_Count; i++)\
 	{\

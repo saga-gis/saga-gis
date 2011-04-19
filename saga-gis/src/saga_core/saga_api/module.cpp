@@ -75,6 +75,8 @@
 //---------------------------------------------------------
 CSG_Module::CSG_Module(void)
 {
+	m_ID			= -1;
+
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
 
