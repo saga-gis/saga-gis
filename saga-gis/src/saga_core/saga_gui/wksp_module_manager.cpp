@@ -225,11 +225,34 @@ wxString CWKSP_Module_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s: %d</b><br><br>%s %d<br>"),
-		LNG("[CAP] Module Libraries")	, Get_Count(),
-		LNG("[CAP] Modules")			, Get_Items_Count()
-	);
+	//-----------------------------------------------------
+	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("Module Library"));
 
+	s	+= wxT("<table border=\"0\">");
+
+	DESC_ADD_INT(LNG("Loaded Libraries")	, Get_Count());
+	DESC_ADD_INT(LNG("Available Modules")	, Get_Items_Count());
+
+	s	+= wxT("</table>");
+
+	//-----------------------------------------------------
+	s	+= wxString::Format(wxT("<hr><b>%s:</b><table border=\"1\">"), LNG("Module Libraries"));
+
+	s	+= wxString::Format(wxT("<tr><th>%s</th><th>%s</th><th>%s</th></tr>"), LNG("Library"), LNG("Modules"), LNG("Name"), LNG("Location"));
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		s	+= wxString::Format(wxT("<tr><td>%s</td><td>%d</td><td>%s</td></tr>"),
+				SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str(),
+				Get_Library(i)->Get_Count(),
+				Get_Library(i)->Get_Name().c_str(),
+				SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str()
+			);
+	}
+
+	s	+= wxT("</table>");
+
+	//-----------------------------------------------------
 	return( s );
 }
 
