@@ -69,6 +69,7 @@
 
 #include "helper.h"
 
+#include "wksp_module_manager.h"
 #include "wksp_module_library.h"
 #include "wksp_module.h"
 
@@ -106,7 +107,6 @@ CWKSP_Module_Library::CWKSP_Module_Library(const wxChar *FileName)
 
 	wxString	sPath;
 	wxFileName	fName(FileName);
-	CSG_Module	*pModule;
 
 	m_pInterface	= NULL;
 
@@ -138,9 +138,11 @@ CWKSP_Module_Library::CWKSP_Module_Library(const wxChar *FileName)
 		}
 		else
 		{
-			while( (pModule = m_pInterface->Get_Module(Get_Count())) != NULL )
+			for(int i=0; i<m_pInterface->Get_Count(); i++)
 			{
-				if( pModule != MLB_INTERFACE_SKIP_MODULE )
+				CSG_Module	*pModule	= m_pInterface->Get_Module(i);
+
+				if( pModule != NULL && pModule != MLB_INTERFACE_SKIP_MODULE )
 				{
 					Add_Item(new CWKSP_Module(pModule, Get_Info(MLB_INFO_Menu_Path)));
 				}
@@ -214,28 +216,46 @@ wxString CWKSP_Module_Library::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Module_Library::Get_Description(void)
 {
-	int			iModule;
-	wxString	s, sLine;
+	wxString	s;
 
-	s.Printf(wxT("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
-		LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
-		LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
-		LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
-		LNG("[CAP] File")			, Get_File_Name().c_str(),
-		Get_Info(MLB_INFO_Description)
-	);
+	//-----------------------------------------------------
+	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("Module Library"));
 
-	s.Append(wxString::Format(wxT("<hr><b>%s:<ul>"), LNG("[CAP] Modules")));
+	s	+= wxT("<table border=\"0\">");
 
-	for(iModule=0; iModule<Get_Count(); iModule++)
+	DESC_ADD_STR(LNG("Name")	, Get_Info(MLB_INFO_Name));
+	DESC_ADD_STR(LNG("Author")	, Get_Info(MLB_INFO_Author));
+	DESC_ADD_STR(LNG("Version")	, Get_Info(MLB_INFO_Version));
+	DESC_ADD_STR(LNG("File")	, Get_File_Name().c_str());
+
+	s	+= wxT("</table><hr>");
+
+	//-----------------------------------------------------
+	s	+= wxString::Format(wxT("<b>%s</b><br>"), LNG("Description"));
+
+	wxString	sDesc;
+
+	if( g_pModules->Get_Parameters()->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
-		sLine.Printf(wxT("<li>%s</li>"), Get_Module(iModule)->Get_Module()->Get_Name());
-
-		s.Append(sLine);
+		sDesc	= Get_Online_Module_Description(Get_File_Name());
 	}
 
-	s.Append(wxT("</ul>"));
+	s	+= sDesc.Length() > 0 ? sDesc.c_str() : Get_Info(MLB_INFO_Description);
 
+	//-----------------------------------------------------
+	s	+= wxString::Format(wxT("<hr><b>%s:<ul>"), LNG("[CAP] Modules"));
+
+	for(int iModule=0; iModule<Get_Count(); iModule++)
+	{
+		s	+= wxString::Format(wxT("<li>[%d] %s</li>"),
+				Get_Module(iModule)->Get_Module()->Get_ID(),
+				Get_Module(iModule)->Get_Module()->Get_Name()
+			);
+	}
+
+	s	+= wxT("</ul>");
+
+	//-----------------------------------------------------
 	s.Replace(wxT("\n"), wxT("<br>"));
 
 	return( s );
