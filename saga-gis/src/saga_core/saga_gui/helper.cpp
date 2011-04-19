@@ -66,6 +66,7 @@
 #include <wx/utils.h>
 #include <wx/mimetype.h>
 #include <wx/filename.h>
+#include <wx/protocol/http.h>
 
 #include <saga_api/saga_api.h>
 
@@ -657,6 +658,67 @@ bool		Open_Application(const wxChar *Reference, const wxChar *Mime_Extension)
 bool		Open_WebBrowser(const wxChar *Reference)
 {
 	return( Open_Application(Reference, wxT("html")) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxString Get_Online_Module_Description(const wxString &Library, int ID)
+{
+	wxString		Description, sPage;
+	wxInputStream	*pStream;
+	wxHTTP			Server;
+
+	wxString	sServer	= wxT("sourceforge.net");
+	wxString	sPath	= wxT("/apps/trac/saga-gis/wiki/");
+	wxString	sRoot	= wxT("/apps/trac/saga-gis/");
+
+	sPage	= SG_File_Get_Name(Library, false).c_str();
+
+	if( sPage.Length() > 3 && sPage[0] == wxT('l') && sPage[1] == wxT('i') && sPage[2] == wxT('b') )	// remove linux prefix 'lib'
+	{
+		sPage.Remove(0, 3);
+	}
+
+	if( ID >= 0 )
+	{
+		sPage	+= wxString::Format(wxT("_%d"), ID);
+	}
+
+	if( Server.Connect(sServer) && (pStream = Server.GetInputStream(sPath + sPage)) != NULL )
+	{
+		while( !pStream->Eof() )
+		{
+			Description	+= pStream->GetC();
+		}
+
+		if( Description.Find(wxT("Trac Error")) >= 0 )
+		{
+			return( wxT("") );
+		}
+
+		int		n;
+
+		if( (n = Description.Find(wxT("<div class=\"wikipage searchable\">"))) > 0 )
+		{
+			Description.Remove(0, n);
+
+			if( (n = Description.Find(wxT("</div>"))) > 0 )
+			{
+				Description.RemoveLast(Description.Length() - (n - 6));
+			}
+		}
+
+		Description.Replace(sRoot, wxT("http://") + sServer + sRoot);
+		Description.Replace(wxT("\n"), wxT(""));
+	}
+
+	return( Description );
 }
 
 

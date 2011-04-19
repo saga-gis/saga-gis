@@ -120,11 +120,6 @@ CWKSP_Grid::~CWKSP_Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
-#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
-#define DESC_ADD_FLT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, SG_Get_String(value, -2).c_str()))
-
-//---------------------------------------------------------
 wxString CWKSP_Grid::Get_Description(void)
 {
 	wxString	s;

@@ -122,6 +122,15 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 		), 1
 	);
 
+	m_Parameters.Add_Choice(
+		NULL	, "HELP_SOURCE"	, LNG("Module Description Source"),
+		LNG(""),
+		CSG_String::Format(wxT("%s|%s|"),
+			LNG("built-in"),
+			LNG("online")
+		), 0
+	);
+
 	m_Parameters.Add_Value(
 		NULL	, "PROC_FREQ"	, LNG("Process Update Frequency [milliseconds]"),
 		LNG(""),
@@ -374,6 +383,11 @@ void CWKSP_Module_Manager::_Config_Read(void)
 		m_Parameters("START_LOGO")	->Set_Value((int)lValue);
 	}
 
+	if( CONFIG_Read(wxT("/MODULES"), wxT("HELP_SOURCE")	, lValue) )
+	{
+		m_Parameters("HELP_SOURCE")	->Set_Value((int)lValue);
+	}
+
 	if( CONFIG_Read(wxT("/MODULES"), wxT("PROC_FREQ")	, lValue) )
 	{
 		m_Parameters("PROC_FREQ")	->Set_Value((int)lValue);
@@ -407,6 +421,7 @@ void CWKSP_Module_Manager::_Config_Write(void)
 {
 	CONFIG_Write(wxT("/MODULES"), wxT("BEEP")		 ,       m_Parameters("BEEP")        ->asBool());
 	CONFIG_Write(wxT("/MODULES"), wxT("START_LOGO")	 , (long)m_Parameters("START_LOGO")  ->asInt());
+	CONFIG_Write(wxT("/MODULES"), wxT("HELP_SOURCE") , (long)m_Parameters("HELP_SOURCE") ->asInt());
 	CONFIG_Write(wxT("/MODULES"), wxT("PROC_FREQ")	 , (long)m_Parameters("PROC_FREQ")   ->asInt());
 	CONFIG_Write(wxT("/MODULES"), wxT("LNG_FILE_DIC"),       m_Parameters("LNG_FILE_DIC")->asString());
 	CONFIG_Write(wxT("/MODULES"), wxT("CRS_FILE_SRS"),       m_Parameters("CRS_FILE_SRS")->asString());

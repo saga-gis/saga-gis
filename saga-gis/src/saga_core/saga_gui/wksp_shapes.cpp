@@ -109,10 +109,6 @@ CWKSP_Shapes::~CWKSP_Shapes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
-#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
-
-//---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Description(void)
 {
 	wxString	s;

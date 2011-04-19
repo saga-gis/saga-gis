@@ -168,6 +168,8 @@ bool				PROGRESSBAR_Set_Position		(double Position, double Range);
 bool				Open_Application				(const wxChar *Reference, const wxChar *Mime_Extension = NULL);
 bool				Open_WebBrowser					(const wxChar *Reference);
 
+wxString			Get_Online_Module_Description	(const wxString &Library, int ID = -1);
+
 //---------------------------------------------------------
 enum
 {
@@ -182,6 +184,11 @@ enum
 
 //---------------------------------------------------------
 void				STATUSBAR_Set_Text				(const wxChar *Text, int iPane = 0);
+
+//---------------------------------------------------------
+#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
+#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
+#define DESC_ADD_FLT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, SG_Get_String(value, -2).c_str()))
 
 
 ///////////////////////////////////////////////////////////
