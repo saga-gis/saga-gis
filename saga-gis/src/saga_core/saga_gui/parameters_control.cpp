@@ -327,6 +327,8 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 	if( m_pOriginal == pParameters )
 	{
 		m_pParameters->Assign_Values(m_pOriginal);
+
+		_Init_Pararameters();
 	}
 	else
 	{
@@ -338,6 +340,8 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 			m_pParameters->Set_Callback(true);
 
 			_Add_Properties(m_pParameters);
+
+			_Init_Pararameters();
 		}
 		else
 		{
@@ -847,8 +851,6 @@ void CParameters_Control::_Update_Parameters(void)
 {
 	if( m_pParameters )
 	{
-		_Init_Pararameters();
-
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
 			_Update_Parameter(m_pParameters->Get_Parameter(i));

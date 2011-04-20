@@ -130,15 +130,15 @@ CCRS_Base::CCRS_Base(void)
 	if( SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_Choice(
-			pNode_1	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
-			_TL(""),
-			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
-		);
-
-		Parameters.Add_Choice(
 			pNode_1	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
 			_TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+		);
+
+		Parameters.Add_Choice(
+			pNode_1	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic), 400
 		);
 	}
 
@@ -760,7 +760,7 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 		switch( P("ELLIPSOID")->asInt() )
 		{
 		case 0:	// Predefined Ellipsoid
-			Proj4	+= STR_ADD_STR(SG_T("ellps")	, SG_STR_MBTOSG(pj_ellps[P("ELLPS_PREDEF")->asInt()].id));
+			Proj4	+= STR_ADD_STR(SG_T("ellps")	, SG_STR_MBTOSG(pj_ellps[P("ELLPS_DEF")->asInt()].id));
 			break;
 
 		case 1:	// Semiminor axis
@@ -810,15 +810,16 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 				P("DS_SC")->asDouble()
 			);
 			break;
+
+		case 3:	// datum shift grid...
+			if( SG_File_Exists(P("DATUM_GRID")->asString()) )
+			{
+				Proj4	+= STR_ADD_STR(SG_T("nadgrids"), P("DATUM_GRID")->asString());
+			}
+			break;
 		}
 
 		break;
-	}
-
-	// datum shift grid...
-	if( SG_File_Exists(P("DATUM_GRID")->asString()) )
-	{
-		Proj4	+= STR_ADD_STR(SG_T("nadgrids"), P("DATUM_GRID")->asString());
 	}
 
 	//-----------------------------------------------------
