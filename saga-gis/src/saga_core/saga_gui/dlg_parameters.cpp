@@ -89,6 +89,7 @@ BEGIN_EVENT_TABLE(CDLG_Parameters, CDLG_Base)
 	EVT_BUTTON			(wxID_OK		, CDLG_Parameters::On_Ok)
 	EVT_BUTTON			(ID_BTN_LOAD	, CDLG_Parameters::On_Load)
 	EVT_BUTTON			(ID_BTN_SAVE	, CDLG_Parameters::On_Save)
+	EVT_BUTTON			(ID_BTN_DEFAULTS, CDLG_Parameters::On_Defaults)
 END_EVENT_TABLE()
 
 
@@ -112,6 +113,7 @@ CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters)
 
 	Add_Button(ID_BTN_LOAD);
 	Add_Button(ID_BTN_SAVE);
+	Add_Button(ID_BTN_DEFAULTS);
 
 	Set_Positions();
 }
@@ -147,6 +149,12 @@ void CDLG_Parameters::On_Load(wxCommandEvent &event)
 void CDLG_Parameters::On_Save(wxCommandEvent &event)
 {
 	m_pControl->Save();
+}
+
+//---------------------------------------------------------
+void CDLG_Parameters::On_Defaults(wxCommandEvent &event)
+{
+	m_pControl->Restore_Defaults();
 }
 
 

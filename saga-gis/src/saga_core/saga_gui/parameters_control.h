@@ -109,6 +109,7 @@ public:
 
 	bool						Save_Changes		(bool bSilent);
 	bool						Restore				(void);
+	bool						Restore_Defaults	(void);
 
 	bool						Load				(void);
 	bool						Save				(void);
@@ -125,6 +126,9 @@ private:
 	class wxPropertyGridManager	*m_pPGM;
 
 
+	wxString					_Get_Identifier		(class CSG_Parameter *pParameter);
+	bool						_Get_Enabled		(class CSG_Parameter *pParameter);
+
 	void						_Add_Properties		(class CSG_Parameters *pParameters);
 	void						_Add_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
 	class wxPGProperty *		_Get_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
@@ -132,6 +136,7 @@ private:
 	void						_Set_Parameter		(const wxString &Identifier);
 	void						_Update_Parameters	(void);
 	void						_Update_Parameter	(class CSG_Parameter *pParameter);
+	void						_Init_Pararameters	(void);
 
 
 //---------------------------------------------------------

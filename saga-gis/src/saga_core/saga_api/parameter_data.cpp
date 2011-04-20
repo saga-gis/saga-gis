@@ -301,6 +301,8 @@ bool CSG_Parameter_Data::Assign(CSG_Parameter_Data *pSource)
 {
 	if( pSource && Get_Type() == pSource->Get_Type() )
 	{
+		m_Default	= pSource->m_Default;
+
 		On_Assign(pSource);
 
 		return( true );
@@ -760,6 +762,12 @@ bool CSG_Parameter_Range::Set_HiVal(double newValue)
 double CSG_Parameter_Range::Get_HiVal(void)
 {
 	return( pHi->asDouble() );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Range::Restore_Default(void)
+{
+	return( pLo->Restore_Default() && pHi->Restore_Default() );
 }
 
 //---------------------------------------------------------
@@ -2389,6 +2397,12 @@ const SG_Char * CSG_Parameter_Parameters::asString(void)
 	m_String.Printf(SG_T("%d %s"), m_pParameters->Get_Count(), LNG("parameters"));
 
 	return( m_String );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Parameters::Restore_Default(void)
+{
+	return( m_pParameters->Restore_Defaults() );
 }
 
 //---------------------------------------------------------

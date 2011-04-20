@@ -203,6 +203,41 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		{
 			pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[pParameter->asInt()].id)));
 		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DATUM_DEF")) )
+		{
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("DATUM"    )->Set_Enabled(Value == 0);
+			pParameters->Get_Parameter("ELLIPSOID")->Set_Enabled(Value == 1);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ELLIPSOID")) )
+		{
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("ELLPS_DEF")->Set_Enabled(Value == 0);
+			pParameters->Get_Parameter("ELLPS_A"  )->Set_Enabled(Value != 0);
+			pParameters->Get_Parameter("ELLPS_B"  )->Set_Enabled(Value == 1);
+			pParameters->Get_Parameter("ELLPS_F"  )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("ELLPS_RF" )->Set_Enabled(Value == 3);
+			pParameters->Get_Parameter("ELLPS_E"  )->Set_Enabled(Value == 4);
+			pParameters->Get_Parameter("ELLPS_ES" )->Set_Enabled(Value == 5);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DATUM_SHIFT")) )
+		{
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("DS_DX"     )->Set_Enabled(Value == 1 || Value == 2);
+			pParameters->Get_Parameter("DS_DY"     )->Set_Enabled(Value == 1 || Value == 2);
+			pParameters->Get_Parameter("DS_DZ"     )->Set_Enabled(Value == 1 || Value == 2);
+			pParameters->Get_Parameter("DS_RX"     )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("DS_RY"     )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("DS_RZ"     )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("DS_SC"     )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("DATUM_GRID")->Set_Enabled(Value == 3);
+		}
 	}
 
 	//-----------------------------------------------------

@@ -998,6 +998,24 @@ bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, const SG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Parameters::Restore_Defaults(void)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		m_Parameters[i]->Restore_Default();
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 int CSG_Parameters::Assign(CSG_Parameters *pSource)
 {
 	if( pSource != this )

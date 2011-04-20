@@ -232,6 +232,8 @@ public:
 	void						Set_Default				(double         Value);
 	void						Set_Default				(const SG_Char *Value);
 
+	virtual bool				Restore_Default			(void)	{	return( Set_Value((void *)m_Default.c_str()) );	}
+
 
 protected:
 
@@ -267,12 +269,14 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Bool );	}
 
-	virtual bool				Set_Value				(int Value);
+	virtual bool				Set_Value				(int    Value);
 	virtual bool				Set_Value				(double Value);
 
 	virtual int					asInt					(void)	{	return( m_Value );		}
 
 	virtual const SG_Char *		asString				(void);
+
+	virtual bool				Restore_Default			(void)	{	return( Set_Value(m_Default.asInt()) );	}
 
 
 protected:
@@ -323,13 +327,15 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Int );		}
 
-	virtual bool				Set_Value				(void *Value);
-	virtual bool				Set_Value				(int Value);
+	virtual bool				Set_Value				(void  *Value);
+	virtual bool				Set_Value				(int    Value);
 	virtual bool				Set_Value				(double Value);
 
 	virtual int					asInt					(void)	{	return( m_Value );		}
 	virtual double				asDouble				(void)	{	return( m_Value );		}
 	virtual const SG_Char *		asString				(void);
+
+	virtual bool				Restore_Default			(void)	{	return( Set_Value(m_Default.asInt()) );	}
 
 
 protected:
@@ -350,13 +356,15 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Double );	}
 
-	virtual bool				Set_Value				(int Value);
+	virtual bool				Set_Value				(int    Value);
 	virtual bool				Set_Value				(double Value);
-	virtual bool				Set_Value				(void *Value);
+	virtual bool				Set_Value				(void  *Value);
 
 	virtual int					asInt					(void)	{	return( (int)m_Value );	}
 	virtual double				asDouble				(void)	{	return( m_Value );		}
 	virtual const SG_Char *		asString				(void);
+
+	virtual bool				Restore_Default			(void)	{	return( Set_Value(m_Default.asDouble()) );	}
 
 
 protected:
@@ -404,6 +412,8 @@ public:
 
 	CSG_Parameter *				Get_LoParm				(void)	{	return( pLo );	}
 	CSG_Parameter *				Get_HiParm				(void)	{	return( pHi );	}
+
+	virtual bool				Restore_Default			(void);
 
 
 protected:
@@ -934,6 +944,8 @@ public:
 	virtual const SG_Char *		asString				(void);
 	virtual void *				asPointer				(void)		{	return( m_pParameters );	}
 
+	virtual bool				Restore_Default			(void);
+
 
 protected:
 
@@ -1043,6 +1055,8 @@ public:
 	void						Set_Default				(int            Value)	{	m_pData->Set_Default(Value);	}
 	void						Set_Default				(double         Value)	{	m_pData->Set_Default(Value);	}
 	void						Set_Default				(const SG_Char *Value)	{	m_pData->Set_Default(Value);	}
+
+	bool						Restore_Default			(void)	{	return( m_pData->Restore_Default() );	}
 
 	bool						has_Changed				(void);
 
@@ -1212,10 +1226,12 @@ public:
 
 	//-----------------------------------------------------
 	bool						Set_Parameter			(const SG_Char *Identifier, CSG_Parameter *pSource);
-	bool						Set_Parameter			(const SG_Char *Identifier, int Type, int           Value);
-	bool						Set_Parameter			(const SG_Char *Identifier, int Type, double        Value);
+	bool						Set_Parameter			(const SG_Char *Identifier, int Type, int            Value);
+	bool						Set_Parameter			(const SG_Char *Identifier, int Type, double         Value);
 	bool						Set_Parameter			(const SG_Char *Identifier, int Type, void          *Value);
 	bool						Set_Parameter			(const SG_Char *Identifier, int Type, const SG_Char *Value);
+
+	bool						Restore_Defaults		(void);
 
 	int							Assign					(CSG_Parameters *pSource);
 	int							Assign_Values			(CSG_Parameters *pSource);
