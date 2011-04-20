@@ -73,7 +73,7 @@
 //---------------------------------------------------------
 CSolarRadiation::CSolarRadiation(void)
 {
-	CSG_Parameter	*pNode_1, *pNode_2, *pNode_3;
+	CSG_Parameter	*pNode_1, *pNode_2;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Potential Incoming Solar Radiation"));
@@ -200,6 +200,69 @@ CSolarRadiation::CSolarRadiation(void)
 
 	//-----------------------------------------------------
 	pNode_1	= Parameters.Add_Node(
+		NULL	, "NODE_LOCATION"	, _TL("Location"),
+		_TL("")
+	);
+
+	Parameters.Add_Value(
+		pNode_1	, "LATITUDE"		, _TL("Latitude"),
+		_TL(""),
+		PARAMETER_TYPE_Degree		, 53.0, -90.0, true, 90.0, true
+	);
+
+	CSG_Parameters	*pParameters	= Parameters.Add_Parameters(
+		pNode_1	, "BENDING"			, _TL("Planetary Bending"),
+		_TL("")
+	)->asParameters();
+
+	pParameters->Add_Value(
+		NULL	, "BENDING"			, _TL("Include Planetery Bending"),
+		_TL(""),
+		PARAMETER_TYPE_Bool			, false
+	);
+
+	pParameters->Add_Value(
+		NULL	, "RADIUS"			, _TL("Planetary Radius"),
+		_TL(""),
+		PARAMETER_TYPE_Double		, 6366737.96, 0.0, true
+	);
+
+	pNode_1	= pParameters->Add_Choice(
+		NULL	, "LAT_OFFSET"		, _TL("Latitude relates to grid's..."),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("bottom"),
+			_TL("center"),
+			_TL("top"),
+			_TL("user defined reference")
+		), 3
+	);
+
+	pParameters->Add_Value(
+		pNode_1	, "LAT_REF_USER"	, _TL("Latitude (user defined reference)"),
+		_TL(""),
+		PARAMETER_TYPE_Double		, 0.0
+	);
+
+	pNode_1	= pParameters->Add_Choice(
+		NULL	, "LON_OFFSET"		, _TL("Local time relates to grid's..."),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("left"),
+			_TL("center"),
+			_TL("right"),
+			_TL("user defined reference")
+		), 1
+	);
+
+	pParameters->Add_Value(
+		pNode_1	, "LON_REF_USER"	, _TL("Local Time (user defined reference)"),
+		_TL(""),
+		PARAMETER_TYPE_Double		, 0.0
+	);
+
+	//-----------------------------------------------------
+	pNode_1	= Parameters.Add_Node(
 		NULL	, "NODE_TIME"		, _TL("Time"),
 		_TL("")
 	);
@@ -295,6 +358,7 @@ CSolarRadiation::CSolarRadiation(void)
 		), 0
 	);
 
+	//-----------------------------------------------------
 	pNode_2	= Parameters.Add_Node(
 		pNode_1	, "NODE_SADO"		, _TL("Height of Atmosphere and Vapour Pressure"),
 		_TL("")
@@ -347,64 +411,54 @@ CSolarRadiation::CSolarRadiation(void)
 		_TL("The transmittance of the atmosphere, usually between 60 and 80 percent."),
 		PARAMETER_TYPE_Double, 70, 0.0, true, 100.0, true
 	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	//-----------------------------------------------------
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GRD_LAT")) )
+	{
+		pParameters->Get_Parameter("NODE_LOCATION")->Set_Enabled(pParameter->asGrid() == NULL);
+	}
 
 	//-----------------------------------------------------
-	pNode_1	= Parameters.Add_Node(
-		NULL	, "NODE_LOCATION"	, _TL("Location"),
-		_TL("Location settings to be used, if no latitude/longitude grids are given.")
-	);
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GRD_VAPOUR")) )
+	{
+		pParameters->Get_Parameter("VAPOUR")->Set_Enabled(pParameter->asGrid() == NULL);
+	}
 
-	Parameters.Add_Value(
-		pNode_1	, "LATITUDE"		, _TL("Latitude"),
-		_TL(""),
-		PARAMETER_TYPE_Degree		, 53.0, -90.0, true, 90.0, true
-	);
+	//-----------------------------------------------------
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PERIOD")) )
+	{
+		int		Value	= pParameter->asInt();
 
-	pNode_2	= Parameters.Add_Value(
-		pNode_1	, "BENDING"			, _TL("Planetery Bending"),
-		_TL(""),
-		PARAMETER_TYPE_Bool			, false
-	);
+		pParameters->Get_Parameter("MOMENT"    )->Set_Enabled(Value == 0);
+		pParameters->Get_Parameter("HOUR_RANGE")->Set_Enabled(Value >= 1);
+		pParameters->Get_Parameter("DHOUR"     )->Set_Enabled(Value >= 1);
+		pParameters->Get_Parameter("NODE_DAY_A")->Set_Enabled(Value >= 1);
+		pParameters->Get_Parameter("DDAYS"     )->Set_Enabled(Value == 2);
+		pParameters->Get_Parameter("NODE_DAY_B")->Set_Enabled(Value == 2);
+	}
 
-	Parameters.Add_Value(
-		pNode_2	, "RADIUS"			, _TL("Planetary Radius"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 6366737.96, 0.0, true
-	);
+	//-----------------------------------------------------
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		int		Value	= pParameter->asInt();
 
-	pNode_3	= Parameters.Add_Choice(
-		pNode_2	, "LAT_OFFSET"		, _TL("Latitude relates to grid's..."),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("bottom"),
-			_TL("center"),
-			_TL("top"),
-			_TL("user defined reference")
-		), 3
-	);
+		pParameters->Get_Parameter("NODE_SADO"      )->Set_Enabled(Value == 0);
+		pParameters->Get_Parameter("NODE_COMPONENTS")->Set_Enabled(Value == 1);
+		pParameters->Get_Parameter("NODE_LUMPED"    )->Set_Enabled(Value == 2);
+	}
 
-	Parameters.Add_Value(
-		pNode_3	, "LAT_REF_USER"	, _TL("Latitude (user defined reference)"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 0.0
-	);
-
-	pNode_3	= Parameters.Add_Choice(
-		pNode_2	, "LON_OFFSET"		, _TL("Local time relates to grid's..."),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("left"),
-			_TL("center"),
-			_TL("right"),
-			_TL("user defined reference")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		pNode_3	, "LON_REF_USER"	, _TL("Local Time (user defined reference)"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 0.0
-	);
+	return( 0 );
 }
 
 
@@ -445,12 +499,13 @@ bool CSolarRadiation::On_Execute(void)
 	m_Water			= Parameters("WATER")		->asDouble();
 	m_Dust			= Parameters("DUST")		->asDouble();
 
-	m_Latitude		= Parameters("LATITUDE")	->asDouble() * M_DEG_TO_RAD;
-	m_bBending		= Parameters("BENDING")		->asBool();
-
 	m_Time			= Parameters("PERIOD")		->asInt();
 	m_dHour			= Parameters("DHOUR")		->asDouble();
 	m_dDays			= Parameters("DDAYS")		->asInt();
+
+	m_Latitude		= Parameters("LATITUDE")	->asDouble() * M_DEG_TO_RAD;
+
+	m_bBending		= Parameters("BENDING")->asParameters()->Get_Parameter("BENDING")->asBool();
 
 	//-----------------------------------------------------
 	switch( m_Time )
@@ -558,24 +613,33 @@ bool CSolarRadiation::On_Execute(void)
 		//-------------------------------------------------
 		else
 		{
-			double	d, dx, dy, dxA, dyA;
+			int		Offset;
+			double	d, dx, dy, dxA, dyA, Radius, Reference;
 
-			d	= M_DEG_TO_RAD / (Parameters("RADIUS")->asDouble() * M_PI / 180.0);
+			Radius		= Parameters("BENDING")->asParameters()->Get_Parameter("RADIUS")->asDouble();
 
-			switch( Parameters("LON_OFFSET")->asInt() )
+			d	= M_DEG_TO_RAD / (Radius * M_PI / 180.0);
+
+			Offset		= Parameters("BENDING")->asParameters()->Get_Parameter("LON_OFFSET")  ->asInt();
+			Reference	= Parameters("BENDING")->asParameters()->Get_Parameter("LON_REF_USER")->asDouble();
+
+			switch( Offset )
 			{
 			case 0:	dxA	= Get_System()->Get_Extent().Get_XMin();	break;	// left
 			case 1:	dxA	= Get_System()->Get_Extent().Get_XCenter();	break;	// center
 			case 2:	dxA	= Get_System()->Get_Extent().Get_XMax();	break;	// right
-			case 3:	dxA	= Parameters("LON_REF_USER")->asDouble();	break;	// user defined coordinate
+			case 3:	dxA	= Reference;								break;	// user defined coordinate
 			}
 
-			switch( Parameters("LAT_OFFSET")->asInt() )
+			Offset		= Parameters("BENDING")->asParameters()->Get_Parameter("LAT_OFFSET")  ->asInt();
+			Reference	= Parameters("BENDING")->asParameters()->Get_Parameter("LAT_REF_USER")->asDouble();
+
+			switch( Offset )
 			{
 			case 0:	dyA	= Get_System()->Get_Extent().Get_YMin();	break;	// bottom
 			case 1:	dyA	= Get_System()->Get_Extent().Get_YCenter();	break;	// center
 			case 2:	dyA	= Get_System()->Get_Extent().Get_YMax();	break;	// top
-			case 3:	dyA	= Parameters("LAT_REF_USER")->asDouble();	break;	// user defined coordinate
+			case 3:	dyA	= Reference;								break;	// user defined coordinate
 			}
 
 			dxA	 = d * (Get_XMin() - dxA);
