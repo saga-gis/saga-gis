@@ -248,7 +248,11 @@ bool CParameters_Control::Restore_Defaults(void)
 {
 	if( m_pParameters->Restore_Defaults() )
 	{
+		_Init_Pararameters();
+
 		_Update_Parameters();
+
+		m_pPG->Refresh();
 
 		m_bModified	= true;
 
@@ -311,47 +315,44 @@ bool CParameters_Control::Save(void)
 //---------------------------------------------------------
 bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 {
-	if( m_pParameters == pParameters )
+	if( pParameters != m_pParameters )
 	{
-		_Update_Parameters();
+	//	m_pPG->Freeze();
 
-		return( true );
-	}
+		m_bModified	= false;
+		m_pPG->ClearModifiedStatus();
 
-	//-----------------------------------------------------
-	m_bModified	= false;
-	m_pPG->ClearModifiedStatus();
-
-//	m_pPG->Freeze();
-
-	if( m_pOriginal == pParameters )
-	{
-		m_pParameters->Assign_Values(m_pOriginal);
-
-		_Init_Pararameters();
-	}
-	else
-	{
-		m_pPG->Clear();
-
-		if( (m_pOriginal = pParameters) != NULL )
+		if( pParameters == NULL )
 		{
-			m_pParameters->Assign(m_pOriginal);
+			m_pParameters->Assign(m_pOriginal = pParameters);
+			m_pParameters->Set_Callback(false);
+
+			m_pPG->Clear();
+
+			m_pPG->Append(new wxPropertyCategory(LNG("[TXT] No parameters available."), wxPG_LABEL));
+		}
+		else if( m_pOriginal != pParameters )
+		{
+			m_pParameters->Assign(m_pOriginal = pParameters);
 			m_pParameters->Set_Callback(true);
+
+			m_pPG->Clear();
 
 			_Add_Properties(m_pParameters);
 
 			_Init_Pararameters();
 		}
-		else
+		else // if( m_pOriginal == pParameters )
 		{
-			m_pPG->Append(new wxPropertyCategory(LNG("[TXT] No parameters available."), wxPG_LABEL));
+			m_pParameters->Assign_Values(m_pOriginal);
+
+			_Init_Pararameters();
 		}
+
+	//	m_pPG->Thaw();
 	}
 
 	//-----------------------------------------------------
-//	m_pPG->Thaw();
-
 	_Update_Parameters();
 
 	return( true );
