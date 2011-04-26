@@ -670,52 +670,64 @@ bool		Open_WebBrowser(const wxChar *Reference)
 //---------------------------------------------------------
 wxString Get_Online_Module_Description(const wxString &Library, int ID)
 {
-	wxString		Description, sPage;
-	wxInputStream	*pStream;
-	wxHTTP			Server;
+	static bool	bBuisy	= false;
 
-	wxString	sServer	= wxT("sourceforge.net");
-	wxString	sPath	= wxT("/apps/trac/saga-gis/wiki/");
-	wxString	sRoot	= wxT("/apps/trac/saga-gis/");
+	wxString	Description;
 
-	sPage	= SG_File_Get_Name(Library, false).c_str();
-
-	if( sPage.Length() > 3 && sPage[0] == wxT('l') && sPage[1] == wxT('i') && sPage[2] == wxT('b') )	// remove linux prefix 'lib'
+	if( !bBuisy )
 	{
-		sPage.Remove(0, 3);
-	}
+		bBuisy	= true;
 
-	if( ID >= 0 )
-	{
-		sPage	+= wxString::Format(wxT("_%d"), ID);
-	}
+		wxInputStream	*pStream;
+		wxHTTP			Server;
 
-	if( Server.Connect(sServer) && (pStream = Server.GetInputStream(sPath + sPage)) != NULL )
-	{
-		while( !pStream->Eof() )
+		wxString	sServer	= wxT("sourceforge.net");
+		wxString	sPath	= wxT("/apps/trac/saga-gis/wiki/");
+		wxString	sRoot	= wxT("/apps/trac/saga-gis/");
+
+		wxString	sPage	= SG_File_Get_Name(Library, false).c_str();
+
+		if( sPage.Length() > 3 && sPage[0] == wxT('l') && sPage[1] == wxT('i') && sPage[2] == wxT('b') )	// remove linux prefix 'lib'
 		{
-			Description	+= pStream->GetC();
+			sPage.Remove(0, 3);
 		}
 
-		if( Description.Find(wxT("Trac Error")) >= 0 )
+		if( ID >= 0 )
 		{
-			return( wxT("") );
+			sPage	+= wxString::Format(wxT("_%d"), ID);
 		}
 
-		int		n;
-
-		if( (n = Description.Find(wxT("<div class=\"wikipage searchable\">"))) > 0 )
+		if( Server.Connect(sServer) && (pStream = Server.GetInputStream(sPath + sPage)) != NULL )
 		{
-			Description.Remove(0, n);
-
-			if( (n = Description.Find(wxT("</div>"))) > 0 )
+			while( !pStream->Eof() )
 			{
-				Description.RemoveLast(Description.Length() - (n - 6));
+				Description	+= pStream->GetC();
+			}
+
+			if( Description.Find(wxT("Trac Error")) >= 0 )
+			{
+				Description.Clear();
+			}
+			else
+			{
+				int		n;
+
+				if( (n = Description.Find(wxT("<div class=\"wikipage searchable\">"))) > 0 )
+				{
+					Description.Remove(0, n);
+
+					if( (n = Description.Find(wxT("</div>"))) > 0 )
+					{
+						Description.RemoveLast(Description.Length() - (n - 6));
+					}
+				}
+
+				Description.Replace(sRoot, wxT("http://") + sServer + sRoot);
+				Description.Replace(wxT("\n"), wxT(""));
 			}
 		}
 
-		Description.Replace(sRoot, wxT("http://") + sServer + sRoot);
-		Description.Replace(wxT("\n"), wxT(""));
+		bBuisy	= false;
 	}
 
 	return( Description );
