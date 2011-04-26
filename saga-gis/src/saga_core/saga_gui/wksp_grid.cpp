@@ -526,6 +526,25 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	}
 }
 
+//---------------------------------------------------------
+int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
+	{
+		int		Value	= pParameter->asInt();
+
+		pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
+		pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
+		pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
+		pParameters->Get_Parameter("NODE_SHADE"    )->Set_Enabled(Value == 4);
+		pParameters->Get_Parameter("NODE_OVERLAY"  )->Set_Enabled(Value == 5);
+
+		return( 0 );
+	}
+
+	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
