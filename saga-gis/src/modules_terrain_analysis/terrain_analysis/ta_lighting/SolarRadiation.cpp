@@ -188,16 +188,6 @@ CSolarRadiation::CSolarRadiation(void)
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "UPDATE"			, _TL("Update"),
-		_TL("show direct insolation for each time step."),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("do not update"),
-			_TL("update, colour stretch for each time step"),
-			_TL("update, fixed colour stretch")
-		), 0
-	);
-
 	//-----------------------------------------------------
 	pNode_1	= Parameters.Add_Node(
 		NULL	, "NODE_LOCATION"	, _TL("Location"),
@@ -299,6 +289,16 @@ CSolarRadiation::CSolarRadiation(void)
 		pNode_1	, "DDAYS"			, _TL("Time Resolution [d]: Range of Days"),
 		_TL("Time step size for a range of days calculation given in days."),
 		PARAMETER_TYPE_Int			, 5, 1, true
+	);
+
+	Parameters.Add_Choice(
+		pNode_1	, "UPDATE"			, _TL("Update"),
+		_TL("show direct insolation for each time step."),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("do not update"),
+			_TL("update, colour stretch for each time step"),
+			_TL("update, fixed colour stretch")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -441,6 +441,7 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		int		Value	= pParameter->asInt();
 
 		pParameters->Get_Parameter("MOMENT"    )->Set_Enabled(Value == 0);
+		pParameters->Get_Parameter("UPDATE"    )->Set_Enabled(Value >= 1);
 		pParameters->Get_Parameter("HOUR_RANGE")->Set_Enabled(Value >= 1);
 		pParameters->Get_Parameter("DHOUR"     )->Set_Enabled(Value >= 1);
 		pParameters->Get_Parameter("NODE_DAY_A")->Set_Enabled(Value >= 1);
@@ -453,6 +454,7 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 	{
 		int		Value	= pParameter->asInt();
 
+		pParameters->Get_Parameter("GRD_VAPOUR"     )->Set_Enabled(Value == 0);
 		pParameters->Get_Parameter("NODE_SADO"      )->Set_Enabled(Value == 0);
 		pParameters->Get_Parameter("NODE_COMPONENTS")->Set_Enabled(Value == 1);
 		pParameters->Get_Parameter("NODE_LUMPED"    )->Set_Enabled(Value == 2);

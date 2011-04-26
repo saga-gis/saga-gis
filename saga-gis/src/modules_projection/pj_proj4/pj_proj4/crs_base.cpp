@@ -202,6 +202,8 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJ_TYPE")) )
 		{
 			pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[pParameter->asInt()].id)));
+
+			pParameters->Get_Parameter("OPTIONS")->Set_Enabled(pParameters->Get_Parameter("OPTIONS")->asParameters()->Get_Count() > 0);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DATUM_DEF")) )
@@ -721,7 +723,7 @@ bool CCRS_Base::Add_User_Projection(const CSG_String &sID, const CSG_String &sNa
 //---------------------------------------------------------
 #define STR_ADD_BOL(key, val)		(val ? CSG_String::Format(SG_T("+%s "), key) : SG_T(""))
 #define STR_ADD_INT(key, val)		CSG_String::Format(SG_T("+%s=%d "), key, val)
-#define STR_ADD_FLT(key, val)		CSG_String::Format(SG_T("+%s=%f "), key, val)
+#define STR_ADD_FLT(key, val)		CSG_String::Format(SG_T("+%s=%s "), key, SG_Get_String(val, -32).c_str())
 #define STR_ADD_STR(key, val)		CSG_String::Format(SG_T("+%s=%s "), key, val)
 
 //---------------------------------------------------------
@@ -792,22 +794,22 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 		switch( P("DATUM_SHIFT")->asInt() )
 		{
 		case 1:	// 3 parameters
-			Proj4	+= CSG_String::Format(SG_T("+towgs84=%f,%f,%f "),
-				P("DS_DX")->asDouble(),
-				P("DS_DY")->asDouble(),
-				P("DS_DZ")->asDouble()
+			Proj4	+= CSG_String::Format(SG_T("+towgs84=%s,%s,%s "),
+				SG_Get_String(P("DS_DX")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_DY")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_DZ")->asDouble(), -32).c_str()
 			);
 			break;
 
 		case 2:	// 7 parameters
-			Proj4	+= CSG_String::Format(SG_T("+towgs84=%f,%f,%f,%f,%f,%f,%f "),
-				P("DS_DX")->asDouble(),
-				P("DS_DY")->asDouble(),
-				P("DS_DZ")->asDouble(),
-				P("DS_RX")->asDouble(),
-				P("DS_RY")->asDouble(),
-				P("DS_RZ")->asDouble(),
-				P("DS_SC")->asDouble()
+			Proj4	+= CSG_String::Format(SG_T("+towgs84=%s,%s,%s,%s,%s,%s,%s "),
+				SG_Get_String(P("DS_DX")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_DY")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_DZ")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_RX")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_RY")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_RZ")->asDouble(), -32).c_str(),
+				SG_Get_String(P("DS_SC")->asDouble(), -32).c_str()
 			);
 			break;
 

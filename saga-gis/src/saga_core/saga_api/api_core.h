@@ -1008,6 +1008,9 @@ public:
 
 	bool							Serialize			(CSG_File &Stream, bool bSave, bool bBinary);
 
+	bool							to_Text				(      CSG_String &String);
+	bool							from_Text			(const CSG_String &String);
+
 
 private:
 

@@ -252,8 +252,6 @@ bool CParameters_Control::Restore_Defaults(void)
 
 		_Update_Parameters();
 
-		m_pPG->Refresh();
-
 		m_bModified	= true;
 
 		return( true );
@@ -274,6 +272,8 @@ bool CParameters_Control::Load(void)
 		if(	m_pParameters->Serialize_Compatibility(File)
 		||	m_pParameters->Serialize(File_Path.c_str(), false) )
 		{
+			_Init_Pararameters();
+
 			_Update_Parameters();
 
 			m_bModified	= true;
@@ -734,7 +734,8 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 
 	if( pProperty )
 	{
-		m_pPG->EnableProperty(pProperty, _Get_Enabled(pParameter));
+	//	m_pPG->EnableProperty(pProperty, _Get_Enabled(pParameter));
+		m_pPG->HideProperty(pProperty, !_Get_Enabled(pParameter));
 
 		switch( pParameter->Get_Type() )
 		{
@@ -856,6 +857,8 @@ void CParameters_Control::_Update_Parameters(void)
 		{
 			_Update_Parameter(m_pParameters->Get_Parameter(i));
 		}
+
+		m_pPG->Refresh();
 	}
 }
 

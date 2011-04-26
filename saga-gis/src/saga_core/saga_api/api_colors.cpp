@@ -909,6 +909,36 @@ bool CSG_Colors::Serialize(CSG_File &Stream, bool bSave, bool bBinary)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CSG_Colors::to_Text(CSG_String &String)
+{
+	String.Clear();
+
+	for(int i=0; i<m_nColors; i++)
+	{
+		String	+= CSG_String::Format(SG_T("%03d %03d %03d\n"), (int)Get_Red(i), (int)Get_Green(i), (int)Get_Blue(i));
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Colors::from_Text(const CSG_String &String)
+{
+	Set_Count(String.Length() / 13);
+
+	for(size_t i=0, n=0; i<Get_Count(); i++)
+	{
+		int		r, g, b;
+
+		n	+= SG_SSCANF(String.c_str() + n, SG_T("%d %d %d"), &r, &g, &b);
+
+		m_Colors[i]	= SG_GET_RGB(r, g, b);
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -232,7 +232,7 @@ public:
 	void						Set_Default				(double         Value);
 	void						Set_Default				(const SG_Char *Value);
 
-	virtual bool				Restore_Default			(void)	{	return( Set_Value((void *)m_Default.c_str()) );	}
+	virtual bool				Restore_Default			(void)	{	return( false );		}
 
 
 protected:
@@ -479,6 +479,8 @@ public:
 	void						Set_Password			(bool bOn);
 	bool						is_Password				(void);
 
+	virtual bool				Restore_Default			(void)	{	return( Set_Value((void *)m_Default.c_str()) );	}
+
 
 protected:
 
@@ -545,13 +547,15 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Font );		}
 
-	virtual bool				Set_Value				(int Value);
+	virtual bool				Set_Value				(int   Value);
 	virtual bool				Set_Value				(void *Value);
 
 	virtual int					asInt					(void)	{	return( m_Color );	}
 	virtual void *				asPointer				(void)	{	return( m_pFont );	}
 
 	virtual const SG_Char *		asString				(void);
+
+	virtual bool				Restore_Default			(void)	{	return( Set_Value((void *)m_Default.c_str()) );	}
 
 
 protected:
