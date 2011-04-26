@@ -220,7 +220,36 @@ bool CShapes_Assign_Table::On_Execute(void)
 					{
 						if( Method != METHOD_ADD || iField != id_Table )
 						{
-							pShape_B->Set_Value(jField++, pRecord_A->asString(iField));
+							switch( pShapes_B->Get_Field_Type(jField) )
+							{
+							default:
+							case SG_DATATYPE_String:
+							case SG_DATATYPE_Date:
+								pShape_B->Set_Value(jField++, pRecord_A->asString(iField));
+								break;
+
+							case SG_DATATYPE_Bit:
+							case SG_DATATYPE_Byte:
+							case SG_DATATYPE_Char:
+							case SG_DATATYPE_Word:
+							case SG_DATATYPE_Short:
+							case SG_DATATYPE_DWord:
+							case SG_DATATYPE_Int:
+							case SG_DATATYPE_ULong:
+							case SG_DATATYPE_Long:
+							case SG_DATATYPE_Color:
+								pShape_B->Set_Value(jField++, pRecord_A->asInt(iField));
+								break;
+
+							case SG_DATATYPE_Float:
+							case SG_DATATYPE_Double:
+								pShape_B->Set_Value(jField++, pRecord_A->asDouble(iField));
+								break;
+
+							case SG_DATATYPE_Binary:
+								pShape_B->Get_Value(jField++)->Set_Value(pRecord_A->Get_Value(iField)->asBinary());
+								break;
+							}
 						}
 					}
 				}
