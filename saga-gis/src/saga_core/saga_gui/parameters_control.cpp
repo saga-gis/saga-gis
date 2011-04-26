@@ -324,8 +324,8 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 
 		if( pParameters == NULL )
 		{
-			m_pParameters->Assign(m_pOriginal = pParameters);
 			m_pParameters->Set_Callback(false);
+			m_pParameters->Assign(m_pOriginal = pParameters);
 
 			m_pPG->Clear();
 
@@ -333,12 +333,14 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 		}
 		else if( m_pOriginal != pParameters )
 		{
+			m_pParameters->Set_Callback(false);
 			m_pParameters->Assign(m_pOriginal = pParameters);
-			m_pParameters->Set_Callback(true);
 
 			m_pPG->Clear();
 
 			_Add_Properties(m_pParameters);
+
+			m_pParameters->Set_Callback(true);
 
 			_Init_Pararameters();
 		}
@@ -867,10 +869,14 @@ void CParameters_Control::_Init_Pararameters(void)
 {
 	if( m_pParameters )
 	{
+		m_pParameters->Set_Callback_Changes(false);
+
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
 			m_pParameters->Get_Parameter(i)->has_Changed();
 		}
+
+		m_pParameters->Set_Callback_Changes(true);
 	}
 }
 

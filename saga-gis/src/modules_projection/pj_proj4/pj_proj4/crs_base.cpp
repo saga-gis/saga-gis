@@ -130,15 +130,15 @@ CCRS_Base::CCRS_Base(void)
 	if( SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_Choice(
-			pNode_1	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+			pNode_1	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
 			_TL(""),
-			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
 		);
 
 		Parameters.Add_Choice(
-			pNode_1	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+			pNode_1	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
 			_TL(""),
-			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic), 400
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 		);
 	}
 
@@ -169,34 +169,75 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	int				i;
-	CSG_Projection	Projection;
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG")) )
+	if( pParameters->Get_Callback_Changes() )	// it's allowed to change proj4 string
 	{
-		if( Projection.Create(pParameter->asInt()) )
+		CSG_Projection	Projection;
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_DIALOG")) )
 		{
-			pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+			pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Get_User_Definition(*pParameter->asParameters()));
 		}
-	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_GEOGCS"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_PROJCS")) )
-	{
-		if( pParameter->asChoice()->Get_Data(i) && (i = SG_Get_Projections().Get_Projection(i).Get_EPSG()) >= 0 )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_FILE")) )
 		{
-			pParameters->Get_Parameter("CRS_EPSG")->Set_Value(i);
+			if( Projection.Load(pParameters->Get_Parameter("CRS_FILE")->asString()) )
+			{
+				if( Projection.Get_EPSG() > 0 )
+				{
+					pParameters->Get_Parameter("CRS_EPSG")->Set_Value(Projection.Get_EPSG());
 
-			On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
+					On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
+				}
+				else
+				{
+					pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+				}
+			}
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG")) )
+		{
+			if( Projection.Create(pParameter->asInt()) )
+			{
+				pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+			}
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_GEOGCS"))
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_PROJCS")) )
+		{
+			int		i;
+
+			if( pParameter->asChoice()->Get_Data(i) && (i = SG_Get_Projections().Get_Projection(i).Get_EPSG()) >= 0 )
+			{
+				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(i);
+
+				On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
+			}
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_GRID"))
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_SHAPES")) )
+		{
+			if( pParameter->asDataObject() && pParameter->asDataObject()->Get_Projection().is_Okay() )
+			{
+				if( pParameter->asDataObject()->Get_Projection().Get_EPSG() > 0 )
+				{
+					pParameters->Get_Parameter("CRS_EPSG")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_EPSG());
+
+					On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
+				}
+				else
+				{
+					pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_Proj4().c_str());
+				}
+			}
+
+			pParameter->Set_Value((void *)NULL);
 		}
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_DIALOG")) )
-	{
-		pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Get_User_Definition(*pParameter->asParameters()));
-	}
-
 	if(	!SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CRS_DIALOG")) )
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJ_TYPE")) )
@@ -243,44 +284,6 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_FILE")) )
-	{
-		if( Projection.Load(pParameters->Get_Parameter("CRS_FILE")->asString()) )
-		{
-			if( Projection.Get_EPSG() > 0 )
-			{
-				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(Projection.Get_EPSG());
-
-				On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
-			}
-			else
-			{
-				pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_GRID"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_SHAPES")) )
-	{
-		if( pParameter->asDataObject() && pParameter->asDataObject()->Get_Projection().is_Okay() )
-		{
-			if( pParameter->asDataObject()->Get_Projection().Get_EPSG() > 0 )
-			{
-				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_EPSG());
-
-				On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
-			}
-			else
-			{
-				pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_Proj4().c_str());
-			}
-		}
-
-		pParameter->Set_Value((void *)NULL);
-	}
-
 	return( 0 );
 }
 

@@ -102,17 +102,18 @@ CSG_Parameters::~CSG_Parameters(void)
 //---------------------------------------------------------
 void CSG_Parameters::_On_Construction(void)
 {
-	m_pOwner		= NULL;
+	m_pOwner			= NULL;
 
-	m_Parameters	= NULL;
-	m_nParameters	= 0;
+	m_Parameters		= NULL;
+	m_nParameters		= 0;
 
-	m_Callback		= NULL;
-	m_bCallback		= false;
+	m_Callback			= NULL;
+	m_bCallback			= false;
+	m_bCallback_Changes	= true;
 
-	m_pGrid_System	= NULL;
+	m_pGrid_System		= NULL;
 
-	m_bManaged		= true;
+	m_bManaged			= true;
 }
 
 //---------------------------------------------------------
@@ -1030,8 +1031,9 @@ int CSG_Parameters::Assign(CSG_Parameters *pSource)
 			Set_Name		(pSource->Get_Name());
 			Set_Description	(pSource->Get_Description());
 
-			m_Callback	= pSource->m_Callback;
-			m_bCallback	= pSource->m_bCallback;
+			m_Callback			= pSource->m_Callback;
+			m_bCallback			= pSource->m_bCallback;
+			m_bCallback_Changes	= pSource->m_bCallback_Changes;
 
 			if( pSource->Get_Count() > 0 )
 			{

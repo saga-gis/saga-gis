@@ -1171,6 +1171,9 @@ public:
 	void						Set_Callback_On_Parameter_Changed	(TSG_PFNC_Parameter_Changed pCallback);
 	void						Set_Callback			(bool bActive = true);
 
+	void						Set_Callback_Changes	(bool bAllow)	{	m_bCallback_Changes	= bAllow;	}
+	bool						Get_Callback_Changes	(void)			{	return( m_bCallback_Changes	);	}
+
 	//-----------------------------------------------------
 	CSG_Parameter *				Get_Parameter			(int iParameter);
 	CSG_Parameter *				Get_Parameter			(const SG_Char *Identifier);
@@ -1299,7 +1302,7 @@ private:
 
 	void						*m_pOwner;
 
-	bool						m_bCallback, m_bManaged;
+	bool						m_bCallback, m_bCallback_Changes, m_bManaged;
 
 	CSG_String					m_Identifier, m_Name, m_Description;
 
