@@ -92,8 +92,6 @@ public:
 
 	virtual TWKSP_Item				Get_Type				(void)			{	return( WKSP_ITEM_Table );	}
 
-	virtual CSG_Parameters *		Get_Parameters			(void)			{	return( &m_Parameters );	}
-
 	virtual void					Parameters_Changed		(void);
 
 	virtual wxString				Get_Name				(void);
@@ -127,8 +125,6 @@ public:
 
 private:
 
-	CSG_Parameters					m_Parameters;
-
 	CSG_Table						*m_pTable;
 
 	CWKSP_Base_Item					*m_pOwner;
@@ -138,9 +134,7 @@ private:
 	class CVIEW_Table_Diagram		*m_pDiagram;
 
 
-	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter);
-
-	int								On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 };
 

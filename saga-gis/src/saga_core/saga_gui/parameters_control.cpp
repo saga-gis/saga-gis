@@ -322,7 +322,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 		m_bModified	= false;
 		m_pPG->ClearModifiedStatus();
 
-		if( pParameters == NULL )
+		if( pParameters == NULL || pParameters->Get_Count() == 0 )
 		{
 			m_pParameters->Set_Callback(false);
 			m_pParameters->Assign(m_pOriginal = pParameters);
@@ -869,14 +869,10 @@ void CParameters_Control::_Init_Pararameters(void)
 {
 	if( m_pParameters )
 	{
-		m_pParameters->Set_Callback_Changes(false);
-
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
-			m_pParameters->Get_Parameter(i)->has_Changed();
+			m_pParameters->Get_Parameter(i)->has_Changed(PARAMETER_CHECK_ENABLE);
 		}
-
-		m_pParameters->Set_Callback_Changes(true);
 	}
 }
 

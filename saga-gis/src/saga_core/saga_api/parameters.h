@@ -190,7 +190,12 @@ class CSG_Parameter;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef int		(* TSG_PFNC_Parameter_Changed)	(CSG_Parameter *pSender);
+#define PARAMETER_CHECK_VALUES				0x01
+#define PARAMETER_CHECK_ENABLE				0x02
+#define PARAMETER_CHECK_ALL					(PARAMETER_CHECK_VALUES | PARAMETER_CHECK_ENABLE)
+
+//---------------------------------------------------------
+typedef int		(* TSG_PFNC_Parameter_Changed)	(CSG_Parameter *pParameter, int Flags);
 
 
 ///////////////////////////////////////////////////////////
@@ -1062,7 +1067,7 @@ public:
 
 	bool						Restore_Default			(void)	{	return( m_pData->Restore_Default() );	}
 
-	bool						has_Changed				(void);
+	bool						has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
 
 	bool						asBool					(void)	{	return( (bool          )!!m_pData->asInt	() );	}
 	int							asInt					(void)	{	return( (int           )m_pData->asInt		() );	}
@@ -1170,9 +1175,6 @@ public:
 	//-----------------------------------------------------
 	void						Set_Callback_On_Parameter_Changed	(TSG_PFNC_Parameter_Changed pCallback);
 	void						Set_Callback			(bool bActive = true);
-
-	void						Set_Callback_Changes	(bool bAllow)	{	m_bCallback_Changes	= bAllow;	}
-	bool						Get_Callback_Changes	(void)			{	return( m_bCallback_Changes	);	}
 
 	//-----------------------------------------------------
 	CSG_Parameter *				Get_Parameter			(int iParameter);
@@ -1302,7 +1304,7 @@ private:
 
 	void						*m_pOwner;
 
-	bool						m_bCallback, m_bCallback_Changes, m_bManaged;
+	bool						m_bCallback, m_bManaged;
 
 	CSG_String					m_Identifier, m_Name, m_Description;
 
@@ -1315,7 +1317,7 @@ private:
 
 	void						_On_Construction		(void);
 
-	bool						_On_Parameter_Changed	(CSG_Parameter *pSender);
+	bool						_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
 
 	CSG_Parameter *				_Add_Value				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
 	CSG_Parameter *				_Add_Range				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bInformation, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum);

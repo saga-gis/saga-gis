@@ -115,7 +115,7 @@ protected:
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map);
 	virtual bool				_Draw_Initialize		(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, bool bSelection);

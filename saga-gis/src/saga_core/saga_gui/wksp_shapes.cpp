@@ -297,6 +297,8 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_Shapes::On_Create_Parameters(void)
 {
+	CWKSP_Layer::On_Create_Parameters();
+
 	//-----------------------------------------------------
 	// General...
 
@@ -496,31 +498,38 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_TYPE"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_TYPE"))
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+		{
+			int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
 
-		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pShapes->Get_Minimum(zField),
-			m_pShapes->Get_Maximum(zField)
-		);
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
-	{
-		int		Value	= pParameter->asInt();
-
-		pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
-		pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
-		pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
+				m_pShapes->Get_Minimum(zField),
+				m_pShapes->Get_Maximum(zField)
+			);
+		}
 	}
 
 	//-----------------------------------------------------
-	return( 1 );
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
+		{
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
+			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 //---------------------------------------------------------

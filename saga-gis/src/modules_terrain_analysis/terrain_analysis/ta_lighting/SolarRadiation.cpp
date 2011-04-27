@@ -421,7 +421,7 @@ CSolarRadiation::CSolarRadiation(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GRD_LAT")) )

@@ -90,13 +90,16 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), SG_DATATYPE_String);
 
-	Create_Parameters();
+	//-----------------------------------------------------
+	Initialise();
 
 	//-----------------------------------------------------
+	DataObject_Changed((CSG_Parameters *)NULL);
+
 	m_Parameters("COLORS_TYPE")		->Set_Value(CLASSIFY_METRIC);
 	m_Parameters("COLORS_ATTRIB")	->Set_Value(2);
 
-	On_Parameter_Changed(&m_Parameters, m_Parameters("COLORS_ATTRIB"));
+	On_Parameter_Changed(&m_Parameters, m_Parameters("COLORS_ATTRIB"), PARAMETER_CHECK_ALL);
 
 	Parameters_Changed();
 }
@@ -253,6 +256,8 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_Create_Parameters(void)
 {
+	CWKSP_Layer::On_Create_Parameters();
+
 	//-----------------------------------------------------
 	// General...
 
@@ -300,10 +305,6 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	);
 
 	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
-
-
-	//-----------------------------------------------------
-	DataObject_Changed((CSG_Parameters *)NULL);
 }
 
 
@@ -349,23 +350,43 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		CSG_Parameters	Parameters;
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+		{
+			CSG_Parameters	Parameters;
 	
-		int		zField	= pParameter->asInt();
+			int		zField	= pParameter->asInt();
 
-		double	m	= m_pPointCloud->Get_Mean  (zField);
-		double	s	= m_pPointCloud->Get_StdDev(zField) * 2.0;
-		double	min	= m - s;	if( min < m_pPointCloud->Get_Minimum(zField) )	min	= m_pPointCloud->Get_Minimum(zField);
-		double	max	= m + s;	if( max > m_pPointCloud->Get_Maximum(zField) )	max	= m_pPointCloud->Get_Maximum(zField);
+			double	m	= m_pPointCloud->Get_Mean  (zField);
+			double	s	= m_pPointCloud->Get_StdDev(zField) * 2.0;
+			double	min	= m - s;	if( min < m_pPointCloud->Get_Minimum(zField) )	min	= m_pPointCloud->Get_Minimum(zField);
+			double	max	= m + s;	if( max > m_pPointCloud->Get_Maximum(zField) )	max	= m_pPointCloud->Get_Maximum(zField);
 
-		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
+			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
+		}
 	}
 
-	return( 1 );
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
+		{
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
+			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
+
+			return( 0 );
+		}
+	}
+
+	//-----------------------------------------------------
+	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 

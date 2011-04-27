@@ -773,7 +773,7 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
 }
 
 //---------------------------------------------------------
-int CWKSP_Project::_Modified_Changed(CSG_Parameter *pParameter)
+int CWKSP_Project::_Modified_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{

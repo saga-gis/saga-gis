@@ -95,7 +95,6 @@ public:
 	virtual wxString				Get_Name			(void);
 	virtual wxString				Get_Description		(void);
 
-	virtual CSG_Parameters *		Get_Parameters		(void)		{	return( &m_Parameters );	}
 	virtual void					Parameters_Changed	(void);
 
 	virtual wxMenu *				Get_Menu			(void);
@@ -112,8 +111,6 @@ public:
 private:
 
 	CSG_Grid_System					m_System;
-
-	CSG_Parameters					m_Parameters;
 
 };
 

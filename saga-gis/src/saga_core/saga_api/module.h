@@ -192,6 +192,7 @@ protected:
 	virtual bool				On_Execute					(void)	= 0;
 
 	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 	//-----------------------------------------------------
@@ -265,7 +266,7 @@ private:
 
 	void						_Set_Output_History			(void);
 
-	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter);
+	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
 
 };
 

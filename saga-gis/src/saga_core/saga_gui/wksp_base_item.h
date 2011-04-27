@@ -133,32 +133,39 @@ public:
 	CWKSP_Base_Item(void);
 	virtual ~CWKSP_Base_Item(void);
 
-	virtual TWKSP_Item				Get_Type			(void)	= 0;
+	virtual TWKSP_Item				Get_Type				(void)	= 0;
 
-	virtual wxString				Get_Name			(void)	= 0;
-	virtual wxString				Get_Description		(void)	= 0;
+	virtual wxString				Get_Name				(void)	= 0;
+	virtual wxString				Get_Description			(void)	= 0;
 
-	virtual wxMenu *				Get_Menu			(void)	= 0;
+	virtual wxMenu *				Get_Menu				(void)	= 0;
 
-	virtual bool					On_Command			(int Cmd_ID);
-	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
+	virtual bool					On_Command				(int Cmd_ID);
+	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual class CSG_Parameters *	Get_Parameters		(void)	{	return( NULL );			}
-	virtual void					Parameters_Changed	(void);
+	virtual CSG_Parameters *		Get_Parameters			(void);
+	virtual void					Parameters_Changed		(void);
 
-	class CWKSP_Base_Control *		Get_Control			(void);
-	class CWKSP_Base_Manager *		Get_Manager			(void)	{	return( m_pManager );	}
+	class CWKSP_Base_Control *		Get_Control				(void);
+	class CWKSP_Base_Manager *		Get_Manager				(void)	{	return( m_pManager );	}
 
-	int								Get_ID				(void)	{	return( m_ID );			}
-	int								Get_Index			(void);
+	int								Get_ID					(void)	{	return( m_ID );			}
+	int								Get_Index				(void);
 
-	bool							is_Manager			(void)	{	return( m_bManager );	}
-	bool							is_Selected			(void);
+	bool							is_Manager				(void)	{	return( m_bManager );	}
+	bool							is_Selected				(void);
 
-	static wxString					Get_Type_Name		(TWKSP_Item Type);
+	static wxString					Get_Type_Name			(TWKSP_Item Type);
 
 
 protected:
+
+	CSG_Parameters					m_Parameters;
+
+
+	virtual void					On_Create_Parameters	(void);
+
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 
 private:
@@ -167,7 +174,10 @@ private:
 
 	int								m_ID;
 
-	class CWKSP_Base_Manager		*m_pManager;
+	CWKSP_Base_Manager				*m_pManager;
+
+
+	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
 
 };
 

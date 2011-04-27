@@ -103,7 +103,6 @@ public:
 	virtual bool					On_Command			(int Cmd_ID);
 	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
 
-	virtual class CSG_Parameters *	Get_Parameters		(void)		{	return( &m_Parameters );	}
 	virtual void					Parameters_Changed	(void);
 
 	void							On_Execute			(wxCommandEvent  &event);
@@ -124,8 +123,6 @@ public:
 
 
 private:
-
-	CSG_Parameters					m_Parameters;
 
 	class CWKSP_Module_Menu			*m_pMenu;
 

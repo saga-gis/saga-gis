@@ -64,6 +64,7 @@
 #include <saga_api/saga_api.h>
 
 #include "active.h"
+#include "active_parameters.h"
 
 #include "wksp_base_item.h"
 #include "wksp_base_manager.h"
@@ -141,6 +142,9 @@ CWKSP_Base_Item::CWKSP_Base_Item(void)
 	m_bManager	= false;
 	m_pManager	= NULL;
 	m_ID		= 0;
+
+	m_Parameters.Create(this, LNG(""), LNG(""));
+	m_Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 }
 
 //---------------------------------------------------------
@@ -253,6 +257,16 @@ bool CWKSP_Base_Item::On_Command_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Parameters * CWKSP_Base_Item::Get_Parameters(void)
+{
+	return( m_Parameters.Get_Count() > 0 ? &m_Parameters : NULL );
+}
+
+//---------------------------------------------------------
+void CWKSP_Base_Item::On_Create_Parameters(void)
+{}
+
+//---------------------------------------------------------
 void CWKSP_Base_Item::Parameters_Changed(void)
 {
 	if( Get_Control() && GetId().IsOk() )
@@ -265,6 +279,29 @@ void CWKSP_Base_Item::Parameters_Changed(void)
 		g_pACTIVE->Update_Description();
 		g_pACTIVE->Update(this, false);
 	}
+}
+
+//---------------------------------------------------------
+int CWKSP_Base_Item::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
+{
+	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	{
+		((CWKSP_Base_Item *)pParameter->Get_Owner()->Get_Owner())->
+			On_Parameter_Changed(pParameter->Get_Owner(), pParameter, Flags);
+	}
+
+	if( g_pACTIVE )
+	{
+		g_pACTIVE->Get_Parameters()->Update_Parameters(pParameter->Get_Owner(), false);
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+int CWKSP_Base_Item::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
+{
+	return( 1 );
 }
 
 

@@ -109,7 +109,7 @@ private:
 
 	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
 
-	static int				_Modified_Changed	(class CSG_Parameter  *pParameter);
+	static int				_Modified_Changed	(class CSG_Parameter  *pParameter, int Flags);
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, bool bSelections);
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, class CSG_Data_Object *pObject);
 	bool					_Modified_Save		(class CSG_Parameters *pParameters);

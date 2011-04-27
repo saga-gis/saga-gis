@@ -109,7 +109,6 @@ void CSG_Parameters::_On_Construction(void)
 
 	m_Callback			= NULL;
 	m_bCallback			= false;
-	m_bCallback_Changes	= true;
 
 	m_pGrid_System		= NULL;
 
@@ -886,12 +885,12 @@ void CSG_Parameters::Set_Callback(bool bActive)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::_On_Parameter_Changed(CSG_Parameter *pSender)
+bool CSG_Parameters::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( m_Callback && m_bCallback )
 	{
 		m_bCallback	= false;
-		m_Callback(pSender);
+		m_Callback(pParameter, Flags);
 		m_bCallback	= true;
 
 		return( true );
@@ -1031,9 +1030,8 @@ int CSG_Parameters::Assign(CSG_Parameters *pSource)
 			Set_Name		(pSource->Get_Name());
 			Set_Description	(pSource->Get_Description());
 
-			m_Callback			= pSource->m_Callback;
-			m_bCallback			= pSource->m_bCallback;
-			m_bCallback_Changes	= pSource->m_bCallback_Changes;
+			m_Callback		= pSource->m_Callback;
+			m_bCallback		= pSource->m_bCallback;
 
 			if( pSource->Get_Count() > 0 )
 			{

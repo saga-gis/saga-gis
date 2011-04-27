@@ -84,13 +84,12 @@
 CWKSP_Shapes_Point::CWKSP_Shapes_Point(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
-	Create_Parameters();
+	Initialise();
 }
 
 //---------------------------------------------------------
 CWKSP_Shapes_Point::~CWKSP_Shapes_Point(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -343,22 +342,23 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter);
-
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_FONT")) )
+	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_FONT")) )
+		{
+			int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
 
-		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pShapes->Get_Minimum(zField),
-			m_pShapes->Get_Maximum(zField)
-		);
+			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
+				m_pShapes->Get_Minimum(zField),
+				m_pShapes->Get_Maximum(zField)
+			);
+		}
 	}
 
-	return( 1 );
+	return( CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 

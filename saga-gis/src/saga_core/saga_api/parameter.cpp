@@ -511,11 +511,11 @@ bool CSG_Parameter::Set_Value(const SG_Char *Value)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::has_Changed(void)
+bool CSG_Parameter::has_Changed(int Check_Flags)
 {
 	if( m_pOwner )
 	{
-		return( m_pOwner->_On_Parameter_Changed(this) );
+		return( m_pOwner->_On_Parameter_Changed(this, Check_Flags) );
 	}
 
 	return( false );

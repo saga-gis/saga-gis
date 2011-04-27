@@ -279,10 +279,9 @@ wxString CWKSP_Layer::Get_Name(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Layer::Create_Parameters(void)
+void CWKSP_Layer::On_Create_Parameters(void)
 {
-	m_Parameters.Create(this, LNG(""), LNG(""));
-	m_Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
+	CWKSP_Base_Item::On_Create_Parameters();
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node(
@@ -428,14 +427,18 @@ void CWKSP_Layer::Create_Parameters(void)
 		LNG(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
+}
 
-
-	//-----------------------------------------------------
-	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), m_Parameters("METRIC_COLORS")->asColors());
-
+//---------------------------------------------------------
+bool CWKSP_Layer::Initialise(void)
+{
 	On_Create_Parameters();
 
+	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), m_Parameters("METRIC_COLORS")->asColors());
+
 	DataObject_Changed();
+
+	return( true );
 }
 
 
@@ -524,7 +527,7 @@ void CWKSP_Layer::DataObject_Changed(CSG_Parameters *pParameters)
 			double		m, s, min, max;
 			CSG_Grid	*pGrid	= (CSG_Grid *)m_pObject;
 
-			switch( g_pData->Get_Parameters()->Get_Parameter("GRID_DISPLAY_RANGEFIT")->asInt() )
+			switch( ((CWKSP_Base_Item *)g_pData)->Get_Parameters()->Get_Parameter("GRID_DISPLAY_RANGEFIT")->asInt() )
 			{
 			case 0:
 				min	= pGrid->Get_ZMin(true);
@@ -625,37 +628,6 @@ void CWKSP_Layer::Parameters_Changed(void)
 
 		bUpdates	= false;
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CWKSP_Layer::_On_Parameter_Changed(CSG_Parameter *pParameter)
-{
-	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
-	{
-	//	return( ((CWKSP_Layer *)pParameter->Get_Owner()->Get_Owner())->
-	//		On_Parameter_Changed(pParameter->Get_Owner(), pParameter)
-	//	);
-
-		((CWKSP_Layer *)pParameter->Get_Owner()->Get_Owner())->
-			On_Parameter_Changed(pParameter->Get_Owner(), pParameter);
-
-		g_pACTIVE->Get_Parameters()->Update_Parameters(pParameter->Get_Owner(), false);
-	}
-
-	return( 0 );
-}
-
-//---------------------------------------------------------
-int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	return( 1 );
 }
 
 

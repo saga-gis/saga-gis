@@ -79,13 +79,12 @@
 CWKSP_Shapes_Polygon::CWKSP_Shapes_Polygon(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
-	Create_Parameters();
+	Initialise();
 }
 
 //---------------------------------------------------------
 CWKSP_Shapes_Polygon::~CWKSP_Shapes_Polygon(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -178,11 +177,9 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Polygon::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CWKSP_Shapes_Polygon::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter);
-
-	return( 1 );
+	return( CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 

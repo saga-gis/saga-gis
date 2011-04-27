@@ -92,7 +92,7 @@ CWKSP_TIN::CWKSP_TIN(CSG_TIN *pTIN)
 	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), SG_DATATYPE_String);
 
-	Create_Parameters();
+	Initialise();
 }
 
 //---------------------------------------------------------
@@ -219,6 +219,8 @@ bool CWKSP_TIN::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_TIN::On_Create_Parameters(void)
 {
+	CWKSP_Layer::On_Create_Parameters();
+
 	//-----------------------------------------------------
 	// General...
 
@@ -299,19 +301,22 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		int		zField	= pParameter->asInt();
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+		{
+			int		zField	= pParameter->asInt();
 
-		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pTIN->Get_Minimum(zField),
-			m_pTIN->Get_Maximum(zField)
-		);
+			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
+				m_pTIN->Get_Minimum(zField),
+				m_pTIN->Get_Maximum(zField)
+			);
+		}
 	}
 
-	return( 1 );
+	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 

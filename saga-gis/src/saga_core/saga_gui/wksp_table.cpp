@@ -90,8 +90,7 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 	m_pDiagram	= NULL;
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, LNG(""), LNG(""));
-	m_Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
+	On_Create_Parameters();
 
 	m_Parameters.Add_String(
 		m_Parameters("NODE_GENERAL")	, "NAME"			, LNG("[CAP] Name"),
@@ -280,22 +279,9 @@ void CWKSP_Table::Parameters_Changed(void)
 }
 
 //---------------------------------------------------------
-int CWKSP_Table::_On_Parameter_Changed(CSG_Parameter *pParameter)
+int CWKSP_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
-	{
-		return( ((CWKSP_Table *)pParameter->Get_Owner()->Get_Owner())->
-			On_Parameter_Changed(pParameter->Get_Owner(), pParameter)
-		);
-	}
-
-	return( 0 );
-}
-
-//---------------------------------------------------------
-int CWKSP_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	return( 1 );
+	return( CWKSP_Base_Item::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 
