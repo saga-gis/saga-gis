@@ -81,7 +81,7 @@ public:
 	CSAGA_Wetness_Index(void);
 	virtual ~CSAGA_Wetness_Index(void);
 
-	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
 
 
 protected:

@@ -112,7 +112,7 @@ public:
 	CLakeFlood(void);
 	virtual ~CLakeFlood(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Lakes") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Miscellaneous") );	}
 
 
 protected:
@@ -139,7 +139,7 @@ public:
 	CLakeFloodInteractive(void);
 	virtual ~CLakeFloodInteractive(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Lakes") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Miscellaneous") );	}
 
 
 protected:

@@ -19,98 +19,137 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "SlopeLength.h"
 
-CSlopeLength::CSlopeLength(void){
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-	Parameters.Set_Name(_TL("Slope Length"));
+//---------------------------------------------------------
+CSlopeLength::CSlopeLength(void)
+{
+	Set_Name		(_TL("Slope Length"));
 
-	Parameters.Set_Description(_TL(""));
+	Set_Author		(SG_T("V.Olaya (c) 2004"));
+
+	Set_Description	(_TW(
+		""
+	));
 
 	Parameters.Add_Grid(
-		NULL, "DEM", _TL("Elevation"),
-		_TL(""), PARAMETER_INPUT
+		NULL	, "DEM"		, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "LENGTH", _TL("Slope Length"),
+		NULL	, "LENGTH"	, _TL("Slope Length"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
-
-}//constructor
-
-CSlopeLength::~CSlopeLength(void){}
+}
 
 
-bool CSlopeLength::On_Execute(void){
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-	int x,y;
-	int n;
-	double	slope, aspect;
+//---------------------------------------------------------
+bool CSlopeLength::On_Execute(void)
+{
+	int		n, x, y;
 
-	m_pSlopeLengthGrid = Parameters("LENGTH")->asGrid();
-	m_pDEM = Parameters("DEM")->asGrid();
+	//-----------------------------------------------------
+	m_pDEM		= Parameters("DEM")		->asGrid();
+	m_pLength	= Parameters("LENGTH")	->asGrid();
 
-	m_pSlopeLengthGrid->Assign(0.0);
-	
-	m_pSlopeGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
-	
-	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
-		for(x=0; x<Get_NX(); x++){
-			if( m_pDEM->Get_Gradient(x, y, slope, aspect) )	{
-				m_pSlopeGrid->Set_Value(x, y, slope);				
-			}//if
-			else{
-				m_pSlopeGrid->Set_NoData(x, y);				
-			}//else
-		}//for
-	}//for
+	//-----------------------------------------------------
+	m_Slope.Create(*Get_System());
 
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++){
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			double	Slope, Aspect;
+
+			if( m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
+			{
+				m_Slope   .Set_Value(x, y, Slope);
+				m_pLength->Set_Value(x, y, 0.0);
+			}
+			else
+			{
+				m_Slope   .Set_NoData(x, y);
+				m_pLength->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	{
 		if( m_pDEM->Get_Sorted(n, x, y) )
-			Set_Length(x, y);	
-	}//for
+		{
+			Get_Length(x, y);
+		}
+	}
 
-	delete m_pSlopeGrid;
+	//-----------------------------------------------------
+	m_Slope.Destroy();
 
-	DataObject_Set_Colors(m_pSlopeLengthGrid, 100, SG_COLORS_WHITE_BLUE);
+	return( true );
+}
 
-	return true ;
 
-}//method
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-void CSlopeLength::Set_Length(int x, int y){
-	
-	int	i,ix,iy;
-	double dSlope, dSlope2;
-	double dLength;
+//---------------------------------------------------------
+void CSlopeLength::Get_Length(int x, int y)
+{
+	int		i, ix, iy;
 
-	if( m_pDEM->is_InGrid(x, y) && (i = m_pDEM->Get_Gradient_NeighborDir(x, y, true)) >= 0 ){
-		
+	if( m_Slope.is_InGrid(x, y) && (i = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+	{
 		ix	= Get_xTo(i, x);
 		iy	= Get_yTo(i, y);
 
-		if( m_pDEM->is_InGrid(ix, iy) ){
-
-			dSlope = m_pSlopeGrid->asDouble(x,y);
-			dSlope2 = m_pSlopeGrid->asDouble(ix,iy);
-			if (dSlope2 > 0.5 * dSlope){
-				dLength = m_pSlopeLengthGrid->asDouble(x, y) + Get_Length(i);
-			}//if
-			else{
-				dLength = 0.;
-			}//else
+		if( m_Slope.is_InGrid(ix, iy) )
+		{
+			if( m_Slope.asDouble(ix, iy) > 0.5 * m_Slope.asDouble(x, y) )	// ???
+			{
+				double	Length	= m_pLength->asDouble(x, y) + CSG_Module_Grid::Get_Length(i);
 			
-			if (dLength > m_pSlopeLengthGrid->asDouble(ix, iy)){
-				m_pSlopeLengthGrid->Set_Value(ix, iy, dLength);
-			}//if
+				if( Length > m_pLength->asDouble(ix, iy) )
+				{
+					m_pLength->Set_Value(ix, iy, Length);
+				}
+			}
+		}
+	}
+}
 
-		}//if
 
-	}//if
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-}//method
-
-
+//---------------------------------------------------------

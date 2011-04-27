@@ -13,7 +13,6 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libta_hydrology.la
 libta_hydrology_la_SOURCES =\
-BasinGrid.cpp\
 CellBalance.cpp\
 EdgeContamination.cpp\
 Flow.cpp\
@@ -36,7 +35,6 @@ SAGA_Wetness_Index.cpp\
 Sinuosity.cpp\
 SlopeLength.cpp\
 TopographicIndices.cpp\
-BasinGrid.h\
 CellBalance.h\
 EdgeContamination.h\
 Flow.h\

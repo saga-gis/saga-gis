@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CFlow_Width::CFlow_Width(void)
 {
-	Set_Name		(_TL("Flow Width"));
+	Set_Name		(_TL("Flow Width and Specific Catchment Area"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2009"));
 

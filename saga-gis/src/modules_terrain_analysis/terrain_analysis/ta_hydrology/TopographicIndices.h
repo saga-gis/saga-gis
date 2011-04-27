@@ -82,13 +82,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CTopographicIndices : public CSG_Module_Grid
+class ta_hydrology_EXPORT CTWI : public CSG_Module_Grid
 {
 public:
-	CTopographicIndices(void);
-	virtual ~CTopographicIndices(void);
+	CTWI(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
 
 
 protected:
@@ -98,14 +97,58 @@ protected:
 
 private:
 
-	int						m_Method_LS, m_DG_Stability, m_Method_Area;
+};
 
 
-	double					m_DG_Erosivity;
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class ta_hydrology_EXPORT CStream_Power : public CSG_Module_Grid
+{
+public:
+	CStream_Power(void);
+
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
 
 
-	double					_Get_Area		(double Area);
-	double					_Get_LS			(double Slope, double Area);
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class ta_hydrology_EXPORT CLS_Factor : public CSG_Module_Grid
+{
+public:
+	CLS_Factor(void);
+
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+	int						m_Method, m_Stability;
+
+	double					m_Erosivity;
+
+
+	double					Get_LS			(double Slope, double Area);
 
 };
 

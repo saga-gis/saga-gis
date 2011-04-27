@@ -25,21 +25,23 @@
 
 #include "MLB_Interface.h"
 
-class CIsochronesConst : public CSG_Module_Grid_Interactive {
-
-private:
-	CSG_Grid *m_pDEM;
-	CSG_Grid *m_pTime;	
-	void writeTimeOut(int,int,int,int);
-
+class CIsochronesConst : public CSG_Module_Grid_Interactive
+{
 public:
 	CIsochronesConst(void);
 	virtual ~CIsochronesConst(void);
+
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Dynamics" ));	}
 
 protected:
 	virtual bool On_Execute(void);
 	virtual bool On_Execute_Finish(void);
 	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+private:
+	CSG_Grid *m_pDEM;
+	CSG_Grid *m_pTime;	
+	void writeTimeOut(int,int,int,int);
 
 };
 

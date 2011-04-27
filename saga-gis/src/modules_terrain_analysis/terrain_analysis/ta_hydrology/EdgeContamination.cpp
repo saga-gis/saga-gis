@@ -20,80 +20,183 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#include "EdgeContamination.h"
-#include "Helper.h"
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+#include "EdgeContamination.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #define NOT_VISITED -1
 
-CEdgeContamination::CEdgeContamination(void){
 
-	Parameters.Set_Name(_TL("Edge Contamination"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. "));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Grid(NULL, 
-						"DEM", 
-						_TL("Elevation"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+//---------------------------------------------------------
+CEdgeContamination::CEdgeContamination(void)
+{
+	Set_Name		(_TL("Edge Contamination"));
 
-	Parameters.Add_Grid(NULL, 
-						"CONTAMINATION", 
-						_TL("Edge Contamination"), 
-						_TL(""), 
-						PARAMETER_OUTPUT);
-}//constructor
+	Set_Author		(SG_T("V.Olaya (c) 2004"));
 
-CEdgeContamination::~CEdgeContamination(void)
-{}
+	Set_Description	(_TW(
+		""
+	));
 
-bool CEdgeContamination::On_Execute(void){
-	
-	m_pEdgeContamination = Parameters("CONTAMINATION")->asGrid();;
+	Parameters.Add_Grid(
+		NULL	,  "DEM"			, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	m_pDEM = Parameters("DEM")->asGrid(); 
-	m_pEdgeContamination->Assign(NOT_VISITED);
+	Parameters.Add_Grid(
+		NULL	, "CONTAMINATION"	, _TL("Edge Contamination"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
-		for(int x=0; x<Get_NX(); x++){			
-            m_pEdgeContamination->Set_Value(x,y,getEdgeContamination(x,y));
-        }// for
-    }// for
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CEdgeContamination::On_Execute(void)
+{
+	int		x, y;
+
+	//-----------------------------------------------------
+	m_pDEM				= Parameters("DEM")				->asGrid(); 
+	m_pContamination	= Parameters("CONTAMINATION")	->asGrid();
+
+	//-----------------------------------------------------
+	m_pContamination->Set_NoData_Value(-2);
+
+	m_Edge.Create(*Get_System(), SG_DATATYPE_Byte);
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			if( m_pDEM->is_InGrid(x, y) )
+			{
+				for(int i=0; i<8; i++)
+				{
+					if( !m_pDEM->is_InGrid(Get_xTo(i, x), Get_yTo(i, y)) )
+					{
+						m_Edge.Set_Value(x, y, 1);
+
+						break;
+					}
+				}
+
+				m_pContamination->Set_Value(x, y, -1);
+			}
+			else
+			{
+				m_pContamination->Set_NoData(x, y);
+			}
+		}
+	}
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			if( m_pDEM->is_InGrid(x, y) && !m_Edge.asInt(x, y) )
+			{
+				for(int i=0; i<8; i++)
+				{
+					if( m_Edge.asInt(Get_xTo(i, x), Get_yTo(i, y)) == 1 )
+					{
+						m_Edge.Set_Value(x, y, 2);
+
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			if( !m_pDEM->is_NoData(x, y) )
+			{
+				Get_Contamination(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	m_Edge.Destroy();
 
 	return( true );
+}
 
-}//method
 
-int CEdgeContamination::getEdgeContamination(int x, int y){
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-    int iNextX, iNextY;
-	int iEdgeContamination;
+//---------------------------------------------------------
+int CEdgeContamination::Get_Contamination(int x, int y)
+{
+	if( m_pDEM->is_NoData(x, y) )
+	{
+		return( 0 );
+	}
 
-	if (x <= 1 || y <= 1 || x >= Get_NX() - 2 || y >= Get_NY() - 2){
-		iEdgeContamination = 1;
-	}//if
-	else{
-		iEdgeContamination = 0;
-	}//else
-			
-	for (int i = -1; i<2; i++){
-		for (int j = -1; j<2; j++){
-			if (!(i == 0) || !(j == 0)) {
-				getNextCell(m_pDEM, x + i, y + j, iNextX, iNextY);
-				if (iNextY == y && iNextX == x) {
-					if (m_pEdgeContamination->asInt(x+i,y+j)!=NOT_VISITED){
-						iEdgeContamination += m_pEdgeContamination->asInt(x+i,y+j);
-					}//if
-					else{
-						iEdgeContamination += getEdgeContamination(x+i,y+j);
-					}//else
-				}// if				
-			}//if				
-		}//for
-	}//for
+	if( m_pContamination->asInt(x, y) >= 0 )
+	{
+		return( m_pContamination->asInt(x, y) );
+	}
 
-	m_pEdgeContamination->Set_Value(x, y, iEdgeContamination);
+	//-----------------------------------------------------
+	int	Contamination	= m_Edge.asInt(x, y) ? 1 : 0;
 
-	return iEdgeContamination;
+	for(int i=0; i<8; i++)
+	{
+		int	ix	= Get_xFrom(i, x);
+		int	iy	= Get_yFrom(i, y);
 
-}//method
+		if( m_pDEM->Get_Gradient_NeighborDir(ix, iy) == i )
+		{
+			Contamination	+= Get_Contamination(ix, iy);
+		}
+	}
+
+	m_pContamination->Set_Value(x, y, Contamination);
+
+	return( Contamination );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

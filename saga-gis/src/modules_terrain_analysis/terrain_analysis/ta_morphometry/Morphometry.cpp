@@ -73,13 +73,16 @@
 //---------------------------------------------------------
 CMorphometry::CMorphometry(void)
 {
-	Set_Name		(_TL("Local Morphometry"));
+	Set_Name		(_TL("Slope, Aspect, Curvature"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2001"));
 
 	Set_Description	(_TW(
-		"Calculates local morphometric terrain attributes (i.e. slope, aspect and curvatures).\n\n"
-		"References:\n\n"
+		"Calculates the local morphometric terrain parameters slope, aspect and if supported "
+		"by the chosen method also the curvature. Besides tangential curvature also its "
+		"horizontal and vertical components (i.e. plan and profile curvature) can be calculated.\n"
+
+		"\nReferences:\n\n"
 
 		"Maximum Slope\n"
 		"- Travis, M.R. / Elsner, G.H. / Iverson, W.D. / Johnson, C.G. (1975):\n"

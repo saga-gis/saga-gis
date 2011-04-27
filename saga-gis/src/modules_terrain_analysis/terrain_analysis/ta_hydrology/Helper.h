@@ -30,7 +30,11 @@
 void getNextCell(CSG_Grid*,int,int,int &,int &);
 void getNextCell(CSG_Grid*,CSG_Grid*,int,int,int&,int&);
 double FlowDistance(CSG_Grid*,CSG_Grid*,int,int,int,int,int);
-TSG_Point ** RiverProfile(int, int, CSG_Grid*, CSG_Grid*, CSG_Grid*, int &);
-TSG_Point  * RiverCoords (int, int, CSG_Grid*, CSG_Grid*, int &);
-float DrainageDensity(CSG_Shapes*, CSG_Shapes*, CSG_Grid*, CSG_Grid*);
-void ClosingPoint(CSG_Grid*, CSG_Grid*, int &, int &);
+
+double CalculateBasinGrid(CSG_Grid*, CSG_Grid*, int, int);
+void CalculateFlowAccGrid(CSG_Grid*, CSG_Grid*);
+
+//TSG_Point ** RiverProfile(int, int, CSG_Grid*, CSG_Grid*, CSG_Grid*, int &);
+//TSG_Point  * RiverCoords (int, int, CSG_Grid*, CSG_Grid*, int &);
+//float DrainageDensity(CSG_Shapes*, CSG_Shapes*, CSG_Grid*, CSG_Grid*);
+//void ClosingPoint(CSG_Grid*, CSG_Grid*, int &, int &);

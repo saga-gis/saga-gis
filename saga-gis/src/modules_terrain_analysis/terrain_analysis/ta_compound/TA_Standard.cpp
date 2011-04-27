@@ -339,17 +339,31 @@ bool CTA_Standard::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("Topographic Indices"));
+	Process_Set_Text(_TL("Topographic Wetness Index"));
 
-	CTopographicIndices	TopographicIndices;
+	CTWI	TWI;
 
-	if(	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, Parameters("SLOPE"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("AREA")		, Parameters("CAREA"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("WETNESS")		, Parameters("WETNESS"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("STREAMPOW")	, Parameters("STREAMPOW"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("LSFACTOR")	, Parameters("LSFACTOR"))
+	if(	!TWI.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, Parameters("SLOPE"))
+	||	!TWI.Get_Parameters()->Set_Parameter(SG_T("AREA")		, Parameters("CAREA"))
+	||	!TWI.Get_Parameters()->Set_Parameter(SG_T("TWI")		, Parameters("WETNESS"))
+	||	!TWI.Get_Parameters()->Set_Parameter(SG_T("CONV")		, PARAMETER_TYPE_Choice, 1)
 
-	||	!TopographicIndices.Execute() )
+	||	!TWI.Execute() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("LS Factor"));
+
+	CLS_Factor	LS;
+
+	if(	!LS.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, Parameters("SLOPE"))
+	||	!LS.Get_Parameters()->Set_Parameter(SG_T("AREA")		, Parameters("CAREA"))
+	||	!LS.Get_Parameters()->Set_Parameter(SG_T("LS")			, Parameters("LSFACTOR"))
+	||	!LS.Get_Parameters()->Set_Parameter(SG_T("CONV")		, PARAMETER_TYPE_Choice, 1)
+
+	||	!TWI.Execute() )
 	{
 		return( false );
 	}

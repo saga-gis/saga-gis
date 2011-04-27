@@ -26,7 +26,25 @@
 
 #include "MLB_Interface.h"
 
-class CFlowDepth : public CSG_Module_Grid_Interactive {
+class CFlowDepth : public CSG_Module_Grid_Interactive
+{
+public:
+	CFlowDepth(void);
+	virtual ~CFlowDepth(void);	
+
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Dynamics" ));	}
+
+	bool isHeader(int,int);
+	double CalculateFlowDepth(int,int);
+	//void MarkBuffer(int,int,double);
+	bool getWetAreaAndPerimeter(int,int,double,double&,double&);
+
+
+protected:
+	virtual bool On_Execute(void);
+	virtual bool On_Execute_Finish();
+	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
 
 private:
 	CSG_Grid *m_pDEM;
@@ -38,20 +56,5 @@ private:
 	double m_fMaxFlowAcc;
 	double m_dThreshold;
 	double m_dFlow;
-
-public:
-	CFlowDepth(void);
-	virtual ~CFlowDepth(void);	
-	bool isHeader(int,int);
-	double CalculateFlowDepth(int,int);
-	//void MarkBuffer(int,int,double);
-	bool getWetAreaAndPerimeter(int,int,double,double&,double&);
-
-protected:
-	virtual bool On_Execute(void);
-	virtual bool On_Execute_Finish();
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
-
-	
 
 };

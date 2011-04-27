@@ -82,9 +82,9 @@
 //---------------------------------------------------------
 CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 {
-	Set_Name(_TL("Flow Tracing"));
+	Set_Name		(_TL("Catchment Area (Flow Tracing)"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2001"));
 
 	Set_Description	(_TW(
 		"Flow tracing algorithms for calculations of flow accumulation and related parameters. "

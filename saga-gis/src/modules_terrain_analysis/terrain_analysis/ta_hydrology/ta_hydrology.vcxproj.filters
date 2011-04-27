@@ -17,9 +17,6 @@
     <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BasinGrid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CellBalance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -191,9 +188,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LakeFlood.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SAGA_Wetness_Index.h">

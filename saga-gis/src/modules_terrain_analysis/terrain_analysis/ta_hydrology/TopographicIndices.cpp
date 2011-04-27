@@ -71,24 +71,315 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTopographicIndices::CTopographicIndices(void)
+CTWI::CTWI(void)
 {
-	CSG_Parameter	*pNode, *pSNode;
-
 	//-----------------------------------------------------
-	Set_Name		(_TL("Topographic Indices"));
+	Set_Name		(_TL("Topographic Wetness Index (TWI)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Calculation of slope and catchment area based topographic indices "
-		"Topograhic Wetness Index (TWI), USLE LS factor, Stream Power Index.\n"
+		"Calculation of the slope and specific catchment area (SCA) based Topographic Wetness Index (TWI)\n"
+	//	"ln(SCA / tan(Slope))\n"
 		"\n"
 		"References:\n"
 		"\n"
 		"Beven, K.J., Kirkby, M.J. (1979):\n"
 		"A physically-based variable contributing area model of basin hydrology'\n"
 		"Hydrology Science Bulletin 24(1), p.43-69\n"
+		"\n"
+		"Boehner, J., Selige, T. (2006):\n"
+		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation'\n"
+		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA – Analysis and Modelling Applications', "
+		"Goettinger Geographische Abhandlungen, Vol.115, p.13-27\n"
+		"\n"
+		"Moore, I.D., Grayson, R.B., Ladson, A.R. (1991):\n"
+		"'Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications'\n"
+		"Hydrological Processes, Vol.5, No.1\n"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL, "SLOPE"		, _TL("Slope"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL, "AREA"		, _TL("Catchment Area"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL, "TRANS"		, _TL("Transmissivity"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		NULL, "TWI"			, _TL("Topographic Wetness Index"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "CONV"	, _TL("Area Conversion"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("no conversion (areas already given as specific catchment area)"),
+			_TL("1 / cell size (pseudo specific catchment area)")
+		), 0
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"	, _TL("Method (TWI)"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Standard"),
+			_TL("TOPMODEL")
+		), 0
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTWI::On_Execute(void)
+{
+	bool		bTopmodel, bConvert;
+	int			x, y;
+	double		Area, Slope, Kf, Mean_Kf, Mean_TWI;
+	CSG_Grid	*pArea, *pSlope, *pKf, *pTWI;
+
+	//-----------------------------------------------------
+	pSlope		= Parameters("SLOPE")	->asGrid();
+	pArea		= Parameters("AREA")	->asGrid();
+	pKf			= Parameters("TRANS")	->asGrid();
+	pTWI		= Parameters("TWI")		->asGrid();
+	bConvert	= Parameters("CONV")	->asInt() == 1;
+	bTopmodel	= Parameters("METHOD")	->asInt() == 1;
+
+	DataObject_Set_Colors(pTWI, 100, SG_COLORS_RED_GREY_BLUE);
+
+	//-----------------------------------------------------
+	Kf			= 1.0;
+
+	if( bTopmodel )
+	{
+		Mean_TWI	= 0.0;
+		Mean_Kf		= 0.0;
+		Area		= 0.0;
+
+		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			for(x=0; x<Get_NX(); x++)
+			{
+				if( !pArea->is_NoData(x, y) && !pSlope->is_NoData(x, y) )
+				{
+					if( pKf )
+					{
+						if( !pKf->is_NoData(x, y) )
+						{
+							Kf	= pKf->asDouble(x, y);
+
+							if( Kf	< M_ALMOST_ZERO )
+								Kf	= M_ALMOST_ZERO;
+
+							Kf	= log(Kf);
+						}
+						else
+						{
+							Kf	= 0.0;
+						}
+					}
+
+					Slope	= tan(pSlope->asDouble(x, y));
+
+					if( Slope	< M_ALMOST_ZERO )
+						Slope	= M_ALMOST_ZERO;
+
+					Area		++;
+					Mean_TWI	+= log((pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.0)) / Slope);
+					Mean_Kf		+= Kf;
+				}
+			}
+		}
+
+		if( Area > 0.0 )
+		{
+			Area		*= pArea->Get_Cellarea();
+			Mean_TWI	/= Area;
+			Mean_Kf		/= Area;
+		}
+		else
+		{
+			return( false );
+		}
+	}
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			if( pArea->is_NoData(x, y) || pSlope->is_NoData(x, y) || (pKf && pKf->is_NoData(x, y)) )
+			{
+				pTWI->Set_NoData(x, y);
+			}
+			else
+			{
+				Area	= pArea->asDouble(x, y);
+
+				if( bConvert )
+					Area	/= Get_Cellsize();
+
+				Slope	= tan(pSlope->asDouble(x, y));
+
+				if( Slope	< M_ALMOST_ZERO )
+					Slope	= M_ALMOST_ZERO;
+
+				if( pKf )
+				{
+					Kf	= pKf->asDouble(x, y);
+
+					if( Kf	< M_ALMOST_ZERO )
+						Kf	= M_ALMOST_ZERO;
+				}
+
+				pTWI->Set_Value(x, y, bTopmodel
+					? (log(Area / (     Slope)) - Mean_TWI) - (log(Kf) - Mean_Kf)
+					:  log(Area / (Kf * Slope))
+				);
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CStream_Power::CStream_Power(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Stream Power Index"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
+
+	Set_Description	(_TW(
+		"Calculation of stream power index based on slope and specific catchment area (SCA).\n"
+		"SPI = SCA * tan(Slope)\n"
+		"\n"
+		"References:\n"
+		"\n"
+		"Moore, I.D., Grayson, R.B., Ladson, A.R. (1991):\n"
+		"'Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications'\n"
+		"Hydrological Processes, Vol.5, No.1\n"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "SLOPE"	, _TL("Slope"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "AREA"	, _TL("Catchment Area"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "SPI"		, _TL("Stream Power Index"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "CONV"	, _TL("Area Conversion"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("no conversion (areas already given as specific catchment area)"),
+			_TL("1 / cell size (pseudo specific catchment area)")
+		), 0
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CStream_Power::On_Execute(void)
+{
+	bool		bConvert;
+	CSG_Grid	*pArea, *pSlope, *pSPI;
+
+	//-----------------------------------------------------
+	pSlope		= Parameters("SLOPE")	->asGrid();
+	pArea		= Parameters("AREA")	->asGrid();
+	pSPI		= Parameters("SPI")		->asGrid();
+	bConvert	= Parameters("CONV")	->asInt() == 1;
+
+	DataObject_Set_Colors(pSPI, 100, SG_COLORS_RED_GREY_GREEN, true);
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( pArea->is_NoData(x, y) || pSlope->is_NoData(x, y) )
+			{
+				pSPI->Set_NoData(x, y);
+			}
+			else
+			{
+				pSPI->Set_Value(x, y, (pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.0)) * tan(pSlope->asDouble(x, y)));
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CLS_Factor::CLS_Factor(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Set_Name		(_TL("LS Factor"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
+
+	Set_Description	(_TW(
+		"Calculation of slope length (LS) factor as used by the Universal Soil Loss Equation (USLE), "
+		"based on slope and specific catchment area (SCA, as substitute for slope length). "
+		"\n"
+		"References:\n"
 		"\n"
 		"Boehner, J., Selige, T. (2006):\n"
 		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation'\n"
@@ -114,69 +405,26 @@ CTopographicIndices::CTopographicIndices(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "SLOPE"		, _TL("Slope"),
+		NULL	, "SLOPE"	, _TL("Slope"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "AREA"		, _TL("Catchment Area"),
+		NULL	, "AREA"	, _TL("Catchment Area"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "TRANSMISS"	, _TL("Transmissivity"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "WETNESS"		, _TL("Topographic Wetness Index"),
-		_TL("The Topographic Wetness Index: ln( Area / tan(Slope) )"),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL, "STREAMPOW"	, _TL("Stream Power Index"),
+		NULL	, "LS"		, _TL("LS Factor"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL, "LSFACTOR"	, _TL("LS-Factor"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	/*/-----------------------------------------------------
-	pNode	= Parameters.Add_Node(NULL, "TWI", _TL("Topgraphic Wetness Index"), _TL(""));
-
 	Parameters.Add_Choice(
-		pNode	, "TWI_METHOD"	, _TL("Method (TWI)"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Standard"),
-			_TL("TOPMODEL")
-		), 0
-	);/**/
-
-	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(NULL, "LS", _TL("LS-Factor"), _TL(""));
-
-	Parameters.Add_Choice(
-		pNode	, "LS_METHOD"		, _TL("Method (LS)"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("Moore et al. 1991"),
-			_TL("Desmet & Govers 1996"),
-			_TL("Boehner & Selige 2006")
-		), 0
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "LS_AREA"			, _TL("Area to Length Conversion"),
+		NULL	, "CONV"			, _TL("Area to Length Conversion"),
 		_TL("Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmet & Govers' method."),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("no conversion (areas already given as specific catchment area)"),
@@ -185,16 +433,30 @@ CTopographicIndices::CTopographicIndices(void)
 		), 0
 	);
 
-	pSNode	= Parameters.Add_Node(pNode, "LS_DG", _TL("Desmet & Govers"), _TL(""));
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method (LS)"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Moore et al. 1991"),
+			_TL("Desmet & Govers 1996"),
+			_TL("Boehner & Selige 2006")
+		), 0
+	);
+
+	pNode	= Parameters.Add_Node(
+		NULL	, "NODE_DG"		, _TL("Desmet & Govers"),
+		_TL("")
+	);
 
 	Parameters.Add_Value(
-		pSNode	, "DG_EROSIVITY"	, _TL("Rill/Interrill Erosivity"),
+		pNode	, "EROSIVITY"	, _TL("Rill/Interrill Erosivity"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
-		pSNode	, "DG_STABILITY"	, _TL("Stability"),
+		pNode	, "STABILITY"	, _TL("Stability"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("stable"),
@@ -203,10 +465,6 @@ CTopographicIndices::CTopographicIndices(void)
 	);
 }
 
-//---------------------------------------------------------
-CTopographicIndices::~CTopographicIndices(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -215,140 +473,43 @@ CTopographicIndices::~CTopographicIndices(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographicIndices::On_Execute(void)
+bool CLS_Factor::On_Execute(void)
 {
-	bool		bTopmodel;
-	int			x, y;
-	double		Area, Slope, tan_Slope, Kf, Mean_Kf, Mean_TWI;
-	CSG_Grid	*pArea, *pSlope, *pKf, *pTWI, *pSPI, *pLSF;
+	int			Conversion;
+	CSG_Grid	*pArea, *pSlope, *pLS;
 
 	//-----------------------------------------------------
-	pSlope			= Parameters("SLOPE")		->asGrid();
-	pArea			= Parameters("AREA")		->asGrid();
-	pKf				= Parameters("TRANSMISS")	->asGrid();
+	pSlope		= Parameters("SLOPE")		->asGrid();
+	pArea		= Parameters("AREA")		->asGrid();
+	pLS			= Parameters("LS")			->asGrid();
+	Conversion	= Parameters("CONV")		->asInt();
+	m_Method	= Parameters("METHOD")		->asInt();
+	m_Erosivity	= Parameters("EROSIVITY")	->asInt();
+	m_Stability	= Parameters("STABILITY")	->asInt();
 
-	pTWI			= Parameters("WETNESS")		->asGrid();
-	pSPI			= Parameters("STREAMPOW")	->asGrid();
-	pLSF			= Parameters("LSFACTOR")	->asGrid();
-
-	bTopmodel		= false; // Parameters("TWI_METHOD")	->asInt() == 1;
-
-	m_Method_LS		= Parameters("LS_METHOD")	->asInt();
-	m_DG_Erosivity	= Parameters("DG_EROSIVITY")->asInt();
-	m_DG_Stability	= Parameters("DG_STABILITY")->asInt();
-
-	m_Method_Area	= Parameters("LS_AREA")		->asInt();
+	DataObject_Set_Colors(pLS, 100, SG_COLORS_RED_GREY_GREEN, true);
 
 	//-----------------------------------------------------
-	Kf		= 1.0;
-
-	if( pTWI )
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		DataObject_Set_Colors(pTWI, 100, SG_COLORS_RED_GREY_BLUE);
-	}
-
-	if( pSPI )
-	{
-		DataObject_Set_Colors(pSPI, 100, SG_COLORS_RED_GREY_GREEN, true);
-	}
-
-	if( pLSF )
-	{
-		DataObject_Set_Colors(pLSF, 100, SG_COLORS_RED_GREY_GREEN, true);
-	}
-
-	//-----------------------------------------------------
-	if( bTopmodel )
-	{
-		Mean_TWI	= 0.0;
-		Mean_Kf		= 0.0;
-		Area		= 0.0;
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			if( pArea->is_NoData(x, y) || pSlope->is_NoData(x, y) )
 			{
-				if( !pArea->is_NoData(x, y) && !pSlope->is_NoData(x, y) )
-				{
-					if( pKf )
-					{
-						if( !pKf->is_NoData(x, y) )
-						{
-							Kf	= pKf->asDouble(x, y);
-							if( Kf < M_ALMOST_ZERO )	Kf	= M_ALMOST_ZERO;
-							Kf	= log(Kf);
-						}
-						else
-						{
-							Kf	= 0.0;
-						}
-					}
-
-					tan_Slope	= tan(pSlope->asDouble(x, y));
-					if( tan_Slope < M_ALMOST_ZERO )	tan_Slope	= M_ALMOST_ZERO;
-
-					Mean_TWI	+= log(pArea->asDouble(x, y) / tan_Slope);
-					Mean_Kf		+= Kf;
-					Area++;
-				}
-			}
-		}
-
-		if( Area > 0.0 )
-		{
-			Area		*= pArea->Get_Cellarea();
-			Mean_TWI	/= Area;
-			Mean_Kf		/= Area;
-		}
-	}
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( pArea->is_NoData(x, y) || pSlope->is_NoData(x, y) || (pKf && pKf->is_NoData(x, y)) )
-			{
-				if( pLSF )	pLSF->Set_NoData(x, y);
-				if( pSPI )	pSPI->Set_NoData(x, y);
-				if( pTWI )	pTWI->Set_NoData(x, y);
+				pLS->Set_NoData(x, y);
 			}
 			else
 			{
-				//-----------------------------------------
-				Area		= _Get_Area(pArea->asDouble(x, y));	// specific catchment area...
-				Slope		= pSlope->asDouble(x, y);			// slope as radians...
-				tan_Slope	= tan(Slope);
-				if( tan_Slope < M_ALMOST_ZERO )	tan_Slope	= M_ALMOST_ZERO;
+				double	Area;
 
-				if( pKf )
+				switch( Conversion )
 				{
-					Kf		= pKf->asDouble(x, y);
-					if( Kf < M_ALMOST_ZERO )	Kf	= M_ALMOST_ZERO;
+				default:	Area	= pArea->asDouble(x, y);					// no conversion...
+				case 1:		Area	= pArea->asDouble(x, y) / Get_Cellsize();	// pseudo specific catchment area...
+				case 2:		Area	= sqrt(pArea->asDouble(x, y));				// pseudo slope length...
 				}
 
-				//-----------------------------------------
-				if( pLSF )
-				{
-					pLSF->Set_Value(x, y,
-						_Get_LS(Slope, pArea->asDouble(x, y))
-					);
-				}
-
-				if( pSPI )
-				{
-					pSPI->Set_Value(x, y,
-						Area * tan_Slope
-					);
-				}
-
-				if( pTWI )
-				{
-					pTWI->Set_Value(x, y, bTopmodel
-						? (log(Area / (     tan_Slope)) - Mean_TWI) - (log(Kf) - Mean_Kf)
-						:  log(Area / (Kf * tan_Slope))
-					);
-				}
+				pLS->Set_Value(x, y, Get_LS(pSlope->asDouble(x, y), Area));
 			}
 		}
 	}
@@ -357,27 +518,16 @@ bool CTopographicIndices::On_Execute(void)
 }
 
 //---------------------------------------------------------
-inline double CTopographicIndices::_Get_Area(double Area)
-{
-	switch( m_Method_Area )
-	{
-	default:	return( Area );						// no conversion...
-	case 1:		return( Area / Get_Cellsize() );	// pseudo specific catchment area...
-	case 2:		return( sqrt(Area) );				// pseudo slope length...
-	}
-}
-
-//---------------------------------------------------------
-double CTopographicIndices::_Get_LS(double Slope, double Area)
+double CLS_Factor::Get_LS(double Slope, double Area)
 {
 	double	LS, sinSlope;
 
-	switch( m_Method_LS )
+	switch( m_Method )
 	{
 	//-----------------------------------------------------
 	case 0:	default:
 		{
-			LS			= (0.4 + 1) * pow(_Get_Area(Area) / 22.13, 0.4) * pow(sin(Slope) / 0.0896, 1.3);
+			LS			= (0.4 + 1) * pow(Area / 22.13, 0.4) * pow(sin(Slope) / 0.0896, 1.3);
 		}
 		break;
 
@@ -390,7 +540,7 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 
 			d			= Get_Cellsize();
 
-			m			= m_DG_Erosivity * (sinSlope / 0.0896) / (3.0 * pow(sinSlope, 0.8) + 0.56);
+			m			= m_Erosivity * (sinSlope / 0.0896) / (3.0 * pow(sinSlope, 0.8) + 0.56);
 			m			= m / (1.0 + m);
 
 		//	x			= Aspect < 0.0 ? 0.0 : fmod(Aspect, M_PI_090);
@@ -412,7 +562,7 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 			{
 				S		= 10.8 * sinSlope + 0.03;	
 			}
-			else if( m_DG_Stability == 0 )	// >= 9% Steigung, stabil
+			else if( m_Stability == 0 )		// >= 9% Steigung, stabil
 			{
 				S		= 16.8 * sinSlope - 0.5;
 			}
@@ -432,12 +582,12 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 
 			if( Slope > 0.0505 )	// >  ca. 3 Degree
 			{
-				LS		= sqrt(_Get_Area(Area) / 22.13)
+				LS		= sqrt(Area / 22.13)
 						* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
 			}
 			else					// <= ca. 3 Degree
 			{
-				LS		= pow (_Get_Area(Area) / 22.13, 3.0 * pow(Slope, 0.6))
+				LS		= pow (Area / 22.13, 3.0 * pow(Slope, 0.6))
 						* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
 			}
 		}

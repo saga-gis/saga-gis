@@ -19,28 +19,52 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CSlopeLength : public CSG_Module_Grid {
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSlopeLength : public CSG_Module_Grid
+{
 public:
 	CSlopeLength(void);
-	virtual ~CSlopeLength(void);
+
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Miscellaneous") );	}
+
 
 protected:
 	
-	virtual bool On_Execute(void);
+	virtual bool			On_Execute		(void);
+
 
 private:
 
-	CSG_Grid* m_pDEM;
-	CSG_Grid* m_pSlopeLengthGrid;
-	CSG_Grid* m_pSlopeGrid;
+	CSG_Grid				*m_pDEM, *m_pLength, m_Slope;
 
-	void Set_Length(int, int);	
+
+	void					Get_Length		(int x, int y);	
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

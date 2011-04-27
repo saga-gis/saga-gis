@@ -558,7 +558,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BasinGrid.cpp" />
     <ClCompile Include="CellBalance.cpp" />
     <ClCompile Include="EdgeContamination.cpp" />
     <ClCompile Include="Flow.cpp" />
@@ -636,7 +635,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
-    <ClInclude Include="Pt.h" />
     <ClInclude Include="SAGA_Wetness_Index.h" />
     <ClInclude Include="Sinuosity.h" />
     <ClInclude Include="SlopeLength.h" />

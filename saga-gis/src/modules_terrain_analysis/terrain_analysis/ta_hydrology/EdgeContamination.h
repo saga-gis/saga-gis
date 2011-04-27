@@ -20,27 +20,51 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CEdgeContamination : public CSG_Module_Grid {
 
-private:
-	CSG_Grid *m_pDEM;
-	CSG_Grid *m_pEdgeContamination;
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	int getEdgeContamination(int, int);
-
+//---------------------------------------------------------
+class CEdgeContamination : public CSG_Module_Grid
+{
 public:
 	CEdgeContamination(void);
-	virtual ~CEdgeContamination(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
+
 
 protected:
-	virtual bool		On_Execute(void);
+
+	virtual bool			On_Execute			(void);
+
+
+private:
+
+	CSG_Grid				*m_pDEM, *m_pContamination, m_Edge;
+
+
+	int						Get_Contamination	(int x, int y);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
