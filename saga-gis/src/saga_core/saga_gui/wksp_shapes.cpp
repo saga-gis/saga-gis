@@ -300,10 +300,15 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	CWKSP_Layer::On_Create_Parameters();
 
 	//-----------------------------------------------------
-	// General...
+	// Classification...
 
 	_AttributeList_Add(
-		m_Parameters("NODE_COLORS")		, "COLORS_ATTRIB"			, LNG("[CAP] Attribute"),
+		m_Parameters("NODE_LUT")		, "LUT_ATTRIB"				, LNG("[CAP] Attribute"),
+		LNG("")
+	);
+
+	_AttributeList_Add(
+		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, LNG("[CAP] Attribute"),
 		LNG("")
 	);
 
@@ -316,37 +321,9 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		LNG("")
 	);
 
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, LNG("[CAP] Transparency [%]"),
-		LNG(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
-	);
-
-
-#ifdef USE_HTMLINFO
-	//-----------------------------------------------------
-	// HTML Extra info
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_EXTRAINFO"			, LNG("[CAP] Html Extra Info"),
-		LNG("")
-	);
-
-	_AttributeList_Add(
-		m_Parameters("NODE_EXTRAINFO")	, "EXTRAINFO_ATTRIB"		, LNG("[CAP] Attribute"),
-		LNG("")
-	);
-#endif
-
 
 	//-----------------------------------------------------
 	// Label...
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_LABEL"				, LNG("[CAP] Display: Label"),
-		LNG("")
-	);
 
 	_AttributeList_Add(
 		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB"			, LNG("[CAP] Attribute"),
@@ -354,21 +331,12 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Font(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_FONT"		, LNG("[CAP] Font"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_FONT"		, LNG("[CAP] Font"),
 		LNG("")
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE_TYPE"	, LNG("[CAP] Size relates to..."),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|"),
-			LNG("[VAL] Screen"),
-			LNG("[VAL] Map Units")
-		), 0
-	);
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_PREC"		, LNG("[CAP] Numerical Precision"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_PREC"		, LNG("[CAP] Numerical Precision"),
 		LNG(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			LNG("fit to value"),
@@ -377,25 +345,29 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE"		, LNG("[CAP] Default Size"),
+	m_Parameters.Add_Choice(
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_TYPE"	, LNG("[CAP] Size relates to..."),
 		LNG(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
+		wxString::Format(wxT("%s|%s|"),
+			LNG("[VAL] Screen"),
+			LNG("[VAL] Map Units")
+		), 0
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE_BY"	, LNG("[CAP] Size by Attribute"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_BY"	, LNG("[CAP] Size by Attribute"),
 		LNG("")
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("LABEL_ATTRIB_SIZE_BY"), "LABEL_ATTRIB_SIZE"	, LNG("[CAP] Default Size"),
+		LNG(""),
+		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
 
 	//-----------------------------------------------------
 	// Edit...
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_EDIT"				, LNG("[CAP] Edit"),
-		LNG("")
-	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_EDIT")		, "EDIT_SNAP_DIST"			, LNG("[CAP] Snap Distance"),
@@ -425,6 +397,22 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		LNG(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 0, 0)
 	);
+
+
+#ifdef USE_HTMLINFO
+	//-----------------------------------------------------
+	// HTML Extra info
+
+	m_Parameters.Add_Node(
+		NULL							, "NODE_EXTRAINFO"			, LNG("[CAP] Html Extra Info"),
+		LNG("")
+	);
+
+	_AttributeList_Add(
+		m_Parameters("NODE_EXTRAINFO")	, "EXTRAINFO_ATTRIB"		, LNG("[CAP] Attribute"),
+		LNG("")
+	);
+#endif
 }
 
 
@@ -437,16 +425,18 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::On_DataObject_Changed(void)
 {
-	_AttributeList_Set(m_Parameters("COLORS_ATTRIB")		, false);
+	_AttributeList_Set(m_Parameters("LUT_ATTRIB")			, false);
+	_AttributeList_Set(m_Parameters("METRIC_ATTRIB")		, false);
 	_AttributeList_Set(m_Parameters("LABEL_ATTRIB")			, true);
 	_AttributeList_Set(m_Parameters("LABEL_ATTRIB_SIZE_BY")	, true);
-#ifdef USE_HTMLINFO
-	_AttributeList_Set(m_Parameters("EXTRAINFO_ATTRIB") , true);
-#endif
 
 	_Chart_Set_Options();
 
 	m_pTable->DataObject_Changed(NULL);
+
+#ifdef USE_HTMLINFO
+	_AttributeList_Set(m_Parameters("EXTRAINFO_ATTRIB") , true);
+#endif
 }
 
 //---------------------------------------------------------
@@ -455,12 +445,19 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	m_Def_Color	= Get_Color_asWX(m_Parameters("UNISYMBOL_COLOR")->asColor());
 
 	//-----------------------------------------------------
-	if( (m_iColor = m_Parameters("COLORS_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count() )
+	switch( m_Parameters("COLORS_TYPE")->asInt() )
+	{
+	default:	m_iColor	= -1;	break;
+	case 1:		m_iColor	= m_Parameters("LUT_ATTRIB")   ->asInt();	break;
+	case 2:		m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
+	}
+
+	if( m_iColor >= m_pShapes->Get_Field_Count() )
 	{
 		m_iColor	= -1;
 	}
 
-	if( m_iColor < 0 && (m_pClassify->Get_Mode() == CLASSIFY_METRIC || m_pClassify->Get_Mode() == CLASSIFY_SHADE) )
+	if( m_iColor < 0 && m_pClassify->Get_Mode() != CLASSIFY_UNIQUE )
 	{
 		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
 	}
@@ -504,9 +501,9 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_TYPE"))
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("METRIC_ATTRIB")) )
 		{
-			int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
+			int		zField	= pParameters->Get_Parameter("METRIC_ATTRIB")->asInt();
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
 				m_pShapes->Get_Minimum(zField),
@@ -525,6 +522,24 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
 			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
 			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB")) )
+		{
+			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
+
+			pParameters->Get_Parameter("LABEL_ATTRIB_FONT"     )->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_TYPE")->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ATTRIB_PREC"     )->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE"     )->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_BY"  )->Set_Enabled(Value);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB_SIZE_BY")) )
+		{
+			bool	Value	= pParameter->asInt() >= m_pShapes->Get_Field_Count();
+
+			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE")->Set_Enabled(Value);
 		}
 	}
 
@@ -743,7 +758,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 	DataObject_Changed();
 
 	m_Parameters("COLORS_TYPE")  ->Set_Value(1);	// Lookup Table
-	m_Parameters("COLORS_ATTRIB")->Set_Value(jField);
+	m_Parameters("LUT_ATTRIB")->Set_Value(jField);
 
 	Parameters_Changed();
 }

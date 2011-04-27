@@ -296,12 +296,6 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// General...
 
 	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "OBJECT_DESC"				, LNG("[CAP] Description"),
-		LNG(""),
-		m_pGrid->Get_Description(), true
-	);
-
-	m_Parameters.Add_String(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_UNIT"			, LNG("[CAP] Unit"),
 		LNG(""),
 		m_pGrid->Get_Unit()
@@ -315,38 +309,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
-	// Memory...
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_MEMORY"				, LNG("[CAP] Memory"),
-		LNG("")
-	);
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_MEMORY")		, "MEMORY_MODE"				, LNG("[CAP] Memory Handling"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|%s|"),
-			LNG("[VAL] Normal"),
-			LNG("[VAL] RTL Compression"),
-			LNG("[VAL] File Cache")
-		), 0
-	);
-
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_MEMORY")		, "MEMORY_BUFFER_SIZE"		, LNG("[CAP] Buffer Size MB"),
-		LNG(""),
-		PARAMETER_TYPE_Double
-	);
-
-
-	//-----------------------------------------------------
 	// Display...
-
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, LNG("[CAP] Transparency [%]"),
-		LNG(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
-	);
 
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_INTERPOLATION"	, LNG("[CAP] Interpolation"),
@@ -433,32 +396,47 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Cell Values...
 
-	m_Parameters.Add_Node(
-		NULL							, "NODE_VALUES"		, LNG("[CAP] Display: Cell Values"),
-		LNG("")
-	);
-
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_VALUES")		, "VALUES_SHOW"		, LNG("[CAP] Show"),
-		LNG(""),
-		PARAMETER_TYPE_Bool, true
+		m_Parameters("NODE_GENERAL")	, "VALUES_SHOW"		, LNG("[CAP] Show Cell Values"),
+		LNG("shows cell values when zoomed"),
+		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_Font(
-		m_Parameters("NODE_VALUES")		, "VALUES_FONT"		, LNG("[CAP] Font"),
+		m_Parameters("VALUES_SHOW")		, "VALUES_FONT"		, LNG("[CAP] Font"),
 		LNG("")
 	)->asFont()->SetFamily(wxDECORATIVE);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_VALUES")		, "VALUES_SIZE"		, LNG("[CAP] Size"),
+		m_Parameters("VALUES_SHOW")		, "VALUES_SIZE"		, LNG("[CAP] Size"),
 		LNG(""),
 		PARAMETER_TYPE_Double, 15, 0, true , 100.0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_VALUES")		, "VALUES_DECIMALS"	, LNG("[CAP] Decimals"),
+		m_Parameters("VALUES_SHOW")		, "VALUES_DECIMALS"	, LNG("[CAP] Decimals"),
 		LNG(""),
 		PARAMETER_TYPE_Int, 2
+	);
+
+
+	//-----------------------------------------------------
+	// Memory...
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_GENERAL")	, "MEMORY_MODE"				, LNG("[CAP] Memory Handling"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|"),
+			LNG("[VAL] Normal"),
+			LNG("[VAL] RTL Compression"),
+			LNG("[VAL] File Cache")
+		), 0
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("MEMORY_MODE")		, "MEMORY_BUFFER_SIZE"		, LNG("[CAP] Buffer Size MB"),
+		LNG(""),
+		PARAMETER_TYPE_Double
 	);
 
 
@@ -541,8 +519,22 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
 			pParameters->Get_Parameter("NODE_SHADE"    )->Set_Enabled(Value == 4);
 			pParameters->Get_Parameter("NODE_OVERLAY"  )->Set_Enabled(Value == 5);
+		}
 
-			return( 0 );
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("VALUES_SHOW")) )
+		{
+			bool	Value	= pParameter->asBool();
+
+			pParameters->Get_Parameter("VALUES_FONT"    )->Set_Enabled(Value);
+			pParameters->Get_Parameter("VALUES_SIZE"    )->Set_Enabled(Value);
+			pParameters->Get_Parameter("VALUES_DECIMALS")->Set_Enabled(Value);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MEMORY_MODE")) )
+		{
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("MEMORY_BUFFER_SIZE")->Set_Enabled(Value != 0);
 		}
 	}
 

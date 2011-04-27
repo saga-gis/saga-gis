@@ -250,14 +250,6 @@ void CWKSP_TIN::On_Create_Parameters(void)
 		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, LNG("[CAP] Transparency [%]"),
-		LNG(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
-	);
-
 }
 
 

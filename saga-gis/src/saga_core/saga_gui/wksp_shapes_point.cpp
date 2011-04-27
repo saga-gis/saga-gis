@@ -175,65 +175,21 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
-	// Size...
-
-	m_Parameters.Add_Node(
-		NULL						, "NODE_SIZE"		, LNG("[CAP] Display: Size"),
-		LNG("")
-	);
-
-	_AttributeList_Add(
-		m_Parameters("NODE_SIZE")	, "SIZE_ATTRIB"		, LNG("[CAP] Attribute"),
-		LNG("")
-	);
-
-	m_Parameters.Add_Choice(
-		m_Parameters("SIZE_ATTRIB")	, "SIZE_SCALE"		, LNG("[CAP] Attribute Values"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|"),
-			LNG("[VAL] no scaling"),
-			LNG("[VAL] scale to size range")
-		), 1
-	);
-
-	m_Parameters.Add_Range(
-		m_Parameters("SIZE_ATTRIB")	, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
-		LNG(""),
-		2, 10, 0, true
-	);
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|"),
-			LNG("[VAL] Screen"),
-			LNG("[VAL] Map Units")
-		), 0
-	);
-
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
-		LNG(""),
-		PARAMETER_TYPE_Double, 5, 0, true
-	);
-
-
-	//-----------------------------------------------------
 	// Label...
 
+	_AttributeList_Add(
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ANGLE_ATTRIB"	, LNG("[CAP] Rotation by Attribute"),
+		LNG("")
+	);
+
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_LABEL")	, "LABEL_ANGLE"			, LNG("[CAP] Rotation (Degree)"),
-		LNG(""),
+		m_Parameters("LABEL_ANGLE_ATTRIB"), "LABEL_ANGLE"		, LNG("[CAP] Default Rotation"),
+		LNG("rotation clockwise in degree"),
 		PARAMETER_TYPE_Double, 0.0, -360.0, true, 360.0, true
 	);
 
-	_AttributeList_Add(
-		m_Parameters("NODE_LABEL")	, "LABEL_ANGLE_ATTRIB"	, LNG("[CAP] Rotation by Attribute"),
-		LNG("")
-	);
-
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_LABEL")	, "LABEL_ALIGN_X"		, LNG("[CAP] Horizontal Align"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_X"		, LNG("[CAP] Horizontal Align"),
 		LNG(""),
 		wxString::Format(wxT("%s|%s|%s|"),
 			LNG("left"),
@@ -243,7 +199,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_LABEL")	, "LABEL_ALIGN_Y"		, LNG("[CAP] Vertical Align"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_Y"		, LNG("[CAP] Vertical Align"),
 		LNG(""),
 		wxString::Format(wxT("%s|%s|%s|"),
 			LNG("top"),
@@ -251,6 +207,46 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 			LNG("bottom")
 		), 0
 	);
+
+
+	//-----------------------------------------------------
+	// Size...
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|"),
+			LNG("[VAL] Screen"),
+			LNG("[VAL] Map Units")
+		), 0
+	);
+
+	_AttributeList_Add(
+		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, LNG("[CAP] Attribute"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_SCALE"		, LNG("[CAP] Attribute Values"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|"),
+			LNG("[VAL] no scaling"),
+			LNG("[VAL] scale to size range")
+		), 1
+	);
+
+	m_Parameters.Add_Range(
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
+		LNG(""),
+		2, 10, 0, true
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
+		LNG(""),
+		PARAMETER_TYPE_Double, 5, 0, true
+	);
+
 
 	//-----------------------------------------------------
 	// Edit...
@@ -355,6 +351,36 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 				m_pShapes->Get_Minimum(zField),
 				m_pShapes->Get_Maximum(zField)
 			);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB")) )
+		{
+			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
+
+			pParameters->Get_Parameter("LABEL_ANGLE_ATTRIB")->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ANGLE"       )->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ALIGN_X"     )->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ALIGN_Y"     )->Set_Enabled(Value);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE_ATTRIB")) )
+		{
+			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
+
+			pParameters->Get_Parameter("SIZE_SCALE"  )->Set_Enabled(Value == true);
+			pParameters->Get_Parameter("SIZE_RANGE"  )->Set_Enabled(Value == true);
+			pParameters->Get_Parameter("SIZE_DEFAULT")->Set_Enabled(Value == false);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ANGLE_ATTRIB")) )
+		{
+			bool	Value	= pParameter->asInt() >= m_pShapes->Get_Field_Count();
+
+			pParameters->Get_Parameter("LABEL_ANGLE")->Set_Enabled(Value);
 		}
 	}
 

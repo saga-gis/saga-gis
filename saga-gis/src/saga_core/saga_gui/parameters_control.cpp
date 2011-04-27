@@ -317,7 +317,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 {
 	if( pParameters != m_pParameters )
 	{
-	//	m_pPG->Freeze();
+		m_pPG->Freeze();
 
 		m_bModified	= false;
 		m_pPG->ClearModifiedStatus();
@@ -351,7 +351,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 			_Init_Pararameters();
 		}
 
-	//	m_pPG->Thaw();
+		m_pPG->Thaw();
 	}
 
 	//-----------------------------------------------------
@@ -495,10 +495,13 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	switch( pParameter->Get_Type() )
 	{
 	case PARAMETER_TYPE_Node:	default:
-		if( pParameter->Get_Parent() == NULL || pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Node )
-			pProperty	= new wxPropertyCategory	(Name, ID);
-		else
-			pProperty	= new wxStringProperty		(Name, ID, wxT(""));
+		if( pParameter->Get_Children_Count() > 0 )
+		{
+			if( pParameter->Get_Parent() == NULL || pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Node )
+				pProperty	= new wxPropertyCategory	(Name, ID);
+			else
+				pProperty	= new wxStringProperty		(Name, ID, wxT(""));
+		}
 		break;
 
 	case PARAMETER_TYPE_Bool:

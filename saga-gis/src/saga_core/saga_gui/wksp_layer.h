@@ -169,9 +169,9 @@ protected:
 
 
 	virtual void					On_Create_Parameters	(void);
-
 	virtual void					On_DataObject_Changed	(void)	= 0;
 	virtual void					On_Parameters_Changed	(void)	= 0;
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	virtual void					On_Update_Views			(void)			{}
 
