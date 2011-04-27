@@ -120,7 +120,7 @@ CTWI::CTWI(void)
 	Parameters.Add_Grid(
 		NULL, "TWI"			, _TL("Topographic Wetness Index"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
@@ -305,7 +305,7 @@ CStream_Power::CStream_Power(void)
 	Parameters.Add_Grid(
 		NULL	, "SPI"		, _TL("Stream Power Index"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
@@ -420,7 +420,7 @@ CLS_Factor::CLS_Factor(void)
 	Parameters.Add_Grid(
 		NULL	, "LS"		, _TL("LS Factor"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(

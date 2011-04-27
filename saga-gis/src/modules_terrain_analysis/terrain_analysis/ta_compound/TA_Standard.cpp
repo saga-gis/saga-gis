@@ -186,12 +186,6 @@ CTA_Standard::CTA_Standard(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "STREAMPOW"	, _TL("Stream Power"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
 		NULL	, "LSFACTOR"	, _TL("LS-Factor"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -363,7 +357,7 @@ bool CTA_Standard::On_Execute(void)
 	||	!LS.Get_Parameters()->Set_Parameter(SG_T("LS")			, Parameters("LSFACTOR"))
 	||	!LS.Get_Parameters()->Set_Parameter(SG_T("CONV")		, PARAMETER_TYPE_Choice, 1)
 
-	||	!TWI.Execute() )
+	||	!LS.Execute() )
 	{
 		return( false );
 	}
