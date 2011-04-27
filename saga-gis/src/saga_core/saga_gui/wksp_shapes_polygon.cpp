@@ -241,6 +241,10 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, 
 		dc_Map.dc.SetBrush(m_Brush);
 		dc_Map.dc.SetPen(m_Pen);
 	}
+	else if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
+	{
+		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
+	}
 	else if( m_iColor >= 0 && (m_pClassify->Get_Mode() != CLASSIFY_METRIC || !pShape->is_NoData(m_iColor)) )
 	{
 		int		Color;
