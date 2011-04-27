@@ -194,6 +194,9 @@ public:
 	void							Set_Name		(const SG_Char *Name);
 	const SG_Char *					Get_Name		(void)	const;
 
+	void							Set_Description	(const SG_Char *Description);
+	const SG_Char *					Get_Description	(void)	const;
+
 	virtual void					Set_Modified	(bool bOn = true)	{	m_bModified	= bOn;			}
 	bool							is_Modified		(void)	const		{	return( m_bModified );		}
 	bool							Update			(void);
@@ -244,7 +247,8 @@ private:
 
 	double							m_NoData_Value, m_NoData_hiValue;
 
-	CSG_String						m_File_Name, m_Name;
+	CSG_String						m_File_Name, m_Name, m_Description;
+
 
 	CSG_MetaData					m_MetaData, *m_pMetaData, *m_pHistory, *m_pFile, *m_pProjection, *m_pMetaData_DB;
 

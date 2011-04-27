@@ -136,7 +136,7 @@ CSG_Data_Object::CSG_Data_Object(void)
 {
 	m_MetaData.Set_Name(SG_T("SAGA_METADATA"));
 
-	m_pHistory			= m_MetaData.	Add_Child(SG_META_HST);
+	m_pHistory			= m_MetaData  .Add_Child(SG_META_HST);
 
 	m_pMetaData			= m_MetaData  .Add_Child(SG_META_SRC);
 	m_pFile				= m_pMetaData->Add_Child(SG_META_SRC_FILE);
@@ -150,8 +150,8 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_NoData_Value		= -99999.0;
 	m_NoData_hiValue	= -999.0;
 
-	Set_Name			(NULL);
-	Set_File_Name		(NULL);
+	m_Name				.Clear();
+	m_Description		.Clear();
 
 	m_bUpdate			= false;
 }
@@ -165,7 +165,10 @@ CSG_Data_Object::~CSG_Data_Object(void)
 //---------------------------------------------------------
 bool CSG_Data_Object::Destroy(void)
 {
-	m_pHistory		->Destroy();
+	m_pHistory			->Destroy();
+
+	m_Name				.Clear();
+	m_Description		.Clear();
 
 	return( true );
 }
@@ -186,6 +189,17 @@ void CSG_Data_Object::Set_Name(const SG_Char *Name)
 const SG_Char * CSG_Data_Object::Get_Name(void) const
 {
 	return( m_Name.c_str() );
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object::Set_Description(const SG_Char *Description)
+{
+	m_Description	= Description ? Description : SG_T("");
+}
+
+const SG_Char * CSG_Data_Object::Get_Description(void) const
+{
+	return( m_Description.c_str() );
 }
 
 //---------------------------------------------------------

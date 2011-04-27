@@ -321,7 +321,6 @@ bool CSG_Grid::Destroy(void)
 
 	m_zFactor		= 1.0;
 
-	m_Description	.Clear();
 	m_Unit			.Clear();
 
 	m_System		.Assign(0.0, 0.0, 0.0, 0, 0);
@@ -364,17 +363,6 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 
 	m_zStats.Invalidate();
 
-}
-
-//---------------------------------------------------------
-void CSG_Grid::Set_Description(const SG_Char *String)
-{
-	m_Description	= String ? String : SG_T("");
-}
-
-const SG_Char * CSG_Grid::Get_Description(void) const
-{
-	return( m_Description.c_str() );
 }
 
 //---------------------------------------------------------

@@ -421,9 +421,6 @@ public:		///////////////////////////////////////////////
 	int							Get_nValueBytes	(void)	const	{	return( (int)SG_Data_Type_Get_Size(m_Type) );	}
 	int							Get_nLineBytes	(void)	const	{	return( m_Type != SG_DATATYPE_Bit ? (int)SG_Data_Type_Get_Size(m_Type) * Get_NX() : 1 + Get_NX() / 8 );	}
 
-	void						Set_Description	(const SG_Char *String);
-	const SG_Char *				Get_Description	(void)	const;
-
 	void						Set_Unit		(const SG_Char *String);
 	const SG_Char *				Get_Unit		(void)	const;
 
@@ -759,7 +756,7 @@ private:	///////////////////////////////////////////////
 
 	CSG_Grid_System				m_System;
 
-	CSG_String					m_Description, m_Unit, Cache_Path;
+	CSG_String					m_Unit, Cache_Path;
 
 
 	//-----------------------------------------------------
