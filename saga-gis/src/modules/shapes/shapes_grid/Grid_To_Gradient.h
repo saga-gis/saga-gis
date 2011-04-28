@@ -79,23 +79,24 @@
 class CGrid_To_Gradient : public CSG_Module_Grid  
 {
 public:
-	CGrid_To_Gradient(void);
+	CGrid_To_Gradient(int Method);
+
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Vectorization") );	}
 
 
 protected:
 
-	virtual bool		On_Execute			(void);
+	virtual bool			On_Execute		(void);
 
-
-	bool				Initialize			(void);
+	bool					Initialize		(void);
 
 
 private:
 
-	int					m_Style;
+	int						m_Method, m_Style;
 
 
-	void				Set_Vector			(CSG_Shape *pVector, const TSG_Point &Point, double dx, double dy);
+	void					Set_Vector		(CSG_Shape *pVector, const TSG_Point &Point, double dx, double dy);
 
 };
 

@@ -87,15 +87,17 @@ class CGrid_Statistics_AddTo_Polygon : public CSG_Module_Grid
 public:
 	CGrid_Statistics_AddTo_Polygon(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Grid Values") );	}
+
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
 
 
 private:
 
-	bool				Get_ShapeIDs	(CSG_Shapes *pShapes, CSG_Grid *pShapeIDs);
+	bool					Get_ShapeIDs	(CSG_Shapes *pShapes, CSG_Grid *pShapeIDs);
 
 };
 

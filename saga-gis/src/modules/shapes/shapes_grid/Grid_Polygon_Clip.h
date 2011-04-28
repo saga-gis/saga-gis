@@ -76,20 +76,22 @@ public:
 	// constructor
 	CGrid_Polygon_Clip(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Spatial Extent") );	}
+
 protected:
 	// execute module
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
 
 private:
 
 	// estimates the Extent of the new grid
-	bool				Get_Extent		(int &xMin, int &xCount,
-										 int &yMin, int &yCount, CSG_Grid *pMask);
+	bool					Get_Extent		(int &xMin, int &xCount,
+											 int &yMin, int &yCount, CSG_Grid *pMask);
 
 	// This function has been copied from Module: 'Grid_Statistics_AddTo_Polygon'
 	// Function: Get_ShapeIDs
 	// copyright by Olaf Conrad
-	bool				Get_Mask		(CSG_Shapes *pShapes, CSG_Grid *pMask);
+	bool					Get_Mask		(CSG_Shapes *pShapes, CSG_Grid *pMask);
 
 };
 

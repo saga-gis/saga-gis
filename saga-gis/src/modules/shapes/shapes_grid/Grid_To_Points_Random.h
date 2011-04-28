@@ -81,10 +81,12 @@ public:
 	CGrid_To_Points_Random(void);
 	virtual ~CGrid_To_Points_Random(void);
 
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Vectorization") );	}
+
 
 protected:
 
-	virtual bool		On_Execute(void);
+	virtual bool			On_Execute			(void);
 
 };
 

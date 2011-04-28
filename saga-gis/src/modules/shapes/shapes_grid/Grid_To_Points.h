@@ -88,15 +88,17 @@ public:
 	CGrid_To_Points(void);
 	virtual ~CGrid_To_Points(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Vectorization") );	}
+
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
 
 
 private:
 
-	bool				is_Contained	(double x, double y, CSG_Shapes *pPolygons);
+	bool					is_Contained	(double x, double y, CSG_Shapes *pPolygons);
 
 };
 

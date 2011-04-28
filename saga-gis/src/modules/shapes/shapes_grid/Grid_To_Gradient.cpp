@@ -71,45 +71,79 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid_To_Gradient::CGrid_To_Gradient(void)
+CGrid_To_Gradient::CGrid_To_Gradient(int Method)
 {
-	//-----------------------------------------------------
-	Set_Name		(_TL("Gradient Vectors from Grid(s)"));
+	m_Method	= Method;
 
 	Set_Author		(SG_T("O.Conrad (c) 2006"));
 
-	Set_Description	(_TW(
-		"Create lines indicating the gradient. "
-	));
+	//-----------------------------------------------------
+	switch( m_Method )
+	{
+	case 0:	// surface
+		Set_Name		(_TL("Gradient Vectors from Surface"));
+
+		Set_Description	(_TW(
+			"Create lines indicating the gradient. "
+		));
+
+		Parameters.Add_Grid(
+			NULL	, "SURFACE"		, _TL("Surface"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
+
+		break;
+
+	case 1:	// direction and length
+		Set_Name		(_TL("Gradient Vectors from Direction and Length"));
+
+		Set_Description	(_TW(
+			"Create lines indicating the gradient. "
+		));
+
+		Parameters.Add_Grid(
+			NULL	, "DIR"			, _TL("Direction"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
+
+		Parameters.Add_Grid(
+			NULL	, "LEN"			, _TL("Length"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
+
+		break;
+
+	case 2:	// directional components
+		Set_Name		(_TL("Gradient Vectors from Directional Components"));
+
+		Set_Description	(_TW(
+			"Create lines indicating the gradient. "
+		));
+
+		Parameters.Add_Grid(
+			NULL	, "X"			, _TL("X Component"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
+
+		Parameters.Add_Grid(
+			NULL	, "Y"			, _TL("Y Component"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
+
+		break;
+	}
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID_A"		, _TL("Grid A"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "GRID_B"		, _TL("Grid B"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
 	Parameters.Add_Shapes(
 		NULL	, "VECTORS"		, _TL("Gradient Vectors"),
 		_TL(""),
 		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Input"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("surface (A)"),
-			_TL("slope (A) and aspect (B)"),
-			_TL("directional components (A = x, B = y)")
-		), 0
 	);
 
 	Parameters.Add_Value(
@@ -118,16 +152,19 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 		PARAMETER_TYPE_Int	, 1.0, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SIZE_MIN"	, _TL("Minimum Size (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.1, 0.0, true
+	Parameters.Add_Range(
+		NULL	, "SIZE"		, _TL("Size Range"),
+		_TL("size range as percentage of step"),
+		25.0, 100.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SIZE_MAX"	, _TL("Maximum Size (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+	Parameters.Add_Choice(
+		NULL	, "AGGR"		, _TL("Aggregation"),
+		_TL("how to request values if step size is more than one cell"),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("nearest neighbour"),
+			_TL("mean value")
+		), 1
 	);
 
 	Parameters.Add_Choice(
@@ -137,7 +174,7 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 			_TL("simple line"),
 			_TL("arrow"),
 			_TL("arrow (centered to cell)")
-		), 0
+		), 2
 	);
 }
 
@@ -149,89 +186,104 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 //---------------------------------------------------------
 bool CGrid_To_Gradient::On_Execute(void)
 {
-	int			x, y, Step, Method;
-	double		sMin, sRange, dStep, ex, ey, d;
-	TSG_Point	p;
-	CSG_Grid	*pGrid_A, *pGrid_B, EX, EY, D;
-	CSG_Shapes	*pVectors;
+	int						x, y, Step;
+	double					sMin, sRange, ex, ey, d;
+	TSG_Point				p;
+	TSG_Grid_Interpolation	Interpolation;
+	CSG_Grid_System			System;
+	CSG_Grid				EX, EY, D;
+	CSG_Shapes				*pVectors;
 
 	//-----------------------------------------------------
-	pGrid_A		= Parameters("GRID_A")		->asGrid();
-	pGrid_B		= Parameters("GRID_B")		->asGrid();
-
-	pVectors	= Parameters("VECTORS")		->asShapes();
-	Method		= Parameters("METHOD")		->asInt();
-	Step		= Parameters("STEP")		->asInt();
-	m_Style		= Parameters("STYLE")		->asInt();
-	sMin		= Parameters("SIZE_MIN")	->asDouble() * Get_Cellsize();
-	sRange		= Parameters("SIZE_MAX")	->asDouble() * Get_Cellsize() - sMin;
-	dStep		= Step * Get_Cellsize();
+	pVectors		= Parameters("VECTORS")	->asShapes();
+	Step			= Parameters("STEP")	->asInt();
+	m_Style			= Parameters("STYLE")	->asInt();
+	sMin			= Parameters("SIZE")	->asRange()->Get_LoVal() * Step * Get_Cellsize() / 100.0;
+	sRange			= Parameters("SIZE")	->asRange()->Get_HiVal() * Step * Get_Cellsize() / 100.0 - sMin;
+	Interpolation	= Parameters("AGGR")	->asInt() == 0 ? GRID_INTERPOLATION_NearestNeighbour : GRID_INTERPOLATION_Mean_Cells;
 
 	//-----------------------------------------------------
-	if( Method != 0 && pGrid_B == NULL )
+	if( Step > Get_NX() || Step > Get_NY() )
 	{
-		Error_Set(_TL("second input grid (B) needed to perform desired operation"));
+		Error_Set(_TL("step size should not exceed number of cells in x or y direction"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	EX.Create(*Get_System());
-	EY.Create(*Get_System());
-	D .Create(*Get_System());
+//	System.Assign(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_NX() / Step, Get_NY() / Step);
+	System.Assign(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_System()->Get_XMax(), Get_System()->Get_YMax());
+
+	EX.Create(System);
+	EY.Create(System);
+	D .Create(System);
 	D .Assign_NoData();
 
-	switch( Method )
+	switch( m_Method )
 	{
 	//-----------------------------------------------------
-	case 0:	// surface (A)
-		pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pGrid_A->Get_Name(), _TL("Gradient")));
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+	case 0:	// surface
 		{
-			for(x=0; x<Get_NX(); x+=Step)
+			CSG_Grid	Surface(System), *pSurface	= Parameters("SURFACE")->asGrid();	Surface.Assign(pSurface, Interpolation);
+			
+			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pSurface->Get_Name(), _TL("Gradient")));
+
+			for(y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 			{
-				if( pGrid_A->Get_Gradient(x, y, d, ey) )
+				for(x=0; x<System.Get_NX(); x++)
 				{
-					EX.Set_Value(x, y, sin(ey));
-					EY.Set_Value(x, y, cos(ey));
-					D .Set_Value(x, y, tan(d));
+					if( Surface.Get_Gradient(x, y, d, ey) )
+					{
+						EX.Set_Value(x, y, sin(ey));
+						EY.Set_Value(x, y, cos(ey));
+						D .Set_Value(x, y, tan(d));
+					}
 				}
 			}
 		}
 		break;
 
 	//-----------------------------------------------------
-	case 1:	// slope (A) and aspect (B)
-		pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pGrid_A->Get_Name(), pGrid_B->Get_Name()));
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+	case 1:	// direction and length
 		{
-			for(x=0; x<Get_NX(); x+=Step)
+			CSG_Grid	Dir(System), *pDir	= Parameters("DIR")->asGrid();	Dir.Assign(pDir, Interpolation);
+			CSG_Grid	Len(System), *pLen	= Parameters("LEN")->asGrid();	Len.Assign(pLen, Interpolation);
+
+			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pDir->Get_Name(), pLen->Get_Name()));
+
+			for(y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 			{
-				if( !pGrid_B->is_NoData(x, y) && !pGrid_B->is_NoData(x, y) )
+				for(x=0; x<System.Get_NX(); x++)
 				{
-					EX.Set_Value(x, y, sin(pGrid_B->asDouble(x, y)));
-					EY.Set_Value(x, y, cos(pGrid_B->asDouble(x, y)));
-					D .Set_Value(x, y, tan(pGrid_A->asDouble(x, y)));
+					if( !Dir.is_NoData(x, y) && !Len.is_NoData(x, y) )
+					{
+						EX.Set_Value(x, y, sin(Dir.asDouble(x, y)));
+						EY.Set_Value(x, y, cos(Dir.asDouble(x, y)));
+						D .Set_Value(x, y, tan(Len.asDouble(x, y)));
+					}
 				}
 			}
 		}
 		break;
 
 	//-----------------------------------------------------
-	case 2:	// directional components (A = x, B = y)
-		pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pGrid_A->Get_Name(), pGrid_B->Get_Name()));
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+	case 2:	// directional components
 		{
-			for(x=0; x<Get_NX(); x+=Step)
+			CSG_Grid	X(System), *pX	= Parameters("X")->asGrid();	X.Assign(pX, Interpolation);
+			CSG_Grid	Y(System), *pY	= Parameters("Y")->asGrid();	Y.Assign(pY, Interpolation);
+
+			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pX->Get_Name(), pY->Get_Name()));
+
+			for(y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 			{
-				if( !pGrid_B->is_NoData(x, y) && !pGrid_B->is_NoData(x, y) && (d = SG_Get_Length(pGrid_A->asDouble(x, y), pGrid_B->asDouble(x, y))) > 0.0 )
+				for(x=0; x<System.Get_NX(); x++)
 				{
-					EX.Set_Value(x, y, pGrid_A->asDouble(x, y) / d);
-					EY.Set_Value(x, y, pGrid_B->asDouble(x, y) / d);
-					D .Set_Value(x, y, d);
+					if( !X.is_NoData(x, y) && !Y.is_NoData(x, y) && (d = SG_Get_Length(X.asDouble(x, y), Y.asDouble(x, y))) > 0.0 )
+					{
+						EX.Set_Value(x, y, X.asDouble(x, y) / d);
+						EY.Set_Value(x, y, Y.asDouble(x, y) / d);
+						D .Set_Value(x, y, d);
+					}
 				}
 			}
 		}
@@ -250,9 +302,9 @@ bool CGrid_To_Gradient::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y+=Step, p.y+=dStep)
+	for(y=0, p.y=System.Get_YMin(); y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++, p.y+=System.Get_Cellsize())
 	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x+=Step, p.x+=dStep)
+		for(x=0, p.x=System.Get_XMin(); x<System.Get_NX(); x++, p.x+=System.Get_Cellsize())
 		{
 			if( !D.is_NoData(x, y) )
 			{

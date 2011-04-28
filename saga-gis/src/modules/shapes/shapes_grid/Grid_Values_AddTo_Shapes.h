@@ -81,6 +81,8 @@ class CGrid_Values_AddTo_Shapes : public CSG_Module
 public:
 	CGrid_Values_AddTo_Shapes(void);
 
+	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Grid Values") );	}
+
 
 protected:
 

@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  grid_extent.h                  //
+//                     grid_extent.h                     //
 //                                                       //
 //                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
@@ -85,9 +85,12 @@ class CGrid_Extent : public CSG_Module_Grid
 public:
 	CGrid_Extent(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Spatial Extent") );	}
+
+
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
 
 
 private:

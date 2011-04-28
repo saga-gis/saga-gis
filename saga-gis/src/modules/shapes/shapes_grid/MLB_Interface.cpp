@@ -122,12 +122,18 @@ CSG_Module *		Create_Module(int i)
 	case  5:	return( new CGrid_To_Contour );
 	case  6:	return( new CGrid_Classes_To_Shapes );
 	case  7:	return( new CGrid_Polygon_Clip );
-	case  8:	return( new CGrid_To_Gradient );
+
 	case  9:	return( new CGrid_Local_Extremes_to_Points );
 	case 10:	return( new CGrid_Extent );
+
+	case 15:	return( new CGrid_To_Gradient(0) );
+	case 16:	return( new CGrid_To_Gradient(1) );
+	case 17:	return( new CGrid_To_Gradient(2) );
+
+	case 20:	return( NULL );
 	}
 
-	return( NULL );
+	return( MLB_INTERFACE_SKIP_MODULE );
 }
 
 

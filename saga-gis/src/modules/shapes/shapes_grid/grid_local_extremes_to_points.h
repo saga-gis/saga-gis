@@ -78,10 +78,12 @@ class CGrid_Local_Extremes_to_Points : public CSG_Module_Grid
 public:
 	CGrid_Local_Extremes_to_Points(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Grid Values") );	}
+
 
 protected:
 
-	virtual bool		On_Execute(void);
+	virtual bool			On_Execute		(void);
 
 };
 

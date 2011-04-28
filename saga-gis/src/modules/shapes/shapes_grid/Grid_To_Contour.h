@@ -82,24 +82,26 @@ public:
 	CGrid_To_Contour(void);
 	virtual ~CGrid_To_Contour(void);
 
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Vectorization") );	}
+
 
 protected:
 
-	virtual bool		On_Execute			(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	char				**col, **row;
+	char					**col, **row;
 
 	CSG_Grid				*pGrid;
 
 	CSG_Shapes				*pLayer;
 
 
-	void				Contour_Create		(double zStart, double zStop, double zDist);
-	void				Contour_Find		(int x, int y, double z, bool doRow, int ID);
-	bool				Contour_FindNext	(int &Dir, int &x, int &y, bool &doRow);
+	void					Contour_Create		(double zStart, double zStop, double zDist);
+	void					Contour_Find		(int x, int y, double z, bool doRow, int ID);
+	bool					Contour_FindNext	(int &Dir, int &x, int &y, bool &doRow);
 
 };
 

@@ -80,6 +80,8 @@ class CGrid_Classes_To_Shapes : public CSG_Module_Grid
 public:
 	CGrid_Classes_To_Shapes(void);
 
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Vectorization") );	}
+
 
 protected:
 
