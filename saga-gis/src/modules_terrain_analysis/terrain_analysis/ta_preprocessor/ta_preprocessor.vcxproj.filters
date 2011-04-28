@@ -35,6 +35,9 @@
     <ClCompile Include="Pit_Router.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="burn_in_streams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -104,6 +107,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Pit_Router.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="burn_in_streams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

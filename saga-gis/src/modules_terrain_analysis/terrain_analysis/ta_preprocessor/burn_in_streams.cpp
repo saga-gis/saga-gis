@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: burn_in_streams.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  burn_in_streams.cpp                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,65 +54,64 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Preprocessing" ));
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2001, V. Wichmann (c) 2003") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the preprocessing of digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Preprocessing" ));
-	}
-}
-
-
-//---------------------------------------------------------
-#include "Flat_Detection.h"
-#include "Pit_Router.h"
-#include "Pit_Eliminator.h"
-
-#include "FillSinks.h"
-#include "FillSinks_WL.h"
-
 #include "burn_in_streams.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CBurnIn_Streams::CBurnIn_Streams(void)
 {
-	switch( i )
-	{
-	case  0:	return( new CFlat_Detection );
-	case  1:	return( new CPit_Router );
-	case  2:	return( new CPit_Eliminator );
+	Set_Name		(_TL("Burn Stream Network into DEM"));
 
-	case  3:	return( new CFillSinks );
-	case  4:	return( new CFillSinks_WL );
-	case  5:	return( new CFillSinks_WL_XXL );
+	Set_Author		(SG_T("O.Conrad (c) 2011"));
 
-	case  6:	return( new CBurnIn_Streams );
-	}
+	Set_Description	(_TW(
+		""
+	));
 
-	return( NULL );
+	Parameters.Add_Grid(
+		NULL, "DEM"			, _TL("DEM"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL, "BURN"		, _TL("Processed DEM"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		NULL, "STREAM"		, _TL("Streams"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL, "METHOD"		, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("simply decrease cell's value by epsilon"),
+			_TL("lower cell's value to neighbours minimum value minus epsilon"),
+			_TL("trace stream network downstream")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		NULL, "EPSILON"		, _TL("Epsilon"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
 }
 
 
@@ -125,8 +122,94 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+bool CBurnIn_Streams::On_Execute(void)
+{
+	double		Epsilon;
+	CSG_Grid	*pDEM, *pBurn, *pStream;
 
-	MLB_INTERFACE
+	//-----------------------------------------------------
+	pDEM		= Parameters("DEM")		->asGrid();
+	pBurn		= Parameters("BURN")	->asGrid();
+	pStream		= Parameters("STREAM")	->asGrid();
+	Epsilon		= Parameters("EPSILON")	->asDouble();
 
-//}}AFX_SAGA
+	//-----------------------------------------------------
+	if( pBurn )
+	{
+		pBurn	->Assign(pDEM);
+		pBurn	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pDEM->Get_Name(), _TL("Burned Streams")));
+	}
+	else
+	{
+		pBurn	= pDEM;
+	}
+
+	//-----------------------------------------------------
+	switch( Parameters("METHOD")->asInt() )
+	{
+	case 0:	// simple
+		{
+			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+			{
+				for(int x=0; x<Get_NX(); x++)
+				{
+					if( !pStream->is_NoData(x, y) && !pBurn->is_NoData(x, y) )
+					{
+						pBurn->Add_Value(x, y, -Epsilon);
+					}
+				}
+			}
+		}
+		break;
+
+	case 1:	// assure lower than neighourhood
+		{
+			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+			{
+				for(int x=0; x<Get_NX(); x++)
+				{
+					if( !pStream->is_NoData(x, y) && !pBurn->is_NoData(x, y) )
+					{
+						double	zMin	= pBurn->asDouble(x, y);
+
+						for(int i=0; i<8; i++)
+						{
+							int	ix	= Get_xTo(i, x);
+							int	iy	= Get_yTo(i, y);
+
+							if( pBurn->is_InGrid(ix, iy) && pStream->is_NoData(ix, iy) && pBurn->asDouble(ix, iy) < zMin )
+							{
+								zMin	= pBurn->asDouble(ix, iy);
+							}
+						}
+
+						pBurn->Set_Value(x, y, zMin - Epsilon);
+					}
+				}
+			}
+		}
+		break;
+
+	case 3:
+		{
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("BURN")->asGrid() == NULL )
+	{
+		DataObject_Update(pBurn);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

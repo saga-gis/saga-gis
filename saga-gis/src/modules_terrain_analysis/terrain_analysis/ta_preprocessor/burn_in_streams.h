@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: burn_in_streams.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   burn_in_streams.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,7 +54,17 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__burn_in_streams_H
+#define HEADER_INCLUDED__burn_in_streams_H
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -64,69 +72,35 @@
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Preprocessing" ));
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2001, V. Wichmann (c) 2003") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the preprocessing of digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Preprocessing" ));
-	}
-}
-
-
-//---------------------------------------------------------
-#include "Flat_Detection.h"
-#include "Pit_Router.h"
-#include "Pit_Eliminator.h"
-
-#include "FillSinks.h"
-#include "FillSinks_WL.h"
-
-#include "burn_in_streams.h"
-
-
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFlat_Detection );
-	case  1:	return( new CPit_Router );
-	case  2:	return( new CPit_Eliminator );
-
-	case  3:	return( new CFillSinks );
-	case  4:	return( new CFillSinks_WL );
-	case  5:	return( new CFillSinks_WL_XXL );
-
-	case  6:	return( new CBurnIn_Streams );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CBurnIn_Streams : public CSG_Module_Grid  
+{
+public:
+	CBurnIn_Streams(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__burn_in_streams_H

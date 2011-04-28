@@ -558,6 +558,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="burn_in_streams.cpp" />
     <ClCompile Include="FillSinks.cpp" />
     <ClCompile Include="FillSinks_WL.cpp" />
     <ClCompile Include="FillSinks_WL_XXL.cpp" />
@@ -590,6 +591,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="burn_in_streams.h" />
     <ClInclude Include="FillSinks.h" />
     <ClInclude Include="FillSinks_WL.h" />
     <ClInclude Include="Flat_Detection.h" />
