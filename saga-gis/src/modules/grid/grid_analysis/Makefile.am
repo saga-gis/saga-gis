@@ -34,8 +34,6 @@ PointsEx.cpp\
 Soil_Texture.cpp\
 Cost_Anisotropic.h\
 Cost_Isotropic.h\
-Cost_PolarToRect.h\
-Cost_RectToPolar.h\
 CoveredDistance.h\
 CrossClassification.h\
 fragmentation_base.h\
