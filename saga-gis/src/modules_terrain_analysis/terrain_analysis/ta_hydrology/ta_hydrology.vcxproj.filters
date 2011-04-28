@@ -136,9 +136,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="BasinGrid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CellBalance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
