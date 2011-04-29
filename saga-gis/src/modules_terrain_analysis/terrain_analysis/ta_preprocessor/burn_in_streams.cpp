@@ -170,20 +170,31 @@ bool CBurnIn_Streams::On_Execute(void)
 				{
 					if( !pStream->is_NoData(x, y) && !pBurn->is_NoData(x, y) )
 					{
-						double	zMin	= pBurn->asDouble(x, y);
+						int		iMin	= -1;
+						double	zMin;
 
 						for(int i=0; i<8; i++)
 						{
 							int	ix	= Get_xTo(i, x);
 							int	iy	= Get_yTo(i, y);
 
-							if( pBurn->is_InGrid(ix, iy) && pStream->is_NoData(ix, iy) && pBurn->asDouble(ix, iy) < zMin )
+							if( pBurn->is_InGrid(ix, iy) && pStream->is_NoData(ix, iy) )
 							{
-								zMin	= pBurn->asDouble(ix, iy);
+								if( iMin < 0 || pBurn->asDouble(ix, iy) < zMin )
+								{
+									zMin	= pBurn->asDouble(ix, iy);
+								}
 							}
 						}
 
-						pBurn->Set_Value(x, y, zMin - Epsilon);
+						if( iMin < 0 )
+						{
+							pBurn->Add_Value(x, y, -Epsilon);
+						}
+						else
+						{
+							pBurn->Set_Value(x, y, zMin - Epsilon);
+						}
 					}
 				}
 			}

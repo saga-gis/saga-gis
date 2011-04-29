@@ -13,6 +13,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libta_preprocessor.la
 libta_preprocessor_la_SOURCES =\
+burn_in_streams.cpp\
 FillSinks.cpp\
 FillSinks_WL.cpp\
 FillSinks_WL_XXL.cpp\
@@ -20,6 +21,7 @@ MLB_Interface.cpp\
 Flat_Detection.cpp\
 Pit_Eliminator.cpp\
 Pit_Router.cpp\
+burn_in_streams.h\
 FillSinks.h\
 FillSinks_WL.h\
 MLB_Interface.h\
