@@ -138,7 +138,7 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "EDIT_SEL_COLOR_FILL"		, LNG("[CAP] Fill Color"),
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"			, LNG("[CAP] Fill Color"),
 		LNG(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
 	);
@@ -224,7 +224,7 @@ void CWKSP_Shapes_Polygon::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 	dc_Map.dc.SetBrush(m_Brush);
 	dc_Map.dc.SetPen(m_Pen);
 
-	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("EDIT_SEL_COLOR_FILL")->asInt());
+	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
 }
 
 //---------------------------------------------------------

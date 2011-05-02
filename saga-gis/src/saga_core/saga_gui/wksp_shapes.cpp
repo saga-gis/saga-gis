@@ -367,13 +367,17 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
-	// Edit...
+	// Selection...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_EDIT")		, "EDIT_SNAP_DIST"			, LNG("[CAP] Snap Distance"),
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR"				, LNG("[CAP] Color"),
 		LNG(""),
-		PARAMETER_TYPE_Int, 10, 0, true
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 0, 0)
 	);
+
+
+	//-----------------------------------------------------
+	// Edit...
 
 	m_Parameters.Add_Shapes_List(
 		m_Parameters("NODE_EDIT")		, "EDIT_SNAP_LIST"			, LNG("[CAP] Snap to..."),
@@ -382,20 +386,15 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_EDIT")		, "EDIT_COLOR"				, LNG("[CAP] Color"),
+		m_Parameters("EDIT_SNAP_LIST")	, "EDIT_SNAP_DIST"			, LNG("[CAP] Snap Distance"),
 		LNG(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
-	);
-
-	m_Parameters.Add_Node(
-		m_Parameters("NODE_EDIT")		, "NODE_SELECTION"			, LNG("[CAP] Selection"),
-		LNG("")
+		PARAMETER_TYPE_Int, 10, 0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "EDIT_SEL_COLOR"			, LNG("[CAP] Color"),
+		m_Parameters("EDIT_SNAP_LIST")	, "EDIT_COLOR"				, LNG("[CAP] Color"),
 		LNG(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 0, 0)
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 
@@ -540,6 +539,14 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			bool	Value	= pParameter->asInt() >= m_pShapes->Get_Field_Count();
 
 			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE")->Set_Enabled(Value);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("EDIT_SNAP_LIST")) )
+		{
+			bool	Value	= pParameter->asList()->Get_Count() > 0;
+
+			pParameters->Get_Parameter("EDIT_SNAP_DIST")->Set_Enabled(Value);
+			pParameters->Get_Parameter("EDIT_COLOR"    )->Set_Enabled(Value);
 		}
 	}
 
@@ -836,8 +843,8 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		CWKSP_Map_DC	*pDC	= Transparency > 0.0 ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(255, 255, 255)) : NULL;
 		CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
 
-		m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")		->asInt());
-		m_Sel_Color		= Get_Color_asWX(m_Parameters("EDIT_SEL_COLOR")	->asInt());
+		m_Sel_Color		= Get_Color_asWX(m_Parameters("SEL_COLOR") ->asInt());
+		m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
 
 		_Draw_Initialize(dc);
 

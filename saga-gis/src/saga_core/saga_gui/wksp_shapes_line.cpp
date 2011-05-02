@@ -130,18 +130,8 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Size...
 
-	m_Parameters.Add_Node(
-		NULL						, "NODE_SIZE"		, LNG("[CAP] Display: Size"),
-		LNG("")
-	);
-
-	_AttributeList_Add(
-		m_Parameters("NODE_SIZE")	, "SIZE_ATTRIB"		, LNG("[CAP] Attribute"),
-		LNG("")
-	);
-
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
+		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
 		LNG(""),
 		wxString::Format(wxT("%s|%s|"),
 			LNG("[VAL] Screen"),
@@ -149,16 +139,21 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
-		LNG(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+	_AttributeList_Add(
+		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, LNG("[CAP] Attribute"),
+		LNG("")
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("NODE_SIZE")	, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
 		LNG(""),
 		0, 10, 0, true
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
+		LNG(""),
+		PARAMETER_TYPE_Int, 0, 0, true
 	);
 }
 
@@ -213,6 +208,18 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 //---------------------------------------------------------
 int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE_ATTRIB")) )
+		{
+			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
+
+			pParameters->Get_Parameter("SIZE_RANGE"  )->Set_Enabled(Value == true);
+			pParameters->Get_Parameter("SIZE_DEFAULT")->Set_Enabled(Value == false);
+		}
+	}
+
 	return( CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 

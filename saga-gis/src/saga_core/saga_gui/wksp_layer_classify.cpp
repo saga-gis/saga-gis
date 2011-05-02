@@ -475,7 +475,7 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 			break;
 
 		case WKSP_ITEM_Shapes:
-			_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(), m_pLayer->Get_Parameters()->Get_Parameter("COLORS_ATTRIB")->asInt());
+			_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(), ((CWKSP_Shapes *)m_pLayer)->Get_Color_Field());
 			break;
 		}
 

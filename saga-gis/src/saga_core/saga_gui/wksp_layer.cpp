@@ -313,6 +313,11 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Node(
+		NULL							, "NODE_SELECTION"		, LNG("[CAP] Selection"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Node(
 		NULL							, "NODE_EDIT"			, LNG("[CAP] Edit"),
 		LNG("")
 	);

@@ -177,7 +177,7 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 
 	DataObject_Set_Parameter(m_pPolygons, DataObject_Get_Parameter(pGrid, "LUT"));			// Lookup Table
 	DataObject_Set_Parameter(m_pPolygons, DataObject_Get_Parameter(pGrid, "COLORS_TYPE"));	// Color Classification Type: Lookup Table
-	DataObject_Set_Parameter(m_pPolygons, "COLORS_ATTRIB", 0);								// Color Attribute
+	DataObject_Set_Parameter(m_pPolygons, "LUT_ATTRIB", 0);								// Color Attribute
 
 	m_pPolygons->Set_Name(pGrid->Get_Name());
 

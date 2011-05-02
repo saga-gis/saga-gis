@@ -97,9 +97,9 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	DataObject_Changed((CSG_Parameters *)NULL);
 
 	m_Parameters("COLORS_TYPE")		->Set_Value(CLASSIFY_METRIC);
-	m_Parameters("COLORS_ATTRIB")	->Set_Value(2);
+	m_Parameters("METRIC_ATTRIB")	->Set_Value(2);
 
-	On_Parameter_Changed(&m_Parameters, m_Parameters("COLORS_ATTRIB"), PARAMETER_CHECK_ALL);
+	On_Parameter_Changed(&m_Parameters, m_Parameters("METRIC_ATTRIB"), PARAMETER_CHECK_ALL);
 
 	Parameters_Changed();
 }
@@ -262,7 +262,7 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	// General...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_COLORS")		, "COLORS_ATTRIB"			, LNG("[CAP] Attribute"),
+		m_Parameters("NODE_COLORS")		, "METRIC_ATTRIB"			, LNG("[CAP] Attribute"),
 		LNG(""),
 		LNG("")
 	);
@@ -318,13 +318,13 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 		sChoices.Append(wxString::Format(wxT("%s|"), m_pPointCloud->Get_Field_Name(i)));
 	}
 
-	m_Parameters("COLORS_ATTRIB")->asChoice()->Set_Items(sChoices);
+	m_Parameters("METRIC_ATTRIB")->asChoice()->Set_Items(sChoices);
 }
 
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_Parameters_Changed(void)
 {
-	if( (m_Color_Field = m_Parameters("COLORS_ATTRIB")->asInt()) >= m_pPointCloud->Get_Field_Count() )
+	if( (m_Color_Field = m_Parameters("METRIC_ATTRIB")->asInt()) >= m_pPointCloud->Get_Field_Count() )
 	{
 		m_Color_Field	= -1;
 	}
@@ -348,7 +348,7 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("METRIC_ATTRIB")) )
 		{
 			CSG_Parameters	Parameters;
 	

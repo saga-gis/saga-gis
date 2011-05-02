@@ -115,13 +115,13 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_COLOR"	, LNG("[CAP] Outline Color"),
+		m_Parameters("DISPLAY_OUTLINE")	, "DISPLAY_OUTLINE_COLOR"	, LNG("[CAP] Outline Color"),
 		LNG(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_SIZE"	, LNG("[CAP] Outline Size"),
+		m_Parameters("DISPLAY_OUTLINE")	, "DISPLAY_OUTLINE_SIZE"	, LNG("[CAP] Outline Size"),
 		LNG(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
@@ -129,7 +129,6 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_TYPE"		, LNG("[CAP] Symbol Type"),
 		LNG(""),
-
 		CSG_String::Format(wxT("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			LNG("circle"),
 			LNG("square"),
@@ -149,7 +148,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_FilePath(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_IMAGE"	, LNG("[CAP] Symbol Image"),
+		m_Parameters("DISPLAY_SYMBOL_TYPE")	, "DISPLAY_SYMBOL_IMAGE"	, LNG("[CAP] Symbol Image"),
 		LNG(""),
 		CSG_String::Format(
 			wxT("%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|")
@@ -252,7 +251,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	// Edit...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "EDIT_SEL_COLOR_FILL"	, LNG("[CAP] Fill Color"),
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"	, LNG("[CAP] Fill Color"),
 		LNG(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
 	);
@@ -345,7 +344,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_FONT")) )
 		{
-			int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
+			int		zField	= pParameters->Get_Parameter("METRIC_ATTRIB")->asInt();
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
 				m_pShapes->Get_Minimum(zField),
@@ -357,6 +356,17 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DISPLAY_OUTLINE")) )
+		{
+			pParameters->Get_Parameter("DISPLAY_OUTLINE_COLOR")->Set_Enabled(pParameter->asBool());
+			pParameters->Get_Parameter("DISPLAY_OUTLINE_SIZE" )->Set_Enabled(pParameter->asBool());
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DISPLAY_SYMBOL_TYPE")) )
+		{
+			pParameters->Get_Parameter("DISPLAY_SYMBOL_IMAGE")->Set_Enabled(pParameter->asInt() == pParameter->asChoice()->Get_Count() - 1);
+		}
+
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB")) )
 		{
 			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
@@ -378,9 +388,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ANGLE_ATTRIB")) )
 		{
-			bool	Value	= pParameter->asInt() >= m_pShapes->Get_Field_Count();
-
-			pParameters->Get_Parameter("LABEL_ANGLE")->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ANGLE")->Set_Enabled(pParameter->asInt() >= m_pShapes->Get_Field_Count());
 		}
 	}
 
@@ -450,7 +458,7 @@ inline void CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 	dc_Map.dc.SetBrush	(m_Brush);
 	dc_Map.dc.SetPen	(m_Pen);
 
-	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("EDIT_SEL_COLOR_FILL")->asInt());
+	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
 }
 
 //---------------------------------------------------------

@@ -193,7 +193,6 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	pSubMenu	= new wxMenu(LNG("[MNU] Classificaton"));
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_EQUALINTERVALS);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV150);
@@ -229,10 +228,6 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 
 	case ID_CMD_GRIDS_SCATTERPLOT:
 		Add_ScatterPlot(Get_Grid());
-		break;
-
-	case ID_CMD_GRIDS_EQUALINTERVALS:
-		m_pClassify->Metric2EqualElements();
 		break;
 
 	case ID_CMD_GRIDS_RANGE_MINMAX:

@@ -302,13 +302,13 @@ bool CLAS_Import::On_Execute(void)
 	DataObject_Update(pPoints);
 	DataObject_Get_Parameters(pPoints, sParms);
 
-	if (sParms("COLORS_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
+	if (sParms("METRIC_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
 		&& sParms("METRIC_ZRANGE") && sParms("COLORS_AGGREGATE"))
 	{
 		sParms("COLORS_AGGREGATE")->Set_Value(3);				// highest z
 		sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
 		sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
-		sParms("COLORS_ATTRIB")->Set_Value(2);					// z attrib
+		sParms("METRIC_ATTRIB")->Set_Value(2);					// z attrib
 		sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPoints->Get_Minimum(2),pPoints->Get_Maximum(2));
 	}
 	DataObject_Set_Parameters(pPoints, sParms);
