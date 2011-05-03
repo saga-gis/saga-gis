@@ -224,7 +224,6 @@ bool CLAS_Import::On_Execute(void)
 	CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
 	pPoints->Set_Name(SG_File_Get_Name(fName, false));
 	Parameters("POINTS")->Set_Value(pPoints);
-	pPoints->Create();
 
 	nFields		= 3;
 
