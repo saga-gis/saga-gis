@@ -705,8 +705,16 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
 		yMin->Set_Value(yMax->asDouble() - ((int)((yMax->asDouble() - yMin->asDouble()) / Size->asDouble())) * Size->asDouble());
 	}
 
-	Cols->Set_Value(1 + (int)((xMax->asDouble() - xMin->asDouble()) / Size->asDouble()));
-	Rows->Set_Value(1 + (int)((yMax->asDouble() - yMin->asDouble()) / Size->asDouble()));
+	CSG_Grid_System	System(
+		Size->asDouble(),
+		xMin->asDouble(),
+		yMin->asDouble(),
+		xMax->asDouble(),
+		yMax->asDouble()
+	);
+
+	Cols->Set_Value(System.Get_NX());
+	Rows->Set_Value(System.Get_NY());
 
 	return( true );
 }
@@ -719,15 +727,15 @@ bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows)
 		return( false );
 	}
 
-	double	Size	= (Extent.yMax - Extent.yMin) / (double)Rows;
+	CSG_Grid_System	System((Extent.yMax - Extent.yMin) / (double)Rows, Extent);
 
-	m_pUser->Get_Parameter("XMIN")->Set_Value(Extent.xMin);
-	m_pUser->Get_Parameter("XMAX")->Set_Value(Extent.xMax);
-	m_pUser->Get_Parameter("YMIN")->Set_Value(Extent.yMin);
-	m_pUser->Get_Parameter("YMAX")->Set_Value(Extent.yMax);
-	m_pUser->Get_Parameter("SIZE")->Set_Value(Size);
-	m_pUser->Get_Parameter("COLS")->Set_Value(1 + (int)((Extent.xMax - Extent.xMin) / Size));
-	m_pUser->Get_Parameter("ROWS")->Set_Value(1 + (int)((Extent.yMax - Extent.yMin) / Size));
+	m_pUser->Get_Parameter("XMIN")->Set_Value(System.Get_XMin());
+	m_pUser->Get_Parameter("XMAX")->Set_Value(System.Get_XMax());
+	m_pUser->Get_Parameter("YMIN")->Set_Value(System.Get_YMin());
+	m_pUser->Get_Parameter("YMAX")->Set_Value(System.Get_YMax());
+	m_pUser->Get_Parameter("SIZE")->Set_Value(System.Get_Cellsize());
+	m_pUser->Get_Parameter("COLS")->Set_Value(System.Get_NX());
+	m_pUser->Get_Parameter("ROWS")->Set_Value(System.Get_NY());
 
 	return( true );
 }
@@ -745,19 +753,17 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_User(const CSG_String &Identifier, TS
 
 	if( m_pUser )
 	{
-		if( m_pUser->Get_Parameter("SIZE")->asDouble() > 0.0
-		&&	m_pUser->Get_Parameter("COLS")->asInt()    > 0
-		&&	m_pUser->Get_Parameter("ROWS")->asInt()    > 0	)
-		{
-			On_User_Changed(m_pUser, m_pUser->Get_Parameter("SIZE"));
+		CSG_Grid_System	System(
+			m_pUser->Get_Parameter("SIZE")->asDouble(),
+			m_pUser->Get_Parameter("XMIN")->asDouble(),
+			m_pUser->Get_Parameter("YMIN")->asDouble(),
+			m_pUser->Get_Parameter("XMAX")->asDouble(),
+			m_pUser->Get_Parameter("YMAX")->asDouble()
+		);
 
-			pGrid	= SG_Create_Grid(Type,
-				m_pUser->Get_Parameter("COLS")->asInt(),
-				m_pUser->Get_Parameter("ROWS")->asInt(),
-				m_pUser->Get_Parameter("SIZE")->asDouble(),
-				m_pUser->Get_Parameter("XMIN")->asDouble(),
-				m_pUser->Get_Parameter("YMIN")->asDouble()
-			);
+		if( System.is_Valid() )
+		{
+			pGrid	= SG_Create_Grid(System, Type);
 		}
 
 		if( Identifier.Length() > 0 && m_pUser->Get_Parameter(Identifier) )

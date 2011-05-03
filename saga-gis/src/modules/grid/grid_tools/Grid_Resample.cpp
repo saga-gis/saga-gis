@@ -186,7 +186,7 @@ bool CGrid_Resample::On_Execute(void)
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(pInput->Get_Extent(true)) && Dlg_Parameters("USER") )
+		if( m_Grid_Target.Init_User(pInput->Get_Extent(false)) && Dlg_Parameters("USER") )
 		{
 			pOutput	= m_Grid_Target.Get_User(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
 		}
