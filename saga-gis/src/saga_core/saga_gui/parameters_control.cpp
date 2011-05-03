@@ -643,6 +643,11 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 			m_pPG->LimitPropertyEditing(pProperty);
 			break;
 		}
+
+		if( pParameter->is_Information() )
+		{
+			m_pPG->EnableProperty(pProperty, false);
+		}
 	}
 
 	return( pProperty );
