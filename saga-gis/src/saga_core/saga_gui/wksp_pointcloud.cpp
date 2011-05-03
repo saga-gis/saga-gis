@@ -259,26 +259,6 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	CWKSP_Layer::On_Create_Parameters();
 
 	//-----------------------------------------------------
-	// General...
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_COLORS")		, "METRIC_ATTRIB"			, LNG("[CAP] Attribute"),
-		LNG(""),
-		LNG("")
-	);
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_COLORS")		, "COLORS_AGGREGATE"		, LNG("[CAP] Value Aggregation"),
-		LNG(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			LNG("first value"),
-			LNG("last value"),
-			LNG("lowest z"),
-			LNG("highest z")
-		), 1
-	);
-
-	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SIZE"			, LNG("[CAP] Point Size"),
 		LNG(""),
@@ -297,6 +277,27 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		)
 	);
 
+	_AttributeList_Add(
+		m_Parameters("NODE_LUT")		, "LUT_ATTRIB"				, LNG("[CAP] Attribute"),
+		LNG("")
+	);
+
+	_AttributeList_Add(
+		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, LNG("[CAP] Attribute"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_METRIC")		, "COLORS_AGGREGATE"		, LNG("[CAP] Value Aggregation"),
+		LNG(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			LNG("first value"),
+			LNG("last value"),
+			LNG("lowest z"),
+			LNG("highest z")
+		), 1
+	);
+
 	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
 }
 
@@ -310,25 +311,32 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_DataObject_Changed(void)
 {
-	int			i;
-	wxString	sChoices;
-
-	for(i=0; i<m_pPointCloud->Get_Field_Count(); i++)
-	{
-		sChoices.Append(wxString::Format(wxT("%s|"), m_pPointCloud->Get_Field_Name(i)));
-	}
-
-	m_Parameters("METRIC_ATTRIB")->asChoice()->Set_Items(sChoices);
+	_AttributeList_Set(m_Parameters("LUT_ATTRIB")			, false);
+	_AttributeList_Set(m_Parameters("METRIC_ATTRIB")		, false);
 }
 
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_Parameters_Changed(void)
 {
-	if( (m_Color_Field = m_Parameters("METRIC_ATTRIB")->asInt()) >= m_pPointCloud->Get_Field_Count() )
+	//-----------------------------------------------------
+	switch( m_Parameters("COLORS_TYPE")->asInt() )
+	{
+	default:	m_Color_Field	= -1;	break;
+	case 1:		m_Color_Field	= m_Parameters("LUT_ATTRIB")   ->asInt();	break;
+	case 2:		m_Color_Field	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
+	}
+
+	if( m_Color_Field >= m_pPointCloud->Get_Field_Count() )
 	{
 		m_Color_Field	= -1;
 	}
 
+	if( m_Color_Field < 0 && m_pClassify->Get_Mode() != CLASSIFY_UNIQUE )
+	{
+		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
+	}
+
+	//-----------------------------------------------------
 	long	DefColor	= m_Parameters("UNISYMBOL_COLOR")->asColor();
 	m_Color_Pen			= wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 
@@ -380,6 +388,52 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 	//-----------------------------------------------------
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter * CWKSP_PointCloud::_AttributeList_Add(CSG_Parameter *pNode, const char *Identifier, const wxChar *Name, const wxChar *Description)
+{
+	CSG_Parameter *pParameter;
+
+	pParameter	= m_Parameters.Add_Choice(
+		pNode, Identifier, Name, Description,
+		wxString::Format(wxT("%s|"), LNG("[VAL] [default]")), 0
+	);
+
+	return( pParameter );
+}
+
+//---------------------------------------------------------
+void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
+{
+	if( pFields && pFields->Get_Type() == PARAMETER_TYPE_Choice )
+	{
+		wxString	s;
+
+		for(int i=0; i<m_pPointCloud->Get_Field_Count(); i++)
+		{
+			s.Append(wxString::Format(wxT("%s|"), m_pPointCloud->Get_Field_Name(i)));
+		}
+
+		if( bAddNoField )
+		{
+			s.Append(wxString::Format(wxT("%s|"), LNG("[VAL] [none]")));
+		}
+
+		pFields->asChoice()->Set_Items(s);
+
+		if( bAddNoField )
+		{
+			pFields->Set_Value(m_pPointCloud->Get_Field_Count());
+		}
+	}
 }
 
 
