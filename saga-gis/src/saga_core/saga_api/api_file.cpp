@@ -504,11 +504,9 @@ CSG_String		SG_File_Get_TmpName(const SG_Char *Prefix, const SG_Char *Directory)
 CSG_String		SG_File_Get_Name(const SG_Char *full_Path, bool bExtension)
 {
 	wxFileName	fn(full_Path);
-	CSG_String	s;
+	CSG_String	s(fn.GetFullName().c_str());
 
-	s	= bExtension ? fn.GetFullName().c_str() : fn.GetName().c_str();
-
-	return( s );
+	return( !bExtension && s.Find(SG_T(".")) >= 0 ? s.BeforeLast(SG_T('.')) : s );
 }
 
 //---------------------------------------------------------
