@@ -374,10 +374,10 @@ bool CPC_Cut_Interactive::On_Execute(void)
 
 		
 		CSG_Parameters	sParms;
-		if( DataObject_Get_Parameters(m_pAOI, sParms) && sParms("DISPLAY_BRUSH") && sParms("DISPLAY_OUTLINE_COLOR"))
+		if( DataObject_Get_Parameters(m_pAOI, sParms) && sParms("DISPLAY_BRUSH") && sParms("OUTLINE_COLOR"))
 		{
-			sParms("DISPLAY_OUTLINE_COLOR")	->Set_Value((int)SG_GET_RGB(180, 0, 0));	// outline color
-			sParms("DISPLAY_BRUSH")			->Set_Value(1);								// fillstyle transparent
+			sParms("OUTLINE_COLOR")	->Set_Value((int)SG_GET_RGB(180, 0, 0));	// outline color
+			sParms("DISPLAY_BRUSH")	->Set_Value(1);								// fillstyle transparent
 			DataObject_Set_Parameters(m_pAOI, sParms);
 			DataObject_Update(m_pAOI, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 		}

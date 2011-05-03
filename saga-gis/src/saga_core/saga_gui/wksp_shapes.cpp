@@ -514,6 +514,12 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OUTLINE")) )
+		{
+			pParameters->Get_Parameter("OUTLINE_COLOR")->Set_Enabled(pParameter->asBool());
+			pParameters->Get_Parameter("OUTLINE_SIZE" )->Set_Enabled(pParameter->asBool());
+		}
+
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
 		{
 			int		Value	= pParameter->asInt();
@@ -547,6 +553,21 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 			pParameters->Get_Parameter("EDIT_SNAP_DIST")->Set_Enabled(Value);
 			pParameters->Get_Parameter("EDIT_COLOR"    )->Set_Enabled(Value);
+		}
+
+		if(	!SG_STR_CMP(pParameters->Get_Identifier(), SG_T("DISPLAY_CHART")) )
+		{
+			wxString	s(pParameter->Get_Identifier());
+
+			if( s.Find(wxT("FIELD_")) == 0 )
+			{
+				s.Replace(wxT("FIELD_"), wxT("COLOR_"));
+
+				if( pParameters->Get_Parameter(s) )
+				{
+					pParameters->Get_Parameter(s)->Set_Enabled(pParameter->asBool());
+				}
+			}
 		}
 	}
 
@@ -1125,7 +1146,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 {
 	CSG_Parameters	*pChart	= m_Parameters("DISPLAY_CHART")->asParameters();
 
-	pChart->Destroy();
+	pChart->Del_Parameters();
 	m_Chart.Clear();
 
 	if( 1 )
@@ -1143,8 +1164,6 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 
 		if( n > 0 )
 		{
-			pChart->Create(NULL, LNG("[CAP] Chart Properties"), LNG(""));
-
 			pChart->Add_Choice(
 				NULL, "TYPE"	, LNG("Chart Type"),
 				LNG(""),
