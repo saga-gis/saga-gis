@@ -116,6 +116,8 @@ CSG_PointCloud::CSG_PointCloud(void)
 	: CSG_Shapes()
 {
 	_On_Construction();
+
+	Create();
 }
 
 bool CSG_PointCloud::Create(void)
