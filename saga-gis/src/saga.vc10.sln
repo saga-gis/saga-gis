@@ -173,6 +173,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_tools", "modules_im
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_viewer", "modules\tin\tin_viewer\tin_viewer.vcxproj", "{CB8ABFFF-C8DE-4D9E-AB5D-A6153BC59255}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_3d_viewer", "modules_contrib\garden\garden_3d_viewer\garden_3d_viewer.vcxproj", "{2BA891A3-9872-4C14-A119-52766083A5CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -1257,6 +1259,22 @@ Global
 		{CB8ABFFF-C8DE-4D9E-AB5D-A6153BC59255}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 		{CB8ABFFF-C8DE-4D9E-AB5D-A6153BC59255}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
 		{CB8ABFFF-C8DE-4D9E-AB5D-A6153BC59255}.Unicode Release|x64.Build.0 = Unicode Release|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Debug|Win32.Build.0 = Debug|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Debug|x64.ActiveCfg = Debug|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Debug|x64.Build.0 = Debug|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Release|Win32.ActiveCfg = Release|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Release|Win32.Build.0 = Release|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Release|x64.ActiveCfg = Release|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Release|x64.Build.0 = Release|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Debug|x64.ActiveCfg = Unicode Debug|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Debug|x64.Build.0 = Unicode Debug|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
+		{2BA891A3-9872-4C14-A119-52766083A5CC}.Unicode Release|x64.Build.0 = Unicode Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
