@@ -111,7 +111,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -500,7 +499,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -878,6 +876,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\grid_extent.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\grid_local_extremes_to_points.cpp"
@@ -1574,6 +1576,10 @@
 			>
 			<File
 				RelativePath="Grid_Classes_To_Shapes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\grid_extent.h"
 				>
 			</File>
 			<File

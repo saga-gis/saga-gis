@@ -111,7 +111,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -500,7 +499,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -803,6 +801,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
+			<File
+				RelativePath=".\burn_in_streams.cpp"
+				>
+			</File>
 			<File
 				RelativePath="FillSinks.cpp"
 				>
@@ -1124,6 +1126,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\burn_in_streams.h"
+				>
+			</File>
 			<File
 				RelativePath="FillSinks.h"
 				>
