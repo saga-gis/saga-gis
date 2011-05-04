@@ -185,6 +185,7 @@ public:
 	void						SaveAs_Image			(void);
 	void						SaveAs_Image_Clipboard	(int nx, int ny, int frame);
 	void						SaveAs_Image_Clipboard	(bool bLegend = false);
+	void						SaveAs_Image_To_Memory	(int nx, int ny);
 	void						SaveAs_Image_On_Change	(void);
 
 	void						Draw_Map				(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);

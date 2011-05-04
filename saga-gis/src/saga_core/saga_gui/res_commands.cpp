@@ -131,25 +131,47 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( LNG("[CMD] Decrease Legend Size") );
 	case ID_CMD_DATA_HISTORY_CLEAR:		return( LNG("[CMD] Clear History") );
 
-	case ID_CMD_GRIDS_OPEN:				return( LNG("[CMD] Load Grid") );
-	case ID_CMD_GRIDS_SAVE:				return( LNG("[CMD] Save Grid") );
-	case ID_CMD_GRIDS_SAVEAS:			return( LNG("[CMD] Save Grid As...") );
-	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( LNG("[CMD] Save Grid As Image...") );
-	case ID_CMD_GRIDS_SHOW:				return( LNG("[CMD] Show Grid") );
-	case ID_CMD_GRIDS_HISTOGRAM:		return( LNG("[CMD] Show Histogram") );
-	case ID_CMD_GRIDS_SCATTERPLOT:		return( LNG("[CMD] Show Scatterplot") );
+	case ID_CMD_GRIDS_OPEN:
+	case ID_CMD_SHAPES_OPEN:
+	case ID_CMD_TABLES_OPEN:
+	case ID_CMD_TIN_OPEN:
+	case ID_CMD_POINTCLOUD_OPEN:		return( LNG("[CMD] Load") );
+
+	case ID_CMD_GRIDS_SAVE:
+	case ID_CMD_SHAPES_SAVE:
+	case ID_CMD_TABLES_SAVE:
+	case ID_CMD_TIN_SAVE:
+	case ID_CMD_POINTCLOUD_SAVE:		return( LNG("[CMD] Save") );
+
+	case ID_CMD_GRIDS_SAVEAS:
+	case ID_CMD_SHAPES_SAVEAS:
+	case ID_CMD_TABLES_SAVEAS:
+	case ID_CMD_TIN_SAVEAS:
+	case ID_CMD_POINTCLOUD_SAVEAS:		return( LNG("[CMD] Save As...") );
+
+	case ID_CMD_GRIDS_SHOW:
+	case ID_CMD_SHAPES_SHOW:
+	case ID_CMD_TABLES_SHOW:
+	case ID_CMD_TIN_SHOW:
+	case ID_CMD_POINTCLOUD_SHOW:		return( LNG("[CMD] Add to Map") );
+
+	case ID_CMD_GRIDS_SET_LUT:
+	case ID_CMD_SHAPES_SET_LUT:			return( LNG("[CMD] Create Lookup Table") );
+
+	case ID_CMD_GRIDS_HISTOGRAM:
+	case ID_CMD_SHAPES_HISTOGRAM:		return( LNG("[CMD] Histogram") );
+
+	case ID_CMD_GRIDS_SCATTERPLOT:
+	case ID_CMD_TABLES_SCATTERPLOT:		return( LNG("[CMD] Scatterplot") );
+
+	case ID_CMD_TABLES_DIAGRAM:			return( LNG("[CMD] Diagram") );
+
+	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( LNG("[CMD] Save As Image...") );
 	case ID_CMD_GRIDS_EQUALINTERVALS:	return( LNG("[CMD] Create Normalised Classification") );
 	case ID_CMD_GRIDS_RANGE_MINMAX:		return( LNG("[CMD] Set Range to Minmum/Maximum") );
 	case ID_CMD_GRIDS_RANGE_STDDEV150:	return( LNG("[CMD] Set Range to Standard Deviation (1.5)") );
 	case ID_CMD_GRIDS_RANGE_STDDEV200:	return( LNG("[CMD] Set Range to Standard Deviation (2.0)") );
-	case ID_CMD_GRIDS_SET_LUT:			return( LNG("[CMD] Create Lookup Table") );
 
-	case ID_CMD_SHAPES_OPEN:			return( LNG("[CMD] Load Shapes") );
-	case ID_CMD_SHAPES_SAVE:			return( LNG("[CMD] Save Shapes") );
-	case ID_CMD_SHAPES_SAVEAS:			return( LNG("[CMD] Save Shapes As...") );
-	case ID_CMD_SHAPES_SHOW:			return( LNG("[CMD] Show Shapes") );
-	case ID_CMD_SHAPES_HISTOGRAM:		return( LNG("[CMD] Show Histogram") );
-	case ID_CMD_SHAPES_SET_LUT:			return( LNG("[CMD] Create Lookup Table") );
 	case ID_CMD_SHAPES_EDIT_SHAPE:		return( LNG("[CMD] Edit Selected Shape") );
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:	return( LNG("[CMD] Invert Selection") );
 	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	return( LNG("[CMD] Add Shape") );
@@ -158,38 +180,23 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SHAPES_EDIT_DEL_PART:	return( LNG("[CMD] Delete Selected Part") );
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:	return( LNG("[CMD] Delete Selected Point") );
 
-	case ID_CMD_TABLES_OPEN:			return( LNG("[CMD] Load Table") );
-	case ID_CMD_TABLES_SAVE:			return( LNG("[CMD] Save Table") );
-	case ID_CMD_TABLES_SAVEAS:			return( LNG("[CMD] Save Table As...") );
-	case ID_CMD_TABLES_SHOW:			return( LNG("[CMD] Show Table") );
-	case ID_CMD_TABLES_DIAGRAM:			return( LNG("[CMD] Show Diagram") );
-	case ID_CMD_TABLES_SCATTERPLOT:		return( LNG("[CMD] Show Scatterplot") );
-
-	case ID_CMD_TIN_OPEN:				return( LNG("[CMD] Load TIN") );
-	case ID_CMD_TIN_SAVE:				return( LNG("[CMD] Save TIN") );
-	case ID_CMD_TIN_SAVEAS:				return( LNG("[CMD] Save TIN As...") );
-	case ID_CMD_TIN_SHOW:				return( LNG("[CMD] Show TIN") );
-
-	case ID_CMD_POINTCLOUD_OPEN:		return( LNG("[CMD] Load Point Cloud") );
-	case ID_CMD_POINTCLOUD_SAVE:		return( LNG("[CMD] Save Point Cloud") );
-	case ID_CMD_POINTCLOUD_SAVEAS:		return( LNG("[CMD] Save Point Cloud As...") );
-	case ID_CMD_POINTCLOUD_SHOW:		return( LNG("[CMD] Show Point Cloud") );
 	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( LNG("[CMD] Set Range to Minmum/Maximum") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:		return( LNG("[CMD] Set Range to Standard Deviation (1.5)") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:		return( LNG("[CMD] Set Range to Standard Deviation (2.0)") );
 
 	case ID_CMD_MAP_3D_SHOW:
-	case ID_CMD_MAPS_3D_SHOW:			return( LNG("[CMD] Show 3D-View") );
+	case ID_CMD_MAPS_3D_SHOW:					return( LNG("[CMD] Show 3D-View") );
 	case ID_CMD_MAP_LAYOUT_SHOW:
-	case ID_CMD_MAPS_LAYOUT_SHOW:		return( LNG("[CMD] Show Print Layout") );
+	case ID_CMD_MAPS_LAYOUT_SHOW:				return( LNG("[CMD] Show Print Layout") );
 	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:
-	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:	return( LNG("[CMD] Save As Image when changed") );
+	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:		return( LNG("[CMD] Save As Image when changed") );
+	case ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY:		return( LNG("[CMD] Save As Image to Workspace") );
 	case ID_CMD_MAP_SAVE_IMAGE:
-	case ID_CMD_MAPS_SAVE_IMAGE:		return( LNG("[CMD] Save As Image...") );
+	case ID_CMD_MAPS_SAVE_IMAGE:				return( LNG("[CMD] Save As Image...") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( LNG("[CMD] Copy Map to Clipboard [Ctrl+C]") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( LNG("[CMD] Copy Legend to Clipboard [Ctrl+L]") );
 	case ID_CMD_MAP_SYNCHRONIZE:
-	case ID_CMD_MAPS_SYNCHRONIZE:		return( LNG("[CMD] Synchronise Map Extents") );
+	case ID_CMD_MAPS_SYNCHRONIZE:				return( LNG("[CMD] Synchronise Map Extents") );
 
 	case ID_CMD_MAPS_SHOW:				return( LNG("[CMD] Show Map") );
 	case ID_CMD_MAPS_LAYER_SHOW:		return( LNG("[CMD] Show Layer") );

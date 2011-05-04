@@ -84,6 +84,7 @@
 
 #include "wksp_layer_legend.h"
 #include "wksp_shapes.h"
+#include "wksp_data_manager.h"
 
 #include "view_map.h"
 #include "view_map_control.h"
@@ -1124,6 +1125,53 @@ void CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
 	}
 
 	Set_Buisy_Cursor(false);
+}
+
+//---------------------------------------------------------
+void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
+{
+	if( nx < 1 || ny < 1 )
+		return;
+
+	CSG_Rect		Extent(Get_Extent());
+
+	CSG_Parameters	P(NULL, LNG("Save To Memory Grid"), LNG(""));
+
+	P.Add_Value(NULL, "CELLSIZE", LNG("Cellsize"), LNG(""), PARAMETER_TYPE_Double, Extent.Get_XRange() / (double)nx, 0.0, true);
+
+	if( !DLG_Parameters(&P) || P("CELLSIZE")->asDouble() <= 0.0 )
+		return;
+	
+	nx	= Extent.Get_XRange() / P("CELLSIZE")->asDouble();
+	ny	= Extent.Get_YRange() / P("CELLSIZE")->asDouble();
+
+	wxImage		Image(nx, ny);
+
+	if( Get_Image(Image, Extent) )
+	{
+		CSG_Grid	*pGrid	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
+
+		pGrid->Set_Name(Get_Name());
+		pGrid->Set_NoData_Value(16711935);
+
+		for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY(); y++, yy--)
+		{
+			for(int x=0; x<pGrid->Get_NX(); x++)
+			{
+				pGrid->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
+			}
+		}
+
+		g_pData->Add(pGrid);
+		g_pData->Get_Parameters(pGrid, &P);
+		
+		if( P("COLORS_TYPE") )
+		{
+			P("COLORS_TYPE")->Set_Value(3);
+
+			g_pData->Set_Parameters(pGrid, &P);
+		}
+	}
 }
 
 //---------------------------------------------------------

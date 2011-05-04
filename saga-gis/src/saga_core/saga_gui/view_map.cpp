@@ -91,23 +91,26 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_SIZE			(CVIEW_Map::On_Size)
 	EVT_KEY_DOWN		(CVIEW_Map::On_Key_Down)
 
-	EVT_MENU			(ID_CMD_MAP_3D_SHOW				, CVIEW_Map::On_Map_3D_Show)
-	EVT_MENU			(ID_CMD_MAP_LAYOUT_SHOW			, CVIEW_Map::On_Map_Layout_Show)
-	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE			, CVIEW_Map::On_Map_Save_Image)
-	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE, CVIEW_Map::On_Map_Save_Image_On_Change)
+	EVT_MENU			(ID_CMD_MAP_3D_SHOW						, CVIEW_Map::On_Map_3D_Show)
+	EVT_MENU			(ID_CMD_MAP_LAYOUT_SHOW					, CVIEW_Map::On_Map_Layout_Show)
+	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE					, CVIEW_Map::On_Map_Save_Image)
+	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE		, CVIEW_Map::On_Map_Save_Image_On_Change)
+	EVT_MENU			(ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY		, CVIEW_Map::On_Map_Save_Image_To_Memory)
+	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD			, CVIEW_Map::On_Map_Save_Image_Clipboard)
+	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND	, CVIEW_Map::On_Map_Save_Image_ClipboardL)
 
-	EVT_MENU			(ID_CMD_MAP_ZOOM_FULL			, CVIEW_Map::On_Map_Zoom_Full)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_BACK			, CVIEW_Map::On_Map_Zoom_Back)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_FORWARD		, CVIEW_Map::On_Map_Zoom_Forward)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_ACTIVE			, CVIEW_Map::On_Map_Zoom_Layer)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION		, CVIEW_Map::On_Map_Zoom_Selection)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT			, CVIEW_Map::On_Map_Zoom_Extent)
-	EVT_MENU			(ID_CMD_MAP_SYNCHRONIZE			, CVIEW_Map::On_Map_Zoom_Synchronize)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_FULL					, CVIEW_Map::On_Map_Zoom_Full)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_BACK					, CVIEW_Map::On_Map_Zoom_Back)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_FORWARD				, CVIEW_Map::On_Map_Zoom_Forward)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_ACTIVE					, CVIEW_Map::On_Map_Zoom_Layer)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION				, CVIEW_Map::On_Map_Zoom_Selection)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT					, CVIEW_Map::On_Map_Zoom_Extent)
+	EVT_MENU			(ID_CMD_MAP_SYNCHRONIZE					, CVIEW_Map::On_Map_Zoom_Synchronize)
 
-	EVT_MENU			(ID_CMD_MAP_MODE_ZOOM			, CVIEW_Map::On_Map_Mode_Zoom)
-	EVT_MENU			(ID_CMD_MAP_MODE_PAN			, CVIEW_Map::On_Map_Mode_Pan)
-	EVT_MENU			(ID_CMD_MAP_MODE_SELECT			, CVIEW_Map::On_Map_Mode_Select)
-	EVT_MENU			(ID_CMD_MAP_MODE_DISTANCE		, CVIEW_Map::On_Map_Mode_Distance)
+	EVT_MENU			(ID_CMD_MAP_MODE_ZOOM					, CVIEW_Map::On_Map_Mode_Zoom)
+	EVT_MENU			(ID_CMD_MAP_MODE_PAN					, CVIEW_Map::On_Map_Mode_Pan)
+	EVT_MENU			(ID_CMD_MAP_MODE_SELECT					, CVIEW_Map::On_Map_Mode_Select)
+	EVT_MENU			(ID_CMD_MAP_MODE_DISTANCE				, CVIEW_Map::On_Map_Mode_Distance)
 END_EVENT_TABLE()
 
 
@@ -162,6 +165,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND);
 	pMenu->AppendSeparator();
@@ -437,6 +441,24 @@ void CVIEW_Map::On_Map_Save_Image(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Save_Image_On_Change(wxCommandEvent &event)
 {
 	m_pMap->SaveAs_Image_On_Change();
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_Save_Image_To_Memory(wxCommandEvent &event)
+{
+	m_pMap->SaveAs_Image_To_Memory(m_pControl->GetClientSize().x, m_pControl->GetClientSize().y);
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_Save_Image_Clipboard(wxCommandEvent &event)
+{
+	m_pMap->SaveAs_Image_Clipboard(false);
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_Save_Image_ClipboardL(wxCommandEvent &event)
+{
+	m_pMap->SaveAs_Image_Clipboard(true);
 }
 
 
