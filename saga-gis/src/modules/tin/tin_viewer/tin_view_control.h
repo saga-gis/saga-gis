@@ -92,7 +92,7 @@ enum
 //---------------------------------------------------------
 typedef struct SNode
 {
-	double	x, y, z, c;
+	double	x, y, z, c, d;
 }
 TNode;
 
@@ -107,10 +107,10 @@ TNode;
 class CTIN_View_Control : public wxPanel
 {
 public:
-	CTIN_View_Control(wxWindow *pParent, CSG_TIN *pTIN, int Field_Z, int Field_Color, CSG_Parameters &Settings);
+	CTIN_View_Control(wxWindow *pParent, CSG_TIN *pTIN, int Field_Z, int Field_Color, CSG_Parameters &Settings, CSG_Grid *pRGB);
 	virtual ~CTIN_View_Control(void);
 
-	bool						m_bCentral, m_bStereo, m_bFrame;
+	bool						m_bCentral, m_bStereo, m_bFrame, m_bRGB;
 
 	int							m_zField, m_cField, m_Style, m_Shading;
 
@@ -134,7 +134,7 @@ public:
 
 private:
 
-	int							m_Color_Mode, m_Size_Def, m_cWire;
+	int							m_Color_Mode, m_Size_Def, m_cWire, m_Interpolation;
 
 	double						m_xDown, m_yDown, m_cMin, m_cScale, m_Size_Scale;
 
@@ -149,6 +149,8 @@ private:
 	CSG_Parameters				*m_pSettings;
 
 	CSG_Colors					*m_pColors;
+
+	CSG_Grid					*m_pRGB;
 
 	CSG_TIN						*m_pTIN;
 
@@ -168,12 +170,13 @@ private:
 
 	void						_Draw_Triangle			(CSG_TIN_Triangle *pTriangle);
 	void						_Draw_Triangle			(TNode p[3], double dim);
-	void						_Draw_Triangle_Line		(int y, double xa, double xb, double za, double zb, double ca, double cb, double dim);
+	void						_Draw_Triangle_Line		(int y, double xa, double xb, double za, double zb, double ca, double cb, double da, double db, double dim);
 
 	void						_Draw_Background		(void);
 	void						_Draw_Frame				(void);
 	void						_Draw_Pixel				(int x, int y, double z, int color);
 
+	int							_Dim_Color				(int    Color, double dim);
 	int							_Get_Color				(double value, double dim = -1.0);
 
 	void						_Get_Projection			(TNode &p);

@@ -102,6 +102,12 @@ CTIN_View_Module::CTIN_View_Module(void)
 		pNode	, "COLOR"	, _TL("Color"),
 		_TL("")
 	);
+
+	Parameters.Add_Grid(
+		NULL	, "RGB"		, _TL("Map"),
+		_TL("rgb coded raster map to be draped"),
+		PARAMETER_INPUT_OPTIONAL
+	);
 }
 
 
@@ -130,7 +136,7 @@ bool CTIN_View_Module::On_Execute(void)
 		return( false );
 	}
 
-	CTIN_View_Dialog	dlg(pTIN, Parameters("HEIGHT")->asInt(), Parameters("COLOR")->asInt());
+	CTIN_View_Dialog	dlg(pTIN, Parameters("HEIGHT")->asInt(), Parameters("COLOR")->asInt(), Parameters("RGB")->asGrid());
 
 	dlg.ShowModal();
 

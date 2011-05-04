@@ -85,7 +85,7 @@
 class CTIN_View_Dialog : public CSGDI_Dialog
 {
 public:
-	CTIN_View_Dialog(CSG_TIN *pTIN, int Field_Z, int Field_Color);
+	CTIN_View_Dialog(CSG_TIN *pTIN, int Field_Z, int Field_Color, CSG_Grid *pRGB);
 
 	void						Update_Rotation			(void);
 
@@ -94,7 +94,7 @@ private:
 
 	wxButton					*m_pBtn_Prop;
 
-	wxCheckBox					*m_pCheck_Central, *m_pCheck_Stereo, *m_pCheck_Frame;
+	wxCheckBox					*m_pCheck_Central, *m_pCheck_Stereo, *m_pCheck_Frame, *m_pCheck_RGB;
 
 	wxChoice					*m_pField_Color, *m_pField_Z, *m_pStyle, *m_pShading;
 

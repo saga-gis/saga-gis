@@ -82,7 +82,7 @@ BEGIN_EVENT_TABLE(CTIN_View_Dialog, CSGDI_Dialog)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
-CTIN_View_Dialog::CTIN_View_Dialog(CSG_TIN *pTIN, int Field_Z, int Field_Color)
+CTIN_View_Dialog::CTIN_View_Dialog(CSG_TIN *pTIN, int Field_Z, int Field_Color, CSG_Grid *pRGB)
 	: CSGDI_Dialog(_TL("TIN Viewer"), SGDI_DLG_STYLE_START_MAXIMISED)
 {
 	SetWindowStyle(wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE);
@@ -90,7 +90,7 @@ CTIN_View_Dialog::CTIN_View_Dialog(CSG_TIN *pTIN, int Field_Z, int Field_Color)
 	//-----------------------------------------------------
 	m_Settings.Create(NULL, _TL("TIN Viewer Settings"), _TL(""));
 
-	m_pView		= new CTIN_View_Control	(this, pTIN, Field_Z, Field_Color, m_Settings);
+	m_pView		= new CTIN_View_Control	(this, pTIN, Field_Z, Field_Color, m_Settings, pRGB);
 
 	//-----------------------------------------------------
 	wxArrayString	Attributes, Styles, Shadings;
@@ -123,6 +123,9 @@ CTIN_View_Dialog::CTIN_View_Dialog(CSG_TIN *pTIN, int Field_Z, int Field_Color)
 	m_pCheck_Central	= Add_CheckBox	(_TL("Central Projection")	, m_pView->m_bCentral);
 	m_pCheck_Stereo		= Add_CheckBox	(_TL("Anaglyph")			, m_pView->m_bStereo);
 	m_pCheck_Frame		= Add_CheckBox	(_TL("Bounding Box")		, m_pView->m_bFrame);
+
+	m_pCheck_RGB		= pRGB == NULL ? NULL
+						: Add_CheckBox	(_TL("Drape Map")			, m_pView->m_bRGB);
 
 	Add_Spacer();
 	m_pSlide_xRotate	= Add_Slider	(_TL("X-Rotation")			, m_pView->m_xRotate * M_RAD_TO_DEG, -180.0, 180.0);
@@ -160,6 +163,10 @@ void CTIN_View_Dialog::On_Update_Control(wxCommandEvent &event)
 	else if( event.GetEventObject() == m_pCheck_Frame )
 	{	
 		m_pView->m_bFrame		= m_pCheck_Frame	->GetValue() == 1 ? 1 : 0;
+	}
+	else if( event.GetEventObject() == m_pCheck_RGB )
+	{	
+		m_pView->m_bRGB			= m_pCheck_RGB		->GetValue() == 1 ? 1 : 0;
 	}
 	else if( event.GetEventObject() == m_pSlide_xRotate )
 	{	
@@ -264,6 +271,11 @@ void CTIN_View_Dialog::Update_Rotation(void)
 
 	m_pCheck_Stereo	->SetValue(m_pView->m_bStereo);
 	m_pCheck_Frame	->SetValue(m_pView->m_bFrame);
+
+	if( m_pCheck_RGB )
+	{
+		m_pCheck_RGB->SetValue(m_pView->m_bRGB);
+	}
 }
 
 

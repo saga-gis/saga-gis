@@ -113,10 +113,13 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN_View_Control::CTIN_View_Control(wxWindow *pParent, CSG_TIN *pTIN, int Field_Z, int Field_Color, CSG_Parameters &Settings)
+CTIN_View_Control::CTIN_View_Control(wxWindow *pParent, CSG_TIN *pTIN, int Field_Z, int Field_Color, CSG_Parameters &Settings, CSG_Grid *pRGB)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
 	m_pTIN		= pTIN;
+
+	m_pRGB		= pRGB;
+	m_bRGB		= pRGB != NULL;
 
 	m_pSettings	= &Settings;
 
@@ -193,6 +196,21 @@ CTIN_View_Control::CTIN_View_Control(wxWindow *pParent, CSG_TIN *pTIN, int Field
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
+
+	if( m_pRGB )
+	{
+		m_pSettings->Add_Choice(
+			pNode	, "RGB_INTERPOL", _TL("Map Draping Interpolation"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+				_TL("[VAL] None"),
+				_TL("[VAL] Bilinear"),
+				_TL("[VAL] Inverse Distance"),
+				_TL("[VAL] Bicubic Spline"),
+				_TL("[VAL] B-Spline")
+			), 0
+		);
+	}
 
 	//-----------------------------------------------------
 	Update_Extent();
@@ -503,6 +521,11 @@ bool CTIN_View_Control::_Draw_Image(void)
 	m_cScale	= m_pColors->Get_Count() / (m_Settings("C_RANGE")->asRange()->Get_HiVal() - m_cMin);
 	m_cWire		= m_Settings("COLOR_WIRE")->asColor();
 
+	if( m_bRGB )
+	{
+		m_Interpolation	= m_Settings("RGB_INTERPOL")->asInt();
+	}
+
 	//-------------------------------------------------
 	r_Scale		= (m_Image.GetWidth() / (double)m_Image.GetHeight()) > (m_Extent.Get_XRange() / m_Extent.Get_YRange())
 				? m_Image.GetWidth () / m_Extent.Get_XRange()
@@ -696,7 +719,16 @@ inline void CTIN_View_Control::_Draw_Triangle(CSG_TIN_Triangle *pTriangle)
 		t[iNode].x	= pNode->Get_Point().x;
 		t[iNode].y	= pNode->Get_Point().y;
 		t[iNode].z	= pNode->asDouble(m_zField);
-		t[iNode].c	= pNode->asDouble(m_cField);
+
+		if( m_bRGB )
+		{
+			t[iNode].c	= pNode->Get_Point().x;
+			t[iNode].d	= pNode->Get_Point().y;
+		}
+		else
+		{
+			t[iNode].c	= pNode->asDouble(m_cField);
+		}
 
 		_Get_Projection(t[iNode]);
 	}
@@ -807,6 +839,7 @@ inline void CTIN_View_Control::_Draw_Triangle(TNode p[3], double dim)
 		d[0].x	= (p[2].x - p[0].x) / d[0].y;
 		d[0].z	= (p[2].z - p[0].z) / d[0].y;
 		d[0].c	= (p[2].c - p[0].c) / d[0].y;
+		d[0].d	= (p[2].d - p[0].d) / d[0].y;
 	}
 
 	if( (d[1].y	= p[1].y - p[0].y) > 0.0 )
@@ -814,6 +847,7 @@ inline void CTIN_View_Control::_Draw_Triangle(TNode p[3], double dim)
 		d[1].x	= (p[1].x - p[0].x) / d[1].y;
 		d[1].z	= (p[1].z - p[0].z) / d[1].y;
 		d[1].c	= (p[1].c - p[0].c) / d[1].y;
+		d[1].d	= (p[1].d - p[0].d) / d[1].y;
 	}
 
 	if( (d[2].y	= p[2].y - p[1].y) > 0.0 )
@@ -821,6 +855,7 @@ inline void CTIN_View_Control::_Draw_Triangle(TNode p[3], double dim)
 		d[2].x	= (p[2].x - p[1].x) / d[2].y;
 		d[2].z	= (p[2].z - p[1].z) / d[2].y;
 		d[2].c	= (p[2].c - p[1].c) / d[2].y;
+		d[2].d	= (p[2].d - p[1].d) / d[2].y;
 	}
 
 	//-----------------------------------------------------
@@ -838,6 +873,8 @@ inline void CTIN_View_Control::_Draw_Triangle(TNode p[3], double dim)
 				p[0].z + (y - p[0].y) * d[1].z,
 				p[0].c + (y - p[0].y) * d[0].c,
 				p[0].c + (y - p[0].y) * d[1].c,
+				p[0].d + (y - p[0].y) * d[0].d,
+				p[0].d + (y - p[0].y) * d[1].d,
 				dim
 			);
 		}
@@ -850,6 +887,8 @@ inline void CTIN_View_Control::_Draw_Triangle(TNode p[3], double dim)
 				p[1].z + (y - p[1].y) * d[2].z,
 				p[0].c + (y - p[0].y) * d[0].c,
 				p[1].c + (y - p[1].y) * d[2].c,
+				p[0].d + (y - p[0].y) * d[0].d,
+				p[1].d + (y - p[1].y) * d[2].d,
 				dim
 			);
 		}
@@ -857,7 +896,7 @@ inline void CTIN_View_Control::_Draw_Triangle(TNode p[3], double dim)
 }
 
 //---------------------------------------------------------
-inline void CTIN_View_Control::_Draw_Triangle_Line(int y, double xa, double xb, double za, double zb, double ca, double cb, double dim)
+inline void CTIN_View_Control::_Draw_Triangle_Line(int y, double xa, double xb, double za, double zb, double ca, double cb, double da, double db, double dim)
 {
 	if( xb < xa )
 	{
@@ -866,12 +905,15 @@ inline void CTIN_View_Control::_Draw_Triangle_Line(int y, double xa, double xb, 
 		d	= xa;	xa	= xb;	xb	= d;
 		d	= za;	za	= zb;	zb	= d;
 		d	= ca;	ca	= cb;	cb	= d;
+		d	= da;	da	= db;	db	= d;
 	}
 
 	if( xb > xa )
 	{
 		double	dz	= (zb - za) / (xb - xa);
 		double	dc	= (cb - ca) / (xb - xa);
+		double	dd	= (db - da) / (xb - xa);
+
 		int		ax	= (int)xa;	if( ax < 0 )	ax	= 0;	if( ax < xa )	ax++;
 		int		bx	= (int)xb;	if( bx >= m_Image.GetWidth() )	bx	= m_Image.GetWidth() - 1;
 
@@ -879,8 +921,19 @@ inline void CTIN_View_Control::_Draw_Triangle_Line(int y, double xa, double xb, 
 		{
 			double	z	= za + dz * (x - xa);
 			double	c	= ca + dc * (x - xa);
+			double	d	= da + dd * (x - xa);
 
-			_Draw_Pixel(x, y, z, _Get_Color(c, dim));
+			if( m_bRGB )
+			{
+				if( m_pRGB->Get_Value(c, d, c, m_Interpolation, false, true) )
+				{
+					_Draw_Pixel(x, y, z, _Dim_Color(c, dim));
+				}
+			}
+			else
+			{
+				_Draw_Pixel(x, y, z, _Get_Color(c, dim));
+			}
 		}
 	}
 }
@@ -1003,12 +1056,8 @@ inline void CTIN_View_Control::_Draw_Pixel(int x, int y, double z, int color)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline int CTIN_View_Control::_Get_Color(double value, double dim)
+inline int CTIN_View_Control::_Dim_Color(int Color, double dim)
 {
-	int		Color	= (int)(m_cScale * (value - m_cMin));
-
-	Color	= m_pColors->Get_Color(Color < 0 ? 0 : (Color >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : Color));
-
 	if( dim >= 0.0 )
 	{
 		int	r	= (int)(dim * SG_GET_R(Color));	if( r < 0 )	r	= 0; else if( r > 255 )	r	= 255;
@@ -1019,6 +1068,16 @@ inline int CTIN_View_Control::_Get_Color(double value, double dim)
 	}
 
 	return( Color );
+}
+
+//---------------------------------------------------------
+inline int CTIN_View_Control::_Get_Color(double value, double dim)
+{
+	int		Color	= (int)(m_cScale * (value - m_cMin));
+
+	Color	= m_pColors->Get_Color(Color < 0 ? 0 : (Color >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : Color));
+
+	return( _Dim_Color(Color, dim) );
 }
 
 
