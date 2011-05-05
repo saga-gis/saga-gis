@@ -151,9 +151,10 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_GRIDS_SHOW:
 	case ID_CMD_SHAPES_SHOW:
-	case ID_CMD_TABLES_SHOW:
 	case ID_CMD_TIN_SHOW:
 	case ID_CMD_POINTCLOUD_SHOW:		return( LNG("[CMD] Add to Map") );
+
+	case ID_CMD_TABLES_SHOW:			return( LNG("[CMD] Show") );
 
 	case ID_CMD_GRIDS_SET_LUT:
 	case ID_CMD_SHAPES_SET_LUT:			return( LNG("[CMD] Create Lookup Table") );
