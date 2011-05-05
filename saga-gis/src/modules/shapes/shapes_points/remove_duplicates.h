@@ -80,12 +80,14 @@ public:
 
 protected:
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
 
 
 private:
 
-	int							m_Method;
+	int							m_Field, m_Method, m_Numeric;
 
 	CSG_Shapes					*m_pPoints;
 

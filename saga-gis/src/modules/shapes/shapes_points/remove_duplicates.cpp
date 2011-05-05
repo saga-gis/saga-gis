@@ -70,6 +70,9 @@
 //---------------------------------------------------------
 CRemove_Duplicates::CRemove_Duplicates(void)
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("Remove Duplicate Points"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
@@ -79,10 +82,15 @@ CRemove_Duplicates::CRemove_Duplicates(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
+	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"		, _TL("Attribute"),
+		_TL("")
 	);
 
 	Parameters.Add_Shapes(
@@ -92,15 +100,45 @@ CRemove_Duplicates::CRemove_Duplicates(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Value Aggregation"),
+		NULL	, "METHOD"		, _TL("Point to Keep"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("first value"),
-			_TL("mean value"),
-			_TL("minimun value"),
-			_TL("maximun value")
-		), 1
+			_TL("first point"),
+			_TL("last point"),
+			_TL("point with minimum attribute value"),
+			_TL("point with maximum attribute value")
+		), 0
 	);
+
+	Parameters.Add_Choice(
+		NULL	, "NUMERIC"		, _TL("Numeric Attribute Values"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("take value from the point to be kept"),
+			_TL("minimum value of all duplicates"),
+			_TL("maximum value of all duplicates"),
+			_TL("mean value of all duplicates")
+		), 0
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CRemove_Duplicates::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	//-----------------------------------------------------
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		pParameters->Get_Parameter("FIELD")->Set_Enabled(pParameter->asInt() >= 2);
+	}
+
+	return( 0 );
 }
 
 
@@ -117,7 +155,9 @@ bool CRemove_Duplicates::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_pPoints	= Parameters("RESULT")	->asShapes();
+	m_Field		= Parameters("FIELD")	->asInt();
 	m_Method	= Parameters("METHOD")	->asInt();
+	m_Numeric	= Parameters("NUMERIC")	->asInt();
 
 	//-----------------------------------------------------
 	if( m_pPoints == NULL )
@@ -198,21 +238,55 @@ bool CRemove_Duplicates::On_Execute(void)
 //---------------------------------------------------------
 void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_List *pList)
 {
-	int		iDuplicate, Index;
+	int			iDuplicate;
+	double		dKeep;
+	CSG_Shape	*pKeep;
 
 	//-----------------------------------------------------
-	for(iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
+	for(iDuplicate=0, pKeep=NULL; iDuplicate<pList->Get_Count(); iDuplicate++)
 	{
-		if( (Index = (int)pList->Get_Value(iDuplicate)) != pPoint->Get_Index() )
+		CSG_Shape	*pDuplicate	= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate));
+
+		if( pDuplicate != pPoint )
 		{
-			m_pPoints->Select(Index, true);
+			m_pPoints->Select(pDuplicate->Get_Index(), true);
 		}
+
+		switch( m_Method )
+		{
+		case 2:	// point with minimum attribute value
+			if( !pKeep || (!pDuplicate->is_NoData(m_Field) && pDuplicate->asDouble(m_Field) < dKeep) )
+			{
+				dKeep	= pDuplicate->asDouble(m_Field);
+				pKeep	= pDuplicate;
+			}
+			break;
+
+		case 3:	// point with maximum attribute value")
+			if( !pKeep || (!pDuplicate->is_NoData(m_Field) && pDuplicate->asDouble(m_Field) > dKeep) )
+			{
+				dKeep	= pDuplicate->asDouble(m_Field);
+				pKeep	= pDuplicate;
+			}
+			break;
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_Method == 1 )	// last point
+	{
+		pKeep	= m_pPoints->Get_Shape((int)pList->Get_Value(pList->Get_Count() - 1));
+	}
+
+	if( pKeep )
+	{
+		((CSG_Table_Record *)pPoint)->Assign(pKeep);
 	}
 
 	pPoint->Set_Value(m_pPoints->Get_Field_Count() - 1, pList->Get_Count());
 
 	//-----------------------------------------------------
-	if( m_Method > 0 )	// not: first value
+	if( m_Numeric > 0 )
 	{
 		for(int iField=0; iField<m_pPoints->Get_Field_Count()-1; iField++)
 		{
@@ -222,14 +296,19 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 
 				for(iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
 				{
-					s	+= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate))->asDouble(iField);
+					CSG_Shape	*pDuplicate	= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate));
+
+					if( !pDuplicate->is_NoData(iField) )
+					{
+						s	+= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate))->asDouble(iField);
+					}
 				}
 
-				switch( m_Method )
+				switch( m_Numeric )
 				{
-				case 1:	pPoint->Set_Value(iField, s.Get_Mean());	break;	// mean value
-				case 2:	pPoint->Set_Value(iField, s.Get_Minimum());	break;	// minimun value
-				case 3:	pPoint->Set_Value(iField, s.Get_Maximum());	break;	// maximum value
+				case 1:	pPoint->Set_Value(iField, s.Get_Minimum());	break;	// minimun value
+				case 2:	pPoint->Set_Value(iField, s.Get_Maximum());	break;	// maximum value
+				case 3:	pPoint->Set_Value(iField, s.Get_Mean());	break;	// mean value
 				}
 			}
 		}
