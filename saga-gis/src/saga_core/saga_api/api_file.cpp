@@ -610,3 +610,36 @@ bool			SG_Read_Line(FILE *Stream, CSG_String &Line)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool			SG_Get_Environment(const CSG_String &Variable, CSG_String *Value)
+{
+	if( Value == NULL)
+	{
+		return( wxGetEnv(Variable.c_str(), NULL) );
+	}
+
+	wxString	s;
+
+	if( wxGetEnv(Variable.c_str(), &s) )
+	{
+		*Value	= s.c_str();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool			SG_Set_Environment(const CSG_String &Variable, const CSG_String &Value)
+{
+	return( wxSetEnv(Variable.c_str(), Value.c_str()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

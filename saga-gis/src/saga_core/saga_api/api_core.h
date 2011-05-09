@@ -893,6 +893,10 @@ SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension	(CSG_String    &File_Name, cons
 
 SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
 
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool			SG_Get_Environment		(const CSG_String &Variable,       CSG_String *Value = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Set_Environment		(const CSG_String &Variable, const CSG_String &Value);
+
 
 ///////////////////////////////////////////////////////////
 //														 //
