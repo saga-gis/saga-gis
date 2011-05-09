@@ -77,6 +77,8 @@ public:
 	CSG_GDAL_Drivers(void);
 	virtual ~CSG_GDAL_Drivers(void);
 
+	CSG_String					Get_Version			(void)						const;
+
 	int							Get_Count			(void)						const;
 
 	class GDALDriver *			Get_Driver			(const CSG_String &Name)	const;

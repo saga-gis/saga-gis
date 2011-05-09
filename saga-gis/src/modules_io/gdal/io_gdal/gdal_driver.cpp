@@ -103,6 +103,12 @@ CSG_GDAL_Drivers::~CSG_GDAL_Drivers(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String CSG_GDAL_Drivers::Get_Version(void) const
+{
+	return( SG_STR_MBTOSG(GDALVersionInfo("RELEASE_NAME")) );
+}
+
+//---------------------------------------------------------
 int CSG_GDAL_Drivers::Get_Count(void) const
 {
 	return( m_pDrivers->GetDriverCount() );

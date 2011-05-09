@@ -83,7 +83,11 @@ CGDAL_Export::CGDAL_Export(void)
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
 		"  http://www.gdal.org</a>\n"
-		"\n"
+	);
+
+	Description	+= CSG_String::Format(SG_T("\nGDAL %s:%s\n\n"), _TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str());
+
+	Description	+= _TW(
 		"Following raster formats are currently supported:\n"
 		"<table border=\"1\"><tr><th>ID</th><th>Name</th></tr>\n"
 	);

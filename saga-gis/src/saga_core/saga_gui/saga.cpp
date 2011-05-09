@@ -193,12 +193,13 @@ bool CSAGA::OnInit(void)
 
 	if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
 	{
-		wxSetEnv(wxT("PATH"), wxString::Format(wxT("%s;%s\\dll"), Path.c_str(), Get_App_Path().c_str()));
+		Path	+= wxT(";");
 	}
-	else
-	{
-		wxSetEnv(wxT("PATH"), wxString::Format(wxT("%s\\dll"), Get_App_Path().c_str()));
-	}
+
+	Path	+= wxString::Format(wxT( "%s\\dll")      , Get_App_Path().c_str());
+	Path	+= wxString::Format(wxT(";%s\\dll\\gdal"), Get_App_Path().c_str());
+
+	wxSetEnv(wxT("PATH"), Path);
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
