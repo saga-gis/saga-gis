@@ -608,6 +608,9 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 			pProperty->SetAttribute(wxPG_BOOL_USE_CHECKBOX	, (long)true);
 			break;
 
+		case PARAMETER_TYPE_Int:
+			break;
+
 		case PARAMETER_TYPE_Double:
 			pProperty->SetAttribute(wxPG_FLOAT_PRECISION	, (long)16);
 			break;
