@@ -97,34 +97,22 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"	, _TL("Grid"),
-		_TL("")
+	Parameters.Add_Table_List(
+		NULL	, "TABLES"	, _TL("Tables"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes_Output(
-		NULL	, "ARCS"	, _TL("Arcs"),
-		_TL("")
+	Parameters.Add_Shapes_List(
+		NULL	, "SHAPES"	, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes_Output(
-		NULL	, "SITES"	, _TL("Sites"),
-		_TL("")
-	);
-
-	Parameters.Add_Shapes_Output(
-		NULL	, "LABELS"	, _TL("Labels"),
-		_TL("")
-	);
-
-	Parameters.Add_Shapes_Output(
-		NULL	, "BND"		, _TL("Boundary"),
-		_TL("")
-	);
-
-	Parameters.Add_Shapes_Output(
-		NULL	, "TIC"		, _TL("Tick Points"),
-		_TL("")
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"	, _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table_Output(
@@ -135,7 +123,25 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL("ESRI E00 Files|*.e00|All Files|*.*")
+		_TL("ESRI E00 Files|*.e00|All Files|*.*"), NULL, false, false, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BBND"	, _TL("Import Extents"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BTIC"	, _TL("Import Tick Points"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BTABLES"	, _TL("Import Tables"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
 	);
 }
 
@@ -149,23 +155,34 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 //---------------------------------------------------------
 bool CESRI_E00_Import::On_Execute(void)
 {
-	bool	bResult;
+	int	nLoaded	= 0;
 
-	bResult		= false;
-	m_hReadPtr	= NULL;
-	m_iFile		= 0;
+	m_bBnd		= Parameters("BBND")	->asBool();
+	m_bTic		= Parameters("BTIC")	->asBool();
+	m_bTables	= Parameters("BTABLES")	->asBool();
 
-	if( Open(Parameters("FILE")->asString()) )
+	m_pTables	= Parameters("TABLES")	->asTableList();
+	m_pShapes	= Parameters("SHAPES")	->asShapesList();
+	m_pGrids	= Parameters("GRIDS")	->asGridList();
+
+	m_pTables	->Del_Items();
+	m_pShapes	->Del_Items();
+	m_pGrids	->Del_Items();
+
+	CSG_Strings	fNames;
+
+	if( Parameters("FILE")->asFilePath()->Get_FilePaths(fNames) && fNames.Get_Count() > 0 )
 	{
-		bResult	= Load();
+		for(int i=0; i<fNames.Get_Count(); i++)
+		{
+			if( Load(fNames[i]) && Load() )
+			{
+				nLoaded++;
+			}
+		}
 	}
 
-	if( m_hReadPtr )
-	{
-		E00ReadClose(m_hReadPtr);
-	}
-
-	return( bResult );
+	return( nLoaded > 0 );
 }
 
 
@@ -236,38 +253,43 @@ bool CESRI_E00_Import::E00_Goto_Line(int iLine)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CESRI_E00_Import::Open(const SG_Char *FileName)
+bool CESRI_E00_Import::Load(const CSG_String &FileName)
 {
+	bool	bResult	= false;
+
 	const char	*Line;
 
-	//-----------------------------------------------------
-	if( FileName == NULL || (m_hReadPtr = E00ReadOpen(CSG_String(FileName).b_str())) == NULL )
-	{
-		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("file not found"), FileName));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( (Line = E00_Read_Line()) == NULL )
-	{
-		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("invalid E00 file"), FileName));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( strncmp(Line, "EXP", 3) )
-	{
-		Error_Set(CSG_String::Format(SG_T("%s: %d"), _TL("invalid E00 file"), FileName));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
+	m_hReadPtr	= NULL;
 	m_e00_Name	= FileName;
+	m_iFile		= 0;
 
-	return( true );
+	//-----------------------------------------------------
+	if( (m_hReadPtr = E00ReadOpen(m_e00_Name.b_str())) == NULL )
+	{
+		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("file not found")  , FileName.c_str()));
+	}
+	else if( (Line = E00_Read_Line()) == NULL )
+	{
+		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("invalid E00 file"), FileName.c_str()));
+	}
+	else if( strncmp(Line, "EXP", 3) )
+	{
+		Error_Set(CSG_String::Format(SG_T("%s: %d"), _TL("invalid E00 file"), FileName.c_str()));
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		bResult	= Load();
+	}
+
+	//-----------------------------------------------------
+	if( m_hReadPtr )
+	{
+		E00ReadClose(m_hReadPtr);
+	}
+
+	return( bResult );
 }
 
 
@@ -471,7 +493,7 @@ bool CESRI_E00_Import::Load(void)
 		{
 			pGrid->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
-			Parameters("GRID")->Set_Value(pGrid);
+			m_pGrids->Add_Item(pGrid);
 		}
 	}
 
@@ -484,7 +506,7 @@ bool CESRI_E00_Import::Load(void)
 		{
 			pShapes->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
-			Parameters("ARCS")->Set_Value(pShapes);
+			m_pShapes->Add_Item(pShapes);
 		}
 	}
 
@@ -497,7 +519,7 @@ bool CESRI_E00_Import::Load(void)
 		{
 			pShapes->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
-			Parameters("SITES")->Set_Value(pShapes);
+			m_pShapes->Add_Item(pShapes);
 		}
 	}
 
@@ -510,7 +532,7 @@ bool CESRI_E00_Import::Load(void)
 		{
 			pShapes->Set_Name(SG_File_Get_Name(m_e00_Name, false));
 
-			Parameters("LABELS")->Set_Value(pShapes);
+			m_pShapes->Add_Item(pShapes);
 		}
 	}
 
@@ -806,20 +828,22 @@ CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 	//-----------------------------------------------------
 	delete( pArcs );
 
+	pPolygons->Make_Clean();
+
 	return( pPolygons );
 }
 
 //---------------------------------------------------------
 void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, int id)
 {
-	int		iShape, iPart, iPoint, iNode;
+	int			iShape, iPart, iPoint;
 	CSG_Shape	*pArc, *pShape;
 	CSG_Shapes	Arcs;
 
 	//-----------------------------------------------------
 	Arcs.Create(SHAPE_TYPE_Line);
-	Arcs.Add_Field("FROM_NODE", SG_DATATYPE_Int);
-	Arcs.Add_Field("TO___NODE", SG_DATATYPE_Int);
+	Arcs.Add_Field("FNODE", SG_DATATYPE_Int);
+	Arcs.Add_Field("TNODE", SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
 	for(iShape=pArcs->Get_Count()-1; iShape>=0; iShape--)
@@ -875,32 +899,36 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 		pShape	= pPolygons->Add_Shape();
 		pShape->Set_Value(0, id);
 
-		do
+		while( (pArc = Arcs.Get_Shape(0)) != NULL )
 		{
-			pArc	= Arcs.Get_Shape(0);
-
-			while( pArc )
+			do
 			{
 				for(iPoint=0; iPoint<pArc->Get_Point_Count(0); iPoint++)
 				{
-					pShape->Add_Point(pArc->Get_Point(iPoint, 0), iPart);
+					pShape->Add_Point(pArc->Get_Point(iPoint, 0, false), iPart);
 				}
 
-				iNode	= pArc->asInt(1);
-				Arcs.Del_Shape(pArc);
+				int		fNode	= pArc->asInt(0);
+				int		tNode	= pArc->asInt(1);
 
-				for(iShape=0, pArc=NULL; iShape<Arcs.Get_Count() && !pArc; iShape++)
+				Arcs.Del_Shape(pArc);
+				pArc	= NULL;
+
+				if( fNode != tNode )
 				{
-					if( iNode == Arcs.Get_Shape(iShape)->asInt(0) )
+					for(iShape=0; iShape<Arcs.Get_Count() && !pArc; iShape++)
 					{
-						pArc	= Arcs.Get_Shape(iShape);
+						if( fNode == Arcs.Get_Shape(iShape)->asInt(1) )
+						{
+							pArc	= Arcs.Get_Shape(iShape);
+						}
 					}
 				}
 			}
+			while( pArc );
 
 			iPart++;
 		}
-		while( Arcs.Get_Count() > 0 );
 	}
 }
 
@@ -1193,49 +1221,67 @@ int CESRI_E00_Import::info_Get_Tables(void)
 		{
 			CSG_Table_Record	*pRecord;
 			CSG_Shape			*pShape;
-			CSG_Shapes			*pBND, *pTIC;
 
 			if     ( !s.CmpNoCase(SG_T("bnd")) )	// coverage boundaries
 			{
-				pBND	= SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_T("Boundary"));
-				pBND->Add_Field("XMIN", SG_DATATYPE_Double);
-				pBND->Add_Field("YMIN", SG_DATATYPE_Double);
-				pBND->Add_Field("XMAX", SG_DATATYPE_Double);
-				pBND->Add_Field("YMAX", SG_DATATYPE_Double);
-				pRecord	= pTable->Get_Record(0);
-				pShape	= pBND->Add_Shape();
-				pShape->Set_Value(0, pRecord->asDouble(0));
-				pShape->Set_Value(1, pRecord->asDouble(1));
-				pShape->Set_Value(2, pRecord->asDouble(2));
-				pShape->Set_Value(3, pRecord->asDouble(3));
-				pShape->Add_Point(pRecord->asDouble(0), pRecord->asDouble(1));
-				pShape->Add_Point(pRecord->asDouble(0), pRecord->asDouble(3));
-				pShape->Add_Point(pRecord->asDouble(2), pRecord->asDouble(3));
-				pShape->Add_Point(pRecord->asDouble(2), pRecord->asDouble(1));
-				Parameters("BND")->Set_Value(pBND);
-				delete(pTable);
+				if( m_bBnd )
+				{
+					CSG_Shapes	*pShapes	= SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_T("Boundary"));
+
+					pShapes->Add_Field("XMIN", SG_DATATYPE_Double);
+					pShapes->Add_Field("YMIN", SG_DATATYPE_Double);
+					pShapes->Add_Field("XMAX", SG_DATATYPE_Double);
+					pShapes->Add_Field("YMAX", SG_DATATYPE_Double);
+
+					CSG_Table_Record	*pRecord	= pTable->Get_Record(0);
+					CSG_Shape			*pShape		= pShapes->Add_Shape();
+
+					pShape->Set_Value(0, pRecord->asDouble(0));
+					pShape->Set_Value(1, pRecord->asDouble(1));
+					pShape->Set_Value(2, pRecord->asDouble(2));
+					pShape->Set_Value(3, pRecord->asDouble(3));
+
+					pShape->Add_Point(pRecord->asDouble(0), pRecord->asDouble(1));
+					pShape->Add_Point(pRecord->asDouble(0), pRecord->asDouble(3));
+					pShape->Add_Point(pRecord->asDouble(2), pRecord->asDouble(3));
+					pShape->Add_Point(pRecord->asDouble(2), pRecord->asDouble(1));
+
+					delete(pTable);
+
+					m_pShapes->Add_Item(pShapes);
+				}
 			}
 			else if( !s.CmpNoCase(SG_T("tic")) )	// tick marks
 			{
-				pTIC	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_T("Tick Points"));
-				pTIC->Add_Field("ID", SG_DATATYPE_Int);
-				pTIC->Add_Field("X" , SG_DATATYPE_Double);
-				pTIC->Add_Field("Y" , SG_DATATYPE_Double);
-				for(i=0; i<pTable->Get_Record_Count(); i++)
+				if( m_bTic )
 				{
-					pRecord	= pTable->Get_Record(i);
-					pShape	= pTIC->Add_Shape();
-					pShape->Set_Value(0, pRecord->asInt   (0));
-					pShape->Set_Value(1, pRecord->asDouble(1));
-					pShape->Set_Value(2, pRecord->asDouble(2));
-					pShape->Add_Point(pRecord->asDouble(1), pRecord->asDouble(2));
+					CSG_Shapes	*pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_T("Tick Points"));
+
+					pShapes->Add_Field("ID", SG_DATATYPE_Int);
+					pShapes->Add_Field("X" , SG_DATATYPE_Double);
+					pShapes->Add_Field("Y" , SG_DATATYPE_Double);
+
+					for(i=0; i<pTable->Get_Record_Count(); i++)
+					{
+						CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+						CSG_Shape			*pShape		= pShapes->Add_Shape();
+						pShape->Set_Value(0, pRecord->asInt   (0));
+						pShape->Set_Value(1, pRecord->asDouble(1));
+						pShape->Set_Value(2, pRecord->asDouble(2));
+						pShape->Add_Point(pRecord->asDouble(1), pRecord->asDouble(2));
+					}
+
+					delete(pTable);
+
+					m_pShapes->Add_Item(pShapes);
 				}
-				Parameters("TIC")->Set_Value(pTIC);
-				delete(pTable);
 			}
 			else
 			{
-				Parameters("TABLE")->Set_Value(pTable);
+				if( m_bTables )
+				{
+					m_pTables->Add_Item(pTable);
+				}
 			}
 		}
 	}
@@ -1248,8 +1294,8 @@ int CESRI_E00_Import::info_Get_Tables(void)
 //---------------------------------------------------------
 CSG_Table * CESRI_E00_Import::info_Get_Table(struct info_Table info)
 {
-	char			*buffer_record, *buffer_item;
-	int				iRecord, iField;
+	char				*buffer_record, *buffer_item;
+	int					iRecord, iField;
 	CSG_Table			*pTable;
 	CSG_Table_Record	*pRecord;
 
