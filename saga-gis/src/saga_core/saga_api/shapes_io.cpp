@@ -614,7 +614,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			fSHP.Write_Int		(pShape->Get_Part_Count());
 			fSHP.Write_Int		(nPoints);
 
-			for(iPart=0, iPoint=0; iPart<pShape->Get_Part_Count(); iPart++, iPoint+=pShape->Get_Point_Count(iPart))
+			for(iPart=0, iPoint=0; iPart<pShape->Get_Part_Count(); iPoint+=pShape->Get_Point_Count(iPart++))
 			{
 				fSHP.Write_Int(iPoint);
 			}
