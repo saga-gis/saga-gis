@@ -20,75 +20,141 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Polygon_Geometrics.h"
 
-CPolygon_Geometrics::CPolygon_Geometrics(void){
 
-	Set_Name(_TL("Geometrical Properties of Polygons"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPolygon_Geometrics::CPolygon_Geometrics(void)
+{
+	Set_Name		(_TL("Polygon Properties"));
+
+	Set_Author		(_TL("V.Olaya (c) 2004, O.Conrad (c) 2011"));
+
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Geometrical Properties of Polygons"));
+		"General and geometric properties of polygons."
+	));
 
-	Parameters.Add_Shapes(NULL, 
-						"POLYG", 
-						_TL("Polygons"),
-						_TL(""),
-						PARAMETER_INPUT, SHAPE_TYPE_Polygon);
+	Parameters.Add_Shapes(
+		NULL	, "POLYGONS"	, _TL("Polygons"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "OUTPUT"		, _TL("Polygons with Property Attributes"),
+		_TL("If not set property attributes will be added to the orignal layer."),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
+	);
 
 	Parameters.Add_Value(
-		NULL, "SAVE", _TL("Save Shapefile"),
-		_TL("Save the results to the input shapefile."),
+		NULL	, "BPARTS"		, _TL("Number of Parts"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
-}//constructor
+	Parameters.Add_Value(
+		NULL	, "BPOINTS"		, _TL("Number of Vertices"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BLENGTH"		, _TL("Perimeter"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BAREA"		, _TL("Area"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+}
 
 
-CPolygon_Geometrics::~CPolygon_Geometrics(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CPolygon_Geometrics::On_Execute(void){
+//---------------------------------------------------------
+bool CPolygon_Geometrics::On_Execute(void)
+{
+	//-------------------------------------------------
+	int	bParts	= Parameters("BPARTS")	->asBool() ? 0 : -1;
+	int	bPoints	= Parameters("BPOINTS")	->asBool() ? 0 : -1;
+	int	bLength	= Parameters("BLENGTH")	->asBool() ? 0 : -1;
+	int	bArea	= Parameters("BAREA")	->asBool() ? 0 : -1;
 
-	CSG_Shapes *pPolygs;
-	TSG_Point	Point, Point2;	
-	CSG_Shape *pShape;
-	double dArea;
-	double dPerim;
-	bool	bSave;
-		
-	pPolygs = Parameters("POLYG")->asShapes();
-	bSave	= Parameters("SAVE")->asBool();
+	if( bParts && bPoints && bLength && bArea )
+	{
+		Error_Set(_TL("no properties selected"));
 
-	pPolygs->Add_Field(_TL("Perimeter"), SG_DATATYPE_Double);
-	pPolygs->Add_Field(_TL("Area"), SG_DATATYPE_Double);
-	
-	for(int i=0; i<pPolygs->Get_Count() && Set_Progress(i, pPolygs->Get_Count()); i++){			
-		pShape = pPolygs->Get_Shape(i);		
-		dPerim = 0;
-		dArea = 0;
-		for(int j=0; j<pShape->Get_Part_Count(); j++){	
-			for(int k=0; k<pShape->Get_Point_Count(j)-1; k++){
-				Point = pShape->Get_Point(k,j);
-				Point2 = pShape->Get_Point(k+1,j);	
-				dArea += (Point.x*Point2.y-Point.y*Point2.x);
-				dPerim += (sqrt(pow(Point.x-Point2.x,2)+pow(Point.y-Point2.y,2)));
-			}//for
-			Point = pShape->Get_Point(pShape->Get_Point_Count(j)-1,j);
-			Point2 = pShape->Get_Point(0,j);	
-			dArea += (Point.x*Point2.y-Point.y*Point2.x);
-			dPerim += (sqrt(pow(Point.x-Point2.x,2)+pow(Point.y-Point2.y,2)));
-		}//for
-		dArea= fabs(dArea/2);
-		pShape->Set_Value(pPolygs->Get_Field_Count()-2, dPerim);
-		pShape->Set_Value(pPolygs->Get_Field_Count()-1, dArea);
+		return( false );
+	}
 
-	}//for
+	//-------------------------------------------------
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
 
-	DataObject_Update(pPolygs);
+	if(	!pPolygons->is_Valid() || pPolygons->Get_Count() <= 0 )
+	{
+		Error_Set(_TL("invalid lines layer"));
 
-	if (bSave)
-		pPolygs->Save(pPolygs->Get_File_Name());
+		return( false );
+	}
 
-	return true;
+	if( Parameters("OUTPUT")->asShapes() && Parameters("OUTPUT")->asShapes() != pPolygons )
+	{
+		pPolygons	= Parameters("OUTPUT")->asShapes();
+		pPolygons->Create(*Parameters("LINES")->asShapes());
+	}
 
-}//method
+	//-------------------------------------------------
+	if( !bParts )	{	bParts	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("NPARTS")   , SG_DATATYPE_Int   );	}
+	if( !bPoints )	{	bPoints	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("NPOINTS")  , SG_DATATYPE_Int   );	}
+	if( !bLength )	{	bLength	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("PERIMETER"), SG_DATATYPE_Double);	}
+	if( !bArea )	{	bArea	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("AREA")     , SG_DATATYPE_Double);	}
+
+	//-------------------------------------------------
+	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	{
+		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
+
+		if( bParts  >= 0 )	pPolygon->Set_Value(bParts , pPolygon->Get_Part_Count());
+		if( bPoints >= 0 )	pPolygon->Set_Value(bPoints, pPolygon->Get_Point_Count());
+		if( bLength >= 0 )	pPolygon->Set_Value(bLength, ((CSG_Shape_Polygon *)pPolygon)->Get_Perimeter());
+		if( bArea   >= 0 )	pPolygon->Set_Value(bArea  , ((CSG_Shape_Polygon *)pPolygon)->Get_Area());
+	}
+
+	//-------------------------------------------------
+	if( pPolygons == Parameters("POLYGONS")->asShapes() )
+	{
+		DataObject_Update(pPolygons);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

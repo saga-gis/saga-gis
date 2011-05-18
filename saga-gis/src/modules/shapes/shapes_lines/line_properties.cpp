@@ -88,9 +88,27 @@ CLine_Properties::CLine_Properties(void)
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "OUTPUT"		, _TL("Lines with Property Attributes added"),
-		_TL("If not set property attributes will be added to the orignal lines layer."),
+		NULL	, "OUTPUT"		, _TL("Lines with Property Attributes"),
+		_TL("If not set property attributes will be added to the orignal layer."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BPARTS"		, _TL("Number of Parts"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BPOINTS"		, _TL("Number of Vertices"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BLENGTH"		, _TL("Length"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 }
 
@@ -104,35 +122,56 @@ CLine_Properties::CLine_Properties(void)
 //---------------------------------------------------------
 bool CLine_Properties::On_Execute(void)
 {
-	CSG_Shapes	*pLines	= Parameters("LINES")->asShapes();
+	//-------------------------------------------------
+	int	bParts	= Parameters("BPARTS")	->asBool() ? 0 : -1;
+	int	bPoints	= Parameters("BPOINTS")	->asBool() ? 0 : -1;
+	int	bLength	= Parameters("BLENGTH")	->asBool() ? 0 : -1;
 
-	if(	pLines->is_Valid() && pLines->Get_Count() > 0 )
+	if( bParts && bPoints && bLength )
 	{
-		if( Parameters("OUTPUT")->asShapes() && Parameters("OUTPUT")->asShapes() != pLines )
-		{
-			pLines	= Parameters("OUTPUT")->asShapes();
-			pLines->Create(*Parameters("LINES")->asShapes());
-		}
+		Error_Set(_TL("no properties selected"));
 
-		//-------------------------------------------------
-		int		iOffset	= pLines->Get_Field_Count();
-
-		pLines->Add_Field(SG_T("N_VERTICES"), SG_DATATYPE_Int);
-		pLines->Add_Field(SG_T("LENGTH")	, SG_DATATYPE_Double);
-
-		//-------------------------------------------------
-		for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
-		{
-			CSG_Shape	*pLine	= pLines->Get_Shape(iLine);
-
-			pLine->Set_Value(iOffset + 0, pLine->Get_Point_Count());
-			pLine->Set_Value(iOffset + 1, ((CSG_Shape_Line *)pLine)->Get_Length());
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-------------------------------------------------
+	CSG_Shapes	*pLines	= Parameters("LINES")->asShapes();
+
+	if(	!pLines->is_Valid() || pLines->Get_Count() <= 0 )
+	{
+		Error_Set(_TL("invalid lines layer"));
+
+		return( false );
+	}
+
+	if( Parameters("OUTPUT")->asShapes() && Parameters("OUTPUT")->asShapes() != pLines )
+	{
+		pLines	= Parameters("OUTPUT")->asShapes();
+		pLines->Create(*Parameters("LINES")->asShapes());
+	}
+
+	//-------------------------------------------------
+	if( !bParts )	{	bParts	= pLines->Get_Field_Count();	pLines->Add_Field(SG_T("NPARTS") , SG_DATATYPE_Int   );	}
+	if( !bPoints )	{	bPoints	= pLines->Get_Field_Count();	pLines->Add_Field(SG_T("NPOINTS"), SG_DATATYPE_Int   );	}
+	if( !bLength )	{	bLength	= pLines->Get_Field_Count();	pLines->Add_Field(SG_T("LENGTH") , SG_DATATYPE_Double);	}
+
+	//-------------------------------------------------
+	for(int i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++)
+	{
+		CSG_Shape	*pLine	= pLines->Get_Shape(i);
+
+		if( bParts  >= 0 )	pLine->Set_Value(bParts , pLine->Get_Part_Count());
+		if( bPoints >= 0 )	pLine->Set_Value(bPoints, pLine->Get_Point_Count());
+		if( bLength >= 0 )	pLine->Set_Value(bLength, ((CSG_Shape_Line *)pLine)->Get_Length());
+	}
+
+	//-------------------------------------------------
+	if( pLines == Parameters("LINES")->asShapes() )
+	{
+		DataObject_Update(pLines);
+	}
+
+	return( true );
 }
 
 
