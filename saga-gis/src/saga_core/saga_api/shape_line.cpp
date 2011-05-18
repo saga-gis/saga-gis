@@ -171,25 +171,53 @@ TSG_Intersection CSG_Shape_Line::On_Intersects(CSG_Shape *pShape)
 }
 
 //---------------------------------------------------------
-TSG_Intersection CSG_Shape_Line::On_Intersects(TSG_Rect Extent)
+TSG_Intersection CSG_Shape_Line::On_Intersects(TSG_Rect Region)
 {
+	// called if polygon's bounding box contains or overlaps with region.
+	// now let's figure out how region intersects with polygon itself
+
+	//-----------------------------------------------------
 	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
-		if( m_pParts[iPart]->Get_Count() > 1 )
+		CSG_Shape_Part	*pPart	= m_pParts[iPart];
+
+		switch( pPart->Get_Extent().Intersects(Region) )
 		{
-			TSG_Point	*pA, *pB, Crossing;
+		case INTERSECTION_None:			// region and line part are distinct
+			break;
 
-			pB	= m_pParts[iPart]->m_Points;
-			pA	= pB + 1;
+		case INTERSECTION_Identical:	// region contains line part
+		case INTERSECTION_Contained:
+			return( Get_Extent().Intersects(Region) );
 
-			for(int iPoint=1; iPoint<m_pParts[iPart]->Get_Count(); iPoint++, pB=pA++)
+		case INTERSECTION_Contains:
+		case INTERSECTION_Overlaps:		// region overlaps with line part's extent, now let's look at the line part itself!
+			if( pPart->Get_Count() > 1 )
 			{
-				if( SG_Get_Crossing_InRegion(Crossing, *pA, *pB, Extent) )
+				TSG_Point	*pa, *pb, c;
+
+				pb	= pPart->m_Points;
+				pa	= pb + 1;
+
+				for(int iPoint=1; iPoint<pPart->Get_Count(); iPoint++, pb=pa++)
 				{
-					return( INTERSECTION_Overlaps );
+					if( SG_Get_Crossing_InRegion(c, *pa, *pb, Region) )
+					{
+						return( INTERSECTION_Overlaps );
+					}
 				}
 			}
+			break;
 		}
+	}
+
+	//-----------------------------------------------------
+	TSG_Point	p	= Get_Point(0, 0);
+
+	if(	Region.xMin <= p.x && p.x <= Region.xMax
+	&&	Region.yMin <= p.y && p.y <= Region.yMax )
+	{
+		return( INTERSECTION_Contained );
 	}
 
 	return( INTERSECTION_None );

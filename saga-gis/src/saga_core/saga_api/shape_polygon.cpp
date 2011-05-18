@@ -367,40 +367,46 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 //---------------------------------------------------------
 TSG_Intersection CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 {
-	//-----------------------------------------------------
-	// 1. Line Intersection...
+	// called if polygon's bounding box contains or overlaps with region.
+	// now let's figure out how region intersects with polygon itself
 
+	//-----------------------------------------------------
 	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
 		CSG_Shape_Part	*pPart	= m_pParts[iPart];
 
-		if( pPart->Get_Extent().Intersects(Region) )
+		switch( pPart->Get_Extent().Intersects(Region) )
 		{
-			TSG_Point	*pa, *pb, c;
+		case INTERSECTION_None:			// region and polygon part are distinct
+			break;
 
-			pa	= m_pParts[iPart]->m_Points;
-			pb	= pa + m_pParts[iPart]->m_nPoints - 1;
+		case INTERSECTION_Identical:	// region contains polygon part
+		case INTERSECTION_Contained:
+			return( Get_Extent().Intersects(Region) );
 
-			for(int iPoint=0; iPoint<m_pParts[iPart]->m_nPoints; iPoint++, pb=pa++)
+		case INTERSECTION_Contains:
+		case INTERSECTION_Overlaps:		// region at least partly contained by polygon part's extent, now let's look at the polygon part itself!
+			if( pPart->Get_Count() > 2 )
 			{
-				if(	SG_Get_Crossing_InRegion(c, *pa, *pb, Region) )
+				TSG_Point	*pa, *pb, c;
+
+				pa	= pPart->m_Points;
+				pb	= pa + pPart->m_nPoints - 1;
+
+				for(int iPoint=0; iPoint<pPart->m_nPoints; iPoint++, pb=pa++)
 				{
-					return( INTERSECTION_Overlaps );
+					if(	SG_Get_Crossing_InRegion(c, *pa, *pb, Region) )
+					{
+						return( INTERSECTION_Overlaps );
+					}
 				}
 			}
+			break;
 		}
 	}
-
-
+	
 	//-----------------------------------------------------
-	// 2. Is region completly within polygon...
-
-	if( Contains(Region.xMin, Region.yMin) )
-	{
-		return( INTERSECTION_Contains );
-	}
-
-	return( INTERSECTION_None );
+	return( Contains(Region.xMin, Region.yMin) ? INTERSECTION_Contains : INTERSECTION_None );
 }
 
 

@@ -671,30 +671,33 @@ void CShapes2Grid::Set_Polygon(CSG_Shape *pShape)
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				b	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
-
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				if( ((CSG_Shape_Polygon *)pShape)->Get_Part(iPart)->Get_Extent().Intersects(m_pGrid->Get_Extent(true)) )
 				{
-					a	= b;
-					b	= pShape->Get_Point(iPoint, iPart);
+					b	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
 
-					if(	((a.y <= A.y && A.y  < b.y)
-					||	 (a.y  > A.y && A.y >= b.y)) )
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						SG_Get_Crossing(c, a, b, A, B, false);
+						a	= b;
+						b	= pShape->Get_Point(iPoint, iPart);
 
-						x	= (int)(1.0 + X_WORLD_TO_GRID(c.x));
-
-						if( x < 0 )
+						if(	((a.y <= A.y && A.y  < b.y)
+						||	 (a.y  > A.y && A.y >= b.y)) )
 						{
-							x	= 0;
-						}
-						else if( x >= m_pGrid->Get_NX() )
-						{
-							x	= m_pGrid->Get_NX() - 1;
-						}
+							SG_Get_Crossing(c, a, b, A, B, false);
 
-						bCrossing[x]	= !bCrossing[x];
+							x	= (int)(1.0 + X_WORLD_TO_GRID(c.x));
+
+							if( x < 0 )
+							{
+								x	= 0;
+							}
+							else if( x >= m_pGrid->Get_NX() )
+							{
+								x	= m_pGrid->Get_NX() - 1;
+							}
+
+							bCrossing[x]	= !bCrossing[x];
+						}
 					}
 				}
 			}
