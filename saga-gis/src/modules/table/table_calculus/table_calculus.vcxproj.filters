@@ -26,9 +26,6 @@
     <ClCompile Include="Table_Calculator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Table_CalculatorShapes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="table_running_average.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -104,9 +101,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Table_Calculator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Table_CalculatorShapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_running_average.h">

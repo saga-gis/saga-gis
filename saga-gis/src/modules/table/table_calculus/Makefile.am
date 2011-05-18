@@ -17,7 +17,6 @@ Fit.cpp\
 LMFit.cpp\
 MLB_Interface.cpp\
 Table_Calculator.cpp\
-Table_CalculatorShapes.cpp\
 table_cluster_analysis.cpp\
 table_pca.cpp\
 table_running_average.cpp\
@@ -26,7 +25,6 @@ Fit.h\
 LMFit.h\
 MLB_Interface.h\
 Table_Calculator.h\
-Table_CalculatorShapes.h\
 table_cluster_analysis.h\
 table_pca.h\
 table_running_average.h\

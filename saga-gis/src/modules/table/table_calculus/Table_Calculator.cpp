@@ -19,87 +19,179 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
-#include "Table_Calculator.h"
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTableCalculator::CTableCalculator(void)
-{
-	Set_Name(_TL("Table calculator"));
+#include "Table_Calculator.h"
 
-	Set_Author(SG_T("Victor Olaya"));
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTableCalculator::CTableCalculator(bool bShapes)
+{
+	Set_Name	(!bShapes ? _TL("Table Calculator") : _TL("Table Calculator for Shapes"));
+
+	Set_Author	(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
 
 	CSG_String	s(_TW(
-		"The table calculator creates a new column based on existing columns and a mathematical formula. "
-		"The columns are addressed by single characters (a-z) which correspond in alphabetical order to the columns "
-		"('a' = first column, 'b' = second column, ...)\n"
-		"Example with three columns: sin(a) * b + c\n\n"
-		"The following operators are available for the formula definition:\n"
+		"The table calculator calculates a new attribute from existing attributes based on a mathematical formula. "
+		"Attributes are addressed by the character 'f' (for 'field') followed by the field number (i.e.: f1, f2, ..., fn) "
+		"or by the field name in square brackets (e.g.: [Field Name]).\n"
+		"Examples:\n"
+		"sin(f1) * f2 + f3\n"
+		"[Population] / [Area]\n"
+
+		"\nThe following operators are available for the formula definition:\n"
 	));
 
 	s	+= CSG_Formula::Get_Help_Operators();
 
 	Set_Description(s);
 
-	Parameters.Add_Table	(NULL, "TABLE"	, _TL("Table")		, _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Table	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_String	(NULL, "FORMULA", _TL("Formula")	, _TL(""), SG_T("a+b"));
-	Parameters.Add_String	(NULL, "NAME"	, _TL("Field Name")	, _TL(""), SG_T("a+b"));
+	if( !bShapes )
+	{
+		Parameters.Add_Table	(NULL, "TABLE"	, _TL("Table")		, _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Table	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	}
+	else
+	{
+		Parameters.Add_Shapes	(NULL, "TABLE"	, _TL("Shapes")		, _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Shapes	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	}
+
+	Parameters.Add_String	(NULL, "FORMULA", _TL("Formula")	, _TL(""), SG_T("f1 + f2"));
+	Parameters.Add_String	(NULL, "NAME"	, _TL("Field Name")	, _TL(""), SG_T("Calculation"));
 }
 
-//---------------------------------------------------------
-CTableCalculator::~CTableCalculator(void)
-{}
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTableCalculator::On_Execute(void)
 {
-	int			nValues, Position;
-	double		*Values;
-	CSG_String	Message;
-	CSG_Formula	Formula;
-	CSG_Table	*pTable;
-
 	//-----------------------------------------------------
-	Formula.Set_Formula(Parameters("FORMULA")->asString());
+	CSG_Table	*pTable		= Parameters("TABLE")	->asTable();
 
-	if( Formula.Get_Error(&Position, &Message) )
+	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() <= 0 )
 	{
-		Message_Add(Message);
-		Message_Add(CSG_String::Format(SG_T("%s: #%d [%s]"), _TL("syntax error, position"), Position, Formula.Get_Formula().c_str()));
+		Error_Set(_TL("invalid table"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	pTable	= Parameters("RESULT")->asTable();
+	const SG_Char	vars[27]	= SG_T("abcdefghijklmnopqrstuvwxyz");
 
-	if( Parameters("TABLE")->asTable() != pTable )
+	int			iField, nFields, *Fields	= new int[pTable->Get_Field_Count()];
+
+	CSG_String	sFormula	= Parameters("FORMULA")	->asString();
+
+	for(iField=pTable->Get_Field_Count()-1, nFields=0; iField>=0 && nFields<26; iField--)
 	{
-		pTable->Assign(Parameters("TABLE")->asTable());
+		bool		bUse	= false;
+
+		CSG_String	sField;
+
+		sField.Printf(SG_T("f%d"), iField + 1);
+
+		if( sFormula.Find(sField) >= 0 )
+		{
+			sFormula.Replace(sField, CSG_String(vars[nFields]));
+
+			bUse	= true;
+		}
+
+		sField.Printf(SG_T("[%s]"), pTable->Get_Field_Name(iField));
+
+		if( sFormula.Find(sField) >= 0 )
+		{
+			sFormula.Replace(sField, CSG_String(vars[nFields]));
+
+			bUse	= true;
+		}
+
+		if( bUse )
+		{
+			Fields[nFields++]	= iField;
+		}
 	}
 
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("TABLE")->asTable()->Get_Name(), Formula.Get_Formula().c_str()));
+	Message_Add(sFormula + SG_T("\n"), false);
+
+	//-----------------------------------------------------
+	CSG_Formula	Formula;
+
+	if( !Formula.Set_Formula(sFormula) )
+	{
+		int			Position;
+		CSG_String	Message;
+
+		Formula.Get_Error(&Position, &Message);
+
+		Message_Add(Message);
+
+		Message_Add(CSG_String::Format(SG_T("%s: #%d [%s]"), _TL("syntax error, position"), Position, Formula.Get_Formula().c_str()));
+
+		delete[](Fields);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
+	{
+		pTable	= Parameters("RESULT")->asTable();
+		pTable->Create(*Parameters("TABLE")->asTable());
+	}
+
+	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("TABLE")->asTable()->Get_Name(), Parameters("NAME")->asString()));
 	pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	nValues	= pTable->Get_Field_Count() - 1;
-	Values	= new double[nValues];
+	CSG_Vector	Values(nFields);
 
 	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-		for(int iValue=0; iValue<nValues; iValue++)
+		for(iField=0; iField<nFields; iField++)
 		{
-			Values[iValue]	= pRecord->asDouble(iValue);
+			Values[iField]	= pRecord->asDouble(Fields[iField]);
 		}
 
-		pRecord->Set_Value(nValues, Formula.Get_Value(Values, nValues));
+		pRecord->Set_Value(pTable->Get_Field_Count() - 1, Formula.Get_Value(Values.Get_Data(), nFields));
 	}
 
-	delete[](Values);
-
 	//-----------------------------------------------------
+	delete[](Fields);
+
+	if( pTable == Parameters("TABLE")->asTable() )
+	{
+		DataObject_Update(pTable);
+	}
+
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
