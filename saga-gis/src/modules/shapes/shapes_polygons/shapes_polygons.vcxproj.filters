@@ -50,6 +50,9 @@
     <ClCompile Include="polygon_to_edges_nodes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="polygon_split_parts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -137,6 +140,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="polygon_to_edges_nodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="polygon_split_parts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

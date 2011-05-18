@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: polygon_split_parts.cpp 915 2011-02-15 08:43:36Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                polygon_split_parts.cpp                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,78 +54,53 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Polygons") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya (c) 2002-5") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for polygons.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Polygons") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Polygon_Intersection.h"
-#include "Polygon_Centroids.h"
-#include "Polygon_Geometrics.h"
-#include "Polygons_From_Lines.h"
-#include "Polygon_StatisticsFromPoints.h"
-#include "Polygon_Union.h"
-#include "polygon_to_points.h"
-#include "shape_index.h"
-#include "polygon_line_intersection.h"
-#include "polygon_to_edges_nodes.h"
 #include "polygon_split_parts.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+CPolygon_Split_Parts::CPolygon_Split_Parts(void)
 {
-	switch( i )
-	{
-	case  0:	return( new CPolygon_Intersection );
-	case  1:	return( new CPolygon_Centroids );
-	case  2:	return( new CPolygon_Geometrics );
-	case  3:	return( new CPolygons_From_Lines );
-	case  4:	return( new CPolygonStatisticsFromPoints );
-	case  5:	return( new CPolygon_Dissolve );
-	case  6:	return( new CPolygon_To_Points );
-	case  7:	return( new CShape_Index );
-	case  8:	return( new CPolygon_Line_Intersection );
-	case  9:	return( new CPolygon_to_Edges_Nodes );
-	case 10:	return( new CPolygon_Split_Parts );
-	}
+	//-----------------------------------------------------
+	Set_Name		(_TL("Polygon Parts to Separate Polygons"));
 
-	return( NULL );
+	Set_Author		(SG_T("O.Conrad (c) 2011"));
+
+	Set_Description	(_TW(
+		"Splits parts of multipart polygons into separate polygons. "
+		"This can be done only for islands (outer rings) or for all "
+		"parts (inner and outer rings) by checking the 'ignore lakes' "
+		"option."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(
+		NULL	, "POLYGONS"	, _TL("Polygons"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "PARTS"		, _TL("Polygon Parts"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Value(
+		NULL	, "LAKES"		, _TL("Ignore Lakes"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -138,8 +111,59 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+bool CPolygon_Split_Parts::On_Execute(void)
+{
+	bool		bIgnoreLakes;
+	CSG_Shapes	*pPolygons, *pParts;
 
-	MLB_INTERFACE
+	pPolygons		= Parameters("POLYGONS")	->asShapes();
+	pParts			= Parameters("PARTS")		->asShapes();
+	bIgnoreLakes	= Parameters("LAKES")		->asBool();
 
-//}}AFX_SAGA
+	pParts->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("Parts")), pPolygons);
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(iShape);
+
+		for(int iPart=0; iPart<pPolygon->Get_Part_Count() && Process_Get_Okay(); iPart++)
+		{
+			if( bIgnoreLakes || !((CSG_Shape_Polygon *)pPolygon)->is_Lake(iPart) )
+			{
+				CSG_Shape	*pPart	= pParts->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
+
+				for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+				{
+					pPart->Add_Point(pPolygon->Get_Point(iPoint, iPart));
+				}
+
+				if( !bIgnoreLakes )
+				{
+					for(int jPart=0; jPart<pPolygon->Get_Part_Count(); jPart++)
+					{
+						if(	((CSG_Shape_Polygon *)pPolygon)->is_Lake(jPart)
+						&&	((CSG_Shape_Polygon *)pPart)->Contains(pPolygon->Get_Point(0, jPart)) )
+						{
+							for(int jPoint=0, nPart=pPart->Get_Part_Count(); jPoint<pPolygon->Get_Point_Count(jPart); jPoint++)
+							{
+								pPart->Add_Point(pPolygon->Get_Point(jPoint, jPart), nPart);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
