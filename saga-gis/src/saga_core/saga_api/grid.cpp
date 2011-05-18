@@ -343,7 +343,7 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 	switch( m_Type )
 	{
 	case SG_DATATYPE_Bit:		Set_NoData_Value(          0.0);	break;
-	case SG_DATATYPE_Byte:		Set_NoData_Value(        255.0);	break;
+	case SG_DATATYPE_Byte:		Set_NoData_Value(       -127.0);	break;
 	case SG_DATATYPE_Char:		Set_NoData_Value(       -127.0);	break;
 	case SG_DATATYPE_Word:		Set_NoData_Value(      65535.0);	break;
 	case SG_DATATYPE_Short:		Set_NoData_Value(     -32767.0);	break;
