@@ -870,7 +870,7 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		if( (pParent = pParameters->Get_Parameter(pItem->Get_Manager()->Get_Name())) == NULL )
 		{
-			pParent	= pParameters->Add_Node(NULL, pItem->Get_Manager()->Get_Name(), pItem->Get_Manager()->Get_Name(), wxT(""));
+			pParent	= pParameters->Add_Node(NULL, SG_Get_String(pParameters->Get_Count(), 0), pItem->Get_Manager()->Get_Name(), wxT(""));
 		}			
 
 		//-------------------------------------------------
@@ -905,30 +905,32 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 //---------------------------------------------------------
 bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 {
-	bool			bSaveAll	= pParameters->Get_Parameter("SAVE_ALL")->asBool();
-	CSG_Data_Object	*pObject;
-	CSG_Parameter	*pParameter, *pPath	= NULL;
-
 	for(int i=0, j=0; i<pParameters->Get_Count(); i++)
 	{
-		pParameter	= pParameters->Get_Parameter(i);
+		long long		Pointer;
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-		if(	pParameter->Get_Type() == PARAMETER_TYPE_Bool && (bSaveAll || pParameter->asBool())
-		&&	SG_SSCANF(pParameter->Get_Identifier(), wxT("%lld"), (int *)(&pObject)) == 1 && g_pData->Exists(pObject)	)
+		if(	pParameter->Get_Type() == PARAMETER_TYPE_Bool && pParameter->asBool()
+		&&	SG_SSCANF(pParameter->Get_Identifier(), SG_T("%lld"), (&Pointer)) == 1 )
 		{
-			CSG_String	fPath;
+			CSG_Data_Object	*pObject	= (CSG_Data_Object *)Pointer;
 
-			if(	(pPath = pParameters->Get_Parameter(wxString::Format(wxT("%d FILE"), (long)pObject))) != NULL
-			&&	pPath->asString() != NULL && SG_STR_LEN(pPath->asString()) > 0 )
+			if(	g_pData->Exists(pObject) )
 			{
-				fPath	= pPath->asString();
-			}
-			else
-			{
-				fPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), CSG_String::Format(wxT("%02d_%s"), ++j, pObject->Get_Name()), NULL);
-			}
+				CSG_String		fPath;
+				CSG_Parameter	*pPath	= pParameters->Get_Parameter(wxString::Format(wxT("%d FILE"), (long)pObject));
 
-			pObject->Save(fPath);
+				if(	pPath && pPath->asString() && pPath->asString()[0] )
+				{
+					fPath	= pPath->asString();
+				}
+				else
+				{
+					fPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), CSG_String::Format(wxT("%02d_%s"), ++j, pObject->Get_Name()), NULL);
+				}
+
+				pObject->Save(fPath);
+			}
 		}
 	}
 
