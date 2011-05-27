@@ -399,6 +399,9 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters)
 	}
 
 	//-----------------------------------------------------
+	bool	bResult;
+	int		iCluster;
+
 	m_Iteration	= 0;
 
 	m_nClusters	= nClusters;
@@ -409,7 +412,7 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters)
 	m_Variance	= (double  *)SG_Calloc(m_nClusters		, sizeof(double));
 	m_Centroid	= (double **)SG_Calloc(m_nClusters		, sizeof(double *));
 
-	for(int iCluster=0; iCluster<m_nClusters; iCluster++)
+	for(iCluster=0; iCluster<m_nClusters; iCluster++)
 	{
 		m_Centroid[iCluster]	= (double *)SG_Calloc(m_nFeatures, sizeof(double));
 	}
@@ -418,14 +421,27 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters)
 	switch( Method )
 	{
 	case 0: default:
-		return( Minimum_Distance(true) );
+		bResult	= Minimum_Distance(true);
+		break;
 
 	case 1:
-		return( Hill_Climbing(true) );
+		bResult	= Hill_Climbing(true);
+		break;
 
 	case 2:
-		return( Minimum_Distance(true) && Hill_Climbing(false) );
+		bResult	= Minimum_Distance(true) && Hill_Climbing(false);
+		break;
 	}
+
+	if( bResult )
+	{
+		for(iCluster=0; iCluster<m_nClusters; iCluster++)
+		{
+			m_Variance[iCluster]	= m_nMembers[iCluster] ? m_Variance[iCluster] / m_nMembers[iCluster] : 0.0;
+		}
+	}
+
+	return( bResult );
 }
 
 //---------------------------------------------------------
@@ -518,10 +534,12 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize)
 		}
 
 		//-------------------------------------------------
-		if( nShifts == 0 || (SP_Last >= 0 && m_SP >= SP_Last) )
+		if( nShifts == 0 )
 		{
 			bContinue	= false;
 		}
+
+		m_SP	/= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
 			LNG("pass")		, m_Iteration,
@@ -573,7 +591,7 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
 	}
 
 	//-----------------------------------------------------
-	for(iCluster=0, m_SP=0.0; iCluster<m_nClusters; iCluster++)
+	for(iCluster=0; iCluster<m_nClusters; iCluster++)
 	{
 		double	d	= m_nMembers[iCluster] != 0 ? 1.0 / (double)m_nMembers[iCluster] : 0;
 
@@ -584,7 +602,6 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
 		}
 
 		m_Variance[iCluster]	-= m_nMembers[iCluster] * Variance;
-		m_SP					+= m_Variance[iCluster];
 	}
 
 	noShift		= 0;
@@ -643,7 +660,6 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
 						noShift					= 0;
 						m_Variance[iCluster]	-= V1;
 						m_Variance[kCluster]	+= VMin;
-						m_SP					= m_SP - V1 + VMin;
 						V1						= 1.0 / (m_nMembers[iCluster] - 1.0);
 						V2						= 1.0 / (m_nMembers[kCluster] + 1.0);
 
@@ -663,6 +679,14 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
 				}
 			}
 		}
+
+		//-------------------------------------------------
+		for(iCluster=0, m_SP=0.0; iCluster<m_nClusters; iCluster++)
+		{
+			m_SP	+= m_Variance[iCluster];
+		}
+
+		m_SP	/= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
 			LNG("pass")		, m_Iteration,
