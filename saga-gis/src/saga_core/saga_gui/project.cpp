@@ -853,7 +853,7 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem, CSG_Data_Object *pObject)
 {
 	CSG_Parameter	*pNode, *pParent;
-	wxString		sFilter, sPath;
+	wxString		sFilter, sExtension, sPath;
 
 	if( pObject->is_Modified() )
 	{
@@ -861,11 +861,11 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 		{
 		//-------------------------------------------------
 		default:	return( false );
-		case WKSP_ITEM_Table:		sFilter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE);		break;
-		case WKSP_ITEM_Shapes:		sFilter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE);		break;
-		case WKSP_ITEM_TIN:			sFilter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE);			break;
-		case WKSP_ITEM_PointCloud:	sFilter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
-		case WKSP_ITEM_Grid:		sFilter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE);		break;
+		case WKSP_ITEM_Table:		sExtension	= SG_T("txt" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE);		break;
+		case WKSP_ITEM_Shapes:		sExtension	= SG_T("shp" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE);		break;
+		case WKSP_ITEM_TIN:			sExtension	= SG_T("shp" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE);			break;
+		case WKSP_ITEM_PointCloud:	sExtension	= SG_T("spc" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
+		case WKSP_ITEM_Grid:		sExtension	= SG_T("sgrd");	sFilter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE);		break;
 		}
 
 		if( (pParent = pParameters->Get_Parameter(pItem->Get_Manager()->Get_Name())) == NULL )
@@ -887,8 +887,12 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 		);
 
 		sPath	= pObject->Get_File_Name();
+
 		if( sPath.Length() == 0 )
-			sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), pObject->Get_Name(), NULL);
+		{
+			sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), pObject->Get_Name());
+			sPath	+= SG_T(".") + sExtension;
+		}
 
 		pParameters->Add_FilePath(
 			pNode,
