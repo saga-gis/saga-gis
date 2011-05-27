@@ -77,8 +77,6 @@ CPoints_From_Lines::CPoints_From_Lines(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -141,6 +139,70 @@ bool CPoints_From_Lines::On_Execute(void)
 					pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 					pPoint	->Add_Point(pLine->Get_Point(iPoint, iPart));
 				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPoints_From_MultiPoints::CPoints_From_MultiPoints(void)
+{
+	Set_Name		(_TL("Convert Multipoints to Points"));
+
+	Set_Author		(_TL("O.Conrad (c) 2011"));
+
+	Set_Description	(_TW(
+		"Converts multipoints to points. "
+	));
+
+	Parameters.Add_Shapes(
+		NULL	, "MULTIPOINTS"	, _TL("Multipoints"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Points
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPoints_From_MultiPoints::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Shapes	*pMultipoints	= Parameters("MULTIPOINTS")	->asShapes();
+	CSG_Shapes	*pPoints		= Parameters("POINTS")		->asShapes();
+
+	pPoints->Create(SHAPE_TYPE_Point, pMultipoints->Get_Name(), pMultipoints);
+
+	//-----------------------------------------------------
+	for(int iMultipoint=0; iMultipoint<pMultipoints->Get_Count() && Set_Progress(iMultipoint, pMultipoints->Get_Count()); iMultipoint++)
+	{
+		CSG_Shape	*pMultipoint	= pMultipoints->Get_Shape(iMultipoint);
+
+		for(int iPart=0; iPart<pMultipoint->Get_Part_Count(); iPart++)
+		{
+			for(int iPoint=0; iPoint<pMultipoint->Get_Point_Count(iPart); iPoint++)
+			{
+				CSG_Shape	*pPoint	= pPoints->Add_Shape(pMultipoint, SHAPE_COPY_ATTR);
+
+				pPoint->Add_Point(pMultipoint->Get_Point(iPoint, iPart));
 			}
 		}
 	}

@@ -130,6 +130,7 @@ CSG_Module *		Create_Module(int i)
 	case 12:	return( new CConvex_Hull );
 	case 13:	return( new CSelect_Points );
 	case 14:	return( new CPoints_Thinning );
+	case 15:	return( new CPoints_From_MultiPoints );
 	}
 
 	return( NULL );
