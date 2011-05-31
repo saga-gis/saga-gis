@@ -864,7 +864,7 @@ bool CParameters_Control::Update_DataObjects(void)
 //---------------------------------------------------------
 void CParameters_Control::_Update_Parameters(void)
 {
-	if( m_pParameters )
+	if( !m_pPG->IsFrozen() && m_pParameters )
 	{
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
@@ -878,7 +878,9 @@ void CParameters_Control::_Update_Parameters(void)
 //---------------------------------------------------------
 void CParameters_Control::_Init_Pararameters(void)
 {
-	if( m_pParameters )
+	static bool	bInitializes	= false;
+
+	if( !m_pPG->IsFrozen() && m_pParameters )
 	{
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{

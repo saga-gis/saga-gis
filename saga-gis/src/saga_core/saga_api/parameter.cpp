@@ -96,7 +96,7 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	//-----------------------------------------------------
 	switch( Type )
 	{
-	default:								m_pData	= NULL;													break;
+	default:								m_pData	= NULL;														break;
 
 	case PARAMETER_TYPE_Node:				m_pData	= new CSG_Parameter_Node				(this, Constraint);	break;
 
@@ -508,6 +508,22 @@ bool CSG_Parameter::Set_Value(void *Value)
 bool CSG_Parameter::Set_Value(const SG_Char *Value)
 {
 	return( Set_Value((void *)Value) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter::Set_Value(CSG_Parameter *Value)
+{
+	if( Value )
+	{
+		switch( Value->Get_Type() )
+		{
+		default:								return( Assign(Value) );
+
+		case PARAMETER_TYPE_Choice:				return( Set_Value(Value->asInt()) );
+		}
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

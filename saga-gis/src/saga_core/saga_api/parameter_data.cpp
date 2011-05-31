@@ -1737,6 +1737,12 @@ CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)
 	return( pTable && pTable != DATAOBJECT_CREATE && pTable->Get_Field_Count() > 0 ? pTable : NULL );
 }
 
+//---------------------------------------------------------
+void CSG_Parameter_Table_Field::On_Assign(CSG_Parameter_Data *pSource)
+{
+	CSG_Parameter_Int::On_Assign(pSource);
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

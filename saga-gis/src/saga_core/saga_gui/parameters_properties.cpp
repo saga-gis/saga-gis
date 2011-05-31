@@ -334,17 +334,20 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 	{
 		int	index	= pSystems->Get_Count();
 
-		for(int i=0; i<pSystems->Get_Count(); i++)
+		if( m_choices.GetCount() == 0 )
 		{
-			_Append(pSystems->Get_System(i)->Get_Name(), pSystems->Get_System(i)->Get_System());
-
-			if( m_pParameter->asGrid_System()->is_Equal(*pSystems->Get_System(i)->Get_System()) )
+			for(int i=0; i<pSystems->Get_Count(); i++)
 			{
-				index	= i;
-			}
-		}
+				_Append(pSystems->Get_System(i)->Get_Name(), pSystems->Get_System(i)->Get_System());
 
-		_Append(LNG("[VAL] [not set]"));
+				if( m_pParameter->asGrid_System()->is_Equal(*pSystems->Get_System(i)->Get_System()) )
+				{
+					index	= i;
+				}
+			}
+
+			_Append(LNG("[VAL] [not set]"));
+		}
 
 		return( index );
 	}

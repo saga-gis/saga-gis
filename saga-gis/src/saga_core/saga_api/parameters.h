@@ -685,6 +685,9 @@ protected:
 
 	bool						m_bAllowNone;
 
+
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+
 };
 
 //---------------------------------------------------------
@@ -1060,6 +1063,7 @@ public:
 	bool						Set_Value				(double         Value);
 	bool						Set_Value				(void          *Value);
 	bool						Set_Value				(const SG_Char *Value);
+	bool						Set_Value				(CSG_Parameter *Value);
 
 	void						Set_Default				(int            Value)	{	m_pData->Set_Default(Value);	}
 	void						Set_Default				(double         Value)	{	m_pData->Set_Default(Value);	}
