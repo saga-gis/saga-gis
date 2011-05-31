@@ -83,7 +83,7 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"The dissolves borders between polygons, which have the same attribute value."
+		"Merges polygons, which share the same attribute value, and (optionally) dissolves borders between adjacent polygon parts."
 	));
 
 	//-----------------------------------------------------
@@ -118,11 +118,13 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "ALL"			, _TL("Dissolve..."),
+		NULL	, "DISSOLVE"	, _TL("Dissolve..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("polygons with same attribute value"),
-			_TL("all polygons")
+			_TL("all polygons"),
+			_TL("polygons with same attribute value (keep inner boundaries)"),
+			_TL("all polygons (keep inner boundaries)")
 		), 0
 	);
 }
@@ -158,7 +160,7 @@ int CPolygon_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CPolygon_Dissolve::On_Execute(void)
 {
-	bool		bAll;
+	bool		bAll, bDissolve;
 	int			Field_1, Field_2, Field_3, iPolygon;
 	CSG_String	Value;
 	CSG_Shape	*pPolygon , *pUnion;
@@ -170,7 +172,8 @@ bool CPolygon_Dissolve::On_Execute(void)
 	Field_1		= Parameters("FIELD_1")		->asInt();
 	Field_2		= Parameters("FIELD_2")		->asInt();
 	Field_3		= Parameters("FIELD_3")		->asInt();
-	bAll		= Parameters("ALL")			->asInt() == 1;
+	bAll		= Parameters("DISSOLVE")	->asInt() % 2 == 1;
+	bDissolve	= Parameters("DISSOLVE")	->asInt() / 2 == 0;
 
 	//-----------------------------------------------------
 	if(	pPolygons->is_Valid() )
@@ -187,7 +190,22 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 			for(iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 			{
-				GPC_Union(pUnion, pPolygons->Get_Shape(iPolygon));
+				if( bDissolve )
+				{
+					GPC_Union(pUnion, pPolygons->Get_Shape(iPolygon));
+				}
+				else
+				{
+					for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+					{
+						CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon))->Get_Part(iPart);
+
+						for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
+						{
+							pUnion->Add_Point(pPart->Get_Point(iPoint), nParts);
+						}
+					}
+				}
 			}
 		}
 
@@ -233,9 +251,19 @@ bool CPolygon_Dissolve::On_Execute(void)
 					if( Field_2 >= 0 )	pUnion->Set_Value(1, pPolygon->asString(Field_2));
 					if( Field_3 >= 0 )	pUnion->Set_Value(2, pPolygon->asString(Field_3));
 				}
-				else
+				else if( bDissolve )
 				{
 					GPC_Union(pUnion, pPolygon);
+				}
+				else
+				{
+					for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+					{
+						for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+						{
+							pUnion->Add_Point(pPolygon->Get_Point(iPoint, iPart), nParts);
+						}
+					}
 				}
 			}
 		}
