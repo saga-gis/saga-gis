@@ -166,7 +166,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 		LNG(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_FRAME"), lValue) ? lValue : 17,
-		5, true
+		0, true
 	);
 
 	m_Parameters.Add_Value(

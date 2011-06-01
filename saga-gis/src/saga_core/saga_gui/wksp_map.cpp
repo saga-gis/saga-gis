@@ -1112,7 +1112,11 @@ void CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
 	dc.Clear();
 
 	Draw_Map(dc, 1.0, r, false);
-	Draw_Frame(dc, r, frame);
+
+	if( frame > 0 )
+	{
+		Draw_Frame(dc, r, frame);
+	}
 
 	dc.SelectObject(wxNullBitmap);
 
