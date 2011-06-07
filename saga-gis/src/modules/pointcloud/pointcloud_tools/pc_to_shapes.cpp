@@ -113,7 +113,7 @@ bool CPC_To_Shapes::On_Execute(void)
 	pShapes	= Parameters("SHAPES")	->asShapes();
 
 	//-----------------------------------------------------
-	pShapes->Create(SHAPE_TYPE_Point, pPoints->Get_Name());
+	pShapes->Create(SHAPE_TYPE_Point, pPoints->Get_Name(), NULL, SG_VERTEX_TYPE_XYZ);
 
 	for(iField=2; iField<pPoints->Get_Field_Count(); iField++)
 	{
@@ -128,6 +128,7 @@ bool CPC_To_Shapes::On_Execute(void)
 		CSG_Shape	*pShape	= pShapes->Add_Shape();
 
 		pShape->Add_Point(pPoints->Get_X(), pPoints->Get_Y());
+		pShape->Set_Z(pPoints->Get_Z(), 0);
 
 		for(iField=2; iField<pPoints->Get_Field_Count(); iField++)
 		{

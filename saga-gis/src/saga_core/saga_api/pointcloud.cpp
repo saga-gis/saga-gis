@@ -194,6 +194,7 @@ bool CSG_PointCloud::Create(CSG_PointCloud *pStructure)
 void CSG_PointCloud::_On_Construction(void)
 {
 	m_Type			= SHAPE_TYPE_Point;
+	m_Vertex_Type	= SG_VERTEX_TYPE_XYZ;
 
 	m_nFields		= 0;
 	m_Field_Name	= NULL;
@@ -215,7 +216,7 @@ void CSG_PointCloud::_On_Construction(void)
 
 	Set_Update_Flag();
 
-	m_Shapes.Create(SHAPE_TYPE_Point);
+	m_Shapes.Create(SHAPE_TYPE_Point, NULL, NULL, SG_VERTEX_TYPE_XYZ);
 	m_Shapes.Add_Shape();
 	m_Shapes_Index	= -1;
 
@@ -957,6 +958,7 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 
 		Set_Value(0, pShape->Get_Point(0).x);
 		Set_Value(1, pShape->Get_Point(0).y);
+		Set_Value(2, pShape->Get_Z(0));
 	}
 
 	if( iPoint >= 0 && iPoint < Get_Count() )
@@ -966,6 +968,7 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 			m_Cursor	= m_Points[iPoint];
 
 			pShape->Set_Point(Get_X(), Get_Y(), 0, 0);
+			pShape->Set_Z    (Get_Z()         , 0, 0);
 
 			for(int i=0; i<Get_Field_Count(); i++)
 			{

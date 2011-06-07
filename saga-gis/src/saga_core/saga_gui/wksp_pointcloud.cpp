@@ -265,6 +265,7 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
+
 	//-----------------------------------------------------
 	// Classification...
 
@@ -284,6 +285,16 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 
 	_AttributeList_Add(
 		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, LNG("[CAP] Attribute"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Node(
+		m_Parameters("NODE_COLORS")		, "NODE_RGB"				, LNG("[CAP] RGB"),
+		LNG("")
+	);
+
+	_AttributeList_Add(
+		m_Parameters("NODE_RGB")		, "RGB_ATTRIB"				, LNG("[CAP] Attribute"),
 		LNG("")
 	);
 
@@ -313,6 +324,7 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 {
 	_AttributeList_Set(m_Parameters("LUT_ATTRIB")			, false);
 	_AttributeList_Set(m_Parameters("METRIC_ATTRIB")		, false);
+	_AttributeList_Set(m_Parameters("RGB_ATTRIB")			, false);
 }
 
 //---------------------------------------------------------
@@ -324,6 +336,7 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	default:	m_Color_Field	= -1;	break;
 	case 1:		m_Color_Field	= m_Parameters("LUT_ATTRIB")   ->asInt();	break;
 	case 2:		m_Color_Field	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
+	case 3:		m_Color_Field	= m_Parameters("RGB_ATTRIB")   ->asInt();	break;
 	}
 
 	if( m_Color_Field >= m_pPointCloud->Get_Field_Count() )
@@ -381,6 +394,7 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
 			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
 			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("NODE_RGB"      )->Set_Enabled(Value == 3);
 
 			return( 0 );
 		}
