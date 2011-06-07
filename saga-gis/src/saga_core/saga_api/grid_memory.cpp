@@ -524,14 +524,25 @@ bool CSG_Grid::_Array_Create(void)
 	{
 		_Array_Destroy();
 
-		m_Values	= (void **)SG_Malloc(Get_NY() * sizeof(void *));
+		if( (m_Values = (void **)SG_Malloc(Get_NY() * sizeof(void *))) != NULL )
+		{		
+			if( (m_Values[0] = (void  *)SG_Calloc(Get_NY(), _Get_nLineBytes())) != NULL )
+			{
+				char	*pLine	= (char *)m_Values[0];
 
-		for(int y=0; y<Get_NY(); y++)
-		{
-			m_Values[y]	= (void *)SG_Calloc(1, _Get_nLineBytes());
+				for(int y=1; y<Get_NY(); y++)
+				{
+					pLine		+=_Get_nLineBytes();
+					m_Values[y]	 = pLine;
+				}
+
+				return( true );
+			}
+
+			SG_Free(m_Values);
+
+			m_Values	= NULL;
 		}
-
-		return( true );
 	}
 
 	return( false );
@@ -542,14 +553,7 @@ void CSG_Grid::_Array_Destroy(void)
 {
 	if( m_Values )
 	{
-		for(int y=0; y<Get_NY(); y++)
-		{
-			if( m_Values[y] )
-			{
-				SG_Free(m_Values[y]);
-			}
-		}
-
+		SG_Free(m_Values[0]);
 		SG_Free(m_Values);
 
 		m_Values	= NULL;
@@ -643,13 +647,11 @@ bool CSG_Grid::_Cache_Create(void)
 					Line.bModified	= true;
 					memcpy(Line.Data, m_Values[Line.y], Get_nLineBytes());
 					_Cache_LineBuffer_Save(&Line);
-					SG_Free(m_Values[Line.y]);
 				}
 
 				SG_Free(Line.Data);
 
-				SG_Free(m_Values);
-				m_Values	= NULL;
+				_Array_Destroy();
 
 				SG_UI_Process_Set_Ready();
 			}
@@ -851,12 +853,19 @@ bool CSG_Grid::_Compr_Create(void)
 
 		if( m_Values )	// compress loaded data...
 		{
+			void	**Values	= m_Values;
+			
+			m_Values	= (void **)SG_Calloc(Get_NY(), sizeof(void *));
+
 			for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 			{
-				memcpy(Line.Data, m_Values[Line.y], Get_nLineBytes());
+				memcpy(Line.Data, Values[Line.y], Get_nLineBytes());
 				Line.bModified	= true;
 				_Compr_LineBuffer_Save(&Line);
 			}
+
+			SG_Free(Values[0]);
+			SG_Free(Values);
 		}
 		else			// create empty grid...
 		{
@@ -888,41 +897,62 @@ bool CSG_Grid::_Compr_Destroy(bool bMemory_Restore)
 {
 	TSG_Grid_Line	Line;
 
-	if( is_Valid() && m_Memory_Type == GRID_MEMORY_Compression )
+	if( !is_Valid() || m_Memory_Type != GRID_MEMORY_Compression )
 	{
-		m_Memory_bLock	= true;
-
-		if( bMemory_Restore )
-		{
-			_LineBuffer_Flush();
-
-			Line.Data		= (char *)SG_Calloc(1, _Get_nLineBytes());
-
-			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-			{
-				_Compr_LineBuffer_Load(&Line, y);
-				m_Values[y]	= (void *)SG_Realloc(m_Values[y], _Get_nLineBytes());
-				memcpy(m_Values[y], Line.Data, Get_nLineBytes());
-			}
-
-			SG_Free(Line.Data);
-
-			SG_UI_Process_Set_Ready();
-		}
-		else
-		{
-			_Array_Destroy();
-		}
-
-		_LineBuffer_Destroy();
-
-		m_Memory_bLock	= false;
-		m_Memory_Type	= GRID_MEMORY_Normal;
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	m_Memory_bLock	= true;
+
+	//-----------------------------------------------------
+	if( !bMemory_Restore )
+	{
+		_Array_Destroy();
+	}
+	else
+	{
+		_LineBuffer_Flush();
+
+		void	**vCompr	= m_Values;
+
+		m_Values	= NULL;
+
+		if( !_Array_Create() )
+		{
+			m_Values		= vCompr;
+			m_Memory_bLock	= false;
+
+			return( false );
+		}
+
+		void	**vArray	= m_Values;
+
+		m_Values	= vCompr;
+		Line.Data	= (char *)SG_Calloc(1, _Get_nLineBytes());
+
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		{
+			_Compr_LineBuffer_Load(&Line, y);
+			memcpy(vArray[y], Line.Data, Get_nLineBytes());
+			SG_Free(vCompr[y]);
+		}
+
+		m_Values	= vArray;
+
+		SG_Free(vCompr);
+
+		SG_Free(Line.Data);
+
+		SG_UI_Process_Set_Ready();
+	}
+
+	//-----------------------------------------------------
+	_LineBuffer_Destroy();
+
+	m_Memory_bLock	= false;
+	m_Memory_Type	= GRID_MEMORY_Normal;
+
+	return( true );
 }
 
 
