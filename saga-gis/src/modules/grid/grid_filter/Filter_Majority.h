@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	int						m_Radius, m_Threshold;
+	long					m_Radius, m_Threshold;
 
 	CSG_Grid				m_Kernel, *m_pInput;
 
