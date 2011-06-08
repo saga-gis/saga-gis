@@ -228,7 +228,8 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 //---------------------------------------------------------
 bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator)
 {
-	int			i, iField, fLength;
+	int			i, iField;
+	long		fLength;
 	CSG_String	sLine, sField;
 	CSG_File	Stream;
 	CSG_Table	Table;

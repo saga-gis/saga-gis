@@ -182,7 +182,8 @@ protected:
 
 	short						nHeaderBytes, nRecordBytes;
 
-	int							nFields, nRecords, *FieldOffset, nFileBytes;
+	int							nFields, nRecords, *FieldOffset;
+	long						nFileBytes;
 
 	FILE						*hFile;
 

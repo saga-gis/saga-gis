@@ -169,7 +169,7 @@ bool CSG_File::Set_UnicodeFlag(bool bOn)
 }
 
 //---------------------------------------------------------
-int CSG_File::Length(void)	const
+long CSG_File::Length(void)	const
 {
 	if( m_pStream )
 	{
@@ -193,7 +193,7 @@ bool CSG_File::is_EOF(void)	const
 }
 
 //---------------------------------------------------------
-bool CSG_File::Seek(int Offset, int Origin) const
+bool CSG_File::Seek(long Offset, int Origin) const
 {
 	switch( Origin )
 	{
@@ -219,7 +219,7 @@ bool CSG_File::Seek_End(void) const
 }
 
 //---------------------------------------------------------
-int CSG_File::Tell(void) const
+long CSG_File::Tell(void) const
 {
 	return( m_pStream ? ftell(m_pStream) : -1 );
 }

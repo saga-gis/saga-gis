@@ -356,7 +356,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 	}
 
 	//-----------------------------------------------------
-	int		fLength	= Stream.Length();
+	long		fLength	= Stream.Length();
 
 	while( _Inc_Array() && Stream.Read(m_Cursor + 1, nPointBytes) && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
 	{}

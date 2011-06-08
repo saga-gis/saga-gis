@@ -832,13 +832,13 @@ public:
 	bool							is_Open				(void)	const	{	return( m_pStream != NULL );	}
 	bool							is_EOF				(void)	const;
 
-	int								Length				(void)	const;
+	long								Length				(void)	const;
 
-	bool							Seek				(int Offset, int Origin = SG_FILE_START)	const;
+	bool							Seek				(long Offset, int Origin = SG_FILE_START)	const;
 	bool							Seek_Start			(void)	const;
 	bool							Seek_End			(void)	const;
 
-	int								Tell				(void)	const;
+	long								Tell				(void)	const;
 
 	bool							Flush				(void)	const;
 
