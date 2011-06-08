@@ -1043,7 +1043,7 @@ double CSG_Grid::Get_Variance(void)
 	Update();	return( m_zStats.Get_Variance() );
 }
 
-int CSG_Grid::Get_NoData_Count(void)
+long CSG_Grid::Get_NoData_Count(void)
 {
 	Update();	return( Get_NCells() - m_zStats.Get_Count() );
 }
@@ -1209,7 +1209,7 @@ bool CSG_Grid::_Set_Index(void)
 {
 	const int	M	= 7;
 
-	int		i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
+	long	i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
 	double	a;
 
 	//-----------------------------------------------------
@@ -1260,7 +1260,7 @@ bool CSG_Grid::_Set_Index(void)
 	ir		= Get_NCells() - 1;
 
 	nstack	= 64;
-	istack	= (int *)SG_Malloc(nstack * sizeof(int));
+	istack	= (long *)SG_Malloc(nstack * sizeof(int));
 	jstack	= 0;
 
 	for(;;)
@@ -1342,7 +1342,7 @@ bool CSG_Grid::_Set_Index(void)
 			if( jstack >= nstack )
 			{
 				nstack	+= 64;
-				istack	= (int *)SG_Realloc(istack, nstack * sizeof(int));
+				istack	= (long *)SG_Realloc(istack, nstack * sizeof(int));
 			}
 
 			if( ir - i + 1 >= j - l )

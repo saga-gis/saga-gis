@@ -533,9 +533,9 @@ bool CSG_Grid::_Save_ASCII(CSG_File &Stream, int xA, int yA, int xN, int yN, boo
 //---------------------------------------------------------
 #include "parameters.h"
 
-int SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
+long SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 {
-	if(	SG_Grid_Cache_Get_Automatic() && m_System.Get_NCells() * nValueBytes > SG_Grid_Cache_Get_Threshold() )
+	if(	SG_Grid_Cache_Get_Automatic() && ((long) m_System.Get_NCells() * nValueBytes) > SG_Grid_Cache_Get_Threshold() )
 	{
 		switch( SG_Grid_Cache_Get_Confirm() )
 		{
@@ -550,7 +550,7 @@ int SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 					LNG("Shall I activate file caching for new grid."),
 					m_System.Get_Name(),
 					LNG("Total memory size"),
-					(m_System.Get_NCells() * nValueBytes) / (double)N_MEGABYTE_BYTES
+					((long) m_System.Get_NCells() * nValueBytes) / (double)N_MEGABYTE_BYTES
 				);
 
 				if( SG_UI_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
@@ -578,7 +578,7 @@ int SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 
 				//	Set_Buffer_Size((int)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES));
 
-					return( (int)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES) );
+					return( (long)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES) );
 				}
 			}
 			break;
@@ -592,7 +592,7 @@ int SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool			bResult, hdr_bFlip, hdr_bSwapBytes;
-	int				iType, hdr_Offset, NX, NY;
+	long			hdr_Offset, iType, NX, NY;
 	double			Cellsize, xMin, yMin;
 	CSG_File		Stream;
 	TSG_Data_Type	hdr_Type;
@@ -666,7 +666,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 		//-------------------------------------------------
 		// Load Data...
 
-		if( m_System.Assign(Cellsize, xMin, yMin, NX, NY) )
+		if( m_System.Assign(Cellsize, xMin, yMin, (int) NX, (int) NY) )
 		{
 			//---------------------------------------------
 			// ASCII...
