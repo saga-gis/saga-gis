@@ -1605,9 +1605,9 @@ void csa_approximate_point(csa* a, point* p)
     }
 }
 
-void csa_approximate_points(csa* a, int n, point* points)
+void csa_approximate_points(csa* a, long n, point* points)
 {
-    int ii;
+    long ii;
 
     for (ii = 0; ii < n; ++ii)
         csa_approximate_point(a, &points[ii]);

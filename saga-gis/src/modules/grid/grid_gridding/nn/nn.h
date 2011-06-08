@@ -281,7 +281,7 @@ typedef struct nnai nnai;
  * @param d Delaunay triangulation
  * @return Natural Neighbours interpolation
  */
-nnai* nnai_build(delaunay* d, int n, double* x, double* y);
+nnai* nnai_build(delaunay* d, long n, double* x, double* y);
 
 /** Destroys Natural Neighbours array interpolator.
  *

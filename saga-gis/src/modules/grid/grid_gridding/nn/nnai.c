@@ -62,7 +62,7 @@ void nnpi_set_point(nnpi* nn, point* p);
  * @param d Delaunay triangulation
  * @return Natural Neighbours interpolation
  */
-nnai* nnai_build(delaunay* d, int n, double* x, double* y)
+nnai* nnai_build(delaunay* d, long n, double* x, double* y)
 {
     nnai* nn = (nnai *)malloc(sizeof(nnai));
     nnpi* nnpi = nnpi_create(d);
