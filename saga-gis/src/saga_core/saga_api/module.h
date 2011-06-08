@@ -304,7 +304,7 @@ protected:
 	//-----------------------------------------------------
 	int							Get_NX					(void)						{	return( Get_System()->Get_NX() );				}
 	int							Get_NY					(void)						{	return( Get_System()->Get_NY() );				}
-	int							Get_NCells				(void)						{	return( Get_System()->Get_NCells() );			}
+	long						Get_NCells				(void)						{	return( Get_System()->Get_NCells() );			}
 	double						Get_Cellsize			(void)						{	return( Get_System()->Get_Cellsize() );			}
 	double						Get_XMin				(void)						{	return( Get_System()->Get_XMin() );				}
 	double						Get_YMin				(void)						{	return( Get_System()->Get_YMin() );				}

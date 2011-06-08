@@ -258,9 +258,9 @@ bool CExercise_14::Initialise(int Threshold)
 //---------------------------------------------------------
 void CExercise_14::Find_Channels(void)
 {
-	int		n, x, y;
+	int		x, y;
 
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( m_pDTM->Get_Sorted(n, x, y, true) && m_pChnl->asInt(x, y) == SPRING )
 		{

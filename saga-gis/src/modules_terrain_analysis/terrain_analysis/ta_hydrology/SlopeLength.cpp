@@ -70,7 +70,7 @@ CSlopeLength::CSlopeLength(void)
 //---------------------------------------------------------
 bool CSlopeLength::On_Execute(void)
 {
-	int		n, x, y;
+	int		x, y;
 
 	//-----------------------------------------------------
 	m_pDEM		= Parameters("DEM")		->asGrid();
@@ -99,7 +99,7 @@ bool CSlopeLength::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( m_pDEM->Get_Sorted(n, x, y) )
 		{

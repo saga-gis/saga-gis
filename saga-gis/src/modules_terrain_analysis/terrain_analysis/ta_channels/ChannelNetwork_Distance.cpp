@@ -156,8 +156,8 @@ CChannelNetwork_Distance::~CChannelNetwork_Distance(void)
 //---------------------------------------------------------
 bool CChannelNetwork_Distance::On_Execute(void)
 {
-	int		x, y, n, Method;
-
+	int		x, y, Method;
+	long	n;
 	CSG_Grid	*pChannels;
 
 	//-----------------------------------------------------
@@ -311,7 +311,7 @@ void CChannelNetwork_Distance::Initialize_MFD(void)
 	double	*Flow, z, dz, zSum;
 
 	pFlow	= SG_Create_Grid(pDTM, SG_DATATYPE_Int);
-	Flow	= (double *)SG_Calloc(8 * Get_NCells(), sizeof(double));
+	Flow	= (double *)SG_Calloc((long) 8 * Get_NCells(), sizeof(double));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

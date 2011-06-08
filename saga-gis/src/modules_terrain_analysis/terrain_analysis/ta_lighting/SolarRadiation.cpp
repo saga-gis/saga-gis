@@ -726,7 +726,7 @@ bool CSolarRadiation::Finalise(void)
 
 	if( m_pRatio )
 	{
-		for(int i=0; i<Get_NCells(); i++)
+		for(long i=0; i<Get_NCells(); i++)
 		{
 			if( m_pDEM->is_NoData(i) )
 			{
@@ -1187,12 +1187,12 @@ bool CSolarRadiation::Get_Shade(double Sol_Height, double Sol_Azimuth)
 
 	if( !m_bBending )
 	{
-		int		i, x, y;
+		int		x, y;
 		double	dx, dy, dz;
 
 		Get_Shade_Params(Sol_Height, Sol_Azimuth, dx, dy, dz);
 
-		for(i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+		for(long i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
 			if( m_pDEM->Get_Sorted(i, x, y) && !Get_Shade_Complete(x, y) )
 			{
@@ -1204,7 +1204,8 @@ bool CSolarRadiation::Get_Shade(double Sol_Height, double Sol_Azimuth)
 	//-----------------------------------------------------
 	else
 	{
-		int		i, x, y, iLock;
+		int		x, y, iLock;
+		long	i;
 
 		for(i=0, iLock=1; i<Get_NCells() && Set_Progress_NCells(i); i++, iLock++)
 		{

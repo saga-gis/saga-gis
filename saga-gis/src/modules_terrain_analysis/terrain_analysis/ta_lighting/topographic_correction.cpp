@@ -270,7 +270,7 @@ bool CTopographic_Correction::Initialise(void)
 
 		CSG_Regression	R;
 
-		int	n		= Parameters("MAXCELLS")->asInt();
+		long n		= Parameters("MAXCELLS")->asInt();
 		int	nStep	= Get_NCells() < n ? 1 : (int)(Get_NCells() / n);
 
 		for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n+=nStep)

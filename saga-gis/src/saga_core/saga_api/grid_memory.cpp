@@ -133,7 +133,7 @@ void				SG_Grid_Cache_Set_Threshold_MB(double nMegabytes)
 	SG_Grid_Cache_Set_Threshold((int)(nMegabytes * N_MEGABYTE_BYTES));
 }
 
-int					SG_Grid_Cache_Get_Threshold(void)
+long				SG_Grid_Cache_Get_Threshold(void)
 {
 	return( gSG_Grid_Cache_Threshold );
 }
@@ -159,7 +159,7 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 
 		Set_Buffer_Size(gSG_Grid_Cache_Threshold);
 
-		if(	Memory_Type != GRID_MEMORY_Cache && gSG_Grid_Cache_bAutomatic && Get_NCells() * Get_nValueBytes() > gSG_Grid_Cache_Threshold )
+		if(	Memory_Type != GRID_MEMORY_Cache && gSG_Grid_Cache_bAutomatic && ((long) Get_NCells() * Get_nValueBytes()) > gSG_Grid_Cache_Threshold )
 		{
 			switch( gSG_Grid_Cache_Confirm )
 			{
@@ -175,7 +175,7 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 						LNG("Shall I activate file caching for new grid."),
 						m_System.Get_Name(),
 						LNG("Total memory size"),
-						(Get_NCells() * Get_nValueBytes()) / (double)N_MEGABYTE_BYTES
+						(long) (Get_NCells() * Get_nValueBytes()) / (double)N_MEGABYTE_BYTES
 					);
 
 					if( SG_UI_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
@@ -824,7 +824,7 @@ double CSG_Grid::Get_Compression_Ratio(void)
 			nCompression	+= *((int *)m_Values[y]);
 		}
 
-		if( (nNoCompression = Get_NCells() * Get_nValueBytes()) > 0 )
+		if( (nNoCompression = (long) Get_NCells() * Get_nValueBytes()) > 0 )
 		{
 			return( (double)nCompression / (double)nNoCompression );
 		}

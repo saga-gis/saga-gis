@@ -189,7 +189,7 @@ bool CSAGA_Wetness_Index::Get_Area_Catchment(CSG_Grid *pDEM, CSG_Grid *pC, CSG_G
 {
 	const double	MFD_Converge	= 1.1;
 
-	int		n, x, y, i, ix, iy;
+	int		x, y, i, ix, iy;
 	double	z, d, dz[8], dzSum, c, s;
 
 	//-----------------------------------------------------
@@ -199,7 +199,7 @@ bool CSAGA_Wetness_Index::Get_Area_Catchment(CSG_Grid *pDEM, CSG_Grid *pC, CSG_G
 	pS->Assign(0.0);
 
 	//-----------------------------------------------------
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		pDEM->Get_Sorted(n, x, y, true, false);
 

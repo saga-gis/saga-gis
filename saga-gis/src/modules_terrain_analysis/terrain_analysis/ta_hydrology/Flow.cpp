@@ -363,7 +363,7 @@ void CFlow::Init_Cell(int x, int y)
 //---------------------------------------------------------
 void CFlow::Finalize(void)
 {
-	for(int n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( pDTM->is_NoData(n) )
 		{

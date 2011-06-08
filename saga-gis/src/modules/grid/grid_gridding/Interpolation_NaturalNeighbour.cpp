@@ -135,9 +135,9 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 	delaunay	*pTIN	= delaunay_build(n, pSrc, 0, NULL, 0, NULL);
 
 	//-----------------------------------------------------
-	double	*xDst	= (double *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(double));
-	double	*yDst	= (double *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(double));
-	double	*zDst	= (double *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(double));
+	double	*xDst	= (double *)SG_Malloc((long) m_pGrid->Get_NCells() * sizeof(double));
+	double	*yDst	= (double *)SG_Malloc((long) m_pGrid->Get_NCells() * sizeof(double));
+	double	*zDst	= (double *)SG_Malloc((long) m_pGrid->Get_NCells() * sizeof(double));
 
 	for(y=0, i=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
 	{

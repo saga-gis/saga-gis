@@ -211,7 +211,8 @@ inline double CGrid_PCA::Get_Value(int iFeature, int iElement)
 //---------------------------------------------------------
 bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 {
-	int		i, j1, j2;
+	int		j1, j2;
+	long	i;
 
 	Matrix.Create(Get_NGrids(), Get_NGrids());
 	Matrix.Set_Zero();
@@ -334,7 +335,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Valu
 	}
 
 	//-----------------------------------------------------
-	for(int iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+	for(long iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
 	{
 		if( is_NoData(iCell) )
 		{

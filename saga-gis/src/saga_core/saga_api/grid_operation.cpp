@@ -94,7 +94,7 @@ bool CSG_Grid::Assign(double Value)
 		}
 		else
 		{
-			for(int n=0; n<Get_NCells(); n++)
+			for(long n=0; n<Get_NCells(); n++)
 			{
 				Set_Value(n, Value);
 			}

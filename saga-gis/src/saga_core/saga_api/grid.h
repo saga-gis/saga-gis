@@ -355,7 +355,8 @@ public:
 
 private:	///////////////////////////////////////////////
 
-	int							m_NX, m_NY, m_NCells;
+	int							m_NX, m_NY;
+	long						m_NCells;
 
 	double						m_Cellsize, m_Cellarea, m_Diagonal;
 
@@ -454,7 +455,7 @@ public:		///////////////////////////////////////////////
 	double						Get_StdDev		(bool bZFactor = false);
 	double						Get_Variance	(void);
 
-	int							Get_NoData_Count		(void);
+	long							Get_NoData_Count		(void);
 
 	virtual bool				Save	(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
 	virtual bool				Save	(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN);
@@ -896,7 +897,7 @@ SAGA_API_DLL_EXPORT int				SG_Grid_Cache_Get_Confirm		(void);
 
 SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Threshold		(int nBytes);
 SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Threshold_MB	(double nMegabytes);
-SAGA_API_DLL_EXPORT int				SG_Grid_Cache_Get_Threshold		(void);
+SAGA_API_DLL_EXPORT long			SG_Grid_Cache_Get_Threshold		(void);
 SAGA_API_DLL_EXPORT double			SG_Grid_Cache_Get_Threshold_MB	(void);
 
 

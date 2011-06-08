@@ -236,7 +236,7 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 {
 	const double	MFD_Converge	= 1.1;
 
-	int			n, x, y, i, ix, iy;
+	int			x, y, i, ix, iy;
 	double		z, d, dz[8], dzSum, c, w, h;
 	CSG_Grid	C, W;
 
@@ -250,7 +250,7 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 	W.	Assign(0.0);
 	pH->Assign(0.0);
 
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( pDEM->is_NoData(n) )
 		{
@@ -259,7 +259,7 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 	}
 
 	//-----------------------------------------------------
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( pDEM->Get_Sorted(n, x, y) )
 		{

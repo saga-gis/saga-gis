@@ -260,7 +260,7 @@ bool CFlow_Parallel::Calculate(int x, int y)
 //---------------------------------------------------------
 bool CFlow_Parallel::Set_Flow(void)
 {
-	int		n, x, y;
+	int		x, y;
 
 
 	double  THRS = 0.0;
@@ -283,7 +283,7 @@ bool CFlow_Parallel::Set_Flow(void)
 	}
 
 	//-----------------------------------------------------
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		pDTM->Get_Sorted(n,x,y);
 
@@ -355,7 +355,7 @@ bool CFlow_Parallel::Set_Flow(void)
 	//-----------------------------------------------------
 	if( pRoute )
 	{
-		for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 		{
 			pDTM->Get_Sorted(n, x, y, false);
 
