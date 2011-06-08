@@ -160,7 +160,8 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::Get_Classes(void)
 {
-	int			i, id, x, y;
+	long		i;
+	int			id, x, y;
 	double		Value;
 	CSG_Grid	*pGrid;
 

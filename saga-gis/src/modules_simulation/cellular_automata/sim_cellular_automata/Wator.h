@@ -96,7 +96,8 @@ protected:
 
 private:
 
-	int						Fish_Birth, Shark_Birth, Shark_Starve, nFishes, nSharks;
+	int						Fish_Birth, Shark_Birth, Shark_Starve;
+	long					nFishes, nSharks;
 
 	CSG_Grid					*pWator, *pNext, *pAge, *pStarve;
 

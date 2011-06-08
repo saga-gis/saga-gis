@@ -294,7 +294,8 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 //---------------------------------------------------------
 bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int nClasses, double zMin, double zMax)
 {
-	int		x, y, i, n, nStep, nMin, nMax, nRange;
+	int		x, y, i;
+	long	n, nMin, nMax, nStep, nRange;
 	double	z, zRange;
 
 	//-----------------------------------------------------

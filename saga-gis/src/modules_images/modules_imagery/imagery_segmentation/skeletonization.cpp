@@ -150,7 +150,8 @@ CSkeletonization::CSkeletonization(void)
 //---------------------------------------------------------
 bool CSkeletonization::On_Execute(void)
 {
-	int			n, Initiation;
+	int			Initiation;
+	long		n;
 	double		Threshold;
 	CSG_Grid	*pInput;
 

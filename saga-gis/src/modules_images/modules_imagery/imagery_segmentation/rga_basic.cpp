@@ -460,7 +460,8 @@ CRGA_Basic::CRGA_Basic(void)
 bool CRGA_Basic::On_Execute(void)
 {
 	bool		bRefresh;
-	int			x, y, i, n, Segment;
+	long		n;
+	int			x, y, i, Segment;
 	CSG_Grid	*pSeeds;
 
 	//-----------------------------------------------------

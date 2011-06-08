@@ -127,7 +127,8 @@ CWatersheds::~CWatersheds(void)
 //---------------------------------------------------------
 bool CWatersheds::On_Execute(void)
 {
-	int		x, y, n, nCells, nCells_Min, nBasins;
+	int		x, y, nCells, nCells_Min, nBasins;
+	long	n;
 	CSG_Grid	*pDTM, *pSeed, *pRoute;
 
 	//-----------------------------------------------------

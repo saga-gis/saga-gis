@@ -210,7 +210,8 @@ bool CFlow_AreaUpslope::Get_Area(int x, int y)
 //---------------------------------------------------------
 bool CFlow_AreaUpslope::Get_Area(void)
 {
-	int		i, x, y;
+	long	i;
+	int		x, y;
 
 	if( m_pDTM && m_pFlow )
 	{

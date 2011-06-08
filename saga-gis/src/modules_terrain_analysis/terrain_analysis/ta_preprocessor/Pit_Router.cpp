@@ -1023,7 +1023,8 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 //---------------------------------------------------------
 int CPit_Router::Process_Threshold(void)
 {
-	int		x, y, i, n;
+	int		x, y, n;
+	long	i;
 
 	m_Route.Create(*Get_System(), SG_DATATYPE_Char);
 

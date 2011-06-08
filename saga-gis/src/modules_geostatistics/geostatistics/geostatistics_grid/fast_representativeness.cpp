@@ -254,8 +254,8 @@ void CFast_Representativeness::FastRep_Initialize(void)
 	double logNx2,logNy2;
 	int pow2y, pow2x;
 	int x,y;
-	int i;
-	int size;
+	long i;
+	long size;
 
 	logNx2	= log((double)pOrgInput->Get_NX())/log(2.0f);
 	

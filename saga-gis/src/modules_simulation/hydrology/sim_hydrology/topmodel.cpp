@@ -266,7 +266,8 @@ CTOPMODEL::~CTOPMODEL(void)
 bool CTOPMODEL::On_Execute(void)
 {
 	bool			bInfiltration;
-	int				iClass, nClasses, iTime, nTimeSteps, n, k;
+	long			n;
+	int				iClass, nClasses, iTime, nTimeSteps, k;
 	double			Precipitation, Evaporation, Infiltration, Infiltration_Excess;
 	CSG_Grid			*pAtanB, *pMoist, gClass;
 	CSG_Table_Record	*pRecord;

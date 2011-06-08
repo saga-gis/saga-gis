@@ -149,7 +149,8 @@ CChannelNetwork_Altitude::~CChannelNetwork_Altitude(void)
 //---------------------------------------------------------
 bool CChannelNetwork_Altitude::On_Execute(void)
 {
-	int			n, nCells, nCells_Start, iStep, nSteps;
+	long		n;
+	int			nCells, nCells_Start, iStep, nSteps;
 	double		max_Change, Threshold;
 
 	//-----------------------------------------------------
