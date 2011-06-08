@@ -130,7 +130,7 @@ CFilter_Majority::CFilter_Majority(void)
 //---------------------------------------------------------
 bool CFilter_Majority::On_Execute(void)
 {
-	long		x, y, ix, iy;
+	int			x, y, ix, iy;
 	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
@@ -222,9 +222,9 @@ double CFilter_Majority::Get_Majority(int x, int y)
 
 	m_Majority.Add_Value(m_pInput->asDouble(x, y));
 
-	for(long iy=0, jy=y-m_Radius; iy<m_Kernel.Get_NY(); iy++, jy++)
+	for(int iy=0, jy=y-m_Radius; iy<m_Kernel.Get_NY(); iy++, jy++)
 	{
-		for(long ix=0, jx=x-m_Radius; ix<m_Kernel.Get_NX(); ix++, jx++)
+		for(int ix=0, jx=x-m_Radius; ix<m_Kernel.Get_NX(); ix++, jx++)
 		{
 			if( m_Kernel.asByte(ix, iy) && m_pInput->is_InGrid(jx, jy) )
 			{
@@ -238,7 +238,7 @@ double CFilter_Majority::Get_Majority(int x, int y)
 
 	m_Majority.Get_Majority(Value, Count);
 
-	return( (long) Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
+	return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
 }
 
 
