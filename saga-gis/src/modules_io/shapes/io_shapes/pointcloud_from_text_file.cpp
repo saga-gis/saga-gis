@@ -344,9 +344,9 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	CSG_Parameters	sParms;
 	DataObject_Get_Parameters(pPoints, sParms);
 	if (sParms("METRIC_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
-		&& sParms("METRIC_ZRANGE") && sParms("COLORS_AGGREGATE"))
+		&& sParms("METRIC_ZRANGE") && sParms("DISPLAY_VALUE_AGGREGATE"))
 		{
-			sParms("COLORS_AGGREGATE")->Set_Value(3);				// highest z
+			sParms("DISPLAY_VALUE_AGGREGATE")->Set_Value(3);		// highest z
 			sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
 			sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
 			sParms("METRIC_ATTRIB")->Set_Value(2);					// z attrib

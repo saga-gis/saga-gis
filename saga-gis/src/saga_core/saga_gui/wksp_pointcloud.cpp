@@ -265,6 +265,16 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_VALUE_AGGREGATE"		, LNG("[CAP] Value Aggregation"),
+		LNG(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			LNG("first value"),
+			LNG("last value"),
+			LNG("lowest z"),
+			LNG("highest z")
+		), 1
+	);
 
 	//-----------------------------------------------------
 	// Classification...
@@ -296,17 +306,6 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	_AttributeList_Add(
 		m_Parameters("NODE_RGB")		, "RGB_ATTRIB"				, LNG("[CAP] Attribute"),
 		LNG("")
-	);
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_METRIC")		, "COLORS_AGGREGATE"		, LNG("[CAP] Value Aggregation"),
-		LNG(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			LNG("first value"),
-			LNG("last value"),
-			LNG("lowest z"),
-			LNG("highest z")
-		), 1
 	);
 
 	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
@@ -684,7 +683,7 @@ void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z,
 //---------------------------------------------------------
 void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 {
-	m_Aggregation	= m_Parameters("COLORS_AGGREGATE")->asInt();
+	m_Aggregation	= m_Parameters("DISPLAY_VALUE_AGGREGATE")->asInt();
 
 	if( m_Aggregation != 1 )
 	{
