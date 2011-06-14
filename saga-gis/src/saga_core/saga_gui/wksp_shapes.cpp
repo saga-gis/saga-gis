@@ -603,17 +603,22 @@ void CWKSP_Shapes::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_String	sFields;
+
+	for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+	{
+		sFields	+= pTable->Get_Field_Name(iField);	sFields	+= SG_T("|");
+	}
+
+	//-----------------------------------------------------
 	static CSG_Parameters	Parameters;
 
-	if( Parameters.Get_Count() == 0 )
+	if( Parameters.Get_Count() != 0 )
 	{
-		CSG_String	sFields;
-
-		for(iField=0; iField<pTable->Get_Field_Count(); iField++)
-		{
-			sFields	+= pTable->Get_Field_Name(iField);	sFields	+= SG_T("|");
-		}
-
+		Parameters("FIELD")->asChoice()->Set_Items(sFields);
+	}
+	else
+	{
 		Parameters.Create(NULL, LNG("Create Lookup Table"), LNG(""));
 
 		Parameters.Add_Choice(
