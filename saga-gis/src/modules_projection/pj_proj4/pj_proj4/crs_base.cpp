@@ -685,10 +685,15 @@ bool CCRS_Base::Add_User_Projection(const CSG_String &sID, const CSG_String &sNa
 		PRM_ADD_FLT("lon_2"		, _TL("Longitude 2"	)			, 20.0);
 	}
 
+	if(	!sID.CmpNoCase(SG_T("geos")) )		// Geostationary Satellite View
+	{
+		PRM_ADD_FLT("h"			, _TL("Satellite Height [m]")	, 42157000.0);
+	}
+
 	if(	!sID.CmpNoCase(SG_T("lsat")) )		// Space oblique for LANDSAT
 	{
-		PRM_ADD_INT("lsat"		, _TL("Landsat")				, 1.0);
-		PRM_ADD_INT("path"		, _TL("Path")					, 1.0);
+		PRM_ADD_INT("lsat"		, _TL("Landsat Satellite (1-5)"), 1.0);
+		PRM_ADD_INT("path"		, _TL("Path (1-255/233 1-3/4-5"), 1.0);
 	}
 
 	if(	!sID.CmpNoCase(SG_T("labrd")) )		// Laborde
