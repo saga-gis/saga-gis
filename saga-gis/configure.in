@@ -148,6 +148,7 @@ AC_OUTPUT(Makefile \
 	src/modules_contrib/contrib_s_liersch/ihacres/Makefile \
 	src/modules_contrib/garden/Makefile \
 	src/modules_contrib/garden/garden_3d_viewer/Makefile \
+	src/modules_contrib/garden/garden_webservices/Makefile \
 	src/modules_geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_points/Makefile \
