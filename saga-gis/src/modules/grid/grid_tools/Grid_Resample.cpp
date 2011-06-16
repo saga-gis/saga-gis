@@ -92,6 +92,18 @@ CGrid_Resample::CGrid_Resample(void)
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Grid_List(
+		NULL	, "INPUT_ADD"	, _TL("Additional Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid_List(
+		NULL	, "OUTPUT_ADD"	, _TL("Additional Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
 	Parameters.Add_Value(
 		NULL	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
 		_TL(""),
@@ -170,32 +182,31 @@ int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CGrid_Resample::On_Execute(void)
 {
-	bool					bResult;
+	bool					bResult, bKeepType;
 	TSG_Grid_Interpolation	Interpolation;
 	CSG_Grid				*pInput, *pOutput;
 	CSG_Parameters			*pParameters;
 
 	//-----------------------------------------------------
-	bResult	= false;
-
-	pInput	= Parameters("INPUT")->asGrid();
+	bResult		= false;
+	bKeepType	= Parameters("KEEP_TYPE")	->asBool();
+	pInput		= Parameters("INPUT")		->asGrid();
+	pOutput		= NULL;
 
 	//-----------------------------------------------------
-	pOutput	= NULL;
-
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
 		if( m_Grid_Target.Init_User(pInput->Get_Extent(false)) && Dlg_Parameters("USER") )
 		{
-			pOutput	= m_Grid_Target.Get_User(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+			pOutput	= m_Grid_Target.Get_User(bKeepType ? pInput->Get_Type() : SG_DATATYPE_Undefined);
 		}
 		break;
 
 	case 1:	// grid...
 		if( Dlg_Parameters("GRID") )
 		{
-			pOutput	= m_Grid_Target.Get_Grid(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+			pOutput	= m_Grid_Target.Get_Grid(bKeepType ? pInput->Get_Type() : SG_DATATYPE_Undefined);
 		}
 		break;
 	}
@@ -254,16 +265,34 @@ bool CGrid_Resample::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	if( pParameters )
+	if( !pParameters )
 	{
-		pOutput->Set_Name(pInput->Get_Name());
-
-		pOutput->Assign(pInput, Interpolation);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	pOutput->Assign(pInput, Interpolation);
+	pOutput->Set_Name(pInput->Get_Name());
+
+	//-------------------------------------------------
+	CSG_Grid_System	System(pOutput->Get_System());
+
+	CSG_Parameter_Grid_List	*pInputs	= Parameters("INPUT_ADD")	->asGridList();
+	CSG_Parameter_Grid_List	*pOutputs	= Parameters("OUTPUT_ADD")	->asGridList();
+
+	pOutputs->Del_Items();
+
+	for(int i=0; i<pInputs->Get_Count() && Process_Get_Okay(); i++)
+	{
+		pInput	= pInputs->asGrid(i);
+		pOutput	= SG_Create_Grid(pOutput->Get_System(), bKeepType ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+
+		pOutput->Assign(pInput, Interpolation);
+		pOutput->Set_Name(pInput->Get_Name());
+
+		pOutputs->Add_Item(pOutput);
+	}
+
+	return( true );
 }
 
 
