@@ -81,7 +81,7 @@ const int	yDir[4]	= {	1, 0, 0, 1	};
 //---------------------------------------------------------
 CFlow_MassFlux::CFlow_MassFlux(void)
 {
-	Set_Name		(_TL("Flow Accumulation, Mass-Flux Method"));
+	Set_Name		(_TL("Catchment Area (Mass-Flux Method)"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2009"));
 
