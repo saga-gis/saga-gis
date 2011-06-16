@@ -84,7 +84,7 @@ const SG_Char * Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Contributions|Garden" ));
+		return( _TL("Contributions|Garden|Visualisation" ));
 	}
 }
 

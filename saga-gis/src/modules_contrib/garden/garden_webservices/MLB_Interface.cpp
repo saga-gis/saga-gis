@@ -84,7 +84,7 @@ const char * Get_Info(int i)
 		return( "1.0" );
 
 	case MLB_INFO_Menu_Path:
-		return( "Contrib|Garden|Web Service Data Access" );
+		return( "Contributions|Garden|Web Service Data Access" );
 	}
 }
 
