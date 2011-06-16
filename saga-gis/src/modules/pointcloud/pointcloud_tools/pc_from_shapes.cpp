@@ -90,7 +90,8 @@ CPC_From_Shapes::CPC_From_Shapes(void)
 
 	Parameters.Add_Table_Field(
 		pNode	, "ZFIELD"		, _TL("Z Value"),
-		_TL("")
+		_TL(""),
+		true
 	);
 
 	Parameters.Add_PointCloud(
@@ -162,7 +163,7 @@ bool CPC_From_Shapes::On_Execute(void)
 			{
 				TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-				pPoints->Add_Point(p.x, p.y, pShape->asDouble(zField));
+				pPoints->Add_Point(p.x, p.y, zField < 0 ? pShape->Get_Z(iPoint, iPart) : pShape->asDouble(zField));
 
 				for(iField=0; iField<nFields; iField++)
 				{
