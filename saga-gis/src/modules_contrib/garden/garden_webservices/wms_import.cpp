@@ -168,7 +168,7 @@ bool CWMS_Capabilities::Create(wxHTTP *pServer, const CSG_String &Directory, CSG
 			{
 				bResult	= _Get_Capabilities(Capabilities.GetRoot(), Version);
 
-				Capabilities.Save(CSG_String::Format("e:\\%s.xml", m_Title.c_str()).c_str());
+				Capabilities.Save(CSG_String::Format(SG_T("e:\\%s.xml"), m_Title.c_str()).c_str());
 			}
 
 			delete(pStream);

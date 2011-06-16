@@ -67,24 +67,24 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const char * Get_Info(int i)
+const SG_Char * Get_Info(int i)
 {
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( "Garden - Web Service Data Access" );
+		return( _TL("Garden - Web Service Data Access" ));
 
 	case MLB_INFO_Author:
-		return( "SAGA User Group Associaton (c) 2011" );
+		return( SG_T("SAGA User Group Associaton (c) 2011" ));
 
 	case MLB_INFO_Description:
-		return( "Web Service Data Access" );
+		return( _TW("Web Service Data Access" ));
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0" ));
 
 	case MLB_INFO_Menu_Path:
-		return( "Contributions|Garden|Web Service Data Access" );
+		return( _TL("Contributions|Garden|Web Service Data Access" ));
 	}
 }
 
