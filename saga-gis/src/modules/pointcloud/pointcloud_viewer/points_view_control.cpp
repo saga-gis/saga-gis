@@ -191,6 +191,18 @@ CPoints_View_Control::CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pP
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
+	pNode	= m_pSettings->Add_Value(
+		pNode	, "DIM"				, _TL("Dim Colours"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	pNode	= m_pSettings->Add_Range(
+		pNode	, "DIM_RANGE"		, _TL("Dim Range"),
+		_TL(""),
+		0.0, 1.0, 0.0, true
+	);
+
 	//-----------------------------------------------------
 	m_pSelection	= (int *)SG_Malloc(m_pPoints->Get_Count() * sizeof(int));
 
@@ -518,6 +530,8 @@ bool CPoints_View_Control::_Draw_Image(void)
 	m_cMin		= m_Settings("C_RANGE")->asRange()->Get_LoVal();
 	m_cScale	= m_pColors->Get_Count() / (m_Settings("C_RANGE")->asRange()->Get_HiVal() - m_cMin);
 
+	m_BGColor	= m_Settings("BGCOLOR")->asColor();
+
 	//-------------------------------------------------
 	if( (dcSize.x / (double)dcSize.y) > (m_Extent.Get_XRange() / m_Extent.Get_YRange()) )
 	{
@@ -542,10 +556,31 @@ bool CPoints_View_Control::_Draw_Image(void)
 	r_Scale_z	= r_Scale * m_Settings("EXAGGERATION")->asDouble();
 
 	//-------------------------------------------------
+	// guess zmin, zmax
+
+	TSG_Point_Z	p;
+
+	p.x = m_Extent.Get_XMin(); p.y = m_Extent.Get_YMin(); p.z = m_pPoints->Get_Value(m_zStats.Get_Minimum()); p = _Get_Projection(p); m_zMin = m_zMax = p.z;
+	p.x = m_Extent.Get_XMin(); p.y = m_Extent.Get_YMin(); p.z = m_pPoints->Get_Value(m_zStats.Get_Maximum()); p = _Get_Projection(p); if( m_zMin > p.z ) m_zMin = p.z; else if( m_zMax < p.z ) m_zMax = p.z;
+
+	p.x = m_Extent.Get_XMax(); p.y = m_Extent.Get_YMin(); p.z = m_pPoints->Get_Value(m_zStats.Get_Minimum()); p = _Get_Projection(p); if( m_zMin > p.z ) m_zMin = p.z; else if( m_zMax < p.z ) m_zMax = p.z;
+	p.x = m_Extent.Get_XMax(); p.y = m_Extent.Get_YMin(); p.z = m_pPoints->Get_Value(m_zStats.Get_Maximum()); p = _Get_Projection(p); if( m_zMin > p.z ) m_zMin = p.z; else if( m_zMax < p.z ) m_zMax = p.z;
+
+	p.x = m_Extent.Get_XMin(); p.y = m_Extent.Get_YMax(); p.z = m_pPoints->Get_Value(m_zStats.Get_Minimum()); p = _Get_Projection(p); if( m_zMin > p.z ) m_zMin = p.z; else if( m_zMax < p.z ) m_zMax = p.z;
+	p.x = m_Extent.Get_XMin(); p.y = m_Extent.Get_YMax(); p.z = m_pPoints->Get_Value(m_zStats.Get_Maximum()); p = _Get_Projection(p); if( m_zMin > p.z ) m_zMin = p.z; else if( m_zMax < p.z ) m_zMax = p.z;
+
+	p.x = m_Extent.Get_XMax(); p.y = m_Extent.Get_YMax(); p.z = m_pPoints->Get_Value(m_zStats.Get_Minimum()); p = _Get_Projection(p); if( m_zMin > p.z ) m_zMin = p.z; else if( m_zMax < p.z ) m_zMax = p.z;
+	p.x = m_Extent.Get_XMax(); p.y = m_Extent.Get_YMax(); p.z = m_pPoints->Get_Value(m_zStats.Get_Maximum()); p = _Get_Projection(p); if( m_zMin > p.z ) m_zMin = p.z; else if( m_zMax < p.z ) m_zMax = p.z;
+
+	//-------------------------------------------------
 	m_Size_Def		= m_Settings("SIZE_DEF")->asInt();
 	m_Size_Scale	= 1.0 / m_Settings("SIZE_SCALE")->asDouble();
 
 	m_bColorAsRGB	= m_Settings("C_AS_RGB")->asBool();
+
+	m_bDim			= m_Settings("DIM")->asBool();
+	m_Dim_A			= m_zMin + m_Settings("DIM_RANGE")->asRange()->Get_LoVal() * (m_zMax - m_zMin);
+	m_Dim_B			= m_zMin + m_Settings("DIM_RANGE")->asRange()->Get_HiVal() * (m_zMax - m_zMin);
 
 	int		iSelection;
 	int		nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1.0 - m_Detail));
@@ -611,7 +646,7 @@ void CPoints_View_Control::_Draw_Background(void)
 	BYTE	r, g, b, *pRGB;
 	int		i, n, color;
 
-	color	= m_Settings("BGCOLOR")->asColor();
+	color	= m_BGColor;
 
 	if( m_bStereo )
 	{
@@ -636,8 +671,7 @@ void CPoints_View_Control::_Draw_Background(void)
 //---------------------------------------------------------
 inline void CPoints_View_Control::_Draw_Point(int iPoint)
 {
-	int				ix, iy, iColor;
-	double			iz;
+	int			iColor;
 	TSG_Point_Z	p;
 
 	m_pPoints->Set_Cursor(iPoint);
@@ -647,9 +681,8 @@ inline void CPoints_View_Control::_Draw_Point(int iPoint)
 
 	p		= _Get_Projection(p);
 
-	ix		= (int)(p.x + 0.5 * m_Image.GetWidth());
-	iy		= (int)(p.y + 0.5 * m_Image.GetHeight());
-	iz		= p.z;
+	p.x		= (int)(p.x + 0.5 * m_Image.GetWidth());
+	p.y		= (int)(p.y + 0.5 * m_Image.GetHeight());
 
 	if( !m_bColorAsRGB )
 	{
@@ -661,7 +694,26 @@ inline void CPoints_View_Control::_Draw_Point(int iPoint)
 		iColor	= (int)m_pPoints->Get_Value(m_cField);
 	}
 
-	_Draw_Point(ix, iy, iz, iColor, m_Size_Def + (!m_bScale ? 0 : (int)(20.0 * exp(-m_Size_Scale * iz))));
+	if( m_bDim )
+	{
+		double	dim	= 1.0 - (p.z - m_Dim_A) / (m_Dim_B - m_Dim_A);
+
+		if( dim < 1.0 )
+		{
+			if( dim <= 0.1 )
+			{
+				dim	= 0.1;
+			}
+
+			iColor	= SG_GET_RGB(
+				SG_GET_R(m_BGColor) + (int)((SG_GET_R(iColor) - SG_GET_R(m_BGColor)) * dim),
+				SG_GET_G(m_BGColor) + (int)((SG_GET_G(iColor) - SG_GET_G(m_BGColor)) * dim),
+				SG_GET_B(m_BGColor) + (int)((SG_GET_B(iColor) - SG_GET_B(m_BGColor)) * dim)
+			);
+		}
+	}
+
+	_Draw_Point(p.x, p.y, p.z, iColor, m_Size_Def + (!m_bScale ? 0 : (int)(20.0 * exp(-m_Size_Scale * p.z))));
 }
 
 //---------------------------------------------------------
@@ -720,7 +772,7 @@ inline void CPoints_View_Control::_Draw_Pixel(int x, int y, double z, int color)
 }
 
 //---------------------------------------------------------
-inline TSG_Point_Z CPoints_View_Control::_Get_Projection(TSG_Point_Z &p)
+inline TSG_Point_Z CPoints_View_Control::_Get_Projection(TSG_Point_Z p)
 {
 	TSG_Point_Z	q;
 

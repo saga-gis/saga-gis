@@ -127,11 +127,11 @@ public:
 
 private:
 
-	bool						m_bColorAsRGB;
+	bool						m_bColorAsRGB, m_bDim;
 
-	int							m_nSelection, *m_pSelection, m_Color_Mode, m_Size_Def;
+	int							m_nSelection, *m_pSelection, m_Color_Mode, m_Size_Def, m_BGColor;
 
-	double						m_xDown, m_yDown, m_cMin, m_cScale, m_Size_Scale;
+	double						m_xDown, m_yDown, m_cMin, m_cScale, m_Size_Scale, m_Dim_A, m_Dim_B, m_zMin, m_zMax;
 
 	double						r_sin_x, r_sin_y, r_sin_z, r_cos_x, r_cos_y, r_cos_z, r_xc, r_yc, r_zc, r_Scale, r_Scale_z;
 
@@ -160,7 +160,7 @@ private:
 	void						_Draw_Point				(int x, int y, double z, int color, int Size);
 	void						_Draw_Pixel				(int x, int y, double z, int color);
 
-	TSG_Point_Z				_Get_Projection			(TSG_Point_Z &p);
+	TSG_Point_Z					_Get_Projection			(TSG_Point_Z p);
 
 
 	DECLARE_EVENT_TABLE()
