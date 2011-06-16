@@ -92,10 +92,16 @@ protected:
 
 private:
 
-	static CSG_String			m_Types;
-
 	void						_Set_Field_Count		(CSG_Parameters *pAttributes, int nAttributes);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Shapes_Create_Empty_H

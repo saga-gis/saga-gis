@@ -61,8 +61,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "Shapes_Create_Empty.h"
 
 
@@ -76,9 +74,6 @@
 #define GET_NODE(i)	CSG_String::Format(SG_T("NODE%03d"), i)
 #define GET_NAME(i)	CSG_String::Format(SG_T("NAME%03d"), i)
 #define GET_TYPE(i)	CSG_String::Format(SG_T("TYPE%03d"), i)
-
-//---------------------------------------------------------
-CSG_String CShapes_Create_Empty::m_Types	= SG_T("");
 
 
 ///////////////////////////////////////////////////////////
@@ -97,15 +92,15 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 
 	Set_Description	(_TW(
 		"Creates a new empty shapes layer of given type, "
-		"which might be either point, multipoint, line or polygon."
-		"Available field types for the attributes table are:\n"
-		" - string\n"
+		"which might be either point, multipoint, line or polygon. "
+		"Possible field types for the attributes table are:\n"
+		" - character string\n"
 		" - 1 byte integer\n"
 		" - 2 byte integer\n"
 		" - 4 byte integer\n"
 		" - 4 byte floating point\n"
 		" - 8 byte floating point\n"
-//		" - 32 bit true color (RGB)\n"
+		" - 32 bit true color (RGB)\n"
 	));
 
 
@@ -132,6 +127,16 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 		)
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "VERTEX"		, _TL("Vertex Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("x, y"),
+			_TL("x, y, z"),
+			_TL("x, y, z, m")
+		)
+	);
+
 	Parameters.Add_Value(
 		NULL	, "NFIELDS"		, _TL("Number of Attributes"),
 		_TL(""),
@@ -142,16 +147,6 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 		NULL	, "FIELDS"		, _TL("Attributes"),
 		_TL("")
 	);
-
-	//-----------------------------------------------------
-	m_Types.Clear();
-	m_Types	+= "text";					m_Types	+= "|";
-	m_Types	+= "1 byte integer";		m_Types	+= "|";
-	m_Types	+= "2 byte integer";		m_Types	+= "|";
-	m_Types	+= "4 byte integer";		m_Types	+= "|";
-	m_Types	+= "4 byte floating point";	m_Types	+= "|";
-	m_Types	+= "8 byte floating point";	m_Types	+= "|";
-//	m_Types	+= "true color (RGB)";		m_Types	+= "|";
 
 	//-----------------------------------------------------
 	CSG_Parameters	*pAttributes	= Parameters("FIELDS")->asParameters();
@@ -172,6 +167,20 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 //---------------------------------------------------------
 void CShapes_Create_Empty::_Set_Field_Count(CSG_Parameters *pAttributes, int nAttributes)
 {
+	//-----------------------------------------------------
+	CSG_String	Types;
+
+	Types.Printf(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+		_TL("character string"),
+		_TL("1 byte integer"),
+		_TL("2 byte integer"),
+		_TL("4 byte integer"),
+		_TL("4 byte floating point"),
+		_TL("8 byte floating point"),
+		_TL("color (rgb)")
+	);
+
+	//-----------------------------------------------------
 	if( pAttributes && nAttributes > 0 )
 	{
 		int		nCurrent	= pAttributes->Get_Count() / 3;
@@ -189,7 +198,7 @@ void CShapes_Create_Empty::_Set_Field_Count(CSG_Parameters *pAttributes, int nAt
 				);
 
 				pAttributes->Add_Choice(
-					pNode	, GET_TYPE(i), _TL("Type"), _TL(""), m_Types
+					pNode	, GET_TYPE(i), _TL("Type"), _TL(""), Types
 				);
 			}
 		}
@@ -211,7 +220,7 @@ void CShapes_Create_Empty::_Set_Field_Count(CSG_Parameters *pAttributes, int nAt
 				);
 
 				pAttributes->Add_Choice(
-					pNode	, GET_TYPE(i), _TL("Type"), _TL(""), m_Types, Tmp(GET_TYPE(i)) ? Tmp(GET_TYPE(i))->asInt() : 0
+					pNode	, GET_TYPE(i), _TL("Type"), _TL(""), Types, Tmp(GET_TYPE(i)) ? Tmp(GET_TYPE(i))->asInt() : 0
 				);
 			}
 		}
@@ -241,49 +250,56 @@ int CShapes_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CShapes_Create_Empty::On_Execute(void)
 {
-	CSG_Shapes	*pShapes;
+	TSG_Vertex_Type	Vertex;
+
+	switch( Parameters("VERTEX")->asInt() )
+	{
+	default:
+	case 0:		Vertex	= SG_VERTEX_TYPE_XY;	break;
+	case 1:		Vertex	= SG_VERTEX_TYPE_XYZ;	break;
+	case 2:		Vertex	= SG_VERTEX_TYPE_XYZM;	break;
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes		*pShapes;
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	default:	pShapes	= NULL;	break;
-	case 0:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point  , Parameters("NAME")->asString());	break;
-	case 1:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Points , Parameters("NAME")->asString());	break;
-	case 2:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Line   , Parameters("NAME")->asString());	break;
-	case 3:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Polygon, Parameters("NAME")->asString());	break;
+	default:	return( false );
+	case 0:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point  , Parameters("NAME")->asString(), NULL, Vertex);	break;
+	case 1:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Points , Parameters("NAME")->asString(), NULL, Vertex);	break;
+	case 2:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Line   , Parameters("NAME")->asString(), NULL, Vertex);	break;
+	case 3:		pShapes	= SG_Create_Shapes(SHAPE_TYPE_Polygon, Parameters("NAME")->asString(), NULL, Vertex);	break;
 	}
 
-	if( pShapes )
+	//-----------------------------------------------------
+	int				i, n;
+	TSG_Data_Type	Type;
+	CSG_Parameters	*pAttributes;
+
+	pAttributes	= Parameters("FIELDS")->asParameters();
+	n			= pAttributes->Get_Count() / 3;
+
+	for(i=0; i<n; i++)
 	{
-		int						i, n;
-		TSG_Data_Type	Type;
-		CSG_Parameters			*pAttributes;
-
-		pAttributes	= Parameters("FIELDS")->asParameters();
-		n			= pAttributes->Get_Count() / 3;
-
-		for(i=0; i<n; i++)
+		switch( pAttributes->Get_Parameter(GET_TYPE(i))->asInt() )
 		{
-			switch( pAttributes->Get_Parameter(GET_TYPE(i))->asInt() )
-			{
-			default:
-			case 0:	Type	= SG_DATATYPE_String;	break;
-			case 1:	Type	= SG_DATATYPE_Char  ;	break;
-			case 2:	Type	= SG_DATATYPE_Short ;	break;
-			case 3:	Type	= SG_DATATYPE_Int   ;	break;
-			case 4:	Type	= SG_DATATYPE_Float ;	break;
-			case 5:	Type	= SG_DATATYPE_Double;	break;
-			case 6:	Type	= SG_DATATYPE_Color ;	break;
-			}
-
-			pShapes->Add_Field(pAttributes->Get_Parameter(GET_NAME(i))->asString(), Type);
+		default:
+		case 0:	Type	= SG_DATATYPE_String;	break;
+		case 1:	Type	= SG_DATATYPE_Char  ;	break;
+		case 2:	Type	= SG_DATATYPE_Short ;	break;
+		case 3:	Type	= SG_DATATYPE_Int   ;	break;
+		case 4:	Type	= SG_DATATYPE_Float ;	break;
+		case 5:	Type	= SG_DATATYPE_Double;	break;
+		case 6:	Type	= SG_DATATYPE_Color ;	break;
 		}
 
-		Parameters("SHAPES")->Set_Value(pShapes);
-
-		return( true );
+		pShapes->Add_Field(pAttributes->Get_Parameter(GET_NAME(i))->asString(), Type);
 	}
 
-	return( false );
+	Parameters("SHAPES")->Set_Value(pShapes);
+
+	return( true );
 }
 
 

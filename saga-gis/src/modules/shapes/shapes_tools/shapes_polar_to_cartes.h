@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: shapes_polar_to_cartes.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     Shapes_Tools                      //
+//                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Shapes_Assign_Table.h                 //
+//                shapes_polar_to_cartes.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,13 +40,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +59,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Shapes_Assign_Table_H
-#define HEADER_INCLUDED__Shapes_Assign_Table_H
+#ifndef HEADER_INCLUDED__shapes_polar_to_cartes__H
+#define HEADER_INCLUDED__shapes_polar_to_cartes__H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -70,22 +75,35 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Assign_Table : public CSG_Module  
+class CShapes_Polar_to_Cartes : public CSG_Module
 {
 public:
-	CShapes_Assign_Table(void);
-	virtual ~CShapes_Assign_Table(void);
+	CShapes_Polar_to_Cartes(void);
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool				On_Execute		(void);
+
+
+private:
+
+	TSG_Point_Z					Get_Cartes		(TSG_Point Point, double Radius, bool bDegree);
+
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__Shapes_Assign_Table_H
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__shapes_polar_to_cartes__H

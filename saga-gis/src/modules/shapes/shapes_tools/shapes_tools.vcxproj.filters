@@ -35,9 +35,6 @@
     <ClCompile Include="QueryBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QueryParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SearchInTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SeparateShapes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shapes_Assign_Table.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shapes_buffer.cpp">
@@ -78,6 +72,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TransformShapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shapes_polar_to_cartes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -154,9 +151,6 @@
     <ClInclude Include="QueryBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QueryParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SearchInTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -164,9 +158,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SeparateShapes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shapes_Assign_Table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shapes_buffer.h">
@@ -197,6 +188,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TransformShapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shapes_polar_to_cartes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

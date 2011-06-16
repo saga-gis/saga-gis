@@ -95,7 +95,6 @@ const SG_Char * Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "Shapes_Create_Empty.h"
-#include "Shapes_Assign_Table.h"
 #include "Shapes_Merge.h"
 
 #include "QueryBuilder.h"
@@ -118,6 +117,8 @@ const SG_Char * Get_Info(int i)
 
 #include "quadtree_structure.h"
 
+#include "shapes_polar_to_cartes.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -127,7 +128,6 @@ CSG_Module *		Create_Module(int i)
 	switch( i )
 	{
 	case  0:	return( new CShapes_Create_Empty );
-	case  1:	return( new CShapes_Assign_Table );
 	case  2:	return( new CShapes_Merge );
 
 	case  3:	return( new CSelect_Numeric );
@@ -150,9 +150,13 @@ CSG_Module *		Create_Module(int i)
 	case 18:	return( new CShapes_Buffer );
 	case 19:	return( new CShapes_Extents );
 	case 20:	return( new CQuadTree_Structure );
+
+	case 21:	return( new CShapes_Polar_to_Cartes );
+
+	case 30:	return( NULL );
 	}
 
-	return( NULL );
+	return( MLB_INTERFACE_SKIP_MODULE );
 }
 
 

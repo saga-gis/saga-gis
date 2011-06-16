@@ -24,7 +24,6 @@ QueryParser.cpp\
 SearchInTable.cpp\
 SelectByTheme.cpp\
 SeparateShapes.cpp\
-Shapes_Assign_Table.cpp\
 Shapes_Create_Empty.cpp\
 Shapes_Merge.cpp\
 TransformShapes.cpp\
@@ -32,6 +31,7 @@ shapes_buffer.cpp\
 shapes_cut.cpp\
 shapes_cut_interactive.cpp\
 shapes_extents.cpp\
+shapes_polar_to_cartes.cpp\
 shapes_split.cpp\
 shapes_split_by_attribute.cpp\
 shapes_split_randomly.cpp\
@@ -46,7 +46,6 @@ QueryParser.h\
 SearchInTable.h\
 SelectByTheme.h\
 SeparateShapes.h\
-Shapes_Assign_Table.h\
 Shapes_Create_Empty.h\
 Shapes_Merge.h\
 TransformShapes.h\
@@ -54,6 +53,7 @@ shapes_buffer.h\
 shapes_cut.h\
 shapes_cut_interactive.h\
 shapes_extents.h\
+shapes_polar_to_cartes.h\
 shapes_split.h\
 shapes_split_by_attribute.h\
 shapes_split_randomly.h
