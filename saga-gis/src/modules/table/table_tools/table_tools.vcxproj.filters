@@ -26,6 +26,9 @@
     <ClCompile Include="Table_Rotate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Join_Tables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -89,6 +92,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Table_Rotate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Join_Tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,10 +13,12 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libtable_tools.la
 libtable_tools_la_SOURCES =\
+Join_Tables.cpp\
 MLB_Interface.cpp\
 Table_Create_Empty.cpp\
 Table_Enumerate.cpp\
 Table_Rotate.cpp\
+Join_Tables.h\
 MLB_Interface.h\
 Table_Create_Empty.h\
 Table_Enumerate.h\

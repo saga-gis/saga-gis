@@ -37,10 +37,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTableCalculator::CTableCalculator(bool bShapes)
+CTable_Calculator_Base::CTable_Calculator_Base(void)
 {
-	Set_Name	(!bShapes ? _TL("Table Calculator") : _TL("Table Calculator for Shapes"));
-
 	Set_Author	(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
 
 	CSG_String	s(_TW(
@@ -50,24 +48,12 @@ CTableCalculator::CTableCalculator(bool bShapes)
 		"Examples:\n"
 		"sin(f1) * f2 + f3\n"
 		"[Population] / [Area]\n"
-
 		"\nThe following operators are available for the formula definition:\n"
 	));
 
 	s	+= CSG_Formula::Get_Help_Operators();
 
 	Set_Description(s);
-
-	if( !bShapes )
-	{
-		Parameters.Add_Table	(NULL, "TABLE"	, _TL("Table")		, _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
-	else
-	{
-		Parameters.Add_Shapes	(NULL, "TABLE"	, _TL("Shapes")		, _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	}
 
 	Parameters.Add_String	(NULL, "FORMULA", _TL("Formula")	, _TL(""), SG_T("f1 + f2"));
 	Parameters.Add_String	(NULL, "NAME"	, _TL("Field Name")	, _TL(""), SG_T("Calculation"));
@@ -76,15 +62,13 @@ CTableCalculator::CTableCalculator(bool bShapes)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTableCalculator::On_Execute(void)
+bool CTable_Calculator_Base::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Table	*pTable		= Parameters("TABLE")	->asTable();
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
 	if( !pTable->is_Valid() || pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() <= 0 )
 	{
@@ -94,48 +78,12 @@ bool CTableCalculator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	const SG_Char	vars[27]	= SG_T("abcdefghijklmnopqrstuvwxyz");
-
-	int			iField, nFields, *Fields	= new int[pTable->Get_Field_Count()];
-
-	CSG_String	sFormula	= Parameters("FORMULA")	->asString();
-
-	for(iField=pTable->Get_Field_Count()-1, nFields=0; iField>=0 && nFields<26; iField--)
-	{
-		bool		bUse	= false;
-
-		CSG_String	sField;
-
-		sField.Printf(SG_T("f%d"), iField + 1);
-
-		if( sFormula.Find(sField) >= 0 )
-		{
-			sFormula.Replace(sField, CSG_String(vars[nFields]));
-
-			bUse	= true;
-		}
-
-		sField.Printf(SG_T("[%s]"), pTable->Get_Field_Name(iField));
-
-		if( sFormula.Find(sField) >= 0 )
-		{
-			sFormula.Replace(sField, CSG_String(vars[nFields]));
-
-			bUse	= true;
-		}
-
-		if( bUse )
-		{
-			Fields[nFields++]	= iField;
-		}
-	}
-
-	Message_Add(sFormula + SG_T("\n"), false);
-
-	//-----------------------------------------------------
 	CSG_Formula	Formula;
 
-	if( !Formula.Set_Formula(sFormula) )
+	int		nFields	= pTable->Get_Field_Count();
+	int		*Fields	= new int[nFields];
+
+	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pTable, Fields, nFields)) )
 	{
 		int			Position;
 		CSG_String	Message;
@@ -168,7 +116,7 @@ bool CTableCalculator::On_Execute(void)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-		for(iField=0; iField<nFields; iField++)
+		for(int iField=0; iField<nFields; iField++)
 		{
 			Values[iField]	= pRecord->asDouble(Fields[iField]);
 		}
@@ -186,6 +134,88 @@ bool CTableCalculator::On_Execute(void)
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String	CTable_Calculator_Base::Get_Formula(CSG_String sFormula, CSG_Table *pTable, int *Fields, int &nFields)
+{
+	const SG_Char	vars[27]	= SG_T("abcdefghijklmnopqrstuvwxyz");
+
+	int		iField;
+
+	for(iField=pTable->Get_Field_Count()-1, nFields=0; iField>=0 && nFields<26; iField--)
+	{
+		bool		bUse	= false;
+
+		CSG_String	sField;
+
+		sField.Printf(SG_T("f%d"), iField + 1);
+
+		if( sFormula.Find(sField) >= 0 )
+		{
+			sFormula.Replace(sField, CSG_String(vars[nFields]));
+
+			bUse	= true;
+		}
+
+		sField.Printf(SG_T("[%s]"), pTable->Get_Field_Name(iField));
+
+		if( sFormula.Find(sField) >= 0 )
+		{
+			sFormula.Replace(sField, CSG_String(vars[nFields]));
+
+			bUse	= true;
+		}
+
+		if( bUse )
+		{
+			Fields[nFields++]	= iField;
+		}
+	}
+
+	return( sFormula );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTable_Calculator::CTable_Calculator(void)
+	: CTable_Calculator_Base()
+{
+	Set_Name	(_TL("Table Calculator"));
+
+	Parameters.Add_Table	(NULL, "TABLE"	, _TL("Table")		, _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Table	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTable_Calculator_Shapes::CTable_Calculator_Shapes(void)
+	: CTable_Calculator_Base()
+{
+	Set_Name	(_TL("Table Calculator (Shapes)"));
+
+	Parameters.Add_Shapes	(NULL, "TABLE"	, _TL("Shapes")		, _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Shapes	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+}
+
 
 
 ///////////////////////////////////////////////////////////

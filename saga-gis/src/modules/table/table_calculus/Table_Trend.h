@@ -83,7 +83,7 @@ protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Get_Trend				(CSG_Table *pTable);
+	virtual bool				On_Execute				(void);
 
 
 private:
@@ -98,11 +98,6 @@ class CTable_Trend : public CTable_Trend_Base
 public:
 	CTable_Trend(void);
 
-
-protected:
-
-	virtual bool				On_Execute				(void);
-
 };
 
 //---------------------------------------------------------
@@ -111,10 +106,7 @@ class CTable_Trend_Shapes : public CTable_Trend_Base
 public:
 	CTable_Trend_Shapes(void);
 
-
-protected:
-
-	virtual bool				On_Execute				(void);
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Table") );	}
 
 };
 

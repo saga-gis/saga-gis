@@ -97,6 +97,7 @@ const SG_Char * Get_Info(int i)
 #include "Table_Create_Empty.h"
 #include "Table_Rotate.h"
 #include "Table_Enumerate.h"
+#include "Join_Tables.h"
 
 
 //---------------------------------------------------------
@@ -104,33 +105,16 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CTable_Create_Empty;
-		break;
-
-	case 1:
-		pModule	= new CTable_Rotate;
-		break;
-
-	case 2:
-		pModule	= new CTable_Enumerate;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case  0:	return( new CTable_Create_Empty );
+	case  1:	return( new CTable_Rotate );
+	case  2:	return( new CTable_Enumerate );
+	case  3:	return( new CJoin_Tables );
+	case  4:	return( new CJoin_Tables_Shapes );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

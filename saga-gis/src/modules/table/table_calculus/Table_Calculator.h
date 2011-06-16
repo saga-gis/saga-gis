@@ -37,18 +37,35 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTableCalculator : public CSG_Module  
+class CTable_Calculator_Base : public CSG_Module  
 {
 public:
-	CTableCalculator(bool bShapes);
+	CTable_Calculator_Base(void);
 
 
 protected:
 
 	virtual bool			On_Execute			(void);
 
+	CSG_String				Get_Formula			(CSG_String sFormula, CSG_Table *pTable, int *Fields, int &nFields);
 
-private:
+};
+
+//---------------------------------------------------------
+class CTable_Calculator : public CTable_Calculator_Base  
+{
+public:
+	CTable_Calculator(void);
+
+};
+
+//---------------------------------------------------------
+class CTable_Calculator_Shapes : public CTable_Calculator_Base  
+{
+public:
+	CTable_Calculator_Shapes(void);
+
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Table") );	}
 
 };
 
