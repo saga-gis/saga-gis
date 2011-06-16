@@ -74,7 +74,7 @@
 CGrid_To_Points::CGrid_To_Points(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Grid Values to Shapes"));
+	Set_Name		(_TL("Grid Values to Points"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2001"));
 
