@@ -481,8 +481,8 @@ void CVIEW_ScatterPlot::Draw(wxDC &dc, wxRect r)
 
 	r	= _Draw_Get_rDiagram(r);
 
-	dc.SetFont				(*m_Parameters("FONT")->asFont());
-	dc.SetTextForeground	( m_Parameters("FONT")->asColor());
+	dc.SetFont				(Get_Font(m_Parameters("FONT")));
+	dc.SetTextForeground	(m_Parameters("FONT")->asColor());
 
 	if( m_Regression.Get_Count() > 1 )
 	{

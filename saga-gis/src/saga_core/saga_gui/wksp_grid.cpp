@@ -400,7 +400,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	m_Parameters.Add_Font(
 		m_Parameters("VALUES_SHOW")		, "VALUES_FONT"		, LNG("[CAP] Font"),
 		LNG("")
-	)->asFont()->SetFamily(wxDECORATIVE);
+	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("VALUES_SHOW")		, "VALUES_SIZE"		, LNG("[CAP] Size"),
@@ -1301,12 +1301,12 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	if(	m_Parameters("VALUES_SHOW")->asBool() && (dDC = m_pGrid->Get_Cellsize() * dc_Map.m_World2DC) > 40 )
 	{
-		zFactor		=  m_pGrid->Get_ZFactor();
-		Decimals	=  m_Parameters("VALUES_DECIMALS")	->asInt();
+		zFactor		= m_pGrid->Get_ZFactor();
+		Decimals	= m_Parameters("VALUES_DECIMALS")	->asInt();
 
-		xDC			=  m_Parameters("VALUES_SIZE")		->asDouble() / 100.0;
-		x			=  m_Parameters("VALUES_FONT")		->asColor();
-		Font		= *m_Parameters("VALUES_FONT")		->asFont();
+		xDC			= m_Parameters("VALUES_SIZE")		->asDouble() / 100.0;
+		x			= m_Parameters("VALUES_FONT")		->asColor();
+		Font		= Get_Font(m_Parameters("VALUES_FONT"));
 		Font.SetPointSize((int)(xDC * dDC));
 		dc_Map.dc.SetFont(Font);
 		dc_Map.dc.SetTextForeground(Get_Color_asWX(x));

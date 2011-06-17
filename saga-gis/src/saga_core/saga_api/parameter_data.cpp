@@ -1002,12 +1002,6 @@ bool CSG_Parameter_String::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Parameter_String::asString(void)
-{
-	return( m_String );
-}
-
-//---------------------------------------------------------
 void CSG_Parameter_String::On_Assign(CSG_Parameter_Data *pSource)
 {
 	m_String	= ((CSG_Parameter_String *)pSource)->m_String.c_str();
@@ -1145,59 +1139,54 @@ void CSG_Parameter_File_Name::On_Assign(CSG_Parameter_Data *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/font.h>
-
-//---------------------------------------------------------
 CSG_Parameter_Font::CSG_Parameter_Font(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data(pOwner, Constraint)
 {
-	m_pFont		= new wxFont(10, wxSWISS, wxNORMAL, wxNORMAL);
-	m_Color		= SG_GET_RGB(0, 0, 0);
+	Restore_Default();
 }
 
-CSG_Parameter_Font::~CSG_Parameter_Font(void)
+//---------------------------------------------------------
+bool CSG_Parameter_Font::Restore_Default(void)
 {
-	delete(m_pFont);
+	m_Color		= SG_GET_RGB(0, 0, 0);
+	m_Font		= SG_T("0;-13;0;0;0;400;0;0;0;0;3;2;1;34;Arial");
+	m_String	= SG_T("Arial");
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Font::Set_Value(int Value)
 {
-	if( m_Color != Value )
-	{
-		m_Color		= Value;
+	m_Color	= Value;
 
-		return( true );
-	}
-
-	return( false );
-}
-
-bool CSG_Parameter_Font::Set_Value(void *Value)
-{
-	if( Value )
-	{
-		*m_pFont	= *((class wxFont *)Value);
-
-		return( true );
-	}
-
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Parameter_Font::asString(void)
+bool CSG_Parameter_Font::Set_Value(void *Value)
 {
-	m_String.Printf(SG_T("%s, %dpt"), m_pFont->GetFaceName().c_str(), m_pFont->GetPointSize());
+	if( Value && *((SG_Char *)Value) )
+	{
+		m_Font		= (SG_Char *)Value;
+		m_String	= m_Font.AfterLast(SG_T(';'));
+	}
+	else
+	{
+		Restore_Default();
+	}
 
-	return( m_String );
+	return( true );
 }
 
 //---------------------------------------------------------
 void CSG_Parameter_Font::On_Assign(CSG_Parameter_Data *pSource)
 {
-	Set_Value(pSource->asPointer());
-	Set_Value(pSource->asInt());
+	if( pSource && pSource->Get_Type() == Get_Type() )
+	{
+		Set_Value(pSource->asInt());
+		Set_Value(pSource->asPointer());
+	}
 }
 
 //---------------------------------------------------------
@@ -1205,94 +1194,30 @@ bool CSG_Parameter_Font::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Add_Child(SG_T("COLOR")		, CSG_String::Format(SG_T("R%03d G%03d B%03d"), SG_GET_R(m_Color), SG_GET_G(m_Color), SG_GET_B(m_Color)));
-		Entry.Add_Child(SG_T("POINTSIZE")	, CSG_String::Format(SG_T("%d"), m_pFont->GetPointSize()));
-		Entry.Add_Child(SG_T("FACENAME")	, m_pFont->GetFaceName().c_str());
-		Entry.Add_Child(SG_T("UNDERLINED")	, m_pFont->GetUnderlined() ? SG_T("TRUE") : SG_T("FALSE"));
+		Entry.Add_Child(SG_T("COLOR")	, CSG_String::Format(SG_T("R%03d G%03d B%03d"),
+			SG_GET_R(m_Color),
+			SG_GET_G(m_Color),
+			SG_GET_B(m_Color)
+		));
 
-		switch( m_pFont->GetFamily() )
-		{
-		default:
-		case wxFONTFAMILY_DEFAULT:		Entry.Add_Child(SG_T("FAMILY")	, SG_T("DEFAULT"));		break;
-		case wxFONTFAMILY_DECORATIVE:	Entry.Add_Child(SG_T("FAMILY")	, SG_T("DECORATIVE"));	break;
-		case wxFONTFAMILY_ROMAN:		Entry.Add_Child(SG_T("FAMILY")	, SG_T("ROMAN"));		break;
-		case wxFONTFAMILY_SCRIPT:		Entry.Add_Child(SG_T("FAMILY")	, SG_T("SCRIPT"));		break;
-		case wxFONTFAMILY_SWISS:		Entry.Add_Child(SG_T("FAMILY")	, SG_T("SWISS"));		break;
-		case wxFONTFAMILY_MODERN:		Entry.Add_Child(SG_T("FAMILY")	, SG_T("MODERN"));		break;
-		case wxFONTFAMILY_TELETYPE:		Entry.Add_Child(SG_T("FAMILY")	, SG_T("TELETYPE"));	break;
-		}
-
-		switch( m_pFont->GetStyle() )
-		{
-		default:
-		case wxFONTSTYLE_NORMAL:		Entry.Add_Child(SG_T("STYLE")	, SG_T("NORMAL"));		break;
-		case wxFONTSTYLE_SLANT:			Entry.Add_Child(SG_T("STYLE")	, SG_T("SLANT"));		break;
-		case wxFONTSTYLE_ITALIC:		Entry.Add_Child(SG_T("STYLE")	, SG_T("ITALIC"));		break;
-		}
-
-		switch( m_pFont->GetStyle() )
-		{
-		default:
-		case wxFONTWEIGHT_NORMAL:		Entry.Add_Child(SG_T("WEIGHT")	, SG_T("NORMAL"));		break;
-		case wxFONTWEIGHT_LIGHT:		Entry.Add_Child(SG_T("WEIGHT")	, SG_T("LIGHT"));		break;
-		case wxFONTWEIGHT_BOLD:			Entry.Add_Child(SG_T("WEIGHT")	, SG_T("BOLD"));		break;
-		}
+		Entry.Add_Child(SG_T("FONT")	, m_Font);
 	}
 	else
 	{
-		int				i;
 		CSG_MetaData	*pEntry;
 
 		if( (pEntry = Entry.Get_Child(SG_T("COLOR"))) != NULL )
 		{
-			m_Color	= SG_GET_RGB(
+			Set_Value((int)SG_GET_RGB(
 				pEntry->Get_Content().AfterFirst(SG_T('R')).asInt(),
 				pEntry->Get_Content().AfterFirst(SG_T('G')).asInt(),
 				pEntry->Get_Content().AfterFirst(SG_T('B')).asInt()
-			);
+			));
 		}
 
-		if( (pEntry = Entry.Get_Child(SG_T("POINTSIZE"))) != NULL && pEntry->Get_Content().asInt(i) )
+		if( (pEntry = Entry.Get_Child(SG_T("FONT"))) != NULL )
 		{
-			m_pFont->SetPointSize(i);
-		}
-
-		if( (pEntry = Entry.Get_Child(SG_T("FACENAME"))) != NULL )
-		{
-			m_pFont->SetFaceName(pEntry->Get_Content().c_str());
-		}
-
-		if( (pEntry = Entry.Get_Child(SG_T("UNDERLINED"))) != NULL )
-		{
-			m_pFont->SetUnderlined(pEntry->Cmp_Content(SG_T("TRUE")));
-		}
-
-		if( (pEntry = Entry.Get_Child(SG_T("FAMILY"))) != NULL )
-		{
-			m_pFont->SetFamily(
-				pEntry->Cmp_Content(SG_T("TELETYPE"))	? wxFONTFAMILY_TELETYPE		:
-				pEntry->Cmp_Content(SG_T("MODERN"))		? wxFONTFAMILY_MODERN		:
-				pEntry->Cmp_Content(SG_T("SWISS"))		? wxFONTFAMILY_SWISS		:
-				pEntry->Cmp_Content(SG_T("SCRIPT"))		? wxFONTFAMILY_SCRIPT		:
-				pEntry->Cmp_Content(SG_T("ROMAN"))		? wxFONTFAMILY_ROMAN		:
-				pEntry->Cmp_Content(SG_T("DECORATIVE"))	? wxFONTFAMILY_DECORATIVE	: wxFONTFAMILY_DEFAULT
-			);
-		}
-
-		if( (pEntry = Entry.Get_Child(SG_T("STYLE"))) != NULL )
-		{
-			m_pFont->SetStyle(
-				pEntry->Cmp_Content(SG_T("SLANT"))		? wxFONTSTYLE_SLANT			:
-				pEntry->Cmp_Content(SG_T("ITALIC"))		? wxFONTSTYLE_ITALIC		: wxFONTSTYLE_NORMAL
-			);
-		}
-
-		if( (pEntry = Entry.Get_Child(SG_T("WEIGHT"))) != NULL )
-		{
-			m_pFont->SetWeight(
-				pEntry->Cmp_Content(SG_T("BOLD"))		? wxFONTWEIGHT_BOLD			:
-				pEntry->Cmp_Content(SG_T("LIGHT"))		? wxFONTWEIGHT_LIGHT		: wxFONTWEIGHT_NORMAL
-			);
+			Set_Value((void *)pEntry->Get_Content().c_str());
 		}
 	}
 

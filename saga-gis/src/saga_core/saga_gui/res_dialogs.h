@@ -146,7 +146,7 @@ bool				DLG_Colors				(class CSG_Colors *pColors);
 bool				DLG_Colors				(int &Palette);
 bool				DLG_Color				(long &Colour);
 
-bool				DLG_Font				(class wxFont *pFont, long &Colour);
+bool				DLG_Font				(class CSG_Parameter *pFont);
 
 bool				DLG_Get_Number			(double &Number, const wxChar *Caption, const wxChar *Text);
 bool				DLG_Get_Number			(double &Number);

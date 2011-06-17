@@ -534,21 +534,25 @@ bool		DLG_Color(long &_Colour)
 }
 
 //---------------------------------------------------------
-bool		DLG_Font(wxFont *pFont, long &_Colour)
+bool		DLG_Font(CSG_Parameter *pFont)
 {
-	wxColour		Colour(SG_GET_R(_Colour), SG_GET_G(_Colour), SG_GET_B(_Colour));
-	wxFontDialog	dlg(MDI_Get_Top_Window());
+	wxFont		Font;
+	wxColour	Colour;
 
-	dlg.GetFontData().SetInitialFont(*pFont);
-	dlg.GetFontData().SetColour(Colour);
-
-	if( dlg.ShowModal() == wxID_OK )
+	if( Set_Font(pFont, Font, Colour) )
 	{
-		*pFont	= dlg.GetFontData().GetChosenFont();
-		Colour	= dlg.GetFontData().GetColour();
-		_Colour	= Get_Color_asInt(Colour);
+		wxFontDialog	dlg(MDI_Get_Top_Window());
 
-		return( true );
+		dlg.GetFontData().SetInitialFont(Font);
+		dlg.GetFontData().SetColour     (Colour);
+
+		if( dlg.ShowModal() == wxID_OK )
+		{
+			Font	= dlg.GetFontData().GetChosenFont();
+			Colour	= dlg.GetFontData().GetColour();
+
+			return( Set_Font(Font, Colour, pFont) );
+		}
 	}
 
 	return( false );

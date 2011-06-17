@@ -943,12 +943,12 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		{
 			int		Size;
 			double	dSize;
-			wxFont	Font	= *m_Parameters("LABEL_ATTRIB_FONT")->asFont();
+			wxFont	Font	= Get_Font(m_Parameters("LABEL_ATTRIB_FONT"));
 
 			switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
 			{
 			case 0:	default:
-				dSize	= m_iLabel_Size < 0 ? m_Parameters("LABEL_ATTRIB_FONT")->asFont()->GetPointSize() : 1.0;
+				dSize	= m_iLabel_Size < 0 ? Font.GetPointSize() : 1.0;
 				break;
 
 			case 1:

@@ -138,8 +138,6 @@ private:
 
 	wxSize							m_sDraw;
 
-	wxFont							*m_pFont;
-
 
 	void							On_Size				(wxSizeEvent  &event);
 	void							On_Mouse_LDown		(wxMouseEvent &event);
@@ -196,8 +194,6 @@ CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKS
 
 	m_nFields	= 0;
 	m_Fields	= NULL;
-
-	m_pFont		= NULL;
 
 	m_bFitSize	= false;
 
@@ -554,10 +550,10 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 			), 1
 		);
 
-		m_pFont	= m_Parameters.Add_Font(
+		m_Parameters.Add_Font(
 			pGeneral	, "_DIAGRAM_FONT"		, LNG("[CAP] Font"),
 			LNG("")
-		)->asFont();
+		);
 
 		m_Parameters.Add_Value(
 			pGeneral	, "_DIAGRAM_LEGEND"		, LNG("[CAP] Legend"),
@@ -680,10 +676,7 @@ void CVIEW_Table_Diagram_Control::OnDraw(wxDC &dc)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 {
-	if( m_pFont )
-	{
-		dc.SetFont(*m_pFont);
-	}
+	dc.SetFont(Get_Font(m_Parameters("_DIAGRAM_FONT")));
 
 	if( m_nFields > 0 && m_yMax > m_yMin )
 	{

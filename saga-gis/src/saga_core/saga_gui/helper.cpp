@@ -223,6 +223,57 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool	Set_Font(CSG_Parameter *pFont, wxFont &Font, wxColour &Colour)
+{
+	if( !pFont )
+	{
+		return( false );
+	}
+
+	Colour.Set(
+		SG_GET_R(pFont->asColor()),
+		SG_GET_G(pFont->asColor()),
+		SG_GET_B(pFont->asColor())
+	);
+
+	Font.SetNativeFontInfo(pFont->asFont());
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool	Set_Font(const wxFont &Font, wxColour Colour, CSG_Parameter *pFont)
+{
+	if( !pFont )
+	{
+		return( false );
+	}
+
+	pFont->Set_Value((int)SG_GET_RGB(Colour.Red(), Colour.Green(), Colour.Blue()));
+	pFont->Set_Value(Font.GetNativeFontInfoDesc().c_str());
+
+	return( true );
+}
+
+//---------------------------------------------------------
+wxFont	Get_Font(CSG_Parameter *pFont)
+{
+	wxColour	Colour;
+	wxFont		Font;
+
+	Set_Font(pFont, Font, Colour);
+
+	return( Font );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 wxColour	Get_Color_asWX(int Color)
 {
 	return( wxColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)) );

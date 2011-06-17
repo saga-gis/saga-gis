@@ -105,6 +105,11 @@ wxString			Get_FilePath_Absolute			(const wxChar *Directory, const wxChar *FileN
 wxString			Get_TableInfo_asHTML			(class CSG_Table *pTable);
 
 //---------------------------------------------------------
+bool				Set_Font						(CSG_Parameter *pFont, wxFont &Font, wxColour &Colour);
+bool				Set_Font						(const wxFont &Font, wxColour Colour, CSG_Parameter *pFont);
+wxFont				Get_Font						(CSG_Parameter *pFont);
+
+//---------------------------------------------------------
 wxColour			Get_Color_asWX					(int Color);
 int					Get_Color_asInt					(wxColour Color);
 

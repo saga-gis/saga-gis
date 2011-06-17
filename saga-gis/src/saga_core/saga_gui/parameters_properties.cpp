@@ -584,7 +584,6 @@ bool CParameters_PG_Parameter_Value::Check(void) const
 bool CParameters_PG_Parameter_Value::Do_Dialog(void)
 {
 	bool		bModified	= false;
-	long		Color;
 	wxString	Text;
 
 	if( m_pParameter )
@@ -592,17 +591,6 @@ bool CParameters_PG_Parameter_Value::Do_Dialog(void)
 		switch( m_pParameter->Get_Type() )
 		{
 		default:
-			break;
-
-		case PARAMETER_TYPE_Font:
-			bModified	= DLG_Font			(m_pParameter->asFont(), Color = m_pParameter->asColor());
-
-			if( bModified )
-			{
-				m_pParameter->Set_Value((int)Color);
-
-				return( true );
-			}
 			break;
 
 		case PARAMETER_TYPE_Text:
@@ -675,6 +663,10 @@ bool CParameters_PG_Parameter_Value::Do_Dialog(void)
 		case PARAMETER_TYPE_TIN_List:
 		case PARAMETER_TYPE_PointCloud_List:
 			bModified	= DLG_List			(m_pParameter->Get_Name(), m_pParameter->asList());
+			break;
+
+		case PARAMETER_TYPE_Font:
+			bModified	= DLG_Font			(m_pParameter);
 			break;
 
 		case PARAMETER_TYPE_Colors:

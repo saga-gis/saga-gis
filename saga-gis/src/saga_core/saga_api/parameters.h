@@ -254,6 +254,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Node : public CSG_Parameter_Data
 {
@@ -264,6 +269,11 @@ public:
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Node );	}
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Bool : public CSG_Parameter_Data
@@ -294,6 +304,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Value : public CSG_Parameter_Data
 {
@@ -322,6 +337,11 @@ protected:
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Int : public CSG_Parameter_Value
@@ -352,6 +372,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Double : public CSG_Parameter_Value
 {
@@ -381,6 +406,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Degree : public CSG_Parameter_Double
 {
@@ -395,6 +425,11 @@ public:
 	virtual const SG_Char *		asString				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Range : public CSG_Parameter_Data
@@ -433,6 +468,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter_Int
 {
@@ -466,6 +506,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_String : public CSG_Parameter_Data
 {
@@ -475,7 +520,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_String );	}
 
-	virtual const SG_Char *		asString				(void);
+	virtual const SG_Char *		asString				(void)	{	return( m_String );	}
 
 	virtual bool				is_Valid				(void);
 
@@ -497,6 +542,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Text : public CSG_Parameter_String
 {
@@ -507,6 +557,11 @@ public:
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Text );		}
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_File_Name : public CSG_Parameter_String
@@ -543,37 +598,46 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Font : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Font(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Font(void);
+	virtual ~CSG_Parameter_Font(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Font );		}
+
+	virtual int					asInt					(void)	{	return( m_Color );					}
+	virtual void *				asPointer				(void)	{	return( (void *)m_Font.c_str() );	}
+	virtual const SG_Char *		asString				(void)	{	return( m_String );					}
 
 	virtual bool				Set_Value				(int   Value);
 	virtual bool				Set_Value				(void *Value);
 
-	virtual int					asInt					(void)	{	return( m_Color );	}
-	virtual void *				asPointer				(void)	{	return( m_pFont );	}
-
-	virtual const SG_Char *		asString				(void);
-
-	virtual bool				Restore_Default			(void)	{	return( Set_Value((void *)m_Default.c_str()) );	}
+	virtual bool				Restore_Default			(void);
 
 
 protected:
 
 	int							m_Color;
 
-	class wxFont				*m_pFont;
+	CSG_String					m_Font;
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Color : public CSG_Parameter_Int
@@ -590,6 +654,11 @@ protected:
 	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Colors : public CSG_Parameter_Data
@@ -615,6 +684,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Fixed_Table : public CSG_Parameter_Data
 {
@@ -637,6 +711,11 @@ protected:
 	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_System : public CSG_Parameter_Data
@@ -664,6 +743,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Field : public CSG_Parameter_Int
 {
@@ -689,6 +773,11 @@ protected:
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object : public CSG_Parameter_Data
@@ -717,6 +806,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object_Output : public CSG_Parameter_Data_Object
 {
@@ -737,6 +831,11 @@ protected:
 	TSG_Data_Object_Type		m_Type;
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grid : public CSG_Parameter_Data_Object
@@ -764,6 +863,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Table : public CSG_Parameter_Data_Object
 {
@@ -776,6 +880,11 @@ public:
 	virtual bool				Set_Value				(void *Value);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes : public CSG_Parameter_Data_Object
@@ -801,6 +910,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_TIN : public CSG_Parameter_Data_Object
 {
@@ -813,6 +927,11 @@ public:
 	virtual bool				Set_Value				(void *Value);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud : public CSG_Parameter_Data_Object
@@ -831,6 +950,11 @@ protected:
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_List : public CSG_Parameter_Data
@@ -866,6 +990,11 @@ private:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_List : public CSG_Parameter_List
 {
@@ -881,6 +1010,11 @@ public:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Table_List : public CSG_Parameter_List
 {
@@ -893,6 +1027,11 @@ public:
 	CSG_Table *					asTable					(int Index)	{	return( (CSG_Table *)asDataObject(Index) );	}
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes_List : public CSG_Parameter_List
@@ -918,6 +1057,11 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_TIN_List : public CSG_Parameter_List
 {
@@ -931,6 +1075,11 @@ public:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud_List : public CSG_Parameter_List
 {
@@ -943,6 +1092,11 @@ public:
 	CSG_PointCloud *			asPointCloud			(int Index)	{	return( (CSG_PointCloud *)asDataObject(Index) );	}
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Parameters : public CSG_Parameter_Data
@@ -1073,38 +1227,38 @@ public:
 
 	bool						has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
 
-	bool						asBool					(void)	{	return( (bool          )!!m_pData->asInt	() );	}
-	int							asInt					(void)	{	return( (int           )m_pData->asInt		() );	}
-	long						asColor					(void)	{	return( (long          )m_pData->asInt		() );	}
-	double						asDouble				(void)	{	return( (double        )m_pData->asDouble	() );	}
+	bool						asBool					(void)	{	return( (bool             )!!m_pData->asInt  () );	}
+	int							asInt					(void)	{	return( (int              )m_pData->asInt    () );	}
+	long						asColor					(void)	{	return( (long             )m_pData->asInt    () );	}
+	double						asDouble				(void)	{	return( (double           )m_pData->asDouble () );	}
 
-	void *						asPointer				(void)	{	return( (void            *)m_pData->asPointer	() );	}
+	void *						asPointer				(void)	{	return( (void            *)m_pData->asPointer() );	}
 
-	const SG_Char *				asString				(void)	{	return( (const SG_Char   *)m_pData->asString	() );	}
-	class wxFont *				asFont					(void)	{	return( (wxFont          *)m_pData->asPointer	() );	}
-	CSG_Colors *				asColors				(void)	{	return( (CSG_Colors      *)m_pData->asPointer	() );	}
-	CSG_Grid_System *			asGrid_System			(void)	{	return( (CSG_Grid_System *)m_pData->asPointer	() );	}
+	const SG_Char *				asString				(void)	{	return( (const SG_Char   *)m_pData->asString () );	}
+	CSG_Colors *				asColors				(void)	{	return( (CSG_Colors      *)m_pData->asPointer() );	}
+	CSG_Grid_System *			asGrid_System			(void)	{	return( (CSG_Grid_System *)m_pData->asPointer() );	}
+	const SG_Char *				asFont					(void)	{	return( (const SG_Char   *)m_pData->asPointer() );	}
 
-	CSG_Data_Object *			asDataObject			(void)	{	return( (CSG_Data_Object *)m_pData->asPointer	() );	}
-	CSG_Grid *					asGrid					(void)	{	return( (CSG_Grid        *)m_pData->asPointer	() );	}
-	CSG_Table *					asTable					(void)	{	return( (CSG_Table       *)m_pData->asPointer	() );	}
-	CSG_Shapes *				asShapes				(void)	{	return( (CSG_Shapes      *)m_pData->asPointer	() );	}
-	CSG_TIN *					asTIN					(void)	{	return( (CSG_TIN         *)m_pData->asPointer	() );	}
-	CSG_PointCloud *			asPointCloud			(void)	{	return( (CSG_PointCloud  *)m_pData->asPointer	() );	}
+	CSG_Data_Object *			asDataObject			(void)	{	return( (CSG_Data_Object *)m_pData->asPointer() );	}
+	CSG_Grid *					asGrid					(void)	{	return( (CSG_Grid        *)m_pData->asPointer() );	}
+	CSG_Table *					asTable					(void)	{	return( (CSG_Table       *)m_pData->asPointer() );	}
+	CSG_Shapes *				asShapes				(void)	{	return( (CSG_Shapes      *)m_pData->asPointer() );	}
+	CSG_TIN *					asTIN					(void)	{	return( (CSG_TIN         *)m_pData->asPointer() );	}
+	CSG_PointCloud *			asPointCloud			(void)	{	return( (CSG_PointCloud  *)m_pData->asPointer() );	}
 
-	CSG_Parameter_Value *		asValue					(void)	{	return( (CSG_Parameter_Value       *)m_pData );		}
-	CSG_Parameter_Choice *		asChoice				(void)	{	return( (CSG_Parameter_Choice      *)m_pData );		}
-	CSG_Parameter_Range *		asRange					(void)	{	return( (CSG_Parameter_Range       *)m_pData );		}
-	CSG_Parameter_File_Name *	asFilePath				(void)	{	return( (CSG_Parameter_File_Name   *)m_pData );		}
+	CSG_Parameters *			asParameters			(void)	{	return( (CSG_Parameters  *)m_pData->asPointer() );	}
 
-	CSG_Parameter_List *		asList					(void)	{	return( (CSG_Parameter_List        *)m_pData );		}
-	CSG_Parameter_Grid_List *	asGridList				(void)	{	return( (CSG_Parameter_Grid_List   *)m_pData );		}
-	CSG_Parameter_Table_List *	asTableList				(void)	{	return( (CSG_Parameter_Table_List  *)m_pData );		}
-	CSG_Parameter_Shapes_List *	asShapesList			(void)	{	return( (CSG_Parameter_Shapes_List *)m_pData );		}
-	CSG_Parameter_TIN_List *	asTINList				(void)	{	return( (CSG_Parameter_TIN_List    *)m_pData );		}
+	CSG_Parameter_Value *		asValue					(void)	{	return( (CSG_Parameter_Value           *)m_pData );	}
+	CSG_Parameter_Choice *		asChoice				(void)	{	return( (CSG_Parameter_Choice          *)m_pData );	}
+	CSG_Parameter_Range *		asRange					(void)	{	return( (CSG_Parameter_Range           *)m_pData );	}
+	CSG_Parameter_File_Name *	asFilePath				(void)	{	return( (CSG_Parameter_File_Name       *)m_pData );	}
+
+	CSG_Parameter_List *		asList					(void)	{	return( (CSG_Parameter_List            *)m_pData );	}
+	CSG_Parameter_Grid_List *	asGridList				(void)	{	return( (CSG_Parameter_Grid_List       *)m_pData );	}
+	CSG_Parameter_Table_List *	asTableList				(void)	{	return( (CSG_Parameter_Table_List      *)m_pData );	}
+	CSG_Parameter_Shapes_List *	asShapesList			(void)	{	return( (CSG_Parameter_Shapes_List     *)m_pData );	}
+	CSG_Parameter_TIN_List *	asTINList				(void)	{	return( (CSG_Parameter_TIN_List        *)m_pData );	}
 	CSG_Parameter_PointCloud_List *	asPointCloudList	(void)	{	return( (CSG_Parameter_PointCloud_List *)m_pData );	}
-
-	CSG_Parameters *			asParameters			(void)	{	return( (CSG_Parameters *)m_pData->asPointer	() );	}
 
 	//-----------------------------------------------------
 	bool						Assign					(CSG_Parameter *pSource);
@@ -1209,9 +1363,9 @@ public:
 
 	CSG_Parameter *				Add_FilePath			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *Filter = NULL, const SG_Char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
 
-	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, class wxFont *pInit = NULL);
-	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Colors      *pInit = NULL);
-	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table   *pTemplate = NULL);
+	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *pInit = NULL);
+	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Colors    *pInit = NULL);
+	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table     *pInit = NULL);
 
 	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Grid_System *pInit = NULL);
 	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Data_Type Preferred_Type = SG_DATATYPE_Undefined);
@@ -1280,9 +1434,9 @@ public:
 	CSG_Parameter *				Add_String				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *String, bool bLongText = false, bool bPassword = false);
 	CSG_Parameter *				Add_Info_String			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *String, bool bLongText = false);
 	CSG_Parameter *				Add_FilePath			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *Filter = NULL, const SG_Char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
-	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, class wxFont *pInit = NULL);
+	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char   *pInit = NULL);
 	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Colors      *pInit = NULL);
-	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table   *pTemplate = NULL);
+	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table       *pInit = NULL);
 	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Grid_System *pInit = NULL);
 	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Data_Type Preferred_Type = SG_DATATYPE_Undefined);
 	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
