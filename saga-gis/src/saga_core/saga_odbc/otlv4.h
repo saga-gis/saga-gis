@@ -47,6 +47,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
 
 //======================= CONFIGURATION #DEFINEs ===========================
 
