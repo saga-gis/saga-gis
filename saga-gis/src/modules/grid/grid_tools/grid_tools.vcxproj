@@ -578,6 +578,7 @@
     <ClCompile Include="Grid_Orientation.cpp" />
     <ClCompile Include="Grid_Proximity.cpp" />
     <ClCompile Include="Grid_Resample.cpp" />
+    <ClCompile Include="Grid_Shrink_Expand.cpp" />
     <ClCompile Include="Grid_SortRaster.cpp" />
     <ClCompile Include="Grid_ThresholdBuffer.cpp" />
     <ClCompile Include="Grid_Tiling.cpp" />
@@ -632,6 +633,7 @@
     <ClInclude Include="Grid_Orientation.h" />
     <ClInclude Include="Grid_Proximity.h" />
     <ClInclude Include="Grid_Resample.h" />
+    <ClInclude Include="Grid_Shrink_Expand.h" />
     <ClInclude Include="Grid_SortRaster.h" />
     <ClInclude Include="Grid_ThresholdBuffer.h" />
     <ClInclude Include="Grid_Tiling.h" />

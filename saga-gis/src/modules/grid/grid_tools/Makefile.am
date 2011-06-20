@@ -32,6 +32,7 @@ Grid_Merge.cpp\
 Grid_Orientation.cpp\
 Grid_Proximity.cpp\
 Grid_Resample.cpp\
+Grid_Shrink_Expand.cpp\
 Grid_SortRaster.cpp\
 Grid_ThresholdBuffer.cpp\
 Grid_Tiling.cpp\
@@ -61,6 +62,7 @@ Grid_Merge.h\
 Grid_Orientation.h\
 Grid_Proximity.h\
 Grid_Resample.h\
+Grid_Shrink_Expand.h\
 Grid_SortRaster.h\
 Grid_ThresholdBuffer.h\
 Grid_Tiling.h\
