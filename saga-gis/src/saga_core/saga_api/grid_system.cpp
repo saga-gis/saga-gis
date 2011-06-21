@@ -354,6 +354,47 @@ bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius)
 }
 
 //---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Annulus(double inner_Radius, double outer_Radius)
+{
+	Destroy();
+
+	//-----------------------------------------------------
+	if( inner_Radius <= outer_Radius )
+	{
+		if( inner_Radius <= 0.0 )
+		{
+			ADD_CELL(0.0, 0.0, 0.0);
+		}
+
+		for(double y=1.0; y<=outer_Radius; y++)
+		{
+			for(double x=0.0; x<=outer_Radius; x++)
+			{
+				double	d	= SG_Get_Length(x, y);
+
+				if( inner_Radius <= d && d <= outer_Radius )
+				{
+					ADD_CELL( x,  y, d);
+					ADD_CELL( y, -x, d);
+					ADD_CELL(-x, -y, d);
+					ADD_CELL(-y,  x, d);
+				}
+			}
+		}
+
+		//-------------------------------------------------
+		if( m_Cells.Get_Count() > 0 )
+		{
+			m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::Set_Sector(double Radius, double Direction, double Tolerance)
 {
 	Destroy();
