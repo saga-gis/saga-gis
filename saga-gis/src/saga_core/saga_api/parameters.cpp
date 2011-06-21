@@ -1613,7 +1613,10 @@ bool CSG_Parameters::Serialize(CSG_MetaData &MetaData, bool bSave)
 			if(	MetaData.Get_Child(i)->Get_Property(SG_T("id"), Identifier)
 			&&	(pParameter	= Get_Parameter(Identifier)) != NULL )
 			{
-				pParameter->Serialize(*MetaData.Get_Child(i), false);
+				if( pParameter->Serialize(*MetaData.Get_Child(i), false) )
+				{
+					pParameter->has_Changed();
+				}
 			}
 		}
 	}
