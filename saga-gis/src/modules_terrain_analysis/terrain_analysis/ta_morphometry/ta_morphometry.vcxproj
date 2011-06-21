@@ -592,6 +592,7 @@
     <ClCompile Include="relative_heights.cpp" />
     <ClCompile Include="ruggedness.cpp" />
     <ClCompile Include="SurfaceSpecificPoints.cpp" />
+    <ClCompile Include="tpi.cpp" />
     <ClCompile Include="wind_effect.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -629,6 +630,7 @@
     <ClInclude Include="relative_heights.h" />
     <ClInclude Include="ruggedness.h" />
     <ClInclude Include="SurfaceSpecificPoints.h" />
+    <ClInclude Include="tpi.h" />
     <ClInclude Include="wind_effect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

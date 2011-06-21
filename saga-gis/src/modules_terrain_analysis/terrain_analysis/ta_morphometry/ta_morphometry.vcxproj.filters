@@ -68,6 +68,9 @@
     <ClCompile Include="wind_effect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tpi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -173,6 +176,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wind_effect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
