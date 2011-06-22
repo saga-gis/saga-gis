@@ -17,7 +17,7 @@
     <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Template.cpp">
+    <ClCompile Include="My_Module.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -76,7 +76,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Template.h">
+    <ClInclude Include="My_Module.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -454,7 +454,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Template.cpp"
+				RelativePath=".\My_Module.cpp"
 				>
 			</File>
 		</Filter>
@@ -467,7 +467,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Template.h"
+				RelativePath=".\My_Module.h"
 				>
 			</File>
 		</Filter>

@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      Template.h                       //
+//                     My_Module.cpp                     //
 //                                                       //
 //                 Copyright (C) 2007 by                 //
 //                        Author                         //
@@ -40,7 +40,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     author@email.net                       //
 //                                                       //
 //    contact:    Author                                 //
 //                Sesame Street. 7                       //
@@ -59,11 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Template_H
-#define HEADER_INCLUDED__Template_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "My_Module.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,30 +69,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// Use the 'Template_EXPORT' macro as defined in
-// 'MLB_Interface.h' to export this class to allow other
-// programs/libraries to use its functions:
-//
-// class Template_EXPORT CTemplate : public CSG_Module
-// ...
-//
-
-class CTemplate : public CSG_Module
+CMy_Module::CMy_Module(void)
 {
-public:
-	CTemplate(void);
+	Set_Name		(_TL("Module My_Module"));
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("Template Module Sub Menu") );	}
+	Set_Author		(SG_T("George Orwell (c) 1984"));
 
+	Set_Description	(_TW(
+		"I am a module template.\n"
+		"I am a module template."
+	));
 
-protected:
-
-	virtual bool				On_Execute		(void);
-
-
-private:
-
-};
+	Parameters.Add_Value(
+		NULL	, "VALUE"	, _TL("Value"),
+		_TL("This is a floating point value parameter with double precision (8 bytes)."),
+		PARAMETER_TYPE_Double, M_PI
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -106,4 +95,20 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Template_H
+bool CMy_Module::On_Execute(void)
+{
+	double	Value;
+
+	Value	= Parameters("VALUE")->asDouble();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

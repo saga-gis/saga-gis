@@ -14,9 +14,9 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libTemplate.la
 libTemplate_la_SOURCES =\
 MLB_Interface.cpp\
-Template.cpp\
+My_Module.cpp\
 MLB_Interface.h\
-Template.h
+My_Module.h
 
 libTemplate_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

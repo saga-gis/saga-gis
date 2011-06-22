@@ -92,7 +92,7 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "Template.h"
+#include "My_Module.h"
 
 
 //---------------------------------------------------------
@@ -107,7 +107,7 @@ CSG_Module *		Create_Module(int i)
 
 	switch( i )
 	{
-	case 0:		return( new CTemplate );
+	case 0:		return( new CMy_Module );
 
 	default:	return( NULL );
 	}
