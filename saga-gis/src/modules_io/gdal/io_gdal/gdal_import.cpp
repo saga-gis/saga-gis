@@ -279,14 +279,13 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	CSG_Matrix	B;
 
 	DataSet.Get_Transform(A, B);
-
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(
-		SG_T("\n%s: %s/%s\n"),
-		_TL("Driver"),
-		DataSet.Get_Description(), 
-		DataSet.Get_Name()
-	), false);
+	Message_Add( 
+		SG_T("Driver: ") 
+		+ DataSet.Get_Description()
+		+ SG_T("/")
+		+ DataSet.Get_Name(),
+		 false);
 
 	if( DataSet.Get_Count() > 1 )
 	{
