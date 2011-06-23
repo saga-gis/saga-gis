@@ -311,14 +311,14 @@ bool CTPI_Classification::On_Execute(void)
 	pDEM		= Parameters("DEM")			->asGrid();
 	pLandforms	= Parameters("LANDFORMS")	->asGrid();
 
-	TPI.Get_Parameters()->Set_Parameter("DEM"      , Parameters("DEM"));
-	TPI.Get_Parameters()->Set_Parameter("WEIGHTING", Parameters("WEIGHTING"));
+	TPI.Get_Parameters()->Set_Parameter(SG_T("DEM")      , Parameters("DEM"));
+	TPI.Get_Parameters()->Set_Parameter(SG_T("WEIGHTING"), Parameters("WEIGHTING"));
 	TPI.Get_Parameters()->Get_Parameter("STANDARD")->Set_Value(true);
 
 	//-----------------------------------------------------
 	TPI_A.Create(*Get_System());
 	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&TPI_A);
-	TPI.Get_Parameters()->Set_Parameter("RADIUS", Parameters("RADIUS_A"));
+	TPI.Get_Parameters()->Set_Parameter(SG_T("RADIUS"), Parameters("RADIUS_A"));
 
 	if( !TPI.Execute() )
 	{
@@ -328,7 +328,7 @@ bool CTPI_Classification::On_Execute(void)
 	//-----------------------------------------------------
 	TPI_B.Create(*Get_System());
 	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&TPI_B);
-	TPI.Get_Parameters()->Set_Parameter("RADIUS", Parameters("RADIUS_B"));
+	TPI.Get_Parameters()->Set_Parameter(SG_T("RADIUS"), Parameters("RADIUS_B"));
 
 	if( !TPI.Execute() )
 	{
