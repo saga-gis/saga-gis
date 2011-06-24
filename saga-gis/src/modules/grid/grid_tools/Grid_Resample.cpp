@@ -95,13 +95,13 @@ CGrid_Resample::CGrid_Resample(void)
 	Parameters.Add_Grid_List(
 		NULL	, "INPUT_ADD"	, _TL("Additional Grids"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_List(
 		NULL	, "OUTPUT_ADD"	, _TL("Additional Grids"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
