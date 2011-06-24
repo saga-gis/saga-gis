@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: decision_tree.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    decision_tree.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,76 +54,62 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__decision_tree_H
+#define HEADER_INCLUDED__decision_tree_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Classification") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2002-11") );
-
-	case MLB_INFO_Description:
-		return( _TL("Classification tools for grids.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|Classification") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "classify_supervised.h"
-#include "classify_cluster_analysis.h"
-#include "change_detection.h"
-#include "decision_tree.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CGrid_Classify_Supervised );
-	case  1:	return( new CGrid_Cluster_Analysis );
-	case  2:	return( new CChange_Detection );
-	case  3:	return( new CDecision_Tree );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CDecision_Tree : public CSG_Module_Grid
+{
+public:
+	CDecision_Tree(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	bool					Add_Decision			(CSG_Parameters *pDecision);
+
+	int						Get_Class				(const CSG_String &ID);
+	int						Get_Class				(CSG_Parameters *pDecision, const TSG_Point &Point);
+	int						Get_Class				(CSG_Parameters *pDecision, CSG_Table *pTable);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__decision_tree_H

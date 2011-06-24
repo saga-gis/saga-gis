@@ -26,6 +26,9 @@
     <ClCompile Include="classify_supervised.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="decision_tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -89,6 +92,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="classify_supervised.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="decision_tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

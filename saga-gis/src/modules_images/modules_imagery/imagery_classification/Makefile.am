@@ -13,10 +13,12 @@ libimagery_classification_la_SOURCES =\
 change_detection.cpp\
 classify_cluster_analysis.cpp\
 classify_supervised.cpp\
+decision_tree.cpp\
 MLB_Interface.cpp\
 change_detection.h\
 classify_cluster_analysis.h\
 classify_supervised.h\
+decision_tree.h\
 MLB_Interface.h
 
 libimagery_classification_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

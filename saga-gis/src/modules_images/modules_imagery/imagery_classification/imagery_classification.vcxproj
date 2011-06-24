@@ -561,6 +561,7 @@
     <ClCompile Include="change_detection.cpp" />
     <ClCompile Include="classify_cluster_analysis.cpp" />
     <ClCompile Include="classify_supervised.cpp" />
+    <ClCompile Include="decision_tree.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -590,6 +591,7 @@
     <ClInclude Include="change_detection.h" />
     <ClInclude Include="classify_cluster_analysis.h" />
     <ClInclude Include="classify_supervised.h" />
+    <ClInclude Include="decision_tree.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
