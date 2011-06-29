@@ -88,8 +88,9 @@
 #include "saga_frame_droptarget.h"
 
 #include "info.h"
-#include "wksp.h"
+#include "data_source.h"
 #include "active.h"
+#include "wksp.h"
 
 #include "wksp_module_manager.h"
 #include "wksp_module.h"
@@ -195,43 +196,45 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, wxMDIParentFrame)
 	EVT_CLOSE			(CSAGA_Frame::On_Close)
 	EVT_SIZE			(CSAGA_Frame::On_Size)
 
-	EVT_MENU			(ID_CMD_FRAME_QUIT			, CSAGA_Frame::On_Quit)
-	EVT_MENU			(ID_CMD_FRAME_HELP			, CSAGA_Frame::On_Help)
-	EVT_MENU			(ID_CMD_FRAME_ABOUT			, CSAGA_Frame::On_About)
-	EVT_MENU			(ID_CMD_FRAME_TIPS			, CSAGA_Frame::On_Tips)
+	EVT_MENU			(ID_CMD_FRAME_QUIT				, CSAGA_Frame::On_Quit)
+	EVT_MENU			(ID_CMD_FRAME_HELP				, CSAGA_Frame::On_Help)
+	EVT_MENU			(ID_CMD_FRAME_ABOUT				, CSAGA_Frame::On_About)
+	EVT_MENU			(ID_CMD_FRAME_TIPS				, CSAGA_Frame::On_Tips)
 
-	EVT_MENU			(ID_CMD_FRAME_CASCADE		, CSAGA_Frame::On_Frame_Cascade)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_CASCADE		, CSAGA_Frame::On_Frame_Cascade_UI)
-	EVT_MENU			(ID_CMD_FRAME_TILE_HORZ		, CSAGA_Frame::On_Frame_hTile)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_TILE_HORZ		, CSAGA_Frame::On_Frame_hTile_UI)
-	EVT_MENU			(ID_CMD_FRAME_TILE_VERT		, CSAGA_Frame::On_Frame_vTile)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_TILE_VERT		, CSAGA_Frame::On_Frame_vTile_UI)
-	EVT_MENU			(ID_CMD_FRAME_ARRANGEICONS	, CSAGA_Frame::On_Frame_ArrangeIcons)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_ARRANGEICONS	, CSAGA_Frame::On_Frame_ArrangeIcons_UI)
-	EVT_MENU			(ID_CMD_FRAME_NEXT			, CSAGA_Frame::On_Frame_Next)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_NEXT			, CSAGA_Frame::On_Frame_Next_UI)
-	EVT_MENU			(ID_CMD_FRAME_PREVIOUS		, CSAGA_Frame::On_Frame_Previous)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_PREVIOUS		, CSAGA_Frame::On_Frame_Previous_UI)
-	EVT_MENU			(ID_CMD_FRAME_CLOSE			, CSAGA_Frame::On_Frame_Close)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_CLOSE			, CSAGA_Frame::On_Frame_Close_UI)
-	EVT_MENU			(ID_CMD_FRAME_CLOSE_ALL		, CSAGA_Frame::On_Frame_Close_All)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_CLOSE_ALL		, CSAGA_Frame::On_Frame_Close_All_UI)
+	EVT_MENU			(ID_CMD_FRAME_CASCADE			, CSAGA_Frame::On_Frame_Cascade)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_CASCADE			, CSAGA_Frame::On_Frame_Cascade_UI)
+	EVT_MENU			(ID_CMD_FRAME_TILE_HORZ			, CSAGA_Frame::On_Frame_hTile)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_TILE_HORZ			, CSAGA_Frame::On_Frame_hTile_UI)
+	EVT_MENU			(ID_CMD_FRAME_TILE_VERT			, CSAGA_Frame::On_Frame_vTile)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_TILE_VERT			, CSAGA_Frame::On_Frame_vTile_UI)
+	EVT_MENU			(ID_CMD_FRAME_ARRANGEICONS		, CSAGA_Frame::On_Frame_ArrangeIcons)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_ARRANGEICONS		, CSAGA_Frame::On_Frame_ArrangeIcons_UI)
+	EVT_MENU			(ID_CMD_FRAME_NEXT				, CSAGA_Frame::On_Frame_Next)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_NEXT				, CSAGA_Frame::On_Frame_Next_UI)
+	EVT_MENU			(ID_CMD_FRAME_PREVIOUS			, CSAGA_Frame::On_Frame_Previous)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_PREVIOUS			, CSAGA_Frame::On_Frame_Previous_UI)
+	EVT_MENU			(ID_CMD_FRAME_CLOSE				, CSAGA_Frame::On_Frame_Close)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_CLOSE				, CSAGA_Frame::On_Frame_Close_UI)
+	EVT_MENU			(ID_CMD_FRAME_CLOSE_ALL			, CSAGA_Frame::On_Frame_Close_All)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_CLOSE_ALL			, CSAGA_Frame::On_Frame_Close_All_UI)
 
-	EVT_MENU			(ID_CMD_FRAME_WKSP_SHOW		, CSAGA_Frame::On_WKSP_Show)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_WKSP_SHOW		, CSAGA_Frame::On_WKSP_Show_UI)
-	EVT_MENU			(ID_CMD_FRAME_ACTIVE_SHOW	, CSAGA_Frame::On_Active_Show)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_ACTIVE_SHOW	, CSAGA_Frame::On_Active_Show_UI)
-	EVT_MENU			(ID_CMD_FRAME_INFO_SHOW		, CSAGA_Frame::On_INFO_Show)
-	EVT_UPDATE_UI		(ID_CMD_FRAME_INFO_SHOW		, CSAGA_Frame::On_INFO_Show_UI)
+	EVT_MENU			(ID_CMD_FRAME_WKSP_SHOW			, CSAGA_Frame::On_WKSP_Show)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_WKSP_SHOW			, CSAGA_Frame::On_WKSP_Show_UI)
+	EVT_MENU			(ID_CMD_FRAME_ACTIVE_SHOW		, CSAGA_Frame::On_Active_Show)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_ACTIVE_SHOW		, CSAGA_Frame::On_Active_Show_UI)
+	EVT_MENU			(ID_CMD_FRAME_DATA_SOURCE_SHOW	, CSAGA_Frame::On_Data_Source_Show)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_DATA_SOURCE_SHOW	, CSAGA_Frame::On_Data_Source_Show_UI)
+	EVT_MENU			(ID_CMD_FRAME_INFO_SHOW			, CSAGA_Frame::On_INFO_Show)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_INFO_SHOW			, CSAGA_Frame::On_INFO_Show_UI)
 
-	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST			, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST			, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace_UI)
-	EVT_MENU_RANGE		(ID_CMD_MODULE_FIRST		, ID_CMD_MODULE_LAST	, CSAGA_Frame::On_Command_Module)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_MODULE_FIRST		, ID_CMD_MODULE_LAST	, CSAGA_Frame::On_Command_Module_UI)
+	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace_UI)
+	EVT_MENU_RANGE		(ID_CMD_MODULE_FIRST			, ID_CMD_MODULE_LAST	, CSAGA_Frame::On_Command_Module)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_MODULE_FIRST			, ID_CMD_MODULE_LAST	, CSAGA_Frame::On_Command_Module_UI)
 
-	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST			, ID_CMD_CHILD_LAST		, CSAGA_Frame::On_Command_Child)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST			, ID_CMD_MAP_LAST		, CSAGA_Frame::On_Command_Child_UI)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_HISTOGRAM_FIRST		, ID_CMD_HISTOGRAM_LAST	, CSAGA_Frame::On_Command_Child_UI)
+	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST				, ID_CMD_CHILD_LAST		, CSAGA_Frame::On_Command_Child)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST				, ID_CMD_MAP_LAST		, CSAGA_Frame::On_Command_Child_UI)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_HISTOGRAM_FIRST			, ID_CMD_HISTOGRAM_LAST	, CSAGA_Frame::On_Command_Child_UI)
 END_EVENT_TABLE()
 
 
@@ -252,6 +255,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pTopWindows		= NULL;
 
 	m_pINFO				= NULL;
+	m_pData_Source		= NULL;
 	m_pActive			= NULL;
 	m_pWKSP				= NULL;
 
@@ -289,13 +293,15 @@ CSAGA_Frame::CSAGA_Frame(void)
 //	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_ALLOW_ACTIVE_PANE);
 
 	//-----------------------------------------------------
-	_Bar_Add(m_pINFO   = new CINFO  (this), 0);
-	_Bar_Add(m_pActive = new CACTIVE(this), 1);
-	_Bar_Add(m_pWKSP   = new CWKSP  (this), 2);
+	_Bar_Add(m_pWKSP		= new CWKSP       (this), 2);
+	_Bar_Add(m_pActive		= new CACTIVE     (this), 1);
+	_Bar_Add(m_pData_Source	= new CData_Source(this), 2);
+	_Bar_Add(m_pINFO		= new CINFO       (this), 0);
 
-	m_pINFO		->Add_Pages();
-	m_pActive	->Add_Pages();
-	m_pWKSP		->Add_Pages();
+	m_pINFO			->Add_Pages();
+	m_pData_Source	->Add_Pages();
+	m_pActive		->Add_Pages();
+	m_pWKSP			->Add_Pages();
 
 	//-----------------------------------------------------
 	SetMenuBar(MB_Create(NULL));
@@ -321,9 +327,10 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 	else
 	{
-		m_pLayout->GetPane(m_pINFO  ).BestSize(400, 100).FloatingSize(600, 400).Bottom();
-		m_pLayout->GetPane(m_pActive).BestSize(250, 400).FloatingSize(250, 400).Right();
-		m_pLayout->GetPane(m_pWKSP  ).BestSize(250, 400).FloatingSize(250, 400).Left();
+		m_pLayout->GetPane(m_pWKSP       ).BestSize(400, 400).FloatingSize(400, 400).Left();
+		m_pLayout->GetPane(m_pData_Source).BestSize(400, 400).FloatingSize(400, 400).Left();
+		m_pLayout->GetPane(m_pActive     ).BestSize(400, 400).FloatingSize(400, 400).Right();
+		m_pLayout->GetPane(m_pINFO       ).BestSize(400, 100).FloatingSize(600, 400).Bottom();
 	}
 
 	_Bar_Show(m_pTB_Main, true);
@@ -613,6 +620,17 @@ void CSAGA_Frame::On_Active_Show(wxCommandEvent &WXUNUSED(event))
 void CSAGA_Frame::On_Active_Show_UI(wxUpdateUIEvent &event)
 {
 	event.Check(m_pActive->IsShown() && m_pLayout->GetPane(m_pActive).IsShown());
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::On_Data_Source_Show(wxCommandEvent &WXUNUSED(event))
+{
+	_Bar_Toggle(m_pData_Source);
+}
+
+void CSAGA_Frame::On_Data_Source_Show_UI(wxUpdateUIEvent &event)
+{
+	event.Check(m_pData_Source->IsShown() && m_pLayout->GetPane(m_pData_Source).IsShown());
 }
 
 //---------------------------------------------------------
@@ -936,6 +954,7 @@ wxMenuBar * CSAGA_Frame::MB_Create(CVIEW_Base *pChild)
 
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_FRAME_WKSP_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_FRAME_ACTIVE_SHOW);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_FRAME_DATA_SOURCE_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_FRAME_INFO_SHOW);
 
 #ifdef __WXMSW__
@@ -1011,10 +1030,10 @@ void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position)
 	switch( Position )
 	{
 	default:
-	case 0:	m_pLayout->GetPane(pWindow).Bottom().FloatingSize(400, 200);	break;
-	case 1:	m_pLayout->GetPane(pWindow).Right ().FloatingSize(200, 400);	break;
-	case 2:	m_pLayout->GetPane(pWindow).Left  ().FloatingSize(200, 400);	break;
-	case 3:	m_pLayout->GetPane(pWindow).Top   ().FloatingSize(400, 200);	break;
+	case 0:	m_pLayout->GetPane(pWindow).Bottom().FloatingSize(400, 400);	break;
+	case 1:	m_pLayout->GetPane(pWindow).Right ().FloatingSize(400, 400);	break;
+	case 2:	m_pLayout->GetPane(pWindow).Left  ().FloatingSize(400, 400);	break;
+	case 3:	m_pLayout->GetPane(pWindow).Top   ().FloatingSize(400, 400);	break;
 	}
 }
 
@@ -1111,6 +1130,7 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_WKSP_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_ACTIVE_SHOW);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_DATA_SOURCE_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_INFO_SHOW);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);

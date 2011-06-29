@@ -72,6 +72,8 @@
 
 #include "helper.h"
 
+#include "data_source.h"
+
 #include "active.h"
 #include "active_parameters.h"
 #include "active_description.h"
@@ -210,6 +212,11 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	if( pItem == m_pItem )
 	{
 		return( true );
+	}
+
+	if( g_pData_Source )
+	{
+		g_pData_Source->Set_Data_Source(pItem);
 	}
 
 	//-----------------------------------------------------

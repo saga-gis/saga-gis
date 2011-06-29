@@ -319,6 +319,12 @@
     <ClCompile Include="wx\propgrid\props.cpp">
       <Filter>Control Extension Files\propgrid</Filter>
     </ClCompile>
+    <ClCompile Include="data_source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="data_source_files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACTIVE.h">
@@ -593,6 +599,12 @@
     </ClInclude>
     <ClInclude Include="RES\resource.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="data_source.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="data_source_files.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

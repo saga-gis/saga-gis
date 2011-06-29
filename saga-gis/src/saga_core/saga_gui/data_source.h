@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Data_Source.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    RES_Controls.h                     //
+//                    data_source.h                      //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//          Copyright (C) 2011 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,9 +42,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__RES_Controls_H
-#define _HEADER_INCLUDED__SAGA_GUI__RES_Controls_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__Data_Source_H
+#define _HEADER_INCLUDED__SAGA_GUI__Data_Source_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,11 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/wx.h>
-#include <wx/event.h>
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
+#include <wx/notebook.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -86,120 +80,34 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef __WXMSW__
-	#define NOTEBOOK_STYLE	wxNB_BOTTOM
-#else
-	#define NOTEBOOK_STYLE	wxNB_TOP
-#endif
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-enum ID_CONTROLS
+class CData_Source : public wxNotebook
 {
-	ID_WND_START				= wxID_HIGHEST,
+public:
+	CData_Source(wxWindow *pParent);
+	virtual ~CData_Source(void);
 
-	ID_WND_MAIN,
+	void							Add_Pages				(void);
 
-	ID_WND_INFO,
-	ID_WND_INFO_MESSAGES,
-	ID_WND_INFO_DESCRIPTION,
-	ID_WND_INFO_ATTRIBUTES,
+	class CData_Source_Files *		Get_Files				(void)	{	return( m_pFiles );	}
 
-	ID_WND_ACTIVE,
-	ID_WND_ACTIVE_PARAMETERS,
-	ID_WND_ACTIVE_DESCRIPTION,
-	ID_WND_ACTIVE_HISTORY,
-	ID_WND_ACTIVE_ATTRIBUTES,
-	ID_WND_ACTIVE_LEGEND,
-	ID_WND_ACTIVE_HTMLEXTRAINFO,
+	bool							Set_Data_Source			(class CWKSP_Base_Item *pItem);
 
-	ID_WND_DATA_SOURCE,
-	ID_WND_DATA_SOURCE_FILES,
-	ID_WND_DATA_SOURCE_DATABASE,
-	ID_WND_DATA_SOURCE_WEBSERVICE,
 
-	ID_WND_PARM,
-	ID_WND_PARM_PG_ACTIVE,
-	ID_WND_PARM_PG_DIALOG,
+private:
 
-	ID_WND_WKSP,
-	ID_WND_WKSP_MODULES,
-	ID_WND_WKSP_DATA,
-	ID_WND_WKSP_MAPS,
+	class CData_Source_Files		*m_pFiles;
 
-	ID_WND_PROGRESSBAR,
 
-	//-----------------------------------------------------
-	ID_VIEW_TABLE,
-	ID_VIEW_TABLE_DIAGRAM,
-	ID_VIEW_MAP,
-	ID_VIEW_MAP_3D,
-	ID_VIEW_HISTOGRAM,
-	ID_VIEW_SCATTERPLOT,
-	ID_VIEW_LAYOUT,
+	bool							_Show_Page				(wxWindow *pPage);
+	bool							_Hide_Page				(wxWindow *pPage);
 
-	//-----------------------------------------------------
-	ID_TB_MAIN,
 
-	ID_TB_VIEW_TABLE,
-	ID_TB_VIEW_TABLE_DIAGRAM,
-	ID_TB_VIEW_MAP,
-	ID_TB_VIEW_MAP_3D,
-	ID_TB_VIEW_HISTOGRAM,
-	ID_TB_VIEW_SCATTERPLOT,
-	ID_TB_VIEW_LAYOUT,
-
-	//-----------------------------------------------------
-	ID_LISTBOX_SELECT,
-	ID_LISTBOX_ADD,
-
-	ID_COMBOBOX_SELECT,
-
-	//-----------------------------------------------------
-	ID_BTN_OK,
-	ID_BTN_CANCEL,
-
-	ID_BTN_APPLY,
-	ID_BTN_RESTORE,
-
-	ID_BTN_ADD,
-	ID_BTN_ADD_ALL,
-	ID_BTN_INSERT,
-	ID_BTN_DELETE,
-	ID_BTN_DELETE_ALL,
-
-	ID_BTN_UP,
-	ID_BTN_DOWN,
-
-	ID_BTN_EXECUTE,
-
-	ID_BTN_LOAD,
-	ID_BTN_SAVE,
-
-	ID_BTN_DEFAULTS,
-
-	ID_BTN_COLORS_MIRROR,
-	ID_BTN_COLORS_INVERT,
-	ID_BTN_COLORS_RANDOM,
-	ID_BTN_COLORS_PRESET,
-	ID_BTN_COLORS_COUNT
+//---------------------------------------------------------
+DECLARE_EVENT_TABLE()
 };
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-const wxChar *	CTRL_Get_Name		(int ID_CTRL);
+extern CData_Source					*g_pData_Source;
 
 
 ///////////////////////////////////////////////////////////
@@ -209,4 +117,4 @@ const wxChar *	CTRL_Get_Name		(int ID_CTRL);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__RES_Controls_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__Data_Source_H

@@ -211,6 +211,9 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_NB_ACTIVE_LEGEND:	return( nb_active_legend_xpm );
 	case ID_IMG_NB_ACTIVE_PARAMETERS:	return( nb_active_parameters_xpm );
 	case ID_IMG_NB_ACTIVE_HTMLEXTRAINFO:	return( nb_active_htmlextrainfo_xpm );
+	case ID_IMG_NB_DATA_SOURCE_FILES:
+	case ID_IMG_NB_DATA_SOURCE_DATABASE:
+	case ID_IMG_NB_DATA_SOURCE_WEBSERVICE:	return( tb_wksp_xpm );
 	case ID_IMG_NB_INFO_ERROR:	return( nb_info_error_xpm );
 	case ID_IMG_NB_INFO_EXECUTION:	return( nb_info_execution_xpm );
 	case ID_IMG_NB_INFO_MESSAGES:	return( nb_info_messages_xpm );

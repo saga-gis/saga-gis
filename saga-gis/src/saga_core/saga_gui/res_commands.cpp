@@ -99,8 +99,9 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_FRAME_CLOSE_ALL:		return( LNG("[CMD] Close All") );
 
 	case ID_CMD_FRAME_INFO_SHOW:		return( LNG("[CMD] Show Message Window") );
-	case ID_CMD_FRAME_WKSP_SHOW:		return( LNG("[CMD] Show Workspace") );
+	case ID_CMD_FRAME_DATA_SOURCE_SHOW:	return( LNG("[CMD] Show Data Source Window") );
 	case ID_CMD_FRAME_ACTIVE_SHOW:		return( LNG("[CMD] Show Object Properties") );
+	case ID_CMD_FRAME_WKSP_SHOW:		return( LNG("[CMD] Show Workspace") );
 
 
 	//-----------------------------------------------------
@@ -308,8 +309,9 @@ int CMD_Get_ImageID(int Cmd_ID)
 	switch( Cmd_ID )
 	{
 	case ID_CMD_FRAME_WKSP_SHOW:		return( ID_IMG_TB_WKSP );
-	case ID_CMD_FRAME_INFO_SHOW:		return( ID_IMG_TB_INFO );
+	case ID_CMD_FRAME_DATA_SOURCE_SHOW:	return( ID_IMG_TB_ACTIVE );
 	case ID_CMD_FRAME_ACTIVE_SHOW:		return( ID_IMG_TB_ACTIVE );
+	case ID_CMD_FRAME_INFO_SHOW:		return( ID_IMG_TB_INFO );
 	case ID_CMD_FRAME_HELP:				return( ID_IMG_TB_HELP );
 	case ID_CMD_WKSP_OPEN:				return( ID_IMG_TB_OPEN );
 	case ID_CMD_MODULES_OPEN:			return( ID_IMG_TB_OPEN_MODULE );

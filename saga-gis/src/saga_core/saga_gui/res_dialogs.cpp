@@ -186,6 +186,24 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
+	case ID_DLG_ALLFILES_OPEN:
+		return( wxString::Format(
+			wxT("%s|*.sprj;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.dbf;*.bmp;*.gif;*.jpg;*.png;*.pcx;*.tif;*.img;*.asc;*.flt;*.bil|")
+			wxT("%s (*.sprj)|*.sprj|")
+			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
+			wxT("%s (*.shp)|*.shp|")
+			wxT("%s (*.txt, *.dbf)|*.txt;*.dbf|")
+			wxT("%s (*.spc)|*.spc|")
+			wxT("%s|*.*"),
+			LNG("Recognised Files"),
+			LNG("SAGA Projects"),
+			LNG("Grids"),
+			LNG("ESRI Shape Files"),
+			LNG("Tables"),
+			LNG("Point Clouds"),
+			LNG("All Files")
+		));
+
 	case ID_DLG_WKSP_OPEN:
 		return( wxString::Format(
 			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.dbf|")
@@ -197,7 +215,7 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 			wxT("%s (*.spc)|*.spc|")
 			wxT("%s|*.*"),
 			LNG("All Recognised Files"),
-			LNG("SAGA Project"),
+			LNG("SAGA Projects"),
 			LNG("SAGA Module Libraries"),
 			LNG("Grids"),
 			LNG("ESRI Shape Files"),

@@ -123,6 +123,8 @@ public:
 	void						On_WKSP_Show_UI				(wxUpdateUIEvent &event);
 	void						On_Active_Show				(wxCommandEvent  &event);
 	void						On_Active_Show_UI			(wxUpdateUIEvent &event);
+	void						On_Data_Source_Show			(wxCommandEvent  &event);
+	void						On_Data_Source_Show_UI		(wxUpdateUIEvent &event);
 	void						On_INFO_Show				(wxCommandEvent  &event);
 	void						On_INFO_Show_UI				(wxUpdateUIEvent &event);
 
@@ -181,9 +183,11 @@ private:
 
 	class CINFO					*m_pINFO;
 
-	class CWKSP					*m_pWKSP;
+	class CData_Source			*m_pData_Source;
 
 	class CACTIVE				*m_pActive;
+
+	class CWKSP					*m_pWKSP;
 
 	class wxAuiManager			*m_pLayout;
 
