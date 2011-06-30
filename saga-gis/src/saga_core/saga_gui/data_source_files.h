@@ -84,19 +84,12 @@
 //---------------------------------------------------------
 class CData_Source_Files : public wxGenericDirCtrl
 {
-	DECLARE_CLASS(CData_Source_Files)
-
 public:
 	CData_Source_Files(wxWindow *pParent);
 	virtual ~CData_Source_Files(void);
 
-	void						On_DblClick			(wxTreeEvent &event);
+	void						On_Activated		(wxTreeEvent &event);
 
-
-private:
-
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
 };
 
 

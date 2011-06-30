@@ -75,29 +75,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CData_Source_Files, wxGenericDirCtrl)
-
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CData_Source_Files, wxGenericDirCtrl)
-	//EVT_LEFT_DCLICK		(CData_Source_Files::On_DblClick)
-END_EVENT_TABLE()
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CData_Source_Files::CData_Source_Files(wxWindow *pParent)
-	: wxGenericDirCtrl(pParent, -1, wxDirDialogDefaultFolderStr, wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SHOW_FILTERS|wxDIRCTRL_3D_INTERNAL|wxSUNKEN_BORDER, DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN))
+	: wxGenericDirCtrl(pParent, wxID_ANY, wxDirDialogDefaultFolderStr, wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SHOW_FILTERS|wxDIRCTRL_3D_INTERNAL|wxSUNKEN_BORDER, DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN))
 {
-	Connect(
-		GetTreeCtrl()->GetId(),
-		wxEVT_COMMAND_TREE_ITEM_ACTIVATED, 
-		wxTreeEventHandler(CData_Source_Files::On_DblClick)
-	);
+	GetTreeCtrl()->SetId(wxID_ANY);
+
+	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_ACTIVATED , wxTreeEventHandler(CData_Source_Files::On_Activated));
+	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_EXPANDING , wxTreeEventHandler(wxGenericDirCtrl::OnExpandItem));
+	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_COLLAPSING, wxTreeEventHandler(wxGenericDirCtrl::OnCollapseItem));
 }
 
 //---------------------------------------------------------
@@ -112,7 +97,7 @@ CData_Source_Files::~CData_Source_Files(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CData_Source_Files::On_DblClick(wxTreeEvent &event)
+void CData_Source_Files::On_Activated(wxTreeEvent &event)
 {
 	g_pWKSP->Open(GetFilePath());
 
