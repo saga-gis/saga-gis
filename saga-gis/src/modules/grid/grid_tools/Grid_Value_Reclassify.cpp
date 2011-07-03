@@ -40,7 +40,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     reklovw@web.de                         //
+//    e-mail:     wichmann@laserdata                     //
+//                                                       //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -93,7 +99,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Reclassified Grid"),
-		_TL("Reclassifed grid."),
+		_TL("Reclassified grid."),
 		PARAMETER_OUTPUT
 	);
 
@@ -105,25 +111,20 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "SINGLE", _TL("Method single"),
-		_TL("Parameter settings for method single.")
-	);
-
 	Parameters.Add_Value(
-		pNode	, "OLD"			, _TL("old value"),
+		NULL	, "OLD"			, _TL("old value"),
 		_TL("Value to reclassify."),
 		PARAMETER_TYPE_Double, 0
 	);
 
 	Parameters.Add_Value(
-		pNode	, "NEW"			, _TL("new value"),
+		NULL	, "NEW"			, _TL("new value"),
 		_TL("New value."),
 		PARAMETER_TYPE_Double, 1
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "SOPERATOR"	, _TL("operator"),
+		NULL	, "SOPERATOR"	, _TL("operator"),
 		_TL("Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value."),
 
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
@@ -136,31 +137,26 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "RANGE"		, _TL("Method range"),
-		_TL("Parameter settings for method range.")
-	);
-
 	Parameters.Add_Value(
-		pNode	, "MIN"			, _TL("minimum value"),
+		NULL	, "MIN"			, _TL("minimum value"),
 		_TL("Minimum value of the range to be reclassified."),
 		PARAMETER_TYPE_Double, 0
 	);
 
 	Parameters.Add_Value(
-		pNode	, "MAX"			, _TL("maximum value"),
+		NULL	, "MAX"			, _TL("maximum value"),
 		_TL("Maximum value of the range to be reclassified."),
 		PARAMETER_TYPE_Double, 10
 	);
 
 	Parameters.Add_Value(
-		pNode	, "RNEW"		, _TL("new value"),
+		NULL	, "RNEW"		, _TL("new value"),
 		_TL("new value"),
 		PARAMETER_TYPE_Double, 5
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "ROPERATOR"	, _TL("operator"),
+		NULL	, "ROPERATOR"	, _TL("operator"),
 		_TL("Select operator: eg. min < value < max."),
 
 		CSG_String::Format(SG_T("%s|%s|"),
@@ -170,18 +166,13 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "TABLE"		, _TL("Method simple table"),
-		_TL("Parameter settings for method simple table.")
-	);
-
 	Parameters.Add_FixedTable(
-		pNode	, "RETAB"		, _TL("Lookup Table"),
+		NULL	, "RETAB"		, _TL("Lookup Table"),
 		_TL("Lookup table used in method \"table\"")
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "TOPERATOR"	, _TL("operator"),
+		NULL	, "TOPERATOR"	, _TL("operator"),
 		_TL("Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max)."),
 
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
@@ -193,29 +184,24 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "TABLE_2"		, _TL("Method user supplied table"),
-		_TL("Parameter settings for method user supplied table.")
-	);
-
 	pNode	= Parameters.Add_Table(
-		pNode	, "RETAB_2"		, _TL("Lookup Table"),
+		NULL	, "RETAB_2"		, _TL("Lookup Table"),
 		_TL("Lookup table used in method \"user supplied table\""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "F_MIN"		, _TL("minimum value"),
+		NULL	, "F_MIN"		, _TL("minimum value"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "F_MAX"		, _TL("maximum value"),
+		NULL	, "F_MAX"		, _TL("maximum value"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "F_CODE"		, _TL("new value"),
+		NULL	, "F_CODE"		, _TL("new value"),
 		_TL("")
 	);
 
@@ -232,7 +218,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "NODATA"		, _TL("no data values >> value"),
+		Parameters("NODATAOPT")	, "NODATA"		, _TL("new value"),
 		_TL("new value"),
 		PARAMETER_TYPE_Double, 0
 	);
@@ -244,7 +230,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "OTHERS"		, _TL("other values >> value"),
+		Parameters("OTHEROPT")	, "OTHERS"		, _TL("new value"),
 		_TL("new value"),
 		PARAMETER_TYPE_Double, 0
 	);
@@ -594,6 +580,49 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 	return (true);
 }
 
+
+//---------------------------------------------------------
+int CGrid_Value_Reclassify::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		int		Value	= pParameter->asInt();
+
+		// single
+		pParameters->Get_Parameter("OLD"		)->Set_Enabled(Value == 0);
+		pParameters->Get_Parameter("NEW"		)->Set_Enabled(Value == 0);
+		pParameters->Get_Parameter("SOPERATOR"	)->Set_Enabled(Value == 0);
+
+		// range
+		pParameters->Get_Parameter("MIN"		)->Set_Enabled(Value == 1);
+		pParameters->Get_Parameter("MAX"		)->Set_Enabled(Value == 1);
+		pParameters->Get_Parameter("RNEW"		)->Set_Enabled(Value == 1);
+		pParameters->Get_Parameter("ROPERATOR"	)->Set_Enabled(Value == 1);
+
+		// simple table
+		pParameters->Get_Parameter("RETAB"		)->Set_Enabled(Value == 2);
+		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value == 2);
+
+		// user supplied table
+		pParameters->Get_Parameter("RETAB_2"	)->Set_Enabled(Value == 3);
+		//pParameters->Get_Parameter("F_MIN"		)->Set_Enabled(Value == 3);
+		//pParameters->Get_Parameter("F_MAX"		)->Set_Enabled(Value == 3);
+		//pParameters->Get_Parameter("F_CODE"		)->Set_Enabled(Value == 3);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NODATAOPT")) )
+	{
+		pParameters->Get_Parameter("NODATA"		)->Set_Enabled(pParameter->asInt() > 0);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OTHEROPT")) )
+	{
+		pParameters->Get_Parameter("OTHERS"		)->Set_Enabled(pParameter->asInt() > 0);
+	}
+
+	//-----------------------------------------------------
+	return (1);
+}
 
 ///////////////////////////////////////////////////////////
 //														 //

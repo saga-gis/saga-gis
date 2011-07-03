@@ -40,15 +40,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     volker.wichmann@ku-eichstaett.de       //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
 //    contact:    Volker Wichmann                        //
-//                Research Associate                     //
-//                Chair of Physical Geography		     //
-//				  KU Eichstaett-Ingolstadt				 //
-//                Ostenstr. 18                           //
-//                85072 Eichstaett                       //
-//                Germany                                //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -96,6 +94,7 @@ protected:
 
 	virtual bool			On_Execute		(void);
 
+	virtual int				On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 private:
 
