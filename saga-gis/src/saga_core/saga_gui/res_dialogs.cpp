@@ -188,7 +188,7 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 	{
 	case ID_DLG_ALLFILES_OPEN:
 		return( wxString::Format(
-			wxT("%s|*.sprj;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.dbf;*.bmp;*.gif;*.jpg;*.png;*.pcx;*.tif;*.img;*.asc;*.flt;*.bil|")
+			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.dbf;*.bmp;*.gif;*.jpg;*.png;*.pcx;*.tif;*.img;*.asc;*.flt;*.bil|")
 			wxT("%s (*.sprj)|*.sprj|")
 			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
 			wxT("%s (*.shp)|*.shp|")

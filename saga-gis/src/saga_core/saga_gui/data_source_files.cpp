@@ -61,6 +61,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "wx/menu.h"
+
+#include "res_commands.h"
 #include "res_dialogs.h"
 
 #include "wksp.h"
@@ -75,33 +78,67 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+BEGIN_EVENT_TABLE(CData_Source_Files, wxGenericDirCtrl)
+	EVT_MENU			(ID_CMD_DATASOURCE_REFRESH	, CData_Source_Files::On_Refresh)
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	: wxGenericDirCtrl(pParent, wxID_ANY, wxDirDialogDefaultFolderStr, wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SHOW_FILTERS|wxDIRCTRL_3D_INTERNAL|wxSUNKEN_BORDER, DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN))
 {
-	GetTreeCtrl()->SetId(wxID_ANY);
+	GetFilterListCtrl()->SetId(wxID_ANY);
+	GetTreeCtrl      ()->SetId(wxID_ANY);
 
-	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_ACTIVATED , wxTreeEventHandler(CData_Source_Files::On_Activated));
-	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_EXPANDING , wxTreeEventHandler(wxGenericDirCtrl::OnExpandItem));
-	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_COLLAPSING, wxTreeEventHandler(wxGenericDirCtrl::OnCollapseItem));
+	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_EXPANDING , wxTreeEventHandler (wxGenericDirCtrl::OnExpandItem));
+	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_COLLAPSING, wxTreeEventHandler (wxGenericDirCtrl::OnCollapseItem));
+
+	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_ACTIVATED , wxTreeEventHandler (CData_Source_Files::On_TreeEvent));
+	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_MENU      , wxTreeEventHandler (CData_Source_Files::On_TreeEvent));
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CData_Source_Files::On_TreeEvent(wxTreeEvent &event)
+{
+	//-----------------------------------------------------
+	if     ( event.GetEventType() == wxEVT_COMMAND_TREE_ITEM_ACTIVATED )
+	{
+		g_pWKSP->Open(GetFilePath());
+	}
+
+	//-----------------------------------------------------
+	else if( event.GetEventType() == wxEVT_COMMAND_TREE_ITEM_MENU )
+	{
+		wxMenu	Menu;
+
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATASOURCE_REFRESH);
+
+		PopupMenu(&Menu);
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	event.Skip();
 }
 
 //---------------------------------------------------------
-CData_Source_Files::~CData_Source_Files(void)
-{}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CData_Source_Files::On_Activated(wxTreeEvent &event)
+void CData_Source_Files::On_Refresh(wxCommandEvent &WXUNUSED(event))
 {
-	g_pWKSP->Open(GetFilePath());
-
-	event.Skip();
+	ReCreateTree();
 }
 
 
