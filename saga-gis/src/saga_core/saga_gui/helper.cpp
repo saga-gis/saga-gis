@@ -672,12 +672,16 @@ bool		Open_Application(const wxChar *Reference, const wxChar *Mime_Extension)
 
 	if( Reference && Reference[0] )
 	{
-		wxString	Extension;
+		wxString	Extension, sReference(Reference);
 		wxFileType	*pFileType;
 
 		if( Mime_Extension && Mime_Extension[0] )
 		{
 			Extension	= Mime_Extension;
+		}
+		else if( sReference.Find(SG_T("ftp:")) == 0 || sReference.Find(SG_T("http:")) == 0 || sReference.Find(SG_T("https:")) == 0 )
+		{
+			Extension	= wxT("html");
 		}
 		else
 		{
