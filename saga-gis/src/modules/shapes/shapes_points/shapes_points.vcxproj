@@ -591,6 +591,7 @@
     <ClCompile Include="remove_duplicates.cpp" />
     <ClCompile Include="select_points.cpp" />
     <ClCompile Include="separate_by_direction.cpp" />
+    <ClCompile Include="thiessen_polygons.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -626,6 +627,7 @@
     <ClInclude Include="remove_duplicates.h" />
     <ClInclude Include="select_points.h" />
     <ClInclude Include="separate_by_direction.h" />
+    <ClInclude Include="thiessen_polygons.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

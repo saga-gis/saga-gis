@@ -62,6 +62,9 @@
     <ClCompile Include="points_thinning.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="thiessen_polygons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -161,6 +164,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="points_thinning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thiessen_polygons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

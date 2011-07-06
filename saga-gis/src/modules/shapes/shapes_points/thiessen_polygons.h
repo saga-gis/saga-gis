@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: thiessen_polygons.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  thiessen_polygons.h                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,11 +40,12 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     volaya@ya.com                          //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Victor Olaya Ferrero                   //
-//                Madrid                                 //
-//                Spain                                  //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -53,90 +54,36 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__thiessen_polygons_H
+#define HEADER_INCLUDED__thiessen_polygons_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CThiessen_Polygons : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Points") );
-
-	case MLB_INFO_Author:
-		return( _TL("Various Authors") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the manipulation of point vector data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Points") );
-	}
-}
+public:
+	CThiessen_Polygons(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Points_From_Table.h"
-#include "Points_From_Lines.h"
-#include "CountPoints.h"
-#include "CreatePointGrid.h"
-#include "DistanceMatrix.h"
-#include "FitNPointsToShape.h"
-#include "AddCoordinates.h"
-#include "remove_duplicates.h"
-#include "Clip_Points.h"
-#include "separate_by_direction.h"
-#include "add_polygon_attributes.h"
-#include "points_filter.h"
-#include "convex_hull.h"
-#include "select_points.h"
-#include "points_thinning.h"
-#include "thiessen_polygons.h"
+	virtual bool				On_Execute		(void);
 
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPoints_From_Table );
-	case  1:	return( new CCountPoints );
-	case  2:	return( new CCreatePointGrid );
-	case  3:	return( new CDistanceMatrix );
-	case  4:	return( new CFitNPointsToShape );
-	case  5:	return( new CPoints_From_Lines );
-	case  6:	return( new CAddCoordinates );
-	case  7:	return( new CRemove_Duplicates );
-	case  8:	return( new CClip_Points );
-	case  9:	return( new CSeparate_by_Direction );
-	case 10:	return( new CAdd_Polygon_Attributes );
-	case 11:	return( new CPoints_Filter );
-	case 12:	return( new CConvex_Hull );
-	case 13:	return( new CSelect_Points );
-	case 14:	return( new CPoints_Thinning );
-	case 15:	return( new CPoints_From_MultiPoints );
-	case 16:	return( new CThiessen_Polygons );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -146,8 +93,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__thiessen_polygons_H
