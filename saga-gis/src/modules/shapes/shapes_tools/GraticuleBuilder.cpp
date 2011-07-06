@@ -20,153 +20,206 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "GraticuleBuilder.h"
 
 
-CGraticuleBuilder::CGraticuleBuilder(void){
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-	Parameters.Set_Name(_TL("Create graticule"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. "));
+//---------------------------------------------------------
+CGraticuleBuilder::CGraticuleBuilder(void)
+{
+	Set_Name		(_TL("Create Graticule"));
 
-	Parameters.Add_Shapes(NULL, 
-						"LINES", 
-						_TL("Graticule"), 
-						_TL(""), 
-						PARAMETER_OUTPUT);
+	Set_Author		(SG_T("V.Olaya (c) 2004"));
 
-	Parameters.Add_Shapes(NULL, 
-						"LIMIT_SHAPES", 
-						_TL("Boundaries"), 
-						_TL(""), 
-						PARAMETER_INPUT_OPTIONAL);
+	Set_Description	(_TW(
+		"(c) 2004 by Victor Olaya. "
+	));
 
+	Parameters.Add_Shapes(
+		NULL	, "GRATICULE"	, _TL("Graticule"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "EXTENT"		, _TL("Extent"), 
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
 				
-	Parameters.Add_Range(NULL, 
-							"X_EXTENT", 
-							_TL("Width"),
-							_TL(""));
+	Parameters.Add_Range(
+		NULL	, "X_EXTENT"	, _TL("Width"),
+		_TL(""),
+		-180.0, 180.0
+	);
 
-	Parameters.Add_Range(NULL, 
-							"Y_EXTENT", 
-							_TL("Height"),
-							_TL(""));
+	Parameters.Add_Range(
+		NULL	, "Y_EXTENT"	, _TL("Height"),
+		_TL(""),
+		-90.0, 90.0
+	);
 
-	Parameters.Add_Value(NULL, 
-						"DISTX", 
-						_TL("Distance X"), 
-						_TL(""), 
-						PARAMETER_TYPE_Double, 
-						100);
+	Parameters.Add_Value(
+		NULL	, "DISTX"		, _TL("Division Width"),
+		_TL(""), 
+		PARAMETER_TYPE_Double, 10
+	);
 
-	Parameters.Add_Value(NULL, 
-						"DISTY", 
-						_TL("Distance Y"), 
-						_TL(""), 
-						PARAMETER_TYPE_Double, 
-						100);
+	Parameters.Add_Value(
+		NULL	, "DISTY"		, _TL("Division Height"),
+		_TL(""), 
+		PARAMETER_TYPE_Double, 10
+	);
 
-	Parameters.Add_Choice(NULL, 
-						"TYPE", 
-						_TL("Graticule type"), 
-						_TL(""), 
-						_TW("Lines|"
-						"Rectangles|"),									
-						0);
+	Parameters.Add_Choice(
+		NULL	, "TYPE"		, _TL("Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Lines"),
+			_TL("Rectangles")
+		), 0
+	);
+}
 
-}//constructor
-
-
+//---------------------------------------------------------
 CGraticuleBuilder::~CGraticuleBuilder(void)
 {}
 
 
-bool CGraticuleBuilder::On_Execute(void){
-	
-	CSG_Shape *pShape;
-	CSG_Shapes *pLimit;
-	double x,y;
-	double dXMin;
-	double dYMin;
-	double dXMax;
-	double dYMax;
-	
-	pLimit = Parameters("LIMIT_SHAPES")->asShapes();
-	
-	if (pLimit == NULL){
-		dXMin	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_LoVal();
-		dYMin	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_LoVal();
-		dXMax	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_HiVal();
-		dYMax	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_HiVal();
-	}//if
-	else{
-		dXMin = pLimit->Get_Extent().Get_XMin();
-		dXMax = pLimit->Get_Extent().Get_XMax();
-		dYMin = pLimit->Get_Extent().Get_YMin();
-		dYMax = pLimit->Get_Extent().Get_YMax();
-	}//else
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-	int iElement = 0;
-	int iType = Parameters("TYPE")->asInt();
-
-	double dDistanceX = Parameters("DISTX")->asDouble();
-	double dDistanceY = Parameters("DISTY")->asDouble();
+//---------------------------------------------------------
+bool CGraticuleBuilder::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Rect	Extent;
 	
-	if (dDistanceX<=0 || dDistanceY<=0){
-		return false;
-	}//if
-
-	CSG_Shapes *pGraticule = Parameters("LINES")->asShapes();
-	
-	if (iType == 0)
+	if( Parameters("EXTENT")->asShapes() )
 	{
-		pGraticule->Create(SHAPE_TYPE_Line, _TL("Graticule"));
-		pGraticule->Add_Field("ID", SG_DATATYPE_Int);
-
-		for (x=dXMin; x<=dXMax; x=x+dDistanceX)
-		{
-			pShape = pGraticule->Add_Shape();
-			pShape->Set_Value(0,iElement++);
-
-			for (y=dYMin; y<=dYMax; y=y+dDistanceY)
-			{
-				pShape->Add_Point(x,y);
-				pShape->Add_Point(x,y);
-			}
-		}//for
-
-		for (y=dYMin; y<=dYMax; y=y+dDistanceY)
-		{
-			pShape = pGraticule->Add_Shape();
-			pShape->Set_Value(0,iElement++);
-
-			for (x=dXMin; x<=dXMax; x=x+dDistanceX)
-			{
-				pShape->Add_Point(x,y);
-				pShape->Add_Point(x,y);
-			}
-		}//for
-	}//if
+		Extent.Assign(Parameters("EXTENT")->asShapes()->Get_Extent());
+	}
 	else
 	{
-		pGraticule->Create(SHAPE_TYPE_Polygon, _TL("Graticule"));
-		pGraticule->Add_Field("ID", SG_DATATYPE_Int);
+		Extent.Assign(
+			Parameters("X_EXTENT")->asRange()->Get_LoVal(),
+			Parameters("Y_EXTENT")->asRange()->Get_LoVal(),
+			Parameters("X_EXTENT")->asRange()->Get_HiVal(),
+			Parameters("Y_EXTENT")->asRange()->Get_HiVal()
+		);
+	}
 
-		for (x=dXMin; x<=dXMax-dDistanceX; x=x+dDistanceX)
+	//-----------------------------------------------------
+	int			id	= 0, row, col;
+	double		x, y, dx, dy;
+	CSG_Shapes	*pGraticule;
+
+	pGraticule	= Parameters("GRATICULE")	->asShapes();
+	dx			= Parameters("DISTX")		->asDouble();
+	dy			= Parameters("DISTY")		->asDouble();
+
+	//-----------------------------------------------------
+	if( dx <= 0.0 || dx > Extent.Get_XRange() || dy <= 0.0 || dy > Extent.Get_YRange() )
+	{
+		Error_Set(_TL("invalid division size"));
+
+		return( false );
+	}
+
+	switch( Parameters("TYPE")->asInt() )
+	{
+	//-----------------------------------------------------
+	case 0:	// Lines
 		{
-			for (y=dYMin; y<=dYMax-dDistanceY; y=y+dDistanceY)
+			pGraticule->Create(SHAPE_TYPE_Line, _TL("Graticule"));
+
+			pGraticule->Add_Field("ID", SG_DATATYPE_Int);
+
+			for(x=Extent.Get_XMin(); x<=Extent.Get_XMax(); x+=dx)
 			{
-				pShape = pGraticule->Add_Shape();
-				pShape->Set_Value(0,iElement++);
+				CSG_Shape	*pShape	= pGraticule->Add_Shape();
 
-				pShape->Add_Point(x,y);
-				pShape->Add_Point(x,y+dDistanceY);		
-				pShape->Add_Point(x+dDistanceX,y+dDistanceY);
-				pShape->Add_Point(x+dDistanceX,y);		
+				pShape->Set_Value(0, ++id);
+
+				for(y=Extent.Get_YMin(); y<=Extent.Get_YMax(); y+=dy)
+				{
+					pShape->Add_Point(x,y);
+					pShape->Add_Point(x,y);
+				}
 			}//for
-		}//for		
-	}//else
 
-	return true;
+			for(y=Extent.Get_YMin(); y<=Extent.Get_YMax(); y+=dy)
+			{
+				CSG_Shape	*pShape	= pGraticule->Add_Shape();
 
-}//method
+				pShape->Set_Value(0, ++id);
+
+				for(x=Extent.Get_XMin(); x<=Extent.Get_XMax(); x+=dx)
+				{
+					pShape->Add_Point(x,y);
+					pShape->Add_Point(x,y);
+				}
+			}//for
+		}
+		break;
+
+	//-----------------------------------------------------
+	case 1:	// Rectangles
+		{
+			pGraticule->Create(SHAPE_TYPE_Polygon, _TL("Graticule"));
+
+			pGraticule->Add_Field("ID" , SG_DATATYPE_Int);
+			pGraticule->Add_Field("ROW", SG_DATATYPE_Int);
+			pGraticule->Add_Field("COL", SG_DATATYPE_Int);
+		//	pGraticule->Add_Field("LNK", SG_DATATYPE_String);
+
+			for(x=Extent.Get_XMin(), row=1; x<Extent.Get_XMax(); x+=dx, row++)
+			{
+				for(y=Extent.Get_YMax(), col=1; y>Extent.Get_YMin(); y-=dy, col++)
+				{
+					CSG_Shape	*pShape	= pGraticule->Add_Shape();
+
+					pShape->Set_Value(0, ++id);
+					pShape->Set_Value(1, row);
+					pShape->Set_Value(2, col);
+		//			pShape->Set_Value(3, CSG_String::Format(SG_T("ftp://xftp.jrc.it/pub/srtmV4/tiff/srtm_%02d_%02d.zip"), row, col));
+
+					pShape->Add_Point(x     , y     );
+					pShape->Add_Point(x     , y - dy);
+					pShape->Add_Point(x + dx, y - dy);
+					pShape->Add_Point(x + dx, y     );
+					pShape->Add_Point(x     , y     );
+				}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
