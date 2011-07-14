@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CInterpolation_Triangulation : public CInterpolation  
+class grid_gridding_EXPORT CInterpolation_Triangulation : public CInterpolation  
 {
 public:
 	CInterpolation_Triangulation(void);

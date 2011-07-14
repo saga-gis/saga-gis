@@ -99,7 +99,7 @@ Data_Point;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CInterpolation_Shepard : public CInterpolation  
+class grid_gridding_EXPORT CInterpolation_Shepard : public CInterpolation  
 {
 public:
 	CInterpolation_Shepard(void);

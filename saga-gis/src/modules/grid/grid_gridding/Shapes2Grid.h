@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes2Grid : public CSG_Module  
+class grid_gridding_EXPORT CShapes2Grid : public CSG_Module  
 {
 public:
 	CShapes2Grid(void);

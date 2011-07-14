@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CKernel_Density : public CSG_Module  
+class grid_gridding_EXPORT CKernel_Density : public CSG_Module  
 {
 public:
 	CKernel_Density(void);

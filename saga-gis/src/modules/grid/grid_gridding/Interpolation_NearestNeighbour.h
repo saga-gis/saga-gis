@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CInterpolation_NearestNeighbour : public CInterpolation  
+class grid_gridding_EXPORT CInterpolation_NearestNeighbour : public CInterpolation  
 {
 public:
 	CInterpolation_NearestNeighbour(void);

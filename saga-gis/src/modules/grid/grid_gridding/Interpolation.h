@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CInterpolation : public CSG_Module
+class grid_gridding_EXPORT CInterpolation : public CSG_Module
 {
 public:
 	CInterpolation(void);
