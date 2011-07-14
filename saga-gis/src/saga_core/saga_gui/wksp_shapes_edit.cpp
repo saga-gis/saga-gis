@@ -431,7 +431,7 @@ bool CWKSP_Shapes::_Edit_Shape_Start(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Edit_Shape_Stop(void)
 {
-	return( _Edit_Shape_Stop(DLG_Message_Confirm(LNG("[DLG] Save changes?"), LNG("[CAP] Edit Shapes"))) );
+	return( _Edit_Shape_Stop(DLG_Message_Confirm(LNG("[DLG] Apply changes?"), LNG("[CAP] Edit Shapes"))) );
 }
 
 bool CWKSP_Shapes::_Edit_Shape_Stop(bool bSave)
