@@ -273,7 +273,7 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 			LNG("last value"),
 			LNG("lowest z"),
 			LNG("highest z")
-		), 1
+		), 3
 	);
 
 	//-----------------------------------------------------
