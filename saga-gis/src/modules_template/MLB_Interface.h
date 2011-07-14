@@ -66,10 +66,10 @@
 #include <saga_api/saga_api.h>
 
 //---------------------------------------------------------
-#ifdef My_Module_EXPORTS
-	#define	My_Module_EXPORT	_SAGA_DLL_EXPORT
+#ifdef Template_EXPORTS
+	#define	Template_EXPORT	_SAGA_DLL_EXPORT
 #else
-	#define	My_Module_EXPORT	_SAGA_DLL_IMPORT
+	#define	Template_EXPORT	_SAGA_DLL_IMPORT
 #endif
 
 
