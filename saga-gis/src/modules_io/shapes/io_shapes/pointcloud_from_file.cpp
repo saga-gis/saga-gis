@@ -72,12 +72,12 @@
 CPointCloud_From_File::CPointCloud_From_File(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Import Point Cloud from File"));
+	Set_Name		(_TL("Import Point Cloud from Shape File"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2009"));
 
 	Set_Description	(_TW(
-		""
+		"Allows to import a point cloud from a point shapefile."
 	));
 
 	//-----------------------------------------------------
