@@ -240,7 +240,7 @@ bool CLAS_Import::On_Execute(void)
 	ADD_FIELD("e", VAR_e, _TL("edge of flight line flag")			, SG_DATATYPE_Char);
 	ADD_FIELD("d", VAR_d, _TL("direction of scan flag")				, SG_DATATYPE_Char);
 	ADD_FIELD("p", VAR_p, _TL("point source ID")					, SG_DATATYPE_Int);		// SG_DATATYPE_Word
-	ADD_FIELD("C", VAR_C, _TL("rgb color")							, SG_DATATYPE_Long);
+	ADD_FIELD("C", VAR_C, _TL("rgb color")							, SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
 	int		iPoint	= 0;
