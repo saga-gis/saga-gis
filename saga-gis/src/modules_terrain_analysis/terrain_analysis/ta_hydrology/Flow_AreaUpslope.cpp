@@ -473,15 +473,28 @@ CFlow_AreaUpslope_Area::CFlow_AreaUpslope_Area(void)
 	Set_Name		(_TL("Upslope Area"));
 	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
-	Set_Description	(CSG_String::Format(SG_T("%s_______\n%s"), m_Calculator.Get_Description().c_str(),
-		_TL("This version uses all valid cells (not \'no data\' values) of given target grid to determine the contributing area.")
+	Set_Description	(CSG_String::Format(SG_T("%s_______\n\n%s"), m_Calculator.Get_Description().c_str(),
+		_TW("This version uses all valid cells (not \'no data\' values) of a given target grid to determine the contributing area. "
+			"In case no target grid is provided as input, the specified x/y coordinates are used as target point.")
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "TARGET"		, _TL("Target Area"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Value(
+		NULL	, "TARGET_PT_X"	, _TL("Target X coordinate"),
+		_TL("The x-coordinate of the target point in world coordinates [map units]"),
+		PARAMETER_TYPE_Double, 0.0
+	);
+
+	Parameters.Add_Value(
+		NULL	, "TARGET_PT_Y"	, _TL("Target Y coordinate"),
+		_TL("The y-coordinate of the target point in world coordinates [map units]"),
+		PARAMETER_TYPE_Double, 0.0
 	);
 
 	Parameters.Add_Grid(
@@ -537,14 +550,30 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 			int		x, y;
 			CSG_Grid	*pTarget	= Parameters("TARGET")->asGrid();
 
-			for(y=0; y<Get_NY() && Set_Progress(y); y++)
+			if( pTarget != NULL )
 			{
-				for(x=0; x<Get_NX(); x++)
+				for(y=0; y<Get_NY() && Set_Progress(y); y++)
 				{
-					if( !pTarget->is_NoData(x, y) && m_Calculator.Add_Target(x, y) )
+					for(x=0; x<Get_NX(); x++)
 					{
-						bResult	= true;
+						if( !pTarget->is_NoData(x, y) && m_Calculator.Add_Target(x, y) )
+						{
+							bResult	= true;
+						}
 					}
+				}
+			}
+			else
+			{
+				Parameters("ELEVATION")->asGrid()->Get_System().Get_World_to_Grid(x, y, Parameters("TARGET_PT_X")->asDouble(), Parameters("TARGET_PT_Y")->asDouble());
+
+				if( m_Calculator.Add_Target(x, y) )
+				{
+					bResult	= true;
+				}
+				else
+				{
+					SG_UI_Msg_Add_Error(_TL("Coordinates of target point outside of DEM!"));
 				}
 			}
 
