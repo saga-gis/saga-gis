@@ -85,15 +85,15 @@ CHugget_01::CHugget_01(void)
 
 		"\nTypical values:\n"
 		"\n- Tropical Rainforest:\n"
-		"-- Litter fall rate: 500 [g/m²/a]\n"
+		"-- Litter fall rate: 500 [g/m<sup>2</sup>/a]\n"
 		"-- Litter loss rate: 2.0 [1/a]\n"
 
 		"\n- Temperate forest:\n"
-		"-- Litter fall rate: 240 [g/m²/a]\n"
+		"-- Litter fall rate: 240 [g/m<sup>2</sup>/a]\n"
 		"-- Litter loss rate: 0.4 [1/a]\n"
 
 		"\n- Boreal forest:\n"
-		"-- Litter fall rate: 50 [g/m²/a]\n"
+		"-- Litter fall rate: 50 [g/m<sup>2</sup>/a]\n"
 		"-- Litter loss rate: 0.05 [1/a]\n"
 
 		"\nReference:"
@@ -120,13 +120,13 @@ CHugget_01::CHugget_01(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "C_INIT"		, _TL("Initial Litter Storage [g/m\xc2\xb2]"),
+		NULL	, "C_INIT"		, _TL("Initial Litter Storage [g/m\xb2]"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 0.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
-		NULL	, "C_INPUT"		, _TL("Litterfall Rate [g/m\xc2\xb2/a]"),
+		NULL	, "C_INPUT"		, _TL("Litterfall Rate [g/m\xb2/a]"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 240.0, 0.0, true
 	);
