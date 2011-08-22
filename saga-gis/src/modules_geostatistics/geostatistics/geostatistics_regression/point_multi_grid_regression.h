@@ -88,9 +88,13 @@ protected:
 
 private:
 
-	bool						m_bCoords;
+	bool						m_bCoord_X, m_bCoord_Y, m_bSignif_Adj;
 
 	int							m_Interpolation;
+
+	double						m_Significance;
+
+	TSG_Regression_Correction	m_Correction;
 
 	CSG_Regression_Multiple		m_Regression;
 

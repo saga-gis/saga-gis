@@ -63,10 +63,62 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <memory.h>
-
 #include "mat_tools.h"
 #include "table.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double SG_Regression_Get_Adjusted_R2(double r2, int n, int p, TSG_Regression_Correction Correction)
+{
+	double	r	= 1.0 - r2;
+
+	switch( Correction )
+	{
+	case REGRESSION_CORR_None: default:
+		return( r2 );
+
+	case REGRESSION_CORR_Smith:
+		r2	= 1.0 - ((n      ) / (n - p      )) * r;
+		break;
+
+	case REGRESSION_CORR_Wherry_1:
+		r2	= 1.0 - ((n - 1.0) / (n - p - 1.0)) * r;
+		break;
+
+	case REGRESSION_CORR_Wherry_2:
+		r2	= 1.0 - ((n - 1.0) / (n - p      )) * r;
+		break;
+
+	case REGRESSION_CORR_Olkin_Pratt:
+	//	r2	= 1.0 - ((n - 3.0) / (n - p - 2.0)) * (r + (2.0 / (n - p)) * r*r);
+		r2	= 1.0 - ((n - 3.0) * r / (n - p - 1.0)) * (1.0 + (2.0 * r) / (n - p + 1.0));
+		break;
+
+	case REGRESSION_CORR_Pratt:
+		r2	= 1.0 - ((n - 3.0) * r / (n - p - 1.0)) * (1.0 + (2.0 * r) / (n - p - 2.3));
+		break;
+
+	case REGRESSION_CORR_Claudy_3:
+		r2	= 1.0 - ((n - 4.0) * r / (n - p - 1.0)) * (1.0 + (2.0 * r) / (n - p + 1.0));
+		break;
+	}
+
+	return( r2 < 0.0 ? 0.0 : r2 > 1.0 ? 1.0 : r2 );
+}
+
+//---------------------------------------------------------
+double SG_Regression_Get_Significance(double R2, int nSamples, int nPredictors, TSG_Regression_Correction Correction)
+{
+	double	F	= (R2 / nPredictors) / ((1.0 - R2) / (nSamples - nPredictors - 1));
+
+	return( CSG_Test_Distribution::Get_F_Tail(F, nPredictors, nSamples - nPredictors - 1, TESTDIST_TYPE_Left) );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -82,7 +134,8 @@ enum ESG_Regression_Fields
 	MRFIELD_NAME,
 	MRFIELD_RCOEFF,
 	MRFIELD_DCOEFF,
-	MRFIELD_ORDER
+	MRFIELD_ORDER,
+	MRFIELD_SIGNIF
 };
 
 
@@ -152,6 +205,8 @@ bool CSG_Regression_Multiple::Calculate(const CSG_Table &Values)
 		_Get_Correlation(Values);
 
 		m_pResult->Set_Index(MRFIELD_ORDER, TABLE_INDEX_Ascending);
+
+		m_nSamples	= nValues;
 
 		return( true );
 	}
@@ -356,24 +411,13 @@ bool CSG_Regression_Multiple::_Eliminate(int nValues, double *X, double *Y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Regression_Multiple::Get_Count(void)
+int CSG_Regression_Multiple::Get_Count(void) const
 {
 	return( m_pResult->Get_Count() - 1 );
 }
 
 //---------------------------------------------------------
-double CSG_Regression_Multiple::Get_RConst(void)
-{
-	if( Get_Count() > 0 )
-	{
-		return( m_pResult->Get_Record(0)->asDouble(MRFIELD_RCOEFF) );
-	}
-
-	return( -1.0 );
-}
-
-//---------------------------------------------------------
-int CSG_Regression_Multiple::Get_Index(int iVariable)
+int CSG_Regression_Multiple::Get_Index(int iVariable) const
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
@@ -384,7 +428,7 @@ int CSG_Regression_Multiple::Get_Index(int iVariable)
 }
 
 //---------------------------------------------------------
-int CSG_Regression_Multiple::Get_Order(int iVariable)
+int CSG_Regression_Multiple::Get_Order(int iVariable) const
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
@@ -395,7 +439,31 @@ int CSG_Regression_Multiple::Get_Order(int iVariable)
 }
 
 //---------------------------------------------------------
-double CSG_Regression_Multiple::Get_RCoeff(int iVariable, bool bOrdered)
+const SG_Char * CSG_Regression_Multiple::Get_Name(int iVariable, bool bOrdered) const
+{
+	if( iVariable >= 0 && iVariable < Get_Count() )
+	{
+		iVariable	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
+
+		return( m_pResult->Get_Record(iVariable)->asString(MRFIELD_NAME) );
+	}
+
+	return( SG_T("") );
+}
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_RConst(void) const
+{
+	if( Get_Count() > 0 )
+	{
+		return( m_pResult->Get_Record(0)->asDouble(MRFIELD_RCOEFF) );
+	}
+
+	return( -1.0 );
+}
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_RCoeff(int iVariable, bool bOrdered) const
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
@@ -408,20 +476,25 @@ double CSG_Regression_Multiple::Get_RCoeff(int iVariable, bool bOrdered)
 }
 
 //---------------------------------------------------------
-double CSG_Regression_Multiple::Get_R2(int iVariable, bool bOrdered)
+double CSG_Regression_Multiple::Get_R2(int iVariable, bool bOrdered, TSG_Regression_Correction Correction) const
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		iVariable	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
+		int	iIndex	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
 
-		return( m_pResult->Get_Record(iVariable)->asDouble(MRFIELD_DCOEFF) );
+		return( SG_Regression_Get_Adjusted_R2(
+			m_pResult->Get_Record(iIndex)->asDouble(MRFIELD_DCOEFF),
+			m_nSamples,		
+			Get_Order(iIndex - 1) + 1,
+			Correction
+		));
 	}
 
 	return( -1.0 );
 }
 
 //---------------------------------------------------------
-double CSG_Regression_Multiple::Get_R2_Change(int iVariable, bool bOrdered)
+double CSG_Regression_Multiple::Get_R2_Partial(int iVariable, bool bOrdered, TSG_Regression_Correction Correction) const
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
@@ -430,30 +503,49 @@ double CSG_Regression_Multiple::Get_R2_Change(int iVariable, bool bOrdered)
 			iVariable	= Get_Order(iVariable);
 		}
 
-		if( iVariable == 0 )
+		double	r2	= Get_R2(iVariable, true, REGRESSION_CORR_None);
+
+		if( iVariable > 0 )
 		{
-			return( Get_R2(iVariable, true) );
+			r2	-= Get_R2(iVariable - 1, true, REGRESSION_CORR_None);
 		}
-		else if( iVariable > 0 )
-		{
-			return( Get_R2(iVariable, true) - Get_R2(iVariable - 1, true) );
-		}
+
+		return( SG_Regression_Get_Adjusted_R2(r2, m_nSamples, iVariable + 1, Correction) );
 	}
 
 	return( -1.0 );
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Regression_Multiple::Get_Name(int iVariable, bool bOrdered)
+double CSG_Regression_Multiple::Get_Signif(int iVariable, bool bOrdered, TSG_Regression_Correction Correction) const
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		iVariable	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
+		if( !bOrdered )
+		{
+			iVariable	= Get_Order(iVariable);
+		}
 
-		return( m_pResult->Get_Record(iVariable)->asString(MRFIELD_NAME) );
+		return( SG_Regression_Get_Significance(Get_R2(iVariable, true, Correction), m_nSamples, 1 + iVariable) );
 	}
 
-	return( SG_T("") );
+	return( -1.0 );
+}
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_Signif_Partial(int iVariable, bool bOrdered, TSG_Regression_Correction Correction) const
+{
+	if( iVariable >= 0 && iVariable < Get_Count() )
+	{
+		if( !bOrdered )
+		{
+			iVariable	= Get_Order(iVariable);
+		}
+
+		return( SG_Regression_Get_Significance(Get_R2_Partial(iVariable, true, Correction), m_nSamples, 1 + iVariable) );
+	}
+
+	return( -1.0 );
 }
 
 

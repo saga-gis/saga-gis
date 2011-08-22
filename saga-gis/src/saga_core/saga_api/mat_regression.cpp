@@ -180,7 +180,7 @@ const SG_Char * CSG_Regression::asString(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Regression::Get_x(double y)
+double CSG_Regression::Get_x(double y)	const
 {
 	if( m_nValues > 0.0 )
 	{
@@ -216,7 +216,7 @@ double CSG_Regression::Get_x(double y)
 }
 
 //---------------------------------------------------------
-double CSG_Regression::Get_y(double x)
+double CSG_Regression::Get_y(double x)	const
 {
 	if( m_nValues > 0.0 )
 	{
