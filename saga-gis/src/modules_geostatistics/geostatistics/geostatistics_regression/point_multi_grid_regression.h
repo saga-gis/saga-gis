@@ -99,10 +99,12 @@ private:
 	CSG_Regression_Multiple		m_Regression;
 
 
-	bool						Get_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute);
-	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression);
+	bool						Get_Regression		(CSG_Grid **ppGrids, int nGrids, CSG_Shapes *pShapes, int iAttribute);
+	bool						Set_Regression		(CSG_Grid **ppGrids, int nGrids, CSG_Grid *pRegression, const CSG_String &Name);
 	bool						Set_Residuals		(CSG_Shapes *pShapes, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
-	void						Set_Message			(void);
+
+	void						Msg_Correlation		(void);
+	void						Msg_Regression		(void);
 
 };
 

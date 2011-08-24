@@ -115,6 +115,8 @@ double SG_Regression_Get_Adjusted_R2(double r2, int n, int p, TSG_Regression_Cor
 //---------------------------------------------------------
 double SG_Regression_Get_Significance(double R2, int nSamples, int nPredictors, TSG_Regression_Correction Correction)
 {
+			R2	= SG_Regression_Get_Adjusted_R2(R2, nSamples, nPredictors, Correction);
+
 	double	F	= (R2 / nPredictors) / ((1.0 - R2) / (nSamples - nPredictors - 1));
 
 	return( CSG_Test_Distribution::Get_F_Tail(F, nPredictors, nSamples - nPredictors - 1, TESTDIST_TYPE_Left) );
@@ -130,12 +132,16 @@ double SG_Regression_Get_Significance(double R2, int nSamples, int nPredictors, 
 //---------------------------------------------------------
 enum ESG_Regression_Fields
 {
-	MRFIELD_NR	= 0,
-	MRFIELD_NAME,
-	MRFIELD_RCOEFF,
-	MRFIELD_DCOEFF,
+	MRFIELD_ID	= 0,
 	MRFIELD_ORDER,
-	MRFIELD_SIGNIF
+	MRFIELD_VAR,
+	MRFIELD_RCOEFF,
+	MRFIELD_R2_TOT,
+	MRFIELD_R2_TOT_ADJ,
+	MRFIELD_R2_VAR,
+	MRFIELD_R2_VAR_ADJ,
+	MRFIELD_SIGNIF,
+	MRFIELD_SIGNIF_ADJ
 };
 
 
@@ -150,11 +156,16 @@ CSG_Regression_Multiple::CSG_Regression_Multiple(void)
 {
 	m_pResult	= new CSG_Table;
 
-	m_pResult->Add_Field("Field"				, SG_DATATYPE_Int);
-	m_pResult->Add_Field("Variable"				, SG_DATATYPE_String);
-	m_pResult->Add_Field("Regression Coeff."	, SG_DATATYPE_Double);
-	m_pResult->Add_Field("Determination Coeff."	, SG_DATATYPE_Double);
-	m_pResult->Add_Field("Order"				, SG_DATATYPE_Int);
+	m_pResult->Add_Field("ID"			, SG_DATATYPE_Int);
+	m_pResult->Add_Field("ORDER"		, SG_DATATYPE_Int);
+	m_pResult->Add_Field("VARIABLE"		, SG_DATATYPE_String);
+	m_pResult->Add_Field("REGCOEFF"		, SG_DATATYPE_Double);
+	m_pResult->Add_Field("R2_TOTAL"		, SG_DATATYPE_Double);
+	m_pResult->Add_Field("R2_TOTAL_ADJ"	, SG_DATATYPE_Double);
+	m_pResult->Add_Field("R2"			, SG_DATATYPE_Double);
+	m_pResult->Add_Field("R2_ADJ."		, SG_DATATYPE_Double);
+	m_pResult->Add_Field("SIGNIF"		, SG_DATATYPE_Double);
+	m_pResult->Add_Field("SIGNIF_ADJ"	, SG_DATATYPE_Double);
 }
 
 //---------------------------------------------------------
@@ -197,8 +208,8 @@ bool CSG_Regression_Multiple::Calculate(const CSG_Table &Values)
 		{
 			CSG_Table_Record	*pRecord	= m_pResult->Add_Record();
 
-			pRecord->Set_Value(MRFIELD_NR	, i);
-			pRecord->Set_Value(MRFIELD_NAME	, Values.Get_Field_Name(i));
+			pRecord->Set_Value(MRFIELD_ID	, i);
+			pRecord->Set_Value(MRFIELD_VAR	, Values.Get_Field_Name(i));
 		}
 
 		_Get_Regression (Values);
@@ -304,9 +315,10 @@ bool CSG_Regression_Multiple::_Get_Regression(const CSG_Table &Values)
 //---------------------------------------------------------
 bool CSG_Regression_Multiple::_Get_Correlation(const class CSG_Table &Values)
 {
-	int			i, j, nVariables, nValues;
-	double		r2, r2_sum;
-	CSG_Matrix	z;
+	int					i, j, nVariables, nValues;
+	double				r2, r2_tot;
+	CSG_Matrix			z;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if(	(nVariables = Values.Get_Field_Count() - 1) > 0
@@ -323,18 +335,36 @@ bool CSG_Regression_Multiple::_Get_Correlation(const class CSG_Table &Values)
 		}
 
 		//-------------------------------------------------
-		m_pResult->Get_Record(0)->Set_Value(MRFIELD_ORDER	, -1);
-		m_pResult->Get_Record(0)->Set_Value(MRFIELD_DCOEFF	, -1);
-
-		for(i=0, r2_sum=0.0; i<nVariables; i++)
+		for(i=0, r2_tot=0.0; i<nVariables; i++)
 		{
-			_Get_Correlation(nValues, nVariables, z.Get_Data() + 1, z[0], j, r2);
+			if( !_Get_Correlation(nValues, nVariables, z.Get_Data() + 1, z[0], j, r2) )
+			{
+				return( false );
+			}
 
-			r2_sum	+= (1.0 - r2_sum) * r2;
+			r2		*= (1.0 - r2_tot);
+			r2_tot	+= r2;
 
-			m_pResult->Get_Record(j+1)->Set_Value(MRFIELD_ORDER , i);
-			m_pResult->Get_Record(j+1)->Set_Value(MRFIELD_DCOEFF, r2_sum);
+			pRecord	= m_pResult->Get_Record(j + 1);
+			pRecord->Set_Value(MRFIELD_ORDER		, i);
+			pRecord->Set_Value(MRFIELD_R2_TOT		, r2_tot);
+			pRecord->Set_Value(MRFIELD_R2_TOT_ADJ	, SG_Regression_Get_Adjusted_R2 (r2_tot, nValues, i + 1, REGRESSION_CORR_Wherry_1));
+			pRecord->Set_Value(MRFIELD_R2_VAR		, r2);
+			pRecord->Set_Value(MRFIELD_R2_VAR_ADJ	, SG_Regression_Get_Adjusted_R2 (r2    , nValues, i + 1, REGRESSION_CORR_Wherry_1));
+			pRecord->Set_Value(MRFIELD_SIGNIF		, SG_Regression_Get_Significance(r2    , nValues, i + 1));
+			pRecord->Set_Value(MRFIELD_SIGNIF_ADJ	, SG_Regression_Get_Significance(r2    , nValues, i + 1, REGRESSION_CORR_Wherry_1));
 		}
+
+		//-------------------------------------------------
+		pRecord	= m_pResult->Get_Record(0);
+		pRecord->Set_Value(MRFIELD_ORDER		, -1);
+		pRecord->Set_Value(MRFIELD_R2_TOT		, -1);
+		pRecord->Set_Value(MRFIELD_R2_TOT		, -1);
+		pRecord->Set_Value(MRFIELD_R2_TOT_ADJ	, -1);
+		pRecord->Set_Value(MRFIELD_R2_VAR		, -1);
+		pRecord->Set_Value(MRFIELD_R2_VAR_ADJ	, -1);
+		pRecord->Set_Value(MRFIELD_SIGNIF		, SG_Regression_Get_Significance(r2_tot , nValues, i + 1));
+		pRecord->Set_Value(MRFIELD_SIGNIF_ADJ	, SG_Regression_Get_Significance(r2_tot , nValues, i + 1, REGRESSION_CORR_Wherry_1));
 
 		//-------------------------------------------------
 		return( true );
@@ -421,7 +451,7 @@ int CSG_Regression_Multiple::Get_Index(int iVariable) const
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		return( m_pResult->Get_Record_byIndex(1 + iVariable)->asInt(MRFIELD_NR) );
+		return( m_pResult->Get_Record_byIndex(1 + iVariable)->asInt(MRFIELD_ID) );
 	}
 
 	return( -1 );
@@ -445,7 +475,7 @@ const SG_Char * CSG_Regression_Multiple::Get_Name(int iVariable, bool bOrdered) 
 	{
 		iVariable	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
 
-		return( m_pResult->Get_Record(iVariable)->asString(MRFIELD_NAME) );
+		return( m_pResult->Get_Record(iVariable)->asString(MRFIELD_VAR) );
 	}
 
 	return( SG_T("") );
@@ -480,14 +510,11 @@ double CSG_Regression_Multiple::Get_R2(int iVariable, bool bOrdered, TSG_Regress
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		int	iIndex	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
+		int	iOrder	= bOrdered ? iVariable : Get_Order(iVariable);
 
-		return( SG_Regression_Get_Adjusted_R2(
-			m_pResult->Get_Record(iIndex)->asDouble(MRFIELD_DCOEFF),
-			m_nSamples,		
-			Get_Order(iIndex - 1) + 1,
-			Correction
-		));
+		double	r2	= m_pResult->Get_Record(Get_Index(iOrder))->asDouble(MRFIELD_R2_TOT);
+
+		return( SG_Regression_Get_Adjusted_R2(r2, m_nSamples, 1 + iOrder, Correction) );
 	}
 
 	return( -1.0 );
@@ -498,19 +525,16 @@ double CSG_Regression_Multiple::Get_R2_Partial(int iVariable, bool bOrdered, TSG
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		if( !bOrdered )
+		int	iOrder	= bOrdered ? iVariable : Get_Order(iVariable);
+
+		double	r2	= Get_R2(iOrder, true);
+
+		if( iOrder > 0 )
 		{
-			iVariable	= Get_Order(iVariable);
+			r2	-= Get_R2(iOrder - 1, true);
 		}
 
-		double	r2	= Get_R2(iVariable, true, REGRESSION_CORR_None);
-
-		if( iVariable > 0 )
-		{
-			r2	-= Get_R2(iVariable - 1, true, REGRESSION_CORR_None);
-		}
-
-		return( SG_Regression_Get_Adjusted_R2(r2, m_nSamples, iVariable + 1, Correction) );
+		return( SG_Regression_Get_Adjusted_R2(r2, m_nSamples, 1 + iOrder, Correction) );
 	}
 
 	return( -1.0 );
@@ -521,12 +545,9 @@ double CSG_Regression_Multiple::Get_Signif(int iVariable, bool bOrdered, TSG_Reg
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		if( !bOrdered )
-		{
-			iVariable	= Get_Order(iVariable);
-		}
+		int	iOrder	= bOrdered ? iVariable : Get_Order(iVariable);
 
-		return( SG_Regression_Get_Significance(Get_R2(iVariable, true, Correction), m_nSamples, 1 + iVariable) );
+		return( SG_Regression_Get_Significance(Get_R2(iOrder, true, Correction), m_nSamples, 1 + iOrder) );
 	}
 
 	return( -1.0 );
@@ -537,12 +558,9 @@ double CSG_Regression_Multiple::Get_Signif_Partial(int iVariable, bool bOrdered,
 {
 	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		if( !bOrdered )
-		{
-			iVariable	= Get_Order(iVariable);
-		}
+		int	iOrder	= bOrdered ? iVariable : Get_Order(iVariable);
 
-		return( SG_Regression_Get_Significance(Get_R2_Partial(iVariable, true, Correction), m_nSamples, 1 + iVariable) );
+		return( SG_Regression_Get_Significance(Get_R2_Partial(iOrder, true, Correction), m_nSamples, 1 + iOrder) );
 	}
 
 	return( -1.0 );
