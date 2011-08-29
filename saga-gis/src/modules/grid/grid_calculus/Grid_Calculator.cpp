@@ -134,6 +134,12 @@ CGrid_Calculator::CGrid_Calculator(void)
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
+
+	Parameters.Add_Value(
+		NULL	, "USE_NODATA"	, _TL("Use NoData"),
+		_TL("Check this in order to include NoData cells in the calculation."),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -172,10 +178,12 @@ bool CGrid_Calculator::On_Execute(void)
 	CSG_Formula				Formula;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_Grid				*pResult;
+	bool					bUseNoData;
 
 	//-----------------------------------------------------
 	pResult		= Parameters("RESULT")	->asGrid();
 	pGrids		= Parameters("GRIDS")	->asGridList();
+	bUseNoData	= Parameters("USE_NODATA")->asBool();
 
 	//-----------------------------------------------------
 	if( pGrids->Get_Count() <= 0 )
@@ -226,7 +234,7 @@ bool CGrid_Calculator::On_Execute(void)
 
 			for(int i=0; i<pGrids->Get_Count() && !bNoData; i++)
 			{
-				if( pGrids->asGrid(i)->is_NoData(x, y) )
+				if( !bUseNoData && pGrids->asGrid(i)->is_NoData(x, y) )
 				{
 					bNoData		= true;
 				}
