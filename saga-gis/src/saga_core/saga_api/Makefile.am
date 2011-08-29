@@ -106,7 +106,7 @@ endif
 if SAGA_PYTHON
 _saga_api_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(SWIGUNICODEFLAGS) $(DISABLELIBHARU)
 _saga_api_la_LDFLAGS = -module -release $(VERSION) $(SWIG_LIB)
-_saga_api_la_SOURCES = saga_api_wrap.cxx
+nodist__saga_api_la_SOURCES = saga_api_wrap.cxx
 _saga_api_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
 python_LTLIBRARIES = _saga_api.la
