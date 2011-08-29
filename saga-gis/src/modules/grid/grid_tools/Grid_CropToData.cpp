@@ -20,93 +20,162 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Grid_CropToData.h"
 
-CCropToData::CCropToData(void){
 
-	Parameters.Set_Name(_TL("Crop to Data"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Crop grids to valid data cells"));
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Grid_List(NULL, 
-						"INPUT", 
-						_TL("Input Grids"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+//---------------------------------------------------------
+CCropToData::CCropToData(void)
+{
+	Set_Name		(_TL("Crop to Data"));
 
-	/*Parameters.Add_Grid(NULL, 
-						"GRID",
-						"Grid", 						
-						_TL(""), 
-						PARAMETER_INPUT);*/
-	
-}//constructor
+	Set_Author		(SG_T("V.Olaya (c) 2004"));
+
+	Set_Description	(_TW(
+		"Crop grids to valid data cells"
+	));
+
+	Parameters.Add_Grid_List(
+		NULL	, "INPUT"	, _TL("Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid_List(
+		NULL	, "OUTPUT"	, _TL("Cropped Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
 
 
-CCropToData::~CCropToData(void)
-{}
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-bool CCropToData::On_Execute(void){
-	
-	//CSG_Grid* pGrid = Parameters("GRID")->asGrid(); 
-	CSG_Grid* pCroppedGrid; 	
-	CSG_Grid** pGrids;
-	int iGrids;
-	int iMinX = 1000000;
-	int iMaxX = 0;
-	int iMinY = 1000000;
-	int iMaxY = 0;
-	double dMinX, dMinY;
-	int iNX;
-	int iNY;
-	int i;
-	int x,y;
+//---------------------------------------------------------
+bool CCropToData::On_Execute(void)
+{
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("INPUT")->asGridList();
 
-	if (Parameters("INPUT")->asInt() <= 0){
-		Message_Add(_TL("No grids selected"));
-		return (false);
-	}//if
-	
-	iGrids		= Parameters("INPUT")->asInt();
-	pGrids		=(CSG_Grid **)Parameters("INPUT")->asPointer();
-	
-	for (i = 0 ; i < iGrids ; i++){
-		if (pGrids[i]->is_Compatible(pGrids[0]->Get_System())){					
-			for(y=0; y<Get_NY() && Set_Progress(y); y++){		
-				for(x=0; x<Get_NX(); x++){
-					if (!pGrids[i]->is_NoData(x,y)){
-						if (x<iMinX){
-							iMinX = x;
-						}//if
-						if (x>iMaxX){
-							iMaxX = x;
-						}//if
-						if (y<iMinY){
-							iMinY = y;
-						}//if
-						if (y>iMaxY){
-							iMaxY = y;
-						}//if
-					}//if            
-				}//for
-			}//for		
-		}//if
-	}//for
-	iNX = iMaxX-iMinX+1;
-	iNY = iMaxY-iMinY+1;
-	dMinX = pGrids[0]->Get_XMin() + iMinX * pGrids[0]->Get_Cellsize();
-	dMinY = pGrids[0]->Get_YMin() + iMinY * pGrids[0]->Get_Cellsize();
+	//-----------------------------------------------------
+	if( pGrids->Get_Count() <= 0 )
+	{
+		Error_Set(_TL("no grids in selection"));
 
-	if (iNX != pGrids[0]->Get_NX() || iNY != pGrids[0]->Get_NY()){
-		for (i = 0 ; i < iGrids ; i++){
-			if (pGrids[i]->is_Compatible(pGrids[0]->Get_System())){	
-				pCroppedGrid = new CSG_Grid(pGrids[i]->Get_Type(), iNX, iNY, pGrids[i]->Get_Cellsize(), dMinX, dMinY);	
-				pCroppedGrid->Assign(pGrids[i], GRID_INTERPOLATION_BSpline);
-				DataObject_Add(pCroppedGrid);
-			}//if
-		}//for
-	}//if
+		return( false );
+	}
 
-	return true;
+	//-----------------------------------------------------
+	bool	bCrop	= false;
 
-}//method
+	int		xMin, yMin, xMax, yMax;
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			bool	bData	= false;
+
+			for(int i=0; i<pGrids->Get_Count() && !bData; i++)
+			{
+				if( !pGrids->asGrid(i)->is_NoData(x, y) )
+				{
+					bData	= true;
+				}
+			}
+
+			if( bData )
+			{
+				if( bCrop == false )
+				{
+					bCrop	= true;
+
+					xMin	= xMax	= x;
+					yMin	= yMax	= y;
+				}
+				else
+				{
+					if( xMin > x )
+					{
+						xMin	= x;
+					}
+					else if( xMax < x )
+					{
+						xMax	= x;
+					}
+
+					if( yMin > y )
+					{
+						yMin	= y;
+					}
+					else if( yMax < y )
+					{
+						yMax	= y;
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( bCrop == false )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("nothing to crop"), _TL("no valid data found in grid(s)")));
+	}
+	else if( (1 + xMax - xMin) == Get_NX() && (1 + yMax - yMin) == Get_NY() )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("nothing to crop"), _TL("valid data cells match original grid extent")));
+	}
+	else
+	{
+		CSG_Parameter_Grid_List	*pCropped	= Parameters("OUTPUT")->asGridList();
+
+		pCropped->Del_Items();
+
+		for(int i=0; i<pGrids->Get_Count(); i++)
+		{
+			CSG_Grid	*pGrid	= SG_Create_Grid(
+				pGrids->asGrid(i)->Get_Type(),
+				1 + xMax - xMin,
+				1 + yMax - yMin,
+				Get_Cellsize(),
+				Get_XMin() + xMin * Get_Cellsize(),
+				Get_YMin() + yMin * Get_Cellsize()
+			);
+
+			pGrid->Assign(pGrids->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
+			pGrid->Set_Name(pGrids->asGrid(i)->Get_Name());
+
+			pCropped->Add_Item(pGrid);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
