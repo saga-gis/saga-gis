@@ -38,50 +38,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
-{
-	STAT_Sum	= 0,
-	STAT_Avg,
-	STAT_Var,
-	STAT_Dev,
-	STAT_Min,
-	STAT_Max,
-	STAT_Num,
-	STAT_Count
-};
-
-//---------------------------------------------------------
-int	STAT_Flag[STAT_Count]	=
-{
-	0x01,
-	0x02,
-	0x04,
-	0x08,
-	0x10,
-	0x20,
-	0x40
-};
-
-//---------------------------------------------------------
-CSG_String	STAT_Name[STAT_Count]	=
-{
-	SG_T("Sum"),
-	SG_T("Mean"),
-	SG_T("Variance"),
-	SG_T("Deviation"),
-	SG_T("Minimum"),
-	SG_T("Maximum"),
-	SG_T("Count")
-};
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(void)
 {
 	Set_Name		(_TL("Point Statistics for Polygons"));
@@ -110,6 +66,14 @@ CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(void)
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
+	Parameters.Add_Value(NULL, "SUM", _TL("Sum")		, _TL("")	, PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "AVG", _TL("Mean")		, _TL("")	, PARAMETER_TYPE_Bool, true );
+	Parameters.Add_Value(NULL, "VAR", _TL("Variance")	, _TL("")	, PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "DEV", _TL("Deviation")	, _TL("")	, PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "MIN", _TL("Minimum")	, _TL("")	, PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "MAX", _TL("Maximum")	, _TL("")	, PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "NUM", _TL("Count")		, _TL("")	, PARAMETER_TYPE_Bool, false);
+
 	Add_Parameters("ATTRIBUTES", _TL("Attributes"), _TL(""));
 }
 
@@ -123,7 +87,8 @@ CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(void)
 //---------------------------------------------------------
 bool CPolygonStatisticsFromPoints::On_Execute(void)
 {
-	int						i, j, n, Offset, *bAttribute;
+	bool					bSum, bAvg, bVar, bDev, bMin, bMax, bNum, *bAttribute;
+	int						i, j, n, Offset;
 	CSG_Simple_Statistics	*Statistics;
 	CSG_Parameters			*pParameters;
 	CSG_Shapes				*pPolygons, *pPoints;
@@ -131,6 +96,14 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 	//-----------------------------------------------------
 	pPoints		= Parameters("POINTS")		->asShapes();
 	pPolygons	= Parameters("POLYGONS")	->asShapes();
+
+	bSum		= Parameters("SUM")->asBool();
+	bAvg		= Parameters("AVG")->asBool();
+	bVar		= Parameters("VAR")->asBool();
+	bDev		= Parameters("DEV")->asBool();
+	bMin		= Parameters("MIN")->asBool();
+	bMax		= Parameters("MAX")->asBool();
+	bNum		= Parameters("NUM")->asBool();
 
 	if( pPolygons->Get_Count() <= 0 || pPoints->Get_Count() <= 0 )
 	{
@@ -146,16 +119,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 	{
 		if( SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(i)) )
 		{
-			CSG_Parameter	*pNode	= pParameters->Add_Node(NULL, CSG_String::Format(SG_T("%d"), i), pPoints->Get_Field_Name(i), _TL(""));
-
-			for(j=0; j<STAT_Count; j++)
-			{
-				pParameters->Add_Value(pNode,
-					CSG_String::Format(SG_T("%d|%d"), i, j),
-					CSG_String::Format(SG_T("[%s]"), STAT_Name[j].c_str()),
-					_TL(""), PARAMETER_TYPE_Bool, false
-				);
-			}
+			pParameters->Add_Value(NULL, CSG_String::Format(SG_T("%d"), i), pPoints->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, true);
 		}
 	}
 
@@ -177,28 +141,24 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bAttribute	= new int[pPoints->Get_Field_Count()];
 	Offset		= pPolygons->Get_Field_Count();
+	bAttribute	= new bool[pPoints->Get_Field_Count()];
 
 	for(i=0, n=0; i<pPoints->Get_Field_Count(); i++)
 	{
-		bAttribute[i]	= 0;
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(CSG_String::Format(SG_T("%d"), i));
 
-		if( SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(i)) )
+		if( (bAttribute[i] = (pParameter && pParameter->asBool() && SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(i)))) == true )
 		{
-			for(j=0; j<STAT_Count; j++)
-			{
-				CSG_Parameter	*pParameter	= pParameters->Get_Parameter(CSG_String::Format(SG_T("%d|%d"), i, j));
+			CSG_String	sName	= pPoints->Get_Field_Name(i);
 
-				if( pParameter && pParameter->asBool() )
-				{
-					bAttribute[i]	|= STAT_Flag[j];
-
-					pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), pPoints->Get_Field_Name(i), STAT_Name[j].c_str()), SG_DATATYPE_Double);
-
-					n++;
-				}
-			}
+			if( bSum )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("SUM"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
+			if( bAvg )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("AVG"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
+			if( bVar )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("VAR"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
+			if( bDev )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("DEV"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
+			if( bMin )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("MIN"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
+			if( bMax )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("MAX"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
+			if( bNum )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("NUM"), sName.c_str()), SG_DATATYPE_Int   );	n++;	}
 		}
 	}
 
@@ -246,23 +206,23 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 			{
 				if( Statistics[i].Get_Count() > 0 )
 				{
-					if( bAttribute[i] & STAT_Flag[STAT_Sum] )	{	pPolygon->Set_Value(n++, Statistics[i].Get_Sum());		}
-					if( bAttribute[i] & STAT_Flag[STAT_Avg] )	{	pPolygon->Set_Value(n++, Statistics[i].Get_Mean());		}
-					if( bAttribute[i] & STAT_Flag[STAT_Var] )	{	pPolygon->Set_Value(n++, Statistics[i].Get_Variance());	}
-					if( bAttribute[i] & STAT_Flag[STAT_Dev] )	{	pPolygon->Set_Value(n++, Statistics[i].Get_StdDev());	}
-					if( bAttribute[i] & STAT_Flag[STAT_Min] )	{	pPolygon->Set_Value(n++, Statistics[i].Get_Minimum());	}
-					if( bAttribute[i] & STAT_Flag[STAT_Max] )	{	pPolygon->Set_Value(n++, Statistics[i].Get_Maximum());	}
-					if( bAttribute[i] & STAT_Flag[STAT_Num] )	{	pPolygon->Set_Value(n++, Statistics[i].Get_Count());	}
+					if( bSum )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Sum());			}
+					if( bAvg )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Mean());		}
+					if( bVar )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Variance());	}
+					if( bDev )	{	pPolygon->Set_Value (n++, Statistics[i].Get_StdDev());		}
+					if( bMin )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Minimum());		}
+					if( bMax )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Maximum());		}
+					if( bNum )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Count());		}
 				}
 				else
 				{
-					if( bAttribute[i] & STAT_Flag[STAT_Sum] )	{	pPolygon->Set_NoData(n++);	}
-					if( bAttribute[i] & STAT_Flag[STAT_Avg] )	{	pPolygon->Set_NoData(n++);	}
-					if( bAttribute[i] & STAT_Flag[STAT_Var] )	{	pPolygon->Set_NoData(n++);	}
-					if( bAttribute[i] & STAT_Flag[STAT_Dev] )	{	pPolygon->Set_NoData(n++);	}
-					if( bAttribute[i] & STAT_Flag[STAT_Min] )	{	pPolygon->Set_NoData(n++);	}
-					if( bAttribute[i] & STAT_Flag[STAT_Max] )	{	pPolygon->Set_NoData(n++);	}
-					if( bAttribute[i] & STAT_Flag[STAT_Num] )	{	pPolygon->Set_NoData(n++);	}
+					if( bSum )	{	pPolygon->Set_NoData(n++);		}
+					if( bAvg )	{	pPolygon->Set_NoData(n++);		}
+					if( bVar )	{	pPolygon->Set_NoData(n++);		}
+					if( bDev )	{	pPolygon->Set_NoData(n++);		}
+					if( bMin )	{	pPolygon->Set_NoData(n++);		}
+					if( bMax )	{	pPolygon->Set_NoData(n++);		}
+					if( bNum )	{	pPolygon->Set_Value (n++, 0.0);	}
 				}
 			}
 		}
