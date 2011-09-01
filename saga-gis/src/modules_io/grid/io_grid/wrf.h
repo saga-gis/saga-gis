@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: wrf.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                         wrf.h                         //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -40,13 +40,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,94 +54,120 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__wrf_Import_H
+#define HEADER_INCLUDED__wrf_Import_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - Grids") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the import and export of gridded data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Grid") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "esri_arcinfo.h"
-#include "surfer.h"
-#include "raw.h"
-#include "xyz.h"
-#include "usgs_srtm.h"
-#include "mola.h"
-#include "srtm30.h"
-#include "bmp_export.h"
-#include "erdas_lan.h"
-#include "grid_table.h"
-#include "wrf.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CESRI_ArcInfo_Export );
-	case 1:		return( new CESRI_ArcInfo_Import );
-	case 2:		return( new CSurfer_Export );
-	case 3:		return( new CSurfer_Import );
-	case 4:		return( new CRaw_Import );
-	case 5:		return( new CXYZ_Export );
-	case 6:		return( new CXYZ_Import );
-	case 7:		return( new CUSGS_SRTM_Import );
-	case 8:		return( new CMOLA_Import );
-	case 9:		return( new CSRTM30_Import );
-	case 10:	return( new CBMP_Export );
-	case 11:	return( new CErdas_LAN_Import );
-	case 12:	return( new CGrid_Table_Import );
-	case 13:	return( new CWRF_Import );
-	case 14:	return( new CWRF_Export );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CWRF_Index
+{
+public:
+	CWRF_Index(void);
 
-	MLB_INTERFACE
+	bool					Reset					(void);
 
-//}}AFX_SAGA
+	bool					Load					(const CSG_String &File);
+	bool					Save					(const CSG_String &File);
+
+	
+	bool					m_SIGNED, m_ENDIAN;
+
+	int						m_TYPE, m_WORDSIZE, m_TILE_X, m_TILE_Y, m_TILE_Z, m_TILE_Z_START, m_TILE_Z_END, m_CATEGORY_MIN, m_CATEGORY_MAX, m_TILE_BDR, m_ROW_ORDER;
+
+	int						m_ISWATER, m_ISLAKE, m_ISICE, m_ISURBAN, m_ISOILWATER;
+
+	double					m_DX, m_DY, m_KNOWN_X, m_KNOWN_Y, m_KNOWN_LAT, m_KNOWN_LON, m_STDLON, m_TRUELAT1, m_TRUELAT2, m_MISSING_VALUE, m_SCALE_FACTOR;
+
+	CSG_String				m_PROJECTION, m_UNITS, m_DESCRIPTION, m_MMINLU;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWRF_Import : public CSG_Module
+{
+public:
+	CWRF_Import(void);
+
+	virtual const SG_Char *	Get_MenuPath			(void)		{	return( _TL("R:Import") );	}
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CWRF_Index				m_Index;
+
+
+	bool					Load					(const CSG_String &File);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWRF_Export : public CSG_Module_Grid
+{
+public:
+	CWRF_Export(void);
+
+	virtual const SG_Char *	Get_MenuPath			(void)		{	return( _TL("R:Export") );	}
+
+
+protected:
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CWRF_Index				m_Index;
+
+
+	bool					Save					(const CSG_String &Directory, CSG_Parameter_Grid_List *pGrids);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__wrf_Import_H

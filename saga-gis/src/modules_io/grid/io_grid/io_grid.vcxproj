@@ -585,6 +585,7 @@
     <ClCompile Include="srtm30.cpp" />
     <ClCompile Include="surfer.cpp" />
     <ClCompile Include="usgs_srtm.cpp" />
+    <ClCompile Include="wrf.cpp" />
     <ClCompile Include="xyz.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -615,6 +616,7 @@
     <ClInclude Include="srtm30.h" />
     <ClInclude Include="surfer.h" />
     <ClInclude Include="usgs_srtm.h" />
+    <ClInclude Include="wrf.h" />
     <ClInclude Include="xyz.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -23,6 +23,7 @@ raw.cpp\
 srtm30.cpp\
 surfer.cpp\
 usgs_srtm.cpp\
+wrf.cpp\
 xyz.cpp\
 bmp_export.h\
 erdas_lan.h\
@@ -34,6 +35,7 @@ raw.h\
 srtm30.h\
 surfer.h\
 usgs_srtm.h\
+wrf.h\
 xyz.h
 
 libio_grid_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
