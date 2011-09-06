@@ -141,7 +141,7 @@ bool CShape_Index::On_Execute(void)
 		}
 
 		pIndex->Add_Field(_TL("Area")			, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("Perimenter")		, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Perimeter")		, SG_DATATYPE_Double);
 		pIndex->Add_Field(_TL("P/A")			, SG_DATATYPE_Double);
 		pIndex->Add_Field(_TL("P/sqrt(A)")		, SG_DATATYPE_Double);
 		pIndex->Add_Field(_TL("Max.Distance")	, SG_DATATYPE_Double);
