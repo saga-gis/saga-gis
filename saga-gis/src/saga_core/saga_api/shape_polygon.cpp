@@ -110,7 +110,7 @@ void CSG_Shape_Polygon_Part::_Update_Area(void)
 {
 	if( m_nPoints > 2 && m_bClockwise == BOOL3_NOTSET )
 	{
-		TSG_Point	*pA, *pB;
+		TSG_Point	*pPoint, A, B;
 
 		m_Area			= 0.0;
 		m_Perimeter		= 0.0;
@@ -118,28 +118,33 @@ void CSG_Shape_Polygon_Part::_Update_Area(void)
 		m_Centroid.x	= 0.0;
 		m_Centroid.y	= 0.0;
 
-		pB				= m_Points + m_nPoints - 1;
-		pA				= m_Points;
+		pPoint			= m_Points + m_nPoints - 1;
+		B.x				= pPoint->x - Get_Extent().Get_XCenter();
+		B.y				= pPoint->y - Get_Extent().Get_YCenter();
+		pPoint			= m_Points;
 
-		for(int iPoint=0; iPoint<m_nPoints; iPoint++, pB=pA++)
+		for(int iPoint=0; iPoint<m_nPoints; iPoint++, pPoint++, B=A)
 		{
-			double	d		 = pA->x * pB->y - pB->x * pA->y;
+			A.x				 = pPoint->x - Get_Extent().Get_XCenter();
+			A.y				 = pPoint->y - Get_Extent().Get_YCenter();
 
-			m_Centroid.x	+= d * (pA->x + pB->x);
-			m_Centroid.y	+= d * (pA->y + pB->y);
+			double	d		 = B.x * A.y - A.x * B.y;
+
+			m_Centroid.x	+= d * (A.x + B.x);
+			m_Centroid.y	+= d * (A.y + B.y);
 
 			m_Area			+= d;
 
-			m_Perimeter		+= SG_Get_Distance(*pA, *pB);
+			m_Perimeter		+= SG_Get_Distance(A, B);
 		}
 
 		if( m_Area != 0.0 )
 		{
-			m_Centroid.x	/= (3.0 * m_Area);
-			m_Centroid.y	/= (3.0 * m_Area);
+			m_Centroid.x	/= (3.0 * m_Area);	m_Centroid.x	+= Get_Extent().Get_XCenter();
+			m_Centroid.y	/= (3.0 * m_Area);	m_Centroid.y	+= Get_Extent().Get_YCenter();
 		}
 
-		m_bClockwise	= m_Area > 0.0 ? BOOL3_TRUE : BOOL3_FALSE;
+		m_bClockwise	= m_Area < 0.0 ? BOOL3_TRUE : BOOL3_FALSE;
 
 		m_Area			= fabs(m_Area) / 2.0;
 	}
@@ -522,29 +527,36 @@ TSG_Point CSG_Shape_Polygon::Get_Centroid(int iPart)
 //---------------------------------------------------------
 TSG_Point CSG_Shape_Polygon::Get_Centroid(void)
 {
-	int			iPart, nParts;
+	if( m_nParts == 1 )
+	{
+		return( Get_Centroid(0) );
+	}
+
+	int			iPart;
+	double		Weights;
 	TSG_Point	Centroid;
 
 	Centroid.x	= 0.0;
 	Centroid.y	= 0.0;
 
-	for(iPart=0, nParts=0; iPart<m_nParts; iPart++)
+	for(iPart=0, Weights=0.0; iPart<m_nParts; iPart++)
 	{
 		if( !is_Lake(iPart) )
 		{
 			TSG_Point	p	= Get_Centroid(iPart);
+			double		w	= Get_Area    (iPart);
 
-			Centroid.x	+= p.x;
-			Centroid.y	+= p.y;
+			Centroid.x	+= w * p.x;
+			Centroid.y	+= w * p.y;
 
-			nParts++;
+			Weights		+= w;
 		}
 	}
 
-	if( nParts > 1 )
+	if( Weights > 0.0 )
 	{
-		Centroid.x	/= nParts;
-		Centroid.y	/= nParts;
+		Centroid.x	/= Weights;
+		Centroid.y	/= Weights;
 	}
 
 	return( Centroid );
