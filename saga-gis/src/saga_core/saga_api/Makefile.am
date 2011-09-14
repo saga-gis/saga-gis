@@ -109,7 +109,7 @@ _saga_api_la_LDFLAGS = -module -release $(VERSION) $(SWIG_LIB)
 nodist__saga_api_la_SOURCES = saga_api_wrap.cxx
 _saga_api_la_LIBADD = libsaga_api.la
 
-python_LTLIBRARIES = _saga_api.la
+pyexec_LTLIBRARIES = _saga_api.la
 python_PYTHON = saga_api.py
 
 saga_api_wrap.cxx:
