@@ -482,47 +482,50 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 {
 	pShape->Del_Parts();
 
-	Bytes.Rewind();
-
-	bool	bSwapBytes	= Bytes.Read_Byte() != SG_OGIS_BYTEORDER_NDR;
-
-	switch( pShape->Get_Type() )
+	if( Bytes.Get_Count() > 3 )
 	{
-	case SHAPE_TYPE_Point:
-		if( Bytes.Read_DWord() == SG_OGIS_TYPE_Point )
+		Bytes.Rewind();
+
+		bool	bSwapBytes	= Bytes.Read_Byte() != SG_OGIS_BYTEORDER_NDR;
+
+		switch( pShape->Get_Type() )
 		{
-			return( _WKB_Read_Point(Bytes, bSwapBytes, pShape, 0) );
+		case SHAPE_TYPE_Point:
+			if( Bytes.Read_DWord() == SG_OGIS_TYPE_Point )
+			{
+				return( _WKB_Read_Point(Bytes, bSwapBytes, pShape, 0) );
+			}
+			break;
+
+		case SHAPE_TYPE_Points:
+			if( Bytes.Read_DWord() == SG_OGIS_TYPE_MultiPoint )
+			{
+				return( _WKB_Read_Parts(Bytes, bSwapBytes, pShape) );
+			}
+			break;
+
+		case SHAPE_TYPE_Line:
+			switch( Bytes.Read_DWord() )
+			{
+			case SG_OGIS_TYPE_LineString:
+				return( _WKB_Read_Points		(Bytes, bSwapBytes, pShape) );
+
+			case SG_OGIS_TYPE_MultiLineString:
+				return( _WKB_Read_MultiLine		(Bytes, bSwapBytes, pShape) );
+			}
+			break;
+
+		case SHAPE_TYPE_Polygon:
+			switch( Bytes.Read_DWord() )
+			{
+			case SG_OGIS_TYPE_Polygon:
+				return( _WKB_Read_Parts			(Bytes, bSwapBytes, pShape) );
+
+			case SG_OGIS_TYPE_MultiPolygon:
+				return( _WKB_Read_MultiPolygon	(Bytes, bSwapBytes, pShape) );
+			}
+			break;
 		}
-		break;
-
-	case SHAPE_TYPE_Points:
-		if( Bytes.Read_DWord() == SG_OGIS_TYPE_MultiPoint )
-		{
-			return( _WKB_Read_Parts(Bytes, bSwapBytes, pShape) );
-		}
-		break;
-
-	case SHAPE_TYPE_Line:
-		switch( Bytes.Read_DWord() )
-		{
-		case SG_OGIS_TYPE_LineString:
-			return( _WKB_Read_Points		(Bytes, bSwapBytes, pShape) );
-
-		case SG_OGIS_TYPE_MultiLineString:
-			return( _WKB_Read_MultiLine		(Bytes, bSwapBytes, pShape) );
-		}
-		break;
-
-	case SHAPE_TYPE_Polygon:
-		switch( Bytes.Read_DWord() )
-		{
-		case SG_OGIS_TYPE_Polygon:
-			return( _WKB_Read_Parts			(Bytes, bSwapBytes, pShape) );
-
-		case SG_OGIS_TYPE_MultiPolygon:
-			return( _WKB_Read_MultiPolygon	(Bytes, bSwapBytes, pShape) );
-		}
-		break;
 	}
 
 	return( false );
@@ -688,19 +691,19 @@ bool CSG_Shapes_OGIS_Converter::to_WKBinary(CSG_Shape *pShape, CSG_Bytes &Bytes)
 		return( false );
 
 	case SHAPE_TYPE_Point:
-		Bytes	+= (BYTE)SG_OGIS_TYPE_Point;
+		Bytes	+= (DWORD)SG_OGIS_TYPE_Point;
 		return( _WKB_Write_Point(Bytes, pShape, 0, 0) );
 
 	case SHAPE_TYPE_Points:
-		Bytes	+= (BYTE)SG_OGIS_TYPE_MultiPoint;
+		Bytes	+= (DWORD)SG_OGIS_TYPE_MultiPoint;
 		return( _WKB_Write_Points(Bytes, pShape, 0) );
 
 	case SHAPE_TYPE_Line:
-		Bytes	+= (BYTE)SG_OGIS_TYPE_MultiLineString;
+		Bytes	+= (DWORD)SG_OGIS_TYPE_MultiLineString;
 		return( _WKB_Write_MultiLine(Bytes, pShape) );
 
 	case SHAPE_TYPE_Polygon:
-		Bytes	+= (BYTE)SG_OGIS_TYPE_MultiPolygon;
+		Bytes	+= (DWORD)SG_OGIS_TYPE_MultiPolygon;
 		return( _WKB_Write_MultiPolygon(Bytes, pShape) );
 	}
 
