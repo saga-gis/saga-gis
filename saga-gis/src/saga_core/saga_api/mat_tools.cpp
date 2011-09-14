@@ -752,22 +752,25 @@ double CSG_Test_Distribution::Get_T_Inverse(double p, int df, TSG_Test_Distribut
 //---------------------------------------------------------
 double CSG_Test_Distribution::_Change_Tail_Type(double p, TSG_Test_Distribution_Type from, TSG_Test_Distribution_Type to, bool bNegative)
 {
-	switch( from )	// convert any tail type to 'left'
+	if( from != to )
 	{
-	case TESTDIST_TYPE_Left:	break;
-	case TESTDIST_TYPE_Right:	p	= 1.0 - p;	break;
-	case TESTDIST_TYPE_Middle:	p	= p / 2.0 + 0.5;	if( bNegative )	p	= 1.0 - p;	break;
-	case TESTDIST_TYPE_TwoTail:	p	= 1.0 - p / 2.0;	if( bNegative )	p	= 1.0 - p;	break;
-//	case TESTDIST_TYPE_Half:	p	= p + 0.5;			if( bNegative )	p	= 1.0 - p;	break;
-	}
+		switch( from )	// convert any tail type to 'left'
+		{
+		case TESTDIST_TYPE_Left:															break;
+		case TESTDIST_TYPE_Right:	p	= 1.0 - p;											break;
+		case TESTDIST_TYPE_Middle:	p	= p / 2.0 + 0.5;	if( bNegative )	p	= 1.0 - p;	break;
+		case TESTDIST_TYPE_TwoTail:	p	= 1.0 - p / 2.0;	if( bNegative )	p	= 1.0 - p;	break;
+	//	case TESTDIST_TYPE_Half:	p	= p + 0.5;			if( bNegative )	p	= 1.0 - p;	break;
+		}
 
-	switch( to )	// convert p from tail type 'left' to any other
-	{
-	case TESTDIST_TYPE_Left:	break;
-	case TESTDIST_TYPE_Right:	p	= 1.0 - p;	break;
-	case TESTDIST_TYPE_Middle:	if( bNegative )	p	= 1.0 - p;	p	= 2.0 * (1.0 - p);	break;
-	case TESTDIST_TYPE_TwoTail:	if( bNegative )	p	= 1.0 - p;	p	= 2.0 * p - 1.0;	break;
-//	case TESTDIST_TYPE_Half:	if( bNegative )	p	= 1.0 - p;	p	= p - 0.5;			break;
+		switch( to )	// convert p from tail type 'left' to any other
+		{
+		case TESTDIST_TYPE_Left:															break;
+		case TESTDIST_TYPE_Right:									p	= 1.0 - p;			break;
+		case TESTDIST_TYPE_Middle:	if( bNegative )	p	= 1.0 - p;	p	= 2.0 * (1.0 - p);	break;
+		case TESTDIST_TYPE_TwoTail:	if( bNegative )	p	= 1.0 - p;	p	= 2.0 * p - 1.0;	break;
+	//	case TESTDIST_TYPE_Half:	if( bNegative )	p	= 1.0 - p;	p	= p - 0.5;			break;
+		}
 	}
 
 	return( p );
@@ -903,6 +906,14 @@ double CSG_Test_Distribution::Get_T_Inv(double p, int df)
 ///////////////////////////////////////////////////////////
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double CSG_Test_Distribution::Get_F_Tail_from_R2(double R2, int nPredictors, int nSamples, TSG_Test_Distribution_Type Type)
+{
+	double	F	= (nSamples - nPredictors - 1) * (R2 / nPredictors) / (1.0 - R2);
+
+	return( CSG_Test_Distribution::Get_F_Tail(F, nPredictors, nSamples - nPredictors - 1, Type) );
+}
 
 //---------------------------------------------------------
 double CSG_Test_Distribution::Get_F_Tail(double F, int dfn, int dfd, TSG_Test_Distribution_Type Type)
@@ -1089,6 +1100,66 @@ double CSG_Test_Distribution::Get_Log_Gamma(double a)
 	}
 
 	return( g );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Matrix	SG_Get_Correlation_Matrix	(const CSG_Matrix &Values, bool bCovariances)
+{
+	int		nVariables	= Values.Get_NX();
+	int		nSamples	= Values.Get_NY();
+
+	//-----------------------------------------------------
+	int						i, j, k;
+	CSG_Simple_Statistics	*S;
+	CSG_Matrix				C;
+
+	C.Create(nVariables, nVariables);
+
+	//-----------------------------------------------------
+	S	= new CSG_Simple_Statistics[nVariables];
+
+	for(j=0; j<nVariables; j++)
+	{
+		for(i=0; i<nSamples; i++)
+		{
+			S[j]	+= Values[i][j];
+		}
+	}
+
+	//-----------------------------------------------------
+	for(k=0; k<nVariables; k++)
+	{
+		for(j=k; j<nVariables; j++)
+		{
+			double	cov	= 0.0;
+
+			for(i=0; i<nSamples; i++)
+			{
+				cov	+= (Values[i][j] - S[j].Get_Mean()) * (Values[i][k] - S[k].Get_Mean());
+			}
+
+			cov	/= nSamples;
+
+			if( !bCovariances )
+			{
+				cov	/= (S[j].Get_StdDev() * S[k].Get_StdDev());
+			}
+
+			C[j][k]	= C[k][j]	= cov;
+		}
+	}
+
+	//-----------------------------------------------------
+	delete[](S);
+
+	return( C );
 }
 
 

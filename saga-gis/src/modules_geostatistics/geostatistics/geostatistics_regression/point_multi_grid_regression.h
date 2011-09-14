@@ -88,23 +88,14 @@ protected:
 
 private:
 
-	bool						m_bCoord_X, m_bCoord_Y, m_bSignif_Adj;
-
-	int							m_Interpolation;
-
-	double						m_Significance;
-
-	TSG_Regression_Correction	m_Correction;
-
 	CSG_Regression_Multiple		m_Regression;
 
 
-	bool						Get_Regression		(CSG_Grid **ppGrids, int nGrids, CSG_Shapes *pShapes, int iAttribute);
-	bool						Set_Regression		(CSG_Grid **ppGrids, int nGrids, CSG_Grid *pRegression, const CSG_String &Name);
-	bool						Set_Residuals		(CSG_Shapes *pShapes, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
+	bool						Get_Samples			(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute, CSG_Matrix &Samples, CSG_Strings &Names);
 
-	void						Msg_Correlation		(void);
-	void						Msg_Regression		(void);
+	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression, const CSG_String &Name);
+
+	bool						Set_Residuals		(CSG_Shapes *pShapes, int iAttribute, CSG_Grid *pRegression);
 
 };
 

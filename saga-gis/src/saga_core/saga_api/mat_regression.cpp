@@ -73,6 +73,52 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double SG_Regression_Get_Adjusted_R2(double r2, int n, int p, TSG_Regression_Correction Correction)
+{
+	double	r	= 1.0 - r2;
+
+	switch( Correction )
+	{
+	case REGRESSION_CORR_None: default:
+		return( r2 );
+
+	case REGRESSION_CORR_Smith:
+		r2	= 1.0 - ((n      ) / (n - p      )) * r;
+		break;
+
+	case REGRESSION_CORR_Wherry_1:
+		r2	= 1.0 - ((n - 1.0) / (n - p - 1.0)) * r;
+		break;
+
+	case REGRESSION_CORR_Wherry_2:
+		r2	= 1.0 - ((n - 1.0) / (n - p      )) * r;
+		break;
+
+	case REGRESSION_CORR_Olkin_Pratt:
+	//	r2	= 1.0 - ((n - 3.0) / (n - p - 2.0)) * (r + (2.0 / (n - p)) * r*r);
+		r2	= 1.0 - ((n - 3.0) * r / (n - p - 1.0)) * (1.0 + (2.0 * r) / (n - p + 1.0));
+		break;
+
+	case REGRESSION_CORR_Pratt:
+		r2	= 1.0 - ((n - 3.0) * r / (n - p - 1.0)) * (1.0 + (2.0 * r) / (n - p - 2.3));
+		break;
+
+	case REGRESSION_CORR_Claudy_3:
+		r2	= 1.0 - ((n - 4.0) * r / (n - p - 1.0)) * (1.0 + (2.0 * r) / (n - p + 1.0));
+		break;
+	}
+
+	return( r2 < 0.0 ? 0.0 : r2 > 1.0 ? 1.0 : r2 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Regression::CSG_Regression(void)
 {
 	m_nBuffer	= 0;
