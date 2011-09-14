@@ -782,7 +782,7 @@ bool CSG_Bytes::fromHexString(const CSG_String &HexString)
 
 	for(size_t i=0; i<HexString.Length(); i+=2, s+=2)
 	{
-		Add(SG_Hex_to_Byte(s[1]) + 16 * SG_Hex_to_Byte(s[0]));
+		Add((BYTE)(SG_Hex_to_Byte(s[1]) + 16 * SG_Hex_to_Byte(s[0])));
 	}
 
 	return( true );
