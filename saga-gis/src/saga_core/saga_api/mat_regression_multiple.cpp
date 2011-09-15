@@ -254,7 +254,7 @@ bool CSG_Regression_Multiple::_Initialize(const CSG_Matrix &Samples, CSG_Strings
 	{
 		m_Names	+= pNames && pNames->Get_Count() == Samples.Get_NCols()
 			? pNames->Get_String(i)
-			: i == 0 ? LNG("Dependent") : CSG_String::Format(SG_T("%d. %s"), i + 1, LNG("Predictor"));
+			: i == 0 ? CSG_String::Format(SG_T("%s"), LNG("Dependent")) : CSG_String::Format(SG_T("%d. %s"), i + 1, LNG("Predictor"));
 	}
 
 	//-------------------------------------------------
