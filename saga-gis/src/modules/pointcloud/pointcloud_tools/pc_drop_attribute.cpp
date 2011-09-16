@@ -119,13 +119,15 @@ CPC_Drop_Attribute::~CPC_Drop_Attribute(void)
 bool CPC_Drop_Attribute::On_Execute(void)
 {
 	CSG_PointCloud		*pInput, *pOutput;
-	int					AttrField;
+	int					iField;
+	CSG_String			sName;
+	CSG_Parameters		sParms;
 
-	pInput				= Parameters("INPUT")->asPointCloud();
-	pOutput				= Parameters("OUTPUT")->asPointCloud();
-	AttrField			= Parameters("ATTRIB")->asInt() - 3;
+	pInput	= Parameters("INPUT")->asPointCloud();
+	pOutput	= Parameters("OUTPUT")->asPointCloud();
+	iField	= Parameters("ATTRIB")->asInt();
 
-	if (AttrField < 0)
+	if (iField < 0)
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("We must keep the coordinates, please choose another field than x, y, or z!")));
 		return (false);
@@ -134,46 +136,81 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	//-----------------------------------------------------
 	if (!pOutput || pOutput == pInput )
 	{
+		sName = pInput->Get_Name();
 		pOutput = SG_Create_PointCloud(pInput);
-		//pInput->Del_Field(AttrField + 3);
 	}
 	else
 	{
+		sName = CSG_String::Format(SG_T("%s_%s_dropped"), pInput->Get_Name(), pInput->Get_Field_Name(iField));
 		pOutput->Create(pInput);
 	}
 	
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s_%s_dropped"), pInput->Get_Name(), pInput->Get_Attribute_Name(AttrField)));
 
-	pOutput->Del_Field(AttrField + 3);
+	pOutput->Del_Field(iField);
+
+	DataObject_Update(pOutput);
 
 	for (int i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		pOutput->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 
-		int	offset = 0;
-		for (int j=0; j<pInput->Get_Attribute_Count(); j++)
+		for (int j=0, k=0; j<pInput->Get_Attribute_Count(); j++, k++)
 		{
-			if (j == AttrField)
+			if (j == iField)
 			{
-				offset = -1;
+				k--;
 				continue;
 			}
 
-			pOutput->Set_Attribute(j + offset, pInput->Get_Attribute(i, j));
+			pOutput->Set_Attribute(k, pInput->Get_Attribute(i, j));
 		}
 	}
+
 
 	//-----------------------------------------------------
 	if (!Parameters("OUTPUT")->asPointCloud() || Parameters("OUTPUT")->asPointCloud() == pInput )
 	{
 		pInput->Assign(pOutput);
+		pInput->Set_Name(sName);
+
 		DataObject_Update(pInput);
 		delete(pOutput);
+
+		DataObject_Get_Parameters(pInput, sParms);
+		Set_Display_Attributes(pInput, sParms);
+	}
+	else
+	{
+		pOutput->Set_Name(sName);
+		DataObject_Update(pOutput);
+
+		DataObject_Get_Parameters(pOutput, sParms);
+		Set_Display_Attributes(pOutput, sParms);
 	}
 
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+//---------------------------------------------------------
+void CPC_Drop_Attribute::Set_Display_Attributes(CSG_PointCloud *pPC, CSG_Parameters &sParms)
+{
+	if (sParms("METRIC_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
+		&& sParms("METRIC_ZRANGE") && sParms("DISPLAY_VALUE_AGGREGATE"))
+	{
+		sParms("DISPLAY_VALUE_AGGREGATE")->Set_Value(3);		// highest z
+		sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
+		sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
+		sParms("METRIC_ATTRIB")->Set_Value(2);					// z attrib
+		sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPC->Get_Minimum(2), pPC->Get_Maximum(2));
+	}
+
+	DataObject_Set_Parameters(pPC, sParms);
+	DataObject_Update(pPC);
+
+	return;
 }
 
 

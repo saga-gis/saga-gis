@@ -97,6 +97,9 @@ protected:
 
 private:
 
+	void						Set_Display_Attributes(CSG_PointCloud *pPC, CSG_Parameters &sParms);
+
+
 };
 
 
