@@ -99,17 +99,19 @@ protected:
 
 private:
 
-	int							m_Single;
-	bool						m_bExtract;
-	int							m_AttrField;
+	int				m_Single;
+	bool			m_bExtract;
+	int				m_AttrField;
 
-	CSG_PointCloud				*m_pInput, *m_pResult;
+	CSG_PointCloud	*m_pInput, *m_pResult;
 
 
-	bool						Reclass_Single			(void);
-	bool						Reclass_Range			(void);
-	bool						Reclass_Table			(bool bUser);
-	void						Set_Value				(int i, double value);
+	void			Reclass_Single			(void);
+	void			Reclass_Range			(void);
+	bool			Reclass_Table			(bool bUser);
+	void			Set_Value				(int i, double value);
+
+	void			Set_Display_Attributes	(CSG_PointCloud *pPC, int iField, CSG_Parameters &sParms);
 
 };
 
