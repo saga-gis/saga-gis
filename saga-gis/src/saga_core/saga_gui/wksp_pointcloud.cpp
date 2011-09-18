@@ -694,25 +694,28 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	for(int i=0; i<m_pPointCloud->Get_Count(); i++)
 	{
-		TSG_Point_Z	Point	= m_pPointCloud->Get_Point(i);
-
-		if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
+		if( m_Color_Field < 3 || !m_pPointCloud->is_NoData(i, m_Color_Field - 3) )
 		{
-			int		x	= (int)dc_Map.xWorld2DC(Point.x);
-			int		y	= (int)dc_Map.yWorld2DC(Point.y);
+			TSG_Point_Z	Point	= m_pPointCloud->Get_Point(i);
 
-			if( m_pPointCloud->is_Selected(i) )
+			if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
 			{
-				_Draw_Point(dc_Map, x, y, Point.z, SG_COLOR_RED   , m_PointSize + 2);
-				_Draw_Point(dc_Map, x, y, Point.z, SG_COLOR_YELLOW, m_PointSize);
-			}
-			else
-			{
-				int		Color;
+				int		x	= (int)dc_Map.xWorld2DC(Point.x);
+				int		y	= (int)dc_Map.yWorld2DC(Point.y);
 
-				m_pClassify->Get_Class_Color_byValue(m_pPointCloud->Get_Value(i, m_Color_Field), Color);
+				if( m_pPointCloud->is_Selected(i) )
+				{
+					_Draw_Point(dc_Map, x, y, Point.z, SG_COLOR_RED   , m_PointSize + 2);
+					_Draw_Point(dc_Map, x, y, Point.z, SG_COLOR_YELLOW, m_PointSize);
+				}
+				else
+				{
+					int		Color;
 
-				_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
+					m_pClassify->Get_Class_Color_byValue(m_pPointCloud->Get_Value(i, m_Color_Field), Color);
+
+					_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
+				}
 			}
 		}
 	}
