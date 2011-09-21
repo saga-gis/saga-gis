@@ -21,6 +21,7 @@ CountPoints.cpp\
 CreatePointGrid.cpp\
 DistanceMatrix.cpp\
 FitNPointsToShape.cpp\
+gps_track_aggregation.cpp\
 MLB_Interface.cpp\
 points_filter.cpp\
 Points_From_Lines.cpp\
@@ -38,6 +39,7 @@ Clip_Points.h\
 CreatePointGrid.h\
 DistanceMatrix.h\
 FitNPointsToShape.h\
+gps_track_aggregation.h\
 MLB_Interface.h\
 points_filter.h\
 Points_From_Lines.h\

@@ -566,6 +566,7 @@
     <ClCompile Include="CreatePointGrid.cpp" />
     <ClCompile Include="DistanceMatrix.cpp" />
     <ClCompile Include="FitNPointsToShape.cpp" />
+    <ClCompile Include="gps_track_aggregation.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -608,6 +609,7 @@
     <ClInclude Include="CreatePointGrid.h" />
     <ClInclude Include="DistanceMatrix.h" />
     <ClInclude Include="FitNPointsToShape.h" />
+    <ClInclude Include="gps_track_aggregation.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
