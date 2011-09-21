@@ -140,6 +140,28 @@ bool CLAS_Info::On_Execute(void)
         return (false);
     }
 
+	//-----------------------------------------------------
+	// Check if LAS version is supported
+	liblas::LASReader *pReader;
+	try {
+		pReader = new liblas::LASReader(ifs);
+	}
+	catch(std::exception &e) {
+		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("LAS header exception: %s"), e.what()));
+		ifs.close();
+        return (false);
+	}
+	catch(...) {
+		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unknown LAS header exception!")));
+		ifs.close();
+        return (false);
+	}
+	
+	delete (pReader);
+	ifs.clear();
+	//-----------------------------------------------------
+
+
     liblas::LASReader reader(ifs);
 
     liblas::LASHeader const& header = reader.GetHeader();
