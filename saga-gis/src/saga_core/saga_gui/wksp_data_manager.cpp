@@ -665,6 +665,7 @@ bool CWKSP_Data_Manager::Open(const wxChar *File_Name)
 	}
 
 	if( SG_File_Cmp_Extension(File_Name, wxT("txt"))
+	||	SG_File_Cmp_Extension(File_Name, wxT("csv"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("dbf")) )
 	{
 		return( Open(DATAOBJECT_TYPE_Table		, File_Name) != NULL );

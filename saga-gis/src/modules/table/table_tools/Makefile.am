@@ -15,11 +15,13 @@ pkglib_LTLIBRARIES = libtable_tools.la
 libtable_tools_la_SOURCES =\
 Join_Tables.cpp\
 MLB_Interface.cpp\
+table_change_date_format.cpp\
 Table_Create_Empty.cpp\
 Table_Enumerate.cpp\
 Table_Rotate.cpp\
 Join_Tables.h\
 MLB_Interface.h\
+table_change_date_format.h\
 Table_Create_Empty.h\
 Table_Enumerate.h\
 Table_Rotate.h

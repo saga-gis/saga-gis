@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: table_change_date_format.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_Tools                      //
+//                      table_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//               table_change_date_format.h              //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//              SAGA User Group Associaton               //
+//                 Copyright (C) 2011 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,13 +40,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,81 +54,74 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__table_change_date_format_H
+#define HEADER_INCLUDED__table_change_date_format_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Table - Tools") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Table|Tools") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Table_Create_Empty.h"
-#include "Table_Rotate.h"
-#include "Table_Enumerate.h"
-#include "Join_Tables.h"
-#include "table_change_date_format.h"
-
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CTable_Create_Empty );
-	case  1:	return( new CTable_Rotate );
-	case  2:	return( new CTable_Enumerate );
-	case  3:	return( new CJoin_Tables );
-	case  4:	return( new CJoin_Tables_Shapes );
-	case  5:	return( new CTable_Change_Date_Format );
-	case  6:	return( new CTable_Change_Time_Format );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CTable_Change_Date_Format : public CSG_Module
+{
+public:
+	CTable_Change_Date_Format(void);
 
-	MLB_INTERFACE
+//	virtual const SG_Char *		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool				On_Execute		(void);
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Change_Time_Format : public CSG_Module
+{
+public:
+	CTable_Change_Time_Format(void);
+
+//	virtual const SG_Char *		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+
+
+protected:
+
+	virtual bool				On_Execute		(void);
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__table_change_date_format_H

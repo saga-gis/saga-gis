@@ -174,7 +174,7 @@ CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format)
 
 bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 {
-	return( is_Private() ? false : _Create(File_Name, Format, SG_T("\t")) );
+	return( is_Private() ? false : _Create(File_Name, Format, NULL) );
 }
 
 //---------------------------------------------------------
@@ -193,7 +193,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 
 bool CSG_Table::_Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
 {
-	return( _Load(File_Name, Format, !Separator || !Separator[0] ? SG_T("\t") : Separator) );
+	return( _Load(File_Name, Format, Separator) );
 }
 
 //---------------------------------------------------------
@@ -536,6 +536,54 @@ bool CSG_Table::Set_Field_Name(int iField, const SG_Char *Name)
 		*(m_Field_Name[iField])	= Name;
 
 		Set_Modified();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::Set_Field_Type(int iField, TSG_Data_Type Type)
+{
+	if( iField >= 0 && iField < m_nFields )
+	{
+		if( Type != Get_Field_Type(iField) )
+		{
+			m_Field_Type[iField]	= Type;
+
+			for(int i=0; i<m_nRecords; i++)
+			{
+				CSG_Table_Value	*pOld	= m_Records[i]->m_Values[iField];
+				CSG_Table_Value	*pNew	= CSG_Table_Record::_Create_Value(Type);
+
+				switch( Type )
+				{
+				default:
+				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:		pNew->Set_Value(pOld->asString());	break;
+
+				case SG_DATATYPE_Color:
+				case SG_DATATYPE_Byte:
+				case SG_DATATYPE_Char:
+				case SG_DATATYPE_Word:
+				case SG_DATATYPE_Short:
+				case SG_DATATYPE_DWord:
+				case SG_DATATYPE_Int:
+				case SG_DATATYPE_ULong:
+				case SG_DATATYPE_Long:		pNew->Set_Value(pOld->asInt   ());	break;
+
+				case SG_DATATYPE_Float:
+				case SG_DATATYPE_Double:	pNew->Set_Value(pOld->asDouble());	break;
+
+				case SG_DATATYPE_Binary:	pNew->Set_Value(pOld->asBinary());	break;
+				}
+
+				m_Records[i]->m_Values[iField]	= pNew;
+
+				delete(pOld);
+			}
+		}
 
 		return( true );
 	}

@@ -577,6 +577,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="table_change_date_format.cpp" />
     <ClCompile Include="Table_Create_Empty.cpp" />
     <ClCompile Include="Table_Enumerate.cpp" />
     <ClCompile Include="Table_Rotate.cpp" />
@@ -601,6 +602,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="table_change_date_format.h" />
     <ClInclude Include="Table_Create_Empty.h" />
     <ClInclude Include="Table_Enumerate.h" />
     <ClInclude Include="Table_Rotate.h" />

@@ -190,7 +190,7 @@ protected:
 	void						Set_Modified	(bool bOn = true);
 
 
-	class CSG_Table_Value *		_Create_Value	(TSG_Data_Type Type);
+	static CSG_Table_Value *	_Create_Value	(TSG_Data_Type Type);
 
 	bool						_Add_Field		(int add_Field);
 	bool						_Del_Field		(int del_Field);
@@ -261,6 +261,7 @@ public:
 	int								Get_Field_Length	(int iField)	const;	// returns the maximum number of characters for data type string and zero for all other data types.
 
 	bool							Set_Field_Name		(int iField, const SG_Char *Name);
+	bool							Set_Field_Type		(int iField, TSG_Data_Type  Type);
 
 	double							Get_Minimum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Minimum()  : 0.0 );	}
 	double							Get_Maximum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Maximum()  : 0.0 );	}

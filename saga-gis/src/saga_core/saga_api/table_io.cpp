@@ -78,13 +78,13 @@
 //---------------------------------------------------------
 bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
 {
-	if( !::SG_File_Exists(File_Name) )
+	if( !SG_File_Exists(File_Name) )
 	{
 		return( false );
 	}
 
 	bool		bResult;
-	CSG_String	fName, sSeparator(Separator);
+	CSG_String	fName, sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
 
 	_Destroy();
 
@@ -100,7 +100,11 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 		else if( SG_File_Cmp_Extension(File_Name, SG_T("csv")) )
 		{
 			Format	= TABLE_FILETYPE_Text;
-			sSeparator	= ";";
+
+			if( !Separator || *Separator == NULL )
+			{
+				sSeparator	= SG_T(",");	// comma separated values
+			}
 		}
 		else //if( SG_File_Cmp_Extension(File_Name, SG_T("txt")) )
 		{
@@ -151,14 +155,14 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 //---------------------------------------------------------
 bool CSG_Table::Save(const CSG_String &File_Name, int Format)
 {
-	return( Save(File_Name, Format, SG_T("\t")) );
+	return( Save(File_Name, Format, NULL) );
 }
 
 //---------------------------------------------------------
 bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Separator)
 {
 	bool		bResult;
-	CSG_String	sSeparator(Separator);
+	CSG_String	sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save table"), File_Name.c_str()), true);
 
@@ -172,7 +176,11 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 		else if( SG_File_Cmp_Extension(File_Name, SG_T("csv")) )
 		{
 			Format	= TABLE_FILETYPE_Text;
-			sSeparator	= ';';
+
+			if( Separator == NULL || *Separator == NULL )
+			{
+				sSeparator	= SG_T(",");	// comma separated values
+			}
 		}
 		else //if( SG_File_Cmp_Extension(File_Name, SG_T("txt")) )
 		{
@@ -180,14 +188,15 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 		}
 	}
 
+	//-----------------------------------------------------
 	switch( Format )
 	{
 	case TABLE_FILETYPE_Text:
-		bResult	= _Save_Text (File_Name, true , Separator);
+		bResult	= _Save_Text (File_Name, true , sSeparator);
 		break;
 
 	case TABLE_FILETYPE_Text_NoHeadLine:
-		bResult	= _Save_Text (File_Name, false, Separator);
+		bResult	= _Save_Text (File_Name, false, sSeparator);
 		break;
 
 	case TABLE_FILETYPE_DBase:
@@ -240,6 +249,11 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 		return( false );
 	}
 
+	if( (fLength = Stream.Length()) <= 0 )
+	{
+		return( false );
+	}
+
 	if( !Stream.Read_Line(sLine) )
 	{
 		return( false );
@@ -250,11 +264,21 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 
 	while( (i = sLine.Find(Separator)) >= 0 )
 	{
-		sField	= bHeadline ? sLine.Left(i) : CSG_String::Format(SG_T("FIELD_%02d"), Table.Get_Field_Count() + 1);
+		sField.Clear();
 
-		if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
+		if( bHeadline )
 		{
-			sField	= sField.AfterFirst('\"').BeforeLast('\"');
+			sField	= sLine.Left(i);
+
+			if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
+			{
+				sField	= sField.AfterFirst('\"').BeforeLast('\"');
+			}
+		}
+
+		if( sField.Length() == 0 )
+		{
+			sField.Printf(SG_T("F%02d"), Table.Get_Field_Count() + 1);
 		}
 
 		Table.Add_Field(sField, SG_DATATYPE_String);
@@ -275,8 +299,6 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 		Stream.Seek_Start();
 	}
 
-	fLength	= Stream.Length();
-
 	while( Stream.Read_Line(sLine) && sLine.Length() > 0 && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
 	{
 		CSG_Table_Record	*pRecord	= Table._Add_Record();
@@ -292,6 +314,8 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 				if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
 				{
 					sField	= sField.AfterFirst('\"').BeforeLast('\"');
+
+					Type[iField]	= SG_DATATYPE_String;
 				}
 
 				if( Type[iField] != SG_DATATYPE_String )
@@ -369,7 +393,18 @@ bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG
 			{
 				for(iField=0; iField<Get_Field_Count(); iField++)
 				{
-					Stream.Printf(SG_T("%s"), Get_Record(iRecord)->asString(iField));
+					switch( Get_Field_Type(iField) )
+					{
+					case SG_DATATYPE_String:
+					case SG_DATATYPE_Date:
+						Stream.Printf(SG_T("\"%s\""), Get_Record(iRecord)->asString(iField));
+						break;
+
+					default:
+						Stream.Printf(SG_T("%s")    , Get_Record(iRecord)->asString(iField));
+						break;
+					}
+
 					Stream.Printf(SG_T("%s"), iField < Get_Field_Count() - 1 ? Separator : SG_T("\n"));
 				}
 			}

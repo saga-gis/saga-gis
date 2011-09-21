@@ -188,11 +188,11 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 	{
 	case ID_DLG_ALLFILES_OPEN:
 		return( wxString::Format(
-			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.dbf;*.bmp;*.gif;*.jpg;*.png;*.pcx;*.tif;*.img;*.asc;*.flt;*.bil|")
+			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.csv;*.dbf;*.bmp;*.gif;*.jpg;*.png;*.pcx;*.tif;*.img;*.asc;*.flt;*.bil|")
 			wxT("%s (*.sprj)|*.sprj|")
 			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
 			wxT("%s (*.shp)|*.shp|")
-			wxT("%s (*.txt, *.dbf)|*.txt;*.dbf|")
+			wxT("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|")
 			wxT("%s (*.spc)|*.spc|")
 			wxT("%s|*.*"),
 			LNG("Recognised Files"),
@@ -206,12 +206,12 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	case ID_DLG_WKSP_OPEN:
 		return( wxString::Format(
-			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.dbf|")
+			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.csv;*.dbf|")
 			wxT("%s (*.sprj)|*.sprj|")
 			wxT("%s (*.dll, *.so)|*.dll;*.so;*.mlb|")
 			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
 			wxT("%s (*.shp)|*.shp|")
-			wxT("%s (*.txt, *.dbf)|*.txt;*.dbf|")
+			wxT("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|")
 			wxT("%s (*.spc)|*.spc|")
 			wxT("%s|*.*"),
 			LNG("All Recognised Files"),
@@ -268,7 +268,7 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	case ID_DLG_TABLES_OPEN:
 		return( wxString::Format(
-			wxT("%s (*.txt, *.dbf)|*.txt;*.dbf|")
+			wxT("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|")
 			wxT("%s|*.*"),
 			LNG("Tables"),
 			LNG("All Files")
@@ -277,9 +277,11 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 	case ID_DLG_TABLES_SAVE:
 		return( wxString::Format(
 			wxT("%s (*.txt)|*.txt|")
+			wxT("%s (*.csv)|*.csv|")
 			wxT("%s (*.dbf)|*.dbf|")
 			wxT("%s|*.*"),
 			LNG("Text"),
+			LNG("Comma Separated Values"),
 			LNG("DBase"),
 			LNG("All Files")
 		));

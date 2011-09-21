@@ -29,6 +29,9 @@
     <ClCompile Include="Join_Tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="table_change_date_format.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -95,6 +98,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Join_Tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_change_date_format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
