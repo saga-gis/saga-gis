@@ -694,7 +694,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	for(int i=0; i<m_pPointCloud->Get_Count(); i++)
 	{
-		if( m_Color_Field < 3 || !m_pPointCloud->is_NoData(i, m_Color_Field - 3) )
+		if( !m_pPointCloud->is_NoData(i, m_Color_Field) )
 		{
 			TSG_Point_Z	Point	= m_pPointCloud->Get_Point(i);
 
