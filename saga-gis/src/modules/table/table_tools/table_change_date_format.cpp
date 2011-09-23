@@ -108,7 +108,7 @@ CTable_Change_Date_Format::CTable_Change_Date_Format(void)
 	Parameters.Add_Choice(
 		NULL	, "FMT_IN"			, _TL("Input Format"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("dd.mm.yy"),
 			_TL("yy.mm.dd"),
 			_TL("dd:mm:yy"),
@@ -116,14 +116,15 @@ CTable_Change_Date_Format::CTable_Change_Date_Format(void)
 			_TL("ddmmyyyy, fix size"),
 			_TL("yyyymmdd, fix size"),
 			_TL("ddmmyy, fix size"),
-			_TL("yymmdd, fix size")
+			_TL("yymmdd, fix size"),
+			_TL("Julian Day")
 		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "FMT_OUT"			, _TL("Input Format"),
+		NULL	, "FMT_OUT"			, _TL("Output Format"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("dd.mm.yy"),
 			_TL("yy.mm.dd"),
 			_TL("dd:mm:yy"),
@@ -131,7 +132,8 @@ CTable_Change_Date_Format::CTable_Change_Date_Format(void)
 			_TL("ddmmyyyy, fix size"),
 			_TL("yyyymmdd, fix size"),
 			_TL("ddmmyy, fix size"),
-			_TL("yymmdd, fix size")
+			_TL("yymmdd, fix size"),
+			_TL("Julian Day")
 		), 7
 	);
 }
@@ -171,14 +173,19 @@ bool CTable_Change_Date_Format::On_Execute(void)
 	//-----------------------------------------------------
 	int		fDate	= Parameters("FIELD" )->asInt();
 
-	if( pTable->Get_Field_Type(fDate) != SG_DATATYPE_String && fmt_Out < 4 )
+	switch( fmt_Out )
 	{
+	case 0:	case 1: case 2: case 3:
 		pTable->Set_Field_Type(fDate, SG_DATATYPE_String);
+		break;
+
+	default:
+		pTable->Set_Field_Type(fDate, SG_DATATYPE_Int);
+		break;
 	}
 
 	//-----------------------------------------------------
 	SG_Char	sep_In	= fmt_In  == 0 || fmt_In  == 1 ? SG_T('.') : SG_T(':');
-	SG_Char	sep_Out	= fmt_Out == 0 || fmt_Out == 1 ? SG_T('.') : SG_T(':');
 
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
@@ -207,39 +214,71 @@ bool CTable_Change_Date_Format::On_Execute(void)
 
 		case 4:	// ddmmyyyy
 			d	= sDate.Left (2)   .asInt();
-			m	= sDate.Mid  (3, 2).asInt();
+			m	= sDate.Mid  (2, 2).asInt();
 			y	= sDate.Right(4)   .asInt();
 			break;
 
 		case 5:	// yyyymmdd
 			y	= sDate.Left (4)   .asInt();
-			m	= sDate.Mid  (5, 2).asInt();
+			m	= sDate.Mid  (4, 2).asInt();
 			d	= sDate.Right(2)   .asInt();
 			break;
 
 		case 6:	// ddmmyy
 			d	= sDate.Left (2)   .asInt();
-			m	= sDate.Mid  (3, 2).asInt();
+			m	= sDate.Mid  (2, 2).asInt();
 			y	= sDate.Right(2)   .asInt();
 			break;
 
 		case 7:	// yymmdd
 			y	= sDate.Left (2)   .asInt();
-			m	= sDate.Mid  (3, 2).asInt();
+			m	= sDate.Mid  (2, 2).asInt();
 			d	= sDate.Right(2)   .asInt();
+			break;
+
+		case 8:	// Julian Day
+			{
+				d	= sDate.asInt();
+   
+				if( d >= 2299161 )	// Gregorian, else Julian
+				{
+					y	= (int)((d - 1867216.25) / 36524.25);
+					d	= d + 1 + y - (int)(y / 4.0);
+				}
+
+				int	B	= d + 1524;
+
+				y	= (int)((B - 122.1) / 365.25);
+				d	= (int)(365.25 * y);
+				m	= (int)((B - d) / 30.6001);
+
+				d	= B - d - (int)(30.6001 * m);	// day, without day fraction df
+				m	= m < 14 ? m -    1 : m -   13;	// month
+				y	= m >  2 ? y - 4716 : y - 4715;	// year
+			}
 			break;
 		}
 
 		switch( fmt_Out )
 		{
-		case 0:	sDate.Printf(SG_T("%d.%d.%d")    , d, m, y);	break;	// dd:mm:yy
-		case 1:	sDate.Printf(SG_T("%d.%d.%d")    , y, m, d);	break;	// yy:mm:dd
-		case 2:	sDate.Printf(SG_T("%d:%d:%d")    , d, m, y);	break;	// dd:mm:yy
-		case 3:	sDate.Printf(SG_T("%d:%d:%d")    , y, m, d);	break;	// yy:mm:dd
-		case 4:	sDate.Printf(SG_T("%02d%02d%04d"), d, m, y);	break;	// ddmmyyyy
-		case 5:	sDate.Printf(SG_T("%04d%02d%02d"), y, m, d);	break;	// yyyymmdd
-		case 6:	sDate.Printf(SG_T("%02d%02d%02d"), d, m, y - 100 * (int)(y / 100.0));	break;	// ddmmyy
-		case 7:	sDate.Printf(SG_T("%02d%02d%02d"), y - 100 * (int)(y / 100.0), m, d);	break;	// yymmdd
+		case 0:	sDate.Printf(SG_T("%02d.%02d.%02d"), d, m, y);	break;	// dd:mm:yy
+		case 1:	sDate.Printf(SG_T("%02d.%02d.%02d"), y, m, d);	break;	// yy:mm:dd
+		case 2:	sDate.Printf(SG_T("%02d:%02d:%02d"), d, m, y);	break;	// dd:mm:yy
+		case 3:	sDate.Printf(SG_T("%02d:%02d:%02d"), y, m, d);	break;	// yy:mm:dd
+		case 4:	sDate.Printf(SG_T("%02d%02d%04d")  , d, m, y);	break;	// ddmmyyyy
+		case 5:	sDate.Printf(SG_T("%04d%02d%02d")  , y, m, d);	break;	// yyyymmdd
+		case 6:	sDate.Printf(SG_T("%02d%02d%02d")  , d, m, y - 100 * (int)(y / 100.0));	break;	// ddmmyy
+		case 7:	sDate.Printf(SG_T("%02d%02d%02d")  , y - 100 * (int)(y / 100.0), m, d);	break;	// yymmdd
+
+		case 8:	// Julian Day
+			{
+				double	Y	= y + (m - 2.85) / 12.0;
+
+				d	= (int)((int)((int)(367.0 * Y) - 1.75 * (int)(Y) + d) - 0.75 * (int)(Y / 100.0)) + 1721115;
+		
+				sDate.Printf(SG_T("%d"), d);
+			}
+			break;
 		}
 
 		pRecord->Set_Value(fDate, sDate);
@@ -312,7 +351,7 @@ CTable_Change_Time_Format::CTable_Change_Time_Format(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "FMT_OUT"			, _TL("Input Format"),
+		NULL	, "FMT_OUT"			, _TL("Output Format"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
 			_TL("hh.mm.ss"),
@@ -360,14 +399,23 @@ bool CTable_Change_Time_Format::On_Execute(void)
 	//-----------------------------------------------------
 	int		fDate	= Parameters("FIELD" )->asInt();
 
-	if( pTable->Get_Field_Type(fDate) != SG_DATATYPE_String && fmt_Out < 2 )
+	switch( fmt_Out )
 	{
+	case 0:	case 1:
 		pTable->Set_Field_Type(fDate, SG_DATATYPE_String);
+		break;
+
+	case 2:
+		pTable->Set_Field_Type(fDate, SG_DATATYPE_Int);
+		break;
+
+	case 3:	case 4: case 5:
+		pTable->Set_Field_Type(fDate, SG_DATATYPE_Double);
+		break;
 	}
 
 	//-----------------------------------------------------
 	SG_Char	sep_In	= fmt_In  == 0 ? SG_T('.') : SG_T(':');
-	SG_Char	sep_Out	= fmt_Out == 0 ? SG_T('.') : SG_T(':');
 
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
@@ -389,7 +437,7 @@ bool CTable_Change_Time_Format::On_Execute(void)
 
 		case 2:	// hhmmss
 			s	 = sDate.Left (2)   .asInt() * 3600;
-			s	+= sDate.Mid  (3, 2).asInt() * 60;
+			s	+= sDate.Mid  (2, 2).asInt() * 60;
 			s	+= sDate.Right(2)   .asDouble();
 			break;
 
