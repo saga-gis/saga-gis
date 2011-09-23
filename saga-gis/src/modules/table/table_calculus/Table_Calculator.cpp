@@ -106,7 +106,8 @@ bool CTable_Calculator_Base::On_Execute(void)
 		pTable->Create(*Parameters("TABLE")->asTable());
 	}
 
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("TABLE")->asTable()->Get_Name(), Parameters("NAME")->asString()));
+//	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("TABLE")->asTable()->Get_Name(), Parameters("NAME")->asString()));
+	pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
 	pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------

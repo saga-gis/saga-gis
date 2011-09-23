@@ -38,6 +38,12 @@
     <ClCompile Include="table_pca.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="etp_hargreave.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="table_fill_record_gaps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -113,6 +119,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_pca.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="etp_hargreave.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_fill_record_gaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
