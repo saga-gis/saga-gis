@@ -142,21 +142,37 @@ CTOPMODEL::CTOPMODEL(void)
 	//-----------------------------------------------------
 
 	Parameters.Add_Grid(
-		NULL	, "ATANB"		, _TL("A / tan(\xc3\x9f)"),
+		NULL	, "ATANB"		, _TL("Topographic Wetness Index"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
+	Parameters.Add_Grid(
 		NULL	, "MOIST"		, _TL("Soil Moisture Deficit"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(
-		NULL	, "CLIMATE"		, _TL("Climate Data (P, EP)"),
+	pNode	= Parameters.Add_Table(
+		NULL	, "WEATHER"		, _TL("Weather Records"),
 		_TL(""),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "RECORD_P"	, _TL("Precipitation [m / dt]"),
+		_TL("")
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "RECORD_ET"	, _TL("Evapotranspiration [m / dt]"),
+		_TL("")
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "RECORD_DATE"	, _TL("Date/Time"),
+		_TL(""),
+		true
 	);
 
 	Parameters.Add_Table(
@@ -177,7 +193,8 @@ CTOPMODEL::CTOPMODEL(void)
 		PARAMETER_TYPE_Int		, 30	, 1	, true
 	);
 
-	pNode	= NULL;
+	pNode	= NULL;	// = Parameters("MOIST");
+
 	Parameters.Add_Value(
 		pNode, "P_QS0"			, _TL("Initial subsurface flow per unit area [m/h]"),
 		_TL(""),
@@ -265,10 +282,11 @@ CTOPMODEL::~CTOPMODEL(void)
 //---------------------------------------------------------
 bool CTOPMODEL::On_Execute(void)
 {
-	bool			bInfiltration;
-	long			n;
-	int				iClass, nClasses, iTime, nTimeSteps, k;
-	double			Precipitation, Evaporation, Infiltration, Infiltration_Excess;
+	bool				bInfiltration;
+	long				n;
+	int					iClass, nClasses, iTime, nTimeSteps, k;
+	double				Precipitation, Evaporation, Infiltration, Infiltration_Excess;
+	CSG_String			Time;
 	CSG_Grid			*pAtanB, *pMoist, gClass;
 	CSG_Table_Record	*pRecord;
 	CSG_Table			*pTable;
@@ -278,12 +296,15 @@ bool CTOPMODEL::On_Execute(void)
 	// Get user inputs from the 'Parameters' object...
 
 	pAtanB			= Parameters("ATANB")		->asGrid();
-	pClimate		= Parameters("CLIMATE")		->asTable();
+	m_pWeather		= Parameters("WEATHER")		->asTable();
+	m_fP			= Parameters("RECORD_P")	->asInt();
+	m_fET			= Parameters("RECORD_ET")	->asInt();
+	m_fTime			= Parameters("RECORD_DATE")	->asInt();
 	dTime			= Parameters("DTIME")		->asDouble();
 	nClasses		= Parameters("NCLASSES")	->asInt();
 	bInfiltration	= Parameters("BINF")		->asBool();
 
-	nTimeSteps		= pClimate->Get_Record_Count();
+	nTimeSteps		= m_pWeather->Get_Record_Count();
 
 	if( (pMoist = Parameters("MOIST")->asGrid()) != NULL )
 	{
@@ -296,7 +317,9 @@ bool CTOPMODEL::On_Execute(void)
 	pTable			= Parameters("TABLE")->asTable();
 	pTable->Destroy();
 	pTable->Set_Name(_TL("TOPMODEL - Simulation Output"));
-	pTable->Add_Field(_TL("Total flow (in watershed) [m\xc2\xb3/dt]")			, SG_DATATYPE_Double);
+
+	pTable->Add_Field(_TL("Time")										, SG_DATATYPE_String);
+	pTable->Add_Field(_TL("Total flow (in watershed) [m^3/dt]")			, SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Total flow [m/dt]")							, SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Saturation overland flow [m/dt]")			, SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Subsurface flow [m/dt]")						, SG_DATATYPE_Double);
@@ -314,7 +337,7 @@ bool CTOPMODEL::On_Execute(void)
 
 	for(iTime=0; iTime<nTimeSteps && Set_Progress(iTime, nTimeSteps); iTime++)
 	{
-		Get_Climate(iTime, Precipitation, Evaporation);
+		Get_Weather(iTime, Precipitation, Evaporation, Time);
 
 		if( bInfiltration && Precipitation > 0.0 )
 		{
@@ -360,14 +383,15 @@ bool CTOPMODEL::On_Execute(void)
 		}
 
 		pRecord	= pTable->Add_Record();
-		pRecord->Set_Value(0, Vals.Qt_[iTime]);		// QT
-		pRecord->Set_Value(1, Vals.qt_Total);		// qt
-		pRecord->Set_Value(2, Vals.qo_Total);		// q0
-		pRecord->Set_Value(3, Vals.qs_Total);		// qs
-		pRecord->Set_Value(4, Vals.qv_Total);		// qv
-		pRecord->Set_Value(5, Vals.Sbar_);			// SBar
-		pRecord->Set_Value(6, Infiltration);		// Infiltration
-		pRecord->Set_Value(7, Infiltration_Excess);	// Infiltration Excess
+		pRecord->Set_Value(0, Time);				// Time
+		pRecord->Set_Value(1, Vals.Qt_[iTime]);		// QT
+		pRecord->Set_Value(2, Vals.qt_Total);		// qt
+		pRecord->Set_Value(3, Vals.qo_Total);		// q0
+		pRecord->Set_Value(4, Vals.qs_Total);		// qs
+		pRecord->Set_Value(5, Vals.qv_Total);		// qv
+		pRecord->Set_Value(6, Vals.Sbar_);			// SBar
+		pRecord->Set_Value(7, Infiltration);		// Infiltration
+		pRecord->Set_Value(8, Infiltration_Excess);	// Infiltration Excess
 		DataObject_Update(pTable);
 	}
 
@@ -508,24 +532,31 @@ void CTOPMODEL::Run(double Evaporation, double Precipitation, double Infiltratio
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTOPMODEL::Get_Climate(int iTimeStep, double &Precipitation, double &Evaporation)
+bool CTOPMODEL::Get_Weather(int iTimeStep, double &Precipitation, double &Evaporation, CSG_String &Time)
 {
 	CSG_Table_Record	*pRecord;
 
-	if( pClimate && pClimate->Get_Field_Count() >= 2 && (pRecord = pClimate->Get_Record(iTimeStep)) != NULL )
+	if( m_pWeather && (pRecord = m_pWeather->Get_Record(iTimeStep)) != NULL )
 	{
-		Precipitation	= pRecord->asDouble(0);
-		Evaporation		= pRecord->asDouble(1);
+		Precipitation	= pRecord->asDouble(m_fP);
+		Evaporation		= pRecord->asDouble(m_fET);
+
+		if( m_fTime >= 0 )
+		{
+			Time		= pRecord->asString(m_fTime);
+		}
+		else
+		{
+			Time.Printf(SG_T("%d"), iTimeStep);
+		}
 
 		return( true );
 	}
-	else
-	{
-		Precipitation	= 0.0;
-		Evaporation		= 0.0;
 
-		return( false );
-	}
+	Precipitation	= 0.0;
+	Evaporation		= 0.0;
+
+	return( false );
 }
 
 

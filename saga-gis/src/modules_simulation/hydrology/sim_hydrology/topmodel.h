@@ -96,16 +96,18 @@ protected:
 
 private:
 
+	int					m_fP, m_fET, m_fTime;
+
 	double				dTime, inf_cumf, inf_bPonding;
 
-	CSG_Table				*pClimate;
+	CSG_Table			*m_pWeather;
 
 	CTOPMODEL_Values	Vals;
 
 
 	void				Run(double Evaporation, double Infiltration, double Infiltration_Excess);
 
-	bool				Get_Climate(int iTimeStep, double &Precipitation, double &Evaporation);
+	bool				Get_Weather(int iTimeStep, double &Precipitation, double &Evaporation, CSG_String &Date);
 	double				Get_Infiltration(double t, double R);
 
 };
