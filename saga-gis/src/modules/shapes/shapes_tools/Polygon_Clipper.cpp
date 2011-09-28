@@ -275,10 +275,10 @@ Copyright: (C) 1997-1999, Advanced Interfaces Group,
 				            exit(0);}} else p= NULL;}
 */
 #define _MALLOC(p, b, s)    {if ((b) > 0) { \
-							void	**pPointer	= ((void **)&p);\
+                            void	**pPointer	= ((void **)&p);\
                             *pPointer= malloc(b); if (!(p)) { \
                             fprintf(stderr, "gpc malloc failure: %s\n", s); \
-				            exit(0);}} else p= NULL;}
+				            }} else p= NULL;}
 
 #define FREE(p)            {if (p) {free(p); (p)= NULL;}}
 
