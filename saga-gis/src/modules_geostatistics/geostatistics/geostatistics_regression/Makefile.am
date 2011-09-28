@@ -15,6 +15,7 @@ pkglib_LTLIBRARIES = libgeostatistics_regression.la
 libgeostatistics_regression_la_SOURCES =\
 gw_multi_regression.cpp\
 gw_multi_regression_grid.cpp\
+gw_multi_regression_points.cpp\
 gw_regression.cpp\
 gw_regression_grid.cpp\
 MLB_Interface.cpp\
@@ -23,6 +24,7 @@ point_multi_grid_regression.cpp\
 point_trend_surface.cpp\
 gw_multi_regression.h\
 gw_multi_regression_grid.h\
+gw_multi_regression_points.h\
 gw_regression.h\
 gw_regression_grid.h\
 MLB_Interface.h\

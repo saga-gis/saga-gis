@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: gw_multi_regression_points.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//              gw_multi_regression_points.h             //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -54,73 +54,66 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__gw_multi_regression_points_H
+#define HEADER_INCLUDED__gw_multi_regression_points_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CGW_Multi_Regression_Points : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Regression") );
-
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad (c) 2010" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (geo)statistical analyses.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Regression") );
-	}
-}
+public:
+	CGW_Multi_Regression_Points(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "point_grid_regression.h"
-#include "point_multi_grid_regression.h"
-#include "point_trend_surface.h"
-#include "gw_regression.h"
-#include "gw_regression_grid.h"
-#include "gw_multi_regression.h"
-#include "gw_multi_regression_grid.h"
-#include "gw_multi_regression_points.h"
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPoint_Grid_Regression );
-	case  1:	return( new CPoint_Multi_Grid_Regression );
-	case  2:	return( new CPoint_Trend_Surface );
-	case  3:	return( new CGW_Regression );
-	case  4:	return( new CGW_Regression_Grid );
-	case  5:	return( new CGW_Multi_Regression );
-	case  6:	return( new CGW_Multi_Regression_Grid );
-	case  7:	return( new CGW_Multi_Regression_Points );
-	}
+	int							m_nPredictors, m_nPoints_Min, m_nPoints_Max, m_Mode;
 
-	return( NULL );
-}
+	double						m_Radius;
+
+	CSG_Distance_Weighting		m_Weighting;
+
+	CSG_PRQuadTree				m_Search;
+
+	CSG_Vector					m_z, m_w;
+
+	CSG_Matrix					m_y;
+
+	CSG_Shapes					*m_pPoints;
+
+
+	void						Finalize				(void);
+
+	bool						Get_Predictors			(void);
+
+	int							Set_Variables			(const TSG_Point &Point);
+
+	bool						Get_Regression			(CSG_Shape *pPoint);
+
+	bool						Set_Residuals			(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -130,8 +123,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__gw_multi_regression_points_H

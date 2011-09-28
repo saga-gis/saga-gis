@@ -446,24 +446,27 @@ int CGW_Multi_Regression::Set_Variables(int x, int y)
 			pPoint	= m_pPoints->Get_Shape(iPoint);
 		}
 
-		m_z[iPoint]	= pPoint->asDouble(m_iDependent);
-		m_w[iPoint]	= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
-
-		for(iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+		if( !pPoint->is_NoData(m_iDependent) )
 		{
-			if( !pPoint->is_NoData(m_iPredictor[iPredictor]) )
-			{
-				m_y[jPoint][iPredictor]	= pPoint->asDouble(m_iPredictor[iPredictor]);
-			}
-			else
-			{
-				iPredictor	= m_nPredictors + 1;
-			}
-		}
+			m_z[jPoint]	= pPoint->asDouble(m_iDependent);
+			m_w[jPoint]	= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
 
-		if( iPredictor == m_nPredictors )
-		{
-			jPoint++;
+			for(iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+			{
+				if( !pPoint->is_NoData(m_iPredictor[iPredictor]) )
+				{
+					m_y[jPoint][iPredictor]	= pPoint->asDouble(m_iPredictor[iPredictor]);
+				}
+				else
+				{
+					iPredictor	= m_nPredictors + 1;
+				}
+			}
+
+			if( iPredictor == m_nPredictors )
+			{
+				jPoint++;
+			}
 		}
 	}
 
@@ -524,6 +527,7 @@ bool CGW_Multi_Regression::Get_Regression(int x, int y)
 	}
 
 	m_pQuality  ->Set_Value(x, y, tss > 0.0 ? (tss - rss) / tss : 0.0);
+
 	m_pIntercept->Set_Value(x, y, b[0]);
 
 	for(i=0; i<m_nPredictors; i++)
