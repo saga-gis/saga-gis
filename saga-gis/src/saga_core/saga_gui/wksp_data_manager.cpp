@@ -1381,21 +1381,27 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 
 		pParameters->Destroy();
 
-		for(i=0; i<Get_Grids()->Get_Count(); i++)
+		if( Get_Grids() )
 		{
-			for(j=0; j<Get_Grids()->Get_System(i)->Get_Count(); j++)
+			for(i=0; i<Get_Grids()->Get_Count(); i++)
 			{
-				s.Printf(wxT("GRID_%03d_%03d"), i, j);
-				pParameters->Add_Grid(NULL, s, s, LNG(""), PARAMETER_INPUT)
-					->Set_Value(Get_Grids()->Get_System(i)->Get_Grid(j)->Get_Grid());
+				for(j=0; j<Get_Grids()->Get_System(i)->Get_Count(); j++)
+				{
+					s.Printf(wxT("GRID_%03d_%03d"), i, j);
+					pParameters->Add_Grid(NULL, s, s, LNG(""), PARAMETER_INPUT)
+						->Set_Value(Get_Grids()->Get_System(i)->Get_Grid(j)->Get_Grid());
+				}
 			}
 		}
 
-		for(i=0; i<Get_PointClouds()->Get_Count(); i++)
+		if( Get_PointClouds() )
 		{
-			s.Printf(wxT("POINTCLOUD_%03d"), i);
-			pParameters->Add_PointCloud(NULL, s, s, LNG(""), PARAMETER_INPUT)
-				->Set_Value(Get_PointClouds()->Get_PointCloud(i)->Get_PointCloud());
+			for(i=0; i<Get_PointClouds()->Get_Count(); i++)
+			{
+				s.Printf(wxT("POINTCLOUD_%03d"), i);
+				pParameters->Add_PointCloud(NULL, s, s, LNG(""), PARAMETER_INPUT)
+					->Set_Value(Get_PointClouds()->Get_PointCloud(i)->Get_PointCloud());
+			}
 		}
 
 		if( (pShapes = Get_Shapes()->Get_Shapes_Type(SHAPE_TYPE_Point)) != NULL )
@@ -1438,11 +1444,14 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 			}
 		}
 
-		for(i=0; i<Get_Tables()->Get_Count(); i++)
+		if( Get_Tables() )
 		{
-			s.Printf(wxT("TABLE_%03d"), i);
-			pParameters->Add_Table(NULL, s, s, LNG(""), PARAMETER_INPUT)
-				->Set_Value(Get_Tables()->Get_Table(i)->Get_Table());
+			for(i=0; i<Get_Tables()->Get_Count(); i++)
+			{
+				s.Printf(wxT("TABLE_%03d"), i);
+				pParameters->Add_Table(NULL, s, s, LNG(""), PARAMETER_INPUT)
+					->Set_Value(Get_Tables()->Get_Table(i)->Get_Table());
+			}
 		}
 
 		return( true );
