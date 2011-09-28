@@ -1445,7 +1445,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 //---------------------------------------------------------
 bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 {
-	const int	n	= 207;
+	const int	n	= 209;
 	const char	Translation[n][4][128]	= {
 		//	 PROJ4		  DIR	WKT										   DESCRIPTION
 
@@ -1482,6 +1482,7 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		{	"eqc"		, "<", "Plate_Carree"							, "[ESRI] Equidistant Cylindrical (Plate Caree)"	},
 		{	"eqdc"		, " ", "Equidistant_Conic"						, "*) Equidistant Conic"	},
 		{	"euler"		, " ", "Euler"									, "*) Euler"	},
+		{	"etmerc"	, " ", "Extended_Transverse_Mercator"			, "*) Extended Transverse Mercator"	},
 		{	"fahey"		, " ", "Fahey"									, "*) Fahey"	},
 		{	"fouc"		, " ", "Foucault"								, "*) Foucaut"	},
 		{	"fouc_s"	, " ", "Foucault_Sinusoidal"					, "*) Foucaut Sinusoidal"	},
@@ -1496,6 +1497,7 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		{	"gs50"		, " ", "Mod_Stererographics_50"					, "*) Mod. Stererographics of 50 U.S."	},
 		{	"hammer"	, " ", "Hammer_Eckert_Greifendorff"				, "*) Hammer & Eckert-Greifendorff"	},
 		{	"hatano"	, " ", "Hatano_Asymmetrical_Equal_Area"			, "*) Hatano Asymmetrical Equal Area"	},
+		{	"igh"		, " ", "World_Goode_Homolosine_Land"			, "*) Interrupted Goode Homolosine"	},
 		{	"imw_p"		, " ", "Internation_Map_of_the_World_Polyconic"	, "*) Internation Map of the World Polyconic"	},
 		{	"kav5"		, " ", "Kavraisky_V"							, "*) Kavraisky V"	},
 		{	"kav7"		, " ", "Kavraisky_VII"							, "*) Kavraisky VII"	},
@@ -1732,7 +1734,7 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 
 		for(int i=0; i<n; i++)
 		{
-			if( Translation[i][1][0] != '<' )	// only Proj4 to WKT
+			if( Translation[i][1][0] != '>' )	// only Proj4 to WKT
 			{
 				CSG_Table_Record	*pRecord	= Dictionary.Add_Record();
 

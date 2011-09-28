@@ -31,6 +31,7 @@ eqc	<	Equidistant_Cylindrical	[ESRI] Equidistant Cylindrical (Plate Caree)
 eqc	<	Plate_Carree	[ESRI] Equidistant Cylindrical (Plate Caree)
 eqdc	 	Equidistant_Conic	*) Equidistant Conic
 euler	 	Euler	*) Euler
+etmerc	 	Extended_Transverse_Mercator	*) Extended Transverse Mercator
 fahey	 	Fahey	*) Fahey
 fouc	 	Foucault	*) Foucaut
 fouc_s	 	Foucault_Sinusoidal	*) Foucaut Sinusoidal
@@ -45,6 +46,7 @@ gs48	 	Mod_Stererographics_48	*) Mod. Stererographics of 48 U.S.
 gs50	 	Mod_Stererographics_50	*) Mod. Stererographics of 50 U.S.
 hammer	 	Hammer_Eckert_Greifendorff	*) Hammer & Eckert-Greifendorff
 hatano	 	Hatano_Asymmetrical_Equal_Area	*) Hatano Asymmetrical Equal Area
+igh	 	Interrupted_Goodes_Homolosine	*) Interrupted Goode's Homolosine
 imw_p	 	Internation_Map_of_the_World_Polyconic	*) Internation Map of the World Polyconic
 kav5	 	Kavraisky_V	*) Kavraisky V
 kav7	 	Kavraisky_VII	*) Kavraisky VII
