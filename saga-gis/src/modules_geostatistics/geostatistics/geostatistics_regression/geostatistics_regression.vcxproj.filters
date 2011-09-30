@@ -41,6 +41,9 @@
     <ClCompile Include="gw_multi_regression_points.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid_multi_grid_regression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -119,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gw_multi_regression_points.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_multi_grid_regression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

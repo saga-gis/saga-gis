@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: grid_multi_grid_regression.h 1160 2011-09-14 15:11:54Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//               grid_multi_grid_regression.h            //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,7 +44,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Hamburg                  //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -54,75 +56,46 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__grid_multi_grid_regression_H
+#define HEADER_INCLUDED__grid_multi_grid_regression_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CGrid_Multi_Grid_Regression : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Regression") );
-
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad (c) 2010" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (geo)statistical analyses.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Regression") );
-	}
-}
+public:
+	CGrid_Multi_Grid_Regression(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "point_grid_regression.h"
-#include "point_multi_grid_regression.h"
-#include "point_trend_surface.h"
-#include "gw_regression.h"
-#include "gw_regression_grid.h"
-#include "gw_multi_regression.h"
-#include "gw_multi_regression_grid.h"
-#include "gw_multi_regression_points.h"
-#include "grid_multi_grid_regression.h"
+	virtual bool				On_Execute			(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPoint_Grid_Regression );
-	case  1:	return( new CPoint_Multi_Grid_Regression );
-	case  2:	return( new CPoint_Trend_Surface );
-	case  3:	return( new CGW_Regression );
-	case  4:	return( new CGW_Regression_Grid );
-	case  5:	return( new CGW_Multi_Regression );
-	case  6:	return( new CGW_Multi_Regression_Grid );
-	case  7:	return( new CGW_Multi_Regression_Points );
-	case  8:	return( new CGrid_Multi_Grid_Regression );
-	}
+	CSG_Regression_Multiple		m_Regression;
 
-	return( NULL );
-}
+
+	bool						Get_Samples			(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Matrix &Samples, CSG_Strings &Names);
+
+	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Grid *pRegression, CSG_Grid *pResiduals, const CSG_String &Name);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -132,8 +105,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__grid_multi_grid_regression_H

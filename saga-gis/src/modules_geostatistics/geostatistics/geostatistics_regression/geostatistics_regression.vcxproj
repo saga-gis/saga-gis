@@ -558,6 +558,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="grid_multi_grid_regression.cpp" />
     <ClCompile Include="gw_multi_regression.cpp" />
     <ClCompile Include="gw_multi_regression_grid.cpp" />
     <ClCompile Include="gw_multi_regression_points.cpp" />
@@ -592,6 +593,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="grid_multi_grid_regression.h" />
     <ClInclude Include="gw_multi_regression.h" />
     <ClInclude Include="gw_multi_regression_grid.h" />
     <ClInclude Include="gw_multi_regression_points.h" />
