@@ -271,7 +271,9 @@ bool CSG_Projection::Save(const CSG_String &File_Name, TSG_Projection_Format For
 		case SG_PROJ_FMT_WKT:
 			if( Stream.Open(File_Name, SG_FILE_W, false) )
 			{
-				Stream.Write((void *)SG_STR_SGTOMB(m_WKT), m_WKT.Length());
+				CSG_String	s(m_WKT);
+
+				Stream.Write((void *)s.b_str(), m_WKT.Length());
 
 				return( true );
 			}
@@ -280,7 +282,9 @@ bool CSG_Projection::Save(const CSG_String &File_Name, TSG_Projection_Format For
 		case SG_PROJ_FMT_Proj4:
 			if( Stream.Open(File_Name, SG_FILE_W, false) )
 			{
-				Stream.Write((void *)SG_STR_SGTOMB(m_Proj4), m_Proj4.Length());
+				CSG_String	s(m_Proj4);
+
+				Stream.Write((void *)s.b_str(), m_Proj4.Length());
 
 				return( true );
 			}
