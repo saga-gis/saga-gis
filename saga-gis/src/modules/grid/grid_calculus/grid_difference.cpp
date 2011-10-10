@@ -206,7 +206,7 @@ bool CGrids_Sum::On_Execute(void)
 				}
 			}
 
-			if( n > 0 )
+			if( n != pGrids->Get_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}
@@ -298,7 +298,7 @@ bool CGrids_Product::On_Execute(void)
 				}
 			}
 
-			if( n > 0 )
+			if( n != pGrids->Get_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}
