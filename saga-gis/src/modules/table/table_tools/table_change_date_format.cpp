@@ -397,22 +397,9 @@ bool CTable_Change_Time_Format::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		fDate	= Parameters("FIELD" )->asInt();
+	int		fTime	= Parameters("FIELD" )->asInt();
 
-	switch( fmt_Out )
-	{
-	case 0:	case 1:
-		pTable->Set_Field_Type(fDate, SG_DATATYPE_String);
-		break;
-
-	case 2:
-		pTable->Set_Field_Type(fDate, SG_DATATYPE_Int);
-		break;
-
-	case 3:	case 4: case 5:
-		pTable->Set_Field_Type(fDate, SG_DATATYPE_Double);
-		break;
-	}
+	pTable->Set_Field_Type(fTime, SG_DATATYPE_String);
 
 	//-----------------------------------------------------
 	SG_Char	sep_In	= fmt_In  == 0 ? SG_T('.') : SG_T(':');
@@ -422,7 +409,7 @@ bool CTable_Change_Time_Format::On_Execute(void)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-		CSG_String	sDate	= pRecord->asString(fDate);
+		CSG_String	sTime	= pRecord->asString(fTime);
 
 		double	s;
 
@@ -430,27 +417,27 @@ bool CTable_Change_Time_Format::On_Execute(void)
 		{
 		case 0:	// hh.mm.ss
 		case 1:	// hh:mm:ss
-			s	 = sDate.BeforeFirst(sep_In).asInt() * 3600;
-			s	+= sDate.AfterFirst (sep_In).asInt() * 60;
-			s	+= sDate.AfterLast  (sep_In).asDouble();
+			s	 = sTime.BeforeFirst(sep_In).asInt() * 3600;
+			s	+= sTime.AfterFirst (sep_In).asInt() * 60;
+			s	+= sTime.AfterLast  (sep_In).asDouble();
 			break;
 
 		case 2:	// hhmmss
-			s	 = sDate.Left (2)   .asInt() * 3600;
-			s	+= sDate.Mid  (2, 2).asInt() * 60;
-			s	+= sDate.Right(2)   .asDouble();
+			s	 = sTime.Left (2)   .asInt() * 3600;
+			s	+= sTime.Mid  (2, 2).asInt() * 60;
+			s	+= sTime.Right(2)   .asDouble();
 			break;
 
 		case 3:	// hours
-			s	 = sDate.asDouble() * 3600;
+			s	 = sTime.asDouble() * 3600;
 			break;
 
 		case 4:	// minutes
-			s	 = sDate.asDouble() * 60;
+			s	 = sTime.asDouble() * 60;
 			break;
 
 		case 5:	// seconds
-			s	 = sDate.asDouble();
+			s	 = sTime.asDouble();
 			break;
 		}
 
@@ -463,11 +450,11 @@ bool CTable_Change_Time_Format::On_Execute(void)
 
 				switch( fmt_Out )
 				{
-			//	case 0:	sDate.Printf(SG_T("%02d.%02d.%02.*f"), h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
-			//	case 1:	sDate.Printf(SG_T("%02d:%02d:%02.*f"), h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
-				case 0:	sDate.Printf(SG_T("%02d.%02d.%02d"  ), h, m, (int)(s + 0.5));	break;	// hh:mm:ss
-				case 1:	sDate.Printf(SG_T("%02d:%02d:%02d"  ), h, m, (int)(s + 0.5));	break;	// hh:mm:ss
-				case 2:	sDate.Printf(SG_T("%02d%02d%02d"    ), h, m, (int)(s + 0.5));	break;	// hhmmss
+			//	case 0:	sTime.Printf(SG_T("%02d.%02d.%02.*f"), h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
+			//	case 1:	sTime.Printf(SG_T("%02d:%02d:%02.*f"), h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
+				case 0:	sTime.Printf(SG_T("%02d.%02d.%02d"  ), h, m, (int)(s + 0.5));	break;	// hh:mm:ss
+				case 1:	sTime.Printf(SG_T("%02d:%02d:%02d"  ), h, m, (int)(s + 0.5));	break;	// hh:mm:ss
+				case 2:	sTime.Printf(SG_T("%02d%02d%02d"    ), h, m, (int)(s + 0.5));	break;	// hhmmss
 				}
 			}
 			break;
@@ -481,12 +468,12 @@ bool CTable_Change_Time_Format::On_Execute(void)
 			//	case 5:	s	= s       ;	break;	// seconds
 				}
 
-				sDate.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(s), s);
+				sTime.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(s), s);
 			}
 			break;
 		}
 
-		pRecord->Set_Value(fDate, sDate);
+		pRecord->Set_Value(fTime, sTime);
 	}
 
 	//-----------------------------------------------------
