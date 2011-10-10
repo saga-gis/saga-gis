@@ -273,7 +273,7 @@ bool CSG_Projection::Save(const CSG_String &File_Name, TSG_Projection_Format For
 			{
 				CSG_String	s(m_WKT);
 
-				Stream.Write((void *)s.b_str(), m_WKT.Length());
+				Stream.Write((void *)s.b_str(), s.Length());
 
 				return( true );
 			}
@@ -284,7 +284,7 @@ bool CSG_Projection::Save(const CSG_String &File_Name, TSG_Projection_Format For
 			{
 				CSG_String	s(m_Proj4);
 
-				Stream.Write((void *)s.b_str(), m_Proj4.Length());
+				Stream.Write((void *)s.b_str(), s.Length());
 
 				return( true );
 			}
