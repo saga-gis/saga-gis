@@ -77,8 +77,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define COLORS_SERIAL_VERSION_BINARY	SG_T("SAGA_COLORPALETTE_VERSION_0.100_BINARY")
-#define COLORS_SERIAL_VERSION__ASCII	SG_T("SAGA_COLORPALETTE_VERSION_0.100__ASCII")
+#define COLORS_SERIAL_VERSION_BINARY	"SAGA_COLORPALETTE_VERSION_0.100_BINARY"
+#define COLORS_SERIAL_VERSION__ASCII	"SAGA_COLORPALETTE_VERSION_0.100__ASCII"
 
 
 ///////////////////////////////////////////////////////////
