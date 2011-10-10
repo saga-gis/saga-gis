@@ -22,7 +22,7 @@ AC_CHECK_LIB([fftw3],[fftw_execute],FFTWFOUND=1,)
 AC_CHECK_LIB([jasper], [jas_calloc],JASPERFOUND=1,,)
 AC_CHECK_LIB([las], [LAS_GetVersion], LASFOUND=1,,)
 AC_CHECK_LIB(hpdf, HPDF_Pages_New, HARUFOUND=1,,)
-AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,,[ODBC \(libodbc\) library not found])
+AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found])
 AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 
