@@ -126,7 +126,7 @@ _try
 #endif
 //---------------------------------------------------------
 
-	if( !wxInitialize() )
+	if( !wxInitialize( argc, argv ) )
 	{
 		Print_Error(SG_T("initialisation failed"));
 
