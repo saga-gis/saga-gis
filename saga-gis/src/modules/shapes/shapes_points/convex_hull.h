@@ -75,23 +75,26 @@ class CConvex_Hull : public CSG_Module
 public:
 	CConvex_Hull(void);
 
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Tools") );	}
+
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
 	static CSG_Shapes		*m_pPoints;
 
-	static int				Compare			(const int iElement_1, const int iElement_2);
+	static int				Compare				(const int iElement_1, const int iElement_2);
 
-	double					is_Left			(const TSG_Point &Line_A, const TSG_Point &Line_B, const TSG_Point &Point);
+	double					is_Left				(const TSG_Point &Line_A, const TSG_Point &Line_B, const TSG_Point &Point);
 
-	bool					Get_Chain_Hull	(CSG_Shapes *pPoints, CSG_Shapes *pHulls);
+	bool					Get_Chain_Hull		(CSG_Shapes *pPoints, CSG_Shapes *pHulls);
+	int						Get_Chain_Hull		(CSG_Points &P, CSG_Points &H);
 
-	int						Get_Chain_Hull	(CSG_Points &P, CSG_Points &H);
+	bool					Get_Bounding_Box	(CSG_Shape *pHull, CSG_Shape *pBox);
 
 };
 

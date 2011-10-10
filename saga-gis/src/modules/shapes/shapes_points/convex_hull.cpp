@@ -96,6 +96,12 @@ CConvex_Hull::CConvex_Hull(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
+	Parameters.Add_Shapes(
+		NULL	, "BOXES"		, _TL("Minimum Bounding Box"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
+	);
+
 	Parameters.Add_Choice(
 		NULL	, "POLYPOINTS"	, _TL("Hull Construction"),
 		_TL("This option does not apply to simple point layers."),
@@ -117,11 +123,12 @@ CConvex_Hull::CConvex_Hull(void)
 //---------------------------------------------------------
 bool CConvex_Hull::On_Execute(void)
 {
-	CSG_Shapes	*pShapes, *pHulls;
+	CSG_Shapes	*pShapes, *pHulls, *pBoxes;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("SHAPES")	->asShapes();
 	pHulls	= Parameters("HULLS")	->asShapes();
+	pBoxes	= Parameters("BOXES")	->asShapes();
 
 	//-----------------------------------------------------
 	pHulls->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Convex Hull")));
@@ -130,48 +137,143 @@ bool CConvex_Hull::On_Execute(void)
 	pHulls->Add_Field(_TL("PERIMETER")	, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
+	int	nOkay	= 0;
+
+	//-----------------------------------------------------
 	if( pShapes->Get_Type() == SHAPE_TYPE_Point )
 	{
-		return( Get_Chain_Hull(pShapes, pHulls) );
+		nOkay	= Get_Chain_Hull(pShapes, pHulls) ? 1 : 0;
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	Points(SHAPE_TYPE_Point);
-
-	int	Construction	= Parameters("POLYPOINTS")->asInt();
-	int	nOkay			= 0;
-	int	nFailed			= 0;
-
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	else
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+		CSG_Shapes	Points(SHAPE_TYPE_Point);
 
-		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		int	Construction	= Parameters("POLYPOINTS")->asInt();
+
+		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
-			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				Points.Add_Shape()->Add_Point(pShape->Get_Point(iPoint, iPart));
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					Points.Add_Shape()->Add_Point(pShape->Get_Point(iPoint, iPart));
+				}
+
+				if( Construction == 2 )	// one hull per shape part
+				{
+					if( Get_Chain_Hull(&Points, pHulls) )	nOkay++;	Points.Del_Records();
+				}
 			}
 
-			if( Construction == 2 )	// one hull per shape part
+			if( Construction == 1 )	// one hull per shape
 			{
-				if( Get_Chain_Hull(&Points, pHulls) )	nOkay	++;	else	nFailed	++;	Points.Del_Records();
+				if( Get_Chain_Hull(&Points, pHulls) )	nOkay++;	Points.Del_Records();
 			}
 		}
 
-		if( Construction == 1 )	// one hull per shape
+		if( Construction == 0 )	// one hull for all shapes
 		{
-			if( Get_Chain_Hull(&Points, pHulls) )	nOkay	++;	else	nFailed	++;	Points.Del_Records();
+			if( Get_Chain_Hull(&Points, pHulls) )	nOkay++;	Points.Del_Records();
 		}
 	}
 
-	if( Construction == 0 )	// one hull for all shapes
+	if( nOkay <= 0 )
 	{
-		if( Get_Chain_Hull(&Points, pHulls) )	nOkay	++;	else	nFailed	++;	Points.Del_Records();
+		return( false );
 	}
-		
+
 	//-----------------------------------------------------
-	return( nOkay > 0 && nFailed == 0 );
+	if( pBoxes )
+	{
+		pBoxes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Bounding Box")));
+		pBoxes->Add_Field(_TL("ID")			, SG_DATATYPE_Int);
+		pBoxes->Add_Field(_TL("AREA")		, SG_DATATYPE_Double);
+		pBoxes->Add_Field(_TL("PERIMETER")	, SG_DATATYPE_Double);
+
+		for(int iHull=0; iHull<pHulls->Get_Count() && Set_Progress(iHull, pHulls->Get_Count()); iHull++)
+		{
+			Get_Bounding_Box(pHulls->Get_Shape(iHull), pBoxes->Add_Shape());
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CConvex_Hull::Get_Bounding_Box(CSG_Shape *pHull, CSG_Shape *pBox)
+{
+	int			i, iBox;
+	double		a, aBox, d, dBox, dSin, dCos;
+	TSG_Rect	r, rBox;
+	TSG_Point	A, B;
+
+	B	= pHull->Get_Point(pHull->Get_Point_Count() - 1);
+
+	for(i=0; i<pHull->Get_Point_Count(); i++)
+	{
+		A		= B;
+		B		= pHull->Get_Point(i);
+		d		= SG_Get_Angle_Of_Direction(A, B);
+		dSin	= sin(-d);
+		dCos	= cos(-d);
+
+		for(int j=0; j<pHull->Get_Point_Count(); j++)
+		{
+			TSG_Point	q, p	= pHull->Get_Point(j);
+
+			q.x	= p.x * dCos - p.y * dSin;
+			q.y	= p.x * dSin + p.y * dCos;
+
+			if( j == 0 )
+			{
+				r.xMin	= r.xMax	= q.x;
+				r.yMin	= r.yMax	= q.y;
+			}
+			else
+			{
+				if( r.xMin > q.x ) r.xMin = q.x; else if( r.xMax < q.x ) r.xMax = q.x;
+				if( r.yMin > q.y ) r.yMin = q.y; else if( r.yMax < q.y ) r.yMax = q.y;
+			}
+		}
+
+		a	= (r.xMax - r.xMin) * (r.yMax - r.yMin);
+
+		if( i == 0 || a < aBox )
+		{
+			iBox	= i;
+			aBox	= a;
+			dBox	= d;
+			rBox	= r;
+		}
+	}
+
+	//-----------------------------------------------------
+	dSin	= sin(dBox);
+	dCos	= cos(dBox);
+
+	pBox->Add_Point(rBox.xMin * dCos - rBox.yMin * dSin, rBox.xMin * dSin + rBox.yMin * dCos);
+	pBox->Add_Point(rBox.xMin * dCos - rBox.yMax * dSin, rBox.xMin * dSin + rBox.yMax * dCos);
+	pBox->Add_Point(rBox.xMax * dCos - rBox.yMax * dSin, rBox.xMax * dSin + rBox.yMax * dCos);
+	pBox->Add_Point(rBox.xMax * dCos - rBox.yMin * dSin, rBox.xMax * dSin + rBox.yMin * dCos);
+	pBox->Add_Point(pBox->Get_Point(0));
+
+	pBox->Set_Value(0, pBox->Get_Index());
+	pBox->Set_Value(1, aBox);
+	pBox->Set_Value(2, 2.0 * ((rBox.xMax - rBox.xMin) + (rBox.yMax - rBox.yMin)));
+
+	return( true );
 }
 
 
@@ -224,7 +326,7 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls)
 		pHull->Add_Point(Hull[i]);
 	}
 
-	pHull->Set_Value(0, pHulls->Get_Count());
+	pHull->Set_Value(0, pHull->Get_Index());
 	pHull->Set_Value(1, ((CSG_Shape_Polygon *)pHull)->Get_Area());
 	pHull->Set_Value(2, ((CSG_Shape_Polygon *)pHull)->Get_Perimeter());
 
