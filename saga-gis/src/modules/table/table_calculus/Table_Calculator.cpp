@@ -106,9 +106,17 @@ bool CTable_Calculator_Base::On_Execute(void)
 		pTable->Create(*Parameters("TABLE")->asTable());
 	}
 
+	int	fResult	= Parameters("FIELD")->asInt();
+
 //	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("TABLE")->asTable()->Get_Name(), Parameters("NAME")->asString()));
 	pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
-	pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
+
+	if( fResult < 0 || fResult >= pTable->Get_Field_Count() )
+	{
+		fResult	= pTable->Get_Field_Count();
+
+		pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
+	}
 
 	//-----------------------------------------------------
 	CSG_Vector	Values(nFields);
@@ -117,12 +125,28 @@ bool CTable_Calculator_Base::On_Execute(void)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-		for(int iField=0; iField<nFields; iField++)
+		bool	bOkay	= true;
+
+		for(int iField=0; iField<nFields && bOkay; iField++)
 		{
-			Values[iField]	= pRecord->asDouble(Fields[iField]);
+			if( !pRecord->is_NoData(iField) )
+			{
+				Values[iField]	= pRecord->asDouble(Fields[iField]);
+			}
+			else
+			{
+				bOkay	= false;
+			}
 		}
 
-		pRecord->Set_Value(pTable->Get_Field_Count() - 1, Formula.Get_Value(Values.Get_Data(), nFields));
+		if( bOkay )
+		{
+			pRecord->Set_Value(fResult, Formula.Get_Value(Values.Get_Data(), nFields));
+		}
+		else
+		{
+			pRecord->Set_NoData(fResult);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -198,6 +222,8 @@ CTable_Calculator::CTable_Calculator(void)
 
 	Parameters.Add_Table	(NULL, "TABLE"	, _TL("Table")		, _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Table	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+
+	Parameters.Add_Table_Field(Parameters("TABLE"), "FIELD", _TL("Field"), _TL(""), true);
 }
 
 
@@ -215,6 +241,8 @@ CTable_Calculator_Shapes::CTable_Calculator_Shapes(void)
 
 	Parameters.Add_Shapes	(NULL, "TABLE"	, _TL("Shapes")		, _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Shapes	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+
+	Parameters.Add_Table_Field(Parameters("TABLE"), "FIELD", _TL("Field"), _TL(""), true);
 }
 
 
