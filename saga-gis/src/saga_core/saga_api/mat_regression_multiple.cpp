@@ -123,8 +123,8 @@ CSG_Regression_Multiple::CSG_Regression_Multiple(void)
 {
 	m_pRegression	= new CSG_Table;
 
-	m_pRegression	->Add_Field("ID"			, SG_DATATYPE_Int);		// MLR_VAR_ID
-	m_pRegression	->Add_Field("VARIABLE"		, SG_DATATYPE_String);	// MLR_VAR_NAME
+	m_pRegression	->Add_Field("VAR_ID"		, SG_DATATYPE_Int);		// MLR_VAR_ID
+	m_pRegression	->Add_Field("VAR_NAME"		, SG_DATATYPE_String);	// MLR_VAR_NAME
 	m_pRegression	->Add_Field("REGCOEFF"		, SG_DATATYPE_Double);	// MLR_VAR_RCOEFF
 	m_pRegression	->Add_Field("R"				, SG_DATATYPE_Double);	// MLR_VAR_R
 	m_pRegression	->Add_Field("R2"			, SG_DATATYPE_Double);	// MLR_VAR_R2
@@ -538,7 +538,7 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 	{
 		X.Del_Col(1 + iNext);
 
-		_Set_Step_Info(X, R2, iNext, false);
+		_Set_Step_Info(X, R2, m_Predictor[iNext], false);
 
 		R2	= R.Get_R2();
 
