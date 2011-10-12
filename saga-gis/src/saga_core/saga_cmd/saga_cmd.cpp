@@ -126,7 +126,11 @@ _try
 #endif
 //---------------------------------------------------------
 
+#if wxCHECK_VERSION(2, 8, 11)
 	if( !wxInitialize( argc, argv ) )
+#else
+	if( !wxInitialize() )
+#endif
 	{
 		Print_Error(SG_T("initialisation failed"));
 
