@@ -85,14 +85,11 @@ bool CTable_Calculator_Base::On_Execute(void)
 
 	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pTable, Fields, nFields)) )
 	{
-		int			Position;
 		CSG_String	Message;
 
-		Formula.Get_Error(&Position, &Message);
+		Formula.Get_Error(Message);
 
-		Message_Add(Message);
-
-		Message_Add(CSG_String::Format(SG_T("%s: #%d [%s]"), _TL("syntax error, position"), Position, Formula.Get_Formula().c_str()));
+		Error_Set(Message);
 
 		delete[](Fields);
 

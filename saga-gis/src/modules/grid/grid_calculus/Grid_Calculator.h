@@ -87,6 +87,11 @@ protected:
 
 	virtual bool	On_Execute				(void);
 
+
+private:
+
+	CSG_String		Get_Formula				(CSG_String sFormula, int nGrids, int nXGrids);
+
 };
 
 

@@ -300,19 +300,20 @@ bool CSG_Formula::Get_Error(CSG_String &Message)
 
 	if( Get_Error(&pos, &msg) )
 	{
-		Message	+= LNG("Error in formula");
-		Message	+= SG_T("\n") + m_sFormula;
+		Message	 = CSG_String::Format(SG_T("%s %s %d\n"), LNG("Error in formula"), LNG("at position"), pos);
 
-		Message	+= SG_T("\n") + Message;
-		Message	+= CSG_String::Format(SG_T("\n%s: %d"), LNG("Position") , pos);
-
-		if( pos >= 0 && pos < (int)m_sFormula.Length() )
+		if( pos < 0 || pos >= (int)m_sFormula.Length() )
 		{
-			Message	+= SG_T("\n")
-					+  m_sFormula.Left(pos - 1) + SG_T("[")
-					+  m_sFormula[pos] + SG_T("]")
+			Message	+= m_sFormula;
+		}
+		else
+		{
+			Message	+= m_sFormula.Left (pos) + SG_T(" [")
+					+  m_sFormula      [pos] + SG_T("] ")
 					+  m_sFormula.Right(m_sFormula.Length() - (pos + 1));
 		}
+
+		Message	+= CSG_String::Format(SG_T("\n%s\n"), msg.c_str());
 
 		return( true );
 	}
