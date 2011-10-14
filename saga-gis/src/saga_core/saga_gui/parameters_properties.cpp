@@ -97,7 +97,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DATAOBJECT_LABEL(p)	(!p->is_DataObject() ? wxString::Format(p->Get_Name()) : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()))
+#define GET_DATAOBJECT_LABEL(p)	(!p->is_DataObject() && !p->is_DataObject_List() ? wxString::Format(p->Get_Name()) : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()))
 
 
 ///////////////////////////////////////////////////////////
