@@ -150,7 +150,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_STR(LNG("[CAP] No Data Value")			, m_pGrid->Get_NoData_Value() < m_pGrid->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), m_pGrid->Get_NoData_Value(), m_pGrid->Get_NoData_hiValue()).c_str() : SG_Get_String(m_pGrid->Get_NoData_Value(), -2).c_str());
 	DESC_ADD_FLT(LNG("[CAP] Arithmetic Mean")		, m_pGrid->Get_ArithMean(true));
 	DESC_ADD_FLT(LNG("[CAP] Standard Deviation")	, m_pGrid->Get_StdDev(true));
-	DESC_ADD_FLT(LNG("[CAP] Memory Size [MB]")		, (double)(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes()) / N_MEGABYTE_BYTES);
+	DESC_ADD_STR(LNG("[CAP] Memory Size")			, Get_nBytes_asString(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes(), 2).c_str());
 
 	if( m_pGrid->is_Compressed() )
 	{
