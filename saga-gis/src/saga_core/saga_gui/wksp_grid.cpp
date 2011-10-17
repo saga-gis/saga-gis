@@ -141,8 +141,8 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_FLT(LNG("[CAP] Cell Size")				, m_pGrid->Get_Cellsize());
 	DESC_ADD_INT(LNG("[CAP] Number of Columns")		, m_pGrid->Get_NX());
 	DESC_ADD_INT(LNG("[CAP] Number of Rows")		, m_pGrid->Get_NY());
-	DESC_ADD_INT(LNG("[CAP] Number of Cells")		, m_pGrid->Get_NCells());
-	DESC_ADD_INT(LNG("[CAP] No Data Cells")			, m_pGrid->Get_NoData_Count());
+	DESC_ADD_LONG(LNG("[CAP] Number of Cells")		, m_pGrid->Get_NCells());
+	DESC_ADD_LONG(LNG("[CAP] No Data Cells")		, m_pGrid->Get_NoData_Count());
 	DESC_ADD_STR(LNG("[CAP] Value Type")			, SG_Data_Type_Get_Name(m_pGrid->Get_Type()));
 	DESC_ADD_FLT(LNG("[CAP] Value Minimum")			, m_pGrid->Get_ZMin());
 	DESC_ADD_FLT(LNG("[CAP] Value Maximum")			, m_pGrid->Get_ZMax());
