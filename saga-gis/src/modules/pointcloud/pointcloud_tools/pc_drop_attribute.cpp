@@ -127,7 +127,7 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	pOutput	= Parameters("OUTPUT")->asPointCloud();
 	iField	= Parameters("ATTRIB")->asInt();
 
-	if (iField < 0)
+	if (iField < 3)
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("We must keep the coordinates, please choose another field than x, y, or z!")));
 		return (false);
@@ -156,7 +156,7 @@ bool CPC_Drop_Attribute::On_Execute(void)
 
 		for (int j=0, k=0; j<pInput->Get_Attribute_Count(); j++, k++)
 		{
-			if (j == iField)
+			if (j == (iField - 3))
 			{
 				k--;
 				continue;
