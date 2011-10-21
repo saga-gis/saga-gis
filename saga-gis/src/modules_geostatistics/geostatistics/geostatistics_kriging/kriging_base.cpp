@@ -110,30 +110,6 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "VARIOGRAM"	, _TL("Variogram"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "DISTMAX"		, _TL("Maximum Distance"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, -1.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "DISTCOUNT"	, _TL("Initial Number of Distance Classes"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 100, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "NSKIP"		, _TL("Skip Number"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
-	);
-
-	//-----------------------------------------------------
 	pNode	= Parameters.Add_Value(
 		NULL	, "BLOCK"		, _TL("Block Kriging"),
 		_TL(""),
@@ -148,13 +124,32 @@ CKriging_Base::CKriging_Base(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters(SG_T("FORMULA"), _TL("Formula"), _TL(""));
+	if( !SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Value(
+			NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
+			_TL(""),
+			PARAMETER_TYPE_Double	, -1.0
+		);
 
-	pParameters->Add_String(
-		NULL	, "STRING"		, _TL("Formula String"),
-		_TL(""),
-		SG_T("a + b * x")
-	);
+		Parameters.Add_Value(
+			NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
+			_TL("initial number of lag distance classes"),
+			PARAMETER_TYPE_Int		, 100, 1, true
+		);
+
+		Parameters.Add_Value(
+			NULL	, "VAR_NSKIP"		, _TL("Skip"),
+			_TL(""),
+			PARAMETER_TYPE_Int, 1, 1, true
+		);
+
+		Parameters.Add_String(
+			NULL	, "VAR_MODEL"		, _TL("Model"),
+			_TL(""),
+			SG_T("a + b * x")
+		);
+	}
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
@@ -175,12 +170,6 @@ CKriging_Base::CKriging_Base(void)
 
 	//-----------------------------------------------------
 	m_Grid_Target.Add_Grid_Parameter(SG_T("VARIANCE"), _TL("Quality Measure"), true);
-
-	///////////////////////////////////////////////////////
-	//-----------------------------------------------------
-	m_Variances.Add_Field(SG_T("DISTANCE")	, SG_DATATYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CUM")	, SG_DATATYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CLS")	, SG_DATATYPE_Double);
 }
 
 
@@ -196,6 +185,27 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
+//---------------------------------------------------------
+int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GLOBAL")) )
+	{
+		pParameters->Get_Parameter("MAXRADIUS")		->Set_Enabled(pParameter->asInt() == 0);	// local
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ALL_POINTS")) )
+	{
+		pParameters->Get_Parameter("NPOINTS_MAX")	->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BLOCK")) )
+	{
+		pParameters->Get_Parameter("DBLOCK")		->Set_Enabled(pParameter->asBool());		// block size
+	}
+
+	return( 1 );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -206,36 +216,56 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 bool CKriging_Base::On_Execute(void)
 {
+	if( !_Initialise() )
+	{
+		return( false );
+	}
+
 	bool	bResult	= false;
 
-	if( _Initialise() && _Get_Variances() )
+	CSG_Table	Variogram;
+
+	//-----------------------------------------------------
+	if( SG_UI_Get_Window_Main() )
 	{
-		m_Variogram.Set_Formula	(Get_Parameters("FORMULA")->Get_Parameter("STRING")->asString());
+		static CVariogram_Dialog	dlg;
 
-		if( SG_UI_Get_Window_Main() )
+		if( dlg.Execute(m_pPoints, m_zField, &Variogram, &m_Model) )
 		{
-			CVariogram_Dialog	dlg(&m_Variogram, &m_Variances);
-
-			bResult	= dlg.ShowModal() == wxID_OK;
+			bResult	= true;
 		}
-		else
-		{
-			m_Variogram.Clr_Data();
+	}
 
-			for(int i=0; i<m_Variances.Get_Count(); i++)
+	//-----------------------------------------------------
+	else
+	{
+		int		nSkip		= Parameters("VAR_NSKIP")		->asInt();
+		int		nClasses	= Parameters("VAR_NCLASSES")	->asInt();
+		double	maxDistance	= Parameters("VAR_MAXDIST")		->asDouble();
+
+		m_Model.Set_Formula(Parameters("VAR_MODEL")->asString());
+
+		if( CSG_Variogram::Calculate(m_pPoints, m_zField, &Variogram, nClasses, maxDistance, nSkip) )
+		{
+			m_Model.Clr_Data();
+
+			for(int i=0; i<Variogram.Get_Count(); i++)
 			{
-				m_Variogram.Add_Data(m_Variances[i][0], m_Variances[i][1]);
+				CSG_Table_Record	*pRecord	= Variogram.Get_Record(i);
+
+				m_Model.Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
 			}
 
-			bResult	= m_Variogram.Get_Trend();
+			bResult	= m_Model.Get_Trend() || m_Model.Get_Parameter_Count() == 0;
 		}
+	}
 
-		if( bResult && m_Variogram.is_Okay() && On_Initialise() )
-		{
-			bResult	= _Interpolate();
+	//-----------------------------------------------------
+	if( bResult && On_Initialise() )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("variogram model"), m_Model.Get_Formula(SG_TREND_STRING_Formula_Parameters).c_str()), false);
 
-			Get_Parameters("FORMULA")->Get_Parameter("STRING")->Set_Value(m_Variogram.Get_Formula(SG_TREND_STRING_Formula));
-		}
+		bResult	= _Interpolate();
 	}
 
 	_Finalise();
@@ -326,8 +356,7 @@ bool CKriging_Base::_Finalise(void)
 	m_Search	.Destroy();
 	m_G			.Destroy();
 	m_W			.Destroy();
-	m_Variogram	.Clr_Data();
-	m_Variances	.Del_Records();
+	m_Model		.Clr_Data();
 
 	return( true );
 }
@@ -376,103 +405,6 @@ bool CKriging_Base::_Interpolate(void)
 	}
 
 	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-enum
-{
-	DIF_FIELD_DISTANCE		= 0,
-	DIF_FIELD_DIFFERENCE
-};
-
-//---------------------------------------------------------
-enum
-{
-	VAR_FIELD_DISTANCE		= 0,
-	VAR_FIELD_VARIANCE
-};
-
-//---------------------------------------------------------
-bool CKriging_Base::_Get_Variances(void)
-{
-	int			i, j, k, n, nDistances, nSkip;
-	double		z, d, dx, dy, maxDistance, lagDistance;
-	TSG_Point	Pt_i, Pt_j;
-	CSG_Vector	Count, Variance;
-	CSG_Shape	*pPoint;
-
-	//-----------------------------------------------------
-	nSkip		= Parameters("NSKIP")		->asInt();
-	maxDistance	= Parameters("DISTMAX")		->asDouble();
-	nDistances	= Parameters("DISTCOUNT")	->asInt();
-
-	if( maxDistance <= 0.0 )
-	{
-		maxDistance	= SG_Get_Length(m_pPoints->Get_Extent().Get_XRange(), m_pPoints->Get_Extent().Get_XRange());
-	}
-
-	lagDistance	= maxDistance / nDistances;
-
-	Count		.Create(nDistances);
-	Variance	.Create(nDistances);
-
-	//-----------------------------------------------------
-	for(i=0, n=0; i<m_pPoints->Get_Count()-nSkip && Set_Progress(n, SG_Get_Square(m_pPoints->Get_Count()/nSkip)/2); i+=nSkip)
-	{
-		pPoint	= m_pPoints->Get_Shape(i);
-
-		if( !pPoint->is_NoData(m_zField) )
-		{
-			Pt_i	= pPoint->Get_Point(0);
-			z		= pPoint->asDouble(m_zField);
-
-			for(j=i+nSkip; j<m_pPoints->Get_Count(); j+=nSkip, n++)
-			{
-				pPoint	= m_pPoints->Get_Shape(j);
-
-				if( !pPoint->is_NoData(m_zField) )
-				{
-					Pt_j	= pPoint->Get_Point(0);
-					dx		= Pt_j.x - Pt_i.x;
-					dy		= Pt_j.y - Pt_i.y;
-					d		= sqrt(dx*dx + dy*dy);
-					k		= (int)(d / lagDistance);
-
-					if( k < nDistances )
-					{
-						d	= pPoint->asDouble(m_zField) - z;
-
-						Count	[k]	++;
-						Variance[k]	+= d * d;
-					}
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	for(i=0, z=0.0, n=0; i<nDistances && Process_Get_Okay(); i++)
-	{
-		if( Count[i] > 0 )
-		{
-			n	+= Count	[i];
-			z	+= Variance	[i];
-
-			CSG_Table_Record	*pRecord	= m_Variances.Add_Record();
-			pRecord->Set_Value(0, (i + 1) * lagDistance);
-			pRecord->Set_Value(1, 0.5 * Variance[i] / Count[i]);
-			pRecord->Set_Value(2, 0.5 * z / n);
-		}
-	}
-
-	return( Process_Get_Okay() );
 }
 
 

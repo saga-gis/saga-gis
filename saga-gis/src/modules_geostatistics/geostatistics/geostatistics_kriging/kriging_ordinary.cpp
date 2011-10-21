@@ -74,24 +74,52 @@
 CKriging_Ordinary::CKriging_Ordinary(void)
 	: CKriging_Ordinary_Global()
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("Ordinary Kriging (VF)"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
 		"Ordinary Kriging for grid interpolation from irregular sample points."
 	));
 
 	//-----------------------------------------------------
+	pNode	= Parameters.Add_Choice(
+		NULL	, "GLOBAL"		, _TL("Search Range"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("local"),
+			_TL("global")
+		)
+	);
+
 	Parameters.Add_Value(
-		NULL	, "MAXRADIUS"	, _TL("Maximum Search Radius (map units)"),
+		pNode	, "MAXRADIUS"	, _TL("Maximum Search Radius (map units)"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 1000.0, 0, true
 	);
 
-	Parameters.Add_Range(
-		NULL	, "NPOINTS"		, _TL("Min./Max. Number of m_Points"),
-		_TL(""), 4, 20, 1, true
+	pNode	= Parameters.Add_Choice(
+		NULL	, "ALL_POINTS"	, _TL("Number of Points"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("maximum number of points"),
+			_TL("all points in search distance")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "NPOINTS_MIN"	, _TL("Minimum"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 4, 1, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "NPOINTS_MAX"	, _TL("Maximum"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 20, 1, true
 	);
 
 	Parameters.Add_Choice(
@@ -118,12 +146,13 @@ CKriging_Ordinary::~CKriging_Ordinary(void)
 //---------------------------------------------------------
 bool CKriging_Ordinary::On_Initialise(void)
 {
-	m_Radius		= Parameters("MAXRADIUS")	->asDouble();
+	m_Radius		= Parameters("GLOBAL")->asBool() ? 0.0 : Parameters("MAXRADIUS")->asDouble();
 
-	m_nPoints_Min	= (int)Parameters("NPOINTS")->asRange()->Get_LoVal();
-	m_nPoints_Max	= (int)Parameters("NPOINTS")->asRange()->Get_HiVal();
+	m_nPoints_Min	= Parameters("NPOINTS_MIN")	->asInt();
+	m_nPoints_Max	= Parameters("ALL_POINTS")	->asBool() ? m_pPoints->Get_Count()
+					: Parameters("NPOINTS_MAX")	->asInt();
 
-	m_Mode			= Parameters("MODE")		->asInt();
+	m_Mode			= Parameters("MODE")->asInt();
 
 	//-----------------------------------------------------
 	if( !m_Search.Create(m_pPoints, m_zField) )

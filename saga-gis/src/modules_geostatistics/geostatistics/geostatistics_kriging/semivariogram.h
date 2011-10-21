@@ -87,15 +87,6 @@ protected:
 	virtual bool			On_Execute			(void);
 
 
-private:
-
-	CSG_Table				m_Variances;
-
-	CSG_Trend				m_Variogram;
-
-
-	bool					Get_Variances		(CSG_Table *pTable, CSG_Shapes *pPoints, int Attribute);
-
 };
 
 

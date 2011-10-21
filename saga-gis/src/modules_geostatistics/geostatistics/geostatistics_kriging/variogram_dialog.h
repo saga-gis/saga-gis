@@ -84,15 +84,46 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CSG_Variogram
+{
+public:
+	enum ESG_Variogram_Field
+	{
+		FIELD_CLASS	= 0,
+		FIELD_DISTANCE,
+		FIELD_COUNT,
+		FIELD_VAR_EXP,
+		FIELD_VAR_CUM,
+		FIELD_VAR_MODEL
+	};
+
+	CSG_Variogram(void);
+
+	static bool		Calculate			(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVariogram, int nClasses = 25, double maxDistance = 0.0, int nSkip = 1);
+
+	static double	Get_Lag_Distance	(CSG_Shapes *pPoints, int Method, int nSkip = 1);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CVariogram_Dialog : public CSGDI_Dialog
 {
 public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
+	CVariogram_Dialog(void);
+
+	bool						Execute		(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVariogram, CSG_Trend *pModel);
 
 
 private:
 
-	wxCheckBox					*m_pCumulative;
+	wxButton					*m_pSettings;
 
 	wxChoice					*m_pFormulas;
 
@@ -102,11 +133,25 @@ private:
 
 	class CVariogram_Diagram	*m_pDiagram;
 
+	CSG_Parameters				m_Settings;
+
+	CSG_Trend					*m_pModel;
+
+	CSG_Table					*m_pVariogram;
+
+	CSG_Shapes					*m_pPoints;
+
+	int							m_Attribute;
+
+	double						m_Distance;
+
 
 	void						On_Update_Control		(wxCommandEvent &event);
 	void						On_Update_Choices		(wxCommandEvent &event);
+	void						On_Button				(wxCommandEvent &event);
 
-	void						Fit_Function			(void);
+	void						Set_Variogram			(void);
+	void						Set_Model				(void);
 
 
 	DECLARE_EVENT_TABLE()

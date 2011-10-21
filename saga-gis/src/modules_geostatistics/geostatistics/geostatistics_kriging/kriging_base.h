@@ -110,13 +110,14 @@ protected:
 	virtual bool				On_Execute				(void);
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Initialise			(void)					{	return( true );	}
 
 	virtual bool				Get_Value				(double x, double y, double &z, double &Variance)	= 0;
 
-	double						Get_Weight				(double d)				{	return( m_Variogram.Get_Value(d) );	}
-	double						Get_Weight				(double dx, double dy)	{	return( m_Variogram.Get_Value(sqrt(dx*dx + dy*dy)) );	}
+	double						Get_Weight				(double d)				{	return( m_Model.Get_Value(d) );	}
+	double						Get_Weight				(double dx, double dy)	{	return( m_Model.Get_Value(sqrt(dx*dx + dy*dy)) );	}
 
 
 private:
@@ -125,9 +126,7 @@ private:
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Table					m_Variances;
-
-	CSG_Trend					m_Variogram;
+	CSG_Trend					m_Model;
 
 	CSG_Grid					*m_pGrid, *m_pVariance;
 
@@ -137,8 +136,6 @@ private:
 	bool						_Finalise				(void);
 
 	bool						_Interpolate			(void);
-
-	bool						_Get_Variances			(void);
 
 };
 
