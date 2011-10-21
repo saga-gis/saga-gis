@@ -142,7 +142,7 @@ private:
 
 
 	void						_Set_CMD				(class CSG_Parameters *pParameters, bool bExtra);
-	bool						_Get_CMD				(class CSG_Parameters *pParameters);
+	bool						_Get_CMD				(class CSG_Parameters *pParameters, bool bNoDataObjects);
 
 	bool						_Create_DataObjects		(class CSG_Parameters *pParameters);
 	bool						_Create_DataObject		(class CSG_Parameter *pParameter, const wxChar *FileName);

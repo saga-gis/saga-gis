@@ -233,7 +233,14 @@ bool CModule_Library::Execute(int argc, char *argv[])
 			return( true );
 		}
 
-		if( _Get_CMD(m_pModule->Get_Parameters()) && m_pModule->On_Before_Execution() )
+		bResult	= _Get_CMD(m_pModule->Get_Parameters(), false);
+		
+		for(int i=0; i<m_pModule->Get_Parameters_Count() && bResult; i++)
+		{
+			_Get_CMD(m_pModule->Get_Parameters(i), true);
+		}
+
+		if( bResult && m_pModule->On_Before_Execution() )
 		{
 			bResult	= m_pModule->Execute();
 
@@ -256,7 +263,7 @@ bool CModule_Library::Execute(int argc, char *argv[])
 //---------------------------------------------------------
 bool CModule_Library::Get_Parameters(CSG_Parameters *pParameters)
 {
-	return( _Get_CMD(pParameters) );
+	return( _Get_CMD(pParameters, false) );
 }
 
 
@@ -355,7 +362,7 @@ void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 }
 
 //---------------------------------------------------------
-bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
+bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 {
 	//-----------------------------------------------------
 	if( m_pCMD == NULL || pParameters == NULL )
@@ -365,7 +372,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 		return( false );
 	}
 
-	if( m_pCMD->Parse(false) != 0 || _Create_DataObjects(pParameters) == false )
+	if( m_pCMD->Parse(false) != 0 || (bNoDataObjects == false && _Create_DataObjects(pParameters) == false) )
 	{
 		m_pCMD->Usage();
 
@@ -381,7 +388,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-		if( !pParameter->is_Information() || pParameter->is_DataObject() )
+		if( !pParameter->is_Information() && !pParameter->is_DataObject() )
 		{
 			switch( pParameter->Get_Type() )
 			{
@@ -503,7 +510,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_Parameters:
-				_Get_CMD(pParameter->asParameters());
+				_Get_CMD(pParameter->asParameters(), bNoDataObjects);
 				break;
 			}
 		}
