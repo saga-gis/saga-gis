@@ -771,41 +771,22 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const wxChar *FileName)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "wksp_module_manager.h"
-#include "wksp_module_library.h"
-#include "wksp_module.h"
-
-//---------------------------------------------------------
 bool CWKSP_Data_Manager::Open_GDAL(const wxChar *File_Name)
 {
-	int			i;
-	CSG_Module	*pGDAL	= NULL, *pOGR	= NULL, *pImage	= NULL;
+	CSG_Module	*pImport;
 
-	for(i=0; i<g_pModules->Get_Count() && (!pGDAL || !pOGR || !pImage); i++)
-	{
-		wxFileName	fName(g_pModules->Get_Library(i)->Get_File_Name());
-
-		if( !fName.GetName().Cmp(SG_T("io_gdal")) || !fName.GetName().Cmp(SG_T("libio_gdal")) )
-		{
-			pGDAL	= g_pModules->Get_Library(i)->Get_Module(0)->Get_Module();	// GDAL_Import
-			pOGR	= g_pModules->Get_Library(i)->Get_Module(3)->Get_Module();	// OGR_Import
-		}
-
-		if( !fName.GetName().Cmp(SG_T("io_grid_image")) || !fName.GetName().Cmp(SG_T("libio_grid_image")) )
-		{
-			pImage	= g_pModules->Get_Library(i)->Get_Module(1)->Get_Module();	// Import Image
-		}
-	}
-
+	//-----------------------------------------------------
 	if(	SG_File_Cmp_Extension(File_Name, wxT("bmp"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("gif"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("jpg"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("png"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("pcx")) )
 	{
-		if( pImage && pImage->Get_Parameters()->Set_Parameter(SG_T("FILE"), PARAMETER_TYPE_FilePath, File_Name) && pImage->Execute() )
+		pImport	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_grid_image"), 1);	// Import Image
+
+		if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILE"), File_Name, PARAMETER_TYPE_FilePath) && pImport->Execute() )
 		{
-			SG_UI_DataObject_Add(pImage->Get_Parameters()->Get_Parameter(SG_T("OUT_GRID"))->asGrid(), SG_UI_DATAOBJECT_UPDATE_ONLY);
+			SG_UI_DataObject_Add(pImport->Get_Parameters()->Get_Parameter(SG_T("OUT_GRID"))->asGrid(), SG_UI_DATAOBJECT_UPDATE_ONLY);
 
 			m_pMenu_Files->Recent_Add(DATAOBJECT_TYPE_Grid, File_Name);
 
@@ -813,11 +794,14 @@ bool CWKSP_Data_Manager::Open_GDAL(const wxChar *File_Name)
 		}
 	}
 
-	if( pGDAL && pGDAL->Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name) && pGDAL->Execute() )
-	{
-		CSG_Parameter_Grid_List	*pGrids	= pGDAL->Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
+	//-----------------------------------------------------
+	pImport	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_gdal"), 0);	// GDAL_Import
 
-		for(i=0; i<pGrids->Get_Count(); i++)
+	if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File_Name, PARAMETER_TYPE_FilePath) && pImport->Execute() )
+	{
+		CSG_Parameter_Grid_List	*pGrids	= pImport->Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
+
+		for(int i=0; i<pGrids->Get_Count(); i++)
 		{
 			SG_UI_DataObject_Add(pGrids->asGrid(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
 		}
@@ -827,11 +811,14 @@ bool CWKSP_Data_Manager::Open_GDAL(const wxChar *File_Name)
 		return( true );
 	}
 
-	if( pOGR && pOGR->Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name) && pOGR->Execute() )
-	{
-		CSG_Parameter_Shapes_List	*pShapes	= pOGR->Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
+	//-----------------------------------------------------
+	pImport	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_gdal"), 3);	// OGR_Import
 
-		for(i=0; i<pShapes->Get_Count(); i++)
+	if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File_Name, PARAMETER_TYPE_FilePath) && pImport->Execute() )
+	{
+		CSG_Parameter_Shapes_List	*pShapes	= pImport->Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
+
+		for(int i=0; i<pShapes->Get_Count(); i++)
 		{
 			SG_UI_DataObject_Add(pShapes->asShapes(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
 		}

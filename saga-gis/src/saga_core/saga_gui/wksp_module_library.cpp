@@ -81,123 +81,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#if defined(_SAGA_MSW)
-	#define ENV_LIB_PATH	wxT("PATH")
-	#define ENV_LIB_SEPA	wxT(';')
-#elif defined(_SAGA_LINUX)
-	#define ENV_LIB_PATH	wxT("LD_LIBRARY_PATH")
-	#define ENV_LIB_SEPA	wxT(':')
-#else
-	#define ENV_LIB_PATH	wxT("PATH")
-	#define ENV_LIB_SEPA	wxT(';')
-#endif
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_Module_Library::CWKSP_Module_Library(const wxChar *FileName)
+CWKSP_Module_Library::CWKSP_Module_Library(CSG_Module_Library *pLibrary)
 {
-	TSG_PFNC_MLB_Initialize		MLB_Initialize;
-	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
+	m_pLibrary	= pLibrary;
 
-	wxString	sPath;
-	wxFileName	fName(FileName);
-
-	m_pInterface	= NULL;
-
-	fName.MakeAbsolute();
-	m_File_Name		= fName.GetFullPath();
-
-	//-----------------------------------------------------
-	if( wxGetEnv(ENV_LIB_PATH, &sPath) && sPath.Length() > 0 )
+	for(int i=0; i<m_pLibrary->Get_Count(); i++)
 	{
-		wxSetEnv(ENV_LIB_PATH, wxString::Format(wxT("%s%c%s"), sPath.c_str(), ENV_LIB_SEPA, SG_File_Get_Path(FileName).c_str()));
-	}
-	else
-	{
-		wxSetEnv(ENV_LIB_PATH, SG_File_Get_Path(FileName).c_str());
-	}
+		CSG_Module	*pModule	= m_pLibrary->Get_Module(i);
 
-	//-----------------------------------------------------
-	if( !m_Library.Load(m_File_Name) )
-	{
-		MSG_Error_Add(wxString::Format(wxT("%s:\n%s"), FileName, LNG("[ERR] Library could not be loaded")), true);
-	}
-	else
-	{
-		if( (MLB_Get_Interface	= (TSG_PFNC_MLB_Get_Interface)	m_Library.GetSymbol(SYMBOL_MLB_Get_Interface)) == NULL
-		||	(MLB_Initialize		= (TSG_PFNC_MLB_Initialize)		m_Library.GetSymbol(SYMBOL_MLB_Initialize)   ) == NULL
-		||	!(m_pInterface = MLB_Get_Interface()) || !MLB_Initialize(m_File_Name) )
+		if( pModule != NULL && pModule != MLB_INTERFACE_SKIP_MODULE )
 		{
-			MSG_Error_Add(wxString::Format(wxT("%s:\n%s"), FileName, LNG("[ERR] Invalid library")), true);
+			Add_Item(new CWKSP_Module(pModule, m_pLibrary->Get_Menu().c_str()));
 		}
-		else
-		{
-			for(int i=0; i<m_pInterface->Get_Count(); i++)
-			{
-				CSG_Module	*pModule	= m_pInterface->Get_Module(i);
-
-				if( pModule != NULL && pModule != MLB_INTERFACE_SKIP_MODULE )
-				{
-					Add_Item(new CWKSP_Module(pModule, Get_Info(MLB_INFO_Menu_Path)));
-				}
-			}
-
-			if( Get_Count() == 0 )
-			{
-				MSG_Error_Add(wxString::Format(wxT("%s:\n%s"), FileName, LNG("[ERR] Library does not contain any modules")), true);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( sPath.Length() > 0 )
-	{
-		wxSetEnv(ENV_LIB_PATH, sPath);
-	}
-	else
-	{
-		wxUnsetEnv(ENV_LIB_PATH);
 	}
 }
 
 //---------------------------------------------------------
 CWKSP_Module_Library::~CWKSP_Module_Library(void)
 {
-	TSG_PFNC_MLB_Finalize	MLB_Finalize;
-	CWKSP_Module			*pItem;
-
-	if( m_Library.IsLoaded() )
+	for(int i=Get_Count()-1; i>=0; i--)
 	{
-		if( is_Valid() )
-		{
-			MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Close Library"), m_File_Name.c_str()), true, true);
-
-			if(	(MLB_Finalize = (TSG_PFNC_MLB_Finalize)m_Library.GetSymbol(SYMBOL_MLB_Finalize)) != NULL )
-			{
-				MLB_Finalize();
-			}
-
-			while( (pItem = Get_Module(0)) != NULL )
-			{
-				Del_Item(pItem);
-				delete(pItem);
-			}
-
-			m_Library.Unload();
-
-			MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
-		}
-		else
-		{
-			m_Library.Unload();
-		}
+		CWKSP_Module	*pItem	= Get_Module(i);
+		Del_Item(pItem);
+		delete(pItem);
 	}
+
+	SG_Get_Module_Library_Manager().Del_Library(m_pLibrary);
 }
 
 
@@ -210,7 +119,7 @@ CWKSP_Module_Library::~CWKSP_Module_Library(void)
 //---------------------------------------------------------
 wxString CWKSP_Module_Library::Get_Name(void)
 {
-	return( Get_Info(MLB_INFO_Name) );
+	return( m_pLibrary->Get_Name().c_str() );
 }
 
 //---------------------------------------------------------
@@ -223,10 +132,10 @@ wxString CWKSP_Module_Library::Get_Description(void)
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR(LNG("Name")	, Get_Info(MLB_INFO_Name));
-	DESC_ADD_STR(LNG("Author")	, Get_Info(MLB_INFO_Author));
-	DESC_ADD_STR(LNG("Version")	, Get_Info(MLB_INFO_Version));
-	DESC_ADD_STR(LNG("File")	, Get_File_Name().c_str());
+	DESC_ADD_STR(LNG("Name")	, m_pLibrary->Get_Name     ().c_str());
+	DESC_ADD_STR(LNG("Author")	, m_pLibrary->Get_Author   ().c_str());
+	DESC_ADD_STR(LNG("Version")	, m_pLibrary->Get_Version  ().c_str());
+	DESC_ADD_STR(LNG("File")	, m_pLibrary->Get_File_Name().c_str());
 
 	s	+= wxT("</table><hr>");
 
@@ -237,10 +146,10 @@ wxString CWKSP_Module_Library::Get_Description(void)
 
 	if( g_pModules->Get_Parameters()->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
-		sDesc	= Get_Online_Module_Description(Get_File_Name());
+		sDesc	= Get_Online_Module_Description(m_pLibrary->Get_File_Name().c_str());
 	}
 
-	s	+= sDesc.Length() > 0 ? sDesc.c_str() : Get_Info(MLB_INFO_Description);
+	s	+= sDesc.Length() > 0 ? sDesc.c_str() : m_pLibrary->Get_Description().c_str();
 
 	//-----------------------------------------------------
 	s	+= wxString::Format(wxT("<hr><b>%s:<ul>"), LNG("[CAP] Modules"));
@@ -319,17 +228,17 @@ bool CWKSP_Module_Library::On_Command_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Module_Library::Exists(CWKSP_Module *pModule)
+CWKSP_Module * CWKSP_Module_Library::Get_Module(CWKSP_Module *pModule)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
 		if( pModule	== Get_Module(i) )
 		{
-			return( true );
+			return( pModule );
 		}
 	}
 
-	return( false );
+	return( NULL );
 }
 
 //---------------------------------------------------------
@@ -356,24 +265,13 @@ CWKSP_Module * CWKSP_Module_Library::Get_Module_byID(int CMD_ID)
 //---------------------------------------------------------
 bool CWKSP_Module_Library::is_Valid(void)
 {
-	return( Get_Count() > 0 );
+	return( m_pLibrary->is_Valid() );
 }
 
 //---------------------------------------------------------
-wxString & CWKSP_Module_Library::Get_File_Name(void)
+wxString CWKSP_Module_Library::Get_File_Name(void)
 {
-	return( m_File_Name );
-}
-
-//---------------------------------------------------------
-const wxChar * CWKSP_Module_Library::Get_Info(int Type)
-{
-	if( m_pInterface != NULL )
-	{
-		return( m_pInterface->Get_Info(Type) );
-	}
-
-	return( wxT("") );
+	return( m_pLibrary->Get_File_Name().c_str() );
 }
 
 

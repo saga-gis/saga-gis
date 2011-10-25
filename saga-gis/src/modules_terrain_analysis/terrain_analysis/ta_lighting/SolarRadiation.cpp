@@ -507,7 +507,7 @@ bool CSolarRadiation::On_Execute(void)
 
 	m_Latitude		= Parameters("LATITUDE")	->asDouble() * M_DEG_TO_RAD;
 
-	m_bBending		= Parameters("BENDING")->asParameters()->Get_Parameter("BENDING")->asBool();
+	m_bBending		= Parameters("BENDING")->asParameters()->Get_Parameter("BENDING")->asBool() || Parameters("GRD_LAT")->asGrid() || Parameters("GRD_LON")->asGrid();
 
 	//-----------------------------------------------------
 	switch( m_Time )
@@ -618,12 +618,10 @@ bool CSolarRadiation::On_Execute(void)
 			int		Offset;
 			double	d, dx, dy, dxA, dyA, Radius, Reference;
 
-			Radius		= Parameters("BENDING")->asParameters()->Get_Parameter("RADIUS")->asDouble();
-
-			d	= M_DEG_TO_RAD / (Radius * M_PI / 180.0);
-
 			Offset		= Parameters("BENDING")->asParameters()->Get_Parameter("LON_OFFSET")  ->asInt();
 			Reference	= Parameters("BENDING")->asParameters()->Get_Parameter("LON_REF_USER")->asDouble();
+			Radius		= Parameters("BENDING")->asParameters()->Get_Parameter("RADIUS")      ->asDouble();
+			d			= 1.0 / Radius;
 
 			switch( Offset )
 			{

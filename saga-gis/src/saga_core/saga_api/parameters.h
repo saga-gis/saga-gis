@@ -1393,10 +1393,10 @@ public:
 
 	//-----------------------------------------------------
 	bool						Set_Parameter			(const SG_Char *Identifier, CSG_Parameter *pSource);
-	bool						Set_Parameter			(const SG_Char *Identifier, int Type, int            Value);
-	bool						Set_Parameter			(const SG_Char *Identifier, int Type, double         Value);
-	bool						Set_Parameter			(const SG_Char *Identifier, int Type, void          *Value);
-	bool						Set_Parameter			(const SG_Char *Identifier, int Type, const SG_Char *Value);
+	bool						Set_Parameter			(const SG_Char *Identifier, int            Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const SG_Char *Identifier, double         Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const SG_Char *Identifier, void          *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const SG_Char *Identifier, const SG_Char *Value, int Type = PARAMETER_TYPE_Undefined);
 
 	bool						Restore_Defaults		(void);
 

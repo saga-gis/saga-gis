@@ -64,6 +64,7 @@
 
 //---------------------------------------------------------
 #include <wx/dynlib.h>
+#include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/utils.h>
 
@@ -97,8 +98,6 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -126,8 +125,6 @@ CSG_Module_Library::~CSG_Module_Library(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -150,7 +147,15 @@ bool CSG_Module_Library::Create(const CSG_String &File_Name)
 	wxFileName	fName(File_Name.c_str());
 
 	fName.MakeAbsolute();
-	m_File_Name		= fName.GetFullPath();
+	m_File_Name		= fName.GetFullPath().c_str();
+	m_Library_Name	= fName.GetName().c_str();
+
+#if !defined(_SAGA_MSW)
+	if( m_Library_Name.Find(SG_T("lib")) == 0 )
+	{
+		m_Library_Name	= m_Library_Name.Right(2, m_Library_Name.Length() - 3).c_str();
+	}
+#endif
 
 	//-----------------------------------------------------
 	if( wxGetEnv(ENV_LIB_PATH, &sPath) && sPath.Length() > 0 )
@@ -223,12 +228,10 @@ bool CSG_Module_Library::Destroy(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * CSG_Module_Library::Get_Info(int Type)
+const SG_Char * CSG_Module_Library::Get_Info(int Type) const
 {
 	if( m_pInterface != NULL )
 	{
@@ -239,37 +242,7 @@ const SG_Char * CSG_Module_Library::Get_Info(int Type)
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Name(void)
-{
-	return( Get_Info(MLB_INFO_Name) );
-}
-
-//---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Description(void)
-{
-	return( Get_Info(MLB_INFO_Description) );
-}
-
-//---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Author(void)
-{
-	return( Get_Info(MLB_INFO_Author) );
-}
-
-//---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Version(void)
-{
-	return( Get_Info(MLB_INFO_Version) );
-}
-
-//---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Menu(void)
-{
-	return( Get_Info(MLB_INFO_Menu_Path) );
-}
-
-//---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
+CSG_String CSG_Module_Library::Get_Summary(bool bHTML) const
 {
 	CSG_String	s;
 
@@ -326,12 +299,10 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name)
+CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name) const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -345,7 +316,7 @@ CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name)
 }
 
 //---------------------------------------------------------
-CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(int i)
+CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(int i) const
 {
 	CSG_Module	*pModule	= Get_Module(i);
 
@@ -354,7 +325,7 @@ CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(int i)
 	);
 }
 
-CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(const SG_Char *Name)
+CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(const SG_Char *Name) const
 {
 	CSG_Module	*pModule	= Get_Module(Name);
 
@@ -364,7 +335,7 @@ CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(const SG_Char *Name)
 }
 
 //---------------------------------------------------------
-CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(int i)
+CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(int i) const
 {
 	CSG_Module	*pModule	= Get_Module(i);
 
@@ -373,7 +344,7 @@ CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(int i)
 	);
 }
 
-CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(const SG_Char *Name)
+CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(const SG_Char *Name) const
 {
 	CSG_Module	*pModule	= Get_Module(Name);
 
@@ -383,7 +354,7 @@ CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(const SG_Char *Name)
 }
 
 //---------------------------------------------------------
-CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(int i)
+CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(int i) const
 {
 	CSG_Module	*pModule	= Get_Module(i);
 
@@ -392,7 +363,7 @@ CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(int i)
 	);
 }
 
-CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(const SG_Char *Name)
+CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(const SG_Char *Name) const
 {
 	CSG_Module	*pModule	= Get_Module(Name);
 
@@ -409,7 +380,7 @@ CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(const SG_Cha
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Menu(int i)
+CSG_String CSG_Module_Library::Get_Menu(int i) const
 {
 	CSG_String	sMenu;
 
@@ -461,6 +432,234 @@ CSG_String CSG_Module_Library::Get_Menu(int i)
 	}
 
 	return( sMenu );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Module_Library_Manager		g_Module_Library_Manager;
+
+//---------------------------------------------------------
+CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(void)
+{
+	return( g_Module_Library_Manager );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Module_Library_Manager::CSG_Module_Library_Manager(void)
+{
+	m_pLibraries	= NULL;
+	m_nLibraries	= 0;
+}
+
+//---------------------------------------------------------
+CSG_Module_Library_Manager::~CSG_Module_Library_Manager(void)
+{
+	Destroy();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File_Name)
+{
+	//-----------------------------------------------------
+	if( !SG_File_Cmp_Extension(File_Name, SG_T("mlb"  ))
+	&&	!SG_File_Cmp_Extension(File_Name, SG_T("dll"  ))
+	&&	!SG_File_Cmp_Extension(File_Name, SG_T("so"   ))
+	&&	!SG_File_Cmp_Extension(File_Name, SG_T("dylib")) )
+	{
+		return( NULL );
+	}
+
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load library"), File_Name), true);
+
+	//-----------------------------------------------------
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( SG_STR_CMP(File_Name, Get_Library(i)->Get_File_Name()) == 0 )
+		{
+			SG_UI_Msg_Add(LNG("[MSG] has already been loaded"), false);
+
+			return( NULL );
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Module_Library	*pLibrary	= new CSG_Module_Library(File_Name);
+
+	if( pLibrary->is_Valid() )
+	{
+		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
+		m_pLibraries[m_nLibraries++]	= pLibrary;
+
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		for(int j=0; j<pLibrary->Get_Count(); j++)
+		{
+			if( pLibrary->Get_Module(j) )
+			{
+				pLibrary->Get_Module(j)->Set_Managed();
+			}
+		}
+
+		return( pLibrary );
+	}
+
+	delete(pLibrary);
+
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnlySubDirectories)
+{
+	int			nOpened	= 0;
+	wxDir		Dir;
+	wxString	File_Name;
+
+	if( Dir.Open(Directory) )
+	{
+		if( !bOnlySubDirectories && Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_FILES) )
+		{
+			do
+			{	if( File_Name.Find(wxT("saga_")) < 0 && File_Name.Find(wxT("wx")) < 0 )
+				if( Add_Library(SG_File_Make_Path(Dir.GetName(), File_Name, NULL)) )
+				{
+					nOpened++;
+				}
+			}
+			while( Dir.GetNext(&File_Name) );
+		}
+
+		if( Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_DIRS) )
+		{
+			do
+			{
+				if( File_Name.CmpNoCase(wxT("dll")) )
+				{
+					nOpened	+= Add_Directory(SG_File_Make_Path(Dir.GetName(), File_Name, NULL), false);
+				}
+			}
+			while( Dir.GetNext(&File_Name) );
+		}
+	}
+
+	return( nOpened );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Module_Library_Manager::Destroy(void)
+{
+	if( m_pLibraries )
+	{
+		for(int i=0; i<Get_Count(); i++)
+		{
+			delete(m_pLibraries[i]);
+		}
+
+		SG_Free(m_pLibraries);
+
+		m_pLibraries	= NULL;
+		m_nLibraries	= 0;
+	}
+
+	return( true );
+}
+
+bool CSG_Module_Library_Manager::Del_Library(CSG_Module_Library *pLibrary)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( pLibrary == Get_Library(i) )
+		{
+			return( Del_Library(i) );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Module_Library * CSG_Module_Library_Manager::Get_Library(const SG_Char *Name, bool bLibrary) const
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		CSG_Module_Library	*pLibrary	= Get_Library(i);
+
+		if( pLibrary && !SG_STR_CMP(Name, bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
+		{
+			return( pLibrary );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_Module_Library_Manager::Del_Library(int i)
+{
+	if( i >= 0 && i < Get_Count() )
+	{
+		delete(m_pLibraries[i]);
+
+		for(m_nLibraries-- ; i<m_nLibraries; i++)
+		{
+			m_pLibraries[i]	= m_pLibraries[i + 1];
+		}
+
+		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, m_nLibraries * sizeof(CSG_Module_Library *));
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Module * CSG_Module_Library_Manager::Get_Module(const SG_Char *Library, int Module)	const
+{
+	CSG_Module_Library	*pLibrary	= Get_Library(Library, true);
+
+	return( pLibrary ? pLibrary->Get_Module(Module) : NULL );
+}
+
+//---------------------------------------------------------
+CSG_Module * CSG_Module_Library_Manager::Get_Module(const SG_Char *Library, const SG_Char *Module)	const
+{
+	CSG_Module_Library	*pLibrary	= Get_Library(Library, true);
+
+	return( pLibrary ? pLibrary->Get_Module(Module) : NULL );
 }
 
 

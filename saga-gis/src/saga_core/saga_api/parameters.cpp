@@ -932,11 +932,11 @@ bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, CSG_Parameter *pSo
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, int Value)
+bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Value, int Type)
 {
-	CSG_Parameter	*pTarget;
+	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
 
-	if( (pTarget = Get_Parameter(Identifier)) != NULL && Type == pTarget->Get_Type() )
+	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
 	{
 		pTarget->Set_Value(Value);
 
@@ -947,11 +947,11 @@ bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, int Valu
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, double Value)
+bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, double Value, int Type)
 {
-	CSG_Parameter	*pTarget;
+	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
 
-	if( (pTarget = Get_Parameter(Identifier)) != NULL && Type == pTarget->Get_Type() )
+	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
 	{
 		pTarget->Set_Value(Value);
 
@@ -962,11 +962,11 @@ bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, double V
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, void *Value)
+bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, void *Value, int Type)
 {
-	CSG_Parameter	*pTarget;
+	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
 
-	if( (pTarget = Get_Parameter(Identifier)) != NULL && Type == pTarget->Get_Type() )
+	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
 	{
 		pTarget->Set_Value(Value);
 
@@ -977,11 +977,11 @@ bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, void *Va
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, const SG_Char *Value)
+bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, const SG_Char *Value, int Type)
 {
-	CSG_Parameter	*pTarget;
+	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
 
-	if( (pTarget = Get_Parameter(Identifier)) != NULL && Type == pTarget->Get_Type() )
+	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
 	{
 		pTarget->Set_Value(Value);
 

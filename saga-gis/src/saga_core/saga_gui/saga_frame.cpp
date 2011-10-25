@@ -293,15 +293,10 @@ CSAGA_Frame::CSAGA_Frame(void)
 //	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_ALLOW_ACTIVE_PANE);
 
 	//-----------------------------------------------------
-	_Bar_Add(m_pWKSP		= new CWKSP       (this), 2);
-	_Bar_Add(m_pActive		= new CACTIVE     (this), 1);
-	_Bar_Add(m_pData_Source	= new CData_Source(this), 2);
-	_Bar_Add(m_pINFO		= new CINFO       (this), 0);
-
-	m_pINFO			->Add_Pages();
-	m_pData_Source	->Add_Pages();
-	m_pActive		->Add_Pages();
-	m_pWKSP			->Add_Pages();
+	_Bar_Add(m_pINFO		= new CINFO       (this), 0);	m_pINFO			->Add_Pages();
+	_Bar_Add(m_pWKSP		= new CWKSP       (this), 2);	m_pWKSP			->Add_Pages();
+	_Bar_Add(m_pActive		= new CACTIVE     (this), 1);	m_pActive		->Add_Pages();
+	_Bar_Add(m_pData_Source	= new CData_Source(this), 2);	m_pData_Source	->Add_Pages();
 
 	//-----------------------------------------------------
 	SetMenuBar(MB_Create(NULL));

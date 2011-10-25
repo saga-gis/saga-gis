@@ -1494,12 +1494,9 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 				}
 			}
 		}
-
-		//-------------------------------------------------
-		return( true );
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1575,10 +1572,7 @@ const SG_Char * CSG_Parameter_Table_Field::asString(void)
 //---------------------------------------------------------
 bool CSG_Parameter_Table_Field::Set_Value(int Value)
 {
-	bool		bChanged;
 	CSG_Table	*pTable;
-
-	bChanged	= false;
 
 	if( (pTable = Get_Table()) != NULL )
 	{
@@ -1606,10 +1600,9 @@ bool CSG_Parameter_Table_Field::Set_Value(int Value)
 	if( m_Value != Value )
 	{
 		m_Value		= Value;
-		bChanged	= true;
 	}
 
-	return( bChanged );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1694,11 +1687,9 @@ bool CSG_Parameter_Data_Object::Set_Value(void *Value)
 	if( m_pDataObject != Value )
 	{
 		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		return( true );
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1794,11 +1785,9 @@ bool CSG_Parameter_Data_Object_Output::Set_Value(void *Value)
 		m_pDataObject	= pDataObject;
 
 		SG_UI_DataObject_Add(m_pDataObject, false);
-
-		return( true );
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1841,31 +1830,31 @@ CSG_Parameter_Grid::CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint)
 //---------------------------------------------------------
 bool CSG_Parameter_Grid::Set_Value(void *Value)
 {
-	CSG_Grid_System	*pSystem;
-
 	if( Value == DATAOBJECT_CREATE && !m_pOwner->is_Optional() )
 	{
 //		Value	= DATAOBJECT_NOTSET;
 	}
 
-	if( m_pDataObject != Value )
+	if( m_pDataObject == Value )
 	{
-		pSystem	= Get_System();
+		return( true );
+	}
 
-		if(	Value == DATAOBJECT_NOTSET || Value == DATAOBJECT_CREATE
-		||	pSystem == NULL || pSystem->is_Equal(((CSG_Grid *)Value)->Get_System()) )
-		{
-			m_pDataObject	= (CSG_Data_Object *)Value;
+	CSG_Grid_System	*pSystem	= Get_System();
 
-			return( true );
-		}
-		else if( !m_pOwner->Get_Owner()->is_Managed() && pSystem != NULL )
-		{
-			pSystem->Assign(((CSG_Grid *)Value)->Get_System());
-			m_pDataObject	= (CSG_Data_Object *)Value;
+	if(	Value == DATAOBJECT_NOTSET || Value == DATAOBJECT_CREATE
+	||	pSystem == NULL || pSystem->is_Equal(((CSG_Grid *)Value)->Get_System()) )
+	{
+		m_pDataObject	= (CSG_Data_Object *)Value;
 
-			return( true );
-		}
+		return( true );
+	}
+	else if( !m_pOwner->Get_Owner()->is_Managed() && pSystem != NULL )
+	{
+		pSystem->Assign(((CSG_Grid *)Value)->Get_System());
+		m_pDataObject	= (CSG_Data_Object *)Value;
+
+		return( true );
 	}
 
 	return( false );
@@ -1911,25 +1900,25 @@ CSG_Parameter_Table::CSG_Parameter_Table(CSG_Parameter *pOwner, long Constraint)
 //---------------------------------------------------------
 bool CSG_Parameter_Table::Set_Value(void *Value)
 {
-	if( m_pDataObject != Value )
+	if( m_pDataObject == Value )
 	{
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-			&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
-			{
-				pParameters->Get_Parameter(i)->Set_Value(0);
-			}				
-		}
-
 		return( true );
 	}
 
-	return( false );
+	m_pDataObject	= (CSG_Data_Object *)Value;
+
+	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
+
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
+		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		{
+			pParameters->Get_Parameter(i)->Set_Value(0);
+		}				
+	}
+
+	return( true );
 }
 
 
@@ -1955,25 +1944,25 @@ bool CSG_Parameter_Shapes::Set_Value(void *Value)
 		return( false );
 	}
 
-	if( m_pDataObject != Value )
+	if( m_pDataObject == Value )
 	{
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-			&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
-			{
-				pParameters->Get_Parameter(i)->Set_Value(0);
-			}				
-		}
-
 		return( true );
 	}
 
-	return( false );
+	m_pDataObject	= (CSG_Data_Object *)Value;
+
+	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
+
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
+		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		{
+			pParameters->Get_Parameter(i)->Set_Value(0);
+		}				
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -2005,25 +1994,25 @@ CSG_Parameter_TIN::CSG_Parameter_TIN(CSG_Parameter *pOwner, long Constraint)
 //---------------------------------------------------------
 bool CSG_Parameter_TIN::Set_Value(void *Value)
 {
-	if( m_pDataObject != Value )
+	if( m_pDataObject == Value )
 	{
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-			&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
-			{
-				pParameters->Get_Parameter(i)->Set_Value(0);
-			}				
-		}
-
 		return( true );
 	}
 
-	return( false );
+	m_pDataObject	= (CSG_Data_Object *)Value;
+
+	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
+
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
+		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		{
+			pParameters->Get_Parameter(i)->Set_Value(0);
+		}				
+	}
+
+	return( true );
 }
 
 
@@ -2047,25 +2036,25 @@ void CSG_Parameter_PointCloud::On_Assign(CSG_Parameter_Data *pSource)
 //---------------------------------------------------------
 bool CSG_Parameter_PointCloud::Set_Value(void *Value)
 {
-	if( m_pDataObject != Value )
+	if( m_pDataObject == Value )
 	{
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-			&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
-			{
-				pParameters->Get_Parameter(i)->Set_Value(0);
-			}				
-		}
-
 		return( true );
 	}
 
-	return( false );
+	m_pDataObject	= (CSG_Data_Object *)Value;
+
+	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
+
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
+		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		{
+			pParameters->Get_Parameter(i)->Set_Value(0);
+		}				
+	}
+
+	return( true );
 }
 
 

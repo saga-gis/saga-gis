@@ -176,7 +176,7 @@ bool	SG_OGR_Import	(const CSG_String &File_Name)
 {
 	COGR_Import	Import;
 
-	if(	!Import.Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name) )
+	if(	!Import.Get_Parameters()->Set_Parameter(SG_T("FILES"), File_Name, PARAMETER_TYPE_FilePath) )
 	{
 		return( false );
 	}

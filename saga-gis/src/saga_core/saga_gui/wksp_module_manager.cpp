@@ -477,7 +477,7 @@ int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory, bool bOnlySu
 		if( !bOnlySubDirectories && Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
 			do
-			{	if( FileName.Find(wxT("saga_api")) < 0 && FileName.Find(wxT("saga_gdi")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
+			{	if( FileName.Find(wxT("saga_")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
 				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL)) )
 				{
 					nOpened++;
@@ -530,42 +530,9 @@ void CWKSP_Module_Manager::Open(void)
 //---------------------------------------------------------
 bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
 {
-	CWKSP_Module_Library	*pLibrary;
-
-	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(File_Name, wxT("mlb"))
-	||	SG_File_Cmp_Extension(File_Name, wxT("dll"))
-	||	SG_File_Cmp_Extension(File_Name, wxT("so" )) )
+	if( SG_Get_Module_Library_Manager().Add_Library(File_Name) )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Load library"), File_Name), true, true);
-
-		//-------------------------------------------------
-		for(int i=0; i<Get_Count(); i++)
-		{
-			if( SG_STR_CMP(File_Name, Get_Library(i)->Get_File_Name()) == 0 )
-			{
-				MSG_Error_Add(wxString::Format(wxT("%s\n%s"), File_Name, LNG("[ERR] Library has already been loaded")), true);
-				MSG_General_Add(LNG("[MSG] has already been loaded"), false);
-
-				return( false );
-			}
-		}
-
-		//-------------------------------------------------
-		pLibrary	= new CWKSP_Module_Library(File_Name);
-
-		if( pLibrary->is_Valid() )
-		{
-			Add_Item(pLibrary);
-
-			MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
-
-			return( true );
-		}
-
-		delete(pLibrary);
-
-		MSG_General_Add(LNG("[MSG] failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
+		return( Add_Item(new CWKSP_Module_Library(SG_Get_Module_Library_Manager().Get_Library(SG_Get_Module_Library_Manager().Get_Count() - 1))) );
 	}
 
 	return( false );
@@ -583,7 +550,7 @@ bool CWKSP_Module_Manager::Exists(CWKSP_Module *pModule)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( Get_Library(i)->Exists(pModule) )
+		if( Get_Library(i)->Get_Module(pModule) != NULL )
 		{
 			return( true );
 		}

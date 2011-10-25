@@ -72,8 +72,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/dynlib.h>
-
 #include "wksp_base_manager.h"
 
 
@@ -87,7 +85,7 @@
 class CWKSP_Module_Library : public CWKSP_Base_Manager
 {
 public:
-	CWKSP_Module_Library(const wxChar *File_Name);
+	CWKSP_Module_Library(class CSG_Module_Library *pLibrary);
 	virtual ~CWKSP_Module_Library(void);
 
 	virtual TWKSP_Item				Get_Type		(void)		{	return( WKSP_ITEM_Module_Library );	}
@@ -101,24 +99,17 @@ public:
 	virtual bool					On_Command_UI	(wxUpdateUIEvent &event);
 
 	class CWKSP_Module *			Get_Module		(int i)		{	return( (class CWKSP_Module *)Get_Item(i) );	}
+	class CWKSP_Module *			Get_Module		(class CWKSP_Module *pModule);
 	class CWKSP_Module *			Get_Module_byID	(int CMD_ID);
 
 	bool							is_Valid		(void);
 
-	wxString &						Get_File_Name	(void);
-
-	const wxChar *					Get_Info		(int Type);
-
-	bool							Exists			(class CWKSP_Module *pModule);
+	wxString						Get_File_Name	(void);
 
 
 private:
 
-	class CSG_Module_Library_Interface	*m_pInterface;
-
-	wxString						m_File_Name;
-
-	wxDynamicLibrary				m_Library;
+	class CSG_Module_Library		*m_pLibrary;
 
 };
 

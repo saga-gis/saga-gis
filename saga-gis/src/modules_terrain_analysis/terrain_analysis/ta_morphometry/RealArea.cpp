@@ -59,9 +59,9 @@ bool CRealArea::On_Execute(void){
 
 	CMorphometry	Morphometry;
 
-	if(	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, PARAMETER_TYPE_Grid, pDEM)
-	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, PARAMETER_TYPE_Grid, &pSlope)
-	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ASPECT")		, PARAMETER_TYPE_Grid, &pAspect)
+	if(	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ELEVATION"), pDEM    , PARAMETER_TYPE_Grid)
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("SLOPE")    , &pSlope , PARAMETER_TYPE_Grid)
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ASPECT")   , &pAspect, PARAMETER_TYPE_Grid)
 	||	!Morphometry.Execute() )
 	{
 		return( false );

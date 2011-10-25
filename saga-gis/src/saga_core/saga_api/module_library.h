@@ -95,36 +95,37 @@ public:
 
 	bool							Destroy				(void);
 
-	bool							is_Valid			(void)		{	return( Get_Count() > 0 );	}
+	bool							is_Valid			(void)	const	{	return( Get_Count() > 0 );	}
 
-	const CSG_String &				Get_File_Name		(void)		{	return( m_File_Name );	}
+	const CSG_String &				Get_File_Name		(void)	const	{	return( m_File_Name );		}
+	const CSG_String &				Get_Library_Name	(void)	const	{	return( m_Library_Name );	}
 
-	const SG_Char *					Get_Info			(int Type);
+	const SG_Char *					Get_Info			(int Type)				const;
+	CSG_String						Get_Summary			(bool bHTML = false)	const;
+	CSG_String						Get_Name			(void)	const	{	return( Get_Info(MLB_INFO_Name       ) );	}
+	CSG_String						Get_Description		(void)	const	{	return( Get_Info(MLB_INFO_Description) );	}
+	CSG_String						Get_Author			(void)	const	{	return( Get_Info(MLB_INFO_Author     ) );	}
+	CSG_String						Get_Version			(void)	const	{	return( Get_Info(MLB_INFO_Version    ) );	}
+	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(MLB_INFO_Menu_Path  ) );	}
 
-	CSG_String						Get_Name			(void);
-	CSG_String						Get_Description		(void);
-	CSG_String						Get_Author			(void);
-	CSG_String						Get_Version			(void);
-	CSG_String						Get_Menu			(void);
-	CSG_String						Get_Summary			(bool bHTML = false);
+	int								Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
-	int								Get_Count			(void)		{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
+	CSG_Module *					Get_Module			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pInterface->Get_Module(i) : NULL );	}
+	CSG_Module *					Get_Module			(const SG_Char *Name)	const;
 
-	CSG_Module *					Get_Module			(int i)		{	return( i >= 0 && i < Get_Count() ? m_pInterface->Get_Module(i) : NULL );	}
-	CSG_Module *					Get_Module			(const SG_Char *Name);
-	CSG_Module_Grid *				Get_Module_Grid		(int i);
-	CSG_Module_Grid *				Get_Module_Grid		(const SG_Char *Name);
-	CSG_Module_Interactive *		Get_Module_I		(int i);
-	CSG_Module_Interactive *		Get_Module_I		(const SG_Char *Name);
-	CSG_Module_Grid_Interactive *	Get_Module_Grid_I	(int i);
-	CSG_Module_Grid_Interactive *	Get_Module_Grid_I	(const SG_Char *Name);
+	CSG_String						Get_Menu			(int i)	const;
 
-	CSG_String						Get_Menu			(int i);
+	CSG_Module_Grid *				Get_Module_Grid		(int i)	const;
+	CSG_Module_Grid *				Get_Module_Grid		(const SG_Char *Name)	const;
+	CSG_Module_Interactive *		Get_Module_I		(int i)	const;
+	CSG_Module_Interactive *		Get_Module_I		(const SG_Char *Name)	const;
+	CSG_Module_Grid_Interactive *	Get_Module_Grid_I	(int i)	const;
+	CSG_Module_Grid_Interactive *	Get_Module_Grid_I	(const SG_Char *Name)	const;
 
 
 private:
 
-	CSG_String						m_File_Name;
+	CSG_String						m_File_Name, m_Library_Name;
 
 	CSG_Module_Library_Interface	*m_pInterface;
 
@@ -134,6 +135,48 @@ private:
 	void							_On_Construction	(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Module_Library_Manager
+{
+public:
+	CSG_Module_Library_Manager(void);
+	virtual ~CSG_Module_Library_Manager(void);
+
+	bool							Destroy				(void);
+
+	int								Get_Count			(void)	const	{	return( m_nLibraries );	}
+
+	CSG_Module_Library *			Add_Library			(const SG_Char *File_Name);
+	int								Add_Directory		(const SG_Char *Directory, bool bOnlySubDirectories);
+
+	bool							Del_Library			(int i);
+	bool							Del_Library			(CSG_Module_Library *pLibrary);
+
+	CSG_Module_Library *			Get_Library			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
+	CSG_Module_Library *			Get_Library			(const SG_Char *Name, bool bLibrary)	const;
+
+	CSG_Module *					Get_Module			(const SG_Char *Library, int            Module)	const;
+	CSG_Module *					Get_Module			(const SG_Char *Library, const SG_Char *Module)	const;
+
+
+private:
+
+	int								m_nLibraries;
+
+	CSG_Module_Library				**m_pLibraries;
+
+};
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(void);
 
 
 ///////////////////////////////////////////////////////////

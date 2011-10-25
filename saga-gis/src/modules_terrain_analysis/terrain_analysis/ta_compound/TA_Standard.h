@@ -86,7 +86,6 @@ class CTA_Standard : public CSG_Module_Grid
 {
 public:
 	CTA_Standard(void);
-	virtual ~CTA_Standard(void);
 
 
 protected:

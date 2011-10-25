@@ -139,6 +139,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_channels", "modules_terr
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_compound", "modules_terrain_analysis\terrain_analysis\ta_compound\ta_compound.vcxproj", "{4D0F256A-8D05-457C-8B45-7D889329A381}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_hydrology", "modules_terrain_analysis\terrain_analysis\ta_hydrology\ta_hydrology.vcxproj", "{F3D0170D-EEE3-4ACA-AAAB-F6583C49657A}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -148,6 +151,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_lighting", "modules_terrain_analysis\terrain_analysis\ta_lighting\ta_lighting.vcxproj", "{4CF536D1-03E8-4912-9BBB-F27AEA8A903D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_morphometry", "modules_terrain_analysis\terrain_analysis\ta_morphometry\ta_morphometry.vcxproj", "{B524843D-737C-49EB-95A5-30303227B004}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_preprocessor", "modules_terrain_analysis\terrain_analysis\ta_preprocessor\ta_preprocessor.vcxproj", "{8F88184A-F069-41FB-9CF9-00D2A3818D5A}"
 EndProject
