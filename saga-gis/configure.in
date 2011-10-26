@@ -210,16 +210,16 @@ AC_OUTPUT(Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_grid/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_kriging/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_regression/Makefile \
-    src/modules_images/Makefile \
-    src/modules_images/modules_imagery/Makefile \
-    src/modules_images/modules_imagery/imagery_classification/Makefile \
-    src/modules_images/modules_imagery/imagery_rga/Makefile \
-    src/modules_images/modules_imagery/imagery_segmentation/Makefile \
-    src/modules_images/modules_imagery/imagery_tools/Makefile \
-    src/modules_images/modules_opencv/Makefile \
-    src/modules_images/modules_opencv/opencv/Makefile \
-    src/modules_images/modules_vigra/Makefile \
-    src/modules_images/modules_vigra/vigra/Makefile \
+	src/modules_images/Makefile \
+	src/modules_images/modules_imagery/Makefile \
+	src/modules_images/modules_imagery/imagery_classification/Makefile \
+	src/modules_images/modules_imagery/imagery_rga/Makefile \
+	src/modules_images/modules_imagery/imagery_segmentation/Makefile \
+	src/modules_images/modules_imagery/imagery_tools/Makefile \
+	src/modules_images/modules_opencv/Makefile \
+	src/modules_images/modules_opencv/opencv/Makefile \
+	src/modules_images/modules_vigra/Makefile \
+	src/modules_images/modules_vigra/vigra/Makefile \
 	src/modules_io/Makefile \
 	src/modules_io/esri_e00/Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \
@@ -266,6 +266,7 @@ AC_OUTPUT(Makefile \
 	src/modules_terrain_analysis/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_channels/Makefile \
+	src/modules_terrain_analysis/terrain_analysis/ta_compound/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_hydrology/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_lighting/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_morphometry/Makefile \

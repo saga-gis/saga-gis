@@ -153,7 +153,7 @@ bool CSG_Module_Library::Create(const CSG_String &File_Name)
 #if !defined(_SAGA_MSW)
 	if( m_Library_Name.Find(SG_T("lib")) == 0 )
 	{
-		m_Library_Name	= m_Library_Name.Right(2, m_Library_Name.Length() - 3).c_str();
+		m_Library_Name	= m_Library_Name.Right(m_Library_Name.Length() - 3).c_str();
 	}
 #endif
 
