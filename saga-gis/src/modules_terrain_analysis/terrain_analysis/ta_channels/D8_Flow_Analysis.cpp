@@ -71,20 +71,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define NODE_SPRING		1
+#define NODE_JUNCTION	2
+#define NODE_OUTLET		3
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CD8_Flow_Analysis::CD8_Flow_Analysis(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("D8 Flow Analysis"));
+	Set_Name		(_TL("D8 Flow Analysis"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Deterministic 8 based flow network analysis\n")
-	);
+		"Deterministic 8 based flow network analysis\n"
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("DEM"),
+		NULL	, "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -92,31 +104,51 @@ CD8_Flow_Analysis::CD8_Flow_Analysis(void)
 	Parameters.Add_Grid(
 		NULL	, "DIRECTION"	, _TL("Flow Direction"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CONNECTION"	, _TL("Flow Connectivity"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Char
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "ORDER"		, _TL("Strahler Order"), 
+		_TL(""), 
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "BASIN"		, _TL("Catchment Basins"), 
+		_TL(""), 
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "NETWORK"		, _TL("Flow Network"),
-		_TL(""),
-		PARAMETER_OUTPUT
+		NULL	, "SEGMENTS"	, _TL("Channels"), 
+		_TL(""), 
+		PARAMETER_OUTPUT, SHAPE_TYPE_Line
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "NODES"		, _TL("Junctions"), 
+		_TL(""), 
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "BASINS"		, _TL("Catchment Basins"), 
+		_TL(""), 
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Value(
-		NULL	, "MINCON"		, _TL("Minimum Connectivity"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true, 8, true
+		NULL	, "THRESHOLD"	, _TL("Threshold"), 
+		_TL("Strahler order to begin a channel."), 
+		PARAMETER_TYPE_Int, 3, 1, true
 	);
 }
-
-//---------------------------------------------------------
-CD8_Flow_Analysis::~CD8_Flow_Analysis(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -128,33 +160,25 @@ CD8_Flow_Analysis::~CD8_Flow_Analysis(void)
 //---------------------------------------------------------
 bool CD8_Flow_Analysis::On_Execute(void)
 {
-	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")			->asGrid();
+	CSG_Grid	Dir, Order, Basins;
 
-	m_MinCon	= Parameters("MINCON")		->asInt();
-
-	m_pDir		= Parameters("DIRECTION")	->asGrid();
-	m_pCon		= Parameters("CONNECTION")	->asGrid();
-
-	m_pNet		= Parameters("NETWORK")		->asShapes();
-	m_pNet->Create(SHAPE_TYPE_Line, _TL("D8 Flow Network"));
-	m_pNet->Add_Field("ID"		, SG_DATATYPE_Int);
-	m_pNet->Add_Field(_TL("LENGTH")	, SG_DATATYPE_Double);
+	m_pDir		= Parameters("DIRECTION")	->asGrid();		if( !m_pDir    ) { m_pDir    = &Dir   ; Dir   .Create(*Get_System(), SG_DATATYPE_Char ); }
+	m_pOrder	= Parameters("ORDER")		->asGrid();		if( !m_pOrder  ) { m_pOrder  = &Order ; Order .Create(*Get_System(), SG_DATATYPE_Short); }
+	m_pBasins	= Parameters("BASIN")		->asGrid();		if( !m_pBasins ) { m_pBasins = &Basins; Basins.Create(*Get_System(), SG_DATATYPE_Short); }
 
 	//-----------------------------------------------------
-	//Process_Set_Text("Channel Network: Pass 1");
+	Get_Direction();
 
-	Set_Direction();
-	Set_Connectivity();
+	Get_Order();
+
+	Get_Nodes();
+
+	Get_Basins();
+
+	Get_Segments();
 
 	//-----------------------------------------------------
-	Lock_Create();
-
-	//-----------------------------------------------------
-	Set_Network();
-
-	//-----------------------------------------------------
-	Lock_Destroy();
+	m_Nodes.Destroy();
 
 	return( true );
 }
@@ -167,50 +191,39 @@ bool CD8_Flow_Analysis::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CD8_Flow_Analysis::Set_Direction(void)
+void CD8_Flow_Analysis::Get_Direction(void)
 {
-	bool	bResult	= false;
-	int		x, y, i;
+	Process_Set_Text(_TL("flow direction"));
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	m_pDir->Set_NoData_Value(-1);
+
+	CSG_Grid	*pDEM	= Parameters("DEM")			->asGrid();
+	CSG_Grid	*pCon	= Parameters("CONNECTION")	->asGrid();
+
+	if( pCon )
 	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( m_pDEM->is_InGrid(x, y) && (i = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
-			{
-				bResult	= true;
+		pCon->Assign(0.0);
+	}
 
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0, i, ix, iy; x<Get_NX(); x++)
+		{
+			if( (i = pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 && pDEM->is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
+			{
 				m_pDir->Set_Value(x, y, i);
+
+				if( pCon )
+				{
+					pCon->Add_Value(ix, iy, 1);
+				}
 			}
 			else
 			{
-				m_pDir->Set_Value(x, y, -1);
+				m_pDir->Set_NoData(x, y);
 			}
 		}
 	}
-
-	return( bResult );
-}
-
-//---------------------------------------------------------
-bool CD8_Flow_Analysis::Set_Connectivity(void)
-{
-	int		x, y, i, ix, iy;
-
-	m_pCon->Assign(0.0);
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( (i = m_pDir->asInt(x, y)) >= 0 && Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy) )
-			{
-				m_pCon->Add_Value(ix, iy, 1);
-			}
-		}
-	}
-
-	return( true );
 }
 
 
@@ -221,55 +234,272 @@ bool CD8_Flow_Analysis::Set_Connectivity(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CD8_Flow_Analysis::Set_Network(void)
+void CD8_Flow_Analysis::Get_Order(void)
 {
-	int		x, y, i, n;
-	CSG_Shape	*pLine;
+	Process_Set_Text(_TL("stream order"));
 
-	for(y=0, n=0; y<Get_NY() && Set_Progress(y); y++)
+	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+
+	m_pOrder->Set_NoData_Value(0);
+	m_pOrder->Assign_NoData();
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !is_Locked(x, y) && (i = m_pCon->asInt(x, y)) != 1 && i >= m_MinCon )
+			if( !pDEM->is_NoData(x, y) )
 			{
-				pLine	= m_pNet->Add_Shape();
-				pLine->Set_Value(0, ++n);
-
-				Set_Network(x, y, pLine);
+				Get_Order(x, y);
 			}
 		}
 	}
-
-	return( true );
 }
 
 //---------------------------------------------------------
-bool CD8_Flow_Analysis::Set_Network(int x, int y, CSG_Shape *pLine)
+int CD8_Flow_Analysis::Get_Order(int x, int y)
 {
-	int		i, ix, iy;
+	int		Order	= m_pOrder->asInt(x, y);
 
-	Lock_Set(x, y);
-
-	pLine->Add_Point(Get_XMin() + x * Get_Cellsize(), Get_YMin() + y * Get_Cellsize());
-
-	if( (i = m_pDir->asInt(x, y)) >= 0 )
+	if( Order == 0 )
 	{
-		pLine->Add_Value(1, Get_Length(i));
+		int		i, ix, iy, n;
 
-		ix	= Get_xTo(i, x);
-		iy	= Get_yTo(i, y);
-
-		if( is_InGrid(ix, iy) && !is_Locked(ix, iy) && m_pCon->asInt(ix, iy) == 1 )
+		for(i=0, n=0, Order=1; i<8; i++)
 		{
-			Set_Network(ix, iy, pLine);
+			if( Get_System()->Get_Neighbor_Pos(i + 4, x, y, ix, iy) && m_pDir->asInt(ix, iy) == i )
+			{
+				int		iOrder	= Get_Order(ix, iy);
+
+				if( Order < iOrder )
+				{
+					Order	= iOrder;
+					n		= 1;
+				}
+				else if( Order == iOrder )
+				{
+					n++;
+				}
+			}
+		}
+
+		if( n > 1 )
+		{
+			Order++;
+		}
+
+		m_pOrder->Set_Value(x, y, Order);
+	}
+
+	return( Order );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CD8_Flow_Analysis::Get_Nodes(void)
+{
+	Process_Set_Text(_TL("junctions"));
+
+	CSG_Shapes	*pNodes	= Parameters("NODES")->asShapes();
+
+	if( pNodes )
+	{
+		pNodes	->Create(SHAPE_TYPE_Point, _TL("Junctions"));
+		pNodes	->Add_Field(_TL("NODE_ID")		, SG_DATATYPE_Int);
+		pNodes	->Add_Field(_TL("TYPE")			, SG_DATATYPE_String);
+	}
+
+	int	Threshold	= Parameters("THRESHOLD")->asInt();
+
+	m_Nodes.Create(*Get_System(), SG_DATATYPE_Int);
+
+	m_pBasins->Set_NoData_Value(0);
+	m_pBasins->Assign_NoData();
+
+	for(int y=0, nNodes=0, nBasins=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int	i, Order	= m_pOrder->asInt(x, y);
+
+			if( Order >= Threshold )
+			{
+				if( (i = m_pDir->asInt(x, y)) >= 0 )
+				{
+					int	ix	= Get_xTo(i, x);
+					int	iy	= Get_yTo(i, y);
+
+					if( !m_Nodes.asInt(ix, iy) && m_pOrder->asInt(ix, iy) > Order && m_pDir->asInt(ix, iy) >= 0 )
+					{
+						Set_Node(ix, iy, ++nNodes, NODE_JUNCTION, pNodes ? pNodes->Add_Shape() : NULL);
+					}
+
+					if( Order == Threshold )
+					{
+						bool	bSpring	= true;
+
+						for(i=0; i<8 && bSpring; i++)
+						{
+							if( Get_System()->Get_Neighbor_Pos(i + 4, x, y, ix, iy) && m_pDir->asInt(ix, iy) == i )
+							{
+								bSpring	= m_pOrder->asInt(ix, iy) < Threshold;
+							}
+						}
+
+						if( bSpring )
+						{
+							Set_Node(x, y, ++nNodes, NODE_SPRING, pNodes ? pNodes->Add_Shape() : NULL);
+						}
+					}
+				}
+				else
+				{
+					Set_Node(x, y, ++nNodes, NODE_OUTLET, pNodes ? pNodes->Add_Shape() : NULL);
+
+					m_pBasins->Set_Value(x, y, ++nBasins);
+				}
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CD8_Flow_Analysis::Set_Node(int x, int y, int id, int type, CSG_Shape *pNode)
+{
+	m_Nodes.Set_Value(x, y, id);
+
+	if( pNode )
+	{
+		pNode		->Set_Value(0, id);
+		pNode		->Set_Value(1, type == NODE_SPRING ? _TL("Spring") : type == NODE_OUTLET ? _TL("Outlet") : _TL("Junction"));
+		pNode		->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CD8_Flow_Analysis::Get_Basins(void)
+{
+	Process_Set_Text(_TL("basins"));
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			Get_Basin(x, y);
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes	*pBasins	= Parameters("BASINS")->asShapes();
+
+	if( pBasins )
+	{
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_grid"), 6);	// grid classes to shapes
+
+		if(	pModule )
+		{
+			pModule->Set_Managed(false);
+
+			if( pModule->Get_Parameters()->Get_Parameter("GRID")    ->Set_Value(m_pBasins)
+			&&	pModule->Get_Parameters()->Get_Parameter("POLYGONS")->Set_Value(  pBasins) )
+			{
+				pModule->Execute();
+			}
+
+			pModule->Set_Managed(true);
+		}
+	}
+}
+
+//---------------------------------------------------------
+int CD8_Flow_Analysis::Get_Basin(int x, int y)
+{
+	int		i, Basin	= m_pBasins->asInt(x, y);
+
+	if( Basin <= 0 && (i = m_pDir->asInt(x, y)) >= 0 && (Basin = Get_Basin(Get_xTo(i, x), Get_yTo(i, y))) > 0 )
+	{
+		m_pBasins->Set_Value(x, y, Basin);
+	}
+
+	return( Basin );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CD8_Flow_Analysis::Get_Segments(void)
+{
+	Process_Set_Text(_TL("channels"));
+
+	m_pSegments	= Parameters("SEGMENTS")	->asShapes();
+	m_pSegments	->Create(SHAPE_TYPE_Line, _TL("Channels"));
+	m_pSegments	->Add_Field(_TL("SEGMENT_ID")	, SG_DATATYPE_Int);
+	m_pSegments	->Add_Field(_TL("BASIN_ID")		, SG_DATATYPE_Int);
+	m_pSegments	->Add_Field(_TL("ORDER")		, SG_DATATYPE_Int);
+//	m_pSegments	->Add_Field(_TL("LENGTH")		, SG_DATATYPE_Double);
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( m_Nodes.asInt(x, y) )
+			{
+				Get_Segment(x, y);
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CD8_Flow_Analysis::Get_Segment(int x, int y)
+{
+	CSG_Shape	*pSegment;
+
+	pSegment	= m_pSegments->Add_Shape();
+	pSegment	->Set_Value(0, m_pSegments->Get_Count());
+	pSegment	->Set_Value(1, m_pBasins->asInt(x, y));
+	pSegment	->Set_Value(2, m_pOrder->asInt(x, y));
+	pSegment	->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+
+	do
+	{
+		int	i	= m_pDir->asInt(x, y);
+
+		if( i >= 0 )
+		{
+			x	+= Get_xTo(i);
+			y	+= Get_yTo(i);
+
+			pSegment->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+
+			if( m_Nodes.asInt(x, y) )
+			{
+				pSegment	= NULL;
+			}
 		}
 		else
 		{
-			pLine->Add_Point(Get_XMin() + ix * Get_Cellsize(), Get_YMin() + iy * Get_Cellsize());
+			pSegment	= NULL;
 		}
 	}
-
-	return( true );
+	while( pSegment );
 }
 
 
