@@ -119,6 +119,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	Parameters.Add_Value(pNode, "MIN"   , _TL("Minimum")			, _TL(""), PARAMETER_TYPE_Bool, true);
 	Parameters.Add_Value(pNode, "MAX"   , _TL("Maximum")			, _TL(""), PARAMETER_TYPE_Bool, true);
 	Parameters.Add_Value(pNode, "RANGE" , _TL("Range")				, _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "SUM"   , _TL("Sum")				, _TL(""), PARAMETER_TYPE_Bool, true);
 	Parameters.Add_Value(pNode, "MEAN"  , _TL("Mean")				, _TL(""), PARAMETER_TYPE_Bool, true);
 	Parameters.Add_Value(pNode, "VAR"   , _TL("Variance")			, _TL(""), PARAMETER_TYPE_Bool, true);
 	Parameters.Add_Value(pNode, "STDDEV", _TL("Standard Deviation")	, _TL(""), PARAMETER_TYPE_Bool, true);
@@ -140,7 +141,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 {
-	int						iShape, Quantile, nFields, fCOUNT, fMIN, fMAX, fRANGE, fMEAN, fVAR, fSTDDEV, fQUANTILE;
+	int						iShape, Quantile, nFields, fCOUNT, fMIN, fMAX, fRANGE, fSUM, fMEAN, fVAR, fSTDDEV, fQUANTILE;
 	CSG_Grid				ShapeIDs;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_Shapes				*pShapes;
@@ -156,6 +157,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	fMIN		= Parameters("MIN")			->asBool() ? nFields++ : -1;
 	fMAX		= Parameters("MAX")			->asBool() ? nFields++ : -1;
 	fRANGE		= Parameters("RANGE")		->asBool() ? nFields++ : -1;
+	fSUM		= Parameters("SUM")			->asBool() ? nFields++ : -1;
 	fMEAN		= Parameters("MEAN")		->asBool() ? nFields++ : -1;
 	fVAR		= Parameters("VAR")			->asBool() ? nFields++ : -1;
 	fSTDDEV		= Parameters("STDDEV")		->asBool() ? nFields++ : -1;
@@ -226,6 +228,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 		if( fMIN      >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("MIN")     ), SG_DATATYPE_Double);
 		if( fMAX      >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("MAX")     ), SG_DATATYPE_Double);
 		if( fRANGE    >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("RANGE")   ), SG_DATATYPE_Double);
+		if( fSUM      >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("SUM")     ), SG_DATATYPE_Double);
 		if( fMEAN     >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("MEAN")    ), SG_DATATYPE_Double);
 		if( fVAR      >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("VARIANCE")), SG_DATATYPE_Double);
 		if( fSTDDEV   >= 0 )	pShapes->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("STDDEV")  ), SG_DATATYPE_Double);
@@ -248,6 +251,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 				if( fMIN      >= 0 )	pShape->Set_NoData(nFields + fMIN);
 				if( fMAX      >= 0 )	pShape->Set_NoData(nFields + fMAX);
 				if( fRANGE    >= 0 )	pShape->Set_NoData(nFields + fRANGE);
+				if( fSUM      >= 0 )	pShape->Set_NoData(nFields + fSUM);
 				if( fMEAN     >= 0 )	pShape->Set_NoData(nFields + fMEAN);
 				if( fVAR      >= 0 )	pShape->Set_NoData(nFields + fVAR);
 				if( fSTDDEV   >= 0 )	pShape->Set_NoData(nFields + fSTDDEV);
@@ -259,6 +263,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 				if( fMIN      >= 0 )	pShape->Set_Value(nFields + fMIN	, Statistics[iShape].Get_Minimum ());
 				if( fMAX      >= 0 )	pShape->Set_Value(nFields + fMAX	, Statistics[iShape].Get_Maximum ());
 				if( fRANGE    >= 0 )	pShape->Set_Value(nFields + fRANGE	, Statistics[iShape].Get_Range   ());
+				if( fSUM      >= 0 )	pShape->Set_Value(nFields + fSUM	, Statistics[iShape].Get_Sum     ());
 				if( fMEAN     >= 0 )	pShape->Set_Value(nFields + fMEAN	, Statistics[iShape].Get_Mean    ());
 				if( fVAR      >= 0 )	pShape->Set_Value(nFields + fVAR	, Statistics[iShape].Get_Variance());
 				if( fSTDDEV   >= 0 )	pShape->Set_Value(nFields + fSTDDEV	, Statistics[iShape].Get_StdDev  ());
