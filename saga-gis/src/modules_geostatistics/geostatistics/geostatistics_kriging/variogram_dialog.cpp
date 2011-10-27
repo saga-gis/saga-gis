@@ -90,9 +90,9 @@ bool CSG_Variogram::Calculate(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVa
 		nSkip		= 1;
 	}
 
-	if( maxDistance <= 0.0 )
+	if( maxDistance <= 0.0 || maxDistance > SG_Get_Length(pPoints->Get_Extent().Get_XRange(), pPoints->Get_Extent().Get_YRange()) )
 	{
-		maxDistance	= SG_Get_Length(pPoints->Get_Extent().Get_XRange(), pPoints->Get_Extent().Get_YRange());
+		maxDistance	= SG_Get_Length(pPoints->Get_Extent().Get_XRange(), pPoints->Get_Extent().Get_YRange());	// bounding box' diagonal
 	}
 
 	lagDistance	= maxDistance / nClasses;
@@ -204,6 +204,10 @@ class CVariogram_Diagram : public CSGDI_Diagram
 public:
 	CVariogram_Diagram(wxWindow *pParent);
 
+
+	bool						m_bPairs;
+
+
 	void						Initialize				(CSG_Trend *pModel, CSG_Table *pVariogram);
 
 	void						Set_Variogram			(void);
@@ -229,6 +233,8 @@ CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent)
 
 	m_pModel		= NULL;
 	m_pVariogram	= NULL;
+
+	m_bPairs		= false;
 }
 
 //---------------------------------------------------------
@@ -260,6 +266,25 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 			ix	= Get_xToScreen(m_pModel->Get_Data_XMax());
 			dc.SetPen  (wxPen(wxColour(  0, 127,   0), 2));
 			dc.DrawLine(ix, Get_yToScreen(m_yMin), ix, Get_yToScreen(m_yMax));
+		}
+
+		//-------------------------------------------------
+		if( m_bPairs && m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_COUNT) > 0 )
+		{
+			double	dScale	= m_yMax / m_pVariogram->Get_Maximum(CSG_Variogram::FIELD_COUNT);
+
+			dc.SetPen  (wxColour(191, 191, 191));
+			dc.SetBrush(wxColour(191, 191, 191));
+
+			for(i=0; i<m_pVariogram->Get_Count(); i++)
+			{
+				CSG_Table_Record	*pRecord	= m_pVariogram->Get_Record(i);
+
+				ix	= Get_xToScreen(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE));
+				iy	= Get_yToScreen(pRecord->asDouble(CSG_Variogram::FIELD_COUNT   ) * dScale);
+
+				dc.DrawCircle(ix, iy, 3);
+			}
 		}
 
 		//-------------------------------------------------
@@ -347,6 +372,9 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 
 	Add_Spacer();
 	m_pSettings		= Add_Button	(_TL("Settings"), wxID_ANY);
+
+	Add_Spacer();
+	m_pPairs		= Add_CheckBox	(_TL("Number of Pairs"), false);
 
 	Add_Spacer();
 	m_pFormulas		= Add_Choice	(_TL("Predefined Functions"), Formulas, 0);
@@ -439,6 +467,13 @@ void CVariogram_Dialog::Set_Variogram(void)
 
 	if( lagDist > 0.0 )
 	{
+		double	Diagonal	= SG_Get_Length(m_pPoints->Get_Extent().Get_XRange(), m_pPoints->Get_Extent().Get_YRange());	// bounding box's diagonal
+
+		if( maxDist <= 0.0 || maxDist > Diagonal )
+		{
+			m_Settings("MAXDIST")->Set_Value(maxDist = Diagonal);
+		}
+
 		CSG_Variogram::Calculate(m_pPoints, m_Attribute, m_pVariogram,
 			1 + (int)(0.5 + maxDist / lagDist), maxDist, m_Settings("SKIP")->asInt()
 		);
@@ -500,6 +535,8 @@ void CVariogram_Dialog::Set_Model(void)
 	}
 
 	m_pParameters->SetValue(s);
+
+	m_pDiagram->m_bPairs	= m_pPairs->GetValue();
 
 	m_pDiagram->Refresh(true);
 }

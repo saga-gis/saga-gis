@@ -125,6 +125,8 @@ private:
 
 	wxButton					*m_pSettings;
 
+	wxCheckBox					*m_pPairs;
+
 	wxChoice					*m_pFormulas;
 
 	wxTextCtrl					*m_pFormula, *m_pParameters;
