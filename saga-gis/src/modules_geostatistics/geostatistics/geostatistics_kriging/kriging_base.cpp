@@ -110,6 +110,12 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_Value(
+		NULL	, "LOG"			, _TL("Logarithmic Transformation"),
+		_TL(""),
+		PARAMETER_TYPE_Bool
+	);
+
 	pNode	= Parameters.Add_Value(
 		NULL	, "BLOCK"		, _TL("Block Kriging"),
 		_TL(""),
@@ -230,7 +236,7 @@ bool CKriging_Base::On_Execute(void)
 	{
 		static CVariogram_Dialog	dlg;
 
-		if( dlg.Execute(m_pPoints, m_zField, &Variogram, &m_Model) )
+		if( dlg.Execute(m_pPoints, m_zField, m_bLog, &Variogram, &m_Model) )
 		{
 			bResult	= true;
 		}
@@ -245,7 +251,7 @@ bool CKriging_Base::On_Execute(void)
 
 		m_Model.Set_Formula(Parameters("VAR_MODEL")->asString());
 
-		if( CSG_Variogram::Calculate(m_pPoints, m_zField, &Variogram, nClasses, maxDistance, nSkip) )
+		if( CSG_Variogram::Calculate(m_pPoints, m_zField, m_bLog, &Variogram, nClasses, maxDistance, nSkip) )
 		{
 			m_Model.Clr_Data();
 
@@ -287,6 +293,7 @@ bool CKriging_Base::_Initialise(void)
 	m_Block		= Parameters("DBLOCK")	->asDouble() / 2.0;
 	m_bBlock	= Parameters("BLOCK")	->asBool() && m_Block > 0.0;
 	m_bStdDev	= Parameters("TQUALITY")->asInt() == 0;
+	m_bLog		= Parameters("LOG")		->asBool();
 
 	//-----------------------------------------------------
 	m_pPoints	= Parameters("POINTS")	->asShapes();
@@ -382,7 +389,7 @@ bool CKriging_Base::_Interpolate(void)
 			{
 				if( Get_Value(x, y, z, v) )
 				{
-					m_pGrid->Set_Value(ix, iy, z);
+					m_pGrid->Set_Value(ix, iy, m_bLog ? exp(z) : z);
 
 					if( m_pVariance )
 					{

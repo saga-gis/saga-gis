@@ -102,6 +102,12 @@ CSemiVariogram::CSemiVariogram(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Value(
+		NULL	, "LOG"			, _TL("Logarithmic Transformation"),
+		_TL(""),
+		PARAMETER_TYPE_Bool
+	);
+
 	//-----------------------------------------------------
 	if( !SG_UI_Get_Window_Main() )
 	{
@@ -141,7 +147,7 @@ CSemiVariogram::CSemiVariogram(void)
 //---------------------------------------------------------
 bool CSemiVariogram::On_Execute(void)
 {
-	bool		bResult	= false;
+	bool		bLog, bResult	= false;
 	int			Attribute;
 	CSG_Trend	Model;
 	CSG_Shapes	*pPoints;
@@ -150,6 +156,7 @@ bool CSemiVariogram::On_Execute(void)
 	//-----------------------------------------------------
 	pPoints		= Parameters("POINTS")		->asShapes();
 	Attribute	= Parameters("ATTRIBUTE")	->asInt();
+	bLog		= Parameters("LOG")			->asBool();
 	pVariogram	= Parameters("VARIOGRAM")	->asTable();
 
 	//-----------------------------------------------------
@@ -157,7 +164,7 @@ bool CSemiVariogram::On_Execute(void)
 	{
 		static CVariogram_Dialog	dlg;
 
-		if( dlg.Execute(pPoints, Attribute, pVariogram, &Model) )
+		if( dlg.Execute(pPoints, Attribute, bLog, pVariogram, &Model) )
 		{
 			bResult	= true;
 		}
@@ -172,7 +179,7 @@ bool CSemiVariogram::On_Execute(void)
 
 		Model.Set_Formula(Parameters("VAR_MODEL")->asString());
 
-		if( CSG_Variogram::Calculate(pPoints, Attribute, pVariogram, nClasses, maxDistance, nSkip) )
+		if( CSG_Variogram::Calculate(pPoints, Attribute, bLog, pVariogram, nClasses, maxDistance, nSkip) )
 		{
 			Model.Clr_Data();
 

@@ -75,7 +75,7 @@ CSG_Variogram::CSG_Variogram(void)
 {}
 
 //---------------------------------------------------------
-bool CSG_Variogram::Calculate(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVariogram, int nClasses, double maxDistance, int nSkip)
+bool CSG_Variogram::Calculate(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG_Table *pVariogram, int nClasses, double maxDistance, int nSkip)
 {
 	int					i, j, k, n;
 	double				z, lagDistance;
@@ -108,7 +108,7 @@ bool CSG_Variogram::Calculate(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVa
 		if( !pPoint->is_NoData(Attribute) )
 		{
 			p	= pPoint->Get_Point(0);
-			z	= pPoint->asDouble(Attribute);
+			z	= bLog ? log(pPoint->asDouble(Attribute)) : pPoint->asDouble(Attribute);
 
 			for(j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
 			{
@@ -121,7 +121,7 @@ bool CSG_Variogram::Calculate(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVa
 					if( k < nClasses )
 					{
 						Count	[k]	++;
-						Variance[k]	+= SG_Get_Square(pPoint->asDouble(Attribute) - z);
+						Variance[k]	+= SG_Get_Square((bLog ? log(pPoint->asDouble(Attribute)) : pPoint->asDouble(Attribute)) - z);
 					}
 				}
 			}
@@ -354,17 +354,15 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	wxArrayString	Formulas;
 
 	Formulas.Empty();
-	Formulas.Add(SG_T("a + b * x"));
-	Formulas.Add(SG_T("a + b * x + c * x^2"));
-	Formulas.Add(SG_T("a + b * x + c * x^2 + d * x^3"));
-	Formulas.Add(SG_T("a + b * x + c * x^2 + d * x^3 + e * x^4"));
-	Formulas.Add(SG_T("a + b * ln(x)"));
-	Formulas.Add(SG_T("a + b * x^c"));
-	Formulas.Add(SG_T("a + b / x"));
-	Formulas.Add(SG_T("a + b * sqrt(c + x)"));
-	Formulas.Add(SG_T("a * (1 - exp(-(abs(x) / b)^2))"));
-	Formulas.Add(SG_T("n + (s - n) * (1 - exp(-(x / r)^2))"));
-	Formulas.Add(SG_T("n + (s - n) * ifelse(x > r, 1, 3*x / (2*r) - x^3 / (2*r^3))"));
+	Formulas.Add(SG_T("a + b * x"));												// 1st order polynom (linear)
+	Formulas.Add(SG_T("a + b * x + c * x^2"));										// 2nd order polynom (quadric)
+	Formulas.Add(SG_T("a + b * x + c * x^2 + d * x^3"));							// 3rd order polynom (cubic)
+	Formulas.Add(SG_T("a + b * x + c * x^2 + d * x^3 + e * x^4"));					// 4th order polynom
+	Formulas.Add(SG_T("a + b * sqrt(c + x)"));										// square root
+	Formulas.Add(SG_T("a + b * ln(x)"));											// logarithmic
+	Formulas.Add(SG_T("a + b * x^c"));												// exponential
+	Formulas.Add(SG_T("a + b * (1 - exp(-(x / b)^2))"));							// gaussian
+	Formulas.Add(SG_T("a + b * ifelse(x > c, 1, 1.5 * x / c - 0.5 * x^3 / c^3)"));	// spherical
 
 	//-----------------------------------------------------
 	Add_Button(_TL("Ok")		, wxID_OK);
@@ -402,7 +400,7 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 }
 
 //---------------------------------------------------------
-bool CVariogram_Dialog::Execute(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVariogram, CSG_Trend *pModel)
+bool CVariogram_Dialog::Execute(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG_Table *pVariogram, CSG_Trend *pModel)
 {
 	if( m_pPoints != pPoints )
 	{
@@ -417,6 +415,7 @@ bool CVariogram_Dialog::Execute(CSG_Shapes *pPoints, int Attribute, CSG_Table *p
 	}
 
 	m_Attribute		= Attribute;
+	m_bLog			= bLog;
 	m_pVariogram	= pVariogram;
 	m_pModel		= pModel;
 
@@ -474,7 +473,7 @@ void CVariogram_Dialog::Set_Variogram(void)
 			m_Settings("MAXDIST")->Set_Value(maxDist = Diagonal);
 		}
 
-		CSG_Variogram::Calculate(m_pPoints, m_Attribute, m_pVariogram,
+		CSG_Variogram::Calculate(m_pPoints, m_Attribute, m_bLog, m_pVariogram,
 			1 + (int)(0.5 + maxDist / lagDist), maxDist, m_Settings("SKIP")->asInt()
 		);
 

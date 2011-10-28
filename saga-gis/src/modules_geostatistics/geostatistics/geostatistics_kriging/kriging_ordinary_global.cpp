@@ -177,7 +177,7 @@ bool CKriging_Ordinary_Global::Get_Weights(void)
 			m_Points.Add(
 				pPoint->Get_Point(0).x,
 				pPoint->Get_Point(0).y,
-				pPoint->asDouble(m_zField)
+				m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField)
 			);
 		}
 	}

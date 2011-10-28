@@ -99,7 +99,7 @@ public:
 
 	CSG_Variogram(void);
 
-	static bool		Calculate			(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVariogram, int nClasses = 25, double maxDistance = 0.0, int nSkip = 1);
+	static bool		Calculate			(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG_Table *pVariogram, int nClasses = 25, double maxDistance = 0.0, int nSkip = 1);
 
 	static double	Get_Lag_Distance	(CSG_Shapes *pPoints, int Method, int nSkip = 1);
 
@@ -118,7 +118,7 @@ class CVariogram_Dialog : public CSGDI_Dialog
 public:
 	CVariogram_Dialog(void);
 
-	bool						Execute		(CSG_Shapes *pPoints, int Attribute, CSG_Table *pVariogram, CSG_Trend *pModel);
+	bool						Execute		(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG_Table *pVariogram, CSG_Trend *pModel);
 
 
 private:
@@ -142,6 +142,8 @@ private:
 	CSG_Table					*m_pVariogram;
 
 	CSG_Shapes					*m_pPoints;
+
+	bool						m_bLog;
 
 	int							m_Attribute;
 

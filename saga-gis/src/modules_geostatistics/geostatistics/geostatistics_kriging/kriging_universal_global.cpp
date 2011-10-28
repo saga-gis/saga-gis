@@ -239,7 +239,11 @@ bool CKriging_Universal_Global::Get_Weights(void)
 
 			if( bAdd )
 			{
-				m_Points.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, pPoint->asDouble(m_zField));
+				m_Points.Add(
+					pPoint->Get_Point(0).x,
+					pPoint->Get_Point(0).y,
+					m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField)
+				);
 			}
 		}
 	}

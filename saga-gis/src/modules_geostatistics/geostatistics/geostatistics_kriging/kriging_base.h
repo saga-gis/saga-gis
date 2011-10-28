@@ -90,7 +90,7 @@ public:
 
 protected:
 
-	bool						m_bBlock;
+	bool						m_bBlock, m_bLog;
 
 	int							m_zField;
 

@@ -256,6 +256,11 @@ int CKriging_Ordinary::Get_Weights(double x, double y)
 		for(i=0; i<n; i++)
 		{
 			m_Search.Get_Selected_Point(i, m_Points[i].x, m_Points[i].y, m_Points[i].z);
+
+			if( m_bLog )
+			{
+				m_Points[i].z	= log(m_Points[i].z);
+			}
 		}
 
 		//-------------------------------------------------
