@@ -331,8 +331,6 @@ void CChannelNetwork_Distance::Initialize_MFD(void)
 //---------------------------------------------------------
 void CChannelNetwork_Distance::Execute_MFD(int x, int y)
 {
-	int		i, ix, iy;
-
 	double	zDist, zVert, zHorz, dDist, dVert, dHorz, dFlow;
 
 	dDist	= m_Flow[8].asDouble(x, y);
@@ -380,3 +378,12 @@ void CChannelNetwork_Distance::Execute_MFD(int x, int y)
 		}
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
