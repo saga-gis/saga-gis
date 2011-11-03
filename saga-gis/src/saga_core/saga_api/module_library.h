@@ -186,4 +186,49 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SG_RUN_MODULE(bRetVal, LIBRARY, MODULE, CONDITION)	{\
+	\
+	bRetVal	= false;\
+	\
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T(LIBRARY), MODULE);\
+	\
+	if(	pModule == NULL )\
+	{\
+		Error_Set(CSG_String::Format(SG_T("%s: %s"), LNG("could not find module"), SG_T(LIBRARY)));\
+	}\
+	else\
+	{\
+		Process_Set_Text(pModule->Get_Name());\
+		\
+		pModule->Set_Managed(false);\
+		\
+		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());\
+		\
+		if( !(CONDITION) )\
+		{\
+			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), LNG("could not initialize module"), SG_T(LIBRARY), pModule->Get_Name()));\
+		}\
+		else if( !pModule->Execute() )\
+		{\
+			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), LNG("could not execute module"), SG_T(LIBRARY), pModule->Get_Name()));\
+		}\
+		else\
+		{\
+			bRetVal	= true;\
+		}\
+		\
+		pModule->Get_Parameters()->Assign_Values(&P);\
+		\
+		pModule->Set_Managed(true);\
+	}\
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__SAGA_API__module_library_H

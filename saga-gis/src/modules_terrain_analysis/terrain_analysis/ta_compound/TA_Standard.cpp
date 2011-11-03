@@ -73,16 +73,14 @@
 //---------------------------------------------------------
 CTA_Standard::CTA_Standard(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	Set_Name(_TL("Standard Terrain Analysis"));
+	Set_Name		(_TL("Basic Terrain Analysis"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
-	Set_Description(
-		_TL("Standard Terrain Analysis")
-	);
+	Set_Description	(_TW(
+		"A selection of basic parameters and objects to be derived from a Digital Terrain Model using standard settings."
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -97,29 +95,6 @@ CTA_Standard::CTA_Standard(void)
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "SHADE_NODE"	, _TL("Analytical Hillshading"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SHADE_AZIM"	, _TL("Azimuth []"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 315
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SHADE_DECL"	, _TL("Declination []"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 45
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SHADE_EXAG"	, _TL("Exaggeration"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 4
-	);
-
 	Parameters.Add_Grid(
 		NULL	, "SLOPE"		, _TL("Slope"),
 		_TL(""),
@@ -128,12 +103,6 @@ CTA_Standard::CTA_Standard(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ASPECT"		, _TL("Aspect"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "CURV"		, _TL("Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -157,12 +126,6 @@ CTA_Standard::CTA_Standard(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CURVCLASS"	, _TL("Curvature Classification"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
 		NULL	, "CAREA"		, _TL("Catchment Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -180,27 +143,16 @@ CTA_Standard::CTA_Standard(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CHNL_GRID"	, _TL("Channel Network"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
 	Parameters.Add_Shapes(
-		NULL	, "CHNL_SHAPES"	, _TL("Channel Network"),
+		NULL	, "CHANNELS"	, _TL("Channel Network"),
 		_TL(""),
 		PARAMETER_OUTPUT		, SHAPE_TYPE_Line
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "CHNL_NODE"	, _TL("Channel Network"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "CHNL_INIT"	, _TL("Network Density [%]"),
+	Parameters.Add_Shapes(
+		NULL	, "BASINS"		, _TL("Drainage Basins"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 5.0, 0.0, true, 100.0, true
+		PARAMETER_OUTPUT		, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Grid(
@@ -214,12 +166,6 @@ CTA_Standard::CTA_Standard(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
-
-	Parameters.Add_Grid(
-		NULL	, "BASINS"		, _TL("Watershed Subbasins"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
 }
 
 
@@ -230,124 +176,106 @@ CTA_Standard::CTA_Standard(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(Library, Module, Condition)	{\
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T(Library), Module);\
-	\
-	if(	pModule == NULL )\
-	{\
-		return( false );\
-	}\
-	\
-	Process_Set_Text(pModule->Get_Name());\
-	\
-	pModule->Set_Managed(false);\
-	\
-	if( !(Condition) || !pModule->Execute() )\
-	{\
-		pModule->Set_Managed(true);\
-	\
-		return( false );\
-	}\
-	\
-	pModule->Set_Managed(true);\
+#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+	bool	bResult;\
+	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	if( !bResult ) return( false );\
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 //---------------------------------------------------------
 bool CTA_Standard::On_Execute(void)
 {
+	CSG_Grid	TMP1(*Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	TMP2(*Get_System(), SG_DATATYPE_Float);
+
 	//-----------------------------------------------------
-	RUN_MODULE("ta_preprocessor"	, 2,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("DEM")			, Parameters("ELEVATION"))
+	RUN_MODULE("ta_preprocessor"		, 2,
+			SET_PARAMETER("DEM"			, Parameters("ELEVATION"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_lighting"		, 0,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, Parameters("ELEVATION"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("SHADE")			, Parameters("SHADE"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("AZIMUTH")		, Parameters("SHADE_AZIM"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("DECLINATION")	, Parameters("SHADE_DECL"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("EXAGGERATION")	, Parameters("SHADE_EXAG"))
+	RUN_MODULE("ta_lighting"			, 0,
+			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("SHADE"		, Parameters("SHADE"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_morphometry"		, 0,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, Parameters("ELEVATION"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("SLOPE")			, Parameters("SLOPE"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("ASPECT")			, Parameters("ASPECT"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CURV")			, Parameters("CURV"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("HCURV")			, Parameters("HCURV"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("VCURV")			, Parameters("VCURV"))
+	RUN_MODULE("ta_morphometry"			, 0,
+			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
+		&&	SET_PARAMETER("ASPECT"		, Parameters("ASPECT"))
+		&&	SET_PARAMETER("HCURV"		, NULL)
+		&&	SET_PARAMETER("VCURV"		, NULL)
+	)
+
+	RUN_MODULE("grid_filter"			, 0,
+			SET_PARAMETER("INPUT"		, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("RESULT"		, &TMP1)
+		&&	SET_PARAMETER("RADIUS"		, 3)
+	)
+
+	RUN_MODULE("ta_morphometry"			, 0,
+			SET_PARAMETER("ELEVATION"	, &TMP1)
+		&&	SET_PARAMETER("SLOPE"		, &TMP2)
+		&&	SET_PARAMETER("ASPECT"		, &TMP2)
+		&&	SET_PARAMETER("HCURV"		, Parameters("HCURV"))
+		&&	SET_PARAMETER("VCURV"		, Parameters("VCURV"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_morphometry"		, 1,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, Parameters("ELEVATION"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("RESULT")			, Parameters("CONVERGENCE"))
+	RUN_MODULE("ta_morphometry"			, 1,
+			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("RESULT"		, Parameters("CONVERGENCE"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_morphometry"		, 4,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("CPLAN")			, Parameters("HCURV"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CPROF")			, Parameters("VCURV"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CLASS")			, Parameters("CURVCLASS"))
+	RUN_MODULE("ta_hydrology"			, 0,
+			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("CAREA"		, Parameters("CAREA"))
+		&&	SET_PARAMETER("Method"		, 4)
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_hydrology"		, 0,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, Parameters("ELEVATION"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CAREA")			, Parameters("CAREA"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("Method")			, 4)
+	RUN_MODULE("ta_hydrology"			, 19,
+			SET_PARAMETER("DEM"			, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("TCA"			, Parameters("CAREA"))
+		&&	SET_PARAMETER("WIDTH"		, &TMP2)
+		&&	SET_PARAMETER("SCA"			, &TMP1)
+		&&	SET_PARAMETER("METHOD"		, 1)
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_hydrology"		, 20,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("SLOPE")			, Parameters("SLOPE"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("AREA")			, Parameters("CAREA"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("TWI")			, Parameters("WETNESS"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CONV")			, 1)
+	RUN_MODULE("ta_hydrology"			, 20,
+			SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
+		&&	SET_PARAMETER("AREA"		, &TMP1)
+		&&	SET_PARAMETER("TWI"			, Parameters("WETNESS"))
+		&&	SET_PARAMETER("CONV"		, 0)
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_hydrology"		, 22,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("SLOPE")			, Parameters("SLOPE"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("AREA")			, Parameters("CAREA"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("LS")				, Parameters("LSFACTOR"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CONV")			, 1)
+	RUN_MODULE("ta_hydrology"			, 22,
+			SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
+		&&	SET_PARAMETER("AREA"		, &TMP1)
+		&&	SET_PARAMETER("LS"			, Parameters("LSFACTOR"))
+		&&	SET_PARAMETER("CONV"		, 0)
 	)
 
 	//-----------------------------------------------------
-	double	d	= Parameters("CAREA")->asGrid()->Get_Percentile(Parameters("CHNL_INIT")->asDouble());
-	CSG_Grid	Grid(Parameters("ELEVATION")->asGrid(), SG_DATATYPE_Byte);
-
-	RUN_MODULE("ta_channels"		, 0,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, Parameters("ELEVATION"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CHNLNTWRK")		, Parameters("CHNL_GRID"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CHNLROUTE")		, &Grid)
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("SHAPES")			, Parameters("CHNL_SHAPES"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("INIT_GRID")		, Parameters("CAREA"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("INIT_VALUE")		, d)
+	RUN_MODULE("ta_channels"			, 5,
+			SET_PARAMETER("DEM"			, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("SEGMENTS"	, Parameters("CHANNELS"))
+		&&	SET_PARAMETER("BASINS"		, Parameters("BASINS"))
+		&&	SET_PARAMETER("ORDER"		, &TMP1)
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_channels"		, 1,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, Parameters("ELEVATION"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CHANNELS")		, Parameters("CHNL_GRID"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("BASINS")			, Parameters("BASINS"))
-	)
-
-	//-----------------------------------------------------
-	RUN_MODULE("ta_channels"		, 3,
-			pModule->Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, Parameters("ELEVATION"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CHANNELS")		, Parameters("CHNL_GRID"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("ALTITUDE")		, Parameters("CHNL_ALTI"))
-		&&	pModule->Get_Parameters()->Set_Parameter(SG_T("BASELEVEL")		, Parameters("CHNL_BASE"))
+	RUN_MODULE("ta_channels"			, 3,
+			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("CHANNELS"	, &TMP1)
+		&&	SET_PARAMETER("DISTANCE"	, Parameters("CHNL_ALTI"))
+		&&	SET_PARAMETER("BASELEVEL"	, Parameters("CHNL_BASE"))
 	)
 
 	//-----------------------------------------------------
