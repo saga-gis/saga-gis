@@ -121,6 +121,12 @@ wxString CWKSP_Shapes::Get_Description(void)
 	DESC_ADD_STR(LNG("[CAP] Name")				, m_pShapes->Get_Name());
 	DESC_ADD_STR(LNG("[CAP] File")				, m_pShapes->Get_File_Name());
 	DESC_ADD_STR(LNG("[CAP] Projection")		, m_pShapes->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT(LNG("[CAP] West")				, m_pShapes->Get_Extent().Get_XMin());
+	DESC_ADD_FLT(LNG("[CAP] East")				, m_pShapes->Get_Extent().Get_XMax());
+	DESC_ADD_FLT(LNG("[CAP] West-East")			, m_pShapes->Get_Extent().Get_XRange());
+	DESC_ADD_FLT(LNG("[CAP] South")				, m_pShapes->Get_Extent().Get_YMin());
+	DESC_ADD_FLT(LNG("[CAP] North")				, m_pShapes->Get_Extent().Get_YMax());
+	DESC_ADD_FLT(LNG("[CAP] South-North")		, m_pShapes->Get_Extent().Get_YRange());
 	DESC_ADD_STR(LNG("[CAP] Modified")			, m_pShapes->is_Modified() ? LNG("[VAL] yes") : LNG("[VAL] no"));
 	DESC_ADD_STR(LNG("[CAP] Type")				, SG_Get_ShapeType_Name(m_pShapes->Get_Type()));
 	DESC_ADD_STR(LNG("[CAP] Vertex Type")		, m_pShapes->Get_Vertex_Type() == 0 ? LNG("X, Y") : m_pShapes->Get_Vertex_Type() == 1 ? LNG("X, Y, Z") : LNG("X, Y, Z, M"));
