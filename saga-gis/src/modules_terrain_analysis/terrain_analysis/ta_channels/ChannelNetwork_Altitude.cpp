@@ -81,8 +81,8 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 	Set_Description	(_TW(
 		"This module calculates the vertical distance to a channel network base level. "
 		"The algorithm consists of two major steps:\n"
-		" 1. Interpolation of a channel network base level elevation grid\n"
-		" 2. Subtraction of this grid from the original elevations\n"
+		" 1. Interpolation of a channel network base level elevation\n"
+		" 2. Subtraction of this base level from the original elevations\n"
 	));
 
 
@@ -107,7 +107,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 	// Output...
 
 	Parameters.Add_Grid(
-		NULL, "ALTITUDE"	, _TL("Vertical Distance to Channel Network"),
+		NULL, "DISTANCE"	, _TL("Vertical Distance to Channel Network"),
 		_TL("The resulting grid gives the altitude above the channel network in the same units as the elevation data."),
 		PARAMETER_OUTPUT
 	);
@@ -123,9 +123,9 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 	// Options...
 
 	Parameters.Add_Value(
-		NULL, "THRESHOLD"	, _TL("Tension Threshold [m]"),
+		NULL, "THRESHOLD"	, _TL("Tension Threshold [Percentage of Cell Size]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 0.0, true
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
@@ -134,10 +134,6 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 		PARAMETER_TYPE_Bool, true
 	);
 }
-
-//---------------------------------------------------------
-CChannelNetwork_Altitude::~CChannelNetwork_Altitude(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -149,18 +145,15 @@ CChannelNetwork_Altitude::~CChannelNetwork_Altitude(void)
 //---------------------------------------------------------
 bool CChannelNetwork_Altitude::On_Execute(void)
 {
-	long		n;
 	int			nCells, nCells_Start, iStep, nSteps;
-	double		max_Change, Threshold;
+	double		Threshold;
 
 	//-----------------------------------------------------
-	pDTM				= Parameters("ELEVATION")		->asGrid();
-	pChannels			= Parameters("CHANNELS")		->asGrid();
-
-	pResult				= Parameters("ALTITUDE")		->asGrid();
-
-	Threshold			= Parameters("THRESHOLD")		->asDouble();
+	m_pDTM				= Parameters("ELEVATION")		->asGrid();
+	m_pChannels			= Parameters("CHANNELS")		->asGrid();
+	m_pDistance			= Parameters("DISTANCE")		->asGrid();
 	m_bNoUnderground	= Parameters("NOUNDERGROUND")	->asBool();
+	Threshold			= Parameters("THRESHOLD")		->asDouble() * Get_Cellsize();
 
 	//-----------------------------------------------------
 	nCells			= Get_NX() > Get_NY() ? Get_NX() : Get_NY();
@@ -168,52 +161,42 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	nCells_Start	= (int)pow(2.0, nSteps);
 
 	//-----------------------------------------------------
-	pResult->Assign_NoData();
+	m_pDistance->Assign_NoData();
 
-	pT_Chnl			= SG_Create_Grid(pResult, SG_DATATYPE_Byte);
-	pT_Temp			= SG_Create_Grid(pResult);
-	pT_Temp			->Set_NoData_Value_Range(pDTM->Get_NoData_Value(), pDTM->Get_NoData_hiValue());
+	m_Mask.Create(*Get_System(), SG_DATATYPE_Byte);
+	m_Dist.Create(*Get_System());
+	m_Dist.Set_NoData_Value_Range(m_pDTM->Get_NoData_Value(), m_pDTM->Get_NoData_hiValue());
 
 	for(nCells=nCells_Start, iStep=1; nCells>0 && Process_Get_Okay(); nCells/=2, iStep++)
 	{
 		Process_Set_Text(CSG_String::Format(SG_T("%d [%d]"), iStep, nSteps + 1));
 
-		Initialize_Surface(nCells);
+		Set_Surface(nCells);
 
-		do
-		{
-			max_Change	= Set_Surface(nCells);
-		}
-		while( max_Change > Threshold && Process_Get_Okay() );
+		while( Threshold < Get_Change(nCells) && Process_Get_Okay() );
 	}
 
-	delete(pT_Chnl);
-	delete(pT_Temp);
+	m_Mask.Destroy();
+	m_Dist.Destroy();
 
 	//-----------------------------------------------------
 	CSG_Grid	*pBase	= Parameters("BASELEVEL")->asGrid();
 
-	for(n=0; n<Get_NCells(); n++)
+	for(long n=0; n<Get_NCells(); n++)
 	{
-		if( pResult->is_NoData(n) || pDTM->is_NoData(n) )
+		if( m_pDistance->is_NoData(n) || m_pDTM->is_NoData(n) )
 		{
-			pResult->Set_NoData(n);
+			m_pDistance->Set_NoData(n);
 
-			if( pBase )
-			{
-				pBase->Set_NoData(n);
-			}
+			if( pBase )	{	pBase->Set_NoData(n);	}
 		}
 		else
 		{
-			double	z	= pResult->asDouble(n);
+			double	z	= m_pDistance->asDouble(n);
 
-			pResult->Set_Value(n, pDTM->asDouble(n) - z);
+			m_pDistance->Set_Value(n, m_pDTM->asDouble(n) - z);
 
-			if( pBase )
-			{
-				pBase->Set_Value(n, z);
-			}
+			if( pBase )	{	pBase->Set_Value(n, z);	}
 		}
 	}
 
@@ -229,133 +212,111 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CChannelNetwork_Altitude::Initialize_Surface(int nCells)
+void CChannelNetwork_Altitude::Set_Surface(int nCells)
 {
-	int		x, y, i, ix, iy, nx, ny, nz;
-
-	double	z;
+	m_Dist.Assign_NoData();
+	m_Mask.Assign(0.0);
 
 	//-----------------------------------------------------
-	// 1. Channels...
-
-	pT_Temp->Assign_NoData();
-	pT_Chnl->Assign();
-
-	for(y=0; y<Get_NY(); y+=nCells)
+	for(int y=0; y<Get_NY(); y+=nCells)
 	{
-		ny	= y + nCells < Get_NY() ? y + nCells : Get_NY();
+		int	ny	= y + nCells < Get_NY() ? y + nCells : Get_NY();
 
-		for(x=0; x<Get_NX(); x+=nCells)
+		for(int x=0; x<Get_NX(); x+=nCells)
 		{
-			nx	= x + nCells < Get_NX() ? x + nCells : Get_NX();
-			nz	= 0;
-			z	= 0.0;
+			int		nx	= x + nCells < Get_NX() ? x + nCells : Get_NX();
 
-			for(iy=y; iy<ny; iy++)
+			int		i, ix, iy, nz;
+			double	z;
+
+			for(iy=y, nz=0, z=0.0; iy<ny; iy++)
 			{
 				for(ix=x; ix<nx; ix++)
 				{
-					if( pChannels->is_InGrid(ix, iy) && !pDTM->is_NoData(ix, iy) )
+					if( m_pChannels->is_InGrid(ix, iy) && !m_pDTM->is_NoData(ix, iy) )
 					{
-						z	+= pDTM->asDouble(ix, iy);
-						nz++;
+						z	+= m_pDTM->asDouble(ix, iy);
+						nz	++;
 					}
 				}
 			}
 
+			//---------------------------------------------
 			if( nz > 0 )
 			{
-				pT_Temp->Set_Value(x, y, z / (double)nz );
-				pT_Chnl->Set_Value(x, y, 1.0);
+				m_Mask.Set_Value(x, y, true);
+				m_Dist.Set_Value(x, y, z / nz);
 			}
-		}
-	}
-
-	//-----------------------------------------------------
-	// 2. Previous Iteration...
-
-	for(y=0; y<Get_NY(); y+=nCells)
-	{
-		for(x=0; x<Get_NX(); x+=nCells)
-		{
-			if( pT_Chnl->asByte(x, y) == false )
+			else
 			{
-				if( !pResult->is_NoData(x, y) )
-				{
-					pT_Temp->Set_Value(x, y, pResult->asDouble(x, y));
-				}
-				else
-				{
-					nz	= 0;
-					z	= 0.0;
+				m_Mask.Set_Value(x, y, false);
 
+				if( m_pDistance->is_NoData(x, y) )
+				{
 					for(i=0; i<8; i++)
 					{
 						ix	= x + nCells * Get_xTo(i);
 						iy	= y + nCells * Get_yTo(i);
 
-						if( pResult->is_InGrid(ix, iy) )
+						if( m_pDistance->is_InGrid(ix, iy) )
 						{
-							z	+= pResult->asDouble(ix, iy);
-							nz++;
+							z	+= m_pDistance->asDouble(ix, iy);
+							nz	++;
 						}
 					}
 
-					if( nz > 0.0 )
-					{
-						pT_Temp->Set_Value(x, y, z / (double)nz);
-					}
-					else
-					{
-						pT_Temp->Set_Value(x, y, pDTM->asDouble(x, y));
-					}
+					m_Dist.Set_Value(x, y, nz > 0 ? z / nz : m_pDTM->asDouble(x, y));
+				}
+				else
+				{
+					m_Dist.Set_Value(x, y, m_pDistance->asDouble(x, y));
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	// 3. ...
-
-	pResult->Assign(pT_Temp);
+	m_pDistance->Assign(&m_Dist);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-double CChannelNetwork_Altitude::Set_Surface(int nCells)
+double CChannelNetwork_Altitude::Get_Change(int nCells)
 {
 	int		x, y;
-
 	double	d, dMax;
 
-	dMax	= 0.0;
-
+	//-----------------------------------------------------
 	for(y=0; y<Get_NY(); y+=nCells)
 	{
 		for(x=0; x<Get_NX(); x+=nCells)
 		{
-			if( pT_Chnl->asByte(x, y) == false )
+			if( !m_Mask.asByte(x, y) )
 			{
-				d	= Get_Changed(x, y, nCells);
-
-				pT_Temp->Set_Value(x, y, d);
-
-				d	= fabs(d - pResult->asDouble(x, y));
-
-				if( d > dMax )
-				{
-					dMax	= d;
-				}
+				m_Dist.Set_Value(x, y, Get_Change(nCells, x, y));
 			}
 		}
 	}
 
-	for(y=0; y<Get_NY(); y+=nCells)
+	//-----------------------------------------------------
+	for(y=0, dMax=0.0; y<Get_NY(); y+=nCells)
 	{
 		for(x=0; x<Get_NX(); x+=nCells)
 		{
-			if( pT_Chnl->asByte(x, y) == false )
+			if( !m_Mask.asByte(x, y) )
 			{
-				pResult->Set_Value(x, y, pT_Temp->asDouble(x, y));
+				if( dMax < (d = fabs(m_Dist.asDouble(x, y) - m_pDistance->asDouble(x, y))) )
+				{
+					dMax	= d;
+				}
+
+				m_pDistance->Set_Value(x, y, m_Dist.asDouble(x, y));
 			}
 		}
 	}
@@ -365,10 +326,9 @@ double CChannelNetwork_Altitude::Set_Surface(int nCells)
 
 
 //---------------------------------------------------------
-double CChannelNetwork_Altitude::Get_Changed(int x, int y, int nCells)
+double CChannelNetwork_Altitude::Get_Change(int nCells, int x, int y)
 {
 	int		i, ix, iy;
-
 	double	n, d, dz;
 
 	for(i=0, d=0.0, n=0.0; i<8; i++)
@@ -376,10 +336,10 @@ double CChannelNetwork_Altitude::Get_Changed(int x, int y, int nCells)
 		ix	= x + nCells * Get_xTo(i);
 		iy	= y + nCells * Get_yTo(i);
 
-		if( pResult->is_InGrid(ix, iy) )
+		if( m_pDistance->is_InGrid(ix, iy) )
 		{
 			dz	= 1.0 / Get_UnitLength(i);
-			d	+= dz * pResult->asDouble(ix, iy);
+			d	+= dz * m_pDistance->asDouble(ix, iy);
 			n	+= dz;
 		}
 	}
@@ -388,8 +348,17 @@ double CChannelNetwork_Altitude::Get_Changed(int x, int y, int nCells)
 	{
 		d	/= n;
 
-		return( m_bNoUnderground && !pDTM->is_NoData(x, y) && d > pDTM->asDouble(x, y) ? pDTM->asDouble(x, y) : d );
+		return( m_bNoUnderground && !m_pDTM->is_NoData(x, y) && d > m_pDTM->asDouble(x, y) ? m_pDTM->asDouble(x, y) : d );
 	}
 
-	return( pResult->asDouble(x, y) );
+	return( m_pDistance->asDouble(x, y) );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

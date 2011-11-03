@@ -86,7 +86,6 @@ class ta_channels_EXPORT CChannelNetwork_Altitude : public CSG_Module_Grid
 {
 public:
 	CChannelNetwork_Altitude(void);
-	virtual ~CChannelNetwork_Altitude(void);
 
 
 protected:
@@ -98,12 +97,13 @@ private:
 
 	bool					m_bNoUnderground;
 
-	CSG_Grid				*pDTM, *pChannels, *pResult, *pT_Chnl, *pT_Temp;
+	CSG_Grid				*m_pDTM, *m_pChannels, *m_pDistance, m_Mask, m_Dist;
 
 
-	void					Initialize_Surface	(int nCells);
-	double					Set_Surface			(int nCells);
-	double					Get_Changed			(int x, int y, int nCells);
+	void					Set_Surface			(int nCells);
+
+	double					Get_Change			(int nCells);
+	double					Get_Change			(int nCells, int x, int y);
 
 };
 
