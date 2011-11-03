@@ -603,24 +603,68 @@ void C3DShapes_View_Control::_Draw_Shape(CSG_Shape *pShape)
 
 	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		p	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
-		a.x	= p.x;
-		a.y	= p.y;
-		a.z	= pShape->Get_Z(pShape->Get_Point_Count(iPart) - 1);
-
-		_Get_Projection(a);
-
-		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		switch( pShape->Get_Type() )
 		{
-			b	= a;
-			p	= pShape->Get_Point(iPoint, iPart);
-			a.x	= p.x;
-			a.y	= p.y;
-			a.z	= pShape->Get_Z(iPoint, iPart);
+		case SHAPE_TYPE_Point:
+			{
+				p	= pShape->Get_Point(0);
+				a.x	= p.x;
+				a.y	= p.y;
+				a.z	= pShape->Get_Z(0);
 
-			_Get_Projection(a);
+				_Get_Projection(a);
 
-			_Draw_Line(a, b, c);
+				_Draw_Point(a.x, a.y, a.z, c, 1);
+			}
+			break;
+
+		case SHAPE_TYPE_Line:
+			{
+				p	= pShape->Get_Point(0);
+				a.x	= p.x;
+				a.y	= p.y;
+				a.z	= pShape->Get_Z(0);
+
+				_Get_Projection(a);
+
+				for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					b	= a;
+					p	= pShape->Get_Point(iPoint, iPart);
+					a.x	= p.x;
+					a.y	= p.y;
+					a.z	= pShape->Get_Z(iPoint, iPart);
+
+					_Get_Projection(a);
+
+					_Draw_Line(a, b, c);
+				}
+			}
+			break;
+
+		case SHAPE_TYPE_Polygon:
+			{
+				p	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
+				a.x	= p.x;
+				a.y	= p.y;
+				a.z	= pShape->Get_Z(pShape->Get_Point_Count(iPart) - 1);
+
+				_Get_Projection(a);
+
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					b	= a;
+					p	= pShape->Get_Point(iPoint, iPart);
+					a.x	= p.x;
+					a.y	= p.y;
+					a.z	= pShape->Get_Z(iPoint, iPart);
+
+					_Get_Projection(a);
+
+					_Draw_Line(a, b, c);
+				}
+			}
+			break;
 		}
 	}
 }
