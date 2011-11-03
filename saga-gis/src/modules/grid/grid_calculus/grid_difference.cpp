@@ -143,6 +143,80 @@ bool CGrid_Difference::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CGrid_Division::CGrid_Division(void)
+{
+	Set_Name		(_TL("Grid Division"));
+
+	Set_Author		(SG_T("O. Conrad (c) 2011"));
+
+	Set_Description	(_TW(
+		""
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "A"	, _TL("Dividend"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "B"	, _TL("Divisor"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "C"	, _TL("Quotient"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Division::On_Execute(void)
+{
+	CSG_Grid	*pA, *pB, *pC;
+
+	//-----------------------------------------------------
+	pA	= Parameters("A")->asGrid();
+	pB	= Parameters("B")->asGrid();
+	pC	= Parameters("C")->asGrid();
+
+	DataObject_Set_Colors(pC, 100, SG_COLORS_RED_GREY_BLUE);
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( pA->is_NoData(x, y) || pB->is_NoData(x, y) || pB->asDouble(x, y) == 0.0 )
+			{
+				pC->Set_NoData(x, y);
+			}
+			else
+			{
+				pC->Set_Value(x, y, pA->asDouble(x, y) / pB->asDouble(x, y));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrids_Sum::CGrids_Sum(void)
 {
 	Set_Name		(_TL("Grids Sum"));
@@ -206,7 +280,7 @@ bool CGrids_Sum::On_Execute(void)
 				}
 			}
 
-			if( n != pGrids->Get_Count() )
+			if( n == pGrids->Get_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}
@@ -298,7 +372,7 @@ bool CGrids_Product::On_Execute(void)
 				}
 			}
 
-			if( n != pGrids->Get_Count() )
+			if( n == pGrids->Get_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}

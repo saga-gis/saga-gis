@@ -120,17 +120,21 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case  0:		return( new CGrid_Normalise );
 	case  1:		return( new CGrid_Calculator );
 	case  2:		return( new CGrid_Volume );
-	case  3:		return( new CGrid_Difference );
+
 	case  4:		return( new CGrid_Plotter );
 	case  5:		return( new CGrid_Geometric_Figures );
 	case  6:		return( new CGrid_Random_Terrain );
 	case  7:		return( new CGrid_Random_Field );
+
+	case  0:		return( new CGrid_Normalise );
+	case 10:		return( new CGrid_Standardise );
+
+	case  3:		return( new CGrid_Difference );
+	case 18:		return( new CGrid_Division );
 	case  8:		return( new CGrids_Sum );
 	case  9:		return( new CGrids_Product );
-	case 10:		return( new CGrid_Standardise );
 
 	case 11:		return( new CFuzzify );
 	case 12:		return( new CFuzzyAND );
@@ -142,9 +146,11 @@ CSG_Module *		Create_Module(int i)
 	case 16:		return( new CGradient_Polar_To_Cartes );
 
 	case 17:		return( new CGrids_Trend );
-	}
 
-	return( NULL );
+	//-----------------------------------------------------
+	case 19:		return( NULL );
+	default:		return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 
