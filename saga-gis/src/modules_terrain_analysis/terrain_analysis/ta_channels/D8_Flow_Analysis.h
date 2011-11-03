@@ -97,7 +97,7 @@ private:
 
 	int							m_Threshold;
 
-	CSG_Grid					*m_pDir, *m_pOrder, *m_pBasins, m_Nodes;
+	CSG_Grid					*m_pDEM, *m_pDir, *m_pOrder, *m_pBasins, m_Nodes;
 
 	CSG_Shapes					*m_pSegments;
 

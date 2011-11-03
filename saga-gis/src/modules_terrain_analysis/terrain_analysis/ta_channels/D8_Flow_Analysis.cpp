@@ -162,6 +162,8 @@ bool CD8_Flow_Analysis::On_Execute(void)
 {
 	CSG_Grid	Dir, Order, Basins;
 
+	m_pDEM		= Parameters("DEM")			->asGrid();
+
 	m_pDir		= Parameters("DIRECTION")	->asGrid();		if( !m_pDir    ) { m_pDir    = &Dir   ; Dir   .Create(*Get_System(), SG_DATATYPE_Char ); }
 	m_pOrder	= Parameters("ORDER")		->asGrid();		if( !m_pOrder  ) { m_pOrder  = &Order ; Order .Create(*Get_System(), SG_DATATYPE_Short); }
 	m_pBasins	= Parameters("BASIN")		->asGrid();		if( !m_pBasins ) { m_pBasins = &Basins; Basins.Create(*Get_System(), SG_DATATYPE_Short); }
@@ -201,7 +203,6 @@ void CD8_Flow_Analysis::Get_Direction(void)
 
 	m_pDir->Set_NoData_Value(-1);
 
-	CSG_Grid	*pDEM	= Parameters("DEM")			->asGrid();
 	CSG_Grid	*pCon	= Parameters("CONNECTION")	->asGrid();
 
 	if( pCon )
@@ -213,7 +214,7 @@ void CD8_Flow_Analysis::Get_Direction(void)
 	{
 		for(int x=0, i, ix, iy; x<Get_NX(); x++)
 		{
-			if( (i = pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 && pDEM->is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
+			if( (i = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 && m_pDEM->is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
 			{
 				m_pDir->Set_Value(x, y, i);
 
@@ -242,8 +243,6 @@ void CD8_Flow_Analysis::Get_Order(void)
 {
 	Process_Set_Text(_TL("Stream Order"));
 
-	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
-
 	m_pOrder->Set_NoData_Value_Range(1 - m_Threshold, 0);
 	m_pOrder->Assign(0.0);
 
@@ -251,7 +250,7 @@ void CD8_Flow_Analysis::Get_Order(void)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !pDEM->is_NoData(x, y) )
+			if( !m_pDEM->is_NoData(x, y) )
 			{
 				Get_Order(x, y);
 			}
@@ -313,7 +312,7 @@ void CD8_Flow_Analysis::Get_Nodes(void)
 
 	if( pNodes )
 	{
-		pNodes	->Create(SHAPE_TYPE_Point, _TL("Junctions"));
+		pNodes	->Create(SHAPE_TYPE_Point, _TL("Junctions"), NULL, SG_VERTEX_TYPE_XYZ);
 		pNodes	->Add_Field(_TL("NODE_ID")		, SG_DATATYPE_Int);
 		pNodes	->Add_Field(_TL("TYPE")			, SG_DATATYPE_String);
 	}
@@ -381,6 +380,7 @@ void CD8_Flow_Analysis::Set_Node(int x, int y, int id, int type, CSG_Shape *pNod
 		pNode->Set_Value(1, type == NODE_SPRING ? _TL("Spring") : type == NODE_OUTLET ? _TL("Outlet") : _TL("Junction"));
 
 		pNode->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+		pNode->Set_Z(m_pDEM->asDouble(x, y), 0);
 	}
 }
 
@@ -409,22 +409,14 @@ void CD8_Flow_Analysis::Get_Basins(void)
 
 	if( pBasins )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_grid"), 6);	// grid classes to shapes
+		bool	bResult;
 
-		if(	pModule )
-		{
-			pModule->Set_Managed(false);
+		SG_RUN_MODULE(bResult, "shapes_grid", 6,
+				pModule->Get_Parameters()->Set_Parameter(SG_T("GRID")    , m_pBasins)
+			&&	pModule->Get_Parameters()->Set_Parameter(SG_T("POLYGONS"),   pBasins)
+		)
 
-			if( pModule->Get_Parameters()->Get_Parameter("GRID")    ->Set_Value(m_pBasins)
-			&&	pModule->Get_Parameters()->Get_Parameter("POLYGONS")->Set_Value(  pBasins) )
-			{
-				pModule->Execute();
-
-				pBasins->Set_Name(_TL("Drainage Basins"));
-			}
-
-			pModule->Set_Managed(true);
-		}
+		pBasins->Set_Name(_TL("Drainage Basins"));
 	}
 }
 
@@ -454,7 +446,7 @@ void CD8_Flow_Analysis::Get_Segments(void)
 	Process_Set_Text(_TL("Channels"));
 
 	m_pSegments	= Parameters("SEGMENTS")->asShapes();
-	m_pSegments	->Create(SHAPE_TYPE_Line, _TL("Channels"));
+	m_pSegments	->Create(SHAPE_TYPE_Line, _TL("Channels"), NULL, SG_VERTEX_TYPE_XYZ);
 
 	m_pSegments	->Add_Field(SG_T("SEGMENT_ID")	, SG_DATATYPE_Int);
 	m_pSegments	->Add_Field(SG_T("NODE_A")		, SG_DATATYPE_Int);
@@ -492,6 +484,7 @@ void CD8_Flow_Analysis::Get_Segment(int x, int y)
 		pSegment->Set_Value(5, m_pOrder->asInt(x, y));						// ORDER_CELL
 
 		pSegment->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+		pSegment->Set_Z(m_pDEM->asDouble(x, y), pSegment->Get_Point_Count() - 1);
 
 		do
 		{
@@ -499,6 +492,7 @@ void CD8_Flow_Analysis::Get_Segment(int x, int y)
 			y	+= Get_yTo(i);
 
 			pSegment->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+			pSegment->Set_Z(m_pDEM->asDouble(x, y), pSegment->Get_Point_Count() - 1);
 
 			if( m_Nodes.asInt(x, y) )
 			{
