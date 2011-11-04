@@ -72,10 +72,12 @@
 //---------------------------------------------------------
 CPC_Cut::CPC_Cut(void)
 {
+	CSG_Parameters	*pParameters;
+
 	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
-	Set_Author		(SG_T("O.C onrad, V. Wichmann (c) 2009-10"));
+	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-10"));
 
 	Set_Description	(_TW(
 		"This modules allows to extract subsets from a Point Cloud. The area-of-interest "
@@ -114,6 +116,34 @@ CPC_Cut::CPC_Cut(void)
 		_TL("Invert selection."),
 		PARAMETER_TYPE_Bool, false
 	);
+
+
+	//-----------------------------------------------------
+	// User Defined Extent
+
+	pParameters	= Add_Parameters	(	   "USER"		, _TL("User Defined Extent"), _TL(""));
+	pParameters	->Add_Value			(NULL, "XMIN"		, _TL("Left")				, _TL(""), PARAMETER_TYPE_Double);
+	pParameters	->Add_Value			(NULL, "XMAX"		, _TL("Right")				, _TL(""), PARAMETER_TYPE_Double);
+	pParameters	->Add_Value			(NULL, "YMIN"		, _TL("Bottom")				, _TL(""), PARAMETER_TYPE_Double);
+	pParameters	->Add_Value			(NULL, "YMAX"		, _TL("Top")				, _TL(""), PARAMETER_TYPE_Double);
+
+	//-----------------------------------------------------
+	// Grid System Extent
+
+	pParameters	= Add_Parameters	(	   "GRID"		, _TL("Grid System Extent")	, _TL(""));
+	pParameters	->Add_Grid_System	(NULL, "GRID"		, _TL("Grid System")		, _TL(""));
+
+	//-----------------------------------------------------
+	// Shapes Extent
+
+	pParameters	= Add_Parameters	(	   "SHAPES"		, _TL("Shapes Extent")		, _TL(""));
+	pParameters	->Add_Shapes		(NULL, "SHAPES"		, _TL("Left")				, _TL(""), PARAMETER_INPUT);
+
+	//-----------------------------------------------------
+	// Polygons
+
+	pParameters	= Add_Parameters	(	   "POLYGONS"	, _TL("Polygons")			, _TL(""));
+	pParameters	->Add_Shapes		(NULL, "POLYGONS"	, _TL("Polygons")			, _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Polygon);
 }
 
 
@@ -124,21 +154,13 @@ CPC_Cut::CPC_Cut(void)
 //---------------------------------------------------------
 bool CPC_Cut::On_Execute(void)
 {
-	CSG_Parameters	*pParameters;
-
 	CSG_PointCloud	*pPoints	= Parameters("POINTS")	->asPointCloud();
 	CSG_PointCloud	*pCut		= Parameters("CUT")		->asPointCloud();
 
-	//-----------------------------------------------------
 	switch( Parameters("AREA")->asInt() )
 	{
+	//-----------------------------------------------------
 	case 0:	// User Defined Extent
-		pParameters	= Add_Parameters	(	   "USER"		, _TL("User Defined Extent"), _TL(""));
-		pParameters->Add_Value			(NULL, "XMIN"		, _TL("Left")				, _TL(""), PARAMETER_TYPE_Double);
-		pParameters->Add_Value			(NULL, "XMAX"		, _TL("Right")				, _TL(""), PARAMETER_TYPE_Double);
-		pParameters->Add_Value			(NULL, "YMIN"		, _TL("Bottom")				, _TL(""), PARAMETER_TYPE_Double);
-		pParameters->Add_Value			(NULL, "YMAX"		, _TL("Top")				, _TL(""), PARAMETER_TYPE_Double);
-
 		if( Dlg_Parameters("USER") )
 		{
 			CSG_Rect	r(
@@ -152,37 +174,33 @@ bool CPC_Cut::On_Execute(void)
 		}
 		break;
 
+	//-----------------------------------------------------
 	case 1:	// Grid System Extent
-		pParameters	= Add_Parameters	(	   "GRID"		, _TL("Grid System Extent")	, _TL(""));
-		pParameters->Add_Grid_System	(NULL, "GRID"		, _TL("Grid System")		, _TL(""));
-
 		if( Dlg_Parameters("GRID") )
 		{
 			return( Get_Cut(pPoints, pCut, Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid_System()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
 
+	//-----------------------------------------------------
 	case 2:	// Shapes Extent
-		pParameters	= Add_Parameters	(	   "SHAPES"		, _TL("Shapes Extent")		, _TL(""));
-		pParameters->Add_Shapes			(NULL, "SHAPES"		, _TL("Left")				, _TL(""), PARAMETER_INPUT);
-
 		if( Dlg_Parameters("SHAPES") )
 		{
 			return( Get_Cut(pPoints, pCut, Get_Parameters("SHAPES")->Get_Parameter("SHAPES")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
 
+	//-----------------------------------------------------
 	case 3:	// Polygons
-		pParameters	= Add_Parameters	(	   "POLYGONS"	, _TL("Polygons")			, _TL(""));
-		pParameters->Add_Shapes			(NULL, "POLYGONS"	, _TL("Polygons")			, _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Polygon);
-
 		if( Dlg_Parameters("POLYGONS") )
 		{
 			if( Parameters("INVERSE")->asBool() && Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes()->Get_Count() > 1 )
 			{
 				SG_UI_Msg_Add_Error(_TL("The inverse selection is not implemented for input shapefiles with more than one polygon!"));
+
 				return (false);
 			}
+
 			return( Get_Cut(pPoints, pCut, Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
