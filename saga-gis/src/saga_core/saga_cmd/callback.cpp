@@ -100,6 +100,13 @@ void			Set_Silent		(bool bOn)	{	g_bSilent		= bOn;		}
 bool			Get_Silent		(void)		{	return( g_bSilent );		}
 
 //---------------------------------------------------------
+static bool		g_bQuiet		= false;
+
+void			Set_Quiet		(bool bOn)	{	g_bQuiet		= bOn;		}
+
+bool			Get_Quiet		(void)		{	return( g_bQuiet );			}
+
+//---------------------------------------------------------
 static bool		g_bInteractive	= false;
 
 void			Set_Interactive	(bool bOn)	{	g_bInteractive	= bOn;		}
@@ -212,7 +219,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_GET_OKAY:
 
-		if( !g_bSilent && Param_1.True )
+		if( !g_bQuiet || (!g_bSilent && Param_1.True) )
 		{
 			SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
 
@@ -231,7 +238,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_PROGRESS:
 
-		if( !g_bSilent )
+		if( !g_bQuiet || !g_bSilent )
 		{
 			int	i	= Param_2.Number != 0.0 ? 1 + (int)(100.0 * Param_1.Number / Param_2.Number) : 100;
 

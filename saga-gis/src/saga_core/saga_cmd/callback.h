@@ -88,6 +88,9 @@ void					Set_Library		(class CModule_Library *pLibrary);
 void					Set_Silent		(bool bOn);
 bool					Get_Silent		(void);
 
+void					Set_Quiet		(bool bOn);
+bool					Get_Quiet		(void);
+
 void					Set_Interactive	(bool bOn);
 bool					Get_Interactive	(void);
 

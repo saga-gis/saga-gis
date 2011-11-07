@@ -84,7 +84,8 @@
 
 #define SYS_ENV_PATH		SG_T("PATH")
 
-#define FLAG_SILENT		SG_T("s")
+#define FLAG_SILENT			SG_T("s")
+#define FLAG_QUIET			SG_T("q")
 #define FLAG_INTERACT		SG_T("i")
 #define FLAG_PROJ			SG_T("p")
 #define FLAG_LANGUAGE		SG_T("l")
@@ -194,6 +195,7 @@ _try
 	SG_Set_UI_Callback(Get_Callback());
 
 	Set_Silent		(Flags.Find(FLAG_SILENT  ) >= 0 ? true : false);
+	Set_Quiet		(Flags.Find(FLAG_QUIET   ) >= 0 ? true : false);
 	Set_Interactive	(Flags.Find(FLAG_INTERACT) >= 0 ? true : false);
 
 	Print_Logo();
@@ -413,7 +415,7 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 //---------------------------------------------------------
 void		Print_Logo		(void)
 {
-	if( Get_Silent() )
+	if( Get_Quiet() || Get_Silent() )
 		return;
 
 	SG_PRINTF(SG_T("_____________________________________________\n"));
@@ -460,7 +462,8 @@ void		Print_Help		(void)
 		SG_T("[-h], [--help ]: help on usage\n")
 		SG_T("[-b], [--batch]: create a batch file example\n")
 		SG_T("[-f], [--flags]: various flags for general usage\n")
-		SG_T("  s: silent mode\n")
+		SG_T("  q: quiet mode (no progress report)\n")
+		SG_T("  s: silent mode (no progress and no messages report)\n")
 		SG_T("  i: allow user interaction\n")
 		SG_T("  l: load translation dictionary\n")
 		SG_T("  p: load projections dictionary\n")
