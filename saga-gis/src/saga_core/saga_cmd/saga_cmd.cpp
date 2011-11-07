@@ -106,6 +106,7 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName);
 void		Print_Logo		(void);
 void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, const SG_Char *Author);
 void		Print_Help		(void);
+void		Print_Version	(void);
 
 void		Create_Example	(void);
 
@@ -148,6 +149,13 @@ _try
 		if( !s.CmpNoCase(SG_T("-h")) || !s.CmpNoCase(SG_T("--help")) )
 		{
 			Print_Help();
+
+			return( 0 );
+		}
+
+		if( !s.CmpNoCase(SG_T("-v")) || !s.CmpNoCase(SG_T("--version")) )
+		{
+			Print_Version();
 
 			return( 0 );
 		}
@@ -456,10 +464,12 @@ void		Print_Help		(void)
 		SG_T("Usage:\n")
 		SG_T("\n")
 		SG_T("saga_cmd [-h, --help]\n")
+		SG_T("saga_cmd [-v, --version]\n")
 		SG_T("saga_cmd [-b, --batch]\n")
 		SG_T("saga_cmd [-f, --flags][=silp] <LIBRARY> <MODULE> <module specific options...>\n")
 		SG_T("\n")
-		SG_T("[-h], [--help ]: help on usage\n")
+		SG_T("[-h], [--help]: help on usage\n")
+		SG_T("[-v], [--version]: print version information\n")
 		SG_T("[-b], [--batch]: create a batch file example\n")
 		SG_T("[-f], [--flags]: various flags for general usage\n")
 		SG_T("  q: quiet mode (no progress report)\n")
@@ -492,6 +502,16 @@ void		Print_Help		(void)
 		SG_T("creates a batch file example. You probably have to edit\n")
 		SG_T("the path definitions to make the batch file run on your\n")
 		SG_T("computer.\n")
+	);
+}
+
+
+//---------------------------------------------------------
+void		Print_Version	(void)
+{
+	SG_PRINTF(
+		SG_T("SAGA CMD: ") SAGA_CMD_VERSION SG_T("\n")
+		SG_T("SAGA API: ") SAGA_API_VERSION SG_T("\n")
 	);
 }
 
