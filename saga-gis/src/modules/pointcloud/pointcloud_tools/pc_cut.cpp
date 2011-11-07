@@ -136,8 +136,8 @@ CPC_Cut::CPC_Cut(void)
 	//-----------------------------------------------------
 	// Shapes Extent
 
-	pParameters	= Add_Parameters	(	   "SHAPES"		, _TL("Shapes Extent")		, _TL(""));
-	pParameters	->Add_Shapes		(NULL, "SHAPES"		, _TL("Left")				, _TL(""), PARAMETER_INPUT);
+	pParameters	= Add_Parameters	(	   "EXTENT"		, _TL("Shapes Extent")		, _TL(""));
+	pParameters	->Add_Shapes		(NULL, "EXTENT"		, _TL("Shapes Extent")		, _TL(""), PARAMETER_INPUT);
 
 	//-----------------------------------------------------
 	// Polygons
@@ -184,9 +184,9 @@ bool CPC_Cut::On_Execute(void)
 
 	//-----------------------------------------------------
 	case 2:	// Shapes Extent
-		if( Dlg_Parameters("SHAPES") )
+		if( Dlg_Parameters("EXTENT") )
 		{
-			return( Get_Cut(pPoints, pCut, Get_Parameters("SHAPES")->Get_Parameter("SHAPES")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
+			return( Get_Cut(pPoints, pCut, Get_Parameters("EXTENT")->Get_Parameter("EXTENT")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
 

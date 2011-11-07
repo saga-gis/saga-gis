@@ -502,10 +502,12 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "Y")), &s) || !s.ToDouble(&y)
 					||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "D")), &s) || !s.ToDouble(&d) )
 					{
-						d	= -1.0;
+						pParameter->asGrid_System()->Assign(-1, 0.0, 0.0, 0, 0);
 					}
-
-					pParameter->asGrid_System()->Assign(d, x, y, (int)nx, (int)ny);
+					else
+					{
+						pParameter->asGrid_System()->Assign(d, x, y, (int)nx, (int)ny);
+					}
 				}
 				break;
 
