@@ -206,8 +206,8 @@ bool CTA_Standard::On_Execute(void)
 			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
 		&&	SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
 		&&	SET_PARAMETER("ASPECT"		, Parameters("ASPECT"))
-		&&	SET_PARAMETER("HCURV"		, (CSG_Parameter *)NULL)
-		&&	SET_PARAMETER("VCURV"		, (CSG_Parameter *)NULL)
+		&&	SET_PARAMETER("HCURV"		, (CSG_Grid *)NULL)
+		&&	SET_PARAMETER("VCURV"		, (CSG_Grid *)NULL)
 	)
 
 	RUN_MODULE("grid_filter"			, 0,
