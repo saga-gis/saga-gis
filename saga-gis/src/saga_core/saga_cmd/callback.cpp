@@ -190,6 +190,7 @@ bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2)
 {
 	static int		iBuisy		= 0;
+	static int		iPercent	= -1;
 	const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
 
 	int		Result	= 1;
@@ -232,7 +233,12 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\r%3d%%"), Param_2.Number != 0.0 ? 1 + (int)(100.0 * Param_1.Number / Param_2.Number) : 100);
+			int	i	= Param_2.Number != 0.0 ? 1 + (int)(100.0 * Param_1.Number / Param_2.Number) : 100;
+
+			if( i != iPercent )
+			{
+				SG_PRINTF(SG_T("\r%3d%%"), iPercent = i);
+			}
 		}
 
 		break;
