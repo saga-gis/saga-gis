@@ -83,6 +83,14 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
 					"Exports a point cloud to a text file. Once the module is executed, "
 					"a pop-up dialog allows to specify the fields to be exported and their "
 					"decimal precision.\n\n"
+					"Module usage is different between SAGA GUI and SAGA CMD: With "
+					"SAGA GUI you will get prompted to choose the fields to export "
+					"and the decimal precisions to use "
+					"once you execute the module. With SAGA CMD you have to provide "
+					"two strings with the -FIELDS and -PRECISIONS parameters. The first one "
+					"must contain the field numbers, the latter the precisions "
+					"(separated by semicolon). Field numbers start with 1, e.g. "
+					"-FIELDS=\"1;2;3;5\" -PRECISIONS=\"2;2;2;0\".\n\n" 
 	));
 
 
@@ -118,6 +126,21 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
             _TL("comma")
         ), 0
     );
+
+	if (!SG_UI_Get_Window_Main())
+	{
+		Parameters.Add_String(
+            NULL	, "FIELDS"    , _TL("Fields"),
+            _TL("The numbers (starting from 1) of the fields to export, separated by semicolon, e.g. \"1;2;3;5\""),
+            SG_T("")
+        );
+
+		Parameters.Add_String(
+            NULL	, "PRECISIONS"    , _TL("Precisions"),
+            _TL("The decimal precision to use for each field, separated by semicolon, e.g. \"2;2;2;0\""),
+            SG_T("")
+        );
+	}
 }
 
 //---------------------------------------------------------
@@ -160,8 +183,6 @@ bool CPointcloud_To_Text_File::On_Execute(void)
     case 2:		fieldSep = ",";		break;
     }
 
-//	formatFloat.Printf(CSG_String::Format(SG_T("%%.%df"), iPrecision));
-
 
 	if( fileName.Length() == 0 )
 	{
@@ -170,38 +191,95 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 	}
 
 
-	P.Set_Name(_TL("Check the fields to export"));
-
-	for(int iField=0; iField<pPoints->Get_Field_Count(); iField++)
+	if (SG_UI_Get_Window_Main())
 	{
-		s.Printf(SG_T("NODE_%03d") , iField + 1);
-		pNode	= P.Add_Node(NULL, s, CSG_String::Format(_TL("%d. %s"), iField + 1, _TL("Field")), _TL(""));
-
-		s.Printf(SG_T("FIELD_%03d"), iField);
-		P.Add_Value(pNode, s, CSG_String::Format(SG_T("%s"), pPoints->Get_Field_Name(iField)), _TL(""), PARAMETER_TYPE_Bool, false);
-
-		s.Printf(SG_T("PRECISION_%03d"), iField);
-		P.Add_Value(pNode, s, _TL("Decimal Precision"), _TL(""), PARAMETER_TYPE_Int, 2.0, 0.0, true);
-	}
-
-
-	//-----------------------------------------------------
-	if( Dlg_Parameters(&P, _TL("Field Properties")) )
-	{
-		vCol.clear();
-		vPrecision.clear();
+		P.Set_Name(_TL("Check the fields to export"));
 
 		for(int iField=0; iField<pPoints->Get_Field_Count(); iField++)
 		{
-			if( P(CSG_String::Format(SG_T("FIELD_%03d" ), iField).c_str())->asBool() )
+			s.Printf(SG_T("NODE_%03d") , iField + 1);
+			pNode	= P.Add_Node(NULL, s, CSG_String::Format(_TL("%d. %s"), iField + 1, _TL("Field")), _TL(""));
+
+			s.Printf(SG_T("FIELD_%03d"), iField);
+			P.Add_Value(pNode, s, CSG_String::Format(SG_T("%s"), pPoints->Get_Field_Name(iField)), _TL(""), PARAMETER_TYPE_Bool, false);
+
+			s.Printf(SG_T("PRECISION_%03d"), iField);
+			P.Add_Value(pNode, s, _TL("Decimal Precision"), _TL(""), PARAMETER_TYPE_Int, 2.0, 0.0, true);
+		}
+
+
+		//-----------------------------------------------------
+		if( Dlg_Parameters(&P, _TL("Field Properties")) )
+		{
+			vCol.clear();
+			vPrecision.clear();
+
+			for(int iField=0; iField<pPoints->Get_Field_Count(); iField++)
 			{
-				vCol.push_back(iField);
-				vPrecision.push_back(P(CSG_String::Format(SG_T("PRECISION_%03d" ), iField).c_str())->asInt());
+				if( P(CSG_String::Format(SG_T("FIELD_%03d" ), iField).c_str())->asBool() )
+				{
+					vCol.push_back(iField);
+					vPrecision.push_back(P(CSG_String::Format(SG_T("PRECISION_%03d" ), iField).c_str())->asInt());
+				}
 			}
 		}
+		else
+			return( false );
 	}
-	else
-		return( false );
+	else // CMD
+	{
+		CSG_String		sFields, sPrecision;
+		CSG_String		token;
+		int				iValue;
+
+
+		sFields		= Parameters("FIELDS")->asString();
+		sPrecision	= Parameters("PRECISIONS")->asString();
+
+		wxStringTokenizer   tkz_fields(sFields.c_str(), wxT(";"), wxTOKEN_STRTOK);
+
+		while( tkz_fields.HasMoreTokens() )
+		{
+			token	= tkz_fields.GetNextToken();
+
+			if( token.Length() == 0 )
+				break;
+
+			if( !token.asInt(iValue) )
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: can't convert to number"));
+				return( false );
+			}
+
+			iValue	-= 1;
+
+			if( iValue < 0 || iValue > pPoints->Get_Field_Count() - 1 )
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: field index out of range"));
+				return( false );
+			}
+			else
+				vCol.push_back(iValue);
+		}
+
+		wxStringTokenizer   tkz_precisons(sPrecision.c_str(), wxT(";"), wxTOKEN_STRTOK);
+
+		while( tkz_precisons.HasMoreTokens() )
+		{
+			token	= tkz_precisons.GetNextToken();
+
+			if( token.Length() == 0 )
+				break;
+
+			if( !token.asInt(iValue) )
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: can't convert to number"));
+				return( false );
+			}
+
+			vPrecision.push_back(iValue);
+		}
+	}
 
 
 	if( vCol.size() == 0 )
@@ -210,6 +288,11 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 		return( false );
 	}
 
+	if( vCol.size() != vPrecision.size() )
+	{
+		SG_UI_Msg_Add_Error(_TL("Number of fields and precisions must be equal!"));
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	pTabStream = new CSG_File();
