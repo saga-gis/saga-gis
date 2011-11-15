@@ -189,7 +189,9 @@ wxString CDLG_About::_Get_Version(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("\nSAGA\n"));
+	s.Printf(
+		wxT("\nSAGA\n")
+	);
 
 	s.Append(SG_Translate(
 		wxT("System for Automated Geoscientific Analyses\n")
@@ -198,6 +200,11 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(
 		wxT("http://www.saga-gis.org\n")
 	);
+
+	s.Append(wxString::Format(
+		wxT("\nVersion: %s\n"),
+		SAGA_VERSION
+	));
 
 	//-----------------------------------------------------
 	// Target
@@ -222,25 +229,23 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(wxString::Format(
-		wxT("SAGA GUI\nSAGA Graphical User Interface - Version: %s\n")
+		wxT("SAGA GUI\nSAGA Graphical User Interface\n")
 		wxT("\n")
 		wxT("Copyrights (c) 2005-2011 by Olaf Conrad\n")
 		wxT("\n")
-		wxT("GNU General Public License (GPL)\n"),
-		SAGA_GUI_Get_Version()
+		wxT("GNU General Public License (GPL)\n")
 	));
 
 	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(wxString::Format(
-		wxT("SAGA API\n%s\n")
+		wxT("SAGA API\n")
 		wxT("\n")
 		wxT("Copyrights (c) 2002-2011 by Olaf Conrad\n")
 		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
 		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
 		wxT("\n")
-		wxT("GNU Lesser General Public License (LGPL)\n"),
-		SAGA_API_Get_Version()
+		wxT("GNU Lesser General Public License (LGPL)\n")
 	));
 
 	s.Append(wxT("_______________________\n\n"));
@@ -248,19 +253,9 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxString::Format(
 		wxT("SAGA uses the portable C++ GUI toolkit wxWidgets\n")
 		wxT("http://www.wxwidgets.org\n\n")
-		wxT("%s\n")
-		wxT("wxPropertyGrid"),
+		wxT("%s\n"),
 		wxVERSION_STRING
 	));
-
-	int		Version	= wxPG_VERSION;
-	s.Append(wxString::Format(wxT(" %d"), Version / 1000));
-	Version	-= (Version / 1000) * 1000;
-	s.Append(wxString::Format(wxT(".%d"), Version / 100));
-	Version	-= (Version / 100 ) * 100;
-	s.Append(wxString::Format(wxT(".%d"), Version / 10));
-	Version	-= (Version / 10  ) * 10;
-	s.Append(wxT("\n"));
 
 	s.Append(wxT("_______________________\n\n"));
 

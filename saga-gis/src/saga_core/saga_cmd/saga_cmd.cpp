@@ -456,10 +456,9 @@ void		Print_Help		(void)
 	Print_Logo();
 
 	SG_PRINTF(
-		SG_T("SAGA API ") SAGA_API_VERSION SG_T("\n")
-		SG_T("SAGA CMD ") SAGA_CMD_VERSION SG_T("\n")
+		SG_T("Version ") SAGA_VERSION SG_T("\n")
 		SG_T("under GNU General Public License (GPL)\n")
-		SG_T("O.Conrad (C) 2005-10\n")
+		SG_T("O.Conrad (C) 2005-11\n")
 		SG_T("\n")
 		SG_T("Usage:\n")
 		SG_T("\n")
@@ -510,8 +509,7 @@ void		Print_Help		(void)
 void		Print_Version	(void)
 {
 	SG_PRINTF(
-		SG_T("SAGA CMD: ") SAGA_CMD_VERSION SG_T("\n")
-		SG_T("SAGA API: ") SAGA_API_VERSION SG_T("\n")
+		SG_T("SAGA Version: ") SAGA_VERSION SG_T("\n")
 	);
 }
 

@@ -567,9 +567,9 @@ extern "C" _SAGA_DLL_EXPORT CSG_Module_Library_Interface *	MLB_Get_Interface   (
 	return( &MLB_Interface );\
 }\
 \
-extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_API_Version		(void)\
+extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_Version			(void)\
 {\
-	return( SAGA_API_VERSION );\
+	return( SAGA_VERSION );\
 }\
 
 //---------------------------------------------------------
