@@ -964,7 +964,6 @@ public:
 	class CSG_Table *			Get_Model			(void)			const	{	return( m_pModel );			}
 	class CSG_Table *			Get_Steps			(void)			const	{	return( m_pSteps );			}
 
-	double						Get_R				(void)			const;
 	double						Get_R2				(void)			const;
 	double						Get_R2_Adj			(void)			const;
 	double						Get_StdError		(void)			const;
