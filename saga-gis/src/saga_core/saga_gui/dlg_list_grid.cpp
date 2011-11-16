@@ -124,6 +124,11 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 
 		_Set_Objects();
 	}
+	else
+	{
+		m_pSystem  = NULL;
+		m_pSystems = NULL;
+	}
 }
 
 //---------------------------------------------------------
