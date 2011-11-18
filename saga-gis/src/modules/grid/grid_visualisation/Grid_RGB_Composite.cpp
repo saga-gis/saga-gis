@@ -277,7 +277,9 @@ bool CGrid_RGB_Composite::On_Execute(void)
 
 	//-----------------------------------------------------
 	pRGB	= Parameters("GRID_RGB")->asGrid();
+	CSG_String n = pRGB->Get_Name();
 	pRGB->Create(pRGB->Get_System(), SG_DATATYPE_Int);
+	pRGB->Set_Name(n);
 	DataObject_Set_Colors(pRGB, 100, SG_COLORS_BLACK_WHITE);
 
 	CSG_Parameters	Parms;
