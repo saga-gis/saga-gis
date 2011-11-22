@@ -212,7 +212,7 @@ bool CSG_Converter_WorldToInt::Convert(const ClipperLib::Polygons &Polygons, CSG
 
 	for(size_t iPolygon=0, iPart=0; iPolygon<Polygons.size(); iPolygon++)
 	{
-		if( fabs(ClipperLib::Area(Polygons[iPolygon])) != 0.0 )
+	//	if( fabs(ClipperLib::Area(Polygons[iPolygon])) > (1.0e-15) )
 		{
 			for(size_t iPoint=0; iPoint<Polygons[iPolygon].size(); iPoint++)
 			{
@@ -223,7 +223,7 @@ bool CSG_Converter_WorldToInt::Convert(const ClipperLib::Polygons &Polygons, CSG
 				);
 			}
 
-			if( ((CSG_Shape_Polygon *)pPolygon)->Get_Area(iPart) > 0.0 )
+			if( ((CSG_Shape_Polygon *)pPolygon)->Get_Area(iPart) > (1.0e-15) )
 			{
 				iPart++;
 			}
