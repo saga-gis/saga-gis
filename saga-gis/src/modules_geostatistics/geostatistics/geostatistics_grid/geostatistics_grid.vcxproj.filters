@@ -44,6 +44,9 @@
     <ClCompile Include="grid_pca.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="multiband_variation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_pca.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="multiband_variation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
