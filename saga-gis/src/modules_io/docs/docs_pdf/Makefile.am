@@ -16,13 +16,11 @@ pkglib_LTLIBRARIES = libdocs_pdf.la
 libdocs_pdf_la_SOURCES =\
 doc_pdf.cpp\
 MLB_Interface.cpp\
-Polygon_Clipper.cpp\
 Profile_Cross_Sections.cpp\
 Shapes_Report.cpp\
 Shapes_Summary.cpp\
 doc_pdf.h\
 MLB_Interface.h\
-Polygon_Clipper.h\
 Profile_Cross_Sections.h\
 Shapes_Report.h\
 Shapes_Summary.h

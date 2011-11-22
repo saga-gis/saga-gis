@@ -63,8 +63,6 @@
 //---------------------------------------------------------
 #include "Polygon_Union.h"
 
-#include "Polygon_Clipper.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -83,7 +81,11 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"Merges polygons, which share the same attribute value, and (optionally) dissolves borders between adjacent polygon parts."
+		"Merges polygons, which share the same attribute value, and "
+		"(optionally) dissolves borders between adjacent polygon parts.\n"
+		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson.\n"
+		"<a target=\"_blank\" href=\"http://www.angusj.com/delphi/clipper.php\">Clipper Homepage</a>\n"
+		"<a target=\"_blank\" href=\"http://sourceforge.net/projects/polyclipping/\">Clipper at SourceForge</a>\n"
 	));
 
 	//-----------------------------------------------------
@@ -190,22 +192,20 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 			for(iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 			{
-				if( bDissolve )
+				for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 				{
-					GPC_Union(pUnion, pPolygons->Get_Shape(iPolygon));
-				}
-				else
-				{
-					for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
-					{
-						CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon))->Get_Part(iPart);
+					CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon))->Get_Part(iPart);
 
-						for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
-						{
-							pUnion->Add_Point(pPart->Get_Point(iPoint), nParts);
-						}
+					for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
+					{
+						pUnion->Add_Point(pPart->Get_Point(iPoint), nParts);
 					}
 				}
+			}
+
+			if( bDissolve )
+			{
+				SG_Polygon_Dissolve(pUnion);
 			}
 		}
 
@@ -231,7 +231,7 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 			pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPolygons->Get_Name(), _TL("Dissolved"), Value.c_str()));
 
-			for(iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+			for(iPolygon=0, pUnion=NULL; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 			{
 				pPolygon	= pPolygons->Get_Shape(pPolygons->Get_Record_byIndex(iPolygon)->Get_Index());
 
@@ -242,6 +242,11 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 				if( iPolygon == 0 || Value.Cmp(s) )
 				{
+					if( pUnion && bDissolve )
+					{
+						SG_Polygon_Dissolve(pUnion);
+					}
+
 					Value	= s;
 
 					pUnion	= pUnions->Add_Shape(pPolygon, SHAPE_COPY_GEOM);
@@ -250,10 +255,6 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 					if( Field_2 >= 0 )	pUnion->Set_Value(1, pPolygon->asString(Field_2));
 					if( Field_3 >= 0 )	pUnion->Set_Value(2, pPolygon->asString(Field_3));
-				}
-				else if( bDissolve )
-				{
-					GPC_Union(pUnion, pPolygon);
 				}
 				else
 				{
@@ -265,6 +266,11 @@ bool CPolygon_Dissolve::On_Execute(void)
 						}
 					}
 				}
+			}
+
+			if( pUnion && bDissolve )
+			{
+				SG_Polygon_Dissolve(pUnion);
 			}
 		}
 

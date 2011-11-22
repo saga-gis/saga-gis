@@ -27,8 +27,6 @@
 //---------------------------------------------------------
 #include "Profile_Cross_Sections.h"
 
-#include "Polygon_Clipper.h"
-
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -805,7 +803,7 @@ void CProfile_Cross_Sections_PDF::CalculateAreas(TSG_Point * pCrossSection,
 	pCrossSectionShape->Add_Point(pCrossSection[0].x - LONG_SEGMENT / SLOPE_RATIO,
 						pCrossSection[0].y - LONG_SEGMENT);		
 
-	if (GPC_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
+	if (SG_Polygon_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
 		fNegativeArea = ((CSG_Shape_Polygon*)pResultShape)->Get_Area();
 	}//if
 	else{
@@ -834,7 +832,7 @@ void CProfile_Cross_Sections_PDF::CalculateAreas(TSG_Point * pCrossSection,
 	pCrossSectionShape->Add_Point(pCrossSection[0].x - LONG_SEGMENT / SLOPE_RATIO,
 						pCrossSection[0].y + LONG_SEGMENT);		
 	
-	if (GPC_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
+	if (SG_Polygon_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
 		fPositiveArea = ((CSG_Shape_Polygon*)pResultShape)->Get_Area();
 	}//if
 	else{

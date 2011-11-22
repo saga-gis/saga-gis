@@ -15,7 +15,6 @@ pkglib_LTLIBRARIES = libshapes_tools.la
 libshapes_tools_la_SOURCES =\
 CreateChartLayer.cpp\
 GraticuleBuilder.cpp\
-Polygon_Clipper.cpp\
 MLB_Interface.cpp\
 NewLayerFromSelectedShapes.cpp\
 quadtree_structure.cpp\
@@ -37,7 +36,6 @@ shapes_split_by_attribute.cpp\
 shapes_split_randomly.cpp\
 CreateChartLayer.h\
 GraticuleBuilder.h\
-Polygon_Clipper.h\
 MLB_Interface.h\
 NewLayerFromSelectedShapes.h\
 quadtree_structure.h\

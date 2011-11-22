@@ -188,6 +188,12 @@
     <ClCompile Include="tin_triangulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="clipper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shapes_polygons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API_Core.h">
@@ -239,6 +245,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TIN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clipper.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

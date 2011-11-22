@@ -26,9 +26,6 @@
     <ClCompile Include="Shapes_Report.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Polygon_Clipper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Shapes_Summary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,9 +92,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shapes_Report.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Polygon_Clipper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shapes_Summary.h">

@@ -20,9 +20,6 @@
     <ClCompile Include="Polygon_Centroids.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Polygon_Clipper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Polygon_Geometrics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,9 +107,6 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="Polygon_Centroids.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Polygon_Clipper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Polygon_Geometrics.h">

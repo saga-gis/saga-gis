@@ -1072,6 +1072,20 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
+//					Polygon Tools						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Polygon_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool		SG_Polygon_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool		SG_Polygon_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool		SG_Polygon_Union		(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult = NULL);
+SAGA_API_DLL_EXPORT bool		SG_Polygon_Dissolve		(CSG_Shape *pPolygon, CSG_Shape *pResult = NULL);
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						OpenGIS							 //
 //														 //
 ///////////////////////////////////////////////////////////

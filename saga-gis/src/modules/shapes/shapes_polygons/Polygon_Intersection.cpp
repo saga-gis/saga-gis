@@ -63,8 +63,6 @@
 //---------------------------------------------------------
 #include "Polygon_Intersection.h"
 
-#include "Polygon_Clipper.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -91,10 +89,13 @@ CPolygon_Intersection::CPolygon_Intersection(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Intersection"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Intersection of polygon layers. Uses GPC - General Polygon Clipper - version 2.31 by Alan Murta."
+		"Intersection of polygon layers.\n"
+		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson.\n"
+		"<a target=\"_blank\" href=\"http://www.angusj.com/delphi/clipper.php\">Clipper Homepage</a>\n"
+		"<a target=\"_blank\" href=\"http://sourceforge.net/projects/polyclipping/\">Clipper at SourceForge</a>\n"
 	));
 
 	/*/-----------------------------------------------------
@@ -374,7 +375,7 @@ bool CPolygon_Intersection::Get_Intersection(CSG_Shapes *pShapes_A, CSG_Shapes *
 			{
 				pShape_B	= pShapes_B->Get_Selection(iShape_B);
 
-				if( GPC_Intersection(pShape_A, pShape_B, pShape_AB) )
+				if( SG_Polygon_Intersection(pShape_A, pShape_B, pShape_AB) )
 				{
 					Add_Polygon(pShape_AB, iShape_A, pShape_B->Get_Index());
 				}
@@ -405,7 +406,7 @@ bool CPolygon_Intersection::Get_Difference(CSG_Shapes *pShapes_A, CSG_Shapes *pS
 
 			for(int iShape_B=0; iShape_B<pShapes_B->Get_Selection_Count(); iShape_B++)
 			{
-				if( GPC_Difference(pShape_A, pShapes_B->Get_Selection(iShape_B)) )
+				if( SG_Polygon_Difference(pShape_A, pShapes_B->Get_Selection(iShape_B)) )
 				{
 					nIntersections++;
 				}

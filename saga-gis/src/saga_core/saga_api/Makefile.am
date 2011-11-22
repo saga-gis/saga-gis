@@ -26,6 +26,7 @@ api_file.cpp\
 api_memory.cpp\
 api_string.cpp\
 api_translator.cpp\
+clipper.cpp\
 dataobject.cpp\
 geo_classes.cpp\
 geo_functions.cpp\
@@ -68,6 +69,7 @@ shape_polygon.cpp\
 shapes.cpp\
 shapes_io.cpp\
 shapes_ogis.cpp\
+shapes_polygons.cpp\
 shapes_search.cpp\
 shapes_selection.cpp\
 table.cpp\
@@ -79,6 +81,7 @@ tin.cpp\
 tin_elements.cpp\
 tin_triangulation.cpp\
 api_core.h\
+clipper.hpp\
 dataobject.h\
 geo_tools.h\
 grid.h\

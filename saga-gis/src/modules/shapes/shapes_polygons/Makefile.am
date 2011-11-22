@@ -17,7 +17,6 @@ MLB_Interface.cpp\
 Polygon_Centroids.cpp\
 Polygon_Geometrics.cpp\
 Polygon_Intersection.cpp\
-Polygon_Clipper.cpp\
 Polygon_StatisticsFromPoints.cpp\
 Polygon_Union.cpp\
 Polygons_From_Lines.cpp\
@@ -30,7 +29,6 @@ MLB_Interface.h\
 Polygon_Centroids.h\
 Polygon_Geometrics.h\
 Polygon_Intersection.h\
-Polygon_Clipper.h\
 Polygon_StatisticsFromPoints.h\
 Polygon_Union.h\
 Polygons_From_Lines.h\
