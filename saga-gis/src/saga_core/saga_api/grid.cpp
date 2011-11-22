@@ -1207,7 +1207,7 @@ bool CSG_Grid::Set_Index(bool bOn)
 
 bool CSG_Grid::_Set_Index(void)
 {
-	const int	M	= 7;
+	const long	M	= 7;
 
 	long	i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
 	double	a;
@@ -1260,7 +1260,7 @@ bool CSG_Grid::_Set_Index(void)
 	ir		= Get_NCells() - 1;
 
 	nstack	= 64;
-	istack	= (long *)SG_Malloc(nstack * sizeof(int));
+	istack	= (long *)SG_Malloc(nstack * sizeof(long));
 	jstack	= 0;
 
 	for(;;)
