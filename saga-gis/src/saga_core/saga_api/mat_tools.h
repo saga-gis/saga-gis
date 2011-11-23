@@ -770,7 +770,7 @@ typedef enum ESG_Test_Distribution_Type
 TSG_Test_Distribution_Type;
 
 //---------------------------------------------------------
-class CSG_Test_Distribution
+class SAGA_API_DLL_EXPORT CSG_Test_Distribution
 {
 public:
 
