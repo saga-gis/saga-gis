@@ -43,8 +43,8 @@ TEXT	TRANSLATION
 1 byte integer	1 Byte Ganzzahl
 1 byte signed integer	1 Byte Ganzzahl mit Vorzeichen
 1 byte unsigned integer	1 Byte Ganzzahl ohne Vorzeichen
-1. Attribute	
-1. quadrant (upper right)	
+1. Attribute	1. Attribute
+1. quadrant (upper right)	1. Quadrant (oben rechts)
 1.0	
 1.5 * Standard Deviation	1,5 * Standardabweichung
 10: Dynamic Simulation - Life	10: Dynamische Simulation - Lebensdauer
@@ -62,19 +62,19 @@ TEXT	TRANSLATION
 2 byte signed integer	2 Byte Ganzzahl mit Vorzeichen
 2 byte unsigned integer	2 Byte Ganzzahl ohne Vorzeichen
 2 x 2	
-2. Attribute	
-2. quadrant (lower right)	
+2. Attribute	2. Attribute
+2. quadrant (lower right)	2. Quadrant (unten rechts)
 2.0	
 2.0 * Standard Deviation	2,0 * Standardabweichung
 20 seconds	20 Sekunden
-2nd Std. Parallel	
+2nd Std. Parallel	2. Standard Parallel
 3	
 3 X 3	
 3 arc-second	3 Bogensekunden
 3 parameters (translation only)	3 Parameter (nur Konvertierung)
 3 x 3	
-3. Attribute	
-3. quadrant (lower left)	
+3. Attribute	3. Attribute
+3. quadrant (lower left)	3. Quadrant (unten links)
 32 bit floating point	32 bit Fließkommazahl
 32 bit signed integer	32 bit Ganzzahl mit Vorzeichen
 32 bit unsigned integer	32 bit Ganzzahl ohne Vorzeichen
@@ -90,7 +90,7 @@ TEXT	TRANSLATION
 4 byte integer	4 Byte Ganzzahl
 4 byte signed integer	4 Byte Ganzzahl mit Vorzeichen
 4 byte unsigned integer	4 Byte Ganzzahl ohne Vorzeichen
-4. quadrant (upper left)	
+4. quadrant (upper left)	4. Quadrant (oben links)
 5 X 5	
 64 bit floating point	64 bit Fließkommazahl
 7 X 7	
@@ -122,8 +122,8 @@ A4 Portrait	A4 Hochformat
 A:Geostatistics|Points	A:Geostatistik|Punktdaten
 A:Grid|Construction	A:Raster|Konstruktion
 A:Shapes|Construction	A:Vektoren|Konstruktion
-A:Shapes|Conversion	
-A:Shapes|Selection	
+A:Shapes|Conversion	A:Vektoren|Umwandlung
+A:Shapes|Selection	A:Vektoren|Auswahl
 ADDR	
 AFAC(	
 AFAC()	
@@ -138,7 +138,7 @@ ASCII Precision	ASCII Genauigkeit
 AWM1 Grid	AWM1 Raster
 AWM2 Grid	AWM2 Raster
 AWT Grid	AWT Raster
-AZIMUTH	
+AZIMUTH	AZIMUTH
 About SAGA	Über SAGA
 Above Elevation	Über Anhebung
 Above this threshold snow will start to melt	Über diesem Schwellenwert beginnt Schnee zu schmelzen
@@ -148,7 +148,7 @@ Absolute Height	Absolute Höhe
 Absolute Water Level	Absoluter Wasserstand
 Absolute Water Levels	Absolute Wasserstände
 Acc. Area	abgeschätzte Fläche
-Acceleration	
+Acceleration	Beschleunigung
 Accumulated Cost	Akkumulierte Kosten
 Accumulated Cost (Anisotropic)	Akkumulierte Kosten (Anisotropisch)
 Accumulated Cost (Isotropic)	Akkumulierte Kosten (Isotropisch)
@@ -162,12 +162,12 @@ Activate file caching automatically, if memory size exceeds the threshold value.
 Add Attribute to Clipped Points	Füge Attribute zu ausgeschnittenen Punkten hinzu
 Add Border	Füge Grenze hinzu
 Add Cells	Füge Zellen hinzu
-Add Center	
+Add Center	Füge Mittelpunkt hinzu
 Add Coordinates to points	Füge Koordinaten zu Punkten hinzu
 Add Field	Feld hinzufügen
 Add Frame	Füge Rahmen hinzu
 Add Grid Values to Points	Weise Rasterwerte Punkten zu
-Add Grid Values to Shapes	
+Add Grid Values to Shapes	Addiere Rasterwerte zu Vektor
 Add Link to Files	Erzeuge Verknüpfung zu Dateien
 Add Polygon Attributes to Points	Füge Polygonattribute Punkten hinzu
 Add Volumes Below Base Level	Füge Volumnia unter Ausgangsniveau hinzu
@@ -198,14 +198,14 @@ All Recognized File Types	Alle erkannten Dateitypen
 All Recognized Files	Alle erkannten Dateitypen
 Allocation	Zuweisung
 Allocation Grid	Zuweisungsraster
-Allow Edge Pixels to be Seeds	
+Allow Edge Pixels to be Seeds	Erlaube Eckenpixel Ausgangspunkt zu sein
 Allow longitudes outside -180 to 180 Range	Berücksichtige Längen außerhalb -180 bis 180 Bereich
 Allows to write cell values from additional grids to the output	Berücksichtige Zellwerte zusätzlicher Rasterdateien bei der Ausgabe
 Alpha Max (Degree)	Alpha Max (Grad)
 Altitude above Channel Network	Höhe über Gewässersystem
 Altura de llama	
 Altura de llama (m)	
-Anaglyph	
+Anaglyph	Anaglyph
 Analytical Hierarchy Process	Analytischer hierarchischer Prozess
 Analytical Hillshading	Simulierter Schattenwurf
 Analytical hillshading calculation.	Berechnung des simulierten Schattenwurfs.
@@ -219,7 +219,7 @@ Apply Move	Wende Bewegung an
 Apply offset?	Versatz zufügen?
 Approx. Terrain Slope	ungefähre Geländeneigung
 Approximate Terrain Slope [%]	ungefähre Geländeneigung [%]
-April	
+April	April
 Arcs	Kreissegmente
 Arcs to polygons	Kreissegmente zu Polygonen
 Area	Fläche
@@ -235,7 +235,7 @@ Areal average of ln(T0) = ln(Te) [ln(m^2/h)]	Flächendurchschnitt von ln(T0) = ln
 Arithmetic Mean	arithmetrisches Mittel
 Arithmetic mean (version 1)	arithmetriisches Mittel (Version 1)
 Arithmetic mean (version 2)	Arithmetrisches Mittel (Version 2)
-Aspect	
+Aspect	Ansicht
 Aspect grid, in radians.	Blickpunkt der Rasterdaten, in Radian.
 Assign	Zuweisen
 Assign attributes to shapes...	Attribute Vektordaten zuweisen...
@@ -257,8 +257,8 @@ Attribute to drop.	Attribute zum Fallenlassen
 Attribute to process.	Attribute zum Bearbeiten
 Attributes	Attribute
 Attributes to import besides x,y,z ...	Zu importierende Attribute außer x,y,z...
-August	
-Author	
+August	August
+Author	Autor
 Automatic mode	Automatisch
 Automatically adjust control points to grid's data range	Automatische Anpassung der Kontrollpunkte an den Wertebereich der Rasterdaten
 Automatically fits the grid to the shapes layers extent.	Automatische Anpassung der Rasterdaten an die Ausdehnung der Vektorebene.
@@ -266,7 +266,7 @@ Automatically normalise attributes by standard deviation before clustering.	Auto
 Automatically normalise grids by standard deviation before clustering.	Automatisches Normalisieren der Rasterdaten mit Standardabweichung vor der Clusterbildung.
 Available Choices	Auswahlmöglichkeiten
 Available Connections	Verfügbare Verbindungen
-Available Modules	
+Available Modules	Verfügbare Module
 Available Projections:	Verfügbare Projektionen:
 Average	Durchschnitt
 Average 2 With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. Each value has a weight which is inversely proportional to the distance (method 1).	Durchschnitt 2 Mit Schwellenwert für die Rasterberechnung in x und y Entfernung, der nur Werte benutzt die sich weniger als der spezifische Schwellenwert vom zentralen Pixel unterscheiden. Jeder Wert hat eine Gewichtung die invers proportional zu der Entfernung ist (Methode 1).   
@@ -282,9 +282,9 @@ Average With Thereshold for Grids calculates average in X and Y distances unsing
 Avg. Curve Number	Durchschnittliche Kurvennummer
 Avg. Manning's N	
 Avg. Rainfall Intensity (mm/h)	Durchschnittliche Niederschlagsintensität (mm/Std.)
-Azimuth	
+Azimuth	Azimuth
 Azimuth [Degree]	Azimuth (Grad)
-Azimuth []	
+Azimuth []	Azimuth []
 Azimuthal Equidistant	azimuthale Äquidistanz
 B	
 B-Spline Approximation	B-Spline-Angleichung
@@ -297,7 +297,7 @@ BLACK_WHITE	SCHWARZ_WEISS
 BQ(	
 BSL	
 BSL Files (*.bsl)	BSL Dateien (*.bsl)
-BSL Script	
+BSL Script	BSL Script
 BSL from File	BSL aus Datei
 Background Color	Hintergrundfarbe
 Backward diagonal hatch	Diagonal rückwarts schraffiert
@@ -306,14 +306,14 @@ Bands	Banden
 Bandwidth (Cells)	Bandbreite (Zellen)
 Bare Earth	kahle Erde
 Bars	Balken
-Base	
+Base	Basis
 Base Grid	Basisraster
 Base Level	Ausgangsniveau
 Base Probability	Basis-Wahrscheinlichkeit
 Basic Morphometry	Grundlegende Morphometrie
 Basic measures for spatial point patterns.	wesentliche Maßeinheiten für räumliche Punktmuster
 Basin Type (Gravelius)	Becken Typ (Gravelius)
-Basins	
+Basins	Becken
 Below this threshold precipitation will fall as snow	Unterhalb dieses Schwellenwertes fällt  Niederschlag als Schnee
 Bicubic Spline Interpolation	Bikubische Spline Interpolation
 Bifurcation	Verzweigung
@@ -327,11 +327,11 @@ Block Kriging
 Block Size	Block Größe
 Blocks	Blöcke
 Blue	Blau
-Board	
+Board	Tafel
 Boehner & Selige 2006	
 Boehner's Simple Language (BSL) is a macro script language for grid based calculations.	Boehner`s Simple Language (BSL) ist eine Macroscriptsprache für rasterbasierte Berechnungen.
 Bonne	
-Border	
+Border	Grenze
 Borders	Grenzen
 Bottom	Basis
 Bottom to Top	Unten bis Oben
@@ -340,7 +340,7 @@ Boundary	Grenze
 Bounding Box	Rahmen
 Branches	Fachgebiete
 Branches to Litter	Abfallgebiete
-Braunschweiger Reliefmodell	
+Braunschweiger Reliefmodell	Braunschweiger Reliefmodell
 Breaks	Unterbrechen
 Buffer	Puffer
 Buffer Distance	Pufferdistanz
@@ -356,19 +356,19 @@ C
 C Correction	C Korrektur 
 C Factor	C Faktor
 CELLS	ZELLEN
-CELLSIZE	
+CELLSIZE	ZELLGRÖßE
 CENTER	MITTE
 CFAC(	
 CFit\n(created by SAGA Wizard).	CPassend\n(durch SAGA Wizard erzeugt).
 CLASS	KLASSE
-CLUSTER	
+CLUSTER	CLUSTER
 COLOR	FARBE
 CONTIGUITY	NÄHE
 COUNT	ANZAHL
 CRS Database	CRS Datenbestand
 CRS Dictionary	CRS Verzeichnis
 CSV Files (*.csv)	CSV Dateien (*.csv)
-Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation.	
+Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation.	Berechne Verteilungsquantil. Wert spezifisches Intervall (Median=50, Quartil=25, Dezil=10,...). Setze auf Null um die Quantilberechnung wegzulassen.
 Calculate the volume under the grid's surface. This is mainly useful for Digital Elevation Models (DEM).	Kalkuliere das Volumen unter der Rasteroberfläche. Dieses ist hauptsächlich sinnvoll für Digitale Geländemodelle (DGM).
 Calculates the gradient based on the values of each triangle's points.\n\n	Berechnet den Gradient basierend auf dem Wert eines jeden Dreieckspunktes.\n\n
 Calculates weights for distance plus one, avoiding division by zero for zero distances	Berechnet die Gewichtung für Distanzen plus eins, Teilen durch null wird bei 0-Distanzen vermieden
@@ -403,7 +403,7 @@ CellSize to W-E Extent	Zellgröße in W-E Ausdehnung
 Cells	Zellen
 Cellsize	Zellgröße
 Cellular Automata	Zelluläre Automaten
-Celsius to Fahrenheit	
+Celsius to Fahrenheit	Celsius zu Fahrenheit
 Center Versus Neighbours	Mitte versus Nachbarn
 Center of Triangles	Mitte des Dreiecks
 Centered	Zentriert
@@ -416,12 +416,12 @@ Centroid Y	Schwerpunkt Y
 Centroids	Schwerpunkt
 Centroids for each part	Schwerpunkt für jeden Teil
 Change Cell Values	Ändere Zellwerte
-Change Detection	
+Change Detection	Ändere Erkennung
 Change Grid Values	Ändere Rasterwerte
 Change Grid Values - Flood Fill	Ändere Rasterwerte - Flächenfüllung
 Change Vector Analysis	Veränderungsvektor Analyse
 Changed Grid	Geändertes Raster
-Changes	
+Changes	Wechsel
 Channel Definition Threshold (ha)	Gewässernetz Definition Schwellenwert (ha) 
 Channel Direction	Gewässer Richtung
 Channel Network	Gewässernetz
@@ -475,8 +475,8 @@ Classes	Klassen
 Classification	Klassifizierung
 Classification Constant	Klassifizierung Konstant
 Classification Quality	Klassifizierungsqualität
-Classification Type	
-Classification tools for grids.	
+Classification Type	Klassifikationstyp
+Classification tools for grids.	Klassifikationswerkzeuge für Raster.
 Classify	Klassifiziere
 Clay	Ton
 Clay-Loam	Ton-Lehm
@@ -496,7 +496,7 @@ Close Gaps with Spline	Schließe Lücken mit Spline
 Close One Cell Gaps	Schließe Einzellenlücken
 Closed Gaps Grid	Raster mit geschlossenen Lücken
 Closest Point	nächstgelegener Punkt (Pf.)
-Closing	
+Closing	Schließen
 Closing Gaps...	Schließe Lücken...
 Cluster	Gruppe (Cluster)
 Cluster Analysis	Clusteranalyse
@@ -532,11 +532,11 @@ Compare with...	Vergleiche mit..
 Complete Intersection	Vervollständige Schnittmenge
 CompleteLinkage	Vervollständige Verbindung
 Completed Grid	Vervollständigtes Raster
-Component	
+Component	Komponente
 Composite	Gemisch
 Compound Probability	komplizierte Wahrscheinlichkeit
 CompuServe Graphics Interchange	
-CompuServe Graphics Interchange (*.gif)	
+CompuServe Graphics Interchange (*.gif)	CompuServe Graphics Interchange (*.gif)
 Computed flow directions, 0=N, 1=NE, 2=E, ... 7=NW	Berechnete Fließrichtung. 0=N, 1=NE, 2=E, ... 7=NW
 Concentration time (h)	Sammlungszeit (h)
 Condition	Bedingung
@@ -549,7 +549,7 @@ Connectivity Index (Pff).	Konnektivität Index
 Connectivity Weighting	Konnektivität Gewichtung
 Connectivity [Percent]	Konnektivität [Prozent]
 Constant Variation Range [Degree]	konstanter Streubereich [Grad]
-Constant Wind Direction [Degree]	
+Constant Wind Direction [Degree]	Konstante Windrichtung [Grad]
 Constant variation range	konstanter Streubereich
 Constraints	Einschränkungen
 Contour Lines	Isolinien
@@ -569,21 +569,21 @@ Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991)	Annäheru
 Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm.	Annäherungsfaktor für den multiplen Fließrichtungsalgorithmus (Freeman 1991). \nAnwendbar auch beim Multiplen Triangularen Fließrichtungsalgorithmus.
 Convergence factor for Multiple Flow Direction algorithm	Annäherungsfaktor für den multiplen Fließrichtungsalgorithmus
 Convergence factor for the \'Multiple Flow Direction\' algorithm (after Freeman 1991)	Annäherungsfaktor für den \'Multiplen Fließrichtungs\'algorithmus (nach Freeman 1991)
-Conversion	
+Conversion	Umwandlung
 Convert Data Storage Type	Wandle Datenspeichertyp um
-Convert Lines to Points	
+Convert Lines to Points	Wandle Linien in Punkte um
 Convert Lines to Polygons	Linien zu Polygonen umwandeln
-Convert Points to Line(s)	
+Convert Points to Line(s)	Wandle Punkte zu Linien um
 Convert Polygon/Line Vertices to Points	Polygone/ Linienpunkte zu Punkten umwandeln
 Convert Polygons to Lines	Polygone zu Linien umwandeln
-Convert Table to Points	
+Convert Table to Points	Wandle Tabellen in Punkte um
 Convert a shapes layer to a TIN\n\n	Wandelt eine Vektorebene in ein TIN um\n\n
 Convert routes	Wandle Strecken um
 Convert track points	Wandle Streckenpunkte um
 Convert way points	Wandle Wegpunkte um
 Converted Grid	Umgewandeltes Raster
 Converts a TIN data set to shapes layers.\n\n	Wandelt einen TIN-Datensatz in eine Vektorebene um.\n\n
-Convex Hull	
+Convex Hull	Konvexe Hülle
 Conway's Life	Conway´s Spiel des Lebens
 Coordenada X	Koordinate X
 Coordenada X del punto de ignición (sólo si no se usa grid de puntos de ignición)	Koordinate X des Zündpunktes
@@ -597,7 +597,7 @@ Coordinate Transformations based on the GeoTRANS-Engine of the National Imagery 
 Coordinates	Koordinaten
 Copy	Kopieren
 Copy Rule	Kopierregel
-Copy Selection to New Shapes Layer	
+Copy Selection to New Shapes Layer	Kopiere Auswahl in neue Vektorebene
 Copy Settings from...	Kopiere Einstellungen von..
 Copying original data...	Kopiere Originaldaten…
 Copyright (c) 2007 by Thomas Schorr	
@@ -649,7 +649,7 @@ Create Variance Grid	Erzeuge Streuungsraster
 Create Web Content	Erzeuge Web-Inhalt
 Create X/Y Grids	Erzeuge X/Y-Raster
 Create a grid with pseudo-random numbers as grid cell values. 	Erzeuge ein Raster mit Pseudo-Zufallszahlen als Rasterwerten
-Create borders between segments as new grid.	
+Create borders between segments as new grid.	Benutze Grenzen zwischen Segmenten als neues Raster
 Create graticule	Erzeuge Gitternetz
 Create index	Index erstellen
 Creates a color animation based on the values of selected grids.\n	Erzeuge eine Farbanimation auf der Basis der Werte des ausgewählten Rasters.\n
@@ -681,12 +681,12 @@ Cutting	Schneiden
 Cycles	Zyklen
 Cylindrical Equal Area	Zylindrisch Flächentreu
 D	
-D/A	
+D/A	D/A
 D/sqrt(A)	D/Quadratwurzel (A)
-D8	
+D8	D8
 D8 Flow Analysis	D8 Flußanalyse
 D8 Flow Network	D8 Fließnetzwerk
-DBase	
+DBase	DBase
 DD_FAC(	
 DECLINE	ABNAHME
 DEFAULT	VOREINSTELLUNG
@@ -743,36 +743,36 @@ Default Weight	Voreinstellung Gewichtung
 Define AOI by ...	Definiere AOI durch.. 
 Degree	Grad
 Delete Fields	Felder löschen
-Delete Selection from Shapes Layer	
+Delete Selection from Shapes Layer	Entferne Auswahl aus Vektorebene
 Delineated watershed basins	eingezeichnete Wassereinzugsgebiete
 Denormalisation	Denormalisierung
 Density Index (Pf).	Dichteindex (Pf.)
 Density [Percent]	Dichte [Prozent]
 Density from Neighbourhood	Dichte aus Nachbarschaft
 Dependent Variable	abhängige Variable
-Dependent Variables	
+Dependent Variables	Abhängige Variablen
 Dependent on chosen method, these are distances or probabilities.	Abhängig von der gewählten Methode sind dieses Entfernungen oder Wahrscheinlichkeiten.
 Dependent on the chosen 'Initiation Grid' and 'Initiation Type' this value controls under which condition a channel is initiated.	Abhängig von dem gewählten 'Initierungsraster' und 'Initierungstyp' kontrolliert dieser Wert unter welchen Konditionen ein Gewässer initiiert wird.
 Depression-free digital elevation model	Senkenfreies digitales Höhenmodell
-Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off.	
-Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmet & Govers' method.	
+Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off.	Tiefe bis zu der die Datenhistorie gespeichert wird. Bei -1 werden alle Historieeinträge berücksichtigt, 0 schaltet die Historieoptionen ab.
+Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmet & Govers' method.	Abweichung der Neigungslänge von der Einzugsgebietsfläche. Dieses sind grobe Abschätzungen! Stimmt nicht mit Desmond & Gover's Methode überein.
 Description	Beschreibung
 Descriptive name for the grid system	Anschaulicher Name für das Rastersystem
 Desmet & Govers	
 Desmet & Govers 1996	
-Destandardisation	
+Destandardisation	Destandarisation
 Destination Points	Zielpunkte
 Destriped Grid	Gestreiftes Raster
 Destriping 1	Streifen 1
 Destriping 2	Streifen 2
-Details	
+Details	Details
 Detector type	Detectortyp
 Deterministic 8	Deterministisch 8
 Deterministic 8 (D8)	Deterministisch 8 (D8)
 Deterministic Infinity	deterministische Unendlichkeit
 Deviation from Arithmetic Mean	Abweichung vom arithmetrischen Mittel
 Deviation from Mean Value	Abweichung vom Mittelwert
-Dialog	
+Dialog	Dialog
 Dictionary Files (*.dic)	Wörterbuch Dateien (*.dic)
 Dictionary Files (*.lng)	Sprachdateien (*.lng)
 Dictionary for Proj.4/OGC WKT translations. You have to restart SAGA to make changes take affect!	Wörterbuch für Proj.4/OGC WKT Übersetzungen. SAGA muss neu gestartet werden damit die Änderungen wirksam werden.
@@ -811,11 +811,11 @@ Directional Statistics for Points	Gerichtete Statistik für Punkte
 Directional Statistics for Single Grid	Gerichtete Statistik für Einzelraster
 Directory, where temporary cache files shall be saved.	Verzeichnis, in dem temporäre Dateipuffer gespeichert werden sollen.
 Display Range	Anzeigebereich
-Dissolve Buffers	
-Dissolve...	
-Dissolved	
-Dissolved Lines	
-Dissolved Polygons	
+Dissolve Buffers	Löse Puffer auf
+Dissolve...	Auflösen...
+Dissolved	Aufgelöst
+Dissolved Lines	Aufgelöste Linien
+Dissolved Polygons	Aufgelöste Polygone
 Dist.	Entfernung
 Distance	Entfernung
 Distance (Grid Units).	Entfernung (Rastereinheiten).
@@ -842,28 +842,28 @@ Down	Ab
 Down sort	Sortiere abwärts
 Down-Scaling	herunterskalieren
 Downslope Area	Hangflächengebiet
-Downslope Basins	
+Downslope Basins	abfallende Becken
 Downslope Distance Gradient	Hangflächendistanz Gradient
 Drainage Network	Entwässerungsnetzwerk
-Draw Style	
+Draw Style	Zeichenstil
 Draw a section each n points	Zeichne einen Streckenanschnitt für jeden n-ten Punkt
 Driver	Treiber
 Driver does not support file creation.	Der Treiber unterstützt nicht die Dateierstellung.
 Drop Point Cloud Attribute	Punktwolkenattribute loslassen
 Dummy Grid	Attrappenraster
-Duplicated Points	
+Duplicated Points	Duplizierte Punkte
 Duplicates	Duplikate
 Duration of Insolation	Dauer der Sonneneinstrahlung
 Dust [ppm]	Staub [ppm]
 Dust factor: 100 ppm (standard)	Staubfaktor: 100 ppm (standard)
-EDGES	
+EDGES	ECKEN
 ENUM_ID	
-EPSG Code	
+EPSG Code	EPSG Kode
 ERDAS files other than version 7.4 are not supported.	ERDAS-Dateien mit Ausnahme der Version 7.4 werden nicht unterstützt.
 ESRI Arc/Info ASCII Grids (*.asc)	ESRI Arc/Info ASCII Rasterdateien (*.asc)
 ESRI Arc/Info Binary Grids (*.flt)	ESRI Arc/Info binäre Rasterdateien (*.flt)
 ESRI Arc/Info Grids	ESRI Arc/Info Rasterdateien
-ESRI E00 Files|*.e00|All Files|*.*	
+ESRI E00 Files|*.e00|All Files|*.*	ESRI E00 Dateien|*.e00|Alle Dateien|*.*
 ESRI Shape Files	ESRI Vektordateien [.shp]
 ESRI Shapefiles	ESRI Vektordateien
 ESRI WKT Files (*.prj)	ESRI WKT Dateien (*.prj)
@@ -877,14 +877,14 @@ Edge threshold for nonlinear smoothing	Grenzschwellenwert für nichtlineare Glätt
 Edges	Kanten
 Efective friction = stated friction ^f , where f = cos(DifAngle)^k.	effektive Reibung = vorgegebene Reibung ^f , wobei f = cos(DifWinkel)^k. 
 Effective Air Flow Heights	Effektive Luftflusshöhen
-Eigen reduction failed	
-Eigenvalue	
-Eigenvectors	
+Eigen reduction failed	Eigen Reduktion fehlgeschlagen
+Eigenvalue	Eigenwert
+Eigenvectors	Eigenvektor
 Element Shape	Element Vektor
 Elements	Elemente
 Elevation	Höhe
 Elevation Grid	Höhenraster
-Elevation Range	
+Elevation Range	Höhen Bereich
 Elevation [m]	Höhe [m]
 Elevation at Reference Station [m]	Höhe an Referenzstation [m]
 Elevation grid	Höhenraster
@@ -892,15 +892,15 @@ Ellipsoid Definition	Ellipsoid Definition
 Ellipsoid Height [m]	Ellipsoid Höhe [m]
 Ellipsoids	Ellipsoide
 Enforce True Color	Erzwinge Echtfarben
-Enumerate a Table	
+Enumerate a Table	eine Tabelle durchzählen
 Epsilon	Epsilon
 Equals	Gleich
 Equation	Gleichung
 Equidistance	Äquidistanz
 Equidistant Cylindrical	Streckentreu Zylindrisch
 Equivalent Moisture	äquivalente Feuchtigkeit
-Equivalent Rectangle (A)	
-Equivalent Rectangle (B)	
+Equivalent Rectangle (A)	Gleichwertiges Rechteck (A)
+Equivalent Rectangle (B)	Gleichwertiges Rechteck (B)
 Erdas LAN/GIS files (*.lan, *.gis)|*.lan;*.gis|All Files|*.*	Erdan LAN/GIS Dateien (*.lan, *.gis)|*.lan;*.gis|Alle Dateien|*.*
 Erosion	Erosion
 Error	Fehler
@@ -924,16 +924,16 @@ Euclidean	Euklidisch
 Exaggeration	Überhöhung
 Exclude NoData Cells	Zellen ohne Wert ausschließen
 Exit SAGA	SAGA beenden
-Exponent	
+Exponent	Exponent
 Exponential Model	Exponentialmodell
-Exponential Regression	
+Exponential Regression	Exponentielle Regression
 Exponential and Gaussian Weighting Bandwidth	Bandweite Exponentielle und Gaussche Gewichtung
 Export Atlas Boundary File	Export Atlas Boundary Datei
 Export ESRI Arc/Info Grid	Export ESRI Arc/Info Rasterdaten
 Export GPX	Export GPX
 Export GStat Shapes	Export GStat Vektordaten
 Export Grid to XYZ	Export Raster zu XYZ
-Export Image (bmp, jpg, pcx, png, tif)	
+Export Image (bmp, jpg, pcx, png, tif)	Export Bild (bmp, jpg, pcx, png, tif)
 Export LAS Files	Export LAS Dateien
 Export Scalable Vector Graphics (SVG) File	Export Scalable Vector Graphics (SVG) Dateien
 Export Shapes to Generate	Export Vektoren die zu erzeugen sind
@@ -955,12 +955,12 @@ Extent to CellSize	Abhängig von Zellgröße
 Extents	Umfange
 Extraction of...	Extrahierung von...
 Eye Distance	Augendistanz
-FACE_A	
-FACE_B	
+FACE_A	ANBLICK_B
+FACE_B	ANBLICK_A
 FLOW	VERLAUF
 Factor	Faktor
 Fade Color Count	Bleiche Farben Zähler
-Fahrenheit to Celsius	
+Fahrenheit to Celsius	Fahrenheit zu Celsius
 False Easting	unechte Ostrichtung
 False Easting [m]	unechte Ostrichtung [m]
 False Northing	unechte Nordrichtung [m]
@@ -985,7 +985,7 @@ Field Name	Feld Name
 Field Properties	Feld Eigenschaften
 Field Separator	Feld Trennzeichen
 Field Type	Feld Typ
-Field data type	
+Field data type	Feld Datentyp
 Field for Summary	Feld für Zusammenfassung
 Fields	Felder
 Fields for diagram	Feld für Diagramm
@@ -995,7 +995,7 @@ File Name	Dateiname
 File contains headline	Datei enthält Kopfzeile
 File does not exist:	Datei existiert nicht:
 File error	Dateifehler
-File signature is not 'LASF'!	
+File signature is not 'LASF'!	Dateibezeichnung ist nicht 'LASF'
 Files	Dateien
 File|ESRI E00	Datei|ESRI E00
 File|GDAL/OGR	Datei|GDAL/OGR
@@ -1015,14 +1015,14 @@ Fill Value	Füllwert
 Filled DEM	gefülltes DGM
 Filter	Filter
 Filter Clumps	Filter Klumpen
-Filter Criterion	
+Filter Criterion	Filterkriterium
 Filter Matrix	Filter Matrix
-Filtered	
+Filtered	Gefiltert
 Filtered DTM	Gefiltertes DGM
 Filtered Grid	Gefiltertes Raster
-Filtered Points	
+Filtered Points	Gefilterte Punkte
 Final Parameters	endgültige Parameter
-Final State	
+Final State	Endzustand
 Final processing...	Endgültige Berechnung...
 Finalize	Abschließen
 Find Outlets	Finde Abfluss
@@ -1069,8 +1069,8 @@ Flow Depth Grid (m)	Strömung Tiefenraster (m)
 Flow Direction	Strömung Richtung
 Flow Direction (up and down)	Strömung Richtung (auf und ab)
 Flow Directions	Strömung Richtungen
-Flow Distance	
-Flow Distances	
+Flow Distance	Fließentfernung
+Flow Distances	Fließentfernungen
 Flow Lines	Strömung Linien
 Flow Network	Strömung Netz
 Flow Path Length	Strömung Bahnlängen
@@ -1108,9 +1108,9 @@ Function failed because no attributes are available	Funktion schlug fehl, weil k
 Fuzzified	unscharf
 Fuzzified Grid	unscharfes Raster
 Fuzzify	Unschärfe
-Fuzzy Intersection (AND)	
-Fuzzy Logic	
-Fuzzy Union (OR)	
+Fuzzy Intersection (AND)	Fuzzy Schnittmenge (AND, UND)
+Fuzzy Logic	Fuzzy Logic
+Fuzzy Union (OR)	Fuzzy Vereinigung (OR, ODER)
 GDAL: Export Raster	GDAL: Export Raster
 GDAL: Export Raster to GeoTIFF	GDAL: Export Raster zu GeoTIFF
 GDAL: Import Raster	GDAL: Import Raster
@@ -1156,7 +1156,7 @@ Geographically Weighted Multiple Regression	Geografisch gewichtete Multiple Regr
 Geographically Weighted Multiple Regression (Points/Grids)	Geografisch gewichtete Multiple Regression (Punkte/Raster)
 Geographically Weighted Regression	Geografisch gewichtete Regression
 Geographically Weighted Regression (Points/Grid)	Geografisch gewichtete Regression (Punkte/Raster)
-Geoid	
+Geoid	Geoid
 Geometric Figures	Geometrische Figur
 Geometrical Properties of Polygons	Geometrische Eigenschaften der Polygone
 Georeferencing - Grids	Georeferenzieren - Raster
@@ -1178,10 +1178,10 @@ Global Moran's I for Grids	Globales Moran´s I für Raster
 Gnomonic	Gnomonisch
 Gpx2shp path	Gpx2shp Pfad
 Gradient	Gradient
-Gradient Calculation	
+Gradient Calculation	Gradientenberechnung
 Gradient Difference	Gradient Differenz
-Gradient Vector from Cartesian to Polar Coordinates	
-Gradient Vector from Polar to Cartesian Coordinates	
+Gradient Vector from Cartesian to Polar Coordinates	Gradient Vektor von kartesischen zu polaren Koordinaten
+Gradient Vector from Polar to Cartesian Coordinates	Gradient Vektor von polar zu kartesischen Koordinaten
 Gradient Vectors	Gradient Vektoren
 Gradient Vectors from Grid(s)	Gradient Vektoren von Rastern
 Gradient threshold	Gradient Schwellenwert
@@ -1222,7 +1222,7 @@ Grid Properties	Raster Eigenschaften
 Grid Proximity Buffer	Raster Nachbarschaftspuffer
 Grid Size	Raster Größe
 Grid Skeletonization	Raster Gerüst
-Grid Standardisation	
+Grid Standardisation	Raster Standardisation
 Grid Statistics for Polygons	Rasterstatistik für Polygone
 Grid System	Rastersystem
 Grid System Extent	Raster Ausdehnung
@@ -1265,10 +1265,10 @@ Grid|Visualisation	Raster|Visualisierung
 Group A	Gruppe A
 Group B	Gruppe B
 Group by	Gruppe von
-Hafer	
+Hafer	Hafer
 Has Field Names	Hat den Feldnamen
 Having	Haben
-Heads	
+Heads	Köpfe
 Height	Höhe
 Height (Cells)	Höhe (Zellen)
 Height Threshold	Höhe Schwellenwert
@@ -1285,13 +1285,13 @@ Hilditch's Algorithm	Hilditch´s Algorithmus
 Hill-Climbing (Rubin 1967)	Bergsteigeralgorithmus (Rubin 1967)
 Histogram	Histogramm
 Histogram Surface	Histogram Oberfläche
-History Depth	
+History Depth	Historientiefe
 Homogenous	Homogen
 Horizontal Overland Flow Distance	Horizontale über Land Strömungsdistanz
 Horizontal Range	Horizontaler Bereich
 Horizontal hatch	horizontale Schraffur
 Horizontally mirrored	horizontal gespiegelt
-Hull Construction	
+Hull Construction	Hülle Konstruktion
 Humedad del combustible herbáceo vivo	
 Humedad del combustible leñoso vivo	
 Humedad del combustible muerto en 1-hora	
@@ -1345,18 +1345,18 @@ Image Grid	Bild Raster
 Image Import/Export.	Bild Import/Export
 Image Resolution	Bild Auflösung
 Image Rotation [Degree]	Bild Drehung [Grad]
-Image processing tools.	
+Image processing tools.	Bildbearbeitungswerkzeuge.
 Image segmentation algorithms.	Bild Segmentierungalgorithmus
 Imagery - Classification	Bildverarbeitung - Klassifizierung
-Imagery - Fast Region Growing Algorithm	
+Imagery - Fast Region Growing Algorithm	Bildverarbeitung - Schneller Regionenwachstumsalgorithmus
 Imagery - OpenCV	Bildverarbeitung - OpenCV
 Imagery - Segmentation	Bildverarbeitung - Segmentierung
-Imagery - Tools	
+Imagery - Tools	Bildbearbeitung - Werkzeuge
 Imagery - ViGrA	Bildverarbeitung - ViGrA
-Imagery|Classification	
+Imagery|Classification	Bildbearbeitung|Klassifikation
 Imagery|OpenCV	Bildverarbeitung|OpenCV
 Imagery|Segmentation	Bildverarbeitung|Segmentierung
-Imagery|Tools	
+Imagery|Tools	Bildbearbeitung|Werkzeuge
 Imagery|ViGrA	Bildverarbeitung|ViGrA
 Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*	Bilder|*.bmp;*.jpg;*.png;*.tif|HTML Dateien|*.htm|Alle Dateien|*.*
 Imaginary	Imaginär
@@ -1405,15 +1405,15 @@ Import/Export - Tables	Import/Export - Tabellen
 Import/Export - Tables using MySQL native driver	Import/Export - Tabellen die den ursprünglichen MySql Treiber benutzen
 Importing	Einlesend
 Importing data ...	Daten einlesend...
-Improperly formatted Lookup Table.	
+Improperly formatted Lookup Table.	Ungeeignet formatierte Nachschlage-Tabelle 
 In/Out	Eingabe/Ausgabe
 Include Coordinates	Einschließlich Koordinaten
 Include diagonal neighbour relations	Einschließlich diagonaler Nachbarbeziehungen
-Independent Variable (per Grid and Cell)	
-Independent Variable (per Grid)	
+Independent Variable (per Grid and Cell)	Unabhängige Variable (pro Raster und Zelle)
+Independent Variable (per Grid)	Unabhängige Variable (pro Raster)
 Infiltration excess runoff [m/dt]	Versickerungsüberschuss Abfluss [m/dt]
 Infiltration rate [m/dt]	Versickerungsrate
-Informe	
+Informe	Mitteilen
 Init Fast Representativeness	Initialisiere die schnelle  Repräsentativität
 Init Generalisation	Initialisere die Generalisierung
 Init RGA	Initialisiere RGA
@@ -1422,7 +1422,7 @@ Initial Nitrogen Content [kg/ha]	Anfangsstickstoffgehalt [kg/ha]
 Initial Number of Distance Classes	Anfängliche Anzahl von Entfernungsklassen
 Initial Number of Fishes [%]	Anfangsanzahl von Fischen [%]
 Initial Number of Sharks [%]	Anfangsanzahl von Haien [%]
-Initial State	
+Initial State	Initalstatus
 Initial Threshold for Slope	Anfangsschwellenwert für das Gefälle
 Initial root zone storage deficit [m]	Anfangswurzelzonen Speicher Defizit [m]
 Initial subsurface flow per unit area [m/h]	Anfängliche unterirdische Strömung pro Flächeneinheit [m/h]
@@ -1434,7 +1434,7 @@ Initiation Grid	Startraster
 Initiation Threshold	Anfangsschwellenwert
 Initiation Type	Anfangs Typ
 Input	Eingabe
-Input Data	
+Input Data	Eingabedaten
 Input File	Eingabedatei
 Input File's NoData Value	Eingabedatei´s NoData-Wert
 Input Grid	Eingaberaster
@@ -1457,7 +1457,7 @@ Intensidad	Intensität
 Intensidad (Kcal/m)	Intensität (kcal/m)
 Intensity	Intensität
 Intensity (Kcal/m)	Intensität (Kcal/m)
-Interactive	
+Interactive	Interaktiv
 Interactive version (left mouse clicks will trigger the calculation for the selected cell).	Interaktive Version (die linke Maustaste löst die Berechnung für die ausgewählte Zelle aus).
 Intercept	Schnittpunkt
 Intercept of the soil line	Achsenabschnit der Bodenlinie
@@ -1486,12 +1486,12 @@ Inverse transformation not available for selected projection type.	Inverse Trans
 Inversion	Inversion
 Invert	Umkehren
 Invert Data/No-Data	Umkehr Daten/No-Data
-Invert Selection of Shapes Layer	
+Invert Selection of Shapes Layer	Invertiere Auswahl der Vektorebene
 Invert selection.	Auswahl umkehren.
 Is the subbasin upstream (no external inflow)	Ist der Teilbecken gegenstrom (kein externer Zustrom)
 Isochrones Constant Speed	Isochrone konstante Geschwindigkeit
 Isochrones Variable Speed	Isochrone variable Geschwindigkeit
-Item	
+Item	Begriff
 Iteration	Iteration
 Iterationen	Iterationen
 Iterations	Iterationen
@@ -1502,17 +1502,17 @@ JPG Files	JPG Dateien
 Jakeman & Hornberger (1993)	
 January	Januar
 Johan Van de Wauw (c) 2009	
-Join Segments based on Threshold Value	
+Join Segments based on Threshold Value	Benutze Segmente basierend auf dem Schwellenwert
 Join Table	Verbinde mit Tabelle
 Join a Table	Verbinde mit Tabelle
-Join segments based on threshold value.	
+Join segments based on threshold value.	Benutze Segmente basierend auf dem Schwellenwert.
 Julia	
 Julia - X	
 Julia - Y	
 Julia Set	
 July	Juli
 June	Juni
-Kartoffeln	
+Kartoffeln	Kartoffeln
 Keep Base Level below Surface	Halte das Ausgangsniveaul unter der Oberfläche
 Kernel	Kern
 Kernel Density	Kern Dichte
@@ -1520,9 +1520,9 @@ Kernel Density Estimation	Kern Dichteabschätzung
 Kind of initializing Precipitation Event	Art der Initialisierung des Niederschlagsereignisses
 Kinematic Routing Algorithm	kinematischer Routing Algorithmus
 Kriging - geostatistical procedures for the gridding of irregular distributed point data.	Kriging - geostatistische Verfahren für das Rastern irregulär verteilter Punktdaten.
-LAS File	
+LAS File	LAS Datei
 LAS Files (*.las)|*.las|All Files|*.*	LAS Dateien (*.las)|*.las|Alle Dateien|*.*
-LAS Info	
+LAS Info	LAS Info
 LENGTH	LÄNGE
 LFAC(	LFAC(
 LNG_FILE_DIC	SPRACHE_DATEI_WÖRTERBUCH
@@ -1540,7 +1540,7 @@ Land Use	Landnutzung
 Land Use ID	Landnutzungs ID
 Landsat	Landsat
 Language Translations	Sprachübersetzungen
-Laplace Filter	
+Laplace Filter	Laplace Filter
 Laplacian Filter	Laplace Filter
 Last Day	Letzter Tag
 Lat. of True Scale	Breitengrad des genauen Massstabs
@@ -1562,7 +1562,7 @@ Layout	Layout
 Leading zeros for data set numbering. Set to -1 for not using numbers at all.	Führende Nullen für Nummerierung der Datensätze. Setze auf -1 wenn keine Nummerierung gewünscht ist.
 Leaf Area Index	Blattflächenindex
 Leaf Size (for Speed Optimisation)	Blattgröße (für Geschwindigkeitsoptimierung)
-Leafs	
+Leafs	Blätter
 Least Cost Path	Weg geringster Kosten
 Least Cost Paths	Wege geringster Kosten
 Least Squares Fitted Plane (Horn 1981, Costa-Cabral & Burgess 1996)	mit kleinsten Quadraten angepasste Fläche (Horn 1981, Costa-Cabral & Burgess 1996)
@@ -1576,12 +1576,12 @@ Lee Factor	Lee Faktor
 Lee Filter	Lee Filter
 Lee Filter - Direction	Lee Filter - Richtung
 Lee Filter - Standard Deviation	Lee Filter - Standardabweichung
-Leeward Effect	
+Leeward Effect	Leewärts Effekt
 Left	Links
 Left Border (X)	Linke Grenze (X)
 Left Half	Linke Hälfte
 Left/Right	Links/Rechts
-Legend	
+Legend	Legende
 Legend: Save	Legende: Speichern
 Legend: Zoom	Legende: Vergrößerung
 Length	Länge
@@ -1593,16 +1593,16 @@ Level	Stufe
 Level Aggregation	flache Anhäufung
 Level of Detail	Detaillierungsgrad
 Level of Generalisation	Stufe der Generalisierung
-Library	
+Library	Bibliothek
 Library Overview	Bibliothek-Überblick
 Life	Leben
 Life Cycle	Lebenszyklus
 Life Cycles	Lebenszyklen
-Light Source A	
-Light Source B	
+Light Source A	Lichtquelle A
+Light Source B	Lichtquelle B
 Lighting and visibility calculations for digital terrain models.	Beleuchtungs- und Sichtbarkeitsberechnungen für Digitale Geländemodelle.
 Line Color	Linienfarbe
-Line Dissolve	
+Line Dissolve	Linie auflösen
 Line Endset (Bytes)	Linie Endset (Bytes)
 Line Offset (Bytes)	Linie Versatz (Bytes)
 Line Order	Linie Abfolge
@@ -1630,7 +1630,7 @@ Load Colors	Lade Farben
 Load Parameters	Lade Parameter
 Load shapefile	Lade Vektordatei
 Load shapefile after conversion	Lade Vektordatei nach Umwandlung
-Loaded Libraries	
+Loaded Libraries	Geladene Bibliothek
 Loading GSTAT-File	Lade GSTAT-Datei
 Loam	Lehm
 Loamy Sand	lehmiger Sand
@@ -1648,10 +1648,10 @@ Locate STRM30 Data File	Lokalisiere STRM30 Datendateien
 Locate...	Lokalisiere...
 Location	Position
 Location settings to be used, if no latitude/longitude grids are given.	zu nutzende Ortseinstellungen, falls keine Breiten-/Längengraderaster gegeben sind. 
-Locations	
+Locations	Örtlichkeiten
 Logarithmic Transformation	Logarithmische Transformation
 Logarithmic: a + b * ln(x)	Logarithmisch: a + b * ln(x)
-Logo	
+Logo	Logo
 Lon. Down	Längengrad abwärts
 Long dashed style	lang gestrichelt
 Longitude 1	Längengrad 1
@@ -1661,7 +1661,7 @@ Longitude Pole	Längengrad Pol
 Longitude [degree]	Längengrad [Grad]
 Longitudinal Profile	längslaufendes Profil
 Look up table (Points)	Nachschlagetabelle (Punkte)
-Look-up Table	
+Look-up Table	Nachschlagetabelle
 LookUp Table	Nachschlagetabelle
 Lookup Table	Nachschlagetabelle
 Lookup table used in method \"table\"	Nachschlagetabelle benutzt bei der Methode \"Tabelle\"
@@ -1681,22 +1681,22 @@ Lumped Atmospheric Transmittance	konzentrierte atmosphärische Durchlässigkeit
 Lumped Atmospheric Transmittance [Percent]	konzentrierte atmosphärische Durchlässigkeit [Prozent]
 Luv Factor	Luv Faktor
 M	
-MAX	
-MAXIMUM	
+MAX	MAX
+MAXIMUM	MAXIMUM
 MDE	
 MEAN	MITTELWERT
 MFD	
-MIN	
-MINIMUM	
+MIN	MIN
+MINIMUM	MINIMUM
 MOLA Grids (*.img)|*.img|All Files|*.*	MOLA Raster (*.img)|*.img|Alle Dateien|*.*
 MORAN_I	
 MRRTF	
 MRVBF	
 MS Windows Bitmap (*.bmp)|*.bmp|All Files|*.*	MS Windows Bitmap (*.bmp)|*.bmp|Alle Dateien|*.*
 MSL Height [m]	MSL Höhe [m]
-Maehweide	
+Maehweide	Mähweide
 Mahalanobis Distance	Mahalanobis Entfernung
-Main Basin ID	
+Main Basin ID	Hauptbecken ID
 Main Layer	Hauptebene
 Main Layer. Output layer will have the same field in the attributes table as this layer	Hauptebene. Auszugebende Ebene hat die gleichen Felder der Attributtabelle wie diese Ebene
 Main Radius	Haupt Radius
@@ -1704,9 +1704,9 @@ Main channel routing velocity [m/h]	Hauptgewässer Routinggeschwindigkeit [m/Std]
 Majority	Mehrheit
 Majority Filter	Mehrheit Filter
 Make sure that the files\n	Stelle sicher dass die Dateien\n
-Mandelbrot	
+Mandelbrot	Mandelbrot
 Mandelbrot Set	Mandelbrot Zusammenstellung
-Manhattan	
+Manhattan	Manhattan
 Manning's N	
 Manning's Roughness	Manning´s Rauhigkeit
 Map	Karte
@@ -1725,10 +1725,10 @@ Mask Min	Abdeckung Min
 Mask value	Abdeckung Wert
 Masked Grid	Abgedecktes Raster
 Mass Balance Index	Massenbalanceindex
-Massivity Coefficient	
-Material	
+Massivity Coefficient	Massivitäts Koeffizient
+Material	Material
 Matrix signular\n	singulare Matrix\n
-Max	
+Max	Max
 Max Iterations	Maximale Iterationen
 Max Lamda	
 Max. Iterations	Maximale Iterationen
@@ -1737,15 +1737,15 @@ Max. Starvation Time for Sharks	Maximale Hungerzeit für Haie
 Max.Distance	Max. Distanz
 Maxima	Maxima
 Maximal Number of Points	Maximale Anzahl der Punkte
-Maximimum Number of Samples	
-Maximum	
+Maximimum Number of Samples	Maximale Anzahl Proben
+Maximum	Maximum
 Maximum Cells (C Correction Analysis)	Maximum Zellen (C Korrekturanalyse)
 Maximum Contour Value	Maximaler Isolinienwert
 Maximum Deviation between estimated excess rainfall and observed streamflow volumes	Maximale Abwewichung zwischen abgeschätzten Niederschlagsereignissen und beobachteten Abflussvolumina
 Maximum Deviation: ExcessRain-Streamflow [%]	Maximale Abweichung: Überschussregen-Abfluss [%]
 Maximum Distance	Maximale Entfernung
 Maximum Distance [Cells]	Maximale Entfernung (Zellen)
-Maximum Flow Distance	
+Maximum Flow Distance	Maximale Fließdistanz
 Maximum Iterations	Maximale Iterationen
 Maximum Level	Maximalpegel
 Maximum Likelihood	Maximale Wahrscheinlichkeit
@@ -1760,11 +1760,11 @@ Maximum Search Radius (map units)	Maximaler Suchradius (Karteneinheiten)
 Maximum Size (Cells)	Maximale Größe (Zellen)
 Maximum Slope (Travis et al. 1975)	Maximale Neigung (Travis et al. 1975)
 Maximum Sum of overestimated ExcessRain to total ExcessRain in [%]	Maximale Summe von übereingeschätztem Überschussregen zu totalem Überschussregen in [%]
-Maximum Total Order	
+Maximum Total Order	Maximum Gesamtbefehle
 Maximum Triangle Slope (Tarboton 1997)	Maximum Dreiecksneigung (Tarboton 1997)
 Maximum Value	Maximaler Wert
-Maximum X Order	
-Maximum Y Order	
+Maximum X Order	Maximum X.ter-Ordnung
+Maximum Y Order	Maximum Y-Ordnung
 Maximum distance parameter is ignored if set to zero (default).	Maximaler Entfernungsparameter wird ignoriert wenn auf null gesetzt (Voreinstellung).
 Maximum number of classes in entire grid.	maximale Anzahl der Klassen in vollständigem Raster
 Maximum number of classes in the entire grid.	maximale Anzahl der Klassen in vollständigem Raster
@@ -1773,15 +1773,15 @@ Maximum resolution as percentage of the diameter of the DEM.	Maximale Auflösung 
 Maximum root zone storage deficit [m]	Maximales Wurzelzonenspeicherdefizit [m]
 Maximum size	Maximalgröße
 Maximum value of the range to be reclassified.	Maximaler Wert des neueinzuteilendes Bereiches
-Maximun	
+Maximun	Maximum
 May	Mai
 Mean	Mittel
 Mean Average	Mittelwert Durchschnitt
 Mean Centre	Mittelwert Zentrum
-Mean Distance	
+Mean Distance	Mittlere Entfernung
 Mean Elevation	Mittlere Anhebung
 Mean Elevation [m.a.s.l]	Mittlere Anhebung [m.a.s.l] 
-Mean Flow Distance	
+Mean Flow Distance	Mittlere Fließentfernung
 Mean Value	Mittlerer Wert
 Mean Value (cell area weighted)	Mittlerer Wert (Zellbereich gewichtet)
 Mean less Standard Deviation	Mittelwert abzüglich Standardabweichung
@@ -1800,12 +1800,12 @@ Method	Methode
 Method (LS)	Methode (LS)
 Method (TWI)	Methode (TWI)
 Method for Lines	Methode für Linien
-Method for Multiple Values	
+Method for Multiple Values	Methode für multiple Werte
 Method range	Methodenbereich
 Method simple table	Methode einfache Tabelle
 Method single	Methode einzeln
 Method user supplied table	Methode durch Nutzer gelieferte Tabelle
-Metric Conversions	
+Metric Conversions	metrische Konvertierung
 Mid-Slope Positon	Mittlere Hangposition
 Miller Cylindrical	Miller Zylindrisch
 Min	minimal
@@ -1820,7 +1820,7 @@ MinDistDir
 Mine Sweeper	
 Minima	Minima
 Minimal Number of Points	Minimale Anzahl der Punkte
-Minimum	
+Minimum	Minimum
 Minimum Connectivity	Minimale Konnektivität
 Minimum Contour Value	Minimaler Isolinienwert
 Minimum Density [Percent]	Minimale Dichte [Prozent]
@@ -1831,7 +1831,7 @@ Minimum Exaggeration [%]	Minimale Überhöhung [%]
 Minimum Nash-Sutcliffe Efficiency	Minimale Nash-Sutcliffe Effizienz
 Minimum Nash-Sutcliffe Efficiency required to print simulation to calibration table	Minimale Nash-Sutcliffe Effizienz erfordert, dass die Simulation in die Kalibrierungstabelle übertragen wird
 Minimum Number of Observations	Minimale Anzahl der Beobachtungen
-Minimum Number of Points	
+Minimum Number of Points	Minimum Anzahl Punkte
 Minimum Segment Length (Cells)	Minimale Segmentlänge (Zellen)
 Minimum Size (Cells)	Minimale Größe (Zellen)
 Minimum Size [%]	Minimale Größe [%]
@@ -1842,15 +1842,15 @@ Minimum size	Minimalgröße
 Minimum size of basin (cells)	Minimale Größe des Becken (Zellen)
 Minimum slope gradient to preserve from cell to cell; with a value of zero sinks are filled up to the spill elevation (which results in flat areas). Unit [Degree]	Minimaler Neigungsgradient der von Zelle zu Zelle eingehalten werden soll [Grad]
 Minimum value of the range to be reclassified.	Minimaler Wert des neueinzuteilenden Bereichs
-Minimum/Maximum	
-Minimun	
+Minimum/Maximum	Minimum/Maximum
+Minimun	Minimum
 Minnaert Correction	Minnaert Korrektur
 Minnaert Correction with Slope (Law & Nichol 2004)	Minnaert Korrektur mit Neigung (Law & Nichol 2004)
 Minnaert Correction with Slope (Riano et al. 2003)	Minnaert Korrektur mit Neigung (Riano et al. 2003)
 Mirror	Spiegel
 Mixed Flow Threshold (ha)	Gemischter Strömungsschwellenwert (ha)
 Mode of operation	Operationsmodus
-Model	
+Model	Modell
 Model Parameters:	Modellparameter:
 Model parameter [m]	Modelparameter [m]
 Modelling hydrological processes.	Modellierung hydrologischer Prozesse.
@@ -1860,31 +1860,31 @@ Modified catchment area	Modifizierte Einzugsgebietsfläche
 Modify: post-processing...	Ändern: Nachbearbeitung...
 Modify: pre-processing...	Ändern: Vorbearbeitung...
 Module	Modul
-Module Description Source	
-Module Libraries	
+Module Description Source	Modulbeschreibung Quelle
+Module Libraries	Modulbibliotheken
 Module Library	Modulbibliothek
 Module Library Descriptions	Beschreibung Modulbibliothek
 Module Library Template	Modulbibliothek Vorlage
 Module Manager	Module Verwaltung
 Module Template	Module Vorlagen
-Modules	
+Modules	Module
 Modules for GPS data handling.	Module für GPS-Daten Handling. 
 Mollweide	
-Moment [h]	
+Moment [h]	Moment [h]
 Month	Monat
 Moore	
 Moore et al. 1991	
 Moran's I	
-Morphological Filter	
+Morphological Filter	Morphologischer Filter
 Morphometric Protection Index	Morphometrischer Sicherungsindex
-Mouths	
+Mouths	Münder
 Move	Verschieben
 Move Grid	Verschiebe Raster
 Moving window size = 1 + 2 * Neighborhood.	Bewegliche Fenstergröße = 1 + 2 * Umgebung
 Multi Direction Lee Filter	Mehrrichtungs Lee Filter
-Multi Scale Factor	
-Multi-Band Variation	
-Multilevel B-Spline Interpolation	
+Multi Scale Factor	Multiscale Faktor
+Multi-Band Variation	Multiband Variation
+Multilevel B-Spline Interpolation	Multilevel B-Spline Interpolation
 Multilevel B-Spline Interpolation (from Grid)	Multilevel B-Spline Interpolation (von Rastern)
 Multiple Flow Direction	Multiple Strömungsrichtungen
 Multiple Flow Direction (FD8)	Multiple Strömungsrichtungen (FD8)
@@ -1893,24 +1893,24 @@ Multiple Regression Analysis	Multiple Regressionsanalyse
 Multiple Regression Analysis (Points/Grids)	Multiple Regressionsanalyse (Punkte/Raster)
 Multiple Triangular Flow Directon	Multiple Triangulare Strömungsrichtung
 Multiplication	Multiplikation
-Multipoint	
+Multipoint	Multipoint
 Multiresolution Index of Valley Bottom Flatness (MRVBF)	Multiresolution Index für Talbodenplattheit (MRVBF)
 MySQL Data	MySQL Daten
-NAME	
+NAME	NAME
 NCELLS	NZELLEN
 NEIGHBORS	NACHBARN
-NEON	
-NODE_A	
-NODE_B	
+NEON	NEON
+NODE_A	KNOTEN_A
+NODE_B	KNOTEN_B
 NR	NR
 NSE|NSE high flow|NSE low flow	NSE|NSE hohe Strömung|NSE niedrige Strömung
-NTv2 Grid Shift Binary (*.gsb)	
+NTv2 Grid Shift Binary (*.gsb)	NTv2 Raster Shift Binary (*.gsb)
 NX	
 NY	
 N\xc3\xbamero of Monte-Carlo events	N\xc3\xbamero von Monte Carlo Ereignissen
-Name	
+Name	Name
 Name Field	Namensfeld
-Name by...	
+Name by...	Name durch...
 Natural Neighbour	Natürliche Nachbarn-Methode
 Navaladi, Schoeller, Conrad (c) 2009	
 Near Infrared Band	Nahes Infrarotband
@@ -1922,10 +1922,10 @@ Needs more memory, but is quicker	Benötigt mehr Speicher, ist aber schneller
 Neighborhood	Umgebung
 Neighborhood Type	Umgebungstyp
 Neighbourhood	Umgebung
-Neon	
+Neon	Neon
 Net Primary Production [Gt Carbon / a]	Netz Primär Produktion [Gt Kohlenstoff / a]
 Network Density [%]	Netzwerkdicht [%]
-Neumann	
+Neumann	Neumann
 New Grid Dimensions	Neue Rasterdimensionen
 New Shapes Layer	Neue Vektorebene
 New Value	Neuer Wert
@@ -1939,8 +1939,8 @@ New grid filtered with the destriping2 module	Neues Raster gefiltert mit dem des
 New grid filtered with the directional1 module	Neues Raster gefiltert mit dem directional1 Modul
 New table	Neue Tabelle
 New value.	Neuer Wert
-Newton [A]	
-Newton [B]	
+Newton [A]	Newton [A]
+Newton [B]	Newton [B]
 Newton-Raphson	
 Neys (Modified Lambert Conformal Conic)	Neys (Modifizierter Lambert-konformer Kegel) 
 Nitrogen in Rainfall [kg/ha/a]	Stickstoff im Niederschlag [kg/ha/a]
@@ -1959,14 +1959,14 @@ No tables available in database!	Keine Tabellen im Datenbestand verfügbar!
 No translation set by user	Keine Übersetzung durch den Nutzer ausgewählt
 NoData Value	NoDATA Wert
 NoData value(s) in statistic grid(s)!	NoData Wert(e) in Statistikraster(n)!
-NoDataValue	
+NoDataValue	NoData-Wert
 Node	Knoten
-Nodes	
+Nodes	Knoten
 Non-Linear Module	Nichtlineare Module
 None	Nichts
-Normalisation	
+Normalisation	Normalisation
 Normalise	Normalisieren
-Normalised	
+Normalised	Normalisiert
 Normalised Grid	Normalisiertes Raster
 Normalized	Normalisiert
 Normalized Difference Vegetation Index	Normalisierte Differenz Vegetationsindex
@@ -1978,17 +1978,17 @@ Not Null	Nicht null
 Not a PostgreSQL database!	Keine PostgreSQL Datenbank!
 Not a valid PostGIS database!	Kein gültiger PostGIS Datenbestand!
 Nothing to do: there is no intersection with additonal grid.	Nichts zu tun: es gibt keine Schnittmenge mit zusätzlichem Raster.
-November	
+November	November
 No|Yes|	Nein|Ja|
 Nugget	Brocken
 Number of Attributes	Anzahl der Attribute
 Number of Buffer Zones	Anzahl der Pufferzonen
-Number of Cells	
+Number of Cells	Anzahl der Zellen
 Number of Classes	Anzahl der Klassen
 Number of Clusters	Anzahl der Cluster
 Number of Colors	Anzahl Farben
 Number of Column Cells	Nummer der Spaltenzellen
-Number of Components	
+Number of Components	Anzahl der Komponenten
 Number of Different Classes	Anzahl verschiedener Klassen
 Number of Directions	Anzahl der Richtungen
 Number of Distance Classes	Anzahl der Entfernungsklassen
@@ -2007,7 +2007,7 @@ Number of Sectors	Anzahl der Sektoren
 Number of Simulations	Anzahl der Simulationen
 Number of Simulations for Calibration	Anzahl der Simulationen für die Kalibrierung
 Number of Steps	Anzahl der Schritte
-Number of Values	
+Number of Values	Anzahl der Werte
 Number of Variables	Anzahl der Variablen
 Number of additional attributes to import.	Anzahl der zusätzlichen Attribute die zu importieren sind.
 Number of atttribute table columns.	Nummer der Attributtabellenspalte
@@ -2015,7 +2015,7 @@ Number of clusters	Anzahl der Cluster
 Number of decimals when writing floating point values in ASCII format.	Anzahl der Dezimalstellen wenn Fließkommawerte im Ascii-Format gespeichert werden.
 Number of horizontal tiles	Anzahl horizontaler Kacheln
 Number of iterations, starts with search radius and increments with one cell by iteration.	Anzahl Iterationen, starten mit Suchradius und Zunahme mit einer Zelle je Iteration
-Number of nearest points, which will be evaluated for filtering. Set to zero to investigate all points in search radius.	
+Number of nearest points, which will be evaluated for filtering. Set to zero to investigate all points in search radius.	Anzahl der nächsten Punkte, die für die Filterung ausgenutzt werden. Setze auf null um alle Punkte im Suchradius zu untersuchen.
 Number of points	Anzahl Punkt
 Number of points in the simplified line	Punktanzahl in vereinfachter Linie
 Number of points on each side of the section	Anzahl der Punkte auf jeder Seite der Sektion
@@ -2045,25 +2045,25 @@ Offset Y	Verschiebung Y
 Offset Z	Verschiebung Z
 Offset and Range (X)	Verschiebung und Bereich (X)
 Offset and Range (Y)	Verschiebung und Bereich (Y)
-Ok	
+Ok	Ok
 Old Version	Alte version
 One per x	Einer per x
-Online Help	
-Only Header Info	
+Online Help	Online-Hilfe
+Only Header Info	Nur Überschriften Info
 Only Process Gaps with Less Cells	Nur Bearbeitung von Lücken mit wenigen Zellen
 OpenCV - Basic Morphological Operations	OpenCV - Grundlegende Morphologische Operationen
 OpenCV - Fourier Transformation	OpenCV - Fourier Transformation
 OpenCV - Single Value Decomposition	OpenCV - Einzelwertauflösung
-Opening	
-Operation	
-Operator Type	
+Opening	Öffnung
+Operation	Operation
+Operator Type	Operator Typ
 Operator scale	Operator Umfang
 Opposite Neighbours	entgegengesetzte Nachbarn
 Options	Optionen
 Options for Data Thumbnails	Optionen für Daten-Vorschaubilder
 Options for Map Thumbnails	Optionen für Karten-Vorschaubilder
 Options:\n - Less than\n - Equals\n - Greater than\nControls under which condition a channel is initiated.	Optionen:\n -Weniger als\n- Gleich\n - Größer als\nKontroliiert unter welchen Bedingungen ein Gewässer eingerichtet wird.
-Order	
+Order	Ordnung
 Order by	Sortiert nach
 Order by...	Sortiert nach..
 Ordered Weighted Averaging (OWA)	Sortierter gewichteter Durchschnitt (OWA)
@@ -2075,12 +2075,12 @@ Orientation	Orientierung
 Origin Height	Originalhöhe
 Origin Latitude	Original Breitengrad
 Original Image	Original Bild
-Orographic Coefficient	
+Orographic Coefficient	oorografischer Koeffizient
 Orthographic	Orthografisch
 Ouput	Ausgabe
 Outlet Hydrographs	Abflussganglinien
-Outlet X	
-Outlet Y	
+Outlet X	Auslass X
+Outlet Y	Auslass Y
 Output	Ausgabe
 Output (imaginary)	Ausgabe (imaginär)
 Output (real)	Ausgabe (real)
@@ -2091,7 +2091,7 @@ Output Lod	Ausgabe Erfassungsgrenze
 Output Seeds	Ausgabe Samen
 Output Type	Ausgabe Typ
 Output Unit	Ausgabe Einheit
-Output as...	
+Output as...	Ausgabe als...
 Output file	Ausgabe Datei
 Output format	Ausgabe Format
 Output grid	Ausgabe Raster
@@ -2113,7 +2113,7 @@ PDF File	PDF Dateien
 PDF Files	PDF Dateien
 PDF Files (*.pdf)|*.pdf|All Files|*.*	PDF Dateien (*.pdf)|*.pdf|Alle Dateien|*.*
 PERCENTILE	PERCENTILE
-PERIMETER	
+PERIMETER	UMFANG
 PFAC(	
 PNG Files	PNG Dateien
 PVI (Perry & Lautenschlager)	
@@ -2126,15 +2126,15 @@ Panorama Break [%]	Panoramaunterbrechung [%]
 Paper Format	Papierformat
 Parallel Processing	Parallel Verarbeitung
 Parallelepiped	Parallelflächner
-Parameter	
-Parameter (a)	
-Parameter (b)	
-Parameter (c)	
+Parameter	Parameter
+Parameter (a)	Parameter (a)
+Parameter (b)	Parameter (b)
+Parameter (c)	Parameter (c)
 Parameter (c) to fit streamflow volume	Parameter (c) um das Volumen der Gewässerströmung anzupassen
-Parameter (l)	
-Parameter (l) [lower bound]	
-Parameter (l) [upper bound]	
-Parameter (p)	
+Parameter (l)	Parameter (l)
+Parameter (l) [lower bound]	Parameter (l) [untere Grenze]
+Parameter (l) [upper bound]	Parameter (l) [obere Grenze]
+Parameter (p)	Parameter (p)
 Parameter (p) [lower bound]	Parameter (p) [untere Grenze]
 Parameter (p) [upper bound]	Parameter (p) [obere Grenze]
 Parameter A for Power Function Regression:\n   y = A * x ^ B	Parameter A für Power Funktion Regression:\n y = A * x ^ B
@@ -2198,7 +2198,7 @@ Point Cloud to Grid	Punktwolken von Rastern
 Point Cloud to Shapes	Punktwolken zu Vektoren
 Point Cloud to drop attribute from.	Punktwolken als Ziel für Attribute von..
 Point Cloud to reclassify/extract	Punktwolken zu reklassifizieren / Auszug
-Point Cloud with attribute dropped.	
+Point Cloud with attribute dropped.	Punktwolke mit Attributen ausgeschieden.
 Point Clouds	Punktwolken
 Point Data Record Format	Punktdaten Datensatzformat
 Point Grid	Punkt Raster
@@ -2209,40 +2209,40 @@ Point Statistics for Polygons	Punkt Statistik für Polygone
 Point clouds viewer.	Punktwolkenbetrachter.
 Point shapefile with source point(s)	Punkt Vektordatei mit Ausgangspunkten
 Point shapes import from text formated XYZ-table.	Punktvektoren Import von textformatierten XYZ-Tabellen.
-Point summary contains no points!	
+Point summary contains no points!	Punktzusammenfassung enthält keine Punkte!
 Points	Punkte
 Points Export	Punkte Export
-Points Filter	
+Points Filter	Punktfilter
 Points Import	Punkte Import
 Points Selection	Punkte Auswahl
-Points Thinning	
+Points Thinning	Punkte ausdünnen
 Points per Cell	Punkte je Zelle
 Points per Square	Punkte pro Quadrat
-Polar Angle Units	
-Polar Coordinate System	
+Polar Angle Units	Polar Winkel Einheiten
+Polar Coordinate System	Polar Koordinatensystem
 Polar Stereographic	Polar Stereographisch
 Polyconic	Polykonisch
-Polygon	
+Polygon	Polygon
 Polygon Centroids	Polygon Schwerpunkt
-Polygon Dissolve	
+Polygon Dissolve	Polygon auflösen
 Polygon Intersection	Polygon Schnittmenge
 Polygon Layers	Polygon Ebene
 Polygon Shape Indices	Polygon Vektor Indizes
-Polygon-Line Intersection	
+Polygon-Line Intersection	Polygonlinie Kreuzung 
 Polygons	Polygone
-Polygons to Edges and Nodes	
+Polygons to Edges and Nodes	Polygone zu Ecken und Kanten
 Polylines	Hilfslinien
-Polynom	
-Polynomial Coefficient	
-Polynomial Coefficients	
-Polynomial Regression	
-Polynomial Trend Quality	
-Polynomial Trend from Grids	
+Polynom	Polynom
+Polynomial Coefficient	Polynomial Koeffizient
+Polynomial Coefficients	Polynomial Koeffizienten
+Polynomial Regression	Polynominale Regression
+Polynomial Trend Quality	Polynomiale Trend Qualität
+Polynomial Trend from Grids	Polynominaler Trend für Raster
 Population	Population
 Port	Anschluss
 Portable Network Graphics	Portable Network Grafik
 Portable Network Graphics (*.png)	Portable Network Grafik (*.png)
-Position	
+Position	Position
 Positive values result in a shift in E direction.	Positive Werte resultieren in einem Verschieben in Ost-Richtung
 Positive values result in a shift in N direction.	Positive Werte resultieren in einem Verschieben in Nord-Richtung
 Possible error	möglicher Fehler
@@ -2265,7 +2265,7 @@ Pre-defined Formulas	Vordefinierte Formel
 Precipitation	Niederschlag
 Precipitation Column	Niederschlag Spalte
 Precipitation [mm]	Niederschlag [mm]
-Precise Tracing	
+Precise Tracing	exakte Nachverfolgung
 Predefined Datum	Vordefiniertes Datum
 Predefined Ellipsoids	Vordefinierte Ellipsoide
 Predefined Functions	vordefinierte Funktionen
@@ -2279,10 +2279,10 @@ Preprocessed DEM. If this is not set changes will be stored in the original DEM 
 Preserve Data Type	Erhalte Datentyp
 Primary Name	Primärer Name
 Primary key)	Primärer Schlüssel)
-Principal Components	
-Principle Components	
-Principle Components Analysis	
-Print only information available in LAS header.	
+Principal Components	hauptsächliche Komponenten
+Principle Components	prinzipielle Komponenten
+Principle Components Analysis	Prinzipielle Komponentenanalyse
+Print only information available in LAS header.	Drucke nur Informationen die in der LAS Kopfzeile verfügbar sind.
 Priority Index	Vorrangiger Index
 Probability Reference	Wahrscheinlichkeit Referenz
 Probability Threshold (Percent)	Wahrscheinlichkeitsschwellenwert (Prozent)
@@ -2328,8 +2328,8 @@ Proximity Grid	Nähe Raster
 Pythagoras' Tree	Pythagoras Baum
 QuadTree	
 QuadTree Structure to Shapes	QuadTree-Struktur für Vektoren
-Quadrant	
-Quadrants	
+Quadrant	Quadrant
+Quadrants	Quadranten
 Quadratic	Quadratisch
 Quadratic Neighbors	Quadratische Nachbarn-Methode
 Quadric: a + b * x + c * x^2	Quadratisch: a + b * x + c * x^2
@@ -2338,21 +2338,21 @@ Quality Measure	Qualitätsmaß
 Quantiles	Quantile
 Queen	Königin
 Queen's case	
-R,G,B value range	
+R,G,B value range	R,G,B Wertebereich
 R2	Bestimmtheitsmaß
 R:Alternatives	R:Alternativen
 R:Buffers	R:Puffer
 R:Catchment Area	R:Einzugsgebietsgrößen
 R:Classification	R:Klassifizierung
 R:Conversion	R:Umwandlung
-R:Conversions	
+R:Conversions	R:Umwandlungen
 R:Cost Analysis	R:Kostenauswertung
-R:Export	
+R:Export	R:Export
 R:Filter for Grids	R:Filter für Raster
 R:Fourier Analysis	R:Fourier Analyse
 R:Fragmentation Analysis	R:Fragmentierungsanalyse
 R:Grid Generation	R:Raster Erstellung
-R:Import	
+R:Import	R:Import
 R:Indices	R:Indizes
 R:Interpolation from Points	R:Interpolation von Punkten
 R:Lakes	R:Seen
@@ -2361,7 +2361,7 @@ R:Spline Interpolation	R:Spline Interpolation
 R:Terrain Analysis	R:Reliefanalyse
 R:Tools	R:Werkzeuge
 R:Values	R:Werte
-R:Wind	
+R:Wind	R:Wind
 R:Without Variogram Fit	R:Ohne Variogrammanpassung
 RAINBOW	REGENBOGEN
 RANGE	BEREICH
@@ -2377,12 +2377,12 @@ RGB coded data	RGB kodierte Daten
 RGBOverlay	RGB Overlay
 ROI_N	
 Radians	Radiant
-Radius	
+Radius	Radius
 Radius (Cells)	Radius (Zellen)
 Radius (cells)	Radius (Zellen)
-Radius X	
-Radius Y	
-Radius [Cells]	
+Radius X	Radius X
+Radius Y	Radius Y
+Radius [Cells]	Radius [Zellen]
 Radius is too small	Radius ist zu klein
 Radius is too small for your Standard Deviation	Radius ist zu klein für deine Standardabweichung
 Radius of Variance (Grid)	Radius der Varianz (Raster)
@@ -2391,11 +2391,11 @@ Rainbow	Regenbogen
 Random Field	Zufallsfeld
 Random Terrain Generation	zufällige Geländeerstellung
 Range	Bereich
-Range of R,G,B values in LAS file.	
-Rank	
-Rank Filter	
-Rank [Percent]	
-Raster Dimension	
+Range of R,G,B values in LAS file.	Bandbreite der R, G, B Werte in LAS Datei.
+Rank	Rang
+Rank Filter	Rang Filter
+Rank [Percent]	Rang [Prozent]
+Raster Dimension	Raster Dimension
 Raster Resolution (Pixel Size)	Raster Auflösung (Pixelgröße)
 Raster Resolution (Pixels Size)	Raster Auflösung (Pixelgröße)
 Raster Resolution (Pixels X)	Raster Auflösung (Pixel X)
@@ -2403,7 +2403,7 @@ Rate Constant for Litter Loss [1/a]	Rate Konstant für Abfallverlust [1/a]
 Ratio Vegetation Index	Verhältnis Vegetationsindex
 Raw Data File	unbearbeitete Datendatei
 Ray Tracing	Strahlverfolgung
-Real	
+Real	Reale Zahl
 Real Area Calculation	reale Flächenberechnung
 Real Area Grid	reales Flächenraster
 Recalculating all Regions Minimum Distances\n	Neuberechnung aller Bereiche minimaler Entfernungen\n
@@ -2447,7 +2447,7 @@ Removed Objects	entfernte Objekte
 Rename Fields	Feld umbenennen
 Replace Condition	Austauschbedingungen
 Replace with	Ersetze durch
-Report Unchanged Classes	
+Report Unchanged Classes	Report unveränderte Klassen
 Reports - HTML	Berichte - HTML
 Reports - PDF	Berichte - PDF
 Representativeness	Repräsentativität
@@ -2473,7 +2473,7 @@ Rho 8
 Right	Rechts
 Rill/Interrill Erosivity	Rinnsal/Erosivität
 River Heads	
-River Mouths	
+River Mouths	Mündungsgebiet
 Road Width	Strassenbreite
 Rook	
 Rook's case	Rook´s Fall
@@ -2521,7 +2521,7 @@ SVG - Scalable Vector Graphics Files (*.svg)	SVG - Scalable Vector Graphics Date
 SVG Interactive Map	SVG Interaktive Karte
 Sample Variogram	Proben Variogramm
 Samples in range	Proben im Bereich
-Sand	
+Sand	Sand
 Sandy Clay	sandiger Ton
 Sandy Clay-Loam	sandiger Ton-Lehm
 Sandy Loam	sandiger Lehm
@@ -2549,7 +2549,7 @@ Scale factors	Massstabsfaktoren
 Scaling	Skalieren
 Scaling Factor for Attribute Value	Massstabsfaktor für Attributwert
 Search Distance Increment	Suchdistanzerhöhung
-Search Distance [km]	
+Search Distance [km]	Such Entfernung [km]
 Search Mode	Suche Betriebsart
 Search Radius	Suche Radius
 Search Range	Suche Bereich
@@ -2563,29 +2563,29 @@ Secondary Name	untergeordneter Name
 Section	Sektion
 Sections	Sektionen
 Seed Generation	Keimgenerationen
-Seed Points	
+Seed Points	Keimpunkte
 Seed Value	Keimwert
 Seeds	Keime
 Seeds Grid	Keime Raster
 Seeds Only	Keime ausschließlich
-Segment ID	
+Segment ID	Segment ID
 Segmentation	Segmentierung
-Segmente	
+Segmente	Segmente
 Segments	Segmente
 Select * FROM test	Wähle * von Test
 Select Grid	Wähle Raster
 Select Grid System	Wähle Rastersystem
-Select Points	
+Select Points	Wähle Punkte
 Select Precipitation Column	Wähle Niederschlagsspalte
 Select Temperature Column	Wähle Temperaturspalte
-Select by Attributes... (Numerical Expression)	
-Select by Attributes... (String Expression)	
-Select by Location...	
+Select by Attributes... (Numerical Expression)	Wähle durch Attribut....(Numerischer Ausdruck)
+Select by Attributes... (String Expression)	Wähle durch Attribut....(Textausdruck)
+Select by Location...	Wähle durch Örtlichkeit...
 Select file	Wähle Datei
 Select from Subdatasets...	Wähle von Unterdatensätzen...
-Select if...	
+Select if...	Wähle wenn...
 Select operator: eg. min < value < max.	Wähle Operator: z.B. min < Wert < max.
-Select shapes that fulfil this condition	
+Select shapes that fulfil this condition	Wähle Vektoren die diese Bedingung erfüllen
 Select the Column containing Discharge Values	Wähle die Spalte die die Abflusswerte enthält
 Select the Column containing Temperature Values	Wähle die Spalte die die Temperaturwerte enthält
 Select the Column containing precipitation Values	Wähle die Spalte die die Niederschlagswerte enthält
@@ -2595,7 +2595,7 @@ Select the column containing the observed streamflow time series	Wähle die Spalt
 Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid.	Wähle die gewünschte Methode: 1. ein einzelner Wert oder ein durch einen einfachen Wert definierter Bereich wird neu eingeteilt, 2. ein Bereich von Werten wird neu eingeteilt, 3. die Nachschlagetabelle wird zur Neueinteilung des Rasters benutzt.
 Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value.	Wähle den gewünschten Operator (<;.;=; >;.); es ist auch möglich einen Bereich über oder unter dem alten Wert zu definieren.
 Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max).	Wähle den gewünschten Operator (min < Wert <max; min .Wert < max; min .Wert . Max; min < Wert . Max).
-Selection	
+Selection	Auswahl
 Selection Color	Farbauswahl
 Semi-Variances	Semi-Veränderungen
 Semi-Variogram	Semi-Variogramm
@@ -2611,18 +2611,18 @@ Semiminor axis or polar radius.	kleine Halbachse oder Polarradius
 Semivariance	Semi-Veränderungen
 Semivariogram	Semi-Variogramm
 Separate Line/Polygon Points	Trenne Linien/Polygonpunkte
-Separate by...	
+Separate by...	Separiere durch...
 Separate points by direction	Trenne Punkte durch Richtung
 Separator	Trennzeichen
 Separator (other)	Trennzeichen (andere)
-September	
-Server	
+September	September
+Server	Server
 Set Coordinate Reference System	Setze Koordinaten Referenz System (CRS)
 Set \'false\' to execute the calculation for each point in grid. Set \'true\' tu calculate the flow of one single cell.	Setze \'false\' um die Berechnung für jeden Punkt im Raster durchzuführen. Setze \'true\' um die Strömung für eine einzelne Zelle zu berechnen.
 Set extent by	Setze Ausdehnung durch
 Set true if you want multipart polygons to become separate polygons.	Gebe true ein wenn mehrteilige Polygone zu seperaten Polygonen werden sollen
 Shade	Schattierung
-Shading	
+Shading	Schattierung
 Shading Method	Schattierungsmethode
 Shall I activate file caching for new grid.	Soll der Dateipuffer für die neuen Rasterdaten aktiviert werden?
 Shape Index	Vektor Index
@@ -2640,7 +2640,7 @@ Shapes - Point Clouds	Vektoren - Punktwolken
 Shapes - Point Clouds Viewer	Vektoren - Punktwolkenbetrachter
 Shapes - Points	Vektoren - Punkte
 Shapes - Polygons	Vektoren - Polygone
-Shapes - TIN Viewer	
+Shapes - TIN Viewer	Vektoren - TIN Betrachter
 Shapes - Tools	Vektoren - Werkzeuge
 Shapes - Transects	Vektoren - Transekte
 Shapes Buffer	Vektorenpuffer
@@ -2650,7 +2650,7 @@ Shapes Manager	Vektordatenverwaltung
 Shapes Report	Vektorbericht
 Shapes Summary Report	Vektordaten Übersichtsbericht
 Shapes to Grid	Vektoren zu Raster umwandeln
-Shapes to Select From	
+Shapes to Select From	Vektoren aus denen gewählt wird
 Shapes to TIN	Vektoren zu TIN
 Shapes to project	abzubildende Vektoren
 Shapes_Merge	Verbundene Vektoren
@@ -2754,7 +2754,7 @@ Solar Constant [W / m\xb2]	Solarkonstante [W / m\xb2]
 Solar Position	Solarposition
 Solid style	durchgezogen
 Some Grid Analysis Tools.	Einige Rasterauswertungswerkzeuge
-Sommergerste	
+Sommergerste	Sommergerste
 Sort	Sortieren
 Sort Grid	Sortiere Raster
 Sort Table	Tabelle sortieren
@@ -2795,25 +2795,25 @@ Spline sensitivity, reduce to get smoother results, recommended: 80 < Tolerance 
 Split Channels	Trenne Kanäle
 Split Parts	Trenne Teile
 Split Shapes Layer	Trenne Vektorebenen
-Split Shapes Layer Completely	
+Split Shapes Layer Completely	Teile Vektorebenen vollkommen
 Split Shapes Layer Randomly	Vektorebene zufällig aufteilen
 Split Table/Shapes by Attribute	Teile Tabelle/Vektoren durch Attribut
 Square	Rechteck
 Squared Eccentricity (es)	quadratische Exzentrität
-Squares	
+Squares	Quadrate
 Stability	Stabilität
-Standard	
+Standard	Standard
 Standard (max. 90Degree)	Standard (max. 90 Grad)
 Standard Deviation	Standardabweichung
 Standard Deviation (Percent of Radius)	Standardabweichung (Prozent des Radius)
 Standard Distance	Standard Entfernung
 Standard Parallel	Standard Parallel
-Standard Score	
+Standard Score	Standard Treffer
 Standard Terrain Analysis	Standard Geländeanalyse
 Standard deviation	Standardabweichung
-Standard kernel 3	
-Standardisation	
-Standardised Grid	
+Standard kernel 3	Standard Kernel 3
+Standardisation	Standardisation
+Standardised Grid	Standardisiertes Raster
 Standardized Height	Standarisierte Höhe
 Start Project	Starte Projekt
 Start Value	Startwert
@@ -2841,12 +2841,12 @@ Stream Power	Strömungsenergie
 Stream Power Index	Strömungsenergie Index
 Streamflow (obs.) Column	Strömungsenergie (obs.) Spalte
 Streamflow Column	Strömungsenergie Spalte
-Stretch Factor	
+Stretch Factor	Stretch Faktor
 Strings in Quota	Zeichenkettenanteil
 Stripes distance	Streifen Entfernung
 Style	Stil
 Subbasin 	Teilbecken
-Subbasin Flow Distance	
+Subbasin Flow Distance	Teilbecken Fließentfernung
 Subbasin Inflow	Teilbecken Zufluss
 Subbasins	Teilbecken
 Subsurface flow [m/dt]	unterirdische Strömung [m/dt]
@@ -2854,14 +2854,14 @@ Subtitle	Untertitel
 Subtract Volumes Below Base Level	Ziehe Volumen unterhalb der Basislinie ab
 Subtraction	Subtraktion
 Sudoku	
-Sum	
-Sum of percentages	
+Sum	Summe
+Sum of percentages	Summe der Prozente
 Summary	Zusammenfassung
 Summary Table	tabellarische Zusammenfassung
 Summary table.	tabellarische Zusammenfassung.
 Summary:\n	Zusammenfassung:\n
 Summary_	Zusammenfassung_
-Sum|Min|Max|	
+Sum|Min|Max|	Summe|Min|Max
 Sunrise	Sonnenaufgang
 Sunset	Sonnenuntergang
 Supervised Classification	Überwachte Klassifizierung
@@ -2887,16 +2887,16 @@ TIN Centroids	TIN Schwerpunkte
 TIN Edges	TIN Kanten
 TIN Manager	TIN Manager
 TIN Triangles	TIN Dreiecke
-TIN Viewer	
-TIN Viewer Settings	
-TIN Voronoi	
+TIN Viewer	TIN Betrachter
+TIN Viewer Settings	TIN Betrachtereinstellungen
+TIN Voronoi	TIN Voronoi
 TIN to Shapes	TIN zu Vektoren
-TIN viewer.	
+TIN viewer.	TIN Betrachter.
 TIN_Gradient	TIN_Gradient
 TINs	TINs
-TIN|Visualisation	
+TIN|Visualisation	TIN|Visualisierung
 TMP Column: Subbasin: 	TMP Spalte: Teilbecken:
-TOPMODEL	
+TOPMODEL	TOPMODEL
 TOPMODEL - Simulation Output	TOPMODEL - Simulation Ausgabe
 TOT_N	
 TYPE	Typ
@@ -2942,7 +2942,7 @@ Target Parameters	Ziel Parameter
 Target Projection	Ziel Projektion
 Target Projection Error	Ziel Projektionsfehler
 Target Projection Parameters	Ziel Projektionsparameter
-Target Range	
+Target Range	Ziel Bereich
 Temperature (2pm) [DegreeC]	Temperatur (14.00 Uhr) [GradCelsius]
 Temperature Column	Temperatur Spalte
 Temperature Gradient [Deg.Celsius/km]	Temperatur Gradient [Grad.Celsius/km]
@@ -2968,7 +2968,7 @@ Terrain Analysis - Lighting, Visibility	Reliefanalyse - Beleuchtung, Sichtbarkei
 Terrain Analysis - Morphometry	Reliefanalyse - Morphometrie
 Terrain Analysis - Preprocessing	Reliefanalyse - Vorbearbeitung
 Terrain Analysis - Profiles	Reliefanalyse - Profile
-Terrain Analysis: Compound Analyses.\nThis library depends on the following SAGA module libraries:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometry\n- ta_preproc\n	
+Terrain Analysis: Compound Analyses.\nThis library depends on the following SAGA module libraries:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometry\n- ta_preproc\n	Reliefanalyse: Verbundanalyse. \nDiese Bibliothek hängt von folgenden SAGA Modulbibliotheken ab:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometriy\n- ta_preproc\n
 Terrain Analysis|Channels	Reliefanalyse|Gewässernetz
 Terrain Analysis|Hydrology	Reliefanalyse|Hydrologie
 Terrain Analysis|Lighting	Reliefanalyse|Beleuchtung
@@ -3013,7 +3013,7 @@ Thin Plate Spline (Global)
 Thin Plate Spline (Local)	Thin Plate Spline (Lokal)
 Thin Plate Spline (TIN)	
 Thin Plate Spline: solving matrix	Thin Plate Spline: Lösungsmatrix
-Thinned Points	
+Thinned Points	Ausgedünnte Punkte
 This grid indicates the cells you want calculate the average.	Dieses Raster zeigt die Zellen an mit denen der Durchschnitt berechnet wird.
 This grid is used to select cells.	Dieses Raster wird benutzt um Zellen auszuwählen.
 This is a Test!!!	Dieses ist ein Test!!
@@ -3022,7 +3022,7 @@ This is the horizontal component of the overland flow	Dieses ist die horizontale
 This is the vertical component of the overland flow	Dieses ist die vertikale Komponente der Überlandströmung
 This must be your input data of type grid.	Dieses müssen Deine Eingabedaten des Typs Rasterdaten sein.
 This must be your input data of type shapes.	Dieses müssen Deine Eingabedaten des Typs Vektordaten sein.
-This option does not apply to simple point layers.	
+This option does not apply to simple point layers.	Diese Option kann nicht mit einfachen Punktebenen angewendet werden.
 This optional grid output contains the interpolated channel network base level elevations.	Diese optionale Rasterdatenausgabe  enthält die interpolierte Gewässernetzwerk Ausgangshöhe.
 This shapes layer will contain the resulting channel network in vector format (lines).	Diese Vektorebene enthält das resultierende Gewässernetz im Vektorformat (Linien).
 This value is ignored if set to zero.	Dieser Wert wird ignoriert wenn er auf Null gesetzt wird.
@@ -3124,323 +3124,323 @@ Tracing: Max. Divergence	Überwachung: max. Abweichung (Divergenz)
 Tracing: Stop after x cells with divergent flow	Überwachung: Anhalten nach x Zellen mit abweichender Fließrichtung
 Tracing: Weight	Überwachung: Gewichtung
 Training Areas	Trainingsgebiete
-Transactions	
-Transect through polygon shapefile	
-Transfer Coefficients	
+Transactions	Transaktionen
+Transect through polygon shapefile	Transsekte durch Polygon Vektordatei
+Transfer Coefficients	Transfer Koeffizient
 Transform Point Cloud	Wandle Punktwolken um
 Transform Shapes	Vektordaten umwandeln
-Transformation	
+Transformation	Transformation
 Transformed	Umgewandelt
 Transformed Vegetation Index	Umgewandelter Vegetationsindex
 Transitional	vorübergehend
-Translation	
-Translation X	
-Translation Y	
-Translation Z	
-Translation: X	
-Translation: Y	
-Transmissivity	
+Translation	Umsetzung
+Translation X	Umsetzung X
+Translation Y	Umsetzung Y
+Translation Z	Umsetzung Z
+Translation: X	Umsetzung: X
+Translation: Y	Umsetzung: Y
+Transmissivity	Transmissivität
 Transparency	Transparenz
-Transversal radius	
-Transverse Cylindrical Equal Area	
-Transverse Mercator	
+Transversal radius	Transversaler Radius
+Transverse Cylindrical Equal Area	Transversal Zylindrisch flächengleich
+Transverse Mercator	Transverse Merkator
 Tree	Baum
-Trend	
-Trend Surface	
+Trend	Trend
+Trend Surface	Trend Oberfläche
 Trend for Shapes Data	Trend für Vektordaten
 Trend for Table Data	Trend für Tabellendaten
 Triangles	Dreiecke
-Triangulation	
-True Scale Latitude	
+Triangulation	Triangulation
+True Scale Latitude	Wahrer Massstab Breitengrad
 TwFAC(	
-Two Parallel Storages	
-Two Storages in Series	
-Two Storages in Series !!! not yet implemented !!!	
+Two Parallel Storages	Zwei parallele Speicherungen
+Two Storages in Series	Zwei Speicherungen in Serie
+Two Storages in Series !!! not yet implemented !!!	Zwei Speicherungen in Serie!!!Noch nicht implementiert!!!
 Type	Typ
-Type in a value that shall be used for the chosen mathematical operation.	
-Type of Approximated Function	
-Type of Output	
-Type of Quality Measure	
-Type of Surface	
-Type of distance calculation	
-Type of smoothing	
-USGS SRTM Grids (*.hgt)|*.hgt|All Files|*.*	
-Unable to open LAS file!	
-Unable to open input file!	
-Unable to read points from LAS file!	
-Unclassified	
+Type in a value that shall be used for the chosen mathematical operation.	Gib einen Wert an der für die gewählte mathematische Operation genutzt werden soll.
+Type of Approximated Function	Typ der Näherungsfunktion
+Type of Output	Typ der Ausgabe
+Type of Quality Measure	Typ der Qualitätsmessung
+Type of Surface	Typ der Oberfläche
+Type of distance calculation	Type der Entfernungsberechnung
+Type of smoothing	Typ der Glättung
+USGS SRTM Grids (*.hgt)|*.hgt|All Files|*.*	USGS SRTM Raster (*.hgt)|*.hgt|Alle Dateien|*.*
+Unable to open LAS file!	LAS Datei kann nicht geöffnet werden
+Unable to open input file!	Eingabedatei kann nicht geöffnet werden!
+Unable to read points from LAS file!	Punkte von der LAS Datei können nicht gelesen werden!
+Unclassified	Unklassifiziert
 Undefined Coordinate System	undefiniertes Koordinatensystem
 Undetermined	unbestimmt
 Uniform	einheitlich
 Union	Verbindung
-Unique	
-Unit	
-Unit Name	
-Units	
-Units for output radiation values.	
+Unique	einmalig
+Unit	Einheit
+Unit Name	Einheitenname
+Units	Einheiten
+Units for output radiation values.	Einheiten für Ausgabe Strahlungswerte.
 Universal Kriging	
 Universal Kriging (Global)	
 Universal Kriging (VF)	
 Universal Kriging (VF, Global)	
-Universal Transvers Mercator (UTM)	
-Unknown	
-Unsaturated zone time delay per unit storage deficit [h]	
+Universal Transvers Mercator (UTM)	Universal Transvers Mercator (UTM)
+Unknown	Unbekannt
+Unsaturated zone time delay per unit storage deficit [h]	Unsaturierte Zone Zeitverzögerung pro Einheit Speicherdefizit [h]
 Up-Scaling	Heraufskalieren
 Up/Down	Auf/Ab
-Update	
+Update	Aktualisiere
 Update View	Aktualisiere Ansicht
-Update Views	
+Update Views	Aktualisiere Ansichten
 Update cluster view while clustering.	Aktualisiere Gruppenansicht während der Gruppenbildung
-Update view during simulation.	
+Update view during simulation.	Aktualisiere Ansicht während der Simulation.
 Upper Tolerance	Obere Toleranz
-Upslope Area	
-Upslope Basins	
+Upslope Area	Hochgelegene Flächen
+Upslope Basins	Hochgelegene Becken
 Use 5 percent confidence interval	Nutze 5 Prozent Vertrauensintervall
 Use Confidence Interval	Nutze Vertrauensintervall
-Use D8 if catchment area becomes higher than specified threshold (Cells).	
-Use D8 if catchment area becomes higher than specified threshold.	
+Use D8 if catchment area becomes higher than specified threshold (Cells).	Benutze D8 wenn das Einzugsgebiet größer wird als der spezifische Schwellenwert (Zellen).
+Use D8 if catchment area becomes higher than specified threshold.	Benutze D8 wenn das Einzugsgebiet größer wird als der spezifische Schwellenwert.
 Use Offset	Nutze Versatz
-Use Pyramids	
-Use Pyramids with New Version	
-Use Surfer's No-Data Value	
-Use Target Area Polygon	
-Use Z-Range	
-Use only seed cells as starting points.	
-Use sky view factor based on local slope (after Oke 1988), if no sky viev factor grid is given.	
+Use Pyramids	Benutze Pyramiden
+Use Pyramids with New Version	Benutze Pyramiden mit neuer Version
+Use Surfer's No-Data Value	Benutze Surfer's No-Data Wert
+Use Target Area Polygon	Benutze Zielflächen-Polygon
+Use Z-Range	Benutze Z-Bereich
+Use only seed cells as starting points.	Benutze nur Keimzellen als Startpunkte.
+Use sky view factor based on local slope (after Oke 1988), if no sky viev factor grid is given.	Benutze Himmelblickfaktor basierend auf lokaler Neigung (nach Oke 1988), wenn kein Himmelsblickfaktorraster gegeben ist.
 Use the stipple bitmap	Benutze die verschattete Bitmap
 Use the user dashes	Benutze den benutzerdefinierten Strich
 Use this option to reclassify No-Data values independently of the method settings.	Nutze diese Option um No-Data-Werte unabhängig von der Methodenauswahl neu zu berechnen.
 Use this option to reclassify all other values that are not specified in the options above.	Nutze diese Option um alle anderen Werte die nicht in den obengenannten Optionen ausgewählt wurden neu zu berechnen.
 Use x -Values	Benutze x -Werte
 User	Benutzer
-User Defined	
-User Defined Datum	
+User Defined	Benutzerdefiniert
+User Defined Datum	Benutze definiertes Datum
 User Defined Extent	Benutzdefinierter Auszug
-User Defined Filter	
+User Defined Filter	Benutzerdefinierter Filter
 User Defined Grid	Nutzerdefiniertes Raster
-User Defined Grid System	
-User Defined Kernel	
-User Defined No Data Value	
-User Defined NoData Value	
-User Defined Polynomial	
+User Defined Grid System	Benutzerdefiniertes Rastersystem
+User Defined Kernel	Benutzerdefinierter Kernel
+User Defined No Data Value	Benutzerdefinierter No-Data Wert
+User Defined NoData Value	Benutzerdefinierter NoData-Wert
+User Defined Polynomial	Benutzerdefiniertes Polynom
 User Name	Benutzername
 User defined	Benutzerdefiniert
-User defined Orientation	
-User defined Zero Direction	
+User defined Orientation	Benutzerdefinierte Orientierung
+User defined Zero Direction	Benutzerdefinierte Nullrichtung
 User defined grid	Benutzerdefinertes Raster
 User defined range	Benutzerdefinierter Bereich
-User defined rank	
+User defined rank	Benutzerdefinierter Rang
 User defined rescale	Benutzerdefinierte Massstabsänderung
-Username	
-Using temperature data?	
-Using the snow-melt module?	
+Username	Nutzername
+Using temperature data?	Temperaturdaten anwenden?
+Using the snow-melt module?	Benutzung des Schneeschmelz-Moduls?
 VALUE	WERT
 VARIANCE	VARIANZ
 VARIATION	
-Valley Depth	
+Valley Depth	Taltiefe
 Value	Wert
-Value (Maximum)	
-Value Aggregation	
-Value Count	
+Value (Maximum)	Wert (Maximum)
+Value Aggregation	Wertanhäufung
+Value Count	Werte Zählung
 Value Grid	Wert Raster
 Value Preparation	Wertaufbereitung
 Value Range	Wertebereich
 Value as RGB Code	Wert als RGB Code
-Value for 'no data'	
+Value for 'no data'	Wert für 'no data'
 Value in Grid 1	Wert in Raster 1
 Value in Grid 2	Wert in Raster 2
-Value of Target Function	
-Value of right cells in the Mask Grid	
+Value of Target Function	Wert der Zielfunktion
+Value of right cells in the Mask Grid	Werte der rechten Zellen im Maskenraster
 Value to be replaced	zu ersetzender Wert
 Value to reclassify.	neu zu berechnender Wert
 Value which is assigned to the dummy grid.	Wert der Attrappenraster zugeordnet ist
 Values	Werte
-Values between A and B increase from 0 to 1, values between B and C will be set to 1.	
-Values between B and C will be set to 1, values between C and D decrease from 1 to 0.	
-Values greater than D will be set to 0.	
-Values lower than A will be set to 0.	
+Values between A and B increase from 0 to 1, values between B and C will be set to 1.	Werte zwischen A und B wachsen von 0 auf 1, Werte zwischen B und C werden auf 1 gesetzt.
+Values between B and C will be set to 1, values between C and D decrease from 1 to 0.	Werte zwischen B und C werden auf 1 gesetzt, Werte zwischen C und D vermindern sich von 1 auf 0.
+Values greater than D will be set to 0.	Werte größer als D werden auf 0 gesetzt.
+Values lower than A will be set to 0.	Werte kleiner als A werden auf 0 gesetzt.
 Van der Grinten	
 Variance	Streuung
-Variance (version 1)	
-Variance (version 2)	
-Variance Radius	
-Variance in Feature Space	
-Variance in Position Space	
-Variogram	
-Variogram (Dialog))	
-Variogram Cloud	
-Variogram Model	
-Variogram Surface	
+Variance (version 1)	Varianz (Version 2)
+Variance (version 2)	Varianz (Version 2)
+Variance Radius	Varianzradius
+Variance in Feature Space	Varianz im Eigenschaftenraum
+Variance in Position Space	Varianz in Position Raum
+Variogram	Variogramm
+Variogram (Dialog))	Variogramm (Dialog))
+Variogram Cloud	Variogramm Wolke
+Variogram Model	Variogramm Modell
+Variogram Surface	Variogramm Oberfläche
 Various Authors	Verschiedene Autoren
 Various authors.	verschiedene Autoren
-Vector Ruggedness Measure (VRM)	
-Vector Terrain Ruggedness (VRM)	
+Vector Ruggedness Measure (VRM)	Vektor Rauhheitmessung (VRM)
+Vector Terrain Ruggedness (VRM)	Vektor Geländerauheit (VRM)
 Vectorised class as...	Vektorisierte Klasse als..
 Vectorising Grid Classes	Rasterklassen vektorisieren
 Vegetation Index[distance based]	Vegetationsindex [entfernungsbasiert]
 Vegetation Index[slope based]	Vegetationsindex [neigungsbasiert]
-Vegetation Indices	
+Vegetation Indices	Vegetationsindex
 Velocidad del viento	
 Velocidad del viento (km/h)	
-Version	
-Vertex Distance [Degree]	
-Vertical (drainage) flux [m/dt]	
-Vertical Distance	
-Vertical Distance to Channel Network	
-Vertical Overland Flow Distance	
+Version	Version
+Vertex Distance [Degree]	Scheitelpunktentfernung [Grad]
+Vertical (drainage) flux [m/dt]	Vertikale (drainierende) Strömung [m/dt]
+Vertical Distance	Vertikale Entfernung
+Vertical Distance to Channel Network	Vertikale Entfernung zum Gewässernetz
+Vertical Overland Flow Distance	Vertikale Überland Fließentfernung
 Vertical Range	Vertikaler Bereich
 Vertical hatch	vertikale Schraffur
 Vertically mirrored	vertikal gespiegelt
-ViGrA - Basic Morphological Operations	
-ViGrA - Distance	
-ViGrA - Edge Detection	
-ViGrA - Fourier Filter	
-ViGrA - Fourier Transform	
-ViGrA - Fourier Transform (Real)	
-ViGrA - Fourier Transform Inverse	
-ViGrA - Smoothing	
-ViGrA - Watershed Segmentation	
+ViGrA - Basic Morphological Operations	ViGrA - Grundlegende Morphologische Operationen
+ViGrA - Distance	ViGrA - Entfernung
+ViGrA - Edge Detection	ViGrA - Eckendetektion
+ViGrA - Fourier Filter	ViGrA - Fourier Filter
+ViGrA - Fourier Transform	ViGrA - Fourier Transformation
+ViGrA - Fourier Transform (Real)	ViGrA - Fourier Transformation (reale Zahlen)
+ViGrA - Fourier Transform Inverse	ViGrA - Fourier Transformation invers
+ViGrA - Smoothing	ViGrA - Glättung
+ViGrA - Watershed Segmentation	ViGrA - Wasserscheidenaufteilung
 Victor Olaya (c) 2004	
 Victor Olaya (c) 2005	
-Visibility	
-Visibility (single point)	
-Visible Sky	
+Visibility	Sichtbarkeit
+Visibility (single point)	Sichtbarkeit (einzelner Punkt)
+Visible Sky	Sichtbarer Himmel
 Vol. +	
 Vol. -	
 Volker Wichmann (c) 2010, LASERDATA GmbH	
 Volume: %f	Volumen: %f
-Volumes	
+Volumes	Inhalt
 W	
-WARNING	
-WARNING: %d invalid points skipped!	
-WARNING: Skipping misformatted line (%.0f)!	
+WARNING	Warnung
+WARNING: %d invalid points skipped!	WARNUNG: %d ungültige Punkte unterdrückt!
+WARNING: Skipping misformatted line (%.0f)!	WARNUNG: Unterdrücke falsch formatierte Linien (%.0f)!
 WARNING: selected attribute is not numeric; generating unique identifiers instead.	Warnung: das ausgewählte Attribut ist nicht numerisch; erzeuge stattdessen eindeutige Identifizierer.
-WASP Map Files (*.map)	
-WHITE_BLUE	
-WHITE_GREEN	
-WHITE_RED	
-WKT Files (*.wkt)	
-Wa-Tor	
-Water	
-Water Content [cm]	
-Water Retention Capacity	
-Water Vapour Pressure [mbar]	
-Water content change across the wetting front	
-Water content of a vertical slice of atmosphere in cm: 1.5 to 1.7, average=1.68	
-Watershed Basins	
-Watershed Basins (Extended)	
-Watershed Segmentation	
+WASP Map Files (*.map)	WASP Kartendatei (*.map)
+WHITE_BLUE	WEISS_BLAU
+WHITE_GREEN	WEISS_GRÜN
+WHITE_RED	WEISS_ROT
+WKT Files (*.wkt)	WKT Dateien (*.wkt)
+Wa-Tor	Wa-Tor (Räuber-Beute-Beziehung)
+Water	Wasser
+Water Content [cm]	Wassergehalt [cm]
+Water Retention Capacity	Wasserrückhaltevermögen
+Water Vapour Pressure [mbar]	Wasserporendruck [mbar]
+Water content change across the wetting front	Wassergehalt schwankt zwischen der Befeuchtungsfront
+Water content of a vertical slice of atmosphere in cm: 1.5 to 1.7, average=1.68	Wassergehalt in einer vertikalen Scheibe der Atmosphäre in cm: 1,5 bis 1,7, Durchschnitt = 1,68
+Watershed Basins	Wassereinzugsgebietsbecken
+Watershed Basins (Extended)	Einzugsgebietsbecken (erweitert)
+Watershed Segmentation	Wassereinzugsgebietsgliederung
 Watershed Subbasins	
-We must keep the coordinates, please choose another field than x, y, or z!	
+We must keep the coordinates, please choose another field than x, y, or z!	Die Koordinaten müssen behalten werden, bitte ein anderes feld als x, y, oder z auswählen!
 Weight	Gewichtung
-Weight for Red Grid out of range (0..100) - Cannot execute module	
+Weight for Red Grid out of range (0..100) - Cannot execute module	Wichtung für Rotraster außerhalb des Bereichs (0..100) - Kann Modul nicht ausführen
 Weight for grid 	Gewichtung für Raster
 Weighted	Gewichtet
-Weighting	
+Weighting	Gewichtung
 Weighting Neighbors	Gewichtete Nachbarn
 Weights	Massen
-Well Known Text File	
-West	
-West []	
+Well Known Text File	Well Known Text Datei
+West	West
+West []	West []
 West-East	West/Ost
-Wetness Index	
-Wetness decline time constant (Tw)	
-Wetness index	
-Wetness index calculation...	
-Wetting front suction [m]	
-Where	
+Wetness Index	Feuchtigkeitsindex
+Wetness decline time constant (Tw)	Feuchtigkeitsrückgang Zeit konstant (Tw)
+Wetness index	Feuchtigkeitsindex
+Wetness index calculation...	FeuchtigkeitsindexBerechnung...
+Wetting front suction [m]	Befeuchtungsfrontsog [m]
+Where	Wohin
 Width	Breite
 Width (Cells)	Breite (Zellen)
-Width of gradient filter	
-Wind Direction	
-Wind Direction (degrees clockwise from north)	
-Wind Direction Units	
-Wind Effect	
-Wind Effect (Windward / Leeward Index)	
-Wind Speed	
-Wind Speed (m/s)	
-Wind Speed Scale Factor	
-Wind direction (degrees clockwise from north)	
-Wind speed (m/s)	
+Width of gradient filter	Weite des Gradientenfilters
+Wind Direction	Windrichtung
+Wind Direction (degrees clockwise from north)	Windrichtung (Grad im Uhrzeigersinn aus Nord)
+Wind Direction Units	Windrichtung Einheiten
+Wind Effect	Windeffekt
+Wind Effect (Windward / Leeward Index)	Windeffekt (Windwärts / Leewärts Index)
+Wind Speed	Windgeschwindigkeit
+Wind Speed (m/s)	Windgeschwindigkeit (m/s)
+Wind Speed Scale Factor	Windgeschwindigkeit Massstabsfaktor
+Wind direction (degrees clockwise from north)	Windrichtung (Grad im Uhrzeigersinn aus Nord)
+Wind speed (m/s)	Windgeschwindigkeit (m/s)
 Windows or OS/2 Bitmap	Windows oder OS/2 Bitmap
-Windows or OS/2 Bitmap (*.bmp)	
-Windward Effect	
+Windows or OS/2 Bitmap (*.bmp)	Windows oder OS/2 Bitmap (*.bmp)
+Windward Effect	Windwärts Effekt
 Wintergerste	
 Winterraps	
 Winterroggen	
 Winterweizen	
-Wire Frame Color	
-Wood Fuel Moisture	
-Write Field Names	
-Write all calculated Time Series in a table?	
+Wire Frame Color	Drahtrahmen Farbe
+Wood Fuel Moisture	Energieholzfeuchte
+Write Field Names	Schreibe Feldnamen
+Write all calculated Time Series in a table?	Schreibe alle berechneten Zeitserien in eine Tabelle?
 X	
-X Axis	
-X Column	
+X Axis	X Achse
+X Column	X Spalte
 X Component	X Komponente
-X Coordinates	
-X Position	
+X Coordinates	X Koordinate
+X Position	X Position
 X Values	X Werte
-X is Column ...	
+X is Column ...	X ist Spalte...
 X offset	X Versatz
 X, Y	
 X, Y, Z	
 X, Y, Z, M	
-X-Coordinate	
+X-Coordinate	X-Koordinate
 X-Extent	X-Abmessung
-X-Range	
-X-Rotation	
+X-Range	X-Bereich
+X-Rotation	X-Rotation
 X11 Pixel Map	X11 Pixelkarte
-XYZ Files (*.xyz)	
-XYZ export filter for shapes. 	
-XYZ files (*.xyz)	
+XYZ Files (*.xyz)	XYZ Dateien (*.xyz)
+XYZ export filter for shapes. 	XYZ Export Filter für Vektoren.
+XYZ files (*.xyz)	XYZ Dateien (*.xyz)
 Y	
 Y = a * X^b (power)	
 Y = a + b * X (linear)	
-Y = a + b * ln(X) (logarithmic)	
+Y = a + b * ln(X) (logarithmic)	Y = a + b *ln(X) (logarithmisch)
 Y = a + b / X	
 Y = a / (b - X)	
-Y = a e^(b * X) (exponential)	
-Y Axis	
-Y Column	
+Y = a e^(b * X) (exponential)	Y = a e^(b * X) (exponentiell)
+Y Axis	Y Achse
+Y Column	Y Spalte
 Y Component	Y Komponente
-Y Coordinates	
-Y Position	
+Y Coordinates	Y Koordinate
+Y Position	Y Position
 Y Values	Y Werte
-Y is Column ...	
+Y is Column ...	Y ist Spalte...
 Y offset	Y Versatz
-Y-Coordinate	
+Y-Coordinate	Y-Koordinate
 Y-Extent	Y-Abmessung
-Y-Range	
-Y-Rotation	
-YELLOW_BLUE	
-YELLOW_GREEN	
-YELLOW_RED	
+Y-Range	Y-Bereich
+Y-Rotation	Y-Rotation
+YELLOW_BLUE	GELB_BLAU
+YELLOW_GREEN	GELB_GRÜN
+YELLOW_RED	GELB_ROT
 You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n	Du musst eine Neueinteilungstabelle mit Minimum (Feld 1), Maximum (Feld 2) und Kodewert (Feld 3) auswählen!\n
 You must specify a reclass table with a minimium of one record!\n	Du musst eine Neueinteilungstabelle mit mindestens einem Datensatz auswählen!\n
 Z	
-Z Attribute	
-Z Axis	
-Z Multiplier	
+Z Attribute	Z Attribute
+Z Axis	Z Achse
+Z Multiplier	Z Multiplikator
 Z Value	Z Wert
 Z Values	Z Werte
-Z [max]	
+Z [max]	Z [max]
 Z [max_sd]	
-Z [mean]	
-Z [min]	
+Z [mean]	Z [mittel]
+Z [min]	Z [min]
 Z [min_sd]	
-Z is Column ...	
-Z-Range	
-Z-Rotation	
-ZONE	
+Z is Column ...	Z ist Spalte...
+Z-Range	Z-Bereich
+Z-Rotation	Z-Rotation
+ZONE	ZONE
 Zero	Null
 Zevenbergen & Thorne	
-Zonal Statistics	
-Zone	
-Zone Grid	
+Zonal Statistics	Zonenstatistik
+Zone	Zone
+Zone Grid	Zonenraster
 Zoom View	Zoomblick
-Zsoft Paintbrush	
-Zsoft Paintbrush (*.pcx)	
-Zuckerrueben	
+Zsoft Paintbrush	Zsoft Paintbrush
+Zsoft Paintbrush (*.pcx)	Zsoft Paintbrush (*.pcx)
+Zuckerrueben	Zuckerrüben
 [BTN] Add	Hinzufügen
 [BTN] Add All	Alles Hinzufügen
 [BTN] Apply	Übernehmen
@@ -3493,7 +3493,7 @@ Zuckerrueben
 [CAP] Default Size	voreingestellte Größe
 [CAP] Defaults	Voreinstellungen
 [CAP] Delete	Löschen
-[CAP] Delete History Entries	
+[CAP] Delete History Entries	Entferne Verlaufseinträge
 [CAP] Description	Beschreibung
 [CAP] Diagram	Diagramm
 [CAP] Display	Darstellung
@@ -3542,7 +3542,7 @@ Zuckerrueben
 [CAP] Index	
 [CAP] Input	Eingabe
 [CAP] Interpolated	Interpoliert
-[CAP] Interpolation	
+[CAP] Interpolation	Interpolation
 [CAP] Label	Bezeichnung
 [CAP] Layers	Ebenen
 [CAP] Legend	Legende
@@ -3569,7 +3569,7 @@ Zuckerrueben
 [CAP] Map Selection	Kartenauswahl
 [CAP] Map-Layout	Karten-Layout
 [CAP] Maps	Karten
-[CAP] Maximum	
+[CAP] Maximum	Maximum
 [CAP] Maximum Value	Maximalwert
 [CAP] Mean	Mittelwert
 [CAP] Memory	Speicher
@@ -3585,7 +3585,7 @@ Zuckerrueben
 [CAP] Module Libraries	Modulbibliotheken
 [CAP] Module Library	Modulbibliothek
 [CAP] Modules	Module
-[CAP] Name	
+[CAP] Name	Name
 [CAP] No Data	Keine Daten
 [CAP] No Data Cells	Keine Datenzellen
 [CAP] No Data Value	Keine Datenwerte
@@ -3604,8 +3604,8 @@ Zuckerrueben
 [CAP] Outline	Umrandung
 [CAP] Outline Color	Umrandungsfarbe
 [CAP] Outline Size	Umrandungsgröße
-[CAP] Overlay 1	
-[CAP] Overlay 2	
+[CAP] Overlay 1	Overlay 1
+[CAP] Overlay 2	Overlay 2
 [CAP] Parameters	Parameter
 [CAP] Perspectivic Distance	Perspektivischer Abstand
 [CAP] Point Cloud	Punktwolken
@@ -3619,7 +3619,7 @@ Zuckerrueben
 [CAP] Project File	Projektdatei
 [CAP] Projection	Projektion
 [CAP] Properties	Eigenschaften
-[CAP] RGB Overlay	
+[CAP] RGB Overlay	RGB Overlay
 [CAP] Records	Datensätze
 [CAP] Regression Details	Regressionsdetails
 [CAP] Regression Formula	Regressionsformel
@@ -3686,8 +3686,8 @@ Zuckerrueben
 [CAP] Value Range	Wertebereich
 [CAP] Value Type	Wertetyp
 [CAP] Values	Werte
-[CAP] Version	
-[CAP] Vertex Type	
+[CAP] Version	Version
+[CAP] Vertex Type	Eckpunkttyp
 [CAP] Vertical Align	vertikale Ausrichtung
 [CAP] Weight	Wichtung
 [CAP] West	West
@@ -3708,20 +3708,20 @@ Zuckerrueben
 [CMD] Add Project	Projekt hinzufügen
 [CMD] Add Record	Datensatz hinzufügen
 [CMD] Add Shape	Objekt hinzufügen
-[CMD] Anaglyph [S]	
+[CMD] Anaglyph [S]	Anaglyph [S]
 [CMD] Arrange Icons	Symbole anordnen
 [CMD] Backward	Zurück
 [CMD] Cascade	Überlappend
 [CMD] Central Projection	Zentralprojektion
 [CMD] Clear	Löschen
-[CMD] Clear History	
+[CMD] Clear History	Lösche Verlauf
 [CMD] Close	Schließen
 [CMD] Close All	Alle schliessen
 [CMD] Convert To Table	In Tabelle umwandeln
 [CMD] Copy	Kopieren
-[CMD] Copy Legend to Clipboard [Ctrl+L]	
-[CMD] Copy Legend to Clipboard...	
-[CMD] Copy Map to Clipboard [Ctrl+C]	
+[CMD] Copy Legend to Clipboard [Ctrl+L]	Kopiere Legende zur Zwischenablage [Strg + L]
+[CMD] Copy Legend to Clipboard...	Kopiere Legende zur Zwischenablage...
+[CMD] Copy Map to Clipboard [Ctrl+C]	Kopiere Karte zur zwischenablage [Strg + C]
 [CMD] Copy Settings from other Layer	Kopiere Einstellungen von anderer Ebene
 [CMD] Create HTML Documentation	Erzeuge HTML Dokumentation
 [CMD] Create Lookup Table	Nachschlagetabelle erstellen
@@ -3731,7 +3731,7 @@ Zuckerrueben
 [CMD] Decrease Diagram Size	Diagrammgröße verringern
 [CMD] Decrease Exaggeration [F1]	Überhöhung verringern [F1]
 [CMD] Decrease Eye Distance	Verringere Augenentfernung
-[CMD] Decrease Legend Size	
+[CMD] Decrease Legend Size	Verkleinere Legendengröße
 [CMD] Decrease Perspectivic Distance [F5]	Verringere perspektivische Distanz [F5]
 [CMD] Delete All Positions	Alle Positionen löschen
 [CMD] Delete All Records	Entferne alle Datensätze
@@ -3757,7 +3757,7 @@ Zuckerrueben
 [CMD] Increase Diagram Size	Diagrammgröße vergrößern
 [CMD] Increase Exaggeration [F2]	Überhöhung verstärken [F2]
 [CMD] Increase Eye Distance	Augendistanz vergrößern
-[CMD] Increase Legend Size	
+[CMD] Increase Legend Size	Vergrößere Legendengröße
 [CMD] Increase Perspectivic Distance [F6]	perspektivische Distanz vergrößern
 [CMD] Insert Record	Datensatz einfügen
 [CMD] Interpolated Colors	Interpolierte Farben
@@ -3855,9 +3855,9 @@ Zuckerrueben
 [DAT] Point	Punkt
 [DAT] Point Cloud	Punktwolke
 [DAT] Points	Punkte
-[DAT] Polygon	
+[DAT] Polygon	Polygon
 [DAT] Shapes	Vektordaten
-[DAT] TIN	
+[DAT] TIN	TIN
 [DAT] Table	Tabelle
 [DAT] Undefined	Undefiniert
 [DAT] [not set]	[nicht gesetzt]
@@ -3865,10 +3865,10 @@ Zuckerrueben
 [DLG] Add layer to selected map	Datensatz zu ausgewählter Karte hinzufügen
 [DLG] Delete selected point(s).	Entferne ausgewählte Punkt(e).
 [DLG] Delete selected shape(s).	Ausgewählte Vektordatenelemente löschen
-[DLG] Depth	
+[DLG] Depth	Tiefe
 [DLG] Invalid parameters!	Ungültige Parameter
 [DLG] Please enter a numeric value:	Bitte geben Sie einen Zahlenwert ein:
-[DLG] Save changes?	Änderungen speichern?
+[DLG] Save changes?	Änderungen übernehmen?
 [DLG] Scale 1 : 	Maßstab 1 : 
 [DLG] Select a layer to copy settings from it.	Eine Ebene zum Kopieren der Einstellungen auswählen.
 [DLG] Set selected values to no data.	Auswahl als \'Keine Daten\' markieren.
@@ -3887,7 +3887,7 @@ Zuckerrueben
 [ERR] Invalid library	Ungültige Bibliothek
 [ERR] Library could not be loaded	Bibliothek konnte nicht geöffnet werden
 [ERR] Library does not contain any modules	Bibliothek enthält keine Module
-[ERR] Library does not contain executable modules	
+[ERR] Library does not contain executable modules	[ERR] Bibliothek enthält keine ausführbaren Module
 [ERR] Library has already been loaded	Bibliothek wurde bereits geladen
 [ERR] Module caused access violation!	Modul erzeugt Zugriffsverletzung!
 [ERR] Shape file could not be opened.	Vektordatei konnte nicht geöffnet werden
@@ -3914,7 +3914,7 @@ Zuckerrueben
 [FLD] Grid	Raster
 [FLD] Icon	Piktogramm
 [FLD] Index Layer	Index Schicht
-[FLD] Name	
+[FLD] Name	Name
 [FLD] PDF Document	PDF Dokument
 [FLD] Paper Format	Papierformat
 [FLD] Rotate X	Drehung X
@@ -3945,7 +3945,7 @@ Zuckerrueben
 [MNU] Sequencer	Sequenzer
 [MNU] Shapes	Vektordaten
 [MNU] Shift	Verschiebung
-[MNU] TIN	
+[MNU] TIN	TIN
 [MNU] Table	Tabelle
 [MNU] Window	Fenster
 [MSG] Build Histogram...	Histogramm erstellen...
@@ -4006,7 +4006,7 @@ Zuckerrueben
 [PRM] Map Width [Pixels]	Kartenbreite (Pixel)
 [PRM] Node	Knoten
 [PRM] Options	Optionen
-[PRM] Parameter	
+[PRM] Parameter	Parameter
 [PRM] Parameters	Parameterliste
 [PRM] Point Cloud	Punktwolke
 [PRM] Point Cloud list	Punktwolke auflisten
@@ -4017,15 +4017,15 @@ Zuckerrueben
 [PRM] Shapes	Vektordaten
 [PRM] Shapes list	Liste von Vektordaten
 [PRM] Static table	Statische Tabelle
-[PRM] TIN	
+[PRM] TIN	TIN
 [PRM] TIN list	TIN Liste
 [PRM] Table	Tabelle
 [PRM] Table field	Tabellenfeld
 [PRM] Table list	Liste von Tabellen
 [PRM] Tables	Tabellen
-[PRM] Text	
+[PRM] Text	Text
 [PRM] Value range	Wertebereich
-[PRM] Zoom	
+[PRM] Zoom	Zoom
 [TXT] Close all data sets	Alle Datensätze schliessen
 [TXT] Do you want to delete the selection?	Wollen Sie die Auswahl entfernen?
 [TXT] Do you want to exit SAGA?	Wollen Sie SAGA beenden?
@@ -4036,10 +4036,10 @@ Zuckerrueben
 [TXT] This is not a text!	Dieses ist kein Text!
 [TXT] grid system	Rastersystem
 [TXT] grid systems	Rastersysteme
-[VAL] B-Spline	
+[VAL] B-Spline	B-Spline
 [VAL] Backward Diagonal	Schräg nach links
 [VAL] Bicubic Spline	Bikubischer Spline
-[VAL] Bilinear	
+[VAL] Bilinear	Bilinear
 [VAL] Cross	Gekreuzt
 [VAL] Cross Diagonal	Schräg gekreuzt
 [VAL] Dot And Dash	Punkt und Strich
@@ -4047,9 +4047,9 @@ Zuckerrueben
 [VAL] File Cache	Dateipuffer
 [VAL] Forward Diagonal	Schräg nach rechts
 [VAL] Graduated Color	Abgestufter Farbverlauf
-[VAL] Horizontal	
+[VAL] Horizontal	Horizontal
 [VAL] Inverse Distance	Umgekehrte Distanz
-[VAL] Linear	
+[VAL] Linear	Linear
 [VAL] Logarithmic (down)	Logarithmisch (nach rechts)
 [VAL] Logarithmic (up)	Logarihmisch (nach links)
 [VAL] Long Dashed	Lange Striche
@@ -4058,16 +4058,16 @@ Zuckerrueben
 [VAL] New	Neu
 [VAL] No objects	Keine Objekte
 [VAL] None	Nicht vorhanden
-[VAL] Normal	
+[VAL] Normal	Normal
 [VAL] Opaque	Undurchsichtig
-[VAL] RGB	
-[VAL] RGB Overlay	
+[VAL] RGB	RGB
+[VAL] RGB Overlay	RGB Overlay
 [VAL] RTL Compression	RTL Komprimierung
 [VAL] Screen	Bildschirm
 [VAL] Shade	Schummerung
 [VAL] Short Dashed	Kurze Striche
 [VAL] Solid	Solide
-[VAL] Transparent	
+[VAL] Transparent	Transparent
 [VAL] Unique Symbol	Einheitliches Symbol
 [VAL] Vertical	Vertikal
 [VAL] [all grid systems]	[alle Rastersysteme]
@@ -4085,7 +4085,7 @@ Zuckerrueben
 [VAL] scale to size range	Skaliere zu Größenbereich
 [VAL] yes	ja
 [not set]|	[nichts ausgewählt]|
-\n** Error : Invalid parameters **\n	
+\n** Error : Invalid parameters **\n	\n**Fehler : Ungültige Parameter **\n
 \nError: Please verify your xMin, yMin, xMax, yMax settings!\n	\nFehler: Bitte überprüfe deine xMin, yMin, xMax, yMax Einstellungen!\n
 \nError: the method Extent by Grid(s) requires grid(s) as input!\n	\nFehler: Die Methode Ausdehnung durch Raster erfordert ein Raster als Eingabe!\n
 \nError: the method Extent by Shape(s) requires shape(s) as input!\n	\nFehler: Die Methode Ausdehnung durch Vektoren erfordert eine Vektordatendatei als Eingabe!\n
@@ -4102,60 +4102,60 @@ a + b * (1 - exp(-x / c))
 a + b - a * b	
 a + b / x	
 a(q)	
-a(q) [lower bound]	
-a(q) [upper bound]	
-a(s)	
-a(s) [lower bound]	
-a(s) [upper bound]	
-abort export	
+a(q) [lower bound]	a(q) [untere Grenze]
+a(q) [upper bound]	a(q) [obere Grenze]
+a(s)	a(s)
+a(s) [lower bound]	a(s) [untere Grenze]
+a(s) [upper bound]	a(s) [obere Grenze]
+abort export	breche Export ab
 absolute	absolut
 access violation	Fehlerhafter Speicherzugriff
-add to current selection	
-additive	
+add to current selection	füge zu aktueller Auswahl zu
+additive	zusätzlich
 after	nach
-aggregating inside regions\n	
-aggregating over all the grid\n	
+aggregating inside regions\n	sammle in regionen an\n
+aggregating over all the grid\n	über alle Raster ansammeln\n
 all attributes	alle Attribute
 all classes	alle Klassen
 all directions	alle Richtungen
-all entities	
-all lines	
+all entities	alle Einträge
+all lines	alle Linien
 all points	alle Punkte
 all points in search radius	alle Punkte im Suchradius
 all polygons	alle Polygone
-all quadrants	
+all quadrants	alle Quadranten
 all shapes	Alle Vektoren
 analysing training areas	berechne Übungsfläche
 another grid	andere Rasterdaten
 append	Anhängen
-append records, if table structure allows	
-appending to existing table	
+append records, if table structure allows	füge Datensatz hinzu, wenn Tabellenstruktur es erlaubt
+appending to existing table	füge an bestehende Tabelle an
 approximating points...	Punkte angleichend…
-are completely within	
-are in the specified directory.\n	
-area	
-arrow	
-arrow (centered to cell)	
+are completely within	sind vollkommen in
+are in the specified directory.\n	sind in der ausgewählten Richtung.\n
+area	Fläche
+arrow	Pfeil
+arrow (centered to cell)	Pfeil (zu Zelle zentriert)
 ascending	aufsteigend
-at least two contents (sand, silt, clay) have to be given	
-attribute	
-attribute contains search expression	
+at least two contents (sand, silt, clay) have to be given	mindestens zwei Komponenten (Sand, Schluff, Ton) müssen angegeben werden
+attribute	Attribut
+attribute contains search expression	Attribut enthält Suchbegriff
 attribute field	Attributfeld
-attribute is contained in search expression	
-attribute is identical with search expression	
-attribute to be searched; if not set all attributes will be searched	
+attribute is contained in search expression	Attribut ist im Suchbegriff enthalten
+attribute is identical with search expression	Attribut ist identisch mit dem Suchbegriff
+attribute to be searched; if not set all attributes will be searched	Attribute die zu durchsuchen sind; wenn nichts angegeben ist werden alle Attribute durchsucht
 author      	Autor
 automatically save and load	automatisch speichern und laden
 available module libraries	verfügbare Modulbibliotheken
 average	Durchschnitt
 b(q)	
-b(q) [lower bound]	
-b(q) [upper bound]	
+b(q) [lower bound]	b(q) [untere Grenze]
+b(q) [upper bound]	b(q) [obere Grenze]
 ball	Ball
 bar	Balken
 bar (not outlined)	Balken (nicht umrandet)
 before	vor
-bi-linear saddle	
+bi-linear saddle	bilinearer Sattel
 binary	binär
 binary encoding	binäre Verschlüsselung
 bit	
@@ -4163,26 +4163,26 @@ black > blue	schwarz > blau
 black > green	schwarz > grün
 black > red	schwarz > rot
 black hat	
-blue channel color	
+blue channel color	Blaukanal Farbe
 bottom	Unten
-bottom / left	
+bottom / left	unten / links
 bright - dark	hell - dunkel
-built-in	
-calculate averages	
-calculate gradient magnitude	
-calculate gradients	
-calculating initial distances\n	
+built-in	eingebaut
+calculate averages	berechnete Durchschnitte
+calculate gradient magnitude	berechne Gradient der Magnitude
+calculate gradients	berechnete Gradienten
+calculating initial distances\n	berechne initiale Entfernungen\n
 calculating splines...	Splines berechnend…
 cannot execute interactive module	interaktives Modul kann nicht ausgeführt werden
-cell area	
-cells	
+cell area	Zellfläche
+cells	Zellen
 center	zentriert
-center cell's aspect direction	
+center cell's aspect direction	Mittelpunktszelle Bezugsrichtung
 central	zentral
 change	Wechsel
 character string	Zeichenkette
-check this in case parameter 'water' is absolute water level	
-check this in case seed cells are coded with absolute water level	
+check this in case parameter 'water' is absolute water level	überprüfe dieses in dem Fall dass der Parameter 'Wasser' der absolute Wasserspiegel ist 
+check this in case seed cells are coded with absolute water level	überprüfe dieses im Fall das Keimzellen mit dem absoluten Wasserspiegel kodiert sind
 circle	Kreis
 circle in rhombus	Kreis in Rhombus
 circle in square	Kreis in Quadrat
@@ -4192,43 +4192,43 @@ circle with rhombus	Kreis mit Rhombus
 circle with square	Kreis mit Quadrat
 circle with triangle (down)	Kreis mit Dreieck (Spitze abwärts)
 circle with triangle (up)	Kreis mit Dreieck (Spitze aufwärts)
-class identification	
-classification	
-clay content given as percentage	
-clean up temporary data structures\n	
-clockwise	
-closing	
+class identification	Klassenidentifikation
+classification	Klassifikation
+clay content given as percentage	Tongehalt als Prozentanteil
+clean up temporary data structures\n	räume temporäre Datenstrukturen auf\n
+clockwise	im Uhrzeigersinn
+closing	Stilllegung
 color	Farbe
 color (rgb)	Farbe (RGB)
 colors	Farben
 columns	Spalten
-comma	
-comma (,)	
-commit	
-completely contain	
+comma	Komma
+comma (,)	Komma (,)
+commit	verbinde
+completely contain	komplett umschlossen
 completely contained	vollkommen umschlossen
 confirm	Bestätige
 confirm with options	Bestätige mit Optionen
-constant wind direction to be used if no direction grid is given	
-contain the centeroid of	
+constant wind direction to be used if no direction grid is given	konstante Windrichtung wird benutzt wenn kein Richtungsraster gegeben ist
+contain the centeroid of	enthalte den Flächenschwerpunkt von
 continue	fortsetzen
-coordinates (offset, range, cell size, tile size)	
+coordinates (offset, range, cell size, tile size)	Koordinaten (Versatz, Bereich, Zellgröße, Kachelgröße)
 copyrights (c) 2006 Stefan Liersch	
-corner	
-correlation matrix	
-could not commit/rollback transactions.	
-could not connect ODBC source	
-could not create geometry field	
+corner	Ecke
+correlation matrix	Korrelationsmatrix
+could not commit/rollback transactions.	konnte nicht verbinden/ wiederhole Transaktionen
+could not connect ODBC source	konnte nicht mit ODBC Quelle verbinden
+could not create geometry field	konnte kein Geometriefeld erzeugen
 could not create index: insufficient memory	Index konnte nicht erzeugt werden: nicht genügend Speicher
-could not initialize point search engine	
-could not open data source	
-counterclockwise	
-create data source	
-create layer	
+could not initialize point search engine	konnte die Punkt Suchmaschine nicht initialisieren
+could not open data source	konnte Datenquelle nicht öffnen
+counterclockwise	gegen den Uhrzeigersinn
+create data source	erstelle Datenquelle
+create layer	Erzeuge Ebene
 creating batch file example	erzeuge Batch-Datei als Beispiel
 creating interpolator	erzeuge Interpolator
-cross	
-cubic surface	
+cross	Kreuz
+cubic surface	kubische Oberfläche
 cyan - white	cyan - weiß
 cylinder	Zylinder
 dX	
@@ -4241,399 +4241,399 @@ dark - bright	dunkel - hell
 database table does not exist	Datentabelle existiert nicht
 date	Datum
 date (dd.mm.yyyy)	Datum (dd.mm.yyyy)
-day	
+day	Tag
 default	Standard
 default (same brightness)	Standard (gleiche Helligkeit)
-degree	
-degree to radians	
-delete data source	
-delete feature	
-delete layer	
+degree	Grad
+degree to radians	Grad zu Radian
+delete data source	Entferne Datenquelle
+delete feature	Entferne Merkmal 
+delete layer	Entferne Ebene
 descending	absteigend
-destriping1 filter for Grids	
-destriping2 filter for values in a specified range (min-max)	
-digital elevation model	
-digital elevation model [m]	
+destriping1 filter for Grids	Destriping1 Filter für Raster
+destriping2 filter for values in a specified range (min-max)	Destriping2 Filter für Werte in einem spezifizierten Bereich (min-max)
+digital elevation model	Digitales Höhenmodell
+digital elevation model [m]	Digitales Höhenmodell [m]
 digitzing a polygon	Digitalisiere ein Polygon
-dilation	
-direction of scan flag	
-direction to the center cell	
-directional components (A = x, B = y)	
-directional1 average for Grids	
-distance	
+dilation	Streckung
+direction of scan flag	Richtung des Scanflag
+direction to the center cell	Richtung zu der zentralen Zelle
+directional components (A = x, B = y)	gerichtete Komponenten (A = x, B = y)
+directional1 average for Grids	gerichteter1 Durchschnitt für Raster
+distance	Entfernung
 do not confirm	nicht bestätigen
-do not join	
+do not join	nicht verbinden
 do not show	nicht anzeigen
-do not update	
-down	
+do not update	nicht updaten
+down	unten
 dragging a box	Zeichne einen Kasten
-driver not found.	
-dropping table	
+driver not found.	Treiber nicht gefunden.
+dropping table	Tabelle abwerfen
 duplicates have been identified.	Duplikate müssen erst identifiziert werden
 e	
 each island as separated polygon	jede Insel als abgetrenntes Polygon
-edge collection	
-edge detection	
-edge of flight line flag	
-elevation	
-elevation and roughness	
-ellipse	
+edge collection	Ecken Sammlung
+edge detection	Ecken Detektion
+edge of flight line flag	Ecke des Fluglinien Flag
+elevation	Erhöhung
+elevation and roughness	Erhebung und Rauigkeit
+ellipse	Ellipse
 empty	leer
 empty coded function	leere Funktion
 empty input list	leere Eingabeliste
-empty or corrupted file	
-enumeration	
-equal intervals	
-erosion	
+empty or corrupted file	leere oder beschädigte Datei 
+enumeration	Aufzählung
+equal intervals	gleiche Intervalle
+erosion	Erosion
 error	Fehler
-exclude range	
-executable modules	
+exclude range	Ausschlussbereich
+executable modules	ausführbare Module
 executing module	Modulausführung
-existing grid system	
-explained cumulative variance	
-explained variance	
-exponential	
+existing grid system	bestegendes Rastersystem
+explained cumulative variance	ausgeführte kumulative Varianz
+explained variance	ausgeführte Varianz
+exponential	exponential
 exponential weighting scheme	exponentiell gewichtetes Schema
-extent of lake, coded with local water depth	
-extent of lake, coded with water depth	
-faces	
-faces and wire	
+extent of lake, coded with local water depth	Ausdehnung des Sees, kodiert mit lokaler Wassertiefe
+extent of lake, coded with water depth	Ausdehnung des Sees, kodiert mit Wassertiefe
+faces	Oberflächen
+faces and wire	Oberflächen und Draht
 failed	fehlgeschlagen
 failed to create index for grid	gescheitert beim Erstellen eines Index für Raster
 failed to create index for table	gescheitert beim Erstellen eines Index für Tabelle
-failed to initialise search engine	
-failed: could not find a suitable import driver	
-feature space	
-feature space and position	
+failed to initialise search engine	fehlgeschlagen die Suchmaschine zu initialisieren
+failed: could not find a suitable import driver	Fehlgeschlagen: konnte keinen passenden Treiber finden
+feature space	Merkmal Raum
+feature space and position	Merkmal Raum und Position
 field cannot be mapped to binary object	Feld kann nicht als binäres Objekt abgebildet werden
-fifth order polynom	
-file could not be opened	
-file could not be opened.	
-file not found	
-find local minima	
+fifth order polynom	Polynom fünfter Ordnung
+file could not be opened	Datei konnte nicht geöffnet werden
+file could not be opened.	Datei konnte nicht geöffnet werden.
+file not found	Datei nicht gefunden
+find local minima	finde lokale Minima
 first	zu Erst
-first order polynom (linear regression)	
+first order polynom (linear regression)	Polynom erster Ordnung (lineare Regression)
 first value	erster Wert
 first value in order of grid list	erster Wert in Reihenfolge der Liste der Raster
-fit to each grid	
-fit to overall 1.5 standard deviation	
-fit to overall 2.0 standard deviation	
-fit to overall range	
+fit to each grid	passe an alle Raster an
+fit to overall 1.5 standard deviation	insgesamt anpassen an 1.5 Standardabweichung
+fit to overall 2.0 standard deviation	insgesamt anpassen an 2.0 Standardabweichung
+fit to overall range	Insgesamt anpassen Bereich
 fit to page	an Seite anpassen
-fit to value	
-fitting a polynom of ith order needs at least i + 1 parameter sets given	
+fit to value	anpassen an Wert
+fitting a polynom of ith order needs at least i + 1 parameter sets given	bei Anwendung eines Polynoms i-ter Ordnung werden abschließend i + 1 Parametersätze benötigt
 fixed cell height	feste Zellenhöhe
 fixed value	fester Wert
-floating point	
-flow directions...	
-flow width (original)	
-fourth order polynom	
-function evaluations	
-function fitting failed !	
-function norm	
+floating point	Fließkomma
+flow directions...	Fließrichtung...
+flow width (original)	Fließweite (original)
+fourth order polynom	Polynom vierter Ordnung
+function evaluations	Funktionsauswertung
+function fitting failed !	Funktionsanpassung fehlgeschlagen !
+function norm	Funktionsnorm
 function not found	Funktion nicht gefunden
 function table full	Funktionstabelle voll
 fvec	
-gaussian	
-gaussian kernel	
-gaussian weighting	
+gaussian	Gaussche
+gaussian kernel	gausscher kernel
+gaussian weighting	Gaussche Gewichtung
 gaussian weighting scheme	gewichtetes Gaussches Schema
-geographical	
-given in degree clockwise from North direction	
-gps-time	
-gradient (degree)	
-gradient (tangens)	
+geographical	Geographisch
+given in degree clockwise from North direction	gegeben in Grad im Uhrzeigersinn von der Nordrichtung
+gps-time	GPS-Zeit
+gradient (degree)	Gradient (Grad)
+gradient (tangens)	Gradient (tangens)
 green > blue	grün > blau
 green > grey > blue	grün > grau > blau
 green > red > blue	grün > rot > blau
-green channel color	
+green channel color	Grünkanal Farbe
 greyscale	Graustufen
 grid	Raster
-grid cells	
-grid nodes	
+grid cells	Rasterzellen
+grid nodes	Rasterknoten
 grid project	Rasterprojekt
-grid system	
+grid system	Rastersystem
 guam	
 h	
-have their centroid in	
-heads and mouths...	
-height	
+have their centroid in	haben ihren Mittelpunkt in
+heads and mouths...	Köpfe und Münder...
+height	Höhe
 highest z	höchster z
-horizontal	
-if empty shapes layers's name is used as table name	
+horizontal	horizontal
+if empty shapes layers's name is used as table name	wenn Name einer leeren Vektorebene als Tabellenname benutzt wird
 if less than 100, it is distinguished between interior and core forest	wenn weniger als 100, ist es kennzeichnend zwischen Innerem- und Kernwald
 image	Bild
 immediate	direkt
 improper function syntax	unsachgemäße Funktionssyntax
-incidence calculation	
-include range	
+incidence calculation	Vorkommensberechnung
+include range	Bereich einschließen
 index out of bounds	Index außerhalb der Regeln
-initialisation error	
-initialising gradient...	
-initialising planetary bending...	
-initialization	
+initialisation error	Initialisierungsfehler
+initialising gradient...	initialisiere Gradient...
+initialising planetary bending...	Initialisiere planetarische Beugung...
+initialization	Initialisierung
 input	Eingabe
 input file	Eingabedatei
-instable (thawing)	
-intensity	
+instable (thawing)	unstabil (tauend)
+intensity	Intensität
 interactive	interaktiv
 interpolating	interpolierend
 interpolating grid: 	interpoliere Raster:
-intersect	
+intersect	Schnittmenge
 intersects	Schnittmenge
-invalid E00 file	
-invalid control points	
-invalid field selection	
-invalid filter matrix	
-invalid formula !	
-invalid geographic coordinate system / datum	
-invalid grid system	
+invalid E00 file	ungültige E00 Datei
+invalid control points	ungültige Kontrollpunkte
+invalid field selection	ungültige Feldauswahl
+invalid filter matrix	ungültige Filtermatrix
+invalid formula !	ungültige Formel!
+invalid geographic coordinate system / datum	ungültiges geographisches Koordinaten System / Datum
+invalid grid system	ungültiges Rastersystem
 invalid input	unzulässige Eingabe
 invalid module libraries path	falscher Dateipfad zur Modulbibliothek
 invalid number of parameters	unzulässige Zahl an Parametern
-invalid or empty shapes layer	
-invalid points have been skipped	
-invalid points layer	
-invalid utm zone	
+invalid or empty shapes layer	ungültige oder leere Vektorebene 
+invalid points have been skipped	ungültige Punkte wurden übersprungen
+invalid points layer	ungültige Punktebene
+invalid utm zone	ungültige UTM Zone
 inverse distance to a power	inverse Entfernung zu einem Schwerpunkt
-inverse transformation not available	
+inverse transformation not available	inverse Umwandlung nicht verfügbar
 is ignored if set to zero	wird nicht berücksichtigt wenn auf Null gesetzt
 j-shaped	j-förmig
-k factor	
-keep maxima (with tolerance)	
-keep minima (with tolerance)	
-keep original line attributes	
-label minima	
+k factor	k Faktor
+keep maxima (with tolerance)	behalte Maxima (mit Tolernz)
+keep minima (with tolerance)	behalte Minima (mit Toleranz)
+keep original line attributes	behalte originale Linienattribute
+label minima	Bezeichnungsminima
 last	zu Letzt
 last opened	zuletzt geöffnet
 last value	letzter Wert
-least significant first	
+least significant first	geringst signifikanter zuerst
 left	links
 level	Level
 level 1	Level 1
 level 2	Level 2
 library name	Bibliotheksname
 library path	Bibliothekspfad
-line simplification can only be applied to lines and polygons	
-linear	
+line simplification can only be applied to lines and polygons	Linienvereinfachung kann nur bei Linien oder Polygonen angewendet werden
+linear	linear
 linearly decreasing within search radius	mit dem Suchradius linear abnehmend
-lines	
-lines with same attribute value(s)	
-loading	
-local time	
-local water depth or absolute water level at the user specified cell	
-localhost	
+lines	Linien
+lines with same attribute value(s)	Linien mit gleichem Attributwert(en)
+loading	ladend
+local time	Lokale Zeit
+local water depth or absolute water level at the user specified cell	lokale Wassertiefe oder absoluter Wasserstand an der vom Benutzer festgelegten Zelle
+localhost	localhost
 lowest z	niedrigster z
 m	
 m2	
 m2/h	
 magenta - white	magenta - weiß
 mahalanobis distance	Mahalanobisentfernung
-main basins...	
-mark breaks in first line	
+main basins...	Hauptbecken...
+mark breaks in first line	Markiere Unterbrechungen in erster Zeile
 masking...	maskieren…
-match input data	
-mathematical	
-matrix initialisation failed	
-max	
+match input data	Ordne Eingabe-Werte zu
+mathematical	mathematisch
+matrix initialisation failed	Matrix-Initialisierung fehlgeschlagen
+max	max
 max(0, a + b - 1)	
-max(a, b) (non-interactive)	
+max(a, b) (non-interactive)	max(a, b) (nicht interaktiv)
 max. change	max. Wechsel
 max_sd	
-maxima	
-maximum	
+maxima	maxima
+maximum	maximum
 maximum likelihood	Maximale Wahrscheinlichkeit
-maximum number of calculated first components; set to zero to get all	
-maximum number of observations	
+maximum number of calculated first components; set to zero to get all	maximale Anzahl der berechneten ersten Komponenten; setzte auf null um alle zu bekommen
+maximum number of observations	maximale Anzahl Beobachtungen
 maximum number of points	maximale Anzahl der Punkte
 maximum value	Maximalwert
 maximum x value	maximaler x-Wert
 maximum y value	maximaler y-Wert
-maximun value	
+maximun value	Maximum Wert
 mean	Mittel
 mean value	Mittelwert
 merging grid	verschmelze Raster
-min	
+min	min
 min < value < max	min < Wert < max
 min < value <= max	min < Wert <= max
 min <= value < max	min <= Wert < max
 min <= value <= max	min <= Wert <= max
 min(1, a + b)	
-min(a, b) (non-interactive)	
+min(a, b) (non-interactive)	min(a,b) (nicht interaktiv)
 min_sd	
-minima	
-minima and maxima	
+minima	minima
+minima and maxima	minima und maxima
 minimum	Minimum
 minimum distance	Minimale Entfernung
-minimum slope angle preserved from one cell to the next, zero results in flat areas [Degree]	
+minimum slope angle preserved from one cell to the next, zero results in flat areas [Degree]	minimaler Neigungswinkel bewahrt von einer Zelle zur nächsten, Null als Ergebnis in flachen Gebieten [Grad]
 minimum value	Minimalwert
 minimum x value	minimaler x-Wert
 minimum y value	minimaler y-Wert
-minimun value	
+minimun value	minimum Wert
 missing operand	fehlender Operand
 module	Modul
 module library	Modulbibliothek
 module library not found	Modulbibliothek nicht gefunden
 module name 	Modulname
 module not found	Modul nicht gefunden
-moment	
+moment	Moment
 more than one field in selection	mehr als ein Feld ausgewählt
-morpological gradient	
-most significant first	
-multi scale	
+morpological gradient	morphologischer Gradient
+most significant first	am meisten signifikante zuerst
+multi scale	Multi-scale
 multiplicative	vielfach
 n	
-naming for splitted lines	
+naming for splitted lines	Benennung für getrennte Linien
 new	neu
-new selection	
+new selection	Neue Auswahl
 new value	neuer Wert
 no	nein
 no 'get extents' support for single point layers	keine ´get extents´Unterstützung für Einzelpunkt-Vektorebenen
 no attributes in table	keine Attribute in der Tabelle
-no class definitions for final state	
-no class definitions for initial state	
-no conversion (areas already given as specific catchment area)	
+no class definitions for final state	Keine Klassendefinitionen für Endzustand
+no class definitions for initial state	Keine Klassendefinitionen für Initalen Zustand
+no conversion (areas already given as specific catchment area)	keine Umwandlung (Flächen sind bereits als spezifische Einzugsgebiete gegeben)
 no data values	keine Datenwerte
 no data values >> value	keine Datenwerte >> Wert
 no database connection	Keine Datenbankverbindung
-no distance weighting	
-no edges found	
+no distance weighting	keine Entfernungsgewichtung
+no edges found	keine Ecken gefunden
 no features to buffer.	keine Eigenschaften zum Puffern.
 no fields in selection	Keine Felder in der Auswahl
 no gaps	Keine Lücken.
-no grid in list	
+no grid in list	kein Raster in Liste
 no histogram for unclassified data	kein Histogramm für unbestimmte Werte
-no input	
-no input data	
+no input	keine Eingabe
+no input data	keine Eingabedaten
 no intersection with mask grid.	Keine Schnittmenge mit Maskierungsraster.
-no layers in data source	
+no layers in data source	Keine Ebenen in Datenquelle
 no memory	kein Speicher
-no options	
-no output parameter in selection	
-no points in layer	
-no points removed	
-no polygons in input	
-no polygons in polygon layer	
-no projection specified	
-no projection type defined	
-no records in data set	
+no options	keine Optionen
+no output parameter in selection	keine Ausgabeparameter in Auswahl
+no points in layer	keine Punkte in Ebene
+no points removed	keine Punkte entfernt
+no polygons in input	keine Polygone als Eingabe
+no polygons in polygon layer	keine Polygone in Polygonebene
+no projection specified	keine Projektion ausgewählt
+no projection type defined	kein Projektionstyp definiert
+no records in data set	keine Datensätze in Datei
 no search radius (global)	kein Suchradius (global)
-no seed points identified	
-no shapes for intersection found	
-no shapes in selection	
-no sinks	
-no spatial intersection between grid(s) and polygon layer	
-no target specified	
-no translation available	
+no seed points identified	keine Keimpunkte identifiziert
+no shapes for intersection found	keine Vektoren für Schnittmenge gefunden
+no shapes in selection	keine Vektoren in Auswahl
+no sinks	keine Senken
+no spatial intersection between grid(s) and polygon layer	keine räumliche Schnittmenge zwischen Raster(n) und Polygonebene
+no target specified	kein Ziel benannt
+no translation available	keine Übersetzung verfügbar
 no valid module library found in path	keine gültige Modulbibliothek gefunden
-no variation in point pattern	
-node detection	
-nodes	
+no variation in point pattern	keine Variationen in Punktmustern
+node detection	Knotenerkennung
+nodes	Knoten
 noise variance given as absolute value	Varianz des Rauschens gegeben als absoluter Wert
 noise variance given relative to mean standard deviation	Varianz des Rauschens gegeben als Mittelwert der Standardabweichung
-non-linear response term	
-none	
-nonlinear	
-normal|down under|	
-not enough neighbours	
-not enough observations	
-not enough points for interpolation	
-not enough points to perform pattern analysis	
-not more than one point in layer	
-nothing to do: no data in selection	
+non-linear response term	nichtlinearer Anwortterm
+none	nichts
+nonlinear	nichtlinear
+normal|down under|	normal|umgekehrt|
+not enough neighbours	nicht genug Nachbarn
+not enough observations	nicht genug Beobachtungen
+not enough points for interpolation	nicht genug Punkte für Interpolation
+not enough points to perform pattern analysis	nicht genug Punkte um eine Musteranalyse durchzuführen
+not more than one point in layer	nicht mehr als ein Punkt in der Ebene
+nothing to do: no data in selection	nichts zu tun: keine Daten in Auswahl
 number of cells in S-N direction	Anzahl der Zellen in S-N-Richtung
 number of cells in W-E direction	Anzahl der Zellen in W-E-Richtung
-number of dropped shapes	
-number of grid cells per tile	
-number of order	
-number of pits above threshold level	
-number of points	
-number of processed sinks	
-number of returns of given pulse	
-number of the return	
-okay	
+number of dropped shapes	Anzahl der entfallenen Vektoren
+number of grid cells per tile	Anzahl Rasterzellen pro Kachel
+number of order	Anzahl der Befehle
+number of pits above threshold level	Anzahl Vertiefungen über Schwellenwert
+number of points	Anzahl Punkte
+number of processed sinks	Anzahl der berechneten Senken
+number of returns of given pulse	Anzahl Antworten bei gegebenen Impulsen
+number of the return	Anzahl Antworten
+okay	Okay
 old value	alter Wert
-one hull for all shapes	
-one hull per shape	
-one hull per shape part	
+one hull for all shapes	eine Hülle für alle Vektoren
+one hull per shape	eine Hülle je Vektor
+one hull per shape part	eine Hülle pro Vektorteil
 one layer for all points	eine Ebene für alle Punkte
-one multi-line per polygon	
+one multi-line per polygon	eine Multilinie pro Polygon
 one single (multi-)polygon object	ein einzelnes (multi-)polygon Objekt
 one single class specified by class identifier	eine einzelne Klasse spezifiziert durch Klassenidentifizierer
-online	
+online	online
 only during start up phase	nur während der Programminitialisierung
-only entities with layer definition	
-only entities without layer definition	
-only points with given minimum number of points in search radius will be processed	
+only entities with layer definition	nur Instanzen mit Ebenendefinition
+only entities without layer definition	nur Instanzen ohne Ebenendefinition
+only points with given minimum number of points in search radius will be processed	nur Punkte mit einer gegebenen minimalen Anzahl von Punkten im Suchradius werden berechnet
 only shapes with table entry	nur Vektoren mit Tabelleneinträgen
 only z	nur z
-open transactions committed	
-open transactions rollbacked	
-opening	
+open transactions committed	offene Transaktionen verbinden
+open transactions rollbacked	offene Transaktionen wiederholen
+opening	öffnend
 operator	Operator
-optional	
+optional	optional
 optional input	optionale Eingabe
 optional output	optionale Ausgabe
 original calculation (Ringeler)	Originalberechnung (Ringeler)
 original functions may not be deleted	Originalfunktion darf nicht entfernt werden
-other	
+other	andere
 other values	andere Werte
 other values >> value	andere Werte >> Werte
 output	Ausgabe
 ovalooblonga-rectangularoblonga	
 ovaloredonda-ovalooblonga	
 panorama	Panorama
-parallel	
+parallel	parallel
 parallelepiped	Parallelepiped
 parameters	Parameter
 pass	Ablauf
 pdf	
-percent	
-perform region growing	
+percent	Prozent
+perform region growing	Region wachsen ausführen
 performing distance calculation...	führe Enfernungsberechnung aus…
 pie	Torte
 pie (not outlined)	Torte (nicht umrandet)
 plain	flach
-point (.)	
-point cloud	
-point cloud (centered)	
+point (.)	Punkt (.)
+point cloud	Punktwolke
+point cloud (centered)	Punktwolke (zentriert)
 point cloud viewer can only be run from graphical user interface	Punktwolkenbetrachter kann nur von der Grafischen Benutzeroberfläche gestartet werden
 point cloud viewer will not be started, because point cloud has no points	Punktwolkenbetrachter kann nicht gestartet werden, weil Punktwolken keine Punkte beinhalten
-point source ID	
-points	
-points can only intersect with polygons	
-points have been filtered	
-points have been imported with success	
-points read	
-points written	
+point source ID	Punktquelle ID
+points	Punkte
+points can only intersect with polygons	Punkte können sich nur mit Polygonen überschneiden
+points have been filtered	Punkte wurden gefiltert
+points have been imported with success	Punkte wurden erfolgreich eingelesen
+points read	Punkte lesen
+points written	Punkte geschrieben
 polygons	Polygone
 polygons with same attribute value	Polygone mit gleichem Attributwert
 power of distance	
 preparing distance calculation...	bereite Entfernungsberechnung vor…
 press any key	Drücke eine beliebige Taste
-processed DEM	
-projection initialization failure	
+processed DEM	berechnetes DGM
+projection initialization failure	Initialisierung Projektion fehlgeschlagen
 quadrants	Quadrant
-quadratic surface	
-quantiles	
-quartic kernel	
-radians	
-radians to degree	
-random read	
-random write	
-range of days	
-raster	
+quadratic surface	quadratische Oberfläche
+quantiles	Quantile
+quartic kernel	biquadratischer Kernel
+radians	Radiant
+radians to degree	Radiant zu Grad
+random read	beliebig lesen
+random write	beliebig schreiben
+range of days	Auswahl Tage
+raster	Raster
 ready	fertig
-ready ...	
-rectangle	
-rectangular	
+ready ...	fertig...
+rectangle	Rechteck
+rectangular	rechtwinklig
 red > blue	rot > blau
 red > blue > green	rot > blau > grün
 red > green	rot > grün
 red > green > blue	rot > grün > blau
 red > grey > blue	rot > grau > blau
 red > grey > green	rot > grau > grün
-red channel color	
+red channel color	Rotkanal Farbe
 red=1, green=2, blue=this	rot=1, grün=2, blau=dieses
 red=1, green=this, blue=2	rot=1, grün=dieses, blau=2
 red=2, green=1, blue=this	rot=2, grün=1, blau=dieses
@@ -4641,149 +4641,149 @@ red=2, green=this, blue=1	rot=2, grün=dieses, blau=1
 red=this, green=1, blue=2	rot=dieses, grün=1, blau=2
 red=this, green=2, blue=1	rot=dieses, grün=2, blau=1
 redonda-ovaloredonda	
-regression analysis	
+regression analysis	Regressionsanalyse
 relative	relativ
-remove above percentile	
-remove below percentile	
-remove from current selection	
-remove maxima (with tolerance)	
-remove minima (with tolerance)	
-removing orphants\n	
-renaming classes\n	
+remove above percentile	entferne oberhalb Perzentil
+remove below percentile	entferne unterhal Perzentile
+remove from current selection	entferne aus aktueller Auswahl
+remove maxima (with tolerance)	entferne Maxima (mit Toleranz)
+remove minima (with tolerance)	entferne Minima (mit Toleranz)
+removing orphants\n	entferne Waisen\n
+renaming classes\n	benenne Klassen um\n
 replace	ersetzen
-replace existing table	
+replace existing table	ersetze bestehende Tabelle
 replacements	Austausch
-resolution	
-resolution has to be greater than zero	
-return	
-rgb color	
+resolution	Auflösung
+resolution has to be greater than zero	Die Auflösung muss größer als null sein
+return	Antwort
+rgb color	RGB Farbe
 rhombus	Rhombus
 right	rechts
-rollback	
-root	
-rotated	
-roughness	
+rollback	Wiederholen
+root	Wurzel
+rotated	gedreht
+roughness	Rauigkeit
 rows	Reihen
 running classification	laufende Klassifizierung
-same as input grid	
-sand content given as percentage	
-scan angle	
+same as input grid	das gleiche wie das Eingaberaster
+sand content given as percentage	Sandgehalt gegeben als Prozent
+scan angle	Scanwinkel
 search radius (local)	Suchradius (lokal)
-second input grid (B) needed to perform desired operation	
-second order polynom	
-sectors	
-seed cells coded with local water depth or absolute water level, all other cells NoData	
-seed to saddle difference	
-seeds difference	
+second input grid (B) needed to perform desired operation	zweites Eingaberaster (B) wird für die Durchführung der geplanten Operation benötigt
+second order polynom	Polynom zweiter Ordnung
+sectors	Sektoren
+seed cells coded with local water depth or absolute water level, all other cells NoData	Keimzellen kodiert mit lokaler Wassertiefe oder absolutem Wasserspiegel, alle anderen Zellen NoData
+seed to saddle difference	Keim um Differenzen aufzusatteln
+seeds difference	Keimdifferenz
 segments identified	identifizierte Segmente
-select from current selection	
+select from current selection	wähle aus derzeitiger Auswahl aus
 selected shapes	ausgewählte Vektoren
 selected table contains no valid records	ausgewählte Tabelle enthält keine gültigen Datensätze
 selected table does not have numeric attributes	ausgewählte Tabelle enthält keine numerischen Attribute
 separate layer for each polygon	einzelne Ebene für jedes Polygon
-sequential write	
-shading	
-shading (fixed light source)	
-shape in process	
+sequential write	sequentielles Schreiben
+shading	schattieren
+shading (fixed light source)	schattieren (feste Lichtquelle)
+shape in process	Vektor in Bearbeitung
 shapes	Vektoren
-shapes have been dropped	
+shapes have been dropped	Vektoren sind fallengelassen worden
 shapes layer extent	Vektorebenen-Umfang
-show direct insolation for each time step.	
-sigmoidal	
+show direct insolation for each time step.	Zeige direkte Einstrahlung für jeden Zeitschritt.
+sigmoidal	sigmoidal
 signed 1 byte integer	1 byte Ganzzahl mit Vorzeichen
 signed 2 byte integer	2 byte Ganzzahl mit Vorzeichen
 signed 4 byte integer	4 byte Ganzzahl mit Vorzeichen
 signed 8 byte integer	8 byte Ganzzahl mit Vorzeichen
-silt content given as percentage	
-simple line	
-simple planar surface	
+silt content given as percentage	Schluffgehalt in Prozent
+simple line	einfache Linie
+simple planar surface	einfache planare Oberfläche
 sin(x*x + y*y)	
 single|range|simple table|user supplied table|	einzeln|Bereich|einfache Tabelle|durch Nutzer bereitgestellte Tabelle|
-slope (A) and aspect (B)	
-slower but memory saving	
-smoothed surface	
-soil texture	
-source	
-space	
-specify fields with type	
+slope (A) and aspect (B)	Neigung (A) und Anblick (B)
+slower but memory saving	langsamer aber Speicherplatz sparend
+smoothed surface	geglättete Oberfläche
+soil texture	Bodentextur
+source	Quelle
+space	Raum
+specify fields with type	spezifiziere Felder mit Typ
 spectral angle mapping	Spektralwinkelkartierung
 spectral information divergence	Spektralinformation Abweichung
-splitting polygon parts	
+splitting polygon parts	teile Poylgonteile auf
 sql excution error	SQL Ausführungsfehler
 square	Quadrat
-square root (catchment length)	
-stable	
-standard	
-standard deviation	
-standard kernel 1	
-standard kernel 2	
-step	
+square root (catchment length)	Quadratwurzel (Einzugsgebietslänge)
+stable	stabil
+standard	Standard
+standard deviation	Standardabweichung
+standard kernel 1	Standard Kernel 1
+standard kernel 2	Standard Kernel 2
+step	Schritt
 string	Zeichenkette
-subbasins...	
-sums-of-squares-and-cross-products matrix	
-surface (A)	
-symmetric	
+subbasins...	Unterbecken....
+sums-of-squares-and-cross-products matrix	Summe von Quadraten und Kreuzprodukten Matrix
+surface (A)	Oberfläche (A)
+symmetric	symmetrisch
 syntax error	Syntaxfehler
-syntax error in formula at position	
+syntax error in formula at position	Syntaxfehler in Formel an Position
 syntax error, position	Syntaxfehler, Position
 t	
-table already exists	
-table could not be opened.	
-tabulator	
-target	
-text	
+table already exists	Tabelle besteht bereits
+table could not be opened.	Tabelle konnte nicht geöffnet werden
+tabulator	Tabulator
+target	Ziel
+text	Text
 theta	
 thick	dick
 thin	dünn
-third order polynom	
-this operation requires locations to be of type polygon	
-this operation requires selectable shapes to be of type polygon	
-threshold slope	
-time of sunrise/sunset is only calculated if time span is set to single day	
+third order polynom	Polynom dritter Ordnung
+this operation requires locations to be of type polygon	Diese Operation benötigt Örtlichkeiten vom Typ Polygon
+this operation requires selectable shapes to be of type polygon	Diese Operation benötigt auswählbare Vektoren vom Typ Polygon
+threshold slope	Schwellenwert Neigung
+time of sunrise/sunset is only calculated if time span is set to single day	Zeit des Sonnenaufgangs/Sonnenuntergangs wird nur berechnet wenn die Zeitspanne auf einen einzelnen Tag gesetzt ist
 tolerance as absolute values	Toleranz als absoluter Wert
-tomaschTool	
+tomaschTool	tomaschWerkzeug
 too few parameters	Zu wenige Parameter
 too many constants	Zu wenige Konstanten
 too many parameters	Zu viele Parameter
 top	Oben
-top / right	
+top / right	oben / rechts
 top hat	
-topographic correction	
+topographic correction	topographische Korrektur
 triangle (down)	Dreieck (Spitze abwärts)
 triangle (up)	Dreieck (Spitze aufwärts)
 triangulating	trianguliert
-trying to drop table	
+trying to drop table	versuche Tabelle abzuwerfen
 type -h or --help for further information	für weitere Informationen -h oder -help eingeben
 undeclared parameter	nicht bestimmter Parameter
 undefined	undefiniert
-unique values	
+unique values	einmalige Werte
 unknown error: execution	unbekannter Fehler: Ausführung
 unknown error: user break	unbekannter Fehler: Abbruch durch Anwender
-unknown parameter	
-unknown projection	
-unkown	
+unknown parameter	unbekannter Parameter
+unknown projection	unbekannte Projektion
+unkown	unbekannt
 unmatched parentheses	verzerrter Einschub
-unnamed	
+unnamed	unbenannt
 unsigned 1 byte integer	vorzeichenlose 1 byte Ganzzahl
 unsigned 2 byte integer	vorzeichenlose 2 byte Ganzzahl
 unsigned 4 byte integer	vorzeichenlose 4 byte Ganzzahl
 unsigned 8 byte integer	vorzeichenlose 8 byte Ganzzahl
 unsorted	unsortiert
 until user closes it	bis Mausklick
-up	
-update, colour stretch for each time step	
-update, fixed colour stretch	
-use old version (no acceleration option) with constant wind direction	
-user data	
+up	hoch
+update, colour stretch for each time step	schreibe fort, Farbausdehnung für jeden Zeitschritt
+update, fixed colour stretch	schreibe fort, feste Farbausdehnung
+use old version (no acceleration option) with constant wind direction	benutze alte Version (keine Beschleunigungsoption) mit konstanter Windrichtung
+user data	Benutzerdaten
 user defined	nutzerdefiniert
-user defined grid system	
-user defined kernel	
-user defined reference	
+user defined grid system	benutzerdefiniertes Rastersystem
+user defined kernel	benutzerdefinerter Kernel
+user defined reference	benutzerdefinierte Referenz
 value at mouse position	Wert an Mausposition
-variance	
-variance (a)	
-variance (b)	
-variance-covariance matrix	
+variance	Varianz
+variance (a)	Varianz (a)
+variance (b)	Varianz (b)
+variance-covariance matrix	Varianz-Kovarianz Matrix
 vertical	vertikal
 w	
 white - cyan	weiß - cyan
@@ -4792,11 +4792,11 @@ white - yellow	weiß - gelb
 white > blue	weiß > blau
 white > green	weiß > grün
 white > red	weiß > rot
-wire	
+wire	Draht
 with B-spline refinement	mit B-Spline-Verfeinerung
 without B-spline refinement	ohne B-Spline-Verfeinerung
 x - Values	x - Werte
-x Position	
+x Position	x Position
 xMax	
 xMin	
 xMin, yMin, NX, NY	
@@ -4804,7 +4804,7 @@ xMin, yMin, xMax, yMax
 xmax	
 xmin	
 y - Values	y - Werte
-y Position	
+y Position	y Position
 yMax	
 yMin	
 yellow - white	gelb - weiß
@@ -4814,5 +4814,5 @@ yellow > red	gelb > rot
 yes	ja
 ymax	
 ymin	
-z values	
+z values	z Werte
 {STATZONAL_NAME} Zonal Grid Statistics	
