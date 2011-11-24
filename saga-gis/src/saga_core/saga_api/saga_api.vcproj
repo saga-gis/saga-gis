@@ -1332,6 +1332,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\clipper.cpp"
+				>
+			</File>
+			<File
 				RelativePath="dataobject.cpp"
 				>
 				<FileConfiguration
@@ -4020,6 +4024,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\shapes_polygons.cpp"
+				>
+			</File>
+			<File
 				RelativePath="shapes_search.cpp"
 				>
 				<FileConfiguration
@@ -4786,6 +4794,10 @@
 			>
 			<File
 				RelativePath="API_Core.h"
+				>
+			</File>
+			<File
+				RelativePath=".\clipper.hpp"
 				>
 			</File>
 			<File

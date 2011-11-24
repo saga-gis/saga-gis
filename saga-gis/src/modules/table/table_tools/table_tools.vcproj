@@ -208,7 +208,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -597,7 +596,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -804,6 +802,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Join_Tables.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -878,6 +880,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\table_change_date_format.cpp"
+				>
 			</File>
 			<File
 				RelativePath="Table_Create_Empty.cpp"
@@ -1113,7 +1119,15 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\Join_Tables.h"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\table_change_date_format.h"
 				>
 			</File>
 			<File
