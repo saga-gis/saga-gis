@@ -111,7 +111,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -500,7 +499,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -1564,6 +1562,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\wrf.cpp"
+				>
+			</File>
+			<File
 				RelativePath="xyz.cpp"
 				>
 				<FileConfiguration
@@ -1682,6 +1684,10 @@
 			</File>
 			<File
 				RelativePath="USGS_SRTM.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wrf.h"
 				>
 			</File>
 			<File

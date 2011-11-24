@@ -111,7 +111,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -500,7 +499,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -804,11 +802,19 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\grid_multi_grid_regression.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\gw_multi_regression.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\gw_multi_regression_grid.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gw_multi_regression_points.cpp"
 				>
 			</File>
 			<File
@@ -913,11 +919,19 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\grid_multi_grid_regression.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gw_multi_regression.h"
 				>
 			</File>
 			<File
 				RelativePath=".\gw_multi_regression_grid.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gw_multi_regression_points.h"
 				>
 			</File>
 			<File

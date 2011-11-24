@@ -814,6 +814,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\decision_tree.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MLB_Interface.cpp"
 				>
 			</File>
@@ -832,6 +836,10 @@
 			</File>
 			<File
 				RelativePath=".\classify_supervised.h"
+				>
+			</File>
+			<File
+				RelativePath=".\decision_tree.h"
 				>
 			</File>
 			<File

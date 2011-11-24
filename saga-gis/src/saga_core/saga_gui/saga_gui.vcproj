@@ -1374,6 +1374,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\data_source.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\data_source_files.cpp"
+				>
+			</File>
+			<File
 				RelativePath="dc_helper.cpp"
 				>
 				<FileConfiguration
@@ -7428,6 +7436,14 @@
 			</File>
 			<File
 				RelativePath="Callback.h"
+				>
+			</File>
+			<File
+				RelativePath=".\data_source.h"
+				>
+			</File>
+			<File
+				RelativePath=".\data_source_files.h"
 				>
 			</File>
 			<File

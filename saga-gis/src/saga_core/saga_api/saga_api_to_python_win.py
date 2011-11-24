@@ -15,7 +15,7 @@ module1 = Extension(
 
 	library_dirs = [
 		os.environ['WXWIN'] + '/lib/vc_dll',
-		os.environ['SAGA'] + '/bin/saga_vc'
+		os.environ['SAGA'] + '/bin/saga_vc_Win32'
 	],
 
 	libraries = [
@@ -25,9 +25,6 @@ module1 = Extension(
 		'wxzlib',
 		'wxregex',
 		'wxexpat',
-		'wxmsw28_html',
-		'wxmsw28_adv',
-		'wxmsw28_core',
 		'wxbase28_xml',
 		'wxbase28',
 		'winmm',

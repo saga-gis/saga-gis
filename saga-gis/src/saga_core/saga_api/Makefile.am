@@ -113,7 +113,7 @@ nodist__saga_api_la_SOURCES = saga_api_wrap.cxx
 _saga_api_la_LIBADD = libsaga_api.la
 
 pyexec_LTLIBRARIES = _saga_api.la
-pyexec_PYTHON = saga_api.py
+nodist_pyexec_PYTHON = saga_api.py
 
 saga_api_wrap.cxx:
 	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) $(DISABLELIBHARU) $(SAGAPYTHONFLAGS) ./saga_api.h 

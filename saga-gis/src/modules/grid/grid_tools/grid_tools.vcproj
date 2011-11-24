@@ -306,7 +306,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -695,7 +694,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -1888,6 +1886,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_Shrink_Expand.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_SortRaster.cpp"
 				>
 				<FileConfiguration
@@ -2654,6 +2656,10 @@
 			</File>
 			<File
 				RelativePath="Grid_Resample.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_Shrink_Expand.h"
 				>
 			</File>
 			<File

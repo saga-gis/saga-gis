@@ -111,7 +111,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -500,7 +499,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-
 			/>
 		</Configuration>
 		<Configuration
@@ -1664,6 +1662,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\tpi.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\wind_effect.cpp"
 				>
 			</File>
@@ -1738,6 +1740,10 @@
 			</File>
 			<File
 				RelativePath="SurfaceSpecificPoints.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tpi.h"
 				>
 			</File>
 			<File
