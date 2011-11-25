@@ -88,7 +88,7 @@ public:
 	CCurvature_Classification(void);
 	virtual ~CCurvature_Classification(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Classification" ));	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Classification" ));	}
 
 
 protected:

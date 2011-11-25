@@ -85,7 +85,7 @@ class CViGrA_FFT : public CSG_Module_Grid
 public:
 	CViGrA_FFT(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
 
 
 protected:
@@ -106,7 +106,7 @@ class CViGrA_FFT_Inverse : public CSG_Module_Grid
 public:
 	CViGrA_FFT_Inverse(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
 
 
 protected:
@@ -127,7 +127,7 @@ class CViGrA_FFT_Real : public CSG_Module_Grid
 public:
 	CViGrA_FFT_Real(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
 
 
 protected:
@@ -148,7 +148,7 @@ class CViGrA_FFT_Filter : public CSG_Module_Grid
 public:
 	CViGrA_FFT_Filter(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Fourier Analysis") );	}
 
 
 protected:

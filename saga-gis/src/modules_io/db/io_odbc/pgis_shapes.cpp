@@ -292,14 +292,29 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 		SG_T("")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SRID"		, _TL("Spatial Reference"),
+	//-----------------------------------------------------
+	CSG_Parameter	*pNode	= Parameters.Add_Value(
+		NULL	, "CRS_EPSG"	, _TL("EPSG Code"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("--- not available ---")
-		)
+		PARAMETER_TYPE_Int, 4326, 2000, true, 32766, true
 	);
 
+	if( SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Choice(
+			pNode	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
+		);
+
+		Parameters.Add_Choice(
+			pNode	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+		);
+	}
+
+	//-----------------------------------------------------
 	Parameters.Add_Parameters(
 		NULL	, "FLAGS"		, _TL("Constraints"),
 		_TL("")
@@ -308,7 +323,7 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 	Parameters.Add_Choice(
 		NULL	, "EXISTS"		, _TL("If table exists..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("abort export"),
 			_TL("replace existing table"),
 			_TL("append records, if table structure allows")
@@ -324,6 +339,18 @@ int CPGIS_Shapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asShapes() ? pParameter->asShapes()->Get_Name() : SG_T(""));
 
 		Set_Constraints(pParameters->Get_Parameter("FLAGS")->asParameters(), pParameter->asShapes());
+	}
+
+	//-----------------------------------------------------
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_GEOGCS"))
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_PROJCS")) )
+	{
+		int		i;
+
+		if( pParameter->asChoice()->Get_Data(i) && (i = SG_Get_Projections().Get_Projection(i).Get_EPSG()) >= 0 )
+		{
+			pParameters->Get_Parameter("CRS_EPSG")->Set_Value(i);
+		}
 	}
 
 	return( 0 );
@@ -351,7 +378,7 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 		return( false );
 	}
 
-	Parameters("SRID")->asChoice()->Set_Items(SG_Get_Projections().Get_Names_List());
+//	Parameters("SRID")->asChoice()->Set_Items(SG_Get_Projections().Get_Names_List());
 
 /*	if( Parameters("SRID")->asChoice()->Get_Count() > 1 )
 		return( true );
@@ -387,10 +414,12 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	Geo_Table	= Parameters("NAME")	->asString();	if( Geo_Table.Length() == 0 )	Geo_Table	= pShapes->Get_Name();
 
-	if( !Parameters("SRID")->asChoice()->Get_Data(SRID) )
-	{
-		SRID	= -1;
-	}
+//	if( !Parameters("SRID")->asChoice()->Get_Data(SRID) )
+//	{
+//		SRID	= -1;
+//	}
+
+	SRID	= Parameters("CRS_EPSG")->asInt();
 
 	sSRID.Printf(SG_T("%d"), SRID);
 

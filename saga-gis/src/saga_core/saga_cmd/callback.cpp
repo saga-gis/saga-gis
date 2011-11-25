@@ -132,7 +132,7 @@ void			Print			(const SG_Char *String)
 //---------------------------------------------------------
 void			Print_Error		(const SG_Char *Error)
 {
-	SG_FPRINTF(stderr, SG_T("\n%s: %s\n"), LNG("error"), Error);
+	SG_FPRINTF(stderr, SG_T("\n%s: %s\n"), _TL("error"), Error);
 }
 
 //---------------------------------------------------------
@@ -153,7 +153,7 @@ void			Get_Pause		(void)
 {
 	if( g_bInteractive )
 	{
-		SG_PRINTF(SG_T("\n%s..."), LNG("press any key"));
+		SG_PRINTF(SG_T("\n%s..."), _TL("press any key"));
 
 #ifdef _SAGA_MSW
 		_getch();
@@ -171,7 +171,7 @@ bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 
 		SG_PRINTF(SG_T("\n%s: %s\n"), caption, message);
 
-		SG_PRINTF(SG_T("%s? (%s/%s)"), LNG("continue"), sYes.c_str(), sNo.c_str());
+		SG_PRINTF(SG_T("%s? (%s/%s)"), _TL("continue"), sYes.c_str(), sNo.c_str());
 
 		do
 		{

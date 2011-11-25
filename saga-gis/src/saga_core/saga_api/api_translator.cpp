@@ -91,7 +91,7 @@ CSG_Translator &	SG_Get_Translator(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char *	SG_Translate(const SG_Char *Text)
+const SG_Char *		SG_Translate(const CSG_String &Text)
 {
 	return( gSG_Translator.Get_Translation(Text) );
 }
@@ -237,7 +237,7 @@ bool CSG_Translator::Create(class CSG_Table *pTranslations, int iText, int iTran
 #define COMPARE(Index, Text)	(m_bCmpNoCase ? m_Translations[Index]->m_Text.CmpNoCase(Text) : m_Translations[Index]->m_Text.Cmp(Text))
 
 //---------------------------------------------------------
-int CSG_Translator::_Get_Index(const SG_Char *Text) const
+int CSG_Translator::_Get_Index(const CSG_String &Text) const
 {
 	int		a, b, i, c;
 

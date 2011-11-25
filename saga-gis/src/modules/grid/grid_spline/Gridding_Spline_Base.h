@@ -87,7 +87,7 @@ class grid_spline_EXPORT CGridding_Spline_Base : public CSG_Module
 public:
 	CGridding_Spline_Base(bool bGridPoints = false);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Spline Interpolation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Spline Interpolation") );	}
 
 
 protected:

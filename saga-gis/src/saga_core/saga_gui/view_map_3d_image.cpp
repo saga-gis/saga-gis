@@ -158,18 +158,18 @@ void CVIEW_Map_3D_Image::Save(void)
 	CSG_Parameters	Parameters;
 
 	//-----------------------------------------------------
-	Parameters.Create(NULL, LNG("Save 3D Image Options"), LNG(""));
+	Parameters.Create(NULL, _TL("Save 3D Image Options"), _TL(""));
 
-	Parameters.Add_Node(NULL, "NODE_RES", LNG("Image Resolution"), LNG(""));
+	Parameters.Add_Node(NULL, "NODE_RES", _TL("Image Resolution"), _TL(""));
 
 	Parameters.Add_Value(
-		Parameters("NODE_RES")	, "WIDTH"	, LNG("Width"),
+		Parameters("NODE_RES")	, "WIDTH"	, _TL("Width"),
 		wxT(""),
 		PARAMETER_TYPE_Int		, m_img_nx, 1, true
 	);
 
 	Parameters.Add_Value(
-		Parameters("NODE_RES")	, "HEIGHT"	, LNG("Height"),
+		Parameters("NODE_RES")	, "HEIGHT"	, _TL("Height"),
 		wxT(""),
 		PARAMETER_TYPE_Int		, m_img_ny, 1, true
 	);

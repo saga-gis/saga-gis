@@ -20,23 +20,18 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
 #include "MLB_Interface.h"
 
-class CConstantGrid : public CSG_Module_Grid {
-
-private:
-
+class CConstantGrid : public CSG_Module_Grid
+{
 public:
 	CConstantGrid(void);
 	virtual ~CConstantGrid(void);
 	
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
 
 protected:
-	virtual bool		On_Execute(void);
+
+	virtual bool			On_Execute(void);
 
 };

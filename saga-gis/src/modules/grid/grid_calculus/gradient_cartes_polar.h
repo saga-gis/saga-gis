@@ -53,7 +53,7 @@ class CGradient_Cartes_To_Polar : public CSG_Module_Grid
 public:
 	CGradient_Cartes_To_Polar(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Conversions") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Conversions") );	}
 
 
 protected:
@@ -73,7 +73,7 @@ class CGradient_Polar_To_Cartes : public CSG_Module_Grid
 public:
 	CGradient_Polar_To_Cartes(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Conversions") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Conversions") );	}
 
 
 protected:

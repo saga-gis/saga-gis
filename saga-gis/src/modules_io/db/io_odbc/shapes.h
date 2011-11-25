@@ -85,7 +85,7 @@ class CPoints_Load : public CSG_ODBC_Module
 public:
 	CPoints_Load(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
 
 
 protected:
@@ -107,7 +107,49 @@ class CPoints_Save : public CSG_ODBC_Module
 public:
 	CPoints_Save(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CShapes_Load : public CSG_ODBC_Module
+{
+public:
+	CShapes_Load(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CShapes_Save : public CSG_ODBC_Module
+{
+public:
+	CShapes_Save(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
 
 
 protected:

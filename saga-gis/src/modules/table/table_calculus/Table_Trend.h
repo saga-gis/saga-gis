@@ -106,7 +106,7 @@ class CTable_Trend_Shapes : public CTable_Trend_Base
 public:
 	CTable_Trend_Shapes(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Table") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Table") );	}
 
 };
 

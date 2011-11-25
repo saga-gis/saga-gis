@@ -89,14 +89,14 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 	if( !fDBF.Open(SG_File_Make_Path(NULL, File_Name, SG_T("dbf"))) )
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] DBase file could not be opened."));
+		SG_UI_Msg_Add_Error(_TL("[ERR] DBase file could not be opened."));
 
 		return( false );
 	}
 
 	if( !fDBF.Move_First() || fDBF.Get_Record_Count() <= 0 )
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] DBase file does not contain any records."));
+		SG_UI_Msg_Add_Error(_TL("[ERR] DBase file does not contain any records."));
 
 		return( false );
 	}
@@ -131,7 +131,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 	if( !fSHP.Open(SG_File_Make_Path(NULL, File_Name, SG_T("shp")), SG_FILE_R, true) )
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file could not be opened."));
+		SG_UI_Msg_Add_Error(_TL("[ERR] Shape file could not be opened."));
 
 		return( false );
 	}
@@ -141,21 +141,21 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 	if( fSHP.Read(File_Header.Get_Data(), sizeof(char), 100) != 100 )
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] corrupted file header"));
+		SG_UI_Msg_Add_Error(_TL("[ERR] corrupted file header"));
 
 		return( false );
 	}
 
 	if( File_Header.asInt( 0,  true) != 9994 )	// Byte 00 -> File Code 9994 (Integer Big)...
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] invalid file code"));
+		SG_UI_Msg_Add_Error(_TL("[ERR] invalid file code"));
 
 		return( false );
 	}
 
 	if( File_Header.asInt(28, false) != 1000 )	// Byte 28 -> Version 1000 (Integer Little)...
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] unsupported file version"));
+		SG_UI_Msg_Add_Error(_TL("[ERR] unsupported file version"));
 
 		return( false );
 	}
@@ -179,7 +179,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 	default:	// unsupported...
 	case 31:	// unsupported: MultiPatch...
-		SG_UI_Msg_Add_Error(LNG("[ERR] unsupported shape type."));
+		SG_UI_Msg_Add_Error(_TL("[ERR] unsupported shape type."));
 
 		return( false );
 	}
@@ -191,14 +191,14 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	{
 		if( fSHP.Read(Record_Header.Get_Data(0), sizeof(int), 2) != 2 )		// read record header
 		{
-			SG_UI_Msg_Add_Error(LNG("[ERR] corrupted record header"));
+			SG_UI_Msg_Add_Error(_TL("[ERR] corrupted record header"));
 
 			return( false );
 		}
 
 		if( Record_Header.asInt(0, true) != iShape + 1 )					// record number
 		{
-			SG_UI_Msg_Add_Error(LNG("[ERR] corrupted shapefile."));
+			SG_UI_Msg_Add_Error(_TL("[ERR] corrupted shapefile."));
 
 			return( false );
 		}
@@ -207,14 +207,14 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 		if( !Content.Set_Size(Length, false) )
 		{
-			SG_UI_Msg_Add_Error(LNG("[ERR] memory allocation error."));
+			SG_UI_Msg_Add_Error(_TL("[ERR] memory allocation error."));
 
 			return( false );
 		}
 
 		if( fSHP.Read(Content.Get_Data(), sizeof(char), Length) != Length )
 		{
-			SG_UI_Msg_Add_Error(LNG("[ERR] corrupted shapefile."));
+			SG_UI_Msg_Add_Error(_TL("[ERR] corrupted shapefile."));
 
 			return( false );
 		}
@@ -227,7 +227,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 			}
 			else
 			{
-				SG_UI_Msg_Add_Error(LNG("[ERR] corrupted shapefile."));
+				SG_UI_Msg_Add_Error(_TL("[ERR] corrupted shapefile."));
 
 				return( false );
 			}
@@ -485,7 +485,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	{
 		delete[](dbfFields);
 
-		SG_UI_Msg_Add_Error(LNG("[ERR] dbase file could not be opened"));
+		SG_UI_Msg_Add_Error(_TL("[ERR] dbase file could not be opened"));
 
 		return( false );
 	}
@@ -497,14 +497,14 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 	if( !fSHX.Open(SG_File_Make_Path(NULL, File_Name, SG_T("shx")), SG_FILE_W, true) )
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] index file could not be opened"));
+		SG_UI_Msg_Add_Error(_TL("[ERR] index file could not be opened"));
 
 		return( false );
 	}
 
 	if( !fSHP.Open(SG_File_Make_Path(NULL, File_Name, SG_T("shp")), SG_FILE_W, true) )
 	{
-		SG_UI_Msg_Add_Error(LNG("[ERR] shape file could not be opened."));
+		SG_UI_Msg_Add_Error(_TL("[ERR] shape file could not be opened."));
 
 		return( false );
 	}

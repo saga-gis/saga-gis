@@ -21,7 +21,7 @@ public:
 	SGGrib2Import(void);
 	virtual ~SGGrib2Import(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
 
 protected:

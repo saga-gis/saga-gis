@@ -136,15 +136,15 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 
 		pRecord	= m_pLUT->Add_Record();
 		pRecord->Set_Value(LUT_COLOR		, SG_GET_RGB(1, 1, 1));
-		pRecord->Set_Value(LUT_TITLE		, LNG("Class 1"));
-		pRecord->Set_Value(LUT_DESCRIPTION	, LNG("First Class"));
+		pRecord->Set_Value(LUT_TITLE		, _TL("Class 1"));
+		pRecord->Set_Value(LUT_DESCRIPTION	, _TL("First Class"));
 		pRecord->Set_Value(LUT_MIN			, 0.0);
 		pRecord->Set_Value(LUT_MAX			, 1.0);
 
 		pRecord	= m_pLUT->Add_Record();
 		pRecord->Set_Value(LUT_COLOR		, SG_GET_RGB(255, 0, 0));
-		pRecord->Set_Value(LUT_TITLE		, LNG("Class 2"));
-		pRecord->Set_Value(LUT_DESCRIPTION	, LNG("Second Class"));
+		pRecord->Set_Value(LUT_TITLE		, _TL("Class 2"));
+		pRecord->Set_Value(LUT_DESCRIPTION	, _TL("Second Class"));
 		pRecord->Set_Value(LUT_MIN			, 1.0);
 		pRecord->Set_Value(LUT_MAX			, 2.0);
 	}
@@ -460,7 +460,7 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 	//-----------------------------------------------------
 	if( Get_Class_Count() > 0 )
 	{
-		STATUSBAR_Set_Text(LNG("[MSG] Build Histogram..."));
+		STATUSBAR_Set_Text(_TL("[MSG] Build Histogram..."));
 
 		m_HST_Count	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
 		m_HST_Cumul	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));

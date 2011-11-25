@@ -32,7 +32,7 @@ public:
 	CFlowDepth(void);
 	virtual ~CFlowDepth(void);	
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Dynamics" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Dynamics" ));	}
 
 	bool isHeader(int,int);
 	double CalculateFlowDepth(int,int);

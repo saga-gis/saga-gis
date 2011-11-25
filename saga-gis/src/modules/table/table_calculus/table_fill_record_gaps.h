@@ -85,7 +85,7 @@ class CTable_Fill_Record_Gaps : public CSG_Module
 public:
 	CTable_Fill_Record_Gaps(void);
 
-//	virtual const SG_Char *	Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+//	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
 
 protected:

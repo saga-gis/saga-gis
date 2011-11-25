@@ -116,7 +116,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table::CVIEW_Table(CWKSP_Table *pTable)
-	: CVIEW_Base(ID_VIEW_TABLE, pTable->Get_Name(), ID_IMG_WND_TABLE, CVIEW_Table::_Create_Menu(), LNG("[CAP] Table"))
+	: CVIEW_Base(ID_VIEW_TABLE, pTable->Get_Name(), ID_IMG_WND_TABLE, CVIEW_Table::_Create_Menu(), _TL("[CAP] Table"))
 {
 	m_pTable	= pTable;
 
@@ -165,7 +165,7 @@ wxToolBarBase * CVIEW_Table::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TABLE_RECORD_DEL);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TABLE_RECORD_DEL_ALL);
 
-	CMD_ToolBar_Add(pToolBar, LNG("[CAP] Table"));
+	CMD_ToolBar_Add(pToolBar, _TL("[CAP] Table"));
 
 	return( pToolBar );
 }

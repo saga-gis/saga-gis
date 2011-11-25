@@ -175,8 +175,8 @@ CWKSP_Layer::~CWKSP_Layer(void)
 		{
 			MSG_General_Add(
   				wxString::Format(wxT("%s %s: %s..."),
-					LNG("[MSG] Close"),
-					SG_Get_DataObject_Name(m_pObject->Get_ObjectType()),
+					_TL("[MSG] Close"),
+					SG_Get_DataObject_Name(m_pObject->Get_ObjectType()).c_str(),
 					m_pObject->Get_Name()
      			),
 				true, true
@@ -184,7 +184,7 @@ CWKSP_Layer::~CWKSP_Layer(void)
 
 			delete(m_pObject);
 
-			MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+			MSG_General_Add(_TL("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 		}
 		else
 		{
@@ -288,38 +288,38 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Nodes...
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_GENERAL"		, LNG("[CAP] General"),
-		LNG("")
+		NULL							, "NODE_GENERAL"		, _TL("[CAP] General"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_DISPLAY"		, LNG("[CAP] Display"),
-		LNG("")
+		NULL							, "NODE_DISPLAY"		, _TL("[CAP] Display"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_COLORS"			, LNG("[CAP] Colors"),
-		LNG("")
+		NULL							, "NODE_COLORS"			, _TL("[CAP] Colors"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_SIZE"			, LNG("[CAP] Size"),
-		LNG("")
+		NULL							, "NODE_SIZE"			, _TL("[CAP] Size"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_LABEL"			, LNG("[CAP] Labels"),
-		LNG("")
+		NULL							, "NODE_LABEL"			, _TL("[CAP] Labels"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_SELECTION"		, LNG("[CAP] Selection"),
-		LNG("")
+		NULL							, "NODE_SELECTION"		, _TL("[CAP] Selection"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_EDIT"			, LNG("[CAP] Edit"),
-		LNG("")
+		NULL							, "NODE_EDIT"			, _TL("[CAP] Edit"),
+		_TL("")
 	);
 
 
@@ -327,26 +327,26 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// General...
 
 	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "OBJECT_NAME"			, LNG("[CAP] Name"),
-		LNG(""),
+		m_Parameters("NODE_GENERAL")	, "OBJECT_NAME"			, _TL("[CAP] Name"),
+		_TL(""),
 		m_pObject->Get_Name()
 	);
 
 	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "OBJECT_DESC"			, LNG("[CAP] Description"),
-		LNG(""),
+		m_Parameters("NODE_GENERAL")	, "OBJECT_DESC"			, _TL("[CAP] Description"),
+		_TL(""),
 		m_pObject->Get_Description(), true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_GENERAL")	, "SHOW_LEGEND"			, LNG("[CAP] Show Legend"),
-		LNG(""),
+		m_Parameters("NODE_GENERAL")	, "SHOW_LEGEND"			, _TL("[CAP] Show Legend"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"		, LNG("[CAP] No Data"),
-		LNG("")
+		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"		, _TL("[CAP] No Data"),
+		_TL("")
 	);
 
 
@@ -354,20 +354,20 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Display...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, LNG("[CAP] Transparency [%]"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, _TL("[CAP] Transparency [%]"),
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "SHOW_ALWAYS"			, LNG("[CAP] Show at all scales"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY")	, "SHOW_ALWAYS"			, _TL("[CAP] Show at all scales"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("SHOW_ALWAYS")		, "SHOW_RANGE"			, LNG("[CAP] Scale Range"),
-		LNG("only show within scale range; values are given as extent measured in map units"),
+		m_Parameters("SHOW_ALWAYS")		, "SHOW_RANGE"			, _TL("[CAP] Scale Range"),
+		_TL("only show within scale range; values are given as extent measured in map units"),
 		100.0, 1000.0, 0.0, true
 	);
 
@@ -376,12 +376,12 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_COLORS")		, "COLORS_TYPE"			, LNG("[CAP] Type"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|%s|"),
-			LNG("[VAL] Unique Symbol"),
-			LNG("[VAL] Lookup Table"),
-			LNG("[VAL] Graduated Color")
+		m_Parameters("NODE_COLORS")		, "COLORS_TYPE"			, _TL("[CAP] Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("[VAL] Unique Symbol"),
+			_TL("[VAL] Lookup Table"),
+			_TL("[VAL] Graduated Color")
 		), 0
 	);
 
@@ -390,15 +390,15 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Unique Value...
 
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_UNISYMBOL"		, LNG("[CAP] Unique Symbol"),
-		LNG("")
+		m_Parameters("NODE_COLORS")		, "NODE_UNISYMBOL"		, _TL("[CAP] Unique Symbol"),
+		_TL("")
 	);
 
 	static	BYTE	s_Def_Layer_Colour	= 0;
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_UNISYMBOL")	, "UNISYMBOL_COLOR"		, LNG("[CAP] Color"),
-		LNG(""),
+		m_Parameters("NODE_UNISYMBOL")	, "UNISYMBOL_COLOR"		, _TL("[CAP] Color"),
+		_TL(""),
 		PARAMETER_TYPE_Color, s_Def_Layer_Colours[s_Def_Layer_Colour++ % DEF_LAYER_COLOUR_COUNT]
 	//	PARAMETER_TYPE_Color, SG_GET_RGB(Get_Random(128, 250), Get_Random(128, 200), Get_Random(128, 200))
 	);
@@ -408,20 +408,20 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Lookup Table...
 
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_LUT"			, LNG("[CAP] Lookup Table"),
-		LNG("")
+		m_Parameters("NODE_COLORS")		, "NODE_LUT"			, _TL("[CAP] Lookup Table"),
+		_TL("")
 	);
 
 	CSG_Table	LUT;
-	LUT.Add_Field(LNG("COLOR")			, SG_DATATYPE_Color);
-	LUT.Add_Field(LNG("NAME")			, SG_DATATYPE_String);
-	LUT.Add_Field(LNG("DESCRIPTION")	, SG_DATATYPE_String);
-	LUT.Add_Field(LNG("MINIMUM")		, SG_DATATYPE_Double);
-	LUT.Add_Field(LNG("MAXIMUM")		, SG_DATATYPE_Double);
+	LUT.Add_Field(_TL("COLOR")			, SG_DATATYPE_Color);
+	LUT.Add_Field(_TL("NAME")			, SG_DATATYPE_String);
+	LUT.Add_Field(_TL("DESCRIPTION")	, SG_DATATYPE_String);
+	LUT.Add_Field(_TL("MINIMUM")		, SG_DATATYPE_Double);
+	LUT.Add_Field(_TL("MAXIMUM")		, SG_DATATYPE_Double);
 
 	m_Parameters.Add_FixedTable(
-		m_Parameters("NODE_LUT")		, "LUT"					, LNG("[CAP] Table"),
-		LNG(""),
+		m_Parameters("NODE_LUT")		, "LUT"					, _TL("[CAP] Table"),
+		_TL(""),
 		&LUT
 	);
 
@@ -430,33 +430,33 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Metric...
 
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_METRIC"			, LNG("[CAP] Graduated Color"),
-		LNG("")
+		m_Parameters("NODE_COLORS")		, "NODE_METRIC"			, _TL("[CAP] Graduated Color"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Colors(
-		m_Parameters("NODE_METRIC")		, "METRIC_COLORS"		, LNG("[CAP] Colors"),
-		LNG("")
+		m_Parameters("NODE_METRIC")		, "METRIC_COLORS"		, _TL("[CAP] Colors"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("NODE_METRIC")		, "METRIC_ZRANGE"		, LNG("[CAP] Value Range"),
-		LNG("")
+		m_Parameters("NODE_METRIC")		, "METRIC_ZRANGE"		, _TL("[CAP] Value Range"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_METRIC")		, "METRIC_SCALE_MODE"	, LNG("[CAP] Mode"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|%s|"),
-			LNG("[VAL] Linear"),
-			LNG("[VAL] Logarithmic (up)"),
-			LNG("[VAL] Logarithmic (down)")
+		m_Parameters("NODE_METRIC")		, "METRIC_SCALE_MODE"	, _TL("[CAP] Mode"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("[VAL] Linear"),
+			_TL("[VAL] Logarithmic (up)"),
+			_TL("[VAL] Logarithmic (down)")
 		), 0
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_METRIC")		, "METRIC_SCALE_LOG"	, LNG("[CAP] Logarithmic Stretch Factor"),
-		LNG(""),
+		m_Parameters("NODE_METRIC")		, "METRIC_SCALE_LOG"	, _TL("[CAP] Logarithmic Stretch Factor"),
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 }
@@ -529,7 +529,7 @@ bool CWKSP_Layer::Save(void)
 
 	if( bResult )
 	{
-		bResult	= m_pObject->Save(File_Path.c_str());
+		bResult	= m_pObject->Save(File_Path.wc_str());
 
 		PROCESS_Set_Okay();
 	}
@@ -538,11 +538,11 @@ bool CWKSP_Layer::Save(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Save(const wxChar *File_Path)
+bool CWKSP_Layer::Save(const wxString &File_Name)
 {
-	if( File_Path && *File_Path )
+	if( File_Name.Length() )
 	{
-		bool	bResult	= m_pObject->Save(File_Path);
+		bool	bResult	= m_pObject->Save(File_Name.wc_str());
 
 		if( bResult )
 		{
@@ -619,7 +619,7 @@ void CWKSP_Layer::DataObject_Changed(CSG_Colors *pColors)
 void CWKSP_Layer::DataObject_Changed(void)
 {
 	//-----------------------------------------------------
-	m_Parameters.Set_Name(wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pObject->Get_Name()));
+	m_Parameters.Set_Name(CSG_String::Format(SG_T("%02d. %s"), 1 + Get_ID(), m_pObject->Get_Name()));
 
 	m_Parameters("OBJECT_NAME")->Set_Value(m_pObject->Get_Name());
 	m_Parameters("OBJECT_DESC")->Set_Value(m_pObject->Get_Description());
@@ -792,7 +792,7 @@ bool CWKSP_Layer::Set_Color_Range(double zMin, double zMax)
 {
 	CSG_Parameters	Parameters;
 
-	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, LNG(""), LNG(""), zMin, zMax);
+	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, _TL(""), _TL(""), zMin, zMax);
 	DataObject_Changed(&Parameters);
 
 	return( true );

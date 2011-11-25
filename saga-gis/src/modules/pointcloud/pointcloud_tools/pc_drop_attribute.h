@@ -87,7 +87,7 @@ public:
 	CPC_Drop_Attribute(void);
 	virtual ~CPC_Drop_Attribute(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
 
 protected:

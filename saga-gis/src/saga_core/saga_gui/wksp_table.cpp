@@ -93,14 +93,14 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 	On_Create_Parameters();
 
 	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "NAME"			, LNG("[CAP] Name"),
-		LNG(""),
+		m_Parameters("NODE_GENERAL")	, "NAME"			, _TL("[CAP] Name"),
+		_TL(""),
 		m_pTable->Get_Name()
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"	, LNG("[CAP] No Data"),
-		LNG("")
+		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"	, _TL("[CAP] No Data"),
+		_TL("")
 	);
 }
 
@@ -112,11 +112,11 @@ CWKSP_Table::~CWKSP_Table(void)
 
 	if( m_pOwner->Get_Type() == WKSP_ITEM_Table_Manager )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Close table"), m_pTable->Get_Name() ), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("[MSG] Close table"), m_pTable->Get_Name() ), true, true);
 
 		delete(m_pTable);
 
-		MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+		MSG_General_Add(_TL("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 }
 
@@ -139,21 +139,23 @@ wxString CWKSP_Table::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("[CAP] Table"));
+	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("[CAP] Table"));
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR(LNG("[CAP] Name")		, m_pTable->Get_Name());
-	DESC_ADD_STR(LNG("[CAP] File")		, m_pTable->Get_File_Name());
-	DESC_ADD_INT(LNG("[CAP] Fields")	, m_pTable->Get_Field_Count());
-	DESC_ADD_INT(LNG("[CAP] Records")	, m_pTable->Get_Record_Count());
+	DESC_ADD_STR(_TL("[CAP] Name")				, m_pTable->Get_Name());
+	DESC_ADD_STR(_TL("[CAP] Description")		, m_pTable->Get_Description());
+	DESC_ADD_STR(_TL("[CAP] File")				, SG_File_Exists(m_pTable->Get_File_Name()) ? m_pTable->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR(_TL("[CAP] Modified")			, m_pTable->is_Modified() ? _TL("[VAL] yes") : _TL("[VAL] no"));
+	DESC_ADD_INT(_TL("[CAP] Attributes")		, m_pTable->Get_Field_Count());
+	DESC_ADD_INT(_TL("[CAP] Records")			, m_pTable->Get_Record_Count());
 
 	s	+= wxT("</table>");
 
 	s	+= Get_TableInfo_asHTML(m_pTable);
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History"));
+//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("[CAP] Data History"));
 //	s	+= m_pTable->Get_History().Get_HTML();
 //	s	+= wxString::Format(wxT("</font"));
 
@@ -295,11 +297,11 @@ int CWKSP_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 bool CWKSP_Table::Save(void)
 {
 	bool		bResult	= false;
-	wxString	File_Path;
+	wxString	File_Name;
 
-	if( DLG_Save(File_Path, ID_DLG_TABLES_SAVE) )
+	if( DLG_Save(File_Name, ID_DLG_TABLES_SAVE) )
 	{
-		bResult	= m_pTable->Save(File_Path.c_str());
+		bResult	= m_pTable->Save(File_Name.wc_str());
 
 		PROCESS_Set_Okay();
 	}
@@ -308,13 +310,13 @@ bool CWKSP_Table::Save(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Table::Save(const wxChar *File_Path)
+bool CWKSP_Table::Save(const wxString &File_Name)
 {
 	bool	bResult;
 
-	if( File_Path && *File_Path )
+	if( File_Name.Length() > 0 )
 	{
-		bResult	= m_pTable->Save(File_Path);
+		bResult	= m_pTable->Save(File_Name.wc_str());
 
 		PROCESS_Set_Okay();
 
@@ -334,7 +336,7 @@ bool CWKSP_Table::Save(const wxChar *File_Path)
 //---------------------------------------------------------
 bool CWKSP_Table::DataObject_Changed(CSG_Parameters *pParameters)
 {
-	m_Parameters.Set_Name(wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pTable->Get_Name()));
+	m_Parameters.Set_Name(CSG_String::Format(SG_T("%02d. %s"), 1 + Get_ID(), m_pTable->Get_Name()));
 
 	m_Parameters("NAME")->Set_Value(m_pTable->Get_Name());
 

@@ -113,7 +113,7 @@ class CTPI_Classification : public CSG_Module_Grid
 public:
 	CTPI_Classification(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Classification" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Classification" ));	}
 
 
 protected:

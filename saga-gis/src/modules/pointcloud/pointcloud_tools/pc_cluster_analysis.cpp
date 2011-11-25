@@ -254,7 +254,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 		while( tkz_fields.HasMoreTokens() )
 		{
-			token	= tkz_fields.GetNextToken();
+			token	= tkz_fields.GetNextToken().wc_str();
 
 			if( token.Length() == 0 )
 				break;

@@ -142,7 +142,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 	if( (pMenu_Edit = m_pLayer->Edit_Get_Menu()) != NULL )
 	{
 		pMenu->AppendSeparator();
-		pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Edit"), pMenu_Edit);
+		pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Edit"), pMenu_Edit);
 	}
 
 	return( pMenu );

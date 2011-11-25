@@ -143,8 +143,8 @@ TSG_Data_Object_Type;
 #define DATAOBJECT_CREATE		((void *)1)
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Identifier	(TSG_Data_Object_Type Type);
-SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name			(TSG_Data_Object_Type Type);
+SAGA_API_DLL_EXPORT CSG_String	SG_Get_DataObject_Identifier	(TSG_Data_Object_Type Type);
+SAGA_API_DLL_EXPORT CSG_String	SG_Get_DataObject_Name			(TSG_Data_Object_Type Type);
 
 
 ///////////////////////////////////////////////////////////
@@ -152,8 +152,8 @@ SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name			(TSG_Data_Object_Ty
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT void			SG_Set_History_Depth			(int Depth);
-SAGA_API_DLL_EXPORT int				SG_Get_History_Depth			(void);
+SAGA_API_DLL_EXPORT void		SG_Set_History_Depth			(int Depth);
+SAGA_API_DLL_EXPORT int			SG_Get_History_Depth			(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -186,27 +186,27 @@ public:
 
 	virtual bool					Save			(const CSG_String &File_Name, int Format = 0)	= 0;
 
-	const SG_Char *					Get_File_Name	(bool bNullAsString = false)	const;
-	int								Get_File_Type	(void)	const;
+	const SG_Char *					Get_File_Name	(void)	const			{	return( m_File_Name );		}
+	int								Get_File_Type	(void)	const			{	return( m_File_Type );		}
 
 	virtual bool					Assign			(CSG_Data_Object *pObject);
 
-	void							Set_Name		(const SG_Char *Name);
-	const SG_Char *					Get_Name		(void)	const;
+	void							Set_Name		(const CSG_String &Name);
+	const SG_Char *					Get_Name		(void)	const			{	return( m_Name );			}
 
-	void							Set_Description	(const SG_Char *Description);
-	const SG_Char *					Get_Description	(void)	const;
+	void							Set_Description	(const CSG_String &Description);
+	const SG_Char *					Get_Description	(void)	const			{	return( m_Description );	}
 
-	virtual void					Set_Modified	(bool bOn = true)	{	m_bModified	= bOn;			}
-	bool							is_Modified		(void)	const		{	return( m_bModified );		}
+	virtual void					Set_Modified	(bool bOn = true)		{	m_bModified	= bOn;			}
+	bool							is_Modified		(void)	const			{	return( m_bModified );		}
 	bool							Update			(void);
 
 
-	CSG_MetaData &					Get_MetaData	(void)	const		{	return( *m_pMetaData );		}
-	CSG_MetaData &					Get_MetaData_DB	(void)				{	return( *m_pMetaData_DB );	}
-	CSG_MetaData &					Get_History		(void)				{	return( *m_pHistory );		}
+	CSG_MetaData &					Get_MetaData	(void)	const			{	return( *m_pMetaData );		}
+	CSG_MetaData &					Get_MetaData_DB	(void)					{	return( *m_pMetaData_DB );	}
+	CSG_MetaData &					Get_History		(void)					{	return( *m_pHistory );		}
 
-	CSG_Projection &				Get_Projection	(void)				{	return( m_Projection );		}
+	CSG_Projection &				Get_Projection	(void)					{	return( m_Projection );		}
 
 	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
 	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
@@ -227,16 +227,16 @@ public:
 
 protected:
 
-	void							Set_File_Name		(const SG_Char *File_Name);
-	void							Set_File_Type		(int File_Type);
+	void							Set_File_Name		(const CSG_String &File_Name);
+	void							Set_File_Type		(int Type)			{	m_File_Type	= Type;			}
 
 	bool							Load_MetaData		(const SG_Char *File_Name);
 	bool							Save_MetaData		(const SG_Char *File_Name);
 
-	void							Set_Update_Flag		(bool bOn = true)	{	m_bUpdate	= bOn;		}
-	bool							Get_Update_Flag		(void)				{	return( m_bUpdate );	}
-	virtual bool					On_Update			(void)				{	return( true );			}
-	virtual bool					On_NoData_Changed	(void)				{	return( true );			}
+	void							Set_Update_Flag		(bool bOn = true)	{	m_bUpdate	= bOn;			}
+	bool							Get_Update_Flag		(void)				{	return( m_bUpdate );		}
+	virtual bool					On_Update			(void)				{	return( true );				}
+	virtual bool					On_NoData_Changed	(void)				{	return( true );				}
 
 
 private:

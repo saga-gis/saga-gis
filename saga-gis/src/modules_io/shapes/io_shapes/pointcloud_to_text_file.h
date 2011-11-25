@@ -91,7 +91,7 @@ public:
 	CPointcloud_To_Text_File(void);
 	virtual ~CPointcloud_To_Text_File(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Export") );	}
 
 
 protected:

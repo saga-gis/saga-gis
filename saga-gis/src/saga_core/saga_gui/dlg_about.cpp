@@ -106,19 +106,19 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CDLG_About::CDLG_About(void)
-	: CDLG_Base(-1, LNG("About SAGA"), false)
+	: CDLG_Base(-1, _TL("About SAGA"), false)
 {
 	wxTextCtrl	*pText;
 
 	m_pControl	= new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE);
 	
-	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), LNG("Logo"), false, -1);
+	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Logo"), false, -1);
 
 	//-----------------------------------------------------
 	m_pVersion	=
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
 	pText->AppendText(_Get_Version());
-	m_pControl->AddPage(pText, LNG("Version"), false, -1);
+	m_pControl->AddPage(pText, _TL("Version"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
@@ -136,7 +136,7 @@ CDLG_About::CDLG_About(void)
 	//-----------------------------------------------------
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
 	pText->AppendText(_Get_Acknowledgements());
-	m_pControl->AddPage(pText, LNG("Acknowledgements"), false, -1);
+	m_pControl->AddPage(pText, _TL("Acknowledgements"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------

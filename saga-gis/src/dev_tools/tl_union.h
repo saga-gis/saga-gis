@@ -78,7 +78,7 @@ class CTL_Union : public CSG_Module
 public:
 	CTL_Union(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( SG_T("Translation") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( SG_T("Translation") );	}
 
 
 protected:

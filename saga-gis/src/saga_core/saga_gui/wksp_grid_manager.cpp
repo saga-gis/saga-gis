@@ -100,7 +100,7 @@ CWKSP_Grid_Manager::~CWKSP_Grid_Manager(void)
 //---------------------------------------------------------
 wxString CWKSP_Grid_Manager::Get_Name(void)
 {
-	return( LNG("[CAP] Grids") );
+	return( _TL("[CAP] Grids") );
 }
 
 //---------------------------------------------------------
@@ -108,7 +108,7 @@ wxString CWKSP_Grid_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><br>%d %s"), LNG("[CAP] Grids"), Get_Count(), Get_Count() == 1 ? LNG("[TXT] grid system") : LNG("[TXT] grid systems"));
+	s.Printf(wxT("<b>%s</b><br>%d %s"), _TL("[CAP] Grids"), Get_Count(), Get_Count() == 1 ? _TL("[TXT] grid system") : _TL("[TXT] grid systems"));
 
 	return( s );
 }
@@ -118,7 +118,7 @@ wxMenu * CWKSP_Grid_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(LNG("[CAP] Grids"));
+	pMenu	= new wxMenu(_TL("[CAP] Grids"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_OPEN);
 

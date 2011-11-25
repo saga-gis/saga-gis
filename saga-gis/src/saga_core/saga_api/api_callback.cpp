@@ -203,7 +203,7 @@ bool		SG_UI_Process_Set_Ready(void)
 {
 	if( gSG_UI_Callback )
 	{
-		SG_UI_Process_Set_Text(LNG("ready"));
+		SG_UI_Process_Set_Text(_TL("ready"));
 
 		if( gSG_UI_Progress_Lock == 0 )
 		{
@@ -217,7 +217,7 @@ bool		SG_UI_Process_Set_Ready(void)
 }
 
 //---------------------------------------------------------
-void		SG_UI_Process_Set_Text(const SG_Char *Text)
+void		SG_UI_Process_Set_Text(const CSG_String &Text)
 {
 	if( gSG_UI_Progress_Lock == 0 )
 	{
@@ -262,7 +262,7 @@ bool		SG_UI_Stop_Execution(bool bDialog)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		SG_UI_Dlg_Message(const SG_Char *Message, const SG_Char *Caption)
+void		SG_UI_Dlg_Message(const CSG_String &Message, const CSG_String &Caption)
 {
 	if( gSG_UI_Callback )
 	{
@@ -277,7 +277,7 @@ void		SG_UI_Dlg_Message(const SG_Char *Message, const SG_Char *Caption)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_Dlg_Continue(const SG_Char *Message, const SG_Char *Caption)
+bool		SG_UI_Dlg_Continue(const CSG_String &Message, const CSG_String &Caption)
 {
 	if( gSG_UI_Callback )
 	{
@@ -290,7 +290,7 @@ bool		SG_UI_Dlg_Continue(const SG_Char *Message, const SG_Char *Caption)
 }
 
 //---------------------------------------------------------
-int			SG_UI_Dlg_Error(const SG_Char *Message, const SG_Char *Caption)
+int			SG_UI_Dlg_Error(const CSG_String &Message, const CSG_String &Caption)
 {
 	if( gSG_UI_Callback )
 	{
@@ -310,7 +310,7 @@ int			SG_UI_Dlg_Error(const SG_Char *Message, const SG_Char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Caption)
+bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Caption)
 {
 	if( gSG_UI_Callback && pParameters )
 	{
@@ -348,7 +348,7 @@ int			SG_UI_Msg_Lock(bool bOn)
 }
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
+void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
 	if( gSG_UI_Msg_Lock )
 		return;
@@ -376,7 +376,7 @@ void		SG_UI_Msg_Add(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Styl
 }
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add_Error(const SG_Char *Message)
+void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 {
 	if( gSG_UI_Msg_Lock )
 		return;
@@ -389,12 +389,12 @@ void		SG_UI_Msg_Add_Error(const SG_Char *Message)
 	}
 	else
 	{
-		SG_PRINTF(SG_T("\n%s: %s"), LNG("Error"), Message);
+		SG_PRINTF(SG_T("\n%s: %s"), _TL("Error"), Message);
 	}
 }
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add_Execution(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
+void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
 	if( gSG_UI_Msg_Lock )
 		return;
@@ -429,9 +429,9 @@ void		SG_UI_Msg_Add_Execution(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_Data_Object *	SG_UI_DataObject_Find(const SG_Char *File_Name, int Object_Type)
+class CSG_Data_Object *	SG_UI_DataObject_Find(const CSG_String &File_Name, int Object_Type)
 {
-	if( gSG_UI_Callback && File_Name )
+	if( gSG_UI_Callback )
 	{
 		CSG_UI_Parameter	p1(File_Name), p2(Object_Type);
 
@@ -608,7 +608,7 @@ void *		SG_UI_Get_Window_Main(void)
 //---------------------------------------------------------
 CSG_String	SG_UI_Get_Application_Path(void)
 {
-	return( wxStandardPaths::Get().GetExecutablePath().c_str() );
+	return( wxStandardPaths::Get().GetExecutablePath().wc_str() );
 }
 
 

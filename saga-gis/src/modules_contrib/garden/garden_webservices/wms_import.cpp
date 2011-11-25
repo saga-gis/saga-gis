@@ -208,7 +208,7 @@ bool CWMS_Capabilities::_Get_Child_Content(wxXmlNode *pNode, CSG_String &Value, 
 {
 	if( (pNode = _Get_Child(pNode, Name)) != NULL )
 	{
-		Value	= pNode->GetNodeContent();
+		Value	= pNode->GetNodeContent().wc_str();
 
 		return( true );
 	}
@@ -253,7 +253,7 @@ bool CWMS_Capabilities::_Get_Node_PropVal(wxXmlNode *pNode, CSG_String &Value, c
 
 	if( pNode != NULL && pNode->GetPropVal(Property.c_str(), &PropVal) )
 	{
-		Value	= PropVal.c_str();
+		Value	= PropVal.wc_str();
 
 		return( true );
 	}
@@ -306,7 +306,7 @@ bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
 		{
 			if( !pKeyword->GetName().CmpNoCase(SG_T("Format")) )
 			{
-				m_Keywords.Add(pKeyword->GetNodeContent().c_str());
+				m_Keywords.Add(pKeyword->GetNodeContent().wc_str());
 			}
 
 			pKeyword	= pKeyword->GetNext();
@@ -337,7 +337,7 @@ bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
 
 			while( pChild )
 			{
-				m_Formats	+= pChild->GetName().c_str();
+				m_Formats	+= pChild->GetName().wc_str();
 				m_Formats	+= SG_T("|");
 
 				pChild	= pChild->GetNext();
@@ -349,7 +349,7 @@ bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
 			{
 				if( !pChild->GetName().CmpNoCase(SG_T("Format")) )
 				{
-					m_Formats	+= pChild->GetNodeContent().c_str();
+					m_Formats	+= pChild->GetNodeContent().wc_str();
 					m_Formats	+= SG_T("|");
 				}
 			}
@@ -387,7 +387,7 @@ bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
 		{
 			if( !pChild->GetName().CmpNoCase(V_SRS(Version)) )
 			{
-				m_sProjections	.Add(pChild->GetNodeContent().c_str());
+				m_sProjections	.Add(pChild->GetNodeContent().wc_str());
 
 			//	m_Projections	+= Get_EPSG_Name(pChild->GetNodeContent().c_str());
 				m_Projections	+= SG_T("|");
@@ -789,7 +789,7 @@ bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, const CS
 
 				while( !pStream->Eof() )
 				{
-					s	+= pStream->GetC();
+					s	+= (char)pStream->GetC();
 				}
 
 				Message_Add(s);

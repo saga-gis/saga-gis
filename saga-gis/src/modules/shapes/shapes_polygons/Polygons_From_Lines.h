@@ -87,7 +87,7 @@ class CPolygons_From_Lines : public CSG_Module
 public:
 	CPolygons_From_Lines(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
 
 
 protected:

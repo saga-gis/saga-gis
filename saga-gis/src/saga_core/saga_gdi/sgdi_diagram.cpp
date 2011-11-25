@@ -101,8 +101,8 @@ CSGDI_Diagram::CSGDI_Diagram(wxWindow *pParent)
 {
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
 
-	m_xName		= LNG("X");
-	m_yName		= LNG("Y");
+	m_xName		= _TL("X");
+	m_yName		= _TL("Y");
 }
 
 //---------------------------------------------------------

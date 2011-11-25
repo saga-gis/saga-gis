@@ -107,7 +107,7 @@ public:
 	CFlow(void);
 	virtual ~CFlow(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
 
 	void					Set_Point		(int x, int y);
 

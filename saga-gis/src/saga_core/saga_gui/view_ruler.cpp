@@ -183,8 +183,9 @@ void CVIEW_Ruler::On_Paint(wxPaintEvent &event)
 void CVIEW_Ruler::_Draw_Corners(wxDC &dc, int Width, int Height)
 {
 	wxFont	Font;
+	
+	Font.Create((int)(0.65 * (double)Height), wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 
-	Font.Create((int)(0.65 * (double)Height), wxSWISS, wxNORMAL, wxNORMAL);
 	dc.SetFont(Font);
 
 	if( m_bHorizontal )
@@ -295,7 +296,7 @@ void CVIEW_Ruler::_Draw_Position(wxDC &dc, int Width, int Height, int Position)
 {
 	if( m_Position >= 0 && m_Position < Width )
 	{
-		int		lf	= dc.GetLogicalFunction();
+		wxRasterOperationMode	lf	= dc.GetLogicalFunction();
 
 		dc.SetLogicalFunction(wxINVERT);
 

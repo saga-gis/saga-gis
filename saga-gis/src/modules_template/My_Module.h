@@ -86,7 +86,7 @@ class CMy_Module : public CSG_Module
 public:
 	CMy_Module(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("My_Module Module Sub Menu") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("My_Module Module Sub Menu") );	}
 
 
 protected:

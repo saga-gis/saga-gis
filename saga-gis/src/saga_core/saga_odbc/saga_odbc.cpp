@@ -62,13 +62,37 @@
 
 //---------------------------------------------------------
 #define OTL_ODBC_MULTI_MODE
-#define OTL_STL				// Turn on STL features
 #ifndef OTL_ANSI_CPP
 #define OTL_ANSI_CPP			// Turn on ANSI C++ typecasts
 #endif
 
 #ifdef _SAGA_UNICODE
-//#define OTL_UNICODE
+	#include <iostream>
+	#include <string>
+	using namespace std;
+
+	#include <stdio.h>
+
+	#define OTL_ODBC_ALTERNATE_RPC
+	#define OTL_UNICODE
+
+	#if defined(__GNUC__)
+		namespace std{
+		   typedef unsigned short unicode_char;
+		   typedef basic_string<unicode_char> unicode_string;
+		}
+
+		#define OTL_UNICODE_CHAR_TYPE unicode_char
+		#define OTL_UNICODE_STRING_TYPE unicode_string
+	#else
+		#define OTL_UNICODE_CHAR_TYPE wchar_t
+		#define OTL_UNICODE_STRING_TYPE wstring
+	#endif
+
+	#define std_string	std::wstring
+#else
+	#define OTL_STL				// Turn on STL features
+	#define std_string	std::string
 #endif
 
 #ifdef _SAGA_LINUX
@@ -114,7 +138,7 @@ void _Error_Message(const CSG_String &Message, const CSG_String &Additional = SG
 
 	s	+= SG_T(":\n");
 
-	if( Additional )
+	if( Additional.Length() > 0 )
 	{
 		s	+= Additional;
 		s	+= SG_T("\n");
@@ -309,7 +333,7 @@ CSG_String CSG_ODBC_Connection::Get_Tables(void) const
 
 			while( !Stream.eof() )
 			{
-				std::string	Catalog, Schema, Table, Type, Remarks;
+				std_string	Catalog, Schema, Table, Type, Remarks;
 
 				Stream >> Catalog >> Schema >> Table >> Type >> Remarks;
 
@@ -337,7 +361,7 @@ bool CSG_ODBC_Connection::Table_Exists(const CSG_String &Table_Name) const
 
 			while( !Stream.eof() )
 			{
-				std::string	Catalog, Schema, Table, Type, Remarks;
+				std_string	Catalog, Schema, Table, Type, Remarks;
 
 				Stream >> Catalog >> Schema >> Table >> Type >> Remarks;
 
@@ -361,14 +385,14 @@ CSG_Table CSG_ODBC_Connection::Get_Field_Desc(const CSG_String &Table_Name) cons
 {
 	CSG_Table	Fields;
 
-	Fields.Set_Name(CSG_String::Format(SG_T("%s [%s]"), Table_Name.c_str(), LNG("Field Description")));
+	Fields.Set_Name(CSG_String::Format(SG_T("%s [%s]"), Table_Name.c_str(), _TL("Field Description")));
 
 	if( is_Connected() )
 	{
 		try
 		{
 			int				i, n;
-			std::string		s;
+			std_string		s;
 			otl_column_desc	*desc;
 			otl_stream		Stream;
 
@@ -489,7 +513,7 @@ bool CSG_ODBC_Connection::Execute(const CSG_String &SQL, bool bCommit)
 {
 	if( !is_Connected() )
 	{
-		_Error_Message(LNG("no database connection"));
+		_Error_Message(_TL("no database connection"));
 
 		return( false );
 	}
@@ -505,7 +529,7 @@ bool CSG_ODBC_Connection::Execute(const CSG_String &SQL, bool bCommit)
 	//		return( bCommit ? Commit() : true );
 	//	}
 
-	//	_Error_Message(LNG("sql excution error"), SQL);
+	//	_Error_Message(_TL("sql excution error"), SQL);
 	}
 	catch( otl_exception &e )
 	{
@@ -538,7 +562,7 @@ bool CSG_ODBC_Connection::Commit(void)
 {
 	if( !is_Connected() )
 	{
-		_Error_Message(LNG("no database connection"));
+		_Error_Message(_TL("no database connection"));
 
 		return( false );
 	}
@@ -562,7 +586,7 @@ bool CSG_ODBC_Connection::Rollback(void)
 {
 	if( !is_Connected() )
 	{
-		_Error_Message(LNG("no database connection"));
+		_Error_Message(_TL("no database connection"));
 
 		return( false );
 	}
@@ -591,7 +615,7 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 {
 	if( Table.Get_Field_Count() <= 0 )
 	{
-		_Error_Message(LNG("no attributes in table"));
+		_Error_Message(_TL("no attributes in table"));
 
 		return( false );
 	}
@@ -638,13 +662,14 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 			break;
 
 		case SG_DATATYPE_Double:
-			s	= is_PostgreSQL()
-				? SG_T("DOUBLE PRECISION")
+			s	= is_PostgreSQL()	? SG_T("DOUBLE PRECISION")
 				: SG_T("DOUBLE");
 			break;
 
 		case SG_DATATYPE_Binary:
-			s	= SG_T("%s VARBINARY");
+			s	= is_PostgreSQL()	? SG_T("BYTEA")
+				: is_Access()		? SG_T("IMAGE")
+				: SG_T("VARBINARY");
 			break;
 		}
 
@@ -705,7 +730,7 @@ bool CSG_ODBC_Connection::Table_Drop(const CSG_String &Table_Name, bool bCommit)
 {
 	if( !Table_Exists(Table_Name) )
 	{
-		_Error_Message(LNG("database table does not exist"));
+		_Error_Message(_TL("database table does not exist"));
 
 		return( false );
 	}
@@ -724,7 +749,7 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
-		_Error_Message(LNG("no database connection"));
+		_Error_Message(_TL("no database connection"));
 
 		return( false );
 	}
@@ -783,7 +808,7 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 		Stream.set_lob_stream_mode(bLOB);
 		Stream.open(bLOB ? 1 : m_Size_Buffer, SG_STR_SGTOMB(Insert), m_Connection);
 
-		string	valString;
+		std_string	valString;
 
 		//-------------------------------------------------
 		for(iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
@@ -801,7 +826,11 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 				default:
 				case SG_DATATYPE_String:
 				case SG_DATATYPE_Date:
+#ifdef _SAGA_UNICODE
+					valString	= SG_STR_MBTOSG(pRecord->asString(iField));
+#else
 					valString	= SG_STR_SGTOMB(pRecord->asString(iField));
+#endif
 					Stream << valString;
 					break;
 
@@ -838,7 +867,7 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
-		_Error_Message(LNG("no database connection"));
+		_Error_Message(_TL("no database connection"));
 
 		return( false );
 	}
@@ -873,7 +902,7 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
-		_Error_Message(LNG("no database connection"));
+		_Error_Message(_TL("no database connection"));
 
 		return( false );
 	}
@@ -885,7 +914,7 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 		long			valLong;
 		float			valFloat;
 		double			valDouble;
-		string			valString;
+		std_string		valString;
 		otl_long_string	valRaw(m_Connection.get_max_long_size());
 		otl_column_desc	*Fields;
 		otl_stream		Stream;
@@ -899,7 +928,7 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 
 		if( Fields == NULL || nFields <= 0 )
 		{
-			_Error_Message(LNG("no fields in selection"));
+			_Error_Message(_TL("no fields in selection"));
 
 			return( false );
 		}
@@ -934,14 +963,7 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 				case SG_DATATYPE_Long:		Stream >> valLong;   if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valLong);		break;
 				case SG_DATATYPE_Float:		Stream >> valFloat;  if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valFloat);		break;
 				case SG_DATATYPE_Double:	Stream >> valDouble; if( Stream.is_null() ) pRecord->Set_NoData(iField); else pRecord->Set_Value(iField, valDouble);	break;
-				case SG_DATATYPE_Binary:
-					Stream >> valRaw;
-
-					if( Stream.is_null() )
-					{
-						pRecord->Set_NoData(iField);
-					}
-					else
+				case SG_DATATYPE_Binary:	Stream >> valRaw;    if( Stream.is_null() ) pRecord->Set_NoData(iField); else
 					{
 						BLOB.Clear();
 
@@ -1015,7 +1037,7 @@ bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_Str
 	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
-		_Error_Message(LNG("no database connection"));
+		_Error_Message(_TL("no database connection"));
 
 		return( false );
 	}
@@ -1051,21 +1073,21 @@ bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_Str
 
 		if( Fields == NULL || nFields <= 0 )
 		{
-			_Error_Message(LNG("no fields in selection"));
+			_Error_Message(_TL("no fields in selection"));
 
 			return( false );
 		}
 
 		if( nFields != 1 )
 		{
-			_Error_Message(LNG("more than one field in selection"));
+			_Error_Message(_TL("more than one field in selection"));
 
 			return( false );
 		}
 
 		if( _Get_Type_From_SQL(Fields[0].otl_var_dbtype) != SG_DATATYPE_Binary )//|| _Get_Type_From_SQL(Fields[0].otl_var_dbtype) != SG_DATATYPE_String )
 		{
-			_Error_Message(LNG("field cannot be mapped to binary object"));
+			_Error_Message(_TL("field cannot be mapped to binary object"));
 
 			return( false );
 		}
@@ -1377,31 +1399,31 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_ODBC_Module::CSG_ODBC_Module(void)
 {
-	m_Connection_Choice.Create(this, LNG("Choose ODBC Connection"), LNG(""), SG_T("CONNECTIONS"));
+	m_Connection_Choice.Create(this, _TL("Choose ODBC Connection"), _TL(""), SG_T("CONNECTIONS"));
 
 	m_Connection_Choice.Add_Choice(
-		NULL	, "CONNECTIONS", LNG("Available Connections"),
-		LNG(""),
+		NULL	, "CONNECTIONS", _TL("Available Connections"),
+		_TL(""),
 		SG_T("")
 	);
 
 	if( !SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_String(
-			NULL	, "ODBC_DSN"	, LNG("DSN"),
-			LNG("Data Source Name"),
+			NULL	, "ODBC_DSN"	, _TL("DSN"),
+			_TL("Data Source Name"),
 			SG_T("")
 		);
 
 		Parameters.Add_String(
-			NULL	, "ODBC_USR"	, LNG("User"),
-			LNG("User Name"),
+			NULL	, "ODBC_USR"	, _TL("User"),
+			_TL("User Name"),
 			SG_T("")
 		);
 
 		Parameters.Add_String(
-			NULL	, "ODBC_PWD"	, LNG("Password"),
-			LNG("Password"),
+			NULL	, "ODBC_PWD"	, _TL("Password"),
+			_TL("Password"),
 			SG_T("")
 		);
 	}
@@ -1430,7 +1452,7 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 		{
 			m_Connection_Choice("CONNECTIONS")->asChoice()->Set_Items(s);
 
-			if( SG_UI_Dlg_Parameters(&m_Connection_Choice, LNG("Choose ODBC Connection")) )
+			if( SG_UI_Dlg_Parameters(&m_Connection_Choice, _TL("Choose ODBC Connection")) )
 			{
 				m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(m_Connection_Choice("CONNECTIONS")->asString());
 			}
@@ -1444,8 +1466,8 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 	if( m_pConnection == NULL )
 	{
 		Message_Dlg(
-			LNG("No ODBC connection available!"),
-			LNG("ODBC Database Connection Error")
+			_TL("No ODBC connection available!"),
+			_TL("ODBC Database Connection Error")
 		);
 	}
 
@@ -1480,15 +1502,15 @@ bool CSG_ODBC_Module::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pT
 
 	if( pTable )
 	{
-		CSG_Parameter	*pP	= pParameters->Add_Node(NULL, "P", LNG("Primary key)")	, LNG(""));
-		CSG_Parameter	*pN	= pParameters->Add_Node(NULL, "N", LNG("Not Null")		, LNG(""));
-		CSG_Parameter	*pU	= pParameters->Add_Node(NULL, "U", LNG("Unique")		, LNG(""));
+		CSG_Parameter	*pP	= pParameters->Add_Node(NULL, "P", _TL("Primary key)")	, _TL(""));
+		CSG_Parameter	*pN	= pParameters->Add_Node(NULL, "N", _TL("Not Null")		, _TL(""));
+		CSG_Parameter	*pU	= pParameters->Add_Node(NULL, "U", _TL("Unique")		, _TL(""));
 
 		for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			pParameters->Add_Value(pP, CSG_String::Format(SG_T("P%d"), i), pTable->Get_Field_Name(i), LNG(""), PARAMETER_TYPE_Bool, false);
-			pParameters->Add_Value(pN, CSG_String::Format(SG_T("N%d"), i), pTable->Get_Field_Name(i), LNG(""), PARAMETER_TYPE_Bool, false);
-			pParameters->Add_Value(pU, CSG_String::Format(SG_T("U%d"), i), pTable->Get_Field_Name(i), LNG(""), PARAMETER_TYPE_Bool, false);
+			pParameters->Add_Value(pP, CSG_String::Format(SG_T("P%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+			pParameters->Add_Value(pN, CSG_String::Format(SG_T("N%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+			pParameters->Add_Value(pU, CSG_String::Format(SG_T("U%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
 		}
 	}
 

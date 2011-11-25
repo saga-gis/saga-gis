@@ -131,7 +131,7 @@ public:
 	CFlow_AreaUpslope_Interactive(void);
 	virtual ~CFlow_AreaUpslope_Interactive(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
 
 
 protected:
@@ -154,7 +154,7 @@ public:
 	CFlow_AreaUpslope_Area(void);
 	virtual ~CFlow_AreaUpslope_Area(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
 
 
 protected:

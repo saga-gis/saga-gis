@@ -73,26 +73,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char *	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
+CSG_String	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	default:					return( LNG("undefined") );
-	case SG_DATATYPE_Bit:		return( LNG("bit") );
-	case SG_DATATYPE_Byte:		return( LNG("unsigned 1 byte integer") );
-	case SG_DATATYPE_Char:		return( LNG("signed 1 byte integer") );
-	case SG_DATATYPE_Word:		return( LNG("unsigned 2 byte integer") );
-	case SG_DATATYPE_Short:		return( LNG("signed 2 byte integer") );
-	case SG_DATATYPE_DWord:		return( LNG("unsigned 4 byte integer") );
-	case SG_DATATYPE_Int:		return( LNG("signed 4 byte integer") );
-	case SG_DATATYPE_ULong:		return( LNG("unsigned 8 byte integer") );
-	case SG_DATATYPE_Long:		return( LNG("signed 8 byte integer") );
-	case SG_DATATYPE_Float:		return( LNG("4 byte floating point number") );
-	case SG_DATATYPE_Double:	return( LNG("8 byte floating point number") );
-	case SG_DATATYPE_String:	return( LNG("string") );
-	case SG_DATATYPE_Date:		return( LNG("date") );
-	case SG_DATATYPE_Color:		return( LNG("color") );
-	case SG_DATATYPE_Binary:	return( LNG("binary") );
+	default:					return( _TL("undefined") );
+	case SG_DATATYPE_Bit:		return( _TL("bit") );
+	case SG_DATATYPE_Byte:		return( _TL("unsigned 1 byte integer") );
+	case SG_DATATYPE_Char:		return( _TL("signed 1 byte integer") );
+	case SG_DATATYPE_Word:		return( _TL("unsigned 2 byte integer") );
+	case SG_DATATYPE_Short:		return( _TL("signed 2 byte integer") );
+	case SG_DATATYPE_DWord:		return( _TL("unsigned 4 byte integer") );
+	case SG_DATATYPE_Int:		return( _TL("signed 4 byte integer") );
+	case SG_DATATYPE_ULong:		return( _TL("unsigned 8 byte integer") );
+	case SG_DATATYPE_Long:		return( _TL("signed 8 byte integer") );
+	case SG_DATATYPE_Float:		return( _TL("4 byte floating point number") );
+	case SG_DATATYPE_Double:	return( _TL("8 byte floating point number") );
+	case SG_DATATYPE_String:	return( _TL("string") );
+	case SG_DATATYPE_Date:		return( _TL("date") );
+	case SG_DATATYPE_Color:		return( _TL("color") );
+	case SG_DATATYPE_Binary:	return( _TL("binary") );
 	}
 };
 

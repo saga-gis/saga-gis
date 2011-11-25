@@ -17,12 +17,6 @@
       <UniqueIdentifier>{426f6d53-b0f8-4078-b644-42e63cd94713}</UniqueIdentifier>
       <Extensions>xpm</Extensions>
     </Filter>
-    <Filter Include="Control Extension Files">
-      <UniqueIdentifier>{eda29a37-2506-4429-870e-e371c73c6206}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Control Extension Files\propgrid">
-      <UniqueIdentifier>{084df330-482d-4c87-9e38-2f62e393955b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="active.cpp">
@@ -297,27 +291,6 @@
     </ClCompile>
     <ClCompile Include="wksp_tin_manager.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wx\propgrid\advprops.cpp">
-      <Filter>Control Extension Files\propgrid</Filter>
-    </ClCompile>
-    <ClCompile Include="wx\propgrid\editors.cpp">
-      <Filter>Control Extension Files\propgrid</Filter>
-    </ClCompile>
-    <ClCompile Include="wx\propgrid\extras.cpp">
-      <Filter>Control Extension Files\propgrid</Filter>
-    </ClCompile>
-    <ClCompile Include="wx\propgrid\manager.cpp">
-      <Filter>Control Extension Files\propgrid</Filter>
-    </ClCompile>
-    <ClCompile Include="wx\propgrid\odcombo.cpp">
-      <Filter>Control Extension Files\propgrid</Filter>
-    </ClCompile>
-    <ClCompile Include="wx\propgrid\propgrid.cpp">
-      <Filter>Control Extension Files\propgrid</Filter>
-    </ClCompile>
-    <ClCompile Include="wx\propgrid\props.cpp">
-      <Filter>Control Extension Files\propgrid</Filter>
     </ClCompile>
     <ClCompile Include="data_source.cpp">
       <Filter>Source Files</Filter>

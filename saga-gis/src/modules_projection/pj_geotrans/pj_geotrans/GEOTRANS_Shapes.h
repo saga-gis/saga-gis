@@ -81,7 +81,7 @@ public:
 	CGEOTRANS_Shapes(void);
 	virtual ~CGEOTRANS_Shapes(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
 
 
 protected:

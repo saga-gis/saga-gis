@@ -43,7 +43,7 @@ class CSelect_String : public CSG_Module
 public:
 	CSelect_String(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:

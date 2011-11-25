@@ -429,7 +429,7 @@ CSG_String CSG_Trend::Get_Error(void)
 	}
 	else
 	{
-		Message.Printf(SG_T("%s"), LNG("Error in Trend Calculation"));
+		Message.Printf(SG_T("%s"), _TL("Error in Trend Calculation"));
 	}
 
 	return( Message );

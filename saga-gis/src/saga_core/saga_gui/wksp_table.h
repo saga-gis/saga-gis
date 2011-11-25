@@ -107,7 +107,7 @@ public:
 	CSG_Table *						Get_Table				(void)			{	return( m_pTable );	}
 
 	bool							Save					(void);
-	bool							Save					(const wxChar *File_Path);
+	bool							Save					(const wxString &File_Name);
 
 	bool							DataObject_Changed		(CSG_Parameters *pParameters);
 

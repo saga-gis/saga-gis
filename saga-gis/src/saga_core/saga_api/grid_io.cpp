@@ -85,7 +85,7 @@ bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_M
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load grid"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Load grid"), File_Name.c_str()), true);
 
 	if( SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
 	{
@@ -107,15 +107,15 @@ bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_M
 
 		m_bCreated	= true;
 
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 	else
 	{
 		Destroy();
 
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
-		SG_UI_Msg_Add_Error(LNG("[ERR] Grid file could not be opened."));
+		SG_UI_Msg_Add_Error(_TL("[ERR] Grid file could not be opened."));
 	}
 
 	//-----------------------------------------------------
@@ -155,7 +155,7 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save grid"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Save grid"), File_Name.c_str()), true);
 
 	switch( Format )
 	{
@@ -178,13 +178,13 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int
 
 		Save_MetaData(File_Name);
 
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 	else
 	{
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
-		SG_UI_Msg_Add_Error(LNG("[ERR] Grid file could not be saved."));
+		SG_UI_Msg_Add_Error(_TL("[ERR] Grid file could not be saved."));
 	}
 
 	return( bResult );
@@ -547,13 +547,13 @@ long SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 				CSG_String	s;
 
 				s.Printf(SG_T("%s\n%s\n%s: %.2fMB"),
-					LNG("Shall I activate file caching for new grid."),
+					_TL("Shall I activate file caching for new grid."),
 					m_System.Get_Name(),
-					LNG("Total memory size"),
+					_TL("Total memory size"),
 					((long) m_System.Get_NCells() * nValueBytes) / (double)N_MEGABYTE_BYTES
 				);
 
-				if( SG_UI_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
+				if( SG_UI_Dlg_Continue(s, _TL("Activate Grid File Cache?")) )
 				{
 				//	Memory_Type	= GRID_MEMORY_Cache;
 
@@ -564,15 +564,15 @@ long SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 
 		case 2:
 			{
-				CSG_Parameters	p(NULL, LNG("Activate Grid File Cache?"), SG_T(""));
+				CSG_Parameters	p(NULL, _TL("Activate Grid File Cache?"), SG_T(""));
 
 				p.Add_Value(
-					NULL	, SG_T("BUFFERSIZE")	, LNG("Buffer Size [MB]"),
+					NULL	, SG_T("BUFFERSIZE")	, _TL("Buffer Size [MB]"),
 					SG_T(""),
 					PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 				);
 
-				if( SG_UI_Dlg_Parameters(&p, LNG("Activate Grid File Cache?")) )
+				if( SG_UI_Dlg_Parameters(&p, _TL("Activate Grid File Cache?")) )
 				{
 				//	Memory_Type	= GRID_MEMORY_Cache;
 

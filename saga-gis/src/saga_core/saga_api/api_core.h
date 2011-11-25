@@ -188,13 +188,14 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SG_STR_CMP(s1, s2)		CSG_String(s1).Cmp(s2)
+
 #ifndef _SAGA_UNICODE
-	#define SG_Char			char
-	#define SG_T(s)			s
+	#define SG_Char				char
+	#define SG_T(s)				s
 	#define SG_PRINTF			printf
 	#define SG_FPRINTF			fprintf
 	#define SG_SSCANF			sscanf
-	#define SG_STR_CMP			strcmp
 	#define SG_STR_CPY			strcpy
 	#define SG_STR_LEN			strlen
 	#define SG_STR_TOD			strtod
@@ -206,7 +207,6 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 	#define SG_PRINTF			SG_Printf
 	#define SG_FPRINTF			SG_FPrintf
 	#define SG_SSCANF			swscanf
-	#define SG_STR_CMP			wcscmp
 	#define SG_STR_CPY			wcscpy
 	#define SG_STR_LEN			wcslen
 	#define SG_STR_TOD			wcstod
@@ -220,76 +220,103 @@ class SAGA_API_DLL_EXPORT CSG_String
 public:
 	CSG_String(void);
 	CSG_String(const CSG_String &String);
-	CSG_String(const SG_Char *String);
-#ifdef _SAGA_UNICODE
-	CSG_String(const char *String);
-#endif
-	CSG_String(SG_Char Character);
+	CSG_String(const char       *String);
+	CSG_String(const wchar_t    *String);
+	CSG_String(char    Character, size_t nRepeat = 1);
+	CSG_String(wchar_t Character, size_t nRepeat = 1);
 
 	virtual ~CSG_String(void);
 
-	const SG_Char *					c_str				(void)	const;
-	operator const SG_Char *							(void)	const	{	return( c_str() );	}
-
-#ifndef _SAGA_UNICODE
-	const char *					b_str				(void)			{	return( c_str() );	}
-#else
-	const char *					b_str				(void);
-#endif
-
-	size_t							Length				(void)								const;
-
-	void							Clear				(void);
-	static CSG_String				Format				(const SG_Char *Format, ...);
-	int								Printf				(const SG_Char *Format, ...);
-	int								Scanf				(const SG_Char *Format, ...);
-
-	CSG_String &					Append				(const SG_Char    *String);
-	CSG_String &					Append				(SG_Char Character);
-
 	CSG_String &					operator =			(const CSG_String &String);
-	CSG_String &					operator =			(const SG_Char    *String);
-	CSG_String &					operator =			(SG_Char Character);
+	CSG_String &					operator =			(const char       *String);
+	CSG_String &					operator =			(const wchar_t    *String);
+	CSG_String &					operator =			(char    Character);
+	CSG_String &					operator =			(wchar_t Character);
 
-	CSG_String						operator +			(const CSG_String &String)			const;
-	CSG_String						operator +			(const SG_Char    *String)			const;
-	CSG_String						operator +			(SG_Char Character)					const;
+	size_t							Length				(void)	const;
+
+	bool							is_Empty			(void)	const;
+
+	SG_Char							operator []			(int    i)	const;
+	SG_Char							operator []			(size_t i)	const;
+	SG_Char							Get_Char			(size_t i)	const;
+
+	void							Set_Char			(size_t i, char    Character);
+	void							Set_Char			(size_t i, wchar_t Character);
+
+	const char *					b_str				(void)	const;
+	const wchar_t *					w_str				(void)	const;
+	const SG_Char *					c_str				(void)	const;
+
+	operator const char *								(void)	const	{	return( b_str() );	}
+	operator const wchar_t *							(void)	const	{	return( w_str() );	}
+
+	CSG_String &					Prepend				(const CSG_String &String);
+
+	CSG_String &					Append				(const CSG_String &String);
+	CSG_String &					Append				(const char       *String);
+	CSG_String &					Append				(const wchar_t    *String);
+	CSG_String &					Append				(char    Character, size_t nRepeat = 1);
+	CSG_String &					Append				(wchar_t Character, size_t nRepeat = 1);
 
 	void							operator +=			(const CSG_String &String);
-	void							operator +=			(const SG_Char    *String);
-	void							operator +=			(SG_Char Character);
+	void							operator +=			(const char       *String);
+	void							operator +=			(const wchar_t    *String);
+	void							operator +=			(char    Character);
+	void							operator +=			(wchar_t Character);
 
-	SG_Char &						operator []			(int i);
-	SG_Char							operator []			(int i)								const;
+	CSG_String						operator +			(const CSG_String &String)	const;
+	CSG_String						operator +			(const char       *String)	const;
+	CSG_String						operator +			(const wchar_t    *String)	const;
+	CSG_String						operator +			(char    Character)			const;
+	CSG_String						operator +			(wchar_t Character)			const;
 
-	int								Cmp					(const CSG_String &String)			const;
-	int								CmpNoCase			(const CSG_String &String)			const;
+	int								Cmp					(const CSG_String &String)	const;
+	int								CmpNoCase			(const CSG_String &String)	const;
+
+	bool							is_Same_As			(const CSG_String &String, bool bCase = true)	const;
+	bool							is_Same_As			(const char     Character, bool bCase = true)	const;
+	bool							is_Same_As			(const wchar_t  Character, bool bCase = true)	const;
 
 	CSG_String &					Make_Lower			(void);
 	CSG_String &					Make_Upper			(void);
 
-	size_t							Replace				(const SG_Char *sOld, const SG_Char *sNew, bool replaceAll = true);
+	void							Clear				(void);
+
+	static CSG_String				Format				(const SG_Char *Format, ...);
+	int								Printf				(const SG_Char *Format, ...);
+	int								Scanf				(const SG_Char *Format, ...);
+
+	size_t							Replace				(const CSG_String &sOld, const CSG_String &sNew, bool bReplaceAll = true);
 
 	CSG_String &					Remove				(size_t pos);
 	CSG_String &					Remove				(size_t pos, size_t len);
 
 	int								Trim				(bool fromRight = false);
 
-	int								Find				(SG_Char Character, bool fromEnd = false)	const;
-	int								Find				(const SG_Char *String)				const;
-	bool							Contains			(const SG_Char *String)				const;
+	int								Find				(char    Character, bool fromEnd = false)	const;
+	int								Find				(wchar_t Character, bool fromEnd = false)	const;
+	int								Find				(const CSG_String &String)			const;
+	bool							Contains			(const CSG_String &String)			const;
 
-	CSG_String						AfterFirst			(SG_Char Character)					const;
-	CSG_String						AfterLast			(SG_Char Character)					const;
-	CSG_String						BeforeFirst			(SG_Char Character)					const;
-	CSG_String						BeforeLast			(SG_Char Character)					const;
+	CSG_String						AfterFirst			(char    Character)					const;
+	CSG_String						AfterFirst			(wchar_t Character)					const;
+	CSG_String						AfterLast			(char    Character)					const;
+	CSG_String						AfterLast			(wchar_t Character)					const;
+	CSG_String						BeforeFirst			(char    Character)					const;
+	CSG_String						BeforeFirst			(wchar_t Character)					const;
+	CSG_String						BeforeLast			(char    Character)					const;
+	CSG_String						BeforeLast			(wchar_t Character)					const;
 
 	CSG_String						Right				(size_t count)						const;
 	CSG_String						Mid					(size_t first, size_t count = 0)	const;
 	CSG_String						Left				(size_t count)						const;
 
+	bool							is_Number			(void)	const;
+
 	int								asInt				(void)								const;
 	bool							asInt				(int    &Value)						const;
+
 	double							asDouble			(void)								const;
 	bool							asDouble			(double &Value)						const;
 
@@ -298,15 +325,13 @@ protected:
 
 	class wxString					*m_pString;
 
-#ifdef _SAGA_UNICODE
-	char							*m_bString;
-#endif
-
 };
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CSG_String		operator +			(const SG_Char *A, const CSG_String &B);
-SAGA_API_DLL_EXPORT CSG_String		operator +			(SG_Char        A, const CSG_String &B);
+SAGA_API_DLL_EXPORT CSG_String		operator +			(const char    *A, const CSG_String &B);
+SAGA_API_DLL_EXPORT CSG_String		operator +			(const wchar_t *A, const CSG_String &B);
+SAGA_API_DLL_EXPORT CSG_String		operator +			(char           A, const CSG_String &B);
+SAGA_API_DLL_EXPORT CSG_String		operator +			(wchar_t        A, const CSG_String &B);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Strings
@@ -343,20 +368,20 @@ protected:
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
-SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE* stream,const SG_Char *Format, ...);
-SAGA_API_DLL_EXPORT int				SG_Sscanf						(const SG_Char *Buffer, const SG_Char *Format, ...);
+SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE* stream, const SG_Char *Format, ...);
+SAGA_API_DLL_EXPORT int				SG_Sscanf						(const CSG_String &Buffer, const SG_Char *Format, ...);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_UTF8_To_String				(const SG_Char *String);
 SAGA_API_DLL_EXPORT CSG_String		SG_String_To_UTF8				(const SG_Char *String);
 
-SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const SG_Char *String);
+SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const CSG_String &String);
 SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Degree				(double Value);
 
-SAGA_API_DLL_EXPORT int				SG_Date_To_Number				(const SG_Char *Value);
-SAGA_API_DLL_EXPORT CSG_String		SG_Number_To_Date				(int            Value);
-SAGA_API_DLL_EXPORT CSG_String		SG_Number_To_Date				(double         Value);
+SAGA_API_DLL_EXPORT int				SG_Date_To_Number				(const CSG_String &Value);
+SAGA_API_DLL_EXPORT CSG_String		SG_Number_To_Date				(int               Value);
+SAGA_API_DLL_EXPORT CSG_String		SG_Number_To_Date				(double            Value);
 
 SAGA_API_DLL_EXPORT int				SG_Get_Significant_Decimals		(double Value, int maxDecimals = 6);
 
@@ -764,7 +789,7 @@ inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
 }
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const SG_Char *	SG_Data_Type_Get_Name	(TSG_Data_Type Type);
+SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Name	(TSG_Data_Type Type);
 SAGA_API_DLL_EXPORT bool			SG_Data_Type_is_Numeric	(TSG_Data_Type Type);
 SAGA_API_DLL_EXPORT bool			SG_DataType_Range_Check	(TSG_Data_Type Type, double &Value);
 
@@ -832,13 +857,13 @@ public:
 	bool							is_Open				(void)	const	{	return( m_pStream != NULL );	}
 	bool							is_EOF				(void)	const;
 
-	long								Length				(void)	const;
+	long							Length				(void)	const;
 
 	bool							Seek				(long Offset, int Origin = SG_FILE_START)	const;
 	bool							Seek_Start			(void)	const;
 	bool							Seek_End			(void)	const;
 
-	long								Tell				(void)	const;
+	long							Tell				(void)	const;
 
 	bool							Flush				(void)	const;
 
@@ -889,7 +914,7 @@ SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path		(const SG_Char *full_Path);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path		(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension = NULL);
 SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension	(const SG_Char *File_Name, const SG_Char *Extension);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension	(const SG_Char *File_Name);
-SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension	(CSG_String    &File_Name, const SG_Char *Extension);
+SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension	(CSG_String &File_Name, const CSG_String &Extension);
 
 SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
 
@@ -908,30 +933,30 @@ SAGA_API_DLL_EXPORT bool			SG_Set_Environment		(const CSG_String &Variable, cons
 #define SG_GET_RGB(r, g, b)		((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16)))
 #define SG_GET_RGBA(r, g, b, a)	((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16) | (((DWORD)(BYTE)(a)) << 24)))
 
-#define SG_GET_R(rgb)				((BYTE) ((rgb)      ))
-#define SG_GET_G(rgb)				((BYTE) ((rgb) >>  8))
-#define SG_GET_B(rgb)				((BYTE) ((rgb) >> 16))
-#define SG_GET_A(rgb)				((BYTE) ((rgb) >> 24))
+#define SG_GET_R(rgb)			((BYTE) ((rgb)      ))
+#define SG_GET_G(rgb)			((BYTE) ((rgb) >>  8))
+#define SG_GET_B(rgb)			((BYTE) ((rgb) >> 16))
+#define SG_GET_A(rgb)			((BYTE) ((rgb) >> 24))
 
 //---------------------------------------------------------
-#define SG_COLOR_BLACK				SG_GET_RGB(  0,   0,   0)
-#define SG_COLOR_GREY				SG_GET_RGB(128, 128, 128)
+#define SG_COLOR_BLACK			SG_GET_RGB(  0,   0,   0)
+#define SG_COLOR_GREY			SG_GET_RGB(128, 128, 128)
 #define SG_COLOR_GREY_LIGHT		SG_GET_RGB(192, 192, 192)
-#define SG_COLOR_WHITE				SG_GET_RGB(255, 255, 255)
-#define SG_COLOR_RED				SG_GET_RGB(255,   0,   0)
-#define SG_COLOR_RED_DARK			SG_GET_RGB(128,   0,   0)
+#define SG_COLOR_WHITE			SG_GET_RGB(255, 255, 255)
+#define SG_COLOR_RED			SG_GET_RGB(255,   0,   0)
+#define SG_COLOR_RED_DARK		SG_GET_RGB(128,   0,   0)
 #define SG_COLOR_YELLOW			SG_GET_RGB(255, 255,   0)
-#define SG_COLOR_YELLOW_DARK		SG_GET_RGB(128, 128,   0)
-#define SG_COLOR_GREEN				SG_GET_RGB(  0, 255,   0)
+#define SG_COLOR_YELLOW_DARK	SG_GET_RGB(128, 128,   0)
+#define SG_COLOR_GREEN			SG_GET_RGB(  0, 255,   0)
 #define SG_COLOR_GREEN_DARK		SG_GET_RGB(  0, 128,   0)
-#define SG_COLOR_GREEN_LIGHT		SG_GET_RGB(  0, 255,   0)
-#define SG_COLOR_BLUE				SG_GET_RGB(  0,   0, 255)
-#define SG_COLOR_BLUE_DARK			SG_GET_RGB(  0,   0, 128)
+#define SG_COLOR_GREEN_LIGHT	SG_GET_RGB(  0, 255,   0)
+#define SG_COLOR_BLUE			SG_GET_RGB(  0,   0, 255)
+#define SG_COLOR_BLUE_DARK		SG_GET_RGB(  0,   0, 128)
 #define SG_COLOR_BLUE_LIGHT		SG_GET_RGB(  0, 255, 255)
 #define SG_COLOR_BLUE_GREEN		SG_GET_RGB(  0, 128, 128)
 #define SG_COLOR_PURPLE			SG_GET_RGB(128,   0, 128)
-#define SG_COLOR_PINK				SG_GET_RGB(255,   0, 255)
-#define SG_COLOR_NONE				-1
+#define SG_COLOR_PINK			SG_GET_RGB(255,   0, 255)
+#define SG_COLOR_NONE			-1
 #define SG_COLOR_RANDOM			-2
 
 //---------------------------------------------------------
@@ -1064,7 +1089,7 @@ private:
 	class CSG_Translation
 	{
 	public:
-		CSG_Translation(const SG_Char *Text, const SG_Char *Translation)
+		CSG_Translation(const CSG_String &Text, const CSG_String &Translation)
 		{
 			m_Text					= Text;
 			m_Translation			= Translation;
@@ -1083,24 +1108,17 @@ private:
 	CSG_Translation					**m_Translations;
 
 
-	int								_Get_Index				(const SG_Char *Text)	const;
+	int								_Get_Index				(const CSG_String &Text)	const;
 
 };
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT CSG_Translator &	SG_Get_Translator	(void);
 
-SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const SG_Char *Text);
+SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const CSG_String &Text);
 
-#ifndef _SAGA_UNICODE
-	#define LNG(s)	SG_Translate(s)
-	#define _TL(s)	SG_Translate(s)
-	#define _TW(s)	SG_Translate(s)
-#else
-	#define LNG(s)	SG_Translate(SG_T(s))
-	#define _TL(s)	SG_Translate(SG_T(s))
-	#define _TW(s)	SG_Translate(CSG_String(s))
-#endif
+#define _TL(s)	SG_Translate(L ## s)
+#define _TW(s)	SG_Translate(CSG_String(s))
 
 
 ///////////////////////////////////////////////////////////
@@ -1207,21 +1225,21 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Process_Get_Okay		(bool bBlink = false);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Okay		(bool bOkay = true);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Progress	(double Position, double Range);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Ready		(void);
-SAGA_API_DLL_EXPORT void					SG_UI_Process_Set_Text		(const SG_Char *Text);
+SAGA_API_DLL_EXPORT void					SG_UI_Process_Set_Text		(const CSG_String &Text);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_Stop_Execution		(bool bDialog);
 
-SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Message			(const SG_Char *Message, const SG_Char *Caption);
-SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const SG_Char *Message, const SG_Char *Caption);
-SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const SG_Char *Message, const SG_Char *Caption);
-SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParameters, const SG_Char *Caption);
+SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Message			(const CSG_String &Message, const CSG_String &Caption);
+SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const CSG_String &Message, const CSG_String &Caption);
+SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const CSG_String &Message, const CSG_String &Caption);
+SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParameters, const CSG_String &Caption);
 
 SAGA_API_DLL_EXPORT int						SG_UI_Msg_Lock				(bool bOn);
-SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
-SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const SG_Char *Message);
-SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const CSG_String &Message);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
-SAGA_API_DLL_EXPORT class CSG_Data_Object *	SG_UI_DataObject_Find		(const SG_Char *File_Name          , int Object_Type);
+SAGA_API_DLL_EXPORT class CSG_Data_Object *	SG_UI_DataObject_Find		(const CSG_String &File_Name       , int Object_Type);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Check		(class CSG_Data_Object *pDataObject, int Object_Type);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, int Show);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, int Show, class CSG_Parameters *pParameters);

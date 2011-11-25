@@ -20,31 +20,68 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Image_VI_Distance_H
 #define HEADER_INCLUDED__Image_VI_Distance_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-//---------------------------------------------------------
-class CImage_VI_Distance : public CSG_Module_Grid {
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CImage_VI_Distance : public CSG_Module_Grid
+{
 public:
 	CImage_VI_Distance(void);
-	virtual ~CImage_VI_Distance(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
 
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual bool			On_Execute		(void);
+
 
 private:
-	double getPVI(double,double,double,double);
-	double getPVI1(double,double,double,double);
-	double getPVI2(double,double,double,double);
-	double getPVI3(double,double,double,double);
+
+	double					m_Intercept, m_Slope;
+
+
+	bool					Get_PVI0		(double R, double NIR, double &Value);
+	bool					Get_PVI1		(double R, double NIR, double &Value);
+	bool					Get_PVI2		(double R, double NIR, double &Value);
+	bool					Get_PVI3		(double R, double NIR, double &Value);
+	bool					Get_TSAVI		(double R, double NIR, double &Value);
+	bool					Get_ATSAVI		(double R, double NIR, double &Value);
+
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Image_VI_Distance_H

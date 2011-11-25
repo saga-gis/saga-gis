@@ -43,7 +43,7 @@ class CEdgeContamination : public CSG_Module_Grid
 public:
 	CEdgeContamination(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Catchment Area" ));	}
 
 
 protected:

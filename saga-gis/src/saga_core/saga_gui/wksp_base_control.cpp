@@ -175,7 +175,7 @@ bool CWKSP_Base_Control::_Set_Manager(CWKSP_Base_Manager *pManager)
 		m_pManager	= pManager;
 
 		AddRoot		(m_pManager->Get_Name(), IMG_ROOT, IMG_ROOT, m_pManager);
-		AppendItem	(m_pManager->GetId(), LNG("[CAP] [no items]"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
+		AppendItem	(m_pManager->GetId(), _TL("[CAP] [no items]"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
 		Expand		(m_pManager->GetId());
 
 		return( true );
@@ -337,7 +337,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			//---------------------------------------------
 			DeleteChildren	(m_pManager->GetId());
-			AppendItem		(m_pManager->GetId(), LNG("[CAP] [no items]"), 0, 0, NULL);
+			AppendItem		(m_pManager->GetId(), _TL("[CAP] [no items]"), 0, 0, NULL);
 			Expand			(m_pManager->GetId());
 
 			if( g_pModule_Ctrl && m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
@@ -686,7 +686,7 @@ bool CWKSP_Base_Control::_Load_Settings(void)
 	wxString		File_Path;
 	CSG_MetaData	Data;
 
-	if( Get_Selection_Count() > 0 && DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Data.Load(File_Path.c_str()) )
+	if( Get_Selection_Count() > 0 && DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Data.Load(File_Path.wc_str()) )
 	{
 		if(	GetWindowStyle() & wxTR_MULTIPLE )
 		{
@@ -743,7 +743,7 @@ void	DLG_Copy_Settings(CSG_Table &List, CWKSP_Base_Item *pItem)
 		{
 			CSG_Table_Record	*pEntry	= List.Add_Record();
 
-			pEntry->Set_Value(0, CSG_String::Format(SG_T("[%s] %s"), pItem->Get_Manager()->Get_Name().c_str(), pItem->Get_Name().c_str()).c_str());
+			pEntry->Set_Value(0, CSG_String::Format(SG_T("[%s] %s"), pItem->Get_Manager()->Get_Name().wc_str(), pItem->Get_Name().wc_str()));
 			pEntry->Set_Value(1, (long)pItem->Get_Parameters());
 		}
 	}
@@ -774,8 +774,8 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 		}
 
 		wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
-			LNG("Copy Settings from..."),
-			LNG("[DLG] Select a layer to copy settings from it."),
+			_TL("Copy Settings from..."),
+			_TL("[DLG] Select a layer to copy settings from it."),
 			List.Get_Count(), pItems
 		);
 
@@ -864,7 +864,7 @@ bool CWKSP_Base_Control::_Search_Compare(wxString A, wxString B, bool bCase)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pItem, const wxChar *String, bool bName, bool bDesc, bool bCase)
+bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pItem, const wxString &String, bool bName, bool bDesc, bool bCase)
 {
 	if( pItem == NULL )
 	{
@@ -895,14 +895,14 @@ bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pIt
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Search_Item(void)
 {
-	static CSG_Parameters	Search(NULL, LNG("Search for..."), LNG(""));
+	static CSG_Parameters	Search(NULL, _TL("Search for..."), _TL(""));
 
 	if( Search.Get_Count() == 0 )
 	{
-		Search.Add_String	(NULL, "STRING"	, LNG("Search for...")	, LNG(""), SG_T(""));
-		Search.Add_Value	(NULL, "NAME"	, LNG("Name")			, LNG(""), PARAMETER_TYPE_Bool, true);
-		Search.Add_Value	(NULL, "DESC"	, LNG("Description")	, LNG(""), PARAMETER_TYPE_Bool, false);
-		Search.Add_Value	(NULL, "CASE"	, LNG("Case Sensitive")	, LNG(""), PARAMETER_TYPE_Bool, false);
+		Search.Add_String	(NULL, "STRING"	, _TL("Search for...")	, _TL(""), SG_T(""));
+		Search.Add_Value	(NULL, "NAME"	, _TL("Name")			, _TL(""), PARAMETER_TYPE_Bool, true);
+		Search.Add_Value	(NULL, "DESC"	, _TL("Description")	, _TL(""), PARAMETER_TYPE_Bool, false);
+		Search.Add_Value	(NULL, "CASE"	, _TL("Case Sensitive")	, _TL(""), PARAMETER_TYPE_Bool, false);
 	}
 
 	if( !DLG_Parameters(&Search) )
@@ -913,15 +913,15 @@ bool CWKSP_Base_Control::_Search_Item(void)
 	//-----------------------------------------------------
 	CSG_Table	List;
 
-	List.Add_Field(LNG("NAME")	, SG_DATATYPE_String);
-	List.Add_Field(LNG("TYPE")	, SG_DATATYPE_String);
-	List.Add_Field(LNG("ADDR")	, SG_DATATYPE_Long);
+	List.Add_Field(_TL("NAME")	, SG_DATATYPE_String);
+	List.Add_Field(_TL("TYPE")	, SG_DATATYPE_String);
+	List.Add_Field(_TL("ADDR")	, SG_DATATYPE_Long);
 
 	_Search_Get_List(&List, m_pManager, Search("STRING")->asString(), Search("NAME")->asBool(), Search("DESC")->asBool(), Search("CASE")->asBool());
 
 	if( List.Get_Count() <= 0 )
 	{
-		wxMessageBox(LNG("Search text not found"), LNG("Search for..."), wxOK|wxICON_EXCLAMATION);
+		wxMessageBox(_TL("Search text not found"), _TL("Search for..."), wxOK|wxICON_EXCLAMATION);
 
 		return( false );
 	}
@@ -935,8 +935,8 @@ bool CWKSP_Base_Control::_Search_Item(void)
 	}
 
 	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
-		LNG("Locate..."),
-		wxString::Format(wxT("%s: %s"), LNG("Search Text"), Search("STRING")->asString()),
+		_TL("Locate..."),
+		wxString::Format(wxT("%s: %s"), _TL("Search Text"), Search("STRING")->asString()),
 		List.Get_Count(), pItems
 	);
 

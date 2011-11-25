@@ -41,7 +41,7 @@ public: ////// public members and functions: //////////////
 	CA2WiTh(void);							// constructor
 	virtual ~CA2WiTh(void);				// destructor
 
-	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Filter for Grids") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Filter for Grids") );	}
 
 
 protected: /// protected members and functions: ///////////

@@ -75,7 +75,7 @@ class CConvex_Hull : public CSG_Module
 public:
 	CConvex_Hull(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Tools") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Tools") );	}
 
 
 protected:

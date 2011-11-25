@@ -88,7 +88,7 @@ public:
 	CGrid_To_Points(void);
 	virtual ~CGrid_To_Points(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Vectorization") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Vectorization") );	}
 
 
 protected:

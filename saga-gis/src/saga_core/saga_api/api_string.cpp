@@ -78,67 +78,131 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define WXCONV			wxConvUTF8
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CSG_String::CSG_String(void)
 {
 	m_pString	= new wxString;
-#ifdef _SAGA_UNICODE
-	m_bString	= NULL;
-#endif
 }
 
 CSG_String::CSG_String(const CSG_String &String)
 {
 	m_pString	= new wxString(*String.m_pString);
-#ifdef _SAGA_UNICODE
-	m_bString	= NULL;
-#endif
 }
 
-CSG_String::CSG_String(const SG_Char *String)
-{
-	m_pString	= new wxString(String);
-#ifdef _SAGA_UNICODE
-	m_bString	= NULL;
-#endif
-}
-
-#ifdef _SAGA_UNICODE
 CSG_String::CSG_String(const char *String)
 {
-	m_pString	= new wxString(WXCONV.cMB2WC(String));
-	m_bString	= NULL;
+	m_pString	= new wxString(String);
 }
-#endif
 
-CSG_String::CSG_String(SG_Char Character)
+CSG_String::CSG_String(const wchar_t *String)
 {
-	m_pString	= new wxString(Character);
-#ifdef _SAGA_UNICODE
-	m_bString	= NULL;
-#endif
+	m_pString	= new wxString(String);
+}
+
+CSG_String::CSG_String(char Character, size_t nRepeat)
+{
+	m_pString	= new wxString(Character, nRepeat);
+}
+
+CSG_String::CSG_String(wchar_t Character, size_t nRepeat)
+{
+	m_pString	= new wxString(Character, nRepeat);
 }
 
 //---------------------------------------------------------
 CSG_String::~CSG_String(void)
 {
 	delete(m_pString);
+}
 
-#ifdef _SAGA_UNICODE
-	if( m_bString )
-	{
-		SG_Free(m_bString);
-	}
-#endif
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String & CSG_String::operator = (const CSG_String &String)
+{
+	*m_pString	= *String.m_pString;
+
+	return( *this );
+}
+
+CSG_String & CSG_String::operator = (const char *String)
+{
+	*m_pString	= String;
+
+	return( *this );
+}
+
+CSG_String & CSG_String::operator = (const wchar_t *String)
+{
+	*m_pString	= String;
+
+	return( *this );
+}
+
+CSG_String & CSG_String::operator = (char Character)
+{
+	*m_pString	= Character;
+
+	return( *this );
+}
+
+CSG_String & CSG_String::operator = (wchar_t Character)
+{
+	*m_pString	= Character;
+
+	return( *this );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+size_t CSG_String::Length(void)	const
+{
+	return( m_pString->Length() );
+}
+
+//---------------------------------------------------------
+bool CSG_String::is_Empty(void)	const
+{
+	return( m_pString->IsEmpty() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+SG_Char CSG_String::operator [] (int i) const
+{
+	return( i >= 0 && i < Length() ? m_pString->GetChar(i) : '\0' );
+}
+
+SG_Char CSG_String::operator [] (size_t i) const
+{
+	return( i < Length() ? m_pString->GetChar(i) : '\0' );
+}
+
+//---------------------------------------------------------
+void CSG_String::Set_Char(size_t i, char Character)
+{
+	m_pString->SetChar(i, Character);
+}
+
+void CSG_String::Set_Char(size_t i, wchar_t Character)
+{
+	m_pString->SetChar(i, Character);
 }
 
 
@@ -155,29 +219,23 @@ const SG_Char * CSG_String::c_str(void) const
 }
 
 //---------------------------------------------------------
-#ifdef _SAGA_UNICODE
-const char * CSG_String::b_str(void)
+const char * CSG_String::b_str(void) const
 {
-	m_bString	= (char *)SG_Realloc(m_bString, (1 + strlen(m_pString->mb_str(WXCONV))) * sizeof(char));
-
-	strcpy(m_bString, m_pString->mb_str(WXCONV));
-
-	return( m_bString );
+	return( m_pString->c_str() );
 }
-#endif
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-size_t CSG_String::Length(void)	const
+const wchar_t * CSG_String::w_str(void) const
 {
-	return( m_pString->Length() );
+	return( m_pString->wc_str() );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CSG_String::Clear(void)
@@ -221,56 +279,100 @@ int CSG_String::Scanf(const SG_Char *Format, ...)
 
 	va_start(argptr, Format);
 
-	int	ret	= SG_Sscanf(m_pString->c_str(), Format, argptr);
+	int	ret	= 0;	// wxVsscanf(w_str(), Format.w_str(), argptr);
 
 	va_end(argptr);
 
 	return( ret );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_String & CSG_String::Append(const SG_Char *String)
+CSG_String & CSG_String::Prepend(const CSG_String &String)
+{
+	m_pString->Prepend(*String.m_pString);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_String & CSG_String::Append(const CSG_String &String)
+{
+	m_pString->Append(*String.m_pString);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_String & CSG_String::Append(const char *String)
 {
 	m_pString->Append(String);
 
 	return( *this );
 }
 
-CSG_String & CSG_String::Append(SG_Char Character)
+//---------------------------------------------------------
+CSG_String & CSG_String::Append(const wchar_t *String)
 {
-	m_pString->Append(Character);
+	m_pString->Append(String);
 
 	return( *this );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String & CSG_String::operator = (const CSG_String &String)
+CSG_String & CSG_String::Append(char Character, size_t nRepeat)
 {
-	*m_pString	= *String.m_pString;
+	m_pString->Append(Character, nRepeat);
 
 	return( *this );
 }
 
-CSG_String & CSG_String::operator = (const SG_Char *String)
+//---------------------------------------------------------
+CSG_String & CSG_String::Append(wchar_t Character, size_t nRepeat)
 {
-	*m_pString	= String;
+	m_pString->Append(Character, nRepeat);
 
 	return( *this );
 }
 
-CSG_String & CSG_String::operator = (SG_Char Character)
+//---------------------------------------------------------
+void CSG_String::operator += (const CSG_String &String)
 {
-	*m_pString	= Character;
-
-	return( *this );
+	*m_pString	+= *String.m_pString;
 }
+
+void CSG_String::operator += (const char *String)
+{
+	*m_pString	+= String;
+}
+
+void CSG_String::operator += (const wchar_t *String)
+{
+	*m_pString	+= String;
+}
+
+void CSG_String::operator += (char Character)
+{
+	*m_pString	+= Character;
+}
+
+void CSG_String::operator += (wchar_t Character)
+{
+	*m_pString	+= Character;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_String CSG_String::operator + (const CSG_String &String) const
@@ -282,7 +384,7 @@ CSG_String CSG_String::operator + (const CSG_String &String) const
 	return( s );
 }
 
-CSG_String CSG_String::operator + (const SG_Char *String) const
+CSG_String CSG_String::operator + (const char *String) const
 {
 	CSG_String	s(*this);
 
@@ -291,7 +393,17 @@ CSG_String CSG_String::operator + (const SG_Char *String) const
 	return( s );
 }
 
-CSG_String CSG_String::operator + (SG_Char Character) const
+CSG_String CSG_String::operator + (const wchar_t *String) const
+{
+	CSG_String	s(*this);
+
+	s	+= String;
+
+	return( s );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_String::operator + (char Character) const
 {
 	CSG_String	s(*this);
 
@@ -300,7 +412,17 @@ CSG_String CSG_String::operator + (SG_Char Character) const
 	return( s );
 }
 
-CSG_String		operator + (const SG_Char *A, const CSG_String &B)
+CSG_String CSG_String::operator + (wchar_t Character) const
+{
+	CSG_String	s(*this);
+
+	s	+= Character;
+
+	return( s );
+}
+
+//---------------------------------------------------------
+CSG_String		operator + (const char *A, const CSG_String &B)
 {
 	CSG_String	s(A);
 
@@ -309,7 +431,7 @@ CSG_String		operator + (const SG_Char *A, const CSG_String &B)
 	return( s );
 }
 
-CSG_String		operator + (SG_Char A, const CSG_String &B)
+CSG_String		operator + (const wchar_t *A, const CSG_String &B)
 {
 	CSG_String	s(A);
 
@@ -318,31 +440,22 @@ CSG_String		operator + (SG_Char A, const CSG_String &B)
 	return( s );
 }
 
-//---------------------------------------------------------
-void CSG_String::operator += (const CSG_String &String)
+CSG_String		operator + (char A, const CSG_String &B)
 {
-	*m_pString	+= *String.m_pString;
+	CSG_String	s(A);
+
+	s	+= B;
+
+	return( s );
 }
 
-void CSG_String::operator += (const SG_Char *String)
+CSG_String		operator + (wchar_t A, const CSG_String &B)
 {
-	*m_pString	+= String;
-}
+	CSG_String	s(A);
 
-void CSG_String::operator += (SG_Char Character)
-{
-	*m_pString	+= Character;
-}
+	s	+= B;
 
-//---------------------------------------------------------
-SG_Char & CSG_String::operator [] (int i)
-{
-	return( m_pString->GetWritableChar(i) );
-}
-
-SG_Char CSG_String::operator [] (int i) const
-{
-	return( m_pString->GetChar(i) );
+	return( s );
 }
 
 
@@ -362,6 +475,22 @@ int CSG_String::Cmp(const CSG_String &String)	const
 int CSG_String::CmpNoCase(const CSG_String &String) const
 {
 	return( m_pString->CmpNoCase(String.c_str()) );
+}
+
+//---------------------------------------------------------
+bool CSG_String::is_Same_As(const CSG_String &String, bool bCase) const
+{
+	return( m_pString->IsSameAs(*String.m_pString, bCase) );
+}
+
+bool CSG_String::is_Same_As(char Character, bool bCase) const
+{
+	return( m_pString->IsSameAs(Character, bCase) );
+}
+
+bool CSG_String::is_Same_As(wchar_t Character, bool bCase) const
+{
+	return( m_pString->IsSameAs(Character, bCase) );
 }
 
 //---------------------------------------------------------
@@ -387,9 +516,9 @@ CSG_String & CSG_String::Make_Upper(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-size_t CSG_String::Replace(const SG_Char *sOld, const SG_Char *sNew, bool replaceAll)
+size_t CSG_String::Replace(const CSG_String &sOld, const CSG_String &sNew, bool bReplaceAll)
 {
-	return( m_pString->Replace(sOld, sNew, replaceAll) );
+	return( m_pString->Replace(*sOld.m_pString, *sNew.m_pString, bReplaceAll) );
 }
 
 //---------------------------------------------------------
@@ -433,21 +562,26 @@ int CSG_String::Trim(bool fromRight)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_String::Find(SG_Char Character, bool fromEnd) const
+int CSG_String::Find(char Character, bool fromEnd) const
+{
+	return( m_pString->Find(Character, fromEnd) );
+}
+
+int CSG_String::Find(wchar_t Character, bool fromEnd) const
 {
 	return( m_pString->Find(Character, fromEnd) );
 }
 
 //---------------------------------------------------------
-int CSG_String::Find(const SG_Char *String) const
+int CSG_String::Find(const CSG_String &String) const
 {
-	return( m_pString->Find(String) );
+	return( m_pString->Find(*String.m_pString) );
 }
 
 //---------------------------------------------------------
-bool CSG_String::Contains(const SG_Char *String) const
+bool CSG_String::Contains(const CSG_String &String) const
 {
-	return( m_pString->Contains(String) );
+	return( m_pString->Contains(*String.m_pString) );
 }
 
 
@@ -458,27 +592,47 @@ bool CSG_String::Contains(const SG_Char *String) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_String::AfterFirst(SG_Char Character) const
+CSG_String CSG_String::AfterFirst(char Character) const
 {
-	return( CSG_String(m_pString->AfterFirst(Character).c_str()) );
+	return( CSG_String(m_pString->AfterFirst(Character).c_str().AsWChar()) );
+}
+
+CSG_String CSG_String::AfterFirst(wchar_t Character) const
+{
+	return( CSG_String(m_pString->AfterFirst(Character).c_str().AsWChar()) );
 }
 
 //---------------------------------------------------------
-CSG_String CSG_String::AfterLast(SG_Char Character) const
+CSG_String CSG_String::AfterLast(char Character) const
 {
-	return( CSG_String(m_pString->AfterLast(Character).c_str()) );
+	return( CSG_String(m_pString->AfterLast(Character).c_str().AsWChar()) );
+}
+
+CSG_String CSG_String::AfterLast(wchar_t Character) const
+{
+	return( CSG_String(m_pString->AfterLast(Character).c_str().AsWChar()) );
 }
 
 //---------------------------------------------------------
-CSG_String CSG_String::BeforeFirst(SG_Char Character) const
+CSG_String CSG_String::BeforeFirst(char Character) const
 {
-	return( CSG_String(m_pString->BeforeFirst(Character).c_str()) );
+	return( CSG_String(m_pString->BeforeFirst(Character).c_str().AsWChar()) );
+}
+
+CSG_String CSG_String::BeforeFirst(wchar_t Character) const
+{
+	return( CSG_String(m_pString->BeforeFirst(Character).c_str().AsWChar()) );
 }
 
 //---------------------------------------------------------
-CSG_String CSG_String::BeforeLast(SG_Char Character) const
+CSG_String CSG_String::BeforeLast(char Character) const
 {
-	return( CSG_String(m_pString->BeforeLast(Character).c_str()) );
+	return( CSG_String(m_pString->BeforeLast(Character).c_str().AsWChar()) );
+}
+
+CSG_String CSG_String::BeforeLast(wchar_t Character) const
+{
+	return( CSG_String(m_pString->BeforeLast(Character).c_str().AsWChar()) );
 }
 
 
@@ -491,19 +645,19 @@ CSG_String CSG_String::BeforeLast(SG_Char Character) const
 //---------------------------------------------------------
 CSG_String CSG_String::Right(size_t count) const
 {
-	return( CSG_String(m_pString->Right(count).c_str()) );
+	return( CSG_String(m_pString->Right(count).c_str().AsWChar()) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_String::Mid(size_t first, size_t count) const
 {
-	return( CSG_String(m_pString->Mid(first, count <= 0 ? wxSTRING_MAXLEN : count).c_str()) );
+	return( CSG_String(m_pString->Mid(first, count <= 0 ? Length() : count).c_str().AsWChar()) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_String::Left(size_t count) const
 {
-	return( CSG_String(m_pString->Left(count).c_str()) );
+	return( CSG_String(m_pString->Left(count).c_str().AsWChar()) );
 }
 
 
@@ -512,6 +666,12 @@ CSG_String CSG_String::Left(size_t count) const
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_String::is_Number(void) const
+{
+	return( m_pString->IsNumber() );
+}
 
 //---------------------------------------------------------
 int CSG_String::asInt(void) const
@@ -684,7 +844,7 @@ int				SG_Printf(const SG_Char *Format, ...)
 }
 
 //---------------------------------------------------------
-int				SG_FPrintf(FILE* stream,const SG_Char *Format, ...)
+int				SG_FPrintf(FILE* stream, const SG_Char *Format, ...)
 {
 	va_list	argptr;
 
@@ -704,7 +864,7 @@ int				SG_Sscanf(const SG_Char *Buffer, const SG_Char *Format, ...)
 
 	va_start(argptr, Format);
 
-	int		ret	= 0;	// wxVsscanf(Buffer, Format, argptr);
+	int		ret	= 0;	// wxVsscanf(pBuffer, pFormat, argptr);
 
 	va_end(argptr);
 
@@ -728,11 +888,11 @@ CSG_String		SG_Get_CurrentTimeStr(bool bWithDate)
 
 	if( bWithDate )
 	{
-		s.Append(t.FormatISODate());
+		s.Append(t.FormatISODate().wc_str());
 		s.Append(SG_T("/"));
 	}
 
-	s.Append(t.FormatISOTime());
+	s.Append(t.FormatISOTime().wc_str());
 
 	return( s );
 }
@@ -750,7 +910,7 @@ CSG_String		SG_UTF8_To_String(const SG_Char *String)
 #ifdef _SAGA_UNICODE
 	return( !String && !String[0] ? SG_T("") : String );
 #else
-	return( !String && !String[0] ? SG_T("") : wxString::FromUTF8(String).c_str() );
+	return( !String && !String[0] ? SG_T("") : wxString::FromUTF8(String).char_str() );
 #endif
 }
 
@@ -758,9 +918,9 @@ CSG_String		SG_UTF8_To_String(const SG_Char *String)
 CSG_String		SG_String_To_UTF8(const SG_Char *String)
 {
 #ifdef _SAGA_UNICODE
-	return( !String && !String[0] ? SG_T("") : wxString(String, wxConvUTF8).c_str() );
+	return( !String && !String[0] ? SG_T("") : wxString(String, wxConvUTF8).c_str().AsWChar() );
 #else
-	return( !String && !String[0] ? SG_T("") : wxString(wxString(String).ToUTF8()).c_str() );
+	return( !String && !String[0] ? SG_T("") : wxString(wxString(String).ToUTF8()).char_str() );
 #endif
 }
 
@@ -802,15 +962,14 @@ CSG_String		SG_Double_To_Degree(double Value)
 }
 
 //---------------------------------------------------------
-double			SG_Degree_To_Double(const SG_Char *String)
+double			SG_Degree_To_Double(const CSG_String &String)
 {
 	double		d, h, s, sig;
-	CSG_String	sVal(String);
 
 	sig	= 1.0;
 	d	= h	= s	= 0.0;
 
-	if( sVal.BeforeFirst('\xb0').asDouble(d) )
+	if( String.BeforeFirst('\xb0').asDouble(d) )
 	{
 		if( d < 0.0 )
 		{
@@ -818,12 +977,12 @@ double			SG_Degree_To_Double(const SG_Char *String)
 			d	= -d;
 		}
 
-		sVal.AfterFirst('\xb0' ).asDouble(h);
-		sVal.AfterFirst('\'').asDouble(s);
+		String.AfterFirst('\xb0').asDouble(h);
+		String.AfterFirst('\''  ).asDouble(s);
 	}
 	else
 	{
-		sVal.asDouble(d);
+		String.asDouble(d);
 	}
 
 	return( sig * (d + h / 60.0 + s / (60.0 * 60.0)) );
@@ -847,9 +1006,9 @@ CSG_String		SG_Number_To_Date(double Value)
 }
 
 //---------------------------------------------------------
-int				SG_Date_To_Number(const SG_Char *String)
+int				SG_Date_To_Number(const CSG_String &String)
 {
-	if( String && String[0] )
+	if( String.Length() > 0 )
 	{
 		CSG_String	s(String), sValue;
 
@@ -911,12 +1070,12 @@ int				SG_Get_Significant_Decimals(double Value, int maxDecimals)
 //---------------------------------------------------------
 void			SG_Flip_Decimal_Separators(CSG_String &String)
 {
-	for(int i=0; i<(int)String.Length(); i++)
+	for(int i=0; i<String.Length(); i++)
 	{
 		switch( String[i] )
 		{
-		case '.':	String[i]	= ',';	break;
-		case ',':	String[i]	= '.';	break;
+		case SG_T('.'):	String.Set_Char(i, ',');	break;
+		case SG_T(','):	String.Set_Char(i, '.');	break;
 		}
 	}
 }

@@ -84,8 +84,8 @@ public:
 	void							Set_Update		(bool bUpdate)	{	m_bUpdate	= bUpdate;	}
 
 	bool							Recent_Open		(int Cmd_ID);
-	void							Recent_Add		(int DataType, const wxChar *FileName);
-	void							Recent_Del		(int DataType, const wxChar *FileName);
+	void							Recent_Add		(int DataType, const wxString &FileName);
+	void							Recent_Del		(int DataType, const wxString &FileName);
 
 
 private:

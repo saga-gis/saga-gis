@@ -357,15 +357,15 @@ enum ID_COMMANDS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const wxChar *			CMD_Get_Name				(int Cmd_ID);
-const wxChar *			CMD_Get_Help				(int Cmd_ID);
+wxString				CMD_Get_Name				(int Cmd_ID);
+wxString				CMD_Get_Help				(int Cmd_ID);
 int						CMD_Get_ImageID				(int Cmd_ID);
 
 void					CMD_Menu_Add_Item			(class wxMenu *pMenu, bool bCheck, int Cmd_ID);
 void					CMD_Menu_Ins_Item			(class wxMenu *pMenu, bool bCheck, int Cmd_ID, int Position);
 
 class wxToolBarBase *	CMD_ToolBar_Create			(int ID);
-void					CMD_ToolBar_Add				(class wxToolBarBase *pToolBar, const wxChar *Name);
+void					CMD_ToolBar_Add				(class wxToolBarBase *pToolBar, const wxString &Name);
 void					CMD_ToolBar_Add_Item		(class wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID);
 void					CMD_ToolBar_Add_Separator	(class wxToolBarBase *pToolBar);
 

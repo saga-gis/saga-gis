@@ -357,7 +357,7 @@ void CVIEW_Histogram_Control::_Draw_Histogram(wxDC &dc, wxRect r)
 	}
 	else
 	{
-		Draw_Text(dc, TEXTALIGN_CENTER, r.GetLeft() + r.GetWidth() / 2, r.GetBottom() - r.GetHeight() / 2, LNG("no histogram for unclassified data"));
+		Draw_Text(dc, TEXTALIGN_CENTER, r.GetLeft() + r.GetWidth() / 2, r.GetBottom() - r.GetHeight() / 2, _TL("no histogram for unclassified data"));
 	}
 }
 
@@ -490,7 +490,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
-	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM, CVIEW_Histogram::_Create_Menu(), LNG("[CAP] Histogram"))
+	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM, CVIEW_Histogram::_Create_Menu(), _TL("[CAP] Histogram"))
 {
 	m_pLayer	= pLayer;
 	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
@@ -526,7 +526,7 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
 
-	CMD_ToolBar_Add(pToolBar, LNG("[CAP] Histogram"));
+	CMD_ToolBar_Add(pToolBar, _TL("[CAP] Histogram"));
 
 	return( pToolBar );
 }
@@ -573,15 +573,15 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 	{
 		pTable	= new CSG_Table;
 
-		pTable->Set_Name(wxString::Format(wxT("%s: %s"), LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
+		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
 
-		pTable->Add_Field(LNG("CLASS")	, SG_DATATYPE_Int);
-		pTable->Add_Field(LNG("COUNT")	, SG_DATATYPE_Int);
-		pTable->Add_Field(LNG("AREA")	, SG_DATATYPE_Double);
-		pTable->Add_Field(LNG("NAME")	, SG_DATATYPE_String);
-		pTable->Add_Field(LNG("MIN")	, SG_DATATYPE_Double);
-		pTable->Add_Field(LNG("CENTER")	, SG_DATATYPE_Double);
-		pTable->Add_Field(LNG("MAX")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("CLASS")	, SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("COUNT")	, SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("NAME")	, SG_DATATYPE_String);
+		pTable->Add_Field(_TL("MIN")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("CENTER")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("MAX")	, SG_DATATYPE_Double);
 
 		for(i=0; i<n; i++)
 		{

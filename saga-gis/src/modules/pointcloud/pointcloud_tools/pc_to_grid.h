@@ -78,7 +78,7 @@ class CPC_To_Grid : public CSG_Module
 public:
 	CPC_To_Grid(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
 
 
 protected:

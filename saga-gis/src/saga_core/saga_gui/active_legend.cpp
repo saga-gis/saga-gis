@@ -166,7 +166,7 @@ void CACTIVE_Legend::On_Mouse_RDown(wxMouseEvent &event)
 		return;
 	}
 
-	wxMenu	Menu(LNG("Legend"));
+	wxMenu	Menu(_TL("Legend"));
 
 	CMD_Menu_Add_Item(&Menu, false, m_pItem->Get_Type() == WKSP_ITEM_Map ? ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND : ID_CMD_DATA_LEGEND_COPY);
 	Menu.AppendSeparator();

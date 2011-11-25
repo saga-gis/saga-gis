@@ -254,7 +254,7 @@ bool CSG_Regression_Multiple::_Initialize(const CSG_Matrix &Samples, CSG_Strings
 	{
 		m_Names	+= pNames && pNames->Get_Count() == Samples.Get_NCols()
 			? pNames->Get_String(i)
-			: i == 0 ? CSG_String::Format(SG_T("%s"), LNG("Dependent")) : CSG_String::Format(SG_T("%d. %s"), i + 1, LNG("Predictor"));
+			: i == 0 ? CSG_String::Format(SG_T("%s"), _TL("Dependent")) : CSG_String::Format(SG_T("%d. %s"), i + 1, _TL("Predictor"));
 	}
 
 	//-------------------------------------------------
@@ -794,9 +794,9 @@ CSG_String CSG_Regression_Multiple::Get_Info(void)	const
 	//-----------------------------------------------------
 	s	+= SG_T("\n");
 
-	s	+= CSG_String::Format(SG_T("%s: %f (%s: %d)\n"), LNG("Residual standard error"), Get_StdError(), LNG("degrees of freedom"), Get_DegFreedom());
-	s	+= CSG_String::Format(SG_T("%s: %f (%s: %f)\n"), LNG("Multiple R-squared"), 100.0 * Get_R2(), LNG("adjusted"), 100.0 * Get_R2_Adj());
-	s	+= CSG_String::Format(SG_T("%s: %f (%d/%d DF), %s: %g\n"), LNG("F-statistic"), Get_F(), Get_nPredictors(), Get_DegFreedom(), LNG("p-value"), Get_P());
+	s	+= CSG_String::Format(SG_T("%s: %f (%s: %d)\n"), _TL("Residual standard error"), Get_StdError(), _TL("degrees of freedom"), Get_DegFreedom());
+	s	+= CSG_String::Format(SG_T("%s: %f (%s: %f)\n"), _TL("Multiple R-squared"), 100.0 * Get_R2(), _TL("adjusted"), 100.0 * Get_R2_Adj());
+	s	+= CSG_String::Format(SG_T("%s: %f (%d/%d DF), %s: %g\n"), _TL("F-statistic"), Get_F(), Get_nPredictors(), Get_DegFreedom(), _TL("p-value"), Get_P());
 
 	//-----------------------------------------------------
 	return( s );

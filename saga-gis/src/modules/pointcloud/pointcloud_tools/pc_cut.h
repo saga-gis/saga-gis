@@ -78,7 +78,7 @@ class CPC_Cut : public CSG_Module
 public:
 	CPC_Cut(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
 	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, const CSG_Rect &Extent, bool bInverse);
 	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, CSG_Shapes *pPolygons, bool bInverse);
@@ -108,7 +108,7 @@ class CPC_Cut_Interactive : public CSG_Module_Interactive
 public:
 	CPC_Cut_Interactive(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
 
 protected:

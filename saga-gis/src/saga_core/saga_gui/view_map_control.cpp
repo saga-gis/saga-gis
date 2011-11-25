@@ -63,6 +63,7 @@
 //---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/image.h>
+#include <wx/dcclient.h>
 
 #include "res_images.h"
 
@@ -551,11 +552,11 @@ void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 		event.Skip();
 		break;
 
-	case WXK_PRIOR:
+	case WXK_PAGEUP:
 		_Zoom(m_pMap->Get_Extent().Get_Center(), true);
 		break;
 		
-	case WXK_NEXT:
+	case WXK_PAGEDOWN:
 		_Zoom(m_pMap->Get_Extent().Get_Center(), false);
 		break;
 		

@@ -72,7 +72,7 @@ class CSelect_Points : public CSG_Module_Interactive
 public:
 	CSelect_Points(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:

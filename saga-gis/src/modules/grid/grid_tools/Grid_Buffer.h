@@ -35,7 +35,7 @@ public:
 	CGrid_Buffer(void);
 	virtual ~CGrid_Buffer(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Buffers") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Buffers") );	}
 
 
 protected:

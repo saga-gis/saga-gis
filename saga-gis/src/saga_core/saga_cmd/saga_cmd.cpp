@@ -258,7 +258,7 @@ _try
 }
 _except(1)
 {
-	Print_Error(LNG("access violation"));
+	Print_Error(_TL("access violation"));
 }
 #endif
 //---------------------------------------------------------
@@ -290,7 +290,7 @@ bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *M
 	{
 		Library.Destroy();
 
-		Print_Error(LNG("module not found"), ModuleName);
+		Print_Error(_TL("module not found"), ModuleName);
 
 		Error_Module(MLB_Path, FileName);
 
@@ -301,7 +301,7 @@ bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *M
 	{
 		Library.Destroy();
 
-		Print_Error(LNG("cannot execute interactive module"), ModuleName);
+		Print_Error(_TL("cannot execute interactive module"), ModuleName);
 
 		Error_Module(MLB_Path, FileName);
 
@@ -337,21 +337,21 @@ void		Error_Library	(const SG_Char *MLB_Path)
 
 	if( !Dir.Open(MLB_Path) )
 	{
-		Print_Error(LNG("invalid module libraries path"), MLB_Path);
+		Print_Error(_TL("invalid module libraries path"), MLB_Path);
 	}
 	else if(	!Dir.GetFirst(&FileName, wxT("*.dll"  ), wxDIR_FILES|wxDIR_HIDDEN)
 			&&	!Dir.GetFirst(&FileName, wxT("*.so"   ), wxDIR_FILES|wxDIR_HIDDEN) 
 			&&	!Dir.GetFirst(&FileName, wxT("*.dylib"), wxDIR_FILES|wxDIR_HIDDEN) )
 	{
-		Print_Error(LNG("no valid module library found in path"), MLB_Path);
+		Print_Error(_TL("no valid module library found in path"), MLB_Path);
 	}
 	else
 	{
-		Print_Error(LNG("module library"));
+		Print_Error(_TL("module library"));
 
 		if( !Get_Silent() )
 		{
-			SG_PRINTF(SG_T("\n%s:\n"), LNG("available module libraries"));
+			SG_PRINTF(SG_T("\n%s:\n"), _TL("available module libraries"));
 
 			nLibraries	= 0;
 
@@ -365,14 +365,14 @@ void		Error_Library	(const SG_Char *MLB_Path)
 			}
 			while( Dir.GetNext(&FileName) );
 
-			SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, LNG("SAGA Module Libraries"));
+			SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, _TL("SAGA Module Libraries"));
 		}
 	}
 
 	if( !Get_Silent() )
 	{
 		SG_PRINTF(SG_T("\n"));
-		SG_PRINTF(LNG("type -h or --help for further information"));
+		SG_PRINTF(_TL("type -h or --help for further information"));
 		SG_PRINTF(SG_T("\n"));
 	}
 }
@@ -386,18 +386,18 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 	{
 		Library.Destroy();
 
-		Print_Error(LNG("module library not found"), FileName);
+		Print_Error(_TL("module library not found"), FileName);
 
 		Error_Library(MLB_Path);
 
 		return;
 	}
 
-	Print_Error(LNG("module"));
+	Print_Error(_TL("module"));
 
 	if( !Get_Silent() )
 	{
-		SG_PRINTF(SG_T("\n%s:\n"), LNG("executable modules"));
+		SG_PRINTF(SG_T("\n%s:\n"), _TL("executable modules"));
 
 		for(int i=0; i<Library.Get_Count(); i++)
 		{
@@ -408,7 +408,7 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 		}
 
 		SG_PRINTF(SG_T("\n"));
-		SG_PRINTF(LNG("type -h or --help for further information"));
+		SG_PRINTF(_TL("type -h or --help for further information"));
 		SG_PRINTF(SG_T("\n"));
 	}
 }
@@ -442,10 +442,10 @@ void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const S
 	if( Get_Silent() )
 		return;
 
-	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("library path"), MLB_Path);
-	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("library name"), FileName);
-	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("module name "), ModuleName);
-	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("author      "), Author);
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), MLB_Path);
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), FileName);
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), ModuleName);
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), Author);
 	SG_PRINTF(SG_T("_____________________________________________\n"));
 	SG_PRINTF(SG_T("go...\n"));
 }
@@ -526,11 +526,11 @@ void		Create_Example	(void)
 	CSG_String	FileName(CSG_String::Format(SG_T("%s\\saga_cmd_example.bat"), wxGetCwd().c_str()));
 	CSG_File	Stream;
 
-	SG_PRINTF(SG_T("\n%s...\n"), LNG("creating batch file example"));
+	SG_PRINTF(SG_T("\n%s...\n"), _TL("creating batch file example"));
 
 	if( !Stream.Open(FileName, SG_FILE_W, false) )
 	{
-		SG_PRINTF(SG_T("%s\n"), LNG("failed"));
+		SG_PRINTF(SG_T("%s\n"), _TL("failed"));
 
 		return;
 	}
@@ -582,7 +582,7 @@ void		Create_Example	(void)
 		SG_T("pause\n")
 	);
 
-	SG_PRINTF(SG_T("%s\n"), LNG("okay"));
+	SG_PRINTF(SG_T("%s\n"), _TL("okay"));
 }
 
 

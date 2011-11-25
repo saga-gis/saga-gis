@@ -321,7 +321,7 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 
 		oldFont		= dc.GetFont();
 		yDC			= (int)((Style == 0 ? 0.60 : 0.45) * (double)Height);
-		Font.Create(yDC, wxSWISS, wxNORMAL, wxNORMAL);
+		Font.Create(yDC, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 		dc.SetFont(Font);
 
 		Height_Tick	= (int)((Style == 0 ? 1.00 : 0.30) * (double)Height);

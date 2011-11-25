@@ -86,7 +86,7 @@ class CFuzzyOR : public CSG_Module_Grid
 public:
 	CFuzzyOR(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("Fuzzy Logic") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Fuzzy Logic") );	}
 
 
 protected:

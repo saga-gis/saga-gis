@@ -75,7 +75,7 @@ class CRuggedness_TRI : public CSG_Module_Grid
 public:
 	CRuggedness_TRI(void);
 
-//	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Indices" ));	}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Indices" ));	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CRuggedness_VRM : public CSG_Module_Grid
 public:
 	CRuggedness_VRM(void);
 
-//	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Indices" ));	}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Indices" ));	}
 
 
 protected:

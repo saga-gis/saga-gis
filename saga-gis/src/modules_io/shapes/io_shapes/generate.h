@@ -84,7 +84,7 @@ public:
 	CGenerate_Export(void);
 	virtual ~CGenerate_Export(void);
 
-	virtual const SG_Char *	Get_MenuPath(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Export") );	}
 
 
 protected:

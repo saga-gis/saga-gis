@@ -97,7 +97,8 @@ public:
 
 private:
 	
-	int					_Get_Image				(const CSG_String &Identifier);
+	int					_Get_Image				(TSG_Parameter_Type Type);
+	int					_Get_Image				(const CSG_String  &Type);
 	bool				_Add_History			(wxTreeItemId Parent, CSG_MetaData &History);
 
 

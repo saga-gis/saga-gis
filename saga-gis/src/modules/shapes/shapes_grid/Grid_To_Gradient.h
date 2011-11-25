@@ -81,7 +81,7 @@ class CGrid_To_Gradient : public CSG_Module_Grid
 public:
 	CGrid_To_Gradient(int Method);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Vectorization") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Vectorization") );	}
 
 
 protected:

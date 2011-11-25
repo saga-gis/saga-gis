@@ -87,8 +87,8 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	m_pPointCloud	= pPointCloud;
 
 	m_Edit_Attributes.Destroy();
-	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , SG_DATATYPE_String);
-	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(_TL("[CAP] Name") , SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(_TL("[CAP] Value"), SG_DATATYPE_String);
 
 	//-----------------------------------------------------
 	Initialise();
@@ -121,21 +121,29 @@ wxString CWKSP_PointCloud::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("[CAP] Point Cloud"));
+	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("[CAP] Point Cloud"));
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR(LNG("[CAP] Name")				, m_pPointCloud->Get_Name());
-	DESC_ADD_STR(LNG("[CAP] File")				, m_pPointCloud->Get_File_Name());
-	DESC_ADD_STR(LNG("[CAP] Projection")		, m_pPointCloud->Get_Projection().Get_Description().c_str());
-	DESC_ADD_INT(LNG("[CAP] Number of Points")	, m_pPointCloud->Get_Count());
+	DESC_ADD_STR(_TL("[CAP] Name")				, m_pPointCloud->Get_Name());
+	DESC_ADD_STR(_TL("[CAP] Description")		, m_pPointCloud->Get_Description());
+	DESC_ADD_STR(_TL("[CAP] File")				, SG_File_Exists(m_pPointCloud->Get_File_Name()) ? m_pPointCloud->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR(_TL("[CAP] Modified")			, m_pPointCloud->is_Modified() ? _TL("[VAL] yes") : _TL("[VAL] no"));
+	DESC_ADD_STR(_TL("[CAP] Projection")		, m_pPointCloud->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT(_TL("[CAP] West")				, m_pPointCloud->Get_Extent().Get_XMin());
+	DESC_ADD_FLT(_TL("[CAP] East")				, m_pPointCloud->Get_Extent().Get_XMax());
+	DESC_ADD_FLT(_TL("[CAP] West-East")			, m_pPointCloud->Get_Extent().Get_XRange());
+	DESC_ADD_FLT(_TL("[CAP] South")				, m_pPointCloud->Get_Extent().Get_YMin());
+	DESC_ADD_FLT(_TL("[CAP] North")				, m_pPointCloud->Get_Extent().Get_YMax());
+	DESC_ADD_FLT(_TL("[CAP] South-North")		, m_pPointCloud->Get_Extent().Get_YRange());
+	DESC_ADD_INT(_TL("[CAP] Number of Points")	, m_pPointCloud->Get_Count());
 
 	s	+= wxT("</table>");
 
 	s	+= Get_TableInfo_asHTML(m_pPointCloud);
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History"));
+//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("[CAP] Data History"));
 //	s	+= m_pPointCloud->Get_History().Get_HTML();
 //	s	+= wxString::Format(wxT("</font"));
 
@@ -158,19 +166,19 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 
-	pSubMenu	= new wxMenu(LNG("[MNU] Classificaton"));
+	pSubMenu	= new wxMenu(_TL("[MNU] Classificaton"));
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV150);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV200);
 
-	pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Classification"), pSubMenu);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Classification"), pSubMenu);
 
 
-//	wxMenu	*pTable	= new wxMenu(LNG("[MNU] Table"));
+//	wxMenu	*pTable	= new wxMenu(_TL("[MNU] Table"));
 //	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
 //	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
 //	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
-//	pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Attributes"), pTable);
+//	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Attributes"), pTable);
 
 	return( pMenu );
 }
@@ -220,7 +228,7 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
-		if( m_pPointCloud->Get_Selection_Count() > 0 && DLG_Message_Confirm(LNG("[DLG] Delete selected point(s)."), LNG("[CAP] Edit Point Cloud")) )
+		if( m_pPointCloud->Get_Selection_Count() > 0 && DLG_Message_Confirm(_TL("[DLG] Delete selected point(s)."), _TL("[CAP] Edit Point Cloud")) )
 		{
 			m_pPointCloud->Del_Selection();
 			Update_Views(false);
@@ -260,19 +268,19 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SIZE"			, LNG("[CAP] Point Size"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SIZE"			, _TL("[CAP] Point Size"),
+		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_VALUE_AGGREGATE"		, LNG("[CAP] Value Aggregation"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_VALUE_AGGREGATE"		, _TL("[CAP] Value Aggregation"),
+		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			LNG("first value"),
-			LNG("last value"),
-			LNG("lowest z"),
-			LNG("highest z")
+			_TL("first value"),
+			_TL("last value"),
+			_TL("lowest z"),
+			_TL("highest z")
 		), 3
 	);
 
@@ -281,31 +289,31 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
 		wxString::Format(wxT("%s|%s|%s|%s|"),
-			LNG("[VAL] Unique Symbol"),
-			LNG("[VAL] Lookup Table"),
-			LNG("[VAL] Graduated Color"),
-			LNG("[VAL] RGB")
+			_TL("[VAL] Unique Symbol"),
+			_TL("[VAL] Lookup Table"),
+			_TL("[VAL] Graduated Color"),
+			_TL("[VAL] RGB")
 		)
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_LUT")		, "LUT_ATTRIB"				, LNG("[CAP] Attribute"),
-		LNG("")
+		m_Parameters("NODE_LUT")		, "LUT_ATTRIB"				, _TL("[CAP] Attribute"),
+		_TL("")
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, LNG("[CAP] Attribute"),
-		LNG("")
+		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, _TL("[CAP] Attribute"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_RGB"				, LNG("[CAP] RGB"),
-		LNG("")
+		m_Parameters("NODE_COLORS")		, "NODE_RGB"				, _TL("[CAP] RGB"),
+		_TL("")
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_RGB")		, "RGB_ATTRIB"				, LNG("[CAP] Attribute"),
-		LNG("")
+		m_Parameters("NODE_RGB")		, "RGB_ATTRIB"				, _TL("[CAP] Attribute"),
+		_TL("")
 	);
 
 	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
@@ -411,13 +419,13 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CWKSP_PointCloud::_AttributeList_Add(CSG_Parameter *pNode, const char *Identifier, const wxChar *Name, const wxChar *Description)
+CSG_Parameter * CWKSP_PointCloud::_AttributeList_Add(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter *pParameter;
 
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
-		wxString::Format(wxT("%s|"), LNG("[VAL] [default]")), 0
+		CSG_String::Format(SG_T("%s|"), _TL("[VAL] [default]")), 0
 	);
 
 	return( pParameter );
@@ -437,7 +445,7 @@ void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoFie
 
 		if( bAddNoField )
 		{
-			s.Append(wxString::Format(wxT("%s|"), LNG("[VAL] [none]")));
+			s.Append(wxString::Format(wxT("%s|"), _TL("[VAL] [none]")));
 		}
 
 		pFields->asChoice()->Set_Items(s);
@@ -480,11 +488,11 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 		}
 		else
 		{
-			return( wxString::Format(wxT("%s: %d"), LNG("[CAP] Index"), pShape->Get_Index() + 1) );
+			return( wxString::Format(wxT("%s: %d"), _TL("[CAP] Index"), pShape->Get_Index() + 1) );
 		}
 	}
 
-	return( LNG("") );
+	return( _TL("") );
 }
 
 //---------------------------------------------------------

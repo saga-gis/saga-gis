@@ -64,7 +64,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+CSG_String Get_Info(int i)
 {
 	switch( i )
 	{

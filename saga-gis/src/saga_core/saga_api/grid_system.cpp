@@ -148,12 +148,12 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 		else
 		{
 			m_Name.Printf(SG_T("%s: %f, %s: %dx/%dy, %s: %fx/%fy"),
-				LNG("[DAT] Cell size"),
+				_TL("[DAT] Cell size"),
 				Get_Cellsize(),
-				LNG("[DAT] Number of cells"),
+				_TL("[DAT] Number of cells"),
 				Get_NX(),
 				Get_NY(),
-				LNG("[DAT] Lower left corner"),
+				_TL("[DAT] Lower left corner"),
 				Get_XMin(),
 				Get_YMin()
 			);
@@ -162,7 +162,7 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 		return( m_Name );
 	}
 
-	return( LNG("[DAT] [not set]") );
+	return( _TL("[DAT] [not set]") );
 }
 
 

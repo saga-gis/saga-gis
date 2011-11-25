@@ -103,65 +103,65 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_pMenu		= new CWKSP_Module_Menu;
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, LNG(""), LNG(""));
+	m_Parameters.Create(this, _TL(""), _TL(""));
 
 	m_Parameters.Add_Value(
-		NULL	, "BEEP"		, LNG("[CAP] Beep when finished"),
-		LNG(""),
+		NULL	, "BEEP"		, _TL("[CAP] Beep when finished"),
+		_TL(""),
 		PARAMETER_TYPE_Bool	, true
 	);
 
 	m_Parameters.Add_Choice(
-		NULL	, "START_LOGO"	, LNG("Show Logo at Start Up"),
-		LNG(""),
-		CSG_String::Format(wxT("%s|%s|%s|%s|"),
-			LNG("do not show"),
-			LNG("only during start up phase"),
-			LNG("20 seconds"),
-			LNG("until user closes it")
+		NULL	, "START_LOGO"	, _TL("Show Logo at Start Up"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("do not show"),
+			_TL("only during start up phase"),
+			_TL("20 seconds"),
+			_TL("until user closes it")
 		), 1
 	);
 
 	m_Parameters.Add_Choice(
-		NULL	, "HELP_SOURCE"	, LNG("Module Description Source"),
-		LNG(""),
-		CSG_String::Format(wxT("%s|%s|"),
-			LNG("built-in"),
-			LNG("online")
+		NULL	, "HELP_SOURCE"	, _TL("Module Description Source"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("built-in"),
+			_TL("online")
 		), 0
 	);
 
 	m_Parameters.Add_Value(
-		NULL	, "PROC_FREQ"	, LNG("Process Update Frequency [milliseconds]"),
-		LNG(""),
+		NULL	, "PROC_FREQ"	, _TL("Process Update Frequency [milliseconds]"),
+		_TL(""),
 		PARAMETER_TYPE_Int	, 0, 0, true
 	);
 
 	m_Parameters.Add_FilePath(
-		NULL	, "LNG_FILE_DIC", LNG("Language Translations"),
-		LNG("Dictionary for translations from built-in (English) to local language (editable text table)"),
+		NULL	, "LNG_FILE_DIC", _TL("Language Translations"),
+		_TL("Dictionary for translations from built-in (English) to local language (editable text table)"),
 		CSG_String::Format(SG_T("%s|*.lng|%s|*.txt|%s|*.*"),
-			LNG("Dictionary Files (*.lng)"),
-			LNG("Text Table (*.txt)"),
-			LNG("All Files")
+			_TL("Dictionary Files (*.lng)"),
+			_TL("Text Table (*.txt)"),
+			_TL("All Files")
 		)
 	);
 
 	m_Parameters.Add_FilePath(
-		NULL	, "CRS_FILE_SRS", LNG("CRS Database"),
-		LNG("Database with Coordinate Reference System (CRS) definitions. You have to restart SAGA to make changes take affect!"),
+		NULL	, "CRS_FILE_SRS", _TL("CRS Database"),
+		_TL("Database with Coordinate Reference System (CRS) definitions. You have to restart SAGA to make changes take affect!"),
 		CSG_String::Format(SG_T("%s|*.srs|%s|*.*"),
-			LNG("Spatial Reference System Files (*.srs)"),
-			LNG("All Files")
+			_TL("Spatial Reference System Files (*.srs)"),
+			_TL("All Files")
 		)
 	);
 
 	m_Parameters.Add_FilePath(
-		NULL	, "CRS_FILE_DIC", LNG("CRS Dictionary"),
-		LNG("Dictionary for Proj.4/OGC WKT translations. You have to restart SAGA to make changes take affect!"),
+		NULL	, "CRS_FILE_DIC", _TL("CRS Dictionary"),
+		_TL("Dictionary for Proj.4/OGC WKT translations. You have to restart SAGA to make changes take affect!"),
 		CSG_String::Format(SG_T("%s|*.dic|%s|*.*"),
-			LNG("Dictionary Files (*.dic)"),
-			LNG("All Files")
+			_TL("Dictionary Files (*.dic)"),
+			_TL("All Files")
 		)
 	);
 }
@@ -217,7 +217,7 @@ bool CWKSP_Module_Manager::Finalise(void)
 //---------------------------------------------------------
 wxString CWKSP_Module_Manager::Get_Name(void)
 {
-	return( LNG("[CAP] Module Libraries") );
+	return( _TL("[CAP] Module Libraries") );
 }
 
 //---------------------------------------------------------
@@ -226,27 +226,27 @@ wxString CWKSP_Module_Manager::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("Module Library"));
+	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Module Library"));
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_INT(LNG("Loaded Libraries")	, Get_Count());
-	DESC_ADD_INT(LNG("Available Modules")	, Get_Items_Count());
+	DESC_ADD_INT(_TL("Loaded Libraries")	, Get_Count());
+	DESC_ADD_INT(_TL("Available Modules")	, Get_Items_Count());
 
 	s	+= wxT("</table>");
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<hr><b>%s:</b><table border=\"1\">"), LNG("Module Libraries"));
+	s	+= wxString::Format(wxT("<hr><b>%s:</b><table border=\"1\">"), _TL("Module Libraries"));
 
-	s	+= wxString::Format(wxT("<tr><th>%s</th><th>%s</th><th>%s</th></tr>"), LNG("Library"), LNG("Modules"), LNG("Name"), LNG("Location"));
+	s	+= wxString::Format(wxT("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"), _TL("Library"), _TL("Modules"), _TL("Name"), _TL("Location"));
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		s	+= wxString::Format(wxT("<tr><td>%s</td><td>%d</td><td>%s</td></tr>"),
-				SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str(),
+		s	+= wxString::Format(wxT("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>"),
+				SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).w_str(),
 				Get_Library(i)->Get_Count(),
-				Get_Library(i)->Get_Name().c_str(),
-				SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str()
+				Get_Library(i)->Get_Name(),
+				SG_File_Get_Path(Get_Library(i)->Get_File_Name()).w_str()
 			);
 	}
 
@@ -261,7 +261,7 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(LNG("[CAP] Module Libraries"));
+	pMenu	= new wxMenu(_TL("[CAP] Module Libraries"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_OPEN);
 
@@ -418,17 +418,17 @@ void CWKSP_Module_Manager::_Config_Read(void)
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("LNG_FILE_DIC"), sValue) )
 	{
-		m_Parameters("LNG_FILE_DIC")->Set_Value(sValue);
+		m_Parameters("LNG_FILE_DIC")->Set_Value(sValue.wc_str());
 	}
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), sValue) )
 	{
-		m_Parameters("CRS_FILE_SRS")->Set_Value(sValue);
+		m_Parameters("CRS_FILE_SRS")->Set_Value(sValue.wc_str());
 	}
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), sValue) )
 	{
-		m_Parameters("CRS_FILE_DIC")->Set_Value(sValue);
+		m_Parameters("CRS_FILE_DIC")->Set_Value(sValue.wc_str());
 	}
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
@@ -478,7 +478,7 @@ int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory, bool bOnlySu
 		{
 			do
 			{	if( FileName.Find(wxT("saga_")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
-				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL)) )
+				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL).w_str()) )
 				{
 					nOpened++;
 				}
@@ -528,7 +528,7 @@ void CWKSP_Module_Manager::Open(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
+bool CWKSP_Module_Manager::Open(const wxString &File_Name)
 {
 	if( SG_Get_Module_Library_Manager().Add_Library(File_Name) )
 	{
@@ -585,9 +585,9 @@ CWKSP_Module * CWKSP_Module_Manager::Get_Module_byID(int CMD_ID)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 {
-	CSG_Parameters	Options(NULL, LNG("Create HTML Documentation"), LNG(""));
+	CSG_Parameters	Options(NULL, _TL("Create HTML Documentation"), _TL(""));
 
-	Options.Add_FilePath(NULL, "DIR", LNG("Choose Documentation Folder"), LNG(""), NULL, NULL, true, true);
+	Options.Add_FilePath(NULL, "DIR", _TL("Choose Documentation Folder"), _TL(""), NULL, NULL, true, true);
 
 	if( !DLG_Parameters(&Options) )
 	{
@@ -600,28 +600,28 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 	wxString		LibName, Directory, Main, s;
 	wxFileName		FileName;
 
-	MSG_General_Add(wxString::Format(wxT("%s..."), LNG("Creating module documentation files")), true, true);
+	MSG_General_Add(wxString::Format(wxT("%s..."), _TL("Creating module documentation files")), true, true);
 
 	bDirectory	= wxDirExists(Options("DIR")->asString());
-	Directory	= bDirectory ? Options("DIR")->asString() : SG_File_Get_Path(g_pSAGA->Get_App_Path()).c_str();
+	Directory	= bDirectory ? wxString(Options("DIR")->asString()) : wxString(SG_File_Get_Path(g_pSAGA->Get_App_Path()).w_str());
 
 	//-----------------------------------------------------
 	FileName.AssignDir	(Directory);
 	FileName.SetExt		(wxT("html"));
 	FileName.SetName	(wxT("index"));
 
-	Stream_Libs.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false);
+	Stream_Libs.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false);
 	Stream_Libs.Printf(SG_T("<html><head><title>SAGA - System for Automated Geoscientific Analyses</title></head><body>"));
 	Stream_Libs.Printf(SG_T("<h1><a href=\"http://www.saga-gis.org\">SAGA - System for Automated Geoscientific Analyses</a></h1>"));
-	Stream_Libs.Printf(SG_T("<h2>%s</h2>\n<ul>\n"), LNG("Module Library Descriptions"));
+	Stream_Libs.Printf(SG_T("<h2>%s</h2>\n<ul>\n"), _TL("Module Library Descriptions"));
 
 	Main		= FileName.GetFullPath();
 
 	//-----------------------------------------------------
 	for(int i=0; i<Get_Count() && PROGRESSBAR_Set_Position(i, Get_Count()); i++)
 	{
-		LibName				= SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str();
-		FileName.AssignDir	(bDirectory ? Directory.c_str() : SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str());
+		LibName				= SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).w_str();
+		FileName.AssignDir	(bDirectory ? Directory.c_str() : SG_File_Get_Path(Get_Library(i)->Get_File_Name()).w_str());
 		FileName.AppendDir	(LibName);
 		FileName.SetExt		(wxT("html"));
 
@@ -632,13 +632,13 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 
 			FileName.SetName(wxT("index"));
 
-			if( Stream_Lib.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
+			if( Stream_Lib.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false) )
 			{
 				if( Stream_Libs.is_Open() )
 				{
-					s	= Get_FilePath_Relative(Directory.c_str(), FileName.GetFullPath().c_str()).c_str();	if( s[0] == '\\' )	s	= s.AfterFirst('\\');
+					s	= Get_FilePath_Relative(Directory.wc_str(), FileName.GetFullPath().wc_str()).wc_str();	if( s[0] == '\\' )	s	= s.AfterFirst('\\');
                     if(s[0]=='/') s = s.AfterFirst('/');
-					Stream_Libs.Printf(wxT("<li><a href=\"%s\">%s</a></li>\n"), s.c_str(), Get_Library(i)->Get_Name().c_str());
+					Stream_Libs.Printf(SG_T("<li><a href=\"%s\">%s</a></li>\n"), s.c_str(), Get_Library(i)->Get_Name().c_str());
 				}
 
 				Stream_Lib.Printf(SG_T("<html><head><title>SAGA - System for Automated Geoscientific Analyses</title></head>"));
@@ -661,28 +661,28 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
                     s = s.AfterFirst('/');
 
 			FileName.SetName(wxT("modules"));
-			Stream_List.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false);
+			Stream_List.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false);
 			Stream_List.Printf(SG_T("<body bgcolor=\"#CCCCCC\">"));
 			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"http://www.saga-gis.org\">SAGA</a></b><hr>"));
-			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"%s.html\">%s</a></b><hr>"), s.c_str(), LNG("Library Overview"));
+			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"%s.html\">%s</a></b><hr>"), s.c_str(), _TL("Library Overview"));
 			Stream_List.Printf(SG_T("<b><a target=\"CONTENT\" href=\"%s.html\">%s</a></b><hr><ul>"), LibName.c_str(), Get_Library(i)->Get_Name().c_str());
 
 			FileName.SetName(LibName);
 
-			if( Stream_Lib.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
+			if( Stream_Lib.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false) )
 			{
-				Stream_Lib.Printf(wxT("%s<hr><ul>"), Get_Library(i)->Get_Description().c_str());
+				Stream_Lib.Printf(SG_T("%s<hr><ul>"), Get_Library(i)->Get_Description().c_str());
 
 				for(int j=0; j<Get_Library(i)->Get_Count(); j++)
 				{
 					FileName.SetName(wxString::Format(wxT("%s_%02d"), LibName.c_str(), Get_Library(i)->Get_Module(j)->Get_Index()));
 
-					if( Stream_Module.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
+					if( Stream_Module.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false) )
 					{
-						Stream_Module.Printf(wxT("%s"), Get_Library(i)->Get_Module(j)->Get_Description().c_str());
+						Stream_Module.Printf(SG_T("%s"), Get_Library(i)->Get_Module(j)->Get_Description().c_str());
 
-						Stream_Lib .Printf(wxT("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
-						Stream_List.Printf(wxT("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
+						Stream_Lib .Printf(SG_T("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
+						Stream_List.Printf(SG_T("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
 					}
 				}
 			}
@@ -692,12 +692,12 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 	//-----------------------------------------------------
 	if( Stream_Libs.is_Open() )
 	{
-		Stream_Libs.Printf(wxT("</ul>"));
+		Stream_Libs.Printf(SG_T("</ul>"));
 	}
 
 	PROCESS_Set_Okay(true);
 
-	MSG_General_Add(LNG("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+	MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 }
 
 

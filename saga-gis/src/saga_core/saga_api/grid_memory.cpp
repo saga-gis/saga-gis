@@ -172,13 +172,13 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 					CSG_String	s;
 
 					s.Printf(SG_T("%s\n%s\n%s: %.2fMB"),
-						LNG("Shall I activate file caching for new grid."),
+						_TL("Shall I activate file caching for new grid."),
 						m_System.Get_Name(),
-						LNG("Total memory size"),
+						_TL("Total memory size"),
 						(long) (Get_NCells() * Get_nValueBytes()) / (double)N_MEGABYTE_BYTES
 					);
 
-					if( SG_UI_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
+					if( SG_UI_Dlg_Continue(s, _TL("Activate Grid File Cache?")) )
 					{
 						Memory_Type	= GRID_MEMORY_Cache;
 					}
@@ -187,15 +187,15 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 
 			case 2:
 				{
-					CSG_Parameters	p(NULL, LNG("Activate Grid File Cache?"), SG_T(""));
+					CSG_Parameters	p(NULL, _TL("Activate Grid File Cache?"), SG_T(""));
 
 					p.Add_Value(
-						NULL	, SG_T("BUFFERSIZE")	, LNG("Buffer Size [MB]"),
+						NULL	, SG_T("BUFFERSIZE")	, _TL("Buffer Size [MB]"),
 						SG_T(""),
 						PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 					);
 
-					if( SG_UI_Dlg_Parameters(&p, LNG("Activate Grid File Cache?")) )
+					if( SG_UI_Dlg_Parameters(&p, _TL("Activate Grid File Cache?")) )
 					{
 						Memory_Type	= GRID_MEMORY_Cache;
 

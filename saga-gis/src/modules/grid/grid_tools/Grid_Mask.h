@@ -78,7 +78,7 @@ class CGrid_Mask : public CSG_Module_Grid
 public:
 	CGrid_Mask(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
 
 
 protected:

@@ -42,7 +42,7 @@ class CSelect_Location : public CSG_Module
 public:
 	CSelect_Location(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:

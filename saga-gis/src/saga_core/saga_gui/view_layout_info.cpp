@@ -163,9 +163,9 @@ bool CVIEW_Layout_Info::Print(void)
 	}
 
 	if( wxPrinter::GetLastError() == wxPRINTER_ERROR )
-		MSG_Error_Add(LNG("[ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?"));
+		MSG_Error_Add(_TL("[ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?"));
 	else
-		MSG_Error_Add(LNG("[ERR] You canceled printing"));
+		MSG_Error_Add(_TL("[ERR] You canceled printing"));
 
 	return( false );
 }
@@ -181,7 +181,7 @@ bool CVIEW_Layout_Info::Print_Preview(void)
 
 	if( pPreview->Ok() )
 	{
-		pFrame	= new wxPreviewFrame(pPreview, (wxFrame *)MDI_Get_Frame(), LNG("[CAP] Print Preview"), wxPoint(100, 100), wxSize(600, 650), wxDEFAULT_FRAME_STYLE|wxMAXIMIZE);
+		pFrame	= new wxPreviewFrame(pPreview, (wxFrame *)MDI_Get_Frame(), _TL("[CAP] Print Preview"), wxPoint(100, 100), wxSize(600, 650), wxDEFAULT_FRAME_STYLE|wxMAXIMIZE);
 		pFrame->Centre(wxBOTH);
 		pFrame->Initialize();
 		pFrame->Show(true);
@@ -262,7 +262,7 @@ wxPoint CVIEW_Layout_Info::Get_Margin_BottomRight(void)
 //---------------------------------------------------------
 wxString CVIEW_Layout_Info::Get_Name(void)
 {
-	return( LNG("SAGA: Print Map") );
+	return( _TL("SAGA: Print Map") );
 }
 
 //---------------------------------------------------------
@@ -292,7 +292,7 @@ void CVIEW_Layout_Info::Fit_Scale(void)
 		rWorld		= m_pMap->Get_World(dc_rMap);
 		Scale		= rWorld.Get_XRange() / (dDCToMeter * dc_rMap.GetWidth());
 
-		if( DLG_Get_Number(Scale, LNG("[CAP] Fit Map Scale"), LNG("[DLG] Scale 1 : ")) )
+		if( DLG_Get_Number(Scale, _TL("[CAP] Fit Map Scale"), _TL("[DLG] Scale 1 : ")) )
 		{
 			dx	= Scale * dDCToMeter * dc_rMap.GetWidth ();
 			dy	= Scale * dDCToMeter * dc_rMap.GetHeight();
@@ -411,7 +411,7 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc)
 			{
 				double	Scale	= m_pMap->Get_World(dc_rMap).Get_XRange() / (dc_rMap.GetWidth() * 0.001 / dPaperToDC);
 
-				dc.DrawText(wxString::Format(wxT("%s 1:%s"), LNG("[CAP] Map Scale"),
+				dc.DrawText(wxString::Format(wxT("%s 1:%s"), _TL("[CAP] Map Scale"),
 					Get_SignificantDecimals_String(Scale).c_str()),
 					dc_rMap.GetLeft(),
 					dc_rMap.GetBottom() + dc_MapFrame

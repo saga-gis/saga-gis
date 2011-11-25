@@ -77,11 +77,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_ID1(p)		(p->Get_Owner()->Get_Identifier() && *(p->Get_Owner()->Get_Identifier()) \
-						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) \
+#define GET_ID1(p)		(p->Get_Owner()->Get_Identifier().Length() > 0 \
+						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
 						: wxString::Format(p->Get_Identifier()))
 
-#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), s)
+#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).wc_str(), s)
 
 
 ///////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ bool CModule_Library::Create(const SG_Char *FileName, const SG_Char *FilePath)
 
 	if( !m_Library.Create(SG_File_Make_Path(FilePath, FileName, NULL).c_str()) )
 	{
-		Print_Error(LNG("[ERR] Library could not be loaded"), FileName);
+		Print_Error(_TL("[ERR] Library could not be loaded"), FileName);
 	}
 	else
 	{
@@ -129,7 +129,7 @@ bool CModule_Library::Create(const SG_Char *FileName, const SG_Char *FilePath)
 			}
 		}
 
-		Print_Error(LNG("[ERR] Library does not contain executable modules"), FileName);
+		Print_Error(_TL("[ERR] Library does not contain executable modules"), FileName);
 	}
 
 	Destroy();
@@ -254,7 +254,7 @@ bool CModule_Library::Execute(int argc, char *argv[])
 
 	if( !bResult )
 	{
-		Print_Error(LNG("executing module"), m_pModule->Get_Name());
+		Print_Error(_TL("executing module"), m_pModule->Get_Name());
 	}
 
 	return( bResult );
@@ -367,7 +367,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 	//-----------------------------------------------------
 	if( m_pCMD == NULL || pParameters == NULL )
 	{
-		Print_Error(LNG("[ERR] Internal system error"));
+		Print_Error(_TL("[ERR] Internal system error"));
 
 		return( false );
 	}
@@ -416,7 +416,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					}
 					else
 					{
-						pParameter->Set_Value(s.c_str());
+						pParameter->Set_Value(s.wc_str());
 					}
 				}
 				break;
@@ -444,7 +444,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 			case PARAMETER_TYPE_String:
 				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
-					pParameter->Set_Value(s.c_str());
+					pParameter->Set_Value(s.wc_str());
 				}
 				break;
 
@@ -453,7 +453,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 				{
 					CSG_File	Stream;
 
-					if( Stream.Open(s.c_str()) )
+					if( Stream.Open(s.wc_str()) )
 					{
 						CSG_String	t;
 
@@ -463,7 +463,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					}
 					else
 					{
-						pParameter->Set_Value(s.c_str());
+						pParameter->Set_Value(s.wc_str());
 					}
 				}
 				break;
@@ -478,14 +478,14 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 						s.Append (wxT("\""));
 					}
 
-					pParameter->Set_Value(s.c_str());
+					pParameter->Set_Value(s.wc_str());
 				}
 				break;
 
 			case PARAMETER_TYPE_FixedTable:
 				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
-					CSG_Table	Table(s.c_str());
+					CSG_Table	Table(s.wc_str());
 					pParameter->asTable()->Assign_Values(&Table);
 				}
 				break;
@@ -534,7 +534,7 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 	//-----------------------------------------------------
 	if( m_pCMD == NULL || pParameters == NULL )
 	{
-		Print_Error(LNG("[ERR] Internal system error"));
+		Print_Error(_TL("[ERR] Internal system error"));
 
 		return( false );
 	}
@@ -561,7 +561,7 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 					{
 						if( !_Create_DataObject(pParameter, FileName) && !pParameter->is_Optional() )
 						{
-							Print_Error(LNG("input file"), FileName);
+							Print_Error(_TL("input file"), FileName);
 
 							return( false );
 						}
@@ -572,7 +572,7 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 					{
 						if( !_Create_DataObject_List(pParameter, FileName) && !pParameter->is_Optional() )
 						{
-							Print_Error(LNG("empty input list"), GET_ID1(pParameter));
+							Print_Error(_TL("empty input list"), GET_ID1(pParameter));
 
 							return( false );
 						}
@@ -601,7 +601,7 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CModule_Library::_Create_DataObject(CSG_Parameter *pParameter, const wxChar *FileName)
+bool CModule_Library::_Create_DataObject(CSG_Parameter *pParameter, const wxString &FileName)
 {
 	if( !SG_File_Exists(FileName) )
 	{
@@ -612,12 +612,12 @@ bool CModule_Library::_Create_DataObject(CSG_Parameter *pParameter, const wxChar
 
 	switch( pParameter->Get_Type() )
 	{
-	default:						pObject	= NULL;								break;
-	case PARAMETER_TYPE_TIN:		pObject = new CSG_TIN			(FileName);	break;
-	case PARAMETER_TYPE_PointCloud:	pObject = new CSG_PointCloud	(FileName);	break;
-	case PARAMETER_TYPE_Shapes:		pObject = new CSG_Shapes		(FileName);	break;
-	case PARAMETER_TYPE_Table:		pObject = new CSG_Table			(FileName);	break;
-	case PARAMETER_TYPE_Grid:		pObject	= new CSG_Grid			(FileName);	break;
+	default:						pObject	= NULL;											break;
+	case PARAMETER_TYPE_TIN:		pObject = new CSG_TIN			(FileName.wc_str());	break;
+	case PARAMETER_TYPE_PointCloud:	pObject = new CSG_PointCloud	(FileName.wc_str());	break;
+	case PARAMETER_TYPE_Shapes:		pObject = new CSG_Shapes		(FileName.wc_str());	break;
+	case PARAMETER_TYPE_Table:		pObject = new CSG_Table			(FileName.wc_str());	break;
+	case PARAMETER_TYPE_Grid:		pObject	= new CSG_Grid			(FileName.wc_str());	break;
 	}
 
 	if( pObject )
@@ -665,11 +665,11 @@ bool CModule_Library::_Create_DataObject_List(CSG_Parameter *pParameter, wxStrin
 			switch( pParameter->Get_Type() )
 			{
 			default:								pObject	= NULL;									break;
-			case PARAMETER_TYPE_Grid_List:			pObject	= new CSG_Grid      (FileName.c_str());	break;
-			case PARAMETER_TYPE_TIN_List:			pObject	= new CSG_TIN       (FileName.c_str());	break;
-			case PARAMETER_TYPE_PointCloud_List:	pObject	= new CSG_PointCloud(FileName.c_str());	break;
-			case PARAMETER_TYPE_Shapes_List:		pObject	= new CSG_Shapes    (FileName.c_str());	break;
-			case PARAMETER_TYPE_Table_List:			pObject	= new CSG_Table     (FileName.c_str());	break;
+			case PARAMETER_TYPE_Grid_List:			pObject	= new CSG_Grid      (FileName.wc_str());	break;
+			case PARAMETER_TYPE_TIN_List:			pObject	= new CSG_TIN       (FileName.wc_str());	break;
+			case PARAMETER_TYPE_PointCloud_List:	pObject	= new CSG_PointCloud(FileName.wc_str());	break;
+			case PARAMETER_TYPE_Shapes_List:		pObject	= new CSG_Shapes    (FileName.wc_str());	break;
+			case PARAMETER_TYPE_Table_List:			pObject	= new CSG_Table     (FileName.wc_str());	break;
 			}
 
 			if( pObject && pObject->is_Valid() )
@@ -695,7 +695,7 @@ bool CModule_Library::_Create_DataObject_List(CSG_Parameter *pParameter, wxStrin
 			{
 				delete(pObject);
 
-				Print_Error(LNG("input file"), FileName);
+				Print_Error(_TL("input file"), FileName);
 			}
 		}
 		while( FileNames.Length() > 0 );
@@ -769,7 +769,7 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 			}
 			else if( FileName.Length() > 0 )
 			{
-				pObject->Save(FileName.c_str());
+				pObject->Save(FileName.wc_str());
 			}
 
 			m_Data_Objects.Add(pObject);
@@ -792,11 +792,11 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 				{
 					if( pParameter->asList()->Get_Count() == 1 )
 					{
-						pObject->Save(FileName.c_str());
+						pObject->Save(FileName.wc_str());
 					}
 					else
 					{
-						pObject->Save(CSG_String::Format(SG_T("%s_%04d"), FileName.c_str(), i + 1));
+						pObject->Save(CSG_String::Format(SG_T("%s_%04d"), FileName.wc_str(), i + 1));
 					}
 				}
 

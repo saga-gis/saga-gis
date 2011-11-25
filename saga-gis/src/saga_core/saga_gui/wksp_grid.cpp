@@ -124,48 +124,49 @@ wxString CWKSP_Grid::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("[CAP] Grid"));
+	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("[CAP] Grid"));
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR(LNG("[CAP] Name")					, m_pGrid->Get_Name());
-	DESC_ADD_STR(LNG("[CAP] Description")			, m_pGrid->Get_Description());
-	DESC_ADD_STR(LNG("[CAP] File")					, m_pGrid->Get_File_Name());
-	DESC_ADD_STR(LNG("[CAP] Projection")			, m_pGrid->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT(LNG("[CAP] West")					, m_pGrid->Get_XMin());
-	DESC_ADD_FLT(LNG("[CAP] East")					, m_pGrid->Get_XMax());
-	DESC_ADD_FLT(LNG("[CAP] West-East")				, m_pGrid->Get_XRange());
-	DESC_ADD_FLT(LNG("[CAP] South")					, m_pGrid->Get_YMin());
-	DESC_ADD_FLT(LNG("[CAP] North")					, m_pGrid->Get_YMax());
-	DESC_ADD_FLT(LNG("[CAP] South-North")			, m_pGrid->Get_YRange());
-	DESC_ADD_FLT(LNG("[CAP] Cell Size")				, m_pGrid->Get_Cellsize());
-	DESC_ADD_INT(LNG("[CAP] Number of Columns")		, m_pGrid->Get_NX());
-	DESC_ADD_INT(LNG("[CAP] Number of Rows")		, m_pGrid->Get_NY());
-	DESC_ADD_LONG(LNG("[CAP] Number of Cells")		, m_pGrid->Get_NCells());
-	DESC_ADD_LONG(LNG("[CAP] No Data Cells")		, m_pGrid->Get_NoData_Count());
-	DESC_ADD_STR(LNG("[CAP] Value Type")			, SG_Data_Type_Get_Name(m_pGrid->Get_Type()));
-	DESC_ADD_FLT(LNG("[CAP] Value Minimum")			, m_pGrid->Get_ZMin());
-	DESC_ADD_FLT(LNG("[CAP] Value Maximum")			, m_pGrid->Get_ZMax());
-	DESC_ADD_FLT(LNG("[CAP] Value Range")			, m_pGrid->Get_ZRange());
-	DESC_ADD_STR(LNG("[CAP] No Data Value")			, m_pGrid->Get_NoData_Value() < m_pGrid->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), m_pGrid->Get_NoData_Value(), m_pGrid->Get_NoData_hiValue()).c_str() : SG_Get_String(m_pGrid->Get_NoData_Value(), -2).c_str());
-	DESC_ADD_FLT(LNG("[CAP] Arithmetic Mean")		, m_pGrid->Get_ArithMean(true));
-	DESC_ADD_FLT(LNG("[CAP] Standard Deviation")	, m_pGrid->Get_StdDev(true));
-	DESC_ADD_STR(LNG("[CAP] Memory Size")			, Get_nBytes_asString(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes(), 2).c_str());
+	DESC_ADD_STR (_TL("[CAP] Name")					, m_pGrid->Get_Name());
+	DESC_ADD_STR (_TL("[CAP] Description")			, m_pGrid->Get_Description());
+	DESC_ADD_STR (_TL("[CAP] File")					, SG_File_Exists(m_pGrid->Get_File_Name()) ? m_pGrid->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR (_TL("[CAP] Modified")				, m_pGrid->is_Modified() ? _TL("[VAL] yes") : _TL("[VAL] no"));
+	DESC_ADD_STR (_TL("[CAP] Projection")			, m_pGrid->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT (_TL("[CAP] West")					, m_pGrid->Get_XMin());
+	DESC_ADD_FLT (_TL("[CAP] East")					, m_pGrid->Get_XMax());
+	DESC_ADD_FLT (_TL("[CAP] West-East")			, m_pGrid->Get_XRange());
+	DESC_ADD_FLT (_TL("[CAP] South")				, m_pGrid->Get_YMin());
+	DESC_ADD_FLT (_TL("[CAP] North")				, m_pGrid->Get_YMax());
+	DESC_ADD_FLT (_TL("[CAP] South-North")			, m_pGrid->Get_YRange());
+	DESC_ADD_FLT (_TL("[CAP] Cell Size")			, m_pGrid->Get_Cellsize());
+	DESC_ADD_INT (_TL("[CAP] Number of Columns")	, m_pGrid->Get_NX());
+	DESC_ADD_INT (_TL("[CAP] Number of Rows")		, m_pGrid->Get_NY());
+	DESC_ADD_LONG(_TL("[CAP] Number of Cells")		, m_pGrid->Get_NCells());
+	DESC_ADD_LONG(_TL("[CAP] No Data Cells")		, m_pGrid->Get_NoData_Count());
+	DESC_ADD_STR (_TL("[CAP] Value Type")			, SG_Data_Type_Get_Name(m_pGrid->Get_Type()).c_str());
+	DESC_ADD_FLT (_TL("[CAP] Value Minimum")		, m_pGrid->Get_ZMin());
+	DESC_ADD_FLT (_TL("[CAP] Value Maximum")		, m_pGrid->Get_ZMax());
+	DESC_ADD_FLT (_TL("[CAP] Value Range")			, m_pGrid->Get_ZRange());
+	DESC_ADD_STR (_TL("[CAP] No Data Value")		, m_pGrid->Get_NoData_Value() < m_pGrid->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), m_pGrid->Get_NoData_Value(), m_pGrid->Get_NoData_hiValue()).c_str() : SG_Get_String(m_pGrid->Get_NoData_Value(), -2).c_str());
+	DESC_ADD_FLT (_TL("[CAP] Arithmetic Mean")		, m_pGrid->Get_ArithMean(true));
+	DESC_ADD_FLT (_TL("[CAP] Standard Deviation")	, m_pGrid->Get_StdDev(true));
+	DESC_ADD_STR (_TL("[CAP] Memory Size")			, Get_nBytes_asString(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes(), 2).c_str());
 
 	if( m_pGrid->is_Compressed() )
 	{
-		DESC_ADD_FLT(LNG("[CAP] Memory Compression")	, 100.0 * m_pGrid->Get_Compression_Ratio());
+		DESC_ADD_FLT(_TL("[CAP] Memory Compression")	, 100.0 * m_pGrid->Get_Compression_Ratio());
 	}
 
 	if( m_pGrid->is_Cached() )
 	{
-		DESC_ADD_FLT(LNG("[CAP] File Cache [MB]")		, m_pGrid->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES);
+		DESC_ADD_FLT(_TL("[CAP] File Cache [MB]")		, m_pGrid->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES);
 	}
 
 	s	+= wxT("</table>");
 
 	//-----------------------------------------------------
-//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
+//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("[CAP] Data History")));
 //	s.Append(m_pGrid->Get_History().Get_HTML());
 //	s.Append(wxString::Format(wxT("</font")));
 
@@ -192,13 +193,13 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SCATTERPLOT);
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
-	pSubMenu	= new wxMenu(LNG("[MNU] Classificaton"));
+	pSubMenu	= new wxMenu(_TL("[MNU] Classificaton"));
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV150);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV200);
 
-	pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Classification"), pSubMenu);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Classification"), pSubMenu);
 
 	return( pMenu );
 }
@@ -291,14 +292,14 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// General...
 
 	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_UNIT"			, LNG("[CAP] Unit"),
-		LNG(""),
+		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_UNIT"			, _TL("[CAP] Unit"),
+		_TL(""),
 		m_pGrid->Get_Unit()
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_FACTOR"		, LNG("[CAP] Z-Factor"),
-		LNG(""),
+		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_FACTOR"		, _TL("[CAP] Z-Factor"),
+		_TL(""),
 		PARAMETER_TYPE_Double
 	);
 
@@ -307,14 +308,14 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Display...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_INTERPOLATION"	, LNG("[CAP] Interpolation"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|%s|%s|%s|"),
-			LNG("[VAL] None"),
-			LNG("[VAL] Bilinear"),
-			LNG("[VAL] Inverse Distance"),
-			LNG("[VAL] Bicubic Spline"),
-			LNG("[VAL] B-Spline")
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_INTERPOLATION"	, _TL("[CAP] Interpolation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("[VAL] None"),
+			_TL("[VAL] Bilinear"),
+			_TL("[VAL] Inverse Distance"),
+			_TL("[VAL] Bicubic Spline"),
+			_TL("[VAL] B-Spline")
 		), 0
 	);
 
@@ -324,12 +325,12 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
 		wxString::Format(wxT("%s|%s|%s|%s|%s|%s|"),
-			LNG("[VAL] Unique Symbol"),
-			LNG("[VAL] Lookup Table"),
-			LNG("[VAL] Graduated Color"),
-			LNG("[VAL] RGB"),
-			LNG("[VAL] Shade"),
-			LNG("[VAL] RGB Overlay")
+			_TL("[VAL] Unique Symbol"),
+			_TL("[VAL] Lookup Table"),
+			_TL("[VAL] Graduated Color"),
+			_TL("[VAL] RGB"),
+			_TL("[VAL] Shade"),
+			_TL("[VAL] RGB Overlay")
 		)
 	);
 
@@ -337,53 +338,53 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_SHADE"		, LNG("[CAP] Shade"),
-		LNG("")
+		m_Parameters("NODE_COLORS")		, "NODE_SHADE"		, _TL("[CAP] Shade"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SHADE")		, "SHADE_MODE"		, LNG("[CAP] Coloring"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|%s|%s|%s|%s|%s|%s|"),
-			LNG("bright - dark"),
-			LNG("dark - bright"),
-			LNG("white - cyan"),
-			LNG("cyan - white"),
-			LNG("white - magenta"),
-			LNG("magenta - white"),
-			LNG("white - yellow"),
-			LNG("yellow - white")
+		m_Parameters("NODE_SHADE")		, "SHADE_MODE"		, _TL("[CAP] Coloring"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("bright - dark"),
+			_TL("dark - bright"),
+			_TL("white - cyan"),
+			_TL("cyan - white"),
+			_TL("white - magenta"),
+			_TL("magenta - white"),
+			_TL("white - yellow"),
+			_TL("yellow - white")
 		), 0
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_OVERLAY"	, LNG("[CAP] RGB Overlay"),
-		LNG("")
+		m_Parameters("NODE_COLORS")		, "NODE_OVERLAY"	, _TL("[CAP] RGB Overlay"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_OVERLAY")	, "OVERLAY_MODE"	, LNG("[CAP] Coloring"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|%s|%s|%s|%s|"),
-			LNG("red=this, green=1, blue=2"),
-			LNG("red=this, green=2, blue=1"),
-			LNG("red=1, green=this, blue=2"),
-			LNG("red=2, green=this, blue=1"),
-			LNG("red=1, green=2, blue=this"),
-			LNG("red=2, green=1, blue=this")
+		m_Parameters("NODE_OVERLAY")	, "OVERLAY_MODE"	, _TL("[CAP] Coloring"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+			_TL("red=this, green=1, blue=2"),
+			_TL("red=this, green=2, blue=1"),
+			_TL("red=1, green=this, blue=2"),
+			_TL("red=2, green=this, blue=1"),
+			_TL("red=1, green=2, blue=this"),
+			_TL("red=2, green=1, blue=this")
 		), 0
 	);
 
 	m_Parameters.Add_Grid(
-		m_Parameters("NODE_OVERLAY")	, "OVERLAY_1"		, LNG("[CAP] Overlay 1"),
-		LNG(""),
+		m_Parameters("NODE_OVERLAY")	, "OVERLAY_1"		, _TL("[CAP] Overlay 1"),
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 
 	m_Parameters.Add_Grid(
-		m_Parameters("NODE_OVERLAY")	, "OVERLAY_2"		, LNG("[CAP] Overlay 2"),
-		LNG(""),
+		m_Parameters("NODE_OVERLAY")	, "OVERLAY_2"		, _TL("[CAP] Overlay 2"),
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 
@@ -392,25 +393,25 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Cell Values...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_GENERAL")	, "VALUES_SHOW"		, LNG("[CAP] Show Cell Values"),
-		LNG("shows cell values when zoomed"),
+		m_Parameters("NODE_GENERAL")	, "VALUES_SHOW"		, _TL("[CAP] Show Cell Values"),
+		_TL("shows cell values when zoomed"),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_Font(
-		m_Parameters("VALUES_SHOW")		, "VALUES_FONT"		, LNG("[CAP] Font"),
-		LNG("")
+		m_Parameters("VALUES_SHOW")		, "VALUES_FONT"		, _TL("[CAP] Font"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("VALUES_SHOW")		, "VALUES_SIZE"		, LNG("[CAP] Size"),
-		LNG(""),
+		m_Parameters("VALUES_SHOW")		, "VALUES_SIZE"		, _TL("[CAP] Size"),
+		_TL(""),
 		PARAMETER_TYPE_Double, 15, 0, true , 100.0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("VALUES_SHOW")		, "VALUES_DECIMALS"	, LNG("[CAP] Decimals"),
-		LNG(""),
+		m_Parameters("VALUES_SHOW")		, "VALUES_DECIMALS"	, _TL("[CAP] Decimals"),
+		_TL(""),
 		PARAMETER_TYPE_Int, 2
 	);
 
@@ -419,18 +420,18 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Memory...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_GENERAL")	, "MEMORY_MODE"				, LNG("[CAP] Memory Handling"),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|%s|"),
-			LNG("[VAL] Normal"),
-			LNG("[VAL] RTL Compression"),
-			LNG("[VAL] File Cache")
+		m_Parameters("NODE_GENERAL")	, "MEMORY_MODE"				, _TL("[CAP] Memory Handling"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("[VAL] Normal"),
+			_TL("[VAL] RTL Compression"),
+			_TL("[VAL] File Cache")
 		), 0
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("MEMORY_MODE")		, "MEMORY_BUFFER_SIZE"		, LNG("[CAP] Buffer Size MB"),
-		LNG(""),
+		m_Parameters("MEMORY_MODE")		, "MEMORY_BUFFER_SIZE"		, _TL("[CAP] Buffer Size MB"),
+		_TL(""),
 		PARAMETER_TYPE_Double
 	);
 
@@ -555,20 +556,20 @@ void CWKSP_Grid::_LUT_Create(void)
 
 	if( Parameters.Get_Count() == 0 )
 	{
-		Parameters.Create(NULL, LNG("Create Lookup Table"), LNG(""));
+		Parameters.Create(NULL, _TL("Create Lookup Table"), _TL(""));
 
 		Parameters.Add_Colors(
-			NULL, "COLOR"	, LNG("Colors"),
-			LNG("")
+			NULL, "COLOR"	, _TL("Colors"),
+			_TL("")
 		)->asColors()->Set_Count(10);
 
 		Parameters.Add_Choice(
-			NULL, "TYPE"	, LNG("Classification Type"),
-			LNG(""),
+			NULL, "TYPE"	, _TL("Classification Type"),
+			_TL(""),
 			CSG_String::Format(SG_T("%s|%s|%s|"),
-				LNG("unique values"),
-				LNG("equal intervals"),
-				LNG("quantiles")
+				_TL("unique values"),
+				_TL("equal intervals"),
+				_TL("quantiles")
 			), 1
 		);
 	}
@@ -827,7 +828,7 @@ bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int 
 
 		for(x=0; x<m_Sel_xN; x++)
 		{
-			m_Edit_Attributes.Add_Field(wxString::Format(wxT("%d"), x + 1), SG_DATATYPE_Double);
+			m_Edit_Attributes.Add_Field(CSG_String::Format(SG_T("%d"), x + 1), SG_DATATYPE_Double);
 		}
 
 		for(y=0; y<m_Sel_yN; y++)
@@ -902,7 +903,7 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 {
 	int		x, y;
 
-	if( m_Sel_xN >= 0 && DLG_Message_Confirm(LNG("[DLG] Set selected values to no data."), LNG("[CAP] Delete")) )
+	if( m_Sel_xN >= 0 && DLG_Message_Confirm(_TL("[DLG] Set selected values to no data."), _TL("[CAP] Delete")) )
 	{
 		for(y=m_Sel_yOff; y<m_Sel_yOff + m_Sel_yN; y++)
 		{
@@ -1015,22 +1016,22 @@ void CWKSP_Grid::_Save_Image(void)
 	CSG_Parameters	Parms;
 
 	//-----------------------------------------------------
-	Parms.Set_Name(LNG("[CAP] Save Grid as Image..."));
+	Parms.Set_Name(_TL("[CAP] Save Grid as Image..."));
 
 	Parms.Add_Value(
-		NULL	, "WORLD"	, LNG("Save Georeference"),
+		NULL	, "WORLD"	, _TL("Save Georeference"),
 		wxT(""),
 		PARAMETER_TYPE_Bool, 1
 	);
 
 	Parms.Add_Value(
-		NULL	, "LG"	, LNG("Legend: Save"),
+		NULL	, "LG"	, _TL("Legend: Save"),
 		wxT(""),
 		PARAMETER_TYPE_Bool, 1
 	);
 
 	Parms.Add_Value(
-		NULL	, "LZ"	, LNG("Legend: Zoom"),
+		NULL	, "LZ"	, _TL("Legend: Zoom"),
 		wxT(""),
 		PARAMETER_TYPE_Double, 1.0, 0, true
 	);
@@ -1066,9 +1067,9 @@ void CWKSP_Grid::_Save_Image(void)
 			case wxBITMAP_TYPE_TIF:		fn.SetExt(wxT("tfw"));		break; 
 			}
 
-			if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
+			if( Stream.Open(fn.GetFullPath().wc_str(), SG_FILE_W, false) )
 			{
-				Stream.Printf(wxT("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
+				Stream.Printf(SG_T("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
 					 m_pGrid->Get_Cellsize(),
 					 0.0, 0.0,
 					-m_pGrid->Get_Cellsize(),
@@ -1194,8 +1195,7 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 {
 	bool		bByteWise	= m_pClassify->Get_Mode() == CLASSIFY_RGB;
-	int			xDC, yDC, axDC, ayDC, bxDC, byDC, Color, r, g, b;
-	double		x, y, z, axMap, ayMap;
+	int			axDC, ayDC, bxDC, byDC, nyDC, r, g, b;
 	CSG_Rect	rMap(dc_Map.m_rWorld);
 
 	switch( m_Parameters("OVERLAY_MODE")->asInt() )
@@ -1218,33 +1218,40 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	bxDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMax());	if( bxDC >= dc_Map.m_rDC.GetWidth () )	bxDC	= dc_Map.m_rDC.GetWidth () - 1;
 	ayDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMin());	if( ayDC >= dc_Map.m_rDC.GetHeight() )	ayDC	= dc_Map.m_rDC.GetHeight() - 1;
 	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
-	axMap	=      dc_Map.xDC2World(axDC);
-	ayMap	=      dc_Map.yDC2World(ayDC);
+	nyDC	= abs(ayDC - byDC);
 
-	for(y=ayMap, yDC=ayDC; yDC>=byDC; y+=dc_Map.m_DC2World, yDC--)
+	#pragma omp parallel for
+	for(int iyDC=0; iyDC<=nyDC; iyDC++)
 	{
-		for(x=axMap, xDC=axDC; xDC<=bxDC; x+=dc_Map.m_DC2World, xDC++)
+		int		xDC , yDC	= ayDC - iyDC;
+		double	xMap, yMap	= dc_Map.yDC2World(yDC);
+
+		for(xMap=dc_Map.xDC2World(axDC), xDC=axDC; xDC<=bxDC; xMap+=dc_Map.m_DC2World, xDC++)
 		{
-			if( m_pGrid->Get_Value(x, y, z, Interpolation, false, bByteWise, true) )
+			double	Value;
+
+			if( m_pGrid->Get_Value(xMap, yMap, Value, Interpolation, false, bByteWise, true) )
 			{
 				if( m_bOverlay == false )
 				{
-					if( m_pClassify->Get_Class_Color_byValue(z, Color) )
+					int		c;
+
+					if( m_pClassify->Get_Class_Color_byValue(Value, c) )
 					{
-						dc_Map.IMG_Set_Pixel(xDC, yDC, Color);
+						dc_Map.IMG_Set_Pixel(xDC, yDC, c);
 					}
 				}
 				else
 				{
 					int		c[3];
 
-					c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(z));
+					c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(Value));
 
-					c[1]	= m_pOverlay[0] && m_pOverlay[0]->Get_Grid()->Get_Value(x, y, z, Interpolation, false, false, true)
-							? (int)(255.0 * m_pOverlay[0]->m_pClassify->Get_MetricToRelative(z)) : 255;
+					c[1]	= m_pOverlay[0] && m_pOverlay[0]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
+							? (int)(255.0 * m_pOverlay[0]->m_pClassify->Get_MetricToRelative(Value)) : 255;
 
-					c[2]	= m_pOverlay[1] && m_pOverlay[1]->Get_Grid()->Get_Value(x, y, z, Interpolation, false, false, true)
-							? (int)(255.0 * m_pOverlay[1]->m_pClassify->Get_MetricToRelative(z)) : 255;
+					c[2]	= m_pOverlay[1] && m_pOverlay[1]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
+							? (int)(255.0 * m_pOverlay[1]->m_pClassify->Get_MetricToRelative(Value)) : 255;
 
 					dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(
 						c[r] < 0 ? 0 : c[r] > 255 ? 255 : c[r],
@@ -1293,60 +1300,64 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 {
-	int			x, y, xa, ya, xb, yb, Decimals;
-	double		xDC, yDC, axDC, ayDC, dDC, zFactor, Value;
-	wxString	s;
-	wxFont		Font;
+	if(	!m_Parameters("VALUES_SHOW")->asBool() || m_pGrid->Get_Cellsize() * dc_Map.m_World2DC <= 40 )
+	{
+		return;
+	}
 
 	//-----------------------------------------------------
-	if(	m_Parameters("VALUES_SHOW")->asBool() && (dDC = m_pGrid->Get_Cellsize() * dc_Map.m_World2DC) > 40 )
+	int			ax, ay, bx, by, Decimals;
+	double		axDC, ayDC, dDC, zFactor;
+	wxFont		Font;
+
+	dDC			= m_pGrid->Get_Cellsize() * dc_Map.m_World2DC;
+	zFactor		= m_pGrid->Get_ZFactor();
+	Decimals	= m_Parameters("VALUES_DECIMALS")->asInt();
+	Font		= Get_Font(m_Parameters("VALUES_FONT"));
+	Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.0));
+	dc_Map.dc.SetFont(Font);
+	dc_Map.dc.SetTextForeground(Get_Color_asWX(m_Parameters("VALUES_FONT")->asColor()));
+
+	//-------------------------------------------------
+	ax		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
+	ay		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
+	bx		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
+	by		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
+
+	if( ax < 0 )	ax	= 0;	if( bx >= m_pGrid->Get_NX() )	bx	= m_pGrid->Get_NX() - 1;
+	if( ay < 0 )	ax	= 0;	if( by >= m_pGrid->Get_NY() )	by	= m_pGrid->Get_NY() - 1;
+
+	axDC	= dc_Map.xWorld2DC(m_pGrid->Get_System().Get_xGrid_to_World(ax));
+	ayDC	= dc_Map.yWorld2DC(m_pGrid->Get_System().Get_yGrid_to_World(ay));
+
+	int	ny	= by - ay;
+
+	//-------------------------------------------------
+//	#pragma omp parallel for
+	for(int y=0; y<=ny; y++)
 	{
-		zFactor		= m_pGrid->Get_ZFactor();
-		Decimals	= m_Parameters("VALUES_DECIMALS")	->asInt();
+		int		x;
+		double	xDC, yDC	= ayDC - y * dDC;// dc_Map.m_World2DC;
 
-		xDC			= m_Parameters("VALUES_SIZE")		->asDouble() / 100.0;
-		x			= m_Parameters("VALUES_FONT")		->asColor();
-		Font		= Get_Font(m_Parameters("VALUES_FONT"));
-		Font.SetPointSize((int)(xDC * dDC));
-		dc_Map.dc.SetFont(Font);
-		dc_Map.dc.SetTextForeground(Get_Color_asWX(x));
-
-		x			=  m_Parameters("VALUES_FONT")		->asInt();
-		dc_Map.dc.SetTextForeground(wxColour(SG_GET_R(x), SG_GET_G(x), SG_GET_B(x)));
-
-		//-------------------------------------------------
-		xa		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
-		ya		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
-		xb		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
-		yb		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
-
-		if( xa < 0 )	xa	= 0;	if( xb >= m_pGrid->Get_NX() )	xb	= m_pGrid->Get_NX() - 1;
-		if( ya < 0 )	ya	= 0;	if( yb >= m_pGrid->Get_NY() )	yb	= m_pGrid->Get_NY() - 1;
-
-		axDC	= dc_Map.xWorld2DC(m_pGrid->Get_System().Get_xGrid_to_World(xa));
-		ayDC	= dc_Map.yWorld2DC(m_pGrid->Get_System().Get_yGrid_to_World(ya));
-
-		//-------------------------------------------------
-		for(y=ya, yDC=ayDC; y<=yb; y++, yDC-=dDC)
+		for(x=ax, xDC=axDC; x<=bx; x++, xDC+=dDC)
 		{
-			for(x=xa, xDC=axDC; x<=xb; x++, xDC+=dDC)
+			if( m_pGrid->is_InGrid(x, ay + y) )
 			{
-				if( m_pGrid->is_InGrid(x, y) )
+				double	Value	= m_pGrid->asDouble(x, ay + y);
+
+				switch( m_pClassify->Get_Mode() )
 				{
-					Value	= m_pGrid->asDouble(x, y);
+				case CLASSIFY_RGB:
+					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
+						wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)
+					));
+					break;
 
-					switch( m_pClassify->Get_Mode() )
-					{
-					case CLASSIFY_RGB:
-						s.Printf(wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
-						break;
-
-					default:
-						s.Printf(wxT("%.*f"), Decimals, zFactor * Value);
-						break;
-					}
-
-					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, s);
+				default:
+					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
+						wxT("%.*f"), Decimals, zFactor * Value
+					));
+					break;
 				}
 			}
 		}

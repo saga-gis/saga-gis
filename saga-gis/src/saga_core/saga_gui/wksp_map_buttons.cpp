@@ -282,17 +282,17 @@ CWKSP_Map_Buttons::CWKSP_Map_Buttons(wxWindow *pParent)
 	m_Active_Color	= CONFIG_Read(wxT("/BUTTONS_MAPS"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, LNG("Options for Map Thumbnails"), LNG(""));
+	m_Parameters.Create(this, _TL("Options for Map Thumbnails"), _TL(""));
 
 	m_Parameters.Add_Value(
-		NULL, "SIZE"		, LNG("Thumbnail Size"),
-		LNG(""),
+		NULL, "SIZE"		, _TL("Thumbnail Size"),
+		_TL(""),
 		PARAMETER_TYPE_Int, m_Size, 10, true
 	);
 
 	m_Parameters.Add_Value(
-		NULL, "SELCOLOR"	, LNG("Selection Color"),
-		LNG(""),
+		NULL, "SELCOLOR"	, _TL("Selection Color"),
+		_TL(""),
 		PARAMETER_TYPE_Color, m_Active_Color
 	);
 }

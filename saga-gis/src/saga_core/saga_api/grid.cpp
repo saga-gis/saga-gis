@@ -1055,8 +1055,10 @@ bool CSG_Grid::On_Update(void)
 	{
 		m_zStats.Invalidate();
 
-		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		for(int y=0; y<Get_NY(); y++)
 		{
+			SG_UI_Process_Get_Okay();
+
 			for(int x=0; x<Get_NX(); x++)
 			{
 				double	z	= asDouble(x, y);
@@ -1213,7 +1215,7 @@ bool CSG_Grid::_Set_Index(void)
 	double	a;
 
 	//-----------------------------------------------------
-	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), LNG("Create index"), Get_Name()));
+	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Create index"), Get_Name()));
 
 	if( m_Index == NULL )
 	{
@@ -1221,7 +1223,7 @@ bool CSG_Grid::_Set_Index(void)
 
 		if( m_Index == NULL )
 		{
-			SG_UI_Msg_Add_Error(LNG("could not create index: insufficient memory"));
+			SG_UI_Msg_Add_Error(_TL("could not create index: insufficient memory"));
 
 			SG_UI_Process_Set_Ready();
 

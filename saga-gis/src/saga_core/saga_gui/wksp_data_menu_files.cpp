@@ -120,14 +120,14 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_Files::Add(wxMenu *pMenu)
 {
-	pMenu->Append(ID_CMD_DATA_FIRST      , LNG("[MNU] Project")    , m_pFMProjects   ->Create());
+	pMenu->Append(ID_CMD_DATA_FIRST      , _TL("[MNU] Project")    , m_pFMProjects   ->Create());
 
 	pMenu->AppendSeparator();
-	pMenu->Append(ID_CMD_TABLES_FIRST    , LNG("[MNU] Table")      , m_pFMTables     ->Create());
-	pMenu->Append(ID_CMD_SHAPES_FIRST    , LNG("[MNU] Shapes")     , m_pFMShapes     ->Create());
-	pMenu->Append(ID_CMD_TIN_FIRST       , LNG("[MNU] TIN")        , m_pFMTINs       ->Create());
-	pMenu->Append(ID_CMD_POINTCLOUD_FIRST, LNG("[MNU] Point Cloud"), m_pFMPointClouds->Create());
-	pMenu->Append(ID_CMD_GRIDS_FIRST     , LNG("[MNU] Grid")       , m_pFMGrids      ->Create());
+	pMenu->Append(ID_CMD_TABLES_FIRST    , _TL("[MNU] Table")      , m_pFMTables     ->Create());
+	pMenu->Append(ID_CMD_SHAPES_FIRST    , _TL("[MNU] Shapes")     , m_pFMShapes     ->Create());
+	pMenu->Append(ID_CMD_TIN_FIRST       , _TL("[MNU] TIN")        , m_pFMTINs       ->Create());
+	pMenu->Append(ID_CMD_POINTCLOUD_FIRST, _TL("[MNU] Point Cloud"), m_pFMPointClouds->Create());
+	pMenu->Append(ID_CMD_GRIDS_FIRST     , _TL("[MNU] Grid")       , m_pFMGrids      ->Create());
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_QUIT);
@@ -176,7 +176,7 @@ bool CWKSP_Data_Menu_Files::Recent_Open(int Cmd_ID)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxChar *FileName)
+void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxString &FileName)
 {
 	if( m_bUpdate && _Get_Menu(DataType) )
 	{
@@ -187,7 +187,7 @@ void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxChar *FileName)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxChar *FileName)
+void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxString &FileName)
 {
 	if( m_bUpdate && _Get_Menu(DataType) )
 	{

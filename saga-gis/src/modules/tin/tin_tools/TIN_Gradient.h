@@ -81,7 +81,7 @@ public:
 	CTIN_Gradient(void);
 	virtual ~CTIN_Gradient(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Terrain Analysis") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("R:Terrain Analysis") );	}
 
 
 protected:

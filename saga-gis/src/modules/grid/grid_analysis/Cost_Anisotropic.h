@@ -31,7 +31,7 @@ public:
 	CCost_Anisotropic(void);
 	virtual ~CCost_Anisotropic(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Cost Analysis") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Cost Analysis") );	}
 
 
 protected:	

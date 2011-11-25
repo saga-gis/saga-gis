@@ -87,10 +87,10 @@ CSG_String			SG_Get_Projection_Type_Name(TSG_Projection_Type Type)
 	switch( Type )
 	{
 	default:
-	case SG_PROJ_TYPE_CS_Undefined:		return( LNG("Undefined Coordinate System") );
-	case SG_PROJ_TYPE_CS_Projected:		return( LNG("Projected Coordinate System") );
-	case SG_PROJ_TYPE_CS_Geographic:	return( LNG("Geographic Coordinate System") );
-	case SG_PROJ_TYPE_CS_Geocentric:	return( LNG("Geocentric Coordinate System") );
+	case SG_PROJ_TYPE_CS_Undefined:		return( _TL("Undefined Coordinate System") );
+	case SG_PROJ_TYPE_CS_Projected:		return( _TL("Projected Coordinate System") );
+	case SG_PROJ_TYPE_CS_Geographic:	return( _TL("Geographic Coordinate System") );
+	case SG_PROJ_TYPE_CS_Geocentric:	return( _TL("Geocentric Coordinate System") );
 	}
 }
 
@@ -227,7 +227,7 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 //---------------------------------------------------------
 void CSG_Projection::Destroy(void)
 {
-	m_Name			= LNG("undefined");
+	m_Name			= _TL("undefined");
 	m_Type			= SG_PROJ_TYPE_CS_Undefined;
 	m_WKT			.Clear();
 	m_Proj4			.Clear();
@@ -926,14 +926,14 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 	{
 		if( !m["PROJECTION"].is_Valid() )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), LNG("no projection specified")));
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), _TL("no projection specified")));
 
 			return( false );
 		}
 
 		if( !m_WKT_to_Proj4.Get_Translation(m["PROJECTION"].Get_Content(), s) )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), LNG("unknown projection"), m["PROJECTION"].Get_Content().c_str()));
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), _TL("unknown projection"), m["PROJECTION"].Get_Content().c_str()));
 
 			return( false );
 		}
@@ -945,7 +945,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][0].Get_Content().asDouble(a) || a <= 0.0
 		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <  0.0 )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), LNG("invalid geographic coordinate system / datum")));
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), _TL("invalid geographic coordinate system / datum")));
 
 			return( false );
 		}
@@ -974,7 +974,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 			{
 				if( !m_WKT_to_Proj4.Get_Translation(m[i].Get_Property("name"), s) )
 				{
-					SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), LNG("unknown parameter"), m[i].Get_Property("name")));
+					SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), _TL("unknown parameter"), m[i].Get_Property("name")));
 				}
 				else
 				{
@@ -1325,7 +1325,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 	//-----------------------------------------------------
 	if( !_Proj4_Read_Parameter(ProjCS, Proj4, "proj") )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), LNG("no projection type defined")));
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), _TL("no projection type defined")));
 
 		return( false );
 	}
@@ -1370,7 +1370,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 	if( !m_Proj4_to_WKT.Get_Translation(ProjCS, Value) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s [%s]"), LNG("no translation available"), ProjCS.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s [%s]"), _TL("no translation available"), ProjCS.c_str()));
 
 		return( false );
 	}
@@ -1386,7 +1386,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 		if( !_Proj4_Read_Parameter(Value, Proj4, "zone") || !Value.asDouble(Zone) )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), LNG("invalid utm zone")));
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), _TL("invalid utm zone")));
 
 			return( false );
 		}

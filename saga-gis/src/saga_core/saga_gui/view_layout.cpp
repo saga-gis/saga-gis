@@ -109,7 +109,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pInfo)
-	: CVIEW_Base(ID_VIEW_LAYOUT, LNG("[CAP] Map-Layout"), ID_IMG_WND_LAYOUT, CVIEW_Layout::_Create_Menu(), LNG("[CAP] Map-Layout"))
+	: CVIEW_Base(ID_VIEW_LAYOUT, _TL("[CAP] Map-Layout"), ID_IMG_WND_LAYOUT, CVIEW_Layout::_Create_Menu(), _TL("[CAP] Map-Layout"))
 {
 	SYS_Set_Color_BG(this, wxSYS_COLOUR_3DFACE);
 
@@ -120,7 +120,7 @@ CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pInfo)
 
 	m_pControl	= new CVIEW_Layout_Control(this);
 
-	SetTitle(wxString::Format(wxT("%s - %s"), pInfo->Get_Map()->Get_Name().c_str(), LNG("[CAP] Map-Layout")));
+	SetTitle(wxString::Format(wxT("%s - %s"), pInfo->Get_Map()->Get_Name().c_str(), _TL("[CAP] Map-Layout")));
 }
 
 //---------------------------------------------------------
@@ -161,7 +161,7 @@ wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT_PREVIEW);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_LAYOUT_PRINT);
 
-	CMD_ToolBar_Add(pToolBar, LNG("[CAP] Map-Layout"));
+	CMD_ToolBar_Add(pToolBar, _TL("[CAP] Map-Layout"));
 
 	return( pToolBar );
 }

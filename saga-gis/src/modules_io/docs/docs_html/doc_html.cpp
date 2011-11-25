@@ -486,7 +486,7 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 	if (bIncludeTableData)
 	{
 		CSG_Doc_HTML HTMLDoc;
-		HTMLDoc.Open(LNG("Data Table"));
+		HTMLDoc.Open(_TL("Data Table"));
 
 		sTableFilename = Filename;
 		sTableFilename.Append(SG_T(".htm"));
@@ -494,7 +494,7 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 		m_sHTMLCode.Append(SG_T("<a href=\"file://"));
 		m_sHTMLCode.Append(sTableFilename);
 		m_sHTMLCode.Append(SG_T("\">"));
-		m_sHTMLCode.Append(LNG("Data Table"));
+		m_sHTMLCode.Append(_TL("Data Table"));
 		m_sHTMLCode.Append(SG_T("</a><br><br>\n"));
 
 		HTMLDoc._AddBicolumTable(&Data);
@@ -531,7 +531,7 @@ void CSG_Doc_HTML::_AddBicolumTable(CSG_Points *pData)
 
 	m_sHTMLCode.Append(SG_T("\n</table>\n"));
 	m_sHTMLCode.Append(SG_T("<p align=\"center\"><i>"));
-	m_sHTMLCode.Append(LNG("Data Table"));
+	m_sHTMLCode.Append(_TL("Data Table"));
 	m_sHTMLCode.Append(SG_T("</i></p>\n"));
 
 }

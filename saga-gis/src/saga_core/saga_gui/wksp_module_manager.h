@@ -115,7 +115,7 @@ public:
 	bool							Do_Beep				(void);
 
 	void							Open				(void);
-	bool							Open				(const wxChar *File_Name);
+	bool							Open				(const wxString &File_Name);
 
 	bool							Exists				(class CWKSP_Module *pModule);
 

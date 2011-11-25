@@ -61,6 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/dcclient.h>
+
 #include "res_commands.h"
 #include "res_images.h"
 #include "res_dialogs.h"
@@ -431,7 +433,7 @@ bool CWKSP_Shapes::_Edit_Shape_Start(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Edit_Shape_Stop(void)
 {
-	return( _Edit_Shape_Stop(DLG_Message_Confirm(LNG("[DLG] Apply changes?"), LNG("[CAP] Edit Shapes"))) );
+	return( _Edit_Shape_Stop(DLG_Message_Confirm(_TL("[DLG] Apply changes?"), _TL("[CAP] Edit Shapes"))) );
 }
 
 bool CWKSP_Shapes::_Edit_Shape_Stop(bool bSave)
@@ -505,7 +507,7 @@ bool CWKSP_Shapes::_Edit_Part_Add(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Edit_Shape_Del(void)
 {
-	if( DLG_Message_Confirm(LNG("[DLG] Delete selected shape(s)."), LNG("[CAP] Edit Shapes")) )
+	if( DLG_Message_Confirm(_TL("[DLG] Delete selected shape(s)."), _TL("[CAP] Edit Shapes")) )
 	{
 		if( m_pShapes->Get_Selection_Count() > 0 )
 		{

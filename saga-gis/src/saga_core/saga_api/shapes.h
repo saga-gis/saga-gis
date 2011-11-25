@@ -103,7 +103,7 @@ typedef enum ESG_Shape_Type
 TSG_Shape_Type;
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_ShapeType_Name	(TSG_Shape_Type Type);
+SAGA_API_DLL_EXPORT CSG_String	SG_Get_ShapeType_Name	(TSG_Shape_Type Type);
 
 
 ///////////////////////////////////////////////////////////

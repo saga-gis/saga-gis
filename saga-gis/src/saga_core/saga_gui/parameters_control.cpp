@@ -61,6 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/propgrid/manager.h>
+
 #include <saga_api/saga_api.h>
 
 #include "res_dialogs.h"
@@ -216,7 +218,7 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 bool CParameters_Control::Save_Changes(bool bSilent)
 {
-	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(LNG("[DLG] Save changes?"), wxString::Format(wxT("%s: %s"), LNG("[CAP] Parameters"), m_pParameters->Get_Name()))) )
+	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(_TL("[DLG] Save changes?"), wxString::Format(wxT("%s: %s"), _TL("[CAP] Parameters"), m_pParameters->Get_Name().w_str()))) )
 	{
 		m_pOriginal->Assign_Values(m_pParameters);
 
@@ -267,10 +269,10 @@ bool CParameters_Control::Load(void)
 
 	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) )
 	{
-		CSG_File	File(File_Path.c_str());
+		CSG_File	File(File_Path.wc_str());
 
 		if(	m_pParameters->Serialize_Compatibility(File)
-		||	m_pParameters->Serialize(File_Path.c_str(), false) )
+		||	m_pParameters->Serialize(File_Path.wc_str(), false) )
 		{
 			_Init_Pararameters();
 
@@ -281,7 +283,7 @@ bool CParameters_Control::Load(void)
 			return( true );
 		}
 
-		DLG_Message_Show(LNG("Parameters file could not be imported."), LNG("Load Parameters"));
+		DLG_Message_Show(_TL("Parameters file could not be imported."), _TL("Load Parameters"));
 	}
 
 	return( false );
@@ -294,12 +296,12 @@ bool CParameters_Control::Save(void)
 
 	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) )
 	{
-		if( m_pParameters->Serialize(File_Path.c_str(), true) )
+		if( m_pParameters->Serialize(File_Path.wc_str(), true) )
 		{
 			return( true );
 		}
 
-		DLG_Message_Show(LNG("Parameters file could not be exported."), LNG("Save Parameters"));
+		DLG_Message_Show(_TL("Parameters file could not be exported."), _TL("Save Parameters"));
 	}
 
 	return( false );
@@ -329,7 +331,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 
 			m_pPG->Clear();
 
-			m_pPG->Append(new wxPropertyCategory(LNG("[TXT] No parameters available."), wxPG_LABEL));
+			m_pPG->Append(new wxPropertyCategory(_TL("[TXT] No parameters available."), wxPG_LABEL));
 		}
 		else if( m_pOriginal != pParameters )
 		{
@@ -375,7 +377,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 	{\
 		pNode	= new wxPropertyCategory(Name, ID);\
 		if( !pData )\
-			m_pPG->Append(pData = new wxPropertyCategory(LNG("[PRM] Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
+			m_pPG->Append(pData = new wxPropertyCategory(_TL("[PRM] Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
 		m_pPG->Insert(pData, -1, pNode);\
 	}\
 	pRoot	= pNode;
@@ -407,7 +409,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_System:
 				if( pParameters->Get_Parameter(i)->Get_Children_Count() == 0 )
 				{
-					CHECK_DATA_NODE( pGrids	, LNG("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
+					CHECK_DATA_NODE( pGrids	, _TL("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
 				}
 				else
 				{
@@ -416,7 +418,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 						if(	pParameters->Get_Parameter(i)->Get_Child(j)->Get_Type() != PARAMETER_TYPE_Grid_List
 						||	pParameters->Get_Parameter(i)->Get_Child(j)->is_Input() )
 						{
-							CHECK_DATA_NODE( pGrids	, LNG("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
+							CHECK_DATA_NODE( pGrids	, _TL("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
 						}
 					}
 				}
@@ -425,37 +427,37 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Grid:
-				CHECK_DATA_NODE(pGrids		, LNG("[PRM] Grids") , wxT("_DATAOBJECT_GRIDS"));
+				CHECK_DATA_NODE(pGrids		, _TL("[PRM] Grids") , wxT("_DATAOBJECT_GRIDS"));
 				break;
 
 			case PARAMETER_TYPE_Table_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Table:
-				CHECK_DATA_NODE(pTables		, LNG("[PRM] Tables"), wxT("_DATAOBJECT_TABLES"));
+				CHECK_DATA_NODE(pTables		, _TL("[PRM] Tables"), wxT("_DATAOBJECT_TABLES"));
 				break;
 
 			case PARAMETER_TYPE_Shapes_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Shapes:
-				CHECK_DATA_NODE(pShapes		, LNG("[PRM] Shapes"), wxT("_DATAOBJECT_SHAPES"));
+				CHECK_DATA_NODE(pShapes		, _TL("[PRM] Shapes"), wxT("_DATAOBJECT_SHAPES"));
 				break;
 
 			case PARAMETER_TYPE_TIN_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_TIN:
-				CHECK_DATA_NODE(pTINs		, LNG("[PRM] TIN"), wxT("_DATAOBJECT_TINS"));
+				CHECK_DATA_NODE(pTINs		, _TL("[PRM] TIN"), wxT("_DATAOBJECT_TINS"));
 				break;
 
 			case PARAMETER_TYPE_PointCloud_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_PointCloud:
-				CHECK_DATA_NODE(pPointClouds, LNG("[PRM] Point Clouds"), wxT("_DATAOBJECT_POINTCLOUDS"));
+				CHECK_DATA_NODE(pPointClouds, _TL("[PRM] Point Clouds"), wxT("_DATAOBJECT_POINTCLOUDS"));
 				break;
 
 			default:
 				if( !pOptions )
 				{
-					m_pPG->Append(pOptions = new wxPropertyCategory(LNG("[PRM] Options"), wxT("_DATAOBJECT_OPTIONS")));
+					m_pPG->Append(pOptions = new wxPropertyCategory(_TL("[PRM] Options"), wxT("_DATAOBJECT_OPTIONS")));
 				}
 
 				pRoot	= pOptions;
@@ -699,9 +701,7 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 	if( pProperty )
 	{
 		CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(
-			!pProperty->IsSubProperty()
-			? Identifier
-			: Identifier.AfterLast(wxT('.'))
+			!pProperty->IsSubProperty() ? Identifier.wc_str() : Identifier.AfterLast(wxT('.')).wc_str()
 		);
 
 		if( pParameter )
@@ -713,7 +713,7 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).c_str());
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).wc_str());
 				break;
 
 			case PARAMETER_TYPE_Bool:

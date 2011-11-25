@@ -78,16 +78,16 @@ public:
 	CWKSP_Project(void);
 	virtual ~CWKSP_Project(void);
 
-	const wxChar *			Get_File_Name		(void)	{	return( m_File_Name );	}
+	const wxString &		Get_File_Name		(void)	{	return( m_File_Name );	}
 	bool					Has_File_Name		(void);
 	bool					Clr_File_Name		(void);
 
 	bool					Load				(bool bAdd);
-	bool					Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
+	bool					Load				(const wxString &FileName, bool bAdd, bool bUpdateMenu);
 
 	bool					Save				(void);
 	bool					Save				(bool bSaveAsOnError);
-	bool					Save				(const wxChar *FileName, bool bSaveModified);
+	bool					Save				(const wxString &FileName, bool bSaveModified);
 
 	bool					Save_Modified		(class CWKSP_Base_Item *pItem, bool bSelections = false);
 
@@ -98,14 +98,14 @@ private:
 
 	bool					_Set_Project_Name	(void);
 
-	bool					_Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
-	bool					_Save				(const wxChar *FileName, bool bSaveModified, bool bUpdateMenu);
+	bool					_Load				(const wxString &FileName, bool bAdd, bool bUpdateMenu);
+	bool					_Save				(const wxString &FileName, bool bSaveModified, bool bUpdateMenu);
 
-	bool					_Load_Data			(CSG_MetaData &Entry, const wxChar *ProjectDir, bool bLoad);
-	bool					_Save_Data			(CSG_MetaData &Entry, const wxChar *ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
+	bool					_Load_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad);
+	bool					_Save_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 
-	bool					_Load_Map			(CSG_MetaData &Entry, const wxChar *ProjectDir);
-	bool					_Save_Map			(CSG_MetaData &Entry, const wxChar *ProjectDir, class CWKSP_Map *pMap);
+	bool					_Load_Map			(CSG_MetaData &Entry, const wxString &ProjectDir);
+	bool					_Save_Map			(CSG_MetaData &Entry, const wxString &ProjectDir, class CWKSP_Map *pMap);
 
 	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
 
@@ -116,9 +116,9 @@ private:
 
 
 	//-----------------------------------------------------
-	bool	_Compatibility_Load_Data	(const CSG_String &FileName);
-	bool	_Compatibility_Load_Data	(CSG_File &Stream, const wxChar *ProjectDir);
-	bool	_Compatibility_Load_Map		(CSG_File &Stream, const wxChar *ProjectDir);
+	bool	_Compatibility_Load_Data	(const wxString &FileName);
+	bool	_Compatibility_Load_Data	(CSG_File &Stream, const wxString &ProjectDir);
+	bool	_Compatibility_Load_Map		(CSG_File &Stream, const wxString &ProjectDir);
 	//-----------------------------------------------------
 
 };

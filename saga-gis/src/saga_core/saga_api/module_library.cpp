@@ -147,8 +147,8 @@ bool CSG_Module_Library::Create(const CSG_String &File_Name)
 	wxFileName	fName(File_Name.c_str());
 
 	fName.MakeAbsolute();
-	m_File_Name		= fName.GetFullPath().c_str();
-	m_Library_Name	= fName.GetName().c_str();
+	m_File_Name		= fName.GetFullPath().wc_str();
+	m_Library_Name	= fName.GetName    ().wc_str();
 
 #if !defined(_SAGA_MSW)
 	if( m_Library_Name.Find(SG_T("lib")) == 0 )
@@ -160,11 +160,11 @@ bool CSG_Module_Library::Create(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	if( wxGetEnv(ENV_LIB_PATH, &sPath) && sPath.Length() > 0 )
 	{
-		wxSetEnv(ENV_LIB_PATH, CSG_String::Format(SG_T("%s%c%s"), sPath.c_str(), ENV_LIB_SEPA, SG_File_Get_Path(m_File_Name).c_str()));
+		wxSetEnv(ENV_LIB_PATH, wxString::Format(SG_T("%s%c%s"), sPath, ENV_LIB_SEPA, SG_File_Get_Path(m_File_Name).w_str()));
 	}
 	else
 	{
-		wxSetEnv(ENV_LIB_PATH, SG_File_Get_Path(m_File_Name).c_str());
+		wxSetEnv(ENV_LIB_PATH, SG_File_Get_Path(m_File_Name).w_str());
 	}
 
 	//-----------------------------------------------------
@@ -250,14 +250,14 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML) const
 	{
 		s.Printf(
 			SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
-			LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
-			LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
-			LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
-			LNG("[CAP] File")			, Get_File_Name().c_str(),
+			_TL("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
+			_TL("[CAP] Author")			, Get_Info(MLB_INFO_Author),
+			_TL("[CAP] Version")		, Get_Info(MLB_INFO_Version),
+			_TL("[CAP] File")			, Get_File_Name().c_str(),
 			Get_Info(MLB_INFO_Description)
 		);
 
-		s.Append(CSG_String::Format(SG_T("<hr><b>%s:<ul>"), LNG("[CAP] Modules")));
+		s.Append(CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("[CAP] Modules")));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
@@ -275,14 +275,14 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML) const
 	{
 		s.Printf(
 			SG_T("%s: %s\n%s: %s\n%s: %s\n%s: %s\n\n%s"),
-			LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
-			LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
-			LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
-			LNG("[CAP] File")			, Get_File_Name().c_str(),
+			_TL("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
+			_TL("[CAP] Author")			, Get_Info(MLB_INFO_Author),
+			_TL("[CAP] Version")		, Get_Info(MLB_INFO_Version),
+			_TL("[CAP] File")			, Get_File_Name().c_str(),
 			Get_Info(MLB_INFO_Description)
 		);
 
-		s.Append(CSG_String::Format(SG_T("\n\n%s:\n"), LNG("[CAP] Modules")));
+		s.Append(CSG_String::Format(SG_T("\n\n%s:\n"), _TL("[CAP] Modules")));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
@@ -485,14 +485,14 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 		return( NULL );
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load library"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Load library"), File_Name), true);
 
 	//-----------------------------------------------------
 	for(int i=0; i<Get_Count(); i++)
 	{
 		if( SG_STR_CMP(File_Name, Get_Library(i)->Get_File_Name()) == 0 )
 		{
-			SG_UI_Msg_Add(LNG("[MSG] has already been loaded"), false);
+			SG_UI_Msg_Add(_TL("[MSG] has already been loaded"), false);
 
 			return( NULL );
 		}
@@ -506,7 +506,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
 		m_pLibraries[m_nLibraries++]	= pLibrary;
 
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		for(int j=0; j<pLibrary->Get_Count(); j++)
 		{
@@ -521,7 +521,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 
 	delete(pLibrary);
 
-	SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+	SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }

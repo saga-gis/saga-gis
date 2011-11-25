@@ -122,10 +122,10 @@ public:
 	bool							Check_Parameter		(class CSG_Parameter  *pParameter);
 
 	bool							Open_CMD			(int Cmd_ID);
-	bool							Open				(const wxChar *FileName);
+	bool							Open				(const wxString &FileName);
 	bool							Open				(int DataType);
-	CWKSP_Base_Item *				Open				(int DataType, const wxChar *FileName);
-	bool							Open_GDAL			(const wxChar *File_Name);
+	CWKSP_Base_Item *				Open				(int DataType, const wxString &FileName);
+	bool							Open_GDAL			(const wxString &File_Name);
 
 	bool							Exists				(class CSG_Grid_System *pSystem);
 	bool							Exists				(class CSG_Data_Object *pObject, int DataType = -1);

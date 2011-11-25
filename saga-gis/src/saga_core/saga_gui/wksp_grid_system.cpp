@@ -79,8 +79,8 @@ CWKSP_Grid_System::CWKSP_Grid_System(const CSG_Grid_System &System)
 	m_System	= System;
 
 	m_Parameters.Add_String(
-		NULL	, "NAME"	, LNG("Name"),
-		LNG("Descriptive name for the grid system"),
+		NULL	, "NAME"	, _TL("Name"),
+		_TL("Descriptive name for the grid system"),
 		m_System.Get_Name()
 	);
 }
@@ -113,30 +113,30 @@ wxString CWKSP_Grid_System::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><table border=\"0\">"), LNG("[CAP] Grid System"));
+	s.Printf(wxT("<b>%s</b><table border=\"0\">"), _TL("[CAP] Grid System"));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Name")					, Get_Name().c_str()
+		_TL("[CAP] Name")					, Get_Name().c_str()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		LNG("[CAP] Number Of Grids")		, Get_Count()
+		_TL("[CAP] Number Of Grids")		, Get_Count()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>"),
-		LNG("[CAP] Number Of Cells")		, m_System.Get_NX(), m_System.Get_NY(), m_System.Get_NCells()
+		_TL("[CAP] Number Of Cells")		, m_System.Get_NX(), m_System.Get_NY(), m_System.Get_NCells()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
-		LNG("[CAP] Cell Size")				, m_System.Get_Cellsize()
+		_TL("[CAP] Cell Size")				, m_System.Get_Cellsize()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] West-East")				, m_System.Get_XMin(), m_System.Get_XMax(), m_System.Get_XRange()
+		_TL("[CAP] West-East")				, m_System.Get_XMin(), m_System.Get_XMax(), m_System.Get_XRange()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] South-North")			, m_System.Get_YMin(), m_System.Get_YMax(), m_System.Get_YRange()
+		_TL("[CAP] South-North")			, m_System.Get_YMin(), m_System.Get_YMax(), m_System.Get_YRange()
 	));
 
 	s.Append(wxT("</table>"));

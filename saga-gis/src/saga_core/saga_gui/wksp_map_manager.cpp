@@ -105,37 +105,37 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	long			lValue;
 	CSG_Parameter	*pNode_0, *pNode_1;
 
-	m_Parameters.Create(this, LNG(""), LNG(""));
+	m_Parameters.Create(this, _TL(""), _TL(""));
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
-		NULL	, "NODE_DEFAULTS"	, LNG("[CAP] Defaults"),
-		LNG("")
+		NULL	, "NODE_DEFAULTS"	, _TL("[CAP] Defaults"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		pNode_0	, "GOTO_NEWLAYER"	, LNG("[CAP] Zoom to added layer"),
-		LNG(""),
+		pNode_0	, "GOTO_NEWLAYER"	, _TL("[CAP] Zoom to added layer"),
+		_TL(""),
 		PARAMETER_TYPE_Bool,
 		CONFIG_Read(wxT("/MAPS"), wxT("GOTO_NEWLAYER"), bValue) ? bValue : true
 	);
 
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Node(
-		pNode_0	, "NODE_FRAME"		, LNG("[CAP] Frame"),
-		LNG("")
+		pNode_0	, "NODE_FRAME"		, _TL("[CAP] Frame"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "FRAME_SHOW"		, LNG("[CAP] Show"),
-		LNG(""),
+		pNode_1	, "FRAME_SHOW"		, _TL("[CAP] Show"),
+		_TL(""),
 		PARAMETER_TYPE_Bool,
 		CONFIG_Read(wxT("/MAPS"), wxT("FRAME_SHOW"), bValue) ? bValue : true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "FRAME_WIDTH"		, LNG("[CAP] Width"),
-		LNG(""),
+		pNode_1	, "FRAME_WIDTH"		, _TL("[CAP] Width"),
+		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("FRAME_WIDTH"), lValue) ? lValue : 17,
 		5, true
@@ -143,51 +143,51 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Node(
-		pNode_0	, "NODE_CLIPBOARD"	, LNG("[CAP] Clipboard"),
-		LNG("")
+		pNode_0	, "NODE_CLIPBOARD"	, _TL("[CAP] Clipboard"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_NX"			, LNG("[CAP] Width"),
-		LNG(""),
+		pNode_1	, "CLIP_NX"			, _TL("[CAP] Width"),
+		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_NX"), lValue) ? lValue : 400
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_NY"			, LNG("[CAP] Height"),
-		LNG(""),
+		pNode_1	, "CLIP_NY"			, _TL("[CAP] Height"),
+		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_NY"), lValue) ? lValue : 400
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_FRAME"		, LNG("[CAP] Frame Width"),
-		LNG(""),
+		pNode_1	, "CLIP_FRAME"		, _TL("[CAP] Frame Width"),
+		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_FRAME"), lValue) ? lValue : 17,
 		0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_SCALE", LNG("[CAP] Legend Scale"),
-		LNG(""),
+		pNode_1	, "CLIP_LEGEND_SCALE", _TL("[CAP] Legend Scale"),
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_SCALE"), dValue) ? dValue : 2.0,
 		1.0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_FRAME", LNG("[CAP] Legend Frame Width"),
-		LNG(""),
+		pNode_1	, "CLIP_LEGEND_FRAME", _TL("[CAP] Legend Frame Width"),
+		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_FRAME"), lValue) ? lValue : 10,
 		0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_COLOR", LNG("[CAP] Legend Border Colour"),
-		LNG(""),
+		pNode_1	, "CLIP_LEGEND_COLOR", _TL("[CAP] Legend Border Colour"),
+		_TL(""),
 		PARAMETER_TYPE_Color,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_COLOR"), lValue) ? lValue : SG_GET_RGB(0, 0, 0)
 	);
@@ -216,7 +216,7 @@ CWKSP_Map_Manager::~CWKSP_Map_Manager(void)
 //---------------------------------------------------------
 wxString CWKSP_Map_Manager::Get_Name(void)
 {
-	return( LNG("[CAP] Maps") );
+	return( _TL("[CAP] Maps") );
 }
 
 //---------------------------------------------------------
@@ -224,7 +224,7 @@ wxString CWKSP_Map_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("%d %s"), Get_Count(), Get_Count() == 1 ? LNG("[CAP] Map") : LNG("[CAP] Maps"));
+	s.Printf(wxT("%d %s"), Get_Count(), Get_Count() == 1 ? _TL("[CAP] Map") : _TL("[CAP] Maps"));
 
 	return( s );
 }
@@ -234,7 +234,7 @@ wxMenu * CWKSP_Map_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(LNG("[CAP] Maps"));
+	pMenu	= new wxMenu(_TL("[CAP] Maps"));
 
 	if( Get_Count() > 0 )
 	{

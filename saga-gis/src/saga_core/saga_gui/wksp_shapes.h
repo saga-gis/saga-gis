@@ -140,13 +140,13 @@ protected:
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 
-	CSG_Parameter *				_AttributeList_Add		(CSG_Parameter *pNode, const char *Identifier, const wxChar *Name, const wxChar *Description);
+	CSG_Parameter *				_AttributeList_Add		(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	void						_AttributeList_Set		(CSG_Parameter *pFields, bool bAddNoField);
 
-	CSG_Parameter *				_BrushList_Add			(CSG_Parameter *pNode, const char *Identifier, const wxChar *Name, const wxChar *Description);
+	CSG_Parameter *				_BrushList_Add			(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	int							_BrushList_Get_Style	(int Index);
 
-	CSG_Parameter *				_PenList_Add			(CSG_Parameter *pNode, const char *Identifier, const wxChar *Name, const wxChar *Description);
+	CSG_Parameter *				_PenList_Add			(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	int							_PenList_Get_Style		(int Index);
 
 	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map)									= 0;

@@ -85,7 +85,7 @@ class CETP_Hargreave : public CSG_Module
 public:
 	CETP_Hargreave(void);
 
-//	virtual const SG_Char *		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
 
 protected:
@@ -106,7 +106,7 @@ class CETP_Day_To_Hour : public CSG_Module
 public:
 	CETP_Day_To_Hour(void);
 
-//	virtual const SG_Char *		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
 
 protected:

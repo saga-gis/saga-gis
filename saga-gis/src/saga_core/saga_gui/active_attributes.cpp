@@ -242,7 +242,7 @@ void CACTIVE_Attributes::Set_Attributes(void)
 //---------------------------------------------------------
 void CACTIVE_Attributes::_Save_Changes(void)
 {
-	if( m_pLayer && m_pAttributes->is_Modified() && DLG_Message_Confirm(LNG("[DLG] Save changes?"), LNG("[CAP] Attributes")) )
+	if( m_pLayer && m_pAttributes->is_Modified() && DLG_Message_Confirm(_TL("[DLG] Save changes?"), _TL("[CAP] Attributes")) )
 	{
 		m_pLayer->Edit_Get_Attributes()->Assign_Values(m_pAttributes);
 		m_pLayer->Edit_Set_Attributes();

@@ -462,7 +462,7 @@ bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 		// Solve the linear system "inplace"
 		if( !bSilent )
 		{
-			SG_UI_Process_Set_Text(LNG("Thin Plate Spline: solving matrix"));
+			SG_UI_Process_Set_Text(_TL("Thin Plate Spline: solving matrix"));
 		}
 
 		bResult		= SG_Matrix_Solve(M, m_V, bSilent);

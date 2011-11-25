@@ -228,7 +228,7 @@ bool CSG_Doc_PDF::Save(const SG_Char *FileName)
 		{}
 	}
 
-	SG_UI_Msg_Add_Error(LNG("[ERR] Could not save PDF file."));
+	SG_UI_Msg_Add_Error(_TL("[ERR] Could not save PDF file."));
 
 	return( false );
 }

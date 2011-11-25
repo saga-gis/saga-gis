@@ -542,8 +542,8 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize)
 		m_SP	/= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			LNG("pass")		, m_Iteration,
-			LNG("change")	, m_Iteration <= 1 ? m_SP : SP_Last - m_SP
+			_TL("pass")		, m_Iteration,
+			_TL("change")	, m_Iteration <= 1 ? m_SP : SP_Last - m_SP
 		));
 
 		SP_Last		= m_SP;
@@ -689,8 +689,8 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
 		m_SP	/= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			LNG("pass")		, m_Iteration,
-			LNG("change")	, m_Iteration <= 1 ? m_SP : SP_Last - m_SP
+			_TL("pass")		, m_Iteration,
+			_TL("change")	, m_Iteration <= 1 ? m_SP : SP_Last - m_SP
 		));
 
 		SP_Last		= m_SP;

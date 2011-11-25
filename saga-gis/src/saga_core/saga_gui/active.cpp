@@ -148,7 +148,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CACTIVE::CACTIVE(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, LNG("[CAP] Object Properties"))
+	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, _TL("[CAP] Object Properties"))
 {
 	g_pACTIVE		= this;
 
@@ -166,11 +166,11 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
 
 	//-----------------------------------------------------
-	m_pParameters	= new CACTIVE_Parameters	(this);	m_pParameters	->SetName(LNG("[CAP] Settings"));
-	m_pDescription	= new CACTIVE_Description	(this);	m_pDescription	->SetName(LNG("[CAP] Description"));
-	m_pHistory		= new CACTIVE_History		(this);	m_pHistory		->SetName(LNG("[CAP] History"));
-	m_pLegend		= new CACTIVE_Legend		(this);	m_pLegend		->SetName(LNG("[CAP] Legend"));
-	m_pAttributes	= new CACTIVE_Attributes	(this);	m_pAttributes	->SetName(LNG("[CAP] Attributes"));
+	m_pParameters	= new CACTIVE_Parameters	(this);	m_pParameters	->SetName(_TL("[CAP] Settings"));
+	m_pDescription	= new CACTIVE_Description	(this);	m_pDescription	->SetName(_TL("[CAP] Description"));
+	m_pHistory		= new CACTIVE_History		(this);	m_pHistory		->SetName(_TL("[CAP] History"));
+	m_pLegend		= new CACTIVE_Legend		(this);	m_pLegend		->SetName(_TL("[CAP] Legend"));
+	m_pAttributes	= new CACTIVE_Attributes	(this);	m_pAttributes	->SetName(_TL("[CAP] Attributes"));
 
 #if defined(_SAGA_MSW)
 	m_pParameters	->Hide();
@@ -413,7 +413,7 @@ bool CACTIVE::Update_Description(void)
 	//-----------------------------------------------------
 	if( m_pItem == NULL )
 	{
-		Description	= LNG("[TXT] No description available");
+		Description	= _TL("[TXT] No description available");
 	}
 	else switch( m_pItem->Get_Type() )
 	{

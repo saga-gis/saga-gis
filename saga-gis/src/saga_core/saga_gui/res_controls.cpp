@@ -73,42 +73,42 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const wxChar * CTRL_Get_Name(int ID_CTRL)
+const wxString CTRL_Get_Name(int ID_CTRL)
 {
 	switch( ID_CTRL )
 	{
 	case wxID_OK:
-	case ID_BTN_OK:						return( LNG("[BTN] Okay") );
+	case ID_BTN_OK:						return( _TL("[BTN] Okay") );
 	case wxID_CANCEL:
-	case ID_BTN_CANCEL:					return( LNG("[BTN] Cancel") );
+	case ID_BTN_CANCEL:					return( _TL("[BTN] Cancel") );
 
-	case ID_BTN_APPLY:					return( LNG("[BTN] Apply") );
-	case ID_BTN_RESTORE:				return( LNG("[BTN] Restore") );
+	case ID_BTN_APPLY:					return( _TL("[BTN] Apply") );
+	case ID_BTN_RESTORE:				return( _TL("[BTN] Restore") );
 
-	case ID_BTN_EXECUTE:				return( LNG("[BTN] Execute") );
+	case ID_BTN_EXECUTE:				return( _TL("[BTN] Execute") );
 
-	case ID_BTN_LOAD:					return( LNG("[BTN] Load") );
-	case ID_BTN_SAVE:					return( LNG("[BTN] Save") );
+	case ID_BTN_LOAD:					return( _TL("[BTN] Load") );
+	case ID_BTN_SAVE:					return( _TL("[BTN] Save") );
 
-	case ID_BTN_DEFAULTS:				return( LNG("[BTN] Defaults") );
+	case ID_BTN_DEFAULTS:				return( _TL("[BTN] Defaults") );
 
-	case ID_BTN_ADD:					return( LNG("[BTN] Add") );
-	case ID_BTN_ADD_ALL:				return( LNG("[BTN] Add All") );
-	case ID_BTN_INSERT:					return( LNG("[BTN] Insert") );
-	case ID_BTN_DELETE:					return( LNG("[BTN] Delete") );
-	case ID_BTN_DELETE_ALL:				return( LNG("[BTN] Clear") );
+	case ID_BTN_ADD:					return( _TL("[BTN] Add") );
+	case ID_BTN_ADD_ALL:				return( _TL("[BTN] Add All") );
+	case ID_BTN_INSERT:					return( _TL("[BTN] Insert") );
+	case ID_BTN_DELETE:					return( _TL("[BTN] Delete") );
+	case ID_BTN_DELETE_ALL:				return( _TL("[BTN] Clear") );
 
-	case ID_BTN_UP:						return( LNG("[BTN] Up") );
-	case ID_BTN_DOWN:					return( LNG("[BTN] Down") );
+	case ID_BTN_UP:						return( _TL("[BTN] Up") );
+	case ID_BTN_DOWN:					return( _TL("[BTN] Down") );
 
-	case ID_BTN_COLORS_MIRROR:			return( LNG("[BTN] Mirror") );
-	case ID_BTN_COLORS_INVERT:			return( LNG("[BTN] Invert") );
-	case ID_BTN_COLORS_RANDOM:			return( LNG("[BTN] Random") );
-	case ID_BTN_COLORS_PRESET:			return( LNG("[BTN] Presets") );
-	case ID_BTN_COLORS_COUNT:			return( LNG("[BTN] Count") );
+	case ID_BTN_COLORS_MIRROR:			return( _TL("[BTN] Mirror") );
+	case ID_BTN_COLORS_INVERT:			return( _TL("[BTN] Invert") );
+	case ID_BTN_COLORS_RANDOM:			return( _TL("[BTN] Random") );
+	case ID_BTN_COLORS_PRESET:			return( _TL("[BTN] Presets") );
+	case ID_BTN_COLORS_COUNT:			return( _TL("[BTN] Count") );
 	}
 
-	return( LNG("[BTN] Button") );
+	return( _TL("[BTN] Button") );
 }
 
 

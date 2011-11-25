@@ -87,7 +87,7 @@ class ta_hydrology_EXPORT CTWI : public CSG_Module_Grid
 public:
 	CTWI(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
 
 
 protected:
@@ -110,7 +110,7 @@ class ta_hydrology_EXPORT CStream_Power : public CSG_Module_Grid
 public:
 	CStream_Power(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
 
 
 protected:
@@ -133,7 +133,7 @@ class ta_hydrology_EXPORT CLS_Factor : public CSG_Module_Grid
 public:
 	CLS_Factor(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
 
 
 protected:

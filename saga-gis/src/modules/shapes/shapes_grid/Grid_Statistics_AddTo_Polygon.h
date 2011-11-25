@@ -87,7 +87,7 @@ class CGrid_Statistics_AddTo_Polygon : public CSG_Module_Grid
 public:
 	CGrid_Statistics_AddTo_Polygon(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Grid Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Grid Values") );	}
 
 
 protected:

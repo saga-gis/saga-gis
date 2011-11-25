@@ -100,29 +100,29 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Display...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, LNG("[CAP] Show Vertices"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, _TL("[CAP] Show Vertices"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY"), "LINE_STYLE"		, LNG("[CAP] Line Style"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY"), "LINE_STYLE"		, _TL("[CAP] Line Style"),
+		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			LNG("Solid style"),
-			LNG("Dotted style"),
-			LNG("Long dashed style"),
-			LNG("Short dashed style"), 
-			LNG("Dot and dash style"),
-			LNG("Backward diagonal hatch"),
-			LNG("Cross-diagonal hatch"),
-			LNG("Forward diagonal hatch"),
-			LNG("Cross hatch"),
-			LNG("Horizontal hatch"),
-			LNG("Vertical hatch")
-		//	LNG("Use the stipple bitmap")
-		//	LNG("Use the user dashes")
-		//	LNG("No pen is used")
+			_TL("Solid style"),
+			_TL("Dotted style"),
+			_TL("Long dashed style"),
+			_TL("Short dashed style"), 
+			_TL("Dot and dash style"),
+			_TL("Backward diagonal hatch"),
+			_TL("Cross-diagonal hatch"),
+			_TL("Forward diagonal hatch"),
+			_TL("Cross hatch"),
+			_TL("Horizontal hatch"),
+			_TL("Vertical hatch")
+		//	_TL("Use the stipple bitmap")
+		//	_TL("Use the user dashes")
+		//	_TL("No pen is used")
 		), 0
 	);
 
@@ -131,28 +131,28 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Size...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
-		LNG(""),
-		wxString::Format(wxT("%s|%s|"),
-			LNG("[VAL] Screen"),
-			LNG("[VAL] Map Units")
+		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, _TL("[CAP] Size relates to..."),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("[VAL] Screen"),
+			_TL("[VAL] Map Units")
 		), 0
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, LNG("[CAP] Attribute"),
-		LNG("")
+		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("[CAP] Attribute"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
-		LNG(""),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, _TL("[CAP] Size Range"),
+		_TL(""),
 		0, 10, 0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
-		LNG(""),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, _TL("[CAP] Default Size"),
+		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 }

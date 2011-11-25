@@ -94,7 +94,7 @@ class CShapes_Cut : public CSG_Module
 public:
 	CShapes_Cut(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
 
 protected:

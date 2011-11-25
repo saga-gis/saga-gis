@@ -124,7 +124,7 @@ public:
 	CFragmentation_Base(void);
 	virtual ~CFragmentation_Base(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Fragmentation Analysis") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Fragmentation Analysis") );	}
 
 
 protected:

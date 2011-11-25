@@ -101,13 +101,13 @@ CSG_Module_Library_Interface::~CSG_Module_Library_Interface(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module_Library_Interface::Set_Info(int ID, const SG_Char *Info)
+void CSG_Module_Library_Interface::Set_Info(int ID, const CSG_String &Info)
 {
-	m_Info[ID]	= Get_Translation(Info);
+	m_Info[ID]	= SG_Translate(Info);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Module_Library_Interface::Get_Info(int ID)
+const CSG_String & CSG_Module_Library_Interface::Get_Info(int ID)
 {
 	return( m_Info[ID] );
 }
@@ -138,7 +138,6 @@ bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 		{
 			pModule->m_ID	= ID;
 			pModule->Set_Managed(true);
-			pModule->Set_Translation(m_Translator);
 		}
 
 		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
@@ -172,27 +171,6 @@ CSG_Module * CSG_Module_Library_Interface::Get_Module(int iModule)
 void CSG_Module_Library_Interface::Set_File_Name(const CSG_String &File_Name)
 {
 	m_File_Name	= File_Name;
-
-	m_Translator.Create(m_File_Name);
-}
-
-//---------------------------------------------------------
-const SG_Char * CSG_Module_Library_Interface::Get_File_Name(void)
-{
-	return( m_File_Name );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-const SG_Char * CSG_Module_Library_Interface::Get_Translation(const SG_Char *Text)
-{
-	return( m_Translator.Get_Translation(Text) );
 }
 
 

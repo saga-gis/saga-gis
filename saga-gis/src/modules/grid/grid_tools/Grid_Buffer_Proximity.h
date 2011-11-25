@@ -65,7 +65,7 @@ public:
 	CGrid_Proximity_Buffer(void);
 	virtual ~CGrid_Proximity_Buffer(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Buffers") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Buffers") );	}
 
 
 protected:

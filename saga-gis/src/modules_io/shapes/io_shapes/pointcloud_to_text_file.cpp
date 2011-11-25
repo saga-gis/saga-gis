@@ -240,7 +240,7 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 		while( tkz_fields.HasMoreTokens() )
 		{
-			token	= tkz_fields.GetNextToken();
+			token	= tkz_fields.GetNextToken().wc_str();
 
 			if( token.Length() == 0 )
 				break;
@@ -266,7 +266,7 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 		while( tkz_precisons.HasMoreTokens() )
 		{
-			token	= tkz_precisons.GetNextToken();
+			token	= tkz_precisons.GetNextToken().wc_str();
 
 			if( token.Length() == 0 )
 				break;

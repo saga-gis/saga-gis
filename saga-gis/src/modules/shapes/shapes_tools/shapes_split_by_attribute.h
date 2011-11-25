@@ -77,7 +77,7 @@ class CShapes_Split_by_Attribute : public CSG_Module
 public:
 	CShapes_Split_by_Attribute(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
 
 protected:

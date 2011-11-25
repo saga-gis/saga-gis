@@ -85,7 +85,7 @@ class CPGIS_Shapes_Load : public CSG_ODBC_Module
 public:
 	CPGIS_Shapes_Load(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:PostGIS") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CPGIS_Shapes_Save : public CSG_ODBC_Module
 public:
 	CPGIS_Shapes_Save(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:PostGIS") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS") );	}
 
 
 protected:

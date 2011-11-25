@@ -42,7 +42,7 @@ class CSelection_Copy : public CSG_Module
 public:
 	CSelection_Copy(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:
@@ -62,7 +62,7 @@ class CSelection_Delete : public CSG_Module
 public:
 	CSelection_Delete(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:
@@ -82,7 +82,7 @@ class CSelection_Invert : public CSG_Module
 public:
 	CSelection_Invert(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:

@@ -185,7 +185,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 		dc.DrawLine(0, 1, r.GetWidth(), 1);
 		dc.SetFont(TITLE_FONT);
 		dc.DrawText(m_Title, 2, 2);
-		dc.DrawLine(0, r.GetBottom(), GetClientSize().x, r.GetBottom());
+		dc.DrawLine(0, r.GetBottom(), r.GetWidth(), r.GetBottom());
 	}
 }
 
@@ -291,23 +291,23 @@ CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 	m_Active_Color	= CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, LNG("Options for Data Thumbnails"), LNG(""));
+	m_Parameters.Create(this, _TL("Options for Data Thumbnails"), _TL(""));
 
 	m_Parameters.Add_Value(
-		NULL, "SIZE"		, LNG("Thumbnail Size"),
-		LNG(""),
+		NULL, "SIZE"		, _TL("Thumbnail Size"),
+		_TL(""),
 		PARAMETER_TYPE_Int, m_Size, 10, true
 	);
 
 	m_Parameters.Add_Value(
-		NULL, "CATEGORY"	, LNG("Show Categories"),
-		LNG(""),
+		NULL, "CATEGORY"	, _TL("Show Categories"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, m_bCategorised
 	);
 
 	m_Parameters.Add_Value(
-		NULL, "SELCOLOR"	, LNG("Selection Color"),
-		LNG(""),
+		NULL, "SELCOLOR"	, _TL("Selection Color"),
+		_TL(""),
 		PARAMETER_TYPE_Color, m_Active_Color
 	);
 }
@@ -408,7 +408,7 @@ void CWKSP_Data_Buttons::_Set_Positions(void)
 			yPos	+= THUMBNAIL_DIST + yAdd;
 
 			CalcScrolledPosition(0, yPos, &x, &y);
-			pItem->SetSize(x, y, xSize + SCROLL_BAR_DX, -1);
+			pItem->SetSize(x, y, xSize + SCROLL_BAR_DX, -1, wxSIZE_USE_EXISTING);
 
 			yPos	+= THUMBNAIL_DIST + pItem->GetSize().y;
 			yAdd	 = 0;

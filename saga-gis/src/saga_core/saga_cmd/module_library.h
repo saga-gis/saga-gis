@@ -145,7 +145,7 @@ private:
 	bool						_Get_CMD				(class CSG_Parameters *pParameters, bool bNoDataObjects);
 
 	bool						_Create_DataObjects		(class CSG_Parameters *pParameters);
-	bool						_Create_DataObject		(class CSG_Parameter *pParameter, const wxChar *FileName);
+	bool						_Create_DataObject		(class CSG_Parameter *pParameter, const wxString &FileName);
 	bool						_Create_DataObject_List	(class CSG_Parameter *pParameter, wxString sList);
 
 	bool						_Destroy_DataObjects	(bool bSave);

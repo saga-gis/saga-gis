@@ -128,7 +128,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CData_Source::CData_Source(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_DATA_SOURCE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, LNG("[CAP] Data Source"))
+	: wxNotebook(pParent, ID_WND_DATA_SOURCE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, _TL("[CAP] Data Source"))
 {
 	g_pData_Source	= this;
 
@@ -140,7 +140,7 @@ CData_Source::CData_Source(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_DATA_SOURCE_WEBSERVICE);
 
 	//-----------------------------------------------------
-	m_pFiles	= new CData_Source_Files	(this);	m_pFiles	->SetName(LNG("[CAP] File System"));
+	m_pFiles	= new CData_Source_Files	(this);	m_pFiles	->SetName(_TL("[CAP] File System"));
 
 #if defined(_SAGA_MSW)
 	m_pFiles	->Hide();

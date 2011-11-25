@@ -54,7 +54,7 @@ class CPoints_From_Table : public CSG_Module
 public:
 	CPoints_From_Table(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Conversion") );	}
 
 
 protected:

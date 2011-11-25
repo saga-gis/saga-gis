@@ -72,6 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/wx.h>
 #include <wx/gdicmn.h>
 #include <wx/string.h>
 #include <wx/colour.h>
@@ -101,8 +102,8 @@ wxString			Get_nBytes_asString				(int nBytes, int Precision = -1);
 double				Get_Random						(double loValue, double hiValue);
 
 //---------------------------------------------------------
-wxString			Get_FilePath_Relative			(const wxChar *Directory, const wxChar *FileName);
-wxString			Get_FilePath_Absolute			(const wxChar *Directory, const wxChar *FileName);
+wxString			Get_FilePath_Relative			(const wxString &Directory, const wxString &FileName);
+wxString			Get_FilePath_Absolute			(const wxString &Directory, const wxString &FileName);
 
 //---------------------------------------------------------
 wxString			Get_TableInfo_asHTML			(class CSG_Table *pTable);
@@ -119,7 +120,7 @@ int					Get_Color_asInt					(wxColour Color);
 wxColour			Get_Color_Random				(int rLo = 0, int rHi = 255, int gLo = 0, int gHi = 255, int bLo = 0, int bHi = 255);
 
 wxColour			SYS_Get_Color					(wxSystemColour index);
-void				SYS_Set_Color_BG				(class wxWindow *pWindow, wxSystemColour index);
+void				SYS_Set_Color_BG				(wxWindow *pWindow, wxSystemColour index);
 void				SYS_Set_Color_BG_Window			(wxWindow *pWindow);
 
 //---------------------------------------------------------
@@ -139,27 +140,29 @@ void				Do_Beep							(int Style = 0);
 
 //---------------------------------------------------------
 void				MSG_General_Add_Line			(void);
-void				MSG_General_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+void				MSG_General_Add					(const wxString &Message, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 void				MSG_Error_Add_Line				(void);
-void				MSG_Error_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = true , TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+void				MSG_Error_Add					(const wxString &Message, bool bNewLine = true, bool bTime = true , TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 void				MSG_Execution_Add_Line			(void);
-void				MSG_Execution_Add				(const wxChar *Message, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
+void				MSG_Execution_Add				(const wxString &Message, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 //---------------------------------------------------------
-bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, class wxString &Value);
-bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, long           &Value);
-bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, double         &Value);
-bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, bool           &Value);
+bool				CONFIG_Read						(const wxString &Group, const wxString &Entry,       wxString &Value);
+bool				CONFIG_Read						(const wxString &Group, const wxString &Entry, long           &Value);
+bool				CONFIG_Read						(const wxString &Group, const wxString &Entry, double         &Value);
+bool				CONFIG_Read						(const wxString &Group, const wxString &Entry, bool           &Value);
 
-bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, const wxChar   *Value);
-bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, long            Value);
-bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, double          Value);
-bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, bool            Value);
+bool				CONFIG_Write					(const wxString &Group, const wxString &Entry, const wxString &Value);
+bool				CONFIG_Write					(const wxString &Group, const wxString &Entry, const char     *Value);
+bool				CONFIG_Write					(const wxString &Group, const wxString &Entry, const wchar_t  *Value);
+bool				CONFIG_Write					(const wxString &Group, const wxString &Entry, long            Value);
+bool				CONFIG_Write					(const wxString &Group, const wxString &Entry, double          Value);
+bool				CONFIG_Write					(const wxString &Group, const wxString &Entry, bool            Value);
 
-bool				CONFIG_Delete					(const wxChar *Group);
-bool				CONFIG_Delete					(const wxChar *Group, const wxChar *Entry);
+bool				CONFIG_Delete					(const wxString &Group);
+bool				CONFIG_Delete					(const wxString &Group, const wxString &Entry);
 
 //---------------------------------------------------------
 bool				PROCESS_is_Executing			(void);
@@ -173,8 +176,8 @@ bool				PROGRESSBAR_Set_Position		(int Position);
 bool				PROGRESSBAR_Set_Position		(double Position, double Range);
 
 //---------------------------------------------------------
-bool				Open_Application				(const wxChar *Reference, const wxChar *Mime_Extension = NULL);
-bool				Open_WebBrowser					(const wxChar *Reference);
+bool				Open_Application				(const wxString &Reference, const wxString &Mime_Extension = wxT(""));
+bool				Open_WebBrowser					(const wxString &Reference);
 
 wxString			Get_Online_Module_Description	(const wxString &Library, int ID = -1);
 
@@ -191,7 +194,7 @@ enum
 };
 
 //---------------------------------------------------------
-void				STATUSBAR_Set_Text				(const wxChar *Text, int iPane = 0);
+void				STATUSBAR_Set_Text				(const wxString &Text, int iPane = 0);
 
 //---------------------------------------------------------
 #define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))

@@ -103,43 +103,43 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	// Display...
 
 	_BrushList_Add(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, LNG("[CAP] Fill Style"),
-		LNG("")
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, _TL("[CAP] Fill Style"),
+		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "OUTLINE"					, LNG("[CAP] Outline"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY")	, "OUTLINE"					, _TL("[CAP] Outline"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_COLOR"			, LNG("[CAP] Color"),
-		LNG(""),
+		m_Parameters("OUTLINE")			, "OUTLINE_COLOR"			, _TL("[CAP] Color"),
+		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_SIZE"			, LNG("[CAP] Size"),
-		LNG(""),
+		m_Parameters("OUTLINE")			, "OUTLINE_SIZE"			, _TL("[CAP] Size"),
+		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, LNG("[CAP] Show Vertices"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, _TL("[CAP] Show Vertices"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_CENTROID"		, LNG("[CAP] Show Centroid"),
-		LNG(""),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_CENTROID"		, _TL("[CAP] Show Centroid"),
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"			, LNG("[CAP] Fill Color"),
-		LNG(""),
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"			, _TL("[CAP] Fill Color"),
+		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
 	);
 }

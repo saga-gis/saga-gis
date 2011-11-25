@@ -324,7 +324,7 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 		{
 			if( c != 0x0D )
 			{
-				sLine.Append(SG_STR_MBTOSG(c));
+				sLine.Append((char)c);
 			}
 		}
 
@@ -407,7 +407,7 @@ bool CSG_File::Scan(CSG_String &Value, SG_Char Separator) const
 
 		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != Separator && c != EOF )
 		{
-			Value	+= c;
+			Value	+= (char)c;
 		}
 
 		return( true );
@@ -467,7 +467,7 @@ bool			SG_Dir_Create(const SG_Char *Directory)
 //---------------------------------------------------------
 CSG_String		SG_Dir_Get_Current(void)
 {
-	return( wxGetCwd().c_str() );
+	return( wxGetCwd().wc_str() );
 }
 
 
@@ -486,7 +486,7 @@ bool			SG_File_Exists(const SG_Char *FileName)
 //---------------------------------------------------------
 bool			SG_File_Delete(const SG_Char *FileName)
 {
-	return( FileName && *FileName && wxRemoveFile(FileName) );
+	return( SG_File_Exists(FileName) && wxRemoveFile(FileName) );
 }
 
 //---------------------------------------------------------
@@ -494,17 +494,17 @@ CSG_String		SG_File_Get_TmpName(const SG_Char *Prefix, const SG_Char *Directory)
 {
 	if( !SG_Dir_Exists(Directory) )
 	{
-		return( wxFileName::CreateTempFileName(Prefix).c_str() );
+		return( wxFileName::CreateTempFileName(Prefix).wc_str() );
 	}
 
-	return( wxFileName::CreateTempFileName(SG_File_Make_Path(Directory, Prefix).c_str()).c_str() );
+	return( wxFileName::CreateTempFileName(SG_File_Make_Path(Directory, Prefix).w_str()).wc_str() );
 }
 
 //---------------------------------------------------------
 CSG_String		SG_File_Get_Name(const SG_Char *full_Path, bool bExtension)
 {
 	wxFileName	fn(full_Path);
-	CSG_String	s(fn.GetFullName().c_str());
+	CSG_String	s(fn.GetFullName().wc_str());
 
 	return( !bExtension && s.Find(SG_T(".")) >= 0 ? s.BeforeLast(SG_T('.')) : s );
 }
@@ -516,7 +516,7 @@ CSG_String		SG_File_Get_Path(const SG_Char *full_Path)
 	{
 		wxFileName	fn(full_Path);
 
-		return( fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR).c_str() );
+		return( fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR).wc_str() );
 	}
 
 	return( SG_T("") );
@@ -539,7 +539,7 @@ CSG_String		SG_File_Make_Path(const SG_Char *Directory, const SG_Char *Name, con
 		fn.SetFullName	(SG_File_Get_Name(Name,  true).c_str());
 	}
 
-	return( fn.GetFullPath().c_str() );
+	return( fn.GetFullPath().wc_str() );
 }
 
 //---------------------------------------------------------
@@ -551,15 +551,15 @@ bool			SG_File_Cmp_Extension(const SG_Char *File_Name, const SG_Char *Extension)
 }
 
 //---------------------------------------------------------
-bool			SG_File_Set_Extension(CSG_String &File_Name, const SG_Char *Extension)
+bool			SG_File_Set_Extension(CSG_String &File_Name, const CSG_String &Extension)
 {
-	if( File_Name && *File_Name && Extension && *Extension )
+	if( File_Name.Length() > 0 && Extension.Length() > 0 )
 	{
-		wxFileName	fn(File_Name.c_str());
+		wxFileName	fn(File_Name.w_str());
 
-		fn.SetExt(Extension);
+		fn.SetExt(Extension.w_str());
 
-		File_Name	= fn.GetFullPath().c_str();
+		File_Name	= fn.GetFullPath().wc_str();
 
 		return( true );
 	}
@@ -568,11 +568,11 @@ bool			SG_File_Set_Extension(CSG_String &File_Name, const SG_Char *Extension)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Extension(const SG_Char *File_Name)
+CSG_String		SG_File_Get_Extension(const CSG_String &File_Name)
 {
-	wxFileName	fn(File_Name);
+	wxFileName	fn(File_Name.w_str());
 
-	return( fn.GetExt().c_str() );
+	return( fn.GetExt().wc_str() );
 }
 
 
@@ -614,14 +614,14 @@ bool			SG_Get_Environment(const CSG_String &Variable, CSG_String *Value)
 {
 	if( Value == NULL)
 	{
-		return( wxGetEnv(Variable.c_str(), NULL) );
+		return( wxGetEnv(Variable.w_str(), NULL) );
 	}
 
 	wxString	s;
 
-	if( wxGetEnv(Variable.c_str(), &s) )
+	if( wxGetEnv(Variable.w_str(), &s) )
 	{
-		*Value	= s.c_str();
+		*Value	= s.wc_str();
 
 		return( true );
 	}
@@ -632,7 +632,7 @@ bool			SG_Get_Environment(const CSG_String &Variable, CSG_String *Value)
 //---------------------------------------------------------
 bool			SG_Set_Environment(const CSG_String &Variable, const CSG_String &Value)
 {
-	return( wxSetEnv(Variable.c_str(), Value.c_str()) );
+	return( wxSetEnv(Variable.w_str(), Value.w_str()) );
 }
 
 

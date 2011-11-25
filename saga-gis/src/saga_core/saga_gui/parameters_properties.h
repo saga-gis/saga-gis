@@ -75,10 +75,9 @@
 #include <wx/wx.h>
 
 #include <wx/propgrid/propgrid.h>
-#include <wx/propgrid/propdev.h>
+#include <wx/propgrid/property.h>
 #include <wx/propgrid/advprops.h>
 #include <wx/propgrid/manager.h>
-#include <wx/propgrid/extras.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -94,7 +93,7 @@ public:
 	CParameters_PG_Choice(CSG_Parameter *pParameter);
 	virtual ~CParameters_PG_Choice(void);
 
-	bool						Update				(void);
+	bool						Update				(void)	{	_Create();	return( true );	}
 
 	virtual bool				OnEvent				(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event);
 
@@ -109,8 +108,8 @@ protected:
 	void						_Create				(void);
 	void						_Destroy			(void);
 
-	void						_Append				(const wxChar *Label, long  Value);
-	void						_Append				(const wxChar *Label, void *Value = NULL);
+	void						_Append				(const wxString &Label, long  Value);
+	void						_Append				(const wxString &Label, void *Value = NULL);
 
 	int							_Set_Choice			(void);
 	int							_Set_Table			(void);
@@ -136,11 +135,11 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CParameters_PG_Parameter_Value
+class CPG_Parameter_Value
 {
 public:
-	CParameters_PG_Parameter_Value(void)							{	m_pParameter	= NULL;			}
-	CParameters_PG_Parameter_Value(CSG_Parameter *pParameter)		{	m_pParameter	= pParameter;	}
+	CPG_Parameter_Value(void)							{	m_pParameter	= NULL;			}
+	CPG_Parameter_Value(CSG_Parameter *pParameter)		{	m_pParameter	= pParameter;	}
 
 	CSG_Parameter				*m_pParameter;
 
@@ -151,7 +150,7 @@ public:
 
 };
 
-WX_PG_DECLARE_VARIANT_DATA(CParameters_PG_Parameter_Variant, CParameters_PG_Parameter_Value, wxEMPTY_PARAMETER_VALUE)
+WX_PG_DECLARE_VARIANT_DATA(CPG_Parameter_Value)
 
 
 ///////////////////////////////////////////////////////////
@@ -163,56 +162,52 @@ WX_PG_DECLARE_VARIANT_DATA(CParameters_PG_Parameter_Variant, CParameters_PG_Para
 //---------------------------------------------------------
 class CParameters_PG_Range : public wxPGProperty
 {
-	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Range)
-
 public:
 	CParameters_PG_Range(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
 
-	WX_PG_DECLARE_PARENTAL_METHODS()
+	bool						Update				(void)			{	SetValue(m_value);	return( true );	}
 
-	bool						Update				(void);
+	virtual wxVariant			ChildChanged		(wxVariant &thisValue, int childIndex, wxVariant &childValue)	const;
+	virtual void				RefreshChildren		(void);
+	virtual const wxPGEditor *	DoGetEditorClass	(void)	const	{	return( wxPGEditor_TextCtrl );	}
 
 };
 
 //---------------------------------------------------------
 class CParameters_PG_Degree : public wxPGProperty
 {
-	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Degree)
-
 public:
 	CParameters_PG_Degree(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
 
-	WX_PG_DECLARE_PARENTAL_METHODS()
+	bool						Update				(void)			{	SetValue(m_value);	return( true );	}
 
-	bool						Update				(void);
-
+	virtual wxVariant			ChildChanged		(wxVariant &thisValue, int childIndex, wxVariant &childValue)	const;
+	virtual void				RefreshChildren		(void);
+	virtual const wxPGEditor *	DoGetEditorClass	(void)	const	{	return( wxPGEditor_TextCtrl );	}
 };
 
 //---------------------------------------------------------
 class CParameters_PG_Dialog : public wxPGProperty
 {
-	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Dialog)
-
 public:
 	CParameters_PG_Dialog(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
 
-	virtual wxString			GetValueAsString	(int flags)	const;
+	bool						Update				(void)			{	SetValue(m_value);	return( true );	}
 
-	WX_PG_DECLARE_EVENT_METHODS()
-
-	bool						Update				(void);
+	virtual bool				OnEvent				(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event);
+	virtual wxString			ValueToString		(wxVariant &value, int argFlags = 0)	const;
+	virtual const wxPGEditor *	DoGetEditorClass	(void)	const	{	return( wxPGEditor_TextCtrlAndButton );	}
 
 };
 
 //---------------------------------------------------------
 class CParameters_PG_Colors : public CParameters_PG_Dialog
 {
-	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Colors)
-
 public:
 	CParameters_PG_Colors(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
 
-	WX_PG_DECLARE_CUSTOM_PAINT_METHODS()
+	virtual void				OnCustomPaint		(wxDC &dc, const wxRect &rect, wxPGPaintData &paintdata);
+	virtual wxSize				OnMeasureImage		(int item = -1)	const;
 
 };
 

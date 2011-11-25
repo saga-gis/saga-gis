@@ -303,7 +303,7 @@ double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 				c	= '.';
 			}
 
-			s	+= c;
+			s	+= (char)c;
 		}
 		while( !Stream.is_EOF() && SG_is_Numeric(c = Stream.Get_Character()) );
 	}
@@ -322,7 +322,7 @@ bool CESRI_ArcInfo_Import::Read_Header_Line(CSG_File &Stream, CSG_String &sLine)
 	{
 		if( c != 0x0D )
 		{
-			sLine	+= c;
+			sLine	+= (char)c;
 		}
 	}
 

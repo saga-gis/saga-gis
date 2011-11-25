@@ -78,7 +78,7 @@ class CGrid_Proximity : public CSG_Module_Grid
 public:
 	CGrid_Proximity(void);
 
-//	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
+//	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
 
 
 protected:

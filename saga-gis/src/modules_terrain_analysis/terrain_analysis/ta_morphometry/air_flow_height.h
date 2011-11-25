@@ -80,7 +80,7 @@ class CAir_Flow_Height : public CSG_Module_Grid
 public:
 	CAir_Flow_Height(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Wind" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Wind" ));	}
 
 
 protected:

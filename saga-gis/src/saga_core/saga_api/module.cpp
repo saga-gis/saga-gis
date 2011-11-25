@@ -139,54 +139,36 @@ void CSG_Module::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Set_Name(const SG_Char *String)
+void CSG_Module::Set_Name(const CSG_String &String)
 {
 	Parameters.Set_Name(String);
 }
 
-const SG_Char * CSG_Module::Get_Name(void)
+const CSG_String & CSG_Module::Get_Name(void)
 {
 	return( Parameters.Get_Name() );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Description(const SG_Char *String)
+void CSG_Module::Set_Description(const CSG_String &String)
 {
 	Parameters.Set_Description(String);
 }
 
-const SG_Char * CSG_Module::Get_Description(void)
+const CSG_String & CSG_Module::Get_Description(void)
 {
 	return( Parameters.Get_Description() );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Author(const SG_Char *String)
+void CSG_Module::Set_Author(const CSG_String &String)
 {
-	if( String )
-	{
-		m_Author	= String;
-	}
-	else
-	{
-		m_Author.Clear();
-	}
+	m_Author	= String;
 }
 
-const SG_Char * CSG_Module::Get_Author(void)
+const CSG_String & CSG_Module::Get_Author(void)
 {
-	return( m_Author.c_str() );
-}
-
-//---------------------------------------------------------
-void CSG_Module::Set_Translation(CSG_Translator &Translator)
-{
-	Parameters.Set_Translation(Translator);
-
-	for(int i=0; i<m_npParameters; i++)
-	{
-		m_pParameters[i]->Set_Translation(Translator);
-	}
+	return( m_Author );
 }
 
 
@@ -213,7 +195,7 @@ bool CSG_Module::Execute(void)
 			Parameters.Msg_String(false);
 
 ///////////////////////////////////////////////////////////
-#if !defined(_DEBUG) && defined(_SAGA_VC)
+#if defined(WXWIN_28) && !defined(_DEBUG) && defined(_SAGA_VC)
 #define _MODULE_EXCEPTION
 __try
 {
@@ -225,22 +207,22 @@ __try
 				_Set_Output_History();
 			}
 
-			if( !Process_Get_Okay(false) )
-			{
-				SG_UI_Msg_Add(LNG("[MSG] Execution has been stopped by user!"), true);
-			}
-
 ///////////////////////////////////////////////////////////
 #ifdef _MODULE_EXCEPTION
 }	// try
 __except(1)
 {
-	Message_Add(LNG("[ERR] Module caused access violation!"));
-	Message_Dlg(LNG("[ERR] Module caused access violation!"));
+	Message_Add(SG_T("[ERR] Module caused access violation!"));
+	Message_Dlg(SG_T("[ERR] Module caused access violation!"));
 	bResult	= false;
 }	// except(1)
 #endif
 ///////////////////////////////////////////////////////////
+
+			if( !Process_Get_Okay(false) )
+			{
+				SG_UI_Msg_Add(_TL("[MSG] Execution has been stopped by user!"), true);
+			}
 
 			Destroy();
 
@@ -396,7 +378,7 @@ int CSG_Module::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Add_Parameters(const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description)
+CSG_Parameters * CSG_Module::Add_Parameters(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameters	*pParameters;
 
@@ -410,7 +392,7 @@ CSG_Parameters * CSG_Module::Add_Parameters(const SG_Char *Identifier, const SG_
 }
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Get_Parameters(const SG_Char *Identifier)
+CSG_Parameters * CSG_Module::Get_Parameters(const CSG_String &Identifier)
 {
 	CSG_String	sIdentifier(Identifier);
 
@@ -426,7 +408,7 @@ CSG_Parameters * CSG_Module::Get_Parameters(const SG_Char *Identifier)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Dlg_Parameters(const SG_Char *Identifier)
+bool CSG_Module::Dlg_Parameters(const CSG_String &Identifier)
 {
 	if( !m_bManaged || Dlg_Parameters(Get_Parameters(Identifier), Get_Name()) )
 	{
@@ -439,24 +421,10 @@ bool CSG_Module::Dlg_Parameters(const SG_Char *Identifier)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Caption)
+bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Caption)
 {
 	return( pParameters ? SG_UI_Dlg_Parameters(pParameters, Caption) : false );
 }
-
-//---------------------------------------------------------
-#ifdef _SAGA_UNICODE
-
-CSG_Parameters *	CSG_Module::Add_Parameters(const char *Identifier, const SG_Char *Name, const SG_Char *Description)
-{	return( Add_Parameters(CSG_String(Identifier), Name, Description) );	}
-
-CSG_Parameters *	CSG_Module::Get_Parameters(const char *Identifier)
-{	return( Get_Parameters(CSG_String(Identifier)) );	}
-
-bool				CSG_Module::Dlg_Parameters(const char *Identifier)
-{	return( Dlg_Parameters(CSG_String(Identifier)) );	}
-
-#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -472,7 +440,7 @@ bool CSG_Module::Process_Get_Okay(bool bBlink)
 }
 
 //---------------------------------------------------------
-void CSG_Module::Process_Set_Text(const SG_Char *Text)
+void CSG_Module::Process_Set_Text(const CSG_String &Text)
 {
 	SG_UI_Process_Set_Text(Text);
 }
@@ -503,19 +471,19 @@ bool CSG_Module::Stop_Execution(bool bDialog)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Message_Dlg(const SG_Char *Text, const SG_Char *Caption)
+void CSG_Module::Message_Dlg(const CSG_String &Text, const SG_Char *Caption)
 {
 	SG_UI_Dlg_Message(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name());
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Message_Dlg_Confirm(const SG_Char *Text, const SG_Char *Caption)
+bool CSG_Module::Message_Dlg_Confirm(const CSG_String &Text, const SG_Char *Caption)
 {
 	return( SG_UI_Dlg_Continue(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name()) );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Message_Add(const SG_Char *Text, bool bNewLine)
+void CSG_Module::Message_Add(const CSG_String &Text, bool bNewLine)
 {
 	SG_UI_Msg_Add_Execution(Text, bNewLine);
 }
@@ -526,21 +494,21 @@ bool CSG_Module::Error_Set(TSG_Module_Error Error_ID)
 	switch( Error_ID )
 	{
 	default:
-		return( Error_Set(LNG("[ERR] Unknown Error")) );
+		return( Error_Set(_TL("[ERR] Unknown Error")) );
 	    
 	case MODULE_ERROR_Calculation:
-		return( Error_Set(LNG("[ERR] Calculation Error")) );
+		return( Error_Set(_TL("[ERR] Calculation Error")) );
 	}
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Error_Set(const SG_Char *Error_Text)
+bool CSG_Module::Error_Set(const CSG_String &Error_Text)
 {
 	SG_UI_Msg_Add_Error(Error_Text);
 
 	if( SG_UI_Process_Get_Okay(false) && !m_bError_Ignore )
 	{
-		switch( SG_UI_Dlg_Error(Error_Text, LNG("[ERR] Error: Continue anyway ?")) )
+		switch( SG_UI_Dlg_Error(Error_Text, _TL("[ERR] Error: Continue anyway ?")) )
 		{
 		case 0: default:
 			SG_UI_Process_Set_Okay(false);

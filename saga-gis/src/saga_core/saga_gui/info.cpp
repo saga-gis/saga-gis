@@ -118,7 +118,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CINFO::CINFO(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_INFO, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, LNG("[CAP] Messages"))
+	: wxNotebook(pParent, ID_WND_INFO, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, _TL("[CAP] Messages"))
 {
 	g_pINFO		= this;
 
@@ -138,9 +138,9 @@ CINFO::CINFO(wxWindow *pParent)
 //---------------------------------------------------------
 void CINFO::Add_Pages(void)
 {
-	AddPage(m_pGeneral	, LNG("[CAP] General")	, false, IMG_MESSAGES);
-	AddPage(m_pExecution, LNG("[CAP] Execution"), false, IMG_EXECUTION);
-	AddPage(m_pErrors	, LNG("[CAP] Errors")	, false, IMG_ERROR);
+	AddPage(m_pGeneral	, _TL("[CAP] General")	, false, IMG_MESSAGES);
+	AddPage(m_pExecution, _TL("[CAP] Execution"), false, IMG_EXECUTION);
+	AddPage(m_pErrors	, _TL("[CAP] Errors")	, false, IMG_ERROR);
 }
 
 //---------------------------------------------------------

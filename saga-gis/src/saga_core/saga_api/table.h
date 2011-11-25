@@ -249,10 +249,7 @@ public:
 	bool							is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
-	virtual bool					Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
-#ifdef _SAGA_UNICODE
-	virtual bool					Add_Field			(const char    *Name, TSG_Data_Type Type, int iField = -1);
-#endif
+	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int iField = -1);
 	virtual bool					Del_Field			(int iField);
 
 	int								Get_Field_Count		(void)			const	{	return( m_nFields );	}

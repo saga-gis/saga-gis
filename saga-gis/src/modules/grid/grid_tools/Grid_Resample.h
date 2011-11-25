@@ -87,7 +87,7 @@ class CGrid_Resample : public CSG_Module_Grid
 public:
 	CGrid_Resample(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
 
 
 protected:

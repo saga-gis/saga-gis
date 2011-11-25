@@ -130,7 +130,7 @@ protected:
 	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius);
 	void						_Draw_Points			(CWKSP_Map_DC &dc_Map);
 
-	CSG_Parameter *				_AttributeList_Add		(CSG_Parameter *pNode, const char *Identifier, const wxChar *Name, const wxChar *Description);
+	CSG_Parameter *				_AttributeList_Add		(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	void						_AttributeList_Set		(CSG_Parameter *pFields, bool bAddNoField);
 
 };

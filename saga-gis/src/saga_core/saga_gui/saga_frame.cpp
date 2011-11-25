@@ -271,7 +271,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	CreateStatusBar		(STATUSBAR_COUNT);
 	SetStatusWidths		(STATUSBAR_COUNT, STATUSBAR_Sizes);
 	SetStatusBarPane	(STATUSBAR_DEFAULT);
-	StatusBar_Set_Text	(LNG("[VAL] ready"));
+	StatusBar_Set_Text	(_TL("[VAL] ready"));
 
 	m_pProgressBar		= ((CSAGA_Frame_StatusBar *)GetStatusBar())->m_pProgressBar;
 
@@ -390,7 +390,7 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	}
 
 	//-----------------------------------------------------
-	CONFIG_Write(wxT("/FL"), wxT("MANAGER"), m_pLayout->SavePerspective().c_str());
+	CONFIG_Write(wxT("/FL"), wxT("MANAGER"), m_pLayout->SavePerspective());
 
 	m_pLayout->UnInit();
 
@@ -429,7 +429,7 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 		{
 			if( g_pModule )
 			{
-				DLG_Message_Show(LNG("Please stop module execution before exiting SAGA."), LNG("Exit SAGA"));
+				DLG_Message_Show(_TL("Please stop module execution before exiting SAGA."), _TL("Exit SAGA"));
 			}
 
 			event.Veto();
@@ -469,7 +469,7 @@ void CSAGA_Frame::On_Help(wxCommandEvent &WXUNUSED(event))
 {
 	if( !Open_WebBrowser(SG_T("http://sourceforge.net/apps/trac/saga-gis/wiki/WikiStart")) )
 	{
-	//	DLG_Message_Show(LNG("Online Help"), LNG("SAGA Help"));
+	//	DLG_Message_Show(_TL("Online Help"), _TL("SAGA Help"));
 	}
 }
 
@@ -675,7 +675,7 @@ void CSAGA_Frame::On_Command_Child(wxCommandEvent &event)
 
 	if( (pChild = GetActiveChild()) != NULL )
 	{
-		pChild->AddPendingEvent(event);
+//		pChild->AddPendingEvent(event);	// wx3 conversion !!!
 	}
 }
 
@@ -748,7 +748,7 @@ bool CSAGA_Frame::Process_Get_Okay(bool bBlink)
 //---------------------------------------------------------
 bool CSAGA_Frame::Process_Set_Okay(bool bOkay)
 {
-	StatusBar_Set_Text(LNG("[VAL] ready"));
+	StatusBar_Set_Text(_TL("[VAL] ready"));
 
 	ProgressBar_Set_Position(0);
 
@@ -784,7 +784,7 @@ bool CSAGA_Frame::ProgressBar_Set_Position(double Position, double Range)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::StatusBar_Set_Text(const wxChar *Text, int iPane)
+void CSAGA_Frame::StatusBar_Set_Text(const wxString &Text, int iPane)
 {
 	if( iPane < 0 || iPane >= STATUSBAR_PROGRESS )
 	{
@@ -793,7 +793,7 @@ void CSAGA_Frame::StatusBar_Set_Text(const wxChar *Text, int iPane)
 
 	if( iPane == STATUSBAR_ACTIVE )
 	{
-		Set_Pane_Caption(m_pActive, Text && SG_STR_LEN(Text) > 0 ? Text : LNG("[CAP] Object Properties"));
+		Set_Pane_Caption(m_pActive, Text.Length() > 0 ? Text : wxString(_TL("[CAP] Object Properties")));
 	}
 
 	SetStatusText(Text, iPane);
@@ -929,7 +929,7 @@ wxMenuBar * CSAGA_Frame::MB_Create(CVIEW_Base *pChild)
 
 	g_pData->Get_FileMenus()->Add(pMenu);
 
-	pMenuBar->Append(pMenu, LNG("[MNU] File"));
+	pMenuBar->Append(pMenu, _TL("[MNU] File"));
 
 
 	//-----------------------------------------------------
@@ -939,7 +939,7 @@ wxMenuBar * CSAGA_Frame::MB_Create(CVIEW_Base *pChild)
 
 	g_pModules->Get_Modules_Menu()->Add(pMenu);
 
-	pMenuBar->Append(pMenu, LNG("[MNU] Modules"));
+	pMenuBar->Append(pMenu, _TL("[MNU] Modules"));
 
 
 	//-----------------------------------------------------
@@ -966,7 +966,7 @@ wxMenuBar * CSAGA_Frame::MB_Create(CVIEW_Base *pChild)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_CLOSE_ALL);
 
-	pMenuBar->Append(pMenu, LNG("[MNU] Window"));
+	pMenuBar->Append(pMenu, _TL("[MNU] Window"));
 
 
 	//-----------------------------------------------------
@@ -978,7 +978,7 @@ wxMenuBar * CSAGA_Frame::MB_Create(CVIEW_Base *pChild)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_TIPS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_ABOUT);
 
-	pMenuBar->Append(pMenu, LNG("[MNU] ?"));
+	pMenuBar->Append(pMenu, _TL("[MNU] ?"));
 
 
 	//-----------------------------------------------------
@@ -1000,7 +1000,7 @@ void CSAGA_Frame::MB_Remove(wxMenu *pMenu_File, wxMenu *pMenu_Modules)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSAGA_Frame::Set_Pane_Caption(wxWindow *pWindow, wxString Caption)
+void CSAGA_Frame::Set_Pane_Caption(wxWindow *pWindow, const wxString &Caption)
 {
 	if( m_pLayout && pWindow )
 	{
@@ -1083,7 +1083,7 @@ wxToolBarBase * CSAGA_Frame::TB_Create(int ID)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxChar *Name)
+void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxString &Name)
 {
 	pToolBar->Realize();
 	pToolBar->Hide();
@@ -1130,7 +1130,7 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);
 
-	TB_Add(pToolBar, LNG("[CAP] Standard"));
+	TB_Add(pToolBar, _TL("[CAP] Standard"));
 
 	return( pToolBar );
 }

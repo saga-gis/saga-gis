@@ -106,7 +106,7 @@ public:
 	CGet_Table(void);
 	virtual ~CGet_Table(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
 
 
 protected:

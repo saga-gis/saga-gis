@@ -323,8 +323,8 @@ void CPoints_View_Control::On_Key_Down(wxKeyEvent &event)
 	case WXK_HOME:		m_yShift	-= 10.0;				break;
 	case WXK_END:		m_yShift	+= 10.0;				break;
 
-	case WXK_PRIOR:		m_zShift	-= 10.0;				break;
-	case WXK_NEXT:		m_zShift	+= 10.0;				break;
+	case WXK_PAGEUP:	m_zShift	-= 10.0;				break;
+	case WXK_PAGEDOWN:	m_zShift	+= 10.0;				break;
 
 	case 'A':			m_bStereo	= !m_bStereo;			break;
 	case 'S':			m_bScale	= !m_bScale;			break;

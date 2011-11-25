@@ -194,7 +194,7 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 	\
 	if(	pModule == NULL )\
 	{\
-		Error_Set(CSG_String::Format(SG_T("%s: %s"), LNG("could not find module"), SG_T(LIBRARY)));\
+		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("could not find module"), SG_T(LIBRARY)));\
 	}\
 	else\
 	{\
@@ -206,11 +206,11 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 		\
 		if( !(CONDITION) )\
 		{\
-			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), LNG("could not initialize module"), SG_T(LIBRARY), pModule->Get_Name()));\
+			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), _TL("could not initialize module"), SG_T(LIBRARY), pModule->Get_Name()));\
 		}\
 		else if( !pModule->Execute() )\
 		{\
-			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), LNG("could not execute module"), SG_T(LIBRARY), pModule->Get_Name()));\
+			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), _TL("could not execute module"), SG_T(LIBRARY), pModule->Get_Name()));\
 		}\
 		else\
 		{\

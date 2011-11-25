@@ -88,7 +88,7 @@ public:
 	CPC_Cluster_Analysis(void);
 	virtual ~CPC_Cluster_Analysis(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Classification") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Classification") );	}
 
 
 protected:

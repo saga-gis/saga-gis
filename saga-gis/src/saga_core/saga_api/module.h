@@ -139,20 +139,17 @@ public:
 
 	int							Get_ID						(void)	{	return( m_ID );	}
 
-	const SG_Char *				Get_Name					(void);
-	const SG_Char *				Get_Description				(void);
-	const SG_Char *				Get_Author					(void);
+	const CSG_String &			Get_Name					(void);
+	const CSG_String &			Get_Description				(void);
+	const CSG_String &			Get_Author					(void);
 	const SG_Char *				Get_Icon					(void)	{	return( NULL );	}
 
-	virtual const SG_Char *		Get_MenuPath				(void)	{	return( NULL );	}
+	virtual CSG_String			Get_MenuPath				(void)	{	return( SG_T("") );	}
 
 	int							Get_Parameters_Count		(void)	{	return( m_npParameters );	}
 	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
 	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
-	CSG_Parameters *			Get_Parameters				(const SG_Char *Identifier);
-#ifdef _SAGA_UNICODE
-	CSG_Parameters *			Get_Parameters				(const char    *Identifier);
-#endif
+	CSG_Parameters *			Get_Parameters				(const CSG_String &Identifier);
 
 	int							Garbage_Get_Count			(void)	{	return( m_nGarbage );		}
 	CSG_Data_Object *			Garbage_Get_Item			(int i)	{	return( i >= 0 && i < m_nGarbage ? m_Garbage[i] : NULL );	}
@@ -166,7 +163,6 @@ public:
 	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
 
-	void						Set_Translation				(CSG_Translator &Translator);
 	void						Set_Managed					(bool bOn = true);
 	void						Set_Show_Progress			(bool bOn = true);
 
@@ -184,9 +180,9 @@ protected:
 
 
 	//-----------------------------------------------------
-	void						Set_Name					(const SG_Char *String);
-	void						Set_Description				(const SG_Char *String);
-	void						Set_Author					(const SG_Char *String);
+	void						Set_Name					(const CSG_String &String);
+	void						Set_Description				(const CSG_String &String);
+	void						Set_Author					(const CSG_String &String);
 
 	//-----------------------------------------------------
 	virtual bool				On_Execute					(void)	= 0;
@@ -196,30 +192,26 @@ protected:
 
 
 	//-----------------------------------------------------
-	CSG_Parameters *			Add_Parameters				(const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
-	bool						Dlg_Parameters				(const SG_Char *Identifier);
-	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const SG_Char *Caption);
-#ifdef _SAGA_UNICODE
-	CSG_Parameters *			Add_Parameters				(const char    *Identifier, const SG_Char *Name, const SG_Char *Description);
-	bool						Dlg_Parameters				(const char    *Identifier);
-#endif
+	CSG_Parameters *			Add_Parameters				(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
+	bool						Dlg_Parameters				(const CSG_String &Identifier);
+	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const CSG_String &Caption);
 
 
 	//-----------------------------------------------------
 	virtual bool				Process_Get_Okay			(bool bBlink = false);
-	virtual void				Process_Set_Text			(const SG_Char *Text);
+	virtual void				Process_Set_Text			(const CSG_String &Text);
 
 	virtual bool				Set_Progress				(int Position);
 	virtual bool				Set_Progress				(double Position, double Range);
 
 	bool						Stop_Execution				(bool bDialog = true);
 
-	void						Message_Add					(const SG_Char *Text, bool bNewLine = true);
-	void						Message_Dlg					(const SG_Char *Text, const SG_Char *Caption = NULL);
-	bool						Message_Dlg_Confirm			(const SG_Char *Text, const SG_Char *Caption = NULL);
+	void						Message_Add					(const CSG_String &Text, bool bNewLine = true);
+	void						Message_Dlg					(const CSG_String &Text, const SG_Char *Caption = NULL);
+	bool						Message_Dlg_Confirm			(const CSG_String &Text, const SG_Char *Caption = NULL);
 
 	bool						Error_Set					(TSG_Module_Error Error_ID = MODULE_ERROR_Unknown);
-	bool						Error_Set					(const SG_Char *Error_Text);
+	bool						Error_Set					(const CSG_String &Error_Text);
 
 
 	//-----------------------------------------------------
@@ -519,30 +511,24 @@ public:
 	CSG_Module_Library_Interface(void);
 	virtual ~CSG_Module_Library_Interface(void);
 
-	void						Set_Info				(int ID, const SG_Char *Info);
-	const SG_Char *				Get_Info				(int ID);
+	void						Set_Info				(int ID, const CSG_String &Info);
+	const CSG_String &			Get_Info				(int ID);
 
 	int							Get_Count				(void);
 	bool						Add_Module				(CSG_Module *pModule, int ID);
 	CSG_Module *				Get_Module				(int iModule);
 
 	void						Set_File_Name			(const CSG_String &File_Name);
-	const SG_Char *				Get_File_Name			(void);
-
-	const SG_Char *				Get_Translation			(const SG_Char *Text);
+	const CSG_String &			Get_File_Name			(void)	{	return( m_File_Name );	}
 
 
 private:
 
-	const SG_Char				*m_Info[MLB_INFO_Count];
+	CSG_String					m_File_Name, m_Info[MLB_INFO_Count];
 
 	int							m_nModules;
 
 	CSG_Module					**m_Modules;
-
-	CSG_String					m_File_Name;
-
-	CSG_Translator				m_Translator;
 
 };
 

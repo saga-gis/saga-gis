@@ -122,8 +122,8 @@ void CINFO_Messages::On_Context_Menu(wxContextMenuEvent &event)
 {
 	wxMenu	Menu;
 
-	Menu.Append(ID_CMD_INFO_COPY		, LNG("Copy"));
-	Menu.Append(ID_CMD_INFO_CLEAR		, LNG("Clear"));
+	Menu.Append(ID_CMD_INFO_COPY		, _TL("Copy"));
+	Menu.Append(ID_CMD_INFO_CLEAR		, _TL("Clear"));
 
 	PopupMenu(&Menu);
 }

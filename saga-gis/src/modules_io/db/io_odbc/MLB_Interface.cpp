@@ -69,7 +69,7 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const SG_Char *	Get_Info(int i)
+CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
@@ -124,6 +124,8 @@ CSG_Module *		Create_Module(int i)
 	case 10:	return( new CPoints_Save );
 	case 11:	return( new CPGIS_Shapes_Load );
 	case 12:	return( new CPGIS_Shapes_Save );
+	case 13:	return( new CShapes_Load );
+	case 14:	return( new CShapes_Save );
 	}
 
 	return( NULL );

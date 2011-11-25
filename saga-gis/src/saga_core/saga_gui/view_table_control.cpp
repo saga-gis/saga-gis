@@ -545,41 +545,41 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	}
 
 	//-----------------------------------------------------
-	P.Set_Name(LNG("Add Field"));
+	P.Set_Name(_TL("Add Field"));
 
 	P.Add_String(
-		NULL	, "NAME"	, LNG("Name"),
-		LNG(""),
-		LNG("Field")
+		NULL	, "NAME"	, _TL("Name"),
+		_TL(""),
+		_TL("Field")
 	);
 
 	P.Add_Choice(
-		NULL	, "TYPE"	, LNG("Field Type"),
-		LNG(""),
-		CSG_String::Format(wxT("%s|%s|%s|%s|%s|%s|%s|%s|"),
-			LNG("character string"),
-			LNG("1 byte integer"),
-			LNG("2 byte integer"),
-			LNG("4 byte integer"),
-			LNG("4 byte floating point"),
-			LNG("8 byte floating point"),
-			LNG("date (dd.mm.yyyy)"),
-			LNG("color (rgb)")
+		NULL	, "TYPE"	, _TL("Field Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("character string"),
+			_TL("1 byte integer"),
+			_TL("2 byte integer"),
+			_TL("4 byte integer"),
+			_TL("4 byte floating point"),
+			_TL("8 byte floating point"),
+			_TL("date (dd.mm.yyyy)"),
+			_TL("color (rgb)")
 		)
 	);
 
 	P.Add_Choice(
-		NULL	, "FIELD"	, LNG("Insert Position"),
-		LNG(""),
+		NULL	, "FIELD"	, _TL("Insert Position"),
+		_TL(""),
 		sFields, m_pTable->Get_Field_Count() - 1
 	);
 
 	P.Add_Choice(
-		NULL	, "INSERT"	, LNG("Insert Method"),
-		LNG(""),
-		CSG_String::Format(wxT("%s|%s|"),
-			LNG("before"),
-			LNG("after")
+		NULL	, "INSERT"	, _TL("Insert Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("before"),
+			_TL("after")
 		), 1
 	);
 
@@ -624,13 +624,13 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	CSG_Parameters	P;
 
 	//-----------------------------------------------------
-	P.Set_Name(LNG("Delete Fields"));
+	P.Set_Name(_TL("Delete Fields"));
 
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
 		P.Add_Value(
-			NULL	, CSG_String::Format(wxT("_%d_"), i), m_pTable->Get_Field_Name(i),
-			LNG(""),
+			NULL	, CSG_String::Format(SG_T("_%d_"), i), m_pTable->Get_Field_Name(i),
+			_TL(""),
 			PARAMETER_TYPE_Bool, false
 		);
 	}
@@ -640,7 +640,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	{
 		for(i=m_pTable->Get_Field_Count()-1; i>=0; i--)
 		{
-			if( P(CSG_String::Format(wxT("_%d_"), i))->asBool() )
+			if( P(CSG_String::Format(SG_T("_%d_"), i))->asBool() )
 			{
 				m_pTable->Del_Field(i);
 			}
@@ -670,23 +670,23 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 		sFields.Append(m_pTable->Get_Field_Name(i));	sFields.Append('|');
 	}
 
-	sOrder.Printf(wxT("%s|%s|%s|"),
-		LNG("unsorted"),
-		LNG("ascending"),
-		LNG("descending")
+	sOrder.Printf(SG_T("%s|%s|%s|"),
+		_TL("unsorted"),
+		_TL("ascending"),
+		_TL("descending")
 	);
 
 	//-----------------------------------------------------
-	P.Set_Name(LNG("Sort Table"));
+	P.Set_Name(_TL("Sort Table"));
 
-	pNode	= P.Add_Choice(NULL , "FIELD_1"	, LNG("Sort first by")	,	LNG(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
-	pNode	= P.Add_Choice(pNode, "ORDER_1"	, LNG("Direction")		,	LNG(""),	sOrder	, !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
+	pNode	= P.Add_Choice(NULL , "FIELD_1"	, _TL("Sort first by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
+	pNode	= P.Add_Choice(pNode, "ORDER_1"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
 
-	pNode	= P.Add_Choice(NULL , "FIELD_2"	, LNG("Sort second by")	,	LNG(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
-	pNode	= P.Add_Choice(pNode, "ORDER_2"	, LNG("Direction")		,	LNG(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
+	pNode	= P.Add_Choice(NULL , "FIELD_2"	, _TL("Sort second by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
+	pNode	= P.Add_Choice(pNode, "ORDER_2"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
 
-	pNode	= P.Add_Choice(NULL , "FIELD_3"	, LNG("Sort third by")	,	LNG(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
-	pNode	= P.Add_Choice(pNode, "ORDER_3"	, LNG("Direction")		,	LNG(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
+	pNode	= P.Add_Choice(NULL , "FIELD_3"	, _TL("Sort third by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
+	pNode	= P.Add_Choice(pNode, "ORDER_3"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
 
 	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )
@@ -712,11 +712,11 @@ void CVIEW_Table_Control::On_Field_Rename(wxCommandEvent &event)
 	int				i;
 	CSG_Parameters	P;
 
-	P.Set_Name(LNG("Rename Fields"));
+	P.Set_Name(_TL("Rename Fields"));
 
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		P.Add_String(NULL, "", m_pTable->Get_Field_Name(i), LNG(""), m_pTable->Get_Field_Name(i));
+		P.Add_String(NULL, "", m_pTable->Get_Field_Name(i), _TL(""), m_pTable->Get_Field_Name(i));
 	}
 
 	//-----------------------------------------------------
@@ -932,7 +932,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 	//-----------------------------------------------------
 	if( event.GetCol() != -1 )
 	{
-		pMenu	= new wxMenu(wxString::Format(wxT("%s"), LNG("Columns")), 0);
+		pMenu	= new wxMenu(wxString::Format(wxT("%s"), _TL("Columns")), 0);
 
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_ADD);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_DEL);
@@ -948,7 +948,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 	//-----------------------------------------------------
 	else if( event.GetRow() != -1 )
 	{
-		pMenu	= new wxMenu(wxString::Format(wxT("%s"), LNG("Rows")), 0);
+		pMenu	= new wxMenu(wxString::Format(wxT("%s"), _TL("Rows")), 0);
 
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_ADD);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_INS);

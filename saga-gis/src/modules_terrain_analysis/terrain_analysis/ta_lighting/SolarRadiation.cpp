@@ -913,8 +913,11 @@ bool CSolarRadiation::Get_Insolation(int Day, double Hour)
 	{
 		bool	bDayLight	= false;
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
 		{
+			Process_Get_Okay();
+
 			for(int x=0; x<Get_NX(); x++)
 			{
 				if( Get_Solar_Position(Day, Hour, m_Lat.asDouble(x, y), m_Lon.asDouble(x, y), Sol_Height, Sol_Azimuth) )
@@ -954,12 +957,13 @@ bool CSolarRadiation::Get_Insolation(int Day, double Hour)
 //---------------------------------------------------------
 bool CSolarRadiation::Get_Insolation(double Sol_Height, double Sol_Azimuth, double Hour)
 {
-	double	Direct, Diffus;
-
 	Get_Shade(Sol_Height, Sol_Azimuth);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
 	{
+		Process_Get_Okay();
+
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
@@ -969,6 +973,8 @@ bool CSolarRadiation::Get_Insolation(double Sol_Height, double Sol_Azimuth, doub
 			}
 			else
 			{
+				double	Direct, Diffus;
+
 				if( m_bBending )
 				{
 					Sol_Height	= m_Sol_Height .asDouble(x, y);

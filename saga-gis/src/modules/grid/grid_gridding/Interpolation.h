@@ -87,7 +87,7 @@ class grid_gridding_EXPORT CInterpolation : public CSG_Module
 public:
 	CInterpolation(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Interpolation from Points") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Interpolation from Points") );	}
 
 
 protected:

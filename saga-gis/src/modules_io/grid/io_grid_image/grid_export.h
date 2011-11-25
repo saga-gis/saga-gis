@@ -87,7 +87,7 @@ class io_grid_image_EXPORT CGrid_Export : public CSG_Module_Grid
 public:
 	CGrid_Export(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Export") );	}
 
 
 protected:

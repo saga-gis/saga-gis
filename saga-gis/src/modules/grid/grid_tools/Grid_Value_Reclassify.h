@@ -87,7 +87,7 @@ public:
 	CGrid_Value_Reclassify(void);
 	virtual ~CGrid_Value_Reclassify(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
 
 
 protected:

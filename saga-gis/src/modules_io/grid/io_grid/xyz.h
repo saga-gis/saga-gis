@@ -87,7 +87,7 @@ class CXYZ_Export : public CSG_Module_Grid
 public:
 	CXYZ_Export(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)			{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath	(void)			{	return( _TL("R:Export") );	}
 
 
 protected:
@@ -109,7 +109,7 @@ class CXYZ_Import : public CSG_Module
 public:
 	CXYZ_Import(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)			{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath	(void)			{	return( _TL("R:Import") );	}
 
 
 protected:

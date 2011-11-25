@@ -81,7 +81,7 @@ public:
 	CTIN_Flow_Trace(void);
 	virtual ~CTIN_Flow_Trace(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Terrain Analysis") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("R:Terrain Analysis") );	}
 
 
 protected:

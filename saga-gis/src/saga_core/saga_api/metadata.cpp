@@ -318,7 +318,7 @@ void CSG_MetaData::Fmt_Content(const SG_Char *Format, ...)
 
 	if( s.PrintfV(Format, argptr) > 0 )
 	{
-		m_Content	= s.c_str();
+		m_Content	= s.wc_str();
 	}
 	else
 	{
