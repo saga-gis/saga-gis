@@ -195,7 +195,7 @@ bool CPoint_Grid_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Regression(pGrid, pShapes, pResiduals, iAttribute, Type) )
 	{
-		pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name()));
+		pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name().c_str()));
 
 		Set_Regression(pGrid, pRegression);
 

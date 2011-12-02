@@ -268,7 +268,6 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 	if( Get_Count() > 0 )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_HTML);
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 	}
@@ -293,14 +292,6 @@ bool CWKSP_Module_Manager::On_Command(int Cmd_ID)
 
 	case ID_CMD_MODULES_OPEN:
 		Open();
-		break;
-
-	case WXK_F2:
-	case ID_CMD_MODULES_SAVE_HTML:
-		_Make_HTML_Docs();
-		break;
-
-	case WXK_F3:
 		break;
 	}
 
@@ -418,17 +409,17 @@ void CWKSP_Module_Manager::_Config_Read(void)
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("LNG_FILE_DIC"), sValue) )
 	{
-		m_Parameters("LNG_FILE_DIC")->Set_Value(sValue.wc_str());
+		m_Parameters("LNG_FILE_DIC")->Set_Value(&sValue);
 	}
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), sValue) )
 	{
-		m_Parameters("CRS_FILE_SRS")->Set_Value(sValue.wc_str());
+		m_Parameters("CRS_FILE_SRS")->Set_Value(&sValue);
 	}
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), sValue) )
 	{
-		m_Parameters("CRS_FILE_DIC")->Set_Value(sValue.wc_str());
+		m_Parameters("CRS_FILE_DIC")->Set_Value(&sValue);
 	}
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
@@ -573,131 +564,6 @@ CWKSP_Module * CWKSP_Module_Manager::Get_Module_byID(int CMD_ID)
 	}
 
 	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Module_Manager::_Make_HTML_Docs(void)
-{
-	CSG_Parameters	Options(NULL, _TL("Create HTML Documentation"), _TL(""));
-
-	Options.Add_FilePath(NULL, "DIR", _TL("Choose Documentation Folder"), _TL(""), NULL, NULL, true, true);
-
-	if( !DLG_Parameters(&Options) )
-	{
-		return;
-	}
-
-	//-----------------------------------------------------
-	bool			bDirectory;
-	CSG_File		Stream_Module, Stream_Lib, Stream_Libs, Stream_List;
-	wxString		LibName, Directory, Main, s;
-	wxFileName		FileName;
-
-	MSG_General_Add(wxString::Format(wxT("%s..."), _TL("Creating module documentation files")), true, true);
-
-	bDirectory	= wxDirExists(Options("DIR")->asString());
-	Directory	= bDirectory ? wxString(Options("DIR")->asString()) : wxString(SG_File_Get_Path(g_pSAGA->Get_App_Path()).w_str());
-
-	//-----------------------------------------------------
-	FileName.AssignDir	(Directory);
-	FileName.SetExt		(wxT("html"));
-	FileName.SetName	(wxT("index"));
-
-	Stream_Libs.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false);
-	Stream_Libs.Printf(SG_T("<html><head><title>SAGA - System for Automated Geoscientific Analyses</title></head><body>"));
-	Stream_Libs.Printf(SG_T("<h1><a href=\"http://www.saga-gis.org\">SAGA - System for Automated Geoscientific Analyses</a></h1>"));
-	Stream_Libs.Printf(SG_T("<h2>%s</h2>\n<ul>\n"), _TL("Module Library Descriptions"));
-
-	Main		= FileName.GetFullPath();
-
-	//-----------------------------------------------------
-	for(int i=0; i<Get_Count() && PROGRESSBAR_Set_Position(i, Get_Count()); i++)
-	{
-		LibName				= SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).w_str();
-		FileName.AssignDir	(bDirectory ? Directory.c_str() : SG_File_Get_Path(Get_Library(i)->Get_File_Name()).w_str());
-		FileName.AppendDir	(LibName);
-		FileName.SetExt		(wxT("html"));
-
-		if( wxDirExists(FileName.GetPath()) || wxMkdir(FileName.GetPath()) )
-		{
-			//---------------------------------------------
-			// create a frame
-
-			FileName.SetName(wxT("index"));
-
-			if( Stream_Lib.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false) )
-			{
-				if( Stream_Libs.is_Open() )
-				{
-					s	= Get_FilePath_Relative(Directory.wc_str(), FileName.GetFullPath().wc_str()).wc_str();	if( s[0] == '\\' )	s	= s.AfterFirst('\\');
-                    if(s[0]=='/') s = s.AfterFirst('/');
-					Stream_Libs.Printf(SG_T("<li><a href=\"%s\">%s</a></li>\n"), s.c_str(), Get_Library(i)->Get_Name().c_str());
-				}
-
-				Stream_Lib.Printf(SG_T("<html><head><title>SAGA - System for Automated Geoscientific Analyses</title></head>"));
-				Stream_Lib.Printf(SG_T("<frameset cols=\"200,*\" frameborder=\"0\" framespacing=\"0\" border=\"0\">"));
-				Stream_Lib.Printf(SG_T("  <frame frameborder=\"0\" noresize src=\"modules.html\" name=\"MODULES\">"));
-				Stream_Lib.Printf(SG_T("  <frame frameborder=\"0\" noresize src=\"%s.html\" name=\"CONTENT\">")   , LibName.c_str());
-				Stream_Lib.Printf(SG_T("</frameset></html>"));
-			}
-
-			//---------------------------------------------
-			// write the modules
-
-			if( bDirectory )
-				s	= wxT("./../index");
-			else
-				s	= Get_FilePath_Relative(Main.c_str(), FileName.GetFullPath().c_str()).c_str();	
-                if( s[0] == '\\' )	
-                    s = s.AfterFirst('\\');
-                if(s[0]=='/') 
-                    s = s.AfterFirst('/');
-
-			FileName.SetName(wxT("modules"));
-			Stream_List.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false);
-			Stream_List.Printf(SG_T("<body bgcolor=\"#CCCCCC\">"));
-			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"http://www.saga-gis.org\">SAGA</a></b><hr>"));
-			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"%s.html\">%s</a></b><hr>"), s.c_str(), _TL("Library Overview"));
-			Stream_List.Printf(SG_T("<b><a target=\"CONTENT\" href=\"%s.html\">%s</a></b><hr><ul>"), LibName.c_str(), Get_Library(i)->Get_Name().c_str());
-
-			FileName.SetName(LibName);
-
-			if( Stream_Lib.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false) )
-			{
-				Stream_Lib.Printf(SG_T("%s<hr><ul>"), Get_Library(i)->Get_Description().c_str());
-
-				for(int j=0; j<Get_Library(i)->Get_Count(); j++)
-				{
-					FileName.SetName(wxString::Format(wxT("%s_%02d"), LibName.c_str(), Get_Library(i)->Get_Module(j)->Get_Index()));
-
-					if( Stream_Module.Open(FileName.GetFullPath().wc_str(), SG_FILE_W, false) )
-					{
-						Stream_Module.Printf(SG_T("%s"), Get_Library(i)->Get_Module(j)->Get_Description().c_str());
-
-						Stream_Lib .Printf(SG_T("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
-						Stream_List.Printf(SG_T("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
-					}
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( Stream_Libs.is_Open() )
-	{
-		Stream_Libs.Printf(SG_T("</ul>"));
-	}
-
-	PROCESS_Set_Okay(true);
-
-	MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 }
 
 

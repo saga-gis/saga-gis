@@ -532,7 +532,7 @@ bool CPG_Parameter_Value::from_String(const wxString &String)
 
 	case PARAMETER_TYPE_Text:
 	case PARAMETER_TYPE_FilePath:
-		m_pParameter->Set_Value(String.wc_str());
+		m_pParameter->Set_Value(&String);
 		return( true );
 	}
 }
@@ -602,7 +602,7 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 			if( bModified && !m_pParameter->is_Information() )
 			{
-				m_pParameter->Set_Value(Text.wc_str());
+				m_pParameter->Set_Value(&Text);
 
 				return( true );
 			}
@@ -651,7 +651,7 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 			if( bModified )
 			{
-				m_pParameter->Set_Value(Text.wc_str());
+				m_pParameter->Set_Value(&Text);
 
 				return( true );
 			}
@@ -725,7 +725,7 @@ wxVariant CParameters_PG_Range::ChildChanged(wxVariant &thisValue, int childInde
 		}
 	}
 
-	return( value );
+	wxVariant	v;	v	<< value;	return( v );
 }
 
 //---------------------------------------------------------
@@ -786,7 +786,7 @@ wxVariant CParameters_PG_Degree::ChildChanged(wxVariant &thisValue, int childInd
 		value.m_pParameter->Set_Value(Degree_To_Decimal(d, m, s));
 	}
 
-	return( value );
+	wxVariant	v;	v	<< value;	return( v );
 }
 
 //---------------------------------------------------------
@@ -855,7 +855,7 @@ bool CParameters_PG_Dialog::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary,
 
 		if( value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_FilePath )
 		{
-			value.m_pParameter->Set_Value(((wxTextCtrl *)primary)->GetValue().wc_str());
+			value.m_pParameter->Set_Value(&((wxTextCtrl *)primary)->GetValue());
 
 			propgrid->EditorsValueWasModified();
 

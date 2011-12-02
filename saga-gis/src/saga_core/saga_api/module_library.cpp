@@ -263,7 +263,7 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML) const
 		{
 			if( Get_Module(i) )
 			{
-				s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name()));
+				s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name().c_str()));
 			}
 		}
 
@@ -288,7 +288,7 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML) const
 		{
 			if( Get_Module(i) )
 			{
-				s.Append(CSG_String::Format(SG_T("- %s\n"), Get_Module(i)->Get_Name()));
+				s.Append(CSG_String::Format(SG_T("- %s\n"), Get_Module(i)->Get_Name().c_str()));
 			}
 		}
 	}

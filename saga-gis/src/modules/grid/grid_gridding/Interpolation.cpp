@@ -150,7 +150,7 @@ bool CInterpolation::On_Execute(void)
 	//-----------------------------------------------------
 	if( m_pGrid )
 	{
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pShapes->Get_Name(), Get_Name()));
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pShapes->Get_Name(), Get_Name().c_str()));
 
 		bResult	= Interpolate();
 	}

@@ -101,8 +101,6 @@ CINFO_Messages::CINFO_Messages(wxWindow *pParent)
 	: wxTextCtrl(pParent, ID_WND_INFO_MESSAGES, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_RICH2|wxTE_NOHIDESEL|wxTE_MULTILINE|wxTE_READONLY|wxSUNKEN_BORDER)
 {
 	m_MaxLength	= 0x10000;
-
-	SetMaxLength(m_MaxLength);
 }
 
 //---------------------------------------------------------

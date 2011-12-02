@@ -412,11 +412,11 @@ void CWKSP_Module::_Save_Script(void)
 			switch( m_pModule->Get_Type() )
 			{
 			default:
-				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module('%s')\n")		, m_pModule->Get_Name());
+				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module('%s')\n")		, m_pModule->Get_Name().c_str());
 				break;
 
 			case MODULE_TYPE_Grid:
-				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module_Grid('%s')\n")	, m_pModule->Get_Name());
+				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module_Grid('%s')\n")	, m_pModule->Get_Name().c_str());
 				Command	+= SG_T("    Module.Get_System().Assign(in__grid.Get_System())\n");
 				break;
 			}
@@ -455,7 +455,7 @@ void CWKSP_Module::_Save_Script(void)
 			Command	+= SG_T("            shapes_out.Save(saga_api.CSG_String(sys.argv[4]))\n");
 		}
 
-		if( File.Open(FileName.wc_str(), SG_FILE_W, false) && Command.Length() > 0 )
+		if( File.Open(&FileName, SG_FILE_W, false) && Command.Length() > 0 )
 		{
 			File.Write(Command);
 		}
@@ -464,7 +464,7 @@ void CWKSP_Module::_Save_Script(void)
 
 //---------------------------------------------------------
 #define GET_ID1(p)		(p->Get_Owner()->Get_Identifier().Length() > 0 \
-						? CSG_String::Format(SG_T("%s_%s"), p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) \
+						? CSG_String::Format(SG_T("%s_%s"), p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
 						: CSG_String::Format(p->Get_Identifier())).c_str()
 
 #define GET_ID2(p, s)	CSG_String::Format(SG_T("%s_%s"), GET_ID1(p), s).c_str()

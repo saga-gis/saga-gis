@@ -229,7 +229,7 @@ void		SG_UI_Process_Set_Text(const CSG_String &Text)
 		}
 		else
 		{
-			SG_PRINTF(SG_T("\n%s"), Text);
+			SG_PRINTF(SG_T("\n%s"), Text.c_str());
 		}
 	}
 }
@@ -272,7 +272,7 @@ void		SG_UI_Dlg_Message(const CSG_String &Message, const CSG_String &Caption)
 	}
 	else
 	{
-		SG_PRINTF(SG_T("\n%s: %s"), Caption, Message);
+		SG_PRINTF(SG_T("\n%s: %s"), Caption.c_str(), Message.c_str());
 	}
 }
 
@@ -366,7 +366,7 @@ void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE S
 	}
 	else
 	{
-		SG_PRINTF(SG_T("%s"), Message);
+		SG_PRINTF(SG_T("%s"), Message.c_str());
 
 		if( bNewLine )
 		{
@@ -389,7 +389,7 @@ void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 	}
 	else
 	{
-		SG_PRINTF(SG_T("\n%s: %s"), _TL("Error"), Message);
+		SG_PRINTF(SG_T("\n%s: %s"), _TL("Error"), Message.c_str());
 	}
 }
 
@@ -412,7 +412,7 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 	}
 	else
 	{
-		SG_PRINTF(SG_T("%s"), Message);
+		SG_PRINTF(SG_T("%s"), Message.c_str());
 
 		if( bNewLine )
 		{
@@ -608,7 +608,7 @@ void *		SG_UI_Get_Window_Main(void)
 //---------------------------------------------------------
 CSG_String	SG_UI_Get_Application_Path(void)
 {
-	return( wxStandardPaths::Get().GetExecutablePath().wc_str() );
+	return( CSG_String(wxStandardPaths::Get().GetExecutablePath().wc_str()) );
 }
 
 

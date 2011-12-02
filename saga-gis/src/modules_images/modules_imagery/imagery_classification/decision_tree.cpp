@@ -197,7 +197,7 @@ int CDecision_Tree::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 		{
 			CSG_Parameters	*pDecision	= pParameters->Get_Parameter(ID)->asParameters();
 
-			pDecision->Set_Name(CSG_String::Format(SG_T("%s|%s"), pParameters->Get_Name(), pParameters->Get_Parameter(ID + SG_T("|NAME"))->asString()));
+			pDecision->Set_Name(CSG_String::Format(SG_T("%s|%s"), pParameters->Get_Name().c_str(), pParameters->Get_Parameter(ID + SG_T("|NAME"))->asString()));
 
 			Add_Decision(pDecision);
 		}

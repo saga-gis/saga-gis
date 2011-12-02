@@ -204,7 +204,7 @@ bool CSAGA::OnInit(void)
 		File	= SG_File_Make_Path(Get_App_Path(), SG_T("saga"), SG_T("lng")).c_str();
 	}
 
-	SG_Get_Translator().Create(File.wc_str(), false);
+	SG_Get_Translator().Create(&File, false);
 
 	//-----------------------------------------------------
 	if( !CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), File) || !wxFileExists(File) )
@@ -212,7 +212,7 @@ bool CSAGA::OnInit(void)
 		File	= SG_File_Make_Path(Get_App_Path(), SG_T("saga_prj"), SG_T("dic")).c_str();
 	}
 
-	SG_Get_Projections().Load_Dictionary(File.wc_str());
+	SG_Get_Projections().Load_Dictionary(&File);
 
 	//-----------------------------------------------------
 	if( !CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), File) || !wxFileExists(File) )
@@ -220,7 +220,7 @@ bool CSAGA::OnInit(void)
 		File	= SG_File_Make_Path(Get_App_Path(), SG_T("saga_prj"), SG_T("srs")).c_str();
 	}
 
-	SG_Get_Projections().Load_DB(File.wc_str());
+	SG_Get_Projections().Load_DB(&File);
 
 	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());

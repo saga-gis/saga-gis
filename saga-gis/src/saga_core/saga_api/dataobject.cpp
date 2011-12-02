@@ -183,7 +183,7 @@ bool CSG_Data_Object::Destroy(void)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_Name(const CSG_String &Name)
 {
-	m_Name			= Name.Length() > 0 ? Name : _TL("new");
+	m_Name			= Name.Length() > 0 ? Name.c_str() : _TL("new");
 }
 
 //---------------------------------------------------------

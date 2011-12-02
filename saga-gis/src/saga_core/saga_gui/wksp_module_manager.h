@@ -132,8 +132,6 @@ private:
 
 	int								_Open_Directory		(const wxChar *sDirectory, bool bOnlySubDirectories = false);
 
-	void							_Make_HTML_Docs		(void);
-
 };
 
 //---------------------------------------------------------

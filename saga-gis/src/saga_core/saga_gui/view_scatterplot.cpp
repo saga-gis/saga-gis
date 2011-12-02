@@ -418,9 +418,9 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 
 		pTable->Set_Name(CSG_String::Format(SG_T("%s: [%s]-[%s]"), _TL("[CAP] Scatterplot"), m_sX.c_str(), m_sY.c_str()));
 
-		pTable->Add_Field(SG_T("ID")	, SG_DATATYPE_Int);
-		pTable->Add_Field(m_sX.wc_str()	, SG_DATATYPE_Double);
-		pTable->Add_Field(m_sY.wc_str()	, SG_DATATYPE_Double);
+		pTable->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
+		pTable->Add_Field(m_sX      , SG_DATATYPE_Double);
+		pTable->Add_Field(m_sY      , SG_DATATYPE_Double);
 
 		for(int i=0; i<m_Regression.Get_Count() && PROGRESSBAR_Set_Position(i, m_Regression.Get_Count()); i++)
 		{
@@ -692,8 +692,8 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 	//-----------------------------------------------------
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
-	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, r.GetRight(), r.GetTop() + r.GetHeight() / 2, -90.0, m_sY);
-	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, r.GetLeft() + r.GetWidth() / 2, r.GetTop(), m_sX);
+	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, r.GetRight(), r.GetTop() + r.GetHeight() / 2, -90.0, m_sY.c_str());
+	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, r.GetLeft() + r.GetWidth() / 2, r.GetTop(), m_sX.c_str());
 
 	Font	= dc.GetFont();
 	Font.SetPointSize((int)(0.7 * dyFont));

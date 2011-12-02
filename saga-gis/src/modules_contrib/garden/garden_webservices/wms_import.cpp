@@ -306,7 +306,7 @@ bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
 		{
 			if( !pKeyword->GetName().CmpNoCase(SG_T("Format")) )
 			{
-				m_Keywords.Add(pKeyword->GetNodeContent().wc_str());
+				m_Keywords.Add(&pKeyword->GetNodeContent());
 			}
 
 			pKeyword	= pKeyword->GetNext();

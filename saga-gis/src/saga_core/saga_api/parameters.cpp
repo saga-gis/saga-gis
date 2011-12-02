@@ -1106,7 +1106,7 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 		if( bInvalid )
 		{
 			bResult	= false;
-			s.Append(CSG_String::Format(SG_T("\n%s: %s"), m_Parameters[i]->Get_Type_Name(), m_Parameters[i]->Get_Name()));
+			s.Append(CSG_String::Format(SG_T("\n%s: %s"), m_Parameters[i]->Get_Type_Name().c_str(), m_Parameters[i]->Get_Name()));
 		}
 	}
 

@@ -451,17 +451,17 @@ public:
 	bool						Set_HiVal				(double newValue);
 	double						Get_HiVal				(void);
 
-	CSG_Parameter *				Get_LoParm				(void)	{	return( pLo );	}
-	CSG_Parameter *				Get_HiParm				(void)	{	return( pHi );	}
+	CSG_Parameter *				Get_LoParm				(void)	{	return( m_pLo );	}
+	CSG_Parameter *				Get_HiParm				(void)	{	return( m_pHi );	}
 
 	virtual bool				Restore_Default			(void);
 
 
 protected:
 
-	CSG_Parameter				*pLo, *pHi;
+	CSG_Parameter				*m_pLo, *m_pHi;
 
-	CSG_Parameters				*pRange;
+	CSG_Parameters				*m_pRange;
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
@@ -495,12 +495,12 @@ public:
 	bool						Get_Data				(double     &Value);
 	bool						Get_Data				(CSG_String &Value);
 
-	int							Get_Count				(void)	{	return( Items.Get_Count() );	}
+	int							Get_Count				(void)	{	return( m_Items.Get_Count() );	}
 
 
 protected:
 
-	CSG_Strings					Items;
+	CSG_Strings					m_Items;
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
@@ -519,23 +519,23 @@ public:
 	CSG_Parameter_String(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_String(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_String );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_String );	}
 
-	virtual const SG_Char *		asString				(void)	{	return( m_String );	}
+	virtual const SG_Char *		asString				(void)		{	return( m_String );	}
 
 	virtual bool				is_Valid				(void);
 
 	virtual bool				Set_Value				(const CSG_String &Value);
 
-	void						Set_Password			(bool bOn);
-	bool						is_Password				(void);
+	void						Set_Password			(bool bOn)	{	m_bPassword	= bOn;		}
+	bool						is_Password				(void)		{	return( m_bPassword );	}
 
-	virtual bool				Restore_Default			(void)	{	return( Set_Value(m_Default) );	}
+	virtual bool				Restore_Default			(void)		{	return( Set_Value(m_Default) );	}
 
 
 protected:
 
-	bool						bPassword;
+	bool						m_bPassword;
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);

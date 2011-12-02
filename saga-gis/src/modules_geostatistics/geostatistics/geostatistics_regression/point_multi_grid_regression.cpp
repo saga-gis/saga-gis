@@ -239,7 +239,7 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 	Message_Add(m_Regression.Get_Info(), false);
 
 	//-----------------------------------------------------
-	Set_Regression(pGrids, pRegression, CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name()));
+	Set_Regression(pGrids, pRegression, CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name().c_str()));
 
 	Set_Residuals(pShapes, iAttribute, pRegression);
 

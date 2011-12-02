@@ -101,15 +101,15 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 		NULL	, "TYPE"	, _TL("Data storage type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Bit),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Byte),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Char),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Word),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Short),
-			SG_Data_Type_Get_Name(SG_DATATYPE_DWord),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Int),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Float),
-			SG_Data_Type_Get_Name(SG_DATATYPE_Double)
+			SG_Data_Type_Get_Name(SG_DATATYPE_Bit   ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str()
 		)
 	);
 }

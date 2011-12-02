@@ -265,7 +265,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	{
 		MSG_Error_Add(_TL("[MSG] file does not exist.")				, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
-	else if( !Project.Load(FileName.wc_str()) )
+	else if( !Project.Load(&FileName) )
 	{
 		MSG_Error_Add(_TL("[MSG] could not read project file.")		, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
@@ -339,7 +339,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUpdateMenu)
 {
 	int							i, j;
-	wxString					ProjectDir, oldFileName(m_File_Name.wc_str());
+	wxString					ProjectDir, oldFileName(m_File_Name);
 	CSG_MetaData				Project, *pNode;
 	CWKSP_Table_Manager			*pTables;
 	CWKSP_Shapes_Manager		*pShapes;
@@ -438,7 +438,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	}
 
 	//-----------------------------------------------------
-	if( Project.Save(FileName.wc_str()) )
+	if( Project.Save(&FileName) )
 	{
 		m_File_Name	= FileName;
 
@@ -897,12 +897,12 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		if( (pNode = pParameters->Get_Parameter(CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()))) == NULL )
 		{
-			pNode	= pParameters->Add_Node(NULL, CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()), pItem->Get_Manager()->Get_Name().wc_str(), SG_T(""));
+			pNode	= pParameters->Add_Node(NULL, CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()), &pItem->Get_Manager()->Get_Name(), SG_T(""));
 		}			
 
 		pNode	= pParameters->Add_Value(
 			pNode, CSG_String::Format(SG_T("%d")     , (long)pObject),
-			pItem->Get_Name().wc_str(), SG_T(""), PARAMETER_TYPE_Bool, false
+			&pItem->Get_Name(), SG_T(""), PARAMETER_TYPE_Bool, false
 		);
 
 		pParameters->Add_FilePath(
@@ -964,7 +964,7 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 	CSG_String	sLine;
 	CSG_File	Stream;
 
-	if( !Stream.Open(FileName.wc_str(), SG_FILE_R, true) )
+	if( !Stream.Open(&FileName, SG_FILE_R, true) )
 	{
 		return( false );
 	}

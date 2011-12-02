@@ -269,7 +269,7 @@ bool CParameters_Control::Load(void)
 
 	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) )
 	{
-		CSG_File	File(File_Path.wc_str());
+		CSG_File	File(&File_Path);
 
 		if(	m_pParameters->Serialize_Compatibility(File)
 		||	m_pParameters->Serialize(File_Path.wc_str(), false) )
@@ -701,7 +701,7 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 	if( pProperty )
 	{
 		CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(
-			!pProperty->IsSubProperty() ? Identifier.wc_str() : Identifier.AfterLast(wxT('.')).wc_str()
+			!pProperty->IsSubProperty() ? &Identifier : &Identifier.AfterLast(wxT('.'))
 		);
 
 		if( pParameter )
@@ -713,7 +713,7 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).wc_str());
+				pParameter->Set_Value(&m_pPG->GetPropertyValueAsString(pProperty));
 				break;
 
 			case PARAMETER_TYPE_Bool:

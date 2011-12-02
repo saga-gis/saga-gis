@@ -108,6 +108,14 @@ CSG_String::CSG_String(wchar_t Character, size_t nRepeat)
 	m_pString	= new wxString(Character, nRepeat);
 }
 
+CSG_String::CSG_String(const wxString *pString)
+{
+	if( pString )
+		m_pString	= new wxString(*pString);
+	else
+		m_pString	= new wxString;
+}
+
 //---------------------------------------------------------
 CSG_String::~CSG_String(void)
 {
@@ -186,12 +194,22 @@ bool CSG_String::is_Empty(void)	const
 //---------------------------------------------------------
 SG_Char CSG_String::operator [] (int i) const
 {
-	return( i >= 0 && i < Length() ? m_pString->GetChar(i) : '\0' );
+	if( i >= 0 && i < (int)Length() )
+	{
+		return( m_pString->GetChar(i) );
+	}
+	
+	return( SG_T('\0') );
 }
 
 SG_Char CSG_String::operator [] (size_t i) const
 {
-	return( i < Length() ? m_pString->GetChar(i) : '\0' );
+	if( i < Length() )
+	{
+		return( m_pString->GetChar(i) );
+	}
+	
+	return( SG_T('\0') );
 }
 
 //---------------------------------------------------------
@@ -246,8 +264,9 @@ void CSG_String::Clear(void)
 //---------------------------------------------------------
 CSG_String CSG_String::Format(const SG_Char *Format, ...)
 {
-	va_list		argptr;
 	CSG_String	s;
+
+	va_list		argptr;
 
 	va_start(argptr, Format);
 
@@ -270,20 +289,6 @@ int CSG_String::Printf(const SG_Char *Format, ...)
 	va_end(argptr);
 
 	return( (int)Length() );
-}
-
-//---------------------------------------------------------
-int CSG_String::Scanf(const SG_Char *Format, ...)
-{
-	va_list	argptr;
-
-	va_start(argptr, Format);
-
-	int	ret	= 0;	// wxVsscanf(w_str(), Format.w_str(), argptr);
-
-	va_end(argptr);
-
-	return( ret );
 }
 
 
@@ -1070,7 +1075,7 @@ int				SG_Get_Significant_Decimals(double Value, int maxDecimals)
 //---------------------------------------------------------
 void			SG_Flip_Decimal_Separators(CSG_String &String)
 {
-	for(int i=0; i<String.Length(); i++)
+	for(size_t i=0; i<String.Length(); i++)
 	{
 		switch( String[i] )
 		{

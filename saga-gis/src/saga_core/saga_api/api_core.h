@@ -224,6 +224,7 @@ public:
 	CSG_String(const wchar_t    *String);
 	CSG_String(char    Character, size_t nRepeat = 1);
 	CSG_String(wchar_t Character, size_t nRepeat = 1);
+	CSG_String(const class wxString *pString);
 
 	virtual ~CSG_String(void);
 
@@ -285,7 +286,6 @@ public:
 
 	static CSG_String				Format				(const SG_Char *Format, ...);
 	int								Printf				(const SG_Char *Format, ...);
-	int								Scanf				(const SG_Char *Format, ...);
 
 	size_t							Replace				(const CSG_String &sOld, const CSG_String &sNew, bool bReplaceAll = true);
 
@@ -1197,19 +1197,22 @@ TSG_UI_Callback_ID;
 class SAGA_API_DLL_EXPORT CSG_UI_Parameter
 {
 public:
-	CSG_UI_Parameter(void)					: True(false), Number( 0.0 ), Pointer(NULL)				{}
-	CSG_UI_Parameter(bool           Value)	: True(Value), Number( 0.0 ), Pointer(NULL)				{}
-	CSG_UI_Parameter(int            Value)	: True(false), Number(Value), Pointer(NULL)				{}
-	CSG_UI_Parameter(double         Value)	: True(false), Number(Value), Pointer(NULL)				{}
-	CSG_UI_Parameter(const SG_Char *Value)	: True(false), Number( 0.0 ), Pointer((void *)Value)	{}
-	CSG_UI_Parameter(void          *Value)	: True(false), Number( 0.0 ), Pointer(        Value)	{}
+	CSG_UI_Parameter(void)						: True(false), Number( 0.0 ), Pointer(NULL)		{}
+	CSG_UI_Parameter(bool              Value)	: True(Value), Number( 0.0 ), Pointer(NULL)		{}
+	CSG_UI_Parameter(int               Value)	: True(false), Number(Value), Pointer(NULL)		{}
+	CSG_UI_Parameter(double            Value)	: True(false), Number(Value), Pointer(NULL)		{}
+	CSG_UI_Parameter(const CSG_String &Value)	: True(false), Number( 0.0 ), Pointer(NULL), String(Value)	{}
+	CSG_UI_Parameter(void             *Value)	: True(false), Number( 0.0 ), Pointer(Value)	{}
 	CSG_UI_Parameter(const CSG_UI_Parameter &Copy);
 
-	bool	True;
+	bool		True;
 
-	double	Number;
+	double		Number;
 
-	void	*Pointer;
+	void		*Pointer;
+
+	CSG_String	String;
+
 };
 
 //---------------------------------------------------------

@@ -359,7 +359,7 @@ void		Error_Library	(const SG_Char *MLB_Path)
 			{
 				if( Library.Create(FileName, Dir.GetName()) )
 				{
-					SG_PRINTF(SG_T("- %s\n"), FileName.c_str());
+					SG_PRINTF(SG_T("- %s\n"), FileName.wc_str());
 					nLibraries++;
 				}
 			}
@@ -403,7 +403,7 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 		{
 			if( Library.Get_Module(i) && !Library.Get_Module(i)->is_Interactive() )
 			{
-				SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name());
+				SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name().c_str());
 			}
 		}
 

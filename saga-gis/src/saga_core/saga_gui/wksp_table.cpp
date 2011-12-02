@@ -301,7 +301,7 @@ bool CWKSP_Table::Save(void)
 
 	if( DLG_Save(File_Name, ID_DLG_TABLES_SAVE) )
 	{
-		bResult	= m_pTable->Save(File_Name.wc_str());
+		bResult	= m_pTable->Save(&File_Name);
 
 		PROCESS_Set_Okay();
 	}
@@ -316,7 +316,7 @@ bool CWKSP_Table::Save(const wxString &File_Name)
 
 	if( File_Name.Length() > 0 )
 	{
-		bResult	= m_pTable->Save(File_Name.wc_str());
+		bResult	= m_pTable->Save(&File_Name);
 
 		PROCESS_Set_Okay();
 

@@ -573,7 +573,7 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 	{
 		pTable	= new CSG_Table;
 
-		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
+		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("[CAP] Histogram"), m_pLayer->Get_Object()->Get_Name()));
 
 		pTable->Add_Field(_TL("CLASS")	, SG_DATATYPE_Int);
 		pTable->Add_Field(_TL("COUNT")	, SG_DATATYPE_Int);

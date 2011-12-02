@@ -506,7 +506,7 @@ void CVIEW_Map_Control::On_Size(wxSizeEvent &event)
 {
 	wxRect	r(_Get_Client());
 
-	if( m_Bitmap.GetWidth() != r.GetWidth() || m_Bitmap.GetHeight() != r.GetHeight() )
+	if( !m_Bitmap.Ok() || m_Bitmap.GetWidth() != r.GetWidth() || m_Bitmap.GetHeight() != r.GetHeight() )
 	{
 		m_Bitmap.Create(r.GetWidth(), r.GetHeight());
 

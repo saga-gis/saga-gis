@@ -167,7 +167,7 @@ void CDLG_Colors::On_Load(wxCommandEvent &event)
 
 	if( DLG_Open(File_Path, ID_DLG_COLORS_OPEN) )
 	{
-		if( m_pColors->Load(File_Path.wc_str()) == false )
+		if( m_pColors->Load(&File_Path) == false )
 		{
 			DLG_Message_Show(_TL("Colors file could not be imported."), _TL("Load Colors"));
 		}
@@ -185,7 +185,7 @@ void CDLG_Colors::On_Save(wxCommandEvent &event)
 
 	if( DLG_Save(File_Path, ID_DLG_COLORS_SAVE) )
 	{
-		if( m_pColors->Save(File_Path.wc_str(), true) == false )
+		if( m_pColors->Save(&File_Path, true) == false )
 		{
 			DLG_Message_Show(_TL("Colors file could not be exported."), _TL("Save Colors"));
 		}

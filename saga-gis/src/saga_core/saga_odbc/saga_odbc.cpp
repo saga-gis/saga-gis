@@ -66,7 +66,7 @@
 #define OTL_ANSI_CPP			// Turn on ANSI C++ typecasts
 #endif
 
-#ifdef _SAGA_UNICODE
+#if defined(_SAGA_UNICODE) && !defined(_SAGA_LINUX)
 	#include <iostream>
 	#include <string>
 	using namespace std;
@@ -826,7 +826,7 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 				default:
 				case SG_DATATYPE_String:
 				case SG_DATATYPE_Date:
-#ifdef _SAGA_UNICODE
+#if defined(_SAGA_UNICODE) && !defined(_SAGA_LINUX)
 					valString	= SG_STR_MBTOSG(pRecord->asString(iField));
 #else
 					valString	= SG_STR_SGTOMB(pRecord->asString(iField));

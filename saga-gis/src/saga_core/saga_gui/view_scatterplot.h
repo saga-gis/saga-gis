@@ -132,7 +132,7 @@ private:
 
 	CSG_Parameters					m_Parameters;
 
-	wxString						m_sTitle, m_sX, m_sY;
+	CSG_String						m_sTitle, m_sX, m_sY;
 
 
 	void							_On_Construction			(void);

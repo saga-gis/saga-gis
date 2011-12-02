@@ -133,7 +133,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_TEXT:
 
-		STATUSBAR_Set_Text((wxChar *)Param_1.Pointer);
+		STATUSBAR_Set_Text(Param_1.String.c_str());
 
 		break;
 
@@ -170,7 +170,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		iArray	= (int *)Param_2.Pointer;
 
-		MSG_General_Add		((wxChar *)Param_1.Pointer, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
+		MSG_General_Add		(Param_1.String.c_str(), iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
 		break;
 
@@ -178,7 +178,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_ERROR:
 
-		MSG_Error_Add		((wxChar *)Param_1.Pointer, true);
+		MSG_Error_Add		(Param_1.String.c_str(), true);
 
 		break;
 
@@ -188,7 +188,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		iArray	= (int *)Param_2.Pointer;
 
-		MSG_Execution_Add	((wxChar *)Param_1.Pointer, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
+		MSG_Execution_Add	(Param_1.String.c_str(), iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
 		break;
 
@@ -202,7 +202,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_MESSAGE:
 
-		DLG_Message_Show((wxChar *)Param_1.Pointer, (wxChar *)Param_2.Pointer);
+		DLG_Message_Show(Param_1.String.c_str(), Param_2.String.c_str());
 
 		break;
 
@@ -210,7 +210,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= DLG_Message_Confirm((wxChar *)Param_1.Pointer, (wxChar *)Param_2.Pointer);
+		Result	= DLG_Message_Confirm(Param_1.String.c_str(), Param_2.String.c_str());
 
 		break;
 
@@ -218,7 +218,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= DLG_Message_Show_Error((wxChar *)Param_1.Pointer, (wxChar *)Param_2.Pointer);
+		Result	= DLG_Message_Show_Error(Param_1.String.c_str(), Param_2.String.c_str());
 
 		break;
 
@@ -246,7 +246,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
 
-		Param_1.Pointer	= g_pData->Get_byFileName((const wxChar *)Param_1.Pointer, (int)Param_2.Number);
+		Param_1.Pointer	= g_pData->Get_byFileName(Param_1.String.c_str(), (int)Param_2.Number);
 
 		break;
 

@@ -101,7 +101,7 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 		{
 			Format	= TABLE_FILETYPE_Text;
 
-			if( !Separator || *Separator == NULL )
+			if( !Separator || *Separator == '\0' )
 			{
 				sSeparator	= SG_T(",");	// comma separated values
 			}
@@ -177,7 +177,7 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 		{
 			Format	= TABLE_FILETYPE_Text;
 
-			if( Separator == NULL || *Separator == NULL )
+			if( Separator == NULL || *Separator == '\0' )
 			{
 				sSeparator	= SG_T(",");	// comma separated values
 			}

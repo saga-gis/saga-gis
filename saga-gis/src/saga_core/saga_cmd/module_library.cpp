@@ -81,7 +81,7 @@
 						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
 						: wxString::Format(p->Get_Identifier()))
 
-#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).wc_str(), s)
+#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p), s)
 
 
 ///////////////////////////////////////////////////////////
@@ -416,7 +416,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					}
 					else
 					{
-						pParameter->Set_Value(s.wc_str());
+						pParameter->Set_Value(&s);
 					}
 				}
 				break;
@@ -444,7 +444,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 			case PARAMETER_TYPE_String:
 				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
-					pParameter->Set_Value(s.wc_str());
+					pParameter->Set_Value(&s);
 				}
 				break;
 
@@ -453,7 +453,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 				{
 					CSG_File	Stream;
 
-					if( Stream.Open(s.wc_str()) )
+					if( Stream.Open(&s) )
 					{
 						CSG_String	t;
 
@@ -463,7 +463,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					}
 					else
 					{
-						pParameter->Set_Value(s.wc_str());
+						pParameter->Set_Value(&s);
 					}
 				}
 				break;
@@ -478,14 +478,14 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 						s.Append (wxT("\""));
 					}
 
-					pParameter->Set_Value(s.wc_str());
+					pParameter->Set_Value(&s);
 				}
 				break;
 
 			case PARAMETER_TYPE_FixedTable:
 				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
-					CSG_Table	Table(s.wc_str());
+					CSG_Table	Table(&s);
 					pParameter->asTable()->Assign_Values(&Table);
 				}
 				break;
@@ -613,11 +613,11 @@ bool CModule_Library::_Create_DataObject(CSG_Parameter *pParameter, const wxStri
 	switch( pParameter->Get_Type() )
 	{
 	default:						pObject	= NULL;											break;
-	case PARAMETER_TYPE_TIN:		pObject = new CSG_TIN			(FileName.wc_str());	break;
-	case PARAMETER_TYPE_PointCloud:	pObject = new CSG_PointCloud	(FileName.wc_str());	break;
-	case PARAMETER_TYPE_Shapes:		pObject = new CSG_Shapes		(FileName.wc_str());	break;
-	case PARAMETER_TYPE_Table:		pObject = new CSG_Table			(FileName.wc_str());	break;
-	case PARAMETER_TYPE_Grid:		pObject	= new CSG_Grid			(FileName.wc_str());	break;
+	case PARAMETER_TYPE_TIN:		pObject = new CSG_TIN			(&FileName);	break;
+	case PARAMETER_TYPE_PointCloud:	pObject = new CSG_PointCloud	(&FileName);	break;
+	case PARAMETER_TYPE_Shapes:		pObject = new CSG_Shapes		(&FileName);	break;
+	case PARAMETER_TYPE_Table:		pObject = new CSG_Table			(&FileName);	break;
+	case PARAMETER_TYPE_Grid:		pObject	= new CSG_Grid			(&FileName);	break;
 	}
 
 	if( pObject )
@@ -664,12 +664,12 @@ bool CModule_Library::_Create_DataObject_List(CSG_Parameter *pParameter, wxStrin
 
 			switch( pParameter->Get_Type() )
 			{
-			default:								pObject	= NULL;									break;
-			case PARAMETER_TYPE_Grid_List:			pObject	= new CSG_Grid      (FileName.wc_str());	break;
-			case PARAMETER_TYPE_TIN_List:			pObject	= new CSG_TIN       (FileName.wc_str());	break;
-			case PARAMETER_TYPE_PointCloud_List:	pObject	= new CSG_PointCloud(FileName.wc_str());	break;
-			case PARAMETER_TYPE_Shapes_List:		pObject	= new CSG_Shapes    (FileName.wc_str());	break;
-			case PARAMETER_TYPE_Table_List:			pObject	= new CSG_Table     (FileName.wc_str());	break;
+			default:								pObject	= NULL;								break;
+			case PARAMETER_TYPE_Grid_List:			pObject	= new CSG_Grid      (&FileName);	break;
+			case PARAMETER_TYPE_TIN_List:			pObject	= new CSG_TIN       (&FileName);	break;
+			case PARAMETER_TYPE_PointCloud_List:	pObject	= new CSG_PointCloud(&FileName);	break;
+			case PARAMETER_TYPE_Shapes_List:		pObject	= new CSG_Shapes    (&FileName);	break;
+			case PARAMETER_TYPE_Table_List:			pObject	= new CSG_Table     (&FileName);	break;
 			}
 
 			if( pObject && pObject->is_Valid() )
@@ -769,7 +769,7 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 			}
 			else if( FileName.Length() > 0 )
 			{
-				pObject->Save(FileName.wc_str());
+				pObject->Save(&FileName);
 			}
 
 			m_Data_Objects.Add(pObject);
@@ -792,7 +792,7 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 				{
 					if( pParameter->asList()->Get_Count() == 1 )
 					{
-						pObject->Save(FileName.wc_str());
+						pObject->Save(&FileName);
 					}
 					else
 					{

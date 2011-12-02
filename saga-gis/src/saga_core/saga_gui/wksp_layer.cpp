@@ -529,7 +529,7 @@ bool CWKSP_Layer::Save(void)
 
 	if( bResult )
 	{
-		bResult	= m_pObject->Save(File_Path.wc_str());
+		bResult	= m_pObject->Save(&File_Path);
 
 		PROCESS_Set_Okay();
 	}
@@ -542,7 +542,7 @@ bool CWKSP_Layer::Save(const wxString &File_Name)
 {
 	if( File_Name.Length() )
 	{
-		bool	bResult	= m_pObject->Save(File_Name.wc_str());
+		bool	bResult	= m_pObject->Save(&File_Name);
 
 		if( bResult )
 		{
@@ -693,8 +693,7 @@ void CWKSP_Layer::Parameters_Changed(void)
 //---------------------------------------------------------
 const wxBitmap & CWKSP_Layer::Get_Thumbnail(int dx, int dy)
 {
-	if( dx > 0 && m_Thumbnail.GetWidth()  != dx
-	&&	dy > 0 && m_Thumbnail.GetHeight() != dy )
+	if( dx > 0 && dy > 0 && (!m_Thumbnail.IsOk() || m_Thumbnail.GetWidth() != dx || m_Thumbnail.GetHeight() != dy) )
 	{
 		m_Thumbnail.Create(dx, dy);
 
@@ -707,7 +706,7 @@ const wxBitmap & CWKSP_Layer::Get_Thumbnail(int dx, int dy)
 //---------------------------------------------------------
 bool CWKSP_Layer::_Set_Thumbnail(void)
 {
-	if( m_pObject && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
+	if( m_pObject && m_Thumbnail.IsOk() && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
 	{
 		wxMemoryDC		dc;
 		wxRect			r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());

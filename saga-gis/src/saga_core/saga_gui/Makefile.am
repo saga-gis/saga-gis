@@ -204,22 +204,7 @@ wksp_shapes_type.h\
 wksp_table.h\
 wksp_table_manager.h\
 wksp_tin.h\
-wksp_tin_manager.h\
-wx/propgrid/advprops.cpp\
-wx/propgrid/advprops.h\
-wx/propgrid/editors.cpp\
-wx/propgrid/editors.h\
-wx/propgrid/extras.cpp\
-wx/propgrid/extras.h\
-wx/propgrid/manager.cpp\
-wx/propgrid/manager.h\
-wx/propgrid/odcombo.cpp\
-wx/propgrid/odcombo.h\
-wx/propgrid/propdev.h\
-wx/propgrid/propgrid.cpp\
-wx/propgrid/propgrid.h\
-wx/propgrid/props.cpp\
-wx/propgrid/props.h
+wksp_tin_manager.h
 
 saga_gui_LDADD = ../saga_api/libsaga_api.la ../saga_odbc/libsaga_odbc.la
 

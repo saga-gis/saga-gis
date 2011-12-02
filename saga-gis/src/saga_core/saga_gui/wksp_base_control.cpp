@@ -686,7 +686,7 @@ bool CWKSP_Base_Control::_Load_Settings(void)
 	wxString		File_Path;
 	CSG_MetaData	Data;
 
-	if( Get_Selection_Count() > 0 && DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Data.Load(File_Path.wc_str()) )
+	if( Get_Selection_Count() > 0 && DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Data.Load(&File_Path) )
 	{
 		if(	GetWindowStyle() & wxTR_MULTIPLE )
 		{
@@ -743,7 +743,7 @@ void	DLG_Copy_Settings(CSG_Table &List, CWKSP_Base_Item *pItem)
 		{
 			CSG_Table_Record	*pEntry	= List.Add_Record();
 
-			pEntry->Set_Value(0, CSG_String::Format(SG_T("[%s] %s"), pItem->Get_Manager()->Get_Name().wc_str(), pItem->Get_Name().wc_str()));
+			pEntry->Set_Value(0, CSG_String(wxString::Format(SG_T("[%s] %s"), pItem->Get_Manager()->Get_Name(), pItem->Get_Name()).wc_str()));
 			pEntry->Set_Value(1, (long)pItem->Get_Parameters());
 		}
 	}

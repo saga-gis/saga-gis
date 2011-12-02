@@ -467,7 +467,7 @@ bool			SG_Dir_Create(const SG_Char *Directory)
 //---------------------------------------------------------
 CSG_String		SG_Dir_Get_Current(void)
 {
-	return( wxGetCwd().wc_str() );
+	return( CSG_String(wxGetCwd().wc_str()) );
 }
 
 
@@ -494,10 +494,10 @@ CSG_String		SG_File_Get_TmpName(const SG_Char *Prefix, const SG_Char *Directory)
 {
 	if( !SG_Dir_Exists(Directory) )
 	{
-		return( wxFileName::CreateTempFileName(Prefix).wc_str() );
+		return( CSG_String(wxFileName::CreateTempFileName(Prefix).wc_str()) );
 	}
 
-	return( wxFileName::CreateTempFileName(SG_File_Make_Path(Directory, Prefix).w_str()).wc_str() );
+	return( CSG_String(wxFileName::CreateTempFileName(SG_File_Make_Path(Directory, Prefix).w_str()).wc_str()) );
 }
 
 //---------------------------------------------------------
@@ -516,7 +516,7 @@ CSG_String		SG_File_Get_Path(const SG_Char *full_Path)
 	{
 		wxFileName	fn(full_Path);
 
-		return( fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR).wc_str() );
+		return( CSG_String(fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR).wc_str()) );
 	}
 
 	return( SG_T("") );
@@ -539,7 +539,7 @@ CSG_String		SG_File_Make_Path(const SG_Char *Directory, const SG_Char *Name, con
 		fn.SetFullName	(SG_File_Get_Name(Name,  true).c_str());
 	}
 
-	return( fn.GetFullPath().wc_str() );
+	return( CSG_String(fn.GetFullPath().wc_str()) );
 }
 
 //---------------------------------------------------------
@@ -572,7 +572,7 @@ CSG_String		SG_File_Get_Extension(const CSG_String &File_Name)
 {
 	wxFileName	fn(File_Name.w_str());
 
-	return( fn.GetExt().wc_str() );
+	return( CSG_String(fn.GetExt().wc_str()) );
 }
 
 

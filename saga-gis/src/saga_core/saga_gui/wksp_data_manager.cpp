@@ -733,12 +733,12 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const wxString &FileNam
 
 	switch( DataType )
 	{
-	default:							pObject	= NULL;											break;
-	case DATAOBJECT_TYPE_Table:			pObject	= new CSG_Table			(FileName.wc_str());	break;
-	case DATAOBJECT_TYPE_Shapes:		pObject	= new CSG_Shapes		(FileName.wc_str());	break;
-	case DATAOBJECT_TYPE_TIN:			pObject	= new CSG_TIN			(FileName.wc_str());	break;
-	case DATAOBJECT_TYPE_PointCloud:	pObject	= new CSG_PointCloud	(FileName.wc_str());	break;
-	case DATAOBJECT_TYPE_Grid:			pObject	= new CSG_Grid			(FileName.wc_str());	break;
+	default:							pObject	= NULL;									break;
+	case DATAOBJECT_TYPE_Table:			pObject	= new CSG_Table			(&FileName);	break;
+	case DATAOBJECT_TYPE_Shapes:		pObject	= new CSG_Shapes		(&FileName);	break;
+	case DATAOBJECT_TYPE_TIN:			pObject	= new CSG_TIN			(&FileName);	break;
+	case DATAOBJECT_TYPE_PointCloud:	pObject	= new CSG_PointCloud	(&FileName);	break;
+	case DATAOBJECT_TYPE_Grid:			pObject	= new CSG_Grid			(&FileName);	break;
 	}
 
 	PROCESS_Set_Okay();

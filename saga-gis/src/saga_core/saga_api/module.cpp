@@ -473,13 +473,13 @@ bool CSG_Module::Stop_Execution(bool bDialog)
 //---------------------------------------------------------
 void CSG_Module::Message_Dlg(const CSG_String &Text, const SG_Char *Caption)
 {
-	SG_UI_Dlg_Message(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name());
+	SG_UI_Dlg_Message(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name().c_str());
 }
 
 //---------------------------------------------------------
 bool CSG_Module::Message_Dlg_Confirm(const CSG_String &Text, const SG_Char *Caption)
 {
-	return( SG_UI_Dlg_Continue(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name()) );
+	return( SG_UI_Dlg_Continue(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name().c_str()) );
 }
 
 //---------------------------------------------------------

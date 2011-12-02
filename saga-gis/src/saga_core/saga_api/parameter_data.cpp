@@ -693,32 +693,29 @@ const SG_Char * CSG_Parameter_Degree::asString(void)
 CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data(pOwner, Constraint)
 {
-	pRange	= new CSG_Parameters;
+	m_pRange	= new CSG_Parameters;
 
 	if( (m_Constraint & PARAMETER_INFORMATION) != 0 )
 	{
-		pLo		= pRange->Add_Info_Value(m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		pHi		= pRange->Add_Info_Value(m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pLo	= m_pRange->Add_Info_Value(m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pHi	= m_pRange->Add_Info_Value(m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 	else
 	{
-		pLo		= pRange->Add_Value		(m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		pHi		= pRange->Add_Value		(m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pLo	= m_pRange->Add_Value     (m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pHi	= m_pRange->Add_Value     (m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 }
 
 CSG_Parameter_Range::~CSG_Parameter_Range(void)
 {
-	delete(pRange);
+	delete(m_pRange);
 }
 
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Range::asString(void)
 {
-	m_String.Printf(SG_T("[%f] - [%f]"),
-		Get_LoParm()->asDouble(),
-		Get_HiParm()->asDouble()
-	);
+	m_String.Printf(SG_T("[%f] - [%f]"), Get_LoVal(), Get_HiVal());
 
 	return( m_String );
 }
@@ -730,13 +727,13 @@ bool CSG_Parameter_Range::Set_Range(double loVal, double hiVal)
 
 	if( loVal > hiVal )
 	{
-		bResult	 = pLo->Set_Value(hiVal);
-		bResult	|= pHi->Set_Value(loVal);
+		bResult	 = m_pLo->Set_Value(hiVal);
+		bResult	|= m_pHi->Set_Value(loVal);
 	}
 	else
 	{
-		bResult	 = pLo->Set_Value(loVal);
-		bResult	|= pHi->Set_Value(hiVal);
+		bResult	 = m_pLo->Set_Value(loVal);
+		bResult	|= m_pHi->Set_Value(hiVal);
 	}
 
 	return( bResult );
@@ -745,36 +742,36 @@ bool CSG_Parameter_Range::Set_Range(double loVal, double hiVal)
 //---------------------------------------------------------
 bool CSG_Parameter_Range::Set_LoVal(double newValue)
 {
-	return( pLo->Set_Value(newValue) );
+	return( m_pLo->Set_Value(newValue) );
 }
 
 double CSG_Parameter_Range::Get_LoVal(void)
 {
-	return( pLo->asDouble() );
+	return( m_pLo->asDouble() );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Range::Set_HiVal(double newValue)
 {
-	return( pHi->Set_Value(newValue) );
+	return( m_pHi->Set_Value(newValue) );
 }
 
 double CSG_Parameter_Range::Get_HiVal(void)
 {
-	return( pHi->asDouble() );
+	return( m_pHi->asDouble() );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Range::Restore_Default(void)
 {
-	return( pLo->Restore_Default() && pHi->Restore_Default() );
+	return( m_pLo->Restore_Default() && m_pHi->Restore_Default() );
 }
 
 //---------------------------------------------------------
 void CSG_Parameter_Range::On_Assign(CSG_Parameter_Data *pSource)
 {
-	pLo->Assign(((CSG_Parameter_Range *)pSource)->pLo);
-	pHi->Assign(((CSG_Parameter_Range *)pSource)->pHi);
+	m_pLo->Assign(((CSG_Parameter_Range *)pSource)->m_pLo);
+	m_pHi->Assign(((CSG_Parameter_Range *)pSource)->m_pHi);
 }
 
 //---------------------------------------------------------
@@ -815,9 +812,9 @@ CSG_Parameter_Choice::CSG_Parameter_Choice(CSG_Parameter *pOwner, long Constrain
 //---------------------------------------------------------
 bool CSG_Parameter_Choice::Set_Value(const CSG_String &Value)
 {
-	for(int i=0; i<Items.Get_Count(); i++)
+	for(int i=0; i<m_Items.Get_Count(); i++)
 	{
-		if( Items[i].Cmp(Value) == 0 )
+		if( m_Items[i].Cmp(Value) == 0 )
 		{
 			m_Value	= i;
 
@@ -839,21 +836,28 @@ const SG_Char * CSG_Parameter_Choice::asString(void)
 //---------------------------------------------------------
 void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 {
-	Items.Clear();
+	m_Items.Clear();
 
-	const SG_Char	*s	= String;
-
-	while( s && *s != 0 )
+	if( String && *String != '\0' )
 	{
-		CSG_String	Item	= CSG_String(s).BeforeFirst('|');
+		CSG_String	Items(String);
 
-		Items	+= Item;
-		s		+= Item.Length() + 1;
+		while( Items.Length() > 0 )
+		{
+			CSG_String	Item(Items.BeforeFirst('|'));
+
+			if( Item.Length() )
+			{
+				m_Items	+= Item;
+			}
+
+			Items	= Items.AfterFirst('|');
+		}
 	}
 
-	if( Items.Get_Count() <= 0 )
+	if( m_Items.Get_Count() <= 0 )
 	{
-		Items	+= _TL("[VAL] [not set]");
+		m_Items	+= _TL("[VAL] [not set]");
 	}
 
 	Set_Minimum(              0, true);
@@ -865,9 +869,9 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)
 {
-	if( Index >= 0 && Index < Items.Get_Count() )
+	if( Index >= 0 && Index < m_Items.Get_Count() )
 	{
-		const SG_Char	*Item	= Items[Index].c_str();
+		const SG_Char	*Item	= m_Items[Index].c_str();
 
 		if( *Item == SG_T('{') )
 		{
@@ -875,7 +879,7 @@ const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)
 
 			if( *Item == SG_T('\0') )
 			{
-				return( Items[Index].c_str() );
+				return( m_Items[Index].c_str() );
 			}
 
 			Item++;
@@ -914,9 +918,9 @@ bool CSG_Parameter_Choice::Get_Data(double     &Value)
 
 bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)
 {
-	if( m_Value >= 0 && m_Value < Items.Get_Count() )
+	if( m_Value >= 0 && m_Value < m_Items.Get_Count() )
 	{
-		const SG_Char	*Item	= Items[m_Value].c_str();
+		const SG_Char	*Item	= m_Items[m_Value].c_str();
 
 		if( *Item == SG_T('{') )
 		{
@@ -940,7 +944,7 @@ bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)
 //---------------------------------------------------------
 void CSG_Parameter_Choice::On_Assign(CSG_Parameter_Data *pSource)
 {
-	Items	= ((CSG_Parameter_Choice *)pSource)->Items;
+	m_Items	= ((CSG_Parameter_Choice *)pSource)->m_Items;
 
 	CSG_Parameter_Int::On_Assign(pSource);
 }
@@ -956,24 +960,13 @@ void CSG_Parameter_Choice::On_Assign(CSG_Parameter_Data *pSource)
 CSG_Parameter_String::CSG_Parameter_String(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data(pOwner, Constraint)
 {
-	bPassword	= false;
+	m_bPassword	= false;
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_String::is_Valid(void)
 {
 	return( m_String.Length() > 0 );
-}
-
-//---------------------------------------------------------
-bool CSG_Parameter_String::is_Password(void)
-{
-	return( bPassword );
-}
-
-void CSG_Parameter_String::Set_Password(bool bOn)
-{
-	bPassword	= bOn;
 }
 
 //---------------------------------------------------------
@@ -994,7 +987,7 @@ void CSG_Parameter_String::On_Assign(CSG_Parameter_Data *pSource)
 {
 	m_String	= ((CSG_Parameter_String *)pSource)->m_String.c_str();
 
-	bPassword	= ((CSG_Parameter_String *)pSource)->bPassword;
+	m_bPassword	= ((CSG_Parameter_String *)pSource)->m_bPassword;
 }
 
 //---------------------------------------------------------
