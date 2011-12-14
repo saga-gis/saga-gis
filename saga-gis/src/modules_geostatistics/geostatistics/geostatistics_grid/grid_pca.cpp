@@ -352,7 +352,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Valu
 
 				for(int k=0; k<Get_NGrids(); k++)
 				{
-					d	+= Get_Value(k, iCell) * Eigen_Vectors[k][j];
+					d	+= m_pGrids->asGrid(k)->asDouble(iCell) * Eigen_Vectors[k][j];
 				}
 
 				pPCA->asGrid(i)->Set_Value(iCell, d);
