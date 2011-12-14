@@ -366,8 +366,8 @@ bool CPoint_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrid
 
 	CSG_Grid	**ppGrids	= (CSG_Grid **)SG_Malloc(m_Regression.Get_nPredictors() * sizeof(CSG_Grid *));
 
-	bool	bCoord_X		= false;
-	bool	bCoord_Y		= false;
+	int	iCoord_X	= -1;
+	int	iCoord_Y	= -1;
 
 	for(iGrid=0, nGrids=0; iGrid<m_Regression.Get_nPredictors(); iGrid++)
 	{
@@ -377,11 +377,11 @@ bool CPoint_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrid
 		}
 		else if( m_Regression.Get_Predictor(iGrid) == pGrids->Get_Count() && Parameters("COORD_X")->asBool() )
 		{
-			bCoord_X = true;
+			iCoord_X = iGrid;
 		}
 		else // if( m_Regression.Get_Predictor(iGrid) > pGrids->Get_Count() || Parameters("COORD_X")->asBool() == false )
 		{
-			bCoord_Y = true;
+			iCoord_Y = iGrid;
 		}
 	}
 
@@ -412,14 +412,14 @@ bool CPoint_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrid
 			//---------------------------------------------
 			if( bOkay )
 			{
-				if( bCoord_X )
+				if( iCoord_X >= 0 )
 				{
-					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System()->Get_xGrid_to_World(x);
+					z	+= m_Regression.Get_RCoeff(iCoord_X) * p.x;
 				}
 
-				if( bCoord_Y )
+				if( iCoord_Y >= 0 )
 				{
-					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System()->Get_yGrid_to_World(y);
+					z	+= m_Regression.Get_RCoeff(iCoord_Y) * p.y;
 				}
 
 				pRegression->Set_Value (x, y, z);
