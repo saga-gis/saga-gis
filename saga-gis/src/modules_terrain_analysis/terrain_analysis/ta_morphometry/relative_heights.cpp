@@ -150,20 +150,18 @@ CRelative_Heights::CRelative_Heights(void)
 bool CRelative_Heights::On_Execute(void)
 {
 	double		w, t, e;
-	CSG_Grid	*pDEM, *pHO, *pHU, *pNH, *pSH, *pMS;
+
+	CSG_Grid	*pDEM, *pHO, *pHU;
 
 	//-----------------------------------------------------
-	pDEM		= Parameters("DEM")	->asGrid();
+	pDEM	= Parameters("DEM")	->asGrid();
 
-	pHO			= Parameters("HO")	->asGrid();
-	pHU			= Parameters("HU")	->asGrid();
-	pNH			= Parameters("NH")	->asGrid();
-	pSH			= Parameters("SH")	->asGrid();
-	pMS			= Parameters("MS")	->asGrid();
+	pHO		= Parameters("HO")	->asGrid();
+	pHU		= Parameters("HU")	->asGrid();
 
-	w			= Parameters("W")	->asDouble();
-	t			= Parameters("T")	->asDouble();
-	e			= Parameters("E")	->asDouble();
+	w		= Parameters("W")	->asDouble();
+	t		= Parameters("T")	->asDouble();
+	e		= Parameters("E")	->asDouble();
 
 	//-----------------------------------------------------
 	Message_Add(_TL("Pass 1"));
@@ -172,23 +170,7 @@ bool CRelative_Heights::On_Execute(void)
 	Message_Add(_TL("Pass 2"));
 	Get_Heights(pDEM, pHU, false, w, t, e);
 
-	Get_Results(pDEM, pHO, pHU, pNH, pSH);
-
-	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			if( pNH->is_NoData(x, y) )
-			{
-				pMS->Set_NoData(x, y);
-			}
-			else
-			{
-				pMS->Set_Value(x, y, fabs(2.0 * pNH->asDouble(x, y) - 1.0));
-			}
-		}
-	}
+	Get_Results(pDEM, pHO, pHU);
 
 	//-----------------------------------------------------
 	return( true );
@@ -206,22 +188,17 @@ bool CRelative_Heights::Get_Heights(CSG_Grid *pDEM, CSG_Grid *pH, bool bInverse,
 {
 	CSG_Grid	Inverse;
 
-	//-----------------------------------------------------
 	if( bInverse )
 	{
-		Inverse.Create(pDEM);
-		Inverse.Assign(pDEM);
+		Inverse.Create(*pDEM);
 		Inverse.Invert();
 		pDEM	= &Inverse;
 	}
 
 	//-----------------------------------------------------
-	Get_Heights_Catchment(pDEM, pH, w);
-
-	Get_Heights_Modified (pDEM, pH, t, e);
-
-	//-----------------------------------------------------
-	return( true );
+	return(	Get_Heights_Catchment(pDEM, pH, w)
+		&&	Get_Heights_Modified (pDEM, pH, t, e)
+	);
 }
 
 
@@ -243,25 +220,21 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Relative heights calculation..."));
 
-	C.Create(*Get_System());
-	W.Create(*Get_System());
+	C  .Create(*Get_System());
+	W  .Create(*Get_System());
 
-	C.	Assign(Get_System()->Get_Cellarea());
-	W.	Assign(0.0);
+	C  .Assign(Get_System()->Get_Cellarea());
+	W  .Assign(0.0);
 	pH->Assign(0.0);
-
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
-	{
-		if( pDEM->is_NoData(n) )
-		{
-			pH->Set_NoData(n);
-		}
-	}
 
 	//-----------------------------------------------------
 	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		if( pDEM->Get_Sorted(n, x, y) )
+		if( !pDEM->Get_Sorted(n, x, y) || pDEM->is_NoData(x, y) )
+		{
+			pH->Set_NoData(n);
+		}
+		else
 		{
 			z		= pDEM->asDouble(x, y);
 			c		= C    .asDouble(x, y);
@@ -324,9 +297,8 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 //---------------------------------------------------------
 bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, double t, double e)
 {
-	bool		bRecalculate;
-	int			x, y, i, ix, iy, n;
-	double		z, d;
+	int			y;
+
 	CSG_Grid	H, H_Last, T;
 
 	//-----------------------------------------------------
@@ -336,8 +308,10 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	z, d;
+
 			if( pDEM->Get_Gradient(x, y, z, d) && !pH->is_NoData(x, y) )
 			{
 				pH->Set_Value(x, y, d = pow(pH->asDouble(x, y), e));	// {X[p] = H[p]^e;}
@@ -356,19 +330,26 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 	H_Last.Create(*pH);
 
 	//-----------------------------------------------------
-	for(i=0, n=1; n>0; i++)
+	int		nChanges	= 1;
+
+	for(int Iteration=1; nChanges && Process_Get_Okay(); Iteration++)
 	{
-		for(y=0, n=0; y<Get_NY() && Process_Get_Okay(false); y++)
+		nChanges	= 0;
+
+		#pragma omp parallel for private(y) reduction(+:nChanges)
+		for(y=0; y<Get_NY(); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			Process_Get_Okay();
+
+			for(int x=0; x<Get_NX(); x++)
 			{
 				if( !T.is_NoData(x, y) )
 				{
-					z	= T.asDouble(x, y) * Get_Local_Maximum(&H, x, y);
+					double	z	= T.asDouble(x, y) * Get_Local_Maximum(&H, x, y);
 
 					if( z  > H.asDouble(x, y) )
 					{
-						n++;
+						nChanges++;
 
 						H.Set_Value(x, y, z);
 					}
@@ -376,15 +357,20 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 			}
 		}
 
-		if( n > 0 )
+		if( nChanges > 0 )
 		{
-			for(y=0, n=0; y<Get_NY() && Process_Get_Okay(false); y++)
+			nChanges	= 0;
+
+			#pragma omp parallel for private(y) reduction(+:nChanges)
+			for(y=0; y<Get_NY(); y++)
 			{
-				for(x=0; x<Get_NX(); x++)
+				Process_Get_Okay();
+
+				for(int x=0; x<Get_NX(); x++)
 				{
 					if( H.asDouble(x, y) != H_Last.asDouble(x, y) )
 					{
-						n++;
+						nChanges++;
 
 						H_Last.Set_Value(x, y, H.asDouble(x, y));
 					}
@@ -392,7 +378,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 			}
 		}
 
-		Process_Set_Text(CSG_String::Format(SG_T("Modify: %d. iteration [%d > 0]"), i, n));
+		Process_Set_Text(CSG_String::Format(SG_T("pass %d (%d > 0)"), Iteration, nChanges));
 	}
 
 	//-----------------------------------------------------
@@ -400,8 +386,12 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
+			bool	bRecalculate;
+			int		ix, iy, n;
+			double	z;
+
 			if( !H.is_NoData(x, y) )
 			{
 				for(iy=y-1, bRecalculate=false; iy<=y+1 && !bRecalculate; iy++)
@@ -490,33 +480,33 @@ double CRelative_Heights::Get_Local_Maximum(CSG_Grid *pGrid, int x, int y)
 // die Standardisierte Höhe logarithmiert berechnet (SHL)
 
 //---------------------------------------------------------
-bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU, CSG_Grid *pNH, CSG_Grid *pSH)
+bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU)
 {
-	int		x, y;
-	double	ho, hu, nh, hMin;
-
 	Process_Set_Text(_TL("Final processing..."));
 
-	hMin	= pDEM->Get_ZMin();
+	CSG_Grid	*pNH	= Parameters("NH")	->asGrid();
+	CSG_Grid	*pSH	= Parameters("SH")	->asGrid();
+	CSG_Grid	*pMS	= Parameters("MS")	->asGrid();
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !pDEM->is_NoData(x, y) && !pHO->is_NoData(x, y) && !pHU->is_NoData(x, y) )
-			{
-				ho	= pHO->asDouble(x, y);
-				hu	= pHU->asDouble(x, y);
-
-				nh	= 0.5 * (1.0 + (ho - hu) / (ho + hu));
-
-				pNH->Set_Value(x, y, nh);
-				pSH->Set_Value(x, y, nh * (pDEM->asDouble(x, y) - hMin) + hMin);	//, nh * pDEM->asDouble(x, y));
-			}
-			else
+			if( pDEM->is_NoData(x, y) || pHO->is_NoData(x, y) || pHU->is_NoData(x, y) )
 			{
 				pNH->Set_NoData(x, y);
 				pSH->Set_NoData(x, y);
+				pMS->Set_NoData(x, y);
+			}
+			else
+			{
+				double	ho	= pHO->asDouble(x, y);
+				double	hu	= pHU->asDouble(x, y);
+				double	nh	= 0.5 * (1.0 + (ho - hu) / (ho + hu));
+
+				pNH->Set_Value(x, y, nh);
+				pSH->Set_Value(x, y, nh * (pDEM->asDouble(x, y) - pDEM->Get_ZMin()) + pDEM->Get_ZMin());	//, nh * pDEM->asDouble(x, y));
+				pMS->Set_Value(x, y, fabs(2.0 * nh - 1.0));
 			}
 		}
 	}

@@ -134,8 +134,7 @@ CConvergence_Radius::CConvergence_Radius(void)
 //---------------------------------------------------------
 bool CConvergence_Radius::On_Execute(void)
 {
-	int			x, y;
-	double		d;
+	int			y;
 	CSG_Grid	*pConvergence;
 
 	//-----------------------------------------------------
@@ -160,6 +159,9 @@ bool CConvergence_Radius::On_Execute(void)
 
 	for(int i=0; i<m_Cells.Get_Count(); i++)
 	{
+		int		x;
+		double	d;
+
 		if( m_Cells.Get_Values(i, x, y, d, d, false) )
 		{
 			m_Direction[i]	= SG_Get_Angle_Of_Direction(0.0, 0.0, x, y);
@@ -173,7 +175,8 @@ bool CConvergence_Radius::On_Execute(void)
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
 			double	Slope, Aspect;
 
@@ -193,8 +196,11 @@ bool CConvergence_Radius::On_Execute(void)
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	d;
+
 			if( Get_Convergence(x, y, d) )
 			{
 				pConvergence->Set_Value(x, y, d);
