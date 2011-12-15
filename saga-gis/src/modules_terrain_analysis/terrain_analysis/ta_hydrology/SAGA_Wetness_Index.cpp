@@ -342,13 +342,13 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 	m_pAreaMod->Assign(m_pArea);
 
 	//-----------------------------------------------------
-	bool	bModified	= true;
+	int		nChanges	= 1;
 
-	for(int Iteration=1; bModified && Process_Get_Okay(); Iteration++)
+	for(int Iteration=1; nChanges && Process_Get_Okay(); Iteration++)
 	{
-		bModified	= false;
+		nChanges	= 0;
 
-		#pragma omp parallel for private(y)
+		#pragma omp parallel for private(y) reduction(+:nChanges)
 		for(y=0; y<Get_NY(); y++)
 		{
 			Process_Get_Okay();
@@ -361,7 +361,7 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 
 					if( z > Area.asDouble(x, y) )
 					{
-						bModified	= true;
+						nChanges++;
 
 						Area.Set_Value(x, y, z);
 					}
@@ -369,9 +369,9 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 			}
 		}
 
-		if( bModified )
+		if( nChanges > 0 )
 		{
-			bModified	= false;
+			nChanges	= 0;
 
 			#pragma omp parallel for private(y)
 			for(y=0; y<Get_NY(); y++)
@@ -382,7 +382,7 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 				{
 					if( Area.asDouble(x, y) != m_pAreaMod->asDouble(x, y) )
 					{
-						bModified	= true;
+						nChanges++;
 
 						m_pAreaMod->Set_Value(x, y, Area.asDouble(x, y));
 					}
@@ -390,7 +390,7 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 			}
 		}
 
-		Process_Set_Text(CSG_String::Format(SG_T("pass %d"), 1 + Iteration));
+		Process_Set_Text(CSG_String::Format(SG_T("pass %d (%d > 0)"), Iteration, nChanges));
 	}
 
 	//-----------------------------------------------------
