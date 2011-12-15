@@ -438,8 +438,8 @@ bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X, double R2_prev
 	pRecord->Set_Value(MLR_STEP_DF		, X.Get_NRows() - m_nPredictors - 1);
 	pRecord->Set_Value(MLR_STEP_F		, R.m_pModel->Get_Record(MLR_MODEL_F  )->asDouble(1));
 	pRecord->Set_Value(MLR_STEP_SIG		, R.m_pModel->Get_Record(MLR_MODEL_SIG)->asDouble(1));
-	pRecord->Set_Value(MLR_STEP_VAR_F	, _Get_F(1, X.Get_NRows(), R.Get_R2(), R2_prev));
-	pRecord->Set_Value(MLR_STEP_VAR_SIG	, _Get_P(1, X.Get_NRows(), R.Get_R2(), R2_prev));
+	pRecord->Set_Value(MLR_STEP_VAR_F	, _Get_F(1, X.Get_NRows() - (m_nPredictors - 1), R.Get_R2(), R2_prev));
+	pRecord->Set_Value(MLR_STEP_VAR_SIG	, _Get_P(1, X.Get_NRows() - (m_nPredictors - 1), R.Get_R2(), R2_prev));
 	pRecord->Set_Value(MLR_STEP_DIR		, bIn ? SG_T(">>") : SG_T("<<"));
 	pRecord->Set_Value(MLR_STEP_VAR		, m_Names[1 + iVariable]);
 
@@ -476,7 +476,7 @@ int CSG_Regression_Multiple::_Get_Step_In(CSG_Matrix &X, double P_in, double &R2
 	}
 
 	//-----------------------------------------------------
-	if( iNext >= 0 && _Get_P(1, nSamples, rNext, R2) <= P_in )
+	if( iNext >= 0 && _Get_P(1, nSamples - m_nPredictors, rNext, R2) <= P_in )
 	{
 		m_bIncluded[iNext]			= true;
 		m_Predictor[m_nPredictors]	= iNext;
@@ -534,7 +534,7 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 	}
 
 	//-----------------------------------------------------
-	if( iNext >= 0 && _Get_P(1, nSamples, R2, rNext) > P_out )
+	if( iNext >= 0 && _Get_P(1, nSamples - nPredictors, R2, rNext) > P_out )
 	{
 		X.Del_Col(1 + iNext);
 
@@ -827,7 +827,7 @@ bool CSG_Regression_Multiple::__Get_Forward(const CSG_Matrix &Samples, double p_
 		{
 			dr2	= r2 * (1.0 - r2_tot);
 
-			if( p_in > (p = _Get_P(1, nSamples, r2_tot + dr2, r2_tot)) )
+			if( p_in > (p = _Get_P(1, nSamples - m_nPredictors - 1, r2_tot + dr2, r2_tot)) )
 			{
 				m_nPredictors++;
 
@@ -839,7 +839,7 @@ bool CSG_Regression_Multiple::__Get_Forward(const CSG_Matrix &Samples, double p_
 				pRecord->Set_Value(MLR_STEP_R		, sqrt(r2_tot));
 				pRecord->Set_Value(MLR_STEP_R2		, r2_tot);
 				pRecord->Set_Value(MLR_STEP_R2_ADJ	, SG_Regression_Get_Adjusted_R2(r2_tot, nSamples, m_nPredictors));
-				pRecord->Set_Value(MLR_STEP_VAR_F	, _Get_F(1, nSamples, r2_tot + dr2, r2_tot));
+				pRecord->Set_Value(MLR_STEP_VAR_F	, _Get_F(1, nSamples - m_nPredictors, r2_tot + dr2, r2_tot));
 				pRecord->Set_Value(MLR_STEP_VAR_SIG	, p);
 				pRecord->Set_Value(MLR_STEP_DIR		, SG_T(">>"));
 				pRecord->Set_Value(MLR_STEP_VAR		, m_Names[1 + m_Predictor[i]]);
