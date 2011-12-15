@@ -211,7 +211,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 	m_pGrid_X		= pGrid_X;
 	m_pGrid_Y		= pGrid_Y;
 
-	_Initialize_Grids();
+	_Initialize();
 }
 
 //---------------------------------------------------------
@@ -225,7 +225,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, i
 	m_pShapes		= pShapes_Y;
 	m_xField		= Field;
 
-	_Initialize_Shapes();
+	_Initialize();
 }
 
 //---------------------------------------------------------
@@ -239,7 +239,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Table *pTable, int Field_X, int Field_Y
 	m_xField		= Field_X;
 	m_yField		= Field_Y;
 
-	_Initialize_Table();
+	_Initialize();
 }
 
 //---------------------------------------------------------
@@ -277,26 +277,6 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 	CMD_ToolBar_Add(pToolBar, _TL("[CAP] Scatterplot"));
 
 	return( pToolBar );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_ScatterPlot::Update_ScatterPlot(void)
-{
-	switch( m_Method )
-	{
-	case 0:	_Initialize_Grids	();	break;
-	case 1:	_Initialize_Shapes	();	break;
-	case 2:	_Initialize_Table	();	break;
-	}
-
-	Refresh();
 }
 
 
@@ -360,12 +340,18 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	m_Parameters.Add_Value(
 		NULL, "RESOLUTION"	, _TL("[CAP] Display Resolution"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		PARAMETER_TYPE_Int, 50, 10, true
 	);
+
+	CSG_Colors	Colors(7, SG_COLORS_RAINBOW);
+
+	Colors.Set_Color(0, 255, 255, 255);
+	Colors.Set_Count(100);
 
 	m_Parameters.Add_Colors(
 		NULL, "COLORS"		, _TL("[CAP] Colors"),
-		_TL("")
+		_TL(""),
+		&Colors
 	);
 
 	m_Parameters.Add_Value(
@@ -391,12 +377,19 @@ void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 		{
 			m_maxSamples	= m_Parameters("MAX")->asInt();
 
-			Update_ScatterPlot();
+			_Initialize();
 		}
-
-		if( m_Parameters("TYPE")->asInt() != m_Regression.Get_Type() )
+		else
 		{
-			m_Regression.Calculate((TSG_Regression_Type)m_Parameters("TYPE")->asInt());
+			if( m_Parameters("RESOLUTION")->asInt() != m_Count.Get_NX() )
+			{
+				_Initialize_Count();
+			}
+
+			if( m_Parameters("TYPE")->asInt() != m_Regression.Get_Type() )
+			{
+				m_Regression.Calculate((TSG_Regression_Type)m_Parameters("TYPE")->asInt());
+			}
 		}
 
 		Refresh();
@@ -406,7 +399,9 @@ void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::On_Update(wxCommandEvent &event)
 {
-	Update_ScatterPlot();
+	_Initialize();
+
+	Refresh();
 }
 
 //---------------------------------------------------------
@@ -477,8 +472,6 @@ void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::Draw(wxDC &dc, wxRect r)
 {
-	double	dx, dy;
-
 	r	= _Draw_Get_rDiagram(r);
 
 	dc.SetFont				(Get_Font(m_Parameters("FONT")));
@@ -486,23 +479,20 @@ void CVIEW_ScatterPlot::Draw(wxDC &dc, wxRect r)
 
 	if( m_Regression.Get_Count() > 1 )
 	{
-		dx	= (r.GetWidth()  - 1.0) / (m_Regression.Get_xMax() - m_Regression.Get_xMin());
-		dy	= (r.GetHeight() - 1.0) / (m_Regression.Get_yMax() - m_Regression.Get_yMin());
-
 		//-------------------------------------------------
 		if( m_Parameters("METHOD")->asInt() == 1 )
 		{
-			_Draw_Image (dc, r, dx, dy);
+			_Draw_Image (dc, r);
 		}
 		else
 		{
-			_Draw_Points(dc, r, dx, dy);
+			_Draw_Points(dc, r);
 		}
 
 		//-------------------------------------------------
 		if( m_Parameters("REGRESSION")->asBool() )
 		{
-			_Draw_Regression(dc, r, dx, dy);
+			_Draw_Regression(dc, r);
 		}
 
 		//-------------------------------------------------
@@ -524,10 +514,10 @@ wxRect CVIEW_ScatterPlot::_Draw_Get_rDiagram(wxRect r)
 }
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double dy)
+void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 {
 	int			ix, ay, by;
-	double		a, b, x, y, ex;
+	double		a, b, x, y, dx, dy, ex;
 	wxString	s;
 	wxPen		Pen, oldPen	= dc.GetPen();
 	wxColour	Col, oldCol	= dc.GetTextForeground();
@@ -540,6 +530,9 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 	//-----------------------------------------------------
 	a	= m_Regression.Get_Constant();
 	b	= m_Regression.Get_Coefficient();
+
+	dx	= (r.GetWidth()  - 1.0) / (m_Regression.Get_xMax() - m_Regression.Get_xMin());
+	dy	= (r.GetHeight() - 1.0) / (m_Regression.Get_yMax() - m_Regression.Get_yMin());
 
 	//-----------------------------------------------------
 	dc.DrawCircle(
@@ -597,79 +590,42 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 }
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
+void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r)
 {
-	int			x, y, i, ax, ay, bx, by, Resolution;
-	double		zMax;
-	CSG_Grid	Count;
 	CSG_Colors	*pColors	= m_Parameters("COLORS")->asColors();
-	wxPen		Pen, oldPen(dc.GetPen());
+
+	wxImage	Image(r.GetWidth(), r.GetHeight());
+
+	double	dCount	= (pColors->Get_Count() - 2.0) / log(1.0 + m_Count.Get_ZMax());
+
+	double	dx		= (m_Count.Get_NX() - 1.0) / (double)r.GetWidth ();
+	double	dy		= (m_Count.Get_NY() - 1.0) / (double)r.GetHeight();
 
 	//-----------------------------------------------------
-	Resolution	= m_Parameters("RESOLUTION")->asInt();
-
-	Count.Create(SG_DATATYPE_Word, 1 + (r.GetWidth() / Resolution), 1 + (r.GetHeight() / Resolution));
-
-	dx	/= Resolution;
-	dy	/= Resolution;
-
-	for(i=0, zMax=0; i<m_Regression.Get_Count(); i++)
+	#pragma omp parallel for
+	for(int y=Image.GetHeight()-1; y>=0; y--)
 	{
-		x	= (int)(dx * (m_Regression.Get_xValue(i) - m_Regression.Get_xMin()));
-		y	= (int)(dy * (m_Regression.Get_yValue(i) - m_Regression.Get_yMin()));
-		Count.Add_Value(x, y, 1);
-		if( Count(x, y) > zMax )
-			zMax	= Count(x, y);
-	}
+		double	Count;
+		double	ix	= 0.0;
+		double	iy	= m_Count.Get_NY() - 1 - y * dy;
 
-	//-----------------------------------------------------
-	if( Resolution <= 1 )
-	{
-		for(y=0, ay=r.GetBottom(); y<Count.Get_NY(); y++, ay--)
+		for(int x=0; x<Image.GetWidth(); x++, ix+=dx)
 		{
-			for(x=0, ax=r.GetLeft(); x<Count.Get_NX(); x++, ax++)
-			{
-				if( (i = Count.asInt(x, y)) > 0 )
-				{
-					i	= (int)((pColors->Get_Count() - 1) * i / zMax);
-					Pen.SetColour(Get_Color_asWX(pColors->Get_Color(i)));
-					dc.SetPen(Pen);
-					dc.DrawPoint(ax, ay);
-				}
-			}
-		}
-	}
-	else
-	{
-		dx	= r.GetWidth()  / (double)(Count.Get_NX() - 1.0);
-		dy	= r.GetHeight() / (double)(Count.Get_NY() - 1.0);
+			int	i	= m_Count.Get_Value(ix, iy, Count) && Count > 0.0 ? (int)(log(1.0 + Count) * dCount) : 0;
 
-		for(y=0, by=r.GetBottom(); y<Count.Get_NY(); y++)
-		{
-			ay	= by;
-			by	= r.GetBottom() - (int)(y * dy);
-
-			for(x=0, bx=r.GetLeft(); x<Count.Get_NX(); x++)
-			{
-				ax	= bx;
-				bx	= r.GetLeft() + (int)(x * dx);
-
-				if( (i = Count.asInt(x, y)) > 0 )
-				{
-					i	= (int)((pColors->Get_Count() - 1) * i / zMax);
-					Draw_FillRect(dc, Get_Color_asWX(pColors->Get_Color(i)), ax, ay, bx, by);
-				}
-			}
+			Image.SetRGB(x, y, pColors->Get_Red(i), pColors->Get_Green(i), pColors->Get_Blue(i));
 		}
 	}
 
-	//-----------------------------------------------------
-	dc.SetPen(oldPen);
+	dc.DrawBitmap(wxBitmap(Image), r.GetTopLeft());
 }
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::_Draw_Points(wxDC &dc, wxRect r, double dx, double dy)
+void CVIEW_ScatterPlot::_Draw_Points(wxDC &dc, wxRect r)
 {
+	double	dx	= (r.GetWidth()  - 1.0) / (m_Regression.Get_xMax() - m_Regression.Get_xMin());
+	double	dy	= (r.GetHeight() - 1.0) / (m_Regression.Get_yMax() - m_Regression.Get_yMin());
+
 	for(int i=0; i<m_Regression.Get_Count(); i++)
 	{
 		dc.DrawCircle(
@@ -738,26 +694,65 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize(void)
 {
-	bool	bResult	= m_Regression.Calculate();
+	bool	bResult;
 
-	PROCESS_Set_Okay(true);
+	switch( m_Method )
+	{
+	default:	bResult	= false;	break;
 
-	m_Parameters("METHOD")	->Set_Value(m_Regression.Get_Count() > 1000 ? 1 : 0);
-	m_Parameters("INFO")	->Set_Value((void *)m_Regression.asString());
+	case 0:		bResult	= _Initialize_Grids ();	break;
+	case 1:		bResult	= _Initialize_Shapes();	break;
+	case 2:		bResult	= _Initialize_Table ();	break;
+	}
 
-	return( bResult );
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		m_Parameters("METHOD")->Set_Value(m_Regression.Get_Count() > 1000 ? 1 : 0);
+		m_Parameters("INFO"  )->Set_Value(m_Regression.asString());
+
+		_Initialize_Count();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CVIEW_ScatterPlot::_Initialize_Count(void)
+{
+	int	Resolution	= m_Parameters("RESOLUTION")->asInt();
+
+	m_Count.Create(SG_DATATYPE_Int, Resolution, Resolution, 1.0);
+
+	double	dx	= (m_Count.Get_NX() - 1.0) / (m_Regression.Get_xMax() - m_Regression.Get_xMin());
+	double	dy	= (m_Count.Get_NY() - 1.0) / (m_Regression.Get_yMax() - m_Regression.Get_yMin());
+
+	for(int i=0; i<m_Regression.Get_Count(); i++)
+	{
+		int x	= (int)(0.5 + dx * (m_Regression.Get_xValue(i) - m_Regression.Get_xMin()));
+		int y	= (int)(0.5 + dy * (m_Regression.Get_yValue(i) - m_Regression.Get_yMin()));
+
+		if( m_Count.is_InGrid(x, y, false) )
+		{
+			m_Count.Add_Value(x, y, 1);
+		}
+	}
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize_Grids()
 {
+	m_Regression.Destroy();
+
 	CHECK_DATA(m_pGrid_X);
 	CHECK_DATA(m_pGrid_Y);
 
@@ -767,12 +762,10 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 	}
 
 	//-----------------------------------------------------
-	m_Regression.Destroy();
+	m_sTitle.Printf(SG_T("%s: [%s/%s]"), _TL("[CAP] Scatterplot"), m_pGrid_X->Get_Name(), m_pGrid_Y->Get_Name());
 
-	m_sTitle.Printf(wxT("%s: [%s/%s]"), _TL("[CAP] Scatterplot"), m_pGrid_X->Get_Name(), m_pGrid_Y->Get_Name());
-
-	m_sX.Printf(wxT("%s"), m_pGrid_X->Get_Name());
-	m_sY.Printf(wxT("%s"), m_pGrid_Y->Get_Name());
+	m_sX.Printf(SG_T("%s"), m_pGrid_X->Get_Name());
+	m_sY.Printf(SG_T("%s"), m_pGrid_Y->Get_Name());
 
 	bool	bEqual			= m_pGrid_X->Get_System() == m_pGrid_Y->Get_System();
 	int		Interpolation	= GRID_INTERPOLATION_BSpline;
@@ -806,7 +799,9 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 		}
 	}
 
-	return( _Initialize() );
+	PROCESS_Set_Okay(true);
+
+	return( m_Regression.Calculate() );
 }
 
 
@@ -817,6 +812,8 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 {
+	m_Regression.Destroy();
+
 	CHECK_DATA(m_pGrid_X);
 	CHECK_DATA(m_pShapes);
 
@@ -825,12 +822,10 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 		return( false );
 	}
 
-	m_Regression.Destroy();
+	m_sTitle.Printf(SG_T("%s: [%s/%s]"), _TL("[CAP] Scatterplot"), m_pGrid_X->Get_Name(), m_pShapes->Get_Name());
 
-	m_sTitle.Printf(wxT("%s: [%s/%s]"), _TL("[CAP] Scatterplot"), m_pGrid_X->Get_Name(), m_pShapes->Get_Name());
-
-	m_sX.Printf(wxT("%s"), m_pGrid_X->Get_Name());
-	m_sY.Printf(wxT("%s"), m_pShapes->Get_Field_Name(m_xField));
+	m_sX.Printf(SG_T("%s"), m_pGrid_X->Get_Name());
+	m_sY.Printf(SG_T("%s"), m_pShapes->Get_Field_Name(m_xField));
 
 	double	z, Step	= m_maxSamples > 0 && m_pShapes->Get_Count() > m_maxSamples ? m_pShapes->Get_Count() / m_maxSamples : 1.0;
 
@@ -844,7 +839,9 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 		}
 	}
 
-	return( _Initialize() );
+	PROCESS_Set_Okay(true);
+
+	return( m_Regression.Calculate() );
 }
 
 
@@ -855,6 +852,8 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize_Table(void)
 {
+	m_Regression.Destroy();
+
 	CHECK_DATA(m_pTable);
 
 	if( !m_pTable || m_xField < 0 || m_xField >= m_pTable->Get_Field_Count() || m_yField < 0 || m_yField >= m_pTable->Get_Field_Count() )
@@ -864,12 +863,10 @@ bool CVIEW_ScatterPlot::_Initialize_Table(void)
 
 	double	Step	= m_maxSamples > 0 && m_pTable->Get_Count() > m_maxSamples ? m_pTable->Get_Count() / m_maxSamples : 1.0;
 
-	m_Regression.Destroy();
+	m_sTitle.Printf(SG_T("%s: [%s]"), _TL("[CAP] Scatterplot"), m_pTable->Get_Name());
 
-	m_sTitle.Printf(wxT("%s: [%s]"), _TL("[CAP] Scatterplot"), m_pTable->Get_Name());
-
-	m_sX.Printf(wxT("%s"), m_pTable->Get_Field_Name(m_xField));
-	m_sY.Printf(wxT("%s"), m_pTable->Get_Field_Name(m_yField));
+	m_sX.Printf(SG_T("%s"), m_pTable->Get_Field_Name(m_xField));
+	m_sY.Printf(SG_T("%s"), m_pTable->Get_Field_Name(m_yField));
 
 	for(double i=0; i<m_pTable->Get_Record_Count() && PROGRESSBAR_Set_Position(i, m_pTable->Get_Record_Count()); i+=Step)
 	{
@@ -884,7 +881,9 @@ bool CVIEW_ScatterPlot::_Initialize_Table(void)
 		}
 	}
 
-	return( _Initialize() );
+	PROCESS_Set_Okay(true);
+
+	return( m_Regression.Calculate() );
 }
 
 

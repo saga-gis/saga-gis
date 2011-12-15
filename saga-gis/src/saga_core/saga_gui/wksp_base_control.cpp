@@ -763,25 +763,20 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 
 	if( List.Get_Count() > 0 )
 	{
-		int			i;
-		wxString	*pItems;
+		wxArrayString	Items;
 
-		pItems	= new wxString[List.Get_Count()];
-
-		for(i=0; i<List.Get_Count(); i++)
+		for(int i=0; i<List.Get_Count(); i++)
 		{
-			pItems[i]	= List.Get_Record(i)->asString(0);
+			Items.Add(List.Get_Record(i)->asString(0));
 		}
 
 		wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
 			_TL("Copy Settings from..."),
 			_TL("[DLG] Select a layer to copy settings from it."),
-			List.Get_Count(), pItems
+			Items
 		);
 
 		bool	bOk	= dlg.ShowModal() == wxID_OK;
-
-		delete[](pItems);
 
 		if( bOk )
 		{
@@ -927,27 +922,23 @@ bool CWKSP_Base_Control::_Search_Item(void)
 	}
 
 	//-----------------------------------------------------
-	wxString	*pItems	= new wxString[List.Get_Count()];
+	wxArrayString	Items;
 
 	for(int i=0; i<List.Get_Count(); i++)
 	{
-		pItems[i].Printf(wxT("[%s] %s"), List[i].asString(1), List[i].asString(0));
+		Items.Add(wxString::Format(wxT("[%s] %s"), List[i].asString(1), List[i].asString(0)));
 	}
 
 	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
 		_TL("Locate..."),
 		wxString::Format(wxT("%s: %s"), _TL("Search Text"), Search("STRING")->asString()),
-		List.Get_Count(), pItems
+		Items
 	);
 
 	if( dlg.ShowModal() != wxID_OK )
 	{
-		delete[](pItems);
-
 		return( false );
 	}
-
-	delete[](pItems);
 
 	//-----------------------------------------------------
 	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)List.Get_Record(dlg.GetSelection())->asInt(2);
