@@ -2,8 +2,8 @@
 static const char *saga_icon_16_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 3 1",
-". c #00FFFF",
-"X c #0000FF",
+". c #C8D7FF",
+"X c #004B96",
 "  c None",
 /* pixels */
 "      .....   . ",
