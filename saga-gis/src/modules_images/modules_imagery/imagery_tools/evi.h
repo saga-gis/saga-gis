@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Image_VI_Slope.h 1246 2011-11-25 13:42:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                         evi.h                         //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2011 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,93 +40,69 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__evi_H
+#define HEADER_INCLUDED__evi_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Tools") );
-
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Assoc. (c) 2009") );
-
-	case MLB_INFO_Description:
-		return( _TL("Image processing tools.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|Tools") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Image_VI_Distance.h"
-#include "Image_VI_Slope.h"
-#include "evi.h"
-#include "tasseled_cap.h"
-#include "pansharpening.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CImage_VI_Distance );
-	case  1:	return( new CImage_VI_Slope );
-	case  2:	return( new CEnhanced_VI );
-	case  3:	return( new CTasseled_Cap );
-	case  4:	return( new CPanSharp_IHS );
-	case  5:	return( new CPanSharp_Brovey );
-	case  6:	return( new CPanSharp_CN );
-	case  7:	return( new CPanSharp_PCA );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CEnhanced_VI : public CSG_Module_Grid
+{
+public:
+	CEnhanced_VI(void);
 
-	MLB_INTERFACE
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__evi_H

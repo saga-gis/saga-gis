@@ -23,6 +23,15 @@
     <ClCompile Include="Image_VI_Slope.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="evi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tasseled_cap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pansharpening.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -83,6 +92,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Image_VI_Slope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="evi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tasseled_cap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pansharpening.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -574,6 +574,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="evi.cpp" />
     <ClCompile Include="Image_VI_Distance.cpp" />
     <ClCompile Include="Image_VI_Slope.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
@@ -594,6 +595,8 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="pansharpening.cpp" />
+    <ClCompile Include="tasseled_cap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -602,6 +605,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="evi.h" />
     <ClInclude Include="Image_VI_Distance.h" />
     <ClInclude Include="Image_VI_Slope.h" />
     <ClInclude Include="MLB_Interface.h" />
@@ -616,6 +620,8 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="pansharpening.h" />
+    <ClInclude Include="tasseled_cap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
