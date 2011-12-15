@@ -206,15 +206,18 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 {
 	int		x, y;
-	double	xPosition, yPosition, z;
+	double	yPosition;
 
 	Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
 
 	for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
 	{
-		for(x=0, xPosition=Get_XMin(); x<Get_NX(); x++, xPosition+=Get_Cellsize())
+		#pragma omp parallel for private(x)
+		for(x=0; x<Get_NX(); x++)
 		{
-			if( pGrid->Get_Value(xPosition, yPosition, z, Interpolation) )
+			double	z;
+
+			if( pGrid->Get_Value(Get_XMin() + x * Get_Cellsize(), yPosition, z, Interpolation) )
 			{
 				Set_Value (x, y, z);
 			}
@@ -939,6 +942,7 @@ bool CSG_Grid::Normalise(void)
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !is_NoData(x, y) )
@@ -967,6 +971,7 @@ bool CSG_Grid::DeNormalise(double Minimum, double Maximum)
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !is_NoData(x, y) )
@@ -998,6 +1003,7 @@ bool CSG_Grid::Standardise(void)
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !is_NoData(x, y) )
@@ -1026,6 +1032,7 @@ bool CSG_Grid::DeStandardise(double Mean, double StdDev)
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !is_NoData(x, y) )
