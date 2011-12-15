@@ -16,7 +16,7 @@
 //                      grid_pca.h                       //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
-//                     Jan Papmeier                      //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,7 +40,12 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -70,26 +75,52 @@ class CGrid_PCA : public CSG_Module_Grid
 public:
 	CGrid_PCA(void);
 
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Principle Components") );	}
+
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	int						m_Method;
+	int						m_Method, m_nFeatures;
 
 	CSG_Parameter_Grid_List	*m_pGrids;
 
 
-	int						Get_NGrids		(void);
-	bool					is_NoData		(int iCell);
-	double					Get_Value		(int iFeature, int iElement);
+	bool					is_NoData			(int iCell);
+	double					Get_Value			(int iCell, int iFeature);
 	
-	bool					Get_Matrix		(CSG_Matrix &Matrix);
+	bool					Get_Matrix			(CSG_Matrix &Matrix);
 
-	bool					Get_Components	(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Values);
+	void					Print_Eigen_Values	(CSG_Vector &Eigen_Values);
+	void					Print_Eigen_Vectors	(CSG_Matrix &Eigen_Vectors);
+
+	bool					Get_Components		(CSG_Matrix &Eigen_Vectors);
+
+};
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_PCA_Inverse : public CSG_Module_Grid
+{
+public:
+	CGrid_PCA_Inverse(void);
+
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Principle Components") );	}
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+
+private:
 
 };
 

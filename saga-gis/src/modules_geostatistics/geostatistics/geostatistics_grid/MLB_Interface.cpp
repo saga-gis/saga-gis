@@ -123,6 +123,7 @@ CSG_Module *		Create_Module(int i)
 	case  7:	return( new CGrid_Autocorrelation );
 	case  8:	return( new CGrid_PCA );
 	case  9:	return( new CMultiBand_Variation );
+	case 10:	return( new CGrid_PCA_Inverse );
 	}
 
 	return( NULL );
