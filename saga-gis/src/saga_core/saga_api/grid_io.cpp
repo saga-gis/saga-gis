@@ -470,7 +470,7 @@ bool CSG_Grid::_Load_ASCII(CSG_File &Stream, TSG_Grid_Memory_Type Memory_Type, b
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
-				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &Value);
+				fscanf(Stream.Get_Stream(), "%lf", &Value);
 
 				Set_Value(x, y, Value);
 			}
@@ -885,15 +885,15 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 
 		else if( !strncmp(Identifier, "DSAA", 4) )
 		{
-			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d %d")	, &NX	, &NY);
+			fscanf(Stream.Get_Stream(), "%d %d"  , &NX    , &NY    );
 
-			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &xMin	, &dValue);
+			fscanf(Stream.Get_Stream(), "%lf %lf", &xMin  , &dValue);
 			Cellsize	= (dValue - xMin) / (NX - 1.0);
 
-			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &yMin	, &dValue);
+			fscanf(Stream.Get_Stream(), "%lf %lf", &yMin  , &dValue);
 			//DY		= (dValue - yMin) / (NY - 1.0);
 
-			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &dValue, &dValue);
+			fscanf(Stream.Get_Stream(), "%lf %lf", &dValue, &dValue);
 
 			//---------------------------------------------
 			if( !Stream.is_EOF() && Create(SG_DATATYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
@@ -904,7 +904,7 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 				{
 					for(x=0; x<Get_NX(); x++)
 					{
-						SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &dValue);
+						fscanf(Stream.Get_Stream(), "%lf", &dValue);
 
 						Set_Value(x, y, dValue);
 					}

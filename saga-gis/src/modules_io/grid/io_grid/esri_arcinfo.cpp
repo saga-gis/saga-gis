@@ -292,7 +292,7 @@ double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 	int			c;
 	CSG_String	s;
 
-	while( !Stream.is_EOF() && !SG_is_Numeric(c = Stream.Get_Character()) );	// ignore leading white space...
+	while( !Stream.is_EOF() && !SG_is_Numeric(c = Stream.Read_Char()) );	// ignore leading white space...
 
 	if( !Stream.is_EOF() && SG_is_Numeric(c) )
 	{
@@ -305,7 +305,7 @@ double CESRI_ArcInfo_Import::Read_Value(CSG_File &Stream)
 
 			s	+= (char)c;
 		}
-		while( !Stream.is_EOF() && SG_is_Numeric(c = Stream.Get_Character()) );
+		while( !Stream.is_EOF() && SG_is_Numeric(c = Stream.Read_Char()) );
 	}
 
 	return( s.asDouble() );
@@ -318,7 +318,7 @@ bool CESRI_ArcInfo_Import::Read_Header_Line(CSG_File &Stream, CSG_String &sLine)
 
 	sLine.Clear();
 
-	while( !Stream.is_EOF() && (c = Stream.Get_Character()) != 0x0A )
+	while( !Stream.is_EOF() && (c = Stream.Read_Char()) != 0x0A )
 	{
 		if( c != 0x0D )
 		{

@@ -246,7 +246,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
 
-		Param_1.Pointer	= g_pData->Get_byFileName(Param_1.String.c_str(), (int)Param_2.Number);
+		Param_1.Pointer	= g_pData->Get_byFileName(Param_1.String, (int)Param_2.Number);
 
 		break;
 

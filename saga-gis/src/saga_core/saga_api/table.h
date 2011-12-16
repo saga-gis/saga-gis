@@ -131,44 +131,44 @@ public:
 	class CSG_Table *			Get_Table		(void)				{	return( m_pTable );	}
 	int							Get_Index		(void)	const		{	return( m_Index );	}
 
-	bool						Set_Value		(int           iField, const CSG_Bytes &Value);
-	bool						Set_Value		(const SG_Char *Field, const CSG_Bytes &Value);
-	bool						Set_Value		(int           iField, const SG_Char   *Value);
-	bool						Set_Value		(const SG_Char *Field, const SG_Char   *Value);
-	bool						Set_Value		(int           iField, double           Value);
-	bool						Set_Value		(const SG_Char *Field, double           Value);
-	bool						Add_Value		(int           iField, double           Value);
-	bool						Add_Value		(const SG_Char *Field, double           Value);
-	bool						Mul_Value		(int           iField, double           Value);
-	bool						Mul_Value		(const SG_Char *Field, double           Value);
+	bool						Set_Value		(int              iField, const CSG_Bytes  &Value);
+	bool						Set_Value		(const CSG_String &Field, const CSG_Bytes  &Value);
+	bool						Set_Value		(int              iField, const CSG_String &Value);
+	bool						Set_Value		(const CSG_String &Field, const CSG_String &Value);
+	bool						Set_Value		(int              iField, double            Value);
+	bool						Set_Value		(const CSG_String &Field, double            Value);
+	bool						Add_Value		(int              iField, double            Value);
+	bool						Add_Value		(const CSG_String &Field, double            Value);
+	bool						Mul_Value		(int              iField, double            Value);
+	bool						Mul_Value		(const CSG_String &Field, double            Value);
 
-	bool						Set_NoData		(int           iField);
-	bool						Set_NoData		(const SG_Char *Field);
-	bool						is_NoData		(int           iField)	const;
-	bool						is_NoData		(const SG_Char *Field)	const;
+	bool						Set_NoData		(int              iField);
+	bool						Set_NoData		(const CSG_String &Field);
+	bool						is_NoData		(int              iField)	const;
+	bool						is_NoData		(const CSG_String &Field)	const;
 
-	const SG_Char *				asString		(int           iField, int Decimals = -1)	const;
-	const SG_Char *				asString		(const SG_Char *Field, int Decimals = -1)	const;
+	const SG_Char *				asString		(int              iField, int Decimals = -1)	const;
+	const SG_Char *				asString		(const CSG_String &Field, int Decimals = -1)	const;
 
-	SG_Char						asChar			(int           iField)	const	{	return( (SG_Char)asInt   (iField) );	}
-	SG_Char						asChar			(const SG_Char *Field)	const	{	return( (SG_Char)asInt   ( Field) );	}
-	short						asShort			(int           iField)	const	{	return( (short  )asInt   (iField) );	}
-	short						asShort			(const SG_Char *Field)	const	{	return( (short  )asInt   ( Field) );	}
-	int							asInt			(int           iField)	const;
-	int							asInt			(const SG_Char *Field)	const;
+	SG_Char						asChar			(int              iField)	const	{	return( (SG_Char)asInt   (iField) );	}
+	SG_Char						asChar			(const CSG_String &Field)	const	{	return( (SG_Char)asInt   ( Field) );	}
+	short						asShort			(int              iField)	const	{	return( (short  )asInt   (iField) );	}
+	short						asShort			(const CSG_String &Field)	const	{	return( (short  )asInt   ( Field) );	}
+	int							asInt			(int              iField)	const;
+	int							asInt			(const CSG_String &Field)	const;
 
-	float						asFloat			(int           iField)	const	{	return( (float  )asDouble(iField) );	}
-	float						asFloat			(const SG_Char *Field)	const	{	return( (float  )asDouble( Field) );	}
-	double						asDouble		(int           iField)	const;
-	double						asDouble		(const SG_Char *Field)	const;
+	float						asFloat			(int              iField)	const	{	return( (float  )asDouble(iField) );	}
+	float						asFloat			(const CSG_String &Field)	const	{	return( (float  )asDouble( Field) );	}
+	double						asDouble		(int              iField)	const;
+	double						asDouble		(const CSG_String &Field)	const;
 
-	CSG_Table_Value *			Get_Value		(int           iField)			{	return(  m_Values[iField] );	}
-	CSG_Table_Value &			operator []		(int           iField)	const	{	return( *m_Values[iField] );	}
+	CSG_Table_Value *			Get_Value		(int              iField)			{	return(  m_Values[iField] );	}
+	CSG_Table_Value &			operator []		(int              iField)	const	{	return( *m_Values[iField] );	}
 
 	virtual bool				Assign			(CSG_Table_Record *pRecord);
 
-	bool						is_Selected		(void)					const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Selected) != 0 );	}
-	bool						is_Modified		(void)					const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Modified) != 0 );	}
+	bool						is_Selected		(void)						const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Selected) != 0 );	}
+	bool						is_Modified		(void)						const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Modified) != 0 );	}
 
 
 protected:
@@ -195,7 +195,7 @@ protected:
 	bool						_Add_Field		(int add_Field);
 	bool						_Del_Field		(int del_Field);
 
-	int							_Get_Field	 	(const SG_Char *Field)	const;
+	int							_Get_Field	 	(const CSG_String &Field)	const;
 
 };
 

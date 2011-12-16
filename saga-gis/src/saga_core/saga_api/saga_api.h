@@ -66,7 +66,7 @@
 #ifdef SWIG
 
 //---------------------------------------------------------
-#if defined(_SAGA_PYTHON) && defined(_SAGA_UNICODE)
+#if defined(_SAGA_PYTHON)
 %include <typemaps.i>
 %include <python/cwstring.i>
 #endif

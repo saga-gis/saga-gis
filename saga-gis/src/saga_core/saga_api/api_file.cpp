@@ -79,15 +79,15 @@
 CSG_File::CSG_File(void)
 {
 	m_pStream	= NULL;
-	m_bUnicode	= false;
+	m_Encoding	= SG_FILE_ENCODING_CHAR;
 }
 
 //---------------------------------------------------------
-CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary, bool bUnicode)
+CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary, int Encoding)
 {
 	m_pStream	= NULL;
 
-	Open(FileName, Mode, bBinary, bUnicode);
+	Open(FileName, Mode, bBinary, Encoding);
 }
 
 //---------------------------------------------------------
@@ -115,13 +115,13 @@ bool CSG_File::Detach(void)
 }
 
 //---------------------------------------------------------
-bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary, bool bUnicode)
+bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary, int Encoding)
 {
 	Close();
 
-	m_bUnicode	= bUnicode;
+	m_Encoding	= Encoding;
 
-	const SG_Char *sMode;
+	CSG_String	sMode;
 
 	switch( Mode )
 	{
@@ -133,11 +133,20 @@ bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary, bool bU
 	case SG_FILE_RWA:	sMode	= bBinary ? SG_T("rb+") : SG_T("r+");	break;
 	}
 
-#if defined(_SAGA_LINUX) && defined(_SAGA_UNICODE)
-	return( File_Name.Length() > 0 && (m_pStream = SG_FILE_OPEN( SG_STR_SGTOMB( File_Name ), SG_STR_SGTOMB( sMode ) )) != NULL );
-#else
-	return( File_Name.Length() > 0 && (m_pStream = SG_FILE_OPEN(File_Name, sMode)) != NULL );
-#endif
+	switch( Encoding )
+	{
+	case SG_FILE_ENCODING_CHAR:		default:	break;
+	case SG_FILE_ENCODING_UNICODE:	sMode	+= SG_T(", ccs=UNICODE");	break;
+	case SG_FILE_ENCODING_UTF8:		sMode	+= SG_T(", ccs=UTF-8"  );	break;
+	case SG_FILE_ENCODING_UTF16:	sMode	+= SG_T(", ccs=UTF-16" );	break;
+	}
+
+	if( File_Name.Length() > 0 )
+	{
+		m_pStream	= fopen(File_Name, sMode);
+	}
+
+	return( m_pStream != NULL );
 }
 
 //---------------------------------------------------------
@@ -148,19 +157,6 @@ bool CSG_File::Close(void)
 		fclose(m_pStream);
 
 		m_pStream	= NULL;
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_File::Set_UnicodeFlag(bool bOn)
-{
-	if( m_bUnicode != bOn )
-	{
-		m_bUnicode	= bOn;
 
 		return( true );
 	}
@@ -250,36 +246,6 @@ int CSG_File::Printf(const SG_Char *Format, ...)
 }
 
 //---------------------------------------------------------
-int CSG_File::Scanf(const SG_Char *Format, ...) const
-{
-	int		result	= 0;
-
-	if( m_pStream )
-	{
-		va_list argptr;
-
-		va_start(argptr, Format);
-
-		result	= 0;	// wxVfscanf(m_pStream, Format, argptr);
-
-		va_end(argptr);
-	}
-
-	return( result );
-}
-
-//---------------------------------------------------------
-int CSG_File::Get_Character(void) const
-{
-	if( m_pStream )
-	{
-		return( getc(m_pStream) );
-	}
-
-	return( 0 );
-}
-
-//---------------------------------------------------------
 size_t CSG_File::Read(void *Buffer, size_t Size, size_t Count) const
 {
 	return( m_pStream ? fread(Buffer, Size, Count, m_pStream) : 0 );
@@ -306,7 +272,7 @@ size_t CSG_File::Write(void *Buffer, size_t Size, size_t Count) const
 	return( m_pStream && Size > 0 && Count > 0 ? fwrite(Buffer, Size, Count, m_pStream) : 0 );
 }
 
-size_t CSG_File::Write(CSG_String &Buffer) const
+size_t CSG_File::Write(const CSG_String &Buffer) const
 {
 	return( Write((void *)Buffer.b_str(), sizeof(char), strlen(Buffer.b_str())) );
 }
@@ -332,6 +298,17 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_File::Read_Char(void) const
+{
+	if( m_pStream )
+	{
+		return( getc(m_pStream) );
+	}
+
+	return( 0 );
 }
 
 //---------------------------------------------------------

@@ -462,7 +462,7 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 				break;
 			}
 
-			Add_Field(SG_STR_MBTOSG(dbf.Get_FieldName(iField)), Type);
+			Add_Field(dbf.Get_FieldName(iField), Type);
 		}
 
 		//-------------------------------------------------
@@ -480,11 +480,11 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 					switch( Get_Field_Type(iField) )
 					{
 					case SG_DATATYPE_Char:
-						pRecord->Set_Value(iField, SG_STR_MBTOSG(dbf.asString(iField)) );
+						pRecord->Set_Value(iField, dbf.asString(iField).c_str() );
 						break;
 
 					case SG_DATATYPE_String:	default:
-						pRecord->Set_Value(iField, SG_STR_MBTOSG(dbf.asString(iField)) );
+						pRecord->Set_Value(iField, dbf.asString(iField).c_str() );
 						break;
 
 					case SG_DATATYPE_Date:
@@ -552,7 +552,7 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 
 	for(iField=0; iField<Get_Field_Count(); iField++)
 	{
-		strncpy(dbfFields[iField].Name, SG_STR_SGTOMB(Get_Field_Name(iField)), 11);
+		strncpy(dbfFields[iField].Name, CSG_String(Get_Field_Name(iField)), 11);
 
 		switch( Get_Field_Type(iField) )
 		{
@@ -613,7 +613,7 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 			{
 			case DBF_FT_DATE:
 			case DBF_FT_CHARACTER:
-				dbf.Set_Value(iField, SG_STR_SGTOMB(pRecord->asString(iField)));
+				dbf.Set_Value(iField, CSG_String(pRecord->asString(iField)));
 				break;
 
 			case DBF_FT_NUMERIC:

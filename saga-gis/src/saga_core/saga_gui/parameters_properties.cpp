@@ -651,7 +651,7 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 			if( bModified )
 			{
-				m_pParameter->Set_Value(&Text);
+				m_pParameter->Set_Value(CSG_String(&Text));
 
 				return( true );
 			}

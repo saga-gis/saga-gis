@@ -132,7 +132,7 @@ bool CCRS_Transform::_Set_Projection(const CSG_Projection &Projection, void **pp
 	PROJ4_FREE(*ppProj4);
 
 	//-------------------------------------------------
-	if( (*ppProj4 = pj_init_plus(SG_STR_SGTOMB(Projection.Get_Proj4()))) == NULL )
+	if( (*ppProj4 = pj_init_plus(Projection.Get_Proj4())) == NULL )
 	{
 		Error_Set(CSG_String::Format(SG_T("Proj4 [%s]: %s"), _TL("initialization"), SG_STR_MBTOSG(pj_strerrno(pj_errno))));
 

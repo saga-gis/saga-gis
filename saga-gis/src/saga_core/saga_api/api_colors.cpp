@@ -929,15 +929,20 @@ bool CSG_Colors::to_Text(CSG_String &String)
 //---------------------------------------------------------
 bool CSG_Colors::from_Text(const CSG_String &String)
 {
-	Set_Count(String.Length() / 13);
+	Set_Count(String.Length() / 12);
 
-	for(size_t i=0, n=0; i<Get_Count(); i++)
+	CSG_String	Colors(String), Color;
+
+	for(int i=0; i<Get_Count() && Colors.Length()>0; i++)
 	{
-		int		r, g, b;
+		Color	= Colors.BeforeFirst('\n');
+		Colors	= Colors.AfterFirst ('\n');
 
-		n	+= SG_SSCANF(String.c_str() + n, SG_T("%d %d %d"), &r, &g, &b);
-
-		m_Colors[i]	= SG_GET_RGB(r, g, b);
+		m_Colors[i]	= SG_GET_RGB(
+			Color.BeforeFirst(' ').asInt(),
+			Color.BeforeLast (' ').asInt(),
+			Color.AfterLast  (' ').asInt()
+		);
 	}
 
 	return( true );

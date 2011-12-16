@@ -415,8 +415,8 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 
 			pRecord	= m_pLUT->Add_Record();
 			pRecord->Set_Value(LUT_COLOR		, m_pColors->Get_Color(iClass));
-			pRecord->Set_Value(LUT_TITLE		, wxString::Format(wxT(">=%f"), zB));
-			pRecord->Set_Value(LUT_DESCRIPTION	, wxString::Format(wxT("%f <-> %f"), zB, zA));
+			pRecord->Set_Value(LUT_TITLE		, CSG_String::Format(SG_T(">=%f"), zB));
+			pRecord->Set_Value(LUT_DESCRIPTION	, CSG_String::Format(SG_T("%f <-> %f"), zB, zA));
 			pRecord->Set_Value(LUT_MIN			, zB);
 			pRecord->Set_Value(LUT_MAX			, zA);
 		}
@@ -426,8 +426,8 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 		zA		= pGrid->asDouble(x, y);
 		pRecord	= m_pLUT->Add_Record();
 		pRecord->Set_Value(LUT_COLOR		, m_pColors->Get_Color(iClass));
-		pRecord->Set_Value(LUT_TITLE		, wxString::Format(wxT(">=%f"), zB));
-		pRecord->Set_Value(LUT_DESCRIPTION	, wxString::Format(wxT("%f <-> %f"), zB, zA));
+		pRecord->Set_Value(LUT_TITLE		, CSG_String::Format(SG_T(">=%f"), zB));
+		pRecord->Set_Value(LUT_DESCRIPTION	, CSG_String::Format(SG_T("%f <-> %f"), zB, zA));
 		pRecord->Set_Value(LUT_MIN			, zB);
 		pRecord->Set_Value(LUT_MAX			, zA);
 

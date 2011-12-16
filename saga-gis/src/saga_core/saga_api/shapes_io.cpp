@@ -106,19 +106,19 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 		switch( fDBF.Get_FieldType(iField) )
 		{
 		case DBF_FT_LOGICAL:
-			Add_Field(SG_STR_MBTOSG(fDBF.Get_FieldName(iField)), SG_DATATYPE_Char);
+			Add_Field(fDBF.Get_FieldName(iField), SG_DATATYPE_Char);
 			break;
 
 		case DBF_FT_CHARACTER:	default:
-			Add_Field(SG_STR_MBTOSG(fDBF.Get_FieldName(iField)), SG_DATATYPE_String);
+			Add_Field(fDBF.Get_FieldName(iField), SG_DATATYPE_String);
 			break;
 
 		case DBF_FT_DATE:
-			Add_Field(SG_STR_MBTOSG(fDBF.Get_FieldName(iField)), SG_DATATYPE_Date);
+			Add_Field(fDBF.Get_FieldName(iField), SG_DATATYPE_Date);
 			break;
 
 		case DBF_FT_NUMERIC:
-			Add_Field(SG_STR_MBTOSG(fDBF.Get_FieldName(iField)), fDBF.Get_FieldDecimals(iField) > 0
+			Add_Field(fDBF.Get_FieldName(iField), fDBF.Get_FieldDecimals(iField) > 0
 					? SG_DATATYPE_Double
 					: SG_DATATYPE_Long
 				);
@@ -337,11 +337,11 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				switch( Get_Field_Type(iField) )
 				{
 				case SG_DATATYPE_Char:
-					pShape->Set_Value(iField, SG_STR_MBTOSG(fDBF.asString(iField)) );
+					pShape->Set_Value(iField, fDBF.asString(iField).c_str() );
 					break;
 
 				case SG_DATATYPE_String:	default:
-					pShape->Set_Value(iField, SG_STR_MBTOSG(fDBF.asString(iField)) );
+					pShape->Set_Value(iField, fDBF.asString(iField).c_str() );
 					break;
 
 				case SG_DATATYPE_Date:
@@ -444,7 +444,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 	for(iField=0; iField<Get_Field_Count(); iField++)
 	{
-		strncpy(dbfFields[iField].Name, SG_STR_SGTOMB(Get_Field_Name(iField)), 11);
+		strncpy(dbfFields[iField].Name, CSG_String(Get_Field_Name(iField)), 11);
 
 		switch( Get_Field_Type(iField) )
 		{
@@ -699,7 +699,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			{
 			case DBF_FT_DATE:
 			case DBF_FT_CHARACTER:
-				fDBF.Set_Value(iField, SG_STR_SGTOMB(pShape->asString(iField)));
+				fDBF.Set_Value(iField, CSG_String(pShape->asString(iField)));
 				break;
 
 			case DBF_FT_NUMERIC:

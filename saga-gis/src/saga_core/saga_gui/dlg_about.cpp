@@ -219,12 +219,6 @@ wxString CDLG_About::_Get_Version(void)
 	#endif
 #endif
 
-#ifdef _SAGA_UNICODE
-	s	+= wxT("unicode\n");
-#else
-	s	+= wxT("single byte characters\n");
-#endif
-
 	//-----------------------------------------------------
 	s.Append(wxT("_______________________\n\n"));
 
@@ -317,7 +311,7 @@ wxString CDLG_About::_Get_Version(void)
 //---------------------------------------------------------
 wxString CDLG_About::_Get_Acknowledgements(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"\n"
 		"Acknowledgements\n"
 		"\n"
@@ -348,7 +342,7 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 		"Thomas Wutzler\n"
 		"_______________________\n"
 		"\n"
-	));
+	);
 }
 
 
@@ -361,7 +355,7 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 //---------------------------------------------------------
 wxString CDLG_About::_Get_GPL(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"\n"
 		"GNU GENERAL PUBLIC LICENSE\n"
 		"Version 2, June 1991\n"
@@ -703,13 +697,13 @@ wxString CDLG_About::_Get_GPL(void)
 		"consider it more useful to permit linking proprietary applications with the\n"
 		"library.  If this is what you want to do, use the GNU Library General\n"
 		"Public License instead of this License.\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
 wxString CDLG_About::_Get_LGPL(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"\n"
 		"GNU LESSER GENERAL PUBLIC LICENSE\n"
 		"Version 2.1, February 1999\n"
@@ -1213,7 +1207,7 @@ wxString CDLG_About::_Get_LGPL(void)
 		"Ty Coon, President of Vice\n"
 		"\n"
 		"That\'s all there is to it!\n"
-	));
+	);
 }
 
 

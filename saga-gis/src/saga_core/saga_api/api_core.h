@@ -199,19 +199,17 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 	#define SG_STR_CPY			strcpy
 	#define SG_STR_LEN			strlen
 	#define SG_STR_TOD			strtod
-	#define SG_STR_SGTOMB(s)	s
 	#define SG_STR_MBTOSG(s)	s
 #else
 	#define SG_Char				wchar_t
 	#define SG_T(s)				L ## s
-	#define SG_PRINTF			SG_Printf
-	#define SG_FPRINTF			SG_FPrintf
+	#define SG_PRINTF			wprintf
+	#define SG_FPRINTF			fwprintf
 	#define SG_SSCANF			swscanf
 	#define SG_STR_CPY			wcscpy
 	#define SG_STR_LEN			wcslen
 	#define SG_STR_TOD			wcstod
-	#define SG_STR_SGTOMB(s)	CSG_String(s).b_str()
-	#define SG_STR_MBTOSG(s)	CSG_String(s).c_str()
+	#define SG_STR_MBTOSG(s)	CSG_String(s).w_str()
 #endif
 
 //---------------------------------------------------------
@@ -369,12 +367,8 @@ protected:
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
 SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE* stream, const SG_Char *Format, ...);
-SAGA_API_DLL_EXPORT int				SG_Sscanf						(const CSG_String &Buffer, const SG_Char *Format, ...);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
-
-SAGA_API_DLL_EXPORT CSG_String		SG_UTF8_To_String				(const SG_Char *String);
-SAGA_API_DLL_EXPORT CSG_String		SG_String_To_UTF8				(const SG_Char *String);
 
 SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const CSG_String &String);
 SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Degree				(double Value);
@@ -531,9 +525,6 @@ public:
 
 							CSG_Bytes		(const BYTE *Bytes, int nBytes);
 	bool					Create			(const BYTE *Bytes, int nBytes);
-
-							CSG_Bytes		(const SG_Char *Bytes);
-	bool					Create			(const SG_Char *Bytes);
 
 	virtual ~CSG_Bytes(void);
 
@@ -801,23 +792,6 @@ SAGA_API_DLL_EXPORT bool			SG_DataType_Range_Check	(TSG_Data_Type Type, double &
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _SAGA_UNICODE
-	#define SG_FILE_OPEN		fopen
-	#define SG_FILE_PRINTF		fprintf
-	#define SG_FILE_SCANF		fscanf
-	#define SG_FILE_GETC		fgetc
-#else
-	#ifndef _SAGA_LINUX
-		#define SG_FILE_OPEN	_wfopen
-	#else
-		#define SG_FILE_OPEN	fopen
-	#endif
-	#define SG_FILE_PRINTF		fwprintf
-	#define SG_FILE_SCANF		fwscanf
-	#define SG_FILE_GETC		fgetwc
-#endif
-
-//---------------------------------------------------------
 enum ESG_File_Flags_Open
 {
 	SG_FILE_R,
@@ -825,6 +799,15 @@ enum ESG_File_Flags_Open
 	SG_FILE_RW,
 	SG_FILE_WA,
 	SG_FILE_RWA
+};
+
+//---------------------------------------------------------
+enum ESG_File_Flags_Encoding
+{
+	SG_FILE_ENCODING_CHAR,
+	SG_FILE_ENCODING_UNICODE,
+	SG_FILE_ENCODING_UTF8,
+	SG_FILE_ENCODING_UTF16
 };
 
 //---------------------------------------------------------
@@ -841,18 +824,18 @@ class SAGA_API_DLL_EXPORT CSG_File
 public:
 
 	CSG_File(void);
-	CSG_File(const CSG_String &File_Name, int Mode = SG_FILE_R, bool bBinary = true, bool bUnicode = false);
-
 	virtual ~CSG_File(void);
+
+									CSG_File			(const CSG_String &File_Name, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_CHAR);
+	bool							Open				(const CSG_String &File_Name, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_CHAR);
+
+	bool							Close				(void);
 
 	bool							Attach				(FILE *Stream);
 	bool							Detach				(void);
-	FILE *							Get_Stream			(void)	const	{	return( m_pStream );	}
-	bool							Get_UnicodeFlag		(void)	const	{	return( m_bUnicode );	}
-	bool							Set_UnicodeFlag		(bool bOn);
 
-	bool							Open				(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true, bool bUnicode = false);
-	bool							Close				(void);
+	FILE *							Get_Stream			(void)	const	{	return( m_pStream );	}
+	int								Get_Encoding		(void)	const	{	return( m_Encoding );	}
 
 	bool							is_Open				(void)	const	{	return( m_pStream != NULL );	}
 	bool							is_EOF				(void)	const;
@@ -868,17 +851,15 @@ public:
 	bool							Flush				(void)	const;
 
 	int								Printf				(const SG_Char *Format, ...);
-	int								Scanf				(const SG_Char *Format, ...)	const;
 
-	int								Get_Character		(void)	const;
-
-	size_t							Read				(void       *Buffer, size_t Size, size_t Count = 1)	const;
-	size_t							Write				(void       *Buffer, size_t Size, size_t Count = 1)	const;
-	size_t							Read				(CSG_String &Buffer, size_t Size)	const;
-	size_t							Write				(CSG_String &Buffer)				const;
+	size_t							Read				(void             *Buffer, size_t Size, size_t Count = 1)	const;
+	size_t							Write				(void             *Buffer, size_t Size, size_t Count = 1)	const;
+	size_t							Read				(      CSG_String &Buffer, size_t Size)	const;
+	size_t							Write				(const CSG_String &Buffer)				const;
 
 	bool							Read_Line			(CSG_String &sLine)	const;
 
+	int								Read_Char			(void)	const;
 	int								Read_Int			(				bool bBigEndian = false)	const;
 	bool							Write_Int			(int    Value,	bool bBigEndian = false);
 	double							Read_Double			(				bool bBigEndian = false)	const;
@@ -895,7 +876,7 @@ public:
 
 private:
 
-	bool							m_bUnicode;
+	bool							m_Encoding;
 
 	FILE							*m_pStream;
 

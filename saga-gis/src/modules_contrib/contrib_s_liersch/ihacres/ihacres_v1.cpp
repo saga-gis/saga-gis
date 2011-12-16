@@ -142,7 +142,7 @@ bool Cihacres_v1::On_Execute(void)
 
 		for (j = 0, k = first; j < sizeAll, k < last + 1; j++, k++)
 		{
-			date[j].append(SG_STR_SGTOMB(pTable->Get_Record(k)->asString(dateField)));
+			date[j].append(CSG_String (pTable->Get_Record(k)->asString(dateField)));
 			m_Q_obs_m3s[j]			 = pTable->Get_Record(k)->asDouble(dischargeField);
 			precipitation[j]		 = pTable->Get_Record(k)->asDouble(pcpField);
 			if (bTMP) temperature[j] = pTable->Get_Record(k)->asDouble(tmpField);
@@ -295,7 +295,7 @@ void Cihacres_v1::CreateTableSim(CSG_Table *pTable, date_array date, vector_d st
 		pRecord = pTable->Get_Record(i);
 
 		// writing the data into the rows
-		pRecord->Set_Value(0,SG_STR_MBTOSG(date[j].c_str()));
+		pRecord->Set_Value(0,CSG_String(date[j].c_str()));
 		pRecord->Set_Value(1,strfl_obs[j]);
 		pRecord->Set_Value(2,model_tools::mmday_to_m3s(strfl_sim[j],m_area));
 		i++;
@@ -324,7 +324,7 @@ void Cihacres_v1::CreateTableParms(CSG_Table *pTable, date_array date, vector_d 
 		pRecord = pTable->Get_Record(i);
 
 		// writing the data into the rows
-		pRecord->Set_Value(0,SG_STR_MBTOSG(date[j].c_str()));
+		pRecord->Set_Value(0,CSG_String(date[j].c_str()));
 		pRecord->Set_Value(1,strfl_obs[j]);
 		pRecord->Set_Value(2,model_tools::mmday_to_m3s(strfl_sim[j], m_area));
 		pRecord->Set_Value(3,temperature[j]);

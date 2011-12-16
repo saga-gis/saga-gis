@@ -105,7 +105,7 @@ CSG_GDAL_Drivers::~CSG_GDAL_Drivers(void)
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Version(void) const
 {
-	return( SG_STR_MBTOSG(GDALVersionInfo("RELEASE_NAME")) );
+	return( GDALVersionInfo("RELEASE_NAME") );
 }
 
 //---------------------------------------------------------
@@ -117,7 +117,7 @@ int CSG_GDAL_Drivers::Get_Count(void) const
 //---------------------------------------------------------
 GDALDriver * CSG_GDAL_Drivers::Get_Driver(const CSG_String &Name) const
 {
-	return( (GDALDriver *)GDALGetDriverByName(SG_STR_SGTOMB(Name)) );
+	return( (GDALDriver *)GDALGetDriverByName(Name) );
 }
 
 //---------------------------------------------------------
@@ -129,19 +129,19 @@ GDALDriver * CSG_GDAL_Drivers::Get_Driver(int Index) const
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Name(int Index) const
 {
-	return( SG_STR_MBTOSG(Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME)) );
+	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Description(int Index) const
 {
-	return( SG_STR_MBTOSG(Get_Driver(Index)->GetDescription()) );
+	return( Get_Driver(Index)->GetDescription() );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Extension(int Index) const
 {
-	return( SG_STR_MBTOSG(Get_Driver(Index)->GetMetadataItem(GDAL_DMD_EXTENSION)) );
+	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_EXTENSION) );
 }
 
 //---------------------------------------------------------
@@ -245,7 +245,7 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 {
 	Close();
 
-	if( (m_pDataSet = (GDALDataset *)GDALOpen(SG_STR_SGTOMB(File_Name), GA_ReadOnly)) == NULL )
+	if( (m_pDataSet = (GDALDataset *)GDALOpen(File_Name, GA_ReadOnly)) == NULL )
 	{
 		return( false );
 	}
@@ -300,7 +300,7 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 	Close();
 
 	//--------------------------------------------------------
-	if( (pDriver = gSG_GDAL_Drivers.Get_Driver(SG_STR_SGTOMB(Driver))) == NULL )
+	if( (pDriver = gSG_GDAL_Drivers.Get_Driver(Driver)) == NULL )
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("driver not found."), Driver.c_str()));
 
@@ -314,7 +314,7 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 		return( false );
 	}
 
-	if( (m_pDataSet = pDriver->Create(SG_STR_SGTOMB(File_Name), System.Get_NX(), System.Get_NY(), NBands, (GDALDataType)gSG_GDAL_Drivers.Get_GDAL_Type(Type), pOptions)) == NULL )
+	if( (m_pDataSet = pDriver->Create(File_Name, System.Get_NX(), System.Get_NY(), NBands, (GDALDataType)gSG_GDAL_Drivers.Get_GDAL_Type(Type), pOptions)) == NULL )
 	{
 		SG_UI_Msg_Add_Error(_TL("Could not create dataset."));
 
@@ -326,7 +326,7 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 
 	if( Projection.is_Okay() )
 	{
-		m_pDataSet->SetProjection(SG_STR_SGTOMB(Projection.Get_WKT()));
+		m_pDataSet->SetProjection(Projection.Get_WKT());
 	}
 
 	double	Transform[6]	=
@@ -449,11 +449,11 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 
 		if( (s = pBand->GetMetadataItem("GRIB_COMMENT")) != NULL && *s )
 		{
-			Name	= SG_STR_MBTOSG(s);
+			Name	= s;
 		}
 		else if( (s = pBand->GetMetadataItem(GDAL_DMD_LONGNAME)) != NULL && *s )
 		{
-			Name	= SG_STR_MBTOSG(s);
+			Name	= s;
 		}
 		else
 		{
@@ -463,7 +463,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		//-------------------------------------------------
 		pGrid->Set_Name			(Name);
 		pGrid->Set_Description	(Description);
-		pGrid->Set_Unit			(SG_STR_MBTOSG(pBand->GetUnitType()));
+		pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
 		pGrid->Set_NoData_Value	(pBand->GetNoDataValue());
 		pGrid->Set_ZFactor		(pBand->GetScale());
 

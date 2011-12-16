@@ -119,13 +119,13 @@ OGRSFDriver * CSG_OGR_Drivers::Get_Driver(int Index) const
 //---------------------------------------------------------
 OGRSFDriver * CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
 {
-	return( m_pDrivers ? m_pDrivers->GetDriverByName(SG_STR_SGTOMB(Name)) : NULL );
+	return( m_pDrivers ? m_pDrivers->GetDriverByName(Name) : NULL );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_Drivers::Get_Name(int Index) const
 {
-	return( SG_STR_MBTOSG(m_pDrivers->GetDriver(Index)->GetName()) );
+	return( m_pDrivers->GetDriver(Index)->GetName() );
 }
 
 //---------------------------------------------------------
@@ -159,7 +159,7 @@ CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
 	s	+= _TL("sequential write");
 /**/
 
-	return( SG_STR_MBTOSG(s) );
+	return( s );
 }
 
 //---------------------------------------------------------
@@ -335,7 +335,7 @@ bool CSG_OGR_DataSource::Create(const CSG_String &File)
 {
 	Destroy();
 
-	m_pDataSource	= OGRSFDriverRegistrar::Open(SG_STR_SGTOMB(File));
+	m_pDataSource	= OGRSFDriverRegistrar::Open(File);
 
 	return( m_pDataSource != NULL );
 }
@@ -348,7 +348,7 @@ bool CSG_OGR_DataSource::Create(const CSG_String &File, const CSG_String &Driver
 
 	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
 	{
-		m_pDataSource	= pDriver->CreateDataSource(SG_STR_SGTOMB(File), NULL);
+		m_pDataSource	= pDriver->CreateDataSource(File, NULL);
 	}
 
 	return( m_pDataSource != NULL );
@@ -462,8 +462,8 @@ CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer)
 
 					switch( pDefField->GetType() )
 					{
-					default:			pShape->Set_Value(iField, SG_STR_MBTOSG(pFeature->GetFieldAsString (iField)));	break;
-					case OFTString:		pShape->Set_Value(iField, SG_STR_MBTOSG(pFeature->GetFieldAsString (iField)));	break;
+					default:			pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
+					case OFTString:		pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
 					case OFTInteger:	pShape->Set_Value(iField, pFeature->GetFieldAsInteger(iField));	break;
 					case OFTReal:		pShape->Set_Value(iField, pFeature->GetFieldAsDouble (iField));	break;
 					}
@@ -589,7 +589,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 	OGRLayer	*pLayer;
 
 	//-----------------------------------------------------
-	if( m_pDataSource && pShapes && pShapes->is_Valid() && (pLayer = m_pDataSource->CreateLayer(SG_STR_SGTOMB(pShapes->Get_Name()), NULL, (OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), bZ))) != NULL )
+	if( m_pDataSource && pShapes && pShapes->is_Valid() && (pLayer = m_pDataSource->CreateLayer(CSG_String(pShapes->Get_Name()), NULL, (OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), bZ))) != NULL )
 	{
 		bool			bResult	= true;
 		int				iField;
@@ -597,7 +597,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 		//-------------------------------------------------
 		for(iField=0; iField<pShapes->Get_Field_Count() && bResult; iField++)
 		{
-			OGRFieldDefn	DefField(SG_STR_SGTOMB(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
+			OGRFieldDefn	DefField(CSG_String(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
 
 			//	DefField.SetWidth(32);
 
@@ -621,7 +621,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 				case SG_DATATYPE_Char:
 				case SG_DATATYPE_String:
 				case SG_DATATYPE_Date:
-					pFeature->SetField(iField, SG_STR_SGTOMB(pShape->asString(iField)));
+					pFeature->SetField(iField, CSG_String(pShape->asString(iField)));
 					break;
 
 				case SG_DATATYPE_Short:

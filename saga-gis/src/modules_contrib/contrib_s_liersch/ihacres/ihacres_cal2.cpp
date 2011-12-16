@@ -228,7 +228,7 @@ bool Cihacres_cal2::On_Execute(void)
 					nse = convert_sl::Double2String(NSE_max).c_str();
 					nse_text = "max. NSE ";
 					nse_text += nse;
-					Process_Set_Text(SG_STR_MBTOSG(nse_text.c_str()));
+					Process_Set_Text(CSG_String(nse_text.c_str()));
 				}
 
 				_WriteOutputTable();
@@ -320,7 +320,7 @@ void Cihacres_cal2::_ReadInputTable(int first, int last)
 	for (j = 0, k = first; j < m_nValues, k < last + 1; j++, k++)
 	{
 		// put the date string into the vector
-		m_vec_date[j].append(SG_STR_SGTOMB(m_pTable->Get_Record(k)->asString(m_dateField)));
+		m_vec_date[j].append(CSG_String(m_pTable->Get_Record(k)->asString(m_dateField)));
 		m_p_Q_obs_m3s[j]= m_pTable->Get_Record(k)->asDouble(m_dischargeField);
 		m_pPCP[j]		= m_pTable->Get_Record(k)->asDouble(m_pcpField);
 		m_pTMP[j]		= m_pTable->Get_Record(k)->asDouble(m_tmpField);

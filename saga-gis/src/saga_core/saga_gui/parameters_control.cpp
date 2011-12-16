@@ -272,7 +272,7 @@ bool CParameters_Control::Load(void)
 		CSG_File	File(&File_Path);
 
 		if(	m_pParameters->Serialize_Compatibility(File)
-		||	m_pParameters->Serialize(File_Path.wc_str(), false) )
+		||	m_pParameters->Serialize(&File_Path, false) )
 		{
 			_Init_Pararameters();
 
@@ -296,7 +296,7 @@ bool CParameters_Control::Save(void)
 
 	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) )
 	{
-		if( m_pParameters->Serialize(File_Path.wc_str(), true) )
+		if( m_pParameters->Serialize(&File_Path, true) )
 		{
 			return( true );
 		}
@@ -713,7 +713,7 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value(&m_pPG->GetPropertyValueAsString(pProperty));
+				pParameter->Set_Value(CSG_String(&m_pPG->GetPropertyValueAsString(pProperty)));
 				break;
 
 			case PARAMETER_TYPE_Bool:

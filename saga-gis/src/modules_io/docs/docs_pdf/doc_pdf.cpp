@@ -222,7 +222,7 @@ bool CSG_Doc_PDF::Save(const SG_Char *FileName)
 	{
 		try
 		{
-			return( HPDF_SaveToFile(m_pPDF, SG_STR_SGTOMB(FileName)) == HPDF_OK );
+			return( HPDF_SaveToFile(m_pPDF, CSG_String(FileName)) == HPDF_OK );
 		}
 		catch(...)
 		{}
@@ -286,7 +286,7 @@ struct _HPDF_Dict_Rec * CSG_Doc_PDF::_Get_Font(TSG_PDF_Font_Type Font)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const SG_Char *ID)
+bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const CSG_String &ID)
 {
 	if( m_Boxes_Percent.Add(xMin_Percent, yMin_Percent, xMax_Percent, yMax_Percent) )
 	{
@@ -302,13 +302,13 @@ bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, doubl
 }
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const SG_Char *ID)
+bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const CSG_String &ID)
 {
 	return( Layout_Add_Box(Box_Percent.Get_XMin(), Box_Percent.Get_YMin(), Box_Percent.Get_XMax(), Box_Percent.Get_YMax(), ID) );
 }
 
 //---------------------------------------------------------
-const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const SG_Char *ID)
+const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const CSG_String &ID)
 {
 	for(int i=0; i<m_Boxes_ID.Get_Count(); i++)
 	{
@@ -439,27 +439,27 @@ bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, struct _HPDF_Dict_Rec 
 		switch( Level )
 		{
 		case PDF_TITLE:
-			pOutlineItem	= m_pOutline_Last_Level_0	= HPDF_CreateOutline(m_pPDF, NULL, SG_STR_SGTOMB(Title), NULL);
+			pOutlineItem	= m_pOutline_Last_Level_0	= HPDF_CreateOutline(m_pPDF, NULL, CSG_String(Title), NULL);
 			break;
 
 		case PDF_TITLE_01:
 			if( m_pOutline_Last_Level_0 )
 			{
-				pOutlineItem	= m_pOutline_Last_Level_1	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_0, SG_STR_SGTOMB(Title), NULL);
+				pOutlineItem	= m_pOutline_Last_Level_1	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_0, CSG_String(Title), NULL);
 			}
 			break;
 
 		case PDF_TITLE_02:
 			if( m_pOutline_Last_Level_1 )
 			{
-				pOutlineItem	= m_pOutline_Last_Level_2	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_1, SG_STR_SGTOMB(Title), NULL);
+				pOutlineItem	= m_pOutline_Last_Level_2	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_1, CSG_String(Title), NULL);
 			}
 			break;
 
 		case PDF_TITLE_NONE:
 			if( m_pOutline_Last_Level_2 )
 			{
-				pOutlineItem	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_2, SG_STR_SGTOMB(Title), NULL);
+				pOutlineItem	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_2, CSG_String(Title), NULL);
 			}
 			break;
 
@@ -911,24 +911,24 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, 
 		HPDF_Page_SetRGBStroke	(m_pPage, PDF_GET_R(Color), PDF_GET_G(Color), PDF_GET_B(Color));
 		HPDF_Page_SetRGBFill	(m_pPage, PDF_GET_R(Color), PDF_GET_G(Color), PDF_GET_B(Color));
 
-		Width	= HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text)) * (float)cos(Angle);
-		Height	= HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text)) * (float)sin(Angle) + Size;
+		Width	= HPDF_Page_TextWidth(m_pPage, CSG_String(Text)) * (float)cos(Angle);
+		Height	= HPDF_Page_TextWidth(m_pPage, CSG_String(Text)) * (float)sin(Angle) + Size;
 
 		//-------------------------------------------------
 		if( Style & PDF_STYLE_TEXT_ALIGN_H_CENTER )
 		{
-			ax	= x - HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text)) / 2.0;
+			ax	= x - HPDF_Page_TextWidth(m_pPage, CSG_String(Text)) / 2.0;
 		}
 		else if( Style & PDF_STYLE_TEXT_ALIGN_H_RIGHT )
 		{
-			ax	= x - HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text));
+			ax	= x - HPDF_Page_TextWidth(m_pPage, CSG_String(Text));
 		}
 		else
 		{
 			ax	= x;
 		}
 
-		bx	= ax + HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text));
+		bx	= ax + HPDF_Page_TextWidth(m_pPage, CSG_String(Text));
 
 		if( Style & PDF_STYLE_TEXT_ALIGN_V_CENTER )
 		{
@@ -975,7 +975,7 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, 
 			HPDF_Page_MoveTextPos(m_pPage, (float)ax, (float)ay);
 		}
 
-		HPDF_Page_ShowText(m_pPage, SG_STR_SGTOMB(Text));
+		HPDF_Page_ShowText(m_pPage, CSG_String(Text));
 		HPDF_Page_EndText(m_pPage);
 
 		//-------------------------------------------------
@@ -1024,11 +1024,11 @@ bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const SG_
 	{
 		if( SG_File_Cmp_Extension(FileName, SG_T("png")) )
 		{
-	try	{	pImage	= HPDF_LoadPngImageFromFile (m_pPDF, SG_STR_SGTOMB(FileName));	}	catch(...)	{}
+	try	{	pImage	= HPDF_LoadPngImageFromFile (m_pPDF, CSG_String(FileName));	}	catch(...)	{}
 		}
 		else if( SG_File_Cmp_Extension(FileName, SG_T("jpg")) )
 		{
-	try	{	pImage	= HPDF_LoadJpegImageFromFile(m_pPDF, SG_STR_SGTOMB(FileName));	}	catch(...)	{}
+	try	{	pImage	= HPDF_LoadJpegImageFromFile(m_pPDF, CSG_String(FileName));	}	catch(...)	{}
 		}
 	}
 
@@ -1122,7 +1122,7 @@ bool CSG_Doc_PDF::_Draw_Ruler(const CSG_Rect &r, double zMin, double zMax, bool 
 		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
 
 		s.Printf(SG_T("%.*f"), Decimals, zMax);
-		zDC			= HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(s));
+		zDC			= HPDF_Page_TextWidth(m_pPage, CSG_String(s));
 		while( zToDC * dz < zDC + RULER_TEXT_SPACE )
 		{
 			dz	*= 2;
@@ -1701,27 +1701,6 @@ bool CSG_Doc_PDF::Draw_Grid(const CSG_Rect &r, CSG_Grid *pGrid, const CSG_Colors
 void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType)	{}
 
 #endif	// #else // #ifndef _SAGA_DONOTUSE_HARU
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifdef _SAGA_UNICODE
-
-bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID)
-{	return( Layout_Add_Box(xMin_Percent, yMin_Percent, xMax_Percent, yMax_Percent, SG_STR_MBTOSG(ID)) );	}
-
-bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const char *ID)
-{	return( Layout_Add_Box(Box_Percent, SG_STR_MBTOSG(ID)) );	}
-
-const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const char *ID)
-{	return( Layout_Get_Box(SG_STR_MBTOSG(ID)) );	}
-
-#endif
 
 
 ///////////////////////////////////////////////////////////

@@ -171,12 +171,12 @@ bool CTable_Load::On_Before_Execution(void)
 		return( false );
 	}
 
-	CSG_String	Table(Parameters("TABLES")->asString());
+	CSG_String	Tables(Get_Connection()->Get_Tables());
 
-	Parameters("TABLES")->asChoice()->Set_Items(Get_Connection()->Get_Tables());
-	Parameters("TABLES")->Set_Value(Table);
+	Parameters("TABLES")->asChoice()->Set_Items(Tables);
+	Parameters("TABLES")->Set_Value(Parameters("TABLES")->asString());
 
-	return( true );
+	return( Tables.Length() > 0 );
 }
 
 //---------------------------------------------------------

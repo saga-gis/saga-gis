@@ -862,20 +862,6 @@ int				SG_FPrintf(FILE* stream, const SG_Char *Format, ...)
 	return( ret );
 }
 
-//---------------------------------------------------------
-int				SG_Sscanf(const SG_Char *Buffer, const SG_Char *Format, ...)
-{
-	va_list	argptr;
-
-	va_start(argptr, Format);
-
-	int		ret	= 0;	// wxVsscanf(pBuffer, pFormat, argptr);
-
-	va_end(argptr);
-
-	return( ret );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -900,33 +886,6 @@ CSG_String		SG_Get_CurrentTimeStr(bool bWithDate)
 	s.Append(t.FormatISOTime().wc_str());
 
 	return( s );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_String		SG_UTF8_To_String(const SG_Char *String)
-{
-#ifdef _SAGA_UNICODE
-	return( !String && !String[0] ? SG_T("") : String );
-#else
-	return( !String && !String[0] ? SG_T("") : wxString::FromUTF8(String).char_str() );
-#endif
-}
-
-//---------------------------------------------------------
-CSG_String		SG_String_To_UTF8(const SG_Char *String)
-{
-#ifdef _SAGA_UNICODE
-	return( !String && !String[0] ? SG_T("") : wxString(String, wxConvUTF8).c_str().AsWChar() );
-#else
-	return( !String && !String[0] ? SG_T("") : wxString(wxString(String).ToUTF8()).char_str() );
-#endif
 }
 
 

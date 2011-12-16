@@ -1630,18 +1630,18 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 			case  6: // PARAMETER_TYPE_Choice:
 			case 11: // PARAMETER_TYPE_Color:
 			case 15: // PARAMETER_TYPE_Table_Field:
-				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d"), &i);
+				fscanf(Stream.Get_Stream(), "%d", &i);
 				pParameter->Set_Value(i);
 				break;
 
 			case  3: // PARAMETER_TYPE_Double:
 			case  4: // PARAMETER_TYPE_Degree:
-				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &d);
+				fscanf(Stream.Get_Stream(), "%lf", &d);
 				pParameter->Set_Value(d);
 				break;
 
 			case  5: // PARAMETER_TYPE_Range:
-				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &d, &e);
+				fscanf(Stream.Get_Stream(), "%lf %lf", &d, &e);
 				pParameter->asRange()->Set_Range(d, e);
 				break;
 

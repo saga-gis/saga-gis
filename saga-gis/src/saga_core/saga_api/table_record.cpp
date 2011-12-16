@@ -195,13 +195,13 @@ bool CSG_Table_Record::_Del_Field(int del_Field)
 }
 
 //---------------------------------------------------------
-int CSG_Table_Record::_Get_Field(const SG_Char *Field) const
+int CSG_Table_Record::_Get_Field(const CSG_String &Field) const
 {
-	if( Field && *Field )
+	if( Field.Length() )
 	{
 		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
-			if( !SG_STR_CMP(Field, m_pTable->Get_Field_Name(iField)) )
+			if( !Field.Cmp(m_pTable->Get_Field_Name(iField)) )
 			{
 				return( iField );
 			}
@@ -278,13 +278,13 @@ bool CSG_Table_Record::Set_Value		(int           iField, const CSG_Bytes &Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Set_Value		(const SG_Char *Field, const CSG_Bytes &Value)
+bool CSG_Table_Record::Set_Value(const CSG_String &Field, const CSG_Bytes &Value)
 {
 	return( Set_Value(_Get_Field(Field), Value) );
 }
 
 //---------------------------------------------------------
-bool CSG_Table_Record::Set_Value(int iField, const SG_Char *Value)
+bool CSG_Table_Record::Set_Value(int iField, const CSG_String &Value)
 {
 	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
@@ -302,7 +302,7 @@ bool CSG_Table_Record::Set_Value(int iField, const SG_Char *Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Set_Value(const SG_Char *Field, const SG_Char *Value)
+bool CSG_Table_Record::Set_Value(const CSG_String &Field, const CSG_String &Value)
 {
 	return( Set_Value(_Get_Field(Field), Value) );
 }
@@ -326,7 +326,7 @@ bool CSG_Table_Record::Set_Value(int iField, double Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Set_Value(const SG_Char *Field, double Value)
+bool CSG_Table_Record::Set_Value(const CSG_String &Field, double Value)
 {
 	return( Set_Value(_Get_Field(Field), Value) );
 }
@@ -342,7 +342,7 @@ bool CSG_Table_Record::Add_Value(int iField, double Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Add_Value(const SG_Char *Field, double Value)
+bool CSG_Table_Record::Add_Value(const CSG_String &Field, double Value)
 {
 	return( Add_Value(_Get_Field(Field), Value) );
 }
@@ -358,7 +358,7 @@ bool CSG_Table_Record::Mul_Value(int iField, double Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Mul_Value(const SG_Char *Field, double Value)
+bool CSG_Table_Record::Mul_Value(const CSG_String &Field, double Value)
 {
 	return( Mul_Value(_Get_Field(Field), Value) );
 }
@@ -415,7 +415,7 @@ bool CSG_Table_Record::Set_NoData(int iField)
 	return( false );
 }
 
-bool CSG_Table_Record::Set_NoData(const SG_Char *Field)
+bool CSG_Table_Record::Set_NoData(const CSG_String &Field)
 {
 	return( Set_NoData(_Get_Field(Field)) );
 }
@@ -455,7 +455,7 @@ bool CSG_Table_Record::is_NoData(int iField) const
 	return( true );
 }
 
-bool CSG_Table_Record::is_NoData(const SG_Char *Field) const
+bool CSG_Table_Record::is_NoData(const CSG_String &Field) const
 {
 	return( is_NoData(_Get_Field(Field)) );
 }
@@ -473,7 +473,7 @@ const SG_Char * CSG_Table_Record::asString(int iField, int Decimals) const
 	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asString(Decimals) : NULL );
 }
 
-const SG_Char * CSG_Table_Record::asString(const SG_Char *Field, int Decimals) const
+const SG_Char * CSG_Table_Record::asString(const CSG_String &Field, int Decimals) const
 {
 	return( asString(_Get_Field(Field), Decimals) );
 }
@@ -484,7 +484,7 @@ int CSG_Table_Record::asInt(int iField) const
 	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asInt() : 0 );
 }
 
-int CSG_Table_Record::asInt(const SG_Char *Field) const
+int CSG_Table_Record::asInt(const CSG_String &Field) const
 {
 	return( asInt(_Get_Field(Field)) );
 }
@@ -495,7 +495,7 @@ double CSG_Table_Record::asDouble(int iField) const
 	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asDouble() : 0.0 );
 }
 
-double CSG_Table_Record::asDouble(const SG_Char *Field) const
+double CSG_Table_Record::asDouble(const CSG_String &Field) const
 {
 	return( asDouble(_Get_Field(Field)) );
 }

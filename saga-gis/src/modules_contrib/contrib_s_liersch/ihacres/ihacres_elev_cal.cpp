@@ -171,7 +171,7 @@ bool Cihacres_elev_cal::On_Execute()
 					nse = convert_sl::Double2String(NSE_max).c_str();
 					nse_text = "max. NSE ";
 					nse_text += nse;
-					Process_Set_Text(SG_STR_MBTOSG(nse_text.c_str()));
+					Process_Set_Text(CSG_String(nse_text.c_str()));
 				}
 
 				_WriteTableParms();
@@ -270,7 +270,7 @@ void Cihacres_elev_cal::_ReadInputFile()
 {
 	for (int j = 0, k = m_first; j < m_nValues, k < m_last + 1; j++, k++)
 	{
-		m_vec_date[j].append(SG_STR_SGTOMB(m_p_InputTable->Get_Record(k)->asString(m_dateField)));
+		m_vec_date[j].append(CSG_String(m_p_InputTable->Get_Record(k)->asString(m_dateField)));
 		m_p_Q_obs_m3s[j] = m_p_InputTable->Get_Record(k)->asDouble(m_streamflowField);
 		
 		for (int eb = 0; eb < m_nElevBands; eb++)
@@ -635,7 +635,7 @@ void Cihacres_elev_cal::_CreateTableSim()
 		pRecord = m_pTable->Get_Record(i);
 
 		// writing the data into the rows
-		pRecord->Set_Value(0,SG_STR_MBTOSG(m_vec_date[j].c_str()));
+		pRecord->Set_Value(0,CSG_String(m_vec_date[j].c_str()));
 		pRecord->Set_Value(1,m_p_Q_obs_m3s[j]);
 		sim_eb = 0.0;
 		sim = 0.0;

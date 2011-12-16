@@ -211,15 +211,10 @@ public:
 	const CSG_Rect &			Get_Margins					(void)	{	return( m_Size_Margins );	}
 
 	void						Layout_Set_Box_Space		(double Space, bool bPercent);
-	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const SG_Char *ID = NULL);
-	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const SG_Char *ID = NULL);
+	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const CSG_String &ID = "");
+	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const CSG_String &ID = "");
 	const CSG_Rect &			Layout_Get_Box				(int iBox)	{	return( iBox >= 0 && iBox < m_Boxes.Get_Count() ? m_Boxes[iBox] : m_Size_Margins );	}
-	const CSG_Rect &			Layout_Get_Box				(const SG_Char *ID);
-#ifdef _SAGA_UNICODE
-	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID);
-	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const char *ID);
-	const CSG_Rect &			Layout_Get_Box				(const char *ID);
-#endif
+	const CSG_Rect &			Layout_Get_Box				(const CSG_String &ID = "");
 
 	bool						Draw_Point					(double x, double y, double Width, int Style = PDF_STYLE_POINT_SQUARE|PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
 	bool						Draw_Line					(double xa, double ya, double xb, double yb	, int Width = 0, int Color = SG_COLOR_BLACK, int Style = 0);

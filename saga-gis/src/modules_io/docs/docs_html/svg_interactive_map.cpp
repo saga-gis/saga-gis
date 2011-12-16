@@ -196,13 +196,13 @@ bool CSVG_Interactive_Map::Create_From_Map(CSG_Parameter_Shapes_List *pList, CSG
 }
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::_Write_Code(const SG_Char *FileName, const SG_Char *Code)
+void CSVG_Interactive_Map::_Write_Code(const CSG_String &FileName, const CSG_String &Code)
 {
 	CSG_File	Stream;
 
 	if( Stream.Open(FileName, SG_FILE_W, false) )
 	{
-		Stream.Write((void *)Code, SG_STR_LEN(Code));
+		Stream.Write(Code);
 	}
 }
 
@@ -252,161 +252,6 @@ void CSVG_Interactive_Map::_Add_Opening(CSG_Rect r)
 	m_sSVGCode.Append(SG_T(">\n"));
 
 	m_dWidth = Width;
-}
-
-//---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Opening_Code_1(void)
-{
-	return( SG_STR_MBTOSG(
-		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-		"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\" [\n"
-		"<!ATTLIST svg\n"
-		"	xmlns:attrib CDATA #IMPLIED\n"
-		"	xmlns:batik CDATA #IMPLIED\n"
-		">\n"
-		"<!ATTLIST g\n"
-		"	batik:static CDATA #IMPLIED\n"
-		">\n"
-		"<!ATTLIST image\n"
-		"	batik:static CDATA #IMPLIED\n"
-		">\n"
-		"<!ATTLIST path\n"
-		"	batik:static CDATA #IMPLIED\n"
-		">\n"
-		"]>\n"
-		"<?AdobeSVGViewer save=\"snapshot\"?>\n"
-		"<svg width=\"100%\" height=\"100%\" viewBox=\"0 0 1024 768\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:attrib=\"http://www.carto.net/attrib\" xmlns:batik=\"http://xml.apache.org/batik/ext\" onload=\"init(evt);\" zoomAndPan=\"disable\">\n"
-		"	<script type=\"text/ecmascript\" xlink:href=\"helper_functions.js\"/>\n"
-		"	<script type=\"text/ecmascript\" xlink:href=\"mapApp.js\"/>\n"
-		"	<script type=\"text/ecmascript\" xlink:href=\"timer.js\"/>\n"
-		"	<script type=\"text/ecmascript\" xlink:href=\"slider.js\"/>\n"
-		"	<script type=\"text/ecmascript\" xlink:href=\"button.js\"/>\n"
-		"	<script type=\"text/ecmascript\" xlink:href=\"checkbox.js\"/>\n"
-		"	<script type=\"text/ecmascript\" xlink:href=\"navigation.js\"/>\n"
-		"	<script type=\"text/ecmascript\"><![CDATA[\n"
-		"		//global variables for mapApp and map object\n"
-		"		var myMapApp = new mapApp();\n"
-		"		var myMainMap;\n"
-		"		function init(evt) {\n"
-		"			//dynamic layer array that allow loading from database\n"
-		"			var dynamicLayers = new Array();\n"
-		"			//initialize digiLayers (layers that allow digitizing)\n"
-		"			var digiLayers = new Array();\n"
-		"			//initialize myMainMap object\n"
-		"			myMainMap = new map(\"mainMap\"),"
-	));
-}
-
-//---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
-{
-	return( SG_STR_MBTOSG(
-		"),0.6,0,0,\"\"),1,true,\"coordX\"),\"coordY\"),dynamicLayers,digiLayers,\"\"));\n"
-		"			//initialize refMapDragger object\n"
-		"			myMapApp.refMapDragger = new dragObj(\"dragRectForRefMap\"),\"referenceMap\"),\"myDragCross\"),0.1,true,\"coordX\"),\"coordY\"),myMainMap);\n"
-		"			//create zoom slider	\n"
-		"			myMapApp.zoomSlider = new slider(715,75,myMainMap.minWidth,715,165,myMainMap.maxWidth,myMainMap.maxWidth,\"mapZoomSlider\"),\"dimgray\"),2,10,\"sliderSymbol\"),myMapApp.refMapDragger,true);\n"
-		"			//now initialize buttons\n"
-		"			myMapApp.buttons = new Array();\n"
-		"			//groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,fontSize,fontFamily,textFill,buttonFill,shadeLightFill,shadeDarkFill,shadowOffset\n"
-		"			myMapApp.buttons[\"zoomIn\"] = new button(\"zoomIn\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerZoomIn\"),705,47,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"zoomOut\"] = new button(\"zoomOut\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerZoomOut\"),705,173,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"infoButton\"] = new switchbutton(\"infoButton\"),zoomImageSwitchButtons,\"rect\"),undefined,\"infoBut\"),746,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"infoButton\"].setSwitchValue(true,false);\n"
-		"			statusChange(\"Mode: Infomode\"));\n"
-		"			myMapApp.buttons[\"zoomFull\"] = new button(\"zoomFull\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerFull\"),771,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"zoomManual\"] = new switchbutton(\"zoomManual\"),zoomImageSwitchButtons,\"rect\"),undefined,\"magnifyerManual\"),796,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"panManual\"] = new switchbutton(\"panManual\"),zoomImageSwitchButtons,\"rect\"),undefined,\"symbPan\"),821,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"recenterMap\"] = new switchbutton(\"recenterMap\"),zoomImageSwitchButtons,\"rect\"),undefined,\"symbRecenter\"),846,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"backwardExtent\"] = new button(\"backwardExtent\"),zoomImageButtons,\"rect\"),undefined,\"symbArrowLeft\"),871,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			myMapApp.buttons[\"forwardExtent\"] = new button(\"forwardExtent\"),zoomImageButtons,\"rect\"),undefined,\"symbArrowRight\"),896,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
-		"			//see if we need to disable buttons\n"
-		"			myMainMap.checkButtons();\n"
-		"			//load function specific to the current map project\n"
-		"			loadProjectSpecific();\n"
-		"		}\n"
-		"		function loadProjectSpecific() {\n"
-		"			//adopt width and height of map extent\n"
-		"			document.getElementById(\"myScaleTextW\")).firstChild.nodeValue = formatNumberString(myMainMap.curWidth.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
-		"			document.getElementById(\"myScaleTextH\")).firstChild.nodeValue = formatNumberString(myMainMap.curHeight.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
-		"		}\n"
-		"]]></script>\n"
-		"	<defs>\n"
-		"		<!-- Symbols for checkboxes -->\n"
-		"		<symbol id=\"checkBoxRect\" overflow=\"visible\">\n"
-		"			<rect x=\"-6\" y=\"-6\" width=\"12\" height=\"12\" fill=\"white\" stroke=\"dimgray\" stroke-width=\"1.5\"/>\n"
-		"		</symbol>\n"
-		"		<symbol id=\"checkBoxCross\" overflow=\"visible\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"1\" pointer-events=\"none\">\n"
-		"			<line x1=\"-5\" y1=\"-5\" x2=\"5\" y2=\"5\"/>\n"
-		"			<line x1=\"-5\" y1=\"5\" x2=\"5\" y2=\"-5\"/>\n"
-		"		</symbol>\n"
-		"		<!-- Symbols for Zoom Magnifyer glasses -->\n"
-		"		<symbol id=\"magnifyerFull\" overflow=\"visible\">\n"
-		"			<text y=\"7.5\" font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"18px\" font-weight=\"bold\" text-anchor=\"middle\" pointer-events=\"none\">F</text>\n"
-		"		</symbol>\n"
-		"		<symbol id=\"infoBut\" overflow=\"visible\">\n"
-		"			<circle fill=\"none\" stroke=\"dimgray\" stroke-width=\"1.5\" r=\"7.5\" />\n"
-		"			<text y=\"5\" font-family=\"sans-serif\" font-size=\"13px\" font-weight=\"bold\" fill=\"dimgray\" text-anchor=\"middle\" pointer-events=\"none\">i</text>\n"
-		"		</symbol>\n"
-		"		<symbol id=\"magnifyerManual\" overflow=\"visible\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"1.5\">\n"
-		"			<rect x=\"-6\" y=\"-6\" width=\"12\" height=\"12\" stroke-dasharray=\"1.5,1.5\"/>\n"
-		"			<line x1=\"-3\" y1=\"0\" x2=\"3\" y2=\"0\" />\n"
-		"			<line x1=\"0\" y1=\"-3\" x2=\"0\" y2=\"3\" />\n"
-		"		</symbol>\n"
-		"		<symbol id=\"magnifyerZoomIn\" overflow=\"visible\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"2\">\n"
-		"			<line x1=\"-4\" y1=\"0\" x2=\"4\" y2=\"0\"/>\n"
-		"			<line x1=\"0\" y1=\"-4\" x2=\"0\" y2=\"4\"/>\n"
-		"		</symbol>\n"
-		"		<symbol id=\"magnifyerZoomOut\" overflow=\"visible\">\n"
-		"			<line x1=\"-4\" y1=\"0\" x2=\"4\" y2=\"0\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"2\" />\n"
-		"		</symbol>\n"
-		"		<!-- hand symbol for panning -->\n"
-		"		<symbol id=\"symbPan\" overflow=\"visible\">\n"
-		"			<path transform=\"scale(1.2)\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"1\" d=\"M-2 6 C -2.2 2.5 -8.0 -0 -5.7 -1.9 C -4.3 -2.5 -3.3 -0.5 -2.5 0.7 C -3.2 -2.1 -5.5 -5.2 -3.6 -5.8 C -2.1 -6.3 -1.6 -3.6 -1.1 -1.9 C -0.9 -4.2 -1.6 -6.4 -0.2 -6.6 C 1.4 -6.8 0.9 -3 1.1 -1.9 C 1.5 -3.5 1.2 -6.1 2.5 -6.1 C 3.9 -6.1 3.5 -3.2 3.6 -1.6 C 4 -2.9 4.1 -4.3 5.3 -4.4 C 7.3 -3.5 4 2.2 3 6z\"/>\n"
-		"		</symbol>\n"
-		"		<!-- Symbol for Arrows -->\n"
-		"		<symbol id=\"symbArrow\" overflow=\"visible\">\n"
-		"			<polyline fill=\"none\" stroke=\"dimgray\" stroke-width=\"1\" points=\"-3,-6 3,-6 3,1 5,1 0,7 -5,1 -3,1 -3,-5\"/>\n"
-		"		</symbol>\n"
-		"		<symbol id=\"symbArrowLeft\" overflow=\"visible\">\n"
-		"			<use xlink:href=\"#symbArrow\" transform=\"rotate(90)\" />\n"
-		"		</symbol>\n"
-		"		<symbol id=\"symbArrowRight\" overflow=\"visible\">\n"
-		"			<use xlink:href=\"#symbArrow\" transform=\"rotate(-90)\" />\n"
-		"		</symbol>\n"
-		"		<!-- Symbol for Recentering Map -->\n"
-		"		<symbol id=\"symbRecenter\" overflow=\"visible\">\n"
-		"			<circle fill=\"dimgray\" cx=\"0\" cy=\"0\" r=\"1\" pointer-events=\"none\"/>\n"
-		"			<g fill=\"none\" stroke=\"dimgray\" stroke-width=\"1.5\" pointer-events=\"none\">\n"
-		"				<line x1=\"-7\" y1=\"-7\" x2=\"-3\" y2=\"-3\"/>\n"
-		"				<line x1=\"7\" y1=\"7\" x2=\"3\" y2=\"3\"/>\n"
-		"				<line x1=\"-7\" y1=\"7\" x2=\"-3\" y2=\"3\"/>\n"
-		"				<line x1=\"7\" y1=\"-7\" x2=\"3\" y2=\"-3\"/>\n"
-		"			</g>\n"
-		"		</symbol>\n"
-		"		<!-- Symbol for Slider -->\n"
-		"		<symbol id=\"sliderSymbol\" overflow=\"visible\" pointer-events=\"none\">\n"
-		"			<line x1=\"0\" y1=\"-5\" x2=\"0\" y2=\"5\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"5\"/>\n"
-		"		</symbol>\n"
-		"		<!-- Symbol for Dragging if zoomed in far -->\n"
-		"		<symbol id=\"myDragCrossSymbol\" overflow=\"visible\" stroke-width=\"2000\" fill=\"none\" stroke=\"darkblue\" pointer-events=\"none\">\n"
-		"			<line x1=\"-7000\" y1=\"0\" x2=\"-2500\" y2=\"0\"/>\n"
-		"			<line x1=\"7000\" y1=\"0\" x2=\"2500\" y2=\"0\"/>\n"
-		"			<line x1=\"0\" y1=\"-3300\" x2=\"0\" y2=\"-7800\"/>\n"
-		"			<line x1=\"0\" y1=\"3300\" x2=\"0\" y2=\"7800\"/>\n"
-		"		</symbol>\n"
-		"		<!-- Marker for Extent-Arrows -->\n"
-		"		<marker id=\"myStartArrow\" overflow=\"visible\" orient=\"auto\">\n"
-		"			<polyline fill=\"dimgray\" points=\"-0.5,0 8,-2 8,2\"/>\n"
-		"		</marker>\n"
-		"		<marker id=\"myEndArrow\" overflow=\"visible\" orient=\"auto\">\n"
-		"			<polyline fill=\"dimgray\" points=\"0.5,0 -8,-2 -8,2\"/>\n"
-		"		</marker>\n"
-		"	</defs>\n"
-		"	<rect x=\"-500\" y=\"-500\" width=\"3000\" height=\"3000\" stroke=\"none\" fill=\"aliceblue\" />\n"
-		"	<!-- Main Map Frame -->\n"
-		"	<svg id=\"mainMap\" x=\"0\" y=\"15\" width=\"550\" height=\"700\"	cursor=\"crosshair\" "
-	));
 }
 
 
@@ -746,9 +591,164 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CSG_Parameter_Shapes_List *pList)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_1(void)
+const char * CSVG_Interactive_Map::_Get_Opening_Code_1(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+		"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\" [\n"
+		"<!ATTLIST svg\n"
+		"	xmlns:attrib CDATA #IMPLIED\n"
+		"	xmlns:batik CDATA #IMPLIED\n"
+		">\n"
+		"<!ATTLIST g\n"
+		"	batik:static CDATA #IMPLIED\n"
+		">\n"
+		"<!ATTLIST image\n"
+		"	batik:static CDATA #IMPLIED\n"
+		">\n"
+		"<!ATTLIST path\n"
+		"	batik:static CDATA #IMPLIED\n"
+		">\n"
+		"]>\n"
+		"<?AdobeSVGViewer save=\"snapshot\"?>\n"
+		"<svg width=\"100%\" height=\"100%\" viewBox=\"0 0 1024 768\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:attrib=\"http://www.carto.net/attrib\" xmlns:batik=\"http://xml.apache.org/batik/ext\" onload=\"init(evt);\" zoomAndPan=\"disable\">\n"
+		"	<script type=\"text/ecmascript\" xlink:href=\"helper_functions.js\"/>\n"
+		"	<script type=\"text/ecmascript\" xlink:href=\"mapApp.js\"/>\n"
+		"	<script type=\"text/ecmascript\" xlink:href=\"timer.js\"/>\n"
+		"	<script type=\"text/ecmascript\" xlink:href=\"slider.js\"/>\n"
+		"	<script type=\"text/ecmascript\" xlink:href=\"button.js\"/>\n"
+		"	<script type=\"text/ecmascript\" xlink:href=\"checkbox.js\"/>\n"
+		"	<script type=\"text/ecmascript\" xlink:href=\"navigation.js\"/>\n"
+		"	<script type=\"text/ecmascript\"><![CDATA[\n"
+		"		//global variables for mapApp and map object\n"
+		"		var myMapApp = new mapApp();\n"
+		"		var myMainMap;\n"
+		"		function init(evt) {\n"
+		"			//dynamic layer array that allow loading from database\n"
+		"			var dynamicLayers = new Array();\n"
+		"			//initialize digiLayers (layers that allow digitizing)\n"
+		"			var digiLayers = new Array();\n"
+		"			//initialize myMainMap object\n"
+		"			myMainMap = new map(\"mainMap\"),"
+	);
+}
+
+//---------------------------------------------------------
+const char * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
+{
+	return(
+		"),0.6,0,0,\"\"),1,true,\"coordX\"),\"coordY\"),dynamicLayers,digiLayers,\"\"));\n"
+		"			//initialize refMapDragger object\n"
+		"			myMapApp.refMapDragger = new dragObj(\"dragRectForRefMap\"),\"referenceMap\"),\"myDragCross\"),0.1,true,\"coordX\"),\"coordY\"),myMainMap);\n"
+		"			//create zoom slider	\n"
+		"			myMapApp.zoomSlider = new slider(715,75,myMainMap.minWidth,715,165,myMainMap.maxWidth,myMainMap.maxWidth,\"mapZoomSlider\"),\"dimgray\"),2,10,\"sliderSymbol\"),myMapApp.refMapDragger,true);\n"
+		"			//now initialize buttons\n"
+		"			myMapApp.buttons = new Array();\n"
+		"			//groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,fontSize,fontFamily,textFill,buttonFill,shadeLightFill,shadeDarkFill,shadowOffset\n"
+		"			myMapApp.buttons[\"zoomIn\"] = new button(\"zoomIn\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerZoomIn\"),705,47,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"zoomOut\"] = new button(\"zoomOut\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerZoomOut\"),705,173,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"infoButton\"] = new switchbutton(\"infoButton\"),zoomImageSwitchButtons,\"rect\"),undefined,\"infoBut\"),746,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"infoButton\"].setSwitchValue(true,false);\n"
+		"			statusChange(\"Mode: Infomode\"));\n"
+		"			myMapApp.buttons[\"zoomFull\"] = new button(\"zoomFull\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerFull\"),771,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"zoomManual\"] = new switchbutton(\"zoomManual\"),zoomImageSwitchButtons,\"rect\"),undefined,\"magnifyerManual\"),796,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"panManual\"] = new switchbutton(\"panManual\"),zoomImageSwitchButtons,\"rect\"),undefined,\"symbPan\"),821,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"recenterMap\"] = new switchbutton(\"recenterMap\"),zoomImageSwitchButtons,\"rect\"),undefined,\"symbRecenter\"),846,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"backwardExtent\"] = new button(\"backwardExtent\"),zoomImageButtons,\"rect\"),undefined,\"symbArrowLeft\"),871,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"forwardExtent\"] = new button(\"forwardExtent\"),zoomImageButtons,\"rect\"),undefined,\"symbArrowRight\"),896,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			//see if we need to disable buttons\n"
+		"			myMainMap.checkButtons();\n"
+		"			//load function specific to the current map project\n"
+		"			loadProjectSpecific();\n"
+		"		}\n"
+		"		function loadProjectSpecific() {\n"
+		"			//adopt width and height of map extent\n"
+		"			document.getElementById(\"myScaleTextW\")).firstChild.nodeValue = formatNumberString(myMainMap.curWidth.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
+		"			document.getElementById(\"myScaleTextH\")).firstChild.nodeValue = formatNumberString(myMainMap.curHeight.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
+		"		}\n"
+		"]]></script>\n"
+		"	<defs>\n"
+		"		<!-- Symbols for checkboxes -->\n"
+		"		<symbol id=\"checkBoxRect\" overflow=\"visible\">\n"
+		"			<rect x=\"-6\" y=\"-6\" width=\"12\" height=\"12\" fill=\"white\" stroke=\"dimgray\" stroke-width=\"1.5\"/>\n"
+		"		</symbol>\n"
+		"		<symbol id=\"checkBoxCross\" overflow=\"visible\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"1\" pointer-events=\"none\">\n"
+		"			<line x1=\"-5\" y1=\"-5\" x2=\"5\" y2=\"5\"/>\n"
+		"			<line x1=\"-5\" y1=\"5\" x2=\"5\" y2=\"-5\"/>\n"
+		"		</symbol>\n"
+		"		<!-- Symbols for Zoom Magnifyer glasses -->\n"
+		"		<symbol id=\"magnifyerFull\" overflow=\"visible\">\n"
+		"			<text y=\"7.5\" font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"18px\" font-weight=\"bold\" text-anchor=\"middle\" pointer-events=\"none\">F</text>\n"
+		"		</symbol>\n"
+		"		<symbol id=\"infoBut\" overflow=\"visible\">\n"
+		"			<circle fill=\"none\" stroke=\"dimgray\" stroke-width=\"1.5\" r=\"7.5\" />\n"
+		"			<text y=\"5\" font-family=\"sans-serif\" font-size=\"13px\" font-weight=\"bold\" fill=\"dimgray\" text-anchor=\"middle\" pointer-events=\"none\">i</text>\n"
+		"		</symbol>\n"
+		"		<symbol id=\"magnifyerManual\" overflow=\"visible\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"1.5\">\n"
+		"			<rect x=\"-6\" y=\"-6\" width=\"12\" height=\"12\" stroke-dasharray=\"1.5,1.5\"/>\n"
+		"			<line x1=\"-3\" y1=\"0\" x2=\"3\" y2=\"0\" />\n"
+		"			<line x1=\"0\" y1=\"-3\" x2=\"0\" y2=\"3\" />\n"
+		"		</symbol>\n"
+		"		<symbol id=\"magnifyerZoomIn\" overflow=\"visible\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"2\">\n"
+		"			<line x1=\"-4\" y1=\"0\" x2=\"4\" y2=\"0\"/>\n"
+		"			<line x1=\"0\" y1=\"-4\" x2=\"0\" y2=\"4\"/>\n"
+		"		</symbol>\n"
+		"		<symbol id=\"magnifyerZoomOut\" overflow=\"visible\">\n"
+		"			<line x1=\"-4\" y1=\"0\" x2=\"4\" y2=\"0\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"2\" />\n"
+		"		</symbol>\n"
+		"		<!-- hand symbol for panning -->\n"
+		"		<symbol id=\"symbPan\" overflow=\"visible\">\n"
+		"			<path transform=\"scale(1.2)\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"1\" d=\"M-2 6 C -2.2 2.5 -8.0 -0 -5.7 -1.9 C -4.3 -2.5 -3.3 -0.5 -2.5 0.7 C -3.2 -2.1 -5.5 -5.2 -3.6 -5.8 C -2.1 -6.3 -1.6 -3.6 -1.1 -1.9 C -0.9 -4.2 -1.6 -6.4 -0.2 -6.6 C 1.4 -6.8 0.9 -3 1.1 -1.9 C 1.5 -3.5 1.2 -6.1 2.5 -6.1 C 3.9 -6.1 3.5 -3.2 3.6 -1.6 C 4 -2.9 4.1 -4.3 5.3 -4.4 C 7.3 -3.5 4 2.2 3 6z\"/>\n"
+		"		</symbol>\n"
+		"		<!-- Symbol for Arrows -->\n"
+		"		<symbol id=\"symbArrow\" overflow=\"visible\">\n"
+		"			<polyline fill=\"none\" stroke=\"dimgray\" stroke-width=\"1\" points=\"-3,-6 3,-6 3,1 5,1 0,7 -5,1 -3,1 -3,-5\"/>\n"
+		"		</symbol>\n"
+		"		<symbol id=\"symbArrowLeft\" overflow=\"visible\">\n"
+		"			<use xlink:href=\"#symbArrow\" transform=\"rotate(90)\" />\n"
+		"		</symbol>\n"
+		"		<symbol id=\"symbArrowRight\" overflow=\"visible\">\n"
+		"			<use xlink:href=\"#symbArrow\" transform=\"rotate(-90)\" />\n"
+		"		</symbol>\n"
+		"		<!-- Symbol for Recentering Map -->\n"
+		"		<symbol id=\"symbRecenter\" overflow=\"visible\">\n"
+		"			<circle fill=\"dimgray\" cx=\"0\" cy=\"0\" r=\"1\" pointer-events=\"none\"/>\n"
+		"			<g fill=\"none\" stroke=\"dimgray\" stroke-width=\"1.5\" pointer-events=\"none\">\n"
+		"				<line x1=\"-7\" y1=\"-7\" x2=\"-3\" y2=\"-3\"/>\n"
+		"				<line x1=\"7\" y1=\"7\" x2=\"3\" y2=\"3\"/>\n"
+		"				<line x1=\"-7\" y1=\"7\" x2=\"-3\" y2=\"3\"/>\n"
+		"				<line x1=\"7\" y1=\"-7\" x2=\"3\" y2=\"-3\"/>\n"
+		"			</g>\n"
+		"		</symbol>\n"
+		"		<!-- Symbol for Slider -->\n"
+		"		<symbol id=\"sliderSymbol\" overflow=\"visible\" pointer-events=\"none\">\n"
+		"			<line x1=\"0\" y1=\"-5\" x2=\"0\" y2=\"5\" fill=\"none\" stroke=\"dimgray\" stroke-width=\"5\"/>\n"
+		"		</symbol>\n"
+		"		<!-- Symbol for Dragging if zoomed in far -->\n"
+		"		<symbol id=\"myDragCrossSymbol\" overflow=\"visible\" stroke-width=\"2000\" fill=\"none\" stroke=\"darkblue\" pointer-events=\"none\">\n"
+		"			<line x1=\"-7000\" y1=\"0\" x2=\"-2500\" y2=\"0\"/>\n"
+		"			<line x1=\"7000\" y1=\"0\" x2=\"2500\" y2=\"0\"/>\n"
+		"			<line x1=\"0\" y1=\"-3300\" x2=\"0\" y2=\"-7800\"/>\n"
+		"			<line x1=\"0\" y1=\"3300\" x2=\"0\" y2=\"7800\"/>\n"
+		"		</symbol>\n"
+		"		<!-- Marker for Extent-Arrows -->\n"
+		"		<marker id=\"myStartArrow\" overflow=\"visible\" orient=\"auto\">\n"
+		"			<polyline fill=\"dimgray\" points=\"-0.5,0 8,-2 8,2\"/>\n"
+		"		</marker>\n"
+		"		<marker id=\"myEndArrow\" overflow=\"visible\" orient=\"auto\">\n"
+		"			<polyline fill=\"dimgray\" points=\"0.5,0 -8,-2 -8,2\"/>\n"
+		"		</marker>\n"
+		"	</defs>\n"
+		"	<rect x=\"-500\" y=\"-500\" width=\"3000\" height=\"3000\" stroke=\"none\" fill=\"aliceblue\" />\n"
+		"	<!-- Main Map Frame -->\n"
+		"	<svg id=\"mainMap\" x=\"0\" y=\"15\" width=\"550\" height=\"700\"	cursor=\"crosshair\" "
+	);
+}
+
+//---------------------------------------------------------
+const char * CSVG_Interactive_Map::_Get_Code_1(void)
+{
+	return(
 		"<g>\n"
 		"		<g font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"15px\" pointer-events=\"none\">"
 		"			<text id=\"coordX\" x=\"745\" y=\"145\">X:</text>\n"
@@ -768,13 +768,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_1(void)
 		"		</g>\n"
 		"		<g transform=\"translate(590 225)\">\n"
 		"			<text font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"18px\" font-weight=\"bold\" x=\"-10\" y=\"0\" pointer-events=\"none\">"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_2(void)
+const char * CSVG_Interactive_Map::_Get_Code_2(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"</g>\n"
 		"   <g text-rendering=\"optimizeLegibility\" font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"12px\">\n"
 		"		<!-- text with this id is required to show help texts -->\n"
@@ -782,41 +782,41 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_2(void)
 		"   </g>\n"
 		"</g>\n"
 		"<svg id=\"referenceMap\" x=\"580\" y=\"45\" "
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_3(void)
+const char * CSVG_Interactive_Map::_Get_Code_3(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"width=\"118.52\" height=\"150\" onmousedown=\"myMapApp.refMapDragger.handleEvent(evt)\" onmousemove=\"myMapApp.refMapDragger.handleEvent(evt)\" onmouseup=\"myMapApp.refMapDragger.handleEvent(evt)\" onmouseout=\"myMapApp.refMapDragger.handleEvent(evt)\" cursor=\"crosshair\">\n"
 		"		<g transform=\"scale(1,-1)\"\n>"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_4(void)
+const char * CSVG_Interactive_Map::_Get_Code_4(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"		</g>\n"
 		"		<rect id=\"dragRectForRefMap\" fill=\"lightskyblue\" fill-opacity=\"0.4\" "
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_5(void)
+const char * CSVG_Interactive_Map::_Get_Code_5(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		" pointer-events=\"none\" />\n	"
 		"		<use id=\"myDragCross\" x=\"0\" y=\"0\" xlink:href=\"#myDragCrossSymbol\" visibility=\"hidden\" />\n"
 		"	</svg>\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
+const char * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"	<g>\n"
 		"		<!-- empty group where zoomSlider is later appended -->\n"
 		"		<g id=\"mapZoomSlider\"/>\n"
@@ -839,7 +839,7 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
 		"		<!-- button for forwarding map extent (extent history) -->\n"
 		"		<g id=\"forwardExtent\" cursor=\"pointer\" />\n"
 		"	</g>\n"
-	));
+	);
 }
 
 
@@ -850,9 +850,9 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_CheckBox(void)
+const char * CSVG_Interactive_Map::_Get_Code_CheckBox(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"function checkBoxScript(evt,myLayer) { //checkBox for toggling layers an contextMenue\n"
 		"	var myLayerObj = document.getElementById(myLayer);\n"
 		"	var myCheckCrossObj = document.getElementById(\"checkCross\"+myLayer);\n"
@@ -871,13 +871,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_CheckBox(void)
 		"	}\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_MapApp(void)
+const char * CSVG_Interactive_Map::_Get_Code_MapApp(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"//holds data on window size\n"
 		"function mapApp() {\n"
 		"	if (!document.documentElement.getScreenCTM) {\n"
@@ -940,13 +940,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_MapApp(void)
 		"	return svgPoint;\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_Timer(void)
+const char * CSVG_Interactive_Map::_Get_Code_Timer(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"// source/credits: \"Algorithm\": http://www.codingforums.com/showthread.php?s=&threadid=10531\n"
 		"// The constructor should be called with\n"
 		"// the parent object (optional, defaults to window).\n"
@@ -1022,13 +1022,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Timer(void)
 		"	return i;\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_Slider(void)
+const char * CSVG_Interactive_Map::_Get_Code_Slider(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"//slider properties\n"
 		"function slider(x1,y1,value1,x2,y2,value2,startVal,sliderGroupId,sliderColor,visSliderWidth,invisSliderWidth,sliderSymb,functionToCall,mouseMoveBool) {\n"
 		"	this.x1 = x1;\n"
@@ -1196,13 +1196,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Slider(void)
 		"	document.getElementById(this.sliderGroupId+\"_sliderSymbol\")).setAttributeNS(null,\"transform\"),myTransformString);\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_Helper(void)
+const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"/*\n"
 		"ECMAScript helper functions\n"
 		"Copyright (C) <2004>	<Andreas Neumann>\n"
@@ -1660,13 +1660,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"	}	\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
+const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"function button(groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,fontSize,fontFamily,textFill,buttonFill,shadeLightFill,shadeDarkFill,shadowOffset) {\n"
 		"	if (arguments.length > 0) {\n"
 		"	this.init(groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,fontSize,fontFamily,textFill,buttonFill,shadeLightFill,shadeDarkFill,shadowOffset);\n"
@@ -1982,13 +1982,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"	}\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
+const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"/*\n"
 		"Scripts for SVG only webmapping application navigation tools\n"
 		"Copyright (C) <2005>  <Andreas Neumann>\n"
@@ -2620,13 +2620,13 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	}\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 //---------------------------------------------------------
-const SG_Char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
+const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 {
-	return( SG_STR_MBTOSG(
+	return(
 		"//this method was previously called \"resizeDragger\" - now renamed to .getSliderVal\n"
 		"//this method receives values from the zoom slider\n"
 		"dragObj.prototype.getSliderVal = function(status,sliderGroupName,width) {\n"
@@ -2884,7 +2884,7 @@ const SG_Char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"	}\n"
 		"}\n"
 		"\n"
-	));
+	);
 }
 
 

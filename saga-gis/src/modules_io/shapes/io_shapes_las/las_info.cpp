@@ -203,7 +203,7 @@ bool CLAS_Info::Print_Header(CSG_String fName, liblas::LASHeader header)
 
 	SG_UI_Msg_Add(CSG_String::Format(_TL("  File Name:\t\t\t%s"), fName.c_str()), true);
 
-	if (SG_STR_CMP(SG_STR_MBTOSG(header.GetFileSignature().c_str()), SG_T("LASF")))
+	if (SG_STR_CMP(header.GetFileSignature().c_str(), SG_T("LASF")))
 	{
 		SG_UI_Msg_Add_Error(_TL("File signature is not 'LASF'!"));
 		return (false);

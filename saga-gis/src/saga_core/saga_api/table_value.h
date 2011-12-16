@@ -97,7 +97,13 @@ public:
 	virtual bool				Set_Value		(double           Value)	= 0;
 
 	//-----------------------------------------------------
-	virtual CSG_Bytes			asBinary		(void)				const	= 0;
+	virtual CSG_Bytes			asBinary		(void)				const
+	{
+		const SG_Char *s	= asString();
+
+		return( CSG_Bytes((BYTE *)s, (s && *s ? SG_STR_LEN(s) : 0) * sizeof(SG_Char)) );
+	}
+
 	virtual const SG_Char *		asString		(int Decimals = -1)	const	= 0;
 	virtual int					asInt			(void)				const	= 0;
 	virtual double				asDouble		(void)				const	= 0;
@@ -135,7 +141,7 @@ public:
 
 	virtual bool				Set_Value		(const SG_Char   *Value)
 	{
-		return( m_Value.Create(Value) );
+		return( m_Value.Create((BYTE *)Value, sizeof(SG_Char) * (Value && *Value ? SG_STR_LEN(Value) : 0)) );
 	}
 
 	virtual bool				Set_Value		(int              Value)
@@ -213,7 +219,6 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Bytes			asBinary		(void)				const	{	return( CSG_Bytes(m_Value.c_str()) );		}
 	virtual const SG_Char *		asString		(int Decimals = -1)	const	{	return( m_Value );							}
 	virtual int					asInt			(void)				const	{	return( m_Value.asInt() );					}
 	virtual double				asDouble		(void)				const	{	return( m_Value.asDouble() );				}
@@ -272,7 +277,6 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Bytes			asBinary		(void)				const	{	return( CSG_Bytes(asString()) );	}
 	virtual const SG_Char *		asString		(int Decimals = -1)	const	{	return( m_Date );	}
 	virtual int					asInt			(void)				const	{	return( m_Value );	}
 	virtual double				asDouble		(void)				const	{	return( m_Value );	}
@@ -343,7 +347,6 @@ public:
 		return( s.c_str() );
 	}
 
-	virtual CSG_Bytes			asBinary		(void)				const	{	return( CSG_Bytes(asString()) );	}
 	virtual int					asInt			(void)				const	{	return( m_Value );	}
 	virtual double				asDouble		(void)				const	{	return( m_Value );	}
 
@@ -411,7 +414,6 @@ public:
 		return( s.c_str() );
 	}
 
-	virtual CSG_Bytes			asBinary		(void)				const	{	return( CSG_Bytes(asString()) );	}
 	virtual int					asInt			(void)				const	{	return( (int)m_Value );	}
 	virtual double				asDouble		(void)				const	{	return( m_Value );		}
 

@@ -95,11 +95,9 @@ private:
 
 	bool				Create_From_Map				(CSG_Parameter_Shapes_List *pList, CSG_Shapes *pIndexLayer, const SG_Char *Filename);
 
-	void				_Write_Code					(const SG_Char *FileName, const SG_Char *Code);
+	void				_Write_Code					(const CSG_String &FileName, const CSG_String &Code);
 
 	void				_Add_Opening				(CSG_Rect r);
-	const SG_Char *		_Get_Opening_Code_1			(void);
-	const SG_Char *		_Get_Opening_Code_2			(void);
 
 	void				_Add_CheckBoxes				(CSG_Parameter_Shapes_List *pList);
 	void				_Add_Shapes					(CSG_Shapes *pLayer);
@@ -108,21 +106,24 @@ private:
 	void				_Add_ReferenceMap			(CSG_Shapes *pIndexLayer, CSG_Rect r);
 	void				_Add_Label					(const SG_Char* Label, CSG_Shape *pShape, double dSize, const SG_Char* Unit);
 
-	const SG_Char *		_Get_Code_1					(void);
-	const SG_Char *		_Get_Code_2					(void);
-	const SG_Char *		_Get_Code_3					(void);
-	const SG_Char *		_Get_Code_4					(void);
-	const SG_Char *		_Get_Code_5					(void);
-	const SG_Char *		_Get_Code_Closing_1			(void);
+	const char *		_Get_Opening_Code_1			(void);
+	const char *		_Get_Opening_Code_2			(void);
 
-	const SG_Char *		_Get_Code_CheckBox			(void);
-	const SG_Char *		_Get_Code_MapApp			(void);
-	const SG_Char *		_Get_Code_Timer				(void);
-	const SG_Char *		_Get_Code_Slider			(void);
-	const SG_Char *		_Get_Code_Helper			(void);
-	const SG_Char *		_Get_Code_Buttons			(void);
-	const SG_Char *		_Get_Code_Navigation_1		(void);
-	const SG_Char *		_Get_Code_Navigation_2		(void);
+	const char *		_Get_Code_1					(void);
+	const char *		_Get_Code_2					(void);
+	const char *		_Get_Code_3					(void);
+	const char *		_Get_Code_4					(void);
+	const char *		_Get_Code_5					(void);
+	const char *		_Get_Code_Closing_1			(void);
+
+	const char *		_Get_Code_CheckBox			(void);
+	const char *		_Get_Code_MapApp			(void);
+	const char *		_Get_Code_Timer				(void);
+	const char *		_Get_Code_Slider			(void);
+	const char *		_Get_Code_Helper			(void);
+	const char *		_Get_Code_Buttons			(void);
+	const char *		_Get_Code_Navigation_1		(void);
+	const char *		_Get_Code_Navigation_2		(void);
 
 };
 

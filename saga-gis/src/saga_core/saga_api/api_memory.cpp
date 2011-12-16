@@ -590,35 +590,6 @@ bool CSG_Bytes::Create(const BYTE *Bytes, int nBytes)
 }
 
 //---------------------------------------------------------
-CSG_Bytes::CSG_Bytes(const SG_Char *Bytes)
-{
-	m_Bytes		= NULL;
-	m_nBytes	= 0;
-	m_nBuffer	= 0;
-	m_Cursor	= 0;
-
-	Create(Bytes);
-}
-
-bool CSG_Bytes::Create(const SG_Char *Bytes)
-{
-	Destroy();
-
-	if( Bytes == NULL )	// Reset
-	{
-		return( true );
-	}
-
-#ifndef _SAGA_UNICODE
-	int	nBytes	= (int)SG_STR_LEN(Bytes);
-#else
-	int	nBytes	= (int)SG_STR_LEN(Bytes) * 2;
-#endif
-
-	return( Add((void *)Bytes, nBytes, false) );
-}
-
-//---------------------------------------------------------
 CSG_Bytes::~CSG_Bytes(void)
 {
 	Destroy();
