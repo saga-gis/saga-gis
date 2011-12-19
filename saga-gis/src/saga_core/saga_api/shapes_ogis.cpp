@@ -78,7 +78,7 @@ inline bool CSG_Shapes_OGIS_Converter::_WKT_Read_Point(const CSG_String &Text, C
 	switch( ((CSG_Shapes *)pShape->Get_Table())->Get_Vertex_Type() )
 	{
 	case SG_VERTEX_TYPE_XY:
-		if( SG_SSCANF(Text.c_str(), SG_T("%f %f"), &x, &y) == 2 )
+		if( SG_SSCANF(Text.c_str(), SG_T("%lf %lf"), &x, &y) == 2 )
 		{
 			pShape->Add_Point(x, y, iPart);
 			
@@ -87,7 +87,7 @@ inline bool CSG_Shapes_OGIS_Converter::_WKT_Read_Point(const CSG_String &Text, C
 		break;
 
 	case SG_VERTEX_TYPE_XYZ:
-		if( SG_SSCANF(Text.c_str(), SG_T("%f %f %f"), &x, &y, &z) == 3 )
+		if( SG_SSCANF(Text.c_str(), SG_T("%lf %lf %lf"), &x, &y, &z) == 3 )
 		{
 			pShape->Add_Point(x, y, iPart);
 			pShape->Set_Z    (z, pShape->Get_Point_Count(iPart) - 1, iPart);
@@ -97,7 +97,7 @@ inline bool CSG_Shapes_OGIS_Converter::_WKT_Read_Point(const CSG_String &Text, C
 		break;
 
 	case SG_VERTEX_TYPE_XYZM:
-		if( SG_SSCANF(Text.c_str(), SG_T("%f %f %f %f"), &x, &y, &z, &m) == 4 )
+		if( SG_SSCANF(Text.c_str(), SG_T("%lf %lf %lf %lf"), &x, &y, &z, &m) == 4 )
 		{
 			pShape->Add_Point(x, y, iPart);
 			pShape->Set_Z    (z, pShape->Get_Point_Count(iPart) - 1, iPart);

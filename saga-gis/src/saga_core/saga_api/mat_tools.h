@@ -1008,10 +1008,6 @@ protected:
 	int							_Get_Step_In		(CSG_Matrix &X, double P_in , double &R2, const CSG_Matrix &Samples);
 	int							_Get_Step_Out		(CSG_Matrix &X, double P_out, double &R2);
 
-	bool						__Get_Forward		(const class CSG_Matrix &Samples, double p_in);
-	bool						__Get_Forward		(int nSamples, int nPredictors, double **X, double *Y, int &iMax, double &rMax);
-	bool						__Eliminate			(int nSamples, double *X, double *Y);
-
 };
 
 
