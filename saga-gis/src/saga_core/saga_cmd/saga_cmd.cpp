@@ -523,7 +523,7 @@ void		Print_Version	(void)
 //---------------------------------------------------------
 void		Create_Example	(void)
 {
-	CSG_String	FileName(CSG_String::Format(SG_T("%s\\saga_cmd_example.bat"), wxGetCwd().c_str()));
+	CSG_String	FileName(CSG_String::Format(SG_T("%s\\saga_cmd_example.bat"), CSG_String(&wxGetCwd()).c_str()));
 	CSG_File	Stream;
 
 	SG_PRINTF(SG_T("\n%s...\n"), _TL("creating batch file example"));

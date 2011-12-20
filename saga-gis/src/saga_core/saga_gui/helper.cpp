@@ -273,7 +273,7 @@ bool	Set_Font(const wxFont &Font, wxColour Colour, CSG_Parameter *pFont)
 	}
 
 	pFont->Set_Value((int)SG_GET_RGB(Colour.Red(), Colour.Green(), Colour.Blue()));
-	pFont->Set_Value(&Font.GetNativeFontInfoDesc());
+	pFont->Set_Value(CSG_String(&Font.GetNativeFontInfoDesc()));
 
 	return( true );
 }

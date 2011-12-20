@@ -536,7 +536,7 @@ void CSG_MetaData::_Load(wxXmlNode *pNode)
 
 	while( pProperty )
 	{
-		Add_Property(pProperty->GetName().wc_str(), pProperty->GetValue().wc_str());
+		Add_Property(&pProperty->GetName(), &pProperty->GetValue());
 
 		pProperty	= pProperty->GetNext();
 	}

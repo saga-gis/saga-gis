@@ -11,10 +11,10 @@ MSHAREPATH = "SHARE_PATH=\"$(prefix)/share/saga\""
 BASEFLAGS = -fPIC -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -D$(MLIBPATH) -D$(MSHAREPATH) $(DBGFLAGS) $(INCS)
 if SAGA_UNICODE
 AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=yes --cxxflags` -D_SAGA_UNICODE
-AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs` -lm 
+AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs` -lm -lwx_gtk2u_aui-2.9 -lwx_gtk2u_propgrid-2.9
 else
 AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=no --cxxflags`
-AM_LDFLAGS = -fPIC `wx-config --unicode=no --libs` -lm
+AM_LDFLAGS = -fPIC `wx-config --unicode=no --libs` -lm -lwx_gtk2_aui-2.9 -lwx_gtk2_propgrid-2.9
 endif
 
 bin_PROGRAMS = saga_gui

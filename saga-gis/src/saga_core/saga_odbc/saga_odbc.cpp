@@ -104,9 +104,9 @@ using namespace std;
 #endif
 
 #if defined(UNICODE)
-	#define SG_ODBC_CHAR	const wchar_t
+	#define SG_ODBC_CHAR	wchar_t
 #else
-	#define SG_ODBC_CHAR	const char
+	#define SG_ODBC_CHAR	char
 #endif
 
 #include "otlv4.h"				// include the OTL 4 header file

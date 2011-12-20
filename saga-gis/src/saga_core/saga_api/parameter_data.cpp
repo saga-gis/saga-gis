@@ -1165,8 +1165,9 @@ void CSG_Parameter_Font::On_Assign(CSG_Parameter_Data *pSource)
 {
 	if( pSource && pSource->Get_Type() == Get_Type() )
 	{
-		Set_Value(pSource->asInt());
-		Set_Value(pSource->asString());
+		m_Color		= ((CSG_Parameter_Font *)pSource)->m_Color;
+		m_Font		= ((CSG_Parameter_Font *)pSource)->m_Font;
+		m_String	= ((CSG_Parameter_Font *)pSource)->m_String;
 	}
 }
 

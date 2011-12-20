@@ -518,7 +518,7 @@ void CVIEW_Table_Control::On_Change(wxGridEvent &event)
 
 	if( pRecord && iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
 	{
-		pRecord->Set_Value(iField, GetCellValue(event.GetRow(), event.GetCol()).wc_str());
+		pRecord->Set_Value(iField, CSG_String(&GetCellValue(event.GetRow(), event.GetCol())));
 
 		SET_CELL_VALUE(event.GetRow(), event.GetCol(), pRecord->asString(iField));
 	}
