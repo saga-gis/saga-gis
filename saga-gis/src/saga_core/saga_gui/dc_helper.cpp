@@ -251,11 +251,19 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, const wxString &Text)
 //---------------------------------------------------------
 void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text)
 {
-	double	d;
+	if( Angle == 0.0 )
+	{
+		Draw_Text(dc, Align, x, y, Text);
+
+		return;
+	}
+
 	wxCoord	xSize, ySize;
 
 	if( Align != TEXTALIGN_TOPLEFT )
 	{
+		double	d;
+
 		dc.GetTextExtent(Text, &xSize, &ySize);
 
 		//-------------------------------------------------
@@ -288,6 +296,34 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString 
 	}
 
 	dc.DrawRotatedText(Text, x, y, Angle);
+}
+
+//---------------------------------------------------------
+void			Draw_Text			(wxDC &dc, int Align, int x, int y, const wxString &Text, int Effect, wxColour Color)
+{
+	Draw_Text(dc, Align, x, y, 0.0, Text, Effect, Color);
+}
+
+void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text, int Effect, wxColour Color)
+{
+	if( Effect != TEXTEFFECT_NONE )
+	{
+		int			d			= 1;
+		wxColour	oldColor	= dc.GetTextForeground();	dc.SetTextForeground(Color);
+
+		if( Effect & TEXTEFFECT_TOP         )	Draw_Text(dc, Align, x    , y + d, Angle, Text);
+		if( Effect & TEXTEFFECT_TOPLEFT     )	Draw_Text(dc, Align, x - d, y + d, Angle, Text);
+		if( Effect & TEXTEFFECT_LEFT        )	Draw_Text(dc, Align, x - d, y    , Angle, Text);
+		if( Effect & TEXTEFFECT_BOTTOMLEFT  )	Draw_Text(dc, Align, x - d, y - d, Angle, Text);
+		if( Effect & TEXTEFFECT_BOTTOM      )	Draw_Text(dc, Align, x    , y - d, Angle, Text);
+		if( Effect & TEXTEFFECT_BOTTOMRIGHT )	Draw_Text(dc, Align, x + d, y - d, Angle, Text);
+		if( Effect & TEXTEFFECT_RIGHT       )	Draw_Text(dc, Align, x + d, y    , Angle, Text);
+		if( Effect & TEXTEFFECT_TOPRIGHT    )	Draw_Text(dc, Align, x + d, y + d, Angle, Text);
+
+		dc.SetTextForeground(oldColor);
+	}
+
+	Draw_Text(dc, Align, x, y, Angle, Text);
 }
 
 

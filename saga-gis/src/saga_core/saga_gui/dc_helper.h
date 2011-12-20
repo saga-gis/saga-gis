@@ -127,9 +127,23 @@ void			Draw_FillRect		(wxDC &dc, wxColour Color, wxRect r);
 #define TEXTALIGN_BOTTOMCENTER		(TEXTALIGN_BOTTOM |TEXTALIGN_XCENTER)
 #define TEXTALIGN_BOTTOMRIGHT		(TEXTALIGN_BOTTOM |TEXTALIGN_RIGHT)
 
+#define	TEXTEFFECT_NONE				0x00
+#define	TEXTEFFECT_TOP				0x01
+#define	TEXTEFFECT_TOPLEFT			0x02
+#define	TEXTEFFECT_LEFT				0x04
+#define	TEXTEFFECT_BOTTOMLEFT		0x08
+#define	TEXTEFFECT_BOTTOM			0x10
+#define	TEXTEFFECT_BOTTOMRIGHT		0x20
+#define	TEXTEFFECT_RIGHT			0x40
+#define	TEXTEFFECT_TOPRIGHT			0x80
+#define	TEXTEFFECT_FRAME			(TEXTEFFECT_TOP|TEXTEFFECT_TOPLEFT|TEXTEFFECT_LEFT|TEXTEFFECT_BOTTOMLEFT|TEXTEFFECT_BOTTOM|TEXTEFFECT_BOTTOMRIGHT|TEXTEFFECT_RIGHT|TEXTEFFECT_TOPRIGHT)
+
 //---------------------------------------------------------
-void			Draw_Text			(wxDC &dc, int Align, int x, int y, const wxString &Text);
+void			Draw_Text			(wxDC &dc, int Align, int x, int y              , const wxString &Text);
 void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text);
+
+void			Draw_Text			(wxDC &dc, int Align, int x, int y              , const wxString &Text, int Effect, wxColour Color);
+void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text, int Effect, wxColour Color);
 
 
 ///////////////////////////////////////////////////////////
