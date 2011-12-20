@@ -1,6 +1,6 @@
 _______________________________________________________________________________
 
-         SAGA 2.0 - System for Automated Geoscientific Analyses
+         SAGA 2.0.9 - System for Automated Geoscientific Analyses
 _______________________________________________________________________________
 
 * Introduction
@@ -16,15 +16,20 @@ SAGA - System for Automated Geoscientific Analyses - is a Free Open Source Softw
 
 * Supported Platforms
 
-- Windows (Microsoft Visual C++ 6.0/8.0, MinGW)
+- Windows (Microsoft Visual C++ 10.0)
 - Linux (gcc)
 
 
 * Required Libraries
 
-- wxWidgets 2.8.3
+- wxWidgets 2.9.2
+- GDAL 1.8.0
+- Proj4
 - Haru Free PDF Library (optional)
+- libLAS 1.2 (optional)
+- opencv (optional)
+- vigra (optional)
 
 _______________________________________________________________________________
-Date: May, 15th 2007
+Date: December, 20th 2011
 
