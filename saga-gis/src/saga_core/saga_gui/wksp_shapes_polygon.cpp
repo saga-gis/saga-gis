@@ -286,7 +286,7 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 	{
 		TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, s);
+		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, s, m_Label_Eff, m_Label_Eff_Color);
 	}
 	else
 	{
@@ -296,7 +296,7 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 			{
 				TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, s);
+				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, s, m_Label_Eff, m_Label_Eff_Color);
 			}
 		}
 	}

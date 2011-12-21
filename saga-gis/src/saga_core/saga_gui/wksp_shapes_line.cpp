@@ -61,6 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "dc_helper.h"
+
 #include "wksp_layer_classify.h"
 
 #include "wksp_shapes_line.h"
@@ -436,8 +438,9 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 						bLabel	= false;
 						d		= 0.0;
 
-						dc_Map.dc.DrawRotatedText(s, B.x, B.y, GET_ANGLE(A, B));
+						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, B.x, B.y, GET_ANGLE(A, B), s, m_Label_Eff, m_Label_Eff_Color);
 
+					//	dc_Map.dc.DrawRotatedText(s, B.x, B.y, GET_ANGLE(A, B));
 					//	dc_Map.dc.DrawCircle(A.x, A.y, 3);	dc_Map.dc.DrawCircle(B.x, B.y, 3);
 					}
 				}

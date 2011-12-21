@@ -113,11 +113,11 @@ public:
 
 protected:
 
-	int							m_iColor, m_iLabel, m_iLabel_Size, m_Label_Prec, m_iExtraInfo, m_Edit_iPart, m_Edit_iPoint, m_Chart_Type, m_Chart_sField, m_Chart_sType;
+	int							m_iColor, m_iLabel, m_iLabel_Size, m_Label_Prec, m_Label_Eff, m_iExtraInfo, m_Edit_iPart, m_Edit_iPoint, m_Chart_Type, m_Chart_sField, m_Chart_sType;
 
 	double						m_Chart_sSize, m_Chart_sRange;
 
-	wxColour					m_Def_Color, m_Edit_Color, m_Sel_Color;
+	wxColour					m_Def_Color, m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
 
 	CSG_Points_Int				m_Chart;
 
@@ -149,7 +149,7 @@ protected:
 	CSG_Parameter *				_PenList_Add			(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	int							_PenList_Get_Style		(int Index);
 
-	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map)									= 0;
+	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map)										= 0;
 	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)	= 0;
 	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)					= 0;
 

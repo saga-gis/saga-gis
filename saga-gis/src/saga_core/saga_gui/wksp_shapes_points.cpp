@@ -67,6 +67,7 @@
 #include "res_dialogs.h"
 
 #include "helper.h"
+#include "dc_helper.h"
 
 #include "wksp_map_control.h"
 
@@ -175,7 +176,7 @@ void CWKSP_Shapes_Points::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 
-	dc_Map.dc.DrawText(pShape->asString(m_iLabel, m_Label_Prec), p.x, p.y);
+	Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, pShape->asString(m_iLabel, m_Label_Prec), m_Label_Eff, m_Label_Eff_Color);
 }
 
 

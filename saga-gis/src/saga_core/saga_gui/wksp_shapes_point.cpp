@@ -549,7 +549,7 @@ void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 
 	double	Angle	= m_iLabel_Angle < 0 ? m_Label_Angle : pShape->asDouble(m_iLabel_Angle);
 
-	Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, Angle, s, TEXTEFFECT_FRAME, wxColour(255, 255, 255));
+	Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, Angle, s, m_Label_Eff, m_Label_Eff_Color);
 }
 
 

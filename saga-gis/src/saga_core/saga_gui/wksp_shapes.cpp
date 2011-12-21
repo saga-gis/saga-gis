@@ -65,6 +65,7 @@
 #include "res_dialogs.h"
 
 #include "helper.h"
+#include "dc_helper.h"
 
 #include "wksp_layer_classify.h"
 
@@ -361,6 +362,29 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		), 0
 	);
 
+	m_Parameters.Add_Choice(
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_EFFECT"		, _TL("[CAP] Boundary Effect"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("none"),
+			_TL("full frame"),
+			_TL("top"),
+			_TL("top left"),
+			_TL("left"),
+			_TL("bottom left"),
+			_TL("bottom"),
+			_TL("bottom right"),
+			_TL("right"),
+			_TL("top right")
+		), 1
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("LABEL_ATTRIB_EFFECT"), "LABEL_ATTRIB_EFFECT_COLOR"	, _TL("[CAP] Color"),
+		_TL(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
+	);
+
 	_AttributeList_Add(
 		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_BY"	, _TL("[CAP] Size by Attribute"),
 		_TL("")
@@ -479,7 +503,23 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 		m_iLabel_Size	= -1;
 	}
 
-	m_Label_Prec	= m_Parameters("LABEL_ATTRIB_PREC")->asInt() - 2;
+	m_Label_Prec		= m_Parameters("LABEL_ATTRIB_PREC")->asInt() - 2;
+
+	switch( m_Parameters("LABEL_ATTRIB_EFFECT")->asInt() )
+	{
+	default:	m_Label_Eff	= TEXTEFFECT_NONE;			break;
+	case 1:		m_Label_Eff	= TEXTEFFECT_FRAME;			break;
+	case 2:		m_Label_Eff	= TEXTEFFECT_TOP;			break;
+	case 3:		m_Label_Eff	= TEXTEFFECT_TOPLEFT;		break;
+	case 4:		m_Label_Eff	= TEXTEFFECT_LEFT;			break;
+	case 5:		m_Label_Eff	= TEXTEFFECT_BOTTOMLEFT;	break;
+	case 6:		m_Label_Eff	= TEXTEFFECT_BOTTOM;		break;
+	case 7:		m_Label_Eff	= TEXTEFFECT_BOTTOMRIGHT;	break;
+	case 8:		m_Label_Eff	= TEXTEFFECT_RIGHT;			break;
+	case 9:		m_Label_Eff	= TEXTEFFECT_TOPRIGHT;		break;
+	}
+
+	m_Label_Eff_Color	= m_Parameters("LABEL_ATTRIB_EFFECT_COLOR")->asColor();
 
 	//-----------------------------------------------------
 #ifdef USE_HTMLINFO
@@ -545,6 +585,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			pParameters->Get_Parameter("LABEL_ATTRIB_PREC"     )->Set_Enabled(Value);
 			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE"     )->Set_Enabled(Value);
 			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_BY"  )->Set_Enabled(Value);
+			pParameters->Get_Parameter("LABEL_ATTRIB_EFFECT"   )->Set_Enabled(Value);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB_SIZE_BY")) )
@@ -552,6 +593,13 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			bool	Value	= pParameter->asInt() >= m_pShapes->Get_Field_Count();
 
 			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE")->Set_Enabled(Value);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB_EFFECT")) )
+		{
+			bool	Value	= pParameter->asInt() > 0;
+
+			pParameters->Get_Parameter("LABEL_ATTRIB_EFFECT_COLOR")->Set_Enabled(Value);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("EDIT_SNAP_LIST")) )
