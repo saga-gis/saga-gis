@@ -353,7 +353,7 @@ CSG_Parameter * CSG_Parameters::Add_Grid(CSG_Parameter *pParent, const CSG_Strin
 		}
 		else
 		{
-			pParent	= Add_Grid_System(pParent, CSG_String::Format(SG_T("%s_GRIDSYSTEM"), Identifier.w_str()), _TL("[PRM] Grid system"), SG_T(""));
+			pParent	= Add_Grid_System(pParent, CSG_String::Format(SG_T("%s_GRIDSYSTEM"), Identifier.c_str()), _TL("[PRM] Grid system"), SG_T(""));
 		}
 	}
 

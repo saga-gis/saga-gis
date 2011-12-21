@@ -190,7 +190,7 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 //---------------------------------------------------------
 #define SG_STR_CMP(s1, s2)		CSG_String(s1).Cmp(s2)
 
-#if !defined(_SAGA_UNICODE) && defined(_SAGA_LINUX)
+#if !defined(_SAGA_UNICODE) || defined(_SAGA_LINUX)
 	#define SG_Char				char
 	#define SG_T(s)				s
 	#define SG_PRINTF			printf
