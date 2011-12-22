@@ -877,7 +877,7 @@ bool CParameters_Control::Update_DataObjects(void)
 			}\
 		}\
 		\
-		pProperty->Hide(!bShow);pProperty->Enable();\
+		pProperty->Hide(!bShow, wxPG_DONT_RECURSE);\
 	}\
 }
 
