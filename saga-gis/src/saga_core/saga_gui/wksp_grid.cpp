@@ -415,6 +415,28 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		PARAMETER_TYPE_Int, 2
 	);
 
+	m_Parameters.Add_Choice(
+		m_Parameters("VALUES_SHOW")		, "VALUES_EFFECT"	, _TL("[CAP] Boundary Effect"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("none"),
+			_TL("full frame"),
+			_TL("top"),
+			_TL("top left"),
+			_TL("left"),
+			_TL("bottom left"),
+			_TL("bottom"),
+			_TL("bottom right"),
+			_TL("right"),
+			_TL("top right")
+		), 1
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("VALUES_EFFECT")	, "VALUES_EFFECT_COLOR"	, _TL("[CAP] Color"),
+		_TL(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
+	);
 
 	//-----------------------------------------------------
 	// Memory...
@@ -524,6 +546,14 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			pParameters->Get_Parameter("VALUES_FONT"    )->Set_Enabled(Value);
 			pParameters->Get_Parameter("VALUES_SIZE"    )->Set_Enabled(Value);
 			pParameters->Get_Parameter("VALUES_DECIMALS")->Set_Enabled(Value);
+			pParameters->Get_Parameter("VALUES_EFFECT"  )->Set_Enabled(Value);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("VALUES_EFFECT")) )
+		{
+			bool	Value	= pParameter->asInt() > 0;
+
+			pParameters->Get_Parameter("VALUES_EFFECT_COLOR")->Set_Enabled(Value);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MEMORY_MODE")) )
@@ -1306,8 +1336,9 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	int			ax, ay, bx, by, Decimals;
+	int			ax, ay, bx, by, Decimals, Effect;
 	double		axDC, ayDC, dDC, zFactor;
+	wxColour	Effect_Color;
 	wxFont		Font;
 
 	dDC			= m_pGrid->Get_Cellsize() * dc_Map.m_World2DC;
@@ -1317,6 +1348,22 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.0));
 	dc_Map.dc.SetFont(Font);
 	dc_Map.dc.SetTextForeground(Get_Color_asWX(m_Parameters("VALUES_FONT")->asColor()));
+
+	switch( m_Parameters("VALUES_EFFECT")->asInt() )
+	{
+	default:	Effect	= TEXTEFFECT_NONE;			break;
+	case 1:		Effect	= TEXTEFFECT_FRAME;			break;
+	case 2:		Effect	= TEXTEFFECT_TOP;			break;
+	case 3:		Effect	= TEXTEFFECT_TOPLEFT;		break;
+	case 4:		Effect	= TEXTEFFECT_LEFT;			break;
+	case 5:		Effect	= TEXTEFFECT_BOTTOMLEFT;	break;
+	case 6:		Effect	= TEXTEFFECT_BOTTOM;		break;
+	case 7:		Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
+	case 8:		Effect	= TEXTEFFECT_RIGHT;			break;
+	case 9:		Effect	= TEXTEFFECT_TOPRIGHT;		break;
+	}
+
+	Effect_Color	= m_Parameters("VALUES_EFFECT_COLOR")->asColor();
 
 	//-------------------------------------------------
 	ax		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
@@ -1333,7 +1380,6 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	int	ny	= by - ay;
 
 	//-------------------------------------------------
-//	#pragma omp parallel for
 	for(int y=0; y<=ny; y++)
 	{
 		int		x;
@@ -1350,13 +1396,13 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 				case CLASSIFY_RGB:
 					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
 						wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)
-					));
+					), Effect, Effect_Color);
 					break;
 
 				default:
 					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
 						wxT("%.*f"), Decimals, zFactor * Value
-					));
+					), Effect, Effect_Color);
 					break;
 				}
 			}
