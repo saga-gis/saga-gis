@@ -99,56 +99,73 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
+{
+	if( !pParameter || !pParameter->Get_Owner() )
+	{
+		return( -1 );
+	}
+
+	if( Flags & PARAMETER_CHECK_ENABLE && !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TYPE")) )
+	{
+		pParameter->Get_Owner()->Get_Parameter("GRID_SYS")->Set_Enabled(pParameter->asInt() == 0);
+		pParameter->Get_Owner()->Get_Parameter("GRID"    )->Set_Enabled(pParameter->asInt() == 0);
+		pParameter->Get_Owner()->Get_Parameter("POINTS"  )->Set_Enabled(pParameter->asInt() == 1);
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
 void		Add_ScatterPlot(CSG_Grid *pGrid)
 {
-	CSG_Parameters	P(NULL, wxString::Format(wxT("%s: %s"), _TL("[CAP] Scatterplot"), pGrid->Get_Name()), _TL(""), NULL);
+	CSG_Parameter	*pNode;
 
-	P.Add_Choice(
+	CSG_Parameters	Parameters(NULL, CSG_String::Format(SG_T("%s: %s"), _TL("Scatterplot"), pGrid->Get_Name()), _TL(""), NULL);
+
+	Parameters.Add_Choice(
 		NULL	, "TYPE"	, _TL("Compare with..."),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("another grid"),
 			_TL("points")
-		)
+		), 0
 	);
 
+	pNode	= Parameters.Add_Grid_System(
+		NULL	, "GRID_SYS", _TL("Grid System"),
+		_TL("")
+	);
+
+	Parameters.Add_Grid(
+		pNode	, "GRID"	, _TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "POINTS"	, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"	, _TL("Attribute"),
+		_TL("")
+	);
+
+	Parameters.Set_Callback_On_Parameter_Changed(&Scatter_Plot_On_Parameter_Changed);
+
 	//-----------------------------------------------------
-	if( DLG_Parameters(&P) )
+	if( DLG_Parameters(&Parameters) )
 	{
-		if( P("TYPE")->asInt() == 0 )
+		if( Parameters("TYPE")->asInt() == 0 )
 		{
-			P.Del_Parameters();
-
-			P.Add_Grid(
-				NULL	, "GRID"	, _TL("[CAP] Grid"),
-				_TL(""),
-				PARAMETER_INPUT
-			);
-
-			if( DLG_Parameters(&P) )
-			{
-				new CVIEW_ScatterPlot(pGrid, P("GRID")->asGrid());
-			}
+			new CVIEW_ScatterPlot(pGrid, Parameters("GRID")->asGrid());
 		}
 		else
 		{
-			P.Del_Parameters();
-
-			CSG_Parameter	*pNode	= P.Add_Shapes(
-				NULL	, "POINTS"	, _TL("[CAP] Points"),
-				_TL(""),
-				PARAMETER_INPUT, SHAPE_TYPE_Point
-			);
-
-			P.Add_Table_Field(
-				pNode	, "FIELD"	, _TL("[CAP] Attribute"),
-				_TL("")
-			);
-
-			if( DLG_Parameters(&P) )
-			{
-				new CVIEW_ScatterPlot(pGrid, P("POINTS")->asShapes(), P("FIELD")->asInt());
-			}
+			new CVIEW_ScatterPlot(pGrid, Parameters("POINTS")->asShapes(), Parameters("FIELD")->asInt());
 		}
 	}
 }
@@ -163,14 +180,14 @@ void		Add_ScatterPlot(CSG_Table *pTable)
 		sChoices.Append(CSG_String::Format(SG_T("%s|"), pTable->Get_Field_Name(i)));
 	}
 
-	CSG_Parameters	P(NULL, CSG_String::Format(SG_T("%s: %s"), _TL("[CAP] Scatterplot"), pTable->Get_Name()), _TL(""));
+	CSG_Parameters	Parameters(NULL, CSG_String::Format(SG_T("%s: %s"), _TL("Scatterplot"), pTable->Get_Name()), _TL(""));
 
-	P.Add_Choice(NULL, "FIELD_A", wxT("X"), wxT(""), sChoices);
-	P.Add_Choice(NULL, "FIELD_B", wxT("Y"), wxT(""), sChoices);
+	Parameters.Add_Choice(NULL, "FIELD_A", wxT("X"), wxT(""), sChoices);
+	Parameters.Add_Choice(NULL, "FIELD_B", wxT("Y"), wxT(""), sChoices);
 
-	if( DLG_Parameters(&P) )
+	if( DLG_Parameters(&Parameters) )
 	{
-		new CVIEW_ScatterPlot(pTable, P("FIELD_A")->asInt(), P("FIELD_B")->asInt());
+		new CVIEW_ScatterPlot(pTable, Parameters("FIELD_A")->asInt(), Parameters("FIELD_B")->asInt());
 	}
 }
 

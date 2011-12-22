@@ -747,8 +747,8 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 
 	if( pProperty )
 	{
-	//	m_pPG->EnableProperty(pProperty, _Get_Enabled(pParameter));
-		m_pPG->HideProperty(pProperty, !_Get_Enabled(pParameter));
+		pProperty->Enable( _Get_Enabled(pParameter));
+		pProperty->Hide  (!_Get_Enabled(pParameter));
 
 		switch( pParameter->Get_Type() )
 		{
@@ -862,6 +862,26 @@ bool CParameters_Control::Update_DataObjects(void)
 }
 
 //---------------------------------------------------------
+#define UPDATE_DATA_NODE(NODE)	{\
+	wxPGProperty	*pProperty	= m_pPG->GetProperty(NODE);\
+	\
+	if( pProperty )\
+	{\
+		bool	bShow	= false;\
+		\
+		for(size_t i=0; i<pProperty->GetChildCount() && !bShow; i++)\
+		{\
+			if( pProperty->Item(i)->IsEnabled() )\
+			{\
+				bShow	= true;\
+			}\
+		}\
+		\
+		pProperty->Hide(!bShow);pProperty->Enable();\
+	}\
+}
+
+//---------------------------------------------------------
 void CParameters_Control::_Update_Parameters(void)
 {
 	if( m_pParameters )
@@ -870,6 +890,13 @@ void CParameters_Control::_Update_Parameters(void)
 		{
 			_Update_Parameter(m_pParameters->Get_Parameter(i));
 		}
+
+		UPDATE_DATA_NODE("_DATAOBJECT_GRIDS");
+		UPDATE_DATA_NODE("_DATAOBJECT_TABLES");
+		UPDATE_DATA_NODE("_DATAOBJECT_SHAPES");
+		UPDATE_DATA_NODE("_DATAOBJECT_TINS");
+		UPDATE_DATA_NODE("_DATAOBJECT_POINTCLOUDS");
+		UPDATE_DATA_NODE("_DATAOBJECT_OPTIONS");
 
 		m_pPG->Refresh();
 	}

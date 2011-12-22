@@ -1072,41 +1072,44 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 	//-----------------------------------------------------
 	for(int i=0; i<Get_Count(); i++)
 	{
-		switch( m_Parameters[i]->Get_Type() )
+		if( m_Parameters[i]->is_Enabled() )
 		{
-		default:
-			bInvalid	= false;
-			break;
+			switch( m_Parameters[i]->Get_Type() )
+			{
+			default:
+				bInvalid	= false;
+				break;
 
-		case PARAMETER_TYPE_Parameters:
-			bInvalid	= m_Parameters[i]->asParameters()->DataObjects_Check(bSilent) == false;
-			break;
+			case PARAMETER_TYPE_Parameters:
+				bInvalid	= m_Parameters[i]->asParameters()->DataObjects_Check(bSilent) == false;
+				break;
 
-		case PARAMETER_TYPE_Grid:
-		case PARAMETER_TYPE_Table:
-		case PARAMETER_TYPE_Shapes:
-		case PARAMETER_TYPE_TIN:
-		case PARAMETER_TYPE_PointCloud:
-			bInvalid	=  m_Parameters[i]->is_Input()				== true
-						&& m_Parameters[i]->is_Optional()			== false
-						&& m_Parameters[i]->asDataObject()			== NULL;
-			break;
+			case PARAMETER_TYPE_Grid:
+			case PARAMETER_TYPE_Table:
+			case PARAMETER_TYPE_Shapes:
+			case PARAMETER_TYPE_TIN:
+			case PARAMETER_TYPE_PointCloud:
+				bInvalid	=  m_Parameters[i]->is_Input()				== true
+							&& m_Parameters[i]->is_Optional()			== false
+							&& m_Parameters[i]->asDataObject()			== NULL;
+				break;
 
-		case PARAMETER_TYPE_Grid_List:
-		case PARAMETER_TYPE_Table_List:
-		case PARAMETER_TYPE_Shapes_List:
-		case PARAMETER_TYPE_TIN_List:
-		case PARAMETER_TYPE_PointCloud_List:
-			bInvalid	=  m_Parameters[i]->is_Input()				== true
-						&& m_Parameters[i]->is_Optional()			== false
-						&& m_Parameters[i]->asList()->Get_Count()	== 0;
-			break;
-		}
+			case PARAMETER_TYPE_Grid_List:
+			case PARAMETER_TYPE_Table_List:
+			case PARAMETER_TYPE_Shapes_List:
+			case PARAMETER_TYPE_TIN_List:
+			case PARAMETER_TYPE_PointCloud_List:
+				bInvalid	=  m_Parameters[i]->is_Input()				== true
+							&& m_Parameters[i]->is_Optional()			== false
+							&& m_Parameters[i]->asList()->Get_Count()	== 0;
+				break;
+			}
 
-		if( bInvalid )
-		{
-			bResult	= false;
-			s.Append(CSG_String::Format(SG_T("\n%s: %s"), m_Parameters[i]->Get_Type_Name().c_str(), m_Parameters[i]->Get_Name()));
+			if( bInvalid )
+			{
+				bResult	= false;
+				s.Append(CSG_String::Format(SG_T("\n%s: %s"), m_Parameters[i]->Get_Type_Name().c_str(), m_Parameters[i]->Get_Name()));
+			}
 		}
 	}
 
