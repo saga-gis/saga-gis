@@ -1,10 +1,13 @@
 @echo off
 
+C:\Programme (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat
+
 rem #########################################
 set WXWIN=H:\libs\libs\wxMSW-2.8.11
-set SAGA=H:\saga\saga_svn_wx28\saga-gis
+set SAGA=H:\saga\saga_2\branches\release-2-0-8\saga-gis
 rem set SWIG=C:\Program Files\swigwin-1.3.25
-set PYTHONPATH=C:\Programme (x86)\PYTHON26
+rem set PYTHONPATH=C:\Programme (x86)\PYTHON27
+set PYTHONPATH=H:\libs\_libs\Python\Python-2.7
 rem #########################################
 
 rem #########################################
