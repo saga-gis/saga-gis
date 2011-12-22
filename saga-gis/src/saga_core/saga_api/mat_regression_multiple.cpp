@@ -449,50 +449,44 @@ bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X, double R2_prev
 //---------------------------------------------------------
 int CSG_Regression_Multiple::_Get_Step_In(CSG_Matrix &X, double P_in, double &R2, const CSG_Matrix &Samples)
 {
-	int		iNext, iIndependent, nIndependents, nPredictors, nSamples;
-	double	rNext;
+	int		iBest, iPredictor;
+	double	rBest;
 
 	CSG_Regression_Multiple R;
-
-	nPredictors		= X.Get_NX();
-	nSamples		= Samples.Get_NY();
-	nIndependents	= Samples.Get_NX() - 1;
 
 	X.Add_Cols(1);
 
 	//-----------------------------------------------------
-	for(iIndependent=0, iNext=-1, rNext=0.0; iIndependent<nIndependents; iIndependent++)
+	for(iPredictor=0, iBest=-1, rBest=0.0; iPredictor<Samples.Get_NX()-1; iPredictor++)
 	{
-		if( !m_bIncluded[iIndependent] )
+		if( !m_bIncluded[iPredictor] )
 		{
-			X.Set_Col(1 + m_nPredictors, Samples.Get_Col(1 + iIndependent));
+			X.Set_Col(1 + m_nPredictors, Samples.Get_Col(1 + iPredictor));
 
-			if( R.Calculate(X) && (iNext < 0 || rNext < R.Get_R2()) )
+			if( R.Calculate(X) && (iBest < 0 || rBest < R.Get_R2()) )
 			{
-				iNext	= iIndependent;
-				rNext	= R.Get_R2();
+				iBest	= iPredictor;
+				rBest	= R.Get_R2();
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( iNext >= 0 && _Get_P(1, nSamples - m_nPredictors, rNext, R2) <= P_in )
+	if( iBest >= 0 && _Get_P(1, Samples.Get_NY() - m_nPredictors, rBest, R2) <= P_in )
 	{
-		m_bIncluded[iNext]			= true;
-		m_Predictor[m_nPredictors]	= iNext;
+		m_bIncluded[iBest]			= true;
+		m_Predictor[m_nPredictors]	= iBest;
 
 		m_nPredictors++;
 
-		X.Set_Col(m_nPredictors, Samples.Get_Col(1 + iNext));
+		X.Set_Col(m_nPredictors, Samples.Get_Col(1 + iBest));
+		_Set_Step_Info(X, R2, iBest, true);
+		R2	= rBest;
 
-		_Set_Step_Info(X, R2, iNext, true);
-
-		R2	= rNext;
-
-		return( iNext );
+		return( iBest );
 	}
 
-	X.Del_Col(nPredictors);
+	X.Del_Col(X.Get_NX() - 1);
 
 	return( -1 );
 }
@@ -500,8 +494,8 @@ int CSG_Regression_Multiple::_Get_Step_In(CSG_Matrix &X, double P_in, double &R2
 //---------------------------------------------------------
 int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &R2)
 {
-	int		iNext, iIndependent, nIndependents, nPredictors, nSamples;
-	double	rNext;
+	int		iBest, iPredictor;
+	double	rBest;
 
 	CSG_Regression_Multiple R;
 
@@ -512,46 +506,37 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 		R2	= R.Get_R2();
 	}
 
-	nSamples		= X.Get_NY();
-	nPredictors		= X.Get_NX() - 2;
-	nIndependents	= X.Get_NX() - 1;
-
 	//-----------------------------------------------------
-	for(iIndependent=0, iNext=-1, rNext=1.0; iIndependent<nIndependents; iIndependent++)
+	for(iPredictor=0, iBest=-1, rBest=0.0; iPredictor<m_nPredictors; iPredictor++)
 	{
-		if( m_bIncluded[iIndependent] )
+		CSG_Matrix	X_reduced(X);
+
+		X_reduced.Del_Col(1 + iPredictor);
+
+		if( R.Calculate(X_reduced) && (iBest < 0 || rBest < R.Get_R2()) )
 		{
-			CSG_Matrix	X_reduced(X);
-
-			X_reduced.Del_Col(1 + iIndependent);
-
-			if( R.Calculate(X_reduced) && (iNext < 0 || rNext < R.Get_R2()) )
-			{
-				iNext	= iIndependent;
-				rNext	= R.Get_R2();
-			}
+			iBest	= iPredictor;
+			rBest	= R.Get_R2();
 		}
 	}
 
 	//-----------------------------------------------------
-	if( iNext >= 0 && _Get_P(1, nSamples - nPredictors, R2, rNext) > P_out )
+	if( iBest >= 0 && _Get_P(1, X.Get_NY() - m_nPredictors - 1, R2, rBest) > P_out )
 	{
-		X.Del_Col(1 + iNext);
+		X.Del_Col(1 + iBest);
+		_Set_Step_Info(X, R2, m_Predictor[iBest], false);
+		R2	= rBest;
 
-		_Set_Step_Info(X, R2, m_Predictor[iNext], false);
-
-		R2	= rNext;
+		m_bIncluded[m_Predictor[iBest]]	= false;
 
 		m_nPredictors--;
 
-		m_bIncluded[iNext]	= false;
-
-		for(int j=iNext; j<nPredictors; j++)
+		for(iPredictor=iBest; iPredictor<m_nPredictors; iPredictor++)
 		{
-			m_Predictor[j]	= m_Predictor[j + 1];
+			m_Predictor[iPredictor]	= m_Predictor[iPredictor + 1];
 		}
 
-		return( iNext );
+		return( iBest );
 	}
 
 	return( -1 );
