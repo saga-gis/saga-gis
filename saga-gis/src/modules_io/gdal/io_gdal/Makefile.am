@@ -10,7 +10,7 @@ endif
 DEP_LIBS = `gdal-config --libs`
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core `gdal-config --cflags`
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LIBS)
 pkglib_LTLIBRARIES = libio_gdal.la
 libio_gdal_la_SOURCES =\

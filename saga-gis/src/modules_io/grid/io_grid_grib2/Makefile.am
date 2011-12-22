@@ -9,7 +9,7 @@ UC_DEFS = -D_SAGA_UNICODE
 endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -DUSE_JPEG2000 -DUSE_PNG
 CXX_INCS           = -I$(top_srcdir)/src/saga_core $(LOCAL_INCS)
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
 #AM_LDFLAGS         = -fPIC -shared -avoid-version -lpq -ljasper
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(LOCAL_LIBS) -ljasper
 pkglib_LTLIBRARIES = libio_grid_grib2.la
