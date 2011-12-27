@@ -595,7 +595,7 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 
 		if( Get_Count() == 0 )
 		{
-			m_Parameters("NAME")->Set_Value(&pLayer->Get_Name());
+			m_Parameters("NAME")->Set_Value(pLayer->Get_Name().wx_str());
 
 			Parameters_Changed();
 		}
@@ -1155,7 +1155,7 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 	{
 		CSG_Grid	*pGrid	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
 
-		pGrid->Set_Name(&Get_Name());
+		pGrid->Set_Name(Get_Name().wx_str());
 		pGrid->Set_NoData_Value(16711935);
 
 		for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY(); y++, yy--)
@@ -1249,7 +1249,7 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 		case wxBITMAP_TYPE_TIF:		fn.SetExt(wxT("tfw"));		break; 
 		}
 
-		if( Stream.Open(&fn.GetFullPath(), SG_FILE_W, false) )
+		if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 		{
 			CSG_Rect	rWorld(Get_World(r));
 			double		d	= rWorld.Get_XRange() / r.GetWidth();
@@ -1269,7 +1269,7 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 
 		fn.SetExt(wxT("kml"));
 
-		if( Stream.Open(&fn.GetFullPath(), SG_FILE_W, false) )
+		if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 		{
 			CSG_Rect	rWorld(Get_World(r));
 			double		d	= rWorld.Get_XRange() / r.GetWidth();
@@ -1282,10 +1282,10 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 			Stream.Printf(SG_T("    <name>Maps exported from SAGA</name>\n"));
 			Stream.Printf(SG_T("    <description>System for Automated Geoscientific Analyses - www.saga-gis.org</description>\n"));
 			Stream.Printf(SG_T("    <GroundOverlay>\n"));
-			Stream.Printf(SG_T("      <name>%s</name>\n")				, CSG_String(&Get_Name       ()).c_str());
-			Stream.Printf(SG_T("      <description>%s</description>\n")	, CSG_String(&Get_Description()).c_str());
+			Stream.Printf(SG_T("      <name>%s</name>\n")				, Get_Name().wx_str());
+			Stream.Printf(SG_T("      <description>%s</description>\n")	, Get_Description().wx_str());
 			Stream.Printf(SG_T("      <Icon>\n"));
-			Stream.Printf(SG_T("        <href>%s</href>\n")				, CSG_String(&fn.GetFullName ()).c_str());
+			Stream.Printf(SG_T("        <href>%s</href>\n")				, fn.GetFullName().wx_str());
 			Stream.Printf(SG_T("      </Icon>\n"));
 			Stream.Printf(SG_T("      <LatLonBox>\n"));
 			Stream.Printf(SG_T("        <north>%f</north>\n")			, rWorld.Get_YMax() + Frame * d);

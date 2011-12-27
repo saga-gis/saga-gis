@@ -871,8 +871,8 @@ bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pIt
 	{
 		CSG_Table_Record	*pRecord	= pList->Add_Record();
 
-		pRecord->Set_Value(0, CSG_String(&pItem->Get_Name()));
-		pRecord->Set_Value(1, CSG_String(&pItem->Get_Type_Name(pItem->Get_Type())));
+		pRecord->Set_Value(0, pItem->Get_Name().wx_str());
+		pRecord->Set_Value(1, pItem->Get_Type_Name(pItem->Get_Type()).wx_str());
 		pRecord->Set_Value(2, (long)pItem);
 	}
 

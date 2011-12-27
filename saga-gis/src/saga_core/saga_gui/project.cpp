@@ -897,12 +897,12 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		if( (pNode = pParameters->Get_Parameter(CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()))) == NULL )
 		{
-			pNode	= pParameters->Add_Node(NULL, CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()), &pItem->Get_Manager()->Get_Name(), SG_T(""));
+			pNode	= pParameters->Add_Node(NULL, CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()), pItem->Get_Manager()->Get_Name().wx_str(), SG_T(""));
 		}			
 
 		pNode	= pParameters->Add_Value(
 			pNode, CSG_String::Format(SG_T("%d")     , (long)pObject),
-			&pItem->Get_Name(), SG_T(""), PARAMETER_TYPE_Bool, false
+			pItem->Get_Name().wx_str(), SG_T(""), PARAMETER_TYPE_Bool, false
 		);
 
 		pParameters->Add_FilePath(

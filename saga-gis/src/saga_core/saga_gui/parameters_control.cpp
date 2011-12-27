@@ -701,7 +701,7 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 	if( pProperty )
 	{
 		CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(
-			!pProperty->IsSubProperty() ? &Identifier : &Identifier.AfterLast(wxT('.'))
+			!pProperty->IsSubProperty() ? Identifier.wx_str() : Identifier.AfterLast(wxT('.')).wx_str()
 		);
 
 		if( pParameter )
@@ -713,7 +713,7 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value(CSG_String(&m_pPG->GetPropertyValueAsString(pProperty)));
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).wx_str());
 				break;
 
 			case PARAMETER_TYPE_Bool:

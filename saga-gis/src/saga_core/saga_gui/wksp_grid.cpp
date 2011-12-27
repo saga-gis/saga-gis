@@ -1097,7 +1097,7 @@ void CWKSP_Grid::_Save_Image(void)
 			case wxBITMAP_TYPE_TIF:		fn.SetExt(wxT("tfw"));		break; 
 			}
 
-			if( Stream.Open(&fn.GetFullPath(), SG_FILE_W, false) )
+			if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 			{
 				Stream.Printf(SG_T("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
 					 m_pGrid->Get_Cellsize(),

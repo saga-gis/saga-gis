@@ -855,7 +855,8 @@ bool CParameters_PG_Dialog::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary,
 
 		if( value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_FilePath )
 		{
-			value.m_pParameter->Set_Value(&((wxTextCtrl *)primary)->GetValue());
+			wxTextCtrl	*pTextCtrl = (wxTextCtrl *)primary;
+			value.m_pParameter->Set_Value(pTextCtrl->GetValue().wx_str());
 
 			propgrid->EditorsValueWasModified();
 
