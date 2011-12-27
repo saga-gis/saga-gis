@@ -796,7 +796,7 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 					}
 					else
 					{
-						pObject->Save(&wxString::Format(SG_T("%s_%04d"), FileName, i + 1));
+						pObject->Save(wxString::Format(SG_T("%s_%04d"), FileName, i + 1).wx_str());
 					}
 				}
 
