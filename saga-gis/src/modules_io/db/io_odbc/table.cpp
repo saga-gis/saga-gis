@@ -125,7 +125,8 @@ bool CTable_Info::On_Execute(void)
 	CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
 	CSG_Table				*pTable		= Parameters("TABLE")	->asTable();
 
-	pTable->Assign(&Get_Connection()->Get_Field_Desc(pTables->asString()));
+	CSG_Table				tmpTable	= Get_Connection()->Get_Field_Desc(pTables->asString());
+	pTable->Assign(&tmpTable);
 
 	return( true );
 }
