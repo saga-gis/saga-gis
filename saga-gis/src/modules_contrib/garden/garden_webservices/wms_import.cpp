@@ -306,7 +306,7 @@ bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
 		{
 			if( !pKeyword->GetName().CmpNoCase(SG_T("Format")) )
 			{
-				m_Keywords.Add(&pKeyword->GetNodeContent());
+				m_Keywords.Add(pKeyword->GetNodeContent().wx_str());
 			}
 
 			pKeyword	= pKeyword->GetNext();
@@ -387,7 +387,7 @@ bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
 		{
 			if( !pChild->GetName().CmpNoCase(V_SRS(Version)) )
 			{
-				m_sProjections	.Add(CSG_String(&pChild->GetNodeContent()));
+				m_sProjections	.Add(pChild->GetNodeContent().wx_str());
 
 			//	m_Projections	+= Get_EPSG_Name(CSG_String(&pChild->GetNodeContent()));
 				m_Projections	+= SG_T("|");
