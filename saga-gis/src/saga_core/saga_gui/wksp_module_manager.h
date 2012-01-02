@@ -130,7 +130,7 @@ private:
 	void							_Config_Read		(void);
 	void							_Config_Write		(void);
 
-	int								_Open_Directory		(const wxChar *sDirectory, bool bOnlySubDirectories = false);
+	int								_Open_Directory		(const wxString &sDirectory, bool bOnlySubDirectories = false);
 
 };
 

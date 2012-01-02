@@ -67,6 +67,8 @@
 
 #include "res_commands.h"
 
+#include "project.h"
+
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_file.h"
 
@@ -276,65 +278,59 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Add(const wxChar *FileName)
+void CWKSP_Data_Menu_File::Add(const wxString &FileName)
 {
-	int		i, j;
-
-	if( m_Recent )
+	if( m_Recent && m_Recent_Count > 0 )
 	{
-		for(i=0, j=-1; i<m_Recent_Count && j<0; i++)
+		int		i;
+
+		for(i=0; i<m_Recent_Count-1; i++)
 		{
 			if( m_Recent[i].Cmp(FileName) == 0 )
 			{
-				j	= i;
+				break;
 			}
 		}
 
-		if( j > 0 )
-		{
-			for(i=j; i>0; i--)
-			{
-				m_Recent[i]	= m_Recent[i - 1];
-			}
+		wxString	s_tmp(FileName);
 
-			m_Recent[0]	= FileName;
+		for( ; i>0; i--)
+		{
+			m_Recent[i]	= m_Recent[i - 1];
 		}
-		else if( j < 0 )
-		{
-			for(i=m_Recent_Count-1; i>0; i--)
-			{
-				m_Recent[i]	= m_Recent[i - 1];
-			}
 
-			m_Recent[0]	= FileName;
+		m_Recent[0]	= s_tmp;
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Data_Menu_File::Del(const wxString &FileName)
+{
+	if( m_Recent && m_Recent_Count > 0 )
+	{
+		wxString	s_tmp(FileName);
+
+		for(int i=m_Recent_Count-1; i>=0; i--)
+		{
+			if( m_Recent[i].Cmp(s_tmp) == 0 )
+			{
+				_Del(m_Recent_First + i);
+			}
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Del(const wxChar *FileName)
+void CWKSP_Data_Menu_File::_Del(int Cmd_ID)
 {
-	int		i, j;
-
-	if( m_Recent )
+	if( m_Recent && m_Recent_First <= Cmd_ID && Cmd_ID < m_Recent_First + m_Recent_Count )
 	{
-		for(i=0, j=-1; i<m_Recent_Count && j<0; i++)
+		for(int i=Cmd_ID-m_Recent_First; i<m_Recent_Count-1; i++)
 		{
-			if( m_Recent[i].Cmp(FileName) == 0 )
-			{
-				j	= i;
-			}
+			m_Recent[i]	= m_Recent[i + 1];
 		}
 
-		if( j >= 0 )
-		{
-			for(i=j; i<m_Recent_Count-1; i++)
-			{
-				m_Recent[i]	= m_Recent[i + 1];
-			}
-
-			m_Recent[m_Recent_Count - 1].Clear();
-		}
+		m_Recent[m_Recent_Count - 1].Clear();
 	}
 }
 
@@ -348,15 +344,16 @@ void CWKSP_Data_Menu_File::Del(const wxChar *FileName)
 //---------------------------------------------------------
 bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 {
+	bool	bSuccess	= false;
+
 	if( m_Recent && m_Recent_First <= Cmd_ID && Cmd_ID < m_Recent_First + m_Recent_Count )
 	{
+		wxString	FileName(m_Recent[Cmd_ID - m_Recent_First]);
+
 		switch( m_DataType )
 		{
-		default:
-			return( false );
-
 		case DATAOBJECT_TYPE_Undefined:
-			g_pData->Open(m_Recent[Cmd_ID - m_Recent_First]);
+			bSuccess	= g_pData->Get_Project()->Load(FileName, false, true);
 			break;
 
 		case DATAOBJECT_TYPE_Table:
@@ -364,14 +361,12 @@ bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 		case DATAOBJECT_TYPE_TIN:
 		case DATAOBJECT_TYPE_PointCloud:
 		case DATAOBJECT_TYPE_Grid:
-			g_pData->Open(m_DataType, m_Recent[Cmd_ID - m_Recent_First]);
+			bSuccess	= g_pData->Open(m_DataType, FileName) != NULL;
 			break;
 		}
-
-		return( true );
 	}
 
-	return( false );
+	return( bSuccess );
 }
 
 

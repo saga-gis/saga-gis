@@ -90,7 +90,7 @@ class CWKSP_Data_Button : public wxPanel
 
 public:
 	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Layer *pLayer);
-	CWKSP_Data_Button(wxWindow *pParent, const wxChar *Title);
+	CWKSP_Data_Button(wxWindow *pParent, const wxString &Title);
 	virtual ~CWKSP_Data_Button(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
@@ -154,7 +154,7 @@ private:
 
 	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
 	bool						_Add_Item			(class CWKSP_Layer *pLayer);
-	bool						_Add_Item			(const wxChar *Title);
+	bool						_Add_Item			(const wxString &Title);
 	bool						_Del_Items			(void);
 
 

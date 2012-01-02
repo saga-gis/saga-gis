@@ -90,7 +90,7 @@ class CWKSP_Map_Button : public wxPanel
 
 public:
 	CWKSP_Map_Button(wxWindow *pParent, class CWKSP_Map *pMap);
-	CWKSP_Map_Button(wxWindow *pParent, const wxChar *Title);
+	CWKSP_Map_Button(wxWindow *pParent, const wxString &Title);
 	virtual ~CWKSP_Map_Button(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
@@ -150,7 +150,7 @@ private:
 
 	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
 	bool						_Add_Item			(class CWKSP_Map *pMap);
-	bool						_Add_Item			(const wxChar *Title);
+	bool						_Add_Item			(const wxString &Title);
 	bool						_Del_Items			(void);
 
 

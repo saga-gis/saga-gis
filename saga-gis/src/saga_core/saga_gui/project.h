@@ -107,7 +107,7 @@ private:
 	bool					_Load_Map			(CSG_MetaData &Entry, const wxString &ProjectDir);
 	bool					_Save_Map			(CSG_MetaData &Entry, const wxString &ProjectDir, class CWKSP_Map *pMap);
 
-	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
+	class CWKSP_Base_Item *	_Get_byFileName		(const wxString &FileName);
 
 	static int				_Modified_Changed	(class CSG_Parameter  *pParameter, int Flags);
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, bool bSelections);

@@ -102,7 +102,7 @@ public:
 
 	bool						Exists			(class CSG_Shapes *pShapes);
 	class CWKSP_Shapes *		Add				(class CSG_Shapes *pShapes);
-	class CSG_Shapes *			Get_byFileName	(const wxChar *File_Name);
+	class CSG_Shapes *			Get_byFileName	(const wxString &File_Name);
 
 	bool						Update			(class CSG_Shapes *pShapes, class CSG_Parameters *pParameters);
 	bool						Update_Views	(class CSG_Shapes *pShapes);

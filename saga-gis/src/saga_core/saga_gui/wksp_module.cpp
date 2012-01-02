@@ -96,7 +96,7 @@ CWKSP_Module	*g_pModule	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const wxChar *Menu_Library)
+CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const wxString &Menu_Library)
 {
 	m_pModule	= pModule;
 	m_Menu_ID	= -1;
@@ -120,11 +120,11 @@ CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const wxChar *Menu_Library)
 	//-----------------------------------------------------
 	if( m_Menu_Path.Length() == 0 )	// menu path is relative to library's default menu
 	{
-		if( Menu_Library && *Menu_Library && Menu_Module.Length() > 0 )
+		if( Menu_Library.Length() > 0 && Menu_Module.Length() > 0 )
 		{
 			m_Menu_Path.Printf(wxT("%s|%s"), Menu_Library, Menu_Module);
 		}
-		else if( Menu_Library && *Menu_Library )
+		else if( Menu_Library.Length() > 0 )
 		{
 			m_Menu_Path.Printf(wxT("%s"), Menu_Library);
 		}

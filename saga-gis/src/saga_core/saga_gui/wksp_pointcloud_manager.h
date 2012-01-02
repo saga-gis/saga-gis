@@ -100,7 +100,7 @@ public:
 
 	bool						Exists			(class CSG_PointCloud *pPointCloud);
 	class CWKSP_PointCloud *	Add				(class CSG_PointCloud *pPointCloud);
-	class CSG_PointCloud *		Get_byFileName	(const wxChar *File_Name);
+	class CSG_PointCloud *		Get_byFileName	(const wxString &File_Name);
 
 	bool						Update			(class CSG_PointCloud *pPointCloud, class CSG_Parameters *pParameters);
 	bool						Update_Views	(class CSG_PointCloud *pPointCloud);

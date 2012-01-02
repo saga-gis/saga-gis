@@ -880,7 +880,7 @@ bool CWKSP_Data_Manager::Exists(CSG_Data_Object *pObject, int Type)
 }
 
 //---------------------------------------------------------
-CSG_Data_Object * CWKSP_Data_Manager::Get_byFileName(const wxChar *File_Name, int Type)
+CSG_Data_Object * CWKSP_Data_Manager::Get_byFileName(const wxString &File_Name, int Type)
 {
 	switch( Type )
 	{

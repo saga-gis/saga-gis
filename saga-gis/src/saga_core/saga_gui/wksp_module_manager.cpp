@@ -457,7 +457,7 @@ void CWKSP_Module_Manager::_Config_Write(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory, bool bOnlySubDirectories)
+int CWKSP_Module_Manager::_Open_Directory(const wxString &sDirectory, bool bOnlySubDirectories)
 {
 	int			nOpened	= 0;
 	wxDir		Dir;
@@ -481,9 +481,9 @@ int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory, bool bOnlySu
 		{
 			do
 			{
-				if( FileName.CmpNoCase(wxT("dll")) )
+				if( FileName.CmpNoCase(wxT("dll")) )	// ignore subdirectory 'dll'
 				{
-					nOpened	+= _Open_Directory(SG_File_Make_Path(Dir.GetName(), FileName, NULL));
+					nOpened	+= _Open_Directory(SG_File_Make_Path(Dir.GetName(), FileName, NULL).c_str());
 				}
 			}
 			while( Dir.GetNext(&FileName) );

@@ -239,15 +239,13 @@ CWKSP_Grid * CWKSP_Grid_Manager::Add(CSG_Grid *pGrid)
 }
 
 //---------------------------------------------------------
-CSG_Grid * CWKSP_Grid_Manager::Get_byFileName(const wxChar *File_Name)
+CSG_Grid * CWKSP_Grid_Manager::Get_byFileName(const wxString &File_Name)
 {
-	CSG_String	s(File_Name);
-
 	for(int i=0; i<Get_Count(); i++)
 	{
 		for(int j=0; j<Get_System(i)->Get_Count(); j++)
 		{
-			if( !s.Cmp(Get_System(i)->Get_Grid(j)->Get_Grid()->Get_File_Name()) )
+			if( !File_Name.Cmp(Get_System(i)->Get_Grid(j)->Get_Grid()->Get_File_Name()) )
 			{
 				return( Get_System(i)->Get_Grid(j)->Get_Grid() );
 			}

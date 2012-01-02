@@ -137,7 +137,7 @@ CWKSP_Map_Button::CWKSP_Map_Button(wxWindow *pParent, class CWKSP_Map *pMap)
 }
 
 //---------------------------------------------------------
-CWKSP_Map_Button::CWKSP_Map_Button(wxWindow *pParent, const wxChar *Title)
+CWKSP_Map_Button::CWKSP_Map_Button(wxWindow *pParent, const wxString &Title)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, 0)
 {
 	m_pMap		= NULL;
@@ -478,9 +478,9 @@ bool CWKSP_Map_Buttons::_Add_Item(CWKSP_Map *pMap)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map_Buttons::_Add_Item(const wxChar *Title)
+bool CWKSP_Map_Buttons::_Add_Item(const wxString &Title)
 {
-	if( Title )
+	if( Title.Length() > 0 )
 	{
 		m_Items	= (CWKSP_Map_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Map_Button *));
 		m_Items[m_nItems++]	= new CWKSP_Map_Button(this, Title);

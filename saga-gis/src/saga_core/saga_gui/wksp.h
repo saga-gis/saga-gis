@@ -108,7 +108,7 @@ public:
 	class CWKSP_Map_Buttons *		Get_Maps_Buttons		(void)	{	return( m_pMaps_Buttons );	}
 
 	bool							Open					(void);
-	bool							Open					(const wxChar *File_Name);
+	bool							Open					(const wxString &File_Name);
 
 
 private:

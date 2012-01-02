@@ -391,7 +391,7 @@ bool CWKSP::Open(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP::Open(const wxChar *File_Name)
+bool CWKSP::Open(const wxString &File_Name)
 {
 	return(	m_pModules	->Get_Manager()->Open(File_Name)
 		||	m_pData		->Get_Manager()->Open(File_Name)

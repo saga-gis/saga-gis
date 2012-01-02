@@ -238,18 +238,15 @@ CWKSP_Shapes * CWKSP_Shapes_Manager::Add(CSG_Shapes *pShapes)
 }
 
 //---------------------------------------------------------
-CSG_Shapes * CWKSP_Shapes_Manager::Get_byFileName(const wxChar *File_Name)
+CSG_Shapes * CWKSP_Shapes_Manager::Get_byFileName(const wxString &File_Name)
 {
-	CSG_String	s(File_Name);
-	CWKSP_Shapes_Type	*pType;
-
 	for(int i=0; i<Get_Count(); i++)
 	{
-		pType	= (CWKSP_Shapes_Type *)Get_Item(i);
+		CWKSP_Shapes_Type	*pType	= (CWKSP_Shapes_Type *)Get_Item(i);
 
 		for(int j=0; j<pType->Get_Count(); j++)
 		{
-			if( !s.Cmp(pType->Get_Shapes(j)->Get_Shapes()->Get_File_Name()) )
+			if( !File_Name.Cmp(pType->Get_Shapes(j)->Get_Shapes()->Get_File_Name()) )
 			{
 				return( pType->Get_Shapes(j)->Get_Shapes() );
 			}

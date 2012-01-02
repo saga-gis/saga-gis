@@ -108,6 +108,8 @@ public:
 	CWKSP_Base_Manager *			Get_Manager			(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}
 	void							Del_Manager			(class CWKSP_Base_Item *pItem);
 
+	class CWKSP_Project *			Get_Project			(void)		{	return( m_pProject     );	}
+
 	class CWKSP_Table_Manager *		Get_Tables			(void)		{	return( m_pTables      );	}
 	class CWKSP_Shapes_Manager *	Get_Shapes			(void)		{	return( m_pShapes      );	}
 	class CWKSP_TIN_Manager *		Get_TINs			(void)		{	return( m_pTINs        );	}
@@ -130,7 +132,7 @@ public:
 	bool							Exists				(class CSG_Grid_System *pSystem);
 	bool							Exists				(class CSG_Data_Object *pObject, int DataType = -1);
 
-	class CSG_Data_Object *			Get_byFileName		(const wxChar *File_Name, int DataType = -1);
+	class CSG_Data_Object *			Get_byFileName		(const wxString &File_Name, int DataType = -1);
 
 	bool							Save_Modified		(class CWKSP_Base_Item *pItem);
 	bool							Save_Modified_Sel	(void);

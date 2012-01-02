@@ -81,8 +81,8 @@ public:
 	class wxMenu *				Create		(void);
 	void						Update		(class wxMenu *pMenu);
 
-	void						Add			(const wxChar *FileName);
-	void						Del			(const wxChar *FileName);
+	void						Add			(const wxString &FileName);
+	void						Del			(const wxString &FileName);
 
 	bool						Open		(int Cmd_ID);
 
@@ -96,6 +96,8 @@ private:
 
 	void						_Create		(void);
 	void						_Destroy	(void);
+
+	void						_Del		(int Cmd_ID);
 
 };
 

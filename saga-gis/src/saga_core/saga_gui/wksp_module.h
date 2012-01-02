@@ -87,7 +87,7 @@
 class CWKSP_Module : public CWKSP_Base_Item
 {
 public:
-	CWKSP_Module(class CSG_Module *pModule, const wxChar *Menu_Library);
+	CWKSP_Module(class CSG_Module *pModule, const wxString &Menu_Library);
 	virtual ~CWKSP_Module(void);
 
 	virtual TWKSP_Item				Get_Type			(void)			{	return( WKSP_ITEM_Module );	}

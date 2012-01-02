@@ -126,7 +126,7 @@ public:
 	wxImage &						Get_Image				(void)	{	return( m_img );	}
 
 	void							Save					(void);
-	void							Save					(const wxChar *file, int type);
+	void							Save					(const wxString &file, int type);
 
 
 private:

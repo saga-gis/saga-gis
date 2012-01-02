@@ -139,7 +139,7 @@ CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Layer *pLaye
 }
 
 //---------------------------------------------------------
-CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, const wxChar *Title)
+CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, const wxString &Title)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, 0)
 {
 	m_pLayer	= NULL;
@@ -510,9 +510,9 @@ bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Layer *pLayer)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Buttons::_Add_Item(const wxChar *Title)
+bool CWKSP_Data_Buttons::_Add_Item(const wxString &Title)
 {
-	if( Title )
+	if( Title.Length() > 0 )
 	{
 		m_Items	= (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
 		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, Title);

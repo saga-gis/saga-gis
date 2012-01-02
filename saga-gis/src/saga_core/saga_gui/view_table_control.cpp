@@ -462,11 +462,11 @@ bool CVIEW_Table_Control::Del_Records(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::Load(const wxChar *File_Name)
+bool CVIEW_Table_Control::Load(const wxString &File_Name)
 {
 	CSG_Table	Table;
 
-	if(	Table.Create(File_Name) && Table.Get_Count() > 0 && Table.Get_Field_Count() == m_pTable->Get_Field_Count() )
+	if(	Table.Create(CSG_String(&File_Name)) && Table.Get_Count() > 0 && Table.Get_Field_Count() == m_pTable->Get_Field_Count() )
 	{
 		m_pTable->Assign_Values(&Table);
 
@@ -481,11 +481,11 @@ bool CVIEW_Table_Control::Load(const wxChar *File_Name)
 }
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::Save(const wxChar *File_Name, int Format)
+bool CVIEW_Table_Control::Save(const wxString &File_Name, int Format)
 {
 	bool	bResult;
 
-	bResult	= m_pTable->Save(File_Name);
+	bResult	= m_pTable->Save(CSG_String(&File_Name));
 
 	PROCESS_Set_Okay();
 

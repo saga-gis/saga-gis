@@ -192,13 +192,11 @@ CWKSP_TIN * CWKSP_TIN_Manager::Add(CSG_TIN *pTIN)
 }
 
 //---------------------------------------------------------
-CSG_TIN * CWKSP_TIN_Manager::Get_byFileName(const wxChar *File_Name)
+CSG_TIN * CWKSP_TIN_Manager::Get_byFileName(const wxString &File_Name)
 {
-	CSG_String	s(File_Name);
-
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( !s.Cmp(Get_TIN(i)->Get_TIN()->Get_File_Name()) )
+		if( !File_Name.Cmp(Get_TIN(i)->Get_TIN()->Get_File_Name()) )
 		{
 			return( Get_TIN(i)->Get_TIN() );
 		}
