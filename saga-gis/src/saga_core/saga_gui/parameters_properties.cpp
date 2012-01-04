@@ -416,11 +416,10 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 
 	if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
 	{
-		wxVariant	Choice;
-		GetEditorClass()->GetValueFromControl(Choice, this, pPGCtrl);
-		int	iChoice	= Choice.GetInteger();
+		int			iChoice;
+		wxVariant	vChoice;
 
-		if( m_pParameter && m_choices.IsOk() && iChoice >= 0 && iChoice < (int)m_choices.GetCount() )
+		if( GetEditorClass()->GetValueFromControl(vChoice, this, pPGCtrl) && m_pParameter && m_choices.IsOk() && (iChoice = vChoice.GetInteger()) >= 0 && iChoice < (int)m_choices.GetCount() )
 		{
 			switch( m_pParameter->Get_Type() )
 			{
@@ -532,7 +531,7 @@ bool CPG_Parameter_Value::from_String(const wxString &String)
 
 	case PARAMETER_TYPE_Text:
 	case PARAMETER_TYPE_FilePath:
-		m_pParameter->Set_Value(&String);
+		m_pParameter->Set_Value(CSG_String(&String));
 		return( true );
 	}
 }
@@ -602,7 +601,7 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 			if( bModified && !m_pParameter->is_Information() )
 			{
-				m_pParameter->Set_Value(&Text);
+				m_pParameter->Set_Value(CSG_String(&Text));
 
 				return( true );
 			}

@@ -409,17 +409,17 @@ void CWKSP_Module_Manager::_Config_Read(void)
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("LNG_FILE_DIC"), sValue) )
 	{
-		m_Parameters("LNG_FILE_DIC")->Set_Value(&sValue);
+		m_Parameters("LNG_FILE_DIC")->Set_Value(CSG_String(&sValue));
 	}
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), sValue) )
 	{
-		m_Parameters("CRS_FILE_SRS")->Set_Value(&sValue);
+		m_Parameters("CRS_FILE_SRS")->Set_Value(CSG_String(&sValue));
 	}
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), sValue) )
 	{
-		m_Parameters("CRS_FILE_DIC")->Set_Value(&sValue);
+		m_Parameters("CRS_FILE_DIC")->Set_Value(CSG_String(&sValue));
 	}
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
