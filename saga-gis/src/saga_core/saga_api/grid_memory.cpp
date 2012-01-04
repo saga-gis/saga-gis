@@ -543,6 +543,8 @@ bool CSG_Grid::_Array_Create(void)
 
 			m_Values	= NULL;
 		}
+
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s [%.2fmb]"), _TL("grid"), _TL("memory allocation failed"), Get_NY() * _Get_nLineBytes() / (double)N_MEGABYTE_BYTES));
 	}
 
 	return( false );
