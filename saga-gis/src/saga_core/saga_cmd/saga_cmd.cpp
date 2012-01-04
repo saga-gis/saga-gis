@@ -139,6 +139,8 @@ _try
 		return( 1 );
 	}
 
+	setlocale(LC_NUMERIC, "C");
+	
 	//-----------------------------------------------------
 	wxString	Flags, CMD_Path, MLB_Path, ENV_Path;
 

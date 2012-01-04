@@ -148,6 +148,8 @@ bool CSAGA::OnInit(void)
 
 	m_App_Path			= wxFileName(argv[0]).GetPath();
 
+	setlocale(LC_NUMERIC, "C");
+	
 	_Init_Config();
 
 	//-----------------------------------------------------
