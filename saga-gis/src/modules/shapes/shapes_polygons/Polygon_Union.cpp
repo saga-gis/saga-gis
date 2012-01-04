@@ -192,9 +192,11 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 			for(iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 			{
+				pPolygon	= pPolygons->Get_Shape(iPolygon);
+
 				for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 				{
-					CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon))->Get_Part(iPart);
+					CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygon)->Get_Part(iPart);
 
 					for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
 					{
