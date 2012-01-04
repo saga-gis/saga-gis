@@ -1124,7 +1124,7 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 		case PARAMETER_TYPE_TIN:
 		case PARAMETER_TYPE_PointCloud:
 			bInvalid	= p->is_Input() && !p->is_Optional()
-						&& !SG_UI_DataObject_Check(p->asDataObject(), DATAOBJECT_TYPE_Undefined);
+						&& (m_bManaged ? !SG_UI_DataObject_Check(p->asDataObject(), DATAOBJECT_TYPE_Undefined) : !p->asDataObject());
 			break;
 
 		case PARAMETER_TYPE_Grid_List:
