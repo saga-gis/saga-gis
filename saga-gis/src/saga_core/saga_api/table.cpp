@@ -467,7 +467,7 @@ bool CSG_Table::Add_Field(const CSG_String &Name, TSG_Data_Type Type, int add_Fi
 	}
 
 	//-----------------------------------------------------
-	m_Field_Name [add_Field]	= new CSG_String(Name);
+	m_Field_Name [add_Field]	= new CSG_String(!Name.is_Empty() ? Name : CSG_String::Format(SG_T("%s_%d"), SG_T("FIELD"), m_nFields));
 	m_Field_Type [add_Field]	= Type;
 	m_Field_Stats[add_Field]	= new CSG_Simple_Statistics();
 
