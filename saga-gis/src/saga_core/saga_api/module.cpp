@@ -181,56 +181,67 @@ const CSG_String & CSG_Module::Get_Author(void)
 //---------------------------------------------------------
 bool CSG_Module::Execute(void)
 {
+	if( m_bExecutes )
+	{
+		return( false );
+	}
+
+	m_bExecutes	= true;
+
+	Destroy();
+
 	bool	bResult	= false;
 
-	if( m_bExecutes == false )
+	//-----------------------------------------------------
+	if( !Parameters.DataObjects_Check() )
 	{
-		m_bExecutes		= true;
-
-		if( Parameters.DataObjects_Check() )
-		{
-			Destroy();
-
-			Parameters.DataObjects_Create();
-			Parameters.Msg_String(false);
+		Message_Dlg(SG_T("invalid input"));
+	}
+	else if( !Parameters.DataObjects_Create() )
+	{
+		Message_Dlg(SG_T("could not allocate memory for output"));
+	}
+	else
+	{
+		Parameters.Msg_String(false);
 
 ///////////////////////////////////////////////////////////
-#if defined(WXWIN_28) && !defined(_DEBUG) && defined(_SAGA_VC)
+#if !defined(_DEBUG) && defined(_SAGA_VC) && defined(WXWIN_28)
 #define _MODULE_EXCEPTION
-__try
-{
+		__try
+		{
 #endif
 ///////////////////////////////////////////////////////////
 
-			if( (bResult = On_Execute()) == true )
-			{
-				_Set_Output_History();
-			}
+			bResult	= On_Execute();
 
 ///////////////////////////////////////////////////////////
 #ifdef _MODULE_EXCEPTION
-}	// try
-__except(1)
-{
-	Message_Add(SG_T("[ERR] Module caused access violation!"));
-	Message_Dlg(SG_T("[ERR] Module caused access violation!"));
-	bResult	= false;
-}	// except(1)
+		}	// try
+		__except(1)
+		{
+			Message_Dlg(SG_T("[ERR] Module caused access violation!"));
+		}	// except(1)
 #endif
 ///////////////////////////////////////////////////////////
 
-			if( !Process_Get_Okay(false) )
-			{
-				SG_UI_Msg_Add(_TL("[MSG] Execution has been stopped by user!"), true);
-			}
-
-			Destroy();
-
-			_Synchronize_DataObjects();
+		if( bResult )
+		{
+			_Set_Output_History();
 		}
 
-		m_bExecutes		= false;
+		if( !Process_Get_Okay(false) )
+		{
+			SG_UI_Msg_Add(_TL("[MSG] Execution has been stopped by user!"), true);
+		}
+
+		_Synchronize_DataObjects();
 	}
+
+	//-----------------------------------------------------
+	Destroy();
+
+	m_bExecutes	= false;
 
 	return( bResult );
 }
