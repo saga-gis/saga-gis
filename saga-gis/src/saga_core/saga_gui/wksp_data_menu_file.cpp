@@ -282,19 +282,11 @@ void CWKSP_Data_Menu_File::Add(const wxString &FileName)
 {
 	if( m_Recent && m_Recent_Count > 0 )
 	{
-		int		i;
-
-		for(i=0; i<m_Recent_Count-1; i++)
-		{
-			if( m_Recent[i].Cmp(FileName) == 0 )
-			{
-				break;
-			}
-		}
-
 		wxString	s_tmp(FileName);
 
-		for( ; i>0; i--)
+		Del(FileName);
+
+		for(int i=m_Recent_Count-1; i>0; i--)
 		{
 			m_Recent[i]	= m_Recent[i - 1];
 		}

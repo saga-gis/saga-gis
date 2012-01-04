@@ -773,6 +773,12 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const wxString &FileNam
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Open_GDAL(const wxString &File_Name)
 {
+	if( !wxFileExists(File_Name) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	CSG_Module	*pImport;
 
 	//-----------------------------------------------------
