@@ -315,7 +315,7 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Shapes *pShapes, CSG_Grid *pMask)
 							}
 							else if( ix >= pMask->Get_NX() )
 							{
-								ix	= pMask->Get_NX() - 1;
+								continue;
 							}
 
 							bCrossing[ix]	= !bCrossing[ix];

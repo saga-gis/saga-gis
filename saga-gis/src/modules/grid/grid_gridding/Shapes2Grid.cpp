@@ -693,7 +693,7 @@ void CShapes2Grid::Set_Polygon(CSG_Shape *pShape)
 							}
 							else if( x >= m_pGrid->Get_NX() )
 							{
-								x	= m_pGrid->Get_NX() - 1;
+								continue;
 							}
 
 							bCrossing[x]	= !bCrossing[x];

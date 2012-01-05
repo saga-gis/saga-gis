@@ -364,7 +364,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid 
 							}
 							else if( ix >= pShapeIDs->Get_NX() )
 							{
-								ix	= pShapeIDs->Get_NX() - 1;
+								continue;
 							}
 
 							bCrossing[ix]	= !bCrossing[ix];
