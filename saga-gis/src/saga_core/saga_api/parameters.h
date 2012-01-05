@@ -211,13 +211,13 @@ public:
 	CSG_Parameter_Data(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Data(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)			= 0;
-	virtual CSG_String			Get_Type_Identifier		(void);
-	virtual CSG_String			Get_Type_Name			(void);
+	virtual TSG_Parameter_Type	Get_Type				(void)	const			= 0;
+	virtual CSG_String			Get_Type_Identifier		(void)	const;
+	virtual CSG_String			Get_Type_Name			(void)	const;
 
-	long						Get_Constraint			(void)	{	return( m_Constraint );	}
+	long						Get_Constraint			(void)	const	{	return( m_Constraint );	}
 
-	virtual bool				is_Valid				(void)	{	return( true );			}
+	virtual bool				is_Valid				(void)	const	{	return( true );			}
 
 	bool						Assign					(CSG_Parameter_Data *pSource);
 	bool						Serialize				(CSG_MetaData &Entry, bool bSave);
@@ -227,18 +227,18 @@ public:
 	virtual bool				Set_Value				(const CSG_String &Value);
 	virtual bool				Set_Value				(void             *Value);
 
-	virtual int					asInt					(void);
-	virtual double				asDouble				(void);
-	virtual void *				asPointer				(void);
+	virtual int					asInt					(void)	const;
+	virtual double				asDouble				(void)	const;
+	virtual void *				asPointer				(void)	const;
 
 	virtual const SG_Char *		asString				(void);
 
-	CSG_String					Get_Default				(void)	{	return( m_Default );	}
+	CSG_String					Get_Default				(void)	const	{	return( m_Default );	}
 	void						Set_Default				(int               Value);
 	void						Set_Default				(double            Value);
 	void						Set_Default				(const CSG_String &Value);
 
-	virtual bool				Restore_Default			(void)	{	return( false );		}
+	virtual bool				Restore_Default			(void)			{	return( false );		}
 
 
 protected:
@@ -267,7 +267,7 @@ public:
 	CSG_Parameter_Node(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Node(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Node );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Node );	}
 
 };
 
@@ -283,16 +283,16 @@ public:
 	CSG_Parameter_Bool(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Bool(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Bool );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Bool );	}
 
 	virtual bool				Set_Value				(int    Value);
 	virtual bool				Set_Value				(double Value);
 
-	virtual int					asInt					(void)	{	return( m_Value );		}
+	virtual int					asInt					(void)	const	{	return( m_Value );		}
 
 	virtual const SG_Char *		asString				(void);
 
-	virtual bool				Restore_Default			(void)	{	return( Set_Value(m_Default.asInt()) );	}
+	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) );	}
 
 
 protected:
@@ -320,12 +320,12 @@ public:
 	bool						Set_Range				(double Minimum, double Maximum);
 
 	void						Set_Minimum				(double Minimum, bool bOn = true);
-	double						Get_Minimum				(void)	{	return( m_Minimum );	}
-	bool						has_Minimum				(void)	{	return( m_bMinimum );	}
+	double						Get_Minimum				(void)	const	{	return( m_Minimum );	}
+	bool						has_Minimum				(void)	const	{	return( m_bMinimum );	}
 
 	void						Set_Maximum				(double Maximum, bool bOn = true);
-	double						Get_Maximum				(void)	{	return( m_Maximum );	}
-	bool						has_Maximum				(void)	{	return( m_bMaximum );	}
+	double						Get_Maximum				(void)	const	{	return( m_Maximum );	}
+	bool						has_Maximum				(void)	const	{	return( m_bMaximum );	}
 
 
 protected:
@@ -351,17 +351,17 @@ public:
 	CSG_Parameter_Int(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Int(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Int );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Int );		}
 
 	virtual bool				Set_Value				(int               Value);
 	virtual bool				Set_Value				(double            Value);
 	virtual bool				Set_Value				(const CSG_String &Value);
 
-	virtual int					asInt					(void)	{	return( m_Value );		}
-	virtual double				asDouble				(void)	{	return( m_Value );		}
+	virtual int					asInt					(void)	const	{	return( m_Value );		}
+	virtual double				asDouble				(void)	const	{	return( m_Value );		}
 	virtual const SG_Char *		asString				(void);
 
-	virtual bool				Restore_Default			(void)	{	return( Set_Value(m_Default.asInt()) );	}
+	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) );	}
 
 
 protected:
@@ -385,17 +385,17 @@ public:
 	CSG_Parameter_Double(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Double(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Double );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Double );	}
 
 	virtual bool				Set_Value				(int               Value);
 	virtual bool				Set_Value				(double            Value);
 	virtual bool				Set_Value				(const CSG_String &Value);
 
-	virtual int					asInt					(void)	{	return( (int)m_Value );	}
-	virtual double				asDouble				(void)	{	return( m_Value );		}
+	virtual int					asInt					(void)	const	{	return( (int)m_Value );	}
+	virtual double				asDouble				(void)	const	{	return( m_Value );		}
 	virtual const SG_Char *		asString				(void);
 
-	virtual bool				Restore_Default			(void)	{	return( Set_Value(m_Default.asDouble()) );	}
+	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asDouble()) );	}
 
 
 protected:
@@ -419,7 +419,7 @@ public:
 	CSG_Parameter_Degree(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Degree(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Degree );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Degree );	}
 
 	virtual bool				Set_Value				(const CSG_String &Value);
 
@@ -439,7 +439,7 @@ public:
 	CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Range(void);
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Range );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Range );		}
 
 	virtual const SG_Char *		asString				(void);
 
@@ -451,8 +451,8 @@ public:
 	bool						Set_HiVal				(double newValue);
 	double						Get_HiVal				(void);
 
-	CSG_Parameter *				Get_LoParm				(void)	{	return( m_pLo );	}
-	CSG_Parameter *				Get_HiParm				(void)	{	return( m_pHi );	}
+	CSG_Parameter *				Get_LoParm				(void)	const	{	return( m_pLo );	}
+	CSG_Parameter *				Get_HiParm				(void)	const	{	return( m_pHi );	}
 
 	virtual bool				Restore_Default			(void);
 
@@ -481,7 +481,7 @@ public:
 	CSG_Parameter_Choice(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Choice(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Choice );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choice );	}
 
 	virtual bool				Set_Value				(const CSG_String &Value);
 
@@ -489,13 +489,13 @@ public:
 
 	void						Set_Items				(const SG_Char *String);
 
-	const SG_Char *				Get_Item				(int Index);
+	const SG_Char *				Get_Item				(int Index)	const;
 
-	bool						Get_Data				(int        &Value);
-	bool						Get_Data				(double     &Value);
-	bool						Get_Data				(CSG_String &Value);
+	bool						Get_Data				(int        &Value)	const;
+	bool						Get_Data				(double     &Value)	const;
+	bool						Get_Data				(CSG_String &Value)	const;
 
-	int							Get_Count				(void)	{	return( m_Items.Get_Count() );	}
+	int							Get_Count				(void)	const	{	return( m_Items.Get_Count() );	}
 
 
 protected:
@@ -519,11 +519,11 @@ public:
 	CSG_Parameter_String(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_String(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_String );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const		{	return( PARAMETER_TYPE_String );	}
 
-	virtual const SG_Char *		asString				(void)		{	return( m_String );	}
+	virtual const SG_Char *		asString				(void)				{	return( m_String );	}
 
-	virtual bool				is_Valid				(void);
+	virtual bool				is_Valid				(void)	const;
 
 	virtual bool				Set_Value				(const CSG_String &Value);
 
@@ -555,7 +555,7 @@ public:
 	CSG_Parameter_Text(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Text(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Text );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Text );		}
 
 };
 
@@ -571,21 +571,21 @@ public:
 	CSG_Parameter_File_Name(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_File_Name(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_FilePath );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_FilePath );	}
 
 	void						Set_Filter				(const SG_Char *Filter);
-	const SG_Char *				Get_Filter				(void);
+	const SG_Char *				Get_Filter				(void)	const;
 
 	void						Set_Flag_Save			(bool bFlag);
-	bool						is_Save					(void)	{	return( m_bSave );		}
+	bool						is_Save					(void)	const	{	return( m_bSave );		}
 
 	void						Set_Flag_Multiple		(bool bFlag);
-	bool						is_Multiple				(void)	{	return( m_bMultiple );	}
+	bool						is_Multiple				(void)	const	{	return( m_bMultiple );	}
 
 	void						Set_Flag_Directory		(bool bFlag);
-	bool						is_Directory			(void)	{	return( m_bDirectory );	}
+	bool						is_Directory			(void)	const	{	return( m_bDirectory );	}
 
-	bool						Get_FilePaths			(CSG_Strings &FilePaths);
+	bool						Get_FilePaths			(CSG_Strings &FilePaths)	const;
 
 
 protected:
@@ -611,11 +611,11 @@ public:
 	CSG_Parameter_Font(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Font(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Font );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Font );		}
 
-	virtual int					asInt					(void)	{	return( m_Color );					}
-	virtual void *				asPointer				(void)	{	return( (void *)m_Font.c_str() );	}
-	virtual const SG_Char *		asString				(void)	{	return( m_String );					}
+	virtual int					asInt					(void)	const	{	return( m_Color );					}
+	virtual void *				asPointer				(void)	const	{	return( (void *)m_Font.c_str() );	}
+	virtual const SG_Char *		asString				(void)			{	return( m_String );					}
 
 	virtual bool				Set_Value				(int   Value);
 	virtual bool				Set_Value				(const CSG_String &Value);
@@ -647,7 +647,7 @@ public:
 	CSG_Parameter_Color(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Color(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Color );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Color );		}
 
 
 protected:
@@ -668,10 +668,10 @@ public:
 	CSG_Parameter_Colors(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Colors(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Colors );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Colors );	}
 
-	virtual int					asInt					(void)	{	return( m_Colors.Get_Count() );	}
-	virtual void *				asPointer				(void)	{	return( &m_Colors );	}
+	virtual int					asInt					(void)	const	{	return( m_Colors.Get_Count() );	}
+	virtual void *				asPointer				(void)	const	{	return( (void *)&m_Colors );	}
 	virtual const SG_Char *		asString				(void);
 
 
@@ -697,9 +697,9 @@ public:
 	CSG_Parameter_Fixed_Table(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Fixed_Table(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_FixedTable );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_FixedTable );	}
 
-	virtual void *				asPointer				(void)	{	return( &m_Table );	}
+	virtual void *				asPointer				(void)	const	{	return( (void *)&m_Table );	}
 
 	virtual const SG_Char *		asString				(void);
 
@@ -725,11 +725,11 @@ public:
 	CSG_Parameter_Grid_System(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Grid_System(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Grid_System );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Grid_System );	}
 
 	virtual bool				Set_Value				(void *Value);
 
-	virtual void *				asPointer				(void)	{	return( &m_System );}
+	virtual void *				asPointer				(void)	const	{	return( (void *)&m_System );}
 
 	virtual const SG_Char *		asString				(void);
 
@@ -756,14 +756,14 @@ public:
 	CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Table_Field(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Table_Field );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table_Field );	}
 
 	virtual const SG_Char *		asString				(void);
 
 	virtual bool				Set_Value				(int               Value);
 	virtual bool				Set_Value				(const CSG_String &Value);
 
-	CSG_Table *					Get_Table				(void);
+	CSG_Table *					Get_Table				(void)	const;
 
 
 protected:
@@ -787,12 +787,12 @@ public:
 	CSG_Parameter_Data_Object(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Data_Object(void)	{}
 
-	virtual bool				is_Valid				(void);
+	virtual bool				is_Valid				(void)	const;
 
 	virtual bool				Set_Value				(uintptr_t Value)	{	return( Set_Value((void *)Value) );	}
 	virtual bool				Set_Value				(void *Value);
 
-	virtual void *				asPointer				(void)			{	return( m_pDataObject );	}
+	virtual void *				asPointer				(void)	const	{	return( m_pDataObject );	}
 
 	virtual const SG_Char *		asString				(void);
 
@@ -819,12 +819,12 @@ public:
 	CSG_Parameter_Data_Object_Output(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Data_Object_Output(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_DataObject_Output );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_DataObject_Output );	}
 
 	virtual bool				Set_Value				(void *Value);
 
 	bool						Set_DataObject_Type		(TSG_Data_Object_Type Type);
-	TSG_Data_Object_Type		Get_DataObject_Type		(void)		{	return( m_Type );	}
+	TSG_Data_Object_Type		Get_DataObject_Type		(void)	const	{	return( m_Type );	}
 
 
 protected:
@@ -845,14 +845,14 @@ public:
 	CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Grid(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Grid );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Grid );	}
 
 	virtual bool				Set_Value				(void *Value);
 
 	void						Set_Preferred_Type		(TSG_Data_Type Type);
-	TSG_Data_Type				Get_Preferred_Type		(void)		{	return( m_Type );	}
+	TSG_Data_Type				Get_Preferred_Type		(void)	const	{	return( m_Type );	}
 
-	CSG_Grid_System *			Get_System				(void);
+	CSG_Grid_System *			Get_System				(void)	const;
 
 
 protected:
@@ -876,7 +876,7 @@ public:
 	CSG_Parameter_Table(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Table(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Table );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table );		}
 
 	virtual bool				Set_Value				(void *Value);
 
@@ -894,12 +894,12 @@ public:
 	CSG_Parameter_Shapes(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Shapes(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Shapes );	}
 
 	virtual bool				Set_Value				(void *Value);
 
 	void						Set_Shape_Type			(TSG_Shape_Type Type);
-	TSG_Shape_Type				Get_Shape_Type			(void)		{	return( m_Type );	}
+	TSG_Shape_Type				Get_Shape_Type			(void)	const	{	return( m_Type );	}
 
 
 protected:
@@ -923,7 +923,7 @@ public:
 	CSG_Parameter_TIN(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_TIN(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_TIN );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_TIN );		}
 
 	virtual bool				Set_Value				(void *Value);
 
@@ -941,7 +941,7 @@ public:
 	CSG_Parameter_PointCloud(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_PointCloud(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_PointCloud );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_PointCloud );	}
 
 	virtual bool				Set_Value				(void *Value);
 
@@ -965,16 +965,16 @@ public:
 	virtual ~CSG_Parameter_List(void);
 
 	virtual const SG_Char *		asString				(void);
-	virtual int					asInt					(void)			{	return( m_nObjects );	}
-	virtual void *				asPointer				(void)			{	return( m_Objects );	}
+	virtual int					asInt					(void)	const	{	return( m_nObjects );	}
+	virtual void *				asPointer				(void)	const	{	return( m_Objects );	}
 
 	void						Add_Item				(CSG_Data_Object *pItem);
 	int							Del_Item				(int Index);
 	int							Del_Item				(CSG_Data_Object *pItem);
 	void						Del_Items				(void);
 
-	int							Get_Count				(void)			{	return( m_nObjects );	}
-	CSG_Data_Object *			asDataObject			(int iObject)	{	return( iObject >= 0 && iObject < m_nObjects ? m_Objects[iObject] : NULL );	}
+	int							Get_Count				(void)			const	{	return( m_nObjects );	}
+	CSG_Data_Object *			asDataObject			(int iObject)	const	{	return( iObject >= 0 && iObject < m_nObjects ? m_Objects[iObject] : NULL );	}
 
 
 protected:
@@ -1003,11 +1003,11 @@ public:
 	CSG_Parameter_Grid_List(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Grid_List(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Grid_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Grid_List );		}
 
 	CSG_Grid_System *			Get_System				(void);
 
-	CSG_Grid *					asGrid					(int Index)	{	return( (CSG_Grid *)asDataObject(Index) );	}
+	CSG_Grid *					asGrid					(int Index)	const	{	return( (CSG_Grid *)asDataObject(Index) );	}
 
 };
 
@@ -1023,9 +1023,9 @@ public:
 	CSG_Parameter_Table_List(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Table_List(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Table_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Table_List );		}
 
-	CSG_Table *					asTable					(int Index)	{	return( (CSG_Table *)asDataObject(Index) );	}
+	CSG_Table *					asTable					(int Index)	const	{	return( (CSG_Table *)asDataObject(Index) );	}
 
 };
 
@@ -1041,12 +1041,12 @@ public:
 	CSG_Parameter_Shapes_List(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Shapes_List(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Shapes_List );		}
 
 	void						Set_Shape_Type			(TSG_Shape_Type Type);
-	TSG_Shape_Type				Get_Shape_Type			(void)		{	return( m_Type );}
+	TSG_Shape_Type				Get_Shape_Type			(void)		const	{	return( m_Type );}
 
-	CSG_Shapes *				asShapes				(int Index)	{	return( (CSG_Shapes *)asDataObject(Index) );	}
+	CSG_Shapes *				asShapes				(int Index)	const	{	return( (CSG_Shapes *)asDataObject(Index) );	}
 
 
 protected:
@@ -1070,9 +1070,9 @@ public:
 	CSG_Parameter_TIN_List(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_TIN_List(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_TIN_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_TIN_List );		}
 
-	CSG_TIN *					asTIN					(int Index)	{	return( (CSG_TIN *)asDataObject(Index) );	}
+	CSG_TIN *					asTIN					(int Index)	const	{	return( (CSG_TIN *)asDataObject(Index) );	}
 
 };
 
@@ -1088,9 +1088,9 @@ public:
 	CSG_Parameter_PointCloud_List(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_PointCloud_List(void)	{}
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_PointCloud_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_PointCloud_List );		}
 
-	CSG_PointCloud *			asPointCloud			(int Index)	{	return( (CSG_PointCloud *)asDataObject(Index) );	}
+	CSG_PointCloud *			asPointCloud			(int Index)	const	{	return( (CSG_PointCloud *)asDataObject(Index) );	}
 
 };
 
@@ -1106,10 +1106,10 @@ public:
 	CSG_Parameter_Parameters(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Parameters(void);
 
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Parameters );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Parameters );	}
 
 	virtual const SG_Char *		asString				(void);
-	virtual void *				asPointer				(void)		{	return( m_pParameters );	}
+	virtual void *				asPointer				(void)		const	{	return( m_pParameters );	}
 
 	virtual bool				Restore_Default			(void);
 
@@ -1181,36 +1181,38 @@ class SAGA_API_DLL_EXPORT CSG_Parameter
 public:
 
 	//-----------------------------------------------------
-	CSG_Parameters *			Get_Owner				(void)	{	return( m_pOwner );							}
-	CSG_Parameter *				Get_Parent				(void)	{	return( m_pParent );						}
-	TSG_Parameter_Type			Get_Type				(void)	{	return( m_pData->Get_Type() );				}
-	CSG_String					Get_Type_Identifier		(void)	{	return( m_pData->Get_Type_Identifier() );	}
-	CSG_String					Get_Type_Name			(void)	{	return( m_pData->Get_Type_Name() );			}
-	CSG_Parameter_Data *		Get_Data				(void)	{	return( m_pData );							}
+	CSG_Parameters *			Get_Owner				(void)	const	{	return( m_pOwner );							}
+	CSG_Parameter *				Get_Parent				(void)	const	{	return( m_pParent );						}
+	TSG_Parameter_Type			Get_Type				(void)	const	{	return( m_pData->Get_Type() );				}
+	CSG_String					Get_Type_Identifier		(void)	const	{	return( m_pData->Get_Type_Identifier() );	}
+	CSG_String					Get_Type_Name			(void)	const	{	return( m_pData->Get_Type_Name() );			}
+	CSG_Parameter_Data *		Get_Data				(void)	const	{	return( m_pData );							}
 
-	const SG_Char *				Get_Identifier			(void);
-	const SG_Char *				Get_Name				(void);
-	const SG_Char *				Get_Description			(void);
-	CSG_String					Get_Description			(int Flags);
-	CSG_String					Get_Description			(int Flags, const SG_Char *Separator);
+	const SG_Char *				Get_Identifier			(void)	const;
+	const SG_Char *				Get_Name				(void)	const;
+	const SG_Char *				Get_Description			(void)	const;
+	CSG_String					Get_Description			(int Flags)								const;
+	CSG_String					Get_Description			(int Flags, const SG_Char *Separator)	const;
 
 	bool						Set_Enabled				(bool bEnabled);
-	bool						is_Enabled				(void)	{	return( m_bEnabled );				}
+	bool						is_Enabled				(void)	const	{	return( m_bEnabled );				}
 
-	bool						ignore_Projection		(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_IGNORE_PROJECTION) );	}
+	bool						ignore_Projection		(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_IGNORE_PROJECTION) );	}
 
-	bool						is_Valid				(void)	{	return( m_pData->is_Valid() );		}
-	bool						is_Input				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	        );	}
-	bool						is_Output				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT)        );	}
-	bool						is_Optional				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OPTIONAL)      );	}
-	bool						is_Information			(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INFORMATION)   );	}
-	bool						is_Option				(void);
-	bool						is_DataObject			(void);
-	bool						is_DataObject_List		(void);
-	bool						is_Parameters			(void);
-	bool						is_Serializable			(void);
+	bool						is_Valid				(void)	const	{	return( m_pData->is_Valid() );		}
+	bool						is_Input				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	        );	}
+	bool						is_Output				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT)        );	}
+	bool						is_Optional				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OPTIONAL)      );	}
+	bool						is_Information			(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INFORMATION)   );	}
+	bool						is_Option				(void)	const;
+	bool						is_DataObject			(void)	const;
+	bool						is_DataObject_List		(void)	const;
+	bool						is_Parameters			(void)	const;
+	bool						is_Serializable			(void)	const;
 
-	int							Get_Children_Count		(void)			{	return( m_nChildren );		}
+	TSG_Data_Object_Type		Get_DataObject_Type		(void)	const;
+
+	int							Get_Children_Count		(void)	const	{	return( m_nChildren );		}
 	CSG_Parameter *				Get_Child				(int iChild)	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}
 
 	//-----------------------------------------------------
@@ -1228,38 +1230,38 @@ public:
 
 	bool						has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
 
-	bool						asBool					(void)	{	return( (bool             )!!m_pData->asInt  () );	}
-	int							asInt					(void)	{	return( (int              )m_pData->asInt    () );	}
-	long						asColor					(void)	{	return( (long             )m_pData->asInt    () );	}
-	double						asDouble				(void)	{	return( (double           )m_pData->asDouble () );	}
+	bool						asBool					(void)	const	{	return( (bool             )!!m_pData->asInt  () );	}
+	int							asInt					(void)	const	{	return( (int              )m_pData->asInt    () );	}
+	long						asColor					(void)	const	{	return( (long             )m_pData->asInt    () );	}
+	double						asDouble				(void)	const	{	return( (double           )m_pData->asDouble () );	}
 
-	void *						asPointer				(void)	{	return( (void            *)m_pData->asPointer() );	}
+	void *						asPointer				(void)	const	{	return( (void            *)m_pData->asPointer() );	}
 
-	const SG_Char *				asString				(void)	{	return( (const SG_Char   *)m_pData->asString () );	}
-	CSG_Colors *				asColors				(void)	{	return( (CSG_Colors      *)m_pData->asPointer() );	}
-	CSG_Grid_System *			asGrid_System			(void)	{	return( (CSG_Grid_System *)m_pData->asPointer() );	}
-	const SG_Char *				asFont					(void)	{	return( (const SG_Char   *)m_pData->asPointer() );	}
+	const SG_Char *				asString				(void)	const	{	return( (const SG_Char   *)m_pData->asString () );	}
+	CSG_Colors *				asColors				(void)	const	{	return( (CSG_Colors      *)m_pData->asPointer() );	}
+	CSG_Grid_System *			asGrid_System			(void)	const	{	return( (CSG_Grid_System *)m_pData->asPointer() );	}
+	const SG_Char *				asFont					(void)	const	{	return( (const SG_Char   *)m_pData->asPointer() );	}
 
-	CSG_Data_Object *			asDataObject			(void)	{	return( (CSG_Data_Object *)m_pData->asPointer() );	}
-	CSG_Grid *					asGrid					(void)	{	return( (CSG_Grid        *)m_pData->asPointer() );	}
-	CSG_Table *					asTable					(void)	{	return( (CSG_Table       *)m_pData->asPointer() );	}
-	CSG_Shapes *				asShapes				(void)	{	return( (CSG_Shapes      *)m_pData->asPointer() );	}
-	CSG_TIN *					asTIN					(void)	{	return( (CSG_TIN         *)m_pData->asPointer() );	}
-	CSG_PointCloud *			asPointCloud			(void)	{	return( (CSG_PointCloud  *)m_pData->asPointer() );	}
+	CSG_Data_Object *			asDataObject			(void)	const	{	return( (CSG_Data_Object *)m_pData->asPointer() );	}
+	CSG_Grid *					asGrid					(void)	const	{	return( (CSG_Grid        *)m_pData->asPointer() );	}
+	CSG_Table *					asTable					(void)	const	{	return( (CSG_Table       *)m_pData->asPointer() );	}
+	CSG_Shapes *				asShapes				(void)	const	{	return( (CSG_Shapes      *)m_pData->asPointer() );	}
+	CSG_TIN *					asTIN					(void)	const	{	return( (CSG_TIN         *)m_pData->asPointer() );	}
+	CSG_PointCloud *			asPointCloud			(void)	const	{	return( (CSG_PointCloud  *)m_pData->asPointer() );	}
 
-	CSG_Parameters *			asParameters			(void)	{	return( (CSG_Parameters  *)m_pData->asPointer() );	}
+	CSG_Parameters *			asParameters			(void)	const	{	return( (CSG_Parameters  *)m_pData->asPointer() );	}
 
-	CSG_Parameter_Value *		asValue					(void)	{	return( (CSG_Parameter_Value           *)m_pData );	}
-	CSG_Parameter_Choice *		asChoice				(void)	{	return( (CSG_Parameter_Choice          *)m_pData );	}
-	CSG_Parameter_Range *		asRange					(void)	{	return( (CSG_Parameter_Range           *)m_pData );	}
-	CSG_Parameter_File_Name *	asFilePath				(void)	{	return( (CSG_Parameter_File_Name       *)m_pData );	}
+	CSG_Parameter_Value *		asValue					(void)	const	{	return( (CSG_Parameter_Value           *)m_pData );	}
+	CSG_Parameter_Choice *		asChoice				(void)	const	{	return( (CSG_Parameter_Choice          *)m_pData );	}
+	CSG_Parameter_Range *		asRange					(void)	const	{	return( (CSG_Parameter_Range           *)m_pData );	}
+	CSG_Parameter_File_Name *	asFilePath				(void)	const	{	return( (CSG_Parameter_File_Name       *)m_pData );	}
 
-	CSG_Parameter_List *		asList					(void)	{	return( (CSG_Parameter_List            *)m_pData );	}
-	CSG_Parameter_Grid_List *	asGridList				(void)	{	return( (CSG_Parameter_Grid_List       *)m_pData );	}
-	CSG_Parameter_Table_List *	asTableList				(void)	{	return( (CSG_Parameter_Table_List      *)m_pData );	}
-	CSG_Parameter_Shapes_List *	asShapesList			(void)	{	return( (CSG_Parameter_Shapes_List     *)m_pData );	}
-	CSG_Parameter_TIN_List *	asTINList				(void)	{	return( (CSG_Parameter_TIN_List        *)m_pData );	}
-	CSG_Parameter_PointCloud_List *	asPointCloudList	(void)	{	return( (CSG_Parameter_PointCloud_List *)m_pData );	}
+	CSG_Parameter_List *		asList					(void)	const	{	return( (CSG_Parameter_List            *)m_pData );	}
+	CSG_Parameter_Grid_List *	asGridList				(void)	const	{	return( (CSG_Parameter_Grid_List       *)m_pData );	}
+	CSG_Parameter_Table_List *	asTableList				(void)	const	{	return( (CSG_Parameter_Table_List      *)m_pData );	}
+	CSG_Parameter_Shapes_List *	asShapesList			(void)	const	{	return( (CSG_Parameter_Shapes_List     *)m_pData );	}
+	CSG_Parameter_TIN_List *	asTINList				(void)	const	{	return( (CSG_Parameter_TIN_List        *)m_pData );	}
+	CSG_Parameter_PointCloud_List *	asPointCloudList	(void)	const	{	return( (CSG_Parameter_PointCloud_List *)m_pData );	}
 
 	//-----------------------------------------------------
 	bool						Assign					(CSG_Parameter *pSource);

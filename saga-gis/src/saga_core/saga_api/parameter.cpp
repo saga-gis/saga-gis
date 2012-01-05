@@ -197,7 +197,7 @@ bool CSG_Parameter::Set_Enabled(bool bEnabled)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::is_Option(void)
+bool CSG_Parameter::is_Option(void)	const
 {
 	if( !is_Information() )
 	{
@@ -237,7 +237,7 @@ bool CSG_Parameter::is_Option(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::is_DataObject(void)
+bool CSG_Parameter::is_DataObject(void)	const
 {
 	switch( Get_Type() )
 	{
@@ -256,7 +256,7 @@ bool CSG_Parameter::is_DataObject(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::is_DataObject_List(void)
+bool CSG_Parameter::is_DataObject_List(void)	const
 {
 	switch( Get_Type() )
 	{
@@ -274,13 +274,13 @@ bool CSG_Parameter::is_DataObject_List(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::is_Parameters(void)
+bool CSG_Parameter::is_Parameters(void)	const
 {
 	return( Get_Type() == PARAMETER_TYPE_Parameters );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::is_Serializable(void)
+bool CSG_Parameter::is_Serializable(void)	const
 {
 	switch( Get_Type() )
 	{
@@ -297,6 +297,25 @@ bool CSG_Parameter::is_Serializable(void)
 	}
 }
 
+//---------------------------------------------------------
+TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
+{
+	switch( Get_Type() )
+	{
+	default:								return( DATAOBJECT_TYPE_Undefined );
+	case PARAMETER_TYPE_Grid:
+	case PARAMETER_TYPE_Grid_List:			return( DATAOBJECT_TYPE_Grid );
+	case PARAMETER_TYPE_Table:
+	case PARAMETER_TYPE_Table_List:			return( DATAOBJECT_TYPE_Table );
+	case PARAMETER_TYPE_Shapes:
+	case PARAMETER_TYPE_Shapes_List:		return( DATAOBJECT_TYPE_Shapes );
+	case PARAMETER_TYPE_TIN:
+	case PARAMETER_TYPE_TIN_List:			return( DATAOBJECT_TYPE_TIN );
+	case PARAMETER_TYPE_PointCloud:
+	case PARAMETER_TYPE_PointCloud_List:	return( DATAOBJECT_TYPE_PointCloud );
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -305,26 +324,26 @@ bool CSG_Parameter::is_Serializable(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * CSG_Parameter::Get_Identifier(void)
+const SG_Char * CSG_Parameter::Get_Identifier(void)	const
 {
 	return( m_Identifier );
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Parameter::Get_Name(void)
+const SG_Char * CSG_Parameter::Get_Name(void)	const
 {
 	return( m_Name );
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Parameter::Get_Description(void)
+const SG_Char * CSG_Parameter::Get_Description(void)	const
 {
 	return( m_Description );
 }
 
 
 //---------------------------------------------------------
-CSG_String CSG_Parameter::Get_Description(int Flags)
+CSG_String CSG_Parameter::Get_Description(int Flags)	const
 {
 	return( Get_Description(Flags, SG_T("\n")) );
 }
@@ -333,7 +352,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags)
 #define SEPARATE	if( bSeparate )	s.Append(Separator);	bSeparate	= true;
 
 //---------------------------------------------------------
-CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)
+CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	const
 {
 	if( !Separator || !Separator[0] )
 	{

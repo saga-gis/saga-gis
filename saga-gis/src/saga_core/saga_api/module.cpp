@@ -195,7 +195,7 @@ bool CSG_Module::Execute(void)
 	//-----------------------------------------------------
 	if( !Parameters.DataObjects_Check() )
 	{
-		Message_Dlg(SG_T("invalid input"));
+	//	Message_Dlg(SG_T("invalid input"));
 	}
 	else if( !Parameters.DataObjects_Create() )
 	{

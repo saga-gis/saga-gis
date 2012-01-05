@@ -225,13 +225,13 @@ CSG_Parameter_Data::CSG_Parameter_Data(CSG_Parameter *pOwner, long Constraint)
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Parameter_Data::Get_Type_Identifier(void)
+CSG_String CSG_Parameter_Data::Get_Type_Identifier(void)	const
 {
 	return( SG_Parameter_Type_Get_Identifier(Get_Type()) );
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Parameter_Data::Get_Type_Name(void)
+CSG_String CSG_Parameter_Data::Get_Type_Name(void)	const
 {
 	return( SG_Parameter_Type_Get_Name(Get_Type()) );
 }
@@ -258,17 +258,17 @@ bool CSG_Parameter_Data::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-int CSG_Parameter_Data::asInt(void)
+int CSG_Parameter_Data::asInt(void)	const
 {
 	return( 0 );
 }
 
-double CSG_Parameter_Data::asDouble(void)
+double CSG_Parameter_Data::asDouble(void)	const
 {
 	return( 0.0 );
 }
 
-void * CSG_Parameter_Data::asPointer(void)
+void * CSG_Parameter_Data::asPointer(void)	const
 {
 	return( NULL );
 }
@@ -867,7 +867,7 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)
+const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)	const
 {
 	if( Index >= 0 && Index < m_Items.Get_Count() )
 	{
@@ -892,7 +892,7 @@ const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Choice::Get_Data(int        &Value)
+bool CSG_Parameter_Choice::Get_Data(int        &Value)	const
 {
 	CSG_String	sValue;
 
@@ -904,7 +904,7 @@ bool CSG_Parameter_Choice::Get_Data(int        &Value)
 	return( false );
 }
 
-bool CSG_Parameter_Choice::Get_Data(double     &Value)
+bool CSG_Parameter_Choice::Get_Data(double     &Value)	const
 {
 	CSG_String	sValue;
 
@@ -916,7 +916,7 @@ bool CSG_Parameter_Choice::Get_Data(double     &Value)
 	return( false );
 }
 
-bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)
+bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)	const
 {
 	if( m_Value >= 0 && m_Value < m_Items.Get_Count() )
 	{
@@ -964,7 +964,7 @@ CSG_Parameter_String::CSG_Parameter_String(CSG_Parameter *pOwner, long Constrain
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_String::is_Valid(void)
+bool CSG_Parameter_String::is_Valid(void)	const
 {
 	return( m_String.Length() > 0 );
 }
@@ -1048,7 +1048,7 @@ void CSG_Parameter_File_Name::Set_Filter(const SG_Char *Filter)
 	}
 }
 
-const SG_Char *  CSG_Parameter_File_Name::Get_Filter(void)
+const SG_Char *  CSG_Parameter_File_Name::Get_Filter(void)	const
 {
 	return( m_Filter.c_str() );
 }
@@ -1070,7 +1070,7 @@ void CSG_Parameter_File_Name::Set_Flag_Directory(bool bFlag)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_File_Name::Get_FilePaths(CSG_Strings &FilePaths)
+bool CSG_Parameter_File_Name::Get_FilePaths(CSG_Strings &FilePaths)	const
 {
 	FilePaths.Clear();
 
@@ -1611,7 +1611,7 @@ bool CSG_Parameter_Table_Field::Set_Value(const CSG_String &Value)
 }
 
 //---------------------------------------------------------
-CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)
+CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)	const
 {
 	CSG_Table		*pTable;
 	CSG_Parameter	*pParent;
@@ -1658,7 +1658,7 @@ CSG_Parameter_Data_Object::CSG_Parameter_Data_Object(CSG_Parameter *pOwner, long
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Data_Object::is_Valid(void)
+bool CSG_Parameter_Data_Object::is_Valid(void)	const
 {
 	return(	m_pOwner->is_Optional() || (m_pDataObject && m_pDataObject->is_Valid()) );
 }
@@ -1843,7 +1843,7 @@ bool CSG_Parameter_Grid::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-CSG_Grid_System * CSG_Parameter_Grid::Get_System(void)
+CSG_Grid_System * CSG_Parameter_Grid::Get_System(void)	const
 {
 	if( m_pOwner->Get_Parent() && m_pOwner->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
