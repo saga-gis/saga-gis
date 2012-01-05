@@ -1157,12 +1157,6 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Create(void)
 {
-	if( !m_bManaged )
-	{
-		return( true );
-	}
-
-	//-----------------------------------------------------
 	bool	bResult	= true;
 
 	for(int i=0; i<Get_Count() && bResult; i++)
@@ -1177,88 +1171,88 @@ bool CSG_Parameters::DataObjects_Create(void)
 		{
 			p->Set_Value(DATAOBJECT_NOTSET);
 		}
-		else if( p->is_DataObject() && p->is_Output() )
+		else if( p->is_Output() )
 		{
-			CSG_Data_Object	*pDataObject	= p->asDataObject();
-
-			if( !SG_UI_DataObject_Check(pDataObject, DATAOBJECT_TYPE_Undefined) )
+			if( p->is_DataObject_List() )
 			{
-				pDataObject	= NULL;
-			}
-
-			if(	pDataObject == DATAOBJECT_CREATE || (pDataObject == NULL && !p->is_Optional()) )
-			{
-				pDataObject	= NULL;
-
-				switch( p->Get_Type() )
+				if( m_bManaged )
 				{
-				default:
-					break;
-
-				case PARAMETER_TYPE_Grid:
-					if(	p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System 
-					&&	p->Get_Parent()->asGrid_System() && p->Get_Parent()->asGrid_System()->is_Valid() )
+					for(int j=p->asList()->Get_Count()-1; j>=0; j--)
 					{
-						pDataObject	= SG_Create_Grid(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p->Get_Data())->Get_Preferred_Type());
+						if( !SG_UI_DataObject_Check(p->asList()->asDataObject(j), p->Get_DataObject_Type()) )
+						{
+							p->asList()->Del_Item(j);
+						}
 					}
+				}
+			}
 
-					if( pDataObject && !pDataObject->is_Valid() )
+			else if( p->is_DataObject() )
+			{
+				CSG_Data_Object	*pDataObject	= p->asDataObject();
+
+				if( m_bManaged && pDataObject != DATAOBJECT_CREATE && !SG_UI_DataObject_Check(pDataObject, p->Get_DataObject_Type()) )
+				{
+					pDataObject	= NULL;
+				}
+
+				if(	(pDataObject == DATAOBJECT_CREATE) || (pDataObject == DATAOBJECT_NOTSET && !p->is_Optional()) )
+				{
+					pDataObject	= NULL;
+
+					switch( p->Get_Type() )
 					{
-						delete(pDataObject);
-						pDataObject	= NULL;
-						bResult		= false;
+					default:
+						break;
+
+					case PARAMETER_TYPE_Grid:
+						if(	p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System 
+						&&	p->Get_Parent()->asGrid_System() && p->Get_Parent()->asGrid_System()->is_Valid() )
+						{
+							pDataObject	= SG_Create_Grid(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p->Get_Data())->Get_Preferred_Type());
+						}
+
+						if( pDataObject && !pDataObject->is_Valid() )
+						{
+							delete(pDataObject);
+							pDataObject	= NULL;
+							bResult		= false;
+						}
+						break;
+
+					case PARAMETER_TYPE_Table:
+						pDataObject	= SG_Create_Table();
+						break;
+
+					case PARAMETER_TYPE_Shapes:
+						pDataObject	= SG_Create_Shapes(((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type());
+						break;
+
+					case PARAMETER_TYPE_PointCloud:
+						pDataObject	= SG_Create_PointCloud();
+						break;
+
+					case PARAMETER_TYPE_TIN:
+						pDataObject	= SG_Create_TIN();
+						break;
 					}
-					break;
-
-				case PARAMETER_TYPE_Table:
-					pDataObject	= SG_Create_Table();
-					break;
-
-				case PARAMETER_TYPE_Shapes:
-					pDataObject	= SG_Create_Shapes(((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type());
-					break;
-
-				case PARAMETER_TYPE_PointCloud:
-					pDataObject	= SG_Create_PointCloud();
-					break;
-
-				case PARAMETER_TYPE_TIN:
-					pDataObject	= SG_Create_TIN();
-					break;
 				}
-			}
-			else if( p->Get_Type() == PARAMETER_TYPE_Shapes && p->asShapes() )
-			{
-				if( ((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type() != SHAPE_TYPE_Undefined
-				&&	((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type() != p->asShapes()->Get_Type() )
+				else if( p->Get_Type() == PARAMETER_TYPE_Shapes && p->asShapes() )
 				{
-					pDataObject	= SG_Create_Shapes(((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type());
+					if( ((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type() != SHAPE_TYPE_Undefined
+					&&	((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type() != p->asShapes()->Get_Type() )
+					{
+						pDataObject	= SG_Create_Shapes(((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type());
+					}
 				}
-			}
 
-			if( pDataObject )
-			{
-				pDataObject->Set_Name(p->Get_Name());
-				SG_UI_DataObject_Add(pDataObject, false);
-			}
-
-			p->Set_Value(pDataObject);
-		}
-		else if( p->is_DataObject_List() && p->is_Output() )
-		{
-			TSG_Data_Object_Type	Type
-				= p->Get_Type() == PARAMETER_TYPE_Grid_List       ? DATAOBJECT_TYPE_Grid
-				: p->Get_Type() == PARAMETER_TYPE_Table_List      ? DATAOBJECT_TYPE_Table
-				: p->Get_Type() == PARAMETER_TYPE_Shapes_List     ? DATAOBJECT_TYPE_Shapes
-				: p->Get_Type() == PARAMETER_TYPE_TIN_List        ? DATAOBJECT_TYPE_TIN
-				: p->Get_Type() == PARAMETER_TYPE_PointCloud_List ? DATAOBJECT_TYPE_PointCloud : DATAOBJECT_TYPE_Undefined;
-
-			for(int j=p->asList()->Get_Count()-1; j>=0; j--)
-			{
-				if( !SG_UI_DataObject_Check(p->asList()->asDataObject(j), Type) )
+				if( pDataObject )
 				{
-					p->asList()->Del_Item(j);
+					pDataObject->Set_Name(p->Get_Name());
+					SG_UI_DataObject_Add(pDataObject, false);
 				}
+
+				p->Set_Value(pDataObject);
 			}
 		}
 	}

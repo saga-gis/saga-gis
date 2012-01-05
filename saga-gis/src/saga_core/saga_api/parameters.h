@@ -788,10 +788,10 @@ public:
 
 	virtual bool				is_Valid				(void);
 
-	virtual bool				Set_Value				(int Value)	{	return( Set_Value((void *)Value) );	}
+	virtual bool				Set_Value				(int   Value)	{	return( Set_Value((void *)Value) );	}
 	virtual bool				Set_Value				(void *Value);
 
-	virtual void *				asPointer				(void)		{	return( m_pDataObject );	}
+	virtual void *				asPointer				(void)			{	return( m_pDataObject );	}
 
 	virtual const SG_Char *		asString				(void);
 
@@ -1208,6 +1208,8 @@ public:
 	bool						is_DataObject_List		(void);
 	bool						is_Parameters			(void);
 	bool						is_Serializable			(void);
+
+	TSG_Data_Object_Type		Get_DataObject_Type		(void);
 
 	int							Get_Children_Count		(void)			{	return( m_nChildren );		}
 	CSG_Parameter *				Get_Child				(int iChild)	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}

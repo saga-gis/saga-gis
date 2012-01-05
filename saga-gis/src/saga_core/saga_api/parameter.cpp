@@ -297,6 +297,25 @@ bool CSG_Parameter::is_Serializable(void)
 	}
 }
 
+//---------------------------------------------------------
+TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)
+{
+	switch( Get_Type() )
+	{
+	default:								return( DATAOBJECT_TYPE_Undefined );
+	case PARAMETER_TYPE_Grid:
+	case PARAMETER_TYPE_Grid_List:			return( DATAOBJECT_TYPE_Grid );
+	case PARAMETER_TYPE_Table:
+	case PARAMETER_TYPE_Table_List:			return( DATAOBJECT_TYPE_Table );
+	case PARAMETER_TYPE_Shapes:
+	case PARAMETER_TYPE_Shapes_List:		return( DATAOBJECT_TYPE_Shapes );
+	case PARAMETER_TYPE_TIN:
+	case PARAMETER_TYPE_TIN_List:			return( DATAOBJECT_TYPE_TIN );
+	case PARAMETER_TYPE_PointCloud:
+	case PARAMETER_TYPE_PointCloud_List:	return( DATAOBJECT_TYPE_PointCloud );
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
