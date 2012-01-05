@@ -1100,55 +1100,61 @@ int CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Check(bool bSilent)
 {
-	bool		bInvalid, bResult	= true;
-	CSG_String	s;
+	bool		bResult	= true;
+
+	CSG_String	sError;
 
 	//-----------------------------------------------------
 	for(int i=0; i<Get_Count(); i++)
 	{
 		CSG_Parameter	*p	= m_Parameters[i];
 
-		switch( p->Get_Type() )
+		if( p->is_Enabled() )
 		{
-		default:
-			bInvalid	= false;
-			break;
+			bool	bInvalid	= false;
 
-		case PARAMETER_TYPE_Parameters:
-			bInvalid	= p->asParameters()->DataObjects_Check(bSilent) == false;
-			break;
+			if( p->Get_Type() == PARAMETER_TYPE_Parameters )
+			{
+				bInvalid	= p->asParameters()->DataObjects_Check(bSilent) == false;
+			}
+			else if( p->is_Input() )
+			{
+				if( p->is_DataObject() )
+				{
+					bInvalid	= !p->is_Optional()
+							&& (m_bManaged ? !SG_UI_DataObject_Check(p->asDataObject(), DATAOBJECT_TYPE_Undefined) : !p->asDataObject());
+				}
 
-		case PARAMETER_TYPE_Grid:
-		case PARAMETER_TYPE_Table:
-		case PARAMETER_TYPE_Shapes:
-		case PARAMETER_TYPE_TIN:
-		case PARAMETER_TYPE_PointCloud:
-			bInvalid	= p->is_Input() && !p->is_Optional()
-						&& (m_bManaged ? !SG_UI_DataObject_Check(p->asDataObject(), DATAOBJECT_TYPE_Undefined) : !p->asDataObject());
-			break;
+				else if( p->is_DataObject_List() )
+				{
+					for(int j=p->asList()->Get_Count()-1; j>=0; j--)
+					{
+						CSG_Data_Object	*pDataObject	= p->asList()->asDataObject(j);
 
-		case PARAMETER_TYPE_Grid_List:
-		case PARAMETER_TYPE_Table_List:
-		case PARAMETER_TYPE_Shapes_List:
-		case PARAMETER_TYPE_TIN_List:
-		case PARAMETER_TYPE_PointCloud_List:
-			bInvalid	= p->is_Input() && !p->is_Optional()
-						&& p->asList()->Get_Count()	== 0;
-			break;
-		}
+						if( !pDataObject || (m_bManaged && !SG_UI_DataObject_Check(pDataObject, p->Get_DataObject_Type())) )
+						{
+							p->asList()->Del_Item(j);
+						}
+					}
 
-		if( bInvalid )
-		{
-			bResult	= false;
+					bInvalid	= !p->is_Optional()
+							&& p->asList()->Get_Count()	== 0;
+				}
+			}
 
-			s.Append(CSG_String::Format(SG_T("\n%s: %s"), p->Get_Type_Name(), p->Get_Name()));
+			if( bInvalid )
+			{
+				bResult	= false;
+
+				sError.Append(CSG_String::Format(SG_T("\n%s: %s"), p->Get_Type_Name(), p->Get_Name()));
+			}
 		}
 	}
 
 	//-----------------------------------------------------
 	if( !bResult && !bSilent )
 	{
-		SG_UI_Dlg_Message(CSG_String::Format(SG_T("%s\n%s"), LNG("invalid input!"), s.c_str() ), Get_Name() );
+		SG_UI_Dlg_Message(CSG_String::Format(SG_T("%s\n%s"), _TL("invalid input!"), sError.c_str()), Get_Name() );
 	}
 
 	return( bResult );
@@ -1157,6 +1163,12 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Create(void)
 {
+	if( !m_bManaged )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	bool	bResult	= true;
 
 	for(int i=0; i<Get_Count() && bResult; i++)
@@ -1191,12 +1203,9 @@ bool CSG_Parameters::DataObjects_Create(void)
 			{
 				CSG_Data_Object	*pDataObject	= p->asDataObject();
 
-				if( m_bManaged && pDataObject != DATAOBJECT_CREATE && !SG_UI_DataObject_Check(pDataObject, p->Get_DataObject_Type()) )
-				{
-					pDataObject	= NULL;
-				}
-
-				if(	(pDataObject == DATAOBJECT_CREATE) || (pDataObject == DATAOBJECT_NOTSET && !p->is_Optional()) )
+				if(	(pDataObject == DATAOBJECT_CREATE)
+				||	(pDataObject == DATAOBJECT_NOTSET && !p->is_Optional())
+				||	(pDataObject != DATAOBJECT_NOTSET && !SG_UI_DataObject_Check(pDataObject, p->Get_DataObject_Type())) )
 				{
 					pDataObject	= NULL;
 
