@@ -79,7 +79,7 @@
 #include "shapes.h"
 #include "tin.h"
 #include "pointcloud.h"
-#include "stdint.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -789,7 +789,6 @@ public:
 
 	virtual bool				is_Valid				(void)	const;
 
-	virtual bool				Set_Value				(uintptr_t Value)	{	return( Set_Value((void *)Value) );	}
 	virtual bool				Set_Value				(void *Value);
 
 	virtual void *				asPointer				(void)	const	{	return( m_pDataObject );	}
