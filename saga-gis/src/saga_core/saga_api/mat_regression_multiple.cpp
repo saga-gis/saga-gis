@@ -521,15 +521,15 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 	}
 
 	//-----------------------------------------------------
-	if( iBest >= 0 && _Get_P(1, X.Get_NY() - m_nPredictors, R2, rBest) > P_out )
+	if( iBest >= 0 && _Get_P(1, X.Get_NY() - (m_nPredictors - 1), R2, rBest) > P_out )
 	{
+		m_nPredictors--;
+
 		X.Del_Col(1 + iBest);
 		_Set_Step_Info(X, R2, m_Predictor[iBest], false);
 		R2	= rBest;
 
 		m_bIncluded[m_Predictor[iBest]]	= false;
-
-		m_nPredictors--;
 
 		for(iPredictor=iBest; iPredictor<m_nPredictors; iPredictor++)
 		{
