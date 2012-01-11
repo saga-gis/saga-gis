@@ -350,7 +350,7 @@ bool CGrid_Export::On_Execute(void)
 
 		if( Stream.Open(SG_File_Make_Path(NULL, fName, fExt), SG_FILE_W, false) )
 		{
-			Stream.Printf(SG_T("%f\n%f\n%f\n%f\n%f\n%f\n"),
+			Stream.Printf(SG_T("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n"),
 				 pGrid->Get_Cellsize(),
 				 0.0, 0.0,
 				-pGrid->Get_Cellsize(),
@@ -373,10 +373,10 @@ bool CGrid_Export::On_Execute(void)
 			Stream.Printf(SG_T("        <href>%s</href>\n")				, SG_File_Get_Name(fName, true).c_str());
 			Stream.Printf(SG_T("      </Icon>\n"));
 			Stream.Printf(SG_T("      <LatLonBox>\n"));
-			Stream.Printf(SG_T("        <north>%f</north>\n")			, pGrid->Get_YMax());
-			Stream.Printf(SG_T("        <south>%f</south>\n")			, pGrid->Get_YMin());
-			Stream.Printf(SG_T("        <east>%f</east>\n")				, pGrid->Get_XMax());
-			Stream.Printf(SG_T("        <west>%f</west>\n")				, pGrid->Get_XMin());
+			Stream.Printf(SG_T("        <north>%.10f</north>\n")			, pGrid->Get_YMax());
+			Stream.Printf(SG_T("        <south>%.10f</south>\n")			, pGrid->Get_YMin());
+			Stream.Printf(SG_T("        <east>%.10f</east>\n")				, pGrid->Get_XMax());
+			Stream.Printf(SG_T("        <west>%.10f</west>\n")				, pGrid->Get_XMin());
 			Stream.Printf(SG_T("        <rotation>0.0</rotation>\n"));
 			Stream.Printf(SG_T("      </LatLonBox>\n"));
 			Stream.Printf(SG_T("    </GroundOverlay>\n"));
