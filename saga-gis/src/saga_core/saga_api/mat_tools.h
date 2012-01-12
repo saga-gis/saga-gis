@@ -477,16 +477,18 @@ public:
 	CSG_Simple_Statistics(void);
 	CSG_Simple_Statistics(bool bHoldValues);
 	CSG_Simple_Statistics(const CSG_Simple_Statistics &Statistics);
+	CSG_Simple_Statistics(double Mean, double StdDev, int Count = 1000);
 
 	bool						Create				(bool bHoldValues = false);
 	bool						Create				(const CSG_Simple_Statistics &Statistics);
+	bool						Create				(double Mean, double StdDev, int Count = 1000);
 
 	void						Invalidate			(void);
 
-	bool						is_Evaluated		(void)		{	return( m_bEvaluated );	}
+	bool						is_Evaluated		(void)	const	{	return( m_bEvaluated );	}
 
-	int							Get_Count			(void)		{	return( m_nValues );	}
-	double						Get_Weights			(void)		{	return( m_Weights );	}
+	int							Get_Count			(void)	const	{	return( m_nValues );	}
+	double						Get_Weights			(void)	const	{	return( m_Weights );	}
 
 	double						Get_Minimum			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Minimum	);	}
 	double						Get_Maximum			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Maximum	);	}
@@ -496,11 +498,14 @@ public:
 	double						Get_Variance		(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Variance	);	}
 	double						Get_StdDev			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_StdDev	);	}
 
+	void						Add					(const CSG_Simple_Statistics &Statistics);
+
 	void						Add_Value			(double Value, double Weight = 1.0);
 
-	double						Get_Value			(int i)		{	return( i >= 0 && i < (int)m_Values.Get_Size() ? ((double *)m_Values.Get_Array())[i] : Get_Mean() );	}
+	double						Get_Value			(int i)	const	{	return( i >= 0 && i < (int)m_Values.Get_Size() ? ((double *)m_Values.Get_Array())[i] : m_Mean );	}
 
 	CSG_Simple_Statistics &		operator  =			(const CSG_Simple_Statistics &Statistics)	{	Create(Statistics);	return( *this );	}
+	CSG_Simple_Statistics &		operator +=			(const CSG_Simple_Statistics &Statistics)	{	Add(Statistics);	return( *this );	}
 	CSG_Simple_Statistics &		operator +=			(double Value)								{	Add_Value(Value);	return( *this );	}
 
 
@@ -655,6 +660,101 @@ private:
 
 	bool					Minimum_Distance	(bool bInitialize);
 	bool					Hill_Climbing		(bool bInitialize);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum
+{
+	SG_CLASSIFY_SUPERVISED_BinaryEncoding	= 0,
+	SG_CLASSIFY_SUPERVISED_ParallelEpiped,
+	SG_CLASSIFY_SUPERVISED_MinimumDistance,
+	SG_CLASSIFY_SUPERVISED_Mahalonobis,
+	SG_CLASSIFY_SUPERVISED_MaximumLikelihood,
+	SG_CLASSIFY_SUPERVISED_SAM,
+	SG_CLASSIFY_SUPERVISED_SID,
+	SG_CLASSIFY_SUPERVISED_SVM,
+	SG_CLASSIFY_SUPERVISED_WTA
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Classifier_Supervised
+{
+public:
+	CSG_Classifier_Supervised(void);
+	virtual ~CSG_Classifier_Supervised(void);
+
+	void						Create						(int nFeatures);
+	void						Destroy						(void);
+
+	int							Get_Feature_Count			(void)			{	return( m_nFeatures );			}
+
+	int							Get_Element_Count			(int iClass)	{	return( m_nElements[iClass] );	}
+	void						Del_Element_Count			(void);
+
+	int							Get_Class_Count				(void)			{	return( m_IDs.Get_Count() );	}
+	const CSG_String &			Get_Class_ID				(int iClass)	{	return( m_IDs[iClass] );		}
+
+	int							Get_Class					(const CSG_String &Class_ID);
+
+	CSG_Simple_Statistics *		Get_Statistics				(const CSG_String &Class_ID);
+	CSG_Simple_Statistics *		Get_Statistics				(int iClass)	{	return( m_Statistics[iClass] );	}
+	CSG_Simple_Statistics *		operator []					(int iClass)	{	return( m_Statistics[iClass] );	}
+
+	bool						Get_Class					(const CSG_Vector &Features, int &Class, double &Quality, int Method);
+
+	void						Set_Distance_Threshold		(double Value)	{	m_Distance_Threshold	= Value;	}
+	double						Get_Distance_Threshold		(void)			{	return( m_Distance_Threshold );		}
+
+	void						Set_Probability_Threshold	(double Value)	{	m_Probability_Threshold	= Value;	}
+	double						Get_Probability_Threshold	(void)			{	return( m_Probability_Threshold );	}
+	void						Set_Probability_Relative	(bool   Value)	{	m_Probability_Relative	= Value;	}
+	bool						Get_Probability_Relative	(void)			{	return( m_Probability_Relative );	}
+
+	void						Set_Angle_Threshold			(double Value)	{	m_Angle_Threshold		= Value;	}
+	double						Get_Angle_Threshold			(void)			{	return( m_Angle_Threshold );		}
+
+	void						Set_WTA						(int Method, bool bOn)	{	if( Method >= 0 && Method < SG_CLASSIFY_SUPERVISED_WTA ) m_bWTA[Method]	= bOn;		}
+	bool						Get_WTA						(int Method)			{	return( Method >= 0 && Method < SG_CLASSIFY_SUPERVISED_WTA ? m_bWTA[Method] : false );	}
+
+	static CSG_String			Get_Name_of_Method			(int Method);
+	static CSG_String			Get_Name_of_Quality			(int Method);
+
+
+private:
+
+	bool						m_Probability_Relative, m_bWTA[SG_CLASSIFY_SUPERVISED_WTA];
+
+	int							m_nFeatures, *m_nElements;
+
+	double						m_Distance_Threshold, m_Probability_Threshold, m_Angle_Threshold;
+
+	CSG_Strings					m_IDs;
+
+	CSG_Simple_Statistics		**m_Statistics;
+
+	CSG_Vector					m_ML_s, m_SAM_l, m_BE_m;
+
+	CSG_Matrix					m_ML_a, m_ML_b, m_BE_s;
+
+
+	void						_Update						(void);
+
+	void						_Get_Binary_Encoding		(const CSG_Vector &Features, int &Class, double &Quality);
+	void						_Get_Parallel_Epiped		(const CSG_Vector &Features, int &Class, double &Quality);
+	void						_Get_Minimum_Distance		(const CSG_Vector &Features, int &Class, double &Quality);
+	void						_Get_Mahalanobis_Distance	(const CSG_Vector &Features, int &Class, double &Quality);
+	void						_Get_Maximum_Likelihood		(const CSG_Vector &Features, int &Class, double &Quality);
+	void						_Get_Spectral_Angle_Mapping	(const CSG_Vector &Features, int &Class, double &Quality);
+	void						_Get_Spectral_Divergence	(const CSG_Vector &Features, int &Class, double &Quality);
+	void						_Get_Winner_Takes_All		(const CSG_Vector &Features, int &Class, double &Quality);
 
 };
 
