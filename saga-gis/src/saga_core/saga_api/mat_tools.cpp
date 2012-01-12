@@ -1219,21 +1219,13 @@ void CSG_Classifier_Supervised::_Get_Winner_Takes_All(const CSG_Vector &Features
 
 	for(int iMethod=0; iMethod<SG_CLASSIFY_SUPERVISED_WTA; iMethod++)
 	{
-		if( m_bWTA[iMethod] )
+		int		iClass;
+		double	iQuality;
+
+		if( m_bWTA[iMethod] && Get_Class(Features, iClass, iQuality, iMethod) && ++Votes[iClass] > Quality )
 		{
-			int		iClass;
-			double	iQuality;
-
-			if( Get_Class(Features, iClass, iQuality, iMethod) )
-			{
-				Votes[iClass]++;
-
-				if( Votes[iClass] > Quality )
-				{
-					Quality	= Votes[iClass];
-					Class	= iClass;
-				}
-			}
+			Quality	= Votes[iClass];
+			Class	= iClass;
 		}
 	}
 

@@ -77,60 +77,6 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CClass_Info
-{
-public:
-	CClass_Info(void);
-	virtual ~CClass_Info(void);
-
-	void						Create						(int nFeatures);
-	void						Destroy						(void);
-
-	int							Get_Feature_Count			(void)		{	return( m_nFeatures );			}
-
-	int							Get_Count					(void)		{	return( m_IDs.Get_Count() );	}
-	const CSG_String &			Get_ID						(int Index)	{	return( m_IDs[Index] );			}
-
-	CSG_Simple_Statistics *		Get_Statistics				(const CSG_String &ID);
-	CSG_Simple_Statistics *		Get_Statistics				(int Index)	{	return( m_Statistics[Index] );	}
-	CSG_Simple_Statistics *		operator []					(int Index)	{	return( m_Statistics[Index] );	}
-
-	int							Get_Element_Count			(int Index)	{	return( m_nElements[Index] );	}
-	void						Inc_Element_Count			(int Index)	{	m_nElements[Index]++;			}
-
-	double						Get_BE_m					(int Index)					{	_Update();	return( m_BE_m[Index] );			}
-	bool						Get_BE_s					(int Index, int Feature)	{	_Update();	return( m_BE_s[Index][Feature] != 0.0 );	}
-	double						Get_SAM_l					(int Index)					{	_Update();	return( m_SAM_l[Index] );			}
-	double						Get_ML_s					(int Index)					{	_Update();	return( m_ML_s[Index] );			}
-	double						Get_ML_a					(int Index, int Feature)	{	_Update();	return( m_ML_a[Index][Feature] );	}
-	double						Get_ML_b					(int Index, int Feature)	{	_Update();	return( m_ML_b[Index][Feature] );	}
-
-
-private:
-
-	int							m_nFeatures, *m_nElements;
-
-	CSG_Strings					m_IDs;
-
-	CSG_Simple_Statistics		**m_Statistics;
-
-	CSG_Vector					m_ML_s, m_SAM_l, m_BE_m;
-
-	CSG_Matrix					m_ML_a, m_ML_b, m_BE_s;
-
-
-	void						_Update						(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -142,37 +88,26 @@ public:
 
 protected:
 
-	virtual bool				On_Execute					(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	bool						m_bNormalise, m_bRelative;
+	bool						m_bNormalise;
 
-	int							m_Method;
-
-	double						m_Threshold_Dist, m_Threshold_Prob, m_Threshold_Angle;
-
-	CClass_Info					m_Class_Info;
+	CSG_Classifier_Supervised	m_Classifier;
 
 	CSG_Grid					*m_pClasses, *m_pQuality;
 
 	CSG_Parameter_Grid_List		*m_pGrids;
 
 
-	bool						Initialise					(void);
-	bool						Finalise					(void);
+	double						Get_Value				(int x, int y, int iGrid);
 
-	double						Get_Value					(int x, int y, int iGrid);
-	bool						Set_Class					(int x, int y, int iClass, double Quality);
-
-	void						Set_Parallel_Epiped			(int x, int y);
-	void						Set_Minimum_Distance		(int x, int y);
-	void						Set_Mahalanobis_Distance	(int x, int y);
-	void						Set_Maximum_Likelihood		(int x, int y);
-	void						Set_Spectral_Angle_Mapping	(int x, int y);
-	void						Set_Spectral_Divergence		(int x, int y);
-	void						Set_Binary_Encoding			(int x, int y);
+	bool						Initialize				(void);
+	bool						Finalize				(void);
 
 };
 
