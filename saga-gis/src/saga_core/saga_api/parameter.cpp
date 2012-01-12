@@ -573,6 +573,8 @@ bool CSG_Parameter::has_Changed(int Check_Flags)
 //---------------------------------------------------------
 bool CSG_Parameter::Assign(CSG_Parameter *pSource)
 {
+	m_bEnabled	= pSource->m_bEnabled;
+
 	return( m_pData->Assign(pSource->m_pData) );
 }
 
