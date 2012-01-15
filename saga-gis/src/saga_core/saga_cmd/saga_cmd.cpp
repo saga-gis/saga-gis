@@ -80,8 +80,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_CMD_VERSION	SG_T("2.0.5")
-
 #define SYS_ENV_PATH		SG_T("PATH")
 
 #define FLAG_SILENT			SG_T("s")
@@ -169,14 +167,37 @@ _try
 			return( 0 );
 		}
 
-		s	= s.BeforeFirst(SG_T('='));
 
-		if( !s.CmpNoCase(SG_T("-f")) || !s.CmpNoCase(SG_T("--flags")) )
+		bool bCheck	= true;
+
+		while( bCheck )
 		{
-			Flags	= CSG_String(argv[1]).AfterFirst(SG_T('=')).c_str();
+			bCheck	= false;
+			s		= CSG_String(argv[1]).BeforeFirst(SG_T('='));
+#ifdef _OPENMP
+			if( !s.CmpNoCase(SG_T("-c")) || !s.CmpNoCase(SG_T("--cores")) )
+			{
+				int iCores = 1;
+				if( !CSG_String(argv[1]).AfterFirst(SG_T('=')).asInt(iCores) || iCores > SG_Get_Max_Num_Procs_Omp())
+					iCores = SG_Get_Max_Num_Procs_Omp();
 
-			argc--;
-			argv++;
+				SG_Set_Max_Num_Threads_Omp(iCores);
+
+				bCheck = true;
+			}
+#endif
+			if( !s.CmpNoCase(SG_T("-f")) || !s.CmpNoCase(SG_T("--flags")) )
+			{
+				Flags	= CSG_String(argv[1]).AfterFirst(SG_T('=')).c_str();
+
+				bCheck = true;
+			}
+			
+			if (bCheck)
+			{
+				argc--;
+				argv++;
+			}
 		}
 	}
 
@@ -467,11 +488,17 @@ void		Print_Help		(void)
 		SG_T("saga_cmd [-h, --help]\n")
 		SG_T("saga_cmd [-v, --version]\n")
 		SG_T("saga_cmd [-b, --batch]\n")
+#ifdef _OPENMP
+		SG_T("saga_cmd [-c, --cores][= # of CPU cores] <LIBRARY> <MODULE> <module specific options...>\n")
+#endif
 		SG_T("saga_cmd [-f, --flags][=qsilp] <LIBRARY> <MODULE> <module specific options...>\n")
 		SG_T("\n")
 		SG_T("[-h], [--help]: help on usage\n")
 		SG_T("[-v], [--version]: print version information\n")
 		SG_T("[-b], [--batch]: create a batch file example\n")
+#ifdef _OPENMP
+		SG_T("[-c], [--cores]: number of physical processors to use for computation\n")
+#endif
 		SG_T("[-f], [--flags]: various flags for general usage\n")
 		SG_T("  q: quiet mode (no progress report)\n")
 		SG_T("  s: silent mode (no progress and no messages report)\n")
@@ -494,7 +521,7 @@ void		Print_Help		(void)
 		SG_T("directory or its \'modules\' subdirectory. If this is not found\n")
 		SG_T("the current working directory will be searched for instead.\n")
 		SG_T("Alternatively you can add the environment variable \'SAGA_MLB\'\n")
-		SG_T("and let it point to the desired directory\n")
+		SG_T("and let it point to the desired directory.\n")
 		SG_T("\n")
 		SG_T("SAGA CMD is particularly useful for the automated\n")
 		SG_T("execution of a series of analysis steps, because it\n")

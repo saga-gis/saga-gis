@@ -72,6 +72,41 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
+#ifdef _OPENMP
+#include <omp.h>
+
+//---------------------------------------------------------
+int		g_SG_Max_Num_Threads_Omp = omp_get_num_procs();
+
+//---------------------------------------------------------
+void	SG_Set_Max_Num_Threads_Omp		(int iCores)
+{
+	if( iCores > omp_get_num_procs() )
+		iCores = omp_get_num_procs();
+
+	g_SG_Max_Num_Threads_Omp	= iCores;
+	omp_set_num_threads(g_SG_Max_Num_Threads_Omp);
+}
+
+//---------------------------------------------------------
+int		SG_Get_Max_Num_Threads_Omp		(void)
+{
+	return( g_SG_Max_Num_Threads_Omp );
+}
+
+//---------------------------------------------------------
+int		SG_Get_Max_Num_Procs_Omp		(void)
+{
+	return( omp_get_num_procs() );
+}
+#endif
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 CSG_String	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
 {

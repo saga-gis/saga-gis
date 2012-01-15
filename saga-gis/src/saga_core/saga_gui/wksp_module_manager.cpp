@@ -137,6 +137,16 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 		PARAMETER_TYPE_Int	, 0, 0, true
 	);
 
+#ifdef _OPENMP
+	m_Parameters.Add_Value(
+		NULL	, "MAX_NUM_THREADS_OMP"	, _TL("Number of CPU Cores [# physical processors]"),
+		_TW("Number of processors to use for parallelization. Should be set to the number "
+		    "of physical processors, and not to the total number of physical and logical processors "
+			"on systems supporting hyper-threading."),
+		PARAMETER_TYPE_Int	, SG_Get_Max_Num_Threads_Omp(), 1, true, SG_Get_Max_Num_Procs_Omp(), true
+	);
+#endif
+
 	m_Parameters.Add_FilePath(
 		NULL	, "LNG_FILE_DIC", _TL("Language Translations"),
 		_TL("Dictionary for translations from built-in (English) to local language (editable text table)"),
@@ -360,6 +370,10 @@ void CWKSP_Module_Manager::Parameters_Changed(void)
 {
 	g_pSAGA->Process_Set_Frequency(m_Parameters("PROC_FREQ")->asInt());
 
+#ifdef _OPENMP
+	SG_Set_Max_Num_Threads_Omp(m_Parameters("MAX_NUM_THREADS_OMP")->asInt());
+#endif
+
 	CWKSP_Base_Item::Parameters_Changed();
 }
 
@@ -407,6 +421,14 @@ void CWKSP_Module_Manager::_Config_Read(void)
 		m_Parameters("PROC_FREQ")	->Set_Value((int)lValue);
 	}
 
+#ifdef _OPENMP
+	if( CONFIG_Read(wxT("/MODULES"), wxT("MAX_NUM_THREADS_OMP"), lValue) )
+	{
+		m_Parameters("MAX_NUM_THREADS_OMP")->Set_Value((int)lValue);
+		SG_Set_Max_Num_Threads_Omp((int)lValue);
+	}
+#endif
+
 	if( CONFIG_Read(wxT("/MODULES"), wxT("LNG_FILE_DIC"), sValue) )
 	{
 		m_Parameters("LNG_FILE_DIC")->Set_Value(CSG_String(&sValue));
@@ -437,6 +459,9 @@ void CWKSP_Module_Manager::_Config_Write(void)
 	CONFIG_Write(wxT("/MODULES"), wxT("START_LOGO")	 , (long)m_Parameters("START_LOGO")  ->asInt());
 	CONFIG_Write(wxT("/MODULES"), wxT("HELP_SOURCE") , (long)m_Parameters("HELP_SOURCE") ->asInt());
 	CONFIG_Write(wxT("/MODULES"), wxT("PROC_FREQ")	 , (long)m_Parameters("PROC_FREQ")   ->asInt());
+#ifdef _OPENMP
+	CONFIG_Write(wxT("/MODULES"), wxT("MAX_NUM_THREADS_OMP"), (long)m_Parameters("MAX_NUM_THREADS_OMP")->asInt());
+#endif
 	CONFIG_Write(wxT("/MODULES"), wxT("LNG_FILE_DIC"),       m_Parameters("LNG_FILE_DIC")->asString());
 	CONFIG_Write(wxT("/MODULES"), wxT("CRS_FILE_SRS"),       m_Parameters("CRS_FILE_SRS")->asString());
 	CONFIG_Write(wxT("/MODULES"), wxT("CRS_FILE_DIC"),       m_Parameters("CRS_FILE_DIC")->asString());
