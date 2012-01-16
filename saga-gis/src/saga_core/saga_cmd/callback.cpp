@@ -261,7 +261,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1.Pointer);
+			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
 		}
 
 		break;
@@ -276,7 +276,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1.Pointer);
+			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
 		}
 
 		break;
@@ -285,7 +285,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_ERROR:
 
-		Print_Error((SG_Char *)Param_1.Pointer);
+		Print_Error(Param_1.String.c_str());
 
 		break;
 
@@ -295,7 +295,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1.Pointer);
+			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
 		}
 
 		break;
@@ -310,7 +310,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s: %s\n"), (const SG_Char *)Param_2.Pointer, (const SG_Char *)Param_1.Pointer);
+			SG_PRINTF(SG_T("\n%s: %s\n"), Param_2.String.c_str(), Param_1.String.c_str());
 		}
 
 		break;
@@ -319,7 +319,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= Get_YesNo((const SG_Char *)Param_2.Pointer, (const SG_Char *)Param_1.Pointer);
+		Result	= Get_YesNo(Param_2.String.c_str(), Param_1.String.c_str());
 
 		break;
 
@@ -327,7 +327,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= Get_YesNo((const SG_Char *)Param_2.Pointer, (const SG_Char *)Param_1.Pointer);
+		Result	= Get_YesNo(Param_2.String.c_str(), Param_1.String.c_str());
 
 		break;
 
