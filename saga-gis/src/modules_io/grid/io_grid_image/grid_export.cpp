@@ -184,7 +184,6 @@ CGrid_Export::CGrid_Export(void)
 //---------------------------------------------------------
 bool CGrid_Export::On_Execute(void)
 {
-	wxInitAllImageHandlers();
 
 	int			x, y, c, r, g, b;
 	double		d;
