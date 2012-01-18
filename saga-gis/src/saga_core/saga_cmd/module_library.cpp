@@ -416,7 +416,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					}
 					else
 					{
-						pParameter->Set_Value(&s);
+						pParameter->Set_Value(CSG_String(&s));
 					}
 				}
 				break;
@@ -444,7 +444,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 			case PARAMETER_TYPE_String:
 				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
-					pParameter->Set_Value(&s);
+					pParameter->Set_Value(CSG_String(&s));
 				}
 				break;
 
@@ -453,7 +453,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 				{
 					CSG_File	Stream;
 
-					if( Stream.Open(&s) )
+					if( Stream.Open(CSG_String(&s)) )
 					{
 						CSG_String	t;
 
@@ -463,7 +463,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					}
 					else
 					{
-						pParameter->Set_Value(&s);
+						pParameter->Set_Value(CSG_String(&s));
 					}
 				}
 				break;
@@ -478,7 +478,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 						s.Append (wxT("\""));
 					}
 
-					pParameter->Set_Value(&s);
+					pParameter->Set_Value(CSG_String(&s));
 				}
 				break;
 
