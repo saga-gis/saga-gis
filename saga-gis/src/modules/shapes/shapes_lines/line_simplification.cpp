@@ -122,11 +122,11 @@ CLine_Simplification::CLine_Simplification(void)
 	Set_Author		(SG_T("O. Conrad (c) 2010"));
 
 	Set_Description	(_TW(
-		"Line simplification implementing the Ramer–Douglas–Peucker algorithm.\n"
+		"Line simplification implementing the Ramer-Douglas-Peucker algorithm.\n"
 		"\n"
 		"Refererences:\n"
-		"- Ramer, U. (1972): An iterative procedure for the polygonal approximation of plane curves. Computer Graphics and Image Processing, 1(3), 244–256\n"
-		"- Douglas, D., Peucker, T. (1973): Algorithms for the reduction of the number of points required to represent a digitized line or its caricature. The Canadian Cartographer 10(2), 112–122\n"
+		"- Ramer, U. (1972): An iterative procedure for the polygonal approximation of plane curves. Computer Graphics and Image Processing, 1(3), 244-256\n"
+		"- Douglas, D., Peucker, T. (1973): Algorithms for the reduction of the number of points required to represent a digitized line or its caricature. The Canadian Cartographer 10(2), 112-122\n"
 		"\n"
 		"- Polyline Reduction source code at <a target=\"_blank\" href=\"http://mappinghacks.com/code/PolyLineReduction/\">mappinghacks.com</a>\n"
 	));
@@ -134,19 +134,19 @@ CLine_Simplification::CLine_Simplification(void)
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "LINES"		, _TL("Lines"),
-		_TL(""),
+		_TL("Line or polygon shapefile to simplify."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "OUTPUT"		, _TL("Simplified Lines"),
-		_TL("If not set points will be removed from the orignal lines layer."),
+		_TL("If not set points will be removed from the input data set."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TOLERANCE"	, _TL("Tolerance"),
-		_TL(""),
+		_TL("Maximum deviation allowed between original and simplified curve [map units]."),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 }
