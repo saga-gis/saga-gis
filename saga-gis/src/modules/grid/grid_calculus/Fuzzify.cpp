@@ -119,7 +119,7 @@ int CFuzzify::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *p
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT"))
 	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AUTOFIT")) )
 	{
-		if( pParameters->Get_Parameter("AUTOFIT")->asBool() )
+		if( pParameters->Get_Parameter("AUTOFIT")->asBool() && pParameters->Get_Parameter("INPUT")->asGrid() )
 		{
 			CSG_Grid	*pGrid	= pParameters->Get_Parameter("INPUT")->asGrid();
 
