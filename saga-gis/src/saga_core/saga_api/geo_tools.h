@@ -774,8 +774,12 @@ SAGA_API_DLL_EXPORT CSG_Projections &	SG_Get_Projections	(void);
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT double		SG_Get_Length					(double dx, double dy);
+
 SAGA_API_DLL_EXPORT double		SG_Get_Distance					(double ax, double ay, double bx, double by);
 SAGA_API_DLL_EXPORT double		SG_Get_Distance					(const TSG_Point &A, const TSG_Point &B);
+
+SAGA_API_DLL_EXPORT double		SG_Get_Distance_Polar			(double aLon, double aLat, double bLon, double bLat, double a = 6378137.0, double e = 298.257223563, bool bDegree = true);
+SAGA_API_DLL_EXPORT double		SG_Get_Distance_Polar			(const TSG_Point &A      , const TSG_Point &B      , double a = 6378137.0, double e = 298.257223563, bool bDegree = true);
 
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(double dx, double dy);
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(double ax, double ay, double bx, double by);

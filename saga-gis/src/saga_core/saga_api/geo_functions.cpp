@@ -99,6 +99,58 @@ double		SG_Get_Distance(const TSG_Point &A, const TSG_Point &B)
 	return( sqrt(dx*dx + dy*dy) );
 }
 
+//---------------------------------------------------------
+double	SG_Get_Distance_Polar(double aLon, double aLat, double bLon, double bLat, double a, double e, bool bDegree)
+{
+	if( bDegree )
+	{
+		aLon	*= M_DEG_TO_RAD;
+		aLat	*= M_DEG_TO_RAD;
+		bLon	*= M_DEG_TO_RAD;
+		bLat	*= M_DEG_TO_RAD;
+	}
+
+	if( e <= 0.0 )
+	{
+		return(	a * acos(sin(aLat) * sin(bLat) + cos(aLat) * cos(bLat) * cos(bLon - aLon)) );
+	}
+	else
+	{
+		double	F	= (aLat + bLat) / 2.0;
+		double	G	= (aLat - bLat) / 2.0;
+		double	l	= (aLon - bLon) / 2.0;
+
+		double	sin2_F	= SG_Get_Square(sin(F));
+		double	cos2_F	= SG_Get_Square(cos(F));
+		double	sin2_G	= SG_Get_Square(sin(G));
+		double	cos2_G	= SG_Get_Square(cos(G));
+		double	sin2_l	= SG_Get_Square(sin(l));
+		double	cos2_l	= SG_Get_Square(cos(l));
+
+		double	S	= sin2_G * cos2_l + cos2_F * sin2_l;
+		double	C	= cos2_G * cos2_l + sin2_F * sin2_l;
+
+		double	w	= atan(sqrt(S / C));
+		double	D	= 2.0 * w * a;
+
+		double	R	= sqrt(S * C) / w;
+		double	H1	= (3.0 * R - 1.0) / (2.0 * C);
+		double	H2	= (3.0 * R + 1.0) / (2.0 * S);
+
+		double	f	= 1.0 / e;
+
+		double	d	= D * (1.0 + f * H1 * sin2_F * cos2_G - f * H2 * cos2_F * sin2_G);
+
+		return( d );
+	}
+}
+
+//---------------------------------------------------------
+double	SG_Get_Distance_Polar(const TSG_Point &A, const TSG_Point &B, double a, double e, bool bDegree)
+{
+	return( SG_Get_Distance_Polar(A.x, A.y, B.x, B.y, a, e, bDegree) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
