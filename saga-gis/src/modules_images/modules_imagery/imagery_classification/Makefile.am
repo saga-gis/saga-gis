@@ -13,11 +13,13 @@ libimagery_classification_la_SOURCES =\
 change_detection.cpp\
 classify_cluster_analysis.cpp\
 classify_supervised.cpp\
+classify_supervised_polygons.cpp\
 decision_tree.cpp\
 MLB_Interface.cpp\
 change_detection.h\
 classify_cluster_analysis.h\
 classify_supervised.h\
+classify_supervised_polygons.h\
 decision_tree.h\
 MLB_Interface.h
 

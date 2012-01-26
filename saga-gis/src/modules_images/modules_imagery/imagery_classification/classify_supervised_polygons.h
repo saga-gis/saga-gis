@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: classify_supervised.h 1308 2012-01-12 15:27:56Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//             classify_supervised_polygons.h            //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,67 +54,58 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__classify_supervised_polygons_H
+#define HEADER_INCLUDED__classify_supervised_polygons_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CPolygon_Classify_Supervised : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Classification") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2002-11") );
-
-	case MLB_INFO_Description:
-		return( _TL("Classification tools for grids.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|Classification") );
-	}
-}
+public:
+	CPolygon_Classify_Supervised(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "classify_supervised.h"
-#include "classify_cluster_analysis.h"
-#include "change_detection.h"
-#include "decision_tree.h"
-#include "classify_supervised_polygons.h"
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CGrid_Classify_Supervised );
-	case  1:	return( new CGrid_Cluster_Analysis );
-	case  2:	return( new CChange_Detection );
-	case  3:	return( new CDecision_Tree );
-	case  4:	return( new CPolygon_Classify_Supervised );
-	}
+	bool						m_bNormalise;
 
-	return( NULL );
-}
+	int							m_Class_ID, *m_Features, m_nFeatures;
+
+	CSG_Classifier_Supervised	m_Classifier;
+
+	CSG_Shapes					*m_pPolygons, *m_pClasses;
+
+
+	bool						Finalize				(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -126,8 +115,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__classify_supervised_polygons_H
