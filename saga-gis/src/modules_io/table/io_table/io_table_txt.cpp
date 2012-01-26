@@ -490,17 +490,27 @@ CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
 	Parameters.Add_Choice(
 		NULL	, "FIELDDEF"	, _TL("Field Definition"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("mark breaks in first line"),
-			_TL("specify fields with type")
-		), 0
+			_TL("specify fields with type"),
+			_TL("from list")
+		), 2
 	);
 
 	Parameters.Add_Value(
-		NULL	, "NFIELDS"		, _TL("Numver of Fields"),
+		NULL	, "NFIELDS"		, _TL("Number of Fields"),
 		_TL(""),
 		PARAMETER_TYPE_Int		, 1, 1, true
 	);
+
+	CSG_Table	*pList	= Parameters.Add_FixedTable(
+		NULL	, "LIST"		, _TL("List"),
+		_TL("")
+	)->asTable();
+
+	pList->Add_Field(_TL("Name")	, SG_DATATYPE_String);
+	pList->Add_Field(_TL("Size")	, SG_DATATYPE_Int);
+	pList->Add_Field(_TL("Numeric")	, SG_DATATYPE_Byte);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("File"),
@@ -513,6 +523,20 @@ CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
 
 	Add_Parameters("BREAKS", _TL("Breaks"), _TL(""));
 	Add_Parameters("FIELDS", _TL("Fields"), _TL(""));
+}
+
+//---------------------------------------------------------
+int CTable_Text_Import_Fixed_Cols::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELDDEF")) )
+	{
+	//	pParameters->Get_Parameter("BREAKS" )->Set_Enabled(pParameter->asInt() == 0);
+	//	pParameters->Get_Parameter("FIELDS" )->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Get_Parameter("NFIELDS")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Get_Parameter("LIST"   )->Set_Enabled(pParameter->asInt() == 2);
+	}
+
+	return( 1 );
 }
 
 //---------------------------------------------------------
@@ -547,115 +571,155 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 	pTable->Destroy();
 	pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
 
-	//-----------------------------------------------------
-	if( Parameters("FIELDDEF")->asInt() == 0 )
+	switch( Parameters("FIELDDEF")->asInt() )
 	{
-		CSG_Parameters	*pBreaks	= Get_Parameters("BREAKS");
-
-		pBreaks->Del_Parameters();
-
-		for(i=0; i<nChars; i++)
+	//-----------------------------------------------------
+	case 0:
 		{
-			pBreaks->Add_Value(NULL,
-				CSG_String::Format(SG_T("%03d"), i),
-				CSG_String::Format(SG_T("%03d %c"), i + 1, sLine[i]),
-				_TL(""), PARAMETER_TYPE_Bool, false
-			);
-		}
+			CSG_Parameters	*pBreaks	= Get_Parameters("BREAKS");
 
-		if( !Dlg_Parameters("BREAKS") )
-		{
-			return( false );
-		}
+			pBreaks->Del_Parameters();
 
-		//-------------------------------------------------
-		for(i=0, nFields=1; i<pBreaks->Get_Count(); i++)
-		{
-			if( pBreaks->Get_Parameter(i)->asBool() )
+			for(i=0; i<nChars; i++)
 			{
-				nFields++;
+				pBreaks->Add_Value(NULL,
+					CSG_String::Format(SG_T("%03d"), i),
+					CSG_String::Format(SG_T("%03d %c"), i + 1, sLine[i]),
+					_TL(""), PARAMETER_TYPE_Bool, false
+				);
+			}
+
+			if( !Dlg_Parameters("BREAKS") )
+			{
+				return( false );
+			}
+
+			//-------------------------------------------------
+			for(i=0, nFields=1; i<pBreaks->Get_Count(); i++)
+			{
+				if( pBreaks->Get_Parameter(i)->asBool() )
+				{
+					nFields++;
+				}
+			}
+
+			//-------------------------------------------------
+			iFirst		= new int[nFields];
+			iLength		= new int[nFields];
+
+			iFirst[0]	= 0;
+
+			for(i=0, iField=1; i<pBreaks->Get_Count() && iField<nFields; i++)
+			{
+				if( pBreaks->Get_Parameter(i)->asBool() )
+				{
+					iFirst[iField++]	= i + 1;
+				}
+			}
+
+			//-------------------------------------------------
+			for(iField=0; iField<nFields; iField++)
+			{
+				iLength[iField]	= (iField < nFields - 1 ? iFirst[iField + 1] : (int)sLine.Length()) - iFirst[iField];
+
+				pTable->Add_Field(bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1), SG_DATATYPE_String);
 			}
 		}
-
-		//-------------------------------------------------
-		iFirst		= new int[nFields];
-		iLength		= new int[nFields];
-
-		iFirst[0]	= 0;
-
-		for(i=0, iField=1; i<pBreaks->Get_Count() && iField<nFields; i++)
-		{
-			if( pBreaks->Get_Parameter(i)->asBool() )
-			{
-				iFirst[iField++]	= i + 1;
-			}
-		}
-
-		//-------------------------------------------------
-		for(iField=0; iField<nFields; iField++)
-		{
-			iLength[iField]	= (iField < nFields - 1 ? iFirst[iField + 1] : (int)sLine.Length()) - iFirst[iField];
-
-			pTable->Add_Field(bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1), SG_DATATYPE_String);
-		}
-	}
+		break;
 
 	//-----------------------------------------------------
-	else
-	{
-		CSG_Parameters	*pFields	= Get_Parameters("FIELDS");
-
-		pFields->Del_Parameters();
-
-		nFields	= Parameters("NFIELDS")->asInt();
-
-		for(iField=0; iField<nFields; iField++)
+	case 1:
 		{
-			CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
-			CSG_Parameter	*pNode	= pFields->Add_Node(NULL, SG_T("NODE") + s, _TL("Field") + s, _TL(""));
-			pFields->Add_Value	(pNode, SG_T("LENGTH") + s, _TL("Length"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
-		//	pFields->Add_Value	(pNode, SG_T("IMPORT") + s, _TL("Import"), _TL(""), PARAMETER_TYPE_Bool, true);
-			pFields->Add_Choice	(pNode, SG_T("TYPE")   + s, _TL("Type")  , _TL(""), CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-				_TL("text"),
-				_TL("2 byte integer"),
-				_TL("4 byte integer"),
-				_TL("4 byte float"),
-				_TL("8 byte float"))
-			);
-		}
+			CSG_Parameters	*pFields	= Get_Parameters("FIELDS");
 
-		if( !Dlg_Parameters("FIELDS") )
-		{
-			return( false );
-		}
+			pFields->Del_Parameters();
 
-		//-------------------------------------------------
-		iFirst		= new int[nFields];
-		iLength		= new int[nFields];
+			nFields	= Parameters("NFIELDS")->asInt();
 
-		iFirst[0]	= 0;
-
-		for(iField=0, i=0; iField<nFields && i<nChars; iField++)
-		{
-			CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
-
-			iFirst [iField]	= i;
-			iLength[iField]	= pFields->Get_Parameter(SG_T("LENGTH") + s)->asInt();
-
-			i	+= iLength[iField];
-
-			CSG_String		Name	= bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1);
-
-			switch( pFields->Get_Parameter(SG_T("TYPE") + s)->asInt() )
+			for(iField=0; iField<nFields; iField++)
 			{
-			default:
-			case 0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
-			case 1:	pTable->Add_Field(Name, SG_DATATYPE_Short);		break;
-			case 2:	pTable->Add_Field(Name, SG_DATATYPE_Int);		break;
-			case 3:	pTable->Add_Field(Name, SG_DATATYPE_Float);		break;
-			case 4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
+				CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
+				CSG_Parameter	*pNode	= pFields->Add_Node(NULL, SG_T("NODE") + s, _TL("Field") + s, _TL(""));
+				pFields->Add_Value	(pNode, SG_T("LENGTH") + s, _TL("Length"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
+			//	pFields->Add_Value	(pNode, SG_T("IMPORT") + s, _TL("Import"), _TL(""), PARAMETER_TYPE_Bool, true);
+				pFields->Add_Choice	(pNode, SG_T("TYPE")   + s, _TL("Type")  , _TL(""), CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+					_TL("text"),
+					_TL("2 byte integer"),
+					_TL("4 byte integer"),
+					_TL("4 byte float"),
+					_TL("8 byte float"))
+				);
+			}
+
+			if( !Dlg_Parameters("FIELDS") )
+			{
+				return( false );
+			}
+
+			//-------------------------------------------------
+			iFirst		= new int[nFields];
+			iLength		= new int[nFields];
+
+			iFirst[0]	= 0;
+
+			for(iField=0, i=0; iField<nFields && i<nChars; iField++)
+			{
+				CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
+
+				iFirst [iField]	= i;
+				iLength[iField]	= pFields->Get_Parameter(SG_T("LENGTH") + s)->asInt();
+
+				i	+= iLength[iField];
+
+				CSG_String		Name	= bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1);
+
+				switch( pFields->Get_Parameter(SG_T("TYPE") + s)->asInt() )
+				{
+				default:
+				case 0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
+				case 1:	pTable->Add_Field(Name, SG_DATATYPE_Short);		break;
+				case 2:	pTable->Add_Field(Name, SG_DATATYPE_Int);		break;
+				case 3:	pTable->Add_Field(Name, SG_DATATYPE_Float);		break;
+				case 4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
+				}
 			}
 		}
+		break;
+
+	//-----------------------------------------------------
+	case 2:
+		{
+			CSG_Table	*pList	= Parameters("LIST")->asTable();
+
+			nFields	= pList->Get_Count();
+
+			//-------------------------------------------------
+			iFirst		= new int[nFields];
+			iLength		= new int[nFields];
+
+			iFirst[0]	= 0;
+
+			for(iField=0, i=0; iField<nFields && i<nChars; iField++)
+			{
+				iFirst [iField]	= i;
+				iLength[iField]	= pList->Get_Record(iField)->asInt(1);
+
+				i	+= iLength[iField];
+
+				CSG_String		Name	= bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String(pList->Get_Record(iField)->asString(0));
+
+				switch( pList->Get_Record(iField)->asInt(2) )
+				{
+				case 0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
+				case 1:	pTable->Add_Field(Name, SG_DATATYPE_Short);		break;
+				case 2:	pTable->Add_Field(Name, SG_DATATYPE_Int);		break;
+				case 3:	pTable->Add_Field(Name, SG_DATATYPE_Float);		break;
+				default:
+				case 4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
+				}
+			}
+		}
+		break;
 	}
 
 	//-----------------------------------------------------
