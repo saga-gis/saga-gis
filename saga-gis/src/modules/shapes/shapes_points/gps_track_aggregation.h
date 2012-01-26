@@ -85,13 +85,14 @@ class CGPS_Track_Aggregation : public CSG_Module
 public:
 	CGPS_Track_Aggregation(void);
 
-//	virtual const SG_Char *		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+//	virtual const SG_Char *		Get_MenuPath			(void)		{	return( _TL("R:Import") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool				On_Execute				(void);
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 };
 

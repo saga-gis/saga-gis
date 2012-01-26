@@ -69,6 +69,65 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double	SG_Get_Distance_Polar(double aLon, double aLat, double bLon, double bLat, double a = 6378137.0, double e = 298.257223563, bool bDegree = true)
+{
+	if( bDegree )
+	{
+		aLon	*= M_DEG_TO_RAD;
+		aLat	*= M_DEG_TO_RAD;
+		bLon	*= M_DEG_TO_RAD;
+		bLat	*= M_DEG_TO_RAD;
+	}
+
+	if( e <= 0.0 )
+	{
+		return(	a * acos(sin(aLat) * sin(bLat) + cos(aLat) * cos(bLat) * cos(bLon - aLon)) );
+	}
+	else
+	{
+		double	F	= (aLat + bLat) / 2.0;
+		double	G	= (aLat - bLat) / 2.0;
+		double	l	= (aLon - bLon) / 2.0;
+
+		double	sin2_F	= SG_Get_Square(sin(F));
+		double	cos2_F	= SG_Get_Square(cos(F));
+		double	sin2_G	= SG_Get_Square(sin(G));
+		double	cos2_G	= SG_Get_Square(cos(G));
+		double	sin2_l	= SG_Get_Square(sin(l));
+		double	cos2_l	= SG_Get_Square(cos(l));
+
+		double	S	= sin2_G * cos2_l + cos2_F * sin2_l;
+		double	C	= cos2_G * cos2_l + sin2_F * sin2_l;
+
+		double	w	= atan(sqrt(S / C));
+		double	D	= 2.0 * w * a;
+
+		double	R	= sqrt(S * C) / w;
+		double	H1	= (3.0 * R - 1.0) / (2.0 * C);
+		double	H2	= (3.0 * R + 1.0) / (2.0 * S);
+
+		double	f	= 1.0 / e;
+
+		double	d	= D * (1.0 + f * H1 * sin2_F * cos2_G - f * H2 * cos2_F * sin2_G);
+
+		return( d );
+	}
+}
+
+//---------------------------------------------------------
+double	SG_Get_Distance_Polar(const TSG_Point &A, const TSG_Point &B, double a = 6378137.0, double e = 298.257223563, bool bDegree = true)
+{
+	return( SG_Get_Distance_Polar(A.x, A.y, B.x, B.y, a, e, bDegree) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 enum
 {
 	AGG_ID	= 0,
@@ -167,6 +226,28 @@ CGPS_Track_Aggregation::CGPS_Track_Aggregation(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "TIME_SPAN"		, _TL("Time Span Aggregation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("ignore"),
+			_TL("floating"),
+			_TL("fixed")
+		), 1
+	);
+
+	Parameters.Add_Value(
+		NULL	, "FIX_TIME"		, _TL("Fixed Time Span (minutes)"),
+		_TL("ignored if set to zero"),
+		PARAMETER_TYPE_Double, 20.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "OFF_TIME"		, _TL("Fixed Time Span Offset (minutes)"),
+		_TL("offset in minutes relative to 00:00 (midnight)"),
+		PARAMETER_TYPE_Double, -10.0
+	);
+
 	Parameters.Add_Value(
 		NULL	, "EPS_TIME"		, _TL("Maximum Time Span (Seconds)"),
 		_TL("ignored if set to zero"),
@@ -175,12 +256,18 @@ CGPS_Track_Aggregation::CGPS_Track_Aggregation(void)
 
 	Parameters.Add_Value(
 		NULL	, "EPS_SPACE"		, _TL("Maximum Distance"),
-		_TL("given as map units of reference points, ignored if set to zero"),
-		PARAMETER_TYPE_Double, 0.002, 0.0, true
+		_TL("given as map units or meters if polar coordinates switch is on; ignored if set to zero"),
+		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "VERBOSE"			, _TL("Verbose"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "POLAR"			, _TL("Polar Coordinates"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
@@ -192,11 +279,29 @@ CGPS_Track_Aggregation::CGPS_Track_Aggregation(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CGPS_Track_Aggregation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TIME_SPAN")) )
+	{
+		pParameters->Get_Parameter("FIX_TIME")->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("OFF_TIME")->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("EPS_TIME")->Set_Enabled(pParameter->asInt() == 1);
+	}
+
+	return( -1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGPS_Track_Aggregation::On_Execute(void)
 {
-	bool				bVerbose;
-	int					fRefID, fX, fY, fTrack, fDate, fTime, fParameter;
-	double				eps_Time, eps_Space;
+	bool				bVerbose, bPolar;
+	int					Time_Span, fRefID, fX, fY, fTrack, fDate, fTime, fParameter;
+	double				eps_Space, eps_Time, off_Time;
 	CSG_Table			*pObservations, *pAggregated;
 	CSG_Shapes_Search	Reference;
 
@@ -210,9 +315,23 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	fDate			= Parameters("DATE")			->asInt   ();
 	fTime			= Parameters("TIME")			->asInt   ();
 	fParameter		= Parameters("PARAMETER")		->asInt   ();
-	eps_Time		= Parameters("EPS_TIME")		->asDouble();
+	Time_Span		= Parameters("TIME_SPAN")		->asInt   ();
 	eps_Space		= Parameters("EPS_SPACE")		->asDouble();
+	off_Time		= Parameters("OFF_TIME")		->asDouble() * 60.0;
 	bVerbose		= Parameters("VERBOSE")			->asBool  ();
+	bPolar			= Parameters("POLAR")			->asBool  ();
+
+	switch( Time_Span )
+	{
+	default:	eps_Time	= 0.0;											break;
+	case  1:	eps_Time	= Parameters("EPS_TIME")->asDouble();			break;
+	case  2:	eps_Time	= Parameters("FIX_TIME")->asDouble() * 60.0;	break;
+	}
+
+	if( eps_Time <= 0.0 )
+	{
+		Time_Span	= 0;
+	}
 
 	//-----------------------------------------------------
 	if( !Reference.Create(Parameters("REFERENCE")->asShapes()) )
@@ -255,25 +374,27 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int						nDropped;
-	double					iTime, dTime;
+	int						iDropped, nDropped;
+	double					iTime;
 	TSG_Point				Position;
 	CSG_String				iTrack, iDate;
 	CSG_Table_Record		*pAggregate, *pObservation;
 	CSG_Shape				*pReference, *pNearest;
-	CSG_Simple_Statistics	Statistic;
+	CSG_Simple_Statistics	Statistic, Time;
 
 	pAggregate	= NULL;
 	nDropped	= 0;
+	iDropped	= 0;
 
 	//-----------------------------------------------------
-	for(int iObservation=0; iObservation<pObservations->Get_Count() && Set_Progress(iObservation, pObservations->Get_Count()); iObservation++)
+	for(int Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
 	{
-		pObservation	= pObservations->Get_Record(iObservation);
+		pObservation	= pObservations->Get_Record_byIndex(Observation);
 
-		if(	iTrack.Cmp(pObservation->asString(fTrack))
+		if( !pAggregate
+		||	iTrack.Cmp(pObservation->asString(fTrack))
 		||	iDate .Cmp(pObservation->asString(fDate ))
-		||	(eps_Time > 0.0 && eps_Time <= pObservation->asDouble(fTime) - iTime) || !pAggregate )
+		||	(eps_Time > 0.0 && eps_Time <= pObservation->asDouble(fTime) - iTime) )
 		{
 			pReference	= NULL;
 		}
@@ -282,9 +403,10 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 		Position.y	= pObservation->asDouble(fY);
 		pNearest	= Reference.Get_Point_Nearest(Position.x, Position.y);
 
-		if( eps_Space > 0.0 && eps_Space <= SG_Get_Distance(Position, pNearest->Get_Point(0)) )
+		if( eps_Space > 0.0 && eps_Space <= (bPolar ? SG_Get_Distance_Polar(Position, pNearest->Get_Point(0)) : SG_Get_Distance(Position, pNearest->Get_Point(0))) )
 		{
 			nDropped++;
+			iDropped++;
 		}
 		else
 		{
@@ -292,7 +414,8 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 			{
 				if( pAggregate )
 				{
-					pAggregate	->Set_Value(AGG_PARM   , Statistic.Get_Mean   ());
+					pAggregate	->Set_Value(AGG_PARM   , Statistic.Get_Mean());
+					pAggregate	->Set_Value(AGG_TIME   , Time     .Get_Mean());
 
 					if( bVerbose )
 					{
@@ -301,17 +424,25 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 						pAggregate	->Set_Value(AGG_RANGE  , Statistic.Get_Range  ());
 						pAggregate	->Set_Value(AGG_STDDEV , Statistic.Get_StdDev ());
 						pAggregate	->Set_Value(AGG_COUNT  , Statistic.Get_Count  ());
-						pAggregate	->Set_Value(AGG_DROPPED, nDropped);
-						pAggregate	->Set_Value(AGG_DTIME  , pObservation->asDouble(fTime) - iTime);
-						pAggregate	->Set_Value(AGG_TIME   , iTime + 0.5 * (pObservation->asDouble(fTime) - iTime));
+						pAggregate	->Set_Value(AGG_DTIME  , Time     .Get_Range  ());
+						pAggregate	->Set_Value(AGG_DROPPED, iDropped);
 					}
 				}
 
 				Statistic	.Invalidate();
+				Time		.Invalidate();
+
+				iDropped	= 0;
 
 				iTrack		= pObservation->asString(fTrack);
 				iDate		= pObservation->asString(fDate );
-				iTime		= pObservation->asDouble(fTime );
+
+				switch( Time_Span )
+				{
+				default:	iTime	= 0.0;	break;
+				case  1:	iTime	= pObservation->asDouble(fTime);	break;
+				case  2:	iTime	= (int)(pObservation->asDouble(fTime) / eps_Time) * eps_Time - off_Time;	break;
+				}
 
 				pReference	= pNearest;
 
@@ -327,15 +458,15 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 				}
 			}
 
-			Statistic.Add_Value(pObservation->asDouble(fParameter));
-
-			dTime		= pObservation->asDouble(fTime) - iTime;
+			Statistic	+= pObservation->asDouble(fParameter);
+			Time		+= pObservation->asDouble(fTime     );
 		}
 	}
 
 	if( pAggregate )
 	{
-		pAggregate	->Set_Value(AGG_PARM   , Statistic.Get_Mean   ());
+		pAggregate	->Set_Value(AGG_PARM   , Statistic.Get_Mean());
+		pAggregate	->Set_Value(AGG_TIME   , Time     .Get_Mean());
 
 		if( bVerbose )
 		{
@@ -344,10 +475,15 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 			pAggregate	->Set_Value(AGG_RANGE  , Statistic.Get_Range  ());
 			pAggregate	->Set_Value(AGG_STDDEV , Statistic.Get_StdDev ());
 			pAggregate	->Set_Value(AGG_COUNT  , Statistic.Get_Count  ());
-			pAggregate	->Set_Value(AGG_DROPPED, nDropped);
-			pAggregate	->Set_Value(AGG_DTIME  , dTime);
-			pAggregate	->Set_Value(AGG_TIME   , iTime + 0.5 * dTime);
+			pAggregate	->Set_Value(AGG_DTIME  , Time     .Get_Range  ());
+			pAggregate	->Set_Value(AGG_DROPPED, iDropped);
 		}
+	}
+
+	//-----------------------------------------------------
+	if( nDropped > 0 )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of dropped observations"), nDropped));
 	}
 
 	//-----------------------------------------------------
