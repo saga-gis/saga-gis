@@ -675,7 +675,7 @@ void CSAGA_Frame::On_Command_Child(wxCommandEvent &event)
 
 	if( (pChild = GetActiveChild()) != NULL )
 	{
-//		pChild->AddPendingEvent(event);	// wx3 conversion !!!
+		pChild->GetEventHandler()->AddPendingEvent(event);
 	}
 }
 
