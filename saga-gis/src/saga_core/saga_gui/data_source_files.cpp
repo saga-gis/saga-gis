@@ -91,9 +91,10 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CData_Source_Files::CData_Source_Files(wxWindow *pParent)
-	: wxGenericDirCtrl(pParent, wxID_ANY, wxDirDialogDefaultFolderStr, wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SHOW_FILTERS|wxDIRCTRL_3D_INTERNAL|wxSUNKEN_BORDER, DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN))
+	: wxGenericDirCtrl(pParent) //, wxID_ANY, wxDirDialogDefaultFolderStr, wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SHOW_FILTERS|wxDIRCTRL_3D_INTERNAL|wxSUNKEN_BORDER, DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN))
 {
-	GetFilterListCtrl()->SetId(wxID_ANY);
+	SetFilter(DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN));
+	SetFilterIndex(0);
 	GetTreeCtrl      ()->SetId(wxID_ANY);
 
 	Connect(GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_EXPANDING , wxTreeEventHandler (wxGenericDirCtrl::OnExpandItem));
