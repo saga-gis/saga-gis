@@ -373,11 +373,15 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 
 	ProgressBar_Set_Position(0);
+	
+	Connect(wxEVT_SIZE, wxSizeEventHandler(CSAGA_Frame::OnSize));
 }
 
 //---------------------------------------------------------
 CSAGA_Frame::~CSAGA_Frame(void)
 {
+	Disconnect(wxEVT_SIZE, wxSizeEventHandler(CSAGA_Frame::OnSize));
+	
 	//-----------------------------------------------------
 	if( IsIconized() )
 	{
