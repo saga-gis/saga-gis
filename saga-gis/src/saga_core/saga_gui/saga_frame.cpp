@@ -337,6 +337,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 
 	_Bar_Show(m_pTB_Main, true);
+	_Bar_Show(m_pTB_ScatterPlot, false);	// otherwise displayed with wxGTK until first update
 
 	//-----------------------------------------------------
 	m_pLayout->Update();
