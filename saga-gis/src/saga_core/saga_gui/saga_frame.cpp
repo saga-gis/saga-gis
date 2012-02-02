@@ -144,6 +144,14 @@ public:
 
 	void		On_Size		(wxSizeEvent     &event)
 	{
+
+//---------------------------------------------------------
+// TEMPORARY HACK from wxWidgets itself (statbar.cpp sample, line 950):
+#ifdef wxStatusBarGeneric
+		wxStatusBar::OnSize(event);
+#endif
+//---------------------------------------------------------
+
 		wxRect	r;
 
 		if( m_pProgressBar && GetFieldRect(STATUSBAR_PROGRESS, r) )
