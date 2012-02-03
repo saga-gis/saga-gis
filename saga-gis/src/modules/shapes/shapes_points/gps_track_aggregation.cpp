@@ -299,11 +299,16 @@ int CGPS_Track_Aggregation::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 //---------------------------------------------------------
 bool CGPS_Track_Aggregation::On_Execute(void)
 {
-	bool				bVerbose, bPolar;
-	int					Time_Span, fRefID, fX, fY, fTrack, fDate, fTime, fParameter;
-	double				eps_Space, eps_Time, off_Time;
-	CSG_Table			*pObservations, *pAggregated;
-	CSG_Shapes_Search	Reference;
+	bool					bVerbose, bPolar;
+	int						Time_Span, fRefID, fX, fY, fTrack, fDate, fTime, fParameter, Observation, iDropped, nDropped;
+	double					eps_Space, eps_Time, off_Time, iTime;
+	TSG_Point				Position;
+	CSG_String				iTrack, iDate;
+	CSG_Table_Record		*pAggregate, *pObservation;
+	CSG_Shape				*pReference, *pNearest;
+	CSG_Simple_Statistics	Statistic, Time;
+	CSG_Table				*pObservations, *pAggregated, Observations;
+	CSG_Shapes_Search		Reference;
 
 	//-----------------------------------------------------
 	pObservations	= Parameters("OBSERVATIONS")	->asTable ();
@@ -342,6 +347,23 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	if( Time_Span == 2 )	// pre-processing for 'fix' time span
+	{
+		Observations.Create(*pObservations);
+		Observations.Add_Field(SG_T("REF_ID"), SG_DATATYPE_String);
+
+		fTrack			= pObservations->Get_Field_Count();
+		pObservations	= &Observations;
+
+		for(Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
+		{
+			pObservation	= pObservations->Get_Record(Observation);
+			pNearest		= Reference.Get_Point_Nearest(pObservation->asDouble(fX), pObservation->asDouble(fY));
+			pObservation	->Set_Value(fTrack, pNearest->asString(fRefID));
+		}
+	}
+
+	//-----------------------------------------------------
 	if( !pObservations->Set_Index(fTrack, TABLE_INDEX_Ascending, fDate, TABLE_INDEX_Ascending, fTime, TABLE_INDEX_Ascending) )
 	{
 		Error_Set(_TL("could not create index on observations"));
@@ -374,20 +396,12 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int						iDropped, nDropped;
-	double					iTime;
-	TSG_Point				Position;
-	CSG_String				iTrack, iDate;
-	CSG_Table_Record		*pAggregate, *pObservation;
-	CSG_Shape				*pReference, *pNearest;
-	CSG_Simple_Statistics	Statistic, Time;
-
 	pAggregate	= NULL;
 	nDropped	= 0;
 	iDropped	= 0;
 
 	//-----------------------------------------------------
-	for(int Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
+	for(Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
 	{
 		pObservation	= pObservations->Get_Record_byIndex(Observation);
 
@@ -412,22 +426,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 		{
 			if( pReference != pNearest )
 			{
-				if( pAggregate )
-				{
-					pAggregate	->Set_Value(AGG_PARM   , Statistic.Get_Mean());
-					pAggregate	->Set_Value(AGG_TIME   , Time     .Get_Mean());
-
-					if( bVerbose )
-					{
-						pAggregate	->Set_Value(AGG_MIN    , Statistic.Get_Minimum());
-						pAggregate	->Set_Value(AGG_MAX    , Statistic.Get_Maximum());
-						pAggregate	->Set_Value(AGG_RANGE  , Statistic.Get_Range  ());
-						pAggregate	->Set_Value(AGG_STDDEV , Statistic.Get_StdDev ());
-						pAggregate	->Set_Value(AGG_COUNT  , Statistic.Get_Count  ());
-						pAggregate	->Set_Value(AGG_DTIME  , Time     .Get_Range  ());
-						pAggregate	->Set_Value(AGG_DROPPED, iDropped);
-					}
-				}
+				Set_Statistic(pAggregate, Statistic, Time, iDropped, bVerbose);
 
 				Statistic	.Invalidate();
 				Time		.Invalidate();
@@ -463,6 +462,28 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 		}
 	}
 
+	Set_Statistic(pAggregate, Statistic, Time, iDropped, bVerbose);
+
+	//-----------------------------------------------------
+	if( nDropped > 0 )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of dropped observations"), nDropped));
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGPS_Track_Aggregation::Set_Statistic(CSG_Table_Record *pAggregate, CSG_Simple_Statistics &Statistic, CSG_Simple_Statistics &Time, int nDropped, bool bVerbose)
+{
 	if( pAggregate )
 	{
 		pAggregate	->Set_Value(AGG_PARM   , Statistic.Get_Mean());
@@ -476,18 +497,13 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 			pAggregate	->Set_Value(AGG_STDDEV , Statistic.Get_StdDev ());
 			pAggregate	->Set_Value(AGG_COUNT  , Statistic.Get_Count  ());
 			pAggregate	->Set_Value(AGG_DTIME  , Time     .Get_Range  ());
-			pAggregate	->Set_Value(AGG_DROPPED, iDropped);
+			pAggregate	->Set_Value(AGG_DROPPED, nDropped);
 		}
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	if( nDropped > 0 )
-	{
-		Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of dropped observations"), nDropped));
-	}
-
-	//-----------------------------------------------------
-	return( true );
+	return( false );
 }
 
 
