@@ -94,6 +94,11 @@ protected:
 
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+
+private:
+
+	bool					Set_Statistic			(CSG_Table_Record *pAggregate, CSG_Simple_Statistics &Statistic, CSG_Simple_Statistics &Time, int nDropped, bool bVerbose);
+
 };
 
 
