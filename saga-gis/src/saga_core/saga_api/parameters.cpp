@@ -889,6 +889,7 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, CSG_Parameter *
 		case PARAMETER_TYPE_Grid:
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
+		case PARAMETER_TYPE_PointCloud:
 		case PARAMETER_TYPE_TIN:
 			return( pTarget->Set_Value(pSource->asDataObject()) );
 		}
