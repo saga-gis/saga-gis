@@ -148,7 +148,16 @@ bool CSAGA::OnInit(void)
 
 	m_App_Path			= wxFileName(argv[0]).GetPath();
 
-	setlocale(LC_NUMERIC, "C");
+
+	/* workaround: wxwidgets 2.9.3 is complaining about setlocale
+	 * mismatch between c setlocale and wxLocale. since saga has its own
+	 * translation system, we use english as default. this assures
+	 * using . as decimal separator in printf like formatting of
+	 * floating point values. wxXLocale is currently not fully
+	 * implemented (wxPrintf_l and similar still missing). */
+	//setlocale(LC_NUMERIC, "C");
+	m_wxLocale.Init(wxLANGUAGE_ENGLISH);
+	
 	
 	_Init_Config();
 

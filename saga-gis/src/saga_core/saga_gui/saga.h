@@ -119,6 +119,8 @@ private:
 	int							m_Process_Frequency;
 
 	wxString					m_App_Path;
+	
+	wxLocale					m_wxLocale;
 
 
 	void						_Init_Config			(void);
