@@ -1594,7 +1594,7 @@ bool CSG_Parameters::Serialize(CSG_MetaData &MetaData, bool bSave)
 		for(int i=0; i<MetaData.Get_Children_Count(); i++)
 		{
 			CSG_String		Identifier;
-			CSG_Parameter	*pParameter;
+			CSG_Parameter	*pParameter = NULL;
 
 			if(	MetaData.Get_Child(i)->Get_Property(SG_T("id"), Identifier)
 			&&	(pParameter	= Get_Parameter(Identifier)) != NULL )
@@ -1614,7 +1614,7 @@ bool CSG_Parameters::Serialize(CSG_MetaData &MetaData, bool bSave)
 // SAGA 2.0 compatibility...
 bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 {
-	CSG_Parameter	*pParameter;
+	CSG_Parameter	*pParameter = NULL;
 	CSG_String		sLine;
 
 	if( !Stream.is_Open() )
@@ -1642,6 +1642,7 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 			TSG_Rect	r;
 			CSG_String	s;
 			CSG_Table	t;
+			int			iResult;
 
 			switch( sLine.asInt() )
 			{
@@ -1650,18 +1651,18 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 			case  6: // PARAMETER_TYPE_Choice:
 			case 11: // PARAMETER_TYPE_Color:
 			case 15: // PARAMETER_TYPE_Table_Field:
-				fscanf(Stream.Get_Stream(), "%d", &i);
+				iResult = fscanf(Stream.Get_Stream(), "%d", &i);
 				pParameter->Set_Value(i);
 				break;
 
 			case  3: // PARAMETER_TYPE_Double:
 			case  4: // PARAMETER_TYPE_Degree:
-				fscanf(Stream.Get_Stream(), "%lf", &d);
+				iResult = fscanf(Stream.Get_Stream(), "%lf", &d);
 				pParameter->Set_Value(d);
 				break;
 
 			case  5: // PARAMETER_TYPE_Range:
-				fscanf(Stream.Get_Stream(), "%lf %lf", &d, &e);
+				iResult = fscanf(Stream.Get_Stream(), "%lf %lf", &d, &e);
 				pParameter->asRange()->Set_Range(d, e);
 				break;
 
