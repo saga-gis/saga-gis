@@ -161,7 +161,7 @@ bool CShape_Index::On_Execute(void)
 			{
 				if( pIndex != pShapes )
 				{
-					pShape		= (CSG_Shape_Polygon *)pIndex->Add_Shape(pShape, SHAPE_COPY_ATTR);
+					pShape		= (CSG_Shape_Polygon *)pIndex->Add_Shape(pShape, SHAPE_COPY);
 				}
 
 				pShape->Set_Value(iField + 0, Area);
