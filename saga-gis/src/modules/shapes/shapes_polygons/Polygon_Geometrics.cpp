@@ -121,7 +121,7 @@ bool CPolygon_Geometrics::On_Execute(void)
 	if( Parameters("OUTPUT")->asShapes() && Parameters("OUTPUT")->asShapes() != pPolygons )
 	{
 		pPolygons	= Parameters("OUTPUT")->asShapes();
-		pPolygons->Create(*Parameters("LINES")->asShapes());
+		pPolygons->Create(*Parameters("POLYGONS")->asShapes());
 	}
 
 	//-------------------------------------------------
