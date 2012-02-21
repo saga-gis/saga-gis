@@ -161,17 +161,34 @@ bool CShape_Index::On_Execute(void)
 			{
 				if( pIndex != pShapes )
 				{
-					pShape		= (CSG_Shape_Polygon *)pIndex->Add_Shape(pShape, SHAPE_COPY_ATTR);
+					pShape		= (CSG_Shape_Polygon *)pIndex->Add_Shape(pShape, SHAPE_COPY);
 				}
 
 				pShape->Set_Value(iField + 0, Area);
 				pShape->Set_Value(iField + 1, Perimeter);
-				pShape->Set_Value(iField + 2, Perimeter / Area);
-				pShape->Set_Value(iField + 3, Perimeter / sqrt(Area));
+				if (Area > 0.0)
+				{
+					pShape->Set_Value(iField + 2, Perimeter / Area);
+					pShape->Set_Value(iField + 3, Perimeter / sqrt(Area));
+				}
+				else
+				{
+					pShape->Set_NoData(iField + 2);
+					pShape->Set_NoData(iField + 3);
+				}
 				pShape->Set_Value(iField + 4, Distance);
-				pShape->Set_Value(iField + 5, Distance / Area);
-				pShape->Set_Value(iField + 6, Distance / sqrt(Area));
-				pShape->Set_Value(iField + 7, Perimeter / (2.0 * sqrt(M_PI * Area)));
+				if (Area > 0.0)
+				{
+					pShape->Set_Value(iField + 5, Distance / Area);
+					pShape->Set_Value(iField + 6, Distance / sqrt(Area));
+					pShape->Set_Value(iField + 7, Perimeter / (2.0 * sqrt(M_PI * Area)));
+				}
+				else
+				{
+					pShape->Set_NoData(iField + 5);
+					pShape->Set_NoData(iField + 6);
+					pShape->Set_NoData(iField + 7);
+				}
 			}
 		}
 
