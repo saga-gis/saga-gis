@@ -1192,7 +1192,7 @@ private:
 
 	void						_Set_Error			(const SG_Char *Error = NULL);
 
-	double						_Get_Value			(TMAT_Formula Function);
+	double						_Get_Value			(double *Parameters, TMAT_Formula Function)	const;
 
 	int							_is_Operand			(SG_Char c);
 	int							_is_Operand_Code	(SG_Char c);

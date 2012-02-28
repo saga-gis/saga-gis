@@ -388,30 +388,36 @@ double CSG_Formula::Get_Value(void)
 {
 	_Set_Error();
 
-	return( _Get_Value(m_Formula) );
+	return( _Get_Value(m_Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
 double CSG_Formula::Get_Value(double x)
 {
-	m_Parameters['x'-'a']	= x;
+	double	Parameters[32];
+
+	memcpy(Parameters, m_Parameters, 32 * sizeof(double));
+
+	Parameters['x'-'a']	= x;
 
 	_Set_Error();
 
-	return( _Get_Value(m_Formula) );
+	return( _Get_Value(Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
 double CSG_Formula::Get_Value(double *Values, int nValues)
 {
+	double	Parameters[32];
+
 	for(int i=0; i<nValues; i++)
 	{
-		m_Parameters[i]	= Values[i];
+		Parameters[i]	= Values[i];
 	}
 
 	_Set_Error();
 
-	return( _Get_Value(m_Formula) );
+	return( _Get_Value(Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
@@ -430,11 +436,11 @@ double CSG_Formula::Get_Value(SG_Char *Args, ...)
 
 	_Set_Error();
 
-	return( _Get_Value(m_Formula) );
+	return( _Get_Value(m_Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
-double CSG_Formula::_Get_Value(TMAT_Formula func)
+double CSG_Formula::_Get_Value(double *Parameters, TMAT_Formula func) const
 {
 	double	x, y, z, buffer[GET_VALUE_BUFSIZE];
 
@@ -445,12 +451,12 @@ double CSG_Formula::_Get_Value(TMAT_Formula func)
 
 	if( !function )
 	{
-		_Set_Error(_TL("empty coded function"));
+	//	_Set_Error(_TL("empty coded function"));
 
 		return( 0 );
 	}
 
-	for(; ; )
+	for( ; ; )
 	{
 		switch( *function++ )
 		{
@@ -462,7 +468,7 @@ double CSG_Formula::_Get_Value(TMAT_Formula func)
 			break;
 
 		case 'V': 
-			*bufp++	= m_Parameters[(*function++) - 'a'];
+			*bufp++	= Parameters[(*function++) - 'a'];
 			break;
 
 		case 'M':
@@ -556,13 +562,13 @@ double CSG_Formula::_Get_Value(TMAT_Formula func)
 				break;
 
 			default:
-				_Set_Error(_TL("I2: too many parameters"));
+			//	_Set_Error(_TL("I2: too many parameters"));
 				return( 0 );
 			}
 			break;
 
 		default:
-			_Set_Error(_TL("I1: unrecognizable operator"));
+		//	_Set_Error(_TL("I1: unrecognizable operator"));
 			return( 0 );
 		}
 	}
@@ -571,7 +577,7 @@ finish:
 
 	if( (bufp - buffer) != 1 )
 	{
-		_Set_Error(_TL("I3: corrupted buffer"));
+	//	_Set_Error(_TL("I3: corrupted buffer"));
 	}
 
 	return( buffer[0] );
@@ -1295,7 +1301,7 @@ SG_Char *CSG_Formula::comp_time(SG_Char *function, SG_Char *fend, int npars)
 	
 	trans.code = function;
 	trans.ctable = i_ctable;
-	tempd = _Get_Value(trans);
+	tempd = _Get_Value(m_Parameters, trans);
 	*fend = temp;
 	*function++ = SG_T('D');
 	i_pctable -= npars;
