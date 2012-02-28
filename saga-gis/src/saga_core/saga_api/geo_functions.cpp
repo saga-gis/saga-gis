@@ -80,6 +80,18 @@ double		SG_Get_Length(double dx, double dy)
 }
 
 //---------------------------------------------------------
+double		SG_Get_Distance(double ax, double ay, double bx, double by, bool bPolar)
+{
+	return( bPolar ? SG_Get_Distance_Polar(ax, ay, bx, by) : SG_Get_Distance(ax, ay, bx, by) );
+}
+
+//---------------------------------------------------------
+double		SG_Get_Distance(const TSG_Point &A, const TSG_Point &B, bool bPolar)
+{
+	return( bPolar ? SG_Get_Distance_Polar(A, B) : SG_Get_Distance(A, B) );
+}
+
+//---------------------------------------------------------
 double		SG_Get_Distance(double ax, double ay, double bx, double by)
 {
 	ax	-= bx;

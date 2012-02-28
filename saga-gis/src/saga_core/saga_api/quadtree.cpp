@@ -223,8 +223,7 @@ CSG_PRQuadTree::CSG_PRQuadTree(void)
 {
 	m_pRoot			= NULL;
 	m_nPoints		= 0;
-
-	m_Selected.Create(sizeof(TLeaf), 0, SG_ARRAY_GROWTH_3);
+	m_bPolar		= false;
 }
 
 //---------------------------------------------------------
@@ -232,8 +231,7 @@ CSG_PRQuadTree::CSG_PRQuadTree(const TSG_Rect &Extent, bool bStatistics)
 {
 	m_pRoot			= NULL;
 	m_nPoints		= 0;
-
-	m_Selected.Create(sizeof(TLeaf), 0, SG_ARRAY_GROWTH_3);
+	m_bPolar		= false;
 
 	Create(Extent, bStatistics);
 }
@@ -243,8 +241,7 @@ CSG_PRQuadTree::CSG_PRQuadTree(CSG_Shapes *pShapes, int Attribute, bool bStatist
 {
 	m_pRoot			= NULL;
 	m_nPoints		= 0;
-
-	m_Selected.Create(sizeof(TLeaf), 0, SG_ARRAY_GROWTH_3);
+	m_bPolar		= false;
 
 	Create(pShapes, Attribute, bStatistics);
 }
@@ -330,7 +327,7 @@ void CSG_PRQuadTree::Destroy(void)
 
 	m_nPoints		= 0;
 
-	m_Selected.Destroy();
+	m_Selection.Destroy();
 }
 
 
@@ -424,7 +421,7 @@ bool CSG_PRQuadTree::_Check_Root(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CSG_PRQuadTree::_Quadrant_Contains(double x, double y, int iQuadrant, const TSG_Point &p)
+inline bool CSG_PRQuadTree::_Quadrant_Contains(double x, double y, int iQuadrant, const TSG_Point &p) const
 {
 	switch( iQuadrant )
 	{
@@ -438,7 +435,7 @@ inline bool CSG_PRQuadTree::_Quadrant_Contains(double x, double y, int iQuadrant
 }
 
 //---------------------------------------------------------
-inline bool CSG_PRQuadTree::_Radius_Contains(double x, double y, double r, const TSG_Point &p)
+inline bool CSG_PRQuadTree::_Radius_Contains(double x, double y, double r, const TSG_Point &p)	const
 {
 	double	dx, dy;
 
@@ -451,13 +448,13 @@ inline bool CSG_PRQuadTree::_Radius_Contains(double x, double y, double r, const
 }
 
 //---------------------------------------------------------
-inline bool CSG_PRQuadTree::_Radius_Contains(double x, double y, double r, int iQuadrant, const TSG_Point &p)
+inline bool CSG_PRQuadTree::_Radius_Contains(double x, double y, double r, int iQuadrant, const TSG_Point &p)	const
 {
 	return( _Quadrant_Contains(x, y, iQuadrant, p) && _Radius_Contains(x, y, r, p) );
 }
 
 //---------------------------------------------------------
-inline bool CSG_PRQuadTree::_Quadrant_Intersects(double x, double y, int iQuadrant, CSG_PRQuadTree_Item *pItem)
+inline bool CSG_PRQuadTree::_Quadrant_Intersects(double x, double y, int iQuadrant, CSG_PRQuadTree_Item *pItem)	const
 {
 	switch( iQuadrant )
 	{
@@ -471,7 +468,7 @@ inline bool CSG_PRQuadTree::_Quadrant_Intersects(double x, double y, int iQuadra
 }
 
 //---------------------------------------------------------
-inline bool CSG_PRQuadTree::_Radius_Intersects(double x, double y, double r, CSG_PRQuadTree_Item *pItem)
+inline bool CSG_PRQuadTree::_Radius_Intersects(double x, double y, double r, CSG_PRQuadTree_Item *pItem)	const
 {
 	if( r <= 0.0 )
 	{
@@ -507,7 +504,7 @@ inline bool CSG_PRQuadTree::_Radius_Intersects(double x, double y, double r, CSG
 }
 
 //---------------------------------------------------------
-inline bool CSG_PRQuadTree::_Radius_Intersects(double x, double y, double r, int iQuadrant, CSG_PRQuadTree_Item *pItem)
+inline bool CSG_PRQuadTree::_Radius_Intersects(double x, double y, double r, int iQuadrant, CSG_PRQuadTree_Item *pItem)	const
 {
 	return( _Quadrant_Intersects(x, y, iQuadrant, pItem) && _Radius_Intersects(x, y, r, pItem) );
 }
@@ -520,62 +517,23 @@ inline bool CSG_PRQuadTree::_Radius_Intersects(double x, double y, double r, int
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PRQuadTree::_Add_Selected(CSG_PRQuadTree_Leaf *pLeaf, double Distance)
-{
-	if( m_Selected.Inc_Array() )
-	{
-		TLeaf	*pL		= _Get_Selected(Get_Selected_Count() - 1);
-
-		pL->pLeaf		= pLeaf;
-		pL->Distance	= Distance;
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_PRQuadTree::_Set_Selected(int i, CSG_PRQuadTree_Leaf *pLeaf, double Distance)
-{
-	TLeaf	*pL		= _Get_Selected(i);
-
-	if( pL )
-	{
-		pL->pLeaf		= pLeaf;
-		pL->Distance	= Distance;
-
-		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_PRQuadTree_Leaf * CSG_PRQuadTree::Get_Nearest_Leaf(const TSG_Point &p, double &Distance)
+CSG_PRQuadTree_Leaf * CSG_PRQuadTree::Get_Nearest_Leaf(const TSG_Point &p, double &Distance)	const
 {
 	return( Get_Nearest_Leaf(p.x, p.y, Distance) );
 }
 
-CSG_PRQuadTree_Leaf * CSG_PRQuadTree::Get_Nearest_Leaf(double x, double y, double &Distance)
+CSG_PRQuadTree_Leaf * CSG_PRQuadTree::Get_Nearest_Leaf(double x, double y, double &Distance)	const
 {
 	return( _Get_Nearest_Point(m_pRoot, x, y, Distance = -1) );
 }
 
 //---------------------------------------------------------
-bool CSG_PRQuadTree::Get_Nearest_Point(const TSG_Point &p, TSG_Point &Point, double &Value, double &Distance)
+bool CSG_PRQuadTree::Get_Nearest_Point(const TSG_Point &p, TSG_Point &Point, double &Value, double &Distance)	const
 {
 	return( Get_Nearest_Point(p.x, p.y, Point, Value, Distance) );
 }
 
-bool CSG_PRQuadTree::Get_Nearest_Point(double x, double y, TSG_Point &Point, double &Value, double &Distance)
+bool CSG_PRQuadTree::Get_Nearest_Point(double x, double y, TSG_Point &Point, double &Value, double &Distance)	const
 {
 	CSG_PRQuadTree_Leaf	*pLeaf	= _Get_Nearest_Point(m_pRoot, x, y, Distance = -1);
 
@@ -592,7 +550,7 @@ bool CSG_PRQuadTree::Get_Nearest_Point(double x, double y, TSG_Point &Point, dou
 }
 
 //---------------------------------------------------------
-CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance)
+CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance)	const
 {
 	if( pItem )
 	{
@@ -600,7 +558,7 @@ CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pI
 		{
 			CSG_PRQuadTree_Leaf	*pLeaf	= (CSG_PRQuadTree_Leaf *)pItem;
 
-			double	d	= SG_Get_Distance(x, y, pLeaf->Get_X(), pLeaf->Get_Y());
+			double	d	= SG_Get_Distance(x, y, pLeaf->Get_X(), pLeaf->Get_Y(), m_bPolar);
 
 			if( Distance < 0.0 || Distance > d )
 			{
@@ -651,15 +609,64 @@ CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pI
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_PRQuadTree::Select_Nearest_Points(const TSG_Point &p, int maxPoints, double Radius, int iQuadrant)
+inline CSG_PRQuadTree::TLeaf * CSG_PRQuadTree::_Get_Selected(const CSG_Array &Selection, int i)	const
+{
+	return( i >= 0 && i < (int)Selection.Get_Size() ? ((TLeaf *)Selection.Get_Array()) + i : NULL );
+}
+
+//---------------------------------------------------------
+inline bool CSG_PRQuadTree::_Add_Selected(CSG_Array &Selection, CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const
+{
+	if( Selection.Inc_Array() )
+	{
+		TLeaf	*pL		= _Get_Selected(Selection, Selection.Get_Size() - 1);
+
+		pL->pLeaf		= pLeaf;
+		pL->Distance	= Distance;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+inline bool CSG_PRQuadTree::_Set_Selected(CSG_Array &Selection, int i, CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const
+{
+	TLeaf	*pL		= _Get_Selected(Selection, i);
+
+	if( pL )
+	{
+		pL->pLeaf		= pLeaf;
+		pL->Distance	= Distance;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+size_t CSG_PRQuadTree::Select_Nearest_Points(const TSG_Point &p, size_t maxPoints, double Radius, int iQuadrant)
 {
 	return( Select_Nearest_Points(p.x, p.y, maxPoints, Radius, iQuadrant) );
 }
 
 //---------------------------------------------------------
-int CSG_PRQuadTree::Select_Nearest_Points(double x, double y, int maxPoints, double Radius, int iQuadrant)
+size_t CSG_PRQuadTree::Select_Nearest_Points(double x, double y, size_t maxPoints, double Radius, int iQuadrant)
 {
-	m_Selected.Destroy();
+	return( _Select_Nearest_Points(m_Selection, x, y, maxPoints, Radius, iQuadrant) );
+}
+
+//---------------------------------------------------------
+size_t CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, double x, double y, size_t maxPoints, double Radius, int iQuadrant)	const
+{
+	Selection.Create(sizeof(TLeaf), 0, SG_ARRAY_GROWTH_3);
 
 	if( m_pRoot )
 	{
@@ -672,25 +679,23 @@ int CSG_PRQuadTree::Select_Nearest_Points(double x, double y, int maxPoints, dou
 
 		if( iQuadrant != 4 )
 		{
-			_Get_Nearest_Points(m_pRoot, x, y, Distance = 0.0, Radius, maxPoints, iQuadrant);
+			_Select_Nearest_Points(Selection, m_pRoot, x, y, Distance = 0.0, Radius, maxPoints, iQuadrant);
 		}
 		else // if( iQuadrant == 4 )	// quadrant-wise search
 		{
 			for(iQuadrant=0; iQuadrant<4; iQuadrant++)
 			{
-				_Get_Nearest_Points(m_pRoot, x, y, Distance = 0.0, Radius, maxPoints, iQuadrant);
+				_Select_Nearest_Points(Selection, m_pRoot, x, y, Distance = 0.0, Radius, maxPoints, iQuadrant);
 			}
 		}
 	}
 
-	return( Get_Selected_Count() );
+	return( Selection.Get_Size() );
 }
 
 //---------------------------------------------------------
-void CSG_PRQuadTree::_Get_Nearest_Points(CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance, double Radius, int maxPoints, int iQuadrant)
+void CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance, double Radius, size_t maxPoints, int iQuadrant)	const
 {
-	int		i;
-
 	//-----------------------------------------------------
 	if( pItem->is_Leaf() )
 	{
@@ -701,7 +706,7 @@ void CSG_PRQuadTree::_Get_Nearest_Points(CSG_PRQuadTree_Item *pItem, double x, d
 			return;
 		}
 		
-		double	d	= SG_Get_Distance(x, y, pLeaf->Get_X(), pLeaf->Get_Y());
+		double	d	= SG_Get_Distance(x, y, pLeaf->Get_X(), pLeaf->Get_Y(), m_bPolar);
 
 		if( Radius > 0.0 && Radius < d )
 		{
@@ -709,22 +714,24 @@ void CSG_PRQuadTree::_Get_Nearest_Points(CSG_PRQuadTree_Item *pItem, double x, d
 		}
 
 		//-------------------------------------------------
-		if( Get_Selected_Count() < maxPoints )
+		if( Selection.Get_Size() < maxPoints )
 		{
 			if( Distance < d )
 			{
 				Distance	= d;
 			}
 
-			_Add_Selected(pLeaf, d);
+			_Add_Selected(Selection, pLeaf, d);
 		}
 		else if( d < Distance )
 		{
-			for(i=0; i<maxPoints; i++)
+			size_t	i;
+
+			for(i=0; i<Selection.Get_Size(); i++)
 			{
-				if( Distance <= Get_Selected_Distance(i) )
+				if( Distance <= _Get_Selected(Selection, i)->Distance )
 				{
-					_Set_Selected(i, pLeaf, d);
+					_Set_Selected(Selection, i, pLeaf, d);
 
 					break;
 				}
@@ -732,9 +739,9 @@ void CSG_PRQuadTree::_Get_Nearest_Points(CSG_PRQuadTree_Item *pItem, double x, d
 
 			for(i=0, Distance=d; i<maxPoints; i++)
 			{
-				if( Distance < Get_Selected_Distance(i) )
+				if( Distance < _Get_Selected(Selection, i)->Distance )
 				{
-					Distance	= Get_Selected_Distance(i);
+					Distance	= _Get_Selected(Selection, i)->Distance;
 				}
 			}
 		}
@@ -743,13 +750,15 @@ void CSG_PRQuadTree::_Get_Nearest_Points(CSG_PRQuadTree_Item *pItem, double x, d
 	//-----------------------------------------------------
 	else // if( pItem->is_Node() )
 	{
+		int	i;
+
 		CSG_PRQuadTree_Item	*pChild;
 
 		for(i=0; i<4; i++)
 		{
 			if( (pChild = ((CSG_PRQuadTree_Node *)pItem)->Get_Child(i)) != NULL && pChild->Contains(x, y) == true )
 			{
-				_Get_Nearest_Points(pChild, x, y, Distance, Radius, maxPoints, iQuadrant);
+				_Select_Nearest_Points(Selection, pChild, x, y, Distance, Radius, maxPoints, iQuadrant);
 			}
 		}
 
@@ -763,12 +772,44 @@ void CSG_PRQuadTree::_Get_Nearest_Points(CSG_PRQuadTree_Item *pItem, double x, d
 					||	(	Distance > (x < pChild->Get_xCenter() ? pChild->Get_xMin() - x : x - pChild->Get_xMax())
 						&&	Distance > (y < pChild->Get_yCenter() ? pChild->Get_yMin() - y : y - pChild->Get_yMax())	) )
 					{
-						_Get_Nearest_Points(pChild, x, y, Distance, Radius, maxPoints, iQuadrant);
+						_Select_Nearest_Points(Selection, pChild, x, y, Distance, Radius, maxPoints, iQuadrant);
 					}
 				}
 			}
 		}
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+size_t CSG_PRQuadTree::Get_Nearest_Points(CSG_Points_Z &Points, const TSG_Point &p, size_t maxPoints, double Radius, int iQuadrant)	const
+{
+	return( Get_Nearest_Points(Points, p.x, p.y, maxPoints, Radius, iQuadrant) );
+}
+
+//---------------------------------------------------------
+size_t CSG_PRQuadTree::Get_Nearest_Points(CSG_Points_Z &Points, double x, double y, size_t maxPoints, double Radius, int iQuadrant)	const
+{
+	CSG_Array	Selection;
+
+	_Select_Nearest_Points(Selection, x, y, maxPoints, Radius, iQuadrant);
+
+	Points.Clear();
+
+	for(size_t i=0; i<Selection.Get_Size(); i++)
+	{
+		CSG_PRQuadTree_Leaf	*pLeaf	= _Get_Selected(Selection, i)->pLeaf;
+
+		Points.Add(pLeaf->Get_X(), pLeaf->Get_Y(), pLeaf->Get_Z());
+	}
+
+	return( Points.Get_Count() );
 }
 
 

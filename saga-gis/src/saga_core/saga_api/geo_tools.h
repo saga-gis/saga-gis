@@ -775,6 +775,9 @@ SAGA_API_DLL_EXPORT CSG_Projections &	SG_Get_Projections	(void);
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT double		SG_Get_Length					(double dx, double dy);
 
+SAGA_API_DLL_EXPORT double		SG_Get_Distance					(double ax, double ay, double bx, double by, bool bPolar);
+SAGA_API_DLL_EXPORT double		SG_Get_Distance					(const TSG_Point &A, const TSG_Point &B    , bool bPolar);
+
 SAGA_API_DLL_EXPORT double		SG_Get_Distance					(double ax, double ay, double bx, double by);
 SAGA_API_DLL_EXPORT double		SG_Get_Distance					(const TSG_Point &A, const TSG_Point &B);
 
