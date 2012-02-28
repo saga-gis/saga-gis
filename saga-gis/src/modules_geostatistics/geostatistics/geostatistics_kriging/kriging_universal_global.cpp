@@ -76,7 +76,7 @@ CKriging_Universal_Global::CKriging_Universal_Global(void)
 {
 	Set_Name		(_TL("Universal Kriging (VF, Global)"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
 		"Universal Kriging for grid interpolation from irregular sample points.\n"
@@ -115,10 +115,6 @@ CKriging_Universal_Global::CKriging_Universal_Global(void)
 	);
 }
 
-//---------------------------------------------------------
-CKriging_Universal_Global::~CKriging_Universal_Global(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -127,99 +123,20 @@ CKriging_Universal_Global::~CKriging_Universal_Global(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Universal_Global::On_Initialise(void)
+bool CKriging_Universal_Global::On_Initialize(void)
 {
-	m_pGrids		= Parameters("GRIDS")		->asGridList();
-	m_Interpolation	= Parameters("INTERPOL")	->asInt();
-	m_bCoords		= Parameters("COORDS")		->asBool();
-
-	return( Get_Weights() );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CKriging_Universal_Global::Get_Value(double x, double y, double &z, double &v)
-{
-	int		i, j, n, nGrids, nCoords;
-	double	Lambda;
+	m_pGrids		= Parameters("GRIDS"   )->asGridList();
+	m_Interpolation	= Parameters("INTERPOL")->asInt();
+	m_bCoords		= Parameters("COORDS"  )->asBool();
 
 	//-----------------------------------------------------
-	if(	(n = m_Points.Get_Count()) > 1 )
-	{
-		nCoords	= m_bCoords ? 2 : 0;
-		nGrids	= m_pGrids->Get_Count();
-
-		for(i=0; i<n; i++)
-		{
-			if( !m_bBlock )
-			{
-				m_G[i]	=	Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
-			}
-			else
-			{
-				m_G[i]	= (	Get_Weight((x          ) - m_Points[i].x, (y          ) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y) ) / 5.0;
-			}
-		}
-
-		m_G[n]	= 1.0;
-
-		for(i=0, j=n+1; i<nGrids; i++, j++)
-		{
-			if( !m_pGrids->asGrid(i)->Get_Value(x, y, m_G[j], m_Interpolation, true) )
-			{
-				return( false );
-			}
-		}
-
-		for(i=0, j=n+1+nGrids; i<nCoords; i++, j++)
-		{
-			m_G[j]	= i == 0 ? x : y;
-		}
-
-		//-------------------------------------------------
-		for(i=0, z=0.0, v=0.0; i<n; i++)
-		{
-			for(j=0, Lambda=0.0; j<=n+nGrids+nCoords; j++)
-			{
-				Lambda	+= m_W[i][j] * m_G[j];
-			}
-
-			z	+= Lambda * m_Points[i].z;
-			v	+= Lambda * m_G[i];
-		}
-
-		//-------------------------------------------------
-		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CKriging_Universal_Global::Get_Weights(void)
-{
 	int		i, j, k, n, nGrids, nCoords;
 
-	//-----------------------------------------------------
 	nCoords	= m_bCoords ? 2 : 0;
 	nGrids	= m_pGrids->Get_Count();
+
+	//-----------------------------------------------------
+	m_Points.Clear();
 
 	for(i=0; i<m_pPoints->Get_Count(); i++)
 	{
@@ -239,11 +156,7 @@ bool CKriging_Universal_Global::Get_Weights(void)
 
 			if( bAdd )
 			{
-				m_Points.Add(
-					pPoint->Get_Point(0).x,
-					pPoint->Get_Point(0).y,
-					m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField)
-				);
+				m_Points.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
 			}
 		}
 	}
@@ -251,7 +164,6 @@ bool CKriging_Universal_Global::Get_Weights(void)
 	//-----------------------------------------------------
 	if( (n = m_Points.Get_Count()) > 1 )
 	{
-		m_G.Create(n + 1 + nGrids + nCoords);
 		m_W.Create(n + 1 + nGrids + nCoords, n + 1 + nGrids + nCoords);
 
 		for(i=0; i<n; i++)
@@ -261,17 +173,12 @@ bool CKriging_Universal_Global::Get_Weights(void)
 
 			for(j=i+1; j<n; j++)
 			{
-				m_W[i][j]	= m_W[j][i]	= Get_Weight(
-					m_Points[i].x - m_Points[j].x,
-					m_Points[i].y - m_Points[j].y
-				);
+				m_W[i][j]	= m_W[j][i]	= Get_Weight(m_Points[i], m_Points[j]);
 			}
 
 			for(k=0, j=n+1; k<nGrids; k++, j++)
 			{
-				m_W[i][j]	= m_W[j][i]	= m_pGrids->asGrid(k)->Get_Value(
-					m_Points[i].x, m_Points[i].y, m_Interpolation
-				);
+				m_W[i][j]	= m_W[j][i]	= m_pGrids->asGrid(k)->Get_Value(m_Points[i].x, m_Points[i].y, m_Interpolation);
 			}
 
 			for(k=0, j=n+nGrids+1; k<nCoords; k++, j++)
@@ -288,7 +195,79 @@ bool CKriging_Universal_Global::Get_Weights(void)
 			}
 		}
 
-		return( m_W.Set_Inverse() );
+		return( m_W.Set_Inverse(false) );
+	}
+
+	//-----------------------------------------------------
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CKriging_Universal_Global::On_Finalize(void)
+{
+	m_Points.Clear();
+	m_W.Destroy();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Universal_Global::Get_Value(const TSG_Point &p, double &z, double &v)
+{
+	int		i, j, n, nGrids, nCoords;
+
+	//-----------------------------------------------------
+	if(	(n = m_Points.Get_Count()) > 1 )
+	{
+		nCoords	= m_bCoords ? 2 : 0;
+		nGrids	= m_pGrids->Get_Count();
+
+		CSG_Vector	G(n + 1 + nGrids + nCoords);
+
+		for(i=0; i<n; i++)
+		{
+			G[i]	=	Get_Weight(p.x, p.y, m_Points[i].x, m_Points[i].y);
+		}
+
+		G[n]	= 1.0;
+
+		for(i=0, j=n+1; i<nGrids; i++, j++)
+		{
+			if( !m_pGrids->asGrid(i)->Get_Value(p, G[j], m_Interpolation, true) )
+			{
+				return( false );
+			}
+		}
+
+		if( m_bCoords )
+		{
+			G[n + 1 + nGrids]	= p.x;
+			G[n + 2 + nGrids]	= p.y;
+		}
+
+		//-------------------------------------------------
+		for(i=0, z=0.0, v=0.0; i<n; i++)
+		{
+			double	Lambda	= 0.0;
+
+			for(j=0; j<=n+nGrids+nCoords; j++)
+			{
+				Lambda	+= m_W[i][j] * G[j];
+			}
+
+			z	+= Lambda * m_Points[i].z;
+			v	+= Lambda * G[i];
+		}
+
+		//-------------------------------------------------
+		return( true );
 	}
 
 	return( false );

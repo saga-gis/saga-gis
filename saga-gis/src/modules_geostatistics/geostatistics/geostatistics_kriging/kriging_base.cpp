@@ -222,16 +222,26 @@ int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 bool CKriging_Base::On_Execute(void)
 {
-	if( !_Initialise() )
+	bool	bResult	= false;
+
+	//-----------------------------------------------------
+	m_Block		= Parameters("BLOCK"   )->asBool() ? Parameters("DBLOCK")->asDouble() / 2.0 : 0.0;
+	m_bStdDev	= Parameters("TQUALITY")->asInt() == 0;
+	m_bLog		= Parameters("LOG"     )->asBool();
+
+	m_pPoints	= Parameters("POINTS"  )->asShapes();
+	m_zField	= Parameters("ZFIELD"  )->asInt();
+
+	if( m_pPoints->Get_Count() <= 1 )
 	{
+		SG_UI_Msg_Add(_TL("not enough points for interpolation"), true);
+
 		return( false );
 	}
 
-	bool	bResult	= false;
-
+	//-----------------------------------------------------
 	CSG_Table	Variogram;
 
-	//-----------------------------------------------------
 	if( SG_UI_Get_Window_Main() )
 	{
 		static CVariogram_Dialog	dlg;
@@ -241,13 +251,11 @@ bool CKriging_Base::On_Execute(void)
 			bResult	= true;
 		}
 	}
-
-	//-----------------------------------------------------
 	else
 	{
-		int		nSkip		= Parameters("VAR_NSKIP")		->asInt();
-		int		nClasses	= Parameters("VAR_NCLASSES")	->asInt();
-		double	maxDistance	= Parameters("VAR_MAXDIST")		->asDouble();
+		int		nSkip		= Parameters("VAR_NSKIP"   )->asInt();
+		int		nClasses	= Parameters("VAR_NCLASSES")->asInt();
+		double	maxDistance	= Parameters("VAR_MAXDIST" )->asDouble();
 
 		m_Model.Set_Formula(Parameters("VAR_MODEL")->asString());
 
@@ -267,14 +275,33 @@ bool CKriging_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( bResult && On_Initialise() )
+	if( bResult && (bResult = _Initialise_Grids() && On_Initialize()) )
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("variogram model"), m_Model.Get_Formula(SG_TREND_STRING_Formula_Parameters).c_str()), false);
 
-		bResult	= _Interpolate();
+		for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
+			{
+				double	z, v;
+
+				if( Get_Value(m_pGrid->Get_System().Get_Grid_to_World(x, y), z, v) )
+				{
+					Set_Value(x, y, z, v);
+				}
+				else
+				{
+					Set_NoData(x, y);
+				}
+			}
+		}
 	}
 
-	_Finalise();
+	//-----------------------------------------------------
+	m_Model.Clr_Data();
+
+	On_Finalize();
 
 	return( bResult );
 }
@@ -287,36 +314,12 @@ bool CKriging_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Base::_Initialise(void)
-{
-	//-----------------------------------------------------
-	m_Block		= Parameters("DBLOCK")	->asDouble() / 2.0;
-	m_bBlock	= Parameters("BLOCK")	->asBool() && m_Block > 0.0;
-	m_bStdDev	= Parameters("TQUALITY")->asInt() == 0;
-	m_bLog		= Parameters("LOG")		->asBool();
-
-	//-----------------------------------------------------
-	m_pPoints	= Parameters("POINTS")	->asShapes();
-	m_zField	= Parameters("ZFIELD")	->asInt();
-
-	if( m_pPoints->Get_Count() <= 1 )
-	{
-		SG_UI_Msg_Add(_TL("not enough points for interpolation"), true);
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	return( true );
-}
-
-//---------------------------------------------------------
 bool CKriging_Base::_Initialise_Grids(void)
 {
-	//-----------------------------------------------------
 	m_pGrid		= NULL;
 	m_pVariance	= NULL;
 
+	//-----------------------------------------------------
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
@@ -354,64 +357,6 @@ bool CKriging_Base::_Initialise_Grids(void)
 	}
 
 	return( true );
-}
-
-//---------------------------------------------------------
-bool CKriging_Base::_Finalise(void)
-{
-	m_Points	.Clear();
-	m_Search	.Destroy();
-	m_G			.Destroy();
-	m_W			.Destroy();
-	m_Model		.Clr_Data();
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CKriging_Base::_Interpolate(void)
-{
-	if( _Initialise_Grids() )
-	{
-		int		ix, iy;
-		double	x, y, z, v;
-
-		for(iy=0, y=m_pGrid->Get_YMin(); iy<m_pGrid->Get_NY() && Set_Progress(iy, m_pGrid->Get_NY()); iy++, y+=m_pGrid->Get_Cellsize())
-		{
-			for(ix=0, x=m_pGrid->Get_XMin(); ix<m_pGrid->Get_NX(); ix++, x+=m_pGrid->Get_Cellsize())
-			{
-				if( Get_Value(x, y, z, v) )
-				{
-					m_pGrid->Set_Value(ix, iy, m_bLog ? exp(z) : z);
-
-					if( m_pVariance )
-					{
-						m_pVariance->Set_Value(ix, iy, m_bStdDev ? sqrt(v) : v);
-					}
-				}
-				else
-				{
-					m_pGrid->Set_NoData(ix, iy);
-
-					if( m_pVariance )
-					{
-						m_pVariance->Set_NoData(ix, iy);
-					}
-				}
-			}
-		}
-
-		return( true );
-	}
-
-	return( false );
 }
 
 

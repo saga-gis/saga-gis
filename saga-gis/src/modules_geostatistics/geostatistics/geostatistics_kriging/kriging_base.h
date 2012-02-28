@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_EXPORT CKriging_Base : public CSG_Module
+class CKriging_Base : public CSG_Module
 {
 public:
 	CKriging_Base(void);
@@ -90,19 +90,9 @@ public:
 
 protected:
 
-	bool						m_bBlock, m_bLog;
+	bool						m_bLog;
 
 	int							m_zField;
-
-	double						m_Block;
-
-	CSG_Points_Z				m_Points;
-
-	CSG_Vector					m_G;
-
-	CSG_Matrix					m_W;
-
-	CSG_PRQuadTree				m_Search;
 
 	CSG_Shapes					*m_pPoints;
 
@@ -112,17 +102,47 @@ protected:
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Initialise			(void)					{	return( true );	}
+	virtual bool				On_Initialize			(void)	{	return( true );	}
+	virtual bool				On_Finalize				(void)	{	return( true );	}
 
-	virtual bool				Get_Value				(double x, double y, double &z, double &Variance)	= 0;
+	virtual bool				Get_Value				(const TSG_Point &p, double &z, double &v)	= 0;
 
-	double						Get_Weight				(double d)				{	return( m_Model.Get_Value(d) );	}
-	double						Get_Weight				(double dx, double dy)	{	return( m_Model.Get_Value(sqrt(dx*dx + dy*dy)) );	}
+	double						Get_Weight				(double d)											{	return( m_Model.Get_Value(d) );	}
+	double						Get_Weight				(double dx, double dy)								{	return( Get_Weight(sqrt(dx*dx + dy*dy)) );	}
+	double						Get_Weight				(const TSG_Point_Z &a, const TSG_Point_Z &b)		{	return( Get_Weight(a.x - b.x, a.y - b.y) );	}
+	double						Get_Weight				(double ax, double ay, double bx, double by)
+	{
+		if( m_Block > 0.0 )
+		{
+			return( (	Get_Weight( ax            - bx,  ay            - by)
+					+	Get_Weight((ax + m_Block) - bx, (ay + m_Block) - by)
+					+	Get_Weight((ax + m_Block) - bx, (ay - m_Block) - by)
+					+	Get_Weight((ax - m_Block) - bx, (ay + m_Block) - by)
+					+	Get_Weight((ax - m_Block) - bx, (ay - m_Block) - by) ) / 5.0
+			);
+		}
+
+		return( Get_Weight(ax - bx, ay - by) );
+	}
+
+	void						Set_Value				(int x, int y, double z, double v)
+	{
+		if( m_pGrid     )	m_pGrid    ->Set_Value(x, y, m_bLog    ? exp (z) : z);
+		if( m_pVariance )	m_pVariance->Set_Value(x, y, m_bStdDev ? sqrt(v) : v);
+	}
+
+	void						Set_NoData				(int x, int y)
+	{
+		if( m_pGrid     )	m_pGrid    ->Set_NoData(x, y);
+		if( m_pVariance )	m_pVariance->Set_NoData(x, y);
+	}
 
 
 private:
 
 	bool						m_bStdDev;
+
+	double						m_Block;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
@@ -131,11 +151,7 @@ private:
 	CSG_Grid					*m_pGrid, *m_pVariance;
 
 
-	bool						_Initialise				(void);
 	bool						_Initialise_Grids		(void);
-	bool						_Finalise				(void);
-
-	bool						_Interpolate			(void);
 
 };
 

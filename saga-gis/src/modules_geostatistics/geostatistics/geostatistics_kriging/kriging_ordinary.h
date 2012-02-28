@@ -82,18 +82,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_EXPORT CKriging_Ordinary : public CKriging_Ordinary_Global
+class CKriging_Ordinary : public CKriging_Ordinary_Global
 {
 public:
 	CKriging_Ordinary(void);
-	virtual ~CKriging_Ordinary(void);
 
 
 protected:
 
-	virtual bool			On_Initialise	(void);
+	virtual bool			On_Initialize		(void);
+	virtual bool			On_Finalize			(void);
 
-	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
+	virtual bool			Get_Value			(const TSG_Point &p, double &z, double &v);
 
 
 private:
@@ -102,8 +102,10 @@ private:
 
 	double					m_Radius;
 
+	CSG_PRQuadTree			m_Search;
 
-	int						Get_Weights		(double x, double y);
+
+	int						Get_Weights			(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z &Points);
 
 };
 

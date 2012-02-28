@@ -76,7 +76,7 @@ CKriging_Ordinary_Global::CKriging_Ordinary_Global(void)
 {
 	Set_Name		(_TL("Ordinary Kriging (VF, Global)"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
 		"Ordinary Kriging for grid interpolation from irregular sample points. "
@@ -85,10 +85,6 @@ CKriging_Ordinary_Global::CKriging_Ordinary_Global(void)
 	));
 }
 
-//---------------------------------------------------------
-CKriging_Ordinary_Global::~CKriging_Ordinary_Global(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -97,96 +93,27 @@ CKriging_Ordinary_Global::~CKriging_Ordinary_Global(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Ordinary_Global::On_Initialise(void)
-{
-	return( Get_Weights() );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CKriging_Ordinary_Global::Get_Value(double x, double y, double &z, double &v)
-{
-	int		i, j, n;
-	double	Lambda;
-
-	//-----------------------------------------------------
-	if(	(n = m_Points.Get_Count()) > 0 )
-	{
-		for(i=0; i<n; i++)
-		{
-			if( !m_bBlock )
-			{
-				m_G[i]	=	Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
-			}
-			else
-			{
-				m_G[i]	= (	Get_Weight((x          ) - m_Points[i].x, (y          ) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y) ) / 5.0;
-			}
-		}
-
-		m_G[n]	= 1.0;
-
-		//-------------------------------------------------
-		for(i=0, z=0.0, v=0.0; i<n; i++)
-		{
-			for(j=0, Lambda=0.0; j<=n; j++)
-			{
-				Lambda	+= m_W[i][j] * m_G[j];
-			}
-
-			z	+= Lambda * m_Points[i].z;
-			v	+= Lambda * m_G[i];
-		}
-
-		//-------------------------------------------------
-		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CKriging_Ordinary_Global::Get_Weights(void)
+bool CKriging_Ordinary_Global::On_Initialize(void)
 {
 	int		i, j, n;
 
 	//-----------------------------------------------------
+	m_Points.Clear();
+
 	for(i=0; i<m_pPoints->Get_Count(); i++)
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
 		if( !pPoint->is_NoData(m_zField) )
 		{
-			m_Points.Add(
-				pPoint->Get_Point(0).x,
-				pPoint->Get_Point(0).y,
-				m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField)
-			);
+			m_Points.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
 		}
 	}
 
 	//-----------------------------------------------------
-	if( (n = m_Points.Get_Count()) > 4 )
+	if( (n = m_Points.Get_Count()) > 1 )
 	{
-		m_G	.Create(n + 1);
-		m_W	.Create(n + 1, n + 1);
+		m_W.Create(n + 1, n + 1);
 
 		for(i=0; i<n; i++)
 		{
@@ -195,16 +122,67 @@ bool CKriging_Ordinary_Global::Get_Weights(void)
 
 			for(j=i+1; j<n; j++)
 			{
-				m_W[i][j]	= m_W[j][i]	= Get_Weight(
-					m_Points[i].x - m_Points[j].x,
-					m_Points[i].y - m_Points[j].y
-				);
+				m_W[i][j]	= m_W[j][i]	= Get_Weight(m_Points[i], m_Points[j]);
 			}
 		}
 
 		m_W[n][n]	= 0.0;
 
 		return( m_W.Set_Inverse(false) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CKriging_Ordinary_Global::On_Finalize(void)
+{
+	m_Points.Clear();
+	m_W.Destroy();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Ordinary_Global::Get_Value(const TSG_Point &p, double &z, double &v)
+{
+	int		i, j, n;
+
+	//-----------------------------------------------------
+	if(	(n = m_Points.Get_Count()) > 0 )
+	{
+		CSG_Vector	G(n + 1);
+
+		for(i=0; i<n; i++)
+		{
+			G[i]	= Get_Weight(p.x, p.y, m_Points[i].x, m_Points[i].y);
+		}
+
+		G[n]	= 1.0;
+
+		//-------------------------------------------------
+		for(i=0, z=0.0, v=0.0; i<n; i++)
+		{
+			double	Lambda	= 0.0;
+
+			for(j=0; j<=n; j++)
+			{
+				Lambda	+= m_W[i][j] * G[j];
+			}
+
+			z	+= Lambda * m_Points[i].z;
+			v	+= Lambda * G[i];
+		}
+
+		//-------------------------------------------------
+		return( true );
 	}
 
 	return( false );
