@@ -71,7 +71,7 @@ CGDAL_Import::CGDAL_Import(void)
 {
 	Set_Name	(_TL("GDAL: Import Raster"));
 
-	Set_Author	(SG_T("(c) 2007 by O.Conrad (A.Ringeler)"));
+	Set_Author	(SG_T("O.Conrad (c) 2007 (A.Ringeler)"));
 
 	CSG_String	Description;
 
@@ -106,7 +106,7 @@ CGDAL_Import::CGDAL_Import(void)
 	Parameters.Add_Grid_List(
 		NULL, "GRIDS"	, _TL("Grids"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, false
+		PARAMETER_OUTPUT, false
 	);
 
 	Parameters.Add_FilePath(
@@ -171,92 +171,63 @@ bool CGDAL_Import::On_Execute(void)
 //---------------------------------------------------------
 bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 {
-	int		n	= 0;
-
-	if( DataSet.is_Reading() )
+	if( !DataSet.is_Reading() )
 	{
-		const char	**pMetaData	= DataSet.Get_MetaData("SUBDATASETS");
+		return( false );
+	}
 
-		if( pMetaData && pMetaData[0] )
+	const char	**pMetaData	= DataSet.Get_MetaData("SUBDATASETS");
+
+	if( !pMetaData || !pMetaData[0] )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int				i, n;
+	CSG_Parameters	P;
+
+	for(i=0; pMetaData[i]!=NULL; i++)
+	{
+		CSG_String	sMeta	= pMetaData[i];
+
+		if( sMeta.Contains(SG_T("SUBDATASET_")) && sMeta.Contains(SG_T("_NAME=")) )
 		{
-			int				i, n	= 0;
-			CSG_String		s, sFile, sName;
-			CSG_Parameters	P;
+			CSG_String	sFile	= sMeta.AfterFirst('=');
+			CSG_String	sName	= _TL("unnamed");
 
-			//---------------------------------------------
-			if( SG_UI_Get_Window_Main() == NULL )	// without gui
+			Message_Add(CSG_String::Format(SG_T("\n+ %s\n"), sMeta.c_str()), false);
+			Message_Add(CSG_String::Format(SG_T(" - %s\n" ), sFile.c_str()), false);
+
+			if( pMetaData[i + 1] != NULL )
 			{
-				for(i=0, n=0; pMetaData[i]!=NULL; i++)
+				sMeta	= pMetaData[i + 1];
+
+				if( sMeta.Contains(SG_T("SUBDATASET_")) && sMeta.Contains(SG_T("_DESC")) )
 				{
-					Message_Add(CSG_String::Format(SG_T("  %s\n"), pMetaData[i]), false);
-
-					s		= pMetaData[i];
-
-					if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_NAME=")) )
-					{
-						sFile	= s.AfterFirst('=');
-						sName	= _TL("unnamed");
-
-						if( pMetaData[i + 1] != NULL )
-						{
-							s		= pMetaData[i + 1];
-
-							if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_DESC")) )
-							{
-								sName	= s.AfterFirst ('=');
-							}
-						}
-
-						if( DataSet.Open_Read(sFile) && Load(DataSet, sName) )
-						{
-							n++;
-						}
-					}
+					sName	= sMeta.AfterFirst ('=');
 				}
 			}
 
-			//---------------------------------------------
-			else									// with gui
-			{
-				for(i=0; pMetaData[i]!=NULL; i++)
-				{
-					Message_Add(CSG_String::Format(SG_T("  %s\n"), pMetaData[i]), false);
-
-					s		= pMetaData[i];
-
-					if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_NAME=")) )
-					{
-						sFile	= s.AfterFirst('=');
-						sName	= _TL("unnamed");
-
-						if( pMetaData[i + 1] != NULL )
-						{
-							s		= pMetaData[i + 1];
-
-							if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_DESC")) )
-							{
-								sName	= s.AfterFirst ('=');
-							}
-						}
-
-						P.Add_Value(NULL, sFile, sName, SG_T(""), PARAMETER_TYPE_Bool, false);
-					}
-				}
-
-				if( Dlg_Parameters(&P, _TL("Select from Subdatasets...")) )
-				{
-					for(i=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
-					{
-						if( P(i)->asBool() && DataSet.Open_Read(P(i)->Get_Identifier()) && Load(DataSet, P(i)->Get_Name()) )
-						{
-							n++;
-						}
-					}
-				}
-			}
+			P.Add_Value(NULL, sFile, sName, SG_T(""), PARAMETER_TYPE_Bool, SG_UI_Get_Window_Main() == NULL);
 		}
 	}
 
+	if( SG_UI_Get_Window_Main() && !Dlg_Parameters(&P, _TL("Select from Subdatasets...")) )	// with gui
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(i=0, n=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
+	{
+		if( P(i)->asBool() && DataSet.Open_Read(P(i)->Get_Identifier()) && Load(DataSet, P(i)->Get_Name()) )
+		{
+			n++;
+		}
+	}
+
+	//---------------------------------------------
 	return( n > 0 );
 }
 
