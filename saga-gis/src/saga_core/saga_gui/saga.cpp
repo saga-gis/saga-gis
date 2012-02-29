@@ -351,10 +351,7 @@ bool CSAGA::Process_Wait(bool bEnforce)
 		//	Yield();
 		//	wxSafeYield(g_pSAGA_Frame);
 
-		while( Pending() )
-		{
-			Dispatch();
-		}
+		while( Pending() && Dispatch() );
 
 		bYield	= false;
 		tYield	= wxDateTime::UNow();
