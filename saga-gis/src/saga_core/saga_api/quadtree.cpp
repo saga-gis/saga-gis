@@ -609,9 +609,9 @@ CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pI
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline CSG_PRQuadTree::TLeaf * CSG_PRQuadTree::_Get_Selected(const CSG_Array &Selection, int i)	const
+inline CSG_PRQuadTree::TLeaf * CSG_PRQuadTree::_Get_Selected(const CSG_Array &Selection, size_t i)	const
 {
-	return( i >= 0 && i < (int)Selection.Get_Size() ? ((TLeaf *)Selection.Get_Array()) + i : NULL );
+	return( i < Selection.Get_Size() ? ((TLeaf *)Selection.Get_Array()) + i : NULL );
 }
 
 //---------------------------------------------------------
@@ -631,7 +631,7 @@ inline bool CSG_PRQuadTree::_Add_Selected(CSG_Array &Selection, CSG_PRQuadTree_L
 }
 
 //---------------------------------------------------------
-inline bool CSG_PRQuadTree::_Set_Selected(CSG_Array &Selection, int i, CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const
+inline bool CSG_PRQuadTree::_Set_Selected(CSG_Array &Selection, size_t i, CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const
 {
 	TLeaf	*pL		= _Get_Selected(Selection, i);
 

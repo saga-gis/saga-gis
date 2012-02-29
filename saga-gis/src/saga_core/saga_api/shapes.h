@@ -952,11 +952,11 @@ public:
 	size_t						Select_Nearest_Points	(const TSG_Point &p, size_t maxPoints, double Radius = 0.0, int iQuadrant = -1);
 	size_t						Select_Nearest_Points	(double x, double y, size_t maxPoints, double Radius = 0.0, int iQuadrant = -1);
 
-	size_t						Get_Selected_Count		(void)	const	{	return( m_Selection.Get_Size() );	}
-	CSG_PRQuadTree_Leaf *		Get_Selected_Leaf		(int i) const	{	TLeaf *pLeaf = _Get_Selected(m_Selection, i); return( pLeaf ? pLeaf->pLeaf          : NULL );	}
-	double						Get_Selected_Z			(int i) const	{	TLeaf *pLeaf = _Get_Selected(m_Selection, i); return( pLeaf ? pLeaf->pLeaf->Get_Z() :  0.0 );	}
-	double						Get_Selected_Distance	(int i) const	{	TLeaf *pLeaf = _Get_Selected(m_Selection, i); return( pLeaf ? pLeaf->Distance       : -1.0 );	}
-	bool						Get_Selected_Point		(int i, double &x, double &y, double &z) const
+	size_t						Get_Selected_Count		(void)     const	{	return( m_Selection.Get_Size() );	}
+	CSG_PRQuadTree_Leaf *		Get_Selected_Leaf		(size_t i) const	{	return( i >= m_Selection.Get_Size() ? NULL : (((TLeaf *)m_Selection.Get_Array()) + i)->pLeaf          );	}
+	double						Get_Selected_Z			(size_t i) const	{	return( i >= m_Selection.Get_Size() ?  0.0 : (((TLeaf *)m_Selection.Get_Array()) + i)->pLeaf->Get_Z() );	}
+	double						Get_Selected_Distance	(size_t i) const	{	return( i >= m_Selection.Get_Size() ? -1.0 : (((TLeaf *)m_Selection.Get_Array()) + i)->Distance       );	}
+	bool						Get_Selected_Point		(size_t i, double &x, double &y, double &z) const
 	{
 		CSG_PRQuadTree_Leaf	*pLeaf	= Get_Selected_Leaf(i);
 
@@ -1005,9 +1005,9 @@ private:
 
 	CSG_PRQuadTree_Leaf	*		_Get_Nearest_Point		(CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance)			const;
 
-	TLeaf *						_Get_Selected			(const CSG_Array &Selection, int i)													const;
-	bool						_Add_Selected			(      CSG_Array &Selection       , CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const;
-	bool						_Set_Selected			(      CSG_Array &Selection, int i, CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const;
+	TLeaf *						_Get_Selected			(const CSG_Array &Selection, size_t i)										const;
+	bool						_Add_Selected			(      CSG_Array &Selection          , CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const;
+	bool						_Set_Selected			(      CSG_Array &Selection, size_t i, CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const;
 	void						_Select_Nearest_Points	(      CSG_Array &Selection, CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance, double Radius, size_t maxPoints, int iQuadrant)	const;
 	size_t						_Select_Nearest_Points	(      CSG_Array &Selection, double x, double y, size_t maxPoints, double Radius, int iQuadrant)	const;
 
