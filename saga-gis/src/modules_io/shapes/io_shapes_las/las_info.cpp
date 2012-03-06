@@ -220,22 +220,22 @@ bool CLAS_Info::Print_Header(CSG_String fName, liblas::LASHeader header)
 									header.GetReserved()), true);
 
 	SG_UI_Msg_Add(CSG_String::Format(_TL("  Project ID/GUID:\t\t'%s'"),
-									header.GetProjectId().to_string().c_str()), true);
+									CSG_String(header.GetProjectId().to_string().c_str()).w_str()), true);
 
 	SG_UI_Msg_Add(CSG_String::Format(_TL("  System Identifier:\t\t'%s'"),
-									header.GetSystemId().c_str()), true);
+									CSG_String(header.GetSystemId().c_str()).w_str()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Generating Software:\t'%s'"),
-									header.GetSoftwareId().c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Generating Software:\t\t'%s'"),
+									CSG_String(header.GetSoftwareId().c_str()).w_str()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  File Creation Day/Year:\t%d/%d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  File Creation Day/Year:\t\t%d/%d"),
 									header.GetCreationDOY(),
 									header.GetCreationYear()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Header Size:\t\t%d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Header Size:\t\t\t%d"),
 									header.GetHeaderSize()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Offset to Point Data:\t%d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Offset to Point Data:\t\t%d"),
 									header.GetDataOffset()), true);
 
 	SG_UI_Msg_Add(CSG_String::Format(_TL("  Number Var. Length Records:\t%d"),
@@ -262,7 +262,7 @@ bool CLAS_Info::Print_Header(CSG_String fName, liblas::LASHeader header)
 									header.GetScaleY(),
 									header.GetScaleZ()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Offset X Y Z:\t\t%.6f  %.6f  %.6f"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Offset X Y Z:\t\t\t%.6f  %.6f  %.6f"),
 									header.GetOffsetX(),
 									header.GetOffsetY(),
 									header.GetOffsetZ()), true);
@@ -278,7 +278,7 @@ bool CLAS_Info::Print_Header(CSG_String fName, liblas::LASHeader header)
 									header.GetMaxZ()), true);
 
 	SG_UI_Msg_Add(CSG_String::Format(_TL("  Spatial Reference:\t\t%s"),
-									header.GetSRS().GetProj4().c_str()), true);
+									CSG_String(header.GetSRS().GetProj4().c_str()).w_str()), true);
 
 	return (true);
 }
@@ -302,7 +302,7 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 	SG_UI_Msg_Add(_TL("  Point Inspection Summary"), true, SG_UI_MSG_STYLE_BOLD);
 	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("   Header Point Count:\t%d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("   Header Point Count:\t\t%d"),
 									header.GetPointRecordsCount()), true);
 
 	SG_UI_Msg_Add(CSG_String::Format(_TL("   Actual Point Count:\t\t%d"),
@@ -323,13 +323,13 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 									pSummary->pmax.GetY(),
 									pSummary->pmax.GetZ()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Bounding Box:\t\t%.2f, %.2f, %.2f, %.2f"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Bounding Box:\t\t\t%.2f, %.2f, %.2f, %.2f"),
 									pSummary->pmin.GetX(),
 									pSummary->pmin.GetY(),
 									pSummary->pmax.GetX(),
 									pSummary->pmax.GetY()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Time:\t\t\t%.6f, %.6f"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Time:\t\t\t\t%.6f, %.6f"),
 									pSummary->pmin.GetTime(),
 									pSummary->pmax.GetTime()), true);
 
@@ -337,11 +337,11 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 									pSummary->pmin.GetReturnNumber(),
 									pSummary->pmax.GetReturnNumber()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Return Count:\t\t%d, %d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Return Count:\t\t\t%d, %d"),
 									pSummary->pmin.GetNumberOfReturns(),
 									pSummary->pmax.GetNumberOfReturns()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Flightline Edge:\t\t%d, %d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Flightline Edge:\t\t\t%d, %d"),
 									pSummary->pmin.GetFlightLineEdge(),
 									pSummary->pmax.GetFlightLineEdge()), true);
 
@@ -357,7 +357,7 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 									pSummary->pmin.GetScanAngleRank(),
 									pSummary->pmax.GetScanAngleRank()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Classification:\t\t%d, %d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Classification:\t\t\t%d, %d"),
 									pSummary->pmin.GetClassification(),
 									pSummary->pmax.GetClassification()), true);
 
@@ -365,7 +365,7 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 									pSummary->pmin.GetPointSourceID(),
 									pSummary->pmax.GetPointSourceID()), true);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Minimum Color:\t\t%d %d %d"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Minimum Color:\t\t\t%d %d %d"),
 									pSummary->pmin.GetColor().GetRed(),
 									pSummary->pmin.GetColor().GetGreen(),
 									pSummary->pmin.GetColor().GetBlue()), true);
@@ -387,7 +387,7 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 										i,
 										pSummary->number_of_points_by_return[i]), true);
 	}
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Total Points:\t\t%ld"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Total Points:\t%ld"),
 									pbretsum), true);
 
 
@@ -402,7 +402,7 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 										i,
 										pSummary->number_of_returns_of_given_pulse[i]), true);
 	}
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Total Pulses:\t\t%ld"),
+	SG_UI_Msg_Add(CSG_String::Format(_TL("  Total Pulses:\t%ld"),
 									rgpsum), true);
 
 
@@ -429,7 +429,7 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 	{
 		if( pSummary->classification[i] )
 		{
-			SG_UI_Msg_Add(CSG_String::Format(SG_T("\t%8d  %s  (%d)"),
+			SG_UI_Msg_Add(CSG_String::Format(SG_T("\t%d\t\t%s (%d)"),
 											pSummary->classification[i],
 											gLASPointClassification_Key_Name[i],
 											i), true);
