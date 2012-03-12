@@ -73,21 +73,18 @@
 //---------------------------------------------------------
 CGrid_FractalDimension::CGrid_FractalDimension(void)
 {
-	Set_Name(_TL("Fractal Dimension of Grid Surface"));
+	Set_Name		(_TL("Fractal Dimension of Grid Surface"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2001"));
 
 	Set_Description	(_TW(
 		"Calculates surface areas for increasing mesh sizes.")
 	);
 
-	Parameters.Add_Grid(	NULL, "INPUT"	, _TL("Input")		, _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Table(	NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid (NULL, "INPUT" , _TL("Input") , _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Table(NULL, "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Value(NULL, "DSIZE" , _TL("Scale" ), _TL(""), PARAMETER_TYPE_Double, 1.5, 1.0001, true);
 }
-
-//---------------------------------------------------------
-CGrid_FractalDimension::~CGrid_FractalDimension(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -99,56 +96,48 @@ CGrid_FractalDimension::~CGrid_FractalDimension(void)
 //---------------------------------------------------------
 bool CGrid_FractalDimension::On_Execute(void)
 {
-	int				i;
-	CSG_Table			*pTable;
-	CSG_Table_Record	*pRecord;
+	double		maxSize, dSize;
+	CSG_Grid	*pGrid;
+	CSG_Table	*pTable;
 
 	//-----------------------------------------------------
-	pGrid		= Parameters("INPUT")	->asGrid();
-	pTable		= Parameters("RESULT")	->asTable();
+	pGrid	= Parameters("INPUT" )->asGrid();
+	pTable	= Parameters("RESULT")->asTable();
 
-	dimCount	= pGrid->Get_NX() > pGrid->Get_NY() ? pGrid->Get_NX() - 1 : pGrid->Get_NY() - 1;
+	pTable->Destroy();
+	pTable->Set_Name(_TL("Fractal Dimension"));
+
+	pTable->Add_Field(SG_T("CLASS"  ), SG_DATATYPE_Int);
+	pTable->Add_Field(SG_T("SCALE"  ), SG_DATATYPE_Double);
+	pTable->Add_Field(SG_T("BASAL"  ), SG_DATATYPE_Double);
+	pTable->Add_Field(SG_T("SURFACE"), SG_DATATYPE_Double);
+	pTable->Add_Field(SG_T("RATIO"  ), SG_DATATYPE_Double);
+	pTable->Add_Field(SG_T("CHANGE" ), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	if( dimCount > 0 )
+	Get_Area(pGrid, pTable);
+
+	maxSize	= 0.5 * (pGrid->Get_XRange() > pGrid->Get_YRange() ? pGrid->Get_XRange() : pGrid->Get_YRange());
+	dSize	= Parameters("DSIZE")->asDouble();
+
+	for(double Cellsize=dSize*pGrid->Get_Cellsize(); Cellsize<maxSize && Set_Progress(Cellsize, maxSize); Cellsize*=dSize)
 	{
-		dimAreas	= (double *)SG_Calloc(dimCount, sizeof(double));
+		Set_Show_Progress(false);
 
-		for(i=0; i<dimCount && Set_Progress(i, dimCount); i++)
-		{
-			Get_Surface(i);
-		}
+		CSG_Grid	g(CSG_Grid_System(Cellsize,
+			pGrid->Get_XMin(true), pGrid->Get_YMin(true),
+			pGrid->Get_XMax(true), pGrid->Get_YMax(true)
+		));
 
-		//-------------------------------------------------
-		pTable->Destroy();
-		pTable->Set_Name(_TL("Fractal Dimension"));
+		g.Assign(pGrid, GRID_INTERPOLATION_BSpline);
 
-		pTable->Add_Field(_TL("Class")		, SG_DATATYPE_Int);
-		pTable->Add_Field(_TL("Scale")		, SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("Area")		, SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("Ln(Area)")	, SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("Dim01")		, SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("Dim02")		, SG_DATATYPE_Double);
+		Get_Area(&g, pTable);
 
-		for(i=0; i<dimCount-1; i++)
-		{
-			pRecord	= pTable->Add_Record();
-
-			pRecord->Set_Value(0,  i + 1);
-			pRecord->Set_Value(1, (i + 1) * Get_Cellsize());
-			pRecord->Set_Value(2,     dimAreas[i]);
-			pRecord->Set_Value(3, log(dimAreas[i]));
-			pRecord->Set_Value(4,     dimAreas[i]  -     dimAreas[i + 1]);
-			pRecord->Set_Value(5, log(dimAreas[i]) - log(dimAreas[i + 1]));
-		}
-
-		//-------------------------------------------------
-		SG_Free(dimAreas);
-
-		return( true );
+		Set_Show_Progress(true);
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -159,67 +148,51 @@ bool CGrid_FractalDimension::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_FractalDimension::Get_Surface(int Step)
+void CGrid_FractalDimension::Get_Area(CSG_Grid *pGrid, CSG_Table *pTable)
 {
-	int		ya, yb, xStep, yStep;
+	double		scale	= pGrid->Get_Cellsize();
+	CSG_Grid	g;
 
-	xStep	= Step + 1;
-	yStep	= Step + 1;
-
-	for(ya=0, yb=yStep; yb<Get_NY(); ya+=yStep, yb+=yStep)
+	if( !Get_System()->is_Equal(pGrid->Get_System()) )
 	{
-		Get_SurfaceRow(Step, xStep, yStep, ya, yb);
+		g.Create(*Get_System());
+		g.Assign(pGrid, GRID_INTERPOLATION_BSpline);
+		pGrid	= &g;
 	}
 
-	//---Rest----------------------------------------------
-	if( Get_NY() % yStep )
+	double	basal	= 0.0;
+	double	surface	= 0.0;
+
+	for(int y=0; y<pGrid->Get_NY() && Process_Get_Okay(); y++)
 	{
-		yStep	= Get_NY() % yStep;
-	}
-
-	Get_SurfaceRow(Step, xStep, yStep, ya, Get_NY() - 1);
-}
-
-//---------------------------------------------------------
-void CGrid_FractalDimension::Get_SurfaceRow(int Step, int xStep, int yStep, int ya, int yb)
-{
-	int		xa, xb;
-	double	xdist, ydist;
-
-	xdist	= xStep * Get_Cellsize();
-	ydist	= yStep * Get_Cellsize();
-
-	if( xStep == yStep )
-	{
-		for(xa=0, xb=xStep; xb<Get_NX(); xa+=xStep, xb+=xStep)
+		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
-			dimAreas[Step]	+= Get_Area(xdist,
-								pGrid->asDouble(xa, ya), pGrid->asDouble(xb, ya),
-								pGrid->asDouble(xb, yb), pGrid->asDouble(xa, yb)
-							);
-		}
-	}
-	else
-	{
-		for(xa=0, xb=xStep; xb<Get_NX(); xa+=xStep, xb+=xStep)
-		{
-			dimAreas[Step]	+= Get_Area(xdist, ydist,
-								pGrid->asDouble(xa, ya), pGrid->asDouble(xb, ya),
-								pGrid->asDouble(xb, yb), pGrid->asDouble(xa, yb)
-							);
+			double	s, a;
+
+			if( pGrid->Get_Gradient(x, y, s, a) )
+			{
+				basal	+= pGrid->Get_Cellarea();
+				surface	+= pGrid->Get_Cellarea() / cos(s);
+			}
 		}
 	}
 
-	//---Rest----------------------------------------------
-	if( Get_NX() % xStep )
+	//-----------------------------------------------------
+	if( basal > 0.0 )
 	{
-		xStep	= Get_NX() % xStep;
-	}
+		CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
-	dimAreas[Step]	+= Get_Area(xStep * Get_Cellsize(), ydist,
-						pGrid->asDouble(xa          , ya), pGrid->asDouble(Get_NX() - 1, ya),
-						pGrid->asDouble(Get_NX() - 1, yb), pGrid->asDouble(xa          , yb)
-					);
+		pRecord->Set_Value(0, pTable->Get_Count());	// CLASS
+		pRecord->Set_Value(1, scale);				// SCALE
+		pRecord->Set_Value(2, basal);				// BASAL
+		pRecord->Set_Value(3, surface);				// SURFACE
+		pRecord->Set_Value(4, surface / basal);		// RATIO
+
+		if( (pRecord = pTable->Get_Record(pTable->Get_Count() - 2)) != NULL )
+		{
+			pRecord->Set_Value(5, pRecord->asDouble(3) - surface);	// CHANGE
+		}
+	}
 }
 
 
@@ -230,59 +203,3 @@ void CGrid_FractalDimension::Get_SurfaceRow(int Step, int xStep, int yStep, int 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CGrid_FractalDimension::Get_Distance(double za, double zb, double dist)
-{
-	za	= fabs(za - zb);
-
-	return( sqrt(za*za + dist*dist) );
-}
-
-//---------------------------------------------------------
-double CGrid_FractalDimension::Get_Area(double dist, double z1, double z2, double z3, double z4)
-{
-	int		i;
-	double	z[4]	= { z1, z2, z3, z4 },
-			Area	= 0,
-			mz		= (z[0] + z[1] + z[2] + z[3]) / 4,
-			mdist	= dist * sqrt(2.0) / 2.0,
-			ab, am, bm, am2, k;
-
-	bm		= Get_Distance(z[3],mz,mdist);
-
-	for(i=0; i<4; i++)
-	{
-		am		= bm;
-		bm		= Get_Distance(z[i], mz, mdist);
-		ab		= Get_Distance(z[i], z[(i+3)%4], dist);
-		am2		= am*am;
-		k		= (am2 - bm*bm + ab*ab) / (2*ab);
-		Area	+= ab * sqrt(am2 - k*k) / 2;
-	}
-
-	return( Area );
-}
-
-//---------------------------------------------------------
-double CGrid_FractalDimension::Get_Area(double xdist, double ydist, double z1, double z2, double z3, double z4)
-{
-	int		i;
-	double	z[4]	= { z1, z2, z3, z4 },
-			Area	= 0,
-			mz		= (z[0] + z[1] + z[2] + z[3]) / 4,
-			mdist	= sqrt(xdist*xdist + ydist*ydist) / 2,
-			ab, am, bm, am2, k;
-
-	bm		= Get_Distance(z[3],mz,mdist);
-
-	for(i=0; i<4; i++)
-	{
-		am		= bm;
-		bm		= Get_Distance(z[i],mz,mdist);
-		ab		= Get_Distance(z[i],z[(i+3)%4],i%2 ? xdist : ydist);
-		am2		= am*am;
-		k		= (am2 - bm*bm + ab*ab) / (2*ab);
-		Area	+= ab * sqrt(am2 - k*k) / 2;
-	}
-
-	return(Area);
-}

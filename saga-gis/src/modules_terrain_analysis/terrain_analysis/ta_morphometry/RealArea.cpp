@@ -21,65 +21,40 @@
 *******************************************************************************/ 
 
 #include "RealArea.h"
-#include "Morphometry.h"
 
-CRealArea::CRealArea(void){
+CRealArea::CRealArea(void)
+{
+	Set_Name		(_TL("Real Surface Area"));
+	Set_Author		(SG_T("V. Olaya (c) 2004"));
+	Set_Description	(_TW(
+		"Calculates real (not projected) cell area"
+	));
 
-	Parameters.Set_Name(_TL("Real Area Calculation"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Calculates real (not projected) cell area"));
+	Parameters.Add_Grid(NULL, "DEM" , _TL("Elevation"   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid(NULL, "AREA", _TL("Surface Area"), _TL(""), PARAMETER_OUTPUT);
+}
 
-	Parameters.Add_Grid(NULL, 
-						"DEM",
-						_TL("Elevation"), 						
-						_TL(""), 
-						PARAMETER_INPUT);
+bool CRealArea::On_Execute(void)
+{
+	CSG_Grid	*pDEM	= Parameters("DEM" )->asGrid(); 
+	CSG_Grid	*pArea	= Parameters("AREA")->asGrid();
 
-	Parameters.Add_Grid(NULL, 
-						"AREA", 
-						_TL("Real Area Grid"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Float);
-
-}//constructor
-
-CRealArea::~CRealArea(void)
-{}
-
-bool CRealArea::On_Execute(void){
-	
-	CSG_Grid* pDEM = Parameters("DEM")->asGrid(); 
-	CSG_Grid* pArea = Parameters("AREA")->asGrid();
-	CSG_Grid pSlope(pDEM);
-	CSG_Grid pAspect(pDEM);
-	double fArea;
-	double fCellArea = pDEM->Get_Cellsize() * pDEM->Get_Cellsize();
-
-	CMorphometry	Morphometry;
-
-	if(	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ELEVATION"), pDEM    , PARAMETER_TYPE_Grid)
-	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("SLOPE")    , &pSlope , PARAMETER_TYPE_Grid)
-	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ASPECT")   , &pAspect, PARAMETER_TYPE_Grid)
-	||	!Morphometry.Execute() )
+    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		return( false );
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double	s, a;
+
+			if( pDEM->Get_Gradient(x, y, s, a) )
+			{
+				pArea->Set_Value(x, y, Get_System()->Get_Cellarea() / cos(s));
+			}
+			else
+			{
+				pArea->Set_NoData(x,y);
+			}
+		}
 	}
 	
-
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
-		for(int x=0; x<Get_NX(); x++){			
-			if (!pSlope.is_NoData(x,y)){
-				fArea = fCellArea / cos(pSlope.asFloat(x,y,false));
-				pArea->Set_Value(x,y,fArea);
-			}//if
-			else{
-				pArea->Set_NoData(x,y);
-			}//else
-		}//for
-	}//for	
-	
-	return true;
-
-}//method
+	return( true );
+}

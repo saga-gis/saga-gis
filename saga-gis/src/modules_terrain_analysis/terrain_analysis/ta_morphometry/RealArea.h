@@ -19,18 +19,17 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
+
 #include "MLB_Interface.h"
 
 class CRealArea : public CSG_Module_Grid
 {
 public:
 	CRealArea(void);
-	virtual ~CRealArea(void);
+
 
 protected:
 
-	bool On_Execute(void);
-
-private:
+	bool	On_Execute	(void);
 
 };

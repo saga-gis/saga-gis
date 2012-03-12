@@ -51,44 +51,58 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-
-
 #ifndef HEADER_INCLUDED__GC_MEASUREFRACTDIM_H
 #define HEADER_INCLUDED__GC_MEASUREFRACTDIM_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGrid_FractalDimension : public CSG_Module_Grid
 {
 public:
 	CGrid_FractalDimension(void);
-	virtual ~CGrid_FractalDimension(void);
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool	On_Execute	(void);
 
 
 private:
 
-	int						dimCount;
+	void			Get_Area	(CSG_Grid *pGrid, CSG_Table *pTable);
 
-	double					*dimAreas;
-
-	CSG_Grid					*pGrid;
-
-
-	void					Get_Surface(int Step);
-	void					Get_SurfaceRow(int Step, int xStep, int yStep, int ya, int yb);
-
-	double					Get_Area(double dist, double z1, double z2, double z3, double z4);
-	double					Get_Area(double xdist, double ydist, double z1, double z2, double z3, double z4);
-
-	double					Get_Distance(double z1, double z2, double dist);
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__GC_MEASUREFRACTDIM_H
