@@ -1053,22 +1053,34 @@ public:
 
 	void						Destroy				(void);
 
-	bool						Calculate			(const CSG_Matrix &Samples                           , CSG_Strings *pNames = NULL);
-	bool						Calculate_Forward	(const CSG_Matrix &Samples, double P_in              , CSG_Strings *pNames = NULL);
-	bool						Calculate_Backward	(const CSG_Matrix &Samples, double P_out             , CSG_Strings *pNames = NULL);
-	bool						Calculate_Stepwise	(const CSG_Matrix &Samples, double P_in, double P_out, CSG_Strings *pNames = NULL);
+	bool						Set_Data			(const CSG_Matrix &Samples, CSG_Strings *pNames = NULL);
+
+	bool						Get_Model			(const CSG_Matrix &Samples                           , CSG_Strings *pNames = NULL);
+	bool						Get_Model_Forward	(const CSG_Matrix &Samples, double P_in              , CSG_Strings *pNames = NULL);
+	bool						Get_Model_Backward	(const CSG_Matrix &Samples, double P_out             , CSG_Strings *pNames = NULL);
+	bool						Get_Model_Stepwise	(const CSG_Matrix &Samples, double P_in, double P_out, CSG_Strings *pNames = NULL);
+
+	bool						Get_Model			(void);
+	bool						Get_Model_Forward	(double P_in);
+	bool						Get_Model_Backward	(double P_out);
+	bool						Get_Model_Stepwise	(double P_in, double P_out);
+
+	bool						Get_CrossValidation	(int nSubSamples = 0);
 
 	CSG_String					Get_Info			(void)			const;
-
-	class CSG_Table *			Get_Regression		(void)			const	{	return( m_pRegression );	}
-	class CSG_Table *			Get_Model			(void)			const	{	return( m_pModel );			}
-	class CSG_Table *			Get_Steps			(void)			const	{	return( m_pSteps );			}
+	class CSG_Table *			Get_Info_Regression	(void)			const	{	return( m_pRegression );	}
+	class CSG_Table *			Get_Info_Model		(void)			const	{	return( m_pModel );			}
+	class CSG_Table *			Get_Info_Steps		(void)			const	{	return( m_pSteps );			}
 
 	double						Get_R2				(void)			const;
 	double						Get_R2_Adj			(void)			const;
 	double						Get_StdError		(void)			const;
 	double						Get_F				(void)			const;
 	double						Get_P				(void)			const;
+	double						Get_CV_RMSE			(void)			const;
+	double						Get_CV_NRMSE		(void)			const;
+	double						Get_CV_R2			(void)			const;
+	int							Get_CV_nSamples		(void)			const;
 	int							Get_DegFreedom		(void)			const;
 	int							Get_nSamples		(void)			const;
 	int							Get_nPredictors		(void)			const;
@@ -1086,6 +1098,14 @@ public:
 
 	double						Get_Parameter		(int iVariable, int Parameter)	const;
 
+	double						Get_Value			(const CSG_Vector &Predictors)					const;
+	bool						Get_Value			(const CSG_Vector &Predictors, double &Value)	const;
+
+	double						Get_Residual		(int iSample)					const;
+	bool						Get_Residual		(int iSample, double &Residual)	const;
+
+	bool						Get_Residuals		(CSG_Vector &Residuals)			const;
+
 
 protected:
 
@@ -1093,20 +1113,23 @@ protected:
 
 	CSG_Strings					m_Names;
 
+	CSG_Matrix					m_Samples, m_Samples_Model;
+
 	class CSG_Table				*m_pRegression, *m_pModel, *m_pSteps;
 
 
-	bool						_Initialize			(const CSG_Matrix &Samples, CSG_Strings *pNames, bool bInclude);
+	bool						_Initialize			(bool bInclude);
 
 	double						_Get_F				(int nPredictors, int nSamples, double r2_full, double r2_reduced);
 	double						_Get_P				(int nPredictors, int nSamples, double r2_full, double r2_reduced);
 
 	bool						_Get_Regression		(const class CSG_Matrix &Samples);
 
-	bool						_Set_Step_Info		(const CSG_Matrix &X);
-	bool						_Set_Step_Info		(const CSG_Matrix &X, double R2_prev, int iVariable, bool bIn);
 	int							_Get_Step_In		(CSG_Matrix &X, double P_in , double &R2, const CSG_Matrix &Samples);
 	int							_Get_Step_Out		(CSG_Matrix &X, double P_out, double &R2);
+
+	bool						_Set_Step_Info		(const CSG_Matrix &X);
+	bool						_Set_Step_Info		(const CSG_Matrix &X, double R2_prev, int iVariable, bool bIn);
 
 };
 

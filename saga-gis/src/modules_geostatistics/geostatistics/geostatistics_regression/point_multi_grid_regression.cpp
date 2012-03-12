@@ -186,6 +186,41 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		_TL("Level of significance for automated predictor selection, given as percentage"),
 		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
 	);
+
+	Parameters.Add_Choice(
+		NULL	,"CROSSVAL"		, _TL("Cross Validation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("none"),
+			_TL("leave one out"),
+			_TL("2-fold"),
+			_TL("k-fold")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		NULL	, "CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
+		_TL("number of subsamples for k-fold cross validation"),
+		PARAMETER_TYPE_Int, 10, 2, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPoint_Multi_Grid_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CROSSVAL")) )
+	{
+		pParameters->Get_Parameter("CROSSVAL_K")->Set_Enabled(pParameter->asInt() == 3);	// k-fold
+	}
+
+	return( 0 );
 }
 
 
@@ -225,10 +260,10 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 	switch( Parameters("METHOD")->asInt() )
 	{
 	default:
-	case 0:	bResult	= m_Regression.Calculate         (Samples             , &Names);	break;
-	case 1:	bResult	= m_Regression.Calculate_Forward (Samples, P_in       , &Names);	break;
-	case 2:	bResult	= m_Regression.Calculate_Backward(Samples,       P_out, &Names);	break;
-	case 3:	bResult	= m_Regression.Calculate_Stepwise(Samples, P_in, P_out, &Names);	break;
+	case 0:	bResult	= m_Regression.Get_Model         (Samples             , &Names);	break;
+	case 1:	bResult	= m_Regression.Get_Model_Forward (Samples, P_in       , &Names);	break;
+	case 2:	bResult	= m_Regression.Get_Model_Backward(Samples,       P_out, &Names);	break;
+	case 3:	bResult	= m_Regression.Get_Model_Stepwise(Samples, P_in, P_out, &Names);	break;
 	}
 
 	if( bResult == false )
@@ -236,7 +271,29 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	Message_Add(m_Regression.Get_Info(), false);
+
+	//-----------------------------------------------------
+	int	CrossVal;
+
+	switch( Parameters("CROSSVAL")->asInt() )
+	{
+	default:	CrossVal	= 0;									break;	// none
+	case 1:		CrossVal	= 1;									break;	// leave one out (LOOVC)
+	case 2:		CrossVal	= 2;									break;	// 2-fold
+	case 3:		CrossVal	= Parameters("CROSSVAL_K")->asInt();	break;	// k-fold
+	}
+
+	if( CrossVal > 0 && m_Regression.Get_CrossValidation(CrossVal) )
+	{
+		Message_Add(CSG_String::Format(SG_T("\n%s:\n"      ), _TL("Cross Validation")), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%s\n"  ), _TL("Type"   ), Parameters("CROSSVAL")->asString() ), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%d\n"  ), _TL("Samples"), m_Regression.Get_CV_nSamples()     ), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%f\n"  ), _TL("RMSE"   ), m_Regression.Get_CV_RMSE()         ), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("NRMSE"  ), m_Regression.Get_CV_NRMSE() * 100.0), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("R2"     ), m_Regression.Get_CV_R2()    * 100.0), false);
+	}
 
 	//-----------------------------------------------------
 	Set_Regression(pGrids, pRegression, CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name().c_str()));
@@ -246,19 +303,19 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("INFO_COEFF")->asTable() )
 	{
-		Parameters("INFO_COEFF")->asTable()->Assign(m_Regression.Get_Regression());
+		Parameters("INFO_COEFF")->asTable()->Assign(m_Regression.Get_Info_Regression());
 		Parameters("INFO_COEFF")->asTable()->Set_Name(_TL("MLRA Coefficients"));
 	}
 
 	if( Parameters("INFO_MODEL")->asTable() )
 	{
-		Parameters("INFO_MODEL")->asTable()->Assign(m_Regression.Get_Model());
+		Parameters("INFO_MODEL")->asTable()->Assign(m_Regression.Get_Info_Model());
 		Parameters("INFO_MODEL")->asTable()->Set_Name(_TL("MLRA Model"));
 	}
 
 	if( Parameters("INFO_STEPS")->asTable() )
 	{
-		Parameters("INFO_STEPS")->asTable()->Assign(m_Regression.Get_Steps());
+		Parameters("INFO_STEPS")->asTable()->Assign(m_Regression.Get_Info_Steps());
 		Parameters("INFO_STEPS")->asTable()->Set_Name(_TL("MLRA Steps"));
 	}
 

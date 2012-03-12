@@ -87,7 +87,12 @@ enum ESG_Multiple_Regression_Info_Model
 	MLR_MODEL_F,
 	MLR_MODEL_SIG,
 	MLR_MODEL_NPREDICT,
-	MLR_MODEL_NSAMPLES
+	MLR_MODEL_NSAMPLES,
+	MLR_MODEL_CV_MSE,
+	MLR_MODEL_CV_RMSE,
+	MLR_MODEL_CV_NRMSE,
+	MLR_MODEL_CV_R2,
+	MLR_MODEL_CV_NSAMPLES
 };
 
 //---------------------------------------------------------
@@ -172,6 +177,11 @@ CSG_Regression_Multiple::CSG_Regression_Multiple(void)
 	m_pModel		->Add_Record()->Set_Value(0, SG_T("SIG"			));	// MLR_MODEL_SIG
 	m_pModel		->Add_Record()->Set_Value(0, SG_T("PREDICTORS"	));	// MLR_MODEL_NPREDICT
 	m_pModel		->Add_Record()->Set_Value(0, SG_T("SAMPLES"		));	// MLR_MODEL_NSAMPLES
+	m_pModel		->Add_Record()->Set_Value(0, SG_T("CV_MSE"		));	// MLR_MODEL_CV_MSE
+	m_pModel		->Add_Record()->Set_Value(0, SG_T("CV_RMSE"		));	// MLR_MODEL_CV_RMSE
+	m_pModel		->Add_Record()->Set_Value(0, SG_T("CV_NRMSE"	));	// MLR_MODEL_CV_RMSE
+	m_pModel		->Add_Record()->Set_Value(0, SG_T("CV_R2"		));	// MLR_MODEL_CV_R2
+	m_pModel		->Add_Record()->Set_Value(0, SG_T("CV_SAMPLES"	));	// MLR_MODEL_CV_NSAMPLES
 
 	//-----------------------------------------------------
 	m_Predictor		= NULL;
@@ -198,7 +208,9 @@ CSG_Regression_Multiple::~CSG_Regression_Multiple(void)
 //---------------------------------------------------------
 void CSG_Regression_Multiple::Destroy(void)
 {
-	m_Names.Clear();
+	m_Names        .Clear  ();
+	m_Samples      .Destroy();
+	m_Samples_Model.Destroy();
 
 	m_pRegression	->Del_Records();
 	m_pSteps		->Del_Records();
@@ -226,39 +238,347 @@ void CSG_Regression_Multiple::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression_Multiple::_Initialize(const CSG_Matrix &Samples, CSG_Strings *pNames, bool bInclude)
+bool CSG_Regression_Multiple::Set_Data(const CSG_Matrix &Samples, CSG_Strings *pNames)
 {
 	Destroy();
 
-	int		i, nSamples, nPredictors;
+	int	i, nPredictors	= Samples.Get_NCols() - 1;
 
-	if(	(nPredictors = Samples.Get_NCols() - 1) < 1
-	||	(nSamples    = Samples.Get_NRows()) <= nPredictors )
+	if(	nPredictors < 1 || Samples.Get_NRows() <= nPredictors )
 	{
 		return( false );
 	}
 
 	//-------------------------------------------------
+	for(i=0; i<=nPredictors; i++)
+	{
+		m_Names	+= pNames && pNames->Get_Count() == Samples.Get_NCols() ? pNames->Get_String(i) : i == 0
+			? CSG_String::Format(SG_T(    "%s"),        _TL("Dependent"))
+			: CSG_String::Format(SG_T("%d. %s"), i + 1, _TL("Predictor"));
+	}
+
+	m_Samples	= Samples;
+
 	m_bIncluded		= new int[nPredictors];
 	m_Predictor		= new int[nPredictors];
-	m_nPredictors	= 0;
 
-	for(i=0; i<nPredictors; i++)
+	//-------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::_Initialize(bool bInclude)
+{
+	int	i, nPredictors	= m_Samples.Get_NCols() - 1;
+
+	if( nPredictors < 1 || m_Samples.Get_NRows() <= nPredictors )
 	{
-		m_bIncluded[i]	= bInclude;
-		m_Predictor[i]	= i;
+		return( false );
 	}
 
 	//-------------------------------------------------
-	for(i=0; i<=nPredictors; i++)
+	if( bInclude )
 	{
-		m_Names	+= pNames && pNames->Get_Count() == Samples.Get_NCols()
-			? pNames->Get_String(i)
-			: i == 0 ? CSG_String::Format(SG_T("%s"), _TL("Dependent")) : CSG_String::Format(SG_T("%d. %s"), i + 1, _TL("Predictor"));
+		m_nPredictors	= nPredictors;
+		m_Samples_Model.Create(m_Samples);
+	}
+	else
+	{
+		m_nPredictors	= 0;
+		m_Samples_Model.Create(1, m_Samples.Get_NRows(), m_Samples.Get_Col(0).Get_Data());
+	}
+
+	for(i=0; i<nPredictors; i++)
+	{
+		m_Predictor[i]	= i;
+		m_bIncluded[i]	= bInclude;
+	}
+
+	for(i=0; i<m_pModel->Get_Count(); i++)
+	{
+		m_pModel->Get_Record(i)->Set_NoData(1);
 	}
 
 	//-------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::Get_Model(const CSG_Matrix &Samples, CSG_Strings *pNames)
+{
+	return( Set_Data(Samples, pNames) && Get_Model() );
+}
+
+bool CSG_Regression_Multiple::Get_Model_Forward(const CSG_Matrix &Samples, double P_in, CSG_Strings *pNames)
+{
+	return( Set_Data(Samples, pNames) && Get_Model_Forward(P_in) );
+}
+
+bool CSG_Regression_Multiple::Get_Model_Backward(const CSG_Matrix &Samples, double P_out, CSG_Strings *pNames)
+{
+	return( Set_Data(Samples, pNames) && Get_Model_Backward(P_out) );
+}
+
+bool CSG_Regression_Multiple::Get_Model_Stepwise(const CSG_Matrix &Samples, double P_in, double P_out, CSG_Strings *pNames)
+{
+	return( Set_Data(Samples, pNames) && Get_Model_Stepwise(P_in, P_out) );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::Get_Model(void)
+{
+	return( _Initialize(true) && _Get_Regression(m_Samples) );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::Get_Model_Forward(double P_in)
+{
+	if( _Initialize(false) )
+	{
+		double	R2	= 0.0;
+
+		while( _Get_Step_In(m_Samples_Model, P_in, R2, m_Samples) >= 0 );
+
+		return( _Set_Step_Info(m_Samples_Model) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::Get_Model_Backward(double P_out)
+{
+	if( _Initialize(true) )
+	{
+		double	R2	= 0.0;
+
+		while( _Get_Step_Out(m_Samples_Model, P_out, R2) >= 0 );
+
+		return( _Set_Step_Info(m_Samples_Model) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::Get_Model_Stepwise(double P_in, double P_out)
+{
+	if( _Initialize(false) )
+	{
+		double	R2	= 0.0;
+
+		if( P_out <= P_in )
+		{
+			P_out	= P_in + 0.001;
+		}
+
+		while( _Get_Step_In(m_Samples_Model, P_in, R2, m_Samples) >= 0 && SG_UI_Process_Get_Okay() )
+		{
+			if( m_nPredictors > 1 )
+			{
+				_Get_Step_Out(m_Samples_Model, P_out, R2);
+			}
+		}
+
+		return( _Set_Step_Info(m_Samples_Model) );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::Get_CrossValidation(int nSubSamples)
+{
+	if( m_Samples_Model.Get_NCols() <= 1 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Regression_Multiple	Model;
+	CSG_Simple_Statistics	Stats, SR, SE;
+
+	int		i, nModels	= 0;
+
+	for(i=0; i<m_Samples_Model.Get_NRows(); i++)
+	{
+		Stats	+= m_Samples_Model[i][0];
+	}
+
+	//-----------------------------------------------------
+	// leave-one-out cross validation (LOOCV)
+	if( nSubSamples <= 1 || nSubSamples > m_Samples_Model.Get_NRows() / 2 )
+	{
+		for(i=0; i<m_Samples_Model.Get_NRows() && SG_UI_Process_Get_Okay(); i++)
+		{
+			CSG_Matrix	Samples(m_Samples_Model);
+			Samples.Del_Row(i);
+
+			if( Model.Get_Model(Samples) )
+			{
+				nModels++;
+
+				double	dObsrv	= m_Samples_Model[i][0];
+				double	dModel	= Model.Get_Value(CSG_Vector(m_nPredictors, m_Samples_Model[i] + 1));
+
+				SE	+= SG_Get_Square(dModel - dObsrv);
+				SR	+= SG_Get_Square(dModel - (Stats.Get_Sum() - dObsrv) / Samples.Get_NRows());
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	// k-fold cross validation
+	else
+	{
+		int	*SubSet	= new int[m_Samples_Model.Get_NRows()];
+
+		for(i=0; i<m_Samples_Model.Get_NRows(); i++)
+		{
+			SubSet[i]	= i % nSubSamples;
+		}
+
+		//-------------------------------------------------
+		for(int iSubSet=0; iSubSet<nSubSamples && SG_UI_Process_Get_Okay(); iSubSet++)
+		{
+			CSG_Simple_Statistics	Samples_Stats;
+			CSG_Matrix	Samples(m_Samples_Model), Validation;
+
+			for(i=Samples.Get_NRows()-1; i>=0; i--)
+			{
+				if( SubSet[i] == iSubSet )
+				{
+					Validation.Add_Row(Samples.Get_Row(i));
+					Samples   .Del_Row(i);
+				}
+				else
+				{
+					Samples_Stats	+= Samples[i][0];
+				}
+			}
+
+			//---------------------------------------------
+			if( Model.Get_Model(Samples) )
+			{
+				nModels++;
+
+				for(i=0; i<Validation.Get_NRows(); i++)
+				{
+					double	dObsrv	= Validation[i][0];
+					double	dModel	= Model.Get_Value(CSG_Vector(m_nPredictors, Validation[i] + 1));
+
+					SE	+= SG_Get_Square(dModel - dObsrv);
+					SR	+= SG_Get_Square(dModel - Samples_Stats.Get_Mean());
+				}
+			}
+		}
+
+		delete[](SubSet);
+	}
+
+	//-----------------------------------------------------
+	m_pModel->Get_Record(MLR_MODEL_CV_MSE     )->Set_Value(1, SE.Get_Mean());
+	m_pModel->Get_Record(MLR_MODEL_CV_RMSE    )->Set_Value(1, sqrt(SE.Get_Mean()));
+	m_pModel->Get_Record(MLR_MODEL_CV_NRMSE   )->Set_Value(1, sqrt(SE.Get_Mean()) / Stats.Get_Range());
+	m_pModel->Get_Record(MLR_MODEL_CV_R2      )->Set_Value(1, SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum()));
+	m_pModel->Get_Record(MLR_MODEL_CV_NSAMPLES)->Set_Value(1, nModels);
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_Value(const CSG_Vector &Predictors)	const
+{
+	double	Value;
+
+	Get_Value(Predictors, Value);
+
+	return( Value );
+}
+
+bool CSG_Regression_Multiple::Get_Value(const CSG_Vector &Predictors, double &Value)	const
+{
+	if( m_nPredictors == Predictors.Get_N() )
+	{
+		Value	= Get_RConst();
+
+		for(int i=0; i<m_nPredictors; i++)
+		{
+			Value	+= Get_RCoeff(i) * Predictors(i);
+		}
+
+		return( true );
+	}
+
+	Value	= 0.0;
+
+	return( false );
+}
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_Residual(int iSample)	const
+{
+	double	Value;
+
+	Get_Residual(iSample, Value);
+
+	return( Value );
+}
+
+bool CSG_Regression_Multiple::Get_Residual(int iSample, double &Residual)	const
+{
+	if( iSample >= 0 && iSample < m_Samples_Model.Get_NRows() )
+	{
+		Residual	= Get_RConst();
+
+		for(int i=0; i<m_nPredictors; i++)
+		{
+			Residual	+= Get_RCoeff(i) * m_Samples_Model[iSample][1 + i];
+		}
+
+		Residual	-= m_Samples_Model[iSample][0];
+
+		return( true );
+	}
+
+	Residual	= 0.0;
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::Get_Residuals(CSG_Vector &Residuals)	const
+{
+	Residuals.Create(m_Samples_Model.Get_NRows());
+
+	for(int i=0; i<Residuals.Get_N(); i++)
+	{
+		Get_Residual(i, Residuals[i]);
+	}
+
+	return( Residuals.Get_N() > 0 );
 }
 
 
@@ -392,61 +712,6 @@ bool CSG_Regression_Multiple::_Get_Regression(const CSG_Matrix &Samples)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X)
-{
-	CSG_Regression_Multiple	R;
-
-	if( R.Calculate(X) )
-	{
-		m_pModel		->Assign(R.m_pModel);
-		m_pRegression	->Assign(R.m_pRegression);
-
-		m_pRegression->Get_Record(0)->Set_Value(MLR_VAR_NAME, m_Names[0]);
-
-		for(int i=0; i<m_nPredictors; i++)
-		{
-			CSG_Table_Record	*pRecord	= m_pRegression->Get_Record(1 + i);
-
-			pRecord->Set_Value(MLR_VAR_ID  , m_Predictor[i]);
-			pRecord->Set_Value(MLR_VAR_NAME, m_Names[1 + m_Predictor[i]]);
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X, double R2_prev, int iVariable, bool bIn)
-{
-	CSG_Regression_Multiple R;
-
-	R.Calculate(X);
-
-	CSG_Table_Record	*pRecord	= m_pSteps->Add_Record();
-
-	pRecord->Set_Value(MLR_STEP_NR		, m_pSteps->Get_Count());
-	pRecord->Set_Value(MLR_STEP_R		, sqrt(R.Get_R2()));
-	pRecord->Set_Value(MLR_STEP_R2		, R.Get_R2());
-	pRecord->Set_Value(MLR_STEP_R2_ADJ	, R.Get_R2_Adj());
-	pRecord->Set_Value(MLR_STEP_SE		, R.Get_StdError());
-	pRecord->Set_Value(MLR_STEP_SSR		, R.m_pModel->Get_Record(MLR_MODEL_SSR)->asDouble(1));
-	pRecord->Set_Value(MLR_STEP_SSE		, R.m_pModel->Get_Record(MLR_MODEL_SSE)->asDouble(1));
-	pRecord->Set_Value(MLR_STEP_MSR		, R.m_pModel->Get_Record(MLR_MODEL_MSR)->asDouble(1));
-	pRecord->Set_Value(MLR_STEP_MSE		, R.m_pModel->Get_Record(MLR_MODEL_MSE)->asDouble(1));
-	pRecord->Set_Value(MLR_STEP_DF		, X.Get_NRows() - m_nPredictors - 1);
-	pRecord->Set_Value(MLR_STEP_F		, R.m_pModel->Get_Record(MLR_MODEL_F  )->asDouble(1));
-	pRecord->Set_Value(MLR_STEP_SIG		, R.m_pModel->Get_Record(MLR_MODEL_SIG)->asDouble(1));
-	pRecord->Set_Value(MLR_STEP_VAR_F	, _Get_F(1, X.Get_NRows() - (m_nPredictors - 1), bIn ? R.Get_R2() : R2_prev, bIn ? R2_prev : R.Get_R2()));
-	pRecord->Set_Value(MLR_STEP_VAR_SIG	, _Get_P(1, X.Get_NRows() - (m_nPredictors - 1), bIn ? R.Get_R2() : R2_prev, bIn ? R2_prev : R.Get_R2()));
-	pRecord->Set_Value(MLR_STEP_DIR		, bIn ? SG_T(">>") : SG_T("<<"));
-	pRecord->Set_Value(MLR_STEP_VAR		, m_Names[1 + iVariable]);
-
-	return( true );
-}
-
-//---------------------------------------------------------
 int CSG_Regression_Multiple::_Get_Step_In(CSG_Matrix &X, double P_in, double &R2, const CSG_Matrix &Samples)
 {
 	int		iBest, iPredictor;
@@ -463,7 +728,7 @@ int CSG_Regression_Multiple::_Get_Step_In(CSG_Matrix &X, double P_in, double &R2
 		{
 			X.Set_Col(1 + m_nPredictors, Samples.Get_Col(1 + iPredictor));
 
-			if( R.Calculate(X) && (iBest < 0 || rBest < R.Get_R2()) )
+			if( R.Get_Model(X) && (iBest < 0 || rBest < R.Get_R2()) )
 			{
 				iBest	= iPredictor;
 				rBest	= R.Get_R2();
@@ -501,7 +766,7 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 
 	if( R2 <= 0.0 )
 	{
-		R.Calculate(X);
+		R.Get_Model(X);
 
 		R2	= R.Get_R2();
 	}
@@ -513,7 +778,7 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 
 		X_reduced.Del_Col(1 + iPredictor);
 
-		if( R.Calculate(X_reduced) && (iBest < 0 || rBest < R.Get_R2()) )
+		if( R.Get_Model(X_reduced) && (iBest < 0 || rBest < R.Get_R2()) )
 		{
 			iBest	= iPredictor;
 			rBest	= R.Get_R2();
@@ -550,113 +815,60 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression_Multiple::Calculate(const CSG_Matrix &Samples, CSG_Strings *pNames)
+bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X)
 {
-	if( !_Initialize(Samples, pNames, true) )
+	CSG_Regression_Multiple	R;
+
+	if( m_nPredictors > 0 && R.Get_Model(X) )
 	{
-		return( false );
+		m_pModel		->Assign(R.m_pModel);
+		m_pRegression	->Assign(R.m_pRegression);
+
+		m_pRegression->Get_Record(0)->Set_Value(MLR_VAR_NAME, m_Names[0]);
+
+		for(int i=0; i<m_nPredictors; i++)
+		{
+			CSG_Table_Record	*pRecord	= m_pRegression->Get_Record(1 + i);
+
+			pRecord->Set_Value(MLR_VAR_ID  , m_Predictor[i]);
+			pRecord->Set_Value(MLR_VAR_NAME, m_Names[1 + m_Predictor[i]]);
+		}
+
+		return( true );
 	}
 
-	_Get_Regression(Samples);
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X, double R2_prev, int iVariable, bool bIn)
+{
+	CSG_Regression_Multiple R;
+
+	R.Get_Model(X);
+
+	CSG_Table_Record	*pRecord	= m_pSteps->Add_Record();
+
+	pRecord->Set_Value(MLR_STEP_NR		, m_pSteps->Get_Count());
+	pRecord->Set_Value(MLR_STEP_R		, sqrt(R.Get_R2()));
+	pRecord->Set_Value(MLR_STEP_R2		, R.Get_R2());
+	pRecord->Set_Value(MLR_STEP_R2_ADJ	, R.Get_R2_Adj());
+	pRecord->Set_Value(MLR_STEP_SE		, R.Get_StdError());
+	pRecord->Set_Value(MLR_STEP_SSR		, R.m_pModel->Get_Record(MLR_MODEL_SSR)->asDouble(1));
+	pRecord->Set_Value(MLR_STEP_SSE		, R.m_pModel->Get_Record(MLR_MODEL_SSE)->asDouble(1));
+	pRecord->Set_Value(MLR_STEP_MSR		, R.m_pModel->Get_Record(MLR_MODEL_MSR)->asDouble(1));
+	pRecord->Set_Value(MLR_STEP_MSE		, R.m_pModel->Get_Record(MLR_MODEL_MSE)->asDouble(1));
+	pRecord->Set_Value(MLR_STEP_DF		, X.Get_NRows() - m_nPredictors - 1);
+	pRecord->Set_Value(MLR_STEP_F		, R.m_pModel->Get_Record(MLR_MODEL_F  )->asDouble(1));
+	pRecord->Set_Value(MLR_STEP_SIG		, R.m_pModel->Get_Record(MLR_MODEL_SIG)->asDouble(1));
+	pRecord->Set_Value(MLR_STEP_VAR_F	, _Get_F(1, X.Get_NRows() - (m_nPredictors - 1), bIn ? R.Get_R2() : R2_prev, bIn ? R2_prev : R.Get_R2()));
+	pRecord->Set_Value(MLR_STEP_VAR_SIG	, _Get_P(1, X.Get_NRows() - (m_nPredictors - 1), bIn ? R.Get_R2() : R2_prev, bIn ? R2_prev : R.Get_R2()));
+	pRecord->Set_Value(MLR_STEP_DIR		, bIn ? SG_T(">>") : SG_T("<<"));
+	pRecord->Set_Value(MLR_STEP_VAR		, m_Names[1 + iVariable]);
 
 	return( true );
 }
 
-//---------------------------------------------------------
-bool CSG_Regression_Multiple::Calculate_Forward(const CSG_Matrix &Samples, double P_in, CSG_Strings *pNames)
-{
-	if( !_Initialize(Samples, pNames, false) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_Matrix		X(1, Samples.Get_NY(), Samples.Get_Col(0).Get_Data());
-
-	m_nPredictors	= 0;
-
-	double	R2		= 0.0;
-
-	while( _Get_Step_In(X, P_in, R2, Samples) >= 0 );
-
-	//-----------------------------------------------------
-	if( m_nPredictors > 0 )
-	{
-		_Set_Step_Info(X);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Regression_Multiple::Calculate_Backward(const CSG_Matrix &Samples, double P_out, CSG_Strings *pNames)
-{
-	if( !_Initialize(Samples, pNames, true) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_Matrix		X(Samples);
-
-	m_nPredictors	= Samples.Get_NX() - 1;
-
-	double	R2		= 0.0;
-
-	while( _Get_Step_Out(X, P_out, R2) >= 0 );
-
-	//-----------------------------------------------------
-	if( m_nPredictors > 0 )
-	{
-		_Set_Step_Info(X);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Regression_Multiple::Calculate_Stepwise(const CSG_Matrix &Samples, double P_in, double P_out, CSG_Strings *pNames)
-{
-	if( !_Initialize(Samples, pNames, false) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_Matrix		X(1, Samples.Get_NY(), Samples.Get_Col(0).Get_Data());
-
-	m_nPredictors	= 0;
-
-	double	R2		= 0.0;
-
-	if( P_out <= P_in )
-	{
-		P_out	= P_in + 0.001;
-	}
-
-	while( _Get_Step_In(X, P_in, R2, Samples) >= 0 && SG_UI_Process_Get_Okay() )
-	{
-		if( m_nPredictors > 1 )
-		{
-			_Get_Step_Out(X, P_out, R2);
-		}
-	}
-
-	//-----------------------------------------------------
-	if( m_nPredictors > 0 )
-	{
-		_Set_Step_Info(X);
-
-		return( true );
-	}
-
-	return( false );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -665,13 +877,17 @@ bool CSG_Regression_Multiple::Calculate_Stepwise(const CSG_Matrix &Samples, doub
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Regression_Multiple::Get_R2			(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_R2      )->asDouble(1) );	}
-double CSG_Regression_Multiple::Get_R2_Adj		(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_R2_ADJ  )->asDouble(1) );	}
-double CSG_Regression_Multiple::Get_StdError	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_SE      )->asDouble(1) );	}
-double CSG_Regression_Multiple::Get_F			(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_F       )->asDouble(1) );	}
-double CSG_Regression_Multiple::Get_P			(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_SIG     )->asDouble(1) );	}
-int    CSG_Regression_Multiple::Get_nPredictors	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_NPREDICT)->asInt   (1) );	}
-int    CSG_Regression_Multiple::Get_nSamples	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_NSAMPLES)->asInt   (1) );	}
+double CSG_Regression_Multiple::Get_R2			(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_R2         )->asDouble(1) );	}
+double CSG_Regression_Multiple::Get_R2_Adj		(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_R2_ADJ     )->asDouble(1) );	}
+double CSG_Regression_Multiple::Get_StdError	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_SE         )->asDouble(1) );	}
+double CSG_Regression_Multiple::Get_F			(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_F          )->asDouble(1) );	}
+double CSG_Regression_Multiple::Get_P			(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_SIG        )->asDouble(1) );	}
+double CSG_Regression_Multiple::Get_CV_RMSE		(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_CV_RMSE    )->asDouble(1) );	}
+double CSG_Regression_Multiple::Get_CV_NRMSE	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_CV_NRMSE   )->asDouble(1) );	}
+double CSG_Regression_Multiple::Get_CV_R2		(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_CV_R2      )->asDouble(1) );	}
+int    CSG_Regression_Multiple::Get_CV_nSamples	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_CV_NSAMPLES)->asInt   (1) );	}
+int    CSG_Regression_Multiple::Get_nPredictors	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_NPREDICT   )->asInt   (1) );	}
+int    CSG_Regression_Multiple::Get_nSamples	(void)	const	{	return( m_pModel->Get_Record(MLR_MODEL_NSAMPLES   )->asInt   (1) );	}
 int    CSG_Regression_Multiple::Get_DegFreedom	(void)	const	{	return( Get_nSamples() - Get_nPredictors() - 1 );	}
 
 //---------------------------------------------------------

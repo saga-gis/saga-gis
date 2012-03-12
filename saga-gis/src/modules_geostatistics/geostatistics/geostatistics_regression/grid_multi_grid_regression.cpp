@@ -216,10 +216,10 @@ bool CGrid_Multi_Grid_Regression::On_Execute(void)
 	switch( Parameters("METHOD")->asInt() )
 	{
 	default:
-	case 0:	bResult	= m_Regression.Calculate         (Samples             , &Names);	break;
-	case 1:	bResult	= m_Regression.Calculate_Forward (Samples, P_in       , &Names);	break;
-	case 2:	bResult	= m_Regression.Calculate_Backward(Samples,       P_out, &Names);	break;
-	case 3:	bResult	= m_Regression.Calculate_Stepwise(Samples, P_in, P_out, &Names);	break;
+	case 0:	bResult	= m_Regression.Get_Model         (Samples             , &Names);	break;
+	case 1:	bResult	= m_Regression.Get_Model_Forward (Samples, P_in       , &Names);	break;
+	case 2:	bResult	= m_Regression.Get_Model_Backward(Samples,       P_out, &Names);	break;
+	case 3:	bResult	= m_Regression.Get_Model_Stepwise(Samples, P_in, P_out, &Names);	break;
 	}
 
 	if( bResult == false )
@@ -235,19 +235,19 @@ bool CGrid_Multi_Grid_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("INFO_COEFF")->asTable() )
 	{
-		Parameters("INFO_COEFF")->asTable()->Assign(m_Regression.Get_Regression());
+		Parameters("INFO_COEFF")->asTable()->Assign(m_Regression.Get_Info_Regression());
 		Parameters("INFO_COEFF")->asTable()->Set_Name(_TL("MLRA Coefficients"));
 	}
 
 	if( Parameters("INFO_MODEL")->asTable() )
 	{
-		Parameters("INFO_MODEL")->asTable()->Assign(m_Regression.Get_Model());
+		Parameters("INFO_MODEL")->asTable()->Assign(m_Regression.Get_Info_Model());
 		Parameters("INFO_MODEL")->asTable()->Set_Name(_TL("MLRA Model"));
 	}
 
 	if( Parameters("INFO_STEPS")->asTable() )
 	{
-		Parameters("INFO_STEPS")->asTable()->Assign(m_Regression.Get_Steps());
+		Parameters("INFO_STEPS")->asTable()->Assign(m_Regression.Get_Info_Steps());
 		Parameters("INFO_STEPS")->asTable()->Set_Name(_TL("MLRA Steps"));
 	}
 
