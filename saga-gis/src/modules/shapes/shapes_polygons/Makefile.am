@@ -15,6 +15,7 @@ pkglib_LTLIBRARIES = libshapes_polygons.la
 libshapes_polygons_la_SOURCES =\
 MLB_Interface.cpp\
 Polygon_Centroids.cpp\
+Polygon_Clip.cpp\
 Polygon_Geometrics.cpp\
 Polygon_Intersection.cpp\
 Polygon_StatisticsFromPoints.cpp\
@@ -27,6 +28,7 @@ polygon_to_points.cpp\
 shape_index.cpp\
 MLB_Interface.h\
 Polygon_Centroids.h\
+Polygon_Clip.h\
 Polygon_Geometrics.h\
 Polygon_Intersection.h\
 Polygon_StatisticsFromPoints.h\

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Polygon_Clip.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     Polygon_Clip.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,81 +54,58 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Polygon_Clip_H
+#define HEADER_INCLUDED__Polygon_Clip_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CPolygon_Clip : public CSG_Module  
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Polygons") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya (c) 2002-5") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for polygons.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Polygons") );
-	}
-}
+public:
+	CPolygon_Clip(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Polygon_Intersection.h"
-#include "Polygon_Centroids.h"
-#include "Polygon_Geometrics.h"
-#include "Polygons_From_Lines.h"
-#include "Polygon_StatisticsFromPoints.h"
-#include "Polygon_Union.h"
-#include "polygon_to_points.h"
-#include "shape_index.h"
-#include "polygon_line_intersection.h"
-#include "polygon_to_edges_nodes.h"
-#include "polygon_split_parts.h"
-#include "Polygon_Clip.h"
+	virtual bool			On_Execute				(void);
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPolygon_Intersection );
-	case  1:	return( new CPolygon_Centroids );
-	case  2:	return( new CPolygon_Geometrics );
-	case  3:	return( new CPolygons_From_Lines );
-	case  4:	return( new CPolygonStatisticsFromPoints );
-	case  5:	return( new CPolygon_Dissolve );
-	case  6:	return( new CPolygon_To_Points );
-	case  7:	return( new CShape_Index );
-	case  8:	return( new CPolygon_Line_Intersection );
-	case  9:	return( new CPolygon_to_Edges_Nodes );
-	case 10:	return( new CPolygon_Split_Parts );
-	case 11:	return( new CPolygon_Clip );
-	}
+	bool					Clip_Shapes				(CSG_Shapes *pClip, CSG_Shapes *pInput, CSG_Shapes *pOutput);
 
-	return( NULL );
-}
+	void					Clip_Points				(CSG_Shapes *pClip, CSG_Shapes *pInput, CSG_Shapes *pOutput);
+	void					Clip_Lines				(CSG_Shapes *pClip, CSG_Shapes *pInput, CSG_Shapes *pOutput);
+	void					Clip_Polygons			(CSG_Shapes *pClip, CSG_Shapes *pInput, CSG_Shapes *pOutput);
+
+	TSG_Point				Get_Crossing			(CSG_Shape_Polygon *pPolygon, const TSG_Point &a, const TSG_Point &b);
+
+	bool					Dissolve				(CSG_Shapes *pPolygons, CSG_Shapes *pOutput);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -140,8 +115,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Polygon_Clip_H
