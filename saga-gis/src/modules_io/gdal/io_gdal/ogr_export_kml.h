@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: ogr_export_kml.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,15 +8,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                     Grid_IO_GDAL                      //
+//                    Module Library                     //
+//                                                       //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   ogr_export_kml.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//            Copyright (C) 2012 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,84 +40,48 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street 7                        //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Bundesstr. 55                          //
+//                D-20146 Hamburg                        //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
+#ifndef HEADER_INCLUDED__ogr_export_kml_H
+#define HEADER_INCLUDED__ogr_export_kml_H
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "ogr_driver.h"
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class COGR_Export_KML : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - GDAL/OGR") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2008" ));
-
-	case MLB_INFO_Description:
-		return( _TL("SAGA interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL).") );
-
-	case MLB_INFO_Version:
-		return( SG_T("2.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|GDAL/OGR") );
-	}
-}
+public:
+	COGR_Export_KML(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "gdal_import.h"
-#include "gdal_export.h"
-#include "gdal_export_geotiff.h"
+	virtual bool		On_Execute		(void);
 
-#include "ogr_import.h"
-#include "ogr_export.h"
-#include "ogr_export_kml.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CGDAL_Import );
-	case 1:		return( new CGDAL_Export );
-	case 2:		return( new CGDAL_Export_GeoTIFF );
-
-	case 3:		return( new COGR_Import );
-	case 4:		return( new COGR_Export );
-
-	case 5:		return( new COGR_Export_KML );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +91,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__ogr_export_kml_H

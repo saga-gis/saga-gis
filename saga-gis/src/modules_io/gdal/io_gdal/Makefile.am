@@ -21,6 +21,7 @@ gdal_import.cpp\
 MLB_Interface.cpp\
 ogr_driver.cpp\
 ogr_export.cpp\
+ogr_export_kml.cpp\
 ogr_import.cpp\
 gdal_driver.h\
 gdal_export.h\
@@ -29,6 +30,7 @@ gdal_import.h\
 MLB_Interface.h\
 ogr_driver.h\
 ogr_export.h\
+ogr_export_kml.h\
 ogr_import.h
 
 libio_gdal_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

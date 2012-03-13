@@ -38,6 +38,9 @@
     <ClCompile Include="ogr_import.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ogr_export_kml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -113,6 +116,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ogr_import.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ogr_export_kml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

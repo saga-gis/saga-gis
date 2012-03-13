@@ -598,6 +598,7 @@
     </ClCompile>
     <ClCompile Include="ogr_driver.cpp" />
     <ClCompile Include="ogr_export.cpp" />
+    <ClCompile Include="ogr_export_kml.cpp" />
     <ClCompile Include="ogr_import.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -625,6 +626,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="ogr_driver.h" />
     <ClInclude Include="ogr_export.h" />
+    <ClInclude Include="ogr_export_kml.h" />
     <ClInclude Include="ogr_import.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
