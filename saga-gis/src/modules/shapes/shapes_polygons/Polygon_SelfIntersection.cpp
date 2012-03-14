@@ -101,7 +101,7 @@ CPolygon_SelfIntersection::CPolygon_SelfIntersection(void)
 	Parameters.Add_Shapes(
 		NULL	, "INTERSECT"	, _TL("Intersection"),
 		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 }
 
@@ -116,18 +116,39 @@ CPolygon_SelfIntersection::CPolygon_SelfIntersection(void)
 bool CPolygon_SelfIntersection::On_Execute(void)
 {
 	int			ID;
-	CSG_Shapes	*pPolygons;
+	CSG_Shapes	*pPolygons, Intersect;
 
 	pPolygons		= Parameters("POLYGONS" )->asShapes();
-	m_pIntersect	= Parameters("INTERSECT")->asShapes();
+	m_pIntersect	= Parameters("INTERSECT")->asShapes() ? Parameters("INTERSECT")->asShapes() : &Intersect;
 	ID				= Parameters("ID")->asInt();	if( ID >= pPolygons->Get_Field_Count() )	{	ID	= -1;	}
 
-	m_pIntersect->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("self-intersection")), pPolygons);
+	m_pIntersect->Create(SHAPE_TYPE_Polygon, pPolygons->Get_Name(), pPolygons);
 	m_pIntersect->Add_Field("ID", SG_DATATYPE_String);
 
+	//-----------------------------------------------------
 	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
 		Add_Polygon(pPolygons->Get_Shape(i), ID);
+	}
+
+	//-----------------------------------------------------
+	if( m_pIntersect->Get_Count() != pPolygons->Get_Count() )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of added polygons"), m_pIntersect->Get_Count() - pPolygons->Get_Count()));
+
+		if( m_pIntersect == &Intersect )
+		{
+			pPolygons->Create(Intersect);
+			DataObject_Update(pPolygons);
+		}
+		else
+		{
+			m_pIntersect->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("self-intersection")));
+		}
+	}
+	else
+	{
+		Message_Add(_TL("no self-intersecting polygons detected"));
 	}
 
 	return( true );
