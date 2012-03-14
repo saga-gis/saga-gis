@@ -18,6 +18,7 @@ Polygon_Centroids.cpp\
 Polygon_Clip.cpp\
 Polygon_Geometrics.cpp\
 Polygon_Intersection.cpp\
+Polygon_SelfIntersection.cpp\
 Polygon_StatisticsFromPoints.cpp\
 Polygon_Union.cpp\
 Polygons_From_Lines.cpp\
@@ -31,6 +32,7 @@ Polygon_Centroids.h\
 Polygon_Clip.h\
 Polygon_Geometrics.h\
 Polygon_Intersection.h\
+Polygon_SelfIntersection.h\
 Polygon_StatisticsFromPoints.h\
 Polygon_Union.h\
 Polygons_From_Lines.h\
