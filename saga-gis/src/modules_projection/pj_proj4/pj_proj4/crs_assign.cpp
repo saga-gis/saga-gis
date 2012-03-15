@@ -94,11 +94,11 @@ CCRS_Assign::CCRS_Assign(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_TIN_List(
-		NULL	, "TINS"	, _TL("TINs"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
+//	Parameters.Add_TIN_List(
+//		NULL	, "TINS"	, _TL("TINs"),
+//		_TL(""),
+//		PARAMETER_INPUT_OPTIONAL
+//	);
 }
 
 
@@ -110,8 +110,8 @@ CCRS_Assign::CCRS_Assign(void)
 bool CCRS_Assign::On_Execute(void)
 {
 	int	nTotal	= Parameters("GRIDS" )->asList()->Get_Count()
-				+ Parameters("SHAPES")->asList()->Get_Count()
-				+ Parameters("TINS"  )->asList()->Get_Count();
+				+ Parameters("SHAPES")->asList()->Get_Count();
+	//			+ Parameters("TINS"  )->asList()->Get_Count();
 
 	if( nTotal <= 0 )
 	{
@@ -133,7 +133,7 @@ bool CCRS_Assign::On_Execute(void)
 
 	nProjected	+= Set_Projections(Projection, Parameters("GRIDS" )->asList());
 	nProjected	+= Set_Projections(Projection, Parameters("SHAPES")->asList());
-	nProjected	+= Set_Projections(Projection, Parameters("TINS")  ->asList());
+//	nProjected	+= Set_Projections(Projection, Parameters("TINS")  ->asList());
 
 	//-----------------------------------------------------
 	return( nProjected > 0 );
@@ -155,7 +155,9 @@ int CCRS_Assign::Set_Projections(const CSG_Projection &Projection, CSG_Parameter
 		{
 			pList->asDataObject(i)->Set_Modified();
 
-			nProjected	++;
+			DataObject_Update(pList->asDataObject(i));
+
+			nProjected++;
 		}
 	}
 
