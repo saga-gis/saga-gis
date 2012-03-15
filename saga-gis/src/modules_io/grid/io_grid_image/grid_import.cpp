@@ -271,7 +271,7 @@ bool CGrid_Import::On_Execute(void)
 			pImage->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
 			Parameters("OUT_GRID")->Set_Value(pImage);
 			DataObject_Set_Colors(pImage, 100, SG_COLORS_BLACK_WHITE);
-			DataObject_Set_Parameter(pImage, "COLORS_TYPE", 3);	// Color Classification Type: RGB
+			DataObject_Set_Parameter(pImage, "COLORS_TYPE", 6);	// Color Classification Type: RGB
 		}
 
 		//-------------------------------------------------

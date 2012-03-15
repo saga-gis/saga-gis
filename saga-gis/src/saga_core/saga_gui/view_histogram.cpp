@@ -223,6 +223,7 @@ void CVIEW_Histogram_Control::On_Mouse_LDown(wxMouseEvent &event)
 	default:
 		break;
 
+	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
@@ -263,6 +264,7 @@ void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
 	default:
 		break;
 
+	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:

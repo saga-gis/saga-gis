@@ -378,10 +378,11 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_COLORS")		, "COLORS_TYPE"			, _TL("[CAP] Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("[VAL] Unique Symbol"),
-			_TL("[VAL] Lookup Table"),
-			_TL("[VAL] Graduated Color")
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("[VAL] Unique Symbol"),		// CLASSIFY_UNIQUE
+			_TL("[VAL] Lookup Table"),		// CLASSIFY_LUT
+			_TL("[VAL] Discrete Colors"),	// CLASSIFY_METRIC
+			_TL("[VAL] Graduated Colors")	// CLASSIFY_GRADUATED
 		), 0
 	);
 

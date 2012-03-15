@@ -593,6 +593,7 @@ void CWKSP_Layer_Legend::_Draw_TIN(wxDC &dc, CWKSP_TIN *pLayer)
 		_Draw_Boxes(dc, m_Position.y);
 		break;
 
+	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
 		_Draw_Continuum(dc, m_Position.y, 1.0);

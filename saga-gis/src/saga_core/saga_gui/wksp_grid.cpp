@@ -324,17 +324,18 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Classification...
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
-		wxString::Format(wxT("%s|%s|%s|%s|%s|%s|"),
-			_TL("[VAL] Unique Symbol"),
-			_TL("[VAL] Lookup Table"),
-			_TL("[VAL] Graduated Color"),
-			_TL("[VAL] RGB"),
-			_TL("[VAL] Shade"),
-			_TL("[VAL] RGB Overlay")
+		CSG_String::Format(wxT("%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("[VAL] Unique Symbol"),		// CLASSIFY_UNIQUE
+			_TL("[VAL] Lookup Table"),		// CLASSIFY_LUT
+			_TL("[VAL] Discrete Colors"),	// CLASSIFY_METRIC
+			_TL("[VAL] Graduated Colors"),	// CLASSIFY_GRADUATED
+			_TL("[VAL] Shade"),				// CLASSIFY_SHADE
+			_TL("[VAL] RGB Overlay"),		// CLASSIFY_OVERLAY
+			_TL("[VAL] RGB")				// CLASSIFY_RGB
 		)
 	);
 
-	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
+	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_GRADUATED);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Node(
@@ -489,7 +490,7 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_pOverlay[0]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_1")->asGrid());
 	m_pOverlay[1]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_2")->asGrid());
-	m_bOverlay		= m_Parameters("COLORS_TYPE")->asInt() == 5;
+	m_bOverlay		= m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY;
 
 	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
@@ -532,11 +533,11 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
-			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
-			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
-			pParameters->Get_Parameter("NODE_SHADE"    )->Set_Enabled(Value == 4);
-			pParameters->Get_Parameter("NODE_OVERLAY"  )->Set_Enabled(Value == 5);
+			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == CLASSIFY_UNIQUE);
+			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == CLASSIFY_LUT);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED || Value == CLASSIFY_SHADE);
+			pParameters->Get_Parameter("NODE_SHADE"    )->Set_Enabled(Value == CLASSIFY_SHADE);
+			pParameters->Get_Parameter("NODE_OVERLAY"  )->Set_Enabled(Value == CLASSIFY_OVERLAY);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("VALUES_SHOW")) )
@@ -729,7 +730,7 @@ void CWKSP_Grid::_LUT_Create(void)
 
 	DataObject_Changed();
 
-	m_Parameters("COLORS_TYPE")->Set_Value(1);	// Lookup Table
+	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
 
 	Parameters_Changed();
 }
@@ -755,8 +756,7 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			s	= m_pClassify->Get_Class_Name_byValue(Value);
 			break;
 
-		case CLASSIFY_METRIC:	default:
-		case CLASSIFY_SHADE:
+		default:
 			switch( m_pGrid->Get_Type() )
 			{
 			case SG_DATATYPE_Byte:

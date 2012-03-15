@@ -78,6 +78,8 @@
 //---------------------------------------------------------
 CWKSP_Layer_Classify::CWKSP_Layer_Classify(void)
 {
+	m_Count			= 100;
+
 	m_Mode			= CLASSIFY_UNIQUE;
 	m_Shade_Mode	= SHADE_MODE_DSC_GREY;
 
@@ -174,6 +176,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Minimum(int iClass)
 		}
 		break;
 
+	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
@@ -201,6 +204,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Maximum(int iClass)
 		}
 		break;
 
+	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
@@ -228,6 +232,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Center(int iClass)
 		}
 		break;
 
+	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:
@@ -258,6 +263,7 @@ wxString CWKSP_Layer_Classify::Get_Class_Name(int iClass)
 		}
 		break;
 
+	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
 	case CLASSIFY_OVERLAY:

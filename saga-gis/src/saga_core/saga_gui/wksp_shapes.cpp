@@ -480,6 +480,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	default:	m_iColor	= -1;	break;
 	case 1:		m_iColor	= m_Parameters("LUT_ATTRIB")   ->asInt();	break;
 	case 2:		m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
+	case 3:		m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
 	}
 
 	if( m_iColor >= m_pShapes->Get_Field_Count() )
@@ -571,9 +572,9 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
-			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
-			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
+			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == CLASSIFY_UNIQUE);
+			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == CLASSIFY_LUT);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB")) )
@@ -842,8 +843,8 @@ void CWKSP_Shapes::_LUT_Create(void)
 	//-----------------------------------------------------
 	DataObject_Changed();
 
-	m_Parameters("COLORS_TYPE")  ->Set_Value(1);	// Lookup Table
-	m_Parameters("LUT_ATTRIB")->Set_Value(jField);
+	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
+	m_Parameters("LUT_ATTRIB" )->Set_Value(jField);
 
 	Parameters_Changed();
 }
