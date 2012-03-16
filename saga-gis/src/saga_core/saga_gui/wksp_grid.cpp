@@ -324,7 +324,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Classification...
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
-		CSG_String::Format(wxT("%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("[VAL] Unique Symbol"),		// CLASSIFY_UNIQUE
 			_TL("[VAL] Lookup Table"),		// CLASSIFY_LUT
 			_TL("[VAL] Discrete Colors"),	// CLASSIFY_METRIC
