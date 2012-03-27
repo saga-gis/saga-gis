@@ -1423,16 +1423,13 @@ void CWKSP_Map::Draw_Frame(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Wi
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize, int Layout)
+bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize)
 {
-	bool	bVertical;
 	int		i, n;
 	wxSize	s, Size;
 
 	Size.x		= 0;
 	Size.y		= 0;
-
-	bVertical	= (Layout & LEGEND_LAYOUT_VERTICAL) != 0;
 
 	for(i=0, n=0; i<Get_Count(); i++)
 	{
@@ -1440,9 +1437,9 @@ bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Posi
 		{
 			n++;
 
-			Get_Layer(i)->Get_Layer()->Get_Legend()->Draw(dc, Zoom, Zoom_Map, Position, &s, bVertical);
+			Get_Layer(i)->Get_Layer()->Get_Legend()->Draw(dc, Zoom, Zoom_Map, Position, &s);
 
-			if( bVertical )
+			if( Get_Layer(i)->Get_Layer()->Get_Legend()->Get_Orientation() == LEGEND_VERTICAL )
 			{
 				s.y			+= (int)(Zoom * LEGEND_SPACE);
 				Position.y	+= s.y;
@@ -1472,11 +1469,11 @@ bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Posi
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Get_Legend_Size(wxSize &Size, double Zoom_Map, double Zoom, int Layout)
+bool CWKSP_Map::Get_Legend_Size(wxSize &Size, double Zoom_Map, double Zoom)
 {
 	wxMemoryDC	dc;
 
-	return( Draw_Legend(dc, Zoom_Map, Zoom, wxPoint(0, 0), &Size, Layout) );
+	return( Draw_Legend(dc, Zoom_Map, Zoom, wxPoint(0, 0), &Size) );
 }
 
 

@@ -327,6 +327,12 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxString CWKSP_TIN::Get_Name_Attribute(void)
+{
+	return(	m_Color_Field < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : m_pTIN->Get_Field_Name(m_Color_Field) );
+}
+
+//---------------------------------------------------------
 wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
 	return( _TL("") );

@@ -126,8 +126,6 @@ CACTIVE_Legend::CACTIVE_Legend(wxWindow *pParent)
 
 	m_xScroll	= 0;
 	m_yScroll	= 0;
-
-	m_Layout	= LEGEND_LAYOUT_VERTICAL;	// LEGEND_LAYOUT_HORIZONTAL;
 }
 
 
@@ -208,14 +206,14 @@ void CACTIVE_Legend::On_Copy(wxCommandEvent &event)
 	wxBitmap	BMP;
 	wxMemoryDC	dc;
 	
-	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s, (m_Layout & LEGEND_LAYOUT_VERTICAL) != 0);
+	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s);
 
 	BMP.Create(s.GetWidth() + p.x, s.GetHeight(), + p.y);
 	dc.SelectObject(BMP);
 	dc.SetBackground(*wxWHITE_BRUSH);
 	dc.Clear();
 
-	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, NULL, (m_Layout & LEGEND_LAYOUT_VERTICAL) != 0);
+	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p);
 
 	dc.SelectObject(wxNullBitmap);
 
@@ -268,11 +266,11 @@ void CACTIVE_Legend::OnDraw(wxDC &dc)
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
 		case WKSP_ITEM_PointCloud:
-			((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s, (m_Layout & LEGEND_LAYOUT_VERTICAL) != 0);
+			((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s);
 			break;
 
 		case WKSP_ITEM_Map:
-			((CWKSP_Map   *)m_pItem)->Draw_Legend(dc, 1.0, m_Zoom, p, &s, m_Layout);
+			((CWKSP_Map   *)m_pItem)->Draw_Legend(dc, 1.0, m_Zoom, p, &s);
 			break;
 		}
 	}

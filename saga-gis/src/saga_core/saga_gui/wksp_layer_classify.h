@@ -218,31 +218,30 @@ public: ///////////////////////////////////////////////////
 		{
 		case CLASSIFY_UNIQUE:	default:
 			Color	= m_UNI_Color;
-
-			return( true );
+			break;
 
 		case CLASSIFY_LUT:
-			if( iClass >= 0 && iClass < m_pLUT->Get_Record_Count() )
+			if( iClass < 0 || iClass >= m_pLUT->Get_Record_Count() )
 			{
-				Color	= m_pLUT->Get_Record(iClass)->asInt(LUT_COLOR);
-
-				return( true );
+				return( false );
 			}
 
-			return( false );
+			Color	= m_pLUT->Get_Record(iClass)->asInt(LUT_COLOR);
+			break;
+
 
 		case CLASSIFY_METRIC:
 			Color	= m_pColors->Get_Color(iClass < 0 ? 0 : iClass >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : iClass);
-
-			return( true );
+			break;
 
 		case CLASSIFY_GRADUATED:
 		case CLASSIFY_SHADE:
 		case CLASSIFY_OVERLAY:
 			Get_Class_Color_byValue(Get_RelativeToMetric(iClass / (double)m_Count), Color);
-
-			return( true );
+			break;
 		}
+
+		return( true );
 	}
 
 	//-----------------------------------------------------

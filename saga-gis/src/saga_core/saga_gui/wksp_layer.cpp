@@ -339,9 +339,18 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_GENERAL")	, "SHOW_LEGEND"			, _TL("[CAP] Show Legend"),
+		m_Parameters("NODE_GENERAL")	, "LEGEND_SHOW"			, _TL("[CAP] Show Legend"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("LEGEND_SHOW")		, "LEGEND_STYLE"		, _TL("[CAP] Style"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("vertical"),
+			_TL("horizontal")
+		), 0
 	);
 
 	m_Parameters.Add_Range(
@@ -379,7 +388,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		m_Parameters("NODE_COLORS")		, "COLORS_TYPE"			, _TL("[CAP] Type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("[VAL] Unique Symbol"),		// CLASSIFY_UNIQUE
+			_TL("[VAL] Single Symbol"),		// CLASSIFY_UNIQUE
 			_TL("[VAL] Lookup Table"),		// CLASSIFY_LUT
 			_TL("[VAL] Discrete Colors"),	// CLASSIFY_METRIC
 			_TL("[VAL] Graduated Colors")	// CLASSIFY_GRADUATED
@@ -391,7 +400,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Unique Value...
 
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_UNISYMBOL"		, _TL("[CAP] Unique Symbol"),
+		m_Parameters("NODE_COLORS")		, "NODE_UNISYMBOL"		, _TL("[CAP] Single Symbol"),
 		_TL("")
 	);
 
@@ -479,6 +488,15 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LEGEND_SHOW"))
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
+		{
+			pParameters->Get_Parameter("LEGEND_STYLE")->Set_Enabled(
+				pParameters->Get_Parameter("LEGEND_SHOW")->asBool()
+			&&	pParameters->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
+			);
+		}
+
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHOW_ALWAYS")) )
 		{
 			pParameters->Get_Parameter("SHOW_RANGE")->Set_Enabled(pParameter->asBool() == false);
@@ -662,11 +680,13 @@ void CWKSP_Layer::Parameters_Changed(void)
 		m_pClassify->Set_Unique_Color(m_Parameters("UNISYMBOL_COLOR")->asInt());
 
 		m_pClassify->Set_Metric(
-			m_Parameters("METRIC_SCALE_MODE")	->asInt(),
-			m_Parameters("METRIC_SCALE_LOG")	->asDouble(),
+			m_Parameters("METRIC_SCALE_MODE")->asInt(),
+			m_Parameters("METRIC_SCALE_LOG")->asDouble(),
 			m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0),
 			m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0)
 		);
+
+		m_pLegend->Set_Orientation(m_Parameters("LEGEND_STYLE")->asInt() == LEGEND_VERTICAL ? LEGEND_VERTICAL : LEGEND_HORIZONTAL);
 
 		//-----------------------------------------------------
 		On_Parameters_Changed();
@@ -808,7 +828,7 @@ bool CWKSP_Layer::Set_Color_Range(double zMin, double zMax)
 //---------------------------------------------------------
 bool CWKSP_Layer::do_Legend(void)
 {
-	return( m_Parameters("SHOW_LEGEND")->asBool() );
+	return( m_Parameters("LEGEND_SHOW")->asBool() );
 }
 
 //---------------------------------------------------------

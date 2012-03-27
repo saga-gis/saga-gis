@@ -96,8 +96,8 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	//-----------------------------------------------------
 	DataObject_Changed((CSG_Parameters *)NULL);
 
-	m_Parameters("COLORS_TYPE")		->Set_Value(CLASSIFY_METRIC);
-	m_Parameters("METRIC_ATTRIB")	->Set_Value(2);
+	m_Parameters("COLORS_TYPE"  )->Set_Value(CLASSIFY_METRIC);
+	m_Parameters("METRIC_ATTRIB")->Set_Value(2);
 
 	On_Parameter_Changed(&m_Parameters, m_Parameters("METRIC_ATTRIB"), PARAMETER_CHECK_ALL);
 
@@ -288,11 +288,14 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	// Classification...
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
-		wxString::Format(wxT("%s|%s|%s|%s|"),
-			_TL("[VAL] Unique Symbol"),
-			_TL("[VAL] Lookup Table"),
-			_TL("[VAL] Graduated Color"),
-			_TL("[VAL] RGB")
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("[VAL] Single Symbol"),		// CLASSIFY_UNIQUE
+			_TL("[VAL] Lookup Table"),		// CLASSIFY_LUT
+			_TL("[VAL] Discrete Colors"),	// CLASSIFY_METRIC
+			_TL("[VAL] Graduated Colors"),	// CLASSIFY_GRADUATED
+		//	_TL("[VAL] Shade"),				// CLASSIFY_SHADE
+		//	_TL("[VAL] RGB Overlay"),		// CLASSIFY_OVERLAY
+			_TL("[VAL] RGB")				// CLASSIFY_RGB
 		)
 	);
 
@@ -315,8 +318,6 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		m_Parameters("NODE_RGB")		, "RGB_ATTRIB"				, _TL("[CAP] Attribute"),
 		_TL("")
 	);
-
-	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
 }
 
 
@@ -329,9 +330,9 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_DataObject_Changed(void)
 {
-	_AttributeList_Set(m_Parameters("LUT_ATTRIB")			, false);
-	_AttributeList_Set(m_Parameters("METRIC_ATTRIB")		, false);
-	_AttributeList_Set(m_Parameters("RGB_ATTRIB")			, false);
+	_AttributeList_Set(m_Parameters("LUT_ATTRIB"   ), false);
+	_AttributeList_Set(m_Parameters("METRIC_ATTRIB"), false);
+	_AttributeList_Set(m_Parameters("RGB_ATTRIB"   ), false);
 }
 
 //---------------------------------------------------------
@@ -340,20 +341,23 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default:	m_Color_Field	= -1;	break;
-	case 1:		m_Color_Field	= m_Parameters("LUT_ATTRIB")   ->asInt();	break;
-	case 2:		m_Color_Field	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
-	case 3:		m_Color_Field	= m_Parameters("RGB_ATTRIB")   ->asInt();	break;
+	default:
+	case 0:	m_Color_Field	= -1;										break;	// CLASSIFY_UNIQUE
+	case 1:	m_Color_Field	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
+	case 2:	m_Color_Field	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
+	case 3:	m_Color_Field	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
+	case 4:	m_Color_Field	= m_Parameters("RGB_ATTRIB"   )->asInt();	break;	// CLASSIFY_RGB
 	}
 
-	if( m_Color_Field >= m_pPointCloud->Get_Field_Count() )
+	if( m_Color_Field < 0 || m_Color_Field >= m_pPointCloud->Get_Field_Count() )
 	{
 		m_Color_Field	= -1;
-	}
 
-	if( m_Color_Field < 0 && m_pClassify->Get_Mode() != CLASSIFY_UNIQUE )
-	{
 		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
+	}
+	else if( m_Parameters("COLORS_TYPE")->asInt() == 4 )
+	{
+		m_pClassify->Set_Mode(CLASSIFY_RGB);
 	}
 
 	//-----------------------------------------------------
@@ -400,8 +404,8 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == 0);
 			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == 1);
-			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2);
-			pParameters->Get_Parameter("NODE_RGB"      )->Set_Enabled(Value == 3);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == 2 || Value == 3);
+			pParameters->Get_Parameter("NODE_RGB"      )->Set_Enabled(Value == 4);
 
 			return( 0 );
 		}
@@ -417,6 +421,12 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxString CWKSP_PointCloud::Get_Name_Attribute(void)
+{
+	return(	m_Color_Field < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : m_pPointCloud->Get_Field_Name(m_Color_Field) );
+}
 
 //---------------------------------------------------------
 CSG_Parameter * CWKSP_PointCloud::_AttributeList_Add(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)

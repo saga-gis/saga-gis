@@ -195,7 +195,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	Get_Style(m_Pen);
+	m_Pen		= wxPen(m_Def_Color, (int)m_Size, m_Line_Style);
 
 	m_bPoints	= m_Parameters("DISPLAY_POINTS")->asBool();
 }
@@ -233,23 +233,9 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Line::Get_Style(wxPen &Pen, wxString *pName)
+wxString CWKSP_Shapes_Line::Get_Name_Attribute(void)
 {
-	Pen		= wxPen(m_Def_Color, (int)m_Size, m_Line_Style);
-
-	if( pName )
-	{
-		if(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
-		{
-			pName->Clear();
-		}
-		else
-		{
-			pName->Printf(m_pShapes->Get_Field_Name(m_iColor));
-		}
-	}
-
-	return( true );
+	return(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : m_pShapes->Get_Field_Name(m_iColor) );
 }
 
 //---------------------------------------------------------

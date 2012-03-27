@@ -68,6 +68,7 @@
 #include "wksp_shapes_line.h"
 #include "wksp_shapes_polygon.h"
 #include "wksp_tin.h"
+#include "wksp_pointcloud.h"
 #include "wksp_grid.h"
 
 #include "wksp_layer_classify.h"
@@ -102,6 +103,13 @@
 #define METRIC_POS_H(Value)	(m_xBox +                 (int)((double)METRIC_HEIGHT * m_pClassify->Get_MetricToRelative((Value) / zFactor)))
 #define METRIC_GET_STRING(z, dz)		wxString::Format(wxT("%.*f"), dz >= 1.0 ? 0 : 1 + (int)fabs(log10(dz)), z)
 
+//---------------------------------------------------------
+#define BOX_STYLE_RECT		0x01
+#define BOX_STYLE_LINE		0x02
+#define BOX_STYLE_SYMB		0x04
+#define BOX_STYLE_OUTL		0x08
+#define BOX_STYLE_FILL		0x10
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -117,14 +125,6 @@ enum
 	FONT_LABEL
 };
 
-//---------------------------------------------------------
-enum
-{
-	BOXSTYLE_RECT	= 0,
-	BOXSTYLE_LINE,
-	BOXSTYLE_CIRCLE
-};
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -135,34 +135,37 @@ enum
 //---------------------------------------------------------
 CWKSP_Layer_Legend::CWKSP_Layer_Legend(CWKSP_Layer *pLayer)
 {
-	m_pLayer	= pLayer;
-	m_pClassify	= pLayer->Get_Classifier();
+	m_pLayer		= pLayer;
+	m_pClassify		= pLayer->Get_Classifier();
+
+	m_Orientation	= LEGEND_VERTICAL;
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CWKSP_Layer_Legend::~CWKSP_Layer_Legend(void)
+void CWKSP_Layer_Legend::Set_Orientation(int Orientation)
 {
+	m_Orientation	= Orientation == LEGEND_VERTICAL ? LEGEND_VERTICAL : LEGEND_HORIZONTAL;
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-wxSize CWKSP_Layer_Legend::Get_Size(double Zoom, double Zoom_Map, bool bVertical)
+wxSize CWKSP_Layer_Legend::Get_Size(double Zoom, double Zoom_Map)
 {
 	wxMemoryDC	dc;
 
-	Draw(dc, Zoom, Zoom_Map, wxPoint(0, 0), NULL, bVertical);
+	Draw(dc, Zoom, Zoom_Map, wxPoint(0, 0), NULL);
 
 	return( m_Size );
 }
 
 //---------------------------------------------------------
-void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Position, wxSize *pSize, bool bVertical)
+void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Position, wxSize *pSize)
 {
 	//-----------------------------------------------------
 	m_Zoom		= Zoom > 0.0 ? Zoom : 1.0;
@@ -170,7 +173,6 @@ void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Po
 	m_Size		= wxSize(BOX_WIDTH, 0);
 
 	m_Zoom_Map	= Zoom_Map;
-	m_bVertical	= bVertical;
 
 	//-----------------------------------------------------
 	m_oldPen	= dc.GetPen();
@@ -190,41 +192,23 @@ void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Po
 	//-----------------------------------------------------
 	switch( m_pLayer->Get_Type() )
 	{
+	default:	break;
+
 	case WKSP_ITEM_Shapes:
 		switch( ((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Type() )
 		{
+		default:	break;
+
 		case SHAPE_TYPE_Point:
-		case SHAPE_TYPE_Points:
-			_Draw_Point		(dc, (CWKSP_Shapes_Point   *)m_pLayer);
-			break;
-
-		case SHAPE_TYPE_Line:
-			_Draw_Line		(dc, (CWKSP_Shapes_Line    *)m_pLayer);
-			break;
-
-		case SHAPE_TYPE_Polygon:
-			_Draw_Polygon	(dc, (CWKSP_Shapes_Polygon *)m_pLayer);
-			break;
-
-		default:
-			break;
+		case SHAPE_TYPE_Points:	_Draw_Point		(dc, (CWKSP_Shapes_Point   *)m_pLayer);	break;
+		case SHAPE_TYPE_Line:	_Draw_Line		(dc, (CWKSP_Shapes_Line    *)m_pLayer);	break;
+		case SHAPE_TYPE_Polygon:_Draw_Polygon	(dc, (CWKSP_Shapes_Polygon *)m_pLayer);	break;
 		}
 		break;
 
-	case WKSP_ITEM_TIN:
-		_Draw_TIN	(dc, (CWKSP_TIN        *)m_pLayer);
-		break;
-
-	case WKSP_ITEM_PointCloud:
-//		_Draw_TIN	(dc, (CWKSP_PointCloud *)m_pLayer);
-		break;
-
-	case WKSP_ITEM_Grid:
-		_Draw_Grid	(dc, (CWKSP_Grid       *)m_pLayer);
-		break;
-
-	default:
-		break;
+	case WKSP_ITEM_TIN:			_Draw_TIN       (dc, (CWKSP_TIN            *)m_pLayer);	break;
+	case WKSP_ITEM_PointCloud:	_Draw_PointCloud(dc, (CWKSP_PointCloud     *)m_pLayer);	break;
+	case WKSP_ITEM_Grid:		_Draw_Grid      (dc, (CWKSP_Grid           *)m_pLayer);	break;
 	}
 
 	//-----------------------------------------------------
@@ -280,17 +264,20 @@ inline void CWKSP_Layer_Legend::_Set_Font(wxDC &dc, int Style)
 //---------------------------------------------------------
 inline void CWKSP_Layer_Legend::_Draw_Title(wxDC &dc, int Style, wxString Text)
 {
-	wxCoord	dx_Text, dy_Text;
+	if( Text.Length() > 0 )
+	{
+		wxCoord	dx_Text, dy_Text;
 
-	_Set_Font(dc, Style);
+		_Set_Font(dc, Style);
 
-	Draw_Text(dc, TEXTALIGN_TOPLEFT, m_Position.x, m_Position.y, Text);
+		Draw_Text(dc, TEXTALIGN_TOPLEFT, m_Position.x, m_Position.y, Text);
 
-	dc.GetTextExtent(Text, &dx_Text, &dy_Text);
+		dc.GetTextExtent(Text, &dx_Text, &dy_Text);
 
-	dy_Text			+= SPACE_VERTICAL;
+		dy_Text			+= SPACE_VERTICAL;
 
-	_Set_Size(dx_Text, dy_Text);
+		_Set_Size(dx_Text, dy_Text);
+	}
 }
 
 //---------------------------------------------------------
@@ -323,52 +310,207 @@ inline void CWKSP_Layer_Legend::_Draw_Label(wxDC &dc, int y, wxString Text, int 
 }
 
 //---------------------------------------------------------
-inline void CWKSP_Layer_Legend::_Draw_Box(wxDC &dc, int y, int dy, wxColour Color)
+inline void CWKSP_Layer_Legend::_Draw_Box(wxDC &dc, int y, int dy, int Style, int iClass)
 {
-	wxPen	Pen;
-	wxBrush	Brush;
+	if( iClass >= 0 )
+	{
+		if( (Style & BOX_STYLE_OUTL) == 0 )
+		{
+			wxPen	Pen		= dc.GetPen();
+			Pen		.SetColour(Get_Color_asWX(m_pClassify->Get_Class_Color(iClass)));
+			dc		.SetPen   (Pen);
+		}
 
-	//-----------------------------------------------------
+		if( (Style & BOX_STYLE_FILL) != 0 )
+		{
+			wxBrush	Brush	= dc.GetBrush();
+			Brush	.SetColour(Get_Color_asWX(m_pClassify->Get_Class_Color(iClass)));
+			dc		.SetBrush (Brush);
+		}
+
+		_Draw_Label(dc, y, m_pClassify->Get_Class_Name(iClass), TEXTALIGN_TOP);
+	}
+
 	_Set_Size(0, dy);
 
 	dy	-= BOX_SPACE;
 
 	//-----------------------------------------------------
-	if( m_Box_bOutline == false )
+	if( (Style & BOX_STYLE_RECT) != 0 )
 	{
-		Pen		= dc.GetPen();
-		Pen.SetColour(Color);
-		dc.SetPen(Pen);
+		dc.DrawRectangle(m_xBox, y, m_dxBox, dy);
 	}
 
-	if( m_Box_bFill )
+	if( (Style & BOX_STYLE_LINE) != 0 )
 	{
-		Brush	= dc.GetBrush();
-		Brush.SetColour(Color);
-		dc.SetBrush(Brush);
-	}
-
-	//-----------------------------------------------------
-	switch( m_BoxStyle )
-	{
-	case BOXSTYLE_LINE:
 		dc.DrawLine(m_xBox                  , y + dy / 2, m_xBox +     m_dxBox / 4, y);
 		dc.DrawLine(m_xBox +     m_dxBox / 4, y         , m_xBox + 3 * m_dxBox / 4, y + dy);
 		dc.DrawLine(m_xBox + 3 * m_dxBox / 4, y + dy    , m_xBox +     m_dxBox    , y + dy / 2);
+	}
+	
+	if( (Style & BOX_STYLE_SYMB) != 0 )
+	{
+		((CWKSP_Shapes_Point *)m_pLayer)->Draw_Symbol(dc, m_xBox + m_dxBox / 2, y + dy / 2, dy / 2);
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Layer_Legend::_Draw_Boxes(wxDC &dc, int y, int Style, double zFactor)
+{
+	switch( m_pClassify->Get_Mode() )
+	{
+	case CLASSIFY_GRADUATED:
+	case CLASSIFY_SHADE:
+		if( METRIC_HEIGHT < m_pClassify->Get_Class_Count() * BOX_HEIGHT )
+		{
+			_Draw_Continuum(dc, m_Position.y, zFactor);
+
+			return;
+		}
+	}
+
+	for(int iClass=m_pClassify->Get_Class_Count()-1; iClass>=0; iClass--, y+=BOX_HEIGHT)
+	{
+		_Draw_Box(dc, y, BOX_HEIGHT, Style, iClass);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Layer_Legend::_Draw_Point(wxDC &dc, CWKSP_Shapes_Point *pLayer)
+{
+	int			size_Min, size_Max;
+	double		size_Min_Value, size_dValue;
+	wxString	size_Name;
+
+	//-----------------------------------------------------
+	dc.SetBrush(pLayer->Get_Def_Brush());
+	dc.SetPen  (pLayer->Get_Def_Pen  ());
+
+	if( pLayer->Get_Style_Size(size_Min, size_Max, size_Min_Value, size_dValue, &size_Name) )
+	{
+		_Draw_Title(dc, FONT_SUBTITLE, size_Name);
+
+		int		iClass, nClasses, dy, y;
+		double	iSize, dySize;
+
+		nClasses	= (int)((double)SIZE_HEIGHT / (double)BOX_HEIGHT);
+		dySize		= (double)(size_Max - size_Min) / (double)nClasses;
+
+		for(iClass=nClasses, iSize=size_Max; iClass>=0; iClass--, iSize-=dySize)
+		{
+			dy	= (int)(2.0 * m_Zoom_Map * iSize) + BOX_SPACE;
+			y	= m_Position.y + SIZE_HEIGHT - iClass * BOX_HEIGHT;
+
+			pLayer->Draw_Symbol(dc, m_xBox + m_dxBox / 2, y + dy / 2, dy / 2);
+
+			_Draw_Label(dc, y, wxString::Format(wxT("%f"), size_Min_Value + (iSize - size_Min) / size_dValue), TEXTALIGN_TOP);
+		}
+
+		_Set_Size(0, SIZE_HEIGHT + dc.GetFont().GetPointSize());
+
+		if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
+		{
+			return;
+		}
+	}
+
+	//-----------------------------------------------------
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Boxes(dc, m_Position.y, pLayer->Get_Outline() ? BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL : BOX_STYLE_RECT|BOX_STYLE_FILL);
+}
+
+//---------------------------------------------------------
+void CWKSP_Layer_Legend::_Draw_Line(wxDC &dc, CWKSP_Shapes_Line *pLayer)
+{
+	//-----------------------------------------------------
+	int			size_Min, size_Max;
+	double		size_Min_Value, size_dValue;
+	wxString	size_Name;
+
+	if( pLayer->Get_Style_Size(size_Min, size_Max, size_Min_Value, size_dValue, &size_Name) )
+	{
+		_Draw_Title(dc, FONT_SUBTITLE, size_Name);
+
+		wxPen Pen	= pLayer->Get_Def_Pen();
+
+		for(int iSize=size_Min; iSize<=size_Max; iSize++)
+		{
+			Pen.SetWidth(iSize);
+			dc.SetPen(Pen);
+
+			int	y	= m_Position.y;
+
+			_Draw_Box	(dc, y, BOX_HEIGHT, BOX_STYLE_LINE|BOX_STYLE_OUTL, -1);
+			_Draw_Label	(dc, y, wxString::Format(wxT("%f"), size_Min_Value + (iSize - size_Min) / size_dValue), TEXTALIGN_TOP);
+		}
+
+		if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
+		{
+			return;
+		}
+	}
+
+	//-----------------------------------------------------
+	dc.SetPen  (pLayer->Get_Def_Pen());
+
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Boxes(dc, m_Position.y, BOX_STYLE_LINE);
+}
+
+//---------------------------------------------------------
+void CWKSP_Layer_Legend::_Draw_Polygon(wxDC &dc, CWKSP_Shapes_Polygon *pLayer)
+{
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Boxes(dc, m_Position.y, pLayer->Get_Outline() ? BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL : BOX_STYLE_RECT|BOX_STYLE_FILL);
+}
+
+//---------------------------------------------------------
+void CWKSP_Layer_Legend::_Draw_TIN(wxDC &dc, CWKSP_TIN *pLayer)
+{
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Boxes(dc, m_Position.y, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL);
+}
+
+//---------------------------------------------------------
+void CWKSP_Layer_Legend::_Draw_PointCloud(wxDC &dc, CWKSP_PointCloud *pLayer)
+{
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Boxes(dc, m_Position.y, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL);
+}
+
+//---------------------------------------------------------
+void CWKSP_Layer_Legend::_Draw_Grid(wxDC &dc, CWKSP_Grid *pLayer)
+{
+	switch( m_pClassify->Get_Mode() )
+	{
+	case CLASSIFY_GRADUATED:
+	case CLASSIFY_METRIC:
+	case CLASSIFY_SHADE:
+		if( pLayer->Get_Grid()->Get_Unit() && *pLayer->Get_Grid()->Get_Unit() )
+		{
+			_Draw_Title(dc, FONT_SUBTITLE, wxString::Format(wxT("[%s]"), pLayer->Get_Grid()->Get_Unit()));
+		}
+
+	default:
+		_Draw_Boxes(dc, m_Position.y, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL, pLayer->Get_Grid()->Get_ZFactor());
 		break;
 
-	case BOXSTYLE_CIRCLE:
-		dc.DrawCircle(m_xBox + m_dxBox / 2, y + dy / 2, dy / 2);
-		break;
-
-	case BOXSTYLE_RECT:	default:
-		dc.DrawRectangle(m_xBox, y, m_dxBox, dy);
+	case CLASSIFY_RGB:
+	case CLASSIFY_OVERLAY:
+		_Draw_Grid_Image(dc, m_Position.y, pLayer->Get_Grid());
 		break;
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Box_Image(wxDC &dc, int ay, CSG_Grid *pGrid)
+void CWKSP_Layer_Legend::_Draw_Grid_Image(wxDC &dc, int ay, CSG_Grid *pGrid)
 {
 	int		x, y, nx, ny, Color;
 	double	d, dx, dy;
@@ -417,298 +559,44 @@ void CWKSP_Layer_Legend::_Draw_Box_Image(wxDC &dc, int ay, CSG_Grid *pGrid)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Point(wxDC &dc, CWKSP_Shapes_Point *pLayer)
-{
-	bool		bSize;
-	int			min_Size, max_Size;
-	double		min_Value, d_Value;
-	wxString	Name, Name_Size;
-	wxPen		Pen;
-	wxBrush		Brush;
-
-	//-----------------------------------------------------
-	m_BoxStyle		= BOXSTYLE_CIRCLE;
-	m_Box_bFill		= true;
-
-	//-----------------------------------------------------
-	bSize	= pLayer->Get_Style_Size(min_Size, max_Size, min_Value, d_Value, &Name_Size);
-
-	pLayer->Get_Style(Pen, Brush, m_Box_bOutline, &Name);
-
-	if( m_pClassify->Get_Mode() != CLASSIFY_UNIQUE || !bSize )
-	{
-		dc.SetBrush(Brush);
-		dc.SetPen(Pen);
-
-		if( Name.Length() > 0 )
-		{
-			_Draw_Title(dc, FONT_SUBTITLE, Name);
-		}
-
-	//	_Draw_Boxes(dc, m_Position.y);
-		for(int i=m_pClassify->Get_Class_Count()-1, y=m_Position.y; i>=0; i--, y+=BOX_HEIGHT)
-		{
-	//		_Draw_Box	(dc, y, BOX_HEIGHT, Get_Color_asWX(m_pClassify->Get_Class_Color(i)));
-			_Set_Size(0, BOX_HEIGHT);
-
-			if( m_Box_bOutline == false )
-			{
-				Pen		= dc.GetPen();
-				Pen.SetColour(Get_Color_asWX(m_pClassify->Get_Class_Color(i)));
-				dc.SetPen(Pen);
-			}
-
-			if( m_Box_bFill )
-			{
-				Brush	= dc.GetBrush();
-				Brush.SetColour(Get_Color_asWX(m_pClassify->Get_Class_Color(i)));
-				dc.SetBrush(Brush);
-			}
-
-			pLayer->Draw_Symbol(dc, m_xBox + m_dxBox / 2, y + (BOX_HEIGHT - BOX_SPACE) / 2, (BOX_HEIGHT - BOX_SPACE) / 2);
-
-			_Draw_Label(dc, y, m_pClassify->Get_Class_Name(i), TEXTALIGN_TOP);
-		}
-	}
-
-	//-----------------------------------------------------
-	if( bSize )
-	{
-		dc.SetBrush(Brush);
-		dc.SetPen(Pen);
-
-		_Draw_Title(dc, FONT_SUBTITLE, Name_Size);
-		_Draw_Point_Sizes(dc, pLayer, min_Size, max_Size, min_Value, d_Value);
-		_Set_Size(0, SIZE_HEIGHT + dc.GetFont().GetPointSize());
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Point_Sizes(wxDC &dc, CWKSP_Shapes_Point *pLayer, int min_Size, int max_Size, double min_Value, double d_Value)
-{
-	int		iClass, nClasses, dy, y;
-	double	iSize, dySize;
-
-	nClasses	= (int)((double)SIZE_HEIGHT / (double)BOX_HEIGHT);
-	dySize		= (double)(max_Size - min_Size) / (double)nClasses;
-
-	for(iClass=nClasses, iSize=max_Size; iClass>=0; iClass--, iSize-=dySize)
-	{
-		dy	= (int)(2.0 * m_Zoom_Map * iSize) + BOX_SPACE;
-		y	= m_Position.y + SIZE_HEIGHT - iClass * BOX_HEIGHT;
-
-		pLayer->Draw_Symbol(dc, m_xBox + m_dxBox / 2, y + dy / 2, dy / 2);
-
-		_Draw_Label	(dc, y, wxString::Format(wxT("%f"), min_Value + (iSize - min_Size) / d_Value), TEXTALIGN_TOP);
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Line(wxDC &dc, CWKSP_Shapes_Line *pLayer)
-{
-	bool		bSize;
-	int			min_Size, max_Size, iSize, y;
-	double		min_Value, dValue;
-	wxString	Name, Name_Size;
-	wxPen		Pen;
-
-	//-----------------------------------------------------
-	m_BoxStyle		= BOXSTYLE_LINE;
-	m_Box_bFill		= false;
-	m_Box_bOutline	= false;
-
-	//-----------------------------------------------------
-	bSize	= pLayer->Get_Style_Size(min_Size, max_Size, min_Value, dValue, &Name_Size);
-
-	pLayer->Get_Style(Pen, &Name);
-
-	if( m_pClassify->Get_Mode() != CLASSIFY_UNIQUE || !bSize )
-	{
-		dc.SetPen(Pen);
-
-		if( Name.Length() > 0 )
-		{
-			_Draw_Title(dc, FONT_SUBTITLE, Name);
-		}
-
-		_Draw_Boxes(dc, m_Position.y);
-	}
-
-	//-----------------------------------------------------
-	if( bSize )
-	{
-		_Draw_Title(dc, FONT_SUBTITLE, Name_Size);
-
-		for(iSize=min_Size; iSize<=max_Size; iSize++)
-		{
-			Pen.SetWidth(iSize);
-			dc.SetPen(Pen);
-
-			y	= m_Position.y;
-
-			_Draw_Box	(dc, y, BOX_HEIGHT, Pen.GetColour());
-			_Draw_Label	(dc, y, wxString::Format(wxT("%f"), min_Value + (iSize - min_Size) / dValue), TEXTALIGN_TOP);
-		}
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Polygon(wxDC &dc, CWKSP_Shapes_Polygon *pLayer)
-{
-	wxString	Name;
-	wxPen		Pen;
-	wxBrush		Brush;
-
-	//-----------------------------------------------------
-	m_BoxStyle	= BOXSTYLE_RECT;
-	m_Box_bFill	= true;
-
-	//-----------------------------------------------------
-	pLayer->Get_Style(Pen, Brush, m_Box_bOutline, &Name);
-
-	dc.SetBrush(Brush);
-	dc.SetPen(Pen);
-
-	if( Name.Length() > 0 )
-	{
-		_Draw_Title(dc, FONT_SUBTITLE, Name);
-	}
-
-	//-----------------------------------------------------
-	_Draw_Boxes(dc, m_Position.y);
-}
-
-//---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_TIN(wxDC &dc, CWKSP_TIN *pLayer)
-{
-	//-----------------------------------------------------
-	m_BoxStyle		= BOXSTYLE_RECT;
-	m_Box_bFill		= true;
-	m_Box_bOutline	= true;
-
-	//-----------------------------------------------------
-	switch( m_pClassify->Get_Mode() )
-	{
-	default:
-		_Draw_Boxes(dc, m_Position.y);
-		break;
-
-	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
-	case CLASSIFY_SHADE:
-		_Draw_Continuum(dc, m_Position.y, 1.0);
-		break;
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Grid(wxDC &dc, CWKSP_Grid *pLayer)
-{
-	//-----------------------------------------------------
-	m_BoxStyle		= BOXSTYLE_RECT;
-	m_Box_bFill		= true;
-	m_Box_bOutline	= true;
-
-	//-----------------------------------------------------
-	switch( m_pClassify->Get_Mode() )
-	{
-	default:
-		_Draw_Boxes(dc, m_Position.y);
-		break;
-
-	case CLASSIFY_METRIC:
-	case CLASSIFY_SHADE:
-		if( pLayer->Get_Grid()->Get_Unit() && *(pLayer->Get_Grid()->Get_Unit()) )
-		{
-			_Draw_Title(dc, FONT_SUBTITLE, wxString::Format(wxT("[%s]"), pLayer->Get_Grid()->Get_Unit()));
-		}
-
-		_Draw_Continuum(dc, m_Position.y, pLayer->Get_Grid()->Get_ZFactor());
-		break;
-
-	case CLASSIFY_RGB:
-	case CLASSIFY_OVERLAY:
-		_Draw_Box_Image(dc, m_Position.y, pLayer->Get_Grid());
-		break;
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Boxes(wxDC &dc, int y)
-{
-	for(int i=m_pClassify->Get_Class_Count()-1; i>=0; i--, y+=BOX_HEIGHT)
-	{
-		_Draw_Box	(dc, y, BOX_HEIGHT, Get_Color_asWX(m_pClassify->Get_Class_Color(i)));
-		_Draw_Label	(dc, y, m_pClassify->Get_Class_Name(i), TEXTALIGN_TOP);
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CWKSP_Layer_Legend::_Draw_Continuum(wxDC &dc, int y, double zFactor)
 {
-	int		i;
-	double	zMin, zMax;
-
 	//-----------------------------------------------------
-	zMin	= m_pClassify->Get_RelativeToMetric(0.0);
-	zMax	= m_pClassify->Get_RelativeToMetric(1.0);
+	double	zMin	= m_pClassify->Get_RelativeToMetric(0.0);
+	double	zMax	= m_pClassify->Get_RelativeToMetric(1.0);
 
 	//-----------------------------------------------------
 	if( zMin >= zMax )
 	{
 		if( m_pLayer->Get_Value_Range() > 0.0 )
 		{
-			i	= m_pClassify->Get_Class_Count() - 1;
-			_Draw_Box	(dc, y, BOX_HEIGHT, Get_Color_asWX(m_pClassify->Get_Class_Color(i)));
-			_Draw_Label	(dc, y, m_pClassify->Get_Class_Name(i), TEXTALIGN_TOP);
-
-			y	+= BOX_HEIGHT;
+			_Draw_Box(dc, y, BOX_HEIGHT, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL, m_pClassify->Get_Class_Count() - 1);
 		}
 
-		i	= 0;
-		_Draw_Box	(dc, y, BOX_HEIGHT, Get_Color_asWX(m_pClassify->Get_Class_Color(i)));
-		_Draw_Label	(dc, y, m_pClassify->Get_Class_Name(i), TEXTALIGN_TOP);
-	}
-
-	//-----------------------------------------------------
-	else if( METRIC_HEIGHT > m_pClassify->Get_Class_Count() * BOX_HEIGHT )
-	{
-		_Draw_Boxes(dc, y);
+		_Draw_Box(dc, y + BOX_HEIGHT, BOX_HEIGHT, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL, 0);
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		int		dyFont;
+		int		dxFont, dyFont;
 		double	yToDC, dz;
 
+		dc.SetPen(*wxBLACK_PEN);
+
 		_Set_Font(dc, FONT_LABEL);
-		dc.GetTextExtent(wxString::Format(wxT("01234567")), &i, &dyFont);
+		dc.GetTextExtent(wxString::Format(wxT("01234567")), &dxFont, &dyFont);
 
 		zMin	*= zFactor;
 		zMax	*= zFactor;
 		yToDC	= METRIC_HEIGHT / (zMax - zMin);
 		dz		= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
-		while( yToDC * dz < dyFont )
-			dz	*= 2.0;
+
+		while( yToDC * dz < dyFont )	dz	*= 2.0;
 
 		yToDC	= METRIC_HEIGHT / (double)m_pClassify->Get_Class_Count();
 
-		if( m_bVertical )
+		if( m_Orientation == LEGEND_VERTICAL )
 		{
 			_Draw_Continuum_V(dc, y, yToDC, zMin, zMax, zFactor, dz, dyFont);
 		}
@@ -888,7 +776,7 @@ void CWKSP_Layer_Legend::_Draw_Continuum_H(wxDC &dc, int y, double yToDC, double
 	}
 
 	//-----------------------------------------------------
-	_Set_Size(METRIC_HEIGHT, yText + dyFont);
+	_Set_Size(METRIC_HEIGHT + m_dxBox, m_dxBox + m_dxTick + dyFont);
 }
 
 

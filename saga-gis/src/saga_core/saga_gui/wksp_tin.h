@@ -105,6 +105,8 @@ public:
 
 	bool						asImage					(CSG_Grid *pImage);
 
+	wxString					Get_Name_Attribute		(void);
+
 
 protected:
 

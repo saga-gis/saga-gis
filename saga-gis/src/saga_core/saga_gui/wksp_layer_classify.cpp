@@ -116,20 +116,7 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 	m_pLayer	= pLayer;
 	m_pLUT		= pLUT;
 	m_pColors	= pColors;
-
-	//-----------------------------------------------------
-	switch( m_pLayer->Get_Type() )
-	{
-	default:
-		m_pColors->Set_Count(10);
-		break;
-
-	case WKSP_ITEM_TIN:
-	case WKSP_ITEM_PointCloud:
-	case WKSP_ITEM_Grid:
-		m_pColors->Set_Count(100);
-		break;
-	}
+	m_pColors	->Set_Count(10);
 
 	//-----------------------------------------------------
 	if( m_pLUT && m_pLUT->Get_Record_Count() == 0 )

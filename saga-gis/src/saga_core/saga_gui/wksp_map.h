@@ -84,17 +84,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define LEGEND_LAYOUT_HORIZONTAL	0x01
-#define LEGEND_LAYOUT_VERTICAL		0x02
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CWKSP_Map_Extents : public CSG_Rects
 {
 public:
@@ -192,11 +181,11 @@ public:
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);
 	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
 	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width);
-	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL, int Layout = LEGEND_LAYOUT_VERTICAL);
+	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL);
 
 	const wxBitmap &			Get_Thumbnail			(int dx, int dy);
 
-	bool						Get_Legend_Size			(wxSize &Size, double Zoom_Map = 1.0, double Zoom = 1.0, int Layout = LEGEND_LAYOUT_VERTICAL);
+	bool						Get_Legend_Size			(wxSize &Size, double Zoom_Map = 1.0, double Zoom = 1.0);
 
 	int							Get_Frame_Width			(void);
 	int							Get_Print_Resolution	(void);

@@ -88,7 +88,11 @@ public:
 	CWKSP_Shapes_Point(CSG_Shapes *pShapes);
 	virtual ~CWKSP_Shapes_Point(void);
 
-	bool						Get_Style				(wxPen &Pen, wxBrush &Brush, bool &bOutline, wxString *pName = NULL);
+	bool						Get_Outline				(void)	{	return( m_bOutline );	}
+	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
+	wxBrush						Get_Def_Brush			(void)	{	return( m_Brush    );	}
+	wxString					Get_Name_Attribute		(void);
+
 	bool						Get_Style_Size			(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName);
 
 	void						Draw_Symbol				(wxDC &dc, int x, int y, int size);

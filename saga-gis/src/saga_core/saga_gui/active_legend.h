@@ -103,7 +103,7 @@ public:
 
 private:
 
-	int							m_xScroll, m_yScroll, m_Layout;
+	int							m_xScroll, m_yScroll;
 
 	static double				m_Zoom;
 

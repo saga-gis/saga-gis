@@ -88,7 +88,8 @@ public:
 	CWKSP_Shapes_Line(CSG_Shapes *pShapes);
 	virtual ~CWKSP_Shapes_Line(void);
 
-	bool						Get_Style				(wxPen &Pen, wxString *pName = NULL);
+	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
+	wxString					Get_Name_Attribute		(void);
 	bool						Get_Style_Size			(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName);
 
 

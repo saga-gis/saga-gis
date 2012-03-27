@@ -326,7 +326,9 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	Get_Style(m_Pen, m_Brush, m_bOutline);
+	m_bOutline	= m_Parameters("OUTLINE")->asBool();
+	m_Pen		= wxPen(!m_bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxSOLID);
+	m_Brush		= wxBrush(m_Def_Color, _BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
 }
 
 
@@ -397,25 +399,9 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Point::Get_Style(wxPen &Pen, wxBrush &Brush, bool &bOutline, wxString *pName)
+wxString CWKSP_Shapes_Point::Get_Name_Attribute(void)
 {
-	bOutline	= m_Parameters("OUTLINE")->asBool();
-	Brush		= wxBrush(m_Def_Color, _BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
-	Pen			= wxPen(!bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxSOLID);
-
-	if( pName )
-	{
-		if(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
-		{
-			pName->Clear();
-		}
-		else
-		{
-			pName->Printf(m_pShapes->Get_Field_Name(m_iColor));
-		}
-	}
-
-	return( true );
+	return(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : m_pShapes->Get_Field_Name(m_iColor) );
 }
 
 //---------------------------------------------------------

@@ -477,10 +477,11 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default:	m_iColor	= -1;	break;
-	case 1:		m_iColor	= m_Parameters("LUT_ATTRIB")   ->asInt();	break;
-	case 2:		m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
-	case 3:		m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;
+	default:
+	case 0:	m_iColor	= -1;										break;	// CLASSIFY_UNIQUE
+	case 1:	m_iColor	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
+	case 2:	m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
+	case 3:	m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
 	}
 
 	if( m_iColor >= m_pShapes->Get_Field_Count() )

@@ -72,21 +72,38 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	LEGEND_VERTICAL	= 0,
+	LEGEND_HORIZONTAL
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWKSP_Layer_Legend
 {
 public: ///////////////////////////////////////////////////
 	CWKSP_Layer_Legend(class CWKSP_Layer *pLayer);
-	virtual ~CWKSP_Layer_Legend(void);
 
-	wxSize						Get_Size			(double Zoom, double Zoom_Map, bool bVertical = true);
-	void						Draw				(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Position, wxSize *pSize = NULL, bool bVertical = true);
+	wxSize						Get_Size			(double Zoom, double Zoom_Map);
+
+	void						Draw				(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Position, wxSize *pSize = NULL);
+
+	int							Get_Orientation		(void)	{	return( m_Orientation );	}
+	void						Set_Orientation		(int Orientation);
 
 
 protected: ////////////////////////////////////////////////
 
-	bool						m_Box_bOutline, m_Box_bFill, m_bVertical;
+	bool						m_Orientation;
 
-	int							m_xBox, m_dxBox, m_xTick, m_dxTick, m_xText, m_BoxStyle;
+	int							m_xBox, m_dxBox, m_xTick, m_dxTick, m_xText;
 
 	double						m_Zoom, m_Zoom_Map;
 
@@ -107,19 +124,22 @@ protected: ////////////////////////////////////////////////
 
 	void						_Set_Size			(int xSet, int yAdd);
 	void						_Set_Font			(wxDC &dc, int Style);
+
 	void						_Draw_Title			(wxDC &dc, int Style, wxString Text);
 	void						_Draw_Label			(wxDC &dc, int y, wxString Text, int yAlign);
-	void						_Draw_Box			(wxDC &dc, int y, int dy, wxColour Color);
-	void						_Draw_Box_Image		(wxDC &dc, int y, class CSG_Grid *pGrid);
+
+	void						_Draw_Box			(wxDC &dc, int y, int dy, int Style, int iClass);
+	void						_Draw_Boxes			(wxDC &dc, int y, int Style, double zFactor = 1.0);
 
 	void						_Draw_Point			(wxDC &dc, class CWKSP_Shapes_Point   *pLayer);
-	void						_Draw_Point_Sizes	(wxDC &dc, class CWKSP_Shapes_Point   *pLayer, int min_Size, int max_Size, double min_Value, double d_Value);
 	void						_Draw_Line			(wxDC &dc, class CWKSP_Shapes_Line    *pLayer);
 	void						_Draw_Polygon		(wxDC &dc, class CWKSP_Shapes_Polygon *pLayer);
 	void						_Draw_TIN			(wxDC &dc, class CWKSP_TIN            *pLayer);
+	void						_Draw_PointCloud	(wxDC &dc, class CWKSP_PointCloud     *pLayer);
 	void						_Draw_Grid			(wxDC &dc, class CWKSP_Grid           *pLayer);
 
-	void						_Draw_Boxes			(wxDC &dc, int y);
+	void						_Draw_Grid_Image	(wxDC &dc, int y, class CSG_Grid *pGrid);
+
 	void						_Draw_Continuum		(wxDC &dc, int y, double zFactor);
 	void						_Draw_Continuum_V	(wxDC &dc, int y, double yToDC, double zMin, double zMax, double zFactor, double dz, int dyFont);
 	void						_Draw_Continuum_H	(wxDC &dc, int y, double yToDC, double zMin, double zMax, double zFactor, double dz, int dyFont);
