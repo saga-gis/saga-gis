@@ -318,7 +318,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 					Type[iField]	= SG_DATATYPE_String;
 				}
 
-				if( Type[iField] != SG_DATATYPE_String )
+				if( Type[iField] != SG_DATATYPE_String && sField.Length() > 0 )
 				{
 					double	Value;
 

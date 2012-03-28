@@ -99,7 +99,7 @@ CSG_String Get_Info(int i)
 #include "Table_Enumerate.h"
 #include "Join_Tables.h"
 #include "table_change_date_format.h"
-
+#include "table_change_field_type.h"
 
 
 //---------------------------------------------------------
@@ -116,6 +116,7 @@ CSG_Module *		Create_Module(int i)
 	case  4:	return( new CJoin_Tables_Shapes );
 	case  5:	return( new CTable_Change_Date_Format );
 	case  6:	return( new CTable_Change_Time_Format );
+	case  7:	return( new CTable_Change_Field_Type );
 	}
 
 	return( NULL );

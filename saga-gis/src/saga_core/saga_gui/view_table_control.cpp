@@ -122,6 +122,8 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table_Control::On_Field_Sort_UI)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table_Control::On_Field_Rename)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table_Control::On_Field_Rename_UI)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table_Control::On_Field_Type)
+	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table_Control::On_Field_Type_UI)
 
 	EVT_MENU					(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add_UI)
@@ -743,6 +745,81 @@ void CVIEW_Table_Control::On_Field_Rename_UI(wxUpdateUIEvent &event)
 	event.Enable(m_pTable->Get_Field_Count() > 0);
 }
 
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
+{
+	int				i, *Types	= new int[m_pTable->Get_Field_Count()];
+	CSG_Parameters	P;
+
+	P.Set_Name(_TL("Change Field Type"));
+
+	for(i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		switch( m_pTable->Get_Field_Type(i) )
+		{
+		default:
+		case SG_DATATYPE_String:	Types[i]	= 0;	break;
+		case SG_DATATYPE_Date:		Types[i]	= 1;	break;
+		case SG_DATATYPE_Color:		Types[i]	= 2;	break;
+		case SG_DATATYPE_Int:		Types[i]	= 3;	break;
+		case SG_DATATYPE_Double:	Types[i]	= 4;	break;
+		case SG_DATATYPE_Binary:	Types[i]	= 5;	break;
+		}
+
+		P.Add_Choice(NULL, "", m_pTable->Get_Field_Name(i), _TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+				_TL("text"),
+				_TL("date"),
+				_TL("colour"),
+				_TL("integer"),
+				_TL("floating point number"),
+				_TL("binary")
+			), Types[i]
+		);
+	}
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		bool	bChanged	= false;
+
+		for(i=0; i<m_pTable->Get_Field_Count(); i++)
+		{
+			TSG_Data_Type	Type;
+
+			switch( P(i)->asInt() )
+			{
+			default:
+			case 0:	Type	= SG_DATATYPE_String;	break;
+			case 1:	Type	= SG_DATATYPE_Date;		break;
+			case 2:	Type	= SG_DATATYPE_Color;	break;
+			case 3:	Type	= SG_DATATYPE_Int;		break;
+			case 4:	Type	= SG_DATATYPE_Double;	break;
+			case 5:	Type	= SG_DATATYPE_Binary;	break;
+			}
+
+			if( Type != Types[i] )
+			{
+				m_pTable->Set_Field_Type(i, Type);
+
+				bChanged	= true;
+			}
+		}
+
+		if( bChanged )
+		{
+			Update_Table();
+
+			g_pData->Update(m_pTable, NULL);
+		}
+	}
+}
+
+void CVIEW_Table_Control::On_Field_Type_UI(wxUpdateUIEvent &event)
+{
+	event.Enable(m_pTable->Get_Field_Count() > 0);
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -940,6 +1017,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_SORT);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_RENAME);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_TYPE);
 
 		PopupMenu(pMenu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
 		delete(pMenu);

@@ -94,6 +94,8 @@ BEGIN_EVENT_TABLE(CVIEW_Table, CVIEW_Base)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table::On_Field_Sort_UI)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table::On_Field_Rename)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table::On_Field_Rename_UI)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table::On_Field_Type)
+	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table::On_Field_Type_UI)
 
 	EVT_MENU					(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table::On_Record_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table::On_Record_Add_UI)
@@ -219,6 +221,17 @@ void CVIEW_Table::On_Field_Rename(wxCommandEvent &event)
 void CVIEW_Table::On_Field_Rename_UI(wxUpdateUIEvent &event)
 {
 	m_pControl->On_Field_Rename_UI(event);
+}
+
+//---------------------------------------------------------
+void CVIEW_Table::On_Field_Type(wxCommandEvent &event)
+{
+	m_pControl->On_Field_Type(event);
+}
+
+void CVIEW_Table::On_Field_Type_UI(wxUpdateUIEvent &event)
+{
+	m_pControl->On_Field_Type_UI(event);
 }
 
 //---------------------------------------------------------

@@ -574,9 +574,12 @@ bool CSG_Table::Set_Field_Type(int iField, TSG_Data_Type Type)
 				}
 
 				m_Records[i]->m_Values[iField]	= pNew;
+				m_Records[i]->Set_Modified();
 
 				delete(pOld);
 			}
+
+			Set_Modified();
 		}
 
 		return( true );

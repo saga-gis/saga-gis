@@ -268,6 +268,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_FIELD_DEL:		return( _TL("[CMD] Delete Fields") );
 	case ID_CMD_TABLE_FIELD_SORT:		return( _TL("[CMD] Sort Fields") );
 	case ID_CMD_TABLE_FIELD_RENAME:		return( _TL("[CMD] Rename Fields") );
+	case ID_CMD_TABLE_FIELD_TYPE:		return( _TL("[CMD] Change Field Type") );
 	case ID_CMD_TABLE_RECORD_ADD:		return( _TL("[CMD] Add Record") );
 	case ID_CMD_TABLE_RECORD_INS:		return( _TL("[CMD] Insert Record") );
 	case ID_CMD_TABLE_RECORD_DEL:		return( _TL("[CMD] Delete Selected Record(s)") );

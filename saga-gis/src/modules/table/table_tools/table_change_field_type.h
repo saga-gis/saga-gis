@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: table_change_field_type.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,15 +8,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
-//                                                       //
-//                    Program: SAGA                      //
+//                    Module Library:                    //
+//                      table_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     VIEW_Table.h                      //
+//                table_change_field_type.h              //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2012 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,102 +40,67 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
+//    e-mail:     oconrad@saga-gis.de                    //
+//                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_H
-#define _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_H
+#ifndef HEADER_INCLUDED__table_change_field_type_H
+#define HEADER_INCLUDED__table_change_field_type_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "view_base.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVIEW_Table : public CVIEW_Base
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Change_Field_Type : public CSG_Module
 {
-	DECLARE_CLASS(CVIEW_Table)
-
 public:
-	CVIEW_Table(class CWKSP_Table *pTable);
-	virtual ~CVIEW_Table(void);
-
-	static class wxToolBarBase *	_Create_ToolBar		(void);
-	static class wxMenu *			_Create_Menu		(void);
-
-	void							On_Field_Add		(wxCommandEvent  &event);
-	void							On_Field_Add_UI		(wxUpdateUIEvent &event);
-	void							On_Field_Del		(wxCommandEvent  &event);
-	void							On_Field_Del_UI		(wxUpdateUIEvent &event);
-	void							On_Field_Sort		(wxCommandEvent  &event);
-	void							On_Field_Sort_UI	(wxUpdateUIEvent &event);
-	void							On_Field_Rename		(wxCommandEvent  &event);
-	void							On_Field_Rename_UI	(wxUpdateUIEvent &event);
-	void							On_Field_Type		(wxCommandEvent  &event);
-	void							On_Field_Type_UI	(wxUpdateUIEvent &event);
-
-	void							On_Record_Add		(wxCommandEvent  &event);
-	void							On_Record_Add_UI	(wxUpdateUIEvent &event);
-	void							On_Record_Ins		(wxCommandEvent  &event);
-	void							On_Record_Ins_UI	(wxUpdateUIEvent &event);
-	void							On_Record_Del		(wxCommandEvent  &event);
-	void							On_Record_Del_UI	(wxUpdateUIEvent &event);
-	void							On_Record_Clr		(wxCommandEvent  &event);
-	void							On_Record_Clr_UI	(wxUpdateUIEvent &event);
-	void							On_Sel_To_Top		(wxCommandEvent  &event);
-	void							On_Sel_To_Top_UI	(wxUpdateUIEvent &event);
-
-	void							Update_Table		(void);
-	void							Update_Selection	(void);
+	CTable_Change_Field_Type(void);
 
 
-private:
+protected:
 
-	class CWKSP_Table				*m_pTable;
+	virtual bool			On_Execute				(void);
 
-	class CVIEW_Table_Control		*m_pControl;
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_H
+#endif // #ifndef HEADER_INCLUDED__table_change_field_type_H

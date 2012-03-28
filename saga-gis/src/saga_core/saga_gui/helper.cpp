@@ -221,15 +221,25 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 
 		for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			s	+= wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%f</td><td>%f</td></tr>"),
+			s	+= wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td>"),
 				i + 1,
 				pTable->Get_Field_Name(i),
-				SG_Data_Type_Get_Name(pTable->Get_Field_Type(i)).c_str(),
-				pTable->Get_Minimum(i),
-				pTable->Get_Maximum(i),
-				pTable->Get_Mean(i),
-				pTable->Get_StdDev(i)
+				SG_Data_Type_Get_Name(pTable->Get_Field_Type(i)).c_str()
 			);
+
+			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
+			{
+				s	+= wxString::Format(wxT("<td align=\"right\">%s</td><td align=\"right\">%s</td><td align=\"right\">%s</td><td align=\"right\">%s</td></tr>"),
+					SG_Get_String(pTable->Get_Minimum(i), -6).c_str(),
+					SG_Get_String(pTable->Get_Maximum(i), -6).c_str(),
+					SG_Get_String(pTable->Get_Mean   (i), -6).c_str(),
+					SG_Get_String(pTable->Get_StdDev (i), -6).c_str()
+				);
+			}
+			else
+			{
+				s	+= wxString::Format(wxT("<td></td><td></td><td></td><td></td></tr>"));
+			}
 		}
 
 		s	+= wxT("</table>");
