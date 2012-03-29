@@ -88,6 +88,7 @@ class CList_Stat
 public:
 	CList_Stat(void)
 	{
+		n		= 0;
 		min		= max	= 0.0;
 		sum		= dev	= 0.0;
 		next	= NULL;
@@ -101,7 +102,7 @@ public:
 		next	= NULL;
 	};
 
-
+	int					n;
 	double				min, max, sum, dev;
 	bool				dummy;
 
