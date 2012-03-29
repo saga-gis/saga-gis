@@ -138,31 +138,28 @@ CDLG_Base::~CDLG_Base(void)
 void CDLG_Base::On_Size(wxSizeEvent &event)
 {
 	bool	bResize	= false;
-	wxSize	s;
+	wxSize	Size	= event.GetSize();	//	s	= GetClientSize();
 
-	s	= event.GetSize();
-//	s	= GetClientSize();
-
-	if( s.GetWidth() < 300 )
+	if( Size.GetWidth() < 300 )
 	{
-		s.SetWidth(300);
+		Size.SetWidth(300);
 		bResize	= true;
 	}
 
-	if( s.GetHeight() < 300 )
+	if( Size.GetHeight() < 300 )
 	{
-		s.SetHeight(300);
+		Size.SetHeight(300);
 		bResize	= true;
 	}
 
 	if( bResize )
 	{
-		SetSize(s);
+		SetSize(Size);
 	}
 
-//	event.Skip();
-
 	Set_Positions();
+
+	event.Skip();
 }
 
 //---------------------------------------------------------

@@ -118,8 +118,6 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 
 			m_pSystems->Append( _TL("[VAL] [all grid systems]") );
 			m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
-
-			Set_Positions();
 		}
 
 		_Set_Objects();
@@ -146,20 +144,17 @@ CDLG_List_Grid::~CDLG_List_Grid(void)
 //---------------------------------------------------------
 void CDLG_List_Grid::Set_Position(wxRect r)
 {
-	int		Width, Height;
-
 	CDLG_List_Base::Set_Position(r);
 
 	if( m_pSystems )
 	{
 		r.Deflate(5);
 
-		Height	= m_pSystems->GetSize().GetHeight();
-		Width	= r.GetWidth() / 2 - (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST);
+		int	Height	= m_pSystems->GetSize().GetHeight();
+		int	Width	= r.GetWidth() / 2 - (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST);
 
-		m_pSystems	->SetSize(wxRect(r.GetLeft(), r.GetTop(), Width, Height));
-		m_pSelect	->SetSize(wxRect(r.GetLeft(), r.GetTop() + Height, Width, r.GetHeight() - Height));
-		m_pSelect	->Refresh();
+		m_pSystems	->SetSize(r.GetLeft(), r.GetTop()         , Width,                 Height);
+		m_pSelect	->SetSize(r.GetLeft(), r.GetTop() + Height, Width, r.GetHeight() - Height);
 	}
 }
 
