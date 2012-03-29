@@ -440,7 +440,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Metric...
 
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_METRIC"			, _TL("[CAP] Graduated Color"),
+		m_Parameters("NODE_COLORS")		, "NODE_METRIC"			, _TL("[CAP] Scaling"),
 		_TL("")
 	);
 
@@ -500,6 +500,17 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHOW_ALWAYS")) )
 		{
 			pParameters->Get_Parameter("SHOW_RANGE")->Set_Enabled(pParameter->asBool() == false);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
+		{
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == CLASSIFY_UNIQUE);
+			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == CLASSIFY_LUT);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT && Value != CLASSIFY_RGB);
+
+			pParameters->Get_Parameter("METRIC_COLORS" )->Set_Enabled(Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METRIC_SCALE_MODE")) )

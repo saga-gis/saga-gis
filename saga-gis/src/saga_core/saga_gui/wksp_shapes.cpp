@@ -569,15 +569,6 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			pParameters->Get_Parameter("OUTLINE_SIZE" )->Set_Enabled(pParameter->asBool());
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
-		{
-			int		Value	= pParameter->asInt();
-
-			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == CLASSIFY_UNIQUE);
-			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == CLASSIFY_LUT);
-			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
-		}
-
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB")) )
 		{
 			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();

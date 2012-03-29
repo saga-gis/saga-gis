@@ -381,13 +381,13 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		m_Parameters("NODE_OVERLAY")	, "OVERLAY_1"		, _TL("[CAP] Overlay 1"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
-	);
+	)->Get_Parent()->Set_Value((void *)&m_pGrid->Get_System());
 
 	m_Parameters.Add_Grid(
 		m_Parameters("NODE_OVERLAY")	, "OVERLAY_2"		, _TL("[CAP] Overlay 2"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
-	);
+	)->Get_Parent()->Set_Value((void *)&m_pGrid->Get_System());
 
 
 	//-----------------------------------------------------
@@ -535,7 +535,7 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == CLASSIFY_UNIQUE);
 			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == CLASSIFY_LUT);
-			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED || Value == CLASSIFY_SHADE);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT);
 			pParameters->Get_Parameter("NODE_SHADE"    )->Set_Enabled(Value == CLASSIFY_SHADE);
 			pParameters->Get_Parameter("NODE_OVERLAY"  )->Set_Enabled(Value == CLASSIFY_OVERLAY);
 		}
