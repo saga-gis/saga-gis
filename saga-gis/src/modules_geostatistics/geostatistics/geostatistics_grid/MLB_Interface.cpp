@@ -74,19 +74,19 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Grids") );
+		return( _TL("Spatial and Geostatistics - Grids") );
 
 	case MLB_INFO_Author:
 		return( SG_T("O.Conrad, V.Wichmann (c) 2002-10" ));
 
 	case MLB_INFO_Description:
-		return( _TL("Tools for (geo)statistical analyses.") );
+		return( _TL("Tools for spatial and geostatistical analyses.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Grids") );
+		return( _TL("Spatial and Geostatistics|Grids") );
 	}
 }
 
