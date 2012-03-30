@@ -956,7 +956,7 @@ public:
 
 	CSG_Distance_Weighting &	Get_Weighting		(void)								{	return( m_Weighting );		}
 
-	bool						Set_Radius			(double Radius);
+	bool						Set_Radius			(double Radius, bool bSquare = false);
 	bool						Set_Annulus			(double inner_Radius, double outer_Radius);
 	bool						Set_Sector			(double Radius, double Direction, double Tolerance);
 

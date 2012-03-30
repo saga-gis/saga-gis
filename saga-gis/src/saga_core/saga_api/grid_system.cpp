@@ -316,7 +316,7 @@ bool CSG_Grid_Cell_Addressor::Destroy(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius)
+bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius, bool bSquare)
 {
 	Destroy();
 
@@ -331,7 +331,7 @@ bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius)
 			{
 				double	d	= SG_Get_Length(x, y);
 
-				if( d <= Radius )
+				if( bSquare || d <= Radius )
 				{
 					ADD_CELL( x,  y, d);
 					ADD_CELL( y, -x, d);
