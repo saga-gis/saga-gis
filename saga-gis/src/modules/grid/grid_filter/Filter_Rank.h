@@ -93,9 +93,9 @@ protected:
 
 private:
 
-	int						m_Radius;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
-	CSG_Grid				m_Kernel, *m_pInput;
+	CSG_Grid				*m_pInput;
 
 
 	bool					Get_Value		(int x, int y, double Rank, double &Value);

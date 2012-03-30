@@ -131,34 +131,16 @@ CFilter_Rank::CFilter_Rank(void)
 bool CFilter_Rank::On_Execute(void)
 {
 	int			x, y, ix, iy;
-	double		Rank, Value;
+	double		Rank;
 	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")	->asGrid();
-	pResult		= Parameters("RESULT")	->asGrid();
-	m_Radius	= Parameters("RADIUS")	->asInt();
-	Rank		= Parameters("RANK")	->asInt() / 100.0;
+	m_pInput	= Parameters("INPUT" )->asGrid();
+	pResult		= Parameters("RESULT")->asGrid();
+	Rank		= Parameters("RANK"  )->asInt() / 100.0;
 
 	//-----------------------------------------------------
-	m_Kernel.Create(SG_DATATYPE_Byte, 1 + 2 * m_Radius, 1 + 2 * m_Radius);
-	m_Kernel.Set_NoData_Value(0.0);
-	m_Kernel.Assign(1.0);
-	m_Kernel.Set_Value(m_Radius, m_Radius, 0.0);
-
-	if( Parameters("MODE")->asInt() == 1 )
-	{
-		for(y=-m_Radius, iy=0; y<=m_Radius; y++, iy++)
-		{
-			for(x=-m_Radius, ix=0; x<=m_Radius; x++, ix++)
-			{
-				if( x*x + y*y > m_Radius*m_Radius )
-				{
-					m_Kernel.Set_Value(ix, iy, 0.0);
-				}
-			}
-		}
-	}
+	m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0);
 
 	//-----------------------------------------------------
 	if( !pResult || pResult == m_pInput )
@@ -175,8 +157,11 @@ bool CFilter_Rank::On_Execute(void)
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel private(x)
 		for(x=0; x<Get_NX(); x++)
 		{
+			double	Value;
+
 			if( Get_Value(x, y, Rank, Value) )
 			{
 				pResult->Set_Value(x, y, Value);
@@ -213,42 +198,57 @@ bool CFilter_Rank::On_Execute(void)
 //---------------------------------------------------------
 bool CFilter_Rank::Get_Value(int x, int y, double Rank, double &Value)
 {
-	if( !m_pInput->is_InGrid(x, y) )
+	if( m_pInput->is_InGrid(x, y) )
 	{
-		return( false );
-	}
+		CSG_Table	Values;
 
-	CSG_Table	Values;
+		Values.Add_Field(SG_T("Z"), SG_DATATYPE_Double);
 
-	Values.Add_Field(SG_T("Z"), SG_DATATYPE_Double);
-
-	for(int iy=0, jy=y-m_Radius; iy<m_Kernel.Get_NY(); iy++, jy++)
-	{
-		for(int ix=0, jx=x-m_Radius; ix<m_Kernel.Get_NX(); ix++, jx++)
+		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
-			if( m_Kernel.asByte(ix, iy) && m_pInput->is_InGrid(jx, jy) )
+			int	ix	= m_Kernel.Get_X(i, x);
+			int	iy	= m_Kernel.Get_Y(i, y);
+
+			if( m_pInput->is_InGrid(ix, iy) )
 			{
-				Values.Add_Record()->Set_Value(0, m_pInput->asDouble(jx, jy));
+				Values.Add_Record()->Set_Value(0, m_pInput->asDouble(ix, iy));
 			}
+		}
+
+		switch( Values.Get_Count() )
+		{
+		case 0:
+			return( false );
+
+		case 1:
+			Value	= Values[0].asDouble(0);
+			return( true );
+
+		case 2:
+			Value	= (Values[0].asDouble(0) + Values[1].asDouble(0)) / 2.0;
+			return( true );
+
+		default:
+			{
+				Values.Set_Index(0, TABLE_INDEX_Ascending);
+
+				Rank	= Rank * (Values.Get_Count() - 1.0);
+
+				int	i	= (int)Rank;
+
+				Value	= Values.Get_Record_byIndex(i)->asDouble(0);
+
+				if( Rank - i > 0.0 && i < Values.Get_Count() - 1 )
+				{
+					Value	= (Value + Values.Get_Record_byIndex(i + 1)->asDouble(0)) / 2.0;
+				}
+			}
+
+			return( true );
 		}
 	}
 
-	Values.Set_Index(0, TABLE_INDEX_Ascending);
-
-	Rank	= Rank * (Values.Get_Count() - 1.0);
-
-	int	i	= (int)Rank;
-
-	if( Rank - i > 0.0 && i < Values.Get_Count() - 1 )
-	{
-		Value	= 0.5 * (Values.Get_Record_byIndex(i)->asDouble(0) + Values.Get_Record_byIndex(i + 1)->asDouble(0));
-	}
-	else
-	{
-		Value	= Values.Get_Record_byIndex(i)->asDouble(0);
-	}
-
-	return( true );
+	return( false );
 }
 
 
