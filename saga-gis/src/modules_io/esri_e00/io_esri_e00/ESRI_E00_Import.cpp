@@ -175,7 +175,7 @@ bool CESRI_E00_Import::On_Execute(void)
 	{
 		for(int i=0; i<fNames.Get_Count(); i++)
 		{
-			if( Load(fNames[i]) && Load() )
+			if( Load(fNames[i]) )
 			{
 				nLoaded++;
 			}
@@ -199,7 +199,7 @@ const char * CESRI_E00_Import::E00_Read_Line(void)
 
 	if( line == NULL )
 	{
-		FILE	*fp	= fopen(SG_File_Make_Path(NULL, m_e00_Name, CSG_String::Format(SG_T("e%02d"), m_iFile + 1)).b_str(), "rb");
+		FILE	*fp	= fopen(SG_File_Make_Path(NULL, m_e00_Name, CSG_String::Format(SG_T("e%02d"), m_iFile + 1)), "rb");
 
 		if( fp )
 		{
@@ -233,7 +233,7 @@ bool CESRI_E00_Import::E00_Goto_Line(int iLine)
 		else
 		{
 			E00ReadClose(m_hReadPtr);
-			m_hReadPtr	= E00ReadOpen(m_e00_Name.b_str());
+			m_hReadPtr	= E00ReadOpen(m_e00_Name);
 			m_iFile		= 0;
 		}
 
@@ -264,7 +264,7 @@ bool CESRI_E00_Import::Load(const CSG_String &FileName)
 	m_iFile		= 0;
 
 	//-----------------------------------------------------
-	if( (m_hReadPtr = E00ReadOpen(m_e00_Name.b_str())) == NULL )
+	if( (m_hReadPtr = E00ReadOpen(m_e00_Name)) == NULL )
 	{
 		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("file not found")  , FileName.c_str()));
 	}
@@ -537,6 +537,12 @@ bool CESRI_E00_Import::Load(void)
 	}
 
 	//-----------------------------------------------------
+	if( !m_bTables )
+	{
+		if( m_pPAT )	delete(m_pPAT);
+		if( m_pAAT )	delete(m_pAAT);
+	}
+
 	return( true );
 }
 
@@ -1219,9 +1225,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 
 		if( pTable )
 		{
-			CSG_Table_Record	*pRecord;
-			CSG_Shape			*pShape;
-
+			//---------------------------------------------
 			if     ( !s.CmpNoCase(SG_T("bnd")) )	// coverage boundaries
 			{
 				if( m_bBnd )
@@ -1246,11 +1250,13 @@ int CESRI_E00_Import::info_Get_Tables(void)
 					pShape->Add_Point(pRecord->asDouble(2), pRecord->asDouble(3));
 					pShape->Add_Point(pRecord->asDouble(2), pRecord->asDouble(1));
 
-					delete(pTable);
-
 					m_pShapes->Add_Item(pShapes);
 				}
+
+				delete(pTable);
 			}
+
+			//---------------------------------------------
 			else if( !s.CmpNoCase(SG_T("tic")) )	// tick marks
 			{
 				if( m_bTic )
@@ -1271,17 +1277,22 @@ int CESRI_E00_Import::info_Get_Tables(void)
 						pShape->Add_Point(pRecord->asDouble(1), pRecord->asDouble(2));
 					}
 
-					delete(pTable);
-
 					m_pShapes->Add_Item(pShapes);
 				}
+
+				delete(pTable);
 			}
-			else
+
+			//---------------------------------------------
+			else if( m_bTables )
 			{
-				if( m_bTables )
-				{
-					m_pTables->Add_Item(pTable);
-				}
+				m_pTables->Add_Item(pTable);
+			}
+
+			//---------------------------------------------
+			else if( pTable != m_pPAT && pTable != m_pAAT )
+			{
+				delete(pTable);
 			}
 		}
 	}
@@ -1451,56 +1462,69 @@ void CESRI_E00_Import::info_Get_Record(char *buffer, int buffer_length)
 //---------------------------------------------------------
 bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 {
-	int				iShape, iRecord, iField, oField, id;
-	CSG_Table_Record	*pRec;
-	CSG_Shape			*pShape;
-
-	if( pShapes && pShapes->Get_Field_Count() > 0 && m_pPAT && m_pPAT->Get_Field_Count() > 2 )
+	if( !pShapes || pShapes->Get_Field_Count() <= 0 || !m_pPAT || m_pPAT->Get_Field_Count() <= 2 )
 	{
-		Process_Set_Text(_TL("Assign attributes to shapes..."));
-
-		oField	= pShapes->Get_Field_Count();
-
-		for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
-		{
-			pShapes->Add_Field(m_pPAT->Get_Field_Name(iField), m_pPAT->Get_Field_Type(iField));
-		}
-
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			pShape	= pShapes->Get_Shape(iShape);
-			id		= pShape->asInt(0);
-
-			for(iRecord=0; iRecord<m_pPAT->Get_Record_Count(); iRecord++)
-			{
-				pRec	= m_pPAT->Get_Record(iRecord);
-
-				if( id == pRec->asInt(2) )
-				{
-					for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
-					{
-						switch( m_pPAT->Get_Field_Type(iField) )
-						{
-						case SG_DATATYPE_String:
-							pShape->Set_Value(oField + iField, pRec->asString(iField));
-							break;
-
-						default:
-							pShape->Set_Value(oField + iField, pRec->asDouble(iField));
-							break;
-						}
-					}
-
-					break;
-				}
-			}
-
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	Process_Set_Text(_TL("Assign attributes to shapes..."));
+
+	int	iField, off_Field	= pShapes->Get_Field_Count();
+
+	for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
+	{
+		pShapes->Add_Field(m_pPAT->Get_Field_Name(iField), m_pPAT->Get_Field_Type(iField));
+	}
+
+	for(int i=0; i<m_pPAT->Get_Count() && Set_Progress(i, m_pPAT->Get_Count()); i++)
+	{
+		CSG_Table_Record	*pRecord	= m_pPAT->Get_Record(i);
+		CSG_Shape			*pShape		= pShapes->Get_Shape(pRecord->asInt(2));
+
+		if( pShape )
+		{
+			for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
+			{
+				if( SG_Data_Type_is_Numeric(m_pPAT->Get_Field_Type(iField)) )
+					pShape->Set_Value(off_Field + iField, pRecord->asDouble(iField));
+				else
+					pShape->Set_Value(off_Field + iField, pRecord->asString(iField));
+			}
+		}
+	}
+
+	return( true );
+
+/*	pShapes->Set_Index(0, TABLE_INDEX_Ascending);
+	m_pPAT ->Set_Index(3, TABLE_INDEX_Ascending);
+
+	for(int iShape=0, off_Record=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape_byIndex(iShape);
+		int			id		= pShape->asInt(0);
+
+		for(int iRecord=off_Record; iRecord<m_pPAT->Get_Record_Count(); iRecord++)
+		{
+			CSG_Table_Record	*pRecord	= m_pPAT->Get_Record_byIndex(iRecord);
+
+			if( id == pRecord->asInt(3) )
+			{
+				for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
+				{
+					if( SG_Data_Type_is_Numeric(m_pPAT->Get_Field_Type(iField)) )
+						pShape->Set_Value(off_Field + iField, pRecord->asDouble(iField));
+					else
+						pShape->Set_Value(off_Field + iField, pRecord->asString(iField));
+				}
+
+				off_Record++;
+
+				break;
+			}
+		}
+	}
+
+	return( true );/**/
 }
 
 
