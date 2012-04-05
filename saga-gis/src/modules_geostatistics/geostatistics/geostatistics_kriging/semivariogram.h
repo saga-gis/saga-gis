@@ -79,7 +79,7 @@ class CSemiVariogram : public CSG_Module
 public:
 	CSemiVariogram(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Geostatistics|Points") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Spatial and Geostatistics|Points") );	}
 
 
 protected:
