@@ -30,6 +30,7 @@ air_flow_height.cpp\
 anisotropic_heating.cpp\
 land_surface_temperature.cpp\
 relative_heights.cpp\
+tc_iwahashi_pike.cpp\
 tpi.cpp\
 wind_effect.cpp\
 Convergence.h\
@@ -49,6 +50,7 @@ air_flow_height.h\
 anisotropic_heating.h\
 land_surface_temperature.h\
 relative_heights.h\
+tc_iwahashi_pike.h\
 tpi.h\
 wind_effect.h
 

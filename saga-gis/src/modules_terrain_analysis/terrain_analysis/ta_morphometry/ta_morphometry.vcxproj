@@ -608,6 +608,7 @@
     <ClCompile Include="relative_heights.cpp" />
     <ClCompile Include="ruggedness.cpp" />
     <ClCompile Include="SurfaceSpecificPoints.cpp" />
+    <ClCompile Include="tc_iwahashi_pike.cpp" />
     <ClCompile Include="tpi.cpp" />
     <ClCompile Include="wind_effect.cpp" />
   </ItemGroup>
@@ -646,6 +647,7 @@
     <ClInclude Include="relative_heights.h" />
     <ClInclude Include="ruggedness.h" />
     <ClInclude Include="SurfaceSpecificPoints.h" />
+    <ClInclude Include="tc_iwahashi_pike.h" />
     <ClInclude Include="tpi.h" />
     <ClInclude Include="wind_effect.h" />
   </ItemGroup>
