@@ -77,7 +77,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes - Tools") );
 
 	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya (c) 2002-2009") );
+		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-2012") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the manipulation of vector data.") );
@@ -118,6 +118,7 @@ CSG_String Get_Info(int i)
 #include "quadtree_structure.h"
 
 #include "shapes_polar_to_cartes.h"
+#include "shapes_generate.h"
 
 
 //---------------------------------------------------------
@@ -152,6 +153,7 @@ CSG_Module *		Create_Module(int i)
 	case 20:	return( new CQuadTree_Structure );
 
 	case 21:	return( new CShapes_Polar_to_Cartes );
+	case 22:	return( new CShapes_Generate );
 
 	case 30:	return( NULL );
 	}

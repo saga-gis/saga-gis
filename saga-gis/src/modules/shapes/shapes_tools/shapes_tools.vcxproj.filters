@@ -74,6 +74,9 @@
     <ClCompile Include="shapes_polar_to_cartes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shapes_generate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -185,6 +188,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shapes_polar_to_cartes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shapes_generate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

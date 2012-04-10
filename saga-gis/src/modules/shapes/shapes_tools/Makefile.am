@@ -30,6 +30,7 @@ shapes_buffer.cpp\
 shapes_cut.cpp\
 shapes_cut_interactive.cpp\
 shapes_extents.cpp\
+shapes_generate.cpp\
 shapes_polar_to_cartes.cpp\
 shapes_split.cpp\
 shapes_split_by_attribute.cpp\
@@ -51,6 +52,7 @@ shapes_buffer.h\
 shapes_cut.h\
 shapes_cut_interactive.h\
 shapes_extents.h\
+shapes_generate.h\
 shapes_polar_to_cartes.h\
 shapes_split.h\
 shapes_split_by_attribute.h\
