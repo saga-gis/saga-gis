@@ -147,12 +147,14 @@ class CTC_Classification : public CSG_Module_Grid
 public:
 	CTC_Classification(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Classification" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Classification" ));	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
@@ -164,11 +166,11 @@ private:
 	CSG_Grid				*m_pSlope, *m_pConvexity, *m_pTexture, *m_pLandforms;
 
 
-	void					Set_LUT			(int nLevels);
+	void					Set_LUT					(int nLevels);
 
-	bool					Get_Classes		(void);
+	bool					Get_Classes				(void);
 
-	void					Get_Class		(int Level, int x, int y, bool bLastLevel);
+	void					Get_Class				(int Level, int x, int y, bool bLastLevel);
 
 };
 

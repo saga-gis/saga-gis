@@ -435,6 +435,12 @@ CTC_Classification::CTC_Classification(void)
 	);
 
 	Parameters.Add_Grid(
+		NULL	, "SLOPE"		, _TL("Slope"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
 		NULL	, "CONVEX"		, _TL("Convexity"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
@@ -465,33 +471,60 @@ CTC_Classification::CTC_Classification(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CTC_Classification::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Get_Parameter("DEM")->Set_Enabled(
+			pParameters->Get_Parameter("SLOPE"  )->asGrid() == NULL
+		||	pParameters->Get_Parameter("CONVEX" )->asGrid() == NULL
+		||	pParameters->Get_Parameter("TEXTURE")->asGrid() == NULL
+	);
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CTC_Classification::On_Execute(void)
 {
 	CSG_Grid	Slope, Convexity, Texture, *pDEM;
 
 	//-----------------------------------------------------
 	pDEM			= Parameters("DEM"      )->asGrid();
+	m_pSlope		= Parameters("SLOPE"    )->asGrid();
 	m_pConvexity	= Parameters("CONVEX"   )->asGrid();
 	m_pTexture		= Parameters("TEXTURE"  )->asGrid();
 	m_pLandforms	= Parameters("LANDFORMS")->asGrid();
 
-	//-----------------------------------------------------
-	Slope.Create(*Get_System());
-	m_pSlope	= &Slope;
-
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	if( !pDEM && (!m_pSlope || !m_pConvexity || !m_pTexture) )
 	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			double	s, a;
+		return( false );
+	}
 
-			if( pDEM->Get_Gradient(x, y, s, a) )
+	//-----------------------------------------------------
+	if( !m_pSlope )
+	{
+		Slope.Create(*Get_System());
+		m_pSlope	= &Slope;
+
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
-				Slope.Set_Value(x, y, s);
-			}
-			else
-			{
-				Slope.Set_NoData(x, y);
+				double	s, a;
+
+				if( pDEM->Get_Gradient(x, y, s, a) )
+				{
+					Slope.Set_Value(x, y, s);
+				}
+				else
+				{
+					Slope.Set_NoData(x, y);
+				}
 			}
 		}
 	}
@@ -562,6 +595,7 @@ bool CTC_Classification::Get_Classes(void)
 
 		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
+			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
 				Get_Class(Level, x, y, Level == nLevels);
