@@ -240,6 +240,8 @@ bool CShapes_Generate::Generate_Line_Shapes(CSG_Table *pInput, CSG_Shapes *pOutp
 	int			iVertices	= 0;
 	int			iID			= pInput->Get_Record(0)->asInt(iFieldId);
 	CSG_Shape	*pShape		= pOutput->Add_Shape();
+	
+	pShape->Set_Value(0, iID);
 
 	for (int i=0; i<pInput->Get_Count() && Set_Progress(i, pInput->Get_Count()); i++)
 	{
@@ -286,6 +288,9 @@ bool CShapes_Generate::Generate_Polygon_Shapes(CSG_Table *pInput, CSG_Shapes *pO
 	int			iVertices	= 0;
 	int			iID			= pInput->Get_Record(0)->asInt(iFieldId);
 	CSG_Shape	*pShape		= pOutput->Add_Shape();
+
+	pShape->Set_Value(0, iID);
+
 	TSG_Point	pointA;
 	pointA.x	= pInput->Get_Record(0)->asDouble(iFieldX);
 	pointA.y	= pInput->Get_Record(0)->asDouble(iFieldY);
