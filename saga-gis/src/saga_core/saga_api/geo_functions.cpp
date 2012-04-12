@@ -222,6 +222,12 @@ bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &
 		return( false );
 	}
 
+	if( (a1.x == b1.x && a1.y == b1.y) || (a1.x == b2.x && a1.y == b2.y) ||
+		(a2.x == b1.x && a2.y == b1.y) || (a2.x == b2.x && a2.y == b2.y) )
+	{
+		return( true );
+	}
+
 	a_dx	= a2.x - a1.x;
 	a_dy	= a2.y - a1.y;
 
