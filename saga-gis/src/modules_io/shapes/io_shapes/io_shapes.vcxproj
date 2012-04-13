@@ -603,6 +603,7 @@
     <ClCompile Include="surfer_bln.cpp" />
     <ClCompile Include="svg.cpp" />
     <ClCompile Include="wasp_map.cpp" />
+    <ClCompile Include="wktb.cpp" />
     <ClCompile Include="xyz.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -635,6 +636,7 @@
     <ClInclude Include="surfer_bln.h" />
     <ClInclude Include="svg.h" />
     <ClInclude Include="wasp_map.h" />
+    <ClInclude Include="wktb.h" />
     <ClInclude Include="xyz.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

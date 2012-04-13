@@ -29,8 +29,9 @@ pointcloud_to_text_file.cpp\
 stl.cpp\
 surfer_bln.cpp\
 svg.cpp\
-xyz.cpp\
 wasp_map.cpp\
+wktb.cpp\
+xyz.cpp\
 atlas_bna.h\
 generate.h\
 gpx.h\
@@ -43,6 +44,7 @@ stl.h\
 surfer_bln.h\
 svg.h\
 wasp_map.h\
+wktb.h\
 xyz.h
 
 libio_shapes_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)

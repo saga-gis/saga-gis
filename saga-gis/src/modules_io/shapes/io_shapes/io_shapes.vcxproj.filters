@@ -53,6 +53,9 @@
     <ClCompile Include="pointcloud_to_text_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wktb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pointcloud_to_text_file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wktb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
