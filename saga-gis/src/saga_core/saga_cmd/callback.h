@@ -82,28 +82,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void					Set_Library		(class CModule_Library *pLibrary);
+void					CMD_Set_Module		(class CCMD_Module *pCMD_Module);
 
 //---------------------------------------------------------
-void					Set_Silent		(bool bOn);
-bool					Get_Silent		(void);
+void					CMD_Set_Silent		(bool bOn);
+bool					CMD_Get_Silent		(void);
 
-void					Set_Quiet		(bool bOn);
-bool					Get_Quiet		(void);
+void					CMD_Set_Quiet		(bool bOn);
+bool					CMD_Get_Quiet		(void);
 
-void					Set_Interactive	(bool bOn);
-bool					Get_Interactive	(void);
-
-//---------------------------------------------------------
-void					Print_Error		(const SG_Char *Error);
-void					Print_Error		(const SG_Char *Error, const SG_Char *Info);
+void					CMD_Set_Interactive	(bool bOn);
+bool					CMD_Get_Interactive	(void);
 
 //---------------------------------------------------------
-void					Get_Pause		(void);
-bool					Get_YesNo		(const SG_Char *caption, const SG_Char *message);
+void					CMD_Print_Error		(const SG_Char *Error);
+void					CMD_Print_Error		(const SG_Char *Error, const SG_Char *Info);
 
 //---------------------------------------------------------
-TSG_PFNC_UI_Callback	Get_Callback	(void);
+void					CMD_Get_Pause		(void);
+bool					CMD_Get_YesNo		(const SG_Char *caption, const SG_Char *message);
+
+//---------------------------------------------------------
+TSG_PFNC_UI_Callback	CMD_Get_Callback	(void);
 
 
 ///////////////////////////////////////////////////////////

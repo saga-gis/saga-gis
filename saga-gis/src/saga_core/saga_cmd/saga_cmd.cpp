@@ -96,13 +96,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Execute			(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, int argc, char *argv[]);
+bool		Execute			(const CSG_String &MLB_Path, int argc, char *argv[]);
 
-void		Error_Library	(const SG_Char *MLB_Path);
-void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName);
+void		Print_Libraries	(const CSG_String &MLB_Path);
+void		Print_Modules	(CSG_Module_Library *pLibrary);
+void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule);
 
 void		Print_Logo		(void);
-void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, const SG_Char *Author);
+void		Print_Get_Help	(void);
 void		Print_Help		(void);
 void		Print_Version	(void);
 
@@ -127,12 +128,12 @@ _try
 //---------------------------------------------------------
 
 #if wxCHECK_VERSION(2, 8, 11)
-	if( !wxInitialize( argc, argv ) )
+	if( !wxInitialize(argc, argv) )
 #else
 	if( !wxInitialize() )
 #endif
 	{
-		Print_Error(SG_T("initialisation failed"));
+		CMD_Print_Error(SG_T("initialisation failed"));
 
 		return( 1 );
 	}
@@ -140,8 +141,6 @@ _try
 	setlocale(LC_NUMERIC, "C");
 	
 	//-----------------------------------------------------
-	wxString	Flags, CMD_Path, MLB_Path, ENV_Path;
-
 	if( argc > 1 )
 	{
 		CSG_String	s(argv[1]);
@@ -166,52 +165,21 @@ _try
 
 			return( 0 );
 		}
-
-
-		bool bCheck	= true;
-
-		while( bCheck )
-		{
-			bCheck	= false;
-			s		= CSG_String(argv[1]).BeforeFirst(SG_T('='));
-#ifdef _OPENMP
-			if( !s.CmpNoCase(SG_T("-c")) || !s.CmpNoCase(SG_T("--cores")) )
-			{
-				int iCores = 1;
-				if( !CSG_String(argv[1]).AfterFirst(SG_T('=')).asInt(iCores) || iCores > SG_Get_Max_Num_Procs_Omp())
-					iCores = SG_Get_Max_Num_Procs_Omp();
-
-				SG_Set_Max_Num_Threads_Omp(iCores);
-
-				bCheck = true;
-			}
-#endif
-			if( !s.CmpNoCase(SG_T("-f")) || !s.CmpNoCase(SG_T("--flags")) )
-			{
-				Flags	= CSG_String(argv[1]).AfterFirst(SG_T('=')).c_str();
-
-				bCheck = true;
-			}
-			
-			if (bCheck)
-			{
-				argc--;
-				argv++;
-			}
-		}
 	}
 
 	//-----------------------------------------------------
+	wxString	CMD_Path, MLB_Path, ENV_Path;
+
 	CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
 
 	if( !wxGetEnv(SG_T("SAGA_MLB"), &MLB_Path) || MLB_Path.Length() == 0 )
 	{
-		MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules"))  .c_str();
-    #if defined( _SAGA_LINUX)
-        MLB_Path = wxT(MODULE_LIBRARY_PATH);
+    #if defined(_SAGA_LINUX)
+		MLB_Path	= wxT(MODULE_LIBRARY_PATH);
+	#else
+		MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules")).c_str();
     #endif
 	}
-
 
 	if( wxGetEnv(SYS_ENV_PATH, &ENV_Path) && ENV_Path.Length() > 0 )
 	{
@@ -222,42 +190,60 @@ _try
 		wxSetEnv(SYS_ENV_PATH, wxString::Format(wxT( "%s;%s"), MLB_Path.c_str(), SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str()));
 	}
 
+	//-------------------------------------------------
+	for(bool bCheck=true; bCheck && argc>1; )
+	{
+		CSG_String	s(CSG_String(argv[1]).BeforeFirst(SG_T('=')));
+
+		if( !s.CmpNoCase(SG_T("-f")) || !s.CmpNoCase(SG_T("--flags")) )
+		{
+			s	= CSG_String(argv[1]).AfterFirst(SG_T('='));
+
+			CMD_Set_Silent		(s.Find(FLAG_SILENT  ) >= 0 ? true : false);
+			CMD_Set_Quiet		(s.Find(FLAG_QUIET   ) >= 0 ? true : false);
+			CMD_Set_Interactive	(s.Find(FLAG_INTERACT) >= 0 ? true : false);
+
+			if( s.Find(FLAG_LANGUAGE) > 0 )
+			{
+				SG_Get_Translator() .Create(SG_File_Make_Path(CMD_Path, SG_T("saga"), SG_T("lng")), false);
+			}
+
+			if( s.Find(FLAG_PROJ) > 0 )
+			{
+				SG_Get_Projections().Create(SG_File_Make_Path(CMD_Path, SG_T("saga_prj"), SG_T("srs")));
+			}
+
+			argc--;	argv++;
+		}
+
+	#ifdef _OPENMP
+		else if( !s.CmpNoCase(SG_T("-c")) || !s.CmpNoCase(SG_T("--cores")) )
+		{
+			int	nCores	= 1;
+
+			if( !CSG_String(argv[1]).AfterFirst(SG_T('=')).asInt(nCores) || nCores > SG_Get_Max_Num_Procs_Omp() )
+			{
+				nCores	= SG_Get_Max_Num_Procs_Omp();
+			}
+
+			SG_Set_Max_Num_Threads_Omp(nCores);
+
+			argc--;	argv++;
+		}
+	#endif // _OPENMP
+
+		else
+		{
+			bCheck	= false;
+		}
+	}
+
 	//-----------------------------------------------------
-	SG_Set_UI_Callback(Get_Callback());
+	SG_Set_UI_Callback(CMD_Get_Callback());
 
-	Set_Silent		(Flags.Find(FLAG_SILENT  ) >= 0 ? true : false);
-	Set_Quiet		(Flags.Find(FLAG_QUIET   ) >= 0 ? true : false);
-	Set_Interactive	(Flags.Find(FLAG_INTERACT) >= 0 ? true : false);
+	bool	bResult	= Execute(&MLB_Path, argc, argv);
 
-	Print_Logo();
-
-	if( Flags.Find(FLAG_LANGUAGE) > 0 )
-	{
-		SG_Get_Translator() .Create(SG_File_Make_Path(CMD_Path, SG_T("saga"), SG_T("lng")), false);
-	}
-
-	if( Flags.Find(FLAG_PROJ) > 0 )
-	{
-		SG_Get_Projections().Create(SG_File_Make_Path(CMD_Path, SG_T("saga_prj"), SG_T("srs")));
-	}
-
-	//-----------------------------------------------------
-	bool	bResult	= false;
-
-	switch( argc )
-	{
-	case 1: 
-		Error_Library		(MLB_Path);
-		break;
-
-	case 2:
-		Error_Module		(MLB_Path, SG_STR_MBTOSG(argv[1]));
-		break;
-
-	default:
-		bResult	= Execute	(MLB_Path, SG_STR_MBTOSG(argv[1]), SG_STR_MBTOSG(argv[2]), argc - 2, argv + 2);
-		break;
-	}
+	SG_Set_UI_Callback(NULL);
 
 	//-----------------------------------------------------
 	if( ENV_Path.Length() > 0 )
@@ -273,8 +259,8 @@ _try
 
 //---------------------------------------------------------
 #ifdef _DEBUG
-	Set_Interactive(true);
-	Get_Pause();
+	CMD_Set_Interactive(true);
+	CMD_Get_Pause();
 #endif
 
 #ifdef _MODULE_EXCEPTION
@@ -297,50 +283,64 @@ _except(1)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, int argc, char *argv[])
+bool		Execute(const CSG_String &MLB_Path, int argc, char *argv[])
 {
-	CModule_Library	Library;
+	CSG_Module_Library	*pLibrary;
+	CSG_Module			*pModule;
+
+	Print_Logo();
 
 	//-----------------------------------------------------
-	if( !Library.Create(FileName, MLB_Path) )
+	bool	bSilent	= CMD_Get_Silent();
+
+	CMD_Set_Silent(true);
+	SG_Get_Module_Library_Manager().Add_Directory(MLB_Path, false);
+	CMD_Set_Silent(bSilent);
+
+	//-----------------------------------------------------
+	if( SG_Get_Module_Library_Manager().Get_Count() <= 0 )
 	{
-		Error_Library(MLB_Path);
+		CMD_Print_Error(_TL("no valid module library found in path"), MLB_Path);
 
 		return( false );
 	}
 
-	if( !Library.Select(ModuleName) )
+	if( argc <= 0 )
 	{
-		Library.Destroy();
-
-		Print_Error(_TL("module not found"), ModuleName);
-
-		Error_Module(MLB_Path, FileName);
+		CMD_Print_Error(_TL("no arguments"));
 
 		return( false );
 	}
 
-	if( Library.Get_Selected()->is_Interactive() )
+	if( argc == 1 || (pLibrary = SG_Get_Module_Library_Manager().Get_Library(CSG_String(argv[1]), true)) == NULL )
 	{
-		Library.Destroy();
+		Print_Libraries(MLB_Path);
 
-		Print_Error(_TL("cannot execute interactive module"), ModuleName);
+		return( false );
+	}
 
-		Error_Module(MLB_Path, FileName);
+	if( argc == 2
+	||  (  (pModule = pLibrary->Get_Module(CSG_String(argv[2])        )) == NULL
+	    && (pModule = pLibrary->Get_Module(CSG_String(argv[2]).asInt())) == NULL) )
+	{
+		Print_Modules(pLibrary);
+
+		return( false );
+	}
+
+	if( pModule->is_Interactive() )
+	{
+		CMD_Print_Error(_TL("cannot execute interactive module"), pModule->Get_Name());
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	Print_Execution(MLB_Path, FileName, Library.Get_Selected()->Get_Name(), Library.Get_Selected()->Get_Author());
+	Print_Execution(pLibrary, pModule);
 
-	Set_Library(&Library);
+	CCMD_Module	CMD_Module(pModule);
 
-	bool	bResult	= Library.Execute(argc, argv);
-
-	Set_Library(NULL);
-
-	return( bResult );
+	return( CMD_Module.Execute(argc - 2, argv + 2) );
 }
 
 
@@ -351,89 +351,62 @@ bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *M
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Error_Library	(const SG_Char *MLB_Path)
+void		Print_Libraries	(const CSG_String &MLB_Path)
 {
-	int				nLibraries;
-	wxDir			Dir;
-	wxString		FileName;
-	CModule_Library Library;
+	CMD_Print_Error(_TL("library"));
 
-	if( !Dir.Open(MLB_Path) )
+	if( CMD_Get_Quiet() || CMD_Get_Silent() )
 	{
-		Print_Error(_TL("invalid module libraries path"), MLB_Path);
-	}
-	else if(	!Dir.GetFirst(&FileName, wxT("*.dll"  ), wxDIR_FILES|wxDIR_HIDDEN)
-			&&	!Dir.GetFirst(&FileName, wxT("*.so"   ), wxDIR_FILES|wxDIR_HIDDEN) 
-			&&	!Dir.GetFirst(&FileName, wxT("*.dylib"), wxDIR_FILES|wxDIR_HIDDEN) )
-	{
-		Print_Error(_TL("no valid module library found in path"), MLB_Path);
-	}
-	else
-	{
-		Print_Error(_TL("module library"));
-
-		if( !Get_Silent() )
-		{
-			SG_PRINTF(SG_T("\n%s:\n"), _TL("available module libraries"));
-
-			nLibraries	= 0;
-
-			do
-			{
-				if( Library.Create(FileName, Dir.GetName()) )
-				{
-					SG_PRINTF(SG_T("- %s\n"), FileName.wx_str());
-					nLibraries++;
-				}
-			}
-			while( Dir.GetNext(&FileName) );
-
-			SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, _TL("SAGA Module Libraries"));
-		}
-	}
-
-	if( !Get_Silent() )
-	{
-		SG_PRINTF(SG_T("\n"));
-		SG_PRINTF(_TL("type -h or --help for further information"));
-		SG_PRINTF(SG_T("\n"));
-	}
-}
-
-//---------------------------------------------------------
-void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
-{
-	CModule_Library	Library;
-
-	if( !Library.Create(FileName, MLB_Path) )
-	{
-		Library.Destroy();
-
-		Print_Error(_TL("module library not found"), FileName);
-
-		Error_Library(MLB_Path);
-
 		return;
 	}
 
-	Print_Error(_TL("module"));
+	SG_PRINTF(SG_T("\n%s: %s\n"), _TL("library search path"), MLB_Path.c_str());
+	SG_PRINTF(SG_T("\n%d %s:\n"), SG_Get_Module_Library_Manager().Get_Count(), _TL("available module libraries"));
 
-	if( !Get_Silent() )
+	for(int i=0; i<SG_Get_Module_Library_Manager().Get_Count(); i++)
 	{
-		SG_PRINTF(SG_T("\n%s:\n"), _TL("executable modules"));
-
-		for(int i=0; i<Library.Get_Count(); i++)
-		{
-			if( Library.Get_Module(i) && !Library.Get_Module(i)->is_Interactive() )
-			{
-				SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name().c_str());
-			}
-		}
-
-		SG_PRINTF(SG_T("\n"));
-		SG_PRINTF(_TL("type -h or --help for further information"));
-		SG_PRINTF(SG_T("\n"));
+		SG_PRINTF(SG_T("- %s\n"), SG_Get_Module_Library_Manager().Get_Library(i)->Get_Library_Name().c_str());
 	}
+
+	Print_Get_Help();
+}
+
+//---------------------------------------------------------
+void		Print_Modules	(CSG_Module_Library *pLibrary)
+{
+	CMD_Print_Error(_TL("module"));
+
+	if( CMD_Get_Quiet() || CMD_Get_Silent() )
+	{
+		return;
+	}
+
+	SG_PRINTF(SG_T("\n%s:\n"), _TL("executable modules"));
+
+	for(int i=0; i<pLibrary->Get_Count(); i++)
+	{
+		if( pLibrary->Get_Module(i) && !pLibrary->Get_Module(i)->is_Interactive() )
+		{
+			SG_PRINTF(SG_T(" %d\t- %s\n"), i, pLibrary->Get_Module(i)->Get_Name().c_str());
+		}
+	}
+
+	Print_Get_Help();
+}
+
+//---------------------------------------------------------
+void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
+{
+	if( CMD_Get_Silent() )
+	{
+		return;
+	}
+
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), pModule ->Get_Name     ().c_str());
+	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
+	SG_PRINTF(SG_T("_____________________________________________\n"));
 }
 
 
@@ -446,8 +419,10 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 //---------------------------------------------------------
 void		Print_Logo		(void)
 {
-	if( Get_Quiet() || Get_Silent() )
+	if( CMD_Get_Quiet() || CMD_Get_Silent() )
+	{
 		return;
+	}
 
 	SG_PRINTF(SG_T("_____________________________________________\n"));
 	SG_PRINTF(SG_T("  #####   ##   #####    ##\n"));
@@ -460,17 +435,16 @@ void		Print_Logo		(void)
 }
 
 //---------------------------------------------------------
-void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, const SG_Char *Author)
+void		Print_Get_Help	(void)
 {
-	if( Get_Silent() )
+	if( CMD_Get_Quiet() || CMD_Get_Silent() )
+	{
 		return;
+	}
 
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), MLB_Path);
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), FileName);
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), ModuleName);
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), Author);
-	SG_PRINTF(SG_T("_____________________________________________\n"));
-	SG_PRINTF(SG_T("go...\n"));
+	SG_PRINTF(SG_T("\n"));
+	SG_PRINTF(_TL("type -h or --help for further information"));
+	SG_PRINTF(SG_T("\n"));
 }
 
 //---------------------------------------------------------
@@ -532,7 +506,6 @@ void		Print_Help		(void)
 		SG_T("computer.\n")
 	);
 }
-
 
 //---------------------------------------------------------
 void		Print_Version	(void)
