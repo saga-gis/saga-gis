@@ -301,7 +301,7 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 	GDALDriver	*pDriver;
 	
 	if (!Options.is_Empty()){
-	  pTokens = CSLTokenizeString2( Options.c_str(), " ", CSLT_STRIPLEADSPACES);
+	  pTokens = CSLTokenizeString2( Options, " ", CSLT_STRIPLEADSPACES);
 	  
 	  for( int i = 0; pTokens != NULL && pTokens[i] != NULL; i++ ){
 	    pOptions = CSLAddString( pOptions,  pTokens[i] );
