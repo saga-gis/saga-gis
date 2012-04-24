@@ -73,6 +73,9 @@
 //---------------------------------------------------------
 CTable_Text_Export::CTable_Text_Export(void)
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("Export Text Table"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2008"));
@@ -100,19 +103,20 @@ CTable_Text_Export::CTable_Text_Export(void)
 		PARAMETER_TYPE_Bool		, true
 	);
 
-	Parameters.Add_Choice(
+	pNode	= Parameters.Add_Choice(
 		NULL	, "SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("tabulator"),
 			SG_T(";"),
 			SG_T(","),
+			_TL("space"),
 			_TL("other")
 		), 0
 	);
 
 	Parameters.Add_String(
-		NULL	, "SEP_OTHER"	, _TL("Separator (other)"),
+		pNode	, "SEP_OTHER"	, _TL("other"),
 		_TL(""),
 		SG_T("*")
 	);
@@ -144,6 +148,7 @@ bool CTable_Text_Export::On_Execute(void)
 	case 0:		Separator	= "\t";	break;
 	case 1:		Separator	=  ";";	break;
 	case 2:		Separator	=  ",";	break;
+	case 3:		Separator	=  " ";	break;
 	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
 	}
 
@@ -224,6 +229,9 @@ bool CTable_Text_Export::On_Execute(void)
 //---------------------------------------------------------
 CTable_Text_Import::CTable_Text_Import(void)
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("Import Text Table"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2008"));
@@ -245,20 +253,20 @@ CTable_Text_Import::CTable_Text_Import(void)
 		PARAMETER_TYPE_Bool		, true
 	);
 
-	Parameters.Add_Choice(
+	pNode	= Parameters.Add_Choice(
 		NULL	, "SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("tabulator"),
-			_TL(";"),
-			_TL(","),
+			SG_T(";"),
+			SG_T(","),
 			_TL("space"),
 			_TL("other")
 		), 0
 	);
 
 	Parameters.Add_String(
-		NULL	, "SEP_OTHER"	, _TL("Separator (other)"),
+		pNode	, "SEP_OTHER"	, _TL("Separator (other)"),
 		_TL(""),
 		SG_T("*")
 	);
