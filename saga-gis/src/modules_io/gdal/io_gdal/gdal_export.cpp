@@ -61,7 +61,6 @@
 
 #include <cpl_string.h>
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -115,25 +114,25 @@ CGDAL_Export::CGDAL_Export(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL, "GRIDS"	, _TL("Grid(s)"),
-		_TL(""),
+		_TL("The SAGA grids to be exported."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "FILE"	, _TL("File"),
-		_TL(""),
+		_TL("The GDAL dataset to be created."),
 		NULL, NULL, true
 	);
 
 	Parameters.Add_Choice(
 		NULL, "FORMAT"	, _TL("Format"),
-		_TL(""),
+		_TL("The GDAL raster format (driver) to be used."),
 		Formats
 	);
 
 	Parameters.Add_Choice(
 		NULL, "TYPE"	, _TL("Data Type"),
-		_TL(""),
+		_TL("The GDAL datatype of the created dataset."),
 
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("match input data"),
@@ -145,6 +144,12 @@ CGDAL_Export::CGDAL_Export(void)
 			_TL("32 bit floating point"),
 			_TL("64 bit floating point")
 		), 0
+	);
+	
+	Parameters.Add_String(
+		NULL, "OPTIONS"	, _TL("Creation Options"),
+		_TL("A space separated list of key-value pairs (K=V)."), _TL("")
+		
 	);
 }
 
@@ -159,7 +164,7 @@ CGDAL_Export::CGDAL_Export(void)
 bool CGDAL_Export::On_Execute(void)
 {
 	TSG_Data_Type			Type;
-	CSG_String				File_Name, Driver;
+	CSG_String				File_Name, Driver, Options;
 	CSG_Projection			Projection;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_GDAL_DataSet		DataSet;
@@ -167,6 +172,7 @@ bool CGDAL_Export::On_Execute(void)
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();
 	File_Name	= Parameters("FILE")	->asString();
+	Options		= Parameters("OPTIONS")	->asString();
 
 	Get_Projection(Projection);
 
@@ -191,7 +197,7 @@ bool CGDAL_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !DataSet.Open_Write(File_Name, Driver, Type, pGrids->Get_Count(), *Get_System(), Projection) )
+	if( !DataSet.Open_Write(File_Name, Driver, Options, Type, pGrids->Get_Count(), *Get_System(), Projection) )
 	{
 		return( false );
 	}

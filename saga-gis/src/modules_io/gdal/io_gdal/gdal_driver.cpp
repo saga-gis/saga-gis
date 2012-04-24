@@ -60,6 +60,8 @@
 #include "gdal_driver.h"
 
 #include <gdal_priv.h>
+#include <cpl_string.h>
+#include <cpl_error.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -292,11 +294,19 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String &Driver, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection)
+bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String &Driver, const CSG_String &Options,TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection)
 {
-	char		**pOptions	= NULL;
+	char		**pOptions 	= NULL;
+	char		**pTokens 	= NULL;	
 	GDALDriver	*pDriver;
-
+	
+	if (!Options.is_Empty()){
+	  pTokens = CSLTokenizeString2( Options.c_str(), " ", CSLT_STRIPLEADSPACES);
+	  
+	  for( int i = 0; pTokens != NULL && pTokens[i] != NULL; i++ ){
+	    pOptions = CSLAddString( pOptions,  pTokens[i] );
+	  }
+	}
 	Close();
 
 	//--------------------------------------------------------
@@ -511,7 +521,9 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 	pBand->SetNoDataValue(pGrid->Get_NoData_Value());
 
 	double	*zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
-
+	
+	CPLErr bandErr;
+	
 	for(int y=0, yy=Get_NY()-1; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yy--)
 	{
 		for(int x=0; x<Get_NX(); x++)
@@ -519,14 +531,22 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 			zLine[x]	= pGrid->is_NoData(x, yy) ? pGrid->Get_NoData_Value() : pGrid->asDouble(x, yy);
 		}
 
-		pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
+		bandErr = pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);//{
+		
+		if (bandErr == CE_Failure)
+		{
+		  SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s"), _TL("Writing dataset failed.")));
+		  return false;
+		}
+		
 	}
 
 	SG_Free(zLine);
 
 	pBand->SetStatistics(pGrid->Get_ZMin(), pGrid->Get_ZMax(), pGrid->Get_ArithMean(), pGrid->Get_StdDev());
-
+	
 	return( true );
+	
 }
 
 
