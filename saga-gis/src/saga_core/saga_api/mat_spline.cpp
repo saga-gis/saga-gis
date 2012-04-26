@@ -386,20 +386,15 @@ bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 {
 	bool		bResult	= false;
 	int			n;
+	CSG_Matrix	M;
 
 	//-----------------------------------------------------
-	// You We need at least 3 points to define a plane
-	if( (n = m_Points.Get_Count()) >= 3 )
+	// We need at least 3 points to define a plane
+	if( (n = m_Points.Get_Count()) >= 3 && M.Create(n + 3, n + 3) && m_V.Create(n + 3) )
 	{
-		int				i, j;
-		double			a, b;
+		int			i, j;
+		double		a, b;
 		TSG_Point_Z	Point;
-		CSG_Matrix		M;
-
-		//-------------------------------------------------
-		// Allocate the matrix and vector
-		M	.Create(n + 3, n + 3);
-		m_V	.Create(n + 3);
 
 		//-------------------------------------------------
 		// Fill K (n x n, upper left of L) and calculate

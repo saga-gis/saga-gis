@@ -122,20 +122,25 @@ bool CSG_Vector::Create(int n, double *Data)
 		{
 			Destroy();
 
-			m_n	= n;
-			m_z	= (double *)SG_Malloc(m_n * sizeof(double));
+			if( (m_z = (double *)SG_Malloc(n * sizeof(double))) != NULL )
+			{
+				m_n	= n;
+			}
 		}
 
-		if( Data )
+		if( m_z )
 		{
-			memcpy(m_z, Data, m_n * sizeof(double));
-		}
-		else
-		{
-			memset(m_z,    0, m_n * sizeof(double));
-		}
+			if( Data )
+			{
+				memcpy(m_z, Data, m_n * sizeof(double));
+			}
+			else
+			{
+				memset(m_z,    0, m_n * sizeof(double));
+			}
 
-		return( true );
+			return( true );
+		}
 	}
 
 	Destroy();
@@ -154,9 +159,10 @@ bool CSG_Vector::Destroy(void)
 	if( m_z )
 	{
 		SG_Free(m_z);
-		m_z	= NULL;
-		m_n	= 0;
 	}
+
+	m_z	= NULL;
+	m_n	= 0;
 
 	return( true );
 }
@@ -621,27 +627,38 @@ bool CSG_Matrix::Create(int nx, int ny, double *Data)
 		{
 			Destroy();
 
-			m_nx	= nx;
-			m_ny	= ny;
-			m_z		= (double **)SG_Malloc(m_ny        * sizeof(double *));
-			m_z[0]	= (double  *)SG_Malloc(m_ny * m_nx * sizeof(double  ));
-
-			for(ny=1; ny<m_ny; ny++)
+			if( (m_z    = (double **)SG_Malloc(ny      * sizeof(double *))) != NULL
+			&&  (m_z[0]	= (double  *)SG_Malloc(ny * nx * sizeof(double  ))) != NULL )
 			{
-				m_z[ny]	= m_z[ny - 1] + nx;
+				m_nx	= nx;
+				m_ny	= ny;
+
+				for(ny=1; ny<m_ny; ny++)
+				{
+					m_z[ny]	= m_z[ny - 1] + nx;
+				}
+			}
+			else
+			{
+				Destroy();
+
+				return( false );
 			}
 		}
 
-		if( Data )
+		if( m_z && m_z[0] )
 		{
-			memcpy(m_z[0], Data, m_ny * m_nx * sizeof(double));
-		}
-		else
-		{
-			memset(m_z[0],    0, m_ny * m_nx * sizeof(double));
-		}
+			if( Data )
+			{
+				memcpy(m_z[0], Data, m_ny * m_nx * sizeof(double));
+			}
+			else
+			{
+				memset(m_z[0],    0, m_ny * m_nx * sizeof(double));
+			}
 
-		return( true );
+			return( true );
+		}
 	}
 
 	Destroy();
@@ -659,13 +676,17 @@ bool CSG_Matrix::Destroy(void)
 {
 	if( m_z )
 	{
-		SG_Free(m_z[0]);
-		SG_Free(m_z);
+		if( m_z[0] )
+		{
+			SG_Free(m_z[0]);
+		}
 
-		m_z		= NULL;
-		m_nx	= 0;
-		m_ny	= 0;
+		SG_Free(m_z);
 	}
+
+	m_z		= NULL;
+	m_nx	= 0;
+	m_ny	= 0;
 
 	return( true );
 }
