@@ -191,7 +191,7 @@ bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Element
 		do
 		{
 			File.SetFullName(Name);
-			Read_File(File.GetFullPath().c_str(), Elements);
+			Read_File(&File.GetFullPath(), Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
@@ -201,7 +201,7 @@ bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Element
 		do
 		{
 			File.SetFullName(Name);
-			Read_File(File.GetFullPath().c_str(), Elements);
+			Read_File(&File.GetFullPath(), Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
@@ -212,7 +212,7 @@ bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Element
 		{
 			File.AssignDir(Directory.c_str());
 			File.AppendDir(Name);
-			Read_Directory(File.GetPath().c_str(), Elements);
+			Read_Directory(&File.GetPath(), Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
