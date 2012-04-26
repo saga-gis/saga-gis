@@ -307,7 +307,10 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 	    pOptions = CSLAddString( pOptions,  pTokens[i] );
 	  }
 	}
+	
 	Close();
+	
+	
 
 	//--------------------------------------------------------
 	if( (pDriver = gSG_GDAL_Drivers.Get_Driver(Driver)) == NULL )
@@ -315,6 +318,13 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("driver not found."), Driver.c_str()));
 
 		return( false );
+	}
+	
+	if( !GDALValidateCreationOptions (pDriver, pOptions))
+	{
+	  SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("Creation option(s) not supported by the driver"), Options.c_str() ));
+	  
+	  return false;
 	}
 
 	if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
@@ -370,6 +380,15 @@ bool CSG_GDAL_DataSet::Close(void)
 
 	m_Access	= SG_GDAL_IO_CLOSED;
 
+	
+	if (strlen(CPLGetLastErrorMsg()) > 3)
+	{
+	      SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"),_TL("Dataset creation failed") , CPLGetLastErrorMsg()));
+	      CPLErrorReset();
+	      
+	      return false;
+	}
+	
 	return( true );
 }
 

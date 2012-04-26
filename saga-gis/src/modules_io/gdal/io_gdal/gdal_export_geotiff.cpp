@@ -142,6 +142,11 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 		DataSet.Write(i, pGrids->asGrid(i));
 	}
 
+	if( !DataSet.Close() )
+	{
+		return( false );
+	}
+	
 	return( true );
 }
 
