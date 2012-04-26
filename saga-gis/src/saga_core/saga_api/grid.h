@@ -474,9 +474,9 @@ public:		///////////////////////////////////////////////
 	bool						is_Compatible	(const CSG_Grid_System &System) const;
 	bool						is_Compatible	(int NX, int NY, double Cellsize, double xMin, double yMin) const;
 
-	bool						is_InGrid(int x, int y, bool bCheckNoData = true)	const	{	return( m_System.is_InGrid(x, y) && (!bCheckNoData || (bCheckNoData && !is_NoData(x, y))) );	}
-	bool						is_InGrid_byPos	(double xPos, double yPos)			const	{	return( xPos >= Get_XMin() && xPos <= Get_XMax() && yPos >= Get_YMin() && yPos <= Get_YMax() );	}
-	bool						is_InGrid_byPos	(TSG_Point Position)				const	{	return( is_InGrid_byPos(Position.x, Position.y) );	}
+	bool						is_InGrid		(int    x, int    y, bool bCheckNoData = true)	const	{	return( m_System.is_InGrid(x, y) && (!bCheckNoData || !is_NoData(x, y)) );	}
+	bool						is_InGrid_byPos	(double x, double y, bool bCheckNoData = true)	const	{	return( x >= Get_XMin() && x <= Get_XMax() && y >= Get_YMin() && y <= Get_YMax() && (!bCheckNoData || !is_NoData(m_System.Get_xWorld_to_Grid(x), m_System.Get_yWorld_to_Grid(y))) );	}
+	bool						is_InGrid_byPos	(TSG_Point Position, bool bCheckNoData = true)	const	{	return( is_InGrid_byPos(Position.x, Position.y, bCheckNoData) );	}
 
 
 	//-----------------------------------------------------
