@@ -121,6 +121,24 @@ CGrid_Tiling::CGrid_Tiling(void)
 		), 0
 	);
 
+	Parameters.Add_Value(
+		NULL	, "SAVE_TILES"			, _TL("Save Tiles to Disk"),
+		_TL("Save tiles to disk individually"),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_String(
+		Parameters("SAVE_TILES"),	"TILE_BASENAME"	, _TL("Base Name"),
+		_TL("The base name of the tiles"),
+		SG_T("")
+	);
+
+	Parameters.Add_FilePath(
+		Parameters("SAVE_TILES"),	"TILE_PATH"    , _TL("Output Directory"),
+		_TL(""),
+		NULL, NULL, true, true
+	);
+
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_A"			, _TL("Number of Grid Cells"),
 		_TL("")
@@ -212,8 +230,10 @@ int CGrid_Tiling::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGrid_Tiling::On_Execute(void)
 {
+	bool					bSaveTiles;
 	int						ix, iy, nx, ny, Overlap;
 	double					y, x, dx, dy, dCell;
+	CSG_String				FilePath, BaseName;
 	TSG_Data_Type			Type;
 	TSG_Rect				Extent;
 	TSG_Grid_Interpolation	Interpolation;
@@ -224,6 +244,11 @@ bool CGrid_Tiling::On_Execute(void)
 	pGrid	= Parameters("GRID")	->asGrid();
 	pTiles	= Parameters("TILES")	->asGridList();
 	Overlap	= Parameters("OVERLAP")	->asInt();
+
+	bSaveTiles	= Parameters("SAVE_TILES")		->asBool();
+	BaseName	= Parameters("TILE_BASENAME")	->asString();
+	FilePath	= Parameters("TILE_PATH")		->asString();
+
 
 	switch( Parameters("METHOD")->asInt() )
 	{
@@ -285,7 +310,24 @@ bool CGrid_Tiling::On_Execute(void)
 		return( false );
 	}
 
+	if( bSaveTiles )
+	{
+		if( !SG_STR_CMP(BaseName, SG_T("")) )
+		{
+			SG_UI_Msg_Add_Error(_TL("Please provide a valid base name for the output files!"));
+			return( false );
+		}
+		if( !SG_STR_CMP(FilePath, SG_T("")) )
+		{
+			SG_UI_Msg_Add_Error(_TL("Please provide a valid output directory for the output files!"));
+			return( false );
+		}
+	}
+
+
 	//-----------------------------------------------------
+	int		iTiles = 0;
+
 	for(y=Extent.yMin, iy=1; y<Extent.yMax && Process_Get_Okay(); y+=dy, iy++)
 	{
 		for(x=Extent.xMin, ix=1; x<Extent.xMax; x+=dx, ix++)
@@ -300,14 +342,46 @@ bool CGrid_Tiling::On_Execute(void)
 			}
 			else
 			{
-				pTiles->Add_Item(pTile);
+				if( bSaveTiles )
+				{
+					CSG_String FileName = CSG_String::Format(SG_T("%s/%s_%d_%d"), FilePath.c_str(), BaseName.c_str(), iy, ix);
+					pTile->Save(FileName);
+					delete(pTile);
+				}
+				else
+				{
+					pTiles->Add_Item(pTile);
+				}
+
+				iTiles++;
 			}
 		}
 	}
 
-	return( pTiles->Get_Count() > 0 );
+	SG_UI_Msg_Add(CSG_String::Format(_TL("%d tiles created."), iTiles), true);
+
+	return( iTiles > 0 );
 }
 
+
+//---------------------------------------------------------
+int CGrid_Tiling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		pParameters->Get_Parameter("NODE_A"			)->Set_Enabled( pParameter->asInt() == 0 );
+		pParameters->Get_Parameter("NODE_B"			)->Set_Enabled( pParameter->asInt() == 1 );
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_TILES")) )
+	{
+		pParameters->Get_Parameter("TILE_BASENAME"	)->Set_Enabled( pParameter->asBool() );
+		pParameters->Get_Parameter("TILE_PATH"		)->Set_Enabled( pParameter->asBool() );
+	}
+
+	//-----------------------------------------------------
+	return( 1 );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
