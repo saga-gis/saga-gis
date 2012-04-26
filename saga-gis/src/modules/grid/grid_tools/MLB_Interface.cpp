@@ -101,8 +101,10 @@ CSG_String Get_Info(int i)
 #include "Grid_Cut.h"
 #include "Grid_Merge.h"
 #include "Grid_Completion.h"
-#include "Grid_Gaps_OneCell.h"
 #include "Grid_Gaps.h"
+#include "Grid_Gaps_OneCell.h"
+#include "Grid_Gaps_Resampling.h"
+#include "Grid_Gaps_Spline_Fill.h"
 #include "Grid_CombineGrids.h"
 #include "Grid_ConstantGrid.h"
 #include "Grid_CropToData.h"
@@ -126,7 +128,6 @@ CSG_String Get_Info(int i)
 #include "CreateGridSystem.h"
 
 #include "Grid_Mask.h"
-#include "Grid_Gaps_Spline_Fill.h"
 #include "Grid_Proximity.h"
 #include "Grid_Tiling.h"
 #include "Grid_Shrink_Expand.h"
@@ -168,6 +169,7 @@ CSG_Module *		Create_Module(int i)
 	case 26: 	return( new CGrid_Proximity );
 	case 27: 	return( new CGrid_Tiling );
 	case 28: 	return( new CGrid_Shrink_Expand );
+	case 29: 	return( new CGrid_Gaps_Resampling );
 	}
 
 	return( NULL );

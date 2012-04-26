@@ -25,6 +25,7 @@ Grid_Cut.cpp\
 Grid_Fill.cpp\
 Grid_Gaps.cpp\
 Grid_Gaps_OneCell.cpp\
+Grid_Gaps_Resampling.cpp\
 Grid_Gaps_Spline_Fill.cpp\
 Grid_InvertNoData.cpp\
 Grid_Mask.cpp\
@@ -55,6 +56,7 @@ Grid_Cut.h\
 Grid_Fill.h\
 Grid_Gaps.h\
 Grid_Gaps_OneCell.h\
+Grid_Gaps_Resampling.h\
 Grid_Gaps_Spline_Fill.h\
 Grid_InvertNoData.h\
 Grid_Mask.h\
