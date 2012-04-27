@@ -95,10 +95,14 @@ CShapes_Extents::CShapes_Extents(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PARTS"		, _TL("Parts"),
+	Parameters.Add_Choice(
+		NULL	, "OUTPUT"		, _TL("Get Extent for ..."),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, false
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("all shapes"),
+			_TL("each shape"),
+			_TL("each shape's part")
+		), 1
 	);
 }
 
@@ -116,14 +120,37 @@ CShapes_Extents::~CShapes_Extents(void)
 //---------------------------------------------------------
 bool CShapes_Extents::On_Execute(void)
 {
-	bool		bParts;
-	TSG_Rect	r;
-	CSG_Shape	*pShape , *pExtent;
-	CSG_Shapes	*pShapes, *pExtents;
+	CSG_Shapes	*pShapes	= Parameters("SHAPES" )->asShapes();
+	CSG_Shapes	*pExtents	= Parameters("EXTENTS")->asShapes();
 
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	pExtents	= Parameters("EXTENTS")	->asShapes();
-	bParts		= Parameters("PARTS")	->asBool();
+	//-----------------------------------------------------
+	if( !pShapes->is_Valid() )
+	{
+		Message_Add(_TL("invalid input"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int	iOutput	= Parameters("OUTPUT")->asInt();
+
+	if( iOutput == 0 )	// all shapes
+	{
+		pExtents->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Extent")));
+		pExtents->Add_Field(SG_T("OID"), SG_DATATYPE_Int);
+
+		TSG_Rect	r			= pShapes->Get_Extent();
+		CSG_Shape	*pExtent	= pExtents->Add_Shape();
+
+		pExtent->Set_Value(0, 1);
+
+		pExtent->Add_Point(r.xMin, r.yMin);
+		pExtent->Add_Point(r.xMin, r.yMax);
+		pExtent->Add_Point(r.xMax, r.yMax);
+		pExtent->Add_Point(r.xMax, r.yMin);
+
+		return( true );
+	}
 
 	//-----------------------------------------------------
 	if( pShapes->Get_Type() == SHAPE_TYPE_Point )
@@ -133,44 +160,35 @@ bool CShapes_Extents::On_Execute(void)
 		return( false );
 	}
 
-	if( !pShapes->is_Valid() )
-	{
-		Message_Add(_TL("invalid input"));
-
-		return( false );
-	}
-
 	//-----------------------------------------------------
 	pExtents->Create(SHAPE_TYPE_Polygon, pShapes->Get_Name(), pShapes);
 
 	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		pShape	= pShapes ->Get_Shape(iShape);
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-		if( bParts )
+		if( iOutput == 1 )	// each shape
+		{
+			TSG_Rect	r			= pShape->Get_Extent();
+			CSG_Shape	*pExtent	= pExtents->Add_Shape(pShape, SHAPE_COPY_ATTR);
+
+			pExtent->Add_Point(r.xMin, r.yMin);
+			pExtent->Add_Point(r.xMin, r.yMax);
+			pExtent->Add_Point(r.xMax, r.yMax);
+			pExtent->Add_Point(r.xMax, r.yMin);
+		}
+		else // if( iOutput == 2 )	// each shape's part
 		{
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				r		= pShape->Get_Extent(iPart);
-
-				pExtent	= pExtents->Add_Shape(pShape, SHAPE_COPY_ATTR);
+				TSG_Rect	r			= pShape->Get_Extent(iPart);
+				CSG_Shape	*pExtent	= pExtents->Add_Shape(pShape, SHAPE_COPY_ATTR);
 
 				pExtent->Add_Point(r.xMin, r.yMin);
 				pExtent->Add_Point(r.xMin, r.yMax);
 				pExtent->Add_Point(r.xMax, r.yMax);
 				pExtent->Add_Point(r.xMax, r.yMin);
 			}
-		}
-		else
-		{
-			r		= pShape->Get_Extent();
-
-			pExtent	= pExtents->Add_Shape(pShape, SHAPE_COPY_ATTR);
-
-			pExtent->Add_Point(r.xMin, r.yMin);
-			pExtent->Add_Point(r.xMin, r.yMax);
-			pExtent->Add_Point(r.xMax, r.yMax);
-			pExtent->Add_Point(r.xMax, r.yMin);
 		}
 	}
 
