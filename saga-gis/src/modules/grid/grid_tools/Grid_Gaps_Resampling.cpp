@@ -71,8 +71,10 @@
 //---------------------------------------------------------
 CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 {
+	CSG_Parameter	*pNode;
+
 	//-----------------------------------------------------
-	Set_Name		(_TL("Close Gaps (Stepwise Resampling)"));
+	Set_Name		(_TL("Close Gaps with Stepwise Resampling"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2012"));
 
@@ -80,7 +82,6 @@ CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 		"Close gaps of a grid data set (i.e. eliminate no data values). "
 		"If the target is not set, the changes will be stored to the original grid. "
 	));
-
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -101,8 +102,6 @@ CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-
-	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
 		_TL(""),
@@ -114,6 +113,56 @@ CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 			_TL("B-Spline Interpolation")
 		), 4
 	);
+
+	Parameters.Add_Value(
+		NULL	, "GROW"			, _TL("Grow Factor"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 2.0, 1.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "PYRAMIDS"		, _TL("Use Pyramids"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	pNode	= Parameters.Add_Choice(
+		NULL	, "START"			, _TL("Start Size"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("grid cell size"),
+			_TL("user defined size")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		pNode	, "START_SIZE"		, _TL("User Defined Size"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Gaps_Resampling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PYRAMIDS")) )
+	{
+		pParameters->Get_Parameter("START")->Set_Enabled(!pParameter->asBool());
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("START")) )
+	{
+		pParameters->Get_Parameter("START_SIZE")->Set_Enabled(pParameter->asInt() == 1);
+	}
+
+	return( 1 );
 }
 
 
@@ -140,38 +189,89 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 		pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps")));
 	}
 
-	//-----------------------------------------------------
-	CSG_Grid_Pyramid	Pyramid;
+	TSG_Grid_Interpolation	Interpolation	= (TSG_Grid_Interpolation)Parameters("INTERPOLATION")->asInt();
 
-	if( !Pyramid.Create(pGrid, 2.0) )
+	double	Grow	= Parameters("GROW")->asDouble();
+
+	//-----------------------------------------------------
+	if( !Parameters("PYRAMIDS")->asBool() )
 	{
-		return( false );
+		int		nCells, nCells_0;
+		double	Size;
+
+		nCells_0	= pGrid->Get_NoData_Count();
+		Size		= Parameters("START")->asInt() == 1 ? Parameters("START_SIZE")->asDouble() : Grow * Get_Cellsize();
+
+		//-------------------------------------------------
+		for(nCells=nCells_0; nCells>0 && Set_Progress(nCells_0-nCells, nCells_0); Size*=Grow)
+		{
+			Process_Set_Text(CSG_String::Format(SG_T("%s: %d; %s: %f"), _TL("no-data cells"), nCells, _TL("patch size"), Size));
+
+			CSG_Grid	Patch(CSG_Grid_System(Size, Get_System()->Get_Extent()));
+
+			SG_UI_Progress_Lock(true);
+			Patch.Assign(pGrid, GRID_INTERPOLATION_BSpline);
+			SG_UI_Progress_Lock(false);
+
+			nCells	= 0;
+
+			#pragma omp parallel for
+			for(int y=0; y<Get_NY(); y++)
+			{
+				double	py	= Get_YMin() + y * Get_Cellsize();
+
+				for(int x=0; x<Get_NX(); x++)
+				{
+					if( pGrid->is_NoData(x, y) && (!pMask || !pMask->is_NoData(x, y)) )
+					{
+						double	px	= Get_XMin() + x * Get_Cellsize();
+
+						if( Patch.is_InGrid_byPos(px, py) )
+						{
+							pGrid->Set_Value(x, y, Patch.Get_Value(px, py, Interpolation));
+						}
+						else
+						{
+							nCells++;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation	= (TSG_Grid_Interpolation)Parameters("INTERPOLATION")->asInt();
-
-	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	else // if( Parameters("PYRAMIDS")->asBool() == true )
 	{
-		double	py	= Get_YMin() + y * Get_Cellsize();
+		CSG_Grid_Pyramid	Pyramid;
 
-		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		if( !Pyramid.Create(pGrid, Grow) )
 		{
-			if( pGrid->is_NoData(x, y) && (!pMask || !pMask->is_NoData(x, y)) )
+			return( false );
+		}
+
+		//-------------------------------------------------
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			double	py	= Get_YMin() + y * Get_Cellsize();
+
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
-				double	px	= Get_XMin() + x * Get_Cellsize();
-
-				for(int i=0; i<Pyramid.Get_Count(); i++)
+				if( pGrid->is_NoData(x, y) && (!pMask || !pMask->is_NoData(x, y)) )
 				{
-					CSG_Grid	*pPatch	= Pyramid.Get_Grid(i);
+					double	px	= Get_XMin() + x * Get_Cellsize();
 
-					if( pPatch->is_InGrid_byPos(px, py) )
+					for(int i=0; i<Pyramid.Get_Count(); i++)
 					{
-						pGrid->Set_Value(x, y, pPatch->Get_Value(px, py, Interpolation));
+						CSG_Grid	*pPatch	= Pyramid.Get_Grid(i);
 
-						break;
+						if( pPatch->is_InGrid_byPos(px, py) )
+						{
+							pGrid->Set_Value(x, y, pPatch->Get_Value(px, py, Interpolation));
+
+							break;
+						}
 					}
 				}
 			}
@@ -186,6 +286,43 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+/*/---------------------------------------------------------
+bool CGrid_Gaps_Resampling::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= Parameters("RESULT")->asGrid();
+	CSG_Grid	*pMask	= Parameters("MASK"  )->asGrid();
+
+	if( pGrid == NULL )
+	{
+		pGrid	= Parameters("INPUT")->asGrid();
+	}
+	else
+	{
+		pGrid->Assign(Parameters("INPUT")->asGrid());
+		pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps")));
+	}
+
+	//-----------------------------------------------------
+	TSG_Grid_Interpolation	Interpolation	= (TSG_Grid_Interpolation)Parameters("INTERPOLATION")->asInt();
+
+
+	//-----------------------------------------------------
+	if( pGrid == Parameters("INPUT")->asGrid() )
+	{
+		DataObject_Update(pGrid);
+	}
+
+	return( true );
+}/**/
 
 
 ///////////////////////////////////////////////////////////

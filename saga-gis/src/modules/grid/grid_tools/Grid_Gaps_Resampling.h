@@ -78,13 +78,14 @@ class CGrid_Gaps_Resampling : public CSG_Module_Grid
 public:
 	CGrid_Gaps_Resampling(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute				(void);
 
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 private:
 
