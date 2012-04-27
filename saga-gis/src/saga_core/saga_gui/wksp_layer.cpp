@@ -535,7 +535,7 @@ bool CWKSP_Layer::Save(void)
 	bool		bResult;
 	wxString	File_Path;
 
-	File_Path	= m_pObject->Get_File_Name() ? m_pObject->Get_File_Name() : m_pObject->Get_Name();
+	File_Path	= m_pObject->Get_File_Name() && *m_pObject->Get_File_Name() ? m_pObject->Get_File_Name() : m_pObject->Get_Name();
 
 	switch( Get_Type() )
 	{
