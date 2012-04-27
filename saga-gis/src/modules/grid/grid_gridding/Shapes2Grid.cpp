@@ -108,6 +108,16 @@ CShapes2Grid::CShapes2Grid(void)
 		_TL("")
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "OUTPUT"		, _TL("Output Values"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("data / no-data"),
+			_TL("index number"),
+			_TL("attribute")
+		), 2
+	);
+
 	pNode_0	= Parameters.Add_Choice(
 		NULL	, "MULTIPLE"	, _TL("Method for Multiple Values"),
 		_TL(""),
@@ -176,6 +186,23 @@ int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
+//---------------------------------------------------------
+int CShapes2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) )
+	{
+		pParameters->Get_Parameter("LINE_TYPE")->Set_Enabled(pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OUTPUT")) )
+	{
+		pParameters->Get_Parameter("FIELD"    )->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("MULTIPLE" )->Set_Enabled(pParameter->asInt() == 2);
+	}
+
+	return( 1 );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -211,17 +238,23 @@ bool CShapes2Grid::On_Execute(void)
 	int		iField, iType;
 
 	//-----------------------------------------------------
-	m_pShapes		= Parameters("INPUT")		->asShapes();
-	m_Method_Lines	= Parameters("LINE_TYPE")	->asInt();
-	m_Method_Multi	= Parameters("MULTIPLE")	->asInt();
-	iField			= Parameters("FIELD")		->asInt();
-	iType			= Parameters("GRID_TYPE")	->asInt();
+	m_pShapes		= Parameters("INPUT"    )->asShapes();
+	m_Method_Lines	= Parameters("LINE_TYPE")->asInt();
+	m_Method_Multi	= Parameters("MULTIPLE" )->asInt();
+	iType			= Parameters("GRID_TYPE")->asInt();
 
-	if( iField < 0 || iField >= m_pShapes->Get_Field_Count() || m_pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
+	switch( Parameters("OUTPUT")->asInt() )
 	{
-		iField		= -1;
+	case 0:	iField	= -1;	break;
+	case 1:	iField	= -2;	break;
+	case 2:
+		if( (iField = Parameters("FIELD")->asInt()) < 0 || !SG_Data_Type_is_Numeric(m_pShapes->Get_Field_Type(iField)) )
+		{
+			iField		= -2;
 
-		Message_Add(_TL("WARNING: selected attribute is not numeric; generating unique identifiers instead."));
+			Message_Add(_TL("WARNING: selected attribute is not numeric; generating unique identifiers instead."));
+		}
+		break;
 	}
 
 	//-----------------------------------------------------
@@ -253,6 +286,11 @@ bool CShapes2Grid::On_Execute(void)
 	}
 
 	//-------------------------------------------------
+	if( iField < 0 )
+	{
+		m_pGrid->Set_NoData_Value(0.0);
+	}
+
 	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), iField < 0 ? _TL("ID") : m_pShapes->Get_Field_Name(iField)));
 	m_pGrid->Assign_NoData();
 
@@ -276,7 +314,7 @@ bool CShapes2Grid::On_Execute(void)
 		{
 			if( iField < 0 || !pShape->is_NoData(iField) )
 			{
-				m_Value	= iField < 0 ? iShape + 1 : pShape->asDouble(iField);
+				m_Value	= iField >= 0 ? pShape->asDouble(iField) : iField == -2 ? iShape + 1 : 1;
 
 				if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
 				{
