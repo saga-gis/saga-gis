@@ -98,7 +98,7 @@ protected:
 
 private:
 
-	int							m_Method_Multi, m_Method_Lines;
+	int							m_Method_Multi, m_Method_Lines, m_Method_Polygon;
 
 	double						m_Value;
 
@@ -120,6 +120,8 @@ private:
 	void						Set_Line_B				(TSG_Point a, TSG_Point b);
 
 	void						Set_Polygon				(CSG_Shape *pShape);
+	void						Set_Polygon_Node		(CSG_Shape_Polygon *pPolygon);
+	void						Set_Polygon_Cell		(CSG_Shape_Polygon *pPolygon);
 
 };
 

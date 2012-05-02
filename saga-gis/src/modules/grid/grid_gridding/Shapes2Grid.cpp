@@ -131,11 +131,20 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	pNode_0	= Parameters.Add_Choice(
-		NULL	, "LINE_TYPE"	, _TL("Method for Lines"),
+		NULL	, "LINE_TYPE"	, _TL("Lines"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("thin"),
 			_TL("thick")
+		), 1
+	);
+
+	pNode_0	= Parameters.Add_Choice(
+		NULL	, "POLY_TYPE"	, _TL("Polygon"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("node"),
+			_TL("cell")
 		), 1
 	);
 
@@ -192,6 +201,7 @@ int CShapes2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) )
 	{
 		pParameters->Get_Parameter("LINE_TYPE")->Set_Enabled(pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line);
+		pParameters->Get_Parameter("POLY_TYPE")->Set_Enabled(pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OUTPUT")) )
@@ -238,10 +248,11 @@ bool CShapes2Grid::On_Execute(void)
 	int		iField, iType;
 
 	//-----------------------------------------------------
-	m_pShapes		= Parameters("INPUT"    )->asShapes();
-	m_Method_Lines	= Parameters("LINE_TYPE")->asInt();
-	m_Method_Multi	= Parameters("MULTIPLE" )->asInt();
-	iType			= Parameters("GRID_TYPE")->asInt();
+	m_pShapes			= Parameters("INPUT"    )->asShapes();
+	m_Method_Lines		= Parameters("LINE_TYPE")->asInt();
+	m_Method_Polygon	= Parameters("POLY_TYPE")->asInt();
+	m_Method_Multi		= Parameters("MULTIPLE" )->asInt();
+	iType				= Parameters("GRID_TYPE")->asInt();
 
 	switch( Parameters("OUTPUT")->asInt() )
 	{
@@ -316,7 +327,7 @@ bool CShapes2Grid::On_Execute(void)
 			{
 				m_Value	= iField >= 0 ? pShape->asDouble(iField) : iField == -2 ? iShape + 1 : 1;
 
-				if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
+				if( pShape->Intersects(m_pGrid->Get_Extent()) )
 				{
 					switch( m_pShapes->Get_Type() )
 					{
@@ -677,6 +688,16 @@ void CShapes2Grid::Set_Line_B(TSG_Point a, TSG_Point b)
 //---------------------------------------------------------
 void CShapes2Grid::Set_Polygon(CSG_Shape *pShape)
 {
+	switch( m_Method_Polygon )
+	{
+	case 0:	Set_Polygon_Node((CSG_Shape_Polygon *)pShape);	break;
+	case 1:	Set_Polygon_Cell((CSG_Shape_Polygon *)pShape);	break;
+	}
+}
+
+//---------------------------------------------------------
+void CShapes2Grid::Set_Polygon_Node(CSG_Shape_Polygon *pPolygon)
+{
 	bool		bFill, *bCrossing;
 	int			x, y, xStart, xStop;
 	TSG_Point	A, B, a, b, c;
@@ -685,7 +706,7 @@ void CShapes2Grid::Set_Polygon(CSG_Shape *pShape)
 	//-----------------------------------------------------
 	bCrossing	= (bool *)SG_Malloc(m_pGrid->Get_NX() * sizeof(bool));
 
-	Extent		= pShape->Get_Extent();
+	Extent		= pPolygon->Get_Extent();
 
 	xStart		= (int)((Extent.m_rect.xMin - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize()) - 1;
 	if( xStart < 0 )
@@ -707,16 +728,16 @@ void CShapes2Grid::Set_Polygon(CSG_Shape *pShape)
 
 			memset(bCrossing, 0, m_pGrid->Get_NX() * sizeof(bool));
 
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 			{
-				if( ((CSG_Shape_Polygon *)pShape)->Get_Part(iPart)->Get_Extent().Intersects(m_pGrid->Get_Extent(true)) )
+				if( pPolygon->Get_Part(iPart)->Get_Extent().Intersects(m_pGrid->Get_Extent(true)) )
 				{
-					b	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
+					b	= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
 
-					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 					{
 						a	= b;
-						b	= pShape->Get_Point(iPoint, iPart);
+						b	= pPolygon->Get_Point(iPoint, iPart);
 
 						if(	((a.y <= A.y && A.y  < b.y)
 						||	 (a.y  > A.y && A.y >= b.y)) )
@@ -758,6 +779,40 @@ void CShapes2Grid::Set_Polygon(CSG_Shape *pShape)
 
 	//-----------------------------------------------------
 	SG_Free(bCrossing);
+}
+
+//---------------------------------------------------------
+void CShapes2Grid::Set_Polygon_Cell(CSG_Shape_Polygon *pPolygon)
+{
+	//-----------------------------------------------------
+	CSG_Grid_System	s(m_pGrid->Get_System());
+
+	int	xA	= s.Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin());	if( xA <  0          )	xA	= 0;
+	int	xB	= s.Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax());	if( xB >= s.Get_NX() )	xB	= s.Get_NX() - 1;
+	int	yA	= s.Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin());	if( yA <  0          )	yA	= 0;
+	int	yB	= s.Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax());	if( yB >= s.Get_NY() )	yB	= s.Get_NY() - 1;
+
+	//-----------------------------------------------------
+	TSG_Rect	r;
+
+	r.yMax	= s.Get_yGrid_to_World(yA) - 0.5 * s.Get_Cellsize();
+
+	for(int y=yA; y<=yB; y++)
+	{
+		r.yMin	= r.yMax;	r.yMax	+= s.Get_Cellsize();
+
+		r.xMax	= s.Get_xGrid_to_World(xA) - 0.5 * s.Get_Cellsize();
+
+		for(int x=xA; x<=xB; x++)
+		{
+			r.xMin	= r.xMax;	r.xMax	+= s.Get_Cellsize();
+
+			if( pPolygon->Intersects(r) )
+			{
+				Set_Value(x, y);
+			}
+		}
+	}
 }
 
 
