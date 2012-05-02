@@ -197,13 +197,14 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 	if( !Parameters("PYRAMIDS")->asBool() )
 	{
 		int		nCells, nCells_0;
-		double	Size;
+		double	Size, maxSize;
 
 		nCells_0	= pGrid->Get_NoData_Count();
 		Size		= Parameters("START")->asInt() == 1 ? Parameters("START_SIZE")->asDouble() : Grow * Get_Cellsize();
+		maxSize		= Get_System()->Get_XRange() > Get_System()->Get_YRange() ? Get_System()->Get_XRange() : Get_System()->Get_YRange();
 
 		//-------------------------------------------------
-		for(nCells=nCells_0; nCells>0 && Set_Progress(nCells_0-nCells, nCells_0); Size*=Grow)
+		for(nCells=nCells_0; nCells>0 && Size<=maxSize && Set_Progress(nCells_0-nCells, nCells_0); Size*=Grow)
 		{
 			Process_Set_Text(CSG_String::Format(SG_T("%s: %d; %s: %f"), _TL("no-data cells"), nCells, _TL("patch size"), Size));
 
