@@ -160,7 +160,20 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	m_Data_Objects.Clear();
 
-	m_CMD.SetCmdLine(argc, argv);
+	/* m_CMD.SetCmdLine(argc, argv);
+	We can't do it this way (passing argv as char**) because then we use an
+	overload of the method which (re-)sets the locale from the current
+	enviromment; in order to prevent this, we use wxString overload */
+
+	wxString	sCmdLine;
+
+	for(int i=1; i<argc; i++)
+	{
+		sCmdLine += argv[i];
+		sCmdLine += SG_T(" ");
+	}
+
+	m_CMD.SetCmdLine(sCmdLine);
 
 	bool	bResult	= _Get_CMD(m_pModule->Get_Parameters(), false);
 		
