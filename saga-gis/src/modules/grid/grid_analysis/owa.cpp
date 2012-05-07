@@ -113,7 +113,7 @@ bool COWA::On_Execute(void){
 				if (bAllValuesAreOK){
 					Sort(pOrderedValues, pGridsList->Get_Count());
 					for (i = 0; i<pGridsList->Get_Count(); i++){
-						dValue = pCoefs[i] * pOrderedValues[i];
+						dValue += pCoefs[i] * pOrderedValues[i];
 					}//for
 					pOutputGrid->Set_Value(x,y,dValue);
 				}//if
