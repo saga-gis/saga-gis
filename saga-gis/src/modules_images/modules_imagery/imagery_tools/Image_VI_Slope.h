@@ -20,34 +20,70 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Image_VI_Slope_H
 #define HEADER_INCLUDED__Image_VI_Slope_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-//---------------------------------------------------------
-class CImage_VI_Slope : public CSG_Module_Grid {
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CImage_VI_Slope : public CSG_Module_Grid
+{
 public:
 	CImage_VI_Slope(void);
-	virtual ~CImage_VI_Slope(void);
 
 	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
 
 
 protected:
-	virtual bool		On_Execute(void);
+
+	virtual bool			On_Execute		(void);
+
 
 private:
-	double getNDVI(double,double);
-	double getTVI(double,double, CSG_Grid*);
-	double getCTVI(double,double);
-	double getTTVI(double,double);
-	double getRatio(double,double);
-	double getNRatio(double,double);
+
+	double					m_Soil, m_Offset, m_Gain;
+
+
+	bool					Get_DVI			(double R, double NIR, double &Value);
+	bool					Get_NDVI		(double R, double NIR, double &Value);
+	bool					Get_RVI			(double R, double NIR, double &Value);
+	bool					Get_NRVI		(double R, double NIR, double &Value);
+	bool					Get_TVI			(double R, double NIR, double &Value);
+	bool					Get_CTVI		(double R, double NIR, double &Value);
+	bool					Get_TTVI		(double R, double NIR, double &Value);
+	bool					Get_SAVI		(double R, double NIR, double &Value);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Image_VI_Slope_H
