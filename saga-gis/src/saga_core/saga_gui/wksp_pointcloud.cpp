@@ -400,7 +400,14 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
 		{
-			pParameters->Get_Parameter("NODE_RGB"	)->Set_Enabled(pParameter->asInt() == 4);
+			int	Value	= pParameter->asInt();
+
+			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == CLASSIFY_UNIQUE);
+			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == CLASSIFY_LUT);
+			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
+			pParameters->Get_Parameter("NODE_RGB"	   )->Set_Enabled(Value == 4);
+
+			return( 1 );
 		}
 	}
 
