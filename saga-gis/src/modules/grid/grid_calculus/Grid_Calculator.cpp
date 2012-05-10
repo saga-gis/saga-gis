@@ -185,9 +185,8 @@ int CGrid_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 bool CGrid_Calculator::On_Execute(void)
 {
-	int						x, y, i, j;
-	double					Result, *Values;
-	TSG_Point				p;
+	int						y;
+	double					py;
 	CSG_Formula				Formula;
 	CSG_Parameter_Grid_List	*pGrids, *pXGrids;
 	CSG_Grid				*pResult;
@@ -222,13 +221,15 @@ bool CGrid_Calculator::On_Execute(void)
 	//-----------------------------------------------------
 	pResult->Set_Name(Parameters("NAME")->asString());
 
-	Values	= new double[pGrids->Get_Count() + pXGrids->Get_Count()];
-
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(y=0, py=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, py+=Get_Cellsize())
 	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bNoData	= false;
+			bool		bNoData	= false;
+			int			i, j;
+			double		Result;
+			CSG_Vector	Values(pGrids->Get_Count() + pXGrids->Get_Count());
 
 			for(i=0; i<pGrids->Get_Count() && !bNoData; i++)
 			{
@@ -242,15 +243,20 @@ bool CGrid_Calculator::On_Execute(void)
 				}
 			}
 
-			for(i=0, j=pGrids->Get_Count(); i<pXGrids->Get_Count() && !bNoData; i++, j++)
+			if( !bNoData && pXGrids->Get_Count() )
 			{
-				if( !pXGrids->asGrid(i)->Get_Value(p, Values[j]) )
+				double	px	= Get_XMin() + x * Get_Cellsize();
+
+				for(i=0, j=pGrids->Get_Count(); i<pXGrids->Get_Count() && !bNoData; i++, j++)
 				{
-					bNoData		= true;
+					if( !pXGrids->asGrid(i)->Get_Value(px, py, Values[j]) )
+					{
+						bNoData		= true;
+					}
 				}
 			}
 
-			if( bNoData || _finite(Result = Formula.Get_Value(Values, pGrids->Get_Count() + pXGrids->Get_Count())) == false )
+			if( bNoData || !_finite(Result = Formula.Get_Value(Values)) )
 			{
 				pResult->Set_NoData(x, y);
 			}
@@ -260,8 +266,6 @@ bool CGrid_Calculator::On_Execute(void)
 			}
 		}
 	}
-
-	delete[](Values);
 
 	//-----------------------------------------------------
 	return( true );
