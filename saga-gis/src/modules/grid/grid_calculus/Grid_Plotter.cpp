@@ -116,19 +116,11 @@ bool CGrid_Plotter::On_Execute(void)
 
 	Formel.Set_Formula(formel);
 
-	int Pos;
 	CSG_String Msg;
-	if (Formel.Get_Error(&Pos,&Msg))
+	if (Formel.Get_Error(Msg))
 	{
-		CSG_String	msg;
-		msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
+		Message_Add(Msg);
 		
-		Message_Add(msg);
-		
-		msg.Printf(SG_T("\n%s\n"), Msg.c_str());
-		
-		Message_Add(msg);
-
 		return false;
 	}
 

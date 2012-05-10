@@ -1153,24 +1153,25 @@ public:
 	CSG_Formula(void);
 	virtual ~CSG_Formula(void);
 
-	static CSG_String			Get_Help_Operators	(void);
-	static CSG_String			Get_Help_Usage		(void);
+	bool						Destroy				(void);
 
-	bool						Get_Error			(int *pPosition = NULL, CSG_String *pMessage = NULL);
+	static CSG_String			Get_Help_Operators	(void);
+
 	bool						Get_Error			(CSG_String &Message);
 
 	int							Add_Function		(SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
 	int							Del_Function		(SG_Char *Name);
 
-	bool						Set_Formula			(const SG_Char *Formula);
-	CSG_String					Get_Formula			(void)		{	return( m_sFormula );	}
+	bool						Set_Formula			(const CSG_String &Formula);
+	CSG_String					Get_Formula			(void)	const	{	return( m_sFormula );	}
 
 	void						Set_Variable		(SG_Char Variable, double Value);
 
-	double						Get_Value			(void);
-	double						Get_Value			(double x);
-	double						Get_Value			(double *Values, int nValues);
-	double						Get_Value			(SG_Char *Arguments, ...);
+	double						Get_Value			(void)							const;
+	double						Get_Value			(double x)						const;
+	double						Get_Value			(const CSG_Vector &Values)		const;
+	double						Get_Value			(double *Values, int nValues)	const;
+	double						Get_Value			(SG_Char *Arguments, ...)		const;
 
 	const SG_Char *				Get_Used_Variables	(void);
 
@@ -1207,15 +1208,16 @@ private:
 	CSG_String					m_sFormula, m_sError;
 
 	const SG_Char				*i_error;
+
 	int							i_pctable;			// number of items in a table of constants - used only by the translating functions
 
-	double						m_Parameters[256],
+	double						m_Parameters[32],
 								*i_ctable;			// current table of constants - used only by the translating functions
 
 
 	void						_Set_Error			(const SG_Char *Error = NULL);
 
-	double						_Get_Value			(double *Parameters, TMAT_Formula Function)	const;
+	double						_Get_Value			(const double *Parameters, TMAT_Formula Function)	const;
 
 	int							_is_Operand			(SG_Char c);
 	int							_is_Operand_Code	(SG_Char c);

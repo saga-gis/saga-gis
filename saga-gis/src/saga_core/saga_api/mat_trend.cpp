@@ -351,59 +351,63 @@ bool CSG_Trend::Get_Trend(const CSG_Points &Data, const SG_Char *Formula)
 //---------------------------------------------------------
 bool CSG_Trend::Get_Trend(void)
 {
-	if( !m_Formula.Get_Error() )
+	CSG_String	sError;
+
+	if( m_Formula.Get_Error(sError) )
 	{
-		int		i;
+		return( false );
+	}
 
-		m_bOkay	= true;
+	//-------------------------------------------------
+	int		i;
 
-		//-------------------------------------------------
-		if( m_Data.Get_Count() > 1 )
+	m_bOkay	= true;
+
+	if( m_Data.Get_Count() > 1 )
+	{
+		if( m_Params.m_Count > 0 )
 		{
-			if( m_Params.m_Count > 0 )
+			m_Lambda	= 0.001;
+
+			_Get_mrqcof(m_Params.m_A, m_Params.m_Alpha, m_Params.m_Beta);
+
+			m_ChiSqr_o	= m_ChiSqr;
+
+			for(i=0; i<m_Params.m_Count; i++)
 			{
-				m_Lambda	= 0.001;
-
-				_Get_mrqcof(m_Params.m_A, m_Params.m_Alpha, m_Params.m_Beta);
-
-				m_ChiSqr_o	= m_ChiSqr;
-
-				for(i=0; i<m_Params.m_Count; i++)
-				{
-					m_Params.m_Atry[i]	= m_Params.m_A[i];
-				}
-
-				//-----------------------------------------
-				for(i=0; i<m_Iter_Max && m_Lambda<m_Lambda_Max && m_bOkay && SG_UI_Process_Get_Okay(false); i++)
-				{
-					m_bOkay	= _Fit_Function();
-				}
-
-				//-----------------------------------------
-				for(i=0; i<m_Params.m_Count; i++)
-				{
-					m_Formula.Set_Variable(m_Params.m_Variables[i], m_Params.m_A[i]);
-				}
+				m_Params.m_Atry[i]	= m_Params.m_A[i];
 			}
 
-			//---------------------------------------------
-			double	y_m, y_o, y_t;
-
-			for(i=0, y_m=0.0; i<m_Data.Get_Count(); i++)
+			//-----------------------------------------
+			for(i=0; i<m_Iter_Max && m_Lambda<m_Lambda_Max && m_bOkay && SG_UI_Process_Get_Okay(false); i++)
 			{
-				y_m	+= m_Data.Get_Y(i);
+				m_bOkay	= _Fit_Function();
 			}
 
-			y_m	/= m_Data.Get_Count();
-
-			for(i=0, y_o=0.0, y_t=0.0; i<m_Data.Get_Count(); i++)
+			//-----------------------------------------
+			for(i=0; i<m_Params.m_Count; i++)
 			{
-				y_o	+= SG_Get_Square(y_m - m_Data.Get_Y(i));
-				y_t	+= SG_Get_Square(y_m - m_Formula.Get_Value(m_Data.Get_X(i)));
+				m_Formula.Set_Variable(m_Params.m_Variables[i], m_Params.m_A[i]);
 			}
-
-			m_ChiSqr_o	= y_o > 0.0 ? y_t / y_o : 1.0;
 		}
+
+		//---------------------------------------------
+		double	y_m, y_o, y_t;
+
+		for(i=0, y_m=0.0; i<m_Data.Get_Count(); i++)
+		{
+			y_m	+= m_Data.Get_Y(i);
+		}
+
+		y_m	/= m_Data.Get_Count();
+
+		for(i=0, y_o=0.0, y_t=0.0; i<m_Data.Get_Count(); i++)
+		{
+			y_o	+= SG_Get_Square(y_m - m_Data.Get_Y(i));
+			y_t	+= SG_Get_Square(y_m - m_Formula.Get_Value(m_Data.Get_X(i)));
+		}
+
+		m_ChiSqr_o	= y_o > 0.0 ? y_t / y_o : 1.0;
 	}
 
 	return( m_bOkay );

@@ -154,7 +154,6 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 {
 	CSG_PointCloud	*pInput, *pResult;
 	int				iFields;
-	int				err_pos;
 	double			dValue;
 	double			*pFieldValues;
 	const SG_Char	*pFormula;
@@ -190,11 +189,11 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 
 	Formula.Set_Formula(pFormula);
 
-	if( Formula.Get_Error(&err_pos, &Msg) )
+	if( Formula.Get_Error(Msg) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: #%d\n%s"), _TL("syntax error in formula at position"), err_pos, pFormula));
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s"), Msg.c_str()));
-		return (false);
+		SG_UI_Msg_Add_Error(Msg);
+
+		return( false );
 	}
 
 	

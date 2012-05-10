@@ -201,29 +201,30 @@ static CSG_Formula::TSG_Formula_Item gSG_Functions[MAX_CTABLE]	=
 //---------------------------------------------------------
 CSG_Formula::CSG_Formula(void)
 {
-	i_ctable	= NULL;
-	i_error		= NULL;
-
-	m_bError	= false;
-
 	m_Formula.code		= NULL;
 	m_Formula.ctable	= NULL;
+
+	m_bError			= false;
+
+	i_ctable			= NULL;
+	i_error				= NULL;
 }
 
 //---------------------------------------------------------
 CSG_Formula::~CSG_Formula(void)
 {
-	if( m_Formula.code )
-	{
-		SG_Free(m_Formula.code);
-		m_Formula.code		= NULL;
-	}
+	Destroy();
+}
 
-	if( m_Formula.ctable )
-	{
-		SG_Free(m_Formula.ctable);
-		m_Formula.ctable	= NULL;
-	}
+//---------------------------------------------------------
+bool CSG_Formula::Destroy(void)
+{
+	SG_FREE_SAFE(m_Formula.code);
+	SG_FREE_SAFE(m_Formula.ctable);
+
+	m_bError			= false;
+
+	return( true );
 }
 
 
@@ -265,55 +266,26 @@ CSG_String CSG_Formula::Get_Help_Operators(void)
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Formula::Get_Help_Usage(void)
-{
-	return( SG_Translate(
-		SG_T("Use single characters to define the parameters of your function f(x)\n")
-		SG_T("Example: 'a + b * x'\n")
-	));
-}
-
-//---------------------------------------------------------
-bool CSG_Formula::Get_Error(int *pPosition, CSG_String *pMessage)
+bool CSG_Formula::Get_Error(CSG_String &Message)
 {
 	if( m_bError )
 	{
-		if( pPosition )
-		{
-			*pPosition	= m_Error_Position;
-		}
+		Message	 = CSG_String::Format(SG_T("%s %s %d\n"), _TL("Error in formula"), _TL("at position"), m_Error_Position);
 
-		if( pMessage )
-		{
-			*pMessage	= m_sError;
-		}
-	}
-
-	return( m_bError );
-}
-
-//---------------------------------------------------------
-bool CSG_Formula::Get_Error(CSG_String &Message)
-{
-	int			pos;
-	CSG_String	msg;
-
-	if( Get_Error(&pos, &msg) )
-	{
-		Message	 = CSG_String::Format(SG_T("%s %s %d\n"), _TL("Error in formula"), _TL("at position"), pos);
-
-		if( pos < 0 || pos >= (int)m_sFormula.Length() )
+		if( m_Error_Position < 0 || m_Error_Position >= (int)m_sFormula.Length() )
 		{
 			Message	+= m_sFormula;
 		}
 		else
 		{
-			Message	+= m_sFormula.Left (pos) + SG_T(" [")
-					+  m_sFormula      [pos] + SG_T("] ")
-					+  m_sFormula.Right(m_sFormula.Length() - (pos + 1));
+			Message	+= m_sFormula.Left (m_Error_Position) + SG_T(" [")
+					+  m_sFormula      [m_Error_Position] + SG_T("] ")
+					+  m_sFormula.Right(m_sFormula.Length() - (m_Error_Position + 1));
 		}
 
-		Message	+= CSG_String::Format(SG_T("\n%s\n"), msg.c_str());
+		Message	+= SG_T("\n");
+		Message	+= m_sError;
+		Message	+= SG_T("\n");
 
 		return( true );
 	}
@@ -350,28 +322,22 @@ void CSG_Formula::Set_Variable(SG_Char Var, double Value)
 }
 
 //---------------------------------------------------------
-bool CSG_Formula::Set_Formula(const SG_Char *Formula)
+bool CSG_Formula::Set_Formula(const CSG_String &Formula)
 {
-	if( Formula )
+	if( Formula.Length() > 0 )
 	{
+		Destroy();
+
 		m_sFormula	= Formula;
-
-		if( m_Formula.code )
-		{
-			SG_Free(m_Formula.code);
-			m_Formula.code		= NULL;
-		}
-
-		if( m_Formula.ctable )
-		{
-			SG_Free(m_Formula.ctable);
-			m_Formula.ctable	= NULL;
-		}
-
 		m_Formula	= _Translate(Formula, SG_T("abcdefghijklmnopqrstxyz"), &m_Length, &m_Error_Position);
 
-		return( m_Formula.code != NULL );
+		if( m_Formula.code != NULL )
+		{
+			return( true );
+		}
 	}
+
+	Destroy();
 
 	return( false );
 }
@@ -384,15 +350,13 @@ bool CSG_Formula::Set_Formula(const SG_Char *Formula)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Formula::Get_Value(void)
+double CSG_Formula::Get_Value(void) const
 {
-	_Set_Error();
-
 	return( _Get_Value(m_Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
-double CSG_Formula::Get_Value(double x)
+double CSG_Formula::Get_Value(double x) const
 {
 	double	Parameters[32];
 
@@ -400,13 +364,17 @@ double CSG_Formula::Get_Value(double x)
 
 	Parameters['x'-'a']	= x;
 
-	_Set_Error();
-
 	return( _Get_Value(Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
-double CSG_Formula::Get_Value(double *Values, int nValues)
+double CSG_Formula::Get_Value(const CSG_Vector &Values) const
+{
+	return( Get_Value(Values.Get_Data(), Values.Get_N()) );
+}
+
+//---------------------------------------------------------
+double CSG_Formula::Get_Value(double *Values, int nValues) const
 {
 	double	Parameters[32];
 
@@ -415,32 +383,30 @@ double CSG_Formula::Get_Value(double *Values, int nValues)
 		Parameters[i]	= Values[i];
 	}
 
-	_Set_Error();
-
 	return( _Get_Value(Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
-double CSG_Formula::Get_Value(SG_Char *Args, ...)
+double CSG_Formula::Get_Value(SG_Char *Args, ...) const
 {
+	double	Parameters[32];
+
 	va_list	ap;
 
 	va_start(ap, Args);
 
 	while( *Args )
 	{
-		m_Parameters[(*Args++) - 'a']	= va_arg(ap, double);
+		Parameters[(*Args++) - 'a']	= va_arg(ap, double);
 	}
 
 	va_end(ap);
 
-	_Set_Error();
-
-	return( _Get_Value(m_Parameters, m_Formula) );
+	return( _Get_Value(Parameters, m_Formula) );
 }
 
 //---------------------------------------------------------
-double CSG_Formula::_Get_Value(double *Parameters, TMAT_Formula func) const
+double CSG_Formula::_Get_Value(const double *Parameters, TMAT_Formula func) const
 {
 	double	x, y, z, buffer[GET_VALUE_BUFSIZE];
 

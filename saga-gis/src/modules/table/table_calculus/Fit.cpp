@@ -155,31 +155,22 @@ CFit::CFit(void)
 
 int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	bool retval = false;
-	
-
 	if (!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMEL")) )
 	{
-		const SG_Char * formel=pParameters->Get_Parameter("FORMEL")->asString();
-		Formel.Set_Formula(formel);
-	
-		int Pos;
 		CSG_String Msg;
-		if (Formel.Get_Error(&Pos, &Msg))
-		
+
+		Formel.Set_Formula(pParameters->Get_Parameter("FORMEL")->asString());
+	
+		if( Formel.Get_Error(Msg) )
 		{
-			CSG_String	s;
-			
-			s.Printf(_TL("Error at character #%d of the function: \n%s\n%s\n"), Pos, formel);
+			Error_Set  (Msg);
+			Message_Dlg(Msg);
 
-			Error_Set(s);			
-		
-			Message_Dlg(s,s);
-
-			return false;
+			return( -1 );
 		}
 	}
-	return (retval);
+
+	return( 0 );
 }
 
 CFit::~CFit(void)
@@ -230,18 +221,10 @@ bool CFit::On_Execute(void)
 	Formel.Set_Formula(formel);
 	
 	
-	int Pos;
-	CSG_String ErrorMsg;
-	if (Formel.Get_Error(&Pos, &ErrorMsg))
+	if (Formel.Get_Error(msg))
 	{
-		msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
-		
 		Message_Add(msg);
-		
-		msg.Printf(SG_T("\n%s\n"), ErrorMsg.c_str());
-		
-		Message_Add(msg);
-		
+
 		return false;
 	}
 	
