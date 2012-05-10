@@ -98,7 +98,6 @@ protected:
 
 	virtual bool			On_Execute	(void);
 
-	CSG_String				Double2String(double value, int precision);
 };
 
 

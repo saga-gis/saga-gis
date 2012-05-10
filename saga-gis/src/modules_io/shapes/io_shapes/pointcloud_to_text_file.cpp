@@ -317,23 +317,27 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
+		CSG_String	sLine;
+
 		for(size_t i=0; i<vCol.size(); i++)
 		{
 			switch (pPoints->Get_Field_Type(vCol.at(i)))
 			{
 			case SG_DATATYPE_Double:
 			case SG_DATATYPE_Float:
-				s = Double2String(pPoints->Get_Value(iPoint, vCol.at(i)), vPrecision.at(i));
-				pTabStream->Printf(s);
+				sLine += SG_Get_String(pPoints->Get_Value(iPoint, vCol.at(i)), vPrecision.at(i), false);
 				break;
 			default:
-				s = CSG_String::Format(SG_T("%d"), (int)pPoints->Get_Value(iPoint, vCol.at(i)));
-				pTabStream->Printf(s);
+				sLine += CSG_String::Format(SG_T("%d"), (int)pPoints->Get_Value(iPoint, vCol.at(i)));
 				break;
 			}
 
-			pTabStream->Printf(i < (int)vCol.size() - 1 ? fieldSep.c_str() : SG_T("\n"));
+			sLine += fieldSep.c_str();
 		}
+
+		sLine += SG_T("\n");
+
+		pTabStream->Write(sLine);
 	}
 
 
@@ -341,51 +345,6 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 	delete (pTabStream);
 
 	return( true );
-}
-
-
-//---------------------------------------------------------
-CSG_String CPointcloud_To_Text_File::Double2String(double value, int precision)
-{
-	/* Originally published in pdfutility.cpp of wxPdfDocument by Ulrich Telle
-	 * modified */
-
-	CSG_String number;
-	if (precision < 0)
-		precision = 0;
-	else if (precision > 16)
-		precision = 16;
-
-	// Use absolute value locally
-	double localValue = fabs(value);
-	double localFraction = (localValue - floor(localValue)) +(5. * pow(10.0, -precision-1));
-	if (localFraction >= 1)
-	{
-		localValue += 1.0;
-		localFraction -= 1.0;
-	}
-	localFraction *= pow(10.0, precision);
-
-	if (value < 0)
-		number += CSG_String(SG_T("-"));
-
-
-	number += CSG_String::Format(SG_T("%.0f"), floor(localValue));
-
-	// generate fraction, padding with zero if necessary.
-	if (precision > 0)
-	{
-		number += CSG_String(SG_T("."));
-		CSG_String fraction = CSG_String::Format(SG_T("%.0f"), floor(localFraction));
-		if (fraction.Length() < ((size_t) precision))
-		{
-			for(int i=0; i<precision-fraction.Length(); i++)
-				number += CSG_String(SG_T('0'));//, precision-fraction.Length());
-		}
-		number += fraction;
-	}
-
-	return number;
 }
 
 
