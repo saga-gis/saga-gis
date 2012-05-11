@@ -108,8 +108,6 @@ void CJoin_Tables_Base::Initialise(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -243,8 +241,6 @@ bool CJoin_Tables_Base::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -276,8 +272,6 @@ CJoin_Tables::CJoin_Tables(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -304,6 +298,113 @@ CJoin_Tables_Shapes::CJoin_Tables_Shapes(void)
 	);
 
 	Initialise();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTable_Append_Rows::CTable_Append_Rows(void)
+{
+	Set_Name		(_TL("Append Rows from Table"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2012"));
+
+	Set_Description(_TW(
+		""
+	));
+
+	Parameters.Add_Table(
+		NULL	, "INPUT"	, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table(
+		NULL	, "APPEND"	, _TL("Append Rows from ..."),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table(
+		NULL	, "OUTPUT"	, _TL("Result"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTable_Append_Rows::On_Execute(void)
+{
+	CSG_Table	*pTable, *pOutput, *pAppend;
+
+	//-----------------------------------------------------
+	pTable	= Parameters("INPUT" )->asTable();
+	pOutput	= Parameters("OUTPUT")->asTable();
+	pAppend	= Parameters("APPEND")->asTable();
+
+	//-----------------------------------------------------
+	if( pTable->Get_Record_Count() <= 0 )
+	{
+		Error_Set(_TL("no records in data set"));
+
+		return( false );
+	}
+
+	if( pAppend->Get_Record_Count() <= 0 )
+	{
+		Error_Set(_TL("no records to append"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( pOutput && pOutput != pTable )
+	{
+		pOutput->Create		(*pTable);
+		pOutput->Set_Name	( pTable->Get_Name());
+		pTable	= pOutput;
+	}
+
+	//-----------------------------------------------------
+	int		iField, jField, aField, nRecords;
+
+	nRecords	= pTable->Get_Count() < pAppend->Get_Count() ? pTable->Get_Count() : pAppend->Get_Count();
+	aField		= pTable->Get_Field_Count();
+
+	for(iField=0; iField<pAppend->Get_Field_Count(); iField++)
+	{
+		pTable->Add_Field(pAppend->Get_Field_Name(iField), pAppend->Get_Field_Type(iField));
+	}
+
+	//-----------------------------------------------------
+	for(int iRecord=0; iRecord<nRecords && Set_Progress(iRecord, nRecords); iRecord++)
+	{
+		CSG_Table_Record	*pRec	= pTable ->Get_Record(iRecord);
+		CSG_Table_Record	*pAdd	= pAppend->Get_Record(iRecord);
+
+		for(iField=0, jField=aField; iField<pAppend->Get_Field_Count(); iField++)
+		{
+			*pRec->Get_Value(jField++)	= *pAdd->Get_Value(iField);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pTable == Parameters("INPUT")->asTable() )
+	{
+		DataObject_Update(pTable);
+	}
+
+	return( true );
 }
 
 
