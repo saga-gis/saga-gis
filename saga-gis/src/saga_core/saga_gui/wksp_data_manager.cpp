@@ -312,7 +312,9 @@ bool CWKSP_Data_Manager::Finalise(void)
 	
 	if( Get_Count() == 0 )
 	{
-		wxRemoveFile(fProject.GetFullPath());
+		if( fProject.FileExists() )
+			wxRemoveFile(fProject.GetFullPath());
+
 		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), _TL(""));
 	}
 	else switch( m_Parameters("PROJECT_START")->asInt() )
