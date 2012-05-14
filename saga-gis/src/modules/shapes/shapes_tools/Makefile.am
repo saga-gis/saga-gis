@@ -19,7 +19,6 @@ MLB_Interface.cpp\
 NewLayerFromSelectedShapes.cpp\
 quadtree_structure.cpp\
 QueryBuilder.cpp\
-QueryParser.cpp\
 SearchInTable.cpp\
 SelectByTheme.cpp\
 SeparateShapes.cpp\
@@ -41,7 +40,6 @@ MLB_Interface.h\
 NewLayerFromSelectedShapes.h\
 quadtree_structure.h\
 QueryBuilder.h\
-QueryParser.h\
 SearchInTable.h\
 SelectByTheme.h\
 SeparateShapes.h\
