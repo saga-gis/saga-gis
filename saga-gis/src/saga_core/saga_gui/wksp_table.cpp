@@ -102,6 +102,8 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"	, _TL("[CAP] No Data"),
 		_TL("")
 	);
+
+	DataObject_Changed(NULL);
 }
 
 //---------------------------------------------------------
