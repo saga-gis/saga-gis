@@ -148,7 +148,7 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_bModified			= true;
 
 	m_NoData_Value		= -99999.0;
-	m_NoData_hiValue	= -999.0;
+	m_NoData_hiValue	= -99999.0;
 
 	m_Name				.Clear();
 	m_Description		.Clear();
