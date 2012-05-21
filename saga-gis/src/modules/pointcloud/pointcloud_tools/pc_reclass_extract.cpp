@@ -121,6 +121,12 @@ CPC_Reclass_Extract::CPC_Reclass_Extract(void)
 		_TL("Reclassify|Extract Subset|"), 0
 	);
 
+	Parameters.Add_Value(
+		NULL	, "CREATE_ATTRIB"	, _TL("Create new Attribute"),
+		_TL("Check this to create a new attribute with the reclassification result. If unchecked, the existing attribute is updated."),
+		PARAMETER_TYPE_Bool, false
+	);
+
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid."),
@@ -289,14 +295,18 @@ bool CPC_Reclass_Extract::On_Execute(void)
 	method			= Parameters("METHOD")->asInt();
 	m_AttrField		= Parameters("ATTRIB")->asInt();
 	m_bExtract		= Parameters("MODE")->asInt() == 0 ? false : true;
+	m_bCreateAttrib	= Parameters("CREATE_ATTRIB")->asBool();
 
 	m_pResult->Create(m_pInput);
 
 	if (m_bExtract)
 		m_pResult->Set_Name(CSG_String::Format(SG_T("%s_subset_%s"), m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField)));
 	else
+	{
 		m_pResult->Set_Name(CSG_String::Format(SG_T("%s_reclass_%s"), m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField)));
-
+		if( m_bCreateAttrib )
+			m_pResult->Add_Field(CSG_String::Format(SG_T("%s_reclass"), m_pInput->Get_Field_Name(m_AttrField)), m_pInput->Get_Field_Type(m_AttrField));
+	}
 
 	//-----------------------------------------------------
 	switch( method )
@@ -321,8 +331,12 @@ bool CPC_Reclass_Extract::On_Execute(void)
 	if (m_bExtract)
 		Set_Display_Attributes(m_pResult, 2, sParms);
 	else
-		Set_Display_Attributes(m_pResult, m_AttrField, sParms);
-
+	{
+		if( m_bCreateAttrib )
+			Set_Display_Attributes(m_pResult, m_pResult->Get_Field_Count()-1, sParms);
+		else
+			Set_Display_Attributes(m_pResult, m_AttrField, sParms);
+	}
 
 	return( true );
 }
@@ -655,7 +669,12 @@ void CPC_Reclass_Extract::Set_Value(int i, double value)
 		m_pResult->Set_Attribute(j, m_pInput->Get_Attribute(i, j));
 
 	if (!m_bExtract)
-		m_pResult->Set_Value(m_AttrField, value);
+	{
+		if (m_bCreateAttrib)
+			m_pResult->Set_Value(m_pResult->Get_Field_Count()-1, value);
+		else
+			m_pResult->Set_Value(m_AttrField, value);
+	}
 
 	return;
 }
@@ -688,6 +707,8 @@ int CPC_Reclass_Extract::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 	{
 		int		iMode	= pParameters->Get_Parameter("MODE")->asInt();		// 0 == reclassify, 1 == extract
 		int		Value	= pParameters->Get_Parameter("METHOD")->asInt();
+
+		pParameters->Get_Parameter("CREATE_ATTRIB")->Set_Enabled(iMode == 0);
 
 		// single
 		pParameters->Get_Parameter("OLD"		)->Set_Enabled(Value == 0);

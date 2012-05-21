@@ -100,7 +100,7 @@ protected:
 private:
 
 	int				m_Single;
-	bool			m_bExtract;
+	bool			m_bExtract, m_bCreateAttrib;
 	int				m_AttrField;
 
 	CSG_PointCloud	*m_pInput, *m_pResult;
