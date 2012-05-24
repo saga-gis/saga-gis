@@ -114,7 +114,7 @@ bool CAHP::On_Execute(void){
 			for(x=0; x<Get_NX(); x++){
 				fValue = 0;
 				for (i = 0; i<pGridsList->Get_Count(); i++){
-					fValue = pCoefs[i] * pGrids[i]->asFloat(x,y);
+					fValue += pCoefs[i] * pGrids[i]->asFloat(x,y);
 				}//for
 				pOutputGrid->Set_Value(x,y,fValue);
 			}//for
