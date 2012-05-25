@@ -361,7 +361,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	{
 		if( !Selection.Get_Count() || Selection(i)->asBool() )
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("loading band"), i, DataSet.Get_Count()));
+			Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("loading band"), i + 1, DataSet.Get_Count()));
 
 			CSG_Grid	*pGrid	= DataSet.Read(i);
 
