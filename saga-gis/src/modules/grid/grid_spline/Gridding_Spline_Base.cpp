@@ -210,7 +210,7 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 		{
 			for(x=0, p.x=pGrid->Get_XMin(); x<pGrid->Get_NX(); x++, p.x+=pGrid->Get_Cellsize())
 			{
-				if( !pGrid->is_NoData(x, y) && (!bInGridOnly || m_pGrid->is_InGrid_byPos(p)) )
+				if( !pGrid->is_NoData(x, y) && (!bInGridOnly || m_pGrid->is_InGrid_byPos(p, false)) )
 				{
 					Points.Add(p.x, p.y, pGrid->asDouble(x, y));
 				}
@@ -236,7 +236,7 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 					{
 						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-						if( !bInGridOnly || m_pGrid->is_InGrid_byPos(p) )
+						if( !bInGridOnly || m_pGrid->is_InGrid_byPos(p, false) )
 						{
 							Points.Add(p.x, p.y, zValue);
 						}
