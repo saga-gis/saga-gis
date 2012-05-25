@@ -445,35 +445,14 @@ int CSG_GDAL_DataSet::Get_Count(void)	const
 }
 
 //---------------------------------------------------------
-CSG_Grid * CSG_GDAL_DataSet::Read(int i)
+CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 {
+	CSG_String		Name;
+
 	GDALRasterBand	*pBand;
 
 	if( is_Reading() && (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
 	{
-		CSG_String	Name, Description;
-
-		CSG_Grid	*pGrid	= SG_Create_Grid(gSG_GDAL_Drivers.Get_SAGA_Type(pBand->GetRasterDataType()),
-			Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin()
-		);
-
-		//-------------------------------------------------
-		char	**pMetaData	= pBand->GetMetadata() + 0;
-
-		if( pMetaData )
-		{
-			while( *pMetaData )
-			{
-				CSG_String	s(*pMetaData);
-
-				pGrid->Get_MetaData().Add_Child(s.BeforeFirst(SG_T('=')), s.AfterFirst(SG_T('=')));
-				Description	+= s + SG_T("\n");
-
-				pMetaData++;
-			}
-		}
-
-		//-------------------------------------------------
 		const char	*s;
 
 		if( (s = pBand->GetMetadataItem("GRIB_COMMENT")) != NULL && *s )
@@ -488,10 +467,54 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		{
 			Name.Printf(SG_T("%d"), i + 1);
 		}
+	}
+
+	return( Name );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_GDAL_DataSet::Get_Description(int i)	const
+{
+	CSG_String		Description;
+
+	GDALRasterBand	*pBand;
+
+	if( is_Reading() && (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
+	{
+		char	**pMetaData	= pBand->GetMetadata() + 0;
+
+		if( pMetaData )
+		{
+			while( *pMetaData )
+			{
+				CSG_String	s(*pMetaData);
+
+				Description	+= s + SG_T("\n");
+
+				pMetaData++;
+			}
+		}
+	}
+
+	return( Description );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CSG_GDAL_DataSet::Read(int i)
+{
+	GDALRasterBand	*pBand;
+
+	if( is_Reading() && (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
+	{
+		CSG_String	Name, Description;
+
+		CSG_Grid	*pGrid	= SG_Create_Grid(gSG_GDAL_Drivers.Get_SAGA_Type(pBand->GetRasterDataType()),
+			Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin()
+		);
 
 		//-------------------------------------------------
-		pGrid->Set_Name			(Name);
-		pGrid->Set_Description	(Description);
+		pGrid->Set_Name			(Get_Name       (i));
+		pGrid->Set_Description	(Get_Description(i));
 		pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
 		pGrid->Set_NoData_Value	(pBand->GetNoDataValue());
 		pGrid->Set_ZFactor		(pBand->GetScale());

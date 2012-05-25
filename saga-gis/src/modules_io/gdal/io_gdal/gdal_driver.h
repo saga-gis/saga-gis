@@ -133,9 +133,11 @@ public:
 
 	int							Get_NX				(void)	const	{	return( m_NX );			}
 	int							Get_NY				(void)	const	{	return( m_NY );			}
+	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );	}
 	double						Get_xMin			(void)	const	{	return( m_xMin );		}
 	double						Get_yMin			(void)	const	{	return( m_yMin );		}
-	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );	}
+	double						Get_xMax			(void)	const	{	return( m_xMin + m_NX * m_Cellsize );	}
+	double						Get_yMax			(void)	const	{	return( m_yMin + m_NY * m_Cellsize );	}
 
 	bool						Needs_Transform		(void)	const	{	return( m_bTransform );	}
 	void						Get_Transform		(CSG_Vector &A, CSG_Matrix &B)	const	{	A	= m_TF_A;	B	= m_TF_B;	}
@@ -148,6 +150,8 @@ public:
 	const char *				Get_MetaData_Item	(const char *pszName, const char *pszDomain = "")	const;
 
 	int							Get_Count			(void)	const;
+	CSG_String					Get_Name			(int i)	const;
+	CSG_String					Get_Description		(int i)	const;
 	CSG_Grid *					Read				(int i);
 	bool						Write				(int i, CSG_Grid *pGrid);
 

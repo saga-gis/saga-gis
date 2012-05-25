@@ -79,7 +79,9 @@ public:
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
@@ -87,10 +89,10 @@ private:
 	CSG_Parameter_Grid_List		*m_pGrids;
 
 
-	bool						Load_Sub			(CSG_GDAL_DataSet &DataSet, const CSG_String &Name);
-	bool						Load				(CSG_GDAL_DataSet &DataSet, const CSG_String &Name);
+	bool						Load_Sub				(CSG_GDAL_DataSet &DataSet, const CSG_String &Name);
+	bool						Load					(CSG_GDAL_DataSet &DataSet, const CSG_String &Name);
 
-	void						Set_Transformation	(CSG_Grid **ppGrid, const CSG_Vector &A, const CSG_Matrix &B);
+	void						Set_Transformation		(CSG_Grid **ppGrid, const CSG_Grid_System &System, const CSG_Vector &A, const CSG_Matrix &B);
 
 };
 
