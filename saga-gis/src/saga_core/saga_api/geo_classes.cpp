@@ -736,25 +736,26 @@ void CSG_Rect::operator -= (const CSG_Point &Point)
 //---------------------------------------------------------
 void CSG_Rect::Assign(double xMin, double yMin, double xMax, double yMax)
 {
-	double	d;
-
-	m_rect.xMin	= xMin;
-	m_rect.yMin	= yMin;
-	m_rect.xMax	= xMax;
-	m_rect.yMax	= yMax;
-
-	if( m_rect.xMin > m_rect.xMax )
+	if( xMin < xMax )
 	{
-		d			= m_rect.xMin;
-		m_rect.xMin	= m_rect.xMax;
-		m_rect.xMax	= d;
+		m_rect.xMin	= xMin;
+		m_rect.xMax	= xMax;
+	}
+	else
+	{
+		m_rect.xMin	= xMax;
+		m_rect.xMax	= xMin;
 	}
 
-	if( m_rect.yMin > m_rect.yMax )
+	if( yMin < yMax )
 	{
-		d			= m_rect.yMin;
-		m_rect.yMin	= m_rect.yMax;
-		m_rect.yMax	= d;
+		m_rect.yMin	= yMin;
+		m_rect.yMax	= yMax;
+	}
+	else
+	{
+		m_rect.yMin	= yMax;
+		m_rect.yMax	= yMin;
 	}
 }
 
@@ -843,6 +844,28 @@ void CSG_Rect::Deflate(double dx, double dy, bool bPercent)
 void CSG_Rect::Deflate(double d, bool bPercent)
 {
 	Deflate(d, d, bPercent);
+}
+
+//---------------------------------------------------------
+void CSG_Rect::Union(const CSG_Point &Point)
+{
+	if( m_rect.xMin > Point.Get_X() )
+	{
+		m_rect.xMin	= Point.Get_X();
+	}
+	else if( m_rect.xMax < Point.Get_X() )
+	{
+		m_rect.xMax	= Point.Get_X();
+	}
+
+	if( m_rect.yMin > Point.Get_Y() )
+	{
+		m_rect.yMin	= Point.Get_Y();
+	}
+	else if( m_rect.yMax < Point.Get_Y() )
+	{
+		m_rect.yMax	= Point.Get_Y();
+	}
 }
 
 //---------------------------------------------------------

@@ -465,6 +465,7 @@ public:
 	void						Inflate			(double dx, double dy, bool bPercent = true);
 	void						Deflate			(double dx, double dy, bool bPercent = true);
 
+	void						Union			(const CSG_Point &Point);
 	void						Union			(const CSG_Rect &Rect);
 	bool						Intersect		(const CSG_Rect &Rect);
 
