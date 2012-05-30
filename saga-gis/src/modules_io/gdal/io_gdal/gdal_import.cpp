@@ -371,7 +371,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 
 				if( Transform.is_Valid() )
 				{
-					Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("band transformation"), i, DataSet.Get_Count()));
+					Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("band transformation"), i + 1, DataSet.Get_Count()));
 
 					Set_Transformation(&pGrid, Transform, A, B);
 				}
