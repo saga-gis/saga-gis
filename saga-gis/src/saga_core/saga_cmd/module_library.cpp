@@ -761,27 +761,61 @@ bool CCMD_Module::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParameters)
 		//-------------------------------------------------
 		else if( pParameter->is_DataObject_List() )
 		{
-			for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+			if( pParameter->is_Input() )
 			{
-				CSG_Data_Object	*pObject	= pParameter->asList()->asDataObject(i);
+				for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+				{
+					CSG_Data_Object	*pObject	= pParameter->asList()->asDataObject(i);
 
-				if( pParameter->is_Input() && pObject->is_Modified() )
-				{
-					pObject->Save(pObject->Get_File_Name());
-				}
-				else if( FileName.Length() > 0 )
-				{
-					if( pParameter->asList()->Get_Count() == 1 )
+					if( pObject->is_Modified() )
 					{
-						pObject->Save(&FileName);
+						pObject->Save(pObject->Get_File_Name());
+					}
+
+					m_Data_Objects.Add(pObject);
+				}
+			}
+			else if( FileName.Length() > 0 ) // if( pParameter->is_Output() )
+			{
+				CSG_Strings	FileNames;
+
+				while( FileName.Length() > 0 )
+				{
+					CSG_String	s(&FileName.BeforeFirst(';'));
+
+					if( s.Length() > 0 )
+					{
+						FileNames	+= s;
+						FileName	 = FileName.AfterFirst(';');
 					}
 					else
 					{
-						pObject->Save(wxString::Format(SG_T("%s_%04d"), FileName, i + 1).wx_str());
+						FileNames	+= &FileName;
+						FileName	.Clear();
 					}
 				}
 
-				m_Data_Objects.Add(pObject);
+				int	nFileNames	= pParameter->asList()->Get_Count() <= FileNames.Get_Count() ? FileNames.Get_Count() : FileNames.Get_Count() - 1;
+
+				for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+				{
+					CSG_Data_Object	*pObject	= pParameter->asList()->asDataObject(i);
+
+					if( i < nFileNames )
+					{
+						pObject->Save(FileNames[i]);
+					}
+					else
+					{
+						pObject->Save(CSG_String::Format(SG_T("%s_%0*d"),
+							FileNames[FileNames.Get_Count() - 1].c_str(),
+							SG_Get_Digit_Count(pParameter->asList()->Get_Count()),
+							1 + i - nFileNames
+						));
+					}
+
+					m_Data_Objects.Add(pObject);
+				}
 			}
 
 			pParameter->asList()->Del_Items();
