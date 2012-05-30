@@ -211,8 +211,7 @@ double		SG_Get_Angle_Of_Direction(const TSG_Point &A, const TSG_Point &B)
 //---------------------------------------------------------
 bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &a2, const TSG_Point &b1, const TSG_Point &b2, bool bExactMatch)
 {
-	double	lambda, div, a_dx, a_dy, b_dx, b_dy;
-
+	//-----------------------------------------------------
 	if( bExactMatch
 	&&	(	(M_GET_MAX(a1.x, a2.x) < M_GET_MIN(b1.x, b2.x))
 		||	(M_GET_MIN(a1.x, a2.x) > M_GET_MAX(b1.x, b2.x))
@@ -222,11 +221,23 @@ bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &
 		return( false );
 	}
 
-	if( (a1.x == b1.x && a1.y == b1.y) || (a1.x == b2.x && a1.y == b2.y) ||
-		(a2.x == b1.x && a2.y == b1.y) || (a2.x == b2.x && a2.y == b2.y) )
+	//-----------------------------------------------------
+	if( (a1.x == b1.x && a1.y == b1.y) || (a1.x == b2.x && a1.y == b2.y) )
 	{
+		Crossing	= a1;
+
 		return( true );
 	}
+
+	if( (a2.x == b1.x && a2.y == b1.y) || (a2.x == b2.x && a2.y == b2.y) )
+	{
+		Crossing	= a2;
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	double	lambda, div, a_dx, a_dy, b_dx, b_dy;
 
 	a_dx	= a2.x - a1.x;
 	a_dy	= a2.y - a1.y;
