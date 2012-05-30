@@ -298,8 +298,11 @@ protected:
 	int							Get_NY					(void)						{	return( Get_System()->Get_NY() );				}
 	long						Get_NCells				(void)						{	return( Get_System()->Get_NCells() );			}
 	double						Get_Cellsize			(void)						{	return( Get_System()->Get_Cellsize() );			}
+	double						Get_Cellarea			(void)						{	return( Get_System()->Get_Cellarea() );			}
 	double						Get_XMin				(void)						{	return( Get_System()->Get_XMin() );				}
 	double						Get_YMin				(void)						{	return( Get_System()->Get_YMin() );				}
+	double						Get_XMax				(void)						{	return( Get_System()->Get_XMax() );				}
+	double						Get_YMax				(void)						{	return( Get_System()->Get_YMax() );				}
 	int							Get_xTo					(int Dir, int x = 0)		{	return( Get_System()->Get_xTo(Dir, x) );		}
 	int							Get_yTo					(int Dir, int y = 0)		{	return( Get_System()->Get_yTo(Dir, y) );		}
 	int							Get_xFrom				(int Dir, int x = 0)		{	return( Get_System()->Get_xFrom(Dir, x) );		}
