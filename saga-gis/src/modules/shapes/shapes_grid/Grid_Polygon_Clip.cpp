@@ -154,19 +154,22 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 		// Function: Get_ShapeIDs(...)
 		// and check extent of valid values in Mask to 
 		// calculate GridSystem parameters pGrid_out	
-		if( Get_Mask(pShapes, &Mask) && Get_Extent(ax, nx, ay, ny, &Mask) )
+		if( Get_Mask(pShapes, &Mask) && Get_Extent(ax, nx, ay, ny, &Mask, pGrids_in) )
 		{
 			for(int iGrid=0; iGrid<pGrids_in->Get_Count(); iGrid++)
 			{
 				pGrid_in	= pGrids_in->asGrid(iGrid);
+
 				pGrid_out	= SG_Create_Grid(					// creating the output grid GridSystem
 					pGrid_in->Get_Type(), nx, ny, Get_Cellsize(),
 					Get_XMin() + ax * Get_Cellsize(),
 					Get_YMin() + ay * Get_Cellsize()
 				);
 
-				pGrid_out->Set_Name(pGrid_in->Get_Name());
-				pGrids_out->Add_Item(pGrid_out);
+				pGrid_out	->Set_Name(pGrid_in->Get_Name());
+				pGrid_out	->Set_NoData_Value(pGrid_in->Get_NoData_Value());
+
+				pGrids_out	->Add_Item(pGrid_out);
 
 				// Assign valid values from input grid to the cells of the
 				// output grid that are within the borders of the shapefile
@@ -198,48 +201,73 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 //---------------------------------------------------------
 // This function modifies the incoming integer variables!!!
 //---------------------------------------------------------
-bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xMax, int &yMin, int &yMax, CSG_Grid *pMask)
+bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xCount, int &yMin, int &yCount, CSG_Grid *pMask, CSG_Parameter_Grid_List *pGrids)
 {
-	int		x, y;
+	bool	bFound;
 
-	for(y=0, yMin=-1; y<Get_NY() && Set_Progress(y); y++)
+	for(yMin=0, bFound=false; yMin<Get_NY() && !bFound && Process_Get_Okay(true); yMin++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX() && !bFound; x++)
 		{
-			if( pMask->asInt(x, y) == MASK_ON )
-			{
-				if( yMin < 0 )
-				{
-					yMin	= yMax	= y;
-					xMin	= xMax	= x;
-				}
-				else
-				{
-					yMax	= y;
-
-					if( xMin > x )
-					{
-						xMin	= x;
-					}
-					else if( xMax < x )
-					{
-						xMax	= x;
-					}
-				}
-			}
+			bFound	= is_InGrid(x, yMin, pMask, pGrids);
 		}
 	}
 
-	if( yMin >= 0 )
+	//-----------------------------------------------------
+	if( yMin < Get_NY() && Process_Get_Okay() )
 	{
-		xMax	-= xMin - 1;
-		yMax	-= yMin - 1;
+		int		xMax, yMax;
 
-		return( true );
+		for(yMax=Get_NY()-1, bFound=false; yMax>=yMin && !bFound && Process_Get_Okay(true); yMax--)
+		{
+			for(int x=0; x<Get_NX() && !bFound; x++)
+			{
+				bFound	= is_InGrid(x, yMax, pMask, pGrids);
+			}
+		}
+
+		for(xMin=0, bFound=false; xMin<Get_NX() && !bFound && Process_Get_Okay(true); xMin++)
+		{
+			for(int y=yMin; y<yMax && !bFound; y++)
+			{
+				bFound	= is_InGrid(xMin, y, pMask, pGrids);
+			}
+		}
+
+		for(xMax=Get_NX()-1, bFound=false; xMax>=xMin && !bFound && Process_Get_Okay(true); xMax--)
+		{
+			for(int y=yMin; y<yMax && !bFound; y++)
+			{
+				bFound	= is_InGrid(xMax, y, pMask, pGrids);
+			}
+		}
+
+		xCount	= 1 + xMax - xMin;
+		yCount	= 1 + yMax - yMin;
+
+		return( xCount > 0 && yCount > 0 );
 	}
 
 	return( false );
 }
+
+//---------------------------------------------------------
+bool CGrid_Polygon_Clip::is_InGrid(int x, int y, CSG_Grid *pMask, CSG_Parameter_Grid_List *pGrids)
+{
+	if( pMask->asInt(x, y) == MASK_ON )
+	{
+		for(int i=0; i<pGrids->Get_Count(); i++)
+		{
+			if( !pGrids->asGrid(i)->is_NoData(x, y) )
+			{
+				return( true );
+			}
+		}
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //---------------------------------------------------------

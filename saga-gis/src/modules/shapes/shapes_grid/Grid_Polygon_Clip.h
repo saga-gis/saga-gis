@@ -86,7 +86,9 @@ private:
 
 	// estimates the Extent of the new grid
 	bool					Get_Extent		(int &xMin, int &xCount,
-											 int &yMin, int &yCount, CSG_Grid *pMask);
+											 int &yMin, int &yCount, CSG_Grid *pMask, CSG_Parameter_Grid_List *pGrids);
+
+	bool					is_InGrid		(int x, int y, CSG_Grid *pMask, CSG_Parameter_Grid_List *pGrids);
 
 	// This function has been copied from Module: 'Grid_Statistics_AddTo_Polygon'
 	// Function: Get_ShapeIDs
