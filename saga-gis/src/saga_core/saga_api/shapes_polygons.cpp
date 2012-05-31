@@ -80,7 +80,7 @@ public:
 	CSG_Converter_WorldToInt		(void)															{	Create(0.0, 1.0, 0.0, 1.0);					}
 	CSG_Converter_WorldToInt		(const CSG_Converter_WorldToInt &Converter)						{	Create(Converter);							}
 	CSG_Converter_WorldToInt		(double xOffset, double xScale, double yOffset, double yScale)	{	Create(xOffset, xScale, yOffset, yScale);	}
-	CSG_Converter_WorldToInt		(const CSG_Rect &Extent)										{	Create(Extent);								}
+	CSG_Converter_WorldToInt		(const CSG_Rect &Extent, bool bAspectRatio = false)				{	Create(Extent, bAspectRatio);				}
 
 	bool			Create			(const CSG_Converter_WorldToInt &Converter)
 	{
@@ -102,12 +102,31 @@ public:
 		return( false );
 	}
 
-	bool			Create			(const CSG_Rect &Extent)
+	bool			Create			(const CSG_Rect &Extent, bool bAspectRatio = false)
 	{
-		return( Create(
-			Extent.Get_XMin(), (1000000000000000000LL) / Extent.Get_XRange(),
-			Extent.Get_YMin(), (1000000000000000000LL) / Extent.Get_YRange()
-		));
+		double	xRange	= Extent.Get_XRange();
+		double	yRange	= Extent.Get_YRange();
+		double	xMin	= Extent.Get_XMin  ();
+		double	yMin	= Extent.Get_YMin  ();
+
+		if( bAspectRatio )
+		{
+			if( xRange < yRange )
+			{
+				xMin	-= (yRange - xRange) / 2.0;
+				xRange	 =  yRange;
+			}
+			else if( yRange < xRange )
+			{
+				yMin	-= (xRange - yRange) / 2.0;
+				yRange	 =  xRange;
+			}
+		}
+
+		return( xRange > 0 && yRange > 0 ? Create(
+			xMin, (1000000000000000000LL) / xRange,
+			yMin, (1000000000000000000LL) / yRange
+		) : false);
 	}
 
 	static ClipperLib::long64	Round			(double Value)	{	return( (ClipperLib::long64)(Value < 0.0 ? Value - 0.5 : Value + 0.5) );	}
@@ -123,6 +142,9 @@ public:
 
 	bool						Convert			(CSG_Shape_Polygon *pPolygon, ClipperLib::Polygons &P)	const;
 	bool						Convert			(const ClipperLib::Polygons &P, CSG_Shape *pPolygon)	const;
+
+	double						Get_xScale		(void)	const	{	return( m_xScale );	}
+	double						Get_yScale		(void)	const	{	return( m_yScale );	}
 
 
 private:
@@ -148,7 +170,7 @@ bool CSG_Converter_WorldToInt::Convert(CSG_Shapes *pPolygons, ClipperLib::Polygo
 
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++, jPolygon++)
 		{
-			bool	bAscending	= pPolygon->is_Lake(iPart) != pPolygon->is_Clockwise(iPart);
+			bool	bAscending	= pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart);
 
 			Polygons.resize(1 + jPolygon);
 			Polygons[jPolygon].resize(pPolygon->Get_Point_Count(iPart));
@@ -188,7 +210,7 @@ bool CSG_Converter_WorldToInt::Convert(CSG_Shape_Polygon *pPolygon, ClipperLib::
 
 	for(int iPart=0, iPolygon=0; iPart<pPolygon->Get_Part_Count(); iPart++, iPolygon++)
 	{
-		bool	bAscending	= pPolygon->is_Lake(iPart) != pPolygon->is_Clockwise(iPart);
+		bool	bAscending	= pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart);
 
 		Polygons.resize(1 + iPolygon);
 		Polygons[iPolygon].resize(pPolygon->Get_Point_Count(iPart));
@@ -310,6 +332,42 @@ bool	SG_Polygon_Dissolve		(CSG_Shape *pPolygon, CSG_Shape *pResult)
 		Clipper.AddPolygons(Polygon, ClipperLib::ptSubject);
 
 		Clipper.Execute(ClipperLib::ctUnion, Result);
+
+		return( Converter.Convert(Result, pResult ? pResult : pPolygon) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool	SG_Polygon_Simplify		(CSG_Shape *pPolygon, CSG_Shape *pResult)
+{
+	CSG_Converter_WorldToInt	Converter(pPolygon->Get_Extent());
+
+	ClipperLib::Polygons		Polygon, Result;
+
+	if(	Converter.Convert((CSG_Shape_Polygon *)pPolygon, Polygon) )
+	{
+		ClipperLib::SimplifyPolygons(Polygon, Result);
+
+		return( Converter.Convert(Result, pResult ? pResult : pPolygon) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool	SG_Polygon_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Shape *pResult)
+{
+	CSG_Rect					r(pPolygon->Get_Extent());	if( dSize > 0.0 )	r.Inflate(2.1 * dSize, false);
+
+	CSG_Converter_WorldToInt	Converter(r, true);
+
+	ClipperLib::Polygons		Polygon, Result;
+
+	if(	Converter.Convert((CSG_Shape_Polygon *)pPolygon, Polygon) )
+	{
+		ClipperLib::OffsetPolygons(Polygon, Result, dSize * Converter.Get_xScale(), ClipperLib::jtRound, dArc);
 
 		return( Converter.Convert(Result, pResult ? pResult : pPolygon) );
 	}

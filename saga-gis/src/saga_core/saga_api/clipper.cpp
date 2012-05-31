@@ -556,8 +556,7 @@ void SwapPolyIndexes(TEdge &edge1, TEdge &edge2)
 
 inline long64 Round(double val)
 {
-  return (val < 0) ?
-    static_cast<long64>(val - 0.5) : static_cast<long64>(val + 0.5);
+  return( (val < 0) ? static_cast<long64>(val - 0.5) : (val > 0 ) ? static_cast<long64>(val + 0.5) : 0 );
 }
 //------------------------------------------------------------------------------
 
@@ -3124,17 +3123,20 @@ struct DoublePoint
 //------------------------------------------------------------------------------
 
 Polygon BuildArc(const IntPoint &pt,
-  const double a1, const double a2, const double r)
+  const double a1, const double a2, const double r, const double dArc)
 {
-  int steps = std::max(6, int(std::sqrt(std::fabs(r)) * std::fabs(a2 - a1)));
+//int steps = std::max(6, int(std::sqrt(std::fabs(r)) * std::fabs(a2 - a1)));
+  int steps = std::max(2, int(std::fabs(a2 - a1) / dArc));	// SAGA: number of steps fitted to step size (dArc)
   Polygon result(steps);
   int n = steps - 1;
   double da = (a2 - a1) / n;
   double a = a1;
   for (int i = 0; i <= n; ++i)
   {
-    result[i].X = pt.X + Round(std::cos(a)*r);
-    result[i].Y = pt.Y + Round(std::sin(a)*r);
+//  result[i].X = pt.X + Round(std::cos(a)*r);
+//  result[i].Y = pt.Y + Round(std::sin(a)*r);
+    result[i].X = Round(pt.X + std::cos(a)*r);	// SAGA: Round()
+    result[i].Y = Round(pt.Y + std::sin(a)*r);	// SAGA: Round()
     a += da;
   }
   return result;
@@ -3164,6 +3166,7 @@ private:
   Polygon* m_curr_poly;
   std::vector<DoublePoint> normals;
   double m_delta, m_RMin, m_R;
+  double m_dArc;	// SAGA: BuildArc() vertex step distance given in radians
   size_t m_i, m_j, m_k;
   static const int buffLength = 128;
   JoinType m_jointype;
@@ -3183,6 +3186,7 @@ PolyOffsetBuilder(const Polygons& in_polys, Polygons& out_polys,
     this->m_p = in_polys;
     this->m_delta = delta;
     this->m_jointype = jointype;
+	this->m_dArc = MiterLimit;	// SAGA: BuildArc() vertex step distance given in radians
     if (MiterLimit <= 1) MiterLimit = 1;
     m_RMin = 2/(MiterLimit*MiterLimit);
  
@@ -3207,7 +3211,7 @@ PolyOffsetBuilder(const Polygons& in_polys, Polygons& out_polys,
         else if (len == 1)
         {
             Polygon arc;
-            arc = BuildArc(in_polys[m_i][len-1], 0, 2 * pi, delta);
+            arc = BuildArc(in_polys[m_i][len-1], 0, 2 * pi, delta, m_dArc);
             out_polys[m_i] = arc;
             continue;
         }
@@ -3345,7 +3349,7 @@ void DoRound()
         double a2 = std::atan2(normals[m_j].Y, normals[m_j].X);
         if (m_delta > 0 && a2 < a1) a2 += pi *2;
         else if (m_delta < 0 && a2 > a1) a2 -= pi *2;
-        Polygon arc = BuildArc(m_p[m_i][m_j], a1, a2, m_delta);
+        Polygon arc = BuildArc(m_p[m_i][m_j], a1, a2, m_delta, m_dArc);
         for (Polygon::size_type m = 0; m < arc.size(); m++)
           AddPoint(arc[m]);
       }
