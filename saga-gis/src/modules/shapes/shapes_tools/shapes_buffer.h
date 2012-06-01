@@ -76,50 +76,37 @@ class CShapes_Buffer : public CSG_Module
 {
 public:
 	CShapes_Buffer(void);
-	virtual ~CShapes_Buffer(void);
 
 
 protected:
 
 	virtual bool				On_Execute				(void);
 
-	bool						Initialise				(void);
-	bool						Finalise				(void);
-
-	bool						Get_Buffers				(CSG_Shapes *pBuffers, double dZone);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	int							m_ID, m_Type, m_Field;
+	bool						m_bPolyInner;
 
-	double						m_Distance, m_dArc, m_Scale;
-
-	CSG_Shape					*m_pSegment, *m_pUnion, *m_pBuffer;
-
-	CSG_Shapes					*m_pShapes, m_Tmp;
+	double						m_dArc;
 
 
-	bool						Get_Buffer_Point		(CSG_Shape *pPoint);
-	bool						Get_Buffer_Points		(CSG_Shape *pPoints);
-	bool						Get_Buffer_Line			(CSG_Shape *pLine);
-	bool						Get_Buffer_Polygon		(CSG_Shape *pPolygon);
+	bool						Get_Buffers				(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBuffers, double Scale, bool bDissolve);
+
+	bool						Get_Buffer				(CSG_Shape *pShape  , CSG_Shape *pBuffer, double Distance);
+	bool						Get_Buffer_Point		(CSG_Shape *pPoint  , CSG_Shape *pBuffer, double Distance);
+	bool						Get_Buffer_Points		(CSG_Shape *pPoints , CSG_Shape *pBuffer, double Distance);
+	bool						Get_Buffer_Line			(CSG_Shape *pLine   , CSG_Shape *pBuffer, double Distance);
+	bool						Get_Buffer_Polygon		(CSG_Shape *pPolygon, CSG_Shape *pBuffer, double Distance);
 
 	double						Get_Direction			(const TSG_Point &From, const TSG_Point &To);
+	bool						Get_Parallel			(const TSG_Point &A, const TSG_Point &B, TSG_Point AB[2], double Distance);
 
-	void						Add_Vertex				(const TSG_Point &Center, double theta);
-	void						Add_Arc					(const TSG_Point &Center, double alpha, double beta);
-	void						Add_Arc					(const TSG_Point &Center, const TSG_Point &A, const TSG_Point &B);
-	bool						Get_Parallel			(const TSG_Point &A, const TSG_Point &B, TSG_Point AB[2]);
-	void						Del_Duplicates			(CSG_Shape *pShape);
-
-	void						Add_Line				(CSG_Shape_Line    *pShape, int iPart);
-	void						Add_Polygon				(CSG_Shape_Polygon *pShape, int iPart);
-
-	void						Add_Buffer				(bool bLake = false);
-
-	void						Get_SelfIntersection	(void);
-	void						Get_SelfIntersection	(CSG_Shape_Polygon *pSegment);
+	void						Add_Vertex				(CSG_Shape *pBuffer, const TSG_Point &Center, double Distance, double theta);
+	void						Add_Arc					(CSG_Shape *pBuffer, const TSG_Point &Center, double Distance, double alpha, double beta);
+	void						Add_Arc					(CSG_Shape *pBuffer, const TSG_Point &Center, double Distance, const TSG_Point &A, const TSG_Point &B);
+	void						Add_Line				(CSG_Shape *pBuffer, double Distance, CSG_Shape_Part *pLine);
 
 };
 
