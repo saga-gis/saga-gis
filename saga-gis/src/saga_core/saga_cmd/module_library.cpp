@@ -169,8 +169,8 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 
 	for(int i=1; i<argc; i++)
 	{
-		sCmdLine += argv[i];
-		sCmdLine += SG_T(" ");
+		wxString	sTmp = argv[i];
+		sCmdLine += wxString::Format(SG_T("\"%s\" "), sTmp.c_str());
 	}
 
 	m_CMD.SetCmdLine(sCmdLine);
