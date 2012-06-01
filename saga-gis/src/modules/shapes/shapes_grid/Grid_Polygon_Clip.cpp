@@ -105,7 +105,7 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 
 	Parameters.Add_Grid_List(
 		NULL, "INPUT"		, _TL("Input"),
-		_TL("This must be your input data of type grid."),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -115,6 +115,11 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
+	Parameters.Add_Value(
+		NULL, "NODATA"		, _TL("Exclude No-Data Area"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -135,9 +140,10 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 	CSG_Shapes				*pShapes;
 
 	//-----------------------------------------------------
-	pGrids_in	= Parameters("INPUT")	->asGridList();
-	pGrids_out	= Parameters("OUTPUT")	->asGridList();
+	pGrids_in	= Parameters("INPUT"   )->asGridList();
+	pGrids_out	= Parameters("OUTPUT"  )->asGridList();
 	pShapes		= Parameters("POLYGONS")->asShapes();
+	m_bNoData	= Parameters("NODATA"  )->asBool();
 
 	//-----------------------------------------------------
 	if(	pShapes->Get_Type() == SHAPE_TYPE_Polygon && pShapes->Get_Count() > 0
@@ -256,6 +262,11 @@ bool CGrid_Polygon_Clip::is_InGrid(int x, int y, CSG_Grid *pMask, CSG_Parameter_
 {
 	if( pMask->asInt(x, y) == MASK_ON )
 	{
+		if( !m_bNoData )
+		{
+			return( true );
+		}
+
 		for(int i=0; i<pGrids->Get_Count(); i++)
 		{
 			if( !pGrids->asGrid(i)->is_NoData(x, y) )

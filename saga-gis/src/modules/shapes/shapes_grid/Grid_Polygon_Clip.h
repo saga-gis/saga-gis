@@ -78,11 +78,16 @@ public:
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Spatial Extent") );	}
 
+
 protected:
 	// execute module
 	virtual bool			On_Execute		(void);
 
+
 private:
+
+	bool					m_bNoData;
+
 
 	// estimates the Extent of the new grid
 	bool					Get_Extent		(int &xMin, int &xCount,
