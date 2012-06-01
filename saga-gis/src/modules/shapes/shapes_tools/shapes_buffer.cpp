@@ -385,11 +385,11 @@ bool CShapes_Buffer::Get_Buffer_Line(CSG_Shape *pLine, CSG_Shape *pBuffer, doubl
 	{
 		if( pBuffer->Get_Part_Count() == 0 )
 		{
-			Add_Line(pBuffer, Distance, ((CSG_Shape_Line *)pLine)->Get_Part(iPart));
+			Add_Line(pBuffer, Distance, ((CSG_Shape_Line *)pLine)->Get_Part(iPart), m_dArc);
 		}
 		else
 		{
-			Add_Line(pPart  , Distance, ((CSG_Shape_Line *)pLine)->Get_Part(iPart));
+			Add_Line(pPart  , Distance, ((CSG_Shape_Line *)pLine)->Get_Part(iPart), m_dArc);
 
 			SG_Polygon_Union(pBuffer, pPart);
 
@@ -517,11 +517,11 @@ inline void CShapes_Buffer::Add_Arc(CSG_Shape *pBuffer, const TSG_Point &Center,
 }
 
 //---------------------------------------------------------
-void CShapes_Buffer::Add_Line(CSG_Shape *pBuffer, double Distance, CSG_Shape_Part *pLine)
+void CShapes_Buffer::Add_Line(CSG_Shape *pBuffer, double Distance, CSG_Shape_Part *pLine, double dArc)
 {
 	int		i;
 
-	for(i=0; i<pLine->Get_Count(); i++)
+	for(i=1; i<pLine->Get_Count(); i++)
 	{
 		pBuffer->Add_Point(pLine->Get_Point(i, true));
 	}
@@ -531,7 +531,12 @@ void CShapes_Buffer::Add_Line(CSG_Shape *pBuffer, double Distance, CSG_Shape_Par
 		pBuffer->Add_Point(pLine->Get_Point(i, false));
 	}
 
-	SG_Polygon_Offset(pBuffer, Distance, m_dArc, pBuffer);
+	SG_Polygon_Offset(pBuffer, Distance, dArc, pBuffer);
+
+	if( !pBuffer->is_Valid() && dArc >= 0.1 * M_DEG_TO_RAD )
+	{
+		Add_Line(pBuffer, Distance, pLine, 0.5 * dArc);
+	}
 }
 
 
