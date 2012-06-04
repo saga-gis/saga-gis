@@ -383,7 +383,7 @@ bool CSG_GDAL_DataSet::Close(void)
 	
 	if (strlen(CPLGetLastErrorMsg()) > 3)
 	{
-	      SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"),_TL("Dataset creation failed") , CPLGetLastErrorMsg()));
+	      SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"),_TL("Dataset creation failed") , SG_STR_MBTOSG(CPLGetLastErrorMsg())));
 	      CPLErrorReset();
 	      
 	      return false;
