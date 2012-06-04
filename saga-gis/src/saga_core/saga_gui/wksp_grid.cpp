@@ -1250,45 +1250,61 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
 	nyDC	= abs(ayDC - byDC);
 
-	#pragma omp parallel for
-	for(int iyDC=0; iyDC<=nyDC; iyDC++)
+	if( m_pGrid->is_Cached() || m_pGrid->is_Compressed() )
 	{
-		int		xDC , yDC	= ayDC - iyDC;
-		double	xMap, yMap	= dc_Map.yDC2World(yDC);
-
-		for(xMap=dc_Map.xDC2World(axDC), xDC=axDC; xDC<=bxDC; xMap+=dc_Map.m_DC2World, xDC++)
+		for(int iyDC=0; iyDC<=nyDC; iyDC++)
 		{
-			double	Value;
+			_Draw_Grid_Line(dc_Map, Interpolation, bByteWise, ayDC - iyDC, axDC, bxDC, r, g, b);
+		}
+	}
+	else
+	{
+		#pragma omp parallel for
+		for(int iyDC=0; iyDC<=nyDC; iyDC++)
+		{
+			_Draw_Grid_Line(dc_Map, Interpolation, bByteWise, ayDC - iyDC, axDC, bxDC, r, g, b);
+		}
+	}
+}
 
-			if( m_pGrid->Get_Value(xMap, yMap, Value, Interpolation, false, bByteWise, true) )
+//---------------------------------------------------------
+void CWKSP_Grid::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, int Interpolation, bool bByteWise, int yDC, int axDC, int bxDC, int r, int g, int b)
+{
+	int		xDC;
+	double	xMap, yMap	= dc_Map.yDC2World(yDC);
+
+	for(xMap=dc_Map.xDC2World(axDC), xDC=axDC; xDC<=bxDC; xMap+=dc_Map.m_DC2World, xDC++)
+	{
+		double	Value;
+
+		if( m_pGrid->Get_Value(xMap, yMap, Value, Interpolation, false, bByteWise, true) )
+		{
+			if( m_bOverlay == false )
 			{
-				if( m_bOverlay == false )
+				int		c;
+
+				if( m_pClassify->Get_Class_Color_byValue(Value, c) )
 				{
-					int		c;
-
-					if( m_pClassify->Get_Class_Color_byValue(Value, c) )
-					{
-						dc_Map.IMG_Set_Pixel(xDC, yDC, c);
-					}
+					dc_Map.IMG_Set_Pixel(xDC, yDC, c);
 				}
-				else
-				{
-					int		c[3];
+			}
+			else
+			{
+				int		c[3];
 
-					c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(Value));
+				c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(Value));
 
-					c[1]	= m_pOverlay[0] && m_pOverlay[0]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
-							? (int)(255.0 * m_pOverlay[0]->m_pClassify->Get_MetricToRelative(Value)) : 255;
+				c[1]	= m_pOverlay[0] && m_pOverlay[0]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
+						? (int)(255.0 * m_pOverlay[0]->m_pClassify->Get_MetricToRelative(Value)) : 255;
 
-					c[2]	= m_pOverlay[1] && m_pOverlay[1]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
-							? (int)(255.0 * m_pOverlay[1]->m_pClassify->Get_MetricToRelative(Value)) : 255;
+				c[2]	= m_pOverlay[1] && m_pOverlay[1]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
+						? (int)(255.0 * m_pOverlay[1]->m_pClassify->Get_MetricToRelative(Value)) : 255;
 
-					dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(
-						c[r] < 0 ? 0 : c[r] > 255 ? 255 : c[r],
-						c[g] < 0 ? 0 : c[g] > 255 ? 255 : c[g],
-						c[b] < 0 ? 0 : c[b] > 255 ? 255 : c[b]
-					));
-				}
+				dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(
+					c[r] < 0 ? 0 : c[r] > 255 ? 255 : c[r],
+					c[g] < 0 ? 0 : c[g] > 255 ? 255 : c[g],
+					c[b] < 0 ? 0 : c[b] > 255 ? 255 : c[b]
+				));
 			}
 		}
 	}

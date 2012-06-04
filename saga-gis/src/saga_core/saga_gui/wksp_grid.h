@@ -148,6 +148,7 @@ private:
 	void						_Save_Image				(void);
 
 	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, int Interpolation);
+	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, int Interpolation, bool bByteWise, int yDC, int axDC, int bxDC, int r, int g, int b);
 	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map);
 
 	void						_Draw_Values			(CWKSP_Map_DC &dc_Map);
