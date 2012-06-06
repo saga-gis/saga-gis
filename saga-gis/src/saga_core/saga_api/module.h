@@ -143,6 +143,7 @@ public:
 	const CSG_String &			Get_Description				(void);
 	const CSG_String &			Get_Author					(void);
 	const SG_Char *				Get_Icon					(void)	{	return( NULL );	}
+	CSG_String					Get_Summary					(bool bParameters = true, const CSG_String &Menu = "", const CSG_String &Description = "");
 
 	virtual CSG_String			Get_MenuPath				(void)	{	return( SG_T("") );	}
 

@@ -242,58 +242,62 @@ const SG_Char * CSG_Module_Library::Get_Info(int Type) const
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Summary(bool bHTML) const
+CSG_String CSG_Module_Library::Get_Summary(void) const
 {
 	CSG_String	s;
 
-	if( bHTML )
+	s.Printf(
+		SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
+		_TL("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
+		_TL("[CAP] Author")			, Get_Info(MLB_INFO_Author),
+		_TL("[CAP] Version")		, Get_Info(MLB_INFO_Version),
+		_TL("[CAP] File")			, Get_File_Name().c_str(),
+		Get_Info(MLB_INFO_Description)
+	);
+
+	s.Append(CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("[CAP] Modules")));
+
+	for(int i=0; i<Get_Count(); i++)
 	{
-		s.Printf(
-			SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
-			_TL("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
-			_TL("[CAP] Author")			, Get_Info(MLB_INFO_Author),
-			_TL("[CAP] Version")		, Get_Info(MLB_INFO_Version),
-			_TL("[CAP] File")			, Get_File_Name().c_str(),
-			Get_Info(MLB_INFO_Description)
-		);
-
-		s.Append(CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("[CAP] Modules")));
-
-		for(int i=0; i<Get_Count(); i++)
+		if( Get_Module(i) )
 		{
-			if( Get_Module(i) )
-			{
-				s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name().c_str()));
-			}
-		}
-
-		s.Append(SG_T("</ul>"));
-
-		s.Replace(SG_T("\n"), SG_T("<br>"));
-	}
-	else
-	{
-		s.Printf(
-			SG_T("%s: %s\n%s: %s\n%s: %s\n%s: %s\n\n%s"),
-			_TL("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
-			_TL("[CAP] Author")			, Get_Info(MLB_INFO_Author),
-			_TL("[CAP] Version")		, Get_Info(MLB_INFO_Version),
-			_TL("[CAP] File")			, Get_File_Name().c_str(),
-			Get_Info(MLB_INFO_Description)
-		);
-
-		s.Append(CSG_String::Format(SG_T("\n\n%s:\n"), _TL("[CAP] Modules")));
-
-		for(int i=0; i<Get_Count(); i++)
-		{
-			if( Get_Module(i) )
-			{
-				s.Append(CSG_String::Format(SG_T("- %s\n"), Get_Module(i)->Get_Name().c_str()));
-			}
+			s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name().c_str()));
 		}
 	}
+
+	s.Append(SG_T("</ul>"));
+
+	s.Replace(SG_T("\n"), SG_T("<br>"));
 
 	return( s );
+}
+
+//---------------------------------------------------------
+bool CSG_Module_Library::Get_Summary(const CSG_String &Path)	const
+{
+	CSG_File	f;
+
+	if( f.Open(SG_File_Make_Path(Path, Get_Library_Name(), SG_T("html")), SG_FILE_W) )
+	{
+		f.Write(Get_Summary());
+	}
+
+	for(int j=0; j<Get_Count(); j++)
+	{
+		CSG_Module	*pModule	= Get_Module(j);
+
+		if( pModule )
+		{
+			CSG_String	fName	= CSG_String::Format(SG_T("%s_%02d"), Get_Library_Name().c_str(), pModule->Get_ID());
+
+			if( f.Open(SG_File_Make_Path(Path, fName, SG_T("html")), SG_FILE_W) )
+			{
+				f.Write(Get_Module(j)->Get_Summary());
+			}
+		}
+	}
+
+	return( true );
 }
 
 
@@ -660,6 +664,81 @@ CSG_Module * CSG_Module_Library_Manager::Get_Module(const SG_Char *Library, cons
 	CSG_Module_Library	*pLibrary	= Get_Library(Library, true);
 
 	return( pLibrary ? pLibrary->Get_Module(Module) : NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define SUMMARY_ADD_INT(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value)
+
+//---------------------------------------------------------
+CSG_String CSG_Module_Library_Manager::Get_Summary(void)	const
+{
+	//-----------------------------------------------------
+	int			i, nModules;
+
+	for(i=0, nModules=0; i<Get_Count(); i++)
+	{
+		nModules	+= Get_Library(i)->Get_Count();
+	}
+
+	//-----------------------------------------------------
+	CSG_String	s;
+
+	s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Module Libraries"));
+
+	s	+= SG_T("<table border=\"0\">");
+
+	SUMMARY_ADD_INT(_TL("Available Libraries"), Get_Count());
+	SUMMARY_ADD_INT(_TL("Available Modules"  ), nModules);
+
+	s	+= SG_T("</table>");
+
+	//-----------------------------------------------------
+	s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Module Libraries"));
+
+	s	+= CSG_String::Format(SG_T("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
+			_TL("Library"),
+			_TL("Modules"),
+			_TL("Name"),
+			_TL("Location")
+		);
+
+	for(i=0; i<Get_Count(); i++)
+	{
+		s	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>"),
+				SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str(),
+				Get_Library(i)->Get_Count(),
+				Get_Library(i)->Get_Name().c_str(),
+				SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str()
+			);
+	}
+
+	s	+= SG_T("</table>");
+
+	//-----------------------------------------------------
+	return( s );
+}
+
+//---------------------------------------------------------
+bool CSG_Module_Library_Manager::Get_Summary(const CSG_String &Path)	const
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		CSG_Module_Library	*pLibrary	= Get_Library(i);
+
+		CSG_String	Directory	= SG_File_Make_Path(Path, pLibrary->Get_Library_Name());
+
+		if( SG_Dir_Create(Directory) )
+		{
+			pLibrary->Get_Summary(Directory);
+		}
+	}
+
+	return( true );
 }
 
 

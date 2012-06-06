@@ -100,13 +100,14 @@ public:
 	const CSG_String &				Get_File_Name		(void)	const	{	return( m_File_Name );		}
 	const CSG_String &				Get_Library_Name	(void)	const	{	return( m_Library_Name );	}
 
-	const SG_Char *					Get_Info			(int Type)				const;
-	CSG_String						Get_Summary			(bool bHTML = false)	const;
+	const SG_Char *					Get_Info			(int Type)	const;
 	CSG_String						Get_Name			(void)	const	{	return( Get_Info(MLB_INFO_Name       ) );	}
 	CSG_String						Get_Description		(void)	const	{	return( Get_Info(MLB_INFO_Description) );	}
 	CSG_String						Get_Author			(void)	const	{	return( Get_Info(MLB_INFO_Author     ) );	}
 	CSG_String						Get_Version			(void)	const	{	return( Get_Info(MLB_INFO_Version    ) );	}
 	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(MLB_INFO_Menu_Path  ) );	}
+	CSG_String						Get_Summary			(void)	const;
+	bool							Get_Summary			(const CSG_String &Path)	const;
 
 	int								Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
@@ -165,6 +166,9 @@ public:
 
 	CSG_Module *					Get_Module			(const SG_Char *Library, int            Module)	const;
 	CSG_Module *					Get_Module			(const SG_Char *Library, const SG_Char *Module)	const;
+
+	CSG_String						Get_Summary			(void)	const;
+	bool							Get_Summary			(const CSG_String &Path)	const;
 
 
 private:

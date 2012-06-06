@@ -177,130 +177,14 @@ void CWKSP_Module::Set_File_Name(const wxString &File_Name)
 //---------------------------------------------------------
 wxString CWKSP_Module::Get_Description(void)
 {
-	wxString	s;
-
-	//-----------------------------------------------------
-	wxString	sMenu(m_Menu_Path);	sMenu.Replace(wxT("|"), wxT(" <b>></b> "));
-
-	wxString	sType(m_pModule->is_Grid() ? _TL("Grid") : _TL("Base"));	if( m_pModule->is_Interactive() )	sType	+= _TL("Interactive");
-
-	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Module"));
-
-	s	+= wxT("<table border=\"0\">");
-
-	DESC_ADD_STR(_TL("Name")		, m_pModule->Get_Name  ().c_str());
-	DESC_ADD_INT(_TL("ID")			, m_pModule->Get_ID    ());
-	DESC_ADD_STR(_TL("Author")		, m_pModule->Get_Author().c_str());
-	DESC_ADD_STR(_TL("Menu")		, sMenu.c_str());
-	DESC_ADD_STR(_TL("Type")		, sType.c_str());
-
-	s	+= wxT("</table><hr>");
-
-	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b><br>"), _TL("Description"));
-
-	wxString	sDesc;
+	wxString	Description;
 
 	if( g_pModules->Get_Parameters()->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
-		sDesc	= Get_Online_Module_Description(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), Get_Module()->Get_ID());
+		Description	= Get_Online_Module_Description(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), Get_Module()->Get_ID());
 	}
 
-	s	+= sDesc.Length() > 0 ? sDesc.c_str() : m_pModule->Get_Description().c_str();
-
-	//-----------------------------------------------------
-	if( 1 )
-	{
-		bool	bFirst, bOptionals	= false;
-		int		i;
-
-		s	+= wxString::Format(wxT("<hr><b>%s</b><br>"), _TL("Parameters"));
-		s	+= wxString::Format(wxT("<table border=\"1\" width=\"100%%\" valign=\"top\" cellpadding=\"5\" rules=\"all\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n"),
-				_TL("Name"), _TL("Type"), _TL("Identifier"), _TL("Description"), _TL("Constraints")
-			);
-
-		for(i=0, bFirst=true; i<m_pModule->Get_Parameters()->Get_Count(); i++)
-		{
-			CSG_Parameter	*pParameter	= m_pModule->Get_Parameters()->Get_Parameter(i);
-
-			if( pParameter->is_Input() )
-			{
-				if( bFirst )
-				{
-					bFirst	= false;
-					s	+= wxString::Format(wxT("<tr><th colspan=\"5\">%s</th></tr>"), _TL("Input"));
-				}
-
-				s	+= wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"),
-					pParameter->Get_Name(),
-					pParameter->is_Optional() ? wxT(" (*)") : wxT(" "),
-					pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(),
-					pParameter->Get_Identifier(),
-					pParameter->Get_Description(),
-					pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
-				);
-			}
-		}
-
-		for(i=0, bFirst=true; i<m_pModule->Get_Parameters()->Get_Count(); i++)
-		{
-			CSG_Parameter	*pParameter	= m_pModule->Get_Parameters()->Get_Parameter(i);
-
-			if( pParameter->is_Output() )
-			{
-				if( bFirst )
-				{
-					bFirst	= false;
-					s	+= wxString::Format(wxT("<tr><th colspan=\"5\">%s</th></tr>"), _TL("Output"));
-				}
-
-				s	+= wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"),
-					pParameter->Get_Name(),
-					pParameter->is_Optional() ? wxT(" (*)") : wxT(""),
-					pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(),
-					pParameter->Get_Identifier(),
-					pParameter->Get_Description(),
-					pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
-				);
-			}
-		}
-
-		for(i=0, bFirst=true; i<m_pModule->Get_Parameters()->Get_Count(); i++)
-		{
-			CSG_Parameter	*pParameter	= m_pModule->Get_Parameters()->Get_Parameter(i);
-
-			if( pParameter->is_Option() && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
-			{
-				if( bFirst )
-				{
-					bFirst	= false;
-					s	+= wxString::Format(wxT("<tr><th colspan=\"5\">%s</th></tr>"), _TL("Options"));
-				}
-
-				s	+= wxString::Format(wxT("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"),
-					pParameter->Get_Name(),
-					pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(),
-					pParameter->Get_Identifier(),
-					pParameter->Get_Description(),
-					pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
-				);
-			}
-			else if( pParameter->is_Optional() )
-			{
-				bOptionals	= true;
-			}
-		}
-
-		s	+= wxT("</table>");
-
-		if( bOptionals )
-		{
-			s	+= wxString::Format(wxT("(*) <i>%s</i>"), _TL("optional"));
-		}
-	}
-
-	return( s );
+	return( m_pModule->Get_Summary(true, &m_Menu_Path, &Description).c_str() );
 }
 
 //---------------------------------------------------------

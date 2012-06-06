@@ -122,6 +122,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_MODULES_OPEN:			return( _TL("[CMD] Load Module Library") );
 	case ID_CMD_MODULES_SAVE_SCRIPT:	return( _TL("[CMD] Create Script Command File") );
+	case ID_CMD_MODULES_SAVE_DOCS:		return( _TL("[CMD] Create Module Description Files") );
 
 	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("[CMD] New Project") );
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("[CMD] Load Project") );

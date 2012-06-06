@@ -108,6 +108,7 @@ void		Print_Help		(void);
 void		Print_Version	(void);
 
 void		Create_Example	(void);
+void		Create_Docs		(const CSG_String &MLB_Path);
 
 
 ///////////////////////////////////////////////////////////
@@ -141,6 +142,29 @@ _try
 	setlocale(LC_NUMERIC, "C");
 	
 	//-----------------------------------------------------
+	wxString	CMD_Path, MLB_Path, ENV_Path;
+
+	CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
+
+	if( !wxGetEnv(SG_T("SAGA_MLB"), &MLB_Path) || MLB_Path.Length() == 0 )
+	{
+    #if defined(_SAGA_LINUX)
+		MLB_Path	= wxT(MODULE_LIBRARY_PATH);
+	#else
+		MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules")).c_str();
+    #endif
+	}
+
+	if( wxGetEnv(SYS_ENV_PATH, &ENV_Path) && ENV_Path.Length() > 0 )
+	{
+		wxSetEnv(SYS_ENV_PATH, wxString::Format(wxT(";%s;%s"), MLB_Path.c_str(), SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str()));
+	}
+	else
+	{
+		wxSetEnv(SYS_ENV_PATH, wxString::Format(wxT( "%s;%s"), MLB_Path.c_str(), SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str()));
+	}
+
+	//-----------------------------------------------------
 	if( argc > 1 )
 	{
 		CSG_String	s(argv[1]);
@@ -165,29 +189,13 @@ _try
 
 			return( 0 );
 		}
-	}
 
-	//-----------------------------------------------------
-	wxString	CMD_Path, MLB_Path, ENV_Path;
+		if( !s.CmpNoCase(SG_T("-d")) || !s.CmpNoCase(SG_T("--docs")) )
+		{
+			Create_Docs(&MLB_Path);
 
-	CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
-
-	if( !wxGetEnv(SG_T("SAGA_MLB"), &MLB_Path) || MLB_Path.Length() == 0 )
-	{
-    #if defined(_SAGA_LINUX)
-		MLB_Path	= wxT(MODULE_LIBRARY_PATH);
-	#else
-		MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules")).c_str();
-    #endif
-	}
-
-	if( wxGetEnv(SYS_ENV_PATH, &ENV_Path) && ENV_Path.Length() > 0 )
-	{
-		wxSetEnv(SYS_ENV_PATH, wxString::Format(wxT(";%s;%s"), MLB_Path.c_str(), SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str()));
-	}
-	else
-	{
-		wxSetEnv(SYS_ENV_PATH, wxString::Format(wxT( "%s;%s"), MLB_Path.c_str(), SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str()));
+			return( 0 );
+		}
 	}
 
 	//-------------------------------------------------
@@ -462,6 +470,7 @@ void		Print_Help		(void)
 		SG_T("saga_cmd [-h, --help]\n")
 		SG_T("saga_cmd [-v, --version]\n")
 		SG_T("saga_cmd [-b, --batch]\n")
+		SG_T("saga_cmd [-d, --docs]\n")
 #ifdef _OPENMP
 		SG_T("saga_cmd [-c, --cores][= # of CPU cores] <LIBRARY> <MODULE> <module specific options...>\n")
 #endif
@@ -470,6 +479,7 @@ void		Print_Help		(void)
 		SG_T("[-h], [--help]: help on usage\n")
 		SG_T("[-v], [--version]: print version information\n")
 		SG_T("[-b], [--batch]: create a batch file example\n")
+		SG_T("[-d], [--docs]: create module documentation files in current working directory\n")
 #ifdef _OPENMP
 		SG_T("[-c], [--cores]: number of physical processors to use for computation\n")
 #endif
@@ -583,6 +593,23 @@ void		Create_Example	(void)
 		SG_T("\n")
 		SG_T("pause\n")
 	);
+
+	SG_PRINTF(SG_T("%s\n"), _TL("okay"));
+}
+
+//---------------------------------------------------------
+void		Create_Docs		(const CSG_String &MLB_Path)
+{
+	SG_Set_UI_Callback(CMD_Get_Callback());
+
+	Print_Logo();
+
+	SG_PRINTF(SG_T("\n%s...\n"), _TL("creating module documentation files"));
+
+	CMD_Set_Silent(true);
+
+	SG_Get_Module_Library_Manager().Add_Directory(MLB_Path, false);
+	SG_Get_Module_Library_Manager().Get_Summary(&wxGetCwd());
 
 	SG_PRINTF(SG_T("%s\n"), _TL("okay"));
 }

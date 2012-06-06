@@ -233,37 +233,7 @@ wxString CWKSP_Module_Manager::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Module_Manager::Get_Description(void)
 {
-	wxString	s;
-
-	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Module Library"));
-
-	s	+= wxT("<table border=\"0\">");
-
-	DESC_ADD_INT(_TL("Loaded Libraries")	, Get_Count());
-	DESC_ADD_INT(_TL("Available Modules")	, Get_Items_Count());
-
-	s	+= wxT("</table>");
-
-	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<hr><b>%s:</b><table border=\"1\">"), _TL("Module Libraries"));
-
-	s	+= wxString::Format(wxT("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"), _TL("Library"), _TL("Modules"), _TL("Name"), _TL("Location"));
-
-	for(int i=0; i<Get_Count(); i++)
-	{
-		s	+= wxString::Format(wxT("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>"),
-				SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).w_str(),
-				Get_Library(i)->Get_Count(),
-				Get_Library(i)->Get_Name(),
-				SG_File_Get_Path(Get_Library(i)->Get_File_Name()).w_str()
-			);
-	}
-
-	s	+= wxT("</table>");
-
-	//-----------------------------------------------------
-	return( s );
+	return( SG_Get_Module_Library_Manager().Get_Summary().c_str() );
 }
 
 //---------------------------------------------------------
@@ -280,6 +250,8 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_DOCS);
 	}
 
 	return( pMenu );
@@ -302,6 +274,21 @@ bool CWKSP_Module_Manager::On_Command(int Cmd_ID)
 
 	case ID_CMD_MODULES_OPEN:
 		Open();
+		break;
+
+	case ID_CMD_MODULES_SAVE_DOCS:
+		{
+			wxString	Path;
+
+			if( DLG_Directory(Path, _TL("Create Module Description Files")) )
+			{
+				MSG_General_Add(wxString::Format(SG_T("%s..."), _TL("Create Module Description Files")), true, true);
+
+				SG_Get_Module_Library_Manager().Get_Summary(&Path);
+
+				MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+			}
+		}
 		break;
 	}
 
