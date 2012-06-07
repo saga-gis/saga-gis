@@ -106,26 +106,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DATA_ENTRIES_BEGIN	wxT("[DATA_ENTRIES_BEGIN]")
-#define DATA_ENTRIES_END	wxT("[DATA_ENTRIES_END]")
-#define DATA_ENTRY_BEGIN	wxT("[DATA_ENTRY_BEGIN]")
-#define DATA_ENTRY_END		wxT("[DATA_ENTRY_END]")
-
-//---------------------------------------------------------
-#define MAP_ENTRIES_BEGIN	wxT("[MAP_ENTRIES_BEGIN]")
-#define MAP_ENTRIES_END		wxT("[MAP_ENTRIES_END]")
-#define MAP_ENTRY_BEGIN		wxT("[MAP_ENTRY_BEGIN]")
-#define MAP_ENTRY_END		wxT("[MAP_ENTRY_END]")
-#define MAP_ENTRY_NAME		wxT("[MAP_ENTRY_NAME]")
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CWKSP_Project::CWKSP_Project(void)
 {
 }
@@ -279,21 +259,23 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	}
 	else
 	{
+		int			i;
+
+		CSG_String	Version(Project.Get_Property("VERSION"));
+
 		bSuccess	= true;
 
 		//-------------------------------------------------
-		int		i;
-
 		g_pData->Get_FileMenus()->Set_Update(false);
 
 		for(i=0; i<pNode->Get_Children_Count(); i++)
 		{
-			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName).w_str(), true);
+			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName).w_str(), true , Version);
 		}
 
 		for(i=0; i<pNode->Get_Children_Count(); i++)
 		{
-			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName).w_str(), false);
+			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName).w_str(), false, Version);
 		}
 
 		g_pData->Get_FileMenus()->Set_Update(true);
@@ -360,7 +342,8 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	//-----------------------------------------------------
 	ProjectDir	= SG_File_Get_Path(FileName).w_str();
 
-	Project.Set_Name(SG_T("SAGA_PROJECT"));
+	Project.Set_Name    (SG_T("SAGA_PROJECT"));
+	Project.Add_Property(SG_T("VERSION"), SAGA_VERSION);
 
 	//-----------------------------------------------------
 	pNode		= Project.Add_Child(SG_T("DATA"));
@@ -474,11 +457,11 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad)
+bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version)
 {
-	int				Type;
-	wxString		File;
-	CWKSP_Base_Item	*pItem;
+	TSG_Data_Object_Type	Type;
+	wxString				File;
+	CWKSP_Base_Item			*pItem;
 
 	if( Entry.Get_Name().Cmp(SG_T("DATASET")) )
 	{
@@ -519,6 +502,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	if( pItem->Get_Parameters() && Entry.Get_Child(SG_T("PARAMETERS")) )
 	{
 		pItem->Get_Parameters()->Serialize(*Entry.Get_Child(SG_T("PARAMETERS")), false);
+		_Compatibility_Data((TSG_Data_Type)Type, pItem->Get_Parameters(), Version);
 		pItem->Parameters_Changed();
 	}
 
@@ -954,9 +938,62 @@ bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//					v2.1 Compatibility					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Project::_Compatibility_Data(TSG_Data_Type Type, CSG_Parameters *pParameters, const CSG_String &Version)
+{
+	if( !pParameters )
+	{
+		return( false );
+	}
+
+	if( !Version.Cmp(SAGA_VERSION) )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	if( Version.is_Empty() )
+	{
+		CSG_Parameter	*pParameter;
+
+		if( Type == DATAOBJECT_TYPE_Grid )
+		{
+			if( (pParameter = pParameters->Get_Parameter("COLORS_TYPE")) != NULL )
+			{
+				if( pParameter->asInt() == 3 )
+				{	// 0:Single >> 1:LUT >> 2:Discrete >> 3:Graduated >> 4:Shade >> 5:Overlay >> 6:RGB
+					pParameter->Set_Value(6);	// RGB moved to position 6
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //					v2.0 Compatibility					 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define DATA_ENTRIES_BEGIN	wxT("[DATA_ENTRIES_BEGIN]")
+#define DATA_ENTRIES_END	wxT("[DATA_ENTRIES_END]")
+#define DATA_ENTRY_BEGIN	wxT("[DATA_ENTRY_BEGIN]")
+#define DATA_ENTRY_END		wxT("[DATA_ENTRY_END]")
+
+//---------------------------------------------------------
+#define MAP_ENTRIES_BEGIN	wxT("[MAP_ENTRIES_BEGIN]")
+#define MAP_ENTRIES_END		wxT("[MAP_ENTRIES_END]")
+#define MAP_ENTRY_BEGIN		wxT("[MAP_ENTRY_BEGIN]")
+#define MAP_ENTRY_END		wxT("[MAP_ENTRY_END]")
+#define MAP_ENTRY_NAME		wxT("[MAP_ENTRY_NAME]")
 
 //---------------------------------------------------------
 bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
@@ -1012,6 +1049,7 @@ bool CWKSP_Project::_Compatibility_Load_Data(CSG_File &Stream, const wxString &P
 					if( pItem->Get_Parameters() )
 					{
 						pItem->Get_Parameters()->Serialize_Compatibility(Stream);
+						_Compatibility_Data((TSG_Data_Type)Type, pItem->Get_Parameters(), "");
 						pItem->Parameters_Changed();
 					}
 				}

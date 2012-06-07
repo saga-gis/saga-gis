@@ -101,7 +101,7 @@ private:
 	bool					_Load				(const wxString &FileName, bool bAdd, bool bUpdateMenu);
 	bool					_Save				(const wxString &FileName, bool bSaveModified, bool bUpdateMenu);
 
-	bool					_Load_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad);
+	bool					_Load_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version);
 	bool					_Save_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 
 	bool					_Load_Map			(CSG_MetaData &Entry, const wxString &ProjectDir);
@@ -114,6 +114,9 @@ private:
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, class CSG_Data_Object *pObject);
 	bool					_Modified_Save		(class CSG_Parameters *pParameters);
 
+
+	//-----------------------------------------------------
+	bool					_Compatibility_Data	(TSG_Data_Type Type, class CSG_Parameters *pParameters, const CSG_String &Version);
 
 	//-----------------------------------------------------
 	bool	_Compatibility_Load_Data	(const wxString &FileName);
