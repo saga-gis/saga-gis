@@ -1149,6 +1149,7 @@ public:
 	bool						On_User_Changed			(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	bool						Init_User				(const TSG_Rect &Extent, int Rows = 100);
+	bool						Init_User				(double xMin, double yMin, double Size, int nx, int ny);
 
 	CSG_Grid *					Get_User				(                              TSG_Data_Type Type = SG_DATATYPE_Float);
 	CSG_Grid *					Get_User				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);

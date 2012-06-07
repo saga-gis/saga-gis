@@ -776,6 +776,24 @@ bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows)
 	return( true );
 }
 
+bool CSG_Parameters_Grid_Target::Init_User(double xMin, double yMin, double Size, int nx, int ny)
+{
+	if( !m_pUser || Size <= 0.0 || nx <= 1 || ny <= 1 )
+	{
+		return( false );
+	}
+
+	m_pUser->Get_Parameter("XMIN")->Set_Value(xMin);
+	m_pUser->Get_Parameter("XMAX")->Set_Value(xMin + Size * nx);
+	m_pUser->Get_Parameter("YMIN")->Set_Value(yMin);
+	m_pUser->Get_Parameter("YMAX")->Set_Value(yMin + Size * ny);
+	m_pUser->Get_Parameter("SIZE")->Set_Value(Size);
+	m_pUser->Get_Parameter("COLS")->Set_Value(nx);
+	m_pUser->Get_Parameter("ROWS")->Set_Value(ny);
+
+	return( true );
+}
+
 //---------------------------------------------------------
 CSG_Grid * CSG_Parameters_Grid_Target::Get_User(TSG_Data_Type Type)
 {
