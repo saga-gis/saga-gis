@@ -79,17 +79,37 @@ class CGrid_Merge : public CSG_Module
 {
 public:
 	CGrid_Merge(void);
-	virtual ~CGrid_Merge(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
+
+	int							m_Overlap, m_Interpolation;
+
+	CSG_Grid					*m_pMosaic, m_Weights, m_Weight;
+
+	CSG_Parameter_Grid_List		*m_pGrids;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	bool						Initialize				(void);
+
+	bool						is_Aligned				(CSG_Grid *pGrid);
+
+	void						Set_Value				(int x, int y, double Value, double Weight);
+	void						Set_Value				(int x, int y, CSG_Grid *pGrid, double px, double py);
+
+	bool						Set_Weight				(CSG_Grid *pGrid);
+	double						Get_Weight				(int x, int y);
 
 };
 

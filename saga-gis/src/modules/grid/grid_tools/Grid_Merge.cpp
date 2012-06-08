@@ -74,35 +74,19 @@
 CGrid_Merge::CGrid_Merge(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Mosaicking"));
 
-	Set_Name		(_TL("Merging"));
-
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003-12"));
 
 	Set_Description	(_TW(
-		"Merge Grids."
+		"Mosaicking several grids to a single new one. Formerly known as 'Merge Grids'."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Standard in- and output...
-
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids to Merge"),
+		NULL	, "GRIDS"		, _TL("Input Grids"),
 		_TL(""),
 		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "GRID_TARGET"	, _TL("Target Grid"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "MERGED"		, _TL("Merged Grid"),
-		_TL("")
 	);
 
 	Parameters.Add_Choice(
@@ -121,24 +105,6 @@ CGrid_Merge::CGrid_Merge(void)
 		), 7
 	);
 
-
-	//-----------------------------------------------------
-	CSG_Parameters	*pParameters;
-
-	pParameters	= Add_Parameters(
-		"MERGE_INFO"	, _TL("Cell Size Specification"),
-		_TW(	"Your grid selection contains grids with different cell sizes. "
-				"Please specify the cell size that you desire for the merged "
-				"grid. All grids with other cell sizes will then be resampled "
-				"according to your specification.")
-	);
-
-	pParameters->Add_Value(
-		NULL	, "MESH_SIZE"	, _TL("Cell Size"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
 	Parameters.Add_Choice(
 		NULL	, "INTERPOL"	, _TL("Interpolation"),
 		_TL(""),
@@ -148,22 +114,60 @@ CGrid_Merge::CGrid_Merge(void)
 			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "OVERLAP"		, _TL("Overlapping Cells"),
+		NULL	, "OVERLAP"		, _TL("Overlapping Areas"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("first"),
+			_TL("last"),
+			_TL("minimum"),
+			_TL("maximum"),
+			_TL("mean"),
+			_TL("feathering"),
+			_TL("blend boundary")
+		), 1
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BLEND_DIST"	, _TL("Blending Distance"),
+		_TL("blending distance given as number of cells"),
+		PARAMETER_TYPE_Int, 10, 1, true
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Target Grid"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("mean value"),
-			_TL("first value in order of grid list")
+			_TL("user defined"),
+			_TL("existing grid or grid system")
 		), 0
 	);
+
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CGrid_Merge::~CGrid_Merge(void)
-{}
+int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OVERLAP")) )
+	{
+		pParameters->Get_Parameter("BLEND_DIST")->Set_Enabled(pParameter->asInt() == 6);
+	}
+
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -175,226 +179,429 @@ CGrid_Merge::~CGrid_Merge(void)
 //---------------------------------------------------------
 bool CGrid_Merge::On_Execute(void)
 {
-	bool					bMean;
-	int						x, y, i, ix, iy, ax, ay, Interpolation;
-	double					z, Cellsize;
-	TSG_Point				p;
-    CSG_Rect		        Extent;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Grid				*pMerged, *pGrid;
-    CSG_Grid                *pCount = NULL;
-
 	//-----------------------------------------------------
-	pGrids			= Parameters("GRIDS")		->asGridList();
-	pMerged			= Parameters("GRID_TARGET")	->asGrid();
-	Interpolation	= Parameters("INTERPOL")	->asInt();
-	bMean			= Parameters("OVERLAP")		->asInt() == 0;
-
-	//-----------------------------------------------------
-	if( pGrids->Get_Count() < 2 )
+	if( !Initialize() )
 	{
-		Message_Dlg(_TL("There is nothing to merge, because less than 2 grids have been selected."), Get_Name());
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	else
+	for(int i=0; i<m_pGrids->Get_Count(); i++)
 	{
-		if( pMerged == NULL )
-		{
-			bool			bResampling;
-			TSG_Data_Type	Type;
+		CSG_Grid	*pGrid	= m_pGrids->asGrid(i);
 
-			//---------------------------------------------
-			// Type...
+		Set_Weight(pGrid);
 
-			switch( Parameters("TYPE")->asInt() )
-			{
-			case 0:				Type	= SG_DATATYPE_Bit;		break;
-			case 1:				Type	= SG_DATATYPE_Byte;		break;
-			case 2:				Type	= SG_DATATYPE_Char;		break;
-			case 3:				Type	= SG_DATATYPE_Word;		break;
-			case 4:				Type	= SG_DATATYPE_Short;	break;
-			case 5:				Type	= SG_DATATYPE_DWord;	break;
-			case 6:				Type	= SG_DATATYPE_Int;		break;
-			case 7: default:	Type	= SG_DATATYPE_Float;	break;
-			case 8:				Type	= SG_DATATYPE_Double;	break;
-			}
-
-			//---------------------------------------------
-			// Cell Size...
-
-			for(i=1, Cellsize=pGrids->asGrid(0)->Get_Cellsize(), bResampling=false; i<pGrids->Get_Count(); i++)
-			{
-				if( Cellsize != pGrids->asGrid(i)->Get_Cellsize() )
-				{
-					bResampling	= true;
-
-					if( Cellsize > pGrids->asGrid(i)->Get_Cellsize() )
-					{
-						Cellsize	= pGrids->asGrid(i)->Get_Cellsize();
-					}
-				}
-			}
-
-			if( bResampling )
-			{
-				Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE")->Set_Value(Cellsize);
-
-				if( !Dlg_Parameters("MERGE_INFO") )
-				{
-					return( false );
-				}
-
-				Cellsize	= Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE")->asDouble();
-			}
-
-			//---------------------------------------------
-			// Extent...
-
-			Extent.Assign(pGrids->asGrid(0)->Get_Extent());
-
-			for(i=1; i<pGrids->Get_Count(); i++)
-			{
-				Extent.Union(pGrids->asGrid(i)->Get_Extent());
-			}
-
-			//---------------------------------------------
-			// Create Grid...
-
-			Parameters("MERGED")->Set_Value(pMerged	= SG_Create_Grid(
-				Type,
-				1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
-				1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
-				Cellsize,
-				Extent.Get_XMin(),
-				Extent.Get_YMin()
-			));
-		}
-
+		int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());
+		int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());
 
 		//-------------------------------------------------
-		// Merge grids...
-
-		pMerged->Set_Name(_TL("Merged Grid"));
-
-		pMerged->Assign_NoData();
-
-		//-------------------------------------------------
-		for(i=0; i<pGrids->Get_Count(); i++)
+		if(	is_Aligned(pGrid) )
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s: %d (%d)"), _TL("merging grid"), i + 1, pGrids->Get_Count()));
+			Process_Set_Text(CSG_String::Format(SG_T("[%d/%d] %s: %s"), i + 1, m_pGrids->Get_Count(), _TL("copying"), pGrid->Get_Name()));
 
-			pGrid	= pGrids->asGrid(i);
+			int	nx	= pGrid->Get_NX(); if( nx >= ax + m_pMosaic->Get_NX() )	nx	= ax + m_pMosaic->Get_NX() - 1;
+			int	ny	= pGrid->Get_NY(); if( ny >= ay + m_pMosaic->Get_NY() )	ny	= ay + m_pMosaic->Get_NY() - 1;
 
-			ax		= (int)((pGrid->Get_XMin() - pMerged->Get_XMin()) / pMerged->Get_Cellsize());
-			ay		= (int)((pGrid->Get_YMin() - pMerged->Get_YMin()) / pMerged->Get_Cellsize());
-
-			//---------------------------------------------
-			if(	pGrid->Get_Cellsize() == pMerged->Get_Cellsize()
-			&&	fabs(fmod(pGrid->Get_XMin() - pMerged->Get_XMin(), pMerged->Get_Cellsize())) <= 0.001 * pMerged->Get_Cellsize()
-			&&	fabs(fmod(pGrid->Get_YMin() - pMerged->Get_YMin(), pMerged->Get_Cellsize())) <= 0.001 * pMerged->Get_Cellsize() )
+			for(int y=0; y<ny && Set_Progress(y, ny); y++)
 			{
-				for(y=ay, iy=0; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); y++, iy++)
+				if( ay + y >= 0 )
 				{
-					if( y >= 0 && y < pMerged->Get_NY() )
+					#pragma omp parallel for
+					for(int x=0; x<nx; x++)
 					{
-						for(x=ax, ix=0; ix<pGrid->Get_NX(); x++, ix++)
+						if( ax + x >= 0 && !pGrid->is_NoData(x, y) )
 						{
-							if( x >= 0 && x < pMerged->Get_NX() && !pGrid->is_NoData(ix, iy) )
-							{
-								if( pMerged->is_NoData(x, y) )
-								{
-									pMerged->Set_Value(x, y, pGrid->asDouble(ix, iy));
-								}
-								else if( bMean )
-								{
-                                    if (pCount == NULL)
-                                    {
-                                        pCount	= SG_Create_Grid(
-				                            SG_DATATYPE_Int,
-				                            1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
-				                            1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
-				                            Cellsize,
-				                            Extent.Get_XMin(),
-				                            Extent.Get_YMin()
-			                            );
-                                        pCount->Assign(1.0);
-                                    }
-                                    pMerged->Set_Value(x, y, pMerged->asDouble(x, y) + pGrid->asDouble(ix, iy));
-                                    pCount->Set_Value(x, y, pCount->asInt(x, y) + 1);
-								}
-							}
-						}
-					}
-				}
-			}
-
-			//---------------------------------------------
-			else
-			{
-				Message_Add(_TL("interpolating grid: "));	Message_Add(pGrid->Get_Name(), false);
-
-				p.y	= pMerged->Get_YMin() + ay * pMerged->Get_Cellsize();
-
-				for(y=ay; p.y<=pGrid->Get_YMax() && Set_Progress(p.y-pGrid->Get_YMin(), pGrid->Get_System().Get_YRange()); y++, p.y+=pMerged->Get_Cellsize())
-				{
-					if( y >= 0 && y < pMerged->Get_NY() )
-					{
-						p.x	= pMerged->Get_XMin() + ax * pMerged->Get_Cellsize();
-
-						for(x=ax; p.x<pGrid->Get_XMax(); x++, p.x+=pMerged->Get_Cellsize())
-						{
-							if( x >= 0 && x < pMerged->Get_NX() && pGrid->Get_Value(p, z, Interpolation) )
-							{
-								if( pMerged->is_NoData(x, y) )
-								{
-									pMerged->Set_Value(x, y, z);
-								}
-								else if( bMean )
-								{
-                                    if (pCount == NULL)
-                                    {
-                                        pCount	= SG_Create_Grid(
-				                            SG_DATATYPE_Int,
-				                            1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
-				                            1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
-				                            Cellsize,
-				                            Extent.Get_XMin(),
-				                            Extent.Get_YMin()
-			                            );
-                                        pCount->Assign(1.0);
-                                    }
-                                    pMerged->Set_Value(x, y, pMerged->asDouble(x, y) + z);
-                                    pCount->Set_Value(x, y, pCount->asInt(x, y) + 1);
-								}
-							}
+							Set_Value(ax + x, ay + y, pGrid->asDouble(x, y), Get_Weight(x, y));
 						}
 					}
 				}
 			}
 		}
 
-
 		//-------------------------------------------------
-		DataObject_Update(pMerged);
+		else
+		{
+			Process_Set_Text(CSG_String::Format(SG_T("[%d/%d] %s: %s"), i + 1, m_pGrids->Get_Count(), _TL("resampling"), pGrid->Get_Name()));
 
-        if (bMean && pCount != NULL)
-        {
-            for (y=0; y<pMerged->Get_NY() && Set_Progress(y, pMerged->Get_NY()); y++)
-            {
-                for (x=0; x<pMerged->Get_NX(); x++)
-                {
-                    if (!pMerged->is_NoData(x, y))
-                        pMerged->Set_Value(x, y, pMerged->asDouble(x, y) / pCount->asInt(x, y));
-                }
-            }
-			delete (pCount);
-        }
+			if( ax < 0 )	ax	= 0;
+			if( ay < 0 )	ay	= 0;
+
+			int	nx	= 1 + m_pMosaic->Get_System().Get_xWorld_to_Grid(pGrid->Get_XMax()); if( nx > m_pMosaic->Get_NX() )	nx	= m_pMosaic->Get_NX();
+			int	ny	= 1 + m_pMosaic->Get_System().Get_yWorld_to_Grid(pGrid->Get_YMax()); if( ny > m_pMosaic->Get_NY() )	ny	= m_pMosaic->Get_NY();
+
+			for(int y=ay; y<ny && Set_Progress(y-ay, ny-ay); y++)
+			{
+				double	py	= m_pMosaic->Get_YMin() + y * m_pMosaic->Get_Cellsize();
+
+				#pragma omp parallel for
+				for(int x=ax; x<nx; x++)
+				{
+					double	px	= m_pMosaic->Get_XMin() + x * m_pMosaic->Get_Cellsize();
+
+					Set_Value(x, y, pGrid, px, py);
+				}
+			}
+		}
+
+		m_Weight.Destroy();
+	}
+
+	//-----------------------------------------------------
+	if( m_Weights.is_Valid() )
+	{
+		for(int y=0; y<m_pMosaic->Get_NY() && Set_Progress(y, m_pMosaic->Get_NY()); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<m_pMosaic->Get_NX(); x++)
+			{
+				double	w	= m_Weights.asDouble(x, y);
+
+				if( w > 0.0 )
+				{
+					m_pMosaic->Mul_Value(x, y, 1.0 / w);
+				}
+			}
+		}
+	}
+
+	m_Weights.Destroy();
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Merge::Initialize(void)
+{
+	//-----------------------------------------------------
+	m_pMosaic		= NULL;
+	m_Overlap		= Parameters("OVERLAP")->asInt();
+	m_pGrids		= Parameters("GRIDS"  )->asGridList();
+
+	if( m_pGrids->Get_Count() < 2 )
+	{
+		Error_Set(_TL("nothing to do, there are less than two grids in input list."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	switch( Parameters("INTERPOL")->asInt() )
+	{
+	default:
+	case 0:	m_Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;	// Nearest Neighbor
+	case 1:	m_Interpolation	= GRID_INTERPOLATION_Bilinear;			break;	// Bilinear Interpolation
+	case 2:	m_Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;	// Inverse Distance Interpolation
+	case 3:	m_Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;	// Bicubic Spline Interpolation
+	case 4:	m_Interpolation	= GRID_INTERPOLATION_BSpline;			break;	// B-Spline Interpolation
+	}
+
+	//-----------------------------------------------------
+	TSG_Data_Type	Type;
+
+	switch( Parameters("TYPE")->asInt() )
+	{
+	default:	Type	= SG_DATATYPE_Float;	break;
+	case 0:		Type	= SG_DATATYPE_Bit;		break;
+	case 1:		Type	= SG_DATATYPE_Byte;		break;
+	case 2:		Type	= SG_DATATYPE_Char;		break;
+	case 3:		Type	= SG_DATATYPE_Word;		break;
+	case 4:		Type	= SG_DATATYPE_Short;	break;
+	case 5:		Type	= SG_DATATYPE_DWord;	break;
+	case 6:		Type	= SG_DATATYPE_Int;		break;
+	case 7: 	Type	= SG_DATATYPE_Float;	break;
+	case 8:		Type	= SG_DATATYPE_Double;	break;
+	}
+
+	//-----------------------------------------------------
+	switch( Parameters("TARGET")->asInt() )
+	{
+	case 0:	// user defined...
+		{
+			double		d	= m_pGrids->asGrid(0)->Get_Cellsize();
+			CSG_Rect	r	= m_pGrids->asGrid(0)->Get_Extent();
+
+			for(int i=1; i<m_pGrids->Get_Count(); i++)
+			{
+				if( d > m_pGrids->asGrid(i)->Get_Cellsize() )
+				{
+					d	= m_pGrids->asGrid(i)->Get_Cellsize();
+				}
+
+				r.Union(m_pGrids->asGrid(i)->Get_Extent());
+			}
+
+			int	nx	= 1 + (int)(r.Get_XRange() / d);
+			int	ny	= 1 + (int)(r.Get_YRange() / d);
+
+			if( m_Grid_Target.Init_User(r.Get_XMin(), r.Get_YMin(), d, nx, ny) && Dlg_Parameters("USER") )
+			{
+				m_pMosaic	= m_Grid_Target.Get_User(Type);
+			}
+		}
+		break;
+
+	case 1:	// grid...
+		{
+			if( Dlg_Parameters("GRID") )
+			{
+				m_pMosaic	= m_Grid_Target.Get_Grid(Type);
+			}
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( m_pMosaic )
+	{
+		m_pMosaic->Set_Name(_TL("Mosaic"));
+
+		m_pMosaic->Assign_NoData();
+
+		switch( m_Overlap )
+		{
+		case 0:	// first
+		case 1:	// last
+		case 2:	// minimum
+		case 3:	// maximum
+		case 6:	// blend
+			break;
+
+		case 4:	// mean
+			if( !m_Weights.Create(m_pMosaic->Get_System(), m_pGrids->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
+			{
+				Error_Set(_TL("could not create weights grid"));
+
+				return( false );
+			}
+			break;
+
+		case 5:	// feathering
+			if( !m_Weights.Create(m_pMosaic->Get_System(), SG_DATATYPE_Word) )
+			{
+				Error_Set(_TL("could not create weights grid"));
+
+				return( false );
+			}
+			break;
+		}
 
 		return( true );
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Merge::is_Aligned(CSG_Grid *pGrid)
+{
+	return(	pGrid->Get_Cellsize() == m_pMosaic->Get_Cellsize()
+		&&	fabs(fmod(pGrid->Get_XMin() - m_pMosaic->Get_XMin(), m_pMosaic->Get_Cellsize())) <= 0.001 * m_pMosaic->Get_Cellsize()
+		&&	fabs(fmod(pGrid->Get_YMin() - m_pMosaic->Get_YMin(), m_pMosaic->Get_Cellsize())) <= 0.001 * m_pMosaic->Get_Cellsize()
+	);
+}
+
+//---------------------------------------------------------
+inline void CGrid_Merge::Set_Value(int x, int y, double Value, double Weight)
+{
+	switch( m_Overlap )
+	{
+	case 0:	// first
+		if( m_pMosaic->is_NoData(x, y) )
+		{
+			m_pMosaic->Set_Value(x, y, Value);
+		}
+		break;
+
+	case 1:	// last
+		{
+			m_pMosaic->Set_Value(x, y, Value);
+		}
+		break;
+
+	case 2:	// minimum
+		if( m_pMosaic->is_NoData(x, y) || m_pMosaic->asDouble(x, y) > Value )
+		{
+			m_pMosaic->Set_Value(x, y, Value);
+		}
+		break;
+
+	case 3:	// maximum
+		if( m_pMosaic->is_NoData(x, y) || m_pMosaic->asDouble(x, y) < Value )
+		{
+			m_pMosaic->Set_Value(x, y, Value);
+		}
+		break;
+
+	case 4:	// mean
+		if( m_pMosaic->is_NoData(x, y) )
+		{
+			m_pMosaic->Set_Value(x, y, Value);
+			m_Weights .Set_Value(x, y, 1);
+		}
+		else
+		{
+			m_pMosaic->Add_Value(x, y, Value);
+			m_Weights .Add_Value(x, y, 1);
+		}
+		break;
+
+	case 5:	// feathering
+		if( m_pMosaic->is_NoData(x, y) )
+		{
+			m_pMosaic->Set_Value(x, y, Weight * Value);
+			m_Weights .Set_Value(x, y, Weight);
+		}
+		else
+		{
+			m_pMosaic->Add_Value(x, y, Weight * Value);
+			m_Weights .Add_Value(x, y, Weight);
+		}
+		break;
+
+	case 6:	// blend
+		if( m_pMosaic->is_NoData(x, y) )
+		{
+			m_pMosaic->Set_Value(x, y, Value);
+		}
+		else
+		{
+			m_pMosaic->Set_Value(x, y, (1.0 - Weight) * m_pMosaic->asDouble(x, y) + Weight * Value);
+		}
+		break;
+	}
+}
+
+//---------------------------------------------------------
+inline void CGrid_Merge::Set_Value(int x, int y, CSG_Grid *pGrid, double px, double py)
+{
+	double	z;
+
+	if( pGrid->Get_Value(px, py, z, m_Interpolation) )
+	{
+		if( m_Weight.is_Valid() )
+		{
+			double	w;
+
+			if( m_Weight.Get_Value(px, py, w, GRID_INTERPOLATION_BSpline, true) )
+			{
+				Set_Value(x, y, z, w);
+			}
+		}
+		else
+		{
+			Set_Value(x, y, z, 1.0);
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline double CGrid_Merge::Get_Weight(int x, int y)
+{
+	return( m_Weight.is_Valid() ? m_Weight.asDouble(x, y, true) : 1.0 );
+}
+
+//---------------------------------------------------------
+bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
+{
+	if( m_Overlap < 5 )	// only feathering/blending
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	int	dBlend	= m_Overlap == 6 ? Parameters("BLEND_DIST")->asInt() : 0;
+
+	if( !m_Weight.Create(pGrid->Get_System(), dBlend > 0 && dBlend < 255 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
+	{
+		Error_Set(_TL("could not create distance grid"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int		x, y, d;
+
+	for(y=0; y<pGrid->Get_NY() && Process_Get_Okay(); y++)
+	{
+		for(x=0, d=1; x<pGrid->Get_NX(); x++)
+		{
+			if( pGrid->is_NoData(x, y) )
+				m_Weight.Set_Value(x, y, d = 0);
+			else //if( m_Weight.asDouble(x, y) > d )
+				m_Weight.Set_Value(x, y, d);
+
+			if( dBlend <= 0 || d < dBlend )	d++;
+		}
+
+		for(x=pGrid->Get_NX()-1, d=1; x>=0; x--)
+		{
+			if( pGrid->is_NoData(x, y) )
+				m_Weight.Set_Value(x, y, d = 0);
+			else if( m_Weight.asDouble(x, y) > d )
+				m_Weight.Set_Value(x, y, d);
+
+			if( dBlend <= 0 || d < dBlend )	d++;
+		}
+	}
+
+	for(x=0; x<pGrid->Get_NX() && Process_Get_Okay(); x++)
+	{
+		for(y=0, d=1; y<pGrid->Get_NY(); y++)
+		{
+			if( pGrid->is_NoData(x, y) )
+				m_Weight.Set_Value(x, y, d = 0);
+			else if( m_Weight.asDouble(x, y) > d )
+				m_Weight.Set_Value(x, y, d);
+
+			if( dBlend <= 0 || d < dBlend )	d++;
+		}
+
+		for(y=pGrid->Get_NY()-1, d=1; y>=0; y--)
+		{
+			if( pGrid->is_NoData(x, y) )
+				m_Weight.Set_Value(x, y, d = 0);
+			else if( m_Weight.asDouble(x, y) > d )
+				m_Weight.Set_Value(x, y, d);
+
+			if( dBlend <= 0 || d < dBlend )	d++;
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_Overlap == 5 )
+	{
+		m_Weight.Set_ZFactor(m_Weight.Get_Cellsize() / m_Weights.Get_Cellsize());
+	}
+	else
+	{
+		m_Weight.Set_ZFactor(1.0 / (dBlend > 0 ? dBlend : m_Weight.Get_ZMax()));
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
