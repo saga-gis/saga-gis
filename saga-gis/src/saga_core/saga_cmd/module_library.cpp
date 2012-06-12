@@ -781,7 +781,7 @@ bool CCMD_Module::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParameters)
 
 				while( FileName.Length() > 0 )
 				{
-					CSG_String	s(&FileName.BeforeFirst(';'));
+					CSG_String	s(FileName.BeforeFirst(';').wx_str());
 
 					if( s.Length() > 0 )
 					{

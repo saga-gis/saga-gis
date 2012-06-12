@@ -609,7 +609,7 @@ void		Create_Docs		(const CSG_String &MLB_Path)
 	CMD_Set_Silent(true);
 
 	SG_Get_Module_Library_Manager().Add_Directory(MLB_Path, false);
-	SG_Get_Module_Library_Manager().Get_Summary(&wxGetCwd());
+	SG_Get_Module_Library_Manager().Get_Summary(wxGetCwd().wx_str());
 
 	SG_PRINTF(SG_T("%s\n"), _TL("okay"));
 }
