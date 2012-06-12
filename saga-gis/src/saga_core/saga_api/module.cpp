@@ -198,7 +198,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 
 	if( is_Interactive() && is_Grid() )
 	{
-		SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format(SG_T("%s, %s"), _TL("grid"), _TL("interactive")));
+		SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format(SG_T("%s, %s"), _TL("grid"), _TL("interactive")).c_str() );
 	}
 	else if( is_Interactive() )
 	{
