@@ -367,10 +367,10 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters *pParameters)
 	// Datums ---------------------------------------------
 	for(struct PJ_DATUMS *pDatum=pj_datums; pDatum->id; ++pDatum)
 	{
-		sDatums	+= CSG_String::Format(SG_T("{%s}%s|"), SG_STR_MBTOSG(pDatum->id),
-			SG_STR_MBTOSG(pDatum->comments) && SG_STR_MBTOSG(*pDatum->comments) ?
-			SG_STR_MBTOSG(pDatum->comments) : SG_STR_MBTOSG(pDatum->id)
-		);
+		CSG_String	id      (pDatum->id);
+		CSG_String	comments(pDatum->comments);
+
+		sDatums	+= CSG_String::Format(SG_T("{%s}%s|"), id.c_str(), comments.Length() ? comments.c_str() : id.c_str());
 	}
 
 	// Ellipsoids -----------------------------------------
