@@ -500,6 +500,29 @@ CSG_String CSG_GDAL_DataSet::Get_Description(int i)	const
 }
 
 //---------------------------------------------------------
+void CSG_GDAL_DataSet::Add_MetaData(int i, CSG_MetaData &MetaData)	const
+{
+	GDALRasterBand	*pBand;
+
+	if( is_Reading() && (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
+	{
+		char	**pMetaData	= pBand->GetMetadata() + 0;
+
+		if( pMetaData )
+		{
+			while( *pMetaData )
+			{
+				CSG_String	s(*pMetaData);
+
+				MetaData.Add_Child(s.BeforeFirst(SG_T('=')), s.AfterFirst(SG_T('=')));
+
+				pMetaData++;
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
 CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 {
 	GDALRasterBand	*pBand;
@@ -520,6 +543,9 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		pGrid->Set_ZFactor		(pBand->GetScale());
 
 		pGrid->Get_Projection().Create(Get_Projection(), SG_PROJ_FMT_WKT);
+
+		//-------------------------------------------------
+		Add_MetaData(i, pGrid->Get_MetaData());
 
 		//-------------------------------------------------
 		double		zMin, zScale, *zLine;

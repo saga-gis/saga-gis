@@ -152,6 +152,7 @@ public:
 	int							Get_Count			(void)	const;
 	CSG_String					Get_Name			(int i)	const;
 	CSG_String					Get_Description		(int i)	const;
+	void						Add_MetaData		(int i, CSG_MetaData &MetaData)	const;
 	CSG_Grid *					Read				(int i);
 	bool						Write				(int i, CSG_Grid *pGrid);
 
