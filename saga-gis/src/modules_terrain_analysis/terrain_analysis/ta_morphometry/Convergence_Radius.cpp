@@ -263,7 +263,7 @@ bool CConvergence_Radius::Get_Convergence(int x, int y, double &Convergence)
 	//-----------------------------------------------------
 	if( s.Get_Count() > 0 )
 	{
-		Convergence	= s.Get_Mean() * 100.0 / M_PI_090;
+		Convergence	= (s.Get_Mean() - M_PI_090) * 100.0 / M_PI_090;
 
 		return( true );
 	}
