@@ -208,6 +208,9 @@ public:
 
 	bool						Destroy				(void);
 
+	bool						Add_Rows			(int nRows);
+	bool						Add_Row				(double Value = 0.0);
+
 	int							Get_N				(void)	const	{	return( m_n );		}
 	double *					Get_Data			(void)	const	{	return( m_z );		}
 	double						operator ()			(int x)	const	{	return( m_z[x] );	}
@@ -1338,6 +1341,50 @@ private:
 	bool						_Get_mrqcof			(double *Parameters, double **Alpha, double *Beta);
 
 	void						_Get_Function		(double x, double *Parameters, double &y, double *dy_da);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Trend_Polynom
+{
+public:
+	CSG_Trend_Polynom(void);
+
+	bool						Destroy				(void);
+
+	bool						Set_Order			(int Order = 1);
+
+	bool						Clr_Data			(void);
+	bool						Set_Data			(double *x, double *y, int n, bool bAdd = false);
+	bool						Add_Data			(double  x, double  y);
+	int							Get_Data_Count		(void)		const	{	return( m_x.Get_N() );	}
+	double						Get_Data_X			(int i)		const	{	return( m_x(i) );	}
+	double						Get_Data_Y			(int i)		const	{	return( m_y(i) );	}
+
+	bool						Get_Trend			(void);
+
+	int							Get_Order			(void)		const	{	return( m_Order     );	}
+	int							Get_nCoefficients	(void)		const	{	return( m_Order + 1 );	}
+	double						Get_Coefficient		(int i)		const	{	return( m_a(i)      );	}
+	double						Get_R2				(void)		const	{	return( m_r2        );	}
+
+	double						Get_Value			(double x)	const;
+
+
+private:
+
+	double						m_r2;
+
+	int							m_Order;
+
+	CSG_Vector					m_x, m_y, m_a;
 
 };
 

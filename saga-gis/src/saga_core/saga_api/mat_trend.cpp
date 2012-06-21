@@ -166,8 +166,6 @@ bool CSG_Trend::CFncParams::Destroy(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -186,8 +184,6 @@ CSG_Trend::~CSG_Trend(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -218,8 +214,6 @@ bool CSG_Trend::Set_Formula(const SG_Char *Formula)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -285,8 +279,6 @@ void CSG_Trend::Add_Data(double x, double y)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -317,8 +309,6 @@ bool CSG_Trend::Set_Max_Lambda(double Lambda)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -415,8 +405,6 @@ bool CSG_Trend::Get_Trend(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -540,8 +528,6 @@ double CSG_Trend::Get_Value(double x)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -804,8 +790,6 @@ bool CSG_Trend::_Get_mrqcof(double *Parameters, double **Alpha, double *Beta)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -832,6 +816,156 @@ void CSG_Trend::_Get_Function(double x, double *Parameters, double &y, double *d
 
 		m_Formula.Set_Variable(m_Params.m_Variables[i], Parameters[i] - EPSILON);
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Trend_Polynom::CSG_Trend_Polynom(void)
+{
+	Destroy();
+}
+
+//---------------------------------------------------------
+bool CSG_Trend_Polynom::Destroy(void)
+{
+	m_Order	= 0;
+
+	Clr_Data();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Trend_Polynom::Set_Order(int Order)
+{
+	m_a.Destroy();
+
+	if( Order > 0 )
+	{
+		m_Order	= Order;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Trend_Polynom::Clr_Data(void)
+{
+	m_a.Destroy();
+	m_y.Destroy();
+	m_x.Destroy();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Trend_Polynom::Set_Data(double *x, double *y, int n, bool bAdd)
+{
+	if( !bAdd )
+	{
+		Clr_Data();
+	}
+
+	m_x.Add_Rows(n);
+	m_y.Add_Rows(n);
+
+	for(int i=0, j=m_x.Get_N()-1; i<n; i++)
+	{
+		m_x[j]	= x[i];
+		m_y[j]	= y[i];
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Trend_Polynom::Add_Data(double x, double y)
+{
+	return( m_x.Add_Row(x) && m_y.Add_Row(y) );
+}
+
+//---------------------------------------------------------
+bool CSG_Trend_Polynom::Get_Trend(void)
+{
+	if( m_Order > 0 && m_x.Get_N() > m_Order )
+	{
+		int			i;
+		double		yMean	= 0.0;
+		CSG_Matrix	X, Xt, XtXinv;
+
+		//-------------------------------------------------
+		X.Create(m_Order + 1, m_x.Get_N());
+
+		for(i=0; i<m_x.Get_N(); i++)
+		{
+			double	d	= 1.0;
+
+			for(int j=0; j<=m_Order; j++)
+			{
+				X[i][j]	 = d;
+				d		*= m_x[i];
+			}
+
+			yMean	+= m_y[i];
+		}
+
+		yMean	/= m_y.Get_N();
+
+		//-------------------------------------------------
+		Xt		= X;
+		Xt		.Set_Transpose();
+
+		XtXinv	= Xt * X;
+		XtXinv	.Set_Inverse();
+
+		m_a		= XtXinv * Xt * m_y;
+
+		//-------------------------------------------------
+		double	SSE	= 0.0;
+		double	SSR	= 0.0;
+
+		for(i=0; i<m_y.Get_N(); i++)
+		{
+			double	y	= Get_Value(m_x[i]);
+
+			SSE	+= SG_Get_Square(m_y[i] - y);
+			SSR	+= SG_Get_Square(yMean  - y);
+		}
+
+		m_r2	= SSR / (SSR + SSE);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+double CSG_Trend_Polynom::Get_Value(double x)	const
+{
+	if( m_a.Get_N() > 1 )
+	{
+		double	y	= 0.0;
+		double	d	= 1.0;
+
+		for(int i=0; i<=m_Order; i++)
+		{
+			y	+= d * m_a(i);
+			d	*= x;
+		}
+
+		return( y );
+	}
+
+	return( 0.0 );
 }
 
 

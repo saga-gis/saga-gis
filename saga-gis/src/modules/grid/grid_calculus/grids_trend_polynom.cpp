@@ -111,16 +111,10 @@ CGrids_Trend::CGrids_Trend(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "POLYNOM"	, _TL("Type of Approximated Function"),
+	Parameters.Add_Value(
+		NULL	, "POLYNOM"	, _TL("Polynomial Order"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("first order polynom (linear regression)"),
-			_TL("second order polynom"),
-			_TL("third order polynom"),
-			_TL("fourth order polynom"),
-			_TL("fifth order polynom")
-		), 2
+		PARAMETER_TYPE_Int, 1, 1, true
 	);
 
 	//-----------------------------------------------------
@@ -154,7 +148,7 @@ CGrids_Trend::CGrids_Trend(void)
 bool CGrids_Trend::On_Execute(void)
 {
 	int						i, nGrids;
-	CSG_Trend				Trend;
+	CSG_Trend_Polynom		Trend;
 	CSG_Table				*pYTable;
 	CSG_Grid				*pQuality;
 	CSG_Parameter_Grid_List	*pGrids, *pYGrids, *pParms;
@@ -175,17 +169,12 @@ bool CGrids_Trend::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	switch( Parameters("POLYNOM")->asInt() )
+	if( !Trend.Set_Order(Parameters("POLYNOM")->asInt()) )
 	{
-	default:
-	case 0:	Trend.Set_Formula(SG_T("a+b*x"));							break;
-	case 1:	Trend.Set_Formula(SG_T("a+b*x+c*x*x"));						break;
-	case 2:	Trend.Set_Formula(SG_T("a+b*x+c*x*x+d*x^3"));				break;
-	case 3:	Trend.Set_Formula(SG_T("a+b*x+c*x*x+d*x^3+e*x^4"));			break;
-	case 4:	Trend.Set_Formula(SG_T("a+b*x+c*x*x+d*x^3+e*x^4+f*x^5"));	break;
+		return( false );
 	}
 
-	if( nGrids < Trend.Get_Parameter_Count() + 1 )
+	if( nGrids < Trend.Get_Order() + 1 )
 	{
 		Error_Set(_TL("fitting a polynom of ith order needs at least i + 1 parameter sets given"));
 
@@ -195,7 +184,7 @@ bool CGrids_Trend::On_Execute(void)
 	//-----------------------------------------------------
 	pParms->Del_Items();
 
-	for(i=0; i<Trend.Get_Parameter_Count(); i++)
+	for(i=0; i<Trend.Get_nCoefficients(); i++)
 	{
 		pParms->Add_Item(SG_Create_Grid(*Get_System()));
 		pParms->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), _TL("Polynomial Coefficient"), i + 1));
@@ -231,16 +220,16 @@ bool CGrids_Trend::On_Execute(void)
 
 			if( Trend.Get_Trend() )
 			{
-				for(i=0; i<Trend.Get_Parameter_Count(); i++)
+				for(i=0; i<Trend.Get_nCoefficients(); i++)
 				{
-					pParms->asGrid(i)->Set_Value(x, y, Trend.Get_Parameters()[i]);
+					pParms->asGrid(i)->Set_Value(x, y, Trend.Get_Coefficient(i));
 				}
 
 				if( pQuality )	pQuality->Set_Value(x, y, Trend.Get_R2());
 			}
 			else
 			{
-				for(i=0; i<Trend.Get_Parameter_Count(); i++)
+				for(i=0; i<Trend.Get_nCoefficients(); i++)
 				{
 					pParms->asGrid(i)->Set_NoData(x, y);
 				}

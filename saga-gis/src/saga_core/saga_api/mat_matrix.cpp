@@ -174,6 +174,41 @@ void CSG_Vector::_On_Construction(void)
 	m_n	= 0;
 }
 
+//---------------------------------------------------------
+bool CSG_Vector::Add_Rows(int nRows)
+{
+	if( nRows > 1 )
+	{
+		double	*z	= (double *)SG_Realloc(m_z, (m_n + nRows) * sizeof(double));
+
+		if( z )
+		{
+			m_z	 = z;
+			m_n	+= nRows;
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Add_Row(double Value)
+{
+	double	*z	= (double *)SG_Realloc(m_z, (m_n + 1) * sizeof(double));
+
+	if( z )
+	{
+		m_z			= z;
+		m_z[m_n++]	= Value;
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
