@@ -443,7 +443,7 @@ void CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Grid_System &
 
 			vImage	= BInv * (vWorld - A);
 
-			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation, false, true) )
+			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation, false, false, true) )
 			{
 				pWorld->Set_Value(x, y, z);
 			}
