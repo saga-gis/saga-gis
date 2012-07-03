@@ -296,7 +296,7 @@ bool CGrid_Export::On_Execute(void)
 	else if( !SG_UI_DataObject_asImage(pShade, &Shade) )
 	{
 		int			nColors	= 100;
-		CSG_Colors	Colors(nColors, SG_COLORS_BLACK_WHITE);
+		CSG_Colors	Colors(nColors, SG_COLORS_BLACK_WHITE, true);
 
 		Shade.Create(*Get_System(), SG_DATATYPE_Int);
 
