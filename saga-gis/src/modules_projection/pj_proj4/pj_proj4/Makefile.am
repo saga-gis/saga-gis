@@ -20,6 +20,7 @@ crs_base.cpp\
 crs_transform.cpp\
 crs_transform_grid.cpp\
 crs_transform_shapes.cpp\
+gcs_lon_range.cpp\
 PROJ4_Base.cpp\
 PROJ4_Grid.cpp\
 PROJ4_Shapes.cpp\
@@ -29,6 +30,7 @@ crs_base.h\
 crs_transform.h\
 crs_transform_grid.h\
 crs_transform_shapes.h\
+gcs_lon_range.h\
 PROJ4_Base.h\
 PROJ4_Grid.h\
 PROJ4_Shapes.h

@@ -579,6 +579,7 @@
     <ClCompile Include="crs_transform.cpp" />
     <ClCompile Include="crs_transform_grid.cpp" />
     <ClCompile Include="crs_transform_shapes.cpp" />
+    <ClCompile Include="gcs_lon_range.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -613,6 +614,7 @@
     <ClInclude Include="crs_transform.h" />
     <ClInclude Include="crs_transform_grid.h" />
     <ClInclude Include="crs_transform_shapes.h" />
+    <ClInclude Include="gcs_lon_range.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

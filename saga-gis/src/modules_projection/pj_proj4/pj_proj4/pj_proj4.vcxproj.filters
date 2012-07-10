@@ -41,6 +41,9 @@
     <ClCompile Include="PROJ4_Shapes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gcs_lon_range.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -119,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PROJ4_Shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gcs_lon_range.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

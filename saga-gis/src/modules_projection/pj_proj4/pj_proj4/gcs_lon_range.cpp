@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: gcs_lon_range.cpp 1354 2012-03-15 16:51:39Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   gcs_lon_range.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,83 +54,118 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Projection - Proj.4") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2004-8") );
-
-	case MLB_INFO_Description:
-		return( _TW(
-			"Coordinate transformation based on the "
-			"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4</a> library."
-		));
-
-	case MLB_INFO_Version:
-		return( _TL("2.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Projection") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "crs_assign.h"
-#include "crs_transform_shapes.h"
-#include "crs_transform_grid.h"
-
-#include "PROJ4_Shapes.h"
-#include "PROJ4_Grid.h"
-
 #include "gcs_lon_range.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+CGCS_Grid_Longitude_Range::CGCS_Grid_Longitude_Range(void)
 {
-	switch( i )
+	//-----------------------------------------------------
+	Set_Name		(_TL("Change Longitudinal Range for Grids"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2012"));
+
+	Set_Description	(_TW(
+		"Change the longitudinal range of grids using geographic coordinates, "
+		"i.e. from 0 - 360 to -180 - 180 and vice versa."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List(
+		NULL	, "INPUT"	, _TL("Input"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid_List(
+		NULL	, "OUTPUT"	, _TL("Output"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "DIRECTION"	, _TL("Direction"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			SG_T("0 - 360 >> -180 - 180"),
+			SG_T("-180 - 180 >> 0 - 360")
+		), 0
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGCS_Grid_Longitude_Range::On_Execute(void)
+{
+	CSG_Parameter_Grid_List	*pInput		= Parameters("INPUT" )->asGridList();
+	CSG_Parameter_Grid_List	*pOutput	= Parameters("OUTPUT")->asGridList();
+
+	if( pInput->Get_Count() <= 0 )
 	{
-	case  0:	return( new CCRS_Assign() );
-	case  1:	return( new CCRS_Transform_Shapes(true ) );
-	case  2:	return( new CCRS_Transform_Shapes(false) );
-	case  3:	return( new CCRS_Transform_Grid  (true ) );
-	case  4:	return( new CCRS_Transform_Grid  (false) );
+		Message_Dlg(_TL("nothing to do: no data in selection"));
 
-	case  5:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, false) );
-	case  6:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, false) );
-	case  7:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, false) );
-	case  8:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, false) );
-	case  9:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, true) );
-	case 10:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, true) );
-	case 11:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, true) );
-	case 12:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, true) );
-
-	case 13:	return( new CGCS_Grid_Longitude_Range() );
+		return( false );
 	}
 
-	return( NULL );
+	pOutput->Del_Items();
+
+	//-----------------------------------------------------
+	int				xZero;
+	CSG_Grid_System	Target;
+
+	if( Parameters("DIRECTION")->asInt() == 0 )	// 0 - 360 >> -180 - 180
+	{
+		xZero	= 1 + (int)((180.0 - Get_XMin()) / Get_Cellsize());
+
+		Target.Assign(Get_Cellsize(), Get_XMin() - Get_Cellsize() * (Get_NX() - xZero - 1), Get_YMin(), Get_NX(), Get_NY());
+	}
+	else										// -180 - 180 >> 0 - 360
+	{
+		xZero	= 1 + (int)(-Get_XMin() / Get_Cellsize());
+
+		Target.Assign(Get_Cellsize(), Get_XMin() + Get_Cellsize() * (Get_NX() - xZero), Get_YMin(), Get_NX(), Get_NY());
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<pInput->Get_Count() && Process_Get_Okay(); i++)
+	{
+		CSG_Grid	*pIn	= pInput->asGrid(i);
+		CSG_Grid	*pOut	= SG_Create_Grid(Target, pIn->Get_Type());
+
+		pOut->Set_Name(pIn->Get_Name());
+		pOutput->Add_Item(pOut);
+
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			for(int x=0, xx=xZero; x<Get_NX(); x++, xx++)
+			{
+				if( xx >= Get_NX() )
+				{
+					xx	= 0;
+				}
+
+				pOut->Set_Value(xx, y, pIn->asDouble(x, y));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -143,8 +176,3 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
