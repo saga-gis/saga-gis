@@ -584,6 +584,7 @@
     <ClCompile Include="Filter_Multi_Dir_Lee.cpp" />
     <ClCompile Include="Filter_Rank.cpp" />
     <ClCompile Include="Filter_Terrain_SlopeBased.cpp" />
+    <ClCompile Include="mesh_denoise.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -620,6 +621,7 @@
     <ClInclude Include="Filter_Multi_Dir_Lee.h" />
     <ClInclude Include="Filter_Rank.h" />
     <ClInclude Include="Filter_Terrain_SlopeBased.h" />
+    <ClInclude Include="mesh_denoise.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

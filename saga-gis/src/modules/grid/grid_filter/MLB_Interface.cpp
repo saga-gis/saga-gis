@@ -104,6 +104,8 @@ CSG_String Get_Info(int i)
 #include "Filter_Terrain_SlopeBased.h"
 #include "Filter_Morphology.h"
 #include "Filter_Rank.h"
+#include "mesh_denoise.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -122,6 +124,7 @@ CSG_Module *		Create_Module(int i)
 	case  7:	return( new CFilter_Terrain_SlopeBased );
 	case  8:	return( new CFilter_Morphology );
 	case  9:	return( new CFilter_Rank );
+	case 10:	return( new CMesh_Denoise_Grid );
 	}
 
 	return( NULL );

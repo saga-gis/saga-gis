@@ -23,6 +23,7 @@ Filter_Multi_Dir_Lee.cpp\
 Filter_Rank.cpp\
 Filter_Terrain_SlopeBased.cpp\
 FilterClumps.cpp\
+mesh_denoise.cpp\
 MLB_Interface.cpp\
 Filter.h\
 Filter_3x3.h\
@@ -34,6 +35,7 @@ Filter_Multi_Dir_Lee.h\
 Filter_Rank.h\
 Filter_Terrain_SlopeBased.h\
 FilterClumps.h\
+mesh_denoise.h\
 MLB_Interface.h
 
 libgrid_filter_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
