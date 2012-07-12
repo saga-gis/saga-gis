@@ -32,6 +32,9 @@
     <ClCompile Include="Visibility_Point.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="topographic_openness.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -101,6 +104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Visibility_Point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="topographic_openness.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -595,6 +595,7 @@
     </ClCompile>
     <ClCompile Include="SolarRadiation.cpp" />
     <ClCompile Include="topographic_correction.cpp" />
+    <ClCompile Include="topographic_openness.cpp" />
     <ClCompile Include="view_shed.cpp" />
     <ClCompile Include="Visibility_Point.cpp" />
   </ItemGroup>
@@ -620,6 +621,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="SolarRadiation.h" />
     <ClInclude Include="topographic_correction.h" />
+    <ClInclude Include="topographic_openness.h" />
     <ClInclude Include="view_shed.h" />
     <ClInclude Include="Visibility_Point.h" />
   </ItemGroup>

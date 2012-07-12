@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: topographic_openness.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     View_Shed.cpp                     //
+//                topographic_openness.cpp               //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -61,7 +61,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "view_shed.h"
+#include "topographic_openness.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -71,28 +71,33 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CView_Shed::CView_Shed(void)
+CTopographic_Openness::CTopographic_Openness(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Sky View Factor"));
+	Set_Name		(_TL("Topographic Openness"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		(SG_T("O.Conrad (c) 2012"));
 
 	Set_Description	(_TW(
-		"Calculation of visible sky, sky view factor (SVF) and related parameters.\n"
+		"Topographic openness expresses the dominance (positive) or enclosure (negative) "
+		"of a landscape location. See Yokoyama et al. (2002) for a precise definition. "
+		"Openness has been related to how wide a landscape can be viewed from any position. "
+		"It has been proven to be a meaningful input for computer aided geomorphological mapping.\n"
 		"\n"
 		"References:\n"
-		"Boehner, J., Antonic, O. (2008): "
-		"'Land-suface parameters specific to topo-climatology'. "
-		"in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications', in press\n"
-		"\n"
-		"Hantzschel, J., Goldberg, V., Bernhofer, C. (2005): "
-		"'GIS-based regionalisation of radiation, temperature and coupling measures in complex terrain for low mountain ranges'. "
-		"Meteorological Applications, V.12:01, p.33–42, doi:10.1017/S1350482705001489\n"
-		"\n"
-		"Oke, T.R. (2000): "
-		"'Boundary Layer Climates'. "
-		"Taylor & Francis, New York. 435pp.\n"
+		"Anders, N. S. / Seijmonsbergen, A. C. / Bouten, W. (2009): "
+		"Multi-Scale and Object-Oriented Image Analysis of High-Res LiDAR Data for Geomorphological Mapping in Alpine Mountains. "
+		"Proceedings of Geomorphometry 2009. "
+		"<a target=\"_blank\" href=\"http://geomorphometry.org/system/files/anders2009geomorphometry.pdf\">online at geomorphometry.org</a>.\n"
+
+		"Prima, O.D.A / Echigo, A. / Yokoyama, R. / Yoshida, T. (2006): "
+		"Supervised landform classification of Northeast Honshu from DEM-derived thematic maps. "
+		"Geomorphology, vol.78, pp.373–386.\n"
+
+		"Yokoyama, R. / Shirasawa, M. / Pike, R.J. (2002): "
+		"Visualizing topography by openness: A new application of image processing to digital elevation models. "
+		"Photogrammetric Engineering and Remote Sensing, Vol.68, pp.251-266. "
+		"<a target=\"_blank\" href=\"http://www.asprs.org/a/publications/pers/2002journal/march/2002_mar_257-265.pdf\">online at ASPRS</a>.\n"
 	));
 
 	//-----------------------------------------------------
@@ -103,38 +108,20 @@ CView_Shed::CView_Shed(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "VISIBLE"		, _TL("Visible Sky"),
-		_TL("The unobstructed hemisphere given as percentage."),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "SVF"			, _TL("Sky View Factor"),
+		NULL	, "POS"			, _TL("Positive Openness"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SIMPLE"		, _TL("Sky View Factor (Simplified)"),
+		NULL	, "NEG"			, _TL("Negative Openness"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "TERRAIN"		, _TL("Terrain View Factor"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "DISTANCE"	, _TL("View Distance"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Maximum Search Radius"),
-		_TL("This value is ignored if set to zero."),
+		NULL	, "RADIUS"		, _TL("Radial Limit"),
+		_TL(""),
 		PARAMETER_TYPE_Double	, 10000.0, 0.0, true
 	);
 
@@ -156,7 +143,7 @@ CView_Shed::CView_Shed(void)
 	Parameters.Add_Value(
 		NULL	, "NDIRS"		, _TL("Number of Sectors"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 8.0, 3, true
+		PARAMETER_TYPE_Int		, 8.0, 2, true
 	);
 }
 
@@ -168,26 +155,19 @@ CView_Shed::CView_Shed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Shed::On_Execute(void)
+bool CTopographic_Openness::On_Execute(void)
 {
-	CSG_Grid	*pVisible, *pSVF, *pSimple, *pTerrain, *pDistance;
+	CSG_Grid	*pPos, *pNeg;
 
-	m_pDEM		= Parameters("DEM"     )->asGrid();
+	m_pDEM		= Parameters("DEM"   )->asGrid();
+	pPos		= Parameters("POS"   )->asGrid();
+	pNeg		= Parameters("NEG"   )->asGrid();
 
-	pVisible	= Parameters("VISIBLE" )->asGrid();
-	pSVF		= Parameters("SVF"     )->asGrid();
-	pSimple		= Parameters("SIMPLE"  )->asGrid();
-	pTerrain	= Parameters("TERRAIN" )->asGrid();
-	pDistance	= Parameters("DISTANCE")->asGrid();
+	m_Radius	= Parameters("RADIUS")->asDouble();
+	m_Method	= Parameters("METHOD")->asInt();
 
-	m_Radius	= Parameters("RADIUS"  )->asDouble();
-	m_Method	= Parameters("METHOD"  )->asInt();
-
-	DataObject_Set_Colors(pVisible	, 100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(pSVF		, 100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(pSimple	, 100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(pTerrain	, 100, SG_COLORS_BLACK_WHITE, true);
-	DataObject_Set_Colors(pDistance	, 100, SG_COLORS_RED_GREY_GREEN, true);
+	DataObject_Set_Colors(pPos, 100, SG_COLORS_RED_GREEN, true);
+	DataObject_Set_Colors(pNeg, 100, SG_COLORS_RED_GREEN, false);
 
 	//-----------------------------------------------------
 	if( m_Method == 0 )	// multi scale
@@ -223,23 +203,17 @@ bool CView_Shed::On_Execute(void)
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
-				double	Visible, SVF, Simple, Terrain, Distance;
+				double	Pos, Neg;
 
-				if( Get_View_Shed(x, y, Visible, SVF, Simple, Terrain, Distance) )
+				if( Get_Openness(x, y, Pos, Neg) )
 				{
-					if( pVisible  )	pVisible ->Set_Value (x, y, Visible);
-					if( pSVF      )	pSVF	 ->Set_Value (x, y, SVF);
-					if( pSimple   )	pSimple	 ->Set_Value (x, y, Simple);
-					if( pTerrain  )	pTerrain ->Set_Value (x, y, Terrain);
-					if( pDistance )	pDistance->Set_Value (x, y, Distance);
+					if( pPos )	pPos->Set_Value(x, y, Pos);
+					if( pNeg )	pNeg->Set_Value(x, y, Neg);
 				}
 				else
 				{
-					if( pVisible  )	pVisible ->Set_NoData(x, y);
-					if( pSVF      )	pSVF	 ->Set_NoData(x, y);
-					if( pSimple   )	pSimple	 ->Set_NoData(x, y);
-					if( pTerrain  )	pTerrain ->Set_NoData(x, y);
-					if( pDistance )	pDistance->Set_NoData(x, y);
+					if( pPos )	pPos->Set_NoData(x, y);
+					if( pNeg )	pNeg->Set_NoData(x, y);
 				}
 			}
 		}
@@ -247,8 +221,8 @@ bool CView_Shed::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_Pyramid	.Destroy();
-	m_Angles	.Destroy();
-	m_Distances	.Destroy();
+	m_MaxAngle	.Destroy();
+	m_MinAngle	.Destroy();
 	m_Direction	.Clear();
 
 	return( bResult );
@@ -262,10 +236,10 @@ bool CView_Shed::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Shed::Initialise(int nDirections)
+bool CTopographic_Openness::Initialise(int nDirections)
 {
-	m_Angles	.Create		(nDirections);
-	m_Distances	.Create		(nDirections);
+	m_MaxAngle	.Create		(nDirections);
+	m_MinAngle	.Create		(nDirections);
 	m_Direction	.Set_Count	(nDirections);
 
 	for(int i=0; i<nDirections; i++)
@@ -286,7 +260,7 @@ bool CView_Shed::Initialise(int nDirections)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Factor, double &Sky_Simple, double &Sky_Terrain, double &Distance)
+bool CTopographic_Openness::Get_Openness(int x, int y, double &Pos, double &Neg)
 {
 	if( m_pDEM->is_NoData(x, y) )
 	{
@@ -300,38 +274,17 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 	}
 
 	//-----------------------------------------------------
-	double	Slope, Aspect, sinSlope, cosSlope, Phi, sinPhi, cosPhi;
+	Pos	= 0.0;
+	Neg	= 0.0;
 
-	if( !m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
+	for(int i=0; i<m_MinAngle.Get_N(); i++)
 	{
-		Slope	= Aspect	= 0.0;
+		Pos	+= M_PI_090 - atan(m_MaxAngle[i]);
+		Neg	+= M_PI_090 + atan(m_MinAngle[i]);
 	}
 
-	sinSlope	= sin(Slope);
-	cosSlope	= cos(Slope);
-
-	Sky_Visible	= 0.0;
-	Sky_Factor	= 0.0;
-	Distance	= 0.0;
-
-	//-----------------------------------------------------
-	for(int i=0; i<m_Angles.Get_N(); i++)
-	{
-		Phi			= atan(m_Angles[i]);
-		cosPhi		= cos(Phi);
-		sinPhi		= sin(Phi);
-
-		Sky_Visible	+= (M_PI_090 - Phi) * 100.0 / M_PI_090;
-		Sky_Factor	+= cosSlope * cosPhi*cosPhi + sinSlope * cos(m_Direction[i].z - Aspect) * ((M_PI_090 - Phi) - sinPhi * cosPhi);
-		Distance	+= m_Distances[i];
-	}
-
-	Sky_Visible	/= m_Angles.Get_N();
-	Sky_Factor	/= m_Angles.Get_N();
-	Distance	/= m_Angles.Get_N();
-
-	Sky_Simple	= (1.0 + cosSlope) / 2.0;
-	Sky_Terrain	= Sky_Simple - Sky_Factor;
+	Pos	/= m_MaxAngle.Get_N();
+	Neg	/= m_MinAngle.Get_N();
 
 	return( true );
 }
@@ -344,88 +297,129 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Shed::Get_Angles_Multi_Scale(int x, int y)
+bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y)
 {
-	if( !m_pDEM->is_NoData(x, y) )
+	if( m_pDEM->is_NoData(x, y) )
 	{
-		double		z, d;
-		TSG_Point	p, q;
+		return( false );
+	}
 
-		z	= m_pDEM->asDouble(x, y);
-		p	= Get_System()->Get_Grid_to_World(x, y);
+	double		z, d;
+	TSG_Point	p, q;
 
-		m_Angles   .Assign(0.0);
-		m_Distances.Assign(0.0);
+	z	= m_pDEM->asDouble(x, y);
+	p	= Get_System()->Get_Grid_to_World(x, y);
 
-		//-------------------------------------------------
-		for(int iGrid=-1; iGrid<m_nLevels; iGrid++)
+	m_MaxAngle.Assign(0.0);
+	m_MinAngle.Assign(0.0);
+
+	//-----------------------------------------------------
+	for(int iGrid=-1; iGrid<m_nLevels; iGrid++)
+	{
+		bool		bOkay	= false;
+		CSG_Grid	*pGrid	= m_Pyramid.Get_Grid(iGrid);
+
+		for(int i=0; i<8; i++)
 		{
-			CSG_Grid	*pGrid	= m_Pyramid.Get_Grid(iGrid);
+			q.x	= p.x + pGrid->Get_Cellsize() * m_Direction[i].x;
+			q.y	= p.y + pGrid->Get_Cellsize() * m_Direction[i].y;
 
-			for(int i=0; i<8; i++)
+			if( pGrid->Get_Value(q, d) )
 			{
-				q.x	= p.x + pGrid->Get_Cellsize() * m_Direction[i].x;
-				q.y	= p.y + pGrid->Get_Cellsize() * m_Direction[i].y;
-
-				if( pGrid->Get_Value(q, d) && (d = (d - z) / pGrid->Get_Cellsize()) > m_Angles[i] )
+				d	= (d - z) / pGrid->Get_Cellsize(); 
+			
+				if( bOkay == false )
 				{
-					m_Angles   [i]	= d;
-					m_Distances[i]	= pGrid->Get_Cellsize();
+					bOkay			= true;
+					m_MaxAngle[i]	= m_MinAngle[i]	= d;
+				}
+				else if( m_MaxAngle[i] < d )
+				{
+					m_MaxAngle[i]	= d;
+				}
+				else if( m_MinAngle[i] > d )
+				{
+					m_MinAngle[i]	= d;
 				}
 			}
 		}
 
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CView_Shed::Get_Angles_Sectoral(int x, int y)
-{
-	if( !m_pDEM->is_NoData(x, y) )
-	{
-		m_Angles   .Assign(0.0);
-		m_Distances.Assign(0.0);
-
-		//-------------------------------------------------
-		for(int i=0; i<m_Angles.Get_N(); i++)
+		if(0|| bOkay == false )
 		{
-			Get_Angle_Sectoral(x, y, m_Direction[i].x, m_Direction[i].y, m_Angles[i], m_Distances[i]);
+			return( false );
 		}
-
-		return( true );
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
-void CView_Shed::Get_Angle_Sectoral(int x, int y, double dx, double dy, double &Angle, double &Distance)
+bool CTopographic_Openness::Get_Angles_Sectoral(int x, int y)
 {
-	double	iDistance, dDistance, ix, iy, d, z;
+	if( m_pDEM->is_NoData(x, y) )
+	{
+		return( false );
+	}
+
+	m_MaxAngle.Assign(0.0);
+	m_MinAngle.Assign(0.0);
+
+	//-----------------------------------------------------
+	for(int i=0; i<m_MinAngle.Get_N(); i++)
+	{
+		if(0|| Get_Angle_Sectoral(x, y, i, m_MaxAngle[i], m_MinAngle[i]) == false )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CTopographic_Openness::Get_Angle_Sectoral(int x, int y, int i, double &Max, double &Min)
+{
+	double	iDistance, dDistance, dx, dy, ix, iy, d, z;
 
 	z			= m_pDEM->asDouble(x, y);
+	dx			= m_Direction[i].x;
+	dy			= m_Direction[i].y;
 	ix			= x;
 	iy			= y;
-	Angle		= 0.0;
-	Distance	= 0.0;
 	iDistance	= 0.0;
 	dDistance	= Get_Cellsize() * M_GET_LENGTH(dx, dy);
+	Max			= 0.0;
+	Min			= 0.0;
 
-	while( is_InGrid(x, y) && Distance <= m_Radius )
+	bool	bOkay	= false;
+
+	while( is_InGrid(x, y) && iDistance <= m_Radius )
 	{
 		ix	+= dx;	x	= (int)(0.5 + ix);
 		iy	+= dy;	y	= (int)(0.5 + iy);
 		iDistance	+= dDistance;
 
-		if( m_pDEM->is_InGrid(x, y) && (d = (m_pDEM->asDouble(x, y) - z) / iDistance) > Angle )
+		if( m_pDEM->is_InGrid(x, y) )
 		{
-			Angle		= d;
-			Distance	= iDistance;
+			d	= (m_pDEM->asDouble(x, y) - z) / iDistance;
+			
+			if( bOkay == false )
+			{
+				bOkay		= true;
+				Max	= Min	= d;
+			}
+			else if( Max < d )
+			{
+				Max	= d;
+			}
+			else if( Min > d )
+			{
+				Min	= d;
+			}
 		}
 	}
+
+	return( bOkay );
 }
 
 

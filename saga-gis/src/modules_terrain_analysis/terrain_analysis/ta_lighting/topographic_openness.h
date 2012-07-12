@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: topographic_openness.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 topographic_openness.h                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,58 +56,60 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__topographic_openness_H
+#define HEADER_INCLUDED__topographic_openness_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_String Get_Info(int i)
+class CTopographic_Openness : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Lighting, Visibility" ));
+public:
+	CTopographic_Openness(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2003-10") );
 
-	case MLB_INFO_Description:
-		return( _TL("Lighting and visibility calculations for digital terrain models." ));
+protected:
 
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
+	virtual bool			On_Execute		(void);
 
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Lighting" ));
-	}
-}
 
-//---------------------------------------------------------
-#include "HillShade.h"
-#include "Visibility_Point.h"
-#include "SolarRadiation.h"
-#include "view_shed.h"
-#include "topographic_correction.h"
-#include "topographic_openness.h"
+private:
 
-//---------------------------------------------------------
-CSG_Module * Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CHillShade );
-	case  1:	return( new CVisibility_Point );
-	case  2:	return( new CSolarRadiation );
-	case  3:	return( new CView_Shed );
-	case  4:	return( new CTopographic_Correction );
-	case  5:	return( new CTopographic_Openness );
-	}
+	int						m_Method, m_nLevels;
 
-	return( NULL );
-}
+	double					m_Radius;
+
+	CSG_Points_Z			m_Direction;
+
+	CSG_Vector				m_MinAngle, m_MaxAngle;
+
+	CSG_Grid_Pyramid		m_Pyramid;
+
+	CSG_Grid				*m_pDEM;
+
+
+	bool					Initialise				(int nDirections);
+
+	bool					Get_Angles_Multi_Scale	(int x, int y);
+	bool					Get_Angles_Sectoral		(int x, int y);
+	bool					Get_Angle_Sectoral		(int x, int y, int i, double &Max, double &Min);
+
+	bool					Get_Openness			(int x, int y, double &Pos, double &Neg);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -117,8 +119,4 @@ CSG_Module * Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__topographic_openness_H

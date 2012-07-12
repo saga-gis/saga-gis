@@ -79,7 +79,6 @@ class CView_Shed : public CSG_Module_Grid
 {
 public:
 	CView_Shed(void);
-	virtual ~CView_Shed(void);
 
 
 protected:
@@ -89,13 +88,13 @@ protected:
 
 private:
 
-	int						m_Method, m_MaxLevel;
+	int						m_Method, m_nLevels;
 
-	double					m_MaxRadius;
+	double					m_Radius;
 
 	CSG_Points_Z			m_Direction;
 
-	CSG_Vector				m_Angles;
+	CSG_Vector				m_Angles, m_Distances;
 
 	CSG_Grid				*m_pDEM;
 
@@ -106,9 +105,9 @@ private:
 
 	bool					Get_Angles_Multi_Scale	(int x, int y);
 	bool					Get_Angles_Sectoral		(int x, int y);
-	double					Get_Angle_Sectoral		(int x, int y, double dx, double dy);
+	void					Get_Angle_Sectoral		(int x, int y, double dx, double dy, double &Angle, double &Distance);
 
-	bool					Get_View_Shed			(int x, int y, double &Sky_Visible, double &Sky_Factor, double &Sky_Simple, double &Sky_Terrain);
+	bool					Get_View_Shed			(int x, int y, double &Sky_Visible, double &Sky_Factor, double &Sky_Simple, double &Sky_Terrain, double &Distance);
 
 };
 
