@@ -131,7 +131,7 @@ CTopographic_Openness::CTopographic_Openness(void)
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("multi scale"),
 			_TL("sectors")
-		), 0
+		), 1
 	);
 
 	Parameters.Add_Value(
@@ -166,8 +166,8 @@ bool CTopographic_Openness::On_Execute(void)
 	m_Radius	= Parameters("RADIUS")->asDouble();
 	m_Method	= Parameters("METHOD")->asInt();
 
-	DataObject_Set_Colors(pPos, 100, SG_COLORS_RED_GREEN, true);
-	DataObject_Set_Colors(pNeg, 100, SG_COLORS_RED_GREEN, false);
+	DataObject_Set_Colors(pPos, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pNeg, 100, SG_COLORS_RED_GREY_BLUE, false);
 
 	//-----------------------------------------------------
 	if( m_Method == 0 )	// multi scale
@@ -221,8 +221,6 @@ bool CTopographic_Openness::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_Pyramid	.Destroy();
-	m_MaxAngle	.Destroy();
-	m_MinAngle	.Destroy();
 	m_Direction	.Clear();
 
 	return( bResult );
@@ -238,9 +236,7 @@ bool CTopographic_Openness::On_Execute(void)
 //---------------------------------------------------------
 bool CTopographic_Openness::Initialise(int nDirections)
 {
-	m_MaxAngle	.Create		(nDirections);
-	m_MinAngle	.Create		(nDirections);
-	m_Direction	.Set_Count	(nDirections);
+	m_Direction.Set_Count(nDirections);
 
 	for(int i=0; i<nDirections; i++)
 	{
@@ -267,24 +263,27 @@ bool CTopographic_Openness::Get_Openness(int x, int y, double &Pos, double &Neg)
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	CSG_Vector	Max(m_Direction.Get_Count()), Min(m_Direction.Get_Count());
+
 	switch( m_Method )
 	{
-	case 0:	if( !Get_Angles_Multi_Scale(x, y) )	return( false );	break;
-	case 1:	if( !Get_Angles_Sectoral   (x, y) )	return( false );	break;
+	case 0:	if( !Get_Angles_Multi_Scale(x, y, Max, Min) )	return( false );	break;
+	case 1:	if( !Get_Angles_Sectoral   (x, y, Max, Min) )	return( false );	break;
 	}
 
 	//-----------------------------------------------------
 	Pos	= 0.0;
 	Neg	= 0.0;
 
-	for(int i=0; i<m_MinAngle.Get_N(); i++)
+	for(int i=0; i<m_Direction.Get_Count(); i++)
 	{
-		Pos	+= M_PI_090 - atan(m_MaxAngle[i]);
-		Neg	+= M_PI_090 + atan(m_MinAngle[i]);
+		Pos	+= M_PI_090 - atan(Max[i]);
+		Neg	+= M_PI_090 + atan(Min[i]);
 	}
 
-	Pos	/= m_MaxAngle.Get_N();
-	Neg	/= m_MinAngle.Get_N();
+	Pos	/= m_Direction.Get_Count();
+	Neg	/= m_Direction.Get_Count();
 
 	return( true );
 }
@@ -297,7 +296,7 @@ bool CTopographic_Openness::Get_Openness(int x, int y, double &Pos, double &Neg)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y)
+bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Max, CSG_Vector &Min)
 {
 	if( m_pDEM->is_NoData(x, y) )
 	{
@@ -310,16 +309,13 @@ bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y)
 	z	= m_pDEM->asDouble(x, y);
 	p	= Get_System()->Get_Grid_to_World(x, y);
 
-	m_MaxAngle.Assign(0.0);
-	m_MinAngle.Assign(0.0);
-
 	//-----------------------------------------------------
 	for(int iGrid=-1; iGrid<m_nLevels; iGrid++)
 	{
 		bool		bOkay	= false;
 		CSG_Grid	*pGrid	= m_Pyramid.Get_Grid(iGrid);
 
-		for(int i=0; i<8; i++)
+		for(int i=0; i<m_Direction.Get_Count(); i++)
 		{
 			q.x	= p.x + pGrid->Get_Cellsize() * m_Direction[i].x;
 			q.y	= p.y + pGrid->Get_Cellsize() * m_Direction[i].y;
@@ -330,16 +326,16 @@ bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y)
 			
 				if( bOkay == false )
 				{
-					bOkay			= true;
-					m_MaxAngle[i]	= m_MinAngle[i]	= d;
+					bOkay	= true;
+					Max[i]	= Min[i]	= d;
 				}
-				else if( m_MaxAngle[i] < d )
+				else if( Max[i] < d )
 				{
-					m_MaxAngle[i]	= d;
+					Max[i]	= d;
 				}
-				else if( m_MinAngle[i] > d )
+				else if( Min[i] > d )
 				{
-					m_MinAngle[i]	= d;
+					Min[i]	= d;
 				}
 			}
 		}
@@ -354,20 +350,17 @@ bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y)
 }
 
 //---------------------------------------------------------
-bool CTopographic_Openness::Get_Angles_Sectoral(int x, int y)
+bool CTopographic_Openness::Get_Angles_Sectoral(int x, int y, CSG_Vector &Max, CSG_Vector &Min)
 {
 	if( m_pDEM->is_NoData(x, y) )
 	{
 		return( false );
 	}
 
-	m_MaxAngle.Assign(0.0);
-	m_MinAngle.Assign(0.0);
-
 	//-----------------------------------------------------
-	for(int i=0; i<m_MinAngle.Get_N(); i++)
+	for(int i=0; i<m_Direction.Get_Count(); i++)
 	{
-		if(0|| Get_Angle_Sectoral(x, y, i, m_MaxAngle[i], m_MinAngle[i]) == false )
+		if(0|| Get_Angle_Sectoral(x, y, i, Max[i], Min[i]) == false )
 		{
 			return( false );
 		}

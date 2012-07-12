@@ -94,8 +94,6 @@ private:
 
 	CSG_Points_Z			m_Direction;
 
-	CSG_Vector				m_Angles, m_Distances;
-
 	CSG_Grid				*m_pDEM;
 
 	CSG_Grid_Pyramid		m_Pyramid;
@@ -103,9 +101,9 @@ private:
 
 	bool					Initialise				(int nDirections);
 
-	bool					Get_Angles_Multi_Scale	(int x, int y);
-	bool					Get_Angles_Sectoral		(int x, int y);
-	void					Get_Angle_Sectoral		(int x, int y, double dx, double dy, double &Angle, double &Distance);
+	bool					Get_Angles_Multi_Scale	(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances);
+	bool					Get_Angles_Sectoral		(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances);
+	void					Get_Angle_Sectoral		(int x, int y, int i, double &Angle, double &Distance);
 
 	bool					Get_View_Shed			(int x, int y, double &Sky_Visible, double &Sky_Factor, double &Sky_Simple, double &Sky_Terrain, double &Distance);
 

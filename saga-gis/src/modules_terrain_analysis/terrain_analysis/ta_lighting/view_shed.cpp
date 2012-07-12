@@ -144,7 +144,7 @@ CView_Shed::CView_Shed(void)
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("multi scale"),
 			_TL("sectors")
-		), 0
+		), 1
 	);
 
 	Parameters.Add_Value(
@@ -247,8 +247,6 @@ bool CView_Shed::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_Pyramid	.Destroy();
-	m_Angles	.Destroy();
-	m_Distances	.Destroy();
 	m_Direction	.Clear();
 
 	return( bResult );
@@ -264,9 +262,7 @@ bool CView_Shed::On_Execute(void)
 //---------------------------------------------------------
 bool CView_Shed::Initialise(int nDirections)
 {
-	m_Angles	.Create		(nDirections);
-	m_Distances	.Create		(nDirections);
-	m_Direction	.Set_Count	(nDirections);
+	m_Direction.Set_Count(nDirections);
 
 	for(int i=0; i<nDirections; i++)
 	{
@@ -293,10 +289,13 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	CSG_Vector	Angles(m_Direction.Get_Count()), Distances(m_Direction.Get_Count());
+
 	switch( m_Method )
 	{
-	case 0:	if( !Get_Angles_Multi_Scale(x, y) )	return( false );	break;
-	case 1:	if( !Get_Angles_Sectoral   (x, y) )	return( false );	break;
+	case 0:	if( !Get_Angles_Multi_Scale(x, y, Angles, Distances) )	return( false );	break;
+	case 1:	if( !Get_Angles_Sectoral   (x, y, Angles, Distances) )	return( false );	break;
 	}
 
 	//-----------------------------------------------------
@@ -315,20 +314,20 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 	Distance	= 0.0;
 
 	//-----------------------------------------------------
-	for(int i=0; i<m_Angles.Get_N(); i++)
+	for(int i=0; i<m_Direction.Get_Count(); i++)
 	{
-		Phi			= atan(m_Angles[i]);
+		Phi			= atan(Angles[i]);
 		cosPhi		= cos(Phi);
 		sinPhi		= sin(Phi);
 
 		Sky_Visible	+= (M_PI_090 - Phi) * 100.0 / M_PI_090;
 		Sky_Factor	+= cosSlope * cosPhi*cosPhi + sinSlope * cos(m_Direction[i].z - Aspect) * ((M_PI_090 - Phi) - sinPhi * cosPhi);
-		Distance	+= m_Distances[i];
+		Distance	+= Distances[i];
 	}
 
-	Sky_Visible	/= m_Angles.Get_N();
-	Sky_Factor	/= m_Angles.Get_N();
-	Distance	/= m_Angles.Get_N();
+	Sky_Visible	/= m_Direction.Get_Count();
+	Sky_Factor	/= m_Direction.Get_Count();
+	Distance	/= m_Direction.Get_Count();
 
 	Sky_Simple	= (1.0 + cosSlope) / 2.0;
 	Sky_Terrain	= Sky_Simple - Sky_Factor;
@@ -344,7 +343,7 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Shed::Get_Angles_Multi_Scale(int x, int y)
+bool CView_Shed::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances)
 {
 	if( !m_pDEM->is_NoData(x, y) )
 	{
@@ -354,23 +353,20 @@ bool CView_Shed::Get_Angles_Multi_Scale(int x, int y)
 		z	= m_pDEM->asDouble(x, y);
 		p	= Get_System()->Get_Grid_to_World(x, y);
 
-		m_Angles   .Assign(0.0);
-		m_Distances.Assign(0.0);
-
 		//-------------------------------------------------
 		for(int iGrid=-1; iGrid<m_nLevels; iGrid++)
 		{
 			CSG_Grid	*pGrid	= m_Pyramid.Get_Grid(iGrid);
 
-			for(int i=0; i<8; i++)
+			for(int i=0; i<m_Direction.Get_Count(); i++)
 			{
 				q.x	= p.x + pGrid->Get_Cellsize() * m_Direction[i].x;
 				q.y	= p.y + pGrid->Get_Cellsize() * m_Direction[i].y;
 
-				if( pGrid->Get_Value(q, d) && (d = (d - z) / pGrid->Get_Cellsize()) > m_Angles[i] )
+				if( pGrid->Get_Value(q, d) && (d = (d - z) / pGrid->Get_Cellsize()) > Angles[i] )
 				{
-					m_Angles   [i]	= d;
-					m_Distances[i]	= pGrid->Get_Cellsize();
+					Angles   [i]	= d;
+					Distances[i]	= pGrid->Get_Cellsize();
 				}
 			}
 		}
@@ -382,17 +378,14 @@ bool CView_Shed::Get_Angles_Multi_Scale(int x, int y)
 }
 
 //---------------------------------------------------------
-bool CView_Shed::Get_Angles_Sectoral(int x, int y)
+bool CView_Shed::Get_Angles_Sectoral(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances)
 {
 	if( !m_pDEM->is_NoData(x, y) )
 	{
-		m_Angles   .Assign(0.0);
-		m_Distances.Assign(0.0);
-
 		//-------------------------------------------------
-		for(int i=0; i<m_Angles.Get_N(); i++)
+		for(int i=0; i<m_Direction.Get_Count(); i++)
 		{
-			Get_Angle_Sectoral(x, y, m_Direction[i].x, m_Direction[i].y, m_Angles[i], m_Distances[i]);
+			Get_Angle_Sectoral(x, y, i, Angles[i], Distances[i]);
 		}
 
 		return( true );
@@ -402,11 +395,13 @@ bool CView_Shed::Get_Angles_Sectoral(int x, int y)
 }
 
 //---------------------------------------------------------
-void CView_Shed::Get_Angle_Sectoral(int x, int y, double dx, double dy, double &Angle, double &Distance)
+void CView_Shed::Get_Angle_Sectoral(int x, int y, int i, double &Angle, double &Distance)
 {
-	double	iDistance, dDistance, ix, iy, d, z;
+	double	iDistance, dDistance, dx, dy, ix, iy, d, z;
 
 	z			= m_pDEM->asDouble(x, y);
+	dx			= m_Direction[i].x;
+	dy			= m_Direction[i].y;
 	ix			= x;
 	iy			= y;
 	Angle		= 0.0;
