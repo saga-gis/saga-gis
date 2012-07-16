@@ -167,6 +167,7 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
 	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
+	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SAVE);
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Attributes"), pTable);
 
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Edit"), Edit_Get_Menu());
@@ -232,6 +233,19 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 
 	case ID_CMD_TABLES_SCATTERPLOT:
 		Add_ScatterPlot(Get_Table()->Get_Table());
+		break;
+
+	case ID_CMD_TABLES_SAVE:
+		{
+			wxString	File(Get_Shapes()->Get_File_Name());
+
+			if( DLG_Save(File, ID_DLG_TABLES_SAVE) )
+			{
+				CSG_Table	Table(*m_pShapes);
+
+				Table.Save(&File);
+			}
+		}
 		break;
 
 	case ID_CMD_SHAPES_HISTOGRAM:
