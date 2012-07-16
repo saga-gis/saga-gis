@@ -591,6 +591,7 @@
     <ClCompile Include="IsochronesVar.cpp" />
     <ClCompile Include="LakeFlood.cpp" />
     <ClCompile Include="LakeFloodInteractive.cpp" />
+    <ClCompile Include="melton_ruggedness.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -638,6 +639,7 @@
     <ClInclude Include="IsochronesConst.h" />
     <ClInclude Include="IsochronesVar.h" />
     <ClInclude Include="LakeFlood.h" />
+    <ClInclude Include="melton_ruggedness.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

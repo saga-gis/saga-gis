@@ -31,6 +31,7 @@ IsochronesVar.cpp\
 LakeFlood.cpp\
 LakeFloodInteractive.cpp\
 MLB_Interface.cpp\
+melton_ruggedness.cpp\
 SAGA_Wetness_Index.cpp\
 Sinuosity.cpp\
 SlopeLength.cpp\
@@ -53,6 +54,7 @@ IsochronesConst.h\
 IsochronesVar.h\
 LakeFlood.h\
 MLB_Interface.h\
+melton_ruggedness.h\
 SAGA_Wetness_Index.h\
 Sinuosity.h\
 SlopeLength.h\

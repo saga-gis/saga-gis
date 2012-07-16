@@ -80,6 +80,9 @@
     <ClCompile Include="TopographicIndices.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="melton_ruggedness.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -197,6 +200,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TopographicIndices.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="melton_ruggedness.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
