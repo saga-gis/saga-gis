@@ -75,6 +75,17 @@ CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(void)
 	Parameters.Add_Value(NULL, "NUM", _TL("Count")		, _TL("")	, PARAMETER_TYPE_Bool, false);
 
 	Add_Parameters("ATTRIBUTES", _TL("Attributes"), _TL(""));
+
+	Parameters.Add_Choice(
+		NULL, "FIELD_NAME"	, _TL("Field Name"),
+		_TL(""), 
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("type + original"),
+			_TL("original + type"),
+			_TL("original"),
+			_TL("type")
+		), 0
+	);
 }
 
 
@@ -88,7 +99,7 @@ CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(void)
 bool CPolygonStatisticsFromPoints::On_Execute(void)
 {
 	bool					bSum, bAvg, bVar, bDev, bMin, bMax, bNum, *bAttribute;
-	int						i, j, n, Offset;
+	int						i, n, Offset;
 	CSG_Simple_Statistics	*Statistics;
 	CSG_Parameters			*pParameters;
 	CSG_Shapes				*pPolygons, *pPoints;
@@ -152,13 +163,13 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 		{
 			CSG_String	sName	= pPoints->Get_Field_Name(i);
 
-			if( bSum )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("SUM"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
-			if( bAvg )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("AVG"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
-			if( bVar )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("VAR"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
-			if( bDev )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("DEV"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
-			if( bMin )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("MIN"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
-			if( bMax )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("MAX"), sName.c_str()), SG_DATATYPE_Double);	n++;	}
-			if( bNum )	{	pPolygons->Add_Field(CSG_String::Format(SG_T("%s_%s"), SG_T("NUM"), sName.c_str()), SG_DATATYPE_Int   );	n++;	}
+			if( bSum )	{	pPolygons->Add_Field(Get_Field_Name("SUM", sName), SG_DATATYPE_Double);	n++;	}
+			if( bAvg )	{	pPolygons->Add_Field(Get_Field_Name("AVG", sName), SG_DATATYPE_Double);	n++;	}
+			if( bVar )	{	pPolygons->Add_Field(Get_Field_Name("VAR", sName), SG_DATATYPE_Double);	n++;	}
+			if( bDev )	{	pPolygons->Add_Field(Get_Field_Name("DEV", sName), SG_DATATYPE_Double);	n++;	}
+			if( bMin )	{	pPolygons->Add_Field(Get_Field_Name("MIN", sName), SG_DATATYPE_Double);	n++;	}
+			if( bMax )	{	pPolygons->Add_Field(Get_Field_Name("MAX", sName), SG_DATATYPE_Double);	n++;	}
+			if( bNum )	{	pPolygons->Add_Field(Get_Field_Name("NUM", sName), SG_DATATYPE_Int   );	n++;	}
 		}
 	}
 
@@ -235,6 +246,30 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 	DataObject_Update(pPolygons);
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CPolygonStatisticsFromPoints::Get_Field_Name(const CSG_String &Type, const CSG_String &Name)
+{
+	CSG_String	s;
+	
+	switch( Parameters("FIELD_NAME")->asInt() )
+	{
+	default:
+	case 0:	s.Printf(SG_T("%s_%s"), Type.c_str(), Name.c_str());	break;
+	case 1:	s.Printf(SG_T("%s_%s"), Name.c_str(), Type.c_str());	break;
+	case 2:	s.Printf(SG_T("%s"   ), Name.c_str()              );	break;
+	case 3:	s.Printf(SG_T("%s"   ), Type.c_str()              );	break;
+	}
+
+	return( s );
 }
 
 

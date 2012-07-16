@@ -55,6 +55,8 @@ protected:
 
 private:
 
+	CSG_String		Get_Field_Name	(const CSG_String &Type, const CSG_String &Name);
+
 
 };
 
