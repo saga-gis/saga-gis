@@ -83,6 +83,19 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+
+private:
+
+	bool						m_bCmpNumeric;
+
+	int							m_id_A, m_id_B, m_off_Field;
+
+	CSG_Table					*m_pTable_A, *m_pTable_B;
+
+	int							Cmp_Keys				(CSG_Table_Record *pA, CSG_Table_Record *pB);
+
+	void						Add_Attributes			(CSG_Table_Record *pA, CSG_Table_Record *pB);
+
 };
 
 //---------------------------------------------------------

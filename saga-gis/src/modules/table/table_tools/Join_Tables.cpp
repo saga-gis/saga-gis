@@ -114,132 +114,176 @@ void CJoin_Tables_Base::Initialise(void)
 bool CJoin_Tables_Base::On_Execute(void)
 {
 	bool		bKeepAll;
-	int			id_A, id_B, off_Field;
-	CSG_Table	*pTable_A, *pTable_B;
 
 	//-----------------------------------------------------
-	pTable_A	= Parameters("TABLE_A")	->asTable();
-	id_A		= Parameters("ID_A")	->asInt();
+	m_pTable_A	= Parameters("TABLE_A")	->asTable();
+	m_id_A		= Parameters("ID_A")	->asInt();
 
-	pTable_B	= Parameters("TABLE_B")	->asTable();
-	id_B		= Parameters("ID_B")	->asInt();
+	m_pTable_B	= Parameters("TABLE_B")	->asTable();
+	m_id_B		= Parameters("ID_B")	->asInt();
 
 	bKeepAll	= Parameters("KEEPALL")	->asBool();
 
 	//-----------------------------------------------------
-	if(	id_A < 0 || id_A >= pTable_A->Get_Field_Count() || pTable_A->Get_Count() <= 0
-	||	id_B < 0 || id_B >= pTable_B->Get_Field_Count() || pTable_B->Get_Count() <= 0 )
+	if(	m_id_A < 0 || m_id_A >= m_pTable_A->Get_Field_Count() || m_pTable_A->Get_Count() <= 0
+	||	m_id_B < 0 || m_id_B >= m_pTable_B->Get_Field_Count() || m_pTable_B->Get_Count() <= 0 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable_A )
+	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != m_pTable_A )
 	{
-		pTable_A	= Parameters("RESULT")->asTable();
+		m_pTable_A	= Parameters("RESULT")->asTable();
 
 		if( Parameters("RESULT")->asTable()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
 		{
-			((CSG_Shapes *)pTable_A)->Create(*((CSG_Shapes *)Parameters("TABLE_A")->asTable()));
+			((CSG_Shapes *)m_pTable_A)->Create(*((CSG_Shapes *)Parameters("TABLE_A")->asTable()));
 		}
 		else
 		{
-			pTable_A->Create(*Parameters("TABLE_A")->asTable());
+			m_pTable_A->Create(*Parameters("TABLE_A")->asTable());
 		}
 	}
 
 	//-----------------------------------------------------
-	off_Field	= pTable_A->Get_Field_Count();
+	m_bCmpNumeric	=  SG_Data_Type_is_Numeric(m_pTable_A->Get_Field_Type(m_id_A))
+					|| SG_Data_Type_is_Numeric(m_pTable_B->Get_Field_Type(m_id_B));
 
-	for(int iField=0; iField<pTable_B->Get_Field_Count(); iField++)
+	//-----------------------------------------------------
+	m_off_Field	= m_pTable_A->Get_Field_Count();
+
+	for(int iField=0; iField<m_pTable_B->Get_Field_Count(); iField++)
 	{
-		if( iField != id_B )
+		if( iField != m_id_B )
 		{
-			pTable_A->Add_Field(pTable_B->Get_Field_Name(iField), pTable_B->Get_Field_Type(iField));
+			m_pTable_A->Add_Field(m_pTable_B->Get_Field_Name(iField), m_pTable_B->Get_Field_Type(iField));
 		}
 	}
 
-	pTable_A->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pTable_A->Get_Name(), pTable_B->Get_Name()));
+	m_pTable_A->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pTable_A->Get_Name(), m_pTable_B->Get_Name()));
 
-	pTable_A->Select();	// clear selection
+	m_pTable_A->Select();	// clear selection
 
 	//-------------------------------------------------
-	for(int iA=0; iA<pTable_A->Get_Count() && Set_Progress(iA, pTable_A->Get_Count()); iA++)
+	m_pTable_A->Set_Index(m_id_A, TABLE_INDEX_Ascending);
+	m_pTable_B->Set_Index(m_id_B, TABLE_INDEX_Ascending);
+
+	CSG_Table_Record	*pRecord_B	= m_pTable_B->Get_Record_byIndex(0);
+
+	for(int iA=0, iB=0; iA<m_pTable_A->Get_Count() && iB<m_pTable_B->Get_Count() && Set_Progress(iA, m_pTable_A->Get_Count()); iA++)
 	{
-		CSG_Table_Record	*pRecord_A	= pTable_A->Get_Record(iA);
-		CSG_Table_Record	*pRecord_B	= NULL;
-		CSG_String			Key			= pRecord_A->asString(id_A);
+		CSG_Table_Record	*pRecord_A	= m_pTable_A->Get_Record_byIndex(iA);
 
-		for(int iB=0; iB<pTable_B->Get_Count() && !pRecord_B; iB++)
+		int	Cmp;
+
+		while( (Cmp = Cmp_Keys(pRecord_A, pRecord_B)) < 0 )
 		{
-			if( !Key.CmpNoCase(pTable_B->Get_Record(iB)->asString(id_B)) )
-			{
-				pRecord_B	= pTable_B->Get_Record(iB);
-
-				for(int Field_A=off_Field, Field_B=0; Field_B<pTable_B->Get_Field_Count(); Field_B++)
-				{
-					if( Field_B != id_B )
-					{
-						switch( pTable_A->Get_Field_Type(Field_A) )
-						{
-						default:
-						case SG_DATATYPE_String:
-						case SG_DATATYPE_Date:
-							pRecord_A->Set_Value(Field_A++, pRecord_B->asString(Field_B));
-							break;
-
-						case SG_DATATYPE_Bit:
-						case SG_DATATYPE_Byte:
-						case SG_DATATYPE_Char:
-						case SG_DATATYPE_Word:
-						case SG_DATATYPE_Short:
-						case SG_DATATYPE_DWord:
-						case SG_DATATYPE_Int:
-						case SG_DATATYPE_ULong:
-						case SG_DATATYPE_Long:
-						case SG_DATATYPE_Color:
-							pRecord_A->Set_Value(Field_A++, pRecord_B->asInt(Field_B));
-							break;
-
-						case SG_DATATYPE_Float:
-						case SG_DATATYPE_Double:
-							pRecord_A->Set_Value(Field_A++, pRecord_B->asDouble(Field_B));
-							break;
-
-						case SG_DATATYPE_Binary:
-							pRecord_A->Get_Value(Field_A++)->Set_Value(pRecord_B->Get_Value(Field_B)->asBinary());
-							break;
-						}
-					}
-				}
-			}
+			pRecord_B	= m_pTable_B->Get_Record_byIndex(++iB);
 		}
 
 		//-------------------------------------------------
-		if( pRecord_B == NULL && bKeepAll == false )
+		if( Cmp == 0 )
 		{
-			pTable_A->Select(iA, true);
+			Add_Attributes(pRecord_A, pRecord_B);
+		}
+		else if( !bKeepAll )
+		{
+			m_pTable_A->Select(iA, true);
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pTable_A->Get_Selection_Count() > 0 )
+	if( m_pTable_A->Get_Selection_Count() > 0 )
 	{
-		Message_Add(CSG_String::Format(SG_T("%d %s"), pTable_A->Get_Selection_Count(), _TL("unjoined records have been removed")));
+		Message_Add(CSG_String::Format(SG_T("%d %s"), m_pTable_A->Get_Selection_Count(), _TL("unjoined records have been removed")));
 
-		pTable_A->Del_Selection();
+		m_pTable_A->Del_Selection();
 	}
 
-	if( pTable_A == Parameters("TABLE_A")->asTable() )
+	if( m_pTable_A == Parameters("TABLE_A")->asTable() )
 	{
-		DataObject_Update(pTable_A);
+		DataObject_Update(m_pTable_A);
 	}
 
-	return( pTable_A->Get_Count() > 0 );
+	return( m_pTable_A->Get_Count() > 0 );
 }
 
 
 ///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline int CJoin_Tables_Base::Cmp_Keys(CSG_Table_Record *pA, CSG_Table_Record *pB)
+{
+	if( pB == NULL )
+	{
+		return( 1 );
+	}
+
+	if( m_bCmpNumeric )
+	{
+		double	d	= pB->asDouble(m_id_B) - pA->asDouble(m_id_A);
+
+		return( d < 0.0 ? -1 : d > 0.0 ? 1 : 0 );
+	}
+
+	CSG_String	Key(pB->asString(m_id_B));
+
+	return( Key.CmpNoCase(pA->asString(m_id_A)) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CJoin_Tables_Base::Add_Attributes(CSG_Table_Record *pA, CSG_Table_Record *pB)
+{
+	for(int Field_A=m_off_Field, Field_B=0; Field_B<m_pTable_B->Get_Field_Count(); Field_B++)
+	{
+		if( Field_B != m_id_B )
+		{
+			switch( m_pTable_A->Get_Field_Type(Field_A) )
+			{
+			default:
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Date:
+				pA->Set_Value(Field_A++, pB->asString(Field_B));
+				break;
+
+			case SG_DATATYPE_Bit:
+			case SG_DATATYPE_Byte:
+			case SG_DATATYPE_Char:
+			case SG_DATATYPE_Word:
+			case SG_DATATYPE_Short:
+			case SG_DATATYPE_DWord:
+			case SG_DATATYPE_Int:
+			case SG_DATATYPE_ULong:
+			case SG_DATATYPE_Long:
+			case SG_DATATYPE_Color:
+				pA->Set_Value(Field_A++, pB->asInt(Field_B));
+				break;
+
+			case SG_DATATYPE_Float:
+			case SG_DATATYPE_Double:
+				pA->Set_Value(Field_A++, pB->asDouble(Field_B));
+				break;
+
+			case SG_DATATYPE_Binary:
+				pA->Get_Value(Field_A++)->Set_Value(pB->Get_Value(Field_B)->asBinary());
+				break;
+			}
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -271,6 +315,8 @@ CJoin_Tables::CJoin_Tables(void)
 
 
 ///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
