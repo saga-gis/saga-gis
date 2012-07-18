@@ -152,7 +152,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                   Paralellization                     //
+//                   Parallelization                     //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -204,7 +204,7 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 //---------------------------------------------------------
 #define SG_STR_CMP(s1, s2)		CSG_String(s1).Cmp(s2)
 
-#if !defined(_SAGA_UNICODE) || defined(_SAGA_LINUX)
+#if !defined(_SAGA_UNICODE)
 	#define SG_Char				char
 	#define SG_T(s)				s
 	#define SG_PRINTF			printf
@@ -217,8 +217,8 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 #else
 	#define SG_Char				wchar_t
 	#define SG_T(s)				L ## s
-	#define SG_PRINTF			wprintf
-	#define SG_FPRINTF			fwprintf
+	#define SG_PRINTF			SG_Printf
+	#define SG_FPRINTF			SG_FPrintf
 	#define SG_SSCANF			swscanf
 	#define SG_STR_CPY			wcscpy
 	#define SG_STR_LEN			wcslen

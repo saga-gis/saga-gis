@@ -265,12 +265,18 @@ void CSG_String::Clear(void)
 CSG_String CSG_String::Format(const SG_Char *Format, ...)
 {
 	CSG_String	s;
-
+	
+	/* workaround as we only use wide characters since wx 2.9.4, 
+	so interpret strings as multibyte */
+	wxString	sFormat;
+	sFormat = Format;
+	sFormat.Replace("%s", "%ls");
+	
 	va_list		argptr;
 
-	va_start(argptr, Format);
+	va_start(argptr, sFormat);
 
-	s.m_pString->PrintfV(Format, argptr);
+	s.m_pString->PrintfV(sFormat, argptr);
 
 	va_end(argptr);
 
@@ -280,11 +286,17 @@ CSG_String CSG_String::Format(const SG_Char *Format, ...)
 //---------------------------------------------------------
 int CSG_String::Printf(const SG_Char *Format, ...)
 {
+	/* workaround as we only use wide characters since wx 2.9.4, 
+	so interpret strings as multibyte */
+	wxString	sFormat;
+	sFormat = Format;
+	sFormat.Replace("%s", "%ls");
+	
 	va_list	argptr;
 
-	va_start(argptr, Format);
+	va_start(argptr, sFormat);
 
-	m_pString->PrintfV(Format, argptr);
+	m_pString->PrintfV(sFormat, argptr);
 
 	va_end(argptr);
 
