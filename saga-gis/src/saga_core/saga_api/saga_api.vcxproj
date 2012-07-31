@@ -200,7 +200,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -248,7 +248,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -298,7 +298,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -350,7 +350,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -401,7 +401,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -449,7 +449,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -499,7 +499,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -551,7 +551,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

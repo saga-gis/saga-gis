@@ -63,7 +63,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <stdint.h>
 #include <string.h>
+
+#ifdef _SAGA_LINUX
+#include "config.h"
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#else
+#include <WinSock2.h>
+#endif
 
 #include "grid.h"
 
@@ -200,15 +209,20 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int
 //---------------------------------------------------------
 void CSG_Grid::_Swap_Bytes(char *Bytes, int nBytes) const
 {
-	char	Byte, *p;
-
-	p	= Bytes + nBytes - 1;
-
-	while( Bytes < p )
+	if( nBytes == 2 ) 
 	{
-		Byte		= *Bytes;
-		*(Bytes++)	= *p;
-		*(p--)		= Byte;
+		uint16_t val, valSwapped;
+		memcpy(&val, Bytes, nBytes);
+		valSwapped = ntohs(val);
+		memcpy(Bytes, &valSwapped, nBytes);
+	} 
+	else if( nBytes == 4 )
+	{
+		uint32_t val, valSwapped;
+
+		memcpy(&val, Bytes, nBytes);
+		valSwapped = ntohl(val);
+		memcpy(Bytes, &valSwapped, nBytes);
 	}
 }
 
@@ -736,6 +750,12 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 //---------------------------------------------------------
 bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN, int yN, bool bBinary)
 {
+#ifdef WORDS_BIGENDIAN
+	bool		bBigEndian	= true;
+#else
+	bool		bBigEndian	= false;
+#endif
+
 	bool		bResult		= false;
 	CSG_File	Stream;
 
@@ -749,7 +769,7 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
 		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], bBinary ? gSG_Data_Type_Identifier[Get_Type()] : SG_T("ASCII") );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], GRID_FILE_KEY_FALSE );
+		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], bBigEndian ? GRID_FILE_KEY_TRUE : GRID_FILE_KEY_FALSE );
 		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
 		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );
 		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_X	], xN );
@@ -767,7 +787,7 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 		{
 			if( bBinary )
 			{
-				bResult		= _Save_Binary	(Stream, xA, yA, xN, yN, Get_Type(), false, false);
+				bResult		= _Save_Binary	(Stream, xA, yA, xN, yN, Get_Type(), false, bBigEndian);
 			}
 			else
 			{
