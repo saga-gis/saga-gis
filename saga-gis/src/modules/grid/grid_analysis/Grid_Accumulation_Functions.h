@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      grid analysis                     //
+//                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//             Grid_Accumulation_Functions.h             //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
-//                     Victor Olaya                      //
+//                 Copyright (C) 2009 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,111 +40,59 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     volaya@ya.com                          //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Victor Olaya Ferrero                   //
-//                Madrid                                 //
-//                Spain                                  //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Grid_Accumulation_Functions_H
+#define HEADER_INCLUDED__Grid_Accumulation_Functions_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+
+//---------------------------------------------------------
+
+
+//---------------------------------------------------------
+class CGrid_Accumulation_Functions : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Analysis") );
-
-	case MLB_INFO_Author:
-		return( _TL("Various authors.") );
-
-	case MLB_INFO_Description:
-		return( _TL("Some Grid Analysis Tools.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Analysis") );
-	}
-}
+public:
+	CGrid_Accumulation_Functions(void);
+	virtual ~CGrid_Accumulation_Functions(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Cost_Isotropic.h"
-#include "Cost_Anisotropic.h"
-#include "LeastCostPathProfile.h"
-#include "LeastCostPathProfile_Points.h"
+	virtual bool		On_Execute(void);
 
-#include "Grid_CVA.h"
-#include "CoveredDistance.h"
-#include "Grid_Pattern.h"
-#include "Grid_LayerOfMaximumValue.h"
-#include "Grid_AHP.h"
-#include "owa.h"
-#include "Grid_AggregationIndex.h"
-#include "CrossClassification.h"
+	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-#include "Soil_Texture.h"
+private:
 
-#include "fragmentation_standard.h"
-#include "fragmentation_resampling.h"
-#include "fragmentation_classify.h"
 
-#include "Grid_Accumulation_Functions.h"
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CCost_Isotropic );
-	case  1:	return( new CCost_Anisotropic );
-	case  2:	return( MLB_INTERFACE_SKIP_MODULE );	// removed: CCost_PolarToRect
-	case  3:	return( MLB_INTERFACE_SKIP_MODULE );	// removed: CCost_RectToPolar
-	case  4:	return( new CLeastCostPathProfile );
-	case  5:	return( new CLeastCostPathProfile_Points );
-
-	case  6:	return( new CGrid_CVA );
-	case  7:	return( new CCoveredDistance );
-	case  8:	return( new CGrid_Pattern );
-	case  9:	return( new CLayerOfMaximumValue );
-	case 10:	return( new CAHP );
-	case 11:	return( new COWA );
-	case 12:	return( new CAggregationIndex );
-	case 13:	return( new CCrossClassification );
-
-	case 14:	return( new CSoil_Texture );
-
-	case 15:	return( new CFragmentation_Standard );
-	case 16:	return( new CFragmentation_Resampling );
-	case 17:	return( new CFragmentation_Classify );
-
-	case 18:	return( new CGrid_Accumulation_Functions );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -154,8 +102,5 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Grid_Accumulation_Functions_H
 
-	MLB_INTERFACE
-
-//}}AFX_SAGA

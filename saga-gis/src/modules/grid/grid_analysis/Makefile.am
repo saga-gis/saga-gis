@@ -21,6 +21,7 @@ fragmentation_base.cpp\
 fragmentation_classify.cpp\
 fragmentation_resampling.cpp\
 fragmentation_standard.cpp\
+Grid_Accumulation_Functions.cpp\
 Grid_AggregationIndex.cpp\
 Grid_AHP.cpp\
 Grid_CVA.cpp\
@@ -40,6 +41,7 @@ fragmentation_base.h\
 fragmentation_classify.h\
 fragmentation_resampling.h\
 fragmentation_standard.h\
+Grid_Accumulation_Functions.h\
 Grid_AggregationIndex.h\
 Grid_AHP.h\
 Grid_CVA.h\

@@ -71,6 +71,9 @@
     <ClCompile Include="Soil_Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grid_Accumulation_Functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cost_Anisotropic.h">
@@ -162,6 +165,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid_Accumulation_Functions.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

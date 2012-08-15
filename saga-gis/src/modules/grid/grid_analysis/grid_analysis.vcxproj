@@ -650,6 +650,7 @@
     <ClCompile Include="fragmentation_classify.cpp" />
     <ClCompile Include="fragmentation_resampling.cpp" />
     <ClCompile Include="fragmentation_standard.cpp" />
+    <ClCompile Include="Grid_Accumulation_Functions.cpp" />
     <ClCompile Include="Grid_AggregationIndex.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -824,6 +825,7 @@
     <ClInclude Include="fragmentation_classify.h" />
     <ClInclude Include="fragmentation_resampling.h" />
     <ClInclude Include="fragmentation_standard.h" />
+    <ClInclude Include="Grid_Accumulation_Functions.h" />
     <ClInclude Include="Grid_AggregationIndex.h" />
     <ClInclude Include="Grid_AHP.h" />
     <ClInclude Include="Grid_CVA.h" />
