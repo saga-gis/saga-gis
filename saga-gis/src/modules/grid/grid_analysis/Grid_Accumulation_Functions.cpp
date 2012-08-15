@@ -342,52 +342,6 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 					bBorder = true;
 			}
 
-/*			if( bLinearFlow && linearCtrl > thresLinear )	// D8
-			{
-				for(int i=0; i<8; i++)											
-				{
-					ix	= Get_xTo(i, x);			
-					iy	= Get_yTo(i, y);
-
-					if( is_InGrid(ix, iy) )
-					{
-						if( !pSurface->is_NoData(ix, iy) && (d = pSurface->asDouble(ix, iy)) < z )
-						{
-							dzSum = (z - d) / Get_Length(i);
-							if( maxGrad < dzSum )
-							{
-								maxGrad = dzSum;
-								steepestN = i;
-							}
-						}
-					}
-					else
-						bBorder = true;
-				}
-			}
-			else											// MFD Freeman 1991
-			{
-				for(int i=0; i<8; i++)
-				{
-					ix	= Get_xTo(i, x);			
-					iy	= Get_yTo(i, y);			
-
-					if( is_InGrid(ix, iy) )
-					{
-						if( !pSurface->is_NoData(ix, iy) && (d = pSurface->asDouble(ix, iy)) < z )
-						{
-							gradient = (z - d) / Get_Length(i);
-							dzSum	+= (dz[i]	= pow(gradient, Convergence));
-						}
-						else
-						{
-							dz[i]	= 0.0;
-						}
-					}
-					else
-						bBorder = true;
-				}
-			}*/
 			
 			// routing
 			//-----------------------------------------------------
