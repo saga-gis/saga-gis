@@ -251,7 +251,7 @@ bool CGrid_Aspect_Slope_Map::On_Execute(void)
 	{
 		int		iAspectClass, iSlopeClass;
 
-		if( pAspect->is_NoData(n) && pSlope->is_NoData(n) )
+		if( pAspect->is_NoData(n) || pSlope->is_NoData(n) )
 		{
 			pAspectSlope->Set_NoData(n);
 		}
