@@ -84,7 +84,7 @@ CSG_String Get_Info(int i)
 		));
 
 	case MLB_INFO_Version:
-		return( CSG_String::Format(SG_T("LIBSVM %d.%d"), libsvm_version / 10, libsvm_version - libsvm_version / 10) );
+		return( CSG_String::Format(SG_T("LIBSVM %d.%d"), libsvm_version / 100, libsvm_version - 100 * (libsvm_version / 100)) );
 
 	case MLB_INFO_Menu_Path:
 		return( _TL("SVM") );

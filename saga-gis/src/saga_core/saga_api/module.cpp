@@ -211,11 +211,11 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 
 	if( Menu.Length() > 0 )
 	{
-		CSG_String	s(Menu);
+		CSG_String	sMenu(Menu);
 
-		s.Replace(SG_T("|"), SG_T(" <b>></b> "));
+		sMenu.Replace(SG_T("|"), SG_T(" <b>></b> "));
 
-		SUMMARY_ADD_STR(_TL("Menu"  ), s.c_str());
+		SUMMARY_ADD_STR(_TL("Menu"  ), sMenu.c_str());
 	}
 
 	s	+= SG_T("</table><hr>");
