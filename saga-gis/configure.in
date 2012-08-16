@@ -240,6 +240,7 @@ AC_OUTPUT(Makefile \
 	src/modules_images/modules_imagery/imagery_classification/Makefile \
 	src/modules_images/modules_imagery/imagery_rga/Makefile \
 	src/modules_images/modules_imagery/imagery_segmentation/Makefile \
+	src/modules_images/modules_imagery/imagery_svm/Makefile \
 	src/modules_images/modules_imagery/imagery_tools/Makefile \
 	src/modules_images/modules_opencv/Makefile \
 	src/modules_images/modules_opencv/opencv/Makefile \
