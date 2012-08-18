@@ -73,15 +73,21 @@
 CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 {
 
-	Set_Name(_TL("Drop Point Cloud Attribute"));
+	Set_Name(_TL("Drop Point Cloud Attributes"));
 
 	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module can be used to drop an attribute from a point cloud. "
-		"In case the output dataset is not set, the attribute will be dropped "
-		"from the input dataset, i.e. the input dataset will be overwritten.\n\n")
-	);
+		"The module can be used to drop attributes from a point cloud. "
+		"In case the output dataset is not set, the attribute(s) will be dropped "
+		"from the input dataset, i.e. the input dataset will be overwritten.\n\n"
+		"Module usage is different between SAGA GUI and SAGA CMD: With "
+		"SAGA GUI you will get prompted to choose the attributes to drop "
+		"once you execute the module. With SAGA CMD you have to provide "
+		"a string with the -FIELDS parameter containing the field numbers "
+		"(separated by semicolon). Field numbers start with 1, e.g. "
+		"-FIELDS=\"5;8;9\".\n\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -91,17 +97,20 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		Parameters("INPUT"), "ATTRIB", _TL("Attribute to drop"),
-		_TL("Attribute to drop."),
-		false
-	);
-
 	Parameters.Add_PointCloud(
 		NULL	, "OUTPUT"		, _TL("Output"),
 		_TL("Point Cloud with attribute dropped."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
+
+	if (!SG_UI_Get_Window_Main())
+	{
+		Parameters.Add_String(
+            NULL	, "FIELDS"    , _TL("Fields"),
+            _TL("The numbers (starting from 1) of the fields to drop, separated by semicolon, e.g. \"5;8;9\""),
+            SG_T("")
+        );
+	}
 }
 
 //---------------------------------------------------------
@@ -119,44 +128,121 @@ CPC_Drop_Attribute::~CPC_Drop_Attribute(void)
 bool CPC_Drop_Attribute::On_Execute(void)
 {
 	CSG_PointCloud		*pInput, *pOutput;
-	int					iField;
 	CSG_String			sName;
 	CSG_Parameters		sParms;
 
+	CSG_Parameters		P;
+	CSG_Parameter		*pNode;
+	CSG_String			s;
+	std::set<int>		setCols;
+	std::set<int>::iterator it;
+
+
 	pInput	= Parameters("INPUT")->asPointCloud();
 	pOutput	= Parameters("OUTPUT")->asPointCloud();
-	iField	= Parameters("ATTRIB")->asInt();
 
-	if (iField < 3)
-	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("We must keep the coordinates, please choose another field than x, y, or z!")));
-		return (false);
-	}
 
 	//-----------------------------------------------------
-	if (!pOutput || pOutput == pInput )
+	if( !pOutput || pOutput == pInput )
 	{
 		sName = pInput->Get_Name();
 		pOutput = SG_Create_PointCloud(pInput);
 	}
 	else
 	{
-		sName = CSG_String::Format(SG_T("%s_%s_dropped"), pInput->Get_Name(), pInput->Get_Field_Name(iField));
+		sName = CSG_String::Format(SG_T("%s_discardedAttr"), pInput->Get_Name());
 		pOutput->Create(pInput);
 	}
 	
 
-	pOutput->Del_Field(iField);
+	//-----------------------------------------------------
+	if( SG_UI_Get_Window_Main() )
+	{
+		P.Set_Name(_TL("Check the attributes to drop"));
+
+		for(int iAttr=0; iAttr<pInput->Get_Attribute_Count(); iAttr++)
+		{
+			s.Printf(SG_T("ATTR_%03d"), iAttr);
+			P.Add_Value(NULL, s, CSG_String::Format(SG_T("%s"), pInput->Get_Attribute_Name(iAttr)), _TL(""), PARAMETER_TYPE_Bool, false);
+		}
+
+		//-----------------------------------------------------
+		if( Dlg_Parameters(&P, _TL("Field Properties")) )
+		{
+			setCols.clear();
+
+			for(int iAttr=0; iAttr<pInput->Get_Attribute_Count(); iAttr++)
+			{
+				if( P(CSG_String::Format(SG_T("ATTR_%03d" ), iAttr).c_str())->asBool() )
+				{
+					setCols.insert(iAttr + 3);
+				}
+			}
+		}
+		else
+			return( false );
+	}
+	else // CMD
+	{
+		CSG_String		sFields, sPrecision;
+		CSG_String		token;
+		int				iValue;
+
+
+		sFields		= Parameters("FIELDS")->asString();
+
+		wxStringTokenizer   tkz_fields(sFields.c_str(), wxT(";"), wxTOKEN_STRTOK);
+
+		while( tkz_fields.HasMoreTokens() )
+		{
+			token	= tkz_fields.GetNextToken().wc_str();
+
+			if( token.Length() == 0 )
+				break;
+
+			if( !token.asInt(iValue) )
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: can't convert to number"));
+				return( false );
+			}
+
+			iValue	-= 1;
+
+			if( iValue < 3 || iValue > pInput->Get_Field_Count()-1 )
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: field index out of range"));
+				return( false );
+			}
+			else
+				setCols.insert(iValue);
+		}
+	}
+
+	if( setCols.size() == 0 )
+	{
+		SG_UI_Msg_Add_Error(_TL("You must specify at least one attribute to drop!"));
+		return( false );
+	}
+
+
+	//-----------------------------------------------------
+	int j = 0;
+	for(it=setCols.begin(); it!=setCols.end(); it++)
+	{
+		pOutput->Del_Field(*it - j);
+		j++;
+	}
 
 	DataObject_Update(pOutput);
 
-	for (int i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
+	for(int i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		pOutput->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 
-		for (int j=0, k=0; j<pInput->Get_Attribute_Count(); j++, k++)
+		for(int j=0, k=0; j<pInput->Get_Attribute_Count(); j++, k++)
 		{
-			if (j == (iField - 3))
+			it = setCols.find(j + 3);
+			if( it != setCols.end() )
 			{
 				k--;
 				continue;
