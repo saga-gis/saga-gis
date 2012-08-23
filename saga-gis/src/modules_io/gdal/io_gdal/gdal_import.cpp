@@ -329,7 +329,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	{
 		for(int j=0; j<DataSet.Get_Count(); j++)
 		{
-			Selection.Add_Value(NULL, SG_Get_String(j, 0), DataSet.Get_Name(j), _TL(""), PARAMETER_TYPE_Bool, true);
+			Selection.Add_Value(NULL, SG_Get_String(j, 0), DataSet.Get_Name(j), _TL(""), PARAMETER_TYPE_Bool, SG_UI_Get_Window_Main() == NULL);
 		}
 
 		if( !Dlg_Parameters(&Selection, _TL("Select from Multiple Bands")) )

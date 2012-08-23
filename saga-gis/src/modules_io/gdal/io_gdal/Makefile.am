@@ -18,6 +18,7 @@ gdal_driver.cpp\
 gdal_export.cpp\
 gdal_export_geotiff.cpp\
 gdal_import.cpp\
+gdal_import_netcdf.cpp\
 MLB_Interface.cpp\
 ogr_driver.cpp\
 ogr_export.cpp\
@@ -27,6 +28,7 @@ gdal_driver.h\
 gdal_export.h\
 gdal_export_geotiff.h\
 gdal_import.h\
+gdal_import_netcdf.h\
 MLB_Interface.h\
 ogr_driver.h\
 ogr_export.h\

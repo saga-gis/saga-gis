@@ -422,15 +422,55 @@ const CSG_String CSG_GDAL_DataSet::Get_Description(void)	const
 }
 
 //---------------------------------------------------------
+const char * CSG_GDAL_DataSet::Get_MetaData_Item(const char *pszName, const char *pszDomain)	const
+{
+	return( m_pDataSet ? m_pDataSet->GetMetadataItem(pszName, pszDomain) : "" );
+}
+
+//---------------------------------------------------------
 const char ** CSG_GDAL_DataSet::Get_MetaData(const char *pszDomain)	const
 {
 	return( m_pDataSet ? (const char **)m_pDataSet->GetMetadata(pszDomain) : NULL );
 }
 
 //---------------------------------------------------------
-const char * CSG_GDAL_DataSet::Get_MetaData_Item(const char *pszName, const char *pszDomain)	const
+bool CSG_GDAL_DataSet::Get_MetaData_Item(CSG_String &MetaData, const char *pszName, const char *pszDomain)		const
 {
-	return( m_pDataSet ? m_pDataSet->GetMetadataItem(pszName, pszDomain) : "" );
+	const char	*Item	= Get_MetaData_Item(pszName, pszDomain);
+
+	if( Item && *Item )
+	{
+		MetaData	= Item;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Get_MetaData(CSG_MetaData &MetaData)	const
+{
+	if( m_pDataSet && is_Reading() )
+	{
+		char	**pMetaData	= m_pDataSet->GetMetadata() + 0;
+
+		if( pMetaData )
+		{
+			while( *pMetaData )
+			{
+				CSG_String	s(*pMetaData);
+
+				MetaData.Add_Child(s.BeforeFirst(SG_T('=')), s.AfterFirst(SG_T('=')));
+
+				pMetaData++;
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 
@@ -455,17 +495,35 @@ CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 	{
 		const char	*s;
 
-		if( (s = pBand->GetMetadataItem("GRIB_COMMENT")) != NULL && *s )
+		//-------------------------------------------------
+		if( !SG_STR_CMP(m_pDataSet->GetDriver()->GetDescription(), "GRIB") )
 		{
-			Name	= s;
+			if( (s = pBand->GetMetadataItem("GRIB_COMMENT")) != NULL && *s )
+			{
+				Name	= s;
+
+				if( (s = pBand->GetMetadataItem("GRIB_ELEMENT"   )) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
+				if( (s = pBand->GetMetadataItem("GRIB_SHORT_NAME")) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
+			}
 		}
-		else if( (s = pBand->GetMetadataItem(GDAL_DMD_LONGNAME)) != NULL && *s )
+
+		//-------------------------------------------------
+		if( !SG_STR_CMP(m_pDataSet->GetDriver()->GetDescription(), "netCDF") )
 		{
-			Name	= s;
+			if( (s = pBand->GetMetadataItem("NETCDF_VARNAME"        )) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
+			if( (s = pBand->GetMetadataItem("NETCDF_DIMENSION_time" )) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
+			if( (s = pBand->GetMetadataItem("NETCDF_DIMENSION_level")) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
 		}
-		else
+
+		//-------------------------------------------------
+		if( Name.is_Empty() )
 		{
-			Name.Printf(SG_T("%d"), i + 1);
+			if( (s = pBand->GetMetadataItem(GDAL_DMD_LONGNAME)) != NULL && *s )
+			{
+				Name	= s;
+			}
+
+			Name.Printf(SG_T("%s %02d"), Get_Name().c_str(), i + 1);
 		}
 	}
 
@@ -500,7 +558,7 @@ CSG_String CSG_GDAL_DataSet::Get_Description(int i)	const
 }
 
 //---------------------------------------------------------
-void CSG_GDAL_DataSet::Add_MetaData(int i, CSG_MetaData &MetaData)	const
+bool CSG_GDAL_DataSet::Get_MetaData(int i, CSG_MetaData &MetaData)	const
 {
 	GDALRasterBand	*pBand;
 
@@ -518,8 +576,39 @@ void CSG_GDAL_DataSet::Add_MetaData(int i, CSG_MetaData &MetaData)	const
 
 				pMetaData++;
 			}
+
+			return( true );
 		}
 	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+const char * CSG_GDAL_DataSet::Get_MetaData_Item(int i, const char *pszName)	const
+{
+	GDALRasterBand	*pBand	= m_pDataSet->GetRasterBand(i + 1);
+
+	return( pBand ? pBand->GetMetadataItem(pszName) : "" );
+}
+
+bool CSG_GDAL_DataSet::Get_MetaData_Item(int i, const char *pszName, CSG_String &MetaData)	const
+{
+	GDALRasterBand	*pBand;
+
+	if( (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
+	{
+		const char	*pMetaData	= pBand->GetMetadataItem(pszName);
+
+		if( pMetaData && *pMetaData )
+		{
+			MetaData	= pMetaData;
+
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -545,7 +634,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		pGrid->Get_Projection().Create(Get_Projection(), SG_PROJ_FMT_WKT);
 
 		//-------------------------------------------------
-		Add_MetaData(i, pGrid->Get_MetaData());
+		Get_MetaData(i, pGrid->Get_MetaData());
 
 		//-------------------------------------------------
 		double		zMin, zScale, *zLine;
@@ -586,35 +675,36 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 
 	GDALRasterBand	*pBand	= m_pDataSet->GetRasterBand(i + 1);
 
-	pBand->SetNoDataValue(pGrid->Get_NoData_Value());
+	//-----------------------------------------------------
+	CPLErr	Error	= CE_None;
 
 	double	*zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
-	
-	CPLErr bandErr;
-	
-	for(int y=0, yy=Get_NY()-1; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yy--)
+
+	for(int y=0, yy=Get_NY()-1; Error==CE_None && y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yy--)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
 			zLine[x]	= pGrid->is_NoData(x, yy) ? pGrid->Get_NoData_Value() : pGrid->asDouble(x, yy);
 		}
 
-		bandErr = pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);//{
-		
-		if (bandErr == CE_Failure)
-		{
-		  SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s"), _TL("Writing dataset failed.")));
-		  return false;
-		}
-		
+		Error	= pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
 	}
 
 	SG_Free(zLine);
 
-	pBand->SetStatistics(pGrid->Get_ZMin(), pGrid->Get_ZMax(), pGrid->Get_ArithMean(), pGrid->Get_StdDev());
-	
-	return( true );
-	
+	//-----------------------------------------------------
+	if( Error != CE_None )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s"), _TL("Writing dataset failed.")));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pBand->SetNoDataValue	(pGrid->Get_NoData_Value());
+	pBand->SetStatistics	(pGrid->Get_ZMin(), pGrid->Get_ZMax(), pGrid->Get_ArithMean(), pGrid->Get_StdDev());
+
+	return( true );	
 }
 
 
