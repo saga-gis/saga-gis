@@ -457,6 +457,9 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		_TL("")
 	);
 #endif
+
+	m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, SG_DATATYPE_String);
+	m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, SG_DATATYPE_String);
 }
 
 
@@ -572,6 +575,16 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 				m_pShapes->Get_Maximum(zField)
 			);
 		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("LUT_ATTRIB"))
+		&&  pParameter->asInt() >= 0 && pParameter->asInt() < m_pShapes->Get_Field_Count() )
+		{
+			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(m_pShapes->Get_Field_Type(pParameter->asInt()))
+									? SG_DATATYPE_Double : SG_DATATYPE_String;
+
+			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
+			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -650,14 +663,12 @@ void CWKSP_Shapes::On_Update_Views(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::_LUT_Create(void)
 {
-	int				iField, jField, Type;
+	int				iField, Method;
 	CSG_Colors		*pColors;
-	CSG_Table		*pTable, *pLUT;
+	CSG_Table		*pLUT;
 
 	//-----------------------------------------------------
-	pTable	= Get_Table()->Get_Table();
-
-	if( pTable->Get_Field_Count() <= 0 || pTable->Get_Record_Count() < 1 )
+	if( m_pShapes->Get_Field_Count() <= 0 || m_pShapes->Get_Record_Count() < 1 )
 	{
 		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Create Lookup Table"));
 
@@ -667,9 +678,9 @@ void CWKSP_Shapes::_LUT_Create(void)
 	//-----------------------------------------------------
 	CSG_String	sFields;
 
-	for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+	for(iField=0; iField<m_pShapes->Get_Field_Count(); iField++)
 	{
-		sFields	+= pTable->Get_Field_Name(iField);	sFields	+= SG_T("|");
+		sFields	+= m_pShapes->Get_Field_Name(iField);	sFields	+= SG_T("|");
 	}
 
 	//-----------------------------------------------------
@@ -695,7 +706,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 		)->asColors()->Set_Count(10);
 
 		Parameters.Add_Choice(
-			NULL, "TYPE"	, _TL("Classification Type"),
+			NULL, "METHOD"	, _TL("Classification Method"),
 			_TL(""),
 			CSG_String::Format(SG_T("%s|%s|%s|"),
 				_TL("unique values"),
@@ -711,57 +722,46 @@ void CWKSP_Shapes::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
-	pColors	= Parameters("COLOR")	->asColors();
-	iField	= Parameters("FIELD")	->asInt();
+	pColors	= Parameters("COLOR" )->asColors();
+	iField	= Parameters("FIELD" )->asInt();
+	Method	= !SG_Data_Type_is_Numeric(m_pShapes->Get_Field_Type(iField)) ? 0	// unique values
+			: Parameters("METHOD")->asInt();
 
-	if( pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
-	{
-		Type	= 0;	// unique values
-		jField	= pTable->Get_Field_Count();
-		pTable->Add_Field(CSG_String::Format(SG_T("%s_LUT"), pTable->Get_Field_Name(iField)), SG_DATATYPE_Int);
-	}
-	else
-	{
-		Type	= Parameters("TYPE")->asInt();
-		jField	= iField;
-	}
-
-	pLUT	= m_Parameters("LUT")->asTable();
+	pLUT	= m_Parameters("LUT" )->asTable();
 	pLUT	->Del_Records();
 
-	switch( Type )
+	switch( Method )
 	{
 	//-----------------------------------------------------
 	case 0:	// unique values
 		{
-			TSG_Table_Index_Order	old_Order	= pTable->Get_Index_Order(0);
-			int						old_Field	= pTable->Get_Index_Field(0);
+			TSG_Table_Index_Order	old_Order	= m_pShapes->Get_Index_Order(0);
+			int						old_Field	= m_pShapes->Get_Index_Field(0);
 
-			pTable->Set_Index(iField, TABLE_INDEX_Ascending);
+			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(m_pShapes->Get_Field_Type(iField))
+									? SG_DATATYPE_Double : SG_DATATYPE_String;
 
-			double		dValue;
+			pLUT->Set_Field_Type(LUT_MIN, Type);
+			pLUT->Set_Field_Type(LUT_MAX, Type);
+
+			m_pShapes->Set_Index(iField, TABLE_INDEX_Ascending);
+
 			CSG_String	sValue;
 
-			for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+			for(int iRecord=0; iRecord<m_pShapes->Get_Count(); iRecord++)
 			{
-				CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(iRecord);
+				CSG_Table_Record	*pRecord	= m_pShapes->Get_Record_byIndex(iRecord);
 
 				if( iRecord == 0 || sValue.Cmp(pRecord->asString(iField)) )
 				{
 					sValue	= pRecord->asString(iField);
-					dValue	= jField != iField ? 1 + iRecord : pRecord->asDouble(iField);
 
 					CSG_Table_Record	*pClass	= pLUT->Add_Record();
 
 					pClass->Set_Value(1, sValue);	// Name
 					pClass->Set_Value(2, sValue);	// Description
-					pClass->Set_Value(3, dValue);	// Minimum
-					pClass->Set_Value(4, dValue);	// Maximum
-				}
-
-				if( jField != iField )
-				{
-					pRecord->Set_Value(jField, dValue);
+					pClass->Set_Value(3, sValue);	// Minimum
+					pClass->Set_Value(4, sValue);	// Maximum
 				}
 			}
 
@@ -772,7 +772,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 				pLUT->Get_Record(iClass)->Set_Value(0, pColors->Get_Color(iClass));
 			}
 
-			pTable->Set_Index(old_Field, old_Order);
+			m_pShapes->Set_Index(old_Field, old_Order);
 		}
 		break;
 
@@ -781,12 +781,15 @@ void CWKSP_Shapes::_LUT_Create(void)
 		{
 			double	Minimum, Maximum, Interval;
 
-			Interval	= pTable->Get_Range  (iField) / (double)pColors->Get_Count();
-			Minimum		= pTable->Get_Minimum(iField);
+			Interval	= m_pShapes->Get_Range  (iField) / (double)pColors->Get_Count();
+			Minimum		= m_pShapes->Get_Minimum(iField);
+
+			pLUT->Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
+			pLUT->Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
 
 			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : pTable->Get_Maximum(iField) + 1.0;
+				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : m_pShapes->Get_Maximum(iField) + 1.0;
 
 				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
 					SG_Get_String(Minimum, -2).c_str(),
@@ -807,25 +810,28 @@ void CWKSP_Shapes::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 2:	// quantiles
 		{
-			TSG_Table_Index_Order	old_Order	= pTable->Get_Index_Order(0);
-			int						old_Field	= pTable->Get_Index_Field(0);
+			TSG_Table_Index_Order	old_Order	= m_pShapes->Get_Index_Order(0);
+			int						old_Field	= m_pShapes->Get_Index_Field(0);
 
-			pTable->Set_Index(iField, TABLE_INDEX_Ascending);
+			m_pShapes->Set_Index(iField, TABLE_INDEX_Ascending);
 
-			if( pTable->Get_Count() < pColors->Get_Count() )
+			pLUT->Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
+			pLUT->Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
+
+			if( m_pShapes->Get_Count() < pColors->Get_Count() )
 			{
-				pColors->Set_Count(pTable->Get_Count());
+				pColors->Set_Count(m_pShapes->Get_Count());
 			}
 
 			double	Minimum, Maximum, Count, iRecord;
 
-			Maximum	= pTable->Get_Minimum(iField);
-			iRecord	= Count	= pTable->Get_Count() / (double)pColors->Get_Count();
+			Maximum	= m_pShapes->Get_Minimum(iField);
+			iRecord	= Count	= m_pShapes->Get_Count() / (double)pColors->Get_Count();
 
 			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iRecord+=Count)
 			{
 				Minimum	= Maximum;
-				Maximum	= iRecord < pTable->Get_Count() ? pTable->Get_Record_byIndex((int)iRecord)->asDouble(iField) : pTable->Get_Maximum(iField) + 1.0;
+				Maximum	= iRecord < m_pShapes->Get_Count() ? m_pShapes->Get_Record_byIndex((int)iRecord)->asDouble(iField) : m_pShapes->Get_Maximum(iField) + 1.0;
 
 				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
 					SG_Get_String(Minimum, -2).c_str(),
@@ -841,7 +847,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 				pClass->Set_Value(4, Maximum);	// Maximum
 			}
 
-			pTable->Set_Index(old_Field, old_Order);
+			m_pShapes->Set_Index(old_Field, old_Order);
 		}
 		break;
 	}
@@ -850,7 +856,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 	DataObject_Changed();
 
 	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
-	m_Parameters("LUT_ATTRIB" )->Set_Value(jField);
+	m_Parameters("LUT_ATTRIB" )->Set_Value(iField);
 
 	Parameters_Changed();
 }
@@ -874,7 +880,7 @@ wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 			switch( m_pClassify->Get_Mode() )
 			{
 			case CLASSIFY_LUT:
-				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_iColor)) );
+				return( m_pClassify->Get_Class_Name_byValue(pShape->asString(m_iColor)) );
 
 			case CLASSIFY_METRIC:	default:
 				return( pShape->asString(m_iColor) );
@@ -1196,6 +1202,29 @@ int CWKSP_Shapes::_PenList_Get_Style(int Index)
 	case 3:	return( wxSHORT_DASH );
 	case 4:	return( wxDOT_DASH );
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Shapes::_Get_Class_Color(CSG_Shape *pShape, int &Color)
+{
+	if( pShape && m_pShapes && m_iColor >= 0 )
+	{
+		if( m_pClassify->Get_Mode() == CLASSIFY_LUT && !SG_Data_Type_is_Numeric(m_pShapes->Get_Field_Type(m_iColor)) )
+		{
+			return( m_pClassify->Get_Class_Color_byValue(pShape->asString(m_iColor), Color) );
+		}
+
+		return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor), Color) );
+	}
+
+	return( false );
 }
 
 

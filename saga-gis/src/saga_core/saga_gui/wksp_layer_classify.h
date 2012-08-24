@@ -201,12 +201,23 @@ public: ///////////////////////////////////////////////////
 		}
 	}
 
+	int							Get_Class				(const CSG_String &Value)
+	{
+		if( m_Mode == CLASSIFY_LUT )
+		{
+			return( _LUT_Get_Class(Value) );
+		}
+
+		return( Get_Class(Value.asDouble()) );
+	}
+
 	//-----------------------------------------------------
 	double						Get_Class_Value_Minimum	(int iClass);
 	double						Get_Class_Value_Center	(int iClass);
 	double						Get_Class_Value_Maximum	(int iClass);
 	wxString					Get_Class_Name			(int iClass);
-	wxString					Get_Class_Name_byValue	(double Value);
+	wxString					Get_Class_Name_byValue	(double          Value);
+	wxString					Get_Class_Name_byValue	(const wxString &Value);
 
 
 	///////////////////////////////////////////////////////
@@ -342,8 +353,25 @@ public: ///////////////////////////////////////////////////
 		}
 	}
 
+	bool						Get_Class_Color_byValue	(const CSG_String &Value, int &Color)
+	{
+		if( m_Mode == CLASSIFY_LUT )
+		{
+			return( Get_Class_Color(_LUT_Get_Class(Value), Color) );
+		}
+		
+		return( Get_Class_Color(Value.asDouble(), Color) );
+	}
+
 	//-----------------------------------------------------
 	int							Get_Class_Color_byValue	(double Value)
+	{
+		int		Color;
+
+		return( Get_Class_Color_byValue(Value, Color) ? Color : 0 );
+	}
+
+	int							Get_Class_Color_byValue	(const CSG_String &Value)
 	{
 		int		Color;
 
@@ -456,6 +484,9 @@ protected: ////////////////////////////////////////////////
 	//-----------------------------------------------------
 	int							_LUT_Cmp_Class			(double Value, int iClass);
 	int							_LUT_Get_Class			(double Value);
+
+	int							_LUT_Cmp_Class			(const CSG_String &Value, int iClass);
+	int							_LUT_Get_Class			(const CSG_String &Value);
 
 	int							_METRIC_Get_Class		(double Value)
 	{

@@ -480,19 +480,22 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 			dc_Map.dc.SetBrush	(wxBrush(m_Sel_Color_Fill	, wxSOLID));
 			dc_Map.dc.SetPen	(wxPen	(m_Sel_Color     , 0, wxSOLID));
 		}
-		else if( !bSelection && m_iColor >= 0 )
+		else
 		{
-			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor));
+			int		Color;
 
-			wxBrush	Brush(m_Brush);
-			Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-			dc_Map.dc.SetBrush(Brush);
-
-			if( !m_bOutline )
+			if( _Get_Class_Color(pShape, Color) )
 			{
-				wxPen	Pen(m_Pen);
-				Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-				dc_Map.dc.SetPen(Pen);
+				wxBrush	Brush(m_Brush);
+				Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+				dc_Map.dc.SetBrush(Brush);
+
+				if( !m_bOutline )
+				{
+					wxPen	Pen(m_Pen);
+					Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+					dc_Map.dc.SetPen(Pen);
+				}
 			}
 		}
 

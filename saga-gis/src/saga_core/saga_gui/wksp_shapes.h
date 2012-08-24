@@ -153,6 +153,8 @@ protected:
 	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)	= 0;
 	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)					= 0;
 
+	bool						_Get_Class_Color		(CSG_Shape *pShape, int &Color);
+
 	void						_Draw_Chart				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
 	void						_Draw_Chart_Pie			(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int size);
 	void						_Draw_Chart_Bar			(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int sx, int sy);

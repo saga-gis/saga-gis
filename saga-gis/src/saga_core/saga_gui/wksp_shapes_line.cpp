@@ -307,11 +307,11 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 	}
 	else if( m_iColor >= 0 || m_iSize >= 0 )
 	{
+		int		Color;
 		wxPen	Pen(m_Pen);
 
-		if( m_iColor >= 0 )
+		if( _Get_Class_Color(pShape, Color) )
 		{
-			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor));
 			Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		}
 
