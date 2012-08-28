@@ -325,14 +325,15 @@ inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(double Value, int iClass)
 
 	double	min	= pClass->asDouble(LUT_MIN);
 
-	if( Value < min )
-	{
-		return( 1 );
-	}
+	if( Value == min )	{	return(  0 );	}
+	if( Value  < min )	{	return(  1 );	}
 
 	double	max	= pClass->asDouble(LUT_MAX);
 
-	return( Value < max ? 0 : -1 );
+	if( max    < min )	{	return( -1 );	}
+	if( Value  < max )	{	return(  0 );	}
+
+	return( iClass == m_pLUT->Get_Count() - 1 && Value == max ? 0 : -1 );
 }
 
 //---------------------------------------------------------
