@@ -329,7 +329,7 @@ bool CSG_Formula::Set_Formula(const CSG_String &Formula)
 		Destroy();
 
 		m_sFormula	= Formula;
-		m_Formula	= _Translate(Formula, SG_T("abcdefghijklmnopqrstxyz"), &m_Length, &m_Error_Position);
+		m_Formula	= _Translate(Formula, SG_T("abcdefghijklmnopqrstuvwxyz"), &m_Length, &m_Error_Position);
 
 		if( m_Formula.code != NULL )
 		{
