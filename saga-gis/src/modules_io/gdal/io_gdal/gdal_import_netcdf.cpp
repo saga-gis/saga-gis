@@ -87,12 +87,17 @@ CSG_String	SG_Get_Time_Str	(int Time, int Unit)
 	{
 	case SG_TIME_UNIT_Seconds_Unix:
 		{
-			struct tm	t;
+			struct tm*	t;
 			time_t		tUnix	= Time;
+			
+			#ifdef _SAGA_LINUX
+			t = gmtime(&tUnix);
+			#else
+			gmtime_s(t, &tUnix);
+			#endif
+			
+			s.Printf(SG_T("%04d.%02d.%02d %02d:%02d:%02d"), t->tm_year, t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
 
-			gmtime_s(&t, &tUnix);
-
-			s.Printf(SG_T("%04d.%02d.%02d %02d:%02d:%02d"), t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
 		}
 		break;
 
