@@ -96,7 +96,7 @@ double				Degree_To_Decimal				(double Deg, double Min, double Sec);
 void				Decimal_To_Degree				(double Value, double &Deg, double &Min, double &Sec);
 
 //---------------------------------------------------------
-wxString			Get_nBytes_asString				(int nBytes, int Precision = -1);
+wxString			Get_nBytes_asString				(long nBytes, int Precision = -1);
 
 //---------------------------------------------------------
 double				Get_Random						(double loValue, double hiValue);

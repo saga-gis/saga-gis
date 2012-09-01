@@ -132,7 +132,7 @@ void		Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString	Get_nBytes_asString(int nBytes, int Precision)
+wxString	Get_nBytes_asString(long nBytes, int Precision)
 {
 	if( nBytes < 1024 )
 	{
@@ -143,19 +143,19 @@ wxString	Get_nBytes_asString(int nBytes, int Precision)
 
 	if( dSize < 1024 )
 	{
-		return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("kb")) );
+		return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("kB")) );
 	}
 
 	dSize	/= 1024.0;
 
 	if( dSize < 1024 )
 	{
-		return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("mb")) );
+		return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("MB")) );
 	}
 
 	dSize	/= 1024.0;
 
-	return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("gb")) );
+	return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("GB")) );
 }
 
 
