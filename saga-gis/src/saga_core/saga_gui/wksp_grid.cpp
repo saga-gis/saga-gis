@@ -193,7 +193,7 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SCATTERPLOT);
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
-	pSubMenu	= new wxMenu(_TL("[MNU] Classificaton"));
+	pSubMenu	= new wxMenu(_TL("[MNU] Classification"));
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV150);
