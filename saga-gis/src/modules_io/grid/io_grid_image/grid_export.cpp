@@ -82,8 +82,10 @@ CGrid_Export::CGrid_Export(void)
 
 	Set_Description	(_TW(
 		"Saves a grid as image using display properties as used by the graphical user interface.\n\n"
-		"On the command line there are further parameters available to either use one of the default "
-		"palettes, to use a Lookup Table for coloring or to interpret the grid as RGB coded.\n")
+		"On the command line there are further parameters available: It is possible to either use one "
+		"of the default palettes, to use a Lookup Table for coloring or to interpret the grid as RGB coded. "
+		"In case a shade grid is specified, it's minimum and maximum brightness values can be specified in "
+		"percent (0 - 100\%).\n")
 	);
 
 	Parameters.Add_Grid(
@@ -171,6 +173,12 @@ CGrid_Export::CGrid_Export(void)
 			_TL(""),
 			PARAMETER_TYPE_Bool, false
 		);
+
+		Parameters.Add_Range(
+            NULL, "SHADE_BRIGHTNESS"    , _TL("Shade Brightness"),
+            _TL("Allows to scale shade brightness, [percent]"),
+            0.0, 100.0, 0.0, true, 100.0, true
+        );
 	}
 }
 
@@ -186,7 +194,7 @@ bool CGrid_Export::On_Execute(void)
 {
 
 	int			x, y, c, r, g, b;
-	double		d;
+	double		d, dMinBright = 0.0, dMaxBright = 100.0;
 	CSG_Grid	*pGrid, *pShade, Grid, Shade;
 	CSG_File	Stream;
 	CSG_String	fName, fExt;
@@ -196,6 +204,19 @@ bool CGrid_Export::On_Execute(void)
 	pGrid	= Parameters("GRID")	->asGrid();
 	pShade	= Parameters("SHADE")	->asGrid();
 	fName	= Parameters("FILE")	->asString();
+
+    //-----------------------------------------------------
+    if( !SG_UI_Get_Window_Main() && pShade != NULL)
+    {
+        dMinBright  = Parameters("SHADE_BRIGHTNESS")->asRange()->Get_LoVal() / 100.0;
+        dMaxBright  = Parameters("SHADE_BRIGHTNESS")->asRange()->Get_HiVal() / 100.0;
+
+        if( dMinBright >= dMaxBright )
+        {
+            SG_UI_Msg_Add_Error(_TL("Minimum shade brightness must be lower than maximum shade brightness!"));
+            return( false );
+        }
+    }
 
 	//-----------------------------------------------------
 	if(      SG_File_Cmp_Extension(fName, SG_T("bmp")) )
@@ -255,7 +276,7 @@ bool CGrid_Export::On_Execute(void)
 					bool	bFound = false;
 
 					d = pGrid->asDouble(x, y);
-					
+
 					for(int i=0; i<pLUT->Get_Record_Count(); i++)
 					{
 						if( d >= pLUT->Get_Record(i)->asDouble(3) && d < pLUT->Get_Record(i)->asDouble(4) )
@@ -265,7 +286,7 @@ bool CGrid_Export::On_Execute(void)
 							break;
 						}
 					}
-					
+
 					if( !bFound )
 						Grid.Set_NoData(x, Get_NY() - 1 - y);
 					else
@@ -308,7 +329,7 @@ bool CGrid_Export::On_Execute(void)
 					Shade.Set_NoData(x, Get_NY() - 1 - y);
 				else
 					Shade.Set_Value(x, Get_NY() - 1 - y, Colors[(int)(
-						nColors * (pShade->asDouble(x, y) - pShade->Get_ZMin()) / pShade->Get_ZRange()
+						nColors * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_ZMin()) / pShade->Get_ZRange() + dMinBright
 					)]);
 			}
 		}
