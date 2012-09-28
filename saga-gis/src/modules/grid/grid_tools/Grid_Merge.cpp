@@ -419,6 +419,9 @@ bool CGrid_Merge::is_Aligned(CSG_Grid *pGrid)
 //---------------------------------------------------------
 inline void CGrid_Merge::Set_Value(int x, int y, double Value, double Weight)
 {
+	if (!m_pMosaic->is_InGrid(x, y, false))
+		return;
+
 	switch( m_Overlap )
 	{
 	case 0:	// first
