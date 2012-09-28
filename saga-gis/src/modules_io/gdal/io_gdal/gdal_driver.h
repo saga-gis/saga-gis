@@ -143,8 +143,9 @@ public:
 	void						Get_Transform		(CSG_Vector &A, CSG_Matrix &B)	const	{	A	= m_TF_A;	B	= m_TF_B;	}
 
 	class GDALDriver *			Get_Driver			(void)	const;
-	const CSG_String			Get_Name			(void)	const;
-	const CSG_String			Get_Description		(void)	const;
+	CSG_String					Get_DriverID		(void)	const;
+	CSG_String					Get_Name			(void)	const;
+	CSG_String					Get_Description		(void)	const;
 	const char *				Get_Projection		(void)	const;
 	const char *				Get_MetaData_Item	(const char *pszName, const char *pszDomain = "")	const;
 	const char **				Get_MetaData		(const char *pszDomain = "")	const;

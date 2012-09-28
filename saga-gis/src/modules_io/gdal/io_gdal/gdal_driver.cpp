@@ -404,19 +404,25 @@ GDALDriver * CSG_GDAL_DataSet::Get_Driver(void)	const
 }
 
 //---------------------------------------------------------
+CSG_String CSG_GDAL_DataSet::Get_DriverID(void)	const
+{
+	return( m_pDataSet && m_pDataSet->GetDriver() && m_pDataSet->GetDriver()->GetDescription() ? m_pDataSet->GetDriver()->GetDescription() : "" );
+}
+
+//---------------------------------------------------------
 const char * CSG_GDAL_DataSet::Get_Projection(void)	const
 {
 	return( m_pDataSet && m_pDataSet->GetProjectionRef() ? m_pDataSet->GetProjectionRef() : "" );
 }
 
 //---------------------------------------------------------
-const CSG_String CSG_GDAL_DataSet::Get_Name(void)	const
+CSG_String CSG_GDAL_DataSet::Get_Name(void)	const
 {
 	return( m_pDataSet ? m_pDataSet->GetMetadataItem(GDAL_DMD_LONGNAME) : "" );
 }
 
 //---------------------------------------------------------
-const CSG_String CSG_GDAL_DataSet::Get_Description(void)	const
+CSG_String CSG_GDAL_DataSet::Get_Description(void)	const
 {
 	return( m_pDataSet ? m_pDataSet->GetDescription() : "" );
 }

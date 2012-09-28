@@ -59,88 +59,6 @@
 //---------------------------------------------------------
 #include "gdal_import_netcdf.h"
 
-#include <gdal_priv.h>
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include <time.h>
-
-//---------------------------------------------------------
-enum
-{
-	SG_TIME_UNIT_Seconds_Unix	= 0,
-	SG_TIME_UNIT_Hours_AD
-};
-
-//---------------------------------------------------------
-CSG_String	SG_Get_Time_Str	(int Time, int Unit)
-{
-	CSG_String	s;
-
-	switch( Unit )
-	{
-	case SG_TIME_UNIT_Seconds_Unix:
-		{
-			struct tm*	t;
-			time_t		tUnix	= Time;
-			
-			#ifdef _SAGA_LINUX
-			t = gmtime(&tUnix);
-			#else
-			gmtime_s(t, &tUnix);
-			#endif
-			
-			s.Printf(SG_T("%04d.%02d.%02d %02d:%02d:%02d"), t->tm_year, t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
-
-		}
-		break;
-
-	case SG_TIME_UNIT_Hours_AD:
-		{
-			struct tm	t;
-			double	d	= 1721424.0 + (Time - 12.0) / 24.0;
-			long	n, l, jd	= long(d);		// Truncate to integral day
-			double	frac	= double(d) - jd + 0.5;	// Fractional part of calendar day
-
-			if( frac >= 1.0 )	// Is it really the next calendar day?
-			{
-				frac	--;
-				jd		++;
-			}
-
-			frac		= 24.0 * (frac);
-			t.tm_hour	= (int)frac;
-			frac		= 60.0 * (frac - t.tm_hour);
-			t.tm_min	= (int)frac;
-			frac		= 60.0 * (frac - t.tm_min);
-			t.tm_sec	= (int)frac;
-
-			l			= jd + 68569;
-			n			= 4 * l / 146097l;
-			l			= l - (146097 * n + 3l) / 4;
-			t.tm_year	= 4000 * (l + 1) / 1461001;
-			l			= l - 1461 * t.tm_year / 4 + 31;	// 1461 = 365.25 * 4
-			t.tm_mon	= 80 * l / 2447;
-			t.tm_mday	= l - 2447 * t.tm_mon / 80;
-			l			= t.tm_mon / 11;
-			t.tm_mon	= t.tm_mon + 2 - 12 * l;
-			t.tm_year	= 100 * (n - 49) + t.tm_year + l;
-
-			s.Printf(SG_T("%04d.%02d.%02d %02d"), t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour);
-		}
-		break;
-	}
-
-	//-----------------------------------------------------
-	return( s );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -278,9 +196,9 @@ int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 bool CGDAL_Import_NetCDF::On_Execute(void)
 {
 	const char				*s;
-	int						i, tType	= SG_TIME_UNIT_Hours_AD;
-	CSG_Parameter			*pNode;
-	CSG_Parameters			&P = *Get_Parameters("BANDS"), *pVars, *pTime, *pLevel;
+	int						i;
+	TSG_Time_Format			tFmt	= SG_TIME_FMT_Hours_AD;
+	CSG_Parameters			&P		= *Get_Parameters("BANDS"), *pVars, *pTime, *pLevel;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_GDAL_DataSet		DataSet;
 
@@ -296,7 +214,7 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 		return( false );
 	}
 
-	if( SG_STR_CMP(DataSet.Get_Driver()->GetDescription(), "netCDF") )
+	if( DataSet.Get_DriverID().Cmp("netCDF") )
 	{
 		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("invalid NetCDF file"), Parameters("FILE")->asString()));
 
@@ -328,7 +246,7 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 			pVars  ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
 
 		if( !pTime ->Get_Parameter(s = DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_time")) )
-			pTime  ->Add_Value(NULL, s, SG_Get_Time_Str(atoi(s), tType), _TL(""), PARAMETER_TYPE_Bool, false);
+			pTime  ->Add_Value(NULL, s, CSG_Time_Converter::Get_String(atoi(s), tFmt), _TL(""), PARAMETER_TYPE_Bool, false);
 
 		if( !pLevel->Get_Parameter(s = DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_level")) )
 			pLevel ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
@@ -367,9 +285,9 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 			if( pGrid )
 			{
 				pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s] [%s]"),
-					CSG_String(          DataSet.Get_MetaData_Item(i, "NETCDF_VARNAME"        )        ).c_str(),
-					SG_Get_Time_Str(atoi(DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_time" )), tType).c_str(),
-					CSG_String(          DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_level")        ).c_str()
+					CSG_String(                         DataSet.Get_MetaData_Item(i, "NETCDF_VARNAME"        )       ).c_str(),
+					CSG_Time_Converter::Get_String(atoi(DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_time" )), tFmt).c_str(),
+					CSG_String(                         DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_level")       ).c_str()
 				));
 
 				pGrids->Add_Item(pGrid);
