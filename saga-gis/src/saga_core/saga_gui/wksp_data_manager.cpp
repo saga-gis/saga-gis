@@ -309,7 +309,7 @@ bool CWKSP_Data_Manager::Finalise(void)
 	CONFIG_Write(wxT("/DATA")		, wxT("NUMBERING")			, (long)m_Parameters("NUMBERING")				->asInt());
 
 	CONFIG_Write(wxT("/DATA")		, wxT("HISTORY_DEPTH")		, (long)m_Parameters("HISTORY_DEPTH")			->asInt());
-	
+
 	if( Get_Count() == 0 )
 	{
 		if( fProject.FileExists() )
@@ -320,16 +320,18 @@ bool CWKSP_Data_Manager::Finalise(void)
 	else switch( m_Parameters("PROJECT_START")->asInt() )
 	{
 	case 0:	// empty
-		wxRemoveFile(fProject.GetFullPath());
+        if( fProject.FileExists() )
+            wxRemoveFile(fProject.GetFullPath());
 		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), _TL(""));
 		break;
 
 	case 1:	// last opened
-		wxRemoveFile(fProject.GetFullPath());
+        if( fProject.FileExists() )
+            wxRemoveFile(fProject.GetFullPath());
 		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), m_pProject->Get_File_Name());
 		break;
 
-	case 2:	// automatically save and load		
+	case 2:	// automatically save and load
 		m_pProject->Save(fProject.GetFullPath(), false);
 		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), fProject.GetFullPath());
 		break;
@@ -987,7 +989,7 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 
 		case DATAOBJECT_TYPE_PointCloud:
 			return( (CWKSP_Base_Item *)m_pPointClouds->Add((CSG_PointCloud *)pObject) );
-			
+
 		default:
 			return( NULL );
 		}
