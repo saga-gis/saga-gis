@@ -128,23 +128,27 @@ void CParameters_PG_Choice::_Create(void)
 
 	if( m_pParameter )
 	{
+		int		iSelection = 0;
+
 		switch( m_pParameter->Get_Type() )
 		{
-		default:							SetChoiceSelection(0);					break;
-		case PARAMETER_TYPE_Choice:			SetChoiceSelection(_Set_Choice());		break;
-		case PARAMETER_TYPE_Grid_System:	SetChoiceSelection(_Set_Grid_System());	break;
-		case PARAMETER_TYPE_Table_Field:	SetChoiceSelection(_Set_Table_Field());	break;
-		case PARAMETER_TYPE_Grid:			SetChoiceSelection(_Set_Grid());		break;
-		case PARAMETER_TYPE_Table:			SetChoiceSelection(_Set_Table());		break;
-		case PARAMETER_TYPE_Shapes:			SetChoiceSelection(_Set_Shapes());		break;
-		case PARAMETER_TYPE_TIN:			SetChoiceSelection(_Set_TIN());			break;
-		case PARAMETER_TYPE_PointCloud:		SetChoiceSelection(_Set_PointCloud());	break;
+		default:							break;
+		case PARAMETER_TYPE_Choice:			iSelection = _Set_Choice();			break;
+		case PARAMETER_TYPE_Grid_System:	iSelection = _Set_Grid_System();	break;
+		case PARAMETER_TYPE_Table_Field:	iSelection = _Set_Table_Field();	break;
+		case PARAMETER_TYPE_Grid:			iSelection = _Set_Grid();			break;
+		case PARAMETER_TYPE_Table:			iSelection = _Set_Table();			break;
+		case PARAMETER_TYPE_Shapes:			iSelection = _Set_Shapes();			break;
+		case PARAMETER_TYPE_TIN:			iSelection = _Set_TIN();			break;
+		case PARAMETER_TYPE_PointCloud:		iSelection = _Set_PointCloud();		break;
 		}
 
 		if( GetGrid() )
 		{
 			RecreateEditor();
 		}
+
+		SetChoiceSelection(iSelection);
 	}
 }
 
