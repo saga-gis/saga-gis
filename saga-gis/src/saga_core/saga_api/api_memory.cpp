@@ -242,28 +242,30 @@ void			SG_Mem_Set_Double(char *Buffer, double Value, bool bSwapBytes)
 //---------------------------------------------------------
 CSG_Array::CSG_Array(void)
 {
-	m_Value_Size	= sizeof(char);
-	m_Growth		= SG_ARRAY_GROWTH_0;
-
 	m_nBuffer		= 0;
 	m_nValues		= 0;
 	m_Values		= NULL;
+
+	m_Value_Size	= sizeof(char);
+	m_Growth		= SG_ARRAY_GROWTH_0;
 }
 
 //---------------------------------------------------------
 CSG_Array::CSG_Array(const CSG_Array &Array)
 {
+	m_nBuffer		= 0;
+	m_nValues		= 0;
+	m_Values		= NULL;
+
 	Create(Array);
 }
 
 void * CSG_Array::Create(const CSG_Array &Array)
 {
+	Destroy();
+
 	m_Value_Size	= Array.m_Value_Size;
 	m_Growth		= Array.m_Growth;
-
-	m_nBuffer		= 0;
-	m_nValues		= 0;
-	m_Values		= NULL;
 
 	if( Array.m_nValues > 0 && Get_Array(Array.m_nValues) )
 	{
@@ -276,17 +278,19 @@ void * CSG_Array::Create(const CSG_Array &Array)
 //---------------------------------------------------------
 CSG_Array::CSG_Array(size_t Value_Size, size_t nValues, TSG_Array_Growth Growth)
 {
+	m_nBuffer		= 0;
+	m_nValues		= 0;
+	m_Values		= NULL;
+
 	Create(Value_Size, nValues, Growth);
 }
 
 void * CSG_Array::Create(size_t Value_Size, size_t nValues, TSG_Array_Growth Growth)
 {
+	Destroy();
+
 	m_Value_Size	= Value_Size;
 	m_Growth		= Growth;
-
-	m_nBuffer		= 0;
-	m_nValues		= 0;
-	m_Values		= NULL;
 
 	return( Get_Array(nValues) );
 }
@@ -299,14 +303,10 @@ CSG_Array::~CSG_Array(void)
 
 void CSG_Array::Destroy(void)
 {
-	if( m_Values )
-	{
-		SG_Free(m_Values);
-	}
-
 	m_nBuffer		= 0;
 	m_nValues		= 0;
-	m_Values		= NULL;
+
+	SG_FREE_SAFE(m_Values);
 }
 
 //---------------------------------------------------------
