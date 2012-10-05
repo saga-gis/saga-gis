@@ -144,14 +144,6 @@ public:
 
 	void		On_Size		(wxSizeEvent     &event)
 	{
-
-//---------------------------------------------------------
-// TEMPORARY HACK from wxWidgets itself (statbar.cpp sample, line 950):
-#ifdef wxStatusBarGeneric
-		wxStatusBar::OnSize(event);
-#endif
-//---------------------------------------------------------
-
 		wxRect	r;
 
 		if( m_pProgressBar && GetFieldRect(STATUSBAR_PROGRESS, r) )
@@ -337,7 +329,6 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 
 	_Bar_Show(m_pTB_Main, true);
-	_Bar_Show(m_pTB_ScatterPlot, false);	// otherwise displayed with wxGTK until first update
 
 	//-----------------------------------------------------
 	m_pLayout->Update();
@@ -374,15 +365,11 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 
 	ProgressBar_Set_Position(0);
-	
-	Connect(wxEVT_SIZE, wxSizeEventHandler(CSAGA_Frame::OnSize));
 }
 
 //---------------------------------------------------------
 CSAGA_Frame::~CSAGA_Frame(void)
 {
-	Disconnect(wxEVT_SIZE, wxSizeEventHandler(CSAGA_Frame::OnSize));
-	
 	//-----------------------------------------------------
 	if( IsIconized() )
 	{
