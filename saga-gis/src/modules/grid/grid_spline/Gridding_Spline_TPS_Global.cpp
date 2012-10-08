@@ -76,7 +76,7 @@ CGridding_Spline_TPS_Global::CGridding_Spline_TPS_Global(void)
 {
 	Set_Name		(_TL("Thin Plate Spline (Global)"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2006"));
 
 	Set_Description	(_TW(
 		"Creates a 'Thin Plate Spline' function using all points of selected input. "
@@ -99,15 +99,11 @@ CGridding_Spline_TPS_Global::CGridding_Spline_TPS_Global(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
-		NULL	, "REGUL"		, _TL("Regularisation"),
+		NULL	, "REGULARISATION"	, _TL("Regularisation"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
+		PARAMETER_TYPE_Double, 0.0001, 0.0, true
 	);
 }
-
-//---------------------------------------------------------
-CGridding_Spline_TPS_Global::~CGridding_Spline_TPS_Global(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -119,9 +115,9 @@ CGridding_Spline_TPS_Global::~CGridding_Spline_TPS_Global(void)
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_Global::On_Initialise(void)
 {
-	m_pShapes			= Parameters("SHAPES")	->asShapes();
-	m_zField			= Parameters("FIELD")	->asInt();
-	m_Regularisation	= Parameters("REGUL")	->asDouble();
+	m_pShapes			= Parameters("SHAPES"        )->asShapes();
+	m_zField			= Parameters("FIELD"         )->asInt   ();
+	m_Regularisation	= Parameters("REGULARISATION")->asDouble();
 
 	return( true );
 }
@@ -136,27 +132,31 @@ bool CGridding_Spline_TPS_Global::On_Initialise(void)
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_Global::On_Execute(void)
 {
-	bool	bResult	= false;
-
-	if( Initialise(m_Spline.Get_Points()) && m_Spline.Create(m_Regularisation, false) )
+	if( !Initialise(m_Spline.Get_Points()) )
 	{
-		int			x, y;
-		TSG_Point	p;
+		return( false );
+	}
+		
+	if( !m_Spline.Create(m_Regularisation, false) )
+	{
+		return( false );
+	}
 
-		for(y=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
+	//-----------------------------------------------------
+	int			x, y;
+	TSG_Point	p;
+
+	for(y=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
+	{
+		for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize())
 		{
-			for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize())
-			{
-				m_pGrid->Set_Value(x, y, m_Spline.Get_Value(p.x, p.y));
-			}
+			m_pGrid->Set_Value(x, y, m_Spline.Get_Value(p.x, p.y));
 		}
-
-		bResult	= true;
 	}
 
 	m_Spline.Destroy();
 
-	return( bResult );
+	return( true );
 }
 
 

@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_INIT(g, s)			if( g ) { g->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), s, m_pPredictor->Get_Name())); }
+#define GRID_INIT(g, s)				if( g ) { g->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), s, m_pPredictor->Get_Name())); }
 #define GRID_SET_NODATA(g, x, y)	if( g ) { g->Set_NoData(x, y); }
 #define GRID_SET_VALUE(g, x, y, z)	if( g ) { g->Set_Value(x, y, z); }
 
@@ -144,57 +144,90 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-
 	Parameters.Add_Parameters(
 		NULL	, "WEIGHTING"	, _TL("Weighting"),
 		_TL("")
-	)->asParameters()->Assign(m_Weighting.Get_Parameters());
+	);
+
+	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
+	m_Weighting.Create_Parameters(Parameters("WEIGHTING")->asParameters());
+
+	//-----------------------------------------------------
+	CSG_Parameter	*pSearch	= Parameters.Add_Node(
+		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
+		_TL("")
+	);
 
 	pNode	= Parameters.Add_Choice(
-		NULL	, "RANGE"		, _TL("Search Range"),
+		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("search radius (local)"),
-			_TL("no search radius (global)")
+			_TL("local"),
+			_TL("global")
 		)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "RADIUS"		, _TL("Search Radius"),
+		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
+		_TL("local maximum search distance given in map units"),
+		PARAMETER_TYPE_Double	, 1000.0, 0, true
+	);
+
+	pNode	= Parameters.Add_Choice(
+		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 100.0
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("maximum number of nearest points"),
+			_TL("all points within search distance")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
+		_TL("minimum number of points to use"),
+		PARAMETER_TYPE_Int, 4, 1, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
+		_TL("maximum number of nearest points"),
+		PARAMETER_TYPE_Int, 20, 1, true
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "MODE"		, _TL("Search Mode"),
+		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("all directions"),
 			_TL("quadrants")
 		)
 	);
+}
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "NPOINTS"		, _TL("Number of Points"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("maximum number of observations"),
-			_TL("all points")
-		)
-	);
 
-	Parameters.Add_Value(
-		pNode	, "MAXPOINTS"	, _TL("Maximum Number of Observations"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 10, 2, true
-	);
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Value(
-		NULL	, "MINPOINTS"	, _TL("Minimum Number of Observations"),
-		_TL(""),
-		PARAMETER_TYPE_Int		,  4, 2, true
-	);
+//---------------------------------------------------------
+int CGW_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
+	{
+		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
+	{
+		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
+	}
+
+	m_Weighting.Enable_Parameters(pParameters);
+
+	return( 1 );
 }
 
 
@@ -208,17 +241,20 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 bool CGW_Regression_Grid::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pPredictor	= Parameters("PREDICTOR")	->asGrid();
-	m_pRegression	= Parameters("REGRESSION")	->asGrid();
-	m_pQuality		= Parameters("QUALITY")		->asGrid();
-	m_pIntercept	= Parameters("INTERCEPT")	->asGrid();
-	m_pSlope		= Parameters("SLOPE")		->asGrid();
-	m_pPoints		= Parameters("POINTS")		->asShapes();
-	m_iDependent	= Parameters("DEPENDENT")	->asInt();
-	m_Radius		= Parameters("RANGE")		->asInt() == 0 ? Parameters("RADIUS")   ->asDouble() : 0.0;
-	m_Mode			= Parameters("MODE")		->asInt();
-	m_nPoints_Max	= Parameters("NPOINTS")		->asInt() == 0 ? Parameters("MAXPOINTS")->asInt()    : 0;
-	m_nPoints_Min	= Parameters("MINPOINTS")	->asInt();
+	m_pPredictor	= Parameters("PREDICTOR" )->asGrid  ();
+	m_pRegression	= Parameters("REGRESSION")->asGrid  ();
+	m_pQuality		= Parameters("QUALITY"   )->asGrid  ();
+	m_pIntercept	= Parameters("INTERCEPT" )->asGrid  ();
+	m_pSlope		= Parameters("SLOPE"     )->asGrid  ();
+	m_pPoints		= Parameters("POINTS"    )->asShapes();
+	m_iDependent	= Parameters("DEPENDENT" )->asInt   ();
+
+	m_nPoints_Min	= Parameters("SEARCH_POINTS_MIN")->asInt   ();
+	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt   () == 0
+					? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
+	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt   () == 0
+					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
+	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
 
 	m_Weighting.Set_Parameters(Parameters("WEIGHTING")->asParameters());
 
@@ -288,7 +324,7 @@ int CGW_Regression_Grid::Set_Variables(int x, int y)
 	CSG_Shape	*pPoint;
 
 	Point	= Get_System()->Get_Grid_to_World(x, y);
-	nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Mode == 0 ? -1 : 4) : m_pPoints->Get_Count();
+	nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_pPoints->Get_Count();
 
 	for(iPoint=0, jPoint=0; iPoint<nPoints; iPoint++)
 	{

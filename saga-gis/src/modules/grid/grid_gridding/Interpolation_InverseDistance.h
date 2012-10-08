@@ -90,19 +90,21 @@ public:
 
 protected:
 
-	virtual bool			On_Initialize		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			Get_Value			(double x, double y, double &z);
+	virtual bool			On_Initialize			(void);
+
+	virtual bool			Get_Value				(double x, double y, double &z);
 
 
 private:
 
-	int						m_Weighting, m_nPoints_Max, m_Mode;
+	int						m_Weighting, m_nPoints_Max, m_iQuadrant;
 
 	double					m_Power, m_Bandwidth, m_Radius;
 
 
-	double					Get_Weight			(double Distance);
+	double					Get_Weight				(double Distance);
 
 
 };

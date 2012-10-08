@@ -86,8 +86,13 @@ CKriging_Universal::CKriging_Universal(void)
 	));
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pSearch	= Parameters.Add_Node(
+		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
+		_TL("")
+	);
+
 	pNode	= Parameters.Add_Choice(
-		NULL	, "GLOBAL"		, _TL("Search Range"),
+		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("local"),
@@ -96,34 +101,34 @@ CKriging_Universal::CKriging_Universal(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "MAXRADIUS"	, _TL("Maximum Search Radius (map units)"),
-		_TL(""),
+		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
+		_TL("local maximum search distance given in map units"),
 		PARAMETER_TYPE_Double	, 1000.0, 0, true
 	);
 
 	pNode	= Parameters.Add_Choice(
-		NULL	, "ALL_POINTS"	, _TL("Number of Points"),
+		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("maximum number of points"),
-			_TL("all points in search distance")
+			_TL("maximum number of nearest points"),
+			_TL("all points within search distance")
 		)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "NPOINTS_MIN"	, _TL("Minimum"),
-		_TL(""),
+		pNode	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
+		_TL("minimum number of points to use"),
 		PARAMETER_TYPE_Int, 4, 1, true
 	);
 
 	Parameters.Add_Value(
-		pNode	, "NPOINTS_MAX"	, _TL("Maximum"),
-		_TL(""),
+		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
+		_TL("maximum number of nearest points"),
 		PARAMETER_TYPE_Int, 20, 1, true
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
+		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("all directions"),
@@ -142,14 +147,21 @@ CKriging_Universal::CKriging_Universal(void)
 //---------------------------------------------------------
 bool CKriging_Universal::On_Initialize(void)
 {
-	m_Radius		= Parameters("GLOBAL"     )->asBool() ? 0.0
-					: Parameters("MAXRADIUS"  )->asDouble();
-	m_nPoints_Min	= Parameters("NPOINTS_MIN")->asInt();
-	m_nPoints_Max	= Parameters("ALL_POINTS" )->asBool() ? m_pPoints->Get_Count()
-					: Parameters("NPOINTS_MAX")->asInt();
-	m_Mode			= Parameters("MODE"       )->asInt();
-	m_pGrids		= Parameters("GRIDS"      )->asGridList();
-	m_Interpolation	= Parameters("INTERPOL"   )->asInt();
+	m_pGrids		= Parameters("GRIDS"            )->asGridList();
+	m_Interpolation	= Parameters("INTERPOL"         )->asInt();
+
+	m_nPoints_Min	= Parameters("SEARCH_POINTS_MIN")->asInt   ();
+	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt   () == 0
+					? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
+	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt   () == 0
+					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
+	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
+
+	//-----------------------------------------------------
+	if( m_nPoints_Max <= 0 && m_Radius <= 0 )	// global
+	{
+		return( CKriging_Universal_Global::On_Execute() );
+	}
 
 	//-----------------------------------------------------
 	m_Search.Create(m_pPoints->Get_Extent());
@@ -207,7 +219,7 @@ bool CKriging_Universal::On_Finalize(void)
 int CKriging_Universal::Get_Weights(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z &Points)
 {
 	//-----------------------------------------------------
-	int		n	= m_Search.Get_Nearest_Points(Points, p, m_nPoints_Max, m_Radius, m_Mode == 1 ? 4 : -1);
+	int		n	= m_Search.Get_Nearest_Points(Points, p, m_nPoints_Max, m_Radius, m_Direction);
 
 	if( n >= m_nPoints_Min )
 	{

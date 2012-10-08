@@ -74,9 +74,12 @@
 CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 	: CGridding_Spline_TPS_Global()
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("Thin Plate Spline (Local)"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2006"));
 
 	Set_Description	(_TW(
 		"Creates a 'Thin Plate Spline' function for each grid point "
@@ -100,38 +103,73 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Search Radius"),
+	CSG_Parameter	*pSearch	= Parameters.Add_Node(
+		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
+		_TL("")
+	);
+
+	pNode	= Parameters.Add_Choice(
+		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 100.0
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("local"),
+			_TL("global")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
+		_TL("local maximum search distance given in map units"),
+		PARAMETER_TYPE_Double	, 1000.0, 0, true
+	);
+
+	pNode	= Parameters.Add_Choice(
+		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("maximum number of nearest points"),
+			_TL("all points within search distance")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum Number of Points"),
+		_TL("maximum number of nearest points"),
+		PARAMETER_TYPE_Int, 20, 1, true
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
+		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("all directions"),
 			_TL("quadrants")
 		)
 	);
+}
 
-	Parameters.Add_Choice(
-		NULL	, "SELECT"		, _TL("Points Selection"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all points in search radius"),
-			_TL("maximum number of points")
-		), 1
-	);
 
-	Parameters.Add_Value(
-		NULL	, "MAXPOINTS"	, _TL("Maximum Number of Points"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 10.0, 1, true
-	);
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	//-----------------------------------------------------
-	Parameters("REGUL")->Set_Value(0.0001);
+//---------------------------------------------------------
+int CGridding_Spline_TPS_Local::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
+	{
+		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
+	{
+		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
+	}
+
+	return( 1 );
 }
 
 
@@ -144,33 +182,42 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_Local::On_Execute(void)
 {
-	bool	bResult	= false;
+	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt() == 0 ? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
+	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt() == 0 ? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
+	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt();
 
-	if( Initialise() && m_Search.Create(m_pShapes, m_zField) )
+	//-----------------------------------------------------
+	if( m_nPoints_Max <= 0 && m_Radius <= 0.0 )	// global
 	{
-		m_Radius		= Parameters("RADIUS")		->asDouble();
-		m_nPoints_Max	= Parameters("SELECT")		->asInt() == 1
-						? Parameters("MAXPOINTS")	->asInt()  : -1;
-		m_Mode			= Parameters("MODE")		->asInt();
-
-		int			x, y;
-		TSG_Point	p;
-
-		for(y=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
-		{
-			for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize())
-			{
-				Set_Value(x, y, p);
-			}
-		}
-
-		m_Search.Destroy();
-		m_Spline.Destroy();
-
-		bResult	= true;
+		return( CGridding_Spline_TPS_Global::On_Execute() );
 	}
 
-	return( bResult );
+	if( !Initialise() )
+	{
+		return( false );
+	}
+
+	if( !m_Search.Create(m_pShapes, m_zField) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int			x, y;
+	TSG_Point	p;
+
+	for(y=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
+	{
+		for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize())
+		{
+			Set_Value(x, y, p);
+		}
+	}
+
+	m_Search.Destroy();
+	m_Spline.Destroy();
+
+	return( true );
 }
 
 
@@ -206,7 +253,7 @@ bool CGridding_Spline_TPS_Local::Set_Value(int x, int y, const TSG_Point &p)
 
 	m_Spline.Destroy();
 
-	switch( m_Mode )
+	switch( m_Direction )
 	{
 	default:
 		nPoints	+= Get_Points(p);

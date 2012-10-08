@@ -75,6 +75,7 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 {
 	CSG_Parameter	*pNode;
 
+	//-----------------------------------------------------
 	Set_Name		(_TL("Inverse Distance Weighted"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2003"));
@@ -83,6 +84,52 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 		"Inverse distance grid interpolation from irregular distributed points."
 	));
 
+	//-----------------------------------------------------
+	CSG_Parameter	*pSearch	= Parameters.Add_Node(
+		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
+		_TL("")
+	);
+
+	pNode	= Parameters.Add_Choice(
+		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("local"),
+			_TL("global")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
+		_TL("local maximum search distance given in map units"),
+		PARAMETER_TYPE_Double	, 1000.0, 0, true
+	);
+
+	pNode	= Parameters.Add_Choice(
+		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("maximum number of nearest points"),
+			_TL("all points within search distance")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum Number of Points"),
+		_TL("maximum number of nearest points"),
+		PARAMETER_TYPE_Int, 20, 1, true
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("all directions"),
+			_TL("quadrants")
+		)
+	);
+
+	//-----------------------------------------------------
 	pNode	= Parameters.Add_Choice(
 		NULL	, "WEIGHTING"	, _TL("Distance Weighting"),
 		_TL(""),
@@ -95,55 +142,46 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "POWER"		, _TL("Inverse Distance Power"),
+		pNode	, "WEIGHT_POWER"		, _TL("Power"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 2.0
 	);
 
 	Parameters.Add_Value(
-		pNode	, "BANDWIDTH"	, _TL("Exponential and Gaussian Weighting Bandwidth"),
+		pNode	, "WEIGHT_BANDWIDTH"	, _TL("Bandwidth"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0, 0.0, true
 	);
+}
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "RANGE"		, _TL("Search Range"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("search radius (local)"),
-			_TL("no search radius (global)")
-		)
-	);
 
-	Parameters.Add_Value(
-		pNode	, "RADIUS"		, _TL("Search Radius"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 100.0
-	);
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Choice(
-		pNode	, "MODE"		, _TL("Search Mode"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all directions"),
-			_TL("quadrants")
-		)
-	);
+//---------------------------------------------------------
+int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
+	{
+		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
+	}
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "POINTS"		, _TL("Number of Points"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("maximum number of points"),
-			_TL("all points")
-		)
-	);
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
+	{
+		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
+	}
 
-	Parameters.Add_Value(
-		pNode	, "NPOINTS"		, _TL("Maximum Number of Points"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 10.0
-	);
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("WEIGHTING")) )
+	{
+		pParameters->Get_Parameter("WEIGHT_POWER"     )->Set_Enabled(pParameter->asInt() == 0);	// idw to a power
+		pParameters->Get_Parameter("WEIGHT_BANDWIDTH" )->Set_Enabled(pParameter->asInt() >= 2);	// exponential or gaussian
+	}
+
+	return( 1 );
 }
 
 
@@ -156,14 +194,15 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::On_Initialize(void)
 {
-	m_Weighting		= Parameters("WEIGHTING")	->asInt();
-	m_Power			= Parameters("POWER")		->asDouble();
-	m_Bandwidth		= Parameters("BANDWIDTH")	->asDouble();
-	m_Mode			= Parameters("MODE")		->asInt();
-	m_nPoints_Max	= Parameters("POINTS")		->asInt() == 0 ? Parameters("NPOINTS")->asInt()    : 0;
-	m_Radius		= Parameters("RANGE")		->asInt() == 0 ? Parameters("RADIUS") ->asDouble() : 0.0;
+	m_Weighting		= Parameters("WEIGHTING"        )->asInt();
+	m_Power			= Parameters("WEIGHT_POWER"     )->asDouble();
+	m_Bandwidth		= Parameters("WEIGHT_BANDWIDTH" )->asDouble();
 
-	return( (m_nPoints_Max == 0 && m_Radius == 0.0) || Set_Search_Engine() );
+	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt() == 0 ? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
+	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt() == 0 ? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
+	m_iQuadrant		= Parameters("SEARCH_DIRECTION" )->asInt() == 0 ? -1 : 4;
+
+	return( (m_nPoints_Max <= 0 && m_Radius <= 0.0) || Set_Search_Engine() );
 }
 
 //---------------------------------------------------------
@@ -189,7 +228,7 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 	//-----------------------------------------------------
 	if( m_nPoints_Max > 0 || m_Radius > 0.0 )	// using search engine
 	{
-		int		nPoints	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius, m_Mode == 0 ? -1 : 4);
+		int		nPoints	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius, m_iQuadrant);
 
 		for(int iPoint=0; iPoint<nPoints; iPoint++)
 		{

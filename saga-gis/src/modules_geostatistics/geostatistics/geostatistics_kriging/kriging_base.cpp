@@ -194,14 +194,15 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GLOBAL")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
 	{
-		pParameters->Get_Parameter("MAXRADIUS")		->Set_Enabled(pParameter->asInt() == 0);	// local
+		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ALL_POINTS")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
 	{
-		pParameters->Get_Parameter("NPOINTS_MAX")	->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BLOCK")) )

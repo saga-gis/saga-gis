@@ -86,7 +86,6 @@ class grid_spline_EXPORT CGridding_Spline_TPS_Global : public CGridding_Spline_B
 {
 public:
 	CGridding_Spline_TPS_Global(void);
-	virtual ~CGridding_Spline_TPS_Global(void);
 
 
 protected:
