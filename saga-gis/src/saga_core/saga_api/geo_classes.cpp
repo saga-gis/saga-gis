@@ -1073,34 +1073,7 @@ CSG_Distance_Weighting::CSG_Distance_Weighting(void)
 
 	m_pParameters	= new CSG_Parameters(NULL, _TL("Distance Weighting"), _TL(""), SG_T("DISTANCE_WEIGHTING"));
 
-	m_pParameters->Add_Choice(
-		NULL, "WEIGHTING"	, _TL("Distance Weighting"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("no distance weighting"),
-			_TL("inverse distance to a power"),
-			_TL("exponential"),
-			_TL("gaussian weighting")
-		), m_Weighting
-	);
-
-	m_pParameters->Add_Value(
-		NULL, "IDW_POWER"	, _TL("Inverse Distance Weighting Power"),
-		_TL(""),
-		PARAMETER_TYPE_Double, m_IDW_Power, 0.0, true
-	);
-
-	m_pParameters->Add_Value(
-		NULL, "IDW_OFFSET"	, _TL("Inverse Distance Offset"),
-		_TL("Calculates weights for distance plus one, avoiding division by zero for zero distances"),
-		PARAMETER_TYPE_Bool, m_IDW_bOffset
-	);
-
-	m_pParameters->Add_Value(
-		NULL, "BANDWIDTH"	, _TL("Gaussian and Exponential Weighting Bandwidth"),
-		_TL(""),
-		PARAMETER_TYPE_Double, m_Bandwidth, 0.0, true
-	);
+	Create_Parameters(m_pParameters);
 }
 
 //---------------------------------------------------------
@@ -1123,11 +1096,75 @@ bool CSG_Distance_Weighting::Set_Parameters(CSG_Parameters *pParameters)
 	case 4:	Set_Weighting(SG_DISTWGHT_GAUSS);	break;
 	}
 
-	Set_IDW_Offset	(m_pParameters->Get_Parameter("IDW_OFFSET")	->asBool());
-	Set_IDW_Power	(m_pParameters->Get_Parameter("IDW_POWER")	->asDouble());
-	Set_BandWidth	(m_pParameters->Get_Parameter("BANDWIDTH")	->asDouble());
+	Set_IDW_Offset	(m_pParameters->Get_Parameter("IDW_OFFSET")->asBool());
+	Set_IDW_Power	(m_pParameters->Get_Parameter("IDW_POWER" )->asDouble());
+	Set_BandWidth	(m_pParameters->Get_Parameter("BANDWIDTH" )->asDouble());
 
 	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Distance_Weighting::Create_Parameters(class CSG_Parameters *pParameters)
+{
+	if( pParameters )
+	{
+		pParameters->Del_Parameters();
+		pParameters->Set_Name(_TL("Distance Weighting"));
+		pParameters->Set_Identifier("DISTANCE_WEIGHTING");
+
+		pParameters->Add_Choice(
+			NULL, "WEIGHTING"	, _TL("Distance Weighting"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+				_TL("no distance weighting"),
+				_TL("inverse distance to a power"),
+				_TL("exponential"),
+				_TL("gaussian weighting")
+			), m_Weighting
+		);
+
+		pParameters->Add_Value(
+			NULL, "IDW_POWER"	, _TL("Inverse Distance Weighting Power"),
+			_TL(""),
+			PARAMETER_TYPE_Double, m_IDW_Power, 0.0, true
+		);
+
+		pParameters->Add_Value(
+			NULL, "IDW_OFFSET"	, _TL("Inverse Distance Offset"),
+			_TL("Calculates weights for distance plus one, avoiding division by zero for zero distances"),
+			PARAMETER_TYPE_Bool, m_IDW_bOffset
+		);
+
+		pParameters->Add_Value(
+			NULL, "BANDWIDTH"	, _TL("Gaussian and Exponential Weighting Bandwidth"),
+			_TL(""),
+			PARAMETER_TYPE_Double, m_Bandwidth, 0.0, true
+		);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_Distance_Weighting::Enable_Parameters(CSG_Parameters *pParameters)
+{
+	if( pParameters && !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("DISTANCE_WEIGHTING")) )
+	{
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter("WEIGHTING");
+
+		if( pParameter )
+		{
+			int	Method	= pParameter->asInt();
+
+			if( (pParameter = pParameters->Get_Parameter("IDW_OFFSET")) != NULL )	pParameter->Set_Enabled(Method == 1);
+			if( (pParameter = pParameters->Get_Parameter("IDW_POWER" )) != NULL )	pParameter->Set_Enabled(Method == 1);
+			if( (pParameter = pParameters->Get_Parameter("BANDWIDTH" )) != NULL )	pParameter->Set_Enabled(Method >= 2);
+		}
+	}
+
+	return( 1 );
 }
 
 

@@ -539,8 +539,10 @@ public:
 	CSG_Distance_Weighting(void);
 	virtual ~CSG_Distance_Weighting(void);
 
-	class CSG_Parameters *	Get_Parameters		(void)	const		{	return( m_pParameters );	}
+	bool					Create_Parameters	(class CSG_Parameters *pParameters);
+	int						Enable_Parameters	(class CSG_Parameters *pParameters);
 	bool					Set_Parameters		(class CSG_Parameters *pParameters);
+	class CSG_Parameters *	Get_Parameters		(void)	const		{	return( m_pParameters );	}
 
 	TSG_Distance_Weighting	Get_Weighting		(void)	const		{	return( m_Weighting );		}
 	bool					Set_Weighting		(TSG_Distance_Weighting Weighting);
