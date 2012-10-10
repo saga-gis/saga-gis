@@ -146,6 +146,9 @@ CGDAL_Import::CGDAL_Import(void)
 			_TL("B-Spline Interpolation")
 		), 4
 	);
+
+	//-----------------------------------------------------
+	Add_Parameters("SELECTION", _TL("Select from Multiple Bands"), _TL(""));
 }
 
 
@@ -161,6 +164,12 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TRANSFORM")) )
 	{
 		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(pParameter->asBool());
+	}
+
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("SELECTION"))
+	&&  !SG_STR_CMP(pParameter ->Get_Identifier(), SG_T("ALL")) && pParameters->Get_Parameter("BANDS") )
+	{
+		pParameters->Get_Parameter("BANDS")->Set_Enabled(!pParameter->asBool());
 	}
 
 	return( 1 );
@@ -323,16 +332,46 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	), false);
 
 	//-----------------------------------------------------
-	CSG_Parameters	Selection(NULL, _TL("Select from Multiple Bands"), _TL(""));
+	int			i, n;
+	CSG_Table	Bands;
 
+	Bands.Add_Field("NAME", SG_DATATYPE_String);
+
+	for(i=0; i<DataSet.Get_Count(); i++)
+	{
+		Bands.Add_Record()->Set_Value(0, DataSet.Get_Name(i));
+	}
+
+	Bands.Set_Index(0, TABLE_INDEX_Ascending);
+
+	//-----------------------------------------------------
 	if( Parameters("SELECT") && Parameters("SELECT")->asBool() && DataSet.Get_Count() > 1 )
 	{
-		for(int j=0; j<DataSet.Get_Count(); j++)
+		CSG_Parameters	*pSelection	= Get_Parameters("SELECTION");
+		pSelection->Add_Value(NULL, "ALL", _TL("Load all bands"), _TL(""), PARAMETER_TYPE_Bool, false);
+		CSG_Parameter	*pNode	= pSelection->Add_Node(NULL, "BANDS", _TL("Bands"), _TL(""));
+
+		for(i=0; i<Bands.Get_Count(); i++)
 		{
-			Selection.Add_Value(NULL, SG_Get_String(j, 0), DataSet.Get_Name(j), _TL(""), PARAMETER_TYPE_Bool, SG_UI_Get_Window_Main() == NULL);
+			CSG_Table_Record	*pBand	= Bands.Get_Record_byIndex(i);
+
+			pSelection->Add_Value(pNode, SG_Get_String(i, 0), pBand->asString(0), _TL(""), PARAMETER_TYPE_Bool, false);
 		}
 
-		if( !Dlg_Parameters(&Selection, _TL("Select from Multiple Bands")) )
+		if( Dlg_Parameters("SELECTION") )
+		{
+			for(i=0; i<Bands.Get_Count(); i++)
+			{
+				if( pSelection->Get_Parameter(0)->asBool() || pSelection->Get_Parameter(i + 2)->asBool() )
+				{
+					Bands.Select(Bands.Get_Record_byIndex(i)->Get_Index(), true);
+				}
+			}
+		}
+
+		pSelection->Del_Parameters();
+
+		if( Bands.Get_Selection_Count() <= 0 )
 		{
 			return( false );
 		}
@@ -355,15 +394,15 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	}
 
 	//-----------------------------------------------------
-	int		i, n;
-
 	for(i=0, n=0; i<DataSet.Get_Count() && Process_Get_Okay(); i++)
 	{
-		if( !Selection.Get_Count() || Selection(i)->asBool() )
+		CSG_Table_Record	*pBand	= Bands.Get_Record_byIndex(i);
+
+		if( !Bands.Get_Selection_Count() || pBand->is_Selected() )
 		{
 			Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("loading band"), i + 1, DataSet.Get_Count()));
 
-			CSG_Grid	*pGrid	= DataSet.Read(i);
+			CSG_Grid	*pGrid	= DataSet.Read(pBand->Get_Index());
 
 			if( pGrid != NULL )
 			{
