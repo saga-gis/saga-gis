@@ -128,17 +128,62 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 	int				xZero;
 	CSG_Grid_System	Target;
 
+	//-----------------------------------------------------
 	if( Parameters("DIRECTION")->asInt() == 0 )	// 0 - 360 >> -180 - 180
 	{
-		xZero	= 1 + (int)((180.0 - Get_XMin()) / Get_Cellsize());
+		if( Get_XMax() <= 180.0 )
+		{
+			Message_Add(_TL("Nothing to do. Raster is already within target range."));
 
-		Target.Assign(Get_Cellsize(), Get_XMin() - Get_Cellsize() * (Get_NX() - xZero - 1), Get_YMin(), Get_NX(), Get_NY());
+			return( true );
+		}
+		else if( Get_XMin() >= 180.0 )
+		{
+			xZero	= 0;
+
+			Target.Assign(Get_Cellsize(), Get_XMin() - 360.0, Get_YMin(), Get_NX(), Get_NY());
+		}
+		else if( Get_XMax() - 360.0 < Get_XMin() - Get_Cellsize() )
+		{
+			Error_Set(_TL("Nothing to do be done. Raster splitting is not supported."));
+
+			return( false );
+		}
+		else
+		{
+			xZero	= (int)(0.5 + 180.0 / Get_Cellsize());
+
+			Target.Assign(Get_Cellsize(), Get_XMin() - 180.0, Get_YMin(), Get_NX(), Get_NY());
+		}
 	}
+
+	//-----------------------------------------------------
 	else										// -180 - 180 >> 0 - 360
 	{
-		xZero	= 1 + (int)(-Get_XMin() / Get_Cellsize());
+		if( Get_XMin() >= 0.0 )
+		{
+			Message_Add(_TL("Nothing to do. Raster is already within target range."));
 
-		Target.Assign(Get_Cellsize(), Get_XMin() + Get_Cellsize() * (Get_NX() - xZero), Get_YMin(), Get_NX(), Get_NY());
+			return( true );
+		}
+		else if( Get_XMax() <= 0.0 )
+		{
+			xZero	= 0;
+
+			Target.Assign(Get_Cellsize(), Get_XMin() + 360.0, Get_YMin(), Get_NX(), Get_NY());
+		}
+		else if( Get_XMin() + 360.0 > Get_XMax() + Get_Cellsize() )
+		{
+			Error_Set(_TL("Nothing to do be done. Raster splitting is not supported."));
+
+			return( false );
+		}
+		else
+		{
+			xZero	= (int)(0.5 + 180.0 / Get_Cellsize());
+
+			Target.Assign(Get_Cellsize(), Get_XMin() - 180.0, Get_YMin(), Get_NX(), Get_NY());
+		}
 	}
 
 	//-----------------------------------------------------
@@ -148,6 +193,9 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 		CSG_Grid	*pOut	= SG_Create_Grid(Target, pIn->Get_Type());
 
 		pOut->Set_Name(pIn->Get_Name());
+		pOut->Set_NoData_Value_Range(pIn->Get_NoData_Value(), pIn->Get_NoData_hiValue());
+		pOut->Set_ZFactor(pIn->Get_ZFactor());
+
 		pOutput->Add_Item(pOut);
 
 		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
