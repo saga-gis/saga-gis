@@ -200,10 +200,11 @@ bool CSAGA::OnInit(void)
 		Path	+= wxT(";");
 	}
 
-	Path	+= wxString::Format(wxT( "%s\\dll")      , Get_App_Path().c_str());
-	Path	+= wxString::Format(wxT(";%s\\dll\\gdal"), Get_App_Path().c_str());
-
+	Path	+= Get_App_Path() + wxT("\\dll");
 	wxSetEnv(wxT("PATH"), Path);
+
+	Path	 = Get_App_Path() + wxT("\\dll");
+	wxSetEnv(wxT("GDAL_DRIVER_PATH"), Path);
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------

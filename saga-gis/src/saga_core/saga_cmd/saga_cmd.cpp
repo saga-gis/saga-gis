@@ -142,9 +142,10 @@ _try
 	setlocale(LC_NUMERIC, "C");
 	
 	//-----------------------------------------------------
-	wxString	CMD_Path, MLB_Path, ENV_Path;
+	wxString	CMD_Path, MLB_Path, ENV_Path, DLL_Path;
 
-	CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
+	CMD_Path	= SG_File_Get_Path (SG_UI_Get_Application_Path()).c_str();
+	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
 
 	if( !wxGetEnv(SG_T("SAGA_MLB"), &MLB_Path) || MLB_Path.Length() == 0 )
 	{
@@ -157,12 +158,18 @@ _try
 
 	if( wxGetEnv(SYS_ENV_PATH, &ENV_Path) && ENV_Path.Length() > 0 )
 	{
-		wxSetEnv(SYS_ENV_PATH, wxString::Format(wxT(";%s;%s"), MLB_Path.c_str(), SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str()));
+		ENV_Path	+= wxT(";");
 	}
-	else
-	{
-		wxSetEnv(SYS_ENV_PATH, wxString::Format(wxT( "%s;%s"), MLB_Path.c_str(), SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str()));
-	}
+
+	ENV_Path	+= MLB_Path + wxT(";") + DLL_Path;
+
+	wxSetEnv(SYS_ENV_PATH, ENV_Path);
+
+	ENV_Path	+= MLB_Path + wxT(";") + SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
+
+    #if !defined(_SAGA_LINUX)
+		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
+	#endif
 
 	//-----------------------------------------------------
 	if( argc > 1 )
