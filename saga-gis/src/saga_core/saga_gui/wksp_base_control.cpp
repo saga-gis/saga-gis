@@ -588,7 +588,6 @@ bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 				}
 			}
 
-			SelectItem(GetRootItem());
 			SetFocus();
 		}
 	}
