@@ -100,8 +100,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_FRAME_INFO_SHOW:		return( _TL("[CMD] Show Message Window") );
 	case ID_CMD_FRAME_DATA_SOURCE_SHOW:	return( _TL("[CMD] Show Data Source Window") );
-	case ID_CMD_FRAME_ACTIVE_SHOW:		return( _TL("[CMD] Show Object Properties") );
-	case ID_CMD_FRAME_WKSP_SHOW:		return( _TL("[CMD] Show Workspace") );
+	case ID_CMD_FRAME_ACTIVE_SHOW:		return( _TL("[CMD] Show Object Properties Window") );
+	case ID_CMD_FRAME_WKSP_SHOW:		return( _TL("[CMD] Show Manager Window") );
 
 
 	//-----------------------------------------------------

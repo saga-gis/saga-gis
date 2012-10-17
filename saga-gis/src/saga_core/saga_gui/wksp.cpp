@@ -152,7 +152,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CWKSP::CWKSP(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE|wxNB_MULTILINE, _TL("[CAP] Workspace"))
+	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE|wxNB_MULTILINE, _TL("[CAP] Manager"))
 {
 	wxNotebook	*pNotebook;
 

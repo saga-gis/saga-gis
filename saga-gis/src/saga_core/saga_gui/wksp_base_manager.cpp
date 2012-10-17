@@ -93,7 +93,7 @@ CWKSP_Base_Manager::CWKSP_Base_Manager(void)
 #include <wx/debug.h>
 CWKSP_Base_Manager::~CWKSP_Base_Manager(void)
 {
-	wxASSERT_MSG(m_nItems == 0, wxT("CWKSP_Base_Manager: workspace did not kill each item..."));
+	wxASSERT_MSG(m_nItems == 0, wxT("CWKSP_Base_Manager: Could not kill all items on destruction!"));
 }
 
 
