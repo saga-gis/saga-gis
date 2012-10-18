@@ -101,7 +101,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CDLG_Colors::CDLG_Colors(CSG_Colors *pColors)
-	: CDLG_Base(-1, wxT("[CAP] Colors"))
+	: CDLG_Base(-1, _TL("[CAP] Colors"))
 {
 	m_pOriginal	= pColors;
 	m_pColors	= new CSG_Colors();
