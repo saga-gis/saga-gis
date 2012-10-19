@@ -75,20 +75,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Module_Menu::CWKSP_Module_Menu(void)
+CWKSP_Menu_Modules::CWKSP_Menu_Modules(void)
 {
 	m_Recent	= (CWKSP_Module **)SG_Calloc(RECENT_COUNT, sizeof(CWKSP_Module *));
 
-	m_Menus		= NULL;
-	m_nMenus	= 0;
+	m_pMenu		= new wxMenu;
 }
 
 //---------------------------------------------------------
-CWKSP_Module_Menu::~CWKSP_Module_Menu(void)
+CWKSP_Menu_Modules::~CWKSP_Menu_Modules(void)
 {
 	SG_Free(m_Recent);
-
-	Destroy();
 }
 
 
@@ -99,98 +96,45 @@ CWKSP_Module_Menu::~CWKSP_Module_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module_Menu::Destroy(void)
+void CWKSP_Menu_Modules::Update(void)
 {
-	if( m_Menus )
-	{
-		SG_Free(m_Menus);
-		m_Menus		= NULL;
-		m_nMenus	= 0;
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Module_Menu::Add(wxMenu *pMenu)
-{
-	_Update(pMenu);
-
-	m_Menus	= (wxMenu **)SG_Realloc(m_Menus, (m_nMenus + 1) * sizeof(wxMenu *));
-	m_Menus[m_nMenus++]	= pMenu;
-}
-
-//---------------------------------------------------------
-void CWKSP_Module_Menu::Del(wxMenu *pMenu)
-{
-	for(int i=0; i<m_nMenus; i++)
-	{
-		if( m_Menus[i] == pMenu )
-		{
-			m_nMenus--;
-
-			for( ; i<m_nMenus; i++)
-			{
-				m_Menus[i]	= m_Menus[i + 1];
-			}
-
-			m_Menus	= (wxMenu **)SG_Realloc(m_Menus, m_nMenus * sizeof(wxMenu *));
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Module_Menu::Update(void)
-{
-	for(int i=0; i<m_nMenus; i++)
-	{
-		_Update(m_Menus[i]);
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Module_Menu::_Update(wxMenu *pMenu)
-{
-	int						iLibrary, iModule, ID_Menu;
-	wxMenu					*pSubMenu;
-	CWKSP_Module_Library	*pLibrary;
-	CWKSP_Module			*pModule;
-
 	//-----------------------------------------------------
-	while( (ID_Menu = pMenu->GetMenuItemCount()) > 0 )
+	int		ID_Menu;
+
+	while( (ID_Menu = m_pMenu->GetMenuItemCount()) > 0 )
 	{
-		pMenu->Destroy(pMenu->GetMenuItems().Item(ID_Menu - 1)->GetData());
+		m_pMenu->Destroy(m_pMenu->GetMenuItems().Item(ID_Menu - 1)->GetData());
 	}
 
 	//-----------------------------------------------------
 	if( g_pModules->Get_Count() > 0 )
 	{
-		for(iLibrary=0, ID_Menu=ID_CMD_MODULE_START; iLibrary<g_pModules->Get_Count(); iLibrary++)
-		{
-			pLibrary	= g_pModules->Get_Library(iLibrary);
+		ID_Menu	= ID_CMD_MODULE_START;
 
-			for(iModule=0; iModule<pLibrary->Get_Count(); iModule++, ID_Menu++)
+		for(int iLibrary=0; iLibrary<g_pModules->Get_Count(); iLibrary++)
+		{
+			CWKSP_Module_Library	*pLibrary	= g_pModules->Get_Library(iLibrary);
+
+			for(int iModule=0; iModule<pLibrary->Get_Count(); iModule++, ID_Menu++)
 			{
-				pModule		= pLibrary->Get_Module(iModule);
-				pModule		->Set_Menu_ID(ID_Menu);
-				pSubMenu	= _Get_SubMenu(pMenu, pModule->Get_Menu_Path());
+				CWKSP_Module	*pModule	= pLibrary->Get_Module(iModule);
+				wxMenu			*pSubMenu	= _Get_SubMenu(m_pMenu, pModule->Get_Menu_Path());
+
+				pModule->Set_Menu_ID(ID_Menu);
 
 				size_t	iPos;
 
 				for(iPos=0; iPos<pSubMenu->GetMenuItemCount(); iPos++)
 				{
-#if defined(MODULES_MENU_SORT_SIMPLE)
-					if( pSubMenu->FindItemByPosition(iPos)->GetLabel().Cmp(pModule->Get_Name()) > 0 )
-#else
+				#if defined(MODULES_MENU_SORT_SIMPLE)
+					if( pSubMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(pModule->Get_Name()) > 0 )
+				#else
 					if(	pSubMenu->FindItemByPosition(iPos)->IsSubMenu() == false
-					&&	pSubMenu->FindItemByPosition(iPos)->GetLabel().Cmp(pModule->Get_Name()) > 0 )
-#endif
+					&&	pSubMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(pModule->Get_Name()) > 0 )
+				#endif
+					{
 						break;
+					}
 				}
 
 				pSubMenu->InsertCheckItem(iPos, ID_Menu, pModule->Get_Name(), pModule->Get_Name());
@@ -198,33 +142,30 @@ void CWKSP_Module_Menu::_Update(wxMenu *pMenu)
 			}
 		}
 
-		pMenu->InsertSeparator(0);
-		CMD_Menu_Ins_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE, 0);
-		CMD_Menu_Ins_Item(pMenu, false, ID_CMD_MODULES_OPEN	, 0);
+		m_pMenu->InsertSeparator(0);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_WKSP_ITEM_CLOSE, 0);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_OPEN	, 0);
 
-		_Set_Recent(pMenu);
+		_Set_Recent(m_pMenu);
 	}
 	else
 	{
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_OPEN);
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_MODULES_OPEN);
 	}
 }
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
+wxMenu * CWKSP_Menu_Modules::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 {
-	wxStringTokenizer	*tk;
-	wxString			sSubMenu;
-	wxMenu				*pSubMenu;
+	wxStringTokenizer	Tk(Menu_Path, SG_T("|"));
 
-	tk			= new wxStringTokenizer(Menu_Path, SG_T("|"));
-	sSubMenu	= tk->GetNextToken();
+	wxString	SubMenu(Tk.GetNextToken());
 
-	while( ! sSubMenu.IsNull() )
+	while( !SubMenu.IsNull() )
 	{
-		pSubMenu	= _Find_SubMenu_For_Token(pMenu, sSubMenu);
+		wxMenu	*pSubMenu	= _Get_SubMenu_byToken(pMenu, SubMenu);
 
-		if( ! pSubMenu )
+		if( !pSubMenu )
 		{
 			pSubMenu	= new wxMenu();
 
@@ -232,42 +173,42 @@ wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 
 			for(iPos=0; iPos<pMenu->GetMenuItemCount(); iPos++)
 			{
-#if defined(MODULES_MENU_SORT_SIMPLE)
-				if( pMenu->FindItemByPosition(iPos)->GetLabel().Cmp(sSubMenu) > 0 )
-#else
+			#if defined(MODULES_MENU_SORT_SIMPLE)
+				if( pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(SubMenu) > 0 )
+			#else
 				if(	pMenu->FindItemByPosition(iPos)->IsSubMenu() == false
-				||	pMenu->FindItemByPosition(iPos)->GetLabel().Cmp(sSubMenu) > 0 )
-#endif
+				||	pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(SubMenu) > 0 )
+			#endif
+				{
 					break;
+				}
 			}
 
-			pMenu->Insert(iPos, ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
-		//	pMenu->Append(ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
+			pMenu->Insert(iPos, ID_CMD_MODULES_FIRST, SubMenu, pSubMenu);
+		//	pMenu->Append(ID_CMD_MODULES_FIRST, SubMenu, pSubMenu);
 		}
 
-		pMenu		= pSubMenu;
-		sSubMenu	= tk->GetNextToken();
+		pMenu	= pSubMenu;
+		SubMenu	= Tk.GetNextToken();
 	}
 
-	delete tk;
-
-	return pMenu;
+	return( pMenu );
 }
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Module_Menu::_Find_SubMenu_For_Token( wxMenu* menu, wxString token ) {
-	
-	wxMenuItem* item;
-	wxMenu* result = NULL;
-	
-	for( size_t i = 0; i < menu->GetMenuItemCount(); i++ ) {
-		item = menu->GetMenuItems()[ i ];
-		if ( item->GetLabel() == token ) {
-			result = item->GetSubMenu();
-			break;
+wxMenu * CWKSP_Menu_Modules::_Get_SubMenu_byToken(wxMenu *pMenu, wxString Token)
+{	
+	for(size_t i=0; i<pMenu->GetMenuItemCount(); i++)
+	{
+		wxMenuItem	*pItem	= pMenu->GetMenuItems()[i];
+
+		if( pItem->GetItemLabelText() == Token )
+		{
+			return( pItem->GetSubMenu() );
 		}
 	}
-	return result;
+
+	return( NULL );
 }
 
 
@@ -278,31 +219,23 @@ wxMenu * CWKSP_Module_Menu::_Find_SubMenu_For_Token( wxMenu* menu, wxString toke
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module_Menu::Set_Recent(CWKSP_Module *pModule)
+void CWKSP_Menu_Modules::Set_Recent(CWKSP_Module *pModule)
 {
-	int				i;
-	CWKSP_Module	*pNext, *pLast;
+	CWKSP_Module	*pLast	= pModule;
+	CWKSP_Module	*pNext	= m_Recent[0];
 
-	//-----------------------------------------------------
-	pLast	= pModule;
-	pNext	= m_Recent[0];
-
-	for(i=0; i<RECENT_COUNT && pNext!=pModule; i++)
+	for(int i=0; i<RECENT_COUNT && pNext!=pModule; i++)
 	{
 		pNext		= m_Recent[i];
 		m_Recent[i]	= pLast;
 		pLast		= pNext;
 	}
 
-	//-----------------------------------------------------
-	for(i=0; i<m_nMenus; i++)
-	{
-		_Update(m_Menus[i]);
-	}
+	Update();
 }
 
 //---------------------------------------------------------
-void CWKSP_Module_Menu::_Set_Recent(wxMenu *pMenu)
+void CWKSP_Menu_Modules::_Set_Recent(wxMenu *pMenu)
 {
 	bool	bRecent;
 	int		i, j;
@@ -343,7 +276,7 @@ void CWKSP_Module_Menu::_Set_Recent(wxMenu *pMenu)
 }
 
 //---------------------------------------------------------
-int CWKSP_Module_Menu::Get_ID_Translated(int ID)
+int CWKSP_Menu_Modules::Get_ID_Translated(int ID)
 {
 	int		i	= ID - ID_CMD_MODULE_RECENT_FIRST;
 

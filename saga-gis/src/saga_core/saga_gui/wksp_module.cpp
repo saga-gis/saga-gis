@@ -248,7 +248,7 @@ void CWKSP_Module::_Save_Script(void)
 {
 	wxString	FileName;
 
-	if( DLG_Save(FileName, _TL("[CAP] Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Python Script (*.py)|*.py")) )
+	if( DLG_Save(FileName, _TL("Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Python Script (*.py)|*.py")) )
 	{
 		CSG_File	File;
 		CSG_String	Command;
@@ -597,14 +597,14 @@ bool CWKSP_Module::Execute(bool bDialog)
 		{
 			if( g_pModule->is_Executing() )
 			{
-				if( !bDialog || DLG_Message_Confirm(_TL("[MSG] Shall execution be stopped?"), _TL("[CAP] Module Execution")) )
+				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Module Execution")) )
 				{
 					PROCESS_Set_Okay(false);
 				}
 			}
 			else if( m_pModule->is_Interactive() )
 			{
-				if( !bDialog || DLG_Message_Confirm(_TL("[MSG] Shall execution be stopped?"), _TL("[CAP] Module Execution")) )
+				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Module Execution")) )
 				{
 					bResult		= ((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
 					g_pModule	= NULL;
@@ -612,15 +612,15 @@ bool CWKSP_Module::Execute(bool bDialog)
 					PROCESS_Set_Okay(true);
 
 					MSG_ADD2(bResult,
-						_TL("[MSG] Interactive module execution has been stopped"),
-						_TL("[MSG] Interactive module execution failed")
+						_TL("Interactive module execution has been stopped"),
+						_TL("Interactive module execution failed")
 					);
 				}
 			}
 		}
 		else
 		{
-			DLG_Message_Show(_TL("[ERR] Can't execute a module while another runs"), _TL("[CAP] Module Execution"));
+			DLG_Message_Show(_TL("[ERR] Can't execute a module while another runs"), _TL("Module Execution"));
 		}
 	}
 
@@ -631,7 +631,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 		if( m_pModule->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pModule->Get_Parameters())) )
 		{
-			g_pModules->Get_Modules_Menu()->Set_Recent(this);
+			g_pModules->Get_Menu_Modules()->Set_Recent(this);
 
 			g_pData->Check_Parameters(m_pModule->Get_Parameters());
 
@@ -642,7 +642,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();
-			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("[MSG] Executing module"), m_pModule->Get_Name().c_str()));
+			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("Executing module"), m_pModule->Get_Name().c_str()));
 
 			STATUSBAR_Set_Text(m_pModule->Get_Name().w_str());
 
@@ -653,15 +653,15 @@ bool CWKSP_Module::Execute(bool bDialog)
 			if( m_pModule->is_Interactive() )
 			{
 				MSG_ADD2(bResult,
-					_TL("[MSG] Interactive module execution has been started"),
-					_TL("[MSG] Interactive module execution failed")
+					_TL("Interactive module execution has been started"),
+					_TL("Interactive module execution failed")
 				);
 			}
 			else
 			{
 				MSG_ADD2(bResult,
-					_TL("[MSG] Module execution succeeded"),
-					_TL("[MSG] Module execution failed")
+					_TL("Module execution succeeded"),
+					_TL("Module execution failed")
 				);
 			}
 

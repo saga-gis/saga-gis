@@ -158,12 +158,9 @@ public:
 	wxWindow *					Top_Window_Get				(void);
 
 	//-----------------------------------------------------
-	void						On_Child_Activates			(class CVIEW_Base *pChild, bool bActivates);
+	void						On_Child_Activates			(int View_ID);
 
 	void						Set_Pane_Caption			(wxWindow *pWindow, const wxString &Caption);
-
-	wxMenuBar *					MB_Create					(class CVIEW_Base *pChild);
-	void						MB_Remove					(wxMenu *pMenu_File, wxMenu *pMenu_Modules);
 
 	class wxToolBarBase *		TB_Create					(int ID);
 	void						TB_Add						(class wxToolBarBase *pToolBar, const wxString &Name);
@@ -179,7 +176,9 @@ private:
 
 	class wxGauge				*m_pProgressBar;
 
-	class wxToolBarBase			*m_pTB_Main, *m_pTB_Table, *m_pTB_Diagram, *m_pTB_Map, *m_pTB_Map_3D, *m_pTB_Histogram, *m_pTB_ScatterPlot, *m_pTB_Layout;
+	class wxMenu				*m_pMN_Table, *m_pMN_Diagram, *m_pMN_Map, *m_pMN_Map_3D, *m_pMN_Histogram, *m_pMN_ScatterPlot, *m_pMN_Layout;
+
+	class wxToolBarBase			*m_pTB_Table, *m_pTB_Diagram, *m_pTB_Map, *m_pTB_Map_3D, *m_pTB_Histogram, *m_pTB_ScatterPlot, *m_pTB_Layout, *m_pTB_Main;
 
 	class CINFO					*m_pINFO;
 
@@ -191,6 +190,8 @@ private:
 
 	class wxAuiManager			*m_pLayout;
 
+
+	class wxMenuBar *			_Create_MenuBar				(void);
 
 	void						_Bar_Add					(class wxWindow *pWindow, int Position);
 	void						_Bar_Toggle					(wxWindow *pWindow);

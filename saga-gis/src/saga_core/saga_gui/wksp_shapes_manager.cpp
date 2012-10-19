@@ -100,7 +100,7 @@ CWKSP_Shapes_Manager::~CWKSP_Shapes_Manager(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes_Manager::Get_Name(void)
 {
-	return( _TL("[CAP] Shapes") );
+	return( _TL("Shapes") );
 }
 
 //---------------------------------------------------------
@@ -108,7 +108,7 @@ wxString CWKSP_Shapes_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><br>"), _TL("[CAP] Shapes"));
+	s.Printf(wxT("<b>%s</b><br>"), _TL("Shapes"));
 
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -123,7 +123,7 @@ wxMenu * CWKSP_Shapes_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(_TL("[CAP] Shapes"));
+	pMenu	= new wxMenu(_TL("Shapes"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_OPEN);
 

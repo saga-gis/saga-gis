@@ -86,7 +86,7 @@
 class CVIEW_Base : public wxMDIChildFrame
 {
 public:
-	CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, wxMenu *pMenu, wxString Menu_Label);
+	CVIEW_Base(int View_ID, wxString Caption, int Icon_ID);
 	virtual ~CVIEW_Base(void);
 
 	void						On_Size				(wxSizeEvent     &event);
@@ -95,8 +95,6 @@ public:
 	void						On_Quit				(wxCommandEvent  &event);
 
 	virtual void				On_Command_UI		(wxUpdateUIEvent &event);
-
-	int							Get_View_ID			(void)	{	return( m_View_ID );		}
 
 
 protected:
@@ -109,12 +107,6 @@ private:
 	int							m_View_ID;
 
 	wxSize						m_Size_Min;
-
-	wxMenu						*m_pMenu_File, *m_pMenu_Modules;
-
-
-	void						_Activate			(void);
-	void						_Deactivate			(void);
 
 
 private:

@@ -218,7 +218,7 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 bool CParameters_Control::Save_Changes(bool bSilent)
 {
-	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(_TL("[DLG] Save changes?"), wxString::Format(wxT("%s: %s"), _TL("[CAP] Parameters"), m_pParameters->Get_Name().w_str()))) )
+	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(_TL("Save changes?"), wxString::Format(wxT("%s: %s"), _TL("Parameters"), m_pParameters->Get_Name().w_str()))) )
 	{
 		m_pOriginal->Assign_Values(m_pParameters);
 
@@ -331,7 +331,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 
 			m_pPG->Clear();
 
-			m_pPG->Append(new wxPropertyCategory(_TL("[TXT] No parameters available."), wxPG_LABEL));
+			m_pPG->Append(new wxPropertyCategory(_TL("No parameters available."), wxPG_LABEL));
 		}
 		else if( m_pOriginal != pParameters )
 		{
@@ -377,7 +377,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 	{\
 		pNode	= new wxPropertyCategory(Name, ID);\
 		if( !pData )\
-			m_pPG->Append(pData = new wxPropertyCategory(_TL("[PRM] Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
+			m_pPG->Append(pData = new wxPropertyCategory(_TL("Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
 		m_pPG->Insert(pData, -1, pNode);\
 	}\
 	pRoot	= pNode;
@@ -409,7 +409,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_System:
 				if( pParameters->Get_Parameter(i)->Get_Children_Count() == 0 )
 				{
-					CHECK_DATA_NODE( pGrids	, _TL("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
+					CHECK_DATA_NODE( pGrids	, _TL("Grids"), wxT("_DATAOBJECT_GRIDS") );
 				}
 				else
 				{
@@ -418,7 +418,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 						if(	pParameters->Get_Parameter(i)->Get_Child(j)->Get_Type() != PARAMETER_TYPE_Grid_List
 						||	pParameters->Get_Parameter(i)->Get_Child(j)->is_Input() )
 						{
-							CHECK_DATA_NODE( pGrids	, _TL("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
+							CHECK_DATA_NODE( pGrids	, _TL("Grids"), wxT("_DATAOBJECT_GRIDS") );
 						}
 					}
 				}
@@ -427,37 +427,37 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Grid:
-				CHECK_DATA_NODE(pGrids		, _TL("[PRM] Grids") , wxT("_DATAOBJECT_GRIDS"));
+				CHECK_DATA_NODE(pGrids		, _TL("Grids") , wxT("_DATAOBJECT_GRIDS"));
 				break;
 
 			case PARAMETER_TYPE_Table_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Table:
-				CHECK_DATA_NODE(pTables		, _TL("[PRM] Tables"), wxT("_DATAOBJECT_TABLES"));
+				CHECK_DATA_NODE(pTables		, _TL("Tables"), wxT("_DATAOBJECT_TABLES"));
 				break;
 
 			case PARAMETER_TYPE_Shapes_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Shapes:
-				CHECK_DATA_NODE(pShapes		, _TL("[PRM] Shapes"), wxT("_DATAOBJECT_SHAPES"));
+				CHECK_DATA_NODE(pShapes		, _TL("Shapes"), wxT("_DATAOBJECT_SHAPES"));
 				break;
 
 			case PARAMETER_TYPE_TIN_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_TIN:
-				CHECK_DATA_NODE(pTINs		, _TL("[PRM] TIN"), wxT("_DATAOBJECT_TINS"));
+				CHECK_DATA_NODE(pTINs		, _TL("TIN"), wxT("_DATAOBJECT_TINS"));
 				break;
 
 			case PARAMETER_TYPE_PointCloud_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_PointCloud:
-				CHECK_DATA_NODE(pPointClouds, _TL("[PRM] Point Clouds"), wxT("_DATAOBJECT_POINTCLOUDS"));
+				CHECK_DATA_NODE(pPointClouds, _TL("Point Clouds"), wxT("_DATAOBJECT_POINTCLOUDS"));
 				break;
 
 			default:
 				if( !pOptions )
 				{
-					m_pPG->Append(pOptions = new wxPropertyCategory(_TL("[PRM] Options"), wxT("_DATAOBJECT_OPTIONS")));
+					m_pPG->Append(pOptions = new wxPropertyCategory(_TL("Options"), wxT("_DATAOBJECT_OPTIONS")));
 				}
 
 				pRoot	= pOptions;

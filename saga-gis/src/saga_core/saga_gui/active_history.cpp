@@ -185,7 +185,7 @@ void CACTIVE_History::On_Clear(wxCommandEvent &event)
 
 	int	Depth	= 0;
 
-	if( pObject && DLG_Get_Number(Depth, _TL("[CAP] Delete History Entries"), _TL("[DLG] Depth")) )
+	if( pObject && DLG_Get_Number(Depth, _TL("Delete History Entries"), _TL("Depth")) )
 	{
 		pObject->Get_History().Del_Children(Depth);
 

@@ -97,7 +97,7 @@ CWKSP_Table_Manager::~CWKSP_Table_Manager(void)
 //---------------------------------------------------------
 wxString CWKSP_Table_Manager::Get_Name(void)
 {
-	return( _TL("[CAP] Tables") );
+	return( _TL("Tables") );
 }
 
 //---------------------------------------------------------
@@ -105,7 +105,7 @@ wxString CWKSP_Table_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b>: %d<br>"), _TL("[CAP] Tables"), Get_Count());
+	s.Printf(wxT("<b>%s</b>: %d<br>"), _TL("Tables"), Get_Count());
 
 	return( s );
 }
@@ -115,7 +115,7 @@ wxMenu * CWKSP_Table_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(_TL("[CAP] Tables"));
+	pMenu	= new wxMenu(_TL("Tables"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLES_OPEN);
 

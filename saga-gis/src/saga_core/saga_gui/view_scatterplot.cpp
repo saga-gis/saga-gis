@@ -220,7 +220,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
-	: CVIEW_Base(ID_VIEW_SCATTERPLOT, _TL("[CAP] Scatterplot"), ID_IMG_WND_SCATTERPLOT, CVIEW_ScatterPlot::_Create_Menu(), _TL("[CAP] Scatterplot"))
+	: CVIEW_Base(ID_VIEW_SCATTERPLOT, _TL("Scatterplot"), ID_IMG_WND_SCATTERPLOT)
 {
 	_On_Construction();
 
@@ -233,7 +233,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 
 //---------------------------------------------------------
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, int Field)
-	: CVIEW_Base(ID_VIEW_SCATTERPLOT, _TL("[CAP] Scatterplot"), ID_IMG_WND_SCATTERPLOT, CVIEW_ScatterPlot::_Create_Menu(), _TL("[CAP] Scatterplot"))
+	: CVIEW_Base(ID_VIEW_SCATTERPLOT, _TL("Scatterplot"), ID_IMG_WND_SCATTERPLOT)
 {
 	_On_Construction();
 
@@ -247,7 +247,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, i
 
 //---------------------------------------------------------
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Table *pTable, int Field_X, int Field_Y)
-	: CVIEW_Base(ID_VIEW_SCATTERPLOT, _TL("[CAP] Scatterplot"), ID_IMG_WND_SCATTERPLOT, CVIEW_ScatterPlot::_Create_Menu(), _TL("[CAP] Scatterplot"))
+	: CVIEW_Base(ID_VIEW_SCATTERPLOT, _TL("Scatterplot"), ID_IMG_WND_SCATTERPLOT)
 {
 	_On_Construction();
 
@@ -273,7 +273,7 @@ CVIEW_ScatterPlot::~CVIEW_ScatterPlot(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_ScatterPlot::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu();
+	wxMenu	*pMenu	= new wxMenu(_TL("Scatterplot"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_UPDATE);
@@ -291,7 +291,7 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_UPDATE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
 
-	CMD_ToolBar_Add(pToolBar, _TL("[CAP] Scatterplot"));
+	CMD_ToolBar_Add(pToolBar, _TL("Scatterplot"));
 
 	return( pToolBar );
 }
@@ -318,7 +318,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	SYS_Set_Color_BG_Window(this);
 
 	m_Parameters.Add_Choice(
-		NULL, "TYPE"		, _TL("[CAP] Regression Formula"),
+		NULL, "TYPE"		, _TL("Regression Formula"),
 		_TL(""),
 		wxT("Y = a + b * X|")
 		wxT("Y = a + b / X|")
@@ -329,33 +329,33 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	);
 
 	m_Parameters.Add_String(
-		NULL, "INFO"		, _TL("[CAP] Regression Details"),
+		NULL, "INFO"		, _TL("Regression Details"),
 		_TL(""),
 		_TL(""), true
 	);
 
 	m_Parameters.Add_Font(
-		NULL, "FONT"		, _TL("[CAP] Font"),
+		NULL, "FONT"		, _TL("Font"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		NULL, "REGRESSION"	, _TL("[CAP] Show Regression Curve"),
+		NULL, "REGRESSION"	, _TL("Show Regression Curve"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Choice(
-		NULL, "METHOD"		, _TL("[CAP] Display Type"),
+		NULL, "METHOD"		, _TL("Display Type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("[CAP] Circles"),
-			_TL("[CAP] Points")
+			_TL("Circles"),
+			_TL("Points")
 		)
 	);
 
 	m_Parameters.Add_Value(
-		NULL, "RESOLUTION"	, _TL("[CAP] Display Resolution"),
+		NULL, "RESOLUTION"	, _TL("Display Resolution"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 50, 10, true
 	);
@@ -366,7 +366,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	Colors.Set_Count(100);
 
 	m_Parameters.Add_Colors(
-		NULL, "COLORS"		, _TL("[CAP] Colors"),
+		NULL, "COLORS"		, _TL("Colors"),
 		_TL(""),
 		&Colors
 	);
@@ -428,7 +428,7 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 	{
 		CSG_Table	*pTable	= new CSG_Table;
 
-		pTable->Set_Name(CSG_String::Format(SG_T("%s: [%s]-[%s]"), _TL("[CAP] Scatterplot"), m_sX.c_str(), m_sY.c_str()));
+		pTable->Set_Name(CSG_String::Format(SG_T("%s: [%s]-[%s]"), _TL("Scatterplot"), m_sX.c_str(), m_sY.c_str()));
 
 		pTable->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
 		pTable->Add_Field(m_sX      , SG_DATATYPE_Double);
@@ -779,7 +779,7 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 	}
 
 	//-----------------------------------------------------
-	m_sTitle.Printf(SG_T("%s: [%s/%s]"), _TL("[CAP] Scatterplot"), m_pGrid_X->Get_Name(), m_pGrid_Y->Get_Name());
+	m_sTitle.Printf(SG_T("%s: [%s/%s]"), _TL("Scatterplot"), m_pGrid_X->Get_Name(), m_pGrid_Y->Get_Name());
 
 	m_sX.Printf(SG_T("%s"), m_pGrid_X->Get_Name());
 	m_sY.Printf(SG_T("%s"), m_pGrid_Y->Get_Name());
@@ -839,7 +839,7 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 		return( false );
 	}
 
-	m_sTitle.Printf(SG_T("%s: [%s/%s]"), _TL("[CAP] Scatterplot"), m_pGrid_X->Get_Name(), m_pShapes->Get_Name());
+	m_sTitle.Printf(SG_T("%s: [%s/%s]"), _TL("Scatterplot"), m_pGrid_X->Get_Name(), m_pShapes->Get_Name());
 
 	m_sX.Printf(SG_T("%s"), m_pGrid_X->Get_Name());
 	m_sY.Printf(SG_T("%s"), m_pShapes->Get_Field_Name(m_xField));
@@ -880,7 +880,7 @@ bool CVIEW_ScatterPlot::_Initialize_Table(void)
 
 	double	Step	= m_maxSamples > 0 && m_pTable->Get_Count() > m_maxSamples ? m_pTable->Get_Count() / m_maxSamples : 1.0;
 
-	m_sTitle.Printf(SG_T("%s: [%s]"), _TL("[CAP] Scatterplot"), m_pTable->Get_Name());
+	m_sTitle.Printf(SG_T("%s: [%s]"), _TL("Scatterplot"), m_pTable->Get_Name());
 
 	m_sX.Printf(SG_T("%s"), m_pTable->Get_Field_Name(m_xField));
 	m_sY.Printf(SG_T("%s"), m_pTable->Get_Field_Name(m_yField));

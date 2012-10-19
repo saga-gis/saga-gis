@@ -118,7 +118,7 @@ public:
 
 	bool							Get_DataObject_List	(CSG_Parameters *pParameters);
 
-	class CWKSP_Data_Menu_Files *	Get_FileMenus		(void)		{	return( m_pMenu_Files );	}
+	class CWKSP_Data_Menu_Files *	Get_Menu_Files		(void)		{	return( m_pMenu_Files );	}
 
 	bool							Check_Parameters	(class CSG_Parameters *pParameters);
 	bool							Check_Parameter		(class CSG_Parameter  *pParameter);

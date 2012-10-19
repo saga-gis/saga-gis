@@ -113,12 +113,12 @@ wxString DLG_Get_Text(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_ABOUT:					return( _TL("[TXT] SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0") );
-	case ID_DLG_CLOSE:					return( _TL("[TXT] Do you want to exit SAGA?") );
-	case ID_DLG_DELETE:					return( _TL("[TXT] Do you want to delete the selection?") );
+	case ID_DLG_ABOUT:					return( _TL("SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0") );
+	case ID_DLG_CLOSE:					return( _TL("Do you want to exit SAGA?") );
+	case ID_DLG_DELETE:					return( _TL("Do you want to delete the selection?") );
 	}
 
-	return( _TL("[TXT] This is not a text!") );
+	return( _TL("This is not a text!") );
 }
 
 //---------------------------------------------------------
@@ -126,12 +126,12 @@ wxString DLG_Get_Caption(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_CLOSE:					return( _TL("[CAP] Exit") );
-	case ID_DLG_ABOUT:					return( _TL("[CAP] About SAGA") );
-	case ID_DLG_DELETE:					return( _TL("[CAP] Delete") );
+	case ID_DLG_CLOSE:					return( _TL("Exit") );
+	case ID_DLG_ABOUT:					return( _TL("About SAGA") );
+	case ID_DLG_DELETE:					return( _TL("Delete") );
 	}
 
-	return( _TL("[CAP] This Is Not A Caption!") );
+	return( _TL("This Is Not A Caption!") );
 }
 
 
@@ -146,39 +146,39 @@ wxString DLG_Get_FILE_Caption(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_WKSP_OPEN:			return( _TL("[CAP] Load") );
+	case ID_DLG_WKSP_OPEN:			return( _TL("Load") );
 
-	case ID_DLG_MODULES_OPEN:		return( _TL("[CAP] Load Module Library") );
+	case ID_DLG_MODULES_OPEN:		return( _TL("Load Module Library") );
 
-	case ID_DLG_PROJECT_OPEN:		return( _TL("[CAP] Load Project") );
-	case ID_DLG_PROJECT_SAVE:		return( _TL("[CAP] Save Project") );
+	case ID_DLG_PROJECT_OPEN:		return( _TL("Load Project") );
+	case ID_DLG_PROJECT_SAVE:		return( _TL("Save Project") );
 
-	case ID_DLG_GRIDS_OPEN:			return( _TL("[CAP] Load Grid") );
-	case ID_DLG_GRIDS_SAVE:			return( _TL("[CAP] Save Grid") );
+	case ID_DLG_GRIDS_OPEN:			return( _TL("Load Grid") );
+	case ID_DLG_GRIDS_SAVE:			return( _TL("Save Grid") );
 
-	case ID_DLG_SHAPES_OPEN:		return( _TL("[CAP] Load Shapes") );
-	case ID_DLG_SHAPES_SAVE:		return( _TL("[CAP] Save Shapes") );
+	case ID_DLG_SHAPES_OPEN:		return( _TL("Load Shapes") );
+	case ID_DLG_SHAPES_SAVE:		return( _TL("Save Shapes") );
 
-	case ID_DLG_TABLES_OPEN:		return( _TL("[CAP] Load Table") );
-	case ID_DLG_TABLES_SAVE:		return( _TL("[CAP] Save Table") );
+	case ID_DLG_TABLES_OPEN:		return( _TL("Load Table") );
+	case ID_DLG_TABLES_SAVE:		return( _TL("Save Table") );
 
-	case ID_DLG_TIN_OPEN:			return( _TL("[CAP] Load TIN") );
-	case ID_DLG_TIN_SAVE:			return( _TL("[CAP] Save TIN") );
+	case ID_DLG_TIN_OPEN:			return( _TL("Load TIN") );
+	case ID_DLG_TIN_SAVE:			return( _TL("Save TIN") );
 
-	case ID_DLG_POINTCLOUD_OPEN:	return( _TL("[CAP] Load Point Cloud") );
-	case ID_DLG_POINTCLOUD_SAVE:	return( _TL("[CAP] Save Point Cloud") );
+	case ID_DLG_POINTCLOUD_OPEN:	return( _TL("Load Point Cloud") );
+	case ID_DLG_POINTCLOUD_SAVE:	return( _TL("Save Point Cloud") );
 
-	case ID_DLG_TEXT_OPEN:			return( _TL("[CAP] Load Text") );
-	case ID_DLG_TEXT_SAVE:			return( _TL("[CAP] Save Text") );
+	case ID_DLG_TEXT_OPEN:			return( _TL("Load Text") );
+	case ID_DLG_TEXT_SAVE:			return( _TL("Save Text") );
 
-	case ID_DLG_PARAMETERS_OPEN:	return( _TL("[CAP] Load Settings") );
-	case ID_DLG_PARAMETERS_SAVE:	return( _TL("[CAP] Save Settings") );
+	case ID_DLG_PARAMETERS_OPEN:	return( _TL("Load Settings") );
+	case ID_DLG_PARAMETERS_SAVE:	return( _TL("Save Settings") );
 
-	case ID_DLG_COLORS_OPEN:		return( _TL("[CAP] Load Colors") );
-	case ID_DLG_COLORS_SAVE:		return( _TL("[CAP] Save Colors") );
+	case ID_DLG_COLORS_OPEN:		return( _TL("Load Colors") );
+	case ID_DLG_COLORS_SAVE:		return( _TL("Save Colors") );
 	}
 
-	return( _TL("[CAP] Select File") );
+	return( _TL("Select File") );
 }
 
 //---------------------------------------------------------
@@ -515,7 +515,7 @@ bool		DLG_Colors(int &Palette)
 	wxSingleChoiceDialog	dlg(
 		MDI_Get_Top_Window(),
 		wxT(""),
-		_TL("[CAP] Preset Selection"),		
+		_TL("Preset Selection"),		
 		SG_COLORS_COUNT, Palettes
 	);
 
@@ -595,7 +595,7 @@ bool		DLG_Get_Number(double &Number, const wxString &Caption, const wxString &Te
 
 bool		DLG_Get_Number(double &Number)
 {
-	return( DLG_Get_Number(Number, _TL("[CAP] Input"), _TL("[DLG] Please enter a numeric value:")) );
+	return( DLG_Get_Number(Number, _TL("Input"), _TL("Please enter a numeric value:")) );
 }
 
 //---------------------------------------------------------
@@ -616,7 +616,7 @@ bool		DLG_Get_Number(int &Number, const wxString &Caption, const wxString &Text)
 
 bool		DLG_Get_Number(int &Number)
 {
-	return( DLG_Get_Number(Number, _TL("[CAP] Input"), _TL("[DLG] Please enter a numeric value:")) );
+	return( DLG_Get_Number(Number, _TL("Input"), _TL("Please enter a numeric value:")) );
 }
 
 
@@ -773,7 +773,7 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 	static	int	Filter_Index	= 3;
 
 	wxFileDialog	dlg(
-		MDI_Get_Top_Window(), _TL("[CAP] Save As Image"), def_Dir, def_File, wxString::Format(
+		MDI_Get_Top_Window(), _TL("Save As Image"), def_Dir, def_File, wxString::Format(
 			wxT("%s (*.bmp)|*.bmp|")
 			wxT("%s (*.jpg)|*.jpg;*.jif;*.jpeg|")
 			wxT("%s (*.tif)|*.tif;*.tiff|")
@@ -924,12 +924,12 @@ int			DLG_Maps_Add(void)
 				Maps[i]	= g_pMaps->Get_Map(i)->Get_Name();
 			}
 
-			Maps[i]	= _TL("[VAL] New");
+			Maps[i]	= _TL("New");
 
 			wxSingleChoiceDialog	dlg(
 				MDI_Get_Top_Window(),
-				_TL("[CAP] Map Selection"),
-				_TL("[DLG] Add layer to selected map"),
+				_TL("Map Selection"),
+				_TL("Add layer to selected map"),
 				g_pMaps->Get_Count() + 1,
 				Maps
 			);

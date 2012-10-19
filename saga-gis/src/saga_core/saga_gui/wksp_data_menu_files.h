@@ -72,14 +72,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "wksp_data_menu_file.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWKSP_Data_Menu_Files
 {
 public:
 	CWKSP_Data_Menu_Files(void);
 	virtual ~CWKSP_Data_Menu_Files(void);
 
-	void							Add				(class wxMenu *pMenu);
-	void							Del				(class wxMenu *pMenu);
+	wxMenu *						Get_Menu		(void)			{	return( m_pMenu );		}
 
 	void							Set_Update		(bool bUpdate)	{	m_bUpdate	= bUpdate;	}
 
@@ -92,17 +101,15 @@ private:
 
 	bool							m_bUpdate;
 
-	int								m_nMenus;
+	wxMenu							*m_pMenu;
 
-	class wxMenu					**m_Menus;
-
-	class CWKSP_Data_Menu_File		*m_pFMProjects, *m_pFMTables, *m_pFMShapes, *m_pFMTINs, *m_pFMPointClouds, *m_pFMGrids;
+	CWKSP_Data_Menu_File			m_Projects, m_Tables, m_Shapes, m_TINs, m_PointClouds, m_Grids;
 
 
-	class CWKSP_Data_Menu_File *	_Get_Menu		(int DataType);
+	CWKSP_Data_Menu_File *			_Get_Menu		(int DataType);
 
 	void							_Update			(void);
-	void							_Update			(class wxMenu *pMenu);
+	void							_Update			(wxMenu *pMenu);
 
 };
 

@@ -211,14 +211,14 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 
 			if( m_pParameter->is_Optional() || pTable->Get_Field_Count() == 0 )
 			{
-				_Append( _TL("[VAL] [not set]") );
+				_Append( _TL("[not set]") );
 			}
 
 			return( m_pParameter->asInt() >= 0 ? m_pParameter->asInt() : m_choices.GetCount() - 1);
 		}
 	}
 
-	_Append( _TL("[VAL] [not set]") );
+	_Append( _TL("[not set]") );
 
 	return( m_choices.GetCount() - 1 );
 }
@@ -342,13 +342,13 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 				}
 			}
 
-			_Append(_TL("[VAL] [not set]"));
+			_Append(_TL("[not set]"));
 		}
 
 		return( index );
 	}
 
-	_Append( _TL("[VAL] [no choice available]"));
+	_Append( _TL("[no choice available]"));
 
 	return( 0 );
 }
@@ -387,12 +387,12 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 {
 	if( m_pParameter->is_Output() )
 	{
-		_Append(_TL("[VAL] [create]"), DATAOBJECT_CREATE);
+		_Append(_TL("[create]"), DATAOBJECT_CREATE);
 	}
 
 	if( !m_pParameter->is_Output() || (m_pParameter->is_Output() && m_pParameter->is_Optional()) )
 	{
-		_Append(_TL("[VAL] [not set]"), DATAOBJECT_NOTSET);
+		_Append(_TL("[not set]"), DATAOBJECT_NOTSET);
 	}
 
 	g_pData->Check_Parameter(m_pParameter);
@@ -616,21 +616,21 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 			if( m_pParameter->asFilePath()->is_Directory() )
 			{
-				bModified	= DLG_Directory	(Text, _TL("[CAP] Choose Directory"));
+				bModified	= DLG_Directory	(Text, _TL("Choose Directory"));
 			}
 			else if( m_pParameter->asFilePath()->is_Save() )
 			{
-				bModified	= DLG_Save		(Text, _TL("[CAP] Save"), m_pParameter->asFilePath()->Get_Filter());
+				bModified	= DLG_Save		(Text, _TL("Save"), m_pParameter->asFilePath()->Get_Filter());
 			}
 			else if( m_pParameter->asFilePath()->is_Multiple() == false )
 			{
-				bModified	= DLG_Open		(Text, _TL("[CAP] Open"), m_pParameter->asFilePath()->Get_Filter());
+				bModified	= DLG_Open		(Text, _TL("Open"), m_pParameter->asFilePath()->Get_Filter());
 			}
 			else
 			{
 				wxArrayString	Files;
 
-				bModified	= DLG_Open		(Files, _TL("[CAP] Open"), m_pParameter->asFilePath()->Get_Filter());
+				bModified	= DLG_Open		(Files, _TL("Open"), m_pParameter->asFilePath()->Get_Filter());
 
 				if( bModified )
 				{

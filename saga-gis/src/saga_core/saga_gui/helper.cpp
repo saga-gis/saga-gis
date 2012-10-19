@@ -207,16 +207,16 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 
 	if( pTable && pTable->is_Valid() )
 	{
-		s	+= wxString::Format(wxT("<hr><b>%s</b>"), _TL("[CAP] Table Description"));
+		s	+= wxString::Format(wxT("<hr><b>%s</b>"), _TL("Table Description"));
 
 		s	+= wxString::Format(wxT("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>"),
-			_TL("[CAP] Field"),
-			_TL("[CAP] Name"),
-			_TL("[CAP] Type"),
-			_TL("[CAP] Minimum"),
-			_TL("[CAP] Maximum"),
-			_TL("[CAP] Mean"),
-			_TL("[CAP] Standard Deviation")
+			_TL("Field"),
+			_TL("Name"),
+			_TL("Type"),
+			_TL("Minimum"),
+			_TL("Maximum"),
+			_TL("Mean"),
+			_TL("Standard Deviation")
 		);
 
 		for(int i=0; i<pTable->Get_Field_Count(); i++)

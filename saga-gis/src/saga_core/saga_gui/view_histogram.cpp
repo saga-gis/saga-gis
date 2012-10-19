@@ -492,7 +492,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
-	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM, CVIEW_Histogram::_Create_Menu(), _TL("[CAP] Histogram"))
+	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
 {
 	m_pLayer	= pLayer;
 	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
@@ -512,7 +512,7 @@ CVIEW_Histogram::~CVIEW_Histogram(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Histogram::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu();
+	wxMenu	*pMenu	= new wxMenu(_TL("Histogram"));
 
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
@@ -528,7 +528,7 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
 
-	CMD_ToolBar_Add(pToolBar, _TL("[CAP] Histogram"));
+	CMD_ToolBar_Add(pToolBar, _TL("Histogram"));
 
 	return( pToolBar );
 }
@@ -575,7 +575,7 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 	{
 		pTable	= new CSG_Table;
 
-		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("[CAP] Histogram"), m_pLayer->Get_Object()->Get_Name()));
+		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Histogram"), m_pLayer->Get_Object()->Get_Name()));
 
 		pTable->Add_Field(_TL("CLASS")	, SG_DATATYPE_Int);
 		pTable->Add_Field(_TL("COUNT")	, SG_DATATYPE_Int);

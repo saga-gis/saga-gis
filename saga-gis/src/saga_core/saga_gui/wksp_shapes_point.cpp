@@ -104,30 +104,30 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	CWKSP_Shapes::On_Create_Parameters();
 
 	_BrushList_Add(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, _TL("[CAP] Fill Style"),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, _TL("Fill Style"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "OUTLINE"					, _TL("[CAP] Outline"),
+		m_Parameters("NODE_DISPLAY")	, "OUTLINE"					, _TL("Outline"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_COLOR"			, _TL("[CAP] Color"),
+		m_Parameters("OUTLINE")			, "OUTLINE_COLOR"			, _TL("Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_SIZE"			, _TL("[CAP] Size"),
+		m_Parameters("OUTLINE")			, "OUTLINE_SIZE"			, _TL("Size"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_TYPE"		, _TL("[CAP] Symbol Type"),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_TYPE"		, _TL("Symbol Type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("circle"),
@@ -148,7 +148,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_FilePath(
-		m_Parameters("DISPLAY_SYMBOL_TYPE")	, "DISPLAY_SYMBOL_IMAGE"	, _TL("[CAP] Symbol Image"),
+		m_Parameters("DISPLAY_SYMBOL_TYPE")	, "DISPLAY_SYMBOL_IMAGE"	, _TL("Symbol Image"),
 		_TL(""),
 		CSG_String::Format(
 			SG_T("%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|")
@@ -177,18 +177,18 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	// Label...
 
 	_AttributeList_Add(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ANGLE_ATTRIB"	, _TL("[CAP] Rotation by Attribute"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ANGLE_ATTRIB"	, _TL("Rotation by Attribute"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("LABEL_ANGLE_ATTRIB"), "LABEL_ANGLE"		, _TL("[CAP] Default Rotation"),
+		m_Parameters("LABEL_ANGLE_ATTRIB"), "LABEL_ANGLE"		, _TL("Default Rotation"),
 		_TL("rotation clockwise in degree"),
 		PARAMETER_TYPE_Double, 0.0, -360.0, true, 360.0, true
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_X"		, _TL("[CAP] Horizontal Align"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_X"		, _TL("Horizontal Align"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("left"),
@@ -198,7 +198,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_Y"		, _TL("[CAP] Vertical Align"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_Y"		, _TL("Vertical Align"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("top"),
@@ -212,36 +212,36 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	// Size...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, _TL("[CAP] Size relates to..."),
+		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, _TL("Size relates to..."),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("[VAL] Screen"),
-			_TL("[VAL] Map Units")
+			_TL("Screen"),
+			_TL("Map Units")
 		), 0
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("[CAP] Attribute"),
+		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_SCALE"		, _TL("[CAP] Attribute Values"),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_SCALE"		, _TL("Attribute Values"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("[VAL] no scaling"),
-			_TL("[VAL] scale to size range")
+			_TL("no scaling"),
+			_TL("scale to size range")
 		), 1
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, _TL("[CAP] Size Range"),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
 		2, 10, 0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, _TL("[CAP] Default Size"),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, _TL("Default Size"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 5, 0, true
 	);
@@ -251,7 +251,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	// Edit...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"	, _TL("[CAP] Fill Color"),
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"	, _TL("Fill Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
 	);

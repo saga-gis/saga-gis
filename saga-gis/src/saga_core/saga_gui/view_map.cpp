@@ -122,7 +122,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
-	: CVIEW_Base(ID_VIEW_MAP, pMap->Get_Name(), ID_IMG_WND_MAP, CVIEW_Map::_Create_Menu(), _TL("[CAP] Map"))
+	: CVIEW_Base(ID_VIEW_MAP, pMap->Get_Name(), ID_IMG_WND_MAP)
 {
 	SYS_Set_Color_BG_Window(this);
 
@@ -156,7 +156,7 @@ CVIEW_Map::~CVIEW_Map(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Map::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu();
+	wxMenu	*pMenu	= new wxMenu(_TL("Map"));
 
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_TOOLBAR);
 //	pMenu->AppendSeparator();
@@ -206,7 +206,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_3D_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_LAYOUT_SHOW);
 
-	CMD_ToolBar_Add(pToolBar, _TL("[CAP] Map"));
+	CMD_ToolBar_Add(pToolBar, _TL("Map"));
 
 	return( pToolBar );
 }

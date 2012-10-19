@@ -109,12 +109,12 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
-		NULL	, "NODE_DEFAULTS"	, _TL("[CAP] Defaults"),
+		NULL	, "NODE_DEFAULTS"	, _TL("Defaults"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		pNode_0	, "GOTO_NEWLAYER"	, _TL("[CAP] Zoom to added layer"),
+		pNode_0	, "GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
 		_TL(""),
 		PARAMETER_TYPE_Bool,
 		CONFIG_Read(wxT("/MAPS"), wxT("GOTO_NEWLAYER"), bValue) ? bValue : true
@@ -122,19 +122,19 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Node(
-		pNode_0	, "NODE_FRAME"		, _TL("[CAP] Frame"),
+		pNode_0	, "NODE_FRAME"		, _TL("Frame"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "FRAME_SHOW"		, _TL("[CAP] Show"),
+		pNode_1	, "FRAME_SHOW"		, _TL("Show"),
 		_TL(""),
 		PARAMETER_TYPE_Bool,
 		CONFIG_Read(wxT("/MAPS"), wxT("FRAME_SHOW"), bValue) ? bValue : true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "FRAME_WIDTH"		, _TL("[CAP] Width"),
+		pNode_1	, "FRAME_WIDTH"		, _TL("Width"),
 		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("FRAME_WIDTH"), lValue) ? lValue : 17,
@@ -143,26 +143,26 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Node(
-		pNode_0	, "NODE_CLIPBOARD"	, _TL("[CAP] Clipboard"),
+		pNode_0	, "NODE_CLIPBOARD"	, _TL("Clipboard"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_NX"			, _TL("[CAP] Width"),
+		pNode_1	, "CLIP_NX"			, _TL("Width"),
 		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_NX"), lValue) ? lValue : 400
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_NY"			, _TL("[CAP] Height"),
+		pNode_1	, "CLIP_NY"			, _TL("Height"),
 		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_NY"), lValue) ? lValue : 400
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_FRAME"		, _TL("[CAP] Frame Width"),
+		pNode_1	, "CLIP_FRAME"		, _TL("Frame Width"),
 		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_FRAME"), lValue) ? lValue : 17,
@@ -170,7 +170,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_SCALE", _TL("[CAP] Legend Scale"),
+		pNode_1	, "CLIP_LEGEND_SCALE", _TL("Legend Scale"),
 		_TL(""),
 		PARAMETER_TYPE_Double,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_SCALE"), dValue) ? dValue : 2.0,
@@ -178,7 +178,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_FRAME", _TL("[CAP] Legend Frame Width"),
+		pNode_1	, "CLIP_LEGEND_FRAME", _TL("Legend Frame Width"),
 		_TL(""),
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_FRAME"), lValue) ? lValue : 10,
@@ -186,7 +186,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_COLOR", _TL("[CAP] Legend Border Colour"),
+		pNode_1	, "CLIP_LEGEND_COLOR", _TL("Legend Border Colour"),
 		_TL(""),
 		PARAMETER_TYPE_Color,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_COLOR"), lValue) ? lValue : SG_GET_RGB(0, 0, 0)
@@ -216,7 +216,7 @@ CWKSP_Map_Manager::~CWKSP_Map_Manager(void)
 //---------------------------------------------------------
 wxString CWKSP_Map_Manager::Get_Name(void)
 {
-	return( _TL("[CAP] Maps") );
+	return( _TL("Maps") );
 }
 
 //---------------------------------------------------------
@@ -224,7 +224,7 @@ wxString CWKSP_Map_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("%d %s"), Get_Count(), Get_Count() == 1 ? _TL("[CAP] Map") : _TL("[CAP] Maps"));
+	s.Printf(wxT("%d %s"), Get_Count(), Get_Count() == 1 ? _TL("Map") : _TL("Maps"));
 
 	return( s );
 }
@@ -234,7 +234,7 @@ wxMenu * CWKSP_Map_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(_TL("[CAP] Maps"));
+	pMenu	= new wxMenu(_TL("Maps"));
 
 	if( Get_Count() > 0 )
 	{

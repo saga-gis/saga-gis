@@ -152,7 +152,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CWKSP::CWKSP(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE|wxNB_MULTILINE, _TL("[CAP] Manager"))
+	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE|wxNB_MULTILINE, _TL("Manager"))
 {
 	wxNotebook	*pNotebook;
 
@@ -169,11 +169,11 @@ CWKSP::CWKSP(wxWindow *pParent)
 	//-----------------------------------------------------
 	m_pModules		= new CWKSP_Module_Control	(this);
 
-	SUBNB_CREATE(ID_WND_WKSP_DATA, _TL("[CAP] Data"));
+	SUBNB_CREATE(ID_WND_WKSP_DATA, _TL("Data"));
 	m_pData			= new CWKSP_Data_Control	(pNotebook);
 	m_pData_Buttons	= new CWKSP_Data_Buttons	(pNotebook);
 
-	SUBNB_CREATE(ID_WND_WKSP_MAPS, _TL("[CAP] Maps"));
+	SUBNB_CREATE(ID_WND_WKSP_MAPS, _TL("Maps"));
 	m_pMaps			= new CWKSP_Map_Control		(pNotebook);
 	m_pMaps_Buttons	= new CWKSP_Map_Buttons		(pNotebook);
 }
@@ -183,9 +183,9 @@ void CWKSP::Add_Pages(void)
 {
 	long	lValue;
 
-	AddPage(m_pModules				, _TL("[CAP] Modules")	, false, IMG_MODULES);
-	AddPage(m_pData->GetParent()	, _TL("[CAP] Data")		, false, IMG_DATA);
-	AddPage(m_pMaps->GetParent()	, _TL("[CAP] Maps")		, false, IMG_MAPS);
+	AddPage(m_pModules				, _TL("Modules")	, false, IMG_MODULES);
+	AddPage(m_pData->GetParent()	, _TL("Data")		, false, IMG_DATA);
+	AddPage(m_pMaps->GetParent()	, _TL("Maps")		, false, IMG_MAPS);
 
 	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData			, SUBNB_CAPTION_TREE	, false, 0);
 	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData_Buttons	, SUBNB_CAPTION_BUTTONS	, false, 1);

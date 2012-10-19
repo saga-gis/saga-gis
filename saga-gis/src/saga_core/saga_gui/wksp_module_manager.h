@@ -110,7 +110,7 @@ public:
 
 	class CWKSP_Module_Library *	Get_Library			(int i)		{	return( (class CWKSP_Module_Library *)Get_Item(i) );	}
 
-	class CWKSP_Module_Menu *		Get_Modules_Menu	(void)		{	return( m_pMenu );	}
+	class CWKSP_Menu_Modules *		Get_Menu_Modules	(void)		{	return( m_pMenu_Modules );	}
 
 	bool							Do_Beep				(void);
 
@@ -124,7 +124,7 @@ public:
 
 private:
 
-	class CWKSP_Module_Menu			*m_pMenu;
+	class CWKSP_Menu_Modules		*m_pMenu_Modules;
 
 
 	void							_Config_Read		(void);

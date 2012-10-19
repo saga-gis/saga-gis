@@ -165,8 +165,10 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
-	: CVIEW_Base(ID_VIEW_MAP_3D, wxString::Format(wxT("%s [%s]"), _TL("[CAP] 3D-View"), pMap->Get_Name().c_str()), ID_IMG_WND_MAP3D, CVIEW_Map_3D::_Create_Menu(), _TL("[CAP] 3D-View"))
+	: CVIEW_Base(ID_VIEW_MAP_3D, _TL("3D View"), ID_IMG_WND_MAP3D)
 {
+	SetTitle(wxString::Format(wxT("%s [%s]"), pMap->Get_Name().c_str(), _TL("3D View")));
+
 	CreateStatusBar(MAP3D_STATUSBAR_COUNT);
 
 	//-----------------------------------------------------
@@ -176,19 +178,18 @@ CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
 	//-----------------------------------------------------
 	m_Play_Mode	= PLAY_MODE_NONE;
 
-	m_Play.Add_Field(_TL("[FLD] Rotate X")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Rotate Y")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Rotate Z")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Shift X")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Shift Y")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Shift Z")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Exaggeration")		, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Central Projection"), SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("[FLD] Steps to Next")		, SG_DATATYPE_Int);
+	m_Play.Add_Field(_TL("Rotate X")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Rotate Y")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Rotate Z")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Shift X")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Shift Y")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Shift Z")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Exaggeration")		, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Central Projection"), SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Steps to Next")		, SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
 	_Parms_Create();
-
 	_Parms_Dlg();
 }
 
@@ -212,7 +213,7 @@ CVIEW_Map_3D::~CVIEW_Map_3D(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(), *pMenu_Sub;
+	wxMenu	*pMenu	= new wxMenu(_TL("3D-View")), *pMenu_Sub;
 
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
 
@@ -225,7 +226,7 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	pMenu_Sub->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_LESS);
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_MORE);
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("[MNU] Rotation"), pMenu_Sub);
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Rotation"), pMenu_Sub);
 
 	pMenu_Sub	= new wxMenu();
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_X_LESS);
@@ -236,7 +237,7 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	pMenu_Sub->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_LESS);
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_MORE);
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("[MNU] Shift"), pMenu_Sub);
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Shift"), pMenu_Sub);
 
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_LESS);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_MORE);
@@ -262,7 +263,7 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY);
 	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY_LOOP);
 	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_SAVE);
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("[MNU] Sequencer"), pMenu_Sub);
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Sequencer"), pMenu_Sub);
 
 	return( pMenu );
 }
@@ -296,7 +297,7 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_LESS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_MORE);
 
-	CMD_ToolBar_Add(pToolBar, _TL("[CAP] 3D-View"));
+	CMD_ToolBar_Add(pToolBar, _TL("3D-View"));
 
 	return( pToolBar );
 }
@@ -606,17 +607,17 @@ void CVIEW_Map_3D::_Parms_Create(void)
 {
 	CSG_Parameter	*pNode;
 
-	m_Parameters.Create(NULL, _TL("[CAP] 3D-View"), _TL(""));
+	m_Parameters.Create(NULL, _TL("3D-View"), _TL(""));
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Grid(
-		NULL	, "ELEVATION"		, _TL("[CAP] Elevation"),
+		NULL	, "ELEVATION"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "ROTATION", _TL("[CAP] Rotation"), _TL(""));
+	pNode	= m_Parameters.Add_Node(NULL, "ROTATION", _TL("Rotation"), _TL(""));
 
 	m_Parameters.Add_Value(
 		pNode	, "ROTATION_X"		, _TL("X"),
@@ -637,7 +638,7 @@ void CVIEW_Map_3D::_Parms_Create(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "SHIFT", _TL("[CAP] Shift"), _TL(""));
+	pNode	= m_Parameters.Add_Node(NULL, "SHIFT", _TL("Shift"), _TL(""));
 
 	m_Parameters.Add_Value(
 		pNode	, "SHIFT_X"			, _TL("Left/Right"),
@@ -659,16 +660,16 @@ void CVIEW_Map_3D::_Parms_Create(void)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
-		NULL	, "EXAGGERATION"	, _TL("[CAP] Exaggeration"),
+		NULL	, "EXAGGERATION"	, _TL("Exaggeration"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_PROJECTION", _TL("[CAP] Projection"), _TL(""));
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_PROJECTION", _TL("Projection"), _TL(""));
 
 	m_Parameters.Add_Choice(
-		pNode	, "CENTRAL"			, _TL("[CAP] Projection"),
+		pNode	, "CENTRAL"			, _TL("Projection"),
 		_TL(""),
 
 		CSG_String::Format(SG_T("%s|%s|"),
@@ -678,16 +679,16 @@ void CVIEW_Map_3D::_Parms_Create(void)
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "CENTRAL_DIST"	, _TL("[CAP] Perspectivic Distance"),
+		pNode	, "CENTRAL_DIST"	, _TL("Perspectivic Distance"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 200, 1, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_FIGURE", _TL("[CAP] Figure"), _TL(""));
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_FIGURE", _TL("Figure"), _TL(""));
 
 	m_Parameters.Add_Choice(
-		pNode	, "FIGURE"			, _TL("[CAP] Figure"),
+		pNode	, "FIGURE"			, _TL("Figure"),
 		_TL(""),
 
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
@@ -699,35 +700,35 @@ void CVIEW_Map_3D::_Parms_Create(void)
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "FIGURE_WEIGHT"	, _TL("[CAP] Weight"),
+		pNode	, "FIGURE_WEIGHT"	, _TL("Weight"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_STEREO", _TL("[CAP] Anaglyph"), _TL(""));
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_STEREO", _TL("Anaglyph"), _TL(""));
 
 	m_Parameters.Add_Value(
-		pNode	, "STEREO"			, _TL("[CAP] Anaglyph"),
+		pNode	, "STEREO"			, _TL("Anaglyph"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, 0.0
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "STEREO_DIST"		, _TL("[CAP] Eye Distance [Degree]"),
+		pNode	, "STEREO_DIST"		, _TL("Eye Distance [Degree]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 2.0, 0, true, 180, true
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
-		NULL	, "INTERPOLATED"	, _TL("[CAP] Interpolated"),
+		NULL	, "INTERPOLATED"	, _TL("Interpolated"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
-		NULL	, "BKGRD_COLOR"		, _TL("[CAP] Background Color"),
+		NULL	, "BKGRD_COLOR"		, _TL("Background Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
@@ -982,7 +983,7 @@ void CVIEW_Map_3D::_Play_Pos_Edit(void)
 {
 	if( m_Play_Mode == PLAY_MODE_NONE )
 	{
-		DLG_Table(_TL("[CAP] 3D-View: Player Sequence"), &m_Play);
+		DLG_Table(_TL("3D-View: Player Sequence"), &m_Play);
 	}
 }
 

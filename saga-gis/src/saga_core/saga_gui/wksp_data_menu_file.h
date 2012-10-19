@@ -72,14 +72,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/menu.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWKSP_Data_Menu_File
 {
 public:
-	CWKSP_Data_Menu_File(int DataType);
+	CWKSP_Data_Menu_File(void);
 	virtual ~CWKSP_Data_Menu_File(void);
 
-	class wxMenu *				Create		(void);
-	void						Update		(class wxMenu *pMenu);
+	wxMenu *					Create		(TSG_Data_Object_Type DataType);
+	void						Destroy		(void);
+
+	void						Update		(wxMenu *pMenu);
 
 	void						Add			(const wxString &FileName);
 	void						Del			(const wxString &FileName);
@@ -89,13 +101,14 @@ public:
 
 private:
 
-	int							m_DataType, m_Recent_First, m_Recent_Count;
+	int							m_Recent_First, m_Recent_Count;
 
 	wxString					*m_Recent, m_Recent_Group;
 
+	TSG_Data_Object_Type		m_DataType;
+
 
 	void						_Create		(void);
-	void						_Destroy	(void);
 
 	void						_Del		(int Cmd_ID);
 

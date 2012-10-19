@@ -524,7 +524,7 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 	//-----------------------------------------------------
 	if( Get_Class_Count() > 0 )
 	{
-		STATUSBAR_Set_Text(_TL("[MSG] Build Histogram..."));
+		STATUSBAR_Set_Text(_TL("Build Histogram..."));
 
 		m_HST_Count	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
 		m_HST_Cumul	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));

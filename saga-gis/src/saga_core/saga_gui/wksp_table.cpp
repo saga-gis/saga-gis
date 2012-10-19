@@ -93,13 +93,13 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 	On_Create_Parameters();
 
 	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "NAME"			, _TL("[CAP] Name"),
+		m_Parameters("NODE_GENERAL")	, "NAME"			, _TL("Name"),
 		_TL(""),
 		m_pTable->Get_Name()
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"	, _TL("[CAP] No Data"),
+		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"	, _TL("No Data"),
 		_TL("")
 	);
 
@@ -114,11 +114,11 @@ CWKSP_Table::~CWKSP_Table(void)
 
 	if( m_pOwner->Get_Type() == WKSP_ITEM_Table_Manager )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("[MSG] Close table"), m_pTable->Get_Name() ), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("Close table"), m_pTable->Get_Name() ), true, true);
 
 		delete(m_pTable);
 
-		MSG_General_Add(_TL("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+		MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 }
 
@@ -141,23 +141,23 @@ wxString CWKSP_Table::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("[CAP] Table"));
+	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Table"));
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR(_TL("[CAP] Name")				, m_pTable->Get_Name());
-	DESC_ADD_STR(_TL("[CAP] Description")		, m_pTable->Get_Description());
-	DESC_ADD_STR(_TL("[CAP] File")				, SG_File_Exists(m_pTable->Get_File_Name()) ? m_pTable->Get_File_Name() : _TL("memory"));
-	DESC_ADD_STR(_TL("[CAP] Modified")			, m_pTable->is_Modified() ? _TL("[VAL] yes") : _TL("[VAL] no"));
-	DESC_ADD_INT(_TL("[CAP] Attributes")		, m_pTable->Get_Field_Count());
-	DESC_ADD_INT(_TL("[CAP] Records")			, m_pTable->Get_Record_Count());
+	DESC_ADD_STR(_TL("Name")				, m_pTable->Get_Name());
+	DESC_ADD_STR(_TL("Description")		, m_pTable->Get_Description());
+	DESC_ADD_STR(_TL("File")				, SG_File_Exists(m_pTable->Get_File_Name()) ? m_pTable->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR(_TL("Modified")			, m_pTable->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_INT(_TL("Attributes")		, m_pTable->Get_Field_Count());
+	DESC_ADD_INT(_TL("Records")			, m_pTable->Get_Record_Count());
 
 	s	+= wxT("</table>");
 
 	s	+= Get_TableInfo_asHTML(m_pTable);
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("[CAP] Data History"));
+//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
 //	s	+= m_pTable->Get_History().Get_HTML();
 //	s	+= wxString::Format(wxT("</font"));
 

@@ -98,15 +98,15 @@ CWKSP_Module_Manager	*g_pModules	= NULL;
 //---------------------------------------------------------
 CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 {
-	g_pModules	= this;
+	g_pModules		= this;
 
-	m_pMenu		= new CWKSP_Module_Menu;
+	m_pMenu_Modules	= new CWKSP_Menu_Modules;
 
 	//-----------------------------------------------------
 	m_Parameters.Create(this, _TL(""), _TL(""));
 
 	m_Parameters.Add_Value(
-		NULL	, "BEEP"		, _TL("[CAP] Beep when finished"),
+		NULL	, "BEEP"		, _TL("Beep when finished"),
 		_TL(""),
 		PARAMETER_TYPE_Bool	, true
 	);
@@ -179,7 +179,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 //---------------------------------------------------------
 CWKSP_Module_Manager::~CWKSP_Module_Manager(void)
 {
-	delete(m_pMenu);
+	delete(m_pMenu_Modules);
 
 	g_pModules	= NULL;
 }
@@ -227,7 +227,7 @@ bool CWKSP_Module_Manager::Finalise(void)
 //---------------------------------------------------------
 wxString CWKSP_Module_Manager::Get_Name(void)
 {
-	return( _TL("[CAP] Module Libraries") );
+	return( _TL("Module Libraries") );
 }
 
 //---------------------------------------------------------
@@ -241,7 +241,7 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(_TL("[CAP] Module Libraries"));
+	pMenu	= new wxMenu(_TL("Module Libraries"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_OPEN);
 
@@ -316,7 +316,7 @@ void CWKSP_Module_Manager::On_Execute(wxCommandEvent &event)
 {
 	CWKSP_Module	*pModule;
 
-	if( (pModule = Get_Module_byID(m_pMenu->Get_ID_Translated(event.GetId()))) != NULL )
+	if( (pModule = Get_Module_byID(m_pMenu_Modules->Get_ID_Translated(event.GetId()))) != NULL )
 	{
 		pModule->On_Command(ID_CMD_WKSP_ITEM_RETURN);
 	}
@@ -327,7 +327,7 @@ void CWKSP_Module_Manager::On_Execute_UI(wxUpdateUIEvent &event)
 {
 	if( g_pModule )
 	{
-		if( g_pModule->Get_Menu_ID() == m_pMenu->Get_ID_Translated(event.GetId()) )
+		if( g_pModule->Get_Menu_ID() == m_pMenu_Modules->Get_ID_Translated(event.GetId()) )
 		{
 			event.Enable(true);
 			event.Check(true);
@@ -436,7 +436,7 @@ void CWKSP_Module_Manager::_Config_Read(void)
 		Open(sValue);
 	}
 
-	m_pMenu->Update();
+	m_pMenu_Modules->Update();
 }
 
 //---------------------------------------------------------
@@ -526,7 +526,7 @@ void CWKSP_Module_Manager::Open(void)
 			Open(File_Paths[i]);
 		}
 
-		m_pMenu->Update();
+		m_pMenu_Modules->Update();
 	}
 }
 

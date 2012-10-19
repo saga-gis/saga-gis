@@ -78,37 +78,37 @@ const wxString CTRL_Get_Name(int ID_CTRL)
 	switch( ID_CTRL )
 	{
 	case wxID_OK:
-	case ID_BTN_OK:						return( _TL("[BTN] Okay") );
+	case ID_BTN_OK:						return( _TL("Okay") );
 	case wxID_CANCEL:
-	case ID_BTN_CANCEL:					return( _TL("[BTN] Cancel") );
+	case ID_BTN_CANCEL:					return( _TL("Cancel") );
 
-	case ID_BTN_APPLY:					return( _TL("[BTN] Apply") );
-	case ID_BTN_RESTORE:				return( _TL("[BTN] Restore") );
+	case ID_BTN_APPLY:					return( _TL("Apply") );
+	case ID_BTN_RESTORE:				return( _TL("Restore") );
 
-	case ID_BTN_EXECUTE:				return( _TL("[BTN] Execute") );
+	case ID_BTN_EXECUTE:				return( _TL("Execute") );
 
-	case ID_BTN_LOAD:					return( _TL("[BTN] Load") );
-	case ID_BTN_SAVE:					return( _TL("[BTN] Save") );
+	case ID_BTN_LOAD:					return( _TL("Load") );
+	case ID_BTN_SAVE:					return( _TL("Save") );
 
-	case ID_BTN_DEFAULTS:				return( _TL("[BTN] Defaults") );
+	case ID_BTN_DEFAULTS:				return( _TL("Defaults") );
 
-	case ID_BTN_ADD:					return( _TL("[BTN] Add") );
-	case ID_BTN_ADD_ALL:				return( _TL("[BTN] Add All") );
-	case ID_BTN_INSERT:					return( _TL("[BTN] Insert") );
-	case ID_BTN_DELETE:					return( _TL("[BTN] Delete") );
-	case ID_BTN_DELETE_ALL:				return( _TL("[BTN] Clear") );
+	case ID_BTN_ADD:					return( _TL("Add") );
+	case ID_BTN_ADD_ALL:				return( _TL("Add All") );
+	case ID_BTN_INSERT:					return( _TL("Insert") );
+	case ID_BTN_DELETE:					return( _TL("Delete") );
+	case ID_BTN_DELETE_ALL:				return( _TL("Clear") );
 
-	case ID_BTN_UP:						return( _TL("[BTN] Up") );
-	case ID_BTN_DOWN:					return( _TL("[BTN] Down") );
+	case ID_BTN_UP:						return( _TL("Up") );
+	case ID_BTN_DOWN:					return( _TL("Down") );
 
-	case ID_BTN_COLORS_MIRROR:			return( _TL("[BTN] Mirror") );
-	case ID_BTN_COLORS_INVERT:			return( _TL("[BTN] Invert") );
-	case ID_BTN_COLORS_RANDOM:			return( _TL("[BTN] Random") );
-	case ID_BTN_COLORS_PRESET:			return( _TL("[BTN] Presets") );
-	case ID_BTN_COLORS_COUNT:			return( _TL("[BTN] Count") );
+	case ID_BTN_COLORS_MIRROR:			return( _TL("Mirror") );
+	case ID_BTN_COLORS_INVERT:			return( _TL("Invert") );
+	case ID_BTN_COLORS_RANDOM:			return( _TL("Random") );
+	case ID_BTN_COLORS_PRESET:			return( _TL("Presets") );
+	case ID_BTN_COLORS_COUNT:			return( _TL("Count") );
 	}
 
-	return( _TL("[BTN] Button") );
+	return( _TL("Button") );
 }
 
 

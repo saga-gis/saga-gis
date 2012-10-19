@@ -152,7 +152,7 @@ wxString CWKSP_Module_Library::Get_Description(void)
 	s	+= sDesc.Length() > 0 ? sDesc.c_str() : m_pLibrary->Get_Description().c_str();
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<hr><b>%s:<ul>"), _TL("[CAP] Modules"));
+	s	+= wxString::Format(wxT("<hr><b>%s:<ul>"), _TL("Modules"));
 
 	for(int iModule=0; iModule<Get_Count(); iModule++)
 	{

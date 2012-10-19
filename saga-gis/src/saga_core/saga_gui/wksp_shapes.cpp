@@ -92,8 +92,8 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	m_Edit_pShape	= NULL;
 
 	m_Edit_Attributes.Destroy();
-	m_Edit_Attributes.Add_Field(_TL("[FLD] Name") , SG_DATATYPE_String);
-	m_Edit_Attributes.Add_Field(_TL("[FLD] Value"), SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(_TL("Name") , SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
 }
 
 //---------------------------------------------------------
@@ -115,31 +115,31 @@ wxString CWKSP_Shapes::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("[CAP] Shapes"));
+	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Shapes"));
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR(_TL("[CAP] Name")				, m_pShapes->Get_Name());
-	DESC_ADD_STR(_TL("[CAP] Description")		, m_pShapes->Get_Description());
-	DESC_ADD_STR(_TL("[CAP] File")				, SG_File_Exists(m_pShapes->Get_File_Name()) ? m_pShapes->Get_File_Name() : _TL("memory"));
-	DESC_ADD_STR(_TL("[CAP] Modified")			, m_pShapes->is_Modified() ? _TL("[VAL] yes") : _TL("[VAL] no"));
-	DESC_ADD_STR(_TL("[CAP] Projection")		, m_pShapes->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT(_TL("[CAP] West")				, m_pShapes->Get_Extent().Get_XMin());
-	DESC_ADD_FLT(_TL("[CAP] East")				, m_pShapes->Get_Extent().Get_XMax());
-	DESC_ADD_FLT(_TL("[CAP] West-East")			, m_pShapes->Get_Extent().Get_XRange());
-	DESC_ADD_FLT(_TL("[CAP] South")				, m_pShapes->Get_Extent().Get_YMin());
-	DESC_ADD_FLT(_TL("[CAP] North")				, m_pShapes->Get_Extent().Get_YMax());
-	DESC_ADD_FLT(_TL("[CAP] South-North")		, m_pShapes->Get_Extent().Get_YRange());
-	DESC_ADD_STR(_TL("[CAP] Type")				, SG_Get_ShapeType_Name(m_pShapes->Get_Type()).c_str());
-	DESC_ADD_STR(_TL("[CAP] Vertex Type")		, m_pShapes->Get_Vertex_Type() == 0 ? _TL("X, Y") : m_pShapes->Get_Vertex_Type() == 1 ? _TL("X, Y, Z") : _TL("X, Y, Z, M"));
-	DESC_ADD_INT(_TL("[CAP] Number Of Shapes")	, m_pShapes->Get_Count());
+	DESC_ADD_STR(_TL("Name")				, m_pShapes->Get_Name());
+	DESC_ADD_STR(_TL("Description")		, m_pShapes->Get_Description());
+	DESC_ADD_STR(_TL("File")				, SG_File_Exists(m_pShapes->Get_File_Name()) ? m_pShapes->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR(_TL("Modified")			, m_pShapes->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR(_TL("Projection")		, m_pShapes->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT(_TL("West")				, m_pShapes->Get_Extent().Get_XMin());
+	DESC_ADD_FLT(_TL("East")				, m_pShapes->Get_Extent().Get_XMax());
+	DESC_ADD_FLT(_TL("West-East")			, m_pShapes->Get_Extent().Get_XRange());
+	DESC_ADD_FLT(_TL("South")				, m_pShapes->Get_Extent().Get_YMin());
+	DESC_ADD_FLT(_TL("North")				, m_pShapes->Get_Extent().Get_YMax());
+	DESC_ADD_FLT(_TL("South-North")		, m_pShapes->Get_Extent().Get_YRange());
+	DESC_ADD_STR(_TL("Type")				, SG_Get_ShapeType_Name(m_pShapes->Get_Type()).c_str());
+	DESC_ADD_STR(_TL("Vertex Type")		, m_pShapes->Get_Vertex_Type() == 0 ? _TL("X, Y") : m_pShapes->Get_Vertex_Type() == 1 ? _TL("X, Y, Z") : _TL("X, Y, Z, M"));
+	DESC_ADD_INT(_TL("Number Of Shapes")	, m_pShapes->Get_Count());
 
 	s	+= wxT("</table>");
 
 	s	+= Get_TableInfo_asHTML(m_pShapes);
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("[CAP] Data History"));
+//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
 //	s	+= m_pShapes->Get_History().Get_HTML();
 //	s	+= wxString::Format(wxT("</font"));
 
@@ -163,14 +163,14 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 
-	wxMenu	*pTable	= new wxMenu(_TL("[MNU] Table"));
+	wxMenu	*pTable	= new wxMenu(_TL("Table"));
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
 	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
 	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SAVE);
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Attributes"), pTable);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pTable);
 
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("[MNU] Edit"), Edit_Get_Menu());
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Edit"), Edit_Get_Menu());
 
 	return( pMenu );
 }
@@ -325,12 +325,12 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	// Classification...
 
 	_AttributeList_Add(
-		m_Parameters("NODE_LUT")		, "LUT_ATTRIB"				, _TL("[CAP] Attribute"),
+		m_Parameters("NODE_LUT")		, "LUT_ATTRIB"				, _TL("Attribute"),
 		_TL("")
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, _TL("[CAP] Attribute"),
+		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, _TL("Attribute"),
 		_TL("")
 	);
 
@@ -339,7 +339,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	// Display...
 
 	m_Parameters.Add_Parameters(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_CHART"			, _TL("[CAP] Chart"),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_CHART"			, _TL("Chart"),
 		_TL("")
 	);
 
@@ -348,17 +348,17 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	// Label...
 
 	_AttributeList_Add(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB"			, _TL("[CAP] Attribute"),
+		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB"			, _TL("Attribute"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Font(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_FONT"		, _TL("[CAP] Font"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_FONT"		, _TL("Font"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_PREC"		, _TL("[CAP] Numerical Precision"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_PREC"		, _TL("Numerical Precision"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("fit to value"),
@@ -368,16 +368,16 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_TYPE"	, _TL("[CAP] Size relates to..."),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_TYPE"	, _TL("Size relates to..."),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("[VAL] Screen"),
-			_TL("[VAL] Map Units")
+			_TL("Screen"),
+			_TL("Map Units")
 		), 0
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_EFFECT"		, _TL("[CAP] Boundary Effect"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_EFFECT"		, _TL("Boundary Effect"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("none"),
@@ -394,18 +394,18 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("LABEL_ATTRIB_EFFECT"), "LABEL_ATTRIB_EFFECT_COLOR"	, _TL("[CAP] Color"),
+		m_Parameters("LABEL_ATTRIB_EFFECT"), "LABEL_ATTRIB_EFFECT_COLOR"	, _TL("Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
 	);
 
 	_AttributeList_Add(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_BY"	, _TL("[CAP] Size by Attribute"),
+		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_BY"	, _TL("Size by Attribute"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("LABEL_ATTRIB_SIZE_BY"), "LABEL_ATTRIB_SIZE"	, _TL("[CAP] Default Size"),
+		m_Parameters("LABEL_ATTRIB_SIZE_BY"), "LABEL_ATTRIB_SIZE"	, _TL("Default Size"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
@@ -415,7 +415,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	// Selection...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "SEL_COLOR"				, _TL("[CAP] Color"),
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR"				, _TL("Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 0, 0)
 	);
@@ -425,19 +425,19 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	// Edit...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_EDIT")		, "EDIT_COLOR"				, _TL("[CAP] Color"),
+		m_Parameters("NODE_EDIT")		, "EDIT_COLOR"				, _TL("Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Shapes_List(
-		m_Parameters("NODE_EDIT")		, "EDIT_SNAP_LIST"			, _TL("[CAP] Snap to..."),
+		m_Parameters("NODE_EDIT")		, "EDIT_SNAP_LIST"			, _TL("Snap to..."),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("EDIT_SNAP_LIST")	, "EDIT_SNAP_DIST"			, _TL("[CAP] Snap Distance"),
+		m_Parameters("EDIT_SNAP_LIST")	, "EDIT_SNAP_DIST"			, _TL("Snap Distance"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 10, 0, true
 	);
@@ -448,12 +448,12 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	// HTML Extra info
 
 	m_Parameters.Add_Node(
-		NULL							, "NODE_EXTRAINFO"			, _TL("[CAP] Html Extra Info"),
+		NULL							, "NODE_EXTRAINFO"			, _TL("Html Extra Info"),
 		_TL("")
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_EXTRAINFO")	, "EXTRAINFO_ATTRIB"		, _TL("[CAP] Attribute"),
+		m_Parameters("NODE_EXTRAINFO")	, "EXTRAINFO_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
 #endif
@@ -888,7 +888,7 @@ wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 		}
 		else
 		{
-			return( wxString::Format(wxT("%s: %d"), _TL("[CAP] Index"), pShape->Get_Index() + 1) );
+			return( wxString::Format(wxT("%s: %d"), _TL("Index"), pShape->Get_Index() + 1) );
 		}
 	}
 
@@ -1093,7 +1093,7 @@ CSG_Parameter * CWKSP_Shapes::_AttributeList_Add(CSG_Parameter *pNode, const CSG
 
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
-		CSG_String::Format(SG_T("%s|"), _TL("[VAL] [default]")), 0
+		CSG_String::Format(SG_T("%s|"), _TL("[default]")), 0
 	);
 
 	return( pParameter );
@@ -1113,7 +1113,7 @@ void CWKSP_Shapes::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 
 		if( bAddNoField )
 		{
-			s.Append(wxString::Format(wxT("%s|"), _TL("[VAL] [none]")));
+			s.Append(wxString::Format(wxT("%s|"), _TL("[none]")));
 		}
 
 		pFields->asChoice()->Set_Items(s);
@@ -1140,14 +1140,14 @@ CSG_Parameter * CWKSP_Shapes::_BrushList_Add(CSG_Parameter *pNode, const CSG_Str
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("[VAL] Opaque"),
-			_TL("[VAL] Transparent"),
-			_TL("[VAL] Backward Diagonal"),
-			_TL("[VAL] Cross Diagonal"),
-			_TL("[VAL] Forward Diagonal"),
-			_TL("[VAL] Cross"),
-			_TL("[VAL] Horizontal"),
-			_TL("[VAL] Vertical")
+			_TL("Opaque"),
+			_TL("Transparent"),
+			_TL("Backward Diagonal"),
+			_TL("Cross Diagonal"),
+			_TL("Forward Diagonal"),
+			_TL("Cross"),
+			_TL("Horizontal"),
+			_TL("Vertical")
 		), 0
 	);
 
@@ -1179,11 +1179,11 @@ CSG_Parameter * CWKSP_Shapes::_PenList_Add(CSG_Parameter *pNode, const CSG_Strin
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("[VAL] Solid"),
-			_TL("[VAL] Dotted"),
-			_TL("[VAL] Long Dashed"),
-			_TL("[VAL] Short Dashed"),
-			_TL("[VAL] Dot And Dash")
+			_TL("Solid"),
+			_TL("Dotted"),
+			_TL("Long Dashed"),
+			_TL("Short Dashed"),
+			_TL("Dot And Dash")
 		), 0
 	);
 
@@ -1269,28 +1269,28 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 			);
 
 			pChart->Add_Choice(
-				NULL, "SIZE_FIELD"		, _TL("[CAP] Attribute (Size)"),
+				NULL, "SIZE_FIELD"		, _TL("Attribute (Size)"),
 				_TL(""),
-				CSG_String::Format(SG_T("%s|"), _TL("[VAL] [not set]")), 0
+				CSG_String::Format(SG_T("%s|"), _TL("[not set]")), 0
 			);
 
 			pChart->Add_Choice(
-				NULL, "SIZE_TYPE"		, _TL("[CAP] Size relates to..."),
+				NULL, "SIZE_TYPE"		, _TL("Size relates to..."),
 				_TL(""),
 				CSG_String::Format(SG_T("%s|%s|"),
-					_TL("[VAL] Screen"),
-					_TL("[VAL] Map Units")
+					_TL("Screen"),
+					_TL("Map Units")
 				), 0
 			);
 
 			pChart->Add_Value(
-				NULL, "SIZE_DEFAULT"	, _TL("[CAP] Default Size"),
+				NULL, "SIZE_DEFAULT"	, _TL("Default Size"),
 				_TL(""),
 				PARAMETER_TYPE_Double, 15, 0, true
 			);
 
 			pChart->Add_Range(
-				NULL, "SIZE_RANGE"		, _TL("[CAP] Size Range"),
+				NULL, "SIZE_RANGE"		, _TL("Size Range"),
 				_TL(""),
 				5, 25, 0, true
 			);
@@ -1319,7 +1319,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 				}
 			}
 
-			sFields.Append(CSG_String::Format(SG_T("%s|"), _TL("[VAL] [none]")));
+			sFields.Append(CSG_String::Format(SG_T("%s|"), _TL("[none]")));
 			pFields	= pChart->Get_Parameter("SIZE_FIELD");
 			pFields->asChoice()->Set_Items(sFields);
 			pFields->Set_Value(m_pShapes->Get_Field_Count());

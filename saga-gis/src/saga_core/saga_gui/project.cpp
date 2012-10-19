@@ -216,7 +216,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 {
 	if( !bAdd && g_pData->Get_Count() > 0 )
 	{
-		switch( DLG_Message_YesNoCancel(_TL("[TXT] Close all data sets"), _TL("[CAP] Load Project")) )
+		switch( DLG_Message_YesNoCancel(_TL("Close all data sets"), _TL("Load Project")) )
 		{
 		case 0:
 			if( !g_pData->Close(true) )
@@ -230,7 +230,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 	//-------------------------------------------------
 	MSG_General_Add_Line();
-	MSG_General_Add(wxString::Format(wxT("%s: %s"), _TL("[MSG] Load project"), FileName), true, true);
+	MSG_General_Add(wxString::Format(wxT("%s: %s"), _TL("Load project"), FileName), true, true);
 
 	//-------------------------------------------------
 	bool			bSuccess	= false;
@@ -243,19 +243,19 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	}
 	else if( !wxFileExists(FileName) )
 	{
-		MSG_Error_Add(_TL("[MSG] file does not exist.")				, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("file does not exist.")				, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( !Project.Load(&FileName) )
 	{
-		MSG_Error_Add(_TL("[MSG] could not read project file.")		, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("could not read project file.")		, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( Project.Get_Name().Cmp(SG_T("SAGA_PROJECT")) )
 	{
-		MSG_Error_Add(_TL("[MSG] invalid project file.")			, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("invalid project file.")			, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( (pNode = Project.Get_Child(SG_T("DATA"))) == NULL || pNode->Get_Children_Count() <= 0 )
 	{
-		MSG_Error_Add(_TL("[MSG] no data entries in project file.")	, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("no data entries in project file.")	, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else
 	{
@@ -266,7 +266,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		bSuccess	= true;
 
 		//-------------------------------------------------
-		g_pData->Get_FileMenus()->Set_Update(false);
+		g_pData->Get_Menu_Files()->Set_Update(false);
 
 		for(i=0; i<pNode->Get_Children_Count(); i++)
 		{
@@ -278,7 +278,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName).w_str(), false, Version);
 		}
 
-		g_pData->Get_FileMenus()->Set_Update(true);
+		g_pData->Get_Menu_Files()->Set_Update(true);
 
 		//-------------------------------------------------
 		if( (pNode = Project.Get_Child(SG_T("MAPS"))) != NULL && pNode->Get_Children_Count() > 0 )
@@ -295,10 +295,10 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	{
 		if( bUpdateMenu )
 		{
-			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
+			g_pData->Get_Menu_Files()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 		}
 
-		MSG_General_Add(_TL("[MSG] Project has been successfully loaded."), true, true, SG_UI_MSG_STYLE_SUCCESS);
+		MSG_General_Add(_TL("Project has been successfully loaded."), true, true, SG_UI_MSG_STYLE_SUCCESS);
 
 		m_File_Name	= FileName;
 
@@ -309,10 +309,10 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 	if( bUpdateMenu )
 	{
-		g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
+		g_pData->Get_Menu_Files()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
 	}
 
-	MSG_General_Add(_TL("[MSG] Could not load project."), true, true, SG_UI_MSG_STYLE_FAILURE);
+	MSG_General_Add(_TL("Could not load project."), true, true, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
@@ -426,9 +426,9 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 		m_File_Name	= FileName;
 
 		if( bUpdateMenu )
-			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
+			g_pData->Get_Menu_Files()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 
-		MSG_General_Add(_TL("[MSG] Project has been saved."), true, true, SG_UI_MSG_STYLE_SUCCESS);
+		MSG_General_Add(_TL("Project has been saved."), true, true, SG_UI_MSG_STYLE_SUCCESS);
 
 		_Set_Project_Name();
 
@@ -440,9 +440,9 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	m_File_Name.Clear();
 
 	if( bUpdateMenu )
-		g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
+		g_pData->Get_Menu_Files()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
 
-	MSG_General_Add(_TL("[MSG] Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
+	MSG_General_Add(_TL("Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
 
 	PROGRESSBAR_Set_Position(0);
 
@@ -736,7 +736,7 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
 {
 	CSG_Parameters	Parameters;
 
-	Parameters.Create(this, _TL("[CAP] Close and save modified data sets..."), _TL(""));
+	Parameters.Create(this, _TL("Close and save modified data sets..."), _TL(""));
 	Parameters.Add_Value(NULL, "SAVE_ALL", _TL("Save all"), _TL(""), PARAMETER_TYPE_Bool, false);
 
 	_Modified_Get(&Parameters, pItem, bSelections);
@@ -1014,9 +1014,9 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 		return( false );
 	}
 
-	g_pData->Get_FileMenus()->Set_Update(false);
+	g_pData->Get_Menu_Files()->Set_Update(false);
 	while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(FileName).w_str()) );
-	g_pData->Get_FileMenus()->Set_Update(true);
+	g_pData->Get_Menu_Files()->Set_Update(true);
 
 	//-------------------------------------------------
 	while( Stream.Read_Line(sLine) && sLine.Cmp(MAP_ENTRIES_BEGIN) );

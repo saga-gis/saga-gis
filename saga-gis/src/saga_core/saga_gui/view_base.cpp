@@ -100,7 +100,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, wxMenu *pMenu, wxString Menu_Label)
+CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID)
 	: wxMDIChildFrame(g_pSAGA_Frame, -1, Caption, MDI_Get_Def_Position(), MDI_Get_Def_Size(), wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 {
 	m_View_ID		= View_ID;
@@ -112,24 +112,15 @@ CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, wxMenu *pMenu
 
 	SetIcon(IMG_Get_Icon(Icon_ID));
 
-	SetMenuBar(g_pSAGA_Frame->MB_Create(this));
-	GetMenuBar()->Insert(2, pMenu, Menu_Label);
-	m_pMenu_File	= GetMenuBar()->GetMenu(0);
-	m_pMenu_Modules	= GetMenuBar()->GetMenu(1);
-
-	_Activate();
-
 	Show(true);
 }
 
 //---------------------------------------------------------
 CVIEW_Base::~CVIEW_Base(void)
 {
-	_Deactivate();
-
 	if( g_pSAGA_Frame )
 	{
-		g_pSAGA_Frame->MB_Remove(m_pMenu_File, m_pMenu_Modules);
+		g_pSAGA_Frame->On_Child_Activates(-1);
 	}
 }
 
@@ -175,29 +166,10 @@ void CVIEW_Base::On_Activate(wxActivateEvent &event)
 {
 	if( event.GetActive() )
 	{
-		_Activate();
-	}
-	else
-	{
-		_Deactivate();
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Base::_Activate(void)
-{
-	if( g_pSAGA_Frame )
-	{
-		g_pSAGA_Frame->On_Child_Activates(this, true);
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Base::_Deactivate(void)
-{
-	if( g_pSAGA_Frame )
-	{
-		g_pSAGA_Frame->On_Child_Activates(this, false);
+		if( g_pSAGA_Frame )
+		{
+			g_pSAGA_Frame->On_Child_Activates(m_View_ID);
+		}
 	}
 }
 

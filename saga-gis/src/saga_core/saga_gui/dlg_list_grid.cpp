@@ -116,7 +116,7 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 				m_pSystems->Append(pManager->Get_System(i)->Get_Name());
 			}
 
-			m_pSystems->Append( _TL("[VAL] [all grid systems]") );
+			m_pSystems->Append( _TL("[all grid systems]") );
 			m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
 		}
 

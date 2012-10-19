@@ -102,13 +102,13 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Display...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, _TL("[CAP] Show Vertices"),
+		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY"), "LINE_STYLE"		, _TL("[CAP] Line Style"),
+		m_Parameters("NODE_DISPLAY"), "LINE_STYLE"		, _TL("Line Style"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Solid style"),
@@ -133,27 +133,27 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Size...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, _TL("[CAP] Size relates to..."),
+		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, _TL("Size relates to..."),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("[VAL] Screen"),
-			_TL("[VAL] Map Units")
+			_TL("Screen"),
+			_TL("Map Units")
 		), 0
 	);
 
 	_AttributeList_Add(
-		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("[CAP] Attribute"),
+		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, _TL("[CAP] Size Range"),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
 		0, 10, 0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, _TL("[CAP] Default Size"),
+		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, _TL("Default Size"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);

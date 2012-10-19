@@ -352,7 +352,7 @@ bool CWKSP_Data_Manager::Finalise(void)
 //---------------------------------------------------------
 wxString CWKSP_Data_Manager::Get_Name(void)
 {
-	return( _TL("[CAP] Data") );
+	return( _TL("Data") );
 }
 
 //---------------------------------------------------------
@@ -360,43 +360,43 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><br>"), _TL("[CAP] Data"));
+	s.Printf(wxT("<b>%s</b><br>"), _TL("Data"));
 
 	if( Get_Count() <= 0 )
 	{
-		s.Append(_TL("[TXT] No data loaded."));
+		s.Append(_TL("No data loaded."));
 	}
 	else
 	{
 		if( m_pProject->Has_File_Name() )
 		{
-			s.Append(wxString::Format(wxT("%s: %s<br>"), _TL("[CAP] Project File"), m_pProject->Get_File_Name()));
+			s.Append(wxString::Format(wxT("%s: %s<br>"), _TL("Project File"), m_pProject->Get_File_Name()));
 		}
 
 		if( Get_Tables() )
 		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("[CAP] Tables"), Get_Tables()->Get_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Tables"), Get_Tables()->Get_Count()));
 		}
 
 		if( Get_Shapes() )
 		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("[CAP] Shapes"), Get_Shapes()->Get_Items_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Shapes"), Get_Shapes()->Get_Items_Count()));
 		}
 
 		if( Get_TINs() )
 		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("[CAP] TIN"), Get_TINs()->Get_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("TIN"), Get_TINs()->Get_Count()));
 		}
 
 		if( Get_PointClouds() )
 		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("[CAP] Point Clouds"), Get_PointClouds()->Get_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Point Clouds"), Get_PointClouds()->Get_Count()));
 		}
 
 		if( Get_Grids() )
 		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("[CAP] Grid Systems"), Get_Grids()->Get_Count()));
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("[CAP] Grids"), Get_Grids()->Get_Items_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Grid Systems"), Get_Grids()->Get_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Grids"), Get_Grids()->Get_Items_Count()));
 		}
 	}
 
@@ -408,7 +408,7 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(_TL("[CAP] Data"));
+	pMenu	= new wxMenu(_TL("Data"));
 
 //	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 
@@ -948,7 +948,7 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 
 		return( true );
 	}
-	else if( (bSilent || DLG_Message_Confirm(_TL("[TXT] Close all data sets"), _TL("[CAP] Close"))) && Save_Modified(this) )
+	else if( (bSilent || DLG_Message_Confirm(_TL("Close all data sets"), _TL("Close"))) && Save_Modified(this) )
 	{
 		Finalise();
 

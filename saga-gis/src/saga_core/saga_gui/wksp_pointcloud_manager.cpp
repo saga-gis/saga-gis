@@ -97,7 +97,7 @@ CWKSP_PointCloud_Manager::~CWKSP_PointCloud_Manager(void)
 //---------------------------------------------------------
 wxString CWKSP_PointCloud_Manager::Get_Name(void)
 {
-	return( _TL("[CAP] PointCloud") );
+	return( _TL("PointCloud") );
 }
 
 //---------------------------------------------------------
@@ -105,7 +105,7 @@ wxString CWKSP_PointCloud_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b>:%d<br>"), _TL("[CAP] PointCloud"), Get_Count());
+	s.Printf(wxT("<b>%s</b>:%d<br>"), _TL("PointCloud"), Get_Count());
 
 	return( s );
 }
@@ -115,7 +115,7 @@ wxMenu * CWKSP_PointCloud_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(_TL("[CAP] PointCloud"));
+	pMenu	= new wxMenu(_TL("PointCloud"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_OPEN);
 

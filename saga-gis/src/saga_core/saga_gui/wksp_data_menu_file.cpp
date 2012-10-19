@@ -85,19 +85,33 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Data_Menu_File::CWKSP_Data_Menu_File(int DataType)
+CWKSP_Data_Menu_File::CWKSP_Data_Menu_File(void)
 {
-	m_DataType	= DataType;
-
 	m_Recent	= NULL;
-
-	_Create();
+	m_DataType	= DATAOBJECT_TYPE_Undefined;
 }
 
 //---------------------------------------------------------
 CWKSP_Data_Menu_File::~CWKSP_Data_Menu_File(void)
 {
-	_Destroy();
+	Destroy();
+}
+
+//---------------------------------------------------------
+void CWKSP_Data_Menu_File::Destroy(void)
+{
+	if( m_Recent )
+	{
+		for(int i=0; i<m_Recent_Count; i++)
+		{
+			CONFIG_Write(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), m_Recent[i]);
+		}
+
+		delete[](m_Recent);
+	}
+
+	m_Recent	= NULL;
+	m_DataType	= DATAOBJECT_TYPE_Undefined;
 }
 
 
@@ -108,8 +122,13 @@ CWKSP_Data_Menu_File::~CWKSP_Data_Menu_File(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::_Create(void)
+wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 {
+	Destroy();
+
+	m_DataType	= DataType;
+
+	//-----------------------------------------------------
 	switch( m_DataType )
 	{
 	default:
@@ -164,32 +183,8 @@ void CWKSP_Data_Menu_File::_Create(void)
 			CONFIG_Read(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), m_Recent[i]);
 		}
 	}
-}
 
-//---------------------------------------------------------
-void CWKSP_Data_Menu_File::_Destroy(void)
-{
-	if( m_Recent )
-	{
-		for(int i=0; i<m_Recent_Count; i++)
-		{
-			CONFIG_Write(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), m_Recent[i]);
-		}
-
-		delete[](m_Recent);
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxMenu * CWKSP_Data_Menu_File::Create(void)
-{
+	//-----------------------------------------------------
 	wxMenu	*pMenu	= new wxMenu;
 
 	Update(pMenu);

@@ -175,7 +175,7 @@ bool CWKSP_Base_Control::_Set_Manager(CWKSP_Base_Manager *pManager)
 		m_pManager	= pManager;
 
 		AddRoot		(m_pManager->Get_Name(), IMG_ROOT, IMG_ROOT, m_pManager);
-		AppendItem	(m_pManager->GetId(), _TL("[CAP] [no items]"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
+		AppendItem	(m_pManager->GetId(), _TL("[no items]"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
 		Expand		(m_pManager->GetId());
 
 		return( true );
@@ -337,12 +337,12 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			//---------------------------------------------
 			DeleteChildren	(m_pManager->GetId());
-			AppendItem		(m_pManager->GetId(), _TL("[CAP] [no items]"), 0, 0, NULL);
+			AppendItem		(m_pManager->GetId(), _TL("[no items]"), 0, 0, NULL);
 			Expand			(m_pManager->GetId());
 
 			if( g_pModule_Ctrl && m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
 			{
-				g_pModules->Get_Modules_Menu()->Update();
+				g_pModules->Get_Menu_Modules()->Update();
 			}
 
 			//---------------------------------------------
@@ -392,7 +392,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 		if( m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
 		{
-			g_pModules->Get_Modules_Menu()->Update();
+			g_pModules->Get_Menu_Modules()->Update();
 		}
 
 		if( pItem_Manager != NULL && pItem_Manager->Get_Type() == WKSP_ITEM_Map )
@@ -771,7 +771,7 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 
 		wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
 			_TL("Copy Settings from..."),
-			_TL("[DLG] Select a layer to copy settings from it."),
+			_TL("Select a layer to copy settings from it."),
 			Items
 		);
 
