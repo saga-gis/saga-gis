@@ -163,9 +163,9 @@ bool CVIEW_Layout_Info::Print(void)
 	}
 
 	if( wxPrinter::GetLastError() == wxPRINTER_ERROR )
-		MSG_Error_Add(_TL("[ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?"));
+		MSG_Error_Add(_TL("There was a problem printing.\nPerhaps your current printer is not set correctly?"));
 	else
-		MSG_Error_Add(_TL("[ERR] You canceled printing"));
+		MSG_Error_Add(_TL("You canceled printing"));
 
 	return( false );
 }

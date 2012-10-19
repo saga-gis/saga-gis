@@ -94,7 +94,7 @@ bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_M
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Load grid"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load grid"), File_Name.c_str()), true);
 
 	if( SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
 	{
@@ -116,15 +116,15 @@ bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_M
 
 		m_bCreated	= true;
 
-		SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 	else
 	{
 		Destroy();
 
-		SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
-		SG_UI_Msg_Add_Error(_TL("[ERR] Grid file could not be opened."));
+		SG_UI_Msg_Add_Error(_TL("Grid file could not be opened."));
 	}
 
 	//-----------------------------------------------------
@@ -164,7 +164,7 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Save grid"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Save grid"), File_Name.c_str()), true);
 
 	switch( Format )
 	{
@@ -187,13 +187,13 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int
 
 		Save_MetaData(File_Name);
 
-		SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 	else
 	{
-		SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
-		SG_UI_Msg_Add_Error(_TL("[ERR] Grid file could not be saved."));
+		SG_UI_Msg_Add_Error(_TL("Grid file could not be saved."));
 	}
 
 	return( bResult );

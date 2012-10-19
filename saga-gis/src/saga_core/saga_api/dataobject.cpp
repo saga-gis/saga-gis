@@ -93,12 +93,12 @@ CSG_String	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 	switch( Type )
 	{
 	default:
-	case DATAOBJECT_TYPE_Undefined:		return( _TL("[DAT] Undefined") );
-	case DATAOBJECT_TYPE_Grid:			return( _TL("[DAT] Grid") );
-	case DATAOBJECT_TYPE_Table:			return( _TL("[DAT] Table") );
-	case DATAOBJECT_TYPE_Shapes:		return( _TL("[DAT] Shapes") );
-	case DATAOBJECT_TYPE_TIN:			return( _TL("[DAT] TIN") );
-	case DATAOBJECT_TYPE_PointCloud:	return( _TL("[DAT] Point Cloud") );
+	case DATAOBJECT_TYPE_Undefined:		return( _TL("Undefined") );
+	case DATAOBJECT_TYPE_Grid:			return( _TL("Grid") );
+	case DATAOBJECT_TYPE_Table:			return( _TL("Table") );
+	case DATAOBJECT_TYPE_Shapes:		return( _TL("Shapes") );
+	case DATAOBJECT_TYPE_TIN:			return( _TL("TIN") );
+	case DATAOBJECT_TYPE_PointCloud:	return( _TL("Point Cloud") );
 	}
 }
 

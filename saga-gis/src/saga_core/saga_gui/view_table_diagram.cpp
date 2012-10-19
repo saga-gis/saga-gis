@@ -535,8 +535,8 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 			sFields_All	+= m_pTable->Get_Field_Name(iField) + CSG_String(SG_T("|"));
 		}
 
-		sFields_Num	+= _TL("[none]") + CSG_String(SG_T("|"));
-		sFields_All	+= _TL("[none]") + CSG_String(SG_T("|"));
+		sFields_Num	+= _TL("<none>") + CSG_String(SG_T("|"));
+		sFields_All	+= _TL("<none>") + CSG_String(SG_T("|"));
 
 		//-------------------------------------------------
 		m_Parameters.Add_Choice(
@@ -726,14 +726,14 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 		else
 		{
 			Draw_Text(dc, TEXTALIGN_CENTER, rDC.GetLeft() + rDC.GetWidth() / 2, rDC.GetTop() + rDC.GetHeight() / 2,
-				_TL("[ERR] Invalid display size!")
+				_TL("Invalid display size!")
 			);
 		}
 	}
 	else
 	{
 		Draw_Text(dc, TEXTALIGN_CENTER, rDC.GetLeft() + rDC.GetWidth() / 2, rDC.GetTop() + rDC.GetHeight() / 2,
-			_TL("[ERR] Invalid data set!")
+			_TL("Invalid data set!")
 		);
 	}
 }

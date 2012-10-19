@@ -194,7 +194,7 @@ wxMenu * CWKSP_Module::Get_Menu(void)
 
 	pMenu	= new wxMenu(Get_Name());
 
-	pMenu->AppendCheckItem(Get_Menu_ID(), _TL("[CMD] Execute"), _TL("[HLP] Execute Module"));
+	pMenu->AppendCheckItem(Get_Menu_ID(), _TL("Execute"), _TL("Execute Module"));
 
 	pMenu->AppendSeparator();
 
@@ -620,7 +620,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 		}
 		else
 		{
-			DLG_Message_Show(_TL("[ERR] Can't execute a module while another runs"), _TL("Module Execution"));
+			DLG_Message_Show(_TL("Can't execute a module while another runs"), _TL("Module Execution"));
 		}
 	}
 

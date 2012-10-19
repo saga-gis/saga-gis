@@ -175,7 +175,7 @@ bool CWKSP_Base_Control::_Set_Manager(CWKSP_Base_Manager *pManager)
 		m_pManager	= pManager;
 
 		AddRoot		(m_pManager->Get_Name(), IMG_ROOT, IMG_ROOT, m_pManager);
-		AppendItem	(m_pManager->GetId(), _TL("[no items]"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
+		AppendItem	(m_pManager->GetId(), _TL("<no items>"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
 		Expand		(m_pManager->GetId());
 
 		return( true );
@@ -337,7 +337,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			//---------------------------------------------
 			DeleteChildren	(m_pManager->GetId());
-			AppendItem		(m_pManager->GetId(), _TL("[no items]"), 0, 0, NULL);
+			AppendItem		(m_pManager->GetId(), _TL("<no items>"), 0, 0, NULL);
 			Expand			(m_pManager->GetId());
 
 			if( g_pModule_Ctrl && m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )

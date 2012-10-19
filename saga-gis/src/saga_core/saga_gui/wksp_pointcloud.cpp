@@ -435,7 +435,7 @@ CSG_Parameter * CWKSP_PointCloud::_AttributeList_Add(CSG_Parameter *pNode, const
 
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
-		CSG_String::Format(SG_T("%s|"), _TL("[default]")), 0
+		CSG_String::Format(SG_T("%s|"), _TL("<default>")), 0
 	);
 
 	return( pParameter );
@@ -455,7 +455,7 @@ void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoFie
 
 		if( bAddNoField )
 		{
-			s.Append(wxString::Format(wxT("%s|"), _TL("[none]")));
+			s.Append(wxString::Format(wxT("%s|"), _TL("<none>")));
 		}
 
 		pFields->asChoice()->Set_Items(s);

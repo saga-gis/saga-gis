@@ -88,7 +88,7 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 
 	_Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Load table"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format == TABLE_FILETYPE_Undefined )
@@ -142,12 +142,12 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 
 		Load_MetaData(File_Name);
 
-		SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
 	}
 
-	SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
@@ -164,7 +164,7 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 	bool		bResult;
 	CSG_String	sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Save table"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Save table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
@@ -217,12 +217,12 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 
 		Save_MetaData(File_Name);
 
-		SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
 	}
 
-	SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
@@ -603,7 +603,7 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 	{
 		delete[](dbfFields);
 
-		SG_UI_Msg_Add_Error(_TL("[ERR] dbase file could not be opened"));
+		SG_UI_Msg_Add_Error(_TL("dbase file could not be opened"));
 
 		return( false );
 	}

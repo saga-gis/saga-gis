@@ -130,8 +130,8 @@ void CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *De
 	{
 		m_pGrid_System	= Add_Grid_System(
 			NULL, SG_T("PARAMETERS_GRID_SYSTEM"),
-			_TL("[PRM] Grid system"),
-			_TL("[PRM] Grid system")
+			_TL("Grid system"),
+			_TL("Grid system")
 		);
 	}
 }
@@ -353,7 +353,7 @@ CSG_Parameter * CSG_Parameters::Add_Grid(CSG_Parameter *pParent, const CSG_Strin
 		}
 		else
 		{
-			pParent	= Add_Grid_System(pParent, CSG_String::Format(SG_T("%s_GRIDSYSTEM"), Identifier.c_str()), _TL("[PRM] Grid system"), SG_T(""));
+			pParent	= Add_Grid_System(pParent, CSG_String::Format(SG_T("%s_GRIDSYSTEM"), Identifier.c_str()), _TL("Grid system"), SG_T(""));
 		}
 	}
 
@@ -1435,7 +1435,7 @@ bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 	if( Get_String(s, bOptionsOnly) )
 	{
 		SG_UI_Msg_Add_Execution(SG_T("\n"), false);
-		SG_UI_Msg_Add_Execution(bOptionsOnly ? _TL("[CAP] Options") : _TL("[CAP] Parameters"), false);
+		SG_UI_Msg_Add_Execution(bOptionsOnly ? _TL("Options") : _TL("Parameters"), false);
 		SG_UI_Msg_Add_Execution(SG_T("\n"), false);
 		SG_UI_Msg_Add_Execution(s, false, SG_UI_MSG_STYLE_01);
 

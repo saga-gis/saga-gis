@@ -119,20 +119,20 @@ wxString CWKSP_Shapes::Get_Description(void)
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR(_TL("Name")				, m_pShapes->Get_Name());
+	DESC_ADD_STR(_TL("Name")			, m_pShapes->Get_Name());
 	DESC_ADD_STR(_TL("Description")		, m_pShapes->Get_Description());
-	DESC_ADD_STR(_TL("File")				, SG_File_Exists(m_pShapes->Get_File_Name()) ? m_pShapes->Get_File_Name() : _TL("memory"));
-	DESC_ADD_STR(_TL("Modified")			, m_pShapes->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR(_TL("File")			, SG_File_Exists(m_pShapes->Get_File_Name()) ? m_pShapes->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR(_TL("Modified")		, m_pShapes->is_Modified() ? _TL("yes") : _TL("no"));
 	DESC_ADD_STR(_TL("Projection")		, m_pShapes->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT(_TL("West")				, m_pShapes->Get_Extent().Get_XMin());
-	DESC_ADD_FLT(_TL("East")				, m_pShapes->Get_Extent().Get_XMax());
-	DESC_ADD_FLT(_TL("West-East")			, m_pShapes->Get_Extent().Get_XRange());
-	DESC_ADD_FLT(_TL("South")				, m_pShapes->Get_Extent().Get_YMin());
-	DESC_ADD_FLT(_TL("North")				, m_pShapes->Get_Extent().Get_YMax());
+	DESC_ADD_FLT(_TL("West")			, m_pShapes->Get_Extent().Get_XMin());
+	DESC_ADD_FLT(_TL("East")			, m_pShapes->Get_Extent().Get_XMax());
+	DESC_ADD_FLT(_TL("West-East")		, m_pShapes->Get_Extent().Get_XRange());
+	DESC_ADD_FLT(_TL("South")			, m_pShapes->Get_Extent().Get_YMin());
+	DESC_ADD_FLT(_TL("North")			, m_pShapes->Get_Extent().Get_YMax());
 	DESC_ADD_FLT(_TL("South-North")		, m_pShapes->Get_Extent().Get_YRange());
-	DESC_ADD_STR(_TL("Type")				, SG_Get_ShapeType_Name(m_pShapes->Get_Type()).c_str());
+	DESC_ADD_STR(_TL("Type")			, SG_Get_ShapeType_Name(m_pShapes->Get_Type()).c_str());
 	DESC_ADD_STR(_TL("Vertex Type")		, m_pShapes->Get_Vertex_Type() == 0 ? _TL("X, Y") : m_pShapes->Get_Vertex_Type() == 1 ? _TL("X, Y, Z") : _TL("X, Y, Z, M"));
-	DESC_ADD_INT(_TL("Number Of Shapes")	, m_pShapes->Get_Count());
+	DESC_ADD_INT(_TL("Number Of Shapes"), m_pShapes->Get_Count());
 
 	s	+= wxT("</table>");
 
@@ -1093,7 +1093,7 @@ CSG_Parameter * CWKSP_Shapes::_AttributeList_Add(CSG_Parameter *pNode, const CSG
 
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
-		CSG_String::Format(SG_T("%s|"), _TL("[default]")), 0
+		CSG_String::Format(SG_T("%s|"), _TL("<default>")), 0
 	);
 
 	return( pParameter );
@@ -1113,7 +1113,7 @@ void CWKSP_Shapes::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 
 		if( bAddNoField )
 		{
-			s.Append(wxString::Format(wxT("%s|"), _TL("[none]")));
+			s.Append(wxString::Format(wxT("%s|"), _TL("<none>")));
 		}
 
 		pFields->asChoice()->Set_Items(s);
@@ -1271,7 +1271,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 			pChart->Add_Choice(
 				NULL, "SIZE_FIELD"		, _TL("Attribute (Size)"),
 				_TL(""),
-				CSG_String::Format(SG_T("%s|"), _TL("[not set]")), 0
+				CSG_String::Format(SG_T("%s|"), _TL("<not set>")), 0
 			);
 
 			pChart->Add_Choice(
@@ -1319,7 +1319,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 				}
 			}
 
-			sFields.Append(CSG_String::Format(SG_T("%s|"), _TL("[none]")));
+			sFields.Append(CSG_String::Format(SG_T("%s|"), _TL("<none>")));
 			pFields	= pChart->Get_Parameter("SIZE_FIELD");
 			pFields->asChoice()->Set_Items(sFields);
 			pFields->Set_Value(m_pShapes->Get_Field_Count());

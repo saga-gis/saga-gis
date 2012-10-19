@@ -327,12 +327,6 @@ const SG_Char * CSG_Translator::Get_Translation(const SG_Char *Text, bool bRetur
 			do	{	Text++;	}	while( *Text != '}' && *Text != '\0' );
 			do	{	Text++;	}	while( *Text == ' ' && *Text != '\0' );
 		}
-
-		if( *Text == '[' )
-		{
-			do	{	Text++;	}	while( *Text != ']' && *Text != '\0' );
-			do	{	Text++;	}	while( *Text == ' ' && *Text != '\0' );
-		}
 	}
 
 	return( Text );
@@ -365,12 +359,6 @@ bool CSG_Translator::Get_Translation(const SG_Char *Text, CSG_String &Translatio
 		if( *Text == '{' )
 		{
 			do	{	Text++;	}	while( *Text != '}' && *Text != '\0' );
-			do	{	Text++;	}	while( *Text == ' ' && *Text != '\0' );
-		}
-
-		if( *Text == '[' )
-		{
-			do	{	Text++;	}	while( *Text != ']' && *Text != '\0' );
 			do	{	Text++;	}	while( *Text == ' ' && *Text != '\0' );
 		}
 

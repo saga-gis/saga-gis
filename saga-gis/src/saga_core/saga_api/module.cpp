@@ -368,7 +368,7 @@ bool CSG_Module::Execute(void)
 		}	// try
 		__except(1)
 		{
-			Message_Dlg(SG_T("[ERR] Module caused access violation!"));
+			Message_Dlg(SG_T("Module caused access violation!"));
 		}	// except(1)
 #endif
 ///////////////////////////////////////////////////////////
@@ -380,7 +380,7 @@ bool CSG_Module::Execute(void)
 
 		if( !Process_Get_Okay(false) )
 		{
-			SG_UI_Msg_Add(_TL("[MSG] Execution has been stopped by user!"), true);
+			SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true);
 		}
 
 		_Synchronize_DataObjects();
@@ -653,10 +653,10 @@ bool CSG_Module::Error_Set(TSG_Module_Error Error_ID)
 	switch( Error_ID )
 	{
 	default:
-		return( Error_Set(_TL("[ERR] Unknown Error")) );
+		return( Error_Set(_TL("Unknown Error")) );
 	    
 	case MODULE_ERROR_Calculation:
-		return( Error_Set(_TL("[ERR] Calculation Error")) );
+		return( Error_Set(_TL("Calculation Error")) );
 	}
 }
 
@@ -667,7 +667,7 @@ bool CSG_Module::Error_Set(const CSG_String &Error_Text)
 
 	if( SG_UI_Process_Get_Okay(false) && !m_bError_Ignore )
 	{
-		switch( SG_UI_Dlg_Error(Error_Text, _TL("[ERR] Error: Continue anyway ?")) )
+		switch( SG_UI_Dlg_Error(Error_Text, _TL("Error: Continue anyway ?")) )
 		{
 		case 0: default:
 			SG_UI_Process_Set_Okay(false);

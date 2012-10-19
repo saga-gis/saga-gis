@@ -112,13 +112,20 @@ CDLG_About::CDLG_About(void)
 
 	m_pControl	= new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE);
 	
-	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Logo"), false, -1);
-
 	//-----------------------------------------------------
 	m_pVersion	=
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
 	pText->AppendText(_Get_Version());
 	m_pControl->AddPage(pText, _TL("Version"), false, -1);
+	pText->ShowPosition(0);
+
+	//-----------------------------------------------------
+	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Logo"), false, -1);
+
+	//-----------------------------------------------------
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
+	pText->AppendText(_Get_Acknowledgements());
+	m_pControl->AddPage(pText, _TL("Acknowledgements"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
@@ -131,12 +138,6 @@ CDLG_About::CDLG_About(void)
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
 	pText->AppendText(_Get_LGPL());
 	m_pControl->AddPage(pText, SG_T("LGPL"), false, -1);
-	pText->ShowPosition(0);
-
-	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
-	pText->AppendText(_Get_Acknowledgements());
-	m_pControl->AddPage(pText, _TL("Acknowledgements"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
@@ -189,67 +190,62 @@ wxString CDLG_About::_Get_Version(void)
 {
 	wxString	s;
 
-	s.Printf(
-		wxT("\nSAGA\n")
-	);
-
-	s.Append(SG_Translate(
-		wxT("System for Automated Geoscientific Analyses\n")
-	));
-
 	s.Append(
+		wxT("\nSAGA\n")
+		wxT("System for Automated Geoscientific Analyses\n")
 		wxT("http://www.saga-gis.org\n")
 	);
 
-	s.Append(wxString::Format(
-		wxT("\nVersion: %s\n"),
-		SAGA_VERSION
-	));
+	s.Append(
+		wxString::Format(wxT("\nVersion: %s\n"), SAGA_VERSION)
+	);
 
 	//-----------------------------------------------------
 	// Target
 
-	s	+= wxT("_______________________\n\n");
-
 #ifdef _SAGA_MSW
 	#ifdef _WIN64
-		s	+= wxT("64 bit\n");
+		s	+= wxT("\n64 bit\n");
 	#else
-		s	+= wxT("32 bit\n");
+		s	+= wxT("\n32 bit\n");
 	#endif
 #endif
 
 	//-----------------------------------------------------
 	s.Append(wxT("_______________________\n\n"));
 
-	s.Append(wxString::Format(
-		wxT("SAGA GUI\nSAGA Graphical User Interface\n")
+	s.Append(
+		wxT("SAGA GUI\n")
+		wxT("SAGA Graphical User Interface\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2005-2011 by Olaf Conrad\n")
+		wxT("Copyrights (c) 2005-2012 by Olaf Conrad\n")
+		wxT("Portions (c) 2008-2012 by Volker Wichmann\n")
 		wxT("\n")
 		wxT("GNU General Public License (GPL)\n")
-	));
+	);
 
 	s.Append(wxT("_______________________\n\n"));
 
-	s.Append(wxString::Format(
+	s.Append(
 		wxT("SAGA API\n")
+		wxT("SAGA Application Programming Interface\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2002-2011 by Olaf Conrad\n")
-		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
+		wxT("Copyrights (c) 2002-2012 by Olaf Conrad\n")
+		wxT("Portions (c) 2008-2012 by Volker Wichmann\n")
 		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
+		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
 		wxT("\n")
 		wxT("GNU Lesser General Public License (LGPL)\n")
-	));
+	);
 
 	s.Append(wxT("_______________________\n\n"));
 
-	s.Append(wxString::Format(
+	s.Append(
 		wxT("SAGA uses the portable C++ GUI toolkit wxWidgets\n")
 		wxT("http://www.wxwidgets.org\n\n")
-		wxT("%s\n"),
 		wxVERSION_STRING
-	));
+		wxT("\n")
+	);
 
 	s.Append(wxT("_______________________\n\n"));
 

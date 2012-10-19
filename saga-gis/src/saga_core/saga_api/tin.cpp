@@ -176,7 +176,7 @@ bool CSG_TIN::Create(const CSG_String &File_Name)
 
 	if( Create(&Shapes) )
 	{
-		Get_History().Add_Child(_TL("[HST] Created from file"), File_Name);
+		Get_History().Add_Child(_TL("Created from file"), File_Name);
 		Get_History()	+= Shapes.Get_History();
 
 		Set_File_Name(File_Name);
@@ -196,7 +196,7 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 
 	if( pShapes && pShapes->is_Valid() )
 	{
-		SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("[MSG] Create TIN from shapes"), pShapes->Get_Name()), true);
+		SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Create TIN from shapes"), pShapes->Get_Name()), true);
 
 		_Create(pShapes);
 
@@ -220,13 +220,13 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 
 		if( Update() )
 		{
-			SG_UI_Msg_Add(_TL("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+			SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 			return( true );
 		}
 	}
 
-	SG_UI_Msg_Add(_TL("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
