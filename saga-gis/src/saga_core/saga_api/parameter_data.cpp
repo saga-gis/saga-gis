@@ -87,42 +87,42 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 {
 	switch( Type )
 	{
-	default:								return( _TL("[PRM] Parameter") );
+	default:								return( _TL("Parameter") );
 
-	case PARAMETER_TYPE_Node:				return( _TL("[PRM] Node") );
+	case PARAMETER_TYPE_Node:				return( _TL("Node") );
 
-	case PARAMETER_TYPE_Bool:				return( _TL("[PRM] Boolean") );
-	case PARAMETER_TYPE_Int:				return( _TL("[PRM] Integer") );
-	case PARAMETER_TYPE_Double:				return( _TL("[PRM] Floating point") );
-	case PARAMETER_TYPE_Degree:				return( _TL("[PRM] Degree") );
-	case PARAMETER_TYPE_Range:				return( _TL("[PRM] Value range") );
-	case PARAMETER_TYPE_Choice:				return( _TL("[PRM] Choice") );
+	case PARAMETER_TYPE_Bool:				return( _TL("Boolean") );
+	case PARAMETER_TYPE_Int:				return( _TL("Integer") );
+	case PARAMETER_TYPE_Double:				return( _TL("Floating point") );
+	case PARAMETER_TYPE_Degree:				return( _TL("Degree") );
+	case PARAMETER_TYPE_Range:				return( _TL("Value range") );
+	case PARAMETER_TYPE_Choice:				return( _TL("Choice") );
 
-	case PARAMETER_TYPE_String:				return( _TL("[PRM] Text") );
-	case PARAMETER_TYPE_Text:				return( _TL("[PRM] Long text") );
-	case PARAMETER_TYPE_FilePath:			return( _TL("[PRM] File path") );
+	case PARAMETER_TYPE_String:				return( _TL("Text") );
+	case PARAMETER_TYPE_Text:				return( _TL("Long text") );
+	case PARAMETER_TYPE_FilePath:			return( _TL("File path") );
 
-	case PARAMETER_TYPE_Font:				return( _TL("[PRM] Font") );
-	case PARAMETER_TYPE_Color:				return( _TL("[PRM] Color") );
-	case PARAMETER_TYPE_Colors:				return( _TL("[PRM] Colors") );
-	case PARAMETER_TYPE_FixedTable:			return( _TL("[PRM] Static table") );
-	case PARAMETER_TYPE_Grid_System:		return( _TL("[PRM] Grid system") );
-	case PARAMETER_TYPE_Table_Field:		return( _TL("[PRM] Table field") );
+	case PARAMETER_TYPE_Font:				return( _TL("Font") );
+	case PARAMETER_TYPE_Color:				return( _TL("Color") );
+	case PARAMETER_TYPE_Colors:				return( _TL("Colors") );
+	case PARAMETER_TYPE_FixedTable:			return( _TL("Static table") );
+	case PARAMETER_TYPE_Grid_System:		return( _TL("Grid system") );
+	case PARAMETER_TYPE_Table_Field:		return( _TL("Table field") );
 
-	case PARAMETER_TYPE_DataObject_Output:	return( _TL("[PRM] Data Object") );
-	case PARAMETER_TYPE_Grid:				return( _TL("[PRM] Grid") );
-	case PARAMETER_TYPE_Table:				return( _TL("[PRM] Table") );
-	case PARAMETER_TYPE_Shapes:				return( _TL("[PRM] Shapes") );
-	case PARAMETER_TYPE_TIN:				return( _TL("[PRM] TIN") );
-	case PARAMETER_TYPE_PointCloud:			return( _TL("[PRM] Point Cloud") );
+	case PARAMETER_TYPE_DataObject_Output:	return( _TL("Data Object") );
+	case PARAMETER_TYPE_Grid:				return( _TL("Grid") );
+	case PARAMETER_TYPE_Table:				return( _TL("Table") );
+	case PARAMETER_TYPE_Shapes:				return( _TL("Shapes") );
+	case PARAMETER_TYPE_TIN:				return( _TL("TIN") );
+	case PARAMETER_TYPE_PointCloud:			return( _TL("Point Cloud") );
 
-	case PARAMETER_TYPE_Grid_List:			return( _TL("[PRM] Grid list") );
-	case PARAMETER_TYPE_Table_List:			return( _TL("[PRM] Table list") );
-	case PARAMETER_TYPE_Shapes_List:		return( _TL("[PRM] Shapes list") );
-	case PARAMETER_TYPE_TIN_List:			return( _TL("[PRM] TIN list") );
-	case PARAMETER_TYPE_PointCloud_List:	return( _TL("[PRM] Point Cloud list") );
+	case PARAMETER_TYPE_Grid_List:			return( _TL("Grid list") );
+	case PARAMETER_TYPE_Table_List:			return( _TL("Table list") );
+	case PARAMETER_TYPE_Shapes_List:		return( _TL("Shapes list") );
+	case PARAMETER_TYPE_TIN_List:			return( _TL("TIN list") );
+	case PARAMETER_TYPE_PointCloud_List:	return( _TL("Point Cloud list") );
 
-	case PARAMETER_TYPE_Parameters:			return( _TL("[PRM] Parameters") );
+	case PARAMETER_TYPE_Parameters:			return( _TL("Parameters") );
 	}
 }
 
@@ -828,7 +828,7 @@ bool CSG_Parameter_Choice::Set_Value(const CSG_String &Value)
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Choice::asString(void)
 {
-	m_String	= Get_Item(m_Value) ? Get_Item(m_Value) : _TL("[no choice available]");
+	m_String	= Get_Item(m_Value) ? Get_Item(m_Value) : _TL("<no choice available>");
 
 	return( m_String );
 }
@@ -857,7 +857,7 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 
 	if( m_Items.Get_Count() <= 0 )
 	{
-		m_Items	+= _TL("[VAL] [not set]");
+		m_Items	+= _TL("<not set>");
 	}
 
 	Set_Minimum(              0, true);
@@ -1547,10 +1547,10 @@ const SG_Char * CSG_Parameter_Table_Field::asString(void)
 			return( m_String = pTable->Get_Field_Name(m_Value) );
 		}
 
-		return( m_String = _TL("[not set]") );
+		return( m_String = _TL("<not set>") );
 	}
 
-	return( m_String = _TL("[no attributes]") );
+	return( m_String = _TL("<no attributes>") );
 }
 
 //---------------------------------------------------------
@@ -1680,12 +1680,12 @@ const SG_Char * CSG_Parameter_Data_Object::asString(void)
 	if( m_pDataObject == DATAOBJECT_NOTSET )
 	{
 		m_String	= m_pOwner->is_Output() && !m_pOwner->is_Optional()
-					? _TL("[VAL] [create]")
-					: _TL("[VAL] [not set]");
+					? _TL("<create>")
+					: _TL("<not set>");
 	}
 	else if( m_pDataObject == DATAOBJECT_CREATE )
 	{
-		m_String	= _TL("[VAL] [create]");
+		m_String	= _TL("<create>");
 	}
 	else
 	{
@@ -1889,14 +1889,13 @@ bool CSG_Parameter_Table::Set_Value(void *Value)
 
 	m_pDataObject	= (CSG_Data_Object *)Value;
 
-	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	for(int i=0; i<m_pOwner->Get_Children_Count(); i++)
 	{
-		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		CSG_Parameter	*pChild	= m_pOwner->Get_Child(i);
+
+		if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
-			pParameters->Get_Parameter(i)->Set_Value(0);
+			pChild->Set_Value(m_pDataObject && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
 		}				
 	}
 
@@ -2064,7 +2063,7 @@ const SG_Char * CSG_Parameter_List::asString(void)
 {
 	if( Get_Count() > 0 )
 	{
-		m_String.Printf(SG_T("%d %s ("), Get_Count(), Get_Count() == 1 ? _TL("[VAL] object") : _TL("[VAL] objects"));
+		m_String.Printf(SG_T("%d %s ("), Get_Count(), Get_Count() == 1 ? _TL("object") : _TL("objects"));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
@@ -2080,7 +2079,7 @@ const SG_Char * CSG_Parameter_List::asString(void)
 	}
 	else
 	{
-		m_String.Printf(_TL("[VAL] No objects"));
+		m_String.Printf(_TL("No objects"));
 	}
 
 	return( m_String );
