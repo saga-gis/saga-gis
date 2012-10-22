@@ -150,7 +150,22 @@ bool CGrid_Value_Type::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pOutput->Assign(pInput);
+	
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( pInput->is_NoData(x, y) )
+			{
+			  pOutput->Set_NoData(x, y);
+			}
+			else
+			{
+			  pOutput->Set_Value(x, y, pInput->asDouble(x, y));	    
+			}
+		}
+	}
 
 	//-----------------------------------------------------
 	if( pInput != Parameters("INPUT")->asGrid() )
