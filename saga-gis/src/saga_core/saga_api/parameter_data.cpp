@@ -1932,14 +1932,13 @@ bool CSG_Parameter_Shapes::Set_Value(void *Value)
 
 	m_pDataObject	= (CSG_Data_Object *)Value;
 
-	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	for(int i=0; i<m_pOwner->Get_Children_Count(); i++)
 	{
-		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		CSG_Parameter	*pChild	= m_pOwner->Get_Child(i);
+
+		if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
-			pParameters->Get_Parameter(i)->Set_Value(0);
+			pChild->Set_Value(m_pDataObject && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
 		}				
 	}
 

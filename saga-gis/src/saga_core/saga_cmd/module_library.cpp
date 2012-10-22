@@ -356,7 +356,7 @@ bool CCMD_Module::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 	//-----------------------------------------------------
 	if( !pParameters )
 	{
-		CMD_Print_Error(_TL("[ERR] Internal system error"));
+		CMD_Print_Error(_TL("Internal system error"));
 
 		return( false );
 	}
@@ -523,7 +523,7 @@ bool CCMD_Module::_Create_DataObjects(CSG_Parameters *pParameters)
 	//-----------------------------------------------------
 	if( !pParameters )
 	{
-		CMD_Print_Error(_TL("[ERR] Internal system error"));
+		CMD_Print_Error(_TL("Internal system error"));
 
 		return( false );
 	}
