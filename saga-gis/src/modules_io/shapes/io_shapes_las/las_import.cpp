@@ -282,52 +282,64 @@ bool CLAS_Import::On_Execute(void)
 		//-----------------------------------------------------
 		int		iPoint	= 0;
 
-		while( reader.ReadNextPoint() && (iPoint % 10000 || SG_UI_Process_Set_Progress((double)iPoint, header.GetPointRecordsCount())) )
-		{
-			liblas::LASPoint const& point = reader.GetPoint();
-
-			if( bValidity )
+		try {
+			while( reader.ReadNextPoint() && (iPoint % 10000 || SG_UI_Process_Set_Progress((double)iPoint, header.GetPointRecordsCount())) )
 			{
-				if( !point.IsValid() )
+				liblas::LASPoint const& point = reader.GetPoint();
+
+				if( bValidity )
 				{
-					cntInvalid++;
-					continue;
+					if( !point.IsValid() )
+					{
+						cntInvalid++;
+						continue;
+					}
 				}
-			}
 
-			pPoints->Add_Point(point.GetX(), point.GetY(), point.GetZ());
+				pPoints->Add_Point(point.GetX(), point.GetY(), point.GetZ());
 
-			if( iField[VAR_T] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_T], point.GetTime());
-			if( iField[VAR_i] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_i], point.GetIntensity());
-			if( iField[VAR_a] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_a], point.GetScanAngleRank());
-			if( iField[VAR_r] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_r], point.GetReturnNumber());
-			if( iField[VAR_c] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_c], point.GetClassification());
-			if( iField[VAR_u] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_u], point.GetUserData());
-			if( iField[VAR_n] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_n], point.GetNumberOfReturns());
-			if( iField[VAR_R] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_R], point.GetColor().GetRed());
-			if( iField[VAR_G] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_G], point.GetColor().GetGreen());
-			if( iField[VAR_B] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_B], point.GetColor().GetBlue());
-			if( iField[VAR_e] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_e], point.GetFlightLineEdge());
-			if( iField[VAR_d] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_d], point.GetScanDirection());
-			if( iField[VAR_p] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_p], point.GetPointSourceID());
-			if( iField[VAR_C] > 0 )
-			{
-				double	r, g, b;
-				r = point.GetColor().GetRed();
-				g = point.GetColor().GetGreen();
-				b = point.GetColor().GetBlue();
-
-				if (RGBrange == 0)		// 16 bit
+				if( iField[VAR_T] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_T], point.GetTime());
+				if( iField[VAR_i] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_i], point.GetIntensity());
+				if( iField[VAR_a] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_a], point.GetScanAngleRank());
+				if( iField[VAR_r] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_r], point.GetReturnNumber());
+				if( iField[VAR_c] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_c], point.GetClassification());
+				if( iField[VAR_u] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_u], point.GetUserData());
+				if( iField[VAR_n] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_n], point.GetNumberOfReturns());
+				if( iField[VAR_R] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_R], point.GetColor().GetRed());
+				if( iField[VAR_G] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_G], point.GetColor().GetGreen());
+				if( iField[VAR_B] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_B], point.GetColor().GetBlue());
+				if( iField[VAR_e] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_e], point.GetFlightLineEdge());
+				if( iField[VAR_d] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_d], point.GetScanDirection());
+				if( iField[VAR_p] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_p], point.GetPointSourceID());
+				if( iField[VAR_C] > 0 )
 				{
-					r = r / 65535 * 255;
-					g = g / 65535 * 255;
-					b = b / 65535 * 255;
-				}
+					double	r, g, b;
+					r = point.GetColor().GetRed();
+					g = point.GetColor().GetGreen();
+					b = point.GetColor().GetBlue();
+
+					if (RGBrange == 0)		// 16 bit
+					{
+						r = r / 65535 * 255;
+						g = g / 65535 * 255;
+						b = b / 65535 * 255;
+					}
 			
-				pPoints->Set_Value(iPoint, iField[VAR_C], SG_GET_RGB(r, g, b));
-			}
+					pPoints->Set_Value(iPoint, iField[VAR_C], SG_GET_RGB(r, g, b));
+				}
 
-			iPoint++;
+				iPoint++;
+			}
+		}
+		catch(std::exception &e) {
+			SG_UI_Msg_Add_Error(CSG_String::Format(_TL("LAS reader exception: %s"), e.what()));
+			ifs.close();
+			return( false );
+		}
+		catch(...) {
+			SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unknown LAS reader exception!")));
+			ifs.close();
+			return( false );
 		}
 
 		ifs.close();
