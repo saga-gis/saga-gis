@@ -199,18 +199,19 @@ bool CHillShade::On_Execute(void)
 //---------------------------------------------------------
 void CHillShade::Get_Shading(double Azimuth, double Declination, bool bDelimit, bool bCombine)
 {
-	int		x, y;
-	double	s, a, sinDec, cosDec, d;
+	double	sinDec, cosDec;
 
 	//-----------------------------------------------------
 	sinDec	= sin(Declination);
 	cosDec	= cos(Declination);
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	s, a, d;
 			if( !pDTM->Get_Gradient(x, y, s, a) )
 			{
 				pHillShade->Set_NoData(x, y);
@@ -247,7 +248,7 @@ void CHillShade::Get_Shading(double Azimuth, double Declination, bool bDelimit, 
 //---------------------------------------------------------
 void CHillShade::RayTrace(double Azimuth, double Declination)
 {
-	int		x, y, ix, iy, xStart, yStart, xStep, yStep;
+	int		 y, iy, xStart, yStart, xStep, yStep;
 	double	dx, dy, dz;
 
 	//-----------------------------------------------------
@@ -303,7 +304,7 @@ void CHillShade::RayTrace(double Azimuth, double Declination)
 	//-----------------------------------------------------
 	for(iy=0, y=yStart; iy<Get_NY() && Set_Progress(iy); iy++, y+=yStep)
 	{
-		for(ix=0, x=xStart; ix<Get_NX(); ix++, x+=xStep)
+		for(int ix=0, x=xStart; ix<Get_NX(); ix++, x+=xStep)
 		{
 			RayTrace_Trace(x, y, dx, dy, dz);
 		}
