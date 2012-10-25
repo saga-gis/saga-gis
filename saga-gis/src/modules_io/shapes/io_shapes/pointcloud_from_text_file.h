@@ -78,7 +78,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <wx/tokenzr.h>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -99,6 +99,8 @@ public:
 protected:
 
 	virtual bool			On_Execute	(void);
+
+    TSG_Data_Type           Get_Data_Type(int iType);
 
 };
 

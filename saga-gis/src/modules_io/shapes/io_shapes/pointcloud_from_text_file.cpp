@@ -93,6 +93,18 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 					"The columns in the input file can be in any order, and you can "
 					"omit columns, but you have to provide the correct field numbers "
 					"of those you like to import.\n\n"
+					"Module usage is different between SAGA GUI and SAGA CMD: With "
+					"SAGA GUI you will get prompted to choose the fields to export, "
+					"and to provide the field names and datatypes to use "
+					"once you execute the module.\n"
+					" With SAGA CMD you have to provide three strings with the "
+					"-FIELDS, -FIELDNAMES and -FIELDTYPES parameters. The first one "
+					"must contain the field numbers, the second one the field names "
+					"and the third one the choices of the datatype (see the GUI which "
+					"number equals which datatype). Each field entry has to be "
+					"separated by semicolon. Field numbers start with 1, e.g. "
+					"-FIELDS=\"5;6;8\" -FIELDNAMES=\"intensity;class;range\" "
+					"-FIELDTYPES=\"2;2;3\".\n\n"
 	));
 
 
@@ -107,27 +119,50 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "XFIELD"	, _TL("X is Column ..."),
-		_TL("The column holding the X-coordinate."),
-		PARAMETER_TYPE_Int, 1, 1, true
-	);
-	Parameters.Add_Value(
-		NULL	, "YFIELD"	, _TL("Y is Column ..."),
-		_TL("The column holding the Y-coordinate."),
-		PARAMETER_TYPE_Int, 2, 1, true
-	);
-	Parameters.Add_Value(
-		NULL	, "ZFIELD"	, _TL("Z is Column ..."),
-		_TL("The column holding the Z-coordinate."),
-		PARAMETER_TYPE_Int, 3, 1, true
-	);
+    Parameters.Add_Value(
+        NULL	, "XFIELD"	, _TL("X is Column ..."),
+        _TL("The column holding the X-coordinate."),
+        PARAMETER_TYPE_Int, 1, 1, true
+    );
+    Parameters.Add_Value(
+        NULL	, "YFIELD"	, _TL("Y is Column ..."),
+        _TL("The column holding the Y-coordinate."),
+        PARAMETER_TYPE_Int, 2, 1, true
+    );
+    Parameters.Add_Value(
+        NULL	, "ZFIELD"	, _TL("Z is Column ..."),
+        _TL("The column holding the Z-coordinate."),
+        PARAMETER_TYPE_Int, 3, 1, true
+    );
 
-	Parameters.Add_Value(
-		NULL	, "ATTRIBS"	, _TL("Number of Attributes"),
-		_TL("Number of additional attributes to import."),
-		PARAMETER_TYPE_Int, 0, 0, true
-	);
+    if (SG_UI_Get_Window_Main())
+    {
+        Parameters.Add_Value(
+            NULL	, "ATTRIBS"	, _TL("Number of Attributes"),
+            _TL("Number of additional attributes to import."),
+            PARAMETER_TYPE_Int, 0, 0, true
+        );
+    }
+    else
+	{
+		Parameters.Add_String(
+            NULL	, "FIELDS"    , _TL("Fields"),
+            _TL("The numbers (starting from 1) of the fields to import, separated by semicolon, e.g. \"5;6;8\""),
+            SG_T("")
+        );
+
+        Parameters.Add_String(
+            NULL	, "FIELDNAMES"    , _TL("Field Names"),
+            _TL("The name to use for each field, separated by semicolon, e.g. \"intensity;class;range\""),
+            SG_T("")
+        );
+
+		Parameters.Add_String(
+            NULL	, "FIELDTYPES"    , _TL("Field Types"),
+            _TL("The datatype to use for each field, separated by semicolon, e.g. \"2;2;3;\". The number equals the choice selection, see GUI version."),
+            SG_T("")
+        );
+	}
 
 	Parameters.Add_Value(
         NULL	, "SKIP_HEADER" , _TL("Skip first line"),
@@ -162,7 +197,6 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 {
 	CSG_String				fileName;
 	int						iField, iType;
-	TSG_Data_Type			Type;
 	CSG_String				Name, Types, s;
 	CSG_PointCloud			*pPoints;
 	CSG_Parameters			P;
@@ -183,7 +217,6 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	xField		= Parameters("XFIELD")		->asInt() - 1;
 	yField		= Parameters("YFIELD")		->asInt() - 1;
 	zField		= Parameters("ZFIELD")		->asInt() - 1;
-	nAttribs	= Parameters("ATTRIBS")		->asInt();
 	bSkipHeader	= Parameters("SKIP_HEADER")	->asBool();
 
 	switch (Parameters("FIELDSEP")->asInt())
@@ -194,76 +227,145 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     case 2: fieldSep = ',';		break;
     }
 
-	Types.Printf(SG_T("%s|%s|%s|%s|%s|"),
-		_TL("1 byte integer"),
-		_TL("2 byte integer"),
-		_TL("4 byte integer"),
-		_TL("4 byte floating point"),
-		_TL("8 byte floating point")
-	);
+    pPoints	= SG_Create_PointCloud();
+    pPoints->Create();
+    pPoints->Set_Name(SG_File_Get_Name(fileName, false));
+    Parameters("POINTS")->Set_Value(pPoints);
+    DataObject_Add(pPoints);
 
-	P.Set_Name(_TL("Attribute Field Properties"));
 
-	for(iField=1; iField<=nAttribs; iField++)
+    //-----------------------------------------------------
+    if (SG_UI_Get_Window_Main())
+    {
+        nAttribs	= Parameters("ATTRIBS")		->asInt();
+
+        Types.Printf(SG_T("%s|%s|%s|%s|%s|"),
+            _TL("1 byte integer"),
+            _TL("2 byte integer"),
+            _TL("4 byte integer"),
+            _TL("4 byte floating point"),
+            _TL("8 byte floating point")
+        );
+
+        P.Set_Name(_TL("Attribute Field Properties"));
+
+        for(iField=1; iField<=nAttribs; iField++)
+        {
+            s.Printf(SG_T("NODE_%03d") , iField);
+            pNode	= P.Add_Node(NULL, s, CSG_String::Format(SG_T("%d. %s"), iField, _TL("Field")), _TL(""));
+
+            s.Printf(SG_T("FIELD_%03d"), iField);
+            P.Add_String(pNode, s, _TL("Name"), _TL(""), s);
+
+            s.Printf(SG_T("COLUMN_%03d"), iField);
+            P.Add_Value(pNode, s, _TL("Attribute is Column ..."), _TL(""), PARAMETER_TYPE_Int, iField+3, 1, true);
+
+            s.Printf(SG_T("TYPE_%03d") , iField);
+            P.Add_Choice(pNode, s, _TL("Type"), _TL(""), Types, 3);
+        }
+
+        //-----------------------------------------------------
+        if( nAttribs > 0 )
+        {
+            if( Dlg_Parameters(&P, _TL("Field Properties")) )
+            {
+                for(iField=0; iField<nAttribs; iField++)
+                {
+
+                    Name		 = P(CSG_String::Format(SG_T("FIELD_%03d" ), iField + 1).c_str())->asString();
+                    iType		 = P(CSG_String::Format(SG_T("TYPE_%03d"  ), iField + 1).c_str())->asInt();
+                    vCol.push_back(P(CSG_String::Format(SG_T("COLUMN_%03d"), iField + 1).c_str())->asInt() - 1);
+
+                    pPoints->Add_Field(Name, Get_Data_Type(iType));
+                }
+            }
+            else
+                return( false );
+        }
+    }
+    else // CMD
 	{
-		s.Printf(SG_T("NODE_%03d") , iField);
-		pNode	= P.Add_Node(NULL, s, CSG_String::Format(SG_T("%d. %s"), iField, _TL("Field")), _TL(""));
+		CSG_String		    sFields, sNames, sTypes;
+		CSG_String		    token;
+		int				    iValue;
+		std::vector<int>	vTypes;
 
-		s.Printf(SG_T("FIELD_%03d"), iField);
-		P.Add_String(pNode, s, _TL("Name"), _TL(""), s);
 
-		s.Printf(SG_T("COLUMN_%03d"), iField);
-		P.Add_Value(pNode, s, _TL("Attribute is Column ..."), _TL(""), PARAMETER_TYPE_Int, iField+3, 1, true);
+		sFields		= Parameters("FIELDS")->asString();
+		sNames		= Parameters("FIELDNAMES")->asString();
+		sTypes	    = Parameters("FIELDTYPES")->asString();
 
-		s.Printf(SG_T("TYPE_%03d") , iField);
-		P.Add_Choice(pNode, s, _TL("Type"), _TL(""), Types, 3);
-	}
+		wxStringTokenizer   tkz_fields(sFields.c_str(), wxT(";"), wxTOKEN_STRTOK);
 
-	//-----------------------------------------------------
-	if( nAttribs > 0 )
-	{
-		if( Dlg_Parameters(&P, _TL("Field Properties")) )
+		while( tkz_fields.HasMoreTokens() )
 		{
-			pPoints	= SG_Create_PointCloud();
-			pPoints->Create();
-			pPoints->Set_Name(SG_File_Get_Name(fileName, false));
-			Parameters("POINTS")->Set_Value(pPoints);
-			DataObject_Add(pPoints);
+			token	= tkz_fields.GetNextToken().wc_str();
 
-			for(iField=0; iField<nAttribs; iField++)
+			if( token.Length() == 0 )
+				break;
+
+			if( !token.asInt(iValue) )
 			{
-
-				Name		 = P(CSG_String::Format(SG_T("FIELD_%03d" ), iField + 1).c_str())->asString();
-				iType		 = P(CSG_String::Format(SG_T("TYPE_%03d"  ), iField + 1).c_str())->asInt();
-				vCol.push_back(P(CSG_String::Format(SG_T("COLUMN_%03d"), iField + 1).c_str())->asInt() - 1);
-
-				switch( iType )
-				{
-				default:
-				case 0:	Type	= SG_DATATYPE_Char;		break;
-				case 1:	Type	= SG_DATATYPE_Short;	break;
-				case 2:	Type	= SG_DATATYPE_Int;		break;
-				case 3:	Type	= SG_DATATYPE_Float;	break;
-				case 4:	Type	= SG_DATATYPE_Double;	break;
-				}
-
-				pPoints->Add_Field(Name, Type);
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: can't convert to number"));
+				return( false );
 			}
+
+			iValue	-= 1;
+
+			if( iValue < 1)
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: field index out of range"));
+				return( false );
+			}
+			else
+				vCol.push_back(iValue);
 		}
-		else
-			return( false );
+
+		wxStringTokenizer   tkz_datatypes(sTypes.c_str(), wxT(";"), wxTOKEN_STRTOK);
+
+		while( tkz_datatypes.HasMoreTokens() )
+		{
+			token	= tkz_datatypes.GetNextToken().wc_str();
+
+			if( token.Length() == 0 )
+				break;
+
+			if( !token.asInt(iValue) )
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing field type: can't convert to number"));
+				return( false );
+			}
+
+			vTypes.push_back(iValue);
+		}
+
+		wxStringTokenizer   tkz_datanames(sNames.c_str(), wxT(";"), wxTOKEN_STRTOK);
+
+        int                 iter = 0;
+
+		while( tkz_datanames.HasMoreTokens() )
+		{
+			token	= tkz_datanames.GetNextToken().wc_str();
+
+			if( token.Length() == 0 )
+				break;
+
+			pPoints->Add_Field(token, Get_Data_Type(vTypes.at(iter)));
+
+			iter++;
+		}
+
+		if( vCol.size() != vTypes.size() || (int)vCol.size() != iter )
+		{
+		    SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Number of arguments for attribute fields (%d), names (%d) and types (%d) do not match!"), vCol.size(), iter, vTypes.size()));
+            return( false );
+		}
 	}
-	else
-	{
-		pPoints	= SG_Create_PointCloud();
-		pPoints->Create();
-		pPoints->Set_Name(SG_File_Get_Name(fileName, false));
-		Parameters("POINTS")->Set_Value(pPoints);
-		DataObject_Add(pPoints);
-	}
+
 
 	max_iField = M_GET_MAX(xField, yField);
     max_iField = M_GET_MAX(max_iField, zField);
+
 	for( unsigned int i=0; i<vCol.size(); i++ )
 	{
 		if( max_iField < vCol.at(i) )
@@ -292,7 +394,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
         tabStream.seekg(0, std::ios::beg);      // and rewind to the beginning
     }
 
-    
+
 	// import
     //---------------------------------------------------------
 	cntPt = cntInvalid = 0;
@@ -330,7 +432,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 
 		pPoints->Add_Point(x, y, z);
 
-		for( int i=0; i<nAttribs; i++ )
+		for( int i=0; i<(int)vCol.size(); i++ )
 		{
 			value = strtod(tabCols.at(vCol.at(i)).c_str(), NULL);
 			pPoints->Set_Attribute(i, value);
@@ -361,6 +463,21 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     SG_UI_Msg_Add(CSG_String::Format(SG_T("%d %s"), (cntPt-cntInvalid), _TL("points have been imported with success")), true);
 
 	return( true );
+}
+
+
+//---------------------------------------------------------
+TSG_Data_Type CPointCloud_From_Text_File::Get_Data_Type(int iType)
+{
+    switch( iType )
+    {
+    default:
+    case 0:	return( SG_DATATYPE_Char );
+    case 1:	return( SG_DATATYPE_Short );
+    case 2:	return( SG_DATATYPE_Int );
+    case 3:	return( SG_DATATYPE_Float );
+    case 4:	return( SG_DATATYPE_Double );
+    }
 }
 
 
