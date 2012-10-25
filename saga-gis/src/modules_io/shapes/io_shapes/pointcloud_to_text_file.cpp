@@ -90,7 +90,7 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
 					"two strings with the -FIELDS and -PRECISIONS parameters. The first one "
 					"must contain the field numbers, the latter the precisions "
 					"(separated by semicolon). Field numbers start with 1, e.g. "
-					"-FIELDS=\"1;2;3;5\" -PRECISIONS=\"2;2;2;0\".\n\n" 
+					"-FIELDS=\"1;2;3;5\" -PRECISIONS=\"2;2;2;0\".\n\n"
 	));
 
 
@@ -307,11 +307,19 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 	if( bWriteHeader )
 	{
+	    CSG_String  sHeader;
+
 		for(size_t i=0; i<vCol.size(); i++)
 		{
-			pTabStream->Printf(SG_T("%s"), pPoints->Get_Field_Name(vCol.at(i)));
-			pTabStream->Printf(i < (int)vCol.size() - 1 ? fieldSep.c_str() : SG_T("\n"));
+		    sHeader += CSG_String::Format(SG_T("%s"), pPoints->Get_Field_Name(vCol.at(i)));
+
+		    if( i < vCol.size()-1 )
+                sHeader += fieldSep.c_str();
 		}
+
+		sHeader += SG_T("\n");
+
+		pTabStream->Write(sHeader);
 	}
 
 
@@ -332,7 +340,8 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 				break;
 			}
 
-			sLine += fieldSep.c_str();
+            if( i < vCol.size()-1 )
+                sLine += fieldSep.c_str();
 		}
 
 		sLine += SG_T("\n");
