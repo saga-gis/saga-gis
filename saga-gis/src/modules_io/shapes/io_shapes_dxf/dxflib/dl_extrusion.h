@@ -57,7 +57,7 @@ public:
      * Destructor.
      */
 	~DL_Extrusion() {
-		delete direction ;
+		delete [] direction ;
     }
 
 
