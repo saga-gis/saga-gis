@@ -2074,7 +2074,7 @@ const SG_Char * CSG_Parameter_List::asString(void)
 			m_String.Append(asDataObject(i)->Get_Name());
 		}
 
-		m_String.Append(SG_T("))"));
+		m_String.Append(SG_T(")"));
 	}
 	else
 	{
