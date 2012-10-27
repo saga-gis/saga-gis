@@ -136,7 +136,7 @@ wxString	Get_nBytes_asString(long nBytes, int Precision)
 {
 	if( nBytes < 1024 )
 	{
-		return( wxString::Format(wxT("%d %s"), nBytes, wxT("bytes")) );
+		return( wxString::Format(wxT("%ld %s"), nBytes, wxT("bytes")) );
 	}
 
 	double	dSize	= nBytes / 1024.0;
