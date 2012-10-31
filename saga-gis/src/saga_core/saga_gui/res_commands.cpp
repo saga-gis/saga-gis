@@ -120,6 +120,11 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_DATASOURCE_REFRESH:		return( _TL("Refresh") );
 
+	case ID_CMD_ODBC_REFRESH:			return( _TL("Refresh") );
+	case ID_CMD_ODBC_SOURCE_OPEN:		return( _TL("Open") );
+	case ID_CMD_ODBC_SOURCE_CLOSE:		return( _TL("Close") );
+	case ID_CMD_ODBC_TABLE_OPEN:		return( _TL("Load") );
+
 	case ID_CMD_MODULES_OPEN:			return( _TL("Load Module Library") );
 	case ID_CMD_MODULES_SAVE_SCRIPT:	return( _TL("Create Script Command File") );
 	case ID_CMD_MODULES_SAVE_DOCS:		return( _TL("Create Module Description Files") );

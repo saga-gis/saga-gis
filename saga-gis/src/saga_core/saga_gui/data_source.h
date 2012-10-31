@@ -97,6 +97,8 @@ private:
 
 	class CData_Source_Files		*m_pFiles;
 
+	class CData_Source_ODBC			*m_pODBC;
+
 
 	bool							_Show_Page				(wxWindow *pPage);
 	bool							_Hide_Page				(wxWindow *pPage);

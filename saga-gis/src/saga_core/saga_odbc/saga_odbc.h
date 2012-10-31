@@ -140,7 +140,8 @@ public:
 
 	CSG_String					Get_Server				(void)	const	{	return( m_DSN );	}
 
-	CSG_String					Get_Tables				(void)	const;
+	int							Get_Tables				(CSG_Strings &Tables)			const;
+	CSG_String					Get_Tables				(void)							const;
 	CSG_String					Get_Field_Names			(const CSG_String &Table_Name)	const;
 	CSG_Table					Get_Field_Desc			(const CSG_String &Table_Name)	const;
 
@@ -204,7 +205,8 @@ public:
 	bool						Create					(void);
 	bool						Destroy					(void);
 
-	int							Get_Servers				(CSG_String &Servers);
+	int							Get_Servers				(CSG_String  &Servers);
+	int							Get_Servers				(CSG_Strings &Servers);
 	CSG_Strings					Get_Servers				(void);
 
 	int							Get_Connections			(CSG_String &Connections);

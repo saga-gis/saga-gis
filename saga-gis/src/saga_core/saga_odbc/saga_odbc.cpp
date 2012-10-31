@@ -347,6 +347,35 @@ CSG_String CSG_ODBC_Connection::Get_DBMS_Version(void) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CSG_ODBC_Connection::Get_Tables(CSG_Strings &Tables) const
+{
+	Tables.Clear();
+
+	if( is_Connected() )
+	{
+		try
+		{
+			otl_stream	Stream(m_Size_Buffer, "$SQLTables", m_Connection);	// get a list of all tables in the current database.
+
+			while( !Stream.eof() )
+			{
+				std_string	Catalog, Schema, Table, Type, Remarks;
+
+				Stream >> Catalog >> Schema >> Table >> Type >> Remarks;
+
+				Tables	+= Table.c_str();
+			}
+		}
+		catch( otl_exception &e )
+		{
+			_Error_Message(e);
+		}
+	}
+
+	return( Tables.Get_Count() );
+}
+
+//---------------------------------------------------------
 CSG_String CSG_ODBC_Connection::Get_Tables(void) const
 {
 	CSG_String	Tables;
@@ -1364,6 +1393,14 @@ CSG_Strings CSG_ODBC_Connections::Get_Servers(void)
 	}
 
 	return( Servers );
+}
+
+//---------------------------------------------------------
+int CSG_ODBC_Connections::Get_Servers(CSG_Strings &Servers)
+{
+	Servers	= Get_Servers();
+
+	return( Servers.Get_Count() );
 }
 
 //---------------------------------------------------------

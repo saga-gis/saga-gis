@@ -182,6 +182,9 @@
 #include "./res/xpm/wksp_module_library.xpm"
 #include "./res/xpm/wksp_module_manager.xpm"
 #include "./res/xpm/wksp_noitems.xpm"
+#include "./res/xpm/wksp_odbc_sources.xpm"
+#include "./res/xpm/wksp_odbc_source_on.xpm"
+#include "./res/xpm/wksp_odbc_source_off.xpm"
 #include "./res/xpm/wksp_shapes_line.xpm"
 #include "./res/xpm/wksp_shapes_manager.xpm"
 #include "./res/xpm/wksp_shapes_point.xpm"
@@ -316,6 +319,10 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_WKSP_MODULE_LIBRARY:	return( wksp_module_library_xpm );
 	case ID_IMG_WKSP_MODULE_MANAGER:	return( wksp_module_manager_xpm );
 	case ID_IMG_WKSP_NOITEMS:	return( wksp_noitems_xpm );
+	case ID_IMG_WKSP_ODBC_SOURCES:	return( wksp_odbc_sources_xpm );
+	case ID_IMG_WKSP_ODBC_SOURCE_ON:	return( wksp_odbc_source_on_xpm );
+	case ID_IMG_WKSP_ODBC_SOURCE_OFF:	return( wksp_odbc_source_off_xpm );
+	case ID_IMG_WKSP_ODBC_TABLE:	return( wksp_table_xpm );
 	case ID_IMG_WKSP_SHAPES_LINE:	return( wksp_shapes_line_xpm );
 	case ID_IMG_WKSP_SHAPES_MANAGER:	return( wksp_shapes_manager_xpm );
 	case ID_IMG_WKSP_SHAPES_POINT:	return( wksp_shapes_point_xpm );

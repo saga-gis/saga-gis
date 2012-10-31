@@ -139,6 +139,8 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>
+      </GenerateDebugInformation>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -421,6 +423,7 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
     </ClCompile>
     <ClCompile Include="data_source.cpp" />
     <ClCompile Include="data_source_files.cpp" />
+    <ClCompile Include="data_source_odbc.cpp" />
     <ClCompile Include="dc_helper.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1227,6 +1230,7 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
     <ClInclude Include="Callback.h" />
     <ClInclude Include="data_source.h" />
     <ClInclude Include="data_source_files.h" />
+    <ClInclude Include="data_source_odbc.h" />
     <ClInclude Include="DC_Helper.h" />
     <ClInclude Include="dlg_about.h" />
     <ClInclude Include="dlg_about_logo.h" />
