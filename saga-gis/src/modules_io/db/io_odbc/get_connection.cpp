@@ -144,6 +144,8 @@ bool CGet_Connection::On_Execute(void)
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
 
+		SG_UI_ODBC_Update(Server);
+
 		return( true );
 	}
 
@@ -228,6 +230,8 @@ bool CDel_Connection::On_Execute(void)
 	if( SG_ODBC_Get_Connection_Manager().Del_Connection(Server, bCommit) )
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
+
+		SG_UI_ODBC_Update(Server);
 
 		return( true );
 	}
@@ -321,6 +325,8 @@ bool CTransaction::On_Execute(void)
 		{
 			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions committed")));
 
+			SG_UI_ODBC_Update(Server);
+
 			return( true );
 		}
 	}
@@ -329,6 +335,8 @@ bool CTransaction::On_Execute(void)
 		if( pConnection->Rollback() )
 		{
 			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions rollbacked")));
+
+			SG_UI_ODBC_Update(Server);
 
 			return( true );
 		}
