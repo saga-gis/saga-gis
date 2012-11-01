@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: Data_Source.h 911 2011-02-14 16:38:15Z reklov_w $
+ * Version $Id: data_source_odbc.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,19 +14,19 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    data_source.h                      //
+//                  data_source_odbc.h                   //
 //                                                       //
-//          Copyright (C) 2011 by Olaf Conrad            //
+//          Copyright (C) 2012 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-// This file is part of 'SAGA - System for Automated     //
-// Geoscientific Analyses'. SAGA is free software; you   //
+// This file is part of 'MicroCity: Spatial Analysis and //
+// Simulation Framework'. MicroCity is free software;you //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
 // Free Software Foundation; version 2 of the License.   //
 //                                                       //
-// SAGA is distributed in the hope that it will be       //
+// MicroCity is distributed in the hope that it will be  //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
 // implied warranty of MERCHANTABILITY or FITNESS FOR A  //
 // PARTICULAR PURPOSE. See the GNU General Public        //
@@ -59,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__Data_Source_H
-#define _HEADER_INCLUDED__SAGA_GUI__Data_Source_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__data_source_odbc__H
+#define _HEADER_INCLUDED__SAGA_GUI__data_source_odbc__H
 
 
 ///////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/notebook.h>
+#include <wx/treectrl.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -80,38 +80,42 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CData_Source : public wxNotebook
+class CData_Source_ODBC : public wxTreeCtrl
 {
 public:
-	CData_Source(wxWindow *pParent);
-	virtual ~CData_Source(void);
+	CData_Source_ODBC(wxWindow *pParent);
 
-	void							Add_Pages				(void);
-
-	class CData_Source_Files *		Get_Files				(void)	{	return( m_pFiles );	}
-
-	bool							Set_Data_Source			(class CWKSP_Base_Item *pItem);
-	bool							Update_ODBC_Source		(const wxString &Server);
+	void						Update_Source		(const wxString &Server);
+	void						Update_Sources		(void);
 
 
 private:
 
-	class CData_Source_Files		*m_pFiles;
+	void						On_Refresh			(wxCommandEvent &event);
+	void						On_Source_Close_All	(wxCommandEvent &event);
+	void						On_Source_Close		(wxCommandEvent &event);
+	void						On_Source_Open		(wxCommandEvent &event);
+	void						On_Table_Open		(wxCommandEvent &event);
+	void						On_Table_Delete		(wxCommandEvent &event);
 
-	class CData_Source_ODBC			*m_pODBC;
+	void						On_Item_Activated	(wxTreeEvent &event);
+	void						On_Item_RClick		(wxTreeEvent &event);
+	void						On_Item_Menu		(wxTreeEvent &event);
 
+	void						Source_Close_All	(void);
+	void						Source_Close		(const wxTreeItemId &Item);
+	void						Source_Open			(const wxTreeItemId &Item);
+	void						Table_Open			(const wxTreeItemId &Item);
+	void						Table_Delete		(const wxTreeItemId &Item);
 
-	bool							_Show_Page				(wxWindow *pPage);
-	bool							_Hide_Page				(wxWindow *pPage);
+	void						Update_Item			(const wxTreeItemId &Item);
+	void						Update_Source		(const wxTreeItemId &Item);
 
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()
 };
 
-//---------------------------------------------------------
-extern CData_Source					*g_pData_Source;
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -120,4 +124,4 @@ extern CData_Source					*g_pData_Source;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__Data_Source_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__data_source_odbc__H

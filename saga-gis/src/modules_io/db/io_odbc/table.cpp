@@ -261,8 +261,9 @@ bool CTable_Save::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Table	*pTable	= Parameters("TABLE")	->asTable();
-	CSG_String	Name	= Parameters("NAME")	->asString();	if( Name.Length() == 0 )	Name	= pTable->Get_Name();
+	bool		bResult	= false;
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_String	Name	= Parameters("NAME" )->asString();	if( Name.Length() == 0 )	Name	= pTable->Get_Name();
 
 	//-----------------------------------------------------
 	if( Get_Connection()->Table_Exists(Name) )
@@ -272,7 +273,7 @@ bool CTable_Save::On_Execute(void)
 		switch( Parameters("EXISTS")->asInt() )
 		{
 		case 0:	// abort export
-			return( false );
+			break;
 
 		case 1:	// replace existing table
 			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("dropping table"), Name.c_str()));
@@ -280,31 +281,35 @@ bool CTable_Save::On_Execute(void)
 			if( !Get_Connection()->Table_Drop(Name, false) )
 			{
 				Message_Add(CSG_String::Format(SG_T(" ...%s!"), _TL("failed")));
-
-				return( false );
 			}
-
-			return( Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable)) );
+			else
+			{
+				bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable));
+			}
+			break;
 
 		case 2:	// append records, if table structure allows
 			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("appending to existing table"), Name.c_str()));
 
-			if( !Get_Connection()->Table_Insert(Name, *pTable) )
+			if( !(bResult = Get_Connection()->Table_Insert(Name, *pTable)) )
 			{
 				Message_Add(CSG_String::Format(SG_T(" ...%s!"), _TL("failed")));
-
-				return( false );
 			}
-
-			return( true );
+			break;
 		}
 	}
 	else
 	{
-		return( Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable)) );
+		bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable));
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		SG_UI_ODBC_Update(Get_Connection()->Get_Server());
+	}
+
+	return( bResult );
 }
 
 
@@ -359,12 +364,14 @@ bool CTable_Drop::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CTable_Drop::On_Execute(void)
 {
-	if( !Get_Connection() )
+	if( Get_Connection() && Get_Connection()->Table_Drop(Parameters("TABLES")->asChoice()->asString()) )
 	{
-		return( false );
+		SG_UI_ODBC_Update(Get_Connection()->Get_Server());
+
+		return( true );
 	}
 
-	return( Get_Connection()->Table_Drop(Parameters("TABLES")->asChoice()->asString()) );
+	return( false );
 }
 
 

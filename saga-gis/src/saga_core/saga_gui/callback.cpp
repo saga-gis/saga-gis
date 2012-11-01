@@ -66,6 +66,7 @@
 
 #include "wksp_data_manager.h"
 #include "wksp_module.h"
+#include "data_source.h"
 
 #include "callback.h"
 
@@ -332,6 +333,14 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	case CALLBACK_DATAOBJECT_GET_ALL:
 
 		Result	= g_pData->Get_DataObject_List((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_ODBC_UPDATE:
+
+		Result	= g_pData_Source->Update_ODBC_Source(Param_1.String.c_str()) ? 1 : 0;
 
 		break;
 

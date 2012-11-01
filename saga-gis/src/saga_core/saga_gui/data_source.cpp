@@ -219,6 +219,21 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CData_Source::Update_ODBC_Source(const wxString &Server)
+{
+	m_pODBC->Update_Source(Server);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CData_Source::_Show_Page(wxWindow *pPage)
 {
 	int		Image_ID	= -1;
