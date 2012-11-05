@@ -30,6 +30,7 @@ active_parameters.cpp\
 callback.cpp\
 data_source.cpp\
 data_source_files.cpp\
+data_source_odbc.cpp\
 dc_helper.cpp\
 dlg_about.cpp\
 dlg_about_logo.cpp\
@@ -123,6 +124,7 @@ active_parameters.h\
 callback.h\
 data_source.h\
 data_source_files.h\
+data_source_odbc.h\
 dc_helper.h\
 dlg_about.h\
 dlg_about_logo.h\
