@@ -71,6 +71,12 @@ CPoints_From_Table::CPoints_From_Table(void)
 		pNode	, "Y"		, _TL("Y"),
 		_TL("")
 	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "Z"		, _TL("Z"),
+		_TL(""),
+		true
+	);
 }
 
 
@@ -83,7 +89,7 @@ CPoints_From_Table::CPoints_From_Table(void)
 //---------------------------------------------------------
 bool CPoints_From_Table::On_Execute(void)
 {
-	int			xField, yField;
+	int			xField, yField, zField;
 	CSG_Table	*pTable;
 	CSG_Shapes	*pShapes;
 
@@ -91,13 +97,14 @@ bool CPoints_From_Table::On_Execute(void)
 	pShapes	= Parameters("POINTS")	->asShapes();
 	xField	= Parameters("X")		->asInt();
 	yField	= Parameters("Y")		->asInt();
+	zField	= Parameters("Z")		->asInt();
 
 	if( pTable->Get_Field_Count() < 1 || pTable->Get_Record_Count() <= 0 )
 	{
 		return( false );
 	}
 
-	pShapes->Create(SHAPE_TYPE_Point, pTable->Get_Name(), pTable);
+	pShapes->Create(SHAPE_TYPE_Point, pTable->Get_Name(), pTable, zField < 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ);
 
 	for(int iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
 	{
@@ -108,6 +115,11 @@ bool CPoints_From_Table::On_Execute(void)
 			CSG_Shape	*pShape	= pShapes->Add_Shape(pRecord, SHAPE_COPY_ATTR);
 
 			pShape->Add_Point(pRecord->asDouble(xField), pRecord->asDouble(yField));
+
+			if( zField >= 0 )
+			{
+				pShape->Set_Z(pRecord->asDouble(zField), 0);
+			}
 		}
 	}
 
