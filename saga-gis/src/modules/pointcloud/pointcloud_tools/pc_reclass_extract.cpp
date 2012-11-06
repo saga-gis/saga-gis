@@ -526,15 +526,13 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 	return;
 }
 
-//---------------------------------------------------------
-#define MAX_CAT	128
 
 //---------------------------------------------------------
 bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 {
 	bool				set, otherOpt, noDataOpt;
-	int					n, opera, recCount, count[MAX_CAT], field_Min, field_Max, field_Code;
-	double				min[MAX_CAT], max[MAX_CAT], code[MAX_CAT], value, others, noData, noDataValue;
+	int					opera, field_Min, field_Max, field_Code;
+	double				value, others, noData, noDataValue;
 
 	CSG_Table			*pReTab;
 	CSG_Table_Record	*pRecord = NULL;
@@ -570,73 +568,55 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 		return( false );
 	}
 
-	recCount = pReTab->Get_Record_Count();
-	if( recCount > MAX_CAT )
-	{
-		Error_Set(_TL("At the moment the reclass table is limited to 128 categories!\n"));
-		return( false );
-	}
-
-	if( recCount == 0 )
+	if( pReTab->Get_Record_Count() == 0 )
 	{
 		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
 		return( false );
 	}
 
-	for(n=0; n<recCount ; n++)								// initialize reclass arrays
-	{
-		pRecord		= pReTab->Get_Record(n);
-		min[n]		= pRecord->asDouble(field_Min);
-		max[n]		= pRecord->asDouble(field_Max);
-		code[n]		= pRecord->asDouble(field_Code);
-		count[n]	= 0;
-	}
 
-
-	for (int i=0; i<m_pInput->Get_Point_Count(); i++)
+	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
 	{
 		value	= m_pInput->Get_Value(i, m_AttrField);
 		set		= false;
 
-		for(n=0; n< recCount; n++)									// reclass
+		for(int iRecord=0; iRecord<pReTab->Get_Record_Count(); iRecord++)									// reclass
 		{
+			pRecord		= pReTab->Get_Record(iRecord);
+
 			if( opera == 0 )										// min <= value < max
 			{
-				if( value >= min[n] && value < max[n] )
+				if( value >= pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
 				{
-					Set_Value(i, code[n]);
+					Set_Value(i, pRecord->asDouble(field_Code));
 					set = true;
-					count[n] += 1;
 					break;
 				}
 			}
 			else if( opera == 1 )									// min <= value <= max
 			{
-				if( value >= min[n] && value <= max[n] )
+				if( value >= pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
 				{
-					Set_Value(i, code[n]);
+					Set_Value(i, pRecord->asDouble(field_Code));
 					set = true;
-					count[n] += 1;
 					break;
 				}
 			}
 			else if( opera == 2 )									// min < value <= max
 			{
-				if( value > min[n] && value <= max[n] )
+				if( value > pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
 				{
-					Set_Value(i, code[n]);
+					Set_Value(i, pRecord->asDouble(field_Code));
 					set = true;
-					count[n] += 1;
 					break;
 				}
 			}
 			else if( opera == 3 )									// min < value < max
 			{
-				if( value > min[n] && value < max[n] )
+				if( value > pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
 				{
-					Set_Value(i, code[n]);
+					Set_Value(i, pRecord->asDouble(field_Code));
 					set = true;
-					count[n] += 1;
 					break;
 				}
 			}
