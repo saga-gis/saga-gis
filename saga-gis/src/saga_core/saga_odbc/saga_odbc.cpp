@@ -1382,8 +1382,6 @@ CSG_Strings CSG_ODBC_Connections::Get_Servers(void)
 		{
 			Servers	+= CSG_String((const SG_ODBC_CHAR *)dsn);
 
-			SG_UI_Msg_Add_Execution(CSG_String::Format(SG_T("\n[%s] %s"), dsn, dsc), false);
-
 			r	= SQLDataSources(m_hEnv, SQL_FETCH_NEXT,
 					(SQLTCHAR *)dsn, SQL_MAX_DSN_LENGTH + 1, &dsnlen,
 					(SQLTCHAR *)dsc, 256,                    &dsclen
