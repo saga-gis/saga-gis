@@ -293,8 +293,8 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 bool CGrid_Value_Reclassify::ReclassRange(void)
 {
 	bool	otherOpt, noDataOpt, floating;
-	int		x, y, opera;
-	double	minValue, maxValue, value, others, noData, noDataValue, newValue;
+	int		opera;
+	double	minValue, maxValue, others, noData, noDataValue, newValue;
 
 
 	minValue	= Parameters("MIN")->asDouble();
@@ -313,10 +313,13 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 	else
 		floating = false;
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	value;
+
 			if( floating == true )
 				value = pInput->asDouble(x, y);
 			else
@@ -355,7 +358,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 bool CGrid_Value_Reclassify::ReclassSingle(void)
 {
 	bool	otherOpt, noDataOpt, floating;
-	int		x, y, opera;
+	int		opera;
 	double	oldValue, newValue, value, others, noData, noDataValue;
 
 
@@ -374,10 +377,13 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 	else
 		floating = false;
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	value;
+
 			if( floating == true )
 				value = pInput->asDouble(x, y);
 			else
@@ -448,18 +454,15 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 	return( true );
 }
 
-//---------------------------------------------------------
-#define MAX_CAT	128
 
 //---------------------------------------------------------
 bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 {
-	bool			set, otherOpt, noDataOpt;
-	int				n, x, y, opera, recCount, count[MAX_CAT], field_Min, field_Max, field_Code;
-	double			min[MAX_CAT], max[MAX_CAT], code[MAX_CAT], value, others, noData, noDataValue;
+	bool			otherOpt, noDataOpt;
+	int				opera, field_Min, field_Max, field_Code;
+	double			others, noData, noDataValue;
 
 	CSG_Table			*pReTab;
-	CSG_Table_Record	*pRecord = NULL;
 
 	if( bUser )
 	{
@@ -491,75 +494,58 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 		return( false );
 	}
 
-	recCount = pReTab->Get_Record_Count();
-	if( recCount > MAX_CAT )
-	{
-		Error_Set(_TL("At the moment the reclass table is limited to 128 categories!\n"));
-		return( false );
-	}
-
-	if( recCount == 0 )
+	if( pReTab->Get_Record_Count() == 0 )
 	{
 		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
 		return( false );
 	}
 
-	for(n=0; n<recCount ; n++)								// initialize reclass arrays
-	{
-		pRecord		= pReTab->Get_Record(n);
-		min[n]		= pRecord->asDouble(field_Min);
-		max[n]		= pRecord->asDouble(field_Max);
-		code[n]		= pRecord->asDouble(field_Code);
-		count[n]	= 0;
-	}
 
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			value	= pInput->asDouble(x, y);
-			set		= false;
+			double	value	= pInput->asDouble(x, y);
+			bool	set		= false;
 
-			for(n=0; n< recCount; n++)									// reclass
+			for(int iRecord=0; iRecord<pReTab->Get_Record_Count(); iRecord++)									// reclass
 			{
+				CSG_Table_Record	*pRecord = pReTab->Get_Record(iRecord);
+
 				if( opera == 0 )										// min <= value < max
 				{
-					if( value >= min[n] && value < max[n] )
+					if( value >= pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
 				else if( opera == 1 )									// min <= value <= max
 				{
-					if( value >= min[n] && value <= max[n] )
+					if( value >= pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
 				else if( opera == 2 )									// min < value <= max
 				{
-					if( value > min[n] && value <= max[n] )
+					if( value > pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
 				else if( opera == 3 )									// min < value < max
 				{
-					if( value > min[n] && value < max[n] )
+					if( value > pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
