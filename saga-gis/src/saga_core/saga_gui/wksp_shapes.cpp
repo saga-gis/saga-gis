@@ -94,6 +94,8 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	m_Edit_Attributes.Destroy();
 	m_Edit_Attributes.Add_Field(_TL("Name") , SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
+
+	m_Edit_Color    = wxColor(0, 0, 0);
 }
 
 //---------------------------------------------------------
