@@ -32,9 +32,26 @@
 Cdestriping2::Cdestriping2(void)
 {
 	// 1. Info...
-	Set_Name(_TL("Destriping 2"));
+	Set_Name(_TL("Destriping with Mask"));
 	Set_Author(_TL("Alessandro Perego"));
-	Set_Description(_TL("destriping2 filter for values in a specified range (min-max)"));
+	Set_Description(_TW(
+		"Destriping filter removes straight parallel stripes in raster data. "
+		"It uses two low-pass filters elongated in the stripes direction; "
+		"the first one is 1 pixel unit wide while the second one is wide as the striping wavelength. "
+		"Their difference is the striping error which is removed from the original data to obtain the destriped DEM. "
+		"This method is equivalent to that proposed by Oimoen (2000). "
+		"With destriping 2 you can choose a range of value (min-max) from the input grid "
+		"and a range of value (Mask min - Mask max) from a mask grid to select the target cells. "
+		"\n"
+		"\nReferences:\n"
+		"- Oimoen, M.J. (2000): An Effective Filter For Removal Of Production Artifacts. "
+		"In U.S. Geological Survey 7.5-Minute Digital Elevation Models. "
+		"Proceedings of the Fourteenth International Conference on Applied Geologic Remote Sensing, "
+		"6-8 November, Las Vegas, NV.\n"
+		"\n"
+		"- Peregro, A. (2009): SRTM DEM destriping with SAGA GIS: consequences on drainage network extraction. "
+		"<a target=\"_blank\" href=\"http://www.webalice.it/alper78/saga_mod/destriping/destriping.html\">online</a>.\n"
+	));
 
 	// 2. Parameters...
 	Parameters.Add_Grid(NULL, "INPUT", _TL("Input"), _TL("This must be your input data of type grid."), PARAMETER_INPUT);

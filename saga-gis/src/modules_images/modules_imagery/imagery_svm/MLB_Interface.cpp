@@ -69,7 +69,7 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("SVM") );
+		return( _TL("Imagery - SVM") );
 
 	case MLB_INFO_Author:
 		return( SG_T("O.Conrad (c) 2012") );

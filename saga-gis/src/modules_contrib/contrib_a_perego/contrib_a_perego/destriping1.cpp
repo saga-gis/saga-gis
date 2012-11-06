@@ -32,9 +32,24 @@
 Cdestriping1::Cdestriping1(void)
 {
 	// 1. Info...
-	Set_Name(_TL("Destriping 1"));
+	Set_Name(_TL("Destriping"));
 	Set_Author(_TL("Alessandro Perego"));
-	Set_Description(_TL("destriping1 filter for Grids"));
+	Set_Description(_TW(
+		"Destriping filter removes straight parallel stripes in raster data. "
+		"It uses two low-pass filters elongated in the stripes direction; "
+		"the first one is 1 pixel unit wide while the second one is wide as the striping wavelength. "
+		"Their difference is the striping error which is removed from the original data to obtain the destriped DEM. "
+		"This method is equivalent to that proposed by Oimoen (2000). "
+		"\n"
+		"\nReferences:\n"
+		"- Oimoen, M.J. (2000): An Effective Filter For Removal Of Production Artifacts. "
+		"In U.S. Geological Survey 7.5-Minute Digital Elevation Models. "
+		"Proceedings of the Fourteenth International Conference on Applied Geologic Remote Sensing, "
+		"6-8 November, Las Vegas, NV.\n"
+		"\n"
+		"- Peregro, A. (2009): SRTM DEM destriping with SAGA GIS: consequences on drainage network extraction. "
+		"<a target=\"_blank\" href=\"http://www.webalice.it/alper78/saga_mod/destriping/destriping.html\">online</a>.\n"
+	));
 
 	// 2. Parameters...
 	Parameters.Add_Grid(NULL, "INPUT", _TL("Input"), _TL("This must be your input data of type grid."), PARAMETER_INPUT);

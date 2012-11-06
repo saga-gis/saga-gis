@@ -41,7 +41,7 @@ public: ////// public members and functions: //////////////
 	Cdirectional1(void);							// constructor
 	virtual ~Cdirectional1(void);				// destructor
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Filter for Grids") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Averages") );	}
 
 
 protected: /// protected members and functions: ///////////

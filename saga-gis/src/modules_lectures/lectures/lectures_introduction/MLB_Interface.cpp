@@ -74,19 +74,19 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Lectures - Introducing Module Programming" ));
+		return( _TL("Garden - Introducing Module Programming" ));
 
 	case MLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2003" ));
 
 	case MLB_INFO_Description:
-		return( _TL("A set of basic SAGA module programming lectures." ));
+		return( _TL("A set of basic SAGA module programming examples." ));
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Lectures|Introducing Module Programming" ));
+		return( _TL("Garden|Introducing Module Programming" ));
 	}
 }
 

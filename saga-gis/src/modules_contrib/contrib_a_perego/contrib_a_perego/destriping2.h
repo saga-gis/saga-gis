@@ -41,8 +41,6 @@ public: ////// public members and functions: //////////////
 	Cdestriping2(void);					// constructor
 	virtual ~Cdestriping2(void);				// destructor
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Filter for Grids") );	}
-
 
 protected: /// protected members and functions: ///////////
 

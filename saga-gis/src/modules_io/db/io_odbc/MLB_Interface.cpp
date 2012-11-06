@@ -90,7 +90,7 @@ CSG_String Get_Info(int i)
 		return( _TL("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Database (ODBC)") );
+		return( _TL("Database") );
 	}
 }
 

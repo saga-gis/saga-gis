@@ -32,7 +32,7 @@
 Cdirectional1::Cdirectional1(void)
 {
 	// 1. Info...
-	Set_Name(_TL("Directional Average 1"));
+	Set_Name(_TL("Directional Average"));
 	Set_Author(_TL("Alessandro Perego"));
 	Set_Description(_TL("directional1 average for Grids"));
 
