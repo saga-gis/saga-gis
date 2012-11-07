@@ -198,7 +198,7 @@ SG_Char CSG_String::operator [] (int i) const
 	{
 		return( m_pString->GetChar(i) );
 	}
-	
+
 	return( SG_T('\0') );
 }
 
@@ -208,7 +208,17 @@ SG_Char CSG_String::operator [] (size_t i) const
 	{
 		return( m_pString->GetChar(i) );
 	}
-	
+
+	return( SG_T('\0') );
+}
+
+SG_Char CSG_String::Get_Char(size_t i)	const
+{
+	if( i < Length() )
+	{
+		return( m_pString->GetChar(i) );
+	}
+
 	return( SG_T('\0') );
 }
 

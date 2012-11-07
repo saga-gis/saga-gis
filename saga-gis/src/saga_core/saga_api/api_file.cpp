@@ -545,9 +545,9 @@ bool			SG_File_Set_Extension(CSG_String &File_Name, const CSG_String &Extension)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Extension(const CSG_String &File_Name)
+CSG_String		SG_File_Get_Extension(const SG_Char *File_Name)
 {
-	wxFileName	fn(File_Name.w_str());
+	wxFileName	fn(File_Name);
 
 	return( CSG_String(fn.GetExt().wc_str()) );
 }
