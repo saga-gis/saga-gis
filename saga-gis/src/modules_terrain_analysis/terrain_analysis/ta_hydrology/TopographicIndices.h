@@ -155,6 +155,29 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class ta_hydrology_EXPORT CTCI_Low : public CSG_Module_Grid
+{
+public:
+	CTCI_Low(void);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
