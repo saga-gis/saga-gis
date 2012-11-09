@@ -156,13 +156,25 @@ CTA_Standard::CTA_Standard(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CHNL_ALTI"	, _TL("Altitude above Channel Network"),
+		NULL	, "CHNL_BASE"	, _TL("Channel Network Base Level"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CHNL_BASE"	, _TL("Channel Network Base Level"),
+		NULL	, "CHNL_ALTI"	, _TL("Vertical Distance to Channel Network"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "VALL_DEPTH"	, _TL("Valley Depth"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "RSP"			, _TL("Relative Slope Position"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -277,6 +289,30 @@ bool CTA_Standard::On_Execute(void)
 		&&	SET_PARAMETER("DISTANCE"	, Parameters("CHNL_ALTI"))
 		&&	SET_PARAMETER("BASELEVEL"	, Parameters("CHNL_BASE"))
 	)
+
+	//-----------------------------------------------------
+	RUN_MODULE("grid_tools"				, 19,	// grid orientation
+			SET_PARAMETER("INPUT"		, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("RESULT"		, &TMP1)
+		&&	SET_PARAMETER("METHOD"		, 3)	// invert
+	)
+
+	RUN_MODULE("ta_channels"			, 6,	// strahler order
+			SET_PARAMETER("DEM"			, &TMP1)
+		&&	SET_PARAMETER("STRAHLER"	, &TMP2)
+	)
+
+	TMP2.Set_NoData_Value_Range(0, 4);
+
+	RUN_MODULE("ta_channels"			, 3,	// vertical channel network distance
+			SET_PARAMETER("ELEVATION"	, &TMP1)
+		&&	SET_PARAMETER("CHANNELS"	, &TMP2)
+		&&	SET_PARAMETER("DISTANCE"	, Parameters("VALL_DEPTH"))
+	)
+
+	TMP1	= *Parameters("CHNL_ALTI")->asGrid() / (*Parameters("CHNL_ALTI")->asGrid() + *Parameters("VALL_DEPTH")->asGrid());
+
+	Parameters("RSP")->asGrid()->Assign(&TMP1);
 
 	//-----------------------------------------------------
 	return( true );
