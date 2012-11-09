@@ -151,7 +151,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 			_TL("Deterministic Infinity"),
 			_TL("Multiple Flow Direction"),
 			_TL("Multiple Triangular Flow Directon")
-		), 5
+		), 4
 	);
 
 
@@ -178,16 +178,15 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Parameters.Add_Grid(
 		NULL	, "CHDIR_GRID"			, _TL("Channel Direction"),
-		_TW(	"(optional) Channel Direction Grid. Must contain direction values. "
-				"For all non-missing grid cells all flow will be routed to the prescribed direction."
-		),
+		_TW("(optional) Channel Direction Grid. Must contain direction values. "
+			"For all non-missing grid cells all flow will be routed to the prescribed direction."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 	
 	Parameters.Add_Value(
 		NULL	, "CONVERGENCE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
-		PARAMETER_TYPE_Double	, 1.0, 0.0, true
+		PARAMETER_TYPE_Double, 1.1, 0.0, true
 	);
 }
 
