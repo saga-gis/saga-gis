@@ -1025,8 +1025,15 @@ enum ESG_Colors
 	SG_COLORS_GREEN_RED_BLUE,
 	SG_COLORS_RAINBOW,
 	SG_COLORS_NEON,
+	SG_COLORS_TOPOGRAPHY,
+	SG_COLORS_ASPECT_1,
+	SG_COLORS_ASPECT_2,
+	SG_COLORS_ASPECT_3,
 	SG_COLORS_COUNT
 };
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT CSG_String		SG_Colors_Get_Name	(int Identifier);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Colors

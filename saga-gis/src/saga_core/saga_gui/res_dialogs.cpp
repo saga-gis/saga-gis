@@ -512,29 +512,10 @@ bool		DLG_Colors(int &Palette)
 {
 	wxString	Palettes[SG_COLORS_COUNT];
 
-	Palettes[SG_COLORS_DEFAULT]			= _TL("default");
-	Palettes[SG_COLORS_DEFAULT_BRIGHT]	= _TL("default (same brightness)");
-	Palettes[SG_COLORS_BLACK_WHITE]		= _TL("greyscale");
-	Palettes[SG_COLORS_BLACK_RED]		= _TL("black > red");
-	Palettes[SG_COLORS_BLACK_GREEN]		= _TL("black > green");
-	Palettes[SG_COLORS_BLACK_BLUE]		= _TL("black > blue");
-	Palettes[SG_COLORS_WHITE_RED]		= _TL("white > red");
-	Palettes[SG_COLORS_WHITE_GREEN]		= _TL("white > green");
-	Palettes[SG_COLORS_WHITE_BLUE]		= _TL("white > blue");
-	Palettes[SG_COLORS_YELLOW_RED]		= _TL("yellow > red");
-	Palettes[SG_COLORS_YELLOW_GREEN]	= _TL("yellow > green");
-	Palettes[SG_COLORS_YELLOW_BLUE]		= _TL("yellow > blue");
-	Palettes[SG_COLORS_RED_GREEN]		= _TL("red > green");
-	Palettes[SG_COLORS_RED_BLUE]		= _TL("red > blue");
-	Palettes[SG_COLORS_GREEN_BLUE]		= _TL("green > blue");
-	Palettes[SG_COLORS_RED_GREY_BLUE]	= _TL("red > grey > blue");
-	Palettes[SG_COLORS_RED_GREY_GREEN]	= _TL("red > grey > green");
-	Palettes[SG_COLORS_GREEN_GREY_BLUE]	= _TL("green > grey > blue");
-	Palettes[SG_COLORS_RED_GREEN_BLUE]	= _TL("red > green > blue");
-	Palettes[SG_COLORS_RED_BLUE_GREEN]	= _TL("red > blue > green");
-	Palettes[SG_COLORS_GREEN_RED_BLUE]	= _TL("green > red > blue");
-	Palettes[SG_COLORS_RAINBOW]			= _TL("Rainbow");
-	Palettes[SG_COLORS_NEON]			= _TL("Neon");
+	for(int i=0; i<SG_COLORS_COUNT; i++)
+	{
+		Palettes[i]	= SG_Colors_Get_Name(i).c_str();
+	}
 
 	wxSingleChoiceDialog	dlg(
 		MDI_Get_Top_Window(),
