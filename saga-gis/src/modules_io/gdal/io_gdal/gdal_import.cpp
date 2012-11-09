@@ -459,9 +459,13 @@ void CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Grid_System &
 	CSG_Grid	*pImage	= *ppGrid;
 	CSG_Grid	*pWorld	= *ppGrid	= SG_Create_Grid(System, pImage->Get_Type());
 
-	pWorld->Set_Name   (pImage->Get_Name   ());
-	pWorld->Set_Unit   (pImage->Get_Unit   ());
-	pWorld->Set_ZFactor(pImage->Get_ZFactor());
+	pWorld->Set_Name              (pImage->Get_Name       ());
+	pWorld->Set_Description       (pImage->Get_Description());
+	pWorld->Set_Unit              (pImage->Get_Unit       ());
+	pWorld->Set_ZFactor           (pImage->Get_ZFactor    ());
+	pWorld->Set_NoData_Value_Range(pImage->Get_NoData_Value(), pImage->Get_NoData_hiValue());
+	pWorld->Get_MetaData()	     = pImage->Get_MetaData   ();
+	pWorld->Get_Projection()     = pImage->Get_Projection ();
 
 	//-----------------------------------------------------
 //	#pragma omp parallel for
