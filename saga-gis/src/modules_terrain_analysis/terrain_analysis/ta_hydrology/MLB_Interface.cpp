@@ -147,6 +147,7 @@ CSG_Module *		Create_Module(int i)
 	case 21:	return( new CStream_Power );
 	case 22:	return( new CLS_Factor );
 	case 23:	return( new CMelton_Ruggedness );
+	case 24:	return( new CTCI_Low );
 	}
 
 	return( NULL );

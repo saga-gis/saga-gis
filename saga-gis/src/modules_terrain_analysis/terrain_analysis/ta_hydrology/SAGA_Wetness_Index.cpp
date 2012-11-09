@@ -160,7 +160,19 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 	Parameters.Add_Value(
 		NULL	, "SLOPE_MIN"	, _TL("Minimum Slope"),
 		_TL(""),
+		PARAMETER_TYPE_Double	, 0.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SLOPE_OFF"	, _TL("Offset Slope"),
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SLOPE_WEIGHT", _TL("Slope Weighting"),
+		_TL("weighting factor for slope in index calculation"),
+		PARAMETER_TYPE_Double	, 1.0, 0.0, true
 	);
 }
 
@@ -252,7 +264,8 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 	m_Suction.Create(*Get_System());
 	m_Suction.Assign(0.0);
 
-	double	Suction	= Parameters("SUCTION")->asDouble();
+	double	Suction			= Parameters("SUCTION"     )->asDouble();
+	double	Slope_Weight	= Parameters("SLOPE_WEIGHT")->asDouble();
 
 	//-----------------------------------------------------
 	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
@@ -269,7 +282,7 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 		{
 			m_pDEM->Get_Gradient(x, y, Slope, d);
 
-			d	= pow(Suction, Slope);
+			d	= pow(Suction, Slope_Weight * Slope);
 			m_Suction.Set_Value(x, y, pow(1.0 / d, exp(d)));
 
 			Area	= 1.0   + m_pArea ->asDouble(x, y);
@@ -449,9 +462,10 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 //---------------------------------------------------------
 bool CSAGA_Wetness_Index::Get_TWI(void)
 {
-	int		Area_Type	= Parameters("AREA_TYPE")	->asInt();
-	int		Slope_Type	= Parameters("SLOPE_TYPE")	->asInt();
-	double	Slope_Min	= Parameters("SLOPE_MIN")	->asDouble() * M_DEG_TO_RAD;
+	int		Area_Type	= Parameters("AREA_TYPE" )->asInt();
+	int		Slope_Type	= Parameters("SLOPE_TYPE")->asInt();
+	double	Slope_Min	= Parameters("SLOPE_MIN" )->asDouble() * M_DEG_TO_RAD;
+	double	Slope_Off	= Parameters("SLOPE_OFF" )->asDouble() * M_DEG_TO_RAD;
 
 	Process_Set_Text(_TL("topographic wetness index..."));
 
@@ -479,8 +493,8 @@ bool CSAGA_Wetness_Index::Get_TWI(void)
 					m_pDEM->Get_Gradient(x, y, s, a);
 				}
 
-				s	= Slope_Min + s;
-			//	s	= Slope_Min < s ? Slope_Min : s;
+				s	= s + Slope_Off;
+				s	= 6 * tan(Slope_Min < s ? s : Slope_Min);
 
 				a	= m_pAreaMod->asDouble(x, y);
 
@@ -490,7 +504,7 @@ bool CSAGA_Wetness_Index::Get_TWI(void)
 				case 2:	a	= a / Get_Cellsize();	break;	// specific catchment area
 				}
 
-				m_pTWI->Set_Value(x, y, log(a / tan(s)));
+				m_pTWI->Set_Value(x, y, log(a / s));
 			}
 		}
 	}
