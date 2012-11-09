@@ -138,8 +138,6 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -154,6 +152,8 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	m_pDistance			= Parameters("DISTANCE")		->asGrid();
 	m_bNoUnderground	= Parameters("NOUNDERGROUND")	->asBool();
 	Threshold			= Parameters("THRESHOLD")		->asDouble() * Get_Cellsize();
+
+	DataObject_Set_Colors(m_pDistance, 10, SG_COLORS_YELLOW_BLUE, true);
 
 	//-----------------------------------------------------
 	nCells			= Get_NX() > Get_NY() ? Get_NX() : Get_NY();
@@ -206,8 +206,6 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -282,8 +280,6 @@ void CChannelNetwork_Altitude::Set_Surface(int nCells)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -352,6 +348,120 @@ double CChannelNetwork_Altitude::Get_Change(int nCells, int x, int y)
 	}
 
 	return( m_pDistance->asDouble(x, y) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CValley_Depth::CValley_Depth(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Valley Depth"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2012"));
+
+	Set_Description	(_TW(
+		"Valley depth is calculated here  vertical distance to a channel network base level. "
+		"The algorithm consists of two major steps:\n"
+		" 1. Interpolation of a channel network base level elevation\n"
+		" 2. Subtraction of this base level from the original elevations\n"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "ELEVATION"		, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "VALLEY_DEPTH"	, _TL("Valley Depth"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "RIDGE_LEVEL"		, _TL("Ridge Level"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Value(
+		NULL	, "THRESHOLD"		, _TL("Tension Threshold [Percentage of Cell Size]"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "NOUNDERGROUND"	, _TL("Keep Ridge Level above Surface"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "ORDER"			, _TL("Ridge Detection Threshold"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 4, 1, true, 7, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+	bool	bResult;\
+	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	if( !bResult ) return( false );\
+}
+
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+
+//---------------------------------------------------------
+bool CValley_Depth::On_Execute(void)
+{
+	CSG_Grid	Inverse(*Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	Ridges (*Get_System(), SG_DATATYPE_Int);
+
+	//-----------------------------------------------------
+	RUN_MODULE("grid_tools"					, 19,	// grid orientation
+			SET_PARAMETER("INPUT"			, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("RESULT"			, &Inverse)
+		&&	SET_PARAMETER("METHOD"			, 3)	// invert
+	)
+
+	RUN_MODULE("ta_channels"				, 6,	// strahler order
+			SET_PARAMETER("DEM"				, &Inverse)
+		&&	SET_PARAMETER("STRAHLER"		, &Ridges)
+	)
+
+	Ridges.Set_NoData_Value_Range(0, Parameters("ORDER")->asInt());
+
+	RUN_MODULE("ta_channels"				, 3,	// vertical channel network distance
+			SET_PARAMETER("ELEVATION"		, &Inverse)
+		&&	SET_PARAMETER("CHANNELS"		, &Ridges)
+		&&	SET_PARAMETER("DISTANCE"		, Parameters("VALLEY_DEPTH"))
+		&&	SET_PARAMETER("BASELEVEL"		, Parameters("RIDGE_LEVEL"))
+		&&	SET_PARAMETER("THRESHOLD"		, Parameters("THRESHOLD"))
+		&&	SET_PARAMETER("NOUNDERGROUND"	, Parameters("NOUNDERGROUND"))
+	)
+
+	//-----------------------------------------------------
+	if( Parameters("RIDGE_LEVEL")->asGrid() )
+	{
+		Parameters("RIDGE_LEVEL")->asGrid()->Invert();
+	}
+
+	DataObject_Set_Colors(Parameters("VALLEY_DEPTH")->asGrid(), 10, SG_COLORS_YELLOW_BLUE, false);
+
+	return( true );
 }
 
 
