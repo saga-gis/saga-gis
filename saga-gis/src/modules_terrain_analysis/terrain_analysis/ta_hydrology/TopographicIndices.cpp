@@ -617,7 +617,7 @@ CTCI_Low::CTCI_Low(void)
 		"In: Hengl, T. / Panagos, P. / Jones, A. / Toth, G. [Eds.]: "
 		"Status and prospect of soil information in south-eastern Europe: soil databases, projects and applications. "
 		"EUR 22646 EN Scientific and Technical Research series, Office for Official Publications of the European Communities, Luxemburg, p.149-162. "
-		"<a target=\"_blank\" href==\"http://eusoils.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/EUR22646EN.pdf\">online</a>.\n"
+		"<a target=\"_blank\" href=\"http://eusoils.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/EUR22646EN.pdf\">online</a>.\n"
 	));
 
 	//-----------------------------------------------------
