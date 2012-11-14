@@ -655,8 +655,8 @@ bool CTCI_Low::On_Execute(void)
 
 	DataObject_Set_Colors(pTCI_Low, 100, SG_COLORS_RED_GREY_BLUE, true);
 
-	double	dMin	= pDistance->Get_ZMin();
-	double	dRange	= pDistance->Get_ZMax() - dMin;
+	double	dMax	= pDistance->Get_ZMax();
+	double	dRange	= pDistance->Get_ZRange();
 	double	wRange	= log(1.0 + pTWI->Get_ZMax());
 
 	//-----------------------------------------------------
@@ -671,8 +671,8 @@ bool CTCI_Low::On_Execute(void)
 			}
 			else
 			{
-				double	d	= (pDistance->asDouble(x, y) - dMin) / dRange;
-				double	w	= log(1.0 + pTWI->asDouble(x, y)) / wRange;
+				double	d	= (dMax - pDistance->asDouble(x, y)) / dRange;	// inverted, normalized [0...1]
+				double	w	= log(1.0 + pTWI->asDouble(x, y)) / wRange;		// natural logarithm, normalized [0...1]
 
 				pTCI_Low->Set_Value(x, y, (2.0 * d + w) / 3.0);
 			}
