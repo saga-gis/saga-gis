@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Filter_Resample.h 1086 2011-06-08 10:12:02Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   Filter_Resample.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//                 Copyright (C) 2012 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,11 +42,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,92 +54,62 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Filter_Resample_H
+#define HEADER_INCLUDED__Filter_Resample_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Filter") );
-
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Associaton (c) 2002-10") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the manipulation of gridded data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Filter") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Filter.h"
-#include "Filter_Gauss.h"
-#include "Filter_LoG.h"
-#include "Filter_Multi_Dir_Lee.h"
-#include "Filter_3x3.h"
-#include "FilterClumps.h"
-#include "Filter_Majority.h"
-#include "Filter_Terrain_SlopeBased.h"
-#include "Filter_Morphology.h"
-#include "Filter_Rank.h"
-#include "mesh_denoise.h"
-#include "Filter_Resample.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFilter );
-	case  1:	return( new CFilter_Gauss );
-	case  2:	return( new CFilter_LoG );
-	case  3:	return( new CFilter_Multi_Dir_Lee );
-	case  4:	return( new CFilter_3x3 );
-	case  5:	return( new CFilterClumps );
-	case  6:	return( new CFilter_Majority );
-	case  7:	return( new CFilter_Terrain_SlopeBased );
-	case  8:	return( new CFilter_Morphology );
-	case  9:	return( new CFilter_Rank );
-	case 10:	return( new CMesh_Denoise_Grid );
-	case 11:	return( new CFilter_Resample );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CFilter_Resample : public CSG_Module_Grid
+{
+public:
+	CFilter_Resample(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+	int						m_Radius, m_Threshold;
+
+	CSG_Grid				m_Kernel, *m_pInput;
+
+	CSG_Class_Statistics	m_Majority;
+
+
+	double					Get_Majority	(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Filter_Resample_H

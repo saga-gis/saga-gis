@@ -21,6 +21,7 @@ Filter_Majority.cpp\
 Filter_Morphology.cpp\
 Filter_Multi_Dir_Lee.cpp\
 Filter_Rank.cpp\
+Filter_Resample.cpp\
 Filter_Terrain_SlopeBased.cpp\
 FilterClumps.cpp\
 mesh_denoise.cpp\
@@ -33,6 +34,7 @@ Filter_Majority.h\
 Filter_Morphology.h\
 Filter_Multi_Dir_Lee.h\
 Filter_Rank.h\
+Filter_Resample.h\
 Filter_Terrain_SlopeBased.h\
 FilterClumps.h\
 mesh_denoise.h\
