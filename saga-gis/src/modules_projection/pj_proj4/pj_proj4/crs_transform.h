@@ -90,6 +90,9 @@ protected:
 
 	bool					Set_Inverse					(bool bOn = true);
 
+	bool					Set_Precise_Mode			(bool bOn = true);
+	bool					Get_Precise_Mode			(void)	const		{	return( m_Proj4_pGCS != NULL );	}
+
 	bool					Get_Transformation			(double &x, double &y);
 	bool					Get_Transformation			(TSG_Point &Point)	{	return( Get_Transformation(Point.x, Point.y) );	}
 
@@ -98,7 +101,7 @@ private:
 
 	bool					m_bInverse;
 
-	void					*m_Proj4_pSource, *m_Proj4_pTarget;
+	void					*m_Proj4_pSource, *m_Proj4_pTarget, *m_Proj4_pGCS;
 
 	CSG_Projection			m_Target;
 

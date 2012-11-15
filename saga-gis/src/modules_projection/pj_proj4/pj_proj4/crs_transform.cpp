@@ -85,6 +85,7 @@ CCRS_Transform::CCRS_Transform(void)
 {
 	m_Proj4_pSource	= NULL;
 	m_Proj4_pTarget	= NULL;
+	m_Proj4_pGCS	= NULL;
 }
 
 
@@ -106,6 +107,8 @@ bool CCRS_Transform::On_Execute(void)
 		return( false );
 	}
 
+	Set_Precise_Mode(Parameters("PRECISE")->asBool());
+
 	Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("target"), m_Target.Get_Proj4().c_str()), false);
 
 	//-----------------------------------------------------
@@ -116,6 +119,7 @@ bool CCRS_Transform::On_Execute(void)
 	//-------------------------------------------------
 	PROJ4_FREE(m_Proj4_pSource);
 	PROJ4_FREE(m_Proj4_pTarget);
+	PROJ4_FREE(m_Proj4_pGCS);
 
 	//-----------------------------------------------------
 	return( bResult );
@@ -182,6 +186,24 @@ bool CCRS_Transform::Set_Inverse(bool bOn)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CCRS_Transform::Set_Precise_Mode(bool bOn)
+{
+	if( bOn )
+	{
+		if( m_Proj4_pGCS == NULL )
+		{
+			return( (m_Proj4_pGCS = pj_init_plus("+proj=longlat +datum=WGS84")) != NULL );
+		}
+	}
+	else
+	{
+		PROJ4_FREE(m_Proj4_pGCS);
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -190,29 +212,40 @@ bool CCRS_Transform::Set_Inverse(bool bOn)
 //---------------------------------------------------------
 bool CCRS_Transform::Get_Transformation(double &x, double &y)
 {
-	if( m_Proj4_pSource && m_Proj4_pTarget )
+	if( !m_Proj4_pSource || !m_Proj4_pTarget )
 	{
-		double	z	= 0.0;
+		return( false );
+	}
 
-		if( pj_is_latlong((PJ *)m_Proj4_pSource) )
+	if( pj_is_latlong((PJ *)m_Proj4_pSource) )
+	{
+		x	*= DEG_TO_RAD;
+		y	*= DEG_TO_RAD;
+	}
+
+	if( m_Proj4_pGCS )	// precise datum conversion
+	{
+		if( pj_transform((PJ *)m_Proj4_pSource, (PJ *)m_Proj4_pGCS   , 1, 0, &x, &y, NULL) != 0
+		||  pj_transform((PJ *)m_Proj4_pGCS   , (PJ *)m_Proj4_pTarget, 1, 0, &x, &y, NULL) != 0 )
 		{
-			x	*= DEG_TO_RAD;
-			y	*= DEG_TO_RAD;
+			return( false );
 		}
-
-		if( pj_transform((PJ *)m_Proj4_pSource, (PJ *)m_Proj4_pTarget, 1, 0, &x, &y, &z) == 0 )
+	}
+	else				// direct projection
+	{
+		if( pj_transform((PJ *)m_Proj4_pSource, (PJ *)m_Proj4_pTarget, 1, 0, &x, &y, NULL) != 0 )
 		{
-			if( pj_is_latlong((PJ *)m_Proj4_pTarget) )
-			{
-				x	*= RAD_TO_DEG;
-				y	*= RAD_TO_DEG;
-			}
-
-			return( true );
+			return( false );
 		}
 	}
 
-	return( false );
+	if( pj_is_latlong((PJ *)m_Proj4_pTarget) )
+	{
+		x	*= RAD_TO_DEG;
+		y	*= RAD_TO_DEG;
+	}
+
+	return( true );
 }
 
 

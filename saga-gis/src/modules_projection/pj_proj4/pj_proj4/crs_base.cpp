@@ -159,6 +159,13 @@ CCRS_Base::CCRS_Base(void)
 			PARAMETER_INPUT_OPTIONAL
 		);
 	}
+
+	//-----------------------------------------------------
+	Parameters.Add_Value(
+		NULL	, "PRECISE"		, _TL("Precise Datum Conversion"),
+		_TL("avoids precision problems when source and target crs use different geodedtic datums."),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
