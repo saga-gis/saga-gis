@@ -653,11 +653,12 @@ bool CTCI_Low::On_Execute(void)
 	CSG_Grid	*pTWI		= Parameters("TWI"     )->asGrid();
 	CSG_Grid	*pTCI_Low	= Parameters("TCILOW"  )->asGrid();
 
-	DataObject_Set_Colors(pTCI_Low, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pTCI_Low, 100, SG_COLORS_RED_GREY_BLUE, false);
 
 	double	dMax	= pDistance->Get_ZMax();
 	double	dRange	= pDistance->Get_ZRange();
-	double	wRange	= log(1.0 + pTWI->Get_ZMax());
+	double	wMin	= pTWI->Get_ZMin();
+	double	wRange	= log(1.0 + pTWI->Get_ZRange());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -671,8 +672,8 @@ bool CTCI_Low::On_Execute(void)
 			}
 			else
 			{
-				double	d	= (dMax - pDistance->asDouble(x, y)) / dRange;	// inverted, normalized [0...1]
-				double	w	= log(1.0 + pTWI->asDouble(x, y)) / wRange;		// natural logarithm, normalized [0...1]
+				double	d	= (dMax - pDistance->asDouble(x, y)) / dRange;			// inverted, normalized [0...1]
+				double	w	= log(1.0 + (pTWI->asDouble(x, y) - wMin)) / wRange;	// natural logarithm, normalized [0...1]
 
 				pTCI_Low->Set_Value(x, y, (2.0 * d + w) / 3.0);
 			}
