@@ -914,7 +914,7 @@ public:
 	CSG_Grid_Stack(void) : CSG_Stack(sizeof(TSG_Point_Int))	{}
 
 	//-----------------------------------------------------
-	virtual void			Push			(int  x, int  y)
+	virtual bool			Push			(int  x, int  y)
 	{
 		TSG_Point_Int	*pPoint	= (TSG_Point_Int *)Get_Record_Push();
 
@@ -922,11 +922,15 @@ public:
 		{
 			pPoint->x	= x;
 			pPoint->y	= y;
+
+			return( true );
 		}
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	virtual void			Pop				(int &x, int &y)
+	virtual bool			Pop				(int &x, int &y)
 	{
 		TSG_Point_Int	*pPoint	= (TSG_Point_Int *)Get_Record_Pop();
 
@@ -934,7 +938,11 @@ public:
 		{
 			x	= pPoint->x;
 			y	= pPoint->y;
+
+			return( true );
 		}
+
+		return( false );
 	}
 
 };
