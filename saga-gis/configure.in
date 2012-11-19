@@ -229,6 +229,7 @@ AC_OUTPUT(Makefile \
 	src/modules_contrib/garden/Makefile \
 	src/modules_contrib/garden/garden_3d_viewer/Makefile \
 	src/modules_contrib/garden/garden_webservices/Makefile \
+	src/modules_contrib/contrib_wichmann/Makefile \
 	src/modules_geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_points/Makefile \
@@ -281,6 +282,8 @@ AC_OUTPUT(Makefile \
 	src/modules_recreations/recreations/recreations_fractals/Makefile \
 	src/modules_recreations/recreations/recreations_games/Makefile \
 	src/modules_simulation/Makefile \
+	src/modules_simulation/erosion/Makefile \
+	src/modules_simulation/erosion/sim_erosion/Makefile \
 	src/modules_simulation/hydrology/Makefile \
 	src/modules_simulation/hydrology/sim_hydrology/Makefile \
 	src/modules_simulation/cellular_automata/Makefile \
