@@ -1,1 +1,1 @@
-SUBDIRS = hydrology fire ecosystems cellular_automata
+SUBDIRS = hydrology fire ecosystems cellular_automata erosion
