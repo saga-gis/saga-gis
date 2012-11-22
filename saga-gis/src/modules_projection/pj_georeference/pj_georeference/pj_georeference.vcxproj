@@ -293,6 +293,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Collect_Points.cpp" />
+    <ClCompile Include="direct_georeferencing.cpp" />
     <ClCompile Include="enorm.c" />
     <ClCompile Include="fdjac2.c" />
     <ClCompile Include="Georef_Engine.cpp" />
@@ -324,6 +325,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="cminpak.h" />
     <ClInclude Include="Collect_Points.h" />
+    <ClInclude Include="direct_georeferencing.h" />
     <ClInclude Include="dpmpar.h" />
     <ClInclude Include="Georef_Engine.h" />
     <ClInclude Include="Georef_Grid.h" />

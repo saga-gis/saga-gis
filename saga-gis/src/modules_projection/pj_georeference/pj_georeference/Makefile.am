@@ -14,6 +14,7 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libpj_georeference.la
 libpj_georeference_la_SOURCES =\
 Collect_Points.cpp\
+direct_georeferencing.cpp\
 Georef_Engine.cpp\
 Georef_Grid.cpp\
 georef_grid_move.cpp\
@@ -27,6 +28,7 @@ lmpar.c\
 qrfac.c\
 qrsolv.c\
 Collect_Points.h\
+direct_georeferencing.h\
 Georef_Engine.h\
 Georef_Grid.h\
 georef_grid_move.h\

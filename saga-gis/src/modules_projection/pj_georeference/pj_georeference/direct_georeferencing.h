@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: direct_georeferencing.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                   Library Template                    //
+//                    georeferencing                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 direct_georeferencing.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//                 Copyright (C) 2012 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,12 +40,12 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -53,79 +53,63 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__direct_georeferencing_H
+#define HEADER_INCLUDED__direct_georeferencing_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Projection - Georeferencing") );
-
-	case MLB_INFO_Author:
-		return( SG_T("A. Ringeler (c) 2004, O. Conrad (c) 2008") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the georeferencing of spatial data (grids/shapes).") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Projection|Georeferencing") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Collect_Points.h"
-#include "Georef_Grid.h"
-#include "Georef_Shapes.h"
-#include "georef_grid_move.h"
-#include "direct_georeferencing.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CCollect_Points );
-	case 1:		return( new CGeoref_Grid );
-	case 2:		return( new CGeoref_Shapes );
-	case 3:		return( new CGeoref_Grid_Move );
-	case 4:		return( new CDirect_Georeferencing );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CDirect_Georeferencing : public CSG_Module_Grid
+{
+public:
+	CDirect_Georeferencing(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	double						m_f, m_s;
+
+	CSG_Vector					m_T, m_O;
+
+	CSG_Matrix					m_R, m_Rinv;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	bool						Set_Transformation		(void);
+
+	TSG_Point					World_to_Image			(double x_w, double y_w, double z_w);
+	TSG_Point					Image_to_World			(double x_i, double y_i, double z_w);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__direct_georeferencing_H
