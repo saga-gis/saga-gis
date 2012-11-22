@@ -75,7 +75,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 {
 	Set_Name		(_TL("Statistics for Grids"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
 	Set_Description	(_TW("Calculates statistical properties (arithmetic mean, minimum, maximum, "
 		"variance, standard deviation) for each cell position for the values of "
@@ -130,6 +130,18 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
+
+	Parameters.Add_Grid(
+		NULL, "RANK"	, _TL("Percentile"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Value(
+		NULL, "RANK_VAL", _TL("Percentile"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 50.0, 0.0, true, 100.0, true
+	);
 }
 
 //---------------------------------------------------------
@@ -146,78 +158,82 @@ CGSGrid_Statistics::~CGSGrid_Statistics(void)
 //---------------------------------------------------------
 bool CGSGrid_Statistics::On_Execute(void)
 {
-	int						x, y, i, n;
-	double					z, m, v, min, max;
-	CSG_Grid					*pMean, *pMin, *pMax, *pVar, *pStdDev, *pStdDevLo, *pStdDevHi;
+	double					dRank;
+	CSG_Grid				*pMean, *pMin, *pMax, *pVar, *pStdDev, *pStdDevLo, *pStdDevHi, *pPercentile;
 	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")	->asGridList();
+	pGrids		= Parameters("GRIDS"   )->asGridList();
 
-	pMean		= Parameters("MEAN")	->asGrid();
-	pMin		= Parameters("MIN")		->asGrid();
-	pMax		= Parameters("MAX")		->asGrid();
-	pVar		= Parameters("VAR")		->asGrid();
-	pStdDev		= Parameters("STDDEV")	->asGrid();
+	pMean		= Parameters("MEAN"    )->asGrid();
+	pMin		= Parameters("MIN"     )->asGrid();
+	pMax		= Parameters("MAX"     )->asGrid();
+	pVar		= Parameters("VAR"     )->asGrid();
+	pStdDev		= Parameters("STDDEV"  )->asGrid();
 	pStdDevLo	= Parameters("STDDEVLO")->asGrid();
 	pStdDevHi	= Parameters("STDDEVHI")->asGrid();
+	pPercentile	= Parameters("RANK"    )->asGrid();
+
+	dRank		= Parameters("RANK_VAL")->asDouble() / 100.0;
 
 	//-----------------------------------------------------
-	if( pGrids->Get_Count() > 1 && (pMean || pMin || pMax || pVar || pStdDev || pStdDevLo || pStdDevHi) )
+	if( pGrids->Get_Count() > 1 && (pMean || pMin || pMax || pVar || pStdDev || pStdDevLo || pStdDevHi || pPercentile) )
 	{
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
-				for(i=0, n=0, m=0.0, v=0.0; i<pGrids->Get_Count(); i++)
+				CSG_Table				Values;
+				CSG_Simple_Statistics	s;
+
+				for(int i=0; i<pGrids->Get_Count(); i++)
 				{
 					if( !pGrids->asGrid(i)->is_NoData(x, y) )
 					{
-						z	= pGrids->asGrid(i)->asDouble(x, y);
+						double	z	= pGrids->asGrid(i)->asDouble(x, y);
 
-						if( n == 0 )
-						{
-							min	= max	= z;
-						}
-						else if( min > z )
-						{
-							min	= z;
-						}
-						else if( max < z )
-						{
-							max	= z;
-						}
+						s.Add_Value(z);
 
-						m	+= z;
-						v	+= z * z;
-						n++;
+						if( pPercentile )
+						{
+							if( Values.Get_Field_Count() == 0 )
+							{
+								Values.Add_Field("Z", SG_DATATYPE_Double);
+							}
+
+							Values.Add_Record()->Set_Value(0, z);
+						}
 					}
 				}
 
 				//-----------------------------------------
-				if( n == 0 )
+				if( s.Get_Count() <= 0 )
 				{
-					if( pMean )		pMean		->Set_NoData(x, y);
-					if( pMin )		pMin		->Set_NoData(x, y);
-					if( pMax )		pMax		->Set_NoData(x, y);
-					if( pVar )		pVar		->Set_NoData(x, y);
-					if( pStdDev )	pStdDev		->Set_NoData(x, y);
-					if( pStdDevLo )	pStdDevLo	->Set_NoData(x, y);
-					if( pStdDevHi )	pStdDevHi	->Set_NoData(x, y);
+					if( pMean       )	pMean		->Set_NoData(x, y);
+					if( pMin        )	pMin		->Set_NoData(x, y);
+					if( pMax        )	pMax		->Set_NoData(x, y);
+					if( pVar        )	pVar		->Set_NoData(x, y);
+					if( pStdDev     )	pStdDev		->Set_NoData(x, y);
+					if( pStdDevLo   )	pStdDevLo	->Set_NoData(x, y);
+					if( pStdDevHi   )	pStdDevHi	->Set_NoData(x, y);
+					if( pPercentile )	pPercentile	->Set_NoData(x, y);
 				}
 				else
 				{
-					m	= m / (double)n;
-					v	= v / (double)n - m * m;
-					z	= sqrt(v);
+					if( pMean       )	pMean		->Set_Value(x, y, s.Get_Mean());
+					if( pMin        )	pMin		->Set_Value(x, y, s.Get_Minimum());
+					if( pMax        )	pMax		->Set_Value(x, y, s.Get_Maximum());
+					if( pVar        )	pVar		->Set_Value(x, y, s.Get_Variance());
+					if( pStdDev     )	pStdDev		->Set_Value(x, y, s.Get_StdDev());
+					if( pStdDevLo   )	pStdDevLo	->Set_Value(x, y, s.Get_Mean() - s.Get_StdDev());
+					if( pStdDevHi   )	pStdDevHi	->Set_Value(x, y, s.Get_Mean() + s.Get_StdDev());
+					if( pPercentile )
+					{
+						Values.Set_Index(0, TABLE_INDEX_Ascending);
 
-					if( pMean )		pMean		->Set_Value(x, y, m);
-					if( pMin )		pMin		->Set_Value(x, y, min);
-					if( pMax )		pMax		->Set_Value(x, y, max);
-					if( pVar )		pVar		->Set_Value(x, y, v);
-					if( pStdDev )	pStdDev		->Set_Value(x, y, z);
-					if( pStdDevLo )	pStdDevLo	->Set_Value(x, y, m - z);
-					if( pStdDevHi )	pStdDevHi	->Set_Value(x, y, m + z);
+						pPercentile->Set_Value(x, y, Values.Get_Record_byIndex((int)(dRank * s.Get_Count()))->asDouble(0));
+					}
 				}
 			}
 		}
