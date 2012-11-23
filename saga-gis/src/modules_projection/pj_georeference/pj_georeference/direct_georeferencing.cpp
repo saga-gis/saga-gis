@@ -217,6 +217,22 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 	);
 
 	Parameters.Add_Choice(
+		NULL	, "DATA_TYPE"	, _TL("Data Storage Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("1 byte unsigned integer"),
+			_TL("1 byte signed integer"),
+			_TL("2 byte unsigned integer"),
+			_TL("2 byte signed integer"),
+			_TL("4 byte unsigned integer"),
+			_TL("4 byte signed integer"),
+			_TL("4 byte floating point"),
+			_TL("8 byte floating point"),
+			_TL("same as original")
+		), 8
+	);
+
+	Parameters.Add_Choice(
 		NULL	, "TARGET_TYPE"	, _TL("Target"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
@@ -322,9 +338,24 @@ bool CDirect_Georeferencing::On_Execute(void)
 	}
 	else
 	{
+		TSG_Data_Type	Type;
+
+		switch( Parameters("DATA_TYPE")->asInt() )
+		{
+		case 0:		Type	= SG_DATATYPE_Byte;			break;
+		case 1:		Type	= SG_DATATYPE_Char;			break;
+		case 2:		Type	= SG_DATATYPE_Word;			break;
+		case 3:		Type	= SG_DATATYPE_Short;		break;
+		case 4:		Type	= SG_DATATYPE_DWord;		break;
+		case 5:		Type	= SG_DATATYPE_Int;			break;
+		case 6: 	Type	= SG_DATATYPE_Float;		break;
+		case 7:		Type	= SG_DATATYPE_Double;		break;
+		default:	Type	= SG_DATATYPE_Undefined;	break;
+		}
+
 		for(int i=0; i<pInput->Get_Count(); i++)
 		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(System, SG_DATATYPE_Float);
+			CSG_Grid	*pGrid	= SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pInput->asGrid(i)->Get_Type());
 
 			if( !pGrid || !pGrid->is_Valid() )
 			{
