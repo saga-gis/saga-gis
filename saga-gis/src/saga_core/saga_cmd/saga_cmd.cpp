@@ -82,12 +82,6 @@
 //---------------------------------------------------------
 #define SYS_ENV_PATH		SG_T("PATH")
 
-#define FLAG_SILENT			SG_T("s")
-#define FLAG_QUIET			SG_T("q")
-#define FLAG_INTERACT		SG_T("i")
-#define FLAG_PROJ			SG_T("p")
-#define FLAG_LANGUAGE		SG_T("l")
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -214,16 +208,17 @@ _try
 		{
 			s	= CSG_String(argv[1]).AfterFirst(SG_T('='));
 
-			CMD_Set_Silent		(s.Find(FLAG_SILENT  ) >= 0 ? true : false);
-			CMD_Set_Quiet		(s.Find(FLAG_QUIET   ) >= 0 ? true : false);
-			CMD_Set_Interactive	(s.Find(FLAG_INTERACT) >= 0 ? true : false);
+			CMD_Set_Show_Progress(s.Find('q') < 0 && s.Find('s') < 0);	// q, s: no progress report
+			CMD_Set_Show_Messages(s.Find('r') < 0 && s.Find('s') < 0);	// r, s: no messages report
 
-			if( s.Find(FLAG_LANGUAGE) > 0 )
+			CMD_Set_Interactive  (s.Find('i') >= 0);	// i: allow user interaction
+
+			if( s.Find('l') >= 0 )	// l: load translation dictionary
 			{
 				SG_Get_Translator() .Create(SG_File_Make_Path(CMD_Path, SG_T("saga"), SG_T("lng")), false);
 			}
 
-			if( s.Find(FLAG_PROJ) > 0 )
+			if( s.Find('p') >= 0 )	// p: load projections dictionary
 			{
 				SG_Get_Projections().Create(SG_File_Make_Path(CMD_Path, SG_T("saga_prj"), SG_T("srs")));
 			}
@@ -306,11 +301,11 @@ bool		Execute(const CSG_String &MLB_Path, int argc, char *argv[])
 	Print_Logo();
 
 	//-----------------------------------------------------
-	bool	bSilent	= CMD_Get_Silent();
+	bool	bShow	= CMD_Get_Show_Messages();
 
-	CMD_Set_Silent(true);
+	CMD_Set_Show_Messages(false);
 	SG_Get_Module_Library_Manager().Add_Directory(MLB_Path, false);
-	CMD_Set_Silent(bSilent);
+	CMD_Set_Show_Messages(bShow);
 
 	//-----------------------------------------------------
 	if( SG_Get_Module_Library_Manager().Get_Count() <= 0 )
@@ -370,20 +365,18 @@ void		Print_Libraries	(const CSG_String &MLB_Path)
 {
 	CMD_Print_Error(_TL("library"));
 
-	if( CMD_Get_Quiet() || CMD_Get_Silent() )
+	if( CMD_Get_Show_Messages() )
 	{
-		return;
+		SG_PRINTF(SG_T("\n%s: %s\n"), _TL("library search path"), MLB_Path.c_str());
+		SG_PRINTF(SG_T("\n%d %s:\n"), SG_Get_Module_Library_Manager().Get_Count(), _TL("available module libraries"));
+
+		for(int i=0; i<SG_Get_Module_Library_Manager().Get_Count(); i++)
+		{
+			SG_PRINTF(SG_T("- %s\n"), SG_Get_Module_Library_Manager().Get_Library(i)->Get_Library_Name().c_str());
+		}
+
+		Print_Get_Help();
 	}
-
-	SG_PRINTF(SG_T("\n%s: %s\n"), _TL("library search path"), MLB_Path.c_str());
-	SG_PRINTF(SG_T("\n%d %s:\n"), SG_Get_Module_Library_Manager().Get_Count(), _TL("available module libraries"));
-
-	for(int i=0; i<SG_Get_Module_Library_Manager().Get_Count(); i++)
-	{
-		SG_PRINTF(SG_T("- %s\n"), SG_Get_Module_Library_Manager().Get_Library(i)->Get_Library_Name().c_str());
-	}
-
-	Print_Get_Help();
 }
 
 //---------------------------------------------------------
@@ -391,37 +384,33 @@ void		Print_Modules	(CSG_Module_Library *pLibrary)
 {
 	CMD_Print_Error(_TL("module"));
 
-	if( CMD_Get_Quiet() || CMD_Get_Silent() )
+	if( CMD_Get_Show_Messages() )
 	{
-		return;
-	}
+		SG_PRINTF(SG_T("\n%s:\n"), _TL("executable modules"));
 
-	SG_PRINTF(SG_T("\n%s:\n"), _TL("executable modules"));
-
-	for(int i=0; i<pLibrary->Get_Count(); i++)
-	{
-		if( pLibrary->Get_Module(i) && !pLibrary->Get_Module(i)->is_Interactive() )
+		for(int i=0; i<pLibrary->Get_Count(); i++)
 		{
-			SG_PRINTF(SG_T(" %d\t- %s\n"), i, pLibrary->Get_Module(i)->Get_Name().c_str());
+			if( pLibrary->Get_Module(i) && !pLibrary->Get_Module(i)->is_Interactive() )
+			{
+				SG_PRINTF(SG_T(" %d\t- %s\n"), i, pLibrary->Get_Module(i)->Get_Name().c_str());
+			}
 		}
-	}
 
-	Print_Get_Help();
+		Print_Get_Help();
+	}
 }
 
 //---------------------------------------------------------
 void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 {
-	if( CMD_Get_Silent() )
+	if( CMD_Get_Show_Messages() )
 	{
-		return;
+		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
+		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
+		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), pModule ->Get_Name     ().c_str());
+		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
+		SG_PRINTF(SG_T("_____________________________________________\n"));
 	}
-
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), pModule ->Get_Name     ().c_str());
-	SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
-	SG_PRINTF(SG_T("_____________________________________________\n"));
 }
 
 
@@ -434,32 +423,28 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 //---------------------------------------------------------
 void		Print_Logo		(void)
 {
-	if( CMD_Get_Quiet() || CMD_Get_Silent() )
+	if( CMD_Get_Show_Messages() )
 	{
-		return;
+		SG_PRINTF(SG_T("_____________________________________________\n"));
+		SG_PRINTF(SG_T("  #####   ##   #####    ##\n"));
+		SG_PRINTF(SG_T(" ###     ###  ##       ###\n"));
+		SG_PRINTF(SG_T("  ###   # ## ##  #### # ##\n"));
+		SG_PRINTF(SG_T("   ### ##### ##    # #####\n"));
+		SG_PRINTF(SG_T("##### #   ##  ##### #   ##\n"));
+		SG_PRINTF(SG_T("_____________________________________________\n"));
+		SG_PRINTF(SG_T("\n"));
 	}
-
-	SG_PRINTF(SG_T("_____________________________________________\n"));
-	SG_PRINTF(SG_T("  #####   ##   #####    ##\n"));
-	SG_PRINTF(SG_T(" ###     ###  ##       ###\n"));
-	SG_PRINTF(SG_T("  ###   # ## ##  #### # ##\n"));
-	SG_PRINTF(SG_T("   ### ##### ##    # #####\n"));
-	SG_PRINTF(SG_T("##### #   ##  ##### #   ##\n"));
-	SG_PRINTF(SG_T("_____________________________________________\n"));
-	SG_PRINTF(SG_T("\n"));
 }
 
 //---------------------------------------------------------
 void		Print_Get_Help	(void)
 {
-	if( CMD_Get_Quiet() || CMD_Get_Silent() )
+	if( CMD_Get_Show_Messages() )
 	{
-		return;
+		SG_PRINTF(SG_T("\n"));
+		SG_PRINTF(_TL("type -h or --help for further information"));
+		SG_PRINTF(SG_T("\n"));
 	}
-
-	SG_PRINTF(SG_T("\n"));
-	SG_PRINTF(_TL("type -h or --help for further information"));
-	SG_PRINTF(SG_T("\n"));
 }
 
 //---------------------------------------------------------
@@ -470,7 +455,6 @@ void		Print_Help		(void)
 	SG_PRINTF(
 		SG_T("Version ") SAGA_VERSION SG_T("\n")
 		SG_T("under GNU General Public License (GPL)\n")
-		SG_T("O.Conrad (C) 2005-11\n")
 		SG_T("\n")
 		SG_T("Usage:\n")
 		SG_T("\n")
@@ -481,7 +465,7 @@ void		Print_Help		(void)
 #ifdef _OPENMP
 		SG_T("saga_cmd [-c, --cores][= # of CPU cores] <LIBRARY> <MODULE> <module specific options...>\n")
 #endif
-		SG_T("saga_cmd [-f, --flags][=qsilp] <LIBRARY> <MODULE> <module specific options...>\n")
+		SG_T("saga_cmd [-f, --flags][=qrsilp] <LIBRARY> <MODULE> <module specific options...>\n")
 		SG_T("\n")
 		SG_T("[-h], [--help]: help on usage\n")
 		SG_T("[-v], [--version]: print version information\n")
@@ -491,7 +475,8 @@ void		Print_Help		(void)
 		SG_T("[-c], [--cores]: number of physical processors to use for computation\n")
 #endif
 		SG_T("[-f], [--flags]: various flags for general usage\n")
-		SG_T("  q: quiet mode (no progress report)\n")
+		SG_T("  q: no progress report\n")
+		SG_T("  r: no messages report\n")
 		SG_T("  s: silent mode (no progress and no messages report)\n")
 		SG_T("  i: allow user interaction\n")
 		SG_T("  l: load translation dictionary\n")
@@ -613,7 +598,7 @@ void		Create_Docs		(const CSG_String &MLB_Path)
 
 	SG_PRINTF(SG_T("\n%s...\n"), _TL("creating module documentation files"));
 
-	CMD_Set_Silent(true);
+	CMD_Set_Show_Messages(false);
 
 	SG_Get_Module_Library_Manager().Add_Directory(MLB_Path, false);
 	SG_Get_Module_Library_Manager().Get_Summary(wxGetCwd().wx_str());

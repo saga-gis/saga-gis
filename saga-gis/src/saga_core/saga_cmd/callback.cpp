@@ -93,25 +93,25 @@ void			CMD_Set_Module		(CCMD_Module *pCMD_Module)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static bool		g_bSilent		= false;
+static bool		g_bShow_Messages	= true;
 
-void			CMD_Set_Silent		(bool bOn)	{	g_bSilent		= bOn;		}
+void			CMD_Set_Show_Messages	(bool bOn)	{	g_bShow_Messages	= bOn;		}
 
-bool			CMD_Get_Silent		(void)		{	return( g_bSilent );		}
-
-//---------------------------------------------------------
-static bool		g_bQuiet		= false;
-
-void			CMD_Set_Quiet		(bool bOn)	{	g_bQuiet		= bOn;		}
-
-bool			CMD_Get_Quiet		(void)		{	return( g_bQuiet );			}
+bool			CMD_Get_Show_Messages	(void)		{	return( g_bShow_Messages );		}
 
 //---------------------------------------------------------
-static bool		g_bInteractive	= false;
+static bool		g_bShow_Progress	= true;
 
-void			CMD_Set_Interactive	(bool bOn)	{	g_bInteractive	= bOn;		}
+void			CMD_Set_Show_Progress	(bool bOn)	{	g_bShow_Progress	= bOn;		}
 
-bool			CMD_Get_Interactive	(void)		{	return( g_bInteractive );	}
+bool			CMD_Get_Show_Progress	(void)		{	return( g_bShow_Progress );		}
+
+//---------------------------------------------------------
+static bool		g_bInteractive		= false;
+
+void			CMD_Set_Interactive	(bool bOn)		{	g_bInteractive	= bOn;			}
+
+bool			CMD_Get_Interactive	(void)			{	return( g_bInteractive );		}
 
 
 ///////////////////////////////////////////////////////////
@@ -119,15 +119,6 @@ bool			CMD_Get_Interactive	(void)		{	return( g_bInteractive );	}
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void			CMD_Print			(const SG_Char *String)
-{
-	if( !g_bSilent && String && String[0] )
-	{
-		SG_PRINTF(String);
-	}
-}
 
 //---------------------------------------------------------
 void			CMD_Print_Error		(const SG_Char *Error)
@@ -219,7 +210,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_GET_OKAY:
 
-		if( !(g_bQuiet || g_bSilent) && Param_1.True )
+		if( g_bShow_Progress && Param_1.True )
 		{
 			SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
 
@@ -238,7 +229,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_PROGRESS:
 
-		if( !(g_bQuiet || g_bSilent) )
+		if( g_bShow_Progress )
 		{
 			int	i	= Param_2.Number != 0.0 ? 1 + (int)(100.0 * Param_1.Number / Param_2.Number) : 100;
 
@@ -259,7 +250,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_TEXT:
 
-		if( !g_bSilent )
+		if( g_bShow_Messages )
 		{
 			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
 		}
@@ -274,7 +265,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD:
 
-		if( !g_bSilent )
+		if( g_bShow_Messages )
 		{
 			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
 		}
@@ -293,7 +284,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_EXECUTION:
 
-		if( !g_bSilent )
+		if( g_bShow_Messages )
 		{
 			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
 		}
@@ -308,7 +299,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_MESSAGE:
 
-		if( !g_bSilent )
+		if( g_bShow_Messages )
 		{
 			SG_PRINTF(SG_T("\n%s: %s\n"), Param_2.String.c_str(), Param_1.String.c_str());
 		}

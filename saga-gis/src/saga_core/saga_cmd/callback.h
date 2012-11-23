@@ -82,28 +82,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void					CMD_Set_Module		(class CCMD_Module *pCMD_Module);
+void					CMD_Set_Module			(class CCMD_Module *pCMD_Module);
 
 //---------------------------------------------------------
-void					CMD_Set_Silent		(bool bOn);
-bool					CMD_Get_Silent		(void);
+void					CMD_Set_Show_Messages	(bool bOn);
+bool					CMD_Get_Show_Messages	(void);
 
-void					CMD_Set_Quiet		(bool bOn);
-bool					CMD_Get_Quiet		(void);
+void					CMD_Set_Show_Progress	(bool bOn);
+bool					CMD_Get_Show_Progress	(void);
 
-void					CMD_Set_Interactive	(bool bOn);
-bool					CMD_Get_Interactive	(void);
-
-//---------------------------------------------------------
-void					CMD_Print_Error		(const SG_Char *Error);
-void					CMD_Print_Error		(const SG_Char *Error, const SG_Char *Info);
+void					CMD_Set_Interactive		(bool bOn);
+bool					CMD_Get_Interactive		(void);
 
 //---------------------------------------------------------
-void					CMD_Get_Pause		(void);
-bool					CMD_Get_YesNo		(const SG_Char *caption, const SG_Char *message);
+void					CMD_Print_Error			(const SG_Char *Error);
+void					CMD_Print_Error			(const SG_Char *Error, const SG_Char *Info);
 
 //---------------------------------------------------------
-TSG_PFNC_UI_Callback	CMD_Get_Callback	(void);
+void					CMD_Get_Pause			(void);
+bool					CMD_Get_YesNo			(const SG_Char *caption, const SG_Char *message);
+
+//---------------------------------------------------------
+TSG_PFNC_UI_Callback	CMD_Get_Callback		(void);
 
 
 ///////////////////////////////////////////////////////////
