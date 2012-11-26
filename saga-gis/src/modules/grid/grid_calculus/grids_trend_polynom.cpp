@@ -147,34 +147,41 @@ CGrids_Trend::CGrids_Trend(void)
 //---------------------------------------------------------
 bool CGrids_Trend::On_Execute(void)
 {
-	int						i, nGrids;
-	CSG_Trend_Polynom		Trend;
+	int						Order, nGrids;
 	CSG_Table				*pYTable;
 	CSG_Grid				*pQuality;
 	CSG_Parameter_Grid_List	*pGrids, *pYGrids, *pParms;
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")	->asGridList();
-	pYGrids		= Parameters("Y_GRIDS")	->asGridList();
-	pYTable		= Parameters("Y_TABLE")	->asTable();
-	pParms		= Parameters("PARMS")	->asGridList();
-	pQuality	= Parameters("QUALITY")	->asGrid();
+	pGrids		= Parameters("GRIDS"  )->asGridList();
+	pYGrids		= Parameters("Y_GRIDS")->asGridList();
+	pYTable		= Parameters("Y_TABLE")->asTable();
+	pParms		= Parameters("PARMS"  )->asGridList();
+	pQuality	= Parameters("QUALITY")->asGrid();
+	Order		= Parameters("POLYNOM")->asInt();
 
 	//-----------------------------------------------------
-	nGrids		= pYGrids->Get_Count() > 0 ? pYGrids->Get_Count() : pYTable->Get_Count();
+	if( pYGrids->Get_Count() == pGrids->Get_Count() )
+	{
+		nGrids	= pYGrids->Get_Count();
+
+		Message_Add(_TL("using grid values for independent variable"));
+	}
+	else
+	{
+		nGrids	= pYTable->Get_Count();
+
+		pYGrids	= NULL;
+
+		Message_Add(_TL("using table values for independent variable"));
+	}
 
 	if( nGrids > pGrids->Get_Count() )
 	{
 		nGrids	= pGrids->Get_Count();
 	}
 
-	//-----------------------------------------------------
-	if( !Trend.Set_Order(Parameters("POLYNOM")->asInt()) )
-	{
-		return( false );
-	}
-
-	if( nGrids < Trend.Get_Order() + 1 )
+	if( nGrids < Order + 1 )
 	{
 		Error_Set(_TL("fitting a polynom of ith order needs at least i + 1 parameter sets given"));
 
@@ -184,10 +191,10 @@ bool CGrids_Trend::On_Execute(void)
 	//-----------------------------------------------------
 	pParms->Del_Items();
 
-	for(i=0; i<Trend.Get_nCoefficients(); i++)
+	for(int iOrder=0; iOrder<Order+1; iOrder++)
 	{
 		pParms->Add_Item(SG_Create_Grid(*Get_System()));
-		pParms->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), _TL("Polynomial Coefficient"), i + 1));
+		pParms->asGrid(iOrder)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), _TL("Polynomial Coefficient"), iOrder + 1));
 	}
 
 	//-----------------------------------------------------
@@ -199,11 +206,14 @@ bool CGrids_Trend::On_Execute(void)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			Trend.Clr_Data();
+			CSG_Trend_Polynom	Trend;
 
-			for(i=0; i<nGrids; i++)
+			Trend.Set_Order(Order);
+
+			for(int i=0; i<nGrids; i++)
 			{
 				if( !pGrids->asGrid(i)->is_NoData(x, y) )
 				{
@@ -220,18 +230,18 @@ bool CGrids_Trend::On_Execute(void)
 
 			if( Trend.Get_Trend() )
 			{
-				for(i=0; i<Trend.Get_nCoefficients(); i++)
+				for(int iOrder=0; iOrder<Trend.Get_nCoefficients(); iOrder++)
 				{
-					pParms->asGrid(i)->Set_Value(x, y, Trend.Get_Coefficient(i));
+					pParms->asGrid(iOrder)->Set_Value(x, y, Trend.Get_Coefficient(iOrder));
 				}
 
 				if( pQuality )	pQuality->Set_Value(x, y, Trend.Get_R2());
 			}
 			else
 			{
-				for(i=0; i<Trend.Get_nCoefficients(); i++)
+				for(int iOrder=0; iOrder<Trend.Get_nCoefficients(); iOrder++)
 				{
-					pParms->asGrid(i)->Set_NoData(x, y);
+					pParms->asGrid(iOrder)->Set_NoData(x, y);
 				}
 
 				if( pQuality )	pQuality->Set_NoData(x, y);
