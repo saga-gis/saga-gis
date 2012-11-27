@@ -102,6 +102,12 @@ CFilter_3x3::CFilter_3x3(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
+	Parameters.Add_Value(
+		NULL, "ABSOLUTE"	, _TL("Absolute Weighting"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
 	//-----------------------------------------------------
 	CSG_Table	Filter;
 
@@ -134,19 +140,20 @@ CFilter_3x3::CFilter_3x3(void)
 //---------------------------------------------------------
 bool CFilter_3x3::On_Execute(void)
 {
-	int			x, y, ix, iy, jx, jy, dx, dy;
-	double		Sum, nSum;
+	bool		bAbsolute;
 	CSG_Matrix	Filter;
 	CSG_Grid	*pInput, *pResult;
 	CSG_Table	*pFilter;
 
 	//-----------------------------------------------------
-	pInput	= Parameters("INPUT")		->asGrid();
-	pResult	= Parameters("RESULT")		->asGrid();
+	pInput		= Parameters("INPUT"     )->asGrid();
+	pResult		= Parameters("RESULT"    )->asGrid();
 
-	pFilter	= Parameters("FILTER")		->asTable()
-			? Parameters("FILTER")		->asTable()
-			: Parameters("FILTER_3X3")	->asTable();
+	bAbsolute	= Parameters("ABSOLUTE"  )->asBool();
+
+	pFilter		= Parameters("FILTER"    )->asTable()
+				? Parameters("FILTER"    )->asTable()
+				: Parameters("FILTER_3X3")->asTable();
 
 	if( pFilter->Get_Count() < 1 || pFilter->Get_Field_Count() < 1 )
 	{
@@ -158,18 +165,20 @@ bool CFilter_3x3::On_Execute(void)
 	//-----------------------------------------------------
 	Filter.Create(pFilter->Get_Field_Count(), pFilter->Get_Count());
 
-	for(iy=0; iy<Filter.Get_NY(); iy++)
 	{
-		CSG_Table_Record	*pRecord	= pFilter->Get_Record(iy);
-
-		for(ix=0; ix<Filter.Get_NX(); ix++)
+		for(int iy=0; iy<Filter.Get_NY(); iy++)
 		{
-			Filter[iy][ix]	= pRecord->asDouble(ix);
+			CSG_Table_Record	*pRecord	= pFilter->Get_Record(iy);
+
+			for(int ix=0; ix<Filter.Get_NX(); ix++)
+			{
+				Filter[iy][ix]	= pRecord->asDouble(ix);
+			}
 		}
 	}
 
-	dx		= Filter.Get_NX() / 2;
-	dy		= Filter.Get_NY() / 2;
+	int	dx	= (Filter.Get_NX() - 1) / 2;
+	int	dy	= (Filter.Get_NY() - 1) / 2;
 
 	//-----------------------------------------------------
 	if( !pResult || pResult == pInput )
@@ -184,30 +193,32 @@ bool CFilter_3x3::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			Sum	= nSum	= 0.0;
+			double	s	= 0.0;
+			double	n	= 0.0;
 
 			if( pInput->is_InGrid(x, y) )
 			{
-				for(iy=0, jy=y-dy; iy<Filter.Get_NY(); iy++, jy++)
+				for(int iy=0, jy=y-dy; iy<Filter.Get_NY(); iy++, jy++)
 				{
-					for(ix=0, jx=x-dx; ix<Filter.Get_NX(); ix++, jx++)
+					for(int ix=0, jx=x-dx; ix<Filter.Get_NX(); ix++, jx++)
 					{
 						if( pInput->is_InGrid(jx, jy) )
 						{
-							Sum		+= Filter[iy][ix] * pInput->asDouble(jx, jy);
-							nSum	+= fabs(Filter[iy][ix]);
+							s	+= Filter[iy][ix] * pInput->asDouble(jx, jy);
+							n	+= fabs(Filter[iy][ix]);
 						}
 					}
 				}
 			}
 
-			if( nSum > 0.0 )
+			if( n > 0.0 )
 			{
-				pResult->Set_Value(x, y, Sum / nSum);
+				pResult->Set_Value(x, y, bAbsolute ? s : s / n);
 			}
 			else
 			{
