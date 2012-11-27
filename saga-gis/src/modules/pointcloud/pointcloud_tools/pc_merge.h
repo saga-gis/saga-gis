@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                      pc_merge.h                       //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2012 by                 //
+//                     Magnus Bremer                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,12 +40,12 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     magnus.bremer@uibk.ac.at               //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Magnus Bremer                          //
+//                Innrain 52                             //
+//                6020 Innsbruck                         //
+//                Austria                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -54,74 +54,18 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__PC_Merge_H
+#define HEADER_INCLUDED__PC_Merge_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-
-//---------------------------------------------------------
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Point Clouds") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O.Conrad, V.Wichmann, M.Bremer (c) 2009-12") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for point clouds.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Point Clouds") );
-	}
-}
-
-
-//---------------------------------------------------------
-#include "pc_attribute_calculator.h"
-#include "pc_cluster_analysis.h"
-#include "pc_cut.h"
-#include "pc_drop_attribute.h"
-#include "pc_from_grid.h"
-#include "pc_from_shapes.h"
-#include "pc_merge.h"
-#include "pc_reclass_extract.h"
-#include "pc_thinning_simple.h"
-#include "pc_to_grid.h"
-#include "pc_to_shapes.h"
-#include "pc_transform.h"
-
-
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CPC_Cut );
-	case 1:		return( new CPC_Cut_Interactive );
-	case 2:		return( new CPC_From_Grid );
-	case 3:		return( new CPC_From_Shapes );
-	case 4:		return( new CPC_To_Grid );
-	case 5:		return( new CPC_To_Shapes );
-	case 6:		return( new CPC_Reclass_Extract );
-	case 7:		return( new CPC_Drop_Attribute );
-	case 8:		return( new CPC_Transform );
-	case 9:		return( new CPC_Thinning_Simple );
-	case 10:	return( new CPC_Attribute_Calculator );
-	case 11:	return( new CPC_Cluster_Analysis );
-	case 12:	return( new CPC_Merge );
-	}
-
-	return( NULL );
-}
+#include <vector>;
 
 
 ///////////////////////////////////////////////////////////
@@ -131,8 +75,30 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CPC_Merge : public CSG_Module
+{
+public:
+	CPC_Merge(void);
+	virtual ~CPC_Merge(void);
 
-	MLB_INTERFACE
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__PC_Merge_H

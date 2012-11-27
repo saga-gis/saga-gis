@@ -308,6 +308,7 @@
     <ClCompile Include="pc_drop_attribute.cpp" />
     <ClCompile Include="pc_from_grid.cpp" />
     <ClCompile Include="pc_from_shapes.cpp" />
+    <ClCompile Include="pc_merge.cpp" />
     <ClCompile Include="pc_reclass_extract.cpp" />
     <ClCompile Include="pc_thinning_simple.cpp" />
     <ClCompile Include="pc_to_grid.cpp" />
@@ -339,6 +340,7 @@
     <ClInclude Include="pc_drop_attribute.h" />
     <ClInclude Include="pc_from_grid.h" />
     <ClInclude Include="pc_from_shapes.h" />
+    <ClInclude Include="pc_merge.h" />
     <ClInclude Include="pc_reclass_extract.h" />
     <ClInclude Include="pc_thinning_simple.h" />
     <ClInclude Include="pc_to_grid.h" />
