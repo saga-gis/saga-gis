@@ -895,71 +895,62 @@ bool CSG_Trend_Polynom::Add_Data(double x, double y)
 //---------------------------------------------------------
 bool CSG_Trend_Polynom::Get_Trend(void)
 {
-	if( m_Order > 0 && m_x.Get_N() > m_Order )
+	if( m_Order < 1 || m_x.Get_N() <= m_Order )
 	{
-		int			i;
-		double		yMean	= 0.0;
-		CSG_Matrix	X, Xt, XtXinv;
-
-		//-------------------------------------------------
-		X.Create(m_Order + 1, m_x.Get_N());
-
-		for(i=0; i<m_x.Get_N(); i++)
-		{
-			double	d	= 1.0;
-
-			for(int j=0; j<=m_Order; j++)
-			{
-				X[i][j]	 = d;
-				d		*= m_x[i];
-			}
-
-			yMean	+= m_y[i];
-		}
-
-		yMean	/= m_y.Get_N();
-
-		//-------------------------------------------------
-		Xt		= X;
-		Xt		.Set_Transpose();
-
-		XtXinv	= Xt * X;
-		XtXinv	.Set_Inverse();
-
-		m_a		= XtXinv * Xt * m_y;
-
-		//-------------------------------------------------
-		double	SSE	= 0.0;
-		double	SSR	= 0.0;
-
-		for(i=0; i<m_y.Get_N(); i++)
-		{
-			double	y	= Get_Value(m_x[i]);
-
-			SSE	+= SG_Get_Square(m_y[i] - y);
-			SSR	+= SG_Get_Square(yMean  - y);
-		}
-
-		m_r2	= SSR / (SSR + SSE);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	int			i;
+	double		d, Ym, SSE, SSR;
+	CSG_Matrix	X, Xt, C;
+
+	//-----------------------------------------------------
+	X .Create(m_Order + 1, m_y.Get_N());
+	Xt.Create(m_y.Get_N(), m_Order + 1);
+
+	for(i=0, Ym=0.0; i<m_y.Get_N(); i++)
+	{
+		X[i][0] = Xt[0][i] = d = 1.0;
+
+		for(int j=1; j<=m_Order; j++)
+		{
+			X[i][j] = Xt[j][i] = (d = d * m_x[i]);
+		}
+
+		Ym	+= m_y[i];
+	}
+
+	Ym	/= m_y.Get_N();
+
+	m_a	= (Xt * X).Get_Inverse() * (Xt * m_y);
+
+	//-----------------------------------------------------
+	CSG_Vector	Yr	= X * m_a;
+
+	for(i=0, SSE=0.0, SSR=0.0; i<m_y.Get_N(); i++)
+	{
+		SSE	+= SG_Get_Square(Yr[i] - m_y[i]);
+		SSR	+= SG_Get_Square(Yr[i] - Ym    );
+	}
+
+	m_r2	= SSR / (SSR + SSE);
+
+	return( true );
 }
 
 //---------------------------------------------------------
 double CSG_Trend_Polynom::Get_Value(double x)	const
 {
-	if( m_a.Get_N() > 1 )
+	if( m_a.Get_N() > 0 )
 	{
-		double	y	= 0.0;
+		double	y	= m_a(0);
 		double	d	= 1.0;
 
-		for(int i=0; i<=m_Order; i++)
+		for(int i=1; i<m_a.Get_N(); i++)
 		{
-			y	+= d * m_a(i);
 			d	*= x;
+			y	+= d * m_a(i);
 		}
 
 		return( y );
