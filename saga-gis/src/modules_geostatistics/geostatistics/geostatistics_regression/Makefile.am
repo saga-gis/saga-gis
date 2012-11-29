@@ -19,20 +19,26 @@ gw_multi_regression_grid.cpp\
 gw_multi_regression_points.cpp\
 gw_regression.cpp\
 gw_regression_grid.cpp\
+grids_trend_polynom.cpp\
 MLB_Interface.cpp\
 point_grid_regression.cpp\
 point_multi_grid_regression.cpp\
 point_trend_surface.cpp\
+table_regression_multiple.cpp\
+table_trend.cpp\
 grid_multi_grid_regression.h\
 gw_multi_regression.h\
 gw_multi_regression_grid.h\
 gw_multi_regression_points.h\
 gw_regression.h\
 gw_regression_grid.h\
+grids_trend_polynom.h\
 MLB_Interface.h\
 point_grid_regression.h\
 point_multi_grid_regression.h\
-point_trend_surface.h
+point_trend_surface.h\
+table_regression_multiple.h\
+table_trend.h
 
 libgeostatistics_regression_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

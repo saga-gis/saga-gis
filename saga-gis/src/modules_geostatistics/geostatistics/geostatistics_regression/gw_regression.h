@@ -78,6 +78,8 @@ class CGW_Regression : public CSG_Module
 public:
 	CGW_Regression(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
+
 
 protected:
 

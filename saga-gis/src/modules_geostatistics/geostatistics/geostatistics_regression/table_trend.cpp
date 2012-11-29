@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Table_Trend.cpp 1098 2011-06-16 16:06:32Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,11 +9,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                 Geostatistics_Kriging                 //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   Table_Trend.cpp                     //
+//                   table_trend.cpp                     //
 //                                                       //
 //                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
@@ -61,7 +61,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Table_Trend.h"
+#include "table_trend.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ bool CTable_Trend_Base::On_Execute(void)
 			Message_Add(SG_T("\n"), false);
 			Message_Add(m_Trend.Get_Formula(), false);
 			Message_Add(SG_T("\n"), false);
-			Message_Add(CSG_String::Format(SG_T("R\xc2\xb2 : %f"), 100.0 * m_Trend.Get_R2()), false);
+			Message_Add(CSG_String::Format(SG_T("R2 : %f"), 100.0 * m_Trend.Get_R2()), false);
 
 			if( Parameters("TREND")->asTable() == NULL )
 			{
@@ -259,7 +259,7 @@ CTable_Trend::CTable_Trend(void)
 CTable_Trend_Shapes::CTable_Trend_Shapes(void)
 	: CTable_Trend_Base()
 {
-	Set_Name		(_TL("Trend (Analysis) Shapes"));
+	Set_Name		(_TL("Trend Analysis (Shapes)"));
 
 	Parameters.Add_Shapes(
 		NULL	, "TABLE"	, _TL("Shapes"),

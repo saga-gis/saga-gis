@@ -110,8 +110,6 @@ CSG_String Get_Info(int i)
 #include "grid_metric_conversion.h"
 #include "gradient_cartes_polar.h"
 
-#include "grids_trend_polynom.h"
-
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -144,8 +142,6 @@ CSG_Module *		Create_Module(int i)
 
 	case 15:		return( new CGradient_Cartes_To_Polar );
 	case 16:		return( new CGradient_Polar_To_Cartes );
-
-	case 17:		return( new CGrids_Trend );
 
 	//-----------------------------------------------------
 	case 19:		return( NULL );

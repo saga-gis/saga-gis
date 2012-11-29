@@ -310,7 +310,6 @@
     <ClCompile Include="table_fill_record_gaps.cpp" />
     <ClCompile Include="table_pca.cpp" />
     <ClCompile Include="table_running_average.cpp" />
-    <ClCompile Include="Table_Trend.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -339,7 +338,6 @@
     <ClInclude Include="table_fill_record_gaps.h" />
     <ClInclude Include="table_pca.h" />
     <ClInclude Include="table_running_average.h" />
-    <ClInclude Include="Table_Trend.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

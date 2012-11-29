@@ -44,6 +44,15 @@
     <ClCompile Include="grid_multi_grid_regression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grids_trend_polynom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="table_trend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="table_regression_multiple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +134,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_multi_grid_regression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grids_trend_polynom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_trend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_regression_multiple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

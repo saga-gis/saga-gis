@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: table_regression_multiple.h 1246 2011-11-25 13:42:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 gw_regression_grid.h                  //
+//              table_regression_multiple.h              //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -59,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gw_regression_grid_H
-#define HEADER_INCLUDED__gw_regression_grid_H
+#ifndef HEADER_INCLUDED__table_regression_multiple_H
+#define HEADER_INCLUDED__table_regression_multiple_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -73,43 +73,36 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGW_Regression_Grid : public CSG_Module_Grid
+class CTable_Regression_Multiple_Base : public CSG_Module
 {
-public:
-	CGW_Regression_Grid(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
-
-
 protected:
+
+	void						Initialise				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+};
 
+//---------------------------------------------------------
+class CTable_Regression_Multiple : public CTable_Regression_Multiple_Base
+{
+public:
+	CTable_Regression_Multiple(void);
 
-private:
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Table") );	}
 
-	int							m_iDependent, m_nPoints_Min, m_nPoints_Max, m_Direction;
+};
 
-	double						m_Radius;
+//---------------------------------------------------------
+class CTable_Regression_Multiple_Shapes : public CTable_Regression_Multiple_Base
+{
+public:
+	CTable_Regression_Multiple_Shapes(void);
 
-	CSG_Distance_Weighting		m_Weighting;
-
-	CSG_PRQuadTree				m_Search;
-
-	CSG_Vector					m_y, m_z, m_w;
-
-	CSG_Shapes					*m_pPoints;
-
-	CSG_Grid					*m_pPredictor, *m_pRegression, *m_pQuality, *m_pIntercept, *m_pSlope;
-
-
-	int							Set_Variables			(int x, int y);
-
-	bool						Get_Regression			(int x, int y);
-
-	bool						Set_Residuals			(void);
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
 
 };
 
@@ -121,4 +114,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gw_regression_grid_H
+#endif // #ifndef HEADER_INCLUDED__table_regression_multiple_H

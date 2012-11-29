@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: grids_trend_polynom.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                 Geostatistics_Kriging                 //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Table_Trend.h                     //
+//                 grids_trend_polynom.h                 //
 //                                                       //
-//                 Copyright (C) 2006 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,13 +54,20 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Table_Trend_H
-#define HEADER_INCLUDED__Table_Trend_H
+#ifndef HEADER_INCLUDED__grids_trend_polynom_H
+#define HEADER_INCLUDED__grids_trend_polynom_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -70,52 +75,31 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Trend_Base : public CSG_Module
+class CGrids_Trend : public CSG_Module_Grid  
 {
+public:
+	CGrids_Trend(void);
+
+
 protected:
 
-	void						Initialise				(void);
-
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
 
-
-private:
-
-	CSG_Trend					m_Trend;
-
-};
-
-//---------------------------------------------------------
-class CTable_Trend : public CTable_Trend_Base
-{
-public:
-	CTable_Trend(void);
-
-};
-
-//---------------------------------------------------------
-class CTable_Trend_Shapes : public CTable_Trend_Base
-{
-public:
-	CTable_Trend_Shapes(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Table") );	}
-
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Table_Trend_H
+#endif // #ifndef HEADER_INCLUDED__grids_trend_polynom_H

@@ -292,6 +292,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="grids_trend_polynom.cpp" />
     <ClCompile Include="grid_multi_grid_regression.cpp" />
     <ClCompile Include="gw_multi_regression.cpp" />
     <ClCompile Include="gw_multi_regression_grid.cpp" />
@@ -311,6 +312,8 @@
     <ClCompile Include="point_grid_regression.cpp" />
     <ClCompile Include="point_multi_grid_regression.cpp" />
     <ClCompile Include="point_trend_surface.cpp" />
+    <ClCompile Include="table_regression_multiple.cpp" />
+    <ClCompile Include="table_trend.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -319,6 +322,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="grids_trend_polynom.h" />
     <ClInclude Include="grid_multi_grid_regression.h" />
     <ClInclude Include="gw_multi_regression.h" />
     <ClInclude Include="gw_multi_regression_grid.h" />
@@ -340,6 +344,8 @@
     <ClInclude Include="point_grid_regression.h" />
     <ClInclude Include="point_multi_grid_regression.h" />
     <ClInclude Include="point_trend_surface.h" />
+    <ClInclude Include="table_regression_multiple.h" />
+    <ClInclude Include="table_trend.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -95,12 +95,18 @@ CSG_String Get_Info(int i)
 #include "point_grid_regression.h"
 #include "point_multi_grid_regression.h"
 #include "point_trend_surface.h"
+
 #include "gw_regression.h"
 #include "gw_regression_grid.h"
 #include "gw_multi_regression.h"
 #include "gw_multi_regression_grid.h"
 #include "gw_multi_regression_points.h"
+
 #include "grid_multi_grid_regression.h"
+#include "grids_trend_polynom.h"
+
+#include "table_trend.h"
+#include "table_regression_multiple.h"
 
 
 //---------------------------------------------------------
@@ -113,15 +119,26 @@ CSG_Module *		Create_Module(int i)
 	case  0:	return( new CPoint_Grid_Regression );
 	case  1:	return( new CPoint_Multi_Grid_Regression );
 	case  2:	return( new CPoint_Trend_Surface );
+
 	case  3:	return( new CGW_Regression );
 	case  4:	return( new CGW_Regression_Grid );
 	case  5:	return( new CGW_Multi_Regression );
 	case  6:	return( new CGW_Multi_Regression_Grid );
 	case  7:	return( new CGW_Multi_Regression_Points );
-	case  8:	return( new CGrid_Multi_Grid_Regression );
-	}
 
-	return( NULL );
+	case  8:	return( new CGrid_Multi_Grid_Regression );
+	case  9:	return( new CGrids_Trend );
+
+	case 10:	return( new CTable_Trend );
+	case 11:	return( new CTable_Trend_Shapes );
+
+	case 12:	return( new CTable_Regression_Multiple );
+	case 13:	return( new CTable_Regression_Multiple_Shapes );
+
+	//-----------------------------------------------------
+	case 19:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 

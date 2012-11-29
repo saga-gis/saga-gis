@@ -22,7 +22,6 @@ table_cluster_analysis.cpp\
 table_fill_record_gaps.cpp\
 table_pca.cpp\
 table_running_average.cpp\
-Table_Trend.cpp\
 etp_hargreave.h\
 Fit.h\
 LMFit.h\
@@ -31,8 +30,7 @@ Table_Calculator.h\
 table_cluster_analysis.h\
 table_fill_record_gaps.h\
 table_pca.h\
-table_running_average.h\
-Table_Trend.h
+table_running_average.h
 
 libtable_calculus_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

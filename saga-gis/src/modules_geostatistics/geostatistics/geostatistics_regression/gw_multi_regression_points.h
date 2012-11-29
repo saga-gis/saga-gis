@@ -78,6 +78,8 @@ class CGW_Multi_Regression_Points : public CSG_Module
 public:
 	CGW_Multi_Regression_Points(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
+
 
 protected:
 

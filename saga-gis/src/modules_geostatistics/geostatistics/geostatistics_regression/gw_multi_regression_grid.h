@@ -78,6 +78,8 @@ class CGW_Multi_Regression_Grid : public CSG_Module_Grid
 public:
 	CGW_Multi_Regression_Grid(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
+
 
 protected:
 
