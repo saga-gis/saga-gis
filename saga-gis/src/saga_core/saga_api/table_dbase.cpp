@@ -431,15 +431,13 @@ bool CSG_Table_DBase::Header_Read(void)
 //---------------------------------------------------------
 void CSG_Table_DBase::Init_Record(void)
 {
-	int		iField, iPos;
+	FieldOffset	= (int  *)SG_Realloc(FieldOffset, nFields       * sizeof(int )); 
+	Record		= (char *)SG_Realloc(Record     , nRecordBytes	* sizeof(char));
+	Record[0]	= ' ';	// Data records are preceded by one byte, that is, a space (0x20) if the record is not deleted, an asterisk (0x2A) if the record is deleted.
 
-	Record		= (char *)SG_Realloc(Record		, nRecordBytes	* sizeof(char));
-	FieldOffset	= (int  *)SG_Realloc(FieldOffset	, nFields		* sizeof(int )); 
-
-	for(iField=0, iPos=1; iField<nFields; iField++)
+	for(int iField=0, iPos=1; iField<nFields; iPos+=FieldDesc[iField++].Width)
 	{
 		FieldOffset[iField]	= iPos;
-		iPos	+= FieldDesc[iField].Width;
 	}
 }
 
@@ -521,7 +519,7 @@ void CSG_Table_DBase::Add_Record(void)
 	{
 		bRecModified	= true;
 
-		memset(Record, 0, nRecordBytes);
+		memset(Record, ' ', nRecordBytes);
 
 		fseek(hFile, 0, SEEK_END);
 		fwrite(Record, nRecordBytes, sizeof(char), hFile);
@@ -669,16 +667,12 @@ CSG_String CSG_Table_DBase::asString(int iField)
 //---------------------------------------------------------
 bool CSG_Table_DBase::Set_Value(int iField, double Value)
 {
-	static char	s[256]	= "";
-
-	int		n;
+	static char	s[256];
 
 	if( bOpen && iField >= 0 && iField < nFields && FieldDesc[iField].Width > 0 )
 	{
 		if( FieldDesc[iField].Type == DBF_FT_NUMERIC )
-		{
-			bRecModified	= true;
-
+		{	// Number stored as a string, right justified, and padded with blanks to the width of the field.
 			if( FieldDesc[iField].Decimals > 0 )
 			{
 				sprintf(s, "%.*f", FieldDesc[iField].Decimals, Value);
@@ -688,13 +682,17 @@ bool CSG_Table_DBase::Set_Value(int iField, double Value)
 				sprintf(s, "%d", (int)Value);
 			}
 
-			if( (n = (int)strlen(s)) > FieldDesc[iField].Width )
+			int	n	= (int)strlen(s);
+
+			if( n > FieldDesc[iField].Width )
 			{
 				n	= FieldDesc[iField].Width;
 			}
 
 			memset(Record + FieldOffset[iField], ' ', FieldDesc[iField].Width);
-			memcpy(Record + FieldOffset[iField], s	, n);
+			memcpy(Record + FieldOffset[iField], s  , n);
+
+			bRecModified	= true;
 
 			return( true );
 		}
@@ -705,19 +703,9 @@ bool CSG_Table_DBase::Set_Value(int iField, double Value)
 			int		m	= (int)(Value / 100);	Value	-= m * 100;
 			int		d	= (int)(Value / 1);
 
-			bRecModified	= true;
-
 			sprintf(s, "%04d%02d%02d", y, m, d);
 
-			if( (n = (int)strlen(s)) > FieldDesc[iField].Width )
-			{
-				n	= FieldDesc[iField].Width;
-			}
-
-			memset(Record + FieldOffset[iField], ' ', FieldDesc[iField].Width);
-			memcpy(Record + FieldOffset[iField], s	, n);
-
-			return( true );
+			return( Set_Value(iField, s) );
 		}
 	}
 
@@ -732,24 +720,22 @@ bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
 		int		n	= Value && Value[0] ? (int)strlen(Value) : 0;
 
 		if( FieldDesc[iField].Type == DBF_FT_CHARACTER )
-		{
-			bRecModified	= true;
-
+		{	// All OEM code page characters - padded with blanks to the width of the field.
 			if( n > FieldDesc[iField].Width )
 			{
 				n	= FieldDesc[iField].Width;
 			}
 
-			memset(Record + FieldOffset[iField], ' '	, FieldDesc[iField].Width);
-			memcpy(Record + FieldOffset[iField], Value	, n);
+			memset(Record + FieldOffset[iField], ' ', FieldDesc[iField].Width);
+			memcpy(Record + FieldOffset[iField], Value, n);
+
+			bRecModified	= true;
 
 			return( true );
 		}
 
 		if( FieldDesc[iField].Type == DBF_FT_DATE && n == 10 )	// SAGA(DD.MM.YYYY) to DBASE(YYYYMMDD)
-		{
-			bRecModified	= true;
-
+		{	// 8 bytes - date stored as a string in the format YYYYMMDD
 			char	*s	= Record + FieldOffset[iField];
 
 			s[0]	= Value[6];	// Y1
@@ -760,6 +746,8 @@ bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
 			s[5]	= Value[4];	// M2
 			s[6]	= Value[0];	// D1
 			s[7]	= Value[1];	// D2
+
+			bRecModified	= true;
 
 			return( true );
 		}
