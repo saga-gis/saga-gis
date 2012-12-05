@@ -15,8 +15,9 @@ pkglib_LTLIBRARIES = libgeostatistics_grid.la
 libgeostatistics_grid_la_SOURCES =\
 fast_representativeness.cpp\
 grid_autocorrelation.cpp\
-multiband_variation.cpp\
+grid_latlon_statistics.cpp\
 grid_pca.cpp\
+multiband_variation.cpp\
 GSGrid_Directional_Statistics.cpp\
 GSGrid_Residuals.cpp\
 GSGrid_Statistics.cpp\
@@ -25,9 +26,10 @@ GSGrid_Variance_Radius.cpp\
 GSGrid_Zonal_Statistics.cpp\
 MLB_Interface.cpp\
 fast_representativeness.h\
-multiband_variation.h\
 grid_autocorrelation.h\
+grid_latlon_statistics.h\
 grid_pca.h\
+multiband_variation.h\
 GSGrid_Directional_Statistics.h\
 GSGrid_Residuals.h\
 GSGrid_Statistics.h\
