@@ -348,7 +348,7 @@ inline bool CGrid_Levels_Interpolation::Get_Value(const TSG_Point &p, double z, 
 //---------------------------------------------------------
 bool CGrid_Levels_Interpolation::Get_Linear_Sorted(double x, double y, double z, double &Value)
 {
-	int		i, iLevel;
+	int		iLevel;
 
 	for(iLevel=1; iLevel<m_pVariables->Get_Count()-1; iLevel++)
 	{

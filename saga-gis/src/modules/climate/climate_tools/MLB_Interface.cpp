@@ -84,7 +84,7 @@ CSG_String Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Climate|Tools") );
+		return( _TL("Climate") );
 	}
 }
 
@@ -93,6 +93,8 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "grid_levels_interpolation.h"
+
+#include "milankovic.h"
 
 
 //---------------------------------------------------------
@@ -104,6 +106,11 @@ CSG_Module *		Create_Module(int i)
 	{
 	case  0: 	return( new CGrid_Levels_to_Surface );
 	case  1: 	return( new CGrid_Levels_to_Points );
+
+	case  2:	return( new CMilankovic );
+	case  3:	return( new CMilankovic_SR_Location );
+	case  4:	return( new CMilankovic_SR_Day_Location );
+	case  5:	return( new CMilankovic_SR_Monthly_Global );
 
 	//-----------------------------------------------------
 	case 10:	return( NULL );

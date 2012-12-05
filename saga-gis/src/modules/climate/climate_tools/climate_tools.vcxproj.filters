@@ -20,6 +20,9 @@
     <ClCompile Include="grid_levels_interpolation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="milankovic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -77,6 +80,9 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="grid_levels_interpolation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="milankovic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
