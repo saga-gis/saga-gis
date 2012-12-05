@@ -276,7 +276,7 @@ public:
 	int								Get_Count			(void)			const	{	return( m_nRecords );	}
 	int								Get_Record_Count	(void)			const	{	return( m_nRecords );	}
 	virtual CSG_Table_Record *		Get_Record			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord] : NULL );	}
-	virtual CSG_Table_Record &		operator []			(int iRecord)	const	{	return( *Get_Record(iRecord) );	}
+	virtual CSG_Table_Record &		operator []			(int iRecord)	const	{	return( *Get_Record_byIndex(iRecord) );	}
 
 	int								Get_Index			(int Index)		const	{	return( Index >= 0 && Index < m_nRecords ? (m_Index ? m_Index[Index] : Index) : -1 );	}
 
