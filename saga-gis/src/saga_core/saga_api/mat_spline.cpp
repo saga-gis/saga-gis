@@ -75,9 +75,6 @@
 //---------------------------------------------------------
 CSG_Spline::CSG_Spline(void)
 {
-	m_Values	= NULL;
-	m_nValues	= 0;
-	m_nBuffer	= 0;
 	m_bCreated	= false;
 }
 
@@ -95,15 +92,11 @@ CSG_Spline::~CSG_Spline(void)
 //---------------------------------------------------------
 void CSG_Spline::Destroy(void)
 {
-	if( m_Values )
-	{
-		SG_Free(m_Values);
+	m_x.Destroy();
+	m_y.Destroy();
+	m_z.Destroy();
 
-		m_Values	= NULL;
-		m_nValues	= 0;
-		m_nBuffer	= 0;
-		m_bCreated	= false;
-	}
+	m_bCreated	= false;
 }
 
 //---------------------------------------------------------
@@ -135,35 +128,8 @@ void CSG_Spline::Add(double x, double y)
 {
 	m_bCreated	= false;
 
-	//-----------------------------------------------------
-	if( m_nValues >= m_nBuffer )
-	{
-		m_nBuffer	+= 64;
-		m_Values	 = (TSG_Point_Z *)SG_Realloc(m_Values, m_nBuffer * sizeof(TSG_Point_Z));
-	}
-
-	m_nValues++;
-
-	//-----------------------------------------------------
-	if( m_nValues == 1 )
-	{
-		m_Values[0].x	= x;
-		m_Values[0].y	= y;
-	}
-	else
-	{
-		int		i, iAdd;
-
-		for(iAdd=0; iAdd<m_nValues-1 && m_Values[iAdd].x<x; iAdd++)	{}
-
-		for(i=m_nValues-1; i>iAdd; i--)
-		{
-			m_Values[i]	= m_Values[i - 1];
-		}
-
-		m_Values[iAdd].x	= x;
-		m_Values[iAdd].y	= y;
-	}
+	m_x.Add_Row(x);
+	m_y.Add_Row(y);
 }
 
 
@@ -174,60 +140,74 @@ void CSG_Spline::Add(double x, double y)
 //---------------------------------------------------------
 bool CSG_Spline::_Create(double yA, double yB)
 {
-	int		i, k;
-	double	p, qn, sig, un, *u;
-
-	if( m_nValues > 2 )
+	if( Get_Count() < 3 )
 	{
-		m_bCreated	= true;
-		u			= (double *)SG_Malloc(m_nValues * sizeof(double));
-
-		if( yA > 0.99e30 )
-		{
-			m_Values[0].z	= u[0]	= 0.0;
-		}
-		else
-		{
-			m_Values[0].z	= -0.5;
-			u[0]			= (3.0 / (m_Values[1].x - m_Values[0].x))
-							* ((m_Values[1].y - m_Values[0].y) / (m_Values[1].x - m_Values[0].x) - yA);
-		}
-
-		for(i=1; i<m_nValues-1; i++)
-		{
-			sig				= (m_Values[i].x - m_Values[i - 1].x) / (m_Values[i + 1].x - m_Values[i - 1].x);
-			p				= sig * m_Values[i - 1].z + 2.0;
-			m_Values[i].z	= (sig - 1.0) / p;
-			u[i]			= (m_Values[i + 1].y - m_Values[i    ].y) / (m_Values[i + 1].x - m_Values[i    ].x)
-							- (m_Values[i    ].y - m_Values[i - 1].y) / (m_Values[i    ].x - m_Values[i - 1].x);
-			u[i]			= (6.0 * u[i] / (m_Values[i + 1].x - m_Values[i - 1].x) - sig * u[i - 1]) / p;
-		}
-
-		if( yB > 0.99e30 )
-		{
-			qn	= un	= 0.0;
-		}
-		else
-		{
-			qn				= 0.5;
-			un				= (3.0 / (m_Values[m_nValues - 1].x - m_Values[m_nValues - 2].x))
-							* (yB  - (m_Values[m_nValues - 1].y - m_Values[m_nValues - 2].y)
-							       / (m_Values[m_nValues - 1].x - m_Values[m_nValues - 2].x));
-		}
-
-		m_Values[m_nValues - 1].z	= (un - qn * u[m_nValues - 2]) / (qn * m_Values[m_nValues - 2].z + 1.0);
-
-		for(k=m_nValues-2; k>=0; k--)
-		{
-			m_Values[k].z	= m_Values[k].z * m_Values[k + 1].z + u[k];
-		}
-
-		SG_Free(u);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	int			i, k, n	= Get_Count();
+	double		p, qn, sig, un;
+	CSG_Vector	u;
+
+	//-----------------------------------------------------
+	CSG_Index	Index(n, m_x.Get_Data());
+	CSG_Vector	x(m_x), y(m_y);
+
+	for(i=0; i<n; i++)
+	{
+		m_x[i]	= x[Index[i]];
+		m_y[i]	= y[Index[i]];
+	}
+
+	//-----------------------------------------------------
+	u  .Create(n);
+	m_z.Create(n);
+
+	if( yA > 0.99e30 )
+	{
+		m_z[0]	= u[0] = 0.0;
+	}
+	else
+	{
+		m_z[0]	= -0.5;
+		u  [0]	= (3.0 / (m_x[1] - m_x[0])) * ((m_y[1] - m_y[0]) / (m_x[1] - m_x[0]) - yA);
+	}
+
+	//-----------------------------------------------------
+	for(i=1; i<n-1; i++)
+	{
+		sig		= (m_x[i] - m_x[i - 1]) / (m_x[i + 1] - m_x[i - 1]);
+		p		= sig * m_z[i - 1] + 2.0;
+		m_z[i]	= (sig - 1.0) / p;
+		u  [i]	= (m_y[i + 1] - m_y[i    ]) / (m_x[i + 1] - m_x[i    ])
+				- (m_y[i    ] - m_y[i - 1]) / (m_x[i    ] - m_x[i - 1]);
+		u  [i]	= (6.0 * u[i] / (m_x[i + 1] - m_x[i - 1]) - sig * u[i - 1]) / p;
+	}
+
+	if( yB > 0.99e30 )
+	{
+		qn = un	= 0.0;
+	}
+	else
+	{
+		qn		= 0.5;
+		un		= (3.0 / (m_x[n - 1] - m_x[n - 2]))
+				* (yB  - (m_y[n - 1] - m_y[n - 2])
+				       / (m_x[n - 1] - m_x[n - 2]));
+	}
+
+	m_z[n - 1]	= (un - qn * u[n - 2]) / (qn * m_z[n - 2] + 1.0);
+
+	for(k=n-2; k>=0; k--)
+	{
+		m_z[k]	= m_z[k] * m_z[k + 1] + u[k];
+	}
+
+	//-----------------------------------------------------
+	m_bCreated	= true;
+
+	return( true );
 }
 
 
@@ -244,13 +224,13 @@ bool CSG_Spline::Get_Value(double x, double &y)
 		double	h, b, a;
 
 		klo	= 0;
-		khi	= m_nValues - 1;
+		khi	= Get_Count() - 1;
 
 		while( khi - klo > 1 )
 		{
 			k	= (khi+klo) >> 1;
 
-			if( m_Values[k].x > x )
+			if( m_x[k] > x )
 			{
 				khi	= k;
 			}
@@ -260,15 +240,15 @@ bool CSG_Spline::Get_Value(double x, double &y)
 			}
 		}
 
-		h	= m_Values[khi].x - m_Values[klo].x;
+		h	= m_x[khi] - m_x[klo];
 
 		if( h != 0.0 )
 		{
-			a	= (m_Values[khi].x - x) / h;
-			b	= (x - m_Values[klo].x) / h;
+			a	= (m_x[khi] - x) / h;
+			b	= (x - m_x[klo]) / h;
 
-			y	= a * m_Values[klo].y + b * m_Values[khi].y
-				+ ((a*a*a - a) * m_Values[klo].z + (b*b*b - b) * m_Values[khi].z) * (h*h) / 6.0;
+			y	= a * m_y[klo] + b * m_y[khi]
+				+ ((a*a*a - a) * m_z[klo] + (b*b*b - b) * m_z[khi]) * (h*h) / 6.0;
 
 			return( true );
 		}

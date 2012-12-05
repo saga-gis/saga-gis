@@ -785,8 +785,11 @@ public:
 
 	void						Add					(double x, double y);
 
-	double						Get_xMin			(void)	{	return( m_nValues > 0 ? m_Values[0            ].x : 0.0 );	}
-	double						Get_xMax			(void)	{	return( m_nValues > 0 ? m_Values[m_nValues - 1].x : 0.0 );	}
+	int							Get_Count			(void)	const	{	return( m_x.Get_N() );	}
+	double						Get_xMin			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(0              ) : 0.0 );	}
+	double						Get_xMax			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(m_x.Get_N() - 1) : 0.0 );	}
+	double						Get_x				(int i)	const	{	return( i >= 0 && i < m_x.Get_N() ? m_x(i) : 0.0 );	}
+	double						Get_y				(int i)	const	{	return( i >= 0 && i < m_y.Get_N() ? m_y(i) : 0.0 );	}
 
 	bool						Get_Value			(double x, double &y);
 	double						Get_Value			(double x);
@@ -796,9 +799,7 @@ protected:
 
 	bool						m_bCreated;
 
-	int							m_nValues, m_nBuffer;
-
-	TSG_Point_Z					*m_Values;
+	CSG_Vector					m_x, m_y, m_z;
 
 
 	bool						_Create				(double yA, double yB);
