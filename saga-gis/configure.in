@@ -196,6 +196,8 @@ AC_OUTPUT(Makefile \
 	src/saga_core/saga_cmd/Makefile \
 	src/saga_core/saga_cmd/man/Makefile \
 	src/modules/Makefile \
+	src/modules/climate/Makefile \
+	src/modules/climate/climate_tools/Makefile \
 	src/modules/grid/Makefile \
 	src/modules/grid/grid_analysis/Makefile \
 	src/modules/grid/grid_calculus/Makefile \

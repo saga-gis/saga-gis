@@ -1,1 +1,1 @@
-SUBDIRS = tin table shapes pointcloud grid
+SUBDIRS = tin table shapes pointcloud grid climate

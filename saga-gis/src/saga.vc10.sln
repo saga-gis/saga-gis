@@ -187,6 +187,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_svm", "modules_imag
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_erosion", "modules_simulation\erosion\sim_erosion\sim_erosion.vcxproj", "{7335CC48-6A58-49F5-93AD-F0BB6C0FDF07}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "climate_tools", "modules\climate\climate_tools\climate_tools.vcxproj", "{FCC348FF-34A7-4016-B3D3-7935D2AEC898}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -763,6 +765,14 @@ Global
 		{7335CC48-6A58-49F5-93AD-F0BB6C0FDF07}.Release|Win32.Build.0 = Release|Win32
 		{7335CC48-6A58-49F5-93AD-F0BB6C0FDF07}.Release|x64.ActiveCfg = Release|x64
 		{7335CC48-6A58-49F5-93AD-F0BB6C0FDF07}.Release|x64.Build.0 = Release|x64
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Debug|Win32.Build.0 = Debug|Win32
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Debug|x64.ActiveCfg = Debug|x64
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Debug|x64.Build.0 = Debug|x64
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Release|Win32.ActiveCfg = Release|Win32
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Release|Win32.Build.0 = Release|Win32
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Release|x64.ActiveCfg = Release|x64
+		{FCC348FF-34A7-4016-B3D3-7935D2AEC898}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
