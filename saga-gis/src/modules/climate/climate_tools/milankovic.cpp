@@ -672,14 +672,14 @@ bool CSG_Solar_Position::Get_CosZenith(double RLAT, double SIND, double COSD, do
 //														 //
 ///////////////////////////////////////////////////////////
 
-#define DESC_SOURCE 		"Orbital parameters used in climate models are based on the work of Andre L. Berger "\
-		"and its implementation from the NASA Goddard Institute for Space Studies (GISS). "\
-		"Berger's orbital parameters are considered to be valid for approximately 1 million years.\n"\
-		"References:\n"\
-		"- Berger, A.L. (1978): Long Term Variations of Daily Insolation and Quaternary Climatic Changes. Journal of the Atmospheric Sciences, volume 35(12), 2362-2367.\n"\
-		"- Berger, A.L. (1978): A Simple Algorithm to Compute Long Term Variations of Daily or Monthly Insolation. Institut d'Astronomie et de Geophysique, Universite Catholique de Louvain, Louvain-la-Neuve, No. 18.\n"\
-		"- NASA/GISS' implementation can be found as part of an Atmosphere-Ocean Model at "\
-		"<a target=\"_blank\" href=\"http://aom.giss.nasa.gov/srorbpar.html\">Determination of the Earth's Orbital Parameters</a>"
+#define DESC_SOURCE 		"Orbital parameters used here are based on the work of Andre L. Berger "\
+	"and its implementation from the NASA Goddard Institute for Space Studies (GISS). "\
+	"Berger's orbital parameters are considered to be valid for approximately 1 million years.\n"\
+	"References:\n"\
+	"- Berger, A.L. (1978): Long Term Variations of Daily Insolation and Quaternary Climatic Changes. Journal of the Atmospheric Sciences, volume 35(12), 2362-2367.\n"\
+	"- Berger, A.L. (1978): A Simple Algorithm to Compute Long Term Variations of Daily or Monthly Insolation. Institut d'Astronomie et de Geophysique, Universite Catholique de Louvain, Louvain-la-Neuve, No. 18.\n"\
+	"- NASA/GISS' implementation can be found as part of an Atmosphere-Ocean Model at "\
+	"<a target=\"_blank\" href=\"http://aom.giss.nasa.gov/srorbpar.html\">Determination of the Earth's Orbital Parameters</a>"
 
 
 ///////////////////////////////////////////////////////////
