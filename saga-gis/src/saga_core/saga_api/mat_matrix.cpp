@@ -1415,7 +1415,7 @@ bool CSG_Matrix::Set_Transpose(void)
 		{
 			for(int x=0; x<m_nx; x++)
 			{
-				m_z[y][x]	= m.m_z[y][x];
+				m_z[y][x]	= m.m_z[x][y];
 			}
 		}
 
