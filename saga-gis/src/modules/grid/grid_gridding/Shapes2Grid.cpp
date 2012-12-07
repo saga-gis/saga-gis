@@ -245,7 +245,7 @@ TSG_Data_Type CShapes2Grid::Get_Grid_Type(int iType)
 //---------------------------------------------------------
 bool CShapes2Grid::On_Execute(void)
 {
-	int		iField, iType;
+	int		iField, iType, iShape;
 
 	//-----------------------------------------------------
 	m_pShapes			= Parameters("INPUT"    )->asShapes();
@@ -317,7 +317,13 @@ bool CShapes2Grid::On_Execute(void)
 	m_pCount->Assign(0.0);
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	if( m_pShapes->Get_Type() == SHAPE_TYPE_Polygon && m_Method_Polygon == 1 )	// all cells intersected have to be marked
+	{
+		m_Method_Lines	= 1;	// thick, each cell crossed by polygon boundary will be marked additionally
+	}
+
+	//-----------------------------------------------------
+	for(iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 
@@ -331,10 +337,22 @@ bool CShapes2Grid::On_Execute(void)
 				{
 					switch( m_pShapes->Get_Type() )
 					{
-					case SHAPE_TYPE_Point:
-					case SHAPE_TYPE_Points:		Set_Points	(pShape);	break;
-					case SHAPE_TYPE_Line:		Set_Line	(pShape);	break;
-					case SHAPE_TYPE_Polygon:	Set_Polygon	(pShape);	break;
+					case SHAPE_TYPE_Point:	case SHAPE_TYPE_Points:
+						Set_Points	(pShape);
+						break;
+
+					case SHAPE_TYPE_Line:
+						Set_Line	(pShape);
+						break;
+
+					case SHAPE_TYPE_Polygon:
+						Set_Polygon	(pShape);
+
+						if( m_Method_Polygon == 1 )	// all cells intersected have to be marked
+						{
+							Set_Line(pShape);	// thick, each cell crossed by polygon boundary will be marked additionally
+						}
+						break;
 					}
 				}
 			}
@@ -688,11 +706,7 @@ void CShapes2Grid::Set_Line_B(TSG_Point a, TSG_Point b)
 //---------------------------------------------------------
 void CShapes2Grid::Set_Polygon(CSG_Shape *pShape)
 {
-	switch( m_Method_Polygon )
-	{
-	case 0:	Set_Polygon_Node((CSG_Shape_Polygon *)pShape);	break;
-	case 1:	Set_Polygon_Cell((CSG_Shape_Polygon *)pShape);	break;
-	}
+	Set_Polygon_Node((CSG_Shape_Polygon *)pShape);
 }
 
 //---------------------------------------------------------
