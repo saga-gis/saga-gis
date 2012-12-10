@@ -63,8 +63,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "table.h"
 #include "table_dbase.h"
 
@@ -438,213 +436,17 @@ bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG
 //---------------------------------------------------------
 bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 {
-	int					iField;
 	CSG_Table_DBase		dbf;
-	CSG_Table_Record	*pRecord;
 
-	//-----------------------------------------------------
-	if( dbf.Open(File_Name) )
-	{
-		Destroy();
-
-		for(iField=0; iField<dbf.Get_FieldCount(); iField++)
-		{
-			TSG_Data_Type	Type;
-
-			switch( dbf.Get_FieldType(iField) )
-			{
-			case DBF_FT_LOGICAL:
-				Type	= SG_DATATYPE_Char;
-				break;
-
-			case DBF_FT_CHARACTER:	default:
-				Type	= SG_DATATYPE_String;
-				break;
-
-			case DBF_FT_DATE:
-				Type	= SG_DATATYPE_Date;
-				break;
-
-			case DBF_FT_NUMERIC:
-				Type	= dbf.Get_FieldDecimals(iField) > 0
-						? SG_DATATYPE_Double
-						: SG_DATATYPE_Long;
-				break;
-			}
-
-			Add_Field(dbf.Get_FieldName(iField), Type);
-		}
-
-		//-------------------------------------------------
-		if( dbf.Move_First() && dbf.Get_Record_Count() > 0 )
-		{
-			m_nRecords		= m_nBuffer	= dbf.Get_Record_Count();
-			m_Records		= (CSG_Table_Record **)SG_Malloc(m_nRecords * sizeof(CSG_Table_Record *));
-
-			for(int iRecord=0; iRecord<m_nRecords && SG_UI_Process_Set_Progress(iRecord, m_nRecords); iRecord++)
-			{
-				m_Records[iRecord]	= pRecord	= _Get_New_Record(iRecord);
-
-				for(iField=0; iField<Get_Field_Count(); iField++)
-				{
-					switch( Get_Field_Type(iField) )
-					{
-					case SG_DATATYPE_Char:
-						pRecord->Set_Value(iField, dbf.asString(iField).c_str() );
-						break;
-
-					case SG_DATATYPE_String:	default:
-						pRecord->Set_Value(iField, dbf.asString(iField).c_str() );
-						break;
-
-					case SG_DATATYPE_Date:
-						{
-							int		Value;
-
-							if( dbf.asInt(iField, Value) )
-								pRecord->Set_Value(iField, Value);
-							else
-								pRecord->Set_NoData(iField);
-						}
-						break;
-
-					case SG_DATATYPE_Long:
-						{
-							int		Value;
-
-							if( dbf.asInt(iField, Value) )
-								pRecord->Set_Value(iField, Value);
-							else
-								pRecord->Set_NoData(iField);
-						}
-						break;
-
-					case SG_DATATYPE_Double:
-						{
-							double	Value;
-
-							if( dbf.asDouble(iField, Value) )
-								pRecord->Set_Value(iField, Value);
-							else
-								pRecord->Set_NoData(iField);
-						}
-						break;
-					}
-				}
-
-				dbf.Move_Next();
-			}
-
-			SG_UI_Process_Set_Ready();
-
-			Set_Modified(false);
-
-			Set_Update_Flag();
-
-			_Stats_Invalidate();
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( dbf.Open_Read(File_Name, this) );
 }
 
 //---------------------------------------------------------
 bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 {
-	int				iField, iRecord, nBytes;
-	CSG_Table_DBase	dbf;
-	CSG_String		sFile_Name	= SG_File_Make_Path(NULL, File_Name, SG_T("dbf"));
+	CSG_Table_DBase		dbf;
 
-	//-----------------------------------------------------
-	CSG_Table_DBase::TFieldDesc	*dbfFields	= new CSG_Table_DBase::TFieldDesc[Get_Field_Count()];
-
-	for(iField=0; iField<Get_Field_Count(); iField++)
-	{
-		strncpy(dbfFields[iField].Name, CSG_String(Get_Field_Name(iField)), 11);
-
-		switch( Get_Field_Type(iField) )
-		{
-		case SG_DATATYPE_String: default:
-			dbfFields[iField].Type		= DBF_FT_CHARACTER;
-			dbfFields[iField].Width		= (BYTE)((nBytes = Get_Field_Length(iField)) > 255 ? 255 : nBytes);
-			break;
-
-		case SG_DATATYPE_Date:
-			dbfFields[iField].Type		= DBF_FT_DATE;
-			dbfFields[iField].Width		= (BYTE)8;
-			break;
-
-		case SG_DATATYPE_Char:
-			dbfFields[iField].Type		= DBF_FT_CHARACTER;
-			dbfFields[iField].Width		= (BYTE)1;
-			break;
-
-		case SG_DATATYPE_Short:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_Long:
-		case SG_DATATYPE_Color:
-			dbfFields[iField].Type		= DBF_FT_NUMERIC;
-			dbfFields[iField].Width		= (BYTE)16;
-			dbfFields[iField].Decimals	= (BYTE)0;
-			break;
-
-		case SG_DATATYPE_Float:
-		case SG_DATATYPE_Double:
-			dbfFields[iField].Type		= DBF_FT_NUMERIC;
-			dbfFields[iField].Width		= (BYTE)16;
-			dbfFields[iField].Decimals	= (BYTE)8;
-			break;
-		}
-	}
-
-	if( !dbf.Open(sFile_Name, Get_Field_Count(), dbfFields) )
-	{
-		delete[](dbfFields);
-
-		SG_UI_Msg_Add_Error(_TL("dbase file could not be opened"));
-
-		return( false );
-	}
-
-	delete[](dbfFields);
-
-	//-----------------------------------------------------
-	for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
-	{
-		CSG_Table_Record	*pRecord	= Get_Record(iRecord);
-
-		dbf.Add_Record();
-
-		for(iField=0; iField<Get_Field_Count(); iField++)
-		{
-			switch( dbf.Get_FieldType(iField) )
-			{
-			case DBF_FT_DATE:
-			case DBF_FT_CHARACTER:
-				dbf.Set_Value(iField, CSG_String(pRecord->asString(iField)));
-				break;
-
-			case DBF_FT_NUMERIC:
-				if( pRecord->is_NoData(iField) )
-				{
-					dbf.Set_NoData(iField);
-				}
-				else
-				{
-					dbf.Set_Value(iField, pRecord->asDouble(iField));
-				}
-				break;
-			}
-		}
-
-		dbf.Flush_Record();
-	}
-
-	SG_UI_Process_Set_Ready();
-
-	return( true );
+	return( dbf.Open_Write(File_Name, this) );
 }
 
 

@@ -87,7 +87,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Open DBase File...
 
-	if( !fDBF.Open(SG_File_Make_Path(NULL, File_Name, SG_T("dbf"))) )
+	if( !fDBF.Open_Read(SG_File_Make_Path(NULL, File_Name, SG_T("dbf")), this, false) )
 	{
 		SG_UI_Msg_Add_Error(_TL("DBase file could not be opened."));
 
@@ -99,31 +99,6 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 		SG_UI_Msg_Add_Error(_TL("DBase file does not contain any records."));
 
 		return( false );
-	}
-
-	for(iField=0; iField<fDBF.Get_FieldCount(); iField++)
-	{
-		switch( fDBF.Get_FieldType(iField) )
-		{
-		case DBF_FT_LOGICAL:
-			Add_Field(fDBF.Get_FieldName(iField), SG_DATATYPE_Char);
-			break;
-
-		case DBF_FT_CHARACTER:	default:
-			Add_Field(fDBF.Get_FieldName(iField), SG_DATATYPE_String);
-			break;
-
-		case DBF_FT_DATE:
-			Add_Field(fDBF.Get_FieldName(iField), SG_DATATYPE_Date);
-			break;
-
-		case DBF_FT_NUMERIC:
-			Add_Field(fDBF.Get_FieldName(iField), fDBF.Get_FieldDecimals(iField) > 0
-					? SG_DATATYPE_Double
-					: SG_DATATYPE_Long
-				);
-			break;
-		}
 	}
 
 	//-----------------------------------------------------
@@ -334,39 +309,14 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 			//---------------------------------------------
 			for(iField=0; iField<Get_Field_Count(); iField++)
 			{
-				switch( Get_Field_Type(iField) )
+				switch( fDBF.Get_Field_Type(iField) )
 				{
-				case SG_DATATYPE_Char:
-					pShape->Set_Value(iField, fDBF.asString(iField).c_str() );
+				default:
+					pShape->Set_Value(iField, fDBF.asString(iField));
 					break;
 
-				case SG_DATATYPE_String:	default:
-					pShape->Set_Value(iField, fDBF.asString(iField).c_str() );
-					break;
-
-				case SG_DATATYPE_Date:
-					{
-						int		Value;
-
-						if( fDBF.asInt(iField, Value) )
-							pShape->Set_Value(iField, Value);
-						else
-							pShape->Set_NoData(iField);
-					}
-					break;
-
-				case SG_DATATYPE_Long:
-					{
-						int		Value;
-
-						if( fDBF.asInt(iField, Value) )
-							pShape->Set_Value(iField, Value);
-						else
-							pShape->Set_NoData(iField);
-					}
-					break;
-
-				case SG_DATATYPE_Double:
+				case DBF_FT_FLOAT:
+				case DBF_FT_NUMERIC:
 					{
 						double	Value;
 
@@ -440,57 +390,10 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// DBase File Access...
 
-	CSG_Table_DBase::TFieldDesc	*dbfFields	= new CSG_Table_DBase::TFieldDesc[Get_Field_Count()];
-
-	for(iField=0; iField<Get_Field_Count(); iField++)
+	if( !fDBF.Open_Write(SG_File_Make_Path(NULL, File_Name, SG_T("dbf")), this, false) )
 	{
-		strncpy(dbfFields[iField].Name, CSG_String(Get_Field_Name(iField)), 11);
-
-		switch( Get_Field_Type(iField) )
-		{
-		case SG_DATATYPE_String: default:
-			dbfFields[iField].Type		= DBF_FT_CHARACTER;
-			dbfFields[iField].Width		= (BYTE)((nBytes = Get_Field_Length(iField)) > 255 ? 255 : nBytes);
-			break;
-
-		case SG_DATATYPE_Date:
-			dbfFields[iField].Type		= DBF_FT_DATE;
-			dbfFields[iField].Width		= (BYTE)8;
-			break;
-
-		case SG_DATATYPE_Char:
-			dbfFields[iField].Type		= DBF_FT_CHARACTER;
-			dbfFields[iField].Width		= (BYTE)1;
-			break;
-
-		case SG_DATATYPE_Short:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_Long:
-		case SG_DATATYPE_Color:
-			dbfFields[iField].Type		= DBF_FT_NUMERIC;
-			dbfFields[iField].Width		= (BYTE)16;
-			dbfFields[iField].Decimals	= (BYTE)0;
-			break;
-
-		case SG_DATATYPE_Float:
-		case SG_DATATYPE_Double:
-			dbfFields[iField].Type		= DBF_FT_NUMERIC;
-			dbfFields[iField].Width		= (BYTE)16;
-			dbfFields[iField].Decimals	= (BYTE)8;
-			break;
-		}
-	}
-
-	if( !fDBF.Open(SG_File_Make_Path(NULL, File_Name, SG_T("dbf")), Get_Field_Count(), dbfFields) )
-	{
-		delete[](dbfFields);
-
-		SG_UI_Msg_Add_Error(_TL("dbase file could not be opened"));
-
 		return( false );
 	}
-
-	delete[](dbfFields);
 
 	//-----------------------------------------------------
 	// Shape File Access...
@@ -695,22 +598,19 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 		for(iField=0; iField<Get_Field_Count(); iField++)
 		{
-			switch( fDBF.Get_FieldType(iField) )
+			if( pShape->is_NoData(iField) )
 			{
-			case DBF_FT_DATE:
-			case DBF_FT_CHARACTER:
+				fDBF.Set_NoData(iField);
+			}
+			else switch( fDBF.Get_Field_Type(iField) )
+			{
+			default:
 				fDBF.Set_Value(iField, CSG_String(pShape->asString(iField)));
 				break;
 
+			case DBF_FT_FLOAT:
 			case DBF_FT_NUMERIC:
-				if( pShape->is_NoData(iField) )
-				{
-					fDBF.Set_NoData(iField);
-				}
-				else
-				{
-					fDBF.Set_Value(iField, pShape->asDouble(iField));
-				}
+				fDBF.Set_Value(iField, pShape->asDouble(iField));
 				break;
 			}
 		}

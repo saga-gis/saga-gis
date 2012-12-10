@@ -88,11 +88,9 @@
 #define DBF_FT_CHARACTER		'C'
 #define DBF_FT_DATE				'D'
 #define DBF_FT_FLOAT			'F'
-#define DBF_FT_GENERAL			'G'
+#define DBF_FT_NUMERIC			'N'
 #define DBF_FT_LOGICAL			'L'
 #define DBF_FT_MEMO				'M'
-#define DBF_FT_NUMERIC			'N'
-#define DBF_FT_PICTURE			'P'
 
 
 ///////////////////////////////////////////////////////////
@@ -105,52 +103,36 @@
 class CSG_Table_DBase  
 {
 public:
-	//-----------------------------------------------------
-	typedef struct
-	{
-		char					Name[14],
-								Type,
-								Displacement[4],
-								WorkAreaID,
-								ProductionIdx;
-
-		unsigned char			Width,
-								Decimals;
-	}
-	TFieldDesc;
-
-
-public:
 	CSG_Table_DBase(void);
 	virtual ~CSG_Table_DBase(void);
 
 	//-----------------------------------------------------
-	bool						Open				(const SG_Char *FileName);
-	bool						Open				(const SG_Char *FileName, int nFields, TFieldDesc *FieldDesc);
-
 	void						Close				(void);
 
+	bool						Open_Read			(const SG_Char *FileName, class CSG_Table *pTable, bool bRecords_Load = true);
+	bool						Open_Write			(const SG_Char *FileName, class CSG_Table *pTable, bool bRecords_Save = true);
+
 	//-----------------------------------------------------
-	int							Get_FieldCount		(void)
-	{	return( nFields );	}
+	int							Get_Field_Count		(void)
+	{	return( m_nFields );	}
 
-	const char *				Get_FieldName		(int iField)
-	{	return( iField >= 0 && iField < nFields ? FieldDesc[iField].Name     : NULL );	}
+	const char *				Get_Field_Name		(int iField)
+	{	return( iField >= 0 && iField < m_nFields ? m_Fields[iField].Name     : NULL );	}
 
-	char						Get_FieldType		(int iField)
-	{	return( iField >= 0 && iField < nFields ? FieldDesc[iField].Type     : DBF_FT_NONE );	}
+	char						Get_Field_Type		(int iField)
+	{	return( iField >= 0 && iField < m_nFields ? m_Fields[iField].Type     : DBF_FT_NONE );	}
 
-	int							Get_FieldWidth		(int iField)
-	{	return( iField >= 0 && iField < nFields ? FieldDesc[iField].Width    : 0 );	}
+	int							Get_Field_Width		(int iField)
+	{	return( iField >= 0 && iField < m_nFields ? m_Fields[iField].Width    : 0 );	}
 
-	int							Get_FieldDecimals	(int iField)
-	{	return( iField >= 0 && iField < nFields ? FieldDesc[iField].Decimals : 0 );	}
+	int							Get_Field_Decimals	(int iField)
+	{	return( iField >= 0 && iField < m_nFields ? m_Fields[iField].Decimals : 0 );	}
 
 
 	//-----------------------------------------------------
 	int							Get_File_Position	(void);
-	int							Get_File_Length		(void)	{	return( nFileBytes );	}
-	int							Get_Record_Count	(void)	{	return( nRecords );		}
+	int							Get_File_Length		(void)	{	return( m_nFileBytes );	}
+	int							Get_Record_Count	(void)	{	return( m_nRecords   );	}
 
 	//-----------------------------------------------------
 	bool						Move_First			(void);
@@ -171,23 +153,41 @@ public:
 	bool						Set_NoData			(int iField);
 
 
-protected:
+private:
+	typedef struct
+	{
+		char					Name[12], Type, Displacement[4], WorkAreaID, ProductionIdx;
 
-	bool						bOpen, bReadOnly, bModified, bRecModified;
+		unsigned char			Width, Decimals;
 
-	char						LastUpdate[3], Transaction, LanguageDrvID, ProductionIdx,
-								*Record, *Result_String;
+		int						Offset;
+	}
+	TDBF_Field;
 
-	unsigned char				FileType, bEncrypted;
+	typedef struct
+	{
+		char					LastUpdate[3], Transaction, LanguageDrvID, ProductionIdx;
 
-	short						nHeaderBytes, nRecordBytes;
+		unsigned char			FileType, bEncrypted;
+	}
+	TDBF_Header;
 
-	int							nFields, nRecords, *FieldOffset;
-	long						nFileBytes;
 
-	FILE						*hFile;
+private:
 
-	TFieldDesc					*FieldDesc;
+	bool						m_bReadOnly, m_bModified;
+
+	char						*m_Record;
+
+	short						m_nHeaderBytes, m_nRecordBytes;
+
+	int							m_nFields, m_nRecords;
+
+	long						m_nFileBytes;
+
+	FILE						*m_hFile;
+
+	TDBF_Field					*m_Fields;
 
 
 	void						Header_Write		(void);
