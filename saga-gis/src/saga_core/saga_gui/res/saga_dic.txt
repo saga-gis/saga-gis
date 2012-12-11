@@ -1,210 +1,213 @@
 PROJ4	DIR	WKT	DESC
-aea	 	Albers_Conic_Equal_Area	Albers Equal Area
-aea	<	Albers	[ESRI] Albers Equal Area
-aeqd	 	Azimuthal_Equidistant	Azimuthal Equidistant
-airy	 	Airy	*) Airy
-aitoff	 	Aitoff	[ESRI] Aitoff
-alsk	 	Mod_Stererographics_of_Alaska	*) Mod. Stererographics of Alaska
-apian	 	Apian_Globular_I	*) Apian Globular I
-august	 	August_Epicycloidal	*) August Epicycloidal
-bacon	 	Bacon_Globular	*) Bacon Globular
-bipc	 	Bipolar_conic_of_western_hemisphere	*) Bipolar conic of western hemisphere
-boggs	 	Boggs_Eumorphic	*) Boggs Eumorphic
-bonne	 	Bonne	Bonne (Werner lat_1=90)
-cass	 	Cassini_Soldner	Cassini
-cass	<	Cassini	[ESRI] Cassini
-cc	 	Central_Cylindrical	*) Central Cylindrical
-cea	 	Cylindrical_Equal_Area	Equal Area Cylindrical, alias: Lambert Cyl.Eq.A., Normal Authalic Cyl. (FME), Behrmann (SP=30), Gall Orthogr. (SP=45)
-cea	<	Behrmann	[ESRI] Behrmann (standard parallel = 30)
-chamb	 	Chamberlin_Trimetric	*) Chamberlin Trimetric
-collg	 	Collignon	*) Collignon
-crast	 	Craster_Parabolic	[ESRI] Craster Parabolic (Putnins P4)
-denoy	 	Denoyer_Semi_Elliptical	*) Denoyer Semi-Elliptical
-eck1	 	Eckert_I	*) Eckert I
-eck2	 	Eckert_II	*) Eckert II
-eck3	 	Eckert_III	*) Eckert III
-eck4	 	Eckert_IV	Eckert IV
-eck5	 	Eckert_V	*) Eckert V
-eck6	 	Eckert_VI	Eckert VI
-eqc	 	Equirectangular	Equidistant Cylindrical (Plate Caree)
-eqc	<	Equidistant_Cylindrical	[ESRI] Equidistant Cylindrical (Plate Caree)
-eqc	<	Plate_Carree	[ESRI] Equidistant Cylindrical (Plate Caree)
-eqdc	 	Equidistant_Conic	*) Equidistant Conic
-euler	 	Euler	*) Euler
-etmerc	 	Extended_Transverse_Mercator	*) Extended Transverse Mercator
-fahey	 	Fahey	*) Fahey
-fouc	 	Foucault	*) Foucaut
-fouc_s	 	Foucault_Sinusoidal	*) Foucaut Sinusoidal
-gall	 	Gall_Stereographic	Gall (Gall Stereographic)
-geocent	 	Geocentric	*) Geocentric
-geos	 	GEOS	Geostationary Satellite View
-gins8	 	Ginsburg_VIII	*) Ginsburg VIII (TsNIIGAiK)
-gn_sinu	 	General_Sinusoidal_Series	*) General Sinusoidal Series
-gnom	 	Gnomonic	Gnomonic
-goode	 	Goode_Homolosine	*) Goode Homolosine
-gs48	 	Mod_Stererographics_48	*) Mod. Stererographics of 48 U.S.
-gs50	 	Mod_Stererographics_50	*) Mod. Stererographics of 50 U.S.
-hammer	 	Hammer_Eckert_Greifendorff	*) Hammer & Eckert-Greifendorff
-hatano	 	Hatano_Asymmetrical_Equal_Area	*) Hatano Asymmetrical Equal Area
-igh	 	Interrupted_Goodes_Homolosine	*) Interrupted Goode's Homolosine
-imw_p	 	Internation_Map_of_the_World_Polyconic	*) Internation Map of the World Polyconic
-kav5	 	Kavraisky_V	*) Kavraisky V
-kav7	 	Kavraisky_VII	*) Kavraisky VII
-krovak	 	Krovak	Krovak
-labrd	 	Laborde_Oblique_Mercator	*) Laborde
-laea	 	Lambert_Azimuthal_Equal_Area	Lambert Azimuthal Equal Area
-lagrng	 	Lagrange	*) Lagrange
-larr	 	Larrivee	*) Larrivee
-lask	 	Laskowski	*) Laskowski
-lcc	<	Lambert_Conformal_Conic_1SP	Lambert Conformal Conic (1 standard parallel)
-lcc	<	Lambert_Conformal_Conic_2SP	Lambert Conformal Conic (2 standard parallels)
-lcc	 	Lambert_Conformal_Conic	Lambert Conformal Conic
-lcca	 	Lambert_Conformal_Conic_Alternative	*) Lambert Conformal Conic Alternative
-leac	 	Lambert_Equal_Area_Conic	*) Lambert Equal Area Conic
-lee_os	 	Lee_Oblated_Stereographic	*) Lee Oblated Stereographic
-loxim	 	Loximuthal	[ESRI] Loximuthal
-lsat	 	Space_oblique_for_LANDSAT	*) Space oblique for LANDSAT
-mbt_s	 	McBryde_Thomas_Flat_Polar_Sine	*) McBryde-Thomas Flat-Polar Sine
-mbt_fps	 	McBryde_Thomas_Flat_Polar_Sine_2	*) McBryde-Thomas Flat-Pole Sine (No. 2)
-mbtfpp	 	McBryde_Thomas_Flat_Polar_Parabolic	*) McBride-Thomas Flat-Polar Parabolic
-mbtfpq	 	Flat_Polar_Quartic	[ESRI] McBryde-Thomas Flat-Polar Quartic
-mbtfps	 	McBryde_Thomas_Flat_Polar_Sinusoidal	*) McBryde-Thomas Flat-Polar Sinusoidal
-merc	 	Mercator	[ESRI] Mercator
-merc	<	Mercator_1SP	Mercator (1 standard parallel)
-merc	<	Mercator_2SP	Mercator (2 standard parallels)
-mil_os	 	Miller_Oblated_Stereographic	*) Miller Oblated Stereographic
-mill	 	Miller_Cylindrical	Miller Cylindrical
-moll	 	Mollweide	Mollweide
-murd1	 	Murdoch_I	*) Murdoch I
-murd2	 	Murdoch_II	*) Murdoch II
-murd3	 	Murdoch_III	*) Murdoch III
-nell	 	Nell	*) Nell
-nell_h	 	Nell_Hammer	*) Nell-Hammer
-nicol	 	Nicolosi_Globular	*) Nicolosi Globular
-nsper	 	Near_sided_perspective	*) Near-sided perspective
-nzmg	 	New_Zealand_Map_Grid	New Zealand Map Grid
-ob_tran	 	General_Oblique_Transformation	*) General Oblique Transformation
-ocea	 	Oblique_Cylindrical_Equal_Area	*) Oblique Cylindrical Equal Area
-oea	 	Oblated_Equal_Area	*) Oblated Equal Area
-omerc	 	Hotine_Oblique_Mercator	Oblique Mercator
-omerc	<	Oblique_Mercator	Oblique Mercator
-ortel	 	Ortelius_Oval	*) Ortelius Oval
-ortho	 	Orthographic	Orthographic (ESRI: World from Space)
-pconic	 	Perspective_Conic	*) Perspective Conic
-poly	 	Polyconic	*) Polyconic (American)
-putp1	 	Putnins_P1	*) Putnins P1
-putp2	 	Putnins_P2	*) Putnins P2
-putp3	 	Putnins_P3	*) Putnins P3
-putp3p	 	Putnins_P3'	*) Putnins P3'
-putp4p	 	Putnins_P4'	*) Putnins P4'
-putp5	 	Putnins_P5	*) Putnins P5
-putp5p	 	Putnins_P5'	*) Putnins P5'
-putp6	 	Putnins_P6	*) Putnins P6
-putp6p	 	Putnins_P6'	*) Putnins P6'
-qua_aut	 	Quartic_Authalic	[ESRI] Quartic Authalic
-robin	 	Robinson	Robinson
-rouss	 	Roussilhe_Stereographic	*) Roussilhe Stereographic
-rpoly	 	Rectangular_Polyconic	*) Rectangular Polyconic
-sinu	 	Sinusoidal	Sinusoidal (Sanson-Flamsteed)
-somerc	 	Hotine_Oblique_Mercator	Swiss Oblique Mercator
-somerc	<	Swiss_Oblique_Cylindrical	Swiss Oblique Cylindrical
-somerc	<	Hotine_Oblique_Mercator_Azimuth_Center	[ESRI] Swiss Oblique Mercator/Cylindrical
-stere	<	Polar_Stereographic	Stereographic
-stere	 	Stereographic	[ESRI] Stereographic
-sterea	 	Oblique_Stereographic	Oblique Stereographic Alternative
-gstmerc	 	Gauss_Schreiber_Transverse_Mercator	*) Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)
-tcc	 	Transverse_Central_Cylindrical	*) Transverse Central Cylindrical
-tcea	 	Transverse_Cylindrical_Equal_Area	*) Transverse Cylindrical Equal Area
-tissot	 	Tissot_Conic	*) Tissot Conic
-tmerc	 	Transverse_Mercator	*) Transverse Mercator
-tmerc	<	Gauss_Kruger	[ESRI] DHDN
-tpeqd	 	Two_Point_Equidistant	*) Two Point Equidistant
-tpers	 	Tilted_perspective	*) Tilted perspective
-ups	 	Universal_Polar_Stereographic	*) Universal Polar Stereographic
-urm5	 	Urmaev_V	*) Urmaev V
-urmfps	 	Urmaev_Flat_Polar_Sinusoidal	*) Urmaev Flat-Polar Sinusoidal
-utm	>	Transverse_Mercator	*) Universal Transverse Mercator (UTM)
-vandg	<	Van_Der_Grinten_I	[ESRI] van der Grinten (I)
-vandg	 	VanDerGrinten	van der Grinten (I)
-vandg2	 	VanDerGrinten_II	*) van der Grinten II
-vandg3	 	VanDerGrinten_III	*) van der Grinten III
-vandg4	 	VanDerGrinten_IV	*) van der Grinten IV
-vitk1	 	Vitkovsky_I	*) Vitkovsky I
-wag1	 	Wagner_I	*) Wagner I (Kavraisky VI)
-wag2	 	Wagner_II	*) Wagner II
-wag3	 	Wagner_III	*) Wagner III
-wag4	 	Wagner_IV	*) Wagner IV
-wag5	 	Wagner_V	*) Wagner V
-wag6	 	Wagner_VI	*) Wagner VI
-wag7	 	Wagner_VII	*) Wagner VII
-weren	 	Werenskiold_I	*) Werenskiold I
-wink1	 	Winkel_I	[ESRI] Winkel I
-wink2	 	Winkel_II	[ESRI] Winkel II
-wintri	 	Winkel_Tripel	[ESRI] Winkel Tripel
-alpha	 	azimuth	? Used with Oblique Mercator and possibly a few others
-k	>	scale_factor	Scaling factor (old name)
-K	>	scale_factor	? Scaling factor (old name)
-k_0	 	scale_factor	Scaling factor (new name)
-lat_0	 	latitude_of_origin	Latitude of origin
-lat_0	<	latitude_of_center	Latitude of center
-lat_0	<	central_parallel	[ESRI] Latitude of center
-lat_1	 	standard_parallel_1	Latitude of first standard parallel
-lat_2	 	standard_parallel_2	Latitude of second standard parallel
-lat_ts	>	latitude_of_origin	Latitude of true scale
-lon_0	 	central_meridian	Central meridian
-lon_0	<	longitude_of_center	Longitude of center
-lonc	>	longitude_of_center	? Longitude used with Oblique Mercator and possibly a few others
-x_0	 	false_easting	False easting
-y_0	 	false_northing	False northing
-azi	 		
-belgium	 		
-beta	 		
-czech	 		
-gamma	 		
-geoc	 		
-guam	 		
-h	 	satellite_height	Satellite height (geos - Geostationary Satellite View)
-lat_b	 		
-lat_t	 		
-lon_1	 		
-lon_2	 		
-lsat	 		
-m	 		
-M	 		
-n	 		
-no_cut	 		
-no_off	 		
-no_rot	 		
-ns	 		
-o_alpha	 		
-o_lat_1	 		
-o_lat_2	 		
-o_lat_c	 		
-o_lat_p	 		
-o_lon_1	 		
-o_lon_2	 		
-o_lon_c	 		
-o_lon_p	 		
-o_proj	 		
-over	 		
-p	 		
-path	 		
-q	 		
-R	 		
-R_a	 		
-R_A	 		
-R_g	 		
-R_h	 		
-R_lat_a	 		
-R_lat_g	 		
-rot	 		
-R_V	 		
-s	 		
-sym	 		
-t	 		
-theta	 		
-tilt	 		
-vopt	 		
-W	 		
-westo	 		
-	 		
+"aea"	" "	"Albers_Conic_Equal_Area"	"Albers Equal Area"
+"aea"	"<"	"Albers"	"[ESRI] Albers Equal Area"
+"aeqd"	" "	"Azimuthal_Equidistant"	"Azimuthal Equidistant"
+"airy"	" "	"Airy"	"*) Airy"
+"aitoff"	" "	"Aitoff"	"[ESRI] Aitoff"
+"alsk"	" "	"Mod_Stererographics_of_Alaska"	"*) Mod. Stererographics of Alaska"
+"Amersfoort"	"<"	"D_Amersfoort"	"[ESRI] datum RD_NEW"
+"Amersfoort"	"<"	"GCS_Amersfoort"	"[ESRI] GCS RD_NEW"
+"Amersfoort / RD New"	"<"	"Amersfoort_RD_New"	"[ESRI] RD_NEW"
+"apian"	" "	"Apian_Globular_I"	"*) Apian Globular I"
+"august"	" "	"August_Epicycloidal"	"*) August Epicycloidal"
+"bacon"	" "	"Bacon_Globular"	"*) Bacon Globular"
+"bipc"	" "	"Bipolar_conic_of_western_hemisphere"	"*) Bipolar conic of western hemisphere"
+"boggs"	" "	"Boggs_Eumorphic"	"*) Boggs Eumorphic"
+"bonne"	" "	"Bonne"	"Bonne (Werner lat_1=90)"
+"cass"	" "	"Cassini_Soldner"	"Cassini"
+"cass"	"<"	"Cassini"	"[ESRI] Cassini"
+"cc"	" "	"Central_Cylindrical"	"*) Central Cylindrical"
+"cea"	" "	"Cylindrical_Equal_Area"	"Equal Area Cylindrical, alias: Lambert Cyl.Eq.A., Normal Authalic Cyl. (FME), Behrmann (SP=30), Gall Orthogr. (SP=45)"
+"cea"	"<"	"Behrmann"	"[ESRI] Behrmann (standard parallel = 30)"
+"chamb"	" "	"Chamberlin_Trimetric"	"*) Chamberlin Trimetric"
+"collg"	" "	"Collignon"	"*) Collignon"
+"crast"	" "	"Craster_Parabolic"	"[ESRI] Craster Parabolic (Putnins P4)"
+"denoy"	" "	"Denoyer_Semi_Elliptical"	"*) Denoyer Semi-Elliptical"
+"eck1"	" "	"Eckert_I"	"*) Eckert I"
+"eck2"	" "	"Eckert_II"	"*) Eckert II"
+"eck3"	" "	"Eckert_III"	"*) Eckert III"
+"eck4"	" "	"Eckert_IV"	"Eckert IV"
+"eck5"	" "	"Eckert_V"	"*) Eckert V"
+"eck6"	" "	"Eckert_VI"	"Eckert VI"
+"eqc"	" "	"Equirectangular"	"Equidistant Cylindrical (Plate Caree)"
+"eqc"	"<"	"Equidistant_Cylindrical"	"[ESRI] Equidistant Cylindrical (Plate Caree)"
+"eqc"	"<"	"Plate_Carree"	"[ESRI] Equidistant Cylindrical (Plate Caree)"
+"eqdc"	" "	"Equidistant_Conic"	"*) Equidistant Conic"
+"euler"	" "	"Euler"	"*) Euler"
+"etmerc"	" "	"Extended_Transverse_Mercator"	"*) Extended Transverse Mercator"
+"fahey"	" "	"Fahey"	"*) Fahey"
+"fouc"	" "	"Foucault"	"*) Foucaut"
+"fouc_s"	" "	"Foucault_Sinusoidal"	"*) Foucaut Sinusoidal"
+"gall"	" "	"Gall_Stereographic"	"Gall (Gall Stereographic)"
+"geocent"	" "	"Geocentric"	"*) Geocentric"
+"geos"	" "	"GEOS"	"Geostationary Satellite View"
+"gins8"	" "	"Ginsburg_VIII"	"*) Ginsburg VIII (TsNIIGAiK)"
+"gn_sinu"	" "	"General_Sinusoidal_Series"	"*) General Sinusoidal Series"
+"gnom"	" "	"Gnomonic"	"Gnomonic"
+"goode"	" "	"Goode_Homolosine"	"*) Goode Homolosine"
+"gs48"	" "	"Mod_Stererographics_48"	"*) Mod. Stererographics of 48 U.S."
+"gs50"	" "	"Mod_Stererographics_50"	"*) Mod. Stererographics of 50 U.S."
+"hammer"	" "	"Hammer_Eckert_Greifendorff"	"*) Hammer & Eckert-Greifendorff"
+"hatano"	" "	"Hatano_Asymmetrical_Equal_Area"	"*) Hatano Asymmetrical Equal Area"
+"igh"	" "	"Interrupted_Goodes_Homolosine"	"*) Interrupted Goode's Homolosine"
+"imw_p"	" "	"Internation_Map_of_the_World_Polyconic"	"*) Internation Map of the World Polyconic"
+"kav5"	" "	"Kavraisky_V"	"*) Kavraisky V"
+"kav7"	" "	"Kavraisky_VII"	"*) Kavraisky VII"
+"krovak"	" "	"Krovak"	"Krovak"
+"labrd"	" "	"Laborde_Oblique_Mercator"	"*) Laborde"
+"laea"	" "	"Lambert_Azimuthal_Equal_Area"	"Lambert Azimuthal Equal Area"
+"lagrng"	" "	"Lagrange"	"*) Lagrange"
+"larr"	" "	"Larrivee"	"*) Larrivee"
+"lask"	" "	"Laskowski"	"*) Laskowski"
+"lcc"	"<"	"Lambert_Conformal_Conic_1SP"	"Lambert Conformal Conic (1 standard parallel)"
+"lcc"	"<"	"Lambert_Conformal_Conic_2SP"	"Lambert Conformal Conic (2 standard parallels)"
+"lcc"	" "	"Lambert_Conformal_Conic"	"Lambert Conformal Conic"
+"lcca"	" "	"Lambert_Conformal_Conic_Alternative"	"*) Lambert Conformal Conic Alternative"
+"leac"	" "	"Lambert_Equal_Area_Conic"	"*) Lambert Equal Area Conic"
+"lee_os"	" "	"Lee_Oblated_Stereographic"	"*) Lee Oblated Stereographic"
+"loxim"	" "	"Loximuthal"	"[ESRI] Loximuthal"
+"lsat"	" "	"Space_oblique_for_LANDSAT"	"*) Space oblique for LANDSAT"
+"mbt_s"	" "	"McBryde_Thomas_Flat_Polar_Sine"	"*) McBryde-Thomas Flat-Polar Sine"
+"mbt_fps"	" "	"McBryde_Thomas_Flat_Polar_Sine_2"	"*) McBryde-Thomas Flat-Pole Sine (No. 2)"
+"mbtfpp"	" "	"McBryde_Thomas_Flat_Polar_Parabolic"	"*) McBride-Thomas Flat-Polar Parabolic"
+"mbtfpq"	" "	"Flat_Polar_Quartic"	"[ESRI] McBryde-Thomas Flat-Polar Quartic"
+"mbtfps"	" "	"McBryde_Thomas_Flat_Polar_Sinusoidal"	"*) McBryde-Thomas Flat-Polar Sinusoidal"
+"merc"	" "	"Mercator"	"[ESRI] Mercator"
+"merc"	"<"	"Mercator_1SP"	"Mercator (1 standard parallel)"
+"merc"	"<"	"Mercator_2SP"	"Mercator (2 standard parallels)"
+"mil_os"	" "	"Miller_Oblated_Stereographic"	"*) Miller Oblated Stereographic"
+"mill"	" "	"Miller_Cylindrical"	"Miller Cylindrical"
+"moll"	" "	"Mollweide"	"Mollweide"
+"murd1"	" "	"Murdoch_I"	"*) Murdoch I"
+"murd2"	" "	"Murdoch_II"	"*) Murdoch II"
+"murd3"	" "	"Murdoch_III"	"*) Murdoch III"
+"nell"	" "	"Nell"	"*) Nell"
+"nell_h"	" "	"Nell_Hammer"	"*) Nell-Hammer"
+"nicol"	" "	"Nicolosi_Globular"	"*) Nicolosi Globular"
+"nsper"	" "	"Near_sided_perspective"	"*) Near-sided perspective"
+"nzmg"	" "	"New_Zealand_Map_Grid"	"New Zealand Map Grid"
+"ob_tran"	" "	"General_Oblique_Transformation"	"*) General Oblique Transformation"
+"ocea"	" "	"Oblique_Cylindrical_Equal_Area"	"*) Oblique Cylindrical Equal Area"
+"oea"	" "	"Oblated_Equal_Area"	"*) Oblated Equal Area"
+"omerc"	" "	"Hotine_Oblique_Mercator"	"Oblique Mercator"
+"omerc"	"<"	"Oblique_Mercator"	"Oblique Mercator"
+"ortel"	" "	"Ortelius_Oval"	"*) Ortelius Oval"
+"ortho"	" "	"Orthographic"	"Orthographic (ESRI: World from Space)"
+"pconic"	" "	"Perspective_Conic"	"*) Perspective Conic"
+"poly"	" "	"Polyconic"	"*) Polyconic (American)"
+"putp1"	" "	"Putnins_P1"	"*) Putnins P1"
+"putp2"	" "	"Putnins_P2"	"*) Putnins P2"
+"putp3"	" "	"Putnins_P3"	"*) Putnins P3"
+"putp3p"	" "	"Putnins_P3'"	"*) Putnins P3'"
+"putp4p"	" "	"Putnins_P4'"	"*) Putnins P4'"
+"putp5"	" "	"Putnins_P5"	"*) Putnins P5"
+"putp5p"	" "	"Putnins_P5'"	"*) Putnins P5'"
+"putp6"	" "	"Putnins_P6"	"*) Putnins P6"
+"putp6p"	" "	"Putnins_P6'"	"*) Putnins P6'"
+"qua_aut"	" "	"Quartic_Authalic"	"[ESRI] Quartic Authalic"
+"robin"	" "	"Robinson"	"Robinson"
+"rouss"	" "	"Roussilhe_Stereographic"	"*) Roussilhe Stereographic"
+"rpoly"	" "	"Rectangular_Polyconic"	"*) Rectangular Polyconic"
+"sinu"	" "	"Sinusoidal"	"Sinusoidal (Sanson-Flamsteed)"
+"somerc"	" "	"Hotine_Oblique_Mercator"	"Swiss Oblique Mercator"
+"somerc"	"<"	"Swiss_Oblique_Cylindrical"	"Swiss Oblique Cylindrical"
+"somerc"	"<"	"Hotine_Oblique_Mercator_Azimuth_Center"	"[ESRI] Swiss Oblique Mercator/Cylindrical"
+"stere"	"<"	"Polar_Stereographic"	"Stereographic"
+"stere"	" "	"Stereographic"	"[ESRI] Stereographic"
+"sterea"	" "	"Oblique_Stereographic"	"Oblique Stereographic Alternative"
+"gstmerc"	" "	"Gauss_Schreiber_Transverse_Mercator"	"*) Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)"
+"tcc"	" "	"Transverse_Central_Cylindrical"	"*) Transverse Central Cylindrical"
+"tcea"	" "	"Transverse_Cylindrical_Equal_Area"	"*) Transverse Cylindrical Equal Area"
+"tissot"	" "	"Tissot_Conic"	"*) Tissot Conic"
+"tmerc"	" "	"Transverse_Mercator"	"*) Transverse Mercator"
+"tmerc"	"<"	"Gauss_Kruger"	"[ESRI] DHDN"
+"tpeqd"	" "	"Two_Point_Equidistant"	"*) Two Point Equidistant"
+"tpers"	" "	"Tilted_perspective"	"*) Tilted perspective"
+"ups"	" "	"Universal_Polar_Stereographic"	"*) Universal Polar Stereographic"
+"urm5"	" "	"Urmaev_V"	"*) Urmaev V"
+"urmfps"	" "	"Urmaev_Flat_Polar_Sinusoidal"	"*) Urmaev Flat-Polar Sinusoidal"
+"utm"	">"	"Transverse_Mercator"	"*) Universal Transverse Mercator (UTM)"
+"vandg"	"<"	"Van_Der_Grinten_I"	"[ESRI] van der Grinten (I)"
+"vandg"	" "	"VanDerGrinten"	"van der Grinten (I)"
+"vandg2"	" "	"VanDerGrinten_II"	"*) van der Grinten II"
+"vandg3"	" "	"VanDerGrinten_III"	"*) van der Grinten III"
+"vandg4"	" "	"VanDerGrinten_IV"	"*) van der Grinten IV"
+"vitk1"	" "	"Vitkovsky_I"	"*) Vitkovsky I"
+"wag1"	" "	"Wagner_I"	"*) Wagner I (Kavraisky VI)"
+"wag2"	" "	"Wagner_II"	"*) Wagner II"
+"wag3"	" "	"Wagner_III"	"*) Wagner III"
+"wag4"	" "	"Wagner_IV"	"*) Wagner IV"
+"wag5"	" "	"Wagner_V"	"*) Wagner V"
+"wag6"	" "	"Wagner_VI"	"*) Wagner VI"
+"wag7"	" "	"Wagner_VII"	"*) Wagner VII"
+"weren"	" "	"Werenskiold_I"	"*) Werenskiold I"
+"wink1"	" "	"Winkel_I"	"[ESRI] Winkel I"
+"wink2"	" "	"Winkel_II"	"[ESRI] Winkel II"
+"wintri"	" "	"Winkel_Tripel"	"[ESRI] Winkel Tripel"
+"alpha"	" "	"azimuth"	"? Used with Oblique Mercator and possibly a few others"
+"k"	">"	"scale_factor"	"Scaling factor (old name)"
+"K"	">"	"scale_factor"	"? Scaling factor (old name)"
+"k_0"	" "	"scale_factor"	"Scaling factor (new name)"
+"lat_0"	" "	"latitude_of_origin"	"Latitude of origin"
+"lat_0"	"<"	"latitude_of_center"	"Latitude of center"
+"lat_0"	"<"	"central_parallel"	"[ESRI] Latitude of center"
+"lat_1"	" "	"standard_parallel_1"	"Latitude of first standard parallel"
+"lat_2"	" "	"standard_parallel_2"	"Latitude of second standard parallel"
+"lat_ts"	">"	"latitude_of_origin"	"Latitude of true scale"
+"lon_0"	" "	"central_meridian"	"Central meridian"
+"lon_0"	"<"	"longitude_of_center"	"Longitude of center"
+"lonc"	">"	"longitude_of_center"	"? Longitude used with Oblique Mercator and possibly a few others"
+"x_0"	" "	"false_easting"	"False easting"
+"y_0"	" "	"false_northing"	"False northing"
+"azi"	" "	""	""
+"belgium"	" "	""	""
+"beta"	" "	""	""
+"czech"	" "	""	""
+"gamma"	" "	""	""
+"geoc"	" "	""	""
+"guam"	" "	""	""
+"h"	" "	"satellite_height"	"Satellite height (geos - Geostationary Satellite View)"
+"lat_b"	" "	""	""
+"lat_t"	" "	""	""
+"lon_1"	" "	""	""
+"lon_2"	" "	""	""
+"lsat"	" "	""	""
+"m"	" "	""	""
+"M"	" "	""	""
+"n"	" "	""	""
+"no_cut"	" "	""	""
+"no_off"	" "	""	""
+"no_rot"	" "	""	""
+"ns"	" "	""	""
+"o_alpha"	" "	""	""
+"o_lat_1"	" "	""	""
+"o_lat_2"	" "	""	""
+"o_lat_c"	" "	""	""
+"o_lat_p"	" "	""	""
+"o_lon_1"	" "	""	""
+"o_lon_2"	" "	""	""
+"o_lon_c"	" "	""	""
+"o_lon_p"	" "	""	""
+"o_proj"	" "	""	""
+"over"	" "	""	""
+"p"	" "	""	""
+"path"	" "	""	""
+"q"	" "	""	""
+"R"	" "	""	""
+"R_a"	" "	""	""
+"R_A"	" "	""	""
+"R_g"	" "	""	""
+"R_h"	" "	""	""
+"R_lat_a"	" "	""	""
+"R_lat_g"	" "	""	""
+"rot"	" "	""	""
+"R_V"	" "	""	""
+"s"	" "	""	""
+"sym"	" "	""	""
+"t"	" "	""	""
+"theta"	" "	""	""
+"tilt"	" "	""	""
+"vopt"	" "	""	""
+"W"	" "	""	""
+"westo"	" "	""	""
+""	" "	""	""
