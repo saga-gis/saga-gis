@@ -79,30 +79,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define XBASE_FLDHDR_SZ			32
-#define TRIM_DBF_WHITESPACE
-
-//---------------------------------------------------------
-#ifdef _SAGA_LINUX
-char * _strupr(char *String)
-{
-	if( String )
-		for(char *p=String; *p; p++)
-			if( 'a' <= *p && *p <= 'z' )
-				*p	+= 'A' - 'a';
-
-	return( String );
-}
-#endif
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CSG_Table_DBase::CSG_Table_DBase(void)
 {
 	m_hFile		= NULL;
@@ -198,12 +174,15 @@ bool CSG_Table_DBase::Open_Read(const SG_Char *FileName, CSG_Table *pTable, bool
 				pTable->Add_Field(Get_Field_Name(iField), SG_DATATYPE_Date);
 				break;
 
+			case DBF_FT_FLOAT:
+				pTable->Add_Field(Get_Field_Name(iField), SG_DATATYPE_Double);
+				break;
+
 			case DBF_FT_NUMERIC:
 				pTable->Add_Field(Get_Field_Name(iField), Get_Field_Decimals(iField) > 0
 					? SG_DATATYPE_Double
 					: SG_DATATYPE_Long
 				);
-				break;
 			}
 		}
 
@@ -222,6 +201,7 @@ bool CSG_Table_DBase::Open_Read(const SG_Char *FileName, CSG_Table *pTable, bool
 						pRecord->Set_Value(iField, asString(iField));
 						break;
 
+					case DBF_FT_FLOAT:
 					case DBF_FT_NUMERIC:
 						{
 							double	Value;
@@ -388,10 +368,15 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 			break;
 
 		case SG_DATATYPE_Float:
-		case SG_DATATYPE_Double:
 			m_Fields[iField].Type		= DBF_FT_NUMERIC;
 			m_Fields[iField].Width		= (BYTE)16;
 			m_Fields[iField].Decimals	= (BYTE)8;
+			break;
+
+		case SG_DATATYPE_Double:
+			m_Fields[iField].Type		= DBF_FT_FLOAT;
+			m_Fields[iField].Width		= (BYTE)19;
+			m_Fields[iField].Decimals	= (BYTE)10;
 			break;
 		}
 	}
@@ -421,6 +406,7 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 					Set_Value(iField, CSG_String(pRecord->asString(iField)));
 					break;
 
+				case DBF_FT_FLOAT:
 				case DBF_FT_NUMERIC:
 					Set_Value(iField, pRecord->asDouble(iField));
 					break;
@@ -679,7 +665,8 @@ bool CSG_Table_DBase::asDouble(int iField, double &Value)
 			s	+= *c;
 		}
 
-		if( m_Fields[iField].Type == DBF_FT_NUMERIC )
+		if( m_Fields[iField].Type == DBF_FT_FLOAT
+		||  m_Fields[iField].Type == DBF_FT_NUMERIC )
 		{
 			return( s.asDouble(Value) );
 		}
@@ -753,23 +740,32 @@ bool CSG_Table_DBase::Set_Value(int iField, double Value)
 
 	if( m_hFile && iField >= 0 && iField < m_nFields && m_Fields[iField].Width > 0 )
 	{
+		if( m_Fields[iField].Type == DBF_FT_FLOAT )
+		{	// Number stored as a string, right justified, and padded with blanks to the width of the field.
+			sprintf(s, "%*.*e", m_Fields[iField].Width, m_Fields[iField].Decimals, Value);
+
+			int	n	= (int)strlen(s);	if( n > m_Fields[iField].Width )	{	n	= m_Fields[iField].Width;	}
+
+			memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
+			memcpy(m_Record + m_Fields[iField].Offset, s  , n);
+
+			m_bModified	= true;
+
+			return( true );
+		}
+
 		if( m_Fields[iField].Type == DBF_FT_NUMERIC )
 		{	// Number stored as a string, right justified, and padded with blanks to the width of the field.
 			if( m_Fields[iField].Decimals > 0 )
 			{
-				sprintf(s, "%.*f", m_Fields[iField].Decimals, Value);
+				sprintf(s, "%*.*f", m_Fields[iField].Width, m_Fields[iField].Decimals, Value);
 			}
 			else
 			{
-				sprintf(s, "%d", (int)Value);
+				sprintf(s, "%*d"  , m_Fields[iField].Width, (int)Value);
 			}
 
-			int	n	= (int)strlen(s);
-
-			if( n > m_Fields[iField].Width )
-			{
-				n	= m_Fields[iField].Width;
-			}
+			int	n	= (int)strlen(s);	if( n > m_Fields[iField].Width )	{	n	= m_Fields[iField].Width;	}
 
 			memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
 			memcpy(m_Record + m_Fields[iField].Offset, s  , n);
@@ -844,6 +840,10 @@ bool CSG_Table_DBase::Set_NoData(int iField)
 	if( m_hFile && iField >= 0 && iField < m_nFields && m_Fields[iField].Width > 0 )
 	{
 		memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
+
+		m_bModified	= true;
+
+		return( false );
 	}
 
 	return( true );
