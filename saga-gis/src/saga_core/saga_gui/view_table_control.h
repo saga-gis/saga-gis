@@ -126,6 +126,9 @@ public:
 	void						On_Sel_To_Top		(wxCommandEvent  &event);
 	void						On_Sel_To_Top_UI	(wxUpdateUIEvent &event);
 
+	void						On_Sel_Only			(wxCommandEvent  &event);
+	void						On_Sel_Only_UI		(wxUpdateUIEvent &event);
+
 	void						On_Autosize_Cols	(wxCommandEvent  &event);
 	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
@@ -153,7 +156,7 @@ public:
 
 private:
 
-	bool						m_bUpdating;
+	bool						m_bUpdating, m_bSelOnly;
 
 	int							m_Constraint, m_Field_Offset;
 

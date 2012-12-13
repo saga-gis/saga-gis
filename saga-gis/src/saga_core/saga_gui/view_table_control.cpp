@@ -134,6 +134,9 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_MENU					(ID_CMD_TABLE_RECORD_DEL_ALL	, CVIEW_Table_Control::On_Record_Clr)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_DEL_ALL	, CVIEW_Table_Control::On_Record_Clr_UI)
 
+	EVT_MENU					(ID_CMD_TABLE_SELECTION_ONLY	, CVIEW_Table_Control::On_Sel_Only)
+	EVT_UPDATE_UI				(ID_CMD_TABLE_SELECTION_ONLY	, CVIEW_Table_Control::On_Sel_Only_UI)
+
 	EVT_MENU					(ID_CMD_TABLE_SELECTION_TO_TOP	, CVIEW_Table_Control::On_Sel_To_Top)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_SELECTION_TO_TOP	, CVIEW_Table_Control::On_Sel_To_Top_UI)
 
@@ -156,6 +159,7 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	m_pRecords		= NULL;
 	m_Constraint	= Constraint;
 	m_bUpdating		= false;
+	m_bSelOnly		= false;
 
 	Set_Labeling(false);
 
@@ -223,45 +227,18 @@ void CVIEW_Table_Control::Sort_Table(int iField, int Direction)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::_Set_Table(void)
 {
-	int		Difference;
-
-	//-----------------------------------------------------
 	BeginBatch();
 
 	//-----------------------------------------------------
-	m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, m_pTable->Get_Count() * sizeof(CSG_Table_Record *));
-
-	Difference	= m_pTable->Get_Record_Count() - GetNumberRows();
-
-	if( Difference > 0 )
-	{
-		AppendRows(Difference);
-	}
-	else if( Difference < 0 )
-	{
-		Difference	= -Difference < GetNumberRows() ? -Difference : GetNumberRows();
-
-		if( Difference > 0 )
-		{
-			DeleteRows(0, Difference);
-		}
-	}
-
-	//-----------------------------------------------------
-	Difference	= (m_pTable->Get_Field_Count() - m_Field_Offset) - GetNumberCols();
+	int	Difference	= (m_pTable->Get_Field_Count() - m_Field_Offset) - GetNumberCols();
 
 	if( Difference > 0 )
 	{
 		AppendCols(Difference);
 	}
-	else
-	{
-		Difference	= -Difference < GetNumberCols() ? -Difference : GetNumberCols();
-
-		if( Difference > 0 )
-		{
-			DeleteCols(0, Difference);
-		}	// here is (or was!?) a memory leak - solution: use own wxGridTableBase derived grid table class
+	else if( (Difference = -Difference < GetNumberCols() ? -Difference : GetNumberCols()) > 0 )
+	{	// here is (or was!?) a memory leak - solution: use own wxGridTableBase derived grid table class
+		DeleteCols(0, Difference);
 	}
 
 	//-----------------------------------------------------
@@ -271,13 +248,22 @@ bool CVIEW_Table_Control::_Set_Table(void)
 
 		switch( m_pTable->Get_Field_Type(iField) )
 		{
+		default:
+		case SG_DATATYPE_Byte:
 		case SG_DATATYPE_Char:
-		case SG_DATATYPE_String: default:
+		case SG_DATATYPE_String:
+		case SG_DATATYPE_Date:
+		case SG_DATATYPE_Binary:
 			break;
 
+		case SG_DATATYPE_Bit:
+		case SG_DATATYPE_Word:
 		case SG_DATATYPE_Short:
+		case SG_DATATYPE_DWord:
 		case SG_DATATYPE_Int:
+		case SG_DATATYPE_ULong:
 		case SG_DATATYPE_Long:
+		case SG_DATATYPE_Color:
 			SetColFormatNumber(iCol);
 			break;
 
@@ -285,17 +271,12 @@ bool CVIEW_Table_Control::_Set_Table(void)
 		case SG_DATATYPE_Double:
 			SetColFormatFloat(iCol);
 			break;
-
-		case SG_DATATYPE_Color:
-			SetColFormatNumber(iCol);
-			break;
 		}
 	}
 
 	//-----------------------------------------------------
 	_Set_Records();
 
-	//-----------------------------------------------------
 	EndBatch();
 
 	_Update_Views();
@@ -308,9 +289,45 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 {
 	BeginBatch();
 
-	if( bSelection_To_Top && m_pTable->Get_Selection_Count() > 0 )
+	//-----------------------------------------------------
+	if( m_bSelOnly && m_pTable->Get_Selection_Count() <= 0 )
 	{
-		for(int iRecord=0, iSel=0, iNoSel=m_pTable->Get_Selection_Count(); iRecord<m_pTable->Get_Count() && PROGRESSBAR_Set_Position(iRecord, m_pTable->Get_Count()); iRecord++)
+		m_bSelOnly	= false;
+	}
+
+	int	Difference, nRecords	= m_bSelOnly ? m_pTable->Get_Selection_Count() : m_pTable->Get_Count();
+
+	if( (Difference = nRecords - GetNumberRows()) > 0 )
+	{
+		AppendRows(Difference);
+	}
+	else if( Difference < 0 && (Difference = -Difference < GetNumberRows() ? -Difference : GetNumberRows()) > 0 )
+	{
+		DeleteRows(0, Difference);
+	}
+
+	m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, nRecords * sizeof(CSG_Table_Record *));
+
+	//-----------------------------------------------------
+	if( m_bSelOnly )
+	{
+		#pragma omp parallel for
+		for(int iRecord=0; iRecord<nRecords; iRecord++)
+		{
+			_Set_Record(iRecord, m_pTable->Get_Selection(iRecord));
+		}
+	}
+	else if( !bSelection_To_Top || m_pTable->Get_Selection_Count() <= 0 )
+	{
+		#pragma omp parallel for
+		for(int iRecord=0; iRecord<nRecords; iRecord++)
+		{
+			_Set_Record(iRecord, m_pTable->Get_Record_byIndex(iRecord));
+		}
+	}
+	else // if( bSelection_To_Top && m_pTable->Get_Selection_Count() > 0 )
+	{
+		for(int iRecord=0, iSel=0, iNoSel=m_pTable->Get_Selection_Count(); iRecord<nRecords && PROGRESSBAR_Set_Position(iRecord, nRecords); iRecord++)
 		{
 			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
 
@@ -323,19 +340,11 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 				_Set_Record(iNoSel++, pRecord);
 			}
 		}
-	}
-	else
-	{
-		for(int iRecord=0; iRecord<m_pTable->Get_Count() && PROGRESSBAR_Set_Position(iRecord, m_pTable->Get_Count()); iRecord++)
-		{
-			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
 
-			_Set_Record(iRecord, pRecord);
-		}
+		PROCESS_Set_Okay();
 	}
 
-	PROCESS_Set_Okay();
-
+	//-----------------------------------------------------
 	EndBatch();
 
 	Update_Selection();
@@ -622,7 +631,7 @@ void CVIEW_Table_Control::On_Field_Add_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 {
-	int			i;
+	int				i;
 	CSG_Parameters	P;
 
 	//-----------------------------------------------------
@@ -630,11 +639,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		P.Add_Value(
-			NULL	, CSG_String::Format(SG_T("_%d_"), i), m_pTable->Get_Field_Name(i),
-			_TL(""),
-			PARAMETER_TYPE_Bool, false
-		);
+		P.Add_Value(NULL, SG_Get_String(i, 0), m_pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
 	}
 
 	//-----------------------------------------------------
@@ -642,13 +647,13 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	{
 		for(i=m_pTable->Get_Field_Count()-1; i>=0; i--)
 		{
-			if( P(CSG_String::Format(SG_T("_%d_"), i))->asBool() )
+			if( P(SG_Get_String(i, 0))->asBool() )
 			{
 				m_pTable->Del_Field(i);
+
+				DeleteCols(i);
 			}
 		}
-
-		Update_Table();
 
 		g_pData->Update(m_pTable, NULL);
 	}
@@ -881,7 +886,7 @@ void CVIEW_Table_Control::On_Record_Clr_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Sel_To_Top(wxCommandEvent  &event)
 {
-	if( !FIXED_ROWS && m_pTable->Get_Selection_Count() > 0 )
+	if( m_pTable->Get_Selection_Count() > 0 )
 	{
 		_Set_Records(true);
 	}
@@ -889,7 +894,29 @@ void CVIEW_Table_Control::On_Sel_To_Top(wxCommandEvent  &event)
 
 void CVIEW_Table_Control::On_Sel_To_Top_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && m_pTable->Get_Selection_Count() > 0);
+	event.Enable(m_pTable->Get_Selection_Count() > 0);
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Sel_Only(wxCommandEvent  &event)
+{
+	if( m_pTable->Get_Selection_Count() > 0 && m_pTable->Get_Selection_Count() < GetNumberRows() )
+	{
+		m_bSelOnly	= true;
+
+		_Set_Records();
+	}
+	else if( m_bSelOnly )
+	{
+		m_bSelOnly	= false;
+
+		_Set_Records();
+	}
+}
+
+void CVIEW_Table_Control::On_Sel_Only_UI(wxUpdateUIEvent &event)
+{
+	event.Check(m_bSelOnly);
 }
 
 
@@ -921,9 +948,11 @@ void CVIEW_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 {
+	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
+
 	if( event.ControlDown() )
 	{
-		m_pTable->Select(m_pRecords[event.GetRow()], true);
+		m_pTable->Select(pRecord, true);
 
 		Update_Selection();
 	}
@@ -934,8 +963,6 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 	else
 	{
 		SelectRow	(event.GetRow(), false);
-
-		CSG_Table_Record	*pRecord;
 
 		if( (pRecord = m_pRecords[event.GetRow()]) != NULL )
 		{
@@ -1004,41 +1031,46 @@ void CVIEW_Table_Control::On_LClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 {
-	wxMenu	*pMenu;
+	wxMenu	Menu;
 
 	//-----------------------------------------------------
 	if( event.GetCol() != -1 )
 	{
-		pMenu	= new wxMenu(wxString::Format(wxT("%s"), _TL("Columns")), 0);
+		Menu.SetTitle(wxString::Format(wxT("%s"), _TL("Columns")));
 
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_ADD);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_DEL);
-		pMenu->AppendSeparator();
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_SORT);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_RENAME);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_TYPE);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_ADD);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_DEL);
 
-		PopupMenu(pMenu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
-		delete(pMenu);
+		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_RENAME);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_TYPE);
+
+		PopupMenu(&Menu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
 	}
 
 	//-----------------------------------------------------
 	else if( event.GetRow() != -1 )
 	{
-		pMenu	= new wxMenu(wxString::Format(wxT("%s"), _TL("Rows")), 0);
+		Menu.SetTitle(wxString::Format(wxT("%s"), _TL("Rows")));
 
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_ADD);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_INS);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_DEL);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_DEL_ALL);
-		pMenu->AppendSeparator();
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_SELECTION_TO_TOP);
-		pMenu->AppendSeparator();
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_ADD);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_INS);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL_ALL);
 
-		PopupMenu(pMenu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);
-		delete(pMenu);
+		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
+
+		if( !FIXED_ROWS )
+		{
+			Menu.AppendSeparator();
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_SELECTION_TO_TOP);
+			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
+		}
+
+		PopupMenu(&Menu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);
 	}
 
 	//-----------------------------------------------------
@@ -1093,15 +1125,23 @@ void CVIEW_Table_Control::Update_Selection(void)
 
 		BeginBatch();
 
-		ClearSelection();
-
-		if( m_pTable->Get_Selection_Count() > 0 )
+		if( m_pTable->Get_Selection_Count() >= m_pTable->Get_Count() )
 		{
-			for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
+			SelectAll();
+		}
+		else
+		{
+			ClearSelection();
+		
+			if( m_pTable->Get_Selection_Count() > 0 )
 			{
-				if( m_pRecords[iRecord]->is_Selected() )
+				#pragma omp parallel for
+				for(int iRecord=0; iRecord<GetNumberRows(); iRecord++)
 				{
-					SelectRow(iRecord, true);
+					if( m_pRecords[iRecord]->is_Selected() )
+					{
+						SelectRow(iRecord, true);
+					}
 				}
 			}
 		}

@@ -283,6 +283,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_RECORD_DEL:		return( _TL("Delete Selected Record(s)") );
 	case ID_CMD_TABLE_RECORD_DEL_ALL:	return( _TL("Delete All Records") );
 	case ID_CMD_TABLE_SELECTION_TO_TOP:	return( _TL("Sort Selection to Top") );
+	case ID_CMD_TABLE_SELECTION_ONLY:	return( _TL("Only Show Selection") );
 	case ID_CMD_TABLE_AUTOSIZE_COLS:	return( _TL("Fit Column Sizes") );
 	case ID_CMD_TABLE_AUTOSIZE_ROWS:	return( _TL("Fit Row Sizes") );
 
