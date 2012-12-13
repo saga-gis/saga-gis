@@ -909,9 +909,10 @@ void CSG_Table::Set_Modified(bool bModified)
 
 		if( bModified == false )
 		{
-			for(int iRecord=0; iRecord<Get_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Count()); iRecord++)
+			#pragma omp parallel for
+			for(int iRecord=0; iRecord<m_nRecords; iRecord++)
 			{
-				Get_Record(iRecord)->Set_Modified(false);
+				m_Records[iRecord]->Set_Modified(false);
 			}
 		}
 	}
