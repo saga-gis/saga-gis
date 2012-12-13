@@ -843,12 +843,28 @@ bool CSG_Parameters::Del_Parameters(void)
 void CSG_Parameters::Set_Callback_On_Parameter_Changed(TSG_PFNC_Parameter_Changed Callback)
 {
 	m_Callback	= Callback;
+
+	for(int i=0; i<m_nParameters; i++)
+	{
+		if( m_Parameters[i]->Get_Type() == PARAMETER_TYPE_Parameters)
+		{
+			m_Parameters[i]->asParameters()->Set_Callback_On_Parameter_Changed(Callback);
+		}
+	}
 }
 
 //---------------------------------------------------------
 void CSG_Parameters::Set_Callback(bool bActive)
 {
 	m_bCallback	= bActive;
+
+	for(int i=0; i<m_nParameters; i++)
+	{
+		if( m_Parameters[i]->Get_Type() == PARAMETER_TYPE_Parameters)
+		{
+			m_Parameters[i]->asParameters()->Set_Callback(bActive);
+		}
+	}
 }
 
 //---------------------------------------------------------
@@ -856,9 +872,9 @@ bool CSG_Parameters::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( m_Callback && m_bCallback )
 	{
-		m_bCallback	= false;
+		Set_Callback(false);
 		m_Callback(pParameter, Flags);
-		m_bCallback	= true;
+		Set_Callback(true);
 
 		return( true );
 	}
