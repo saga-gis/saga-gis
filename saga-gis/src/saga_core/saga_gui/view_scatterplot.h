@@ -98,10 +98,8 @@ void		Add_ScatterPlot(CSG_Table *pTable);
 class CVIEW_ScatterPlot : public CVIEW_Base
 {
 public:
-	CVIEW_ScatterPlot(CSG_Grid *pGrid_A, CSG_Grid *pGrid_B);
-	CVIEW_ScatterPlot(CSG_Grid *pGrid, CSG_Shapes *pShapes, int Field);
-	CVIEW_ScatterPlot(CSG_Table *pTable, int Field_A, int Field_B);
-	virtual ~CVIEW_ScatterPlot(void);
+	CVIEW_ScatterPlot(CSG_Grid  *pGrid);
+	CVIEW_ScatterPlot(CSG_Table *pTable);
 
 	static class wxToolBarBase *	_Create_ToolBar				(void);
 	static class wxMenu *			_Create_Menu				(void);
@@ -118,11 +116,7 @@ public:
 
 private:
 
-	int								m_Method, m_maxSamples, m_xField, m_yField;
-
-	CSG_Grid						*m_pGrid_X, *m_pGrid_Y, m_Count;
-
-	CSG_Shapes						*m_pShapes;
+	CSG_Grid						*m_pGrid, m_Count;
 
 	CSG_Table						*m_pTable;
 
@@ -134,6 +128,8 @@ private:
 
 
 	void							_On_Construction			(void);
+
+	void							_Do_Parameters				(void);
 
 	bool							_Initialize					(void);
 	bool							_Initialize_Count			(void);
