@@ -30,6 +30,8 @@ points_thinning.cpp\
 remove_duplicates.cpp\
 select_points.cpp\
 separate_by_direction.cpp\
+snap_points_to_features.cpp\
+snap_points_to_grid.cpp\
 thiessen_polygons.cpp\
 add_polygon_attributes.h\
 AddCoordinates.h\
@@ -48,6 +50,8 @@ points_thinning.h\
 remove_duplicates.h\
 select_points.h\
 separate_by_direction.h\
+snap_points_to_features.h\
+snap_points_to_grid.h\
 thiessen_polygons.h
 
 libshapes_points_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

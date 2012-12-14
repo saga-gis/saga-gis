@@ -68,6 +68,12 @@
     <ClCompile Include="gps_track_aggregation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="snap_points_to_features.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="snap_points_to_grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -173,6 +179,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gps_track_aggregation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="snap_points_to_features.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="snap_points_to_grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

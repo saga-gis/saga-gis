@@ -318,6 +318,8 @@
     <ClCompile Include="remove_duplicates.cpp" />
     <ClCompile Include="select_points.cpp" />
     <ClCompile Include="separate_by_direction.cpp" />
+    <ClCompile Include="snap_points_to_features.cpp" />
+    <ClCompile Include="snap_points_to_grid.cpp" />
     <ClCompile Include="thiessen_polygons.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -355,6 +357,8 @@
     <ClInclude Include="remove_duplicates.h" />
     <ClInclude Include="select_points.h" />
     <ClInclude Include="separate_by_direction.h" />
+    <ClInclude Include="snap_points_to_features.h" />
+    <ClInclude Include="snap_points_to_grid.h" />
     <ClInclude Include="thiessen_polygons.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
