@@ -286,10 +286,10 @@ public:
 		{
 			if( m_Index != NULL )
 			{
-				return( Get_Record(m_Index[Index]) );
+				return( m_Records[m_Index[Index]] );
 			}
 
-			return( Get_Record(Index) );
+			return( m_Records[Index] );
 		}
 
 		return( NULL );
@@ -306,7 +306,7 @@ public:
 
 	//-----------------------------------------------------
 	int								Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
-	virtual CSG_Table_Record *		Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}
+	virtual CSG_Table_Record *		Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? Get_Record(m_Selected[Index]) : NULL );	}
 
 	virtual bool					is_Selected			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord]->is_Selected() : false );	}
 
@@ -353,11 +353,11 @@ protected:
 
 private:
 
-	int								*m_Index, m_Index_Field[3];
+	int								*m_Index, m_Index_Field[3], *m_Selected;
 
 	TSG_Table_Index_Order			m_Index_Order[3];
 
-	CSG_Table_Record				**m_Records, **m_Selected;
+	CSG_Table_Record				**m_Records;
 
 	CSG_Data_Object					*m_pOwner;
 

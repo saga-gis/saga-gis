@@ -89,10 +89,6 @@
 #define FIXED_ROWS		((m_Constraint & TABLE_CTRL_FIXED_ROWS)   != 0)
 #define LABEL_COL		((m_Constraint & TABLE_CTRL_COL1ISLABEL)  != 0)
 
-//---------------------------------------------------------
-#define SET_CELL_VALUE(REC, FLD, VAL)	SetCellValue(REC, FLD, VAL)
-#define SET_CELL_COLOR(REC, FLD, VAL)	SetCellBackgroundColour(REC, FLD, wxColour(SG_GET_R(VAL), SG_GET_G(VAL), SG_GET_B(VAL)))
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -289,6 +285,8 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 {
 	BeginBatch();
 
+	m_bUpdating	= true;
+
 	//-----------------------------------------------------
 	if( m_bSelOnly && m_pTable->Get_Selection_Count() <= 0 )
 	{
@@ -308,18 +306,20 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 
 	m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, nRecords * sizeof(CSG_Table_Record *));
 
+	ClearSelection();
+
 	//-----------------------------------------------------
 	if( m_bSelOnly )
 	{
-		#pragma omp parallel for
+	//	#pragma omp parallel for
 		for(int iRecord=0; iRecord<nRecords; iRecord++)
 		{
 			_Set_Record(iRecord, m_pTable->Get_Selection(iRecord));
 		}
 	}
-	else if( !bSelection_To_Top || m_pTable->Get_Selection_Count() <= 0 )
+	else if( !bSelection_To_Top )
 	{
-		#pragma omp parallel for
+	//	#pragma omp parallel for
 		for(int iRecord=0; iRecord<nRecords; iRecord++)
 		{
 			_Set_Record(iRecord, m_pTable->Get_Record_byIndex(iRecord));
@@ -345,9 +345,9 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 	}
 
 	//-----------------------------------------------------
-	EndBatch();
+	m_bUpdating	= false;
 
-	Update_Selection();
+	EndBatch();
 
 	return( true );
 }
@@ -355,33 +355,33 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 {
-	if( pRecord && iRecord >= 0 && iRecord < GetNumberRows() )
+	m_pRecords[iRecord]	= pRecord;
+
+	if( m_Field_Offset )
 	{
-		m_pRecords[iRecord]	= pRecord;
-
-		if( m_Field_Offset )
-		{
-			SetRowLabelValue(iRecord, pRecord->asString(0));
-		}
-
-		for(int iCol=0, iField=m_Field_Offset; iField<m_pTable->Get_Field_Count(); iCol++, iField++)
-		{
-			switch( m_pTable->Get_Field_Type(iField) )
-			{
-			default:
-				SET_CELL_VALUE(iRecord, iCol, pRecord->is_NoData(iField) ? SG_T("") : pRecord->asString(iField));
-				break;
-
-			case SG_DATATYPE_Color:
-				SET_CELL_COLOR(iRecord, iCol, pRecord->asInt(iField));
-				break;
-			}
-		}
-
-		return( true );
+		SetRowLabelValue(iRecord, pRecord->asString(0));
 	}
 
-	return( false );
+	for(int iCol=0, iField=m_Field_Offset; iField<m_pTable->Get_Field_Count(); iCol++, iField++)
+	{
+		switch( m_pTable->Get_Field_Type(iField) )
+		{
+		default:
+			SetCellValue(iRecord, iCol, pRecord->is_NoData(iField) ? SG_T("") : pRecord->asString(iField));
+			break;
+
+		case SG_DATATYPE_Color:
+			SetCellBackgroundColour(iRecord, iCol, Get_Color_asWX(pRecord->asInt(iField)));
+			break;
+		}
+	}
+
+	if( pRecord->is_Selected() )
+	{
+		SelectRow(iRecord, true);
+	}
+
+	return( true );
 }
 
 
@@ -531,7 +531,7 @@ void CVIEW_Table_Control::On_Change(wxGridEvent &event)
 	{
 		pRecord->Set_Value(iField, GetCellValue(event.GetRow(), event.GetCol()).wx_str());
 
-		SET_CELL_VALUE(event.GetRow(), event.GetCol(), pRecord->asString(iField));
+		SetCellValue(event.GetRow(), event.GetCol(), pRecord->asString(iField));
 	}
 }
 
@@ -948,60 +948,51 @@ void CVIEW_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 {
+	int					iField		= m_Field_Offset + event.GetCol();
 	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
 
+	//-----------------------------------------------------
 	if( event.ControlDown() )
 	{
 		m_pTable->Select(pRecord, true);
 
 		Update_Selection();
 	}
+
 	else if( event.ShiftDown() )
 	{
-		SelectBlock	(event.GetRow(), 0, GetGridCursorRow(), GetNumberCols(), false);
+		SelectBlock(event.GetRow(), 0, GetGridCursorRow(), GetNumberCols(), false);
 	}
+
+	else if( event.AltDown() )
+	{
+		if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
+		{
+			Open_Application(pRecord->asString(iField));
+		}
+	}
+
 	else
 	{
-		SelectRow	(event.GetRow(), false);
+		SelectRow(event.GetRow(), false);
 
-		if( (pRecord = m_pRecords[event.GetRow()]) != NULL )
+		if( pRecord && iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() && m_pTable->Get_Field_Type(iField) == SG_DATATYPE_Color )
 		{
-			int	iField	= m_Field_Offset + event.GetCol();
+			long	lValue;
 
-			if( iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
+			if( DLG_Color(lValue = pRecord->asInt(iField)) )
 			{
-				long	lValue;
+				pRecord->Set_Value(iField, lValue);
 
-				switch( m_pTable->Get_Field_Type(iField) )
-				{
-				default:
-					break;
+				SetCellBackgroundColour(event.GetRow(), event.GetCol(), Get_Color_asWX(pRecord->asInt(iField)));
 
-				case SG_DATATYPE_String:
-					if( event.AltDown() )
-					{
-						Open_Application(pRecord->asString(iField));
-					}
-					break;
-
-				case SG_DATATYPE_Color:
-					if( DLG_Color(lValue = pRecord->asInt(iField)) )
-					{
-						pRecord->Set_Value(iField, lValue);
-
-						SET_CELL_COLOR(event.GetRow(), event.GetCol(), lValue);
-
-						ForceRefresh();
-					}
-					return;
-				}
+				ForceRefresh();
 			}
 		}
 	}
 
+	//-----------------------------------------------------
 	SetGridCursor(event.GetRow(), event.GetCol());
-
-//	event.Skip();
 }
 
 
