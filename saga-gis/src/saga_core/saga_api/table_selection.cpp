@@ -116,7 +116,7 @@ bool CSG_Table::Select(int iRecord, bool bInvert)
 	{
 		pRecord->Set_Selected(true);
 
-		m_Selected	= (int *)SG_Realloc(m_Selected, m_nSelected * sizeof(int));
+		m_Selected	= (int *)SG_Realloc(m_Selected, (m_nSelected + 1) * sizeof(int));
 		m_Selected[m_nSelected++]	= iRecord;
 	}
 	else
