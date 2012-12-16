@@ -408,8 +408,9 @@ bool CPointCloud_From_Text_File::On_Execute(void)
         std::string tabEntry;
 
         if( cntPt%10000 == 0 )
+	{
             SG_UI_Process_Set_Progress((double)cntPt, lines);
-
+	}
         cntPt++;
 
         while( std::getline(stream, tabEntry, fieldSep) )      // read every column in this line and fill vector
@@ -419,25 +420,48 @@ bool CPointCloud_From_Text_File::On_Execute(void)
             tabCols.push_back(tabEntry);
         }
 
-        if ((int)tabCols.size() < max_iField - 1 )
+        if ((int)tabCols.size() < (vCol.size() + 3) )
         {
-            SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping misformatted line (%.0f)!"), cntPt), true);
+            SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping misformatted line: %d!"), cntPt), true);
             cntInvalid++;
             continue;
         }
 
-		x = strtod(tabCols[xField].c_str(), NULL);
-        y = strtod(tabCols[yField].c_str(), NULL);
-        z = strtod(tabCols[zField].c_str(), NULL);
+        //parse line tokens
+	char *errx, *erry, *errz;
+	double fieldValues[(int)vCol.size()]; 
 
-		pPoints->Add_Point(x, y, z);
-
-		for( int i=0; i<(int)vCol.size(); i++ )
-		{
-			value = strtod(tabCols.at(vCol.at(i)).c_str(), NULL);
-			pPoints->Set_Attribute(i, value);
-		}
+	x = strtod(tabCols[xField].c_str(), &errx);
+        y = strtod(tabCols[yField].c_str(), &erry);
+        z = strtod(tabCols[zField].c_str(), &errz);
+	
+	if (strlen(errx) || strlen(erry) || strlen(errz)) 
+	{
+	    SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
+	    cntInvalid++;
+	    continue;
 	}
+	    
+	for( int i=0; i<(int)vCol.size(); i++ )
+	{
+	    char *err;
+	    fieldValues[i] = strtod(tabCols.at(vCol.at(i)).c_str(), &err);
+	    if (strlen(err)) 
+	    {
+		SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
+		cntInvalid++;
+		continue;
+	    }
+	  
+	}
+	
+	pPoints->Add_Point(x, y, z);
+	
+	for( int i=0; i<(int)vCol.size(); i++ )
+	{	
+	    pPoints->Set_Attribute(i, fieldValues[i]);
+	}	
+    }
 
 	// finalize
     //---------------------------------------------------------
