@@ -201,7 +201,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	CSG_PointCloud			*pPoints;
 	CSG_Parameters			P;
 	CSG_Parameter			*pNode;
-	int						xField, yField, zField, nAttribs, max_iField;
+	int						xField, yField, zField, nAttribs;
 	bool					bSkipHeader;
 	char					fieldSep;
 	std::vector<int>		vCol;
@@ -209,7 +209,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     std::string				tabLine;
 	double					lines;
 	long					cntPt, cntInvalid;
-	double					x, y, z, value;
+	double					x, y, z;
 
 
 	//-----------------------------------------------------
@@ -363,15 +363,6 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	}
 
 
-	max_iField = M_GET_MAX(xField, yField);
-    max_iField = M_GET_MAX(max_iField, zField);
-
-	for( unsigned int i=0; i<vCol.size(); i++ )
-	{
-		if( max_iField < vCol.at(i) )
-			max_iField = vCol.at(i);
-	}
-
 	// open input stream
     //---------------------------------------------------------
     tabStream.open(fileName.b_str(), std::ifstream::in);
@@ -408,9 +399,9 @@ bool CPointCloud_From_Text_File::On_Execute(void)
         std::string tabEntry;
 
         if( cntPt%10000 == 0 )
-	{
+		{
             SG_UI_Process_Set_Progress((double)cntPt, lines);
-	}
+		}
         cntPt++;
 
         while( std::getline(stream, tabEntry, fieldSep) )      // read every column in this line and fill vector
@@ -428,39 +419,39 @@ bool CPointCloud_From_Text_File::On_Execute(void)
         }
 
         //parse line tokens
-	char *errx, *erry, *errz;
-	double fieldValues[(int)vCol.size()]; 
+		char *errx, *erry, *errz;
+		std::vector<double> fieldValues;
+		fieldValues.resize(vCol.size()); 
 
-	x = strtod(tabCols[xField].c_str(), &errx);
+		x = strtod(tabCols[xField].c_str(), &errx);
         y = strtod(tabCols[yField].c_str(), &erry);
         z = strtod(tabCols[zField].c_str(), &errz);
 	
-	if (strlen(errx) || strlen(erry) || strlen(errz)) 
-	{
-	    SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
-	    cntInvalid++;
-	    continue;
-	}
+		if (strlen(errx) || strlen(erry) || strlen(errz)) 
+		{
+			SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
+			cntInvalid++;
+			continue;
+		}
 	    
-	for( int i=0; i<(int)vCol.size(); i++ )
-	{
-	    char *err;
-	    fieldValues[i] = strtod(tabCols.at(vCol.at(i)).c_str(), &err);
-	    if (strlen(err)) 
-	    {
-		SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
-		cntInvalid++;
-		continue;
-	    }
-	  
-	}
+		for( int i=0; i<(int)vCol.size(); i++ )
+		{
+			char *err;
+			fieldValues[i] = strtod(tabCols.at(vCol.at(i)).c_str(), &err);
+			if (strlen(err)) 
+			{
+				SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
+				cntInvalid++;
+				continue;
+			}
+		}
 	
-	pPoints->Add_Point(x, y, z);
+		pPoints->Add_Point(x, y, z);
 	
-	for( int i=0; i<(int)vCol.size(); i++ )
-	{	
-	    pPoints->Set_Attribute(i, fieldValues[i]);
-	}	
+		for( int i=0; i<(int)vCol.size(); i++ )
+		{	
+			pPoints->Set_Attribute(i, fieldValues[i]);
+		}	
     }
 
 	// finalize
@@ -471,15 +462,15 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	DataObject_Get_Parameters(pPoints, sParms);
 	if (sParms("METRIC_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
 		&& sParms("METRIC_ZRANGE") && sParms("DISPLAY_VALUE_AGGREGATE"))
-		{
-			sParms("DISPLAY_VALUE_AGGREGATE")->Set_Value(3);		// highest z
-			sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
-			sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
-			sParms("METRIC_ATTRIB")->Set_Value(2);					// z attrib
-			sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPoints->Get_Minimum(2),pPoints->Get_Maximum(2));
-			DataObject_Set_Parameters(pPoints, sParms);
-			DataObject_Update(pPoints);
-		}
+	{
+		sParms("DISPLAY_VALUE_AGGREGATE")->Set_Value(3);		// highest z
+		sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
+		sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
+		sParms("METRIC_ATTRIB")->Set_Value(2);					// z attrib
+		sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPoints->Get_Minimum(2),pPoints->Get_Maximum(2));
+		DataObject_Set_Parameters(pPoints, sParms);
+		DataObject_Update(pPoints);
+	}
 
 	if (cntInvalid > 0)
         SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %d %s"), _TL("WARNING"), cntInvalid, _TL("invalid points have been skipped")), true);
