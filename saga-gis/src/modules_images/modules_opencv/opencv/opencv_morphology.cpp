@@ -221,7 +221,7 @@ bool COpenCV_Morphology::On_Execute(void)
 		cvReleaseImage(&cv_pTmp);
 	}
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), Get_Name()));
+	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), Get_Name().c_str()));
 
 	return( true );
 }
