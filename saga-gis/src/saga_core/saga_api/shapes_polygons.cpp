@@ -239,17 +239,17 @@ bool CSG_Converter_WorldToInt::Convert(const ClipperLib::Polygons &Polygons, CSG
 			pPolygon->Add_Point(
 				Get_X_asWorld(Polygons[iPolygon][iPoint].X),
 				Get_Y_asWorld(Polygons[iPolygon][iPoint].Y),
-				iPart
+				(int)iPart
 			);
 		}
 
-		if( ((CSG_Shape_Polygon *)pPolygon)->Get_Area(iPart) > (1.0e-12) )
+		if( ((CSG_Shape_Polygon *)pPolygon)->Get_Area((int)iPart) > (1.0e-12) )
 		{
 			iPart++;
 		}
 		else
 		{
-			pPolygon->Del_Part(iPart);
+			pPolygon->Del_Part((int)iPart);
 		}
 	}
 

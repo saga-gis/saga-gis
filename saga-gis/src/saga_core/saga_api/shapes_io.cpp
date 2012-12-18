@@ -359,7 +359,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 //---------------------------------------------------------
 bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 {
-	int				Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints, nBytes;
+	int				Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints;
 	TSG_Point		Point;
 	CSG_Buffer		File_Header(100), Record_Header(8), Content;
 	CSG_File		fSHP, fSHX;

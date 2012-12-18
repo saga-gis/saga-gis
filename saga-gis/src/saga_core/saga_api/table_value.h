@@ -101,7 +101,7 @@ public:
 	{
 		const SG_Char *s	= asString();
 
-		return( CSG_Bytes((BYTE *)s, (s && *s ? SG_STR_LEN(s) : 0) * sizeof(SG_Char)) );
+		return( CSG_Bytes((BYTE *)s, (int)(s && *s ? SG_STR_LEN(s) : 0) * sizeof(SG_Char)) );
 	}
 
 	virtual const SG_Char *		asString		(int Decimals = -1)	const	= 0;
@@ -141,7 +141,7 @@ public:
 
 	virtual bool				Set_Value		(const SG_Char   *Value)
 	{
-		return( m_Value.Create((BYTE *)Value, sizeof(SG_Char) * (Value && *Value ? SG_STR_LEN(Value) : 0)) );
+		return( m_Value.Create((BYTE *)Value, (int)((Value && *Value ? SG_STR_LEN(Value) : 0 * sizeof(SG_Char)))) );
 	}
 
 	virtual bool				Set_Value		(int              Value)

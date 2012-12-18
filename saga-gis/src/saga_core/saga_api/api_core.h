@@ -890,7 +890,7 @@ public:
 
 private:
 
-	bool							m_Encoding;
+	int								m_Encoding;
 
 	FILE							*m_pStream;
 

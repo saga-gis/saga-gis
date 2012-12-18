@@ -532,7 +532,7 @@ void CSG_MetaData::_Load(wxXmlNode *pNode)
 	m_Content	= pNode->GetNodeContent().wc_str();
 
 	//-----------------------------------------------------
-	wxXmlProperty	*pProperty	= pNode->GetProperties();
+	wxXmlAttribute	*pProperty	= pNode->GetAttributes();
 
 	while( pProperty )
 	{
@@ -619,7 +619,7 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 	//-----------------------------------------------------
 	for(i=0; i<Get_Property_Count(); i++)
 	{
-		pNode->AddProperty(Get_Property_Name(i).c_str(), Get_Property(i));
+		pNode->AddAttribute(Get_Property_Name(i).c_str(), Get_Property(i));
 	}
 
 	//-----------------------------------------------------

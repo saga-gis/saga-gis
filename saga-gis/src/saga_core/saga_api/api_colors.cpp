@@ -1017,7 +1017,7 @@ bool CSG_Colors::to_Text(CSG_String &String)
 //---------------------------------------------------------
 bool CSG_Colors::from_Text(const CSG_String &String)
 {
-	Set_Count(String.Length() / 12);
+	Set_Count((int)String.Length() / 12);
 
 	CSG_String	Colors(String), Color;
 
