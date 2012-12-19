@@ -89,7 +89,7 @@ bool	Copy_ComplexGrid_SAGA_to_VIGRA	(CSG_Grid &Real, CSG_Grid &Imag, FFTWComplex
 	{
 		for(int x=0; x<Real.Get_NX(); x++)
 		{
-			Image(x, y)	= FFTWComplex(Real.asDouble(x, y), Imag.asDouble(x, y));
+			Image(x, y)	= FFTWComplex<>(Real.asDouble(x, y), Imag.asDouble(x, y));
 		}
 	}
 
@@ -296,7 +296,7 @@ bool CViGrA_FFT_Inverse::On_Execute(void)
 		fourierTransformInverse(srcImageRange(tmp)  , destImage(Output));
 	}
  
-	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex>(), 1.0 / Get_NX() / Get_NY()));
+	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex<>>(), 1.0 / Get_NX() / Get_NY()));
 
 	//-----------------------------------------------------
 	pReal	= Parameters("REAL_OUT")->asGrid();
@@ -519,7 +519,7 @@ bool CViGrA_FFT_Filter::On_Execute(void)
 
 	vigra::applyFourierFilter(srcImageRange(Input), srcImage(Filter_), destImage(Output));
  
-	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex>(), 1.0 / Get_NX() / Get_NY()));
+	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex<>>(), 1.0 / Get_NX() / Get_NY()));
 
 	//-----------------------------------------------------
 	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, *pImag, Output, false);
