@@ -1,4 +1,13 @@
+#!/usr/bin/env python
+
+# SAGA Python Interface distutils setup script
+# called by saga_api_to_python.sh script
+# adjust the paths to your gtk/wx install
+
 from distutils.core import setup, Extension
+
+include_gtk = '/usr/lib/wx/include/gtk2-unicode-2.9'
+include_wx = '/usr/include/wx-2.9'
 
 module1 = Extension(
 	'_saga_api',
@@ -8,23 +17,23 @@ module1 = Extension(
 	],
 
 	include_dirs = [
-		'/usr/local/lib/wx/include/gtk2-ansi-release-2.8',
-		'/usr/local/include/wx-2.8',
+		include_gtk,
+		include_wx,
 		'./'
 	],
 
 	libraries = [
 		'pthread',
-		'wx_base-2.8',
-		'wx_gtk2_core-2.8',
-		'saga_api',
-#		'/opt/gnome/lib/pangox-1.0'
+		'wx_baseu-2.9',
+		'wx_gtk2u_core-2.9',
+		'saga_api'
 	],
 
 	extra_compile_args = [
 		'-g',
 		'-fPIC',
 		'-fpermissive',
+		'-fopenmp',
 		'-DGTK_NO_CHECK_CASTS',
 		'-D__WXGTK__',
 		'-D_FILE_OFFSET_BITS=64',
@@ -37,12 +46,15 @@ module1 = Extension(
 		'-D_SAGA_API_EXPORTS',
 		'-D_SAGA_DONOTUSE_HARU',
 		'-D_SAGA_PYTHON',
+		'-D_SAGA_UNICODE'
 	],
 
 	extra_link_args = [
 		'-g',
 		'-fPIC',
 		'-fpermissive',
+		'-fopenmp',
+		'-lgomp',
 		'-DGTK_NO_CHECK_CASTS',
 		'-D__WXGTK__',
 		'-D_FILE_OFFSET_BITS=64',
@@ -54,13 +66,14 @@ module1 = Extension(
 		'-D_TYPEDEF_WORD',
 		'-D_SAGA_API_EXPORTS'
 		'-D_SAGA_DONOTUSE_HARU',
-		'-D_SAGA_PYTHON'
+		'-D_SAGA_PYTHON',
+		'-D_SAGA_UNICODE'
 	]
 )
 
 setup(
 	name		= 'SAGA Python API',
-	version		= '0.1',
+	version		= '0.2',
 	description	= '',
 	ext_modules	= [module1]
 )
