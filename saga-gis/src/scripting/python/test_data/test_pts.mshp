@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SAGA_METADATA>
+  <HISTORY>
+    <MODULE>Grid Values to Points</MODULE>
+    <OPTION type="boolean" id="NODATA" name="Exclude NoData Cells">TRUE</OPTION>
+    <OPTION type="choice" id="TYPE" name="Type">0</OPTION>
+    <DATA_LIST type="grid_list" id="GRIDS" name="Grids">
+      <DATA>
+        <MODULE>Grid Calculator</MODULE>
+        <OPTION type="text" id="FORMULA" name="Formula">(a+10)*100</OPTION>
+        <OPTION type="text" id="NAME" name="Name">Calculation [(a+10)*100]</OPTION>
+        <OPTION type="boolean" id="FNAME" name="Take Formula">TRUE</OPTION>
+        <OPTION type="boolean" id="USE_NODATA" name="Use NoData">FALSE</OPTION>
+        <DATA_LIST type="grid_list" id="GRIDS" name="Grids">
+          <DATA>
+            <MODULE>Geometric Figures</MODULE>
+            <OPTION type="integer" id="CELL_COUNT" name="Cell Count">10</OPTION>
+            <OPTION type="double" id="CELL_SIZE" name="Cell Size">1.000000</OPTION>
+            <OPTION type="choice" id="FIGURE" name="Figure">0</OPTION>
+            <OPTION type="double" id="PLANE" name="Direction of Plane [Degree]">22.500000</OPTION>
+          </DATA>
+        </DATA_LIST>
+      </DATA>
+    </DATA_LIST>
+  </HISTORY>
+  <SOURCE>
+    <FILE>/home/vw/devel/saga/trunk/saga-gis/src/scripting/python/test_data/test_pts.shp</FILE>
+    <DATABASE></DATABASE>
+    <PROJECTION></PROJECTION>
+  </SOURCE>
+</SAGA_METADATA>

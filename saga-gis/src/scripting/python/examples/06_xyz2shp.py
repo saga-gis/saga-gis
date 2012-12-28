@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import saga_api, sys, os
 
 ##########################################
@@ -27,8 +29,11 @@ def xyz2shp(fTable):
     points = saga_api.SG_Create_Shapes(saga_api.SHAPE_TYPE_Point)
 
     # ------------------------------------
-#   saga_api.SG_Get_Module_Library_Manager().Add_Library('/usr/local/lib/saga/libshapes_points.so') # Linux
-    saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/shapes_points.dll') # Windows
+    if os.name == 'nt':    # Windows
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/shapes_points.dll')
+    else:                  # Linux
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_points.so')
+
 
     m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('shapes_points', 0) # 'Convert Table to Points'
     m.Set_Managed(0) # tell module that we take care for data management
@@ -57,7 +62,8 @@ if __name__ == '__main__':
 
     if len( sys.argv ) != 2:
         print 'Usage: xyz2shp.py <in: x/y/z-data as text or dbase table>'
-        fTable = './test.xyz'
+        print '... trying to run with test_data'
+        fTable = './../test_data/test_pts_xyz.xyz'
     else:
         fTable = sys.argv[ 1 ]
         if os.path.split(fTable)[0] == '':

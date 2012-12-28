@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import saga_api, sys, os
 
 ##########################################
@@ -14,8 +16,11 @@ def morphometry(fDEM):
     Class  = saga_api.SG_Create_Grid(DEM.Get_System())
 
     # ------------------------------------
-#   saga_api.SG_Get_Module_Library_Manager().Add_Library('/usr/local/lib/saga/libta_morphometry.so') # Linux
-    saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/ta_morphometry.dll') # Windows
+    if os.name == 'nt':    # Windows
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/ta_morphometry.dll')
+    else:                  # Linux
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libta_morphometry.so')
+
 
     m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('ta_morphometry', 0) # 'Slope, Aspect, Curvature'
     m.Set_Managed(0) # tell module that we take care for data management
@@ -68,7 +73,8 @@ if __name__ == '__main__':
 
     if len( sys.argv ) != 2:
         print 'Usage: morphometry.py <in: elevation>'
-        fDEM    = './test.sgrd'
+        print '... trying to run with test_data'
+        fDEM    = './../test_data/test.sgrd'
     else:
         fDEM    = sys.argv[1]
         if os.path.split(fDEM)[0] == '':

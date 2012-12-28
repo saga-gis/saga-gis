@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import saga_api, sys, os
 
 ##########################################
@@ -10,8 +12,11 @@ def grid_contour(fGrid, fLines):
     Lines   = saga_api.SG_Create_Shapes()
 
     # ------------------------------------
-#   saga_api.SG_Get_Module_Library_Manager().Add_Library('/usr/local/lib/saga/libshapes_grid.so') # Linux
-    saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/shapes_grid.dll') # Windows
+    if os.name == 'nt':    # Windows
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/shapes_grid.dll')
+    else:                  # Linux
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_grid.so')
+
 
     m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('shapes_grid', 5) # 'Contour Lines from Grid'
     m.Set_Managed(0) # tell module that we take care for data management
@@ -40,8 +45,9 @@ if __name__ == '__main__':
 
     if len( sys.argv ) != 4:
         print 'Usage: grid_contour.py <in: grid> <out: contour>'
-        fGrid   = './test.sgrd'
-        fLines  = './contour'
+        print '... trying to run with test_data'
+        fGrid   = './../test_data/test.sgrd'
+        fLines  = './../test_data/test_contours'
     else:
         fGrid   = sys.argv[1]
         if os.path.split(fGrid)[0] == '':

@@ -1,15 +1,20 @@
+#! /usr/bin/env python
+
 import saga_api, sys, os
 
 ##########################################
 def shp2xyz(fshp, fxyz):
     shp     = saga_api.SG_Create_Shapes()
     if shp.Create(saga_api.CSG_String(fshp)) == 0:
-        print 'ERROR: loading shapes [' + fshpM + ']'
+        print 'ERROR: loading shapes [' + fshp + ']'
         return 0
 
     # ------------------------------------
-#   saga_api.SG_Get_Module_Library_Manager().Add_Library('/usr/local/lib/saga/libio_shapes.so') # Linux
-    saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/io_shapes.dll') # Windows
+    if os.name == 'nt':    # Windows
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/io_shapes.dll')
+    else:                  # Linux
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_shapes.so')
+
 
     m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('io_shapes', 2) # 'Export Shapes to XYZ'
     m.Set_Managed(0) # tell module that we take care for data management
@@ -34,8 +39,9 @@ if __name__ == '__main__':
 
     if len( sys.argv ) != 3:
         print 'Usage: shp2xyz.py <in: shape file> <out: x/y/z-data as text table>'
-        fshp = './contour.shp'
-        fxyz = './test.xyz'
+        print '... trying to run with test_data'
+        fshp = './../test_data/test_pts.shp'
+        fxyz = './../test_data/test.xyz'
     else:
         fshp = sys.argv[1]
         if os.path.split(fshp)[0] == '':

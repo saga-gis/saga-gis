@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import saga_api, sys, os
 
 ##########################################
@@ -44,9 +46,10 @@ if __name__ == '__main__':
 
     if len( sys.argv ) != 4:
         print 'Usage: grid_difference.py <in: grid a> <in: grid b> <out: grid a-b)>'
-        fA  = './slope.sgrd'
-        fB  = './aspect.sgrd'
-        fC  = './difference'
+        print '... trying to run with test_data'
+        fA  = './../test_data/test.sgrd'
+        fB  = './../test_data/test.sgrd'
+        fC  = './../test_data/test_difference.sgrd'
     else:
         fA  = sys.argv[1]
         if os.path.split(fA)[0] == '':
