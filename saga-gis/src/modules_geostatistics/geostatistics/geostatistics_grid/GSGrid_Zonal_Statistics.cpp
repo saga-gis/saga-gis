@@ -76,7 +76,7 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 	Set_Description	(_TW("{STATZONAL_DESC} "
 		"The module calculates zonal statistics and reports these in a table. "
 		"The module can be used to create a contingency table of unique condition units (UCUs). These "
-		"units are delineated from a zonal grid (e.g. sub catchments) and optional categorial grids (e.g. "
+		"units are delineated from a zonal grid (e.g. sub catchments) and optional categorical grids (e.g. "
 		"landcover, soil, ...). It is possible to calculate descriptive statistics (n, min, max, mean, standard "
 		"deviation and sum) for each UCU from optional grids with continious data (e.g. slope; aspect must be "
 		"handled specially, please use the \"Aspect\" input parameter for such a grid). The number "
@@ -84,17 +84,17 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 		"The module has four different modes of operation:\n"
 		"(1) only a zonal grid is used as input. This results in a simple contingency table with "
 		"the number of grid cells in each zone.\n"
-		"(2) a zonal grid and additional categorial grids are used as "
+		"(2) a zonal grid and additional categorical grids are used as "
 		"input. This results in a contingency table with the number of cells in each UCU.\n"
 		"(3) a zonal grid "
 		"and additional grids with continuous data are used as input. This results in a contingency table "
 		"with the number of cells in each zone and some simple statistics for each zone. The statistics are "
 		"calculated for each continuous grid.\n"
-		"(4) a zonal grid, additional categorial grids and additional "
+		"(4) a zonal grid, additional categorical grids and additional "
 		"grids with continuous data are used as input. This results in a contingency table with the number "
 		"of cells in each UCU and the corresponding statistics for each continuous grid.\n"
 		"\n"
-		"Depending on the mode of operation, the output table contains information about the category "
+		"Depending on the mode of operation, the output table contains information about the categorical "
 		"combination of each UCU, the number of cells in each UCU and the statistics for each UCU. A "
 		"typical output table may look like this:\n"
 		"<table border=\"1\">"
@@ -112,8 +112,8 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 	);
 
 	Parameters.Add_Grid_List(
-		NULL, "CATLIST"		, _TL("Categorial Grids"),
-		_TL("Grids used to delineate the UCUs. Coding: NoData / categorial values."),
+		NULL, "CATLIST"		, _TL("Categorical Grids"),
+		_TL("Grids used to delineate the UCUs. Coding: NoData / categorical values."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -180,7 +180,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	nCatGrids	= pCatList	->Get_Count();
 	nStatGrids	= pStatList	->Get_Count();
-	
+
 	NDcount		= 0;						// NoData Counter (ZoneGrid)
 	NDcountStat	= 0;						// NoData Counter (StatGrids)
 
@@ -197,7 +197,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
-		{	
+		{
 			runList		= startList;
 			zoneID		= pZones->asInt(x, y);								// get zone ID
 
@@ -212,14 +212,14 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				runList->dummy = false;										// setup
 			}
 			else if( runList->cat == zoneID )
-				runList = runList;											// zoneID found				
+				runList = runList;											// zoneID found
 			else if( runList->next == NULL && runList->cat < zoneID )		// append zoneID
 			{
 				newZone = new CList_Conti();
 				newZone->previous	= runList;
 				runList->next		= newZone;
 
-				newZone->cat	= zoneID;									// ... and write info		
+				newZone->cat	= zoneID;									// ... and write info
 				newZone->dummy	= false;
 				runList			= newZone;
 			}
@@ -234,7 +234,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 					runList->previous->next = newZone;
 				}
 				runList->previous = newZone;
-					
+
 				if( runList == startList )
 					startList = newZone;									// if new entry is first element, update startList pointer
 
@@ -299,7 +299,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 					}
 					else
 						parent->sub	 = newSub;
-							
+
 					runList->previous = newSub;
 					runList	= newSub;
 				}
@@ -312,7 +312,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				{
 					if( runList->stats == NULL )
 						runList->stats = new CList_Stat();
-						
+
 					runStats = runList->stats;
 				}
 				else
@@ -325,14 +325,14 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				if( !pStatList->asGrid(iGrid)->is_NoData(x, y) )
 				{
 					statID		= pStatList->asGrid(iGrid)->asDouble(x, y);
-						
+
 					if( runStats->dummy == true )
 					{
 						runStats->min = statID;
 						runStats->max = statID;
 						runStats->dummy = false;
 					}
-					if( runStats->min > statID )	
+					if( runStats->min > statID )
 						runStats->min = statID;
 					if( runStats->max < statID )
 						runStats->max = statID;
@@ -344,7 +344,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				else
 					NDcountStat += 1;
 			}
-			
+
 			if( pAspect != NULL )
 			{
 				for( int i=0; i<2; i++ )
@@ -353,7 +353,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 					{
 						if( runList->stats == NULL )
 							runList->stats = new CList_Stat();
-							
+
 						runStats = runList->stats;
 					}
 					else
@@ -375,7 +375,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 								runStats->max = statID;
 								runStats->dummy = false;
 							}
-							if( runStats->min > statID )	
+							if( runStats->min > statID )
 								runStats->min = statID;
 							if( runStats->max < statID )
 								runStats->max = statID;
@@ -413,11 +413,11 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	}
 
 	pOutTab->Add_Field("Count UCU", SG_DATATYPE_Int);
-	
+
 	for( iGrid=0; iGrid<nStatGrids; iGrid++ )
 	{
 		tmpName		= CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
-		
+
 		fieldName	= tmpName;
 		if (bShortNames && fieldName.Length()+1 > 10)
 			fieldName.Remove(9, fieldName.Length()-9);
@@ -466,7 +466,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 		runList = startList;
 		while( runList->sub != NULL )										// fall down to lowest layer
 			runList = runList->sub;
-		
+
 		subList = runList;													// use pointer to scan horizontal
 
 		while( subList != NULL )											// move forward and read all categories of this layer (including the parent layers)
@@ -474,7 +474,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 			runSub = subList;
 			catLevel = nCatGrids;
 			pRecord	= pOutTab->Add_Record();								// create new record in table
-			pRecord->Set_Value((catLevel+1), runSub->count);				// read/write field count			
+			pRecord->Set_Value((catLevel+1), runSub->count);				// read/write field count
 
 			for(iGrid=0; iGrid<nStatGrids; iGrid++)							// read/write statistics
 			{
@@ -520,7 +520,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				val			= fmod(M_PI_360 - val, M_PI_360);
 				pRecord		->Set_Value(catLevel+5+iGrid, val*M_RAD_TO_DEG);
 			}
-			
+
 			while( runSub != NULL )											// read/write categories
 			{
 				pRecord->Set_Value(catLevel, runSub->cat);
@@ -534,15 +534,15 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 			runList = runList->parent;
 
 		if( runList->parent != NULL )										// if not upper layer (zones)
-		{	
+		{
 			runList = runList->parent;										// move to parent of next 'Caterory with -> next'
 			if( runList->next != NULL && runList->parent != NULL )
 				runList->parent->sub = runList->next;						// redirect pointer to category which is next 'Categora with -> next' next
-			else if (runList->parent == NULL && runList->next != NULL )				
+			else if (runList->parent == NULL && runList->next != NULL )
 				startList = runList->next;									// when upper layer (zones) is reached, move to next zone
 			else
 				startList = NULL;											// reading finished
-			
+
 			if( runList->parent == NULL )
 				startList = runList->next;									// ?? when upper layer is reached, move to next zone
 			else
@@ -557,7 +557,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 		}
 
 
-		runList->next = NULL;					
+		runList->next = NULL;
 		delete (runList);													// delete disconneted part of the list
 
 	}
