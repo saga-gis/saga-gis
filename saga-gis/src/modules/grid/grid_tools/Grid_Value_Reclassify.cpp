@@ -264,6 +264,7 @@ CGrid_Value_Reclassify::~CGrid_Value_Reclassify(void)
 bool CGrid_Value_Reclassify::On_Execute(void)
 {
 	int		method;
+	bool    bSuccess = false;
 
 	pInput		= Parameters("INPUT")->asGrid();
 	pResult		= Parameters("RESULT")->asGrid();
@@ -272,14 +273,24 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 	//-----------------------------------------------------
 	switch( method )
 	{
-	case 0:	return( ReclassSingle() );
-	case 1:	return( ReclassRange() );
-	case 2:	return( ReclassTable(false) );
-	case 3:	return( ReclassTable(true) );
+    default:
+	case 0:	bSuccess = ReclassSingle();     break;
+	case 1:	bSuccess = ReclassRange();      break;
+	case 2:	bSuccess = ReclassTable(false); break;
+	case 3:	bSuccess = ReclassTable(true);  break;
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	if( bSuccess )
+	{
+	    pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+	    pResult->Set_Name(CSG_String::Format(SG_T("%s_reclassified"), pInput->Get_Name()));
+	    return( true );
+	}
+	else
+	{
+        return( false );
+	}
 }
 
 
@@ -330,7 +341,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( minValue <= value && value <= maxValue )			// reclass old range
-					pResult->Set_Value(x, y, newValue);						
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -342,7 +353,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( minValue < value && value < maxValue )				// reclass old range
-					pResult->Set_Value(x, y, newValue);					
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -394,7 +405,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( value == oldValue )								// reclass old value
-					pResult->Set_Value(x, y, newValue);					
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -406,7 +417,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( value < oldValue )									// reclass old value
-					pResult->Set_Value(x, y, newValue);						
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -418,7 +429,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 						pResult->Set_Value(x, y, noData);
 				else if( value <= oldValue )								// reclass old value
-					pResult->Set_Value(x, y, newValue);						
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -430,7 +441,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 						pResult->Set_Value(x, y, noData);
 				else if( value >= oldValue )								// reclass old value
-					pResult->Set_Value(x, y, newValue);		
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -442,7 +453,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 						pResult->Set_Value(x, y, noData);
 				else if( value > oldValue )									// reclass old value
-					pResult->Set_Value(x, y, newValue);		
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
