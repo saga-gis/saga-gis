@@ -124,7 +124,7 @@ enum ESG_Multiple_Regression_Info_Steps
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Regression_Multiple::CSG_Regression_Multiple(void)
+CSG_Regression_Multiple::CSG_Regression_Multiple(bool bIntercept)
 {
 	m_pRegression	= new CSG_Table;
 
@@ -186,6 +186,8 @@ CSG_Regression_Multiple::CSG_Regression_Multiple(void)
 	//-----------------------------------------------------
 	m_Predictor		= NULL;
 	m_nPredictors	= 0;
+
+	m_bIntercept	= bIntercept;
 }
 
 //---------------------------------------------------------
@@ -409,7 +411,7 @@ bool CSG_Regression_Multiple::Get_CrossValidation(int nSubSamples)
 	}
 
 	//-----------------------------------------------------
-	CSG_Regression_Multiple	Model;
+	CSG_Regression_Multiple	Model(m_bIntercept);
 	CSG_Simple_Statistics	Stats, SR, SE;
 
 	int		i, nModels	= 0;
@@ -621,27 +623,37 @@ bool CSG_Regression_Multiple::_Get_Regression(const CSG_Matrix &Samples)
 	CSG_Vector	Y, Yr, B;
 	CSG_Matrix	X, Xt, C;
 
-	Y	.Create(nSamples);
-	X	.Create(nPredictors + 1, nSamples);
-	Xt	.Create(nSamples, nPredictors + 1);
+	Y.Create(nSamples);
+	X.Create(nPredictors + (m_bIntercept ? 1 : 0), nSamples);
 
 	//-----------------------------------------------------
 	for(i=0, Ym=0.0; i<nSamples; i++)
 	{
 		Ym	+= Y[i]	= Samples[i][0];
 
-		X [i][0]	= 1.0;
-		Xt[0][i]	= 1.0;
-
-		for(j=1; j<=nPredictors; j++)
+		if( m_bIntercept )
 		{
-			X[i][j]	= Xt[j][i] = Samples[i][j];
+			X [i][0]	= 1.0;
+
+			for(j=1; j<=nPredictors; j++)
+			{
+				X[i][j]	= Samples[i][j];
+			}
+		}
+		else
+		{
+			for(j=0; j<nPredictors; j++)
+			{
+				X[i][j]	= Samples[i][j + 1];
+			}
 		}
 	}
 
 	Ym	/= nSamples;
 
 	//-----------------------------------------------------
+	Xt	= X.Get_Transpose();
+
 	C	= (Xt * X).Get_Inverse();
 
 	B	= C * (Xt * Y);
@@ -681,17 +693,23 @@ bool CSG_Regression_Multiple::_Get_Regression(const CSG_Matrix &Samples)
 	//-----------------------------------------------------
 	CSG_Matrix	P	= SG_Get_Correlation_Matrix(Samples, true).Get_Inverse();	// get partial correlation
 
-	for(j=0; j<=nPredictors; j++)
+	if( !m_bIntercept )
+	{
+		m_pRegression->Add_Record()->Set_Value(MLR_VAR_NAME, m_Names[0]);
+	}
+
+	for(j=0; j<B.Get_N(); j++)
 	{
 		double	se	= SE * sqrt(fabs(C[j][j]));
-		double	t	= B[j] / se;
+		double	b	= B[j];
+		double	t	= b / se;
 		double	r	= -P[j][0] / sqrt(P[j][j] * P[0][0]);
 
 		CSG_Table_Record	*pRecord	= m_pRegression->Add_Record();
 
-		pRecord->Set_Value(MLR_VAR_ID		, j - 1);
-		pRecord->Set_Value(MLR_VAR_NAME		, m_Names[j]);
-		pRecord->Set_Value(MLR_VAR_RCOEFF	, B[j]);
+		pRecord->Set_Value(MLR_VAR_ID		, m_bIntercept ? j - 1 : j);
+		pRecord->Set_Value(MLR_VAR_NAME		, m_Names[m_bIntercept ? j : j + 1]);
+		pRecord->Set_Value(MLR_VAR_RCOEFF	, b);
 		pRecord->Set_Value(MLR_VAR_R		, r);
 		pRecord->Set_Value(MLR_VAR_R2		, r*r);
 		pRecord->Set_Value(MLR_VAR_R2_ADJ	, SG_Regression_Get_Adjusted_R2(r*r, nSamples, nPredictors));
@@ -717,7 +735,7 @@ int CSG_Regression_Multiple::_Get_Step_In(CSG_Matrix &X, double P_in, double &R2
 	int		iBest, iPredictor;
 	double	rBest;
 
-	CSG_Regression_Multiple R;
+	CSG_Regression_Multiple R(m_bIntercept);
 
 	X.Add_Cols(1);
 
@@ -762,7 +780,7 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 	int		iBest, iPredictor;
 	double	rBest;
 
-	CSG_Regression_Multiple R;
+	CSG_Regression_Multiple R(m_bIntercept);
 
 	if( R2 <= 0.0 )
 	{
@@ -817,7 +835,7 @@ int CSG_Regression_Multiple::_Get_Step_Out(CSG_Matrix &X, double P_out, double &
 //---------------------------------------------------------
 bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X)
 {
-	CSG_Regression_Multiple	R;
+	CSG_Regression_Multiple	R(m_bIntercept);
 
 	if( m_nPredictors > 0 && R.Get_Model(X) )
 	{
@@ -843,7 +861,7 @@ bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X)
 //---------------------------------------------------------
 bool CSG_Regression_Multiple::_Set_Step_Info(const CSG_Matrix &X, double R2_prev, int iVariable, bool bIn)
 {
-	CSG_Regression_Multiple R;
+	CSG_Regression_Multiple R(m_bIntercept);
 
 	R.Get_Model(X);
 

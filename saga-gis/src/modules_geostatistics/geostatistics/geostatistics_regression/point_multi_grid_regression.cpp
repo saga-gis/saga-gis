@@ -164,6 +164,12 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		PARAMETER_TYPE_Bool, false
 	);
 
+	Parameters.Add_Value(
+		NULL	, "INTERCEPT"	, _TL("Intercept"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
 	Parameters.Add_Choice(
 		NULL	,"METHOD"		, _TL("Method"),
 		_TL(""),
@@ -257,6 +263,8 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_Regression.Set_With_Intercept(Parameters("INTERCEPT")->asBool());
+
 	switch( Parameters("METHOD")->asInt() )
 	{
 	default:

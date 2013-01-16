@@ -1055,12 +1055,15 @@ enum ESG_Multiple_Regression_Info_Vars
 class SAGA_API_DLL_EXPORT CSG_Regression_Multiple
 {
 public:
-	CSG_Regression_Multiple(void);
+	CSG_Regression_Multiple(bool bIntercept = true);
 	virtual ~CSG_Regression_Multiple(void);
 
 	void						Destroy				(void);
 
 	bool						Set_Data			(const CSG_Matrix &Samples, CSG_Strings *pNames = NULL);
+
+	void						Set_With_Intercept	(bool bOn = true)		{	m_bIntercept	= bOn;	}
+	bool						Get_With_Intercept	(void)			const	{	return( m_bIntercept );	}
 
 	bool						Get_Model			(const CSG_Matrix &Samples                           , CSG_Strings *pNames = NULL);
 	bool						Get_Model_Forward	(const CSG_Matrix &Samples, double P_in              , CSG_Strings *pNames = NULL);
@@ -1115,6 +1118,8 @@ public:
 
 
 protected:
+
+	bool						m_bIntercept;
 
 	int							*m_bIncluded, *m_Predictor, m_nPredictors;
 
