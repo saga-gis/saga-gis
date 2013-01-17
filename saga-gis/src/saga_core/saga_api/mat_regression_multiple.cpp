@@ -703,12 +703,13 @@ bool CSG_Regression_Multiple::_Get_Regression(const CSG_Matrix &Samples)
 		double	se	= SE * sqrt(fabs(C[j][j]));
 		double	b	= B[j];
 		double	t	= b / se;
-		double	r	= -P[j][0] / sqrt(P[j][j] * P[0][0]);
+		int     k   = (m_bIntercept ? j : j + 1);
+		double	r	= -P[k][0] / sqrt(P[k][k] * P[0][0]);
 
 		CSG_Table_Record	*pRecord	= m_pRegression->Add_Record();
 
 		pRecord->Set_Value(MLR_VAR_ID		, m_bIntercept ? j - 1 : j);
-		pRecord->Set_Value(MLR_VAR_NAME		, m_Names[m_bIntercept ? j : j + 1]);
+		pRecord->Set_Value(MLR_VAR_NAME		, m_Names[k]);
 		pRecord->Set_Value(MLR_VAR_RCOEFF	, b);
 		pRecord->Set_Value(MLR_VAR_R		, r);
 		pRecord->Set_Value(MLR_VAR_R2		, r*r);
