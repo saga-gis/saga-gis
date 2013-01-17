@@ -764,23 +764,27 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 		{
 		default:
 		case SG_DATATYPE_String:	Types[i]	= 0;	break;
-		case SG_DATATYPE_Date:		Types[i]	= 1;	break;
-		case SG_DATATYPE_Color:		Types[i]	= 2;	break;
+		case SG_DATATYPE_Char:		Types[i]	= 1;	break;
+		case SG_DATATYPE_Short:		Types[i]	= 2;	break;
 		case SG_DATATYPE_Int:		Types[i]	= 3;	break;
-		case SG_DATATYPE_Double:	Types[i]	= 4;	break;
-		case SG_DATATYPE_Binary:	Types[i]	= 5;	break;
+		case SG_DATATYPE_Float:	    Types[i]	= 4;	break;
+		case SG_DATATYPE_Double:	Types[i]	= 5;	break;
+		case SG_DATATYPE_Date:	    Types[i]	= 6;	break;
+		case SG_DATATYPE_Binary:	Types[i]	= 7;	break;
 		}
 
-		P.Add_Choice(NULL, "", m_pTable->Get_Field_Name(i), _TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
-				_TL("text"),
-				_TL("date"),
-				_TL("colour"),
-				_TL("integer"),
-				_TL("floating point number"),
-				_TL("binary")
-			), Types[i]
-		);
+        P.Add_Choice(NULL, "", m_pTable->Get_Field_Name(i), _TL(""),
+            CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+                _TL("character string"),
+                _TL("1 byte integer"),
+                _TL("2 byte integer"),
+                _TL("4 byte integer"),
+                _TL("4 byte floating point"),
+                _TL("8 byte floating point"),
+                _TL("date (dd.mm.yyyy)"),
+                _TL("color (rgb)")
+            ), Types[i]
+        );
 	}
 
 	//-----------------------------------------------------
@@ -796,11 +800,13 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 			{
 			default:
 			case 0:	Type	= SG_DATATYPE_String;	break;
-			case 1:	Type	= SG_DATATYPE_Date;		break;
-			case 2:	Type	= SG_DATATYPE_Color;	break;
-			case 3:	Type	= SG_DATATYPE_Int;		break;
-			case 4:	Type	= SG_DATATYPE_Double;	break;
-			case 5:	Type	= SG_DATATYPE_Binary;	break;
+            case 1:	Type	= SG_DATATYPE_Char;		break;
+            case 2:	Type	= SG_DATATYPE_Short;	break;
+            case 3:	Type	= SG_DATATYPE_Int;		break;
+            case 4:	Type	= SG_DATATYPE_Float;	break;
+            case 5:	Type	= SG_DATATYPE_Double;	break;
+            case 6:	Type	= SG_DATATYPE_Date;		break;
+            case 7:	Type	= SG_DATATYPE_Color;	break;
 			}
 
 			if( Type != Types[i] )
@@ -1123,7 +1129,7 @@ void CVIEW_Table_Control::Update_Selection(void)
 		else
 		{
 			ClearSelection();
-		
+
 			if( m_pTable->Get_Selection_Count() > 0 )
 			{
 				#pragma omp parallel for
