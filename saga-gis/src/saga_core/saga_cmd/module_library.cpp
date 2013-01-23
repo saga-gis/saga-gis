@@ -307,6 +307,7 @@ void CCMD_Module::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 
 				case PARAMETER_TYPE_Choice:
 				case PARAMETER_TYPE_Table_Field:
+				case PARAMETER_TYPE_Table_Fields:
 					m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
@@ -467,6 +468,13 @@ bool CCMD_Module::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 						s.Append (wxT("\""));
 					}
 
+					pParameter->Set_Value(CSG_String(&s));
+				}
+				break;
+
+			case PARAMETER_TYPE_Table_Fields:
+				if( m_CMD.Found(_Get_ID(pParameter), &s) )
+				{
 					pParameter->Set_Value(CSG_String(&s));
 				}
 				break;

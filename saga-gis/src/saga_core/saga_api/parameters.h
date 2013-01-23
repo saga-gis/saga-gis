@@ -138,6 +138,7 @@ typedef enum ESG_Parameter_Type
 
 	PARAMETER_TYPE_Grid_System,
 	PARAMETER_TYPE_Table_Field,
+	PARAMETER_TYPE_Table_Fields,
 
 	PARAMETER_TYPE_PointCloud,
 	PARAMETER_TYPE_Grid,
@@ -781,6 +782,42 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Fields : public CSG_Parameter_Data
+{
+public:
+	CSG_Parameter_Table_Fields(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Table_Fields(void);
+
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table_Fields );	}
+
+	virtual const SG_Char *		asString				(void)			{	return( m_String  );	}
+	virtual int					asInt					(void)	const	{	return( m_nFields );	}
+	virtual void *				asPointer				(void)	const	{	return( m_Fields  );	}
+
+	virtual bool				Set_Value				(const CSG_String &Value);
+
+	int							Get_Count				(void)	const	{	return( m_nFields );	}
+	int							Get_Index				(int i)	const	{	return( i >= 0 && i < m_nFields ? m_Fields[i] : -1 );	}
+
+	CSG_Table *					Get_Table				(void)	const;
+
+
+protected:
+
+	int							m_nFields, *m_Fields;
+
+
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object : public CSG_Parameter_Data
 {
 public:
@@ -1255,6 +1292,7 @@ public:
 	CSG_Parameter_Choice *		asChoice				(void)	const	{	return( (CSG_Parameter_Choice          *)m_pData );	}
 	CSG_Parameter_Range *		asRange					(void)	const	{	return( (CSG_Parameter_Range           *)m_pData );	}
 	CSG_Parameter_File_Name *	asFilePath				(void)	const	{	return( (CSG_Parameter_File_Name       *)m_pData );	}
+	CSG_Parameter_Table_Fields *asTableFields			(void)	const	{	return( (CSG_Parameter_Table_Fields    *)m_pData );	}
 
 	CSG_Parameter_List *		asList					(void)	const	{	return( (CSG_Parameter_List            *)m_pData );	}
 	CSG_Parameter_Grid_List *	asGridList				(void)	const	{	return( (CSG_Parameter_Grid_List       *)m_pData );	}
@@ -1374,6 +1412,7 @@ public:
 	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent = true);
 
 	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool bAllowNone = false);
+	CSG_Parameter *				Add_Table_Fields		(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint);
 	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	CSG_Parameter *				Add_Table_List			(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint);

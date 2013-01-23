@@ -108,6 +108,7 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_FixedTable:			return( _TL("Static table") );
 	case PARAMETER_TYPE_Grid_System:		return( _TL("Grid system") );
 	case PARAMETER_TYPE_Table_Field:		return( _TL("Table field") );
+	case PARAMETER_TYPE_Table_Fields:		return( _TL("Table fields") );
 
 	case PARAMETER_TYPE_DataObject_Output:	return( _TL("Data Object") );
 	case PARAMETER_TYPE_Grid:				return( _TL("Grid") );
@@ -152,6 +153,7 @@ CSG_String SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_FixedTable:			return( SG_T("static_table") );
 	case PARAMETER_TYPE_Grid_System:		return( SG_T("grid_system") );
 	case PARAMETER_TYPE_Table_Field:		return( SG_T("table_field") );
+	case PARAMETER_TYPE_Table_Fields:		return( SG_T("table_fields") );
 
 	case PARAMETER_TYPE_DataObject_Output:	return( SG_T("data_object") );
 	case PARAMETER_TYPE_Grid:				return( SG_T("grid") );
@@ -191,6 +193,7 @@ TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 	if( !Identifier.Cmp(SG_T("static_table"	)) )	{	return( PARAMETER_TYPE_FixedTable			);	}
 	if( !Identifier.Cmp(SG_T("grid_system"	)) )	{	return( PARAMETER_TYPE_Grid_System			);	}
 	if( !Identifier.Cmp(SG_T("table_field"	)) )	{	return( PARAMETER_TYPE_Table_Field			);	}
+	if( !Identifier.Cmp(SG_T("table_fields"	)) )	{	return( PARAMETER_TYPE_Table_Fields			);	}
 
 	if( !Identifier.Cmp(SG_T("data_object"	)) )	{	return( PARAMETER_TYPE_DataObject_Output	);	}
 	if( !Identifier.Cmp(SG_T("grid"			)) )	{	return( PARAMETER_TYPE_Grid					);	}
@@ -1646,6 +1649,141 @@ void CSG_Parameter_Table_Field::On_Assign(CSG_Parameter_Data *pSource)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//					Table Fields						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter_Table_Fields::CSG_Parameter_Table_Fields(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
+{
+	m_nFields	= 0;
+	m_Fields	= NULL;
+}
+
+//---------------------------------------------------------
+CSG_Parameter_Table_Fields::~CSG_Parameter_Table_Fields(void)
+{
+	SG_FREE_SAFE(m_Fields);
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Table_Fields::Set_Value(const CSG_String &Value)
+{
+	CSG_Table	*pTable	= Get_Table();
+
+	if( !pTable || pTable->Get_Field_Count() <= 0 )
+	{
+		SG_FREE_SAFE(m_Fields);
+		m_nFields	= 0;
+		m_String	= _TL("<no attributes>");
+
+		return( false );
+	}
+
+	m_Fields	= (int *)SG_Realloc(m_Fields, pTable->Get_Field_Count() * sizeof(int));
+
+	memset(m_Fields, 0, pTable->Get_Field_Count() * sizeof(int));
+
+	//-----------------------------------------------------
+	int		iField;
+
+	CSG_String	List(Value);	List.Replace(";", ",");
+
+	while( List.Length() > 0 )
+	{
+		CSG_String	sValue	= List.BeforeFirst(',');
+		CSG_String	sField	= sValue.AfterFirst('[').BeforeLast(']');
+
+		if( sField.Length() > 0 )
+		{
+			for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+			{
+				if( sField.CmpNoCase(pTable->Get_Field_Name(iField)) == 0 )
+				{
+					m_Fields[iField]	= 1;
+					break;
+				}
+			}
+		}
+		else if( sValue.asInt(iField) && iField >= 0 && iField < pTable->Get_Field_Count() )
+		{
+			m_Fields[iField]	= 1;
+		}
+
+		List	= List.AfterFirst(',');
+	}
+
+	//-----------------------------------------------------
+	m_String.Clear();
+
+	for(iField=0, m_nFields=0; iField<pTable->Get_Field_Count(); iField++)
+	{
+		if( m_Fields[iField] != 0 )
+		{
+			m_Fields[m_nFields++]	= iField;
+
+			m_String	+= CSG_String::Format(m_String.Length() ? SG_T(",%d") : SG_T("%d"), iField);
+		}
+	}
+
+	if( m_nFields <= 0 )
+	{
+		m_String	= _TL("<no attributes>");
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Table * CSG_Parameter_Table_Fields::Get_Table(void)	const
+{
+	CSG_Table		*pTable		= NULL;
+	CSG_Parameter	*pParent	= m_pOwner->Get_Parent();
+
+	if( pParent )
+	{
+		switch( m_pOwner->Get_Parent()->Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Table:
+		case PARAMETER_TYPE_Shapes:
+		case PARAMETER_TYPE_TIN:
+		case PARAMETER_TYPE_PointCloud:
+			pTable	= pParent->asTable();
+			break;
+		}
+	}
+
+	return( pTable && pTable != DATAOBJECT_CREATE && pTable->Get_Field_Count() > 0 ? pTable : NULL );
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Table_Fields::On_Assign(CSG_Parameter_Data *pSource)
+{
+	Set_Value(pSource->asString());
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Table_Fields::On_Serialize(CSG_MetaData &Entry, bool bSave)
+{
+	if( bSave )
+	{
+		Entry.Set_Content(m_String);
+	}
+	else
+	{
+		m_String	= Entry.Get_Content();
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						DataObject						 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -1893,10 +2031,14 @@ bool CSG_Parameter_Table::Set_Value(void *Value)
 	{
 		CSG_Parameter	*pChild	= m_pOwner->Get_Child(i);
 
-		if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
+		if( pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
 			pChild->Set_Value(m_pDataObject && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
-		}				
+		}
+		else if( pChild->Get_Type() == PARAMETER_TYPE_Table_Fields )
+		{
+			pChild->Set_Value(CSG_String(""));
+		}
 	}
 
 	return( true );
@@ -1939,7 +2081,11 @@ bool CSG_Parameter_Shapes::Set_Value(void *Value)
 		if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
 			pChild->Set_Value(m_pDataObject && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
-		}				
+		}
+		else if( pChild->Get_Type() == PARAMETER_TYPE_Table_Fields )
+		{
+			pChild->Set_Value("");
+		}
 	}
 
 	return( true );
@@ -1981,15 +2127,18 @@ bool CSG_Parameter_TIN::Set_Value(void *Value)
 
 	m_pDataObject	= (CSG_Data_Object *)Value;
 
-	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	for(int i=0; i<m_pOwner->Get_Children_Count(); i++)
 	{
-		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		CSG_Parameter	*pChild	= m_pOwner->Get_Child(i);
+
+		if( pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
-			pParameters->Get_Parameter(i)->Set_Value(0);
-		}				
+			pChild->Set_Value(m_pDataObject && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
+		}
+		else if( pChild->Get_Type() == PARAMETER_TYPE_Table_Fields )
+		{
+			pChild->Set_Value("");
+		}
 	}
 
 	return( true );
@@ -2023,15 +2172,18 @@ bool CSG_Parameter_PointCloud::Set_Value(void *Value)
 
 	m_pDataObject	= (CSG_Data_Object *)Value;
 
-	CSG_Parameters	*pParameters	= m_pOwner->Get_Owner();
-
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	for(int i=0; i<m_pOwner->Get_Children_Count(); i++)
 	{
-		if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner
-		&&	pParameters->Get_Parameter(i)->Get_Type()   == PARAMETER_TYPE_Table_Field )
+		CSG_Parameter	*pChild	= m_pOwner->Get_Child(i);
+
+		if( pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
-			pParameters->Get_Parameter(i)->Set_Value(0);
-		}				
+			pChild->Set_Value(m_pDataObject && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
+		}
+		else if( pChild->Get_Type() == PARAMETER_TYPE_Table_Fields )
+		{
+			pChild->Set_Value("");
+		}
 	}
 
 	return( true );

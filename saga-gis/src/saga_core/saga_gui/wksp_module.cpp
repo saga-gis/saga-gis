@@ -376,6 +376,11 @@ void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParame
 			Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID1(p), p->asInt());
 			break;
 
+		case PARAMETER_TYPE_Table_Fields:
+			if( p->asString() != '\0' )
+				Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asString());
+			break;
+
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
 			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID1(p), p->asDouble());
@@ -466,6 +471,10 @@ void CWKSP_Module::_Save_Script_Python(CSG_String &Command, CSG_Parameters *pPar
 		case PARAMETER_TYPE_Choice:
 		case PARAMETER_TYPE_Table_Field:
 			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%d)\n"), p->Get_Identifier(), p->asInt());
+			break;
+
+		case PARAMETER_TYPE_Table_Fields:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double:

@@ -414,6 +414,21 @@ CSG_Parameter * CSG_Parameters::Add_Table_Field(CSG_Parameter *pParent, const CS
 }
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Table_Fields(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+{
+	if( pParent
+	&&	(	pParent->Get_Type() == PARAMETER_TYPE_Table
+		||	pParent->Get_Type() == PARAMETER_TYPE_Shapes
+		||	pParent->Get_Type() == PARAMETER_TYPE_TIN
+		||	pParent->Get_Type() == PARAMETER_TYPE_PointCloud	) )
+	{
+		return( _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Table_Fields, 0) );
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_Table(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
 	CSG_Parameter	*pParameter;

@@ -141,6 +141,7 @@ bool				DLG_Parameters			(class CSG_Parameters *pParameters);
 
 bool				DLG_Text				(const wxString &Caption, wxString &Text);
 bool				DLG_Table				(const wxString &Caption, class CSG_Table *pTable);
+bool				DLG_Table_Fields		(const wxString &Caption, class CSG_Parameter_Table_Fields *pFields);
 
 bool				DLG_Login				(wxString &Username, wxString &Password, const wxString &Caption = wxT(""));
 

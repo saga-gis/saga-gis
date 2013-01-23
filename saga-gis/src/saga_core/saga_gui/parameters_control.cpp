@@ -541,6 +541,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	case PARAMETER_TYPE_Text:
 	case PARAMETER_TYPE_FilePath:
 	case PARAMETER_TYPE_Font:
+	case PARAMETER_TYPE_Table_Fields:
 	case PARAMETER_TYPE_FixedTable:
 	case PARAMETER_TYPE_Parameters:
 		pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
@@ -805,6 +806,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:
 		case PARAMETER_TYPE_Font:
+		case PARAMETER_TYPE_Table_Fields:
 		case PARAMETER_TYPE_FixedTable:
 		case PARAMETER_TYPE_Grid_List:
 		case PARAMETER_TYPE_Table_List:

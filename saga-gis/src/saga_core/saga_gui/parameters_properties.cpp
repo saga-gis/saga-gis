@@ -660,6 +660,10 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 			}
 			break;
 
+		case PARAMETER_TYPE_Table_Fields:
+			bModified	= DLG_Table_Fields	(m_pParameter->Get_Name(), m_pParameter->asTableFields());
+			break;
+
 		case PARAMETER_TYPE_FixedTable:
 			bModified	= DLG_Table			(m_pParameter->Get_Name(), m_pParameter->asTable());
 			break;

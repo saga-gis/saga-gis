@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               table_cluster_analysis.cpp               //
+//               table_cluster_analysis.cpp              //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -99,9 +99,21 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Parameters(
+	Parameters.Add_Table_Fields(
 		pNode	, "FIELDS"		, _TL("Attributes"),
 		_TL("")
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "CLUSTER"		, _TL("Cluster"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Table(
+		NULL	, "RESULT"		, _TL("Result"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table(
@@ -141,79 +153,57 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTable_Cluster_Analysis::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TABLE")) )
-	{
-		CSG_Table		*pTable		= pParameter->asTable();
-		CSG_Parameters	*pFields	= pParameters->Get_Parameter("FIELDS")->asParameters();
-
-		pFields->Del_Parameters();
-
-		for(int i=0; i<pTable->Get_Field_Count(); i++)
-		{
-			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
-			{
-				pFields->Add_Value(NULL, CSG_String::Format(SG_T("%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-			}
-		}
-	}
-
-	return( 0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CTable_Cluster_Analysis::On_Execute(void)
 {
 	bool					bNormalize;
 	int						iFeature, nFeatures, *Features, iElement, nElements, Cluster;
 	CSG_Cluster_Analysis	Analysis;
-	CSG_Parameters			*pFields;
 	CSG_Table				*pTable;
-	CSG_Table_Record		*pRecord;
 
 	//-----------------------------------------------------
-	pTable		= Parameters("TABLE")		->asTable();
-	bNormalize	= Parameters("NORMALISE")	->asBool();
-	pFields		= Parameters("FIELDS")		->asParameters();
+	pTable		= Parameters("RESULT"   )->asTable();
+	bNormalize	= Parameters("NORMALISE")->asBool();
+	Cluster		= Parameters("CLUSTER"  )->asInt();
 
-	//-----------------------------------------------------
-	Features	= (int *)SG_Calloc(pFields->Get_Count(), sizeof(int));
+	Features	= (int *)Parameters("FIELDS")->asPointer();
+	nFeatures	=        Parameters("FIELDS")->asInt    ();
 
-	for(iFeature=0, nFeatures=0; iFeature<pFields->Get_Count(); iFeature++)
+	if( !Features || nFeatures <= 0 )
 	{
-		if( pFields->Get_Parameter(iFeature)->asBool() )
-		{
-			CSG_String	s(pFields->Get_Parameter(iFeature)->Get_Identifier());
-
-			Features[nFeatures++]	= s.asInt();
-		}
-	}
-
-	//-----------------------------------------------------
-	if( !Analysis.Create(nFeatures) )
-	{
-		SG_FREE_SAFE(Features);
+		Error_Set(_TL("no features in selection"));
 
 		return( false );
 	}
 
-	Cluster	= pTable->Get_Field_Count();
-	pTable->Add_Field(_TL("CLUSTER"), SG_DATATYPE_Int);
+	if( !Analysis.Create(nFeatures) )
+	{
+		Error_Set(_TL("could not initialize cluster engine"));
+
+		return( false );
+	}
+
+	if( pTable && pTable != Parameters("TABLE")->asTable() )
+	{
+		pTable->Create(*Parameters("TABLE")->asTable());
+	}
+	else
+	{
+		pTable	= Parameters("TABLE")->asTable();
+	}
+
+	if( Cluster < 0 )
+	{
+		Cluster	= pTable->Get_Field_Count();
+
+		pTable->Add_Field(_TL("CLUSTER"), SG_DATATYPE_Int);
+	}
 
 	//-----------------------------------------------------
 	for(iElement=0, nElements=0; iElement<pTable->Get_Count() && Set_Progress(iElement, pTable->Get_Count()); iElement++)
 	{
-		bool	bNoData		= false;
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iElement);
 
-		pRecord	= pTable->Get_Record(iElement);
+		bool	bNoData		= false;
 
 		for(iFeature=0; iFeature<nFeatures && !bNoData; iFeature++)
 		{
@@ -249,8 +239,6 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 
 	if( nElements <= 1 )
 	{
-		SG_FREE_SAFE(Features);
-
 		return( false );
 	}
 
@@ -261,7 +249,7 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 	{
 		Set_Progress(iElement, pTable->Get_Count());
 
-		pRecord	= pTable->Get_Record(iElement);
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iElement);
 
 		if( !pRecord->is_NoData(Cluster) )
 		{
@@ -272,8 +260,6 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 	Save_Statistics(pTable, Features, bNormalize, Analysis);
 
 //	Save_LUT(pCluster, Analysis.Get_nClusters());
-
-	SG_FREE_SAFE(Features);
 
 	DataObject_Update(pTable);
 
@@ -290,10 +276,9 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 //---------------------------------------------------------
 void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, bool bNormalize, const CSG_Cluster_Analysis &Analysis)
 {
-	int					iCluster, iFeature;
-	CSG_String			s;
-	CSG_Table_Record	*pRecord;
-	CSG_Table			*pStatistics;
+	int			iCluster, iFeature;
+	CSG_String	s;
+	CSG_Table	*pStatistics;
 
 	pStatistics	= Parameters("STATISTICS")->asTable();
 
@@ -325,7 +310,8 @@ void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, 
 	{
 		s.Printf(SG_T("\n%d\t%d\t%f"), iCluster, Analysis.Get_nMembers(iCluster), sqrt(Analysis.Get_Variance(iCluster)));
 
-		pRecord	= pStatistics->Add_Record();
+		CSG_Table_Record	*pRecord	= pStatistics->Add_Record();
+
 		pRecord->Set_Value(0, iCluster);
 		pRecord->Set_Value(1, Analysis.Get_nMembers(iCluster));
 		pRecord->Set_Value(2, sqrt(Analysis.Get_Variance(iCluster)));

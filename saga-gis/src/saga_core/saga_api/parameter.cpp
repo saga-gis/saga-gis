@@ -117,6 +117,7 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	case PARAMETER_TYPE_FixedTable:			m_pData	= new CSG_Parameter_Fixed_Table			(this, Constraint);	break;
 	case PARAMETER_TYPE_Grid_System:		m_pData	= new CSG_Parameter_Grid_System			(this, Constraint);	break;
 	case PARAMETER_TYPE_Table_Field:		m_pData	= new CSG_Parameter_Table_Field			(this, Constraint);	break;
+	case PARAMETER_TYPE_Table_Fields:		m_pData	= new CSG_Parameter_Table_Fields		(this, Constraint);	break;
 
 	case PARAMETER_TYPE_DataObject_Output:	m_pData	= new CSG_Parameter_Data_Object_Output	(this, Constraint);	break;
 	case PARAMETER_TYPE_Grid:				m_pData	= new CSG_Parameter_Grid				(this, Constraint);	break;
@@ -226,6 +227,7 @@ bool CSG_Parameter::is_Option(void)	const
 
 		case PARAMETER_TYPE_Grid_System:
 		case PARAMETER_TYPE_Table_Field:
+		case PARAMETER_TYPE_Table_Fields:
 
 		case PARAMETER_TYPE_Parameters:
 

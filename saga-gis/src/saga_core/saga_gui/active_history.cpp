@@ -343,6 +343,7 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 				case PARAMETER_TYPE_Choice:
 				case PARAMETER_TYPE_Range:
 				case PARAMETER_TYPE_Table_Field:
+				case PARAMETER_TYPE_Table_Fields:
 				case PARAMETER_TYPE_String:
 				case PARAMETER_TYPE_Text:
 				case PARAMETER_TYPE_FilePath:
