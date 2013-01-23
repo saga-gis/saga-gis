@@ -218,6 +218,8 @@ bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xCount, int &yMin, int &yCou
 			bFound	= is_InGrid(x, yMin, pMask, pGrids);
 		}
 	}
+	yMin--;
+	
 
 	//-----------------------------------------------------
 	if( yMin < Get_NY() && Process_Get_Okay() )
@@ -239,6 +241,7 @@ bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xCount, int &yMin, int &yCou
 				bFound	= is_InGrid(xMin, y, pMask, pGrids);
 			}
 		}
+		xMin--;
 
 		for(xMax=Get_NX()-1, bFound=false; xMax>=xMin && !bFound && Process_Get_Okay(true); xMax--)
 		{
