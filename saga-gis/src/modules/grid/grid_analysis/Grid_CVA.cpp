@@ -178,7 +178,7 @@ bool CGrid_CVA::On_Execute(void)
 	Colors.Set_Ramp(SG_GET_RGB(  0, 127, 127), SG_GET_RGB(255,   0,   0),    Colors.Get_Count() / 2, Colors.Get_Count());
 	DataObject_Set_Colors(pDist, Colors);
 
-	if( bAngle || (pLUT = DataObject_Get_Parameter(pDir, "LUT")) == NULL || pLUT->asTable() == NULL )
+	if( (pLUT = DataObject_Get_Parameter(pDir, "LUT")) == NULL || pLUT->asTable() == NULL || bAngle )
 	{
 		Colors.Set_Default(100);
 		Colors.Set_Ramp_Brighness(255,   0, 0, Colors.Get_Count() / 2);
