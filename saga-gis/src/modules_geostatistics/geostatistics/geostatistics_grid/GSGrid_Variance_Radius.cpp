@@ -145,7 +145,7 @@ bool CGSGrid_Variance_Radius::On_Execute(void)
 	//-----------------------------------------------------
 	stopVariance	= M_SQR(Parameters("VARIANCE")->asDouble());
 	maxRadius		= Parameters("RADIUS")	->asInt();
-	bWriteGridsize	= Parameters("OUTPUT")	->asInt() == 1;
+	bWriteGridsize	= Parameters("OUTPUT")	->asInt() == 0;
 
 	pGrid			= Parameters("INPUT")	->asGrid();
 	pResult			= Parameters("RESULT")	->asGrid();
