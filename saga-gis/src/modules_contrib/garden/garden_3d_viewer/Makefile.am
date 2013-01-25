@@ -15,10 +15,16 @@ AM_LDFLAGS         = $(DEP_LFLG) -avoid-version
 pkglib_LTLIBRARIES = libgarden_3d_viewer.la
 libgarden_3d_viewer_la_SOURCES =\
 MLB_Interface.cpp\
+3d_multigrid_view_control.cpp\
+3d_multigrid_view_dialog.cpp\
+3d_multigrid_view_module.cpp\
 3dshapes_view_control.cpp\
 3dshapes_view_dialog.cpp\
 3dshapes_view_module.cpp\
 MLB_Interface.h\
+3d_multigrid_view_control.h\
+3d_multigrid_view_dialog.h\
+3d_multigrid_view_module.h\
 3dshapes_view_control.h\
 3dshapes_view_dialog.h\
 3dshapes_view_module.h

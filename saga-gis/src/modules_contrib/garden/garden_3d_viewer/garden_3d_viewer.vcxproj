@@ -295,6 +295,9 @@
     <ClCompile Include="3dshapes_view_control.cpp" />
     <ClCompile Include="3dshapes_view_dialog.cpp" />
     <ClCompile Include="3dshapes_view_module.cpp" />
+    <ClCompile Include="3d_multigrid_view_control.cpp" />
+    <ClCompile Include="3d_multigrid_view_dialog.cpp" />
+    <ClCompile Include="3d_multigrid_view_module.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -316,6 +319,9 @@
     <ClInclude Include="3dshapes_view_control.h" />
     <ClInclude Include="3dshapes_view_dialog.h" />
     <ClInclude Include="3dshapes_view_module.h" />
+    <ClInclude Include="3d_multigrid_view_control.h" />
+    <ClInclude Include="3d_multigrid_view_dialog.h" />
+    <ClInclude Include="3d_multigrid_view_module.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

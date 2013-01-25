@@ -26,6 +26,15 @@
     <ClCompile Include="3dshapes_view_module.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="3d_multigrid_view_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_multigrid_view_dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_multigrid_view_module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -89,6 +98,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="3dshapes_view_module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3d_multigrid_view_control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3d_multigrid_view_dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3d_multigrid_view_module.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

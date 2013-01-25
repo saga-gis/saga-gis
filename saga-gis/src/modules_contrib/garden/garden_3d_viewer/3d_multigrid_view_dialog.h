@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 911 2011-02-14 16:38:15Z reklov_w $
+ * Version $Id: 3d_multigrid_view_dialog.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    3dshapes_viewer                    //
+//                      3d_viewer                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                3d_multigrid_view_dialog.h             //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,8 +43,10 @@
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Institute for Geography                //
+//                Institute of Geography                 //
 //                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -54,61 +56,66 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__3d_multigrid_view_dialog_H
+#define HEADER_INCLUDED__3d_multigrid_view_dialog_H
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include <saga_gdi/saga_gdi.h>
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class C3D_MultiGrid_View_Dialog : public CSGDI_Dialog
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Garden - 3D Shapes Viewer") );
+public:
+	C3D_MultiGrid_View_Dialog(CSG_Parameter_Grid_List *pShapes, int Field_Color);
 
-	case MLB_INFO_Author:
-		return( SG_T("O.Conrad (c) 2011") );
-
-	case MLB_INFO_Description:
-		return( _TL("3D Shapes Viewer" ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Garden|Visualisation" ));
-	}
-}
+	void								Update_Rotation			(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+private:
 
-#include "3dshapes_view_module.h"
-#include "3d_multigrid_view_module.h"
+	wxButton							*m_pBtn_Prop;
+
+	wxCheckBox							*m_pCheck_Central, *m_pCheck_Stereo, *m_pCheck_Frame;
+
+	wxChoice							*m_pField_Color, *m_pStyle, *m_pShading;
+
+	wxTextCtrl							*m_pFormula, *m_pParameters;
+
+	CSGDI_Slider						*m_pSlide_xRotate, *m_pSlide_yRotate, *m_pSlide_zRotate, *m_pSlide_Central, *m_pSlide_Light_Hgt, *m_pSlide_Light_Dir;
+
+	class C3D_MultiGrid_View_Control	*m_pView;
+
+	CSG_Parameters						m_Settings;
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+	void								On_Update_Control		(wxCommandEvent &event);
+	void								On_Update_Choices		(wxCommandEvent &event);
+	void								On_Button				(wxCommandEvent &event);
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new C3DShapes_View_Module );
-	case 1:		return( new C3D_MultiGrid_View_Module );
+	void								On_Mouse_Wheel			(wxMouseEvent   &event);
 
-	default:	return( NULL );
-	}
-}
+	DECLARE_EVENT_TABLE()
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -118,8 +125,13 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__3d_multigrid_view_dialog_H
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

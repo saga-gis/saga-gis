@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 911 2011-02-14 16:38:15Z reklov_w $
+ * Version $Id: points_view_module.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    3dshapes_viewer                    //
+//                       3d_viewer                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//              3d_multigrid_view_module.cpp             //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,60 +54,39 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Garden - 3D Shapes Viewer") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O.Conrad (c) 2011") );
-
-	case MLB_INFO_Description:
-		return( _TL("3D Shapes Viewer" ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Garden|Visualisation" ));
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "3dshapes_view_module.h"
 #include "3d_multigrid_view_module.h"
+#include "3d_multigrid_view_dialog.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+C3D_MultiGrid_View_Module::C3D_MultiGrid_View_Module(void)
 {
-	switch( i )
-	{
-	case 0:		return( new C3DShapes_View_Module );
-	case 1:		return( new C3D_MultiGrid_View_Module );
+	//-----------------------------------------------------
+	Set_Name		(_TL("Multi-Grid 3D Viewer"));
 
-	default:	return( NULL );
-	}
+	Set_Author		(SG_T("O. Conrad (c) 2013"));
+
+	Set_Description	(_TW(
+		""
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"	, _TL("Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 }
 
 
@@ -118,8 +97,36 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+bool C3D_MultiGrid_View_Module::On_Execute(void)
+{
+	if( !SG_UI_Get_Window_Main() )
+	{
+		Message_Add(_TL("multi-grid viewer can only be run from graphical user interface"));
 
-	MLB_INTERFACE
+		return( false );
+	}
 
-//}}AFX_SAGA
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+
+	if( pGrids->Get_Count() <= 0 )
+	{
+		Message_Add(_TL("multi-grid viewer will not be started"));
+
+		return( false );
+	}
+
+	C3D_MultiGrid_View_Dialog	dlg(pGrids, 0);
+
+	dlg.ShowModal();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
