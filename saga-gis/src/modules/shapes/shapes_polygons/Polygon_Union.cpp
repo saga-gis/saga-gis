@@ -98,7 +98,7 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD_1"		, _TL("1. Attribute"),
 		_TL(""),
-		false
+		true
 	);
 
 	Parameters.Add_Table_Field(
@@ -119,15 +119,10 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DISSOLVE"	, _TL("Dissolve..."),
+	Parameters.Add_Value(
+		NULL	, "BND_KEEP"	, _TL("Keep Boundaries"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("polygons with same attribute value"),
-			_TL("all polygons"),
-			_TL("polygons with same attribute value (keep inner boundaries)"),
-			_TL("all polygons (keep inner boundaries)")
-		), 0
+		PARAMETER_TYPE_Bool, false
 	);
 }
 
@@ -152,6 +147,23 @@ int CPolygon_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	return( 0 );
 }
 
+//---------------------------------------------------------
+int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELD_1")) )
+	{
+		pParameters->Get_Parameter("FIELD_2")->Set_Enabled(pParameter->asInt() >= 0);
+		pParameters->Get_Parameter("FIELD_3")->Set_Enabled(pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_2")->asInt() >= 0);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELD_2")) )
+	{
+		pParameters->Get_Parameter("FIELD_3")->Set_Enabled(pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_1")->asInt() >= 0);
+	}
+
+	return( 0 );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -162,126 +174,126 @@ int CPolygon_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CPolygon_Dissolve::On_Execute(void)
 {
-	bool		bAll, bDissolve;
+	bool		bDissolve;
 	int			Field_1, Field_2, Field_3, iPolygon;
 	CSG_String	Value;
 	CSG_Shape	*pPolygon , *pUnion;
 	CSG_Shapes	*pPolygons, *pUnions;
 
 	//-----------------------------------------------------
-	pPolygons	= Parameters("POLYGONS")	->asShapes();
-	pUnions		= Parameters("DISSOLVED")	->asShapes();
-	Field_1		= Parameters("FIELD_1")		->asInt();
-	Field_2		= Parameters("FIELD_2")		->asInt();
-	Field_3		= Parameters("FIELD_3")		->asInt();
-	bAll		= Parameters("DISSOLVE")	->asInt() % 2 == 1;
-	bDissolve	= Parameters("DISSOLVE")	->asInt() / 2 == 0;
+	pPolygons	= Parameters("POLYGONS" )->asShapes();
+	pUnions		= Parameters("DISSOLVED")->asShapes();
+	Field_1		= Parameters("FIELD_1"  )->asInt();
+	Field_2		= Parameters("FIELD_2"  )->asInt();
+	Field_3		= Parameters("FIELD_3"  )->asInt();	if( Field_2 < 0 )	Field_3	= -1;
+	bDissolve	= Parameters("BND_KEEP" )->asBool() == false;
 
 	//-----------------------------------------------------
-	if(	pPolygons->is_Valid() )
+	if(	!pPolygons->is_Valid() || pPolygons->Get_Count() < 2 )
 	{
-		pUnions	->Create(SHAPE_TYPE_Polygon);
+		Error_Set(_TL("invalid or empty polygons layer"));
 
-		//-------------------------------------------------
-		if( bAll || Field_1 >= pPolygons->Get_Field_Count() )
+		return( false );
+	}
+
+	pUnions	->Create(SHAPE_TYPE_Polygon);
+
+	//-----------------------------------------------------
+	if( Field_1 >= pPolygons->Get_Field_Count() )
+	{
+		pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("Dissolved")));
+		pUnions->Add_Field(_TL("ID"), SG_DATATYPE_Int);
+
+		pUnion	= pUnions->Add_Shape(pPolygons->Get_Shape(0), SHAPE_COPY_GEOM);
+
+		for(iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 		{
-			pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("Dissolved")));
-			pUnions->Add_Field(_TL("ID"), SG_DATATYPE_Int);
+			pPolygon	= pPolygons->Get_Shape(iPolygon);
 
-			pUnion	= pUnions->Add_Shape(pPolygons->Get_Shape(0), SHAPE_COPY_GEOM);
-
-			for(iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+			for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 			{
-				pPolygon	= pPolygons->Get_Shape(iPolygon);
+				CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygon)->Get_Part(iPart);
 
-				for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+				for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
 				{
-					CSG_Shape_Part	*pPart	= ((CSG_Shape_Polygon *)pPolygon)->Get_Part(iPart);
-
-					for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
-					{
-						pUnion->Add_Point(pPart->Get_Point(iPoint), nParts);
-					}
+					pUnion->Add_Point(pPart->Get_Point(iPoint), nParts);
 				}
-			}
-
-			if( bDissolve )
-			{
-				SG_Polygon_Dissolve(pUnion);
 			}
 		}
 
-		//-------------------------------------------------
-		else
+		if( bDissolve )
 		{
-			Value	= pPolygons->Get_Field_Name(Field_1);
-			pUnions	->Add_Field(pPolygons->Get_Field_Name(Field_1), pPolygons->Get_Field_Type(Field_1));
-
-			if( Field_2 >= 0 )
-			{
-				Value	+= CSG_String::Format(SG_T(", %s"), pPolygons->Get_Field_Name(Field_2));
-				pUnions	->Add_Field(pPolygons->Get_Field_Name(Field_2), pPolygons->Get_Field_Type(Field_2));
-			}
-
-			if( Field_3 >= 0 )
-			{
-				Value	+= CSG_String::Format(SG_T(", %s"), pPolygons->Get_Field_Name(Field_3));
-				pUnions	->Add_Field(pPolygons->Get_Field_Name(Field_3), pPolygons->Get_Field_Type(Field_3));
-			}
-
-			pPolygons->Set_Index(Field_1, TABLE_INDEX_Ascending, Field_2, TABLE_INDEX_Ascending, Field_3, TABLE_INDEX_Ascending);
-
-			pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPolygons->Get_Name(), _TL("Dissolved"), Value.c_str()));
-
-			for(iPolygon=0, pUnion=NULL; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
-			{
-				pPolygon	= pPolygons->Get_Shape(pPolygons->Get_Record_byIndex(iPolygon)->Get_Index());
-
-				CSG_String	s(pPolygon->asString(Field_1));
-
-				if( Field_2 >= 0 )	s	+= pPolygon->asString(Field_2);
-				if( Field_3 >= 0 )	s	+= pPolygon->asString(Field_3);
-
-				if( iPolygon == 0 || Value.Cmp(s) )
-				{
-					if( pUnion && bDissolve )
-					{
-						SG_Polygon_Dissolve(pUnion);
-					}
-
-					Value	= s;
-
-					pUnion	= pUnions->Add_Shape(pPolygon, SHAPE_COPY_GEOM);
-
-					pUnion->Set_Value(0, pPolygon->asString(Field_1));
-
-					if( Field_2 >= 0 )	pUnion->Set_Value(1, pPolygon->asString(Field_2));
-					if( Field_3 >= 0 )	pUnion->Set_Value(2, pPolygon->asString(Field_3));
-				}
-				else
-				{
-					for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
-					{
-						for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
-						{
-							pUnion->Add_Point(pPolygon->Get_Point(iPoint, iPart), nParts);
-						}
-					}
-				}
-			}
-
-			if( pUnion && bDissolve )
-			{
-				SG_Polygon_Dissolve(pUnion);
-			}
+			SG_Polygon_Dissolve(pUnion);
 		}
-
-		//-------------------------------------------------
-		return( pUnions->is_Valid() );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	else
+	{
+		Value	= pPolygons->Get_Field_Name(Field_1);
+		pUnions	->Add_Field(pPolygons->Get_Field_Name(Field_1), pPolygons->Get_Field_Type(Field_1));
+
+		if( Field_2 >= 0 )
+		{
+			Value	+= CSG_String::Format(SG_T(", %s"), pPolygons->Get_Field_Name(Field_2));
+			pUnions	->Add_Field(pPolygons->Get_Field_Name(Field_2), pPolygons->Get_Field_Type(Field_2));
+		}
+
+		if( Field_3 >= 0 )
+		{
+			Value	+= CSG_String::Format(SG_T(", %s"), pPolygons->Get_Field_Name(Field_3));
+			pUnions	->Add_Field(pPolygons->Get_Field_Name(Field_3), pPolygons->Get_Field_Type(Field_3));
+		}
+
+		pPolygons->Set_Index(Field_1, TABLE_INDEX_Ascending, Field_2, TABLE_INDEX_Ascending, Field_3, TABLE_INDEX_Ascending);
+
+		pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPolygons->Get_Name(), _TL("Dissolved"), Value.c_str()));
+
+		for(iPolygon=0, pUnion=NULL; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+		{
+			pPolygon	= pPolygons->Get_Shape(pPolygons->Get_Record_byIndex(iPolygon)->Get_Index());
+
+			CSG_String	s(pPolygon->asString(Field_1));
+
+			if( Field_2 >= 0 )	s	+= pPolygon->asString(Field_2);
+			if( Field_3 >= 0 )	s	+= pPolygon->asString(Field_3);
+
+			if( iPolygon == 0 || Value.Cmp(s) )
+			{
+				if( pUnion && bDissolve )
+				{
+					SG_Polygon_Dissolve(pUnion);
+				}
+
+				Value	= s;
+
+				pUnion	= pUnions->Add_Shape(pPolygon, SHAPE_COPY_GEOM);
+
+				pUnion->Set_Value(0, pPolygon->asString(Field_1));
+
+				if( Field_2 >= 0 )	pUnion->Set_Value(1, pPolygon->asString(Field_2));
+				if( Field_3 >= 0 )	pUnion->Set_Value(2, pPolygon->asString(Field_3));
+			}
+			else
+			{
+				for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+				{
+					for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+					{
+						pUnion->Add_Point(pPolygon->Get_Point(iPoint, iPart), nParts);
+					}
+				}
+			}
+		}
+
+		if( pUnion && bDissolve )
+		{
+			SG_Polygon_Dissolve(pUnion);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( pUnions->is_Valid() );
 }
 
 

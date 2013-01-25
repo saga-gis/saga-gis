@@ -93,6 +93,7 @@ protected:
 	virtual bool			On_Execute				(void);
 
 	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
