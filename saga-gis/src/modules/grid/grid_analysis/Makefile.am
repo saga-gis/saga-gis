@@ -25,6 +25,7 @@ Grid_Accumulation_Functions.cpp\
 Grid_AggregationIndex.cpp\
 Grid_AHP.cpp\
 Grid_CVA.cpp\
+Grid_IMCORR.cpp\
 Grid_LayerOfMaximumValue.cpp\
 Grid_Pattern.cpp\
 LeastCostPathProfile.cpp\
@@ -45,6 +46,7 @@ Grid_Accumulation_Functions.h\
 Grid_AggregationIndex.h\
 Grid_AHP.h\
 Grid_CVA.h\
+Grid_IMCORR.h\
 Grid_LayerOfMaximumValue.h\
 Grid_Pattern.h\
 LeastCostPathProfile.h\

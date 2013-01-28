@@ -74,6 +74,9 @@
     <ClCompile Include="Grid_Accumulation_Functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grid_IMCORR.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cost_Anisotropic.h">
@@ -167,6 +170,9 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="Grid_Accumulation_Functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid_IMCORR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

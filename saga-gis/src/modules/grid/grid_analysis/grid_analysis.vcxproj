@@ -367,6 +367,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="Grid_IMCORR.cpp" />
     <ClCompile Include="Grid_LayerOfMaximumValue.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -443,6 +444,7 @@
     <ClInclude Include="Grid_AggregationIndex.h" />
     <ClInclude Include="Grid_AHP.h" />
     <ClInclude Include="Grid_CVA.h" />
+    <ClInclude Include="Grid_IMCORR.h" />
     <ClInclude Include="Grid_LayerOfMaximumValue.h" />
     <ClInclude Include="Grid_Pattern.h" />
     <ClInclude Include="LeastCostPathProfile.h" />
