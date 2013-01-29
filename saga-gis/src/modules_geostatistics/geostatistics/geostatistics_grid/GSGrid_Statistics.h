@@ -86,12 +86,33 @@ class CGSGrid_Statistics : public CSG_Module_Grid
 {
 public:
 	CGSGrid_Statistics(void);
-	virtual ~CGSGrid_Statistics(void);
 
 
 protected:
 
-	virtual bool			On_Execute	(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGSGrid_Statistics_To_Table : public CSG_Module_Grid  
+{
+public:
+	CGSGrid_Statistics_To_Table(void);
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 

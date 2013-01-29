@@ -127,6 +127,7 @@ CSG_Module *		Create_Module(int i)
 	case 10:	return( new CGrid_PCA_Inverse );
 	case 11:	return( new CGrid_Statistics_Latitudinal );
 	case 12:	return( new CGrid_Statistics_Meridional );
+	case 13:	return( new CGSGrid_Statistics_To_Table );
 	}
 
 	return( NULL );
