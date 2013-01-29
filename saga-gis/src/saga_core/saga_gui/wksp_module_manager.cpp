@@ -202,6 +202,8 @@ bool CWKSP_Module_Manager::Initialise(void)
 	if( _Open_Directory(wxT(MODULE_LIBRARY_PATH)) == 0 )
 #endif
 		_Open_Directory(g_pSAGA->Get_App_Path(), true);
+
+		m_pMenu_Modules->Update();
 	}
 
 	return( true );
