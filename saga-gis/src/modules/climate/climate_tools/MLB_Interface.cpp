@@ -93,8 +93,8 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "grid_levels_interpolation.h"
-
 #include "milankovic.h"
+#include "etp_hargreave.h"
 
 
 //---------------------------------------------------------
@@ -111,6 +111,9 @@ CSG_Module *		Create_Module(int i)
 	case  3:	return( new CMilankovic_SR_Location );
 	case  4:	return( new CMilankovic_SR_Day_Location );
 	case  5:	return( new CMilankovic_SR_Monthly_Global );
+
+	case  6:	return( new CETP_Hargreave );
+	case  7:	return( new CETP_Day_To_Hour );
 
 	//-----------------------------------------------------
 	case 10:	return( NULL );

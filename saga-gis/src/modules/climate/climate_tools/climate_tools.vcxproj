@@ -292,6 +292,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="etp_hargreave.cpp" />
     <ClCompile Include="grid_levels_interpolation.cpp" />
     <ClCompile Include="milankovic.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
@@ -312,6 +313,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="etp_hargreave.h" />
     <ClInclude Include="grid_levels_interpolation.h" />
     <ClInclude Include="milankovic.h" />
     <ClInclude Include="MLB_Interface.h" />

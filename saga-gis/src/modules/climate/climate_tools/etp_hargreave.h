@@ -9,7 +9,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    table_calculus                     //
+//                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -85,13 +85,12 @@ class CETP_Hargreave : public CSG_Module
 public:
 	CETP_Hargreave(void);
 
-//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("Evapotranspiration") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
-
+	virtual bool		On_Execute		(void);
 
 };
 
@@ -106,13 +105,12 @@ class CETP_Day_To_Hour : public CSG_Module
 public:
 	CETP_Day_To_Hour(void);
 
-//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("Evapotranspiration") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
-
+	virtual bool		On_Execute		(void);
 
 };
 

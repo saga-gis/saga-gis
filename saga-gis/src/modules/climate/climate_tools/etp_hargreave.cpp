@@ -9,7 +9,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    table_calculus                     //
+//                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
