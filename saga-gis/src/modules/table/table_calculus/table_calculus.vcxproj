@@ -292,7 +292,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="etp_hargreave.cpp" />
     <ClCompile Include="Fit.cpp" />
     <ClCompile Include="LMFit.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
@@ -307,6 +306,7 @@
     </ClCompile>
     <ClCompile Include="Table_Calculator.cpp" />
     <ClCompile Include="table_cluster_analysis.cpp" />
+    <ClCompile Include="table_field_analyzer.cpp" />
     <ClCompile Include="table_fill_record_gaps.cpp" />
     <ClCompile Include="table_pca.cpp" />
     <ClCompile Include="table_running_average.cpp" />
@@ -318,7 +318,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
-    <ClInclude Include="etp_hargreave.h" />
     <ClInclude Include="Fit.h" />
     <ClInclude Include="LMFit.h" />
     <ClInclude Include="MLB_Interface.h" />
@@ -335,6 +334,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="Table_Calculator.h" />
     <ClInclude Include="table_cluster_analysis.h" />
+    <ClInclude Include="table_field_analyzer.h" />
     <ClInclude Include="table_fill_record_gaps.h" />
     <ClInclude Include="table_pca.h" />
     <ClInclude Include="table_running_average.h" />

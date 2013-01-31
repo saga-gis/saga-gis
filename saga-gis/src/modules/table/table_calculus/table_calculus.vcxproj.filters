@@ -35,10 +35,10 @@
     <ClCompile Include="table_pca.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="etp_hargreave.cpp">
+    <ClCompile Include="table_fill_record_gaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="table_fill_record_gaps.cpp">
+    <ClCompile Include="table_field_analyzer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -115,10 +115,10 @@
     <ClInclude Include="table_pca.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="etp_hargreave.h">
+    <ClInclude Include="table_fill_record_gaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="table_fill_record_gaps.h">
+    <ClInclude Include="table_field_analyzer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
