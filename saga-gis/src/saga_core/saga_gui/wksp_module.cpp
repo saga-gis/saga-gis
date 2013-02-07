@@ -257,8 +257,8 @@ void CWKSP_Module::_Save_Script(void)
 		{
 			Command	+= SG_T("@ECHO OFF\n\n");
 
-			Command	+= SG_T("REM SET SAGA_MLB = C:\\SAGA\\Modules\n");
-			Command	+= SG_T("REM SET PATH = %PATH%;C:\\SAGA\n\n");
+			Command	+= SG_T("REM SET SAGA_MLB=C:\\SAGA\\Modules\n");
+			Command	+= SG_T("REM SET PATH=%PATH%;C:\\SAGA\n\n");
 
 			Command	+= SG_T("saga_cmd ");
 
