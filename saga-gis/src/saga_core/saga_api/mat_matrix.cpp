@@ -73,10 +73,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_Matrix_LU_Decomposition			(int n, int *Permutation, double **Matrix, bool bSilent);
-bool		SG_Matrix_LU_Solve					(int n, int *Permutation, double **Matrix, double *Vector, bool bSilent);
-
-//---------------------------------------------------------
 bool		SG_Matrix_Triangular_Decomposition	(CSG_Matrix &A, CSG_Vector &d, CSG_Vector &e);
 bool		SG_Matrix_Tridiagonal_QL			(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e);
 
@@ -1459,7 +1455,7 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 				v.Set_Zero();
 				v[j]	= 1.0;
 
-				SG_Matrix_LU_Solve(n, Permutation, m.Get_Data(), v.Get_Data(), true);
+				SG_Matrix_LU_Solve(n, Permutation, m, v.Get_Data(), true);
 
 				for(int i=0; i<n; i++)
 				{
@@ -1543,7 +1539,7 @@ bool		SG_Matrix_Solve(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent)
 
 		if( SG_Matrix_LU_Decomposition(n, Permutation, Matrix.Get_Data(), bSilent) )
 		{
-			SG_Matrix_LU_Solve(n, Permutation, Matrix.Get_Data(), Vector.Get_Data(), bSilent);
+			SG_Matrix_LU_Solve(n, Permutation, Matrix, Vector.Get_Data(), bSilent);
 
 			bResult	= true;
 		}

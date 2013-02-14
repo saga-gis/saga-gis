@@ -212,6 +212,7 @@ public:
 	bool						Add_Row				(double Value = 0.0);
 
 	int							Get_N				(void)	const	{	return( m_n );		}
+	operator const double *							(void)	const	{	return( m_z );		}
 	double *					Get_Data			(void)	const	{	return( m_z );		}
 	double						operator ()			(int x)	const	{	return( m_z[x] );	}
 	double &					operator []			(int x)			{	return( m_z[x] );	}
@@ -315,6 +316,7 @@ public:
 	int							Get_NY				(void)			const	{	return( m_ny );			}
 	int							Get_NRows			(void)			const	{	return( m_ny );			}
 
+	operator const double **						(void)			const	{	return( (const double **)m_z );	}
 	double **					Get_Data			(void)			const	{	return( m_z );			}
 	double						operator ()			(int y, int x)	const	{	return( m_z[y][x] );	}
 	double *					operator []			(int y)			const	{	return( m_z[y] );		}
