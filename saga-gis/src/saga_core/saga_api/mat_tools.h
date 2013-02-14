@@ -375,6 +375,9 @@ private:
 SAGA_API_DLL_EXPORT CSG_Matrix	operator *			(double Scalar, const CSG_Matrix &Matrix);
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Matrix_LU_Decomposition	(int n,       int *Permutation,       double **Matrix                , bool bSilent = true);
+SAGA_API_DLL_EXPORT bool		SG_Matrix_LU_Solve			(int n, const int *Permutation, const double **Matrix, double *Vector, bool bSilent = true);
+
 SAGA_API_DLL_EXPORT bool		SG_Matrix_Solve				(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent = true);
 SAGA_API_DLL_EXPORT bool		SG_Matrix_Eigen_Reduction	(const CSG_Matrix &Matrix, CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Values, bool bSilent = true);
 

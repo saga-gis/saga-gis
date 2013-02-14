@@ -1678,7 +1678,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_Matrix_LU_Solve(int n, int *Permutation, double **Matrix, double *Vector, bool bSilent)
+bool		SG_Matrix_LU_Solve(int n, const int *Permutation, const double **Matrix, double *Vector, bool bSilent)
 {
 	int		i, j, k;
 	double	Sum;
