@@ -313,6 +313,7 @@
     </ClCompile>
     <ClCompile Include="Morphometry.cpp" />
     <ClCompile Include="mrvbf.cpp" />
+    <ClCompile Include="param_scale.cpp" />
     <ClCompile Include="ProtectionIndex.cpp" />
     <ClCompile Include="RealArea.cpp" />
     <ClCompile Include="relative_heights.cpp" />
@@ -352,6 +353,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="Morphometry.h" />
     <ClInclude Include="mrvbf.h" />
+    <ClInclude Include="param_scale.h" />
     <ClInclude Include="ProtectionIndex.h" />
     <ClInclude Include="RealArea.h" />
     <ClInclude Include="relative_heights.h" />

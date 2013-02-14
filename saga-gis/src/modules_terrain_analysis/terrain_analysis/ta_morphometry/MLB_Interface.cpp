@@ -107,6 +107,7 @@ CSG_String Get_Info(int i)
 #include "ruggedness.h"
 #include "tpi.h"
 #include "tc_iwahashi_pike.h"
+#include "param_scale.h"
 
 
 //---------------------------------------------------------
@@ -137,6 +138,7 @@ CSG_Module *		Create_Module(int i)
 	case 20:	return( new CTC_Texture );
 	case 21:	return( new CTC_Convexity );
 	case 22:	return( new CTC_Classification );
+	case 23:	return( new CParam_Scale );
 	}
 
 	return( NULL );
