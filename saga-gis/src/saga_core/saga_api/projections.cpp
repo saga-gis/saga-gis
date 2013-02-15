@@ -1312,7 +1312,7 @@ bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4
 	}
 
 	//-----------------------------------------------------
-	Value	= SG_T("UNIT[\"metre\",1");
+	Value	= SG_T("UNIT[\"metre\",1]");
 
 	return( false );
 }
