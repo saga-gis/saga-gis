@@ -49,7 +49,7 @@ distance_gradient.h\
 land_surface_temperature.h\
 mass_balance_index.h\
 mrvbf.h\
-param_scale.cpp\
+param_scale.h\
 relative_heights.h\
 ruggedness.h\
 tc_iwahashi_pike.h\
