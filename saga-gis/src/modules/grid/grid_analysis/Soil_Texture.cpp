@@ -69,13 +69,13 @@
 //---------------------------------------------------------
 struct SClass
 {
-	int				ID, Color;
+	int			ID, Color;
 
-	const SG_Char	*Name;
+	CSG_String	Name;
 
-	int				nPoints;
+	int			nPoints;
 
-	double			Sand[8], Clay[8];
+	double		Sand[8], Clay[8];
 };
 
 //---------------------------------------------------------
