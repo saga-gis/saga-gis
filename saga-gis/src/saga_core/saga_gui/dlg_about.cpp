@@ -111,7 +111,7 @@ CDLG_About::CDLG_About(void)
 	wxTextCtrl	*pText;
 
 	m_pControl	= new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE);
-	
+
 	//-----------------------------------------------------
 	m_pVersion	=
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
@@ -317,15 +317,17 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 		"\n"
 		"Benni Bechtel\n"
 		"Michael Bock\n"
-		"Juergen Boehner\n"
+		"Jürgen Böhner\n"
 		"Antonio Boggia\n"
+		"Magnus Bremer\n"
 		"Alex Brenning\n"
 		"Vern Cimmery\n"
 		"Olaf Conrad\n"
+		"Manfred Egger\n"
 		"Frank Haselein\n"
 		"Tobias Heckmann\n"
 		"Philipp J. Hess\n"
-		"Ruediger Koethe\n"
+		"Rüdiger Köthe\n"
 		"Angela Kreikemeyer\n"
 		"Stefan Liersch\n"
 		"Gianluca Massei\n"
