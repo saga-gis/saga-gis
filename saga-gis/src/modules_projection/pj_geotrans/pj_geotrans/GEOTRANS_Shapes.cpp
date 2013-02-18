@@ -76,7 +76,7 @@ CGEOTRANS_Shapes::CGEOTRANS_Shapes(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name	(_TL("GeoTRANS (Shapes)"));
+	Set_Name	(_TL("GeoTrans (Shapes)"));
 
 	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 

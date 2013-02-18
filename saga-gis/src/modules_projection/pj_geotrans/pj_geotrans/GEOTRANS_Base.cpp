@@ -199,7 +199,7 @@ bool CGEOTRANS_Base::Initialize(void)
 			for(i=0; i<count; i++)
 			{
 				error_code	= Get_Coordinate_System_Name(i + 1, system_name);
-				sList.Append(CSG_String::Format(SG_T("%s|"), system_name));
+				sList	+= CSG_String(system_name) + SG_T("|");
 			}
 
 			if( sList.Length() > 0 )
@@ -222,7 +222,7 @@ bool CGEOTRANS_Base::Initialize(void)
 			{
 				error_code	= Get_Datum_Code(i + 1, datum_code);
 				error_code	= Get_Datum_Name(i + 1, datum_name);
-				sList.Append(CSG_String::Format(SG_T("%-8s: %s|"), datum_code, datum_name));
+				sList	+= CSG_String(datum_code) + SG_T(": ") + datum_name  + SG_T("|");
 			}
 
 			if( sList.Length() > 0 )
