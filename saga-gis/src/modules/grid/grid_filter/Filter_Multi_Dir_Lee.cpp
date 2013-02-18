@@ -76,7 +76,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 	},
-		
+
 	{
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -88,7 +88,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 	},
-		
+
 	{
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -100,7 +100,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 	},
-		
+
 	{
 		{0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -112,7 +112,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5}
 	},
-		
+
 	{
 		{1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -124,7 +124,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0}
 	},
-		
+
 	{
 		{0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -136,7 +136,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5}
 	},
-		
+
 	{
 		{0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
 		{0.0, 0.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -148,7 +148,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.0, 0.0},
 		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0}
 	},
-		
+
 	{
 		{0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
 		{0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
@@ -160,7 +160,7 @@ double Filter_Directions[16][9][9]	=
 		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0},
 		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0}
 	},
-		
+
 	{
 		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
 		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
@@ -190,15 +190,23 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
 	Set_Description	(_TW(
-		"This Multi Direction Lee Filter is a enhanced Lee Filter\n"
-		"It looks into 16 directions for the direction with the minium variance\n"
-		"and applied a Lee Filter on this direction.\n\n"
-		"Uses this filter for remove speckle noise in SAR images or DTMs.\n"
-		"On DTMs this filter will preserves the slope and  narrow valleys. \n\n"
-		"For details on the Lee Filter, see the article by Jong-Sen Lee:\n"
-		"\"Digital Image Enhancement and Noise Filtering by Use of Local Statistics\",\n"
-		"IEEE Transactions on Pattern Analysis and Machine Intelligence,\n"
-		"Volume PAMI-2, Number 2, pages 165-168, March 1980.\n\n")
+		"The module searches for the minium variance within 16 directions "
+		"and applies a Lee Filter in the direction of minimum variance. The "
+		"filter is edge-preserving and can be used to remove speckle noise "
+		"from SAR images or to smooth DTMs. Applied to DTMs, this filter "
+		"will preserve slope breaks and narrow valleys.\n\n"
+		"For more details, please refer to:\n"
+		"Lee, J.S. (1980): Digital image enhancement and noise filtering by use of local statistics. "
+        "IEEE Transactions on Pattern Analysis and Machine Intelligence, PAMI-2: 165-168\n\n"
+        "Lee, J.S., Papathanassiou, K.P., Ainsworth, T.L., Grunes, M.R., Reigber, A. (1998): A "
+        "New Technique for Noise Filtering of SAR Interferometric Phase Images. IEEE "
+        "Transactions on Geosciences and Remote Sensing 36(5): 1456-1465.\n\n"
+        "Selige, T., Böhner, J., Ringeler, A. (2006): Processing of SRTM X-SAR Data to correct interferometric "
+        "elevation models for land surface process applications. In: Böhner, J., McCloy, K.R., Strobl, J. [Eds.]: "
+        "SAGA - Analysis and Modelling Applications. Göttinger Geographische Abhandlungen, Vol. 115: 97-104 "
+        "<a href=\"http://downloads.sourceforge.net/saga-gis/gga115_09.pdf\">&lt;PDF&gt;</a>\n"
+        "\n\n"
+		)
 	);
 
 
@@ -383,7 +391,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bWeighted, bool bAbsolute)
 
 					b	= (b - Noise2) / b;
 
-					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y) * b + (1.0 - b) * Best_Mean); 
+					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y) * b + (1.0 - b) * Best_Mean);
 				}
 				else if( Best_StdDev > 0.0 )
 				{
@@ -525,7 +533,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter_Ringeler(void)
 
 					b	= (b - Noise2) / b;
 
-					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y) * b + (1.0 - b) * Best_Mean); 
+					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y) * b + (1.0 - b) * Best_Mean);
 				}
 				else if( Best_StdDev > 0.0 )
 				{
