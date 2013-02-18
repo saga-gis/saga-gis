@@ -135,8 +135,8 @@ bool CGrid_PCA::On_Execute(void)
 	CSG_Matrix	Eigen_Vectors, Matrix;
 
 	//-----------------------------------------------------
-	m_pGrids	= Parameters("GRIDS")	->asGridList();
-	m_Method	= Parameters("METHOD")	->asInt();
+	m_pGrids	= Parameters("GRIDS" )->asGridList();
+	m_Method	= Parameters("METHOD")->asInt();
 
 	m_nFeatures	= m_pGrids->Get_Count();
 
@@ -332,14 +332,13 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	CSG_Vector	X(m_nFeatures), Y;
-	CSG_Matrix	E(Eigen_Vectors);
+	CSG_Matrix	E(m_nFeatures, m_nFeatures);
 
 	for(i=0; i<m_nFeatures; i++)
 	{
 		for(int j=0, k=m_nFeatures-1; j<m_nFeatures; j++, k--)
 		{
-			E[i][j]	= Eigen_Vectors[i][k];
+			E[j][i]	= Eigen_Vectors[i][k];
 		}
 	}
 
@@ -389,36 +388,42 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 	}
 
 	//-----------------------------------------------------
-	for(long iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		bool	bNoData	= false;
-
-		for(i=0; i<m_nFeatures && !bNoData; i++)
+		#pragma omp parallel for private(i)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( m_pGrids->asGrid(i)->is_NoData(iCell) )
+			bool	bNoData	= false;
+
+			CSG_Vector	X(m_nFeatures);
+
+			for(i=0; i<m_nFeatures && !bNoData; i++)
 			{
-				bNoData	= true;
+				if( m_pGrids->asGrid(i)->is_NoData(x, y) )
+				{
+					bNoData	= true;
+				}
+				else
+				{
+					X[i]	= m_pGrids->asGrid(i)->asDouble(x, y);
+				}
+			}
+
+			if( bNoData )
+			{
+				for(i=0; i<nComponents; i++)
+				{
+					pPCA->asGrid(i)->Set_NoData(x, y);
+				}
 			}
 			else
 			{
-				X[i]	= m_pGrids->asGrid(i)->asDouble(iCell);
-			}
-		}
+				CSG_Vector	Y	= E * X;
 
-		if( bNoData )
-		{
-			for(i=0; i<nComponents; i++)
-			{
-				pPCA->asGrid(i)->Set_NoData(iCell);
-			}
-		}
-		else
-		{
-			Y	= E * X;
-
-			for(i=0; i<nComponents; i++)
-			{
-				pPCA->asGrid(i)->Set_Value(iCell, Y[i]);
+				for(i=0; i<nComponents; i++)
+				{
+					pPCA->asGrid(i)->Set_Value(x, y, Y[i]);
+				}
 			}
 		}
 	}
@@ -482,9 +487,9 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pPCA, *pGrids;
 
-	pPCA	= Parameters("PCA")		->asGridList();
-	pGrids	= Parameters("GRIDS")	->asGridList();
-	pEigen	= Parameters("EIGEN")	->asTable();
+	pPCA	= Parameters("PCA"  )->asGridList();
+	pGrids	= Parameters("GRIDS")->asGridList();
+	pEigen	= Parameters("EIGEN")->asTable();
 
 	//-----------------------------------------------------
 	nFeatures	= pEigen->Get_Count();
@@ -517,7 +522,6 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Vector	X, Y(nFeatures);
 	CSG_Matrix	E(nFeatures, nFeatures);
 
 	for(i=0; i<nFeatures; i++)
@@ -547,36 +551,42 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(long iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		bool	bNoData	= false;
-
-		for(i=0; i<nFeatures && !bNoData; i++)
+		#pragma omp parallel for private(i)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pPCA->asGrid(i)->is_NoData(iCell) )
+			bool	bNoData	= false;
+
+			CSG_Vector	Y(nFeatures);
+
+			for(i=0; i<nFeatures && !bNoData; i++)
 			{
-				bNoData	= true;
+				if( pPCA->asGrid(i)->is_NoData(x, y) )
+				{
+					bNoData	= true;
+				}
+				else
+				{
+					Y[i]	= pPCA->asGrid(i)->asDouble(x, y);
+				}
+			}
+
+			if( bNoData )
+			{
+				for(i=0; i<nFeatures; i++)
+				{
+					pGrids->asGrid(i)->Set_NoData(x, y);
+				}
 			}
 			else
 			{
-				Y[i]	= pPCA->asGrid(i)->asDouble(iCell);
-			}
-		}
+				CSG_Vector	X	= E * Y;
 
-		if( bNoData )
-		{
-			for(i=0; i<nFeatures; i++)
-			{
-				pGrids->asGrid(i)->Set_NoData(iCell);
-			}
-		}
-		else
-		{
-			X	= E * Y;
-
-			for(i=0; i<nFeatures; i++)
-			{
-				pGrids->asGrid(i)->Set_Value(iCell, X[i]);
+				for(i=0; i<nFeatures; i++)
+				{
+					pGrids->asGrid(i)->Set_Value(x, y, X[i]);
+				}
 			}
 		}
 	}
