@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 Visibility_Points.cpp                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2013 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,14 +40,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -56,59 +55,119 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-//---------------------------------------------------------
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Lighting, Visibility" ));
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Wichmann (c) 2003-13") );
-
-	case MLB_INFO_Description:
-		return( _TL("Lighting and visibility calculations for digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Lighting" ));
-	}
-}
-
-//---------------------------------------------------------
-#include "HillShade.h"
-#include "Visibility_Point.h"
-#include "SolarRadiation.h"
-#include "view_shed.h"
-#include "topographic_correction.h"
-#include "topographic_openness.h"
 #include "Visibility_Points.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_Module * Create_Module(int i)
+CVisibility_Points::CVisibility_Points(void)
 {
-	switch( i )
+	Set_Name(_TL("Visibility (points)"));
+
+	Set_Author(SG_T("Volker Wichmann (c) 2013"));
+
+	Set_Description(_TW(
+		"This module computes a visibility analysis using observer points from a "
+		"point shapefile.\n\n"
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "ELEVATION"	, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "VISIBILITY"	, _TL("Visibility"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	CSG_Parameter	*pNode = Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL("Observer points."),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD_HEIGHT", _TL("Height"),
+		_TL("Height of the light source above ground."),
+		false
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Unit"),
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("Visibility"),
+			_TL("Shade"),
+			_TL("Distance"),
+			_TL("Size")
+		), 1
+	);
+}
+
+//---------------------------------------------------------
+CVisibility_Points::~CVisibility_Points(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVisibility_Points::On_Execute(void)
+{
+	CSG_Grid		*pDTM, *pVisibility;
+	CSG_Shapes		*pShapes;
+	int				iMethod, iField;
+
+	pDTM			= Parameters("ELEVATION")	->asGrid();
+	pVisibility		= Parameters("VISIBILITY")	->asGrid();
+	pShapes			= Parameters("POINTS")		->asShapes();
+	iField			= Parameters("FIELD_HEIGHT")->asInt();
+	iMethod			= Parameters("METHOD")		->asInt();
+
+	Initialize(pVisibility, iMethod);
+
+	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
 	{
-	case  0:	return( new CHillShade );
-	case  1:	return( new CVisibility_Point );
-	case  2:	return( new CSolarRadiation );
-	case  3:	return( new CView_Shed );
-	case  4:	return( new CTopographic_Correction );
-	case  5:	return( new CTopographic_Openness );
-	case  6:	return( new CVisibility_Points );
+		Process_Set_Text(CSG_String::Format(_TL("Processing observer %d ..."), iShape + 1));
+
+		int		x, y;
+
+		x	= Get_System()->Get_xWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).x);
+		y	= Get_System()->Get_yWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).y);
+
+		if( pDTM->is_InGrid(x, y, true) )
+		{
+			double	dHeight, z;
+
+			dHeight = pShapes->Get_Record(iShape)->asDouble(iField);
+			z		= pDTM->asDouble(x, y) + dHeight;
+
+			Set_Visibility(pDTM, pVisibility, x, y, z, dHeight, iMethod);
+		}
 	}
 
-	return( NULL );
+	//-----------------------------------------------------
+	Finalize(pVisibility, iMethod);
+
+	return( true );
 }
 
 
@@ -119,8 +178,3 @@ CSG_Module * Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA

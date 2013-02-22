@@ -73,6 +73,7 @@
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+#include "Visibility_BASE.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVisibility_Point : public CSG_Module_Grid_Interactive
+class CVisibility_Point : public CSG_Module_Grid_Interactive, CVisibility_BASE
 {
 public:
 	CVisibility_Point(void);
@@ -101,10 +102,9 @@ private:
 
 	double					m_Height;
 
-	CSG_Grid					*m_pDTM, *m_pVisibility;
+	bool					m_bMultiple;
 
-
-	bool					Trace_Point			(int x, int y, double dx, double dy, double dz);
+	CSG_Grid				*m_pDTM, *m_pVisibility;
 
 };
 

@@ -19,14 +19,18 @@ SolarRadiation.cpp\
 topographic_correction.cpp\
 topographic_openness.cpp\
 view_shed.cpp\
+Visibility_BASE.cpp\
 Visibility_Point.cpp\
+Visibility_Points.cpp\
 HillShade.h\
 MLB_Interface.h\
 SolarRadiation.h\
 topographic_correction.h\
 topographic_openness.h\
 view_shed.h\
-Visibility_Point.h
+Visibility_BASE.h\
+Visibility_Point.h\
+Visibility_Points.h
 
 libta_lighting_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 

@@ -307,7 +307,9 @@
     <ClCompile Include="topographic_correction.cpp" />
     <ClCompile Include="topographic_openness.cpp" />
     <ClCompile Include="view_shed.cpp" />
+    <ClCompile Include="Visibility_BASE.cpp" />
     <ClCompile Include="Visibility_Point.cpp" />
+    <ClCompile Include="Visibility_Points.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -333,7 +335,9 @@
     <ClInclude Include="topographic_correction.h" />
     <ClInclude Include="topographic_openness.h" />
     <ClInclude Include="view_shed.h" />
+    <ClInclude Include="Visibility_BASE.h" />
     <ClInclude Include="Visibility_Point.h" />
+    <ClInclude Include="Visibility_Points.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

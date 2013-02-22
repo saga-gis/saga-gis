@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   Visibility_BASE.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//               Copyright (C) 2003, 2013 by             //
+//               Olaf Conrad, Volker Wichmann            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -56,60 +56,50 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#ifndef HEADER_INCLUDED__Visibility_BASE_H
+#define HEADER_INCLUDED__Visibility_BASE_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String Get_Info(int i)
+#include "saga_api/saga_api.h"
+#include "saga_api/api_core.h"
+#include "saga_api/module.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CVisibility_BASE
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Lighting, Visibility" ));
+public:
 
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Wichmann (c) 2003-13") );
 
-	case MLB_INFO_Description:
-		return( _TL("Lighting and visibility calculations for digital terrain models." ));
+protected:
 
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
+	void		Initialize		(CSG_Grid *pVisibility, int iMethod);
+	void		Set_Visibility	(CSG_Grid *pDTM, CSG_Grid *pVisibility, int x_Pos, int y_Pos, double z_Pos, double dHeight, int iMethod);
+	bool		Trace_Point		(CSG_Grid *pDTM, int x, int y, double dx, double dy, double dz);
+	void		Finalize		(CSG_Grid *pVisibility, int iMethod);
 
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Lighting" ));
-	}
-}
+private:
 
-//---------------------------------------------------------
-#include "HillShade.h"
-#include "Visibility_Point.h"
-#include "SolarRadiation.h"
-#include "view_shed.h"
-#include "topographic_correction.h"
-#include "topographic_openness.h"
-#include "Visibility_Points.h"
 
-//---------------------------------------------------------
-CSG_Module * Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CHillShade );
-	case  1:	return( new CVisibility_Point );
-	case  2:	return( new CSolarRadiation );
-	case  3:	return( new CView_Shed );
-	case  4:	return( new CTopographic_Correction );
-	case  5:	return( new CTopographic_Openness );
-	case  6:	return( new CVisibility_Points );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -119,8 +109,4 @@ CSG_Module * Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Visibility_BASE_H
