@@ -419,39 +419,24 @@ bool CPointCloud_From_Text_File::On_Execute(void)
         }
 
         //parse line tokens
-		char *errx, *erry, *errz;
 		std::vector<double> fieldValues;
-		fieldValues.resize(vCol.size()); 
+		fieldValues.resize(vCol.size());
 
-		x = strtod(tabCols[xField].c_str(), &errx);
-        y = strtod(tabCols[yField].c_str(), &erry);
-        z = strtod(tabCols[zField].c_str(), &errz);
-	
-		if (strlen(errx) || strlen(erry) || strlen(errz)) 
-		{
-			SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
-			cntInvalid++;
-			continue;
-		}
-	    
+		x = strtod(tabCols[xField].c_str(), NULL);
+        y = strtod(tabCols[yField].c_str(), NULL);
+        z = strtod(tabCols[zField].c_str(), NULL);
+
 		for( int i=0; i<(int)vCol.size(); i++ )
 		{
-			char *err;
-			fieldValues[i] = strtod(tabCols.at(vCol.at(i)).c_str(), &err);
-			if (strlen(err)) 
-			{
-				SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: Skipping line (parse error): %d!"), cntPt), true);
-				cntInvalid++;
-				continue;
-			}
+			fieldValues[i] = strtod(tabCols.at(vCol.at(i)).c_str(), NULL);
 		}
-	
+
 		pPoints->Add_Point(x, y, z);
-	
+
 		for( int i=0; i<(int)vCol.size(); i++ )
-		{	
+		{
 			pPoints->Set_Attribute(i, fieldValues[i]);
-		}	
+		}
     }
 
 	// finalize
