@@ -86,21 +86,22 @@ class CGrid_Random_Field : public CSG_Module
 {
 public:
 	CGrid_Random_Field(void);
-	virtual ~CGrid_Random_Field(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Grid Generation") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("R:Grid Generation") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	double					Get_Random_Uniform	(double min, double max);
-	double					Get_Random_Uniform	(void);
-	double					Get_Random_Gaussian	(double mean, double stddev);
+	CSG_Parameters_Grid_Target		m_Grid_Target;
+
 
 };
 

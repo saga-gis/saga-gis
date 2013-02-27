@@ -53,7 +53,6 @@
 
 //---------------------------------------------------------
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -61,8 +60,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <time.h>
-
 #include "Grid_Random_Field.h"
 
 
@@ -78,64 +75,38 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Random Field"));
+	Set_Name		(_TL("Random Field"));
 
-	Set_Author	(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
-	Set_Description(
-		_TL("Create a grid with pseudo-random numbers as grid cell values. ")
-	);
-
-	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "OUTPUT"		, _TL("Random Field"),
-		_TL("")
-	);
+	Set_Description	(_TW(
+		"Create a grid with pseudo-random numbers as grid cell values. "
+	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_GRID"	, _TL("Grid Properties"),
-		_TL("")
+	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Target Grid"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("user defined"),
+			_TL("grid")
+		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "NX"			, _TL("Width (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "NY"			, _TL("Height (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "CELLSIZE"	, _TL("Cellsize"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "XMIN"		, _TL("West"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "YMIN"		, _TL("South"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.0
-	);
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),_TL("Uniform"), _TL("Gaussian")), 
-		1
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Uniform"),
+			_TL("Gaussian")
+		), 1
 	);
 
+	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_UNIFORM", _TL("Uniform"),
 		_TL("")
@@ -147,6 +118,7 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 		0.0, 1.0
 	);
 
+	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_GAUSS"	, _TL("Gaussian"),
 		_TL("")
@@ -165,61 +137,89 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	);
 }
 
-//---------------------------------------------------------
-CGrid_Random_Field::~CGrid_Random_Field(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Random_Field::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CGrid_Random_Field::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		pParameters->Get_Parameter("NODE_UNIFORM")->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Get_Parameter("NODE_GAUSS"  )->Set_Enabled(pParameter->asInt() == 1);
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Random_Field::On_Execute(void)
 {
-	int		x, y, method;
-	double	min, max, mean, stddev;
-	CSG_Grid	*pGrid;
-
 	//-----------------------------------------------------
-	pGrid	= SG_Create_Grid(
-		SG_DATATYPE_Float,
-		Parameters("NX")		->asInt(),
-		Parameters("NY")		->asInt(),
-		Parameters("CELLSIZE")	->asDouble(),
-		Parameters("XMIN")		->asDouble(),
-		Parameters("YMIN")		->asDouble()
-	);
+	CSG_Grid	*pGrid	= NULL;
+
+	switch( Parameters("TARGET")->asInt() )
+	{
+	case 0:	// user defined...
+		if( m_Grid_Target.Init_User(0.0, 0.0, 1.0, 100, 100) && Dlg_Parameters("USER") )
+		{
+			pGrid	= m_Grid_Target.Get_User();
+		}
+		break;
+
+	case 1:	// grid...
+		if( Dlg_Parameters("GRID") )
+		{
+			pGrid	= m_Grid_Target.Get_Grid();
+		}
+		break;
+	}
+
+	if( !pGrid )
+	{
+		return( false );
+	}
 
 	pGrid->Set_Name(_TL("Random Field"));
-	Parameters("OUTPUT")->Set_Value(pGrid);
 
 	//-----------------------------------------------------
-	method	= Parameters("METHOD")	->asInt();
+	int		Method	= Parameters("METHOD")->asInt();
 
-	min		= Parameters("RANGE")	->asRange()->Get_LoVal();
-	max		= Parameters("RANGE")	->asRange()->Get_HiVal();
+	double	a	= Method == 0
+		? Parameters("RANGE" )->asRange()->Get_LoVal()
+		: Parameters("MEAN"  )->asDouble();
 
-	mean	= Parameters("MEAN")	->asDouble();
-	stddev	= Parameters("STDDEV")	->asDouble();
-
-	srand((unsigned)time(NULL));
+	double	b	= Method == 0
+		? Parameters("RANGE" )->asRange()->Get_HiVal()
+		: Parameters("STDDEV")->asDouble();
 
 	//-----------------------------------------------------
-	for(y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
+	for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
 	{
-		for(x=0; x<pGrid->Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
-			switch( method )
+			switch( Method )
 			{
 			case 0:	// uniform...
-				pGrid->Set_Value(x, y, Get_Random_Uniform	(min, max));
+				pGrid->Set_Value(x, y, CSG_Random::Get_Uniform (a, b));
 				break;
 
-			case 1:	// uniform...
-				pGrid->Set_Value(x, y, Get_Random_Gaussian	(mean, stddev));
+			case 1:	// gaussian...
+				pGrid->Set_Value(x, y, CSG_Random::Get_Gaussian(a, b));
 				break;
 			}
 		}
@@ -227,67 +227,6 @@ bool CGrid_Random_Field::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-// Uniform distributed pseudo-random numbers in the arbitrary range.
-//
-inline double CGrid_Random_Field::Get_Random_Uniform(double min, double max)
-{
-	return( min + (max - min) * rand() / (double)RAND_MAX );
-}
-
-//---------------------------------------------------------
-// Uniform distributed pseudo-random numbers in the range from 0 to 1.
-//
-inline double CGrid_Random_Field::Get_Random_Uniform(void)
-{
-	return( 1.0 * rand() / (double)RAND_MAX );
-}
-
-//---------------------------------------------------------
-// Generating Gaussian pseudo-random numbers using
-// the polar form of the Box-Muller transformation.
-//
-// Box, G.E.P, Muller, M.E. (1958):
-//   'A note on the generation of random normal deviates',
-//    Annals Math. Stat, V. 29, pp. 610-611
-//
-// Link: http://www.taygeta.com/random/gaussian.html
-//
-double CGrid_Random_Field::Get_Random_Gaussian(double mean, double stddev)
-{
-	static bool		bCalculate	= true;
-	static double	y2			= 0.0;
-	double			x1, x2, w, y1;
- 
-	if( bCalculate )
-	{
-		do
-		{
-			x1	= 2.0 * Get_Random_Uniform() - 1.0;
-			x2	= 2.0 * Get_Random_Uniform() - 1.0;
-
-			w	= x1 * x1 + x2 * x2;
-		}
-		while( w >= 1.0 );
-
-		w	= sqrt((-2.0 * log(w)) / w);
-
-		y1	= x1 * w;
-		y2	= x2 * w;
-
-		return( mean + stddev * y1 );
-	}
-
-	return( mean + stddev * y2 );
 }
 
 

@@ -63,6 +63,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <time.h>
+
+//---------------------------------------------------------
 #include "mat_tools.h"
 
 
@@ -91,6 +94,76 @@ int				SG_Get_Digit_Count(int Number)
 	Number	= abs(Number);
 
 	return( Number < 10 ? 1 : 1 + (int)log10((double)Number) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Random::CSG_Random(void)
+{
+	Initialize();
+}
+
+//---------------------------------------------------------
+void CSG_Random::Initialize(void)
+{
+	Initialize((unsigned)time(NULL));
+}
+
+//---------------------------------------------------------
+void CSG_Random::Initialize(unsigned int Value)
+{
+	srand(Value);
+}
+
+//---------------------------------------------------------
+// Uniform distributed pseudo-random numbers in the range from 0 to 1.
+//
+double CSG_Random::Get_Uniform(void)
+{
+	return( 1.0 * rand() / (double)RAND_MAX );
+}
+
+//---------------------------------------------------------
+// Uniform distributed pseudo-random numbers in the range from min to max.
+//
+double CSG_Random::Get_Uniform(double min, double max)
+{
+	return( min + (max - min) * rand() / (double)RAND_MAX );
+}
+
+//---------------------------------------------------------
+// Generating Gaussian pseudo-random numbers using
+// the polar form of the Box-Muller transformation.
+//
+// Box, G.E.P, Muller, M.E. (1958):
+//   'A note on the generation of random normal deviates',
+//    Annals Math. Stat, V. 29, pp. 610-611
+//
+// Link: http://www.taygeta.com/random/gaussian.html
+//
+//---------------------------------------------------------
+double CSG_Random::Get_Gaussian(double mean, double stddev)
+{
+	double	x1, x2, w;
+
+	do
+	{
+		x1	= 2.0 * Get_Uniform() - 1.0;
+		x2	= 2.0 * Get_Uniform() - 1.0;
+
+		w	= x1 * x1 + x2 * x2;
+	}
+	while( w >= 1.0 );
+
+	w	= sqrt((-2.0 * log(w)) / w);
+
+	return( mean + stddev * x1 * w );
 }
 
 

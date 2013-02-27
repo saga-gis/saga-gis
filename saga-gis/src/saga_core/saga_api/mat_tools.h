@@ -482,6 +482,29 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Random
+{
+public:
+	CSG_Random(void);
+
+	static void			Initialize		(void);
+	static void			Initialize		(unsigned int Value);
+
+	static double		Get_Uniform		(void);
+	static double		Get_Uniform		(double min, double max);
+
+	static double		Get_Gaussian	(double mean, double stddev);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Simple_Statistics
 {
 public:
