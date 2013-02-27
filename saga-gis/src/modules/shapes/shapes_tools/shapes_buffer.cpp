@@ -101,30 +101,16 @@ CShapes_Buffer::CShapes_Buffer(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DIST_TYPE"	, _TL("Buffer Distance"),
+	pNode	= Parameters.Add_Table_Field_or_Const(
+		pNode	, "DIST_FIELD"	, _TL("Buffer Distance"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("constant"),
-			_TL("attribute")
-		), 0
-	);
-
-	pNode	= Parameters.Add_Table_Field(
-		pNode	, "DIST_FIELD"	, _TL("Buffer Distance Attribute"),
-		_TL("")
+		100.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "DIST_SCALE"	, _TL("Scaling Factor for Attribute Value"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "DIST_CONST"	, _TL("Constant Buffer Distance"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
@@ -172,11 +158,9 @@ int CShapes_Buffer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 		pParameters->Get_Parameter("DISSOLVE"  )->Set_Enabled(pParameter->asInt() == 1);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DIST_TYPE")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DIST_FIELD")) )
 	{
-		pParameters->Get_Parameter("DIST_CONST")->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("DIST_FIELD")->Set_Enabled(pParameter->asInt() != 0);
-		pParameters->Get_Parameter("DIST_SCALE")->Set_Enabled(pParameter->asInt() != 0);
+		pParameters->Get_Parameter("DIST_SCALE")->Set_Enabled(pParameter->asInt() >= 0);
 	}
 
 	//-----------------------------------------------------
@@ -200,8 +184,7 @@ bool CShapes_Buffer::On_Execute(void)
 	pShapes			= Parameters("SHAPES"    )->asShapes();
 	pBuffers		= Parameters("BUFFER"    )->asShapes();
 	nZones			= Parameters("NZONES"    )->asInt();
-	Field			= Parameters("DIST_TYPE" )->asInt() == 0 ? -1
-					: Parameters("DIST_FIELD")->asInt();
+	Field			= Parameters("DIST_FIELD")->asInt();
 	m_dArc			= Parameters("DARC"      )->asDouble() * M_DEG_TO_RAD;
 	m_bPolyInner	= Parameters("POLY_INNER")->asBool() && pShapes->Get_Type() == SHAPE_TYPE_Polygon;
 
@@ -213,7 +196,7 @@ bool CShapes_Buffer::On_Execute(void)
 		return( false );
 	}
 
-	if( Field < 0 && Parameters("DIST_CONST")->asDouble() <= 0.0 )
+	if( Field < 0 && Parameters("DIST_FIELD")->asDouble() <= 0.0 )
 	{
 		Message_Add(_TL("Invalid Buffer Distance"));
 
@@ -274,7 +257,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 	CSG_Shapes	Part(SHAPE_TYPE_Polygon);
 	CSG_Shape	*pPart	= Part.Add_Shape(), *pBuffer;
 
-	Distance	= Parameters("DIST_CONST")->asDouble() * Scale;
+	Distance	= Parameters("DIST_FIELD")->asDouble() * Scale;
 	Scale		= Parameters("DIST_SCALE")->asDouble() * Scale;
 
 	if( !bDissolve )

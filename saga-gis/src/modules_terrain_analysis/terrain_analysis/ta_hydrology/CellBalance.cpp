@@ -55,16 +55,10 @@ CCellBalance::CCellBalance(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "WEIGHTS"	, _TL("Parameter"),
+	Parameters.Add_Grid_or_Const(
+		NULL, "WEIGHTS"	, _TL("Weights"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Value(
-		NULL, "WEIGHT"	, _TL("Default Weight"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0, 0.0, true
 	);
 
 	Parameters.Add_Grid(
@@ -76,17 +70,12 @@ CCellBalance::CCellBalance(void)
 	Parameters.Add_Choice(
 		NULL, "METHOD"	, _TL("Method"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Multiple Flow Direction")
 		)
 	);
 }
-
-//---------------------------------------------------------
-CCellBalance::~CCellBalance(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -98,25 +87,25 @@ CCellBalance::~CCellBalance(void)
 //---------------------------------------------------------
 bool CCellBalance::On_Execute(void)
 {
-	int		x, y, Method;
-	double	Weight;
+	int			Method;
+	double		Weight;
 	CSG_Grid	*pWeights;
 
-	m_pDEM		= Parameters("DEM")		->asGrid(); 
-	pWeights	= Parameters("WEIGHTS")	->asGrid(); 
-	m_pBalance	= Parameters("BALANCE")	->asGrid();
-	Weight		= Parameters("WEIGHT")	->asDouble();
-	Method		= Parameters("METHOD")	->asInt();
+	m_pDEM		= Parameters("DEM"    )->asGrid();
+	pWeights	= Parameters("WEIGHTS")->asGrid();
+	Weight		= Parameters("WEIGHTS")->asDouble();
+	m_pBalance	= Parameters("BALANCE")->asGrid();
+	Method		= Parameters("METHOD" )->asInt();
 
 	m_pBalance->Assign(0.0);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{
-				m_pBalance->Set_NoData	(x, y);
+				m_pBalance->Set_NoData(x, y);
 			}
 			else
 			{
@@ -125,12 +114,15 @@ bool CCellBalance::On_Execute(void)
 					Weight	= pWeights->is_NoData(x, y) ? 0.0 : pWeights->asDouble(x, y);
 				}
 
-				m_pBalance->Add_Value	(x, y, -Weight);
-
-				switch( Method )
+				if( Weight )
 				{
-				case 0:	Set_D8	(x, y, Weight);	break;
-				case 1:	Set_MFD	(x, y, Weight);	break;
+					m_pBalance->Add_Value(x, y, -Weight);
+
+					switch( Method )
+					{
+					case 0:	Set_D8	(x, y, Weight);	break;
+					case 1:	Set_MFD	(x, y, Weight);	break;
+					}
 				}
 			}
         }

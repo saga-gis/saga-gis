@@ -365,6 +365,16 @@ CSG_Parameter * CSG_Parameters::Add_Grid(CSG_Parameter *pParent, const CSG_Strin
 }
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Grid_or_Const(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum, bool bSystem_Dependent)
+{
+	CSG_Parameter	*pParameter	= Add_Grid(pParent, Identifier, Name, Description, PARAMETER_INPUT_OPTIONAL, bSystem_Dependent);
+
+	((CSG_Parameter_Grid *)pParameter->m_pData)->Add_Default(Value, Minimum, bMinimum, Maximum, bMaximum);
+
+	return( pParameter );
+}
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_Grid_Output(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter	*pParameter;
@@ -411,6 +421,19 @@ CSG_Parameter * CSG_Parameters::Add_Table_Field(CSG_Parameter *pParent, const CS
 	}
 
 	return( NULL );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Table_Field_or_Const(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+{
+	CSG_Parameter	*pParameter	= Add_Table_Field(pParent, Identifier, Name, Description, true);
+
+	if( pParameter )
+	{
+		((CSG_Parameter_Table_Field *)pParameter->m_pData)->Add_Default(Value, Minimum, bMinimum, Maximum, bMaximum);
+	}
+
+	return( pParameter );
 }
 
 //---------------------------------------------------------
@@ -911,19 +934,7 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, CSG_Parameter *
 
 	if( pSource != NULL && (pTarget = Get_Parameter(Identifier)) != NULL && pSource->Get_Type() == pTarget->Get_Type() )
 	{
-		switch( pTarget->Get_Type() )
-		{
-		default:
-			return( pTarget->Assign(pSource) );
-
-		case PARAMETER_TYPE_DataObject_Output:
-		case PARAMETER_TYPE_Grid:
-		case PARAMETER_TYPE_Table:
-		case PARAMETER_TYPE_Shapes:
-		case PARAMETER_TYPE_PointCloud:
-		case PARAMETER_TYPE_TIN:
-			return( pTarget->Set_Value(pSource->asDataObject()) );
-		}
+		return( pTarget->Assign(pSource) );
 	}
 
 	return( false );

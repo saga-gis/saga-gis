@@ -759,7 +759,10 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table_Field );	}
 
+	bool						Add_Default				(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+
 	virtual const SG_Char *		asString				(void);
+	virtual double				asDouble				(void)	const;
 
 	virtual bool				Set_Value				(int               Value);
 	virtual bool				Set_Value				(const CSG_String &Value);
@@ -770,6 +773,8 @@ public:
 protected:
 
 	bool						m_bAllowNone;
+
+	int							m_Default;
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
@@ -883,15 +888,23 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Grid );	}
 
-	virtual bool				Set_Value				(void *Value);
-
 	void						Set_Preferred_Type		(TSG_Data_Type Type);
 	TSG_Data_Type				Get_Preferred_Type		(void)	const	{	return( m_Type );	}
 
 	CSG_Grid_System *			Get_System				(void)	const;
 
+	bool						Add_Default				(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+
+	virtual bool				Set_Value				(void  *Value);
+
+	virtual int					asInt					(void)	const;
+	virtual double				asDouble				(void)	const;
+
+
 
 protected:
+
+	int							m_Default;
 
 	TSG_Data_Type				m_Type;
 
@@ -1408,10 +1421,12 @@ public:
 
 	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, CSG_Grid_System *pInit = NULL);
 	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent = true, TSG_Data_Type Preferred_Type = SG_DATATYPE_Undefined);
+	CSG_Parameter *				Add_Grid_or_Const		(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false, bool bSystem_Dependent = true);
 	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent = true);
 
 	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool bAllowNone = false);
+	CSG_Parameter *				Add_Table_Field_or_Const(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
 	CSG_Parameter *				Add_Table_Fields		(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint);
 	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);

@@ -1536,7 +1536,25 @@ bool CSG_Parameter_Grid_System::On_Serialize(CSG_MetaData &Entry, bool bSave)
 //---------------------------------------------------------
 CSG_Parameter_Table_Field::CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Int(pOwner, Constraint)
-{}
+{
+	m_Default	= -1;
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Table_Field::Add_Default(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+{
+	if( m_Default < 0 && m_bAllowNone )
+	{
+		m_Default	= m_pOwner->Get_Children_Count();
+
+		m_pOwner->Get_Owner()->Add_Value(m_pOwner, CSG_String::Format(SG_T("%s_DEFAULT"),
+			m_pOwner->Get_Identifier()), _TL("Default"), _TL("default value if no attribute has been selected"),
+			PARAMETER_TYPE_Double, Value, Minimum, bMinimum, Maximum, bMaximum
+		);
+	}
+
+	return( m_Default >= 0 );
+}
 
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Table_Field::asString(void)
@@ -1557,36 +1575,33 @@ const SG_Char * CSG_Parameter_Table_Field::asString(void)
 }
 
 //---------------------------------------------------------
+double CSG_Parameter_Table_Field::asDouble(void) const
+{
+	return( m_pOwner->Get_Child(m_Default) ? m_pOwner->Get_Child(m_Default)->asDouble() : CSG_Parameter_Int::asDouble() );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter_Table_Field::Set_Value(int Value)
 {
-	CSG_Table	*pTable;
+	CSG_Table	*pTable	= Get_Table();
 
-	if( (pTable = Get_Table()) != NULL )
+	m_Value	= Value;
+
+	if( pTable && pTable->Get_Field_Count() > 0 && m_Value >= 0 )
 	{
-		if( !m_pOwner->is_Optional() )
+		if( m_Value >= pTable->Get_Field_Count() )
 		{
-			if( Value < 0 )
-			{
-				Value	= 0;
-			}
-			else if( Value >= pTable->Get_Field_Count() )
-			{
-				Value	= pTable->Get_Field_Count() - 1;
-			}
-		}
-		else if( Value < 0 || Value >= pTable->Get_Field_Count() )
-		{
-			Value	= -1;
+			m_Value	= !m_pOwner->is_Optional() ? pTable->Get_Field_Count() - 1 : -1;
 		}
 	}
 	else
 	{
-		Value	= -1;
+		m_Value	= -1;
 	}
 
-	if( m_Value != Value )
+	if( m_pOwner->Get_Child(m_Default) )
 	{
-		m_Value		= Value;
+		m_pOwner->Get_Child(m_Default)->Set_Enabled(m_Value < 0);
 	}
 
 	return( true );
@@ -1644,6 +1659,8 @@ CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)	const
 void CSG_Parameter_Table_Field::On_Assign(CSG_Parameter_Data *pSource)
 {
 	CSG_Parameter_Int::On_Assign(pSource);
+
+	m_Default	= ((CSG_Parameter_Table_Field *)pSource)->m_Default;
 }
 
 
@@ -1944,40 +1961,15 @@ bool CSG_Parameter_Data_Object_Output::Set_DataObject_Type(TSG_Data_Object_Type 
 CSG_Parameter_Grid::CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data_Object(pOwner, Constraint)
 {
-	m_Type	= SG_DATATYPE_Undefined;
+	m_Type		= SG_DATATYPE_Undefined;
+
+	m_Default	= -1;
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Grid::Set_Value(void *Value)
+void CSG_Parameter_Grid::Set_Preferred_Type(TSG_Data_Type Type)
 {
-	if( Value == DATAOBJECT_CREATE && !m_pOwner->is_Optional() )
-	{
-//		Value	= DATAOBJECT_NOTSET;
-	}
-
-	if( m_pDataObject == Value )
-	{
-		return( true );
-	}
-
-	CSG_Grid_System	*pSystem	= Get_System();
-
-	if(	Value == DATAOBJECT_NOTSET || Value == DATAOBJECT_CREATE
-	||	pSystem == NULL || pSystem->is_Equal(((CSG_Grid *)Value)->Get_System()) )
-	{
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		return( true );
-	}
-	else if( !m_pOwner->Get_Owner()->is_Managed() && pSystem != NULL )
-	{
-		pSystem->Assign(((CSG_Grid *)Value)->Get_System());
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		return( true );
-	}
-
-	return( false );
+	m_Type	= Type;
 }
 
 //---------------------------------------------------------
@@ -1992,9 +1984,71 @@ CSG_Grid_System * CSG_Parameter_Grid::Get_System(void)	const
 }
 
 //---------------------------------------------------------
-void CSG_Parameter_Grid::Set_Preferred_Type(TSG_Data_Type Type)
+bool CSG_Parameter_Grid::Add_Default(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
-	m_Type	= Type;
+	if( m_Default < 0 && (Get_Constraint() & PARAMETER_INPUT) && (Get_Constraint() & PARAMETER_OPTIONAL) )
+	{
+		m_Default	= m_pOwner->Get_Children_Count();
+
+		m_pOwner->Get_Owner()->Add_Value(m_pOwner, CSG_String::Format(SG_T("%s_DEFAULT"),
+			m_pOwner->Get_Identifier()), _TL("Default"), _TL("default value if no grid has been selected"),
+			PARAMETER_TYPE_Double, Value, Minimum, bMinimum, Maximum, bMaximum
+		);
+	}
+
+	return( m_Default >= 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Grid::Set_Value(void *Value)
+{
+	if( m_pDataObject == Value )	// nothing to do
+	{
+		return( true );
+	}
+
+	CSG_Grid_System	*pSystem	= Get_System();
+
+	if(	Value == DATAOBJECT_NOTSET || Value == DATAOBJECT_CREATE
+	||	pSystem == NULL || pSystem->is_Equal(((CSG_Grid *)Value)->Get_System()) )
+	{
+		m_pDataObject	= (CSG_Data_Object *)Value;
+
+		if( m_pOwner->Get_Child(m_Default) )
+		{
+			m_pOwner->Get_Child(m_Default)->Set_Enabled(m_pDataObject == DATAOBJECT_NOTSET);
+		}
+
+		return( true );
+	}
+
+	if( !m_pOwner->Get_Owner()->is_Managed() && pSystem != NULL )
+	{
+		pSystem->Assign(((CSG_Grid *)Value)->Get_System());
+
+		m_pDataObject	= (CSG_Data_Object *)Value;
+
+		if( m_pOwner->Get_Child(m_Default) )
+		{
+			m_pOwner->Get_Child(m_Default)->Set_Enabled(m_pDataObject == DATAOBJECT_NOTSET);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int	CSG_Parameter_Grid::asInt(void) const
+{
+	return( m_pOwner->Get_Child(m_Default) ? m_pOwner->Get_Child(m_Default)->asInt() : CSG_Parameter_Data_Object::asInt() );
+}
+
+//---------------------------------------------------------
+double CSG_Parameter_Grid::asDouble(void) const
+{
+	return( m_pOwner->Get_Child(m_Default) ? m_pOwner->Get_Child(m_Default)->asDouble() : CSG_Parameter_Data_Object::asDouble() );
 }
 
 //---------------------------------------------------------
@@ -2002,7 +2056,9 @@ void CSG_Parameter_Grid::On_Assign(CSG_Parameter_Data *pSource)
 {
 	CSG_Parameter_Data_Object::On_Assign(pSource);
 
-	m_Type	= ((CSG_Parameter_Grid *)pSource)->m_Type;
+	m_Type		= ((CSG_Parameter_Grid *)pSource)->m_Type;
+
+	m_Default	= ((CSG_Parameter_Grid *)pSource)->m_Default;
 }
 
 

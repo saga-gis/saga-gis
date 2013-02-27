@@ -30,7 +30,6 @@ class CCellBalance : public CSG_Module_Grid
 {
 public:
 	CCellBalance(void);
-	virtual ~CCellBalance(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Miscellaneous") );	}
 
@@ -47,8 +46,6 @@ private:
 
 	void					Set_D8			(int x, int y, double Weight);
 	void					Set_MFD			(int x, int y, double Weight);
-
-//	double				getCellBalance	(int x, int y);
 
 };
 
