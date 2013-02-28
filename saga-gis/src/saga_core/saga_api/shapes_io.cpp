@@ -78,7 +78,7 @@
 bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 {
 	int				Type, iField, iPart, nParts, *Parts, iPoint, nPoints;
-	double			*pZ, *pM;
+	double			*pZ	= NULL, *pM	= NULL;
 	TSG_Point		*pPoint;
 	CSG_Buffer		File_Header(100), Record_Header(8), Content;
 	CSG_File		fSHP;
@@ -241,12 +241,12 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				switch( m_Vertex_Type )	// read Z + M
 				{
 				case SG_VERTEX_TYPE_XYZ:
-					pZ	= (double *)Content.Get_Data(40 + nPoints * 16 + 16);
+					pZ	= 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					break;
 
 				case SG_VERTEX_TYPE_XYZM:
-					pZ	= (double *)Content.Get_Data(40 + nPoints * 16 + 16);
-					pM	= pZ + nPoints + 2;
+					pZ	= 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
+					pM	= 72 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(72 + nPoints * 24) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] + [nPoints * 8]
 					break;
 				}
 
@@ -255,11 +255,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				{
 					pShape->Add_Point(pPoint->x, pPoint->y);
 
-					switch( m_Vertex_Type )	// read Z + M
-					{
-					case SG_VERTEX_TYPE_XYZM:	pShape->Set_M(*pM, iPoint);	pM++;
-					case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(*pZ, iPoint);	pZ++;
-					}
+					if( pZ )	{	pShape->Set_Z(*(pZ++), iPoint);	}
+					if( pM )	{	pShape->Set_M(*(pM++), iPoint);	}
 				}
 
 				break;
@@ -276,12 +273,12 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				switch( m_Vertex_Type )	// read Z + M
 				{
 				case SG_VERTEX_TYPE_XYZ:
-					pZ	= (double *)Content.Get_Data(44 + 4 * nParts + 16 * nPoints + 16);
+					pZ	= 60 + nParts * 4 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(60 + nParts * 4 + nPoints * 16) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					break;
 
 				case SG_VERTEX_TYPE_XYZM:
-					pZ	= (double *)Content.Get_Data(44 + 4 * nParts + 16 * nPoints + 16);
-					pM	= pZ + nPoints + 2;
+					pZ	= 60 + nParts * 4 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(60 + nParts * 4 + nPoints * 16) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8]
+					pM	= 76 + nParts * 4 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(76 + nParts * 4 + nPoints * 24) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] +  [nPoints * 8]
 					break;
 				}
 
@@ -296,11 +293,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 					pShape->Add_Point(pPoint->x, pPoint->y, iPart);
 
-					switch( m_Vertex_Type )	// read Z + M
-					{
-					case SG_VERTEX_TYPE_XYZM:	pShape->Set_M(*pM, iPoint, iPart);	pM++;
-					case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(*pZ, iPoint, iPart);	pZ++;
-					}
+					if( pZ )	{	pShape->Set_Z(*(pZ++), iPoint);	}
+					if( pM )	{	pShape->Set_M(*(pM++), iPoint);	}
 				}
 
 				break;
