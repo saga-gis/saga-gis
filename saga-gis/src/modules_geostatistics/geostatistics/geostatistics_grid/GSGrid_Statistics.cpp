@@ -260,15 +260,18 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(NULL, "MEAN"    , _TL("Arithmetic Mean")             , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(NULL, "MIN"     , _TL("Minimum")                     , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(NULL, "MAX"     , _TL("Maximum")                     , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(NULL, "RANGE"   , _TL("Range")                       , _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(NULL, "VAR"     , _TL("Variance")                    , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(NULL, "STDDEV"  , _TL("Standard Deviation")          , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(NULL, "STDDEVLO", _TL("Mean less Standard Deviation"), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(NULL, "STDDEVHI", _TL("Mean plus Standard Deviation"), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(NULL, "PCTL"    , _TL("Percentile")                  , _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "DATA_CELLS"  , _TL("Number of Data Cells")        , _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "NODATA_CELLS", _TL("Number of No-Data Cells")     , _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "CELLSIZE"    , _TL("Cellsize")                    , _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "MEAN"        , _TL("Arithmetic Mean")             , _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(NULL, "MIN"         , _TL("Minimum")                     , _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(NULL, "MAX"         , _TL("Maximum")                     , _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(NULL, "RANGE"       , _TL("Range")                       , _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "VAR"         , _TL("Variance")                    , _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(NULL, "STDDEV"      , _TL("Standard Deviation")          , _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(NULL, "STDDEVLO"    , _TL("Mean less Standard Deviation"), _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "STDDEVHI"    , _TL("Mean plus Standard Deviation"), _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(NULL, "PCTL"        , _TL("Percentile")                  , _TL(""), PARAMETER_TYPE_Bool, false);
 
 	Parameters.Add_Value(
 		NULL, "PCTL_VAL", _TL("Percentile"),
@@ -318,15 +321,18 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 	pTable->Set_Name(_TL("Statistics for Grids"));
 	pTable->Add_Field(_TL("NAME"), SG_DATATYPE_String);
 
-	if( Parameters("MEAN"    )->asBool() )	pTable->Add_Field(_TL("MEAN"    ), SG_DATATYPE_Double);
-	if( Parameters("MIN"     )->asBool() )	pTable->Add_Field(_TL("MIN"     ), SG_DATATYPE_Double);
-	if( Parameters("MAX"     )->asBool() )	pTable->Add_Field(_TL("MAX"     ), SG_DATATYPE_Double);
-	if( Parameters("RANGE"   )->asBool() )	pTable->Add_Field(_TL("RANGE"   ), SG_DATATYPE_Double);
-	if( Parameters("VAR"     )->asBool() )	pTable->Add_Field(_TL("VAR"     ), SG_DATATYPE_Double);
-	if( Parameters("STDDEV"  )->asBool() )	pTable->Add_Field(_TL("STDDEV"  ), SG_DATATYPE_Double);
-	if( Parameters("STDDEVLO")->asBool() )	pTable->Add_Field(_TL("STDDEVLO"), SG_DATATYPE_Double);
-	if( Parameters("STDDEVHI")->asBool() )	pTable->Add_Field(_TL("STDDEVHI"), SG_DATATYPE_Double);
-	if( Parameters("PCTL"    )->asBool() )	pTable->Add_Field(_TL("PCTL"    ), SG_DATATYPE_Double);
+	if( Parameters("DATA_CELLS"  )->asBool() )	pTable->Add_Field(_TL("DATA_CELLS"  ), SG_DATATYPE_Int);
+	if( Parameters("NODATA_CELLS")->asBool() )	pTable->Add_Field(_TL("NODATA_CELLS"), SG_DATATYPE_Int);
+	if( Parameters("CELLSIZE"    )->asBool() )	pTable->Add_Field(_TL("CELLSIZE"    ), SG_DATATYPE_Double);
+	if( Parameters("MEAN"        )->asBool() )	pTable->Add_Field(_TL("MEAN"        ), SG_DATATYPE_Double);
+	if( Parameters("MIN"         )->asBool() )	pTable->Add_Field(_TL("MIN"         ), SG_DATATYPE_Double);
+	if( Parameters("MAX"         )->asBool() )	pTable->Add_Field(_TL("MAX"         ), SG_DATATYPE_Double);
+	if( Parameters("RANGE"       )->asBool() )	pTable->Add_Field(_TL("RANGE"       ), SG_DATATYPE_Double);
+	if( Parameters("VAR"         )->asBool() )	pTable->Add_Field(_TL("VAR"         ), SG_DATATYPE_Double);
+	if( Parameters("STDDEV"      )->asBool() )	pTable->Add_Field(_TL("STDDEV"      ), SG_DATATYPE_Double);
+	if( Parameters("STDDEVLO"    )->asBool() )	pTable->Add_Field(_TL("STDDEVLO"    ), SG_DATATYPE_Double);
+	if( Parameters("STDDEVHI"    )->asBool() )	pTable->Add_Field(_TL("STDDEVHI"    ), SG_DATATYPE_Double);
+	if( Parameters("PCTL"        )->asBool() )	pTable->Add_Field(_TL("PCTL"        ), SG_DATATYPE_Double);
 
 	if( pTable->Get_Field_Count() <= 1 )
 	{
@@ -343,15 +349,18 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 		CSG_Grid			*pGrid		= pGrids->asGrid(i);
 		CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
-		pRecord->Set_Value("NAME"    , pGrid->Get_Name());
-		pRecord->Set_Value("MEAN"    , pGrid->Get_ArithMean());
-		pRecord->Set_Value("MIN"     , pGrid->Get_ZMin());
-		pRecord->Set_Value("MAX"     , pGrid->Get_ZMax());
-		pRecord->Set_Value("RANGE"   , pGrid->Get_ZRange());
-		pRecord->Set_Value("VAR"     , pGrid->Get_Variance());
-		pRecord->Set_Value("STDDEV"  , pGrid->Get_StdDev());
-		pRecord->Set_Value("STDDEVLO", pGrid->Get_ArithMean() - pGrid->Get_StdDev());
-		pRecord->Set_Value("STDDEVHI", pGrid->Get_ArithMean() + pGrid->Get_StdDev());
+		pRecord->Set_Value("NAME"        , pGrid->Get_Name());
+		pRecord->Set_Value("DATA_CELLS"  , pGrid->Get_NCells() - pGrid->Get_NoData_Count());
+		pRecord->Set_Value("NODATA_CELLS", pGrid->Get_NoData_Count());
+		pRecord->Set_Value("CELLSIZE"    , pGrid->Get_Cellsize());
+		pRecord->Set_Value("MEAN"        , pGrid->Get_ArithMean());
+		pRecord->Set_Value("MIN"         , pGrid->Get_ZMin());
+		pRecord->Set_Value("MAX"         , pGrid->Get_ZMax());
+		pRecord->Set_Value("RANGE"       , pGrid->Get_ZRange());
+		pRecord->Set_Value("VAR"         , pGrid->Get_Variance());
+		pRecord->Set_Value("STDDEV"      , pGrid->Get_StdDev());
+		pRecord->Set_Value("STDDEVLO"    , pGrid->Get_ArithMean() - pGrid->Get_StdDev());
+		pRecord->Set_Value("STDDEVHI"    , pGrid->Get_ArithMean() + pGrid->Get_StdDev());
 
 		if( dRank > 0.0 && dRank < 100.0 )
 		{
