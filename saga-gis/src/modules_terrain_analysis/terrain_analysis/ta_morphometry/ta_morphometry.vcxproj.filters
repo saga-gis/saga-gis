@@ -77,6 +77,12 @@
     <ClCompile Include="param_scale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fuzzy_landform_elements.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="top_hat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -191,6 +197,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="param_scale.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fuzzy_landform_elements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="top_hat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

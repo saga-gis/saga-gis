@@ -25,6 +25,7 @@ SurfaceSpecificPoints.cpp\
 air_flow_height.cpp\
 anisotropic_heating.cpp\
 distance_gradient.cpp\
+fuzzy_landform_elements.cpp\
 land_surface_temperature.cpp\
 mass_balance_index.cpp\
 mrvbf.cpp\
@@ -32,6 +33,7 @@ param_scale.cpp\
 relative_heights.cpp\
 ruggedness.cpp\
 tc_iwahashi_pike.cpp\
+top_hat.cpp\
 tpi.cpp\
 wind_effect.cpp\
 Convergence.h\
@@ -46,6 +48,7 @@ SurfaceSpecificPoints.h\
 air_flow_height.h\
 anisotropic_heating.h\
 distance_gradient.h\
+fuzzy_landform_elements.h\
 land_surface_temperature.h\
 mass_balance_index.h\
 mrvbf.h\
@@ -53,6 +56,7 @@ param_scale.h\
 relative_heights.h\
 ruggedness.h\
 tc_iwahashi_pike.h\
+top_hat.h\
 tpi.h\
 wind_effect.h
 

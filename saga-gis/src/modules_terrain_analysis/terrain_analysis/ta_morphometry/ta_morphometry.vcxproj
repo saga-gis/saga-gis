@@ -298,6 +298,7 @@
     <ClCompile Include="Convergence_Radius.cpp" />
     <ClCompile Include="Curvature_Classification.cpp" />
     <ClCompile Include="distance_gradient.cpp" />
+    <ClCompile Include="fuzzy_landform_elements.cpp" />
     <ClCompile Include="Hypsometry.cpp" />
     <ClCompile Include="land_surface_temperature.cpp" />
     <ClCompile Include="mass_balance_index.cpp" />
@@ -320,6 +321,7 @@
     <ClCompile Include="ruggedness.cpp" />
     <ClCompile Include="SurfaceSpecificPoints.cpp" />
     <ClCompile Include="tc_iwahashi_pike.cpp" />
+    <ClCompile Include="top_hat.cpp" />
     <ClCompile Include="tpi.cpp" />
     <ClCompile Include="wind_effect.cpp" />
   </ItemGroup>
@@ -336,6 +338,7 @@
     <ClInclude Include="Convergence_Radius.h" />
     <ClInclude Include="Curvature_Classification.h" />
     <ClInclude Include="distance_gradient.h" />
+    <ClInclude Include="fuzzy_landform_elements.h" />
     <ClInclude Include="Hypsometry.h" />
     <ClInclude Include="land_surface_temperature.h" />
     <ClInclude Include="mass_balance_index.h" />
@@ -360,6 +363,7 @@
     <ClInclude Include="ruggedness.h" />
     <ClInclude Include="SurfaceSpecificPoints.h" />
     <ClInclude Include="tc_iwahashi_pike.h" />
+    <ClInclude Include="top_hat.h" />
     <ClInclude Include="tpi.h" />
     <ClInclude Include="wind_effect.h" />
   </ItemGroup>
