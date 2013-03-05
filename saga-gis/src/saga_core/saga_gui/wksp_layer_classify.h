@@ -500,7 +500,7 @@ protected: ////////////////////////////////////////////////
 			return( Get_Class_Count() );
 		}
 
-		return( (int)(Get_MetricToRelative(Value) * (Get_Class_Count() - 1)) );
+		return( (int)(Get_MetricToRelative(Value) * Get_Class_Count()) );
 	}
 
 
