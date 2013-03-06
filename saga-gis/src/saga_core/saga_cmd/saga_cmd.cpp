@@ -133,7 +133,7 @@ _try
 	wxString	Path, CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
 
     #if defined(_SAGA_LINUX)
-		Load_Libraries(SG_T(MODULE_LIBRARY_PATH));
+		Load_Libraries(wxT(MODULE_LIBRARY_PATH));
 	#else
 		if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
 		{
