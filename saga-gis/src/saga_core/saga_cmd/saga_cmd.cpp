@@ -80,19 +80,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SYS_ENV_PATH		SG_T("PATH")
+bool		Execute			(int argc, char *argv[]);
 
+bool		Load_Libraries	(const CSG_String &Directory);
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool		Execute			(const CSG_String &MLB_Path, int argc, char *argv[]);
-
-void		Print_Libraries	(const CSG_String &MLB_Path);
+void		Print_Libraries	(void);
 void		Print_Modules	(CSG_Module_Library *pLibrary);
 void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule);
 
@@ -102,7 +94,7 @@ void		Print_Help		(void);
 void		Print_Version	(void);
 
 void		Create_Example	(void);
-void		Create_Docs		(const CSG_String &MLB_Path);
+void		Create_Docs		(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -135,35 +127,39 @@ _try
 
 	setlocale(LC_NUMERIC, "C");
 	
+	SG_Set_UI_Callback(CMD_Get_Callback());
+
 	//-----------------------------------------------------
-	wxString	CMD_Path, MLB_Path, ENV_Path, DLL_Path;
+	wxString	Path, CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
 
-	CMD_Path	= SG_File_Get_Path (SG_UI_Get_Application_Path()).c_str();
-	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
-
-	if( !wxGetEnv(SG_T("SAGA_MLB"), &MLB_Path) || MLB_Path.Length() == 0 )
-	{
     #if defined(_SAGA_LINUX)
-		MLB_Path	= wxT(MODULE_LIBRARY_PATH);
+		Load_Libraries(SG_T(MODULE_LIBRARY_PATH));
 	#else
-		MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules")).c_str();
+		if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
+		{
+			Path	+= wxT(";");
+		}
+
+		Path	+= SG_File_Make_Path(CMD_Path, SG_T("dll"    )).c_str(); Path += wxT(";");
+		Path	+= SG_File_Make_Path(CMD_Path, SG_T("modules")).c_str();
+
+		wxSetEnv("PATH"            , Path);
+		wxSetEnv("GDAL_DRIVER_PATH", SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str());
+
+		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("modules")));
     #endif
-	}
 
-	if( wxGetEnv(SYS_ENV_PATH, &ENV_Path) && ENV_Path.Length() > 0 )
+	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) && wxDirExists(Path) )
 	{
-		ENV_Path	+= wxT(";");
+		Load_Libraries(&Path);
 	}
 
-	ENV_Path	+= MLB_Path + wxT(";") + DLL_Path;
+	if( SG_Get_Module_Library_Manager().Get_Count() <= 0 )
+	{
+		CMD_Print_Error(SG_T("could not load any module library"));
 
-	wxSetEnv(SYS_ENV_PATH, ENV_Path);
-
-	ENV_Path	+= MLB_Path + wxT(";") + SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
-
-    #if !defined(_SAGA_LINUX)
-		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
-	#endif
+		return( 2 );
+	}
 
 	//-----------------------------------------------------
 	if( argc > 1 )
@@ -193,7 +189,7 @@ _try
 
 		if( !s.CmpNoCase(SG_T("-d")) || !s.CmpNoCase(SG_T("--docs")) )
 		{
-			Create_Docs(&MLB_Path);
+			Create_Docs();
 
 			return( 0 );
 		}
@@ -249,22 +245,11 @@ _try
 	}
 
 	//-----------------------------------------------------
-	SG_Set_UI_Callback(CMD_Get_Callback());
-
-	bool	bResult	= Execute(&MLB_Path, argc, argv);
+	bool	bResult	= Execute(argc, argv);
 
 	SG_Set_UI_Callback(NULL);
 
 	//-----------------------------------------------------
-	if( ENV_Path.Length() > 0 )
-	{
-		wxSetEnv(SYS_ENV_PATH, ENV_Path);
-	}
-	else
-	{
-		wxUnsetEnv(SYS_ENV_PATH);
-	}
-
 	wxUninitialize();
 
 //---------------------------------------------------------
@@ -293,7 +278,7 @@ _except(1)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Execute(const CSG_String &MLB_Path, int argc, char *argv[])
+bool		Execute(int argc, char *argv[])
 {
 	CSG_Module_Library	*pLibrary;
 	CSG_Module			*pModule;
@@ -301,16 +286,9 @@ bool		Execute(const CSG_String &MLB_Path, int argc, char *argv[])
 	Print_Logo();
 
 	//-----------------------------------------------------
-	bool	bShow	= CMD_Get_Show_Messages();
-
-	CMD_Set_Show_Messages(false);
-	SG_Get_Module_Library_Manager().Add_Directory(MLB_Path, false);
-	CMD_Set_Show_Messages(bShow);
-
-	//-----------------------------------------------------
 	if( SG_Get_Module_Library_Manager().Get_Count() <= 0 )
 	{
-		CMD_Print_Error(_TL("no valid module library found in path"), MLB_Path);
+		CMD_Print_Error(_TL("no valid module library found in path"));
 
 		return( false );
 	}
@@ -324,7 +302,7 @@ bool		Execute(const CSG_String &MLB_Path, int argc, char *argv[])
 
 	if( argc == 1 || (pLibrary = SG_Get_Module_Library_Manager().Get_Library(CSG_String(argv[1]), true)) == NULL )
 	{
-		Print_Libraries(MLB_Path);
+		Print_Libraries();
 
 		return( false );
 	}
@@ -355,19 +333,37 @@ bool		Execute(const CSG_String &MLB_Path, int argc, char *argv[])
 
 
 ///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		Load_Libraries(const CSG_String &Directory)
+{
+	bool	bShow	= CMD_Get_Show_Messages();
+
+	CMD_Set_Show_Messages(false);
+	int	n	= SG_Get_Module_Library_Manager().Add_Directory(Directory, false);
+	CMD_Set_Show_Messages(bShow);
+
+	return( n > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
 //                                                       //
 //                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Print_Libraries	(const CSG_String &MLB_Path)
+void		Print_Libraries	(void)
 {
 	CMD_Print_Error(_TL("library"));
 
 	if( CMD_Get_Show_Messages() )
 	{
-		SG_PRINTF(SG_T("\n%s: %s\n"), _TL("library search path"), MLB_Path.c_str());
 		SG_PRINTF(SG_T("\n%d %s:\n"), SG_Get_Module_Library_Manager().Get_Count(), _TL("available module libraries"));
 
 		for(int i=0; i<SG_Get_Module_Library_Manager().Get_Count(); i++)
@@ -590,7 +586,7 @@ void		Create_Example	(void)
 }
 
 //---------------------------------------------------------
-void		Create_Docs		(const CSG_String &MLB_Path)
+void		Create_Docs		(void)
 {
 	SG_Set_UI_Callback(CMD_Get_Callback());
 
@@ -600,7 +596,6 @@ void		Create_Docs		(const CSG_String &MLB_Path)
 
 	CMD_Set_Show_Messages(false);
 
-	SG_Get_Module_Library_Manager().Add_Directory(MLB_Path, false);
 	SG_Get_Module_Library_Manager().Get_Summary(wxGetCwd().wx_str());
 
 	SG_PRINTF(SG_T("%s\n"), _TL("okay"));
