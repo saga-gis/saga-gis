@@ -86,6 +86,7 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	bool						Initialize				(const CSG_Rect &Extent);
+	bool						Finalize				(void);
 
 	bool						Get_Value				(double x, double y, double z, double &Value);
 	bool						Get_Value				(const TSG_Point &p, double z, double &Value);

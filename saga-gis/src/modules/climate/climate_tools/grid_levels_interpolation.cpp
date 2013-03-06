@@ -96,6 +96,12 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
+//	Parameters.Add_Grid(
+//		NULL	, "X_GRIDS_CHECK"	, _TL("Minimum Height"),
+//		_TL("if set, only values with level heights above DEM will be used"),
+//		PARAMETER_INPUT_OPTIONAL, true
+//	);
+
 	Parameters.Add_FixedTable(
 		NULL	, "X_TABLE"			, _TL("Level Heights"),
 		_TL("")
@@ -146,6 +152,8 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 	{
 		Parameters("X_TABLE")->asTable()->Add_Record()->Set_Value(0, i + 1);
 	}
+
+	Add_Parameters("INTERNAL", "", "");
 }
 
 
@@ -165,8 +173,9 @@ int CGrid_Levels_Interpolation::On_Parameters_Enable(CSG_Parameters *pParameters
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("X_SOURCE")) )
 	{
-		pParameters->Get_Parameter("X_GRIDS")->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("X_TABLE")->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Get_Parameter("X_TABLE"      )->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Get_Parameter("X_GRIDS"      )->Set_Enabled(pParameter->asInt() == 1);
+	//	pParameters->Get_Parameter("X_GRIDS_CHECK")->Set_Enabled(pParameter->asInt() == 1);
 	}
 
 	return( 1 );
@@ -216,6 +225,57 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 	}
 
 	//-----------------------------------------------------
+	CSG_Grid	*pHeight_Min	= m_xSource == 1 && Parameters("X_GRIDS_CHECK") ? Parameters("X_GRIDS_CHECK")->asGrid() : NULL;
+
+	if( pHeight_Min )
+	{
+		if( !Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS") )
+		{
+			Get_Parameters("INTERNAL")->Add_Grid_List(NULL, "X_GRIDS", "", "", PARAMETER_INPUT_OPTIONAL);
+		}
+
+		CSG_Parameter_Grid_List	*pXGrids	= Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")->asGridList();
+
+		for(int i=0; i<m_pXGrids->Get_Count(); i++)
+		{
+			CSG_Grid	*pHeight	= SG_Create_Grid(*m_pXGrids->asGrid(i));
+
+			#pragma omp parallel for
+			for(int y=0; y<Get_NY(); y++)
+			{
+				for(int x=0; x<Get_NX(); x++)
+				{
+					if( pHeight->asDouble(x, y) < pHeight_Min->asDouble(x, y) )
+					{
+						pHeight->Set_NoData(x, y);
+					}
+				}
+			}
+
+			pXGrids->Add_Item(pHeight);
+		}
+
+		m_pXGrids	= pXGrids;
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Levels_Interpolation::Finalize(void)
+{
+	if( Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")
+	&&  Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")->asGridList() == m_pXGrids )
+	{
+		for(int i=0; i<m_pXGrids->Get_Count(); i++)
+		{
+			delete(m_pXGrids->asGrid(i));
+		}
+
+		m_pXGrids->Del_Items();
+	}
+
 	return( true );
 }
 
@@ -552,6 +612,8 @@ bool CGrid_Levels_to_Surface::On_Execute(void)
 
 	if( !Initialize(pSurface->Get_Extent()) )
 	{
+		Finalize();
+
 		return( false );
 	}
 
@@ -577,6 +639,8 @@ bool CGrid_Levels_to_Surface::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	Finalize();
+
 	return( true );
 }
 
@@ -632,6 +696,8 @@ bool CGrid_Levels_to_Points::On_Execute(void)
 
 	if( !Initialize(pPoints->Get_Extent()) )
 	{
+		Finalize();
+
 		return( false );
 	}
 
@@ -674,6 +740,8 @@ bool CGrid_Levels_to_Points::On_Execute(void)
 	{
 		DataObject_Update(pPoints);
 	}
+
+	Finalize();
 
 	return( true );
 }
