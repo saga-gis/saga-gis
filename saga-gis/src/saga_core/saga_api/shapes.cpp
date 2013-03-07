@@ -227,7 +227,16 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load shapes"), File_Name.c_str()), true);
 
-	if( _Load_ESRI(File_Name) )
+	bool	bResult	= _Load_ESRI(File_Name);
+
+	Set_File_Name(File_Name);
+	Load_MetaData(File_Name);
+
+	if( bResult )
+	{
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+	}
+	else
 	{
 		for(int iShape=Get_Count()-1; iShape >= 0; iShape--)
 		{
@@ -237,20 +246,10 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 			}
 		}
 
-		Set_File_Name(File_Name);
-
-		Load_MetaData(File_Name);
-
-		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-
-		return( true );
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 	}
 
-	Destroy();	// loading failure...
-
-	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-
-	return( false );
+	return( bResult );
 }
 
 //---------------------------------------------------------
