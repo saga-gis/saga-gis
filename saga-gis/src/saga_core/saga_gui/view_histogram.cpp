@@ -578,8 +578,9 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Histogram"), m_pLayer->Get_Object()->Get_Name()));
 
 		pTable->Add_Field(_TL("CLASS")	, SG_DATATYPE_Int);
-		pTable->Add_Field(_TL("COUNT")	, SG_DATATYPE_Int);
 		pTable->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("COUNT")	, SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("CUMUL")	, SG_DATATYPE_Int);
 		pTable->Add_Field(_TL("NAME")	, SG_DATATYPE_String);
 		pTable->Add_Field(_TL("MIN")	, SG_DATATYPE_Double);
 		pTable->Add_Field(_TL("CENTER")	, SG_DATATYPE_Double);
@@ -590,12 +591,13 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 			pRecord	= pTable->Add_Record();
 
 			pRecord->Set_Value(0, i + 1);
-			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count    (i, false));
-			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count    (i, false) * dArea);
-			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Get_Class_Name(i).wx_str());
-			pRecord->Set_Value(4, m_pLayer->Get_Classifier()->Get_Class_Value_Minimum(i));
-			pRecord->Set_Value(5, m_pLayer->Get_Classifier()->Get_Class_Value_Center (i));
-			pRecord->Set_Value(6, m_pLayer->Get_Classifier()->Get_Class_Value_Maximum(i));
+			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count     (i, false) * dArea);
+			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count     (i, false));
+			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Histogram_Get_Cumulative(i, false));
+			pRecord->Set_Value(4, m_pLayer->Get_Classifier()->Get_Class_Name          (i).wx_str());
+			pRecord->Set_Value(5, m_pLayer->Get_Classifier()->Get_Class_Value_Minimum (i));
+			pRecord->Set_Value(6, m_pLayer->Get_Classifier()->Get_Class_Value_Center  (i));
+			pRecord->Set_Value(7, m_pLayer->Get_Classifier()->Get_Class_Value_Maximum (i));
 		}
 
 		g_pData->Add(pTable);

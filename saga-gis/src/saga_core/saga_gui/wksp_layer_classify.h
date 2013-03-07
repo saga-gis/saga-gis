@@ -384,7 +384,7 @@ public: ///////////////////////////////////////////////////
 	//-----------------------------------------------------
 	double						Get_MetricToRelative	(double Value)
 	{
-		if( m_zRange >= 0.0 )
+		if( m_zRange > 0.0 )
 		{
 			Value	= (Value - m_zMin) / m_zRange;
 
@@ -500,7 +500,9 @@ protected: ////////////////////////////////////////////////
 			return( Get_Class_Count() );
 		}
 
-		return( (int)(Get_MetricToRelative(Value) * Get_Class_Count()) );
+		int	Class	= (int)(Get_MetricToRelative(Value) * Get_Class_Count());
+
+		return( Class < 0 ? 0 : Class < Get_Class_Count() ? Class : Get_Class_Count() - 1 );
 	}
 
 
