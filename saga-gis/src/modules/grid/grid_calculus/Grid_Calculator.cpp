@@ -151,6 +151,22 @@ CGrid_Calculator::CGrid_Calculator(void)
 		_TL("Check this in order to include NoData cells in the calculation."),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	Parameters.Add_Choice(
+		NULL	, "TYPE"	, _TL("Data Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Bit   ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str()
+		), 7
+	);
 }
 
 
@@ -185,44 +201,52 @@ int CGrid_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 bool CGrid_Calculator::On_Execute(void)
 {
-	int						y;
-	double					py;
+	bool					bUseNoData;
 	CSG_Formula				Formula;
 	CSG_Parameter_Grid_List	*pGrids, *pXGrids;
 	CSG_Grid				*pResult;
-	bool					bUseNoData;
 
 	//-----------------------------------------------------
-	pResult		= Parameters("RESULT")		->asGrid();
-	pGrids		= Parameters("GRIDS")		->asGridList();
-	pXGrids		= Parameters("XGRIDS")		->asGridList();
-	bUseNoData	= Parameters("USE_NODATA")	->asBool();
+	pResult		= Parameters("RESULT"    )->asGrid();
+	pGrids		= Parameters("GRIDS"     )->asGridList();
+	pXGrids		= Parameters("XGRIDS"    )->asGridList();
+	bUseNoData	= Parameters("USE_NODATA")->asBool();
 
 	//-----------------------------------------------------
-	if( pGrids->Get_Count() <= 0 )
+	if( !Get_Formula(Formula, Parameters("FORMULA")->asString(), pGrids->Get_Count(), pXGrids->Get_Count()) )
 	{
-		Error_Set(_TL("no grid in list"));
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pGrids->Get_Count(), pXGrids->Get_Count())) )
+	TSG_Data_Type	Type;
+
+	switch( Parameters("TYPE")->asInt() )
 	{
-		CSG_String	Message;
-
-		Formula.Get_Error(Message);
-
-		Error_Set(Message);
-
-		return( false );
+	default:	Type	= SG_DATATYPE_Float ;	break;
+	case  0:	Type	= SG_DATATYPE_Bit   ;	break;
+	case  1:	Type	= SG_DATATYPE_Byte  ;	break;
+	case  2:	Type	= SG_DATATYPE_Char  ;	break;
+	case  3:	Type	= SG_DATATYPE_Word  ;	break;
+	case  4:	Type	= SG_DATATYPE_Short ;	break;
+	case  5:	Type	= SG_DATATYPE_DWord ;	break;
+	case  6:	Type	= SG_DATATYPE_Int   ;	break;
+	case  7:	Type	= SG_DATATYPE_Float ;	break;
+	case  8:	Type	= SG_DATATYPE_Double;	break;
 	}
 
-	//-----------------------------------------------------
+	if( Type != pResult->Get_Type() )
+	{
+		pResult->Create(*Get_System(), Type);
+	}
+
 	pResult->Set_Name(Parameters("NAME")->asString());
 
-	for(y=0, py=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, py+=Get_Cellsize())
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		double	py	= Get_YMin() + y * Get_Cellsize();
+
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -245,11 +269,9 @@ bool CGrid_Calculator::On_Execute(void)
 
 			if( !bNoData && pXGrids->Get_Count() )
 			{
-				double	px	= Get_XMin() + x * Get_Cellsize();
-
 				for(i=0, j=pGrids->Get_Count(); i<pXGrids->Get_Count() && !bNoData; i++, j++)
 				{
-					if( !pXGrids->asGrid(i)->Get_Value(px, py, Values[j]) )
+					if( !pXGrids->asGrid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), Values[j]) )
 					{
 						bNoData		= true;
 					}
@@ -279,23 +301,47 @@ bool CGrid_Calculator::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CGrid_Calculator::Get_Formula(CSG_String sFormula, int nGrids, int nXGrids)
+bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, int nGrids, int nXGrids)
 {
-	const SG_Char	vars[27]	= SG_T("abcdefghijklmnopqrstuvwxyz");
+	//-----------------------------------------------------
+	const int		nVars		= 27;
 
-	int		i, n = 0;
+	const SG_Char	Vars[nVars]	= SG_T("abcdefghijklmnopqrstuvwxyz");
 
-	for(i=0; n<27 && i<nGrids; i++, n++)
+	//-----------------------------------------------------
+	if( nGrids + nXGrids > nVars )
 	{
-		sFormula.Replace(CSG_String::Format(SG_T("g%d"), i + 1), CSG_String(vars[n]));
+		Error_Set(_TL("too many input grids"));
+
+		return( false );
 	}
 
-	for(i=0; n<27 && i<nXGrids; i++, n++)
+	//-----------------------------------------------------
+	int		i, n = nGrids + nXGrids - 1;
+
+	for(i=nXGrids; i>0; i--, n--)
 	{
-		sFormula.Replace(CSG_String::Format(SG_T("h%d"), i + 1), CSG_String(vars[n]));
+		sFormula.Replace(CSG_String::Format(SG_T("h%d"), i), Vars[n]);
 	}
 
-	return( sFormula );
+	for(i=nGrids; i>0; i--, n--)
+	{
+		sFormula.Replace(CSG_String::Format(SG_T("g%d"), i), Vars[n]);
+	}
+
+	//-----------------------------------------------------
+	if( !Formula.Set_Formula(sFormula) )
+	{
+		CSG_String	Message;
+
+		Formula.Get_Error(Message);
+
+		Error_Set(Message);
+
+		return( false );
+	}
+
+	return( true );
 }
 
 
