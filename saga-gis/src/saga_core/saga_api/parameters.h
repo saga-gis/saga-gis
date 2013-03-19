@@ -772,8 +772,6 @@ public:
 
 protected:
 
-	bool						m_bAllowNone;
-
 	int							m_Default;
 
 

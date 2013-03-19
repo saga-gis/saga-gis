@@ -1537,13 +1537,13 @@ bool CSG_Parameter_Grid_System::On_Serialize(CSG_MetaData &Entry, bool bSave)
 CSG_Parameter_Table_Field::CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Int(pOwner, Constraint)
 {
-	m_Default	= -1;
+	m_Default		= -1;
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Table_Field::Add_Default(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
-	if( m_Default < 0 && m_bAllowNone )
+	if( m_Default < 0 && (m_Constraint & PARAMETER_OPTIONAL) != 0 )
 	{
 		m_Default	= m_pOwner->Get_Children_Count();
 
