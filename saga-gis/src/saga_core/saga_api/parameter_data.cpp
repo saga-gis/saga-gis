@@ -2054,11 +2054,11 @@ double CSG_Parameter_Grid::asDouble(void) const
 //---------------------------------------------------------
 void CSG_Parameter_Grid::On_Assign(CSG_Parameter_Data *pSource)
 {
-	CSG_Parameter_Data_Object::On_Assign(pSource);
-
 	m_Type		= ((CSG_Parameter_Grid *)pSource)->m_Type;
 
 	m_Default	= ((CSG_Parameter_Grid *)pSource)->m_Default;
+
+	Set_Value(pSource->asPointer());
 }
 
 
