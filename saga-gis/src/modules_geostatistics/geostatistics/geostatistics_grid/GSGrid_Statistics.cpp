@@ -307,7 +307,7 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() <= 1 )
+	if( pGrids->Get_Count() < 1 )
 	{
 		Error_Set(_TL("no grids in selection"));
 
