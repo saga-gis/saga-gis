@@ -106,18 +106,15 @@ int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 		return( -1 );
 	}
 
+	CSG_Parameters	*pParameters	= pParameter->Get_Owner();
+
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		CSG_Parameters	*pParameters	= pParameter->Get_Owner();
-
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CMP_WITH")) )
 		{
 			pParameters->Get_Parameter("GRID"  )->Get_Parent()->Set_Enabled(pParameter->asInt() == 0);
 			pParameters->Get_Parameter("GRID"  )->Set_Enabled(pParameter->asInt() == 0);
 			pParameters->Get_Parameter("POINTS")->Set_Enabled(pParameter->asInt() == 1);
-
-			pParameters->Get_Parameter("OPTIONS")->asParameters()->
-				Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
 		}
 
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("REG_SHOW")) )
@@ -131,6 +128,15 @@ int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 		{
 			pParameters->Get_Parameter("DENSITY_RES")->Set_Enabled(pParameter->asInt() == 1);
 			pParameters->Get_Parameter("DENSITY_PAL")->Set_Enabled(pParameter->asInt() == 1);			
+		}
+	}
+
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CMP_WITH")) )
+		{
+			pParameters->Get_Parameter("OPTIONS")->asParameters()->
+				Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
 		}
 	}
 
@@ -183,6 +189,8 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid)
 	m_pGrid		= pGrid;
 	m_pTable	= NULL;
 
+	m_Parameters.Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Scatterplot"), m_pGrid->Get_Name()));
+
 	_On_Construction();
 }
 
@@ -192,6 +200,8 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Table *pTable)
 {
 	m_pGrid		= NULL;
 	m_pTable	= pTable;
+
+	m_Parameters.Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Scatterplot"), m_pTable->Get_Name()));
 
 	_On_Construction();
 }
@@ -455,9 +465,6 @@ void CVIEW_ScatterPlot::Draw(wxDC &dc, wxRect r)
 {
 	r	= _Draw_Get_rDiagram(r);
 
-	dc.SetFont				(Get_Font(m_Options("REG_FONT")));
-	dc.SetTextForeground	(m_Options("REG_FONT")->asColor());
-
 	if( m_Regression.Get_Count() > 1 )
 	{
 		//-------------------------------------------------
@@ -500,13 +507,13 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 	int			ix, ay, by;
 	double		a, b, x, y, dx, dy, ex;
 	wxString	s;
-	wxPen		Pen, oldPen	= dc.GetPen();
-	wxColour	Col, oldCol	= dc.GetTextForeground();
+	wxColour	oldCol	= dc.GetTextForeground();
+	wxPen		oldPen	= dc.GetPen();
+	wxFont		oldFont	= dc.GetFont();
 
-	Col	= wxColour(255, 0, 0);
-	Pen.SetColour(Col);
-	dc.SetPen(Pen);
-	dc.SetTextForeground(Col);
+	dc.SetFont				(Get_Font(m_Options("REG_FONT")));
+	dc.SetTextForeground	(         m_Options("REG_FONT")->asColor());
+	dc.SetPen				(wxPen(   m_Options("REG_FONT")->asColor()));
 
 	//-----------------------------------------------------
 	a	= m_Regression.Get_Constant();
@@ -566,7 +573,8 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 		wxString::Format(wxT("R2: %f%%"), 100.0 * m_Regression.Get_R2())	// Coefficient of Determination...
 	);
 
-	dc.SetPen(oldPen);
+	dc.SetFont          (oldFont);
+	dc.SetPen           (oldPen);
 	dc.SetTextForeground(oldCol);
 }
 
