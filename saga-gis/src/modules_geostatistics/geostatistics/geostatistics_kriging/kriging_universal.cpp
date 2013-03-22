@@ -77,7 +77,7 @@ CKriging_Universal::CKriging_Universal(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Universal Kriging (VF)"));
+	Set_Name		(_TL("Universal Kriging"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 

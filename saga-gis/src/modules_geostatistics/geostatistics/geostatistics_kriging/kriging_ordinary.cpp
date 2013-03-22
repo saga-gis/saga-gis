@@ -77,7 +77,7 @@ CKriging_Ordinary::CKriging_Ordinary(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Ordinary Kriging (VF)"));
+	Set_Name		(_TL("Ordinary Kriging"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 

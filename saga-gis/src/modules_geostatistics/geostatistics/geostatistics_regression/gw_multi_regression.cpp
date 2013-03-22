@@ -411,12 +411,12 @@ bool CGW_Multi_Regression::On_Execute(void)
 		return( false );
 	}
 
-	m_pQuality  ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Quality")));
-	m_pIntercept->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Intercept")));
+	m_pQuality  ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), Parameters("DEPENDENT")->asString(), _TL("GWR Quality")));
+	m_pIntercept->Set_Name(CSG_String::Format(SG_T("%s (%s)"), Parameters("DEPENDENT")->asString(), _TL("GWR Intercept")));
 
 	for(i=0; i<m_nPredictors; i++)
 	{
-		m_pSlopes[i]->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), m_pPoints->Get_Field_Name(m_iPredictor[i])));
+		m_pSlopes[i]->Set_Name(CSG_String::Format(SG_T("%s (%s)"), Parameters("DEPENDENT")->asString(), m_pPoints->Get_Field_Name(m_iPredictor[i])));
 	}
 
 	//-----------------------------------------------------

@@ -472,12 +472,12 @@ bool C_Kriging_Base::_Get_Grid(void)
 			m_pVariance	= SG_Create_Grid(m_pGrid, SG_DATATYPE_Float);
 		}
 
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name().c_str()));
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("FIELD")->asString(), Get_Name().c_str()));
 		Parameters("GRID")->Set_Value(m_pGrid);
 
 		if( m_pVariance )
 		{
-			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), pShapes->Get_Name(), Get_Name().c_str(), _TL("Variance")));
+			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s [%s %s]"), Parameters("FIELD")->asString(), Get_Name().c_str(), _TL("Variance")));
 			Parameters("VARIANCE")->Set_Value(m_pVariance);
 		}
 

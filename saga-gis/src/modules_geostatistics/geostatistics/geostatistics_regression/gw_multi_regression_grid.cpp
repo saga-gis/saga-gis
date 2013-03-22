@@ -241,7 +241,7 @@ bool CGW_Multi_Regression_Grid::Initialize(void)
 {
 	bool		bAdd;
 	int			iPoint, iPredictor, iDependent, Interpolation;
-	double		*z;
+	CSG_Vector	z;
 	TSG_Point	Point;
 	CSG_Shape	*pPoint;
 	CSG_Shapes	*pPoints;
@@ -258,16 +258,16 @@ bool CGW_Multi_Regression_Grid::Initialize(void)
 	Interpolation	= GRID_INTERPOLATION_BSpline;
 
 	//-----------------------------------------------------
-	m_Points.Create(SHAPE_TYPE_Point);
-	m_Points.Set_Name(pPoints->Get_Name());
-	m_Points.Add_Field(pPoints->Get_Field_Name(iDependent), SG_DATATYPE_Double);
+	m_Points.Create   (SHAPE_TYPE_Point);
+	m_Points.Set_Name (Parameters("DEPENDENT")->asString());
+	m_Points.Add_Field(Parameters("DEPENDENT")->asString(), SG_DATATYPE_Double);
 
 	for(iPredictor=0; iPredictor<m_pPredictors->Get_Count(); iPredictor++)
 	{
 		m_Points.Add_Field(m_pPredictors->asGrid(iPredictor)->Get_Name(), SG_DATATYPE_Double);
 	}
 
-	z	= new double[m_pPredictors->Get_Count() + 1];
+	z.Create(1 + m_pPredictors->Get_Count());
 
 	//-----------------------------------------------------
 	for(iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
@@ -301,8 +301,6 @@ bool CGW_Multi_Regression_Grid::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	delete[](z);
-
 	return( m_Points.Get_Count() > 1 );
 }
 

@@ -350,11 +350,11 @@ bool CKriging_Base::_Initialise_Grids(void)
 	}
 
 	//-----------------------------------------------------
-	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), Get_Name().c_str()));
+	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str()));
 
 	if( m_pVariance )
 	{
-		m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
+		m_pVariance->Set_Name(CSG_String::Format(SG_T("%s [%s %s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
 	}
 
 	return( true );

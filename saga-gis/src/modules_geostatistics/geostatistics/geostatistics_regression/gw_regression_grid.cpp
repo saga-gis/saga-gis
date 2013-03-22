@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_INIT(g, s)				if( g ) { g->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), s, m_pPredictor->Get_Name())); }
+#define GRID_INIT(g, s)				if( g ) { g->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), Parameters("DEPENDENT")->asString(), s, m_pPredictor->Get_Name())); }
 #define GRID_SET_NODATA(g, x, y)	if( g ) { g->Set_NoData(x, y); }
 #define GRID_SET_VALUE(g, x, y, z)	if( g ) { g->Set_Value(x, y, z); }
 

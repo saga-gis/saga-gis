@@ -180,7 +180,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	//-------------------------------------------------
 	if( m_pGrid )
 	{
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_bGridPoints ? pGrid->Get_Name() : pShapes->Get_Name(), Get_Name().c_str()));
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_bGridPoints ? pGrid->Get_Name() : Parameters("FIELD")->asString(), Get_Name().c_str()));
 		m_pGrid->Assign_NoData();
 	}
 

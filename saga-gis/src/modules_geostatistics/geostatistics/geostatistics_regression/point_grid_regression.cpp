@@ -195,7 +195,7 @@ bool CPoint_Grid_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Regression(pGrid, pShapes, pResiduals, iAttribute, Type) )
 	{
-		pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name().c_str()));
+		pRegression->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("ATTRIBUTE")->asString(), _TL("Regression Model")));
 
 		Set_Regression(pGrid, pRegression);
 
@@ -232,7 +232,7 @@ bool CPoint_Grid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes
 	//-----------------------------------------------------
 	if( pResiduals )
 	{
-		pResiduals->Create(SHAPE_TYPE_Point, _TL("Residuals"));
+		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), Parameters("ATTRIBUTE")->asString(), _TL("Residuals")));
 		pResiduals->Add_Field("ID"			, SG_DATATYPE_Int);
 		pResiduals->Add_Field("Y"			, SG_DATATYPE_Double);
 		pResiduals->Add_Field("X"			, SG_DATATYPE_Double);

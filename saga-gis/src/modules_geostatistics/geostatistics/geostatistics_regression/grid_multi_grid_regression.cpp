@@ -230,7 +230,7 @@ bool CGrid_Multi_Grid_Regression::On_Execute(void)
 	Message_Add(m_Regression.Get_Info(), false);
 
 	//-----------------------------------------------------
-	Set_Regression(pGrids, pDependent, pRegression, pResiduals, CSG_String::Format(SG_T("%s (%s)"), pDependent->Get_Name(), Get_Name().c_str()));
+	Set_Regression(pGrids, pDependent, pRegression, pResiduals, CSG_String::Format(SG_T("%s [%s]"), pDependent->Get_Name(), _TL("Regression Model")));
 
 	//-----------------------------------------------------
 	if( Parameters("INFO_COEFF")->asTable() )
