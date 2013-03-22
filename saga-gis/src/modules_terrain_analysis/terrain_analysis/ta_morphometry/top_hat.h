@@ -84,7 +84,7 @@ class CTop_Hat : public CSG_Module_Grid
 public:
 	CTop_Hat(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( SG_T("Classification") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
 
 protected:

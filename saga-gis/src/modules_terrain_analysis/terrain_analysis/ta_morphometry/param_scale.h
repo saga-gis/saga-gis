@@ -78,7 +78,7 @@ class CParam_Scale : public CSG_Module_Grid
 public:
 	CParam_Scale(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Classification" ));	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
 
 protected:

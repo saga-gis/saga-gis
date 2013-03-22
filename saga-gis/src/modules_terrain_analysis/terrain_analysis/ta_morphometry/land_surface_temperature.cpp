@@ -136,10 +136,6 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 	);
 }
 
-//---------------------------------------------------------
-CLand_Surface_Temperature::~CLand_Surface_Temperature(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //

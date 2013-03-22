@@ -79,12 +79,13 @@ class CAnisotropic_Heating : public CSG_Module_Grid
 {
 public:
 	CAnisotropic_Heating(void);
-	virtual ~CAnisotropic_Heating(void);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Terrain Analysis|Climate and Weather" ));	}
 
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual bool			On_Execute		(void);
 
 
 private:

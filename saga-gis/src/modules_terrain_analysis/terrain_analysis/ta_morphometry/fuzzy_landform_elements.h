@@ -84,7 +84,7 @@ class CFuzzy_Landform_Elements : public CSG_Module_Grid
 public:
 	CFuzzy_Landform_Elements(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( SG_T("Classification") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
 
 protected:

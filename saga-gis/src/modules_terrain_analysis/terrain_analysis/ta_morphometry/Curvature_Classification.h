@@ -86,9 +86,8 @@ class ta_morphometry_EXPORT CCurvature_Classification : public CSG_Module_Grid
 {
 public:
 	CCurvature_Classification(void);
-	virtual ~CCurvature_Classification(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Classification" ));	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
 
 protected:

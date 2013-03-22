@@ -103,10 +103,6 @@ CAnisotropic_Heating::CAnisotropic_Heating(void)
 	);
 }
 
-//---------------------------------------------------------
-CAnisotropic_Heating::~CAnisotropic_Heating(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //

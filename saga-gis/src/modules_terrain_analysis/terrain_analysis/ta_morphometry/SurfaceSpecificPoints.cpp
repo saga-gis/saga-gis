@@ -117,10 +117,6 @@ CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 	);
 }
 
-//---------------------------------------------------------
-CSurfaceSpecificPoints::~CSurfaceSpecificPoints(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //

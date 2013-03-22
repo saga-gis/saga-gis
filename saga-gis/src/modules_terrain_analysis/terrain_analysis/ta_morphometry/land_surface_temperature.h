@@ -79,12 +79,13 @@ class CLand_Surface_Temperature : public CSG_Module_Grid
 {
 public:
 	CLand_Surface_Temperature(void);
-	virtual ~CLand_Surface_Temperature(void);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Terrain Analysis|Climate and Weather" ));	}
 
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual bool			On_Execute		(void);
 
 
 private:

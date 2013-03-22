@@ -80,7 +80,7 @@ class CWind_Effect : public CSG_Module_Grid
 public:
 	CWind_Effect(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Wind" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Terrain Analysis|Climate and Weather" ));	}
 
 
 protected:

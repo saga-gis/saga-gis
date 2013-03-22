@@ -147,7 +147,7 @@ class CTC_Classification : public CSG_Module_Grid
 public:
 	CTC_Classification(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Classification" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
 
 protected:

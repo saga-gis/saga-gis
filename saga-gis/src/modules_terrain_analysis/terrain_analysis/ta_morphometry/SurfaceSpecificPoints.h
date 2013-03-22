@@ -86,9 +86,8 @@ class ta_morphometry_EXPORT CSurfaceSpecificPoints : public CSG_Module_Grid
 {
 public:
 	CSurfaceSpecificPoints(void);
-	virtual ~CSurfaceSpecificPoints(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Classification" ));	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
 
 protected:
@@ -103,6 +102,7 @@ private:
 	void					Do_FlowDirection	(CSG_Grid *pGrid, CSG_Grid *pResult);
 	void					Do_FlowDirection2	(CSG_Grid *pGrid, CSG_Grid *pResult);
 	void					Do_PeuckerDouglas	(CSG_Grid *pGrid, CSG_Grid *pResult, double Threshold);
+
 };
 
 

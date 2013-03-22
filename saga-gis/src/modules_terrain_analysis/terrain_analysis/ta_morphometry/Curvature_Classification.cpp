@@ -99,10 +99,6 @@ CCurvature_Classification::CCurvature_Classification(void)
 	Parameters.Add_Grid (NULL, "CLASS"		, _TL("Curvature Classification")	, _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
 }
 
-//---------------------------------------------------------
-CCurvature_Classification::~CCurvature_Classification(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
