@@ -71,13 +71,11 @@ CFillSinks::CFillSinks(void)
 	Set_Author(_TL("Copyrights (c) 2003 by Volker Wichmann"));
 
 	Set_Description	(_TW(
-		"Depression filling algorithm after Olivier Planchon & Frederic Darboux (2001)\n\n"
-		"Planchon, O. & F. Darboux (2001):\n"
-		"  A fast, simple and versatile algorithm to fill the depressions of digital elevation models.\n"
-		"  Catena 46: 159-176\n\n"
-
-		"(c) 2003 Volker Wichmann\n"
-		"email: volker.wichmann@geographie.uni-muenchen.de")
+		"Depression filling algorithm after Olivier Planchon & Frederic Darboux (2001)\n\n\n"
+		"References:\n"
+		"Planchon, O. & F. Darboux (2001): "
+		"A fast, simple and versatile algorithm to fill the depressions of digital elevation models. "
+		"Catena 46: 159-176\n\n")
 	);
 
 
@@ -162,14 +160,14 @@ bool CFillSinks::On_Execute(void)
 			C = C0[scan];
 			something_done = false;
 
-			do 
+			do
 			{
 				if( !pDEM->is_NoData(C, R) && ((wz = pW->asDouble(C, R)) > (z = pDEM->asDouble(C, R))) )
 				{
 					for(i=0; i<8; i++)
 					{
-						ix	= Get_xTo(i, C);		
-						iy	= Get_yTo(i, R);	
+						ix	= Get_xTo(i, C);
+						iy	= Get_yTo(i, R);
 
 						if(	pDEM->is_InGrid(ix, iy) )
 						{
@@ -197,7 +195,7 @@ bool CFillSinks::On_Execute(void)
 	if( something_done == false )
 		break;
 	}
-	
+
 	pResult->Assign(pW);
 
 
@@ -216,14 +214,14 @@ void CFillSinks::Dry_upward_cell(int x, int y)
 	double		zn;
 
 	depth += 1;
-	
+
 	if( depth <= MAX_DEPTH )
 	{
 		for(i=0; i<8; i++)
 		{
-			ix	= Get_xTo(i, x);		
-			iy	= Get_yTo(i, y);	
-			
+			ix	= Get_xTo(i, x);
+			iy	= Get_yTo(i, y);
+
 			if(	is_InGrid(ix, iy) && pW->asDouble(ix, iy) == 50000 )
 			{
 				if( (zn = pDEM->asDouble(ix , iy)) >= (pW->asDouble(x, y) + epsilon[i]) )
@@ -254,10 +252,10 @@ void CFillSinks::Init_Altitude()
 			{
 				for(i=0; i<8; i++)
 				{
-					ix	= Get_xTo(i, x);		
-					iy	= Get_yTo(i, y);	
+					ix	= Get_xTo(i, x);
+					iy	= Get_yTo(i, y);
 
-					if(	!pDEM->is_InGrid(ix, iy) )			
+					if(	!pDEM->is_InGrid(ix, iy) )
 					{
 						border = true;
 						break;
@@ -272,7 +270,7 @@ void CFillSinks::Init_Altitude()
 					pW->Set_Value(x, y, 50000.0);
 			}
 		}
-	}	
+	}
 }
 
 
