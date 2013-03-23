@@ -81,8 +81,8 @@ CConvergence_Radius::CConvergence_Radius(void)
 
 	Set_Description	(_TW(
 		"Reference:\n"
-		"Koethe, R. / Lehmeier, F. (1996):\n'SARA – System zur Automatischen Relief-Analyse',\n"
-		"User Manual, 2. Edition [Dept. of Geography, University of Goettingen, unpublished]\n"
+		"Koethe, R. & Lehmeier, F. (1996): SARA - System zur Automatischen Relief-Analyse. "
+		"User Manual, 2. Edition [Dept. of Geography, University of Goettingen, unpublished]\n\n"
 	));
 
 	Parameters.Add_Grid(

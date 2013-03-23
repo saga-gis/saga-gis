@@ -79,8 +79,8 @@ CConvergence::CConvergence(void)
 
 	Set_Description	(_TW(
 		"Reference:\n"
-		"Koethe, R. / Lehmeier, F. (1996): 'SARA – System zur Automatischen Relief-Analyse', "
-		"Benutzerhandbuch, 2. Auflage [Geogr. Inst. Univ. Goettingen, unpublished]"
+		"Koethe, R. & Lehmeier, F. (1996): SARA - System zur Automatischen Relief-Analyse. "
+		"User Manual, 2. Edition [Dept. of Geography, University of Goettingen, unpublished]\n\n"
 	));
 
 	Parameters.Add_Grid(
