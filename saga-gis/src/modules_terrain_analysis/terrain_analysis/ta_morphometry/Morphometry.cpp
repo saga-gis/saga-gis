@@ -85,7 +85,7 @@ CMorphometry::CMorphometry(void)
 		"\nReferences:\n\n"
 
 		"Maximum Slope\n"
-		"- Travis, M.R. / Elsner, G.H. / Iverson, W.D. / Johnson, C.G. (1975):\n"
+		"- Travis, M.R., Elsner, G.H., Iverson, W.D., Johnson, C.G. (1975):\n"
 		"    'VIEWIT: computation of seen areas, slope, and aspect for land-use planning',\n"
 		"    USDA F.S. Gen. Tech. Rep. PSW-11/1975, 70p. Berkeley, California, U.S.A.\n\n"
 
@@ -99,25 +99,25 @@ CMorphometry::CMorphometry(void)
 		"    'Hill shading and the relectance map',\n"
 		"    Proceedings of the IEEE, v. 69, no. 1, p. 14-47.\n\n"
 
-		"- Beasley, D.B. / Huggins, L.F. (1982):\n"
-		"    'ANSWERS: User’s manual',\n"
+		"- Beasley, D.B., Huggins, L.F. (1982):\n"
+		"    'ANSWERS: User's manual',\n"
 		"    U.S. EPA-905/9-82-001, Chicago, IL. 54pp.\n\n"
 
-		"- Costa-Cabral, M., and Burges, S.J., (1994):\n"
+		"- Costa-Cabral, M., Burges, S.J., (1994):\n"
 		"    'Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas',\n"
 		"    Water Resources Research, v. 30, no. 6, p. 1681-1692.\n\n"
 
 		"Fit 2.Degree Polynom\n"
-		"- Bauer, J. / Rohdenburg, H. / Bork, H.-R. (1985):\n"
+		"- Bauer, J., Rohdenburg, H., Bork, H.-R. (1985):\n"
 		"    'Ein Digitales Reliefmodell als Vorraussetzung fuer ein deterministisches Modell der Wasser- und Stoff-Fluesse',\n"
 		"    Landschaftsgenese und Landschaftsoekologie, H.10, Parameteraufbereitung fuer deterministische Gebiets-Wassermodelle,\n"
 		"    Grundlagenarbeiten zu Analyse von Agrar-Oekosystemen, (Eds.: Bork, H.-R. / Rohdenburg, H.), p.1-15\n\n"
 
-		"- Heerdegen, R.G. / Beran, M.A. (1982):\n"
+		"- Heerdegen, R.G., Beran, M.A. (1982):\n"
 		"    'Quantifying source areas through land surface curvature',\n"
 		"    Journal of Hydrology, Vol.57\n\n"
 
-		"- Zevenbergen, L.W. / Thorne, C.R. (1987):\n"
+		"- Zevenbergen, L.W., Thorne, C.R. (1987):\n"
 		"    'Quantitative analysis of land surface topography',\n"
 		"    Earth Surface Processes and Landforms, 12: 47-56.\n\n"
 
