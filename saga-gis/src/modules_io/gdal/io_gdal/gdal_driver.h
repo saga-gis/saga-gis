@@ -147,10 +147,11 @@ public:
 	CSG_String					Get_Name			(void)	const;
 	CSG_String					Get_Description		(void)	const;
 	const char *				Get_Projection		(void)	const;
-	const char *				Get_MetaData_Item	(const char *pszName, const char *pszDomain = "")	const;
-	const char **				Get_MetaData		(const char *pszDomain = "")	const;
+	const char *				Get_MetaData_Item	(const char *pszName, const char *pszDomain = "")							const;
+	const char **				Get_MetaData		(const char *pszDomain = "")												const;
 	bool						Get_MetaData_Item	(CSG_String   &MetaData, const char *pszName, const char *pszDomain = "")	const;
-	bool						Get_MetaData		(CSG_MetaData &MetaData)		const;
+	bool						Get_MetaData		(CSG_MetaData &MetaData)													const;
+	bool						Get_MetaData		(CSG_MetaData &MetaData, const char *pszDomain)								const;
 
 	int							Get_Count			(void)	const;
 	CSG_String					Get_Name			(int i)	const;

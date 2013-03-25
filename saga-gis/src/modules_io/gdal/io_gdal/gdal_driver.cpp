@@ -479,6 +479,31 @@ bool CSG_GDAL_DataSet::Get_MetaData(CSG_MetaData &MetaData)	const
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Get_MetaData(CSG_MetaData &MetaData, const char *pszDomain) const
+{
+	if( m_pDataSet && is_Reading() )
+	{
+		char	**pMetaData	= m_pDataSet->GetMetadata(pszDomain) + 0;
+
+		if( pMetaData )
+		{
+			while( *pMetaData )
+			{
+				CSG_String	s(*pMetaData);
+
+				MetaData.Add_Child(s.BeforeFirst(SG_T('=')), s.AfterFirst(SG_T('=')));
+
+				pMetaData++;
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

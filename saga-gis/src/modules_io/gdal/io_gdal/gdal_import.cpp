@@ -208,14 +208,7 @@ bool CGDAL_Import::On_Execute(void)
 		}
 		else
 		{
-			if( DataSet.Get_Count() <= 0 )
-			{
-				Load_Sub(DataSet, SG_File_Get_Name(Files[i], false));
-			}
-			else
-			{
-				Load(DataSet, SG_File_Get_Name(Files[i], false));
-			}
+			Load(DataSet, SG_File_Get_Name(Files[i], false));
 		}
 	}
 
@@ -228,16 +221,11 @@ bool CGDAL_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
+bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet)
 {
-	if( !DataSet.is_Reading() )
-	{
-		return( false );
-	}
+	CSG_MetaData	MetaData;
 
-	const char	**pMetaData	= DataSet.Get_MetaData("SUBDATASETS");
-
-	if( !pMetaData || !pMetaData[0] )
+	if( !DataSet.Get_MetaData(MetaData, "SUBDATASETS") )
 	{
 		return( false );
 	}
@@ -246,29 +234,18 @@ bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	int				i, n;
 	CSG_Parameters	P;
 
-	for(i=0; pMetaData[i]!=NULL; i++)
+	for(i=0, n=0; i==n; i++)
 	{
-		CSG_String	sMeta	= pMetaData[i];
+		CSG_MetaData	*pName	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_NAME"), i + 1));
+		CSG_MetaData	*pDesc	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_DESC"), i + 1));
 
-		if( sMeta.Contains(SG_T("SUBDATASET_")) && sMeta.Contains(SG_T("_NAME=")) )
+		if( pName )
 		{
-			CSG_String	sFile	= sMeta.AfterFirst('=');
-			CSG_String	sName	= _TL("unnamed");
+			n++;
 
-			Message_Add(CSG_String::Format(SG_T("\n+ %s\n"), sMeta.c_str()), false);
-			Message_Add(CSG_String::Format(SG_T(" - %s\n" ), sFile.c_str()), false);
+			Message_Add(CSG_String::Format(SG_T("\n%s"), pName->Get_Content().c_str()), false);
 
-			if( pMetaData[i + 1] != NULL )
-			{
-				sMeta	= pMetaData[i + 1];
-
-				if( sMeta.Contains(SG_T("SUBDATASET_")) && sMeta.Contains(SG_T("_DESC")) )
-				{
-					sName	= sMeta.AfterFirst ('=');
-				}
-			}
-
-			P.Add_Value(NULL, sFile, sName, SG_T(""), PARAMETER_TYPE_Bool, SG_UI_Get_Window_Main() == NULL);
+			P.Add_Value(NULL, pName->Get_Content(), pDesc ? pDesc->Get_Content().c_str() : _TL("unnamed"), SG_T(""), PARAMETER_TYPE_Bool, SG_UI_Get_Window_Main() == NULL);
 		}
 	}
 
@@ -298,10 +275,15 @@ bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 //---------------------------------------------------------
 bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 {
-	//-----------------------------------------------------
-	if( !DataSet.is_Reading() || DataSet.Get_Count() <= 0 )
+	if( !DataSet.is_Reading() )
 	{
 		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( DataSet.Get_Count() <= 0 )
+	{
+		return( Load_Sub(DataSet) );
 	}
 
 	//-----------------------------------------------------
