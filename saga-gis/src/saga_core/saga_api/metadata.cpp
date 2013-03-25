@@ -64,6 +64,7 @@
 #include <wx/wfstream.h>
 
 #include "metadata.h"
+#include "table.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -444,6 +445,43 @@ int CSG_MetaData::_Get_Property(const CSG_String &Name) const
 	}
 
 	return( -1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_MetaData::asText(int Flags) const
+{
+	CSG_String	s;
+
+	for(int i=0; i<Get_Children_Count(); i++)
+	{
+		s	+= Get_Child(i)->Get_Name() + ":\t" + Get_Child(i)->Get_Content() + "\n";
+	}
+
+	return( s );
+}
+
+//---------------------------------------------------------
+CSG_Table CSG_MetaData::asTable(int Flags) const
+{
+	CSG_Table	t;
+
+	t.Add_Field("NAME" , SG_DATATYPE_String);
+	t.Add_Field("VALUE", SG_DATATYPE_String);
+
+	for(int i=0; i<Get_Children_Count(); i++)
+	{
+		CSG_Table_Record	*r	= t.Add_Record();
+
+		r->Set_Value(0, Get_Child(i)->Get_Name());
+		r->Set_Value(1, Get_Child(i)->Get_Content());
+	}
+
+	return( t );
 }
 
 
