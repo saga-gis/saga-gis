@@ -413,16 +413,27 @@ wxSize		DLG_Get_Def_Size(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		DLG_Parameters(CSG_Parameters *pParameters)
+bool		DLG_Parameters(CSG_Parameters *pParameters, const wxString &Caption)
 {
+	bool	bResult	= false;
+
 	if( pParameters && pParameters->Get_Count() > 0 )
 	{
+		CSG_String	Name	= pParameters->Get_Name();
+
+		if( !Caption.IsEmpty() )
+		{
+			pParameters->Set_Name(&Caption);
+		}
+
 		CDLG_Parameters	dlg(pParameters);
 
-		return( dlg.ShowModal() == wxID_OK );
+		bResult	= dlg.ShowModal() == wxID_OK;
+
+		pParameters->Set_Name(Name);
 	}
 
-	return( false );
+	return( bResult );
 }
 
 //---------------------------------------------------------

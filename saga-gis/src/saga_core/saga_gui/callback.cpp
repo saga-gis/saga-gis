@@ -233,7 +233,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_PARAMETERS:
 
-		Result	= DLG_Parameters((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
+		Result	= DLG_Parameters((CSG_Parameters *)Param_1.Pointer, Param_2.String.c_str()) ? 1 : 0;
 
 		break;
 

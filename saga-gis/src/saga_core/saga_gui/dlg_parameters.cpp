@@ -101,7 +101,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters)
-	: CDLG_Base(-1, pParameters ? wxString(pParameters->Get_Name().w_str()) : wxString(_TL("Parameters")))
+	: CDLG_Base(-1, pParameters && pParameters->Get_Name().Length() > 0 ? pParameters->Get_Name().c_str() : _TL("Parameters"))
 {
 	m_pControl		= new CParameters_Control(this, true);
 

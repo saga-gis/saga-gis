@@ -137,7 +137,7 @@ class wxPoint		DLG_Get_Def_Position	(void);
 class wxSize		DLG_Get_Def_Size		(void);
 
 //---------------------------------------------------------
-bool				DLG_Parameters			(class CSG_Parameters *pParameters);
+bool				DLG_Parameters			(class CSG_Parameters *pParameters, const wxString &Caption = wxT(""));
 
 bool				DLG_Text				(const wxString &Caption, wxString &Text);
 bool				DLG_Table				(const wxString &Caption, class CSG_Table *pTable);
