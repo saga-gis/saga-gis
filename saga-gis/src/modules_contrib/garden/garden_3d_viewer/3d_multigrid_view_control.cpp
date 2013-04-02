@@ -241,7 +241,7 @@ void C3D_MultiGrid_View_Control::Update_Extent(void)
 
 	for(int i=1; i<m_pGrids->Get_Count(); i++)
 	{
-		m_Extent.Union(m_pGrids->asGrid(1)->Get_Extent());
+		m_Extent.Union(m_pGrids->asGrid(i)->Get_Extent());
 
 		if( m_zMin > m_pGrids->asGrid(i)->Get_ZMin() )
 			m_zMin = m_pGrids->asGrid(i)->Get_ZMin();
@@ -906,7 +906,7 @@ inline void C3D_MultiGrid_View_Control::_Draw_Pixel(int x, int y, double z, int 
 			break;
 
 		case COLOR_MODE_BLUE:
-			RGB[1]	= 
+			RGB[1]	=
 			RGB[2]	= (SG_GET_R(color) + SG_GET_G(color) + SG_GET_B(color)) / 3;
 			break;
 		}
