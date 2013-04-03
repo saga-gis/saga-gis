@@ -15,7 +15,7 @@ module1 = Extension(
 
 	library_dirs = [
 		os.environ['WXWIN'] + '/lib/vc_dll',
-		os.environ['SAGA'] + '/bin/saga_vc_Win32'
+		os.environ['SAGA'] + '/bin/saga_vc_x64'
 	],
 
 	libraries = [
@@ -23,10 +23,10 @@ module1 = Extension(
 		'wxjpeg',
 		'wxpng',
 		'wxzlib',
-		'wxregex',
+		'wxregexu',
 		'wxexpat',
-		'wxbase28_xml',
-		'wxbase28',
+		'wxbase29u_xml',
+		'wxbase29u',
 		'winmm',
 		'comctl32',
 		'rpcrt4',
@@ -58,6 +58,7 @@ module1 = Extension(
 		'-D_TYPEDEF_WORD',
 		'-D_SAGA_API_EXPORTS',
 		'-DDEBUG',
+		'-D_SAGA_UNICODE',
 		'-D_SAGA_PYTHON'
 	]
 )

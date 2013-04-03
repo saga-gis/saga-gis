@@ -2,9 +2,13 @@
 
 rem #########################################
 set WXWIN=H:\libs\libs\wxWidgets-2.9.4
+rem set WXWIN=C:\DEVELOP\wxWidgets-2.9.4
 set SAGA=H:\saga\saga_2\trunk\saga-gis
-rem set SWIG=C:\Program Files\swigwin-1.3.25
+rem set SAGA=C:\DEVELOP\saga\trunk\saga-gis
+set SWIG=C:\Program Files\swigwin-1.3.25
+rem set SWIG=C:\DEVELOP\swigwin-2.0.1
 set PYTHONPATH=H:\libs\_libs\Python\Python-2.6
+rem set PYTHONPATH=C:\Python27
 rem #########################################
 
 rem #########################################
