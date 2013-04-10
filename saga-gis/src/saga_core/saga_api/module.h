@@ -78,6 +78,46 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
+//		XML tags for mark-up of module synopsis	 		 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+static const SG_Char * XML_SYSTEM				= SG_T("system");
+static const SG_Char * XML_SYSTEM_VER			= SG_T("version");
+static const SG_Char * XML_SYSTEM_MLP			= SG_T("library-path");
+static const SG_Char * XML_LIBRARY				= SG_T("library");
+static const SG_Char * XML_LIBRARY_PATH			= SG_T("path");
+static const SG_Char * XML_LIBRARY_NAME			= SG_T("name");
+static const SG_Char * XML_MODULE				= SG_T("module");
+static const SG_Char * XML_MODULE_ATT_NAME		= SG_T("name");
+static const SG_Char * XML_MODULE_ATT_ID		= SG_T("id");
+static const SG_Char * XML_MODULE_ATT_AUTHOR	= SG_T("author");
+static const SG_Char * XML_SPECIFICATION		= SG_T("specification");
+static const SG_Char * XML_SPEC_ATT_GRID		= SG_T("grid");
+static const SG_Char * XML_SPEC_ATT_INTERA		= SG_T("interactive");
+static const SG_Char * XML_MENU					= SG_T("menu");
+static const SG_Char * XML_DESCRIPTION			= SG_T("description");
+static const SG_Char * XML_PARAM				= SG_T("parameter");
+static const SG_Char * XML_PARAM_ATT_NAME		= SG_T("name");
+static const SG_Char * XML_PARAM_ATT_CLASS		= SG_T("class");
+static const SG_Char * XML_PARAM_MAND			= SG_T("mandatory");
+static const SG_Char * XML_PARAM_TYPE			= SG_T("type");
+static const SG_Char * XML_PARAM_IDENT			= SG_T("identifier");
+static const SG_Char * XML_PARAM_DESC			= SG_T("description");
+static const SG_Char * XML_PARAM_PROP			= SG_T("properties");
+static const SG_Char * XML_PARAM_LIST			= SG_T("list");
+static const SG_Char * XML_PARAM_ITEM			= SG_T("item");
+static const SG_Char * XML_PARAM_TABLE			= SG_T("table");
+static const SG_Char * XML_PARAM_FIELD			= SG_T("field");
+static const SG_Char * XML_PARAM_FIELD_ATT_NAME	= SG_T("name");
+static const SG_Char * XML_PARAM_FIELD_ATT_TYPE	= SG_T("type");
+static const SG_Char * XML_PARAM_MIN			= SG_T("min");
+static const SG_Char * XML_PARAM_MAX			= SG_T("max");
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -143,7 +183,7 @@ public:
 	const CSG_String &			Get_Description				(void);
 	const CSG_String &			Get_Author					(void);
 	const SG_Char *				Get_Icon					(void)	{	return( NULL );	}
-	CSG_String					Get_Summary					(bool bParameters = true, const CSG_String &Menu = "", const CSG_String &Description = "");
+	CSG_String					Get_Summary					(bool bParameters = true, const CSG_String &Menu = "", const CSG_String &Description = "", bool bXML = false);
 
 	virtual CSG_String			Get_MenuPath				(void)	{	return( SG_T("") );	}
 
