@@ -63,6 +63,8 @@
 //---------------------------------------------------------
 #include "res_commands.h"
 
+#include "helper.h"
+
 #include "wksp_grid_system.h"
 #include "wksp_grid.h"
 
@@ -85,22 +87,12 @@ CWKSP_Grid_System::CWKSP_Grid_System(const CSG_Grid_System &System)
 	);
 }
 
-//---------------------------------------------------------
-CWKSP_Grid_System::~CWKSP_Grid_System(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Grid_System::Parameters_Changed(void)
-{
-	CWKSP_Base_Item::Parameters_Changed();
-}
 
 //---------------------------------------------------------
 wxString CWKSP_Grid_System::Get_Name(void)
@@ -113,33 +105,25 @@ wxString CWKSP_Grid_System::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><table border=\"0\">"), _TL("Grid System"));
+	//-----------------------------------------------------
+	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Grid System"));
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		_TL("Name")					, Get_Name().c_str()
-	));
+	s	+= wxT("<table border=\"0\">");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		_TL("Number Of Grids")		, Get_Count()
-	));
+	DESC_ADD_STR (_TL("Name")				, Get_Name());
+	DESC_ADD_INT (_TL("Number of Grids")	, Get_Count());
+	DESC_ADD_FLT (_TL("West")				, m_System.Get_XMin());
+	DESC_ADD_FLT (_TL("East")				, m_System.Get_XMax());
+	DESC_ADD_FLT (_TL("West-East")			, m_System.Get_XRange());
+	DESC_ADD_FLT (_TL("South")				, m_System.Get_YMin());
+	DESC_ADD_FLT (_TL("North")				, m_System.Get_YMax());
+	DESC_ADD_FLT (_TL("South-North")		, m_System.Get_YRange());
+	DESC_ADD_FLT (_TL("Cell Size")			, m_System.Get_Cellsize());
+	DESC_ADD_INT (_TL("Number of Columns")	, m_System.Get_NX());
+	DESC_ADD_INT (_TL("Number of Rows")		, m_System.Get_NY());
+	DESC_ADD_LONG(_TL("Number of Cells")	, m_System.Get_NCells());
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>"),
-		_TL("Number Of Cells")		, m_System.Get_NX(), m_System.Get_NY(), m_System.Get_NCells()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
-		_TL("Cell Size")				, m_System.Get_Cellsize()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		_TL("West-East")				, m_System.Get_XMin(), m_System.Get_XMax(), m_System.Get_XRange()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		_TL("South-North")			, m_System.Get_YMin(), m_System.Get_YMax(), m_System.Get_YRange()
-	));
-
-	s.Append(wxT("</table>"));
+	s	+= wxT("</table>");
 
 	//-----------------------------------------------------
 	return( s );
@@ -148,9 +132,7 @@ wxString CWKSP_Grid_System::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Grid_System::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(Get_Name());
+	wxMenu	*pMenu	= new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 
@@ -165,16 +147,13 @@ wxMenu * CWKSP_Grid_System::Get_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_System::Get_Grid(CSG_Grid *pGrid)
+CWKSP_Grid * CWKSP_Grid_System::Get_Data(CSG_Grid *pObject)
 {
-	if( pGrid )
+	for(int i=0; i<Get_Count(); i++)
 	{
-		for(int i=0; i<Get_Count(); i++)
+		if( pObject == Get_Data(i)->Get_Object() )
 		{
-			if( pGrid == Get_Grid(i)->Get_Grid() )
-			{
-				return( Get_Grid(i) );
-			}
+			return( Get_Data(i) );
 		}
 	}
 
@@ -182,22 +161,16 @@ CWKSP_Grid * CWKSP_Grid_System::Get_Grid(CSG_Grid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_System::Exists(CSG_Grid *pGrid)
+CWKSP_Grid * CWKSP_Grid_System::Add_Data(CSG_Grid *pObject)
 {
-	return( Get_Grid(pGrid) != NULL );
-}
+	CWKSP_Grid	*pItem	= Get_Data(pObject);
 
-//---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_System::Add(CSG_Grid *pGrid)
-{
-	CWKSP_Grid	*pItem;
-
-	if( pGrid && pGrid->Get_System() == m_System && !Exists(pGrid) && Add_Item(pItem = new CWKSP_Grid(pGrid)) )
+	if( pItem == NULL && pObject != NULL )
 	{
-		return( pItem );
+		Add_Item(pItem = new CWKSP_Grid(pObject));
 	}
 
-	return( NULL );
+	return( pItem );
 }
 
 

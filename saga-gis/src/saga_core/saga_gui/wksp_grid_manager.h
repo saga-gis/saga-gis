@@ -86,7 +86,6 @@ class CWKSP_Grid_Manager : public CWKSP_Base_Manager
 {
 public:
 	CWKSP_Grid_Manager(void);
-	virtual ~CWKSP_Grid_Manager(void);
 
 	virtual TWKSP_Item				Get_Type			(void)		{	return( WKSP_ITEM_Grid_Manager );	}
 
@@ -95,29 +94,16 @@ public:
 
 	virtual wxMenu *				Get_Menu			(void);
 
-	virtual bool					On_Command			(int Cmd_ID);
-
 	class CWKSP_Grid_System *		Get_System			(int i)		{	return( (class CWKSP_Grid_System *)Get_Item(i) );	}
-	class CWKSP_Grid_System *		Get_System			(class CSG_Grid_System *pSystem);
-	bool							Exists				(class CSG_Grid_System *pSystem);
+	class CWKSP_Grid_System *		Get_System			(const CSG_Grid_System &System);
 
-	class CWKSP_Grid *				Get_Grid			(class CSG_Grid *pGrid);
-	bool							Exists				(class CSG_Grid *pGrid);
-	class CWKSP_Grid *				Add					(class CSG_Grid *pGrid);
-	class CSG_Grid *				Get_byFileName		(const wxString &File_Name);
-
-	bool							Update				(class CSG_Grid *pGrid, class CSG_Parameters *pParameters);
-	bool							Update_Views		(class CSG_Grid *pGrid);
-	bool							Show				(class CSG_Grid *pGrid, int Map_Mode);
-	bool							asImage				(class CSG_Grid *pGrid, class CSG_Grid *pImage);
-
-	bool							Get_Colors			(class CSG_Grid *pGrid, class CSG_Colors *pColors);
-	bool							Set_Colors			(class CSG_Grid *pGrid, class CSG_Colors *pColors);
+	class CWKSP_Grid *				Get_Data			(CSG_Grid *pGrid);
+	class CWKSP_Grid *				Add_Data			(CSG_Grid *pGrid);
 
 
 private:
 
-	class CWKSP_Grid_System *		_Get_System			(class CSG_Grid_System *pSystem);
+	class CWKSP_Grid_System *		_Get_System			(const CSG_Grid_System &System);
 
 };
 

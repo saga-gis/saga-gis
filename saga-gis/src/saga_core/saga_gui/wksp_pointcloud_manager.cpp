@@ -79,13 +79,7 @@
 
 //---------------------------------------------------------
 CWKSP_PointCloud_Manager::CWKSP_PointCloud_Manager(void)
-{
-}
-
-//---------------------------------------------------------
-CWKSP_PointCloud_Manager::~CWKSP_PointCloud_Manager(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -113,9 +107,7 @@ wxString CWKSP_PointCloud_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_PointCloud_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(_TL("PointCloud"));
+	wxMenu	*pMenu	= new wxMenu(_TL("PointCloud"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_OPEN);
 
@@ -135,35 +127,13 @@ wxMenu * CWKSP_PointCloud_Manager::Get_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::On_Command(int Cmd_ID)
-{
-	switch( Cmd_ID )
-	{
-	default:
-		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
-
-	case ID_CMD_WKSP_ITEM_RETURN:
-		break;
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_PointCloud * CWKSP_PointCloud_Manager::Get_PointCloud(CSG_PointCloud *pPointCloud)
+CWKSP_PointCloud * CWKSP_PointCloud_Manager::Get_Data(CSG_PointCloud *pObject)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( pPointCloud == Get_PointCloud(i)->Get_PointCloud() )
+		if( pObject == Get_Data(i)->Get_Object() )
 		{
-			return( Get_PointCloud(i) );
+			return( Get_Data(i) );
 		}
 	}
 
@@ -171,144 +141,16 @@ CWKSP_PointCloud * CWKSP_PointCloud_Manager::Get_PointCloud(CSG_PointCloud *pPoi
 }
 
 //---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::Exists(CSG_PointCloud *pPointCloud)
+CWKSP_PointCloud * CWKSP_PointCloud_Manager::Add_Data(CSG_PointCloud *pObject)
 {
-	return( Get_PointCloud(pPointCloud) != NULL );
-}
+	CWKSP_PointCloud	*pItem	= Get_Data(pObject);
 
-//---------------------------------------------------------
-CWKSP_PointCloud * CWKSP_PointCloud_Manager::Add(CSG_PointCloud *pPointCloud)
-{
-	CWKSP_PointCloud	*pItem;
-
-	if( pPointCloud && !Exists(pPointCloud) && Add_Item(pItem = new CWKSP_PointCloud(pPointCloud)) )
+	if( pItem == NULL && pObject != NULL )
 	{
-		return( pItem );
+		Add_Item(pItem = new CWKSP_PointCloud(pObject));
 	}
 
-	return( NULL );
-}
-
-//---------------------------------------------------------
-CSG_PointCloud * CWKSP_PointCloud_Manager::Get_byFileName(const wxString &File_Name)
-{
-	for(int i=0; i<Get_Count(); i++)
-	{
-		if( !File_Name.Cmp(Get_PointCloud(i)->Get_PointCloud()->Get_File_Name()) )
-		{
-			return( Get_PointCloud(i)->Get_PointCloud() );
-		}
-	}
-
-	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::Update(CSG_PointCloud *pPointCloud, CSG_Parameters *pParameters)
-{
-	CWKSP_PointCloud	*pItem;
-
-	if( (pItem = Get_PointCloud(pPointCloud)) != NULL )
-	{
-		pItem->DataObject_Changed(pParameters);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::Update_Views(CSG_PointCloud *pPointCloud)
-{
-	CWKSP_PointCloud	*pItem;
-
-	if( (pItem = Get_PointCloud(pPointCloud)) != NULL )
-	{
-		pItem->Update_Views(false);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::Show(CSG_PointCloud *pPointCloud, int Map_Mode)
-{
-	CWKSP_PointCloud	*pItem;
-
-	if( (pItem = Get_PointCloud(pPointCloud)) != NULL )
-	{
-		switch( Map_Mode )
-		{
-		case SG_UI_DATAOBJECT_SHOW:
-			return( pItem->Show() );
-
-		case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
-			g_pMaps->Add(pItem, NULL);
-
-		case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
-			return( pItem->Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::asImage(CSG_PointCloud *pPointCloud, CSG_Grid *pImage)
-{
-	CWKSP_PointCloud	*pItem;
-
-	if( (pItem = Get_PointCloud(pPointCloud)) != NULL )
-	{
-		return( pItem->asImage(pImage) );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::Get_Colors(CSG_PointCloud *pPointCloud, CSG_Colors *pColors)
-{
-	CWKSP_PointCloud	*pItem;
-
-	if( (pItem = Get_PointCloud(pPointCloud)) != NULL )
-	{
-		return( pItem->Get_Colors(pColors) );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_PointCloud_Manager::Set_Colors(CSG_PointCloud *pPointCloud, CSG_Colors *pColors)
-{
-	CWKSP_PointCloud	*pItem;
-
-	if( (pItem = Get_PointCloud(pPointCloud)) != NULL )
-	{
-		pItem->DataObject_Changed(pColors);
-
-		return( true );
-	}
-
-	return( false );
+	return( pItem );
 }
 
 

@@ -777,7 +777,7 @@ bool CVIEW_Map_3D::_Parms_Update(bool bGet, CVIEW_Map_3D_Image *pImage)
 		//-------------------------------------------------
 		CSG_Grid	*pDEM			= m_Parameters("ELEVATION")		->asGrid();
 
-		if( !g_pData->Exists(pDEM, DATAOBJECT_TYPE_Grid) )
+		if( !SG_Get_Data_Manager().Exists(pDEM) )
 		{
 			pDEM				= NULL;
 		}

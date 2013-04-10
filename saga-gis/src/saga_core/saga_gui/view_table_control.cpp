@@ -1169,7 +1169,7 @@ void CVIEW_Table_Control::_Update_Views(void)
 		}
 		else if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
 		{
-			g_pData->Get_Shapes()->Get_Shapes((CSG_Shapes *)m_pTable)->Update_Views(true);
+			g_pData->Update_Views(m_pTable);
 		}
 	}
 }

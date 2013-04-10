@@ -105,7 +105,7 @@ bool CCMD_Module::Create(CSG_Module *pModule)
 
 	if( (m_pModule = pModule) != NULL )
 	{
-		m_pModule->Set_Managed(true);
+		m_pModule->Set_Manager(NULL);
 
 		_Set_CMD(m_pModule->Get_Parameters(), false);
 
@@ -125,7 +125,7 @@ void CCMD_Module::Destroy(void)
 {
 	if( m_pModule )
 	{
-		m_pModule->Set_Managed(false);
+		m_pModule->Set_Manager(NULL);
 	}
 
 	m_pModule	= NULL;
@@ -609,7 +609,7 @@ bool CCMD_Module::_Create_DataObject(CSG_Parameter *pParameter, const wxString &
 
 	switch( pParameter->Get_Type() )
 	{
-	default:						pObject	= NULL;											break;
+	default:						pObject	= NULL;									break;
 	case PARAMETER_TYPE_TIN:		pObject = new CSG_TIN			(&FileName);	break;
 	case PARAMETER_TYPE_PointCloud:	pObject = new CSG_PointCloud	(&FileName);	break;
 	case PARAMETER_TYPE_Shapes:		pObject = new CSG_Shapes		(&FileName);	break;

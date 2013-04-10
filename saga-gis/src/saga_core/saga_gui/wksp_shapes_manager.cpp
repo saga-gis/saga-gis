@@ -82,13 +82,7 @@
 
 //---------------------------------------------------------
 CWKSP_Shapes_Manager::CWKSP_Shapes_Manager(void)
-{
-}
-
-//---------------------------------------------------------
-CWKSP_Shapes_Manager::~CWKSP_Shapes_Manager(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -121,9 +115,7 @@ wxString CWKSP_Shapes_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Shapes_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(_TL("Shapes"));
+	wxMenu	*pMenu	= new wxMenu(_TL("Shapes"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_OPEN);
 
@@ -143,33 +135,11 @@ wxMenu * CWKSP_Shapes_Manager::Get_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::On_Command(int Cmd_ID)
-{
-	switch( Cmd_ID )
-	{
-	default:
-		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
-
-	case ID_CMD_WKSP_ITEM_RETURN:
-		break;
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_Shapes_Type * CWKSP_Shapes_Manager::Get_Shapes_Type(int Shape_Type)
+CWKSP_Shapes_Type * CWKSP_Shapes_Manager::Get_Shapes_Type(TSG_Shape_Type Type)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( Shape_Type == ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Shapes_Type() )
+		if( Type == ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Shape_Type() )
 		{
 			return( (CWKSP_Shapes_Type *)Get_Item(i) );
 		}
@@ -179,81 +149,19 @@ CWKSP_Shapes_Type * CWKSP_Shapes_Manager::Get_Shapes_Type(int Shape_Type)
 }
 
 //---------------------------------------------------------
-CWKSP_Shapes_Type * CWKSP_Shapes_Manager::_Get_Shapes_Type(int Shape_Type)
+CWKSP_Shapes_Type * CWKSP_Shapes_Manager::_Get_Shapes_Type(TSG_Shape_Type Type)
 {
-	CWKSP_Shapes_Type	*pItem;
+	CWKSP_Shapes_Type	*pItem	= NULL;
 
-	if( Shape_Type != SHAPE_TYPE_Undefined )
+	if( Type != SHAPE_TYPE_Undefined )
 	{
-		if( (pItem = Get_Shapes_Type(Shape_Type)) == NULL )
+		if( (pItem = Get_Shapes_Type(Type)) == NULL )
 		{
-			Add_Item(pItem = new CWKSP_Shapes_Type(Shape_Type));
-		}
-
-		return( pItem );
-	}
-
-	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Shapes(CSG_Shapes *pShapes)
-{
-	if( pShapes )
-	{
-		for(int i=0; i<Get_Count(); i++)
-		{
-			if( ((CWKSP_Shapes_Type *)Get_Item(i))->Exists(pShapes) )
-			{
-				return( ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Shapes(pShapes) );
-			}
+			Add_Item(pItem = new CWKSP_Shapes_Type(Type));
 		}
 	}
 
-	return( NULL );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Exists(CSG_Shapes *pShapes)
-{
-	return( Get_Shapes(pShapes) != NULL );
-}
-
-//---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Manager::Add(CSG_Shapes *pShapes)
-{
-	if( pShapes && pShapes->is_Valid() && !Exists(pShapes) )
-	{
-		return( _Get_Shapes_Type(pShapes->Get_Type())->Add(pShapes) );
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
-CSG_Shapes * CWKSP_Shapes_Manager::Get_byFileName(const wxString &File_Name)
-{
-	for(int i=0; i<Get_Count(); i++)
-	{
-		CWKSP_Shapes_Type	*pType	= (CWKSP_Shapes_Type *)Get_Item(i);
-
-		for(int j=0; j<pType->Get_Count(); j++)
-		{
-			if( !File_Name.Cmp(pType->Get_Shapes(j)->Get_Shapes()->Get_File_Name()) )
-			{
-				return( pType->Get_Shapes(j)->Get_Shapes() );
-			}
-		}
-	}
-
-	return( NULL );
+	return( pItem );
 }
 
 
@@ -264,104 +172,29 @@ CSG_Shapes * CWKSP_Shapes_Manager::Get_byFileName(const wxString &File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Update(CSG_Shapes *pShapes, CSG_Parameters *pParameters)
+CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Data(CSG_Shapes *pObject)
 {
-	CWKSP_Shapes	*pItem;
+	CWKSP_Shapes	*pItem	= NULL;
 
-	if( (pItem = Get_Shapes(pShapes)) != NULL )
+	for(int i=0; !pItem && i<Get_Count(); i++)
 	{
-		pItem->DataObject_Changed(pParameters);
-
-		return( true );
+		pItem	= ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Data(pObject);
 	}
 
-	return( false );
+	return( pItem );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Update_Views(CSG_Shapes *pShapes)
+CWKSP_Shapes * CWKSP_Shapes_Manager::Add_Data(CSG_Shapes *pObject)
 {
-	CWKSP_Shapes	*pItem;
+	CWKSP_Shapes	*pItem	= Get_Data(pObject);
 
-	if( (pItem = Get_Shapes(pShapes)) != NULL )
+	if( pItem == NULL && pObject != NULL && pObject->is_Valid() )
 	{
-		pItem->Update_Views(false);
-
-		return( true );
+		pItem	= _Get_Shapes_Type(pObject->Get_Type())->Add_Data(pObject);
 	}
 
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Show(CSG_Shapes *pShapes, int Map_Mode)
-{
-	CWKSP_Shapes	*pItem;
-
-	if( (pItem = Get_Shapes(pShapes)) != NULL )
-	{
-		switch( Map_Mode )
-		{
-		case SG_UI_DATAOBJECT_SHOW:
-			return( pItem->Show() );
-
-		case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
-			g_pMaps->Add(pItem, NULL);
-
-		case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
-			return( pItem->Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Shapes_Manager::asImage(CSG_Shapes *pShapes, CSG_Grid *pImage)
-{
-	CWKSP_Shapes	*pItem;
-
-	if( (pItem = Get_Shapes(pShapes)) != NULL )
-	{
-		return( pItem->asImage(pImage) );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Get_Colors(CSG_Shapes *pShapes, CSG_Colors *pColors)
-{
-	CWKSP_Shapes	*pItem;
-
-	if( (pItem = Get_Shapes(pShapes)) != NULL )
-	{
-		return( pItem->Get_Colors(pColors) );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Set_Colors(CSG_Shapes *pShapes, CSG_Colors *pColors)
-{
-	CWKSP_Shapes	*pItem;
-
-	if( (pItem = Get_Shapes(pShapes)) != NULL )
-	{
-		pItem->DataObject_Changed(pColors);
-
-		return( true );
-	}
-
-	return( false );
+	return( pItem );
 }
 
 

@@ -90,6 +90,9 @@ public:
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Shapes );	}
 
+	CSG_Shapes *				Get_Shapes				(void)	{	return( (CSG_Shapes *)m_pObject );	}
+	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );		}
+
 	virtual wxString			Get_Description			(void);
 
 	virtual wxMenu *			Get_Menu				(void);
@@ -97,16 +100,13 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	CSG_Shapes *				Get_Shapes				(void)	{	return( m_pShapes );	}
-	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );		}
-
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
-	bool						asImage					(CSG_Grid *pImage);
-
 	int							Get_Color_Field			(void)	{	return( m_iColor );		}
 	int							Get_Label_Field			(void)	{	return( m_iLabel );		}
+
+	wxString					Get_Name_Attribute		(void);
 
 	bool						is_Editing				(void)	{	return( m_Edit_pShape != NULL );	}
 
@@ -125,7 +125,7 @@ protected:
 
 	CSG_Shape					*m_Edit_pShape;
 
-	CSG_Shapes					*m_pShapes, m_Edit_Shapes;
+	CSG_Shapes					m_Edit_Shapes;
 
 	class CWKSP_Table			*m_pTable;
 

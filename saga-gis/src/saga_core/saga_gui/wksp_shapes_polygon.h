@@ -86,12 +86,10 @@ class CWKSP_Shapes_Polygon : public CWKSP_Shapes
 {
 public:
 	CWKSP_Shapes_Polygon(CSG_Shapes *pShapes);
-	virtual ~CWKSP_Shapes_Polygon(void);
 
 	bool						Get_Outline				(void)	{	return( m_bOutline );	}
 	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
 	wxBrush						Get_Def_Brush			(void)	{	return( m_Brush    );	}
-	wxString					Get_Name_Attribute		(void);
 
 
 protected:

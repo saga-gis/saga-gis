@@ -86,7 +86,6 @@ class CWKSP_Table_Manager : public CWKSP_Base_Manager
 {
 public:
 	CWKSP_Table_Manager(void);
-	virtual ~CWKSP_Table_Manager(void);
 
 	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_Table_Manager );	}
 
@@ -95,21 +94,9 @@ public:
 
 	virtual wxMenu *			Get_Menu		(void);
 
-	virtual bool				On_Command		(int Cmd_ID);
-
-	class CWKSP_Table *			Get_Table		(int i)		{	return( (class CWKSP_Table *)Get_Item(i) );	}
-	class CWKSP_Table *			Get_Table		(class CSG_Table *pTable);
-
-	bool						Exists			(class CSG_Table *pTable);
-	class CWKSP_Table *			Add				(class CSG_Table *pTable);
-	class CSG_Table *			Get_byFileName	(const wxString &File_Name);
-
-	bool						Update			(class CSG_Table *pTable, class CSG_Parameters *pParameters);
-	bool						Update_Views	(class CSG_Table *pTable);
-	bool						Show			(class CSG_Table *pTable);
-
-
-private:
+	class CWKSP_Table *			Get_Data		(int i)		{	return( (class CWKSP_Table *)Get_Item(i) );	}
+	class CWKSP_Table *			Get_Data		(class CSG_Table *pTable);
+	class CWKSP_Table *			Add_Data		(class CSG_Table *pTable);
 
 };
 

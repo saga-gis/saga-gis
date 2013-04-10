@@ -64,6 +64,7 @@
 
 //---------------------------------------------------------
 #include "parameters.h"
+#include "data_manager.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -1445,6 +1446,8 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 		m_System.Assign(*((CSG_Grid_System *)Value));
 
 		//-------------------------------------------------
+		CSG_Data_Manager	*pManager	= m_pOwner->Get_Owner()->Get_Manager();
+
 		pParameters	= m_pOwner->Get_Owner();
 
 		for(i=0; i<pParameters->Get_Count(); i++)
@@ -1459,7 +1462,7 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 				case PARAMETER_TYPE_Grid:
 					pGrid	= pParameters->Get_Parameter(i)->asGrid();
 
-					if(	!m_System.is_Valid() || !SG_UI_DataObject_Check(pGrid, DATAOBJECT_TYPE_Grid) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
+					if(	!m_System.is_Valid() || !(pManager && pManager->Exists(pGrid)) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
 					{
 						pParameters->Get_Parameter(i)->Set_Value(DATAOBJECT_NOTSET);
 					}
@@ -1470,7 +1473,7 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 
 					for(j=pGrids->Get_Count()-1; j>=0; j--)
 					{
-						if( !m_System.is_Valid() || !SG_UI_DataObject_Check(pGrids->asGrid(j), DATAOBJECT_TYPE_Grid) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
+						if( !m_System.is_Valid() || !(pManager && pManager->Exists(pGrids->asGrid(j))) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
 						{
 							pGrids->Del_Item(j);
 						}
@@ -1886,7 +1889,9 @@ bool CSG_Parameter_Data_Object::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		}
 		else
 		{
-			Set_Value(SG_UI_DataObject_Find(Entry.Get_Content(), -1));
+			CSG_Data_Manager	*pManager	= m_pOwner->Get_Owner()->Get_Manager();
+
+			Set_Value(pManager ? pManager->Find(Entry.Get_Content()) : NULL);
 		}
 	}
 
@@ -2376,7 +2381,9 @@ bool CSG_Parameter_List::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		for(int i=0; i<Entry.Get_Children_Count(); i++)
 		{
-			CSG_Data_Object	*pObject	= SG_UI_DataObject_Find(Entry.Get_Child(i)->Get_Content(), -1);
+			CSG_Data_Manager	*pManager	= m_pOwner->Get_Owner()->Get_Manager();
+
+			CSG_Data_Object	*pObject	= pManager ? pManager->Find(Entry.Get_Content()) : NULL;
 
 			if( pObject )
 			{

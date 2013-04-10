@@ -1065,8 +1065,8 @@ public:
 	long							Get_Blue			(int Index) const	{	return( SG_GET_B(Get_Color(Index)) );	}
 	long							Get_Brightness		(int Index) const	{	return( (Get_Red(Index) + Get_Green(Index) + Get_Blue(Index)) / 3 );	}
 
-	bool							Set_Default			(int nColors = 100);
-	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 100);
+	bool							Set_Default			(int nColors = 11);
+	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 11);
 	bool							Set_Ramp			(long Color_A, long Color_B);
 	bool							Set_Ramp			(long Color_A, long Color_B, int iColor_A, int iColor_B);
 	bool							Set_Ramp_Brighness	(int Brightness_A, int Brightness_B);
@@ -1221,8 +1221,6 @@ typedef enum ESG_UI_Callback_ID
 	CALLBACK_MESSAGE_ADD_ERROR,
 	CALLBACK_MESSAGE_ADD_EXECUTION,
 
-	CALLBACK_DATAOBJECT_FIND_BY_FILE,
-	CALLBACK_DATAOBJECT_CHECK,
 	CALLBACK_DATAOBJECT_ADD,
 	CALLBACK_DATAOBJECT_UPDATE,
 	CALLBACK_DATAOBJECT_SHOW,
@@ -1291,8 +1289,6 @@ SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const CSG_String &Message, bool b
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const CSG_String &Message);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
-SAGA_API_DLL_EXPORT class CSG_Data_Object *	SG_UI_DataObject_Find		(const CSG_String &File_Name       , int Object_Type);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Check		(class CSG_Data_Object *pDataObject, int Object_Type);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, int Show);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, int Show, class CSG_Parameters *pParameters);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Show		(class CSG_Data_Object *pDataObject, int Show);

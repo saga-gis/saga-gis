@@ -109,7 +109,16 @@ CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_T
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
-	return( new CSG_Grid(System, Type, Memory_Type) );
+	CSG_Grid	*pGrid	= new CSG_Grid(System, Type, Memory_Type);
+
+	if( pGrid && !pGrid->is_Valid() )
+	{
+		delete(pGrid);
+
+		pGrid	= NULL;
+	}
+
+	return( pGrid );
 }
 
 //---------------------------------------------------------

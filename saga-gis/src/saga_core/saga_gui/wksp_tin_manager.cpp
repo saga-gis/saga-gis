@@ -81,13 +81,7 @@
 
 //---------------------------------------------------------
 CWKSP_TIN_Manager::CWKSP_TIN_Manager(void)
-{
-}
-
-//---------------------------------------------------------
-CWKSP_TIN_Manager::~CWKSP_TIN_Manager(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -115,9 +109,7 @@ wxString CWKSP_TIN_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_TIN_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(_TL("TIN"));
+	wxMenu	*pMenu	= new wxMenu(_TL("TIN"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_OPEN);
 
@@ -137,35 +129,13 @@ wxMenu * CWKSP_TIN_Manager::Get_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::On_Command(int Cmd_ID)
-{
-	switch( Cmd_ID )
-	{
-	default:
-		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
-
-	case ID_CMD_WKSP_ITEM_RETURN:
-		break;
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_TIN * CWKSP_TIN_Manager::Get_TIN(CSG_TIN *pTIN)
+CWKSP_TIN * CWKSP_TIN_Manager::Get_Data(CSG_TIN *pObject)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( pTIN == Get_TIN(i)->Get_TIN() )
+		if( pObject == Get_Data(i)->Get_Object() )
 		{
-			return( Get_TIN(i) );
+			return( Get_Data(i) );
 		}
 	}
 
@@ -173,144 +143,16 @@ CWKSP_TIN * CWKSP_TIN_Manager::Get_TIN(CSG_TIN *pTIN)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Exists(CSG_TIN *pTIN)
+CWKSP_TIN * CWKSP_TIN_Manager::Add_Data(CSG_TIN *pObject)
 {
-	return( Get_TIN(pTIN) != NULL );
-}
+	CWKSP_TIN	*pItem	= Get_Data(pObject);
 
-//---------------------------------------------------------
-CWKSP_TIN * CWKSP_TIN_Manager::Add(CSG_TIN *pTIN)
-{
-	CWKSP_TIN	*pItem;
-
-	if( pTIN && pTIN->is_Valid() && !Exists(pTIN) && Add_Item(pItem = new CWKSP_TIN(pTIN)) )
+	if( pItem == NULL && pObject != NULL )
 	{
-		return( pItem );
+		Add_Item(pItem = new CWKSP_TIN(pObject));
 	}
 
-	return( NULL );
-}
-
-//---------------------------------------------------------
-CSG_TIN * CWKSP_TIN_Manager::Get_byFileName(const wxString &File_Name)
-{
-	for(int i=0; i<Get_Count(); i++)
-	{
-		if( !File_Name.Cmp(Get_TIN(i)->Get_TIN()->Get_File_Name()) )
-		{
-			return( Get_TIN(i)->Get_TIN() );
-		}
-	}
-
-	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_TIN_Manager::Update(CSG_TIN *pTIN, CSG_Parameters *pParameters)
-{
-	CWKSP_TIN	*pItem;
-
-	if( (pItem = Get_TIN(pTIN)) != NULL )
-	{
-		pItem->DataObject_Changed(pParameters);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_TIN_Manager::Update_Views(CSG_TIN *pTIN)
-{
-	CWKSP_TIN	*pItem;
-
-	if( (pItem = Get_TIN(pTIN)) != NULL )
-	{
-		pItem->Update_Views(false);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_TIN_Manager::Show(CSG_TIN *pTIN, int Map_Mode)
-{
-	CWKSP_TIN	*pItem;
-
-	if( (pItem = Get_TIN(pTIN)) != NULL )
-	{
-		switch( Map_Mode )
-		{
-		case SG_UI_DATAOBJECT_SHOW:
-			return( pItem->Show() );
-
-		case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
-			g_pMaps->Add(pItem, NULL);
-
-		case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
-			return( pItem->Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_TIN_Manager::asImage(CSG_TIN *pTIN, CSG_Grid *pImage)
-{
-	CWKSP_TIN	*pItem;
-
-	if( (pItem = Get_TIN(pTIN)) != NULL )
-	{
-		return( pItem->asImage(pImage) );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_TIN_Manager::Get_Colors(CSG_TIN *pTIN, CSG_Colors *pColors)
-{
-	CWKSP_TIN	*pItem;
-
-	if( (pItem = Get_TIN(pTIN)) != NULL )
-	{
-		return( pItem->Get_Colors(pColors) );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_TIN_Manager::Set_Colors(CSG_TIN *pTIN, CSG_Colors *pColors)
-{
-	CWKSP_TIN	*pItem;
-
-	if( (pItem = Get_TIN(pTIN)) != NULL )
-	{
-		pItem->DataObject_Changed(pColors);
-
-		return( true );
-	}
-
-	return( false );
+	return( pItem );
 }
 
 

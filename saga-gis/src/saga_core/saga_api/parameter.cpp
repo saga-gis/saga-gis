@@ -64,6 +64,7 @@
 
 //---------------------------------------------------------
 #include "parameters.h"
+#include "data_manager.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -318,6 +319,12 @@ TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
 	}
 }
 
+//---------------------------------------------------------
+CSG_Data_Manager * CSG_Parameter::Get_Manager(void)	const
+{
+	return( m_pOwner ? m_pOwner->Get_Manager() : NULL );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -563,6 +570,65 @@ bool CSG_Parameter::has_Changed(int Check_Flags)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter::Check(bool bSilent)
+{
+	if( !is_Enabled() )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	if( Get_Type() == PARAMETER_TYPE_Parameters )
+	{
+		return( asParameters()->DataObjects_Check(bSilent) );
+	}
+
+	//-----------------------------------------------------
+	if( Get_Type() == PARAMETER_TYPE_Grid_System )
+	{
+		if( m_pOwner->Get_Manager() && !m_pOwner->Get_Manager()->Exists(*asGrid_System()) )
+		{
+			Set_Value((void *)NULL);
+		}
+
+		return( true );	// ( false );
+	}
+
+	//-----------------------------------------------------
+	if( is_DataObject() )
+	{
+		if( is_Input() || (is_Output() && asDataObject() != DATAOBJECT_CREATE) )
+		{
+			if( m_pOwner->Get_Manager() && !m_pOwner->Get_Manager()->Exists(asDataObject()) )
+			{
+				Set_Value(DATAOBJECT_NOTSET);
+			}
+		}
+
+		return( asDataObject() || is_Optional() );
+	}
+
+	//-----------------------------------------------------
+	else if( is_DataObject_List() )
+	{
+		for(int j=asList()->Get_Count()-1; j>=0; j--)
+		{
+			CSG_Data_Object	*pDataObject	= asList()->asDataObject(j);
+
+			if( !pDataObject || (m_pOwner->Get_Manager() && !m_pOwner->Get_Manager()->Exists(pDataObject)) )
+			{
+				asList()->Del_Item(j);
+			}
+		}
+
+		return( is_Output() || is_Optional() || asList()->Get_Count() > 0 );
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

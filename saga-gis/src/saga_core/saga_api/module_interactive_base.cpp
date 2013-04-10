@@ -102,8 +102,6 @@ bool CSG_Module_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Module
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		SG_UI_Process_Set_Okay();
-
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;
 
@@ -119,6 +117,8 @@ bool CSG_Module_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Module
 		m_pModule->_Synchronize_DataObjects();
 
 		m_pModule->m_bExecutes		= false;
+
+		SG_UI_Process_Set_Okay();
 	}
 
 	return( bResult );
@@ -136,8 +136,6 @@ bool CSG_Module_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		SG_UI_Process_Set_Okay();
-
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;
 
@@ -150,6 +148,8 @@ bool CSG_Module_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 		m_pModule->_Synchronize_DataObjects();
 
 		m_pModule->m_bExecutes		= false;
+
+		SG_UI_Process_Set_Okay();
 	}
 
 	return( bResult );
@@ -167,8 +167,6 @@ bool CSG_Module_Interactive_Base::Execute_Finish(void)
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		SG_UI_Process_Set_Okay();
-
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;
 
@@ -177,6 +175,8 @@ bool CSG_Module_Interactive_Base::Execute_Finish(void)
 		m_pModule->_Synchronize_DataObjects();
 
 		m_pModule->m_bExecutes		= false;
+
+		SG_UI_Process_Set_Okay();
 	}
 
 	return( bResult );

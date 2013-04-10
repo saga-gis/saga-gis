@@ -308,7 +308,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 		return( false );
 	}
 
-	if( pItem->Get_Type() == WKSP_ITEM_Table &&	(((CWKSP_Table *)pItem)->Get_Owner()->Get_Type() == WKSP_ITEM_Shapes ||	((CWKSP_Table *)pItem)->Get_Owner()->Get_Type() == WKSP_ITEM_TIN) )
+	if( pItem->Get_Type() == WKSP_ITEM_Table &&	((CWKSP_Table *)pItem)->Get_Object()->Get_ObjectType() != DATAOBJECT_TYPE_Table )
 	{
 		return( false );
 	}

@@ -61,8 +61,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/filename.h>
-
 #include "res_commands.h"
 #include "res_images.h"
 
@@ -84,12 +82,10 @@
 CWKSP_Shapes_Point::CWKSP_Shapes_Point(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
-	Initialise();
-}
+	On_Create_Parameters();
 
-//---------------------------------------------------------
-CWKSP_Shapes_Point::~CWKSP_Shapes_Point(void)
-{}
+	DataObject_Changed();
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -172,7 +168,6 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		)
 	);
 
-
 	//-----------------------------------------------------
 	// Label...
 
@@ -206,7 +201,6 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 			_TL("bottom")
 		), 0
 	);
-
 
 	//-----------------------------------------------------
 	// Size...
@@ -246,7 +240,6 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		PARAMETER_TYPE_Double, 5, 0, true
 	);
 
-
 	//-----------------------------------------------------
 	// Edit...
 
@@ -281,7 +274,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Symbol_Type	= m_Parameters("DISPLAY_SYMBOL_TYPE")->asInt();
 
-	if( !wxFileName::FileExists(m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString())
+	if( !SG_File_Exists   (m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString())
 	||	!m_Symbol.LoadFile(m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString()) )
 	{
 		m_Symbol	= IMG_Get_Image(ID_IMG_DEFAULT);
@@ -291,8 +284,8 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	m_Size_Type		= m_Parameters("SIZE_TYPE") ->asInt();
 	m_Size_Scale	= m_Parameters("SIZE_SCALE")->asInt();
 
-	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count()
-	||	(m_dSize	= m_pShapes->Get_Maximum(m_iSize) - (m_Size_Min = m_pShapes->Get_Minimum(m_iSize))) <= 0.0 )
+	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count()
+	||	(m_dSize	= Get_Shapes()->Get_Maximum(m_iSize) - (m_Size_Min = Get_Shapes()->Get_Minimum(m_iSize))) <= 0.0 )
 	{
 		m_iSize		= -1;
 		m_Size		= m_Parameters("SIZE_DEFAULT")->asDouble();
@@ -306,7 +299,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Label_Angle	= m_Parameters("LABEL_ANGLE")->asDouble();
 
-	if( (m_iLabel_Angle	= m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count() )
+	if( (m_iLabel_Angle	= m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
 	{
 		m_iLabel_Angle	= -1;
 	}
@@ -349,8 +342,8 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			int		zField	= pParameters->Get_Parameter("METRIC_ATTRIB")->asInt();
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-				m_pShapes->Get_Minimum(zField),
-				m_pShapes->Get_Maximum(zField)
+				Get_Shapes()->Get_Minimum(zField),
+				Get_Shapes()->Get_Maximum(zField)
 			);
 		}
 	}
@@ -365,7 +358,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB")) )
 		{
-			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
+			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
 			pParameters->Get_Parameter("LABEL_ANGLE_ATTRIB")->Set_Enabled(Value);
 			pParameters->Get_Parameter("LABEL_ANGLE"       )->Set_Enabled(Value);
@@ -375,7 +368,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE_ATTRIB")) )
 		{
-			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
+			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
 			pParameters->Get_Parameter("SIZE_SCALE"  )->Set_Enabled(Value == true);
 			pParameters->Get_Parameter("SIZE_RANGE"  )->Set_Enabled(Value == true);
@@ -384,7 +377,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ANGLE_ATTRIB")) )
 		{
-			pParameters->Get_Parameter("LABEL_ANGLE")->Set_Enabled(pParameter->asInt() >= m_pShapes->Get_Field_Count());
+			pParameters->Get_Parameter("LABEL_ANGLE")->Set_Enabled(pParameter->asInt() >= Get_Shapes()->Get_Field_Count());
 		}
 	}
 
@@ -399,24 +392,18 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Shapes_Point::Get_Name_Attribute(void)
-{
-	return(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : m_pShapes->Get_Field_Name(m_iColor) );
-}
-
-//---------------------------------------------------------
 bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName)
 {
 	if( m_iSize >= 0 )
 	{
 		min_Size	= (int)(m_Size);
-		max_Size	= (int)(m_Size + (m_pShapes->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize);
+		max_Size	= (int)(m_Size + (Get_Shapes()->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize);
 		min_Value	= m_Size_Min;
 		dValue		= m_dSize;
 
 		if( pName )
 		{
-			pName->Printf(m_pShapes->Get_Field_Name(m_iSize));
+			pName->Printf(Get_Shapes()->Get_Field_Name(m_iSize));
 		}
 
 		return( true );

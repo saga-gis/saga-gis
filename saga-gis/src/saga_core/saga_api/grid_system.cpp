@@ -158,11 +158,13 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 				Get_YMin()
 			);
 		}
-
-		return( m_Name );
+	}
+	else
+	{
+		m_Name	= _TL("<not set>");
 	}
 
-	return( _TL("<not set>") );
+	return( m_Name );
 }
 
 

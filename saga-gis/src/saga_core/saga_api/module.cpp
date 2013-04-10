@@ -80,17 +80,13 @@ CSG_Module::CSG_Module(void)
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
 
-	m_Garbage		= NULL;
-	m_nGarbage		= 0;
-
 	m_pParameters	= NULL;
 	m_npParameters	= 0;
 
 	Parameters.Create(this, SG_T(""), SG_T(""));
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 
-	Set_Managed			(false);
-	Set_Show_Progress	(true);
+	Set_Show_Progress(true);
 }
 
 //---------------------------------------------------------
@@ -122,13 +118,6 @@ void CSG_Module::Destroy(void)
 	m_bError_Ignore	= false;
 
 	History_Supplement.Destroy();
-
-	Garbage_Clear();
-
-	if( m_bManaged )
-	{
-		SG_UI_Process_Set_Okay();
-	}
 }
 
 
@@ -341,13 +330,9 @@ bool CSG_Module::Execute(void)
 	bool	bResult	= false;
 
 	//-----------------------------------------------------
-	if( !Parameters.DataObjects_Check() )
+	if( !Parameters.DataObjects_Create() )
 	{
-	//	Message_Dlg(SG_T("invalid input"));
-	}
-	else if( !Parameters.DataObjects_Create() )
-	{
-		Message_Dlg(SG_T("could not allocate memory for output"));
+		Message_Dlg(_TL("could not allocate memory for output"));
 	}
 	else
 	{
@@ -388,6 +373,8 @@ bool CSG_Module::Execute(void)
 
 	//-----------------------------------------------------
 	Destroy();
+
+	SG_UI_Process_Set_Ready();
 
 	m_bExecutes	= false;
 
@@ -471,13 +458,13 @@ bool CSG_Module::Get_Projection(CSG_Projection &Projection)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Set_Managed(bool bOn)
+void CSG_Module::Set_Manager(class CSG_Data_Manager *pManager)
 {
-	m_bManaged	= Parameters.m_bManaged	= bOn;
+	Parameters.Set_Manager(pManager);
 
 	for(int i=0; i<m_npParameters; i++)
 	{
-		m_pParameters[i]->m_bManaged	= bOn;
+		m_pParameters[i]->Set_Manager(pManager);
 	}
 }
 
@@ -569,9 +556,11 @@ CSG_Parameters * CSG_Module::Get_Parameters(const CSG_String &Identifier)
 //---------------------------------------------------------
 bool CSG_Module::Dlg_Parameters(const CSG_String &Identifier)
 {
-	if( !m_bManaged || Dlg_Parameters(Get_Parameters(Identifier), Get_Name()) )
+	CSG_Parameters	*pParameters	= Get_Parameters(Identifier);
+
+	if( pParameters && (!pParameters->is_Managed() || Dlg_Parameters(pParameters, Get_Name())) )
 	{
-		Get_Parameters(Identifier)->Set_History(History_Supplement);
+		pParameters->Set_History(History_Supplement);
 
 		return( true );
 	}
@@ -685,92 +674,14 @@ bool CSG_Module::Error_Set(const CSG_String &Error_Text)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				DataObjects / Garbage					 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Module::_Garbage_Add_Item(CSG_Data_Object *pDataObject)
-{
-	if( pDataObject && !SG_UI_DataObject_Check(pDataObject, DATAOBJECT_TYPE_Undefined) )
-	{
-		for(int i=0; i<m_nGarbage; i++)
-		{
-			if( pDataObject == m_Garbage[i] )
-			{
-				return( true );
-			}
-		}
-
-		m_Garbage	= (CSG_Data_Object **)SG_Realloc(m_Garbage, (m_nGarbage + 1) * sizeof(CSG_Data_Object *));
-		m_Garbage[m_nGarbage++]	= pDataObject;
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-CSG_Data_Object * CSG_Module::Garbage_Del_Item(int i, bool bFromListOnly)
-{
-	CSG_Data_Object	*pDataObject	= NULL;
-
-	if( i >= 0 && i < m_nGarbage )
-	{
-		if( bFromListOnly || !m_Garbage[i] )
-		{
-			pDataObject	= m_Garbage[i];
-		}
-		else if( m_Garbage[i] )
-		{
-			delete(m_Garbage[i]);
-		}
-
-		for(m_nGarbage--; i<m_nGarbage; i++)
-		{
-			m_Garbage[i]	= m_Garbage[i + 1];
-		}
-
-		m_Garbage	= (CSG_Data_Object **)SG_Realloc(m_Garbage, m_nGarbage * sizeof(CSG_Data_Object *));
-	}
-
-	return( pDataObject );
-}
-
-//---------------------------------------------------------
-void CSG_Module::Garbage_Clear(void)
-{
-	if( m_nGarbage > 0 )
-	{
-		for(int i=0; i<m_nGarbage; i++)
-		{
-			if( m_Garbage[i] )
-			{
-				delete(m_Garbage[i]);
-			}
-		}
-
-		SG_Free(m_Garbage);
-	}
-
-	m_nGarbage	= 0;
-	m_Garbage	= NULL;
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//				DataObjects / GUI Interaction			 //
+//			DataObjects / GUI Interaction				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 {
-	return( m_bManaged && SG_UI_DataObject_Add(pDataObject, bUpdate)
-		? true : _Garbage_Add_Item(pDataObject)
-	);
+	return( SG_UI_DataObject_Add(pDataObject, bUpdate) );
 }
 
 //---------------------------------------------------------

@@ -335,12 +335,12 @@ bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 
 	if( m_Recent && m_Recent_First <= Cmd_ID && Cmd_ID < m_Recent_First + m_Recent_Count )
 	{
-		wxString	FileName(m_Recent[Cmd_ID - m_Recent_First]);
+		wxString	File(m_Recent[Cmd_ID - m_Recent_First]);
 
 		switch( m_DataType )
 		{
 		case DATAOBJECT_TYPE_Undefined:
-			bSuccess	= g_pData->Get_Project()->Load(FileName, false, true);
+			bSuccess	= g_pData->Get_Project()->Load(File, false, true);
 			break;
 
 		case DATAOBJECT_TYPE_Table:
@@ -348,7 +348,7 @@ bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 		case DATAOBJECT_TYPE_TIN:
 		case DATAOBJECT_TYPE_PointCloud:
 		case DATAOBJECT_TYPE_Grid:
-			bSuccess	= g_pData->Open(m_DataType, FileName) != NULL;
+			bSuccess	= g_pData->Open(File, m_DataType) != NULL;
 			break;
 		}
 	}

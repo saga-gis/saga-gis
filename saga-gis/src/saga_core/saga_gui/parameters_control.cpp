@@ -335,6 +335,8 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 		}
 		else if( m_pOriginal != pParameters )
 		{
+			pParameters->DataObjects_Check(true);
+
 			m_pParameters->Set_Callback(false);
 			m_pParameters->Assign(m_pOriginal = pParameters);
 
@@ -851,7 +853,7 @@ bool CParameters_Control::Update_DataObjects(void)
 				case PARAMETER_TYPE_Shapes_List:
 				case PARAMETER_TYPE_TIN_List:
 				case PARAMETER_TYPE_PointCloud_List:
-					if( g_pData->Check_Parameter(pParameter) == false )
+					if( pParameter->Check() == false )
 					{
 					}
 					break;

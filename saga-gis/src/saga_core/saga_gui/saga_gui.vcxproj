@@ -895,6 +895,7 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="wksp_data_item.cpp" />
     <ClCompile Include="wksp_data_layers.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1279,6 +1280,7 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
     <ClInclude Include="WKSP_Base_Item.h" />
     <ClInclude Include="WKSP_Base_Manager.h" />
     <ClInclude Include="WKSP_Data_Control.h" />
+    <ClInclude Include="wksp_data_item.h" />
     <ClInclude Include="wksp_data_layers.h" />
     <ClInclude Include="WKSP_Data_Manager.h" />
     <ClInclude Include="WKSP_Data_Menu_File.h" />
@@ -1416,6 +1418,9 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
     <None Include="RES\XPM\WKSP_MODULE_LIBRARY.xpm" />
     <None Include="RES\XPM\WKSP_MODULE_MANAGER.xpm" />
     <None Include="RES\XPM\WKSP_NOITEMS.xpm" />
+    <None Include="res\xpm\wksp_odbc_sources.xpm" />
+    <None Include="res\xpm\wksp_odbc_source_off.xpm" />
+    <None Include="res\xpm\wksp_odbc_source_on.xpm" />
     <None Include="RES\XPM\WKSP_SHAPES_LINE.xpm" />
     <None Include="RES\XPM\WKSP_SHAPES_MANAGER.xpm" />
     <None Include="RES\XPM\WKSP_SHAPES_POINT.xpm" />

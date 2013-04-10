@@ -86,7 +86,6 @@ class CWKSP_TIN_Manager : public CWKSP_Base_Manager
 {
 public:
 	CWKSP_TIN_Manager(void);
-	virtual ~CWKSP_TIN_Manager(void);
 
 	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_TIN_Manager );	}
 
@@ -95,25 +94,9 @@ public:
 
 	virtual wxMenu *			Get_Menu		(void);
 
-	virtual bool				On_Command		(int Cmd_ID);
-
-	class CWKSP_TIN *			Get_TIN			(int i)		{	return( (class CWKSP_TIN *)Get_Item(i) );	}
-	class CWKSP_TIN *			Get_TIN			(class CSG_TIN *pTIN);
-
-	bool						Exists			(class CSG_TIN *pTIN);
-	class CWKSP_TIN *			Add				(class CSG_TIN *pTIN);
-	class CSG_TIN *				Get_byFileName	(const wxString &File_Name);
-
-	bool						Update			(class CSG_TIN *pTIN, class CSG_Parameters *pParameters);
-	bool						Update_Views	(class CSG_TIN *pTIN);
-	bool						Show			(class CSG_TIN *pTIN, int Map_Mode);
-	bool						asImage			(class CSG_TIN *pTIN, class CSG_Grid *pImage);
-
-	bool						Get_Colors		(class CSG_TIN *pTIN, class CSG_Colors *pColors);
-	bool						Set_Colors		(class CSG_TIN *pTIN, class CSG_Colors *pColors);
-
-
-private:
+	class CWKSP_TIN *			Get_Data		(int i)		{	return( (class CWKSP_TIN *)Get_Item(i) );	}
+	class CWKSP_TIN *			Get_Data		(class CSG_TIN *pTIN);
+	class CWKSP_TIN *			Add_Data		(class CSG_TIN *pTIN);
 
 };
 

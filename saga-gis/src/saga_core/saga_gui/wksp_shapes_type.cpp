@@ -81,14 +81,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Shapes_Type::CWKSP_Shapes_Type(int Shapes_Type)
+CWKSP_Shapes_Type::CWKSP_Shapes_Type(TSG_Shape_Type Type)
 {
-	m_Shapes_Type	= Shapes_Type;
-}
-
-//---------------------------------------------------------
-CWKSP_Shapes_Type::~CWKSP_Shapes_Type(void)
-{
+	m_Shape_Type	= Type;
 }
 
 
@@ -101,7 +96,7 @@ CWKSP_Shapes_Type::~CWKSP_Shapes_Type(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes_Type::Get_Name(void)
 {
-	return( SG_Get_ShapeType_Name((TSG_Shape_Type)m_Shapes_Type).w_str() );
+	return( SG_Get_ShapeType_Name(m_Shape_Type).c_str() );
 }
 
 //---------------------------------------------------------
@@ -117,9 +112,7 @@ wxString CWKSP_Shapes_Type::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Shapes_Type::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(Get_Name());
+	wxMenu	*pMenu	= new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 
@@ -134,38 +127,13 @@ wxMenu * CWKSP_Shapes_Type::Get_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Type::On_Command(int Cmd_ID)
+CWKSP_Shapes * CWKSP_Shapes_Type::Get_Data(CSG_Shapes *pObject)
 {
-	switch( Cmd_ID )
+	for(int i=0; i<Get_Count(); i++)
 	{
-	default:
-		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
-
-	case ID_CMD_WKSP_ITEM_RETURN:
-		break;
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Type::Get_Shapes(CSG_Shapes *pShapes)
-{
-	if( pShapes )
-	{
-		for(int i=0; i<Get_Count(); i++)
+		if( pObject == Get_Data(i)->Get_Object() )
 		{
-			if( pShapes == Get_Shapes(i)->Get_Shapes() )
-			{
-				return( Get_Shapes(i) );
-			}
+			return( Get_Data(i) );
 		}
 	}
 
@@ -173,47 +141,23 @@ CWKSP_Shapes * CWKSP_Shapes_Type::Get_Shapes(CSG_Shapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Type::Exists(CSG_Shapes *pShapes)
+CWKSP_Shapes * CWKSP_Shapes_Type::Add_Data(CSG_Shapes *pObject)
 {
-	return( Get_Shapes(pShapes) != NULL );
-}
+	CWKSP_Shapes	*pItem	= Get_Data(pObject);
 
-//---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Type::Add(CSG_Shapes *pShapes)
-{
-	CWKSP_Shapes	*pItem;
-
-	if( pShapes && pShapes->Get_Type() == m_Shapes_Type && !Exists(pShapes) )
+	if( pItem == NULL && pObject != NULL && pObject->Get_Type() == m_Shape_Type )
 	{
-		switch( pShapes->Get_Type() )
+		switch( pObject->Get_Type() )
 		{
-		default:
-			return( false );
-
-		case SHAPE_TYPE_Point:
-			pItem	= new CWKSP_Shapes_Point	(pShapes);
-			break;
-
-		case SHAPE_TYPE_Points:
-			pItem	= new CWKSP_Shapes_Points	(pShapes);
-			break;
-
-		case SHAPE_TYPE_Line:
-			pItem	= new CWKSP_Shapes_Line		(pShapes);
-			break;
-
-		case SHAPE_TYPE_Polygon:
-			pItem	= new CWKSP_Shapes_Polygon	(pShapes);
-			break;
-		}
-
-		if( Add_Item(pItem) )
-		{
-			return( pItem );
+		default:																			break;
+		case SHAPE_TYPE_Point:		Add_Item(pItem = new CWKSP_Shapes_Point  (pObject));	break;
+		case SHAPE_TYPE_Points:		Add_Item(pItem = new CWKSP_Shapes_Points (pObject));	break;
+		case SHAPE_TYPE_Line:		Add_Item(pItem = new CWKSP_Shapes_Line   (pObject));	break;
+		case SHAPE_TYPE_Polygon:	Add_Item(pItem = new CWKSP_Shapes_Polygon(pObject));	break;
 		}
 	}
 
-	return( NULL );
+	return( pItem );
 }
 
 

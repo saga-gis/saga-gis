@@ -74,7 +74,6 @@
 //---------------------------------------------------------
 #include "wksp_layer.h"
 
-class CSVG_Interactive_Map;
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -85,13 +84,12 @@ class CSVG_Interactive_Map;
 //---------------------------------------------------------
 class CWKSP_Grid : public CWKSP_Layer
 {
-	friend class CSVG_Interactive_Map;
-
 public:
 	CWKSP_Grid(CSG_Grid *pGrid);
-	virtual ~CWKSP_Grid(void);
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Grid );	}
+
+	CSG_Grid *					Get_Grid				(void)	{	return( (CSG_Grid *)m_pObject );	}
 
 	virtual wxString			Get_Description			(void);
 
@@ -103,11 +101,10 @@ public:
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
-	CSG_Grid *					Get_Grid				(void)	{	return( m_pGrid );	}
-
+	bool						Fit_Color_Range			(void);
 	bool						Fit_Color_Range			(CSG_Rect rWorld);
 
-	bool						asImage					(CSG_Grid *pImage);
+	virtual bool				asImage					(CSG_Grid *pImage);
 
 	virtual bool				Update					(CWKSP_Layer *pChanged)	{	return( pChanged == this || pChanged == m_pOverlay[0] || pChanged == m_pOverlay[1] );	}
 
@@ -136,8 +133,6 @@ private:
 
 	int							m_Sel_xOff, m_Sel_xN, m_Sel_yOff, m_Sel_yN;
 
-	CSG_Grid					*m_pGrid;
-	
 	CWKSP_Grid					*m_pOverlay[2];
 
 

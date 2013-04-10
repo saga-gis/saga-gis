@@ -124,8 +124,8 @@ void CDLG_List_Shapes::_Set_Objects(void)
 	//-----------------------------------------------------
 	for(i=0; i<m_pList->Get_Count(); i++)
 	{
-		if(	(pItem = g_pData->Get_Shapes     ()->Get_Shapes    (m_pList->asDataObject(i)->asShapes    ())) != NULL
-		||	(pItem = g_pData->Get_PointClouds()->Get_PointCloud(m_pList->asDataObject(i)->asPointCloud())) != NULL )
+		if(	(pItem = g_pData->Get(m_pList->asDataObject(i)->asShapes    ())) != NULL
+		||	(pItem = g_pData->Get(m_pList->asDataObject(i)->asPointCloud())) != NULL )
 		{
 			m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
 		}

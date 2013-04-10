@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: wksp_data_item.h 1246 2011-11-25 13:42:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  WKSP_Shapes_Line.h                   //
+//                   wksp_data_item.h                    //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//          Copyright (C) 2013 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,9 +42,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Line_H
-#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Line_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_data_item_H
+#define _HEADER_INCLUDED__SAGA_GUI__wksp_data_item_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +70,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "wksp_shapes.h"
+#include <saga_api/saga_api.h>
+
+#include "wksp_base_item.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,40 +82,43 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKSP_Shapes_Line : public CWKSP_Shapes
+class CWKSP_Data_Item : public CWKSP_Base_Item
 {
 public:
-	CWKSP_Shapes_Line(CSG_Shapes *pShapes);
+	CWKSP_Data_Item(CSG_Data_Object *pObject);
+	virtual ~CWKSP_Data_Item(void);
 
-	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
-	bool						Get_Style_Size			(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName);
+	virtual bool					On_Command				(int Cmd_ID);
+	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
+
+	virtual wxString				Get_Name				(void);
+
+	CSG_Data_Object *				Get_Object				(void)	{	return( m_pObject );	}
+
+	virtual CSG_Parameters *		Get_Parameters			(void)	{	return( &m_Parameters );	}
+
+	virtual void					Parameters_Changed		(void);
+	bool							DataObject_Changed		(void);
+	bool							DataObject_Changed		(CSG_Parameters *pParameters);
+
+	bool							Save					(void);
+	bool							Save					(const wxString &File_Name);
+
+	virtual bool					Show					(int Flags = 0)	= 0;
+	virtual bool					Update					(CWKSP_Data_Item *pChanged)		{	return( pChanged == this );	}
+
+	virtual bool					Update_Views			(bool bAll = true)				{	return( true );	}
+	virtual bool					View_Closes				(class wxMDIChildFrame *pView)	{	return( true );	}
 
 
 protected:
 
-	bool						m_bPoints;
-
-	int							m_iSize, m_Size_Type, m_Line_Style, m_Label_Freq;
-
-	double						m_Size, m_dSize, m_Size_Min;
-
-	wxPen						m_Pen;
+	CSG_Data_Object					*m_pObject;
 
 
-	virtual void				On_Create_Parameters	(void);
-	virtual void				On_DataObject_Changed	(void);
-	virtual void				On_Parameters_Changed	(void);
-
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
-
-	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map);
-	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection);
-	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
-
-	virtual void				_Edit_Shape_Draw_Move	(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point);
-	virtual void				_Edit_Shape_Draw		(CWKSP_Map_DC &dc_Map);
-	virtual int					_Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
-	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
+	virtual void					On_Create_Parameters	(void);
+	virtual void					On_Parameters_Changed	(void);
+	virtual void					On_DataObject_Changed	(void);
 
 };
 
@@ -127,4 +130,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Line_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_data_item_H

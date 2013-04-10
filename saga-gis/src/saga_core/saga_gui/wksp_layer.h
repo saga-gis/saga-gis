@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "wksp_base_item.h"
+#include "wksp_data_item.h"
 
 #include "wksp_map_dc.h"
 
@@ -84,38 +84,22 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKSP_Layer : public CWKSP_Base_Item
+class CWKSP_Layer : public CWKSP_Data_Item
 {
 public:
 	CWKSP_Layer(CSG_Data_Object *pObject);
 	virtual ~CWKSP_Layer(void);
 
-	bool							Initialise				(void);
-
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
-
-	virtual wxString				Get_Name				(void);
-
-	virtual CSG_Parameters *		Get_Parameters			(void)	{	return( &m_Parameters );	}
-
-	virtual void					Parameters_Changed		(void);
-
-	void							DataObject_Changed		(void);
-	void							DataObject_Changed		(CSG_Parameters *pParameters);
-	void							DataObject_Changed		(CSG_Colors *pColors);
 
 	CSG_Data_Object *				Get_Object				(void)	{	return( m_pObject );	}
 	CSG_Rect						Get_Extent				(void);
 
 	CSG_Colors *					Get_Colors				(void);
 	bool							Get_Colors				(CSG_Colors *pColors);
+	bool							Set_Colors				(CSG_Colors *pColors);
 	bool							Set_Color_Range			(double zMin, double zMax);
-
-	bool							Save					(void);
-	bool							Save					(const wxString &File_Name);
-
-	virtual bool					Show					(class CWKSP_Map *pMap = NULL);
 
 	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
 	virtual double					Get_Value_Range			(void)								= 0;
@@ -128,10 +112,13 @@ public:
 	bool							do_Legend				(void);
 	bool							do_Show					(CSG_Rect const &rMap);
 
-	virtual bool					Update					(CWKSP_Layer *pChanged)	{	return( pChanged == this );	}
+	virtual bool					Show					(class CWKSP_Map *pMap);
+	virtual bool					Show					(int Flags = 0);
+	virtual bool					Update					(CWKSP_Layer *pChanged);
+	virtual bool					Update_Views			(bool bAll = true);
+	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
+	virtual bool					asImage					(CSG_Grid *pImage)		{	return( false );	}
 
-	void							Update_Views			(bool bMapsOnly);
-	void							View_Closes				(class wxMDIChildFrame *pView);
 
 	const wxBitmap &				Get_Thumbnail			(int dx, int dy);
 
@@ -151,8 +138,6 @@ public:
 
 protected:
 
-	CSG_Data_Object					*m_pObject;
-
 	CSG_Parameter_Range				*m_pZRange;
 
 	CSG_Point						m_Edit_Mouse_Down;
@@ -169,8 +154,8 @@ protected:
 
 
 	virtual void					On_Create_Parameters	(void);
-	virtual void					On_DataObject_Changed	(void)	= 0;
-	virtual void					On_Parameters_Changed	(void)	= 0;
+	virtual void					On_Parameters_Changed	(void);
+
 	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	virtual void					On_Update_Views			(void)			{}
@@ -188,7 +173,7 @@ protected:
 
 private:
 
-	bool							_Set_Thumbnail			(void);
+	bool							_Set_Thumbnail			(bool bRefresh);
 
 };
 

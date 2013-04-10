@@ -249,7 +249,7 @@ const SG_Char * CSG_String::c_str(void) const
 //---------------------------------------------------------
 const char * CSG_String::b_str(void) const
 {
-	return( m_pString->c_str() );
+	return( *m_pString );
 }
 
 //---------------------------------------------------------

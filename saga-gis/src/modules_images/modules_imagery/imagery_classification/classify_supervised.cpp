@@ -276,10 +276,8 @@ inline double CGrid_Classify_Supervised::Get_Value(int x, int y, int iGrid)
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::On_Execute(void)
 {
-	bool		bNoData;
 	int			Method, Class, i;
 	double		Quality;
-	TSG_Point	p;
 
 	//-------------------------------------------------
 	m_pGrids		= Parameters("GRIDS"    )->asGridList();

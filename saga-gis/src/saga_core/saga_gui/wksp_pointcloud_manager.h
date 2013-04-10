@@ -84,7 +84,6 @@ class CWKSP_PointCloud_Manager : public CWKSP_Base_Manager
 {
 public:
 	CWKSP_PointCloud_Manager(void);
-	virtual ~CWKSP_PointCloud_Manager(void);
 
 	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_PointCloud_Manager );	}
 
@@ -93,25 +92,9 @@ public:
 
 	virtual wxMenu *			Get_Menu		(void);
 
-	virtual bool				On_Command		(int Cmd_ID);
-
-	class CWKSP_PointCloud *	Get_PointCloud	(int i)		{	return( (class CWKSP_PointCloud *)Get_Item(i) );	}
-	class CWKSP_PointCloud *	Get_PointCloud	(class CSG_PointCloud *pPointCloud);
-
-	bool						Exists			(class CSG_PointCloud *pPointCloud);
-	class CWKSP_PointCloud *	Add				(class CSG_PointCloud *pPointCloud);
-	class CSG_PointCloud *		Get_byFileName	(const wxString &File_Name);
-
-	bool						Update			(class CSG_PointCloud *pPointCloud, class CSG_Parameters *pParameters);
-	bool						Update_Views	(class CSG_PointCloud *pPointCloud);
-	bool						Show			(class CSG_PointCloud *pPointCloud, int Map_Mode);
-	bool						asImage			(class CSG_PointCloud *pPointCloud, class CSG_Grid *pImage);
-
-	bool						Get_Colors		(class CSG_PointCloud *pPointCloud, class CSG_Colors *pColors);
-	bool						Set_Colors		(class CSG_PointCloud *pPointCloud, class CSG_Colors *pColors);
-
-
-private:
+	class CWKSP_PointCloud *	Get_Data		(int i)		{	return( (class CWKSP_PointCloud *)Get_Item(i) );	}
+	class CWKSP_PointCloud *	Get_Data		(class CSG_PointCloud *pPointCloud);
+	class CWKSP_PointCloud *	Add_Data		(class CSG_PointCloud *pPointCloud);
 
 };
 

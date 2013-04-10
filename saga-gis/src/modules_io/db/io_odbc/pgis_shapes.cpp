@@ -218,7 +218,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 	{
 		CSG_Bytes_Array	BLOBs;
 
-		Select.Printf(SG_T("AsBinary(%s) AS geom"), Geo_Field.c_str());
+		Select.Printf(SG_T("ST_AsBinary(%s) AS geom"), Geo_Field.c_str());
 
 		if( !Get_Connection()->Table_Load_BLOBs(BLOBs, Geo_Table, Select, SG_T(""), SG_T("")) )
 		{
@@ -241,7 +241,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 	{
 		CSG_Table	Shapes;
 
-		Select.Printf(SG_T("AsText(%s) AS geom"), Geo_Field.c_str());
+		Select.Printf(SG_T("ST_AsText(%s) AS geom"), Geo_Field.c_str());
 
 		if( !Get_Connection()->Table_Load(Shapes, Geo_Table, Select, SG_T(""), SG_T("")) )
 		{
@@ -272,18 +272,27 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 //---------------------------------------------------------
 CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("PostGIS Shapes Export"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
 	Set_Description	(_TW(
-		"Imports shapes from a PostGIS database via ODBC."
+		"Exports shapes to a PostGIS database via ODBC."
 	));
 
-	Parameters.Add_Shapes(
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Fields(
+		pNode	, "PKEY"		, _TL("Primary Key"),
+		_TL("")
 	);
 
 	Parameters.Add_String(
@@ -293,7 +302,7 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Value(
+	pNode	= Parameters.Add_Value(
 		NULL	, "CRS_EPSG"	, _TL("EPSG Code"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 4326, 2000, true, 32766, true
@@ -533,7 +542,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 			CSG_Shapes_OGIS_Converter::to_WKText(pShape, sWKT);
 
-			SQL	+= SG_T("GeomFromText('") + sWKT + SG_T("', ") + sSRID + SG_T(")");
+			SQL	+= SG_T("ST_GeomFromText('") + sWKT + SG_T("', ") + sSRID + SG_T(")");
 
 			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{

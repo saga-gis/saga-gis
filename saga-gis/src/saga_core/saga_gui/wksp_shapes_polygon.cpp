@@ -79,12 +79,10 @@
 CWKSP_Shapes_Polygon::CWKSP_Shapes_Polygon(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
-	Initialise();
-}
+	On_Create_Parameters();
 
-//---------------------------------------------------------
-CWKSP_Shapes_Polygon::~CWKSP_Shapes_Polygon(void)
-{}
+	DataObject_Changed();
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -97,7 +95,6 @@ CWKSP_Shapes_Polygon::~CWKSP_Shapes_Polygon(void)
 void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 {
 	CWKSP_Shapes::On_Create_Parameters();
-
 
 	//-----------------------------------------------------
 	// Display...
@@ -182,19 +179,6 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 int CWKSP_Shapes_Polygon::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	return( CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter, Flags) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxString CWKSP_Shapes_Polygon::Get_Name_Attribute(void)
-{
-	return(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : m_pShapes->Get_Field_Name(m_iColor) );
 }
 
 

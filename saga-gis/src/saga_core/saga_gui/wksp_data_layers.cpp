@@ -159,24 +159,21 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 	wxPaintDC	dc(this);
 	wxRect		r(wxPoint(0, 0), GetClientSize());
 
-	if( m_pLayer && m_pLayer->Get_Object() && m_pLayer->GetId().IsOk() )
+	if( m_pLayer && m_pLayer->Get_Object() && m_pLayer->GetId().IsOk() && SG_Get_Data_Manager().Exists(m_pObject) )
 	{
-		if( g_pData->Exists(m_pObject) )
+		if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pLayer->Get_Name()) )
 		{
-			if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pLayer->Get_Name()) )
-			{
-				SetToolTip(m_pLayer->Get_Name());
-			}
+			SetToolTip(m_pLayer->Get_Name());
+		}
 
-			dc.DrawBitmap(m_pLayer->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1), r.GetLeft(), r.GetTop(), true);
+		dc.DrawBitmap(m_pLayer->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1), r.GetLeft(), r.GetTop(), true);
 
-			if( m_pLayer->is_Selected() )
-			{
-				dc.SetPen(wxPen(((CWKSP_Data_Buttons *)GetParent())->Get_Active_Color()));
-				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
-				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
-				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
-			}
+		if( m_pLayer->is_Selected() )
+		{
+			dc.SetPen(wxPen(((CWKSP_Data_Buttons *)GetParent())->Get_Active_Color()));
+			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
+			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
+			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 		}
 	}
 	else
@@ -192,7 +189,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 bool CWKSP_Data_Button::_Select(bool bKeepOthers)
 {
-	if( m_pLayer && g_pData->Exists(m_pObject) )
+	if( m_pLayer && SG_Get_Data_Manager().Exists(m_pObject) )
 	{
 		g_pData_Ctrl->Set_Item_Selected(m_pLayer, bKeepOthers);
 

@@ -1236,6 +1236,8 @@ public:
 	CSG_String					Get_Type_Name			(void)	const	{	return( m_pData->Get_Type_Name() );			}
 	CSG_Parameter_Data *		Get_Data				(void)	const	{	return( m_pData );							}
 
+	class CSG_Data_Manager *	Get_Manager				(void)	const;
+
 	const SG_Char *				Get_Identifier			(void)	const;
 	const SG_Char *				Get_Name				(void)	const;
 	const SG_Char *				Get_Description			(void)	const;
@@ -1275,6 +1277,8 @@ public:
 	void						Set_Default				(const CSG_String &Value)	{	m_pData->Set_Default(Value);	}
 
 	bool						Restore_Default			(void)	{	return( m_pData->Restore_Default() );	}
+
+	bool						Check					(bool bSilent = true);
 
 	bool						has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
 
@@ -1367,6 +1371,10 @@ public:
 
 	//-----------------------------------------------------
 	void *						Get_Owner				(void)	const	{	return( m_pOwner );			}
+
+	class CSG_Data_Manager *	Get_Manager				(void)	const	{	return( m_pManager );		}
+	void						Set_Manager				(class CSG_Data_Manager *pManager);
+
 	int							Get_Count				(void)	const	{	return( m_nParameters );	}
 
 	void						Set_Identifier			(const CSG_String &String);
@@ -1471,14 +1479,16 @@ public:
 
 	CSG_Grid_System *			Get_Grid_System			(void)	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
 
-	bool						is_Managed				(void)	{	return( m_bManaged );	}
+	bool						is_Managed				(void)	{	return( m_pManager != NULL );	}
 
 
 private:
 
 	void						*m_pOwner;
 
-	bool						m_bCallback, m_bManaged;
+	class CSG_Data_Manager		*m_pManager;
+
+	bool						m_bCallback;
 
 	CSG_String					m_Identifier, m_Name, m_Description;
 

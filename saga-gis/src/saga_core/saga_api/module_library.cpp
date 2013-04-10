@@ -189,14 +189,6 @@ bool CSG_Module_Library::Create(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	if( Get_Count() > 0 )
 	{
-		for(int i=0; i<Get_Count(); i++)
-		{
-			if( Get_Module(i) )
-			{
-				Get_Module(i)->Set_Managed(false);
-			}
-		}
-
 		return( true );
 	}
 
@@ -511,14 +503,6 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 		m_pLibraries[m_nLibraries++]	= pLibrary;
 
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-
-		for(int j=0; j<pLibrary->Get_Count(); j++)
-		{
-			if( pLibrary->Get_Module(j) )
-			{
-				pLibrary->Get_Module(j)->Set_Managed();
-			}
-		}
 
 		return( pLibrary );
 	}

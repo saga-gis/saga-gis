@@ -373,6 +373,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="data_manager.cpp" />
     <ClCompile Include="geo_classes.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -826,6 +827,7 @@
     <ClInclude Include="API_Core.h" />
     <ClInclude Include="clipper.hpp" />
     <ClInclude Include="DataObject.h" />
+    <ClInclude Include="data_manager.h" />
     <ClInclude Include="GEO_Tools.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="grid_pyramid.h" />

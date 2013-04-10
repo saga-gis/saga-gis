@@ -75,6 +75,7 @@
 %{
 #include "api_core.h"
 #include "dataobject.h"
+#include "data_manager.h"
 #include "geo_tools.h"
 #include "grid.h"
 #include "grid_pyramid.h"
@@ -115,6 +116,7 @@
 
 //---------------------------------------------------------
 #include "module_library.h"
+#include "data_manager.h"
 
 
 ///////////////////////////////////////////////////////////

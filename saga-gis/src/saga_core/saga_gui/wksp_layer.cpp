@@ -141,10 +141,11 @@ CWKSP_Layer *	Get_Active_Layer(void)
 
 //---------------------------------------------------------
 CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
+	: CWKSP_Data_Item(pObject)
 {
-	m_pObject		= pObject;
 	m_pClassify		= new CWKSP_Layer_Classify;
 	m_pLegend		= new CWKSP_Layer_Legend(this);
+
 	m_pHistogram	= NULL;
 }
 
@@ -153,44 +154,10 @@ CWKSP_Layer::~CWKSP_Layer(void)
 {
 	Histogram_Show(false);
 
-	if( g_pMaps )
-	{
-		g_pMaps->Del(this);
-	}
+	if( g_pMaps     )	{	g_pMaps->Del(this);	}
 
-	if( m_pClassify )
-	{
-		delete(m_pClassify);
-	}
-
-	if( m_pLegend )
-	{
-		delete(m_pLegend);
-	}
-
-	//-----------------------------------------------------
-	if( g_pData->Exists(m_pObject) )
-	{
-		if( m_pObject->is_Valid() == true )
-		{
-			MSG_General_Add(
-  				wxString::Format(wxT("%s %s: %s..."),
-					_TL("Close"),
-					SG_Get_DataObject_Name(m_pObject->Get_ObjectType()).c_str(),
-					m_pObject->Get_Name()
-     			),
-				true, true
-			);
-
-			delete(m_pObject);
-
-			MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
-		}
-		else
-		{
-			delete(m_pObject);
-		}
-	}
+	if( m_pClassify )	{	delete(m_pClassify);	}
+	if( m_pLegend   )	{	delete(m_pLegend  );	}
 }
 
 
@@ -206,21 +173,7 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 	switch( Cmd_ID )
 	{
 	default:
-		return( CWKSP_Base_Item::On_Command(Cmd_ID) );
-
-	case ID_CMD_SHAPES_SAVE:
-	case ID_CMD_GRIDS_SAVE:
-	case ID_CMD_TIN_SAVE:
-	case ID_CMD_POINTCLOUD_SAVE:
-		Save(m_pObject->Get_File_Name());
-		break;
-
-	case ID_CMD_SHAPES_SAVEAS:
-	case ID_CMD_GRIDS_SAVEAS:
-	case ID_CMD_TIN_SAVEAS:
-	case ID_CMD_POINTCLOUD_SAVEAS:
-		Save();
-		break;
+		return( CWKSP_Data_Item::On_Command(Cmd_ID) );
 
 	case ID_CMD_WKSP_ITEM_RETURN:
 	case ID_CMD_SHAPES_SHOW:
@@ -240,7 +193,7 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	switch( event.GetId() )
 	{
 	default:
-		return( CWKSP_Base_Item::On_Command_UI(event) );
+		return( CWKSP_Data_Item::On_Command_UI(event) );
 
 	case ID_CMD_TIN_SAVE:
 	case ID_CMD_GRIDS_SAVE:
@@ -261,91 +214,32 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Layer::Get_Name(void)
-{
-	if( g_pData->Get_Numbering() < 0 )
-	{
-		return( m_pObject ? m_pObject->Get_Name() : SG_T("-") );
-	}
-
-	return( wxString::Format(wxT("%0*d. %s"), g_pData->Get_Numbering(), 1 + Get_ID(), m_pObject ? m_pObject->Get_Name() : SG_T("-")) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CWKSP_Layer::On_Create_Parameters(void)
 {
-	CWKSP_Base_Item::On_Create_Parameters();
-
+	CWKSP_Data_Item::On_Create_Parameters();
 
 	//-----------------------------------------------------
 	// Nodes...
 
-	m_Parameters.Add_Node(
-		NULL							, "NODE_GENERAL"		, _TL("General"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_DISPLAY"		, _TL("Display"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_COLORS"			, _TL("Colors"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_SIZE"			, _TL("Size"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_LABEL"			, _TL("Labels"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_SELECTION"		, _TL("Selection"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_EDIT"			, _TL("Edit"),
-		_TL("")
-	);
+	m_Parameters.Add_Node(NULL, "NODE_DISPLAY"  , _TL("Display"  ), _TL(""));
+	m_Parameters.Add_Node(NULL, "NODE_COLORS"   , _TL("Colors"   ), _TL(""));
+	m_Parameters.Add_Node(NULL, "NODE_SIZE"     , _TL("Size"     ), _TL(""));
+	m_Parameters.Add_Node(NULL, "NODE_LABEL"    , _TL("Labels"   ), _TL(""));
+	m_Parameters.Add_Node(NULL, "NODE_SELECTION", _TL("Selection"), _TL(""));
+	m_Parameters.Add_Node(NULL, "NODE_EDIT"     , _TL("Edit"     ), _TL(""));
 
 
 	//-----------------------------------------------------
 	// General...
 
-	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "OBJECT_NAME"			, _TL("Name"),
-		_TL(""),
-		m_pObject->Get_Name()
-	);
-
-	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL")	, "OBJECT_DESC"			, _TL("Description"),
-		_TL(""),
-		m_pObject->Get_Description(), true
-	);
-
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_GENERAL")	, "LEGEND_SHOW"			, _TL("Show Legend"),
+		m_Parameters("NODE_GENERAL"), "LEGEND_SHOW"   , _TL("Show Legend"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("LEGEND_SHOW")		, "LEGEND_STYLE"		, _TL("Style"),
+		m_Parameters("LEGEND_SHOW" ), "LEGEND_STYLE"  , _TL("Style"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("vertical"),
@@ -353,29 +247,24 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Range(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"		, _TL("No Data"),
-		_TL("")
-	);
-
 
 	//-----------------------------------------------------
 	// Display...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, _TL("Transparency [%]"),
+		m_Parameters("NODE_DISPLAY"), "DISPLAY_TRANSPARENCY", _TL("Transparency [%]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "SHOW_ALWAYS"			, _TL("Show at all scales"),
+		m_Parameters("NODE_DISPLAY"), "SHOW_ALWAYS"         , _TL("Show at all scales"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Range(
-		m_Parameters("SHOW_ALWAYS")		, "SHOW_RANGE"			, _TL("Scale Range"),
+		m_Parameters("SHOW_ALWAYS" ), "SHOW_RANGE"			, _TL("Scale Range"),
 		_TL("only show within scale range; values are given as extent measured in map units"),
 		100.0, 1000.0, 0.0, true
 	);
@@ -385,13 +274,13 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_COLORS")		, "COLORS_TYPE"			, _TL("Type"),
+		m_Parameters("NODE_COLORS" ), "COLORS_TYPE"			, _TL("Type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("Single Symbol"),		// CLASSIFY_UNIQUE
-			_TL("Lookup Table"),		// CLASSIFY_LUT
-			_TL("Discrete Colors"),	// CLASSIFY_METRIC
-			_TL("Graduated Colors")	// CLASSIFY_GRADUATED
+			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Lookup Table"    ),	// CLASSIFY_LUT
+			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Graduated Colors") 	// CLASSIFY_GRADUATED
 		), 0
 	);
 
@@ -400,14 +289,14 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Unique Value...
 
 	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_UNISYMBOL"		, _TL("Single Symbol"),
+		m_Parameters("NODE_COLORS"   ), "NODE_UNISYMBOL"		, _TL("Single Symbol"),
 		_TL("")
 	);
 
 	static	BYTE	s_Def_Layer_Colour	= 0;
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_UNISYMBOL")	, "UNISYMBOL_COLOR"		, _TL("Color"),
+		m_Parameters("NODE_UNISYMBOL"), "UNISYMBOL_COLOR"		, _TL("Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, s_Def_Layer_Colours[s_Def_Layer_Colour++ % DEF_LAYER_COLOUR_COUNT]
 	//	PARAMETER_TYPE_Color, SG_GET_RGB(Get_Random(128, 250), Get_Random(128, 200), Get_Random(128, 200))
@@ -469,18 +358,9 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
-}
 
-//---------------------------------------------------------
-bool CWKSP_Layer::Initialise(void)
-{
-	On_Create_Parameters();
-
+	//-----------------------------------------------------
 	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), m_Parameters("METRIC_COLORS")->asColors());
-
-	DataObject_Changed();
-
-	return( true );
 }
 
 //---------------------------------------------------------
@@ -519,7 +399,7 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		}
 	}
 
-	return( CWKSP_Base_Item::On_Parameter_Changed(pParameters, pParameter, Flags) );
+	return( CWKSP_Data_Item::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
 
@@ -530,189 +410,32 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Save(void)
+void CWKSP_Layer::On_Parameters_Changed(void)
 {
-	bool		bResult;
-	wxString	File_Path;
+	m_pObject->Set_Name       (m_Parameters("OBJECT_NAME")->asString());
+	m_pObject->Set_Description(m_Parameters("OBJECT_DESC")->asString());
 
-	File_Path	= m_pObject->Get_File_Name() && *m_pObject->Get_File_Name() ? m_pObject->Get_File_Name() : m_pObject->Get_Name();
-
-	switch( Get_Type() )
-	{
-	default:
-		bResult	= false;
-		break;
-
-	case WKSP_ITEM_TIN:
-	case WKSP_ITEM_Shapes:
-		bResult	= DLG_Save(File_Path, ID_DLG_SHAPES_SAVE);
-		break;
-
-	case WKSP_ITEM_PointCloud:
-		bResult	= DLG_Save(File_Path, ID_DLG_POINTCLOUD_SAVE);
-		break;
-
-	case WKSP_ITEM_Grid:
-		bResult	= DLG_Save(File_Path, ID_DLG_GRIDS_SAVE);
-		break;
-	}
-
-	if( bResult )
-	{
-		bResult	= m_pObject->Save(&File_Path);
-
-		PROCESS_Set_Okay();
-	}
-
-	return( bResult );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Layer::Save(const wxString &File_Name)
-{
-	if( File_Name.Length() )
-	{
-		bool	bResult	= m_pObject->Save(&File_Name);
-
-		if( bResult )
-		{
-			g_pData->Get_Menu_Files()->Recent_Add(m_pObject->Get_ObjectType(), m_pObject->Get_File_Name());
-		}
-
-		PROCESS_Set_Okay();
-
-		return( bResult );
-	}
-
-	return( Save() );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Layer::DataObject_Changed(CSG_Parameters *pParameters)
-{
-	if( pParameters )
-	{
-		m_Parameters.Assign_Values(pParameters);
-	}
-	else
-	{
-		if( m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid )
-		{
-			double		m, s, min, max;
-			CSG_Grid	*pGrid	= (CSG_Grid *)m_pObject;
-
-			switch( ((CWKSP_Base_Item *)g_pData)->Get_Parameters()->Get_Parameter("GRID_DISPLAY_RANGEFIT")->asInt() )
-			{
-			case 0:
-				min	= pGrid->Get_ZMin(true);
-				max	= pGrid->Get_ZMax(true);
-				break;
-
-			case 1:
-				m	= pGrid->Get_ArithMean(true);
-				s	= pGrid->Get_StdDev   (true) * 1.5;
-				min	= m - s;	if( min < pGrid->Get_ZMin(true) )	min	= pGrid->Get_ZMin(true);
-				max	= m + s;	if( max > pGrid->Get_ZMax(true) )	max	= pGrid->Get_ZMax(true);
-				break;
-
-			case 2:
-				m	= pGrid->Get_ArithMean(true);
-				s	= pGrid->Get_StdDev   (true) * 2.0;
-				min	= m - s;	if( min < pGrid->Get_ZMin(true) )	min	= pGrid->Get_ZMin(true);
-				max	= m + s;	if( max > pGrid->Get_ZMax(true) )	max	= pGrid->Get_ZMax(true);
-			}
-
-			m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
-		}
-	}
-
-	DataObject_Changed();
-}
-
-void CWKSP_Layer::DataObject_Changed(CSG_Colors *pColors)
-{
-	if( m_pClassify->Get_Metric_Colors() && pColors )
-	{
-		m_pClassify->Get_Metric_Colors()->Assign(pColors);
-	}
-
-	DataObject_Changed();
-}
-
-void CWKSP_Layer::DataObject_Changed(void)
-{
-	//-----------------------------------------------------
-	m_Parameters.Set_Name(CSG_String::Format(SG_T("%02d. %s"), 1 + Get_ID(), m_pObject->Get_Name()));
-
-	m_Parameters("OBJECT_NAME")->Set_Value(m_pObject->Get_Name());
-	m_Parameters("OBJECT_DESC")->Set_Value(m_pObject->Get_Description());
-
-	m_Parameters("GENERAL_NODATA")->asRange()->Set_Range(
-		m_pObject->Get_NoData_Value(),
-		m_pObject->Get_NoData_hiValue()
+	m_pObject->Set_NoData_Value_Range(
+		m_Parameters("GENERAL_NODATA")->asRange()->Get_LoVal(),
+		m_Parameters("GENERAL_NODATA")->asRange()->Get_HiVal()
 	);
 
 	//-----------------------------------------------------
-	On_DataObject_Changed();
+	m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());
 
-	g_pACTIVE->Update(this, false);
+	m_pClassify->Set_Unique_Color(m_Parameters("UNISYMBOL_COLOR")->asInt());
 
-	Parameters_Changed();
-}
+	m_pClassify->Set_Metric(
+		m_Parameters("METRIC_SCALE_MODE")->asInt(),
+		m_Parameters("METRIC_SCALE_LOG")->asDouble(),
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0),
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0)
+	);
 
-//---------------------------------------------------------
-void CWKSP_Layer::Parameters_Changed(void)
-{
-	static bool	bUpdates	= false;
+	m_pLegend->Set_Orientation(m_Parameters("LEGEND_STYLE")->asInt() == LEGEND_VERTICAL ? LEGEND_VERTICAL : LEGEND_HORIZONTAL);
 
 	//-----------------------------------------------------
-	if( !bUpdates )
-	{
-		bUpdates	= true;
-
-		m_pObject->Set_Name       (m_Parameters("OBJECT_NAME")->asString());
-		m_pObject->Set_Description(m_Parameters("OBJECT_DESC")->asString());
-
-		m_pObject->Set_NoData_Value_Range(
-			m_Parameters("GENERAL_NODATA")->asRange()->Get_LoVal(),
-			m_Parameters("GENERAL_NODATA")->asRange()->Get_HiVal()
-		);
-
-		//-----------------------------------------------------
-		m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());
-
-		m_pClassify->Set_Unique_Color(m_Parameters("UNISYMBOL_COLOR")->asInt());
-
-		m_pClassify->Set_Metric(
-			m_Parameters("METRIC_SCALE_MODE")->asInt(),
-			m_Parameters("METRIC_SCALE_LOG")->asDouble(),
-			m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0),
-			m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0)
-		);
-
-		m_pLegend->Set_Orientation(m_Parameters("LEGEND_STYLE")->asInt() == LEGEND_VERTICAL ? LEGEND_VERTICAL : LEGEND_HORIZONTAL);
-
-		//-----------------------------------------------------
-		On_Parameters_Changed();
-
-		Update_Views(false);
-
-		_Set_Thumbnail();
-
-		g_pData_Buttons->Refresh(false);
-
-		//-----------------------------------------------------
-		CWKSP_Base_Item::Parameters_Changed();
-
-		bUpdates	= false;
-	}
+	CWKSP_Data_Item::On_Parameters_Changed();
 }
 
 
@@ -729,14 +452,14 @@ const wxBitmap & CWKSP_Layer::Get_Thumbnail(int dx, int dy)
 	{
 		m_Thumbnail.Create(dx, dy);
 
-		_Set_Thumbnail();
+		_Set_Thumbnail(false);
 	}
 
 	return( m_Thumbnail );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::_Set_Thumbnail(void)
+bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 {
 	if( m_pObject && m_Thumbnail.IsOk() && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
 	{
@@ -753,6 +476,11 @@ bool CWKSP_Layer::_Set_Thumbnail(void)
 		dc_Map.Draw(dc);
 
 		dc.SelectObject(wxNullBitmap);
+
+		if( bRefresh )
+		{
+			g_pData_Buttons->Refresh(false);
+		}
 
 		return( true );
 	}
@@ -819,14 +547,24 @@ bool CWKSP_Layer::Get_Colors(CSG_Colors *pColors)
 }
 
 //---------------------------------------------------------
+bool CWKSP_Layer::Set_Colors(CSG_Colors *pColors)
+{
+	if( m_pClassify->Get_Metric_Colors() && pColors )
+	{
+		return( m_pClassify->Get_Metric_Colors()->Assign(pColors) && DataObject_Changed() );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Layer::Set_Color_Range(double zMin, double zMax)
 {
 	CSG_Parameters	Parameters;
 
 	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, _TL(""), _TL(""), zMin, zMax);
-	DataObject_Changed(&Parameters);
 
-	return( true );
+	return( DataObject_Changed(&Parameters) );
 }
 
 
@@ -857,6 +595,19 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
+{
+	On_Draw(dc_Map, bEdit);
 }
 
 
@@ -901,33 +652,39 @@ bool CWKSP_Layer::Show(CWKSP_Map *pMap)
 	return( false );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
+bool CWKSP_Layer::Show(int Flags)
 {
-	On_Draw(dc_Map, bEdit);
+	switch( Flags )
+	{
+	case SG_UI_DATAOBJECT_SHOW:
+		return( Show(NULL) );
+
+	case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
+		g_pMaps->Add(this, NULL);
+
+	case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
+		return( Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
+	}
+
+	return( true );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+//---------------------------------------------------------
+bool CWKSP_Layer::Update(CWKSP_Layer *pChanged)
+{
+	return( pChanged == this );
+}
 
 //---------------------------------------------------------
-void CWKSP_Layer::Update_Views(bool bMapsOnly)
+bool CWKSP_Layer::Update_Views(bool bAll)
 {
-	g_pMaps->Update(this, bMapsOnly);
+	g_pMaps->Update(this, !bAll);
 
-	if( !bMapsOnly )
+	if( bAll )
 	{
+		_Set_Thumbnail(true);
+
 		if( Histogram_Get() )
 		{
 			Histogram_Get()->Update_Histogram();
@@ -935,16 +692,27 @@ void CWKSP_Layer::Update_Views(bool bMapsOnly)
 
 		On_Update_Views();
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CWKSP_Layer::View_Closes(wxMDIChildFrame *pView)
+bool CWKSP_Layer::View_Closes(wxMDIChildFrame *pView)
 {
 	if( wxDynamicCast(pView, CVIEW_Histogram) != NULL )
 	{
 		m_pHistogram	= NULL;
 	}
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Layer::Histogram_Show(bool bShow)

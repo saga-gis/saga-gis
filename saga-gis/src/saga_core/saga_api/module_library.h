@@ -204,9 +204,9 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 	{\
 		Process_Set_Text(pModule->Get_Name());\
 		\
-		pModule->Set_Managed(false);\
-		\
 		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());\
+		\
+		pModule->Set_Manager(NULL);\
 		\
 		if( !(CONDITION) )\
 		{\
@@ -222,8 +222,7 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 		}\
 		\
 		pModule->Get_Parameters()->Assign_Values(&P);\
-		\
-		pModule->Set_Managed(true);\
+		pModule->Set_Manager(P.Get_Manager());\
 	}\
 }
 

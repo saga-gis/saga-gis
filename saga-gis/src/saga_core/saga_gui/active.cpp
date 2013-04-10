@@ -323,7 +323,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	{
 		m_pObject	= m_pLayer->Get_Object();
 
-		if( g_pData->Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
+		if( SG_Get_Data_Manager().Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
 		{
 			g_pData->Update_Views(m_pObject);
 		}

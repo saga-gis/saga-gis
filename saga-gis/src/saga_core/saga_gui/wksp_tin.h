@@ -90,6 +90,9 @@ public:
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_TIN );	}
 
+	CSG_TIN *					Get_TIN					(void)	{	return( (CSG_TIN *)m_pObject );	}
+	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );	}
+
 	virtual wxString			Get_Description			(void);
 
 	virtual wxMenu *			Get_Menu				(void);
@@ -97,13 +100,10 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	CSG_TIN *					Get_TIN					(void)	{	return( m_pTIN );	}
-	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );	}
-
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
-	bool						asImage					(CSG_Grid *pImage);
+	virtual bool				asImage					(CSG_Grid *pImage);
 
 	wxString					Get_Name_Attribute		(void);
 
@@ -124,8 +124,6 @@ protected:
 	int							m_Color_Field, m_Brush_Style;
 
 	wxColour					m_Color_Pen, m_Color_Brush;
-
-	CSG_TIN						*m_pTIN;
 
 	class CWKSP_Table			*m_pTable;
 

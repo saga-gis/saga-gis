@@ -223,17 +223,16 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_MetaData	MetaData;
-	CSG_String		sMetaData;
 
-	if( DataSet.Get_MetaData(MetaData) )
+	DataSet.Get_MetaData(MetaData);
+
+	P("METADATA")->Set_Value(MetaData.asText());
+
+	//-----------------------------------------------------
+	if( DataSet.Get_Count() <= 0 && DataSet.Get_MetaData(MetaData, "SUBDATASETS") )
 	{
-		for(int i=0; i<MetaData.Get_Children_Count(); i++)
-		{
-			sMetaData	+= MetaData.Get_Child(i)->Get_Name() + ":\t" + MetaData.Get_Child(i)->Get_Content() + "\n";
-		}
+//		DataSet.Get_MetaData("SUBDATASETS")
 	}
-
-	P("METADATA")->Set_Value(sMetaData);
 
 	//-----------------------------------------------------
 	(pVars	= P("VARS" )->asParameters())->Del_Parameters();
@@ -257,7 +256,7 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 	{
 		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not find any band data"), Parameters("FILE")->asString()));
 
-		return( false );
+	//	return( false );
 	}
 	
 	if( !Dlg_Parameters(&P, _TL("Import NetCDF")) )

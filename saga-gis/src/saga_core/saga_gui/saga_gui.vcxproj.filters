@@ -301,6 +301,9 @@
     <ClCompile Include="data_source_odbc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wksp_data_item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACTIVE.h">
@@ -583,6 +586,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data_source_odbc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_data_item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -933,6 +939,15 @@
       <Filter>Resource Files\XPM</Filter>
     </None>
     <None Include="RES\XPM\WND_TABLE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\wksp_odbc_source_off.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\wksp_odbc_sources.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\wksp_odbc_source_on.xpm">
       <Filter>Resource Files\XPM</Filter>
     </None>
   </ItemGroup>

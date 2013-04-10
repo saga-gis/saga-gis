@@ -328,12 +328,6 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
-	case CALLBACK_DATAOBJECT_CHECK:
-
-		break;
-
-
-	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ADD:
 
 		Result	= 0;

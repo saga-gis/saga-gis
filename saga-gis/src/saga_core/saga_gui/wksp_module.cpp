@@ -642,13 +642,6 @@ bool CWKSP_Module::Execute(bool bDialog)
 		{
 			g_pModules->Get_Menu_Modules()->Set_Recent(this);
 
-			g_pData->Check_Parameters(m_pModule->Get_Parameters());
-
-			for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
-			{
-				g_pData->Check_Parameters(m_pModule->Get_Parameters(i));
-			}
-
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();
 			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("Executing module"), m_pModule->Get_Name().c_str()));
@@ -690,16 +683,12 @@ bool CWKSP_Module::Execute(bool bDialog)
 //---------------------------------------------------------
 bool CWKSP_Module::Execute(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys)
 {
-	bool	bResult	= false;
-
-	if( g_pModule == this && m_pModule->is_Interactive() && !m_pModule->is_Executing() )
+	if( g_pModule == this && m_pModule->is_Interactive() )
 	{
-		bResult	= ((CSG_Module_Interactive *)m_pModule)->Execute_Position(ptWorld, Mode, Keys);
-
-		PROCESS_Set_Okay();
+		return( ((CSG_Module_Interactive *)m_pModule)->Execute_Position(ptWorld, Mode, Keys) );
 	}
 
-	return( bResult );
+	return( false );
 }
 
 

@@ -113,12 +113,12 @@ CSG_String		SG_Colors_Get_Name	(int Identifier)
 	case SG_COLORS_RED_GREEN_BLUE:	return( _TL("red > green > blue") );
 	case SG_COLORS_RED_BLUE_GREEN:	return( _TL("red > blue > green") );
 	case SG_COLORS_GREEN_RED_BLUE:	return( _TL("green > red > blue") );
-	case SG_COLORS_RAINBOW:			return( _TL("Rainbow") );
-	case SG_COLORS_NEON:			return( _TL("Neon") );
-	case SG_COLORS_TOPOGRAPHY:		return( _TL("Topography") );
-	case SG_COLORS_ASPECT_1:		return( _TL("Aspect 1") );
-	case SG_COLORS_ASPECT_2:		return( _TL("Aspect 2") );
-	case SG_COLORS_ASPECT_3:		return( _TL("Aspect 3") );
+	case SG_COLORS_RAINBOW:			return( _TL("rainbow") );
+	case SG_COLORS_NEON:			return( _TL("neon") );
+	case SG_COLORS_TOPOGRAPHY:		return( _TL("topography") );
+	case SG_COLORS_ASPECT_1:		return( _TL("aspect 1") );
+	case SG_COLORS_ASPECT_2:		return( _TL("aspect 2") );
+	case SG_COLORS_ASPECT_3:		return( _TL("aspect 3") );
 	}
 
 	return( SG_T("") );
@@ -137,7 +137,7 @@ CSG_Colors::CSG_Colors(void)
 	m_Colors	= NULL;
 	m_nColors	= 0;
 
-	Set_Count(100);
+	Set_Count(11);
 }
 
 //---------------------------------------------------------
@@ -157,7 +157,7 @@ CSG_Colors::CSG_Colors(int nColors, int Palette, bool bRevert)
 
 	if( nColors <= 1 )
 	{
-		nColors	= 100;
+		nColors	= 11;
 	}
 
 	Set_Count(nColors);

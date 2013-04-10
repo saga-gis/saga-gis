@@ -78,12 +78,10 @@
 CWKSP_Shapes_Line::CWKSP_Shapes_Line(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
-	Initialise();
-}
+	On_Create_Parameters();
 
-//---------------------------------------------------------
-CWKSP_Shapes_Line::~CWKSP_Shapes_Line(void)
-{}
+	DataObject_Changed();
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -96,7 +94,6 @@ CWKSP_Shapes_Line::~CWKSP_Shapes_Line(void)
 void CWKSP_Shapes_Line::On_Create_Parameters(void)
 {
 	CWKSP_Shapes::On_Create_Parameters();
-
 
 	//-----------------------------------------------------
 	// Display...
@@ -127,7 +124,6 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		//	_TL("No pen is used")
 		), 0
 	);
-
 
 	//-----------------------------------------------------
 	// Size...
@@ -182,8 +178,8 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Size_Type		= m_Parameters("SIZE_TYPE")->asInt();
 
-	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count()
-	||	(m_dSize	= m_pShapes->Get_Maximum(m_iSize) - (m_Size_Min = m_pShapes->Get_Minimum(m_iSize))) <= 0.0 )
+	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count()
+	||	(m_dSize	= Get_Shapes()->Get_Maximum(m_iSize) - (m_Size_Min = Get_Shapes()->Get_Minimum(m_iSize))) <= 0.0 )
 	{
 		m_iSize		= -1;
 		m_Size		= m_Parameters("SIZE_DEFAULT")->asInt();
@@ -215,7 +211,7 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE_ATTRIB")) )
 		{
-			bool	Value	= pParameter->asInt() < m_pShapes->Get_Field_Count();
+			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
 			pParameters->Get_Parameter("SIZE_RANGE"  )->Set_Enabled(Value == true);
 			pParameters->Get_Parameter("SIZE_DEFAULT")->Set_Enabled(Value == false);
@@ -233,24 +229,18 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Shapes_Line::Get_Name_Attribute(void)
-{
-	return(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : m_pShapes->Get_Field_Name(m_iColor) );
-}
-
-//---------------------------------------------------------
 bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName)
 {
 	if( m_iSize >= 0 )
 	{
 		min_Size	= (int)(m_Size);
-		max_Size	= (int)(m_Size + ((m_pShapes->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize));
+		max_Size	= (int)(m_Size + ((Get_Shapes()->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize));
 		min_Value	= m_Size_Min;
 		dValue		= m_dSize;
 
 		if( pName )
 		{
-			pName->Printf(m_pShapes->Get_Field_Name(m_iSize));
+			pName->Printf(Get_Shapes()->Get_Field_Name(m_iSize));
 		}
 
 		return( true );
@@ -303,7 +293,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 	//-----------------------------------------------------
 	if( bSelection )
 	{
-		dc_Map.dc.SetPen(wxPen(m_Sel_Color, m_Size + (pShape == m_pShapes->Get_Selection(0) ? 2 : 0), m_Line_Style));
+		dc_Map.dc.SetPen(wxPen(m_Sel_Color, m_Size + (pShape == Get_Shapes()->Get_Selection(0) ? 2 : 0), m_Line_Style));
 	}
 	else if( m_iColor >= 0 || m_iSize >= 0 )
 	{

@@ -664,9 +664,9 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 	{\
 		Process_Set_Text(pModule->Get_Name());\
 		\
-		pModule->Set_Managed(false);\
-		\
 		CSG_Parameters	P_tmp; P_tmp.Assign(pModule->Get_Parameters());\
+		\
+		pModule->Set_Manager(NULL);\
 		\
 		((CSG_Module_Grid *)pModule)->Get_System()->Assign(GRIDSYSTEM);\
 		\
@@ -686,8 +686,6 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 		PARAMETERS.Assign(pModule->Get_Parameters());\
 		\
 		pModule->Get_Parameters()->Assign_Values(&P_tmp);\
-		\
-		pModule->Set_Managed(true);\
 	}\
 }
 

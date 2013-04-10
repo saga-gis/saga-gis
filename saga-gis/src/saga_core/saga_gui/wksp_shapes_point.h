@@ -86,12 +86,10 @@ class CWKSP_Shapes_Point : public CWKSP_Shapes
 {
 public:
 	CWKSP_Shapes_Point(CSG_Shapes *pShapes);
-	virtual ~CWKSP_Shapes_Point(void);
 
 	bool						Get_Outline				(void)	{	return( m_bOutline );	}
 	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
 	wxBrush						Get_Def_Brush			(void)	{	return( m_Brush    );	}
-	wxString					Get_Name_Attribute		(void);
 
 	bool						Get_Style_Size			(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName);
 

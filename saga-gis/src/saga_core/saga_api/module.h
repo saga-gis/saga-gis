@@ -152,11 +152,6 @@ public:
 	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	CSG_Parameters *			Get_Parameters				(const CSG_String &Identifier);
 
-	int							Garbage_Get_Count			(void)	{	return( m_nGarbage );		}
-	CSG_Data_Object *			Garbage_Get_Item			(int i)	{	return( i >= 0 && i < m_nGarbage ? m_Garbage[i] : NULL );	}
-	CSG_Data_Object *			Garbage_Del_Item			(int i, bool bFromListOnly = true);
-	void						Garbage_Clear				(void);
-
 	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
 
 	virtual bool				is_Grid						(void)	{	return( false );	}
@@ -164,7 +159,8 @@ public:
 	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
 
-	void						Set_Managed					(bool bOn = true);
+	void						Set_Manager					(class CSG_Data_Manager *pManager);
+
 	void						Set_Show_Progress			(bool bOn = true);
 
 	virtual bool				On_Before_Execution			(void)	{	return( true );	}
@@ -242,18 +238,14 @@ protected:
 
 private:
 
-	bool						m_bExecutes, m_bError_Ignore, m_bManaged, m_bShow_Progress;
+	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress;
 
-	int							m_ID, m_npParameters, m_nGarbage;
-
-	CSG_Data_Object				**m_Garbage;
+	int							m_ID, m_npParameters;
 
 	CSG_Parameters				**m_pParameters;
 
 	CSG_String					m_Author;
 
-
-	bool						_Garbage_Add_Item			(CSG_Data_Object *pDataObject);
 
 	bool						_Synchronize_DataObjects	(void);
 

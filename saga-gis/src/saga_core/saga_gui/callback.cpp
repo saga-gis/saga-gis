@@ -245,22 +245,6 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
-	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
-
-		Param_1.Pointer	= g_pData->Get_byFileName(Param_1.String.c_str(), (int)Param_2.Number);
-
-		break;
-
-
-	//-----------------------------------------------------
-	case CALLBACK_DATAOBJECT_CHECK:
-
-		Result	= g_pData->Exists((CSG_Data_Object *)Param_1.Pointer, (int)Param_2.Number) ? 1 : 0;
-
-		break;
-
-
-	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ADD:
 
 		Result	= g_pData->Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;

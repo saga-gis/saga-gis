@@ -137,7 +137,6 @@ bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 		else
 		{
 			pModule->m_ID	= ID;
-			pModule->Set_Managed(true);
 		}
 
 		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));

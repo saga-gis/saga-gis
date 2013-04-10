@@ -89,7 +89,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CHECK_DATA(pData)	if( pData != NULL && !g_pData->Exists(pData) )	{	pData	= NULL;	}
+#define CHECK_DATA(pData)	if( pData != NULL && !SG_Get_Data_Manager().Exists(pData) )	{	pData	= NULL;	}
 
 
 ///////////////////////////////////////////////////////////

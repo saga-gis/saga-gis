@@ -105,8 +105,9 @@ public:
 
 	virtual void					Parameters_Changed	(void);
 
+	CWKSP_Base_Manager *			Get_Manager			(TSG_Data_Object_Type Type, bool bAdd = false);
 	CWKSP_Base_Manager *			Get_Manager			(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}
-	void							Del_Manager			(class CWKSP_Base_Item *pItem);
+	void							Del_Manager			(CWKSP_Base_Item *pItem);
 
 	class CWKSP_Project *			Get_Project			(void)		{	return( m_pProject     );	}
 
@@ -116,32 +117,26 @@ public:
 	class CWKSP_PointCloud_Manager *Get_PointClouds		(void)		{	return( m_pPointClouds );	}
 	class CWKSP_Grid_Manager *		Get_Grids			(void)		{	return( m_pGrids       );	}
 
+	class CWKSP_Layer *				Get_Layer			(CSG_Data_Object *pObject);
+
 	bool							Get_DataObject_List	(CSG_Parameters *pParameters);
 
 	class CWKSP_Data_Menu_Files *	Get_Menu_Files		(void)		{	return( m_pMenu_Files );	}
 
-	bool							Check_Parameters	(class CSG_Parameters *pParameters);
-	bool							Check_Parameter		(class CSG_Parameter  *pParameter);
-
-	bool							Open_CMD			(int Cmd_ID);
-	bool							Open				(const wxString &FileName);
+	CWKSP_Base_Item *				Open				(const wxString &File, int DataType);
+	bool							Open				(const wxString &File);
 	bool							Open				(int DataType);
-	CWKSP_Base_Item *				Open				(int DataType, const wxString &FileName);
-	bool							Open_GDAL			(const wxString &File_Name);
-
-	bool							Exists				(class CSG_Grid_System *pSystem);
-	bool							Exists				(class CSG_Data_Object *pObject, int DataType = -1);
-
-	class CSG_Data_Object *			Get_byFileName		(const wxString &File_Name, int DataType = -1);
+	bool							Open_CMD			(int Cmd_ID);
 
 	bool							Save_Modified		(class CWKSP_Base_Item *pItem);
 	bool							Save_Modified_Sel	(void);
 	bool							Close				(bool bSilent);
 
-	CWKSP_Base_Item *				Add					(class CSG_Data_Object *pObject);
+	class CWKSP_Data_Item *			Add					(class CSG_Data_Object *pObject);
+	class CWKSP_Data_Item *			Get					(class CSG_Data_Object *pObject);
 	bool							Update				(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Update_Views		(class CSG_Data_Object *pObject);
-	bool							Show				(class CSG_Data_Object *pObject, int Map_Mode);
+	bool							Show				(class CSG_Data_Object *pObject, int Flags = 0);
 	bool							asImage				(class CSG_Data_Object *pObject, class CSG_Grid *pImage);
 
 	bool							Get_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
@@ -170,8 +165,6 @@ private:
 
 	class CWKSP_Grid_Manager		*m_pGrids;
 
-
-	bool							_Get_Manager		(int DataType);
 
 };
 

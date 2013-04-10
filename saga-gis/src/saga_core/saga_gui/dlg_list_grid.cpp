@@ -103,7 +103,7 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 	{
 		if( pList->Get_System() )
 		{
-			m_pSystem	= pManager->Get_System(pList->Get_System());
+			m_pSystem	= pManager->Get_System(*pList->Get_System());
 			m_pSystems	= NULL;
 		}
 		else
@@ -184,7 +184,7 @@ void CDLG_List_Grid::_Set_Objects(void)
 	//-----------------------------------------------------
 	for(int i=0; i<m_pList->Get_Count(); i++)
 	{
-		CWKSP_Base_Item	*pItem	= g_pData->Get_Grids()->Get_Grid(m_pList->asDataObject(i)->asGrid());
+		CWKSP_Base_Item	*pItem	= g_pData->Get(m_pList->asDataObject(i)->asGrid());
 
 		if( pItem )
 		{
@@ -236,7 +236,7 @@ void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 		for(int i=0; i<pSystem->Get_Count(); i++)
 		{
 			bool		bList	= true;
-			CWKSP_Grid	*pGrid	= pSystem->Get_Grid(i);
+			CWKSP_Grid	*pGrid	= pSystem->Get_Data(i);
 
 			for(int j=0; j<(int)m_pAdd->GetCount() && bList; j++)
 			{

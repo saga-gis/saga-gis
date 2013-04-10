@@ -88,14 +88,14 @@ public:
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_PointCloud );	}
 
+	CSG_PointCloud *			Get_PointCloud			(void)	{	return( (CSG_PointCloud *)m_pObject );	}
+
 	virtual wxString			Get_Description			(void);
 
 	virtual wxMenu *			Get_Menu				(void);
 
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
-
-	CSG_PointCloud *			Get_PointCloud			(void)	{	return( m_pPointCloud );	}
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
@@ -110,8 +110,6 @@ protected:
 	int							m_Color_Field, m_PointSize, m_Aggregation;
 
 	wxColour					m_Color_Pen;
-
-	CSG_PointCloud				*m_pPointCloud;
 
 	CSG_Grid					m_Z, m_N;
 

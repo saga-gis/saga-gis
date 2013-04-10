@@ -232,7 +232,7 @@ int CParameters_PG_Choice::_Set_Table(void)
 	{
 		for(int i=0; i<pTables->Get_Count(); i++)
 		{
-			_Append(pTables->Get_Table(i)->Get_Name(), pTables->Get_Table(i)->Get_Table());
+			_Append(pTables->Get_Data(i)->Get_Name(), pTables->Get_Data(i)->Get_Table());
 		}
 	}
 
@@ -246,7 +246,7 @@ int CParameters_PG_Choice::_Set_Table(void)
 
 			for(int j=0; j<pShapes->Get_Count(); j++)
 			{
-				_Append(pShapes->Get_Shapes(j)->Get_Name(), pShapes->Get_Shapes(j)->Get_Shapes());
+				_Append(pShapes->Get_Data(j)->Get_Name(), pShapes->Get_Data(j)->Get_Shapes());
 			}
 		}
 	}
@@ -267,11 +267,11 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 		{
 			CWKSP_Shapes_Type	*pShapes	= (CWKSP_Shapes_Type *)pManager->Get_Item(i);
 
-			if( Shape_Type == SHAPE_TYPE_Undefined || Shape_Type == pShapes->Get_Shapes_Type() )
+			if( Shape_Type == SHAPE_TYPE_Undefined || Shape_Type == pShapes->Get_Shape_Type() )
 			{
 				for(int j=0; j<pShapes->Get_Count(); j++)
 				{
-					_Append(pShapes->Get_Shapes(j)->Get_Name(), pShapes->Get_Shapes(j)->Get_Shapes());
+					_Append(pShapes->Get_Data(j)->Get_Name(), pShapes->Get_Data(j)->Get_Shapes());
 				}
 			}
 		}
@@ -290,13 +290,13 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_TIN(void)
 {
-	CWKSP_TIN_Manager	*pTINs;
+	CSG_Data_Collection	*pCollection	= m_pParameter->Get_Manager() ? m_pParameter->Get_Manager()->Get_TIN() : NULL;
 
-	if( (pTINs = g_pData->Get_TINs()) != NULL )
+	if( pCollection )
 	{
-		for(int i=0; i<pTINs->Get_Count(); i++)
+		for(size_t i=0; i<pCollection->Count(); i++)
 		{
-			_Append(pTINs->Get_TIN(i)->Get_Name(), pTINs->Get_TIN(i)->Get_TIN());
+			_Append(pCollection->Get(i)->Get_Name(), pCollection->Get(i));
 		}
 	}
 
@@ -306,13 +306,13 @@ int CParameters_PG_Choice::_Set_TIN(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_PointCloud(void)
 {
-	CWKSP_PointCloud_Manager	*pManager;
+	CSG_Data_Collection	*pCollection	= m_pParameter->Get_Manager() ? m_pParameter->Get_Manager()->Get_Point_Cloud() : NULL;
 
-	if( (pManager = g_pData->Get_PointClouds()) != NULL )
+	if( pCollection )
 	{
-		for(int i=0; i<pManager->Get_Count(); i++)
+		for(size_t i=0; i<pCollection->Count(); i++)
 		{
-			_Append(pManager->Get_PointCloud(i)->Get_Name(), pManager->Get_PointCloud(i)->Get_PointCloud());
+			_Append(pCollection->Get(i)->Get_Name(), pCollection->Get(i));
 		}
 	}
 
@@ -322,21 +322,23 @@ int CParameters_PG_Choice::_Set_PointCloud(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid_System(void)
 {
-	g_pData->Check_Parameter(m_pParameter);
+	m_pParameter->Check();
 
-	CWKSP_Grid_Manager	*pSystems	= g_pData->Get_Grids();
+	CSG_Data_Manager	*pManager	= m_pParameter->Get_Manager();
 
-	if( pSystems && pSystems->Get_Count() > 0 )
+	if( pManager && pManager->Grid_System_Count() > 0 )
 	{
-		int	index	= pSystems->Get_Count();
+		int	index	= pManager->Grid_System_Count();
 
 		if( m_choices.GetCount() == 0 )
 		{
-			for(int i=0; i<pSystems->Get_Count(); i++)
+			for(size_t i=0; i<pManager->Grid_System_Count(); i++)
 			{
-				_Append(pSystems->Get_System(i)->Get_Name(), pSystems->Get_System(i)->Get_System());
+				CSG_Grid_System	System(pManager->Get_Grid_System(i)->Get_System());
 
-				if( m_pParameter->asGrid_System()->is_Equal(*pSystems->Get_System(i)->Get_System()) )
+				_Append(System.Get_Name(), (void *)&pManager->Get_Grid_System(i)->Get_System());
+
+				if( m_pParameter->asGrid_System()->is_Equal(System) )
 				{
 					index	= i;
 				}
@@ -356,26 +358,14 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid(void)
 {
-	CSG_Parameter		*pParent	= m_pParameter->Get_Parent();
-	CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
-	CWKSP_Grid_System	*pSystem	= NULL;
+	CSG_Grid_Collection	*pGrids	= m_pParameter->Get_Parent() && m_pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System && m_pParameter->Get_Manager() 
+		? m_pParameter->Get_Manager()->Get_Grid_System(*m_pParameter->Get_Parent()->asGrid_System()) : NULL;
 
-	if( pManager && pParent && pParent->Get_Type() == PARAMETER_TYPE_Grid_System && pParent->asGrid_System()->is_Valid() )
+	if( pGrids )
 	{
-		for(int i=0; i<pManager->Get_Count() && !pSystem; i++)
+		for(size_t i=0; i<pGrids->Count(); i++)
 		{
-			if( pParent->asGrid_System()->is_Equal(*pManager->Get_System(i)->Get_System()) )
-			{
-				pSystem	= pManager->Get_System(i);
-			}
-		}
-	}
-
-	if( pSystem )
-	{
-		for(int i=0; i<pSystem->Get_Count(); i++)
-		{
-			_Append(pSystem->Get_Grid(i)->Get_Name(), pSystem->Get_Grid(i)->Get_Grid());
+			_Append(pGrids->Get(i)->Get_Name(), pGrids->Get(i));
 		}
 	}
 
@@ -395,7 +385,7 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 		_Append(_TL("<not set>"), DATAOBJECT_NOTSET);
 	}
 
-	g_pData->Check_Parameter(m_pParameter);
+	m_pParameter->Check();
 
 	for(size_t i=0; i<m_choices.GetCount(); i++)
 	{
@@ -404,6 +394,8 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 			return( i );
 		}
 	}
+
+	m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_choices.GetCount() - 1)));
 
 	return( m_choices.GetCount() - 1 );
 }
@@ -568,16 +560,7 @@ bool CPG_Parameter_Value::Check(void) const
 		case PARAMETER_TYPE_TIN_List:
 		case PARAMETER_TYPE_PointCloud_List:
 		case PARAMETER_TYPE_Grid_List:
-			CSG_Parameter_List	*pList	= (CSG_Parameter_Grid_List *)m_pParameter->Get_Data();
-
-			for(int i=pList->Get_Count()-1; i>=0; i--)
-			{
-				if( !g_pData->Exists(pList->asDataObject(i)) )
-				{
-					pList->Del_Item(i);
-				}
-			}
-
+			m_pParameter->Check();
 			break;
 		}
 

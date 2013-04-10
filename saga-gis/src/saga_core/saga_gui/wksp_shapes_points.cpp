@@ -61,18 +61,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-#include "res_commands.h"
-#include "res_dialogs.h"
-
-#include "helper.h"
 #include "dc_helper.h"
 
-#include "wksp_map_control.h"
-
 #include "wksp_shapes_points.h"
-#include "wksp_table.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -85,55 +76,6 @@
 CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 	: CWKSP_Shapes_Point(pShapes)
 {}
-
-//---------------------------------------------------------
-CWKSP_Shapes_Points::~CWKSP_Shapes_Points(void)
-{}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Shapes_Points::On_Create_Parameters(void)
-{
-	CWKSP_Shapes_Point::On_Create_Parameters();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Shapes_Points::On_DataObject_Changed(void)
-{
-	CWKSP_Shapes_Point::On_DataObject_Changed();
-}
-
-//---------------------------------------------------------
-void CWKSP_Shapes_Points::On_Parameters_Changed(void)
-{
-	CWKSP_Shapes_Point::On_Parameters_Changed();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CWKSP_Shapes_Points::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
-{
-	return( CWKSP_Shapes_Point::On_Parameter_Changed(pParameters, pParameter, Flags) );
-}
 
 
 ///////////////////////////////////////////////////////////

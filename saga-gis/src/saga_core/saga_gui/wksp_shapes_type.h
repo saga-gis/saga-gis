@@ -85,8 +85,7 @@
 class CWKSP_Shapes_Type : public CWKSP_Base_Manager
 {
 public:
-	CWKSP_Shapes_Type(int Shapes_Type);
-	virtual ~CWKSP_Shapes_Type(void);
+	CWKSP_Shapes_Type(TSG_Shape_Type Type);
 
 	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_Shapes_Type );	}
 
@@ -95,20 +94,16 @@ public:
 
 	virtual wxMenu *			Get_Menu		(void);
 
-	virtual bool				On_Command		(int Cmd_ID);
+	class CWKSP_Shapes *		Get_Data		(int i)		{	return( (class CWKSP_Shapes *)Get_Item(i) );	}
+	class CWKSP_Shapes *		Get_Data		(class CSG_Shapes *pShapes);
+	class CWKSP_Shapes *		Add_Data		(class CSG_Shapes *pShapes);
 
-	class CWKSP_Shapes *		Get_Shapes		(int i)		{	return( (class CWKSP_Shapes *)Get_Item(i) );	}
-	class CWKSP_Shapes *		Get_Shapes		(class CSG_Shapes *pShapes);
-
-	bool						Exists			(class CSG_Shapes *pShapes);
-	class CWKSP_Shapes *		Add				(class CSG_Shapes *pShapes);
-
-	int							Get_Shapes_Type	(void)		{	return( m_Shapes_Type );	}
+	int							Get_Shape_Type	(void)		{	return( m_Shape_Type );	}
 
 
 private:
 
-	int							m_Shapes_Type;
+	TSG_Shape_Type				m_Shape_Type;
 
 };
 

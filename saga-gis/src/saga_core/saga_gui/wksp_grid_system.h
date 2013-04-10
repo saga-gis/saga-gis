@@ -88,24 +88,19 @@ class CWKSP_Grid_System : public CWKSP_Base_Manager
 {
 public:
 	CWKSP_Grid_System(const CSG_Grid_System &System);
-	virtual ~CWKSP_Grid_System(void);
 
 	virtual TWKSP_Item				Get_Type			(void)		{	return( WKSP_ITEM_Grid_System );	}
 
 	virtual wxString				Get_Name			(void);
 	virtual wxString				Get_Description		(void);
 
-	virtual void					Parameters_Changed	(void);
-
 	virtual wxMenu *				Get_Menu			(void);
 
-	CSG_Grid_System *				Get_System			(void)		{	return( &m_System );	}
+	class CWKSP_Grid *				Get_Data			(int i)		{	return( (class CWKSP_Grid *)Get_Item(i) );	}
+	class CWKSP_Grid *				Get_Data			(CSG_Grid *pGrid);
+	class CWKSP_Grid *				Add_Data			(CSG_Grid *pGrid);
 
-	class CWKSP_Grid *				Get_Grid			(int i)		{	return( (class CWKSP_Grid *)Get_Item(i) );	}
-	class CWKSP_Grid *				Get_Grid			(class CSG_Grid *pGrid);
-
-	bool							Exists				(class CSG_Grid *pGrid);
-	class CWKSP_Grid *				Add					(class CSG_Grid *pGrid);
+	const CSG_Grid_System &			Get_System			(void)		{	return( m_System );	}
 
 
 private:

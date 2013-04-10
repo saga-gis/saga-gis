@@ -429,34 +429,6 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_Data_Object *	SG_UI_DataObject_Find(const CSG_String &File_Name, int Object_Type)
-{
-	if( gSG_UI_Callback )
-	{
-		CSG_UI_Parameter	p1(File_Name), p2(Object_Type);
-
-		gSG_UI_Callback(CALLBACK_DATAOBJECT_FIND_BY_FILE, p1, p2);
-
-		return( (class CSG_Data_Object *)p1.Pointer );
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
-bool		SG_UI_DataObject_Check(CSG_Data_Object *pDataObject, int Object_Type)
-{
-	if( gSG_UI_Callback && pDataObject )
-	{
-		CSG_UI_Parameter	p1(pDataObject), p2(Object_Type);
-
-		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_CHECK, p1, p2) != 0 );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
 bool		SG_UI_DataObject_Add(CSG_Data_Object *pDataObject, int Show)
 {
 	if( gSG_UI_Callback && pDataObject )

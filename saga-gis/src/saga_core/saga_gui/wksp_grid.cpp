@@ -97,19 +97,18 @@
 CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	: CWKSP_Layer(pGrid)
 {
-	m_pGrid			= pGrid;
-
 	m_pOverlay[0]	= NULL;
 	m_pOverlay[1]	= NULL;
 
 	m_Sel_xN		= -1;
 
-	Initialise();
-}
+	//-----------------------------------------------------
+	On_Create_Parameters();
 
-//---------------------------------------------------------
-CWKSP_Grid::~CWKSP_Grid(void)
-{}
+	DataObject_Changed();
+
+	Fit_Color_Range();
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -128,46 +127,46 @@ wxString CWKSP_Grid::Get_Description(void)
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR (_TL("Name")					, m_pGrid->Get_Name());
-	DESC_ADD_STR (_TL("Description")			, m_pGrid->Get_Description());
-	DESC_ADD_STR (_TL("File")					, SG_File_Exists(m_pGrid->Get_File_Name()) ? m_pGrid->Get_File_Name() : _TL("memory"));
-	DESC_ADD_STR (_TL("Modified")				, m_pGrid->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR (_TL("Projection")			, m_pGrid->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT (_TL("West")					, m_pGrid->Get_XMin());
-	DESC_ADD_FLT (_TL("East")					, m_pGrid->Get_XMax());
-	DESC_ADD_FLT (_TL("West-East")			, m_pGrid->Get_XRange());
-	DESC_ADD_FLT (_TL("South")				, m_pGrid->Get_YMin());
-	DESC_ADD_FLT (_TL("North")				, m_pGrid->Get_YMax());
-	DESC_ADD_FLT (_TL("South-North")			, m_pGrid->Get_YRange());
-	DESC_ADD_FLT (_TL("Cell Size")			, m_pGrid->Get_Cellsize());
-	DESC_ADD_INT (_TL("Number of Columns")	, m_pGrid->Get_NX());
-	DESC_ADD_INT (_TL("Number of Rows")		, m_pGrid->Get_NY());
-	DESC_ADD_LONG(_TL("Number of Cells")		, m_pGrid->Get_NCells());
-	DESC_ADD_LONG(_TL("No Data Cells")		, m_pGrid->Get_NoData_Count());
-	DESC_ADD_STR (_TL("Value Type")			, SG_Data_Type_Get_Name(m_pGrid->Get_Type()).c_str());
-	DESC_ADD_FLT (_TL("Value Minimum")		, m_pGrid->Get_ZMin());
-	DESC_ADD_FLT (_TL("Value Maximum")		, m_pGrid->Get_ZMax());
-	DESC_ADD_FLT (_TL("Value Range")			, m_pGrid->Get_ZRange());
-	DESC_ADD_STR (_TL("No Data Value")		, m_pGrid->Get_NoData_Value() < m_pGrid->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), m_pGrid->Get_NoData_Value(), m_pGrid->Get_NoData_hiValue()).c_str() : SG_Get_String(m_pGrid->Get_NoData_Value(), -2).c_str());
-	DESC_ADD_FLT (_TL("Arithmetic Mean")		, m_pGrid->Get_ArithMean(true));
-	DESC_ADD_FLT (_TL("Standard Deviation")	, m_pGrid->Get_StdDev(true));
-	DESC_ADD_STR (_TL("Memory Size")			, Get_nBytes_asString(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes(), 2).c_str());
+	DESC_ADD_STR (_TL("Name")				, m_pObject->Get_Name());
+	DESC_ADD_STR (_TL("Description")		, m_pObject->Get_Description());
+	DESC_ADD_STR (_TL("File")				, SG_File_Exists(m_pObject->Get_File_Name()) ? m_pObject->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR (_TL("Modified")			, m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR (_TL("Projection")			, m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT (_TL("West")				, Get_Grid()->Get_XMin());
+	DESC_ADD_FLT (_TL("East")				, Get_Grid()->Get_XMax());
+	DESC_ADD_FLT (_TL("West-East")			, Get_Grid()->Get_XRange());
+	DESC_ADD_FLT (_TL("South")				, Get_Grid()->Get_YMin());
+	DESC_ADD_FLT (_TL("North")				, Get_Grid()->Get_YMax());
+	DESC_ADD_FLT (_TL("South-North")		, Get_Grid()->Get_YRange());
+	DESC_ADD_FLT (_TL("Cell Size")			, Get_Grid()->Get_Cellsize());
+	DESC_ADD_INT (_TL("Number of Columns")	, Get_Grid()->Get_NX());
+	DESC_ADD_INT (_TL("Number of Rows")		, Get_Grid()->Get_NY());
+	DESC_ADD_LONG(_TL("Number of Cells")	, Get_Grid()->Get_NCells());
+	DESC_ADD_LONG(_TL("No Data Cells")		, Get_Grid()->Get_NoData_Count());
+	DESC_ADD_STR (_TL("Value Type")			, SG_Data_Type_Get_Name(Get_Grid()->Get_Type()).c_str());
+	DESC_ADD_FLT (_TL("Value Minimum")		, Get_Grid()->Get_ZMin());
+	DESC_ADD_FLT (_TL("Value Maximum")		, Get_Grid()->Get_ZMax());
+	DESC_ADD_FLT (_TL("Value Range")		, Get_Grid()->Get_ZRange());
+	DESC_ADD_STR (_TL("No Data Value")		, Get_Grid()->Get_NoData_Value() < Get_Grid()->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), Get_Grid()->Get_NoData_Value(), Get_Grid()->Get_NoData_hiValue()).c_str() : SG_Get_String(Get_Grid()->Get_NoData_Value(), -2).c_str());
+	DESC_ADD_FLT (_TL("Arithmetic Mean")	, Get_Grid()->Get_ArithMean(true));
+	DESC_ADD_FLT (_TL("Standard Deviation")	, Get_Grid()->Get_StdDev(true));
+	DESC_ADD_STR (_TL("Memory Size")		, Get_nBytes_asString(Get_Grid()->Get_NCells() * Get_Grid()->Get_nValueBytes(), 2).c_str());
 
-	if( m_pGrid->is_Compressed() )
+	if( Get_Grid()->is_Compressed() )
 	{
-		DESC_ADD_FLT(_TL("Memory Compression")	, 100.0 * m_pGrid->Get_Compression_Ratio());
+		DESC_ADD_FLT(_TL("Memory Compression")	, 100.0 * Get_Grid()->Get_Compression_Ratio());
 	}
 
-	if( m_pGrid->is_Cached() )
+	if( Get_Grid()->is_Cached() )
 	{
-		DESC_ADD_FLT(_TL("File Cache [MB]")		, m_pGrid->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES);
+		DESC_ADD_FLT(_TL("File Cache [MB]")		, Get_Grid()->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES);
 	}
 
 	s	+= wxT("</table>");
 
 	//-----------------------------------------------------
 //	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History")));
-//	s.Append(m_pGrid->Get_History().Get_HTML());
+//	s.Append(Get_Grid()->Get_History().Get_HTML());
 //	s.Append(wxString::Format(wxT("</font")));
 
 	return( s );
@@ -176,9 +175,7 @@ wxString CWKSP_Grid::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Grid::Get_Menu(void)
 {
-	wxMenu	*pMenu, *pSubMenu;
-
-	pMenu		= new wxMenu(m_pGrid->Get_Name());
+	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SAVE);
@@ -193,7 +190,9 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SCATTERPLOT);
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
-	pSubMenu	= new wxMenu(_TL("Classification"));
+	//-----------------------------------------------------
+	wxMenu	*pSubMenu	= new wxMenu(_TL("Classification"));
+
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV150);
@@ -233,22 +232,22 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 
 	case ID_CMD_GRIDS_RANGE_MINMAX:
 		Set_Color_Range(
-			m_pGrid->Get_ZMin(true),
-			m_pGrid->Get_ZMax(true)
+			Get_Grid()->Get_ZMin(true),
+			Get_Grid()->Get_ZMax(true)
 		);
 		break;
 
 	case ID_CMD_GRIDS_RANGE_STDDEV150:
 		Set_Color_Range(
-			m_pGrid->Get_ArithMean(true) - 1.5 * m_pGrid->Get_StdDev(true),
-			m_pGrid->Get_ArithMean(true) + 1.5 * m_pGrid->Get_StdDev(true)
+			Get_Grid()->Get_ArithMean(true) - 1.5 * Get_Grid()->Get_StdDev(true),
+			Get_Grid()->Get_ArithMean(true) + 1.5 * Get_Grid()->Get_StdDev(true)
 		);
 		break;
 
 	case ID_CMD_GRIDS_RANGE_STDDEV200:
 		Set_Color_Range(
-			m_pGrid->Get_ArithMean(true) - 2.0 * m_pGrid->Get_StdDev(true),
-			m_pGrid->Get_ArithMean(true) + 2.0 * m_pGrid->Get_StdDev(true)
+			Get_Grid()->Get_ArithMean(true) - 2.0 * Get_Grid()->Get_StdDev(true),
+			Get_Grid()->Get_ArithMean(true) + 2.0 * Get_Grid()->Get_StdDev(true)
 		);
 		break;
 
@@ -294,7 +293,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	m_Parameters.Add_String(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_UNIT"			, _TL("Unit"),
 		_TL(""),
-		m_pGrid->Get_Unit()
+		Get_Grid()->Get_Unit()
 	);
 
 	m_Parameters.Add_Value(
@@ -302,7 +301,6 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		_TL(""),
 		PARAMETER_TYPE_Double
 	);
-
 
 	//-----------------------------------------------------
 	// Display...
@@ -319,19 +317,18 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		), 0
 	);
 
-
 	//-----------------------------------------------------
 	// Classification...
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("Single Symbol"),		// CLASSIFY_UNIQUE
-			_TL("Lookup Table"),		// CLASSIFY_LUT
-			_TL("Discrete Colors"),		// CLASSIFY_METRIC
+			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Lookup Table"    ),	// CLASSIFY_LUT
+			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
-			_TL("Shade"),				// CLASSIFY_SHADE
-			_TL("RGB Overlay"),			// CLASSIFY_OVERLAY
-			_TL("RGB")					// CLASSIFY_RGB
+			_TL("Shade"           ),	// CLASSIFY_SHADE
+			_TL("RGB Overlay"     ),	// CLASSIFY_OVERLAY
+			_TL("RGB"             )		// CLASSIFY_RGB
 		)
 	);
 
@@ -381,14 +378,13 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		m_Parameters("NODE_OVERLAY")	, "OVERLAY_1"		, _TL("Overlay 1"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
-	)->Get_Parent()->Set_Value((void *)&m_pGrid->Get_System());
+	)->Get_Parent()->Set_Value((void *)&Get_Grid()->Get_System());
 
 	m_Parameters.Add_Grid(
 		m_Parameters("NODE_OVERLAY")	, "OVERLAY_2"		, _TL("Overlay 2"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
-	)->Get_Parent()->Set_Value((void *)&m_pGrid->Get_System());
-
+	)->Get_Parent()->Set_Value((void *)&Get_Grid()->Get_System());
 
 	//-----------------------------------------------------
 	// Cell Values...
@@ -457,39 +453,51 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		_TL(""),
 		PARAMETER_TYPE_Double
 	);
-
-
-	//-----------------------------------------------------
-	DataObject_Changed((CSG_Parameters *)NULL);
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Grid::On_DataObject_Changed(void)
 {
-	//-----------------------------------------------------
-	m_Parameters("GENERAL_Z_UNIT")			->Set_Value((void *)m_pGrid->Get_Unit());
-	m_Parameters("GENERAL_Z_FACTOR")		->Set_Value(m_pGrid->Get_ZFactor());
+	CWKSP_Layer::On_DataObject_Changed();
 
 	//-----------------------------------------------------
-	m_Parameters("MEMORY_MODE")				->Set_Value(
-		m_pGrid->is_Compressed() ? 1 : (m_pGrid->is_Cached() ? 2 : 0)
+	m_Parameters("GENERAL_Z_UNIT"    )->Set_Value(
+		(void *)Get_Grid()->Get_Unit()
 	);
 
-	m_Parameters("MEMORY_BUFFER_SIZE")		->Set_Value(
-		(double)m_pGrid->Get_Buffer_Size() / N_MEGABYTE_BYTES
+	m_Parameters("GENERAL_Z_FACTOR"  )->Set_Value(
+		Get_Grid()->Get_ZFactor()
+	);
+
+	//-----------------------------------------------------
+	m_Parameters("MEMORY_MODE"       )->Set_Value(
+		Get_Grid()->is_Compressed() ? 1 : (Get_Grid()->is_Cached() ? 2 : 0)
+	);
+
+	m_Parameters("MEMORY_BUFFER_SIZE")->Set_Value(
+		(double)Get_Grid()->Get_Buffer_Size() / N_MEGABYTE_BYTES
 	);
 }
 
 //---------------------------------------------------------
 void CWKSP_Grid::On_Parameters_Changed(void)
 {
-	//-----------------------------------------------------
-	m_pGrid->Set_Unit		(m_Parameters("GENERAL_Z_UNIT")		->asString());
-	m_pGrid->Set_ZFactor	(m_Parameters("GENERAL_Z_FACTOR")	->asDouble());
+	CWKSP_Layer::On_Parameters_Changed();
 
 	//-----------------------------------------------------
-	m_pOverlay[0]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_1")->asGrid());
-	m_pOverlay[1]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_2")->asGrid());
+	Get_Grid()->Set_Unit   (m_Parameters("GENERAL_Z_UNIT"  )->asString());
+	Get_Grid()->Set_ZFactor(m_Parameters("GENERAL_Z_FACTOR")->asDouble());
+
+	//-----------------------------------------------------
+	m_pOverlay[0]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_1")->asGrid());
+	m_pOverlay[1]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_2")->asGrid());
 	m_bOverlay		= m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY;
 
 	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
@@ -498,31 +506,38 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	switch( m_Parameters("MEMORY_MODE")->asInt() )
 	{
 	case 0:
-		if( m_pGrid->is_Compressed() )
+		if( Get_Grid()->is_Compressed() )
 		{
-			m_pGrid->Set_Compression(false);
+			Get_Grid()->Set_Compression(false);
 		}
-		else if( m_pGrid->is_Cached() )
+		else if( Get_Grid()->is_Cached() )
 		{
-			m_pGrid->Set_Cache(false);
+			Get_Grid()->Set_Cache(false);
 		}
 		break;
 
 	case 1:
-		if( !m_pGrid->is_Compressed() )
+		if( !Get_Grid()->is_Compressed() )
 		{
-			m_pGrid->Set_Compression(true);
+			Get_Grid()->Set_Compression(true);
 		}
 		break;
 
 	case 2:
-		if( !m_pGrid->is_Cached() )
+		if( !Get_Grid()->is_Cached() )
 		{
-			m_pGrid->Set_Cache(true);
+			Get_Grid()->Set_Cache(true);
 		}
 		break;
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
@@ -624,11 +639,11 @@ void CWKSP_Grid::_LUT_Create(void)
 		{
 			double		Value;
 
-			for(long iCell=0, jCell; iCell<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(iCell, m_pGrid->Get_NCells()); iCell++)
+			for(long iCell=0, jCell; iCell<Get_Grid()->Get_NCells() && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
 			{
-				if( m_pGrid->Get_Sorted(iCell, jCell, false) && (pLUT->Get_Record_Count() == 0 || Value != m_pGrid->asDouble(jCell)) )
+				if( Get_Grid()->Get_Sorted(iCell, jCell, false) && (pLUT->Get_Record_Count() == 0 || Value != Get_Grid()->asDouble(jCell)) )
 				{
-					Value	= m_pGrid->asDouble(jCell);
+					Value	= Get_Grid()->asDouble(jCell);
 
 					CSG_Table_Record	*pClass	= pLUT->Add_Record();
 
@@ -653,12 +668,12 @@ void CWKSP_Grid::_LUT_Create(void)
 		{
 			double	Minimum, Maximum, Interval;
 
-			Interval	= m_pGrid->Get_ZRange() / (double)pColors->Get_Count();
-			Minimum		= m_pGrid->Get_ZMin  ();
+			Interval	= Get_Grid()->Get_ZRange() / (double)pColors->Get_Count();
+			Minimum		= Get_Grid()->Get_ZMin  ();
 
 			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : m_pGrid->Get_ZMax() + 1.0;
+				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : Get_Grid()->Get_ZMax() + 1.0;
 
 				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
 					SG_Get_String(Minimum, -2).c_str(),
@@ -679,21 +694,21 @@ void CWKSP_Grid::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 2:	// quantiles
 		{
-			if( m_pGrid->Get_NCells() < pColors->Get_Count() )
+			if( Get_Grid()->Get_NCells() < pColors->Get_Count() )
 			{
-				pColors->Set_Count(m_pGrid->Get_NCells());
+				pColors->Set_Count(Get_Grid()->Get_NCells());
 			}
 
 			long	jCell, nCells;
 			double	Minimum, Maximum, iCell, Count;
 
-			Maximum	= m_pGrid->Get_ZMin();
-			nCells	= m_pGrid->Get_NCells() - m_pGrid->Get_NoData_Count();
+			Maximum	= Get_Grid()->Get_ZMin();
+			nCells	= Get_Grid()->Get_NCells() - Get_Grid()->Get_NoData_Count();
 			iCell	= Count	= nCells / (double)pColors->Get_Count();
 
-			for(iCell=0.0; iCell<m_pGrid->Get_NCells(); iCell++)
+			for(iCell=0.0; iCell<Get_Grid()->Get_NCells(); iCell++)
 			{
-				if( m_pGrid->Get_Sorted((long)iCell, jCell, false) )
+				if( Get_Grid()->Get_Sorted((long)iCell, jCell, false) )
 				{
 					break;
 				}
@@ -703,10 +718,10 @@ void CWKSP_Grid::_LUT_Create(void)
 
 			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iCell+=Count)
 			{
-				m_pGrid->Get_Sorted((long)iCell, jCell, false);
+				Get_Grid()->Get_Sorted((long)iCell, jCell, false);
 
 				Minimum	= Maximum;
-				Maximum	= iCell < m_pGrid->Get_NCells() ? m_pGrid->asDouble(jCell) : m_pGrid->Get_ZMax() + 1.0;
+				Maximum	= iCell < Get_Grid()->Get_NCells() ? Get_Grid()->asDouble(jCell) : Get_Grid()->Get_ZMax() + 1.0;
 
 				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
 					SG_Get_String(Minimum, -2).c_str(),
@@ -748,7 +763,7 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 	double		Value;
 	wxString	s;
 
-	if( m_pGrid->Get_Value(ptWorld, Value, GRID_INTERPOLATION_NearestNeighbour, true) )
+	if( Get_Grid()->Get_Value(ptWorld, Value, GRID_INTERPOLATION_NearestNeighbour, true) )
 	{
 		switch( m_pClassify->Get_Mode() )
 		{
@@ -757,7 +772,7 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			break;
 
 		default:
-			switch( m_pGrid->Get_Type() )
+			switch( Get_Grid()->Get_Type() )
 			{
 			case SG_DATATYPE_Byte:
 			case SG_DATATYPE_Char:
@@ -765,12 +780,12 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			case SG_DATATYPE_Short:
 			case SG_DATATYPE_DWord:
 			case SG_DATATYPE_Int:
-				s.Printf(wxT("%d%s"), (int)Value, m_pGrid->Get_Unit());
+				s.Printf(wxT("%d%s"), (int)Value, Get_Grid()->Get_Unit());
 				break;
 
 			case SG_DATATYPE_Float:	default:
 			case SG_DATATYPE_Double:
-				s.Printf(wxT("%f%s"), Value, m_pGrid->Get_Unit());
+				s.Printf(wxT("%f%s"), Value, Get_Grid()->Get_Unit());
 				break;
 			}
 			break;
@@ -787,7 +802,7 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 //---------------------------------------------------------
 double CWKSP_Grid::Get_Value_Range(void)
 {
-	return( m_pGrid->Get_ZRange() );
+	return( Get_Grid()->Get_ZRange() );
 }
 
 
@@ -820,20 +835,20 @@ bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int 
 	CSG_Table_Record	*pRecord;
 	CSG_Rect			rWorld(m_Edit_Mouse_Down, Point);
 
-	m_Sel_xOff	= m_pGrid->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
+	m_Sel_xOff	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
 	if( m_Sel_xOff < 0 )
 		m_Sel_xOff	= 0;
-	m_Sel_xN	= m_pGrid->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
-	if( m_Sel_xN >= m_pGrid->Get_NX() )
-		m_Sel_xN	= m_pGrid->Get_NX() - 1;
+	m_Sel_xN	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
+	if( m_Sel_xN >= Get_Grid()->Get_NX() )
+		m_Sel_xN	= Get_Grid()->Get_NX() - 1;
 	m_Sel_xN	= 1 + m_Sel_xN - m_Sel_xOff;
 
-	m_Sel_yOff	= m_pGrid->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
+	m_Sel_yOff	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
 	if( m_Sel_yOff < 0 )
 		m_Sel_yOff	= 0;
-	m_Sel_yN	= m_pGrid->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
-	if( m_Sel_yN >= m_pGrid->Get_NY() )
-		m_Sel_yN	= m_pGrid->Get_NY() - 1;
+	m_Sel_yN	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
+	if( m_Sel_yN >= Get_Grid()->Get_NY() )
+		m_Sel_yN	= Get_Grid()->Get_NY() - 1;
 	m_Sel_yN	= 1 + m_Sel_yN - m_Sel_yOff;
 
 	m_Edit_Attributes.Destroy();
@@ -867,14 +882,14 @@ bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int 
 
 			for(x=0; x<m_Sel_xN; x++)
 			{
-				pRecord->Set_Value(x, m_pGrid->asDouble(m_Sel_xOff + x, m_Sel_yOff + m_Sel_yN - 1 - y, false));
+				pRecord->Set_Value(x, Get_Grid()->asDouble(m_Sel_xOff + x, m_Sel_yOff + m_Sel_yN - 1 - y, false));
 			}
 		}
 	}
 
 	g_pACTIVE->Get_Attributes()->Set_Attributes();
 
-	Update_Views(true);
+	Update_Views();
 
 	return( true );
 }
@@ -893,11 +908,11 @@ bool CWKSP_Grid::On_Edit_Set_Attributes(void)
 
 			for(x=0; x<m_Sel_xN; x++)
 			{
-				m_pGrid->Set_Value(m_Sel_xOff + x, m_Sel_yOff + m_Sel_yN - 1 - y, pRecord->asDouble(x));
+				Get_Grid()->Set_Value(m_Sel_xOff + x, m_Sel_yOff + m_Sel_yN - 1 - y, pRecord->asDouble(x));
 			}
 		}
 
-		Update_Views(true);
+		Update_Views();
 
 		return( true );
 	}
@@ -911,14 +926,14 @@ TSG_Rect CWKSP_Grid::On_Edit_Get_Extent(void)
 	if( m_Sel_xN >= 0 )
 	{
 		return( CSG_Rect(
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff),
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_yGrid_to_World(m_Sel_yOff),
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_yGrid_to_World(m_Sel_yOff + m_Sel_yN))
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff + m_Sel_yN))
 		);
 	}
 
-	return( m_pGrid->Get_Extent().m_rect );
+	return( Get_Grid()->Get_Extent().m_rect );
 }
 
 
@@ -939,11 +954,11 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 		{
 			for(x=m_Sel_xOff; x<m_Sel_xOff + m_Sel_xN; x++)
 			{
-				m_pGrid->Set_NoData(x, y);
+				Get_Grid()->Set_NoData(x, y);
 			}
 		}
 
-		Update_Views(false);
+		Update_Views();
 
 		return( true );
 	}
@@ -959,48 +974,63 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
+bool CWKSP_Grid::Fit_Color_Range(void)
 {
-	int		x, y, xMin, yMin, xMax, yMax;
-	double	z, zMin, zMax;
+	double		zMin, zMax;
 
-	if( rWorld.Intersect(Get_Extent()) )
+	int		Method	= ((CWKSP_Base_Item *)g_pData)->Get_Parameters()->Get_Parameter("GRID_DISPLAY_RANGEFIT")->asInt();
+
+	if( Method == 0 )
 	{
-		xMin	= m_pGrid->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
-		yMin	= m_pGrid->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
-		xMax	= m_pGrid->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
-		yMax	= m_pGrid->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
-		zMin	= 1.0;
-		zMax	= 0.0;
+		zMin	= Get_Grid()->Get_ZMin(true);
+		zMax	= Get_Grid()->Get_ZMax(true);
+	}
+	else
+	{
+		double	StdDev	= Method == 1 ? 1.5 : 2.0;
 
-		for(y=yMin; y<=yMax; y++)
-		{
-			for(x=xMin; x<=xMax; x++)
-			{
-				if( m_pGrid->is_InGrid(x, y) )
-				{
-					z	= m_pGrid->asDouble(x, y);
+		zMin	= Get_Grid()->Get_ArithMean(true) - Get_Grid()->Get_StdDev(true) * StdDev;
+		zMax	= Get_Grid()->Get_ArithMean(true) + Get_Grid()->Get_StdDev(true) * StdDev;
 
-					if( zMin > zMax )
-					{
-						zMin	= zMax	= z;
-					}
-					else if( z < zMin )
-					{
-						zMin	= z;
-					}
-					else if( z > zMax )
-					{
-						zMax	= z;
-					}
-				}
-			}
-		}
-
-		return( Set_Color_Range(zMin, zMax) );
+		if( zMin < Get_Grid()->Get_ZMin(true) )	zMin	= Get_Grid()->Get_ZMin(true);
+		if( zMax > Get_Grid()->Get_ZMax(true) )	zMax	= Get_Grid()->Get_ZMax(true);
 	}
 
-	return( false );
+	return( Set_Color_Range(zMin, zMax) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
+{
+	if( !rWorld.Intersect(Get_Extent()) )
+	{
+		return( false );
+	}
+
+	int		xMin	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
+	int		yMin	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
+	int		xMax	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
+	int		yMax	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
+
+	double	zMin	= 1.0;
+	double	zMax	= 0.0;
+
+	for(int y=yMin; y<=yMax; y++)
+	{
+		for(int x=xMin; x<=xMax; x++)
+		{
+			if( Get_Grid()->is_InGrid(x, y) )
+			{
+				double	z	= Get_Grid()->asDouble(x, y);
+
+				if( zMin > zMax )	{	zMin	= zMax	= z;	}
+				else if( z < zMin )	{	zMin	= z;			}
+				else if( z > zMax )	{	zMax	= z;			}
+			}
+		}
+	}
+
+	return( Set_Color_Range(zMin, zMax) );
 }
 
 
@@ -1020,7 +1050,7 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 	{
 		wxImage	IMG(BMP.ConvertToImage());
 
-		pImage->Create(m_pGrid, SG_DATATYPE_Int);
+		pImage->Create(Get_Grid(), SG_DATATYPE_Int);
 
 		for(y=0; y<pImage->Get_NY() && PROGRESSBAR_Set_Position(y, pImage->Get_NY()); y++)
 		{
@@ -1100,11 +1130,11 @@ void CWKSP_Grid::_Save_Image(void)
 			if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 			{
 				Stream.Printf(SG_T("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
-					 m_pGrid->Get_Cellsize(),
+					 Get_Grid()->Get_Cellsize(),
 					 0.0, 0.0,
-					-m_pGrid->Get_Cellsize(),
-					 m_pGrid->Get_XMin(),
-					 m_pGrid->Get_YMax()
+					-Get_Grid()->Get_Cellsize(),
+					 Get_Grid()->Get_XMin(),
+					 Get_Grid()->Get_YMax()
 				);
 			}
 		}
@@ -1120,7 +1150,7 @@ bool CWKSP_Grid::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 
 		if( bFitSize )
 		{
-			BMP.Create(m_pGrid->Get_NX(), m_pGrid->Get_NY());
+			BMP.Create(Get_Grid()->Get_NX(), Get_Grid()->Get_NY());
 		}
 
 		wxMemoryDC		dc;
@@ -1199,7 +1229,7 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 							? GRID_INTERPOLATION_NearestNeighbour
 							: m_Parameters("DISPLAY_INTERPOLATION")->asInt();
 
-			if(	dc_Map.m_DC2World >= m_pGrid->Get_Cellsize()
+			if(	dc_Map.m_DC2World >= Get_Grid()->Get_Cellsize()
 			||	Interpolation != GRID_INTERPOLATION_NearestNeighbour || m_bOverlay )
 			{
 				_Draw_Grid_Points	(dc_Map, Interpolation);
@@ -1239,10 +1269,10 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	case 5:	r = 2; g = 1; b = 0;	break;
 	}
 
-	m_pOverlay[0]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_1")->asGrid());
-	m_pOverlay[1]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_2")->asGrid());
+	m_pOverlay[0]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_1")->asGrid());
+	m_pOverlay[1]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_2")->asGrid());
 
-	rMap.Intersect(m_pGrid->Get_Extent(true));
+	rMap.Intersect(Get_Grid()->Get_Extent(true));
 
 	axDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMin());	if( axDC < 0 )	axDC	= 0;
 	bxDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMax());	if( bxDC >= dc_Map.m_rDC.GetWidth () )	bxDC	= dc_Map.m_rDC.GetWidth () - 1;
@@ -1250,7 +1280,7 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
 	nyDC	= abs(ayDC - byDC);
 
-	if( m_pGrid->is_Cached() || m_pGrid->is_Compressed() )
+	if( Get_Grid()->is_Cached() || Get_Grid()->is_Compressed() )
 	{
 		for(int iyDC=0; iyDC<=nyDC; iyDC++)
 		{
@@ -1277,7 +1307,7 @@ void CWKSP_Grid::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, int Interpolation, bool b
 	{
 		double	Value;
 
-		if( m_pGrid->Get_Value(xMap, yMap, Value, Interpolation, false, bByteWise, true) )
+		if( Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, bByteWise, true) )
 		{
 			if( m_bOverlay == false )
 			{
@@ -1317,25 +1347,25 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 	double	xDC, yDC, axDC, ayDC, dDC;
 
 	//-----------------------------------------------------
-	dDC		= m_pGrid->Get_Cellsize() * dc_Map.m_World2DC;
+	dDC		= Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
 
-	xa		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
-	ya		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
-	xb		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
-	yb		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
+	xa		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
+	ya		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
+	xb		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
+	yb		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
 
-	if( xa < 0 )	xa	= 0;	if( xb >= m_pGrid->Get_NX() )	xb	= m_pGrid->Get_NX() - 1;
-	if( ya < 0 )	ya	= 0;	if( yb >= m_pGrid->Get_NY() )	yb	= m_pGrid->Get_NY() - 1;
+	if( xa < 0 )	xa	= 0;	if( xb >= Get_Grid()->Get_NX() )	xb	= Get_Grid()->Get_NX() - 1;
+	if( ya < 0 )	ya	= 0;	if( yb >= Get_Grid()->Get_NY() )	yb	= Get_Grid()->Get_NY() - 1;
 
-	axDC	= dc_Map.xWorld2DC(m_pGrid->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.0;
-	ayDC	= dc_Map.yWorld2DC(m_pGrid->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.0;
+	axDC	= dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.0;
+	ayDC	= dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.0;
 
 	//-----------------------------------------------------
 	for(y=ya, yDC=ayDC, yaDC=(int)(ayDC), ybDC=(int)(ayDC+dDC); y<=yb; y++, ybDC=yaDC, yaDC=(int)(yDC-=dDC))
 	{
 		for(x=xa, xDC=axDC, xaDC=(int)(axDC-dDC), xbDC=(int)(axDC); x<=xb; x++, xaDC=xbDC, xbDC=(int)(xDC+=dDC))
 		{
-			if( m_pGrid->is_InGrid(x, y) && m_pClassify->Get_Class_Color_byValue(m_pGrid->asDouble(x, y), Color) )
+			if( Get_Grid()->is_InGrid(x, y) && m_pClassify->Get_Class_Color_byValue(Get_Grid()->asDouble(x, y), Color) )
 			{
 				dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, Color);
 			}
@@ -1346,7 +1376,7 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 {
-	if(	!m_Parameters("VALUES_SHOW")->asBool() || m_pGrid->Get_Cellsize() * dc_Map.m_World2DC <= 40 )
+	if(	!m_Parameters("VALUES_SHOW")->asBool() || Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC <= 40 )
 	{
 		return;
 	}
@@ -1357,8 +1387,8 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	wxColour	Effect_Color;
 	wxFont		Font;
 
-	dDC			= m_pGrid->Get_Cellsize() * dc_Map.m_World2DC;
-	zFactor		= m_pGrid->Get_ZFactor();
+	dDC			= Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
+	zFactor		= Get_Grid()->Get_ZFactor();
 	Decimals	= m_Parameters("VALUES_DECIMALS")->asInt();
 	Font		= Get_Font(m_Parameters("VALUES_FONT"));
 	Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.0));
@@ -1382,16 +1412,16 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	Effect_Color	= m_Parameters("VALUES_EFFECT_COLOR")->asColor();
 
 	//-------------------------------------------------
-	ax		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
-	ay		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
-	bx		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
-	by		= m_pGrid->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
+	ax		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
+	ay		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
+	bx		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
+	by		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
 
-	if( ax < 0 )	ax	= 0;	if( bx >= m_pGrid->Get_NX() )	bx	= m_pGrid->Get_NX() - 1;
-	if( ay < 0 )	ax	= 0;	if( by >= m_pGrid->Get_NY() )	by	= m_pGrid->Get_NY() - 1;
+	if( ax < 0 )	ax	= 0;	if( bx >= Get_Grid()->Get_NX() )	bx	= Get_Grid()->Get_NX() - 1;
+	if( ay < 0 )	ax	= 0;	if( by >= Get_Grid()->Get_NY() )	by	= Get_Grid()->Get_NY() - 1;
 
-	axDC	= dc_Map.xWorld2DC(m_pGrid->Get_System().Get_xGrid_to_World(ax));
-	ayDC	= dc_Map.yWorld2DC(m_pGrid->Get_System().Get_yGrid_to_World(ay));
+	axDC	= dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(ax));
+	ayDC	= dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ay));
 
 	int	ny	= by - ay;
 
@@ -1403,9 +1433,9 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 
 		for(x=ax, xDC=axDC; x<=bx; x++, xDC+=dDC)
 		{
-			if( m_pGrid->is_InGrid(x, ay + y) )
+			if( Get_Grid()->is_InGrid(x, ay + y) )
 			{
-				double	Value	= m_pGrid->asDouble(x, ay + y);
+				double	Value	= Get_Grid()->asDouble(x, ay + y);
 
 				switch( m_pClassify->Get_Mode() )
 				{
@@ -1432,10 +1462,10 @@ void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
 	if( m_Sel_xN >= 0 )
 	{
 		CSG_Rect	r(
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff),
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_yGrid_to_World(m_Sel_yOff),
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
-			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_yGrid_to_World(m_Sel_yOff + m_Sel_yN)
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff + m_Sel_yN)
 		);
 
 		TSG_Point_Int		a(dc_Map.World2DC(r.Get_TopLeft())),

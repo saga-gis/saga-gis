@@ -122,7 +122,7 @@ void CDLG_List_TIN::_Set_Objects(void)
 	{
 		for(i=0; i<m_pList->Get_Count(); i++)
 		{
-			CWKSP_Base_Item	*pItem	= g_pData->Get_TINs()->Get_TIN(m_pList->asDataObject(i)->asTIN());
+			CWKSP_Base_Item	*pItem	= g_pData->Get(m_pList->asDataObject(i)->asTIN());
 
 			if( pItem )
 			{
@@ -133,7 +133,7 @@ void CDLG_List_TIN::_Set_Objects(void)
 		//-------------------------------------------------
 		for(i=0; i<pTINs->Get_Count(); i++)
 		{
-			pTIN	= pTINs->Get_TIN(i);
+			pTIN	= pTINs->Get_Data(i);
 
 			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{

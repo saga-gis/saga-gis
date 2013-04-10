@@ -353,23 +353,9 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 		for(i=0; i<pTables->Get_Count(); i++)
 		{
 			_Save_Data(*pNode, ProjectDir,
-				pTables->Get_Table(i)->Get_Table(),
-				pTables->Get_Table(i)->Get_Parameters()
+				pTables->Get_Data(i)->Get_Object(),
+				pTables->Get_Data(i)->Get_Parameters()
 			);
-		}
-	}
-
-	if( (pShapes = g_pData->Get_Shapes()) != NULL )
-	{
-		for(j=0; j<pShapes->Get_Count(); j++)
-		{
-			for(i=0; i<((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Count(); i++)
-			{
-				_Save_Data(*pNode, ProjectDir,
-					((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Shapes(i)->Get_Shapes(),
-					((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Shapes(i)->Get_Parameters()
-				);
-			}
 		}
 	}
 
@@ -378,8 +364,8 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 		for(i=0; i<pTINs->Get_Count(); i++)
 		{
 			_Save_Data(*pNode, ProjectDir,
-				pTINs->Get_TIN(i)->Get_TIN(),
-				pTINs->Get_TIN(i)->Get_Parameters()
+				pTINs->Get_Data(i)->Get_Object(),
+				pTINs->Get_Data(i)->Get_Parameters()
 			);
 		}
 	}
@@ -389,9 +375,23 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 		for(i=0; i<pPointClouds->Get_Count(); i++)
 		{
 			_Save_Data(*pNode, ProjectDir,
-				pPointClouds->Get_PointCloud(i)->Get_PointCloud(),
-				pPointClouds->Get_PointCloud(i)->Get_Parameters()
+				pPointClouds->Get_Data(i)->Get_Object(),
+				pPointClouds->Get_Data(i)->Get_Parameters()
 			);
+		}
+	}
+
+	if( (pShapes = g_pData->Get_Shapes()) != NULL )
+	{
+		for(j=0; j<pShapes->Get_Count(); j++)
+		{
+			for(i=0; i<pShapes->Get_Shapes_Type(j)->Get_Count(); i++)
+			{
+				_Save_Data(*pNode, ProjectDir,
+					pShapes->Get_Shapes_Type(j)->Get_Data(i)->Get_Object(),
+					pShapes->Get_Shapes_Type(j)->Get_Data(i)->Get_Parameters()
+				);
+			}
 		}
 	}
 
@@ -402,8 +402,8 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 			for(i=0; i<pGrids->Get_System(j)->Get_Count(); i++)
 			{
 				_Save_Data(*pNode, ProjectDir,
-					pGrids->Get_System(j)->Get_Grid(i)->Get_Grid(),
-					pGrids->Get_System(j)->Get_Grid(i)->Get_Parameters()
+					pGrids->Get_System(j)->Get_Data(i)->Get_Object(),
+					pGrids->Get_System(j)->Get_Data(i)->Get_Parameters()
 				);
 			}
 		}
@@ -492,7 +492,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 		return( false );
 	}
 
-	pItem	= bLoad ? g_pData->Open(Type, File) : _Get_byFileName(File);
+	pItem	= bLoad ? g_pData->Open(File, Type) : _Get_byFileName(File);
 
 	if(	!pItem )
 	{
@@ -648,80 +648,7 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(const wxString &FileName)
 {
-	wxString					s;
-	int							i, j;
-	CWKSP_Table_Manager			*pTables;
-	CWKSP_Shapes_Manager		*pShapes;
-	CWKSP_TIN_Manager			*pTINs;
-	CWKSP_PointCloud_Manager	*pPointClouds;
-	CWKSP_Grid_Manager			*pGrids;
-
-	//-----------------------------------------------------
-	if( FileName.Length() > 0 )
-	{
-		if( (pTables = g_pData->Get_Tables()) != NULL )
-		{
-			for(i=0; i<pTables->Get_Count(); i++)
-			{
-				if( !FileName.Cmp(pTables->Get_Table(i)->Get_Table()->Get_File_Name()) )
-				{
-					return( pTables->Get_Table(i) );
-				}
-			}
-		}
-
-		if( (pShapes = g_pData->Get_Shapes()) != NULL )
-		{
-			for(j=0; j<pShapes->Get_Count(); j++)
-			{
-				for(i=0; i<((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Count(); i++)
-				{
-					if( !FileName.Cmp(((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Shapes(i)->Get_Shapes()->Get_File_Name()) )
-					{
-						return( ((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Shapes(i) );
-					}
-				}
-			}
-		}
-
-		if( (pTINs = g_pData->Get_TINs()) != NULL )
-		{
-			for(i=0; i<pTINs->Get_Count(); i++)
-			{
-				if( !FileName.Cmp(pTINs->Get_TIN(i)->Get_TIN()->Get_File_Name()) )
-				{
-					return( pTINs->Get_TIN(i) );
-				}
-			}
-		}
-
-		if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
-		{
-			for(i=0; i<pPointClouds->Get_Count(); i++)
-			{
-				if( !FileName.Cmp(pPointClouds->Get_PointCloud(i)->Get_PointCloud()->Get_File_Name()) )
-				{
-					return( pPointClouds->Get_PointCloud(i) );
-				}
-			}
-		}
-
-		if( (pGrids = g_pData->Get_Grids()) != NULL )
-		{
-			for(j=0; j<pGrids->Get_Count(); j++)
-			{
-				for(i=0; i<pGrids->Get_System(j)->Get_Count(); i++)
-				{
-					if( !FileName.Cmp(pGrids->Get_System(j)->Get_Grid(i)->Get_Grid()->Get_File_Name()) )
-					{
-						return( pGrids->Get_System(j)->Get_Grid(i) );
-					}
-				}
-			}
-		}
-	}
-
-	return( NULL );
+	return( g_pData->Get(SG_Get_Data_Manager().Find(&FileName)) );
 }
 
 
@@ -913,7 +840,7 @@ bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 		{
 			CSG_Data_Object	*pObject	= (CSG_Data_Object *)Pointer;
 
-			if(	g_pData->Exists(pObject) )
+			if(	SG_Get_Data_Manager().Exists(pObject) )
 			{
 				CSG_String		fPath;
 				CSG_Parameter	*pPath	= pParameters->Get_Parameter(CSG_String::Format(SG_T("%d FILE"), (long)pObject));
@@ -1044,7 +971,7 @@ bool CWKSP_Project::_Compatibility_Load_Data(CSG_File &Stream, const wxString &P
 		{
 			if( SG_File_Exists(sPath = Get_FilePath_Absolute(ProjectDir, sPath.w_str()).wc_str()) )
 			{
-				if(	(pItem = g_pData->Open(Type, sPath.w_str())) != NULL )
+				if(	(pItem = g_pData->Open(sPath.w_str(), Type)) != NULL )
 				{
 					if( pItem->Get_Parameters() )
 					{
