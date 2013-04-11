@@ -27,6 +27,7 @@ api_memory.cpp\
 api_string.cpp\
 api_translator.cpp\
 clipper.cpp\
+data_manager.cpp\
 dataobject.cpp\
 geo_classes.cpp\
 geo_functions.cpp\
@@ -82,6 +83,7 @@ tin_elements.cpp\
 tin_triangulation.cpp\
 api_core.h\
 clipper.hpp\
+data_manager.h\
 dataobject.h\
 geo_tools.h\
 grid.h\

@@ -79,6 +79,7 @@ wksp_base_control.cpp\
 wksp_base_item.cpp\
 wksp_base_manager.cpp\
 wksp_data_control.cpp\
+wksp_data_item.cpp\
 wksp_data_layers.cpp\
 wksp_data_manager.cpp\
 wksp_data_menu_file.cpp\
@@ -173,6 +174,7 @@ wksp_base_control.h\
 wksp_base_item.h\
 wksp_base_manager.h\
 wksp_data_control.h\
+wksp_data_item.h\
 wksp_data_layers.h\
 wksp_data_manager.h\
 wksp_data_menu_file.h\
