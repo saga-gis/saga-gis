@@ -149,7 +149,7 @@ bool CSG_Data_Collection::Exists(CSG_Data_Object *pObject) const
 //---------------------------------------------------------
 bool CSG_Data_Collection::Add(CSG_Data_Object *pObject)
 {
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )//&& pObject->Get_ObjectType() == m_Type )
+	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == m_Type )
 	{
 		if( Exists(pObject) )
 		{
@@ -220,41 +220,6 @@ bool CSG_Data_Collection::Delete(size_t i, bool bDetachOnly)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes_Collection::CSG_Shapes_Collection(CSG_Data_Manager *pManager, TSG_Shape_Type Type)
-	: CSG_Data_Collection(pManager, DATAOBJECT_TYPE_Shapes)
-{
-	m_Shape_Type	= Type;
-}
-
-//---------------------------------------------------------
-bool CSG_Shapes_Collection::Exists(CSG_Data_Object *pObject) const
-{
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
-	&& ((CSG_Shapes *)pObject)->Get_Type() == m_Shape_Type )
-	{
-		return( CSG_Data_Collection::Exists(pObject) );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Shapes_Collection::Add(CSG_Data_Object *pObject)
-{
-	return( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
-		&& ((CSG_Shapes *)pObject)->Get_Type() == m_Shape_Type
-		&&	CSG_Data_Collection::Add(pObject)
-	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CSG_Grid_Collection::CSG_Grid_Collection(CSG_Data_Manager *pManager)
 	: CSG_Data_Collection(pManager, DATAOBJECT_TYPE_Grid)
 {}
@@ -262,7 +227,7 @@ CSG_Grid_Collection::CSG_Grid_Collection(CSG_Data_Manager *pManager)
 //---------------------------------------------------------
 bool CSG_Grid_Collection::Exists(CSG_Data_Object *pObject) const
 {
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid && is_Equal(((CSG_Grid *)pObject)->Get_System()) )
+	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 	{
 		return( CSG_Data_Collection::Exists(pObject) );
 	}
@@ -295,14 +260,10 @@ bool CSG_Grid_Collection::Add(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CSG_Data_Manager::CSG_Data_Manager(void)
 {
-	m_pTable		= new CSG_Data_Collection  (this, DATAOBJECT_TYPE_Table     );
-	m_pTIN			= new CSG_Data_Collection  (this, DATAOBJECT_TYPE_TIN       );
-	m_pPoint_Cloud	= new CSG_Data_Collection  (this, DATAOBJECT_TYPE_PointCloud);
-
-	m_pPoint		= new CSG_Shapes_Collection(this, SHAPE_TYPE_Point          );
-	m_pPoints		= new CSG_Shapes_Collection(this, SHAPE_TYPE_Points         );
-	m_pLine			= new CSG_Shapes_Collection(this, SHAPE_TYPE_Line           );
-	m_pPolygon		= new CSG_Shapes_Collection(this, SHAPE_TYPE_Polygon        );
+	m_pTable		= new CSG_Data_Collection(this, DATAOBJECT_TYPE_Table     );
+	m_pTIN			= new CSG_Data_Collection(this, DATAOBJECT_TYPE_TIN       );
+	m_pPoint_Cloud	= new CSG_Data_Collection(this, DATAOBJECT_TYPE_PointCloud);
+	m_pShapes		= new CSG_Data_Collection(this, DATAOBJECT_TYPE_Shapes    );
 
 	m_Grid_Systems.Create(sizeof(CSG_Grid_Collection *));
 }
@@ -315,11 +276,7 @@ CSG_Data_Manager::~CSG_Data_Manager(void)
 	delete(m_pTable      );
 	delete(m_pTIN        );
 	delete(m_pPoint_Cloud);
-
-	delete(m_pPoint      );
-	delete(m_pPoints     );
-	delete(m_pLine       );
-	delete(m_pPolygon    );
+	delete(m_pShapes     );
 }
 
 
@@ -339,20 +296,9 @@ CSG_Data_Collection * CSG_Data_Manager::_Get_Collection(CSG_Data_Object *pObject
 		case DATAOBJECT_TYPE_Table:      return( m_pTable       );
 		case DATAOBJECT_TYPE_TIN:        return( m_pTIN         );
 		case DATAOBJECT_TYPE_PointCloud: return( m_pPoint_Cloud );
+		case DATAOBJECT_TYPE_Shapes:     return( m_pShapes      );
 
-		case DATAOBJECT_TYPE_Shapes:
-			switch( ((CSG_Shapes *)pObject)->Get_Type() )
-			{
-			default: break;
-
-			case SHAPE_TYPE_Point:      return( m_pPoint        );
-			case SHAPE_TYPE_Points:     return( m_pPoints       );
-			case SHAPE_TYPE_Line:       return( m_pLine         );
-			case SHAPE_TYPE_Polygon:    return( m_pPolygon      );
-			}
-			break;
-
-		case DATAOBJECT_TYPE_Grid:		return( Get_Grid_System(((CSG_Grid *)pObject)->Get_System()) );
+		case DATAOBJECT_TYPE_Grid:       return( Get_Grid_System(((CSG_Grid *)pObject)->Get_System()) );
 		}
 	}
 
@@ -389,9 +335,17 @@ bool CSG_Data_Manager::Exists(const CSG_Grid_System &System) const
 //---------------------------------------------------------
 bool CSG_Data_Manager::Exists(CSG_Data_Object *pObject) const
 {
-	CSG_Data_Collection	*pCollection	= _Get_Collection(pObject);
+	if( m_pTable      ->Exists(pObject) )	return( true );
+	if( m_pTIN        ->Exists(pObject) )	return( true );
+	if( m_pPoint_Cloud->Exists(pObject) )	return( true );
+	if( m_pShapes     ->Exists(pObject) )	return( true );
 
-	return( pCollection && pCollection->Exists(pObject) );
+	for(size_t i=0; i<Grid_System_Count(); i++)
+	{
+		if( Get_Grid_System(i)->Exists(pObject) )	return( true );
+	}
+
+	return(	false );
 }
 
 //---------------------------------------------------------
@@ -402,10 +356,7 @@ CSG_Data_Object *  CSG_Data_Manager::Find(const CSG_String &File) const
 	if( (pObject = m_pTable      ->Get(File)) != NULL )	return( pObject );
 	if( (pObject = m_pTIN        ->Get(File)) != NULL )	return( pObject );
 	if( (pObject = m_pPoint_Cloud->Get(File)) != NULL )	return( pObject );
-	if( (pObject = m_pPoint      ->Get(File)) != NULL )	return( pObject );
-	if( (pObject = m_pPoints     ->Get(File)) != NULL )	return( pObject );
-	if( (pObject = m_pLine       ->Get(File)) != NULL )	return( pObject );
-	if( (pObject = m_pPolygon    ->Get(File)) != NULL )	return( pObject );
+	if( (pObject = m_pShapes     ->Get(File)) != NULL )	return( pObject );
 
 	for(size_t i=0; i<Grid_System_Count(); i++)
 	{
@@ -560,6 +511,82 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Table * CSG_Data_Manager::Add_Table(void)
+{
+	CSG_Table	*pObject	= new CSG_Table();
+	
+	if( pObject && !Add(pObject) )
+	{
+		delete(pObject); pObject = NULL;
+	}
+
+	return( pObject );
+}
+
+//---------------------------------------------------------
+CSG_TIN * CSG_Data_Manager::Add_TIN(void)
+{
+	CSG_TIN	*pObject	= new CSG_TIN();
+	
+	if( pObject && !Add(pObject) )
+	{
+		delete(pObject); pObject = NULL;
+	}
+
+	return( pObject );
+}
+
+//---------------------------------------------------------
+CSG_PointCloud * CSG_Data_Manager::Add_PointCloud(void)
+{
+	CSG_PointCloud	*pObject	= new CSG_PointCloud();
+	
+	if( pObject && !Add(pObject) )
+	{
+		delete(pObject); pObject = NULL;
+	}
+
+	return( pObject );
+}
+
+//---------------------------------------------------------
+CSG_Shapes * CSG_Data_Manager::Add_Shapes(TSG_Shape_Type Type)
+{
+	CSG_Shapes	*pObject	= new CSG_Shapes(Type);
+	
+	if( pObject && !Add(pObject) )
+	{
+		delete(pObject); pObject = NULL;
+	}
+
+	return( pObject );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CSG_Data_Manager::Add_Grid(const CSG_Grid_System &System, TSG_Data_Type Type)
+{
+	CSG_Grid	*pObject	= System.is_Valid() ? new CSG_Grid(System, Type) : NULL;
+	
+	if( pObject && !Add(pObject) )
+	{
+		delete(pObject); pObject = NULL;
+	}
+
+	return( pObject );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CSG_Data_Manager::Add_Grid(int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Data_Type Type)
+{
+	return( Add_Grid(CSG_Grid_System(Cellsize, xMin, yMin, NX, NY), Type) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly)
 {
 	if( pCollection == NULL || pCollection->m_pManager != this )
@@ -571,10 +598,7 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 	if( pCollection == m_pTable       )	{	return( pCollection->Delete_All(bDetachOnly) );	}
 	if( pCollection == m_pTIN         )	{	return( pCollection->Delete_All(bDetachOnly) );	}
 	if( pCollection == m_pPoint_Cloud )	{	return( pCollection->Delete_All(bDetachOnly) );	}
-	if( pCollection == m_pPoint       )	{	return( pCollection->Delete_All(bDetachOnly) );	}
-	if( pCollection == m_pPoints      )	{	return( pCollection->Delete_All(bDetachOnly) );	}
-	if( pCollection == m_pLine        )	{	return( pCollection->Delete_All(bDetachOnly) );	}
-	if( pCollection == m_pPolygon     )	{	return( pCollection->Delete_All(bDetachOnly) );	}
+	if( pCollection == m_pShapes      )	{	return( pCollection->Delete_All(bDetachOnly) );	}
 
 	//-----------------------------------------------------
 	if( pCollection->m_Type == DATAOBJECT_TYPE_Grid )
@@ -642,10 +666,7 @@ bool CSG_Data_Manager::Delete_All(bool bDetachOnly)
 	m_pTable      ->Delete_All(bDetachOnly);
 	m_pTIN        ->Delete_All(bDetachOnly);
 	m_pPoint_Cloud->Delete_All(bDetachOnly);
-	m_pPoint      ->Delete_All(bDetachOnly);
-	m_pPoints     ->Delete_All(bDetachOnly);
-	m_pLine       ->Delete_All(bDetachOnly);
-	m_pPolygon    ->Delete_All(bDetachOnly);
+	m_pShapes     ->Delete_All(bDetachOnly);
 
 	for(size_t i=0; i<Grid_System_Count(); i++)
 	{

@@ -119,8 +119,6 @@ public:
 
 	class CWKSP_Layer *				Get_Layer			(CSG_Data_Object *pObject);
 
-	bool							Get_DataObject_List	(CSG_Parameters *pParameters);
-
 	class CWKSP_Data_Menu_Files *	Get_Menu_Files		(void)		{	return( m_pMenu_Files );	}
 
 	CWKSP_Base_Item *				Open				(const wxString &File, int DataType);

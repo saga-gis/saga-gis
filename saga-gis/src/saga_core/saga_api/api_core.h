@@ -1231,8 +1231,6 @@ typedef enum ESG_UI_Callback_ID
 	CALLBACK_DATAOBJECT_PARAMS_GET,
 	CALLBACK_DATAOBJECT_PARAMS_SET,
 
-	CALLBACK_DATAOBJECT_GET_ALL,
-
 	CALLBACK_ODBC_UPDATE,
 
 	CALLBACK_GUI_GET_WINDOW,
@@ -1298,8 +1296,6 @@ SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CSG_Data_Object 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Set	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Get	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Set	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
-
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Get_All	(class CSG_Parameters *pParameters);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_ODBC_Update			(const CSG_String &Server);
 

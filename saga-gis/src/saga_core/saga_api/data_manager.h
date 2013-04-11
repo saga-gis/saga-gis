@@ -121,34 +121,6 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Shapes_Collection : public CSG_Data_Collection
-{
-	friend class CSG_Data_Manager;
-
-public:
-
-	virtual bool					Exists				(CSG_Data_Object *pObject)	const;
-
-	TSG_Shape_Type					Get_Shape_Type		(void)	const	{	return( m_Shape_Type );	}
-
-
-protected:
-
-	CSG_Shapes_Collection(class CSG_Data_Manager *pManager, TSG_Shape_Type Type);
-
-	virtual bool					Add					(CSG_Data_Object *pObject);
-
-
-	TSG_Shape_Type					m_Shape_Type;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Grid_Collection : public CSG_Data_Collection
 {
 	friend class CSG_Data_Manager;
@@ -191,10 +163,7 @@ public:
 	CSG_Data_Collection *				Get_Table			(void)		const	{	return( m_pTable       );	}
 	CSG_Data_Collection *				Get_TIN				(void)		const	{	return( m_pTIN         );	}
 	CSG_Data_Collection *				Get_Point_Cloud		(void)		const	{	return( m_pPoint_Cloud );	}
-	CSG_Shapes_Collection *				Get_Point			(void)		const	{	return( m_pPoint       );	}
-	CSG_Shapes_Collection *				Get_Points			(void)		const	{	return( m_pPoints      );	}
-	CSG_Shapes_Collection *				Get_Line			(void)		const	{	return( m_pLine        );	}
-	CSG_Shapes_Collection *				Get_Polygon			(void)		const	{	return( m_pPolygon     );	}
+	CSG_Data_Collection *				Get_Shapes			(void)		const	{	return( m_pShapes      );	}
 
 	size_t								Grid_System_Count	(void)		const	{	return( m_Grid_Systems.Get_Size() );	}
 	CSG_Grid_Collection *				Get_Grid_System		(size_t i)	const	{	return( i < Grid_System_Count() ? ((CSG_Grid_Collection **)m_Grid_Systems.Get_Array())[i] : NULL );	}
@@ -202,6 +171,13 @@ public:
 
 	bool								Add					(CSG_Data_Object *pObject);
 	bool								Add					(const CSG_String &File, TSG_Data_Object_Type Type = DATAOBJECT_TYPE_Undefined);
+
+	CSG_Table *							Add_Table			(void);
+	CSG_TIN *							Add_TIN				(void);
+	CSG_PointCloud *					Add_PointCloud		(void);
+	CSG_Shapes *						Add_Shapes			(TSG_Shape_Type Type = SHAPE_TYPE_Undefined);
+	CSG_Grid *							Add_Grid			(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined);
+	CSG_Grid *							Add_Grid			(int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
 
 	bool								Delete				(CSG_Data_Collection *pCollection, bool bDetachOnly = false);
 	bool								Delete				(CSG_Data_Object     *pObject    , bool bDetachOnly = false);
@@ -220,10 +196,8 @@ private:
 
 	CSG_Array							m_Grid_Systems;
 
-	CSG_Data_Collection					*m_pTable, *m_pTIN, *m_pPoint_Cloud;
+	CSG_Data_Collection					*m_pTable, *m_pTIN, *m_pPoint_Cloud, *m_pShapes;
 	
-	CSG_Shapes_Collection				*m_pPoint, *m_pPoints, *m_pLine, *m_pPolygon;
-
 
 	CSG_Data_Collection *				_Get_Collection		(CSG_Data_Object *pObject)		const;
 

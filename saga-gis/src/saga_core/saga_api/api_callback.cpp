@@ -543,19 +543,6 @@ bool		SG_UI_DataObject_Params_Set	(CSG_Data_Object *pDataObject, CSG_Parameters 
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Get_All(class CSG_Parameters *pParameters)
-{
-	if( gSG_UI_Callback && pParameters )
-	{
-		CSG_UI_Parameter	p1(pParameters), p2;
-
-		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_GET_ALL, p1, p2) != 0 );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
 bool		SG_UI_ODBC_Update		(const CSG_String &Server)
 {
 	if( gSG_UI_Callback )

@@ -1006,7 +1006,10 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 	{
 		pParameter->Set_Value(pGrid	= SG_Create_Grid(*pParameter->Get_Parent()->asGrid_System(), Type));
 
-		SG_UI_DataObject_Add(pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
+		if( pParameter->Get_Manager() )
+		{
+			pParameter->Get_Manager()->Add(pGrid);
+		}
 	}
 
 	return( pGrid );
