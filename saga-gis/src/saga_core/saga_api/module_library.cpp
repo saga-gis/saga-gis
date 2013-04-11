@@ -68,7 +68,7 @@
 #include <wx/filename.h>
 #include <wx/utils.h>
 
-#include "module_library.h"
+#include "saga_api.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -234,32 +234,74 @@ const SG_Char * CSG_Module_Library::Get_Info(int Type) const
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Summary(void) const
+CSG_String CSG_Module_Library::Get_Summary(int Format) const
 {
+	int			i;
 	CSG_String	s;
 
-	s.Printf(
-		SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
-		_TL("Module Library"), Get_Info(MLB_INFO_Name),
-		_TL("Author"        ), Get_Info(MLB_INFO_Author),
-		_TL("Version"       ), Get_Info(MLB_INFO_Version),
-		_TL("File"          ), Get_File_Name().c_str(),
-		Get_Info(MLB_INFO_Description)
-	);
-
-	s.Append(CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("Modules")));
-
-	for(int i=0; i<Get_Count(); i++)
+	switch( Format )
 	{
-		if( Get_Module(i) )
+	//-----------------------------------------------------
+	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
+		s	+= CSG_String::Format(SG_T("\n%s:\n"), _TL("modules"));
+
+		for(i=0; i<Get_Count(); i++)
 		{
-			s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name().c_str()));
+			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_FLAT || !Get_Module(i)->is_Interactive()) )
+			{
+				s	+= CSG_String::Format(SG_T(" %d\t- %s\n"), i, Get_Module(i)->Get_Name().c_str());
+			}
 		}
+
+		break;
+
+	//-----------------------------------------------------
+	case SG_SUMMARY_FMT_HTML: default:
+		s	+= CSG_String::Format(SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
+				_TL("Module Library"), Get_Info(MLB_INFO_Name),
+				_TL("Author"        ), Get_Info(MLB_INFO_Author),
+				_TL("Version"       ), Get_Info(MLB_INFO_Version),
+				_TL("File"          ), Get_File_Name().c_str(),
+				Get_Info(MLB_INFO_Description)
+			);
+
+		s	+= CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("Modules"));
+
+		for(i=0; i<Get_Count(); i++)
+		{
+			if( Get_Module(i) )
+			{
+				s	+= CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name().c_str());
+			}
+		}
+
+		s	+= SG_T("</ul>");
+
+		s.Replace(SG_T("\n"), SG_T("<br>"));
+
+		break;
+
+	//-----------------------------------------------------
+	case SG_SUMMARY_FMT_XML: case SG_SUMMARY_FMT_XML_NO_INTERACTIVE:
+		s	+= SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
+		s	+= CSG_String::Format(SG_T("\n<%s>"), SG_XML_LIBRARY);
+		s	+= CSG_String::Format(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+		s	+= CSG_String::Format(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_NAME, Get_Name     ().c_str(), SG_XML_LIBRARY_NAME);
+
+		for(i=0; i<Get_Count(); i++)
+		{
+			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_XML || !Get_Module(i)->is_Interactive()) )
+			{
+				s	+= CSG_String::Format(SG_T("\n\t<%s %s=\"%d\" %s=\"%s\">"), SG_XML_MODULE,
+					SG_XML_MODULE_ATT_ID, i, SG_XML_MODULE_ATT_NAME, Get_Module(i)->Get_Name().c_str()
+				);
+			}
+		}
+
+		SG_PRINTF(SG_T("\n</%s>"), SG_XML_LIBRARY);
+
+		break;
 	}
-
-	s.Append(SG_T("</ul>"));
-
-	s.Replace(SG_T("\n"), SG_T("<br>"));
 
 	return( s );
 }
@@ -656,10 +698,10 @@ CSG_Module * CSG_Module_Library_Manager::Get_Module(const SG_Char *Library, cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SUMMARY_ADD_INT(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value)
+#define SUMMARY_HTML_ADD_INT(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value)
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library_Manager::Get_Summary(void)	const
+CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 {
 	//-----------------------------------------------------
 	int			i, nModules;
@@ -672,36 +714,68 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	CSG_String	s;
 
-	s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Module Libraries"));
+	switch( Format )
+	{
+	//-----------------------------------------------------
+	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
+		s	+= CSG_String::Format(SG_T("\n%d %s (%d %s):\n"), Get_Count(), _TL("loaded module libraries"), nModules, _TL("modules"));
 
-	s	+= SG_T("<table border=\"0\">");
+		for(i=0; i<Get_Count(); i++)
+		{
+			s	+= CSG_String::Format(SG_T("- %s\n"), Get_Library(i)->Get_Library_Name().c_str());
+		}
 
-	SUMMARY_ADD_INT(_TL("Available Libraries"), Get_Count());
-	SUMMARY_ADD_INT(_TL("Available Modules"  ), nModules);
-
-	s	+= SG_T("</table>");
+		break;
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Module Libraries"));
+	case SG_SUMMARY_FMT_HTML: default:
+		s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Module Libraries"));
 
-	s	+= CSG_String::Format(SG_T("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
-			_TL("Library"),
-			_TL("Modules"),
-			_TL("Name"),
-			_TL("Location")
-		);
+		s	+= SG_T("<table border=\"0\">");
+		SUMMARY_HTML_ADD_INT(_TL("Available Libraries"), Get_Count());
+		SUMMARY_HTML_ADD_INT(_TL("Available Modules"  ), nModules);
+		s	+= SG_T("</table>");
 
-	for(i=0; i<Get_Count(); i++)
-	{
-		s	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>"),
-				SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str(),
-				Get_Library(i)->Get_Count(),
-				Get_Library(i)->Get_Name().c_str(),
-				SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str()
+		s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Module Libraries"));
+
+		s	+= CSG_String::Format(SG_T("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
+				_TL("Library"),
+				_TL("Modules"),
+				_TL("Name"),
+				_TL("Location")
 			);
-	}
 
-	s	+= SG_T("</table>");
+		for(i=0; i<Get_Count(); i++)
+		{
+			s	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>"),
+					SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str(),
+					Get_Library(i)->Get_Count(),
+					Get_Library(i)->Get_Name().c_str(),
+					SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str()
+				);
+		}
+
+		s	+= SG_T("</table>");
+
+		break;
+
+	//-----------------------------------------------------
+	case SG_SUMMARY_FMT_XML: case SG_SUMMARY_FMT_XML_NO_INTERACTIVE:
+		s	+= SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
+		s	+= CSG_String::Format(SG_T("\n<%s>"), SG_XML_SYSTEM);
+		s	+= CSG_String::Format(SG_T("\n<%s>%s</%s>"), SG_XML_SYSTEM_VER, SAGA_VERSION, SG_XML_SYSTEM_VER);
+
+		for(int i=0; i<SG_Get_Module_Library_Manager().Get_Count(); i++)
+		{
+			s	+= CSG_String::Format(SG_T("\n\t<%s %s=\"%s\"/>"), SG_XML_LIBRARY, SG_XML_LIBRARY_NAME,
+				SG_Get_Module_Library_Manager().Get_Library(i)->Get_Library_Name().c_str()
+			);
+		}
+
+		s	+= CSG_String::Format(SG_T("\n</%s>"), SG_XML_SYSTEM);
+
+		break;
+	}
 
 	//-----------------------------------------------------
 	return( s );

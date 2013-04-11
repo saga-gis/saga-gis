@@ -113,6 +113,13 @@ void			CMD_Set_Interactive	(bool bOn)		{	g_bInteractive	= bOn;			}
 
 bool			CMD_Get_Interactive	(void)			{	return( g_bInteractive );		}
 
+//---------------------------------------------------------
+static bool		g_bXML			= false;
+
+void			CMD_Set_XML			(bool bOn)	{	g_bXML			= bOn;		}
+
+bool			CMD_Get_XML			(void)		{	return( g_bXML );			}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -121,15 +128,50 @@ bool			CMD_Get_Interactive	(void)			{	return( g_bInteractive );		}
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void			CMD_Print_Error		(const SG_Char *Error)
+void			CMD_Print			(const CSG_String &Text, const SG_Char *XML_Tag)
 {
-	SG_FPRINTF(stderr, SG_T("\n%s: %s\n"), _TL("error"), Error);
+	if( g_bXML )
+	{
+		if( XML_Tag && XML_Tag[0] )
+		{
+			SG_PRINTF(SG_T("\n<%s>%s</%s>"), XML_Tag, Text.c_str(), XML_Tag);
+		}
+	}
+	else
+	{
+		SG_PRINTF(SG_T("\n%s"), Text.c_str());
+	}
 }
 
 //---------------------------------------------------------
-void			CMD_Print_Error		(const SG_Char *Error, const SG_Char *Info)
+void			CMD_Print			(FILE *Stream, const CSG_String &Text, const SG_Char *XML_Tag)
 {
-	CMD_Print_Error(CSG_String::Format(SG_T("%s [%s]"), Error, Info));
+	if( Stream )
+	{
+		if( g_bXML )
+		{
+			if( XML_Tag && XML_Tag[0] )
+			{
+				SG_FPRINTF(Stream, SG_T("\n<%s>%s</%s>"), XML_Tag, Text.c_str(), XML_Tag);
+			}
+		}
+		else
+		{
+			SG_FPRINTF(Stream, SG_T("\n%s"), Text.c_str());
+		}
+	}
+}
+
+//---------------------------------------------------------
+void			CMD_Print_Error		(const CSG_String &Error)
+{
+	CMD_Print(stderr, Error, SG_XML_ERROR);
+}
+
+//---------------------------------------------------------
+void			CMD_Print_Error		(const CSG_String &Error, const CSG_String &Info)
+{
+	CMD_Print_Error(Error + " ["+Info+"]");
 }
 
 
@@ -153,14 +195,14 @@ void			CMD_Get_Pause		(void)
 }
 
 //---------------------------------------------------------
-bool			CMD_Get_YesNo		(const SG_Char *caption, const SG_Char *message)
+bool			CMD_Get_YesNo		(const CSG_String &Caption, const CSG_String &Message)
 {
 	if( g_bInteractive )
 	{
 #ifdef _SAGA_MSW
 		CSG_String	sKey, sYes(SG_T("y")), sNo(SG_T("n"));
 
-		SG_PRINTF(SG_T("\n%s: %s\n"), caption, message);
+		SG_PRINTF(SG_T("\n%s: %s\n"), Caption.c_str(), Message.c_str());
 
 		SG_PRINTF(SG_T("%s? (%s/%s)"), _TL("continue"), sYes.c_str(), sNo.c_str());
 
@@ -235,7 +277,19 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 			if( i != iPercent )
 			{
-				SG_PRINTF(SG_T("\r%3d%%"), iPercent = i);
+				if( g_bXML )
+				{
+					SG_PRINTF(SG_T("\n<%s>%d</%s>"), SG_XML_PROGRESS, iPercent = i, SG_XML_PROGRESS);
+				}
+				else
+				{
+					if( iPercent < 0 || i < iPercent )
+					{
+						SG_PRINTF(SG_T("\n"));
+					}
+
+					SG_PRINTF(SG_T("\r%3d%%"), iPercent = i);
+				}
 			}
 		}
 
@@ -243,6 +297,8 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_READY:
+
+		iPercent	= -1;
 
 		break;
 
@@ -252,7 +308,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_bShow_Messages )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
+			CMD_Print(Param_1.String, SG_XML_MESSAGE_PROC);
 		}
 
 		break;
@@ -267,7 +323,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_bShow_Messages )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
+			CMD_Print(Param_1.String, SG_XML_MESSAGE);
 		}
 
 		break;
@@ -276,7 +332,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_ERROR:
 
-		CMD_Print_Error(Param_1.String.c_str());
+		CMD_Print_Error(Param_1.String);
 
 		break;
 
@@ -286,7 +342,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_bShow_Messages )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), Param_1.String.c_str());
+			CMD_Print(Param_1.String, SG_XML_MESSAGE_EXEC);
 		}
 
 		break;
@@ -301,7 +357,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_bShow_Messages )
 		{
-			SG_PRINTF(SG_T("\n%s: %s\n"), Param_2.String.c_str(), Param_1.String.c_str());
+			CMD_Print(Param_2.String + ":" + Param_1.String, NULL);
 		}
 
 		break;

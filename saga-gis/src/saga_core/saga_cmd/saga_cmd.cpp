@@ -206,8 +206,8 @@ _try
 
 			CMD_Set_Show_Progress(s.Find('q') < 0 && s.Find('s') < 0);	// q, s: no progress report
 			CMD_Set_Show_Messages(s.Find('r') < 0 && s.Find('s') < 0);	// r, s: no messages report
-
-			CMD_Set_Interactive  (s.Find('i') >= 0);	// i: allow user interaction
+			CMD_Set_Interactive  (s.Find('i') >= 0                  );	// i: allow user interaction
+			CMD_Set_XML          (s.Find('x') >= 0                  );	// x: message output as xml
 
 			if( s.Find('l') >= 0 )	// l: load translation dictionary
 			{
@@ -316,6 +316,13 @@ bool		Execute(int argc, char *argv[])
 		return( false );
 	}
 
+	if( argc == 3 && CMD_Get_XML() )
+	{	// Just output module synopsis as XML-tagged text, then return.
+		CMD_Print(stderr, pModule->Get_Summary(true, "", "", true));
+
+		return true;
+	}
+
 	if( pModule->is_Interactive() )
 	{
 		CMD_Print_Error(_TL("cannot execute interactive module"), pModule->Get_Name());
@@ -364,14 +371,16 @@ void		Print_Libraries	(void)
 
 	if( CMD_Get_Show_Messages() )
 	{
-		SG_PRINTF(SG_T("\n%d %s:\n"), SG_Get_Module_Library_Manager().Get_Count(), _TL("available module libraries"));
-
-		for(int i=0; i<SG_Get_Module_Library_Manager().Get_Count(); i++)
+		if( CMD_Get_XML() )
 		{
-			SG_PRINTF(SG_T("- %s\n"), SG_Get_Module_Library_Manager().Get_Library(i)->Get_Library_Name().c_str());
+			SG_PRINTF(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE));
 		}
+		else
+		{
+			SG_PRINTF(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
 
-		Print_Get_Help();
+			Print_Get_Help();
+		}
 	}
 }
 
@@ -382,17 +391,16 @@ void		Print_Modules	(CSG_Module_Library *pLibrary)
 
 	if( CMD_Get_Show_Messages() )
 	{
-		SG_PRINTF(SG_T("\n%s:\n"), _TL("executable modules"));
-
-		for(int i=0; i<pLibrary->Get_Count(); i++)
+		if( CMD_Get_XML() )
 		{
-			if( pLibrary->Get_Module(i) && !pLibrary->Get_Module(i)->is_Interactive() )
-			{
-				SG_PRINTF(SG_T(" %d\t- %s\n"), i, pLibrary->Get_Module(i)->Get_Name().c_str());
-			}
+			SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE));
 		}
+		else
+		{
+			SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
 
-		Print_Get_Help();
+			Print_Get_Help();
+		}
 	}
 }
 
@@ -401,11 +409,22 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 {
 	if( CMD_Get_Show_Messages() )
 	{
-		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
-		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
-		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), pModule ->Get_Name     ().c_str());
-		SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
-		SG_PRINTF(SG_T("_____________________________________________\n"));
+		if( CMD_Get_XML() )
+		{
+			SG_PRINTF(SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n"));
+			SG_PRINTF(SG_T("\n<%s>"), SG_XML_LIBRARY);
+			SG_PRINTF(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_PATH, pLibrary->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+			SG_PRINTF(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_NAME, pLibrary->Get_Name()     .c_str(), SG_XML_LIBRARY_NAME);
+			SG_PRINTF(SG_T("\n</%s>"), SG_XML_LIBRARY);
+		}
+		else
+		{
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), pModule ->Get_Name     ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
+			SG_PRINTF(SG_T("_____________________________________________\n"));
+		}
 	}
 }
 
@@ -421,14 +440,14 @@ void		Print_Logo		(void)
 {
 	if( CMD_Get_Show_Messages() )
 	{
-		SG_PRINTF(SG_T("_____________________________________________\n"));
-		SG_PRINTF(SG_T("  #####   ##   #####    ##\n"));
-		SG_PRINTF(SG_T(" ###     ###  ##       ###\n"));
-		SG_PRINTF(SG_T("  ###   # ## ##  #### # ##\n"));
-		SG_PRINTF(SG_T("   ### ##### ##    # #####\n"));
-		SG_PRINTF(SG_T("##### #   ##  ##### #   ##\n"));
-		SG_PRINTF(SG_T("_____________________________________________\n"));
-		SG_PRINTF(SG_T("\n"));
+		CMD_Print("_____________________________________________");
+		CMD_Print("  #####   ##   #####    ##");
+		CMD_Print(" ###     ###  ##       ###");
+		CMD_Print("  ###   # ## ##  #### # ##");
+		CMD_Print("   ### ##### ##    # #####");
+		CMD_Print("##### #   ##  ##### #   ##");
+		CMD_Print("_____________________________________________");
+		CMD_Print("");
 	}
 }
 
@@ -437,10 +456,9 @@ void		Print_Get_Help	(void)
 {
 	if( CMD_Get_Show_Messages() )
 	{
-		SG_PRINTF(SG_T("\n"));
-		SG_PRINTF(_TL("type -h or --help for further information"));
-		SG_PRINTF(SG_T("\n"));
-	}
+		CMD_Print(_TL("type -h or --help for further information"));
+		CMD_Print("");
+	} 
 }
 
 //---------------------------------------------------------
@@ -461,7 +479,7 @@ void		Print_Help		(void)
 #ifdef _OPENMP
 		SG_T("saga_cmd [-c, --cores][= # of CPU cores] <LIBRARY> <MODULE> <module specific options...>\n")
 #endif
-		SG_T("saga_cmd [-f, --flags][=qrsilp] <LIBRARY> <MODULE> <module specific options...>\n")
+		SG_T("saga_cmd [-f, --flags][=qrsilpx] <LIBRARY> <MODULE> <module specific options...>\n")
 		SG_T("\n")
 		SG_T("[-h], [--help]: help on usage\n")
 		SG_T("[-v], [--version]: print version information\n")
@@ -477,6 +495,7 @@ void		Print_Help		(void)
 		SG_T("  i: allow user interaction\n")
 		SG_T("  l: load translation dictionary\n")
 		SG_T("  p: load projections dictionary\n")
+		SG_T("  x: use XML markups for synopses and messages\n")
 		SG_T("<LIBRARY>\t")	SG_T(": file name of the library\n")
 		SG_T("<MODULE>\t")	SG_T(": either name or index of the module\n")
 		SG_T("\n")

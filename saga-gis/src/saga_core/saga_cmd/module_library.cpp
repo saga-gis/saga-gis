@@ -558,7 +558,7 @@ bool CCMD_Module::_Create_DataObjects(CSG_Parameters *pParameters)
 					{
 						if( !_Create_DataObject(pParameter, FileName) && !pParameter->is_Optional() )
 						{
-							CMD_Print_Error(_TL("input file"), FileName);
+							CMD_Print_Error(_TL("input file"), &FileName);
 
 							return( false );
 						}
@@ -569,7 +569,7 @@ bool CCMD_Module::_Create_DataObjects(CSG_Parameters *pParameters)
 					{
 						if( !_Create_DataObject_List(pParameter, FileName) && !pParameter->is_Optional() )
 						{
-							CMD_Print_Error(_TL("empty input list"), _Get_ID(pParameter));
+							CMD_Print_Error(_TL("empty input list"), &_Get_ID(pParameter));
 
 							return( false );
 						}
@@ -692,7 +692,7 @@ bool CCMD_Module::_Create_DataObject_List(CSG_Parameter *pParameter, wxString Fi
 			{
 				delete(pObject);
 
-				CMD_Print_Error(_TL("input file"), FileName);
+				CMD_Print_Error(_TL("input file"), &FileName);
 			}
 		}
 		while( FileNames.Length() > 0 );

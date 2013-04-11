@@ -94,13 +94,19 @@ bool					CMD_Get_Show_Progress	(void);
 void					CMD_Set_Interactive		(bool bOn);
 bool					CMD_Get_Interactive		(void);
 
+void					CMD_Set_XML				(bool bOn);
+bool					CMD_Get_XML				(void);
+
 //---------------------------------------------------------
-void					CMD_Print_Error			(const SG_Char *Error);
-void					CMD_Print_Error			(const SG_Char *Error, const SG_Char *Info);
+void					CMD_Print				(              const CSG_String &Text, const SG_Char *XML_Tag = NULL);
+void					CMD_Print				(FILE *Stream, const CSG_String &Text, const SG_Char *XML_Tag = NULL);
+
+void					CMD_Print_Error			(const CSG_String &Error);
+void					CMD_Print_Error			(const CSG_String &Error, const CSG_String &Info);
 
 //---------------------------------------------------------
 void					CMD_Get_Pause			(void);
-bool					CMD_Get_YesNo			(const SG_Char *caption, const SG_Char *message);
+bool					CMD_Get_YesNo			(const CSG_String &Caption, const CSG_String &Message);
 
 //---------------------------------------------------------
 TSG_PFNC_UI_Callback	CMD_Get_Callback		(void);

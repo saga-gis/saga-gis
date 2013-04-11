@@ -765,72 +765,72 @@ CSG_String Param_to_XML(CSG_Parameter *pParameter, const wchar_t *ident)
 {
 	CSG_String	s;
 
-	s	+= CSG_String::Format(SG_T("\t<%s"), XML_PARAM);
+	s	+= CSG_String::Format(SG_T("\t<%s"), SG_XML_PARAM);
 
-	SUMMARY_ADD_XML_ATT_STR (XML_PARAM_ATT_NAME, pParameter->Get_Name());
+	SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_NAME, pParameter->Get_Name());
 
 	if( pParameter->is_Input() )
 	{
-		SUMMARY_ADD_XML_ATT_STR (XML_PARAM_ATT_CLASS, SG_T("input"));
+		SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_CLASS, SG_T("input"));
 	}
 
 	if( pParameter->is_Output() )
 	{
-		SUMMARY_ADD_XML_ATT_STR (XML_PARAM_ATT_CLASS, SG_T("output"));
+		SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_CLASS, SG_T("output"));
 	}
 
 	if( pParameter->is_Option() )
 	{
-		SUMMARY_ADD_XML_ATT_STR (XML_PARAM_ATT_CLASS, SG_T("option"));
+		SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_CLASS, SG_T("option"));
 	}
 
 	s	+= CSG_String::Format(SG_T(" >\n"));
 
 	if( ident == 0 )
 	{
-		SUMMARY_ADD_XML_STR(SG_T("\t\t"), XML_PARAM_IDENT, pParameter->Get_Identifier());
+		SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_IDENT, pParameter->Get_Identifier());
 	}
 	else
 	{
-		s += CSG_String::Format(SG_T("\t\t<%s>\n\t\t\t%s_%s\n\t\t</%s>\n"), XML_PARAM_IDENT, ident, pParameter->Get_Identifier(), XML_PARAM_IDENT);
+		s += CSG_String::Format(SG_T("\t\t<%s>\n\t\t\t%s_%s\n\t\t</%s>\n"), SG_XML_PARAM_IDENT, ident, pParameter->Get_Identifier(), SG_XML_PARAM_IDENT);
 	}
 
 	if( pParameter->is_Optional() )
 	{
-		SUMMARY_ADD_XML_STR (SG_T("\t\t"), XML_PARAM_MAND, SG_T("false"));
+		SUMMARY_ADD_XML_STR (SG_T("\t\t"), SG_XML_PARAM_MAND, SG_T("false"));
 	}
 	else
 	{
-		SUMMARY_ADD_XML_STR (SG_T("\t\t"), XML_PARAM_MAND, SG_T("true"));
+		SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_MAND, SG_T("true"));
 	}
 
-	SUMMARY_ADD_XML_STR (SG_T("\t\t"), XML_PARAM_TYPE, pParameter->Get_Type_Name().Make_Lower().c_str());
+	SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_TYPE, pParameter->Get_Type_Name().Make_Lower().c_str());
 
 	if( pParameter->Get_Type() == PARAMETER_TYPE_Choice )
 	{
-		s	+= CSG_String::Format(SG_T("\t\t<%s>\n"), XML_PARAM_LIST);
+		s	+= CSG_String::Format(SG_T("\t\t<%s>\n"), SG_XML_PARAM_LIST);
 
 		for(int i=0; i<pParameter->asChoice()->Get_Count(); i++)
 		{
-			SUMMARY_ADD_XML_STR (SG_T("\t\t\t"), XML_PARAM_ITEM, pParameter->asChoice()->Get_Item(i));
+			SUMMARY_ADD_XML_STR(SG_T("\t\t\t"), SG_XML_PARAM_ITEM, pParameter->asChoice()->Get_Item(i));
 		}
 
-		s	+= CSG_String::Format(SG_T("\t\t</%s>\n"), XML_PARAM_LIST);
+		s	+= CSG_String::Format(SG_T("\t\t</%s>\n"), SG_XML_PARAM_LIST);
 	}
 
 	if( pParameter->Get_Type() == PARAMETER_TYPE_FixedTable )
 	{
-		s	+= CSG_String::Format(SG_T("\t\t<%s>\n"), XML_PARAM_TABLE);
+		s	+= CSG_String::Format(SG_T("\t\t<%s>\n"), SG_XML_PARAM_TABLE);
 
 		for(int i=0; i<pParameter->asTable()->Get_Field_Count(); i++)
 		{
-			s	+= CSG_String::Format(SG_T("\t\t\t<%s"), XML_PARAM_FIELD);
-			SUMMARY_ADD_XML_ATT_STR (XML_PARAM_FIELD_ATT_NAME, pParameter->asTable()->Get_Field_Name(i));
-			SUMMARY_ADD_XML_ATT_STR (XML_PARAM_FIELD_ATT_TYPE, SG_Data_Type_Get_Name(pParameter->asTable()->Get_Field_Type(i)).c_str());
+			s	+= CSG_String::Format(SG_T("\t\t\t<%s"), SG_XML_PARAM_FIELD);
+			SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_FIELD_ATT_NAME, pParameter->asTable()->Get_Field_Name(i));
+			SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_FIELD_ATT_TYPE, SG_Data_Type_Get_Name(pParameter->asTable()->Get_Field_Type(i)).c_str());
 			s	+= CSG_String::Format(SG_T(" >\n"));
 		}
 
-		s	+= CSG_String::Format(SG_T("\t\t</%s>\n"), XML_PARAM_TABLE);
+		s	+= CSG_String::Format(SG_T("\t\t</%s>\n"), SG_XML_PARAM_TABLE);
 	}
 
 	if(	pParameter->Get_Type() != PARAMETER_TYPE_Choice
@@ -841,21 +841,21 @@ CSG_String Param_to_XML(CSG_Parameter *pParameter, const wchar_t *ident)
 	{
 		if( pParameter->asValue()->has_Minimum() )
 		{
-			SUMMARY_ADD_XML_FP (SG_T("\t\t"), XML_PARAM_MIN, pParameter->asValue()->Get_Minimum());
+			SUMMARY_ADD_XML_FP(SG_T("\t\t"), SG_XML_PARAM_MIN, pParameter->asValue()->Get_Minimum());
 		}
 
 		if( pParameter->asValue()->has_Maximum() )
 		{
-			SUMMARY_ADD_XML_FP (SG_T("\t\t"), XML_PARAM_MAX, pParameter->asValue()->Get_Maximum());
+			SUMMARY_ADD_XML_FP(SG_T("\t\t"), SG_XML_PARAM_MAX, pParameter->asValue()->Get_Maximum());
 		}
 	}
 
 	if( wcslen(pParameter->Get_Description()) > 0 )
 	{
-		SUMMARY_ADD_XML_STR (SG_T("\t\t"), XML_PARAM_DESC, pParameter->Get_Description());
+		SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_DESC, pParameter->Get_Description());
 	}
 
-	s	+= CSG_String::Format(SG_T("\t</%s>\n"), XML_PARAM);
+	s	+= CSG_String::Format(SG_T("\t</%s>\n"), SG_XML_PARAM);
 
 	return ( s );
 }
@@ -873,22 +873,22 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 	//-----------------------------------------------------
 	if( bXML )
 	{
-		s	+= CSG_String::Format(SG_T("<%s"), XML_MODULE);
-		SUMMARY_ADD_XML_ATT_STR(XML_MODULE_ATT_NAME  , Get_Name  ().c_str());
-		SUMMARY_ADD_XML_ATT_INT(XML_MODULE_ATT_ID    , Get_ID    ());
-		SUMMARY_ADD_XML_ATT_STR(XML_MODULE_ATT_AUTHOR, Get_Author().c_str());
+		s	+= CSG_String::Format(SG_T("<%s"), SG_XML_MODULE);
+		SUMMARY_ADD_XML_ATT_STR(SG_XML_MODULE_ATT_NAME  , Get_Name  ().c_str());
+		SUMMARY_ADD_XML_ATT_INT(SG_XML_MODULE_ATT_ID    , Get_ID    ());
+		SUMMARY_ADD_XML_ATT_STR(SG_XML_MODULE_ATT_AUTHOR, Get_Author().c_str());
 		s	+= SG_T(">\n");
 
-		s	+= CSG_String::Format(SG_T("\t<%s"), XML_SPECIFICATION);
-		SUMMARY_ADD_XML_ATT_STR(XML_SPEC_ATT_GRID  , is_Grid       () ? SG_T("true") : SG_T("false"));
-		SUMMARY_ADD_XML_ATT_STR(XML_SPEC_ATT_INTERA, is_Interactive() ? SG_T("true") : SG_T("false"));
+		s	+= CSG_String::Format(SG_T("\t<%s"), SG_XML_SPECIFICATION);
+		SUMMARY_ADD_XML_ATT_STR(SG_XML_SPEC_ATT_GRID  , is_Grid       () ? SG_T("true") : SG_T("false"));
+		SUMMARY_ADD_XML_ATT_STR(SG_XML_SPEC_ATT_INTERA, is_Interactive() ? SG_T("true") : SG_T("false"));
 		s	+= CSG_String::Format(SG_T(" />\n"));
 
-		SUMMARY_ADD_XML_STR("\t", XML_MENU, s.c_str());
+		SUMMARY_ADD_XML_STR("\t", SG_XML_MENU, s.c_str());
 
 		if( Description.Length() > 0 )
 		{
-			SUMMARY_ADD_XML_STR (SG_T("\t"), XML_DESCRIPTION, Get_Description().c_str());
+			SUMMARY_ADD_XML_STR (SG_T("\t"), SG_XML_DESCRIPTION, Get_Description().c_str());
 		}
 
 		if( bParameters )
@@ -932,7 +932,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			}
 		}
 
-		s	+= CSG_String::Format(SG_T("</%s>\n"), XML_MODULE);
+		s	+= CSG_String::Format(SG_T("</%s>\n"), SG_XML_MODULE);
 	}
 
 	//-----------------------------------------------------

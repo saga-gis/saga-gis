@@ -83,37 +83,52 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static const SG_Char * XML_SYSTEM				= SG_T("system");
-static const SG_Char * XML_SYSTEM_VER			= SG_T("version");
-static const SG_Char * XML_SYSTEM_MLP			= SG_T("library-path");
-static const SG_Char * XML_LIBRARY				= SG_T("library");
-static const SG_Char * XML_LIBRARY_PATH			= SG_T("path");
-static const SG_Char * XML_LIBRARY_NAME			= SG_T("name");
-static const SG_Char * XML_MODULE				= SG_T("module");
-static const SG_Char * XML_MODULE_ATT_NAME		= SG_T("name");
-static const SG_Char * XML_MODULE_ATT_ID		= SG_T("id");
-static const SG_Char * XML_MODULE_ATT_AUTHOR	= SG_T("author");
-static const SG_Char * XML_SPECIFICATION		= SG_T("specification");
-static const SG_Char * XML_SPEC_ATT_GRID		= SG_T("grid");
-static const SG_Char * XML_SPEC_ATT_INTERA		= SG_T("interactive");
-static const SG_Char * XML_MENU					= SG_T("menu");
-static const SG_Char * XML_DESCRIPTION			= SG_T("description");
-static const SG_Char * XML_PARAM				= SG_T("parameter");
-static const SG_Char * XML_PARAM_ATT_NAME		= SG_T("name");
-static const SG_Char * XML_PARAM_ATT_CLASS		= SG_T("class");
-static const SG_Char * XML_PARAM_MAND			= SG_T("mandatory");
-static const SG_Char * XML_PARAM_TYPE			= SG_T("type");
-static const SG_Char * XML_PARAM_IDENT			= SG_T("identifier");
-static const SG_Char * XML_PARAM_DESC			= SG_T("description");
-static const SG_Char * XML_PARAM_PROP			= SG_T("properties");
-static const SG_Char * XML_PARAM_LIST			= SG_T("list");
-static const SG_Char * XML_PARAM_ITEM			= SG_T("item");
-static const SG_Char * XML_PARAM_TABLE			= SG_T("table");
-static const SG_Char * XML_PARAM_FIELD			= SG_T("field");
-static const SG_Char * XML_PARAM_FIELD_ATT_NAME	= SG_T("name");
-static const SG_Char * XML_PARAM_FIELD_ATT_TYPE	= SG_T("type");
-static const SG_Char * XML_PARAM_MIN			= SG_T("min");
-static const SG_Char * XML_PARAM_MAX			= SG_T("max");
+#define SG_XML_SYSTEM				SG_T("system")
+#define SG_XML_SYSTEM_VER			SG_T("version")
+#define SG_XML_SYSTEM_MLP			SG_T("library-path")
+#define SG_XML_LIBRARY				SG_T("library")
+#define SG_XML_LIBRARY_PATH			SG_T("path")
+#define SG_XML_LIBRARY_NAME			SG_T("name")
+#define SG_XML_MODULE				SG_T("module")
+#define SG_XML_MODULE_ATT_NAME		SG_T("name")
+#define SG_XML_MODULE_ATT_ID		SG_T("id")
+#define SG_XML_MODULE_ATT_AUTHOR	SG_T("author")
+#define SG_XML_SPECIFICATION		SG_T("specification")
+#define SG_XML_SPEC_ATT_GRID		SG_T("grid")
+#define SG_XML_SPEC_ATT_INTERA		SG_T("interactive")
+#define SG_XML_MENU					SG_T("menu")
+#define SG_XML_DESCRIPTION			SG_T("description")
+#define SG_XML_PARAM				SG_T("parameter")
+#define SG_XML_PARAM_ATT_NAME		SG_T("name")
+#define SG_XML_PARAM_ATT_CLASS		SG_T("class")
+#define SG_XML_PARAM_MAND			SG_T("mandatory")
+#define SG_XML_PARAM_TYPE			SG_T("type")
+#define SG_XML_PARAM_IDENT			SG_T("identifier")
+#define SG_XML_PARAM_DESC			SG_T("description")
+#define SG_XML_PARAM_PROP			SG_T("properties")
+#define SG_XML_PARAM_LIST			SG_T("list")
+#define SG_XML_PARAM_ITEM			SG_T("item")
+#define SG_XML_PARAM_TABLE			SG_T("table")
+#define SG_XML_PARAM_FIELD			SG_T("field")
+#define SG_XML_PARAM_FIELD_ATT_NAME	SG_T("name")
+#define SG_XML_PARAM_FIELD_ATT_TYPE	SG_T("type")
+#define SG_XML_PARAM_MIN			SG_T("min")
+#define SG_XML_PARAM_MAX			SG_T("max")
+
+//---------------------------------------------------------
+#define SG_XML_ERROR				SG_T("error")
+#define SG_XML_ERROR_ATT_MSG		SG_T("message")
+#define SG_XML_ERROR_ATT_DESC		SG_T("description")
+#define SG_XML_WARNING				SG_T("warning")
+#define SG_XML_MESSAGE				SG_T("message")
+#define SG_XML_MESSAGE_PROC			SG_T("message-proc")
+#define SG_XML_MESSAGE_EXEC			SG_T("message-exec")
+#define SG_XML_PROGRESS				SG_T("progress")
+
+//---------------------------------------------------------
+#define SG_GET_XML_TAGGED_STR(value, tag)	CSG_String::Format(SG_T("<%s>%s</%s>"), tag, value, tag)
+#define SG_GET_XML_TAGGED_INT(value, tag)	CSG_String::Format(SG_T("<%s>%d</%s>"), tag, value, tag)
+#define SG_GET_XML_TAGGED_FLT(value, tag)	CSG_String::Format(SG_T("<%s>%f</%s>"), tag, value, tag)
 
 
 ///////////////////////////////////////////////////////////

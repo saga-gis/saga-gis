@@ -84,6 +84,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	SG_SUMMARY_FMT_FLAT	= 0,
+	SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE,
+	SG_SUMMARY_FMT_HTML,
+	SG_SUMMARY_FMT_XML,
+	SG_SUMMARY_FMT_XML_NO_INTERACTIVE
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Module_Library
 {
 public:
@@ -106,8 +123,8 @@ public:
 	CSG_String						Get_Author			(void)	const	{	return( Get_Info(MLB_INFO_Author     ) );	}
 	CSG_String						Get_Version			(void)	const	{	return( Get_Info(MLB_INFO_Version    ) );	}
 	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(MLB_INFO_Menu_Path  ) );	}
-	CSG_String						Get_Summary			(void)	const;
-	bool							Get_Summary			(const CSG_String &Path)	const;
+	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
+	bool							Get_Summary			(const CSG_String &Path)			const;
 
 	int								Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
@@ -167,8 +184,8 @@ public:
 	CSG_Module *					Get_Module			(const SG_Char *Library, int            Module)	const;
 	CSG_Module *					Get_Module			(const SG_Char *Library, const SG_Char *Module)	const;
 
-	CSG_String						Get_Summary			(void)	const;
-	bool							Get_Summary			(const CSG_String &Path)	const;
+	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
+	bool							Get_Summary			(const CSG_String &Path)			const;
 
 
 private:
