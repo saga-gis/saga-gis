@@ -645,7 +645,7 @@ bool CWKSP_Layer::Show(CWKSP_Map *pMap)
 
 		if( g_pMaps->Add(this, NULL) )
 		{
-			return( Show(NULL) );
+			return( Show((CWKSP_Map *)NULL) );
 		}
 	}
 
@@ -658,7 +658,7 @@ bool CWKSP_Layer::Show(int Flags)
 	switch( Flags )
 	{
 	case SG_UI_DATAOBJECT_SHOW:
-		return( Show(NULL) );
+		return( Show((CWKSP_Map *)NULL) );
 
 	case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
 		g_pMaps->Add(this, NULL);
