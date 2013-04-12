@@ -167,7 +167,7 @@ void CWKSP_Map_Button::On_Paint(wxPaintEvent &event)
 
 			dc.DrawBitmap(m_pMap->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1), r.GetLeft(), r.GetTop(), true);
 
-			if( g_pACTIVE->Get_Item() == m_pMap )
+			if( g_pACTIVE->Get_Active_Map() == m_pMap )
 			{
 				dc.SetPen(wxPen(((CWKSP_Map_Buttons *)GetParent())->Get_Active_Color()));
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);

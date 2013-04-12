@@ -1250,12 +1250,6 @@ bool CSG_Parameters::DataObjects_Create(void)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Synchronize(void)
 {
-	if( !m_pManager )
-	{
-		return( true );
-	}
-
-	//-----------------------------------------------------
 	for(int i=0; i<Get_Count(); i++)
 	{
 		CSG_Parameter	*p	= m_Parameters[i];
@@ -1264,31 +1258,60 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 		{
 			p->asParameters()->DataObjects_Synchronize();
 		}
+
+		//-------------------------------------------------
 		else
 		{
 			if( p->Get_Type() == PARAMETER_TYPE_Shapes && p->asShapes() && p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined )
 			{
-				delete(p->asShapes());
+				if( !m_pManager || !m_pManager->Delete(p->asShapes()) )
+				{
+					delete(p->asShapes());
+				}
 
 				p->Set_Value(DATAOBJECT_NOTSET);
 			}
 
+			//---------------------------------------------
 			if( p->is_Output() )
 			{
-				if( p->is_DataObject() )
+				if( p->is_DataObject() && p->asDataObject() )
 				{
-					if( p->asDataObject() )
+					if( m_pManager )
 					{
-						m_pManager->Add        (p->asDataObject());
-						SG_UI_DataObject_Update(p->asDataObject(), false, NULL);
+						if( !m_pManager->Exists(p->asDataObject()) )
+						{
+							m_pManager->Add(p->asDataObject());
+						}
+						else
+						{
+							SG_UI_DataObject_Update(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+						}
+					}
+					else
+					{
+						SG_UI_DataObject_Add(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY);
 					}
 				}
 				else if( p->is_DataObject_List() )
 				{
 					for(int j=0; j<p->asList()->Get_Count(); j++)
 					{
-						m_pManager->Add        (p->asList()->asDataObject(j));
-						SG_UI_DataObject_Update(p->asList()->asDataObject(j), false, NULL);
+						if( m_pManager )
+						{
+							if( !m_pManager->Exists(p->asDataObject()) )
+							{
+								m_pManager->Add(p->asDataObject());
+							}
+							else
+							{
+								SG_UI_DataObject_Update(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+							}
+						}
+						else
+						{
+							SG_UI_DataObject_Add(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY);
+						}
 					}
 				}
 			}

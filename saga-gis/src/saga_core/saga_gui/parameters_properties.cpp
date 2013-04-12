@@ -290,13 +290,13 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_TIN(void)
 {
-	CSG_Data_Collection	*pCollection	= m_pParameter->Get_Manager() ? m_pParameter->Get_Manager()->Get_TIN() : NULL;
+	CWKSP_TIN_Manager	*pManager	= g_pData->Get_TINs();
 
-	if( pCollection )
+	if( pManager )
 	{
-		for(size_t i=0; i<pCollection->Count(); i++)
+		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			_Append(pCollection->Get(i)->Get_Name(), pCollection->Get(i));
+			_Append(pManager->Get_Data(i)->Get_Name(), pManager->Get_Data(i)->Get_Object());
 		}
 	}
 
@@ -306,13 +306,13 @@ int CParameters_PG_Choice::_Set_TIN(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_PointCloud(void)
 {
-	CSG_Data_Collection	*pCollection	= m_pParameter->Get_Manager() ? m_pParameter->Get_Manager()->Get_Point_Cloud() : NULL;
+	CWKSP_PointCloud_Manager	*pManager	= g_pData->Get_PointClouds();
 
-	if( pCollection )
+	if( pManager )
 	{
-		for(size_t i=0; i<pCollection->Count(); i++)
+		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			_Append(pCollection->Get(i)->Get_Name(), pCollection->Get(i));
+			_Append(pManager->Get_Data(i)->Get_Name(), pManager->Get_Data(i)->Get_Object());
 		}
 	}
 
@@ -324,48 +324,47 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 {
 	m_pParameter->Check();
 
-	CSG_Data_Manager	*pManager	= m_pParameter->Get_Manager();
+	CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
 
-	if( pManager && pManager->Grid_System_Count() > 0 )
+	if( !pManager || pManager->Get_Count() <= 0 )
 	{
-		int	index	= pManager->Grid_System_Count();
+		_Append( _TL("<no choice available>"));
 
-		if( m_choices.GetCount() == 0 )
-		{
-			for(size_t i=0; i<pManager->Grid_System_Count(); i++)
-			{
-				CSG_Grid_System	System(pManager->Get_Grid_System(i)->Get_System());
-
-				_Append(System.Get_Name(), (void *)&pManager->Get_Grid_System(i)->Get_System());
-
-				if( m_pParameter->asGrid_System()->is_Equal(System) )
-				{
-					index	= i;
-				}
-			}
-
-			_Append(_TL("<not set>"));
-		}
-
-		return( index );
+		return( 0 );
 	}
 
-	_Append( _TL("<no choice available>"));
+	int	index	= pManager->Get_Count();
 
-	return( 0 );
+	if( m_choices.GetCount() == 0 )
+	{
+		for(int i=0; i<pManager->Get_Count(); i++)
+		{
+			_Append(pManager->Get_System(i)->Get_Name(), (void *)&pManager->Get_System(i)->Get_System());
+
+			if( m_pParameter->asGrid_System()->is_Equal(pManager->Get_System(i)->Get_System()) )
+			{
+				index	= i;
+			}
+		}
+
+		_Append(_TL("<not set>"));
+	}
+
+	return( index );
 }
 
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid(void)
 {
-	CSG_Grid_Collection	*pGrids	= m_pParameter->Get_Parent() && m_pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System && m_pParameter->Get_Manager() 
-		? m_pParameter->Get_Manager()->Get_Grid_System(*m_pParameter->Get_Parent()->asGrid_System()) : NULL;
+	CWKSP_Grid_System	*pManager
+		= m_pParameter->Get_Parent() && m_pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System
+		? g_pData->Get_Grids()->Get_System(*m_pParameter->Get_Parent()->asGrid_System()) : NULL;
 
-	if( pGrids )
+	if( pManager )
 	{
-		for(size_t i=0; i<pGrids->Count(); i++)
+		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			_Append(pGrids->Get(i)->Get_Name(), pGrids->Get(i));
+			_Append(pManager->Get_Data(i)->Get_Name(), pManager->Get_Data(i)->Get_Object());
 		}
 	}
 

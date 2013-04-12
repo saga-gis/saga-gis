@@ -129,7 +129,7 @@ static int	s_Def_Layer_Colours[DEF_LAYER_COLOUR_COUNT]	=
 //---------------------------------------------------------
 CWKSP_Layer *	Get_Active_Layer(void)
 {
-	return( g_pACTIVE ? g_pACTIVE->Get_Layer() : NULL );
+	return( g_pACTIVE ? g_pACTIVE->Get_Active_Layer() : NULL );
 }
 
 

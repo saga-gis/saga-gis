@@ -81,19 +81,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Base_Item *	Get_Active_Item(void)
-{
-	return( g_pACTIVE ? g_pACTIVE->Get_Item() : NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 wxString CWKSP_Base_Item::Get_Type_Name(TWKSP_Item Type)
 {
 	switch( Type )
@@ -150,7 +137,7 @@ CWKSP_Base_Item::CWKSP_Base_Item(void)
 //---------------------------------------------------------
 CWKSP_Base_Item::~CWKSP_Base_Item(void)
 {
-	if( g_pACTIVE && g_pACTIVE->Get_Item() == this )
+	if( g_pACTIVE && g_pACTIVE->Get_Active() == this )
 	{
 		g_pACTIVE->Set_Active(NULL);
 	}

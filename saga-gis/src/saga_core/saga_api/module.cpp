@@ -227,6 +227,7 @@ bool CSG_Module::Execute(void)
 	Destroy();
 
 	SG_UI_Process_Set_Ready();
+	SG_UI_Process_Set_Okay();
 
 	m_bExecutes	= false;
 

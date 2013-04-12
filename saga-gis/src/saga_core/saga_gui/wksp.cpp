@@ -273,7 +273,7 @@ void CWKSP::On_Command(wxCommandEvent &event)
 	else switch( event.GetId() )
 	{
 	default:
-		if( !g_pACTIVE->Get_Item() || !g_pACTIVE->Get_Item()->On_Command(event.GetId()) )
+		if( !g_pACTIVE->Get_Active() || !g_pACTIVE->Get_Active()->On_Command(event.GetId()) )
 		{
 			if( GetCurrentPage() )
 			{
@@ -327,7 +327,7 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	switch( event.GetId() )
 	{
 	default:
-		if( !g_pACTIVE->Get_Item() || !g_pACTIVE->Get_Item()->On_Command_UI(event) )
+		if( !g_pACTIVE->Get_Active() || !g_pACTIVE->Get_Active()->On_Command_UI(event) )
 		{
 			m_pModules->On_Command_UI(event);
 			m_pData   ->On_Command_UI(event);

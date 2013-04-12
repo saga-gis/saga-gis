@@ -159,29 +159,15 @@ void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
 //---------------------------------------------------------
 void CACTIVE_History::On_Clear(wxCommandEvent &event)
 {
-	CWKSP_Base_Item	*pItem	= g_pACTIVE->Get_Item();
+	CWKSP_Base_Item	*pItem		= g_pACTIVE->Get_Active();
 
-	if( !pItem || !pItem->GetId().IsOk() )
-	{
-		return;
-	}
-
-	CSG_Data_Object	*pObject	= NULL;
-
-	if( pItem )
-	{
-		switch( pItem->Get_Type() )
-		{
-		default:					pObject	= NULL;									break;
-
-		case WKSP_ITEM_Table:		pObject	= ((CWKSP_Table *)pItem)->Get_Table();	break;
-
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_TIN:
-		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Grid:		pObject	= ((CWKSP_Layer *)pItem)->Get_Object();	break;
-		}
-	}
+	CSG_Data_Object	*pObject	= pItem && pItem->GetId().IsOk()
+	&&	(	pItem->Get_Type() == WKSP_ITEM_Table
+		||	pItem->Get_Type() == WKSP_ITEM_TIN
+		||	pItem->Get_Type() == WKSP_ITEM_PointCloud
+		||	pItem->Get_Type() == WKSP_ITEM_Shapes
+		||	pItem->Get_Type() == WKSP_ITEM_Grid )
+	? ((CWKSP_Data_Item *)pItem)->Get_Object() : NULL;
 
 	int	Depth	= 0;
 
@@ -203,22 +189,13 @@ void CACTIVE_History::On_Clear(wxCommandEvent &event)
 //---------------------------------------------------------
 bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 {
-	CSG_Data_Object	*pObject	= NULL;
-
-	if( pItem )
-	{
-		switch( pItem->Get_Type() )
-		{
-		default:					pObject	= NULL;									break;
-
-		case WKSP_ITEM_Table:		pObject	= ((CWKSP_Table *)pItem)->Get_Table();	break;
-
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_TIN:
-		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Grid:		pObject	= ((CWKSP_Layer *)pItem)->Get_Object();	break;
-		}
-	}
+	CSG_Data_Object	*pObject	= pItem && pItem->GetId().IsOk()
+	&&	(	pItem->Get_Type() == WKSP_ITEM_Table
+		||	pItem->Get_Type() == WKSP_ITEM_TIN
+		||	pItem->Get_Type() == WKSP_ITEM_PointCloud
+		||	pItem->Get_Type() == WKSP_ITEM_Shapes
+		||	pItem->Get_Type() == WKSP_ITEM_Grid )
+	? ((CWKSP_Data_Item *)pItem)->Get_Object() : NULL;
 
 	Freeze();
 

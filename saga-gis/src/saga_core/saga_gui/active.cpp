@@ -153,8 +153,6 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	g_pACTIVE		= this;
 
 	m_pItem			= NULL;
-	m_pLayer		= NULL;
-	m_pObject		= NULL;
 
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
@@ -207,6 +205,80 @@ CACTIVE::~CACTIVE(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CWKSP_Layer * CACTIVE::Get_Active_Layer(void)
+{
+	if( m_pItem && m_pItem->GetId().IsOk() )
+	{
+		switch( m_pItem->Get_Type() )
+		{
+		default:
+			break;
+
+		case WKSP_ITEM_Map_Layer:
+			return( ((CWKSP_Map_Layer *)m_pItem)->Get_Layer() );
+
+		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
+		case WKSP_ITEM_Shapes:
+		case WKSP_ITEM_Grid:
+			return( (CWKSP_Layer *)m_pItem );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CWKSP_Data_Item * CACTIVE::Get_Active_Data_Item(void)
+{
+	if( m_pItem && m_pItem->GetId().IsOk() )
+	{
+		switch( m_pItem->Get_Type() )
+		{
+		default:
+			break;
+
+		case WKSP_ITEM_Map_Layer:
+			return( ((CWKSP_Map_Layer *)m_pItem)->Get_Layer() );
+
+		case WKSP_ITEM_Table:
+		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
+		case WKSP_ITEM_Shapes:
+		case WKSP_ITEM_Grid:
+			return( (CWKSP_Data_Item *)m_pItem );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CWKSP_Map * CACTIVE::Get_Active_Map(void)
+{
+	if( m_pItem && m_pItem->GetId().IsOk() )
+	{
+		switch( m_pItem->Get_Type() )
+		{
+		default:
+			break;
+
+		case WKSP_ITEM_Map:
+			return( (CWKSP_Map *)m_pItem );
+		}
+	}
+
+	return( NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 {
 	if( pItem == m_pItem )
@@ -220,16 +292,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	CWKSP_Base_Item	*pLegend, *pHistory;
-
 	m_pItem		= pItem;
-	m_pLayer	= NULL;
-	pLegend		= NULL;
-	pHistory	= NULL;
-
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
 
 	if( m_pParameters )
 	{
@@ -238,56 +301,20 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 
 	Update_Description();
 
+	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
+	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
+	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
+	STATUSBAR_Set_Text(m_pItem ? m_pItem->Get_Name() : wxEmptyString, STATUSBAR_ACTIVE);
+
 	if( m_pItem == NULL )
 	{
-		STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
-
 		return( true );
 	}
 
-	STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
-
 	//-----------------------------------------------------
-	switch( m_pItem->Get_Type() )
+	if( Get_Active_Data_Item() )
 	{
-	default:
-		break;
-
-	case WKSP_ITEM_Map:
-		pLegend		= m_pItem;
-		break;
-
-	case WKSP_ITEM_Map_Layer:
-		pLegend		= pHistory	= m_pLayer	= ((CWKSP_Map_Layer *)m_pItem)->Get_Layer();
-		break;
-
-	case WKSP_ITEM_Table:
-		pHistory	= m_pItem;
-		break;
-
-	case WKSP_ITEM_Shapes:
-	case WKSP_ITEM_TIN:
-	case WKSP_ITEM_PointCloud:
-	case WKSP_ITEM_Grid:
-		pLegend		= pHistory	= m_pLayer	= (CWKSP_Layer *)m_pItem;
-		break;
-	}
-
-	//-----------------------------------------------------
-	if( pLegend )
-	{
-		m_pLegend->Set_Item(pLegend);
-
-		_Show_Page(m_pLegend);
-	}
-	else
-	{
-		_Hide_Page(m_pLegend);
-	}
-
-	if( pHistory )
-	{
-		m_pHistory->Set_Item(pHistory);
+		m_pHistory->Set_Item(m_pItem);
 
 		_Show_Page(m_pHistory);
 	}
@@ -296,9 +323,20 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		_Hide_Page(m_pHistory);
 	}
 
-	if( m_pLayer )
+	if( Get_Active_Layer() || Get_Active_Map() )
 	{
-		m_pAttributes->Set_Layer(m_pLayer);
+		m_pLegend->Set_Item(m_pItem);
+
+		_Show_Page(m_pLegend);
+	}
+	else
+	{
+		_Hide_Page(m_pLegend);
+	}
+
+	if( Get_Active_Layer() )
+	{
+		m_pAttributes->Set_Layer(Get_Active_Layer());
 
 		_Show_Page(m_pAttributes);
 	}
@@ -319,14 +357,15 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	if( m_pLayer )
-	{
-		m_pObject	= m_pLayer->Get_Object();
+	CSG_Data_Object	*pObject	= Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
 
-		if( SG_Get_Data_Manager().Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
-		{
-			g_pData->Update_Views(m_pObject);
-		}
+	if( SG_Get_Data_Manager().Exists(pObject) &&
+	(	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table      && ((CSG_Table      *)pObject)->Get_Selection_Count() > 0)
+	||	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_TIN        && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)
+	||	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud && ((CSG_PointCloud *)pObject)->Get_Selection_Count() > 0)
+	||	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes     && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)) )
+	{
+		g_pData->Update_Views(pObject);
 	}
 
 	return( true );

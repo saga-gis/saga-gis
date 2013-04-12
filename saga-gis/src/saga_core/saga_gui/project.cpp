@@ -533,6 +533,8 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	if( pParameters )
 	{
+		pParameters->DataObjects_Check(true);
+
 		pParameters->Serialize(*pEntry->Add_Child(SG_T("PARAMETERS")), true);
 	}
 

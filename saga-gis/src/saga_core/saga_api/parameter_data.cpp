@@ -1428,13 +1428,9 @@ CSG_Parameter_Grid_System::CSG_Parameter_Grid_System(CSG_Parameter *pOwner, long
 //---------------------------------------------------------
 bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 {
-	int						i, j;
-	CSG_Grid				*pGrid;
-	CSG_Grid_System			Invalid;
-	CSG_Parameters			*pParameters;
-	CSG_Parameter_Grid_List	*pGrids;
-
 	//-----------------------------------------------------
+	CSG_Grid_System	Invalid;
+
 	if( Value == NULL )
 	{
 		Value	= &Invalid;
@@ -1446,36 +1442,43 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 		m_System.Assign(*((CSG_Grid_System *)Value));
 
 		//-------------------------------------------------
-		CSG_Data_Manager	*pManager	= m_pOwner->Get_Owner()->Get_Manager();
+		CSG_Data_Manager	*pManager		= m_pOwner->Get_Manager();
+		CSG_Parameters		*pParameters	= m_pOwner->Get_Owner();
 
-		pParameters	= m_pOwner->Get_Owner();
-
-		for(i=0; i<pParameters->Get_Count(); i++)
+		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
-			if(	pParameters->Get_Parameter(i)->Get_Parent() == m_pOwner )
+			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+
+			if(	pParameter->Get_Parent() == m_pOwner )
 			{
-				switch( pParameters->Get_Parameter(i)->Get_Type() )
+				switch( pParameter->Get_Type() )
 				{
 				default:
 					break;
 
 				case PARAMETER_TYPE_Grid:
-					pGrid	= pParameters->Get_Parameter(i)->asGrid();
-
-					if(	!m_System.is_Valid() || !(pManager && pManager->Exists(pGrid)) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
 					{
-						pParameters->Get_Parameter(i)->Set_Value(DATAOBJECT_NOTSET);
+						CSG_Grid	*pGrid	= pParameter->asGrid();
+
+						if(	!m_System.is_Valid() || !(pManager && pManager->Exists(pGrid))
+						||  (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
+						{
+							pParameter->Set_Value(DATAOBJECT_NOTSET);
+						}
 					}
 					break;
 
 				case PARAMETER_TYPE_Grid_List:
-					pGrids	= (CSG_Parameter_Grid_List *)pParameters->Get_Parameter(i)->Get_Data();
-
-					for(j=pGrids->Get_Count()-1; j>=0; j--)
 					{
-						if( !m_System.is_Valid() || !(pManager && pManager->Exists(pGrids->asGrid(j))) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
+						CSG_Parameter_Grid_List	*pGrids	= pParameter->asGridList();
+
+						for(int j=pGrids->Get_Count()-1; j>=0; j--)
 						{
-							pGrids->Del_Item(j);
+							if( !m_System.is_Valid() || !(pManager && pManager->Exists(pGrids->asGrid(j)))
+							||  m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
+							{
+								pGrids->Del_Item(j);
+							}
 						}
 					}
 					break;
@@ -1889,9 +1892,7 @@ bool CSG_Parameter_Data_Object::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		}
 		else
 		{
-			CSG_Data_Manager	*pManager	= m_pOwner->Get_Owner()->Get_Manager();
-
-			Set_Value(pManager ? pManager->Find(Entry.Get_Content()) : NULL);
+			Set_Value(m_pOwner->Get_Manager() ? m_pOwner->Get_Manager()->Find(Entry.Get_Content()) : NULL);
 		}
 	}
 
@@ -2381,9 +2382,7 @@ bool CSG_Parameter_List::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		for(int i=0; i<Entry.Get_Children_Count(); i++)
 		{
-			CSG_Data_Manager	*pManager	= m_pOwner->Get_Owner()->Get_Manager();
-
-			CSG_Data_Object	*pObject	= pManager ? pManager->Find(Entry.Get_Content()) : NULL;
+			CSG_Data_Object	*pObject	= m_pOwner->Get_Manager() ? m_pOwner->Get_Manager()->Find(Entry.Get_Content()) : NULL;
 
 			if( pObject )
 			{
