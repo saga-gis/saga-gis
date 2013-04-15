@@ -304,12 +304,14 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
-	STATUSBAR_Set_Text(m_pItem ? m_pItem->Get_Name() : wxEmptyString, STATUSBAR_ACTIVE);
+	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_ACTIVE);
 
 	if( m_pItem == NULL )
 	{
 		return( true );
 	}
+
+	STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
 
 	//-----------------------------------------------------
 	if( Get_Active_Data_Item() )
