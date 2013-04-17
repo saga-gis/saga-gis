@@ -569,7 +569,9 @@ bool CCMD_Module::_Create_DataObjects(CSG_Parameters *pParameters)
 					{
 						if( !_Create_DataObject_List(pParameter, FileName) && !pParameter->is_Optional() )
 						{
-							CMD_Print_Error(_TL("empty input list"), &_Get_ID(pParameter));
+							wxString	s(_Get_ID(pParameter));
+
+							CMD_Print_Error(_TL("empty input list"), &s);
 
 							return( false );
 						}
