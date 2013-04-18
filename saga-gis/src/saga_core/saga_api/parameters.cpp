@@ -1277,40 +1277,44 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 			{
 				if( p->is_DataObject() && p->asDataObject() )
 				{
+					CSG_Data_Object	*pObject	= p->asDataObject();
+
 					if( m_pManager )
 					{
-						if( !m_pManager->Exists(p->asDataObject()) )
+						if( !m_pManager->Exists(pObject) )
 						{
-							m_pManager->Add(p->asDataObject());
+							m_pManager->Add(pObject);
 						}
 						else
 						{
-							SG_UI_DataObject_Update(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+							SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
 						}
 					}
 					else
 					{
-						SG_UI_DataObject_Add(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY);
+						SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY);
 					}
 				}
 				else if( p->is_DataObject_List() )
 				{
 					for(int j=0; j<p->asList()->Get_Count(); j++)
 					{
+						CSG_Data_Object	*pObject	= p->asList()->asDataObject(j);
+
 						if( m_pManager )
 						{
-							if( !m_pManager->Exists(p->asDataObject()) )
+							if( !m_pManager->Exists(pObject) )
 							{
-								m_pManager->Add(p->asDataObject());
+								m_pManager->Add(pObject);
 							}
 							else
 							{
-								SG_UI_DataObject_Update(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
+								SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
 							}
 						}
 						else
 						{
-							SG_UI_DataObject_Add(p->asDataObject(), SG_UI_DATAOBJECT_UPDATE_ONLY);
+							SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY);
 						}
 					}
 				}
