@@ -2013,36 +2013,32 @@ bool CSG_Parameter_Grid::Set_Value(void *Value)
 		return( true );
 	}
 
-	CSG_Grid_System	*pSystem	= Get_System();
-
-	if(	Value == DATAOBJECT_NOTSET || Value == DATAOBJECT_CREATE
-	||	pSystem == NULL || pSystem->is_Equal(((CSG_Grid *)Value)->Get_System()) )
+	//-----------------------------------------------------
+	if( Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE // && m_pOwner->Get_Manager()
+	&&  Get_System() && !Get_System()->is_Equal(((CSG_Grid *)Value)->Get_System()) )
 	{
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		if( m_pOwner->Get_Child(m_Default) )
+		for(int i=0; i<m_pOwner->Get_Parent()->Get_Children_Count(); i++)
 		{
-			m_pOwner->Get_Child(m_Default)->Set_Enabled(m_pDataObject == DATAOBJECT_NOTSET);
+			if( m_pOwner->Get_Parent()->Get_Child(i)->asGrid() != DATAOBJECT_NOTSET
+			&&  m_pOwner->Get_Parent()->Get_Child(i)->asGrid() != DATAOBJECT_CREATE
+			&&  m_pOwner->Get_Parent()->Get_Child(i)->asGrid() != m_pDataObject )
+			{
+				return( false );
+			}
 		}
 
-		return( true );
+		Get_System()->Assign(((CSG_Grid *)Value)->Get_System());
 	}
 
-	if( !m_pOwner->Get_Owner()->is_Managed() && pSystem != NULL )
+	//-----------------------------------------------------
+	m_pDataObject	= (CSG_Data_Object *)Value;
+
+	if( m_pOwner->Get_Child(m_Default) )
 	{
-		pSystem->Assign(((CSG_Grid *)Value)->Get_System());
-
-		m_pDataObject	= (CSG_Data_Object *)Value;
-
-		if( m_pOwner->Get_Child(m_Default) )
-		{
-			m_pOwner->Get_Child(m_Default)->Set_Enabled(m_pDataObject == DATAOBJECT_NOTSET);
-		}
-
-		return( true );
+		m_pOwner->Get_Child(m_Default)->Set_Enabled(m_pDataObject == DATAOBJECT_NOTSET);
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
