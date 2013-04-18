@@ -103,22 +103,6 @@ CSG_Data_Collection::~CSG_Data_Collection(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Collection::Delete_All(bool bDetachOnly)
-{
-	if( !bDetachOnly )
-	{
-		for(size_t i=0; i<Count(); i++)
-		{
-			delete(Get(i));
-		}
-	}
-
-	m_Objects.Set_Array(0);
-
-	return( true );
-}
-
-//---------------------------------------------------------
 CSG_Data_Object * CSG_Data_Collection::Get(const CSG_String &File) const
 {
 	for(size_t i=0; i<Count(); i++)
@@ -212,6 +196,36 @@ bool CSG_Data_Collection::Delete(size_t i, bool bDetachOnly)
 	return( Delete(Get(i), bDetachOnly) );
 }
 
+//---------------------------------------------------------
+bool CSG_Data_Collection::Delete_All(bool bDetachOnly)
+{
+	if( !bDetachOnly )
+	{
+		for(size_t i=0; i<Count(); i++)
+		{
+			delete(Get(i));
+		}
+	}
+
+	m_Objects.Set_Array(0);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Collection::Delete_Unsaved(bool bDetachOnly)
+{
+	for(size_t i=Count(); i>0; i--)
+	{
+		if( !SG_File_Exists(Get(i - 1)->Get_File_Name()) )
+		{
+			Delete(i, bDetachOnly);
+		}
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -238,13 +252,22 @@ bool CSG_Grid_Collection::Exists(CSG_Data_Object *pObject) const
 //---------------------------------------------------------
 bool CSG_Grid_Collection::Add(CSG_Data_Object *pObject)
 {
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid
-	&&	(Count() == 0 || m_System.is_Equal(((CSG_Grid *)pObject)->Get_System()))
-	&&	CSG_Data_Collection::Add(pObject) )
+	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid )
 	{
-		m_System	= ((CSG_Grid *)pObject)->Get_System();
+		CSG_Grid_System	System	= ((CSG_Grid *)pObject)->Get_System();
 
-		return( true );
+		if( System.is_Valid() )
+		{
+			if( Count() == 0 || !m_System.is_Valid() )
+			{
+				m_System	= System;
+			}
+
+			if( m_System == System )
+			{
+				return( CSG_Data_Collection::Add(pObject) );
+			}
+		}
 	}
 
 	return( false );
@@ -678,6 +701,29 @@ bool CSG_Data_Manager::Delete_All(bool bDetachOnly)
 	}
 
 	m_Grid_Systems.Set_Array(0);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Manager::Delete_Unsaved(bool bDetachOnly)
+{
+	m_pTable      ->Delete_Unsaved(bDetachOnly);
+	m_pTIN        ->Delete_Unsaved(bDetachOnly);
+	m_pPoint_Cloud->Delete_Unsaved(bDetachOnly);
+	m_pShapes     ->Delete_Unsaved(bDetachOnly);
+
+	for(size_t i=Grid_System_Count(); i>0; i--)
+	{
+		CSG_Grid_Collection	*pSystem	= Get_Grid_System(i - 1);
+
+		pSystem->Delete_Unsaved(bDetachOnly);
+
+		if( pSystem->Count() == 0 )
+		{
+			Delete(pSystem);
+		}
+	}
 
 	return( true );
 }

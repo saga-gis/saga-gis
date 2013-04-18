@@ -105,6 +105,7 @@ protected:
 	bool							Delete				(CSG_Data_Object *pObject, bool bDetachOnly = false);
 	bool							Delete				(size_t i                , bool bDetachOnly = false);
 	bool							Delete_All			(                          bool bDetachOnly = false);
+	bool							Delete_Unsaved		(                          bool bDetachOnly = false);
 
 
 	class CSG_Data_Manager			*m_pManager;
@@ -183,6 +184,7 @@ public:
 	bool								Delete				(CSG_Data_Object     *pObject    , bool bDetachOnly = false);
 	bool								Delete				(const CSG_Grid_System &System   , bool bDetachOnly = false);
 	bool								Delete_All			(                                  bool bDetachOnly = false);
+	bool								Delete_Unsaved		(                                  bool bDetachOnly = false);
 
 	bool								Exists				(CSG_Data_Object *pObject)		const;
 	bool								Exists				(const CSG_Grid_System &System)	const;
