@@ -1279,20 +1279,13 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 				{
 					CSG_Data_Object	*pObject	= p->asDataObject();
 
-					if( m_pManager )
+					if( m_pManager && !m_pManager->Exists(pObject) )
 					{
-						if( !m_pManager->Exists(pObject) )
-						{
-							m_pManager->Add(pObject);
-						}
-						else
-						{
-							SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
-						}
+						m_pManager->Add(pObject);
 					}
 					else
 					{
-						SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY);
+						SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
 					}
 				}
 				else if( p->is_DataObject_List() )
@@ -1301,20 +1294,13 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 					{
 						CSG_Data_Object	*pObject	= p->asList()->asDataObject(j);
 
-						if( m_pManager )
+						if( m_pManager && !m_pManager->Exists(pObject) )
 						{
-							if( !m_pManager->Exists(pObject) )
-							{
-								m_pManager->Add(pObject);
-							}
-							else
-							{
-								SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
-							}
+							m_pManager->Add(pObject);
 						}
 						else
 						{
-							SG_UI_DataObject_Add(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY);
+							SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
 						}
 					}
 				}
