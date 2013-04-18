@@ -1927,6 +1927,11 @@ bool CSG_Parameter_Data_Object_Output::Set_Value(void *Value)
 	{
 		m_pDataObject	= pDataObject;
 
+		if( m_pOwner->Get_Manager() )
+		{
+			m_pOwner->Get_Manager()->Add(m_pDataObject);
+		}
+
 		SG_UI_DataObject_Add(m_pDataObject, false);
 	}
 
