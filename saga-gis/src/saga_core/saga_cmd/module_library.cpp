@@ -103,15 +103,15 @@ bool CCMD_Module::Create(CSG_Module *pModule)
 {
 	Destroy();
 
+	m_CMD.SetSwitchChars(SG_T("-"));
+
 	if( (m_pModule = pModule) != NULL )
 	{
-		m_pModule->Set_Manager(NULL);
-
-		_Set_CMD(m_pModule->Get_Parameters(), false);
+		_Set_Parameters(m_pModule->Get_Parameters(), false);
 
 		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
 		{
-			_Set_CMD(m_pModule->Get_Parameters(i), true);
+			_Set_Parameters(m_pModule->Get_Parameters(i), true);
 		}
 
 		return( true );
@@ -123,16 +123,9 @@ bool CCMD_Module::Create(CSG_Module *pModule)
 //---------------------------------------------------------
 void CCMD_Module::Destroy(void)
 {
-	if( m_pModule )
-	{
-		m_pModule->Set_Manager(NULL);
-	}
-
 	m_pModule	= NULL;
 
 	m_CMD.Reset();
-
-	m_Data_Objects.Clear();
 }
 
 
@@ -150,36 +143,44 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 		return( false );
 	}
 
-	if( argc == 1 )
+	if( argc <= 1 )
 	{
 		m_CMD.Usage();
 
-		return( true );
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	m_Data_Objects.Clear();
-
-	/* m_CMD.SetCmdLine(argc, argv);
-	We can't do it this way (passing argv as char**) because then we use an
-	overload of the method which (re-)sets the locale from the current
-	enviromment; in order to prevent this, we use wxString overload */
+	// m_CMD.SetCmdLine(argc, argv);
+	//
+	// We can't do it this way (passing argv as char**) because then we use an
+	// overload of the method which (re-)sets the locale from the current
+	// enviromment; in order to prevent this, we use wxString overload
 
 	wxString	sCmdLine;
 
 	for(int i=1; i<argc; i++)
 	{
 		wxString	sTmp = argv[i];
+
 		sCmdLine += wxString::Format(SG_T("\"%s\" "), sTmp.c_str());
 	}
 
 	m_CMD.SetCmdLine(sCmdLine);
 
-	bool	bResult	= _Get_CMD(m_pModule->Get_Parameters(), false);
+	//-----------------------------------------------------
+	bool	bResult	= _Get_Parameters(m_pModule->Get_Parameters(), true);
 		
-	for(int i=0; i<m_pModule->Get_Parameters_Count() && bResult; i++)
+	for(int i=0; bResult && i<m_pModule->Get_Parameters_Count(); i++)
 	{
-		_Get_CMD(m_pModule->Get_Parameters(i), true);
+		_Get_Parameters(m_pModule->Get_Parameters(i), false);
+	}
+
+	if( !bResult )
+	{
+		CMD_Print("");
+
+		m_CMD.Usage();
 	}
 
 	//-----------------------------------------------------
@@ -195,11 +196,11 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	CMD_Set_Module(NULL);
 
 	//-----------------------------------------------------
-	_Destroy_DataObjects(bResult);
-
-	m_Data_Objects.Clear();
-
-	if( !bResult )
+	if( bResult )
+	{
+		_Save_Output();
+	}
+	else
 	{
 		CMD_Print_Error(_TL("executing module"), m_pModule->Get_Name());
 	}
@@ -217,15 +218,7 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 //---------------------------------------------------------
 bool CCMD_Module::Get_Parameters(CSG_Parameters *pParameters)
 {
-	return( _Get_CMD(pParameters, false) );
-}
-
-//---------------------------------------------------------
-bool CCMD_Module::Add_DataObject(CSG_Data_Object *pObject)
-{
-	m_Data_Objects.Add(pObject);
-
-	return( true );
+	return( _Get_Parameters(pParameters, true) );
 }
 
 
@@ -263,126 +256,135 @@ wxString CCMD_Module::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifie
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CCMD_Module::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
+bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bExtra)
 {
-	CSG_Parameter	*pParameter;
-	wxString		Description;
-
-	//-----------------------------------------------------
-	if( pParameters )
-	{
-		m_CMD.SetSwitchChars(SG_T("-"));
-
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			pParameter	= pParameters->Get_Parameter(i);
-			Description	= pParameter->Get_Description(
-				PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
-			).c_str();
-
-			Description.Replace(wxT("\xb2"), wxT("2"));	// unicode problem: quick'n'dirty bug fix, to be replaced
-
-			if( pParameter->is_Input() || pParameter->is_Output() )
-			{
-				m_CMD.AddOption(
-					_Get_ID(pParameter), wxEmptyString, Description,
-					wxCMD_LINE_VAL_STRING,
-					wxCMD_LINE_NEEDS_SEPARATOR | (pParameter->is_Optional() || bExtra ? wxCMD_LINE_PARAM_OPTIONAL : wxCMD_LINE_OPTION_MANDATORY)
-				);
-			}
-			else if( pParameter->is_Option() && !pParameter->is_Information() )
-			{
-				switch( pParameter->Get_Type() )
-				{
-				default:
-					break;
-
-				case PARAMETER_TYPE_Bool:
-					m_CMD.AddSwitch(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_PARAM_OPTIONAL);
-					break;
-
-				case PARAMETER_TYPE_Int:
-					m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					break;
-
-				case PARAMETER_TYPE_Choice:
-				case PARAMETER_TYPE_Table_Field:
-				case PARAMETER_TYPE_Table_Fields:
-					m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					break;
-
-				case PARAMETER_TYPE_Double:
-				case PARAMETER_TYPE_Degree:
-					m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					break;
-
-				case PARAMETER_TYPE_Range:
-					m_CMD.AddOption(_Get_ID(pParameter, wxT("MIN")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter, wxT("MAX")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					break;
-
-				case PARAMETER_TYPE_String:
-				case PARAMETER_TYPE_Text:
-				case PARAMETER_TYPE_FilePath:
-					m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					break;
-
-				case PARAMETER_TYPE_FixedTable:
-					m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					break;
-
-				case PARAMETER_TYPE_Grid_System:
-					if( pParameter->Get_Children_Count() == 0 )
-					{
-						m_CMD.AddOption(_Get_ID(pParameter, wxT("NX")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-						m_CMD.AddOption(_Get_ID(pParameter, wxT("NY")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-						m_CMD.AddOption(_Get_ID(pParameter, wxT( "X")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-						m_CMD.AddOption(_Get_ID(pParameter, wxT( "Y")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-						m_CMD.AddOption(_Get_ID(pParameter, wxT( "D")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					}
-					break;
-
-				case PARAMETER_TYPE_Parameters:
-					_Set_CMD(pParameter->asParameters(), true);
-					break;
-				}
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------
-bool CCMD_Module::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
-{
-	//-----------------------------------------------------
 	if( !pParameters )
 	{
-		CMD_Print_Error(_TL("Internal system error"));
-
-		return( false );
-	}
-
-	if( m_CMD.Parse(false) != 0 || (bNoDataObjects == false && _Create_DataObjects(pParameters) == false) )
-	{
-		m_CMD.Usage();
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
-		long			l;
-		double			d;
-		wxString		s;
-
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-		if( !pParameter->is_Information() && !pParameter->is_DataObject() )
+		wxString	Description	= pParameter ->Get_Description(
+			PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
+		).c_str();
+
+		Description.Replace(wxT("\xb2"), wxT("2"));	// unicode problem: quick'n'dirty bug fix, to be replaced
+
+		if( pParameter->is_Input() || pParameter->is_Output() )
+		{
+			m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_NEEDS_SEPARATOR
+			| (pParameter->is_Optional() || pParameter->is_Output() || bExtra
+			  ? wxCMD_LINE_PARAM_OPTIONAL : wxCMD_LINE_OPTION_MANDATORY
+			));
+		}
+
+		else if( pParameter->is_Option() && !pParameter->is_Information() )
 		{
 			switch( pParameter->Get_Type() )
 			{
 			default:
+				break;
+
+			case PARAMETER_TYPE_Parameters:
+				_Set_Parameters(pParameter->asParameters(), true);
+				break;
+
+			case PARAMETER_TYPE_Bool:
+				m_CMD.AddSwitch(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Int:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Choice:
+			case PARAMETER_TYPE_Table_Field:
+			case PARAMETER_TYPE_Table_Fields:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Double:
+			case PARAMETER_TYPE_Degree:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Range:
+				m_CMD.AddOption(_Get_ID(pParameter, wxT("MIN")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				m_CMD.AddOption(_Get_ID(pParameter, wxT("MAX")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_String:
+			case PARAMETER_TYPE_Text:
+			case PARAMETER_TYPE_FilePath:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_FixedTable:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Grid_System:
+				if( pParameter->Get_Children_Count() == 0 )
+				{
+					m_CMD.AddOption(_Get_ID(pParameter, wxT("NX")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter, wxT("NY")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter, wxT( "X")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter, wxT( "Y")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter, wxT( "D")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				}
+				break;
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bCreateDataObjects)
+{
+	if( !pParameters )
+	{
+		return( false );
+	}
+
+	if( m_CMD.Parse(false) != 0 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+
+		if( pParameter->is_Input() )
+		{
+			if( !_Load_Input(pParameters->Get_Parameter(i)) )
+			{
+				CMD_Print_Error(pParameters->Get_Parameter(i)->Get_Name());
+
+				return( false );
+			}
+		}
+
+		else if( pParameter->is_Option() && !pParameter->is_Information() )
+		{
+			long		l;
+			double		d;
+			wxString	s;
+
+			switch( pParameter->Get_Type() )
+			{
+			default:
+				break;
+
+			case PARAMETER_TYPE_Parameters:
+				_Get_Parameters(pParameter->asParameters(), bCreateDataObjects);
 				break;
 
 			case PARAMETER_TYPE_Bool:
@@ -408,6 +410,13 @@ bool CCMD_Module::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					{
 						pParameter->Set_Value(CSG_String(&s));
 					}
+				}
+				break;
+
+			case PARAMETER_TYPE_Table_Fields:
+				if( m_CMD.Found(_Get_ID(pParameter), &s) )
+				{
+					pParameter->Set_Value(CSG_String(&s));
 				}
 				break;
 
@@ -472,13 +481,6 @@ bool CCMD_Module::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 				}
 				break;
 
-			case PARAMETER_TYPE_Table_Fields:
-				if( m_CMD.Found(_Get_ID(pParameter), &s) )
-				{
-					pParameter->Set_Value(CSG_String(&s));
-				}
-				break;
-
 			case PARAMETER_TYPE_FixedTable:
 				if( m_CMD.Found(_Get_ID(pParameter), &s) )
 				{
@@ -507,10 +509,6 @@ bool CCMD_Module::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 					}
 				}
 				break;
-
-			case PARAMETER_TYPE_Parameters:
-				_Get_CMD(pParameter->asParameters(), bNoDataObjects);
-				break;
 			}
 		}
 	}
@@ -526,183 +524,52 @@ bool CCMD_Module::_Get_CMD(CSG_Parameters *pParameters, bool bNoDataObjects)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Create_DataObjects(CSG_Parameters *pParameters)
+bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 {
-	//-----------------------------------------------------
-	if( !pParameters )
-	{
-		CMD_Print_Error(_TL("Internal system error"));
+	wxString	FileName;
 
-		return( false );
+	if(	!pParameter->is_Input() )
+	{
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	bool	bObjects	= false;
-	int		nObjects	= 0;
-
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	if( !m_CMD.Found(_Get_ID(pParameter), &FileName) )
 	{
-		wxString		FileName;
+		return( pParameter->is_Optional() );
+	}
 
-		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
-
-		if(	pParameter->is_DataObject() || pParameter->is_DataObject_List() )
+	if( pParameter->is_DataObject() )
+	{
+		if( !SG_Get_Data_Manager().Add(&FileName) && !pParameter->is_Optional() )
 		{
-			bObjects	= true;
+			CMD_Print_Error(_TL("input file"), &FileName);
 
-			if( m_CMD.Found(_Get_ID(pParameter), &FileName) )
-			{
-				if( pParameter->is_Input() )
-				{
-					if( pParameter->is_DataObject() )
-					{
-						if( !_Create_DataObject(pParameter, FileName) && !pParameter->is_Optional() )
-						{
-							CMD_Print_Error(_TL("input file"), &FileName);
-
-							return( false );
-						}
-
-						nObjects++;
-					}
-					else if( pParameter->is_DataObject_List() )
-					{
-						if( !_Create_DataObject_List(pParameter, FileName) && !pParameter->is_Optional() )
-						{
-							wxString	s(_Get_ID(pParameter));
-
-							CMD_Print_Error(_TL("empty input list"), &s);
-
-							return( false );
-						}
-
-						nObjects++;
-					}
-				}
-				else if( pParameter->is_Output() )
-				{
-					if( !_Create_DataObject(pParameter, FileName) )
-					{
-						pParameter->Set_Value(DATAOBJECT_CREATE);
-					}
-
-					nObjects++;
-				}
-			}
-			else if( !pParameter->is_Optional() )
-			{
-				return( false );
-			}
-		}
-	}
-
-	return( bObjects == false || nObjects > 0 );
-}
-
-//---------------------------------------------------------
-bool CCMD_Module::_Create_DataObject(CSG_Parameter *pParameter, const wxString &FileName)
-{
-	if( !SG_File_Exists(FileName) )
-	{
-		return( false );
-	}
-
-	CSG_Data_Object	*pObject;
-
-	switch( pParameter->Get_Type() )
-	{
-	default:						pObject	= NULL;									break;
-	case PARAMETER_TYPE_TIN:		pObject = new CSG_TIN			(&FileName);	break;
-	case PARAMETER_TYPE_PointCloud:	pObject = new CSG_PointCloud	(&FileName);	break;
-	case PARAMETER_TYPE_Shapes:		pObject = new CSG_Shapes		(&FileName);	break;
-	case PARAMETER_TYPE_Table:		pObject = new CSG_Table			(&FileName);	break;
-	case PARAMETER_TYPE_Grid:		pObject	= new CSG_Grid			(&FileName);	break;
-	}
-
-	if( pObject )
-	{
-		if( pObject->is_Valid() && pParameter->Get_Type() == PARAMETER_TYPE_Grid )
-		{
-			if( !pParameter->Get_Parent()->asGrid_System()->is_Valid() )
-			{
-				pParameter->Get_Parent()->asGrid_System()->Assign(((CSG_Grid *)pObject)->Get_System());
-			}
-			else if( !pParameter->Get_Parent()->asGrid_System()->is_Equal(((CSG_Grid *)pObject)->Get_System()) )
-			{
-				delete(pObject);
-
-				return( false );
-			}
+			return( false );
 		}
 
-		if( pObject->is_Valid() )
-		{
-			pParameter->Set_Value(pObject);
-
-			return( true );
-		}
-
-		delete(pObject);
+		return( pParameter->Set_Value(SG_Get_Data_Manager().Find(&FileName)) );
 	}
 
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CCMD_Module::_Create_DataObject_List(CSG_Parameter *pParameter, wxString FileNames)
-{
-	CSG_Data_Object		*pObject;
-	wxString			FileName;
-
-	if( pParameter && pParameter->is_DataObject_List() )
+	else if( pParameter->is_DataObject_List() )
 	{
+		pParameter->asList()->Del_Items();
+
+		wxString	FileNames(FileName);
+
 		do
 		{
 			FileName	= FileNames.BeforeFirst	(';');
 			FileNames	= FileNames.AfterFirst	(';');
 
-			switch( pParameter->Get_Type() )
+			if( SG_Get_Data_Manager().Add(&FileName) )
 			{
-			default:								pObject	= NULL;								break;
-			case PARAMETER_TYPE_Grid_List:			pObject	= new CSG_Grid      (&FileName);	break;
-			case PARAMETER_TYPE_TIN_List:			pObject	= new CSG_TIN       (&FileName);	break;
-			case PARAMETER_TYPE_PointCloud_List:	pObject	= new CSG_PointCloud(&FileName);	break;
-			case PARAMETER_TYPE_Shapes_List:		pObject	= new CSG_Shapes    (&FileName);	break;
-			case PARAMETER_TYPE_Table_List:			pObject	= new CSG_Table     (&FileName);	break;
-			}
-
-			if( pObject && pObject->is_Valid() )
-			{
-				if( pParameter->Get_Type() == PARAMETER_TYPE_Grid_List && (pParameter->Get_Parent() && pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System) )
-				{	// grid system dependent grid list: first grid defines the grid system to be used!
-					if( pParameter->asList()->Get_Count() == 0 )
-					{
-						pParameter->Get_Parent()->asGrid_System()->Assign  (((CSG_Grid *)pObject)->Get_System());
-					}
-
-					if( pParameter->Get_Parent()->asGrid_System()->is_Equal(((CSG_Grid *)pObject)->Get_System()) )
-					{
-						pParameter->asList()->Add_Item(pObject);
-					}
-				}
-				else
-				{
-					pParameter->asList()->Add_Item(pObject);
-				}
-			}
-			else if( pObject )
-			{
-				delete(pObject);
-
-				CMD_Print_Error(_TL("input file"), &FileName);
+				pParameter->asList()->Add_Item(SG_Get_Data_Manager().Find(&FileName));
 			}
 		}
 		while( FileNames.Length() > 0 );
-
-		return( pParameter->asList()->Get_Count() > 0 );
 	}
 
-	return( false );
+	return( true );
 }
 
 
@@ -713,16 +580,18 @@ bool CCMD_Module::_Create_DataObject_List(CSG_Parameter *pParameter, wxString Fi
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Destroy_DataObjects(bool bSave)
+bool CCMD_Module::_Save_Output(void)
 {
 	if( m_pModule )
 	{
-		_Destroy_DataObjects(bSave, m_pModule->Get_Parameters());
+		_Save_Output(m_pModule->Get_Parameters());
 
 		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
 		{
-			_Destroy_DataObjects(bSave, m_pModule->Get_Parameters(i));
+			_Save_Output(m_pModule->Get_Parameters(i));
 		}
+
+		SG_Get_Data_Manager().Delete_Unsaved();	// remove temporary data to save memory resources
 
 		return( true );
 	}
@@ -731,67 +600,59 @@ bool CCMD_Module::_Destroy_DataObjects(bool bSave)
 }
 
 //---------------------------------------------------------
-bool CCMD_Module::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParameters)
+bool CCMD_Module::_Save_Output(CSG_Parameters *pParameters)
 {
-	if( !pParameters )
-	{
-		return( false );
-	}
-
 	for(int j=0; j<pParameters->Get_Count(); j++)
 	{
+		wxString		FileName;
+
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(j);
 
-		wxString	FileName;
-
-		if( !bSave || !pParameter->is_Output() || !m_CMD.Found(_Get_ID(pParameter), &FileName) )
-		{
-			FileName.Clear();
-		}
-
 		//-------------------------------------------------
-		if( pParameter->is_DataObject() && pParameter->asDataObject() )
+		if( pParameter->is_Input() )
 		{
-			CSG_Data_Object	*pObject	= pParameter->asDataObject();
+			if( pParameter->is_DataObject() )
+			{
+				CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
-			if( pParameter->is_Input() && pObject->is_Modified() )
-			{
-				pObject->Save(pObject->Get_File_Name());
-			}
-			else if( FileName.Length() > 0 )
-			{
-				pObject->Save(&FileName);
+				if( pObject && pObject->is_Modified() && SG_File_Exists(pObject->Get_File_Name()) )
+				{
+					pObject->Save(pObject->Get_File_Name());
+				}
 			}
 
-			m_Data_Objects.Add(pObject);
-
-			pParameter->Set_Value(DATAOBJECT_NOTSET);
-		}
-
-		//-------------------------------------------------
-		else if( pParameter->is_DataObject_List() )
-		{
-			if( pParameter->is_Input() )
+			else if( pParameter->is_DataObject_List() )
 			{
 				for(int i=0; i<pParameter->asList()->Get_Count(); i++)
 				{
 					CSG_Data_Object	*pObject	= pParameter->asList()->asDataObject(i);
 
-					if( pObject->is_Modified() )
+					if( pObject->is_Modified() && SG_File_Exists(pObject->Get_File_Name()) )
 					{
 						pObject->Save(pObject->Get_File_Name());
 					}
-
-					m_Data_Objects.Add(pObject);
 				}
 			}
-			else if( FileName.Length() > 0 ) // if( pParameter->is_Output() )
+		}
+
+		//-------------------------------------------------
+		else if( pParameter->is_Output() &&  m_CMD.Found(_Get_ID(pParameter), &FileName) && FileName.Length() > 0 )
+		{
+			if( pParameter->is_DataObject() )
+			{
+				if( pParameter->asDataObject() )
+				{
+					pParameter->asDataObject()->Save(&FileName);
+				}
+			}
+
+			else if( pParameter->is_DataObject_List() )
 			{
 				CSG_Strings	FileNames;
 
 				while( FileName.Length() > 0 )
 				{
-					CSG_String	s(FileName.BeforeFirst(';').wx_str());
+					CSG_String	s(&FileName.BeforeFirst(';'));
 
 					if( s.Length() > 0 )
 					{
@@ -809,88 +670,24 @@ bool CCMD_Module::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParameters)
 
 				for(int i=0; i<pParameter->asList()->Get_Count(); i++)
 				{
-					CSG_Data_Object	*pObject	= pParameter->asList()->asDataObject(i);
-
 					if( i < nFileNames )
 					{
-						pObject->Save(FileNames[i]);
+						pParameter->asList()->asDataObject(i)->Save(FileNames[i]);
 					}
 					else
 					{
-						pObject->Save(CSG_String::Format(SG_T("%s_%0*d"),
+						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%0*d"),
 							FileNames[FileNames.Get_Count() - 1].c_str(),
 							SG_Get_Digit_Count(pParameter->asList()->Get_Count()),
 							1 + i - nFileNames
 						));
 					}
-
-					m_Data_Objects.Add(pObject);
 				}
 			}
-
-			pParameter->asList()->Del_Items();
 		}
 	}
 
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CCMD_Data_Objects::CCMD_Data_Objects(void)
-{
-	m_pObjects	= NULL;
-	m_nObjects	= 0;
-}
-
-//---------------------------------------------------------
-CCMD_Data_Objects::~CCMD_Data_Objects(void)
-{
-	Clear(false);
-}
-
-//---------------------------------------------------------
-void CCMD_Data_Objects::Clear(bool bDelete)
-{
-	if( m_pObjects )
-	{
-		if( bDelete )
-		{
-			for(int i=0; i<m_nObjects; i++)
-			{
-				delete(m_pObjects[i]);
-			}
-		}
-
-		SG_Free(m_pObjects);
-
-		m_pObjects	= NULL;
-		m_nObjects	= 0;
-	}
-}
-
-//---------------------------------------------------------
-void CCMD_Data_Objects::Add(class CSG_Data_Object *pObject)
-{
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
-	{
-		for(int i=0; i<m_nObjects; i++)
-		{
-			if( m_pObjects[i] == pObject )
-			{
-				return;
-			}
-		}
-
-		m_pObjects	= (CSG_Data_Object **)SG_Realloc(m_pObjects, (m_nObjects + 1) * sizeof(CSG_Data_Object *));
-		m_pObjects[m_nObjects++]	= pObject;
-	}
 }
 
 

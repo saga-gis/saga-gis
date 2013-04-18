@@ -84,33 +84,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCMD_Data_Objects
-{
-public:
-	CCMD_Data_Objects(void);
-	virtual ~CCMD_Data_Objects(void);
-
-	void						Clear					(bool bDelete = true);
-
-	void						Add						(class CSG_Data_Object *pObject);
-
-
-private:
-
-	int							m_nObjects;
-
-	class CSG_Data_Object		**m_pObjects;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CCMD_Module
 {
 public:
@@ -124,29 +97,24 @@ public:
 	bool						Execute					(int argc, char *argv[]);
 
 	bool						Get_Parameters			(class CSG_Parameters *pParameters);
-	bool						Add_DataObject			(class CSG_Data_Object *pObject);
 
 
 private:
 
 	CSG_Module					*m_pModule;
 
-	CCMD_Data_Objects			m_Data_Objects;
-
 	wxCmdLineParser				m_CMD;
 
 
 	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = SG_T(""));
 
-	void						_Set_CMD				(CSG_Parameters *pParameters, bool bExtra);
-	bool						_Get_CMD				(CSG_Parameters *pParameters, bool bNoDataObjects);
+	bool						_Set_Parameters			(CSG_Parameters *pParameters, bool bExtra);
+	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bCreateDataObjects);
 
-	bool						_Create_DataObjects		(CSG_Parameters *pParameters);
-	bool						_Create_DataObject		(CSG_Parameter  *pParameter, const wxString &FileName);
-	bool						_Create_DataObject_List	(CSG_Parameter  *pParameter, wxString sList);
+	bool						_Load_Input				(CSG_Parameter  *pParameter);
 
-	bool						_Destroy_DataObjects	(bool bSave);
-	bool						_Destroy_DataObjects	(bool bSave, CSG_Parameters *pParameters);
+	bool						_Save_Output			(void);
+	bool						_Save_Output			(CSG_Parameters *pParameters);
 
 };
 

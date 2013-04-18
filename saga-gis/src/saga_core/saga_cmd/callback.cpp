@@ -171,7 +171,7 @@ void			CMD_Print_Error		(const CSG_String &Error)
 //---------------------------------------------------------
 void			CMD_Print_Error		(const CSG_String &Error, const CSG_String &Info)
 {
-	CMD_Print_Error(Error + " ["+Info+"]");
+	CMD_Print_Error(CSG_String::Format(SG_T("%s: %s [%s]"), _TL("Error"), Error.c_str(), Info.c_str()));
 }
 
 
@@ -386,12 +386,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ADD:
 
-		Result	= 0;
-
-		if( g_pCMD_Module )
-		{
-			Result	= g_pCMD_Module->Add_DataObject((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
-		}
+		Result	= SG_Get_Data_Manager().Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
 
 		break;
 
