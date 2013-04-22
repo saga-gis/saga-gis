@@ -181,6 +181,11 @@ CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Data(CSG_Shapes *pObject)
 		pItem	= ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Data(pObject);
 	}
 
+	if( !pItem && SG_Get_Data_Manager().Exists(pObject) && _Get_Shapes_Type(pObject->Get_Type()) )
+	{
+		pItem	= _Get_Shapes_Type(pObject->Get_Type())->Add_Data(pObject);
+	}
+
 	return( pItem );
 }
 
