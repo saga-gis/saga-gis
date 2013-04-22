@@ -357,7 +357,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 int CParameters_PG_Choice::_Set_Grid(void)
 {
 	CWKSP_Grid_System	*pManager
-		= m_pParameter->Get_Parent() && m_pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System
+		= m_pParameter->Get_Parent() && m_pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System && g_pData->Get_Grids()
 		? g_pData->Get_Grids()->Get_System(*m_pParameter->Get_Parent()->asGrid_System()) : NULL;
 
 	if( pManager )
