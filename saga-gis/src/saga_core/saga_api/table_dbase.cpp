@@ -668,6 +668,8 @@ bool CSG_Table_DBase::asDouble(int iField, double &Value)
 		if( m_Fields[iField].Type == DBF_FT_FLOAT
 		||  m_Fields[iField].Type == DBF_FT_NUMERIC )
 		{
+			s.Replace(",", ".");
+
 			return( s.asDouble(Value) );
 		}
 
