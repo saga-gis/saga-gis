@@ -109,16 +109,16 @@ bool			CMD_Get_Show_Progress	(void)		{	return( g_bShow_Progress );		}
 //---------------------------------------------------------
 static bool		g_bInteractive		= false;
 
-void			CMD_Set_Interactive	(bool bOn)		{	g_bInteractive	= bOn;			}
+void			CMD_Set_Interactive	(bool bOn)		{	g_bInteractive		= bOn;		}
 
 bool			CMD_Get_Interactive	(void)			{	return( g_bInteractive );		}
 
 //---------------------------------------------------------
-static bool		g_bXML			= false;
+static bool		g_bXML				= false;
 
-void			CMD_Set_XML			(bool bOn)	{	g_bXML			= bOn;		}
+void			CMD_Set_XML			(bool bOn)		{	g_bXML				= bOn;		}
 
-bool			CMD_Get_XML			(void)		{	return( g_bXML );			}
+bool			CMD_Get_XML			(void)			{	return( g_bXML );				}
 
 
 ///////////////////////////////////////////////////////////
@@ -357,7 +357,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_bShow_Messages )
 		{
-			CMD_Print(Param_2.String + ":" + Param_1.String, NULL);
+			CMD_Print(Param_2.String + ": " + Param_1.String, NULL);
 		}
 
 		break;

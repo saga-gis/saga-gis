@@ -372,6 +372,14 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bCreateDataO
 			}
 		}
 
+		else if( pParameter->is_Output() )
+		{
+			if( pParameter->is_DataObject() && pParameter->is_Optional() && !pParameter->asDataObject() && m_CMD.Found(_Get_ID(pParameter)) )
+			{
+				pParameter->Set_Value(DATAOBJECT_CREATE);
+			}
+		}
+
 		else if( pParameter->is_Option() && !pParameter->is_Information() )
 		{
 			long		l;
@@ -540,7 +548,7 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 
 	if( pParameter->is_DataObject() )
 	{
-		if( !SG_Get_Data_Manager().Add(&FileName) && !pParameter->is_Optional() )
+		if( !SG_Get_Data_Manager().Find(&FileName) && !SG_Get_Data_Manager().Add(&FileName) && !pParameter->is_Optional() )
 		{
 			CMD_Print_Error(_TL("input file"), &FileName);
 
@@ -561,10 +569,12 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 			FileName	= FileNames.BeforeFirst	(';');
 			FileNames	= FileNames.AfterFirst	(';');
 
-			if( SG_Get_Data_Manager().Add(&FileName) )
+			if( !SG_Get_Data_Manager().Find(&FileName) )
 			{
-				pParameter->asList()->Add_Item(SG_Get_Data_Manager().Find(&FileName));
+				SG_Get_Data_Manager().Add(&FileName);
 			}
+
+			pParameter->asList()->Add_Item(SG_Get_Data_Manager().Find(&FileName));
 		}
 		while( FileNames.Length() > 0 );
 	}
