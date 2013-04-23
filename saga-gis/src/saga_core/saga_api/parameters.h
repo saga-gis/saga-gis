@@ -1015,7 +1015,7 @@ public:
 	virtual int					asInt					(void)	const	{	return( m_nObjects );	}
 	virtual void *				asPointer				(void)	const	{	return( m_Objects );	}
 
-	void						Add_Item				(CSG_Data_Object *pItem);
+	virtual bool				Add_Item				(CSG_Data_Object *pItem);
 	int							Del_Item				(int Index);
 	int							Del_Item				(CSG_Data_Object *pItem);
 	void						Del_Items				(void);
@@ -1055,6 +1055,8 @@ public:
 	CSG_Grid_System *			Get_System				(void);
 
 	CSG_Grid *					asGrid					(int Index)	const	{	return( (CSG_Grid *)asDataObject(Index) );	}
+
+	virtual bool				Add_Item				(CSG_Data_Object *pItem);
 
 };
 

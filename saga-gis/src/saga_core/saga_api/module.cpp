@@ -184,7 +184,7 @@ bool CSG_Module::Execute(void)
 	//-----------------------------------------------------
 	if( !Parameters.DataObjects_Create() )
 	{
-		Message_Dlg(_TL("could not allocate memory for output"));
+		Message_Dlg(_TL("could not initialize data objects"));
 	}
 	else
 	{
