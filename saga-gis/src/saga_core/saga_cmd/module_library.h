@@ -96,7 +96,7 @@ public:
 
 	bool						Execute					(int argc, char *argv[]);
 
-	bool						Get_Parameters			(class CSG_Parameters *pParameters);
+	bool						Get_Parameters			(CSG_Parameters *pParameters)	{	return( _Get_Parameters(pParameters) );	}
 
 
 private:
@@ -106,14 +106,12 @@ private:
 	wxCmdLineParser				m_CMD;
 
 
-	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = SG_T(""));
+	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = wxT(""));
 
-	bool						_Set_Parameters			(CSG_Parameters *pParameters, bool bExtra);
-	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bCreateDataObjects);
+	bool						_Set_Parameters			(CSG_Parameters *pParameters, bool bOptional);
+	bool						_Get_Parameters			(CSG_Parameters *pParameters);
 
 	bool						_Load_Input				(CSG_Parameter  *pParameter);
-
-	bool						_Save_Output			(void);
 	bool						_Save_Output			(CSG_Parameters *pParameters);
 
 };

@@ -76,9 +76,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Execute			(int argc, char *argv[]);
+bool		Run				(int argc, char *argv[]);
 
-bool		Run_Script		(const CSG_String &Script);
+bool		Execute			(int argc, char *argv[]);
+bool		Execute_Script	(const CSG_String &Script);
 
 bool		Load_Libraries	(void);
 
@@ -107,14 +108,6 @@ void		Create_Docs		(void);
 //---------------------------------------------------------
 int		main	(int argc, char *argv[])
 {
-//---------------------------------------------------------
-#if !defined(_DEBUG) && defined(_SAGA_VC)
-#define _MODULE_EXCEPTION
-_try 
-{
-#endif
-//---------------------------------------------------------
-
 #if wxCHECK_VERSION(2, 8, 11)
 	if( !wxInitialize(argc, argv) )
 #else
@@ -126,64 +119,15 @@ _try
 		return( 1 );
 	}
 
-	setlocale(LC_NUMERIC, "C");
-	
-	SG_Set_UI_Callback(CMD_Get_Callback());
+//---------------------------------------------------------
+#if !defined(_DEBUG) && defined(_SAGA_VC)
+#define _MODULE_EXCEPTION
+_try 
+{
+#endif
+//---------------------------------------------------------
 
-	//-----------------------------------------------------
-	if( !Load_Libraries() )
-	{
-		Print_Get_Help();
-
-		return( 1 );
-	}
-
-	//-----------------------------------------------------
-	if( argc <= 1 )
-	{
-		Print_Libraries();
-
-		Print_Get_Help();
-
-		return( 1 );
-	}
-
-	//-----------------------------------------------------
-	if( Check_First(argv[1]) )
-	{
-		return( 0 );
-	}
-
-	//-----------------------------------------------------
-	while( argc > 1 && Check_Flags(argv[1]) )
-	{
-		argc--;	argv++;
-	}
-
-	if( argc <= 1 )
-	{
-		CMD_Print_Error(_TL("no arguments for saga call"));
-
-		Print_Get_Help();
-
-		return( 1 );
-	}
-
-	//-----------------------------------------------------
-	bool	bResult;
-
-	Print_Logo();
-
-	if( argc == 2 && SG_File_Exists(CSG_String(argv[1])) )
-	{
-		bResult	= Run_Script(argv[1]);
-	}
-	else
-	{
-		bResult	= Execute(argc, argv);
-	}
-
-	CMD_Print("");
+	bool bResult	= Run(argc, argv);
 
 //---------------------------------------------------------
 #ifdef _DEBUG
@@ -203,6 +147,70 @@ _except(1)
 	wxUninitialize();
 
 	return( bResult ? 0 : 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		Run(int argc, char *argv[])
+{
+	setlocale(LC_NUMERIC, "C");
+	
+	SG_Set_UI_Callback(CMD_Get_Callback());
+
+	//-----------------------------------------------------
+	if( !Load_Libraries() )
+	{
+		Print_Get_Help();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( argc <= 1 )
+	{
+		Print_Libraries();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Check_First(argv[1]) )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	while( argc > 1 && Check_Flags(argv[1]) )
+	{
+		argc--;	argv++;
+	}
+
+	if( argc <= 1 )
+	{
+		CMD_Print_Error(_TL("no arguments for saga call"));
+
+		Print_Get_Help();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Print_Logo();
+
+	if( argc == 2 && SG_File_Exists(CSG_String(argv[1])) )
+	{
+		return( Execute_Script(argv[1]) );
+	}
+	else
+	{
+		return( Execute(argc, argv) );
+	}
 }
 
 
@@ -256,6 +264,31 @@ bool		Execute(int argc, char *argv[])
 	return( CMD_Module.Execute(argc - 2, argv + 2) );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		Set_Environment(CSG_String &Command)
+{
+	wxString	Value, Key	= Command.AfterFirst('%').BeforeFirst('%').c_str();
+
+	if( Key.IsEmpty() )
+	{
+		return( true );
+	}
+
+	if( !wxGetEnv(Key, &Value) || Command.Replace(&Key.Prepend("%").Append("%"), &Value) < 1 )
+	{
+		return( false );
+	}
+
+	return( Set_Environment(Command) );
+}
+
 //---------------------------------------------------------
 bool		Execute(CSG_String Command)
 {
@@ -307,33 +340,8 @@ bool		Execute(CSG_String Command)
 	return( bResult );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-bool		Set_Environment(CSG_String &Command)
-{
-	wxString	Value, Key	= Command.AfterFirst('%').BeforeFirst('%').c_str();
-
-	if( Key.IsEmpty() )
-	{
-		return( true );
-	}
-
-	if( !wxGetEnv(Key, &Value) || Command.Replace(&Key.Prepend("%").Append("%"), &Value) < 1 )
-	{
-		return( false );
-	}
-
-	return( Set_Environment(Command) );
-}
-
-//---------------------------------------------------------
-bool		Run_Script(const CSG_String &Script)
+bool		Execute_Script(const CSG_String &Script)
 {
 	if( CMD_Get_Show_Messages() )
 	{
@@ -407,9 +415,14 @@ bool		Load_Libraries(void)
 		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("modules")));
     #endif
 
-	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) && wxDirExists(Path) )
+	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) )
 	{
-		Load_Libraries(&Path);
+		while( Path.Length() > 0 )
+		{
+			Load_Libraries(&Path.BeforeFirst(';'));
+
+			Path	= Path.AfterFirst(';');
+		}
 	}
 
 	if( SG_Get_Module_Library_Manager().Get_Count() <= 0 )
@@ -530,6 +543,8 @@ void		Print_Libraries	(void)
 		else
 		{
 			CMD_Print(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
+
+			Print_Get_Help();
 		}
 	}
 }
@@ -562,19 +577,19 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 		if( CMD_Get_XML() )
 		{
 			SG_PRINTF(SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n"));
-			SG_PRINTF(SG_T("\n<%s>"), SG_XML_LIBRARY);
-			SG_PRINTF(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_PATH, pLibrary->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-			SG_PRINTF(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_NAME, pLibrary->Get_Name()     .c_str(), SG_XML_LIBRARY_NAME);
-			SG_PRINTF(SG_T("\n</%s>"), SG_XML_LIBRARY);
+			SG_PRINTF(SG_T("<%s>\n"), SG_XML_LIBRARY);
+			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_PATH, pLibrary->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_NAME, pLibrary->Get_Name()     .c_str(), SG_XML_LIBRARY_NAME);
+			SG_PRINTF(SG_T("</%s>\n"), SG_XML_LIBRARY);
 		}
 		else
 		{
-			SG_PRINTF(SG_T("\n_____________________________________________"));
-			SG_PRINTF(SG_T("\n%s:\t%s"), _TL("library path"), pLibrary->Get_File_Name().c_str());
-			SG_PRINTF(SG_T("\n%s:\t%s"), _TL("library name"), pLibrary->Get_Name     ().c_str());
-			SG_PRINTF(SG_T("\n%s:\t%s"), _TL("module name "), pModule ->Get_Name     ().c_str());
-			SG_PRINTF(SG_T("\n%s:\t%s"), _TL("author      "), pModule ->Get_Author   ().c_str());
-			SG_PRINTF(SG_T("\n_____________________________________________\n"));
+			SG_PRINTF(SG_T("_____________________________________________\n"));
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), pModule ->Get_Name     ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
+			SG_PRINTF(SG_T("_____________________________________________\n\n"));
 		}
 	}
 }
@@ -592,14 +607,14 @@ void		Print_Logo		(void)
 	if( CMD_Get_Show_Messages() )
 	{
 		CMD_Print(
-			"\n_____________________________________________"
-			"\n  #####   ##   #####    ##"
-			"\n ###     ###  ##       ###"
-			"\n  ###   # ## ##  #### # ##"
-			"\n   ### ##### ##    # #####"
-			"\n##### #   ##  ##### #   ##"
-			"\n_____________________________________________"
+			"_____________________________________________\n"
 			"\n"
+			"   #####   ##   #####    ##\n"
+			"  ###     ###  ##       ###\n"
+			"   ###   # ## ##  #### # ##\n"
+			"    ### ##### ##    # #####\n"
+			" ##### #   ##  ##### #   ##\n"
+			"_____________________________________________\n"
 		);
 	}
 }
@@ -630,6 +645,7 @@ void		Print_Help		(void)
 	CMD_Print(
 		"under GNU General Public License (GPL)\n"
 		"\n"
+		"_____________________________________________\n"
 		"Usage:\n"
 		"\n"
 		"saga_cmd [-h, --help]\n"
@@ -637,52 +653,51 @@ void		Print_Help		(void)
 		"saga_cmd [-b, --batch]\n"
 		"saga_cmd [-d, --docs]\n"
 #ifdef _OPENMP
-		"saga_cmd [-c, --cores][= # of CPU cores] <LIBRARY> <MODULE> <module specific options...>\n"
-#endif
+		"saga_cmd [-f, --flags][=qrsilpx][-c, --cores][=#] <LIBRARY> <MODULE> <OPTIONS>\n"
+		"saga_cmd [-f, --flags][=qrsilpx][-c, --cores][=#] <SCRIPT>\n"
+#else
 		"saga_cmd [-f, --flags][=qrsilpx] <LIBRARY> <MODULE> <module specific options...>\n"
 		"saga_cmd [-f, --flags][=qrsilpx] <SCRIPT>\n"
-		"\n"
-		"[-h], [--help]: help on usage\n"
-		"[-v], [--version]: print version information\n"
-		"[-b], [--batch]: create a batch file example\n"
-		"[-d], [--docs]: create module documentation files in current working directory\n"
-#ifdef _OPENMP
-		"[-c], [--cores]: number of physical processors to use for computation\n"
 #endif
-		"[-f], [--flags]: various flags for general usage\n"
-		"  q: no progress report\n"
-		"  r: no messages report\n"
-		"  s: silent mode (no progress and no messages report)\n"
-		"  i: allow user interaction\n"
-		"  l: load translation dictionary\n"
-		"  p: load projections dictionary\n"
-		"  x: use XML markups for synopses and messages\n"
-		"<LIBRARY>\t"	": name of the library\n"
-		"<MODULE>\t"	": either name or index of the module\n"
-		"<SCRIPT>\t"	": saga cmd script file with one or more module calls\n"
 		"\n"
-		"example:\n"
-		"  saga_cmd -f=sp ta_morphometry \n"
-		"           \"Local Morphometry\"\n"
-		"           -ELEVATION c:\\dem.sgrd\n"
-		"           -SLOPE     d:\\slope.sgrd\n"
-		"           -ASPECT    d:\\aspect.sgrd\n"
-		"           -METHOD    1\n"
+		"[-h], [--help]   : help on usage\n"
+		"[-v], [--version]: print version information\n"
+		"[-b], [--batch]  : create a batch file example\n"
+		"[-d], [--docs]   : create module documentation in current working directory\n"
+#ifdef _OPENMP
+		"[-c], [--cores]  : number of physical processors to use for computation\n"
+#endif
+		"[-f], [--flags]  : various flags for general usage [qrsilpx]\n"
+		"  q              : no progress report\n"
+		"  r              : no messages report\n"
+		"  s              : silent mode (no progress and no messages report)\n"
+		"  i              : allow user interaction\n"
+		"  l              : load translation dictionary\n"
+		"  p              : load projections dictionary\n"
+		"  x              : use XML markups for synopses and messages\n"
+		"\n"
+		"<LIBRARY>        : name of the library\n"
+		"<MODULE>         : either name or index of the module\n"
+		"<OPTIONS>        : module specific options\n"
+		"<SCRIPT>         : saga cmd script file with one or more module calls\n"
 		"\n"
 		"_____________________________________________\n"
-		"Module libraries are expected to be in the SAGA installation\n"
-		"directory or its \'modules\' subdirectory. If this is not found\n"
-		"the current working directory will be searched for instead.\n"
-		"Alternatively you can add the environment variable \'SAGA_MLB\'\n"
-		"and let it point to the desired directory.\n"
+		"Example:\n"
 		"\n"
-		"SAGA CMD is particularly useful for the automated\n"
-		"execution of a series of analysis steps, because it\n"
-		"allows you to execute modules using batch files.\n"
-		"Calling saga_cmd with the option \'-b\' or \'--batch\'\n"
-		"creates a batch file example. You probably have to edit\n"
-		"the path definitions to make the batch file run on your\n"
-		"computer.\n"
+		"  saga_cmd -f=s ta_lighting 0 -ELEVATION=c:\\dem.sgrd -SHADE=c:\\shade.sgrd\n"
+		"\n"
+		"_____________________________________________\n"
+		"Module libraries in the \'modules\' subdirectory of the SAGA installation\n"
+		"will be loaded automatically. Additional directories can be specified\n"
+		"by adding the environment variable \'SAGA_MLB\' and let it point to one\n"
+		"or more directories, just the way it is done with the DOS \'PATH\' variable.\n"
+		"\n"
+		"The SAGA command line interpreter is particularly useful for the processing\n"
+		"of complex work flows by defining a series of subsequent module calls in a\n"
+		"script file. Calling saga_cmd with the option \'-b\' or \'--batch\' will\n"
+		"create an example of a DOS batch script file, which might be a good starting\n"
+		"point for the implementation of your own specific work flows.\n"
+		"_____________________________________________\n"
 	);
 }
 
@@ -699,6 +714,7 @@ void		Create_Example	(void)
 
 	CMD_Print(_TL("creating batch file example"));
 
+	//-----------------------------------------------------
 	if( !Stream.Open(SG_File_Make_Path(CWD, SG_T("saga_cmd_example"), SG_T("bat")), SG_FILE_W, false) )
 	{
 		CMD_Print(_TL("failed"));
@@ -711,11 +727,12 @@ void		Create_Example	(void)
 		"\n"
 		"SET FLAGS=-f=q\n"
 		"REM SET SAGA=.\n"
-		"REM SET SAGA_MLB=%%SAGA%%\\modules\n"
-		"REM PATH=PATH;%%SAGA%%;%%SAGA_MLB%%\n"
+		"REM SET SAGA_MLB=%%SAGA%%\\_private\n"
+		"REM PATH=PATH;%%SAGA%%\n"
 		"\n"
 		"IF EXIST dem.sgrd GOTO :GO\n"
 		"IF EXIST srtm.tif GOTO :SRTM\n"
+		"\n"
 		"ECHO _____________________________________________\n"
 		"ECHO create a Gaussian landscape\n"
 		"saga_cmd %%FLAGS%% recreations_fractals 5 -GRID=dem.sgrd -NX=400 -NY=400 -H=0.75\n"
@@ -725,12 +742,12 @@ void		Create_Example	(void)
 		"ECHO _____________________________________________\n"
 		"ECHO import and project srtm (geotiff)\n"
 		"saga_cmd %%FLAGS%% io_gdal              0 -FILES=srtm.tif -GRIDS=srtm -TRANSFORM\n"
-		"saga_cmd %%FLAGS%% pj_proj4             7 -SOURCE=srtm.sgrd -TARGET_TYPE=0 -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -SOURCE_PROJ=\"+proj=longlat +datum=WGS84\" -TARGET_PROJ=\"+proj=utm +zone=32 +datum=WGS84\""
+		"saga_cmd %%FLAGS%% pj_proj4             7 -SOURCE=srtm.sgrd -TARGET_TYPE=0 -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -SOURCE_PROJ=\"+proj=longlat +datum=WGS84\" -TARGET_PROJ=\"+proj=utm +zone=32 +datum=WGS84\"\n"
 		"\n"
 		":GO\n"
 		"ECHO _____________________________________________\n"
 		"ECHO create contour lines from DEM\n"
-		"saga_cmd %%FLAGS%% shapes_grid          5 -INPUT=dem.sgrd -CONTOUR=contour.shp -ZSTEP=25.0\n"
+		"saga_cmd %%FLAGS%% shapes_grid          5 -INPUT=dem.sgrd -CONTOUR=contour.shp -ZSTEP=100.0\n"
 		"\n"
 		"ECHO _____________________________________________\n"
 		"ECHO do some terrain analysis\n"
@@ -747,6 +764,7 @@ void		Create_Example	(void)
 		"PAUSE\n"
 	));
 
+	//-----------------------------------------------------
 	if( !Stream.Open(SG_File_Make_Path(CWD, SG_T("saga_cmd_example"), SG_T("txt")), SG_FILE_W, false) )
 	{
 		CMD_Print(_TL("failed"));
@@ -760,14 +778,27 @@ void		Create_Example	(void)
 		"\n"
 		"ECHO _____________________________________________\n"
 		"ECHO cluster analysis and vectorisation\n"
+		"\n"
+		"# cluster analysis\n"
 		"imagery_classification 1 -GRIDS=%%INPUT%% -CLUSTER=cluster.sgrd -NORMALISE -NCLUSTER=5\n"
+		"\n"
+		"# majority filter\n"
 		"grid_filter            6 -INPUT=cluster.sgrd -RADIUS=3\n"
+		"\n"
+		"# vectorization\n"
 		"shapes_grid            6 -GRID=cluster.sgrd -POLYGONS=cluster.shp -CLASS_ALL=1\n"
+		"\n"
+		"# select cluster class 1\n"
 		"shapes_tools           3 -SHAPES=cluster.shp -FIELD=ID -EXPRESSION=\"a = 1\"\n"
+		"\n"
+		"# save selectione\n"
 		"shapes_tools           6 -INPUT=cluster.shp -OUTPUT=cluster_class1.shp\n"
-		"ECHO ready\n"
+		"\n"
+		"ECHO _____________________________________________\n"
+		"ECHO\n"
 	));
 
+	//-----------------------------------------------------
 	CMD_Print(_TL("okay"));
 }
 
@@ -787,7 +818,7 @@ void		Create_Docs		(void)
 
 		CMD_Set_Show_Messages(false);
 
-		SG_Get_Module_Library_Manager().Get_Summary(wxGetCwd().wx_str());
+		SG_Get_Module_Library_Manager().Get_Summary(&wxGetCwd());
 
 		CMD_Print(_TL("okay"));
 	}

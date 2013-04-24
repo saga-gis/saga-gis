@@ -138,6 +138,9 @@ void CCMD_Module::Destroy(void)
 //---------------------------------------------------------
 bool CCMD_Module::Execute(int argc, char *argv[])
 {
+	int		i;
+
+	//-----------------------------------------------------
 	if( !m_pModule )
 	{
 		return( false );
@@ -159,7 +162,7 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 
 	wxString	sCmdLine;
 
-	for(int i=1; i<argc; i++)
+	for(i=1; i<argc; i++)
 	{
 		wxString	sTmp = argv[i];
 
@@ -169,11 +172,11 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	m_CMD.SetCmdLine(sCmdLine);
 
 	//-----------------------------------------------------
-	bool	bResult	= _Get_Parameters(m_pModule->Get_Parameters(), true);
+	bool	bResult	= _Get_Parameters(m_pModule->Get_Parameters());
 		
-	for(int i=0; bResult && i<m_pModule->Get_Parameters_Count(); i++)
+	for(i=0; bResult && i<m_pModule->Get_Parameters_Count(); i++)
 	{
-		_Get_Parameters(m_pModule->Get_Parameters(i), false);
+		_Get_Parameters(m_pModule->Get_Parameters(i));
 	}
 
 	if( !bResult )
@@ -198,7 +201,14 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	if( bResult )
 	{
-		_Save_Output();
+		_Save_Output(m_pModule->Get_Parameters());
+
+		for(i=0; i<m_pModule->Get_Parameters_Count(); i++)
+		{
+			_Save_Output(m_pModule->Get_Parameters(i));
+		}
+
+		SG_Get_Data_Manager().Delete_Unsaved();	// remove temporary data to save memory resources
 	}
 	else
 	{
@@ -206,19 +216,6 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	}
 
 	return( bResult );
-}
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CCMD_Module::Get_Parameters(CSG_Parameters *pParameters)
-{
-	return( _Get_Parameters(pParameters, true) );
 }
 
 
@@ -256,7 +253,7 @@ wxString CCMD_Module::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifie
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bExtra)
+bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bOptional)
 {
 	if( !pParameters )
 	{
@@ -268,7 +265,7 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bExtra)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-		wxString	Description	= pParameter ->Get_Description(
+		wxString	Description	= pParameter->Get_Description(
 			PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
 		).c_str();
 
@@ -277,7 +274,7 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bExtra)
 		if( pParameter->is_Input() || pParameter->is_Output() )
 		{
 			m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_NEEDS_SEPARATOR
-			| (pParameter->is_Optional() || pParameter->is_Output() || bExtra
+			| (pParameter->is_Optional() || pParameter->is_Output() || bOptional
 			  ? wxCMD_LINE_PARAM_OPTIONAL : wxCMD_LINE_OPTION_MANDATORY
 			));
 		}
@@ -344,8 +341,15 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bExtra)
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bCreateDataObjects)
+bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
 {
 	if( !pParameters )
 	{
@@ -392,7 +396,7 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bCreateDataO
 				break;
 
 			case PARAMETER_TYPE_Parameters:
-				_Get_Parameters(pParameter->asParameters(), bCreateDataObjects);
+				_Get_Parameters(pParameter->asParameters());
 				break;
 
 			case PARAMETER_TYPE_Bool:
@@ -588,26 +592,6 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 //                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CCMD_Module::_Save_Output(void)
-{
-	if( m_pModule )
-	{
-		_Save_Output(m_pModule->Get_Parameters());
-
-		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
-		{
-			_Save_Output(m_pModule->Get_Parameters(i));
-		}
-
-		SG_Get_Data_Manager().Delete_Unsaved();	// remove temporary data to save memory resources
-
-		return( true );
-	}
-
-	return( false );
-}
 
 //---------------------------------------------------------
 bool CCMD_Module::_Save_Output(CSG_Parameters *pParameters)
