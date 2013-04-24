@@ -376,30 +376,32 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 	if( (Flags & PARAMETER_DESCRIPTION_NAME) != 0 )
 	{
 		SEPARATE;
-		s.Append(CSG_String::Format(SG_T("%s"), Get_Name()));
+
+		s	+= CSG_String::Format(SG_T("%s"), Get_Name());
 	}
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_TYPE) != 0 )
 	{
 		SEPARATE;
-		s.Append(CSG_String::Format(SG_T("%s"), Get_Type_Name().c_str()));
+
+		s	+= CSG_String::Format(SG_T("%s"), Get_Type_Name().c_str());
 
 		if( is_DataObject() || is_DataObject_List() )
 		{
 			if( is_Input() )
 			{
 				if( is_Optional() )
-					s.Append(CSG_String::Format(SG_T(" (%s)"), _TL("optional input")));
+					s	+= CSG_String::Format(SG_T(" (%s)"), _TL("optional input"));
 				else
-					s.Append(CSG_String::Format(SG_T(" (%s)"), _TL("input")));
+					s	+= CSG_String::Format(SG_T(" (%s)"), _TL("input"));
 			}
 			else if( is_Output() )
 			{
 				if( is_Optional() )
-					s.Append(CSG_String::Format(SG_T(" (%s)"), _TL("optional output")));
+					s	+= CSG_String::Format(SG_T(" (%s)"), _TL("optional output"));
 				else
-					s.Append(CSG_String::Format(SG_T(" (%s)"), _TL("output")));
+					s	+= CSG_String::Format(SG_T(" (%s)"), _TL("output"));
 			}
 		}
 	}
@@ -408,7 +410,8 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 	if( (Flags & PARAMETER_DESCRIPTION_OPTIONAL) != 0 && is_Optional() )
 	{
 		SEPARATE;
-		s.Append(CSG_String::Format(SG_T("%s"), _TL("optional")));
+
+		s	+= CSG_String::Format(SG_T("%s"), _TL("optional"));
 	}
 
 	//-----------------------------------------------------
@@ -422,11 +425,11 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 		case PARAMETER_TYPE_Choice:
 			SEPARATE;
 
-			s.Append(CSG_String::Format(SG_T("%s:"), _TL("Available Choices")));
+			s	+= CSG_String::Format(SG_T("%s:"), _TL("Available Choices"));
 
 			for(i=0; i<asChoice()->Get_Count(); i++)
 			{
-				s.Append(CSG_String::Format(SG_T("%s[%d] %s"), Separator, i, asChoice()->Get_Item(i)));
+				s	+= CSG_String::Format(SG_T("%s[%d] %s"), Separator, i, asChoice()->Get_Item(i));
 			}
 			break;
 
@@ -437,41 +440,48 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			if( asValue()->has_Minimum() && asValue()->has_Maximum() )
 			{
 				SEPARATE;
-				s.Append(CSG_String::Format(SG_T("%s: %f - %f"), _TL("Value Range"), asValue()->Get_Minimum(), asValue()->Get_Maximum()));
+				s	+= CSG_String::Format(SG_T("%s: %f - %f"), _TL("Value Range"), asValue()->Get_Minimum(), asValue()->Get_Maximum());
 			}
 			else if( asValue()->has_Minimum() )
 			{
 				SEPARATE;
-				s.Append(CSG_String::Format(SG_T("%s: %f"), _TL("Minimum"), asValue()->Get_Minimum()));
+				s	+= CSG_String::Format(SG_T("%s: %f"), _TL("Minimum"), asValue()->Get_Minimum());
 			}
 			else if( asValue()->has_Maximum() )
 			{
 				SEPARATE;
-				s.Append(CSG_String::Format(SG_T("%s: %f"), _TL("Maximum"), asValue()->Get_Maximum()));
+				s	+= CSG_String::Format(SG_T("%s: %f"), _TL("Maximum"), asValue()->Get_Maximum());
 			}
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
 			SEPARATE;
 
-			s.Append(CSG_String::Format(SG_T("%d %s:%s"), asTable()->Get_Field_Count(), _TL("Fields"), Separator));
+			s	+= CSG_String::Format(SG_T("%d %s:%s"), asTable()->Get_Field_Count(), _TL("Fields"), Separator);
 
 			for(i=0; i<asTable()->Get_Field_Count(); i++)
 			{
-				s.Append(CSG_String::Format(SG_T("- %d. [%s] %s%s"), i + 1, SG_Data_Type_Get_Name(asTable()->Get_Field_Type(i)).c_str(), asTable()->Get_Field_Name(i), Separator));
+				s	+= CSG_String::Format(SG_T("- %d. [%s] %s%s"), i + 1, SG_Data_Type_Get_Name(asTable()->Get_Field_Type(i)).c_str(), asTable()->Get_Field_Name(i), Separator);
 			}
 			break;
 
 		case PARAMETER_TYPE_Parameters:
 			SEPARATE;
 
-			s.Append(CSG_String::Format(SG_T("%d %s:%s"), asParameters()->Get_Count(), _TL("Parameters"), Separator));
+			s	+= CSG_String::Format(SG_T("%d %s:%s"), asParameters()->Get_Count(), _TL("Parameters"), Separator);
 
 			for(i=0; i<asParameters()->Get_Count(); i++)
 			{
-				s.Append(CSG_String::Format(SG_T("- %d. %s%s"), i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator));
+				s	+= CSG_String::Format(SG_T("- %d. %s%s"), i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator);
 			}
 			break;
+		}
+
+		if( !m_pData->Get_Default().is_Empty() )
+		{
+			SEPARATE;
+
+			s	+= CSG_String::Format(SG_T("%s: %s%s"), _TL("Default"), m_pData->Get_Default().c_str(), Separator);
 		}
 	}
 
@@ -479,7 +489,8 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 	if( (Flags & PARAMETER_DESCRIPTION_TEXT) != 0 && m_Description.Length() > 0 )
 	{
 		SEPARATE;
-		s.Append(m_Description.c_str());
+
+		s	+= m_Description;
 	}
 
 	//-----------------------------------------------------
