@@ -133,12 +133,12 @@ public:
 	CWKSP_Base_Item(void);
 	virtual ~CWKSP_Base_Item(void);
 
-	virtual TWKSP_Item				Get_Type				(void)	= 0;
+	virtual TWKSP_Item				Get_Type				(void)	{	return( WKSP_ITEM_Undefined );	}
 
-	virtual wxString				Get_Name				(void)	= 0;
-	virtual wxString				Get_Description			(void)	= 0;
+	virtual wxString				Get_Name				(void)	{	return( wxEmptyString );		}
+	virtual wxString				Get_Description			(void)	{	return( wxEmptyString );		}
 
-	virtual wxMenu *				Get_Menu				(void)	= 0;
+	virtual wxMenu *				Get_Menu				(void)	{	return( NULL );					}
 
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
