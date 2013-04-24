@@ -646,7 +646,7 @@ bool CCMD_Module::_Save_Output(CSG_Parameters *pParameters)
 
 				while( FileName.Length() > 0 )
 				{
-					CSG_String	s(&FileName.BeforeFirst(';'));
+					CSG_String	s(&FileName); s = s.BeforeFirst(';');
 
 					if( s.Length() > 0 )
 					{

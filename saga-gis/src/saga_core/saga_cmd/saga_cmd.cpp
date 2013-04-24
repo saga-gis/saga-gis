@@ -419,7 +419,7 @@ bool		Load_Libraries(void)
 	{
 		while( Path.Length() > 0 )
 		{
-			Load_Libraries(&Path.BeforeFirst(';'));
+			Load_Libraries(CSG_String(&Path).BeforeFirst(';'));
 
 			Path	= Path.AfterFirst(';');
 		}
@@ -709,13 +709,12 @@ void		Print_Help		(void)
 //---------------------------------------------------------
 void		Create_Example	(void)
 {
-	CSG_String	CWD(&wxGetCwd());
 	CSG_File	Stream;
 
 	CMD_Print(_TL("creating batch file example"));
 
 	//-----------------------------------------------------
-	if( !Stream.Open(SG_File_Make_Path(CWD, SG_T("saga_cmd_example"), SG_T("bat")), SG_FILE_W, false) )
+	if( !Stream.Open(SG_File_Make_Path(SG_Dir_Get_Current(), SG_T("saga_cmd_example"), SG_T("bat")), SG_FILE_W, false) )
 	{
 		CMD_Print(_TL("failed"));
 
@@ -765,7 +764,7 @@ void		Create_Example	(void)
 	));
 
 	//-----------------------------------------------------
-	if( !Stream.Open(SG_File_Make_Path(CWD, SG_T("saga_cmd_example"), SG_T("txt")), SG_FILE_W, false) )
+	if( !Stream.Open(SG_File_Make_Path(SG_Dir_Get_Current(), SG_T("saga_cmd_example"), SG_T("txt")), SG_FILE_W, false) )
 	{
 		CMD_Print(_TL("failed"));
 
@@ -818,7 +817,7 @@ void		Create_Docs		(void)
 
 		CMD_Set_Show_Messages(false);
 
-		SG_Get_Module_Library_Manager().Get_Summary(&wxGetCwd());
+		SG_Get_Module_Library_Manager().Get_Summary(SG_Dir_Get_Current());
 
 		CMD_Print(_TL("okay"));
 	}
