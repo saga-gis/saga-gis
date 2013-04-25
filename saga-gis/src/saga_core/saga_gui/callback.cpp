@@ -126,6 +126,8 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_READY:
 
+		STATUSBAR_Set_Text(_TL("ready"));
+
 		Result	= PROGRESSBAR_Set_Position(0);
 
 		break;

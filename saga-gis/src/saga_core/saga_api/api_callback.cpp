@@ -141,16 +141,16 @@ bool		SG_UI_Process_Get_Okay(bool bBlink)
 
 		return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, p1, p2) != 0 );
 	}
-	else
-	{
-		if( gSG_UI_Progress_Lock && bBlink )
-		{
-			static int	iBuisy		= 0;
-			const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
 
-			SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
-			iBuisy	%= 4;
-		}
+	if( gSG_UI_Progress_Lock == 0 && bBlink )
+	{
+		static const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
+
+		static int	iBuisy	= 0;
+
+		SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
+
+		iBuisy	%= 4;
 	}
 
 	return( true );
@@ -174,24 +174,33 @@ bool		SG_UI_Process_Set_Progress(double Position, double Range)
 {
 	if( gSG_UI_Progress_Lock > 0 )
 	{
-		if( gSG_UI_Callback )
-		{
-			CSG_UI_Parameter	p1, p2;
-
-			return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, p1, p2) != 0 );
-		}
+		return( SG_UI_Process_Get_Okay() );
 	}
-	else
-	{
-		if( gSG_UI_Callback )
-		{
-			CSG_UI_Parameter	p1(Position), p2(Range);
 
-			return( gSG_UI_Callback(CALLBACK_PROCESS_SET_PROGRESS, p1, p2) != 0 );
-		}
-		else
+	if( gSG_UI_Callback )
+	{
+		CSG_UI_Parameter	p1(Position), p2(Range);
+
+		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_PROGRESS, p1, p2) != 0 );
+	}
+
+	//-----------------------------------------------------
+	static int	iPercent	= -1;
+
+	int	i	= Position < 0.0 ? -1 : Range > 0.0 ? 1 + (int)(100.0 * Position / Range) : 100;
+
+	if( iPercent != i )
+	{
+		if( iPercent < 0 || i < iPercent )
 		{
-			SG_PRINTF(SG_T("\r%3d%%"), Range != 0.0 ? 1 + (int)(100.0 * Position / Range) : 100);
+			SG_PRINTF(SG_T("\n"));
+		}
+
+		iPercent	= i;
+
+		if( iPercent >= 0 )
+		{
+			SG_PRINTF(SG_T("\r%3d%%"), iPercent > 100 ? 100 : iPercent);
 		}
 	}
 
@@ -203,8 +212,6 @@ bool		SG_UI_Process_Set_Ready(void)
 {
 	if( gSG_UI_Callback )
 	{
-		SG_UI_Process_Set_Text(_TL("ready"));
-
 		if( gSG_UI_Progress_Lock == 0 )
 		{
 			CSG_UI_Parameter	p1, p2;
@@ -213,24 +220,28 @@ bool		SG_UI_Process_Set_Ready(void)
 		}
 	}
 
+	SG_UI_Process_Set_Progress(-1, -1);
+
 	return( true );
 }
 
 //---------------------------------------------------------
 void		SG_UI_Process_Set_Text(const CSG_String &Text)
 {
-	if( gSG_UI_Progress_Lock == 0 )
+	if( gSG_UI_Progress_Lock > 0 )
 	{
-		if( gSG_UI_Callback )
-		{
-			CSG_UI_Parameter	p1(Text), p2;
+		return;
+	}
 
-			gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, p1, p2);
-		}
-		else
-		{
-			SG_PRINTF(SG_T("\n%s"), Text.c_str());
-		}
+	if( gSG_UI_Callback )
+	{
+		CSG_UI_Parameter	p1(Text), p2;
+
+		gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, p1, p2);
+	}
+	else
+	{
+		SG_PRINTF(SG_T("%s\n"), Text.c_str());
 	}
 }
 
@@ -272,7 +283,7 @@ void		SG_UI_Dlg_Message(const CSG_String &Message, const CSG_String &Caption)
 	}
 	else
 	{
-		SG_PRINTF(SG_T("\n%s: %s"), Caption.c_str(), Message.c_str());
+		SG_PRINTF(SG_T("%s: %s\n"), Caption.c_str(), Message.c_str());
 	}
 }
 
@@ -366,12 +377,7 @@ void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE S
 	}
 	else
 	{
-		SG_PRINTF(SG_T("%s"), Message.c_str());
-
-		if( bNewLine )
-		{
-			SG_PRINTF(SG_T("\n\n"));
-		}
+		SG_PRINTF(SG_T("%s\n"), Message.c_str());
 	}
 }
 
@@ -389,7 +395,7 @@ void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 	}
 	else
 	{
-		SG_PRINTF(SG_T("\n%s: %s"), _TL("Error"), Message.c_str());
+		SG_PRINTF(SG_T("%s: %s\n"), _TL("Error"), Message.c_str());
 	}
 }
 
@@ -412,12 +418,7 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 	}
 	else
 	{
-		SG_PRINTF(SG_T("%s"), Message.c_str());
-
-		if( bNewLine )
-		{
-			SG_PRINTF(SG_T("\n\n"));
-		}
+		SG_PRINTF(SG_T("%s\n"), Message.c_str());
 	}
 }
 

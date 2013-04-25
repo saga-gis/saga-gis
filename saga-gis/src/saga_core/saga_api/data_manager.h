@@ -173,6 +173,12 @@ public:
 	bool								Add					(CSG_Data_Object *pObject);
 	bool								Add					(const CSG_String &File, TSG_Data_Object_Type Type = DATAOBJECT_TYPE_Undefined);
 
+	CSG_Table *							Add_Table			(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_Table     ) ? (CSG_Table      *)Find(File) : NULL );	}
+	CSG_TIN *							Add_TIN				(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_TIN       ) ? (CSG_TIN        *)Find(File) : NULL );	}
+	CSG_PointCloud *					Add_PointCloud		(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_PointCloud) ? (CSG_PointCloud *)Find(File) : NULL );	}
+	CSG_Shapes *						Add_Shapes			(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_Shapes    ) ? (CSG_Shapes     *)Find(File) : NULL );	}
+	CSG_Grid *							Add_Grid			(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_Grid      ) ? (CSG_Grid       *)Find(File) : NULL );	}
+
 	CSG_Table *							Add_Table			(void);
 	CSG_TIN *							Add_TIN				(void);
 	CSG_PointCloud *					Add_PointCloud		(void);

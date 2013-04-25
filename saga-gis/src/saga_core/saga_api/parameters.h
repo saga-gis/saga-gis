@@ -1395,14 +1395,19 @@ public:
 	void						Set_Callback			(bool bActive = true);
 
 	//-----------------------------------------------------
-	CSG_Parameter *				Get_Parameter			(int iParameter);
+	CSG_Parameter *				Get_Parameter			(int i)							{	return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL );	}
 	CSG_Parameter *				Get_Parameter			(const CSG_String &Identifier);
 
-	CSG_Parameter *				operator()				(int iParameter)				{	return( Get_Parameter(iParameter) );	}
-	CSG_Parameter *				operator()				(const CSG_String &Identifier)	{	return( Get_Parameter(Identifier) );	}
+	CSG_Parameter *				Get						(const SG_Char    *Identifier)	{	return(  Get_Parameter(CSG_String(Identifier)) );	}
+
+	CSG_Parameter *				operator()				(int i)							{	return(  Get_Parameter(i         ) );	}
+	CSG_Parameter *				operator()				(const CSG_String &Identifier)	{	return(  Get_Parameter(Identifier) );	}
+
+	CSG_Parameter &				operator[]				(int i)							{	return( *Get_Parameter(i         ) );	}
+	CSG_Parameter &				operator[]				(const CSG_String &Identifier)	{	return( *Get_Parameter(Identifier) );	}
 
 	//-----------------------------------------------------
-	bool						Del_Parameter			(int iParameter);
+	bool						Del_Parameter			(int i);
 	bool						Del_Parameter			(const CSG_String &Identifier);
 
 	bool						Del_Parameters			(void);

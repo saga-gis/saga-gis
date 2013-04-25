@@ -800,17 +800,6 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Get_Parameter(int iParameter)
-{
-	if( m_Parameters && iParameter >= 0 && iParameter < m_nParameters )
-	{
-		return( m_Parameters[iParameter] );
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &Identifier)
 {
 	if( m_Parameters && Identifier.Length() )
