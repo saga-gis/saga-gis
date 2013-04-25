@@ -4,12 +4,12 @@ import saga_api, sys, os
 
 ##########################################
 def grid_contour(fGrid, fLines):
-    Grid    = saga_api.SG_Create_Grid()
-    if Grid.Create(saga_api.CSG_String(fGrid)) == 0:
+    Grid    = saga_api.SG_Get_Data_Manager().Add_Grid(unicode(fGrid))
+    if Grid == None or Grid.is_Valid() == 0:
         print 'ERROR: loading grid [' + fGrid + ']'
         return 0
-
-    Lines   = saga_api.SG_Create_Shapes()
+    
+    Lines   = saga_api.SG_Get_Data_Manager().Add_Shapes()
 
     # ------------------------------------
     if os.name == 'nt':    # Windows
@@ -17,15 +17,12 @@ def grid_contour(fGrid, fLines):
     else:                  # Linux
         saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_grid.so')
 
-
     m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('shapes_grid', 5) # 'Contour Lines from Grid'
-    m.Set_Managed(0) # tell module that we take care for data management
-
     p      = m.Get_Parameters()
     p.Get_Grid_System().Assign(Grid.Get_System()) # module needs to use conformant grid system!
-    p(saga_api.CSG_String('INPUT'  )).Set_Value(Grid)
-    p(saga_api.CSG_String('CONTOUR')).Set_Value(Lines)
-    p(saga_api.CSG_String('ZSTEP'  )).Set_Value(25.0)
+    p.Get(unicode('INPUT'  )).Set_Value(Grid)
+    p.Get(unicode('CONTOUR')).Set_Value(Lines)
+    p.Get(unicode('ZSTEP'  )).Set_Value(25.0)
 
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'

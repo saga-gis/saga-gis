@@ -4,8 +4,8 @@ import saga_api, sys, os
 
 ##########################################
 def shp2xyz(fshp, fxyz):
-    shp     = saga_api.SG_Create_Shapes()
-    if shp.Create(saga_api.CSG_String(fshp)) == 0:
+    shp    = saga_api.SG_Get_Data_Manager().Add_Shapes(unicode(fshp))
+    if shp == None or shp.is_Valid() == 0:
         print 'ERROR: loading shapes [' + fshp + ']'
         return 0
 
@@ -15,13 +15,10 @@ def shp2xyz(fshp, fxyz):
     else:                  # Linux
         saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_shapes.so')
 
-
     m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('io_shapes', 2) # 'Export Shapes to XYZ'
-    m.Set_Managed(0) # tell module that we take care for data management
-
-    p   = m.Get_Parameters()
-    p(saga_api.CSG_String('SHAPES'  )).Set_Value(shp)
-    p(saga_api.CSG_String('FILENAME')).Set_Value(saga_api.CSG_String(fxyz))
+    p      = m.Get_Parameters()
+    p.Get(unicode('SHAPES'  )).Set_Value(shp)
+    p.Get(unicode('FILENAME')).Set_Value(saga_api.CSG_String(fxyz))
     
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'

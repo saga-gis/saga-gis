@@ -23,7 +23,7 @@ def grid_asc2sgrd(fASC):
     m    = saga_api.SG_Get_Module_Library_Manager().Get_Module('io_grid', 1)
 
     p    = m.Get_Parameters()
-    p(saga_api.CSG_String('FILE')).Set_Value(sASC)
+    p.Get(unicode('FILE')).Set_Value(sASC)
 
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'

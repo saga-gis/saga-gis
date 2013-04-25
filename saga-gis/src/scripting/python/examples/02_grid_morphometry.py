@@ -4,66 +4,68 @@ import saga_api, sys, os
 
 ##########################################
 def morphometry(fDEM):
-    DEM    = saga_api.SG_Create_Grid()
-    if DEM.Create(saga_api.CSG_String(fDEM)) == 0:
+    # ------------------------------------
+    # initializations
+    
+    dem    = saga_api.SG_Get_Data_Manager().Add_Grid(unicode(fDEM))
+    if dem == None or dem.is_Valid() == 0:
         print 'ERROR: loading grid [' + fDEM + ']'
         return 0
     
-    Slope  = saga_api.SG_Create_Grid(DEM.Get_System())
-    Aspect = saga_api.SG_Create_Grid(DEM.Get_System())
-    hCurv  = saga_api.SG_Create_Grid(DEM.Get_System())
-    vCurv  = saga_api.SG_Create_Grid(DEM.Get_System())
-    Class  = saga_api.SG_Create_Grid(DEM.Get_System())
+    slope  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    aspect = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    hcurv  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    vcurv  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    ccurv  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
 
     # ------------------------------------
-    if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/ta_morphometry.dll')
-    else:                  # Linux
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libta_morphometry.so')
-
-
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('ta_morphometry', 0) # 'Slope, Aspect, Curvature'
-    m.Set_Managed(0) # tell module that we take care for data management
-
+    # 'Slope, Aspect, Curvature'
+    
+    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('ta_morphometry', 0)
     p      = m.Get_Parameters()
-    p.Get_Grid_System().Assign(DEM.Get_System()) # module needs to use conformant grid system!
-    p(saga_api.CSG_String('ELEVATION')).Set_Value(DEM   )
-    p(saga_api.CSG_String('SLOPE'    )).Set_Value(Slope )
-    p(saga_api.CSG_String('ASPECT'   )).Set_Value(Aspect)
-    p(saga_api.CSG_String('HCURV'    )).Set_Value(hCurv )
-    p(saga_api.CSG_String('VCURV'    )).Set_Value(vCurv )
+    p.Get_Grid_System().Assign(dem.Get_System())        # grid module needs to use conformant grid system!
+    p.Get(unicode('ELEVATION')).Set_Value(dem)
+    p.Get(unicode('SLOPE'    )).Set_Value(slope)
+    p.Get(unicode('ASPECT'   )).Set_Value(aspect)
+    p.Get(unicode('HCURV'    )).Set_Value(hcurv)
+    p.Get(unicode('VCURV'    )).Set_Value(vcurv)
+
+    if m.Execute() == 0:
+        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
+        return 0
+
+    # ------------------------------------
+    # 'Curvature Classification'
+    
+    m       = saga_api.SG_Get_Module_Library_Manager().Get_Module('ta_morphometry', 4)
+    p       = m.Get_Parameters()
+    p.Get_Grid_System().Assign(dem.Get_System())        # grid module needs to use conformant grid system!
+    p.Get(unicode('CPLAN'    )).Set_Value(hcurv)
+    p.Get(unicode('CPROF'    )).Set_Value(vcurv)
+    p.Get(unicode('CLASS'    )).Set_Value(ccurv)
     
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
         return 0
 
     # ------------------------------------
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('ta_morphometry', 4) # 'Curvature Classification'
-    m.Set_Managed(0) # tell module that we take care for data management
-
-    p      = m.Get_Parameters()
-    p.Get_Grid_System().Assign(DEM.Get_System()) # module needs to use conformant grid system!
-    p(saga_api.CSG_String('CPLAN'    )).Set_Value(hCurv )
-    p(saga_api.CSG_String('CPROF'    )).Set_Value(vCurv )
-    p(saga_api.CSG_String('CLASS'    )).Set_Value(Class )
+    # save results
     
-    if m.Execute() == 0:
-        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
-        return 0
-
-    # ------------------------------------
     path   = os.path.split(fDEM)[0]
     if path == '':
         path = './'
+
+    slope .Save(saga_api.CSG_String(path + '/slope' ))
+    aspect.Save(saga_api.CSG_String(path + '/aspect'))
+    hcurv .Save(saga_api.CSG_String(path + '/hcurv' ))
+    vcurv .Save(saga_api.CSG_String(path + '/vcurv' ))
+    ccurv .Save(saga_api.CSG_String(path + '/ccurv' ))
     
-    Slope .Save(saga_api.CSG_String(path + '/slope'))
-    Aspect.Save(saga_api.CSG_String(path + '/aspect'))
-    hCurv .Save(saga_api.CSG_String(path + '/curv_plan'))
-    vCurv .Save(saga_api.CSG_String(path + '/curv_profile'))
-    Class .Save(saga_api.CSG_String(path + '/curv_class'))
-    
+    # ------------------------------------
     print 'success'
+    
     return 1
+
 
 ##########################################
 if __name__ == '__main__':
@@ -79,5 +81,13 @@ if __name__ == '__main__':
         fDEM    = sys.argv[1]
         if os.path.split(fDEM)[0] == '':
             fDEM    = './' + fDEM
+
+    saga_api.SG_UI_Msg_Lock(1)
+    if os.name == 'nt':    # Windows
+        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA'] + '/bin/saga_vc_Win32/dll'
+        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules', 0)
+    else:                  # Linux
+        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)
+    saga_api.SG_UI_Msg_Lock(0)
 
     morphometry(fDEM)
