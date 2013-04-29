@@ -329,14 +329,12 @@ bool CWKSP_Data_Item::DataObject_Changed(void)
 
 bool CWKSP_Data_Item::DataObject_Changed(CSG_Parameters *pParameters)
 {
-	if( pParameters )
+	if( !pParameters && Get_Type() == WKSP_ITEM_Grid )
 	{
-		m_Parameters.Assign_Values(pParameters);
+		return( ((CWKSP_Grid *)this)->Fit_Color_Range() );
 	}
-	else if( Get_Type() == WKSP_ITEM_Grid )
-	{
-		((CWKSP_Grid *)this)->Fit_Color_Range();
-	}
+
+	m_Parameters.Assign_Values(pParameters);
 
 	return( DataObject_Changed() );
 }

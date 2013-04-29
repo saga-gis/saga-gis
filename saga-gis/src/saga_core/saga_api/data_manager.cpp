@@ -489,8 +489,6 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 
 		if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILE"), File, PARAMETER_TYPE_FilePath) && pImport->Execute() )
 		{
-			Add(pImport->Get_Parameters()->Get_Parameter(SG_T("OUT_GRID"))->asGrid());
-
 			return( true );
 		}
 	}
@@ -500,13 +498,6 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 
 	if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File, PARAMETER_TYPE_FilePath) && pImport->Execute() )
 	{
-		CSG_Parameter_Grid_List	*pGrids	= pImport->Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
-
-		for(int i=0; i<pGrids->Get_Count(); i++)
-		{
-			Add(pGrids->asGrid(i));
-		}
-
 		return( true );
 	}
 
@@ -515,13 +506,6 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 
 	if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File, PARAMETER_TYPE_FilePath) && pImport->Execute() )
 	{
-		CSG_Parameter_Shapes_List	*pShapes	= pImport->Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
-
-		for(int i=0; i<pShapes->Get_Count(); i++)
-		{
-			Add(pShapes->asShapes(i));
-		}
-
 		return( true );
 	}
 

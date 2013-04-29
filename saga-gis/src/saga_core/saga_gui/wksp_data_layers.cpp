@@ -159,7 +159,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 	wxPaintDC	dc(this);
 	wxRect		r(wxPoint(0, 0), GetClientSize());
 
-	if( m_pLayer && m_pLayer->Get_Object() && m_pLayer->GetId().IsOk() && SG_Get_Data_Manager().Exists(m_pObject) )
+	if( m_pLayer && m_pLayer->GetId().IsOk() && m_pLayer->Get_Object() == m_pObject && g_pData->Get(m_pObject) )
 	{
 		if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pLayer->Get_Name()) )
 		{
