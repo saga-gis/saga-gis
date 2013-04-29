@@ -636,7 +636,7 @@ bool CSG_Projections::EPSG_to_Proj4(CSG_String &Proj4, int EPSG_Code) const
 		}
 	}
 
-	Proj4.Printf(SG_T("+init=epsg:%d"), EPSG_Code);
+	Proj4.Printf(SG_T("+init=epsg:%d "), EPSG_Code);
 
 	return( false );
 }
