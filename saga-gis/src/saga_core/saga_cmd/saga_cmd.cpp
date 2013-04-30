@@ -401,16 +401,18 @@ bool		Load_Libraries(void)
     #if defined(_SAGA_LINUX)
 		Load_Libraries(wxT(MODULE_LIBRARY_PATH));
 	#else
+		wxString	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
+
 		if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
 		{
-			Path	+= wxT(";");
+			wxSetEnv("PATH", DLL_Path + wxT(";") + Path);
+		}
+		else
+		{
+			wxSetEnv("PATH", DLL_Path);
 		}
 
-		Path	+= SG_File_Make_Path(CMD_Path, SG_T("dll"    )).c_str(); Path += wxT(";");
-		Path	+= SG_File_Make_Path(CMD_Path, SG_T("modules")).c_str();
-
-		wxSetEnv("PATH"            , Path);
-		wxSetEnv("GDAL_DRIVER_PATH", SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str());
+		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
 
 		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("modules")));
     #endif
@@ -492,12 +494,14 @@ bool		Check_Flags		(const CSG_String &Argument)
 
 		if( s.Find('l') >= 0 )	// l: load translation dictionary
 		{
-			SG_Get_Translator() .Create(SG_File_Make_Path(SG_UI_Get_Application_Path(), SG_T("saga"), SG_T("lng")), false);
+			SG_Get_Translator() .Create(SG_File_Make_Path(SG_File_Get_Path(SG_UI_Get_Application_Path()),
+				SG_T("saga"    ), SG_T("lng")), false);
 		}
 
 		if( s.Find('p') >= 0 )	// p: load projections dictionary
 		{
-			SG_Get_Projections().Create(SG_File_Make_Path(SG_UI_Get_Application_Path(), SG_T("saga_prj"), SG_T("srs")));
+			SG_Get_Projections().Create(SG_File_Make_Path(SG_File_Get_Path(SG_UI_Get_Application_Path()),
+				SG_T("saga_prj"), SG_T("srs")));
 		}
 
 		return( true );
@@ -622,7 +626,13 @@ void		Print_Logo		(void)
 //---------------------------------------------------------
 void		Print_Version	(void)
 {
+#if defined(_SAGA_MSW) && defined(_WIN64)
+	CMD_Print(SG_T("SAGA Version: ") SAGA_VERSION SG_T(" (64 bit)\n"));
+#elif defined(_SAGA_MSW)
+	CMD_Print(SG_T("SAGA Version: ") SAGA_VERSION SG_T(" (32 bit)\n"));
+#else
 	CMD_Print(SG_T("SAGA Version: ") SAGA_VERSION SG_T("\n"));
+#endif
 }
 
 //---------------------------------------------------------
@@ -741,7 +751,9 @@ void		Create_Example	(void)
 		"ECHO _____________________________________________\n"
 		"ECHO import and project srtm (geotiff)\n"
 		"saga_cmd %%FLAGS%% io_gdal              0 -FILES=srtm.tif -GRIDS=srtm -TRANSFORM\n"
-		"saga_cmd %%FLAGS%% pj_proj4             7 -SOURCE=srtm.sgrd -TARGET_TYPE=0 -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -SOURCE_PROJ=\"+proj=longlat +datum=WGS84\" -TARGET_PROJ=\"+proj=utm +zone=32 +datum=WGS84\"\n"
+		"saga_cmd %%FLAGS%% pj_proj4             7 -SOURCE=srtm.sgrd -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -SOURCE_PROJ=\"+proj=longlat +datum=WGS84\" -TARGET_PROJ=\"+proj=cea +datum=WGS84 +lat_ts=0\"\n"
+		"REM alternative method 4 might need to load projection data base with EPSG codes (use --flags=p)\n"
+		"REM saga_cmd -f=qp pj_proj4             4 -SOURCE=srtm.sgrd -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -CRS_PROJ4=\"+proj=cea +datum=WGS84 +lat_ts=0\"\n"
 		"\n"
 		":GO\n"
 		"ECHO _____________________________________________\n"
