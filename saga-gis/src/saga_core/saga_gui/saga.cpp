@@ -197,14 +197,14 @@ bool CSAGA::OnInit(void)
 
 	if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
 	{
-		Path	+= wxT(";");
+		wxSetEnv("PATH", Get_App_Path() + wxT("\\dll;") + Path);
+	}
+	else
+	{
+		wxSetEnv("PATH", Get_App_Path() + wxT("\\dll"));
 	}
 
-	Path	+= Get_App_Path() + wxT("\\dll");
-	wxSetEnv(wxT("PATH"), Path);
-
-	Path	 = Get_App_Path() + wxT("\\dll");
-	wxSetEnv(wxT("GDAL_DRIVER_PATH"), Path);
+	wxSetEnv(wxT("GDAL_DRIVER_PATH"), Get_App_Path() + wxT("\\dll"));
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
