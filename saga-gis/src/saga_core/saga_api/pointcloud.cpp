@@ -375,6 +375,9 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	SG_UI_Process_Set_Ready();
+
 	Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 
 	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
