@@ -218,6 +218,8 @@ bool CSG_Module::Execute(void)
 		if( !Process_Get_Okay(false) )
 		{
 			SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true);
+
+			bResult	= false;
 		}
 
 		_Synchronize_DataObjects();
