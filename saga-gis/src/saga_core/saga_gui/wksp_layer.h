@@ -115,7 +115,6 @@ public:
 	virtual bool					Show					(class CWKSP_Map *pMap);
 	virtual bool					Show					(int Flags = 0);
 	virtual bool					Update					(CWKSP_Layer *pChanged);
-	virtual bool					Update_Views			(bool bAll = true);
 	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
 	virtual bool					asImage					(CSG_Grid *pImage)		{	return( false );	}
 
@@ -158,6 +157,7 @@ protected:
 
 	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
+	virtual void					On_Update_Views			(bool bAll);
 	virtual void					On_Update_Views			(void)			{}
 
 	virtual void					On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit)	= 0;

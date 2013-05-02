@@ -291,7 +291,7 @@ bool CWKSP_Table::Show(int Flags)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Table::Update_Views(bool bAll)
+void CWKSP_Table::On_Update_Views(bool bAll)
 {
 	if( m_pView )
 	{
@@ -302,8 +302,6 @@ bool CWKSP_Table::Update_Views(bool bAll)
 	{
 		m_pDiagram->Update_Diagram();
 	}
-
-	return( true );
 }
 
 //---------------------------------------------------------

@@ -107,7 +107,7 @@ public:
 	virtual bool					Show					(int Flags = 0)	= 0;
 	virtual bool					Update					(CWKSP_Data_Item *pChanged)		{	return( pChanged == this );	}
 
-	virtual bool					Update_Views			(bool bAll = true)				{	return( true );	}
+	virtual bool					Update_Views			(bool bAll = true);
 	virtual bool					View_Closes				(class wxMDIChildFrame *pView)	{	return( true );	}
 
 
@@ -119,6 +119,12 @@ protected:
 	virtual void					On_Create_Parameters	(void);
 	virtual void					On_Parameters_Changed	(void);
 	virtual void					On_DataObject_Changed	(void);
+	virtual void					On_Update_Views			(bool bAll)	{}
+
+
+private:
+
+	bool							m_bUpdating;
 
 };
 

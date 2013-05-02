@@ -108,8 +108,12 @@ public:
 	void							Toggle_Diagram			(void);
 
 	virtual bool					Show					(int Flags = 0);
-	virtual bool					Update_Views			(bool bAll = true);
 	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
+
+
+protected:
+
+	virtual void					On_Update_Views			(bool bAll);
 
 
 private:

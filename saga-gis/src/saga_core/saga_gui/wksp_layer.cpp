@@ -677,7 +677,7 @@ bool CWKSP_Layer::Update(CWKSP_Layer *pChanged)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Update_Views(bool bAll)
+void CWKSP_Layer::On_Update_Views(bool bAll)
 {
 	g_pMaps->Update(this, !bAll);
 
@@ -692,8 +692,6 @@ bool CWKSP_Layer::Update_Views(bool bAll)
 
 		On_Update_Views();
 	}
-
-	return( true );
 }
 
 //---------------------------------------------------------

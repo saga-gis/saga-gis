@@ -93,6 +93,8 @@
 CWKSP_Data_Item::CWKSP_Data_Item(CSG_Data_Object *pObject)
 {
 	m_pObject	= pObject;
+
+	m_bUpdating	= false;
 }
 
 //---------------------------------------------------------
@@ -351,6 +353,30 @@ void CWKSP_Data_Item::On_DataObject_Changed(void)
 		m_pObject->Get_NoData_Value(),
 		m_pObject->Get_NoData_hiValue()
 	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Data_Item::Update_Views(bool bAll)
+{
+	if( !m_bUpdating )
+	{
+		m_bUpdating	= true;
+
+		On_Update_Views(bAll);
+
+		m_bUpdating	= false;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
