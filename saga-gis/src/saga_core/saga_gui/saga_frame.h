@@ -193,7 +193,7 @@ private:
 
 	class wxMenuBar *			_Create_MenuBar				(void);
 
-	void						_Bar_Add					(class wxWindow *pWindow, int Position);
+	void						_Bar_Add					(wxWindow *pWindow, int Position, int Row);
 	void						_Bar_Toggle					(wxWindow *pWindow);
 	void						_Bar_Show					(wxWindow *pWindow, bool bShow);
 

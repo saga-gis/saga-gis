@@ -293,10 +293,10 @@ CSAGA_Frame::CSAGA_Frame(void)
 //	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_ALLOW_ACTIVE_PANE);
 
 	//-----------------------------------------------------
-	_Bar_Add(m_pINFO		= new CINFO       (this), 0);	m_pINFO			->Add_Pages();
-	_Bar_Add(m_pWKSP		= new CWKSP       (this), 2);	m_pWKSP			->Add_Pages();
-	_Bar_Add(m_pActive		= new CACTIVE     (this), 1);	m_pActive		->Add_Pages();
-	_Bar_Add(m_pData_Source	= new CData_Source(this), 2);	m_pData_Source	->Add_Pages();
+	_Bar_Add(m_pINFO		= new CINFO       (this), 0, 0);	m_pINFO			->Add_Pages();
+	_Bar_Add(m_pWKSP		= new CWKSP       (this), 2, 1);	m_pWKSP			->Add_Pages();
+	_Bar_Add(m_pData_Source	= new CData_Source(this), 2, 1);	m_pData_Source	->Add_Pages();
+	_Bar_Add(m_pActive		= new CACTIVE     (this), 2, 0);	m_pActive		->Add_Pages();
 
 	//-----------------------------------------------------
 	_Create_MenuBar();
@@ -319,13 +319,6 @@ CSAGA_Frame::CSAGA_Frame(void)
 	if( CONFIG_Read(wxT("/FL"), wxT("MANAGER"), s) )
 	{
 		m_pLayout->LoadPerspective(s);
-	}
-	else
-	{
-		m_pLayout->GetPane(m_pWKSP       ).BestSize(400, 400).FloatingSize(400, 400).Left();
-		m_pLayout->GetPane(m_pData_Source).BestSize(400, 400).FloatingSize(400, 400).Left();
-		m_pLayout->GetPane(m_pActive     ).BestSize(400, 400).FloatingSize(400, 400).Right();
-		m_pLayout->GetPane(m_pINFO       ).BestSize(400, 100).FloatingSize(600, 400).Bottom();
 	}
 
 	_Bar_Show(m_pTB_Main, true);
@@ -1012,26 +1005,30 @@ void CSAGA_Frame::Set_Pane_Caption(wxWindow *pWindow, const wxString &Caption)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position)
+void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position, int Row)
 {
-	m_pLayout->AddPane(pWindow, wxAuiPaneInfo()
-		.Name		(pWindow->GetName())
-		.Caption	(pWindow->GetName())
-		.Layer		(0)
-		.Row		(0)
-		.Position	(0)
-		.MinSize	(100, 100)
-		.BestSize	(200, 100)
-	);
+	wxAuiPaneInfo	Info;
+
+	Info.Name			(pWindow->GetName());
+	Info.Caption		(pWindow->GetName());
+	Info.MinSize		(100, 100);
+	Info.BestSize		(400, 400);
+	Info.FloatingSize	(400, 400);
+	Info.Position		(0);
+	Info.Layer			(Row);
+	Info.Row			(Row);
 
 	switch( Position )
 	{
 	default:
-	case 0:	m_pLayout->GetPane(pWindow).Bottom().FloatingSize(400, 400);	break;
-	case 1:	m_pLayout->GetPane(pWindow).Right ().FloatingSize(400, 400);	break;
-	case 2:	m_pLayout->GetPane(pWindow).Left  ().FloatingSize(400, 400);	break;
-	case 3:	m_pLayout->GetPane(pWindow).Top   ().FloatingSize(400, 400);	break;
+	case 0:	Info.Bottom();	break;
+	case 1:	Info.Right ();	break;
+	case 2:	Info.Left  ();	break;
+	case 3:	Info.Top   ();	break;
+	case 4:	Info.Center();	break;
 	}
+
+	m_pLayout->AddPane(pWindow, Info);
 }
 
 //---------------------------------------------------------
