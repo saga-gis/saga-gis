@@ -146,6 +146,18 @@ CGDAL_Export::CGDAL_Export(void)
 		), 0
 	);
 	
+	Parameters.Add_Value(
+		NULL, "SET_NODATA"		, _TL("Set Custom NoData"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, 0.0
+	);
+
+	Parameters.Add_Value(
+		NULL, "NODATA"		, _TL("NoData Value"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.0
+	);
+
 	Parameters.Add_String(
 		NULL, "OPTIONS"	, _TL("Creation Options"),
 		_TL("A space separated list of key-value pairs (K=V)."), _TL("")
@@ -207,7 +219,14 @@ bool CGDAL_Export::On_Execute(void)
 	{
 		Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), i + 1));
 
-		DataSet.Write(i, pGrids->asGrid(i));
+		if ( Parameters("SET_NODATA")->asBool() )
+		{
+			DataSet.Write(i, pGrids->asGrid(i), Parameters("NODATA")->asDouble());
+		}
+		else
+		{
+			DataSet.Write(i, pGrids->asGrid(i));
+		}
 	}
 	
 	if( !DataSet.Close() )

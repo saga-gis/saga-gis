@@ -160,6 +160,7 @@ public:
 	const char *				Get_MetaData_Item	(int i, const char *pszName)	const;
 	bool						Get_MetaData_Item	(int i, const char *pszName, CSG_String &MetaData)	const;
 	CSG_Grid *					Read				(int i);
+	bool						Write				(int i, CSG_Grid *pGrid, double NoDataValue);
 	bool						Write				(int i, CSG_Grid *pGrid);
 
 

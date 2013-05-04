@@ -697,7 +697,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
+bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid, double noDataValue)
 {
 	if( !m_pDataSet || !pGrid || pGrid->Get_NX() != Get_NX() || pGrid->Get_NY() != Get_NY() || i < 0 || i >= Get_Count() )
 	{
@@ -715,7 +715,7 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			zLine[x]	= pGrid->is_NoData(x, yy) ? pGrid->Get_NoData_Value() : pGrid->asDouble(x, yy);
+			zLine[x]	= pGrid->is_NoData(x, yy) ? noDataValue : pGrid->asDouble(x, yy);
 		}
 
 		Error	= pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
@@ -732,10 +732,16 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 	}
 
 	//-----------------------------------------------------
-	pBand->SetNoDataValue	(pGrid->Get_NoData_Value());
+	pBand->SetNoDataValue	(noDataValue);
 	pBand->SetStatistics	(pGrid->Get_ZMin(), pGrid->Get_ZMax(), pGrid->Get_ArithMean(), pGrid->Get_StdDev());
 
 	return( true );	
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
+{
+	return (CSG_GDAL_DataSet::Write (i, pGrid, pGrid->Get_NoData_Value()));
 }
 
 
