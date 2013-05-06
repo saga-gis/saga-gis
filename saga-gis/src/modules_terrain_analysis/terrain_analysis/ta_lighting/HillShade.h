@@ -91,6 +91,8 @@ public:
 
 protected:
 
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool		On_Execute			(void);
 
 
@@ -101,13 +103,16 @@ private:
 	double				Exaggeration,
 						RT_Tan, RT_Cot, RT_Dz;
 
-	CSG_Grid				*pDTM, *pHillShade;
+	CSG_Grid			*pDTM, *pHillShade;
 
 
 	void				Get_Shading			(double Azimuth, double Declination, bool bDelimit, bool bCombine);
 
 	void				RayTrace			(double Azimuth, double Declination);
 	void				RayTrace_Trace		(int x, int y, double dx, double dy, double dz);
+
+	void				AmbientOcclusion		(int iDirs, double dRadius);
+	bool				AmbientOcclusion_Trace	(int x, int y, CSG_Point_Z Direction, double dRadius);
 
 };
 
