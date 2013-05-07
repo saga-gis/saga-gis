@@ -62,6 +62,7 @@
 //---------------------------------------------------------
 #include <wx/xml/xml.h>
 #include <wx/wfstream.h>
+#include <wx/sstream.h>
 
 #include "metadata.h"
 #include "table.h"
@@ -457,9 +458,28 @@ CSG_String CSG_MetaData::asText(int Flags) const
 {
 	CSG_String	s;
 
-	for(int i=0; i<Get_Children_Count(); i++)
+	if( Flags == 0 )
 	{
-		s	+= Get_Child(i)->Get_Name() + ":\t" + Get_Child(i)->Get_Content() + "\n";
+		for(int i=0; i<Get_Children_Count(); i++)
+		{
+			s	+= Get_Child(i)->Get_Name() + ":\t" + Get_Child(i)->Get_Content() + "\n";
+		}
+	}
+	else
+	{
+		wxXmlDocument	XML;
+
+		wxXmlNode	*pRoot	= new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
+
+		XML.SetRoot(pRoot);
+
+		_Save(pRoot);
+
+		wxStringOutputStream	Stream;
+
+		XML.Save(Stream);
+
+		s	= &Stream.GetString();
 	}
 
 	return( s );
