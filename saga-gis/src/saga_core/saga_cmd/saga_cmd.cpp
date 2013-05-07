@@ -164,22 +164,6 @@ bool		Run(int argc, char *argv[])
 	SG_Set_UI_Callback(CMD_Get_Callback());
 
 	//-----------------------------------------------------
-	if( !Load_Libraries() )
-	{
-		Print_Get_Help();
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( argc <= 1 )
-	{
-		Print_Libraries();
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
 	if( Check_First(argv[1]) )
 	{
 		return( true );
@@ -191,11 +175,20 @@ bool		Run(int argc, char *argv[])
 		argc--;	argv++;
 	}
 
+	//-----------------------------------------------------
+	if( !Load_Libraries() )
+	{
+		Print_Get_Help();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	if( argc <= 1 )
 	{
 		CMD_Print_Error(_TL("no arguments for saga call"));
 
-		Print_Get_Help();
+		Print_Libraries();
 
 		return( false );
 	}
@@ -244,9 +237,9 @@ bool		Execute(int argc, char *argv[])
 
 	if( argc == 3 && CMD_Get_XML() )
 	{	// Just output module synopsis as XML-tagged text, then return.
-		CMD_Print(stderr, pModule->Get_Summary(true, "", "", true));
+		SG_PRINTF(pModule->Get_Summary(true, "", "", true).c_str());
 
-		return true;
+		return( true );
 	}
 
 	if( pModule->is_Interactive() )
@@ -542,7 +535,7 @@ void		Print_Libraries	(void)
 	{
 		if( CMD_Get_XML() )
 		{
-			CMD_Print(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE));
+			SG_PRINTF(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE).c_str());
 		}
 		else
 		{
@@ -562,7 +555,7 @@ void		Print_Modules	(CSG_Module_Library *pLibrary)
 	{
 		if( CMD_Get_XML() )
 		{
-			CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE));
+			SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE).c_str());
 		}
 		else
 		{

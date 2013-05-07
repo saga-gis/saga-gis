@@ -757,110 +757,66 @@ void CSG_Module::_Set_Output_History(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SUMMARY_ADD_XML_STR(prefix, label, value)	s += CSG_String::Format(SG_T("%s<%s>\n%s\t%s\n%s</%s>\n"), prefix, label, prefix, value, prefix, label)
-#define SUMMARY_ADD_XML_INT(prefix, label, value)	s += CSG_String::Format(SG_T("%s<%s>\n\t%s%d\n%s</%s>\n"), prefix, label, prefix, value, prefix, label)
-#define SUMMARY_ADD_XML_FP(prefix, label, value)	s += CSG_String::Format(SG_T("%s<%s>\n\t%s%f\n%s</%s>\n"), prefix, label, prefix, value, prefix, label)
-#define SUMMARY_ADD_XML_ATT_STR(label, value)		s += CSG_String::Format(SG_T(" %s=\"%s\""), label, value)
-#define SUMMARY_ADD_XML_ATT_INT(label, value)		s += CSG_String::Format(SG_T(" %s=\"%d\""),label, value)
-
-//---------------------------------------------------------
-CSG_String Param_to_XML(CSG_Parameter *pParameter, const wchar_t *ident)
+void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = "")
 {
-	CSG_String	s;
+	if( !ID.is_Empty() )	ID	+= "_";	ID	+= pParameter->Get_Identifier();
 
-	s	+= CSG_String::Format(SG_T("\t<%s"), SG_XML_PARAM);
+	CSG_MetaData	*pItem	= pParent->Add_Child(SG_XML_PARAM);
 
-	SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_NAME, pParameter->Get_Name());
+	pItem->Add_Property(SG_XML_PARAM_ATT_NAME , pParameter->Get_Name());
+	pItem->Add_Property(SG_XML_PARAM_ATT_CLASS,	pParameter->is_Input() ? "input" : pParameter->is_Output() ? "output" : "option");
 
-	if( pParameter->is_Input() )
+	pItem->Add_Child(SG_XML_PARAM_IDENT, ID);
+	pItem->Add_Child(SG_XML_PARAM_TYPE , pParameter->Get_Type_Name().Make_Lower());
+	pItem->Add_Child(SG_XML_PARAM_MAND , pParameter->is_Optional() ? SG_T("false") : SG_T("true"));
+	pItem->Add_Child(SG_XML_DESCRIPTION, pParameter->Get_Description());
+
+	switch( pParameter->Get_Type() )
 	{
-		SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_CLASS, SG_T("input"));
-	}
-
-	if( pParameter->is_Output() )
-	{
-		SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_CLASS, SG_T("output"));
-	}
-
-	if( pParameter->is_Option() )
-	{
-		SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_ATT_CLASS, SG_T("option"));
-	}
-
-	s	+= CSG_String::Format(SG_T(" >\n"));
-
-	if( ident == 0 )
-	{
-		SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_IDENT, pParameter->Get_Identifier());
-	}
-	else
-	{
-		s += CSG_String::Format(SG_T("\t\t<%s>\n\t\t\t%s_%s\n\t\t</%s>\n"), SG_XML_PARAM_IDENT, ident, pParameter->Get_Identifier(), SG_XML_PARAM_IDENT);
-	}
-
-	if( pParameter->is_Optional() )
-	{
-		SUMMARY_ADD_XML_STR (SG_T("\t\t"), SG_XML_PARAM_MAND, SG_T("false"));
-	}
-	else
-	{
-		SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_MAND, SG_T("true"));
-	}
-
-	SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_TYPE, pParameter->Get_Type_Name().Make_Lower().c_str());
-
-	if( pParameter->Get_Type() == PARAMETER_TYPE_Choice )
-	{
-		s	+= CSG_String::Format(SG_T("\t\t<%s>\n"), SG_XML_PARAM_LIST);
-
-		for(int i=0; i<pParameter->asChoice()->Get_Count(); i++)
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_Choice:
 		{
-			SUMMARY_ADD_XML_STR(SG_T("\t\t\t"), SG_XML_PARAM_ITEM, pParameter->asChoice()->Get_Item(i));
+			CSG_MetaData	*pChild	= pItem->Add_Child(SG_XML_PARAM_LIST);
+
+			for(int i=0; i<pParameter->asChoice()->Get_Count(); i++)
+			{
+				pChild->Add_Child(SG_XML_PARAM_ITEM, pParameter->asChoice()->Get_Item(i));
+			}
 		}
+		break;
 
-		s	+= CSG_String::Format(SG_T("\t\t</%s>\n"), SG_XML_PARAM_LIST);
-	}
-
-	if( pParameter->Get_Type() == PARAMETER_TYPE_FixedTable )
-	{
-		s	+= CSG_String::Format(SG_T("\t\t<%s>\n"), SG_XML_PARAM_TABLE);
-
-		for(int i=0; i<pParameter->asTable()->Get_Field_Count(); i++)
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_FixedTable:
 		{
-			s	+= CSG_String::Format(SG_T("\t\t\t<%s"), SG_XML_PARAM_FIELD);
-			SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_FIELD_ATT_NAME, pParameter->asTable()->Get_Field_Name(i));
-			SUMMARY_ADD_XML_ATT_STR(SG_XML_PARAM_FIELD_ATT_TYPE, SG_Data_Type_Get_Name(pParameter->asTable()->Get_Field_Type(i)).c_str());
-			s	+= CSG_String::Format(SG_T(" >\n"));
+			CSG_MetaData	*pChild	= pItem->Add_Child(SG_XML_PARAM_TABLE);
+
+			for(int i=0; i<pParameter->asTable()->Get_Field_Count(); i++)
+			{
+				CSG_MetaData	*pField	= pChild->Add_Child(SG_XML_PARAM_FIELD);
+
+				pField->Add_Property(SG_XML_PARAM_FIELD_ATT_NAME, pParameter->asTable()->Get_Field_Name(i));
+				pField->Add_Property(SG_XML_PARAM_FIELD_ATT_TYPE, SG_Data_Type_Get_Name(pParameter->asTable()->Get_Field_Type(i)));
+			}
 		}
+		break;
 
-		s	+= CSG_String::Format(SG_T("\t\t</%s>\n"), SG_XML_PARAM_TABLE);
-	}
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_Int:
+	case PARAMETER_TYPE_Double:
+	case PARAMETER_TYPE_Degree:
+		if( pParameter->asValue()->has_Minimum() )	pItem->Add_Child(SG_XML_PARAM_MIN, pParameter->asValue()->Get_Minimum());
+		if( pParameter->asValue()->has_Maximum() )	pItem->Add_Child(SG_XML_PARAM_MAX, pParameter->asValue()->Get_Maximum());
+		break;
 
-	if(	pParameter->Get_Type() != PARAMETER_TYPE_Choice
-	&&  pParameter->Get_Type() != PARAMETER_TYPE_FixedTable
-	&&	pParameter->Get_Type() != PARAMETER_TYPE_FilePath
-	&&	pParameter->Get_Type() != PARAMETER_TYPE_Bool
-	&&	pParameter->Get_Type() != PARAMETER_TYPE_Range )
-	{
-		if( pParameter->asValue()->has_Minimum() )
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_Parameters:
 		{
-			SUMMARY_ADD_XML_FP(SG_T("\t\t"), SG_XML_PARAM_MIN, pParameter->asValue()->Get_Minimum());
-		}
-
-		if( pParameter->asValue()->has_Maximum() )
-		{
-			SUMMARY_ADD_XML_FP(SG_T("\t\t"), SG_XML_PARAM_MAX, pParameter->asValue()->Get_Maximum());
+			for(int i=0; i<pParameter->asParameters()->Get_Count(); i++)
+			{
+				_Add_XML(pItem, pParameter->asParameters()->Get_Parameter(i), ID);
+			}
 		}
 	}
-
-	if( wcslen(pParameter->Get_Description()) > 0 )
-	{
-		SUMMARY_ADD_XML_STR(SG_T("\t\t"), SG_XML_PARAM_DESC, pParameter->Get_Description());
-	}
-
-	s	+= CSG_String::Format(SG_T("\t</%s>\n"), SG_XML_PARAM);
-
-	return ( s );
 }
 
 //---------------------------------------------------------
@@ -876,23 +832,20 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 	//-----------------------------------------------------
 	if( bXML )
 	{
-		s	+= CSG_String::Format(SG_T("<%s"), SG_XML_MODULE);
-		SUMMARY_ADD_XML_ATT_STR(SG_XML_MODULE_ATT_NAME  , Get_Name  ().c_str());
-		SUMMARY_ADD_XML_ATT_INT(SG_XML_MODULE_ATT_ID    , Get_ID    ());
-		SUMMARY_ADD_XML_ATT_STR(SG_XML_MODULE_ATT_AUTHOR, Get_Author().c_str());
-		s	+= SG_T(">\n");
+		CSG_MetaData	m;
 
-		s	+= CSG_String::Format(SG_T("\t<%s"), SG_XML_SPECIFICATION);
-		SUMMARY_ADD_XML_ATT_STR(SG_XML_SPEC_ATT_GRID  , is_Grid       () ? SG_T("true") : SG_T("false"));
-		SUMMARY_ADD_XML_ATT_STR(SG_XML_SPEC_ATT_INTERA, is_Interactive() ? SG_T("true") : SG_T("false"));
-		s	+= CSG_String::Format(SG_T(" />\n"));
+		m.Set_Name    (SG_XML_MODULE);
+		m.Add_Property(SG_XML_MODULE_ATT_NAME  , Get_Name       ());
+		m.Add_Property(SG_XML_MODULE_ATT_ID    , Get_ID         ());
+		m.Add_Property(SG_XML_MODULE_ATT_AUTHOR, Get_Author     ());
+		m.Add_Child   (SG_XML_DESCRIPTION      , Get_Description());
+		m.Add_Child   (SG_XML_MENU             , Get_MenuPath   ());
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Grid        () ? SG_T("true") : SG_T("false"));
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Interactive () ? SG_T("true") : SG_T("false"));
 
-		SUMMARY_ADD_XML_STR("\t", SG_XML_MENU, s.c_str());
-
-		if( Description.Length() > 0 )
-		{
-			SUMMARY_ADD_XML_STR (SG_T("\t"), SG_XML_DESCRIPTION, Get_Description().c_str());
-		}
+	//	CSG_MetaData	*pChild	= m.Add_Child(SG_XML_SPECIFICATION);
+	//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID    , is_Grid        () ? SG_T("true") : SG_T("false"));
+	//	pChild->Add_Property(SG_XML_SPEC_ATT_INTERA  , is_Interactive () ? SG_T("true") : SG_T("false"));
 
 		if( bParameters )
 		{
@@ -900,7 +853,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			{
 				if( Parameters(i)->is_Input() )
  				{
-					s	+= Param_to_XML(Parameters(i), 0);
+					_Add_XML(&m, Parameters(i));
 				}
 			}
 
@@ -908,7 +861,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			{
 				if( Parameters(i)->is_Output() )
  				{
-					s	+= Param_to_XML(Parameters(i), 0);
+					_Add_XML(&m, Parameters(i));
 				}
 			}
 
@@ -918,24 +871,12 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 				&&  Parameters(i)->Get_Type() != PARAMETER_TYPE_Node
 				&&  Parameters(i)->Get_Type() != PARAMETER_TYPE_Grid_System )
  				{
-					if( Parameters(i)->Get_Type() != PARAMETER_TYPE_Parameters )
-					{
-						s	+= Param_to_XML(Parameters(i), 0);
-					}
-					else
-					{	//PARAMETER_TYPE_Parameters: these are pre-defined parameter sets that we need to expand.
-						CSG_Parameters	*pParameters	= Parameters(i)->asParameters();
-
-						for(int j=0; j<pParameters->Get_Count(); j++)
-						{
-							s	+= Param_to_XML(pParameters->Get_Parameter(j), pParameters->Get_Identifier());
-						}
-					}
+					_Add_XML(&m, Parameters(i));
 				}
 			}
 		}
 
-		s	+= CSG_String::Format(SG_T("</%s>\n"), SG_XML_MODULE);
+		s	= m.asText(1);
 	}
 
 	//-----------------------------------------------------

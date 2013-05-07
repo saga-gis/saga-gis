@@ -284,21 +284,21 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_XML: case SG_SUMMARY_FMT_XML_NO_INTERACTIVE:
 		s	+= SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
-		s	+= CSG_String::Format(SG_T("\n<%s>"), SG_XML_LIBRARY);
-		s	+= CSG_String::Format(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-		s	+= CSG_String::Format(SG_T("\n\t<%s>%s</%s>"), SG_XML_LIBRARY_NAME, Get_Name     ().c_str(), SG_XML_LIBRARY_NAME);
+		s	+= CSG_String::Format(SG_T("<%s>\n"), SG_XML_LIBRARY);
+		s	+= CSG_String::Format(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+		s	+= CSG_String::Format(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_NAME, Get_Name     ().c_str(), SG_XML_LIBRARY_NAME);
 
 		for(i=0; i<Get_Count(); i++)
 		{
 			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_XML || !Get_Module(i)->is_Interactive()) )
 			{
-				s	+= CSG_String::Format(SG_T("\n\t<%s %s=\"%d\" %s=\"%s\">"), SG_XML_MODULE,
+				s	+= CSG_String::Format(SG_T("\t<%s %s=\"%d\" %s=\"%s\">\n"), SG_XML_MODULE,
 					SG_XML_MODULE_ATT_ID, i, SG_XML_MODULE_ATT_NAME, Get_Module(i)->Get_Name().c_str()
 				);
 			}
 		}
 
-		SG_PRINTF(SG_T("\n</%s>"), SG_XML_LIBRARY);
+		s	+= CSG_String::Format(SG_T("</%s>\n"), SG_XML_LIBRARY);
 
 		break;
 	}
