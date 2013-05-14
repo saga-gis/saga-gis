@@ -65,6 +65,8 @@
 //---------------------------------------------------------
 #include "module.h"
 
+#include "data_manager.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -536,6 +538,11 @@ bool CSG_Module::Error_Set(const CSG_String &Error_Text)
 //---------------------------------------------------------
 bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 {
+	if( Parameters.Get_Manager() )
+	{
+		Parameters.Get_Manager()->Add(pDataObject);
+	}
+
 	return( SG_UI_DataObject_Add(pDataObject, bUpdate) );
 }
 
