@@ -209,19 +209,26 @@ TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 	}
 
 	//-----------------------------------------------------
-	if( Get_Type() >= pShape->Get_Type() )
+	TSG_Intersection	Intersection;
+
+	if( Get_Type() >= pShape->Get_Type() && (Intersection = On_Intersects(pShape)) != INTERSECTION_None )
 	{
-		return( On_Intersects(pShape) );
+		return( Intersection );
 	}
 
-	TSG_Intersection	Intersection	= pShape->On_Intersects(this);
+	Intersection	= pShape->On_Intersects(this);
 
-	switch( Intersection )
+	if( Intersection == INTERSECTION_Contained )
 	{
-	default:						return( Intersection );
-	case INTERSECTION_Contained:	return( INTERSECTION_Contains );
-	case INTERSECTION_Contains:		return( INTERSECTION_Contained );
+		return( INTERSECTION_Contains );
 	}
+
+	if( Intersection == INTERSECTION_Contains )
+	{
+		return( INTERSECTION_Contained );
+	}
+
+	return( Intersection );
 }
 
 //---------------------------------------------------------
