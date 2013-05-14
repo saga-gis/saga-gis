@@ -906,8 +906,6 @@ bool CSolarRadiation::Get_Insolation(int Day)
 //---------------------------------------------------------
 bool CSolarRadiation::Get_Insolation(int Day, double Hour)
 {
-	double	Sol_Height, Sol_Azimuth;
-
 	//-----------------------------------------------------
 	if( m_bBending )
 	{
@@ -916,10 +914,10 @@ bool CSolarRadiation::Get_Insolation(int Day, double Hour)
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++)
 		{
-			Process_Get_Okay();
-
-			for(int x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX() && Process_Get_Okay(); x++)
 			{
+				double	Sol_Height	= -1.0, Sol_Azimuth	= -1.0;
+
 				if( Get_Solar_Position(Day, Hour, m_Lat.asDouble(x, y), m_Lon.asDouble(x, y), Sol_Height, Sol_Azimuth) )
 				{
 					bDayLight	= true;
@@ -932,13 +930,15 @@ bool CSolarRadiation::Get_Insolation(int Day, double Hour)
 
 		if( bDayLight )
 		{
-			return( Get_Insolation(Sol_Height, Sol_Azimuth, Hour) );
+			return( Get_Insolation(0.0, 0.0, Hour) );
 		}
 	}
 
 	//-----------------------------------------------------
 	else
 	{
+		double	Sol_Height, Sol_Azimuth;
+
 		if( Get_Solar_Position(Day, Hour, m_Latitude, 0.0, Sol_Height, Sol_Azimuth) )
 		{
 			return( Get_Insolation(Sol_Height, Sol_Azimuth, Hour) );
@@ -962,9 +962,7 @@ bool CSolarRadiation::Get_Insolation(double Sol_Height, double Sol_Azimuth, doub
 	#pragma omp parallel for
 	for(int y=0; y<Get_NY(); y++)
 	{
-		Process_Get_Okay();
-
-		for(int x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX() && Process_Get_Okay(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{
@@ -975,13 +973,10 @@ bool CSolarRadiation::Get_Insolation(double Sol_Height, double Sol_Azimuth, doub
 			{
 				double	Direct, Diffus;
 
-				if( m_bBending )
-				{
-					Sol_Height	= m_Sol_Height .asDouble(x, y);
-					Sol_Azimuth	= m_Sol_Azimuth.asDouble(x, y);
-				}
-
-				if( Get_Irradiance(x, y, Sol_Height, Sol_Azimuth, Direct, Diffus) )
+				if( Get_Irradiance(x, y,
+						m_bBending ? m_Sol_Height .asDouble(x, y) : Sol_Height,
+						m_bBending ? m_Sol_Azimuth.asDouble(x, y) : Sol_Azimuth,
+						Direct, Diffus) )
 				{
 					m_pDirect->Add_Value(x, y, Direct);
 					m_pDiffus->Add_Value(x, y, Diffus);
