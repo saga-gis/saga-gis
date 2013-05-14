@@ -239,7 +239,8 @@ bool CData_Source::_Show_Page(wxWindow *pPage)
 	int		Image_ID	= -1;
 
 	//-----------------------------------------------------
-	if( pPage == m_pFiles )		Image_ID	= IMG_FILES;
+	if( pPage == m_pFiles )	Image_ID	= IMG_FILES;
+	if( pPage == m_pODBC  )	Image_ID	= IMG_DATABASE;
 
 	//-----------------------------------------------------
 	if( pPage )

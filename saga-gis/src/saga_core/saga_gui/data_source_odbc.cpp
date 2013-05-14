@@ -462,7 +462,8 @@ void CData_Source_ODBC::Table_Open(const wxTreeItemId &Item)
 
 	if( pData->Get_Connection()->Table_Load(*pTable, pData->Get_Value()) )
 	{
-		g_pData->Add (pTable);
+		SG_Get_Data_Manager().Add(pTable);
+
 		g_pData->Show(pTable, 0);
 
 		MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
