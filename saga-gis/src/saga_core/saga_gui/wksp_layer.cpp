@@ -190,20 +190,7 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 {
-	switch( event.GetId() )
-	{
-	default:
-		return( CWKSP_Data_Item::On_Command_UI(event) );
-
-	case ID_CMD_TIN_SAVE:
-	case ID_CMD_GRIDS_SAVE:
-	case ID_CMD_SHAPES_SAVE:
-	case ID_CMD_POINTCLOUD_SAVE:
-		event.Enable(m_pObject->is_Modified() && m_pObject->Get_File_Name() && *(m_pObject->Get_File_Name()));
-		break;
-	}
-
-	return( true );
+	return( CWKSP_Data_Item::On_Command_UI(event) );
 }
 
 

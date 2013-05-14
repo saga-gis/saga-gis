@@ -135,6 +135,7 @@ bool CWKSP_Data_Item::On_Command(int Cmd_ID)
 		Save(m_pObject->Get_File_Name());
 		break;
 
+	case ID_CMD_TABLES_SAVEAS:
 	case ID_CMD_TIN_SAVEAS:
 	case ID_CMD_POINTCLOUD_SAVEAS:
 	case ID_CMD_SHAPES_SAVEAS:
