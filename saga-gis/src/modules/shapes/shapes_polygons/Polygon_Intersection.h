@@ -82,34 +82,117 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Intersection : public CSG_Module  
+class CPolygon_Overlay : public CSG_Module
+{
+public:
+	CPolygon_Overlay(const CSG_String &Name);
+
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Overlay") );	}
+
+
+protected:
+
+	bool					Add_Description		(const CSG_String &Text);
+
+	bool					Initialize			(CSG_Shapes **ppA, CSG_Shapes **ppB, bool bBothAttributes);
+
+	bool					Get_Intersection	(CSG_Shapes *pA, CSG_Shapes *pB);
+
+	bool					Get_Difference		(CSG_Shapes *pA, CSG_Shapes *pB, bool bInvert = false);
+
+
+private:
+
+	bool					m_bSplit, m_bInvert;
+
+	CSG_Shapes				*m_pA, *m_pB, *m_pAB;
+
+
+	CSG_Shape *				Add_Polygon			(int id_A, int id_B);
+	void					Add_Polygon			(CSG_Shape *pShape, int id_A, int id_B = -1);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPolygon_Intersection : public CPolygon_Overlay
 {
 public:
 	CPolygon_Intersection(void);
-	virtual ~CPolygon_Intersection(void);
 
 
 protected:
 
 	virtual bool			On_Execute			(void);
 
+};
 
-private:
-
-	bool					m_bSplitParts;
-
-	int						m_Mode, m_iField_A, m_iField_B;
-
-	CSG_Shapes				*m_pShapes_A, *m_pShapes_B, *m_pShapes_AB;
+//---------------------------------------------------------
+class CPolygon_Difference : public CPolygon_Overlay
+{
+public:
+	CPolygon_Difference(void);
 
 
-//	bool					Intersect			(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B);
+protected:
 
-	bool					Get_Intersection	(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode);
-	bool					Get_Difference		(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode);
+	virtual bool			On_Execute			(void);
 
-	void					Add_Polygon			(CSG_Shape *pShape, int ID_A, int ID_B = -1);
-	CSG_Shape *				Get_Polygon			(int ID_A, int ID_B);
+};
+
+//---------------------------------------------------------
+class CPolygon_SymDifference : public CPolygon_Overlay
+{
+public:
+	CPolygon_SymDifference(void);
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+};
+
+//---------------------------------------------------------
+class CPolygon_Union : public CPolygon_Overlay
+{
+public:
+	CPolygon_Union(void);
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+};
+
+//---------------------------------------------------------
+class CPolygon_Identity : public CPolygon_Overlay
+{
+public:
+	CPolygon_Identity(void);
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+};
+
+//---------------------------------------------------------
+class CPolygon_Update : public CPolygon_Overlay
+{
+public:
+	CPolygon_Update(void);
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
 
 };
 

@@ -116,7 +116,6 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CPolygon_Intersection );
 	case  1:	return( new CPolygon_Centroids );
 	case  2:	return( new CPolygon_Geometrics );
 	case  3:	return( new CPolygons_From_Lines );
@@ -129,6 +128,17 @@ CSG_Module *		Create_Module(int i)
 	case 10:	return( new CPolygon_Split_Parts );
 	case 11:	return( new CPolygon_Clip );
 	case 12:	return( new CPolygon_SelfIntersection );
+
+	case 14:	return( new CPolygon_Intersection );
+	case 15:	return( new CPolygon_Difference );
+	case 16:	return( new CPolygon_SymDifference );
+	case 17:	return( new CPolygon_Union );
+	case 18:	return( new CPolygon_Update );
+	case 19:	return( new CPolygon_Identity );
+
+	//-----------------------------------------------------
+	case 20:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 
 	return( NULL );
