@@ -535,6 +535,7 @@ CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 
 				if( (s = pBand->GetMetadataItem("GRIB_ELEMENT"   )) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
 				if( (s = pBand->GetMetadataItem("GRIB_SHORT_NAME")) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
+				if( (s = pBand->GetMetadataItem("GRIB_VALID_TIME")) != NULL && *s )	{	Name += CSG_String::Format(SG_T("[%s]"), CSG_Time_Converter::Get_String(atoi(s), SG_TIME_FMT_Seconds_Unix).c_str());	}
 			}
 		}
 
