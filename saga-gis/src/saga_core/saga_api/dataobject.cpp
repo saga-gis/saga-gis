@@ -259,12 +259,17 @@ bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)
 
 	switch( Get_ObjectType() )
 	{
-	default:							return( false );;
+	default:							return( false );
 	case DATAOBJECT_TYPE_Grid:			m.Load(File_Name, SG_META_EXT_GRID);		break;
 	case DATAOBJECT_TYPE_Table:			m.Load(File_Name, SG_META_EXT_TABLE);		break;
 	case DATAOBJECT_TYPE_Shapes:		m.Load(File_Name, SG_META_EXT_SHAPES);		break;
 	case DATAOBJECT_TYPE_TIN:			m.Load(File_Name, SG_META_EXT_TIN);			break;
 	case DATAOBJECT_TYPE_PointCloud:	m.Load(File_Name, SG_META_EXT_POINTCLOUD);	break;
+	}
+
+	if( (p = m.Get_Child("DESCRIPTION")) != NULL && !p->Get_Content().is_Empty() )
+	{
+		Set_Description(p->Get_Content());
 	}
 
 	if( (p = m.Get_Child(SG_META_SRC)) != NULL )
@@ -301,6 +306,10 @@ bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)
 //---------------------------------------------------------
 bool CSG_Data_Object::Save_MetaData(const SG_Char *File_Name)
 {
+	CSG_MetaData	*p	= m_MetaData.Get_Child("DESCRIPTION");	if( !p )	p	= m_MetaData.Add_Child("DESCRIPTION");
+
+	p->Set_Content(Get_Description());
+
 	if( m_Projection.Get_Type() == SG_PROJ_TYPE_CS_Undefined )
 	{
 		m_pProjection->Destroy();
