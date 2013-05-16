@@ -91,7 +91,7 @@ CGCS_Grid_Longitude_Range::CGCS_Grid_Longitude_Range(void)
 	Parameters.Add_Grid_List(
 		NULL	, "OUTPUT"	, _TL("Output"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 
 	Parameters.Add_Choice(
