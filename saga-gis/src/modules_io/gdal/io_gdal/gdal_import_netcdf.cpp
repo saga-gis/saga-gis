@@ -193,6 +193,37 @@ int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+const char * CGDAL_Import_NetCDF::Get_Variable(CSG_GDAL_DataSet &DataSet, int iBand)
+{
+	const char	*s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_VARNAME");
+
+	return( s ? s : DataSet.Get_MetaData_Item(iBand, "NETCDF_VARNAME") );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_Import_NetCDF::Get_Time(CSG_GDAL_DataSet &DataSet, int iBand)
+{
+	const char	*s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_time");
+
+	return( s ? s : DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_time") );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_Import_NetCDF::Get_Level(CSG_GDAL_DataSet &DataSet, int iBand)
+{
+	const char	*s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_level");
+
+	return( s ? s : DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_lev") );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGDAL_Import_NetCDF::On_Execute(void)
 {
 	const char				*s;
@@ -241,41 +272,66 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 	for(i=0; i<DataSet.Get_Count() && Set_Progress(i, DataSet.Get_Count()); i++)
 	{
-		if( !pVars ->Get_Parameter(s = DataSet.Get_MetaData_Item(i, "NETCDF_VARNAME")) )
+		if( (s = Get_Variable(DataSet, i)) != NULL && !pVars ->Get_Parameter(s) )
 			pVars  ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
 
-		if( !pTime ->Get_Parameter(s = DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_time")) )
+		if( (s = Get_Time    (DataSet, i)) != NULL && !pTime ->Get_Parameter(s) )
 			pTime  ->Add_Value(NULL, s, CSG_Time_Converter::Get_String(atoi(s), tFmt), _TL(""), PARAMETER_TYPE_Bool, false);
 
-		if( !pLevel->Get_Parameter(s = DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_level")) )
+		if( (s = Get_Level   (DataSet, i)) != NULL && !pLevel->Get_Parameter(s) )
 			pLevel ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
 	}
 
 	//-----------------------------------------------------
-	if( pVars->Get_Count() <= 0 || pTime->Get_Count() <= 0 || pLevel->Get_Count() <= 0 )
+	if( pVars ->Get_Count() <= 0 )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not find any band data"), Parameters("FILE")->asString()));
+		if( !Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("no variable information"), Parameters("FILE")->asString())) )
+		{
+			return( false );
+		}
 
-	//	return( false );
+		pVars	= NULL;
 	}
-	
+
+	if( pTime ->Get_Count() <= 0 )
+	{
+		if( !Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("no time stamp information"), Parameters("FILE")->asString())) )
+		{
+			return( false );
+		}
+
+		pTime	= NULL;
+	}
+
+	if( pLevel->Get_Count() <= 0 )
+	{
+		if( !Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("no level information"), Parameters("FILE")->asString())) )
+		{
+			return( false );
+		}
+
+		pLevel	= NULL;
+	}
+
+	//-----------------------------------------------------
 	if( !Dlg_Parameters(&P, _TL("Import NetCDF")) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	bool	bAll_Vars	= P("VARS_ALL" )->asBool();
-	bool	bAll_Time	= P("TIME_ALL" )->asBool();
-	bool	bAll_Level	= P("LEVEL_ALL")->asBool();
+	if( P("VARS_ALL" )->asBool() )	pVars	= NULL;
+	if( P("TIME_ALL" )->asBool() )	pTime	= NULL;
+	if( P("LEVEL_ALL")->asBool() )	pLevel	= NULL;
 
+	//-----------------------------------------------------
 	for(i=0; i<DataSet.Get_Count() && Set_Progress(i, DataSet.Get_Count()); i++)
 	{
 		CSG_Parameter	*pParm;
 
-		if( (bAll_Vars  || (!!(pParm = (*pVars )(DataSet.Get_MetaData_Item(i, "NETCDF_VARNAME"        ))) && pParm->asBool()))
-		&&	(bAll_Time  || (!!(pParm = (*pTime )(DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_time" ))) && pParm->asBool()))
-		&&	(bAll_Level || (!!(pParm = (*pLevel)(DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_level"))) && pParm->asBool())) )
+		if( (!pVars  || (!!(pParm = (*pVars )(Get_Variable(DataSet, i))) && pParm->asBool()))
+		&&	(!pTime  || (!!(pParm = (*pTime )(Get_Time    (DataSet, i))) && pParm->asBool()))
+		&&	(!pLevel || (!!(pParm = (*pLevel)(Get_Level   (DataSet, i))) && pParm->asBool())) )
 		{
 			SG_UI_Progress_Lock(true);
 
@@ -283,11 +339,19 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 			if( pGrid )
 			{
-				pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s] [%s]"),
-					CSG_String(                         DataSet.Get_MetaData_Item(i, "NETCDF_VARNAME"        )       ).c_str(),
-					CSG_Time_Converter::Get_String(atoi(DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_time" )), tFmt).c_str(),
-					CSG_String(                         DataSet.Get_MetaData_Item(i, "NETCDF_DIMENSION_level")       ).c_str()
-				));
+				CSG_String	Name(_TL("unknown"));	if( (s = Get_Variable(DataSet, i)) != NULL )	Name	= s;
+
+				if( (s = Get_Time (DataSet, i)) != NULL && *s )
+				{
+					Name	+= " [" + CSG_Time_Converter::Get_String(atoi(s), tFmt) + "]";
+				}
+
+				if( (s = Get_Level(DataSet, i)) != NULL && *s )
+				{
+					Name	+= " [" + CSG_String(s) + "]";
+				}
+
+				pGrid->Set_Name(Name);
 
 				pGrids->Add_Item(pGrid);
 			}

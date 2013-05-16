@@ -83,6 +83,13 @@ protected:
 
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+
+private:
+
+	const char *				Get_Variable			(CSG_GDAL_DataSet &DataSet, int iBand);
+	const char *				Get_Time				(CSG_GDAL_DataSet &DataSet, int iBand);
+	const char *				Get_Level				(CSG_GDAL_DataSet &DataSet, int iBand);
+
 };
 
 
