@@ -297,7 +297,7 @@ bool CSG_Vector::Add(double Scalar)
 }
 
 //---------------------------------------------------------
-bool CSG_Vector::Add(const class CSG_Vector &Vector)
+bool CSG_Vector::Add(const CSG_Vector &Vector)
 {
 	if( m_n == Vector.m_n && m_n > 0 )
 	{
@@ -313,7 +313,7 @@ bool CSG_Vector::Add(const class CSG_Vector &Vector)
 }
 
 //---------------------------------------------------------
-bool CSG_Vector::Subtract(const class CSG_Vector &Vector)
+bool CSG_Vector::Subtract(const CSG_Vector &Vector)
 {
 	if( m_n == Vector.m_n && m_n > 0 )
 	{
@@ -345,7 +345,7 @@ bool CSG_Vector::Multiply(double Scalar)
 }
 
 //---------------------------------------------------------
-bool CSG_Vector::Multiply(const class CSG_Vector &Vector)
+bool CSG_Vector::Multiply(const CSG_Vector &Vector)
 {
 	if( m_n == Vector.m_n && m_n == 3 )
 	{
@@ -362,7 +362,7 @@ bool CSG_Vector::Multiply(const class CSG_Vector &Vector)
 }
 
 //---------------------------------------------------------
-double CSG_Vector::Multiply_Scalar(const class CSG_Vector &Vector) const
+double CSG_Vector::Multiply_Scalar(const CSG_Vector &Vector) const
 {
 	double	z	= 0.0;
 
@@ -378,7 +378,7 @@ double CSG_Vector::Multiply_Scalar(const class CSG_Vector &Vector) const
 }
 
 //---------------------------------------------------------
-bool CSG_Vector::Multiply(const CSG_Matrix &Matrix)
+bool CSG_Vector::Multiply(const class CSG_Matrix &Matrix)
 {
 	return( Assign(Matrix.Multiply(*this)) );
 }
@@ -419,7 +419,7 @@ CSG_Vector & CSG_Vector::operator += (double Scalar)
 	return( *this );
 }
 
-CSG_Vector & CSG_Vector::operator += (const class CSG_Vector &Vector)
+CSG_Vector & CSG_Vector::operator += (const CSG_Vector &Vector)
 {
 	Add(Vector);
 
@@ -434,7 +434,7 @@ CSG_Vector & CSG_Vector::operator -= (double Scalar)
 	return( *this );
 }
 
-CSG_Vector & CSG_Vector::operator -= (const class CSG_Vector &Vector)
+CSG_Vector & CSG_Vector::operator -= (const CSG_Vector &Vector)
 {
 	Subtract(Vector);
 
@@ -449,14 +449,14 @@ CSG_Vector & CSG_Vector::operator *= (double Scalar)
 	return( *this );
 }
 
-CSG_Vector & CSG_Vector::operator *= (const class CSG_Vector &Vector)
+CSG_Vector & CSG_Vector::operator *= (const CSG_Vector &Vector)
 {
 	Multiply(Vector);
 
 	return( *this );
 }
 
-CSG_Vector & CSG_Vector::operator *= (const CSG_Matrix &Matrix)
+CSG_Vector & CSG_Vector::operator *= (const class CSG_Matrix &Matrix)
 {
 	Multiply(Matrix);
 
@@ -473,7 +473,7 @@ CSG_Vector CSG_Vector::operator + (double Scalar) const
 	return( v );
 }
 
-CSG_Vector CSG_Vector::operator + (const class CSG_Vector &Vector) const
+CSG_Vector CSG_Vector::operator + (const CSG_Vector &Vector) const
 {
 	CSG_Vector	v(*this);
 
@@ -492,7 +492,7 @@ CSG_Vector CSG_Vector::operator - (double Scalar) const
 	return( v );
 }
 
-CSG_Vector CSG_Vector::operator - (const class CSG_Vector &Vector) const
+CSG_Vector CSG_Vector::operator - (const CSG_Vector &Vector) const
 {
 	CSG_Vector	v(*this);
 
@@ -511,7 +511,7 @@ CSG_Vector CSG_Vector::operator * (double Scalar) const
 	return( v );
 }
 
-double CSG_Vector::operator * (const class CSG_Vector &Vector) const
+double CSG_Vector::operator * (const CSG_Vector &Vector) const
 {
 	return( Multiply_Scalar(Vector) );
 }

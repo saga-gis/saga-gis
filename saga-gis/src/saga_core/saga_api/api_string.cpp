@@ -108,7 +108,7 @@ CSG_String::CSG_String(wchar_t Character, size_t nRepeat)
 	m_pString	= new wxString(Character, nRepeat);
 }
 
-CSG_String::CSG_String(const wxString *pString)
+CSG_String::CSG_String(const class wxString *pString)
 {
 	if( pString )
 		m_pString	= new wxString(*pString);
