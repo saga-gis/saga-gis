@@ -334,7 +334,10 @@ bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, in
 	{
 		CSG_String	Message;
 
-		Formula.Get_Error(Message);
+		if( !Formula.Get_Error(Message) )
+		{
+			Message.Printf(SG_T("%s: %s"), _TL("error in formula"), sFormula.c_str());
+		}
 
 		Error_Set(Message);
 
