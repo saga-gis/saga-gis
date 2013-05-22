@@ -406,7 +406,7 @@ CSG_Parameter * CSG_Parameters::Add_Grid_List(CSG_Parameter *pParent, const CSG_
 {
 	CSG_Parameter	*pParameter;
 
-	if( bSystem_Dependent && (!pParent || pParent->Get_Type() != PARAMETER_TYPE_Grid_System) )
+	if( (Constraint & PARAMETER_INPUT) && bSystem_Dependent && (!pParent || pParent->Get_Type() != PARAMETER_TYPE_Grid_System) )
 	{
 		pParent	= m_pGrid_System;
 	}
