@@ -195,25 +195,28 @@ int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 const char * CGDAL_Import_NetCDF::Get_Variable(CSG_GDAL_DataSet &DataSet, int iBand)
 {
-	const char	*s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_VARNAME");
+	const char *s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_VARNAME");
 
-	return( s ? s : DataSet.Get_MetaData_Item(iBand, "NETCDF_VARNAME") );
+	return( s );
 }
 
 //---------------------------------------------------------
 const char * CGDAL_Import_NetCDF::Get_Time(CSG_GDAL_DataSet &DataSet, int iBand)
 {
-	const char	*s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_time");
+	const char *s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_time");
+	if( !s )    s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_time");
 
-	return( s ? s : DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_time") );
+	return( s );
 }
 
 //---------------------------------------------------------
 const char * CGDAL_Import_NetCDF::Get_Level(CSG_GDAL_DataSet &DataSet, int iBand)
 {
-	const char	*s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_level");
+	const char *s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_level");
+	if( !s )    s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_level");
+	if( !s )    s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_lev");
 
-	return( s ? s : DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_lev") );
+	return( s );
 }
 
 
