@@ -218,8 +218,8 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("SAGA GUI\n")
 		wxT("SAGA Graphical User Interface\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2005-2012 by Olaf Conrad\n")
-		wxT("Portions (c) 2008-2012 by Volker Wichmann\n")
+		wxT("Copyrights (c) 2005-2013 by Olaf Conrad\n")
+		wxT("Portions (c) 2008-2013 by Volker Wichmann\n")
 		wxT("\n")
 		wxT("GNU General Public License (GPL)\n")
 	);
@@ -230,8 +230,8 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("SAGA API\n")
 		wxT("SAGA Application Programming Interface\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2002-2012 by Olaf Conrad\n")
-		wxT("Portions (c) 2008-2012 by Volker Wichmann\n")
+		wxT("Copyrights (c) 2002-2013 by Olaf Conrad\n")
+		wxT("Portions (c) 2008-2013 by Volker Wichmann\n")
 		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
 		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
 		wxT("\n")
@@ -317,7 +317,7 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 		"\n"
 		"Benni Bechtel\n"
 		"Michael Bock\n"
-		"Jürgen Böhner\n"
+		"Juergen Boehner\n"
 		"Antonio Boggia\n"
 		"Magnus Bremer\n"
 		"Alex Brenning\n"
@@ -327,7 +327,7 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 		"Frank Haselein\n"
 		"Tobias Heckmann\n"
 		"Philipp J. Hess\n"
-		"Rüdiger Köthe\n"
+		"Ruediger Koethe\n"
 		"Angela Kreikemeyer\n"
 		"Stefan Liersch\n"
 		"Gianluca Massei\n"
