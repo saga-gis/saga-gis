@@ -801,8 +801,11 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		if( sPath.Length() == 0 )
 		{
-			sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), pObject->Get_Name()).w_str();
-			sPath	+= SG_T(".") + sExtension;
+			sPath	= pObject->Get_Name();
+			sPath	.Replace(".", "-");
+			sPath	.Replace(":", "-");
+
+			sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), sPath, sExtension).w_str();
 		}
 
 		//-------------------------------------------------
