@@ -646,55 +646,77 @@ bool CSG_GDAL_DataSet::Get_MetaData_Item(int i, const char *pszName, CSG_String 
 //---------------------------------------------------------
 CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 {
-	GDALRasterBand	*pBand;
-
-	if( is_Reading() && (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
+	//-------------------------------------------------
+	if( !is_Reading() )
 	{
-		CSG_String	Name, Description;
-
-		CSG_Grid	*pGrid	= SG_Create_Grid(gSG_GDAL_Drivers.Get_SAGA_Type(pBand->GetRasterDataType()),
-			Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin()
-		);
-
-		//-------------------------------------------------
-		pGrid->Set_Name			(Get_Name       (i));
-		pGrid->Set_Description	(Get_Description(i));
-		pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
-		pGrid->Set_NoData_Value	(pBand->GetNoDataValue());
-		pGrid->Set_ZFactor		(pBand->GetScale());
-
-		pGrid->Get_Projection().Create(Get_Projection(), SG_PROJ_FMT_WKT);
-
-		//-------------------------------------------------
-		Get_MetaData(i, pGrid->Get_MetaData());
-
-		//-------------------------------------------------
-		double		zMin, zScale, *zLine;
-
-		zMin	= pBand->GetOffset();
-		zScale	= pBand->GetScale();
-		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
-
-		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-		{
-			int	yy	= m_bTransform ? y : Get_NY() - 1 - y;
-
-			if( pBand->RasterIO(GF_Read, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0) == CE_None )
-			{
-				for(int x=0; x<Get_NX(); x++)
-				{
-				//	double	NaN	= 0.0;	NaN	= -1.0 / NaN;	if( NaN == zLine[x] )	pGrid->Set_NoData(x, yy); else
-					pGrid->Set_Value (x, yy, zMin + zScale * zLine[x]);
-				}
-			}
-		}
-
-		SG_Free(zLine);
-
-		return( pGrid );
+		return( NULL );
 	}
 
-	return( NULL );
+	//-------------------------------------------------
+	GDALRasterBand	*pBand	= m_pDataSet->GetRasterBand(i + 1);
+
+	if( !pBand )
+	{
+		return( NULL );
+	}
+
+	//-------------------------------------------------
+	int		bSuccess;
+
+	double	zScale	= pBand->GetScale (&bSuccess);	if( !bSuccess || !zScale )	zScale	= 1.0;
+	double	zMin	= pBand->GetOffset(&bSuccess);	if( !bSuccess            )	zMin	= 0.0;
+
+	TSG_Data_Type	Type	= gSG_GDAL_Drivers.Get_SAGA_Type(pBand->GetRasterDataType());
+
+	if( SG_Get_Significant_Decimals(zScale) > 0 && (Type != SG_DATATYPE_Float || Type != SG_DATATYPE_Double) )
+	{
+		Type	= SG_DATATYPE_Float;	// force to float, we will rescale data in any case!
+	}
+
+	//-------------------------------------------------
+	CSG_Grid	*pGrid	= SG_Create_Grid(Type, Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin());
+
+	if( !pGrid )
+	{
+		return( NULL );
+	}
+
+	//-------------------------------------------------
+	pGrid->Set_Name			(Get_Name       (i));
+	pGrid->Set_Description	(Get_Description(i));
+	pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
+
+	pBand->GetNoDataValue(&bSuccess);
+
+	if( bSuccess )
+	{
+		pGrid->Set_NoData_Value(pBand->GetNoDataValue(&bSuccess));
+	}
+
+	pGrid->Get_Projection().Create(Get_Projection(), SG_PROJ_FMT_WKT);
+
+	Get_MetaData(i, pGrid->Get_MetaData());
+
+	//-------------------------------------------------
+	double	*zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		int	yy	= m_bTransform ? y : Get_NY() - 1 - y;
+
+		if( pBand->RasterIO(GF_Read, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0) == CE_None )
+		{
+			for(int x=0; x<Get_NX(); x++)
+			{
+			//	double	NaN	= 0.0;	NaN	= -1.0 / NaN;	if( NaN == zLine[x] )	pGrid->Set_NoData(x, yy); else
+				pGrid->Set_Value(x, yy, zMin + zScale * zLine[x]);
+			}
+		}
+	}
+
+	SG_Free(zLine);
+
+	return( pGrid );
 }
 
 //---------------------------------------------------------
