@@ -86,9 +86,20 @@ protected:
 
 private:
 
+	bool						m_bSaveFile;
+
+	CSG_String					m_SavePath;
+
+	CSG_Parameter_Grid_List		*m_pGrids;
+
+
+	bool						Load					(CSG_GDAL_DataSet &DataSet, const CSG_String &Description);
+
 	const char *				Get_Variable			(CSG_GDAL_DataSet &DataSet, int iBand);
 	const char *				Get_Time				(CSG_GDAL_DataSet &DataSet, int iBand);
 	const char *				Get_Level				(CSG_GDAL_DataSet &DataSet, int iBand);
+
+	CSG_String					Get_Time_String			(const CSG_String &Time, int Format);
 
 };
 

@@ -59,7 +59,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include "gdal_driver.h"
 
 
 //---------------------------------------------------------
@@ -76,7 +76,11 @@ CSG_String Get_Info(int i)
 		return( _TL("SAGA User Group Associaton (c) 2008" ));
 
 	case MLB_INFO_Description:
-		return( _TL("SAGA interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL).") );
+		return( CSG_String::Format(SG_T("%s\n%s %s\n%s: %s"),
+			_TL("Interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL)."),
+			_TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str(),
+			_TL("Homepage"), SG_T("<a target=\"_blank\" href=\"http://www.gdal.org/\">www.gdal.org</a>\n")
+		));
 
 	case MLB_INFO_Version:
 		return( SG_T("2.0") );

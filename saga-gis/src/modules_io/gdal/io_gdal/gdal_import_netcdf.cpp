@@ -69,6 +69,9 @@
 //---------------------------------------------------------
 CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("GDAL: Import NetCDF"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2012"));
@@ -98,62 +101,16 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 		), NULL, false
 	);
 
-	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-	CSG_Parameters	*pParameters	= Add_Parameters("BANDS", _TL("Import NetCDF"), _TL(""));
+	pNode	= Parameters.Add_Value(
+		NULL	, "SAVE_FILE"	, _TL("Save to File"),
+		_TL("save output to file instead of memory"),
+		PARAMETER_TYPE_Bool, false
+	);
 
-	pParameters->Add_Info_String(
-		NULL	, "METADATA"	, _TL("Metadata"),
+	Parameters.Add_FilePath(
+		pNode	, "SAVE_PATH"	, _TL("Save to Path"),
 		_TL(""),
-		"", true
-	);
-
-	pNode	= pParameters->Add_Node(
-		NULL	, "VARS_NODE"	, _TL("Variables"),
-		_TL("")
-	);
-
-	pParameters->Add_Value(
-		pNode	, "VARS_ALL"	, _TL("All"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	pParameters->Add_Parameters(
-		pNode	, "VARS"		, _TL("Selection"),
-		_TL("")
-	);
-
-	pNode	= pParameters->Add_Node(
-		NULL	, "TIME_NODE"	, _TL("Times"),
-		_TL("")
-	);
-
-	pParameters->Add_Value(
-		pNode	, "TIME_ALL"	, _TL("All"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	pParameters->Add_Parameters(
-		pNode	, "TIME"		, _TL("Selection"),
-		_TL("")
-	);
-
-	pNode	= pParameters->Add_Node(
-		NULL	, "LEVEL_NODE"	, _TL("Levels"),
-		_TL("")
-	);
-
-	pParameters->Add_Value(
-		pNode	, "LEVEL_ALL"	, _TL("All"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	pParameters->Add_Parameters(
-		pNode	, "LEVEL"		, _TL("Selection"),
-		_TL("")
+		NULL, NULL, true, true
 	);
 }
 
@@ -167,17 +124,22 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 //---------------------------------------------------------
 int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("VARS_ALL" )) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_FILE")) )
+	{
+		pParameters->Get_Parameter("SAVE_PATH")->Set_Enabled(pParameter->asBool());
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("VARS_ALL" )) && pParameters->Get_Parameter("VARS") )
 	{
 		pParameters->Get_Parameter("VARS" )->Set_Enabled(!pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TIME_ALL" )) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TIME_ALL" )) && pParameters->Get_Parameter("TIME") )
 	{
 		pParameters->Get_Parameter("TIME" )->Set_Enabled(!pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LEVEL_ALL")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LEVEL_ALL")) && pParameters->Get_Parameter("LEVEL") )
 	{
 		pParameters->Get_Parameter("LEVEL")->Set_Enabled(!pParameter->asBool());
 	}
@@ -227,20 +189,43 @@ const char * CGDAL_Import_NetCDF::Get_Level(CSG_GDAL_DataSet &DataSet, int iBand
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String CGDAL_Import_NetCDF::Get_Time_String(const CSG_String &Time, int Format)
+{
+	switch( Format )
+	{
+	case  0:	return( CSG_Time_Converter::Get_String(Time.asInt(), SG_TIME_FMT_Hours_AD) );
+
+	default:	return( Time );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGDAL_Import_NetCDF::On_Execute(void)
 {
-	const char				*s;
-	int						i;
-	TSG_Time_Format			tFmt	= SG_TIME_FMT_Hours_AD;
-	CSG_Parameters			&P		= *Get_Parameters("BANDS"), *pVars, *pTime, *pLevel;
-	CSG_Parameter_Grid_List	*pGrids;
+	//-----------------------------------------------------
+	m_pGrids	= Parameters("GRIDS")->asGridList();
+	m_pGrids	->Del_Items();
+
+	if( (m_bSaveFile = Parameters("SAVE_FILE")->asBool()) == true )
+	{
+		m_SavePath	= Parameters("SAVE_PATH")->asString();
+
+		if( !SG_Dir_Exists(m_SavePath) )
+		{
+			m_SavePath	= SG_File_Get_Path(Parameters("FILE")->asString());
+		}
+	}
+
+	//-----------------------------------------------------
 	CSG_GDAL_DataSet		DataSet;
 
-	//-----------------------------------------------------
-	pGrids	= Parameters("GRIDS")->asGridList();
-	pGrids	->Del_Items();
-
-	//-----------------------------------------------------
 	if( !DataSet.Open_Read(Parameters("FILE")->asString()) )
 	{
 		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not open file"), Parameters("FILE")->asString()));
@@ -258,105 +243,141 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_MetaData	MetaData;
 
-	DataSet.Get_MetaData(MetaData);
-
-	P("METADATA")->Set_Value(MetaData.asText());
-
-	//-----------------------------------------------------
 	if( DataSet.Get_Count() <= 0 && DataSet.Get_MetaData(MetaData, "SUBDATASETS") )
 	{
-//		DataSet.Get_MetaData("SUBDATASETS")
+		int	i, n;
+
+		for(i=0, n=0; i==n; i++)
+		{
+			CSG_MetaData	*pName	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_NAME"), i + 1));
+			CSG_MetaData	*pDesc	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_DESC"), i + 1));
+
+			if( pName && DataSet.Open_Read(pName->Get_Content()) && Load(DataSet, pDesc ? pDesc->Get_Content() : _TL("unknown")) )
+			{
+				n++;
+			}
+		}
+
+		return( n > 0 );
+	}
+
+	return( Load(DataSet, SG_File_Get_Name(Parameters("FILE")->asString(), false)) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Description)
+{
+	const char	*s;
+	int			i;
+
+	//-----------------------------------------------------
+	CSG_MetaData	MetaData, *pChild;
+
+	DataSet.Get_MetaData(MetaData);
+
+	//-----------------------------------------------------
+	int	tFmt	= -1;
+
+	if( (pChild = MetaData.Get_Child("time#units")) != NULL )
+	{
+		if( pChild->Get_Content().Find("hours since 1-1-1 00:00:0.0") >= 0 )
+		{
+			tFmt	= 0;
+		}
 	}
 
 	//-----------------------------------------------------
-	(pVars	= P("VARS" )->asParameters())->Del_Parameters();
-	(pTime	= P("TIME" )->asParameters())->Del_Parameters();
-	(pLevel	= P("LEVEL")->asParameters())->Del_Parameters();
+	CSG_Parameters	P, *pVars = NULL, *pTime = NULL, *pLevel = NULL;
 
+	//-----------------------------------------------------
+	if( SG_UI_Get_Window_Main() )
+	{
+		CSG_Parameter	*pNode;
+
+		P.Create(this, _TL("Import NetCDF"), _TL(""));
+		P.Set_Callback_On_Parameter_Changed(Get_Parameter_Changed());
+
+		P.Add_Info_String(NULL , "METADATA", _TL("Metadata"), _TL(""), MetaData.asText(), true);
+
+		pNode	= P.Add_Value     (NULL , "VARS_ALL"  , _TL("All Variables"), _TL(""), PARAMETER_TYPE_Bool, true);
+		pVars	= P.Add_Parameters(pNode, "VARS"      , _TL("Selection")    , _TL(""))->asParameters();
+
+		pNode	= P.Add_Value     (NULL , "TIME_ALL"  , _TL("All Times")    , _TL(""), PARAMETER_TYPE_Bool, true);
+		pTime	= P.Add_Parameters(pNode, "TIME"      , _TL("Selection")    , _TL(""))->asParameters();
+
+		pNode	= P.Add_Value     (NULL , "LEVEL_ALL" , _TL("All Levels")   , _TL(""), PARAMETER_TYPE_Bool, true);
+		pLevel	= P.Add_Parameters(pNode, "LEVEL"     , _TL("Selection")    , _TL(""))->asParameters();
+
+		for(i=0; i<DataSet.Get_Count() && Set_Progress(i, DataSet.Get_Count()); i++)
+		{
+			if( (s = Get_Variable(DataSet, i)) != NULL && !pVars ->Get_Parameter(s) )
+				pVars  ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
+
+			if( (s = Get_Time    (DataSet, i)) != NULL && !pTime ->Get_Parameter(s) )
+				pTime  ->Add_Value(NULL, s, Get_Time_String(s, tFmt), _TL(""), PARAMETER_TYPE_Bool, false);
+
+			if( (s = Get_Level   (DataSet, i)) != NULL && !pLevel->Get_Parameter(s) )
+				pLevel ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
+		}
+
+		P("VARS_ALL" )->Set_Enabled(pVars ->Get_Count() > 1);
+		P("TIME_ALL" )->Set_Enabled(pTime ->Get_Count() > 1);
+		P("LEVEL_ALL")->Set_Enabled(pLevel->Get_Count() > 1);
+
+		//-------------------------------------------------
+		if( !Dlg_Parameters(&P, CSG_String::Format(SG_T("%s: %s"), _TL("Import NetCDF"), Description.c_str())) )
+		{
+			return( false );
+		}
+
+		//-------------------------------------------------
+		if( !P("VARS_ALL" )->is_Enabled() || P("VARS_ALL" )->asBool() )	pVars	= NULL;
+		if( !P("TIME_ALL" )->is_Enabled() || P("TIME_ALL" )->asBool() )	pTime	= NULL;
+		if( !P("LEVEL_ALL")->is_Enabled() || P("LEVEL_ALL")->asBool() )	pLevel	= NULL;
+	}
+
+	//-----------------------------------------------------
 	for(i=0; i<DataSet.Get_Count() && Set_Progress(i, DataSet.Get_Count()); i++)
 	{
-		if( (s = Get_Variable(DataSet, i)) != NULL && !pVars ->Get_Parameter(s) )
-			pVars  ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
+		CSG_Grid		*pGrid;
+		CSG_Parameter	*pLoad;
 
-		if( (s = Get_Time    (DataSet, i)) != NULL && !pTime ->Get_Parameter(s) )
-			pTime  ->Add_Value(NULL, s, CSG_Time_Converter::Get_String(atoi(s), tFmt), _TL(""), PARAMETER_TYPE_Bool, false);
-
-		if( (s = Get_Level   (DataSet, i)) != NULL && !pLevel->Get_Parameter(s) )
-			pLevel ->Add_Value(NULL, s, s, _TL(""), PARAMETER_TYPE_Bool, false);
-	}
-
-	//-----------------------------------------------------
-	if( pVars ->Get_Count() <= 0 )
-	{
-		if( !Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("no variable information"), Parameters("FILE")->asString())) )
-		{
-			return( false );
-		}
-
-		pVars	= NULL;
-	}
-
-	if( pTime ->Get_Count() <= 0 )
-	{
-		if( !Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("no time stamp information"), Parameters("FILE")->asString())) )
-		{
-			return( false );
-		}
-
-		pTime	= NULL;
-	}
-
-	if( pLevel->Get_Count() <= 0 )
-	{
-		if( !Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("no level information"), Parameters("FILE")->asString())) )
-		{
-			return( false );
-		}
-
-		pLevel	= NULL;
-	}
-
-	//-----------------------------------------------------
-	if( !Dlg_Parameters(&P, _TL("Import NetCDF")) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( P("VARS_ALL" )->asBool() )	pVars	= NULL;
-	if( P("TIME_ALL" )->asBool() )	pTime	= NULL;
-	if( P("LEVEL_ALL")->asBool() )	pLevel	= NULL;
-
-	//-----------------------------------------------------
-	for(i=0; i<DataSet.Get_Count() && Set_Progress(i, DataSet.Get_Count()); i++)
-	{
-		CSG_Parameter	*pParm;
-
-		if( (!pVars  || (!!(pParm = (*pVars )(Get_Variable(DataSet, i))) && pParm->asBool()))
-		&&	(!pTime  || (!!(pParm = (*pTime )(Get_Time    (DataSet, i))) && pParm->asBool()))
-		&&	(!pLevel || (!!(pParm = (*pLevel)(Get_Level   (DataSet, i))) && pParm->asBool())) )
+		if( (!pVars  || (!!(pLoad = (*pVars )(Get_Variable(DataSet, i))) && pLoad->asBool()))
+		&&	(!pTime  || (!!(pLoad = (*pTime )(Get_Time    (DataSet, i))) && pLoad->asBool()))
+		&&	(!pLevel || (!!(pLoad = (*pLevel)(Get_Level   (DataSet, i))) && pLoad->asBool())) )
 		{
 			SG_UI_Progress_Lock(true);
 
-			CSG_Grid	*pGrid	= DataSet.Read(i);
-
-			if( pGrid )
+			if( (pGrid = DataSet.Read(i)) != NULL )
 			{
-				CSG_String	Name(_TL("unknown"));	if( (s = Get_Variable(DataSet, i)) != NULL )	Name	= s;
-
-				if( (s = Get_Time (DataSet, i)) != NULL && *s )
-				{
-					Name	+= " [" + CSG_Time_Converter::Get_String(atoi(s), tFmt) + "]";
-				}
-
-				if( (s = Get_Level(DataSet, i)) != NULL && *s )
-				{
-					Name	+= " [" + CSG_String(s) + "]";
-				}
+				CSG_String	Name(_TL("unknown"));
+				
+				if( (s = Get_Variable(DataSet, i)) != NULL && *s )	Name	= s;
+				if( (s = Get_Time    (DataSet, i)) != NULL && *s )	Name	+= " [" + Get_Time_String(s, tFmt) + "]";
+				if( (s = Get_Level   (DataSet, i)) != NULL && *s )	Name	+= " [" + CSG_String(s) + "]";
 
 				pGrid->Set_Name(Name);
 
-				pGrids->Add_Item(pGrid);
+				if( m_bSaveFile )
+				{
+					Name.Replace(".", "_");
+					Name.Replace(":", "-");
+
+					pGrid->Save(SG_File_Make_Path(m_SavePath, Name));
+
+					delete(pGrid);
+				}
+				else
+				{
+					m_pGrids->Add_Item(pGrid);
+				}
 			}
 
 			SG_UI_Progress_Lock(false);
