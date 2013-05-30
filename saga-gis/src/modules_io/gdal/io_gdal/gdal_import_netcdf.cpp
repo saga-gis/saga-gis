@@ -249,12 +249,21 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 		for(i=0, n=0; i==n; i++)
 		{
-			CSG_MetaData	*pName	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_NAME"), i + 1));
-			CSG_MetaData	*pDesc	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_DESC"), i + 1));
+			CSG_MetaData	*pEntry	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_NAME"), i + 1));
 
-			if( pName && DataSet.Open_Read(pName->Get_Content()) && Load(DataSet, pDesc ? pDesc->Get_Content() : _TL("unknown")) )
+			if( pEntry && DataSet.Open_Read(pEntry->Get_Content()) )
 			{
-				n++;
+				CSG_String	Desc	= _TL("unknown");
+
+				if( (pEntry = MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_DESC"), i + 1))) != NULL )
+				{
+					Desc	= pEntry->Get_Content();
+				}
+
+				if( Load(DataSet, Desc) )
+				{
+					n++;
+				}
 			}
 		}
 
