@@ -88,16 +88,16 @@ CTopographic_Openness::CTopographic_Openness(void)
 		"Anders, N. S. / Seijmonsbergen, A. C. / Bouten, W. (2009): "
 		"Multi-Scale and Object-Oriented Image Analysis of High-Res LiDAR Data for Geomorphological Mapping in Alpine Mountains. "
 		"Proceedings of Geomorphometry 2009. "
-		"<a target=\"_blank\" href=\"http://geomorphometry.org/system/files/anders2009geomorphometry.pdf\">online at geomorphometry.org</a>.\n"
+		"<a target=\"_blank\" href=\"http://geomorphometry.org/system/files/anders2009geomorphometry.pdf\">online at geomorphometry.org</a>.\n\n"
 
 		"Prima, O.D.A / Echigo, A. / Yokoyama, R. / Yoshida, T. (2006): "
 		"Supervised landform classification of Northeast Honshu from DEM-derived thematic maps. "
-		"Geomorphology, vol.78, pp.373–386.\n"
+		"Geomorphology, vol.78, pp.373-386.\n\n"
 
 		"Yokoyama, R. / Shirasawa, M. / Pike, R.J. (2002): "
 		"Visualizing topography by openness: A new application of image processing to digital elevation models. "
 		"Photogrammetric Engineering and Remote Sensing, Vol.68, pp.251-266. "
-		"<a target=\"_blank\" href=\"http://www.asprs.org/a/publications/pers/2002journal/march/2002_mar_257-265.pdf\">online at ASPRS</a>.\n"
+		"<a target=\"_blank\" href=\"http://www.asprs.org/a/publications/pers/2002journal/march/2002_mar_257-265.pdf\">online at ASPRS</a>.\n\n"
 	));
 
 	//-----------------------------------------------------
@@ -322,8 +322,8 @@ bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Max
 
 			if( pGrid->Get_Value(q, d) )
 			{
-				d	= (d - z) / pGrid->Get_Cellsize(); 
-			
+				d	= (d - z) / pGrid->Get_Cellsize();
+
 				if( bOkay == false )
 				{
 					bOkay	= true;
@@ -395,7 +395,7 @@ bool CTopographic_Openness::Get_Angle_Sectoral(int x, int y, int i, double &Max,
 		if( m_pDEM->is_InGrid(x, y) )
 		{
 			d	= (m_pDEM->asDouble(x, y) - z) / iDistance;
-			
+
 			if( bOkay == false )
 			{
 				bOkay		= true;
