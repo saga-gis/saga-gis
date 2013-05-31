@@ -243,14 +243,7 @@ void CVIEW_Map::On_Size(wxSizeEvent &event)
 	int		minSize	= 2 * m_Ruler_Size + 10;
 	wxSize	Size(GetClientSize()), fSize(GetSize().x - Size.x, GetSize().y - Size.y);
 
-	if( Size.x < minSize || Size.y < minSize )
-	{
-		SetSize(wxSize(
-			fSize.x + (Size.x < minSize ? minSize : Size.x),
-			fSize.y + (Size.y < minSize ? minSize : Size.y)
-		));
-	}
-	else
+	if( Size.x >= minSize && Size.y >= minSize )
 	{
 		_Set_Positions();
 
