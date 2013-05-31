@@ -375,17 +375,13 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_NAME) != 0 )
 	{
-		SEPARATE;
-
-		s	+= CSG_String::Format(SG_T("%s"), Get_Name());
+		SEPARATE;	s	+= CSG_String::Format(SG_T("%s"), Get_Name());
 	}
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_TYPE) != 0 )
 	{
-		SEPARATE;
-
-		s	+= CSG_String::Format(SG_T("%s"), Get_Type_Name().c_str());
+		SEPARATE;	s	+= CSG_String::Format(SG_T("%s"), Get_Type_Name().c_str());
 
 		if( is_DataObject() || is_DataObject_List() )
 		{
@@ -409,9 +405,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_OPTIONAL) != 0 && is_Optional() )
 	{
-		SEPARATE;
-
-		s	+= CSG_String::Format(SG_T("%s"), _TL("optional"));
+		SEPARATE;	s	+= CSG_String::Format(SG_T("%s"), _TL("optional"));
 	}
 
 	//-----------------------------------------------------
@@ -423,9 +417,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			break;
 
 		case PARAMETER_TYPE_Choice:
-			SEPARATE;
-
-			s	+= CSG_String::Format(SG_T("%s:"), _TL("Available Choices"));
+			SEPARATE;	s	+= CSG_String::Format(SG_T("%s:"), _TL("Available Choices"));
 
 			for(i=0; i<asChoice()->Get_Count(); i++)
 			{
@@ -434,30 +426,31 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			break;
 
 		case PARAMETER_TYPE_Int:
+			if( asValue()->has_Minimum() )
+			{
+				SEPARATE;	s	+= CSG_String::Format(SG_T("%s: %d"), _TL("Minimum"), (int)asValue()->Get_Minimum());
+			}
+			if( asValue()->has_Maximum() )
+			{
+				SEPARATE;	s	+= CSG_String::Format(SG_T("%s: %d"), _TL("Maximum"), (int)asValue()->Get_Maximum());
+			}
+			break;
+
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
 //		case PARAMETER_TYPE_Range:
-			if( asValue()->has_Minimum() && asValue()->has_Maximum() )
+			if( asValue()->has_Minimum() )
 			{
-				SEPARATE;
-				s	+= CSG_String::Format(SG_T("%s: %f - %f"), _TL("Value Range"), asValue()->Get_Minimum(), asValue()->Get_Maximum());
+				SEPARATE;	s	+= CSG_String::Format(SG_T("%s: %f"), _TL("Minimum"), asValue()->Get_Minimum());
 			}
-			else if( asValue()->has_Minimum() )
+			if( asValue()->has_Maximum() )
 			{
-				SEPARATE;
-				s	+= CSG_String::Format(SG_T("%s: %f"), _TL("Minimum"), asValue()->Get_Minimum());
-			}
-			else if( asValue()->has_Maximum() )
-			{
-				SEPARATE;
-				s	+= CSG_String::Format(SG_T("%s: %f"), _TL("Maximum"), asValue()->Get_Maximum());
+				SEPARATE;	s	+= CSG_String::Format(SG_T("%s: %f"), _TL("Maximum"), asValue()->Get_Maximum());
 			}
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			SEPARATE;
-
-			s	+= CSG_String::Format(SG_T("%d %s:%s"), asTable()->Get_Field_Count(), _TL("Fields"), Separator);
+			SEPARATE;	s	+= CSG_String::Format(SG_T("%d %s:%s"), asTable()->Get_Field_Count(), _TL("Fields"), Separator);
 
 			for(i=0; i<asTable()->Get_Field_Count(); i++)
 			{
@@ -466,9 +459,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 			break;
 
 		case PARAMETER_TYPE_Parameters:
-			SEPARATE;
-
-			s	+= CSG_String::Format(SG_T("%d %s:%s"), asParameters()->Get_Count(), _TL("Parameters"), Separator);
+			SEPARATE;	s	+= CSG_String::Format(SG_T("%d %s:%s"), asParameters()->Get_Count(), _TL("Parameters"), Separator);
 
 			for(i=0; i<asParameters()->Get_Count(); i++)
 			{
@@ -479,9 +470,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 		if( !m_pData->Get_Default().is_Empty() )
 		{
-			SEPARATE;
-
-			s	+= CSG_String::Format(SG_T("%s: %s%s"), _TL("Default"), m_pData->Get_Default().c_str(), Separator);
+			SEPARATE;	s	+= CSG_String::Format(SG_T("%s: %s"), _TL("Default"), m_pData->Get_Default().c_str());
 		}
 	}
 
