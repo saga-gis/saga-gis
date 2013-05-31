@@ -718,9 +718,10 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 		{
 			switch( WKT[i] )
 			{
-			default:						Key		+= WKT[i];	break;
-			case SG_T('['): case SG_T('('):	l		 = 1;		break;
-			case SG_T(']'): case SG_T(')'):	return( false );
+			default:		Key	+= WKT[i];	break;
+			case SG_T(' '):	break;
+			case SG_T('['): case SG_T('('):	l	 = 1;	break;
+			case SG_T(')'): case SG_T(']'):	return( false );
 			}
 		}
 		else		// read content
@@ -729,11 +730,11 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 
 			switch( WKT[i] )
 			{
-			default:						bAdd	= true;		break;
-			case SG_T('\"'):				bAdd	= false;	break;
-			case SG_T('['): case SG_T('('):	bAdd	= ++l > 1;	break;
-			case SG_T(']'): case SG_T(')'):	bAdd	= l-- > 1;	break;
-			case SG_T(','):	if( !(bAdd = l > 1) )	Content.Add(SG_T(""));	break;
+			default:							bAdd	= true;		break;
+			case SG_T('\"'): case SG_T(' '):	bAdd	= false;	break;
+			case SG_T('[') : case SG_T('('):	bAdd	= ++l > 1;	break;
+			case SG_T(']') : case SG_T(')'):	bAdd	= l-- > 1;	break;
+			case SG_T(',') : if( !(bAdd = l > 1) )	Content.Add(SG_T(""));	break;
 			}
 
 			if( bAdd )

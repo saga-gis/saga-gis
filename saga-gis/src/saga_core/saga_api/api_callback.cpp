@@ -395,7 +395,7 @@ void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 	}
 	else
 	{
-		SG_PRINTF(SG_T("%s: %s\n"), _TL("Error"), Message.c_str());
+		SG_FPRINTF(stderr, SG_T("%s: %s\n"), _TL("Error"), Message.c_str());
 	}
 }
 
