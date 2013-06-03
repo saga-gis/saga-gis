@@ -387,8 +387,8 @@ void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParame
 			break;
 
 		case PARAMETER_TYPE_Range:
-			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, "MIN"), p->asRange()->Get_LoVal());
-			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, "MAX"), p->asRange()->Get_HiVal());
+			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T("MIN")), p->asRange()->Get_LoVal());
+			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T("MAX")), p->asRange()->Get_HiVal());
 			break;
 
 		case PARAMETER_TYPE_String:
@@ -404,11 +404,11 @@ void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParame
 		case PARAMETER_TYPE_Grid_System:
 			if( p->Get_Children_Count() == 0 )
 			{
-				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, "NX"), p->asGrid_System()->Get_NX());
-				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, "NY"), p->asGrid_System()->Get_NY());
-				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p,  "X"), p->asGrid_System()->Get_XMin());
-				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p,  "Y"), p->asGrid_System()->Get_YMin());
-				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p,  "D"), p->asGrid_System()->Get_Cellsize());
+				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, SG_T("NX")), p->asGrid_System()->Get_NX());
+				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, SG_T("NY")), p->asGrid_System()->Get_NY());
+				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T( "X")), p->asGrid_System()->Get_XMin());
+				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T( "Y")), p->asGrid_System()->Get_YMin());
+				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T( "D")), p->asGrid_System()->Get_Cellsize());
 			}
 			break;
 
