@@ -81,19 +81,24 @@ class CGrid_Values_AddTo_Shapes : public CSG_Module
 public:
 	CGrid_Values_AddTo_Shapes(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Grid Values") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Grid Values") );	}
 
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool						Get_Data_Point		(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid, int Interpolation);
-	bool						Get_Data_Line		(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid);
-	bool						Get_Data_Polygon	(double &Value, CSG_Shape *pShape, CSG_Grid *pGrid);
+	int							m_Interpolation;
+
+
+	void						Get_Data_Point			(CSG_Simple_Statistics &Statistics, CSG_Shape *pShape, CSG_Grid *pGrid);
+	void						Get_Data_Line			(CSG_Simple_Statistics &Statistics, CSG_Shape *pShape, CSG_Grid *pGrid);
+	void						Get_Data_Polygon		(CSG_Simple_Statistics &Statistics, CSG_Shape *pShape, CSG_Grid *pGrid);
 
 };
 
