@@ -648,9 +648,6 @@ CSG_Parameter * CSG_Parameters::Add_Parameters(CSG_Parameter *pParent, const CSG
 //---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
-	CSG_Parameter		*pParameter;
-	CSG_Parameter_Value	*pData;
-
 	switch( Type )	// Check if Type is valid...
 	{
 	case PARAMETER_TYPE_Bool:
@@ -665,27 +662,31 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_Str
 		break;
 	}
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, Type, bInformation ? PARAMETER_INFORMATION : 0);
+	CSG_Parameter	*pParameter	= _Add(pParent, Identifier, Name, Description, Type, bInformation ? PARAMETER_INFORMATION : 0);
 
 	if( !bInformation )
 	{
-		switch( Type )
+		if( Type == PARAMETER_TYPE_Int
+		||  Type == PARAMETER_TYPE_Double
+		||  Type == PARAMETER_TYPE_Degree )
 		{
-		default:
-			break;
+			((CSG_Parameter_Value *)pParameter->m_pData)->Set_Minimum(Minimum, bMinimum);
+			((CSG_Parameter_Value *)pParameter->m_pData)->Set_Maximum(Maximum, bMaximum);
+		}
 
-		case PARAMETER_TYPE_Int:
-		case PARAMETER_TYPE_Double:
-		case PARAMETER_TYPE_Degree:
-			pData		= (CSG_Parameter_Value *)pParameter->m_pData;
-			pData->Set_Minimum(Minimum, bMinimum);
-			pData->Set_Maximum(Maximum, bMaximum);
-			break;
+		if( Type == PARAMETER_TYPE_Bool
+		||  Type == PARAMETER_TYPE_Int
+		||  Type == PARAMETER_TYPE_Color )
+		{
+			pParameter->Set_Default((int)Value);
+		}
+		else
+		{
+			pParameter->Set_Default(     Value);
 		}
 	}
 
-	pParameter->Set_Value  (Value);
-	pParameter->Set_Default(Value);
+	pParameter->Set_Value(Value);
 
 	return( pParameter );
 }
