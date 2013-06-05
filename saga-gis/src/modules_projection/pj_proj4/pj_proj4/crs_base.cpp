@@ -99,11 +99,31 @@ CCRS_Base::CCRS_Base(void)
 	if( SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_Parameters(
-			pNode_0	, "CRS_DIALOG"		, _TL("Dialog"),
+			pNode_0	, "CRS_DIALOG"		, _TL("User Defined"),
 			_TL("")
 		);
 
 		Set_User_Parameters(Parameters("CRS_DIALOG")->asParameters());
+	}
+
+	//-----------------------------------------------------
+	if( SG_UI_Get_Window_Main() )
+	{
+		pNode_1	= Parameters.Add_Parameters(pNode_0, "CRS_GRID"  , _TL("Loaded Grid")  , _TL(""));
+
+		pNode_1->asParameters()->Add_Grid(
+			NULL	, "PICK"	, _TL("Grid"),
+			_TL(""),
+			PARAMETER_INPUT_OPTIONAL, false
+		);
+
+		pNode_1	= Parameters.Add_Parameters(pNode_0, "CRS_SHAPES", _TL("Loaded Shapes"), _TL(""));
+
+		pNode_1->asParameters()->Add_Shapes(
+			NULL	, "PICK"	, _TL("Shapes"),
+			_TL(""),
+			PARAMETER_INPUT_OPTIONAL
+		);
 	}
 
 	//-----------------------------------------------------
@@ -139,24 +159,6 @@ CCRS_Base::CCRS_Base(void)
 			pNode_1	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
 			_TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
-		);
-	}
-
-	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
-	{
-		pNode_0	= Parameters.Add_Node(NULL, "NODE_DATA", _TL("Pick CRS from loaded data set"), _TL(""));
-
-		Parameters.Add_Grid(
-			pNode_0	, "CRS_GRID"		, _TL("Grid"),
-			_TL(""),
-			PARAMETER_INPUT_OPTIONAL, false
-		);
-
-		Parameters.Add_Shapes(
-			pNode_0	, "CRS_SHAPES"		, _TL("Shapes"),
-			_TL(""),
-			PARAMETER_INPUT_OPTIONAL
 		);
 	}
 
@@ -229,21 +231,21 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_GRID"))
 	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_SHAPES")) )
 	{
-		if( pParameter->asDataObject() && pParameter->asDataObject()->Get_Projection().is_Okay() )
+		CSG_Data_Object	*pPick	= pParameter->asParameters()->Get_Parameter("PICK")->asDataObject();
+
+		if( pPick && pPick->Get_Projection().is_Okay() )
 		{
-			if( pParameter->asDataObject()->Get_Projection().Get_EPSG() > 0 )
+			if( pPick->Get_Projection().Get_EPSG() > 0 )
 			{
-				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_EPSG());
+				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(pPick->Get_Projection().Get_EPSG());
 
 				On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
 			}
 			else
 			{
-				pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_Proj4().c_str());
+				pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(pPick->Get_Projection().Get_Proj4().c_str());
 			}
 		}
-
-		pParameter->Set_Value((void *)NULL);
 	}
 
 	//-----------------------------------------------------
