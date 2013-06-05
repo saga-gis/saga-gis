@@ -294,25 +294,108 @@ bool _SG_Polygon_Clip(ClipperLib::ClipType ClipType, CSG_Shape *pPolygon, CSG_Sh
 //---------------------------------------------------------
 bool	SG_Polygon_Intersection	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
 {
-	return( _SG_Polygon_Clip(ClipperLib::ctIntersection	, pPolygon, pClip, pResult) );
+	switch( pClip->Intersects(pPolygon) )
+	{
+	case INTERSECTION_None:
+		return( false );
+
+	case INTERSECTION_Identical:
+	case INTERSECTION_Contains:
+		if( pResult )	pResult->Assign(pPolygon, false);
+		return( true );
+
+	case INTERSECTION_Contained:
+		if( pResult )	pResult ->Assign(pClip  , false);
+		else			pPolygon->Assign(pClip  , false);
+		return( true );
+
+	case INTERSECTION_Overlaps: default:
+		return( _SG_Polygon_Clip(ClipperLib::ctIntersection	, pPolygon, pClip, pResult) );
+	}
 }
 
 //---------------------------------------------------------
 bool	SG_Polygon_Difference	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
 {
-	return( _SG_Polygon_Clip(ClipperLib::ctDifference	, pPolygon, pClip, pResult) );
+	switch( pClip->Intersects(pPolygon) )
+	{
+	case INTERSECTION_Contains:
+	case INTERSECTION_Identical:
+		return( false );
+
+	case INTERSECTION_None:
+		if( pResult )	pResult->Assign(pPolygon, false);
+		return( true );
+
+	case INTERSECTION_Contained:
+	case INTERSECTION_Overlaps: default:
+		return( _SG_Polygon_Clip(ClipperLib::ctDifference	, pPolygon, pClip, pResult) );
+	}
 }
 
 //---------------------------------------------------------
 bool	SG_Polygon_ExclusiveOr	(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
 {
-	return( _SG_Polygon_Clip(ClipperLib::ctXor			, pPolygon, pClip, pResult) );
+	switch( pClip->Intersects(pPolygon) )
+	{
+	case INTERSECTION_Identical:
+		return( false );
+
+	case INTERSECTION_None:
+		if( pResult )	pResult->Assign(pPolygon, false);
+		else			pResult	= pPolygon;
+
+		{	for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
+			{
+				for(int iPoint=0; iPoint<pClip->Get_Point_Count(iPart); iPoint++)
+				{
+					pResult->Add_Point(pClip->Get_Point(iPoint, iPart), jPart);
+				}
+			}
+		}
+
+		return( true );	
+
+	case INTERSECTION_Contained:
+	case INTERSECTION_Contains:
+	case INTERSECTION_Overlaps: default:
+		return( _SG_Polygon_Clip(ClipperLib::ctXor			, pPolygon, pClip, pResult) );
+	}
 }
 
 //---------------------------------------------------------
 bool	SG_Polygon_Union		(CSG_Shape *pPolygon, CSG_Shape *pClip, CSG_Shape *pResult)
 {
-	return( _SG_Polygon_Clip(ClipperLib::ctUnion		, pPolygon, pClip, pResult) );
+	switch( pClip->Intersects(pPolygon) )
+	{
+	case INTERSECTION_Contained:
+	case INTERSECTION_Identical:
+		if( pResult )	pResult->Assign(pPolygon, false);
+		return( true );
+
+	case INTERSECTION_Contains:
+		if( pResult )	pResult ->Assign(pClip  , false);
+		else			pPolygon->Assign(pClip  , false);
+		return( true );
+
+	case INTERSECTION_None:
+		if( pResult )	pResult->Assign(pPolygon, false);
+		else			pResult	= pPolygon;
+
+		{	for(int iPart=0, jPart=pResult->Get_Part_Count(); iPart<pClip->Get_Part_Count(); iPart++, jPart++)
+			{
+				for(int iPoint=0; iPoint<pClip->Get_Point_Count(iPart); iPoint++)
+				{
+					pResult->Add_Point(pClip->Get_Point(iPoint, iPart), jPart);
+				}
+			}
+		}
+
+		return( true );	
+
+	case INTERSECTION_Overlaps: default:
+		return( _SG_Polygon_Clip(ClipperLib::ctUnion		, pPolygon, pClip, pResult) );
+	}
 }
 
 //---------------------------------------------------------

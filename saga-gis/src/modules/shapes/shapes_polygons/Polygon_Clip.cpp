@@ -357,20 +357,19 @@ TSG_Point CPolygon_Clip::Get_Crossing(CSG_Shape_Polygon *pPolygon, const TSG_Poi
 //---------------------------------------------------------
 void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Shapes *pOutputs)
 {
-	for(int iClip=0; iClip<pClips->Get_Count() && Set_Progress(iClip, pClips->Get_Count()); iClip++)
+	for(int iClip=0; iClip<pClips->Get_Count() && Process_Get_Okay(); iClip++)
 	{
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %d/%d"), _TL("clip features"), iClip + 1, pClips->Get_Count()));
+
 		CSG_Shape	*pClip	= pClips->Get_Shape(iClip);
 
-		if( pInputs->Select(pClip->Get_Extent()) )
+		for(int iInput=0; iInput<pInputs->Get_Count() && Set_Progress(iInput, pInputs->Get_Count()); iInput++)
 		{
-			for(int iInput=0; iInput<pInputs->Get_Selection_Count(); iInput++)
-			{
-				CSG_Shape	*pOutput	= pOutputs->Add_Shape(pInputs->Get_Selection(iInput));
+			CSG_Shape	*pOutput	= pOutputs->Add_Shape(pInputs->Get_Shape(iInput));
 
-				if( !SG_Polygon_Intersection(pOutput, pClip) )
-				{
-					pOutputs->Del_Shape(pOutputs->Get_Count() - 1);
-				}
+			if( !SG_Polygon_Intersection(pOutput, pClip) )
+			{
+				pOutputs->Del_Shape(pOutputs->Get_Count() - 1);
 			}
 		}
 	}
