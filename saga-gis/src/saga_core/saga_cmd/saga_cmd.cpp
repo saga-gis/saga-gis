@@ -144,6 +144,9 @@ _except(1)
 #endif
 //---------------------------------------------------------
 
+	fflush(stdout);
+	fflush(stderr);
+
 	wxUninitialize();
 
 	return( bResult ? 0 : 1 );
