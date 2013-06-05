@@ -953,7 +953,10 @@ bool CSG_Parameters_Grid_Target::Add_Grid_Parameter(const CSG_String &Identifier
 			}
 		}
 
-		m_pGrid->Add_Grid(pSystem, Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
+		m_pGrid->Add_Grid(pSystem, Identifier, Name, _TL(""), SG_UI_Get_Window_Main()
+			? (bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT)
+			: (bOptional ? PARAMETER_INPUT_OPTIONAL  : PARAMETER_INPUT ), false
+		);
 	}
 
 	return( true );
@@ -977,7 +980,7 @@ bool CSG_Parameters_Grid_Target::Add_Parameters_Grid(CSG_Parameters *pParameters
 	if( bAddDefaultGrid )
 	{
 		pParameters->Add_Grid(
-			NULL	, "GRID"	, _TL("Grid")		, _TL(""), PARAMETER_OUTPUT, false
+			NULL	, "GRID"	, _TL("Grid")		, _TL(""), SG_UI_Get_Window_Main() ? PARAMETER_OUTPUT : PARAMETER_INPUT, false
 		);
 	}
 
