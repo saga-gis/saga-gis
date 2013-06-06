@@ -106,7 +106,6 @@ private:
 	void						Add_Vertex				(CSG_Shape *pBuffer, const TSG_Point &Center, double Distance, double theta);
 	void						Add_Arc					(CSG_Shape *pBuffer, const TSG_Point &Center, double Distance, double alpha, double beta);
 	void						Add_Arc					(CSG_Shape *pBuffer, const TSG_Point &Center, double Distance, const TSG_Point &A, const TSG_Point &B);
-	void						Add_Line				(CSG_Shape *pBuffer, double Distance, CSG_Shape_Part *pLine, double dArc);
 
 };
 

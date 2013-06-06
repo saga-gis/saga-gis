@@ -241,10 +241,13 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(
-		wxT("SAGA uses the portable C++ GUI toolkit wxWidgets\n")
-		wxT("http://www.wxwidgets.org\n\n")
-		wxVERSION_STRING
+		wxT("SAGA uses the portable C++ GUI toolkit\n")
+		wxVERSION_STRING	wxT("\n")
+		wxT("http://www.wxwidgets.org/\n")
 		wxT("\n")
+		wxT("SAGA API includes the polygon clipping and offsetting library\n")
+		wxT("Clipper 5.1.6\n")
+		wxT("http://sourceforge.net/projects/polyclipping/\n")
 	);
 
 	s.Append(wxT("_______________________\n\n"));
