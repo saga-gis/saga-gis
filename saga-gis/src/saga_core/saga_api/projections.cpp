@@ -1394,10 +1394,10 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 		Northing	= _Proj4_Read_Parameter(Value, Proj4, "south") ? 10000000 : 0;
 
-		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("latitude_of_origin"), 0);
+		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("latitude_of_origin"), 0.0);
 		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("central_meridian")  , Zone * 6.0 - 183);
 		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("scale_factor")      , 0.9996);
-		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("false_easting")     , 500000);
+		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("false_easting")     , 500000.0);
 		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("false_northing")    , Northing);
 		WKT		+= SG_T(",UNIT[\"metre\",1]]");
 
