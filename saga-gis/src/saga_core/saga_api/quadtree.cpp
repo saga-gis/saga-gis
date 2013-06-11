@@ -552,53 +552,55 @@ bool CSG_PRQuadTree::Get_Nearest_Point(double x, double y, TSG_Point &Point, dou
 //---------------------------------------------------------
 CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pItem, double x, double y, double &Distance)	const
 {
+	CSG_PRQuadTree_Leaf	*pLeaf, *pNearest	= NULL;
+
 	if( pItem )
 	{
 		if( pItem->is_Leaf() )
 		{
-			CSG_PRQuadTree_Leaf	*pLeaf	= (CSG_PRQuadTree_Leaf *)pItem;
+			pLeaf	= (CSG_PRQuadTree_Leaf *)pItem;
 
 			double	d	= SG_Get_Distance(x, y, pLeaf->Get_X(), pLeaf->Get_Y(), m_bPolar);
 
 			if( Distance < 0.0 || Distance > d )
 			{
 				Distance	= d;
-
-				return( pLeaf );
+				pNearest	= pLeaf;
 			}
 		}
 		else // if( pItem->is_Node() )
 		{
-			CSG_PRQuadTree_Leaf	*pLeaf, *pNearest	= NULL;
+			int	i;
 
 			if( pItem->Contains(x, y) )
 			{
-				for(int i=0; i<4; i++)
+				for(i=0; i<4; i++)
 				{
-					if( (pLeaf = _Get_Nearest_Point(pItem->asNode()->Get_Child(i), x, y, Distance)) != NULL )
-					{
-						pNearest	= pLeaf;
-					}
-				}
-			}
-			else if(	Distance < 0.0
-				||	(	Distance > (x < pItem->Get_xCenter() ? pItem->Get_xMin() - x : x - pItem->Get_xMax())
-					&&	Distance > (y < pItem->Get_yCenter() ? pItem->Get_yMin() - y : y - pItem->Get_yMax())	) )
-			{
-				for(int i=0; i<4; i++)
-				{
-					if( (pLeaf = _Get_Nearest_Point(pItem->asNode()->Get_Child(i), x, y, Distance)) != NULL )
+					CSG_PRQuadTree_Item	*pChild	= ((CSG_PRQuadTree_Node *)pItem)->Get_Child(i);
+
+					if( pChild && pChild->Contains(x, y) && (pLeaf = _Get_Nearest_Point(pChild, x, y, Distance)) != NULL )
 					{
 						pNearest	= pLeaf;
 					}
 				}
 			}
 
-			return( pNearest );
+			for(i=0; i<4; i++)
+			{
+				CSG_PRQuadTree_Item	*pChild	= ((CSG_PRQuadTree_Node *)pItem)->Get_Child(i);
+
+				if( pChild && pChild->Contains(x, y) == false && (Distance < 0.0
+				    || (  Distance > (x < pChild->Get_xCenter() ? pChild->Get_xMin() - x : x - pChild->Get_xMax())
+				       && Distance > (y < pChild->Get_yCenter() ? pChild->Get_yMin() - y : y - pChild->Get_yMax()) ))
+				&&  (pLeaf = _Get_Nearest_Point(pChild, x, y, Distance)) != NULL )
+				{
+					pNearest	= pLeaf;
+				}
+			}
 		}
 	}
 
-	return( NULL );
+	return( pNearest );
 }
 
 
