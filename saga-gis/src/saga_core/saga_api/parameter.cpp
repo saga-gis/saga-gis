@@ -980,7 +980,7 @@ bool CSG_Parameters_Grid_Target::Add_Parameters_Grid(CSG_Parameters *pParameters
 	if( bAddDefaultGrid )
 	{
 		pParameters->Add_Grid(
-			NULL	, "GRID"	, _TL("Grid")		, _TL(""), SG_UI_Get_Window_Main() ? PARAMETER_OUTPUT : PARAMETER_INPUT, false
+			NULL	, "GRID"	, _TL("Grid")		, _TL(""), SG_UI_Get_Window_Main() ? PARAMETER_OUTPUT : PARAMETER_INPUT_OPTIONAL, false
 		);
 	}
 
