@@ -597,7 +597,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 					fprintf(Stream.Get_Stream(), " ");
 				}
 
-				fprintf(Stream.Get_Stream(), Write_Value(pGrid->asFloat(x, y), Precision, bComma).b_str());
+				fprintf(Stream.Get_Stream(), Write_Value(pGrid->asDouble(x, y), Precision, bComma).b_str());
 			}
 
 			fprintf(Stream.Get_Stream(), "\n");
