@@ -515,9 +515,11 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters *pParameters)
 }
 
 //---------------------------------------------------------
-#define PRM_ADD_BOL(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Bool  , val);
-#define PRM_ADD_INT(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Int   , val);
-#define PRM_ADD_FLT(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Double, val);
+#define PRM_ADD_BOL(key, name, val)	pParms->Add_Value (NULL, key, name, _TL(""), PARAMETER_TYPE_Bool  , val);
+#define PRM_ADD_INT(key, name, val)	pParms->Add_Value (NULL, key, name, _TL(""), PARAMETER_TYPE_Int   , val);
+#define PRM_ADD_FLT(key, name, val)	pParms->Add_Value (NULL, key, name, _TL(""), PARAMETER_TYPE_Double, val);
+#define PRM_ADD_STR(key, name, val)	pParms->Add_String(NULL, key, name, _TL(""), val);
+#define PRM_ADD_CHO(key, name, val)	pParms->Add_Choice(NULL, key, name, _TL(""), val);
 
 //---------------------------------------------------------
 bool CCRS_Base::Add_User_Projection(const CSG_String &sID, const CSG_String &sName, const CSG_String &sArgs)
@@ -696,7 +698,8 @@ bool CCRS_Base::Add_User_Projection(const CSG_String &sID, const CSG_String &sNa
 
 	if(	!sID.CmpNoCase(SG_T("geos")) )		// Geostationary Satellite View
 	{
-		PRM_ADD_FLT("h"			, _TL("Satellite Height [m]")	, 42157000.0);
+		PRM_ADD_FLT("h"			, _TL("Satellite Height [m]")	, 35785831.0);
+		PRM_ADD_CHO("sweep"		, _TL("Sweep Angle")			, "x|y|");
 	}
 
 	if(	!sID.CmpNoCase(SG_T("lsat")) )		// Space oblique for LANDSAT
@@ -865,9 +868,11 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 
 		switch( p->Get_Type() )
 		{
-		case PARAMETER_TYPE_Bool:	Proj4	+= STR_ADD_BOL(p->Get_Identifier(), p->asBool());	break;
-		case PARAMETER_TYPE_Int:	Proj4	+= STR_ADD_INT(p->Get_Identifier(), p->asInt());	break;
-		case PARAMETER_TYPE_Double:	Proj4	+= STR_ADD_FLT(p->Get_Identifier(), p->asDouble());	break;
+		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_String: Proj4	+= STR_ADD_STR(p->Get_Identifier(), p->asString());	break;
+		case PARAMETER_TYPE_Bool:   Proj4	+= STR_ADD_BOL(p->Get_Identifier(), p->asBool  ());	break;
+		case PARAMETER_TYPE_Int:    Proj4	+= STR_ADD_INT(p->Get_Identifier(), p->asInt   ());	break;
+		case PARAMETER_TYPE_Double: Proj4	+= STR_ADD_FLT(p->Get_Identifier(), p->asDouble());	break;
 		}
 	}
 
