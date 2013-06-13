@@ -1033,6 +1033,8 @@ enum ESG_Colors
 };
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT long			SG_Color_Get_Random	(void);
+
 SAGA_API_DLL_EXPORT CSG_String		SG_Colors_Get_Name	(int Identifier);
 
 //---------------------------------------------------------
