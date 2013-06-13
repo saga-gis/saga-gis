@@ -394,7 +394,7 @@ bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Add_Record(void)
 {
-	if( !FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	if( !FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
 	{
 		AppendRows();
 
@@ -411,7 +411,7 @@ bool CVIEW_Table_Control::Add_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Ins_Record(void)
 {
-	if( !FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	if( !FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
 	{
 		int		iRecord	= GetGridCursorRow();
 
@@ -438,7 +438,7 @@ bool CVIEW_Table_Control::Ins_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Record(void)
 {
-	if( !FIXED_ROWS && !m_pTable->is_Private() )
+	if( !FIXED_ROWS )
 	{
 		m_pTable->Del_Selection();
 
@@ -455,7 +455,7 @@ bool CVIEW_Table_Control::Del_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Records(void)
 {
-	if( !FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Del_Records() )
+	if( !FIXED_ROWS && m_pTable->Del_Records() )
 	{
 		DeleteRows(0, GetNumberRows());
 
@@ -846,7 +846,7 @@ void CVIEW_Table_Control::On_Record_Add(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Add_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
+	event.Enable(!FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
 }
 
 //---------------------------------------------------------
@@ -857,7 +857,7 @@ void CVIEW_Table_Control::On_Record_Ins(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Ins_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
+	event.Enable(!FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
 }
 
 //---------------------------------------------------------
@@ -868,7 +868,7 @@ void CVIEW_Table_Control::On_Record_Del(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Del_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_Selection_Count() > 0);
+	event.Enable(!FIXED_ROWS && m_pTable->Get_Selection_Count() > 0);
 }
 
 //---------------------------------------------------------
@@ -879,7 +879,7 @@ void CVIEW_Table_Control::On_Record_Clr(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Clr_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && !m_pTable->is_Private());
+	event.Enable(!FIXED_ROWS);
 }
 
 
@@ -1163,11 +1163,7 @@ void CVIEW_Table_Control::_Update_Views(void)
 {
 	if( GetBatchCount() == 0 )
 	{
-		if( m_pTable->is_Private() )
-		{
-			g_pData->Update_Views(m_pTable->Get_Owner());
-		}
-		else if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+	//	if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
 		{
 			g_pData->Update_Views(m_pTable);
 		}

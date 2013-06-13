@@ -198,7 +198,7 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 	{
 		SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Create TIN from shapes"), pShapes->Get_Name()), true);
 
-		_Create(pShapes);
+		CSG_Table::Create(pShapes);
 
 		Set_Name(pShapes->Get_Name());
 
@@ -321,7 +321,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 
 		Destroy();
 
-		_Create(pTIN);
+		CSG_Table::Create(pTIN);
 
 		Set_Name(pTIN->Get_Name());
 

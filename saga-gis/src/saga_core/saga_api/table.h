@@ -242,9 +242,6 @@ public:
 	bool							Serialize			(CSG_File &Stream, bool bSave);
 
 	//-----------------------------------------------------
-	CSG_Data_Object *				Get_Owner			(void)					{	return( m_pOwner );			}
-	bool							is_Private			(void)	const			{	return( m_pOwner != NULL );	}
-
 	virtual bool					is_Valid			(void)	const			{	return( m_nFields > 0 );	}
 	bool							is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
@@ -272,6 +269,7 @@ public:
 	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL);
 	virtual bool					Del_Record			(int iRecord);
 	virtual bool					Del_Records			(void);
+	virtual bool					Set_Record_Count	(int nRecords);
 
 	int								Get_Count			(void)			const	{	return( m_nRecords );	}
 	int								Get_Record_Count	(void)			const	{	return( m_nRecords );	}
@@ -342,10 +340,6 @@ protected:
 
 	virtual CSG_Table_Record *		_Get_New_Record		(int Index);
 
-	bool							_Create				(const CSG_Table &Table);
-	bool							_Create				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
-	bool							_Create				(CSG_Table *pTemplate);
-
 	bool							_Stats_Invalidate	(void)			const;
 	bool							_Stats_Invalidate	(int iField)	const;
 	virtual bool					_Stats_Update		(int iField)	const;
@@ -359,21 +353,11 @@ private:
 
 	CSG_Table_Record				**m_Records;
 
-	CSG_Data_Object					*m_pOwner;
 
-
-	bool							_Destroy			(void);
 	bool							_Destroy_Selection	(void);
-
-	bool							_Assign				(CSG_Data_Object *pObject);
 
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);
-
-	CSG_Table_Record *				_Add_Record			(             CSG_Table_Record *pValues = NULL);
-	CSG_Table_Record *				_Ins_Record			(int iRecord, CSG_Table_Record *pValues = NULL);
-	bool							_Del_Record			(int iRecord);
-	bool							_Del_Records		(void);
 
 	bool							_Load				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
 	bool							_Load_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator);

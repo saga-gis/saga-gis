@@ -82,8 +82,7 @@ bool CSG_Table::_Destroy_Selection(void)
 			m_Records[m_Selected[iRecord]]->Set_Selected(false);
 		}
 
-		SG_Free(m_Selected);
-		m_Selected	= NULL;
+		SG_FREE_SAFE(m_Selected);
 		m_nSelected	= 0;
 	}
 
@@ -160,20 +159,17 @@ int CSG_Table::Del_Selection(void)
 {
 	int		n	= 0;
 
-	if( !is_Private() && m_nSelected > 0 )
+	if( m_nSelected > 0 )
 	{
 		for(int i=m_nSelected-1; i>=0; i--)
 		{
-		//	m_Records[m_Selected[i]]->Set_Selected(false);
-
-			if( _Del_Record(m_Selected[i]) )
+			if( Del_Record(m_Selected[i]) )
 			{
 				n++;
 			}
 		}
 
-		SG_Free(m_Selected);
-		m_Selected	= NULL;
+		SG_FREE_SAFE(m_Selected);
 		m_nSelected	= 0;
 	}
 

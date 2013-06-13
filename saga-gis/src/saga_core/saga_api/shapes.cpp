@@ -257,7 +257,7 @@ bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pSt
 {
 	Destroy();
 
-	_Create(pStructure);
+	CSG_Table::Create(pStructure);
 
 	Set_Name(Name);
 

@@ -84,7 +84,7 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 	bool		bResult;
 	CSG_String	fName, sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
 
-	_Destroy();
+	Destroy();
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load table"), File_Name.c_str()), true);
 
@@ -299,7 +299,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 
 	while( Stream.Read_Line(sLine) && sLine.Length() > 0 && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
 	{
-		CSG_Table_Record	*pRecord	= Table._Add_Record();
+		CSG_Table_Record	*pRecord	= Table.Add_Record();
 
 		sLine	+= Separator;
 
@@ -351,7 +351,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 
 		for(int iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 		{
-			CSG_Table_Record	*pRecord	= _Add_Record();
+			CSG_Table_Record	*pRecord	= Add_Record();
 
 			for(iField=0; iField<Get_Field_Count(); iField++)
 			{
@@ -488,7 +488,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 	//-----------------------------------------------------
 	else if( Stream.Read_Line(sLine) && SG_SSCANF(sLine, SG_T("%d %d"), &nFields, &nRecords) == 2 && nFields > 0 )
 	{
-		_Destroy();
+		Destroy();
 
 		for(iField=0; iField<nFields; iField++)
 		{
@@ -502,7 +502,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 		{
 			if( Stream.Read_Line(sLine) )
 			{
-				pRecord	= _Add_Record();
+				pRecord	= Add_Record();
 
 				for(iField=0; iField<m_nFields; iField++)
 				{
