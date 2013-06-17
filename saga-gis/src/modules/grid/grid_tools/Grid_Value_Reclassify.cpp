@@ -191,17 +191,17 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	Parameters.Add_Table_Field(
-		NULL	, "F_MIN"		, _TL("minimum value"),
+		pNode	, "F_MIN"		, _TL("minimum value"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
-		NULL	, "F_MAX"		, _TL("maximum value"),
+		pNode	, "F_MAX"		, _TL("maximum value"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
-		NULL	, "F_CODE"		, _TL("new value"),
+		pNode	, "F_CODE"		, _TL("new value"),
 		_TL("")
 	);
 
@@ -598,13 +598,11 @@ int CGrid_Value_Reclassify::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 
 		// simple table
 		pParameters->Get_Parameter("RETAB"		)->Set_Enabled(Value == 2);
-		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value == 2);
 
 		// user supplied table
 		pParameters->Get_Parameter("RETAB_2"	)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_MIN"		)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_MAX"		)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_CODE"		)->Set_Enabled(Value == 3);
+
+		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value == 2 || Value == 3);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NODATAOPT")) )
