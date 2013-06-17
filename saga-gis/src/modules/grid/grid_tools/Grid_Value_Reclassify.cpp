@@ -191,17 +191,17 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	Parameters.Add_Table_Field(
-		NULL	, "F_MIN"		, _TL("minimum value"),
+		pNode	, "F_MIN"		, _TL("minimum value"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
-		NULL	, "F_MAX"		, _TL("maximum value"),
+		pNode	, "F_MAX"		, _TL("maximum value"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
-		NULL	, "F_CODE"		, _TL("new value"),
+		pNode	, "F_CODE"		, _TL("new value"),
 		_TL("")
 	);
 
@@ -264,6 +264,7 @@ CGrid_Value_Reclassify::~CGrid_Value_Reclassify(void)
 bool CGrid_Value_Reclassify::On_Execute(void)
 {
 	int		method;
+	bool    bSuccess = false;
 
 	pInput		= Parameters("INPUT")->asGrid();
 	pResult		= Parameters("RESULT")->asGrid();
@@ -272,14 +273,24 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 	//-----------------------------------------------------
 	switch( method )
 	{
-	case 0:	return( ReclassSingle() );
-	case 1:	return( ReclassRange() );
-	case 2:	return( ReclassTable(false) );
-	case 3:	return( ReclassTable(true) );
+    default:
+	case 0:	bSuccess = ReclassSingle();     break;
+	case 1:	bSuccess = ReclassRange();      break;
+	case 2:	bSuccess = ReclassTable(false); break;
+	case 3:	bSuccess = ReclassTable(true);  break;
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	if( bSuccess )
+	{
+	    pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+	    pResult->Set_Name(CSG_String::Format(SG_T("%s_reclassified"), pInput->Get_Name()));
+	    return( true );
+	}
+	else
+	{
+        return( false );
+	}
 }
 
 
@@ -293,8 +304,8 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 bool CGrid_Value_Reclassify::ReclassRange(void)
 {
 	bool	otherOpt, noDataOpt, floating;
-	int		x, y, opera;
-	double	minValue, maxValue, value, others, noData, noDataValue, newValue;
+	int		opera;
+	double	minValue, maxValue, others, noData, noDataValue, newValue;
 
 
 	minValue	= Parameters("MIN")->asDouble();
@@ -313,10 +324,13 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 	else
 		floating = false;
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	value;
+
 			if( floating == true )
 				value = pInput->asDouble(x, y);
 			else
@@ -327,7 +341,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( minValue <= value && value <= maxValue )			// reclass old range
-					pResult->Set_Value(x, y, newValue);						
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -339,7 +353,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( minValue < value && value < maxValue )				// reclass old range
-					pResult->Set_Value(x, y, newValue);					
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -355,7 +369,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 bool CGrid_Value_Reclassify::ReclassSingle(void)
 {
 	bool	otherOpt, noDataOpt, floating;
-	int		x, y, opera;
+	int		opera;
 	double	oldValue, newValue, value, others, noData, noDataValue;
 
 
@@ -374,10 +388,13 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 	else
 		floating = false;
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	value;
+
 			if( floating == true )
 				value = pInput->asDouble(x, y);
 			else
@@ -388,7 +405,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( value == oldValue )								// reclass old value
-					pResult->Set_Value(x, y, newValue);					
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -400,7 +417,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 					pResult->Set_Value(x, y, noData);
 				else if( value < oldValue )									// reclass old value
-					pResult->Set_Value(x, y, newValue);						
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -412,7 +429,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 						pResult->Set_Value(x, y, noData);
 				else if( value <= oldValue )								// reclass old value
-					pResult->Set_Value(x, y, newValue);						
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -424,7 +441,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 						pResult->Set_Value(x, y, noData);
 				else if( value >= oldValue )								// reclass old value
-					pResult->Set_Value(x, y, newValue);		
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -436,7 +453,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 				if( noDataOpt == true && value == noDataValue )				// noData option
 						pResult->Set_Value(x, y, noData);
 				else if( value > oldValue )									// reclass old value
-					pResult->Set_Value(x, y, newValue);		
+					pResult->Set_Value(x, y, newValue);
 				else if( otherOpt == true && value != noDataValue )			// other values option
 					pResult->Set_Value(x, y, others);
 				else
@@ -448,18 +465,15 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 	return( true );
 }
 
-//---------------------------------------------------------
-#define MAX_CAT	128
 
 //---------------------------------------------------------
 bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 {
-	bool			set, otherOpt, noDataOpt;
-	int				n, x, y, opera, recCount, count[MAX_CAT], field_Min, field_Max, field_Code;
-	double			min[MAX_CAT], max[MAX_CAT], code[MAX_CAT], value, others, noData, noDataValue;
+	bool			otherOpt, noDataOpt;
+	int				opera, field_Min, field_Max, field_Code;
+	double			others, noData, noDataValue;
 
 	CSG_Table			*pReTab;
-	CSG_Table_Record	*pRecord = NULL;
 
 	if( bUser )
 	{
@@ -491,75 +505,58 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 		return( false );
 	}
 
-	recCount = pReTab->Get_Record_Count();
-	if( recCount > MAX_CAT )
-	{
-		Error_Set(_TL("At the moment the reclass table is limited to 128 categories!\n"));
-		return( false );
-	}
-
-	if( recCount == 0 )
+	if( pReTab->Get_Record_Count() == 0 )
 	{
 		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
 		return( false );
 	}
 
-	for(n=0; n<recCount ; n++)								// initialize reclass arrays
-	{
-		pRecord		= pReTab->Get_Record(n);
-		min[n]		= pRecord->asDouble(field_Min);
-		max[n]		= pRecord->asDouble(field_Max);
-		code[n]		= pRecord->asDouble(field_Code);
-		count[n]	= 0;
-	}
 
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			value	= pInput->asDouble(x, y);
-			set		= false;
+			double	value	= pInput->asDouble(x, y);
+			bool	set		= false;
 
-			for(n=0; n< recCount; n++)									// reclass
+			for(int iRecord=0; iRecord<pReTab->Get_Record_Count(); iRecord++)									// reclass
 			{
+				CSG_Table_Record	*pRecord = pReTab->Get_Record(iRecord);
+
 				if( opera == 0 )										// min <= value < max
 				{
-					if( value >= min[n] && value < max[n] )
+					if( value >= pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
 				else if( opera == 1 )									// min <= value <= max
 				{
-					if( value >= min[n] && value <= max[n] )
+					if( value >= pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
 				else if( opera == 2 )									// min < value <= max
 				{
-					if( value > min[n] && value <= max[n] )
+					if( value > pRecord->asDouble(field_Min) && value <= pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
 				else if( opera == 3 )									// min < value < max
 				{
-					if( value > min[n] && value < max[n] )
+					if( value > pRecord->asDouble(field_Min) && value < pRecord->asDouble(field_Max) )
 					{
-						pResult->Set_Value(x, y, code[n]);
+						pResult->Set_Value(x, y, pRecord->asDouble(field_Code));
 						set = true;
-						count[n] += 1;
 						break;
 					}
 				}
@@ -601,13 +598,11 @@ int CGrid_Value_Reclassify::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 
 		// simple table
 		pParameters->Get_Parameter("RETAB"		)->Set_Enabled(Value == 2);
-		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value == 2);
 
 		// user supplied table
 		pParameters->Get_Parameter("RETAB_2"	)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_MIN"		)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_MAX"		)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_CODE"		)->Set_Enabled(Value == 3);
+
+		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value == 2 || Value == 3);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NODATAOPT")) )
