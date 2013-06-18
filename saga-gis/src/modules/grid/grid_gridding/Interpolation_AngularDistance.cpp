@@ -302,7 +302,7 @@ bool CInterpolation_AngularDistance::Get_Value(double x, double y, double &z)
 		{
 			if( j != i )
 			{
-				t	+= 1.0 - ((x - X[i]) * (x - X[j]) + (y - Y[i]) * (y - Y[j])) / (D[i] * D[j]);
+				t	+= W[j] * (1.0 - ((x - X[i]) * (x - X[j]) + (y - Y[i]) * (y - Y[j])) / (D[i] * D[j]));
 				w	+= W[j];
 			}
 		}
