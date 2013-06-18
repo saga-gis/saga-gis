@@ -71,6 +71,9 @@
     <ClCompile Include="nn\triangle.c">
       <Filter>nn</Filter>
     </ClCompile>
+    <ClCompile Include="Interpolation_AngularDistance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -174,6 +177,9 @@
     </ClInclude>
     <ClInclude Include="nn\version.h">
       <Filter>nn</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpolation_AngularDistance.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

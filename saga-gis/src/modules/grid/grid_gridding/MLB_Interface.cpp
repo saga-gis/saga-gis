@@ -95,6 +95,7 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "Interpolation_InverseDistance.h"
+#include "Interpolation_AngularDistance.h"
 #include "Interpolation_NearestNeighbour.h"
 #include "Interpolation_NaturalNeighbour.h"
 #include "Interpolation_Shepard.h"
@@ -110,16 +111,21 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:	return( new CShapes2Grid );
-	case 1:	return( new CInterpolation_InverseDistance );
-	case 2:	return( new CInterpolation_NearestNeighbour );
-	case 3:	return( new CInterpolation_NaturalNeighbour );
-	case 4:	return( new CInterpolation_Shepard );
-	case 5:	return( new CInterpolation_Triangulation );
-	case 6:	return( new CKernel_Density );
-	}
+	case  0:	return( new CShapes2Grid );
 
-	return( NULL );
+	case  1:	return( new CInterpolation_InverseDistance );
+	case  7:	return( new CInterpolation_AngularDistance );
+	case  2:	return( new CInterpolation_NearestNeighbour );
+	case  3:	return( new CInterpolation_NaturalNeighbour );
+	case  4:	return( new CInterpolation_Shepard );
+	case  5:	return( new CInterpolation_Triangulation );
+
+	case  6:	return( new CKernel_Density );
+
+	//-----------------------------------------------------
+	case 10:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 

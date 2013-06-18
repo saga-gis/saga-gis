@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Interpolation_AngularDistance.cpp 1482 2012-10-08 16:15:45Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//           Interpolation_InverseDistance.cpp           //
+//           Interpolation_AngularDistance.cpp           //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -61,7 +61,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Interpolation_InverseDistance.h"
+#include "Interpolation_AngularDistance.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -71,17 +71,22 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
+CInterpolation_AngularDistance::CInterpolation_AngularDistance(void)
 {
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Inverse Distance Weighted"));
+	Set_Name		(_TL("Angular Distance Weighted"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Inverse distance grid interpolation from irregular distributed points."
+		"Angular Distance Weighted (ADW) grid interpolation from irregular distributed points.\n"
+		"\n"
+		"References:\n"
+		"Shepard, D. (1968): A Two-Dimensional Interpolation Function for Irregularly-Spaced Data. "
+		"Proceedings of the 1968 23rd ACM National Conference, pp.517-524, "
+		"<a target=\"_blank\" href=\"http://champs.cecs.ucf.edu/Library/Conference_Papers/pdfs/A%20two-dimentional%20intepolation%20function%20for%20irregalarly-spaced%20data.pdf\">online</a>.\n"
 	));
 
 	//-----------------------------------------------------
@@ -162,7 +167,7 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CInterpolation_AngularDistance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
 	{
@@ -192,7 +197,7 @@ int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParame
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CInterpolation_InverseDistance::On_Initialize(void)
+bool CInterpolation_AngularDistance::On_Initialize(void)
 {
 	m_Weighting		= Parameters("WEIGHTING"        )->asInt();
 	m_Power			= Parameters("WEIGHT_POWER"     )->asDouble();
@@ -206,7 +211,7 @@ bool CInterpolation_InverseDistance::On_Initialize(void)
 }
 
 //---------------------------------------------------------
-inline double CInterpolation_InverseDistance::Get_Weight(double Distance)
+inline double CInterpolation_AngularDistance::Get_Weight(double Distance)
 {
 	switch( m_Weighting )
 	{
@@ -218,7 +223,7 @@ inline double CInterpolation_InverseDistance::Get_Weight(double Distance)
 }
 
 //---------------------------------------------------------
-int CInterpolation_InverseDistance::Get_Count(double x, double y)
+int CInterpolation_AngularDistance::Get_Count(double x, double y)
 {
 	if( m_nPoints_Max > 0 || m_Radius > 0.0 )			// using search engine
 	{
@@ -229,63 +234,83 @@ int CInterpolation_InverseDistance::Get_Count(double x, double y)
 }
 
 //---------------------------------------------------------
-inline bool CInterpolation_InverseDistance::Get_Point(int iPoint, double x, double y, double &w, double &z)
+inline bool CInterpolation_AngularDistance::Get_Point(int iPoint, double x, double y, double &ix, double &iy, double &id, double &iw, double &iz)
 {
-	TSG_Point	p;
-
-	if( m_nPoints_Max > 0 || m_Radius > 0.0 )	// using search engine
+	if( m_nPoints_Max > 0 || m_Radius > 0.0 )			// using search engine
 	{
-		if( !m_Search.Get_Selected_Point(iPoint, p.x, p.y, z) )
+		if( m_Search.Get_Selected_Point(iPoint, ix, iy, iz) )
 		{
-			return( false );
+			id	= SG_Get_Distance(x, y, ix, iy);
+			iw	= Get_Weight(id);
+
+			return( true );
 		}
 	}
-	else										// without search engine
+
+	//-----------------------------------------------------
+	CSG_Shape	*pPoint	= m_pShapes->Get_Shape(iPoint);	// without search engine
+
+	if( pPoint )
 	{
-		CSG_Shape	*pPoint	= m_pShapes->Get_Shape(iPoint);
+		TSG_Point	p	= pPoint->Get_Point(0);
 
-		if( !pPoint )
-		{
-			return( false );
-		}
+		ix	= p.x;
+		iy	= p.y;
+		iz	= pPoint->asDouble(m_zField);
+		id	= SG_Get_Distance(x, y, ix, iy);
+		iw	= Get_Weight(id);
 
-		p	= pPoint->Get_Point(0);
-		z	= pPoint->asDouble(m_zField);
+		return( true );
 	}
 
-	w	= Get_Weight(SG_Get_Distance(x, y, p.x, p.y));
-
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
-bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
+bool CInterpolation_AngularDistance::Get_Value(double x, double y, double &z)
 {
-	int		nPoints	= Get_Count(x, y);
+	int		i, j, n;
 
-	if( nPoints <= 0 )
+	if( (n = Get_Count(x, y)) <= 0 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Simple_Statistics	s;
+	CSG_Vector	X(n), Y(n), D(n), W(n), Z(n);
 
-	for(int iPoint=0; iPoint<nPoints; iPoint++)
+	for(i=0; i<n; i++)
 	{
-		double	w;
+		Get_Point(i, x, y, X[i], Y[i], D[i], W[i], Z[i]);
 
-		if( Get_Point(iPoint, x, y, w, z) )
+		if( D[i] <= 0.0 )
 		{
-			if( w < 0.0 )
-			{
-				return( true );
-			}
+			z	= Z[i];
 
-			s.Add_Value(z, w);
+			return( true );
 		}
 	}
 
+	//-----------------------------------------------------
+	CSG_Simple_Statistics	s;
+
+	for(i=0; i<n; i++)
+	{
+		double	w	= 0.0, t	= 0.0;
+
+		for(j=0; j<n; j++)
+		{
+			if( j != i )
+			{
+				t	+= 1.0 - ((x - X[i]) * (x - X[j]) + (y - Y[i]) * (y - Y[j])) / (D[i] * D[j]);
+				w	+= W[j];
+			}
+		}
+
+		s.Add_Value(Z[i], W[i] * (1.0 + t / w));
+	}
+
+	//-----------------------------------------------------
 	z	= s.Get_Mean();
 
 	return( true );

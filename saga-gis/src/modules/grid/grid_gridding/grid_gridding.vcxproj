@@ -293,6 +293,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Interpolation.cpp" />
+    <ClCompile Include="Interpolation_AngularDistance.cpp" />
     <ClCompile Include="Interpolation_InverseDistance.cpp" />
     <ClCompile Include="Interpolation_NaturalNeighbour.cpp" />
     <ClCompile Include="Interpolation_NearestNeighbour.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="Interpolation.h" />
+    <ClInclude Include="Interpolation_AngularDistance.h" />
     <ClInclude Include="Interpolation_InverseDistance.h" />
     <ClInclude Include="Interpolation_NaturalNeighbour.h" />
     <ClInclude Include="Interpolation_NearestNeighbour.h" />

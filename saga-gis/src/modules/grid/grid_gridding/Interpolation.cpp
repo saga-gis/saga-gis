@@ -76,7 +76,7 @@ CInterpolation::CInterpolation(void)
 	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Table_Field(

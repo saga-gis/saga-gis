@@ -154,6 +154,12 @@ bool CFilter_Resample::On_Execute(void)
 	pLoPass->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Low Pass")));
 	pHiPass->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("High Pass")));
 
+	CSG_Colors	Colors;
+
+	DataObject_Get_Colors(pGrid  , Colors);
+	DataObject_Set_Colors(pLoPass, Colors);
+	DataObject_Set_Colors(pHiPass, 11, SG_COLORS_RED_GREY_BLUE);
+
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -164,7 +170,7 @@ bool CFilter_Resample::On_Execute(void)
 		{
 			double	z, px	= Get_XMin() + x * Get_Cellsize();
 
-			if( Grid.Get_Value(px, py, z) )
+			if( !pGrid->is_NoData(x, y) && Grid.Get_Value(px, py, z) )
 			{
 				pLoPass->Set_Value(x, y, z);
 				pHiPass->Set_Value(x, y, pGrid->asDouble(x, y) - z);

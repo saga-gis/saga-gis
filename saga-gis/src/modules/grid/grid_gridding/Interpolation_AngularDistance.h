@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Interpolation_AngularDistance.h 1482 2012-10-08 16:15:45Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//            Interpolation_InverseDistance.h            //
+//            Interpolation_AngularDistance.h            //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -56,13 +56,13 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			Interpolation_InverseDistance.h				 //
+//			Interpolation_AngularDistance.h				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Interpolation_InverseDistance_H
-#define HEADER_INCLUDED__Interpolation_InverseDistance_H
+#ifndef HEADER_INCLUDED__Interpolation_AngularDistance_H
+#define HEADER_INCLUDED__Interpolation_AngularDistance_H
 
 
 ///////////////////////////////////////////////////////////
@@ -82,10 +82,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_gridding_EXPORT CInterpolation_InverseDistance : public CInterpolation  
+class grid_gridding_EXPORT CInterpolation_AngularDistance : public CInterpolation  
 {
 public:
-	CInterpolation_InverseDistance(void);
+	CInterpolation_AngularDistance(void);
 
 
 protected:
@@ -108,7 +108,7 @@ private:
 
 	int						Get_Count				(double x, double y);
 
-	bool					Get_Point				(int iPoint, double x, double y, double &iw, double &iz);
+	bool					Get_Point				(int iPoint, double x, double y, double &ix, double &iy, double &id, double &iw, double &iz);
 
 
 };
@@ -121,4 +121,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Interpolation_InverseDistance_H
+#endif // #ifndef HEADER_INCLUDED__Interpolation_AngularDistance_H
