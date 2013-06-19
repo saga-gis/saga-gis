@@ -208,8 +208,11 @@ public:
 
 	bool						Destroy				(void);
 
+	bool						Set_Rows			(int nRows);
 	bool						Add_Rows			(int nRows);
+	bool						Del_Rows			(int nRows);
 	bool						Add_Row				(double Value = 0.0);
+	bool						Del_Row				(void);
 
 	int							Get_N				(void)	const	{	return( m_n );		}
 	operator const double *							(void)	const	{	return( m_z );		}
@@ -292,8 +295,13 @@ public:
 
 	bool						Destroy				(void);
 
+	bool						Set_Size			(int nRows, int nCols);
+	bool						Set_Cols			(int nCols);
+	bool						Set_Rows			(int nRows);
 	bool						Add_Cols			(int nCols);
 	bool						Add_Rows			(int nRows);
+	bool						Del_Cols			(int nCols);
+	bool						Del_Rows			(int nRows);
 	bool						Add_Col				(          double *Data = NULL);
 	bool						Add_Col				(          const CSG_Vector &Data);
 	bool						Add_Row				(          double *Data = NULL);

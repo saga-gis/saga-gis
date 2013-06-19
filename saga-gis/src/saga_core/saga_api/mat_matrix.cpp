@@ -171,19 +171,75 @@ void CSG_Vector::_On_Construction(void)
 }
 
 //---------------------------------------------------------
+/**
+  * Sets the number of rows to nRows. Values will be preserved.
+  * Returns true if successful.
+*/
+bool CSG_Vector::Set_Rows(int nRows)
+{
+	if( nRows > m_n )
+	{
+		return( Add_Rows(nRows - m_n) );
+	}
+
+	if( nRows < m_n )
+	{
+		return( Del_Rows(m_n - nRows) );
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_Vector::Add_Rows(int nRows)
 {
-	if( nRows > 1 )
+	if( nRows > 0 )
 	{
 		double	*z	= (double *)SG_Realloc(m_z, (m_n + nRows) * sizeof(double));
 
 		if( z )
 		{
+			for(int i=m_n; i<m_n+nRows; i++)
+			{
+				z[i]	= 0.0;
+			}
+
 			m_z	 = z;
 			m_n	+= nRows;
 
 			return( true );
 		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+/**
+  * Deletes last nRows rows. Sets size to zero if nRows is greater
+  * than current number of rows
+  * Returns true if successful.
+*/
+bool CSG_Vector::Del_Rows(int nRows)
+{
+	if( nRows <= 0 )
+	{
+		return( true );
+	}
+
+	if( nRows > m_n )
+	{
+		return( Destroy() );
+	}
+
+	double	*z	= (double *)SG_Realloc(m_z, (m_n - nRows) * sizeof(double));
+
+	if( z )
+	{
+		m_z	 = z;
+		m_n	-= nRows;
+
+		return( true );
 	}
 
 	return( false );
@@ -200,6 +256,25 @@ bool CSG_Vector::Add_Row(double Value)
 		m_z[m_n++]	= Value;
 
 		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Del_Row(void)
+{
+	if( m_n > 0 )
+	{
+		double	*z	= (double *)SG_Realloc(m_z, (m_n - 1) * sizeof(double));
+
+		if( z )
+		{
+			m_z	= z;
+			m_n	--;
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -738,6 +813,44 @@ void CSG_Matrix::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Matrix::Set_Size(int nRows, int nCols)
+{
+	return( nRows > 0 && nCols > 0 && Set_Rows(nRows) && Set_Cols(nCols) );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Set_Cols(int nCols)
+{
+	if( nCols > m_nx )
+	{
+		return( Add_Cols(nCols - m_nx) );
+	}
+
+	if( nCols < m_nx )
+	{
+		return( Del_Cols(m_nx - nCols) );
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Set_Rows(int nRows)
+{
+	if( nRows > m_ny )
+	{
+		return( Add_Rows(nRows - m_ny) );
+	}
+
+	if( nRows < m_ny )
+	{
+		return( Del_Rows(m_ny - nRows) );
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_Matrix::Add_Cols(int nCols)
 {
 	if( nCols > 0 && m_ny > 0 )
@@ -774,6 +887,49 @@ bool CSG_Matrix::Add_Rows(int nRows)
 		}
 
 		memset(m_z[m_ny - nRows], 0, nRows * m_nx * sizeof(double));
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+/**
+  * Deletes the last nCols columns.
+*/
+bool CSG_Matrix::Del_Cols(int nCols)
+{
+	if( nCols > 0 && m_ny > 0 && nCols < m_nx )
+	{
+		CSG_Matrix	Tmp(*this);
+
+		if( Create(Tmp.m_nx - nCols, Tmp.m_ny) )
+		{
+			for(int y=0; y<Tmp.m_ny; y++)
+			{
+				memcpy(m_z[y], Tmp.m_z[y], m_nx * sizeof(double));
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+/**
+  * Deletes the last nRows rows.
+*/
+bool CSG_Matrix::Del_Rows(int nRows)
+{
+	if( nRows > 0 && m_nx > 0 && nRows < m_ny )
+	{
+		m_ny	-= nRows;
+
+		m_z		= (double **)SG_Realloc(m_z   , m_ny        * sizeof(double *));
+		m_z[0]	= (double  *)SG_Realloc(m_z[0], m_ny * m_nx * sizeof(double  ));
 
 		return( true );
 	}
