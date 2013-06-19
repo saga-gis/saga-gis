@@ -370,7 +370,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 {
 	bool	otherOpt, noDataOpt, floating;
 	int		opera;
-	double	oldValue, newValue, value, others, noData, noDataValue;
+	double	oldValue, newValue, others, noData, noDataValue;
 
 
 	oldValue	= Parameters("OLD")->asDouble();
