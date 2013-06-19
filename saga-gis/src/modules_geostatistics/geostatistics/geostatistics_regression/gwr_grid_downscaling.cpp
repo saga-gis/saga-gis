@@ -80,10 +80,15 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 
 	Set_Description	(_TW(
 		"Reference:\n"
-		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002): "
-		"Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons.\n"
-		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998): Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis. "
-		"Environment and Planning A 30(11), 1905–1927. <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
+		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
+		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
+		"\n"
+		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
+		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
+		" Environment and Planning A 30(11), 1905–1927."
+		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+		"\n"
 		"- Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
 	));
 
@@ -152,13 +157,9 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 		PARAMETER_TYPE_Int, 10, 1, true
 	);
 
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	);
-
 	m_Search.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Search.Get_Weighting().Create_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Search.Get_Weighting().Set_BandWidth(7.0);
+	m_Search.Get_Weighting().Create_Parameters(&Parameters, false);
 }
 
 
@@ -356,11 +357,11 @@ bool CGWR_Grid_Downscaling::Get_Model(void)
 	m_pResiduals	->Set_Name(CSG_String::Format(SG_T("%s [%s, %s]"), m_pDependent->Get_Name(), _TL("GWR"), _TL("Residuals")));
 
 	//-----------------------------------------------------
+	m_Search.Get_Weighting().Set_Parameters(&Parameters);
+
 	m_Search.Set_Radius(Parameters("SEARCH_RANGE")->asInt() == 0
 		? Parameters("SEARCH_RADIUS")->asInt() : 1 + (int)(SG_Get_Length(m_pDependent->Get_NX(), m_pDependent->Get_NY()))
 	);
-
-	m_Search.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
 
 	//-----------------------------------------------------
 	CSG_Grid_System	System(m_pDependent->Get_System());
@@ -499,14 +500,28 @@ bool CGWR_Grid_Downscaling::Get_Regression(int x, int y)
 	m_pModel[m_nPredictors]->Set_Value(x, y, b[0]);
 
 	//-----------------------------------------------------
-	zr	= b[0];
-
-	for(i=0; i<m_nPredictors; i++)
+	if( m_pDependent->is_NoData(x, y) )
 	{
-		zr	+= b[i + 1] * m_pPredictors[i]->asDouble(x, y);
+		m_pResiduals->Set_NoData(x, y);
 	}
+	else
+	{
+		zr	= b[0];
 
-	m_pResiduals->Set_Value(x, y, m_pDependent->asDouble(x, y) - zr);
+		for(i=0; i<m_nPredictors; i++)
+		{
+			if( m_pPredictors[i]->is_NoData(x, y) )
+			{
+				m_pResiduals->Set_NoData(x, y);
+
+				return( true );
+			}
+
+			zr	+= b[i + 1] * m_pPredictors[i]->asDouble(x, y);
+		}
+
+		m_pResiduals->Set_Value(x, y, m_pDependent->asDouble(x, y) - zr);
+	}
 
 	//-----------------------------------------------------
 	return( true );
