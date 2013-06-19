@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: gwr_grid_downscaling.h 1549 2012-11-29 16:38:50Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 gwr_grid_downscaling.h                //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,94 +54,57 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__gwr_grid_downscaling_H
+#define HEADER_INCLUDED__gwr_grid_downscaling_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CGWR_Grid_Downscaling : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Spatial and Geostatistics - Regression") );
+public:
+	CGWR_Grid_Downscaling(void);
 
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad (c) 2010" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for regression analyses.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Spatial and Geostatistics|Regression") );
-	}
-}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "point_grid_regression.h"
-#include "point_multi_grid_regression.h"
-#include "point_trend_surface.h"
+	virtual bool				On_Execute				(void);
 
-#include "gw_regression.h"
-#include "gw_regression_grid.h"
-#include "gw_multi_regression.h"
-#include "gw_multi_regression_grid.h"
-#include "gw_multi_regression_points.h"
-#include "gwr_grid_downscaling.h"
-
-#include "grid_multi_grid_regression.h"
-#include "grids_trend_polynom.h"
-
-#include "table_trend.h"
-#include "table_regression_multiple.h"
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPoint_Grid_Regression );
-	case  1:	return( new CPoint_Multi_Grid_Regression );
-	case  2:	return( new CPoint_Trend_Surface );
+	int							m_nPredictors;
 
-	case  3:	return( new CGW_Regression );
-	case  4:	return( new CGW_Regression_Grid );
-	case  5:	return( new CGW_Multi_Regression );
-	case  6:	return( new CGW_Multi_Regression_Grid );
-	case  7:	return( new CGW_Multi_Regression_Points );
-	case 14:	return( new CGWR_Grid_Downscaling );
+	CSG_Grid_Cell_Addressor		m_Search;
 
-	case  8:	return( new CGrid_Multi_Grid_Regression );
-	case  9:	return( new CGrids_Trend );
+	CSG_Grid					*m_pDependent, **m_pPredictors, **m_pModel, *m_pQuality, *m_pResiduals;
+	
 
-	case 10:	return( new CTable_Trend );
-	case 11:	return( new CTable_Trend_Shapes );
+	bool						Set_Model				(double x, double y, double &Value);
+	bool						Set_Model				(void);
 
-	case 12:	return( new CTable_Regression_Multiple );
-	case 13:	return( new CTable_Regression_Multiple_Shapes );
+	bool						Get_Model				(void);
+	int							Get_Variables			(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y);
+	bool						Get_Regression			(int x, int y);
 
-	//-----------------------------------------------------
-	case 19:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -151,8 +114,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__gwr_grid_downscaling_H
