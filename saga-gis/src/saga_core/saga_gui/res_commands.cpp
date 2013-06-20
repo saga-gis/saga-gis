@@ -180,9 +180,9 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( _TL("Save As Image...") );
 	case ID_CMD_GRIDS_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
-	case ID_CMD_GRIDS_RANGE_MINMAX:		return( _TL("Set Range to Minmum/Maximum") );
-	case ID_CMD_GRIDS_RANGE_STDDEV150:	return( _TL("Set Range to Standard Deviation (1.5)") );
-	case ID_CMD_GRIDS_RANGE_STDDEV200:	return( _TL("Set Range to Standard Deviation (2.0)") );
+	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Fit Colours to Minimum/Maximum") );
+	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Fit Colours to Standard Deviation") );
+	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Fit Colours Dialog") );
 
 	case ID_CMD_SHAPES_EDIT_SHAPE:		return( _TL("Edit Selected Shape") );
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:	return( _TL("Invert Selection") );
@@ -292,8 +292,10 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DIAGRAM_SIZE_INC:		return( _TL("Increase Diagram Size") );
 	case ID_CMD_DIAGRAM_SIZE_DEC:		return( _TL("Decrease Diagram Size") );
 
-	case ID_CMD_SCATTERPLOT_PARAMETERS:	return( _TL("Properties") );
-	case ID_CMD_SCATTERPLOT_UPDATE:		return( _TL("Update Data") );
+	case ID_CMD_SCATTERPLOT_PARAMETERS:		return( _TL("Properties") );
+	case ID_CMD_SCATTERPLOT_UPDATE:			return( _TL("Update Data") );
+	case ID_CMD_SCATTERPLOT_AS_TABLE:		return( _TL("Convert To Table") );
+	case ID_CMD_SCATTERPLOT_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_HISTOGRAM_CUMULATIVE:	return( _TL("Cumulative") );
 	case ID_CMD_HISTOGRAM_AS_TABLE:		return( _TL("Convert To Table") );
