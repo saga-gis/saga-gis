@@ -129,6 +129,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	//-----------------------------------------------------
 	bool		bValue;
 	long		lValue;
+	double		dValue;
 	wxString	sValue;
 
 	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("CACHE_TMP_DIR")	, sValue) )
@@ -198,11 +199,21 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice(
 		pNode	, "GRID_DISPLAY_RANGEFIT"	, _TL("Display Range"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Minimum/Maximum"),
-			_TL("1.5 * Standard Deviation"),
-			_TL("2.0 * Standard Deviation")
+			_TL("Standard Deviation")
 		), lValue
+	);
+
+	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("FIT_STDDEV")	, dValue) == false )
+	{
+		dValue	= 2.0;
+	}
+
+	m_Parameters.Add_Value(
+		pNode	, "FIT_STDDEV"				, _TL("Fit to Standard Deviation"),
+		_TL("Multiple of Standard Deviation used as default for colour classifications."),
+		PARAMETER_TYPE_Double, dValue, 0.01, true
 	);
 
 	//-----------------------------------------------------
@@ -300,17 +311,18 @@ bool CWKSP_Data_Manager::Finalise(void)
 #endif
 
 	//-----------------------------------------------------
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_TMP_DIR")		,		SG_Grid_Cache_Get_Directory());
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_AUTO")			,		SG_Grid_Cache_Get_Automatic());
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_THRESHOLD")	, (long)SG_Grid_Cache_Get_Threshold());
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_CONFIRM")		, (long)SG_Grid_Cache_Get_Confirm  ());
+	CONFIG_Write(wxT("/DATA/GRIDS"), wxT("CACHE_TMP_DIR"   ),		SG_Grid_Cache_Get_Directory());
+	CONFIG_Write(wxT("/DATA/GRIDS"), wxT("CACHE_AUTO"      ),		SG_Grid_Cache_Get_Automatic());
+	CONFIG_Write(wxT("/DATA/GRIDS"), wxT("CACHE_THRESHOLD" ), (long)SG_Grid_Cache_Get_Threshold());
+	CONFIG_Write(wxT("/DATA/GRIDS"), wxT("CACHE_CONFIRM"   ), (long)SG_Grid_Cache_Get_Confirm  ());
 
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("DISPLAY_RANGEFIT")	, (long)m_Parameters("GRID_DISPLAY_RANGEFIT")	->asInt());
+	CONFIG_Write(wxT("/DATA/GRIDS"), wxT("DISPLAY_RANGEFIT"), (long)m_Parameters("GRID_DISPLAY_RANGEFIT")->asInt());
+	CONFIG_Write(wxT("/DATA/GRIDS"), wxT("FIT_STDDEV"      ),       m_Parameters("FIT_STDDEV"   )->asDouble());
 
-	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")		, (long)m_Parameters("PROJECT_START")			->asInt());
-	CONFIG_Write(wxT("/DATA")		, wxT("NUMBERING")			, (long)m_Parameters("NUMBERING")				->asInt());
+	CONFIG_Write(wxT("/DATA"      ), wxT("PROJECT_START"   ), (long)m_Parameters("PROJECT_START")->asInt());
+	CONFIG_Write(wxT("/DATA"      ), wxT("NUMBERING"       ), (long)m_Parameters("NUMBERING"    )->asInt());
 
-	CONFIG_Write(wxT("/DATA")		, wxT("HISTORY_DEPTH")		, (long)m_Parameters("HISTORY_DEPTH")			->asInt());
+	CONFIG_Write(wxT("/DATA"      ), wxT("HISTORY_DEPTH"   ), (long)m_Parameters("HISTORY_DEPTH")->asInt());
 
 	if( Get_Count() == 0 )
 	{

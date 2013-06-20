@@ -194,9 +194,8 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	wxMenu	*pSubMenu	= new wxMenu(_TL("Classification"));
 
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_MINMAX);
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV150);
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV200);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_FIT_MINMAX);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_FIT_STDDEV);
 
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Classification"), pSubMenu);
 
@@ -230,25 +229,25 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 		Add_ScatterPlot(Get_Grid());
 		break;
 
-	case ID_CMD_GRIDS_RANGE_MINMAX:
+	case ID_CMD_GRIDS_FIT_MINMAX:
 		Set_Color_Range(
 			Get_Grid()->Get_ZMin(true),
 			Get_Grid()->Get_ZMax(true)
 		);
 		break;
 
-	case ID_CMD_GRIDS_RANGE_STDDEV150:
-		Set_Color_Range(
-			Get_Grid()->Get_ArithMean(true) - 1.5 * Get_Grid()->Get_StdDev(true),
-			Get_Grid()->Get_ArithMean(true) + 1.5 * Get_Grid()->Get_StdDev(true)
-		);
+	case ID_CMD_GRIDS_FIT_STDDEV:
+		{
+			double	d	= ((CWKSP_Base_Manager *)g_pData)->Get_Parameters()->Get_Parameter("FIT_STDDEV")->asDouble();
+
+			Set_Color_Range(
+				Get_Grid()->Get_ArithMean(true) - d * Get_Grid()->Get_StdDev(true),
+				Get_Grid()->Get_ArithMean(true) + d * Get_Grid()->Get_StdDev(true)
+			);
+		}
 		break;
 
-	case ID_CMD_GRIDS_RANGE_STDDEV200:
-		Set_Color_Range(
-			Get_Grid()->Get_ArithMean(true) - 2.0 * Get_Grid()->Get_StdDev(true),
-			Get_Grid()->Get_ArithMean(true) + 2.0 * Get_Grid()->Get_StdDev(true)
-		);
+	case ID_CMD_GRIDS_FIT_DIALOG:
 		break;
 
 	case ID_CMD_GRIDS_SET_LUT:
@@ -987,10 +986,10 @@ bool CWKSP_Grid::Fit_Color_Range(void)
 	}
 	else
 	{
-		double	StdDev	= Method == 1 ? 1.5 : 2.0;
+		double	d	= ((CWKSP_Base_Manager *)g_pData)->Get_Parameters()->Get_Parameter("FIT_STDDEV")->asDouble();
 
-		zMin	= Get_Grid()->Get_ArithMean(true) - Get_Grid()->Get_StdDev(true) * StdDev;
-		zMax	= Get_Grid()->Get_ArithMean(true) + Get_Grid()->Get_StdDev(true) * StdDev;
+		zMin	= Get_Grid()->Get_ArithMean(true) - Get_Grid()->Get_StdDev(true) * d;
+		zMax	= Get_Grid()->Get_ArithMean(true) + Get_Grid()->Get_StdDev(true) * d;
 
 		if( zMin < Get_Grid()->Get_ZMin(true) )	zMin	= Get_Grid()->Get_ZMin(true);
 		if( zMax > Get_Grid()->Get_ZMax(true) )	zMax	= Get_Grid()->Get_ZMax(true);
