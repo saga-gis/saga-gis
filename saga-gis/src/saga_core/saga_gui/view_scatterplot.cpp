@@ -119,15 +119,17 @@ int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("REG_SHOW")) )
 		{
-			pParameters->Get_Parameter("REG_TYPE")->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("REG_FONT")->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("REG_INFO")->Set_Enabled(pParameter->asBool());
+			pParameters->Get_Parameter("REG_TYPE" )->Set_Enabled(pParameter->asBool());
+			pParameters->Get_Parameter("REG_COLOR")->Set_Enabled(pParameter->asBool());
+			pParameters->Get_Parameter("REG_SIZE" )->Set_Enabled(pParameter->asBool());
+			pParameters->Get_Parameter("REG_INFO" )->Set_Enabled(pParameter->asBool());
 		}
 
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DISPLAY")) )
 		{
 			pParameters->Get_Parameter("DENSITY_RES")->Set_Enabled(pParameter->asInt() == 1);
-			pParameters->Get_Parameter("DENSITY_PAL")->Set_Enabled(pParameter->asInt() == 1);			
+			pParameters->Get_Parameter("DENSITY_PAL")->Set_Enabled(pParameter->asInt() == 1);
+			pParameters->Get_Parameter("DENSITY_LEG")->Set_Enabled(pParameter->asInt() == 1);
 		}
 	}
 
@@ -172,7 +174,8 @@ BEGIN_EVENT_TABLE(CVIEW_ScatterPlot, CVIEW_Base)
 
 	EVT_MENU			(ID_CMD_SCATTERPLOT_PARAMETERS	, CVIEW_ScatterPlot::On_Parameters)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_UPDATE		, CVIEW_ScatterPlot::On_Update)
-	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_ScatterPlot::On_AsTable)
+	EVT_MENU			(ID_CMD_SCATTERPLOT_AS_TABLE	, CVIEW_ScatterPlot::On_AsTable)
+	EVT_MENU			(ID_CMD_SCATTERPLOT_TO_CLIPBOARD, CVIEW_ScatterPlot::On_ToClipboard)
 END_EVENT_TABLE()
 
 
@@ -220,7 +223,8 @@ wxMenu * CVIEW_ScatterPlot::_Create_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_UPDATE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_AS_TABLE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_TO_CLIPBOARD);
 
 	return( pMenu );
 }
@@ -232,7 +236,8 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_UPDATE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_AS_TABLE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_TO_CLIPBOARD);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Scatterplot"));
 
@@ -324,9 +329,16 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 		SG_T("Y = a + b * ln(X)|")
 	);
 
-	m_Options.Add_Font(
-		pNode	, "REG_FONT"	, _TL("Font"),
-		_TL("")
+	m_Options.Add_Value(
+		pNode	, "REG_COLOR"	, _TL("Line Colour"),
+		_TL(""),
+		PARAMETER_TYPE_Color
+	);
+
+	m_Options.Add_Value(
+		pNode	, "REG_SIZE"	, _TL("Line Size"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	m_Options.Add_Info_String(
@@ -359,6 +371,12 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 		pNode	, "DENSITY_PAL"	, _TL("Colors"),
 		_TL(""),
 		&Colors
+	);
+
+	m_Options.Add_Value(
+		pNode	, "DENSITY_LEG"	, _TL("Show Legend"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
@@ -423,6 +441,31 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 	}
 }
 
+//---------------------------------------------------------
+#include <wx/clipbrd.h>
+
+void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
+{
+	wxBitmap	BMP(GetSize());
+	wxMemoryDC	dc;
+	
+	dc.SelectObject(BMP);
+	dc.SetBackground(*wxWHITE_BRUSH);
+	dc.Clear();
+
+	Draw(dc, wxRect(BMP.GetSize()));
+
+	dc.SelectObject(wxNullBitmap);
+
+	if( wxTheClipboard->Open() )
+	{
+		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		pBMP->SetBitmap(BMP);
+		wxTheClipboard->SetData(pBMP);
+		wxTheClipboard->Close();
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -470,17 +513,18 @@ void CVIEW_ScatterPlot::Draw(wxDC &dc, wxRect r)
 		//-------------------------------------------------
 		if( m_Options("DISPLAY")->asInt() == 1 )
 		{
+			if( m_Options("DENSITY_LEG")->asBool() )
+			{
+				r.SetRight(r.GetRight() - 40);
+
+				_Draw_Legend(dc, wxRect(r.GetRight() + 10, r.GetTop(), 40 - 20, r.GetHeight()));
+			}
+
 			_Draw_Image (dc, r);
 		}
 		else
 		{
 			_Draw_Points(dc, r);
-		}
-
-		//-------------------------------------------------
-		if( m_Options("REG_SHOW")->asBool() )
-		{
-			_Draw_Regression(dc, r);
 		}
 
 		//-------------------------------------------------
@@ -496,24 +540,22 @@ void CVIEW_ScatterPlot::Draw(wxDC &dc, wxRect r)
 wxRect CVIEW_ScatterPlot::_Draw_Get_rDiagram(wxRect r)
 {
 	return(	wxRect(
-		wxPoint(r.GetLeft()  + 70, r.GetTop()    + 20),
-		wxPoint(r.GetRight() - 20, r.GetBottom() - 50)
+		wxPoint(r.GetLeft()  + 45, r.GetTop()    + 20),
+		wxPoint(r.GetRight() - 20, r.GetBottom() - 40)
 	));
 }
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 {
-	int			ix, ay, by;
-	double		a, b, x, y, dx, dy, ex;
-	wxString	s;
-	wxColour	oldCol	= dc.GetTextForeground();
-	wxPen		oldPen	= dc.GetPen();
-	wxFont		oldFont	= dc.GetFont();
+	int		ix, ay, by;
+	double	a, b, x, y, dx, dy, ex;
+	wxPen	oldPen	= dc.GetPen();
 
-	dc.SetFont				(Get_Font(m_Options("REG_FONT")));
-	dc.SetTextForeground	(         m_Options("REG_FONT")->asColor());
-	dc.SetPen				(wxPen(   m_Options("REG_FONT")->asColor()));
+	dc.SetPen(wxPen(
+		m_Options("REG_COLOR")->asColor(),
+		m_Options("REG_SIZE" )->asInt()
+	));
 
 	//-----------------------------------------------------
 	a	= m_Regression.Get_Constant();
@@ -554,28 +596,44 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r)
 		}
 	}
 
+	dc.SetPen(oldPen);
+
 	//-----------------------------------------------------
+	wxString	s;
+
 	switch( m_Regression.Get_Type() )
 	{
-	case REGRESSION_Linear:	s	= wxT("Y = %f%+f*X");		break;
-	case REGRESSION_Rez_X:	s	= wxT("Y = %f%+f/X");		break;
-	case REGRESSION_Rez_Y:	s	= wxT("Y = %f/(%f-X)");		break;
-	case REGRESSION_Pow:	s	= wxT("Y = %f*X^%f");		break;
-	case REGRESSION_Exp:	s	= wxT("Y = %f e^(%f*X)");	break;
-	case REGRESSION_Log:	s	= wxT("Y = %f%+f*ln(X)");	break;
+	case REGRESSION_Linear:	s.Printf(wxT("Y = %f%+f*X"    ), a, b);	break;
+	case REGRESSION_Rez_X:	s.Printf(wxT("Y = %f%+f/X"    ), a, b);	break;
+	case REGRESSION_Rez_Y:	s.Printf(wxT("Y = %f/(%f-X)"  ), a, b);	break;
+	case REGRESSION_Pow:	s.Printf(wxT("Y = %f*X^%f"    ), a, b);	break;
+	case REGRESSION_Exp:	s.Printf(wxT("Y = %f e^(%f*X)"), a, b);	break;
+	case REGRESSION_Log:	s.Printf(wxT("Y = %f%+f*ln(X)"), a, b);	break;
 	}
 
-	Draw_Text(dc, TEXTALIGN_TOPLEFT, r.GetLeft(), r.GetTop(),
-		wxString::Format(s, m_Regression.Get_Constant(), m_Regression.Get_Coefficient())
+	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, r.GetLeft() + r.GetWidth() / 2, r.GetTop(),
+		s + wxString::Format(wxT("; r2 = %.2f%%"), 100.0 * m_Regression.Get_R2())
 	);
+}
 
-	Draw_Text(dc, TEXTALIGN_BOTTOMRIGHT, r.GetRight(), r.GetBottom(),
-		wxString::Format(wxT("R2: %f%%"), 100.0 * m_Regression.Get_R2())	// Coefficient of Determination...
-	);
+//---------------------------------------------------------
+void CVIEW_ScatterPlot::_Draw_Legend(wxDC &dc, wxRect r)
+{
+	CSG_Colors	Colors(*m_Options("DENSITY_PAL")->asColors());
 
-	dc.SetFont          (oldFont);
-	dc.SetPen           (oldPen);
-	dc.SetTextForeground(oldCol);
+	Colors.Set_Count(r.GetHeight());
+
+	for(int i=0, y=r.GetBottom(); i<Colors.Get_Count(); i++, y--)
+	{
+		Draw_FillRect(dc, Get_Color_asWX(Colors.Get_Color(i)), r.GetLeft(), y, r.GetRight(), y + 1);
+	}
+
+//	r.Offset(0, -r.GetHeight());
+
+	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
+
+	Draw_Text(dc, TEXTALIGN_BOTTOMLEFT, 2 + r.GetRight(), r.GetBottom(), wxT("0"));
+	Draw_Text(dc, TEXTALIGN_TOPLEFT   , 2 + r.GetRight(), r.GetTop   (), wxString::Format(wxT("%d"), (int)m_Count.Get_ZMax()));
 }
 
 //---------------------------------------------------------
@@ -627,49 +685,34 @@ void CVIEW_ScatterPlot::_Draw_Points(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 {
-	const int	dyFont		= 12,
-				Precision	= 3;
-
-	int		iPixel, iStep, nSteps;
-	double	dPixel, dz;
-	wxFont	Font;
-
 	//-----------------------------------------------------
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
-	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, r.GetRight(), r.GetTop() + r.GetHeight() / 2, -90.0, m_sY.c_str());
-	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, r.GetLeft() + r.GetWidth() / 2, r.GetTop(), m_sX.c_str());
+	//-------------------------------------------------
+	Draw_Scale(dc, wxRect(r.GetLeft() - 20, r.GetTop(), 20, r.GetHeight()),
+		m_Regression.Get_yMin(), m_Regression.Get_yMax(),
+		false, false, false
+	);
 
-	Font	= dc.GetFont();
-	Font.SetPointSize((int)(0.7 * dyFont));
-	dc.SetFont(Font);
+	Draw_Scale(dc, wxRect(r.GetLeft(), r.GetBottom(), r.GetWidth(), 20),
+		m_Regression.Get_xMin(), m_Regression.Get_xMax(),
+		true , true , true
+	);
+
+	Draw_Text(dc, TEXTALIGN_BOTTOMCENTER,
+		r.GetLeft() - 25, r.GetTop() + r.GetHeight() / 2, 90.0,
+		m_sY.c_str()
+	);
+
+	Draw_Text(dc, TEXTALIGN_TOPCENTER,
+		r.GetLeft() + r.GetWidth() / 2, r.GetBottom() + 20,
+		m_sX.c_str()
+	);
 
 	//-------------------------------------------------
-	dPixel	= dyFont;
-	nSteps	= (int)(r.GetHeight() / dPixel);
-	dz		= (m_Regression.Get_yMax() - m_Regression.Get_yMin()) * dPixel / (double)r.GetHeight();
-
-	for(iStep=0; iStep<=nSteps; iStep++)
+	if( m_Options("REG_SHOW")->asBool() )
 	{
-		iPixel	= r.GetBottom()	- (int)(dPixel * iStep);
-		dc.DrawLine(r.GetLeft(), iPixel, r.GetLeft() - 5, iPixel);
-		Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
-			wxString::Format(wxT("%.*f"), Precision, m_Regression.Get_yMin() + iStep * dz)
-		);
-	}
-
-	//-------------------------------------------------
-	dPixel	= dyFont + 5;
-	nSteps	= (int)(r.GetWidth() / dPixel);
-	dz		= (m_Regression.Get_xMax() - m_Regression.Get_xMin()) * dPixel / (double)r.GetWidth();
-
-	for(iStep=0; iStep<=nSteps; iStep++)
-	{
-		iPixel	= r.GetLeft() + (int)(dPixel * iStep);
-		dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
-		Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-			wxString::Format(wxT("%.*f"), Precision, m_Regression.Get_xMin() + iStep * dz)
-		);
+		_Draw_Regression(dc, r);
 	}
 }
 

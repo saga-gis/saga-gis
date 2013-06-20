@@ -110,6 +110,7 @@ public:
 	void							On_Parameters				(wxCommandEvent &event);
 	void							On_Update					(wxCommandEvent &event);
 	void							On_AsTable					(wxCommandEvent &event);
+	void							On_ToClipboard				(wxCommandEvent &event);
 
 	void							Draw						(wxDC &dc, wxRect r);
 
@@ -138,6 +139,7 @@ private:
 	bool							_Initialize_Table			(void);
 
 	wxRect							_Draw_Get_rDiagram			(wxRect r);
+	void							_Draw_Legend				(wxDC &dc, wxRect r);
 	void							_Draw_Image					(wxDC &dc, wxRect r);
 	void							_Draw_Points				(wxDC &dc, wxRect r);
 	void							_Draw_Regression			(wxDC &dc, wxRect r);

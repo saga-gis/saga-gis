@@ -369,84 +369,60 @@ void CVIEW_Histogram_Control::_Draw_Frame(wxDC &dc, wxRect r)
 	const int	dyFont		= 12,
 				Precision	= 3;
 
-	int		iPixel, iStep, nSteps, Maximum, nClasses;
-	double	dPixel, dPixelFont, dz, dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
-	wxFont	Font;
-
 	//-----------------------------------------------------
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
-	Maximum	= m_bCumulative
-			? m_pLayer->Get_Classifier()->Histogram_Get_Total()
-			: m_pLayer->Get_Classifier()->Histogram_Get_Maximum();
+	int	Maximum	= m_bCumulative
+		? m_pLayer->Get_Classifier()->Histogram_Get_Total()
+		: m_pLayer->Get_Classifier()->Histogram_Get_Maximum();
 
 	if( Maximum > 0 )
 	{
-		Font	= dc.GetFont();
-		Font.SetPointSize((int)(0.7 * dyFont));
-		dc.SetFont(Font);
+		Draw_Scale(dc, wxRect(r.GetLeft() - 20, r.GetTop(), 20, r.GetHeight()), 0, Maximum, false, false, false);
+	}
 
-		//-------------------------------------------------
-		dPixelFont	= dyFont;
+	//-----------------------------------------------------
+	int		iPixel, iStep, nSteps, nClasses;
+	double	dPixel, dPixelFont, dz;
+	wxFont	Font;
 
-		if( (dPixel = r.GetHeight() / (double)Maximum) < dPixelFont )
+	Font	= dc.GetFont();
+	Font.SetPointSize((int)(0.7 * dyFont));
+	dc.SetFont(Font);
+
+	nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
+	dPixelFont	= dyFont + 5;
+
+	if( (dPixel = r.GetWidth() / (double)nClasses) < dPixelFont )
+	{
+		dPixel	= dPixel * (1 + (int)(dPixelFont / dPixel));
+	}
+
+	nSteps	= (int)(r.GetWidth() / dPixel);
+	dz		= dPixel / (double)r.GetWidth();
+
+	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
+	{
+		for(iStep=0; iStep<nSteps; iStep++)
 		{
-			dPixel	= dPixel * (1 + (int)(dPixelFont / dPixel));
+			iPixel	= r.GetLeft() + (int)(dPixel * iStep);
+			dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
+			Draw_Text(dc, TEXTALIGN_TOPRIGHT, iPixel, r.GetBottom() + 7, 45.0,
+				m_pLayer->Get_Classifier()->Get_Class_Name((int)(nClasses * iStep * dz))
+			);
 		}
-
-		nSteps	= (int)(r.GetHeight() / dPixel);
-		dz		= Maximum * dPixel / (double)r.GetHeight();
+	}
+	else
+	{
+		double	zFactor	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZFactor() : 1.0;
 
 		for(iStep=0; iStep<=nSteps; iStep++)
 		{
-			iPixel	= r.GetBottom()	- (int)(dPixel * iStep);
-			dc.DrawLine(r.GetLeft(), iPixel, r.GetLeft() - 5, iPixel);
-
-			if( 1 )
-				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
-					wxString::Format(wxT("%d"), (int)(iStep * dz))
-				);
-			else
-				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
-					wxString::Format(wxT("%.2f"), iStep * dz * dArea)
-				);
-		}
-
-		//-------------------------------------------------
-		nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
-		dPixelFont	= dyFont + 5;
-
-		if( (dPixel = r.GetWidth() / (double)nClasses) < dPixelFont )
-		{
-			dPixel	= dPixel * (1 + (int)(dPixelFont / dPixel));
-		}
-
-		nSteps	= (int)(r.GetWidth() / dPixel);
-		dz		= dPixel / (double)r.GetWidth();
-
-		if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
-		{
-			for(iStep=0; iStep<nSteps; iStep++)
-			{
-				iPixel	= r.GetLeft() + (int)(dPixel * iStep);
-				dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
-				Draw_Text(dc, TEXTALIGN_TOPRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-					m_pLayer->Get_Classifier()->Get_Class_Name((int)(nClasses * iStep * dz))
-				);
-			}
-		}
-		else
-		{
-			double	zFactor	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZFactor() : 1.0;
-
-			for(iStep=0; iStep<=nSteps; iStep++)
-			{
-				iPixel	= r.GetLeft() + (int)(dPixel * iStep);
-				dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
-				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-					wxString::Format(wxT("%.*f"), Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
-				);
-			}
+			iPixel	= r.GetLeft() + (int)(dPixel * iStep);
+			dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
+			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
+				wxString::Format(wxT("%.*f"), Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
+			);
 		}
 	}
 }
@@ -457,13 +433,13 @@ wxRect CVIEW_Histogram_Control::_Draw_Get_rDiagram(wxRect r)
 	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
 		return(	wxRect(
-			wxPoint(r.GetLeft()  + 50, r.GetTop()    +  10),
+			wxPoint(r.GetLeft()  + 30, r.GetTop()    +  10),
 			wxPoint(r.GetRight() - 10, r.GetBottom() - 100)
 		));
 	}
 
 	return(	wxRect(
-		wxPoint(r.GetLeft()  + 50, r.GetTop()    + 10),
+		wxPoint(r.GetLeft()  + 30, r.GetTop()    + 10),
 		wxPoint(r.GetRight() - 10, r.GetBottom() - 40)
 	));
 }
