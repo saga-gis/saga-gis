@@ -198,6 +198,7 @@ CWKSP_Map::CWKSP_Map(void)
 	m_pLayout		= NULL;
 	m_pLayout_Info	= new CVIEW_Layout_Info(this);
 
+	m_bScaleBar		= true;
 	m_bSynchronise	= false;
 	m_Img_bSave		= false;
 
@@ -265,6 +266,7 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYOUT_SHOW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SYNCHRONIZE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SCALEBAR);
 
 	return( pMenu );
 }
@@ -302,6 +304,10 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:
 		SaveAs_Image_Clipboard(true);
+		break;
+
+	case ID_CMD_MAPS_SCALEBAR:
+		Set_ScaleBar(!m_bScaleBar);
 		break;
 
 	case ID_CMD_MAPS_SYNCHRONIZE:
@@ -770,6 +776,14 @@ bool CWKSP_Map::Set_Extent_Forward(bool bCheck_Only)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+void CWKSP_Map::Set_ScaleBar(bool bOn)
+{
+	m_bScaleBar	= bOn;
+
+	View_Refresh(true);
 }
 
 //---------------------------------------------------------
@@ -1388,6 +1402,29 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 		{
 			Get_Layer(i)->Get_Layer()->Draw(dc_Map, bEdit && Get_Layer(i)->Get_Layer() == Get_Active_Layer());
 		}
+	}
+
+	if( m_bScaleBar )
+	{
+		double	dScale	= 0.4 * rWorld.Get_XRange();
+		wxRect	r, rScale(10, rClient.GetHeight() - 25, (int)(0.5 + dc_Map.xWorld2DC(rWorld.Get_XMin() + dScale)), 20);
+
+		dc_Map.dc.SetPen(wxPen(*wxWHITE));
+		dc_Map.dc.SetTextForeground(*wxWHITE);
+
+		r	= rScale; r.Offset( 0,  1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+		r	= rScale; r.Offset( 1,  1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+		r	= rScale; r.Offset( 1,  0); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+		r	= rScale; r.Offset( 1, -1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+		r	= rScale; r.Offset( 0, -1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+		r	= rScale; r.Offset(-1, -1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+		r	= rScale; r.Offset(-1,  0); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+		r	= rScale; r.Offset(-1,  1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
+
+		dc_Map.dc.SetPen(wxPen(*wxBLACK));
+		dc_Map.dc.SetTextForeground(*wxBLACK);
+
+		Draw_Scale(dc_Map.dc, rScale, 0.0, dScale, true, true, true, true);
 	}
 
 	dc_Map.Draw(dc);

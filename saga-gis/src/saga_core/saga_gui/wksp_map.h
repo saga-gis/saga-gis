@@ -145,6 +145,9 @@ public:
 	void						Set_Synchronising		(bool bOn);
 	bool						is_Synchronising		(void)	{	return( m_bSynchronise );	}
 
+	void						Set_ScaleBar			(bool bOn);
+	bool						is_ScaleBar				(void)	{	return( m_bScaleBar );	}
+
 	bool						is_Image_Save_Mode		(void)	{	return( m_Img_bSave );		}
 
 	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
@@ -202,7 +205,7 @@ protected:
 
 private:
 
-	bool						m_bSynchronise, m_Img_bSave;
+	bool						m_bScaleBar, m_bSynchronise, m_Img_bSave;
 
 	int							m_Img_Type, m_Img_Count;
 

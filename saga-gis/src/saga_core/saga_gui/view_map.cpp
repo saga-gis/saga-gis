@@ -106,6 +106,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION				, CVIEW_Map::On_Map_Zoom_Selection)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT					, CVIEW_Map::On_Map_Zoom_Extent)
 	EVT_MENU			(ID_CMD_MAP_SYNCHRONIZE					, CVIEW_Map::On_Map_Zoom_Synchronize)
+	EVT_MENU			(ID_CMD_MAPS_SCALEBAR					, CVIEW_Map::On_Map_ScaleBar)
 
 	EVT_MENU			(ID_CMD_MAP_MODE_ZOOM					, CVIEW_Map::On_Map_Mode_Zoom)
 	EVT_MENU			(ID_CMD_MAP_MODE_PAN					, CVIEW_Map::On_Map_Mode_Pan)
@@ -162,6 +163,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 //	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_LAYOUT_SHOW);
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAPS_SCALEBAR);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
@@ -205,6 +207,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_3D_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_LAYOUT_SHOW);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAPS_SCALEBAR);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Map"));
 
@@ -495,6 +498,12 @@ void CVIEW_Map::On_Map_Zoom_Selection(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Zoom_Extent(wxCommandEvent &event)
 {
 	m_pMap->Set_Extent();
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_ScaleBar(wxCommandEvent &event)
+{
+	m_pMap->Set_ScaleBar(!m_pMap->is_ScaleBar());
 }
 
 //---------------------------------------------------------

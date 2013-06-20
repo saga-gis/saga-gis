@@ -209,6 +209,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard [Ctrl+L]") );
 	case ID_CMD_MAP_SYNCHRONIZE:
 	case ID_CMD_MAPS_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
+	case ID_CMD_MAPS_SCALEBAR:					return( _TL("Scale Bar") );
 
 	case ID_CMD_MAPS_SHOW:				return( _TL("Show Map") );
 	case ID_CMD_MAPS_LAYER_SHOW:		return( _TL("Show Layer") );
@@ -353,6 +354,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	break;
 	case ID_CMD_MAPS_SAVE_IMAGE:				break;
 	case ID_CMD_MAPS_SYNCHRONIZE:		return( ID_IMG_TB_MAP_SYNCHRONIZE );
+	case ID_CMD_MAPS_SCALEBAR:			break;
 	case ID_CMD_MAP_LEGEND_VERTICAL:	return( ID_IMG_TB_MAP_LEGEND_VERTICAL );
 	case ID_CMD_MAP_LEGEND_HORIZONTAL:	return( ID_IMG_TB_MAP_LEGEND_HORIZONTAL );
 

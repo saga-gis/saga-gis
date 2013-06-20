@@ -153,7 +153,7 @@ void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxStr
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void			Draw_Scale			(wxDC &dc, wxRect r, double min_Value, double max_Value, bool bHorizontal, bool bAscendent, bool bTickAtTop);
+void			Draw_Scale			(wxDC &dc, wxRect r, double min_Value, double max_Value, bool bHorizontal, bool bAscendent, bool bTickAtTop, bool bLineConnector = false);
 
 
 ///////////////////////////////////////////////////////////

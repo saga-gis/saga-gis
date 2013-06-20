@@ -112,6 +112,7 @@ public:
 	void							On_Map_Zoom_Selection		(wxCommandEvent  &event);
 	void							On_Map_Zoom_Extent			(wxCommandEvent  &event);
 	void							On_Map_Zoom_Synchronize		(wxCommandEvent  &event);
+	void							On_Map_ScaleBar				(wxCommandEvent  &event);
 
 	void							On_Map_Mode_Zoom			(wxCommandEvent  &event);
 	void							On_Map_Mode_Pan				(wxCommandEvent  &event);

@@ -337,7 +337,7 @@ void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxStr
 #define TEXTSPACE	6
 
 //---------------------------------------------------------
-void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop)
+void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop, bool bLineConnector)
 {
 	int			xOff, yOff, Width, Height, Height_Tick, Decimals, zDC, yDC, Style, x, y, n;
 	double		z, dz, zToDC;
@@ -442,6 +442,17 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 					Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, n - Height_Tick, y, 90.0, s);
 					break;
 				}
+			}
+		}
+
+		if( bLineConnector )
+		{
+			if( bHorizontal )
+			{
+				dc.DrawLine(xOff, yOff, xOff + zDC, yOff);
+			}
+			else
+			{
 			}
 		}
 
