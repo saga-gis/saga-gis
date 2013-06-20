@@ -19,6 +19,7 @@ gw_multi_regression_grid.cpp\
 gw_multi_regression_points.cpp\
 gw_regression.cpp\
 gw_regression_grid.cpp\
+gwr_grid_downscaling.cpp\
 grids_trend_polynom.cpp\
 MLB_Interface.cpp\
 point_grid_regression.cpp\
@@ -32,6 +33,7 @@ gw_multi_regression_grid.h\
 gw_multi_regression_points.h\
 gw_regression.h\
 gw_regression_grid.h\
+gwr_grid_downscaling.h\
 grids_trend_polynom.h\
 MLB_Interface.h\
 point_grid_regression.h\

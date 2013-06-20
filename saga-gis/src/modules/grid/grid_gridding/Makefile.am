@@ -17,6 +17,7 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libgrid_gridding.la
 libgrid_gridding_la_SOURCES =\
 Interpolation.cpp\
+Interpolation_AngularDistance.cpp\
 Interpolation_InverseDistance.cpp\
 Interpolation_NaturalNeighbour.cpp\
 Interpolation_NearestNeighbour.cpp\
@@ -35,6 +36,7 @@ Shepard.cpp\
 ./nn/nnpi.c\
 ./nn/triangle.c\
 Interpolation.h\
+Interpolation_AngularDistance.h\
 Interpolation_InverseDistance.h\
 Interpolation_NaturalNeighbour.h\
 Interpolation_NearestNeighbour.h\
