@@ -144,6 +144,7 @@ public:
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
 	virtual CSG_Parameters *		Get_Parameters			(void);
+	virtual CSG_Parameter *			Get_Parameter			(const CSG_String &Identifier);
 	virtual void					Parameters_Changed		(void);
 
 	class CWKSP_Base_Control *		Get_Control				(void);

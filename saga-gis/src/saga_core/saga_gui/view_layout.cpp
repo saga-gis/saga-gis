@@ -139,7 +139,7 @@ CVIEW_Layout::~CVIEW_Layout(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Layout::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Layout"));
+	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_FIT_SCALE);
 	pMenu->AppendSeparator();

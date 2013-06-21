@@ -245,6 +245,19 @@ void CVIEW_Ruler::_Draw_Core(wxDC &dc, int Width, int Height)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Ruler::Set_Mode(int Mode)
+{
+	Mode	= (Mode & RULER_MODE_SCALE) ? 1 : ((Mode & RULER_MODE_CORNERS) ? 2 : 0);
+
+	if( m_Mode != Mode )
+	{
+		m_Mode	= Mode;
+
+		Refresh();
+	}
+}
+
+//---------------------------------------------------------
 void CVIEW_Ruler::Set_Range(double Min, double Max)
 {
 	if( m_Min != Min || m_Max != Max )

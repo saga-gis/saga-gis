@@ -801,7 +801,7 @@ bool CWKSP_Base_Control::_Copy_Settings(CSG_Parameters *pParameters, CWKSP_Base_
 		//	&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("LABEL_ATTRIB"))
 		//	&&	SG_STR_CMP(pSource->Get_Identifier(), SG_T("LABEL_ATTRIB_SIZE_BY"))	)
 			{
-				CSG_Parameter	*pTarget	= pItem->Get_Parameters()->Get_Parameter(pSource->Get_Identifier());
+				CSG_Parameter	*pTarget	= pItem->Get_Parameter(pSource->Get_Identifier());
 
 				if( pTarget && pTarget->Get_Type() == pSource->Get_Type() )
 				{

@@ -600,7 +600,7 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 
 	if( Entry.Get_Child(SG_T("NAME")) && Entry.Get_Child(SG_T("NAME"))->Get_Content().Length() > 0 )
 	{
-		pMap->Get_Parameters()->Get_Parameter("NAME")->Set_Value(Entry.Get_Child(SG_T("NAME"))->Get_Content());
+		pMap->Get_Parameter("NAME")->Set_Value(Entry.Get_Child(SG_T("NAME"))->Get_Content());
 		pMap->Parameters_Changed();
 	}
 
@@ -1040,7 +1040,7 @@ bool CWKSP_Project::_Compatibility_Load_Map(CSG_File &Stream, const wxString &Pr
 			{
 				if( sName.Length() > 0 )
 				{
-					pMap->Get_Parameters()->Get_Parameter("NAME")->Set_Value(sName);
+					pMap->Get_Parameter("NAME")->Set_Value(sName);
 					pMap->Parameters_Changed();
 				}
 

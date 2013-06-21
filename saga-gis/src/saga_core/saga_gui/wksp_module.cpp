@@ -179,7 +179,7 @@ wxString CWKSP_Module::Get_Description(void)
 {
 	wxString	Description;
 
-	if( g_pModules->Get_Parameters()->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
+	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
 		Description	= Get_Online_Module_Description(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), Get_Module()->Get_ID());
 	}

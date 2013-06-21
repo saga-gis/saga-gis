@@ -407,7 +407,7 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc)
 			}
 
 			//---------------------------------------------
-			if( m_pMap->Get_Parameters()->Get_Parameter("PRINT_SCALE_SHOW")->asBool() )
+			if( m_pMap->Get_Parameter("PRINT_SCALE_SHOW")->asBool() )
 			{
 				double	Scale	= m_pMap->Get_World(dc_rMap).Get_XRange() / (dc_rMap.GetWidth() * 0.001 / dPaperToDC);
 

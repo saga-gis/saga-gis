@@ -250,6 +250,12 @@ CSG_Parameters * CWKSP_Base_Item::Get_Parameters(void)
 }
 
 //---------------------------------------------------------
+CSG_Parameter * CWKSP_Base_Item::Get_Parameter(const CSG_String &Identifier)
+{
+	return( Get_Parameters() ? Get_Parameters()->Get_Parameter(Identifier) : NULL );
+}
+
+//---------------------------------------------------------
 void CWKSP_Base_Item::On_Create_Parameters(void)
 {}
 

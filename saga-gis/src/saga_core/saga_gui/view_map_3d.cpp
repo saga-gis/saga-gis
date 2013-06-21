@@ -213,7 +213,7 @@ CVIEW_Map_3D::~CVIEW_Map_3D(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("3D-View")), *pMenu_Sub;
+	wxMenu	*pMenu	= new wxMenu, *pMenu_Sub;
 
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
 

@@ -108,6 +108,7 @@ public:
 	void							On_Paint					(wxPaintEvent   &event);
 
 	void							On_Parameters				(wxCommandEvent &event);
+	void							On_Options					(wxCommandEvent &event);
 	void							On_Update					(wxCommandEvent &event);
 	void							On_AsTable					(wxCommandEvent &event);
 	void							On_ToClipboard				(wxCommandEvent &event);
@@ -129,8 +130,6 @@ private:
 
 
 	void							_On_Construction			(void);
-
-	void							_Do_Parameters				(void);
 
 	bool							_Initialize					(void);
 	bool							_Initialize_Count			(void);

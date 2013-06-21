@@ -390,6 +390,8 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	delete(m_pLayout);
 
 	//-----------------------------------------------------
+	GetMenuBar()->Remove(2);	// we want delete the following menus...
+
 	delete(m_pMN_Table);
 	delete(m_pMN_Diagram);
 	delete(m_pMN_Map);
@@ -879,18 +881,19 @@ wxWindow * CSAGA_Frame::Top_Window_Get(void)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
+	wxString		Title;
 	wxMenu			*pMenu		= NULL;
 	wxToolBarBase	*pToolBar	= NULL;
 
 	switch( View_ID )
 	{
-	case ID_VIEW_TABLE:			pToolBar	= m_pTB_Table;			pMenu	= m_pMN_Table;			break;
-	case ID_VIEW_TABLE_DIAGRAM:	pToolBar	= m_pTB_Diagram;		pMenu	= m_pMN_Diagram;		break;
-	case ID_VIEW_MAP:			pToolBar	= m_pTB_Map;			pMenu	= m_pMN_Map;			break;
-	case ID_VIEW_MAP_3D:		pToolBar	= m_pTB_Map_3D;			pMenu	= m_pMN_Map_3D;			break;
-	case ID_VIEW_HISTOGRAM:		pToolBar	= m_pTB_Histogram;		pMenu	= m_pMN_Histogram;		break;
-	case ID_VIEW_SCATTERPLOT:	pToolBar	= m_pTB_ScatterPlot;	pMenu	= m_pMN_ScatterPlot;	break;
-	case ID_VIEW_LAYOUT:		pToolBar	= m_pTB_Layout;			pMenu	= m_pMN_Layout;			break;
+	case ID_VIEW_TABLE:			pToolBar = m_pTB_Table      ; pMenu	= m_pMN_Table      ; Title = _TL("Table"      ); break;
+	case ID_VIEW_TABLE_DIAGRAM:	pToolBar = m_pTB_Diagram    ; pMenu	= m_pMN_Diagram    ; Title = _TL("Diagram"    ); break;
+	case ID_VIEW_MAP:			pToolBar = m_pTB_Map        ; pMenu	= m_pMN_Map        ; Title = _TL("Map"        ); break;
+	case ID_VIEW_MAP_3D:		pToolBar = m_pTB_Map_3D     ; pMenu	= m_pMN_Map_3D     ; Title = _TL("3D View"    ); break;
+	case ID_VIEW_HISTOGRAM:		pToolBar = m_pTB_Histogram  ; pMenu	= m_pMN_Histogram  ; Title = _TL("Histogram"  ); break;
+	case ID_VIEW_SCATTERPLOT:	pToolBar = m_pTB_ScatterPlot; pMenu	= m_pMN_ScatterPlot; Title = _TL("Scatterplot"); break;
+	case ID_VIEW_LAYOUT:		pToolBar = m_pTB_Layout     ; pMenu	= m_pMN_Layout     ; Title = _TL("Layout"     ); break;
 	}
 
 	//-----------------------------------------------------
@@ -907,17 +910,13 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 
 	if( pMenu )
 	{
-		if( pMenuBar->GetMenuCount() == 5 )
+		if( pMenuBar->GetMenuCount() < 5 )
 		{
-			if( pMenuBar->GetMenu(2) != pMenu )
-			{
-				pMenuBar->Remove(2);
-				pMenuBar->Insert(2, pMenu, pMenu->GetTitle());
-			}
+			pMenuBar->Insert (2, pMenu, Title);
 		}
-		else
+		else if( pMenuBar->GetMenu(2) != pMenu )
 		{
-			pMenuBar->Insert(2, pMenu, pMenu->GetTitle());
+			pMenuBar->Replace(2, pMenu, Title);
 		}
 	}
 	else if( pMenuBar->GetMenuCount() == 5 )

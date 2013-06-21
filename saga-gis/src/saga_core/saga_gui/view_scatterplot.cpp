@@ -173,6 +173,7 @@ BEGIN_EVENT_TABLE(CVIEW_ScatterPlot, CVIEW_Base)
 	EVT_SIZE			(CVIEW_ScatterPlot::On_Size)
 
 	EVT_MENU			(ID_CMD_SCATTERPLOT_PARAMETERS	, CVIEW_ScatterPlot::On_Parameters)
+	EVT_MENU			(ID_CMD_SCATTERPLOT_OPTIONS		, CVIEW_ScatterPlot::On_Options)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_UPDATE		, CVIEW_ScatterPlot::On_Update)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_AS_TABLE	, CVIEW_ScatterPlot::On_AsTable)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_TO_CLIPBOARD, CVIEW_ScatterPlot::On_ToClipboard)
@@ -219,7 +220,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Table *pTable)
 //---------------------------------------------------------
 wxMenu * CVIEW_ScatterPlot::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Scatterplot"));
+	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_UPDATE);
@@ -234,7 +235,7 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 {
 	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_SCATTERPLOT);
 
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_PARAMETERS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_FIRST);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_UPDATE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_AS_TABLE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_TO_CLIPBOARD);
@@ -382,7 +383,10 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	//-----------------------------------------------------
 	m_Parameters.Set_Callback_On_Parameter_Changed(&Scatter_Plot_On_Parameter_Changed);
 
-	_Do_Parameters();
+	if( DLG_Parameters(&m_Parameters) )
+	{
+		_Initialize();
+	}
 }
 
 
@@ -393,7 +397,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::_Do_Parameters(void)
+void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 {
 	if( DLG_Parameters(&m_Parameters) )
 	{
@@ -402,9 +406,12 @@ void CVIEW_ScatterPlot::_Do_Parameters(void)
 }
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
+void CVIEW_ScatterPlot::On_Options(wxCommandEvent &event)
 {
-	_Do_Parameters();
+	if( DLG_Parameters(&m_Options) )
+	{
+		_Initialize();
+	}
 }
 
 //---------------------------------------------------------

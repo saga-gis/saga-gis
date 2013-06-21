@@ -238,7 +238,7 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 
 	case ID_CMD_GRIDS_FIT_STDDEV:
 		{
-			double	d	= ((CWKSP_Base_Manager *)g_pData)->Get_Parameters()->Get_Parameter("FIT_STDDEV")->asDouble();
+			double	d	= g_pData->Get_Parameter("FIT_STDDEV")->asDouble();
 
 			Set_Color_Range(
 				Get_Grid()->Get_ArithMean(true) - d * Get_Grid()->Get_StdDev(true),
@@ -977,7 +977,7 @@ bool CWKSP_Grid::Fit_Color_Range(void)
 {
 	double		zMin, zMax;
 
-	int		Method	= ((CWKSP_Base_Item *)g_pData)->Get_Parameters()->Get_Parameter("GRID_DISPLAY_RANGEFIT")->asInt();
+	int		Method	= g_pData->Get_Parameter("GRID_DISPLAY_RANGEFIT")->asInt();
 
 	if( Method == 0 )
 	{
@@ -986,7 +986,7 @@ bool CWKSP_Grid::Fit_Color_Range(void)
 	}
 	else
 	{
-		double	d	= ((CWKSP_Base_Manager *)g_pData)->Get_Parameters()->Get_Parameter("FIT_STDDEV")->asDouble();
+		double	d	= g_pData->Get_Parameter("FIT_STDDEV")->asDouble();
 
 		zMin	= Get_Grid()->Get_ArithMean(true) - Get_Grid()->Get_StdDev(true) * d;
 		zMax	= Get_Grid()->Get_ArithMean(true) + Get_Grid()->Get_StdDev(true) * d;

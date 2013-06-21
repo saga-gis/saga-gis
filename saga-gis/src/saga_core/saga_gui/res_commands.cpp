@@ -207,9 +207,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_IMAGE:				return( _TL("Save As Image...") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( _TL("Copy Map to Clipboard [Ctrl+C]") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard [Ctrl+L]") );
-	case ID_CMD_MAP_SYNCHRONIZE:
-	case ID_CMD_MAPS_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
-	case ID_CMD_MAPS_SCALEBAR:					return( _TL("Scale Bar") );
+	case ID_CMD_MAP_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
+	case ID_CMD_MAP_SCALEBAR:					return( _TL("Scale Bar") );
 
 	case ID_CMD_MAPS_SHOW:				return( _TL("Show Map") );
 	case ID_CMD_MAPS_LAYER_SHOW:		return( _TL("Show Layer") );
@@ -294,6 +293,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DIAGRAM_SIZE_DEC:		return( _TL("Decrease Diagram Size") );
 
 	case ID_CMD_SCATTERPLOT_PARAMETERS:		return( _TL("Properties") );
+	case ID_CMD_SCATTERPLOT_OPTIONS:		return( _TL("Options") );
 	case ID_CMD_SCATTERPLOT_UPDATE:			return( _TL("Update Data") );
 	case ID_CMD_SCATTERPLOT_AS_TABLE:		return( _TL("Convert To Table") );
 	case ID_CMD_SCATTERPLOT_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
@@ -353,8 +353,8 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			break;
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	break;
 	case ID_CMD_MAPS_SAVE_IMAGE:				break;
-	case ID_CMD_MAPS_SYNCHRONIZE:		return( ID_IMG_TB_MAP_SYNCHRONIZE );
-	case ID_CMD_MAPS_SCALEBAR:			break;
+	case ID_CMD_MAP_SYNCHRONIZE:		return( ID_IMG_TB_MAP_SYNCHRONIZE );
+	case ID_CMD_MAP_SCALEBAR:			break;
 	case ID_CMD_MAP_LEGEND_VERTICAL:	return( ID_IMG_TB_MAP_LEGEND_VERTICAL );
 	case ID_CMD_MAP_LEGEND_HORIZONTAL:	return( ID_IMG_TB_MAP_LEGEND_HORIZONTAL );
 
@@ -392,6 +392,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_TABLE_RECORD_DEL_ALL:	return( ID_IMG_TB_TABLE_ROW_DEL_ALL );
 
 	case ID_CMD_SCATTERPLOT_PARAMETERS:	return( ID_IMG_TB_SCATTERPLOT_PARAMETERS );
+	case ID_CMD_SCATTERPLOT_OPTIONS:	return( ID_IMG_TB_SCATTERPLOT_PARAMETERS );
 	case ID_CMD_SCATTERPLOT_UPDATE:		return( ID_IMG_DEFAULT );
 
 	case ID_CMD_DIAGRAM_PARAMETERS:		return( ID_IMG_TB_DIAGRAM_PARAMETERS );

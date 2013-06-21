@@ -108,6 +108,7 @@ public:
 
 	void						On_Paint			(wxPaintEvent &event);
 
+	void						Set_Mode			(int Mode);
 	void						Set_Range			(double Min, double Max);
 	void						Set_Range_Core		(double Min, double Max);
 	void						Set_Position		(int Position);

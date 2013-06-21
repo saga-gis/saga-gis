@@ -282,8 +282,8 @@ void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
 
 		case WKSP_ITEM_Shapes:
 			m_pLayer->Set_Color_Range(
-				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Minimum(m_pLayer->Get_Parameters()->Get_Parameter("METRIC_ATTRIB")->asInt()),
-				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Maximum(m_pLayer->Get_Parameters()->Get_Parameter("METRIC_ATTRIB")->asInt())
+				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
+				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
 			);
 			break;
 		}
@@ -421,7 +421,8 @@ void CVIEW_Histogram_Control::_Draw_Frame(wxDC &dc, wxRect r)
 			iPixel	= r.GetLeft() + (int)(dPixel * iStep);
 			dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
 			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-				wxString::Format(wxT("%.*f"), Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
+			//	wxString::Format(wxT("%.*f"), Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
+				SG_Get_String(zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz), -2).c_str()
 			);
 		}
 	}
@@ -488,7 +489,7 @@ CVIEW_Histogram::~CVIEW_Histogram(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Histogram::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Histogram"));
+	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);

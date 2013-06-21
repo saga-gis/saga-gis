@@ -198,7 +198,7 @@ CWKSP_Map::CWKSP_Map(void)
 	m_pLayout		= NULL;
 	m_pLayout_Info	= new CVIEW_Layout_Info(this);
 
-	m_bScaleBar		= true;
+	m_bScaleBar		= g_pMaps->Get_Parameter("SCALE_BAR")->asBool();
 	m_bSynchronise	= false;
 	m_Img_bSave		= false;
 
@@ -265,8 +265,8 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYOUT_SHOW);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SYNCHRONIZE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SCALEBAR);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_SYNCHRONIZE);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_SCALEBAR);
 
 	return( pMenu );
 }
@@ -306,11 +306,11 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 		SaveAs_Image_Clipboard(true);
 		break;
 
-	case ID_CMD_MAPS_SCALEBAR:
+	case ID_CMD_MAP_SCALEBAR:
 		Set_ScaleBar(!m_bScaleBar);
 		break;
 
-	case ID_CMD_MAPS_SYNCHRONIZE:
+	case ID_CMD_MAP_SYNCHRONIZE:
 		Set_Synchronising(!m_bSynchronise);
 		break;
 
@@ -353,6 +353,10 @@ bool CWKSP_Map::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:
 		event.Check(is_Image_Save_Mode());
 		break;
+
+	case ID_CMD_MAP_SCALEBAR:
+		event.Check(is_ScaleBar());
+		break;
 	}
 
 	return( true );
@@ -385,7 +389,7 @@ void CWKSP_Map::On_Create_Parameters(void)
 	m_Parameters.Add_Value(
 		pNode_0	, "GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameters()->Get_Parameter("GOTO_NEWLAYER")->asBool()
+		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameter("GOTO_NEWLAYER")->asBool()
 	);
 
 	//-----------------------------------------------------
@@ -397,13 +401,13 @@ void CWKSP_Map::On_Create_Parameters(void)
 	m_Parameters.Add_Value(
 		pNode_0	, "FRAME_SHOW"		, _TL("Show"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameters()->Get_Parameter("FRAME_SHOW")->asBool()
+		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameter("FRAME_SHOW")->asBool()
 	);
 
 	m_Parameters.Add_Value(
 		pNode_0	, "FRAME_WIDTH"		, _TL("Width"),
 		_TL(""),
-		PARAMETER_TYPE_Int, g_pMaps->Get_Parameters()->Get_Parameter("FRAME_WIDTH")->asInt(), 5, true
+		PARAMETER_TYPE_Int, g_pMaps->Get_Parameter("FRAME_WIDTH")->asInt(), 5, true
 	);
 
 	//-----------------------------------------------------
@@ -783,7 +787,11 @@ void CWKSP_Map::Set_ScaleBar(bool bOn)
 {
 	m_bScaleBar	= bOn;
 
-	View_Refresh(true);
+	if( m_pView )
+	{
+		m_pView->Refresh_Map();
+		m_pView->Ruler_Refresh();
+	}
 }
 
 //---------------------------------------------------------
@@ -1053,9 +1061,9 @@ void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 	if( bLegend == false )
 	{
 		SaveAs_Image_Clipboard(
-			Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NX")	->asInt(),
-			Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NY")	->asInt(),
-			Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_FRAME")->asInt()
+			Get_Manager()->Get_Parameter("CLIP_NX"   )->asInt(),
+			Get_Manager()->Get_Parameter("CLIP_NY"   )->asInt(),
+			Get_Manager()->Get_Parameter("CLIP_FRAME")->asInt()
 		);
 
 		return;
@@ -1066,8 +1074,8 @@ void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 
 	Set_Buisy_Cursor(true);
 
-	int			Frame	= Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_LEGEND_FRAME")->asInt();
-	double		Scale	= Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_LEGEND_SCALE")->asDouble();
+	int			Frame	= Get_Manager()->Get_Parameter("CLIP_LEGEND_FRAME")->asInt();
+	double		Scale	= Get_Manager()->Get_Parameter("CLIP_LEGEND_SCALE")->asDouble();
 	wxSize		s;
 	wxBitmap	BMP;
 	wxMemoryDC	dc;
@@ -1084,7 +1092,7 @@ void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 
 		if( Frame > 0 )
 		{
-			dc.SetPen(Get_Color_asWX(Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_LEGEND_COLOR")->asInt()));
+			dc.SetPen(Get_Color_asWX(Get_Manager()->Get_Parameter("CLIP_LEGEND_COLOR")->asInt()));
 			Draw_Edge(dc, EDGE_STYLE_SIMPLE, 0, 0, s.x - 1, s.y - 1);
 		}
 

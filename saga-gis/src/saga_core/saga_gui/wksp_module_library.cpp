@@ -144,7 +144,7 @@ wxString CWKSP_Module_Library::Get_Description(void)
 
 	wxString	sDesc;
 
-	if( g_pModules->Get_Parameters()->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
+	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
 		sDesc	= Get_Online_Module_Description(m_pLibrary->Get_File_Name().c_str());
 	}

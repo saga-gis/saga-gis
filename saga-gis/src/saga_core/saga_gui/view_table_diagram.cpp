@@ -1028,7 +1028,7 @@ CVIEW_Table_Diagram::~CVIEW_Table_Diagram(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Table_Diagram::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Diagram"));
+	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_FIT);

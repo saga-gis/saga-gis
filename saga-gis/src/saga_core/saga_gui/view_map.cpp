@@ -93,6 +93,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 
 	EVT_MENU			(ID_CMD_MAP_3D_SHOW						, CVIEW_Map::On_Map_3D_Show)
 	EVT_MENU			(ID_CMD_MAP_LAYOUT_SHOW					, CVIEW_Map::On_Map_Layout_Show)
+	EVT_MENU			(ID_CMD_MAP_SCALEBAR					, CVIEW_Map::On_Map_ScaleBar)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE					, CVIEW_Map::On_Map_Save_Image)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE		, CVIEW_Map::On_Map_Save_Image_On_Change)
 	EVT_MENU			(ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY		, CVIEW_Map::On_Map_Save_Image_To_Memory)
@@ -106,7 +107,6 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION				, CVIEW_Map::On_Map_Zoom_Selection)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT					, CVIEW_Map::On_Map_Zoom_Extent)
 	EVT_MENU			(ID_CMD_MAP_SYNCHRONIZE					, CVIEW_Map::On_Map_Zoom_Synchronize)
-	EVT_MENU			(ID_CMD_MAPS_SCALEBAR					, CVIEW_Map::On_Map_ScaleBar)
 
 	EVT_MENU			(ID_CMD_MAP_MODE_ZOOM					, CVIEW_Map::On_Map_Mode_Zoom)
 	EVT_MENU			(ID_CMD_MAP_MODE_PAN					, CVIEW_Map::On_Map_Mode_Pan)
@@ -157,13 +157,13 @@ CVIEW_Map::~CVIEW_Map(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Map::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Map"));
+	wxMenu	*pMenu	= new wxMenu;
 
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_TOOLBAR);
 //	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_LAYOUT_SHOW);
-	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAPS_SCALEBAR);
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SCALEBAR);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
@@ -207,7 +207,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_3D_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_LAYOUT_SHOW);
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAPS_SCALEBAR);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_SCALEBAR);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Map"));
 
@@ -346,6 +346,9 @@ void CVIEW_Map::Ruler_Refresh(void)
 	{
 		CSG_Rect	rWorld(m_pMap->Get_World(m_pControl->GetRect()));
 
+		m_pRuler_X2->Set_Mode(m_pMap->is_ScaleBar() ? RULER_MODE_NORMAL : RULER_MODE_SCALE);
+		m_pRuler_Y2->Set_Mode(m_pMap->is_ScaleBar() ? RULER_MODE_NORMAL : RULER_MODE_SCALE);
+
 		m_pRuler_X1->Set_Range(rWorld.Get_XMin(), rWorld.Get_XMax());
 		m_pRuler_X2->Set_Range(rWorld.Get_XMin(), rWorld.Get_XMax());
 		m_pRuler_Y1->Set_Range(rWorld.Get_YMin(), rWorld.Get_YMax());
@@ -371,6 +374,10 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_MAP_LAYOUT_SHOW:
 		event.Check(m_pMap->View_Layout_Get() != NULL);
+		break;
+
+	case ID_CMD_MAP_SCALEBAR:
+		event.Check(m_pMap->is_ScaleBar());
 		break;
 
 	case ID_CMD_MAP_SYNCHRONIZE:

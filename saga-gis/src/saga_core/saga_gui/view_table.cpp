@@ -141,7 +141,7 @@ CVIEW_Table::~CVIEW_Table(void)
 //---------------------------------------------------------
 wxMenu * CVIEW_Table::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(_TL("Table"));
+	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_ADD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_DEL);
