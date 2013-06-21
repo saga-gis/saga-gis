@@ -32,6 +32,15 @@
     <ClCompile Include="pansharpening.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="landsat_acca.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="landsat_toar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="landsat_toar_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -101,6 +110,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pansharpening.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="landsat_acca.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="landsat_toar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="landsat_toar_core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

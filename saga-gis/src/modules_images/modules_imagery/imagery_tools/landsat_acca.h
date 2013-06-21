@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: landsat_acca.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    imagery_tools                      //
+//                     imagery_tools                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    landsat_acca.h                     //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2012 by                 //
+//            Benjamin Bechtel & Olaf Conrad             //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,103 +40,71 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
 
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__landsat_acca_H
+#define HEADER_INCLUDED__landsat_acca_H
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Tools") );
-
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Assoc. (c) 2009") );
-
-	case MLB_INFO_Description:
-		return( _TL("Image processing tools.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|Tools") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Image_VI_Distance.h"
-#include "Image_VI_Slope.h"
-#include "evi.h"
-#include "tasseled_cap.h"
-
-#include "pansharpening.h"
-
-#include "landsat_toar.h"
-#include "landsat_acca.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CImage_VI_Distance );
-	case  1:	return( new CImage_VI_Slope );
-	case  2:	return( new CEnhanced_VI );
-	case  3:	return( new CTasseled_Cap );
-
-	case  4:	return( new CPanSharp_IHS );
-	case  5:	return( new CPanSharp_Brovey );
-	case  6:	return( new CPanSharp_CN );
-	case  7:	return( new CPanSharp_PCA );
-
-	case  8:	return( new CLandsat_TOAR );
-	case  9:	return( new CLandsat_ACCA );
-
-	//-----------------------------------------------------
-	case 10:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CLandsat_ACCA : public CSG_Module_Grid
+{
+public:
 
-	MLB_INTERFACE
+	CLandsat_ACCA(void);
 
-//}}AFX_SAGA
+	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("R:Landsat") );	}
+
+
+protected:
+
+	virtual bool		On_Execute		(void);
+
+
+private:
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__landsat_acca_H
