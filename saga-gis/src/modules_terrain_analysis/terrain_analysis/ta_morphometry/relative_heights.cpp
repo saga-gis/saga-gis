@@ -230,9 +230,9 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 	//-----------------------------------------------------
 	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		if( !pDEM->Get_Sorted(n, x, y) || pDEM->is_NoData(x, y) )
+		if( !pDEM->Get_Sorted(n, x, y, true, false) || pDEM->is_NoData(x, y) )
 		{
-			pH->Set_NoData(n);
+			pH->Set_NoData(x, y);
 		}
 		else
 		{
@@ -308,11 +308,12 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	z, d;
 
-			if( pDEM->Get_Gradient(x, y, z, d) && !pH->is_NoData(x, y) )
+			if( !pH->is_NoData(x, y) && !pDEM->is_NoData(x, y) && pDEM->Get_Gradient(x, y, z, d) )
 			{
 				pH->Set_Value(x, y, d = pow(pH->asDouble(x, y), e));	// {X[p] = H[p]^e;}
 				z	= pow(t, z);
@@ -386,13 +387,18 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			bool	bRecalculate;
 			int		ix, iy, n;
 			double	z;
 
-			if( !H.is_NoData(x, y) )
+			if( H.is_NoData(x, y) )
+			{
+				pH->Set_NoData(x, y);
+			}
+			else
 			{
 				for(iy=y-1, bRecalculate=false; iy<=y+1 && !bRecalculate; iy++)
 				{
@@ -490,9 +496,13 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pDEM->is_NoData(x, y) || pHO->is_NoData(x, y) || pHU->is_NoData(x, y) )
+			double	ho, hu, nh;
+
+			if( pDEM->is_NoData(x, y) || pHO->is_NoData(x, y) || pHU->is_NoData(x, y)
+			||  ((ho = pHO->asDouble(x, y)) + (hu = pHU->asDouble(x, y))) == 0.0 )
 			{
 				pNH->Set_NoData(x, y);
 				pSH->Set_NoData(x, y);
@@ -500,9 +510,7 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 			}
 			else
 			{
-				double	ho	= pHO->asDouble(x, y);
-				double	hu	= pHU->asDouble(x, y);
-				double	nh	= 0.5 * (1.0 + (ho - hu) / (ho + hu));
+				nh	= 0.5 * (1.0 + (ho - hu) / (ho + hu));
 
 				pNH->Set_Value(x, y, nh);
 				pSH->Set_Value(x, y, nh * (pDEM->asDouble(x, y) - pDEM->Get_ZMin()) + pDEM->Get_ZMin());	//, nh * pDEM->asDouble(x, y));
