@@ -227,7 +227,7 @@ bool CSG_Vector::Del_Rows(int nRows)
 		return( true );
 	}
 
-	if( nRows > m_n )
+	if( nRows >= m_n )
 	{
 		return( Destroy() );
 	}
@@ -264,7 +264,11 @@ bool CSG_Vector::Add_Row(double Value)
 //---------------------------------------------------------
 bool CSG_Vector::Del_Row(void)
 {
-	if( m_n > 0 )
+	if( m_n == 1 )
+	{
+		return( Destroy() );
+	}
+	else if( m_n > 1 )
 	{
 		double	*z	= (double *)SG_Realloc(m_z, (m_n - 1) * sizeof(double));
 
