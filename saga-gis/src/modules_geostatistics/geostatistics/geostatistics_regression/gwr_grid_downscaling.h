@@ -97,7 +97,7 @@ private:
 	CSG_Grid					*m_pDependent, **m_pPredictors, **m_pModel, *m_pQuality, *m_pResiduals;
 	
 
-	bool						Set_Model				(double x, double y, double &Value);
+	bool						Set_Model				(double x, double y, double &Value, double &Residual);
 	bool						Set_Model				(void);
 
 	bool						Get_Model				(void);

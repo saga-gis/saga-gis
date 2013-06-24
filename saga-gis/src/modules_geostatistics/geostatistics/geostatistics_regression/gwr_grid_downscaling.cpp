@@ -105,6 +105,12 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Grid(
+		NULL	, "REG_RESCORR"	, _TL("Regression with Residual Correction"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Grid_System(
 		NULL	, "GRID_SYSTEM"	, _TL("Grid System"),
@@ -286,7 +292,7 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value)
+bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value, double &Residual)
 {
 	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_INTERPOLATION_BSpline) )
 	{
@@ -306,15 +312,26 @@ bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value)
 		Value	+= Model * Predictor;
 	}
 
+	if( !m_pResiduals->Get_Value(x, y, Residual, GRID_INTERPOLATION_BSpline) )
+	{
+		Residual	= 0.0;
+	}
+
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CGWR_Grid_Downscaling::Set_Model(void)
 {
-	CSG_Grid	*pRegression	= Parameters("REGRESSION")->asGrid();
+	CSG_Grid	*pRegression	= Parameters("REGRESSION" )->asGrid();
+	CSG_Grid	*pReg_ResCorr	= Parameters("REG_RESCORR")->asGrid();
 
 	pRegression->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pDependent->Get_Name(), _TL("GWR")));
+
+	if( pReg_ResCorr )
+	{
+		pReg_ResCorr->Set_Name(CSG_String::Format(SG_T("%s [%s, %s]"), m_pDependent->Get_Name(), _TL("GWR"), _TL("Residual Correction")));
+	}
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -323,15 +340,25 @@ bool CGWR_Grid_Downscaling::Set_Model(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	Value, p_x	= Get_XMin() + x * Get_Cellsize();
+			double	Value, Residual, p_x	= Get_XMin() + x * Get_Cellsize();
 
-			if( Set_Model(p_x, p_y, Value) )
+			if( Set_Model(p_x, p_y, Value, Residual) )
 			{
 				pRegression->Set_Value(x, y, Value);
+
+				if( pReg_ResCorr )
+				{
+					pReg_ResCorr->Set_Value(x, y, Value + Residual);
+				}
 			}
 			else
 			{
 				pRegression->Set_NoData(x, y);
+
+				if( pReg_ResCorr )
+				{
+					pReg_ResCorr->Set_NoData(x, y);
+				}
 			}
 		}
 	}
