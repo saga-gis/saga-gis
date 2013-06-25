@@ -1716,22 +1716,29 @@ bool CSG_Parameter_Table_Fields::Set_Value(const CSG_String &Value)
 	while( List.Length() > 0 )
 	{
 		CSG_String	sValue	= List.BeforeFirst(',');
-		CSG_String	sField	= sValue.AfterFirst('[').BeforeLast(']');
 
-		if( sField.Length() > 0 )
+		if( sValue.asInt(iField) && iField >= 0 && iField < pTable->Get_Field_Count() )
 		{
+			m_Fields[iField]	= 1;
+		}
+		else if( sValue.Length() > 0 )
+		{
+			sValue.Trim();
+			
+			if( sValue[0] == '[' )
+			{
+				sValue	= sValue.AfterFirst('[').BeforeLast(']');
+			}
+
 			for(iField=0; iField<pTable->Get_Field_Count(); iField++)
 			{
-				if( sField.CmpNoCase(pTable->Get_Field_Name(iField)) == 0 )
+				if( sValue.CmpNoCase(pTable->Get_Field_Name(iField)) == 0 )
 				{
 					m_Fields[iField]	= 1;
+
 					break;
 				}
 			}
-		}
-		else if( sValue.asInt(iField) && iField >= 0 && iField < pTable->Get_Field_Count() )
-		{
-			m_Fields[iField]	= 1;
 		}
 
 		List	= List.AfterFirst(',');
