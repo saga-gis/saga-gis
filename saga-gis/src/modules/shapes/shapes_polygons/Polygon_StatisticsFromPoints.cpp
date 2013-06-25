@@ -194,7 +194,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 				{
 					if( !pPoint->is_NoData(pFields->Get_Index(i)))
 					{
-						Statistics[i].Add_Value(pPoint->asDouble(i));
+						Statistics[i].Add_Value(pPoint->asDouble(pFields->Get_Index(i)));
 					}
 				}
 			}
