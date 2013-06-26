@@ -90,6 +90,11 @@ CSG_GDAL_Drivers::CSG_GDAL_Drivers(void)
 {
 	GDALAllRegister();
 
+	// affects Windows only, might be appropriate for applications
+	// that treat filenames as being in the local encoding.
+	// for more info see: http://trac.osgeo.org/gdal/wiki/ConfigOptions
+	CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
+
 	m_pDrivers	= GetGDALDriverManager();
 }
 
