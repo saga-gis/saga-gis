@@ -1516,7 +1516,8 @@ bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Posi
 //---------------------------------------------------------
 bool CWKSP_Map::Get_Legend_Size(wxSize &Size, double Zoom_Map, double Zoom)
 {
-	wxMemoryDC	dc;
+	wxBitmap	bmp(10, 10);
+	wxMemoryDC	dc(bmp);
 
 	return( Draw_Legend(dc, Zoom_Map, Zoom, wxPoint(0, 0), &Size) );
 }
