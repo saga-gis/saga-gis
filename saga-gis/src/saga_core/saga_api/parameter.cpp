@@ -824,7 +824,13 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows)
+/**
+  * Initializes the grid system from Extent and number of rows.
+  * If bFitToCells is true, the extent is inflated by half a cell size,
+  * so automatically adjusting the extent based on grid nodes to
+  * to an extent based on the grid cells.
+*/
+bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows, bool bFitToCells)
 {
 	if( !m_pUser || Extent.xMin >= Extent.xMax || Extent.yMin >= Extent.yMax || Rows < 1 )
 	{
@@ -833,10 +839,10 @@ bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows)
 
 	double	Size	= (Extent.yMax - Extent.yMin) / (double)Rows;
 
-	m_pUser->Get_Parameter("XMIN")->Set_Value(Extent.xMin);
-	m_pUser->Get_Parameter("XMAX")->Set_Value(Extent.xMax);
-	m_pUser->Get_Parameter("YMIN")->Set_Value(Extent.yMin);
-	m_pUser->Get_Parameter("YMAX")->Set_Value(Extent.yMax);
+	m_pUser->Get_Parameter("XMIN")->Set_Value(Extent.xMin - bFitToCells ? 0.5 * Size : 0.0);
+	m_pUser->Get_Parameter("XMAX")->Set_Value(Extent.xMax + bFitToCells ? 0.5 * Size : 0.0);
+	m_pUser->Get_Parameter("YMIN")->Set_Value(Extent.yMin - bFitToCells ? 0.5 * Size : 0.0);
+	m_pUser->Get_Parameter("YMAX")->Set_Value(Extent.yMax + bFitToCells ? 0.5 * Size : 0.0);
 	m_pUser->Get_Parameter("SIZE")->Set_Value(Size);
 	m_pUser->Get_Parameter("COLS")->Set_Value(1 + (int)((Extent.xMax - Extent.xMin) / Size));
 	m_pUser->Get_Parameter("ROWS")->Set_Value(1 + (int)((Extent.yMax - Extent.yMin) / Size));
