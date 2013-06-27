@@ -296,6 +296,7 @@
     <ClCompile Include="grid_extent.cpp" />
     <ClCompile Include="grid_local_extremes_to_points.cpp" />
     <ClCompile Include="Grid_Polygon_Clip.cpp" />
+    <ClCompile Include="grid_rectangle_clip.cpp" />
     <ClCompile Include="Grid_Statistics_AddTo_Polygon.cpp" />
     <ClCompile Include="Grid_To_Contour.cpp" />
     <ClCompile Include="Grid_To_Gradient.cpp" />
@@ -325,6 +326,7 @@
     <ClInclude Include="grid_extent.h" />
     <ClInclude Include="grid_local_extremes_to_points.h" />
     <ClInclude Include="Grid_Polygon_Clip.h" />
+    <ClInclude Include="grid_rectangle_clip.h" />
     <ClInclude Include="Grid_Statistics_AddTo_Polygon.h" />
     <ClInclude Include="Grid_To_Contour.h" />
     <ClInclude Include="Grid_To_Gradient.h" />

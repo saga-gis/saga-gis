@@ -17,6 +17,7 @@ Grid_Classes_To_Shapes.cpp\
 grid_extent.cpp\
 grid_local_extremes_to_points.cpp\
 Grid_Polygon_Clip.cpp\
+grid_rectangle_clip.cpp\
 Grid_Statistics_AddTo_Polygon.cpp\
 Grid_To_Contour.cpp\
 Grid_To_Gradient.cpp\
@@ -29,6 +30,7 @@ Grid_Classes_To_Shapes.h\
 grid_extent.h\
 grid_local_extremes_to_points.h\
 Grid_Polygon_Clip.h\
+grid_rectangle_clip.h\
 Grid_Statistics_AddTo_Polygon.h\
 Grid_To_Contour.h\
 Grid_To_Gradient.h\
