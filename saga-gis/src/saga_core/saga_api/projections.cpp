@@ -834,6 +834,8 @@ CSG_MetaData CSG_Projections::WKT_to_MetaData(const CSG_String &WKT)
 //---------------------------------------------------------
 bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) const
 {
+	Proj4.Clear();
+
 	CSG_MetaData	m	= WKT_to_MetaData(WKT);
 
 //	m.Save("e:/wkt_metadata.xml");
