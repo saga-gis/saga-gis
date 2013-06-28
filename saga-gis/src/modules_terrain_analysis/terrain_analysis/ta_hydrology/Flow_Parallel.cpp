@@ -543,33 +543,28 @@ void CFlow_Parallel::Set_Rho8(	int x, int y )
 //---------------------------------------------------------
 void CFlow_Parallel::Set_DInf(	int x, int y )
 {
-	int		Direction, x1, y1, x2, y2;
+	int		i, ix, iy;
+	double	s, a;
 
-	double	Slope, Aspect, z;
-
-	Get_Gradient(x, y, Slope, Aspect);
-
-	if( Aspect >= 0.0 )
+	if( pDTM->Get_Gradient(x, y, s, a) && a >= 0.0 )
 	{
-		Direction	= (int)(Aspect / M_PI_045);
-		Aspect		=  fmod(Aspect , M_PI_045) / M_PI_045;
+		i	= (int)(a / M_PI_045);
+		a	= fmod (a , M_PI_045) / M_PI_045;
+		s	= pDTM->asDouble(x, y);
 
-		z			= pDTM->asDouble(x, y);
-		x1			= Get_xTo(Direction + 0, x);
-		y1			= Get_yTo(Direction + 0, y);
-		x2			= Get_xTo(Direction + 1, x);
-		y2			= Get_yTo(Direction + 1, y);
+		if( pDTM->is_InGrid(ix = Get_xTo(i + 0, x), iy = Get_yTo(i + 0, y)) && pDTM->asDouble(ix, iy) < s
+		&&  pDTM->is_InGrid(ix = Get_xTo(i + 1, x), iy = Get_yTo(i + 1, y)) && pDTM->asDouble(ix, iy) < s )
+		{
+			Add_Fraction(x, y,  i         , 1.0 - a);
+			Add_Fraction(x, y, (i + 1) % 8,       a);
 
-		if( (!is_InGrid(x1, y1) || z > pDTM->asDouble(x1, y1))
-		&&	(!is_InGrid(x2, y2) || z > pDTM->asDouble(x2, y2)) )
-		{
-			Add_Fraction(x, y,  Direction			, 1.0 - Aspect);
-			Add_Fraction(x, y, (Direction + 1) % 8	,       Aspect);
+			return;
 		}
-		else
-		{
-			Add_Fraction(x, y, pDTM->Get_Gradient_NeighborDir(x, y));
-		}
+	}
+
+	if( (i = pDTM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+	{
+		Add_Fraction(x, y, i);
 	}
 }
 
