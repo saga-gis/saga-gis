@@ -347,6 +347,8 @@ void CWKSP_Module::_Save_Script(void)
 }
 
 //---------------------------------------------------------
+#include "wksp_data_manager.h"
+
 #define GET_ID1(p)		(p->Get_Owner()->Get_Identifier().Length() > 0 \
 						? CSG_String::Format(SG_T("%s_%s"), p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
 						: CSG_String::Format(p->Get_Identifier())).c_str()
@@ -417,7 +419,7 @@ void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParame
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
 		case PARAMETER_TYPE_TIN:
-			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asDataObject() && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("NULL"));
+			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), g_pData->Get(p->asDataObject()) && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("NULL"));
 			break;
 
 		case PARAMETER_TYPE_Grid_List:

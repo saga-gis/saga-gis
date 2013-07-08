@@ -756,7 +756,7 @@ CWKSP_Base_Manager * CWKSP_Data_Manager::Get_Manager(TSG_Data_Object_Type Type, 
 //---------------------------------------------------------
 CWKSP_Data_Item * CWKSP_Data_Manager::Get(CSG_Data_Object *pObject)
 {
-	if( pObject && Get_Manager(pObject->Get_ObjectType()) )
+	if( pObject && pObject != DATAOBJECT_CREATE && Get_Manager(pObject->Get_ObjectType()) )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
@@ -776,7 +776,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 {
-	if( pObject && Get_Manager(pObject->Get_ObjectType(), true) )
+	if( pObject && pObject != DATAOBJECT_CREATE && Get_Manager(pObject->Get_ObjectType(), true) )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
@@ -796,7 +796,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Layer * CWKSP_Data_Manager::Get_Layer(CSG_Data_Object *pObject)
 {
-	if( pObject && Get_Manager(pObject->Get_ObjectType()) )
+	if( pObject && pObject != DATAOBJECT_CREATE && Get_Manager(pObject->Get_ObjectType()) )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
