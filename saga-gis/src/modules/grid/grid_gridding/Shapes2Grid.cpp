@@ -170,6 +170,15 @@ CShapes2Grid::CShapes2Grid(void)
 		), 0
 	);
 
+	if( SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Value(
+			NULL	, "FITTOCELLS"	, _TL("Fit to Cells"),
+			_TL(""),
+			PARAMETER_TYPE_Bool, true
+		);
+	}
+
 	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
 	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
 
@@ -253,6 +262,7 @@ bool CShapes2Grid::On_Execute(void)
 	m_Method_Polygon	= Parameters("POLY_TYPE")->asInt();
 	m_Method_Multi		= Parameters("MULTIPLE" )->asInt();
 	iType				= Parameters("GRID_TYPE")->asInt();
+	bool	bFitToCells	= Parameters("FITTOCELLS") ? Parameters("FITTOCELLS")->asBool() : false;
 
 	switch( Parameters("OUTPUT")->asInt() )
 	{
@@ -275,7 +285,7 @@ bool CShapes2Grid::On_Execute(void)
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_pShapes->Get_Extent()) && Dlg_Parameters("USER") )
+		if( m_Grid_Target.Init_User(m_pShapes->Get_Extent(), 100, bFitToCells) && Dlg_Parameters("USER") )
 		{
 			m_pGrid		= m_Grid_Target.Get_User(Get_Grid_Type(iType));
 			m_pCount	= Get_Parameters("USER")->Get_Parameter("BCOUNT")->asBool() ? m_Grid_Target.Get_User(SG_T("COUNT")) : NULL;

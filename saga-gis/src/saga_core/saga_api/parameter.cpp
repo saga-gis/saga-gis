@@ -744,6 +744,14 @@ bool CSG_Parameters_Grid_Target::Add_Parameters_User(CSG_Parameters *pParameters
 		NULL, "ROWS"		, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int
 	);
 
+	pParameters->Add_Choice(
+		NULL, "FIT"			, _TL("Fit")		, _TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("nodes"),
+			_TL("cells")
+		), 0
+	);
+
 	if( bAddDefaultGrid )
 	{
 		pParameters->Add_Grid_Output(
@@ -762,63 +770,86 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
 		return( false );
 	}
 
-	CSG_Parameter	*xMin	= pParameters->Get_Parameter("XMIN");
-	CSG_Parameter	*xMax	= pParameters->Get_Parameter("XMAX");
-	CSG_Parameter	*yMin	= pParameters->Get_Parameter("YMIN");
-	CSG_Parameter	*yMax	= pParameters->Get_Parameter("YMAX");
-	CSG_Parameter	*Size	= pParameters->Get_Parameter("SIZE");
-	CSG_Parameter	*Rows	= pParameters->Get_Parameter("ROWS");
-	CSG_Parameter	*Cols	= pParameters->Get_Parameter("COLS");
+	CSG_Parameter	*pXMin	= pParameters->Get_Parameter("XMIN");
+	CSG_Parameter	*pXMax	= pParameters->Get_Parameter("XMAX");
+	CSG_Parameter	*pYMin	= pParameters->Get_Parameter("YMIN");
+	CSG_Parameter	*pYMax	= pParameters->Get_Parameter("YMAX");
+	CSG_Parameter	*pSize	= pParameters->Get_Parameter("SIZE");
+	CSG_Parameter	*pRows	= pParameters->Get_Parameter("ROWS");
+	CSG_Parameter	*pCols	= pParameters->Get_Parameter("COLS");
+	CSG_Parameter	*pFit	= pParameters->Get_Parameter("FIT" );
 
-	if( !xMin || !xMax || !yMin || !yMax || !Size || !Rows || !Cols )
+	if( !pXMin || !pXMax || !pYMin || !pYMax || !pSize || !pRows || !pCols || !pFit )
 	{
 		return( false );
 	}
 
-	if(      !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
+	double		Size	= pSize->asDouble();
+
+	CSG_Rect	r(pXMin->asDouble(), pYMin->asDouble(), pXMax->asDouble(), pYMax->asDouble());
+
+	if( m_bFitToCells )
 	{
-		xMax->Set_Value(xMin->asDouble() + ((int)((xMax->asDouble() - xMin->asDouble()) / Size->asDouble())) * Size->asDouble());
-		yMax->Set_Value(yMin->asDouble() + ((int)((yMax->asDouble() - yMin->asDouble()) / Size->asDouble())) * Size->asDouble());
+		r.Deflate(0.5 * Size, false);
+	}
+
+	//-----------------------------------------------------
+	if(      !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIT")) )
+	{
+		if( m_bFitToCells != (pFit->asInt() == 1) )
+		{
+			m_bFitToCells	= pFit->asInt() == 1;
+		}
+	}
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
+	{
+		r.m_rect.xMax	= r.Get_XMin() + Size * (int)(r.Get_XRange() / Size);
+		r.m_rect.yMax	= r.Get_YMin() + Size * (int)(r.Get_YRange() / Size);
 	}
 	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
 	{
-		if( xMin->asDouble() >= xMax->asDouble() )
-		{
-			xMin->Set_Value(xMax->asDouble() - Cols->asInt() * Size->asDouble());
-		}
-
-		xMax->Set_Value(xMin->asDouble() + ((int)((xMax->asDouble() - xMin->asDouble()) / Size->asDouble())) * Size->asDouble());
+		if( r.Get_XRange() <= 0.0 )
+			r.m_rect.xMin	= r.Get_XMax() - Size * pCols->asInt();
+		else
+			r.m_rect.xMax	= r.Get_XMin() + Size * (int)(r.Get_XRange() / Size);
 	}
 	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
 	{
-		if( xMin->asDouble() >= xMax->asDouble() )
-		{
-			xMax->Set_Value(xMin->asDouble() + Cols->asInt() * Size->asDouble());
-		}
-
-		xMin->Set_Value(xMax->asDouble() - ((int)((xMax->asDouble() - xMin->asDouble()) / Size->asDouble())) * Size->asDouble());
+		if( r.Get_XRange() <= 0.0 )
+			r.m_rect.xMax	= r.Get_XMin() + Size * pCols->asInt();
+		else
+			r.m_rect.xMin	= r.Get_XMax() - Size * (int)(r.Get_XRange() / Size);
 	}
 	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
 	{
-		if( yMin->asDouble() >= yMax->asDouble() )
-		{
-			yMin->Set_Value(yMax->asDouble() - Rows->asInt() * Size->asDouble());
-		}
-
-		yMax->Set_Value(yMin->asDouble() + ((int)((yMax->asDouble() - yMin->asDouble()) / Size->asDouble())) * Size->asDouble());
+		if( r.Get_YRange() <= 0.0 )
+			r.m_rect.yMin	= r.Get_YMax() - Size * pRows->asInt();
+		else
+			r.m_rect.yMax	= r.Get_YMin() + Size * (int)(r.Get_YRange() / Size);
 	}
 	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
 	{
-		if( yMin->asDouble() >= yMax->asDouble() )
-		{
-			yMax->Set_Value(yMin->asDouble() + Rows->asInt() * Size->asDouble());
-		}
-
-		yMin->Set_Value(yMax->asDouble() - ((int)((yMax->asDouble() - yMin->asDouble()) / Size->asDouble())) * Size->asDouble());
+		if( r.Get_YRange() <= 0.0 )
+			r.m_rect.yMax	= r.Get_YMin() + Size * pRows->asInt();
+		else
+			r.m_rect.yMin	= r.Get_YMax() - Size * (int)(r.Get_YRange() / Size);
 	}
 
-	Cols->Set_Value(1 + (int)((xMax->asDouble() - xMin->asDouble()) / Size->asDouble()));
-	Rows->Set_Value(1 + (int)((yMax->asDouble() - yMin->asDouble()) / Size->asDouble()));
+	//-----------------------------------------------------
+	pCols->Set_Value(1 + (int)((r.Get_XRange()) / Size));
+	pRows->Set_Value(1 + (int)((r.Get_YRange()) / Size));
+
+	if( m_bFitToCells )
+	{
+		r.Inflate(0.5 * Size, false);
+	}
+
+	pXMin->Set_Value(r.Get_XMin());
+	pXMax->Set_Value(r.Get_XMax());
+	pYMin->Set_Value(r.Get_YMin());
+	pYMax->Set_Value(r.Get_YMax());
+
+	pFit ->Set_Value(m_bFitToCells);
 
 	return( true );
 }
@@ -837,40 +868,40 @@ bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows, boo
 		return( false );
 	}
 
+	m_bFitToCells	= bFitToCells;
+
 	double	Size	= (Extent.yMax - Extent.yMin) / (double)Rows;
 
-	CSG_Rect        GridExtent(Extent);
+	int		Cols	= (bFitToCells ? 0 : 1) + (int)((Extent.xMax - Extent.xMin) / Size);
 
-    if( bFitToCells )
-        GridExtent.Deflate(0.5 * Size, false);
-
-	m_pUser->Get_Parameter("XMIN")->Set_Value(GridExtent.Get_XMin());
-	m_pUser->Get_Parameter("XMAX")->Set_Value(GridExtent.Get_XMax());
-	m_pUser->Get_Parameter("YMIN")->Set_Value(GridExtent.Get_YMin());
-	m_pUser->Get_Parameter("YMAX")->Set_Value(GridExtent.Get_YMax());
+	m_pUser->Get_Parameter("XMIN")->Set_Value(Extent.xMin);
+	m_pUser->Get_Parameter("XMAX")->Set_Value(Extent.xMax);
+	m_pUser->Get_Parameter("YMIN")->Set_Value(Extent.yMin);
+	m_pUser->Get_Parameter("YMAX")->Set_Value(Extent.yMax);
 	m_pUser->Get_Parameter("SIZE")->Set_Value(Size);
-	m_pUser->Get_Parameter("COLS")->Set_Value(1 + (int)((GridExtent.Get_XMax() - GridExtent.Get_XMin()) / Size));
-	m_pUser->Get_Parameter("ROWS")->Set_Value(1 + (int)((GridExtent.Get_YMax() - GridExtent.Get_YMin()) / Size));
+	m_pUser->Get_Parameter("COLS")->Set_Value(Cols);
+	m_pUser->Get_Parameter("ROWS")->Set_Value(Rows);
+	m_pUser->Get_Parameter("FIT" )->Set_Value(m_bFitToCells);
 
 	return( true );
 }
 
-bool CSG_Parameters_Grid_Target::Init_User(double xMin, double yMin, double Size, int nx, int ny)
+bool CSG_Parameters_Grid_Target::Init_User(double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells)
 {
-	if( !m_pUser || Size <= 0.0 || nx <= 1 || ny <= 1 )
+	if( Size <= 0.0 || nx < 1 || ny < 1 )
 	{
 		return( false );
 	}
 
-	m_pUser->Get_Parameter("XMIN")->Set_Value(xMin);
-	m_pUser->Get_Parameter("XMAX")->Set_Value(xMin + Size * nx);
-	m_pUser->Get_Parameter("YMIN")->Set_Value(yMin);
-	m_pUser->Get_Parameter("YMAX")->Set_Value(yMin + Size * ny);
-	m_pUser->Get_Parameter("SIZE")->Set_Value(Size);
-	m_pUser->Get_Parameter("COLS")->Set_Value(nx);
-	m_pUser->Get_Parameter("ROWS")->Set_Value(ny);
+	CSG_Rect	Extent(xMin, yMin, xMin + Size * nx, yMin + Size * ny);
 
-	return( true );
+	if( bFitToCells )
+	{
+		Extent.m_rect.xMax	+= Size;
+		Extent.m_rect.yMax	+= Size;
+	}
+
+	return( Init_User(Extent, ny, bFitToCells) );
 }
 
 //---------------------------------------------------------
@@ -886,13 +917,21 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_User(const CSG_String &Identifier, TS
 
 	if( m_pUser )
 	{
-		CSG_Grid_System	System(
-			m_pUser->Get_Parameter("SIZE")->asDouble(),
+		double		Size	= m_pUser->Get_Parameter("SIZE")->asDouble();
+
+		CSG_Rect	r(
 			m_pUser->Get_Parameter("XMIN")->asDouble(),
 			m_pUser->Get_Parameter("YMIN")->asDouble(),
 			m_pUser->Get_Parameter("XMAX")->asDouble(),
 			m_pUser->Get_Parameter("YMAX")->asDouble()
 		);
+
+		if( m_bFitToCells )
+		{
+			r.Deflate(0.5 * Size, false);
+		}
+
+		CSG_Grid_System	System(Size, r);
 
 		if( System.is_Valid() )
 		{
