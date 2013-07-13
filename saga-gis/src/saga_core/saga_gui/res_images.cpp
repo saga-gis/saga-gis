@@ -108,6 +108,7 @@
 #include "./res/xpm/crs_select.xpm"
 
 #include "./res/xpm/tb_active.xpm"
+#include "./res/xpm/tb_datasource.xpm"
 #include "./res/xpm/tb_delete.xpm"
 #include "./res/xpm/tb_diagram_parameters.xpm"
 #include "./res/xpm/tb_edit_shape_add.xpm"
@@ -149,6 +150,7 @@
 #include "./res/xpm/tb_map_mode_pan.xpm"
 #include "./res/xpm/tb_map_mode_select.xpm"
 #include "./res/xpm/tb_map_mode_zoom.xpm"
+#include "./res/xpm/tb_map_scalebar.xpm"
 #include "./res/xpm/tb_map_synchronize.xpm"
 #include "./res/xpm/tb_map_zoom_active.xpm"
 #include "./res/xpm/tb_map_zoom_full.xpm"
@@ -245,6 +247,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_CRS_SELECT:	return( crs_select_xpm );
 
 	case ID_IMG_TB_ACTIVE:	return( tb_active_xpm );
+	case ID_IMG_TB_DATASOURCE:	return( tb_datasource_xpm );
 	case ID_IMG_TB_DELETE:	return( tb_delete_xpm );
 	case ID_IMG_TB_DIAGRAM_PARAMETERS:	return( tb_diagram_parameters_xpm );
 	case ID_IMG_TB_EDIT_SHAPE_ADD:	return( tb_edit_shape_add_xpm );
@@ -286,6 +289,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_MAP_MODE_PAN:	return( tb_map_mode_pan_xpm );
 	case ID_IMG_TB_MAP_MODE_SELECT:	return( tb_map_mode_select_xpm );
 	case ID_IMG_TB_MAP_MODE_ZOOM:	return( tb_map_mode_zoom_xpm );
+    case ID_IMG_TB_MAP_SCALEBAR:	return( tb_map_scalebar_xpm );
 	case ID_IMG_TB_MAP_SYNCHRONIZE:	return( tb_map_synchronize_xpm );
 	case ID_IMG_TB_MAP_ZOOM_ACTIVE:	return( tb_map_zoom_active_xpm );
 	case ID_IMG_TB_MAP_ZOOM_FULL:	return( tb_map_zoom_full_xpm );
