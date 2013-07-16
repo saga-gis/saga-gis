@@ -141,11 +141,14 @@ int CTable_PCA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 		pFields->Del_Parameters();
 
-		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		if( pTable && pTable->Get_Field_Count() > 0 )
 		{
-			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
+			for(int i=0; i<pTable->Get_Field_Count(); i++)
 			{
-				pFields->Add_Value(NULL, CSG_String::Format(SG_T("%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+				if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
+				{
+					pFields->Add_Value(NULL, CSG_String::Format(SG_T("%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+				}
 			}
 		}
 	}
