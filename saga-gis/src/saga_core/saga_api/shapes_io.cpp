@@ -77,7 +77,7 @@
 //---------------------------------------------------------
 bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 {
-	int				Type, iField, iPart, nParts, *Parts, iPoint, nPoints;
+	int				Type, iField, iPart, nParts, *Parts, iPoint, nPoints, iOffset;
 	double			*pZ	= NULL, *pM	= NULL;
 	TSG_Point		*pPoint;
 	CSG_Buffer		File_Header(100), Record_Header(8), Content;
@@ -284,17 +284,22 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 
 				//-----------------------------------------
+				iOffset = 0;
+
 				for(iPoint=0, iPart=0; iPoint<nPoints; iPoint++, pPoint++)
 				{
 					if( iPart < nParts - 1 && iPoint >= Parts[iPart + 1] )
 					{
 						iPart++;
+						iOffset = 0;
 					}
 
 					pShape->Add_Point(pPoint->x, pPoint->y, iPart);
 
-					if( pZ )	{	pShape->Set_Z(*(pZ++), iPoint);	}
-					if( pM )	{	pShape->Set_M(*(pM++), iPoint);	}
+					if( pZ )	{	pShape->Set_Z(*(pZ++), iOffset, iPart);	}
+					if( pM )	{	pShape->Set_M(*(pM++), iOffset, iPart);	}
+
+					iOffset++;
 				}
 
 				break;
