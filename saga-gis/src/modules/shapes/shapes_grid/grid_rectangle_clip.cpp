@@ -99,11 +99,12 @@ CGrid_Rectangle_Clip::CGrid_Rectangle_Clip(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "CELLS"		, _TL("Border"),
-		_TL("Set grid extent to grid cells (pixel as area) or to grid nodes (pixel as point)."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		NULL	, "BORDER"		, _TL("Border"),
+		_TL("Set grid extent to grid cells (pixel as area), to grid nodes (pixel as point) or align to grid system."),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("grid cells"),
-			_TL("grid nodes")
+			_TL("grid nodes"),
+			_TL("align to grid system")
 		), 0
 	);
 
@@ -125,13 +126,13 @@ bool CGrid_Rectangle_Clip::On_Execute(void)
 {
 	CSG_Grid		*pGrid_in, *pGrid_out;
 	CSG_Shapes		*pShapes;
-	bool			bCells;
+	int				iMethod;
 
 
 	//-----------------------------------------------------
 	pGrid_in	= Parameters("INPUT")	->asGrid();
 	pShapes		= Parameters("SHAPES")	->asShapes();
-	bCells		= Parameters("CELLS")	->asInt() == 0;
+	iMethod		= Parameters("BORDER")	->asInt();
 
 
 	//-----------------------------------------------------
@@ -162,8 +163,21 @@ bool CGrid_Rectangle_Clip::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	if( bCells )
+	if( iMethod == 0 )
+	{
 		Extent.Deflate(0.5 * pGrid_in->Get_Cellsize(), 0.5 * pGrid_in->Get_Cellsize(), false);
+	}
+	else if( iMethod == 2 )
+	{
+		double	d, minX, minY;
+
+		d		= Extent.Get_XMin() - pGrid_in->Get_XMin(true);
+		minX	= pGrid_in->Get_XMin(true) + floor(d / pGrid_in->Get_Cellsize()) * pGrid_in->Get_Cellsize() + 0.5 * pGrid_in->Get_Cellsize();
+		d		= Extent.Get_YMin() - pGrid_in->Get_YMin(true);
+		minY	= pGrid_in->Get_YMin(true) + floor(d / pGrid_in->Get_Cellsize()) * pGrid_in->Get_Cellsize() + 0.5 * pGrid_in->Get_Cellsize();
+		
+		Extent.Set_BottomLeft(minX, minY);
+	}
 
 	CSG_Grid_System		GridSystem(pGrid_in->Get_Cellsize(), Extent);
 
