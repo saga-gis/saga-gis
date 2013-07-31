@@ -647,7 +647,7 @@ void C3DShapes_View_Control::_Draw_Shape(CSG_Shape *pShape)
 				p	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
 				a.x	= p.x;
 				a.y	= p.y;
-				a.z	= pShape->Get_Z(pShape->Get_Point_Count(iPart) - 1);
+				a.z	= pShape->Get_Z(pShape->Get_Point_Count(iPart) - 1, iPart);
 
 				_Get_Projection(a);
 
