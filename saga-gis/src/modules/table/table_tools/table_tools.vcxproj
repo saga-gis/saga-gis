@@ -303,6 +303,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="table_change_color_format.cpp" />
     <ClCompile Include="table_change_date_format.cpp" />
     <ClCompile Include="table_change_field_type.cpp" />
     <ClCompile Include="Table_Create_Empty.cpp" />
@@ -329,6 +330,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="table_change_color_format.h" />
     <ClInclude Include="table_change_date_format.h" />
     <ClInclude Include="table_change_field_type.h" />
     <ClInclude Include="Table_Create_Empty.h" />

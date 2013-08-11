@@ -35,6 +35,9 @@
     <ClCompile Include="table_change_field_type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="table_change_color_format.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -107,6 +110,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_change_field_type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_change_color_format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
