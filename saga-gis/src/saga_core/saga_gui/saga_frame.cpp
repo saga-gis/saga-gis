@@ -390,8 +390,6 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	delete(m_pLayout);
 
 	//-----------------------------------------------------
-	GetMenuBar()->Remove(2);	// we want delete the following menus...
-
 	delete(m_pMN_Table);
 	delete(m_pMN_Diagram);
 	delete(m_pMN_Map);
