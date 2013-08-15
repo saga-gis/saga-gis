@@ -94,6 +94,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 	Parameters.Add_Grid(NULL, "MIN"		, _TL("Minimum")                     , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "MAX"		, _TL("Maximum")                     , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "RANGE"	, _TL("Range")                       , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "SUM"		, _TL("Sum")                         , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "VAR"		, _TL("Variance")                    , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "STDDEV"	, _TL("Standard Deviation")          , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "STDDEVLO", _TL("Mean less Standard Deviation"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
@@ -146,13 +147,14 @@ bool CGSGrid_Statistics::On_Execute(void)
 	CSG_Grid	*pMin			= Parameters("MIN"     )->asGrid();
 	CSG_Grid	*pMax			= Parameters("MAX"     )->asGrid();
 	CSG_Grid	*pRange			= Parameters("RANGE"   )->asGrid();
+	CSG_Grid	*pSum			= Parameters("SUM"     )->asGrid();
 	CSG_Grid	*pVar			= Parameters("VAR"     )->asGrid();
 	CSG_Grid	*pStdDev		= Parameters("STDDEV"  )->asGrid();
 	CSG_Grid	*pStdDevLo		= Parameters("STDDEVLO")->asGrid();
 	CSG_Grid	*pStdDevHi		= Parameters("STDDEVHI")->asGrid();
 	CSG_Grid	*pPercentile	= Parameters("PCTL"    )->asGrid();
 
-	if( !pMean && !pMin && !pMax && !pRange && !pVar && !pStdDev && !pStdDevLo && !pStdDevHi && !pPercentile )
+	if( !pMean && !pMin && !pMax && !pRange && !pSum && !pVar && !pStdDev && !pStdDevLo && !pStdDevHi && !pPercentile )
 	{
 		Error_Set(_TL("no parameter output specified"));
 
@@ -197,6 +199,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 				if( pMin        )	pMin		->Set_NoData(x, y);
 				if( pMax        )	pMax		->Set_NoData(x, y);
 				if( pRange      )	pRange		->Set_NoData(x, y);
+				if( pSum        )	pSum		->Set_NoData(x, y);
 				if( pVar        )	pVar		->Set_NoData(x, y);
 				if( pStdDev     )	pStdDev		->Set_NoData(x, y);
 				if( pStdDevLo   )	pStdDevLo	->Set_NoData(x, y);
@@ -209,6 +212,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 				if( pMin        )	pMin		->Set_Value(x, y, s.Get_Minimum());
 				if( pMax        )	pMax		->Set_Value(x, y, s.Get_Maximum());
 				if( pRange      )	pRange		->Set_Value(x, y, s.Get_Range());
+				if( pSum        )	pSum		->Set_Value(x, y, s.Get_Sum());
 				if( pVar        )	pVar		->Set_Value(x, y, s.Get_Variance());
 				if( pStdDev     )	pStdDev		->Set_Value(x, y, s.Get_StdDev());
 				if( pStdDevLo   )	pStdDevLo	->Set_Value(x, y, s.Get_Mean() - s.Get_StdDev());
