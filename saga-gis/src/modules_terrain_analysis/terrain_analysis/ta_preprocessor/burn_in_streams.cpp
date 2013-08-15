@@ -76,7 +76,15 @@ CBurnIn_Streams::CBurnIn_Streams(void)
 	Set_Author		(SG_T("O.Conrad (c) 2011"));
 
 	Set_Description	(_TW(
-		""
+		"Burns a stream network into a Digital Elevation Model (DEM). "
+		"Stream cells have to be coded with valid data values, all other "
+		"cells should be set to no data value. "
+		"First two methods decrease . "
+		"The third method ensures a steady downstream gradient. An elevation "
+		"decrease is only applied, if a downstream cell is equally high or higher. "
+		"You should provide a grid with flow directions for determination of "
+		"downstream cells. The 'Sink Drainage Route Detection' module offers "
+		"such flow directions. "
 	));
 
 	Parameters.Add_Grid(
@@ -97,10 +105,16 @@ CBurnIn_Streams::CBurnIn_Streams(void)
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Grid(
+		NULL, "FLOWDIR"		, _TL("Flow Direction"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("simply decrease cell's value by epsilon"),
 			_TL("lower cell's value to neighbours minimum value minus epsilon"),
 			_TL("trace stream network downstream")
@@ -122,98 +136,182 @@ CBurnIn_Streams::CBurnIn_Streams(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CBurnIn_Streams::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Get_Parameter("FLOWDIR")->Set_Enabled(pParameter->asInt() == 2);
+	}
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CBurnIn_Streams::On_Execute(void)
 {
-	double		Epsilon;
-	CSG_Grid	*pDEM, *pBurn, *pStream;
+	//-----------------------------------------------------
+	m_pDEM		= Parameters("BURN"   )->asGrid();
+	m_pStream	= Parameters("STREAM" )->asGrid();
+	m_Epsilon	= Parameters("EPSILON")->asDouble();
+	int	Method	= Parameters("METHOD" )->asInt();
 
 	//-----------------------------------------------------
-	pDEM		= Parameters("DEM")		->asGrid();
-	pBurn		= Parameters("BURN")	->asGrid();
-	pStream		= Parameters("STREAM")	->asGrid();
-	Epsilon		= Parameters("EPSILON")	->asDouble();
-
-	//-----------------------------------------------------
-	if( pBurn )
+	if( !m_pDEM )
 	{
-		pBurn	->Assign(pDEM);
-		pBurn	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pDEM->Get_Name(), _TL("Burned Streams")));
+		m_pDEM	= Parameters("DEM")->asGrid();
 	}
 	else
 	{
-		pBurn	= pDEM;
+		m_pDEM->Assign(Parameters("DEM")->asGrid());
+		m_pDEM->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("DEM")->asGrid()->Get_Name(), _TL("Burned Streams")));
 	}
 
 	//-----------------------------------------------------
-	switch( Parameters("METHOD")->asInt() )
+	bool	bResult	= false;
+
+	switch( Method )
 	{
-	case 0:	// simple
-		{
-			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-			{
-				for(int x=0; x<Get_NX(); x++)
-				{
-					if( !pStream->is_NoData(x, y) && !pBurn->is_NoData(x, y) )
-					{
-						pBurn->Add_Value(x, y, -Epsilon);
-					}
-				}
-			}
-		}
-		break;
-
-	case 1:	// assure lower than neighourhood
-		{
-			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-			{
-				for(int x=0; x<Get_NX(); x++)
-				{
-					if( !pStream->is_NoData(x, y) && !pBurn->is_NoData(x, y) )
-					{
-						int		iMin	= -1;
-						double	zMin;
-
-						for(int i=0; i<8; i++)
-						{
-							int	ix	= Get_xTo(i, x);
-							int	iy	= Get_yTo(i, y);
-
-							if( pBurn->is_InGrid(ix, iy) && pStream->is_NoData(ix, iy) )
-							{
-								if( iMin < 0 || pBurn->asDouble(ix, iy) < zMin )
-								{
-									zMin	= pBurn->asDouble(ix, iy);
-								}
-							}
-						}
-
-						if( iMin < 0 )
-						{
-							pBurn->Add_Value(x, y, -Epsilon);
-						}
-						else
-						{
-							pBurn->Set_Value(x, y, zMin - Epsilon);
-						}
-					}
-				}
-			}
-		}
-		break;
-
-	case 3:
-		{
-		}
-		break;
+	case 0:	bResult	= Burn_Simple(false);	break;	// simply decrease cell's value by epsilon
+	case 1:	bResult	= Burn_Simple( true);	break;	// lower cell's value to neighbours minimum value minus epsilon
+	case 2:	bResult	= Burn_Trace();			break;	// trace stream network downstream
 	}
 
 	//-----------------------------------------------------
 	if( Parameters("BURN")->asGrid() == NULL )
 	{
-		DataObject_Update(pBurn);
+		DataObject_Update(m_pDEM);
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CBurnIn_Streams::Burn_Simple(bool bNeighbours)
+{
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !m_pStream->is_NoData(x, y) && !m_pDEM->is_NoData(x, y) )
+			{
+				double	zMin	= m_pDEM->asDouble(x, y);
+
+				if( bNeighbours )	// assure lower than neighourhood
+				{
+					for(int i=0; i<8; i++)
+					{
+						int	ix	= Get_xTo(i, x);
+						int	iy	= Get_yTo(i, y);
+
+						if( m_pDEM->is_InGrid(ix, iy) && m_pStream->is_NoData(ix, iy) && m_pDEM->asDouble(ix, iy) < zMin )
+						{
+							zMin	= m_pDEM->asDouble(ix, iy);
+						}
+					}
+				}
+
+				m_pDEM->Set_Value(x, y, zMin - m_Epsilon);
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CBurnIn_Streams::Burn_Trace(void)
+{
+	int			y;
+
+	//-----------------------------------------------------
+	CSG_Grid	Count (*Get_System(), SG_DATATYPE_Char);
+	CSG_Grid	Stream(*Get_System(), SG_DATATYPE_Char);
+	CSG_Grid	*pDir	= Parameters("FLOWDIR")->asGrid();
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !m_pStream->is_NoData(x, y) && !m_pDEM->is_NoData(x, y) )
+			{
+				int	ix, iy, i	= pDir->is_NoData(x, y) ? m_pDEM->Get_Gradient_NeighborDir(x, y) : pDir->asInt(x, y);
+
+				Stream.Set_Value(x, y, i);
+
+				if( i >= 0 && Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy) )
+				{
+					Count.Add_Value(ix, iy, 1);
+				}
+			}
+			else
+			{
+				Stream.Set_NoData(x, y);
+			}
+		}
+	}
+
+	m_pStream	= &Stream;
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !m_pStream->is_NoData(x, y) && Count.asInt(x, y) == 0 )
+			{
+				Lock_Create();
+
+				Burn_Trace(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+void CBurnIn_Streams::Burn_Trace(int x, int y)
+{
+	if( !is_Locked(x, y) )
+	{
+		Lock_Set(x, y);
+
+		int	ix, iy;
+
+		if( Get_System()->Get_Neighbor_Pos(m_pStream->asInt(x, y), x, y, ix, iy) && !m_pStream->is_NoData(ix, iy) )
+		{
+			if( m_pDEM->asDouble(ix, iy) >= m_pDEM->asDouble(x, y) )
+			{
+				m_pDEM->Set_Value(ix, iy, m_pDEM->asDouble(x, y) - m_Epsilon);
+			}
+
+			Burn_Trace(ix, iy);
+		}
+	}
 }
 
 

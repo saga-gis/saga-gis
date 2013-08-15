@@ -87,11 +87,22 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
+	double					m_Epsilon;
+
+	CSG_Grid				*m_pDEM, *m_pStream;
+
+
+	bool					Burn_Simple				(bool bNeighbours);
+
+	bool					Burn_Trace				(void);
+	void					Burn_Trace				(int x, int y);
 
 };
 
