@@ -78,14 +78,14 @@ CGrid_Export::CGrid_Export(void)
 {
 	Set_Name		(_TL("Export Image (bmp, jpg, pcx, png, tif)"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2005"));
+	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
 	Set_Description	(_TW(
 		"Saves a grid as image using display properties as used by the graphical user interface.\n\n"
 		"On the command line there are further parameters available: It is possible to either use one "
 		"of the default palettes, to use a Lookup Table for coloring or to interpret the grid as RGB coded. "
 		"In case a shade grid is specified, it's minimum and maximum brightness values can be specified in "
-		"percent (0 - 100\%).\n")
+		"percent (0 - 100 percent).\n")
 	);
 
 	Parameters.Add_Grid(
@@ -113,73 +113,121 @@ CGrid_Export::CGrid_Export(void)
 	);
 
 	Parameters.Add_Value(
-		NULL, "FILE_KML"		, _TL("Create KML File"),
+		NULL	, "FILE_KML"	, _TL("Create KML File"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
-	if( !SG_UI_Get_Window_Main() )
+	if( SG_UI_Get_Window_Main() )
 	{
+		Parameters.Add_Choice(
+			NULL	, "COLOURING"	, _TL("Colouring"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+				_TL("stretch to grid's standard deviation"),
+				_TL("stretch to grid's value range"),
+				_TL("stretch to specified value range"),
+				_TL("lookup table"),
+				_TL("rgb coded values"),
+				_TL("same as in graphical user interface")
+			), 5
+		);
+
+		Parameters.Add_Colors(
+			NULL	, "COL_PALETTE"	, _TL("Colours Palette"),
+			_TL("")
+		);
+	}
+	else
+	{
+		Parameters.Add_Choice(
+			NULL	, "COLOURING"	, _TL("Colouring"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+				_TL("stretch to grid's standard deviation"),
+				_TL("stretch to grid's value range"),
+				_TL("stretch to specified value range"),
+				_TL("lookup table"),
+				_TL("rgb coded values")
+			), 0
+		);
+
+		Parameters.Add_Choice(
+			NULL	, "COL_PALETTE"	, _TL("Color Palette"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+				_TL("DEFAULT"),			_TL("DEFAULT_BRIGHT"),	_TL("BLACK_WHITE"),		_TL("BLACK_RED"),
+				_TL("BLACK_GREEN"),		_TL("BLACK_BLUE"),		_TL("WHITE_RED"),		_TL("WHITE_GREEN"),
+				_TL("WHITE_BLUE"),		_TL("YELLOW_RED"),		_TL("YELLOW_GREEN"),	_TL("YELLOW_BLUE"),
+				_TL("RED_GREEN"),		_TL("RED_BLUE"),		_TL("GREEN_BLUE"),		_TL("RED_GREY_BLUE"),
+				_TL("RED_GREY_GREEN"),	_TL("GREEN_GREY_BLUE"),	_TL("RED_GREEN_BLUE"),	_TL("RED_BLUE_GREEN"),
+				_TL("GREEN_RED_BLUE"),	_TL("RAINBOW"),			_TL("NEON"),			_TL("TOPOGRAPHY"),
+				_TL("ASPECT_1"),		_TL("ASPECT_2"),		_TL("ASPECT_3")
+			), 0
+		);
+
 		Parameters.Add_Value(
 			NULL	, "COL_COUNT"	, _TL("Number of Colors"),
 			_TL(""),
 			PARAMETER_TYPE_Int, 100
 		);
 
-		Parameters.Add_Choice(
-			NULL	, "COL_PALETTE"	, _TL("Color Palette"),
-			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-				_TL("DEFAULT"),
-				_TL("DEFAULT_BRIGHT"),
-				_TL("BLACK_WHITE"),
-				_TL("BLACK_RED"),
-				_TL("BLACK_GREEN"),
-				_TL("BLACK_BLUE"),
-				_TL("WHITE_RED"),
-				_TL("WHITE_GREEN"),
-				_TL("WHITE_BLUE"),
-				_TL("YELLOW_RED"),
-				_TL("YELLOW_GREEN"),
-				_TL("YELLOW_BLUE"),
-				_TL("RED_GREEN"),
-				_TL("RED_BLUE"),
-				_TL("GREEN_BLUE"),
-				_TL("RED_GREY_BLUE"),
-				_TL("RED_GREY_GREEN"),
-				_TL("GREEN_GREY_BLUE"),
-				_TL("RED_GREEN_BLUE"),
-				_TL("RED_BLUE_GREEN"),
-				_TL("GREEN_RED_BLUE"),
-				_TL("RAINBOW"),
-				_TL("NEON")
-			), 0
-		);
-
 		Parameters.Add_Value(
-			NULL, "COL_REVERT"	, _TL("Revert Palette"),
+			NULL	, "COL_REVERT"	, _TL("Revert Palette"),
 			_TL(""),
 			PARAMETER_TYPE_Bool, false
 		);
-
-		Parameters.Add_Table(
-			NULL, "LUT"	, _TL("Lookup Table"),
-			_TL(""),
-			PARAMETER_INPUT_OPTIONAL
-		);
-
-		Parameters.Add_Value(
-			NULL, "IS_RGB"	, _TL("RGB coded Grid"),
-			_TL(""),
-			PARAMETER_TYPE_Bool, false
-		);
-
-		Parameters.Add_Range(
-            NULL, "SHADE_BRIGHTNESS"    , _TL("Shade Brightness"),
-            _TL("Allows to scale shade brightness, [percent]"),
-            0.0, 100.0, 0.0, true, 100.0, true
-        );
 	}
+
+	Parameters.Add_Value(
+		NULL	, "STDDEV"		, _TL("Standard Deviation"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 2.0, 0.0, true
+	);
+
+	Parameters.Add_Range(
+        NULL	, "STRETCH"		, _TL("Stretch to Value Range"),
+        _TL(""),
+        0.0, 100.0
+    );
+
+	Parameters.Add_Table(
+		NULL	, "LUT"			, _TL("Lookup Table"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Range(
+        NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
+        _TL("Allows to scale shade brightness, [percent]"),
+        0.0, 100.0, 0.0, true, 100.0, true
+    );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLOURING")) )
+	{
+		pParameters->Get_Parameter("COL_PALETTE")->Set_Enabled(pParameter->asInt() <= 2);
+		pParameters->Get_Parameter("STDDEV"     )->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Get_Parameter("STRETCH"    )->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("LUT"        )->Set_Enabled(pParameter->asInt() == 3);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHADE")) )
+	{
+		pParameters->Get_Parameter("SHADE_BRIGHT")->Set_Enabled(pParameter->asGrid() != NULL);
+	}
+
+	return( 1 );
 }
 
 
@@ -192,222 +240,269 @@ CGrid_Export::CGrid_Export(void)
 //---------------------------------------------------------
 bool CGrid_Export::On_Execute(void)
 {
-
-	int			x, y, c, r, g, b;
-	double		d, dMinBright = 0.0, dMaxBright = 100.0;
+	//-----------------------------------------------------
+	int			y, iy, Method;
 	CSG_Grid	*pGrid, *pShade, Grid, Shade;
-	CSG_File	Stream;
-	CSG_String	fName, fExt;
-	wxImage		img;
 
 	//-----------------------------------------------------
-	pGrid	= Parameters("GRID")	->asGrid();
-	pShade	= Parameters("SHADE")	->asGrid();
-	fName	= Parameters("FILE")	->asString();
+	pGrid	= Parameters("GRID"     )->asGrid();
+	pShade	= Parameters("SHADE"    )->asGrid();
+	Method	= Parameters("COLOURING")->asInt ();
 
-    //-----------------------------------------------------
-    if( !SG_UI_Get_Window_Main() && pShade != NULL)
-    {
-        dMinBright  = Parameters("SHADE_BRIGHTNESS")->asRange()->Get_LoVal() / 100.0;
-        dMaxBright  = Parameters("SHADE_BRIGHTNESS")->asRange()->Get_HiVal() / 100.0;
-
-        if( dMinBright >= dMaxBright )
-        {
-            SG_UI_Msg_Add_Error(_TL("Minimum shade brightness must be lower than maximum shade brightness!"));
-            return( false );
-        }
-    }
-
-	//-----------------------------------------------------
-	if(      SG_File_Cmp_Extension(fName, SG_T("bmp")) )
-	{
-		fExt	= SG_T("bpw");
-	}
-	else if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
-	{
-		fExt	= SG_T("jgw");
-	}
-	else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
-	{
-		fExt	= SG_T("pxw");
-	}
-	else if( SG_File_Cmp_Extension(fName, SG_T("png")) )
-	{
-		fExt	= SG_T("pgw");
-	}
-	else if( SG_File_Cmp_Extension(fName, SG_T("tif")) )
-	{
-		fExt	= SG_T("tfw");
-	}
-	else
-	{
-		fExt	= SG_T("pgw");
-
-		fName	= SG_File_Make_Path(NULL, fName, SG_T("png"));
-	}
-
-	//-----------------------------------------------------
-	if( !pGrid || pGrid->Get_ZRange() == 0.0 )
+	if( !pGrid )
 	{
 		return( false );
 	}
-	else if( !SG_UI_DataObject_asImage(pGrid, &Grid) )
-	{
-		int			nColors	= Parameters("COL_COUNT")->asInt();
-		CSG_Colors	Colors(nColors, Parameters("COL_PALETTE")->asInt(), Parameters("COL_REVERT")->asBool());
-		CSG_Table	*pLUT	= Parameters("LUT")->asTable();
-		bool		bRGB	= Parameters("IS_RGB")->asBool();
 
-		if( pLUT && pLUT->Get_Field_Count() < 5 )
+	//-----------------------------------------------------
+	if( Method == 5 )	// same as in graphical user interface
+	{
+		if( !SG_UI_DataObject_asImage(pGrid, &Grid) )
 		{
-			SG_UI_Msg_Add_Error(_TL("Improperly formatted Lookup Table."));
+			Error_Set("could not retrieve colour coding from graphical user interface.");
+
 			return( false );
 		}
-
-
-		Grid.Create(*Get_System(), SG_DATATYPE_Int);
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	}
+	else
+	{
+		double		zMin, zScale;
+		CSG_Colors	Colors;
+		CSG_Table	*pLUT	= Parameters("LUT")->asTable();
+		
+		if( SG_UI_Get_Window_Main() )
 		{
-			for(x=0; x<Get_NX(); x++)
-			{
-				if( pLUT )
-				{
-					bool	bFound = false;
-
-					d = pGrid->asDouble(x, y);
-
-					for(int i=0; i<pLUT->Get_Record_Count(); i++)
-					{
-						if( d >= pLUT->Get_Record(i)->asDouble(3) && d < pLUT->Get_Record(i)->asDouble(4) )
-						{
-							nColors	= i;
-							bFound	= true;
-							break;
-						}
-					}
-
-					if( !bFound )
-						Grid.Set_NoData(x, Get_NY() - 1 - y);
-					else
-						Grid.Set_Value(x, Get_NY() - 1 - y, pLUT->Get_Record(nColors)->asInt(0));
-				}
-				else
-				{
-					if( pGrid->is_NoData(x, y) )
-						Grid.Set_NoData(x, Get_NY() - 1 - y);
-					else
-					{
-						if (bRGB)
-							Grid.Set_Value(x, Get_NY() - 1 - y, pGrid->asDouble(x, y));
-						else
-							Grid.Set_Value(x, Get_NY() - 1 - y, Colors[(int)(
-								nColors * (pGrid->asDouble(x, y) - pGrid->Get_ZMin()) / pGrid->Get_ZRange()
-							)]);
-					}
-				}
-			}
+			Colors.Assign(Parameters("COL_PALETTE")->asColors());
 		}
-	}
-
-	if( !pShade || pShade->Get_ZRange() == 0.0 )
-	{
-		pShade	= NULL;
-	}
-	else if( !SG_UI_DataObject_asImage(pShade, &Shade) )
-	{
-		int			nColors	= 100;
-		CSG_Colors	Colors(nColors, SG_COLORS_BLACK_WHITE, true);
-
-		Shade.Create(*Get_System(), SG_DATATYPE_Int);
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		else
 		{
-			for(x=0; x<Get_NX(); x++)
-			{
-				if( pShade->is_NoData(x, y) )
-					Shade.Set_NoData(x, Get_NY() - 1 - y);
-				else
-					Shade.Set_Value(x, Get_NY() - 1 - y, Colors[(int)(
-						nColors * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_ZMin()) / pShade->Get_ZRange() + dMinBright
-					)]);
-			}
-		}
-	}
-
-	//-------------------------------------------------
-	img.Create(Get_NX(), Get_NY());
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			c	= Grid.asInt(x, y);
-
-			r	= SG_GET_R(c);
-			g	= SG_GET_G(c);
-			b	= SG_GET_B(c);
-
-			if( pShade )
-			{
-				c	= Shade.asInt(x, y);
-
-				d	= (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) / (3.0 * 255.0);
-
-				r	= (int)(d * r);
-				g	= (int)(d * g);
-				b	= (int)(d * b);
-			}
-
-			img.SetRGB(x, y, r, g, b);
-		}
-	}
-
-	//-------------------------------------------------
-	if( img.SaveFile(fName.c_str()) )
-	{
-		pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")), SG_PROJ_FMT_WKT);
-
-		if( Stream.Open(SG_File_Make_Path(NULL, fName, fExt), SG_FILE_W, false) )
-		{
-			Stream.Printf(SG_T("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n"),
-				 pGrid->Get_Cellsize(),
-				 0.0, 0.0,
-				-pGrid->Get_Cellsize(),
-				 pGrid->Get_XMin(),
-				 pGrid->Get_YMax()
+			Colors.Set_Palette(
+				Parameters("COL_PALETTE")->asInt (),
+				Parameters("COL_REVERT" )->asBool(),
+				Parameters("COL_COUNT"  )->asInt ()
 			);
 		}
 
-		if( Parameters("FILE_KML")->asBool() && Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("kml")), SG_FILE_W, false) )
+		switch( Method )
 		{
-			Stream.Printf(SG_T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
-			Stream.Printf(SG_T("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"));
-			Stream.Printf(SG_T("  <Folder>\n"));
-			Stream.Printf(SG_T("    <name>Raster exported from SAGA</name>\n"));
-			Stream.Printf(SG_T("    <description>System for Automated Geoscientific Analyses - www.saga-gis.org</description>\n"));
-			Stream.Printf(SG_T("    <GroundOverlay>\n"));
-			Stream.Printf(SG_T("      <name>%s</name>\n")				, pGrid->Get_Name());
-			Stream.Printf(SG_T("      <description>%s</description>\n")	, pGrid->Get_Description());
-			Stream.Printf(SG_T("      <Icon>\n"));
-			Stream.Printf(SG_T("        <href>%s</href>\n")				, SG_File_Get_Name(fName, true).c_str());
-			Stream.Printf(SG_T("      </Icon>\n"));
-			Stream.Printf(SG_T("      <LatLonBox>\n"));
-			Stream.Printf(SG_T("        <north>%.10f</north>\n")			, pGrid->Get_YMax());
-			Stream.Printf(SG_T("        <south>%.10f</south>\n")			, pGrid->Get_YMin());
-			Stream.Printf(SG_T("        <east>%.10f</east>\n")				, pGrid->Get_XMax());
-			Stream.Printf(SG_T("        <west>%.10f</west>\n")				, pGrid->Get_XMin());
-			Stream.Printf(SG_T("        <rotation>0.0</rotation>\n"));
-			Stream.Printf(SG_T("      </LatLonBox>\n"));
-			Stream.Printf(SG_T("    </GroundOverlay>\n"));
-			Stream.Printf(SG_T("  </Folder>\n"));
-			Stream.Printf(SG_T("</kml>\n"));
+		case 0:	// stretch to grid's standard deviation
+			zMin	= pGrid->Get_ArithMean() -  Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
+			zScale	= Colors.Get_Count() / (2 * Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev());
+			break;
+
+		case 1:	// stretch to grid's value range
+			zMin	= pGrid->Get_ZMin();
+			zScale	= Colors.Get_Count() / pGrid->Get_ZRange();
+			break;
+
+		case 2:	// stretch to specified value range
+			zMin	= Parameters("STRETCH")->asRange()->Get_LoVal();
+			if( zMin >= (zScale = Parameters("STRETCH")->asRange()->Get_HiVal()) )
+			{
+				Error_Set(_TL("invalid user specified value range."));
+
+				return( false );
+			}
+			zScale	= Colors.Get_Count() / (zScale - zMin);
+			break;
+
+		case 3:	// lookup table
+			if( !pLUT || pLUT->Get_Field_Count() < 5 )
+			{
+				Error_Set(_TL("invalid lookup table."));
+
+				return( false );
+			}
+			break;
+
+		case 4:	// rgb coded values
+			break;
 		}
 
-		return( true );
+		//-------------------------------------------------
+		Grid.Create(*Get_System(), SG_DATATYPE_Int);
+
+		for(y=0, iy=Get_NY()-1; y<Get_NY() && Set_Progress(y); y++, iy--)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
+			{
+				double	z	= pGrid->asDouble(x, y);
+
+				if( Method == 3 )	// lookup table
+				{
+					int		i, iColor;
+
+					for(i=0, iColor=-1; i<pLUT->Get_Record_Count() && iColor<0; i++)
+					{
+						if( z >= pLUT->Get_Record(i)->asDouble(3) && z < pLUT->Get_Record(i)->asDouble(4) )
+						{
+							Grid.Set_Value(x, iy, pLUT->Get_Record(iColor = i)->asInt(0));
+						}
+					}
+
+					if( iColor < 0 )
+					{
+						Grid.Set_NoData(x, iy);
+					}
+				}
+				else if( pGrid->is_NoData(x, y) )
+				{
+					Grid.Set_NoData(x, iy);
+				}
+				else if( Method == 4 )	// rgb coded values
+				{
+					Grid.Set_Value (x, iy, z);
+				}
+				else
+				{
+					int	i	= (int)(zScale * (z - zMin));
+
+					Grid.Set_Value (x, iy, Colors[i < 0 ? 0 : i >= Colors.Get_Count() ? Colors.Get_Count() - 1 : i]);
+				}
+			}
+		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	if( !pShade || pShade->Get_ZRange() <= 0.0 )
+	{
+		pShade	= NULL;
+	}
+	else // if( !SG_UI_DataObject_asImage(pShade, &Shade) )
+	{
+		double	zMin, zScale;
+
+		zMin	= Parameters("SHADE_BRIGHT")->asRange()->Get_LoVal() / 100.0;
+		zScale	= Parameters("SHADE_BRIGHT")->asRange()->Get_HiVal() / 100.0;
+
+		if( zMin >= zScale )
+		{
+			SG_UI_Msg_Add_Error(_TL("Minimum shade brightness must be lower than maximum shade brightness!"));
+
+			return( false );
+		}
+
+		zScale	= (zScale - zMin) / pShade->Get_ZRange();
+
+	    //-------------------------------------------------
+		Shade.Create(*Get_System(), SG_DATATYPE_Float);
+
+		for(y=0, iy=Get_NY()-1; y<Get_NY() && Set_Progress(y); y++, iy--)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
+			{
+				if( pShade->is_NoData(x, y) )
+				{
+					Shade.Set_NoData(x, iy);
+				}
+				else
+				{
+					Shade.Set_Value (x, iy, zMin + zScale * (pShade->Get_ZMax() - pShade->asDouble(x, y)));
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	wxImage	Image(Get_NX(), Get_NY());
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int	r, g, b, c	= Grid.asInt(x, y);
+
+			if( !pShade )
+			{
+				r	= SG_GET_R(c);
+				g	= SG_GET_G(c);
+				b	= SG_GET_B(c);
+			}
+			else
+			{
+				double	d	= Shade.asDouble(x, y);
+
+				r	= (int)(d * SG_GET_R(c));
+				g	= (int)(d * SG_GET_G(c));
+				b	= (int)(d * SG_GET_B(c));
+			}
+
+			Image.SetRGB(x, y, r, g, b);
+		}
+	}
+
+	//-------------------------------------------------
+	CSG_String	fName(Parameters("FILE")->asString());
+
+	if( !SG_File_Cmp_Extension(fName, SG_T("bmp"))
+	&&  !SG_File_Cmp_Extension(fName, SG_T("jpg"))
+	&&  !SG_File_Cmp_Extension(fName, SG_T("pcx"))
+	&&  !SG_File_Cmp_Extension(fName, SG_T("png"))
+	&&  !SG_File_Cmp_Extension(fName, SG_T("tif")) )
+	{
+		fName	= SG_File_Make_Path(NULL, fName, SG_T("png"));
+	}
+
+	if( !Image.SaveFile(fName.c_str()) )
+	{
+		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not save image file"), fName.c_str()));
+
+		return( false );
+	}
+
+	pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")), SG_PROJ_FMT_WKT);
+
+	//-----------------------------------------------------
+	CSG_File	Stream;
+
+	if(      SG_File_Cmp_Extension(fName, SG_T("bmp")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("bpw")), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, SG_T("jpg")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("jgw")), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("pxw")), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, SG_T("png")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("pgw")), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, SG_T("tif")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("tfw")), SG_FILE_W, false);
+
+	if( Stream.is_Open() )
+	{
+		Stream.Printf(SG_T("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n"),
+			 pGrid->Get_Cellsize(),
+			 0.0, 0.0,
+			-pGrid->Get_Cellsize(),
+			 pGrid->Get_XMin(),
+			 pGrid->Get_YMax()
+		);
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("FILE_KML")->asBool() && Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("kml")), SG_FILE_W, false) )
+	{
+		Stream.Printf(SG_T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
+		Stream.Printf(SG_T("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"));
+		Stream.Printf(SG_T("  <Folder>\n"));
+		Stream.Printf(SG_T("    <name>Raster exported from SAGA</name>\n"));
+		Stream.Printf(SG_T("    <description>System for Automated Geoscientific Analyses - www.saga-gis.org</description>\n"));
+		Stream.Printf(SG_T("    <GroundOverlay>\n"));
+		Stream.Printf(SG_T("      <name>%s</name>\n")				, pGrid->Get_Name());
+		Stream.Printf(SG_T("      <description>%s</description>\n")	, pGrid->Get_Description());
+		Stream.Printf(SG_T("      <Icon>\n"));
+		Stream.Printf(SG_T("        <href>%s</href>\n")				, SG_File_Get_Name(fName, true).c_str());
+		Stream.Printf(SG_T("      </Icon>\n"));
+		Stream.Printf(SG_T("      <LatLonBox>\n"));
+		Stream.Printf(SG_T("        <north>%.10f</north>\n")			, pGrid->Get_YMax());
+		Stream.Printf(SG_T("        <south>%.10f</south>\n")			, pGrid->Get_YMin());
+		Stream.Printf(SG_T("        <east>%.10f</east>\n")				, pGrid->Get_XMax());
+		Stream.Printf(SG_T("        <west>%.10f</west>\n")				, pGrid->Get_XMin());
+		Stream.Printf(SG_T("        <rotation>0.0</rotation>\n"));
+		Stream.Printf(SG_T("      </LatLonBox>\n"));
+		Stream.Printf(SG_T("    </GroundOverlay>\n"));
+		Stream.Printf(SG_T("  </Folder>\n"));
+		Stream.Printf(SG_T("</kml>\n"));
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

@@ -87,20 +87,20 @@ class io_grid_image_EXPORT CGrid_Export : public CSG_Module_Grid
 public:
 	CGrid_Export(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
 
 };
-
-#endif // #ifndef HEADER_INCLUDED__Grid_Export_H
 
 
 ///////////////////////////////////////////////////////////
@@ -110,3 +110,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Grid_Export_H
