@@ -468,7 +468,7 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 
 	//-----------------------------------------------------
 	m_Parameters("GENERAL_Z_UNIT"    )->Set_Value(
-		(void *)Get_Grid()->Get_Unit()
+		Get_Grid()->Get_Unit()
 	);
 
 	m_Parameters("GENERAL_Z_FACTOR"  )->Set_Value(
