@@ -86,39 +86,42 @@ class ta_morphometry_EXPORT CMorphometry : public CSG_Module_Grid
 {
 public:
 	CMorphometry(void);
-	virtual ~CMorphometry(void);
 
 
 protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
 
 
 private:
 
-	double					_DX_2, _4DX_2, _6DX, _2DX;
+	int						m_Unit_Slope, m_Unit_Aspect;
 
-	CSG_Grid					*pDTM, *pSlope, *pAspect, *pCurvature, *pCurv_Horz, *pCurv_Vert, *pCurv_Tang;
+	CSG_Grid				*m_pDTM, *m_pSlope, *m_pAspect, *m_pC_Gene, *m_pC_Prof, *m_pC_Plan, *m_pC_Tang, *m_pC_Long, *m_pC_Cros, *m_pC_Mini, *m_pC_Maxi, *m_pC_Tota, *m_pC_Roto;
 
-	//-----------------------------------------------------
-	void					Set_Parameters			(int x, int y, double Slope, double Aspect, double Curv = 0.0, double vCurv = 0.0, double hCurv = 0.0, double tCurv = 0.0);
-	void					Set_Parameters_Derive	(int x, int y, double D, double E, double F, double G, double H);
-	void					Set_Parameters_NoData	(int x, int y, bool bCompletely = false);
-
-	bool					Get_SubMatrix3x3		(int x, int y, double SubMatrix[ 9]);
-	bool					Get_SubMatrix5x5		(int x, int y, double SubMatrix[25]);
 
 	//-----------------------------------------------------
-	void					Do_MaximumSlope			(int x, int y );
-	void					Do_Tarboton				(int x, int y );
+	void					Get_SubMatrix3x3		(int x, int y, double Z[ 9], int Orientation = 0);
+	void					Get_SubMatrix5x5		(int x, int y, double Z[25]);
 
-	void					Do_LeastSquare			(int x, int y );
+	//-----------------------------------------------------
+	void					Set_NoData				(int x, int y);
+	void					Set_Gradient			(int x, int y, double Slope, double Aspect);
 
-	void					Do_FD_BRM				(int x, int y );
-	void					Do_FD_Heerdegen			(int x, int y );
-	void					Do_FD_Zevenbergen		(int x, int y );
+	void					Set_From_Polynom		(int x, int y, double r, double t, double s, double p, double q);
 
-	void					Do_FD_Haralick			(int x, int y );
+	//-----------------------------------------------------
+	void					Set_MaximumSlope		(int x, int y);
+	void					Set_Tarboton			(int x, int y);
+	void					Set_LeastSquare			(int x, int y);
+	void					Set_Evans				(int x, int y);
+	void					Set_Heerdegen			(int x, int y);
+	void					Set_BRM					(int x, int y);
+	void					Set_Zevenbergen			(int x, int y);
+	void					Set_Haralick			(int x, int y);
+
 
 };
 

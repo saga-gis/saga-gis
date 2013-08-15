@@ -216,22 +216,28 @@ bool CTA_Standard::On_Execute(void)
 	CSG_Grid	TMP2(*Get_System(), SG_DATATYPE_Float);
 
 	//-----------------------------------------------------
+	RUN_MODULE("ta_preprocessor"		, 2,
+			SET_PARAMETER("DEM"			, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("DEM_PREPROC"	, &DEMP)	// >> preprocessed DEM
+	)
+
+	//-----------------------------------------------------
 	RUN_MODULE("ta_lighting"			, 0,
-			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+			SET_PARAMETER("ELEVATION"	, &DEMP)
 		&&	SET_PARAMETER("SHADE"		, Parameters("SHADE"))
 	)
 
 	//-----------------------------------------------------
 	RUN_MODULE("ta_morphometry"			, 0,
-			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+			SET_PARAMETER("ELEVATION"	, &DEMP)
 		&&	SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
 		&&	SET_PARAMETER("ASPECT"		, Parameters("ASPECT"))
-		&&	SET_PARAMETER("HCURV"		, (CSG_Grid *)NULL)
-		&&	SET_PARAMETER("VCURV"		, (CSG_Grid *)NULL)
+		&&	SET_PARAMETER("C_CROS"		, (CSG_Grid *)NULL)
+		&&	SET_PARAMETER("C_LONG"		, (CSG_Grid *)NULL)
 	)
 
 	RUN_MODULE("grid_filter"			, 0,
-			SET_PARAMETER("INPUT"		, Parameters("ELEVATION"))
+			SET_PARAMETER("INPUT"		, &DEMP)
 		&&	SET_PARAMETER("RESULT"		, &TMP1)
 		&&	SET_PARAMETER("RADIUS"		, 3)
 	)
@@ -240,22 +246,17 @@ bool CTA_Standard::On_Execute(void)
 			SET_PARAMETER("ELEVATION"	, &TMP1)
 		&&	SET_PARAMETER("SLOPE"		, &TMP2)
 		&&	SET_PARAMETER("ASPECT"		, &TMP2)
-		&&	SET_PARAMETER("HCURV"		, Parameters("HCURV"))
-		&&	SET_PARAMETER("VCURV"		, Parameters("VCURV"))
+		&&	SET_PARAMETER("C_CROS"		, Parameters("HCURV"))
+		&&	SET_PARAMETER("C_LONG"		, Parameters("VCURV"))
 	)
 
 	//-----------------------------------------------------
 	RUN_MODULE("ta_morphometry"			, 1,
-			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+			SET_PARAMETER("ELEVATION"	, &TMP1)
 		&&	SET_PARAMETER("RESULT"		, Parameters("CONVERGENCE"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_preprocessor"		, 2,
-			SET_PARAMETER("DEM"			, Parameters("ELEVATION"))
-		&&	SET_PARAMETER("DEM_PREPROC"	, &DEMP)	// >> preprocessed DEM
-	)
-
 	RUN_MODULE("ta_hydrology"			, 0,
 			SET_PARAMETER("ELEVATION"	, &DEMP)	// << preprocessed DEM
 		&&	SET_PARAMETER("CAREA"		, Parameters("CAREA"))
@@ -267,7 +268,7 @@ bool CTA_Standard::On_Execute(void)
 
 	//-----------------------------------------------------
 	RUN_MODULE("ta_hydrology"			, 19,
-			SET_PARAMETER("DEM"			, Parameters("ELEVATION"))
+			SET_PARAMETER("DEM"			, &DEMP)
 		&&	SET_PARAMETER("TCA"			, Parameters("CAREA"))
 		&&	SET_PARAMETER("WIDTH"		, &TMP2)
 		&&	SET_PARAMETER("SCA"			, &TMP1)	// >> specific catchment area
@@ -301,7 +302,7 @@ bool CTA_Standard::On_Execute(void)
 
 	//-----------------------------------------------------
 	RUN_MODULE("ta_channels"			, 3,
-			SET_PARAMETER("ELEVATION"	, Parameters("ELEVATION"))
+			SET_PARAMETER("ELEVATION"	, &DEMP)
 		&&	SET_PARAMETER("CHANNELS"	, &TMP1)
 		&&	SET_PARAMETER("DISTANCE"	, Parameters("CHNL_ALTI"))
 		&&	SET_PARAMETER("BASELEVEL"	, Parameters("CHNL_BASE"))
@@ -309,7 +310,7 @@ bool CTA_Standard::On_Execute(void)
 
 	//-----------------------------------------------------
 	RUN_MODULE("grid_tools"				, 19,	// grid orientation
-			SET_PARAMETER("INPUT"		, Parameters("ELEVATION"))
+			SET_PARAMETER("INPUT"		, &DEMP)
 		&&	SET_PARAMETER("RESULT"		, &TMP1)
 		&&	SET_PARAMETER("METHOD"		, 3)	// invert
 	)
