@@ -82,6 +82,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CTable_List : public CSG_ODBC_Module
+{
+public:
+	CTable_List(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CTable_Info : public CSG_ODBC_Module
 {
 public:
@@ -92,7 +112,7 @@ public:
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 
@@ -114,7 +134,7 @@ public:
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 
@@ -158,7 +178,7 @@ public:
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 

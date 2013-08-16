@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: saga_odbc.cpp 1513 2012-11-06 08:33:32Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,7 +9,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       saga_api                        //
+//                        io_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -58,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "saga_odbc.h"
+#include "odbc.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -1457,14 +1457,6 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_ODBC_Module::CSG_ODBC_Module(void)
 {
-	m_Connection_Choice.Create(this, _TL("Choose ODBC Connection"), _TL(""), SG_T("CONNECTIONS"));
-
-	m_Connection_Choice.Add_Choice(
-		NULL	, "CONNECTIONS", _TL("Available Connections"),
-		_TL(""),
-		SG_T("")
-	);
-
 	if( !SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_String(
@@ -1485,6 +1477,14 @@ CSG_ODBC_Module::CSG_ODBC_Module(void)
 			SG_T("")
 		);
 	}
+	else
+	{
+		Parameters.Add_Choice(
+			NULL	, "CONNECTION"	, _TL("Server Connection"),
+			_TL(""),
+			SG_T("")
+		);
+	}
 
 	m_pConnection	= NULL;
 }
@@ -1492,8 +1492,6 @@ CSG_ODBC_Module::CSG_ODBC_Module(void)
 //---------------------------------------------------------
 bool CSG_ODBC_Module::On_Before_Execution(void)
 {
-	CSG_String	s;
-
 	m_pConnection	= NULL;
 
 	if( !SG_UI_Get_Window_Main() )
@@ -1503,33 +1501,51 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 			Parameters("ODBC_USR")->asString(),
 			Parameters("ODBC_PWD")->asString()
 		);
+
+		if( m_pConnection == NULL )
+		{
+			Message_Dlg(
+				_TL("No ODBC connection available!"),
+				_TL("ODBC Database Connection Error")
+			);
+
+			return( false );
+		}
 	}
 	else
 	{
-		if( SG_ODBC_Get_Connection_Manager().Get_Connections(s) > 1 )
-		{
-			m_Connection_Choice("CONNECTIONS")->asChoice()->Set_Items(s);
+		CSG_String	Connections;
 
-			if( SG_UI_Dlg_Parameters(&m_Connection_Choice, _TL("Choose ODBC Connection")) )
-			{
-				m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(m_Connection_Choice("CONNECTIONS")->asString());
-			}
+		int	nConnections	= SG_ODBC_Get_Connection_Manager().Get_Connections(Connections);
+
+		if( nConnections <= 0 )
+		{
+			Message_Dlg(
+				_TL("No ODBC connection available!"),
+				_TL("ODBC Database Connection Error")
+			);
+
+			return( false );
 		}
-		else if( s.Length() )
+
+		if( nConnections == 1 )
+		{
+			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
+		}
+
+		Parameters("CONNECTION")->asChoice()->Set_Items(Connections);
+		Parameters("CONNECTION")->Set_Enabled(nConnections > 1);
+
+		if( !(m_pConnection = SG_ODBC_Get_Connection_Manager().Get_Connection(Parameters("CONNECTION")->asString())) )
 		{
 			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
 		}
 	}
 
-	if( m_pConnection == NULL )
-	{
-		Message_Dlg(
-			_TL("No ODBC connection available!"),
-			_TL("ODBC Database Connection Error")
-		);
-	}
+	On_Parameter_Changed(&Parameters, Parameters("CONNECTION"));
+//	On_Connection_Changed(&Parameters);
 
-	return( m_pConnection != NULL );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1541,6 +1557,19 @@ bool CSG_ODBC_Module::On_After_Execution(void)
 	}
 
 	return( true );
+}
+
+//---------------------------------------------------------
+int CSG_ODBC_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
+	{
+		m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(pParameter->asString());
+
+		On_Connection_Changed(pParameters);
+	}
+
+	return( -1 );
 }
 
 

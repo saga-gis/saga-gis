@@ -862,12 +862,19 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 	if( m_Items.Get_Count() <= 0 )
 	{
 		m_Items	+= _TL("<not set>");
+
+		Set_Minimum(              0, true);
+		Set_Maximum(Get_Count() - 1, true);
+
+		CSG_Parameter_Int::Set_Value(0);
 	}
+	else
+	{
+		Set_Minimum(              0, true);
+		Set_Maximum(Get_Count() - 1, true);
 
-	Set_Minimum(              0, true);
-	Set_Maximum(Get_Count() - 1, true);
-
-	CSG_Parameter_Int::Set_Value(m_Value);
+		CSG_Parameter_Int::Set_Value(m_Value);
+	}
 }
 
 //---------------------------------------------------------

@@ -197,7 +197,6 @@ AC_OUTPUT(Makefile \
 	src/saga_core/saga_gdi/Makefile \
 	src/saga_core/saga_gui/Makefile \
 	src/saga_core/saga_gui/man/Makefile \
-	src/saga_core/saga_odbc/Makefile \
 	src/saga_core/saga_cmd/Makefile \
 	src/saga_core/saga_cmd/man/Makefile \
 	src/modules/Makefile \

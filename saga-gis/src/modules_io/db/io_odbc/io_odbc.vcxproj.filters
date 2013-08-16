@@ -20,13 +20,10 @@
     <ClCompile Include="get_connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pgis_shapes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shapes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odbc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,13 +85,13 @@
     <ClInclude Include="get_connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pgis_shapes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="shapes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="odbc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="otlv4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

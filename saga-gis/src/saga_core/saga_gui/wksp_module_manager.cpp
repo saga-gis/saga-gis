@@ -64,7 +64,6 @@
 #include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
-#include <saga_odbc/saga_odbc.h>
 
 #include "saga.h"
 
@@ -212,8 +211,6 @@ bool CWKSP_Module_Manager::Initialise(void)
 //---------------------------------------------------------
 bool CWKSP_Module_Manager::Finalise(void)
 {
-	SG_ODBC_Get_Connection_Manager().Destroy();
-
 	_Config_Write();
 
 	return( true );

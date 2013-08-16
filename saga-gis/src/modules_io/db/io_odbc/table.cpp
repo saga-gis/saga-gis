@@ -73,9 +73,65 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CTable_List::CTable_List(void)
+{
+	Set_Name		(_TL("List Tables"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
+
+	Set_Description	(_TW(
+		"Lists all tables of an ODBC data source."
+	));
+
+	Parameters.Add_Table(
+		NULL	, "TABLES"		, _TL("Tables"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
+
+//---------------------------------------------------------
+bool CTable_List::On_Execute(void)
+{
+	CSG_Table	*pTables	= Parameters("TABLES")->asTable();
+
+	pTables->Destroy();
+	pTables->Set_Name(_TL("Tables"));
+
+	pTables->Add_Field(_TL("Table"), SG_DATATYPE_String);
+
+	if( Get_Connection() )
+	{
+		CSG_Strings	Tables;
+
+		Get_Connection()->Get_Tables(Tables);
+
+		for(int i=0; i<Tables.Get_Count(); i++)
+		{
+			CSG_Table_Record	*pTable	= pTables->Add_Record();
+
+			pTable->Set_Value(0, Tables[i]);
+		}
+
+		pTables->Set_Name(Get_Connection()->Get_Server() + " [" + _TL("Tables") + "]");
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CTable_Info::CTable_Info(void)
 {
-	Set_Name		(_TL("Table Field Description"));
+	Set_Name		(_TL("Get Table Fields Description"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
@@ -92,41 +148,27 @@ CTable_Info::CTable_Info(void)
 	Parameters.Add_Choice(
 		NULL	, "TABLES"		, _TL("Tables"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("--- no table available ---")
-		)
+		""
 	);
 }
 
 //---------------------------------------------------------
-bool CTable_Info::On_Before_Execution(void)
+void CTable_Info::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	if( !CSG_ODBC_Module::On_Before_Execution() )
-	{
-		return( false );
-	}
+	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("TABLES");
 
-	CSG_String	Table(Parameters("TABLES")->asString());
-
-	Parameters("TABLES")->asChoice()->Set_Items(Get_Connection()->Get_Tables());
-	Parameters("TABLES")->Set_Value(Table);
-
-	return( true );
+	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
+	pParameter->Set_Value(pParameter->asString());
 }
 
 //---------------------------------------------------------
 bool CTable_Info::On_Execute(void)
 {
-	if( !Get_Connection() )
-	{
-		return( false );
-	}
+	CSG_String	Table	= Parameters("TABLES")->asString();
+	CSG_Table	*pTable	= Parameters("TABLE" )->asTable();
 
-	CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
-	CSG_Table				*pTable		= Parameters("TABLE")	->asTable();
-
-	CSG_Table				tmpTable	= Get_Connection()->Get_Field_Desc(pTables->asString());
-	pTable->Assign(&tmpTable);
+	pTable->Assign(&Get_Connection()->Get_Field_Desc(Table));
+	pTable->Set_Name(Table + " [" + _TL("Field Description") + "]");
 
 	return( true );
 }
@@ -141,7 +183,7 @@ bool CTable_Info::On_Execute(void)
 //---------------------------------------------------------
 CTable_Load::CTable_Load(void)
 {
-	Set_Name		(_TL("Table Import"));
+	Set_Name		(_TL("Import Table"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -158,40 +200,25 @@ CTable_Load::CTable_Load(void)
 	Parameters.Add_Choice(
 		NULL	, "TABLES"		, _TL("Tables"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("--- no table available ---")
-		)
+		""
 	);
 }
 
 //---------------------------------------------------------
-bool CTable_Load::On_Before_Execution(void)
+void CTable_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	if( !CSG_ODBC_Module::On_Before_Execution() )
-	{
-		return( false );
-	}
+	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("TABLES");
 
-	CSG_String	Tables(Get_Connection()->Get_Tables());
-
-	Parameters("TABLES")->asChoice()->Set_Items(Tables);
-	Parameters("TABLES")->Set_Value(Parameters("TABLES")->asString());
-
-	return( Tables.Length() > 0 );
+	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
+	pParameter->Set_Value(pParameter->asString());
 }
 
 //---------------------------------------------------------
 bool CTable_Load::On_Execute(void)
 {
-	if( !Get_Connection() )
-	{
-		return( false );
-	}
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
-	CSG_Table				*pTable		= Parameters("TABLE")	->asTable();
-
-	return( Get_Connection()->Table_Load(*pTable, pTables->asString()) );
+	return( Get_Connection()->Table_Load(*pTable, Parameters("TABLES")->asString()) );
 }
 
 
@@ -204,7 +231,7 @@ bool CTable_Load::On_Execute(void)
 //---------------------------------------------------------
 CTable_Save::CTable_Save(void)
 {
-	Set_Name		(_TL("Table Export"));
+	Set_Name		(_TL("Export Table"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -250,17 +277,12 @@ int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		Set_Constraints(pParameters->Get_Parameter("FLAGS")->asParameters(), pParameter->asTable());
 	}
 
-	return( 0 );
+	return( CSG_ODBC_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 bool CTable_Save::On_Execute(void)
 {
-	if( !Get_Connection() )
-	{
-		return( false );
-	}
-
 	bool		bResult	= false;
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 	CSG_String	Name	= Parameters("NAME" )->asString();	if( Name.Length() == 0 )	Name	= pTable->Get_Name();
@@ -322,7 +344,7 @@ bool CTable_Save::On_Execute(void)
 //---------------------------------------------------------
 CTable_Drop::CTable_Drop(void)
 {
-	Set_Name		(_TL("Table Deletion"));
+	Set_Name		(_TL("Drop Table"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -333,38 +355,23 @@ CTable_Drop::CTable_Drop(void)
 	Parameters.Add_Choice(
 		NULL	, "TABLES"		, _TL("Tables"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("--- no table available ---")
-		)
+		""
 	);
 }
 
 //---------------------------------------------------------
-bool CTable_Drop::On_Before_Execution(void)
+void CTable_Drop::On_Connection_Changed(CSG_Parameters *pParameters)
 {
-	if( !CSG_ODBC_Module::On_Before_Execution() )
-	{
-		return( false );
-	}
+	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("TABLES");
 
-	CSG_String	Table(Parameters("TABLES")->asString());
-
-	Parameters("TABLES")->asChoice()->Set_Items(Get_Connection()->Get_Tables());
-
-	if( Parameters("TABLES")->asChoice()->Get_Count() == 0 )
-	{
-		Message_Dlg(_TL("No tables available in database!"));
-
-		return( false );
-	}
-
-	return( true );
+	pParameter->asChoice()->Set_Items(Get_Connection()->Get_Tables());
+	pParameter->Set_Value(pParameter->asString());
 }
 
 //---------------------------------------------------------
 bool CTable_Drop::On_Execute(void)
 {
-	if( Get_Connection() && Get_Connection()->Table_Drop(Parameters("TABLES")->asChoice()->asString()) )
+	if( Get_Connection()->Table_Drop(Parameters("TABLES")->asChoice()->asString()) )
 	{
 		SG_UI_ODBC_Update(Get_Connection()->Get_Server());
 
@@ -386,7 +393,7 @@ CTable_Query::CTable_Query(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name		(_TL("Table from Query"));
+	Set_Name		(_TL("Table from SQL Query"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -446,18 +453,13 @@ CTable_Query::CTable_Query(void)
 //---------------------------------------------------------
 bool CTable_Query::On_Execute(void)
 {
-	if( !Get_Connection() )
-	{
-		return( false );
-	}
-
-	CSG_Table	*pTable		= Parameters("TABLE")	->asTable ();
-	CSG_String	Tables		= Parameters("TABLES")	->asString();
-	CSG_String	Fields		= Parameters("FIELDS")	->asString();
-	CSG_String	Where		= Parameters("WHERE")	->asString();
-	CSG_String	Group		= Parameters("GROUP")	->asString();
-	CSG_String	Having		= Parameters("HAVING")	->asString();
-	CSG_String	Order		= Parameters("ORDER")	->asString();
+	CSG_Table	*pTable		= Parameters("TABLE"   )->asTable ();
+	CSG_String	Tables		= Parameters("TABLES"  )->asString();
+	CSG_String	Fields		= Parameters("FIELDS"  )->asString();
+	CSG_String	Where		= Parameters("WHERE"   )->asString();
+	CSG_String	Group		= Parameters("GROUP"   )->asString();
+	CSG_String	Having		= Parameters("HAVING"  )->asString();
+	CSG_String	Order		= Parameters("ORDER"   )->asString();
 	bool		bDistinct	= Parameters("DISTINCT")->asBool  ();
 
 	return( Get_Connection()->Table_Load(*pTable, Tables, Fields, Where, Group, Having, Order, bDistinct) );

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: saga_odbc.h 1507 2012-10-31 18:49:02Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,9 +8,8 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//           Application Programming Interface           //
-//                                                       //
-//                  Library: SAGA_ODBC                   //
+//                    Module Library:                    //
+//                        io_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -60,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_ODBC_saga_odbc_H
-#define HEADER_INCLUDED__SAGA_ODBC_saga_odbc_H
+#ifndef HEADER_INCLUDED__saga_odbc_H
+#define HEADER_INCLUDED__saga_odbc_H
 
 
 ///////////////////////////////////////////////////////////
@@ -73,10 +72,11 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
-#ifdef _SAGA_ODBC_EXPORTS
-	#define	SG_ODBC_API_DLL_EXPORT		_SAGA_DLL_EXPORT
+//---------------------------------------------------------
+#ifdef io_odbc_EXPORTS
+	#define	io_odbc_EXPORT	_SAGA_DLL_EXPORT
 #else
- 	#define	SG_ODBC_API_DLL_EXPORT		_SAGA_DLL_IMPORT
+	#define	io_odbc_EXPORT	_SAGA_DLL_IMPORT
 #endif
 
 
@@ -88,8 +88,8 @@
 
 //---------------------------------------------------------
 #define SG_ODBC_PRIMARY_KEY		0x01
-#define SG_ODBC_NOT_NULL			0x02
-#define SG_ODBC_UNIQUE				0x04
+#define SG_ODBC_NOT_NULL		0x02
+#define SG_ODBC_UNIQUE			0x04
 
 //---------------------------------------------------------
 typedef enum ESG_ODBC_DBMS
@@ -111,7 +111,7 @@ TSG_ODBC_DBMS;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SG_ODBC_API_DLL_EXPORT CSG_ODBC_Connection
+class io_odbc_EXPORT CSG_ODBC_Connection
 {
 	friend class CSG_ODBC_Connections;
 
@@ -196,7 +196,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SG_ODBC_API_DLL_EXPORT CSG_ODBC_Connections
+class io_odbc_EXPORT CSG_ODBC_Connections
 {
 public:
 	CSG_ODBC_Connections(void);
@@ -240,7 +240,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SG_ODBC_API_DLL_EXPORT CSG_ODBC_Module : public CSG_Module
+class io_odbc_EXPORT CSG_ODBC_Module : public CSG_Module
 {
 public:
 	CSG_ODBC_Module(void);
@@ -251,6 +251,9 @@ protected:
 	virtual bool				On_Before_Execution		(void);
 	virtual bool				On_After_Execution		(void);
 
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters)	{}
+
 	CSG_ODBC_Connection *		Get_Connection			(void)	{	return( m_pConnection );	}
 
 	static bool					Set_Constraints			(CSG_Parameters *pParameters, CSG_Table *pTable);
@@ -260,8 +263,6 @@ protected:
 private:
 
 	CSG_ODBC_Connection			*m_pConnection;
-
-	CSG_Parameters				m_Connection_Choice;
 
 
 };
@@ -274,10 +275,10 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SG_ODBC_API_DLL_EXPORT CSG_ODBC_Connections &	SG_ODBC_Get_Connection_Manager	(void);
+io_odbc_EXPORT CSG_ODBC_Connections &	SG_ODBC_Get_Connection_Manager	(void);
 
 //---------------------------------------------------------
-SG_ODBC_API_DLL_EXPORT bool						SG_ODBC_is_Supported			(void);
+io_odbc_EXPORT bool						SG_ODBC_is_Supported			(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -287,4 +288,4 @@ SG_ODBC_API_DLL_EXPORT bool						SG_ODBC_is_Supported			(void);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_ODBC_saga_odbc_H
+#endif // #ifndef HEADER_INCLUDED__saga_odbc_H

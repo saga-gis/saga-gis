@@ -61,8 +61,6 @@
 //---------------------------------------------------------
 #include <wx/menu.h>
 
-#include "saga_odbc/saga_odbc.h"
-
 #include "helper.h"
 
 #include "res_controls.h"
@@ -111,25 +109,22 @@ enum
 class CData_Source_ODBC_Data : public wxTreeItemData
 {
 public:
-    CData_Source_ODBC_Data(int Type, const CSG_String &Value = SG_T(""), CSG_ODBC_Connection *pConnection = NULL)
-		: m_Type(Type), m_Value(Value), m_pConnection(pConnection)
+    CData_Source_ODBC_Data(int Type, const CSG_String &Value = SG_T(""), const CSG_String &Server = "")
+		: m_Type(Type), m_Value(Value), m_Server(Server)
 	{}
 
-	void					Set_Type		(int Type)							{	m_Type			= Type;			}
-	void					Set_Connection	(CSG_ODBC_Connection *pConnection)	{	m_pConnection	= pConnection;	}
+	void					Set_Type		(int Type)		{	m_Type	= Type;		}
 
-	int						Get_Type		(void)	const	{	return( m_Type        );	}
-	const CSG_String &		Get_Value		(void)	const	{	return( m_Value       );	}
-	CSG_ODBC_Connection *	Get_Connection	(void)	const	{	return( m_pConnection );	}
+	int						Get_Type		(void)	const	{	return( m_Type   );	}
+	const CSG_String &		Get_Value		(void)	const	{	return( m_Value  );	}
+	const CSG_String &		Get_Server		(void)	const	{	return( m_Server );	}
 
 
 private:
 
     int						m_Type;
 
-	CSG_String				m_Value;
-
-	CSG_ODBC_Connection		*m_pConnection;
+	CSG_String				m_Value, m_Server;
 
 };
 
@@ -292,6 +287,52 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define RUN_MODULE(LIBRARY, MODULE, bRetVal, CONDITION)	{\
+	\
+	bRetVal	= false;\
+	\
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T(LIBRARY), MODULE);\
+	\
+	if(	pModule )\
+	{\
+		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());\
+		\
+		pModule->Set_Manager(NULL);\
+		pModule->Get_Parameters()->Set_Callback(true);\
+		pModule->On_Before_Execution();\
+		\
+		if( (CONDITION) && pModule->Execute() )\
+		{\
+			bRetVal	= true;\
+		}\
+		\
+		pModule->Get_Parameters()->Assign_Values(&P);\
+		pModule->Set_Manager(P.Get_Manager());\
+	}\
+}
+
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+
+//---------------------------------------------------------
+bool CData_Source_ODBC::is_Connected(const CSG_String &Server)
+{
+	bool		bResult;
+	CSG_Table	Tables;
+
+	RUN_MODULE("io_odbc",  9, bResult, SET_PARAMETER("SERVERS", &Tables));
+
+	for(int i=0; bResult && i<Tables.Get_Count(); i++)
+	{
+		if( !Server.Cmp(Tables[i].asString(0)) )
+		{
+			return( Tables[i].asInt(1) == 1 );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 void CData_Source_ODBC::Update_Item(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
@@ -310,46 +351,33 @@ void CData_Source_ODBC::Update_Item(const wxTreeItemId &Item)
 }
 
 //---------------------------------------------------------
-void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
+void CData_Source_ODBC::Update_Sources(void)
 {
-	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
-
-	if( pData->Get_Type() != ODBC_ITEM_TYPE_SOURCE_CLOSED
-	&&  pData->Get_Type() != ODBC_ITEM_TYPE_SOURCE_OPENED )
-	{
-		return;
-	}
-
-	pData->Set_Connection(SG_ODBC_Get_Connection_Manager().Get_Connection(pData->Get_Value()));
-
 	Freeze();
 
-	DeleteChildren(Item);
+	DeleteChildren(GetRootItem());
 
-	if( pData->Get_Connection() == NULL )
+	//-----------------------------------------------------
+	bool		bResult;
+	CSG_Table	Servers;
+
+	RUN_MODULE("io_odbc", 9, bResult, SET_PARAMETER("SERVERS", &Servers));
+
+	//-----------------------------------------------------
+	for(int i=0; i<Servers.Get_Count(); i++)
 	{
-		pData->Set_Type(ODBC_ITEM_TYPE_SOURCE_CLOSED);
-		SetItemImage(Item, IMG_SRC_CLOSED, wxTreeItemIcon_Normal);
-		SetItemImage(Item, IMG_SRC_CLOSED, wxTreeItemIcon_Selected);
+		CSG_String	Server	= Servers[i].asString(0);
+		int			Image	= Servers[i].asInt(1) == 1 ? IMG_SRC_OPENED : IMG_SRC_CLOSED;
+		int			Type	= Servers[i].asInt(1) == 1 ? ODBC_ITEM_TYPE_SOURCE_OPENED : ODBC_ITEM_TYPE_SOURCE_CLOSED;
+
+		Update_Source(AppendItem(GetRootItem(), Server.c_str(), Image, Image,
+			new CData_Source_ODBC_Data(Type, Server, Server)
+		));
 	}
-	else
-	{
-		pData->Set_Type(ODBC_ITEM_TYPE_SOURCE_OPENED);
-		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Normal);
-		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Selected);
 
-		CSG_Strings	Tables;
-
-		pData->Get_Connection()->Get_Tables(Tables);
-
-		for(int i=0; i<Tables.Get_Count(); i++)
-		{
-			AppendItem(Item, Tables[i].c_str(), IMG_TABLE, IMG_TABLE, new CData_Source_ODBC_Data(ODBC_ITEM_TYPE_TABLE, Tables[i], pData->Get_Connection()));
-		}
-
-		SortChildren(Item);
-		Expand      (Item);
-	}
+	//-----------------------------------------------------
+	SortChildren(GetRootItem());
+	Expand      (GetRootItem());
 
 	Thaw();
 }
@@ -372,27 +400,51 @@ void CData_Source_ODBC::Update_Source(const wxString &Server)
 }
 
 //---------------------------------------------------------
-void CData_Source_ODBC::Update_Sources(void)
+void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 {
-	Freeze();
+	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	DeleteChildren(GetRootItem());
-
-	//-----------------------------------------------------
-	CSG_Strings	Servers;
-	
-	SG_ODBC_Get_Connection_Manager().Get_Servers(Servers);
-
-	for(int i=0; i<Servers.Get_Count(); i++)
+	if( pData->Get_Type() != ODBC_ITEM_TYPE_SOURCE_CLOSED
+	&&  pData->Get_Type() != ODBC_ITEM_TYPE_SOURCE_OPENED )
 	{
-		Update_Source(AppendItem(GetRootItem(), Servers[i].c_str(), IMG_SRC_CLOSED, IMG_SRC_CLOSED,
-			new CData_Source_ODBC_Data(ODBC_ITEM_TYPE_SOURCE_CLOSED, Servers[i]))
-		);
+		return;
 	}
 
 	//-----------------------------------------------------
-	SortChildren(GetRootItem());
-	Expand      (GetRootItem());
+	Freeze();
+
+	DeleteChildren(Item);
+
+	if( is_Connected(pData->Get_Value()) )
+	{
+		bool		bResult;
+		CSG_Table	Tables;
+
+		RUN_MODULE("io_odbc", 10, bResult,
+				SET_PARAMETER("CONNECTION", pData->Get_Value())
+			&&	SET_PARAMETER("TABLES"    , &Tables)
+		);
+
+		pData->Set_Type(ODBC_ITEM_TYPE_SOURCE_OPENED);
+		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Normal);
+		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Selected);
+
+		for(int i=0; i<Tables.Get_Count(); i++)
+		{
+			AppendItem(Item, Tables[i].asString(0), IMG_TABLE, IMG_TABLE,
+				new CData_Source_ODBC_Data(ODBC_ITEM_TYPE_TABLE, Tables[i].asString(0), pData->Get_Server())
+			);
+		}
+
+		SortChildren(Item);
+		Expand      (Item);
+	}
+	else
+	{
+		pData->Set_Type(ODBC_ITEM_TYPE_SOURCE_CLOSED);
+		SetItemImage(Item, IMG_SRC_CLOSED, wxTreeItemIcon_Normal);
+		SetItemImage(Item, IMG_SRC_CLOSED, wxTreeItemIcon_Selected);
+	}
 
 	Thaw();
 }
@@ -407,14 +459,12 @@ void CData_Source_ODBC::Update_Sources(void)
 //---------------------------------------------------------
 void CData_Source_ODBC::Source_Close_All(void)
 {
-	CSG_ODBC_Connections	&Manager	= SG_ODBC_Get_Connection_Manager();
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_odbc"), 11);
 
-	while( Manager.Get_Count() > 0 )
+	if( pModule )
 	{
-		Manager.Del_Connection(0, true);
+		pModule->Execute();
 	}
-
-	Update_Sources();
 }
 
 //---------------------------------------------------------
@@ -422,13 +472,18 @@ void CData_Source_ODBC::Source_Close(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	SG_ODBC_Get_Connection_Manager().Del_Connection(pData->Get_Connection(), true);
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_odbc"), 1);
 
-	Update_Source(Item);
+	if( pModule )
+	{
+		pModule->On_Before_Execution();
+		pModule->Get_Parameters()->Set_Parameter("SERVERS", pData->Get_Value());
+		pModule->Execute();
+	}
 }
 
 //---------------------------------------------------------
-void CData_Source_ODBC::Source_Open	(const wxTreeItemId &Item)
+void CData_Source_ODBC::Source_Open(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
@@ -438,16 +493,24 @@ void CData_Source_ODBC::Source_Open	(const wxTreeItemId &Item)
 	{
 		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("Open Database Connection"), pData->Get_Value().c_str()), true, true);
 
-		if( SG_ODBC_Get_Connection_Manager().Add_Connection(pData->Get_Value(), &Username, &Password) )
+		bool	bResult;
+
+		RUN_MODULE("io_odbc", 0, bResult,
+				SET_PARAMETER("SERVER"  , pData->Get_Value())
+			&&	SET_PARAMETER("USERNAME", Username)
+			&&	SET_PARAMETER("PASSWORD", Password)
+		);
+
+		if( bResult )
 		{
 			MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+
+			Update_Source(Item);
 		}
 		else
 		{
 			MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
 		}
-
-		Update_Source(Item);
 	}
 }
 
@@ -458,9 +521,17 @@ void CData_Source_ODBC::Table_Open(const wxTreeItemId &Item)
 
 	CSG_Table	*pTable	= SG_Create_Table();
 
-	MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Load table"), pData->Get_Connection()->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
+	MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Load table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
 
-	if( pData->Get_Connection()->Table_Load(*pTable, pData->Get_Value()) )
+	bool	bResult;
+
+	RUN_MODULE("io_odbc", 5, bResult,
+			SET_PARAMETER("CONNECTION", pData->Get_Server())
+		&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
+		&&	SET_PARAMETER("TABLE"     , pTable)
+	);
+
+	if( bResult )
 	{
 		SG_Get_Data_Manager().Add(pTable);
 
@@ -481,11 +552,18 @@ void CData_Source_ODBC::Table_Delete(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	if( DLG_Message_Confirm(wxString::Format(wxT("%s [%s]"), _TL("Do you really want to delete the table"), pData->Get_Value().c_str()), _TL("Database Table Deletion")) )
+	if( DLG_Message_Confirm(wxString::Format(wxT("%s [%s]"), _TL("Do you really want to delete the table"), pData->Get_Value().c_str()), _TL("Table Deletion")) )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Deleting table"), pData->Get_Connection()->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Deleting table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
 
-		if( pData->Get_Connection()->Table_Drop(pData->Get_Value(), false) )
+		bool	bResult;
+
+		RUN_MODULE("io_odbc", 7, bResult,
+				SET_PARAMETER("CONNECTION", pData->Get_Server())
+			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
+		);
+
+		if( bResult )
 		{
 			Delete(Item);
 

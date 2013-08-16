@@ -1454,9 +1454,6 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
     <ProjectReference Include="..\saga_api\saga_api.vcxproj">
       <Project>{2fecd6e9-b83b-4bc3-be78-9da2698e456b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\saga_odbc\saga_odbc.vcxproj">
-      <Project>{9e4c619c-b279-4532-8f60-6c64fe0a2091}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

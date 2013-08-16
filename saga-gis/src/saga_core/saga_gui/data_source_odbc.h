@@ -91,6 +91,10 @@ public:
 
 private:
 
+	void						On_Item_Activated	(wxTreeEvent &event);
+	void						On_Item_RClick		(wxTreeEvent &event);
+	void						On_Item_Menu		(wxTreeEvent &event);
+
 	void						On_Refresh			(wxCommandEvent &event);
 	void						On_Source_Close_All	(wxCommandEvent &event);
 	void						On_Source_Close		(wxCommandEvent &event);
@@ -98,15 +102,13 @@ private:
 	void						On_Table_Open		(wxCommandEvent &event);
 	void						On_Table_Delete		(wxCommandEvent &event);
 
-	void						On_Item_Activated	(wxTreeEvent &event);
-	void						On_Item_RClick		(wxTreeEvent &event);
-	void						On_Item_Menu		(wxTreeEvent &event);
-
 	void						Source_Close_All	(void);
 	void						Source_Close		(const wxTreeItemId &Item);
 	void						Source_Open			(const wxTreeItemId &Item);
 	void						Table_Open			(const wxTreeItemId &Item);
 	void						Table_Delete		(const wxTreeItemId &Item);
+
+	bool						is_Connected		(const CSG_String &Server);
 
 	void						Update_Item			(const wxTreeItemId &Item);
 	void						Update_Source		(const wxTreeItemId &Item);

@@ -65,14 +65,7 @@
 #define HEADER_INCLUDED__io_odbc_H
 
 //---------------------------------------------------------
-#include <saga_odbc/saga_odbc.h>
-
-//---------------------------------------------------------
-#ifdef io_odbc_EXPORTS
-	#define	io_odbc_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	io_odbc_EXPORT	_SAGA_DLL_IMPORT
-#endif
+#include "odbc.h"
 
 
 ///////////////////////////////////////////////////////////

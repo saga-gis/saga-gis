@@ -82,6 +82,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CGet_Servers : public CSG_Module
+{
+public:
+	CGet_Servers(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGet_Connection : public CSG_Module
 {
 public:
@@ -98,8 +118,6 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -121,15 +139,15 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction : public CSG_ODBC_Module
+class CDel_Connections : public CSG_Module
 {
 public:
-	CTransaction(void);
+	CDel_Connections(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
 
 
 protected:
@@ -143,7 +161,27 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTransaction : public CSG_ODBC_Module
+{
+public:
+	CTransaction(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -152,6 +190,8 @@ class CExecute_SQL : public CSG_ODBC_Module
 {
 public:
 	CExecute_SQL(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
 
 
 protected:

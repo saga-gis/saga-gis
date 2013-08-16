@@ -5,8 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_api", "saga_core\saga_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gdi", "saga_core\saga_gdi\saga_gdi.vcxproj", "{5F5137D6-9979-4829-9C23-45D9726D8554}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_odbc", "saga_core\saga_odbc\saga_odbc.vcxproj", "{9E4C619C-B279-4532-8F60-6C64FE0A2091}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_cmd", "saga_core\saga_cmd\saga_cmd.vcxproj", "{2C30DA1F-994C-4358-91C1-217C38BB375F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gui", "saga_core\saga_gui\saga_gui.vcxproj", "{160C7E9B-CD3D-44D7-A20B-AABA043CE290}"
@@ -89,9 +87,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vigra", "modules_images\modules_vigra\vigra\vigra.vcxproj", "{596A318C-D642-4397-BC7E-6B68BEAA95FC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_odbc", "modules_io\db\io_odbc\io_odbc.vcxproj", "{92EB3478-3A80-46AE-9289-27EC77C77925}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091} = {9E4C619C-B279-4532-8F60-6C64FE0A2091}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_esri_e00", "modules_io\esri_e00\io_esri_e00\io_esri_e00.vcxproj", "{953ED9E4-1771-4F8A-A9C9-31436B122D0A}"
 EndProject
@@ -213,14 +208,6 @@ Global
 		{5F5137D6-9979-4829-9C23-45D9726D8554}.Release|Win32.Build.0 = Release|Win32
 		{5F5137D6-9979-4829-9C23-45D9726D8554}.Release|x64.ActiveCfg = Release|x64
 		{5F5137D6-9979-4829-9C23-45D9726D8554}.Release|x64.Build.0 = Release|x64
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Debug|Win32.ActiveCfg = Debug|Win32
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Debug|Win32.Build.0 = Debug|Win32
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Debug|x64.ActiveCfg = Debug|x64
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Debug|x64.Build.0 = Debug|x64
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Release|Win32.ActiveCfg = Release|Win32
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Release|Win32.Build.0 = Release|Win32
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Release|x64.ActiveCfg = Release|x64
-		{9E4C619C-B279-4532-8F60-6C64FE0A2091}.Release|x64.Build.0 = Release|x64
 		{2C30DA1F-994C-4358-91C1-217C38BB375F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{2C30DA1F-994C-4358-91C1-217C38BB375F}.Debug|Win32.Build.0 = Debug|Win32
 		{2C30DA1F-994C-4358-91C1-217C38BB375F}.Debug|x64.ActiveCfg = Debug|x64
