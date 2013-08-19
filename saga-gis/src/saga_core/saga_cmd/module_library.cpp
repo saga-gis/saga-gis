@@ -1,7 +1,7 @@
 /**********************************************************
  * Version $Id$
  *********************************************************/
- 
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -148,7 +148,7 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 
 	if( argc <= 1 )
 	{
-		m_CMD.Usage();
+		SG_PRINTF(m_CMD.GetUsageString());
 
 		return( false );
 	}
@@ -173,7 +173,7 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 
 	//-----------------------------------------------------
 	bool	bResult	= _Get_Parameters(m_pModule->Get_Parameters());
-		
+
 	for(i=0; bResult && i<m_pModule->Get_Parameters_Count(); i++)
 	{
 		_Get_Parameters(m_pModule->Get_Parameters(i));
@@ -183,7 +183,7 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	{
 		CMD_Print("");
 
-		m_CMD.Usage();
+		SG_PRINTF(m_CMD.GetUsageString());
 	}
 
 	//-----------------------------------------------------
