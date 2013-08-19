@@ -210,7 +210,7 @@ wksp_table_manager.h\
 wksp_tin.h\
 wksp_tin_manager.h
 
-saga_gui_LDADD = ../saga_api/libsaga_api.la ../saga_odbc/libsaga_odbc.la
+saga_gui_LDADD = ../saga_api/libsaga_api.la
 
 dist-hook:
 	 mkdir $(distdir)/res
