@@ -3205,7 +3205,6 @@ OffsetBuilder(const Polygons& in_polys, Polygons& out_polys,
       else if (limit > std::fabs(delta)) limit = std::fabs(delta);
     }
  
-    double deltaSq = delta*delta;
     out_polys.clear();
     out_polys.resize(m_p.size());
     for (m_i = 0; m_i < m_p.size(); m_i++)
