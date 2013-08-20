@@ -625,7 +625,7 @@ int CSG_Formula::Del_Function(SG_Char *name)
 // Result: 0 is rendered if there is an error
 // 1 is rendered otherwise
 //
-int CSG_Formula::Add_Function(SG_Char *name, TSG_PFNC_Formula_1 f, int n_pars, int varying)
+int CSG_Formula::Add_Function(const SG_Char *name, TSG_PFNC_Formula_1 f, int n_pars, int varying)
 {
 	TSG_Formula_Item *where;
 	
