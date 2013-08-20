@@ -12,11 +12,11 @@ CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version -avoid-version
 pkglib_LTLIBRARIES = libshapes_transect.la
-libtransect_la_SOURCES =\
+libshapes_transect_la_SOURCES =\
 Polygon_Transect.h\
 MLB_Interface.h\
 Polygon_Transect.cpp\
 MLB_Interface.cpp
 
-libtransect_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
+libshapes_transect_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
