@@ -251,6 +251,16 @@ int CParameters_PG_Choice::_Set_Table(void)
 		}
 	}
 
+	CWKSP_PointCloud_Manager	*pPointClouds;
+
+	if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
+	{
+		for(int i=0; i<pPointClouds->Get_Count(); i++)
+		{
+			_Append(pPointClouds->Get_Data(i)->Get_Name(), pPointClouds->Get_Data(i)->Get_PointCloud());
+		}
+	}
+
 	return( _DataObject_Init() );
 }
 
