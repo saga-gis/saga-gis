@@ -100,6 +100,8 @@ private:
 
 	CSG_Table					*m_pXTable;
 
+	CSG_Grid					*m_Coeff;
+
 	CSG_Parameter_Grid_List		*m_pXGrids, *m_pVariables;
 
 
@@ -115,6 +117,7 @@ private:
 	bool						Get_Spline_All			(double x, double y, double z, double &Value);
 	bool						Get_Spline				(double x, double y, double z, double &Value);
 	bool						Get_Trend				(double x, double y, double z, double &Value);
+	bool						Get_Trend_Coeff			(double x, double y, double z, double &Value);
 
 };
 

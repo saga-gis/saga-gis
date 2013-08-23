@@ -96,11 +96,11 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-//	Parameters.Add_Grid(
-//		NULL	, "X_GRIDS_CHECK"	, _TL("Minimum Height"),
-//		_TL("if set, only values with level heights above DEM will be used"),
-//		PARAMETER_INPUT_OPTIONAL, true
-//	);
+	Parameters.Add_Grid(
+		NULL	, "X_GRIDS_CHECK"	, _TL("Minimum Height"),
+		_TL("if set, only values with level heights above DEM will be used"),
+		PARAMETER_INPUT_OPTIONAL, true
+	);
 
 	Parameters.Add_FixedTable(
 		NULL	, "X_TABLE"			, _TL("Level Heights"),
@@ -122,10 +122,11 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 	Parameters.Add_Choice(
 		NULL	, "V_METHOD"		, _TL("Vertical Interpolation Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("linear"),
 			_TL("spline"),
-			_TL("polynomial trend")
+			_TL("polynomial trend"),
+			_TL("polynomial trend (coefficient interpolation)")
 		), 0
 	);
 
@@ -154,6 +155,8 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 	}
 
 	Add_Parameters("INTERNAL", "", "");
+
+	m_Coeff	= NULL;
 }
 
 
@@ -168,14 +171,14 @@ int CGrid_Levels_Interpolation::On_Parameters_Enable(CSG_Parameters *pParameters
 	{
 		pParameters->Get_Parameter("LINEAR_SORTED")->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("SPLINE_ALL"   )->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("TREND_ORDER"  )->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("TREND_ORDER"  )->Set_Enabled(pParameter->asInt() >= 2);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("X_SOURCE")) )
 	{
 		pParameters->Get_Parameter("X_TABLE"      )->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("X_GRIDS"      )->Set_Enabled(pParameter->asInt() == 1);
-	//	pParameters->Get_Parameter("X_GRIDS_CHECK")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Get_Parameter("X_GRIDS_CHECK")->Set_Enabled(pParameter->asInt() == 1);
 	}
 
 	return( 1 );
@@ -259,6 +262,57 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 	}
 
 	//-----------------------------------------------------
+	if( m_vMethod == 3 )	// polynom coefficient interpolation
+	{
+		int		i;
+
+		m_Coeff	= new CSG_Grid[1 + m_Trend_Order];
+
+		for(i=0; i<=m_Trend_Order; i++)
+		{
+			m_Coeff[i].Create(*Get_System());
+		}
+
+		#pragma omp parallel for private(i)
+		for(int y=0; y<Get_NY(); y++)
+		{
+			double	p_y	= Get_YMin() + y * Get_Cellsize();
+
+			for(int x=0; x<Get_NX(); x++)
+			{
+				double	p_x	= Get_XMin() + x * Get_Cellsize();
+
+				CSG_Trend_Polynom	Trend;	Trend.Set_Order(m_Trend_Order);
+
+				for(i=0; i<m_pVariables->Get_Count(); i++)
+				{
+					double	Height, Variable;
+
+					if( Get_Height(p_x, p_y, i, Height) && Get_Variable(p_x, p_y, i, Variable) )
+					{
+						Trend.Add_Data(Height, Variable);
+					}
+				}
+
+				if( Trend.Get_Trend() )
+				{
+					for(i=0; i<=m_Trend_Order; i++)
+					{
+						m_Coeff[i].Set_Value(x, y, Trend.Get_Coefficient(i));
+					}
+				}
+				else
+				{
+					for(i=0; i<=m_Trend_Order; i++)
+					{
+						m_Coeff[i].Set_NoData(x, y);
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -274,6 +328,13 @@ bool CGrid_Levels_Interpolation::Finalize(void)
 		}
 
 		m_pXGrids->Del_Items();
+	}
+
+	if( m_Coeff )
+	{
+		delete[](m_Coeff);
+
+		m_Coeff	= NULL;
 	}
 
 	return( true );
@@ -391,6 +452,9 @@ inline bool CGrid_Levels_Interpolation::Get_Value(double x, double y, double z, 
 
 	case 2:	// polynomial trend
 		return( Get_Trend(x, y, z, Value) );
+
+	case 3:	// polynomial trend (coefficient interpolation)
+		return( Get_Trend_Coeff(x, y, z, Value) );
 	}
 }
 
@@ -561,6 +625,32 @@ bool CGrid_Levels_Interpolation::Get_Trend(double x, double y, double z, double 
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Levels_Interpolation::Get_Trend_Coeff(double x, double y, double z, double &Value)
+{
+	double	Coeff, zPower	= 1.0;
+
+	Value	= 0.0;
+
+	for(int i=0; i<=m_Trend_Order; i++)
+	{
+		if( !m_Coeff[i].Get_Value(x, y, Coeff, m_hMethod) )
+		{
+			return( false );
+		}
+
+		Value	+= Coeff * zPower;
+		zPower	*= z;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -625,9 +715,9 @@ bool CGrid_Levels_to_Surface::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<pSurface->Get_NX(); x++)
 		{
-			double	Value;
+			double	Value, p_x	= pSurface->Get_XMin() + x * pSurface->Get_Cellsize();
 
-			if( !pSurface->is_NoData(x, y) && Get_Value(pSurface->Get_XMin() + x * pSurface->Get_Cellsize(), p_y, pSurface->asDouble(x, y), Value) )
+			if( !pSurface->is_NoData(x, y) && Get_Value(p_x, p_y, pSurface->asDouble(x, y), Value) )
 			{
 				pResult->Set_Value(x, y, Value);
 			}
