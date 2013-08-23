@@ -85,13 +85,22 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Geographically Weighted Multiple Regression (Points/Grids)"));
+	Set_Name		(_TL("GWR Gridding (Points/Grids)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
 	Set_Description	(_TW(
-		"Reference:\n"
-		" - Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
+		"References:\n"
+		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
+		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
+		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
+		"\n"
+		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
+		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
+		" Environment and Planning A 30(11), 1905–1927."
+		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+		"\n"
+		"- Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
 	));
 
 	//-----------------------------------------------------
@@ -114,13 +123,13 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "SLOPES"		, _TL("Regression Parameters"),
+		NULL	, "MODEL"		, _TL("Regression Parameters"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 
 	Parameters.Add_Value(
-		NULL	, "PARAMETERS"	, _TL("Output of Regression Parameters"),
+		NULL	, "MODEL_OUT"	, _TL("Output of Regression Parameters"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
@@ -143,13 +152,24 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
+	pNode	= Parameters.Add_Choice(
+		NULL	, "RESOLUTION"	, _TL("Model Resolution"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("same as predictors"),
+			_TL("user defined")
+		), 1
 	);
 
+	Parameters.Add_Value(
+		NULL	, "RESOLUTION_VAL"	, _TL("Resolution"),
+		_TL("map units"),
+		PARAMETER_TYPE_Double	, 1.0, 0.0, true
+	);
+
+	//-----------------------------------------------------
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pSearch	= Parameters.Add_Node(
@@ -163,7 +183,7 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("local"),
 			_TL("global")
-		)
+		), 1
 	);
 
 	Parameters.Add_Value(
@@ -178,7 +198,7 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("maximum number of nearest points"),
 			_TL("all points within search distance")
-		)
+		), 0
 	);
 
 	Parameters.Add_Value(
@@ -190,7 +210,7 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	Parameters.Add_Value(
 		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
 		_TL("maximum number of nearest points"),
-		PARAMETER_TYPE_Int, 20, 1, true
+		PARAMETER_TYPE_Int, 50, 1, true
 	);
 
 	Parameters.Add_Choice(
@@ -211,11 +231,30 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POINTS")) && pParameter->asShapes() )
+	{
+		double	d	= pParameter->asShapes()->Get_Extent().Get_XRange() / 20.0;
+
+		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Value(d);
+	}
+
+	return( 1 );
+}
+
+//---------------------------------------------------------
 int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("RESOLUTION")) )
+	{
+		pParameters->Get_Parameter("RESOLUTION_VAL"   )->Set_Enabled(pParameter->asInt() == 1);
+	}
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
 	{
 		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
+		pParameters->Get_Parameter("SEARCH_POINTS_MIN")->Set_Enabled(pParameter->asInt() == 0);	// local
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
@@ -237,51 +276,164 @@ int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGW_Multi_Regression_Grid::Initialize(void)
+bool CGW_Multi_Regression_Grid::On_Execute(void)
 {
-	bool		bAdd;
-	int			iPoint, iPredictor, iDependent, Interpolation;
-	CSG_Vector	z;
-	TSG_Point	Point;
-	CSG_Shape	*pPoint;
-	CSG_Shapes	*pPoints;
+	int		i;
 
 	//-----------------------------------------------------
-	if( m_pPredictors->Get_Count() < 1 )
+	CSG_Parameter_Grid_List	*pPredictors	= Parameters("PREDICTORS")->asGridList();
+
+	if( !Initialize(Parameters("POINTS")->asShapes(), Parameters("DEPENDENT")->asInt(), pPredictors) )
+	{
+		Finalize();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	Quality;
+
+	m_dimModel	= *Get_System();
+
+	if( Parameters("RESOLUTION")->asInt() == 1 && Parameters("RESOLUTION_VAL")->asDouble() > Get_Cellsize() )
+	{
+		CSG_Rect	r(Get_System()->Get_Extent()); r.Inflate(0.5 * Parameters("RESOLUTION_VAL")->asDouble(), false);
+
+		m_dimModel.Assign(Parameters("RESOLUTION_VAL")->asDouble(), r);
+
+		Quality.Create(m_dimModel);
+		m_pQuality	= &Quality;
+	}
+	else
+	{
+		m_pQuality	= Parameters("QUALITY")->asGrid();
+	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("upsetting model domain"));
+
+	m_pPredictors	= (CSG_Grid **)SG_Calloc(m_nPredictors    , sizeof(CSG_Grid *));
+	m_pModel		= (CSG_Grid **)SG_Calloc(m_nPredictors + 1, sizeof(CSG_Grid *));
+
+	for(i=0; i<m_nPredictors; i++)
+	{
+		if( m_dimModel.Get_Cellsize() > Get_Cellsize() )	// scaling
+		{
+			m_pPredictors[i]	= SG_Create_Grid(m_dimModel);
+			m_pPredictors[i]	->Assign(pPredictors->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);	// GRID_INTERPOLATION_Mean_Cells
+		}
+		else
+		{
+			m_pPredictors[i]	= pPredictors->asGrid(i);
+		}
+
+		m_pModel     [i]	= SG_Create_Grid(m_dimModel);
+		m_pModel     [i]	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPredictors->asGrid(i)->Get_Name(), _TL("Factor")));
+	}
+
+	m_pModel[m_nPredictors]	= SG_Create_Grid(m_dimModel);
+	m_pModel[m_nPredictors]	->Set_Name(_TL("Intercept"));
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("model creation"));
+
+	bool	bResult	= Get_Model();
+
+	//-----------------------------------------------------
+	if( m_dimModel.Get_Cellsize() > Get_Cellsize() )	// scaling
+	{
+		for(i=0; i<m_nPredictors; i++)
+		{
+			delete(m_pPredictors[i]);
+
+			m_pPredictors[i]	= pPredictors->asGrid(i);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		Process_Set_Text(_TL("model application"));
+
+		bResult	= Set_Model();
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("MODEL_OUT")->asBool() )
+	{
+		CSG_Parameter_Grid_List	*pModel	= Parameters("MODEL")->asGridList();
+
+		pModel->Del_Items();
+		pModel->Add_Item(m_pModel[m_nPredictors]);
+
+		for(i=0; i<m_nPredictors; i++)
+		{
+			pModel->Add_Item(m_pModel[i]);
+		}
+	}
+	else
+	{
+		for(i=0; i<=m_nPredictors; i++)
+		{
+			delete(m_pModel[i]);
+		}
+	}
+
+	SG_FREE_SAFE(m_pModel);
+	SG_FREE_SAFE(m_pPredictors);
+
+	Finalize();
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, CSG_Parameter_Grid_List *pPredictors)
+{
+	//-----------------------------------------------------
+	if( (m_nPredictors = pPredictors->Get_Count()) <= 0 )
+	{
+		return( false );
+	}
+
+	if( !pPoints->Get_Extent().Intersects(Get_System()->Get_Extent()) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	pPoints			= Parameters("POINTS")		->asShapes();
-	iDependent		= Parameters("DEPENDENT")	->asInt();
-	Interpolation	= GRID_INTERPOLATION_BSpline;
+	int	iPredictor, Interpolation	= GRID_INTERPOLATION_BSpline;
 
-	//-----------------------------------------------------
 	m_Points.Create   (SHAPE_TYPE_Point);
 	m_Points.Set_Name (Parameters("DEPENDENT")->asString());
 	m_Points.Add_Field(Parameters("DEPENDENT")->asString(), SG_DATATYPE_Double);
 
-	for(iPredictor=0; iPredictor<m_pPredictors->Get_Count(); iPredictor++)
+	for(iPredictor=0; iPredictor<pPredictors->Get_Count(); iPredictor++)
 	{
-		m_Points.Add_Field(m_pPredictors->asGrid(iPredictor)->Get_Name(), SG_DATATYPE_Double);
+		m_Points.Add_Field(pPredictors->asGrid(iPredictor)->Get_Name(), SG_DATATYPE_Double);
 	}
 
-	z.Create(1 + m_pPredictors->Get_Count());
-
 	//-----------------------------------------------------
-	for(iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		pPoint	= pPoints->Get_Shape(iPoint);
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 
 		if( !pPoint->is_NoData(iDependent) )
 		{
-			Point	= pPoint->Get_Point(0);
-			z[0]	= pPoint->asDouble(iDependent);
+			CSG_Vector	z(1 + m_nPredictors);	z[0]	= pPoint->asDouble(iDependent);
+			TSG_Point	Point	= pPoint->Get_Point(0);
+			bool		bAdd	= true;
 
-			for(iPredictor=0, bAdd=true; bAdd && iPredictor<m_pPredictors->Get_Count(); iPredictor++)
+			for(iPredictor=0; bAdd && iPredictor<m_nPredictors; iPredictor++)
 			{
-				if( !m_pPredictors->asGrid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Interpolation) )
+				if( !pPredictors->asGrid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Interpolation) )
 				{
 					bAdd	= false;
 				}
@@ -289,10 +441,9 @@ bool CGW_Multi_Regression_Grid::Initialize(void)
 
 			if( bAdd )
 			{
-				pPoint	= m_Points.Add_Shape();
-				pPoint->Add_Point(Point);
+				(pPoint	= m_Points.Add_Shape())->Add_Point(Point);
 
-				for(iPredictor=0; iPredictor<=m_pPredictors->Get_Count(); iPredictor++)
+				for(iPredictor=0; iPredictor<=m_nPredictors; iPredictor++)
 				{
 					pPoint->Set_Value(iPredictor, z[iPredictor]);
 				}
@@ -301,39 +452,6 @@ bool CGW_Multi_Regression_Grid::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	return( m_Points.Get_Count() > 1 );
-}
-
-//---------------------------------------------------------
-void CGW_Multi_Regression_Grid::Finalize(void)
-{
-	m_Points.Destroy();
-
-	m_Search.Destroy();
-
-	m_y.Destroy();
-	m_z.Destroy();
-	m_w.Destroy();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGW_Multi_Regression_Grid::On_Execute(void)
-{
-	int		i;
-
-	//-----------------------------------------------------
-	m_pPredictors	= Parameters("PREDICTORS")->asGridList();
-	m_pRegression	= Parameters("REGRESSION")->asGrid    ();
-	m_pQuality		= Parameters("QUALITY"   )->asGrid    ();
-	m_pSlopes		= Parameters("SLOPES"    )->asGridList();
-
 	m_nPoints_Min	= Parameters("SEARCH_POINTS_MIN")->asInt   ();
 	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt   () == 0
 					? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
@@ -341,163 +459,91 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
 	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
 
-	m_Weighting.Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Set_Parameters(&Parameters);
 
+	return( m_Points.Get_Count() > m_nPredictors
+		&& ((m_nPoints_Max <= 0 && m_Radius <= 0.0) || m_Search.Create(&m_Points, -1))
+	);
+}
+
+//---------------------------------------------------------
+void CGW_Multi_Regression_Grid::Finalize(void)
+{
+	m_Points.Destroy();
+	m_Search.Destroy();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGW_Multi_Regression_Grid::Get_Model(void)
+{
 	//-----------------------------------------------------
-	if( !Initialize() )
+	for(int y=0; y<m_dimModel.Get_NY() && Set_Progress(y, m_dimModel.Get_NY()); y++)
 	{
-		Finalize();
-
-		return( false );
-	}
-
-	if( (m_nPoints_Max > 0 || m_Radius > 0.0) && !m_Search.Create(&m_Points, -1) )
-	{
-		Finalize();
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	m_pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_Points.Get_Name(), _TL("GWR Regression")));
-	m_pQuality   ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_Points.Get_Name(), _TL("GWR Quality")));
-
-	m_pSlopes->Del_Items();
-
-	if( Parameters("PARAMETERS")->asBool() )
-	{
-		CSG_Grid	*pGrid;
-
-		m_pSlopes->Add_Item(pGrid = SG_Create_Grid(*Get_System()));
-		pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_Points.Get_Name(), _TL("Intercept")));
-
-		for(i=0; i<m_pPredictors->Get_Count(); i++)
+		for(int x=0; x<m_dimModel.Get_NX(); x++)
 		{
-			m_pSlopes->Add_Item(pGrid = SG_Create_Grid(*Get_System()));
-			pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_Points.Get_Name(), m_pPredictors->asGrid(i)->Get_Name()));
-		}
-	}
+			double		q;
+			CSG_Vector	b;
 
-	//-----------------------------------------------------
-	int	nPoints_Max	= m_nPoints_Max > 0 ? m_nPoints_Max : m_Points.Get_Count();
-
-	m_y.Create(1 + m_pPredictors->Get_Count(), nPoints_Max);
-	m_z.Create(nPoints_Max);
-	m_w.Create(nPoints_Max);
-
-	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			bool	bNoData	= false;
-
-			for(i=0; !bNoData && i<m_pPredictors->Get_Count(); i++)
+			if( Get_Regression(x, y, q, b) )
 			{
-				if( m_pPredictors->asGrid(i)->is_NoData(x, y) )
+				m_pQuality->Set_Value(x, y, q);
+
+				m_pModel[m_nPredictors]->Set_Value(x, y, b[0]);
+
+				for(int i=0; i<m_nPredictors; i++)
 				{
-					bNoData	= true;
+					m_pModel[i]->Set_Value(x, y, b[i + 1]);
 				}
 			}
-
-			if( bNoData || !Get_Regression(x, y) )
+			else
 			{
-				m_pRegression->Set_NoData(x, y);
-				m_pQuality   ->Set_NoData(x, y);
+				m_pQuality->Set_NoData(x, y);
 
-				for(i=0; i<m_pSlopes->Get_Count(); i++)
+				for(int i=0; i<=m_nPredictors; i++)
 				{
-					m_pSlopes->asGrid(i)->Set_NoData(x, y);
+					m_pModel[i]->Set_NoData(x, y);
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	Set_Residuals();
-
-	Finalize();
-
 	return( true );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-int CGW_Multi_Regression_Grid::Set_Variables(int x, int y)
+bool CGW_Multi_Regression_Grid::Get_Regression(int x, int y, double &Quality, CSG_Vector &b)
 {
-	int			nPoints;
-	TSG_Point	Point;
-	CSG_Shape	*pPoint;
+	//-----------------------------------------------------
+	int			i, nPoints;
+	double		zMean, zr, rss, tss;
+	CSG_Vector	z, w;
+	CSG_Matrix	Y, YtW;
 
-	Point	= Get_System()->Get_Grid_to_World(x, y);
-	nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_Points.Get_Count();
-
-	for(int iPoint=0; iPoint<nPoints; iPoint++)
-	{
-		if( m_Search.is_Okay() )
-		{
-			double	ix, iy, iz;
-
-			m_Search.Get_Selected_Point(iPoint, ix, iy, iz);
-
-			pPoint	= m_Points.Get_Shape((int)iz);
-		}
-		else
-		{
-			pPoint	= m_Points.Get_Shape(iPoint);
-		}
-
-		m_z[iPoint]	= pPoint->asDouble(0);
-		m_w[iPoint]	= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
-
-		for(int iPredictor=0; iPredictor<m_pPredictors->Get_Count(); iPredictor++)
-		{
-			m_y[iPoint][iPredictor]	= pPoint->asDouble(1 + iPredictor);
-		}
-	}
-
-	return( nPoints );
-}
-
-//---------------------------------------------------------
-bool CGW_Multi_Regression_Grid::Get_Regression(int x, int y)
-{
-	int		nPoints	= Set_Variables(x, y);
-
-	if( nPoints < m_nPoints_Min )
+	if( (nPoints = Get_Variables(x, y, z, w, Y)) <= m_nPredictors )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int			i;
-	double		zMean, zr, rss, tss;
-	CSG_Vector	b, z;
-	CSG_Matrix	Y, YtW;
-
-	//-----------------------------------------------------
-	z  .Create(nPoints);
-	Y  .Create(1 + m_pPredictors->Get_Count(), nPoints);
-	YtW.Create(nPoints, 1 + m_pPredictors->Get_Count());
+	YtW.Create(nPoints, 1 + m_nPredictors);
 
 	for(i=0, zMean=0.0; i<nPoints; i++)
 	{
-		Y  [i][0]	= 1.0;
-		YtW[0][i]	= m_w[i];
+		zMean		+= z[i];
+		YtW[0][i]	 = w[i];
 
-		for(int j=0; j<m_pPredictors->Get_Count(); j++)
+		for(int j=1; j<=m_nPredictors; j++)
 		{
-			Y  [i][j + 1]	= m_y[i][j];
-			YtW[j + 1][i]	= m_y[i][j] * m_w[i];
+			YtW[j][i]	= Y[i][j] * w[i];
 		}
-
-		zMean		+= (z[i] = m_z[i]);
 	}
 
 	//-----------------------------------------------------
@@ -509,33 +555,123 @@ bool CGW_Multi_Regression_Grid::Get_Regression(int x, int y)
 	{
 		zr	= b[0];
 
-		for(int j=0; j<m_pPredictors->Get_Count(); j++)
+		for(int j=1; j<=m_nPredictors; j++)
 		{
-			zr	+= b[j + 1] * m_y[i][j];
+			zr	+= b[j] * Y[i][j];
 		}
 
-		rss	+= m_w[i] * SG_Get_Square(m_z[i] - zr);
-		tss	+= m_w[i] * SG_Get_Square(m_z[i] - zMean);
+		rss	+= w[i] * SG_Get_Square(z[i] - zr);
+		tss	+= w[i] * SG_Get_Square(z[i] - zMean);
 	}
 
-	m_pQuality  ->Set_Value(x, y, tss > 0.0 ? (tss - rss) / tss : 0.0);
+	Quality	= tss > 0.0 ? (tss - rss) / tss : 0.0;
 
-	for(i=0; i<m_pSlopes->Get_Count(); i++)
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+int CGW_Multi_Regression_Grid::Get_Variables(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y)
+{
+	TSG_Point	Point	= m_dimModel.Get_Grid_to_World(x, y);
+	int			nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_Points.Get_Count();
+
+	z.Create(nPoints);
+	w.Create(nPoints);
+	Y.Create(1 + m_nPredictors, nPoints);
+
+	for(int iPoint=0; iPoint<nPoints; iPoint++)
 	{
-		m_pSlopes->asGrid(i)->Set_Value(x, y, b[i]);
+		double	ix, iy, iz;
+
+		CSG_Shape	*pPoint	= m_Search.is_Okay() && m_Search.Get_Selected_Point(iPoint, ix, iy, iz)
+			? m_Points.Get_Shape((int)iz)
+			: m_Points.Get_Shape(iPoint);
+
+		z[iPoint]		= pPoint->asDouble(0);
+		w[iPoint]		= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
+		Y[iPoint][0]	= 1.0;
+
+		for(int iPredictor=1; iPredictor<=m_nPredictors; iPredictor++)
+		{
+			Y[iPoint][iPredictor]	= pPoint->asDouble(iPredictor);
+		}
+	}
+
+	return( nPoints );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGW_Multi_Regression_Grid::Set_Model(double x, double y, double &Value)
+{
+	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_INTERPOLATION_BSpline) )
+	{
+		return( false );
+	}
+
+	double	Model, Predictor;
+
+	for(int i=0; i<m_nPredictors; i++)
+	{
+		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_INTERPOLATION_BSpline)
+		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_INTERPOLATION_NearestNeighbour) )
+		{
+			return( false );
+		}
+
+		Value	+= Model * Predictor;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGW_Multi_Regression_Grid::Set_Model(void)
+{
+	CSG_Grid	*pRegression	= Parameters("REGRESSION")->asGrid();
+	CSG_Grid	*pQuality		= Parameters("QUALITY"   )->asGrid();
+
+	pRegression->Set_Name(CSG_String::Format(SG_T("%s [%s]"    ), m_Points.Get_Name(), _TL("GWR")));
+	pQuality   ->Set_Name(CSG_String::Format(SG_T("%s [%s, %s]"), m_Points.Get_Name(), _TL("GWR"), _TL("Quality")));
+
+	if( m_pQuality == Parameters("QUALITY")->asGrid() )
+	{
+		pQuality	= NULL;
 	}
 
 	//-----------------------------------------------------
-	zr	= b[0];
-
-	for(i=0; i<m_pPredictors->Get_Count(); i++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		zr	+= b[i + 1] * m_pPredictors->asGrid(i)->asDouble(x, y);
+		double	p_y	= Get_YMin() + y * Get_Cellsize();
+
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double	Value, p_x	= Get_XMin() + x * Get_Cellsize();
+
+			if( Set_Model(p_x, p_y, Value) )
+			{
+				GRID_SET_VALUE(pRegression, x, y, Value);
+				GRID_SET_VALUE(pQuality   , x, y, m_pQuality->Get_Value(p_x, p_y));
+			}
+			else
+			{
+				GRID_SET_NODATA(pRegression, x, y);
+				GRID_SET_NODATA(pQuality   , x, y);
+			}
+		}
 	}
 
-	m_pRegression->Set_Value(x, y, zr);
-
 	//-----------------------------------------------------
+	Set_Residuals();
+
 	return( true );
 }
 
@@ -551,7 +687,7 @@ bool CGW_Multi_Regression_Grid::Set_Residuals(void)
 {
 	CSG_Shapes	*pResiduals	= Parameters("RESIDUALS")->asShapes();
 
-	if( !pResiduals || !m_pRegression )
+	if( !pResiduals )
 	{
 		return( false );
 	}
@@ -576,7 +712,7 @@ bool CGW_Multi_Regression_Grid::Set_Residuals(void)
 
 				TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
 
-				if( m_pRegression->Get_Value(Point, zRegression) )
+				if( Set_Model(Point.x, Point.y, zRegression) )
 				{
 					CSG_Shape	*pResidual	= pResiduals->Add_Shape();
 

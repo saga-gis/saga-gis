@@ -83,9 +83,9 @@ public:
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
@@ -95,7 +95,7 @@ private:
 	CSG_Grid_Cell_Addressor		m_Search;
 
 	CSG_Grid					*m_pDependent, **m_pPredictors, **m_pModel, *m_pQuality, *m_pResiduals;
-	
+
 
 	bool						Set_Model				(double x, double y, double &Value, double &Residual);
 	bool						Set_Model				(void);

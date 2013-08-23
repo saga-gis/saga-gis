@@ -79,7 +79,7 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Reference:\n"
+		"References:\n"
 		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
 		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
 		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
@@ -260,7 +260,6 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 		CSG_Parameter_Grid_List	*pModel	= Parameters("MODEL")->asGridList();
 
 		pModel->Del_Items();
-
 		pModel->Add_Item(m_pModel[m_nPredictors]);
 
 		for(i=0; i<m_nPredictors; i++)
@@ -270,12 +269,10 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 	}
 	else
 	{
-		for(i=0; i<m_nPredictors; i++)
+		for(i=0; i<=m_nPredictors; i++)
 		{
 			delete(m_pModel[i]);
 		}
-
-		delete(m_pModel[m_nPredictors]);
 	}
 
 	SG_FREE_SAFE(m_pModel);

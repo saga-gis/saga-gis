@@ -83,14 +83,19 @@ public:
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	int							m_nPoints_Min, m_nPoints_Max, m_Direction;
+	int							m_nPredictors, m_nPoints_Min, m_nPoints_Max, m_Direction;
+
+	CSG_Grid					**m_pPredictors, **m_pModel, *m_pQuality;
+
+	CSG_Grid_System				m_dimModel;
 
 	double						m_Radius;
 
@@ -98,23 +103,18 @@ private:
 
 	CSG_PRQuadTree				m_Search;
 
-	CSG_Vector					m_z, m_w;
-
-	CSG_Matrix					m_y;
-
 	CSG_Shapes					m_Points;
 
-	CSG_Grid					*m_pRegression, *m_pQuality;
-	
-	CSG_Parameter_Grid_List		*m_pPredictors, *m_pSlopes;
 
-
-	bool						Initialize				(void);
+	bool						Initialize				(CSG_Shapes *pPoints, int iDependent, CSG_Parameter_Grid_List *pPredictors);
 	void						Finalize				(void);
 
-	int							Set_Variables			(int x, int y);
+	bool						Get_Model				(void);
+	bool						Get_Regression			(int x, int y, double &Quality, CSG_Vector &b);
+	int							Get_Variables			(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y);
 
-	bool						Get_Regression			(int x, int y);
+	bool						Set_Model				(void);
+	bool						Set_Model				(double x, double y, double &Value);
 
 	bool						Set_Residuals			(void);
 
