@@ -1238,14 +1238,16 @@ void CSG_Classifier_Supervised::_Get_Maximum_Likelihood(const CSG_Vector &Featur
 
 		dSum	+= (d	= pow(d, 1.0 / Get_Feature_Count()));
 
-/**//*	double	d	= 0.0;
+		/*
+		double	d	= 0.0;
 
 		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
 		{
 			d	+= SG_Get_Square((Features(iFeature) - m_Statistics[iClass][iFeature].Get_Mean()) / m_Statistics[iClass][iFeature].Get_StdDev());
 		}
 
-		dSum	+= (d	= m_ML_s[iClass] * exp(-0.5 * d));	/**/
+		dSum	+= (d	= m_ML_s[iClass] * exp(-0.5 * d));	
+		*/
 
 		if( Quality < d )
 		{

@@ -1032,7 +1032,7 @@ bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String 
 }
 
 //---------------------------------------------------------
-/*/ ellipsoids (a, b)
+/* ellipsoids (a, b)
 	{	"MERIT"		, "6378137.0"	, "6356752.298"	},	// MERIT 1983
 	{	"SGS85"		, "6378136.0"	, "6356751.302"	},	// Soviet Geodetic System 85
 	{	"GRS80"		, "6378137.0"	, "6356752.314"	},	// GRS 1980 (IUGG, 1980)
@@ -1075,7 +1075,7 @@ bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String 
 	{	"WGS72"		, "6378135.0"	, "6356750.52"	},	// WGS 72
 	{	"WGS84"		, "6378137.0"	, "6356752.314"	},	// WGS 84
 	{	"sphere"	, "6370997.0"	, "6370997.0"	}	// Normal Sphere (r=6370997)
-/**/
+*/
 
 bool CSG_Projections::_Proj4_Get_Ellipsoid(CSG_String &Value, const CSG_String &Proj4) const
 {

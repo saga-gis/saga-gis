@@ -3133,12 +3133,13 @@ struct DoublePoint
 Polygon BuildArc(const IntPoint &pt,
   const double a1, const double a2, const double r, double limit)
 {
-  /*/see notes in clipper.pas regarding steps
+  /*
+  see notes in clipper.pas regarding steps
   double arcFrac = std::fabs(a2 - a1) / (2 * pi);
   int steps = (int)(arcFrac * pi / std::acos(1 - limit / std::fabs(r)));
   if (steps < 2) steps = 2;
   else if (steps > (int)(222.0 * arcFrac)) steps = (int)(222.0 * arcFrac);
-/**/
+  */
   int steps = std::max(2, int(std::fabs(a2 - a1) / limit));	// SAGA: number of steps fitted to step size 'limit' (radians)
 
   double x = std::cos(a1); 

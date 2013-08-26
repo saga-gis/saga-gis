@@ -757,7 +757,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 
 	s	+= SG_T("</table>");
 
-//**/
+*/
 	//-----------------------------------------------------
 	return( s );
 }
