@@ -553,7 +553,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 
 	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
-	return( false );
+	return( NULL );
 }
 
 //---------------------------------------------------------

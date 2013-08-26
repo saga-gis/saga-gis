@@ -195,7 +195,7 @@ CSG_MetaData * CSG_MetaData::Add_Child(void)
 		}
 		else
 		{
-			return( false );
+			return( NULL );
 		}
 	}
 
