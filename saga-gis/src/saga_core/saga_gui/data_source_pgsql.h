@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: data_source_pgsql.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,19 +14,19 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 VIEW_Map_3D_Image.h                   //
+//                  data_source_pgsql.h                  //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//          Copyright (C) 2013 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-// This file is part of 'SAGA - System for Automated     //
-// Geoscientific Analyses'. SAGA is free software; you   //
+// This file is part of 'MicroCity: Spatial Analysis and //
+// Simulation Framework'. MicroCity is free software;you //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
 // Free Software Foundation; version 2 of the License.   //
 //                                                       //
-// SAGA is distributed in the hope that it will be       //
+// MicroCity is distributed in the hope that it will be  //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
 // implied warranty of MERCHANTABILITY or FITNESS FOR A  //
 // PARTICULAR PURPOSE. See the GNU General Public        //
@@ -42,9 +42,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Map_3D_Image_H
-#define _HEADER_INCLUDED__SAGA_GUI__VIEW_Map_3D_Image_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__data_source_pgsql__H
+#define _HEADER_INCLUDED__SAGA_GUI__data_source_pgsql__H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,9 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/image.h>
-
-#include <saga_api/saga_api.h>
+#include <wx/treectrl.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,89 +80,44 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
-{
-	mode3d_Normal			= 0,
-	mode3d_Triangle,
-	mode3d_Stereo
-}
-TRender_3DMode;
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CVIEW_Map_3D_Image
+class CData_Source_PgSQL : public wxTreeCtrl
 {
 public:
-	CVIEW_Map_3D_Image(class CVIEW_Map_3D *pParent, class CWKSP_Map *pMap);
-	virtual ~CVIEW_Map_3D_Image(void);
+	CData_Source_PgSQL(wxWindow *pParent);
+	virtual ~CData_Source_PgSQL(void);
 
-	bool							m_bCentral, m_bInterpol, m_Src_bUpdate;
-
-	int								m_img_nx, m_img_ny, m_Resolution, m_nxPoints, m_nyPoints, m_BkColor, m_Figure, m_bStereo;
-
-	double							m_xRotate, m_yRotate, m_zRotate,
-									m_xShift, m_yShift, m_zShift,
-									m_Range, m_Exaggeration, m_Central, m_Stereo,
-									m_Figure_Weight;
-
-	CSG_Grid						*m_pDEM;
-
-
-	void							Set_Source				(int Resolution = -1);
-
-	void							Set_Image				(int NX, int NY);
-	void							Set_Image				(void);
-
-	wxImage &						Get_Image				(void)	{	return( m_img );	}
-
-	void							Save					(void);
-	void							Save					(const wxString &file, int type);
+	void						Update_Sources		(void);
+	void						Update_Source		(const wxString &Server);
 
 
 private:
 
-	typedef struct
-	{
-		BYTE						r, g, b, Flags;
+	void						On_Item_Activated	(wxTreeEvent &event);
+	void						On_Item_RClick		(wxTreeEvent &event);
+	void						On_Item_Menu		(wxTreeEvent &event);
 
-		int							x, y;
+	void						On_Refresh			(wxCommandEvent &event);
+	void						On_Open_Source		(wxCommandEvent &event);
+	void						On_Close_Source		(wxCommandEvent &event);
+	void						On_Close_Sources	(wxCommandEvent &event);
+	void						On_Delete_Source	(wxCommandEvent &event);
+	void						On_Open_Table		(wxCommandEvent &event);
+	void						On_Drop_Table		(wxCommandEvent &event);
 
-		float						z, zDEM;
-	}
-	TPoint;
+	void						Open_Source			(const wxTreeItemId &Item);
+	void						Close_Source		(const wxTreeItemId &Item, bool bDelete);
+	void						Close_Sources		(void);
+	void						Open_Table			(const wxTreeItemId &Item);
+	void						Drop_Table			(const wxTreeItemId &Item);
 
-
-	float							**m_img_z, m_Missing;
-
-	double							r_sin_x, r_sin_y, r_sin_z,
-									r_cos_x, r_cos_y, r_cos_z,
-									r_kx, r_ky, r_m, r_ext, r_fig,
-									m_xyRatio;
-
-	TPoint							**m_Points;
-
-	wxImage							m_img;
-
-	class CWKSP_Map					*m_pMap;
-
-	class CVIEW_Map_3D				*m_pParent;
+	wxTreeItemId				Find_Source			(const wxString &Server);
+	void						Update_Item			(const wxTreeItemId &Item);
+	void						Update_Source		(const wxTreeItemId &Item);
+	void						Append_Table		(const wxTreeItemId &Parent, const SG_Char *Name, int Type, int Image);
 
 
-	void							_Rotate_Matrix			(double xRotate, double yRotate, double zRotate);
-	bool							_Rotate_Point			(double x, double y, double z, double &px, double &py, double &pz);
-
-	void							_Draw_Image				(void);
-	void							_Draw_Triangle			(TPoint p[3]);
-	void							_Draw_Line				(int xa, int xb, int y, double za, double zb, BYTE r, BYTE g, BYTE b);
-	void							_Draw_Triangle_i		(TPoint p[3]);
-	void							_Draw_Line_i			(int xa, int xb, int y, double za, double zb, double ra, double rb, double ga, double gb, double ba, double bb);
-
+//---------------------------------------------------------
+DECLARE_EVENT_TABLE()
 };
 
 
@@ -177,4 +128,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Map_3D_Image_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__data_source_pgsql__H

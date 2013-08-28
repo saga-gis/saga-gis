@@ -137,12 +137,12 @@ private:
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CData_Source_ODBC, wxTreeCtrl)
-	EVT_MENU					(ID_CMD_ODBC_REFRESH			, CData_Source_ODBC::On_Refresh)
-	EVT_MENU					(ID_CMD_ODBC_SOURCE_CLOSE_ALL	, CData_Source_ODBC::On_Source_Close_All)
-	EVT_MENU					(ID_CMD_ODBC_SOURCE_CLOSE		, CData_Source_ODBC::On_Source_Close)
-	EVT_MENU					(ID_CMD_ODBC_SOURCE_OPEN		, CData_Source_ODBC::On_Source_Open)
-	EVT_MENU					(ID_CMD_ODBC_TABLE_OPEN			, CData_Source_ODBC::On_Table_Open)
-	EVT_MENU					(ID_CMD_ODBC_TABLE_DELETE		, CData_Source_ODBC::On_Table_Delete)
+	EVT_MENU					(ID_CMD_DB_REFRESH				, CData_Source_ODBC::On_Refresh)
+	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE_ALL		, CData_Source_ODBC::On_Source_Close_All)
+	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE			, CData_Source_ODBC::On_Source_Close)
+	EVT_MENU					(ID_CMD_DB_SOURCE_OPEN			, CData_Source_ODBC::On_Source_Open)
+	EVT_MENU					(ID_CMD_DB_TABLE_OPEN			, CData_Source_ODBC::On_Table_Open)
+	EVT_MENU					(ID_CMD_DB_TABLE_DELETE			, CData_Source_ODBC::On_Table_Delete)
 
 	EVT_TREE_ITEM_ACTIVATED		(ID_WND_DATA_SOURCE_DATABASE	, CData_Source_ODBC::On_Item_Activated)
 	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_DATA_SOURCE_DATABASE	, CData_Source_ODBC::On_Item_RClick)
@@ -161,10 +161,10 @@ CData_Source_ODBC::CData_Source_ODBC(wxWindow *pParent)
 	: wxTreeCtrl(pParent, ID_WND_DATA_SOURCE_DATABASE)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_ODBC_SOURCES);		// IMG_ROOT
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_ODBC_SOURCE_OFF);	// IMG_SRC_CLOSED
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_ODBC_SOURCE_ON);	// IMG_SRC_OPENED
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_ODBC_TABLE);		// IMG_TABLE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES);	// IMG_ROOT
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_OFF);	// IMG_SRC_CLOSED
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_ON);	// IMG_SRC_OPENED
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_TABLE);		// IMG_TABLE
 
 	AddRoot(_TL("ODBC Sources"), IMG_ROOT, IMG_ROOT, new CData_Source_ODBC_Data(ODBC_ITEM_TYPE_ROOT));
 
@@ -252,24 +252,24 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 	switch( pData->Get_Type() )
 	{
 	case ODBC_ITEM_TYPE_ROOT:
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_REFRESH);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_SOURCE_CLOSE_ALL);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE_ALL);
 		break;
 
 	case ODBC_ITEM_TYPE_SOURCE_CLOSED:
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_REFRESH);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_SOURCE_OPEN);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_OPEN);
 		break;
 
 	case ODBC_ITEM_TYPE_SOURCE_OPENED:
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_REFRESH);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_SOURCE_CLOSE);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_TABLE_FROM_QUERY);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_FROM_QUERY);
 		break;
 
 	case ODBC_ITEM_TYPE_TABLE:
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_TABLE_OPEN);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ODBC_TABLE_DELETE);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_OPEN);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_DELETE);
 		break;
 	}
 
@@ -287,11 +287,11 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(LIBRARY, MODULE, bRetVal, CONDITION)	{\
+#define RUN_MODULE(MODULE, bRetVal, CONDITION)	{\
 	\
 	bRetVal	= false;\
 	\
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T(LIBRARY), MODULE);\
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_odbc"), MODULE);\
 	\
 	if(	pModule )\
 	{\
@@ -319,7 +319,7 @@ bool CData_Source_ODBC::is_Connected(const CSG_String &Server)
 	bool		bResult;
 	CSG_Table	Tables;
 
-	RUN_MODULE("io_odbc",  9, bResult, SET_PARAMETER("SERVERS", &Tables));
+	RUN_MODULE(9, bResult, SET_PARAMETER("SERVERS", &Tables) && SET_PARAMETER("CONNECTED", true));
 
 	for(int i=0; bResult && i<Tables.Get_Count(); i++)
 	{
@@ -361,7 +361,7 @@ void CData_Source_ODBC::Update_Sources(void)
 	bool		bResult;
 	CSG_Table	Servers;
 
-	RUN_MODULE("io_odbc", 9, bResult, SET_PARAMETER("SERVERS", &Servers));
+	RUN_MODULE(9, bResult, SET_PARAMETER("SERVERS", &Servers));
 
 	//-----------------------------------------------------
 	for(int i=0; i<Servers.Get_Count(); i++)
@@ -420,7 +420,7 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 		bool		bResult;
 		CSG_Table	Tables;
 
-		RUN_MODULE("io_odbc", 10, bResult,
+		RUN_MODULE(10, bResult,
 				SET_PARAMETER("CONNECTION", pData->Get_Value())
 			&&	SET_PARAMETER("TABLES"    , &Tables)
 		);
@@ -495,7 +495,7 @@ void CData_Source_ODBC::Source_Open(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE("io_odbc", 0, bResult,
+		RUN_MODULE(0, bResult,
 				SET_PARAMETER("SERVER"  , pData->Get_Value())
 			&&	SET_PARAMETER("USERNAME", Username)
 			&&	SET_PARAMETER("PASSWORD", Password)
@@ -525,7 +525,7 @@ void CData_Source_ODBC::Table_Open(const wxTreeItemId &Item)
 
 	bool	bResult;
 
-	RUN_MODULE("io_odbc", 5, bResult,
+	RUN_MODULE(5, bResult,
 			SET_PARAMETER("CONNECTION", pData->Get_Server())
 		&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 		&&	SET_PARAMETER("TABLE"     , pTable)
@@ -558,7 +558,7 @@ void CData_Source_ODBC::Table_Delete(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE("io_odbc", 7, bResult,
+		RUN_MODULE(7, bResult,
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 		);

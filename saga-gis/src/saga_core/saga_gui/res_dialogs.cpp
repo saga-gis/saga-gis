@@ -479,35 +479,39 @@ bool		DLG_Table(const wxString &Caption, CSG_Table *pTable)
 //---------------------------------------------------------
 bool		DLG_Table_Fields(const wxString &Caption, CSG_Parameter_Table_Fields *pFields)
 {
-	int				i;
-	CSG_Parameters	P;
-	CSG_Table		*pTable	= pFields->Get_Table();
+	CSG_Table	*pTable	= pFields->Get_Table();
 
-	for(i=0; i<pTable->Get_Field_Count(); i++)
+	if( pTable )
 	{
-		P.Add_Value(NULL, SG_Get_String(i, 0), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-	}
-
-	for(i=0; i<pFields->Get_Count(); i++)
-	{
-		P(pFields->Get_Index(i))->Set_Value(true);
-	}
-
-	if( DLG_Parameters(&P) )
-	{
-		CSG_String	s;
+		int				i;
+		CSG_Parameters	P;
 
 		for(i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			if( P(i)->asBool() )
-			{
-				s	+= CSG_String::Format(s.Length() ? SG_T(",%d") : SG_T("%d"), i);
-			}
+			P.Add_Value(NULL, SG_Get_String(i, 0), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
 		}
 
-		pFields->Set_Value(s);
+		for(i=0; i<pFields->Get_Count(); i++)
+		{
+			P(pFields->Get_Index(i))->Set_Value(true);
+		}
 
-		return( true );
+		if( DLG_Parameters(&P) )
+		{
+			CSG_String	s;
+
+			for(i=0; i<pTable->Get_Field_Count(); i++)
+			{
+				if( P(i)->asBool() )
+				{
+					s	+= CSG_String::Format(s.Length() ? SG_T(",%d") : SG_T("%d"), i);
+				}
+			}
+
+			pFields->Set_Value(s);
+
+			return( true );
+		}
 	}
 
 	return( false );

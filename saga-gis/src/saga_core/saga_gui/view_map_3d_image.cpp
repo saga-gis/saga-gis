@@ -426,7 +426,7 @@ void CVIEW_Map_3D_Image::Set_Image(void)
 			{
 				p[0]	= (p[0] + p[1] + p[2]) / 3;
 				p[1]	= r[i];
-				p[2]	= BkStereo;
+				p[2]	= m_bStereo == 1 ? r[i] : BkStereo;
 			}
 
 			SG_Free(r);

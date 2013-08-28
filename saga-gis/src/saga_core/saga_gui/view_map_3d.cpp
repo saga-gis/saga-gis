@@ -563,7 +563,7 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_MAP3D_STEREO:
-		event.Check(m_pImage->m_bStereo);
+		event.Check(m_pImage->m_bStereo != 0);
 		break;
 
 	case ID_CMD_MAP3D_SEQ_PLAY:
@@ -708,10 +708,14 @@ void CVIEW_Map_3D::_Parms_Create(void)
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_STEREO", _TL("Anaglyph"), _TL(""));
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Choice(
 		pNode	, "STEREO"			, _TL("Anaglyph"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, 0.0
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("normal view"),
+			_TL("red-cyan"),
+			_TL("red-green")
+		), 0
 	);
 
 	m_Parameters.Add_Value(
@@ -767,7 +771,7 @@ bool CVIEW_Map_3D::_Parms_Update(bool bGet, CVIEW_Map_3D_Image *pImage)
 		pImage->m_Figure		= m_Parameters("FIGURE")		->asInt();
 		pImage->m_Figure_Weight	= m_Parameters("FIGURE_WEIGHT")	->asDouble();
 
-		pImage->m_bStereo		= m_Parameters("STEREO")		->asBool();
+		pImage->m_bStereo		= m_Parameters("STEREO")		->asInt();
 		pImage->m_Stereo		= m_Parameters("STEREO_DIST")	->asDouble() * M_DEG_TO_RAD;
 
 		pImage->m_BkColor		= m_Parameters("BKGRD_COLOR")	->asColor();
@@ -903,7 +907,7 @@ void CVIEW_Map_3D::_Parms_Command(int Command)
 
 	case ID_CMD_MAP3D_STEREO_LESS:		m_pImage->m_Stereo			-= STEP_STEREO;				break;
 	case ID_CMD_MAP3D_STEREO_MORE:		m_pImage->m_Stereo			+= STEP_STEREO;				break;
-	case ID_CMD_MAP3D_STEREO:			m_pImage->m_bStereo			 = !m_pImage->m_bStereo;	break;
+	case ID_CMD_MAP3D_STEREO:			m_pImage->m_bStereo			 = m_pImage->m_bStereo ? 0 : 1;	break;
 	}
 
 	_Parms_Changed();

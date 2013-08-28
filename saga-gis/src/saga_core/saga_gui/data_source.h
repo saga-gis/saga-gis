@@ -100,6 +100,8 @@ private:
 
 	class CData_Source_ODBC			*m_pODBC;
 
+	class CData_Source_PgSQL		*m_pPgSQL;
+
 
 	bool							_Show_Page				(wxWindow *pPage);
 	bool							_Hide_Page				(wxWindow *pPage);
