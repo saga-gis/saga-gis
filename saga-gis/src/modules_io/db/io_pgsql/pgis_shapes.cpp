@@ -165,11 +165,11 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 		return( false );
 	}
 
+	Field	= Info[0].asString("f_geometry_column");
+
 	pShapes->Del_Field(pShapes->Get_Field(Field));
 
 	pShapes->Get_Projection().Create(Info[0].asInt("srid"));
-
-	Field	= Info[0].asString("f_geometry_column");
 
 	//-----------------------------------------------------
 	bool	bBinary	= true;
