@@ -185,7 +185,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 	{
 		if( bBinary )
 		{
-			CSG_Shapes_OGIS_Converter::from_WKBinary(Info[iShape].Get_Value(0)->asBinary(), pShapes->Get_Shape(iShape));
+			CSG_Shapes_OGIS_Converter::from_WKBinary(*((CSG_Bytes *)&Info[iShape].Get_Value(0)->asBinary()), pShapes->Get_Shape(iShape));
 		}
 		else
 		{
