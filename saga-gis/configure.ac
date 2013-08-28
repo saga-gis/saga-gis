@@ -23,6 +23,7 @@ AC_CHECK_LIB([jasper], [jas_calloc],JASPERFOUND=1,,)
 AC_CHECK_LIB([las], [LAS_GetVersion], LASFOUND=1,,)
 AC_CHECK_LIB(hpdf, HPDF_Pages_New, HARUFOUND=1,,)
 AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found])
+AC_CHECK_LIB([pq], [PQconnectdb], PGSQLFOUND=1,[PGSQL \(libpq\) library not found])
 AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
@@ -125,6 +126,22 @@ AC_ARG_ENABLE(odbc,
   else
     AC_DEFINE([WITH_ODBC], [1], ["built with ODBC support"])
     AC_MSG_RESULT([        ODBC support will be built])    
+  fi
+
+AC_ARG_ENABLE(pgsql,
+     [  --disable-pgsql		  Build without PostgreSQL support],
+     [case "${enableval}" in
+     	yes) pgsql=true ;;
+	no) pgsql=false ;;
+	*) AC_MSG_ERROR(bad value ${enableval} for --disable-pgsql) ;;
+      esac],[pgsql=true])
+      AM_CONDITIONAL(WITH_PGSQL, test x$pgsql = xtrue)
+
+  if test $pgsql = "false" ; then
+    AC_MSG_RESULT([        PostgreSQL support will NOT be built])
+  else
+    AC_DEFINE([WITH_PGSQL], [1], ["built with PostgreSQL support"])
+    AC_MSG_RESULT([        PostgreSQL support will be built])    
   fi
 
 AC_ARG_ENABLE(openmp,
@@ -257,6 +274,7 @@ AC_OUTPUT(Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \
 	src/modules_io/db/Makefile \
 	src/modules_io/db/io_odbc/Makefile \
+	src/modules_io/db/io_pgsql/Makefile \
 	src/modules_io/docs/Makefile \
 	src/modules_io/docs/docs_html/Makefile \
 	src/modules_io/docs/docs_pdf/Makefile \
