@@ -543,14 +543,21 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 		{
 			CSG_String	s(Tables[i].asString(1));
 
-			if     ( !s.Cmp("TABLE"       ) )	Append_Table(Item, Tables[i].asString(0), TYPE_TABLE , IMG_TABLE);
-			else if( !s.Cmp("RASTER"      ) )	Append_Table(Item, Tables[i].asString(0), TYPE_GRID  , IMG_GRID);
-			else if( !s.Cmp("POINT"       ) )	Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINT);
-			else if( !s.Cmp("MULTIPOINT"  ) )	Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINTS);
-			else if( !s.Cmp("LINE"        ) )	Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_LINE);
-			else if( !s.Cmp("MULTILINE"   ) )	Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_LINE);
-			else if( !s.Cmp("POLYGON"     ) )	Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POLYGON);
-			else if( !s.Cmp("MULTIPOLYGON") )	Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POLYGON);
+			TSG_Shape_Type	Shape;
+			TSG_Vertex_Type	Vertex;
+
+			if( CSG_Shapes_OGIS_Converter::to_ShapeType(s, Shape, Vertex) )
+			{
+				switch( Shape )
+				{
+				case SHAPE_TYPE_Point:   Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINT  ); break;
+				case SHAPE_TYPE_Points:  Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINTS ); break;
+				case SHAPE_TYPE_Line:    Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_LINE   ); break;
+				case SHAPE_TYPE_Polygon: Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POLYGON); break;
+				}
+			}
+			else if( !s.Cmp("RASTER" ) ) Append_Table(Item, Tables[i].asString(0), TYPE_GRID  , IMG_GRID   );
+			else if( !s.Cmp("TABLE"  ) ) Append_Table(Item, Tables[i].asString(0), TYPE_TABLE , IMG_TABLE  );
 		}
 
 		Expand      (Item);
