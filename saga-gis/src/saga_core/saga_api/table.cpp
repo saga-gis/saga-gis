@@ -564,6 +564,20 @@ int CSG_Table::Get_Field_Length(int iField)	const
 	return( Length );
 }
 
+//---------------------------------------------------------
+int CSG_Table::Get_Field(const CSG_String &Name) const
+{
+	for(int iField=0; iField<Get_Field_Count(); iField++)
+	{
+		if( !Name.Cmp(Get_Field_Name(iField)) )
+		{
+			return( iField );
+		}
+	}
+
+	return( -1 );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

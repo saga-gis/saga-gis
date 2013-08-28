@@ -252,7 +252,8 @@ public:
 	int								Get_Field_Count		(void)			const	{	return( m_nFields );	}
 	const SG_Char *					Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
 	TSG_Data_Type					Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
-	int								Get_Field_Length	(int iField)	const;	// returns the maximum number of characters for data type string and zero for all other data types.
+	int								Get_Field_Length	(int iField)	const;				// returns the maximum number of characters for data type string and zero for all other data types.
+	int								Get_Field			(const CSG_String &Name)	const;	// returns the zero based position of the field named 'Name' or '-1' if there is no field with such name.
 
 	bool							Set_Field_Name		(int iField, const SG_Char *Name);
 	bool							Set_Field_Type		(int iField, TSG_Data_Type  Type);
