@@ -1482,7 +1482,7 @@ CSG_ODBC_Module::CSG_ODBC_Module(void)
 		Parameters.Add_Choice(
 			NULL	, "CONNECTION"	, _TL("Server Connection"),
 			_TL(""),
-			SG_T("")
+			""
 		);
 	}
 
@@ -1540,10 +1540,9 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 		{
 			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
 		}
-	}
 
-	On_Parameter_Changed(&Parameters, Parameters("CONNECTION"));
-//	On_Connection_Changed(&Parameters);
+		On_Parameter_Changed(&Parameters, Parameters("CONNECTION"));
+	}
 
 	return( true );
 }
@@ -1562,11 +1561,14 @@ bool CSG_ODBC_Module::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_ODBC_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
+	if( SG_UI_Get_Window_Main() && !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
 	{
 		m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(pParameter->asString());
 
-		On_Connection_Changed(pParameters);
+		if( m_pConnection )
+		{
+			On_Connection_Changed(pParameters);
+		}
 	}
 
 	return( -1 );

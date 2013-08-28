@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: pgis_shapes.h 1246 2011-11-25 13:42:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                        io_odbc                        //
+//                       io_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   Get_Connection.h                    //
+//                     PGIS_Shapes.h                     //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Connection_H
-#define HEADER_INCLUDED__Get_Connection_H
+#ifndef HEADER_INCLUDED__PGIS_Shapes_H
+#define HEADER_INCLUDED__PGIS_Shapes_H
 
 
 ///////////////////////////////////////////////////////////
@@ -82,15 +80,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Servers : public CSG_Module
+class CPGIS_Shapes_Load : public CSG_PG_Module
 {
 public:
-	CGet_Servers(void);
+	CPGIS_Shapes_Load(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS|Vector") );	}
 
 
 protected:
+
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 
@@ -102,99 +102,23 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Connection : public CSG_Module
+class CPGIS_Shapes_Save : public CSG_PG_Module
 {
 public:
-	CGet_Connection(void);
+	CPGIS_Shapes_Save(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS|Vector") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
 
-};
 
+private:
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CDel_Connection : public CSG_ODBC_Module
-{
-public:
-	CDel_Connection(void);
-
-
-protected:
-
-	virtual bool				On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CDel_Connections : public CSG_Module
-{
-public:
-	CDel_Connections(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
-
-
-protected:
-
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTransaction : public CSG_ODBC_Module
-{
-public:
-	CTransaction(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
-
-
-protected:
-
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CExecute_SQL : public CSG_ODBC_Module
-{
-public:
-	CExecute_SQL(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
-
-
-protected:
-
-	virtual bool				On_Execute				(void);
 
 };
 
@@ -206,4 +130,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Get_Connection_H
+#endif // #ifndef HEADER_INCLUDED__PGIS_Shapes_H

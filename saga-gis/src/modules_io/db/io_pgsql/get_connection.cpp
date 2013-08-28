@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: get_connection.cpp 1509 2012-11-01 16:39:43Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                        io_odbc                        //
+//                       io_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                   Get_Connection.cpp                  //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -71,60 +69,52 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGet_Servers::CGet_Servers(void)
+CGet_Connections::CGet_Connections(void)
 {
-	Set_Name		(_TL("List ODBC Servers"));
+	Set_Name		(_TL("List PostgreSQL Connections"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Lists all ODBC sources."
+		"Lists all PostgreSQL sources."
 	));
 
 	Parameters.Add_Table(
-		NULL	, "SERVERS"		, _TL("Server"),
+		NULL	, "CONNECTIONS"		, _TL("Connections"),
 		_TL(""),
 		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Value(
-		NULL	, "CONNECTED"	, _TL("Only List Connected Servers"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
 	);
 }
 
 //---------------------------------------------------------
-bool CGet_Servers::On_Execute(void)
+bool CGet_Connections::On_Execute(void)
 {
-	bool		bConnected	= Parameters("CONNECTED")->asBool();
-	CSG_Table	*pServers	= Parameters("SERVERS"  )->asTable();
+	CSG_Table	*pConnections	= Parameters("CONNECTIONS")->asTable();
 
-	pServers->Destroy();
-	pServers->Set_Name(_TL("ODBC Servers"));
+	pConnections->Destroy();
+	pConnections->Set_Name(_TL("PostgreSQL Connections"));
 
-	pServers->Add_Field(_TL("Server")   , SG_DATATYPE_String);
-	pServers->Add_Field(_TL("Connected"), SG_DATATYPE_Int);
+	pConnections->Add_Field(_TL("Name"    ), SG_DATATYPE_String);
+	pConnections->Add_Field(_TL("Host"    ), SG_DATATYPE_String);
+	pConnections->Add_Field(_TL("Port"    ), SG_DATATYPE_Int);
+	pConnections->Add_Field(_TL("Database"), SG_DATATYPE_String);
+	pConnections->Add_Field(_TL("Version" ), SG_DATATYPE_String);
+	pConnections->Add_Field(_TL("PostGIS" ), SG_DATATYPE_String);
 
-	CSG_Strings	Servers;
-
-	if( SG_ODBC_Get_Connection_Manager().Get_Servers(Servers) > 0 )
+	for(int i=0; i<SG_PG_Get_Connection_Manager().Get_Count(); i++)
 	{
-		for(int i=0; i<Servers.Get_Count(); i++)
-		{
-			if( !bConnected || SG_ODBC_Get_Connection_Manager().Get_Connection(Servers[i]) )
-			{
-				CSG_Table_Record	*pServer	= pServers->Add_Record();
+		CSG_PG_Connection	*pConnection = SG_PG_Get_Connection_Manager().Get_Connection(i);
+		CSG_Table_Record	*pRecord     = pConnections->Add_Record();
 
-				pServer->Set_Value(0, Servers[i]);
-				pServer->Set_Value(1, SG_ODBC_Get_Connection_Manager().Get_Connection(Servers[i]) ? 1 : 0);
-			}
-		}
-
-		return( true );
+		pRecord->Set_Value(0, pConnection->Get_Connection());
+		pRecord->Set_Value(1, pConnection->Get_Host());
+		pRecord->Set_Value(2, pConnection->Get_Port());
+		pRecord->Set_Value(3, pConnection->Get_DBName());
+		pRecord->Set_Value(4, pConnection->Get_Version());
+		pRecord->Set_Value(5, pConnection->Get_PostGIS());
 	}
 
-	return( false );
+	return( true );
 }
 
 
@@ -137,73 +127,79 @@ bool CGet_Servers::On_Execute(void)
 //---------------------------------------------------------
 CGet_Connection::CGet_Connection(void)
 {
-	Set_Name		(_TL("Connect to ODBC Source"));
+	Set_Name		(_TL("Connect to PostgreSQL"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Connects to an ODBC source."
+		"Connect to PostgreSQL data source."
 	));
 
-	Parameters.Add_Choice(
-		NULL	, "SERVER"		, _TL("Server"),
+	Parameters.Add_String(
+		NULL	, "PG_HOST"		, _TL("Host"),
+		_TL("Password"),
+		"localhost"
+	);
+
+	Parameters.Add_Value(
+		NULL	, "PG_PORT"		, _TL("Port"),
 		_TL(""),
-		_TL("")
+		PARAMETER_TYPE_Int, 5432, 0, true
 	);
 
 	Parameters.Add_String(
-		NULL	, "USERNAME"	, _TL("User"),
-		_TL(""),
-		_TL("")
+		NULL	, "PG_NAME"		, _TL("Database"),
+		_TL("Database Name"),
+		"geo_test"
 	);
 
 	Parameters.Add_String(
-		NULL	, "PASSWORD"	, _TL("Password"),
-		_TL(""),
-		SG_T(""), false, true
-	);
-}
-
-//---------------------------------------------------------
-bool CGet_Connection::On_Before_Execution(void)
-{
-	CSG_String	Servers;
-
-	if( SG_ODBC_Get_Connection_Manager().Get_Servers(Servers) > 0 )
-	{
-		Parameters("SERVER")->asChoice()->Set_Items(Servers);
-
-		return( true );
-	}
-
-	Message_Dlg(
-		_TW("No ODBC server available!\n"
-			"Set up an ODBC server first."),
-		_TL("ODBC Database Connection Error")
+		NULL	, "PG_USER"		, _TL("User"),
+		_TL("User Name"),
+		"postgres"
 	);
 
-	return( false );
+	Parameters.Add_String(
+		NULL	, "PG_PWD"		, _TL("Password"),
+		_TL("Password"),
+		"postgres", false, true
+	);
 }
 
 //---------------------------------------------------------
 bool CGet_Connection::On_Execute(void)
 {
-	CSG_String	Server, User, Password;
+	CSG_String	Connection	= CSG_String::Format(SG_T("%s [%s:%d]"),
+		Parameters("PG_NAME")->asString(),
+		Parameters("PG_HOST")->asString(),
+		Parameters("PG_PORT")->asInt()
+	);
 
-	Server		= Parameters("SERVER"  )->asString();
-	User		= Parameters("USERNAME")->asString();
-	Password	= Parameters("PASSWORD")->asString();
-
-	if( SG_ODBC_Get_Connection_Manager().Add_Connection(Server, User, Password) )
+	if( SG_PG_Get_Connection_Manager().Get_Connection(Connection) )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
+		Message_Add(Connection + ": " + _TL("PostgreSQL source is already connected"));
 
-		SG_UI_ODBC_Update(Server);
+		return( false );
+	}
+
+	CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
+		Parameters("PG_NAME")->asString(),
+		Parameters("PG_USER")->asString(),
+		Parameters("PG_PWD" )->asString(),
+		Parameters("PG_HOST")->asString(),
+		Parameters("PG_PORT")->asInt()
+	);
+
+	if( pConnection )
+	{
+		Message_Add(Connection + ": " + _TL("PostgreSQL source connected"));
+
+		pConnection->GUI_Update();
 
 		return( true );
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not connect ODBC source")));
+	Message_Add(Connection + ": " + _TL("could not connect to PostgreSQL source"));
 
 	return( false );
 }
@@ -218,12 +214,12 @@ bool CGet_Connection::On_Execute(void)
 //---------------------------------------------------------
 CDel_Connection::CDel_Connection(void)
 {
-	Set_Name		(_TL("Disconnect from ODBC Source"));
+	Set_Name		(_TL("Disconnect from PostgreSQL"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Disconnects an ODBC source connection."
+		"Disconnect PostgreSQL data source."
 	));
 
 	Parameters.Add_Choice(
@@ -239,18 +235,18 @@ CDel_Connection::CDel_Connection(void)
 //---------------------------------------------------------
 bool CDel_Connection::On_Execute(void)
 {
-	CSG_String	Server	= Get_Connection()->Get_Server();
+	CSG_String	Connection	= Get_Connection()->Get_Connection();
 
-	if( SG_ODBC_Get_Connection_Manager().Del_Connection(Get_Connection(), Parameters("TRANSACT")->asInt() == 1) )
+	if( SG_PG_Get_Connection_Manager().Del_Connection(Get_Connection(), Parameters("TRANSACT")->asInt() == 1) )
 	{
-		Message_Add(Server + ": " + _TL("ODBC source disconnected"));
+		Message_Add(Connection + ": " + _TL("PostgreSQL source disconnected"));
 
-		SG_UI_ODBC_Update(Server);
+		SG_UI_ODBC_Update(Connection);
 
 		return( true );
 	}
 
-	Message_Add(Server + ": " + _TL("could not disconnect ODBC source"));
+	Message_Add(Connection + ": " + _TL("could not disconnect PostgreSQL source"));
 
 	return( false );
 }
@@ -270,7 +266,7 @@ CDel_Connections::CDel_Connections(void)
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Disconnects all connected ODBC sources."
+		"Disconnects all PostgreSQL connections."
 	));
 
 	Parameters.Add_Choice(
@@ -286,16 +282,14 @@ CDel_Connections::CDel_Connections(void)
 //---------------------------------------------------------
 bool CDel_Connections::On_Before_Execution(void)
 {
-	CSG_String	Servers;
-
-	if( SG_ODBC_Get_Connection_Manager().Get_Connections(Servers) > 0 )
+	if( SG_PG_Get_Connection_Manager().Get_Count() > 0 )
 	{
 		return( true );
 	}
 
 	Message_Dlg(
-		_TL("No ODBC connection available!"),
-		_TL("ODBC Database Connection Error")
+		_TL("No PostgreSQL connection available!"),
+		_TL("PostgreSQL Database Connection Error")
 	);
 
 	return( false );
@@ -306,12 +300,14 @@ bool CDel_Connections::On_Execute(void)
 {
 	bool	bCommit	= Parameters("TRANSACT")->asInt() == 1;
 
-	CSG_ODBC_Connections	&Manager	= SG_ODBC_Get_Connection_Manager();
+	CSG_PG_Connections	&Manager	= SG_PG_Get_Connection_Manager();
 
 	for(int i=Manager.Get_Count()-1; i>=0; i--)
 	{
 		Manager.Del_Connection(i, bCommit);
 	}
+
+	SG_UI_ODBC_Update("");
 
 	return( Manager.Get_Count() == 0 );
 }
@@ -328,14 +324,14 @@ CTransaction::CTransaction(void)
 {
 	Set_Name		(_TL("Commit/Rollback Transaction"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Execute a commit or rollback on open transactions with ODBC source."
+		"Execute a commit or rollback on open transactions with PostgreSQL source."
 	));
 
 	Parameters.Add_Choice(
-		NULL	, "SERVERS"		, _TL("Server"),
+		NULL	, "DATABASE"	, _TL("Database"),
 		_TL(""),
 		_TL("")
 	);
@@ -353,18 +349,18 @@ CTransaction::CTransaction(void)
 //---------------------------------------------------------
 bool CTransaction::On_Before_Execution(void)
 {
-	CSG_String	Servers;
+	CSG_String	Connections;
 
-	if( SG_ODBC_Get_Connection_Manager().Get_Connections(Servers) > 0 )
+	if( SG_PG_Get_Connection_Manager().Get_Connections(Connections) > 0 )
 	{
-		Parameters("SERVERS")->asChoice()->Set_Items(Servers);
+		Parameters("DATABASE")->asChoice()->Set_Items(Connections);
 
 		return( true );
 	}
 
 	Message_Dlg(
-		_TL("No ODBC connection available!"),
-		_TL("ODBC Database Connection Error")
+		_TL("No PostgreSQL connection available!"),
+		_TL("PostgreSQL Database Connection Error")
 	);
 
 	return( false );
@@ -373,11 +369,9 @@ bool CTransaction::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CTransaction::On_Execute(void)
 {
-	CSG_String	Server;
+	CSG_String	Connection	= Parameters("DATABASE")->asString();
 
-	Server	= Parameters("SERVERS") ->asString();
-
-	CSG_ODBC_Connection	*pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(Server);
+	CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(Connection);
 
 	if( !pConnection )
 	{
@@ -388,9 +382,9 @@ bool CTransaction::On_Execute(void)
 	{
 		if( pConnection->Commit() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions committed")));
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), Connection.c_str(), _TL("open transactions committed")));
 
-			SG_UI_ODBC_Update(Server);
+			SG_UI_ODBC_Update(Connection);
 
 			return( true );
 		}
@@ -399,15 +393,15 @@ bool CTransaction::On_Execute(void)
 	{
 		if( pConnection->Rollback() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions rollbacked")));
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), Connection.c_str(), _TL("open transactions rolled back")));
 
-			SG_UI_ODBC_Update(Server);
+			SG_UI_ODBC_Update(Connection);
 
 			return( true );
 		}
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not commit/rollback transactions.")));
+	Message_Add(CSG_String::Format(SG_T("%s: %s"), Connection.c_str(), _TL("could not commit/rollback transactions.")));
 
 	return( false );
 }
@@ -424,10 +418,10 @@ CExecute_SQL::CExecute_SQL(void)
 {
 	Set_Name		(_TL("Execute SQL"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Execute SQL commands on a connected ODBC source. "
+		"Execute SQL commands on a connected PostgreSQL source. "
 		"Separate different commands with a semicolon (\';\'). "
 	));
 
@@ -456,11 +450,6 @@ CExecute_SQL::CExecute_SQL(void)
 //---------------------------------------------------------
 bool CExecute_SQL::On_Execute(void)
 {
-	if( !Get_Connection() )
-	{
-		return( false );
-	}
-
 	//-----------------------------------------------------
 	bool		bCommit	= Parameters("COMMIT")	->asBool  ();
 	bool		bStop	= Parameters("STOP")	->asBool  ();
@@ -469,7 +458,7 @@ bool CExecute_SQL::On_Execute(void)
 	//-----------------------------------------------------
 	if( SQL.Find(SG_T(';')) < 0 )
 	{
-		return( Get_Connection()->Execute(SQL, bCommit) );
+		return( Get_Connection()->Execute(SQL) );
 	}
 
 	//-----------------------------------------------------
@@ -487,7 +476,7 @@ bool CExecute_SQL::On_Execute(void)
 		{
 			Message_Add(s);
 
-			if( Get_Connection()->Execute(s, bCommit) )
+			if( Get_Connection()->Execute(s) )
 			{
 				nSuccess++;
 

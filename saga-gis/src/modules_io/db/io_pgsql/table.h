@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: table.h 1246 2011-11-25 13:42:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                        io_odbc                        //
+//                       io_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   Get_Connection.h                    //
+//                       Table.h                         //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Connection_H
-#define HEADER_INCLUDED__Get_Connection_H
+#ifndef HEADER_INCLUDED__Table_H
+#define HEADER_INCLUDED__Table_H
 
 
 ///////////////////////////////////////////////////////////
@@ -82,10 +80,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Servers : public CSG_Module
+class CTable_List : public CSG_PG_Module
 {
 public:
-	CGet_Servers(void);
+	CTable_List(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
 
@@ -102,15 +100,17 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Connection : public CSG_Module
+class CTable_Info : public CSG_PG_Module
 {
 public:
-	CGet_Connection(void);
+	CTable_Info(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 
@@ -122,13 +122,17 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connection : public CSG_ODBC_Module
+class CTable_Load : public CSG_PG_Module
 {
 public:
-	CDel_Connection(void);
+	CTable_Load(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
 
 
 protected:
+
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 
@@ -140,17 +144,17 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connections : public CSG_Module
+class CTable_Save : public CSG_PG_Module
 {
 public:
-	CDel_Connections(void);
+	CTable_Save(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
 
@@ -162,17 +166,17 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction : public CSG_ODBC_Module
+class CTable_Drop : public CSG_PG_Module
 {
 public:
-	CTransaction(void);
+	CTable_Drop(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 
@@ -184,12 +188,12 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CExecute_SQL : public CSG_ODBC_Module
+class CTable_Query : public CSG_PG_Module
 {
 public:
-	CExecute_SQL(void);
+	CTable_Query(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
 
 
 protected:
@@ -206,4 +210,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Get_Connection_H
+#endif // #ifndef HEADER_INCLUDED__Table_H

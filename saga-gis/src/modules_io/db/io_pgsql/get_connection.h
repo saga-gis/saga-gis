@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: get_connection.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                        io_odbc                        //
+//                       io_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                   Get_Connection.h                    //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -82,10 +80,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Servers : public CSG_Module
+class CGet_Connections : public CSG_Module
 {
 public:
-	CGet_Servers(void);
+	CGet_Connections(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
 
@@ -110,8 +108,6 @@ public:
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
-
 	virtual bool				On_Execute				(void);
 
 };
@@ -122,7 +118,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connection : public CSG_ODBC_Module
+class CDel_Connection : public CSG_PG_Module
 {
 public:
 	CDel_Connection(void);
@@ -162,7 +158,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction : public CSG_ODBC_Module
+class CTransaction : public CSG_PG_Module
 {
 public:
 	CTransaction(void);
@@ -184,7 +180,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CExecute_SQL : public CSG_ODBC_Module
+class CExecute_SQL : public CSG_PG_Module
 {
 public:
 	CExecute_SQL(void);
