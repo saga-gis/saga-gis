@@ -201,6 +201,7 @@ bool CSG_Grid_Pyramid::_Get_Next_Level(CSG_Grid *pGrid)
 		{
 		case GRID_PYRAMID_Arithmetic:	Cellsize	= pGrid->Get_Cellsize() + m_Grow;	break;
 		case GRID_PYRAMID_Geometric:	Cellsize	= pGrid->Get_Cellsize() * m_Grow;	break;
+		default: Cellsize	= pGrid->Get_Cellsize() * m_Grow;	break;
 		}
 
 		nx	= (int)(1.5 + m_pGrid->Get_XRange() / Cellsize);	if( nx < 1 )	nx	= 1;
