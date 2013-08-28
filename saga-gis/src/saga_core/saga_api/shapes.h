@@ -1220,6 +1220,9 @@ public:
 	static bool				from_WKBinary			(CSG_Bytes &Bytes, CSG_Shape *pShape);
 	static bool				to_WKBinary				(CSG_Shape *pShape, CSG_Bytes &Bytes);
 
+	static bool				from_ShapeType			(      CSG_String &Type, TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex);
+	static bool				to_ShapeType			(const CSG_String &Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex);
+
 
 private:
 

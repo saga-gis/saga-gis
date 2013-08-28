@@ -723,6 +723,86 @@ bool CSG_Shapes_OGIS_Converter::to_WKBinary(CSG_Shape *pShape, CSG_Bytes &Bytes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Shapes_OGIS_Converter::from_ShapeType(CSG_String &Type, TSG_Shape_Type Shape, TSG_Vertex_Type Vertex)
+{
+	switch( Vertex )
+	{
+	case SG_VERTEX_TYPE_XY:
+		switch( Shape )
+		{
+		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_STR_Point;           return( true );
+		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint;      return( true );
+		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine;       return( true );
+		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon;    return( true );
+		}
+		break;
+
+	case SG_VERTEX_TYPE_XYZ:
+		switch( Shape )
+		{
+		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_STR_Point_Z;         return( true );
+		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint_Z;    return( true );
+		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine_Z;     return( true );
+		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon_Z;  return( true );
+		}
+		break;
+
+	case SG_VERTEX_TYPE_XYZM:
+		switch( Shape )
+		{
+		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_STR_Point_ZM;        return( true );
+		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint_ZM;   return( true );
+		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine_ZM;    return( true );
+		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon_ZM; return( true );
+		}
+		break;
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Shapes_OGIS_Converter::to_ShapeType(const CSG_String &Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex)
+{
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Point           ) )	{	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XY;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint      ) )	{	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XY;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Line            ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XY;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine       ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XY;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon         ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XY;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon    ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XY;	return( true );	}
+
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Point_Z         ) )	{	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint_Z    ) )	{	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Line_Z          ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine_Z     ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon_Z       ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon_Z  ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Point_M         ) )	{	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint_M    ) )	{	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Line_M          ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine_M     ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon_M       ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon_M  ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );	}
+
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Point_ZM        ) )	{	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint_ZM   ) )	{	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Line_ZM         ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine_ZM    ) )	{	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon_ZM      ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
+	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon_ZM ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 // Basic Type definitions
 // byte : 1 byte
 // uint16 : 16 bit unsigned integer (2 bytes)
