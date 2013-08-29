@@ -226,6 +226,9 @@ bool CSG_Shapes_OGIS_Converter::from_WKText(const CSG_String &Text, CSG_Shape *p
 			return( _WKT_Read_Polygon(Text, pShape) );
 		}
 		break;
+	default:
+		break;
+	  
 	}
 
 	return( false );
@@ -530,6 +533,8 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 				return( _WKB_Read_MultiPolygon	(Bytes, bSwapBytes, pShape) );
 			}
 			break;
+		default:
+			break;
 		}
 	}
 
@@ -734,6 +739,7 @@ bool CSG_Shapes_OGIS_Converter::from_ShapeType(CSG_String &Type, TSG_Shape_Type 
 		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint;      return( true );
 		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine;       return( true );
 		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon;    return( true );
+		default:	return( false );
 		}
 		break;
 
@@ -744,6 +750,7 @@ bool CSG_Shapes_OGIS_Converter::from_ShapeType(CSG_String &Type, TSG_Shape_Type 
 		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint_Z;    return( true );
 		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine_Z;     return( true );
 		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon_Z;  return( true );
+		default:	return( false );
 		}
 		break;
 
@@ -754,6 +761,7 @@ bool CSG_Shapes_OGIS_Converter::from_ShapeType(CSG_String &Type, TSG_Shape_Type 
 		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint_ZM;   return( true );
 		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine_ZM;    return( true );
 		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon_ZM; return( true );
+		default:	return( false );
 		}
 		break;
 	}
@@ -929,6 +937,8 @@ bool CSG_Grid_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pG
 	case SG_DATATYPE_DWord : noData	= Bytes.Read_DWord (bSwap); break;	//  8: 32-bit unsigned integer
 	case SG_DATATYPE_Float : noData	= Bytes.Read_Float (bSwap); break;	//  9: 32-bit float
 	case SG_DATATYPE_Double: noData	= Bytes.Read_Double(bSwap); break;	// 10: 64-bit float
+	default:
+		break;
 	}
 
 	pGrid->Set_NoData_Value(noData);
@@ -948,6 +958,8 @@ bool CSG_Grid_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pG
 			case SG_DATATYPE_DWord : pGrid->Set_Value(x, y, Bytes.Read_DWord (bSwap)); break;	//  8: 32-bit unsigned integer
 			case SG_DATATYPE_Float : pGrid->Set_Value(x, y, Bytes.Read_Float (bSwap)); break;	//  9: 32-bit float
 			case SG_DATATYPE_Double: pGrid->Set_Value(x, y, Bytes.Read_Double(bSwap)); break;	// 10: 64-bit float
+			default:
+				break;
 			}
 		}
 	}
@@ -999,6 +1011,8 @@ bool CSG_Grid_OGIS_Converter::to_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pGri
 	case SG_DATATYPE_DWord : Flags =  8; break;	//  8: 32-bit unsigned integer
 	case SG_DATATYPE_Float : Flags = 10; break;	// 10: 32-bit float
 	case SG_DATATYPE_Double: Flags = 11; break;	// 11: 64-bit float
+	default:
+		break;
 	}
 
 //	Flags	|= 0x80;	// isOffline: no, never here!
@@ -1019,6 +1033,8 @@ bool CSG_Grid_OGIS_Converter::to_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pGri
 	case SG_DATATYPE_DWord : Bytes	+= (DWORD )pGrid->Get_NoData_Value(); break;	//  8: 32-bit unsigned integer
 	case SG_DATATYPE_Float : Bytes	+= (float )pGrid->Get_NoData_Value(); break;	//  9: 32-bit float
 	case SG_DATATYPE_Double: Bytes	+= (double)pGrid->Get_NoData_Value(); break;	// 10: 64-bit float
+	default:
+		break;
 	}
 
 	for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++)
@@ -1036,6 +1052,8 @@ bool CSG_Grid_OGIS_Converter::to_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pGri
 			case SG_DATATYPE_DWord : Bytes	+= (DWORD )pGrid->asDouble(x, y); break;	//  8: 32-bit unsigned integer
 			case SG_DATATYPE_Float : Bytes	+= (float )pGrid->asDouble(x, y); break;	//  9: 32-bit float
 			case SG_DATATYPE_Double: Bytes	+= (double)pGrid->asDouble(x, y); break;	// 10: 64-bit float
+			default:
+				break;	  
 			}
 		}
 	}

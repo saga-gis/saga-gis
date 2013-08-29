@@ -462,6 +462,8 @@ bool CSG_Shapes::On_Update(void)
 				if( m_ZMin > pShape->Get_ZMin() )	m_ZMin	= pShape->Get_ZMin();
 				if( m_ZMax < pShape->Get_ZMax() )	m_ZMax	= pShape->Get_ZMax();
 				break;
+			default:
+				break;
 			}
 		}
 	}

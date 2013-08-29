@@ -228,6 +228,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				{
 				case SG_VERTEX_TYPE_XYZM:	pShape->Set_M(Content.asDouble(28), 0);
 				case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(Content.asDouble(20), 0);
+				default:	break;
 				}
 
 				break;
@@ -247,6 +248,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				case SG_VERTEX_TYPE_XYZM:
 					pZ	= 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					pM	= 72 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(72 + nPoints * 24) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] + [nPoints * 8]
+					break;
+				default:	
 					break;
 				}
 
@@ -279,6 +282,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				case SG_VERTEX_TYPE_XYZM:
 					pZ	= 60 + nParts * 4 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(60 + nParts * 4 + nPoints * 16) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					pM	= 76 + nParts * 4 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(76 + nParts * 4 + nPoints * 24) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] +  [nPoints * 8]
+					break;
+				default:
 					break;
 				}
 

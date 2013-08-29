@@ -823,6 +823,8 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 				_Add_XML(pItem, pParameter->asParameters()->Get_Parameter(i), ID);
 			}
 		}
+	default:
+		break;
 	}
 }
 
