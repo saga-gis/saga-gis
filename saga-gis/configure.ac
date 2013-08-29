@@ -32,7 +32,8 @@ AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([float.h malloc.h memory.h stdlib.h string.h unistd.h])
 AC_CHECK_HEADERS([wchar.h])
-#todo: check for headers of the libraries above
+# todo: check for headers of the libraries above
+# test for libpq-fe.h is implemented below
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -140,6 +141,9 @@ AC_ARG_ENABLE(pgsql,
   if test $pgsql = "false" ; then
     AC_MSG_RESULT([        PostgreSQL support will NOT be built])
   else
+    AC_CHECK_HEADER([libpq-fe.h], ,
+                   [AC_MSG_ERROR([PostgreSQL headers not found, provide the path with configure \
+                  e.g. ./configure CPPFLAGS=-I/usr/pgsql-9.1/include/])]) 
     AC_DEFINE([WITH_PGSQL], [1], ["built with PostgreSQL support"])
     AC_MSG_RESULT([        PostgreSQL support will be built])    
   fi
