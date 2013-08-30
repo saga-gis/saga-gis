@@ -291,6 +291,14 @@ bool CSG_Table::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Table & CSG_Table::operator = (const CSG_Table &Table)
+{
+	Create(Table);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
 bool CSG_Table::Assign(CSG_Data_Object *pObject)
 {
 	if( !pObject || !pObject->is_Valid()
