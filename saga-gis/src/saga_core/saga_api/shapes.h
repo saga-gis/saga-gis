@@ -1220,8 +1220,14 @@ public:
 	static bool				from_WKBinary			(CSG_Bytes &Bytes, CSG_Shape *pShape);
 	static bool				to_WKBinary				(CSG_Shape *pShape, CSG_Bytes &Bytes);
 
-	static bool				from_ShapeType			(      CSG_String &Type, TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex);
+	static bool				from_ShapeType			(      CSG_String &Type, TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex = SG_VERTEX_TYPE_XY);
+	static CSG_String		from_ShapeType			(                        TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex = SG_VERTEX_TYPE_XY);
 	static bool				to_ShapeType			(const CSG_String &Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex);
+	static TSG_Shape_Type	to_ShapeType			(const CSG_String &Type);
+
+	static bool				from_ShapeType			(DWORD            &Type, TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex = SG_VERTEX_TYPE_XY);
+	static bool				to_ShapeType			(DWORD             Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex);
+	static TSG_Shape_Type	to_ShapeType			(DWORD             Type);
 
 
 private:

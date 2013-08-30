@@ -498,6 +498,9 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 
 		switch( pShape->Get_Type() )
 		{
+		default:
+			break;
+
 		case SHAPE_TYPE_Point:
 			if( Bytes.Read_DWord() == SG_OGIS_TYPE_Point )
 			{
@@ -532,8 +535,6 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 			case SG_OGIS_TYPE_MultiPolygon:
 				return( _WKB_Read_MultiPolygon	(Bytes, bSwapBytes, pShape) );
 			}
-			break;
-		default:
 			break;
 		}
 	}
@@ -735,38 +736,90 @@ bool CSG_Shapes_OGIS_Converter::from_ShapeType(CSG_String &Type, TSG_Shape_Type 
 	case SG_VERTEX_TYPE_XY:
 		switch( Shape )
 		{
+		default:	break;
 		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_STR_Point;           return( true );
 		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint;      return( true );
 		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine;       return( true );
 		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon;    return( true );
-		default:	return( false );
 		}
 		break;
 
 	case SG_VERTEX_TYPE_XYZ:
 		switch( Shape )
 		{
+		default:	break;
 		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_STR_Point_Z;         return( true );
 		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint_Z;    return( true );
 		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine_Z;     return( true );
 		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon_Z;  return( true );
-		default:	return( false );
 		}
 		break;
 
 	case SG_VERTEX_TYPE_XYZM:
 		switch( Shape )
 		{
+		default:	break;
 		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_STR_Point_ZM;        return( true );
 		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_STR_MultiPoint_ZM;   return( true );
 		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_STR_MultiLine_ZM;    return( true );
 		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_STR_MultiPolygon_ZM; return( true );
-		default:	return( false );
 		}
 		break;
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Shapes_OGIS_Converter::from_ShapeType(DWORD &Type, TSG_Shape_Type Shape, TSG_Vertex_Type Vertex)
+{
+	switch( Vertex )
+	{
+	case SG_VERTEX_TYPE_XY:
+		switch( Shape )
+		{
+		default:	break;
+		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_Point;             return( true );
+		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_MultiPoint;        return( true );
+		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_MultiLineString;   return( true );
+		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_MultiPolygon;      return( true );
+		}
+		break;
+
+	case SG_VERTEX_TYPE_XYZ:
+		switch( Shape )
+		{
+		default:	break;
+		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_PointZ;            return( true );
+		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_MultiPointZ;       return( true );
+		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_MultiLineStringZ;  return( true );
+		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_MultiPolygonZ;     return( true );
+		}
+		break;
+
+	case SG_VERTEX_TYPE_XYZM:
+		switch( Shape )
+		{
+		default:	break;
+		case SHAPE_TYPE_Point:   Type	= SG_OGIS_TYPE_PointZM;           return( true );
+		case SHAPE_TYPE_Points:  Type	= SG_OGIS_TYPE_MultiPointZM;      return( true );
+		case SHAPE_TYPE_Line:    Type	= SG_OGIS_TYPE_MultiLineStringZM; return( true );
+		case SHAPE_TYPE_Polygon: Type	= SG_OGIS_TYPE_MultiPolygonZM;    return( true );
+		}
+		break;
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Shapes_OGIS_Converter::from_ShapeType(TSG_Shape_Type Shape, TSG_Vertex_Type Vertex)
+{
+	CSG_String	Type;
+
+	from_ShapeType(Type, Shape, Vertex);
+
+	return( Type );
 }
 
 //---------------------------------------------------------
@@ -800,7 +853,70 @@ bool CSG_Shapes_OGIS_Converter::to_ShapeType(const CSG_String &Type, TSG_Shape_T
 	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon_ZM      ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
 	if( !Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon_ZM ) )	{	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );	}
 
+	Shape	= SHAPE_TYPE_Undefined;
+
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Shapes_OGIS_Converter::to_ShapeType(DWORD Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex)
+{
+	switch( Type )
+	{
+	case SG_OGIS_TYPE_Point             :	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XY;	return( true );
+	case SG_OGIS_TYPE_MultiPoint        :	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XY;	return( true );
+	case SG_OGIS_TYPE_LineString        :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XY;	return( true );
+	case SG_OGIS_TYPE_MultiLineString   :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XY;	return( true );
+	case SG_OGIS_TYPE_Polygon           :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XY;	return( true );
+	case SG_OGIS_TYPE_MultiPolygon      :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XY;	return( true );
+
+	case SG_OGIS_TYPE_PointZ            :	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_MultiPointZ       :	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_LineStringZ       :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_MultiLineStringZ  :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_PolygonZ          :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_MultiPolygonZ     :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+
+	case SG_OGIS_TYPE_PointM            :	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_MultiPointM       :	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_LineStringM       :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_MultiLineStringM  :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_PolygonM          :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+	case SG_OGIS_TYPE_MultiPolygonM     :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZ;	return( true );
+
+	case SG_OGIS_TYPE_PointZM           :	Shape	= SHAPE_TYPE_Point;		Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );
+	case SG_OGIS_TYPE_MultiPointZM      :	Shape	= SHAPE_TYPE_Points;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );
+	case SG_OGIS_TYPE_LineStringZM      :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );
+	case SG_OGIS_TYPE_MultiLineStringZM :	Shape	= SHAPE_TYPE_Line;		Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );
+	case SG_OGIS_TYPE_PolygonZM         :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );
+	case SG_OGIS_TYPE_MultiPolygonZM    :	Shape	= SHAPE_TYPE_Polygon;	Vertex	= SG_VERTEX_TYPE_XYZM;	return( true );
+	}
+
+	Shape	= SHAPE_TYPE_Undefined;
+
+	return( false );
+}
+
+//---------------------------------------------------------
+TSG_Shape_Type CSG_Shapes_OGIS_Converter::to_ShapeType(const CSG_String &Type)
+{
+	TSG_Shape_Type	Shape;
+	TSG_Vertex_Type	Vertex;
+
+	to_ShapeType(Type, Shape, Vertex);
+
+	return( Shape );
+}
+
+//---------------------------------------------------------
+TSG_Shape_Type CSG_Shapes_OGIS_Converter::to_ShapeType(DWORD Type)
+{
+	TSG_Shape_Type	Shape;
+	TSG_Vertex_Type	Vertex;
+
+	to_ShapeType(Type, Shape, Vertex);
+
+	return( Shape );
 }
 
 
