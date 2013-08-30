@@ -726,7 +726,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 	//-----------------------------------------------------
 	if( pData->Get_Type() == TYPE_GRID )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 14);	// load grid(s)
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 15);	// load grid(s)
 
 		if( pModule )
 		{
