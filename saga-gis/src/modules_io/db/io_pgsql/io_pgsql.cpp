@@ -939,7 +939,7 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 	{
 		if( Geometry.Cmp(Info[i].asString(0)) )
 		{
-			Fields	+= CSG_String::Format(SG_T("%s,"), Info[i].asString(0));
+			Fields	+= CSG_String::Format(SG_T("\"%s\","), Info[i].asString(0));
 		}
 	}
 
@@ -1536,7 +1536,7 @@ CSG_Buffer CSG_PG_Module::Get_Constraints(CSG_Parameters *pParameters, const CSG
 	{
 		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
 		{
-			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < Flags.Get_Size() )
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < (int)Flags.Get_Size() )
 			{
 				Flags.Get_Data()[Index]	|= SG_PG_PRIMARY_KEY;
 			}
@@ -1547,7 +1547,7 @@ CSG_Buffer CSG_PG_Module::Get_Constraints(CSG_Parameters *pParameters, const CSG
 	{
 		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
 		{
-			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < Flags.Get_Size() )
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < (int)Flags.Get_Size() )
 			{
 				Flags.Get_Data()[Index]	|= SG_PG_NOT_NULL;
 			}
@@ -1558,7 +1558,7 @@ CSG_Buffer CSG_PG_Module::Get_Constraints(CSG_Parameters *pParameters, const CSG
 	{
 		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
 		{
-			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < Flags.Get_Size() )
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < (int)Flags.Get_Size() )
 			{
 				Flags.Get_Data()[Index]	|= SG_PG_UNIQUE;
 			}

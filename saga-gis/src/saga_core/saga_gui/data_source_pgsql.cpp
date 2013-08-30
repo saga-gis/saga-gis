@@ -715,7 +715,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 		{
 			SG_Get_Data_Manager().Add(pShapes);
 
-			g_pData->Show(pShapes, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
+		//	g_pData->Show(pShapes, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
 		}
 		else
 		{
