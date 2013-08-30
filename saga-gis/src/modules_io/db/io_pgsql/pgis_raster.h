@@ -85,7 +85,7 @@ class CPGIS_Raster_Load : public CSG_PG_Module
 public:
 	CPGIS_Raster_Load(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS|Raster") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CPGIS_Raster_Save : public CSG_PG_Module
 public:
 	CPGIS_Raster_Save(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS|Raster") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
 
 
 protected:

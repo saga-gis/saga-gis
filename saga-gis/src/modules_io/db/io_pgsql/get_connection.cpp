@@ -320,7 +320,41 @@ bool CDel_Connections::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTransaction::CTransaction(void)
+CTransaction_Start::CTransaction_Start(void)
+{
+	Set_Name		(_TL("Begin Transaction"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
+
+	Set_Description	(_TW(
+		"Begin a transaction which will be finished later with a commit or rollback."
+	));
+}
+
+//---------------------------------------------------------
+bool CTransaction_Start::On_Execute(void)
+{
+	if( Get_Connection()->Begin() )
+	{
+		Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("transaction started"));
+
+		return( true );
+	}
+
+	Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("could not start transaction."));
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTransaction_Stop::CTransaction_Stop(void)
 {
 	Set_Name		(_TL("Commit/Rollback Transaction"));
 
@@ -329,12 +363,6 @@ CTransaction::CTransaction(void)
 	Set_Description	(_TW(
 		"Execute a commit or rollback on open transactions with PostgreSQL source."
 	));
-
-	Parameters.Add_Choice(
-		NULL	, "DATABASE"	, _TL("Database"),
-		_TL(""),
-		_TL("")
-	);
 
 	Parameters.Add_Choice(
 		NULL	, "TRANSACT"	, _TL("Transactions"),
@@ -347,61 +375,32 @@ CTransaction::CTransaction(void)
 }
 
 //---------------------------------------------------------
-bool CTransaction::On_Before_Execution(void)
+bool CTransaction_Stop::On_Execute(void)
 {
-	CSG_String	Connections;
-
-	if( SG_PG_Get_Connection_Manager().Get_Connections(Connections) > 0 )
-	{
-		Parameters("DATABASE")->asChoice()->Set_Items(Connections);
-
-		return( true );
-	}
-
-	Message_Dlg(
-		_TL("No PostgreSQL connection available!"),
-		_TL("PostgreSQL Database Connection Error")
-	);
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CTransaction::On_Execute(void)
-{
-	CSG_String	Connection	= Parameters("DATABASE")->asString();
-
-	CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(Connection);
-
-	if( !pConnection )
-	{
-		return( false );
-	}
-
 	if( Parameters("TRANSACT")->asInt() == 1 )
 	{
-		if( pConnection->Commit() )
+		if( Get_Connection()->Commit() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), Connection.c_str(), _TL("open transactions committed")));
+			Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("open transactions committed"));
 
-			SG_UI_ODBC_Update(Connection);
+			SG_UI_ODBC_Update(Get_Connection()->Get_Connection());
 
 			return( true );
 		}
 	}
 	else
 	{
-		if( pConnection->Rollback() )
+		if( Get_Connection()->Rollback() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), Connection.c_str(), _TL("open transactions rolled back")));
+			Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("open transactions rolled back"));
 
-			SG_UI_ODBC_Update(Connection);
+			SG_UI_ODBC_Update(Get_Connection()->Get_Connection());
 
 			return( true );
 		}
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%s: %s"), Connection.c_str(), _TL("could not commit/rollback transactions.")));
+	Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("could not commit/rollback transactions."));
 
 	return( false );
 }

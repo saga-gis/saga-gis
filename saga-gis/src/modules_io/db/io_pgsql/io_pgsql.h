@@ -105,6 +105,7 @@ public:
 	CSG_String					Get_User				(void)	const;
 	CSG_String					Get_DBName				(void)	const;
 	CSG_String					Get_Version				(void)	const;
+	bool						has_Version				(int Major, int Minor = 0, int Revision = 0) const;
 
 	CSG_String					Get_PostGIS				(void)	const;
 	bool						has_PostGIS				(double minVersion = 0.0);
@@ -129,6 +130,9 @@ public:
 
 	bool						Table_Load				(CSG_Table &Data, const CSG_String &Table );
 	bool						Table_Load				(CSG_Table &Data, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where = "", const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false);
+
+	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Table);
+	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary);
 
 	bool						Raster_Load				(CSG_Bytes_Array &Data, const CSG_String &Table , const CSG_String &Field , const CSG_String &Where = "", const CSG_String &Order = "");
 	
@@ -218,8 +222,8 @@ protected:
 
 	CSG_PG_Connection *			Get_Connection			(void)	{	return( m_pConnection );	}
 
-	static bool					Set_Constraints			(CSG_Parameters *pParameters, CSG_Table *pTable);
-	static CSG_Buffer			Get_Constraints			(CSG_Parameters *pParameters, CSG_Table *pTable);
+	static bool					Set_Constraints			(CSG_Parameters *pParameters, const CSG_String &Identifier);
+	static CSG_Buffer			Get_Constraints			(CSG_Parameters *pParameters, const CSG_String &Identifier);
 
 
 private:

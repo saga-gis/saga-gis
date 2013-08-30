@@ -105,7 +105,7 @@ class CTable_Info : public CSG_PG_Module
 public:
 	CTable_Info(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
 
 
 protected:

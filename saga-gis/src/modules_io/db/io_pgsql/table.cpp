@@ -138,7 +138,7 @@ bool CTable_List::On_Execute(void)
 //---------------------------------------------------------
 CTable_Info::CTable_Info(void)
 {
-	Set_Name		(_TL("Get Table Fields Description"));
+	Set_Name		(_TL("List Table Fields"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
@@ -252,15 +252,12 @@ CTable_Save::CTable_Save(void)
 		PARAMETER_INPUT
 	);
 
+	Set_Constraints(&Parameters, "TABLE");
+
 	Parameters.Add_String(
 		NULL	, "NAME"		, _TL("Table Name"),
 		_TL(""),
 		SG_T("")
-	);
-
-	Parameters.Add_Parameters(
-		NULL	, "FLAGS"		, _TL("Constraints"),
-		_TL("")
 	);
 
 	Parameters.Add_Choice(
@@ -280,8 +277,6 @@ int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TABLE")) )
 	{
 		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asTable() ? pParameter->asTable()->Get_Name() : SG_T(""));
-
-		Set_Constraints(pParameters->Get_Parameter("FLAGS")->asParameters(), pParameter->asTable());
 	}
 
 	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
@@ -313,7 +308,7 @@ bool CTable_Save::On_Execute(void)
 			}
 			else
 			{
-				bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable));
+				bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(&Parameters, "TABLE"));
 			}
 			break;
 
@@ -329,7 +324,7 @@ bool CTable_Save::On_Execute(void)
 	}
 	else
 	{
-		bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(Parameters("FLAGS")->asParameters(), pTable));
+		bResult	= Get_Connection()->Table_Save(Name, *pTable, Get_Constraints(&Parameters, "TABLE"));
 	}
 
 	//-----------------------------------------------------
@@ -400,7 +395,7 @@ CTable_Query::CTable_Query(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name		(_TL("Table from SQL Query"));
+	Set_Name		(_TL("Import Table from SQL Query"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 

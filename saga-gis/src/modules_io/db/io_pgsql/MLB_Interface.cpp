@@ -109,21 +109,22 @@ CSG_Module *		Create_Module(int i)
 	case  1:	return( new CGet_Connection );
 	case  2:	return( new CDel_Connection );
 	case  3:	return( new CDel_Connections );
-	case  4:	return( new CTransaction );
-	case  5:	return( new CExecute_SQL );
+	case  4:	return( new CTransaction_Start );
+	case  5:	return( new CTransaction_Stop );
+	case  6:	return( new CExecute_SQL );
 
-	case  6:	return( new CTable_List );
-	case  7:	return( new CTable_Info );
-	case  8:	return( new CTable_Load );
-	case  9:	return( new CTable_Save );
-	case 10:	return( new CTable_Drop );
-	case 11:	return( new CTable_Query );
+	case  7:	return( new CTable_List );
+	case  8:	return( new CTable_Info );
+	case  9:	return( new CTable_Load );
+	case 10:	return( new CTable_Save );
+	case 11:	return( new CTable_Drop );
+	case 12:	return( new CTable_Query );
 
-	case 12:	return( new CPGIS_Shapes_Load );
-	case 13:	return( new CPGIS_Shapes_Save );
+	case 13:	return( new CPGIS_Shapes_Load );
+	case 14:	return( new CPGIS_Shapes_Save );
 
-	case 14:	return( new CPGIS_Raster_Load );
-	case 15:	return( new CPGIS_Raster_Save );
+	case 15:	return( new CPGIS_Raster_Load );
+	case 16:	return( new CPGIS_Raster_Save );
 
 	case 20:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );

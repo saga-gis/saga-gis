@@ -158,17 +158,35 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction : public CSG_PG_Module
+class CTransaction_Start : public CSG_PG_Module
 {
 public:
-	CTransaction(void);
+	CTransaction_Start(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTransaction_Stop : public CSG_PG_Module
+{
+public:
+	CTransaction_Stop(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+
+
+protected:
 
 	virtual bool				On_Execute				(void);
 

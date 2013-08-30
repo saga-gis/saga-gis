@@ -112,88 +112,16 @@ void CPGIS_Shapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CPGIS_Shapes_Load::On_Execute(void)
 {
-	if( !Get_Connection()->has_PostGIS() )
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+	CSG_String	Name		= Parameters("TABLES")->asString();
+
+	if( !Get_Connection()->Shapes_Load(pShapes, Name) )
 	{
-		Error_Set(_TL("not a valid PostGIS database!"));
+		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + Name);
 
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	TSG_Vertex_Type	tVertex;
-	TSG_Shape_Type	tShape;
-	CSG_String		Name, Field;
-	CSG_Table		Info;
-	CSG_Shapes		*pShapes;
-
-	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")->asShapes();
-	Name	= Parameters("TABLES")->asString();
-
-	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Load(Info, "geometry_columns", "*", "f_table_name = '" + Name + "'") || Info.Get_Count() != 1 )
-	{
-		Error_Set(_TL("unable to obtain geometry information") + CSG_String(":\n") + Name);
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( !CSG_Shapes_OGIS_Converter::to_ShapeType(Info[0].asString("type"), tShape, tVertex) )
-	{
-		Error_Set(_TL("invalid or unsupported vector format") + CSG_String(":\n") + Info[0].asString("type"));
-
-		return( false );
-	}
-
-	if( pShapes->Get_Type() != SHAPE_TYPE_Undefined && pShapes->Get_Type() != tShape )
-	{
-		pShapes	= SG_Create_Shapes(tShape, Name, NULL, tVertex);
-
-		Parameters("SHAPES")->Set_Value(pShapes);
-	}
-	else
-	{
-		pShapes->Create(tShape, Name, NULL, tVertex);
-	}
-
-	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Load(*pShapes, Name) )
-	{
-		Error_Set(_TL("failed to load attributes"));
-
-		return( false );
-	}
-
-	Field	= Info[0].asString("f_geometry_column");
-
-	pShapes->Del_Field(pShapes->Get_Field(Field));
-
-	pShapes->Get_Projection().Create(Info[0].asInt("srid"));
-
-	//-----------------------------------------------------
-	bool	bBinary	= true;
-
-	if( !Get_Connection()->Table_Load(Info, Name, (bBinary ? "ST_AsBinary(" : "ST_AsText('") + Field + ") AS geom") || Info.Get_Count() != pShapes->Get_Count() )
-	{
-		Error_Set(_TL("failed to load geometries"));
-
-		return( false );
-	}
-
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-	{
-		if( bBinary )
-		{
-			CSG_Shapes_OGIS_Converter::from_WKBinary(*((CSG_Bytes *)&Info[iShape].Get_Value(0)->asBinary()), pShapes->Get_Shape(iShape));
-		}
-		else
-		{
-			CSG_Shapes_OGIS_Converter::from_WKText  (Info[iShape].Get_Value(0)->asString(), pShapes->Get_Shape(iShape));
-		}
-	}
-
-	//-----------------------------------------------------
 	return( true );
 }
 
@@ -207,8 +135,6 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 //---------------------------------------------------------
 CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Export Shapes to PostGIS"));
 
@@ -219,21 +145,18 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
+	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
+	Set_Constraints(&Parameters, "SHAPES");
+
 	Parameters.Add_String(
 		NULL	, "NAME"		, _TL("Table Name"),
 		_TL("if empty shapes layers's name is used as table name"),
 		SG_T("")
-	);
-
-	Parameters.Add_Parameters(
-		NULL	, "FLAGS"		, _TL("Constraints"),
-		_TL("")
 	);
 
 	Parameters.Add_Choice(
@@ -250,11 +173,9 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 //---------------------------------------------------------
 int CPGIS_Shapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHAPES")) )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
 	{
 		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asShapes() ? pParameter->asShapes()->Get_Name() : SG_T(""));
-
-		Set_Constraints(pParameters->Get_Parameter("FLAGS")->asParameters(), pParameter->asShapes());
 	}
 
 	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
@@ -277,7 +198,9 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	pShapes	= Parameters("SHAPES")->asShapes();
 	Name	= Parameters("NAME"  )->asString();	if( Name.Length() == 0 )	Name	= pShapes->Get_Name();
 
-	SRID.Printf(SG_T("%d"), pShapes->Get_Projection().Get_EPSG());
+	Field	= "geometry";
+
+	SRID.Printf(SG_T("%d"),	pShapes->Get_Projection().Get_EPSG());
 
 	//-----------------------------------------------------
 	if( !CSG_Shapes_OGIS_Converter::from_ShapeType(Type, pShapes->Get_Type(), pShapes->Get_Vertex_Type()) )
@@ -287,6 +210,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	Get_Connection()->Begin();
 
 	//-----------------------------------------------------
@@ -317,38 +241,39 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Exists(Name) && !Get_Connection()->Table_Create(Name, *pShapes, Get_Constraints(Parameters("FLAGS")->asParameters(), pShapes), false) )
+	if( !Get_Connection()->Table_Exists(Name) )
 	{
-		Error_Set(_TL("could not create table"));
+		if( !Get_Connection()->Table_Create(Name, *pShapes, Get_Constraints(&Parameters, "SHAPES"), false) )
+		{
+			Error_Set(_TL("could not create table"));
 
-		Get_Connection()->Rollback();
+			Get_Connection()->Rollback();
 
-		return( false );
+			return( false );
+		}
+
+		//-------------------------------------------------
+		// SELECT AddGeometryColumn(<table_name>, <column_name>, <srid>, <type>, <dimension>)
+
+		SQL.Printf(SG_T("SELECT AddGeometryColumn('%s', '%s', %d, '%s', %d)"),
+			Name.c_str(), Field.c_str(), SRID.asInt(), Type.c_str(),
+			pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XY  ? 2 :
+			pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ ? 3 : 4
+		);
+
+		if( !Get_Connection()->Execute(SQL) )
+		{
+			Error_Set(_TL("could not create geometry field"));
+
+			Get_Connection()->Rollback();
+
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
-	Field	= "geometry";
-	Type	.Make_Upper();
+	bool	bBinary	= Get_Connection()->has_Version(9);
 
-	SQL	= "SELECT AddGeometryColumn('"
-		+ Name  + "', '" // <table_name>
-		+ Field + "', "  // <column_name>
-		+ SRID  +  ", '" // <srid>
-		+ Type  + "', "  // <type>
-		+ (pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XY  ? "2"
-		 : pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ ? "3" : "4") + ")";		// <dimension>
-
-	if( !Get_Connection()->Execute(SQL) )
-	{
-		Error_Set(_TL("could not create geometry field"));
-
-		Get_Connection()->Rollback();
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	bool	bBinary	= true;
 	int		iShape, iField, nAdded;
 
 	CSG_String	Insert	= "INSERT INTO \"" + Name + "\" (" + Field;

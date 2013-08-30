@@ -290,6 +290,14 @@ CSG_String CSG_PG_Connection::Get_Version(void) const
 	));
 }
 
+//---------------------------------------------------------
+bool CSG_PG_Connection::has_Version(int Major, int Minor, int Revision) const
+{
+	int	Version	= PQserverVersion(m_pgConnection);
+
+	return( Version >= (Major * 10000 + Minor * 100 + Revision) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -907,6 +915,185 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
+{
+	CSG_Table	Info;
+
+	if( !Table_Load(Info, "geometry_columns", "*", "f_table_name='" + Name + "'") || Info.Get_Count() != 1 )
+	{
+		_Error_Message(_TL("table has no geometry field"));
+
+		return( false );
+	}
+
+	CSG_String	Fields, Geometry	= Info[0].asString("f_geometry_column");
+
+	Info	= Get_Field_Desc(Name);
+
+	if( Info.Get_Count() == 0 )
+	{
+		return( false );
+	}
+
+	for(int i=0; i<Info.Get_Count(); i++)
+	{
+		if( Geometry.Cmp(Info[i].asString(0)) )
+		{
+			Fields	+= CSG_String::Format(SG_T("%s,"), Info[i].asString(0));
+		}
+	}
+
+	bool	bBinary	= has_Version(9);	// previous versions did not support hex strings
+
+	Fields	+= (bBinary ? "ST_AsBinary(" : "ST_AsText(") + Geometry + ") AS __geometry__";
+
+	return( Shapes_Load(pShapes, Name, "SELECT " + Fields + " FROM \"" + Name + "\"", "__geometry__", bBinary) );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary)
+{
+	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	if( !has_PostGIS () )	{	_Error_Message(_TL("not a PostGIS database"));	return( false );	}
+
+	//-----------------------------------------------------
+	PGresult	*pResult	= PQexec(m_pgConnection, Select);
+
+	if( PQresultStatus(pResult) != PGRES_TUPLES_OK )
+	{
+		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int		iField, jField, gField, nFields, iRecord, nRecords;
+
+	if( (nFields = PQnfields(pResult)) <= 0 )
+	{
+		_Error_Message(_TL("no fields in selection"));
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	if( (nRecords = PQntuples(pResult)) <= 0 )
+	{
+		_Error_Message(_TL("no records in selection"));
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(iField=0, gField=-1; gField<0 && iField<nFields; iField++)
+	{
+		if( !Geometry_Field.CmpNoCase(PQfname(pResult, iField)) )
+		{
+			gField	= iField;
+		}
+	}
+
+	if( gField < 0 )
+	{
+		_Error_Message(_TL("no geometry in selection"));
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	TSG_Shape_Type	Type;
+	CSG_Bytes		Binary;
+
+	if( bBinary )
+	{
+		Binary.fromHexString(PQgetvalue(pResult, 0, gField) + 2);
+
+		Type	= CSG_Shapes_OGIS_Converter::to_ShapeType(Binary.asDWord(1, false));
+	}
+	else
+	{
+		Type	= CSG_Shapes_OGIS_Converter::to_ShapeType(CSG_String(PQgetvalue(pResult, 0, gField)).BeforeFirst('('));
+	}
+
+	if( Type == SHAPE_TYPE_Undefined )
+	{
+		_Error_Message(_TL("unsupported vector type"));
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pShapes->Create(Type, Name);
+
+	for(iField=0; iField<nFields; iField++)
+	{
+		if( iField != gField )
+		{
+			pShapes->Add_Field(PQfname(pResult, iField), Get_Type_From_SQL(PQftype(pResult, iField)));
+		}
+	}
+
+	//-----------------------------------------------------
+	for(iRecord=0; iRecord<nRecords && SG_UI_Process_Set_Progress(iRecord, nRecords); iRecord++)
+	{
+		CSG_Shape	*pRecord	= pShapes->Add_Shape();
+
+		if( bBinary )
+		{
+			Binary.fromHexString(PQgetvalue(pResult, iRecord, gField) + 2);
+
+			CSG_Shapes_OGIS_Converter::from_WKBinary(Binary, pRecord);
+		}
+		else
+		{
+			CSG_Shapes_OGIS_Converter::from_WKText(PQgetvalue(pResult, iRecord, gField), pRecord);
+		}
+
+		for(iField=0, jField=0; iField<nFields; iField++)
+		{
+			if( iField != gField )
+			{
+				if( PQgetisnull(pResult, iRecord, iField) )
+				{
+					pRecord->Set_NoData(jField++);
+				}
+				else switch( pShapes->Get_Field_Type(jField) )
+				{
+				default:
+					pRecord->Set_Value(jField++, PQgetvalue(pResult, iRecord, iField));
+					break;
+
+				case SG_DATATYPE_Binary:
+					Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
+
+					pRecord->Set_Value(jField++, Binary);
+					break;
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	PQclear(pResult);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_PG_Connection::Raster_Load(CSG_Bytes_Array &Data, const CSG_String &Table, const CSG_String &Field, const CSG_String &Where, const CSG_String &Order)
 {
 	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
@@ -1311,63 +1498,69 @@ int CSG_PG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Module::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+bool CSG_PG_Module::Set_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
-	if( !pParameters || !pTable )
+	CSG_Parameter	*pParent	= pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
+
+	if( !pParent || (pParent->Get_Type() != PARAMETER_TYPE_Table && pParent->Get_Type() != PARAMETER_TYPE_Shapes) )
 	{
 		return( false );
 	}
 
-	pParameters->Del_Parameters();
-
-	if( pTable )
-	{
-		CSG_Parameter	*pP	= pParameters->Add_Node(NULL, "P", _TL("Primary key)")	, _TL(""));
-		CSG_Parameter	*pN	= pParameters->Add_Node(NULL, "N", _TL("Not Null")		, _TL(""));
-		CSG_Parameter	*pU	= pParameters->Add_Node(NULL, "U", _TL("Unique")		, _TL(""));
-
-		for(int i=0; i<pTable->Get_Field_Count(); i++)
-		{
-			pParameters->Add_Value(pP, CSG_String::Format(SG_T("P%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-			pParameters->Add_Value(pN, CSG_String::Format(SG_T("N%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-			pParameters->Add_Value(pU, CSG_String::Format(SG_T("U%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-		}
-	}
+	pParameters->Add_Table_Fields(pParent, Identifier + "_PK", _TL("Primary Key"), _TL(""));
+	pParameters->Add_Table_Fields(pParent, Identifier + "_NN", _TL("Not Null"   ), _TL(""));
+	pParameters->Add_Table_Fields(pParent, Identifier + "_UQ", _TL("Unique"     ), _TL(""));
 
 	return( true );
 }
 
 //---------------------------------------------------------
-CSG_Buffer CSG_PG_Module::Get_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+CSG_Buffer CSG_PG_Module::Get_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
-	CSG_Buffer	Flags;
+	CSG_Buffer		Flags;
 
-	if( pParameters )
+	CSG_Parameter	*pParent	= pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
+
+	if( !pParent || (pParent->Get_Type() != PARAMETER_TYPE_Table && pParent->Get_Type() != PARAMETER_TYPE_Shapes) )
 	{
-		int		nFields	= pTable ? pTable->Get_Field_Count() : (pParameters->Get_Count() - 3) / 3;
+		return( Flags );
+	}
 
-		if( nFields * 3 + 3 == pParameters->Get_Count() )
+	CSG_Parameter	*pFields;
+
+	Flags.Set_Size(((CSG_Table *)pParent->asDataObject())->Get_Field_Count());
+
+	memset(Flags.Get_Data(), 0, Flags.Get_Size());
+
+	if( (pFields = pParameters->Get_Parameter(Identifier + "_PK")) != NULL && pFields->Get_Type() == PARAMETER_TYPE_Table_Fields )
+	{
+		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
 		{
-			for(int i=0; i<nFields; i++)
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < Flags.Get_Size() )
 			{
-				char	Flag	= 0;
+				Flags.Get_Data()[Index]	|= SG_PG_PRIMARY_KEY;
+			}
+		}
+	}
 
-				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("P%d"), i))->asBool() )
-				{
-					Flag	|= SG_PG_PRIMARY_KEY;
-				}
+	if( (pFields = pParameters->Get_Parameter(Identifier + "_NN")) != NULL && pFields->Get_Type() == PARAMETER_TYPE_Table_Fields )
+	{
+		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
+		{
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < Flags.Get_Size() )
+			{
+				Flags.Get_Data()[Index]	|= SG_PG_NOT_NULL;
+			}
+		}
+	}
 
-				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("N%d"), i))->asBool() )
-				{
-					Flag	|= SG_PG_NOT_NULL;
-				}
-
-				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("U%d"), i))->asBool() )
-				{
-					Flag	|= SG_PG_UNIQUE;
-				}
-
-				Flags	+= Flag;
+	if( (pFields = pParameters->Get_Parameter(Identifier + "_UQ")) != NULL && pFields->Get_Type() == PARAMETER_TYPE_Table_Fields )
+	{
+		for(int i=0, Index; i<pFields->asTableFields()->Get_Count(); i++)
+		{
+			if( (Index = pFields->asTableFields()->Get_Index(i)) >= 0 && Index < Flags.Get_Size() )
+			{
+				Flags.Get_Data()[Index]	|= SG_PG_UNIQUE;
 			}
 		}
 	}

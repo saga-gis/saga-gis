@@ -85,7 +85,7 @@ class CPGIS_Shapes_Load : public CSG_PG_Module
 public:
 	CPGIS_Shapes_Load(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS|Vector") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CPGIS_Shapes_Save : public CSG_PG_Module
 public:
 	CPGIS_Shapes_Save(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:PostGIS|Vector") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
 
 
 protected:

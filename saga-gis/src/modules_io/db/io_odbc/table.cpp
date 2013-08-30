@@ -131,7 +131,7 @@ bool CTable_List::On_Execute(void)
 //---------------------------------------------------------
 CTable_Info::CTable_Info(void)
 {
-	Set_Name		(_TL("Get Table Fields Description"));
+	Set_Name		(_TL("List Table Fields"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
@@ -393,7 +393,7 @@ CTable_Query::CTable_Query(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name		(_TL("Table from SQL Query"));
+	Set_Name		(_TL("Import Table from SQL Query"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
