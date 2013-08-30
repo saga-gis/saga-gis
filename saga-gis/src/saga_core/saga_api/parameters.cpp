@@ -1254,7 +1254,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 		{
 			if( p->Get_Type() == PARAMETER_TYPE_Shapes && p->asShapes() && p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined )
 			{
-				if( !m_pManager || !m_pManager->Delete(p->asShapes()) )
+				if( m_pManager && !m_pManager->Delete(p->asShapes()) )
 				{
 					delete(p->asShapes());
 				}

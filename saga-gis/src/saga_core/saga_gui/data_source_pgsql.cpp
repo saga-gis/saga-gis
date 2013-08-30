@@ -532,7 +532,7 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 		bool		bResult;
 		CSG_Table	Tables;
 
-		RUN_MODULE(6, bResult,	// list tables
+		RUN_MODULE(7, bResult,	// list tables
 				SET_PARAMETER("CONNECTION", pData->Get_Value())
 			&&	SET_PARAMETER("TABLES"    , &Tables)
 		);
@@ -678,11 +678,9 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 	{
 		CSG_Table	*pTable	= SG_Create_Table();
 
-		MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Load table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
-
 		bool	bResult;
 
-		RUN_MODULE(8, bResult,
+		RUN_MODULE(9, bResult,
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 			&&	SET_PARAMETER("TABLE"     , pTable)
@@ -693,14 +691,10 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 			SG_Get_Data_Manager().Add(pTable);
 
 			g_pData->Show(pTable, 0);
-
-			MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 		}
 		else
 		{
 			delete(pTable);
-
-			MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
 		}
 	}
 
@@ -709,11 +703,9 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 	{
 		CSG_Shapes	*pShapes	= SG_Create_Shapes();
 
-		MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Load shapes"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
-
 		bool	bResult;
 
-		RUN_MODULE(12, bResult,
+		RUN_MODULE(13, bResult,
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 			&&	SET_PARAMETER("SHAPES"    , pShapes)
@@ -723,15 +715,11 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 		{
 			SG_Get_Data_Manager().Add(pShapes);
 
-			g_pData->Show(pShapes, 0);
-
-			MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+			g_pData->Show(pShapes, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
 		}
 		else
 		{
 			delete(pShapes);
-
-			MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
 		}
 	}
 
@@ -761,7 +749,7 @@ void CData_Source_PgSQL::Drop_Table(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(10, bResult,	// drop table
+		RUN_MODULE(11, bResult,	// drop table
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 		);
