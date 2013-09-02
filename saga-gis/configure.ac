@@ -6,8 +6,9 @@ AC_PREREQ(2.59)
 AC_INIT(saga, 2.1.0, BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([src/saga_core/saga_gui/wksp_data_menu_files.cpp])
 AC_CONFIG_HEADER([config.h])
-AM_INIT_AUTOMAKE
+AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
+
 
 # Checks for programs.
 AC_PROG_CXX
@@ -88,29 +89,13 @@ else
 fi
 
 # postgresql/postgis
-AC_ARG_WITH([postgres],
-  [AS_HELP_STRING([--with-postgres[=path/pg_config]],
-    [enable PostgreSQL/PostGIS support (pg_config with path, e.g. '--with-postgres=/usr/pgsql-9.1/bin/pg_config')])],
-  [],
-  [with_postgres=no])
-
-
-AC_MSG_CHECKING(whether to use PostgreSQL/PostGIS)
-
-if test "$with_postgres" = "no" ; then
-  PG_CONFIG="no"
-  AC_MSG_RESULT(no)
+AX_LIB_POSTGRESQL([8.0])
+if test "x$found_postgresql" = "xyes"; then
+  echo "checking whether to enable postgresql... yes"
 else
-  AC_PATH_PROG(PG_CONFIG, pg_config, no, `dirname $with_postgres`)
-  if test "$PG_CONFIG" = "no" ; then
-    AC_MSG_ERROR([*** could not find pg_config])
-  fi
-
-  AC_MSG_RESULT([        PostgreSQL/PostGIS support will be built])
+  echo "checking whether to enable postgresql... no"
 fi
-
-AM_CONDITIONAL(WITH_PGSQL, test "$PG_CONFIG" != "no")
-
+AM_CONDITIONAL(HAVE_POSTGRESQL, test "x$found_postgresql" = "xyes")
 
 # debug
 AC_ARG_ENABLE(debug,
@@ -201,7 +186,6 @@ AC_SUBST(GOMPFLAGS)
 AC_SUBST(HARU_LIB)
 AC_SUBST(DISABLELIBHARU)
 
-AC_CONFIG_MACRO_DIR([m4])
 AC_ARG_ENABLE(python,
     [  --enable-python    Build python bindings for the saga api],
      [case "${enableval}" in
