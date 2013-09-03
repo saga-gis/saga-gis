@@ -64,10 +64,10 @@ typedef struct {
 } G_Point;
 
 //DO * Papierformate und Ausrichtungen ******
-typedef enum G_PaperFormat { A0P, A0L, A1P, A1L, A2P, A2L,
+enum G_PaperFormat { A0P, A0L, A1P, A1L, A2P, A2L,
 											A3P, A3L, A4P, A4L, A5P, A5L};
-typedef enum G_PaperOrient { Portrait, Landscape };
-typedef enum G_FillType { Hollow, Blank, Filled };
+enum G_PaperOrient { Portrait, Landscape };
+enum G_FillType { Hollow, Blank, Filled };
 
 
 //DO *RGB-Felder********************
@@ -103,9 +103,9 @@ extern  G_ColorDef ColorDefWindows;
 
 
 //DO * Textdefinitionen *****************
-typedef enum G_TextOrientX {Left,  HCenter, Right };
-typedef enum G_TextOrientY {Bottom,VCenter, Top};
-typedef enum G_TextFont { TimesRoman,
+enum G_TextOrientX {Left,  HCenter, Right };
+enum G_TextOrientY {Bottom,VCenter, Top};
+enum G_TextFont { TimesRoman,
 						  TimesBold,
 						  TimesItalic,
 						  TimesBoldItalic,
@@ -117,7 +117,7 @@ typedef enum G_TextFont { TimesRoman,
 						  Symbol };
 
 //DO *** Clipping Type ******************
-typedef enum G_ClipType {NoClip,Clip};
+enum G_ClipType {NoClip,Clip};
 
 #define CS_TEXT_COLOR 1
 #define CS_TEXT_FONT 2
