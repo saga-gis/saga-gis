@@ -698,7 +698,7 @@ bool CSolarRadiation::Finalise(void)
 
 	case 1:				// [kJ / m2]
 		Unit	= SG_T("kJ / m\xb2");
-		dUnit	= 3.6;
+		dUnit	= 3600.0;
 		break;
 
 	case 2:				// [Ws / cm2] = [J / cm2]
