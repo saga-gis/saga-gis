@@ -93,6 +93,7 @@ public:
 
 	static CSG_String			Get_Type_To_SQL			(TSG_Data_Type Type, int Size = 0);
 	static TSG_Data_Type		Get_Type_From_SQL		(int Type);
+	static CSG_String			Get_Raster_Type_To_SQL	(TSG_Data_Type Type);
 
 	void						GUI_Update				(void)	const;
 
@@ -115,11 +116,13 @@ public:
 	CSG_String					Get_Field_Names			(const CSG_String &Table_Name)	const;
 	CSG_Table					Get_Field_Desc			(const CSG_String &Table_Name)	const;
 
-	bool						Execute					(const CSG_String &SQL);
+	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL);
 
 	bool						Begin					(void);
-	bool						Commit					(void);
-	bool						Rollback				(void);
+	bool						Add_SavePoint			(const CSG_String &SavePoint);
+	bool						Rollback				(const CSG_String &SavePoint = "");
+	bool						Commit					(const CSG_String &SavePoint = "");
+	bool						is_Transaction			(void)	const	{	return( is_Connected() && m_bTransaction );	}
 
 	bool						Table_Exists			(const CSG_String &Table_Name)	const;
 
@@ -132,7 +135,7 @@ public:
 	bool						Table_Load				(CSG_Table &Data, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where = "", const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false);
 
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Table);
-	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary);
+	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
 
 	bool						Raster_Load				(CSG_Bytes_Array &Data, const CSG_String &Table , const CSG_String &Field , const CSG_String &Where = "", const CSG_String &Order = "");
 	
@@ -151,8 +154,11 @@ private:
 
 	void						*m_pConnection;
 
+	bool						m_bTransaction;
+
 
 	bool						_Table_Load				(CSG_Table &Data, const CSG_String &Select, const CSG_String &Name = "")	const;
+	bool						_Table_Load				(CSG_Table &Data, void *pResult)	const;
 
 };
 
@@ -221,6 +227,11 @@ protected:
 	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters)	{}
 
 	CSG_PG_Connection *			Get_Connection			(void)	{	return( m_pConnection );	}
+
+	bool						Add_SRID_Picker			(CSG_Parameters *pParameters = NULL);
+	bool						Set_SRID_Picker_Enabled	(CSG_Parameters *pParameters, bool bEnable = true);
+	bool						Set_SRID				(CSG_Parameters *pParameters, int SRID);
+	int							Get_SRID				(CSG_Parameters *pParameters = NULL);
 
 	static bool					Set_Constraints			(CSG_Parameters *pParameters, const CSG_String &Identifier);
 	static CSG_Buffer			Get_Constraints			(CSG_Parameters *pParameters, const CSG_String &Identifier);

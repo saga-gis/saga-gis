@@ -80,10 +80,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPGIS_Raster_Load : public CSG_PG_Module
+class CRaster_Load : public CSG_PG_Module
 {
 public:
-	CPGIS_Raster_Load(void);
+	CRaster_Load(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
 
@@ -102,15 +102,37 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPGIS_Raster_Save : public CSG_PG_Module
+class CRaster_Save : public CSG_PG_Module
 {
 public:
-	CPGIS_Raster_Save(void);
+	CRaster_Save(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
 
 
 protected:
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CRaster_SRID_Update : public CSG_PG_Module
+{
+public:
+	CRaster_SRID_Update(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
+
+
+protected:
+
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
 
 	virtual bool				On_Execute				(void);
 

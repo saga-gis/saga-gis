@@ -168,6 +168,8 @@ public:
 
 protected:
 
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
+
 	virtual bool				On_Execute				(void);
 
 };

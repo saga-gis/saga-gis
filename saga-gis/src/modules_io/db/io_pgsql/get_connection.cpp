@@ -327,21 +327,48 @@ CTransaction_Start::CTransaction_Start(void)
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Begin a transaction which will be finished later with a commit or rollback."
+		"Begins a transaction, which will be finished later with a commit or rollback. "
+		"Tries to add a save point, if already in transaction mode. "
 	));
+
+	Parameters.Add_String(
+		NULL	, "SAVEPOINT"	, _TL("Save Point"),
+		_TL(""),
+		"SAVEPOINT_01"
+	);
+}
+
+//---------------------------------------------------------
+void CTransaction_Start::On_Connection_Changed(CSG_Parameters *pParameters)
+{
+	pParameters->Get_Parameter("SAVEPOINT")->Set_Enabled(Get_Connection()->is_Transaction());
 }
 
 //---------------------------------------------------------
 bool CTransaction_Start::On_Execute(void)
 {
-	if( Get_Connection()->Begin() )
+	if( !Get_Connection()->is_Transaction() )
 	{
-		Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("transaction started"));
+		if( Get_Connection()->Begin() )
+		{
+			Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("transaction started"));
 
-		return( true );
+			return( true );
+		}
+
+		Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("could not start transaction"));
 	}
+	else
+	{
+		if( Get_Connection()->Add_SavePoint(Parameters("SAVEPOINT")->asString()) )
+		{
+			Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("save point added"));
 
-	Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("could not start transaction."));
+			return( true );
+		}
+
+		Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("could not add save point"));
+	}
 
 	return( false );
 }
@@ -372,14 +399,27 @@ CTransaction_Stop::CTransaction_Stop(void)
 			_TL("commit")
 		), 1
 	);
+
+	Parameters.Add_String(
+		NULL	, "SAVEPOINT"	, _TL("Save Point"),
+		_TL(""),
+		""
+	);
 }
 
 //---------------------------------------------------------
 bool CTransaction_Stop::On_Execute(void)
 {
+	if( !Get_Connection()->is_Transaction() )
+	{
+		Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("not in transaction"));
+
+		return( false );
+	}
+
 	if( Parameters("TRANSACT")->asInt() == 1 )
 	{
-		if( Get_Connection()->Commit() )
+		if( Get_Connection()->Commit(Parameters("SAVEPOINT")->asString()) )
 		{
 			Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("open transactions committed"));
 
@@ -390,7 +430,7 @@ bool CTransaction_Stop::On_Execute(void)
 	}
 	else
 	{
-		if( Get_Connection()->Rollback() )
+		if( Get_Connection()->Rollback(Parameters("SAVEPOINT")->asString()) )
 		{
 			Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("open transactions rolled back"));
 
@@ -434,7 +474,7 @@ CExecute_SQL::CExecute_SQL(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "COMMIT"		, _TL("Commit"),
+		NULL	, "OUTPUT"		, _TL("Show Results"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
@@ -450,9 +490,9 @@ CExecute_SQL::CExecute_SQL(void)
 bool CExecute_SQL::On_Execute(void)
 {
 	//-----------------------------------------------------
-	bool		bCommit	= Parameters("COMMIT")	->asBool  ();
-	bool		bStop	= Parameters("STOP")	->asBool  ();
-	CSG_String	SQL		= Parameters("SQL")		->asString();
+	bool		bOutput	= Parameters("OUTPUT")->asBool  ();
+	bool		bStop	= Parameters("STOP"  )->asBool  ();
+	CSG_String	SQL		= Parameters("SQL"   )->asString();
 
 	//-----------------------------------------------------
 	if( SQL.Find(SG_T(';')) < 0 )
@@ -473,13 +513,45 @@ bool CExecute_SQL::On_Execute(void)
 
 		if( s.Length() > 0 )
 		{
+			CSG_Table	Table, *pTable;	pTable	= bOutput ? &Table : NULL;
+
 			Message_Add(s);
 
-			if( Get_Connection()->Execute(s) )
+			if( Get_Connection()->Execute(s, pTable) )
 			{
 				nSuccess++;
 
 				Message_Add(CSG_String::Format(SG_T("...%s!"), _TL("okay")), false);
+
+				if( pTable && pTable->Get_Count() )
+				{
+					int		iField, iRecord;
+
+					s	= "\n";
+
+					for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+					{
+						s	+= iField > 0 ? "\t" : "\n";
+						s	+= pTable->Get_Field_Name(iField);
+					}
+
+					s	= "\n___";
+
+					for(iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+					{
+						CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+
+						for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+						{
+							s	+= iField > 0 ? "\t" : "\n";
+							s	+= pRecord->asString(iField);
+						}
+
+						Message_Add(s, false);	s.Clear();
+					}
+
+					Message_Add("\n", false);
+				}
 			}
 			else
 			{

@@ -80,10 +80,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPGIS_Shapes_Load : public CSG_PG_Module
+class CShapes_Load : public CSG_PG_Module
 {
 public:
-	CPGIS_Shapes_Load(void);
+	CShapes_Load(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
 
@@ -102,10 +102,10 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPGIS_Shapes_Save : public CSG_PG_Module
+class CShapes_Save : public CSG_PG_Module
 {
 public:
-	CPGIS_Shapes_Save(void);
+	CShapes_Save(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
 
@@ -116,9 +116,27 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+};
 
-private:
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CShapes_SRID_Update : public CSG_PG_Module
+{
+public:
+	CShapes_SRID_Update(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+
+
+protected:
+
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
+
+	virtual bool				On_Execute				(void);
 
 };
 

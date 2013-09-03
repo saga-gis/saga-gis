@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPGIS_Raster_Load::CPGIS_Raster_Load(void)
+CRaster_Load::CRaster_Load(void)
 {
 	Set_Name		(_TL("Import Raster from PostGIS"));
 
@@ -93,7 +93,7 @@ CPGIS_Raster_Load::CPGIS_Raster_Load(void)
 }
 
 //---------------------------------------------------------
-void CPGIS_Raster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
+void CRaster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
 	CSG_String	s;
 	CSG_Table	t;
@@ -110,7 +110,7 @@ void CPGIS_Raster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CPGIS_Raster_Load::On_Execute(void)
+bool CRaster_Load::On_Execute(void)
 {
 	//-----------------------------------------------------
 	CSG_String	Name, Field;
@@ -174,7 +174,7 @@ bool CPGIS_Raster_Load::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPGIS_Raster_Save::CPGIS_Raster_Save(void)
+CRaster_Save::CRaster_Save(void)
 {
 	CSG_Parameter	*pNode;
 
@@ -214,10 +214,12 @@ CPGIS_Raster_Save::CPGIS_Raster_Save(void)
 			_TL("append records, if table structure allows")
 		), 0
 	);
+
+	Add_SRID_Picker();
 }
 
 //---------------------------------------------------------
-bool CPGIS_Raster_Save::On_Execute(void)
+bool CRaster_Save::On_Execute(void)
 {
 	if( !Get_Connection()->Table_Exists(SG_T("spatial_ref_sys")) || !Get_Connection()->Table_Exists(SG_T("geometry_columns")) )
 	{
@@ -250,14 +252,16 @@ bool CPGIS_Raster_Save::On_Execute(void)
 	{
 		CSG_Bytes	WKB;
 
-		if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), pGrids->asGrid(i)->Get_Projection().Get_EPSG()) )
+		int	SRID	= Get_SRID();	if( SRID <= 0 )	SRID	= pGrids->asGrid(i)->Get_Projection().Get_EPSG();
+
+		if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), SRID) )
 		{
 			CSG_String	SQL;
 
 		//	SQL	= "INSERT INTO \"" + Name + "\" (\"rast\") VALUES('" + WKB.toHexString() + "'::raster)";
 
 			SQL	= "INSERT INTO \"" + Name + "\" (\"rast\") VALUES(ST_AddBand('" + WKB.toHexString() + "'::raster, '"
-				+ CSG_PG_Connection::Get_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL))";
+				+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL))";
 
 			if( !Get_Connection()->Execute(SQL) )
 			{
@@ -272,6 +276,81 @@ bool CPGIS_Raster_Save::On_Execute(void)
 	Get_Connection()->Commit();
 
 	Get_Connection()->GUI_Update();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CRaster_SRID_Update::CRaster_SRID_Update(void)
+{
+	Set_Name		(_TL("Update Raster SRID"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
+
+	Set_Description	(_TW(
+		" Change the SRID of all rasters in the user-specified column and table."
+	));
+
+	Parameters.Add_Choice(
+		NULL	, "TABLES"		, _TL("Tables"),
+		_TL(""),
+		""
+	);
+
+	Add_SRID_Picker();
+}
+
+//---------------------------------------------------------
+void CRaster_SRID_Update::On_Connection_Changed(CSG_Parameters *pParameters)
+{
+	CSG_String	s;
+	CSG_Table	t;
+
+	if( Get_Connection()->Table_Load(t, SG_T("raster_columns")) )
+	{
+		for(int i=0; i<t.Get_Count(); i++)
+		{
+			s	+= t[i].asString(SG_T("r_table_name")) + CSG_String("|");
+		}
+	}
+
+	pParameters->Get_Parameter("TABLES")->asChoice()->Set_Items(s);
+}
+
+//---------------------------------------------------------
+bool CRaster_SRID_Update::On_Execute(void)
+{
+	if( !Get_Connection()->has_PostGIS(2.1) )	{	Error_Set(_TL("not supported by PostGIS versions less than 2.1"));	return( false );	}
+
+	//-----------------------------------------------------
+	CSG_String	Select;
+	CSG_Table	Table;
+
+	Select.Printf(SG_T("r_table_name='%s'"), Parameters("TABLES")->asString());
+
+	if( !Get_Connection()->Table_Load(Table, "raster_columns", "*", Select) || Table.Get_Count() != 1 )
+	{
+		return( false );
+	}
+
+	Select.Printf(SG_T("SELECT UpdateRasterSRID('%s', '%s', %d)"),
+		Parameters("TABLES")->asString(),
+		Table[0].asString("r_raster_column"),
+		Get_SRID()
+	);
+
+	//-----------------------------------------------------
+	if( !Get_Connection()->Execute(Select) )
+	{
+		return( false );
+	}
 
 	return( true );
 }

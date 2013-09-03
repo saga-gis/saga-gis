@@ -140,6 +140,8 @@ CSG_PG_Connection::CSG_PG_Connection(const CSG_String &Host, int Port, const CSG
 
 bool CSG_PG_Connection::Create(const CSG_String &Host, int Port, const CSG_String &Name, const CSG_String &User, const CSG_String &Password, bool bAutoCommit)
 {
+	m_bTransaction	= false;
+
 	m_pConnection	= PQsetdbLogin(Host, CSG_String::Format(SG_T("%d"), Port), NULL, NULL, Name, User, Password);
 
 	if( PQstatus(m_pgConnection) != CONNECTION_OK )
@@ -198,7 +200,7 @@ CSG_String CSG_PG_Connection::Get_Type_To_SQL(TSG_Data_Type Type, int Size)
 	case SG_DATATYPE_String:	return( CSG_String::Format(SG_T("varchar(%d)"), Size > 0 ? Size : 1) );
 	case SG_DATATYPE_Date:		return( "varchar(16)"      );
 	case SG_DATATYPE_Char:		return( "char(1)"          );
-	case SG_DATATYPE_Byte:		return( "2BUI"             );
+	case SG_DATATYPE_Byte:		return( "smallint"         );
 	case SG_DATATYPE_Short:		return( "smallint"         );
 	case SG_DATATYPE_Int:		return( "integer"          );
 	case SG_DATATYPE_Long:		return( "bigint"           );
@@ -206,9 +208,9 @@ CSG_String CSG_PG_Connection::Get_Type_To_SQL(TSG_Data_Type Type, int Size)
 	case SG_DATATYPE_Float:		return( "real"             );
 	case SG_DATATYPE_Double:	return( "double precision" );
 	case SG_DATATYPE_Binary:	return( "bytea"            );
-	}
 
-	return( "text" );
+	default:	return( "text" );
+	}
 }
 
 //---------------------------------------------------------
@@ -230,6 +232,26 @@ TSG_Data_Type CSG_PG_Connection::Get_Type_From_SQL(int Type)
 	}
 
 	return( SG_DATATYPE_String );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_PG_Connection::Get_Raster_Type_To_SQL(TSG_Data_Type Type)
+{
+	switch( Type )
+	{
+	case SG_DATATYPE_Bit:		return( "1BB"   );
+	case SG_DATATYPE_Char:		return( "8BSI"  );
+	case SG_DATATYPE_Byte:		return( "8BUI"  );
+	case SG_DATATYPE_Short:		return( "16BSI" );
+	case SG_DATATYPE_Word:		return( "16BUI" );
+	case SG_DATATYPE_Int:		return( "32BSI" );
+	case SG_DATATYPE_DWord:		return( "32BUI" );
+	case SG_DATATYPE_Long:		return( "32BSI" );
+	case SG_DATATYPE_Float:		return( "32BF"  );
+	case SG_DATATYPE_Double:	return( "64BF"  );
+	}
+
+	return( "64BF" );
 }
 
 
@@ -464,7 +486,7 @@ CSG_String CSG_PG_Connection::Get_Field_Names(const CSG_String &Table_Name) cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Execute(const CSG_String &SQL)
+bool CSG_PG_Connection::Execute(const CSG_String &SQL, CSG_Table *pTable)
 {
 	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
 
@@ -474,21 +496,27 @@ bool CSG_PG_Connection::Execute(const CSG_String &SQL)
 
 	switch( PQresultStatus(pResult) )
 	{
-	case PGRES_COMMAND_OK:
-		bResult	= true;
-		break;
-
-	case PGRES_TUPLES_OK:
-		bResult	= true;
-		break;
-
 	default:
 		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
 
 		bResult	= false;
 		break;
-	}
 
+	case PGRES_COMMAND_OK:
+		bResult	= true;
+		break;
+
+	case PGRES_TUPLES_OK:
+		if( pTable )
+		{
+			_Table_Load(*pTable, pResult);
+
+			pTable->Set_Name(_TL("Query Result"));
+		}
+
+		bResult	= true;
+		break;
+	}
 
 	PQclear(pResult);
 
@@ -504,6 +532,7 @@ bool CSG_PG_Connection::Execute(const CSG_String &SQL)
 bool CSG_PG_Connection::Begin(void)
 {
 	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	if( is_Transaction() )	{	_Error_Message(_TL("already in transaction"));	return( false );	}
 
 	PGresult	*pResult	= PQexec(m_pgConnection, "BEGIN");
 
@@ -516,17 +545,86 @@ bool CSG_PG_Connection::Begin(void)
 		return( false );
 	}
 
+	m_bTransaction	= true;
+
 	PQclear(pResult);
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Commit(void)
+bool CSG_PG_Connection::Add_SavePoint(const CSG_String &SavePoint)
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	if( !is_Transaction() )	{	_Error_Message(_TL("not in transaction"));	return( false );	}
 
-	PGresult	*pResult	= PQexec(m_pgConnection, "COMMIT");
+	CSG_String	Command	= "SAVEPOINT " + SavePoint;
+
+	PGresult	*pResult	= PQexec(m_pgConnection, Command);
+
+	if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
+	{
+		_Error_Message(_TL("could not add savepoint"), m_pgConnection);
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	PQclear(pResult);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Rollback(const CSG_String &SavePoint)
+{
+	if( !is_Transaction() )	{	_Error_Message(_TL("not in transaction"));	return( false );	}
+
+	CSG_String	Command	= "ROLLBACK";
+
+	if( !SavePoint.is_Empty() )
+	{
+		Command	+= " TO SAVEPOINT " + SavePoint;
+	}
+
+	PGresult	*pResult	= PQexec(m_pgConnection, Command);
+
+	if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
+	{
+		_Error_Message(_TL("rollback transaction command failed"), m_pgConnection);
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	if( SavePoint.is_Empty() )
+	{
+		m_bTransaction	= false;
+	}
+
+	PQclear(pResult);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Commit(const CSG_String &SavePoint)
+{
+	if( !is_Transaction() )	{	_Error_Message(_TL("not in transaction"));	return( false );	}
+
+	CSG_String	Command;
+
+	if( SavePoint.is_Empty() )
+	{
+		Command	= "COMMIT";
+	}
+	else
+	{
+		Command	= "RELEASE SAVEPOINT " + SavePoint;
+	}
+
+	PGresult	*pResult	= PQexec(m_pgConnection, Command);
 
 	if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
 	{
@@ -537,26 +635,7 @@ bool CSG_PG_Connection::Commit(void)
 		return( false );
 	}
 
-	PQclear(pResult);
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_PG_Connection::Rollback(void)
-{
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
-
-	PGresult	*pResult	= PQexec(m_pgConnection, "ROLLBACK");
-
-	if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
-	{
-		_Error_Message(_TL("rollback transaction command failed"), m_pgConnection);
-
-		PQclear(pResult);
-
-		return( false );
-	}
+	m_bTransaction	= false;
 
 	PQclear(pResult);
 
@@ -804,11 +883,24 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select, 
 	//-----------------------------------------------------
 	PGresult	*pResult	= PQexec(m_pgConnection, Select);
 
+	bool	bResult	= _Table_Load(Table, pResult);
+
+	Table.Set_Name(Name);
+
+	PQclear(pResult);
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
+{
+	//-----------------------------------------------------
+	PGresult	*pResult	= (PGresult *)_pResult;
+
 	if( PQresultStatus(pResult) != PGRES_TUPLES_OK )
 	{
 		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
-
-		PQclear(pResult);
 
 		return( false );
 	}
@@ -820,15 +912,11 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select, 
 	{
 		_Error_Message(_TL("no fields in selection"));
 
-		PQclear(pResult);
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	Table.Destroy();
-
-	Table.Set_Name(Name);
 
 	for(iField=0; iField<nFields; iField++)
 	{
@@ -868,8 +956,6 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select, 
 	}
 
 	//-----------------------------------------------------
-	PQclear(pResult);
-
 	return( true );
 }
 
@@ -926,6 +1012,8 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 		return( false );
 	}
 
+	int	SRID	= Info[0].asInt("srid");
+
 	CSG_String	Fields, Geometry	= Info[0].asString("f_geometry_column");
 
 	Info	= Get_Field_Desc(Name);
@@ -947,11 +1035,11 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 
 	Fields	+= (bBinary ? "ST_AsBinary(" : "ST_AsText(") + Geometry + ") AS __geometry__";
 
-	return( Shapes_Load(pShapes, Name, "SELECT " + Fields + " FROM \"" + Name + "\"", "__geometry__", bBinary) );
+	return( Shapes_Load(pShapes, Name, "SELECT " + Fields + " FROM \"" + Name + "\"", "__geometry__", bBinary, SRID) );
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary)
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID)
 {
 	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
 	if( !has_PostGIS () )	{	_Error_Message(_TL("not a PostGIS database"));	return( false );	}
@@ -1033,6 +1121,8 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 
 	//-----------------------------------------------------
 	pShapes->Create(Type, Name);
+
+	pShapes->Get_Projection().Create(SRID);
 
 	for(iField=0; iField<nFields; iField++)
 	{
@@ -1258,13 +1348,16 @@ bool CSG_PG_Connections::Del_Connection(int Index, bool bCommit)
 {
 	if( Index >= 0 && Index < m_nConnections )
 	{
-		if( bCommit )
+		if( m_pConnections[Index]->is_Transaction() )
 		{
-			m_pConnections[Index]->Commit();
-		}
-		else
-		{
-			m_pConnections[Index]->Rollback();
+			if( bCommit )
+			{
+				m_pConnections[Index]->Commit();
+			}
+			else
+			{
+				m_pConnections[Index]->Rollback();
+			}
 		}
 
 		delete(m_pConnections[Index]);
@@ -1479,17 +1572,121 @@ bool CSG_PG_Module::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_PG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() && !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
+	if( SG_UI_Get_Window_Main() )
 	{
-		m_pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
-
-		if( m_pConnection )
+		//-------------------------------------------------
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_GEOGCS")
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_PROJCS") )
 		{
-			On_Connection_Changed(pParameters);
+			int		EPSG;
+
+			if( pParameter->asChoice()->Get_Data(EPSG) )
+			{
+				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(EPSG);
+			}
+		}
+
+		//-------------------------------------------------
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
+		{
+			m_pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
+
+			if( m_pConnection )
+			{
+				On_Connection_Changed(pParameters);
+			}
 		}
 	}
 
-	return( -1 );
+	//-----------------------------------------------------
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_PG_Module::Add_SRID_Picker(CSG_Parameters *pParameters)
+{
+	if( !pParameters )
+	{
+		pParameters	= &Parameters;
+	}
+
+	if( pParameters->Get_Parameter("CRS_EPSG") )
+	{
+		return( false );	// don't add twice ...
+	}
+
+	CSG_Parameter	*pNode	= pParameters->Add_Value(
+		NULL	, "CRS_EPSG"	, _TL("EPSG Code"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 4326, -1, true, 99999, true
+	);
+
+	if( SG_UI_Get_Window_Main() )
+	{
+		pParameters->Add_Choice(
+			pNode	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
+		);
+
+		pParameters->Add_Choice(
+			pNode	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+		);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Module::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bEnable)
+{
+	CSG_Parameter	*pParameter	= pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
+
+	if( pParameter )
+	{
+		pParameter->Set_Enabled(bEnable);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Module::Set_SRID(CSG_Parameters *pParameters, int SRID)
+{
+	CSG_Parameter	*pParameter	= pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
+
+	CSG_Projection	Projection;
+
+	if( pParameter && SG_Get_Projections().Get_Projection(Projection, SRID) )
+	{
+		pParameter->Set_Value(SRID);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_PG_Module::Get_SRID(CSG_Parameters *pParameters)
+{
+	if( !pParameters )
+	{
+		pParameters	= &Parameters;
+	}
+
+	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("CRS_EPSG");
+
+	return( pParameter ? pParameter->asInt() : -1 );
 }
 
 

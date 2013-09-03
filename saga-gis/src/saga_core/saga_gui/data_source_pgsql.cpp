@@ -152,7 +152,7 @@ bool	is_Connected	(const CSG_String &Server)
 	bool		bResult;
 	CSG_Table	Connections;
 
-	RUN_MODULE(0, bResult, SET_PARAMETER("CONNECTIONS", &Connections));
+	RUN_MODULE(0, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
 	for(int i=0; bResult && i<Connections.Get_Count(); i++)
 	{
@@ -465,7 +465,7 @@ void CData_Source_PgSQL::Update_Sources(void)
 	bool		bResult;
 	CSG_Table	Connections;
 
-	RUN_MODULE(0, bResult, SET_PARAMETER("CONNECTIONS", &Connections));
+	RUN_MODULE(0, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
 	for(int i=0; i<Connections.Get_Count(); i++)
 	{
@@ -532,7 +532,7 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 		bool		bResult;
 		CSG_Table	Tables;
 
-		RUN_MODULE(7, bResult,	// list tables
+		RUN_MODULE(10, bResult,	// CTable_List
 				SET_PARAMETER("CONNECTION", pData->Get_Value())
 			&&	SET_PARAMETER("TABLES"    , &Tables)
 		);
@@ -588,7 +588,7 @@ void CData_Source_PgSQL::Open_Source(const wxTreeItemId &Item)
 
 	if( pData->Get_Type() == TYPE_ROOT )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 1);
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 1);	// CGet_Connection
 
 		if(	pModule && pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters()) )
 		{
@@ -611,7 +611,7 @@ void CData_Source_PgSQL::Open_Source(const wxTreeItemId &Item)
 			CSG_String	Port	= pData->Get_Server().AfterLast (':').BeforeFirst(']');
 			CSG_String	Name	= pData->Get_Server().BeforeLast('['); Name.Trim(true);
 
-			RUN_MODULE(1, bResult,	// connect
+			RUN_MODULE(1, bResult,	// CGet_Connection
 					SET_PARAMETER("PG_HOST", Host)
 				&&	SET_PARAMETER("PG_PORT", Port)
 				&&	SET_PARAMETER("PG_NAME", Name)
@@ -634,7 +634,7 @@ void CData_Source_PgSQL::Close_Source(const wxTreeItemId &Item, bool bDelete)
 
 	if( pData->is_Connected() )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 2);	// close
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 2);	// CDel_Connection
 
 		if( pModule )
 		{
@@ -653,7 +653,7 @@ void CData_Source_PgSQL::Close_Source(const wxTreeItemId &Item, bool bDelete)
 //---------------------------------------------------------
 void CData_Source_PgSQL::Close_Sources(void)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 3);	// close all
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 3);	// CDel_Connections
 
 	if( pModule )
 	{
@@ -680,7 +680,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(9, bResult,
+		RUN_MODULE(12, bResult,	// CTable_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 			&&	SET_PARAMETER("TABLE"     , pTable)
@@ -705,7 +705,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(13, bResult,
+		RUN_MODULE(20, bResult,	// CPGIS_Shapes_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 			&&	SET_PARAMETER("SHAPES"    , pShapes)
@@ -726,7 +726,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 	//-----------------------------------------------------
 	if( pData->Get_Type() == TYPE_GRID )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 15);	// load grid(s)
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 30);	// CPGIS_Raster_Load
 
 		if( pModule )
 		{
@@ -749,7 +749,7 @@ void CData_Source_PgSQL::Drop_Table(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(11, bResult,	// drop table
+		RUN_MODULE(14, bResult,	// CTable_Drop
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 		);

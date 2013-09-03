@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPGIS_Shapes_Load::CPGIS_Shapes_Load(void)
+CShapes_Load::CShapes_Load(void)
 {
 	Set_Name		(_TL("Import Shapes from PostGIS"));
 
@@ -93,7 +93,7 @@ CPGIS_Shapes_Load::CPGIS_Shapes_Load(void)
 }
 
 //---------------------------------------------------------
-void CPGIS_Shapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
+void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 {
 	CSG_String	s;
 	CSG_Table	t;
@@ -110,7 +110,7 @@ void CPGIS_Shapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CPGIS_Shapes_Load::On_Execute(void)
+bool CShapes_Load::On_Execute(void)
 {
 	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 	CSG_String	Name		= Parameters("TABLES")->asString();
@@ -133,7 +133,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
+CShapes_Save::CShapes_Save(void)
 {
 	//-----------------------------------------------------
 	Set_Name		(_TL("Export Shapes to PostGIS"));
@@ -168,21 +168,27 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 			_TL("append records, if table structure allows")
 		), 0
 	);
+
+	Add_SRID_Picker();
 }
 
 //---------------------------------------------------------
-int CPGIS_Shapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CShapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
 	{
-		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asShapes() ? pParameter->asShapes()->Get_Name() : SG_T(""));
+		CSG_Shapes	*pShapes	= pParameter->asShapes() ? pParameter->asShapes() : NULL;
+
+		pParameters->Get_Parameter("NAME")->Set_Value(pShapes ? pShapes->Get_Name() : SG_T(""));
+
+		Set_SRID(pParameters, pShapes ? pShapes->Get_Projection().Get_EPSG() : -1);
 	}
 
 	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
-bool CPGIS_Shapes_Save::On_Execute(void)
+bool CShapes_Save::On_Execute(void)
 {
 	if( !Get_Connection()->has_PostGIS() )
 	{
@@ -193,14 +199,14 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Shapes	*pShapes;
-	CSG_String	SQL, Name, Type, Field, SRID;
+	CSG_String	SQL, Name, Type, Field;
 
-	pShapes	= Parameters("SHAPES")->asShapes();
-	Name	= Parameters("NAME"  )->asString();	if( Name.Length() == 0 )	Name	= pShapes->Get_Name();
+	pShapes		= Parameters("SHAPES")->asShapes();
+	Name		= Parameters("NAME"  )->asString();	if( Name.Length() == 0 )	Name	= pShapes->Get_Name();
 
-	Field	= "geometry";
+	Field		= "geometry";
 
-	SRID.Printf(SG_T("%d"),	pShapes->Get_Projection().Get_EPSG());
+	int	SRID	= Get_SRID();
 
 	//-----------------------------------------------------
 	if( !CSG_Shapes_OGIS_Converter::from_ShapeType(Type, pShapes->Get_Type(), pShapes->Get_Vertex_Type()) )
@@ -256,7 +262,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 		// SELECT AddGeometryColumn(<table_name>, <column_name>, <srid>, <type>, <dimension>)
 
 		SQL.Printf(SG_T("SELECT AddGeometryColumn('%s', '%s', %d, '%s', %d)"),
-			Name.c_str(), Field.c_str(), SRID.asInt(), Type.c_str(),
+			Name.c_str(), Field.c_str(), SRID, Type.c_str(),
 			pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XY  ? 2 :
 			pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ ? 3 : 4
 		);
@@ -286,7 +292,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	Insert	+= ") VALUES (";
 
 	//-----------------------------------------------------
-	for(iShape=0, nAdded=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(iShape=0, nAdded=0; iShape==nAdded && iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
@@ -300,7 +306,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 				CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
 
-				SQL	+= SG_T("ST_GeomFromWKB(E'\\\\x") + WKB.toHexString() + SG_T("', ") + SRID + SG_T(")");
+				SQL	+= "ST_GeomFromWKB(E'\\\\x" + WKB.toHexString() + CSG_String::Format(SG_T("', %d)"), SRID);
 			}
 			else
 			{
@@ -308,7 +314,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 				CSG_Shapes_OGIS_Converter::to_WKText(pShape, WKT);
 
-				SQL	+= SG_T("ST_GeomFromText('") + WKT + SG_T("', ") + SRID + SG_T(")");
+				SQL	+= "ST_GeomFromText('" + WKT + CSG_String::Format(SG_T("', %d)"), SRID);
 			}
 
 			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
@@ -332,14 +338,16 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 			}
 			else
 			{
-				Message_Add(CSG_String::Format(SG_T("dropped %d. shape"), iShape));
+				Message_Add(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("could not save shape"), 1 + iShape, pShapes->Get_Count()));
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( nAdded == 0 )
+	if( nAdded < pShapes->Get_Count() )
 	{
+		Message_Add(SQL);
+
 		Get_Connection()->Rollback();
 
 		return( false );
@@ -347,6 +355,81 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 	Get_Connection()->Commit();
 	Get_Connection()->GUI_Update();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CShapes_SRID_Update::CShapes_SRID_Update(void)
+{
+	Set_Name		(_TL("Update Shapes SRID"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
+
+	Set_Description	(_TW(
+		" Change the SRID of all geometries in the user-specified column and table."
+	));
+
+	Parameters.Add_Choice(
+		NULL	, "TABLES"		, _TL("Tables"),
+		_TL(""),
+		""
+	);
+
+	Add_SRID_Picker();
+}
+
+//---------------------------------------------------------
+void CShapes_SRID_Update::On_Connection_Changed(CSG_Parameters *pParameters)
+{
+	CSG_String	s;
+	CSG_Table	t;
+
+	if( Get_Connection()->Table_Load(t, SG_T("geometry_columns")) )
+	{
+		for(int i=0; i<t.Get_Count(); i++)
+		{
+			s	+= t[i].asString(SG_T("f_table_name")) + CSG_String("|");
+		}
+	}
+
+	pParameters->Get_Parameter("TABLES")->asChoice()->Set_Items(s);
+}
+
+//---------------------------------------------------------
+bool CShapes_SRID_Update::On_Execute(void)
+{
+	if( !Get_Connection()->has_PostGIS() )	{	Error_Set(_TL("no PostGIS layer"));	return( false );	}
+
+	//-----------------------------------------------------
+	CSG_String	Select;
+	CSG_Table	Table;
+
+	Select.Printf(SG_T("f_table_name='%s'"), Parameters("TABLES")->asString());
+
+	if( !Get_Connection()->Table_Load(Table, "geometry_columns", "*", Select) || Table.Get_Count() != 1 )
+	{
+		return( false );
+	}
+
+	Select.Printf(SG_T("SELECT UpdateGeometrySRID('%s', '%s', %d)"),
+		Parameters("TABLES")->asString(),
+		Table[0].asString("f_geometry_column"),
+		Get_SRID()
+	);
+
+	//-----------------------------------------------------
+	if( !Get_Connection()->Execute(Select) )
+	{
+		return( false );
+	}
 
 	return( true );
 }
