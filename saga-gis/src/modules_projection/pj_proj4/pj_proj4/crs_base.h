@@ -91,6 +91,9 @@ protected:
 
 private:
 
+	CSG_Projection			m_Projection;
+
+
 	bool					Set_User_Parameters		(CSG_Parameters *pParameters);
 	bool					Add_User_Projection		(const CSG_String &sID, const CSG_String &sName, const CSG_String &sArgs);
 

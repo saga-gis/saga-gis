@@ -665,31 +665,33 @@ bool CSG_Projections::EPSG_to_WKT(CSG_String &WKT, int EPSG_Code) const
 //---------------------------------------------------------
 CSG_String CSG_Projections::Get_Names_List(TSG_Projection_Type Type) const
 {
-	TSG_Projection_Type	iType;
-	CSG_String			Names, iWKT;
+	CSG_String	Names;
 
 	for(int i=0; i<Get_Count(); i++)
 	{
 		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record(i);
 
-		iWKT	= pProjection->asString(PRJ_FIELD_SRTEXT);
+		CSG_String	WKT		= pProjection->asString(PRJ_FIELD_SRTEXT);
+		int			SRID	= pProjection->asInt   (PRJ_FIELD_SRID);
 
-		iType	= !iWKT.BeforeFirst('[').Cmp(SG_T("PROJCS")) ? SG_PROJ_TYPE_CS_Projected
-				: !iWKT.BeforeFirst('[').Cmp(SG_T("GEOGCS")) ? SG_PROJ_TYPE_CS_Geographic
-				: !iWKT.BeforeFirst('[').Cmp(SG_T("GEOCCS")) ? SG_PROJ_TYPE_CS_Geocentric
+		TSG_Projection_Type	iType;
+
+		iType	= !WKT.BeforeFirst('[').Cmp(SG_T("PROJCS")) ? SG_PROJ_TYPE_CS_Projected
+				: !WKT.BeforeFirst('[').Cmp(SG_T("GEOGCS")) ? SG_PROJ_TYPE_CS_Geographic
+				: !WKT.BeforeFirst('[').Cmp(SG_T("GEOCCS")) ? SG_PROJ_TYPE_CS_Geocentric
 				: SG_PROJ_TYPE_CS_Undefined;
 
 		if( Type == SG_PROJ_TYPE_CS_Undefined )
 		{
-			Names	+= CSG_String::Format(SG_T("{%d}%s: %s|"), i,
+			Names	+= CSG_String::Format(SG_T("{%d}%s: %s|"), SRID,
 				SG_Get_Projection_Type_Name(iType).c_str(),
-				iWKT.AfterFirst('\"').BeforeFirst('\"').c_str()
+				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
 		else if( Type == iType )
 		{
-			Names	+= CSG_String::Format(SG_T("{%d}%s|"), i,
-				iWKT.AfterFirst('\"').BeforeFirst('\"').c_str()
+			Names	+= CSG_String::Format(SG_T("{%d}%s|"), SRID,
+				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
 	}
