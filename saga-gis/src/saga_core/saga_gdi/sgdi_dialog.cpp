@@ -127,7 +127,7 @@ CSGDI_Dialog::CSGDI_Dialog(const wxString &Name, int Style)
 		pSizer->Add(m_pSizer_Output	, 1, wxALIGN_RIGHT|wxALL|wxEXPAND, SGDI_CTRL_SPACE);
 	}
 
-	pSizer->SetVirtualSizeHints(this);
+	pSizer->FitInside(this);
 
 	SetSizer(pSizer);
 }

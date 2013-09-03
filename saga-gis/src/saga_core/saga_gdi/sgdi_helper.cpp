@@ -265,7 +265,7 @@ CSGDI_Slider::CSGDI_Slider(wxWindow *pParent, int ID, double Value, double minVa
 
 	Set_Value(Value);
 
-	SetTickFreq(SLIDER_RANGE / 10, 0);
+	SetTickFreq(SLIDER_RANGE / 10);
 }
 
 //---------------------------------------------------------
