@@ -330,7 +330,7 @@ CSG_String CSG_PG_Connection::Get_PostGIS(void) const
 {
 	CSG_Table	t;
 
-	if( _Table_Load(t, "SELECT PostGIS_Lib_Version()") && t.Get_Count() == 1 && t.Get_Field_Count() == 1 )
+	if( _Table_Load(t, "SELECT PostGIS_Lib_Version()", "") && t.Get_Count() == 1 && t.Get_Field_Count() == 1 )
 	{
 		return( t[0][0].asString() );
 	}
@@ -343,7 +343,7 @@ bool CSG_PG_Connection::has_PostGIS(double minVersion)
 {
 	CSG_Table	t;
 
-	return( _Table_Load(t, "SELECT PostGIS_Lib_Version()") && t.Get_Count() == 1 && t.Get_Field_Count() == 1
+	return( _Table_Load(t, "SELECT PostGIS_Lib_Version()", "") && t.Get_Count() == 1 && t.Get_Field_Count() == 1
 		&& 0.0001 * t[0][0].asDouble() >= minVersion
 	);
 }
@@ -529,50 +529,43 @@ bool CSG_PG_Connection::Execute(const CSG_String &SQL, CSG_Table *pTable)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Begin(void)
+bool CSG_PG_Connection::Begin(const CSG_String &SavePoint)
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
-	if( is_Transaction() )	{	_Error_Message(_TL("already in transaction"));	return( false );	}
+	CSG_String	Command;
 
-	PGresult	*pResult	= PQexec(m_pgConnection, "BEGIN");
-
-	if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
+	if( SavePoint.is_Empty() )
 	{
-		_Error_Message(_TL("begin transaction command failed"), m_pgConnection);
+		if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+		if( is_Transaction() )	{	_Error_Message(_TL("already in transaction"));	return( false );	}
 
-		PQclear(pResult);
-
-		return( false );
+		Command	= "BEGIN";
 	}
+	else
+	{
+		if( !is_Transaction() )	{	_Error_Message(_TL("not in transaction"));	return( false );	}
 
-	m_bTransaction	= true;
-
-	PQclear(pResult);
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_PG_Connection::Add_SavePoint(const CSG_String &SavePoint)
-{
-	if( !is_Transaction() )	{	_Error_Message(_TL("not in transaction"));	return( false );	}
-
-	CSG_String	Command	= "SAVEPOINT " + SavePoint;
+		Command	= "SAVEPOINT " + SavePoint;
+	}
 
 	PGresult	*pResult	= PQexec(m_pgConnection, Command);
+	bool		 bResult	= PQresultStatus(pResult) == PGRES_COMMAND_OK;
 
-	if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
+	if( bResult )
 	{
-		_Error_Message(_TL("could not add savepoint"), m_pgConnection);
-
-		PQclear(pResult);
-
-		return( false );
+		m_bTransaction	= true;
+	}
+	else if( SavePoint.is_Empty() )
+	{
+		_Error_Message(_TL("begin transaction command failed"), m_pgConnection);
+	}
+	else
+	{
+		_Error_Message(_TL("could not add save point"), m_pgConnection);
 	}
 
 	PQclear(pResult);
 
-	return( true );
+	return( bResult );
 }
 
 //---------------------------------------------------------
@@ -1623,7 +1616,7 @@ bool CSG_PG_Module::Add_SRID_Picker(CSG_Parameters *pParameters)
 	CSG_Parameter	*pNode	= pParameters->Add_Value(
 		NULL	, "CRS_EPSG"	, _TL("EPSG Code"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 4326, -1, true, 99999, true
+		PARAMETER_TYPE_Int, -1, -1, true
 	);
 
 	if( SG_UI_Get_Window_Main() )

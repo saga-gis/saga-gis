@@ -205,16 +205,6 @@ CRaster_Save::CRaster_Save(void)
 		""
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "EXISTS"		, _TL("If table exists..."),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("abort export"),
-			_TL("replace existing table"),
-			_TL("append records, if table structure allows")
-		), 0
-	);
-
 	Add_SRID_Picker();
 }
 
@@ -231,18 +221,19 @@ bool CRaster_Save::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	CSG_String	Name	= Parameters("NAME")->asString();
+	CSG_String	SavePoint, Name	= Parameters("NAME")->asString();
 
 	if( Name.Length() == 0 )
 		return( false );
 
 	//-----------------------------------------------------
-	Get_Connection()->Begin();
+	Get_Connection()->Begin(SavePoint = Get_Connection()->is_Transaction() ? "RASTER_SAVE" : "");
 
+	//-----------------------------------------------------
 	if( !Get_Connection()->Table_Exists(Name)
 	&&  !Get_Connection()->Execute("CREATE TABLE \"" + Name + "\" (\"rid\" serial PRIMARY KEY, \"rast\" raster)") )
 	{
-		Get_Connection()->Rollback();
+		Get_Connection()->Rollback(SavePoint);
 
 		return( false );
 	}
@@ -252,20 +243,16 @@ bool CRaster_Save::On_Execute(void)
 	{
 		CSG_Bytes	WKB;
 
-		int	SRID	= Get_SRID();	if( SRID <= 0 )	SRID	= pGrids->asGrid(i)->Get_Projection().Get_EPSG();
-
-		if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), SRID) )
+		if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), Get_SRID()) )
 		{
 			CSG_String	SQL;
-
-		//	SQL	= "INSERT INTO \"" + Name + "\" (\"rast\") VALUES('" + WKB.toHexString() + "'::raster)";
 
 			SQL	= "INSERT INTO \"" + Name + "\" (\"rast\") VALUES(ST_AddBand('" + WKB.toHexString() + "'::raster, '"
 				+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL))";
 
 			if( !Get_Connection()->Execute(SQL) )
 			{
-				Get_Connection()->Rollback();
+				Get_Connection()->Rollback(SavePoint);
 
 				return( false );
 			}
@@ -273,7 +260,7 @@ bool CRaster_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Get_Connection()->Commit();
+	Get_Connection()->Commit(SavePoint);
 
 	Get_Connection()->GUI_Update();
 

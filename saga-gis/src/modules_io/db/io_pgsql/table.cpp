@@ -290,6 +290,11 @@ bool CTable_Save::On_Execute(void)
 	CSG_String	Name	= Parameters("NAME" )->asString();	if( Name.Length() == 0 )	Name	= pTable->Get_Name();
 
 	//-----------------------------------------------------
+	CSG_String	SavePoint;
+
+	Get_Connection()->Begin(SavePoint = Get_Connection()->is_Transaction() ? "SHAPES_SAVE" : "");
+
+	//-----------------------------------------------------
 	if( Get_Connection()->Table_Exists(Name) )
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("table already exists"), Name.c_str()));
@@ -328,8 +333,14 @@ bool CTable_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( bResult )
+	if( !bResult )
 	{
+		Get_Connection()->Rollback(SavePoint);
+	}
+	else
+	{
+		Get_Connection()->Commit(SavePoint);
+
 		Get_Connection()->GUI_Update();
 	}
 

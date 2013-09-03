@@ -360,7 +360,7 @@ bool CTransaction_Start::On_Execute(void)
 	}
 	else
 	{
-		if( Get_Connection()->Add_SavePoint(Parameters("SAVEPOINT")->asString()) )
+		if( Get_Connection()->Begin(Parameters("SAVEPOINT")->asString()) )
 		{
 			Message_Add(Get_Connection()->Get_Connection() + ": " + _TL("save point added"));
 

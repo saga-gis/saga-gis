@@ -199,7 +199,7 @@ bool CShapes_Save::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Shapes	*pShapes;
-	CSG_String	SQL, Name, Type, Field;
+	CSG_String	SQL, Name, Type, Field, SavePoint;
 
 	pShapes		= Parameters("SHAPES")->asShapes();
 	Name		= Parameters("NAME"  )->asString();	if( Name.Length() == 0 )	Name	= pShapes->Get_Name();
@@ -217,7 +217,7 @@ bool CShapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Get_Connection()->Begin();
+	Get_Connection()->Begin(SavePoint = Get_Connection()->is_Transaction() ? "SHAPES_SAVE" : "");
 
 	//-----------------------------------------------------
 	if( Get_Connection()->Table_Exists(Name) )
@@ -253,7 +253,7 @@ bool CShapes_Save::On_Execute(void)
 		{
 			Error_Set(_TL("could not create table"));
 
-			Get_Connection()->Rollback();
+			Get_Connection()->Rollback(SavePoint);
 
 			return( false );
 		}
@@ -271,7 +271,7 @@ bool CShapes_Save::On_Execute(void)
 		{
 			Error_Set(_TL("could not create geometry field"));
 
-			Get_Connection()->Rollback();
+			Get_Connection()->Rollback(SavePoint);
 
 			return( false );
 		}
@@ -348,12 +348,13 @@ bool CShapes_Save::On_Execute(void)
 	{
 		Message_Add(SQL);
 
-		Get_Connection()->Rollback();
+		Get_Connection()->Rollback(SavePoint);
 
 		return( false );
 	}
 
-	Get_Connection()->Commit();
+	Get_Connection()->Commit(SavePoint);
+
 	Get_Connection()->GUI_Update();
 
 	return( true );

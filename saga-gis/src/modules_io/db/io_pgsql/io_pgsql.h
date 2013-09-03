@@ -118,8 +118,7 @@ public:
 
 	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL);
 
-	bool						Begin					(void);
-	bool						Add_SavePoint			(const CSG_String &SavePoint);
+	bool						Begin					(const CSG_String &SavePoint = "");
 	bool						Rollback				(const CSG_String &SavePoint = "");
 	bool						Commit					(const CSG_String &SavePoint = "");
 	bool						is_Transaction			(void)	const	{	return( is_Connected() && m_bTransaction );	}
