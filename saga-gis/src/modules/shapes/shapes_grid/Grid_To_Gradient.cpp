@@ -246,8 +246,28 @@ bool CGrid_To_Gradient::On_Execute(void)
 	//-----------------------------------------------------
 	case 1:	// direction and length
 		{
-			CSG_Grid	Dir(System), *pDir	= Parameters("DIR")->asGrid();	Dir.Assign(pDir, Interpolation);
-			CSG_Grid	Len(System), *pLen	= Parameters("LEN")->asGrid();	Len.Assign(pLen, Interpolation);
+			CSG_Grid	*pDir	= Parameters("DIR")->asGrid(), _X(*Get_System());
+			CSG_Grid	*pLen	= Parameters("LEN")->asGrid(), _Y(*Get_System());
+
+			for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
+			{
+				for(x=0; x<Get_NX(); x++)
+				{
+					if( !pDir->is_NoData(x, y) && !pLen->is_NoData(x, y) )
+					{
+						_X.Set_Value(x, y, pLen->asDouble(x, y) * sin(pDir->asDouble(x, y)));
+						_Y.Set_Value(x, y, pLen->asDouble(x, y) * cos(pDir->asDouble(x, y)));
+					}
+					else
+					{
+						_X.Set_NoData(x, y);
+						_Y.Set_NoData(x, y);
+					}
+				}
+			}
+
+			CSG_Grid	X(System);	X.Assign(&_X, Interpolation);
+			CSG_Grid	Y(System);	Y.Assign(&_Y, Interpolation);
 
 			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pDir->Get_Name(), pLen->Get_Name()));
 
@@ -255,11 +275,11 @@ bool CGrid_To_Gradient::On_Execute(void)
 			{
 				for(x=0; x<System.Get_NX(); x++)
 				{
-					if( !Dir.is_NoData(x, y) && !Len.is_NoData(x, y) )
+					if( !X.is_NoData(x, y) && !Y.is_NoData(x, y) && (d = SG_Get_Length(X.asDouble(x, y), Y.asDouble(x, y))) > 0.0 )
 					{
-						EX.Set_Value(x, y, sin(Dir.asDouble(x, y)));
-						EY.Set_Value(x, y, cos(Dir.asDouble(x, y)));
-						D .Set_Value(x, y, tan(Len.asDouble(x, y)));
+						EX.Set_Value(x, y, X.asDouble(x, y) / d);
+						EY.Set_Value(x, y, Y.asDouble(x, y) / d);
+						D .Set_Value(x, y, d);
 					}
 				}
 			}
