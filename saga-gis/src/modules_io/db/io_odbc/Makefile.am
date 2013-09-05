@@ -9,7 +9,7 @@ DEP_DEFS = -D_SAGA_UNICODE
 endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS) -fpermissive $(GOMPFLAGS)
+AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = $(DEP_LFLG) $(DEP_LIBS) -shared -lodbc -avoid-version
 pkglib_LTLIBRARIES = libio_odbc.la
 libio_odbc_la_SOURCES =\

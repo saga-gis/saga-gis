@@ -167,7 +167,8 @@ bool CTable_Info::On_Execute(void)
 	CSG_String	Table	= Parameters("TABLES")->asString();
 	CSG_Table	*pTable	= Parameters("TABLE" )->asTable();
 
-	pTable->Assign(&Get_Connection()->Get_Field_Desc(Table));
+	CSG_Table tab = Get_Connection()->Get_Field_Desc(Table);
+	pTable->Assign(&tab);
 	pTable->Set_Name(Table + " [" + _TL("Field Description") + "]");
 
 	return( true );
