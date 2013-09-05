@@ -116,7 +116,7 @@ class CList_Conti
 public:
 	CList_Conti(void)
 	{
-		cat			= NULL;
+		cat			= 0;
 		count		= 0;
 		next		= NULL;
 		previous	= NULL;

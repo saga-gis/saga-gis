@@ -17,7 +17,7 @@
 //---------------------------------------------------------
 double earth_sun(char date[]);
 double julian_int(int year, int month, int day);
-double julian_char(char date[]);
+double julian_char(const char date[]);
 
 
 ///////////////////////////////////////////////////////////
@@ -2263,7 +2263,7 @@ double julian_int(int year, int month, int day)
 }
 
 /* Get Julian day form Gregorian string yyyy-mm-dd */
-double julian_char(char date[])
+double julian_char(const char date[])
 {
     int day, month, year;
 
