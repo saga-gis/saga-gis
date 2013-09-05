@@ -138,7 +138,7 @@ CErosion_LS_Fields::CErosion_LS_Fields(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "UPSLOPE_AREA"	, _TL("Upslope Area"),
+		NULL	, "UPSLOPE_AREA"	, _TL("Upslope Length Factor"),
 		"",
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -190,10 +190,12 @@ CErosion_LS_Fields::CErosion_LS_Fields(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD_AREA"		, _TL("Specific Catchment Area"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("1 / cell size"),
-			_TL("dependent on aspect"),
-			_TL("square root (catchment length)")
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("specific catchment area (contour length simply as cell size)"),
+			_TL("specific catchment area (contour length dependent on aspect)"),
+			_TL("catchment length (square root of catchment area)"),
+			_TL("effective flow length"),
+			_TL("total catchment area")
 		), 1
 	);
 
@@ -326,13 +328,13 @@ bool CErosion_LS_Fields::Get_Flow(void)
 
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		double	dzSum, dz[8], Slope, Aspect, Length;
+		double	dzSum, dz[8], Slope, Aspect;
 
 		if( m_pDEM->Get_Sorted(n, x, y) && !m_Fields.is_NoData(x, y) && m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
 		{
 			double	Up_Area		= m_pUp_Area  ->asDouble(x, y) + Get_Cellarea();
-			double	Up_Length	= m_pUp_Length->asDouble(x, y) + (Length = log(Up_Area));
-			double	Up_Slope	= m_pUp_Slope ->asDouble(x, y) + (Length * Slope);
+			double	Up_Length	= m_pUp_Length->asDouble(x, y) + log(Up_Area);
+			double	Up_Slope	= m_pUp_Slope ->asDouble(x, y) + log(Up_Area) * Slope;
 
 			//---------------------------------------------
 			if( (dzSum = Get_Flow(x, y, dz)) > 0.0 )
@@ -354,13 +356,29 @@ bool CErosion_LS_Fields::Get_Flow(void)
 			//---------------------------------------------
 			switch( m_Method_Area )
 			{
-			case  0:	m_pUp_Area->Set_Value(x, y, Up_Area / (Get_Cellsize()));	break;
-			default:	m_pUp_Area->Set_Value(x, y,	Up_Area / (Get_Cellsize() * (fabs(sin(Aspect)) + fabs(cos(Aspect)))));	break;
-			case  2:	m_pUp_Area->Set_Value(x, y, sqrt(Up_Area));					break;
+			case 0:	// specific catchment area (contour length simply as cell size)
+				m_pUp_Area->Set_Value(x, y, Up_Area / (Get_Cellsize()));
+				break;
+
+			case 1:	// specific catchment area (contour length dependent on aspect)
+				m_pUp_Area->Set_Value(x, y,	Up_Area / (Get_Cellsize() * (fabs(sin(Aspect)) + fabs(cos(Aspect)))));
+				break;
+
+			case 2:	// catchment length (square root of catchment area)
+				m_pUp_Area->Set_Value(x, y, sqrt(Up_Area));
+				break;
+
+			case 3:	// effective flow length
+				m_pUp_Area->Set_Value(x, y, Up_Length);
+				break;
+
+			case 4:	// total catchment area
+				m_pUp_Area->Set_Value(x, y, Up_Area);
+				break;
 			}
 
 			m_pUp_Length->Set_Value(x, y, Up_Length);
-			m_pUp_Slope ->Set_Value(x, y, Up_Slope / (Length > 0.0 ? Length : 0.0001));
+			m_pUp_Slope ->Set_Value(x, y, Up_Slope / (Up_Length > M_ALMOST_ZERO ? Up_Length : M_ALMOST_ZERO));
 		}
 	}
 
