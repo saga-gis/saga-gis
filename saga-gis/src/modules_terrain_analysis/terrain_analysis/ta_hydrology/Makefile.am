@@ -15,6 +15,7 @@ pkglib_LTLIBRARIES = libta_hydrology.la
 libta_hydrology_la_SOURCES =\
 CellBalance.cpp\
 EdgeContamination.cpp\
+Erosion_LS_Fields.cpp\
 Flow.cpp\
 Flow_AreaDownslope.cpp\
 Flow_AreaUpslope.cpp\
@@ -38,6 +39,7 @@ SlopeLength.cpp\
 TopographicIndices.cpp\
 CellBalance.h\
 EdgeContamination.h\
+Erosion_LS_Fields.h\
 Flow.h\
 Flow_AreaDownslope.h\
 Flow_AreaUpslope.h\

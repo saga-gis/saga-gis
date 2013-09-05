@@ -548,7 +548,7 @@ double CLS_Factor::Get_LS(double Slope, double Area)
 			//     the flow is toward a corner.
 			//     (Peter I. A. Kinnell: 'ALTERNATIVE APPROACHES FOR DETERMINING THE
 			//     USLE-M SLOPE LENGTH FACTOR FOR GRID CELLS'
-			//     http://soil.scijournals.org/cgi/content/full/69/3/674)
+			//     https://www.soils.org/publications/sssaj/abstracts/69/3/0674)
 
 			L			= (pow(Area + d*d, m + 1.0) - pow(Area, m + 1.0))
 						/ (pow(d, m + 2.0) * pow(22.13, m) * pow(x, m));

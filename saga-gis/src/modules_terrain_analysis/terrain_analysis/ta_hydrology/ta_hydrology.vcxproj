@@ -294,6 +294,7 @@
   <ItemGroup>
     <ClCompile Include="CellBalance.cpp" />
     <ClCompile Include="EdgeContamination.cpp" />
+    <ClCompile Include="Erosion_LS_Fields.cpp" />
     <ClCompile Include="Flow.cpp" />
     <ClCompile Include="FlowDepth.cpp" />
     <ClCompile Include="Flow_AreaDownslope.cpp" />
@@ -334,6 +335,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="CellBalance.h" />
     <ClInclude Include="EdgeContamination.h" />
+    <ClInclude Include="Erosion_LS_Fields.h" />
     <ClInclude Include="Flow.h" />
     <ClInclude Include="FlowDepth.h" />
     <ClInclude Include="Flow_AreaDownslope.h" />

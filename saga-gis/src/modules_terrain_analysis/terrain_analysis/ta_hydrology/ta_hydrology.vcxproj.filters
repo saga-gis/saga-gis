@@ -83,6 +83,9 @@
     <ClCompile Include="melton_ruggedness.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Erosion_LS_Fields.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -203,6 +206,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="melton_ruggedness.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Erosion_LS_Fields.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
