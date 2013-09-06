@@ -15,9 +15,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double earth_sun(char date[]);
-double julian_int(int year, int month, int day);
-double julian_char(const char date[]);
+double	julian_int	(int year, int month, int day);
+double	julian_char	(const char date[]);
+double	earth_sun	(const char date[]);
 
 
 ///////////////////////////////////////////////////////////
@@ -1226,8 +1226,6 @@ struct ln_vsop
 };
 
 double ln_calc_series(const struct ln_vsop *data, int terms, double t);
-double julian_int(int year, int month, int day);
-double julian_char(char date[]);
 
 static const struct ln_vsop earth_radius_r0[RADIUS_R0] = {
     {1.00013988784, 0.00000000000, 0.00000000000},
@@ -2225,7 +2223,6 @@ static const struct ln_vsop earth_radius_r5[RADIUS_R5] = {
     {0.00000000012, 0.65572878044, 12566.15169998280},
 };
 
-
 /* Use in earth-sun function */
 double ln_calc_series(const struct ln_vsop *data, int terms, double t)
 {
@@ -2275,7 +2272,7 @@ double julian_char(const char date[])
 }
 
 /* Earth-Sun distance in astronomical units */
-double earth_sun(char *date)
+double earth_sun(const char *date)
 {
     double t;
     double R0, R1, R2, R3, R4, R5;
