@@ -228,20 +228,18 @@ bool		SG_UI_Process_Set_Ready(void)
 //---------------------------------------------------------
 void		SG_UI_Process_Set_Text(const CSG_String &Text)
 {
-	if( gSG_UI_Progress_Lock > 0 )
+	if( gSG_UI_Progress_Lock == 0 )
 	{
-		return;
-	}
+		if( gSG_UI_Callback )
+		{
+			CSG_UI_Parameter	p1(Text), p2;
 
-	if( gSG_UI_Callback )
-	{
-		CSG_UI_Parameter	p1(Text), p2;
-
-		gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, p1, p2);
-	}
-	else
-	{
-		SG_PRINTF(SG_T("%s\n"), Text.c_str());
+			gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, p1, p2);
+		}
+		else
+		{
+			SG_PRINTF(SG_T("%s\n"), Text.c_str());
+		}
 	}
 }
 
@@ -275,7 +273,7 @@ bool		SG_UI_Stop_Execution(bool bDialog)
 //---------------------------------------------------------
 void		SG_UI_Dlg_Message(const CSG_String &Message, const CSG_String &Caption)
 {
-	if( gSG_UI_Progress_Lock > 0 )
+	if( gSG_UI_Progress_Lock == 0 )
 	{
 		if( gSG_UI_Callback )
 		{
