@@ -379,6 +379,33 @@ bool CSG_TIN_Triangle::is_Containing(double x, double y)
 }
 
 //---------------------------------------------------------
+bool CSG_TIN_Triangle::Get_Value(int zField, const TSG_Point &p, double &z)
+{
+	return( Get_Value(zField, p.x, p.y, z) );
+}
+
+bool CSG_TIN_Triangle::Get_Value(int zField, double x, double y, double &z)
+{
+	CSG_Vector	B, Z(3);
+	CSG_Matrix	M(3, 3), Mt;
+
+	for(int i=0; i<3; i++)
+	{
+		M[i][0]	= 1.0;
+		M[i][1]	= m_Nodes[i]->Get_X();
+		M[i][2]	= m_Nodes[i]->Get_Y();
+		Z[i]	= m_Nodes[i]->asDouble(zField);
+	}
+
+	Mt	= M.Get_Transpose();
+	B	= (Mt * M).Get_Inverse() * (Mt * Z);
+
+	z	= B[0] + B[1] * x + B[2] * y;
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_TIN_Triangle::Get_Gradient(int zField, double &Decline, double &Azimuth)
 {
 	int		i;

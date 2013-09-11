@@ -176,8 +176,11 @@ public:
 
 	double						Get_Area				(void)			{	return( m_Area );	}
 
-	bool						is_Containing			(const TSG_Point &Point);
+	bool						is_Containing			(const TSG_Point &p);
 	bool						is_Containing			(double x, double y);
+
+	bool						Get_Value				(int zField, const TSG_Point &p, double &z);
+	bool						Get_Value				(int zField, double x, double y, double &z);
 
 	bool						Get_Gradient			(int zField, double &Decline, double &Azimuth);
 
