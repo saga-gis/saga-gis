@@ -407,10 +407,10 @@ int CGeoref_Engine::_Get_Reference_Minimum(int Method, int Order)
 	default:							return(  0 );
 	case GEOREF_Triangulation:			return(  3 );
 	case GEOREF_Spline:					return(  3 );
-	case GEOREF_Affine:					return(  3 );	// 3: a + bx + cy	aka RST=rotation/scaling/translation
-	case GEOREF_Polynomial_1st_Order:	return(  4 );	// 4: a + bx + cy + dxy
-	case GEOREF_Polynomial_2nd_Order:	return(  6 );	// 6: a + bx + cy + dxy + ex^2 + fy^2
-	case GEOREF_Polynomial_3rd_Order:	return(  9 );	// 9: a + bx + cy + dxy + ex^2 + fy^2 + gx^3 + hy^3 + ix^2y^2
+	case GEOREF_Affine:					return(  3 );	//  3: a + bx + cy	aka RST=rotation/scaling/translation
+	case GEOREF_Polynomial_1st_Order:	return(  4 );	//  4: a + bx + cy + dxy
+	case GEOREF_Polynomial_2nd_Order:	return(  6 );	//  6: a + bx + cy + dxy + ex^2 + fy^2
+	case GEOREF_Polynomial_3rd_Order:	return( 10 );	// 10: a + bx + cy + dxy + ex^2 + fy^2 + gx^3 + hy^3 + ix^2y + jxy^2
 	case GEOREF_Polynomial:				return( Order > 0 ? (int)SG_Get_Square(Order + 1) : -1 );
 	}
 }
@@ -523,16 +523,17 @@ void CGeoref_Engine::_Get_Polynomial(double x, double y, double *z)
 
 	switch( m_Method )
 	{
-	case GEOREF_Polynomial_3rd_Order:	// 9: a + bx + cy + dxy + ex^2 + fy^2 + gx^2y^2 + hx^3 + iy^3
-		z[8]	= y*y*y;
-		z[7]	= x*x*x;
-		z[6]	= x*x*y*y;
-	case GEOREF_Polynomial_2nd_Order:	// 6: a + bx + cy + dxy + ex^2 + fy^2
+	case GEOREF_Polynomial_3rd_Order:	// 10: a + bx + cy + dxy + ex^2 + fy^2 + gx^2y + hxy^2 + ix^3 + jy^3
+		z[9]	= y*y*y;
+		z[8]	= x*x*x;
+		z[7]	= x*y*y;
+		z[6]	= x*x*y;
+	case GEOREF_Polynomial_2nd_Order:	//  6: a + bx + cy + dxy + ex^2 + fy^2
 		z[5]	= y*y;
 		z[4]	= x*x;
-	case GEOREF_Polynomial_1st_Order:	// 4: a + bx + cy + dxy
+	case GEOREF_Polynomial_1st_Order:	//  4: a + bx + cy + dxy
 		z[3]	= x*y;
-	case GEOREF_Affine:					// 3: a + bx + cy	aka RST=rotation/scaling/translation
+	case GEOREF_Affine:					//  3: a + bx + cy	aka RST=rotation/scaling/translation
 		z[2]	= y;
 		z[1]	= x;
 		break;
@@ -624,10 +625,11 @@ bool CGeoref_Engine::_Set_Polynomial(CSG_Points &From, CSG_Points &To, CSG_Vecto
 
 		switch( m_Method )
 		{
-		case GEOREF_Polynomial_3rd_Order:	// 9: a + bx + cy + dxy + ex^2 + fy^2 + gx^2y^2 + hx^3 + iy^3
-			M[i][8]	= y*y*y;
-			M[i][7]	= x*x*x;
-			M[i][6]	= x*x*y*y;
+		case GEOREF_Polynomial_3rd_Order:	// 10: a + bx + cy + dxy + ex^2 + fy^2 + gx^2y^2 + hx^3 + iy^3
+			M[i][9]	= y*y*y;
+			M[i][8]	= x*x*x;
+			M[i][7]	= x*y*y;
+			M[i][6]	= x*x*y;
 		case GEOREF_Polynomial_2nd_Order:	// 6: a + bx + cy + dxy + ex^2 + fy^2
 			M[i][5]	= y*y;
 			M[i][4]	= x*x;
@@ -685,8 +687,8 @@ bool CGeoref_Engine::_Get_Polynomial(double &x, double &y, CSG_Vector b[2])
 	switch( m_Method )
 	{
 	case GEOREF_Polynomial_3rd_Order:	// 9: a + bx + cy + dxy + ex^2 + fy^2 + gx^2y^2 + hx^3 + iy^3
-		p.x	+= b[0][6]*x*x*y*y + b[0][7]*x*x*x + b[0][8]*y*y*y;
-		p.y	+= b[1][6]*x*x*y*y + b[1][7]*x*x*x + b[1][8]*y*y*y;
+		p.x	+= b[0][6]*x*x*y + b[0][7]*x*y*y + b[0][8]*x*x*x + b[0][9]*y*y*y;
+		p.y	+= b[1][6]*x*x*y + b[1][7]*x*y*y + b[1][8]*x*x*x + b[1][9]*y*y*y;
 	case GEOREF_Polynomial_2nd_Order:	// 6: a + bx + cy + dxy + ex^2 + fy^2
 		p.x	+= b[0][4]*x*x + b[0][5]*y*y;
 		p.y	+= b[1][4]*x*x + b[1][5]*y*y;
