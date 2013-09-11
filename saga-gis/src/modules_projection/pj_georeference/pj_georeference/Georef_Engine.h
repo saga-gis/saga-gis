@@ -15,7 +15,7 @@
 //                                                       //
 //                    Georef_Engine.h                    //
 //                                                       //
-//                 Copyright (C) 2006 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,13 +40,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -82,31 +80,98 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	GEOREF_NotSet,
+	GEOREF_Triangulation,
+	GEOREF_Spline,
+	GEOREF_Affine,
+	GEOREF_Polynomial_1st_Order,
+	GEOREF_Polynomial_2nd_Order,
+	GEOREF_Polynomial_3rd_Order,
+	GEOREF_Polynomial
+};
+
+//---------------------------------------------------------
+#define GEOREF_METHODS_CHOICE	CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),\
+	_TL("Automatic"),\
+	_TL("Triangulation"),\
+	_TL("Spline"),\
+	_TL("Affine"),\
+	_TL("1st Order Polynomial"),\
+	_TL("2nd Order Polynomial"),\
+	_TL("3rd Order Polynomial"),\
+	_TL("Polynomial, Order")\
+)
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGeoref_Engine
 {
 public:
 	CGeoref_Engine(void);
-	virtual ~CGeoref_Engine(void);
 
-	bool			Set_Engine			(CSG_Shapes *pSource, CSG_Shapes *pTarget);
-	bool			Set_Engine			(CSG_Shapes *pSource, int xField, int yField);
+	bool					Destroy					(void);
 
-	bool			Get_Converted		(TSG_Point &Point   , bool bInverse = false);
-	bool			Get_Converted		(double &x, double &y, bool bInverse = false);
+	bool					Add_Reference			(TSG_Point From, TSG_Point To);
+	bool					Add_Reference			(double xFrom, double yFrom, double xTo, double yTo);
 
-	CSG_String		Get_Message			(void)	{	return( m_Message );	}
+	bool					Set_Reference			(CSG_Shapes *pFrom, CSG_Shapes *pTo);
+	bool					Set_Reference			(CSG_Shapes *pFrom, int xTo_Field, int yTo_Field);
+
+	int						Get_Reference_Count		(void)	{	return( m_From.Get_Count() );	}
+
+	bool					Get_Reference_Extent	(CSG_Rect &Extent, bool bInverse = false);
+
+	double					Get_Reference_Residual	(int i);
+
+	bool					Set_Scaling				(double Scaling);
+	double					Get_Scaling				(void)	{	return( m_Scaling );	}
+
+	bool					Evaluate				(int Method = GEOREF_NotSet, int Order = 1);
+
+	bool					is_Okay					(void)	{	return( m_Method != GEOREF_NotSet );	}
+
+	bool					Get_Converted			(TSG_Point &Point    , bool bInverse = false);
+	bool					Get_Converted			(double &x, double &y, bool bInverse = false);
+
+	CSG_String				Get_Error				(void)	{	return( m_Error );	}
 
 
 private:
 
-	int				m_nParms;
+	int						m_Method, m_Order;
 
-	double			m_x[10], m_x_inv[10];
+	double					m_Scaling;
 
-	CSG_String		m_Message;
+	CSG_String				m_Error;
+
+	CSG_Rect				m_rFrom, m_rTo;
+
+	CSG_Points				m_From, m_To;
+
+	CSG_Vector				m_Polynom_Fwd[2], m_Polynom_Inv[2];
+
+	CSG_Thin_Plate_Spline	m_Spline_Fwd[2], m_Spline_Inv[2];
+
+	CSG_TIN					m_TIN_Fwd, m_TIN_Inv;
 
 
-	bool			_Set_Engine			(CSG_Points *pPts_Source, CSG_Points *pPts_Target);
+	int						_Get_Reference_Minimum	(int Method, int Order);
+
+	bool					_Set_Triangulation		(void);
+	bool					_Get_Triangulation		(double &x, double &y, CSG_TIN *pTIN);
+
+	bool					_Set_Spline				(void);
+	bool					_Get_Spline				(double &x, double &y, CSG_Thin_Plate_Spline Spline[2]);
+
+	bool					_Set_Polynomial			(CSG_Points &From, CSG_Points &To, CSG_Vector Polynom[2]);
+	bool					_Get_Polynomial			(double &x, double &y, CSG_Vector Polynom[2]);
+	void					_Get_Polynomial			(double x, double y, double *z);
 
 };
 

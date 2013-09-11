@@ -40,13 +40,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -86,15 +84,13 @@ class CGeoref_Shapes : public CSG_Module
 {
 public:
 	CGeoref_Shapes(void);
-	virtual ~CGeoref_Shapes(void);
 
 
 protected:
 
-	virtual bool			On_Execute					(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-private:
+	virtual bool				On_Execute				(void);
 
 
 };

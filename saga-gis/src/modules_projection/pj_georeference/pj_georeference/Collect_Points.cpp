@@ -8,16 +8,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
-//                                                       //
-//                   Grid_Georeference                   //
+//                    Module Library:                    //
+//                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                   Collect_Points.cpp                  //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
-//                     Andre Ringeler                    //
+//                 Copyright (C) 2013 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,18 +40,14 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@gwdg.de                        //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
-
-// Completely rearranged by O.Conrad April 2006 !!!
 
 //---------------------------------------------------------
 
@@ -79,7 +74,7 @@ CCollect_Points::CCollect_Points(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Create Reference Points"));
 
-	Set_Author		(SG_T("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
 		"Digitize reference points for georeferencing grids, images and shapes. "
@@ -89,39 +84,65 @@ CCollect_Points::CCollect_Points(void)
 		"by unchecking it in the in the modules menu."
 	));
 
-
+	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
+		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "REF_TARGET"	, _TL("Reference Points (Projection)"),
+		NULL	, "REF_TARGET"	, _TL("Reference Points (Projection)"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Value(
+		NULL	, "REFRESH"		, _TL("Clear Reference Points"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters	= Add_Parameters("REFERENCE", _TL("Point Position"), _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "X"			, _TL("x Position"),
+		NULL	, "X"			, _TL("x Position"),
 		_TL(""),
 		PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "Y"			, _TL("y Position"),
+		NULL	, "Y"			, _TL("y Position"),
 		_TL(""),
 		PARAMETER_TYPE_Double
 	);
 }
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CCollect_Points::~CCollect_Points(void)
-{}
+bool CCollect_Points::is_Compatible(CSG_Shapes *pPoints)
+{
+	return( pPoints != DATAOBJECT_NOTSET && pPoints != DATAOBJECT_CREATE
+		&&  pPoints->Get_Count() > 0 &&  pPoints->Get_Field_Count() >= 5 );
+}
+
+//---------------------------------------------------------
+int CCollect_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_SOURCE") )
+	{
+		pParameters->Get_Parameter("REFRESH")->Set_Enabled(is_Compatible(pParameter->asShapes()));
+	}
+
+	return( 1 );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -133,16 +154,35 @@ CCollect_Points::~CCollect_Points(void)
 //---------------------------------------------------------
 bool CCollect_Points::On_Execute(void)
 {
-	m_pSource	= Parameters("REF_SOURCE")	->asShapes();
-	m_pSource	->Create(SHAPE_TYPE_Point, _TL("Reference Points (Origin)"));
-	m_pSource	->Add_Field("X", SG_DATATYPE_Double);
-	m_pSource	->Add_Field("Y", SG_DATATYPE_Double);
+	m_Engine.Destroy();
 
-	if( (m_pTarget = Parameters("REF_TARGET")->asShapes()) != NULL )
+	m_pPoints	= Parameters("REF_SOURCE")->asShapes();
+
+	if( !is_Compatible(m_pPoints) || Parameters("REFRESH")->asBool() )
 	{
-		m_pTarget	->Create(SHAPE_TYPE_Point, _TL("Reference Points (Projection)"));
-		m_pTarget	->Add_Field("X", SG_DATATYPE_Double);
-		m_pTarget	->Add_Field("Y", SG_DATATYPE_Double);
+		m_pPoints->Create(SHAPE_TYPE_Point, _TL("Reference Points (Origin)"));
+
+		m_pPoints->Add_Field("X_SRC", SG_DATATYPE_Double);
+		m_pPoints->Add_Field("Y_SRC", SG_DATATYPE_Double);
+		m_pPoints->Add_Field("X_MAP", SG_DATATYPE_Double);
+		m_pPoints->Add_Field("Y_MAP", SG_DATATYPE_Double);
+		m_pPoints->Add_Field("RESID", SG_DATATYPE_Double);
+	}
+	else
+	{
+		for(int i=0; i<m_pPoints->Get_Count(); i++)
+		{
+			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+
+			m_Engine.Add_Reference(
+				pPoint->asDouble(0),
+				pPoint->asDouble(1),
+				pPoint->asDouble(2),
+				pPoint->asDouble(3)
+			);
+		}
+
+		m_Engine.Evaluate();
 	}
 
 	return( true );
@@ -151,34 +191,68 @@ bool CCollect_Points::On_Execute(void)
 //---------------------------------------------------------
 bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
-	if( Mode == MODULE_INTERACTIVE_LUP && Dlg_Parameters("REFERENCE") )
+	if( Mode == MODULE_INTERACTIVE_LUP )
 	{
-		double	xSource, ySource, xTarget, yTarget;
-		CSG_Shape	*pShape;
+		TSG_Point	ptTarget;
 
-		xSource	= ptWorld.Get_X();
-		ySource	= ptWorld.Get_Y();
-
-		xTarget	= Get_Parameters("REFERENCE")->Get_Parameter("X")->asDouble();
-		yTarget	= Get_Parameters("REFERENCE")->Get_Parameter("Y")->asDouble();
-
-		pShape	= m_pSource->Add_Shape();
-		pShape	->Add_Point(xSource, ySource);
-		pShape	->Set_Value(0, xTarget);
-		pShape	->Set_Value(1, yTarget);
-
-		DataObject_Update(m_pSource);
-
-		if( m_pTarget )
+		if( m_Engine.Get_Converted(ptTarget = ptWorld) )
 		{
-			pShape	= m_pTarget->Add_Shape();
-			pShape	->Add_Point(xTarget, yTarget);
-			pShape	->Set_Value(0, xSource);
-			pShape	->Set_Value(1, ySource);
+			Get_Parameters("REFERENCE")->Get_Parameter("X")->Set_Value(ptTarget.x);
+			Get_Parameters("REFERENCE")->Get_Parameter("Y")->Set_Value(ptTarget.y);
+		}
 
-			DataObject_Update(m_pTarget);
+		if( Dlg_Parameters("REFERENCE") )
+		{
+			CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
+
+			pPoint->Add_Point(ptWorld);
+			pPoint->Set_Value(0, ptWorld.Get_X());
+			pPoint->Set_Value(1, ptWorld.Get_Y());
+			pPoint->Set_Value(2, ptTarget.x = Get_Parameters("REFERENCE")->Get_Parameter("X")->asDouble());
+			pPoint->Set_Value(3, ptTarget.y = Get_Parameters("REFERENCE")->Get_Parameter("Y")->asDouble());
+
+			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate() && m_pPoints->Get_Count() == m_Engine.Get_Reference_Count() )
+			{
+				for(int i=0; i<m_pPoints->Get_Count(); i++)
+				{
+					m_pPoints->Get_Shape(i)->Set_Value(4, m_Engine.Get_Reference_Residual(i));
+				}
+			}
+
+			DataObject_Update(m_pPoints);
 		}
 	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CCollect_Points::On_Execute_Finish(void)
+{
+	CSG_Shapes	*pTarget	= Parameters("REF_TARGET")->asShapes();
+
+	if( pTarget != NULL )
+	{
+		pTarget->Create(SHAPE_TYPE_Point, _TL("Reference Points (Projection)"));
+
+		pTarget->Add_Field("X_SRC", SG_DATATYPE_Double);
+		pTarget->Add_Field("Y_SRC", SG_DATATYPE_Double);
+		pTarget->Add_Field("X_MAP", SG_DATATYPE_Double);
+		pTarget->Add_Field("Y_MAP", SG_DATATYPE_Double);
+		pTarget->Add_Field("RESID", SG_DATATYPE_Double);
+
+		for(int iPoint=0; iPoint<m_pPoints->Get_Count(); iPoint++)
+		{
+			CSG_Shape	*pPoint	= pTarget->Add_Shape(m_pPoints->Get_Shape(iPoint), SHAPE_COPY_ATTR);
+
+			pPoint->Add_Point(
+				pPoint->asDouble(2),
+				pPoint->asDouble(3)
+			);
+		}
+	}
+
+	m_Engine.Destroy();
 
 	return( true );
 }

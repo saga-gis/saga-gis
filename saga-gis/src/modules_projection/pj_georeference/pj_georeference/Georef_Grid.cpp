@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                   Grid_Georeference                   //
+//                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                    Georef_Grid.cpp                    //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
-//                     Andre Ringeler                    //
+//                 Copyright (C) 2006 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,18 +40,14 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
-
-// Widely rearranged by O.Conrad April 2006 !!!
 
 //---------------------------------------------------------
 
@@ -75,102 +71,91 @@
 //---------------------------------------------------------
 CGeoref_Grid::CGeoref_Grid(void)
 {
-	CSG_Parameters	*pParameters;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
+	Set_Name		(_TL("Rectify Grid"));
 
-	Set_Name		(_TL("Georeferencing - Grids"));
-
-	Set_Author		(SG_T("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2006"));
 
 	Set_Description	(_TW(
-		"Georeferencing of grids. Either choose the attribute fields (x/y) "
+		"Georeferencing and rectification for grids. Either choose the attribute fields (x/y) "
 		"with the projected coordinates for the reference points (origin) or supply a "
 		"additional points layer with correspondend points in the target projection. "
-		"\n"
-		"This library uses the Minpack routines for solving the nonlinear equations and "
-		"nonlinear least squares problem. You find minpack and more information "
-		"about minpack at:\n"
-		"  <a target=\"_blank\" href=\"http://www.netlib.org/minpack\">"
-		"  http://www.netlib.org/minpack</a>\n"
-		"\n"
-		"or download the C source codes:\n"
-		"  <a target=\"_blank\" href=\"http://www.netlib.org/minpack/cminpack.tar\">"
-		"  http://www.netlib.org/minpack/cminpack.tar</a>\n"
 	));
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Shapes_Output(
-		NULL	, "SHAPES"	, _TL("Shapes"),
-		_TL("")
-	);
-
-
-	CSG_Parameter	*pSource	= Parameters.Add_Shapes(
+	pNode	= Parameters.Add_Shapes(
 		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "REF_TARGET"	, _TL("Reference Points (Projection)"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Table_Field(
-		pSource	, "XFIELD"		, _TL("x Position"),
+		pNode	, "XFIELD"		, _TL("x Position"),
 		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
-		pSource	, "YFIELD"		, _TL("y Position"),
+		pNode	, "YFIELD"		, _TL("y Position"),
 		_TL("")
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
+		_TL(""),
+		GEOREF_METHODS_CHOICE, 0
+	);
 
+	Parameters.Add_Value(
+		NULL	, "ORDER"		,_TL("Polynomial Order"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 3, 1, true
+	);
+
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		Parameters("SOURCE_NODE"),
-		"SOURCE"		, _TL("Source"),
+		NULL	, "GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
+		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neigbhor"),
-			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
-			_TL("Bicubic Spline Interpolation"),
-			_TL("B-Spline Interpolation")
+			_TL("nearest neigbhour"),
+			_TL("bilinear"),
+			_TL("inverse distance"),
+			_TL("bicubic spline"),
+			_TL("B-spline")
 		), 4
 	);
 
-
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE"),
-		"TARGET_TYPE"	, _TL("Target"),
+		NULL	, "TARGET_TYPE"	, _TL("Target"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("user defined"),
-			_TL("grid"),
-			_TL("shapes")
+			_TL("grid or grid system"),
+			_TL("points from grid nodes")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid"), _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid"      ), _TL("")));
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
-
-	pParameters->Add_Shapes(
-		NULL, "SHAPES"		, _TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
+	Add_Parameters("GET_POINTS", _TL("Grid Nodes as Points"), _TL(""))->Add_Shapes(
+		NULL, "POINTS", _TL("Grid Nodes"), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 }
 
@@ -187,6 +172,28 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
+//---------------------------------------------------------
+int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_TARGET") )
+	{
+		pParameters->Get_Parameter("XFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
+		pParameters->Get_Parameter("YFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Get_Parameter("ORDER")->Set_Enabled(pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET_TYPE") )
+	{
+		pParameters->Get_Parameter("INTERPOLATION")->Set_Enabled(pParameter->asInt() != 2);	// don't show for points
+	}
+
+	return( 1 );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -197,25 +204,35 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGeoref_Grid::On_Execute(void)
 {
-	int		xField, yField;
-	CSG_Shapes	*pShapes_A, *pShapes_B;
+	//-----------------------------------------------------
+	CSG_Shapes	*pShapes_A	= Parameters("REF_SOURCE")->asShapes();
+	CSG_Shapes	*pShapes_B	= Parameters("REF_TARGET")->asShapes();
+
+	int	xField	= Parameters("XFIELD")->asInt();
+	int	yField	= Parameters("YFIELD")->asInt();
 
 	//-----------------------------------------------------
-	pShapes_A	= Parameters("REF_SOURCE")	->asShapes();
-	pShapes_B	= Parameters("REF_TARGET")	->asShapes();
-	xField		= Parameters("XFIELD")		->asInt();
-	yField		= Parameters("YFIELD")		->asInt();
-
-	//-----------------------------------------------------
-	if( ( pShapes_B && m_Engine.Set_Engine(pShapes_A, pShapes_B))
-	||	(!pShapes_B && m_Engine.Set_Engine(pShapes_A, xField, yField))	)
+	if( ( pShapes_B && m_Engine.Set_Reference(pShapes_A, pShapes_B))
+	||	(!pShapes_B && m_Engine.Set_Reference(pShapes_A, xField, yField))	)
 	{
-		Message_Add(m_Engine.Get_Message());
+		int	Method	= Parameters("METHOD")->asInt();
+		int	Order	= Parameters("ORDER" )->asInt();
 
-		return( Get_Conversion() );
+		if( m_Engine.Evaluate(Method, Order) && Get_Conversion() )
+		{
+			m_Engine.Destroy();
+
+			return( true );
+		}
 	}
 
-	Error_Set(m_Engine.Get_Message());
+	//-----------------------------------------------------
+	if( !m_Engine.Get_Error().is_Empty() )
+	{
+		Error_Set(m_Engine.Get_Error());
+	}
+
+	m_Engine.Destroy();
 
 	return( false );
 }
@@ -232,15 +249,15 @@ bool CGeoref_Grid::Get_Conversion(void)
 {
 	int				Interpolation;
 	TSG_Data_Type	Type;
-	TSG_Rect		Extent;
-	CSG_Grid		*pSource, *pGrid;
-	CSG_Shapes		*pShapes;
+	CSG_Rect		Extent;
+	CSG_Grid		*pSource, *pReferenced;
+	CSG_Shapes		*pPoints;
 
 	//-----------------------------------------------------
-	pSource			= Parameters("SOURCE")->asGrid();
+	pSource			= Parameters("GRID")->asGrid();
 
-	pGrid			= NULL;
-	pShapes			= NULL;
+	pReferenced		= NULL;
+	pPoints			= NULL;
 
 	Interpolation	= Parameters("INTERPOLATION")->asInt();
 	Type			= Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
@@ -249,223 +266,199 @@ bool CGeoref_Grid::Get_Conversion(void)
 	switch( Parameters("TARGET_TYPE")->asInt() )
 	{
 	case 0:	// create new user defined grid...
-		if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
+		if( Get_Target_Extent(Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
 		{
-			pGrid	= m_Grid_Target.Get_User(Type);
+			pReferenced	= m_Grid_Target.Get_User(Type);
 		}
 		break;
 
 	case 1:	// select grid...
 		if( Dlg_Parameters("GET_GRID") )
 		{
-			pGrid	= m_Grid_Target.Get_Grid(Type);
+			pReferenced	= m_Grid_Target.Get_Grid(Type);
 		}
 		break;
 
 	case 2:	// shapes...
-		if( Dlg_Parameters("GET_SHAPES") )
+		if( Dlg_Parameters("GET_POINTS") )
 		{
-			pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
+			pPoints	= Get_Parameters("GET_POINTS")->Get_Parameter("POINTS")->asShapes();
 
-			if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
+			if( pPoints == DATAOBJECT_NOTSET || pPoints == DATAOBJECT_CREATE )
 			{
-				Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
+				Get_Parameters("GET_POINTS")->Get_Parameter("POINTS")->Set_Value(pPoints = SG_Create_Shapes(SHAPE_TYPE_Point));
 			}
 		}
 		break;
 	}
 
 	//-----------------------------------------------------
-	if( pShapes )
+	if( pPoints )
 	{
-		Parameters("SHAPES")->Set_Value(pShapes);
-
-		Set_Shapes(pSource, pShapes);
+		return( Set_Points(pSource, pPoints) );
 	}
 
-	if( pGrid )
+	if( pReferenced )
 	{
-		Set_Grid(pSource, pGrid, Interpolation);
+		return( Set_Grid(pSource, pReferenced, Interpolation) );
+	}
+
+	//-----------------------------------------------------
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGeoref_Grid::Get_Target_Extent(CSG_Rect &Extent, bool bEdge)
+{
+	if( Parameters("METHOD")->asInt() == GEOREF_Triangulation )	// triangulation
+	{
+		return( m_Engine.Get_Reference_Extent(Extent) );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	Extent.m_rect.xMin	= Extent.m_rect.yMin	= 1.0;
+	Extent.m_rect.xMax	= Extent.m_rect.yMax	= 0.0;
+
+	//-----------------------------------------------------
+	if( bEdge )
+	{
+		for(int y=0; y<pGrid->Get_NY(); y++)
+		{
+			Add_Target_Extent(Extent, pGrid->Get_XMin(), pGrid->Get_System().Get_yGrid_to_World(y));
+			Add_Target_Extent(Extent, pGrid->Get_XMax(), pGrid->Get_System().Get_yGrid_to_World(y));
+		}
+
+		for(int x=0; x<pGrid->Get_NX(); x++)
+		{
+			Add_Target_Extent(Extent, pGrid->Get_System().Get_xGrid_to_World(x), pGrid->Get_YMin());
+			Add_Target_Extent(Extent, pGrid->Get_System().Get_xGrid_to_World(x), pGrid->Get_YMax());
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
+		{
+			for(int x=0; x<pGrid->Get_NX(); x++)
+			{
+				if( !pGrid->is_NoData(x, y) )
+				{
+					TSG_Point	p	= pGrid->Get_System().Get_Grid_to_World(x, y);
+
+					Add_Target_Extent(Extent, p.x, p.y);
+				}
+			}
+		}
+	}
+
+	return( is_Progress() && Extent.Get_XRange() > 0.0 && Extent.Get_YRange() > 0.0 );
+}
+
+//---------------------------------------------------------
+inline void CGeoref_Grid::Add_Target_Extent(CSG_Rect &Extent, double x, double y)
+{
+	if( m_Engine.Get_Converted(x, y) )
+	{
+		if( Extent.Get_XRange() >= 0.0 && Extent.Get_YRange() >= 0.0 )
+		{
+			Extent.Union(CSG_Point(x, y));
+		}
+		else
+		{
+			Extent.Assign(x, y, x, y);
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, int Interpolation)
+{
+	if( !pGrid || !pReferenced || !m_Engine.is_Okay() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pReferenced->Set_Name	(pGrid->Get_Name());
+	pReferenced->Set_Unit	(pGrid->Get_Unit());
+	pReferenced->Set_ZFactor(pGrid->Get_ZFactor());
+	pReferenced->Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+
+	//-----------------------------------------------------
+	for(int y=0; y<pReferenced->Get_NY() && Set_Progress(y, pReferenced->Get_NY()); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<pReferenced->Get_NX(); x++)
+		{
+			double		z;
+			TSG_Point	p	= pReferenced->Get_System().Get_Grid_to_World(x, y);
+
+			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Interpolation) )
+			{
+				pReferenced->Set_Value(x, y, z);
+			}
+			else
+			{
+				pReferenced->Set_NoData(x, y);
+			}
+		}
 	}
 
 	//-----------------------------------------------------
 	return( true );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-inline void CGeoref_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
+bool CGeoref_Grid::Set_Points(CSG_Grid *pGrid, CSG_Shapes *pReferenced)
 {
-	if( m_Engine.Get_Converted(x, y) )
-	{
-		if( r.xMin > r.xMax )
-		{
-			r.xMin	= r.xMax	= x;
-		}
-		else if( r.xMin > x )
-		{
-			r.xMin	= x;
-		}
-		else if( r.xMax < x )
-		{
-			r.xMax	= x;
-		}
-
-		if( r.yMin > r.yMax )
-		{
-			r.yMin	= r.yMax	= y;
-		}
-		else if( r.yMin > y )
-		{
-			r.yMin	= y;
-		}
-		else if( r.yMax < y )
-		{
-			r.yMax	= y;
-		}
-	}
-}
-
-//---------------------------------------------------------
-bool CGeoref_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge)
-{
-	if( !pSource )
+	if( !pGrid || !pReferenced || pReferenced->Get_Type() != SHAPE_TYPE_Point || !m_Engine.is_Okay() )
 	{
 		return( false );
 	}
 
-	int			x, y;
+	//-----------------------------------------------------
+	pReferenced->Create(SHAPE_TYPE_Point, pGrid->Get_Name());
+	pReferenced->Add_Field("Z", SG_DATATYPE_Double);
 
-	Extent.xMin	= Extent.yMin	= 1.0;
-	Extent.xMax	= Extent.yMax	= 0.0;
-
-	if( bEdge )
+	//-----------------------------------------------------
+	for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
 	{
-		double		d;
-
-		for(y=0, d=pSource->Get_YMin(); y<pSource->Get_NY(); y++, d+=pSource->Get_Cellsize())
+		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
-			Get_MinMax(Extent, pSource->Get_XMin(), d);
-			Get_MinMax(Extent, pSource->Get_XMax(), d);
-		}
-
-		for(x=0, d=pSource->Get_XMin(); x<pSource->Get_NX(); x++, d+=pSource->Get_Cellsize())
-		{
-			Get_MinMax(Extent, d, pSource->Get_YMin());
-			Get_MinMax(Extent, d, pSource->Get_YMax());
-		}
-	}
-	else
-	{
-		TSG_Point	p;
-
-		for(y=0, p.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, p.y+=pSource->Get_Cellsize())
-		{
-			for(x=0, p.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, p.x+=pSource->Get_Cellsize())
+			if( !pGrid->is_NoData(x, y) )
 			{
-				if( !pSource->is_NoData(x, y) )
+				TSG_Point	Point	= pGrid->Get_System().Get_Grid_to_World(x, y);
+
+				if( m_Engine.Get_Converted(Point) )
 				{
-					Get_MinMax(Extent, p.x, p.y);
+					CSG_Shape	*pPoint	= pReferenced->Add_Shape();
+
+					pPoint->Add_Point(Point);
+					pPoint->Set_Value(0, pGrid->asDouble(x, y));
 				}
 			}
 		}
 	}
 
-	return( is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGeoref_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpolation)
-{
-	int			x, y;
-	double		z;
-	TSG_Point	Pt_Source, Pt_Target;
-
-	if( pSource && pTarget )
-	{
-		pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
-		pTarget->Set_ZFactor(pSource->Get_ZFactor());
-		pTarget->Set_Name	(pSource->Get_Name());
-		pTarget->Set_Unit	(pSource->Get_Unit());
-
-		pTarget->Assign_NoData();
-
-		//-------------------------------------------------
-		for(y=0, Pt_Target.y=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, Pt_Target.y+=pTarget->Get_Cellsize())
-		{
-			for(x=0, Pt_Target.x=pTarget->Get_XMin(); x<pTarget->Get_NX(); x++, Pt_Target.x+=pTarget->Get_Cellsize())
-			{
-				Pt_Source	= Pt_Target;
-
-				if( m_Engine.Get_Converted(Pt_Source, true) )
-				{
-					z	= pSource->Get_Value(
-							pSource->Get_XMin() + Pt_Source.x * pSource->Get_Cellsize(),
-							pSource->Get_YMin() + Pt_Source.y * pSource->Get_Cellsize(),
-							Interpolation
-						);
-
-					if( !pSource->is_NoData_Value(z) )
-					{
-						pTarget->Set_Value(x, y, z);
-					}
-				}
-			}
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CGeoref_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
-{
-	int			x, y;
-	TSG_Point	Pt_Source, Pt_Target;
-	CSG_Shape		*pShape;
-
-	if( pSource && pTarget )
-	{
-		pTarget->Create(SHAPE_TYPE_Point, pSource->Get_Name());
-		pTarget->Add_Field("Z", SG_DATATYPE_Double);
-
-		for(y=0, Pt_Source.y=0; y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=1)
-		{
-			for(x=0, Pt_Source.x=0; x<pSource->Get_NX(); x++, Pt_Source.x+=1)
-			{
-				if( !pSource->is_NoData(x, y) )
-				{
-					Pt_Target	= Pt_Source;
-
-					if( m_Engine.Get_Converted(Pt_Target) )
-					{
-						pShape		= pTarget->Add_Shape();
-						pShape->Add_Point(Pt_Target);
-						pShape->Set_Value(0, pSource->asDouble(x, y));
-					}
-				}
-			}
-		}
-
-		return( true );
-	}
-
-	return( false );
+	//-----------------------------------------------------
+	return( true );
 }
 
 

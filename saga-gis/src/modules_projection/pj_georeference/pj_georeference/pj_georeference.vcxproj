@@ -294,15 +294,10 @@
   <ItemGroup>
     <ClCompile Include="Collect_Points.cpp" />
     <ClCompile Include="direct_georeferencing.cpp" />
-    <ClCompile Include="enorm.c" />
-    <ClCompile Include="fdjac2.c" />
     <ClCompile Include="Georef_Engine.cpp" />
     <ClCompile Include="Georef_Grid.cpp" />
     <ClCompile Include="georef_grid_move.cpp" />
     <ClCompile Include="Georef_Shapes.cpp" />
-    <ClCompile Include="lmdif.c" />
-    <ClCompile Include="lmdif0.c" />
-    <ClCompile Include="lmpar.c" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -313,8 +308,6 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="qrfac.c" />
-    <ClCompile Include="qrsolv.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -323,10 +316,8 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
-    <ClInclude Include="cminpak.h" />
     <ClInclude Include="Collect_Points.h" />
     <ClInclude Include="direct_georeferencing.h" />
-    <ClInclude Include="dpmpar.h" />
     <ClInclude Include="Georef_Engine.h" />
     <ClInclude Include="Georef_Grid.h" />
     <ClInclude Include="georef_grid_move.h" />

@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                   Grid_Georeference                   //
+//                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                     Georef_Grid.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                    Andre Ringeler                     //
+//                 Copyright (C) 2006 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,13 +40,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -72,8 +70,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
 #include "Georef_Engine.h"
 
 
@@ -92,9 +88,10 @@ public:
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
@@ -106,11 +103,11 @@ private:
 
 	bool						Get_Conversion			(void);
 
-	void						Get_MinMax				(TSG_Rect &r, double x, double y);
-	bool						Get_Target_Extent		(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge);
+	bool						Get_Target_Extent		(CSG_Rect &Extent, bool bEdge);
+	void						Add_Target_Extent		(CSG_Rect &Extent, double x, double y);
 
-	bool						Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpolation);
-	bool						Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
+	bool						Set_Grid				(CSG_Grid *pGrid, CSG_Grid   *pReferenced, int Interpolation);
+	bool						Set_Points				(CSG_Grid *pGrid, CSG_Shapes *pReferenced);
 
 };
 

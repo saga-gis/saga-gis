@@ -17,27 +17,6 @@
     <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="enorm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fdjac2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lmdif.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lmdif0.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lmpar.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="qrfac.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="qrsolv.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Collect_Points.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,13 +91,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="cminpak.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Collect_Points.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dpmpar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Georef_Engine.h">
