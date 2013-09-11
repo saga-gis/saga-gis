@@ -151,6 +151,7 @@ bool CWKSP_Shapes::On_Edit_On_Key_Down(int KeyCode)
 			return( _Edit_Shape_Del() );
 
 	case WXK_RETURN:
+	case WXK_SPACE:
 		if( !m_Edit_pShape )
 			return( _Edit_Shape_Start() );
 		else
