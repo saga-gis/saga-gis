@@ -136,7 +136,8 @@ public:
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Table);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
 
-	bool						Raster_Load				(CSG_Bytes_Array &Data, const CSG_String &Table , const CSG_String &Field , const CSG_String &Where = "", const CSG_String &Order = "");
+	bool						Raster_Load				(const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", const CSG_String &Names = "", CSG_Parameter_Grid_List *pList = NULL);
+	bool						Raster_Save				(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Field);
 	
 
 private:

@@ -112,55 +112,15 @@ void CRaster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CRaster_Load::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_String	Name, Field;
-	CSG_Table	Table;
-
-	Name	= Parameters("TABLES")->asString();
-
-	if( !Get_Connection()->Table_Load(Table, "raster_columns", "*", CSG_String("r_table_name = '") + Name + "'") )
-	{
-		return( false );
-	}
-
-	if( Table.Get_Count() != 1 )
-	{
-		return( false );
-	}
-
-	Field	= Table[0].asString("r_raster_column");
-
-	//-----------------------------------------------------
-	CSG_Bytes_Array	Bands;
-
-	if( !Get_Connection()->Raster_Load(Bands, Name, Field) )//, "rid=4") )
-	{
-		return( false );
-	}
+	CSG_String	Table	= Parameters("TABLES")->asString();
 
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
 	pGrids->Del_Items();
 
-	Process_Set_Text(_TL("data conversion"));
-
-	for(int i=0; i<Bands.Get_Count(); i++)
+	if( !Get_Connection()->Raster_Load(Table, "", "", "", pGrids) )//, "rid=4") )
 	{
-		if( Bands[i].Get_Count() > 0 )
-		{
-			CSG_Grid	*pGrid	= SG_Create_Grid();
-
-			if( CSG_Grid_OGIS_Converter::from_WKBinary(Bands[i], pGrid) )
-			{
-				pGrid->Set_Name(Bands.Get_Count() == 2 ? Name : CSG_String::Format(SG_T("%s [%02d]"), Name.c_str(), i + 1));
-
-				pGrids->Add_Item(pGrid);
-			}
-			else
-			{
-				delete(pGrid);
-			}
-		}
+		return( false );
 	}
 
 	return( pGrids->Get_Count() > 0 );
@@ -205,6 +165,12 @@ CRaster_Save::CRaster_Save(void)
 		""
 	);
 
+	Parameters.Add_Value(
+		NULL	, "GRID_NAME"	, _TL("Add Grid Name Field"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
 	Add_SRID_Picker();
 }
 
@@ -226,16 +192,23 @@ bool CRaster_Save::On_Execute(void)
 	if( Name.Length() == 0 )
 		return( false );
 
+	bool	bGridName	= Parameters("GRID_NAME")->asBool();
+
 	//-----------------------------------------------------
 	Get_Connection()->Begin(SavePoint = Get_Connection()->is_Transaction() ? "RASTER_SAVE" : "");
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Exists(Name)
-	&&  !Get_Connection()->Execute("CREATE TABLE \"" + Name + "\" (\"rid\" serial PRIMARY KEY, \"rast\" raster)") )
+	if( !Get_Connection()->Table_Exists(Name) )
 	{
-		Get_Connection()->Rollback(SavePoint);
+		CSG_String	SQL	= "CREATE TABLE \"" + Name + "\" (\"rid\" serial PRIMARY KEY, \"raster\" raster"
+			+ (bGridName ? ", \"name\" varchar(64))" : ")");
+		
+		if( !Get_Connection()->Execute(SQL) )
+		{
+			Get_Connection()->Rollback(SavePoint);
 
-		return( false );
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
@@ -243,12 +216,23 @@ bool CRaster_Save::On_Execute(void)
 	{
 		CSG_Bytes	WKB;
 
-		if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), Get_SRID()) )
-		{
-			CSG_String	SQL;
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %s [%d/%d]"), _TL("export grid"), pGrids->asGrid(i)->Get_Name(), i + 1, pGrids->Get_Count()));
 
-			SQL	= "INSERT INTO \"" + Name + "\" (\"rast\") VALUES(ST_AddBand('" + WKB.toHexString() + "'::raster, '"
-				+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL))";
+		if( !bGridName )
+		{
+			if( !Get_Connection()->Raster_Save(pGrids->asGrid(i), Get_SRID(), Name, "") )
+			{
+				Get_Connection()->Rollback(SavePoint);
+
+				return( false );
+			}
+		}
+		else if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), Get_SRID()) )
+		{
+			CSG_String	SQL	= "INSERT INTO \"" + Name + "\" (\"raster\", \"name\") VALUES("
+				+ "ST_AddBand('" + WKB.toHexString() + "'::raster, '"
+				+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL), '"
+				+ pGrids->asGrid(i)->Get_Name() + "')";
 
 			if( !Get_Connection()->Execute(SQL) )
 			{

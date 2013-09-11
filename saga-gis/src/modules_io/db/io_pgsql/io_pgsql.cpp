@@ -1177,14 +1177,27 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Raster_Load(CSG_Bytes_Array &Data, const CSG_String &Table, const CSG_String &Field, const CSG_String &Where, const CSG_String &Order)
+bool CSG_PG_Connection::Raster_Load(const CSG_String &Table, const CSG_String &Where, const CSG_String &Order, const CSG_String &Names, CSG_Parameter_Grid_List *pList)
 {
-	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	CSG_Table	Info;
+
+	if( !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
+	{
+		return( false );
+	}
+
+	CSG_String	Geometry	= Info[0].asString("r_raster_column");
+
+	//-----------------------------------------------------
+	if( Names.is_Empty() || !Table_Load(Info, Table, Names, Where, "", "", Order) )
+	{
+		Info.Destroy();
+	}
 
 	//-----------------------------------------------------
 	bool	bBinary	= true;
 
-	CSG_String	Select	= "COPY (SELECT ST_AsBinary(\"" + Field + "\") AS rastbin FROM \"" + Table + "\"";
+	CSG_String	Select	= "COPY (SELECT ST_AsBinary(\"" + Geometry + "\") AS rastbin FROM \"" + Table + "\"";
 
 	if( Where.Length() )	Select	+= SG_T(" WHERE ")    + Where;
 	if( Order.Length() )	Select	+= SG_T(" ORDER BY ") + Order;
@@ -1205,38 +1218,115 @@ bool CSG_PG_Connection::Raster_Load(CSG_Bytes_Array &Data, const CSG_String &Tab
 
 	//-----------------------------------------------------
 	char	*Bytes;
-	int		nBytes, last	= 0;
+	int		nBytes, nOkay, iBand;
 
-	Data.Destroy();
-
-	while( (nBytes	= PQgetCopyData(m_pgConnection, &Bytes, 0)) > 0 )
+	for(iBand=0, nOkay=0; SG_UI_Process_Get_Okay() && (nBytes = PQgetCopyData(m_pgConnection, &Bytes, 0)) > 0; iBand++)
 	{
-		CSG_Bytes	*pBand	= Data.Add();
+		CSG_Bytes	Band;
 
 		if( bBinary )
 		{
-			int		Offset	= Data.Get_Count() == 1 ? 25 : 6;
+			int		Offset	= iBand == 0 ? 25 : 6;
 
 			if( *((short *)Bytes) > 0 && nBytes > Offset )
 			{
-				pBand->Create((BYTE *)(Bytes + Offset), nBytes - Offset);
+				Band.Create((BYTE *)(Bytes + Offset), nBytes - Offset);
 			}
 		}
-		else
+		else if( nBytes > 3 )
 		{
-			if( nBytes > 3 )
-			{
-				pBand->fromHexString(Bytes + 3);
-			}
+			Band.fromHexString(Bytes + 3);
 		}
 
 		PQfreemem(Bytes);
+
+		//-------------------------------------------------
+		CSG_Grid	*pGrid	= SG_Create_Grid();
+
+		if( Band.Get_Count() > 0 && CSG_Grid_OGIS_Converter::from_WKBinary(Band, pGrid) )
+		{
+			if( iBand < Info.Get_Count() )
+			{
+				pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"  ), Table.c_str(), Info[iBand].asString(0)));
+			}
+			else
+			{
+				pGrid->Set_Name(CSG_String::Format(SG_T("%s [%02d]"), Table.c_str(), iBand + 1));
+			}
+
+			SG_Get_Data_Manager().Add(pGrid);
+
+			if( pList )
+			{
+				pList->Add_Item(pGrid);
+			}
+
+			nOkay++;
+		}
+		else
+		{
+			delete(pGrid);
+		}
 	}
 
 	//-----------------------------------------------------
 	PQclear(pResult);
 
-	return( Data.Get_Count() > 0 );
+	return( nOkay > 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Field)
+{
+	CSG_Table	Info;
+
+	if( !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
+	{
+		return( false );
+	}
+
+	CSG_String	Geometry	= Info[0].asString("r_raster_column");
+
+	//-----------------------------------------------------
+	bool	bBinary	= false;	// binary raster import not (yet??!!) supported
+
+	CSG_String	Select	= "COPY \"" + Table + "\" (\"" + Geometry + "\") FROM STDIN";	if( bBinary )	Select	+= " WITH (FORMAT 'binary')";
+
+	//-----------------------------------------------------
+	PGresult	*pResult	= PQexec(m_pgConnection, Select);
+
+	if( PQresultStatus(pResult) != PGRES_COPY_IN )
+	{
+		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Bytes	Band;
+
+	if( CSG_Grid_OGIS_Converter::to_WKBinary(Band, pGrid, SRID) )
+	{
+		if( bBinary )
+		{
+			PQputCopyData(m_pgConnection, (const char *)Band.Get_Bytes(), Band.Get_Count());
+		}
+		else
+		{
+			CSG_String	hex(Band.toHexString());
+
+			PQputCopyData(m_pgConnection, hex, hex.Length());
+		}
+
+		PQputCopyEnd (m_pgConnection, NULL);
+	}
+
+	//-----------------------------------------------------
+	PQclear(pResult);
+
+	return( true );
 }
 
 
