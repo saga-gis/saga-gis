@@ -308,7 +308,9 @@
     <ClCompile Include="table_change_field_type.cpp" />
     <ClCompile Include="Table_Create_Empty.cpp" />
     <ClCompile Include="Table_Enumerate.cpp" />
+    <ClCompile Include="table_field_deletion.cpp" />
     <ClCompile Include="Table_Rotate.cpp" />
+    <ClCompile Include="table_text_replacer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -335,7 +337,9 @@
     <ClInclude Include="table_change_field_type.h" />
     <ClInclude Include="Table_Create_Empty.h" />
     <ClInclude Include="Table_Enumerate.h" />
+    <ClInclude Include="table_field_deletion.h" />
     <ClInclude Include="Table_Rotate.h" />
+    <ClInclude Include="table_text_replacer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: table_text_replacer.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_Tools                      //
+//                     table_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 table_text_replacer.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//              SAGA User Group Associaton               //
+//                 Copyright (C) 2013 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,106 +40,73 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 
-
 ///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__table_text_replacer_H
+#define HEADER_INCLUDED__table_text_replacer_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Table - Tools") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002-2013") );
-
-	case MLB_INFO_Description:
-		return( _TL("") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Table|Tools") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Table_Create_Empty.h"
-#include "Table_Rotate.h"
-#include "Table_Enumerate.h"
-#include "Join_Tables.h"
-#include "table_change_date_format.h"
-#include "table_change_field_type.h"
-#include "table_change_color_format.h"
-#include "table_text_replacer.h"
-#include "table_field_deletion.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CTable_Create_Empty );
-	case  1:	return( new CTable_Rotate );
-	case  2:	return( new CTable_Enumerate );
-	case  3:	return( new CJoin_Tables );
-	case  4:	return( new CJoin_Tables_Shapes );
-	case  5:	return( new CTable_Change_Date_Format );
-	case  6:	return( new CTable_Change_Time_Format );
-	case  7:	return( new CTable_Change_Field_Type );
-	case  8:	return( new CTable_Append_Rows );
-	case  9:	return( new CTable_Change_Color_Format );
-	case 10:	return( new CTable_Text_Replacer );
-	case 11:	return( new CTable_Field_Deletion );
-
-	case 20:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CTable_Text_Replacer : public CSG_Module
+{
+public:
+	CTable_Text_Replacer(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
+
+
+private:
+
+	CSG_Table			*m_pReplacer;
+
+
+	int					Replace					(CSG_Table_Record *pRecord, int iField);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__table_text_replacer_H

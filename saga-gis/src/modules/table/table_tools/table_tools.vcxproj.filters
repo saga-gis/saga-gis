@@ -38,6 +38,12 @@
     <ClCompile Include="table_change_color_format.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="table_text_replacer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="table_field_deletion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -113,6 +119,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_change_color_format.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_text_replacer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_field_deletion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

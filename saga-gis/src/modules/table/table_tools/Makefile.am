@@ -20,7 +20,9 @@ table_change_date_format.cpp\
 table_change_field_type.cpp\
 Table_Create_Empty.cpp\
 Table_Enumerate.cpp\
+table_field_deletion.cpp\
 Table_Rotate.cpp\
+table_text_replacer.cpp\
 Join_Tables.h\
 MLB_Interface.h\
 table_change_color_format.h\
@@ -28,7 +30,9 @@ table_change_date_format.h\
 table_change_field_type.h\
 Table_Create_Empty.h\
 Table_Enumerate.h\
-Table_Rotate.h
+table_field_deletion.h\
+Table_Rotate.h\
+table_text_replacer.h
 
 libtable_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
