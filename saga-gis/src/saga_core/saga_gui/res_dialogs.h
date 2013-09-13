@@ -153,10 +153,12 @@ bool				DLG_Color				(long &Colour);
 
 bool				DLG_Font				(class CSG_Parameter *pFont);
 
-bool				DLG_Get_Number			(double &Number, const wxString &Caption, const wxString &Text);
-bool				DLG_Get_Number			(double &Number);
-bool				DLG_Get_Number			(int    &Number, const wxString &Caption, const wxString &Text);
-bool				DLG_Get_Number			(int    &Number);
+bool				DLG_Get_Text			(wxString &Value, const wxString &Caption, const wxString &Text);
+bool				DLG_Get_Text			(wxString &Value);
+bool				DLG_Get_Number			(double   &Value, const wxString &Caption, const wxString &Text);
+bool				DLG_Get_Number			(double   &Value);
+bool				DLG_Get_Number			(int      &Value, const wxString &Caption, const wxString &Text);
+bool				DLG_Get_Number			(int      &Value);
 
 bool				DLG_Directory			(wxString &Directory, const wxString &Caption);
 bool				DLG_Save				(wxString &File_Path, int ID_DLG);

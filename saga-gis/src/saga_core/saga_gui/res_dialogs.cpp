@@ -643,27 +643,13 @@ bool		DLG_Font(CSG_Parameter *pFont)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		DLG_Get_Number(double &Number, const wxString &Caption, const wxString &Text)
+bool		DLG_Get_Text(wxString &Value, const wxString &Caption, const wxString &Text)
 {
-	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), Text, Caption, wxString::Format(wxT("%f"), Number));
+	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), Text, Caption, Value);
 
-	return( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToDouble(&Number) );
-}
-
-bool		DLG_Get_Number(double &Number)
-{
-	return( DLG_Get_Number(Number, _TL("Input"), _TL("Please enter a numeric value:")) );
-}
-
-//---------------------------------------------------------
-bool		DLG_Get_Number(int &Number, const wxString &Caption, const wxString &Text)
-{
-	long				lValue;
-	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), Text, Caption, wxString::Format(wxT("%d"), Number));
-
-	if( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToLong(&lValue) )
+	if( dlg.ShowModal() == wxID_OK )
 	{
-		Number	= lValue;
+		Value	= dlg.GetValue();
 
 		return( true );
 	}
@@ -671,9 +657,43 @@ bool		DLG_Get_Number(int &Number, const wxString &Caption, const wxString &Text)
 	return( false );
 }
 
-bool		DLG_Get_Number(int &Number)
+bool		DLG_Get_Text(wxString &Value)
 {
-	return( DLG_Get_Number(Number, _TL("Input"), _TL("Please enter a numeric value:")) );
+	return( DLG_Get_Text(Value, _TL("Input"), _TL("Please enter a text:")) );
+}
+
+//---------------------------------------------------------
+bool		DLG_Get_Number(double &Value, const wxString &Caption, const wxString &Text)
+{
+	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), Text, Caption, wxString::Format(wxT("%f"), Value));
+
+	return( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToDouble(&Value) );
+}
+
+bool		DLG_Get_Number(double &Value)
+{
+	return( DLG_Get_Number(Value, _TL("Input"), _TL("Please enter a numeric value:")) );
+}
+
+//---------------------------------------------------------
+bool		DLG_Get_Number(int &Value, const wxString &Caption, const wxString &Text)
+{
+	long				lValue;
+	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), Text, Caption, wxString::Format(wxT("%d"), Value));
+
+	if( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToLong(&lValue) )
+	{
+		Value	= lValue;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+bool		DLG_Get_Number(int &Value)
+{
+	return( DLG_Get_Number(Value, _TL("Input"), _TL("Please enter a numeric value:")) );
 }
 
 
