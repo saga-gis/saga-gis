@@ -174,12 +174,10 @@ bool CCollect_Points::On_Execute(void)
 		{
 			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
-			m_Engine.Add_Reference(
-				pPoint->asDouble(0),
-				pPoint->asDouble(1),
+			m_Engine.Add_Reference(pPoint->Get_Point(0), CSG_Point(
 				pPoint->asDouble(2),
 				pPoint->asDouble(3)
-			);
+			));
 		}
 
 		m_Engine.Evaluate();

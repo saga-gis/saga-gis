@@ -127,6 +127,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DB_SOURCE_DELETE:		return( _TL("Delete") );
 	case ID_CMD_DB_TABLE_OPEN:			return( _TL("Load") );
 	case ID_CMD_DB_TABLE_DELETE:		return( _TL("Delete") );
+	case ID_CMD_DB_TABLE_RENAME:		return( _TL("Rename") );
+	case ID_CMD_DB_TABLE_INFO:			return( _TL("Field Description") );
 	case ID_CMD_DB_TABLE_FROM_QUERY:	return( _TL("Query") );
 
 	case ID_CMD_MODULES_OPEN:			return( _TL("Load Module Library") );

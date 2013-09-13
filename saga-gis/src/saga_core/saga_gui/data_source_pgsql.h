@@ -97,18 +97,22 @@ private:
 	void						On_Item_Menu		(wxTreeEvent &event);
 
 	void						On_Refresh			(wxCommandEvent &event);
-	void						On_Open_Source		(wxCommandEvent &event);
-	void						On_Close_Source		(wxCommandEvent &event);
-	void						On_Close_Sources	(wxCommandEvent &event);
-	void						On_Delete_Source	(wxCommandEvent &event);
-	void						On_Open_Table		(wxCommandEvent &event);
-	void						On_Drop_Table		(wxCommandEvent &event);
+	void						On_Source_Open		(wxCommandEvent &event);
+	void						On_Source_Close		(wxCommandEvent &event);
+	void						On_Sources_Close	(wxCommandEvent &event);
+	void						On_Source_Delete	(wxCommandEvent &event);
+	void						On_Table_Open		(wxCommandEvent &event);
+	void						On_Table_Rename		(wxCommandEvent &event);
+	void						On_Table_Info		(wxCommandEvent &event);
+	void						On_Table_Drop		(wxCommandEvent &event);
 
-	void						Open_Source			(const wxTreeItemId &Item);
-	void						Close_Source		(const wxTreeItemId &Item, bool bDelete);
-	void						Close_Sources		(void);
-	void						Open_Table			(const wxTreeItemId &Item);
-	void						Drop_Table			(const wxTreeItemId &Item);
+	void						Source_Open			(const wxTreeItemId &Item);
+	void						Source_Close		(const wxTreeItemId &Item, bool bDelete);
+	void						Sources_Close		(void);
+	void						Table_Open			(const wxTreeItemId &Item);
+	void						Table_Rename		(const wxTreeItemId &Item);
+	void						Table_Info			(const wxTreeItemId &Item);
+	void						Table_Drop			(const wxTreeItemId &Item);
 
 	wxTreeItemId				Find_Source			(const wxString &Server);
 	void						Update_Item			(const wxTreeItemId &Item);

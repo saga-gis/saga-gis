@@ -104,6 +104,33 @@ enum
 	IMG_GRID
 };
 
+//---------------------------------------------------------
+enum
+{
+	IO_PGSQL_Get_Connections	= 0,
+	IO_PGSQL_Get_Connection		= 1,
+	IO_PGSQL_Del_Connection		= 2,
+	IO_PGSQL_Del_Connections	= 3,
+	IO_PGSQL_Transaction_Start	= 4,
+	IO_PGSQL_Transaction_Stop	= 5,
+	IO_PGSQL_Execute_SQL		= 6,
+
+	IO_PGSQL_Table_List			= 10,
+	IO_PGSQL_Table_Info			= 11,
+	IO_PGSQL_Table_Load			= 12,
+	IO_PGSQL_Table_Save			= 13,
+	IO_PGSQL_Table_Drop			= 14,
+	IO_PGSQL_Table_Query		= 15,
+
+	IO_PGSQL_Shapes_Load		= 20,
+	IO_PGSQL_Shapes_Save		= 21,
+	IO_PGSQL_Shapes_SRID_Update	= 22,
+
+	IO_PGSQL_Raster_Load		= 30,
+	IO_PGSQL_Raster_Save		= 31,
+	IO_PGSQL_Raster_SRID_Update	= 32
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -152,7 +179,7 @@ bool	is_Connected	(const CSG_String &Server)
 	bool		bResult;
 	CSG_Table	Connections;
 
-	RUN_MODULE(0, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
+	RUN_MODULE(IO_PGSQL_Get_Connections, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
 	for(int i=0; bResult && i<Connections.Get_Count(); i++)
 	{
@@ -204,12 +231,14 @@ private:
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CData_Source_PgSQL, wxTreeCtrl)
 	EVT_MENU					(ID_CMD_DB_REFRESH				, CData_Source_PgSQL::On_Refresh)
-	EVT_MENU					(ID_CMD_DB_SOURCE_OPEN			, CData_Source_PgSQL::On_Open_Source)
-	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE			, CData_Source_PgSQL::On_Close_Source)
-	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE_ALL		, CData_Source_PgSQL::On_Close_Sources)
-	EVT_MENU					(ID_CMD_DB_SOURCE_DELETE		, CData_Source_PgSQL::On_Delete_Source)
-	EVT_MENU					(ID_CMD_DB_TABLE_OPEN			, CData_Source_PgSQL::On_Open_Table)
-	EVT_MENU					(ID_CMD_DB_TABLE_DELETE			, CData_Source_PgSQL::On_Drop_Table)
+	EVT_MENU					(ID_CMD_DB_SOURCE_OPEN			, CData_Source_PgSQL::On_Source_Open)
+	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE			, CData_Source_PgSQL::On_Source_Close)
+	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE_ALL		, CData_Source_PgSQL::On_Sources_Close)
+	EVT_MENU					(ID_CMD_DB_SOURCE_DELETE		, CData_Source_PgSQL::On_Source_Delete)
+	EVT_MENU					(ID_CMD_DB_TABLE_OPEN			, CData_Source_PgSQL::On_Table_Open)
+	EVT_MENU					(ID_CMD_DB_TABLE_RENAME			, CData_Source_PgSQL::On_Table_Rename)
+	EVT_MENU					(ID_CMD_DB_TABLE_INFO			, CData_Source_PgSQL::On_Table_Info)
+	EVT_MENU					(ID_CMD_DB_TABLE_DELETE			, CData_Source_PgSQL::On_Table_Drop)
 
 	EVT_TREE_ITEM_ACTIVATED		(ID_WND_DATA_SOURCE_DATABASE	, CData_Source_PgSQL::On_Item_Activated)
 	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_DATA_SOURCE_DATABASE	, CData_Source_PgSQL::On_Item_RClick)
@@ -292,39 +321,51 @@ void CData_Source_PgSQL::On_Refresh(wxCommandEvent &WXUNUSED(event))
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::On_Open_Source(wxCommandEvent &WXUNUSED(event))
+void CData_Source_PgSQL::On_Source_Open(wxCommandEvent &WXUNUSED(event))
 {
-	Open_Source(GetSelection());
+	Source_Open(GetSelection());
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::On_Close_Source(wxCommandEvent &WXUNUSED(event))
+void CData_Source_PgSQL::On_Source_Close(wxCommandEvent &WXUNUSED(event))
 {
-	Close_Source(GetSelection(), false);
+	Source_Close(GetSelection(), false);
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::On_Close_Sources(wxCommandEvent &WXUNUSED(event))
+void CData_Source_PgSQL::On_Sources_Close(wxCommandEvent &WXUNUSED(event))
 {
-	Close_Sources();
+	Sources_Close();
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::On_Delete_Source(wxCommandEvent &WXUNUSED(event))
+void CData_Source_PgSQL::On_Source_Delete(wxCommandEvent &WXUNUSED(event))
 {
-	Close_Source(GetSelection(), true);
+	Source_Close(GetSelection(), true);
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::On_Open_Table(wxCommandEvent &WXUNUSED(event))
+void CData_Source_PgSQL::On_Table_Open(wxCommandEvent &WXUNUSED(event))
 {
-	Open_Table(GetSelection());
+	Table_Open(GetSelection());
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::On_Drop_Table(wxCommandEvent &WXUNUSED(event))
+void CData_Source_PgSQL::On_Table_Rename(wxCommandEvent &WXUNUSED(event))
 {
-	Drop_Table(GetSelection());
+	Table_Rename(GetSelection());
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::On_Table_Info(wxCommandEvent &WXUNUSED(event))
+{
+	Table_Info(GetSelection());
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::On_Table_Drop(wxCommandEvent &WXUNUSED(event))
+{
+	Table_Drop(GetSelection());
 }
 
 
@@ -346,13 +387,13 @@ void CData_Source_PgSQL::On_Item_Activated(wxTreeEvent &event)
 		break;
 
 	case TYPE_SOURCE:
-		Open_Source(event.GetItem());
+		Source_Open(event.GetItem());
 		break;
 
 	case TYPE_TABLE:
 	case TYPE_SHAPES:
 	case TYPE_GRID:
-		Open_Table(event.GetItem());
+		Table_Open(event.GetItem());
 		break;
 	}
 }
@@ -400,7 +441,9 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 	case TYPE_SHAPES:
 	case TYPE_GRID:
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_OPEN);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_RENAME);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_DELETE);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_INFO);
 		break;
 	}
 
@@ -465,7 +508,7 @@ void CData_Source_PgSQL::Update_Sources(void)
 	bool		bResult;
 	CSG_Table	Connections;
 
-	RUN_MODULE(0, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
+	RUN_MODULE(IO_PGSQL_Get_Connections, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
 	for(int i=0; i<Connections.Get_Count(); i++)
 	{
@@ -532,7 +575,7 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 		bool		bResult;
 		CSG_Table	Tables;
 
-		RUN_MODULE(10, bResult,	// CTable_List
+		RUN_MODULE(IO_PGSQL_Table_List, bResult,	// CTable_List
 				SET_PARAMETER("CONNECTION", pData->Get_Value())
 			&&	SET_PARAMETER("TABLES"    , &Tables)
 		);
@@ -582,13 +625,13 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::Open_Source(const wxTreeItemId &Item)
+void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
 	if( pData->Get_Type() == TYPE_ROOT )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 1);	// CGet_Connection
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), IO_PGSQL_Get_Connection);	// CGet_Connection
 
 		if(	pModule && pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters()) )
 		{
@@ -611,7 +654,7 @@ void CData_Source_PgSQL::Open_Source(const wxTreeItemId &Item)
 			CSG_String	Port	= pData->Get_Server().AfterLast (':').BeforeFirst(']');
 			CSG_String	Name	= pData->Get_Server().BeforeLast('['); Name.Trim(true);
 
-			RUN_MODULE(1, bResult,	// CGet_Connection
+			RUN_MODULE(IO_PGSQL_Get_Connection, bResult,	// CGet_Connection
 					SET_PARAMETER("PG_HOST", Host)
 				&&	SET_PARAMETER("PG_PORT", Port)
 				&&	SET_PARAMETER("PG_NAME", Name)
@@ -628,13 +671,13 @@ void CData_Source_PgSQL::Open_Source(const wxTreeItemId &Item)
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::Close_Source(const wxTreeItemId &Item, bool bDelete)
+void CData_Source_PgSQL::Source_Close(const wxTreeItemId &Item, bool bDelete)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
 	if( pData->is_Connected() )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 2);	// CDel_Connection
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), IO_PGSQL_Del_Connection);	// CDel_Connection
 
 		if( pModule )
 		{
@@ -651,9 +694,9 @@ void CData_Source_PgSQL::Close_Source(const wxTreeItemId &Item, bool bDelete)
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::Close_Sources(void)
+void CData_Source_PgSQL::Sources_Close(void)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 3);	// CDel_Connections
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), IO_PGSQL_Del_Connections);	// CDel_Connections
 
 	if( pModule )
 	{
@@ -669,7 +712,7 @@ void CData_Source_PgSQL::Close_Sources(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
+void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
@@ -680,7 +723,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(12, bResult,	// CTable_Load
+		RUN_MODULE(IO_PGSQL_Table_Load, bResult,	// CTable_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 			&&	SET_PARAMETER("TABLE"     , pTable)
@@ -705,7 +748,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(20, bResult,	// CPGIS_Shapes_Load
+		RUN_MODULE(IO_PGSQL_Shapes_Load, bResult,	// CPGIS_Shapes_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 			&&	SET_PARAMETER("SHAPES"    , pShapes)
@@ -726,7 +769,7 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 	//-----------------------------------------------------
 	if( pData->Get_Type() == TYPE_GRID )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), 30);	// CPGIS_Raster_Load
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), IO_PGSQL_Raster_Load);	// CPGIS_Raster_Load
 
 		if( pModule )
 		{
@@ -739,7 +782,53 @@ void CData_Source_PgSQL::Open_Table(const wxTreeItemId &Item)
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::Drop_Table(const wxTreeItemId &Item)
+void CData_Source_PgSQL::Table_Rename(const wxTreeItemId &Item)
+{
+	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+
+	wxString	Name	= pData->Get_Value().c_str();
+
+	if( DLG_Get_Text(Name, _TL("Rename Table"), _TL("Name")) )
+	{
+		CSG_String	SQL	= "ALTER TABLE \"" + pData->Get_Value() + "\" RENAME TO \"" + CSG_String(&Name) + "\";";
+
+		bool	bResult;
+
+		RUN_MODULE(IO_PGSQL_Execute_SQL, bResult,
+				SET_PARAMETER("CONNECTION", pData->Get_Server())
+			&&	SET_PARAMETER("SQL"       , SQL)
+		);
+
+		if( bResult )
+		{
+			SetItemText(Item, Name);
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::Table_Info(const wxTreeItemId &Item)
+{
+	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_pgsql"), IO_PGSQL_Table_Info);
+
+	if( pModule )
+	{
+		pModule->On_Before_Execution();
+		pModule->Get_Parameters()->Set_Parameter("CONNECTION", pData->Get_Server());
+		pModule->Get_Parameters()->Set_Parameter("TABLES"    , pData->Get_Value ());
+		pModule->Get_Parameters()->Set_Parameter("TABLE"     , DATAOBJECT_NOTSET  );
+		
+		if( pModule->Execute() )
+		{
+			g_pData->Show(pModule->Get_Parameters()->Get_Parameter("TABLE")->asTable());
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::Table_Drop(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
@@ -749,7 +838,7 @@ void CData_Source_PgSQL::Drop_Table(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(14, bResult,	// CTable_Drop
+		RUN_MODULE(IO_PGSQL_Table_Drop, bResult,	// CTable_Drop
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 		);
