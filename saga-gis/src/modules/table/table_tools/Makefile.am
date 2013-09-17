@@ -22,6 +22,7 @@ Table_Create_Empty.cpp\
 Table_Enumerate.cpp\
 table_field_deletion.cpp\
 Table_Rotate.cpp\
+table_selection.cpp\
 table_text_replacer.cpp\
 Join_Tables.h\
 MLB_Interface.h\
@@ -32,6 +33,7 @@ Table_Create_Empty.h\
 Table_Enumerate.h\
 table_field_deletion.h\
 Table_Rotate.h\
+table_selection.h\
 table_text_replacer.h
 
 libtable_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

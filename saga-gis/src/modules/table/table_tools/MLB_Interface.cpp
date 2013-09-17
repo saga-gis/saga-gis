@@ -103,6 +103,7 @@ CSG_String Get_Info(int i)
 #include "table_change_color_format.h"
 #include "table_text_replacer.h"
 #include "table_field_deletion.h"
+#include "table_selection.h"
 
 
 //---------------------------------------------------------
@@ -124,6 +125,12 @@ CSG_Module *		Create_Module(int i)
 	case  9:	return( new CTable_Change_Color_Format );
 	case 10:	return( new CTable_Text_Replacer );
 	case 11:	return( new CTable_Field_Deletion );
+
+	case 15:	return( new CSelection_Copy );
+	case 16:	return( new CSelection_Delete );
+	case 17:	return( new CSelection_Invert );
+	case 18:	return( new CSelect_Numeric );
+	case 19:	return( new CSelect_String );
 
 	case 20:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );

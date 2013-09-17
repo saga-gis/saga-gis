@@ -44,6 +44,9 @@
     <ClCompile Include="table_field_deletion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="table_selection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_field_deletion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_selection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -310,6 +310,7 @@
     <ClCompile Include="Table_Enumerate.cpp" />
     <ClCompile Include="table_field_deletion.cpp" />
     <ClCompile Include="Table_Rotate.cpp" />
+    <ClCompile Include="table_selection.cpp" />
     <ClCompile Include="table_text_replacer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -339,6 +340,7 @@
     <ClInclude Include="Table_Enumerate.h" />
     <ClInclude Include="table_field_deletion.h" />
     <ClInclude Include="Table_Rotate.h" />
+    <ClInclude Include="table_selection.h" />
     <ClInclude Include="table_text_replacer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
