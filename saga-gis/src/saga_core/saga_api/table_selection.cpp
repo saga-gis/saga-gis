@@ -157,21 +157,24 @@ bool CSG_Table::Select(CSG_Table_Record *pRecord, bool bInvert)
 //---------------------------------------------------------
 int CSG_Table::Del_Selection(void)
 {
-	int		n	= 0;
-
-	if( m_nSelected > 0 )
+	if( m_nSelected <= 0 )
 	{
-		for(int i=m_nSelected-1; i>=0; i--)
-		{
-			if( Del_Record(m_Selected[i]) )
-			{
-				n++;
-			}
-		}
-
-		SG_FREE_SAFE(m_Selected);
-		m_nSelected	= 0;
+		return( 0 );
 	}
+
+	int		i, n	= 0;
+
+	for(i=m_nRecords-1; i>=0; i--)
+	{
+		if( m_Records[i]->is_Selected() && Del_Record(i) )
+		{
+			n++;
+		}
+	}
+
+	SG_FREE_SAFE(m_Selected);
+
+	m_nSelected	= 0;
 
 	return( n );
 }

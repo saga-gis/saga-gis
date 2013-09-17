@@ -767,15 +767,15 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 //---------------------------------------------------------
 bool CSG_Table::Del_Record(int iRecord)
 {
-	int		i, j;
-
 	if( iRecord >= 0 && iRecord < m_nRecords )
 	{
+		int		i;
+
 		delete(m_Records[iRecord]);
 
 		m_nRecords--;
 
-		for(i=iRecord, j=iRecord+1; i<m_nRecords; i++, j++)
+		for(i=iRecord; i<m_nRecords; i++)
 		{
 			m_Records[i]			= m_Records[i + 1];
 			m_Records[i]->m_Index	= i;
