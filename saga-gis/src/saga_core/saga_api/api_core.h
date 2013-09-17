@@ -149,6 +149,16 @@
 	#endif
 #endif	// _TYPEDEF_WORD
 
+//---------------------------------------------------------
+#if defined(_SAGA_MSW)
+	#include <float.h>
+	#define SG_is_NaN	_isnan
+#elif defined(isnan)
+	#define SG_is_NaN	isnan
+#else
+	#define SG_is_NaN(x)	(x != x)
+#endif
+
 
 ///////////////////////////////////////////////////////////
 //														 //
