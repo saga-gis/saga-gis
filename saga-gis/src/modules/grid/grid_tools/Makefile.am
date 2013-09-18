@@ -37,6 +37,7 @@ Grid_Shrink_Expand.cpp\
 Grid_SortRaster.cpp\
 Grid_ThresholdBuffer.cpp\
 Grid_Tiling.cpp\
+Grid_Transpose.cpp\
 Grid_Value_Reclassify.cpp\
 Grid_Value_Replace.cpp\
 Grid_Value_Replace_Interactive.cpp\
@@ -68,6 +69,7 @@ Grid_Shrink_Expand.h\
 Grid_SortRaster.h\
 Grid_ThresholdBuffer.h\
 Grid_Tiling.h\
+Grid_Transpose.h\
 Grid_Value_Reclassify.h\
 Grid_Value_Replace.h\
 Grid_Value_Replace_Interactive.h\

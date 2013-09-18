@@ -132,6 +132,8 @@ CSG_String Get_Info(int i)
 #include "Grid_Tiling.h"
 #include "Grid_Shrink_Expand.h"
 
+#include "Grid_Transpose.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -170,9 +172,11 @@ CSG_Module *		Create_Module(int i)
 	case 27: 	return( new CGrid_Tiling );
 	case 28: 	return( new CGrid_Shrink_Expand );
 	case 29: 	return( new CGrid_Gaps_Resampling );
-	}
+	case 30: 	return( new CGrid_Transpose );
 
-	return( NULL );
+	case 40:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 
