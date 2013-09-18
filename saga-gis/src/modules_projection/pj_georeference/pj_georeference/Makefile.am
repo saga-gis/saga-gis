@@ -20,13 +20,15 @@ Georef_Grid.cpp\
 georef_grid_move.cpp\
 Georef_Shapes.cpp\
 MLB_Interface.cpp\
+set_grid_georeference.cpp\
 Collect_Points.h\
 direct_georeferencing.h\
 Georef_Engine.h\
 Georef_Grid.h\
 georef_grid_move.h\
 Georef_Shapes.h\
-MLB_Interface.h
+MLB_Interface.h\
+set_grid_georeference.h
 
 libpj_georeference_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
