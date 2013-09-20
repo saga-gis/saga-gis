@@ -246,7 +246,7 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("http://www.wxwidgets.org/\n")
 		wxT("\n")
 		wxT("SAGA API includes the polygon clipping and offsetting library\n")
-		wxT("Clipper 5.1.6\n")
+		wxT("Clipper 6.0.0\n")
 		wxT("http://sourceforge.net/projects/polyclipping/\n")
 	);
 
