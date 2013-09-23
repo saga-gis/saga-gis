@@ -364,6 +364,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 
 	if( Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transform() )
 	{
+		double		s;
 		CSG_Vector	v(2);
 		CSG_Rect	r;
 
@@ -372,7 +373,20 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 		v[0]	= DataSet.Get_xMax();	v[1]	= DataSet.Get_yMax();	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
 		v[0]	= DataSet.Get_xMax();	v[1]	= DataSet.Get_yMin();	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
 
-		Transform.Assign(DataSet.Get_Cellsize() * SG_Get_Length(B[0][0], B[0][1]), r);
+		v[0]	= 0;	v[1] = 1;	v = B * v;	s	= fabs(v.Get_Length());
+		v[0]	= 1;	v[1] = 0;	v = B * v;
+
+		if( s != fabs(v.Get_Length()) )
+		{
+			if( s > fabs(v.Get_Length()) )
+			{
+				s	= fabs(v.Get_Length());
+			}
+
+			Message_Add(CSG_String::Format(SG_T("\n%s: %s\n\t%s: %f\n"), _TL("warning"), _TL("top-to-bottom and left-to-right cell sizes differ."), _TL("using cellsize"), s), false);
+		}
+
+		Transform.Assign(s, r);
 	}
 
 	//-----------------------------------------------------
