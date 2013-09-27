@@ -73,7 +73,8 @@ CAdd_Polygon_Attributes::CAdd_Polygon_Attributes(void)
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
 	Set_Description	(_TW(
-		""
+		"Spatial join for points. Retrieves for each point the selected "
+		"attributes from those polygon, which contain the point. "
 	));
 
 	//-----------------------------------------------------
@@ -95,10 +96,9 @@ CAdd_Polygon_Attributes::CAdd_Polygon_Attributes(void)
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
-		_TL("Attribute to add. Select none to add all"),
-		true
+	Parameters.Add_Table_Fields(
+		pNode	, "FIELDS"		, _TL("Attributes"),
+		_TL("Attributes to add. Select none to add all")
 	);
 }
 
@@ -112,55 +112,59 @@ CAdd_Polygon_Attributes::CAdd_Polygon_Attributes(void)
 //---------------------------------------------------------
 bool CAdd_Polygon_Attributes::On_Execute(void)
 {
-	int			inField, outField;
-	CSG_Shapes	*pInput, *pOutput, *pPolygons;
+	//-----------------------------------------------------
+	CSG_Parameter_Table_Fields	*pFields	= Parameters("FIELDS")->asTableFields();
+
+	if( pFields->Get_Count() == 0 )
+	{
+		Error_Set(_TL("No attributes in selection."));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT")		->asShapes();
-	pOutput		= Parameters("OUTPUT")		->asShapes();
-	pPolygons	= Parameters("POLYGONS")	->asShapes();
-	inField		= Parameters("FIELD")		->asInt();
+	CSG_Shapes	*pInput		= Parameters("INPUT")->asShapes();
 
-	//-----------------------------------------------------
 	if( !pInput->is_Valid() )
 	{
-		Message_Add(_TL("Invalid points layer."));
-
-		return( false );
-	}
-	else if( !pPolygons->is_Valid() )
-	{
-		Message_Add(_TL("Invalid polygon layer."));
+		Error_Set(_TL("Invalid points layer."));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+
+	if( !pPolygons->is_Valid() )
+	{
+		Error_Set(_TL("Invalid polygon layer."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes	*pOutput	= Parameters("OUTPUT")->asShapes();
+
 	if( pOutput && pOutput != pInput )
 	{
 		pOutput->Create(*pInput);
 	}
 	else
 	{
-		Parameters("RESULT")->Set_Value(pOutput	= pInput);
+		Parameters("OUTPUT")->Set_Value(pOutput	= pInput);
 	}
 
 	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), pPolygons->Get_Name()));
 
 	//-----------------------------------------------------
-	outField	= pOutput->Get_Field_Count();
+	int	outField	= pOutput->Get_Field_Count();
 
-	if( inField >= 0 && inField < pPolygons->Get_Field_Count() )
-	{	// add single attribute
-		pOutput->Add_Field(pPolygons->Get_Field_Name(inField), pPolygons->Get_Field_Type(inField));
-	}
-	else
-	{	// add all attributes
-		inField	= -1;
-
-		for(int iField=0; iField<pPolygons->Get_Field_Count(); iField++)
+	{
+		for(int iField=0; iField<pFields->Get_Count(); iField++)
 		{
-			pOutput->Add_Field(pPolygons->Get_Field_Name(iField), pPolygons->Get_Field_Type(iField));
+			int	jField	= pFields->Get_Index(iField);
+
+			pOutput->Add_Field(pPolygons->Get_Field_Name(jField), pPolygons->Get_Field_Type(jField));
 		}
 	}
 
@@ -172,25 +176,20 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 
 		if( pPolygon )
 		{
-			if( inField >= 0 )
-			{	// add single attribute
-				pPoint->Set_Value(outField, pPolygon->asString(inField));
-			}
-			else
-			{	// add all attributes
-				for(int iField=0; iField<pPolygons->Get_Field_Count(); iField++)
-				{
-					switch( pPolygons->Get_Field_Type(iField) )
-					{
-					case SG_DATATYPE_String:
-					case SG_DATATYPE_Date:
-						pPoint->Set_Value(outField + iField, pPolygon->asString(iField));
-						break;
+			for(int iField=0; iField<pFields->Get_Count(); iField++)
+			{
+				int	jField	= pFields->Get_Index(iField);
 
-					default:
-						pPoint->Set_Value(outField + iField, pPolygon->asDouble(iField));
-						break;
-					}
+				switch( pPolygons->Get_Field_Type(jField) )
+				{
+				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:
+					pPoint->Set_Value(outField + iField, pPolygon->asString(jField));
+					break;
+
+				default:
+					pPoint->Set_Value(outField + iField, pPolygon->asDouble(jField));
+					break;
 				}
 			}
 		}
