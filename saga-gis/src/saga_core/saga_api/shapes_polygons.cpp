@@ -287,10 +287,21 @@ bool _SG_Polygon_Clip(ClipperLib::ClipType ClipType, CSG_Shape *pPolygon, CSG_Sh
 	{
 		ClipperLib::Clipper	Clipper;
 
-		Clipper.AddPaths(Polygon, ClipperLib::ptSubject, true);
+		Clipper.AddPaths(Polygon, ClipperLib::ptSubject, pPolygon->Get_Type() != SHAPE_TYPE_Line);
 		Clipper.AddPaths(Clip   , ClipperLib::ptClip   , true);
 
-		Clipper.Execute(ClipType, Result);
+		if( pPolygon->Get_Type() != SHAPE_TYPE_Line )
+		{
+			Clipper.Execute(ClipType, Result);
+		}
+		else
+		{
+			ClipperLib::PolyTree	PolyTree;
+
+			Clipper.Execute(ClipType, PolyTree);
+
+			ClipperLib::PolyTreeToPaths(PolyTree, Result);
+		}
 
 		return( Converter.Convert(Result, pResult ? pResult : pPolygon) );
 	}
