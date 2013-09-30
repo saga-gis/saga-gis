@@ -22,42 +22,55 @@
 
 #include "Grid_Value_Replace_Interactive.h"
 
-CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void){
+CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void)
+{
 
-	Set_Name(_TL("Change Cell Values"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description	(_TW("(c) 2004 by Victor Olaya."));
+	Set_Name		(_TL("Change Cell Values"));
+	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Description	(_TW("The module allows to interactively change cell values of the input grid. "
+						"Once the module is executed and running, you can use the Action tool to select "
+						"grid cells. While working on a grid, you can change (and apply) the 'New Value' "
+						"and the 'Method' parameters without stopping and re-starting the module.\n\n"
+						));
 
-	Parameters.Add_Grid(NULL, 
-						"GRID", 
-						_TL("Grid"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+	Parameters.Add_Grid(
+		NULL,	"GRID",	_TL("Grid"), 
+		_TL("The grid to modify."), 
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Value(NULL, 
-						"NEWVALUE", 
-						_TL("New Value"), 
-						_TL("New Value"), 
-						PARAMETER_TYPE_Double, 
-						0);
+	Parameters.Add_Value(
+		NULL,	"NEWVALUE",	_TL("New Value"), 
+		_TL("The value to apply."), 
+		PARAMETER_TYPE_Double, 0.0
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"	, _TL("Method"),
+		_TL("Choose how to apply the new value."),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("set constant value"),
+			_TL("add value"),
+			_TL("subtract value")
+		), 0
+	);
 
 }//constructor
 
 
-CGrid_Value_Replace_Interactive::~CGrid_Value_Replace_Interactive(void){
+CGrid_Value_Replace_Interactive::~CGrid_Value_Replace_Interactive(void)
+{
 	On_Execute_Finish();
 }
 
 
-bool CGrid_Value_Replace_Interactive::On_Execute(void){
-	
-	
-	m_pGrid = Parameters("GRID")->asGrid(); 
-	m_dNewValue = Parameters("NEWVALUE")->asDouble();
+bool CGrid_Value_Replace_Interactive::On_Execute(void)
+{
+	m_pGrid		= Parameters("GRID")->asGrid();
 
-	return true;
-
+	return( true );
 }//method
+
 
 bool CGrid_Value_Replace_Interactive::On_Execute_Finish(void)
 {
@@ -74,12 +87,20 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 		return( false );
 	}
 
-	double dValue = m_pGrid->asDouble(iX,iY);
+	double	dNewValue	= Parameters("NEWVALUE")->asDouble();
+	int		iMethod		= Parameters("METHOD")->asInt();
 
-	m_pGrid->Set_Value(iX,iY,m_dNewValue);
+	double	dValue		= m_pGrid->asDouble(iX, iY);
+
+	switch( iMethod )
+	{
+	default:
+	case 0:				m_pGrid->Set_Value(iX, iY, dNewValue);				break;
+	case 1:				m_pGrid->Set_Value(iX, iY, dValue + dNewValue);		break;
+	case 2:				m_pGrid->Set_Value(iX, iY, dValue - dNewValue);		break;
+	}
 
 	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
 
-	return (true);
-
+	return( true );
 }//method

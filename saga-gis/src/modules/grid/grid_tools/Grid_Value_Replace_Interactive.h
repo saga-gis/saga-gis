@@ -31,8 +31,7 @@
 class CGrid_Value_Replace_Interactive : public CSG_Module_Grid_Interactive {
 
 private:
-	CSG_Grid *m_pGrid;
-	double m_dNewValue;
+	CSG_Grid	*m_pGrid;
 
 public:
 	CGrid_Value_Replace_Interactive(void);
