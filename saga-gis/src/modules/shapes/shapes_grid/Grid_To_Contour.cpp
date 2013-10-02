@@ -96,6 +96,15 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Choice(
+		NULL, "OUTPUT_FORMAT"	, _TL("Output Format"),
+		_TL("Choose the format of the shapefile."),
+		CSG_String::Format(SG_T("%s|%s|"),
+		_TL("2D Shapefile"),
+		_TL("3D Shapefile")
+		), 0
+	);
+
 	Parameters.Add_Value(
 		NULL, "ZMIN"	, _TL("Minimum Contour Value"),
 		_TL(""),
@@ -131,8 +140,9 @@ bool CGrid_To_Contour::On_Execute(void)
 {
 	double				zMin, zMax, zStep;
 
-	pGrid	= Parameters("INPUT"  )->asGrid();
-	pLayer	= Parameters("CONTOUR")->asShapes();
+	pGrid		= Parameters("INPUT"		)->asGrid();
+	pLayer		= Parameters("CONTOUR"		)->asShapes();
+	m_iFormat	= Parameters("OUTPUT_FORMAT")->asInt();
 
 	zMin	= Parameters("ZMIN"   )->asDouble()	/ pGrid->Get_ZFactor();
 	zMax	= Parameters("ZMAX"   )->asDouble()	/ pGrid->Get_ZFactor();
@@ -150,7 +160,14 @@ bool CGrid_To_Contour::On_Execute(void)
 			zMax	= pGrid->Get_ZMax();
 		}
 
-		pLayer->Create(SHAPE_TYPE_Line, pGrid->Get_Name());
+		if( m_iFormat == 0 )
+		{
+			pLayer->Create(SHAPE_TYPE_Line, pGrid->Get_Name());
+		}
+		else
+		{
+			pLayer->Create(SHAPE_TYPE_Line, pGrid->Get_Name(), (CSG_Table*)0, SG_VERTEX_TYPE_XYZ);
+		}
 
 		pLayer->Add_Field("ID", SG_DATATYPE_Int);
 		pLayer->Add_Field(CSG_String::Format(SG_T("%s"),pGrid->Get_Name()).BeforeFirst(SG_Char('.')), SG_DATATYPE_Double);
@@ -257,6 +274,8 @@ void CGrid_To_Contour::Contour_Find(int x, int y, double z, bool doRow, int ID)
 			xMin		= pGrid->Get_XMin(),
 			yMin		= pGrid->Get_YMin();
 
+	int		iPoint		= 0;
+
 	CSG_Shape	*pShape	= pLayer->Add_Shape();
 
 	pShape->Set_Value(0, ID);
@@ -272,6 +291,12 @@ void CGrid_To_Contour::Contour_Find(int x, int y, double z, bool doRow, int ID)
 		xPos	= xMin + Get_Cellsize() * (x + d * (zx - x));
 		yPos	= yMin + Get_Cellsize() * (y + d * (zy - y));
 		pShape->Add_Point(xPos, yPos);
+
+		if( m_iFormat == 1 )
+		{
+			pShape->Set_Z(z, iPoint);
+			iPoint++;
+		}
 
 		//-------------------------------------------------
 		// Naechstes (x/y) (col/row) finden...

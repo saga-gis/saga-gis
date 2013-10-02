@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_To_Contour : public CSG_Module_Grid  
+class CGrid_To_Contour : public CSG_Module_Grid
 {
 public:
 	CGrid_To_Contour(void);
@@ -98,6 +98,7 @@ private:
 
 	CSG_Shapes				*pLayer;
 
+	int						m_iFormat;
 
 	void					Contour_Create		(double zStart, double zStop, double zDist);
 	void					Contour_Find		(int x, int y, double z, bool doRow, int ID);
