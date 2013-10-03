@@ -89,6 +89,7 @@ public:
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_PointCloud );	}
 
 	CSG_PointCloud *			Get_PointCloud			(void)	{	return( (CSG_PointCloud *)m_pObject );	}
+	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );		}
 
 	virtual wxString			Get_Description			(void);
 
@@ -99,6 +100,8 @@ public:
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
+
+	int							Get_Color_Field			(void)	{	return( m_Color_Field );		}
 
 	bool						asImage					(CSG_Grid *pImage);
 
@@ -113,6 +116,7 @@ protected:
 
 	CSG_Grid					m_Z, m_N;
 
+	class CWKSP_Table			*m_pTable;
 
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);
@@ -123,6 +127,8 @@ protected:
 	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
 	virtual bool				On_Edit_Set_Attributes	(void);
 	virtual TSG_Rect			On_Edit_Get_Extent		(void);
+
+	void						_LUT_Create				(void);
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 

@@ -67,6 +67,7 @@
 #include "wksp_layer_classify.h"
 #include "wksp_grid.h"
 #include "wksp_shapes.h"
+#include "wksp_pointcloud.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -540,6 +541,10 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 
 		case WKSP_ITEM_Shapes:
 			_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(), ((CWKSP_Shapes *)m_pLayer)->Get_Color_Field());
+			break;
+
+		case WKSP_ITEM_PointCloud:
+			_Histogram_Update(((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud(), ((CWKSP_PointCloud *)m_pLayer)->Get_Color_Field());
 			break;
 		}
 

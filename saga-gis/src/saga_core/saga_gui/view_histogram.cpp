@@ -76,6 +76,7 @@
 #include "wksp_layer_classify.h"
 #include "wksp_grid.h"
 #include "wksp_shapes.h"
+#include "wksp_pointcloud.h"
 
 #include "view_histogram.h"
 
@@ -284,6 +285,13 @@ void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
 			m_pLayer->Set_Color_Range(
 				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
 				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
+			);
+			break;
+
+		case WKSP_ITEM_PointCloud:
+			m_pLayer->Set_Color_Range(
+				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
+				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
 			);
 			break;
 		}
