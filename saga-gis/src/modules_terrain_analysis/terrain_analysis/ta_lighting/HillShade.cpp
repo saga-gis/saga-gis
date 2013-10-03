@@ -153,7 +153,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Value(
 		NULL	, "RADIUS"		, _TL("Search Radius"),
 		_TL("Radius used to trace for shadows (ambient occlusion) [map units]."),
-		PARAMETER_TYPE_Double	, 100.0, 0.001, true
+		PARAMETER_TYPE_Double	, 10.0, 0.001, true
 	);
 }
 
