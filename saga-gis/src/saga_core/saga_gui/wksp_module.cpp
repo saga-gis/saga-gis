@@ -248,7 +248,7 @@ void CWKSP_Module::_Save_Script(void)
 {
 	wxString	FileName;
 
-	if( DLG_Save(FileName, _TL("Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Python Script (*.py)|*.py")) )
+	if( DLG_Save(FileName, _TL("Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Bash Script (*.sh)|*.sh|Python Script (*.py)|*.py")) )
 	{
 		CSG_File	File;
 		CSG_String	Command;
@@ -262,7 +262,11 @@ void CWKSP_Module::_Save_Script(void)
 
 			Command	+= SG_T("saga_cmd ");
 
+			#ifdef _SAGA_MSW
 			Command	+= SG_File_Get_Name(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), false);
+			#else
+			Command	+= SG_File_Get_Name(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), false).Remove(0, 3);
+			#endif
 
 			Command	+= SG_T(" \"");
 			Command	+= m_pModule->Get_Name();
@@ -276,6 +280,31 @@ void CWKSP_Module::_Save_Script(void)
 			}
 
 			Command	+= SG_T("\n\nPAUSE\n");
+		}
+		if(      SG_File_Cmp_Extension(FileName, SG_T("sh")) )
+		{
+			Command	+= SG_T("#!/bin/bash\n\n");
+
+			Command	+= SG_T("# export SAGA_MLB=/usr/lib/saga\n\n");
+
+			Command	+= SG_T("saga_cmd ");
+
+			#ifdef _SAGA_MSW
+			Command	+= SG_File_Get_Name(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), false);
+			#else
+			Command	+= SG_File_Get_Name(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), false).Remove(0, 3);
+			#endif
+
+			Command	+= SG_T(" \"");
+			Command	+= m_pModule->Get_Name();
+			Command	+= SG_T("\"");
+
+			_Save_Script_CMD(Command, m_pModule->Get_Parameters());
+
+			for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+			{
+				_Save_Script_CMD(Command, m_pModule->Get_Parameters(i));
+			}
 		}
 		else if( SG_File_Cmp_Extension(FileName, SG_T("py" )) )
 		{
