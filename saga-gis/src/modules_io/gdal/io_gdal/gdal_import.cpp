@@ -293,25 +293,16 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	DataSet.Get_Transform(A, B);
 
 	//-----------------------------------------------------
-	Message_Add( 
-		SG_T("Driver: ") 
-		+ DataSet.Get_Description()
-		+ SG_T("/")
-		+ DataSet.Get_Name(),
-		 false);
-
-	if( DataSet.Get_Count() > 1 )
-	{
-		Message_Add(CSG_String::Format(SG_T("%d %s\n"), DataSet.Get_Count(), _TL("Bands")), false);
-	}
-
-	Message_Add(CSG_String::Format(
-		SG_T("%s: x %d, y %d\n%s: %d\n%s x' = %.6f + x * %.6f + y * %.6f\n%s y' = %.6f + x * %.6f + y * %.6f"),
-		_TL("Cells")			, DataSet.Get_NX(), DataSet.Get_NY(),
-		_TL("Bands")			, DataSet.Get_Count(),
-		_TL("Transformation")	, A[0], B[0][0], B[0][1],
-		_TL("Transformation")	, A[1], B[1][0], B[1][1]
-	), false);
+	Message_Add(SG_T("\n"), false);
+	Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("Driver" ), DataSet.Get_DriverID().c_str()   ), false);
+	Message_Add(CSG_String::Format(SG_T("\n%s: %d"), _TL("Bands"  ), DataSet.Get_Count()              ), false);
+	Message_Add(CSG_String::Format(SG_T("\n%s: %d"), _TL("Rows"   ), DataSet.Get_NX()                 ), false);
+	Message_Add(CSG_String::Format(SG_T("\n%s: %d"), _TL("Columns"), DataSet.Get_NY()                 ), false);
+	Message_Add(SG_T("\n"), false);
+	Message_Add(CSG_String::Format(SG_T("\n%s:"), _TL("Transformation")                               ), false);
+	Message_Add(CSG_String::Format(SG_T("\n  x' = %.6f + x * %.6f + y * %.6f"), A[0], B[0][0], B[0][1]), false);
+	Message_Add(CSG_String::Format(SG_T("\n  y' = %.6f + x * %.6f + y * %.6f"), A[1], B[1][0], B[1][1]), false);
+	Message_Add(SG_T("\n"), false);
 
 	//-----------------------------------------------------
 	int			i, n;

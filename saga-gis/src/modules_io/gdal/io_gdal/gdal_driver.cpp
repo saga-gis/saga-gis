@@ -555,12 +555,14 @@ CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 		//-------------------------------------------------
 		if( Name.is_Empty() )
 		{
-			if( (s = pBand->GetMetadataItem(GDAL_DMD_LONGNAME)) != NULL && *s )
+			Name	= Get_Name();
+
+			if( Name.is_Empty() )
 			{
-				Name	= s;
+				Name	= _TL("Band");
 			}
 
-			Name.Printf(SG_T("%s %02d"), Get_Name().c_str(), i + 1);
+			Name	+= CSG_String::Format(SG_T(" %0*d"), SG_Get_Digit_Count(Get_Count() + 1), i + 1);
 		}
 	}
 
