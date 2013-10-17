@@ -307,6 +307,9 @@ private:
 
 	void						_Set_Output_History			(void);
 
+	void						_Parameters_State_Update	(void);
+	void						_Parameters_State_Update	(CSG_Parameters *pParameters);
+
 	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
 
 };

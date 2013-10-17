@@ -169,6 +169,13 @@ const CSG_String & CSG_Module::Get_Author(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CSG_Module::Execute(void)
 {
@@ -182,6 +189,8 @@ bool CSG_Module::Execute(void)
 	Destroy();
 
 	bool	bResult	= false;
+
+	_Parameters_State_Update();
 
 	//-----------------------------------------------------
 	if( !Parameters.DataObjects_Create() )
@@ -705,6 +714,45 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Module::_Parameters_State_Update(void)
+{
+	_Parameters_State_Update(&Parameters);
+
+	for(int i=0; i<Get_Parameters_Count(); i++)
+	{
+		_Parameters_State_Update(Get_Parameters(i));
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Module::_Parameters_State_Update(CSG_Parameters *pParameters)
+{
+	if( pParameters )
+	{
+		for(int i=0; i<pParameters->Get_Count(); i++)
+		{
+			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+
+			if( pParameter->Get_Type() == PARAMETER_TYPE_Parameters )
+			{
+				_Parameters_State_Update(pParameter->asParameters());
+			}
+			else
+			{
+				On_Parameters_Enable(pParameters, pParameter);
+			}
+		}
+	}
 }
 
 
