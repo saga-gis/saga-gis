@@ -18,11 +18,13 @@ MLB_Interface.cpp\
 opencv.cpp\
 opencv_fourier.cpp\
 opencv_morphology.cpp\
+opencv_nnet.cpp\
 opencv_svd.cpp\
 MLB_Interface.h\
 opencv.h\
 opencv_fourier.h\
 opencv_morphology.h\
+opencv_nnet.h\
 opencv_svd.h
 
 libopencv_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

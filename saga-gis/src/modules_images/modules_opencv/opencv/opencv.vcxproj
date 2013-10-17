@@ -122,7 +122,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;opencv_ml243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(OPENCV)\lib;..\..\..\..\bin\saga_vc_$(Platform)_d\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -173,7 +173,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;opencv_ml243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(OPENCV)\lib;..\..\..\..\bin\saga_vc_$(Platform)_d\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -224,7 +224,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;opencv_ml243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(OPENCV)\lib;..\..\..\..\bin\saga_vc_$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -274,7 +274,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core243.lib;opencv_imgproc243.lib;opencv_ml243.lib;saga_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(OPENCV)\lib;..\..\..\..\bin\saga_vc_$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -305,6 +305,7 @@
     <ClCompile Include="opencv.cpp" />
     <ClCompile Include="opencv_fourier.cpp" />
     <ClCompile Include="opencv_morphology.cpp" />
+    <ClCompile Include="opencv_nnet.cpp" />
     <ClCompile Include="opencv_svd.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -329,6 +330,7 @@
     <ClInclude Include="opencv.h" />
     <ClInclude Include="opencv_fourier.h" />
     <ClInclude Include="opencv_morphology.h" />
+    <ClInclude Include="opencv_nnet.h" />
     <ClInclude Include="opencv_svd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

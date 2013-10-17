@@ -100,6 +100,7 @@ CSG_String Get_Info(int i)
 #include "opencv_morphology.h"
 #include "opencv_fourier.h"
 #include "opencv_svd.h"
+#include "opencv_nnet.h"
 
 
 //---------------------------------------------------------
@@ -112,6 +113,7 @@ CSG_Module *		Create_Module(int i)
 	case  0:	return( new COpenCV_Morphology );
 	case  1:	return( new COpenCV_FFT );
 	case  2:	return( new COpenCV_SVD );
+	case  3:	return( new COpenCV_NNet );
 	}
 
 	return( NULL );
