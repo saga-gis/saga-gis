@@ -207,6 +207,8 @@ public:
 	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	CSG_Parameters *			Get_Parameters				(const CSG_String &Identifier);
 
+	bool						Update_Parameter_States		(void);
+
 	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
 
 	virtual bool				is_Grid						(void)	{	return( false );	}
@@ -307,8 +309,7 @@ private:
 
 	void						_Set_Output_History			(void);
 
-	void						_Parameters_State_Update	(void);
-	void						_Parameters_State_Update	(CSG_Parameters *pParameters);
+	void						_Update_Parameter_States	(CSG_Parameters *pParameters);
 
 	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
 

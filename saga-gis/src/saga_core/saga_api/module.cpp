@@ -190,7 +190,7 @@ bool CSG_Module::Execute(void)
 
 	bool	bResult	= false;
 
-	_Parameters_State_Update();
+	Update_Parameter_States();
 
 	//-----------------------------------------------------
 	if( !Parameters.DataObjects_Create() )
@@ -724,18 +724,20 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::_Parameters_State_Update(void)
+bool CSG_Module::Update_Parameter_States(void)
 {
-	_Parameters_State_Update(&Parameters);
+	_Update_Parameter_States(&Parameters);
 
 	for(int i=0; i<Get_Parameters_Count(); i++)
 	{
-		_Parameters_State_Update(Get_Parameters(i));
+		_Update_Parameter_States(Get_Parameters(i));
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CSG_Module::_Parameters_State_Update(CSG_Parameters *pParameters)
+void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
 {
 	if( pParameters )
 	{
@@ -745,7 +747,7 @@ void CSG_Module::_Parameters_State_Update(CSG_Parameters *pParameters)
 
 			if( pParameter->Get_Type() == PARAMETER_TYPE_Parameters )
 			{
-				_Parameters_State_Update(pParameter->asParameters());
+				_Update_Parameter_States(pParameter->asParameters());
 			}
 			else
 			{

@@ -351,29 +351,21 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bOptional)
 //---------------------------------------------------------
 bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
 {
-	if( !pParameters )
-	{
-		return( false );
-	}
-
-	if( m_CMD.Parse(false) != 0 )
+	if( !pParameters || m_CMD.Parse(false) != 0 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	int		i;
+
+	for(i=0; i<pParameters->Get_Count(); i++)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
 		if( pParameter->is_Input() )
 		{
-			if( !_Load_Input(pParameters->Get_Parameter(i)) )
-			{
-				CMD_Print_Error(pParameters->Get_Parameter(i)->Get_Name());
-
-				return( false );
-			}
+			// nop now, loading options first
 		}
 
 		else if( pParameter->is_Output() )
@@ -525,6 +517,20 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
 		}
 	}
 
+	m_pModule->Update_Parameter_States();
+
+	//-----------------------------------------------------
+	for(i=0; i<pParameters->Get_Count(); i++)
+	{
+		if( !_Load_Input(pParameters->Get_Parameter(i)) )
+		{
+			CMD_Print_Error(pParameters->Get_Parameter(i)->Get_Name());
+
+			return( false );
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -540,7 +546,7 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 {
 	wxString	FileName;
 
-	if(	!pParameter->is_Input() )
+	if(	!pParameter->is_Input() || !pParameter->is_Enabled() )
 	{
 		return( true );
 	}
