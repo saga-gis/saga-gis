@@ -122,7 +122,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase30ud.lib;wxbase30ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -131,13 +131,34 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)$(ProjectName).lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)lib\$(ProjectName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+copy api_core.h $(OutDir)include
+copy data_manager.h $(OutDir)include
+copy dataobject.h $(OutDir)include
+copy geo_tools.h $(OutDir)include
+copy grid.h $(OutDir)include
+copy grid_pyramid.h $(OutDir)include
+copy mat_tools.h $(OutDir)include
+copy metadata.h $(OutDir)include
+copy module.h $(OutDir)include
+copy module_library.h $(OutDir)include
+copy parameters.h $(OutDir)include
+copy pointcloud.h $(OutDir)include
+copy saga_api.h $(OutDir)include
+copy shapes.h $(OutDir)include
+copy table.h $(OutDir)include
+copy table_value.h $(OutDir)include
+copy tin.h $(OutDir)include
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -174,7 +195,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase30u.lib;wxbase30u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -182,13 +203,34 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)$(ProjectName).lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)lib\$(ProjectName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+copy api_core.h $(OutDir)include
+copy data_manager.h $(OutDir)include
+copy dataobject.h $(OutDir)include
+copy geo_tools.h $(OutDir)include
+copy grid.h $(OutDir)include
+copy grid_pyramid.h $(OutDir)include
+copy mat_tools.h $(OutDir)include
+copy metadata.h $(OutDir)include
+copy module.h $(OutDir)include
+copy module_library.h $(OutDir)include
+copy parameters.h $(OutDir)include
+copy pointcloud.h $(OutDir)include
+copy saga_api.h $(OutDir)include
+copy shapes.h $(OutDir)include
+copy table.h $(OutDir)include
+copy table_value.h $(OutDir)include
+copy tin.h $(OutDir)include
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -223,7 +265,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;wxbase29ud.lib;wxbase29ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase30ud.lib;wxbase30ud_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -232,13 +274,34 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)$(ProjectName).lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)lib\$(ProjectName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+copy api_core.h $(OutDir)include
+copy data_manager.h $(OutDir)include
+copy dataobject.h $(OutDir)include
+copy geo_tools.h $(OutDir)include
+copy grid.h $(OutDir)include
+copy grid_pyramid.h $(OutDir)include
+copy mat_tools.h $(OutDir)include
+copy metadata.h $(OutDir)include
+copy module.h $(OutDir)include
+copy module_library.h $(OutDir)include
+copy parameters.h $(OutDir)include
+copy pointcloud.h $(OutDir)include
+copy saga_api.h $(OutDir)include
+copy shapes.h $(OutDir)include
+copy table.h $(OutDir)include
+copy table_value.h $(OutDir)include
+copy tin.h $(OutDir)include
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -275,7 +338,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;wxbase29u.lib;wxbase29u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wxbase30u.lib;wxbase30u_xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(WXWIN)/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -283,13 +346,34 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)$(ProjectName).lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)lib\$(ProjectName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+copy api_core.h $(OutDir)include
+copy data_manager.h $(OutDir)include
+copy dataobject.h $(OutDir)include
+copy geo_tools.h $(OutDir)include
+copy grid.h $(OutDir)include
+copy grid_pyramid.h $(OutDir)include
+copy mat_tools.h $(OutDir)include
+copy metadata.h $(OutDir)include
+copy module.h $(OutDir)include
+copy module_library.h $(OutDir)include
+copy parameters.h $(OutDir)include
+copy pointcloud.h $(OutDir)include
+copy saga_api.h $(OutDir)include
+copy shapes.h $(OutDir)include
+copy table.h $(OutDir)include
+copy table_value.h $(OutDir)include
+copy tin.h $(OutDir)include
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="api_callback.cpp">
