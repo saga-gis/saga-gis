@@ -73,9 +73,6 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-#include <set>
-#include <algorithm>
-#include <wx/tokenzr.h>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -88,7 +85,6 @@ class CPC_Drop_Attribute : public CSG_Module
 {
 public:
 	CPC_Drop_Attribute(void);
-	virtual ~CPC_Drop_Attribute(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 

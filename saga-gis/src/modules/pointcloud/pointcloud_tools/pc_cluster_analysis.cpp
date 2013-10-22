@@ -176,10 +176,6 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 	}
 }
 
-//---------------------------------------------------------
-CPC_Cluster_Analysis::~CPC_Cluster_Analysis(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -250,11 +246,11 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 		attrFields		= Parameters("ATTR_FIELDS")->asString();
 
-		wxStringTokenizer   tkz_fields(attrFields.c_str(), wxT(";"), wxTOKEN_STRTOK);
+		CSG_String_Tokenizer   tkz_fields(attrFields, ";", SG_TOKEN_STRTOK);
 
-		while( tkz_fields.HasMoreTokens() )
+		while( tkz_fields.Has_More_Tokens() )
 		{
-			token	= tkz_fields.GetNextToken().wc_str();
+			token	= tkz_fields.Get_Next_Token();
 
 			if( token.Length() == 0 )
 				break;
@@ -267,7 +263,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 			field	-= 1;
 
-			if( field < 0 || field > vFields.size() - 1 )
+			if( field < 0 || field > (int)vFields.size() - 1 )
 			{
 				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: field index out of range"));
 				return( false );
@@ -283,7 +279,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 	nFields		= 0;
 
-	for( i=0; i<vFields.size(); i++ )
+	for( i=0; i<(int)vFields.size(); i++ )
 	{
 		if( vFields.at(i) )
 			nFields++;
@@ -369,7 +365,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 		{
 			int		iv = 0;
 
-			for( i=0; i<vFields.size(); i++ )
+			for( i=0; i<(int)vFields.size(); i++ )
 			{
 				if( vFields.at(i) )
 				{
@@ -469,7 +465,7 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 
 	cntField	= 1;
 
-	for( j=0; j<vFields.size(); j++ )
+	for( j=0; j<(int)vFields.size(); j++ )
 	{
 		if( vFields.at(j) )
 		{

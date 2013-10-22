@@ -64,6 +64,11 @@
 //---------------------------------------------------------
 #include "pointcloud_from_text_file.h"
 
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -181,10 +186,6 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
     );
 }
 
-//---------------------------------------------------------
-CPointCloud_From_Text_File::~CPointCloud_From_Text_File(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -295,11 +296,11 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		sNames		= Parameters("FIELDNAMES")->asString();
 		sTypes	    = Parameters("FIELDTYPES")->asString();
 
-		wxStringTokenizer   tkz_fields(sFields.c_str(), wxT(";"), wxTOKEN_STRTOK);
+		CSG_String_Tokenizer   tkz_fields(sFields, ";", SG_TOKEN_STRTOK);
 
-		while( tkz_fields.HasMoreTokens() )
+		while( tkz_fields.Has_More_Tokens() )
 		{
-			token	= tkz_fields.GetNextToken().wc_str();
+			token	= tkz_fields.Get_Next_Token();
 
 			if( token.Length() == 0 )
 				break;
@@ -321,11 +322,11 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 				vCol.push_back(iValue);
 		}
 
-		wxStringTokenizer   tkz_datatypes(sTypes.c_str(), wxT(";"), wxTOKEN_STRTOK);
+		CSG_String_Tokenizer   tkz_datatypes(sTypes, ";", SG_TOKEN_STRTOK);
 
-		while( tkz_datatypes.HasMoreTokens() )
+		while( tkz_datatypes.Has_More_Tokens() )
 		{
-			token	= tkz_datatypes.GetNextToken().wc_str();
+			token	= tkz_datatypes.Get_Next_Token();
 
 			if( token.Length() == 0 )
 				break;
@@ -339,13 +340,13 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 			vTypes.push_back(iValue);
 		}
 
-		wxStringTokenizer   tkz_datanames(sNames.c_str(), wxT(";"), wxTOKEN_STRTOK);
+		CSG_String_Tokenizer   tkz_datanames(sNames, ";", SG_TOKEN_STRTOK);
 
         int                 iter = 0;
 
-		while( tkz_datanames.HasMoreTokens() )
+		while( tkz_datanames.Has_More_Tokens() )
 		{
-			token	= tkz_datanames.GetNextToken().wc_str();
+			token	= tkz_datanames.Get_Next_Token();
 
 			if( token.Length() == 0 )
 				break;

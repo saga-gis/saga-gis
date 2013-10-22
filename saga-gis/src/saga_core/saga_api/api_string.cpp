@@ -67,6 +67,7 @@
 
 #include <wx/string.h>
 #include <wx/datetime.h>
+#include <wx/tokenzr.h>
 
 #include "api_core.h"
 
@@ -1106,6 +1107,87 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 	s.Replace(SG_T(","), SG_T("."));
 
 	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String_Tokenizer::CSG_String_Tokenizer(void)
+{
+	m_pTokenizer	= new wxStringTokenizer();
+}
+
+//---------------------------------------------------------
+CSG_String_Tokenizer::CSG_String_Tokenizer(const CSG_String &String, const CSG_String &Delimiters, TSG_String_Tokenizer_Mode Mode)
+{
+	m_pTokenizer	= new wxStringTokenizer();
+
+	Set_String(String, Delimiters, Mode);
+}
+
+//---------------------------------------------------------
+CSG_String_Tokenizer::~CSG_String_Tokenizer(void)
+{
+	delete(m_pTokenizer);
+}
+
+//---------------------------------------------------------
+size_t CSG_String_Tokenizer::Get_Tokens_Count(void)	const
+{
+	return( m_pTokenizer->CountTokens() );
+}
+
+//---------------------------------------------------------
+SG_Char CSG_String_Tokenizer::Get_Last_Delimiter(void)	const
+{
+	return( m_pTokenizer->GetLastDelimiter() );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_String_Tokenizer::Get_Next_Token(void)
+{
+	return( &m_pTokenizer->GetNextToken() );
+}
+
+//---------------------------------------------------------
+size_t CSG_String_Tokenizer::Get_Position(void)	const
+{
+	return( m_pTokenizer->GetPosition() );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_String_Tokenizer::Get_String(void)	const
+{
+	return( &m_pTokenizer->GetString() );
+}
+
+//---------------------------------------------------------
+bool CSG_String_Tokenizer::Has_More_Tokens(void)	const
+{
+	return( m_pTokenizer->HasMoreTokens() );
+}
+
+//---------------------------------------------------------
+void CSG_String_Tokenizer::Set_String(const CSG_String &String, const CSG_String &Delimiters, TSG_String_Tokenizer_Mode Mode)
+{
+	wxStringTokenizerMode	_Mode;
+
+	switch( Mode )
+	{
+	default:                     _Mode	= wxTOKEN_DEFAULT      ; break;
+	case SG_TOKEN_INVALID:       _Mode	= wxTOKEN_INVALID      ; break;
+	case SG_TOKEN_RET_EMPTY:     _Mode	= wxTOKEN_RET_EMPTY    ; break;
+	case SG_TOKEN_RET_EMPTY_ALL: _Mode	= wxTOKEN_RET_EMPTY_ALL; break;
+	case SG_TOKEN_RET_DELIMS:    _Mode	= wxTOKEN_RET_DELIMS   ; break;
+	case SG_TOKEN_STRTOK:        _Mode	= wxTOKEN_STRTOK       ; break;
+	}
+
+	m_pTokenizer->SetString(String.c_str(), Delimiters.c_str(), _Mode);
 }
 
 

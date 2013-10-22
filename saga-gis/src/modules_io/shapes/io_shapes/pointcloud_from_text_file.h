@@ -74,11 +74,7 @@
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <wx/tokenzr.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -91,7 +87,6 @@ class CPointCloud_From_Text_File : public CSG_Module
 {
 public:
 	CPointCloud_From_Text_File(void);
-	virtual ~CPointCloud_From_Text_File(void);
 
 	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Import") );	}
 

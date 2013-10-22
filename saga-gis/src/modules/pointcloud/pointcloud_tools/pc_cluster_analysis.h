@@ -69,10 +69,9 @@
 #define HEADER_INCLUDED__PC_Cluster_Analysis_H
 
 //---------------------------------------------------------
-#include <vector>
-#include <wx/tokenzr.h>
-
 #include "MLB_Interface.h"
+
+#include <vector>
 
 
 ///////////////////////////////////////////////////////////
@@ -86,7 +85,6 @@ class CPC_Cluster_Analysis : public CSG_Module
 {
 public:
 	CPC_Cluster_Analysis(void);
-	virtual ~CPC_Cluster_Analysis(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Classification") );	}
 

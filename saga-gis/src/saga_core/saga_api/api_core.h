@@ -389,6 +389,45 @@ protected:
 };
 
 //---------------------------------------------------------
+#define SG_DEFAULT_DELIMITERS		" \t\r\n"
+
+typedef enum
+{
+	SG_TOKEN_INVALID,
+	SG_TOKEN_DEFAULT,
+	SG_TOKEN_RET_EMPTY,
+	SG_TOKEN_RET_EMPTY_ALL,
+	SG_TOKEN_RET_DELIMS,
+	SG_TOKEN_STRTOK
+}
+TSG_String_Tokenizer_Mode;
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_String_Tokenizer
+{
+public:
+	CSG_String_Tokenizer(void);
+	CSG_String_Tokenizer(const CSG_String &String, const CSG_String &Delimiters=SG_DEFAULT_DELIMITERS, TSG_String_Tokenizer_Mode Mode=SG_TOKEN_DEFAULT);
+
+	~CSG_String_Tokenizer(void);
+
+  
+	size_t							Get_Tokens_Count	(void)	const;
+	SG_Char							Get_Last_Delimiter	(void)	const;
+	CSG_String						Get_Next_Token		(void);
+	size_t							Get_Position		(void)	const;
+	CSG_String						Get_String			(void)	const;
+	bool							Has_More_Tokens		(void)	const;
+	void							Set_String			(const CSG_String &String, const CSG_String &Delimiters=SG_DEFAULT_DELIMITERS, TSG_String_Tokenizer_Mode Mode=SG_TOKEN_DEFAULT);
+
+
+private:
+
+	class wxStringTokenizer			*m_pTokenizer;
+
+};
+
+//---------------------------------------------------------
 SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
 SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE* stream, const SG_Char *Format, ...);
 
