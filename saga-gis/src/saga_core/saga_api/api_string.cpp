@@ -1151,7 +1151,9 @@ SG_Char CSG_String_Tokenizer::Get_Last_Delimiter(void)	const
 //---------------------------------------------------------
 CSG_String CSG_String_Tokenizer::Get_Next_Token(void)
 {
-	return( &m_pTokenizer->GetNextToken() );
+	wxString	s(m_pTokenizer->GetNextToken());
+
+	return( &s );
 }
 
 //---------------------------------------------------------
@@ -1163,7 +1165,9 @@ size_t CSG_String_Tokenizer::Get_Position(void)	const
 //---------------------------------------------------------
 CSG_String CSG_String_Tokenizer::Get_String(void)	const
 {
-	return( &m_pTokenizer->GetString() );
+	wxString	s(m_pTokenizer->GetString());
+
+	return( &s );
 }
 
 //---------------------------------------------------------
