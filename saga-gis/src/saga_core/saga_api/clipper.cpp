@@ -2,7 +2,7 @@
 *                                                                              *
 * Author    :  Angus Johnson                                                   *
 * Version   :  6.0.0                                                           *
-* Date      :  11 September 2013                                               *
+* Date      :  30 October 2013                                                 *
 * Website   :  http://www.angusj.com                                           *
 * Copyright :  Angus Johnson 2010-2013                                         *
 *                                                                              *
@@ -46,6 +46,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <ostream>
+#include <functional>
 
 namespace ClipperLib {
 
@@ -529,12 +530,10 @@ bool PointInPolygon(const IntPoint &Pt, OutPt *pp, bool UseFullInt64Range)
   if (UseFullInt64Range) {
     do
     {
-      if ((((Pt.Y >= pp2->Pt.Y) && (Pt.Y < pp2->Prev->Pt.Y)) ||
-          ((Pt.Y >= pp2->Prev->Pt.Y) && (Pt.Y < pp2->Pt.Y))) &&
-          Int128(Pt.X - pp2->Pt.X) < 
-          Int128Mul(pp2->Prev->Pt.X - pp2->Pt.X, Pt.Y - pp2->Pt.Y) / 
-          Int128(pp2->Prev->Pt.Y - pp2->Pt.Y))
-            result = !result;
+      if (((pp2->Pt.Y > Pt.Y) != (pp2->Prev->Pt.Y > Pt.Y)) &&                     
+        (Int128(Pt.X - pp2->Pt.X) < 
+        Int128Mul(pp2->Prev->Pt.X - pp2->Pt.X, Pt.Y - pp2->Pt.Y) / 
+        Int128(pp2->Prev->Pt.Y - pp2->Pt.Y))) result = !result;
       pp2 = pp2->Next;
     }
     while (pp2 != pp);
@@ -543,10 +542,10 @@ bool PointInPolygon(const IntPoint &Pt, OutPt *pp, bool UseFullInt64Range)
 #endif
   do
   {
-    if ((((pp2->Pt.Y <= Pt.Y) && (Pt.Y < pp2->Prev->Pt.Y)) ||
-      ((pp2->Prev->Pt.Y <= Pt.Y) && (Pt.Y < pp2->Pt.Y))) &&
-      (Pt.X < (pp2->Prev->Pt.X - pp2->Pt.X) * (Pt.Y - pp2->Pt.Y) /
-      (pp2->Prev->Pt.Y - pp2->Pt.Y) + pp2->Pt.X )) result = !result;
+    //http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+    if (((pp2->Pt.Y > Pt.Y) != (pp2->Prev->Pt.Y > Pt.Y)) &&                     
+      ((Pt.X - pp2->Pt.X) < (pp2->Prev->Pt.X - pp2->Pt.X) * (Pt.Y - pp2->Pt.Y) / 
+      (pp2->Prev->Pt.Y - pp2->Pt.Y))) result = !result;
     pp2 = pp2->Next;
   }
   while (pp2 != pp);
@@ -642,7 +641,9 @@ bool IntersectPoint(TEdge &Edge1, TEdge &Edge2,
   ip.Z = 0;
 #endif
   double b1, b2;
-  if (SlopesEqual(Edge1, Edge2, UseFullInt64Range))
+  //nb: with very large coordinate values, it's possible for SlopesEqual() to 
+  //return false but for the edge.Dx value be equal due to double precision rounding.
+  if (SlopesEqual(Edge1, Edge2, UseFullInt64Range) || Edge1.Dx == Edge2.Dx)
   {
     if (Edge2.Bot.Y > Edge1.Bot.Y) ip.Y = Edge2.Bot.Y;
     else ip.Y = Edge1.Bot.Y;
@@ -4004,44 +4005,14 @@ private:
   const Paths& m_p;
   Path* m_curr_poly;
   std::vector<DoublePoint> normals;
-  double m_delta, m_sinA, m_sin, m_cos;
-  double m_miterLim, m_Steps360;
+// SAGA >>>  double m_delta, m_sinA, m_sin, m_cos;
+// SAGA >>>  double m_miterLim, m_Steps360;
+  double m_delta, m_sinA;		// <<< SAGA
+  double m_miterLim, m_Limit;	// <<< SAGA
   size_t m_i, m_j, m_k;
   static const int buffLength = 128;
  
 public:
-
-//------------------------------------------------------------------------------
-// !!! SAGA >>>
-// removed function from clipper 1.5.6; modification, adds vertices in constant angle steps
-Path BuildArc(const IntPoint &pt, const double a1, const double a2, const double r, double limit)
-{
-/*
-  see notes in clipper.pas regarding steps
-  double arcFrac = std::fabs(a2 - a1) / (2 * pi);
-  int steps = (int)(arcFrac * pi / std::acos(1 - limit / std::fabs(r)));
-  if (steps < 2) steps = 2;
-  else if (steps > (int)(222.0 * arcFrac)) steps = (int)(222.0 * arcFrac);
-  */
-  int steps = std::max(2, int(std::fabs(a2 - a1) / limit));	// SAGA: number of steps fitted to step size 'limit' (radians)
-
-  double x = std::cos(a1); 
-  double y = std::sin(a1);
-  double c = std::cos((a2 - a1) / steps);
-  double s = std::sin((a2 - a1) / steps);
-  Path result(steps +1);
-  for (int i = 0; i <= steps; ++i)
-  {
-      result[i].X = pt.X + Round(x * r);
-      result[i].Y = pt.Y + Round(y * r);
-      double x2 = x;
-      x = x * c - s * y;  //cross product
-      y = x2 * s + y * c; //dot product
-  }
-  return result;
-}
-// <<< SAGA !!!
-//------------------------------------------------------------------------------
 
 OffsetBuilder(const Paths& in_polys, Paths& out_polys,
   double Delta, JoinType jointype, EndType endtype, double limit): m_p(in_polys)
@@ -4063,14 +4034,15 @@ OffsetBuilder(const Paths& in_polys, Paths& out_polys,
 
   if (jointype == jtRound || endtype == etRound)
   {
-    if (limit <= 0) limit = 0.25;
-    else if (limit > std::fabs(Delta)*0.25) limit = std::fabs(Delta)*0.25;
-    //m_Steps360: see offset_triginometry2.svg in the documentation folder ...
-    m_Steps360 = pi / acos(1 - limit / std::fabs(Delta));
-    m_sin = std::sin(2 * pi / m_Steps360);
-    m_cos = std::cos(2 * pi / m_Steps360);
-    m_Steps360 /= pi * 2;
-    if (Delta < 0) m_sin = -m_sin;
+// SAGA >>>    if (limit <= 0) limit = 0.25;
+// SAGA >>>    else if (limit > std::fabs(Delta)*0.25) limit = std::fabs(Delta)*0.25;
+// SAGA >>>    //m_Steps360: see offset_triginometry2.svg in the documentation folder ...
+// SAGA >>>    m_Steps360 = pi / acos(1 - limit / std::fabs(Delta));
+// SAGA >>>    m_sin = std::sin(2 * pi / m_Steps360);
+// SAGA >>>    m_cos = std::cos(2 * pi / m_Steps360);
+// SAGA >>>    m_Steps360 /= pi * 2;
+// SAGA >>>    if (Delta < 0) m_sin = -m_sin;
+	m_Limit	= limit <= 0.0 ? 0.1 : limit;
   }
 
   out_polys.clear();
@@ -4085,9 +4057,18 @@ OffsetBuilder(const Paths& in_polys, Paths& out_polys,
       {
         if (jointype == jtRound)
         {
-			 out_polys[m_i] = BuildArc(m_p[m_i][0], 0, 2*pi, Delta, limit);	// <<< SAGA !!!
-        }
-		else
+// SAGA >>>          double X = 1.0, Y = 0.0;
+// SAGA >>>          for (cInt j = 1; j <= Round(m_Steps360 * 2 * pi); j++)
+// SAGA >>>          {
+// SAGA >>>            AddPoint(IntPoint(
+// SAGA >>>              Round(m_p[m_i][0].X + X * Delta),
+// SAGA >>>              Round(m_p[m_i][0].Y + Y * Delta)));
+// SAGA >>>            double X2 = X;
+// SAGA >>>            X = X * m_cos - m_sin * Y;
+// SAGA >>>            Y = X2 * m_sin + Y * m_cos;
+// SAGA >>>          }
+			 out_polys[m_i] = BuildArc(m_p[m_i][0], 0, 2*pi, Delta, m_Limit);	// <<< SAGA
+        } else
         {
           double X = -1.0, Y = -1.0;
           for (int j = 0; j < 4; ++j)
@@ -4119,14 +4100,14 @@ OffsetBuilder(const Paths& in_polys, Paths& out_polys,
       {
         m_k = len -1;
         for (m_j = 0; m_j < len; ++m_j)
-          OffsetPoint(jointype, limit);	// <<< SAGA !!!
+          OffsetPoint(jointype);
       }
       else //is open polyline
       {
         //offset the polyline going forward ...
         m_k = 0;
         for (m_j = 1; m_j < len -1; ++m_j)
-          OffsetPoint(jointype, limit);	// <<< SAGA !!!
+          OffsetPoint(jointype);
 
         //handle the end (butt, round or square) ...
         IntPoint pt1;
@@ -4150,7 +4131,7 @@ OffsetBuilder(const Paths& in_polys, Paths& out_polys,
           if (endtype == etSquare) 
             DoSquare();
           else 
-            DoRound(limit);	// <<< SAGA !!!
+            DoRound();
         }
 
         //re-build Normals ...
@@ -4165,7 +4146,7 @@ OffsetBuilder(const Paths& in_polys, Paths& out_polys,
         //offset the polyline going backward ...
         m_k = len -1;
         for (m_j = m_k - 1; m_j > 0; --m_j)
-          OffsetPoint(jointype, limit);	// <<< SAGA !!!
+          OffsetPoint(jointype);
 
         //finally handle the start (butt, round or square) ...
         if (endtype == etButt) 
@@ -4183,7 +4164,7 @@ OffsetBuilder(const Paths& in_polys, Paths& out_polys,
           if (endtype == etSquare) 
             DoSquare(); 
           else 
-            DoRound(limit);	// <<< SAGA !!!
+            DoRound();
         }
       }
     }
@@ -4217,10 +4198,12 @@ OffsetBuilder(const Paths& in_polys, Paths& out_polys,
 
 private:
 
-void OffsetPoint(JoinType jointype, double limit)	// <<< SAGA !!!
+void OffsetPoint(JoinType jointype)
 {
   m_sinA = (normals[m_k].X * normals[m_j].Y - normals[m_j].X * normals[m_k].Y);
-  if (m_sinA > 1.0) m_sinA = 1.0; else if (m_sinA < -1.0) m_sinA = -1.0;
+  if (std::fabs(m_sinA) < 0.00005) return; //ie collinear
+  else if (m_sinA > 1.0) m_sinA = 1.0; 
+  else if (m_sinA < -1.0) m_sinA = -1.0;
 
   if (m_sinA * m_delta < 0)
   {
@@ -4241,7 +4224,7 @@ void OffsetPoint(JoinType jointype, double limit)	// <<< SAGA !!!
           break;
         }
         case jtSquare: DoSquare(); break;
-        case jtRound: DoRound(limit); break;	// <<< SAGA !!!
+        case jtRound: DoRound(); break;
       }
       m_k = m_j;
 }
@@ -4276,11 +4259,28 @@ void DoMiter(double r)
 }
 //------------------------------------------------------------------------------
 
-// !!! SAGA >>>
-// replaced with function from clipper 1.5.6; modification, buildarcs() adds vertices in constant angle steps
-void DoRound(double limit)
+// SAGA >>> replaced with function from clipper 1.5.6; modification, buildarcs() adds vertices in constant angle steps
+void DoRound()
 {
-    IntPoint pt1 = IntPoint(Round(m_p[m_i][m_j].X + normals[m_k].X * m_delta),
+// SAGA >>>   double a = std::atan2(m_sinA, 
+// SAGA >>>     normals[m_k].X * normals[m_j].X + normals[m_k].Y * normals[m_j].Y);
+// SAGA >>>   int steps = (int)Round(m_Steps360 * std::fabs(a));
+// SAGA >>> 
+// SAGA >>>   double X = normals[m_k].X, Y = normals[m_k].Y, X2;
+// SAGA >>>   for (int i = 0; i < steps; ++i)
+// SAGA >>>   {
+// SAGA >>>     AddPoint(IntPoint(
+// SAGA >>>       Round(m_p[m_i][m_j].X + X * m_delta),
+// SAGA >>>       Round(m_p[m_i][m_j].Y + Y * m_delta)));
+// SAGA >>>     X2 = X;
+// SAGA >>>     X = X * m_cos - m_sin * Y;
+// SAGA >>>     Y = X2 * m_sin + Y * m_cos;
+// SAGA >>>   }
+// SAGA >>>   AddPoint(IntPoint(
+// SAGA >>>     Round(m_p[m_i][m_j].X + normals[m_j].X * m_delta),
+// SAGA >>>     Round(m_p[m_i][m_j].Y + normals[m_j].Y * m_delta)));
+
+	IntPoint pt1 = IntPoint(Round(m_p[m_i][m_j].X + normals[m_k].X * m_delta),
         Round(m_p[m_i][m_j].Y + normals[m_k].Y * m_delta));
     IntPoint pt2 = IntPoint(Round(m_p[m_i][m_j].X + normals[m_j].X * m_delta),
         Round(m_p[m_i][m_j].Y + normals[m_j].Y * m_delta));
@@ -4294,7 +4294,7 @@ void DoRound(double limit)
         double a2 = std::atan2(normals[m_j].Y, normals[m_j].X);
         if (m_delta > 0 && a2 < a1) a2 += pi *2;
         else if (m_delta < 0 && a2 > a1) a2 -= pi *2;
-        Path arc = BuildArc(m_p[m_i][m_j], a1, a2, m_delta, limit);
+        Path arc = BuildArc(m_p[m_i][m_j], a1, a2, m_delta, m_Limit);
         for (Path::size_type m = 0; m < arc.size(); m++)
           AddPoint(arc[m]);
       }
@@ -4304,6 +4304,28 @@ void DoRound(double limit)
     AddPoint(pt2);
 }
 //--------------------------------------------------------------------------
+
+// SAGA >>> removed function from clipper 1.5.6; modification, adds vertices in constant angle steps
+Path BuildArc(const IntPoint &pt, const double a1, const double a2, const double r, double limit)
+{
+  int steps = std::max(2, int(std::fabs(a2 - a1) / limit));	// SAGA: number of steps fitted to step size 'limit' (radians)
+
+  double x = std::cos(a1); 
+  double y = std::sin(a1);
+  double c = std::cos((a2 - a1) / steps);
+  double s = std::sin((a2 - a1) / steps);
+  Path result(steps +1);
+  for (int i = 0; i <= steps; ++i)
+  {
+      result[i].X = pt.X + Round(x * r);
+      result[i].Y = pt.Y + Round(y * r);
+      double x2 = x;
+      x = x * c - s * y;  //cross product
+      y = x2 * s + y * c; //dot product
+  }
+  return result;
+}	// <<< SAGA
+//------------------------------------------------------------------------------
 
 }; //end PolyOffsetBuilder
 
@@ -4452,10 +4474,82 @@ void CleanPolygon(const Path& in_poly, Path& out_poly, double distance)
 }
 //------------------------------------------------------------------------------
 
+void CleanPolygon(Path& poly, double distance)
+{
+  CleanPolygon(poly, poly, distance);
+}
+//------------------------------------------------------------------------------
+
 void CleanPolygons(const Paths& in_polys, Paths& out_polys, double distance)
 {
   for (Paths::size_type i = 0; i < in_polys.size(); ++i)
     CleanPolygon(in_polys[i], out_polys[i], distance);
+}
+//------------------------------------------------------------------------------
+
+void CleanPolygons(Paths& polys, double distance)
+{
+  CleanPolygons(polys, polys, distance);
+}
+//------------------------------------------------------------------------------
+
+void Minkowki(const Path& poly, const Path& path, 
+  Paths& solution, bool isSum, bool isClosed)
+{
+  int delta = (isClosed ? 1 : 0);
+  size_t polyCnt = poly.size();
+  size_t pathCnt = path.size();
+  Paths pp;
+  pp.reserve(pathCnt);
+  if (isSum)
+    for (size_t i = 0; i < pathCnt; ++i)
+    {
+      Path p;
+      p.reserve(polyCnt);
+      for (size_t j = 0; j < poly.size(); ++j)
+        p.push_back(IntPoint(path[i].X + poly[j].X, path[i].Y + poly[j].Y));
+      pp.push_back(p);
+    }
+  else
+    for (size_t i = 0; i < pathCnt; ++i)
+    {
+      Path p;
+      p.reserve(polyCnt);
+      for (size_t j = 0; j < poly.size(); ++j)
+        p.push_back(IntPoint(path[i].X - poly[j].X, path[i].Y - poly[j].Y));
+      pp.push_back(p);
+    }
+
+  Paths quads; 
+  quads.reserve((pathCnt + delta) * (polyCnt + 1));
+  for (size_t i = 0; i <= pathCnt - 2 + delta; ++i)
+    for (size_t j = 0; j <= polyCnt - 1; ++j)
+    {
+      Path quad;
+      quad.reserve(4);
+      quad.push_back(pp[i % pathCnt][j % polyCnt]);
+      quad.push_back(pp[(i + 1) % pathCnt][j % polyCnt]);
+      quad.push_back(pp[(i + 1) % pathCnt][(j + 1) % polyCnt]);
+      quad.push_back(pp[i % pathCnt][(j + 1) % polyCnt]);
+      if (!Orientation(quad)) ReversePath(quad);
+      quads.push_back(quad);
+    }
+
+  Clipper c;
+  c.AddPaths(quads, ptSubject, true);
+  c.Execute(ctUnion, solution, pftNonZero, pftNonZero);
+}
+//------------------------------------------------------------------------------
+
+void MinkowkiSum(const Path& poly, const Path& path, Paths& solution, bool isClosed)
+{
+  Minkowki(poly, path, solution, true, isClosed);
+}
+//------------------------------------------------------------------------------
+
+void MinkowkiDiff(const Path& poly, const Path& path, Paths& solution, bool isClosed)
+{
+  Minkowki(poly, path, solution, false, isClosed);
 }
 //------------------------------------------------------------------------------
 
@@ -4548,13 +4642,6 @@ void OffsetPolygons(const Polygons &in_polys, Polygons &out_polys,
   double delta, JoinType jointype, double limit, bool autoFix)
 {
   OffsetPaths(in_polys, out_polys, delta, jointype, etClosed, limit);
-}
-//------------------------------------------------------------------------------
-
-void OffsetPolyLines(const Polygons &in_lines, Polygons &out_lines,
-  double delta, JoinType jointype, EndType endtype, double limit, bool autoFix)
-{
-  OffsetPaths(in_lines, out_lines, delta, jointype, endtype, limit);
 }
 //------------------------------------------------------------------------------
 

@@ -210,29 +210,30 @@ bool CSG_Converter_WorldToInt::Convert(CSG_Shape *pPolygon, ClipperLib::Paths &P
 
 	for(int iPart=0, iPolygon=0; iPart<pPolygon->Get_Part_Count(); iPart++, iPolygon++)
 	{
-		bool	bAscending	= pPolygon->Get_Type() != SHAPE_TYPE_Polygon
-		|| (((CSG_Shape_Polygon *)pPolygon)->is_Lake(iPart)
-		==  ((CSG_Shape_Polygon *)pPolygon)->is_Clockwise(iPart));
-
-		int	nPoints	= pPolygon->Get_Point_Count(iPart);
-
-		Polygons.resize(1 + iPolygon);
-		Polygons[iPolygon].resize(nPoints);
-
-		for(int iPoint=0; iPoint<nPoints; iPoint++)
+		if( pPolygon->Get_Point_Count(iPart) > 0 )
 		{
-			TSG_Point	p	= pPolygon->Get_Point(iPoint, iPart, bAscending);
+			bool	bAscending	= pPolygon->Get_Type() != SHAPE_TYPE_Polygon
+			|| (((CSG_Shape_Polygon *)pPolygon)->is_Lake(iPart)
+			==  ((CSG_Shape_Polygon *)pPolygon)->is_Clockwise(iPart));
 
-			Polygons[iPolygon][iPoint].X	= Get_X_asInt(p.x);
-			Polygons[iPolygon][iPoint].Y	= Get_Y_asInt(p.y);
-		}
+			Polygons.resize(1 + iPolygon);
 
-		if( pPolygon->Get_Type() == SHAPE_TYPE_Polygon && Polygons[iPolygon][0] != Polygons[iPolygon][nPoints - 1] )
-		{
-			Polygons[iPolygon].resize(nPoints + 1);
+			for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point	p	= pPolygon->Get_Point(iPoint, iPart, bAscending);
 
-			Polygons[iPolygon][nPoints].X	= Polygons[iPolygon][0].X;
-			Polygons[iPolygon][nPoints].Y	= Polygons[iPolygon][0].Y;
+				ClipperLib::IntPoint	Point(Get_X_asInt(p.x), Get_Y_asInt(p.y));
+
+				if( iPoint == 0 || Polygons[iPolygon].back() != Point )	// don't add duplicates !!!
+				{
+					Polygons[iPolygon].push_back(Point);
+				}
+			}
+
+			if( pPolygon->Get_Type() == SHAPE_TYPE_Polygon && Polygons[iPolygon][0] == Polygons[iPolygon].back() )
+			{
+				Polygons[iPolygon].pop_back();
+			}
 		}
 	}
 
