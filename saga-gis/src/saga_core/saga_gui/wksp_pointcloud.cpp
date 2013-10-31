@@ -87,6 +87,8 @@
 CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	: CWKSP_Layer(pPointCloud)
 {
+	m_pTable		= new CWKSP_Table(pPointCloud);
+
 	m_Edit_Attributes.Destroy();
 	m_Edit_Attributes.Add_Field(_TL("Name") , SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
@@ -106,7 +108,9 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 
 //---------------------------------------------------------
 CWKSP_PointCloud::~CWKSP_PointCloud(void)
-{}
+{
+	delete(m_pTable);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -176,6 +180,14 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Classification"), pSubMenu);
 
 	//-----------------------------------------------------
+	wxMenu	*pTable	= new wxMenu(_TL("Table"));
+
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
+//	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
+//	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
+
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pTable);
+
 	return( pMenu );
 }
 
@@ -235,6 +247,14 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		}
 		break;
 
+	case ID_CMD_TABLES_SHOW:
+		m_pTable->Toggle_View();
+		break;
+
+	case ID_CMD_TABLES_DIAGRAM:
+		m_pTable->Toggle_Diagram();
+		break;
+
 	case ID_CMD_SHAPES_HISTOGRAM:
 		Histogram_Toggle();
 		break;
@@ -252,6 +272,14 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Layer::On_Command_UI(event) );
 
 	case ID_CMD_POINTCLOUD_LAST:
+		break;
+
+	case ID_CMD_TABLES_SHOW:
+		event.Check(m_pTable->Get_View() != NULL);
+		break;
+
+	case ID_CMD_TABLES_DIAGRAM:
+		event.Check(m_pTable->Get_Diagram() != NULL);
 		break;
 	}
 
@@ -339,6 +367,8 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 	_AttributeList_Set(m_Parameters("LUT_ATTRIB"   ), false);
 	_AttributeList_Set(m_Parameters("METRIC_ATTRIB"), false);
 	_AttributeList_Set(m_Parameters("RGB_ATTRIB"   ), false);
+
+	m_pTable->DataObject_Changed();
 }
 
 //---------------------------------------------------------
@@ -421,6 +451,12 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 	//-----------------------------------------------------
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
+}
+
+//---------------------------------------------------------
+void CWKSP_PointCloud::On_Update_Views(void)
+{
+	m_pTable->Update_Views();
 }
 
 
