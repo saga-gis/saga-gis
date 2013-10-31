@@ -286,10 +286,10 @@ public:
 		{
 			if( m_Index != NULL )
 			{
-				return( m_Records[m_Index[Index]] );
+				return( Get_Record(m_Index[Index]) );
 			}
 
-			return( m_Records[Index] );
+			return( Get_Record(Index) );
 		}
 
 		return( NULL );

@@ -1076,9 +1076,9 @@ void CSG_Table::_Index_Create(void)
 			jstack	= 0;
 
 	//-----------------------------------------------------
-	if( m_Index == NULL )
+	if( m_Index == NULL || m_nBuffer < m_nRecords )
 	{
-		m_Index	= (int *)SG_Malloc(m_nBuffer * sizeof(int));
+		m_Index	= (int *)SG_Realloc(m_Index, (m_nBuffer < m_nRecords ? m_nRecords : m_nBuffer) * sizeof(int));
 	}
 
 	for(j=0; j<m_nRecords; j++)
@@ -1218,15 +1218,16 @@ inline int CSG_Table::_Index_Compare(int a, int b, int Field)
 	switch( m_Field_Type[m_Index_Field[Field]] )
 	{
 	case SG_DATATYPE_String:
+	case SG_DATATYPE_Date:
 		Result	= SG_STR_CMP(
-					m_Records[a]->asString(m_Index_Field[Field]),
-					m_Records[b]->asString(m_Index_Field[Field])
+				  Get_Record(a)->asString(m_Index_Field[Field]),
+				  Get_Record(b)->asString(m_Index_Field[Field])
 				);
 		break;
 
 	default:
-		Result	= m_Records[a]->asDouble(m_Index_Field[Field])
-				- m_Records[b]->asDouble(m_Index_Field[Field]);
+		Result	= Get_Record(a)->asDouble(m_Index_Field[Field])
+				- Get_Record(b)->asDouble(m_Index_Field[Field]);
 		break;
 	}
 
