@@ -82,7 +82,6 @@ class CXYZ_Export : public CSG_Module
 {
 public:
 	CXYZ_Export(void);
-	virtual ~CXYZ_Export(void);
 
 	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Export") );	}
 
@@ -93,12 +92,15 @@ protected:
 
 };
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class CXYZ_Import : public CSG_Module  
 {
 public:
 	CXYZ_Import(void);
-	virtual ~CXYZ_Import(void);
 
 	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Import") );	}
 
@@ -109,4 +111,12 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__XYZ_H

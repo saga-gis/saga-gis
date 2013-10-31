@@ -73,45 +73,39 @@
 //---------------------------------------------------------
 CXYZ_Export::CXYZ_Export(void)
 {
-	CSG_Parameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Export Shapes to XYZ"));
+	Set_Name		(_TL("Export Shapes to XYZ"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
-	Set_Description(
-		_TL("XYZ export filter for shapes. ")
-	);
+	Set_Description	(_TW(
+		"XYZ export filter for shapes. "
+	));
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Shapes(
+	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode_1	= Parameters.Add_Table_Field(
-		pNode_0	, "FIELD"	, _TL("Attribute"),
-		_TL("")
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"	, _TL("Attribute"),
+		_TL(""),
+		true
 	);
 
-	pNode_0	= Parameters.Add_Value(
-		NULL	, "ALL"		, _TL("Save All Attributes"),
-		_TL("Ignores specified attribute ('Save Attribute') and saves all attributes."),
-		PARAMETER_TYPE_Bool	, false
-	);
-
-	pNode_0	= Parameters.Add_Value(
+	Parameters.Add_Value(
 		NULL	, "HEADER"	, _TL("Save Table Header"),
 		_TL(""),
 		PARAMETER_TYPE_Bool	, true
 	);
 
-	pNode_0	= Parameters.Add_Choice(
+	Parameters.Add_Choice(
 		NULL	, "SEPARATE", _TL("Separate Line/Polygon Points"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("none"),
 			_TL("*"),
@@ -119,7 +113,7 @@ CXYZ_Export::CXYZ_Export(void)
 		), 0
 	);
 
-	pNode_0	= Parameters.Add_FilePath(
+	Parameters.Add_FilePath(
 		NULL	, "FILENAME", _TL("File"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
@@ -131,136 +125,117 @@ CXYZ_Export::CXYZ_Export(void)
 }
 
 //---------------------------------------------------------
-CXYZ_Export::~CXYZ_Export(void)
-{}
-
-//---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
-	bool		bAll, bHeader, bPCloud;
-	int			iShape, iPart, iPoint, iField, Separate;
-	FILE		*Stream;
-	TSG_Point	Point;
-	CSG_Shape	*pShape;
+	bool		bHeader;
+	int			Field, off_Field, Separate;
+	CSG_File	Stream;
 	CSG_Shapes	*pShapes;
-	CSG_String	fName;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	fName		= Parameters("FILENAME")->asString();
-	bAll		= Parameters("ALL")		->asBool();
-	bHeader		= Parameters("HEADER")	->asBool();
-	iField		= Parameters("FIELD")	->asInt();
+	pShapes		= Parameters("SHAPES"  )->asShapes();
+	bHeader		= Parameters("HEADER"  )->asBool();
+	Field		= Parameters("FIELD"   )->asInt();
 	Separate	= pShapes->Get_Type() == SHAPE_TYPE_Point ? 0
 				: Parameters("SEPARATE")->asInt();
+	off_Field	= pShapes->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? 2 : 0;
 
-	if( bAll && (iField < 0 || iField >= pShapes->Get_Field_Count()) )
+	//-----------------------------------------------------
+	if( pShapes->Get_Field_Count() == 0 )
 	{
+		Error_Set(_TL("data set has no attributes"));
+
 		return( false );
 	}
 
-	if( pShapes->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud )
-		bPCloud = true;
-	else
-		bPCloud = false;
+	//-----------------------------------------------------
+	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_W, false) )
+	{
+		Error_Set(_TL("could not open file"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
+	if( bHeader )
 	{
-		if( bHeader )
+		Stream.Write("X\tY");
+
+		if( Field < 0 )
 		{
-			fprintf(Stream, "X\tY");
-
-			if( bAll )
+			for(int iField=off_Field; iField<pShapes->Get_Field_Count(); iField++)
 			{
-				if (bPCloud)
-					iField = 2;
-				else
-					iField = 0;
-
-				for(iField; iField<pShapes->Get_Field_Count(); iField++)
-				{
-					fprintf(Stream, "\t%s", pShapes->Get_Field_Name(iField));
-				}
+				Stream.Printf(SG_T("\t%s"), pShapes->Get_Field_Name(iField));
 			}
-			else
-			{
-				fprintf(Stream, "\tZ");
-			}
-
-			fprintf(Stream, "\n");
+		}
+		else
+		{
+			Stream.Write("\tZ");
 		}
 
-		//-------------------------------------------------
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		Stream.Write("\n");
+	}
+
+	//-------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			pShape	= pShapes->Get_Shape(iShape);
-
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			switch( Separate )
 			{
-				switch( Separate )
+			case 1:	// *
+				Stream.Write("*\n");
+				break;
+
+			case 2:	// number of points
+				Stream.Printf(SG_T("%d\n"), pShape->Get_Point_Count(iPart));
+				break;
+			}
+
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+
+				Stream.Printf(SG_T("%f\t%f"), Point.x, Point.y);
+
+				if( Field < 0 )
 				{
-				case 1:	// *
-					fprintf(Stream, "*\n");
-					break;
-
-				case 2:	// number of points
-					fprintf(Stream, "%d\n", pShape->Get_Point_Count(iPart));
-					break;
-				}
-
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					Point	= pShape->Get_Point(iPoint, iPart);
-					fprintf(Stream, "%f\t%f", Point.x, Point.y);
-
-					if( bAll )
-					{
-						if (bPCloud)
-							iField = 2;
-						else
-							iField = 0;
-
-						for(iField; iField<pShapes->Get_Field_Count(); iField++)
-						{
-							switch( pShapes->Get_Field_Type(iField) )
-							{
-							case SG_DATATYPE_String:
-								fprintf(Stream, "\t\"%s\""	,pShape->asString(iField));
-								break;
-
-							default:
-								fprintf(Stream, "\t%f"		,pShape->asDouble(iField));
-								break;
-							}
-						}
-					}
-					else
+					for(int iField=off_Field; iField<pShapes->Get_Field_Count(); iField++)
 					{
 						switch( pShapes->Get_Field_Type(iField) )
 						{
 						case SG_DATATYPE_String:
-							fprintf(Stream, "\t\"%s\""	,pShape->asString(iField));
+						case SG_DATATYPE_Date:
+							Stream.Printf(SG_T("\t\"%s\""), pShape->asString(iField));
 							break;
 
 						default:
-							fprintf(Stream, "\t%f"		,pShape->asDouble(iField));
+							Stream.Printf(SG_T("\t%f")    , pShape->asDouble(iField));
 							break;
 						}
 					}
-
-					fprintf(Stream, "\n");
 				}
+				else switch( pShapes->Get_Field_Type(Field) )
+				{
+				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:
+					Stream.Printf(SG_T("\t\"%s\""), pShape->asString(Field));
+					break;
+
+				default:
+					Stream.Printf(SG_T("\t%f")    , pShape->asDouble(Field));
+					break;
+				}
+
+				Stream.Write("\n");
 			}
 		}
-
-		//-------------------------------------------------
-		fclose(Stream);
-
-		return( true );
 	}
 
-	return( false );
+	//-------------------------------------------------
+	return( true );
 }
 
 
@@ -273,46 +248,45 @@ bool CXYZ_Export::On_Execute(void)
 //---------------------------------------------------------
 CXYZ_Import::CXYZ_Import(void)
 {
-	CSG_Parameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Import Shapes from XYZ"));
+	Set_Name		(_TL("Import Shapes from XYZ"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
-	Set_Description(
-		_TL("Point shapes import from text formated XYZ-table.")
-	);
+	Set_Description	(_TW(
+		"Point shapes import from text formated XYZ-table."
+	));
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Shapes(
+	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-//	pNode_0	= Parameters.Add_Value(
+//	Parameters.Add_Value(
 //		NULL	, "HEADLINE"	, "File contains headline",
 //		_TL(""),
 //		PARAMETER_TYPE_Bool		, true
 //	);
 
-	pNode_1	= Parameters.Add_Value(
-		pNode_0	, "X_FIELD"		, _TL("X Column"),
+	Parameters.Add_Value(
+		pNode	, "X_FIELD"		, _TL("X Column"),
 		_TL(""),
 		PARAMETER_TYPE_Int		, 1, 1, true
 	);
 
-	pNode_1	= Parameters.Add_Value(
-		pNode_0	, "Y_FIELD"		, _TL("Y Column"),
+	Parameters.Add_Value(
+		pNode	, "Y_FIELD"		, _TL("Y Column"),
 		_TL(""),
 		PARAMETER_TYPE_Int		, 2, 1, true
 	);
 
-	pNode_0	= Parameters.Add_FilePath(
+	Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("File"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
 			_TL("XYZ Files (*.xyz)")	, SG_T("*.xyz"),
 			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
@@ -322,53 +296,57 @@ CXYZ_Import::CXYZ_Import(void)
 }
 
 //---------------------------------------------------------
-CXYZ_Import::~CXYZ_Import(void)
-{}
-
-//---------------------------------------------------------
 bool CXYZ_Import::On_Execute(void)
 {
-	int					xField, yField, iRecord;
-	CSG_Table			Table;
-	CSG_Table_Record	*pRecord;
-	CSG_Shapes			*pShapes;
-	CSG_Shape			*pShape;
-
-	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	xField	= Parameters("X_FIELD")	->asInt() - 1;
-	yField	= Parameters("Y_FIELD")	->asInt() - 1;
+	CSG_Table	Table;
 
 	//-----------------------------------------------------
 	if( !Table.Create(Parameters("FILENAME")->asString()) )	// Parameters("HEADLINE")->asBool()
 	{
-		Message_Add(_TL("Table could not be opened."));
-	}
-	else if( Table.Get_Record_Count() <= 0 )
-	{
-		Message_Add(_TL("Table does not contain any data."));
-	}
-	else if( xField == yField || xField < 0 || xField >= Table.Get_Field_Count() || yField < 0 || yField >= Table.Get_Field_Count() )
-	{
-		Message_Add(_TL("Invalid X/Y fields."));
+		Error_Set(_TL("Table could not be opened."));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	else
+	if( Table.Get_Record_Count() <= 0 )
 	{
-		pShapes->Create(SHAPE_TYPE_Point, Table.Get_Name(), &Table);
+		Error_Set(_TL("Table does not contain any data."));
 
-		for(iRecord=0; iRecord<Table.Get_Record_Count(); iRecord++)
-		{
-			pRecord	= Table.Get_Record(iRecord);
-			pShape	= pShapes->Add_Shape(pRecord);
-			pShape->Add_Point(pRecord->asDouble(xField), pRecord->asDouble(yField));
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	int	xField	= Parameters("X_FIELD")->asInt() - 1;
+	int	yField	= Parameters("Y_FIELD")->asInt() - 1;
+
+	if( xField == yField
+	||  xField < 0 || xField >= Table.Get_Field_Count()
+	||  yField < 0 || yField >= Table.Get_Field_Count() )
+	{
+		Error_Set(_TL("Invalid X/Y fields."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes	*pShapes	= Parameters("SHAPES" )->asShapes();
+
+	pShapes->Create(SHAPE_TYPE_Point, Table.Get_Name(), &Table);
+
+	for(int iRecord=0; iRecord<Table.Get_Record_Count(); iRecord++)
+	{
+		CSG_Table_Record	*pRecord	= Table.Get_Record(iRecord);
+
+		CSG_Shape	*pShape	= pShapes->Add_Shape(pRecord);
+
+		pShape->Add_Point(
+			pRecord->asDouble(xField),
+			pRecord->asDouble(yField)
+		);
+	}
+
+	return( true );
 }
 
 
