@@ -72,9 +72,6 @@
 
 #include "wksp_data_manager.h"
 
-#include "wksp_shapes_manager.h"
-#include "wksp_shapes.h"
-
 #include "view_table_control.h"
 
 
@@ -154,14 +151,13 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	m_pTable		= pTable;
 	m_pRecords		= NULL;
 	m_Constraint	= Constraint;
-	m_bUpdating		= false;
 	m_bSelOnly		= false;
 
 	Set_Labeling(false);
 
 	CreateGrid(m_pTable->Get_Record_Count(), m_pTable->Get_Field_Count(), wxGrid::wxGridSelectRows);
 
-	_Set_Table();
+	Update_Table();
 }
 
 //---------------------------------------------------------
@@ -197,32 +193,41 @@ void CVIEW_Table_Control::Set_Labeling(bool bOn)
 	}
 }
 
-//---------------------------------------------------------
-void CVIEW_Table_Control::Update_Table(void)
-{
-	_Set_Table();
-}
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Table_Control::Sort_Table(int iField, int Direction)
+void CVIEW_Table_Control::_Update_Views(void)
 {
-	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+	if( GetBatchCount() == 0 )
 	{
-		switch( Direction )
-		{
-		default:	m_pTable->Toggle_Index(iField);	break;
-		case 0:		m_pTable->Set_Index(iField, TABLE_INDEX_None      );	break;
-		case 1:		m_pTable->Set_Index(iField, TABLE_INDEX_Ascending );	break;
-		case 2:		m_pTable->Set_Index(iField, TABLE_INDEX_Descending);	break;
-		}
+		BeginBatch();
 
-		_Set_Records();
+		g_pData->Update_Views(m_pTable);
+
+		EndBatch();
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CVIEW_Table_Control::_Set_Table(void)
+bool CVIEW_Table_Control::Update_Table(void)
 {
+	if( GetBatchCount() > 0 )
+	{
+		return( false );
+	}
+
 	BeginBatch();
 
 	//-----------------------------------------------------
@@ -250,6 +255,7 @@ bool CVIEW_Table_Control::_Set_Table(void)
 		case SG_DATATYPE_String:
 		case SG_DATATYPE_Date:
 		case SG_DATATYPE_Binary:
+			SetColFormatCustom(iCol, wxGRID_VALUE_STRING);
 			break;
 
 		case SG_DATATYPE_Bit:
@@ -271,21 +277,15 @@ bool CVIEW_Table_Control::_Set_Table(void)
 	}
 
 	//-----------------------------------------------------
-	_Set_Records();
-
 	EndBatch();
 
-	_Update_Views();
-
-	return( true );
+	return( _Set_Records() );
 }
 
 //---------------------------------------------------------
 bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 {
 	BeginBatch();
-
-	m_bUpdating	= true;
 
 	//-----------------------------------------------------
 	if( m_bSelOnly && m_pTable->Get_Selection_Count() <= 0 )
@@ -345,9 +345,9 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 	}
 
 	//-----------------------------------------------------
-	m_bUpdating	= false;
-
 	EndBatch();
+
+	_Update_Views();
 
 	return( true );
 }
@@ -382,6 +382,32 @@ bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVIEW_Table_Control::Update_Sorting(int iField, int Direction)
+{
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+	{
+		switch( Direction )
+		{
+		default:	m_pTable->Toggle_Index(iField);	break;
+		case 0:		m_pTable->Set_Index(iField, TABLE_INDEX_None      );	break;
+		case 1:		m_pTable->Set_Index(iField, TABLE_INDEX_Ascending );	break;
+		case 2:		m_pTable->Set_Index(iField, TABLE_INDEX_Descending);	break;
+		}
+
+		return( _Set_Records() );
+	}
+
+	return( false );
 }
 
 
@@ -438,31 +464,13 @@ bool CVIEW_Table_Control::Ins_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Record(void)
 {
-	if( !FIXED_ROWS )
-	{
-		m_pTable->Del_Selection();
-
-		g_pData->Update_Views(m_pTable);
-
-		Update_Table();
-
-		return( true );
-	}
-
-	return( false );
+	return( !FIXED_ROWS && m_pTable->Del_Selection() && Update_Table() );
 }
 
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Records(void)
 {
-	if( !FIXED_ROWS && m_pTable->Del_Records() )
-	{
-		DeleteRows(0, GetNumberRows());
-
-		return( true );
-	}
-
-	return( false );
+	return( !FIXED_ROWS && m_pTable->Del_Records() && Update_Table() );
 }
 
 
@@ -475,28 +483,22 @@ bool CVIEW_Table_Control::Del_Records(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Load(const wxString &File_Name)
 {
-	CSG_Table	Table;
+	CSG_Table	Table(&File_Name);
 
-	if(	Table.Create(CSG_String(&File_Name)) && Table.Get_Count() > 0 && Table.Get_Field_Count() == m_pTable->Get_Field_Count() )
-	{
-		m_pTable->Assign_Values(&Table);
-
-		_Set_Table();
-
-		return( true );
-	}
+	bool	bResult	= Table.Get_Count() > 0
+		&& Table.Get_Field_Count() == m_pTable->Get_Field_Count()
+		&& m_pTable->Assign_Values(&Table)
+		&& Update_Table();
 
 	PROCESS_Set_Okay();
 
-	return( false );
+	return( bResult );
 }
 
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Save(const wxString &File_Name, int Format)
 {
-	bool	bResult;
-
-	bResult	= m_pTable->Save(CSG_String(&File_Name));
+	bool	bResult	= m_pTable->Save(&File_Name);
 
 	PROCESS_Set_Okay();
 
@@ -616,8 +618,6 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 		Position	= P("FIELD")->asInt() + P("INSERT")->asInt();
 
 		m_pTable->Add_Field(P("NAME")->asString(), Type, Position);
-
-		Update_Table();
 
 		g_pData->Update(m_pTable, NULL);
 	}
@@ -820,8 +820,6 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 		if( bChanged )
 		{
 			Update_Table();
-
-			g_pData->Update(m_pTable, NULL);
 		}
 	}
 }
@@ -1080,7 +1078,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 {
-	Sort_Table(event.GetCol(), -1);
+	Update_Sorting(event.GetCol(), -1);
 }
 
 
@@ -1091,35 +1089,10 @@ void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Table_Control::On_Select(wxGridRangeSelectEvent &event)
+bool CVIEW_Table_Control::Update_Selection(void)
 {
-	if( !m_bUpdating )
+	if( GetBatchCount() == 0 )
 	{
-		BeginBatch();
-
-		for(int iRow=event.GetTopRow(); iRow<=event.GetBottomRow(); iRow++)
-		{
-			if( m_pRecords[iRow]->is_Selected() != event.Selecting() )
-			{
-				m_pTable->Select(m_pRecords[iRow], true);
-			}
-		}
-
-		EndBatch();
-
-		_Update_Views();
-	}
-
-	event.Skip();
-}
-
-//---------------------------------------------------------
-void CVIEW_Table_Control::Update_Selection(void)
-{
-	if( !m_bUpdating )
-	{
-		m_bUpdating	= true;
-
 		BeginBatch();
 
 		if( m_pTable->Get_Selection_Count() >= m_pTable->Get_Count() )
@@ -1145,29 +1118,35 @@ void CVIEW_Table_Control::Update_Selection(void)
 
 		EndBatch();
 
-		m_bUpdating	= false;
-
 		_Update_Views();
+
+		return( true );
 	}
+
+	return( false );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CVIEW_Table_Control::_Update_Views(void)
+void CVIEW_Table_Control::On_Select(wxGridRangeSelectEvent &event)
 {
 	if( GetBatchCount() == 0 )
 	{
-	//	if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+		BeginBatch();
+
+		for(int iRow=event.GetTopRow(); iRow<=event.GetBottomRow(); iRow++)
 		{
-			g_pData->Update_Views(m_pTable);
+			if( m_pRecords[iRow]->is_Selected() != event.Selecting() )
+			{
+				m_pTable->Select(m_pRecords[iRow], true);
+			}
 		}
+
+		EndBatch();
+
+		_Update_Views();
 	}
+
+	event.Skip();
 }
 
 

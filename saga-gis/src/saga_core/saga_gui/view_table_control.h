@@ -140,23 +140,24 @@ public:
 	void						On_LDClick_Label	(wxGridEvent &event);
 	void						On_Select			(wxGridRangeSelectEvent &event);
 
-	bool						Load				(const wxString &File_Name);
-	bool						Save				(const wxString &File_Name, int Format = 0);
+	void						Set_Labeling		(bool bOn);
+
+	bool						Update_Table		(void);
+	bool						Update_Selection	(void);
+	bool						Update_Sorting		(int iField, int Direction);
 
 	bool						Add_Record			(void);
 	bool						Ins_Record			(void);
 	bool						Del_Record			(void);
 	bool						Del_Records			(void);
 
-	void						Set_Labeling		(bool bOn);
-	void						Update_Selection	(void);
-	void						Update_Table		(void);
-	void						Sort_Table			(int iField, int Direction);
+	bool						Load				(const wxString &File_Name);
+	bool						Save				(const wxString &File_Name, int Format = 0);
 
 
 private:
 
-	bool						m_bUpdating, m_bSelOnly;
+	bool						m_bSelOnly;
 
 	int							m_Constraint, m_Field_Offset;
 
@@ -165,12 +166,10 @@ private:
 	class CSG_Table				*m_pTable;
 
 
-	bool						_Set_Table			(void);
+	void						_Update_Views		(void);
 
 	bool						_Set_Records		(bool bSelection_To_Top = false);
 	bool						_Set_Record			(int iRecord, class CSG_Table_Record *pRecord);
-
-	void						_Update_Views		(void);
 
 
 //---------------------------------------------------------
