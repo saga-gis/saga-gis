@@ -90,14 +90,30 @@ public:
 
 protected:
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
+	bool						m_bSUM, m_bAVG, m_bMIN, m_bMAX, m_bRNG, m_bDEV, m_bVAR, m_bNUM;
+
+	int							m_Stat_Offset;
+
+	CSG_Parameter_Table_Fields	*m_Stat_pFields;
+
+	CSG_Simple_Statistics		*m_Statistics;
+
+
+	CSG_String					Get_Statistics_Name		(const CSG_String &Type, const CSG_String &Name);
+
+	bool						Init_Statistics			(CSG_Shapes *pUnions, CSG_Shapes *pPolygons);
+
+	bool						Add_Statistics			(CSG_Shape *pUnion, CSG_Shape *pPolygon, bool bReset);
+
+	bool						Set_Union				(CSG_Shape *pUnion, bool bDissolve);
 
 };
 
