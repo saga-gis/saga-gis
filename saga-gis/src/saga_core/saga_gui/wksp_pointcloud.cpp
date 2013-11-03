@@ -566,8 +566,10 @@ void CWKSP_PointCloud::_LUT_Create(void)
 		Parameters.Add_Choice(
 			NULL, "METHOD"	, _TL("Classification Method"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|"),
-				_TL("equal intervals")
+			CSG_String::Format(SG_T("%s|%s|%s|"),
+				_TL("unique values"),
+				_TL("equal intervals"),
+				_TL("quantiles")
 			), 0
 		);
 	}
@@ -588,9 +590,51 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	switch( Method )
 	{
 	//-----------------------------------------------------
-	// in case we implement indexing and sorting in the point cloud API, we can add unique values and quantiles from wksp_shapes.cpp
+	case 0:	// unique values
+		{
+			TSG_Table_Index_Order	old_Order	= Get_PointCloud()->Get_Index_Order(0);
+			int						old_Field	= Get_PointCloud()->Get_Index_Field(0);
+
+			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(iField))
+									? SG_DATATYPE_Double : SG_DATATYPE_String;
+
+			pLUT->Set_Field_Type(LUT_MIN, Type);
+			pLUT->Set_Field_Type(LUT_MAX, Type);
+
+			Get_PointCloud()->Set_Index(iField, TABLE_INDEX_Ascending);
+
+			CSG_String	sValue;
+
+			for(int iRecord=0; iRecord<Get_PointCloud()->Get_Count(); iRecord++)
+			{
+				CSG_Table_Record	*pRecord	= Get_PointCloud()->Get_Record_byIndex(iRecord);
+
+				if( iRecord == 0 || sValue.Cmp(pRecord->asString(iField)) )
+				{
+					sValue	= pRecord->asString(iField);
+
+					CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+					pClass->Set_Value(1, sValue);	// Name
+					pClass->Set_Value(2, sValue);	// Description
+					pClass->Set_Value(3, sValue);	// Minimum
+					pClass->Set_Value(4, sValue);	// Maximum
+				}
+			}
+
+			pColors->Set_Count(pLUT->Get_Count());
+
+			for(int iClass=0; iClass<pLUT->Get_Count(); iClass++)
+			{
+				pLUT->Get_Record(iClass)->Set_Value(0, pColors->Get_Color(iClass));
+			}
+
+			Get_PointCloud()->Set_Index(old_Field, old_Order);
+		}
+		break;
+
 	//-----------------------------------------------------
-	case 0:	// equal intervals
+	case 1:	// equal intervals
 		{
 			double	Minimum, Maximum, Interval;
 
@@ -617,6 +661,50 @@ void CWKSP_PointCloud::_LUT_Create(void)
 				pClass->Set_Value(3, Minimum);	// Minimum
 				pClass->Set_Value(4, Maximum);	// Maximum
 			}
+		}
+		break;
+
+		//-----------------------------------------------------
+	case 2:	// quantiles
+		{
+			TSG_Table_Index_Order	old_Order	= Get_PointCloud()->Get_Index_Order(0);
+			int						old_Field	= Get_PointCloud()->Get_Index_Field(0);
+
+			Get_PointCloud()->Set_Index(iField, TABLE_INDEX_Ascending);
+
+			pLUT->Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
+			pLUT->Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
+
+			if( Get_PointCloud()->Get_Count() < pColors->Get_Count() )
+			{
+				pColors->Set_Count(Get_PointCloud()->Get_Count());
+			}
+
+			double	Minimum, Maximum, Count, iRecord;
+
+			Maximum	= Get_PointCloud()->Get_Minimum(iField);
+			iRecord	= Count	= Get_PointCloud()->Get_Count() / (double)pColors->Get_Count();
+
+			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iRecord+=Count)
+			{
+				Minimum	= Maximum;
+				Maximum	= iRecord < Get_PointCloud()->Get_Count() ? Get_PointCloud()->Get_Record_byIndex((int)iRecord)->asDouble(iField) : Get_PointCloud()->Get_Maximum(iField) + 1.0;
+
+				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
+					SG_Get_String(Minimum, -2).c_str(),
+					SG_Get_String(Maximum, -2).c_str()
+				);
+
+				CSG_Table_Record	*pClass	= pLUT->Add_Record();
+
+				pClass->Set_Value(0, pColors->Get_Color(iClass));
+				pClass->Set_Value(1, sValue);	// Name
+				pClass->Set_Value(2, sValue);	// Description
+				pClass->Set_Value(3, Minimum);	// Minimum
+				pClass->Set_Value(4, Maximum);	// Maximum
+			}
+
+			Get_PointCloud()->Set_Index(old_Field, old_Order);
 		}
 		break;
 	}
