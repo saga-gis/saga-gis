@@ -159,7 +159,7 @@ bool CXYZ_Export::On_Execute(void)
 	//-----------------------------------------------------
 	if( bHeader )
 	{
-		Stream.Write("X\tY");
+		Stream.Printf(SG_T("X\tY"));
 
 		if( Field < 0 )
 		{
@@ -170,10 +170,10 @@ bool CXYZ_Export::On_Execute(void)
 		}
 		else
 		{
-			Stream.Write("\tZ");
+			Stream.Printf(SG_T("\tZ"));
 		}
 
-		Stream.Write("\n");
+		Stream.Printf(SG_T("\n"));
 	}
 
 	//-------------------------------------------------
@@ -186,7 +186,7 @@ bool CXYZ_Export::On_Execute(void)
 			switch( Separate )
 			{
 			case 1:	// *
-				Stream.Write("*\n");
+				Stream.Printf(SG_T("*\n"));
 				break;
 
 			case 2:	// number of points
@@ -229,7 +229,7 @@ bool CXYZ_Export::On_Execute(void)
 					break;
 				}
 
-				Stream.Write("\n");
+				Stream.Printf(SG_T("\n"));
 			}
 		}
 	}
