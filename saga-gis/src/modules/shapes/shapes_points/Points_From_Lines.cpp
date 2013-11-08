@@ -72,6 +72,12 @@ CPoints_From_Lines::CPoints_From_Lines(void)
 		_TL(""),
 		PARAMETER_TYPE_Double, 100, 0.0, true
 	);
+
+	Parameters.Add_Value(
+		NULL, "ADD_POINT_ORDER"	, _TL("Add Point Order"),
+		_TL("Add point order as additional attribute."),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -87,18 +93,25 @@ bool CPoints_From_Lines::On_Execute(void)
 	TSG_Point	Pt_A, Pt_B;	
 	CSG_Shapes	*pLines, *pPoints;
 	CSG_Shape	*pLine, *pPoint;
+	bool		bAddPtOrder;
 
 	//-----------------------------------------------------
-	pLines	= Parameters("LINES")	->asShapes();
-	pPoints	= Parameters("POINTS")	->asShapes();
-	dDist	= Parameters("ADD")		->asBool() ? Parameters("DIST")->asDouble() : -1.0;
+	pLines		= Parameters("LINES")	->asShapes();
+	pPoints		= Parameters("POINTS")	->asShapes();
+	dDist		= Parameters("ADD")		->asBool() ? Parameters("DIST")->asDouble() : -1.0;
+	bAddPtOrder	= Parameters("ADD_POINT_ORDER")->asBool();
 
 	pPoints->Create(SHAPE_TYPE_Point, pLines->Get_Name(), pLines);
+
+	if( bAddPtOrder )
+		pPoints->Add_Field(_TL("PT_ID"), SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
 	for(iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
 		pLine	= pLines->Get_Shape(iLine);
+
+		int		iPoints = 0;
 
 		for(iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
@@ -120,6 +133,12 @@ bool CPoints_From_Lines::On_Execute(void)
 					pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 					pPoint	->Add_Point(Pt_A);
 
+					if( bAddPtOrder )
+					{
+						pPoint->Set_Value(pPoints->Get_Field_Count()-1, iPoints);
+						iPoints++;
+					}
+
 					for(jPoint=1; jPoint<nPoints; jPoint++)
 					{
 						Pt_A.x	+= dx;
@@ -127,6 +146,12 @@ bool CPoints_From_Lines::On_Execute(void)
 
 						pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pPoint	->Add_Point(Pt_A);
+
+						if( bAddPtOrder )
+						{
+							pPoint->Set_Value(pPoints->Get_Field_Count()-1, iPoints);
+							iPoints++;
+						}
 					}
 				}
 			}
@@ -138,6 +163,12 @@ bool CPoints_From_Lines::On_Execute(void)
 				{
 					pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 					pPoint	->Add_Point(pLine->Get_Point(iPoint, iPart));
+
+					if( bAddPtOrder )
+					{
+						pPoint->Set_Value(pPoints->Get_Field_Count()-1, iPoints);
+						iPoints++;
+					}
 				}
 			}
 		}
