@@ -182,7 +182,7 @@ bool CLAS_Info::On_Execute(void)
 		if( !Print_Point_Summary(header, pSummary) )
 			return (false);
 
-		delete (pSummary);
+		free (pSummary);
 	}
 
 	//-----------------------------------------------------
