@@ -79,9 +79,9 @@ CGridding_Spline_BA::CGridding_Spline_BA(void)
 	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Calculates B-spline functions for choosen level of detail. "
-		"This module serves as basis for the 'Multilevel B-Spline Interpolation' "
-		"and is not suited as it is for spatial data interpolation from "
+		"Calculates B-spline functions for chosen level of detail. "
+		"This module serves as the basis for the 'Multilevel B-Spline Interpolation' "
+		"and is not suited as is for spatial data interpolation from "
 		"scattered data. "
 
 		"\n\n"

@@ -78,7 +78,7 @@ CTable_Enumerate::CTable_Enumerate(void)
 	Set_Name(_TL("Enumerate Table Field"));
 
 	Set_Description(_TW(
-		"Enumerate attribute of a table, i.e. assign to identical values of choosen attribute field unique identifiers."
+		"Enumerate attribute of a table, i.e. assign to identical values of chosen attribute field unique identifiers."
 	));
 
 	pNode	= Parameters.Add_Table(
