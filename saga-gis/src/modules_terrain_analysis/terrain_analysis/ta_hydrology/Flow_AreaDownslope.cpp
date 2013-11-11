@@ -107,7 +107,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 		"Deterministic Infinity:\n"
 		"- Tarboton, D.G. (1997):\n"
 		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
-		"    Water Ressources Research, Vol.33, No.2, p.309-319\n\n"
+		"    Water Resources Research, Vol.33, No.2, p.309-319\n\n"
 
 		"Multiple Flow Direction:\n"
 		"- Freeman, G.T. (1991):\n"
