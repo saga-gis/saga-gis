@@ -63,6 +63,7 @@
 
 #include "MLB_Interface.h"
 
+#include <opencv\cv.h>
 
 //---------------------------------------------------------
 // 2. Place general module library informations here...
@@ -78,12 +79,15 @@ CSG_String Get_Info(int i)
 		return( _TL("O. Conrad (c) 2009") );
 
 	case MLB_INFO_Description:
-		return( _TW(
-			"OpenCV, the \"Open Source Computer Vision Library\". "
-			"Find out more at the OpenCV  - Open Source Computer Vision - homepage:\n"
-			"<a target=\"_blank\" href=\"http://opencv.willowgarage.com\">"
-			"http://opencv.willowgarage.com</a>"
-		));
+		{
+			CSG_String	s;
+
+			s	+= _TW("OpenCV - \"Open Source Computer Vision Library\"\nVersion: ");
+			s	+= CV_VERSION;
+			s	+= "\n<a target=\"_blank\" href=\"http://opencv.org\">OpenCV homepage</a>";
+
+			return( s );
+		}
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );

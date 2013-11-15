@@ -74,7 +74,7 @@ COpenCV_NNet::COpenCV_NNet(void)
 {
 	CSG_Parameter	*pNodeTrainData, *pNodeTrainAreas, *pNodeTopology, *pNodeActFun, *pNodeRPROP, *pNodeBPROP, *pNodeData;
 
-	Set_Name		(_TL("OpenCV Neural Networks"));
+	Set_Name		(_TL("OpenCV - Neural Networks"));
 
 	Set_Author		(SG_T("Luca Piras"));
 
