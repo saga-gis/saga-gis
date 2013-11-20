@@ -545,12 +545,16 @@ bool CSG_Shapes::Make_Clean(void)
 
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 		{
-			//--------------------------------------------
-			// ring direction: outer rings > clockwise, inner rings (lakes) > counterclockwise !
-
-			if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart)) )
+			if( m_Vertex_Type == SG_VERTEX_TYPE_XY )	// currently we have to disable this check for 3D shapefiles since the
+														// _Update_Area() method can not handle polygons with no horizontal extent
 			{
-				pPolygon->Revert_Points(iPart);
+				//--------------------------------------------
+				// ring direction: outer rings > clockwise, inner rings (lakes) > counterclockwise !
+
+				if( (pPolygon->is_Lake(iPart) == pPolygon->is_Clockwise(iPart)) )
+				{
+					pPolygon->Revert_Points(iPart);
+				}
 			}
 
 			//--------------------------------------------
