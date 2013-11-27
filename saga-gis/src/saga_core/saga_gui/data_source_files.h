@@ -82,17 +82,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CData_Source_Files : public wxGenericDirCtrl
+class CData_Source_Files : public wxPanel
 {
 public:
 	CData_Source_Files(wxWindow *pParent);
+
+	void						SetPath				(const wxString &Path);
+
+
+private:
+
+	wxChoice					*m_pFilter;
+
+	wxGenericDirCtrl			*m_pControl;
+
 
 	void						On_TreeEvent		(wxTreeEvent    &event);
 
 	void						On_Refresh			(wxCommandEvent &event);
 
-
-private:
+	void						On_Change_Filter	(wxCommandEvent &event);
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()
