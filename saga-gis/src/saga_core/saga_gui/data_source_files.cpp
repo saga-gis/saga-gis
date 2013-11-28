@@ -98,7 +98,7 @@ END_EVENT_TABLE()
 CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	: wxPanel(pParent)
 {
-	m_pControl	= new wxGenericDirCtrl(this, wxID_ANY, wxDirDialogDefaultFolderStr, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER, DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN), 0);
+	m_pControl	= new wxGenericDirCtrl(this, wxID_ANY, wxDirDialogDefaultFolderStr, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER);
 
 	m_pControl->GetTreeCtrl()->SetId(ID_WND_DATA_SOURCE_FILES);
 
@@ -110,8 +110,6 @@ CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 
 	//-----------------------------------------------------
 	wxString	Filter(DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN));
-
-	m_pControl	->SetFilter(Filter);
 
 	wxArrayString	Choices;
 
@@ -125,7 +123,8 @@ CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	m_pFilter	= new wxChoice(this, ID_WND_DATA_SOURCE_FILES, wxDefaultPosition, wxDefaultSize, Choices);
 
 	m_pFilter	->Select(0);
-	m_pControl	->SetFilterIndex(0);
+	m_pControl	->SetFilter(DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN));
+	m_pControl	->SetFilterIndex(m_pFilter->GetSelection());
 	m_pControl	->ReCreateTree();
 
 	//-----------------------------------------------------
