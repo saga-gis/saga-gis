@@ -93,39 +93,11 @@ CThiessen_Polygons::CThiessen_Polygons(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Choice(
-		NULL	, "FRAME"		, _TL("Add Frame"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("no"),
-			_TL("four points"),
-			_TL("eight points")
-		), 1
-	);
-
 	Parameters.Add_Value(
-		pNode	, "FRAME_SIZE"	, _TL("Frame Size"),
+		NULL	, "FRAME"		, _TL("Frame Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.5, 0.0, true
+		PARAMETER_TYPE_Double, 10.0, 0.0, true
 	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CThiessen_Polygons::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRAME")) )
-	{
-		pParameters->Get_Parameter("FRAME_SIZE")->Set_Enabled(pParameter->asInt() > 0 );
-	}
-
-	return( 1 );
 }
 
 
@@ -143,35 +115,36 @@ bool CThiessen_Polygons::On_Execute(void)
 
 	if( !TIN.Create(Parameters("POINTS")->asShapes()) )
 	{
+		Error_Set(_TL("TIN creation failed"));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	int	nNodes	= TIN.Get_Node_Count();
 
-	if( Parameters("FRAME")->asInt() > 0 )
-	{
-		CSG_Rect	Frame(TIN.Get_Extent());
+	CSG_Rect	r(TIN.Get_Extent());
 
-		Frame.Inflate(100.0 * Parameters("FRAME_SIZE")->asDouble());
+	r.Inflate(Parameters("FRAME")->asDouble(), false);
 
-		TIN.Add_Node(CSG_Point(Frame.Get_XMin(), Frame.Get_YMin()), NULL, false);
-		TIN.Add_Node(CSG_Point(Frame.Get_XMin(), Frame.Get_YMax()), NULL, false);
-		TIN.Add_Node(CSG_Point(Frame.Get_XMax(), Frame.Get_YMax()), NULL, false);
-		TIN.Add_Node(CSG_Point(Frame.Get_XMax(), Frame.Get_YMin()), NULL, false);
+	//-----------------------------------------------------
+	CSG_Shapes	Frame(SHAPE_TYPE_Polygon);
+	CSG_Shape	*pFrame	= Frame.Add_Shape();
 
-		if( Parameters("FRAME")->asInt() > 1 )
-		{
-			Frame.Inflate(41.42);
+	pFrame->Add_Point(r.Get_XMin(), r.Get_YMin());
+	pFrame->Add_Point(r.Get_XMin(), r.Get_YMax());
+	pFrame->Add_Point(r.Get_XMax(), r.Get_YMax());
+	pFrame->Add_Point(r.Get_XMax(), r.Get_YMin());
 
-			TIN.Add_Node(CSG_Point(Frame.Get_XMin()   , Frame.Get_YCenter()), NULL, false);
-			TIN.Add_Node(CSG_Point(Frame.Get_XMax()   , Frame.Get_YCenter()), NULL, false);
-			TIN.Add_Node(CSG_Point(Frame.Get_XCenter(), Frame.Get_YMin())   , NULL, false);
-			TIN.Add_Node(CSG_Point(Frame.Get_XCenter(), Frame.Get_YMax())   , NULL, false);
-		}
+	//-----------------------------------------------------
+	r.Inflate(3 * r.Get_XRange(), 3 * r.Get_YRange(), false);
 
-		TIN.Update();
-	}
+	TIN.Add_Node(CSG_Point(r.Get_XCenter(), r.Get_YMin   ()), NULL, false);
+	TIN.Add_Node(CSG_Point(r.Get_XMax   (), r.Get_YCenter()), NULL, false);
+	TIN.Add_Node(CSG_Point(r.Get_XCenter(), r.Get_YMax   ()), NULL, false);
+	TIN.Add_Node(CSG_Point(r.Get_XMin   (), r.Get_YCenter()), NULL, false);
+
+	TIN.Update();
 
 	//-----------------------------------------------------
 	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
@@ -191,6 +164,8 @@ bool CThiessen_Polygons::On_Execute(void)
 			{
 				pPolygon->Add_Point(Points[iPoint]);
 			}
+
+			SG_Polygon_Intersection(pPolygon, pFrame);
 		}
 	}
 
