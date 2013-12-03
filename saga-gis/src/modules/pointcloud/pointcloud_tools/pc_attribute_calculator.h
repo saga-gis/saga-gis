@@ -98,6 +98,7 @@ protected:
 
 private:
 
+	CSG_String					Get_Formula(CSG_String sFormula, CSG_Table *pTable, int *Fields, int &nFields);
 
 };
 

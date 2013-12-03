@@ -76,16 +76,17 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 
 	Set_Name(_TL("Point Cloud Attribute Calculator"));
 
-	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
+	Set_Author(_TL("Volker Wichmann (c) 2010-213, LASERDATA GmbH"));
 
 	CSG_String	s(_TW(
 		"The Point Cloud Attribute Calculator calculates a new attribute "
 		"based on existing attributes and a mathematical formula. "
-		"The attribute fields are referenced by characters 'a' to 'z' "
-		"with 'a' referencing the first field, 'b' the second field and so "
-		"on. Please note that the first three fields contain the x,y,z coordinates.\n"
-		"This (meaningless) example calculates the sine of the x coordinate and "
-		"multiplies it with the z coordinate: sin(a) * c\n\n"
+		"Attribute fields are addressed by the character 'f' (for 'field') "
+		"followed by the field number (i.e.: f1, f2, ..., fn) "
+		"or by the field name in square brackets (e.g.: [Field Name]).\n"
+		"Examples:\n"
+		"sin(f1) * f2 + f3\n"
+		"[intensity] / 1000\n\n"
 		"The following operators are available for the formula definition:\n"
 	));
 
@@ -104,19 +105,19 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 	Parameters.Add_PointCloud(
 		NULL	, "PC_OUT"		,_TL("Result"),
 		_TL("Output"),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_String(
 		NULL	, "FORMULA"		, _TL("Formula"),
 		_TL(""),
-		SG_T("a+b")
+		SG_T("f1+f2")
 	);
 
 	Parameters.Add_String(
 		NULL	, "NAME"		, _TL("Output Field Name"),
 		_TL(""),
-		SG_T("a+b")
+		SG_T("Calculation")
 	);
 
 	Parameters.Add_Choice(
@@ -153,12 +154,6 @@ CPC_Attribute_Calculator::~CPC_Attribute_Calculator(void)
 bool CPC_Attribute_Calculator::On_Execute(void)
 {
 	CSG_PointCloud	*pInput, *pResult;
-	int				iFields;
-	double			dValue;
-	double			*pFieldValues;
-	const SG_Char	*pFormula;
-	CSG_Formula		Formula;
-	CSG_String		Msg;
 	TSG_Data_Type	Type;
 
 
@@ -179,49 +174,155 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 	case 8:				Type	= SG_DATATYPE_Double;	break;
 	}
 
-	pResult->Create(pInput);
-	pResult->Set_Name(CSG_String::Format(SG_T("%s_%s"), pInput->Get_Name(), Parameters("NAME")->asString()));
 
-	pResult->Add_Field(Parameters("NAME")->asString(), Type);
-
-	pFormula	= Parameters("FORMULA")->asString();
-	iFields		= pInput->Get_Field_Count();
-
-	Formula.Set_Formula(pFormula);
-
-	if( Formula.Get_Error(Msg) )
+	//-----------------------------------------------------
+	if( !pInput->is_Valid() || pInput->Get_Field_Count() <= 0 || pInput->Get_Record_Count() <= 0 )
 	{
-		SG_UI_Msg_Add_Error(Msg);
+		Error_Set(_TL("invalid point cloud"));
 
 		return( false );
 	}
 
-	
+
+	//-----------------------------------------------------
+	CSG_Formula	Formula;
+
+	int		nFields		= 0;
+	int		*pFields	= new int[nFields];
+
+	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pInput, pFields, nFields)) )
+	{
+		CSG_String	Message;
+
+		Formula.Get_Error(Message);
+
+		Error_Set(Message);
+
+		delete[](pFields);
+
+		return( false );
+	}
+
+	if( nFields == 0 )
+	{
+		SG_UI_Msg_Add_Error(_TL("No attribute fields specified!"));
+		delete[](pFields);
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_String	sDatasetName;
+
+	if (!pResult || pResult == pInput)
+	{
+		pResult = SG_Create_PointCloud(pInput);
+
+		sDatasetName = pInput->Get_Name();
+	}
+	else
+	{
+		pResult->Create(pInput);
+
+		pResult->Set_Name(CSG_String::Format(SG_T("%s_%s"), pInput->Get_Name(), Parameters("NAME")->asString()));
+	}
+
+	pResult->Add_Field(Parameters("NAME")->asString(), Type);
+
+
 	//---------------------------------------------------------
-	pFieldValues	= new double[iFields];
+	CSG_Vector	Values(nFields);
 
 	for( int i=0; i<pInput->Get_Point_Count() && Set_Progress(i, pInput->Get_Point_Count()); i++ )
 	{
+		bool	bOkay	= true;
+
 		pResult->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 		
-		for( int j=0; j<iFields; j++ )
-		{
-			pFieldValues[j] = pInput->Get_Value(i, j);
+		for( int iField=2; iField<pInput->Get_Field_Count(); iField++ )
+			pResult->Set_Value(i, iField, pInput->Get_Value(i, iField));
 
-			if( j > 2 )
-				pResult->Set_Value(j, pInput->Get_Value(i, j));
+		for( int iField=0; iField<nFields && bOkay; iField++ )
+		{
+			if( !pInput->is_NoData(i, pFields[iField]) )
+			{
+				Values[iField]	= pInput->Get_Value(i, pFields[iField]);
+			}
+			else
+			{
+				bOkay = false;
+			}
 		}
 
-		dValue = Formula.Get_Value(pFieldValues, iFields);
-
-		pResult->Set_Value(iFields, dValue);
-
+		if( bOkay )
+		{
+			pResult->Set_Value(i, pInput->Get_Field_Count(), Formula.Get_Value(Values.Get_Data(), nFields));
+		}
+		else
+		{
+			pResult->Set_NoData(i, pInput->Get_Field_Count());
+		}
 	}
 
-	delete[] pFieldValues;
+
+	delete[](pFields);
+
+	//-----------------------------------------------------
+	if (!Parameters("PC_OUT")->asPointCloud() || Parameters("PC_OUT")->asPointCloud() == pInput)
+	{
+		pInput->Assign(pResult);
+		pInput->Set_Name(sDatasetName);
+		DataObject_Update(pInput);
+		delete(pResult);
+	}
+	else
+	{
+		DataObject_Update(pResult);
+	}
+
 
 	return (true);
 
+}
+
+
+//---------------------------------------------------------
+CSG_String	CPC_Attribute_Calculator::Get_Formula(CSG_String sFormula, CSG_Table *pTable, int *Fields, int &nFields)
+{
+	const SG_Char	vars[27]	= SG_T("abcdefghijklmnopqrstuvwxyz");
+
+	int		iField;
+
+	for(iField=pTable->Get_Field_Count()-1, nFields=0; iField>=0 && nFields<26; iField--)
+	{
+		bool		bUse	= false;
+
+		CSG_String	sField;
+
+		sField.Printf(SG_T("f%d"), iField + 1);
+
+		if( sFormula.Find(sField) >= 0 )
+		{
+			sFormula.Replace(sField, CSG_String(vars[nFields]));
+
+			bUse	= true;
+		}
+
+		sField.Printf(SG_T("[%s]"), pTable->Get_Field_Name(iField));
+
+		if( sFormula.Find(sField) >= 0 )
+		{
+			sFormula.Replace(sField, CSG_String(vars[nFields]));
+
+			bUse	= true;
+		}
+
+		if( bUse )
+		{
+			Fields[nFields++]	= iField;
+		}
+	}
+
+	return( sFormula );
 }
 
 
