@@ -96,6 +96,14 @@ bool CTable_Calculator_Base::On_Execute(void)
 		return( false );
 	}
 
+	if( nFields == 0 )
+	{
+		SG_UI_Msg_Add_Error(_TL("No attribute fields specified!"));
+		delete[](Fields);
+		return( false );
+	}
+
+
 	//-----------------------------------------------------
 	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
 	{
