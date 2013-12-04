@@ -403,7 +403,6 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_Table_Field:
 				if( m_CMD.Found(_Get_ID(pParameter), &s) )
 				{
 					if( s.ToLong(&l) )
@@ -414,13 +413,6 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
 					{
 						pParameter->Set_Value(CSG_String(&s));
 					}
-				}
-				break;
-
-			case PARAMETER_TYPE_Table_Fields:
-				if( m_CMD.Found(_Get_ID(pParameter), &s) )
-				{
-					pParameter->Set_Value(CSG_String(&s));
 				}
 				break;
 
@@ -522,11 +514,46 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
 	//-----------------------------------------------------
 	for(i=0; i<pParameters->Get_Count(); i++)
 	{
-		if( !_Load_Input(pParameters->Get_Parameter(i)) )
-		{
-			CMD_Print_Error(pParameters->Get_Parameter(i)->Get_Name());
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-			return( false );
+		if( pParameter->is_Input() )
+		{
+			if( !_Load_Input(pParameters->Get_Parameter(i)) )
+			{
+				CMD_Print_Error(pParameters->Get_Parameter(i)->Get_Name());
+
+				return( false );
+			}
+		}
+
+		else if( pParameter->is_Option() && !pParameter->is_Information() )
+		{
+			long		l;
+			wxString	s;
+
+			switch( pParameter->Get_Type() )
+			{
+			case PARAMETER_TYPE_Table_Field:
+				if( m_CMD.Found(_Get_ID(pParameter), &s) )
+				{
+					if( s.ToLong(&l) )
+					{
+						pParameter->Set_Value((int)l);
+					}
+					else
+					{
+						pParameter->Set_Value(CSG_String(&s));
+					}
+				}
+				break;
+
+			case PARAMETER_TYPE_Table_Fields:
+				if( m_CMD.Found(_Get_ID(pParameter), &s) )
+				{
+					pParameter->Set_Value(CSG_String(&s));
+				}
+				break;
+			}
 		}
 	}
 
