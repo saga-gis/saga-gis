@@ -82,35 +82,56 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Cut : public CSG_Module_Interactive
+class CGrid_Clip_Interactive : public CSG_Module_Grid_Interactive
 {
 public:
-	CGrid_Cut(void);
-	virtual ~CGrid_Cut(void);
+	CGrid_Clip_Interactive(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid System") );	}
 
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
-	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
 
-	bool					m_bDown;
+	bool						m_bDown;
 
-	CSG_Point				m_ptDown;
-
-	CSG_Grid				*m_pGrid;
-
-	CSG_Parameter_Grid_List	*m_pGrids;
+	CSG_Point					m_ptDown;
 
 
-	TSG_Point				Fit_to_Grid				(TSG_Point pt);
+	TSG_Point					Fit_to_Grid				(TSG_Point Point);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Clip : public CSG_Module_Grid
+{
+public:
+	CGrid_Clip(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid System") );	}
+
+
+protected:
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
 
 };
 
