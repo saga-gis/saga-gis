@@ -78,12 +78,12 @@ class CGrid_Proximity : public CSG_Module_Grid
 public:
 	CGrid_Proximity(void);
 
-//	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Distances") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool				On_Execute				(void);
 
 };
 

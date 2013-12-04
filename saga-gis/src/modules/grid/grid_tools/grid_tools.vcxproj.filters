@@ -250,9 +250,6 @@
     <ClInclude Include="GridsFromTableAndGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Pt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Grid_Shrink_Expand.h">
       <Filter>Header Files</Filter>
     </ClInclude>

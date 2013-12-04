@@ -44,7 +44,7 @@ class CConstantGrid : public CSG_Module
 public:
 	CConstantGrid(void);
 	
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Values") );	}
 
 
 protected:

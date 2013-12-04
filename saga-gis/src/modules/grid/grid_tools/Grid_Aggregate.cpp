@@ -58,12 +58,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
 #include "Grid_Aggregate.h"
 
+//---------------------------------------------------------
 #define SUM 0
 #define MIN 1
 #define MAX 2
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -74,17 +75,17 @@
 //---------------------------------------------------------
 CGrid_Aggregate::CGrid_Aggregate(void)
 {
-
 	//-----------------------------------------------------
-	Set_Name(_TL("Aggregate"));
+	Set_Name		(_TL("Aggregate"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Victor Olaya"));
+	Set_Author		("Victor Olaya (c) 2005");
 
-	Set_Description	(_TW("Resamples a raster layer to a lower resolution, aggregating" 
-     "the values of a group of cells. This should be used in any case in which and a normal"
-     "resampling will result in wrong values in the resulting layer, such as, for instance,"
-     "the number of elements of a given class in each cell.")
-	);
+	Set_Description	(_TW(
+		"Resamples a raster layer to a lower resolution, aggregating" 
+	    "the values of a group of cells. This should be used in any case in which and a normal"
+		"resampling will result in wrong values in the resulting layer, such as, for instance,"
+		"the number of elements of a given class in each cell."
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -94,16 +95,20 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "SIZE"	, _TL("Aggregation Size"),
+		NULL	, "SIZE"		, _TL("Aggregation Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 2, 2, true
+		PARAMETER_TYPE_Int, 2, 2, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		_TL(""),	_TL("Sum|Min|Max|"), 0
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("sum"),
+			_TL("minimum"),
+			_TL("maximum")
+		), 0
 	);
-
 }
 
 //---------------------------------------------------------

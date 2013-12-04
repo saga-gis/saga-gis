@@ -81,7 +81,7 @@ public:
 	CGrid_Completion(void);
 	virtual ~CGrid_Completion(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Gaps") );	}
 
 
 protected:

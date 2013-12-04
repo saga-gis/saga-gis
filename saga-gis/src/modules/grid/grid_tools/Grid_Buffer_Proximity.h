@@ -59,17 +59,18 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class grid_tools_EXPORT CGrid_Proximity_Buffer : public CSG_Module_Grid {
-
+class grid_tools_EXPORT CGrid_Proximity_Buffer : public CSG_Module_Grid
+{
 public:
 	CGrid_Proximity_Buffer(void);
 	virtual ~CGrid_Proximity_Buffer(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Buffers") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Distances") );	}
 
 
 protected:
-	virtual bool			On_Execute		(void);
+
+	virtual bool				On_Execute				(void);
 
 };
 

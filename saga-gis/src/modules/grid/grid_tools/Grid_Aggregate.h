@@ -73,7 +73,7 @@ public:
 	CGrid_Aggregate(void);
 	virtual ~CGrid_Aggregate(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Grid System") );	}
 
 
 protected:

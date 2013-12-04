@@ -75,7 +75,7 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name		(_TL("Grid Shrink/Expand"));
+	Set_Name		(_TL("Shrink and Expand"));
 
 	Set_Author		(SG_T("V.Wichmann & O.Conrad (c) 2011"));
 

@@ -37,7 +37,7 @@ public:
 	CGrid_Value_Replace_Interactive(void);
 	virtual ~CGrid_Value_Replace_Interactive(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
 
 
 protected:

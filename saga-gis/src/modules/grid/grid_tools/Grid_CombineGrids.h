@@ -26,16 +26,17 @@
 
 #include "MLB_Interface.h"
 
-class CCombineGrids : public CSG_Module_Grid {
-
-private:
-
+class CCombineGrids : public CSG_Module_Grid
+{
 public:
 	CCombineGrids(void);
 	virtual ~CCombineGrids(void);
 
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
+
 
 protected:
-	virtual bool		On_Execute(void);
+
+	virtual bool			On_Execute		(void);
 
 };

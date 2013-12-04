@@ -27,6 +27,8 @@ public:
 	CInvertNoData(void);
 	virtual ~CInvertNoData(void);
 
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
+
 protected:
 
 	bool On_Execute(void);

@@ -25,12 +25,12 @@ class CSortRaster : public CSG_Module_Grid
 {
 public:
 	CSortRaster(void);
-	virtual ~CSortRaster(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Values") );	}
+
 
 protected:
 
 	bool On_Execute(void);
-
-private:
 
 };

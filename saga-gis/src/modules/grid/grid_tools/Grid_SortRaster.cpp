@@ -22,69 +22,72 @@
 
 #include "Grid_SortRaster.h"
 
-CSortRaster::CSortRaster(void){
+CSortRaster::CSortRaster(void)
+{
+	Set_Name		(_TL("Grid Cell Index"));
 
-	Parameters.Set_Name(_TL("Sort Grid"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Sort Grid"));
+	Set_Author		("Victor Olaya (c) 2004");
 
-	Parameters.Add_Grid(NULL, 
-						"GRID",
-						_TL("Input Grid"), 						
-						_TL(""), 
-						PARAMETER_INPUT);
+	Set_Description	(_TW(
+		"Creates an index grid according to the cell values either in ascending or descending order."
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "GRID"	, _TL("Grid"), 						
+		_TL(""), 
+		PARAMETER_INPUT
+	);
 	
-	Parameters.Add_Grid(NULL, 
-						"OUTPUT",
-						_TL("Sorted Grid"), 						
-						_TL(""), 
-						PARAMETER_OUTPUT);
+	Parameters.Add_Grid(
+		NULL	, "INDEX"	, _TL("Index"), 						
+		_TL(""), 
+		PARAMETER_OUTPUT
+	);
 
-	Parameters.Add_Value(NULL,
-						"DOWN",
-						_TL("Down sort"),
-						_TL(""),
-						PARAMETER_TYPE_Bool,
-						false);
-						
-}//constructor
+	Parameters.Add_Choice(
+		NULL	, "ORDER"	, _TL("Sorting Order"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("ascending"),
+			_TL("descending")
+		)
+	);
+}
 
+bool CSortRaster::On_Execute(void)
+{
+	CSG_Grid	*pGrid	= Parameters("GRID" )->asGrid(); 
+	CSG_Grid	*pIndex	= Parameters("INDEX")->asGrid();
 
-CSortRaster::~CSortRaster(void)
-{}
+	bool	bDown	= Parameters("ORDER")->asInt() == 1;
 
-bool CSortRaster::On_Execute(void){
-	
-	CSG_Grid* pGrid = Parameters("GRID")->asGrid(); 
-	CSG_Grid* pSortedGrid = Parameters("OUTPUT")->asGrid();
-	bool bDown = Parameters("DOWN")->asBool();
-	bool bCopy = false;
-	long i;
-	int iX, iY;
-	int iCell=0;
+	if( pGrid == pIndex )
+	{
+		pIndex	= SG_Create_Grid(pGrid);
+	}
 
-	if (pGrid == pSortedGrid){
-		pSortedGrid = SG_Create_Grid(pGrid);
-		bCopy = true;
-	}//if
+	pIndex->Set_NoData_Value(0.0);
 
-	pSortedGrid->Set_NoData_Value(0.0);
+	for(int i=0, Index=0, ix, iy; i<Get_NCells() && Set_Progress(i, Get_NCells()); i++)
+	{
+		pGrid->Get_Sorted(i, ix, iy, bDown, false);
 
-	for(i=0; i<Get_NCells() && Set_Progress(i, Get_NCells()); i++){		
-		pGrid->Get_Sorted(i, iX, iY, bDown, false);
-		if (pGrid->is_NoData(iX,iY)){
-			pSortedGrid->Set_NoData(iX,iY);
-		}//if
-		else{
-	//		pSortedGrid->Set_Value(iX, iY, i);
-			pSortedGrid->Set_Value(iX, iY, ++iCell);
-		}//else
-	}//for
-	
-	if (bCopy){
-		pGrid->Assign(pSortedGrid);
-	}//if
+		if( pGrid->is_NoData(ix, iy) )
+		{
+			pIndex->Set_NoData(ix, iy);
+		}
+		else
+		{
+			pIndex->Set_Value(ix, iy, ++Index);
+		}
+	}
 
-	return true;
+	if( pGrid == Parameters("INDEX")->asGrid() )
+	{
+		pGrid->Assign(pIndex);
 
-}//method
+		delete(pIndex);
+	}
+
+	return( true );
+}

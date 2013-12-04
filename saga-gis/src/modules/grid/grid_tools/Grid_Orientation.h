@@ -75,6 +75,8 @@ public:
 	CGrid_Orientation(void);
 	virtual ~CGrid_Orientation(void);
 
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
+
 
 protected:
 

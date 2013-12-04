@@ -84,7 +84,7 @@ class CGrid_Gaps_Spline_Fill : public CSG_Module_Grid
 public:
 	CGrid_Gaps_Spline_Fill(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Gaps") );	}
 
 
 protected:

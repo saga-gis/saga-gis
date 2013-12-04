@@ -107,12 +107,15 @@ class CGrid_Shrink_Expand : public CSG_Module_Grid
 public:
 	CGrid_Shrink_Expand(void);
 
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Gaps") );	}
+
 
 protected:
 
 	virtual bool			On_Execute		(void);
 
 	virtual int				On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 
 private:
 

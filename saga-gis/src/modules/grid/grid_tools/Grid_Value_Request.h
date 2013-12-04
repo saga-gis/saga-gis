@@ -81,12 +81,13 @@ public:
 	CGrid_Value_Request(void);
 	virtual ~CGrid_Value_Request(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Values") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Values") );	}
 
 
 protected:
 
 	virtual bool			On_Execute			(void);
+
 	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
@@ -94,7 +95,7 @@ private:
 
 	int						m_Method, m_Interpolation;
 
-	CSG_Table					*m_pTable;
+	CSG_Table				*m_pTable;
 
 	CSG_Parameter_Grid_List	*m_pGrids;
 

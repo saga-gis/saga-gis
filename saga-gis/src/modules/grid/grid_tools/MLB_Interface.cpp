@@ -144,7 +144,7 @@ CSG_Module *		Create_Module(int i)
 	{
 	case  0:	return( new CGrid_Resample );
 	case  1:	return( new CGrid_Aggregate );
-	case  2:	return( new CGrid_Cut );
+	case  2:	return( new CGrid_Clip_Interactive );
 	case  3:	return( new CGrid_Merge );
 	case  4: 	return( new CConstantGrid );
 	case  5:	return( new CGrid_Completion );
@@ -173,6 +173,7 @@ CSG_Module *		Create_Module(int i)
 	case 28: 	return( new CGrid_Shrink_Expand );
 	case 29: 	return( new CGrid_Gaps_Resampling );
 	case 30: 	return( new CGrid_Transpose );
+	case 31: 	return( new CGrid_Clip );
 
 	case 40:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );

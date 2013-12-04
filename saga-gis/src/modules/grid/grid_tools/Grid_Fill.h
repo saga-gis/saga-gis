@@ -88,7 +88,7 @@ public:
 	CGrid_Fill(void);
 	virtual ~CGrid_Fill(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Values") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Values") );	}
 
 
 protected:
@@ -106,7 +106,7 @@ private:
 
 	bool					m_bNoData;
 
-	CSG_Grid					*m_pGrid;
+	CSG_Grid				*m_pGrid;
 
 	CSG_Points_Int			m_Stack;
 

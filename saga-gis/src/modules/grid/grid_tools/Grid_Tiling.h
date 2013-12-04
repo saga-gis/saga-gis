@@ -78,16 +78,15 @@ class CGrid_Tiling : public CSG_Module_Grid
 public:
 	CGrid_Tiling(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid System") );	}
 
 
 protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
-
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 };
 

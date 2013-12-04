@@ -42,7 +42,7 @@ class CCropToData : public CSG_Module_Grid
 public:
 	CCropToData(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Grid System") );	}
 
 
 protected:

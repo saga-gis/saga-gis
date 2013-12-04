@@ -87,7 +87,7 @@ class CGrid_Value_Type : public CSG_Module_Grid
 public:
 	CGrid_Value_Type(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
 
 
 protected:
