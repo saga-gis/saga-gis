@@ -63,7 +63,7 @@
 
 #include "MLB_Interface.h"
 
-#include <opencv\cv.h>
+#include <opencv/cv.h>
 
 //---------------------------------------------------------
 // 2. Place general module library informations here...
