@@ -85,6 +85,8 @@ class CViGrA_Smoothing : public CSG_Module_Grid
 public:
 	CViGrA_Smoothing(void);
 
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Filter") );	}
+
 
 protected:
 

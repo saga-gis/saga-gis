@@ -116,6 +116,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -167,6 +168,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -218,6 +220,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -268,6 +271,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -307,6 +311,7 @@
     <ClCompile Include="vigra_edges.cpp" />
     <ClCompile Include="vigra_fft.cpp" />
     <ClCompile Include="vigra_morphology.cpp" />
+    <ClCompile Include="vigra_random_forest.cpp" />
     <ClCompile Include="vigra_smoothing.cpp" />
     <ClCompile Include="vigra_watershed.cpp" />
   </ItemGroup>
@@ -334,6 +339,7 @@
     <ClInclude Include="vigra_edges.h" />
     <ClInclude Include="vigra_fft.h" />
     <ClInclude Include="vigra_morphology.h" />
+    <ClInclude Include="vigra_random_forest.h" />
     <ClInclude Include="vigra_smoothing.h" />
     <ClInclude Include="vigra_watershed.h" />
   </ItemGroup>

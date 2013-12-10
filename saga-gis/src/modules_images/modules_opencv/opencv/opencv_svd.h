@@ -85,6 +85,8 @@ class COpenCV_SVD : public CSG_Module_Grid
 public:
 	COpenCV_SVD(void);
 
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Imagery|Fourier Analysis") );	}
+
 
 protected:
 

@@ -81,7 +81,7 @@ bool	DFT		(IplImage *pInput, IplImage **ppReal, IplImage **ppImag);
 //---------------------------------------------------------
 COpenCV_FFT::COpenCV_FFT(void)
 {
-	Set_Name		(_TL("OpenCV - Fourier Transformation"));
+	Set_Name		(_TL("Fourier Transformation (OpenCV)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

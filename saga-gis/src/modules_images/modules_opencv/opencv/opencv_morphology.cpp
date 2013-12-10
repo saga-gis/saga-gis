@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 COpenCV_Morphology::COpenCV_Morphology(void)
 {
-	Set_Name		(_TL("OpenCV - Basic Morphological Operations"));
+	Set_Name		(_TL("Morphological Filter (OpenCV)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

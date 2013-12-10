@@ -77,7 +77,7 @@
 //---------------------------------------------------------
 CViGrA_Watershed::CViGrA_Watershed(void)
 {
-	Set_Name		(_TL("ViGrA - Watershed Segmentation"));
+	Set_Name		(_TL("Watershed Segmentation (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

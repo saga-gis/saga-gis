@@ -85,6 +85,8 @@ class CViGrA_Morphology : public CSG_Module_Grid
 public:
 	CViGrA_Morphology(void);
 
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Filter") );	}
+
 
 protected:
 

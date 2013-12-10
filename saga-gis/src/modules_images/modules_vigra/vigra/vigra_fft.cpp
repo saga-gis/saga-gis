@@ -64,6 +64,9 @@
 //---------------------------------------------------------
 #include <vigra/fftw3.hxx>
 
+//---------------------------------------------------------
+using namespace vigra;
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -139,7 +142,7 @@ bool	Copy_ComplexGrid_VIGRA_to_SAGA	(CSG_Grid &Real, CSG_Grid &Imag, FFTWComplex
 //---------------------------------------------------------
 CViGrA_FFT::CViGrA_FFT(void)
 {
-	Set_Name		(_TL("ViGrA - Fourier Transform"));
+	Set_Name		(_TL("Fourier Transform (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -225,7 +228,7 @@ bool CViGrA_FFT::On_Execute(void)
 //---------------------------------------------------------
 CViGrA_FFT_Inverse::CViGrA_FFT_Inverse(void)
 {
-	Set_Name		(_TL("ViGrA - Fourier Transform Inverse"));
+	Set_Name		(_TL("Fourier Transform Inverse (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -320,7 +323,7 @@ bool CViGrA_FFT_Inverse::On_Execute(void)
 //---------------------------------------------------------
 CViGrA_FFT_Real::CViGrA_FFT_Real(void)
 {
-	Set_Name		(_TL("ViGrA - Fourier Transform (Real)"));
+	Set_Name		(_TL("Fourier Transform (Real, ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -400,7 +403,7 @@ bool CViGrA_FFT_Real::On_Execute(void)
 //---------------------------------------------------------
 CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 {
-	Set_Name		(_TL("ViGrA - Fourier Filter"));
+	Set_Name		(_TL("Fourier Filter (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

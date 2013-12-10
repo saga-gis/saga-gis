@@ -87,7 +87,7 @@ class COpenCV_NNet : public CSG_Module_Grid
 public:
 	COpenCV_NNet(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Imagery|Classification") );	}
 
 	enum DATA_TYPE { TABLE = 0, GRID = 1 };
 	enum ACTIVATION_FUNCTION { IDENTITY = 0, SIGMOID = 1, GAUSSIAN = 2 };

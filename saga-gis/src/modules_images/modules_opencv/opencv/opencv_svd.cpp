@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 COpenCV_SVD::COpenCV_SVD(void)
 {
-	Set_Name		(_TL("OpenCV - Single Value Decomposition"));
+	Set_Name		(_TL("Single Value Decomposition (OpenCV)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

@@ -38,6 +38,9 @@
     <ClCompile Include="vigra_watershed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vigra_random_forest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -113,6 +116,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vigra_watershed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vigra_random_forest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

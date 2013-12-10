@@ -80,12 +80,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <vigra/stdimage.hxx>
-
-//---------------------------------------------------------
-using namespace vigra;
-
-//---------------------------------------------------------
 template <class VIGRA_Image>
 bool	Copy_Grid_SAGA_to_VIGRA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
 {
@@ -140,8 +134,8 @@ bool	Copy_Grid_VIGRA_to_SAGA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
 }
 
 //---------------------------------------------------------
-bool	Copy_RGBGrid_SAGA_to_VIGRA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
+bool	Copy_RGBGrid_SAGA_to_VIGRA	(CSG_Grid &Grid, vigra::BRGBImage &Image, bool bCreate);
+bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, vigra::BRGBImage &Image, bool bCreate);
 
 
 ///////////////////////////////////////////////////////////

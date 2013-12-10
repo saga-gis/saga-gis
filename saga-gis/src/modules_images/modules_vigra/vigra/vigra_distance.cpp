@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 CViGrA_Distance::CViGrA_Distance(void)
 {
-	Set_Name		(_TL("ViGrA - Distance"));
+	Set_Name		(_TL("Distance (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

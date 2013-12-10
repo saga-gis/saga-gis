@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 CViGrA_Morphology::CViGrA_Morphology(void)
 {
-	Set_Name		(_TL("ViGrA - Basic Morphological Operations"));
+	Set_Name		(_TL("Morphological Filter (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

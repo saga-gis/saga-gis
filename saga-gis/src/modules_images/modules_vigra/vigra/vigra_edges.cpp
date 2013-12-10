@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 CViGrA_Edges::CViGrA_Edges(void)
 {
-	Set_Name		(_TL("ViGrA - Edge Detection"));
+	Set_Name		(_TL("Edge Detection (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

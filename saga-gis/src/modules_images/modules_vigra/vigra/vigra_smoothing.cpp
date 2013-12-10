@@ -75,7 +75,7 @@
 //---------------------------------------------------------
 CViGrA_Smoothing::CViGrA_Smoothing(void)
 {
-	Set_Name		(_TL("ViGrA - Smoothing"));
+	Set_Name		(_TL("Smoothing (ViGrA)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
