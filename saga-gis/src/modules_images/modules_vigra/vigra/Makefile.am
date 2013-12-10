@@ -20,6 +20,7 @@ vigra_smoothing.h\
 vigra_distance.h\
 vigra_fft.h\
 vigra_morphology.h\
+vigra_random_forest.h\
 vigra_watershed.h\
 MLB_Interface.cpp\
 vigra.cpp\
@@ -29,6 +30,7 @@ vigra_fft.cpp\
 vigra_smoothing.cpp\
 vigra_edges.cpp\
 vigra_morphology.cpp\
+vigra_random_forest.cpp\
 vigra_watershed.cpp
 
 libvigra_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

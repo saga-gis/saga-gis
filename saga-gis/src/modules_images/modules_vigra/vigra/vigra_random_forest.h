@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: vigra_random_forest.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 vigra_random_forest.h                 //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2013 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,92 +54,59 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__vigra_random_forest_H
+#define HEADER_INCLUDED__vigra_random_forest_H
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "vigra.h"
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CViGrA_Random_Forest : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - ViGrA") );
+public:
+	CViGrA_Random_Forest(void);
 
-	case MLB_INFO_Author:
-		return( _TL("O. Conrad (c) 2009") );
-
-	case MLB_INFO_Description:
-		{
-			CSG_String	s;
-			
-			s	+= "ViGrA - \"Vision with Generic Algorithms\"\n";
-			s	+= "Version: ";	s += VIGRA_VERSION; s += "\n";
-			s	+= _TW(
-				"ViGrA is a novel computer vision library that puts its main "
-				"emphasize on customizable algorithms and data structures. "
-				"By using template techniques similar to those in the C++ "
-				"Standard Template Library (STL), you can easily adapt any ViGrA "
-				"component to the needs of your application, without thereby "
-				"giving up execution speed.\n"
-				"Find out more at the ViGrA - Vision with Generic Algorithms - homepage:\n"
-				"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">"
-				"http://hci.iwr.uni-heidelberg.de</a>\n"
-			);
-
-			return( s );
-		}
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery|ViGrA") );
-	}
-}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Classification") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "vigra_smoothing.h"
-#include "vigra_edges.h"
-#include "vigra_morphology.h"
-#include "vigra_distance.h"
-#include "vigra_fft.h"
-#include "vigra_watershed.h"
-#include "vigra_random_forest.h"
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CViGrA_Smoothing );
-	case  1:	return( new CViGrA_Edges );
-	case  2:	return( new CViGrA_Morphology );
-	case  3:	return( new CViGrA_Distance );
-	case  4:	return( new CViGrA_Watershed );
-	case  5:	return( new CViGrA_FFT );
-	case  6:	return( new CViGrA_FFT_Inverse );
-	case  7:	return( new CViGrA_FFT_Real );
-	case  8:	return( new CViGrA_FFT_Filter );
-	case  9:	return( new CViGrA_Random_Forest );
-	}
+	CSG_Parameter_Grid_List		*m_pFeatures;
 
-	return( NULL );
-}
+
+	CSG_Grid *					Get_Class_Grid			(CSG_Table &Classes);
+	void						Set_Classification		(CSG_Table &Classes);
+
+	CSG_Parameter_Grid_List *	Get_Propability_Grids	(CSG_Table &Classes);
+
+	bool						Get_Training			(CSG_Matrix &Data, CSG_Table &Classes);
+	int							Get_Training			(CSG_Matrix &Data, int ID, CSG_Shape_Polygon *pArea);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -149,8 +116,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__vigra_random_forest_H
