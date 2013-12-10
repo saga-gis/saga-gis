@@ -101,6 +101,7 @@ const wxString CTRL_Get_Name(int ID_CTRL)
 	case ID_BTN_UP:						return( _TL("Up") );
 	case ID_BTN_DOWN:					return( _TL("Down") );
 
+	case ID_BTN_COLORS:					return( _TL("Colors") );
 	case ID_BTN_COLORS_MIRROR:			return( _TL("Mirror") );
 	case ID_BTN_COLORS_INVERT:			return( _TL("Invert") );
 	case ID_BTN_COLORS_RANDOM:			return( _TL("Random") );

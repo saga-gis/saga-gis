@@ -89,6 +89,7 @@ BEGIN_EVENT_TABLE(CDLG_Table, CDLG_Base)
 	EVT_BUTTON			(ID_BTN_INSERT			, CDLG_Table::On_Insert)
 	EVT_BUTTON			(ID_BTN_DELETE			, CDLG_Table::On_Delete)
 	EVT_BUTTON			(ID_BTN_DELETE_ALL		, CDLG_Table::On_Delete_All)
+	EVT_BUTTON			(ID_BTN_COLORS			, CDLG_Table::On_Colors)
 END_EVENT_TABLE()
 
 
@@ -113,6 +114,12 @@ CDLG_Table::CDLG_Table(CSG_Table *pTable, wxString Caption)
 	Add_Button(ID_BTN_INSERT);
 	Add_Button(ID_BTN_DELETE);
 	Add_Button(ID_BTN_DELETE_ALL);
+
+	if( pTable->Get_Field_Count() > 0 && pTable->Get_Field_Type(0) == SG_DATATYPE_Color )
+	{
+		Add_Button(-1);
+		Add_Button(ID_BTN_COLORS);
+	}
 
 	Set_Positions();
 }
@@ -204,6 +211,34 @@ void CDLG_Table::On_Delete(wxCommandEvent &event)
 void CDLG_Table::On_Delete_All(wxCommandEvent &event)
 {
 	m_pControl->Del_Records();
+}
+
+//---------------------------------------------------------
+void CDLG_Table::On_Colors(wxCommandEvent &event)
+{
+	if( m_pTable->Get_Count() > 0 )
+	{
+		int		i;
+
+		CSG_Colors	Colors(m_pTable->Get_Count());
+
+		for(i=0; i<m_pTable->Get_Count(); i++)
+		{
+			Colors[i]	= m_pTable->Get_Record(i)->asInt(0);
+		}
+
+		if( DLG_Colors(&Colors) )
+		{
+			Colors.Set_Count(m_pTable->Get_Count());
+
+			for(i=0; i<m_pTable->Get_Count(); i++)
+			{
+				m_pTable->Get_Record(i)->Set_Value(0, Colors[i]);
+			}
+
+			m_pControl->Update_Table();
+		}
+	}
 }
 
 

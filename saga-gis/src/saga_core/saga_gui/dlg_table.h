@@ -97,6 +97,7 @@ public:
 	void						On_Insert		(wxCommandEvent &event);
 	void						On_Delete		(wxCommandEvent &event);
 	void						On_Delete_All	(wxCommandEvent &event);
+	void						On_Colors		(wxCommandEvent &event);
 
 
 protected:
