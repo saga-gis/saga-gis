@@ -500,6 +500,23 @@ CSG_String		SG_File_Get_Path(const SG_Char *full_Path)
 }
 
 //---------------------------------------------------------
+CSG_String		SG_File_Get_Path_Absolute	(const SG_Char *full_Path)
+{
+	wxString	Path;
+
+	if( full_Path && *full_Path )
+	{
+		wxFileName	fn(full_Path);
+
+		fn.MakeAbsolute();
+
+		Path	= fn.GetFullPath();
+	}
+
+	return( &Path );
+}
+
+//---------------------------------------------------------
 CSG_String		SG_File_Make_Path(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension)
 {
 	wxFileName	fn;
