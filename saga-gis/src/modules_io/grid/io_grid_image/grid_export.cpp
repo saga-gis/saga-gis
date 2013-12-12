@@ -269,7 +269,7 @@ bool CGrid_Export::On_Execute(void)
 		double		zMin, zScale;
 		CSG_Colors	Colors;
 		CSG_Table	*pLUT	= Parameters("LUT")->asTable();
-		
+
 		if( SG_UI_Get_Window_Main() )
 		{
 			Colors.Assign(Parameters("COL_PALETTE")->asColors());
@@ -447,21 +447,23 @@ bool CGrid_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	wxImageHandler	*pImgHandler;
+	wxImageHandler	*pImgHandler = NULL;
 
 	if( !SG_UI_Get_Window_Main() )
 	{
-		if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
-			pImgHandler = new wxBMPHandler;
-		else if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
+		if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
 			pImgHandler = new wxJPEGHandler;
 		else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
 			pImgHandler = new wxPCXHandler;
 		else if( SG_File_Cmp_Extension(fName, SG_T("tif")) )
 			pImgHandler = new wxTIFFHandler;
+#ifdef _SAGA_MSW
+		else if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
+			pImgHandler = new wxBMPHandler;
+#endif
 		else // if( SG_File_Cmp_Extension(fName, SG_T("png")) )
 			pImgHandler = new wxPNGHandler;
-		
+
 		wxImage::AddHandler(pImgHandler);
 	}
 
@@ -521,7 +523,7 @@ bool CGrid_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !SG_UI_Get_Window_Main() )
+	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL)
 	{
 		wxImage::RemoveHandler(pImgHandler->GetName());
 	}

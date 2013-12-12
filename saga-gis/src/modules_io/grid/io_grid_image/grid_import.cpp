@@ -160,15 +160,13 @@ bool CGrid_Import::On_Execute(void)
 	Name	= SG_File_Get_Name(fImage, false);
 
 	//-----------------------------------------------------
-	wxImageHandler	*pImgHandler;
+	wxImageHandler	*pImgHandler = NULL;
 
 	if( !SG_UI_Get_Window_Main() )
 	{
 		CSG_String	fName = SG_File_Get_Name(fImage, true);
 
-		if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
-			pImgHandler = new wxBMPHandler;
-		else if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
+		if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
 			pImgHandler = new wxJPEGHandler;
 		else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
 			pImgHandler = new wxPCXHandler;
@@ -180,6 +178,10 @@ bool CGrid_Import::On_Execute(void)
 			pImgHandler = new wxPNMHandler;
 		else if( SG_File_Cmp_Extension(fName, SG_T("xpm")) )
 			pImgHandler = new wxXPMHandler;
+#ifdef _SAGA_MSW
+		else if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
+			pImgHandler = new wxBMPHandler;
+#endif
 		else // if( SG_File_Cmp_Extension(fName, SG_T("png")) )
 			pImgHandler = new wxPNGHandler;
 
@@ -340,6 +342,12 @@ bool CGrid_Import::On_Execute(void)
 			DataObject_Set_Colors(pG, 100, SG_COLORS_BLACK_GREEN);
 			DataObject_Set_Colors(pB, 100, SG_COLORS_BLACK_BLUE);
 		}
+	}
+
+	//-----------------------------------------------------
+	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL)
+	{
+		wxImage::RemoveHandler(pImgHandler->GetName());
 	}
 
 	//-----------------------------------------------------
