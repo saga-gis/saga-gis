@@ -446,6 +446,25 @@ bool CGrid_Export::On_Execute(void)
 		fName	= SG_File_Make_Path(NULL, fName, SG_T("png"));
 	}
 
+	//-----------------------------------------------------
+	wxImageHandler	*pImgHandler;
+
+	if( !SG_UI_Get_Window_Main() )
+	{
+		if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
+			pImgHandler = new wxBMPHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
+			pImgHandler = new wxJPEGHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
+			pImgHandler = new wxPCXHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("tif")) )
+			pImgHandler = new wxTIFFHandler;
+		else // if( SG_File_Cmp_Extension(fName, SG_T("png")) )
+			pImgHandler = new wxPNGHandler;
+		
+		wxImage::AddHandler(pImgHandler);
+	}
+
 	if( !Image.SaveFile(fName.c_str()) )
 	{
 		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not save image file"), fName.c_str()));
@@ -499,6 +518,12 @@ bool CGrid_Export::On_Execute(void)
 		Stream.Printf(SG_T("    </GroundOverlay>\n"));
 		Stream.Printf(SG_T("  </Folder>\n"));
 		Stream.Printf(SG_T("</kml>\n"));
+	}
+
+	//-----------------------------------------------------
+	if( !SG_UI_Get_Window_Main() )
+	{
+		wxImage::RemoveHandler(pImgHandler->GetName());
 	}
 
 	//-----------------------------------------------------

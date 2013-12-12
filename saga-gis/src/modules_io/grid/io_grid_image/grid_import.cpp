@@ -159,6 +159,33 @@ bool CGrid_Import::On_Execute(void)
 
 	Name	= SG_File_Get_Name(fImage, false);
 
+	//-----------------------------------------------------
+	wxImageHandler	*pImgHandler;
+
+	if( !SG_UI_Get_Window_Main() )
+	{
+		CSG_String	fName = SG_File_Get_Name(fImage, true);
+
+		if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
+			pImgHandler = new wxBMPHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
+			pImgHandler = new wxJPEGHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
+			pImgHandler = new wxPCXHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("tif")) )
+			pImgHandler = new wxTIFFHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("gif")) )
+			pImgHandler = new wxGIFHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("pnm")) )
+			pImgHandler = new wxPNMHandler;
+		else if( SG_File_Cmp_Extension(fName, SG_T("xpm")) )
+			pImgHandler = new wxXPMHandler;
+		else // if( SG_File_Cmp_Extension(fName, SG_T("png")) )
+			pImgHandler = new wxPNGHandler;
+
+		wxImage::AddHandler(pImgHandler);
+	}
+
 	if( !Image.LoadFile(fImage.c_str()) )
 	{
 		return( false );

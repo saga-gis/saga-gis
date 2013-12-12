@@ -111,11 +111,6 @@ CSG_Module *		Create_Module(int i)
 	case 1:	return( new CGrid_Import );
 	}
 
-	//------------------------------------------------------
-	if( !SG_UI_Get_Window_Main() )
-		wxInitAllImageHandlers();
-
-
 	return( NULL );
 }
 
