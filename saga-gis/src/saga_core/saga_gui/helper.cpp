@@ -116,12 +116,25 @@ double		Degree_To_Decimal(double Deg, double Min, double Sec)
 //---------------------------------------------------------
 void		Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
 {
+	bool	bNegative = false;
+
+	if( Value < 0 )
+	{
+		Value		= fabs(Value);
+		bNegative	= true;
+	}
+
 	Value	= fmod(Value, 360.0);
 	Deg		= (int)Value;
 	Value	= 60.0 * (Value - Deg);
 	Min		= (int)Value;
 	Value	= 60.0 * (Value - Min);
 	Sec		= Value;
+
+	if( bNegative )
+	{
+		Deg	*= -1.0;
+	}
 }
 
 
