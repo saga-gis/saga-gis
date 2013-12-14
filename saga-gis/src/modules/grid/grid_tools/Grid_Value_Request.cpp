@@ -67,9 +67,11 @@
 #define	FIELD_NAME		0
 #define	FIELD_VALUE		1
 
-#define	FIELD_X			0
-#define	FIELD_Y			1
-#define	FIELD_GRIDS		2
+#define	FIELD_X_WORLD	0
+#define	FIELD_Y_WORLD	1
+#define FIELD_X_GRID	2
+#define FIELD_Y_GRID	3
+#define	FIELD_GRIDS		4
 
 
 ///////////////////////////////////////////////////////////
@@ -89,7 +91,9 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Grid Value Request.\n")
+		"The module reads out grids values from one or more input grids and reports these in a table. "
+		"Besides the grid value(s), the x- and y-coordinates of the queried cell(s) are reported. The "
+		"reported grid coordinates (column, row) are those of the first input grid.\n")
 	);
 
 
@@ -163,8 +167,10 @@ bool CGrid_Value_Request::On_Execute(void)
 			m_pTable->Add_Field(_TL("NAME")		, SG_DATATYPE_String);
 			m_pTable->Add_Field(_TL("VALUE")	, SG_DATATYPE_Double);
 
-			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("X"));
-			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("Y"));
+			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("X World"));
+			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("Y World"));
+			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("X Grid 1"));
+			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("Y Grid 1"));
 
 			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
@@ -173,8 +179,10 @@ bool CGrid_Value_Request::On_Execute(void)
 			break;
 
 		case 1:
-			m_pTable->Add_Field(_TL("X")		, SG_DATATYPE_Double);
-			m_pTable->Add_Field(_TL("Y")		, SG_DATATYPE_Double);
+			m_pTable->Add_Field(_TL("X World")		, SG_DATATYPE_Double);
+			m_pTable->Add_Field(_TL("Y World")		, SG_DATATYPE_Double);
+			m_pTable->Add_Field(_TL("X Grid 1")		, SG_DATATYPE_Int);
+			m_pTable->Add_Field(_TL("Y Grid 1")		, SG_DATATYPE_Int);
 
 			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
@@ -208,18 +216,21 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		case 0:
 			if( Mode == MODULE_INTERACTIVE_LDOWN || Mode == MODULE_INTERACTIVE_MOVE_LDOWN )
 			{
-				m_pTable->Get_Record(0)->Set_Value(FIELD_VALUE, ptWorld.Get_X());
-				m_pTable->Get_Record(1)->Set_Value(FIELD_VALUE, ptWorld.Get_Y());
+				m_pTable->Get_Record(FIELD_X_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_X());
+				m_pTable->Get_Record(FIELD_Y_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_Y());
+
+				m_pTable->Get_Record(FIELD_X_GRID)->Set_Value(FIELD_VALUE, m_pGrids->asGrid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
+				m_pTable->Get_Record(FIELD_Y_GRID)->Set_Value(FIELD_VALUE, m_pGrids->asGrid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 				{
 					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Interpolation, true) )
 					{
-						m_pTable->Get_Record(iGrid + 2)->Set_Value(FIELD_VALUE, Value);
+						m_pTable->Get_Record(iGrid + FIELD_GRIDS)->Set_Value(FIELD_VALUE, Value);
 					}
 					else
 					{
-						m_pTable->Get_Record(iGrid + 2)->Set_Value(FIELD_VALUE, 0.0);
+						m_pTable->Get_Record(iGrid + FIELD_GRIDS)->Set_Value(FIELD_VALUE, 0.0);
 					}
 				}
 
@@ -235,8 +246,11 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 			{
 				pRecord	= m_pTable->Add_Record();
 
-				pRecord->Set_Value(FIELD_X, ptWorld.Get_X());
-				pRecord->Set_Value(FIELD_Y, ptWorld.Get_Y());
+				pRecord->Set_Value(FIELD_X_WORLD, ptWorld.Get_X());
+				pRecord->Set_Value(FIELD_Y_WORLD, ptWorld.Get_Y());
+
+				pRecord->Set_Value(FIELD_X_GRID, m_pGrids->asGrid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
+				pRecord->Set_Value(FIELD_Y_GRID, m_pGrids->asGrid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 				{
