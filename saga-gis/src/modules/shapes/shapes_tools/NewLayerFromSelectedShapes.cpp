@@ -45,7 +45,7 @@ CSelection_Copy::CSelection_Copy(void)
 	Set_Author		(SG_T("Victor Olaya (c) 2004"));
 
 	Set_Description	(_TW(
-		"Copies selected shapes to new shapes layer."
+		"Copies selected shapes to a new shapes layer."
 	));
 
 	Parameters.Add_Shapes(
@@ -76,16 +76,34 @@ bool CSelection_Copy::On_Execute(void)
 		return( false );
 	}
 
-	if( pOutput->Get_Type() != SHAPE_TYPE_Undefined && pOutput->Get_Type() != pInput->Get_Type() )
+	if( pOutput->Get_Type() != SHAPE_TYPE_Undefined && pOutput->Get_Type() != pInput->Get_Type() && pOutput->Get_Vertex_Type() != pInput->Get_Vertex_Type() )
 	{
 		Parameters("OUTPUT")->Set_Value(pOutput	= SG_Create_Shapes());
 	}
 
-	pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Selection")), pInput);
+	pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Selection")), pInput, pInput->Get_Vertex_Type());
 
 	for(int i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 	{
-		pOutput->Add_Shape(pInput->Get_Selection(i));
+		CSG_Shape	*pShape	= pInput->Get_Selection(i);
+
+		pOutput->Add_Shape(pShape);
+
+		if( pInput->Get_Vertex_Type() > SG_VERTEX_TYPE_XY )
+		{
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					pOutput->Get_Shape(i)->Set_Z(pShape->Get_Z(iPoint, iPart), iPoint, iPart);
+
+					if( pInput->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+					{
+						pOutput->Get_Shape(i)->Set_M(pShape->Get_M(iPoint, iPart), iPoint, iPart);
+					}
+				}
+			}
+		}
 	}
 
 	return( true );
