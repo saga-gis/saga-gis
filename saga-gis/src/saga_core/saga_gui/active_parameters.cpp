@@ -107,7 +107,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CACTIVE_Parameters::CACTIVE_Parameters(wxWindow *pParent)
-	: wxPanel(pParent, ID_WND_ACTIVE_PARAMETERS, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
+	: wxPanel(pParent, ID_WND_ACTIVE_PARAMETERS, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
 	m_pItem			= NULL;
 	m_pControl		= new CParameters_Control(this);
@@ -151,9 +151,8 @@ void CACTIVE_Parameters::On_Size(wxSizeEvent &WXUNUSED(event))
 
 //---------------------------------------------------------
 #define BUTTON_DIST			1
-#define BUTTON_DIST2		2 * BUTTON_DIST
 
-#define SET_BTN_POS(BTN)	if( BTN->IsShown() ) { BTN->SetSize(r); r.SetLeft(r.GetLeft() + r.GetWidth() + BUTTON_DIST2); }
+#define SET_BTN_POS(BTN)	if( BTN->IsShown() ) { BTN->SetSize(r); r.SetLeft(r.GetLeft() + r.GetWidth() + 2 * BUTTON_DIST); }
 
 //---------------------------------------------------------
 void CACTIVE_Parameters::_Set_Positions(void)
@@ -166,20 +165,18 @@ void CACTIVE_Parameters::_Set_Positions(void)
 				+ (m_Btn_Load	->IsShown() ? 1 : 0)
 				+ (m_Btn_Save	->IsShown() ? 1 : 0);
 
+	wxRect	r(GetClientRect());
+
 	if( nButtons > 0 )
 	{
-		wxSize	Size(GetClientSize());
+		m_pControl->SetSize(r.GetTop(), r.GetLeft(), r.GetWidth(), r.GetHeight() - (m_btn_height + 4 * BUTTON_DIST));
 
-		Size.y	-= m_btn_height;
-
-		m_pControl->SetSize(Size);
-
-		wxRect	r(wxPoint(0, 0), Size);
-
-		r.SetTop(r.GetHeight() + BUTTON_DIST);
-		r.SetHeight(m_btn_height - BUTTON_DIST);
-		r.SetWidth(r.GetWidth() / nButtons - BUTTON_DIST2);
-		r.SetLeft(BUTTON_DIST);
+		r	= wxRect(
+			r.GetLeft  () + BUTTON_DIST,
+			r.GetBottom() - m_btn_height,
+			r.GetWidth () / nButtons - 2 * BUTTON_DIST,
+			m_btn_height
+		);
 
 		SET_BTN_POS(m_Btn_Apply);
 		SET_BTN_POS(m_Btn_Restore);
@@ -189,7 +186,7 @@ void CACTIVE_Parameters::_Set_Positions(void)
 	}
 	else
 	{
-		m_pControl->SetSize(GetClientSize());
+		m_pControl->SetSize(r);
 	}
 }
 
@@ -281,6 +278,8 @@ bool CACTIVE_Parameters::Set_Parameters(CWKSP_Base_Item *pItem)
 	{
 		m_pItem	= pItem;
 
+		Freeze();
+
 		if( m_pItem && m_pItem->Get_Parameters() )
 		{
 			m_pControl->Set_Parameters(m_pItem->Get_Parameters());
@@ -306,6 +305,9 @@ bool CACTIVE_Parameters::Set_Parameters(CWKSP_Base_Item *pItem)
 		{
 			_Set_Positions();
 		}
+
+		Update();
+		Thaw();
 	}
 
 	return( true );

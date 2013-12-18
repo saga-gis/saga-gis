@@ -793,11 +793,6 @@ void CSAGA_Frame::StatusBar_Set_Text(const wxString &Text, int iPane)
 		iPane	= STATUSBAR_DEFAULT;
 	}
 
-	if( iPane == STATUSBAR_ACTIVE )
-	{
-		Set_Pane_Caption(m_pActive, Text.Length() > 0 ? Text : wxString(_TL("Object Properties")));
-	}
-
 	SetStatusText(Text, iPane);
 }
 

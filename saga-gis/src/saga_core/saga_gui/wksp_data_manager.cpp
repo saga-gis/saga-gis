@@ -216,6 +216,17 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		PARAMETER_TYPE_Double, dValue, 0.01, true
 	);
 
+	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("SELECT_MAX")	, lValue) == false )
+	{
+		lValue	= 100;
+	}
+
+	m_Parameters.Add_Value(
+		pNode	, "SELECT_MAX"				, _TL("Maximum Selection"),
+		_TL("Maximum number of rows/columns in selection of grid cells."),
+		PARAMETER_TYPE_Int, lValue, 1, true
+	);
+
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", _TL("General"), _TL(""));
 

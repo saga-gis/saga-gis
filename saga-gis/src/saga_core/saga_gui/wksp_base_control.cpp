@@ -471,6 +471,8 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 {
 	if( pItem && pItem->Get_Control() == this && pItem->GetId().IsOk() )
 	{
+		g_pACTIVE->Freeze();
+
 		bool	bSelect	= bKeepMultipleSelection ? !IsSelected(pItem->GetId()) : true;
 
 		if( !bKeepMultipleSelection )
@@ -480,9 +482,7 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 
 		SelectItem(pItem->GetId(), bSelect);
 
-		Refresh();
-
-		_Set_Active();
+		g_pACTIVE->Thaw();
 
 		return( true );
 	}

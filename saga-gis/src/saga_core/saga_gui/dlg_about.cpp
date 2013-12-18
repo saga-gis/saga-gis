@@ -110,7 +110,7 @@ CDLG_About::CDLG_About(void)
 {
 	wxTextCtrl	*pText;
 
-	m_pControl	= new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE);
+	m_pControl	= new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE);
 
 	//-----------------------------------------------------
 	m_pVersion	=

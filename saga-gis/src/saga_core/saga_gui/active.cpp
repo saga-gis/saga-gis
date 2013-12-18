@@ -74,6 +74,8 @@
 
 #include "data_source.h"
 
+#include "saga_frame.h"
+
 #include "active.h"
 #include "active_parameters.h"
 #include "active_description.h"
@@ -148,7 +150,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CACTIVE::CACTIVE(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, _TL("Object Properties"))
+	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Properties"))
 {
 	g_pACTIVE		= this;
 
@@ -294,24 +296,26 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	//-----------------------------------------------------
 	m_pItem		= pItem;
 
-	if( m_pParameters )
-	{
-		m_pParameters->Set_Parameters(m_pItem);
-	}
+	if( m_pParameters )	m_pParameters->Set_Parameters(m_pItem);
 
 	Update_Description();
 
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_ACTIVE);
 
 	if( m_pItem == NULL )
 	{
+		STATUSBAR_Set_Text(SG_T(""), STATUSBAR_ACTIVE);
+
+		if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
+
 		return( true );
 	}
 
 	STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
+
+	if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 
 	//-----------------------------------------------------
 	if( Get_Active_Data_Item() )
@@ -369,6 +373,8 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	{
 		g_pData->Update_Views(pObject);
 	}
+
+	SendSizeEvent();
 
 	return( true );
 }

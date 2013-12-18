@@ -130,7 +130,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CData_Source::CData_Source(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_DATA_SOURCE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, _TL("Data Source"))
+	: wxNotebook(pParent, ID_WND_DATA_SOURCE, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Data Source"))
 {
 	g_pData_Source	= this;
 
