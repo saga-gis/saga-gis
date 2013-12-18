@@ -172,7 +172,7 @@ void CACTIVE_Attributes::_Set_Positions(void)
 //---------------------------------------------------------
 void CACTIVE_Attributes::On_Apply(wxCommandEvent &event)
 {
-	_Save_Changes();
+	_Save_Changes(false);
 }
 
 void CACTIVE_Attributes::On_Apply_UI(wxUpdateUIEvent &event)
@@ -203,7 +203,7 @@ void CACTIVE_Attributes::Set_Layer(CWKSP_Layer *pLayer)
 {
 	if( m_pLayer != pLayer )
 	{
-		_Save_Changes();
+		_Save_Changes(true);
 
 		m_pLayer	= pLayer;
 
@@ -216,7 +216,7 @@ void CACTIVE_Attributes::Set_Attributes(void)
 {
 	if( m_pLayer && m_pLayer->Edit_Get_Attributes()->is_Valid() )
 	{
-		_Save_Changes();
+		_Save_Changes(true);
 
 		m_pAttributes->Assign(m_pLayer->Edit_Get_Attributes());
 
@@ -240,9 +240,9 @@ void CACTIVE_Attributes::Set_Attributes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_Attributes::_Save_Changes(void)
+void CACTIVE_Attributes::_Save_Changes(bool bConfirm)
 {
-	if( m_pLayer && m_pAttributes->is_Modified() && DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes")) )
+	if( m_pLayer && m_pAttributes->is_Modified() && (!bConfirm || DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes"))) )
 	{
 		m_pLayer->Edit_Get_Attributes()->Assign_Values(m_pAttributes);
 		m_pLayer->Edit_Set_Attributes();

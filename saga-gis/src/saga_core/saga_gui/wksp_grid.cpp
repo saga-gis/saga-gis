@@ -100,8 +100,6 @@ CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	m_pOverlay[0]	= NULL;
 	m_pOverlay[1]	= NULL;
 
-	m_Sel_xN		= -1;
-
 	//-----------------------------------------------------
 	On_Create_Parameters();
 
@@ -191,6 +189,8 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	//-----------------------------------------------------
+
+	//-----------------------------------------------------
 	wxMenu	*pSubMenu	= new wxMenu(_TL("Classification"));
 
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
@@ -253,6 +253,14 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 	case ID_CMD_GRIDS_SET_LUT:
 		_LUT_Create();
 		break;
+
+	case ID_CMD_GRIDS_SEL_CLEAR:
+		_Edit_Clr_Selection();
+		break;
+
+	case ID_CMD_GRIDS_SEL_DELETE:
+		_Edit_Del_Selection();
+		break;
 	}
 
 	return( true );
@@ -265,6 +273,14 @@ bool CWKSP_Grid::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	default:
 		return( CWKSP_Layer::On_Command_UI(event) );
+
+	case ID_CMD_GRIDS_SEL_CLEAR:
+		event.Enable(m_Edit_Attributes.Get_Count() > 0);
+		break;
+
+	case ID_CMD_GRIDS_SEL_DELETE:
+		event.Enable(m_Edit_Attributes.Get_Count() > 0);
+		break;
 
 	case ID_CMD_GRIDS_HISTOGRAM:
 		event.Check(m_pHistogram != NULL);
@@ -812,6 +828,22 @@ double CWKSP_Grid::Get_Value_Range(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxMenu * CWKSP_Grid::On_Edit_Get_Menu(void)
+{
+	if( m_Edit_Attributes.Get_Count() < 1 )
+	{
+		return( NULL );
+	}
+
+	wxMenu	*pMenu	= new wxMenu;
+
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRIDS_SEL_CLEAR);
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRIDS_SEL_DELETE);
+
+	return( pMenu );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Grid::On_Edit_On_Key_Down(int KeyCode)
 {
 	switch( KeyCode )
@@ -825,89 +857,92 @@ bool CWKSP_Grid::On_Edit_On_Key_Down(int KeyCode)
 }
 
 //---------------------------------------------------------
-#define SELECTION_MAX	20
-
-//---------------------------------------------------------
 bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	int					x, y;
-	CSG_Table_Record	*pRecord;
-	CSG_Rect			rWorld(m_Edit_Mouse_Down, Point);
-
-	m_Sel_xOff	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
-	if( m_Sel_xOff < 0 )
-		m_Sel_xOff	= 0;
-	m_Sel_xN	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
-	if( m_Sel_xN >= Get_Grid()->Get_NX() )
-		m_Sel_xN	= Get_Grid()->Get_NX() - 1;
-	m_Sel_xN	= 1 + m_Sel_xN - m_Sel_xOff;
-
-	m_Sel_yOff	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
-	if( m_Sel_yOff < 0 )
-		m_Sel_yOff	= 0;
-	m_Sel_yN	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
-	if( m_Sel_yN >= Get_Grid()->Get_NY() )
-		m_Sel_yN	= Get_Grid()->Get_NY() - 1;
-	m_Sel_yN	= 1 + m_Sel_yN - m_Sel_yOff;
-
-	m_Edit_Attributes.Destroy();
-
-	if( m_Sel_xN < 1 || m_Sel_yN < 1 )
+	if( Key & MODULE_INTERACTIVE_KEY_LEFT )
 	{
-		m_Sel_xN	= -1;
-	}
-	else
-	{
-		if( m_Sel_xN > SELECTION_MAX )
-		{
-			m_Sel_xOff	+= (m_Sel_xN - SELECTION_MAX) / 2;
-			m_Sel_xN	= SELECTION_MAX;
-		}
+		g_pACTIVE->Get_Attributes()->Set_Attributes();
 
-		if( m_Sel_yN > SELECTION_MAX )
-		{
-			m_Sel_yOff	+= (m_Sel_yN - SELECTION_MAX) / 2;
-			m_Sel_yN	= SELECTION_MAX;
-		}
+		CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 
-		for(x=0; x<m_Sel_xN; x++)
-		{
-			m_Edit_Attributes.Add_Field(CSG_String::Format(SG_T("%d"), x + 1), SG_DATATYPE_Double);
-		}
+		m_xSel	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin()); if( m_xSel < 0 ) m_xSel = 0;
+		int	nx	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax()); if( nx >= Get_Grid()->Get_NX() ) nx = Get_Grid()->Get_NX() - 1;
+		nx	= 1 + nx - m_xSel;
 
-		for(y=0; y<m_Sel_yN; y++)
-		{
-			pRecord	= m_Edit_Attributes.Add_Record();
+		m_ySel	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin()); if( m_ySel < 0 ) m_ySel = 0;
+		int	ny	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax()); if( ny >= Get_Grid()->Get_NY() ) ny = Get_Grid()->Get_NY() - 1;
+		ny	= 1 + ny - m_ySel;
 
-			for(x=0; x<m_Sel_xN; x++)
+		m_Edit_Attributes.Destroy();
+
+		if( nx > 0 && ny > 0 )
+		{
+			int	x, y, Maximum = g_pData->Get_Parameter("SELECT_MAX")->asInt();
+
+			if( nx > Maximum )
 			{
-				pRecord->Set_Value(x, Get_Grid()->asDouble(m_Sel_xOff + x, m_Sel_yOff + m_Sel_yN - 1 - y, false));
+				m_xSel	+= (nx - Maximum) / 2;
+				nx		= Maximum;
+			}
+
+			if( ny > Maximum )
+			{
+				m_ySel	+= (ny - Maximum) / 2;
+				ny		= Maximum;
+			}
+
+			for(x=0; x<nx; x++)
+			{
+				m_Edit_Attributes.Add_Field(CSG_String::Format(SG_T("%d"), x + 1), SG_DATATYPE_Double);
+			}
+
+			for(y=0; y<ny; y++)
+			{
+				CSG_Table_Record	*pRecord	= m_Edit_Attributes.Add_Record();
+
+				for(x=0; x<nx; x++)
+				{
+					if( !Get_Grid()->is_NoData(m_xSel + x, m_ySel + ny - 1 - y) )
+					{
+						pRecord->Set_Value(x, Get_Grid()->asDouble(m_xSel + x, m_ySel + ny - 1 - y, false));
+					}
+					else
+					{
+						pRecord->Set_NoData(x);
+					}
+				}
 			}
 		}
+
+		g_pACTIVE->Get_Attributes()->Set_Attributes();
+
+		Update_Views();
+
+		return( true );
 	}
 
-	g_pACTIVE->Get_Attributes()->Set_Attributes();
-
-	Update_Views();
-
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Grid::On_Edit_Set_Attributes(void)
 {
-	int				x, y;
-	CSG_Table_Record	*pRecord;
-
-	if( m_Sel_xN >= 0 )
+	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
-		for(y=0; y<m_Sel_yN; y++)
+		for(int y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
-			pRecord	= m_Edit_Attributes.Get_Record(y);
+			CSG_Table_Record	*pRecord	= m_Edit_Attributes.Get_Record(m_Edit_Attributes.Get_Count() - 1 - y);
 
-			for(x=0; x<m_Sel_xN; x++)
+			for(int x=0; x<m_Edit_Attributes.Get_Field_Count(); x++)
 			{
-				Get_Grid()->Set_Value(m_Sel_xOff + x, m_Sel_yOff + m_Sel_yN - 1 - y, pRecord->asDouble(x));
+				if( !pRecord->is_NoData(x) )
+				{
+					Get_Grid()->Set_Value(m_xSel + x, m_ySel + y, pRecord->asDouble(x));
+				}
+				else
+				{
+					Get_Grid()->Set_NoData(m_xSel + x, m_ySel + y);
+				}
 			}
 		}
 
@@ -922,13 +957,13 @@ bool CWKSP_Grid::On_Edit_Set_Attributes(void)
 //---------------------------------------------------------
 TSG_Rect CWKSP_Grid::On_Edit_Get_Extent(void)
 {
-	if( m_Sel_xN >= 0 )
+	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
 		return( CSG_Rect(
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff + m_Sel_yN))
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count()))
 		);
 	}
 
@@ -943,19 +978,38 @@ TSG_Rect CWKSP_Grid::On_Edit_Get_Extent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Grid::_Edit_Clr_Selection(void)
+{
+	if( m_Edit_Attributes.Get_Count() > 0 )
+	{
+		m_Edit_Attributes.Destroy();
+
+		g_pACTIVE->Get_Attributes()->Set_Attributes();
+
+		Update_Views();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Grid::_Edit_Del_Selection(void)
 {
-	int		x, y;
-
-	if( m_Sel_xN >= 0 && DLG_Message_Confirm(_TL("Set selected values to no data."), _TL("Delete")) )
+	if( m_Edit_Attributes.Get_Count() > 0 && DLG_Message_Confirm(_TL("Set selected values to no data."), _TL("Delete")) )
 	{
-		for(y=m_Sel_yOff; y<m_Sel_yOff + m_Sel_yN; y++)
+		for(int y=0; y<m_Edit_Attributes.Get_Count(); y++)
 		{
-			for(x=m_Sel_xOff; x<m_Sel_xOff + m_Sel_xN; x++)
+			for(int x=0; x<m_Edit_Attributes.Get_Field_Count(); x++)
 			{
-				Get_Grid()->Set_NoData(x, y);
+				m_Edit_Attributes[y].Set_NoData(x);
+
+				Get_Grid()->Set_NoData(m_xSel + x, m_ySel + y);
 			}
 		}
+
+		g_pACTIVE->Get_Attributes()->Set_Attributes();
 
 		Update_Views();
 
@@ -1458,17 +1512,17 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
 {
-	if( m_Sel_xN >= 0 )
+	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
 		CSG_Rect	r(
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_Sel_yOff + m_Sel_yN)
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count())
 		);
 
-		TSG_Point_Int		a(dc_Map.World2DC(r.Get_TopLeft())),
-						b(dc_Map.World2DC(r.Get_BottomRight()));
+		TSG_Point_Int	a(dc_Map.World2DC(r.Get_TopLeft    ()));
+		TSG_Point_Int	b(dc_Map.World2DC(r.Get_BottomRight()));
 
 		a.x	-= 1;
 		b.x	-= 1;

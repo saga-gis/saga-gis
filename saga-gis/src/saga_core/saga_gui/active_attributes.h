@@ -117,7 +117,7 @@ protected:
 
 	void						_Set_Positions		(void);
 
-	void						_Save_Changes		(void);
+	void						_Save_Changes		(bool bConfirm);
 
 
 //---------------------------------------------------------

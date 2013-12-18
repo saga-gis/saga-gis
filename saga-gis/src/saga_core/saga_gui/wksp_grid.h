@@ -119,6 +119,7 @@ protected:
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
+	virtual wxMenu *			On_Edit_Get_Menu		(void);
 	virtual bool				On_Edit_On_Key_Down		(int KeyCode);
 	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
 	virtual bool				On_Edit_Set_Attributes	(void);
@@ -131,13 +132,14 @@ private:
 
 	bool						m_bOverlay;
 
-	int							m_Sel_xOff, m_Sel_xN, m_Sel_yOff, m_Sel_yN;
+	int							m_xSel, m_ySel;
 
 	CWKSP_Grid					*m_pOverlay[2];
 
 
 	void						_LUT_Create				(void);
 
+	bool						_Edit_Clr_Selection		(void);
 	bool						_Edit_Del_Selection		(void);
 
 	void						_Save_Image				(void);

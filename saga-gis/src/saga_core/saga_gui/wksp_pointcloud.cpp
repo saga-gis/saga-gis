@@ -234,6 +234,11 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		);
 		break;
 
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+		Get_PointCloud()->Select();
+		Update_Views();
+		break;
+
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
 		Get_PointCloud()->Inv_Selection();
 		Update_Views();
@@ -790,6 +795,7 @@ wxMenu * CWKSP_PointCloud::On_Edit_Get_Menu(void)
 	pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
 
 	return( pMenu );

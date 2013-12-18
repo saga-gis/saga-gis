@@ -186,8 +186,11 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Fit Colours to Minimum/Maximum") );
 	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Fit Colours to Standard Deviation") );
 	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Fit Colours Dialog") );
+	case ID_CMD_GRIDS_SEL_CLEAR:		return( _TL("Clear Selection") );
+	case ID_CMD_GRIDS_SEL_DELETE:		return( _TL("Delete Selection") );
 
 	case ID_CMD_SHAPES_EDIT_SHAPE:		return( _TL("Edit Selected Shape") );
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:	return( _TL("Clear Selection") );
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:	return( _TL("Invert Selection") );
 	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	return( _TL("Add Shape") );
 	case ID_CMD_SHAPES_EDIT_ADD_PART:	return( _TL("Add Part") );

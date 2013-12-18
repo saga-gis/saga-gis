@@ -98,9 +98,7 @@
 //---------------------------------------------------------
 wxMenu * CWKSP_Shapes::On_Edit_Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu;
+	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_SHAPES_EDIT_SHAPE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_SHAPE);
@@ -108,6 +106,7 @@ wxMenu * CWKSP_Shapes::On_Edit_Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_PART);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_PART);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_POINT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
 
 	return( pMenu );

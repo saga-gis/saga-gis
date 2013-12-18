@@ -217,6 +217,11 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		_Edit_Point_Del();
 		break;
 
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+		Get_Shapes()->Select();
+		Update_Views();
+		break;
+
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
 		Get_Shapes()->Inv_Selection();
 		Update_Views();
@@ -286,6 +291,10 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:
 		event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0 && m_Edit_iPoint >= 0);
+		break;
+
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+		event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0);
 		break;
 
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
