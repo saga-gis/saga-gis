@@ -569,11 +569,11 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 
 	case SG_COLORS_RED_BLUE_GREEN:
 		Set_Count(5);
-		Set_Color(0, SG_GET_RGB(  0,  63, 127));
-		Set_Color(1, SG_GET_RGB(127, 255,   0));
-		Set_Color(2, SG_GET_RGB(255, 255, 127));
-		Set_Color(3, SG_GET_RGB(191, 127,   0));
-		Set_Color(4, SG_GET_RGB(127,  63,   0));
+		Set_Color(0, SG_GET_RGB(127, 127,   0));
+		Set_Color(1, SG_GET_RGB(255,   0,   0));
+		Set_Color(2, SG_GET_RGB(  0,   0, 255));
+		Set_Color(3, SG_GET_RGB(  0, 255,   0));
+		Set_Color(4, SG_GET_RGB(127, 127,   0));
 		break;
 
 	case SG_COLORS_GREEN_RED_BLUE:
