@@ -756,7 +756,7 @@ bool CSG_OGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, in
 		{
 			TSG_Point	sgPoint	= pShape->Get_Point(iPoint, iPart);
 
-			if( bZ )
+			if( !bZ )
 			{
 				pLine->addPoint(sgPoint.x, sgPoint.y);
 			}
