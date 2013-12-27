@@ -426,9 +426,12 @@ TSG_Vertex_Type CSG_OGR_DataSource::Get_Coordinate_Type(int iLayer)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer)
+CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer, int iGeomTypeChoice)
 {
 	OGRLayer	*pLayer	= Get_Layer(iLayer);
+
+	if( iGeomTypeChoice != 0 )
+		pLayer->GetLayerDefn()->SetGeomType((OGRwkbGeometryType)_Get_GeomType_Choice(iGeomTypeChoice));
 
 	//-----------------------------------------------------
 	if( pLayer && Get_Type(iLayer) != SHAPE_TYPE_Undefined )
@@ -487,6 +490,30 @@ CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer)
 }
 
 //---------------------------------------------------------
+int CSG_OGR_DataSource::_Get_GeomType_Choice(int iGeomTypeChoice)
+{
+	switch( iGeomTypeChoice )
+	{
+	default:
+	case AUTOMATIC:					return( wkbUnknown );
+	case WKBPOINT:					return( wkbPoint );
+	case WKBPOINT25D:				return( wkbPoint25D );
+	case WKBMULTIPOINT:				return( wkbMultiPoint );
+	case WKBMULTIPOINT25D:			return( wkbMultiPoint25D );
+	case WKBLINESTRING:				return( wkbLineString );
+	case WKBLINESTRING25D:			return( wkbLineString25D );
+	case WKBMULTILINESTRING:		return( wkbMultiLineString );
+	case WKBMULTILINESTRING25D:		return( wkbMultiLineString25D );
+	case WKBPOLYGON:				return( wkbPolygon );
+	case WKBPOLYGON25D:				return( wkbPolygon25D );
+	case WKBMULTIPOLYGON:			return( wkbMultiPolygon );
+	case WKBMULTIPOLYGON25D:		return( wkbMultiPolygon25D );
+	case WKBGEOMETRYCOLLECTION:		return( wkbGeometryCollection );
+	case WKBGEOMETRYCOLLECTION25D:	return( wkbGeometryCollection25D );
+	}
+}
+
+//---------------------------------------------------------
 bool CSG_OGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
 {
 	if( pShape && pGeometry )
@@ -497,6 +524,7 @@ bool CSG_OGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometr
 		case wkbPoint:				// 0-dimensional geometric object, standard WKB
 		case wkbPoint25D:			// 2.5D extension as per 99-402
 			pShape->Add_Point(((OGRPoint *)pGeometry)->getX(), ((OGRPoint *)pGeometry)->getY());
+			pShape->Set_Z(((OGRPoint *)pGeometry)->getZ(), 0);
 			return( true );
 
 		//-------------------------------------------------
@@ -583,7 +611,7 @@ bool CSG_OGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
+bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes, const CSG_String &DriverName)
 {
 	bool		bZ	= pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY;
 	OGRLayer	*pLayer;
@@ -593,17 +621,24 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 	{
 		bool			bResult	= true;
 		int				iField;
-
+		
 		//-------------------------------------------------
-		for(iField=0; iField<pShapes->Get_Field_Count() && bResult; iField++)
+		if( SG_STR_CMP(DriverName, "DXF") )
+		// the dxf driver does not support arbitrary field creation and returns OGRERR_FAILURE;
+		// it seems like there is no method in OGR to check whether a driver supports field creation or not;
+		// another issue with the dxf driver: 3D polygon data is not supported (would require e.g. "3DFACE" entity implementation in GDAL/OGR),
+		// so we would need to treat them as polylines (not implemented, currently it is necessary to convert to a line shapefile a priori)
 		{
-			OGRFieldDefn	DefField(CSG_String(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
-
-			//	DefField.SetWidth(32);
-
-			if( pLayer->CreateField(&DefField) != OGRERR_NONE )
+			for(iField=0; iField<pShapes->Get_Field_Count() && bResult; iField++)
 			{
-				bResult	= false;
+				OGRFieldDefn	DefField(CSG_String(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
+
+				//	DefField.SetWidth(32);
+
+				if( pLayer->CreateField(&DefField) != OGRERR_NONE )
+				{
+					bResult	= false;
+				}
 			}
 		}
 
@@ -613,6 +648,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 			CSG_Shape	*pShape		= pShapes->Get_Shape(iShape);
 			OGRFeature	*pFeature	= OGRFeature::CreateFeature(pLayer->GetLayerDefn());
 
+			// no need for a special treatment of DXF here, as pFeature->SetField() just silently ignores iFields out of range
 			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
 				switch( pShapes->Get_Field_Type(iField) )

@@ -64,6 +64,49 @@
 #include "MLB_Interface.h"
 
 
+//---------------------------------------------------------
+typedef enum ESG_Geom_Type_Choice_Key
+{
+	AUTOMATIC				= 0,
+	WKBPOINT,
+	WKBPOINT25D,
+	WKBMULTIPOINT,
+	WKBMULTIPOINT25D,
+	WKBLINESTRING,
+	WKBLINESTRING25D,
+	WKBMULTILINESTRING,
+	WKBMULTILINESTRING25D,
+	WKBPOLYGON,
+	WKBPOLYGON25D,
+	WKBMULTIPOLYGON,
+	WKBMULTIPOLYGON25D,
+	WKBGEOMETRYCOLLECTION,
+	WKBGEOMETRYCOLLECTION25D,
+	GEOM_TYPE_KEY_Count
+}
+TSG_Geom_Type_Choice_Key;
+
+
+//---------------------------------------------------------
+const SG_Char	gSG_Geom_Type_Choice_Key_Name[GEOM_TYPE_KEY_Count][32]	=
+{
+	SG_T("automatic"),
+	SG_T("wkbPoint"),
+	SG_T("wkbPoint25D"),
+	SG_T("wkbMultiPoint"),
+	SG_T("wkbMultiPoint25D"),
+	SG_T("wkbLineString"),
+	SG_T("wkbLineString25D"),
+	SG_T("wkbMultiLineString"),
+	SG_T("wkbMultiLineString25D"),
+	SG_T("wkbPolygon"),
+	SG_T("wkbPolygon25D"),
+	SG_T("wkbMultiPolygon"),
+	SG_T("wkbMultiPolygon25D"),
+	SG_T("wkbGeometryCollection"),
+	SG_T("wkbGeometryCollection25D")
+};
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -128,14 +171,16 @@ public:
 	TSG_Shape_Type				Get_Type			(int iLayer);
 	TSG_Vertex_Type				Get_Coordinate_Type	(int iLayer);
 
-	CSG_Shapes *				Read				(int iLayer);
-	bool						Write				(CSG_Shapes *pShapes);
+	CSG_Shapes *				Read				(int iLayer, int iGeomTypeChoice);
+	bool						Write				(CSG_Shapes *pShapes, const CSG_String &DriverName);
 
 
 private:
 
 	class OGRDataSource			*m_pDataSource;
 
+
+	int							_Get_GeomType_Choice(int iGeomTypeChoice);
 
 	bool						_Read_Geometry		(CSG_Shape *pShape, class OGRGeometry *pGeometry);
 	bool						_Read_Line			(CSG_Shape *pShape, class OGRLineString *pLine);

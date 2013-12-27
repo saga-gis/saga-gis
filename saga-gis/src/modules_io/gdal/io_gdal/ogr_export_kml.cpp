@@ -113,7 +113,7 @@ COGR_Export_KML::COGR_Export_KML(void)
 //---------------------------------------------------------
 bool COGR_Export_KML::On_Execute(void)
 {
-	CSG_String	File_Name;
+	CSG_String	File_Name, Driver_Name = "KML";
 	CSG_Shapes	*pShapes, Shapes;
 
 	pShapes		= Parameters("SHAPES")->asShapes();
@@ -151,11 +151,11 @@ bool COGR_Export_KML::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_OGR_DataSource	DataSource;
 
-	if( DataSource.Create(File_Name, "KML") == false )
+	if( DataSource.Create(File_Name, Driver_Name) == false )
 	{
 		Message_Add(_TL("could not create KML file"));
 	}
-	else if( DataSource.Write(pShapes) )
+	else if( DataSource.Write(pShapes, Driver_Name) )
 	{
 		return( true );
 	}

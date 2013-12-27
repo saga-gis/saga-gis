@@ -113,6 +113,20 @@ COGR_Import::COGR_Import(void)
 		_TL(""),
 		NULL, NULL, false, false, true
 	);
+
+	CSG_String	sChoices;
+	for(int i=0; i<GEOM_TYPE_KEY_Count; i++)
+	{
+		sChoices += gSG_Geom_Type_Choice_Key_Name[i];
+		sChoices += SG_T("|");
+	}
+
+	Parameters.Add_Choice(
+		NULL, "GEOM_TYPE"	, _TL("Geometry Type"),
+		_TL("Some OGR drivers are unable to determine the geometry type automatically, please choose the appropriate one in this case"),
+		sChoices,
+		0
+	);
 }
 
 
@@ -151,7 +165,7 @@ bool COGR_Import::On_Execute(void)
 		{
 			for(int iLayer=0; iLayer<DataSource.Get_Count(); iLayer++)
 			{
-				CSG_Shapes	*pShapes	= DataSource.Read(iLayer);
+				CSG_Shapes	*pShapes	= DataSource.Read(iLayer, Parameters("GEOM_TYPE")->asInt());
 
 				if( pShapes )
 				{

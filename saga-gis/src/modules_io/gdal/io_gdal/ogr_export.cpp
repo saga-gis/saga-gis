@@ -146,7 +146,7 @@ bool COGR_Export::On_Execute(void)
 	{
 		Message_Add(_TL("Could not create data source."));
 	}
-	else if( DataSource.Write(pShapes) )
+	else if( DataSource.Write(pShapes, Parameters("FORMAT")->asString()) )
 	{
 		return( true );
 	}
