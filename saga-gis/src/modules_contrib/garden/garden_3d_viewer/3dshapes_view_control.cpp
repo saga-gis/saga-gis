@@ -607,10 +607,10 @@ void C3DShapes_View_Control::_Draw_Shape(CSG_Shape *pShape)
 		{
 		case SHAPE_TYPE_Point:
 			{
-				p	= pShape->Get_Point(0);
+				p	= pShape->Get_Point(0, iPart);
 				a.x	= p.x;
 				a.y	= p.y;
-				a.z	= pShape->Get_Z(0);
+				a.z	= pShape->Get_Z(0, iPart);
 
 				_Get_Projection(a);
 
@@ -620,10 +620,10 @@ void C3DShapes_View_Control::_Draw_Shape(CSG_Shape *pShape)
 
 		case SHAPE_TYPE_Line:
 			{
-				p	= pShape->Get_Point(0);
+				p	= pShape->Get_Point(0, iPart);
 				a.x	= p.x;
 				a.y	= p.y;
-				a.z	= pShape->Get_Z(0);
+				a.z	= pShape->Get_Z(0, iPart);
 
 				_Get_Projection(a);
 
