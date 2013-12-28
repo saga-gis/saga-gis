@@ -77,7 +77,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes - Tools") );
 
 	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-2012") );
+		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-2013") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the manipulation of vector data.") );
@@ -119,6 +119,7 @@ CSG_String Get_Info(int i)
 
 #include "shapes_polar_to_cartes.h"
 #include "shapes_generate.h"
+#include "shapes_convert_vertex_type.h"
 
 
 //---------------------------------------------------------
@@ -154,6 +155,7 @@ CSG_Module *		Create_Module(int i)
 
 	case 21:	return( new CShapes_Polar_to_Cartes );
 	case 22:	return( new CShapes_Generate );
+	case 23:	return( new CShapes_Convert_Vertex_Type );
 
 	case 30:	return( NULL );
 	}

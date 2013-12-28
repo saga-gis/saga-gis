@@ -26,6 +26,7 @@ Shapes_Create_Empty.cpp\
 Shapes_Merge.cpp\
 TransformShapes.cpp\
 shapes_buffer.cpp\
+shapes_convert_vertex_type.cpp\
 shapes_cut.cpp\
 shapes_cut_interactive.cpp\
 shapes_extents.cpp\
@@ -47,6 +48,7 @@ Shapes_Create_Empty.h\
 Shapes_Merge.h\
 TransformShapes.h\
 shapes_buffer.h\
+shapes_convert_vertex_type.h\
 shapes_cut.h\
 shapes_cut_interactive.h\
 shapes_extents.h\
