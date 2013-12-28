@@ -73,9 +73,7 @@
 //---------------------------------------------------------
 CLines_From_Polygons::CLines_From_Polygons(void)
 {
-	CSG_Parameter	*pNode;
 
-	//-----------------------------------------------------
 	Set_Name		(_TL("Convert Polygons to Lines"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2005"));
@@ -85,16 +83,16 @@ CLines_From_Polygons::CLines_From_Polygons(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Line
-	);
-
-	pNode	= Parameters.Add_Shapes(
+	Parameters.Add_Shapes(
 		NULL	, "POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "LINES"		, _TL("Lines"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 }
 
@@ -122,7 +120,7 @@ bool CLines_From_Polygons::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pLines->Create(SHAPE_TYPE_Line, pPolygons->Get_Name(), pPolygons);
+	pLines->Create(SHAPE_TYPE_Line, pPolygons->Get_Name(), pPolygons, pPolygons->Get_Vertex_Type());
 
 	for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 	{
@@ -134,9 +132,32 @@ bool CLines_From_Polygons::On_Execute(void)
 			for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 			{
 				pLine->Add_Point(pPolygon->Get_Point(iPoint, iPart), iPart);
+
+				if( pPolygons->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+				{
+					pLine->Set_Z(pPolygon->Get_Z(iPoint, iPart), iPoint, iPart);
+
+					if( pPolygons->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+					{
+						pLine->Set_M(pPolygon->Get_M(iPoint, iPart), iPoint, iPart);
+					}
+				}
 			}
 
-			pLine->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
+			if( !CSG_Point(pPolygon->Get_Point(0, iPart)).is_Equal(pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart)) )
+			{
+				pLine->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
+
+				if( pPolygons->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+				{
+					pLine->Set_Z(pPolygon->Get_Z(0, iPart), pLine->Get_Point_Count(iPart) - 1, iPart);
+
+					if( pPolygons->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+					{
+						pLine->Set_M(pPolygon->Get_M(0, iPart), pLine->Get_Point_Count(iPart) - 1, iPart);
+					}
+				}
+			}
 		}
 	}
 
