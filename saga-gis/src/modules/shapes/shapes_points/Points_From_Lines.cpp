@@ -89,7 +89,7 @@ CPoints_From_Lines::CPoints_From_Lines(void)
 bool CPoints_From_Lines::On_Execute(void)
 {
 	int			iLine, iPart, iPoint, jPoint, nPoints;
-	double		dx, dy, dz, dDist, A_z, B_z;
+	double		dx, dy, dz, dm, dDist, A_z, B_z, A_m, B_m;
 	TSG_Point	Pt_A, Pt_B;	
 	CSG_Shapes	*pLines, *pPoints;
 	CSG_Shape	*pLine, *pPoint;
@@ -101,10 +101,7 @@ bool CPoints_From_Lines::On_Execute(void)
 	dDist		= Parameters("ADD")		->asBool() ? Parameters("DIST")->asDouble() : -1.0;
 	bAddPtOrder	= Parameters("ADD_POINT_ORDER")->asBool();
 
-	if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ )
-		pPoints->Create(SHAPE_TYPE_Point, pLines->Get_Name(), pLines, SG_VERTEX_TYPE_XYZ);
-	else
-		pPoints->Create(SHAPE_TYPE_Point, pLines->Get_Name(), pLines);
+	pPoints->Create(SHAPE_TYPE_Point, pLines->Get_Name(), pLines, pLines->Get_Vertex_Type());
 
 	if( bAddPtOrder )
 		pPoints->Add_Field(_TL("PT_ID"), SG_DATATYPE_Int);
@@ -123,18 +120,31 @@ bool CPoints_From_Lines::On_Execute(void)
 			{
 				Pt_B	= pLine->Get_Point(0, iPart);
 
-				if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ )
+				if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+				{
 					B_z	= pLine->Get_Z(0, iPart);
+
+					if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+					{
+						B_m	= pLine->Get_M(0, iPart);
+					}
+				}
 
 				for(iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 				{
 					Pt_A	= Pt_B;
 					Pt_B	= pLine->Get_Point(iPoint, iPart);
 					
-					if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ )
+					if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 					{
 						A_z = B_z;
 						B_z	= pLine->Get_Z(iPoint, iPart);
+
+						if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							A_m = B_m;
+							B_m	= pLine->Get_M(iPoint, iPart);
+						}
 					}
 
 					dx		= Pt_B.x - Pt_A.x;
@@ -143,16 +153,28 @@ bool CPoints_From_Lines::On_Execute(void)
 					dx		/= nPoints;
 					dy		/= nPoints;
 
-					if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ )
+					if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 					{
 						dz		= (B_z - A_z) / nPoints;
+
+						if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							dm		= (B_m - A_m) / nPoints;
+						}
 					}
 
 					pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 					pPoint	->Add_Point(Pt_A);
 
-					if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ )
+					if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+					{
 						pPoint->Set_Z(A_z, 0);
+
+						if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							pPoint->Set_M(A_m, 0);
+						}
+					}
 
 					if( bAddPtOrder )
 					{
@@ -168,10 +190,16 @@ bool CPoints_From_Lines::On_Execute(void)
 						pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pPoint	->Add_Point(Pt_A);
 
-						if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ )
+						if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 						{
 							A_z	+= dz;
 							pPoint->Set_Z(A_z, 0);
+
+							if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+							{
+								A_m	+= dm;
+								pPoint->Set_M(A_m, 0);
+							}
 						}
 
 						if( bAddPtOrder )
@@ -191,8 +219,15 @@ bool CPoints_From_Lines::On_Execute(void)
 					pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 					pPoint	->Add_Point(pLine->Get_Point(iPoint, iPart));
 
-					if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ )
+					if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+					{
 						pPoint->Set_Z(pLine->Get_Z(iPoint, iPart), 0);
+
+						if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							pPoint->Set_M(pLine->Get_M(iPoint, iPart), 0);
+						}
+					}
 
 					if( bAddPtOrder )
 					{
@@ -250,7 +285,7 @@ bool CPoints_From_MultiPoints::On_Execute(void)
 	CSG_Shapes	*pMultipoints	= Parameters("MULTIPOINTS")	->asShapes();
 	CSG_Shapes	*pPoints		= Parameters("POINTS")		->asShapes();
 
-	pPoints->Create(SHAPE_TYPE_Point, pMultipoints->Get_Name(), pMultipoints);
+	pPoints->Create(SHAPE_TYPE_Point, pMultipoints->Get_Name(), pMultipoints, pMultipoints->Get_Vertex_Type());
 
 	//-----------------------------------------------------
 	for(int iMultipoint=0; iMultipoint<pMultipoints->Get_Count() && Set_Progress(iMultipoint, pMultipoints->Get_Count()); iMultipoint++)
@@ -264,6 +299,16 @@ bool CPoints_From_MultiPoints::On_Execute(void)
 				CSG_Shape	*pPoint	= pPoints->Add_Shape(pMultipoint, SHAPE_COPY_ATTR);
 
 				pPoint->Add_Point(pMultipoint->Get_Point(iPoint, iPart));
+
+				if( pMultipoints->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+				{
+					pPoint->Set_Z(pMultipoint->Get_Z(iPoint, iPart), 0);
+
+					if( pMultipoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+					{
+						pPoint->Set_M(pMultipoint->Get_M(iPoint, iPart), 0);
+					}
+				}
 			}
 		}
 	}
