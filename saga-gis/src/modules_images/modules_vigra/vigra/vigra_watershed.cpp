@@ -62,6 +62,8 @@
 #include "vigra_watershed.h"
 
 //---------------------------------------------------------
+#include <iostream>
+
 #include <vigra/stdimagefunctions.hxx>
 #include <vigra/localminmax.hxx>
 #include <vigra/labelimage.hxx>
