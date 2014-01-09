@@ -140,23 +140,24 @@
     </Bscmake>
     <PostBuildEvent>
       <Command>md $(OutDir)include
-copy api_core.h $(OutDir)include
-copy data_manager.h $(OutDir)include
-copy dataobject.h $(OutDir)include
-copy geo_tools.h $(OutDir)include
-copy grid.h $(OutDir)include
-copy grid_pyramid.h $(OutDir)include
-copy mat_tools.h $(OutDir)include
-copy metadata.h $(OutDir)include
-copy module.h $(OutDir)include
-copy module_library.h $(OutDir)include
-copy parameters.h $(OutDir)include
-copy pointcloud.h $(OutDir)include
-copy saga_api.h $(OutDir)include
-copy shapes.h $(OutDir)include
-copy table.h $(OutDir)include
-copy table_value.h $(OutDir)include
-copy tin.h $(OutDir)include
+md $(OutDir)include\saga_api
+copy api_core.h $(OutDir)include\saga_api
+copy data_manager.h $(OutDir)include\saga_api
+copy dataobject.h $(OutDir)include\saga_api
+copy geo_tools.h $(OutDir)include\saga_api
+copy grid.h $(OutDir)include\saga_api
+copy grid_pyramid.h $(OutDir)include\saga_api
+copy mat_tools.h $(OutDir)include\saga_api
+copy metadata.h $(OutDir)include\saga_api
+copy module.h $(OutDir)include\saga_api
+copy module_library.h $(OutDir)include\saga_api
+copy parameters.h $(OutDir)include\saga_api
+copy pointcloud.h $(OutDir)include\saga_api
+copy saga_api.h $(OutDir)include\saga_api
+copy shapes.h $(OutDir)include\saga_api
+copy table.h $(OutDir)include\saga_api
+copy table_value.h $(OutDir)include\saga_api
+copy tin.h $(OutDir)include\saga_api
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -212,23 +213,24 @@ copy tin.h $(OutDir)include
     </Bscmake>
     <PostBuildEvent>
       <Command>md $(OutDir)include
-copy api_core.h $(OutDir)include
-copy data_manager.h $(OutDir)include
-copy dataobject.h $(OutDir)include
-copy geo_tools.h $(OutDir)include
-copy grid.h $(OutDir)include
-copy grid_pyramid.h $(OutDir)include
-copy mat_tools.h $(OutDir)include
-copy metadata.h $(OutDir)include
-copy module.h $(OutDir)include
-copy module_library.h $(OutDir)include
-copy parameters.h $(OutDir)include
-copy pointcloud.h $(OutDir)include
-copy saga_api.h $(OutDir)include
-copy shapes.h $(OutDir)include
-copy table.h $(OutDir)include
-copy table_value.h $(OutDir)include
-copy tin.h $(OutDir)include
+md $(OutDir)include\saga_api
+copy api_core.h $(OutDir)include\saga_api
+copy data_manager.h $(OutDir)include\saga_api
+copy dataobject.h $(OutDir)include\saga_api
+copy geo_tools.h $(OutDir)include\saga_api
+copy grid.h $(OutDir)include\saga_api
+copy grid_pyramid.h $(OutDir)include\saga_api
+copy mat_tools.h $(OutDir)include\saga_api
+copy metadata.h $(OutDir)include\saga_api
+copy module.h $(OutDir)include\saga_api
+copy module_library.h $(OutDir)include\saga_api
+copy parameters.h $(OutDir)include\saga_api
+copy pointcloud.h $(OutDir)include\saga_api
+copy saga_api.h $(OutDir)include\saga_api
+copy shapes.h $(OutDir)include\saga_api
+copy table.h $(OutDir)include\saga_api
+copy table_value.h $(OutDir)include\saga_api
+copy tin.h $(OutDir)include\saga_api
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -283,23 +285,24 @@ copy tin.h $(OutDir)include
     </Bscmake>
     <PostBuildEvent>
       <Command>md $(OutDir)include
-copy api_core.h $(OutDir)include
-copy data_manager.h $(OutDir)include
-copy dataobject.h $(OutDir)include
-copy geo_tools.h $(OutDir)include
-copy grid.h $(OutDir)include
-copy grid_pyramid.h $(OutDir)include
-copy mat_tools.h $(OutDir)include
-copy metadata.h $(OutDir)include
-copy module.h $(OutDir)include
-copy module_library.h $(OutDir)include
-copy parameters.h $(OutDir)include
-copy pointcloud.h $(OutDir)include
-copy saga_api.h $(OutDir)include
-copy shapes.h $(OutDir)include
-copy table.h $(OutDir)include
-copy table_value.h $(OutDir)include
-copy tin.h $(OutDir)include
+md $(OutDir)include\saga_api
+copy api_core.h $(OutDir)include\saga_api
+copy data_manager.h $(OutDir)include\saga_api
+copy dataobject.h $(OutDir)include\saga_api
+copy geo_tools.h $(OutDir)include\saga_api
+copy grid.h $(OutDir)include\saga_api
+copy grid_pyramid.h $(OutDir)include\saga_api
+copy mat_tools.h $(OutDir)include\saga_api
+copy metadata.h $(OutDir)include\saga_api
+copy module.h $(OutDir)include\saga_api
+copy module_library.h $(OutDir)include\saga_api
+copy parameters.h $(OutDir)include\saga_api
+copy pointcloud.h $(OutDir)include\saga_api
+copy saga_api.h $(OutDir)include\saga_api
+copy shapes.h $(OutDir)include\saga_api
+copy table.h $(OutDir)include\saga_api
+copy table_value.h $(OutDir)include\saga_api
+copy tin.h $(OutDir)include\saga_api
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -355,23 +358,24 @@ copy tin.h $(OutDir)include
     </Bscmake>
     <PostBuildEvent>
       <Command>md $(OutDir)include
-copy api_core.h $(OutDir)include
-copy data_manager.h $(OutDir)include
-copy dataobject.h $(OutDir)include
-copy geo_tools.h $(OutDir)include
-copy grid.h $(OutDir)include
-copy grid_pyramid.h $(OutDir)include
-copy mat_tools.h $(OutDir)include
-copy metadata.h $(OutDir)include
-copy module.h $(OutDir)include
-copy module_library.h $(OutDir)include
-copy parameters.h $(OutDir)include
-copy pointcloud.h $(OutDir)include
-copy saga_api.h $(OutDir)include
-copy shapes.h $(OutDir)include
-copy table.h $(OutDir)include
-copy table_value.h $(OutDir)include
-copy tin.h $(OutDir)include
+md $(OutDir)include\saga_api
+copy api_core.h $(OutDir)include\saga_api
+copy data_manager.h $(OutDir)include\saga_api
+copy dataobject.h $(OutDir)include\saga_api
+copy geo_tools.h $(OutDir)include\saga_api
+copy grid.h $(OutDir)include\saga_api
+copy grid_pyramid.h $(OutDir)include\saga_api
+copy mat_tools.h $(OutDir)include\saga_api
+copy metadata.h $(OutDir)include\saga_api
+copy module.h $(OutDir)include\saga_api
+copy module_library.h $(OutDir)include\saga_api
+copy parameters.h $(OutDir)include\saga_api
+copy pointcloud.h $(OutDir)include\saga_api
+copy saga_api.h $(OutDir)include\saga_api
+copy shapes.h $(OutDir)include\saga_api
+copy table.h $(OutDir)include\saga_api
+copy table_value.h $(OutDir)include\saga_api
+copy tin.h $(OutDir)include\saga_api
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

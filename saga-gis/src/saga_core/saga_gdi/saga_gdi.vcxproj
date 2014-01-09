@@ -138,6 +138,15 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+md $(OutDir)include\saga_gdi
+copy saga_gdi.h $(OutDir)include\saga_gdi
+copy sgdi_diagram.h $(OutDir)include\saga_gdi
+copy sgdi_dialog.h $(OutDir)include\saga_gdi
+copy sgdi_helper.h $(OutDir)include\saga_gdi
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -189,6 +198,15 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+md $(OutDir)include\saga_gdi
+copy saga_gdi.h $(OutDir)include\saga_gdi
+copy sgdi_diagram.h $(OutDir)include\saga_gdi
+copy sgdi_dialog.h $(OutDir)include\saga_gdi
+copy sgdi_helper.h $(OutDir)include\saga_gdi
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -239,6 +257,15 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+md $(OutDir)include\saga_gdi
+copy saga_gdi.h $(OutDir)include\saga_gdi
+copy sgdi_diagram.h $(OutDir)include\saga_gdi
+copy sgdi_dialog.h $(OutDir)include\saga_gdi
+copy sgdi_helper.h $(OutDir)include\saga_gdi
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -290,6 +317,15 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>md $(OutDir)include
+md $(OutDir)include\saga_gdi
+copy saga_gdi.h $(OutDir)include\saga_gdi
+copy sgdi_diagram.h $(OutDir)include\saga_gdi
+copy sgdi_dialog.h $(OutDir)include\saga_gdi
+copy sgdi_helper.h $(OutDir)include\saga_gdi
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="sgdi_diagram.cpp" />
