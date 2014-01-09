@@ -82,7 +82,9 @@ CSG_String Get_Info(int i)
 			CSG_String	s;
 			
 			s	+= "ViGrA - \"Vision with Generic Algorithms\"\n";
+#ifdef VIGRA_VERSION
 			s	+= "Version: ";	s += VIGRA_VERSION; s += "\n";
+#endif
 			s	+= _TW(
 				"ViGrA is a novel computer vision library that puts its main "
 				"emphasize on customizable algorithms and data structures. "

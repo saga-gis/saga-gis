@@ -88,15 +88,15 @@ bool	Copy_ComplexGrid_SAGA_to_VIGRA	(CSG_Grid &Real, CSG_Grid &Imag, FFTWComplex
 		return( false );
 	}
 
-	for(int y=0; y<Real.Get_NY() && SG_UI_Process_Set_Progress(y, Real.Get_NY()); y++)
+	#pragma omp parallel for
+	for(int y=0; y<Real.Get_NY(); y++)
 	{
 		for(int x=0; x<Real.Get_NX(); x++)
 		{
-			Image(x, y)	= FFTWComplex<>(Real.asDouble(x, y), Imag.asDouble(x, y));
+			Image(x, y).re()	= Real.asDouble(x, y);
+			Image(x, y).im()	= Imag.asDouble(x, y);
 		}
 	}
-
-	SG_UI_Process_Set_Progress(0.0, 1.0);
 
 	return( true );
 }
@@ -116,18 +116,40 @@ bool	Copy_ComplexGrid_VIGRA_to_SAGA	(CSG_Grid &Real, CSG_Grid &Imag, FFTWComplex
 		return( false );
 	}
 
-	for(int y=0; y<Real.Get_NY() && SG_UI_Process_Set_Progress(y, Real.Get_NY()); y++)
+	#pragma omp parallel for
+	for(int y=0; y<Real.Get_NY(); y++)
 	{
 		for(int x=0; x<Real.Get_NX(); x++)
 		{
-		//	Real.Set_Value(x, y, c.magnitude());
-		//	Imag.Set_Value(x, y, c.phase());
 			Real.Set_Value(x, y, Image(x, y).re());
 			Imag.Set_Value(x, y, Image(x, y).im());
 		}
 	}
 
-	SG_UI_Process_Set_Progress(0.0, 1.0);
+	return( true );
+}
+
+//---------------------------------------------------------
+bool	Copy_ComplexGrid_VIGRA_to_SAGA	(CSG_Grid &Real, FFTWComplexImage &Image, bool bCreate)
+{
+	if( bCreate )
+	{
+		Real.Create(SG_DATATYPE_Float, Image.width(), Image.height());
+	}
+
+	if(	Real.Get_NX() != Image.width() || Real.Get_NY() != Image.height() )
+	{
+		return( false );
+	}
+
+	#pragma omp parallel for
+	for(int y=0; y<Real.Get_NY(); y++)
+	{
+		for(int x=0; x<Real.Get_NX(); x++)
+		{
+			Real.Set_Value(x, y, Image(x, y).re());
+		}
+	}
 
 	return( true );
 }
@@ -144,7 +166,7 @@ CViGrA_FFT::CViGrA_FFT(void)
 {
 	Set_Name		(_TL("Fourier Transform (ViGrA)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"References:\n"
@@ -187,9 +209,9 @@ bool CViGrA_FFT::On_Execute(void)
 {
 	CSG_Grid	*pInput, *pReal, *pImag;
 
-	pInput	= Parameters("INPUT")	->asGrid();
-	pReal	= Parameters("REAL")	->asGrid();
-	pImag	= Parameters("IMAG")	->asGrid();
+	pInput	= Parameters("INPUT")->asGrid();
+	pReal	= Parameters("REAL" )->asGrid();
+	pImag	= Parameters("IMAG" )->asGrid();
 
 	//-----------------------------------------------------
 	vigra::FImage			Input;
@@ -230,7 +252,7 @@ CViGrA_FFT_Inverse::CViGrA_FFT_Inverse(void)
 {
 	Set_Name		(_TL("Fourier Transform Inverse (ViGrA)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"References:\n"
@@ -251,13 +273,7 @@ CViGrA_FFT_Inverse::CViGrA_FFT_Inverse(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "REAL_OUT"	, _TL("Real"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "IMAG_OUT"	, _TL("Imaginary"),
+		NULL	, "OUTPUT"		, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -299,16 +315,12 @@ bool CViGrA_FFT_Inverse::On_Execute(void)
 		fourierTransformInverse(srcImageRange(tmp)  , destImage(Output));
 	}
  
-	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex<> >(), 1.0 / Get_NX() / Get_NY()));
-
 	//-----------------------------------------------------
-	pReal	= Parameters("REAL_OUT")->asGrid();
-	pImag	= Parameters("IMAG_OUT")->asGrid();
+	pReal	= Parameters("OUTPUT")->asGrid();
 
-	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, *pImag, Output, false);
+	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, Output, false);
 
 	pReal->Set_Name(CSG_String::Format(SG_T("%s [FFT - %s]"), Get_Name().c_str(), _TL("Real")));
-	pImag->Set_Name(CSG_String::Format(SG_T("%s [FFT - %s]"), Get_Name().c_str(), _TL("Imaginary")));
 
 	return( true );
 }
@@ -325,7 +337,7 @@ CViGrA_FFT_Real::CViGrA_FFT_Real(void)
 {
 	Set_Name		(_TL("Fourier Transform (Real, ViGrA)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"References:\n"
@@ -405,7 +417,7 @@ CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 {
 	Set_Name		(_TL("Fourier Filter (ViGrA)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"References:\n"
@@ -420,13 +432,7 @@ CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "REAL"		, _TL("Output (real)"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "IMAG"		, _TL("Output (imaginary)"),
+		NULL	, "OUTPUT"		, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -467,32 +473,51 @@ CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CViGrA_FFT_Filter::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FILTER") )
+	{
+		pParameters->Get_Parameter("SCALE")->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Get_Parameter("POWER")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Get_Parameter("RANGE")->Set_Enabled(pParameter->asInt() >= 2);
+	}
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CViGrA_FFT_Filter::On_Execute(void)
 {
 	int			Filter;
 	double		Scale, Power, Range_Min, Range_Max;
-	CSG_Grid	*pInput, *pReal, *pImag;
+	CSG_Grid	*pInput, *pOutput;
 
-	pInput		= Parameters("INPUT")	->asGrid();
-	pReal		= Parameters("REAL")	->asGrid();
-	pImag		= Parameters("IMAG")	->asGrid();
-	Scale		= Parameters("SCALE")	->asDouble();
-	Power		= Parameters("POWER")	->asDouble();
-	Filter		= Parameters("FILTER")	->asInt();
-	Range_Min	= Parameters("RANGE")	->asRange()->Get_LoVal();
-	Range_Max	= Parameters("RANGE")	->asRange()->Get_HiVal();
+	pInput		= Parameters("INPUT" )->asGrid();
+	pOutput		= Parameters("OUTPUT")->asGrid();
+	Scale		= Parameters("SCALE" )->asDouble();
+	Power		= Parameters("POWER" )->asDouble();
+	Filter		= Parameters("FILTER")->asInt();
+	Range_Min	= Parameters("RANGE" )->asRange()->Get_LoVal();
+	Range_Max	= Parameters("RANGE" )->asRange()->Get_HiVal();
 
 	//-----------------------------------------------------
 	vigra::FImage			Input, Filter_Raw(Get_NX(), Get_NY()), Filter_(Get_NX(), Get_NY());
 	vigra::FFTWComplexImage	Output(Get_NX(), Get_NY());
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
 	{
+		double	yy	= (y - Get_NY() / 2.0) / Get_NY();
+
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	xx	= (x - Get_NX() / 2.0) / Get_NX();
-			double	yy	= (y - Get_NY() / 2.0) / Get_NY();
 
 			switch( Filter )
 			{
@@ -521,14 +546,11 @@ bool CViGrA_FFT_Filter::On_Execute(void)
 	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
 
 	vigra::applyFourierFilter(srcImageRange(Input), srcImage(Filter_), destImage(Output));
- 
-	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex<> >(), 1.0 / Get_NX() / Get_NY()));
 
 	//-----------------------------------------------------
-	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, *pImag, Output, false);
+	Copy_ComplexGrid_VIGRA_to_SAGA(*pOutput, Output, false);
 
-	pReal->Set_Name(CSG_String::Format(SG_T("%s [FFT - %s]"), pInput->Get_Name(), _TL("Real")));
-	pImag->Set_Name(CSG_String::Format(SG_T("%s [FFT - %s]"), pInput->Get_Name(), _TL("Imaginary")));
+	pOutput->Set_Name(CSG_String::Format(SG_T("%s [FFT %s]"), pInput->Get_Name(), _TL("Filter")));
 
 	return( true );
 }
