@@ -6,8 +6,8 @@
 
 from distutils.core import setup, Extension
 
-include_gtk = '/usr/lib/wx/include/gtk2-unicode-2.9'
-include_wx = '/usr/include/wx-2.9'
+include_gtk = '/usr/lib/wx/include/gtk2-unicode-3.0'
+include_wx = '/usr/include/wx-3.0'
 
 module1 = Extension(
 	'_saga_api',
@@ -24,8 +24,8 @@ module1 = Extension(
 
 	libraries = [
 		'pthread',
-		'wx_baseu-2.9',
-		'wx_gtk2u_core-2.9',
+		'wx_baseu-3.0',
+		'wx_gtk2u_core-3.0',
 		'saga_api'
 	],
 

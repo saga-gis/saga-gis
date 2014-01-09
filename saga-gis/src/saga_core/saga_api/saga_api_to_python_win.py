@@ -19,8 +19,8 @@ module1 = Extension(
 	],
 
 	libraries = [
-		'wxbase29u_xml',
-		'wxbase29u',
+		'wxbase30u_xml',
+		'wxbase30u',
 		'saga_api'
 	],
 
