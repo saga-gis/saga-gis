@@ -129,11 +129,11 @@ CSHALSTAB::CSHALSTAB(void)
 		);
 
 	Parameters.Add_Grid(
-		NULL, "Fmin", "Min Friction angle grid (°) ", "A grid representing minimum material friction angle (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "Fmin", "Min Friction angle grid (degree) ", "A grid representing minimum material friction angle (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);		
 
 	Parameters.Add_Grid(
-		NULL, "Fmax", "Max Friction angle grid (°) ", "A grid representing maximum material friction angle (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "Fmax", "Max Friction angle grid (degree) ", "A grid representing maximum material friction angle (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);
 
 	Parameters.Add_Grid(
@@ -169,11 +169,11 @@ CSHALSTAB::CSHALSTAB(void)
 		);
 	
 	Parameters.Add_Value(
-		NULL, "fFmin", "Global minimum friction angle (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fFmin", "Global minimum friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid für friction
 		);
 
 	Parameters.Add_Value(
-		NULL, "fFmax", "Global maximum friction angle (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fFmax", "Global maximum friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0				//Initialisierung eines fixen wertes vs Grid für friction
 		);
 
 	Parameters.Add_Value(

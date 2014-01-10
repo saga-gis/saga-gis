@@ -103,39 +103,39 @@ CWEDGEFAIL::CWEDGEFAIL(void)
 		);*/
 	
 	Parameters.Add_Grid(
-		NULL, "C", "Dip/Plunge direction grid (°) ", "A dip- or plunge direction grid (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "C", "Dip/Plunge direction grid (degree) ", "A dip- or plunge direction grid (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);	
 	
 	Parameters.Add_Grid(
-		NULL, "D", "Dip/Plunge grid (°) ", "A dip- or plunge grid (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "D", "Dip/Plunge grid (degree) ", "A dip- or plunge grid (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);
 	
 	Parameters.Add_Grid(
-		NULL, "Emin", "Min friction angle grid (°) ", "A minimum discontinuity friction angle grid (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "Emin", "Min friction angle grid (degree) ", "A minimum discontinuity friction angle grid (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);
 
 	Parameters.Add_Grid(
-		NULL, "Emax", "Max friction angle grid (°) ", "A maximum discontinuity friction angle grid (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "Emax", "Max friction angle grid (degree) ", "A maximum discontinuity friction angle grid (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);
 
 	Parameters.Add_Value(
-		NULL, "fC", "Global dip/plunge direction (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0					//Initialisierung eines fixen wertes vs Grid für density
+		NULL, "fC", "Global dip/plunge direction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 0					//Initialisierung eines fixen wertes vs Grid für density
 		);
 
 	Parameters.Add_Value(
-		NULL, "fD", "Global dip/plunge (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35						//Initialisierung eines fixen wertes vs Grid für conductivity
+		NULL, "fD", "Global dip/plunge (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35						//Initialisierung eines fixen wertes vs Grid für conductivity
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmin", "Min global friction angle (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmin", "Min global friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid für depth
 		);
 
 	Parameters.Add_Value(
-		NULL, "fEmax", "Max global friction angle (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "fEmax", "Max global friction angle (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 35							//Initialisierung eines fixen wertes vs Grid für depth
 		);
 
 	Parameters.Add_Value(
-		NULL, "ff", "Cone radius (°)", "Radius of optional cone variance (in degrees)", PARAMETER_TYPE_Int, 0							//Initialisierung eines fixen wertes vs Grid für depth
+		NULL, "ff", "Cone radius (degree)", "Radius of optional cone variance (in degrees)", PARAMETER_TYPE_Int, 0							//Initialisierung eines fixen wertes vs Grid für depth
 		);	
 	
 	Parameters.Add_Grid(

@@ -101,11 +101,11 @@ CSafetyfactor::CSafetyfactor(void)
 		);	
 
 	Parameters.Add_Grid(
-		NULL, "Dmin", "Min friction grid (°) ", "A grid representing minimum cell frictional shear strength of layer (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "Dmin", "Min friction grid (degree) ", "A grid representing minimum cell frictional shear strength of layer (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);	
 	
 	Parameters.Add_Grid(
-		NULL, "Dmax", "Max friction grid (°) ", "A grid representing maximum cell frictional shear strength of layer (in degrees)", PARAMETER_INPUT_OPTIONAL
+		NULL, "Dmax", "Max friction grid (degree) ", "A grid representing maximum cell frictional shear strength of layer (in degrees)", PARAMETER_INPUT_OPTIONAL
 		);	
 	
 	Parameters.Add_Grid(
@@ -141,11 +141,11 @@ CSafetyfactor::CSafetyfactor(void)
 		);
 
 	Parameters.Add_Value(
-		NULL, "fDmin", "Min global friction (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fDmin", "Min global friction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid für friction
 		);
 
 	Parameters.Add_Value(
-		NULL, "fDmax", "Max global friction (°)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid für friction
+		NULL, "fDmax", "Max global friction (degree)", "Constant value if no raster set", PARAMETER_TYPE_Double, 33.0			//Initialisierung eines fixen wertes vs Grid für friction
 		);
 
 	Parameters.Add_Value(
