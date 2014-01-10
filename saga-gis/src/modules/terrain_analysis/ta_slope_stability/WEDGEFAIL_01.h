@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: template.cpp 911 2011-11-11 11:11:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,11 +9,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       Andis modules                   //
+//                  ta_slope_stability                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      WEDGEFAIL_01.h                   //
+//                    WEDGEFAIL_01.h                     //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
 //                     Andreas Günther                   //
@@ -35,7 +35,7 @@
 // You should have received a copy of the GNU General    //
 // Public License along with this program; if not,       //
 // write to the Free Software Foundation, Inc.,          //
-// 59 Temple Place - Suite 330, Boston, MA 02111-1307,   //
+// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
 // USA.                                                  //
 //                                                       //
 //-------------------------------------------------------//
