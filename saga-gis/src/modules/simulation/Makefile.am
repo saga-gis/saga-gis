@@ -1,0 +1,1 @@
+SUBDIRS = sim_cellular_automata sim_ecosystems_hugget sim_erosion sim_fire_spreading sim_hydrology sim_ihacres

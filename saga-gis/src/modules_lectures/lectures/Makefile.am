@@ -1,1 +1,0 @@
-SUBDIRS = lectures_introduction

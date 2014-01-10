@@ -217,6 +217,20 @@ AC_OUTPUT(Makefile \
 	src/modules/Makefile \
 	src/modules/climate/Makefile \
 	src/modules/climate/climate_tools/Makefile \
+	src/modules/contrib/Makefile \
+	src/modules/contrib/contrib_perego/Makefile \
+	src/modules/db/Makefile \
+	src/modules/db/db_odbc/Makefile \
+	src/modules/db/db_pgsql/Makefile \
+	src/modules/docs/Makefile \
+	src/modules/docs/docs_html/Makefile \
+	src/modules/docs/docs_pdf/Makefile \
+	src/modules/garden/Makefile \
+	src/modules/garden/garden_3d_viewer/Makefile \
+	src/modules/garden/garden_fractals/Makefile \
+	src/modules/garden/garden_games/Makefile \
+	src/modules/garden/garden_learn_to_program/Makefile \
+	src/modules/garden/garden_webservices/Makefile \
 	src/modules/grid/Makefile \
 	src/modules/grid/grid_analysis/Makefile \
 	src/modules/grid/grid_calculus/Makefile \
@@ -226,9 +240,31 @@ AC_OUTPUT(Makefile \
 	src/modules/grid/grid_spline/Makefile \
 	src/modules/grid/grid_tools/Makefile \
 	src/modules/grid/grid_visualisation/Makefile \
+	src/modules/imagery/Makefile \
+	src/modules/imagery/imagery_classification/Makefile \
+	src/modules/imagery/imagery_opencv/Makefile \
+	src/modules/imagery/imagery_rga/Makefile \
+	src/modules/imagery/imagery_segmentation/Makefile \
+	src/modules/imagery/imagery_svm/Makefile \
+	src/modules/imagery/imagery_tools/Makefile \
+	src/modules/imagery/imagery_vigra/Makefile \
+	src/modules/io/Makefile \
+	src/modules/io/io_esri_e00/Makefile \
+	src/modules/io/io_gdal/Makefile \
+	src/modules/io/io_gps/Makefile \
+	src/modules/io/io_grid/Makefile \
+	src/modules/io/io_grid_grib2/Makefile \
+	src/modules/io/io_grid_image/Makefile \
+	src/modules/io/io_shapes/Makefile \
+	src/modules/io/io_shapes_dxf/Makefile \
+	src/modules/io/io_shapes_las/Makefile \
+	src/modules/io/io_table/Makefile \
 	src/modules/pointcloud/Makefile \
 	src/modules/pointcloud/pointcloud_tools/Makefile \
 	src/modules/pointcloud/pointcloud_viewer/Makefile \
+	src/modules/projection/Makefile \
+	src/modules/projection/pj_georeference/Makefile \
+	src/modules/projection/pj_proj4/Makefile \
 	src/modules/shapes/Makefile \
 	src/modules/shapes/shapes_grid/Makefile \
 	src/modules/shapes/shapes_lines/Makefile \
@@ -236,90 +272,30 @@ AC_OUTPUT(Makefile \
 	src/modules/shapes/shapes_polygons/Makefile \
 	src/modules/shapes/shapes_tools/Makefile \
 	src/modules/shapes/shapes_transect/Makefile \
+	src/modules/simulation/Makefile \
+	src/modules/simulation/sim_cellular_automata/Makefile \
+	src/modules/simulation/sim_ecosystems_hugget/Makefile \
+	src/modules/simulation/sim_erosion/Makefile \
+	src/modules/simulation/sim_fire_spreading/Makefile \
+	src/modules/simulation/sim_hydrology/Makefile \
+	src/modules/simulation/sim_ihacres/Makefile \
+	src/modules/statistics/Makefile \
+	src/modules/statistics/statistics_grid/Makefile \
+	src/modules/statistics/statistics_kriging/Makefile \
+	src/modules/statistics/statistics_points/Makefile \
+	src/modules/statistics/statistics_regression/Makefile \
 	src/modules/table/Makefile \
 	src/modules/table/table_calculus/Makefile \
 	src/modules/table/table_tools/Makefile \
+	src/modules/terrain_analysis/Makefile \
+	src/modules/terrain_analysis/ta_channels/Makefile \
+	src/modules/terrain_analysis/ta_compound/Makefile \
+	src/modules/terrain_analysis/ta_hydrology/Makefile \
+	src/modules/terrain_analysis/ta_lighting/Makefile \
+	src/modules/terrain_analysis/ta_morphometry/Makefile \
+	src/modules/terrain_analysis/ta_preprocessor/Makefile \
+	src/modules/terrain_analysis/ta_profiles/Makefile \
 	src/modules/tin/Makefile \
 	src/modules/tin/tin_tools/Makefile \
 	src/modules/tin/tin_viewer/Makefile \
-	src/modules_contrib/Makefile \
-	src/modules_contrib/contrib_a_perego/Makefile \
-	src/modules_contrib/contrib_a_perego/contrib_a_perego/Makefile \
-	src/modules_contrib/contrib_s_liersch/Makefile \
-	src/modules_contrib/contrib_s_liersch/ihacres/Makefile \
-	src/modules_contrib/garden/Makefile \
-	src/modules_contrib/garden/garden_3d_viewer/Makefile \
-	src/modules_contrib/garden/garden_webservices/Makefile \
-	src/modules_geostatistics/Makefile \
-	src/modules_geostatistics/geostatistics/Makefile \
-	src/modules_geostatistics/geostatistics/geostatistics_points/Makefile \
-	src/modules_geostatistics/geostatistics/geostatistics_grid/Makefile \
-	src/modules_geostatistics/geostatistics/geostatistics_kriging/Makefile \
-	src/modules_geostatistics/geostatistics/geostatistics_regression/Makefile \
-	src/modules_images/Makefile \
-	src/modules_images/modules_imagery/Makefile \
-	src/modules_images/modules_imagery/imagery_classification/Makefile \
-	src/modules_images/modules_imagery/imagery_rga/Makefile \
-	src/modules_images/modules_imagery/imagery_segmentation/Makefile \
-	src/modules_images/modules_imagery/imagery_svm/Makefile \
-	src/modules_images/modules_imagery/imagery_tools/Makefile \
-	src/modules_images/modules_opencv/Makefile \
-	src/modules_images/modules_opencv/opencv/Makefile \
-	src/modules_images/modules_vigra/Makefile \
-	src/modules_images/modules_vigra/vigra/Makefile \
-	src/modules_io/Makefile \
-	src/modules_io/esri_e00/Makefile \
-	src/modules_io/esri_e00/io_esri_e00/Makefile \
-	src/modules_io/db/Makefile \
-	src/modules_io/db/io_odbc/Makefile \
-	src/modules_io/db/io_pgsql/Makefile \
-	src/modules_io/docs/Makefile \
-	src/modules_io/docs/docs_html/Makefile \
-	src/modules_io/docs/docs_pdf/Makefile \
-	src/modules_io/gdal/Makefile \
-	src/modules_io/gdal/io_gdal/Makefile \
-	src/modules_io/grid/Makefile \
-	src/modules_io/grid/io_grid/Makefile \
-	src/modules_io/grid/io_grid_image/Makefile \
-	src/modules_io/grid/io_grid_grib2/Makefile \
-	src/modules_io/gps/Makefile \
-	src/modules_io/gps/io_gps/Makefile \
-	src/modules_io/shapes/Makefile \
-	src/modules_io/shapes/io_shapes/Makefile \
-	src/modules_io/shapes/io_shapes_dxf/Makefile \
-	src/modules_io/shapes/io_shapes_las/Makefile \
-	src/modules_io/table/Makefile \
-	src/modules_io/table/io_table/Makefile \
-	src/modules_lectures/Makefile \
-	src/modules_lectures/lectures/Makefile \
-	src/modules_lectures/lectures/lectures_introduction/Makefile \
-	src/modules_projection/Makefile \
-	src/modules_projection/pj_georeference/Makefile \
-	src/modules_projection/pj_georeference/pj_georeference/Makefile \
-	src/modules_projection/pj_proj4/Makefile \
-	src/modules_projection/pj_proj4/pj_proj4/Makefile \
-	src/modules_recreations/Makefile \
-	src/modules_recreations/recreations/Makefile \
-	src/modules_recreations/recreations/recreations_fractals/Makefile \
-	src/modules_recreations/recreations/recreations_games/Makefile \
-	src/modules_simulation/Makefile \
-	src/modules_simulation/erosion/Makefile \
-	src/modules_simulation/erosion/sim_erosion/Makefile \
-	src/modules_simulation/hydrology/Makefile \
-	src/modules_simulation/hydrology/sim_hydrology/Makefile \
-	src/modules_simulation/cellular_automata/Makefile \
-	src/modules_simulation/cellular_automata/sim_cellular_automata/Makefile \
-	src/modules_simulation/ecosystems/Makefile \
-	src/modules_simulation/ecosystems/sim_ecosystems_hugget/Makefile \
-	src/modules_simulation/fire/Makefile \
-	src/modules_simulation/fire/sim_fire_spreading/Makefile \
-	src/modules_terrain_analysis/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_channels/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_compound/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_hydrology/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_lighting/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_morphometry/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_preprocessor/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_profiles/Makefile \
 )

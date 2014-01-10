@@ -9,7 +9,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

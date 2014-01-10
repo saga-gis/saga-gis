@@ -9,7 +9,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//            geostatistics_kriging_variogram            //
+//					point_cloud_viewer			         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

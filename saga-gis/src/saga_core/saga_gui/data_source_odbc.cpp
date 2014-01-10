@@ -291,7 +291,7 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 	\
 	bRetVal	= false;\
 	\
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_odbc"), MODULE);\
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_odbc"), MODULE);\
 	\
 	if(	pModule )\
 	{\
@@ -459,7 +459,7 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 //---------------------------------------------------------
 void CData_Source_ODBC::Source_Close_All(void)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_odbc"), 11);
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_odbc"), 11);
 
 	if( pModule )
 	{
@@ -472,7 +472,7 @@ void CData_Source_ODBC::Source_Close(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_odbc"), 1);
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_odbc"), 1);
 
 	if( pModule )
 	{
