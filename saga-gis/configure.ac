@@ -295,6 +295,7 @@ AC_OUTPUT(Makefile \
 	src/modules/terrain_analysis/ta_morphometry/Makefile \
 	src/modules/terrain_analysis/ta_preprocessor/Makefile \
 	src/modules/terrain_analysis/ta_profiles/Makefile \
+	src/modules/terrain_analysis/ta_slope_stability/Makefile \
 	src/modules/tin/Makefile \
 	src/modules/tin/tin_tools/Makefile \
 	src/modules/tin/tin_viewer/Makefile \

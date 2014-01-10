@@ -78,7 +78,7 @@ CSHALSTAB::CSHALSTAB(void)
 	
 	Set_Name		(_TL("SHALSTAB"));
 
-	Set_Author		(SG_T("A. Günther (c) 2012"));
+	Set_Author		(SG_T("A. G&uuml;nther (c) 2012"));
 
 	Set_Description	(_TW(
 		"\n"
@@ -86,7 +86,7 @@ CSHALSTAB::CSHALSTAB(void)
 		"The model computes grid cell critical shallow groundwater recharge values (CR in mm/day) as a measure for relative shallow slope stability, utilizing "
 		"a simple model that combines a steady-state hydrologic model (a topographic wetness index) to predict groundwater pressures with an infinite slope stability model. "
 		"For computation, a slope (in radians) and a catchment area (in m2) grid are required. "
-		"Additionally, information on material density (g/cm3), material friction angle (°), material hydraulic conductivity (m/hr), bulk cohesion (MPa) "
+		"Additionally, information on material density (g/cm3), material friction angle (&deg;), material hydraulic conductivity (m/hr), bulk cohesion (MPa) "
 		"and depth to potential shear plane (m) are required that can be specified either globally or through grids. "
 		"The module produces a continuous CR (mm/day) raster with unconditionally stable cells blanked, and unconditionally unstable cells as CR = 0. "
 		"Optionally, a classified CR grid can be calculated representing seven stability classes.\n"

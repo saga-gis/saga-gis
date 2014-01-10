@@ -74,7 +74,7 @@ CTOBIA::CTOBIA(void)
 {
 	Set_Name		(_TL("TOBIA"));
 
-	Set_Author		(SG_T("A. Günther (c) 2012"));
+	Set_Author		(SG_T("A. G&uuml;nther (c) 2012"));
 
 	Set_Description	(_TW(
 		"\n"

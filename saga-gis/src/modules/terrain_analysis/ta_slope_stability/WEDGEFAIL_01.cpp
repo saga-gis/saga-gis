@@ -78,19 +78,19 @@ CWEDGEFAIL::CWEDGEFAIL(void)
 	
 	Set_Name		(_TL("WEDGEFAIL"));
 
-	Set_Author		(SG_T("A. Günther (c) 2012"));
+	Set_Author		(SG_T("A. G&uuml;nther (c) 2012"));
 
 	Set_Description	(_TW(
 		"\n"
 		"This module determines terrain elements where failure (slide- or topple movements) on geological discontinuies are kinematically possible "
-		"trough the spatial application of common frictional feasibility criteria (Günther et al. 2012 and references therein). Both the orientation of slope elements "
+		"through the spatial application of common frictional feasibility criteria (G&uuml;nther et al. 2012 and references therein). Both the orientation of slope elements "
 		"specified through aspect- and dip grids (in radians) are required together with the orientation of one planar structure defined through global- or grid dip direction and dip data, "
 		"or two planar structures defined by plunge direction and plunge information of their intersection line (in degrees). The shear strength of the discontinuities is specified "
 		"using global or grid-based friction angle data. Optionally, a cone value can be set allowing for some variance in discontinuity dip orientations. "
 		"The tool operates in slide (testing for plane and wedge sliding) or topple (testing for plane and wedge toppling) modes.\n"
 		"\n"
 		"Reference:\n"
-		"<a href=\"http://link.springer.com/article/10.1007/s11069-011-9771-2.\">Günther A., Wienhöfer J., Konietzky H. (2012) Automated mapping of rock slope geometry, kinematics and stability with RSS-GIS. Natural Hazards, 61, 29-49.</a>.\n"
+		"<a href=\"http://link.springer.com/article/10.1007/s11069-011-9771-2.\">G&uuml;nther A., Wienh&ouml;fer J., Konietzky H. (2012) Automated mapping of rock slope geometry, kinematics and stability with RSS-GIS. Natural Hazards, 61, 29-49.</a>.\n"
 
 	));
 

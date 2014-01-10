@@ -71,7 +71,7 @@ CSafetyfactor::CSafetyfactor(void)
 {
 	Set_Name		(_TL("SAFETYFACTOR"));
 
-	Set_Author		(SG_T("A. Günther (c) 2012"));
+	Set_Author		(SG_T("A. G&uuml;nther (c) 2012"));
 
 	Set_Description	(_TW(
 		"This module computes a slope stability (expressed as a factor-of-safety) raster according to the traditional infinite slope model theory (see cf Selby, 1993) "

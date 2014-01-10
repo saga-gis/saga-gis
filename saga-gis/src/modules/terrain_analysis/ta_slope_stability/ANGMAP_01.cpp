@@ -73,7 +73,7 @@ CANGMAP::CANGMAP(void)
 {
 	Set_Name		(_TL("ANGMAP"));
 
-	Set_Author		(SG_T("A. Günther (c) 2013"));
+	Set_Author		(SG_T("A. G&uuml;nther (c) 2013"));
 
 	Set_Description	(_TW(
 		"\n"
@@ -81,7 +81,7 @@ CANGMAP::CANGMAP(void)
 		"Optionally, the dip direction and dip of the cutting line linears between the two planes can be calculated"
 		"\n"
 		"Reference: "
-		"<a href=\"http://www.sciencedirect.com/science/article/pii/S0098300403000864\">Günther, A. (2003). SLOPEMAP: programs for automated mapping of geometrical and kinematical properties of hard rock hill slopes. Computers & Geosciences, 29, 865 - 875</a>.\n"
+		"<a href=\"http://www.sciencedirect.com/science/article/pii/S0098300403000864\">G&uuml;nther, A. (2003). SLOPEMAP: programs for automated mapping of geometrical and kinematical properties of hard rock hill slopes. Computers & Geosciences, 29, 865 - 875</a>.\n"
 
 	));
 
