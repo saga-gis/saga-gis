@@ -146,8 +146,7 @@ CDLG_About::CDLG_About(void)
 
 //---------------------------------------------------------
 CDLG_About::~CDLG_About(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -218,8 +217,8 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("SAGA GUI\n")
 		wxT("SAGA Graphical User Interface\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2005-2013 by Olaf Conrad\n")
-		wxT("Portions (c) 2008-2013 by Volker Wichmann\n")
+		wxT("Copyrights (c) 2005-2014 by Olaf Conrad\n")
+		wxT("Portions (c) 2008-2014 by Volker Wichmann\n")
 		wxT("\n")
 		wxT("GNU General Public License (GPL)\n")
 	);
@@ -230,8 +229,8 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("SAGA API\n")
 		wxT("SAGA Application Programming Interface\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2002-2013 by Olaf Conrad\n")
-		wxT("Portions (c) 2008-2013 by Volker Wichmann\n")
+		wxT("Copyrights (c) 2002-2014 by Olaf Conrad\n")
+		wxT("Portions (c) 2008-2014 by Volker Wichmann\n")
 		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
 		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
 		wxT("\n")

@@ -1,20 +1,20 @@
 _______________________________________________________________________________
 
-         SAGA 2.1.1 - System for Automated Geoscientific Analyses
+         SAGA 2.1.2 - System for Automated Geoscientific Analyses
                          http://www.saga-gis.org
 _______________________________________________________________________________
 
 AUTHORS
 _______________________________________________________________________________
 
-Date: November, 3th 2013
+Date: January, 10th 2014
 
 
 A. SAGA GUI - SAGA Graphical User Interface
 -------------------------------------------
 
-Copyrights (c) 2005-2013 by Olaf Conrad
-Portions (c) 2008-2013 by Volker Wichmann
+Copyrights (c) 2005-2014 by Olaf Conrad
+Portions (c) 2008-2014 by Volker Wichmann
 
 GNU General Public License (GPL)
 
@@ -22,7 +22,7 @@ GNU General Public License (GPL)
 B. SAGA CMD - SAGA Command Line Processor
 -----------------------------------------
 
-Copyrights (c) 2005-2013 by Olaf Conrad
+Copyrights (c) 2005-2014 by Olaf Conrad
 
 GNU General Public License (GPL)
 
@@ -30,8 +30,8 @@ GNU General Public License (GPL)
 C. SAGA API - SAGA Application Programming Interface
 ----------------------------------------------------
 
-Copyrights (c) 2002-2013 by Olaf Conrad
-Portions (c) 2008-2013 by Volker Wichmann
+Copyrights (c) 2002-2014 by Olaf Conrad
+Portions (c) 2008-2014 by Volker Wichmann
 Portions (c) 2005-2006 by Victor Olaya
 Portions (c) 2002 by Andre Ringeler
 
