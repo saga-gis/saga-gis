@@ -218,7 +218,7 @@ AC_OUTPUT(Makefile \
 	src/modules/climate/Makefile \
 	src/modules/climate/climate_tools/Makefile \
 	src/modules/contrib/Makefile \
-	src/modules/contrib/contrib_perego/Makefile \
+	src/modules/contrib/contrib_peregro/Makefile \
 	src/modules/db/Makefile \
 	src/modules/db/db_odbc/Makefile \
 	src/modules/db/db_pgsql/Makefile \
