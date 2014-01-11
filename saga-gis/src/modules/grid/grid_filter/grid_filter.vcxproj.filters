@@ -53,6 +53,27 @@
     <ClCompile Include="Filter_Resample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="geodesic_morph_rec\bin_geovinc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geodesic_morph_rec\combcontour.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geodesic_morph_rec\geovinc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geodesic_morph_rec\storeorg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bin_erosion_reconst.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="connect_analysis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geomrec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -148,5 +169,31 @@
     <ClInclude Include="Filter_Resample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="geodesic_morph_rec\bin_geovinc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geodesic_morph_rec\combcontour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geodesic_morph_rec\geovinc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geodesic_morph_rec\storeorg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bin_erosion_reconst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="connect_analysis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geomrec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="geodesic_morph_rec\listfuncs.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

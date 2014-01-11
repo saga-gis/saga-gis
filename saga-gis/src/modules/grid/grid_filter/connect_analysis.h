@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  connect_analysis.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//                 Copyright (C) 2013 by                 //
+//                     HfT Stuttgart                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,13 +40,12 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     johannes.engels@hft-stuttgart.de       //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//    contact:    Johannes Engels                        //
+//                Hochschule fuer Technik Stuttgart      //
+//                Schellingstr. 24                       //
+//                70174 Stuttgart                        //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,87 +55,41 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__connectivity_analysis_H
+#define HEADER_INCLUDED__connectivity_analysis_H
+
+//---------------------------------------------------------
+
 
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class Cconnectivity_analysis : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Filter") );
-
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Associaton, HfT Stuttgart (c) 2002-13") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the manipulation of gridded data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Filter") );
-	}
-}
+public:
+	Cconnectivity_analysis (void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Filter.h"
-#include "Filter_Gauss.h"
-#include "Filter_LoG.h"
-#include "Filter_Multi_Dir_Lee.h"
-#include "Filter_3x3.h"
-#include "FilterClumps.h"
-#include "Filter_Majority.h"
-#include "Filter_Terrain_SlopeBased.h"
-#include "Filter_Morphology.h"
-#include "Filter_Rank.h"
-#include "mesh_denoise.h"
-#include "Filter_Resample.h"
-#include "geomrec.h"
-#include "bin_erosion_reconst.h"
-#include "connect_analysis.h"
+	virtual bool				On_Execute		(void);
+	virtual int					On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFilter );
-	case  1:	return( new CFilter_Gauss );
-	case  2:	return( new CFilter_LoG );
-	case  3:	return( new CFilter_Multi_Dir_Lee );
-	case  4:	return( new CFilter_3x3 );
-	case  5:	return( new CFilterClumps );
-	case  6:	return( new CFilter_Majority );
-	case  7:	return( new CFilter_Terrain_SlopeBased );
-	case  8:	return( new CFilter_Morphology );
-	case  9:	return( new CFilter_Rank );
-	case 10:	return( new CMesh_Denoise_Grid );
-	case 11:	return( new CFilter_Resample );
-	case 12:	return( new CGeomrec );
-	case 13:	return( new Cbin_erosion_reconst );
-	case 14:	return( new Cconnectivity_analysis );
-	}
-
-	return( NULL );
-}
+private:
+	void						shift_shape (CSG_Shape *pShape, double dx, double dy);
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -146,8 +99,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__connectivity_analysis_H

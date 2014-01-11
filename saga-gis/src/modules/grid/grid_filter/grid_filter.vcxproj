@@ -292,6 +292,8 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bin_erosion_reconst.cpp" />
+    <ClCompile Include="connect_analysis.cpp" />
     <ClCompile Include="Filter.cpp" />
     <ClCompile Include="FilterClumps.cpp" />
     <ClCompile Include="Filter_3x3.cpp" />
@@ -303,6 +305,11 @@
     <ClCompile Include="Filter_Rank.cpp" />
     <ClCompile Include="Filter_Resample.cpp" />
     <ClCompile Include="Filter_Terrain_SlopeBased.cpp" />
+    <ClCompile Include="geodesic_morph_rec\bin_geovinc.c" />
+    <ClCompile Include="geodesic_morph_rec\combcontour.c" />
+    <ClCompile Include="geodesic_morph_rec\geovinc.c" />
+    <ClCompile Include="geodesic_morph_rec\storeorg.c" />
+    <ClCompile Include="geomrec.cpp" />
     <ClCompile Include="mesh_denoise.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -322,6 +329,8 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="bin_erosion_reconst.h" />
+    <ClInclude Include="connect_analysis.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="FilterClumps.h" />
     <ClInclude Include="Filter_3x3.h" />
@@ -333,6 +342,11 @@
     <ClInclude Include="Filter_Rank.h" />
     <ClInclude Include="Filter_Resample.h" />
     <ClInclude Include="Filter_Terrain_SlopeBased.h" />
+    <ClInclude Include="geodesic_morph_rec\bin_geovinc.h" />
+    <ClInclude Include="geodesic_morph_rec\combcontour.h" />
+    <ClInclude Include="geodesic_morph_rec\geovinc.h" />
+    <ClInclude Include="geodesic_morph_rec\storeorg.h" />
+    <ClInclude Include="geomrec.h" />
     <ClInclude Include="mesh_denoise.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
@@ -347,6 +361,9 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="Pt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="geodesic_morph_rec\listfuncs.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
