@@ -56,6 +56,18 @@
     <ClCompile Include="grid_metric_conversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kff_synth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\grid_filter\geodesic_morph_rec\errfunc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\grid_filter\geodesic_morph_rec\spezfunc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\grid_filter\geodesic_morph_rec\storeorg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -149,6 +161,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_metric_conversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kff_synth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\grid_filter\geodesic_morph_rec\errfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\grid_filter\geodesic_morph_rec\rho.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\grid_filter\geodesic_morph_rec\spezfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\grid_filter\geodesic_morph_rec\storeorg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
