@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                   Library Template                    //
+//                    imagery_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//                 Copyright (C) 2009 by                 //
+//                 SAGA User Group Assoc.                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -57,12 +57,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__imagery_segmentation_H
-#define HEADER_INCLUDED__imagery_segmentation_H
+#ifndef HEADER_INCLUDED__imagery_tools_H
+#define HEADER_INCLUDED__imagery_tools_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__imagery_segmentation_H
+#endif // #ifndef HEADER_INCLUDED__imagery_tools_H
