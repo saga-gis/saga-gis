@@ -123,8 +123,6 @@ private:
 
 	class wxPropertyGrid		*m_pPG;
 
-	class wxPropertyGridManager	*m_pPGM;
-
 
 	wxString					_Get_Identifier		(class CSG_Parameter *pParameter);
 	bool						_Get_Enabled		(class CSG_Parameter *pParameter);

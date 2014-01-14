@@ -83,9 +83,50 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _SAGA_LINUX
-	#define	PG_USE_MANAGER
-#endif
+class CParameters_Grid : public wxPropertyGrid
+{
+public:
+	CParameters_Grid(void)
+	{}
+
+	CParameters_Grid(wxWindow *pParent, wxWindowID id = wxID_ANY, const wxPoint &pos = wxDefaultPosition, const wxSize &size = wxDefaultSize, long style = wxPG_DEFAULT_STYLE, const wxString &name = wxPropertyGridNameStr)
+	:	wxPropertyGrid(pParent, id, pos, size, style, name)
+	{}
+
+	virtual wxStatusBar *		GetStatusBar		(void)	{	return( NULL );	}
+
+};
+
+//---------------------------------------------------------
+class CParameters_Grid_Manager : public wxPropertyGridManager
+{
+public:
+	CParameters_Grid_Manager(void)	{}
+
+	virtual wxPropertyGrid *	CreatePropertyGrid	(void) const
+	{
+		return( new CParameters_Grid() );
+	}
+
+	wxPropertyGrid *			Initialize			(wxWindow *pParent)
+	{
+		Create(pParent, ID_WND_PARM, wxDefaultPosition, wxDefaultSize,
+			 wxPG_BOLD_MODIFIED
+			|wxPG_SPLITTER_AUTO_CENTER
+		//	|wxPG_AUTO_SORT
+		//	|wxPG_HIDE_MARGIN
+		//	|wxPG_STATIC_SPLITTER
+		//	|wxPG_HIDE_CATEGORIES
+		//	|wxPG_LIMITED_EDITING
+			|wxPG_DESCRIPTION
+			|wxBORDER_NONE
+			|wxTAB_TRAVERSAL
+		);
+
+		return( GetGrid() );
+	}
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -101,10 +142,8 @@ IMPLEMENT_CLASS(CParameters_Control, wxPanel)
 BEGIN_EVENT_TABLE(CParameters_Control, wxPanel)
 	EVT_SIZE			(CParameters_Control::On_Size)
 
-	EVT_PG_SELECTED		(ID_WND_PARM_PG_ACTIVE, CParameters_Control::On_PG_Selected)
-	EVT_PG_SELECTED		(ID_WND_PARM_PG_DIALOG, CParameters_Control::On_PG_Selected)
-	EVT_PG_CHANGED		(ID_WND_PARM_PG_ACTIVE, CParameters_Control::On_PG_Changed)
-	EVT_PG_CHANGED		(ID_WND_PARM_PG_DIALOG, CParameters_Control::On_PG_Changed)
+	EVT_PG_SELECTED		(ID_WND_PARM, CParameters_Control::On_PG_Selected)
+	EVT_PG_CHANGED		(ID_WND_PARM, CParameters_Control::On_PG_Changed)
 END_EVENT_TABLE()
 
 
@@ -121,46 +160,11 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 	m_pParameters	= new CSG_Parameters();
 	m_pOriginal		= NULL;
 
-#ifdef PG_USE_MANAGER
-	m_pPGM	= new wxPropertyGridManager(this, bDialog ? ID_WND_PARM_PG_DIALOG : ID_WND_PARM_PG_ACTIVE, wxDefaultPosition, wxDefaultSize,
-		 wxPG_BOLD_MODIFIED
-		|wxPG_SPLITTER_AUTO_CENTER
-	//	|wxPG_AUTO_SORT
-	//	|wxPG_HIDE_MARGIN
-	//	|wxPG_STATIC_SPLITTER
-	//	|wxPG_HIDE_CATEGORIES
-	//	|wxPG_LIMITED_EDITING
-		|wxTAB_TRAVERSAL
-	//	|wxPG_TOOLBAR
-		|wxPG_DESCRIPTION
-	//	|wxPG_COMPACTOR
-	//	|wxBORDER_SUNKEN
-		|wxBORDER_NONE
-	);
+	CParameters_Grid_Manager	*pPGM	= new CParameters_Grid_Manager;
+	
+	m_pPG	= pPGM->Initialize(this);
 
-	m_pPG	= m_pPGM->GetGrid();
-
-	m_pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
-#else
-	m_pPG	= new wxPropertyGrid(this, bDialog ? ID_WND_PARM_PG_DIALOG : ID_WND_PARM_PG_ACTIVE, wxDefaultPosition, wxDefaultSize,
-		 wxPG_BOLD_MODIFIED
-		|wxPG_SPLITTER_AUTO_CENTER
-	//	|wxPG_AUTO_SORT
-	//	|wxPG_HIDE_MARGIN
-	//	|wxPG_STATIC_SPLITTER
-	//	|wxPG_HIDE_CATEGORIES
-	//	|wxPG_LIMITED_EDITING
-		|wxTAB_TRAVERSAL
-	//	|wxPG_TOOLBAR
-		|wxPG_DESCRIPTION
-	//	|wxPG_COMPACTOR
-	//	|wxBORDER_SUNKEN
-		|wxBORDER_NONE
-	);
-
-	m_pPGM	= NULL;
-
-#endif
+//	pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
 
 //	m_pPG->SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
 //	m_pPG->SetCellDisabledTextColour(wxColour(200, 200, 200));
@@ -184,16 +188,12 @@ CParameters_Control::~CParameters_Control(void)
 //---------------------------------------------------------
 void CParameters_Control::On_Size(wxSizeEvent &event)
 {
-	if( m_pPGM )
+	if( m_pPG && event.GetSize().GetWidth() > 0 && event.GetSize().GetHeight() > 0 )
 	{
-		m_pPGM->SetSize(GetClientSize());
-	}
-	else
-	{
-		m_pPG ->SetSize(GetClientSize());
-	}
+		m_pPG->GetParent()->SetSize(event.GetSize());
 
-	m_pPG->CenterSplitter(true);
+		m_pPG->CenterSplitter(true);
+	}
 
 	event.Skip();
 }
