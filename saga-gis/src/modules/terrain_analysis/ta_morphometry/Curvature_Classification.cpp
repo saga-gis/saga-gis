@@ -75,7 +75,7 @@ CCurvature_Classification::CCurvature_Classification(void)
 {
 	Set_Name		(_TL("Curvature Classification"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Surface curvature based terrain classification.\n"
@@ -93,10 +93,23 @@ CCurvature_Classification::CCurvature_Classification(void)
 		"8 - X  / X\n"
 	));
 
-	Parameters.Add_Grid (NULL, "CPLAN"		, _TL("Plan Curvature")				, _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid (NULL, "CPROF"		, _TL("Profile Curvature")			, _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Value(NULL, "THRESHOLD"	, _TL("Threshold for plane")		, _TL(""), PARAMETER_TYPE_Double, 0.001, 0.0, true);
-	Parameters.Add_Grid (NULL, "CLASS"		, _TL("Curvature Classification")	, _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid(
+		NULL	, "DEM"			, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "CLASS"		, _TL("Curvature Classification"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
+	);
+
+	Parameters.Add_Value(
+		NULL	, "THRESHOLD"	, _TL("Threshold for plane"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.0005, 0.0, true
+	);
 }
 
 
@@ -109,36 +122,32 @@ CCurvature_Classification::CCurvature_Classification(void)
 //---------------------------------------------------------
 bool CCurvature_Classification::On_Execute(void)
 {
-	int			x, y, Class;
-	double		Threshold, dPlan, dProf;
-	CSG_Grid	*pPlan, *pProf, *pClasses;
+	//-----------------------------------------------------
+	double		Threshold;
+	CSG_Grid	*pClass;
+
+	m_pDEM		= Parameters("DEM"      )->asGrid();
+	pClass		= Parameters("CLASS"    )->asGrid();
+	Threshold	= Parameters("THRESHOLD")->asDouble();
 
 	//-----------------------------------------------------
-	pPlan		= Parameters("CPLAN")		->asGrid();
-	pProf		= Parameters("CPROF")		->asGrid();
-	Threshold	= Parameters("THRESHOLD")	->asDouble();
-	pClasses	= Parameters("CLASS")		->asGrid();
-
-	pClasses->Set_NoData_Value(-1);
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pPlan->is_NoData(x, y) || pProf->is_NoData(x, y) )
+			double	Plan, Prof;
+
+			if( Get_Curvature(x, y, Plan, Prof) )
 			{
-				pClasses->Set_NoData(x, y);
+				pClass->Set_Value(x, y,
+						(fabs(Plan) < Threshold ? 3 : Plan < 0 ? 0 : 6)
+					+	(fabs(Prof) < Threshold ? 1 : Prof < 0 ? 0 : 2)
+				);
 			}
 			else
 			{
-				dPlan	= pPlan->asDouble(x, y);
-				dProf	= pProf->asDouble(x, y);
-
-				Class	 = dPlan < -Threshold ? 0 : (dPlan <= Threshold ? 3 : 6);
-				Class	+= dProf < -Threshold ? 0 : (dProf <= Threshold ? 1 : 2);
-
-				pClasses->Set_Value(x, y, Class);
+				pClass->Set_NoData(x, y);
 			}
 		}
 	}
@@ -146,19 +155,19 @@ bool CCurvature_Classification::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameters	P;
 
-	if( DataObject_Get_Parameters(pClasses, P) && P("COLORS_TYPE") && P("LUT") )
+	if( DataObject_Get_Parameters(pClass, P) && P("COLORS_TYPE") && P("LUT") )
 	{
 		int Color[9]	=
 		{
-			SG_GET_RGB(  0,   0, 127),	// V  / V
-			SG_GET_RGB(  0,  63, 200),	// GE / V
-			SG_GET_RGB(  0, 127, 255),	// X  / V
-			SG_GET_RGB(127, 200, 255),	// V  / GR
-			SG_GET_RGB(255, 255, 255),	// GE / GR
-			SG_GET_RGB(255, 200, 127),	// X  / GR
-			SG_GET_RGB(255, 127,   0),	// V  / X
-			SG_GET_RGB(200,  63,   0),	// GE / X
-			SG_GET_RGB(127,   0,   0),	// X  / X
+			SG_GET_RGB(  0,   0, 127),	// V / V
+			SG_GET_RGB(  0,  63, 200),	// G / V
+			SG_GET_RGB(  0, 127, 255),	// X / V
+			SG_GET_RGB(127, 200, 255),	// V / G
+			SG_GET_RGB(245, 245, 245),	// G / G
+			SG_GET_RGB(255, 200, 127),	// X / G
+			SG_GET_RGB(255, 127,   0),	// V / X
+			SG_GET_RGB(200,  63,   0),	// G / X
+			SG_GET_RGB(127,   0,   0),	// X / X
 		};
 
 		//-------------------------------------------------
@@ -192,10 +201,57 @@ bool CCurvature_Classification::On_Execute(void)
 
 		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
 
-		DataObject_Set_Parameters(pClasses, P);
+		DataObject_Set_Parameters(pClass, P);
 	}
 
 	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCurvature_Classification::Get_Curvature(int x, int y, double &Plan, double &Profile)
+{
+	static const int	Index[8]	=	{ 5, 8, 7, 6, 3, 0, 1, 2 };
+
+	if( !m_pDEM->is_InGrid(x, y) )
+	{
+		return( false );
+	}
+
+	double	z	= m_pDEM->asDouble(x, y), Z[9];	Z[4]	= 0.0;
+
+	for(int i=0, ix, iy; i<8; i++)
+	{
+		if( m_pDEM->is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
+		{
+			Z[Index[i]]	= m_pDEM->asDouble(ix, iy) - z;
+		}
+		else if( m_pDEM->is_InGrid(ix = Get_xFrom(i, x), iy = Get_yFrom(i, y)) )
+		{
+			Z[Index[i]]	= z - m_pDEM->asDouble(ix, iy);
+		}
+		else
+		{
+			Z[Index[i]]	= 0.0;
+		}
+	}
+
+	double	D	= ((Z[3] + Z[5]) / 2.0 - Z[4]) * 2.00 / Get_Cellarea();
+	double	E	= ((Z[1] + Z[7]) / 2.0 - Z[4]) * 2.00 / Get_Cellarea();
+	double	F	=  (Z[0] - Z[2] - Z[6] + Z[8]) * 0.25 / Get_Cellarea();
+	double	G	=  (Z[5] - Z[3])               * 0.50 / Get_Cellsize();
+    double	H	=  (Z[7] - Z[1])               * 0.50 / Get_Cellsize();
+
+	Profile	= -2.0 * (D * G*G + E * H*H + F*G*H) / (G*G + H*H);
+	Plan	= -2.0 * (E * G*G + D * H*H - F*G*H) / (G*G + H*H);
+
 	return( true );
 }
 

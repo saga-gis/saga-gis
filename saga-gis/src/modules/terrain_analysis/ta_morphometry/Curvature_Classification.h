@@ -94,6 +94,15 @@ protected:
 
 	virtual bool			On_Execute			(void);
 
+
+private:
+
+	CSG_Grid				*m_pDEM;
+
+
+	bool					Get_Curvature		(int x, int y, double &Plan, double &Profile);
+
+
 };
 
 
