@@ -304,22 +304,23 @@ enum
 //---------------------------------------------------------
 bool CTPI_Classification::On_Execute(void)
 {
-	double		Slope, Aspect;
-	CSG_Grid	*pDEM, *pLandforms, TPI_A, TPI_B;
-	CTPI		TPI;
-
 	//-----------------------------------------------------
-	pDEM		= Parameters("DEM")			->asGrid();
-	pLandforms	= Parameters("LANDFORMS")	->asGrid();
+	CSG_Grid	*pDEM		= Parameters("DEM"      )->asGrid();
+	CSG_Grid	*pLandforms	= Parameters("LANDFORMS")->asGrid();
 
-	TPI.Get_Parameters()->Set_Parameter(SG_T("DEM")      , Parameters("DEM"));
-	TPI.Get_Parameters()->Set_Parameter(SG_T("WEIGHTING"), Parameters("WEIGHTING"));
+	CTPI	TPI;
+
+	TPI.Set_Manager(NULL);
+
+	TPI.Get_Parameters()->Set_Parameter("DEM"      , Parameters("DEM"      ));
+	TPI.Get_Parameters()->Set_Parameter("WEIGHTING", Parameters("WEIGHTING"));
 	TPI.Get_Parameters()->Get_Parameter("STANDARD")->Set_Value(true);
 
 	//-----------------------------------------------------
-	TPI_A.Create(*Get_System());
-	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&TPI_A);
-	TPI.Get_Parameters()->Set_Parameter(SG_T("RADIUS"), Parameters("RADIUS_A"));
+	CSG_Grid	gA(*Get_System());
+
+	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&gA);
+	TPI.Get_Parameters()->Set_Parameter("RADIUS", Parameters("RADIUS_A"));
 
 	if( !TPI.Execute() )
 	{
@@ -327,9 +328,10 @@ bool CTPI_Classification::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	TPI_B.Create(*Get_System());
-	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&TPI_B);
-	TPI.Get_Parameters()->Set_Parameter(SG_T("RADIUS"), Parameters("RADIUS_B"));
+	CSG_Grid	gB(*Get_System());
+
+	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&gB);
+	TPI.Get_Parameters()->Set_Parameter("RADIUS", Parameters("RADIUS_B"));
 
 	if( !TPI.Execute() )
 	{
@@ -339,6 +341,7 @@ bool CTPI_Classification::On_Execute(void)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pDEM->is_NoData(x, y) )
@@ -347,8 +350,8 @@ bool CTPI_Classification::On_Execute(void)
 			}
 			else
 			{
-				double	A	= TPI_A.asDouble(x, y);
-				double	B	= TPI_B.asDouble(x, y);
+				double	A	= gA.asDouble(x, y);
+				double	B	= gB.asDouble(x, y);
 
 				if( A <= -1.0 )
 				{
@@ -373,6 +376,8 @@ bool CTPI_Classification::On_Execute(void)
 					}
 					else if( B < 1.0 )
 					{
+						double	Slope, Aspect;
+
 						pDEM->Get_Gradient(x, y, Slope, Aspect);
 
 						if( Slope <= 5.0 * M_DEG_TO_RAD )
