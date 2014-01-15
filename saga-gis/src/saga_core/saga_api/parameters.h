@@ -1400,7 +1400,8 @@ public:
 	CSG_Parameter *				Get_Parameter			(int i)							{	return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL );	}
 	CSG_Parameter *				Get_Parameter			(const CSG_String &Identifier);
 
-	CSG_Parameter *				Get						(const SG_Char    *Identifier)	{	return(  Get_Parameter(CSG_String(Identifier)) );	}
+	CSG_Parameter *				Get						(const char       *Identifier)	{	return(  Get_Parameter(CSG_String(Identifier)) );	}
+	CSG_Parameter *				Get						(const wchar_t    *Identifier)	{	return(  Get_Parameter(CSG_String(Identifier)) );	}
 
 	CSG_Parameter *				operator()				(int i)							{	return(  Get_Parameter(i         ) );	}
 	CSG_Parameter *				operator()				(const CSG_String &Identifier)	{	return(  Get_Parameter(Identifier) );	}

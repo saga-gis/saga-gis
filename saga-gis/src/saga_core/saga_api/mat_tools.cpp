@@ -104,6 +104,34 @@ int				SG_Get_Digit_Count(int Number)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String		SG_Get_Double_asString(double Number, int Width, int Precision, bool bScientific)
+{
+	if( bScientific )
+	{
+		if( Width > 0 && Precision >= 0 )	return( CSG_String::Format(SG_T("%*.*e"), Width, Precision, Number) );
+		if( Width > 0                   )	return( CSG_String::Format(SG_T("%*e"  ), Width           , Number) );
+		if(              Precision >= 0 )	return( CSG_String::Format(SG_T("%.*e" ),        Precision, Number) );
+
+		return( CSG_String::Format(SG_T("%e", Number)) );
+	}
+	else
+	{
+		if( Width > 0 && Precision >= 0 )	return( CSG_String::Format(SG_T("%*.*f"), Width, Precision, Number) );
+		if( Width > 0                   )	return( CSG_String::Format(SG_T("%*f"  ), Width           , Number) );
+		if(              Precision >= 0 )	return( CSG_String::Format(SG_T("%.*f" ),        Precision, Number) );
+
+		return( CSG_String::Format(SG_T("%f", Number)) );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Random::CSG_Random(void)
 {
 	Initialize();
