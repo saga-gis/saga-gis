@@ -129,10 +129,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT double		SG_Get_Square		(double x);
+SAGA_API_DLL_EXPORT double		SG_Get_Square			(double x);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT int			SG_Get_Digit_Count	(int Number);
+SAGA_API_DLL_EXPORT int			SG_Get_Digit_Count		(int Number);
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT	CSG_String	SG_Get_Double_asString	(double Number, int Width = -1, int Precision = -1, bool bScientific = false);
 
 
 ///////////////////////////////////////////////////////////
@@ -220,7 +223,7 @@ public:
 	double						operator ()			(int x)	const	{	return( m_z[x] );	}
 	double &					operator []			(int x)			{	return( m_z[x] );	}
 
-	CSG_String					asString			(void);
+	CSG_String					asString			(int Width = -1, int Precision = -1, bool bScientific = false)	const;
 
 	bool						is_Equal			(const CSG_Vector &Vector)	const;
 
@@ -257,6 +260,13 @@ public:
 	double						Get_Length			(void)						const;
 	double						Get_Angle			(const CSG_Vector &Vector)	const;
 	CSG_Vector					Get_Unity			(void)						const;
+
+	typedef double const *		const_iterator;
+
+	const_iterator				begin				(void)	const	{	return( m_z       );	}
+	const_iterator				end					(void)	const	{	return( m_z + m_n );	}
+	const_iterator				cbegin				(void)	const	{	return( begin()   );	}
+	const_iterator				cend				(void)	const	{	return( end()     );	}
 
 
 private:
@@ -329,7 +339,7 @@ public:
 	double						operator ()			(int y, int x)	const	{	return( m_z[y][x] );	}
 	double *					operator []			(int y)			const	{	return( m_z[y] );		}
 
-	CSG_String					asString			(void);
+	CSG_String					asString			(int Width = -1, int Precision = -1, bool bScientific = false)	const;
 
 	bool						is_Square			(void)	const	{	return( m_nx > 0 && m_nx == m_ny );	}
 	bool						is_Equal			(const CSG_Matrix &Matrix)	const;

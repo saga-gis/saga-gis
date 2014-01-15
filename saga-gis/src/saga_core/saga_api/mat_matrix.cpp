@@ -292,13 +292,13 @@ bool CSG_Vector::Del_Row(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Vector::asString(void)
+CSG_String CSG_Vector::asString(int Width, int Precision, bool bScientific)	const
 {
 	CSG_String	s;
 
 	for(int i=0; i<m_n; i++)
 	{
-		s.Append(CSG_String::Format(SG_T("%f\n"), m_z[i]));
+		s	+= SG_Get_Double_asString(m_z[i], Width, Precision, bScientific) + "\n";
 	}
 
 	return( s );
@@ -1189,21 +1189,21 @@ CSG_Vector CSG_Matrix::Get_Row(int iRow)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Matrix::asString(void)
+CSG_String CSG_Matrix::asString(int Width, int Precision, bool bScientific)	const
 {
 	CSG_String	s;
 
-	for(int y=0; y<m_ny; y++)
+	for(int y=0, n=SG_Get_Digit_Count(m_ny + 1); y<m_ny; y++)
 	{
-		s.Append(CSG_String::Format(SG_T("\n%d.\t"), y + 1));
+		s	+= CSG_String::Format(SG_T("%0*d:"), n, y + 1);
 
 		for(int x=0; x<m_nx; x++)
 		{
-			s.Append(CSG_String::Format(SG_T("\t%f"), m_z[y][x]));
+			s	+= "\t" + SG_Get_Double_asString(m_z[y][x], Width, Precision, bScientific);
 		}
-	}
 
-	s.Append(SG_T("\n"));
+		s	+= "\n";
+	}
 
 	return( s );
 }
