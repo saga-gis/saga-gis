@@ -187,6 +187,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_profiles", "modules\terr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_slope_stability", "modules\terrain_analysis\ta_slope_stability\ta_slope_stability.vcxproj", "{0D8DDF61-FB58-46FC-ABC7-8808B7758214}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_photogrammetry", "modules\imagery\imagery_photogrammetry\imagery_photogrammetry.vcxproj", "{F9248181-10AE-42B7-8987-E14B2D7EA8E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -779,6 +781,14 @@ Global
 		{0D8DDF61-FB58-46FC-ABC7-8808B7758214}.Release|Win32.Build.0 = Release|Win32
 		{0D8DDF61-FB58-46FC-ABC7-8808B7758214}.Release|x64.ActiveCfg = Release|x64
 		{0D8DDF61-FB58-46FC-ABC7-8808B7758214}.Release|x64.Build.0 = Release|x64
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Debug|Win32.Build.0 = Debug|Win32
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Debug|x64.ActiveCfg = Debug|x64
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Debug|x64.Build.0 = Debug|x64
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Release|Win32.ActiveCfg = Release|Win32
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Release|Win32.Build.0 = Release|Win32
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Release|x64.ActiveCfg = Release|x64
+		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
