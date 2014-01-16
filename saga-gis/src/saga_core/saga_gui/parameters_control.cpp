@@ -166,6 +166,11 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 
 //	pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
 
+	m_pPG->AddActionTrigger(wxPG_ACTION_NEXT_PROPERTY, WXK_DOWN);
+	m_pPG->AddActionTrigger(wxPG_ACTION_PREV_PROPERTY, WXK_UP);
+	m_pPG->AddActionTrigger(wxPG_ACTION_EDIT         , WXK_TAB);
+	m_pPG->AddActionTrigger(wxPG_ACTION_PRESS_BUTTON , WXK_SPACE);
+
 //	m_pPG->SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
 //	m_pPG->SetCellDisabledTextColour(wxColour(200, 200, 200));
 

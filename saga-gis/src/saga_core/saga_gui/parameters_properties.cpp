@@ -410,81 +410,125 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 }
 
 //---------------------------------------------------------
+void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
+{
+	if( iChoice != GetChoiceSelection() && iChoice >= 0 && iChoice < (int)m_choices.GetCount() && m_pParameter )
+	{
+		switch( m_pParameter->Get_Type() )
+		{
+		default:	return;
+
+		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_Table_Field:
+			m_pParameter->Set_Value(iChoice);
+			break;
+
+		case PARAMETER_TYPE_Grid_System:
+			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
+
+			_Update_Grids();
+			break;
+
+		case PARAMETER_TYPE_Grid:
+			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
+			break;
+
+		case PARAMETER_TYPE_Table:
+		case PARAMETER_TYPE_Shapes:
+		case PARAMETER_TYPE_TIN:
+		case PARAMETER_TYPE_PointCloud:
+			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
+
+			_Update_TableFields();
+			break;
+		}
+
+		GetGrid()->EditorsValueWasModified();
+	}
+}
+
+//---------------------------------------------------------
 bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event)
 {
-	if( event.GetEventType() == wxEVT_LEFT_DOWN )
+	//-----------------------------------------------------
+	if( event.GetEventType() == wxEVT_SET_FOCUS )
 	{
-	//	event.Skip();
-
-	//	GetEditorClass()->OnEvent(pPG, this, pPGCtrl, event);
+		wxPostEvent(pPG->GetEditorControl(), wxMouseEvent(wxEVT_LEFT_DOWN));
 	}
 
+	//-----------------------------------------------------
+	if( event.GetEventType() == wxEVT_RIGHT_DOWN && m_pParameter )
+	{
+		int	iChoice	= GetChoiceSelection();
+
+		if( m_pParameter->is_DataObject() )
+		{
+			if( m_pParameter->is_Input() )
+			{
+				if( m_pParameter->is_Optional() )
+				{
+					iChoice	= m_choices.GetCount() - 1;
+				}
+			}
+			else // if( m_pParameter->is_Output() )
+			{
+				if( m_pParameter->is_Optional() )
+				{
+					iChoice	= m_choices.GetCount() - (iChoice == m_choices.GetCount() - 1 ? 2 : 1);
+				}
+				else if( m_pParameter->asDataObject() != DATAOBJECT_CREATE )
+				{
+					iChoice	= m_choices.GetCount() - 1;
+				}
+			}
+		}
+		else if( m_pParameter->Get_Type() == PARAMETER_TYPE_Table_Field && m_pParameter->is_Optional() )
+		{
+			iChoice	= m_choices.GetCount() - 1;
+		}
+
+		if( iChoice != GetChoiceSelection() )
+		{
+			_Set_Parameter_Value(iChoice);
+
+			SetChoiceSelection(iChoice);
+
+			SetValueInEvent(iChoice);
+		}
+	}
+
+	//-----------------------------------------------------
 	if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
 	{
 		int			iChoice;
 		wxVariant	vChoice;
 
-		if( GetEditorClass()->GetValueFromControl(vChoice, this, pPGCtrl) && m_pParameter && m_choices.IsOk() && (iChoice = vChoice.GetInteger()) >= 0 && iChoice < (int)m_choices.GetCount() )
+		if( GetEditorClass()->GetValueFromControl(vChoice, this, pPGCtrl) && m_choices.IsOk() && (iChoice = vChoice.GetInteger()) >= 0 && iChoice < (int)m_choices.GetCount() && m_pParameter )
 		{
-			switch( m_pParameter->Get_Type() )
-			{
-			default:
-				break;
-
-			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_Table_Field:
-				m_pParameter->Set_Value(iChoice);
-				break;
-
-			case PARAMETER_TYPE_Grid_System:
-				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
-				_Update_Grids(pPG);
-				break;
-
-			case PARAMETER_TYPE_Grid:
-				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
-				break;
-
-			case PARAMETER_TYPE_Table:
-			case PARAMETER_TYPE_Shapes:
-			case PARAMETER_TYPE_TIN:
-			case PARAMETER_TYPE_PointCloud:
-				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
-				_Update_TableFields(pPG);
-				break;
-			}
-
-			pPG->EditorsValueWasModified();
-
-			return( true );
+			_Set_Parameter_Value(iChoice);
 		}
 	}
 
+	//-----------------------------------------------------
 	event.Skip();
 
 	return( true );
 }
 
 //---------------------------------------------------------
-void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
+void CParameters_PG_Choice::_Update_Grids(void)
 {
 	if( m_pParameter && m_pParameter->Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
 		for(int i=0; i<m_pParameter->Get_Children_Count(); i++)
 		{
-			wxPGProperty	*pProperty;
 			CSG_Parameter	*pChild	= m_pParameter->Get_Child(i);
 
-			switch( pChild->Get_Type() )
+			if( pChild->Get_Type() == PARAMETER_TYPE_Grid )
 			{
-			default:
-				break;
-				
-			case PARAMETER_TYPE_Grid_List:
-				break;
+				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
 
-			case PARAMETER_TYPE_Grid:
-				if( (pProperty = pPG->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()))) != NULL )
+				if( pProperty )
 				{
 					((CParameters_PG_Choice *)pProperty)->Update();
 				}
@@ -494,7 +538,7 @@ void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
 }
 
 //---------------------------------------------------------
-void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
+void CParameters_PG_Choice::_Update_TableFields(void)
 {
 	if( m_pParameter )
 	{
@@ -504,7 +548,7 @@ void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 
 			if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 			{
-				wxPGProperty	*pProperty	= pPG->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
+				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
 
 				if( pProperty )
 				{
