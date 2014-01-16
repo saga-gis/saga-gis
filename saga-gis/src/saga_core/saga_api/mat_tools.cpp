@@ -112,7 +112,7 @@ CSG_String		SG_Get_Double_asString(double Number, int Width, int Precision, bool
 		if( Width > 0                   )	return( CSG_String::Format(SG_T("%*e"  ), Width           , Number) );
 		if(              Precision >= 0 )	return( CSG_String::Format(SG_T("%.*e" ),        Precision, Number) );
 
-		return( CSG_String::Format(SG_T("%e", Number)) );
+		return( CSG_String::Format(SG_T("%e"), Number) );
 	}
 	else
 	{
@@ -120,7 +120,7 @@ CSG_String		SG_Get_Double_asString(double Number, int Width, int Precision, bool
 		if( Width > 0                   )	return( CSG_String::Format(SG_T("%*f"  ), Width           , Number) );
 		if(              Precision >= 0 )	return( CSG_String::Format(SG_T("%.*f" ),        Precision, Number) );
 
-		return( CSG_String::Format(SG_T("%f", Number)) );
+		return( CSG_String::Format(SG_T("%f"), Number) );
 	}
 }
 
@@ -1180,7 +1180,7 @@ void CSG_Classifier_Supervised::_Get_Parallel_Epiped(const CSG_Vector &Features,
 		for(int iFeature=0; bMember && iFeature<Get_Feature_Count(); iFeature++)
 		{
 			double	d	= Features(iFeature);
-			
+
 			if(	d < m_Statistics[iClass][iFeature].Get_Minimum()
 			||	d > m_Statistics[iClass][iFeature].Get_Maximum() )
 			{
@@ -1274,7 +1274,7 @@ void CSG_Classifier_Supervised::_Get_Maximum_Likelihood(const CSG_Vector &Featur
 			d	+= SG_Get_Square((Features(iFeature) - m_Statistics[iClass][iFeature].Get_Mean()) / m_Statistics[iClass][iFeature].Get_StdDev());
 		}
 
-		dSum	+= (d	= m_ML_s[iClass] * exp(-0.5 * d));	
+		dSum	+= (d	= m_ML_s[iClass] * exp(-0.5 * d));
 		*/
 
 		if( Quality < d )
@@ -1370,14 +1370,14 @@ double CSG_Test_Distribution::Get_T_Tail(double T, int df, TSG_Test_Distribution
 	{
 		return( -1.0 );
 	}
-	
+
 	return( _Change_Tail_Type(Get_T_P(T, df), TESTDIST_TYPE_TwoTail, Type, T < 0.0) );
 }
 
 //---------------------------------------------------------
 double CSG_Test_Distribution::Get_T_Inverse(double p, int df, TSG_Test_Distribution_Type Type)
 {	// Keith Dear & Robert Brennan.
-	// Returns an accurate t to tol sig. fig.'s given p & df.  
+	// Returns an accurate t to tol sig. fig.'s given p & df.
 
 	if( p <= 0.0 || p >= 1.0 || df < 1 )
 	{
@@ -1436,7 +1436,7 @@ double CSG_Test_Distribution::Get_Norm_P(double z)
 	double	p;
 
 	z	= fabs(z);
-	
+
 	p	= (((((a1 * z + a2) * z + a3) * z + a4) * z + a5) * z + a6) * z + 1.0;
 
 	return( pow(p, -16) );
@@ -1543,10 +1543,10 @@ double CSG_Test_Distribution::Get_T_Inv(double p, int df)
 		{
 			y	= 0.5 * y*y + y;
 		}
-	}            
+	}
 	else
 	{
-		y	= ((1.0 / (((df + 6.0) / (df * y) - 0.089 * d - 0.822) * (df + 2.0) * 3.0) 
+		y	= ((1.0 / (((df + 6.0) / (df * y) - 0.089 * d - 0.822) * (df + 2.0) * 3.0)
 			+ 0.5 / (df + 4.0)) * y - 1.0) * (df + 1.0) / (df + 2.0) + 1.0 / y;
 	}
 
@@ -1616,12 +1616,12 @@ double CSG_Test_Distribution::Get_F_Inverse(double alpha, int dfn, int dfd, TSG_
 	{
 		lo	= 0.5;
 		hi	= lo;
-		
+
 		for(i=0; i<ITERMAX; i++)
 		{
 			hi	*= 2.0;
 			p	= Get_F_Tail(hi, dfn, dfd);
-	
+
 			if( p > alpha )
 			{
 				lo	= hi;
