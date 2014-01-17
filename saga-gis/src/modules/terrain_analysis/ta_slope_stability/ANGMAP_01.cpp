@@ -77,7 +77,7 @@ CANGMAP::CANGMAP(void)
 
 	Set_Description	(_TW(
 		"\n"
-		"This module computes the acute angle raster between the topographic surface defined by slope and aspect rasters, and a structural plane defined by diop direction- and dip grids. "
+		"This module computes the acute angle raster between the topographic surface defined by slope and aspect rasters internally derived from input elevation raster, and a structural plane defined by diop direction- and dip grids. "
 		"Optionally, the dip direction and dip of the cutting line linears between the two planes can be calculated"
 		"\n"
 		"Reference: "
@@ -86,11 +86,7 @@ CANGMAP::CANGMAP(void)
 	));
 
 	Parameters.Add_Grid(
-		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radíans)", PARAMETER_INPUT
-		);
-	
-	Parameters.Add_Grid(
-		NULL, "B", "Aspect grid (rad)", "A aspect angle grid (in radíans)", PARAMETER_INPUT
+		NULL, "DEM", "Elevation", "A Digital Elvation Model (DEM)", PARAMETER_INPUT
 		);
 	
 	Parameters.Add_Grid(
@@ -136,15 +132,14 @@ bool CANGMAP::On_Execute(void)
 	double		fB	= Parameters("fB")->asDouble();
 	double		fC	= Parameters("fC")->asDouble();
 	
-	CSG_Grid	*pA, *pB, *pC, *pD, *pE, *pF, *pG;
+	CSG_Grid	*pDEM, *pC, *pD, *pE, *pF, *pG;
 
-	pA	= Parameters("A"	)->asGrid();		//slope
-	pB	= Parameters("B"	)->asGrid();		//aspect
-	pC	= Parameters("C"	)->asGrid();		//dip grid
-	pD	= Parameters("D"	)->asGrid();		//dip dir grid
-	pE	= Parameters("E"	)->asGrid();		//output angles
-	pF	= Parameters("F"	)->asGrid();		//output ce dipdir
-	pG	= Parameters("G"	)->asGrid();		//output ce dip
+	pDEM	= Parameters("DEM")->asGrid();		//elevation
+	pC		= Parameters("C"  )->asGrid();		//dip grid
+	pD		= Parameters("D"  )->asGrid();		//dip dir grid
+	pE		= Parameters("E"  )->asGrid();		//output angles
+	pF		= Parameters("F"  )->asGrid();		//output ce dipdir
+	pG		= Parameters("G"  )->asGrid();		//output ce dip
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -152,52 +147,32 @@ bool CANGMAP::On_Execute(void)
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double a, b, c, d, e, f, g;
-			double s1, s2, s3, s4, c1, c2, c3, c4;
-			double px, py, pz;
-			double p, pp, ff, aa;
 
-			double pi, bo, gra;
-		
-			pi  =	3.14159;
-			bo	=	pi / 180;
-			gra	=	180 / pi;
-
-			a	=	pA->asDouble(x, y);
-			b	=	pB->asDouble(x, y);						//Abfrage ob Raster oder Globalwerte
-			c	=	pC ? pC->asDouble(x, y) : fB;
-			d	=	pD ? pD->asDouble(x, y) : fC;
-
-			if (pA->is_NoData(x, y) || pB->is_NoData(x, y))
+			if( !pDEM->Get_Gradient(x, y, a, b)
+			||  (pC && pC->is_NoData(x, y))
+			||  (pD && pD->is_NoData(x, y))	)
 			{
-				pE->Set_NoData(x, y);
-
-				if (pF)
-					pF->Set_NoData(x, y);
-				if (pG)
-					pG->Set_NoData(x, y);
+				if (pE)	pE->Set_NoData(x, y);
+				if (pF)	pF->Set_NoData(x, y);
+				if (pG)	pG->Set_NoData(x, y);
 			}
-
-			else if ((pC || pD) && (pC->is_NoData(x, y) || (pD->is_NoData(x, y))))
-			{
-				pE->Set_NoData(x, y);
-
-				if (pF)
-					pF->Set_NoData(x, y);
-				if (pG)
-					pG->Set_NoData(x, y);
-			}
-
 			else
 			{
+				double	s1, s2, s3, s4, c1, c2, c3, c4;
+				double	px, py, pz;
+				double	p, pp, ff, aa;
 
-				s1	=	sin(b + pi);
-				s2	=	sin((d * bo) + pi);
-				s3	=	sin((pi/2) - a);
-				s4	=	sin((pi/2) - (c * bo));
-				c1	=	cos(b + pi);
-				c2	=	cos((d * bo) + pi);
-				c3	=	cos((pi/2) - a);
-				c4	=	cos((pi/2) - (c * bo));
+				c	=	pC ? pC->asDouble(x, y) : fB;	//Abfrage ob Raster oder Globalwerte
+				d	=	pD ? pD->asDouble(x, y) : fC;	//Abfrage ob Raster oder Globalwerte
+
+				s1	= sin(b + M_PI);
+				s2	= sin((d * M_DEG_TO_RAD) + M_PI);
+				s3	= sin((M_PI/2) - a);
+				s4	= sin((M_PI/2) - (c * M_DEG_TO_RAD));
+				c1	= cos(b + M_PI);
+				c2	= cos((d * M_DEG_TO_RAD) + M_PI);
+				c3	= cos((M_PI/2) - a);
+				c4	= cos((M_PI/2) - (c * M_DEG_TO_RAD));
 		
 				px = (s1 * c3 * s4) - (s3 * s2 * s4);
 				py = (s3 * c2 * c4) - (c1 * c3 * c4);
@@ -215,8 +190,8 @@ bool CANGMAP::On_Execute(void)
 				ff	=	atan(pp / sqrt((1 - (pp * pp))));
 				aa	=	atan(py / px);
 
-				e	=	ff / bo;
-				f	=	aa / bo;
+				e	=	ff * M_RAD_TO_DEG;
+				f	=	aa * M_RAD_TO_DEG;
 
 				if (px < 0)
 					f = f + 180;
@@ -228,22 +203,16 @@ bool CANGMAP::On_Execute(void)
 				if (f < 0)
 					f = f + 360;
 
-				g = sin(p) * gra;
+				g = sin(p) * M_RAD_TO_DEG;
 
-				pE->Set_Value(x, y, g);
-		
-
-				if (pF)
-					pF->Set_Value(x, y, f);
-				if (pG)
-					pG->Set_Value(x, y, e);
-		
+				if (pE)	pE->Set_Value(x, y, e);
+				if (pF)	pF->Set_Value(x, y, f);
+				if (pG)	pG->Set_Value(x, y, g);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-
 	return( true );
 }
 
