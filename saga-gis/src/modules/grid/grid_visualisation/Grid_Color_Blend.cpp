@@ -96,24 +96,49 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 	Parameters.Add_Value(
 		NULL	, "NSTEPS"	, _TL("Interpolation Steps"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 0.0, 0.0, true
+		PARAMETER_TYPE_Int	, 0, 0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "LOOP"	, _TL("Loop"),
+		_TL(""),
+		PARAMETER_TYPE_Bool	, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "RANGE"	, _TL("Color Stretch"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("fit to each grid"),
 			_TL("fit to overall range"),
-			_TL("fit to overall 1.5 standard deviation"),
-			_TL("fit to overall 2.0 standard deviation")
+			_TL("fit to overall standard deviation")
 		), 3
+	);
+
+	Parameters.Add_Value(
+		NULL	, "STDDEV"	, _TL("Standard Deviation"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 2.0, 0.0, true
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CGrid_Color_Blend::~CGrid_Color_Blend(void)
-{}
+int CGrid_Color_Blend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RANGE") )
+	{
+		pParameters->Get_Parameter("STDDEV")->Set_Enabled(pParameter->asInt() == 2);
+	}
+
+	return( 1 );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -125,117 +150,132 @@ CGrid_Color_Blend::~CGrid_Color_Blend(void)
 //---------------------------------------------------------
 bool CGrid_Color_Blend::On_Execute(void)
 {
-	int						iGrid, x, y, iStep, nSteps, Range;
-	double					d, dStep, Value_A, Value_B, Range_Min, Range_Max;
-	CSG_Grid				*pGrid, *pGrid_A, *pGrid_B;
-	CSG_Parameter_Grid_List	*pGrids;
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	pGrid	= Parameters("GRID")	->asGrid();
-	pGrids	= Parameters("GRIDS")	->asGridList();
-	Range	= Parameters("RANGE")	->asInt();
-
-	if( pGrids->Get_Count() > 1 )
+	if( pGrids->Get_Count() < 2 )
 	{
-		nSteps	= Parameters("NSTEPS")->asInt();
-		dStep	= 1.0 / (1.0 + nSteps);
-		nSteps	= (1 + nSteps) * (pGrids->Get_Count() - 1);
-
-		pGrid_B	= pGrids->asGrid(0);
-		pGrid->Assign(pGrid_B);
-
-		switch( Range )
-		{
-		case 0:
-			Range_Min	= pGrid->Get_ZMin();
-			Range_Max	= pGrid->Get_ZMax();
-			break;
-
-		case 1:
-			Range_Min	= pGrid->Get_ZMin();
-			Range_Max	= pGrid->Get_ZMax();
-
-			for(iGrid=1; iGrid<pGrids->Get_Count(); iGrid++)
-			{
-				if( Range_Min > pGrids->asGrid(iGrid)->Get_ZMin() )	Range_Min	= pGrids->asGrid(iGrid)->Get_ZMin();
-				if( Range_Max < pGrids->asGrid(iGrid)->Get_ZMax() )	Range_Max	= pGrids->asGrid(iGrid)->Get_ZMax();
-			}
-			break;
-
-		case 2:
-			Range_Min	= pGrid->Get_ArithMean() - 1.5 * pGrid->Get_StdDev();
-			Range_Max	= pGrid->Get_ArithMean() + 1.5 * pGrid->Get_StdDev();
-
-			for(iGrid=1; iGrid<pGrids->Get_Count(); iGrid++)
-			{
-				double	Min	= pGrids->asGrid(iGrid)->Get_ArithMean() - 1.5 * pGrids->asGrid(iGrid)->Get_StdDev();
-				double	Max	= pGrids->asGrid(iGrid)->Get_ArithMean() + 1.5 * pGrids->asGrid(iGrid)->Get_StdDev();
-
-				if( Range_Min > Min )	Range_Min	= Min;
-				if( Range_Max < Max )	Range_Max	= Max;
-			}
-			break;
-
-		case 3:
-			Range_Min	= pGrid->Get_ArithMean() - 2.0 * pGrid->Get_StdDev();
-			Range_Max	= pGrid->Get_ArithMean() + 2.0 * pGrid->Get_StdDev();
-
-			for(iGrid=1; iGrid<pGrids->Get_Count(); iGrid++)
-			{
-				double	Min	= pGrids->asGrid(iGrid)->Get_ArithMean() - 2.0 * pGrids->asGrid(iGrid)->Get_StdDev();
-				double	Max	= pGrids->asGrid(iGrid)->Get_ArithMean() + 2.0 * pGrids->asGrid(iGrid)->Get_StdDev();
-
-				if( Range_Min > Min )	Range_Min	= Min;
-				if( Range_Max < Max )	Range_Max	= Max;
-			}
-			break;
-		}
-
-		DataObject_Update(pGrid, Range_Min, Range_Max, SG_UI_DATAOBJECT_SHOW);
-
-		for(iGrid=1, iStep=1; iGrid<pGrids->Get_Count() && Set_Progress(iStep, nSteps); iGrid++, iStep++)
-		{
-			pGrid_A	= pGrid_B;
-			pGrid_B	= pGrids->asGrid(iGrid);
-
-			for(d=dStep; d<1.0 && Set_Progress(iStep, nSteps); d+=dStep, iStep++)
-			{
-				for(y=0; y<Get_NY(); y++)
-				{
-					for(x=0; x<Get_NX(); x++)
-					{
-						Value_A	= pGrid_A->asDouble(x, y);
-						Value_B	= pGrid_B->asDouble(x, y);
-
-						pGrid->Set_Value(x, y, Value_A + d * (Value_B - Value_A) );
-					}
-				}
-
-				if( Range == 0 )
-				{
-					DataObject_Update(pGrid);
-				}
-				else
-				{
-					DataObject_Update(pGrid, Range_Min, Range_Max);
-				}
-			}
-
-			pGrid->Assign(pGrid_B);
-
-			if( Range == 0 )
-			{
-				DataObject_Update(pGrid);
-			}
-			else
-			{
-				DataObject_Update(pGrid, Range_Min, Range_Max);
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	switch( Parameters("RANGE")->asInt() )
+	{
+	case 0:	// fit to each grid
+		{
+			m_Range_Min	= 0.0;
+			m_Range_Max	= 0.0;
+		}
+		break;
+
+	case 1:	// fit to overall range
+		{
+			m_Range_Min	= pGrids->asGrid(0)->Get_ZMin();
+			m_Range_Max	= pGrids->asGrid(0)->Get_ZMax();
+
+			for(int i=1; i<pGrids->Get_Count(); i++)
+			{
+				if( m_Range_Min > pGrids->asGrid(i)->Get_ZMin() )	m_Range_Min	= pGrids->asGrid(i)->Get_ZMin();
+				if( m_Range_Max < pGrids->asGrid(i)->Get_ZMax() )	m_Range_Max	= pGrids->asGrid(i)->Get_ZMax();
+			}
+		}
+		break;
+
+	case 2:	// fit to overall standard deviation
+		{
+			double	StdDev	= Parameters("STDDEV")->asDouble();
+
+			m_Range_Min	= pGrids->asGrid(0)->Get_ArithMean() - StdDev * pGrids->asGrid(0)->Get_StdDev();
+			m_Range_Max	= pGrids->asGrid(0)->Get_ArithMean() + StdDev * pGrids->asGrid(0)->Get_StdDev();
+
+			for(int i=1; i<pGrids->Get_Count(); i++)
+			{
+				double	Min	= pGrids->asGrid(i)->Get_ArithMean() - StdDev * pGrids->asGrid(i)->Get_StdDev();
+				double	Max	= pGrids->asGrid(i)->Get_ArithMean() + StdDev * pGrids->asGrid(i)->Get_StdDev();
+
+				if( m_Range_Min > Min )	m_Range_Min	= Min;
+				if( m_Range_Max < Max )	m_Range_Max	= Max;
+			}
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	m_pGrid	= Parameters("GRID")->asGrid();
+	m_pGrid	->Set_Name(_TL("Color Blending"));
+	m_pGrid	->Assign(pGrids->asGrid(0));
+
+	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW);
+
+	do
+	{
+		for(int i=1; i<pGrids->Get_Count() && Set_Progress(i, pGrids->Get_Count() - 1); i++)
+		{
+			Blend(pGrids->asGrid(i - 1), pGrids->asGrid(i));
+		}
+
+		if( Parameters("LOOP")->asBool() && Process_Get_Okay() )
+		{
+			Blend(pGrids->asGrid(pGrids->Get_Count() - 1), pGrids->asGrid(0));
+		}
+	}
+	while( Parameters("LOOP")->asBool() && Process_Get_Okay() );
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CGrid_Color_Blend::Blend(CSG_Grid *pA, CSG_Grid *pB)
+{
+	int	nSteps	= 1 + Parameters("NSTEPS")->asInt();
+
+	for(int i=1; i<nSteps && Process_Get_Okay(); i++)
+	{
+		double	d	= i / (double)nSteps;
+
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
+			{
+				double	a	= pA->asDouble(x, y);
+				double	b	= pB->asDouble(x, y);
+
+				m_pGrid->Set_Value(x, y, a + d * (b - a));
+			}
+		}
+
+		if( m_Range_Min < m_Range_Max )
+		{
+			DataObject_Update(m_pGrid, m_Range_Min, m_Range_Max);
+		}
+		else
+		{
+			DataObject_Update(m_pGrid);
+		}
+	}
+
+	//-----------------------------------------------------
+	SG_UI_Progress_Lock(true);
+	m_pGrid->Assign(pB);
+	SG_UI_Progress_Lock(false);
+
+	if( m_Range_Min < m_Range_Max )
+	{
+		DataObject_Update(m_pGrid, m_Range_Min, m_Range_Max);
+	}
+	else
+	{
+		DataObject_Update(m_pGrid);
+	}
 }
 
 

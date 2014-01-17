@@ -65,21 +65,53 @@
 #define HEADER_INCLUDED__Grid_Color_Blend_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CGrid_Color_Blend : public CSG_Module_Grid
 {
 public:
 	CGrid_Color_Blend(void);
-	virtual ~CGrid_Color_Blend(void);
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	double					m_Range_Min, m_Range_Max;
+
+	CSG_Grid				*m_pGrid;
+
+
+	void					Blend					(CSG_Grid *pA, CSG_Grid *pB);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Color_Blend_H
