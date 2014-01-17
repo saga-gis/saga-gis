@@ -801,11 +801,31 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		if( sPath.Length() == 0 )
 		{
-			sPath	= pObject->Get_Name();
-			sPath	.Replace(".", "-");
-			sPath	.Replace(":", "-");
+			for(int i=0, bOkay=false; !bOkay; i++)
+			{
+				sPath	= pObject->Get_Name();
+				sPath	.Replace(".", "-");
+				sPath	.Replace(":", "-");
 
-			sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), sPath, sExtension).w_str();
+				if( i > 0 )
+				{
+					sPath	+= wxString::Format("%d", i);
+				}
+
+				sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), sPath, sExtension).w_str();
+
+				bOkay	= !wxFileExists(sPath);
+
+				for(int j=0; bOkay && j<pParameters->Get_Count(); j++)
+				{
+					CSG_Parameter	*p	= pParameters->Get_Parameter(j);
+
+					if( p->Get_Type() == PARAMETER_TYPE_FilePath && !sPath.Cmp(p->asString()) )
+					{
+						bOkay	= false;
+					}
+				}
+			}
 		}
 
 		//-------------------------------------------------
