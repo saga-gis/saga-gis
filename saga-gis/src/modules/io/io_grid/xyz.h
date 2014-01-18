@@ -86,6 +86,7 @@ class CXYZ_Export : public CSG_Module_Grid
 {
 public:
 	CXYZ_Export(void);
+	virtual ~CXYZ_Export(void);
 
 	virtual CSG_String		Get_MenuPath	(void)			{	return( _TL("R:Export") );	}
 
