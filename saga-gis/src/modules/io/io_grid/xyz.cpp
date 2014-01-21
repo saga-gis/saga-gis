@@ -121,6 +121,12 @@ CXYZ_Export::CXYZ_Export(void)
 	);
 }
 
+
+//---------------------------------------------------------
+CXYZ_Export::~CXYZ_Export(void)
+{}
+
+
 //---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
