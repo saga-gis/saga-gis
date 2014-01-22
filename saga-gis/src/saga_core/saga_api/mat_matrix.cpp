@@ -86,13 +86,13 @@ bool		SG_Matrix_Tridiagonal_QL			(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e);
 //---------------------------------------------------------
 CSG_Vector::CSG_Vector(void)
 {
-	_On_Construction();
+	m_Array.Create(sizeof(double), 0, SG_ARRAY_GROWTH_2);
 }
 
 //---------------------------------------------------------
 CSG_Vector::CSG_Vector(const CSG_Vector &Vector)
 {
-	_On_Construction();
+	m_Array.Create(sizeof(double), 0, SG_ARRAY_GROWTH_2);
 
 	Create(Vector);
 }
@@ -105,7 +105,7 @@ bool CSG_Vector::Create(const CSG_Vector &Vector)
 //---------------------------------------------------------
 CSG_Vector::CSG_Vector(int n, double *Data)
 {
-	_On_Construction();
+	m_Array.Create(sizeof(double), 0, SG_ARRAY_GROWTH_2);
 
 	Create(n, Data);
 }
@@ -114,25 +114,15 @@ bool CSG_Vector::Create(int n, double *Data)
 {
 	if( n > 0 )
 	{
-		if( n != m_n )
-		{
-			Destroy();
-
-			if( (m_z = (double *)SG_Malloc(n * sizeof(double))) != NULL )
-			{
-				m_n	= n;
-			}
-		}
-
-		if( m_z )
+		if( m_Array.Set_Array(n) )
 		{
 			if( Data )
 			{
-				memcpy(m_z, Data, m_n * sizeof(double));
+				memcpy(Get_Data(), Data, n * sizeof(double));
 			}
 			else
 			{
-				memset(m_z,    0, m_n * sizeof(double));
+				memset(Get_Data(),    0, n * sizeof(double));
 			}
 
 			return( true );
@@ -152,22 +142,7 @@ CSG_Vector::~CSG_Vector(void)
 
 bool CSG_Vector::Destroy(void)
 {
-	if( m_z )
-	{
-		SG_Free(m_z);
-	}
-
-	m_z	= NULL;
-	m_n	= 0;
-
-	return( true );
-}
-
-//---------------------------------------------------------
-void CSG_Vector::_On_Construction(void)
-{
-	m_z	= NULL;
-	m_n	= 0;
+	return( m_Array.Set_Array(0) );
 }
 
 //---------------------------------------------------------
@@ -177,14 +152,14 @@ void CSG_Vector::_On_Construction(void)
 */
 bool CSG_Vector::Set_Rows(int nRows)
 {
-	if( nRows > m_n )
+	if( nRows > Get_N() )
 	{
-		return( Add_Rows(nRows - m_n) );
+		return( Add_Rows(nRows - Get_N()) );
 	}
 
-	if( nRows < m_n )
+	if( nRows < Get_N() )
 	{
-		return( Del_Rows(m_n - nRows) );
+		return( Del_Rows(Get_N() - nRows) );
 	}
 
 	return( true );
@@ -193,22 +168,14 @@ bool CSG_Vector::Set_Rows(int nRows)
 //---------------------------------------------------------
 bool CSG_Vector::Add_Rows(int nRows)
 {
-	if( nRows > 0 )
+	if( nRows > 0 && m_Array.Set_Array(Get_N() + nRows) )
 	{
-		double	*z	= (double *)SG_Realloc(m_z, (m_n + nRows) * sizeof(double));
-
-		if( z )
+		for(int i=Get_N()-nRows; i<Get_N(); i++)
 		{
-			for(int i=m_n; i<m_n+nRows; i++)
-			{
-				z[i]	= 0.0;
-			}
-
-			m_z	 = z;
-			m_n	+= nRows;
-
-			return( true );
+			Get_Data()[i]	= 0.0;
 		}
+
+		return( true );
 	}
 
 	return( false );
@@ -227,33 +194,20 @@ bool CSG_Vector::Del_Rows(int nRows)
 		return( true );
 	}
 
-	if( nRows >= m_n )
+	if( nRows >= Get_N() )
 	{
 		return( Destroy() );
 	}
 
-	double	*z	= (double *)SG_Realloc(m_z, (m_n - nRows) * sizeof(double));
-
-	if( z )
-	{
-		m_z	 = z;
-		m_n	-= nRows;
-
-		return( true );
-	}
-
-	return( false );
+	return( m_Array.Set_Array(Get_N() - nRows) );
 }
 
 //---------------------------------------------------------
 bool CSG_Vector::Add_Row(double Value)
 {
-	double	*z	= (double *)SG_Realloc(m_z, (m_n + 1) * sizeof(double));
-
-	if( z )
+	if( m_Array.Inc_Array() )
 	{
-		m_z			= z;
-		m_z[m_n++]	= Value;
+		Get_Data()[Get_N() - 1]	= Value;
 
 		return( true );
 	}
@@ -264,24 +218,7 @@ bool CSG_Vector::Add_Row(double Value)
 //---------------------------------------------------------
 bool CSG_Vector::Del_Row(void)
 {
-	if( m_n == 1 )
-	{
-		return( Destroy() );
-	}
-	else if( m_n > 1 )
-	{
-		double	*z	= (double *)SG_Realloc(m_z, (m_n - 1) * sizeof(double));
-
-		if( z )
-		{
-			m_z	= z;
-			m_n	--;
-
-			return( true );
-		}
-	}
-
-	return( false );
+	return( m_Array.Dec_Array() );
 }
 
 
@@ -296,9 +233,9 @@ CSG_String CSG_Vector::asString(int Width, int Precision, bool bScientific)	cons
 {
 	CSG_String	s;
 
-	for(int i=0; i<m_n; i++)
+	for(int i=0; i<Get_N(); i++)
 	{
-		s	+= SG_Get_Double_asString(m_z[i], Width, Precision, bScientific) + "\n";
+		s	+= SG_Get_Double_asString(Get_Data(i), Width, Precision, bScientific) + "\n";
 	}
 
 	return( s );
@@ -314,11 +251,11 @@ CSG_String CSG_Vector::asString(int Width, int Precision, bool bScientific)	cons
 //---------------------------------------------------------
 bool CSG_Vector::is_Equal(const CSG_Vector &Vector) const
 {
-	if( m_n == Vector.m_n )
+	if( Get_N() == Vector.Get_N() )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			if( m_z[i] != Vector.m_z[i] )
+			if( Get_Data(i) != Vector.Get_Data(i) )
 			{
 				return( false );
 			}
@@ -333,11 +270,11 @@ bool CSG_Vector::is_Equal(const CSG_Vector &Vector) const
 //---------------------------------------------------------
 bool CSG_Vector::Assign(double Scalar)
 {
-	if( m_n > 0 )
+	if( Get_N() > 0 )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			m_z[i]	= Scalar;
+			Get_Data()[i]	= Scalar;
 		}
 
 		return( true );
@@ -349,9 +286,9 @@ bool CSG_Vector::Assign(double Scalar)
 //---------------------------------------------------------
 bool CSG_Vector::Assign(const CSG_Vector &Vector)
 {
-	if( Create(Vector.m_n) )
+	if( Create(Vector.Get_N()) )
 	{
-		memcpy(m_z, Vector.m_z, m_n * sizeof(double));
+		memcpy(Get_Data(), Vector.Get_Data(), Get_N() * sizeof(double));
 
 		return( true );
 	}
@@ -362,11 +299,11 @@ bool CSG_Vector::Assign(const CSG_Vector &Vector)
 //---------------------------------------------------------
 bool CSG_Vector::Add(double Scalar)
 {
-	if( m_n > 0 )
+	if( Get_N() > 0 )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			m_z[i]	+= Scalar;
+			Get_Data()[i]	+= Scalar;
 		}
 
 		return( true );
@@ -378,11 +315,11 @@ bool CSG_Vector::Add(double Scalar)
 //---------------------------------------------------------
 bool CSG_Vector::Add(const CSG_Vector &Vector)
 {
-	if( m_n == Vector.m_n && m_n > 0 )
+	if( Get_N() == Vector.Get_N() && Get_N() > 0 )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			m_z[i]	+= Vector.m_z[i];
+			Get_Data()[i]	+= Vector.Get_Data()[i];
 		}
 
 		return( true );
@@ -394,11 +331,11 @@ bool CSG_Vector::Add(const CSG_Vector &Vector)
 //---------------------------------------------------------
 bool CSG_Vector::Subtract(const CSG_Vector &Vector)
 {
-	if( m_n == Vector.m_n && m_n > 0 )
+	if( Get_N() == Vector.Get_N() && Get_N() > 0 )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			m_z[i]	-= Vector.m_z[i];
+			Get_Data()[i]	-= Vector.Get_Data()[i];
 		}
 
 		return( true );
@@ -410,11 +347,11 @@ bool CSG_Vector::Subtract(const CSG_Vector &Vector)
 //---------------------------------------------------------
 bool CSG_Vector::Multiply(double Scalar)
 {
-	if( m_n > 0 )
+	if( Get_N() > 0 )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			m_z[i]	*= Scalar;
+			Get_Data()[i]	*= Scalar;
 		}
 
 		return( true );
@@ -426,13 +363,13 @@ bool CSG_Vector::Multiply(double Scalar)
 //---------------------------------------------------------
 bool CSG_Vector::Multiply(const CSG_Vector &Vector)
 {
-	if( m_n == Vector.m_n && m_n == 3 )
+	if( Get_N() == Vector.Get_N() && Get_N() == 3 )
 	{
 		CSG_Vector	v(*this);
 
-		m_z[0]	= v[1] * Vector.m_z[2] - v[2] * Vector.m_z[1];
-		m_z[1]	= v[2] * Vector.m_z[0] - v[0] * Vector.m_z[2];
-		m_z[2]	= v[0] * Vector.m_z[1] - v[1] * Vector.m_z[0];
+		Get_Data()[0]	= v[1] * Vector[2] - v[2] * Vector[1];
+		Get_Data()[1]	= v[2] * Vector[0] - v[0] * Vector[2];
+		Get_Data()[2]	= v[0] * Vector[1] - v[1] * Vector[0];
 
 		return( true );
 	}
@@ -445,11 +382,11 @@ double CSG_Vector::Multiply_Scalar(const CSG_Vector &Vector) const
 {
 	double	z	= 0.0;
 
-	if( m_n == Vector.m_n )
+	if( Get_N() == Vector.Get_N() )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			z	+= m_z[i] * Vector.m_z[i];
+			z	+= Get_Data()[i] * Vector[i];
 		}
 	}
 
@@ -610,7 +547,7 @@ CSG_Vector operator * (double Scalar, const CSG_Vector &Vector)
 //---------------------------------------------------------
 bool CSG_Vector::Set_Zero(void)
 {
-	return( Create(m_n) );
+	return( Create(Get_N()) );
 }
 
 //---------------------------------------------------------
@@ -620,9 +557,9 @@ bool CSG_Vector::Set_Unity(void)
 
 	if( (Length = Get_Length()) > 0.0 )
 	{
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			m_z[i]	/= Length;
+			Get_Data()[i]	/= Length;
 		}
 
 		return( true );
@@ -641,13 +578,13 @@ bool CSG_Vector::Set_Unity(void)
 //---------------------------------------------------------
 double CSG_Vector::Get_Length(void) const
 {
-	if( m_n > 0 )
+	if( Get_N() > 0 )
 	{
-		double	z	= 0.0;
+		double	z	= 0.0, *Z	= Get_Data();
 
-		for(int i=0; i<m_n; i++)
+		for(int i=0; i<Get_N(); i++)
 		{
-			z	+= m_z[i] * m_z[i];
+			z	+= Z[i] * Z[i];
 		}
 
 		return( sqrt(z) );
@@ -659,24 +596,24 @@ double CSG_Vector::Get_Length(void) const
 //---------------------------------------------------------
 double CSG_Vector::Get_Angle(const CSG_Vector &Vector) const
 {
-	if( m_n > Vector.m_n )
+	if( Get_N() > Vector.Get_N() )
 	{
 		return( Vector.Get_Angle(*this) );
 	}
 
 	int		i;
-	double	A, B, z;
+	double	A, B, z, *Z	= Get_Data();
 
 	if( (A = Get_Length()) > 0.0 && (B = Vector.Get_Length()) > 0.0 )
 	{
-		for(i=0, z=0.0; i<m_n; i++)
+		for(i=0, z=0.0; i<Get_N(); i++)
 		{
-			z	+= Vector.m_z[i] * m_z[i];
+			z	+= Vector[i] * Z[i];
 		}
 
-		for(i=m_n; i<Vector.m_n; i++)
+		for(i=Get_N(); i<Vector.Get_N(); i++)
 		{
-			z	+= Vector.m_z[i];
+			z	+= Vector[i];
 		}
 
 		return( acos(z / (A * B)) );

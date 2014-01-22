@@ -217,11 +217,13 @@ public:
 	bool						Add_Row				(double Value = 0.0);
 	bool						Del_Row				(void);
 
-	int							Get_N				(void)	const	{	return( m_n );		}
-	operator const double *							(void)	const	{	return( m_z );		}
-	double *					Get_Data			(void)	const	{	return( m_z );		}
-	double						operator ()			(int x)	const	{	return( m_z[x] );	}
-	double &					operator []			(int x)			{	return( m_z[x] );	}
+	int							Get_N				(void)	const	{	return( (int)Get_Size() );					}
+	size_t						Get_Size			(void)	const	{	return( m_Array.Get_Size() );				}
+	double *					Get_Data			(void)	const	{	return( (double *)m_Array.Get_Array() );	}
+	double						Get_Data			(int x)	const	{	return( Get_Data()[x] );	}
+	double						operator ()			(int x)	const	{	return( Get_Data()[x] );	}
+	double &					operator []			(int x)			{	return( Get_Data()[x] );	}
+	operator const double *							(void)	const	{	return( Get_Data() );		}
 
 	CSG_String					asString			(int Width = -1, int Precision = -1, bool bScientific = false)	const;
 
@@ -263,20 +265,16 @@ public:
 
 	typedef double const *		const_iterator;
 
-	const_iterator				begin				(void)	const	{	return( m_z       );	}
-	const_iterator				end					(void)	const	{	return( m_z + m_n );	}
-	const_iterator				cbegin				(void)	const	{	return( begin()   );	}
-	const_iterator				cend				(void)	const	{	return( end()     );	}
+	const_iterator				begin				(void)	const	{	return( Get_Data()              );	}
+	const_iterator				end					(void)	const	{	return( Get_Data() + Get_Size() );	}
+	const_iterator				cbegin				(void)	const	{	return( Get_Data()              );	}
+	const_iterator				cend				(void)	const	{	return( Get_Data() + Get_Size() );	}
 
 
 private:
 
-	int							m_n;
+	CSG_Array					m_Array;
 
-	double						*m_z;
-
-
-	void						_On_Construction	(void);
 
 };
 
