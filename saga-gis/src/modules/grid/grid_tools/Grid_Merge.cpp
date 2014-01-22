@@ -137,6 +137,16 @@ CGrid_Merge::CGrid_Merge(void)
 		PARAMETER_TYPE_Double, 10.0, 0.0, true
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "MATCH"		, _TL("Match"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("none"),
+			_TL("regression"),
+			_TL("histogram match")
+		), 0
+	);
+
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "TARGET"		, _TL("Target Grid"),
@@ -201,6 +211,8 @@ bool CGrid_Merge::On_Execute(void)
 		if( i > 0 && m_Overlap == 6 )
 		{
 		}
+
+		Get_Match(i > 0 ? pGrid : NULL);
 
 		int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());
 		int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());
@@ -416,6 +428,11 @@ bool CGrid_Merge::is_Aligned(CSG_Grid *pGrid)
 //---------------------------------------------------------
 inline void CGrid_Merge::Set_Value(int x, int y, double Value, double Weight)
 {
+	if( m_Match.Get_N() == 2 )
+	{
+		Value	= m_Match[0] + m_Match[1] * Value;
+	}
+
 	switch( m_Overlap )
 	{
 	case 0:	// first
@@ -642,6 +659,66 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
+{
+	if( pGrid && Parameters("MATCH")->asInt() )
+	{
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("matching histogram"), pGrid->Get_Name()));
+
+		int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());	if( ax < 0 )	ax	= 0;
+		int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());	if( ay < 0 )	ay	= 0;
+
+		int	nx	= 1 + m_pMosaic->Get_System().Get_xWorld_to_Grid(pGrid->Get_XMax()); if( nx > m_pMosaic->Get_NX() )	nx	= m_pMosaic->Get_NX();
+		int	ny	= 1 + m_pMosaic->Get_System().Get_yWorld_to_Grid(pGrid->Get_YMax()); if( ny > m_pMosaic->Get_NY() )	ny	= m_pMosaic->Get_NY();
+
+		CSG_Vector	Z[2];
+
+		for(int y=ay; y<ny && Set_Progress(y-ay, ny-ay); y++)
+		{
+			double	py	= m_pMosaic->Get_YMin() + y * m_pMosaic->Get_Cellsize();
+
+			for(int x=ax; x<nx; x++)
+			{
+				if( !m_pMosaic->is_NoData(x, y) )
+				{
+					double	z, px	= m_pMosaic->Get_XMin() + x * m_pMosaic->Get_Cellsize();
+
+					if( pGrid->Get_Value(px, py, z, GRID_INTERPOLATION_NearestNeighbour) )
+					{
+						Z[0].Add_Row(z);
+						Z[1].Add_Row(m_pMosaic->asDouble(x, y));
+					}
+				}
+			}
+		}
+
+		CSG_Regression	r;
+
+		if( r.Calculate(Z[0].Get_Size(), Z[0].Get_Data(), Z[1].Get_Data()) )
+		{
+			m_Match.Create(2);
+
+			m_Match[0]	= r.Get_Constant();
+			m_Match[1]	= r.Get_Coefficient();
+
+			Message_Add("histogram stretch:\n", false);
+			Message_Add(r.asString(), false);
+
+			return;
+		}
+	}
+
+	m_Match.Destroy();
 }
 
 
