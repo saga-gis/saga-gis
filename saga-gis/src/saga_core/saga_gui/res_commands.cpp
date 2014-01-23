@@ -113,7 +113,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_WKSP_ITEM_SETTINGS_COPY:return( _TL("Copy Settings from other Layer") );
 	case ID_CMD_WKSP_ITEM_SEARCH:		return( _TL("Search for...") );
 
-	case ID_CMD_WKSP_OPEN:				return( _TL("Load") );
+	case ID_CMD_WKSP_OPEN:				return( _TL("Open") );
+	case ID_CMD_WKSP_SAVE:				return( _TL("Save All") );
 
 	case ID_CMD_INFO_CLEAR:				return( _TL("Clear") );
 	case ID_CMD_INFO_COPY:				return( _TL("Copy") );
@@ -135,7 +136,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MODULES_SAVE_SCRIPT:	return( _TL("Create Script Command File") );
 	case ID_CMD_MODULES_SAVE_DOCS:		return( _TL("Create Module Description Files") );
 
-	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("New Project") );
+	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("Close All") );
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( _TL("Add Project") );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( _TL("Save Project") );
@@ -335,6 +336,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_FRAME_INFO_SHOW:		return( ID_IMG_TB_INFO );
 	case ID_CMD_FRAME_HELP:				return( ID_IMG_TB_HELP );
 	case ID_CMD_WKSP_OPEN:				return( ID_IMG_TB_OPEN );
+	case ID_CMD_WKSP_SAVE:				return( ID_IMG_TB_SAVE );
 	case ID_CMD_MODULES_OPEN:			return( ID_IMG_TB_OPEN_MODULE );
 	case ID_CMD_TABLES_OPEN:			return( ID_IMG_TB_OPEN_TABLE );
 	case ID_CMD_SHAPES_OPEN:			return( ID_IMG_TB_OPEN_SHAPES );

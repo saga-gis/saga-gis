@@ -114,6 +114,7 @@ enum ID_COMMANDS
 	//-----------------------------------------------------
 	ID_CMD_WKSP_FIRST,
 	ID_CMD_WKSP_OPEN,
+	ID_CMD_WKSP_SAVE,
 	ID_CMD_WKSP_ITEM_RETURN,
 	ID_CMD_WKSP_ITEM_CLOSE,
 	ID_CMD_WKSP_ITEM_SETTINGS_LOAD,

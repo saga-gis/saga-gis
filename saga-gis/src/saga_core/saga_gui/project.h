@@ -89,8 +89,6 @@ public:
 	bool					Save				(bool bSaveAsOnError);
 	bool					Save				(const wxString &FileName, bool bSaveModified);
 
-	bool					Save_Modified		(class CWKSP_Base_Item *pItem, bool bSelections = false);
-
 
 private:
 
@@ -109,16 +107,10 @@ private:
 
 	class CWKSP_Base_Item *	_Get_byFileName		(const wxString &FileName);
 
-	static int				_Modified_Changed	(class CSG_Parameter  *pParameter, int Flags);
-	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, bool bSelections);
-	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, class CSG_Data_Object *pObject);
-	bool					_Modified_Save		(class CSG_Parameters *pParameters);
-
 
 	//-----------------------------------------------------
-	bool					_Compatibility_Data	(TSG_Data_Type Type, class CSG_Parameters *pParameters, const CSG_String &Version);
+	bool	_Compatibility_Data			(TSG_Data_Type Type, class CSG_Parameters *pParameters, const CSG_String &Version);
 
-	//-----------------------------------------------------
 	bool	_Compatibility_Load_Data	(const wxString &FileName);
 	bool	_Compatibility_Load_Data	(CSG_File &Stream, const wxString &ProjectDir);
 	bool	_Compatibility_Load_Map		(CSG_File &Stream, const wxString &ProjectDir);

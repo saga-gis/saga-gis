@@ -204,13 +204,14 @@ wxString	Get_FilePath_Relative(const wxString &Directory, const wxString &FileNa
 //---------------------------------------------------------
 wxString	Get_FilePath_Absolute(const wxString &Directory, const wxString &FileName)
 {
-	if( wxIsAbsolutePath(FileName) )
+	wxFileName	fn(FileName);
+
+	if( !fn.IsAbsolute() )
 	{
-		return( FileName );
+		fn.MakeAbsolute(Directory);
 	}
 
-	return( wxString::Format(wxT("%s%s"), Directory, FileName) );
-//	return( SG_File_Make_Path(Directory, FileName, NULL).c_str() );
+	return( fn.GetFullPath() );
 }
 
 //---------------------------------------------------------

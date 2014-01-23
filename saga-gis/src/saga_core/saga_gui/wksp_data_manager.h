@@ -109,8 +109,6 @@ public:
 	CWKSP_Base_Manager *			Get_Manager			(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}
 	void							Del_Manager			(CWKSP_Base_Item *pItem);
 
-	class CWKSP_Project *			Get_Project			(void)		{	return( m_pProject     );	}
-
 	class CWKSP_Table_Manager *		Get_Tables			(void)		{	return( m_pTables      );	}
 	class CWKSP_Shapes_Manager *	Get_Shapes			(void)		{	return( m_pShapes      );	}
 	class CWKSP_TIN_Manager *		Get_TINs			(void)		{	return( m_pTINs        );	}
@@ -126,7 +124,7 @@ public:
 	bool							Open				(int DataType);
 	bool							Open_CMD			(int Cmd_ID);
 
-	bool							Save_Modified		(class CWKSP_Base_Item *pItem);
+	bool							Save_Modified		(class CWKSP_Base_Item *pItem = NULL, bool bSelections = false);
 	bool							Save_Modified_Sel	(void);
 	bool							Close				(bool bSilent);
 
@@ -162,6 +160,11 @@ private:
 	class CWKSP_PointCloud_Manager	*m_pPointClouds;
 
 	class CWKSP_Grid_Manager		*m_pGrids;
+
+	static int						_Modified_Changed	(class CSG_Parameter  *pParameter, int Flags);
+	bool							_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, bool bSelections);
+	bool							_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, const wxString &Directory, class CSG_Data_Object *pObject);
+	bool							_Modified_Save		(class CSG_Parameters *pParameters);
 
 
 };

@@ -67,8 +67,6 @@
 
 #include "res_commands.h"
 
-#include "project.h"
-
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_file.h"
 
@@ -220,10 +218,10 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 			return;
 
 		case DATAOBJECT_TYPE_Undefined:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_NEW);
+//			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_NEW);
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 //			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE);
+//			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE);
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE_AS);
 			break;
 
@@ -340,7 +338,7 @@ bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 		switch( m_DataType )
 		{
 		case DATAOBJECT_TYPE_Undefined:
-			bSuccess	= g_pData->Get_Project()->Load(File, false, true);
+			bSuccess	= g_pData->Open(File);
 			break;
 
 		case DATAOBJECT_TYPE_Table:

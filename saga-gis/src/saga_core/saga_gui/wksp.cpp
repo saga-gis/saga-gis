@@ -319,6 +319,10 @@ void CWKSP::On_Command(wxCommandEvent &event)
 	case ID_CMD_WKSP_OPEN:
 		Open();
 		break;
+
+	case ID_CMD_WKSP_SAVE:
+		g_pData->On_Command(ID_CMD_DATA_PROJECT_SAVE);
+		break;
 	}
 }
 
@@ -348,6 +352,10 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_WKSP_OPEN:
+		break;
+
+	case ID_CMD_WKSP_SAVE:
+		event.Enable(g_pData->Get_Count() > 0);
 		break;
 	}
 }

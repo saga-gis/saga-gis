@@ -82,18 +82,21 @@
 CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 {
 	m_bUpdate	= true;
-
 	m_pMenu		= new wxMenu;
 
-	//-----------------------------------------------------
-	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project")    , m_Projects   .Create(DATAOBJECT_TYPE_Undefined));
+	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_WKSP_OPEN);
+	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_WKSP_SAVE);
+	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_NEW);
+
 	m_pMenu->AppendSeparator();
+	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project")    , m_Projects   .Create(DATAOBJECT_TYPE_Undefined));
 	m_pMenu->Append(ID_CMD_TABLES_FIRST    , _TL("Table")      , m_Tables     .Create(DATAOBJECT_TYPE_Table));
 	m_pMenu->Append(ID_CMD_SHAPES_FIRST    , _TL("Shapes")     , m_Shapes     .Create(DATAOBJECT_TYPE_Shapes));
-	m_pMenu->Append(ID_CMD_TIN_FIRST       , _TL("TIN")        , m_TINs       .Create(DATAOBJECT_TYPE_TIN));
 	m_pMenu->Append(ID_CMD_POINTCLOUD_FIRST, _TL("Point Cloud"), m_PointClouds.Create(DATAOBJECT_TYPE_PointCloud));
+	m_pMenu->Append(ID_CMD_TIN_FIRST       , _TL("TIN")        , m_TINs       .Create(DATAOBJECT_TYPE_TIN));
 	m_pMenu->Append(ID_CMD_GRIDS_FIRST     , _TL("Grid")       , m_Grids      .Create(DATAOBJECT_TYPE_Grid));
 	m_pMenu->AppendSeparator();
+
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_FRAME_QUIT);
 }
 

@@ -214,7 +214,7 @@ bool CWKSP_Project::Save(const wxString &FileName, bool bSaveModified)
 //---------------------------------------------------------
 bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 {
-	if( !bAdd && g_pData->Get_Count() > 0 )
+	if( wxFileExists(FileName) && !bAdd && g_pData->Get_Count() > 0 )
 	{
 		switch( DLG_Message_YesNoCancel(_TL("Close all data sets"), _TL("Load Project")) )
 		{
@@ -243,19 +243,19 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	}
 	else if( !wxFileExists(FileName) )
 	{
-		MSG_Error_Add(_TL("file does not exist.")				, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("file does not exist.")            , true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( !Project.Load(&FileName) )
 	{
-		MSG_Error_Add(_TL("could not read project file.")		, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("could not read project file.")    , true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( Project.Get_Name().Cmp(SG_T("SAGA_PROJECT")) )
 	{
-		MSG_Error_Add(_TL("invalid project file.")			, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("invalid project file.")           , true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( (pNode = Project.Get_Child(SG_T("DATA"))) == NULL || pNode->Get_Children_Count() <= 0 )
 	{
-		MSG_Error_Add(_TL("no data entries in project file.")	, true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("no data entries in project file."), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else
 	{
@@ -332,7 +332,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	//-----------------------------------------------------
 	m_File_Name	= FileName;
 
-	if( bSaveModified && !Save_Modified(g_pData) )
+	if( bSaveModified && !g_pData->Save_Modified() )
 	{
 		m_File_Name	= oldFileName;
 
@@ -651,240 +651,6 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(const wxString &FileName)
 {
 	return( g_pData->Get(SG_Get_Data_Manager().Find(&FileName)) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
-{
-	CSG_Parameters	Parameters;
-
-	Parameters.Create(this, _TL("Close and save modified data sets..."), _TL(""));
-	Parameters.Add_Value(NULL, "SAVE_ALL", _TL("Save all"), _TL(""), PARAMETER_TYPE_Bool, false);
-
-	_Modified_Get(&Parameters, pItem, bSelections);
-
-	if( Parameters.Get_Count() > 1 )
-	{
-		Parameters.Set_Callback_On_Parameter_Changed(&_Modified_Changed);
-
-		if( !DLG_Parameters(&Parameters) )
-		{
-			return( false );
-		}
-
-		_Modified_Save(&Parameters);
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-int CWKSP_Project::_Modified_Changed(CSG_Parameter *pParameter, int Flags)
-{
-	if( !pParameter || !pParameter->Get_Owner() || !pParameter->Get_Owner()->Get_Owner() )
-	{
-		return( 0 );
-	}
-
-	CSG_Parameters	*pParameters	= pParameter->Get_Owner();
-
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_ALL")) )
-	{
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			CSG_Parameter	*pFile	= pParameters->Get_Parameter(i);
-
-			if( pFile->Get_Type() == PARAMETER_TYPE_Bool )
-			{
-				pFile->Set_Value(pParameter->asBool());
-
-				for(int j=0; j<pFile->Get_Children_Count(); j++)
-				{
-					pFile->Get_Child(j)->Set_Enabled(pParameter->asBool());
-				}
-			}
-		}
-	}
-
-	else if( pParameter->Get_Type() == PARAMETER_TYPE_Bool )
-	{
-		if( !pParameter->asBool() && pParameters->Get_Parameter("SAVE_ALL") )
-		{
-			pParameters->Get_Parameter("SAVE_ALL")->Set_Value(0);
-		}
-
-		for(int j=0; j<pParameter->Get_Children_Count(); j++)
-		{
-			pParameter->Get_Child(j)->Set_Enabled(pParameter->asBool());
-		}
-	}
-
-	return( 0 );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem, bool bSelections)
-{
-	int		i;
-
-	if( pItem && pParameters )
-	{
-		switch( pItem->Get_Type() )
-		{
-		default:
-			break;
-
-		//-------------------------------------------------
-		case WKSP_ITEM_Data_Manager:
-		case WKSP_ITEM_Table_Manager:
-		case WKSP_ITEM_Shapes_Manager:
-		case WKSP_ITEM_Shapes_Type:
-		case WKSP_ITEM_TIN_Manager:
-		case WKSP_ITEM_PointCloud_Manager:
-		case WKSP_ITEM_Grid_Manager:
-		case WKSP_ITEM_Grid_System:
-			for(i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
-			{
-				_Modified_Get(pParameters, ((CWKSP_Base_Manager *)pItem)->Get_Item(i), bSelections && !pItem->is_Selected());
-			}
-			break;
-
-		//-------------------------------------------------
-		case WKSP_ITEM_Table:
-			if( !bSelections || pItem->is_Selected() )
-			{
-				_Modified_Get(pParameters, pItem, ((CWKSP_Table *)pItem)->Get_Table() );
-			}
-			break;
-
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_TIN:
-		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Grid:
-			if( !bSelections || pItem->is_Selected() )
-			{
-				_Modified_Get(pParameters, pItem, ((CWKSP_Layer *)pItem)->Get_Object());
-			}
-			break;
-		}
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem, CSG_Data_Object *pObject)
-{
-	if( pObject->is_Modified() )
-	{
-		wxString		sFilter, sExtension, sPath;
-
-		switch( pItem->Get_Type() )
-		{
-		//-------------------------------------------------
-		default:	return( false );
-		case WKSP_ITEM_Table:		sExtension	= SG_T("txt" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE);		break;
-		case WKSP_ITEM_Shapes:		sExtension	= SG_T("shp" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE);		break;
-		case WKSP_ITEM_TIN:			sExtension	= SG_T("shp" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE);			break;
-		case WKSP_ITEM_PointCloud:	sExtension	= SG_T("spc" );	sFilter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
-		case WKSP_ITEM_Grid:		sExtension	= SG_T("sgrd");	sFilter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE);		break;
-		}
-
-		sPath	= pObject->Get_File_Name();
-
-		if( sPath.Length() == 0 )
-		{
-			for(int i=0, bOkay=false; !bOkay; i++)
-			{
-				sPath	= pObject->Get_Name();
-				sPath	.Replace(".", "-");
-				sPath	.Replace(":", "-");
-
-				if( i > 0 )
-				{
-					sPath	+= wxString::Format("%d", i);
-				}
-
-				sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), sPath, sExtension).w_str();
-
-				bOkay	= !wxFileExists(sPath);
-
-				for(int j=0; bOkay && j<pParameters->Get_Count(); j++)
-				{
-					CSG_Parameter	*p	= pParameters->Get_Parameter(j);
-
-					if( p->Get_Type() == PARAMETER_TYPE_FilePath && !sPath.Cmp(p->asString()) )
-					{
-						bOkay	= false;
-					}
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		CSG_Parameter	*pNode;
-
-		if( (pNode = pParameters->Get_Parameter(CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()))) == NULL )
-		{
-			pNode	= pParameters->Add_Node(NULL, CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()), pItem->Get_Manager()->Get_Name().wx_str(), SG_T(""));
-		}			
-
-		pNode	= pParameters->Add_Value(
-			pNode, CSG_String::Format(SG_T("%d")     , (long)pObject),
-			pItem->Get_Name().wx_str(), SG_T(""), PARAMETER_TYPE_Bool, false
-		);
-
-		pParameters->Add_FilePath(
-			pNode, CSG_String::Format(SG_T("%d FILE"), (long)pObject),
-			_TL("File"), SG_T(""), sFilter, sPath, true
-		);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
-{
-	for(int i=0, j=0; i<pParameters->Get_Count(); i++)
-	{
-		long long		Pointer;
-		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
-
-		if(	pParameter->Get_Type() == PARAMETER_TYPE_Bool && pParameter->asBool()
-		&&	SG_SSCANF(pParameter->Get_Identifier(), SG_T("%lld"), (&Pointer)) == 1 )
-		{
-			CSG_Data_Object	*pObject	= (CSG_Data_Object *)Pointer;
-
-			if(	SG_Get_Data_Manager().Exists(pObject) )
-			{
-				CSG_String		fPath;
-				CSG_Parameter	*pPath	= pParameters->Get_Parameter(CSG_String::Format(SG_T("%d FILE"), (long)pObject));
-
-				if(	pPath && pPath->asString() && pPath->asString()[0] )
-				{
-					fPath	= pPath->asString();
-				}
-				else
-				{
-					fPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), CSG_String::Format(SG_T("%02d_%s"), ++j, pObject->Get_Name()), NULL);
-				}
-
-				pObject->Save(fPath);
-			}
-		}
-	}
-
-	return( true );
 }
 
 
