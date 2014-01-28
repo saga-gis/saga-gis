@@ -83,10 +83,9 @@ CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 
 	Set_Description	(_TW(
 		"Coordinate transformation for shapes.\n"
-		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
-		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
-		"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4 Homepage</a>\n"
 	));
+
+	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
 	if( m_bList )
@@ -199,7 +198,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 		return( false );
 	}
 
-	if( !Set_Source(pSource->Get_Projection()) )
+	if( !m_Projector.Set_Source(pSource->Get_Projection()) )
 	{
 		return( false );
 	}
@@ -219,7 +218,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 			{
 				TSG_Point	Point	= pShape_Source->Get_Point(iPoint, iPart);
 
-				if( Get_Transformation(Point.x, Point.y) )
+				if( m_Projector.Get_Projection(Point.x, Point.y) )
 				{
 					pShape_Target->Add_Point(Point.x, Point.y, iPart);
 				}
@@ -240,7 +239,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 		Message_Add(CSG_String::Format(SG_T("%s: %d %s"), pTarget->Get_Name(), nDropped, _TL("shapes have been dropped")));
 	}
 
-	pTarget->Get_Projection() = Get_Target();
+	pTarget->Get_Projection() = m_Projector.Get_Target();
 
 	return( pTarget->Get_Count() > 0 );
 }

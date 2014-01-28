@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: crs_transform_grid.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: gcs_graticule.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  crs_transform_grid.h                 //
+//                    gcs_graticule.h                    //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -59,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__crs_transform_grid_H
-#define HEADER_INCLUDED__crs_transform_grid_H
+#ifndef HEADER_INCLUDED__gcs_graticule_H
+#define HEADER_INCLUDED__gcs_graticule_H
 
 //---------------------------------------------------------
 #include "crs_base.h"
@@ -73,44 +73,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CCRS_Transform_Grid : public CCRS_Transform
+class CGCS_Graticule : public CCRS_Base
 {
 public:
-	CCRS_Transform_Grid(bool bList);
+	CGCS_Graticule(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
 
 protected:
 
-	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute_Transformation	(void);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	bool						m_bList;
-
-	int							m_Interpolation;
-
-	CSG_Parameters_Grid_Target	m_Grid_Target;
-
-	CSG_Shapes					m_Target_Area;
+	CSG_CRSProjector		m_Projector;
 
 
-	bool						Transform					(CSG_Grid                *pGrid );
-	bool						Transform					(CSG_Parameter_Grid_List *pGrids);
-
-	bool						Transform					(CSG_Grid                *pGrid , CSG_Grid                *pTarget );
-	bool						Transform					(CSG_Parameter_Grid_List *pGrids, CSG_Parameter_Grid_List *pTargets, const CSG_Grid_System &Target_System);
-
-	bool						Transform					(CSG_Grid                *pGrid , CSG_Shapes *pPoints);
-	bool						Transform					(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPoints);
-
-	void						Get_MinMax					(TSG_Rect &r, double x, double y);
-	bool						Get_Target_System			(const CSG_Grid_System &System, bool bEdge);
-
-	bool						Set_Target_Area				(const CSG_Grid_System &System, bool bGeogCS);
-	bool						is_In_Target_Area			(const TSG_Point &Point);
+	bool					Get_Graticule			(const CSG_Rect &Extent);
+	bool					Get_Extent				(const CSG_Rect &Extent, CSG_Rect &rGCS);
+	bool					Get_Coordinates			(void);
+	double					Get_Interval			(const CSG_Rect &Extent);
 
 };
 
@@ -122,4 +109,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__crs_transform_grid_H
+#endif // #ifndef HEADER_INCLUDED__gcs_graticule_H

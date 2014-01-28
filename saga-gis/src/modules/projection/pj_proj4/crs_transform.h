@@ -63,7 +63,7 @@
 #define HEADER_INCLUDED__crs_transform_H
 
 //---------------------------------------------------------
-#include "crs_base.h"
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,40 +73,45 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CCRS_Transform : public CCRS_Base
+class pj_proj4_EXPORT CSG_CRSProjector
 {
 public:
-	CCRS_Transform(void);
+	CSG_CRSProjector(void);
+	virtual ~CSG_CRSProjector(void);
 
+	bool					Destroy						(void);
 
-protected:
-
-	virtual bool			On_Execute					(void);
-	virtual bool			On_Execute_Transformation	(void)	= 0;
-
-	const CSG_Projection &	Get_Target					(void)	const		{	return( m_Target );	}
+	static CSG_String		Get_Version					(void);
+	static CSG_String		Get_Description				(void);
 
 	bool					Set_Source					(const CSG_Projection &Projection);
+	const CSG_Projection &	Get_Source					(void)	const		{	return( m_Source );	}
+
+	bool					Set_Target					(const CSG_Projection &Projection);
+	const CSG_Projection &	Get_Target					(void)	const		{	return( m_Target );	}
 
 	bool					Set_Inverse					(bool bOn = true);
+	bool					Get_Inverse					(void)	const		{	return( m_bInverse );	}
 
 	bool					Set_Precise_Mode			(bool bOn = true);
-	bool					Get_Precise_Mode			(void)	const		{	return( m_Proj4_pGCS != NULL );	}
+	bool					Get_Precise_Mode			(void)	const		{	return( m_pGCS != NULL );	}
 
-	bool					Get_Transformation			(double &x, double &y);
-	bool					Get_Transformation			(TSG_Point &Point)	{	return( Get_Transformation(Point.x, Point.y) );	}
+	bool					Get_Projection				(double &x, double &y)	const;
+	bool					Get_Projection				(TSG_Point &Point)		const;
+	bool					Get_Projection				(CSG_Point &Point)		const;
 
 
 private:
 
 	bool					m_bInverse;
 
-	void					*m_Proj4_pSource, *m_Proj4_pTarget, *m_Proj4_pGCS;
+	void					*m_pSource, *m_pTarget, *m_pGCS;
 
-	CSG_Projection			m_Target;
+	CSG_Projection			m_Source, m_Target;
 
 
-	bool					_Set_Projection			(const CSG_Projection &Projection, void **ppProj4, bool bInverse);
+	bool					_Set_Projection			(const CSG_Projection &Projection, void **ppProjection, bool bInverse);
+
 
 };
 

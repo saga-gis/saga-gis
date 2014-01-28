@@ -44,6 +44,9 @@
     <ClCompile Include="gcs_lon_range.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gcs_graticule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gcs_lon_range.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gcs_graticule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

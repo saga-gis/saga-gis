@@ -63,7 +63,7 @@
 #define HEADER_INCLUDED__crs_base_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "crs_transform.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -99,6 +99,51 @@ private:
 
 	CSG_String				Get_User_Definition		(CSG_Parameters &pParameters);
 	bool					Set_User_Definition		(CSG_Parameters &pParameters, const CSG_String &Proj4);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class pj_proj4_EXPORT CCRS_Picker : public CCRS_Base
+{
+public:
+	CCRS_Picker(void);
+
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Tools") );	}
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class pj_proj4_EXPORT CCRS_Transform : public CCRS_Base
+{
+public:
+	CCRS_Transform(void)	{}
+
+
+protected:
+
+	CSG_CRSProjector		m_Projector;
+
+
+	virtual bool			On_Execute					(void);
+
+	virtual bool			On_Execute_Transformation	(void)	= 0;
+
 
 };
 

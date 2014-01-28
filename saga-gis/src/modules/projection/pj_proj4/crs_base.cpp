@@ -205,7 +205,7 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		Projection.Load(pParameter->asString());
 
-		pParameter->Set_Value("");	// clear
+		pParameter->Set_Value(CSG_String(""));	// clear
 	}
 
 	//-----------------------------------------------------
@@ -316,21 +316,21 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 		switch( Parameters("CRS_METHOD")->asInt() )
 		{
 		case 0:	default:	// Proj4 Parameters
-			Projection.Create	(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 			break;
 
 		case 1:				// EPSG Code
-			Projection.Create	(Parameters("CRS_EPSG")->asInt());
+			Projection.Create(Parameters("CRS_EPSG" )->asInt());
 			break;
 
 		case 2:				// Well Known Text File
-			Projection.Load		(Parameters("CRS_FILE")->asString());
+			Projection.Load (Parameters("CRS_FILE"  )->asString());
 			break;
 		}
 	}
 	else
 	{
-		Projection	= m_Projection;
+		Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 	}
 
 	return( Projection.is_Okay() );
@@ -896,6 +896,72 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
 {
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CCRS_Picker::CCRS_Picker(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Coordinate Reference System Picker"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2014"));
+
+	Set_Description	(_TW(
+		"Define or pick a Coordinate Reference System (CRS). "
+		"It is intended to call this tool only from other tools."
+	));
+}
+
+//---------------------------------------------------------
+bool CCRS_Picker::On_Execute(void)
+{
+	CSG_Projection	Target;
+
+	if( !Get_Projection(Target) )
+	{
+		return( false );
+	}
+
+	Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("target"), Target.Get_Proj4().c_str()), false);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCRS_Transform::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Projection	Target;
+
+	if( !Get_Projection(Target) || !m_Projector.Set_Target(Target) )
+	{
+		return( false );
+	}
+
+	Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("target"), Target.Get_Proj4().c_str()), false);
+
+	//-----------------------------------------------------
+	m_Projector.Set_Precise_Mode(Parameters("PRECISE") && Parameters("PRECISE")->asBool());
+
+	bool	bResult	= On_Execute_Transformation();
+
+	m_Projector.Destroy();
+
+	return( bResult );
 }
 
 

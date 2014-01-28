@@ -63,7 +63,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include "crs_transform.h"
 
 
 //---------------------------------------------------------
@@ -77,13 +77,10 @@ CSG_String Get_Info(int i)
 		return( _TL("Projection - Proj.4") );
 
 	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2004-8") );
+		return( SG_T("O. Conrad (c) 2004-14") );
 
 	case MLB_INFO_Description:
-		return( _TW(
-			"Coordinate transformation based on the "
-			"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4</a> library."
-		));
+		return( CSG_CRSProjector::Get_Description() );
 
 	case MLB_INFO_Version:
 		return( _TL("2.0") );
@@ -105,6 +102,8 @@ CSG_String Get_Info(int i)
 #include "PROJ4_Grid.h"
 
 #include "gcs_lon_range.h"
+
+#include "gcs_graticule.h"
 
 
 //---------------------------------------------------------
@@ -130,9 +129,14 @@ CSG_Module *		Create_Module(int i)
 	case 12:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, true) );
 
 	case 13:	return( new CGCS_Grid_Longitude_Range() );
-	}
 
-	return( NULL );
+	case 14:	return( new CGCS_Graticule() );
+
+	case 15:	return( new CCRS_Picker() );
+
+	case 20:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 
