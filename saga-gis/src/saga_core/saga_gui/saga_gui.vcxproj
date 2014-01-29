@@ -1028,6 +1028,7 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="wksp_map_graticule.cpp" />
     <ClCompile Include="wksp_map_layer.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1297,6 +1298,7 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
     <ClInclude Include="wksp_map_buttons.h" />
     <ClInclude Include="WKSP_Map_Control.h" />
     <ClInclude Include="WKSP_Map_DC.h" />
+    <ClInclude Include="wksp_map_graticule.h" />
     <ClInclude Include="WKSP_Map_Layer.h" />
     <ClInclude Include="WKSP_Map_Manager.h" />
     <ClInclude Include="WKSP_Module.h" />

@@ -80,6 +80,7 @@
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
+#include "wksp_map_graticule.h"
 #include "wksp_map_buttons.h"
 
 #include "wksp_layer_legend.h"
@@ -202,6 +203,8 @@ CWKSP_Map::CWKSP_Map(void)
 	m_bSynchronise	= false;
 	m_Img_bSave		= false;
 
+	m_GCS_Interval	= 1.0;
+
 	On_Create_Parameters();
 }
 
@@ -233,19 +236,17 @@ wxString CWKSP_Map::Get_Description(void)
 {
 	wxString	s;
 
-	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
-		_TL("Map")
-	));
+	s	+= wxString::Format("<b>%s</b>", _TL("Map"));
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		_TL("Name")					, m_Name.c_str()
-	));
+	s	+= "<table border=\"0\">";
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		_TL("Layers")					, Get_Count()
-	));
+	s	+= wxString::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Name")  , m_Name.c_str());
 
-	s.Append(wxT("</table>"));
+	s	+= wxString::Format("<tr><td>%s</td><td>%d</td></tr>", _TL("Layers"), Get_Count());
+
+	s	+= wxString::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Coordinate System"), m_Projection.Get_Description().c_str());
+
+	s	+= "</table>";
 
 	return( s );
 }
@@ -259,14 +260,17 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SHOW);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_3D_SHOW);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYOUT_SHOW);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SCALEBAR);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_GRATICULE_ADD);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_SYNCHRONIZE);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_3D_SHOW);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYOUT_SHOW);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_SYNCHRONIZE);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_SCALEBAR);
 
 	return( pMenu );
 }
@@ -306,8 +310,12 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 		SaveAs_Image_Clipboard(true);
 		break;
 
-	case ID_CMD_MAP_SCALEBAR:
+	case ID_CMD_MAPS_SCALEBAR:
 		Set_ScaleBar(!m_bScaleBar);
+		break;
+
+	case ID_CMD_MAPS_GRATICULE_ADD:
+		Add_Graticule();
 		break;
 
 	case ID_CMD_MAP_SYNCHRONIZE:
@@ -354,8 +362,12 @@ bool CWKSP_Map::On_Command_UI(wxUpdateUIEvent &event)
 		event.Check(is_Image_Save_Mode());
 		break;
 
-	case ID_CMD_MAP_SCALEBAR:
+	case ID_CMD_MAPS_SCALEBAR:
 		event.Check(is_ScaleBar());
+		break;
+
+	case ID_CMD_MAPS_GRATICULE_ADD:
+		event.Enable(Get_Count() > 0 && m_Projection.is_Okay());
 		break;
 	}
 
@@ -559,17 +571,36 @@ void CWKSP_Map::Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Map_Layer * CWKSP_Map::Find_Layer(CWKSP_Layer *pLayer)
+bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 {
+	bool	bRefresh	= false;
+
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( pLayer == Get_Layer(i)->Get_Layer() )
+		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer && ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer()->Update(pLayer) )
 		{
-			return( Get_Layer(i) );
+			bRefresh	= true;
+
+			if( !bMapOnly )
+			{
+				Get_Item(i)->Parameters_Changed();
+			}
 		}
 	}
 
-	return( NULL );
+	if( bRefresh )
+	{
+		if( m_pView )
+		{
+			View_Refresh(bMapOnly);
+		}
+
+		_Img_Save_On_Change();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -577,13 +608,27 @@ int CWKSP_Map::Get_Layer(CWKSP_Layer *pLayer)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( pLayer == Get_Layer(i)->Get_Layer() )
+		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer && ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer() == pLayer )
 		{
 			return( i );
 		}
 	}
 
 	return( -1 );
+}
+
+//---------------------------------------------------------
+CWKSP_Map_Layer * CWKSP_Map::Find_Layer(CWKSP_Layer *pLayer)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer && ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer() == pLayer )
+		{
+			return( (CWKSP_Map_Layer *)Get_Item(i) );
+		}
+	}
+
+	return( NULL );
 }
 
 //---------------------------------------------------------
@@ -614,6 +659,11 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 
 		Move_Top(pItem);
 
+		if( !m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay() )
+		{
+			m_Projection	= pLayer->Get_Object()->Get_Projection();
+		}
+
 		return( pItem );
 	}
 
@@ -621,36 +671,24 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
+CWKSP_Map_Graticule * CWKSP_Map::Add_Graticule(CSG_MetaData *pEntry)
 {
-	bool	bRefresh	= false;
+	CWKSP_Map_Graticule	*pItem;
 
-	for(int i=0; i<Get_Count(); i++)
+	if( (Get_Count() > 0 && m_Projection.is_Okay()) || pEntry )
 	{
-		if( Get_Layer(i)->Get_Layer()->Update(pLayer) )
-		{
-			bRefresh	= true;
+		g_pMaps->Add(this);
 
-			if( !bMapOnly )
-			{
-				Get_Layer(i)->Parameters_Changed();
-			}
-		}
+		Add_Item(pItem = new CWKSP_Map_Graticule(pEntry));
+
+		Move_Top(pItem);
+
+		View_Refresh(true);
+
+		return( pItem );
 	}
 
-	if( bRefresh )
-	{
-		if( m_pView )
-		{
-			View_Refresh(bMapOnly);
-		}
-
-		_Img_Save_On_Change();
-
-		return( true );
-	}
-
-	return( false );
+	return( NULL );
 }
 
 
@@ -719,17 +757,26 @@ void CWKSP_Map::Set_Extent(void)
 //---------------------------------------------------------
 void CWKSP_Map::Set_Extent_Full(void)
 {
-	if( Get_Count() > 0 )
+	CSG_Rect	Extent;
+
+	for(int i=0, n=0; i<Get_Count(); i++)
 	{
-		CSG_Rect	Extent(Get_Layer(0)->Get_Layer()->Get_Extent());
-
-		for(int i=1; i<Get_Count(); i++)
+		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			Extent.Union(Get_Layer(i)->Get_Layer()->Get_Extent());
-		}
+			CWKSP_Layer	*pLayer	= ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer();
 
-		Set_Extent(Extent);
+			if( n++ == 0 )
+			{
+				Extent.Assign(pLayer->Get_Extent());
+			}
+			else
+			{
+				Extent.Union (pLayer->Get_Extent());
+			}
+		}
 	}
+
+	Set_Extent(Extent);
 }
 
 //---------------------------------------------------------
@@ -815,18 +862,6 @@ void CWKSP_Map::_Synchronise_Extents(void)
 			((CWKSP_Map_Manager *)Get_Manager())->Get_Map(i)->Set_Extent(Get_Extent());
 		}
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Map::On_Delete(CWKSP_Map_Layer *pLayer)
-{
 }
 
 
@@ -1404,14 +1439,39 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 {
 	CWKSP_Map_DC	dc_Map(rWorld, rClient, Zoom, Background);
 
+	//-----------------------------------------------------
 	for(int i=Get_Count()-1; i>=0; i--)
 	{
-		if( Get_Layer(i)->do_Show() && Get_Layer(i)->Get_Layer()->do_Show(Get_Extent()) )
+		switch( Get_Item(i)->Get_Type() )
 		{
-			Get_Layer(i)->Get_Layer()->Draw(dc_Map, bEdit && Get_Layer(i)->Get_Layer() == Get_Active_Layer());
+		case WKSP_ITEM_Map_Layer:
+			{
+				CWKSP_Map_Layer	*pLayer	= (CWKSP_Map_Layer *)Get_Item(i);
+
+				if( pLayer->do_Show() && pLayer->Get_Layer()->do_Show(Get_Extent()) )
+				{
+					pLayer->Get_Layer()->Draw(dc_Map, bEdit && pLayer->Get_Layer() == Get_Active_Layer());
+				}
+			}
+			break;
+
+		case WKSP_ITEM_Map_Graticule:
+			{
+				CWKSP_Map_Graticule	*pLayer	= (CWKSP_Map_Graticule *)Get_Item(i);
+
+				if( pLayer->do_Show() )//&& pLayer->Get_Graticule(Get_Extent()) )
+				{
+					pLayer->Draw(dc_Map);
+				}
+			}
+			break;
+
+		default:
+			break;
 		}
 	}
 
+	//-----------------------------------------------------
 	if( m_bScaleBar )
 	{
 		double	dScale	= 0.4 * rWorld.Get_XRange();
@@ -1435,6 +1495,7 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 		Draw_Scale(dc_Map.dc, rScale, 0.0, dScale, true, true, true, true);
 	}
 
+	//-----------------------------------------------------
 	dc_Map.Draw(dc);
 }
 
@@ -1470,37 +1531,36 @@ void CWKSP_Map::Draw_Frame(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Wi
 //---------------------------------------------------------
 bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize)
 {
-	int		i, n;
-	wxSize	s, Size;
+	wxSize	s, Size(0, 0);
 
-	Size.x		= 0;
-	Size.y		= 0;
-
-	for(i=0, n=0; i<Get_Count(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
-		if( Get_Layer(i)->Get_Layer()->do_Legend() )
+		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			n++;
+			CWKSP_Layer	*pLayer	= ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer();
 
-			Get_Layer(i)->Get_Layer()->Get_Legend()->Draw(dc, Zoom, Zoom_Map, Position, &s);
-
-			if( Get_Layer(i)->Get_Layer()->Get_Legend()->Get_Orientation() == LEGEND_VERTICAL )
+			if( pLayer->do_Legend() )
 			{
-				s.y			+= (int)(Zoom * LEGEND_SPACE);
-				Position.y	+= s.y;
-				Size.y		+= s.y;
+				pLayer->Get_Legend()->Draw(dc, Zoom, Zoom_Map, Position, &s);
 
-				if( Size.x < s.x )
-					Size.x	= s.x;
-			}
-			else
-			{
-				s.x			+= (int)(Zoom * LEGEND_SPACE);
-				Position.x	+= s.x;
-				Size.x		+= s.x;
+				if( pLayer->Get_Legend()->Get_Orientation() == LEGEND_VERTICAL )
+				{
+					s.y			+= (int)(Zoom * LEGEND_SPACE);
+					Position.y	+= s.y;
+					Size.y		+= s.y;
 
-				if( Size.y < s.y )
-					Size.y	= s.y;
+					if( Size.x < s.x )
+						Size.x	= s.x;
+				}
+				else
+				{
+					s.x			+= (int)(Zoom * LEGEND_SPACE);
+					Position.x	+= s.x;
+					Size.x		+= s.x;
+
+					if( Size.y < s.y )
+						Size.y	= s.y;
+				}
 			}
 		}
 	}
@@ -1510,7 +1570,7 @@ bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Posi
 		*pSize	= Size;
 	}
 
-	return( n > 0 );
+	return( Size.GetX() > 0 || Size.GetY() > 0 );
 }
 
 //---------------------------------------------------------

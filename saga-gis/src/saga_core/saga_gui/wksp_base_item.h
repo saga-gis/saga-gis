@@ -112,6 +112,7 @@ typedef enum
 	WKSP_ITEM_Map_Manager,
 	WKSP_ITEM_Map,
 	WKSP_ITEM_Map_Layer,
+	WKSP_ITEM_Map_Graticule,
 
 	WKSP_ITEM_Undefined
 }

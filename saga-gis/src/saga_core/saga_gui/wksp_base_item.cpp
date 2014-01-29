@@ -205,6 +205,7 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 	case WKSP_ITEM_Map_Manager:
 	case WKSP_ITEM_Map:
 	case WKSP_ITEM_Map_Layer:
+	case WKSP_ITEM_Map_Graticule:
 		return( g_pMap_Ctrl );
 	}
 }

@@ -307,6 +307,21 @@ bool CWKSP_Map_Manager::Close(bool bSilent)
 }
 
 //---------------------------------------------------------
+bool CWKSP_Map_Manager::Add(CWKSP_Map *pMap)
+{
+	if( pMap )
+	{
+		if( !Exists(pMap) )
+		{
+			Add_Item(pMap);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
 bool CWKSP_Map_Manager::Add(CWKSP_Layer *pLayer)
 {
 	int		iMap;

@@ -90,9 +90,7 @@ CWKSP_Map_Layer::CWKSP_Map_Layer(CWKSP_Layer *pLayer)
 
 //---------------------------------------------------------
 CWKSP_Map_Layer::~CWKSP_Map_Layer(void)
-{
-	((CWKSP_Map *)Get_Manager())->On_Delete(this);
-}
+{}
 
 
 ///////////////////////////////////////////////////////////

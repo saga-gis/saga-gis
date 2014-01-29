@@ -95,6 +95,7 @@ wksp_map.cpp\
 wksp_map_buttons.cpp\
 wksp_map_control.cpp\
 wksp_map_dc.cpp\
+wksp_map_graticule.cpp\
 wksp_map_layer.cpp\
 wksp_map_manager.cpp\
 wksp_module.cpp\
@@ -191,6 +192,7 @@ wksp_map.h\
 wksp_map_buttons.h\
 wksp_map_control.h\
 wksp_map_dc.h\
+wksp_map_graticule.h\
 wksp_map_layer.h\
 wksp_map_manager.h\
 wksp_module.h\

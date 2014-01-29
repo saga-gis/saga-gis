@@ -105,6 +105,7 @@ public:
 
 	bool						Close			(bool bSilent);
 
+	bool						Add				(class CWKSP_Map   *pMap);
 	bool						Add				(class CWKSP_Layer *pLayer);
 	bool						Add				(class CWKSP_Layer *pLayer, class CWKSP_Map *pMap);
 	bool						Del				(class CWKSP_Layer *pLayer);

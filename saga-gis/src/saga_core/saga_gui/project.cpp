@@ -94,6 +94,7 @@
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
+#include "wksp_map_graticule.h"
 #include "wksp_layer.h"
 
 #include "project.h"
@@ -551,60 +552,82 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 {
-	TSG_Rect		r;
-	CSG_MetaData	*pNode;
-	CWKSP_Base_Item	*pItem;
-	CWKSP_Map		*pMap;
+	TSG_Rect	Extent;
 
-	if( Entry.Get_Name().Cmp(SG_T("MAP")) )
+	if(  Entry.Get_Name().Cmp("MAP")
+	||	!Entry.Get_Child("XMIN") || !Entry.Get_Child("XMIN")->Get_Content().asDouble(Extent.xMin)
+	||	!Entry.Get_Child("XMAX") || !Entry.Get_Child("XMAX")->Get_Content().asDouble(Extent.xMax)
+	||	!Entry.Get_Child("YMIN") || !Entry.Get_Child("YMIN")->Get_Content().asDouble(Extent.yMin)
+	||	!Entry.Get_Child("YMAX") || !Entry.Get_Child("YMAX")->Get_Content().asDouble(Extent.yMax) )
 	{
 		return( false );
 	}
 
-	if(	!Entry.Get_Child(SG_T("XMIN")) || !Entry.Get_Child(SG_T("XMIN"))->Get_Content().asDouble(r.xMin)
-	||	!Entry.Get_Child(SG_T("XMAX")) || !Entry.Get_Child(SG_T("XMAX"))->Get_Content().asDouble(r.xMax)
-	||	!Entry.Get_Child(SG_T("YMIN")) || !Entry.Get_Child(SG_T("YMIN"))->Get_Content().asDouble(r.yMin)
-	||	!Entry.Get_Child(SG_T("YMAX")) || !Entry.Get_Child(SG_T("YMAX"))->Get_Content().asDouble(r.yMax) )
+	//-----------------------------------------------------
+	CSG_MetaData	*pNode	= Entry.Get_Child("LAYERS");
+
+	if( pNode == NULL || pNode->Get_Children_Count() <= 0 )
 	{
 		return( false );
 	}
 
-	if( (pNode = Entry.Get_Child(SG_T("LAYERS"))) == NULL || pNode->Get_Children_Count() <= 0 )
-	{
-		return( false );
-	}
+	//-----------------------------------------------------
+	int		i, n;
 
-	pMap	= NULL;
-
-	for(int i=0; i<pNode->Get_Children_Count(); i++)
+	for(i=0, n=0; i<pNode->Get_Children_Count(); i++)
 	{
-		if(	(pItem = _Get_byFileName(Get_FilePath_Absolute(ProjectDir, pNode->Get_Child(i)->Get_Content().w_str()))) != NULL
-		&&	(	pItem->Get_Type()	== WKSP_ITEM_Grid
-			||	pItem->Get_Type()	== WKSP_ITEM_TIN
-			||	pItem->Get_Type()	== WKSP_ITEM_PointCloud
-			||	pItem->Get_Type()	== WKSP_ITEM_Shapes) )
+		if( !pNode->Get_Child(i)->Get_Name().Cmp("FILE") )
 		{
-			if( pMap == NULL )
-			{
-				pMap	= new CWKSP_Map;
-			}
+			CWKSP_Base_Item	*pItem	= _Get_byFileName(Get_FilePath_Absolute(ProjectDir, pNode->Get_Child(i)->Get_Content().w_str()));
 
-			g_pMaps->Add((CWKSP_Layer *)pItem, pMap);
+			if(	pItem &&
+			(   pItem->Get_Type() == WKSP_ITEM_Grid
+			||  pItem->Get_Type() == WKSP_ITEM_TIN
+			||  pItem->Get_Type() == WKSP_ITEM_PointCloud
+			||  pItem->Get_Type() == WKSP_ITEM_Shapes) )
+			{
+				n++;
+			}
 		}
 	}
 
-	if( !pMap )
+	if( n == 0 )
 	{
 		return( false );
 	}
 
-	if( Entry.Get_Child(SG_T("NAME")) && Entry.Get_Child(SG_T("NAME"))->Get_Content().Length() > 0 )
+	//-----------------------------------------------------
+	CWKSP_Map	*pMap	= new CWKSP_Map;
+
+	for(int i=0; i<pNode->Get_Children_Count(); i++)
 	{
-		pMap->Get_Parameter("NAME")->Set_Value(Entry.Get_Child(SG_T("NAME"))->Get_Content());
+		if( !pNode->Get_Child(i)->Get_Name().Cmp("FILE") )
+		{
+			CWKSP_Base_Item	*pItem	= _Get_byFileName(Get_FilePath_Absolute(ProjectDir, pNode->Get_Child(i)->Get_Content().w_str()));
+
+			if(	pItem &&
+			(   pItem->Get_Type() == WKSP_ITEM_Grid
+			||  pItem->Get_Type() == WKSP_ITEM_TIN
+			||  pItem->Get_Type() == WKSP_ITEM_PointCloud
+			||  pItem->Get_Type() == WKSP_ITEM_Shapes) )
+			{
+				g_pMaps->Add((CWKSP_Layer *)pItem, pMap);
+			}
+		}
+		else
+		{
+			pMap->Add_Graticule(pNode->Get_Child(i));
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Entry.Get_Child("NAME") && !Entry.Get_Child("NAME")->Get_Content().is_Empty() )
+	{
+		pMap->Get_Parameter("NAME")->Set_Value(Entry.Get_Child("NAME")->Get_Content());
 		pMap->Parameters_Changed();
 	}
 
-	pMap->Set_Extent(r, true);
+	pMap->Set_Extent(Extent, true);
 	pMap->View_Show(true);
 
 	return( true );
@@ -627,13 +650,23 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 	pEntry->Add_Child(SG_T("YMIN"), pMap->Get_Extent().Get_YMin());
 	pEntry->Add_Child(SG_T("YMAX"), pMap->Get_Extent().Get_YMax());
 
-	pEntry	= pEntry->Add_Child(SG_T("LAYERS"));
+	pEntry	= pEntry->Add_Child("LAYERS");
 
 	for(int i=pMap->Get_Count()-1; i>=0; i--)
 	{
-		if( pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_File_Name() != NULL )
+		if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			pEntry->Add_Child(SG_T("FILE"), Get_FilePath_Relative(ProjectDir, pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_File_Name()).c_str());
+			CSG_Data_Object	*pObject	= ((CWKSP_Map_Layer *)pMap->Get_Item(i))->Get_Layer()->Get_Object();
+
+			if( pObject && pObject->Get_File_Name() && wxFileExists(pObject->Get_File_Name()) )
+			{
+				pEntry->Add_Child("FILE", Get_FilePath_Relative(ProjectDir, pObject->Get_File_Name()).c_str());
+			}
+		}
+
+		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Graticule )
+		{
+			((CWKSP_Map_Graticule *)pMap->Get_Item(i))->Save(*pEntry);
 		}
 	}
 

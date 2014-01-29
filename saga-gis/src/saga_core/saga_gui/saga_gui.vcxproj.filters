@@ -307,6 +307,9 @@
     <ClCompile Include="data_source_pgsql.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wksp_map_graticule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACTIVE.h">
@@ -595,6 +598,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data_source_pgsql.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_map_graticule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

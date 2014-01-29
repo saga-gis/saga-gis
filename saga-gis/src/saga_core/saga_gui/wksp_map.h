@@ -150,13 +150,11 @@ public:
 
 	bool						is_Image_Save_Mode		(void)	{	return( m_Img_bSave );		}
 
-	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
-	int							Get_Layer				(class CWKSP_Layer *pLayer);
-	class CWKSP_Map_Layer *		Get_Layer				(int i)		{	return( (class CWKSP_Map_Layer *)Get_Item(i) );	}
 	bool						Update					(class CWKSP_Layer *pLayer, bool bMapOnly);
+	int							Get_Layer				(class CWKSP_Layer *pLayer);
 	class CWKSP_Map_Layer *		Find_Layer				(class CWKSP_Layer *pLayer);
-
-	void						On_Delete				(class CWKSP_Map_Layer *pLayer);
+	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
+	class CWKSP_Map_Graticule *	Add_Graticule			(CSG_MetaData *pEntry = NULL);
 
 	void						View_Closes				(class wxMDIChildFrame *pView);
 	void						View_Refresh			(bool bMapOnly);
@@ -195,6 +193,8 @@ public:
 	int							Get_Print_Frame			(void);
 	int							Get_Print_Legend		(void);
 
+	CSG_Projection &			Get_Projection			(void)	{	return( m_Projection );	}
+
 
 protected:
 
@@ -209,11 +209,17 @@ private:
 
 	int							m_Img_Type, m_Img_Count;
 
+	double						m_GCS_Interval;
+
 	wxString					m_Name, m_Img_File;
 
 	wxBitmap					m_Thumbnail;
 
 	CSG_Parameters				m_Img_Parms;
+
+	CSG_Projection				m_Projection;
+
+	CSG_Shapes					m_Graticule;
 
 	CWKSP_Map_Extents			m_Extents;
 

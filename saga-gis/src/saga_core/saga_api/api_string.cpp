@@ -955,7 +955,7 @@ CSG_String		SG_Double_To_Degree(double Value)
 	Value	= 60.0 * (Value - h);
 	s		= Value;
 
-	String.Printf(SG_T("%c%03d\xb0%02d'%02f''"), c, d, h, s);
+	String.Printf(SG_T("%c%03d\xb0%02d'%02.*f''"), c, d, h, SG_Get_Significant_Decimals(s), s);
 
 	return( String );
 }
