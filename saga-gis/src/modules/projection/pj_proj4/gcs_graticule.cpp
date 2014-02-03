@@ -69,6 +69,29 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define AXIS_LEFT	1
+#define AXIS_RIGHT	2
+#define AXIS_BOTTOM	3
+#define AXIS_TOP	4
+
+//---------------------------------------------------------
+enum
+{
+	DEG_PREC_AUTO,
+	DEG_PREC_FULL,
+	DEG_PREC_SEC,
+	DEG_PREC_MIN,
+	DEG_PREC_DEG
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGCS_Graticule::CGCS_Graticule(void)
 {
 	CSG_Parameter	*pNode_0, *pNode_1;
@@ -220,8 +243,6 @@ bool CGCS_Graticule::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Get_Coordinates();
-
 	m_Projector.Destroy();
 
 	return( true );
@@ -244,10 +265,17 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	}
 
 	//-----------------------------------------------------
-	r.m_rect.xMin	= Interval * floor(r.Get_XMin() / Interval);	if( r.Get_XMin() < -180.0 )	r.m_rect.xMin	= -180.0;
-	r.m_rect.xMax	= Interval * ceil (r.Get_XMax() / Interval);	if( r.Get_XMax() >  180.0 )	r.m_rect.xMax	=  180.0;
-	r.m_rect.yMin	= Interval * floor(r.Get_YMin() / Interval);	if( r.Get_YMin() <  -90.0 )	r.m_rect.yMin	=  -90.0;
-	r.m_rect.yMax	= Interval * ceil (r.Get_YMax() / Interval);	if( r.Get_YMax() >   90.0 )	r.m_rect.yMax	=   90.0;
+	r.m_rect.xMin	= Interval * floor(r.Get_XMin() / Interval);
+	r.m_rect.xMax	= Interval * ceil (r.Get_XMax() / Interval);
+	r.m_rect.yMin	= Interval * floor(r.Get_YMin() / Interval);
+	r.m_rect.yMax	= Interval * ceil (r.Get_YMax() / Interval);
+
+	r.Inflate(Interval, false);
+
+	if( r.Get_XMin() < -180.0 )	r.m_rect.xMin	= -180.0;
+	if( r.Get_XMax() >  180.0 )	r.m_rect.xMax	=  180.0;
+	if( r.Get_YMin() <  -90.0 )	r.m_rect.yMin	=  -90.0;
+	if( r.Get_YMax() >   90.0 )	r.m_rect.yMax	=   90.0;
 
 	//-----------------------------------------------------
 	double	Resolution	= Parameters("RESOLUTION")->asDouble();
@@ -268,6 +296,18 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	pGraticule->Add_Field("DEGREE", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
+	CSG_Shapes	*pCoordinates	= Parameters("COORDS")->asShapes();
+
+	if( pCoordinates )
+	{
+		pCoordinates->Create(SHAPE_TYPE_Point);
+		pCoordinates->Set_Name(_TL("Coordinates"));
+
+		pCoordinates->Add_Field("TYPE" , SG_DATATYPE_String);
+		pCoordinates->Add_Field("LABEL", SG_DATATYPE_String);
+	}
+
+	//-----------------------------------------------------
 	CSG_Shapes	Clip(SHAPE_TYPE_Polygon);
 	CSG_Shape	*pClip	= Clip.Add_Shape();
 
@@ -283,7 +323,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		CSG_Shape	*pLine	= pGraticule->Add_Shape();
 
 		pLine->Set_Value(0, "LAT");
-		pLine->Set_Value(1, SG_Double_To_Degree(y));
+		pLine->Set_Value(1, Get_Degree(y, DEG_PREC_DEG));
 		pLine->Set_Value(2, y);
 
 		for(x=r.Get_XMin(); x<=r.Get_XMax(); x+=Interval)
@@ -299,6 +339,9 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 			}
 		}
 
+		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_LEFT);
+		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_RIGHT);
+
 		if( !SG_Polygon_Intersection(pLine, pClip) )
 		{
 			pGraticule->Del_Shape(pLine);
@@ -311,7 +354,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		CSG_Shape	*pLine	= pGraticule->Add_Shape();
 
 		pLine->Set_Value(0, "LON");
-		pLine->Set_Value(1, SG_Double_To_Degree(x));
+		pLine->Set_Value(1, Get_Degree(x, DEG_PREC_DEG));
 		pLine->Set_Value(2, x);
 
 		for(y=r.Get_YMin(); y<=r.Get_YMax(); y+=Interval)
@@ -327,6 +370,9 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 			}
 		}
 
+		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_BOTTOM);
+		Get_Coordinate(Extent, pCoordinates, pLine, AXIS_TOP);
+
 		if( !SG_Polygon_Intersection(pLine, pClip) )
 		{
 			pGraticule->Del_Shape(pLine);
@@ -335,6 +381,74 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGCS_Graticule::Get_Coordinate(const CSG_Rect &Extent, CSG_Shapes *pCoordinates, CSG_Shape *pLine, int Axis)
+{
+	if( !pCoordinates || !Extent.Intersects(pLine->Get_Extent()) || pLine->Get_Point_Count(0) < 2 )
+	{
+		return( false );
+	}
+
+	TSG_Point	A[2], B[2], C;
+
+	switch( Axis )
+	{
+	case AXIS_LEFT  : A[0].x = A[1].x = Extent.Get_XMin(); A[0].y = Extent.Get_YMin(); A[1].y = Extent.Get_YMax(); break;
+	case AXIS_RIGHT : A[0].x = A[1].x = Extent.Get_XMax(); A[0].y = Extent.Get_YMin(); A[1].y = Extent.Get_YMax(); break;
+	case AXIS_BOTTOM: A[0].y = A[1].y = Extent.Get_YMin(); A[0].x = Extent.Get_XMin(); A[1].x = Extent.Get_XMax(); break;
+	case AXIS_TOP   : A[0].y = A[1].y = Extent.Get_YMax(); A[0].x = Extent.Get_XMin(); A[1].x = Extent.Get_XMax(); break;
+
+	default:
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	B[1]	= pLine->Get_Point(0);
+
+	for(int i=1; i<pLine->Get_Point_Count(); i++)
+	{
+		B[0]	= B[1];
+		B[1]	= pLine->Get_Point(i);
+
+		if( SG_Get_Crossing(C, A[0], A[1], B[0], B[1], true) )
+		{
+			CSG_Shape	*pPoint	= pCoordinates->Add_Shape();
+			pPoint->Add_Point(C);
+			pPoint->Set_Value(0, CSG_String(pLine->asString(0)) + (Axis == AXIS_LEFT || Axis == AXIS_BOTTOM ? "_MIN" : "_MAX"));
+			pPoint->Set_Value(1, pLine->asString(1));
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
+	switch( Axis )
+	{
+	case AXIS_LEFT  : C	= pLine->Get_Point(0, 0, true ); break;
+	case AXIS_RIGHT : C	= pLine->Get_Point(0, 0, false); break;
+	case AXIS_BOTTOM: C	= pLine->Get_Point(0, 0, true ); break;
+	case AXIS_TOP   : C	= pLine->Get_Point(0, 0, false); break;
+	}
+
+	if( Extent.Contains(C) )
+	{
+		CSG_Shape	*pPoint	= pCoordinates->Add_Shape();
+		pPoint->Add_Point(C);
+		pPoint->Set_Value(0, CSG_String(pLine->asString(0)) + (Axis == AXIS_LEFT || Axis == AXIS_BOTTOM ? "_MIN" : "_MAX"));
+		pPoint->Set_Value(1, pLine->asString(1));
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	return( false );
 }
 
 
@@ -364,60 +478,6 @@ double CGCS_Graticule::Get_Interval(const CSG_Rect &Extent)
 	Interval	= (int)(Interval / d) * d;
 
 	return( Interval );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGCS_Graticule::Get_Coordinates(void)
-{
-	CSG_Shapes	*pCoordinates	= Parameters("COORDS")->asShapes();
-
-	if( !pCoordinates || !m_Projector.Set_Inverse() )
-	{
-		return( false );
-	}
-
-	pCoordinates->Create(SHAPE_TYPE_Point);
-	pCoordinates->Set_Name(_TL("Coordinates"));
-
-	pCoordinates->Add_Field("TYPE" , SG_DATATYPE_String);
-	pCoordinates->Add_Field("LABEL", SG_DATATYPE_String);
-
-	//-----------------------------------------------------
-	CSG_Shapes	*pGraticule	= Parameters("GRATICULE")->asShapes();
-
-	for(int i=0; i<pGraticule->Get_Count(); i++)
-	{
-		CSG_Shape	*pPoint, *pLine	= pGraticule->Get_Shape(i);
-		CSG_String	Type(pLine->asString(0)), Label(pLine->asString(1));
-
-		//-------------------------------------------------
-		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
-		{
-			if( pLine->Get_Point_Count(iPart) > 0 )
-			{
-				pPoint	= pCoordinates->Add_Shape();
-				pPoint	->Add_Point(pLine->Get_Point(0, iPart));
-				pPoint	->Set_Value(0, Type + "_MIN");
-				pPoint	->Set_Value(1, Label);
-			}
-
-			if( pLine->Get_Point_Count(iPart) > 1 )
-			{
-				pPoint	= pCoordinates->Add_Shape();
-				pPoint	->Add_Point(pLine->Get_Point(pLine->Get_Point_Count(iPart) - 1));
-				pPoint	->Set_Value(0, Type + "_MAX");
-				pPoint	->Set_Value(1, Label);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	return( true );
 }
 
 
@@ -469,6 +529,57 @@ bool CGCS_Graticule::Get_Extent(const CSG_Rect &Extent, CSG_Rect &r)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CGCS_Graticule::Get_Degree(double Value, int Precision)
+{
+	if( Precision == DEG_PREC_DEG )
+	{
+		return( SG_Get_String(Value, -12) + "\xb0" );
+	}
+
+	SG_Char		c;
+	int			d, h;
+	double		s;
+	CSG_String	String;
+
+	if( Value < 0.0 )
+	{
+		Value	= -Value;
+		c		= SG_T('-');
+	}
+	else
+	{
+		c		= SG_T('+');
+	}
+
+	Value	= fmod(Value, 360.0);
+	d		= (int)Value;
+	Value	= 60.0 * (Value - d);
+	h		= (int)Value;
+	Value	= 60.0 * (Value - h);
+	s		= Value;
+
+	if( s > 0.0 || Precision == DEG_PREC_FULL )
+	{
+		String.Printf(SG_T("%c%d\xb0%02d'%02.*f''"), c, d, h, SG_Get_Significant_Decimals(s), s);
+	}
+	else if( h > 0 || Precision == DEG_PREC_MIN )
+	{
+		String.Printf(SG_T("%c%d\xb0%02d'"        ), c, d, h);
+	}
+	else
+	{
+		String.Printf(SG_T("%c%d\xb0"             ), c, d);
+	}
+
+	return( String );
 }
 
 

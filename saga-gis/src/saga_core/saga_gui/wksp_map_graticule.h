@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: gcs_graticule.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: wksp_map_graticule.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,15 +8,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                   Projection_Proj4                    //
+//                    User Interface                     //
+//                                                       //
+//                    Program: SAGA                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    gcs_graticule.h                    //
+//                 wksp_map_graticule.h                  //
 //                                                       //
-//                 Copyright (C) 2014 by                 //
-//                      Olaf Conrad                      //
+//          Copyright (C) 2014 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,13 +40,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
-//                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -59,11 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gcs_graticule_H
-#define HEADER_INCLUDED__gcs_graticule_H
-
-//---------------------------------------------------------
-#include "crs_base.h"
+#ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_map_graticule_H
+#define _HEADER_INCLUDED__SAGA_GUI__wksp_map_graticule_H
 
 
 ///////////////////////////////////////////////////////////
@@ -73,32 +70,53 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGCS_Graticule : public CCRS_Base
+#include "wksp_base_item.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWKSP_Map_Graticule : public CWKSP_Base_Item
 {
 public:
-	CGCS_Graticule(void);
+	CWKSP_Map_Graticule(CSG_MetaData *pEntry = NULL);
+	virtual ~CWKSP_Map_Graticule(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Map_Graticule );	}
 
+	virtual wxString			Get_Name				(void);
+	virtual wxString			Get_Description			(void);
 
-protected:
+	virtual wxMenu *			Get_Menu				(void);
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool				On_Command				(int Cmd_ID);
+	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual bool			On_Execute				(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
+	virtual void				Parameters_Changed		(void);
+
+	bool						do_Show					(void)	{	return( m_bShow );	}
+
+	class CWKSP_Map *			Get_Map					(void)	{	return( (class CWKSP_Map *)Get_Manager() );	}
+
+	bool						Draw					(class CWKSP_Map_DC &dc);
+
+	bool						Load					(CSG_MetaData &Entry);
+	bool						Save					(CSG_MetaData &Entry);
 
 
 private:
 
-	CSG_CRSProjector		m_Projector;
+	bool						m_bShow;
+
+	CSG_Shapes					m_Graticule, m_Coordinates;
 
 
-	bool					Get_Graticule			(const CSG_Rect &Extent);
-	bool					Get_Extent				(const CSG_Rect &Extent, CSG_Rect &rGCS);
-	bool					Get_Coordinate			(const CSG_Rect &Extent, CSG_Shapes *pCoordinates, CSG_Shape *pLine, int Axis);
-	double					Get_Interval			(const CSG_Rect &Extent);
-	CSG_String				Get_Degree				(double Value, int Precision);
+	bool						Get_Graticule			(const CSG_Rect &Extent);
 
 };
 
@@ -110,4 +128,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gcs_graticule_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_map_graticule_H
