@@ -167,6 +167,7 @@ bool CFilter_Gauss::On_Execute(void)
 		//-------------------------------------------------
 		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
+			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
 				if( m_pInput->is_InGrid(x, y) )
