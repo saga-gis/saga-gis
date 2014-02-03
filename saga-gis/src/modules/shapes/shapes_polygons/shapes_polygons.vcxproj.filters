@@ -56,6 +56,9 @@
     <ClCompile Include="Polygon_SelfIntersection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="add_point_attributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -149,6 +152,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Polygon_SelfIntersection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="add_point_attributes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
