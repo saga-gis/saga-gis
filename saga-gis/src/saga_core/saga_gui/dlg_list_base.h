@@ -102,7 +102,6 @@ class CDLG_List_Base : public CDLG_Base
 
 public:
 	CDLG_List_Base(class CSG_Parameter_List *pList, wxString Caption);
-	virtual ~CDLG_List_Base(void);
 
 	void						On_DClick_Add	(wxCommandEvent &event);
 	void						On_Add			(wxCommandEvent &event);
@@ -116,10 +115,6 @@ public:
 
 protected:
 
-	int							m_btn_height;
-
-	wxButton					*m_pBtn_Add, *m_pBtn_Add_All, *m_pBtn_Del, *m_pBtn_Del_All, *m_pBtn_Up, *m_pBtn_Down;
-
 	wxListBox					*m_pAdd, *m_pSelect;
 
 	class CSG_Parameter_List	*m_pList;
@@ -127,9 +122,17 @@ protected:
 
 	virtual void				Set_Position	(wxRect r);
 
-	virtual void				Save_Changes	(void);
+	void						Set_Data		(class CWKSP_Base_Manager *pManager);
 
-	virtual void				_Set_Objects	(void)	= 0;
+	void						Save_Changes	(void);
+
+
+private:
+
+	int							m_btn_height;
+
+	wxButton					*m_pBtn_Add, *m_pBtn_Add_All, *m_pBtn_Del, *m_pBtn_Del_All, *m_pBtn_Up, *m_pBtn_Down;
+
 
 	void						_Add			(void);
 	void						_Del			(void);

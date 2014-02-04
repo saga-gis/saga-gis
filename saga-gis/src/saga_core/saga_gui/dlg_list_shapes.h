@@ -88,7 +88,6 @@ class CDLG_List_Shapes : public CDLG_List_Base
 
 public:
 	CDLG_List_Shapes(CSG_Parameter_Shapes_List *pList, wxString Caption);
-	virtual ~CDLG_List_Shapes(void);
 
 
 protected:
@@ -96,9 +95,7 @@ protected:
 	int							m_Shape_Type;
 
 
-	virtual void				_Set_Objects(void);
-
-	void						_Set_Shapes(class CWKSP_Base_Manager *pType);
+	void						_Set_Data		(void);
 
 
 //---------------------------------------------------------

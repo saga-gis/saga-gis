@@ -165,7 +165,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_LAYOUT_SHOW);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SCALEBAR);
-	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_GRATICULE_ADD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_GRATICULE_ADD);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);

@@ -88,12 +88,9 @@ class CDLG_List_TIN : public CDLG_List_Base
 
 public:
 	CDLG_List_TIN(CSG_Parameter_TIN_List *pList, wxString Caption);
-	virtual ~CDLG_List_TIN(void);
 
 
 protected:
-
-	virtual void				_Set_Objects(void);
 
 
 //---------------------------------------------------------

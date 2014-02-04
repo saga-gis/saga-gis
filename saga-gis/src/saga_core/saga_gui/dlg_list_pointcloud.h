@@ -88,12 +88,9 @@ class CDLG_List_PointCloud : public CDLG_List_Base
 
 public:
 	CDLG_List_PointCloud(CSG_Parameter_PointCloud_List *pList, wxString Caption);
-	virtual ~CDLG_List_PointCloud(void);
 
 
 protected:
-
-	virtual void				_Set_Objects(void);
 
 
 //---------------------------------------------------------

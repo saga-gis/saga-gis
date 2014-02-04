@@ -97,41 +97,33 @@ END_EVENT_TABLE()
 CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
-	CWKSP_Grid_Manager	*pManager;
+	CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
 
-	if( (pManager = g_pData->Get_Grids()) != NULL )
-	{
-		if( pList->Get_System() )
-		{
-			m_pSystem	= pManager->Get_System(*pList->Get_System());
-			m_pSystems	= NULL;
-		}
-		else
-		{
-			m_pSystem	= NULL;
-			m_pSystems	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-
-			for(int i=0; i<pManager->Get_Count(); i++)
-			{
-				m_pSystems->Append(pManager->Get_System(i)->Get_Name());
-			}
-
-			m_pSystems->Append( _TL("<all grid systems>") );
-			m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
-		}
-
-		_Set_Objects();
-	}
-	else
+	if( pManager == NULL )
 	{
 		m_pSystem  = NULL;
 		m_pSystems = NULL;
 	}
-}
+	else if( pList->Get_System() )
+	{
+		m_pSystem	= pManager->Get_System(*pList->Get_System());
+		m_pSystems	= NULL;
+	}
+	else
+	{
+		m_pSystem	= NULL;
+		m_pSystems	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 
-//---------------------------------------------------------
-CDLG_List_Grid::~CDLG_List_Grid(void)
-{
+		for(int i=0; i<pManager->Get_Count(); i++)
+		{
+			m_pSystems->Append(pManager->Get_System(i)->Get_Name());
+		}
+
+		m_pSystems->Append( _TL("<all grid systems>") );
+		m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
+	}
+
+	_Set_Data();
 }
 
 
@@ -168,7 +160,7 @@ void CDLG_List_Grid::Set_Position(wxRect r)
 //---------------------------------------------------------
 void CDLG_List_Grid::On_Select_System(wxCommandEvent &event)
 {
-	_Set_Grids();
+	_Set_Data();
 }
 
 
@@ -179,76 +171,32 @@ void CDLG_List_Grid::On_Select_System(wxCommandEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CDLG_List_Grid::_Set_Objects(void)
+void CDLG_List_Grid::_Set_Data(void)
 {
-	//-----------------------------------------------------
-	for(int i=0; i<m_pList->Get_Count(); i++)
-	{
-		CWKSP_Base_Item	*pItem	= g_pData->Get(m_pList->asDataObject(i)->asGrid());
-
-		if( pItem )
-		{
-			m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
-		}
-	}
-
-	//-----------------------------------------------------
-	if( ((CSG_Parameter_Grid_List *)m_pList)->Get_System() )
-	{
-		_Set_Grids(m_pSystem);
-	}
-	else
-	{
-		_Set_Grids();
-	}
-}
-
-//---------------------------------------------------------
-void CDLG_List_Grid::_Set_Grids(void)
-{
-	CWKSP_Grid_Manager	*pManager;
-
 	m_pSelect->Clear();
 
-	if( (pManager = g_pData->Get_Grids()) != NULL )
+	if( m_pSystem )
 	{
-		int		i;
-
-		if( !m_pSystems || (i = m_pSystems->GetSelection()) >= pManager->Get_Count() || i < 0 )
-		{
-			for(i=0; i<pManager->Get_Count(); i++)
-			{
-				_Set_Grids(pManager->Get_System(i));
-			}
-		}
-		else
-		{
-			_Set_Grids(pManager->Get_System(i));
-		}
+		Set_Data(m_pSystem);
 	}
-}
-
-//---------------------------------------------------------
-void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
-{
-	if( pSystem )
+	else if( m_pSystems )
 	{
-		for(int i=0; i<pSystem->Get_Count(); i++)
+		CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
+
+		if( pManager )
 		{
-			bool		bList	= true;
-			CWKSP_Grid	*pGrid	= pSystem->Get_Data(i);
+			int	iSystem	= m_pSystems->GetSelection();
 
-			for(int j=0; j<(int)m_pAdd->GetCount() && bList; j++)
+			if( 0 <= iSystem && iSystem < pManager->Get_Count() )
 			{
-				if( pGrid == m_pAdd->GetClientData(j) )
-				{
-					bList	= false;
-				}
+				Set_Data(pManager->Get_System(iSystem));
 			}
-
-			if( bList )
+			else
 			{
-				m_pSelect->Append(pGrid->Get_Name(), (void *)pGrid);
+				for(iSystem=0; iSystem<pManager->Get_Count(); iSystem++)
+				{
+					Set_Data(pManager->Get_System(iSystem));
+				}
 			}
 		}
 	}

@@ -65,7 +65,6 @@
 
 #include "wksp_data_manager.h"
 #include "wksp_pointcloud_manager.h"
-#include "wksp_pointcloud.h"
 
 #include "dlg_list_pointcloud.h"
 
@@ -94,61 +93,7 @@ END_EVENT_TABLE()
 CDLG_List_PointCloud::CDLG_List_PointCloud(CSG_Parameter_PointCloud_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
-	_Set_Objects();
-}
-
-//---------------------------------------------------------
-CDLG_List_PointCloud::~CDLG_List_PointCloud(void)
-{
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CDLG_List_PointCloud::_Set_Objects(void)
-{
-	bool						bList;
-	int							i, j;
-	CWKSP_PointCloud_Manager	*pPointClouds;
-	CWKSP_PointCloud			*pPointCloud;
-
-	//-----------------------------------------------------
-	if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
-	{
-		for(i=0; i<m_pList->Get_Count(); i++)
-		{
-			CWKSP_Base_Item	*pItem	= g_pData->Get(m_pList->asDataObject(i)->asPointCloud());
-
-			if( pItem )
-			{
-				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
-			}
-		}
-
-		//-------------------------------------------------
-		for(i=0; i<pPointClouds->Get_Count(); i++)
-		{
-			pPointCloud	= pPointClouds->Get_Data(i);
-
-			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
-			{
-				if( pPointCloud == m_pAdd->GetClientData(j) )
-				{
-					bList	= false;
-				}
-			}
-
-			if( bList )
-			{
-				m_pSelect->Append(pPointCloud->Get_Name(), (void *)pPointCloud);
-			}
-		}
-	}
+	Set_Data(g_pData->Get_PointClouds());
 }
 
 

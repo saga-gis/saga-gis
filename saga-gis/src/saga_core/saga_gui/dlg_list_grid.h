@@ -90,7 +90,6 @@ class CDLG_List_Grid : public CDLG_List_Base
 
 public:
 	CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption);
-	virtual ~CDLG_List_Grid(void);
 
 	void						On_Select_System	(wxCommandEvent &event);
 
@@ -104,10 +103,7 @@ protected:
 
 	virtual void				Set_Position		(wxRect r);
 
-	virtual void				_Set_Objects		(void);
-
-	void						_Set_Grids			(void);
-	void						_Set_Grids			(class CWKSP_Grid_System *pSystem);
+	void						_Set_Data			(void);
 
 
 //---------------------------------------------------------

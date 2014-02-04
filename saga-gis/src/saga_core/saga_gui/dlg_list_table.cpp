@@ -65,7 +65,6 @@
 
 #include "wksp_data_manager.h"
 #include "wksp_table_manager.h"
-#include "wksp_table.h"
 
 #include "dlg_list_table.h"
 
@@ -94,61 +93,7 @@ END_EVENT_TABLE()
 CDLG_List_Table::CDLG_List_Table(CSG_Parameter_Table_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
-	_Set_Objects();
-}
-
-//---------------------------------------------------------
-CDLG_List_Table::~CDLG_List_Table(void)
-{
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CDLG_List_Table::_Set_Objects(void)
-{
-	bool				bList;
-	int					i, j;
-	CWKSP_Table_Manager	*pTables;
-	CWKSP_Table			*pTable;
-
-	//-----------------------------------------------------
-	if( (pTables = g_pData->Get_Tables()) != NULL )
-	{
-		for(i=0; i<m_pList->Get_Count(); i++)
-		{
-			CWKSP_Base_Item	*pItem	= g_pData->Get(m_pList->asDataObject(i)->asTable());
-
-			if( pItem )
-			{
-				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
-			}
-		}
-
-		//-------------------------------------------------
-		for(i=0; i<pTables->Get_Count(); i++)
-		{
-			pTable	= pTables->Get_Data(i);
-
-			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
-			{
-				if( pTable == m_pAdd->GetClientData(j) )
-				{
-					bList	= false;
-				}
-			}
-
-			if( bList )
-			{
-				m_pSelect->Append(pTable->Get_Name(), (void *)pTable);
-			}
-		}
-	}
+	Set_Data(g_pData->Get_Tables());
 }
 
 

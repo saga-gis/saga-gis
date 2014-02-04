@@ -88,12 +88,9 @@ class CDLG_List_Table : public CDLG_List_Base
 
 public:
 	CDLG_List_Table(CSG_Parameter_Table_List *pList, wxString Caption);
-	virtual ~CDLG_List_Table(void);
 
 
 protected:
-
-	virtual void				_Set_Objects(void);
 
 
 //---------------------------------------------------------

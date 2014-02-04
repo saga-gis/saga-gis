@@ -65,7 +65,6 @@
 
 #include "wksp_data_manager.h"
 #include "wksp_tin_manager.h"
-#include "wksp_tin.h"
 
 #include "dlg_list_tin.h"
 
@@ -94,61 +93,7 @@ END_EVENT_TABLE()
 CDLG_List_TIN::CDLG_List_TIN(CSG_Parameter_TIN_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
-	_Set_Objects();
-}
-
-//---------------------------------------------------------
-CDLG_List_TIN::~CDLG_List_TIN(void)
-{
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CDLG_List_TIN::_Set_Objects(void)
-{
-	bool				bList;
-	int					i, j;
-	CWKSP_TIN_Manager	*pTINs;
-	CWKSP_TIN			*pTIN;
-
-	//-----------------------------------------------------
-	if( (pTINs = g_pData->Get_TINs()) != NULL )
-	{
-		for(i=0; i<m_pList->Get_Count(); i++)
-		{
-			CWKSP_Base_Item	*pItem	= g_pData->Get(m_pList->asDataObject(i)->asTIN());
-
-			if( pItem )
-			{
-				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
-			}
-		}
-
-		//-------------------------------------------------
-		for(i=0; i<pTINs->Get_Count(); i++)
-		{
-			pTIN	= pTINs->Get_Data(i);
-
-			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
-			{
-				if( pTIN == m_pAdd->GetClientData(j) )
-				{
-					bList	= false;
-				}
-			}
-
-			if( bList )
-			{
-				m_pSelect->Append(pTIN->Get_Name(), (void *)pTIN);
-			}
-		}
-	}
+	Set_Data(g_pData->Get_TINs());
 }
 
 
