@@ -85,13 +85,13 @@ Ckff_synthesis::Ckff_synthesis(void)
 		"read from the input file (ASCII file, columns separated by space).\n\n"
 	));
 
-	Parameters.Add_Grid_Output (NULL, 
-		                 "OUTPUT GRID", 
-						 _TL("Synthesized Grid"), 
+	Parameters.Add_Grid_Output (NULL,
+		                 "OUTPUT_GRID",
+						 _TL("Synthesized Grid"),
 						 _TL("Synthesized Grid"));
 
-	Parameters.Add_FilePath (NULL, 
-		                     "FILE", 
+	Parameters.Add_FilePath (NULL,
+		                     "FILE",
 							 _TL("File with Coefficients"),
 		                     _TL("ASCII file with columns degree, order, c_lm, s_lm (separated by space)"));
 
@@ -176,10 +176,10 @@ bool Ckff_synthesis::On_Execute(void)
 	end_long = Parameters ("END_LONG")->asDouble ();
 
 	numlat = static_cast <int> (floor ((end_lat - lat_start) / inc) + 1);
-	numlong = static_cast <int> (floor ((end_long - long_start) / inc) + 1); 
+	numlong = static_cast <int> (floor ((end_long - long_start) / inc) + 1);
 	gitter = (double **) matrix_all_alloc (numlat, numlong, 'D', 0);
-	
-	read_coefficients (fileName.b_str(), 
+
+	read_coefficients (fileName.b_str(),
 		               mindegree,
                        maxdegree,
                        &c_lm,
