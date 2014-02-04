@@ -259,7 +259,7 @@ bool		Execute(int argc, char *argv[])
 
 	CCMD_Module	CMD_Module(pModule);
 
-	return( CMD_Module.Execute(argc - 2, argv + 2) );
+	return( CMD_Module.Execute(pLibrary->Get_Library_Name(), argc - 2, argv + 2) );
 }
 
 

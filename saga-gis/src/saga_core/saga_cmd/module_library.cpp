@@ -136,7 +136,7 @@ void CCMD_Module::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::Execute(int argc, char *argv[])
+bool CCMD_Module::Execute(CSG_String sLibName, int argc, char *argv[])
 {
 	int		i;
 
@@ -148,7 +148,9 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 
 	if( argc <= 1 )
 	{
-		SG_PRINTF(m_CMD.GetUsageString());
+		wxString sUsage = m_CMD.GetUsageString();
+		sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %d %s"), sLibName.c_str(), m_pModule->Get_ID(), sUsage.AfterFirst(' ').AfterFirst(' '));
+		SG_PRINTF(sUsage);
 
 		return( false );
 	}
@@ -183,7 +185,9 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	{
 		CMD_Print("");
 
-		SG_PRINTF(m_CMD.GetUsageString());
+		wxString sUsage = m_CMD.GetUsageString();
+		sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %d %s"), sLibName.c_str(), m_pModule->Get_ID(), sUsage.AfterFirst(' ').AfterFirst(' '));
+		SG_PRINTF(sUsage);
 	}
 
 	//-----------------------------------------------------

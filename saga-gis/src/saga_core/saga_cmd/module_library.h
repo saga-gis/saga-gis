@@ -94,7 +94,7 @@ public:
 	bool						Create					(CSG_Module *pModule);
 	void						Destroy					(void);
 
-	bool						Execute					(int argc, char *argv[]);
+	bool						Execute					(CSG_String sLibName, int argc, char *argv[]);
 
 	bool						Get_Parameters			(CSG_Parameters *pParameters)	{	return( _Get_Parameters(pParameters) );	}
 
