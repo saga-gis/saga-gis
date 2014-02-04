@@ -23,13 +23,13 @@
 //                                                       //
 //                     2008-01-15                        //
 ///////////////////////////////////////////////////////////
-//                   
+//
 //-------------------------------------------------------//
-// References:											 
-// Jakeman, A.J. / Hornberger, G.M (1993).				 
-//   How Much Complexity Is Warranted in a				 
-//	 Rainfall-Runoff Model?								 
-//	 Water Resources Research, (29), NO. 8 (2637-2649)   
+// References:
+// Jakeman, A.J. / Hornberger, G.M (1993).
+//   How Much Complexity Is Warranted in a
+//	 Rainfall-Runoff Model?
+//	 Water Resources Research, (29), NO. 8 (2637-2649)
 // Kokkonen, T. S. et al. (2003).
 //   Predicting daily flows in ungauged catchments:
 //   model regionalization from catchment descriptors
@@ -76,18 +76,13 @@ Cihacres_cal2::Cihacres_cal2(void)
 		"Reference: \n \n"
 		"Jakeman, A.J. / Hornberger, G.M. (1993). \n"
 		"How Much Complexity Is Warranted in a Rainfall-Runoff Model? \n"
-		"Water Resources Research, (29), NO. 8 (2637-2649) \n \n"   
+		"Water Resources Research, (29), NO. 8 (2637-2649) \n \n"
 		"Croke, B. F. W., W. S. Merritt, et al. (2004).\n"
 		"A dynamic model for predicting hydrologic response "
 		"to land cover changes in gauged and "
 		"ungauged catchments. \n"
 		"Journal Of Hydrology 291(1-2): 115-131."
 	));
-
-	Parameters.Add_Table_Output(
-		NULL	, "TABLEout"	, _TL("Table"),
-		_TL("")
-	);
 
 	//-----------------------------------------------------
 	// Create First Module Dialog
@@ -170,7 +165,7 @@ bool Cihacres_cal2::On_Execute(void)
 		//---------------------------------------------------------
 
 		//---------------------------------------------------------
-		// Assign selected time range to vector m_vec_date, 
+		// Assign selected time range to vector m_vec_date,
 		// discharge[], pcp[], and tmp[]
 		_ReadInputTable(first, last);
 		//---------------------------------------------------------
@@ -205,7 +200,7 @@ bool Cihacres_cal2::On_Execute(void)
 		//		SIMULATION
 		//
 		///////////////////////////////////////////////////////////
-		
+
 		// initialize random function
 		srand((unsigned) time(NULL)); // using time.h
 
@@ -393,7 +388,7 @@ void Cihacres_cal2::_CalcNonLinearModule()
 	// Simulation (non-linear module)
 	//-------------------------------------------------------------
 	switch(m_IHAC_version)
-	{		
+	{
 	case 0: // Jakeman & Hornberger (1993)
 		if (m_bTMP)
 		{
@@ -430,15 +425,15 @@ void Cihacres_cal2::_CalcNonLinearModule()
 				m_bSnowModule, m_SnowParms.T_Rain, m_nValues);
 
 			ihacres.CalcExcessRain_Redesign(m_pPCP, m_pTMP, m_pWI, m_pExcessRain, eR_init,
-				m_sum_eRainGTpcp, m_nValues, 
-				m_c, m_l, m_p, 
+				m_sum_eRainGTpcp, m_nValues,
+				m_c, m_l, m_p,
 				m_bSnowModule, m_SnowParms.T_Rain, m_SnowParms.T_Melt, m_pMeltRate);
 		} else {
 			ihacres.CalcWetnessIndex_Redesign(m_pTw, m_pPCP, m_pWI, 0.5,
 				m_bSnowModule, 0, m_nValues);
 
 			ihacres.CalcExcessRain_Redesign(m_pPCP, m_pTMP, m_pWI, m_pExcessRain, eR_init,
-				m_sum_eRainGTpcp, m_nValues, 
+				m_sum_eRainGTpcp, m_nValues,
 				m_c, m_l, m_p,
 				m_bSnowModule, 0,0,0);
 		}
@@ -675,12 +670,12 @@ void Cihacres_cal2::_CreateDialog1()
 		pNode	, "TMP_Field"	, _TL("Temperature Column"),
 		_TL("Select the Column containing Temperature Values")
 	);
-	
+
 	Parameters.Add_Table_Field(
 		pNode	, "INFLOW_Field"	, _TL("Subbasin Inflow"),
 		_TL("Select the column containing inflow data to the subbasin")
 	);
-	
+
 	Parameters.Add_Value(
 		pNode,	"bUPSTREAM",	_TL("Is the subbasin upstream (no external inflow)"),
 		_TL("If checked, it means there is no external inflow to the subbasin"),
@@ -732,8 +727,8 @@ void Cihacres_cal2::_CreateDialog1()
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Single Storage"),			//  0
-			_TL("Two Parallel Storages"),	//  1 
-			_TL("Two Storages in Series")	//  2 
+			_TL("Two Parallel Storages"),	//  1
+			_TL("Two Storages in Series")	//  2
 		)
 	);
 
@@ -1021,7 +1016,7 @@ bool Cihacres_cal2::_CreateDialog2()
 
 	s.Printf(SG_T("Node4"), 4);
 	pNode = P.Add_Node(NULL,s,SG_T("Time Delay after Start of Rainfall (INTEGER)"),_TL(""));
-		
+
 	P.Add_Value(
 		pNode1,	"DELAY",	_TL("Time Delay (Rain-Runoff)"),
 		_TL("The delay after the start of rainfall, before the discharge starts to rise."),
