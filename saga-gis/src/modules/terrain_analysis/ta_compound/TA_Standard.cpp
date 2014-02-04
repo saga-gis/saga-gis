@@ -328,6 +328,8 @@ bool CTA_Standard::On_Execute(void)
 		&&	SET_PARAMETER("DISTANCE"	, Parameters("VALL_DEPTH"))
 	)
 
+	Parameters("VALL_DEPTH")->asGrid()->Set_Name(_TL("Valley Depth"));
+
 	Parameters("RSP")->asGrid()->Assign(&(TMP1 =
 		*Parameters("CHNL_ALTI")->asGrid() / (*Parameters("CHNL_ALTI")->asGrid() + *Parameters("VALL_DEPTH")->asGrid())
 	));
