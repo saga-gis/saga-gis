@@ -621,9 +621,8 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 	}
 
 	//-----------------------------------------------------
-	if( Entry.Get_Child("NAME") && !Entry.Get_Child("NAME")->Get_Content().is_Empty() )
+	if( Entry.Get_Child("PARAMETERS") && pMap->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false) )
 	{
-		pMap->Get_Parameter("NAME")->Set_Value(Entry.Get_Child("NAME")->Get_Content());
 		pMap->Parameters_Changed();
 	}
 
@@ -644,11 +643,12 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 
 	CSG_MetaData	*pEntry	= Entry.Add_Child(SG_T("MAP"));
 
-	pEntry->Add_Child(SG_T("NAME"), pMap->Get_Name().c_str());
-	pEntry->Add_Child(SG_T("XMIN"), pMap->Get_Extent().Get_XMin());
-	pEntry->Add_Child(SG_T("XMAX"), pMap->Get_Extent().Get_XMax());
-	pEntry->Add_Child(SG_T("YMIN"), pMap->Get_Extent().Get_YMin());
-	pEntry->Add_Child(SG_T("YMAX"), pMap->Get_Extent().Get_YMax());
+	pEntry->Add_Child("XMIN", pMap->Get_Extent().Get_XMin());
+	pEntry->Add_Child("XMAX", pMap->Get_Extent().Get_XMax());
+	pEntry->Add_Child("YMIN", pMap->Get_Extent().Get_YMin());
+	pEntry->Add_Child("YMAX", pMap->Get_Extent().Get_YMax());
+
+	pMap->Get_Parameters()->Serialize(*pEntry->Add_Child("PARAMETERS"), true);
 
 	pEntry	= pEntry->Add_Child("LAYERS");
 

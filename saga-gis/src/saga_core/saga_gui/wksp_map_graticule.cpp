@@ -87,6 +87,9 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode, *pNode_1;
 
+	m_Parameters.Set_Name      ("GRATICULE");
+	m_Parameters.Set_Identifier("GRATICULE");
+
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL"	,_TL("General")	, _TL(""));
 
@@ -234,54 +237,13 @@ CWKSP_Map_Graticule::~CWKSP_Map_Graticule(void)
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Load(CSG_MetaData &Entry)
 {
-	if( Entry.Get_Name().Cmp("GRATICULE") )
-	{
-		return( false );
-	}
-
-	m_Parameters("NAME")->Set_Value(Entry.Get_Content());
-
-	CSG_MetaData	*pEntry;
-
-	if( (pEntry = Entry.Get_Child("INTERVAL"    )) != NULL ) m_Parameters("INTERVAL"    )->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("FIXED"       )) != NULL ) m_Parameters("FIXED"       )->Set_Value(pEntry->Get_Content().asDouble());
-	if( (pEntry = Entry.Get_Child("FITTED"      )) != NULL ) m_Parameters("FITTED"      )->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("RESOLUTION"  )) != NULL ) m_Parameters("RESOLUTION"  )->Set_Value(pEntry->Get_Content().asDouble());
-	if( (pEntry = Entry.Get_Child("SHOW_ALWAYS" )) != NULL ) m_Parameters("SHOW_ALWAYS" )->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("SHOW_MIN"    )) != NULL ) m_Parameters("SHOW_RANGE"  )->asRange()->Set_LoVal(pEntry->Get_Content().asDouble());
-	if( (pEntry = Entry.Get_Child("SHOW_MAX"    )) != NULL ) m_Parameters("SHOW_RANGE"  )->asRange()->Set_HiVal(pEntry->Get_Content().asDouble());
-	if( (pEntry = Entry.Get_Child("COLOR"       )) != NULL ) m_Parameters("COLOR"       )->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("SIZE"        )) != NULL ) m_Parameters("SIZE"        )->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("TRANSPARENCY")) != NULL ) m_Parameters("TRANSPARENCY")->Set_Value(pEntry->Get_Content().asDouble());
-	if( (pEntry = Entry.Get_Child("LINE_STYLE"  )) != NULL ) m_Parameters("LINE_STYLE"  )->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("LABEL"       )) != NULL ) m_Parameters("LABEL"       )->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("LABEL_EFFECT")) != NULL ) m_Parameters("LABEL_EFFECT")->Set_Value(pEntry->Get_Content().asInt   ());
-	if( (pEntry = Entry.Get_Child("LABEL_EFFCOL")) != NULL ) m_Parameters("LABEL_EFFCOL")->Set_Value(pEntry->Get_Content().asInt   ());
-
-	return( true );
+	return( m_Parameters.Serialize(Entry, false) );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Save(CSG_MetaData &Entry)
 {
-	CSG_MetaData	*pEntry	= Entry.Add_Child("GRATICULE", m_Parameters("NAME")->asString());
-
-	pEntry->Add_Child("INTERVAL"    , m_Parameters("INTERVAL"    )->asInt   ());
-	pEntry->Add_Child("FIXED"       , m_Parameters("FIXED"       )->asDouble());
-	pEntry->Add_Child("FITTED"      , m_Parameters("FITTED"      )->asInt   ());
-	pEntry->Add_Child("RESOLUTION"  , m_Parameters("RESOLUTION"  )->asDouble());
-	pEntry->Add_Child("SHOW_ALWAYS" , m_Parameters("SHOW_ALWAYS" )->asInt   ());
-	pEntry->Add_Child("SHOW_MIN"    , m_Parameters("SHOW_RANGE"  )->asRange()->Get_LoVal());
-	pEntry->Add_Child("SHOW_MAX"    , m_Parameters("SHOW_RANGE"  )->asRange()->Get_HiVal());
-	pEntry->Add_Child("COLOR"       , m_Parameters("COLOR"       )->asInt   ());
-	pEntry->Add_Child("SIZE"        , m_Parameters("SIZE"        )->asInt   ());
-	pEntry->Add_Child("TRANSPARENCY", m_Parameters("TRANSPARENCY")->asDouble());
-	pEntry->Add_Child("LINE_STYLE"  , m_Parameters("LINE_STYLE"  )->asInt   ());
-	pEntry->Add_Child("LABEL"       , m_Parameters("LABEL"       )->asInt   ());
-	pEntry->Add_Child("LABEL_EFFECT", m_Parameters("LABEL_EFFECT")->asInt   ());
-	pEntry->Add_Child("LABEL_EFFCOL", m_Parameters("LABEL_EFFCOL")->asInt   ());
-
-	return( true );
+	return( m_Parameters.Serialize(*Entry.Add_Child("GRATICULE"), true) );
 }
 
 
