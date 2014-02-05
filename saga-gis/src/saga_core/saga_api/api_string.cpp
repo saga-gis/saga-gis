@@ -1101,15 +1101,25 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 	}
 	else // if( Precision == -2 )
 	{
+		Precision	= SG_Get_Significant_Decimals(Value, abs(Precision));
+
 		s.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(Value, abs(Precision)), Value);
 
-		while( s.Length() > 1 && s[s.Length() - 1] == '0' )
+		if( Precision > 0 )
 		{
-			s	= s.Left(s.Length() - 1);
+			while( s.Length() > 1 && s[s.Length() - 1] == '0' )
+			{
+				s	= s.Left(s.Length() - 1);
+			}
+
+			if( s.Length() > 1 && (s[s.Length() - 1] == '.' || s[s.Length() - 1] == ',') )
+			{
+				s	= s.Left(s.Length() - 1);
+			}
 		}
 	}
 
-	s.Replace(SG_T(","), SG_T("."));
+	s.Replace(",", ".");
 
 	return( s );
 }
