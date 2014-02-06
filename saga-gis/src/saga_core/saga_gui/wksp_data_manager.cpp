@@ -716,16 +716,16 @@ bool CWKSP_Data_Manager::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
 
 	Parameters.Add_Value(NULL, "SAVE_ALL", _TL("Save all"), _TL(""), PARAMETER_TYPE_Bool, false);
 
-	wxString	Directory(m_pProject->Get_File_Name());
+	wxFileName	Directory(m_pProject->Get_File_Name());
 
-	if( !wxDirExists(Directory) )
+	if( !Directory.DirExists() )
 	{
-		Directory	= wxFileName::GetTempDir() + wxFileName::GetPathSeparator() + "saga";
+		Directory.AssignDir(wxFileName::GetTempDir() + wxFileName::GetPathSeparator() + "saga");
 
-		wxFileName::Mkdir(Directory, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+		Directory.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 	}
 
-	_Modified_Get(&Parameters, pItem ? pItem : this, Directory, bSelections);
+	_Modified_Get(&Parameters, pItem ? pItem : this, Directory.GetPath(), bSelections);
 
 	if( Parameters.Get_Count() > 1 )
 	{
@@ -845,43 +845,49 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 	}
 
 	//-----------------------------------------------------
-	wxString	Filter, Extension, Path;
+	wxString	Filter, Extension;
 
 	switch( pItem->Get_Type() )
 	{
 	default:	return( false );
-	case WKSP_ITEM_Table:		Extension	= SG_T("txt" );	Filter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE);		break;
-	case WKSP_ITEM_Shapes:		Extension	= SG_T("shp" );	Filter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE);		break;
-	case WKSP_ITEM_TIN:			Extension	= SG_T("shp" );	Filter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE);			break;
-	case WKSP_ITEM_PointCloud:	Extension	= SG_T("spc" );	Filter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
-	case WKSP_ITEM_Grid:		Extension	= SG_T("sgrd");	Filter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE);		break;
+	case WKSP_ITEM_Table:		Extension	= "txt" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE    );	break;
+	case WKSP_ITEM_Shapes:		Extension	= "shp" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE    );	break;
+	case WKSP_ITEM_TIN:			Extension	= "shp" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE       );	break;
+	case WKSP_ITEM_PointCloud:	Extension	= "spc" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
+	case WKSP_ITEM_Grid:		Extension	= "sgrd";	Filter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE     );	break;
 	}
 
 	//-----------------------------------------------------
-	Path	= pObject->Get_File_Name();
+	wxFileName	Path(pObject->Get_File_Name());
 
-	if( Path.Length() == 0 )
+	if( !Path.FileExists() )
 	{
+		wxString	Name(pObject->Get_Name());
+
+		Name.Replace(".", "-");
+		Name.Replace(":", "-");
+
+		Path.SetPath(Directory);
+		Path.SetExt (Extension);
+
 		for(int i=0, bOkay=false; !bOkay; i++)
 		{
-			Path	= pObject->Get_Name();
-			Path	.Replace(".", "-");
-			Path	.Replace(":", "-");
-
-			if( i > 0 )
+			if( i == 0 )
 			{
-				Path	+= wxString::Format("%d", i);
+				Path.SetName(Name);
+			}
+			else
+			{
+				Path.SetName(Name + wxString::Format("_%d", i));
 			}
 
-			Path	= SG_File_Make_Path(SG_File_Get_Path(Directory), Path, Extension).w_str();
-
-			bOkay	= !wxFileExists(Path);
+			bOkay	= !Path.FileExists();
 
 			for(int j=0; bOkay && j<pParameters->Get_Count(); j++)
 			{
 				CSG_Parameter	*p	= pParameters->Get_Parameter(j);
 
-				if( p->Get_Type() == PARAMETER_TYPE_FilePath && !Path.Cmp(p->asString()) )
+				if( p->Get_Type() == PARAMETER_TYPE_FilePath && Path == p->asString() )
 				{
 					bOkay	= false;
 				}
@@ -904,7 +910,7 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 
 	pParameters->Add_FilePath(
 		pNode, CSG_String::Format(SG_T("%d FILE"), (long)pObject),
-		_TL("File"), SG_T(""), Filter, Path, true
+		_TL("File"), SG_T(""), Filter, Path.GetFullPath(), true
 	);
 
 	return( true );
