@@ -265,7 +265,8 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYOUT_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SCALEBAR);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_GRATICULE_ADD);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_SYNCHRONIZE);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SYNCHRONIZE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_PROJECTION);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE);
@@ -318,7 +319,11 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 		Add_Graticule();
 		break;
 
-	case ID_CMD_MAP_SYNCHRONIZE:
+	case ID_CMD_MAPS_PROJECTION:
+		Set_Projection();
+		break;
+
+	case ID_CMD_MAPS_SYNCHRONIZE:
 		Set_Synchronising(!m_bSynchronise);
 		break;
 
@@ -861,6 +866,35 @@ void CWKSP_Map::_Synchronise_Extents(void)
 		{
 			((CWKSP_Map_Manager *)Get_Manager())->Get_Map(i)->Set_Extent(Get_Extent());
 		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Map::Set_Projection(void)
+{
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 15);	// CCRS_Picker
+
+	if(	pModule )
+	{
+		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
+
+		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , m_Projection.Get_Proj4())
+		&&	DLG_Parameters(pModule->Get_Parameters())
+		&&  pModule->Execute() )
+		{
+			m_Projection.Assign(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+
+			View_Refresh(false);
+		}
+
+		pModule->Get_Parameters()->Assign_Values(&P);
 	}
 }
 

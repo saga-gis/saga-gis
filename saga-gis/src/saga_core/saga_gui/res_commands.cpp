@@ -203,48 +203,50 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:		return( _TL("Set Range to Standard Deviation (1.5)") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:		return( _TL("Set Range to Standard Deviation (2.0)") );
 
-	case ID_CMD_MAP_3D_SHOW:
+	case ID_CMD_MAPS_SHOW:						return( _TL("Show Map") );
 	case ID_CMD_MAPS_3D_SHOW:					return( _TL("Show 3D-View") );
-	case ID_CMD_MAP_LAYOUT_SHOW:
 	case ID_CMD_MAPS_LAYOUT_SHOW:				return( _TL("Show Print Layout") );
-	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:
+	case ID_CMD_MAPS_SAVE_IMAGE:				return( _TL("Save As Image...") );
 	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:		return( _TL("Save As Image when changed") );
 	case ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY:		return( _TL("Save As Image to Workspace") );
-	case ID_CMD_MAP_SAVE_IMAGE:
-	case ID_CMD_MAPS_SAVE_IMAGE:				return( _TL("Save As Image...") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( _TL("Copy Map to Clipboard [Ctrl+C]") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard [Ctrl+L]") );
-	case ID_CMD_MAP_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
-	case ID_CMD_MAP_SCALEBAR:
+	case ID_CMD_MAPS_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
 	case ID_CMD_MAPS_SCALEBAR:					return( _TL("Scale Bar") );
-	case ID_CMD_MAP_GRATICULE_ADD:
+	case ID_CMD_MAPS_PROJECTION:				return( _TL("Set Coordinate System") );
 	case ID_CMD_MAPS_GRATICULE_ADD:				return( _TL("Add Graticule") );
-
-	case ID_CMD_MAPS_SHOW:				return( _TL("Show Map") );
-	case ID_CMD_MAPS_LAYER_SHOW:		return( _TL("Show Layer") );
-	case ID_CMD_MAPS_MOVE_TOP:			return( _TL("Move To Top") );
-	case ID_CMD_MAPS_MOVE_BOTTOM:		return( _TL("Move To Bottom") );
-	case ID_CMD_MAPS_MOVE_UP:			return( _TL("Move Up") );
-	case ID_CMD_MAPS_MOVE_DOWN:			return( _TL("Move Down") );
-	case ID_CMD_MAPS_GRID_FITCOLORS:	return( _TL("Fit Grid Colors To Map Extent") );
+	case ID_CMD_MAPS_LAYER_SHOW:				return( _TL("Show Layer") );
+	case ID_CMD_MAPS_MOVE_TOP:					return( _TL("Move To Top") );
+	case ID_CMD_MAPS_MOVE_BOTTOM:				return( _TL("Move To Bottom") );
+	case ID_CMD_MAPS_MOVE_UP:					return( _TL("Move Up") );
+	case ID_CMD_MAPS_MOVE_DOWN:					return( _TL("Move Down") );
+	case ID_CMD_MAPS_GRID_FITCOLORS:			return( _TL("Fit Grid Colors To Map Extent") );
 
 	//-----------------------------------------------------
 	// Views...
 
-	case ID_CMD_MAP_MODE_ZOOM:			return( _TL("Zoom") );
-	case ID_CMD_MAP_MODE_PAN:			return( _TL("Pan") );
-	case ID_CMD_MAP_MODE_SELECT:		return( _TL("Action") );
-	case ID_CMD_MAP_MODE_DISTANCE:		return( _TL("Measure Distance") );
-	case ID_CMD_MAP_CLOSE:				return( _TL("Close") );
-	case ID_CMD_MAP_TOOLBAR:			return( _TL("Show Toolbar") );
-	case ID_CMD_MAP_LEGEND_VERTICAL:	return( _TL("Show Vertical Legend") );
-	case ID_CMD_MAP_LEGEND_HORIZONTAL:	return( _TL("Show Horizontal Legend") );
-	case ID_CMD_MAP_ZOOM_BACK:			return( _TL("Zoom To Previous Extent") );
-	case ID_CMD_MAP_ZOOM_FORWARD:		return( _TL("Zoom To Next Extent") );
-	case ID_CMD_MAP_ZOOM_FULL:			return( _TL("Zoom To Full Extent") );
-	case ID_CMD_MAP_ZOOM_ACTIVE:		return( _TL("Zoom To Active Layer") );
-	case ID_CMD_MAP_ZOOM_SELECTION:		return( _TL("Zoom To Selection") );
-	case ID_CMD_MAP_ZOOM_EXTENT:		return( _TL("Zoom To Extent") );
+	case ID_CMD_MAP_CLOSE:						return( _TL("Close") );
+	case ID_CMD_MAP_TOOLBAR:					return( _TL("Show Toolbar") );
+	case ID_CMD_MAP_3D_SHOW:					return( CMD_Get_Name(ID_CMD_MAPS_3D_SHOW) );
+	case ID_CMD_MAP_LAYOUT_SHOW:				return( CMD_Get_Name(ID_CMD_MAPS_LAYOUT_SHOW) );
+	case ID_CMD_MAP_SCALEBAR:					return( CMD_Get_Name(ID_CMD_MAPS_SCALEBAR) );
+	case ID_CMD_MAP_GRATICULE_ADD:				return( CMD_Get_Name(ID_CMD_MAPS_GRATICULE_ADD) );
+	case ID_CMD_MAP_SAVE_IMAGE:					return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE) );
+	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:		return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE) );
+	case ID_CMD_MAP_SYNCHRONIZE:				return( CMD_Get_Name(ID_CMD_MAPS_SYNCHRONIZE) );
+	case ID_CMD_MAP_NORTH_ARROW:				return( _TL("North Arrow") );
+	case ID_CMD_MAP_LEGEND_VERTICAL:			return( _TL("Show Vertical Legend") );
+	case ID_CMD_MAP_LEGEND_HORIZONTAL:			return( _TL("Show Horizontal Legend") );
+	case ID_CMD_MAP_MODE_ZOOM:					return( _TL("Zoom") );
+	case ID_CMD_MAP_MODE_PAN:					return( _TL("Pan") );
+	case ID_CMD_MAP_MODE_SELECT:				return( _TL("Action") );
+	case ID_CMD_MAP_MODE_DISTANCE:				return( _TL("Measure Distance") );
+	case ID_CMD_MAP_ZOOM_FULL:					return( _TL("Zoom To Full Extent") );
+	case ID_CMD_MAP_ZOOM_BACK:					return( _TL("Zoom To Previous Extent") );
+	case ID_CMD_MAP_ZOOM_FORWARD:				return( _TL("Zoom To Next Extent") );
+	case ID_CMD_MAP_ZOOM_ACTIVE:				return( _TL("Zoom To Active Layer") );
+	case ID_CMD_MAP_ZOOM_SELECTION:				return( _TL("Zoom To Selection") );
+	case ID_CMD_MAP_ZOOM_EXTENT:				return( _TL("Zoom To Extent") );
 
 	case ID_CMD_MAP3D_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_MAP3D_ROTATE_X_LESS:	return( _TL("Up") );
@@ -364,6 +366,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			break;
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	break;
 	case ID_CMD_MAPS_SAVE_IMAGE:				break;
+	case ID_CMD_MAP_NORTH_ARROW:				break;
 	case ID_CMD_MAP_SYNCHRONIZE:		return( ID_IMG_TB_MAP_SYNCHRONIZE );
 	case ID_CMD_MAP_SCALEBAR:			return( ID_IMG_TB_MAP_SCALEBAR );
 	case ID_CMD_MAP_GRATICULE_ADD:				break;

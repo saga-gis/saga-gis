@@ -193,6 +193,7 @@ public:
 	int							Get_Print_Frame			(void);
 	int							Get_Print_Legend		(void);
 
+	void						Set_Projection			(void);
 	CSG_Projection &			Get_Projection			(void)	{	return( m_Projection );	}
 
 
