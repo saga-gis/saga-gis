@@ -320,7 +320,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	//-----------------------------------------------------
 	if( Get_Active_Data_Item() )
 	{
-		m_pHistory->Set_Item(m_pItem);
+		m_pHistory->Set_Item(Get_Active_Data_Item());
 
 		_Show_Page(m_pHistory);
 	}
@@ -331,7 +331,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 
 	if( Get_Active_Layer() || Get_Active_Map() )
 	{
-		m_pLegend->Set_Item(m_pItem);
+		m_pLegend->Set_Item(Get_Active_Layer() ? Get_Active_Layer() : m_pItem);
 
 		_Show_Page(m_pLegend);
 	}
