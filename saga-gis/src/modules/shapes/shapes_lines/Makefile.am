@@ -19,6 +19,7 @@ Lines_From_Polygons.cpp\
 line_polygon_intersection.cpp\
 line_properties.cpp\
 line_simplification.cpp\
+line_split_with_lines.cpp\
 MLB_Interface.cpp\
 line_dissolve.h\
 Lines_From_Points.h\
@@ -26,6 +27,7 @@ Lines_From_Polygons.h\
 line_polygon_intersection.h\
 line_properties.h\
 line_simplification.h\
+line_split_with_lines.h\
 MLB_Interface.h
 
 libshapes_lines_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
