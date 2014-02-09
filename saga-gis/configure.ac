@@ -260,6 +260,7 @@ AC_OUTPUT(Makefile \
 	src/modules/io/io_shapes_dxf/Makefile \
 	src/modules/io/io_shapes_las/Makefile \
 	src/modules/io/io_table/Makefile \
+	src/modules/io/io_virtual/Makefile \
 	src/modules/pointcloud/Makefile \
 	src/modules/pointcloud/pointcloud_tools/Makefile \
 	src/modules/pointcloud/pointcloud_viewer/Makefile \

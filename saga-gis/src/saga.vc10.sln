@@ -189,6 +189,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_slope_stability", "modul
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_photogrammetry", "modules\imagery\imagery_photogrammetry\imagery_photogrammetry.vcxproj", "{F9248181-10AE-42B7-8987-E14B2D7EA8E8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_virtual", "modules\io\io_virtual\io_virtual.vcxproj", "{04E57DDF-3500-4424-A1A0-A14C306B2CD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -789,6 +791,14 @@ Global
 		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Release|Win32.Build.0 = Release|Win32
 		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Release|x64.ActiveCfg = Release|x64
 		{F9248181-10AE-42B7-8987-E14B2D7EA8E8}.Release|x64.Build.0 = Release|x64
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Debug|Win32.Build.0 = Debug|Win32
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Debug|x64.ActiveCfg = Debug|x64
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Debug|x64.Build.0 = Debug|x64
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Release|Win32.ActiveCfg = Release|Win32
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Release|Win32.Build.0 = Release|Win32
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Release|x64.ActiveCfg = Release|x64
+		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
