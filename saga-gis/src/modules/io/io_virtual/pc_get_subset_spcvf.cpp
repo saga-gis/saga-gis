@@ -333,6 +333,8 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 		{
 			iDatasets++;
 		}
+
+		delete( pPC );
 	}
 
 	if( pPC_out->Get_Count() == 0 )
