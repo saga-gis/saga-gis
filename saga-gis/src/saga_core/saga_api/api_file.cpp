@@ -517,6 +517,16 @@ CSG_String		SG_File_Get_Path_Absolute	(const SG_Char *full_Path)
 }
 
 //---------------------------------------------------------
+CSG_String		SG_File_Get_Path_Relative	(const SG_Char *Directory, const SG_Char *full_Path)
+{
+	wxFileName	fn(full_Path);
+
+	fn.MakeRelativeTo(Directory);
+
+	return( CSG_String(fn.GetFullPath().wc_str()) );
+}
+
+//---------------------------------------------------------
 CSG_String		SG_File_Make_Path(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension)
 {
 	wxFileName	fn;

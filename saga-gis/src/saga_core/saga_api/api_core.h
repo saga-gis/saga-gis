@@ -956,6 +956,7 @@ SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_TmpName			(const SG_Char *Prefix, co
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name			(const SG_Char *full_Path, bool bExtension);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path			(const SG_Char *full_Path);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path_Absolute	(const SG_Char *full_Path);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path_Relative	(const SG_Char *Directory, const SG_Char *full_Path);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path			(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension = NULL);
 SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension		(const SG_Char *File_Name, const SG_Char *Extension);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension		(const SG_Char *File_Name);
