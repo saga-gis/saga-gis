@@ -579,19 +579,16 @@ inline void CMorphometry::Set_From_Polynom(int x, int y, double r, double t, dou
 void CMorphometry::Set_MaximumSlope(int x, int y)
 {
 	int		i, ix, iy, j, Aspect;
-
 	double	z, Z[8], Slope, Curv, hCurv, a, b;
 
 	//-----------------------------------------------------
 	z		= m_pDTM->asDouble(x, y);
     Slope	= Curv	= 0.0;
+	Aspect	= -1;
 
-	for(Aspect=-1, i=0; i<8; i++)
+	for(i=0; i<8; i++)
 	{
-		ix		= Get_xTo(i, x);
-		iy		= Get_yTo(i, y);
-
-		if( !m_pDTM->is_InGrid(ix, iy) )
+		if( !m_pDTM->is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
 		{
 			Z[i]	= 0.0;
 		}
@@ -608,10 +605,16 @@ void CMorphometry::Set_MaximumSlope(int x, int y)
 		}
 	}
 
+	Set_Gradient(x, y, Slope, Aspect * M_PI_045);
+
 	//-------------------------------------------------
 	if( Aspect < 0.0 )
 	{
-		Set_NoData(x, y);
+		SET_NODATA(m_pAspect);
+
+		SET_NODATA(m_pC_Gene);
+		SET_NODATA(m_pC_Prof);
+		SET_NODATA(m_pC_Plan);
 	}
 	else
 	{
@@ -646,11 +649,9 @@ void CMorphometry::Set_MaximumSlope(int x, int y)
 		}
 
 		//---------------------------------------------
-		Set_Gradient(x, y, Slope, Aspect * M_PI_045);
-
 		SET_VALUE(m_pC_Gene, Curv);
 		SET_VALUE(m_pC_Prof, Z[Aspect] + Z[(Aspect + 4) % 8]);
-		SET_VALUE(m_pC_Gene, hCurv);
+		SET_VALUE(m_pC_Plan, hCurv);
 	}
 }
 
