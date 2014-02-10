@@ -471,14 +471,18 @@ bool	SG_Polygon_Offset		(CSG_Shape *pPolygon, double dSize, double dArc, CSG_Sha
 
 	if(	Converter.Convert(pPolygon, Paths) )
 	{
+		ClipperLib::ClipperOffset	Offset(2.0, dArc * Converter.Get_xScale());
+
 		if( pPolygon->Get_Type() == SHAPE_TYPE_Polygon )
 		{
-			ClipperLib::OffsetPaths(Paths, Result, dSize * Converter.Get_xScale(), ClipperLib::jtRound, ClipperLib::etClosed, dArc);
+			Offset.AddPaths(Paths, ClipperLib::jtRound, ClipperLib::etClosedPolygon);
 		}
 		else
 		{
-			ClipperLib::OffsetPaths(Paths, Result, dSize * Converter.Get_xScale(), ClipperLib::jtRound, ClipperLib::etRound , dArc);
+			Offset.AddPaths(Paths, ClipperLib::jtRound, ClipperLib::etOpenRound);
 		}
+
+		Offset.Execute(Result, dSize * Converter.Get_xScale());
 
 		return( Converter.Convert(Result, pResult ? pResult : pPolygon) );
 	}

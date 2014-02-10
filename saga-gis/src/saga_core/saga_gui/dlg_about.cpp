@@ -61,17 +61,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/notebook.h>
-#include <wx/textctrl.h>
-
-#include <wx/scrolwin.h>
-#include <wx/toolbar.h>
-#include <wx/stattext.h>
-#include <wx/dcclient.h>
-#include <wx/button.h>
-#include <wx/propgrid/propgrid.h>
-
 #include <saga_api/saga_api.h>
+#include <saga_api/clipper.hpp>
+
+#include <wx/notebook.h>
 
 #include "helper.h"
 
@@ -189,119 +182,111 @@ wxString CDLG_About::_Get_Version(void)
 {
 	wxString	s;
 
-	s.Append(
-		wxT("\nSAGA\n")
-		wxT("System for Automated Geoscientific Analyses\n")
-		wxT("http://www.saga-gis.org\n")
-	);
-
-	s.Append(
-		wxString::Format(wxT("\nVersion: %s\n"), SAGA_VERSION)
-	);
-
 	//-----------------------------------------------------
-	// Target
+	s	+= "\n";
+	s	+= "SAGA\n";
+	s	+= "System for Automated Geoscientific Analyses\n";
+	s	+= "http://www.saga-gis.org\n";
+	s	+= "\n";
+	s	+= "Version: " + wxString(SAGA_VERSION) + "\n";
 
 #ifdef _SAGA_MSW
 	#ifdef _WIN64
-		s	+= wxT("\n64 bit\n");
+		s	+= "\n64 bit\n";
 	#else
-		s	+= wxT("\n32 bit\n");
+		s	+= "\n32 bit\n";
 	#endif
 #endif
 
 	//-----------------------------------------------------
-	s.Append(wxT("_______________________\n\n"));
 
-	s.Append(
-		wxT("SAGA GUI\n")
-		wxT("SAGA Graphical User Interface\n")
-		wxT("\n")
-		wxT("Copyrights (c) 2005-2014 by Olaf Conrad\n")
-		wxT("Portions (c) 2008-2014 by Volker Wichmann\n")
-		wxT("\n")
-		wxT("GNU General Public License (GPL)\n")
-	);
+	s	+= "_______________________\n\n";
 
-	s.Append(wxT("_______________________\n\n"));
+	s	+= "SAGA GUI\n";
+	s	+= "SAGA Graphical User Interface\n";
+	s	+= "\n";
+	s	+= "Copyrights (c) 2005-2014 by Olaf Conrad\n";
+	s	+= "Portions (c) 2008-2014 by Volker Wichmann\n";
+	s	+= "\n";
+	s	+= "GNU General Public License (GPL)\n";
 
-	s.Append(
-		wxT("SAGA API\n")
-		wxT("SAGA Application Programming Interface\n")
-		wxT("\n")
-		wxT("Copyrights (c) 2002-2014 by Olaf Conrad\n")
-		wxT("Portions (c) 2008-2014 by Volker Wichmann\n")
-		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
-		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
-		wxT("\n")
-		wxT("GNU Lesser General Public License (LGPL)\n")
-	);
+	s	+= "_______________________\n\n";
 
-	s.Append(wxT("_______________________\n\n"));
+	s	+= "SAGA API\n";
+	s	+= "SAGA Application Programming Interface\n";
+	s	+= "\n";
+	s	+= "Copyrights (c) 2002-2014 by Olaf Conrad\n";
+	s	+= "Portions (c) 2008-2014 by Volker Wichmann\n";
+	s	+= "Portions (c) 2005-2006 by Victor Olaya\n";
+	s	+= "Portions (c) 2002 by Andre Ringeler\n";	// " (mat_formula.cpp)\n";
+	s	+= "\n";
+	s	+= "GNU Lesser General Public License (LGPL)\n";
 
-	s.Append(
-		wxT("SAGA uses the portable C++ GUI toolkit\n")
-		wxVERSION_STRING	wxT("\n")
-		wxT("http://www.wxwidgets.org/\n")
-		wxT("\n")
-		wxT("SAGA API includes the polygon clipping and offsetting library\n")
-		wxT("Clipper 6.0.0\n")
-		wxT("http://sourceforge.net/projects/polyclipping/\n")
-	);
+	s	+= "_______________________\n\n";
 
-	s.Append(wxT("_______________________\n\n"));
+	s	+= "SAGA uses the portable C++ GUI toolkit\n";
+	s	+= wxVERSION_STRING	+ wxString("\n");
+	s	+= "http://www.wxwidgets.org/\n";
+	s	+= "\n";
+	s	+= "SAGA API includes the polygon clipping and offsetting library\n";
+	s	+= "Clipper " + wxString(CLIPPER_VERSION) + "\n";
+	s	+= "http://sourceforge.net/projects/polyclipping/\n";
 
-	s.Append(
-		wxT("Compiled with\n")
+	s	+= "_______________________\n\n";
+
+	s	+= "Compiled with\n"
 		#  if	defined(__BORLANDC__)
-			wxT("Borland C++")
+			"Borland C++"
 		#elif	defined(__DJGPP__)
-			wxT("DJGPP")
+			"DJGPP"
 		#elif	defined(__DIGITALMARS__)
-			wxT("Digital Mars")
+			"Digital Mars"
 		#elif	defined(__MINGW32__)
-			wxT("MinGW")
+			"MinGW"
 		#elif	defined(__GNUWIN32__)
-			wxT("Gnu-Win32 compiler")
+			"Gnu-Win32 compiler"
 		#elif	defined(__GNUG__)
-			wxT("Gnu C++")
+			"Gnu C++"
 		#elif	defined(__MWERKS__)
-			wxT("CodeWarrior MetroWerks compiler")
+			"CodeWarrior MetroWerks compiler"
 		#elif	defined(__SUNCC__)
-			wxT("Sun CC")
+			"Sun CC"
 		#elif	defined(__SYMANTECC__)
-			wxT("Symantec C++")
+			"Symantec C++"
 		#elif	defined(__VISAGECPP__)
-			wxT("IBM Visual Age (OS/2)")
+			"IBM Visual Age (OS/2)"
 		#elif	defined(__VISUALC__)	// The value of this macro corresponds to the compiler version: 1020 for 4.2 (the first supported version), 1100 for 5.0, 1200 for 6.0 and so on
 			#if   __VISUALC__ == 1020
-				wxT("Microsoft Visual C++ 4.2")
+				"Microsoft Visual C++ 4.2"
 			#elif __VISUALC__ >= 1100 && __VISUALC__ < 1200
-				wxT("Microsoft Visual C++ 5")
+				"Microsoft Visual C++ 5"
 			#elif __VISUALC__ >= 1200 && __VISUALC__ < 1300
-				wxT("Microsoft Visual C++ 6")
+				"Microsoft Visual C++ 6"
 			#elif __VISUALC__ >= 1300 && __VISUALC__ < 1400
-				wxT("Microsoft Visual C++ 7")
+				"Microsoft Visual C++ 7"
 			#elif __VISUALC__ >= 1400 && __VISUALC__ < 1500
-				wxT("Microsoft Visual C++ 8")
+				"Microsoft Visual C++ 8"
 			#elif __VISUALC__ >= 1500 && __VISUALC__ < 1600
-				wxT("Microsoft Visual C++ 9")
+				"Microsoft Visual C++ 9"
 			#elif __VISUALC__ >= 1600 && __VISUALC__ < 1700
-				wxT("Microsoft Visual C++ 10")
+				"Microsoft Visual C++ 2010"
+			#elif __VISUALC__ >= 1700 && __VISUALC__ < 1800
+				"Microsoft Visual C++ 2012"
+			#elif __VISUALC__ >= 1800 && __VISUALC__ < 1900
+				"Microsoft Visual C++ 2013"
 			#else
-				wxT("Microsoft Visual C++")
+				"Microsoft Visual C++"
 			#endif
 		#elif	defined(__XLC__)
-			wxT("AIX compiler")
+			"AIX compiler"
 		#elif	defined(__WATCOMC__)
-			wxT("Watcom C++")
+			"Watcom C++"
 		#elif	defined(_WIN32_WCE)
-			wxT("Windows CE version")
+			"Windows CE version"
 		#else
-			wxT("unknown compiler")
+			"unknown compiler"
 		#endif
-		wxT("\n")
-	);
+	"\n";
 
 	return( s );
 }
