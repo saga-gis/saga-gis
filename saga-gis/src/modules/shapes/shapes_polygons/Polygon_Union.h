@@ -98,9 +98,11 @@ protected:
 
 private:
 
-	bool						m_bSUM, m_bAVG, m_bMIN, m_bMAX, m_bRNG, m_bDEV, m_bVAR, m_bNUM;
+	bool						m_bSUM, m_bAVG, m_bMIN, m_bMAX, m_bRNG, m_bDEV, m_bVAR, m_bLST, m_bNUM;
 
 	int							m_Stat_Offset;
+
+	CSG_Strings					m_List;
 
 	CSG_Parameter_Table_Fields	*m_Stat_pFields;
 

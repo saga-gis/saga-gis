@@ -124,6 +124,7 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Parameters.Add_Value(pNode, "STAT_RNG", _TL("Range"    ), _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "STAT_DEV", _TL("Deviation"), _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "STAT_VAR", _TL("Variance" ), _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(pNode, "STAT_LST", _TL("Listing"  ), _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "STAT_NUM", _TL("Count"    ), _TL(""), PARAMETER_TYPE_Bool, false);
 
 	Parameters.Add_Choice(
@@ -182,6 +183,7 @@ int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Get_Parameter("STAT_RNG")->Set_Enabled(pParameter->asInt() > 0);
 		pParameters->Get_Parameter("STAT_DEV")->Set_Enabled(pParameter->asInt() > 0);
 		pParameters->Get_Parameter("STAT_VAR")->Set_Enabled(pParameter->asInt() > 0);
+		pParameters->Get_Parameter("STAT_LST")->Set_Enabled(pParameter->asInt() > 0);
 		pParameters->Get_Parameter("STAT_NUM")->Set_Enabled(pParameter->asInt() > 0);
 
 		pParameters->Get_Parameter("STAT_NAMING")->Set_Enabled(pParameter->asInt() > 0);
@@ -300,6 +302,8 @@ bool CPolygon_Dissolve::On_Execute(void)
 		delete[](m_Statistics);
 	}
 
+	m_List.Clear();
+
 	return( pUnions->is_Valid() );
 }
 
@@ -322,9 +326,10 @@ bool CPolygon_Dissolve::Init_Statistics(CSG_Shapes *pUnions, CSG_Shapes *pPolygo
 	m_bRNG	= Parameters("STAT_RNG")->asBool();
 	m_bDEV	= Parameters("STAT_DEV")->asBool();
 	m_bVAR	= Parameters("STAT_VAR")->asBool();
+	m_bLST	= Parameters("STAT_LST")->asBool();
 	m_bNUM	= Parameters("STAT_NUM")->asBool();
 
-	if( m_Stat_pFields->Get_Count() > 0 && (m_bSUM || m_bAVG || m_bMIN || m_bMAX || m_bRNG || m_bDEV || m_bVAR || m_bNUM) )
+	if( m_Stat_pFields->Get_Count() > 0 && (m_bSUM || m_bAVG || m_bMIN || m_bMAX || m_bRNG || m_bDEV || m_bVAR || m_bLST || m_bNUM) )
 	{
 		m_Statistics	= new CSG_Simple_Statistics[m_Stat_pFields->Get_Count()];
 
@@ -342,6 +347,12 @@ bool CPolygon_Dissolve::Init_Statistics(CSG_Shapes *pUnions, CSG_Shapes *pPolygo
 			if( m_bDEV )	pUnions->Add_Field(Get_Statistics_Name("STD", s), SG_DATATYPE_Double);
 			if( m_bVAR )	pUnions->Add_Field(Get_Statistics_Name("VAR", s), SG_DATATYPE_Double);
 			if( m_bNUM )	pUnions->Add_Field(Get_Statistics_Name("NUM", s), SG_DATATYPE_Int   );
+			if( m_bLST )	pUnions->Add_Field(Get_Statistics_Name("LST", s), SG_DATATYPE_String);
+		}
+
+		if( m_bLST )
+		{
+			m_List.Set_Count(m_Stat_pFields->Get_Count());
 		}
 
 		return( true );
@@ -384,9 +395,24 @@ bool CPolygon_Dissolve::Add_Statistics(CSG_Shape *pUnion, CSG_Shape *pPolygon, b
 			if( bReset )
 			{
 				m_Statistics[iField].Create();
+
+				if( iField < m_List.Get_Count() )
+				{
+					m_List[iField].Clear();
+				}
 			}
 
 			m_Statistics[iField]	+= pPolygon->asDouble(m_Stat_pFields->Get_Index(iField));
+
+			if( iField < m_List.Get_Count() )
+			{
+				if( !m_List[iField].is_Empty() )
+				{
+					m_List[iField]	+= "|";
+				}
+
+				m_List[iField]	+= pPolygon->asString(m_Stat_pFields->Get_Index(iField));
+			}
 		}
 
 		return( true );
@@ -420,6 +446,7 @@ bool CPolygon_Dissolve::Set_Union(CSG_Shape *pUnion, bool bDissolve)
 			if( m_bDEV )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_StdDev  ());
 			if( m_bVAR )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Variance());
 			if( m_bNUM )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Count   ());
+			if( m_bLST )	pUnion->Set_Value(jField++, m_List      [iField]);
 		}
 	}
 
