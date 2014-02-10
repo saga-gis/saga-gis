@@ -289,7 +289,8 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	//-----------------------------------------------------
 	if( !SPCVF.Save(sFileName) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unable to save %s file!"), sFileName));
+		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unable to save %s file!"), sFileName.c_str()));
+
 		return( false );
 	}
 
