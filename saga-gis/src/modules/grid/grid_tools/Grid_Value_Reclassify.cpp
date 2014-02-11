@@ -80,14 +80,20 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	Set_Author(_TL("Copyrights (c) 2005 by Volker Wichmann"));
 
 	Set_Description	(_TW(
-		"The module can be used to reclassify the values of a grid. It provides three different options: (a) "
-		"reclassification of single values, (b) reclassification of a range of values and (c) reclassification "
-		"of value ranges specified in a lookup table. In addition to theses methods, two special cases "
-		"(No-Data values and values not included in the reclassification setup) are supported. In mode (a) "
-		"and (b) the 'No-Data option' is evaluated before the method settings, in mode (c) the option is "
-		"evaluated only if the No-Data value ins't included in the lookup table. The 'other values' option "
-		"is always evaluated after checking the method settings. ")
-	);
+		"The module can be used to reclassify the values of a grid. It provides three different options:\n"
+		"(a) reclassification of single values\n"
+		"(b) reclassification of a range of values\n"
+		"(c) reclassification of value ranges specified in a lookup table\n\n"
+		"In addition to theses methods, two special cases (NoData values and values not included in the "
+		"reclassification setup) are supported.\n"
+		"With reclassification mode (a) and (b), the 'NoData option' is evaluated before the 'Method' "
+		"settings. In reclassification mode (c) the option is evaluated only if the NoData value is not "
+		"included in the lookup table.\n"
+		"The 'other values' option is always evaluated after checking the 'Method' settings.\n\n"
+		"The module allows to define the NoData value of the output grid (header): by default, the "
+		"output grid gets assigned the NoData value of the input grid. But it is also possible to "
+		"assign a user defined NoData value.\n\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -236,6 +242,27 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
+	pNode	= Parameters.Add_Node(
+		NULL, "OPT_RESULT"			, _TL("NoData Output Grid"),
+		_TL("Parameter settings for the NoData value of the output grid (header).")
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "RESULT_NODATA_CHOICE"	, _TL("Assign ..."),
+		_TL("Choose how to handle the NoData value of the output grid."),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("NoData value of input grid"),
+			_TL("user defined NoData value")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		Parameters("RESULT_NODATA_CHOICE")	, "RESULT_NODATA_VALUE"		, _TL("NoData Value"),
+		_TL("User defined NoData value for output grid."),
+		PARAMETER_TYPE_Double, -99999
+	);
+
+	//-----------------------------------------------------
 	CSG_Table			*pLookup;
 	CSG_Table_Record	*pRecord;
 
@@ -283,8 +310,17 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 	//-----------------------------------------------------
 	if( bSuccess )
 	{
-	    pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+		if( Parameters("RESULT_NODATA_CHOICE") == 0 )
+		{
+			pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+		}
+		else
+		{
+			pResult->Set_NoData_Value(Parameters("RESULT_NODATA_VALUE")->asDouble());
+		}
+
 	    pResult->Set_Name(CSG_String::Format(SG_T("%s_reclassified"), pInput->Get_Name()));
+
 	    return( true );
 	}
 	else
@@ -615,6 +651,11 @@ int CGrid_Value_Reclassify::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 		pParameters->Get_Parameter("OTHERS"		)->Set_Enabled(pParameter->asInt() > 0);
 	}
 
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("RESULT_NODATA_CHOICE")) )
+	{
+		pParameters->Get_Parameter("RESULT_NODATA_VALUE")->Set_Enabled(pParameter->asInt() > 0);
+	}
+	
 	//-----------------------------------------------------
 	return (1);
 }
