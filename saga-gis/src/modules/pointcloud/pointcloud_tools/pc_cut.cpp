@@ -137,13 +137,13 @@ CPC_Cut::CPC_Cut(void)
 	// Shapes Extent
 
 	pParameters	= Add_Parameters	(	   "EXTENT"		, _TL("Shapes Extent")		, _TL(""));
-	pParameters	->Add_Shapes		(NULL, "EXTENT"		, _TL("Shapes Extent")		, _TL(""), PARAMETER_INPUT);
+	pParameters	->Add_Shapes		(NULL, "EXTENT"		, _TL("Shapes Extent")		, _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	//-----------------------------------------------------
 	// Polygons
 
 	pParameters	= Add_Parameters	(	   "POLYGONS"	, _TL("Polygons")			, _TL(""));
-	pParameters	->Add_Shapes		(NULL, "POLYGONS"	, _TL("Polygons")			, _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Polygon);
+	pParameters	->Add_Shapes		(NULL, "POLYGONS"	, _TL("Polygons")			, _TL(""), PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon);
 }
 
 
@@ -186,6 +186,13 @@ bool CPC_Cut::On_Execute(void)
 	case 2:	// Shapes Extent
 		if( Dlg_Parameters("EXTENT") )
 		{
+			if( Get_Parameters("EXTENT")->Get_Parameter("EXTENT")->asShapes() == NULL )
+			{
+				SG_UI_Msg_Add_Error(_TL("Please provide a shapefile with the 'Shapes Extent' parameter!"));
+
+				return( false );
+			}
+
 			return( Get_Cut(pPoints, pCut, Get_Parameters("EXTENT")->Get_Parameter("EXTENT")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
@@ -194,6 +201,13 @@ bool CPC_Cut::On_Execute(void)
 	case 3:	// Polygons
 		if( Dlg_Parameters("POLYGONS") )
 		{
+			if( Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes() == NULL )
+			{
+				SG_UI_Msg_Add_Error(_TL("Please provide a shapefile with the 'Polygons' parameter!"));
+
+				return( false );
+			}
+
 			if( Parameters("INVERSE")->asBool() && Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes()->Get_Count() > 1 )
 			{
 				SG_UI_Msg_Add_Error(_TL("The inverse selection is not implemented for input shapefiles with more than one polygon!"));
