@@ -161,6 +161,16 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Base_Item::On_Command(Cmd_ID) );
 
+	case ID_CMD_SHAPES_EDIT_SHAPE:
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
+	case ID_CMD_SHAPES_EDIT_ADD_PART:
+	case ID_CMD_SHAPES_EDIT_DEL_PART:
+	case ID_CMD_SHAPES_EDIT_DEL_POINT:
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+		return( m_pLayer->On_Command(Cmd_ID) );
+
 	case ID_CMD_WKSP_ITEM_RETURN:
 	case ID_CMD_MAPS_LAYER_SHOW:
 		m_bShow	= !m_bShow;
@@ -204,6 +214,16 @@ bool CWKSP_Map_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	default:
 		return( CWKSP_Base_Item::On_Command_UI(event) );
+
+	case ID_CMD_SHAPES_EDIT_SHAPE:
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
+	case ID_CMD_SHAPES_EDIT_ADD_PART:
+	case ID_CMD_SHAPES_EDIT_DEL_PART:
+	case ID_CMD_SHAPES_EDIT_DEL_POINT:
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+		return( m_pLayer->On_Command_UI(event) );
 
 	case ID_CMD_MAPS_LAYER_SHOW:
 		event.Check(m_bShow);
