@@ -423,7 +423,7 @@ CSG_Projection CSG_OGR_DataSource::Get_Projection(int iLayer)
 {
 	CSG_Projection	Projection;
 
-	if( Get_Layer(iLayer) )
+	if( Get_Layer(iLayer) && Get_Layer(iLayer)->GetSpatialRef() )
 	{
 		char	*p	= NULL;
 
