@@ -170,6 +170,7 @@ public:
 	class OGRLayer *			Get_Layer			(int iLayer);
 	TSG_Shape_Type				Get_Type			(int iLayer);
 	TSG_Vertex_Type				Get_Coordinate_Type	(int iLayer);
+	CSG_Projection				Get_Projection		(int iLayer);
 
 	CSG_Shapes *				Read				(int iLayer, int iGeomTypeChoice);
 	bool						Write				(CSG_Shapes *pShapes, const CSG_String &DriverName);

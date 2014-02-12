@@ -418,6 +418,35 @@ TSG_Vertex_Type CSG_OGR_DataSource::Get_Coordinate_Type(int iLayer)
 	return( SG_VERTEX_TYPE_XY );
 }
 
+//---------------------------------------------------------
+CSG_Projection CSG_OGR_DataSource::Get_Projection(int iLayer)
+{
+	CSG_Projection	Projection;
+
+	if( Get_Layer(iLayer) )
+	{
+		char	*p	= NULL;
+
+		//-------------------------------------------------
+		if( !Projection.is_Okay() && Get_Layer(iLayer)->GetSpatialRef()->exportToWkt  (&p) == OGRERR_NONE && p && *p )
+		{
+			Projection.Create(p, SG_PROJ_FMT_WKT);
+		}
+
+		if( p )	{	OGRFree(p);	p	= NULL;	}
+
+		//-------------------------------------------------
+		if( !Projection.is_Okay() && Get_Layer(iLayer)->GetSpatialRef()->exportToProj4(&p) == OGRERR_NONE && p && *p )
+		{
+			Projection.Create(p, SG_PROJ_FMT_Proj4);
+		}
+
+		if( p )	{	OGRFree(p);	p	= NULL;	}
+	}
+
+	return( Projection );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -428,65 +457,77 @@ TSG_Vertex_Type CSG_OGR_DataSource::Get_Coordinate_Type(int iLayer)
 //---------------------------------------------------------
 CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer, int iGeomTypeChoice)
 {
+	//-----------------------------------------------------
 	OGRLayer	*pLayer	= Get_Layer(iLayer);
 
-	if( iGeomTypeChoice != 0 )
-		pLayer->GetLayerDefn()->SetGeomType((OGRwkbGeometryType)_Get_GeomType_Choice(iGeomTypeChoice));
-
-	//-----------------------------------------------------
-	if( pLayer && Get_Type(iLayer) != SHAPE_TYPE_Undefined )
+	if( !pLayer )
 	{
-		int				iField;
-		OGRFeature		*pFeature;
-		OGRFeatureDefn	*pDef		= pLayer->GetLayerDefn();
-		CSG_Shapes		*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(pDef->GetName()), NULL, Get_Coordinate_Type(iLayer));
+		return( NULL );
+	}
 
-		for(iField=0; iField<pDef->GetFieldCount(); iField++)
-		{
-			OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
+	if( iGeomTypeChoice != 0 )
+	{
+		pLayer->GetLayerDefn()->SetGeomType((OGRwkbGeometryType)_Get_GeomType_Choice(iGeomTypeChoice));
+	}
 
-			pShapes->Add_Field(pDefField->GetNameRef(), CSG_OGR_Drivers::Get_Data_Type(pDefField->GetType()));
-		}
-
-		pLayer->ResetReading();
-
-		//-------------------------------------------------
-		while( (pFeature = pLayer->GetNextFeature()) != NULL && SG_UI_Process_Get_Okay(false) )
-		{
-			OGRGeometry	*pGeometry	= pFeature->GetGeometryRef();
-
-			if( pGeometry != NULL )
-			{
-				CSG_Shape	*pShape	= pShapes->Add_Shape();
-
-				for(iField=0; iField<pDef->GetFieldCount(); iField++)
-				{
-					OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
-
-					switch( pDefField->GetType() )
-					{
-					default:			pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
-					case OFTString:		pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
-					case OFTInteger:	pShape->Set_Value(iField, pFeature->GetFieldAsInteger(iField));	break;
-					case OFTReal:		pShape->Set_Value(iField, pFeature->GetFieldAsDouble (iField));	break;
-					}
-				}
-
-				//-----------------------------------------
-				if( _Read_Geometry(pShape, pGeometry) == false )
-				{
-					pShapes->Del_Shape(pShape);
-				}
-			}
-
-			OGRFeature::DestroyFeature(pFeature);
-		}
-
-		return( pShapes );
+	if( Get_Type(iLayer) == SHAPE_TYPE_Undefined )
+	{
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
-	return( NULL );
+	OGRFeatureDefn	*pDef		= pLayer->GetLayerDefn();
+	CSG_Shapes		*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(pDef->GetName()), NULL, Get_Coordinate_Type(iLayer));
+
+	pShapes->Get_Projection()	= Get_Projection(iLayer);
+
+	//-----------------------------------------------------
+	int		iField;
+
+	for(iField=0; iField<pDef->GetFieldCount(); iField++)
+	{
+		OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
+
+		pShapes->Add_Field(pDefField->GetNameRef(), CSG_OGR_Drivers::Get_Data_Type(pDefField->GetType()));
+	}
+
+	//-----------------------------------------------------
+	OGRFeature	*pFeature;
+
+	pLayer->ResetReading();
+
+	while( (pFeature = pLayer->GetNextFeature()) != NULL && SG_UI_Process_Get_Okay(false) )
+	{
+		OGRGeometry	*pGeometry	= pFeature->GetGeometryRef();
+
+		if( pGeometry != NULL )
+		{
+			CSG_Shape	*pShape	= pShapes->Add_Shape();
+
+			for(iField=0; iField<pDef->GetFieldCount(); iField++)
+			{
+				OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
+
+				switch( pDefField->GetType() )
+				{
+				default:			pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
+				case OFTString:		pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
+				case OFTInteger:	pShape->Set_Value(iField, pFeature->GetFieldAsInteger(iField));	break;
+				case OFTReal:		pShape->Set_Value(iField, pFeature->GetFieldAsDouble (iField));	break;
+				}
+			}
+
+			//---------------------------------------------
+			if( _Read_Geometry(pShape, pGeometry) == false )
+			{
+				pShapes->Del_Shape(pShape);
+			}
+		}
+
+		OGRFeature::DestroyFeature(pFeature);
+	}
+
+	return( pShapes );
 }
 
 //---------------------------------------------------------
@@ -613,43 +654,60 @@ bool CSG_OGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 //---------------------------------------------------------
 bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes, const CSG_String &DriverName)
 {
-	bool		bZ	= pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY;
-	OGRLayer	*pLayer;
+	if( !m_pDataSource || !pShapes || !pShapes->is_Valid() )
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	if( m_pDataSource && pShapes && pShapes->is_Valid() && (pLayer = m_pDataSource->CreateLayer(CSG_String(pShapes->Get_Name()), NULL, (OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), bZ))) != NULL )
+	OGRSpatialReference	*pSRS	= NULL;
+
+	if( pShapes->Get_Projection().is_Okay() )
 	{
-		bool			bResult	= true;
-		int				iField;
-		
-		//-------------------------------------------------
-		if( SG_STR_CMP(DriverName, "DXF") )
+		pSRS	= new OGRSpatialReference(pShapes->Get_Projection().Get_WKT());
+	//	pSRS	= new OGRSpatialReference();
+	//	pSRS	->importFromProj4(pShapes->Get_Projection().Get_Proj4());
+	}
+
+	OGRLayer	*pLayer	= m_pDataSource->CreateLayer(CSG_String(pShapes->Get_Name()), pSRS,
+		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY)
+	);
+
+	if( !pLayer )
+	{
+		return( false );
+	}
+
+	//-------------------------------------------------
+	if( SG_STR_CMP(DriverName, "DXF") )
+	{
 		// the dxf driver does not support arbitrary field creation and returns OGRERR_FAILURE;
 		// it seems like there is no method in OGR to check whether a driver supports field creation or not;
-		// another issue with the dxf driver: 3D polygon data is not supported (would require e.g. "3DFACE" entity implementation in GDAL/OGR),
-		// so we would need to treat them as polylines (not implemented, currently it is necessary to convert to a line shapefile a priori)
+		// another issue with the dxf driver: 3D polygon data is not supported (would require e.g. "3DFACE"
+		// entity implementation in GDAL/OGR), so we would need to treat them as polylines (not implemented,
+		// currently it is necessary to convert to a line shapefile a priori)
+
+		for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
-			for(iField=0; iField<pShapes->Get_Field_Count() && bResult; iField++)
+			OGRFieldDefn	DefField(CSG_String(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
+
+			if( pLayer->CreateField(&DefField) != OGRERR_NONE )
 			{
-				OGRFieldDefn	DefField(CSG_String(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
-
-				//	DefField.SetWidth(32);
-
-				if( pLayer->CreateField(&DefField) != OGRERR_NONE )
-				{
-					bResult	= false;
-				}
+				return( false );
 			}
 		}
+	}
 
-		//-------------------------------------------------
-		for(int iShape=0; iShape<pShapes->Get_Count() && bResult && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape		= pShapes->Get_Shape(iShape);
+		OGRFeature	*pFeature	= OGRFeature::CreateFeature(pLayer->GetLayerDefn());
+
+		if( _Write_Geometry(pShape, pFeature, pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY) )
 		{
-			CSG_Shape	*pShape		= pShapes->Get_Shape(iShape);
-			OGRFeature	*pFeature	= OGRFeature::CreateFeature(pLayer->GetLayerDefn());
-
 			// no need for a special treatment of DXF here, as pFeature->SetField() just silently ignores iFields out of range
-			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+			for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
 				switch( pShapes->Get_Field_Type(iField) )
 				{
@@ -674,96 +732,92 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes, const CSG_String &DriverName
 				}
 			}
 
-			if( !_Write_Geometry(pShape, pFeature, bZ) || pLayer->CreateFeature(pFeature) != OGRERR_NONE )
-			{
-				bResult	= false;
-			}
-
-			OGRFeature::DestroyFeature(pFeature);
+			pLayer->CreateFeature(pFeature);
 		}
 
-		//-------------------------------------------------
-		return( bResult );
+		OGRFeature::DestroyFeature(pFeature);
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, bool bZ)
 {
-	if( pShape && pFeature )
+	if( !pShape || !pFeature )
 	{
-		int					iPoint, iPart;
-		TSG_Point			sgPoint;
-		OGRPoint			Point;
-		OGRMultiPoint		Points;
-		OGRLineString		Line;
-		OGRMultiLineString	Lines;
-		OGRLinearRing		Ring;
-		OGRPolygon			Polygon;
+		return( false );
+	}
 
-		switch( pShape->Get_Type() )
+	switch( pShape->Get_Type() )
+	{
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Point:
 		{
-		//-------------------------------------------------
-		case SHAPE_TYPE_Point:
-			sgPoint	= pShape->Get_Point(0);
-			Point.setX(sgPoint.x);
-			Point.setY(sgPoint.y);
+			TSG_Point	p	= pShape->Get_Point(0);
 
-			if( bZ )
-			{
-				Point.setZ(pShape->Get_Z(0));
-			}
+			OGRPoint	Point(p.x, p.y, pShape->Get_Z(0));
 
 			return( pFeature->SetGeometry(&Point) == OGRERR_NONE );
+		}
 
-		//-------------------------------------------------
-		case SHAPE_TYPE_Points:
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Points:
+		{
+			OGRMultiPoint	Points;
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					sgPoint	= pShape->Get_Point(iPoint, iPart);
-					Point.setX(sgPoint.x);
-					Point.setY(sgPoint.y);
+					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-					if( bZ )
-					{
-						Point.setZ(pShape->Get_Z(0));
-					}
+					OGRPoint	Point(p.x, p.y, pShape->Get_Z(0));
 
 					Points.addGeometry(&Point);
 				}
 			}
 
 			return( pFeature->SetGeometry(&Points) == OGRERR_NONE );
+		}
 
-		//-------------------------------------------------
-		case SHAPE_TYPE_Line:
-			if( pShape->Get_Part_Count() == 1 )
-			{
-				_Write_Line(pShape, &Line, 0, bZ);
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Line:
+		if( pShape->Get_Part_Count() == 1 )
+		{
+			OGRLineString	Line;
 
-				return( pFeature->SetGeometry(&Line) == OGRERR_NONE );
-			}
-			else
+			_Write_Line(pShape, &Line, 0, bZ);
+
+			return( pFeature->SetGeometry(&Line) == OGRERR_NONE );
+		}
+		else
+		{
+			OGRMultiLineString	Lines;
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				OGRLineString	Line;
+
+				if( _Write_Line(pShape, &Line, iPart, bZ) )
 				{
-					if( _Write_Line(pShape, &Line, iPart, bZ) )
-					{
-						Lines.addGeometry(&Line);
-					}
+					Lines.addGeometry(&Line);
 				}
-
-				return( pFeature->SetGeometry(&Lines) == OGRERR_NONE );
 			}
 
-		//-------------------------------------------------
-		case SHAPE_TYPE_Polygon:
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			return( pFeature->SetGeometry(&Lines) == OGRERR_NONE );
+		}
+
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Polygon:
+		{
+			OGRPolygon	Polygon;
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
+				OGRLinearRing	Ring;
+
 				if( _Write_Line(pShape, &Ring, iPart, bZ) )
 				{
 					Polygon.addRing(&Ring);
@@ -771,14 +825,12 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 			}
 
 			return( pFeature->SetGeometry(&Polygon) == OGRERR_NONE );
-
-		//-------------------------------------------------
-		default:
-			break;
 		}
-	}
 
-	return( false );
+	//-------------------------------------------------
+	default:
+		return( false );
+	}
 }
 
 //---------------------------------------------------------
@@ -790,16 +842,9 @@ bool CSG_OGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, in
 
 		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			TSG_Point	sgPoint	= pShape->Get_Point(iPoint, iPart);
+			TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-			if( !bZ )
-			{
-				pLine->addPoint(sgPoint.x, sgPoint.y);
-			}
-			else
-			{
-				pLine->addPoint(sgPoint.x, sgPoint.y, pShape->Get_Z(iPoint, iPart));
-			}
+			pLine->addPoint(p.x, p.y, pShape->Get_Z(iPoint, iPart));
 		}
 
 		return( true );
