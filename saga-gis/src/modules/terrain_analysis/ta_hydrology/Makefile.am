@@ -19,6 +19,7 @@ Erosion_LS_Fields.cpp\
 Flow.cpp\
 Flow_AreaDownslope.cpp\
 Flow_AreaUpslope.cpp\
+flow_by_slope.cpp\
 Flow_Distance.cpp\
 Flow_Parallel.cpp\
 Flow_RecursiveDown.cpp\
@@ -43,6 +44,7 @@ Erosion_LS_Fields.h\
 Flow.h\
 Flow_AreaDownslope.h\
 Flow_AreaUpslope.h\
+flow_by_slope.h\
 Flow_BRM.h\
 Flow_Distance.h\
 Flow_Parallel.h\

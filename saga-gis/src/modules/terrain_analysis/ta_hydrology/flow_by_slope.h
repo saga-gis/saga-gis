@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: flow_by_slope.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    flow_by_slope.h                    //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -55,120 +53,70 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__flow_by_slope_H
+#define HEADER_INCLUDED__flow_by_slope_H
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Hydrology") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya (c) 2001-4") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for digital terrain analysis.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Hydrology") );
-	}
-}
-
-
-//---------------------------------------------------------
-#include "Flow_Parallel.h"
-#include "Flow_RecursiveUp.h"
-#include "Flow_RecursiveDown.h"
-#include "Flow_AreaUpslope.h"
-#include "Flow_AreaDownslope.h"
-
-#include "Flow_Distance.h"
-#include "SlopeLength.h"
-
-#include "EdgeContamination.h"
-
-#include "IsochronesConst.h"
-#include "IsochronesVar.h"
-
-#include "CellBalance.h"
-#include "Sinuosity.h"
-
-#include "FlowDepth.h"
-
-#include "TopographicIndices.h"
-#include "SAGA_Wetness_Index.h"
-
-#include "LakeFlood.h"
-
-#include "flow_massflux.h"
-#include "flow_width.h"
-
-#include "melton_ruggedness.h"
-
-#include "Erosion_LS_Fields.h"
-
-#include "flow_by_slope.h"
-
-
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFlow_Parallel );
-	case  1:	return( new CFlow_RecursiveUp );
-	case  2:	return( new CFlow_RecursiveDown );
-	case  3:	return( new CFlow_AreaUpslope_Interactive );
-	case  4:	return( new CFlow_AreaUpslope_Area );
-	case  5:	return( new CFlow_AreaDownslope );
-	case  6:	return( new CFlow_Distance );
-	case  7:	return( new CSlopeLength );
-	case  8:	return( new CIsochronesConst );
-	case  9:	return( new CIsochronesVar );
-	case 10:	return( new CCellBalance );
-	case 11:	return( new CSinuosity );
-	case 12:	return( new CFlowDepth );
-	case 13:	return( new CEdgeContamination );
-	case 14:	return( MLB_INTERFACE_SKIP_MODULE );	// removed: CTopographicIndices
-	case 15:	return( new CSAGA_Wetness_Index );
-	case 16:	return( new CLakeFlood );
-	case 17:	return( new CLakeFloodInteractive );
-	case 18:	return( new CFlow_MassFlux );
-	case 19:	return( new CFlow_Width );
-	case 20:	return( new CTWI );
-	case 21:	return( new CStream_Power );
-	case 22:	return( new CLS_Factor );
-	case 23:	return( new CMelton_Ruggedness );
-	case 24:	return( new CTCI_Low );
-	case 25:	return( new CErosion_LS_Fields );
-	case 26:	return( new CFlow_by_Slope );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CFlow_by_Slope : public CSG_Module_Grid
+{
+public: ////// public members and functions: //////////////
 
-	MLB_INTERFACE
+	CFlow_by_Slope(void);
 
-//}}AFX_SAGA
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("R:Catchment Area" ));	}
+
+
+protected: /// protected members and functions: ///////////
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
+
+
+private: ///// private members and functions: /////////////
+
+	double				m_Slope_Min, m_Slope_Max, m_Flow_Min, m_Flow_Max;
+
+	CSG_Grid			*m_pDEM, *m_pFlow;
+
+
+	double				Get_Fuzzy				(double Value, double Minimum, double Maximum);
+
+	bool				Get_Decay				(int x, int y, double &Decay);
+
+	void				Set_Area				(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__flow_by_slope_H
