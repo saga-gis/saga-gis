@@ -159,11 +159,20 @@ void CData_Source::Add_Pages(void)
 	_Show_Page(m_pFiles);
 	_Show_Page(m_pODBC);
 	_Show_Page(m_pPgSQL);
+
+	long	lValue;
+
+	if( CONFIG_Read("/DATA/SOURCE", "TAB", lValue) )
+	{
+		SetSelection((size_t)lValue);
+	}
 }
 
 //---------------------------------------------------------
 CData_Source::~CData_Source(void)
 {
+	CONFIG_Write("/DATA/SOURCE", "TAB", (long)GetSelection());
+
 	g_pData_Source		= NULL;
 }
 

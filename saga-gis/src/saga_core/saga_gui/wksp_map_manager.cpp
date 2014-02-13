@@ -98,118 +98,89 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 {
 	g_pMaps		= this;
 
-	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	bool			bValue;
-	double			dValue;
-	long			lValue;
-	CSG_Parameter	*pNode_0, *pNode_1;
-
-	m_Parameters.Create(this, _TL(""), _TL(""));
+	CSG_Parameter	*pNode, *pNode_1;
 
 	//-----------------------------------------------------
-	pNode_0	= m_Parameters.Add_Node(
-		NULL	, "NODE_DEFAULTS"	, _TL("Defaults"),
-		_TL("")
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
+
+	m_Parameters.Add_Value(
+		pNode	, "GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_0	, "GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
+		pNode	, "SCALE_BAR"		, _TL("Show Scale Bar"),
 		_TL(""),
-		PARAMETER_TYPE_Bool,
-		CONFIG_Read(wxT("/MAPS"), wxT("GOTO_NEWLAYER"), bValue) ? bValue : true
-	);
-
-	m_Parameters.Add_Value(
-		pNode_0	, "SCALE_BAR"		, _TL("Show Scale Bar"),
-		_TL(""),
-		PARAMETER_TYPE_Bool,
-		CONFIG_Read(wxT("/MAPS"), wxT("SCALE_BAR"), bValue) ? bValue : true
+		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Node(
-		pNode_0	, "NODE_FRAME"		, _TL("Frame"),
-		_TL("")
-	);
+	pNode_1	= m_Parameters.Add_Node(pNode, "NODE_FRAME", _TL("Frame"), _TL(""));
 
 	m_Parameters.Add_Value(
 		pNode_1	, "FRAME_SHOW"		, _TL("Show"),
 		_TL(""),
-		PARAMETER_TYPE_Bool,
-		CONFIG_Read(wxT("/MAPS"), wxT("FRAME_SHOW"), bValue) ? bValue : true
+		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
 		pNode_1	, "FRAME_WIDTH"		, _TL("Width"),
 		_TL(""),
-		PARAMETER_TYPE_Int,
-		CONFIG_Read(wxT("/MAPS"), wxT("FRAME_WIDTH"), lValue) ? lValue : 17,
-		5, true
+		PARAMETER_TYPE_Int, 17, 5, true
 	);
 
 	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Node(
-		pNode_0	, "NODE_CLIPBOARD"	, _TL("Clipboard"),
-		_TL("")
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_CLIPBOARD", _TL("Clipboard"), _TL(""));
+
+	m_Parameters.Add_Value(
+		pNode	, "CLIP_NX"			, _TL("Width"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 400, 10, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_NX"			, _TL("Width"),
+		pNode	, "CLIP_NY"			, _TL("Height"),
 		_TL(""),
-		PARAMETER_TYPE_Int,
-		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_NX"), lValue) ? lValue : 400
+		PARAMETER_TYPE_Int, 400, 10, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_NY"			, _TL("Height"),
+		pNode	, "CLIP_FRAME"		, _TL("Frame Width"),
 		_TL(""),
-		PARAMETER_TYPE_Int,
-		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_NY"), lValue) ? lValue : 400
+		PARAMETER_TYPE_Int, 17, 0, true
+	);
+
+	//-----------------------------------------------------
+	pNode_1	= m_Parameters.Add_Node(pNode, "NODE_CLIP_LEGEND", _TL("Legend"), _TL(""));
+
+	m_Parameters.Add_Value(
+		pNode_1	, "CLIP_LEGEND_SCALE", _TL("Scale"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 2.0, 1.0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_FRAME"		, _TL("Frame Width"),
+		pNode_1	, "CLIP_LEGEND_FRAME", _TL("Frame Width"),
 		_TL(""),
-		PARAMETER_TYPE_Int,
-		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_FRAME"), lValue) ? lValue : 17,
-		0, true
+		PARAMETER_TYPE_Int, 10, 0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_SCALE", _TL("Legend Scale"),
+		pNode_1	, "CLIP_LEGEND_COLOR", _TL("Border Color"),
 		_TL(""),
-		PARAMETER_TYPE_Double,
-		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_SCALE"), dValue) ? dValue : 2.0,
-		1.0, true
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_FRAME", _TL("Legend Frame Width"),
-		_TL(""),
-		PARAMETER_TYPE_Int,
-		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_FRAME"), lValue) ? lValue : 10,
-		0, true
-	);
-
-	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_COLOR", _TL("Legend Border Colour"),
-		_TL(""),
-		PARAMETER_TYPE_Color,
-		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_COLOR"), lValue) ? lValue : SG_GET_RGB(0, 0, 0)
-	);
+	//-----------------------------------------------------
+	CONFIG_Read("/MAPS", &m_Parameters);
 }
 
 //---------------------------------------------------------
 CWKSP_Map_Manager::~CWKSP_Map_Manager(void)
 {
-	CONFIG_Write(wxT("/MAPS"), wxT("GOTO_NEWLAYER"),       m_Parameters("GOTO_NEWLAYER")->asBool());
-	CONFIG_Write(wxT("/MAPS"), wxT("SCALE_BAR"    ),       m_Parameters("SCALE_BAR"    )->asBool());
-	CONFIG_Write(wxT("/MAPS"), wxT("FRAME_SHOW"   ),       m_Parameters("FRAME_SHOW"   )->asBool());
-	CONFIG_Write(wxT("/MAPS"), wxT("FRAME_WIDTH"  ), (long)m_Parameters("FRAME_WIDTH"  )->asInt());
-	CONFIG_Write(wxT("/MAPS"), wxT("CLIP_NX"      ), (long)m_Parameters("CLIP_NX"      )->asInt());
-	CONFIG_Write(wxT("/MAPS"), wxT("CLIP_NY"      ), (long)m_Parameters("CLIP_NY"      )->asInt());
-	CONFIG_Write(wxT("/MAPS"), wxT("CLIP_FRAME"   ), (long)m_Parameters("CLIP_FRAME"   )->asInt());
+	CONFIG_Write("/MAPS", &m_Parameters);
 
 	g_pMaps		= NULL;
 }

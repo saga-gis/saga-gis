@@ -429,17 +429,23 @@ void CWKSP_Map::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
-		NULL	, "NODE_PRINT"		, _TL("Print Layout"),
+		NULL	, "NODE_PRINT"			, _TL("Print Layout"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Choice(
-		pNode_0	, "PRINT_LEGEND"	, _TL("Show Legend"),
+		pNode_0	, "PRINT_LEGEND"		, _TL("Show Legend"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("no"),
 			_TL("yes")
 		), 1
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "PRINT_SCALE_SHOW"	, _TL("Show Scale"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
@@ -463,12 +469,6 @@ void CWKSP_Map::On_Create_Parameters(void)
 		pNode_1	, "PRINT_FRAME_WIDTH"	, _TL("Width"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 7, 5, true
-	);
-
-	m_Parameters.Add_Value(
-		pNode_0	, "PRINT_SCALE_SHOW"	, _TL("Show Scale"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
@@ -837,12 +837,15 @@ bool CWKSP_Map::Set_Extent_Forward(bool bCheck_Only)
 //---------------------------------------------------------
 void CWKSP_Map::Set_ScaleBar(bool bOn)
 {
-	m_bScaleBar	= bOn;
-
-	if( m_pView )
+	if( m_bScaleBar != bOn )
 	{
-		m_pView->Refresh_Map();
-		m_pView->Ruler_Refresh();
+		m_bScaleBar	= bOn;
+
+		if( m_pView )
+		{
+			m_pView->Refresh_Map();
+			m_pView->Ruler_Refresh();
+		}
 	}
 }
 

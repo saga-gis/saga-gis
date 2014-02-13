@@ -127,9 +127,6 @@ private:
 	class CWKSP_Menu_Modules		*m_pMenu_Modules;
 
 
-	void							_Config_Read		(void);
-	void							_Config_Write		(void);
-
 	int								_Open_Directory		(const wxString &sDirectory, bool bOnlySubDirectories = false);
 
 };

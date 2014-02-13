@@ -164,6 +164,9 @@ bool				CONFIG_Write					(const wxString &Group, const wxString &Entry, bool    
 bool				CONFIG_Delete					(const wxString &Group);
 bool				CONFIG_Delete					(const wxString &Group, const wxString &Entry);
 
+bool				CONFIG_Read						(const wxString &Group, CSG_Parameters *pParameters);
+bool				CONFIG_Write					(const wxString &Group, CSG_Parameters *pParameters);
+
 //---------------------------------------------------------
 bool				PROCESS_is_Executing			(void);
 

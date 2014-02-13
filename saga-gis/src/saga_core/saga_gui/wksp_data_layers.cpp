@@ -280,41 +280,38 @@ CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 	m_nItems		= 0;
 
 	//-----------------------------------------------------
-	bool	bValue;
-	long	lValue;
-
-	m_Size			= CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("SIZE")		, lValue) ? (int)lValue : 75;
-	m_bCategorised	= CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("CATEGORY")	, bValue) ?      bValue : true;
-	m_Active_Color	= CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
-
-	//-----------------------------------------------------
 	m_Parameters.Create(this, _TL("Options for Data Thumbnails"), _TL(""));
 
 	m_Parameters.Add_Value(
 		NULL, "SIZE"		, _TL("Thumbnail Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, m_Size, 10, true
+		PARAMETER_TYPE_Int, 75, 10, true
 	);
 
 	m_Parameters.Add_Value(
 		NULL, "CATEGORY"	, _TL("Show Categories"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, m_bCategorised
+		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
 		NULL, "SELCOLOR"	, _TL("Selection Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, m_Active_Color
+		PARAMETER_TYPE_Color, Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
 	);
+
+	//-----------------------------------------------------
+	CONFIG_Read("/DATA/BUTTONS", &m_Parameters);
+
+	m_Size			= m_Parameters("SIZE"    )->asInt();
+	m_bCategorised	= m_Parameters("CATEGORY")->asBool();
+	m_Active_Color	= m_Parameters("SELCOLOR")->asColor();
 }
 
 //---------------------------------------------------------
 CWKSP_Data_Buttons::~CWKSP_Data_Buttons(void)
 {
-	CONFIG_Write(wxT("/BUTTONS_DATA"), wxT("SIZE")    , (long)m_Parameters("SIZE")	  ->asInt());
-	CONFIG_Write(wxT("/BUTTONS_DATA"), wxT("CATEGORY"),       m_Parameters("CATEGORY")->asBool());
-	CONFIG_Write(wxT("/BUTTONS_DATA"), wxT("SELCOLOR"),       m_Parameters("SELCOLOR")->asColor());
+	CONFIG_Write("/DATA/BUTTONS", &m_Parameters);
 
 	_Del_Items();
 
@@ -333,9 +330,9 @@ void CWKSP_Data_Buttons::On_Mouse_RDown(wxMouseEvent &event)
 {
 	if( DLG_Parameters(&m_Parameters) )
 	{
-		m_Size			= m_Parameters("SIZE")		->asInt();
-		m_bCategorised	= m_Parameters("CATEGORY")	->asBool();
-		m_Active_Color	= m_Parameters("SELCOLOR")	->asColor();
+		m_Size			= m_Parameters("SIZE"    )->asInt();
+		m_bCategorised	= m_Parameters("CATEGORY")->asBool();
+		m_Active_Color	= m_Parameters("SELCOLOR")->asColor();
 
 		Update_Buttons();
 	}

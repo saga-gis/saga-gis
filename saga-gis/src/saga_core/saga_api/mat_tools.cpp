@@ -462,7 +462,7 @@ bool CSG_Class_Statistics::Get_Majority(double &Value)
 
 bool CSG_Class_Statistics::Get_Majority(double &Value, int &Count)
 {
-	return( Get_Class(Get_Majority(), Value, Count) );
+	return( Get_Class(Get_Majority(), Value, Count) && Count > 0 );
 }
 
 //---------------------------------------------------------

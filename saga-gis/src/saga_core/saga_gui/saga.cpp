@@ -105,13 +105,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_GUI_BUILD			wxT("20130701")
-
-//---------------------------------------------------------
-const wxChar *	SAGA_GUI_Get_Build(void)
-{
-	return( SAGA_GUI_BUILD );
-}
+#define SAGA_GUI_BUILD	"20140214"
 
 
 ///////////////////////////////////////////////////////////
@@ -141,8 +135,8 @@ bool CSAGA::OnInit(void)
 	//-----------------------------------------------------
 	g_pSAGA				= this;
 
-	SetVendorName		(wxT("SAGA-GIS.org"));
-	SetAppName			(wxT("SAGA"));
+	SetVendorName		("SAGA-GIS.org");
+	SetAppName			("SAGA");
 
 	wxInitAllImageHandlers();
 
@@ -165,13 +159,12 @@ bool CSAGA::OnInit(void)
 	long			lValue;
 
 	m_Process_bContinue	= true;
-	m_Process_Frequency	= CONFIG_Read(wxT("/MODULES"), wxT("PROC_FREQ"), lValue) ? lValue : 0;
+	m_Process_Frequency	= CONFIG_Read("/MODULES", "PROCESS_UPDATE", lValue) ? lValue : 0;
 
 	//-----------------------------------------------------
-	long			iLogo;
 	wxSplashScreen	*pLogo;
 
-	iLogo	= CONFIG_Read(wxT("/MODULES"), wxT("START_LOGO"), iLogo) ? iLogo : 1;
+	long	iLogo		= CONFIG_Read("/MODULES", "START_LOGO"    , iLogo ) ? iLogo : 1;
 
 	switch( iLogo )
 	{
@@ -195,41 +188,41 @@ bool CSAGA::OnInit(void)
 #if defined(_SAGA_MSW)
 	wxString	Path;
 
-	if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
+	if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
 	{
-		wxSetEnv("PATH", Get_App_Path() + wxT("\\dll;") + Path);
+		wxSetEnv("PATH", Get_App_Path() + "\\dll;" + Path);
 	}
 	else
 	{
-		wxSetEnv("PATH", Get_App_Path() + wxT("\\dll"));
+		wxSetEnv("PATH", Get_App_Path() + "\\dll");
 	}
 
-	wxSetEnv(wxT("GDAL_DRIVER_PATH"), Get_App_Path() + wxT("\\dll"));
+	wxSetEnv("GDAL_DRIVER_PATH", Get_App_Path() + "\\dll");
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
 	wxString	File;
 
 	//-----------------------------------------------------
-	if( !CONFIG_Read(wxT("/MODULES"), wxT("LNG_FILE_DIC"), File) || !wxFileExists(File) )
+	if( !CONFIG_Read("/MODULES", "LNG_FILE_DIC", File) || !wxFileExists(File) )
 	{
-		File	= SG_File_Make_Path(Get_App_Path(), SG_T("saga"), SG_T("lng")).c_str();
+		File	= wxFileName(Get_App_Path(), "saga", "lng").GetFullPath();
 	}
 
 	SG_Get_Translator().Create(&File, false);
 
 	//-----------------------------------------------------
-	if( !CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), File) || !wxFileExists(File) )
+	if( !CONFIG_Read("/MODULES", "CRS_FILE_DIC", File) || !wxFileExists(File) )
 	{
-		File	= SG_File_Make_Path(Get_App_Path(), SG_T("saga_prj"), SG_T("dic")).c_str();
+		File	= wxFileName(Get_App_Path(), "saga_prj", "dic").GetFullPath();
 	}
 
 	SG_Get_Projections().Load_Dictionary(&File);
 
 	//-----------------------------------------------------
-	if( !CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), File) || !wxFileExists(File) )
+	if( !CONFIG_Read("/MODULES", "CRS_FILE_SRS", File) || !wxFileExists(File) )
 	{
-		File	= SG_File_Make_Path(Get_App_Path(), SG_T("saga_prj"), SG_T("srs")).c_str();
+		File	= wxFileName(Get_App_Path(), "saga_prj", "srs").GetFullPath();
 	}
 
 	SG_Get_Projections().Load_DB(&File);
@@ -281,13 +274,13 @@ void CSAGA::_Init_Config(void)
 	wxConfigBase	*pConfig;
 
 #if defined(_SAGA_MSW)
-	wxFileName	fConfig(Get_App_Path(), wxT("saga_gui"), wxT("ini"));
+	wxFileName	fConfig(Get_App_Path(), "saga_gui", "ini");
 
 	if(	( fConfig.FileExists() && (!fConfig.IsFileReadable() || !fConfig.IsFileWritable()))
 	||	(!fConfig.FileExists() && (!fConfig.IsDirReadable () || !fConfig.IsDirWritable ())) )
 	{
-		fConfig.Assign(wxGetHomeDir(), wxT("saga_gui"), wxT("ini"));
-		//fConfig.Assign(wxFileName::GetTempDir(), wxT("saga_gui"), wxT("ini"));
+		fConfig.Assign(wxGetHomeDir(), "saga_gui", "ini");
+		//fConfig.Assign(wxFileName::GetTempDir(), "saga_gui", "ini");
 	}
 
 	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fConfig.GetFullPath(), fConfig.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
@@ -300,11 +293,11 @@ void CSAGA::_Init_Config(void)
 	//-----------------------------------------------------
 	wxString	s;
 
-	if( !CONFIG_Read(wxT("Version"), wxT("Build"), s) || s.Cmp(SAGA_GUI_Get_Build()) )
+	if( !CONFIG_Read("Version", "Build", s) || s.Cmp(SAGA_GUI_BUILD) )
 	{
 		long	l;
 
-		pConfig->SetPath(wxT("/"));
+		pConfig->SetPath("/");
 
 		while( pConfig->GetFirstGroup(s, l) )
 		{
@@ -313,7 +306,7 @@ void CSAGA::_Init_Config(void)
 
 		pConfig->Flush();
 
-		CONFIG_Write(wxT("Version"), wxT("Build"), SAGA_GUI_Get_Build());
+		CONFIG_Write("Version", "Build", SAGA_GUI_BUILD);
 	}
 }
 

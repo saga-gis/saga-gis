@@ -254,6 +254,9 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 {
 	if( Create((CSG_Grid *)&Grid, ((CSG_Grid *)&Grid)->Get_Type()) )
 	{
+		Set_Name       (Grid.Get_Name       ());
+		Set_Description(Grid.Get_Description());
+
 		return( Assign((CSG_Data_Object *)&Grid) );
 	}
 
@@ -265,6 +268,8 @@ bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_Type 
 {
 	if( pGrid && Create(Type, pGrid->Get_NX(), pGrid->Get_NY(), pGrid->Get_Cellsize(), pGrid->Get_XMin(), pGrid->Get_YMin(), Memory_Type) )
 	{
+		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+
 		Get_Projection()	= pGrid->Get_Projection();
 
 		return( true );

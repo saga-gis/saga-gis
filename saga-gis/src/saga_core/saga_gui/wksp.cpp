@@ -183,28 +183,42 @@ void CWKSP::Add_Pages(void)
 {
 	long	lValue;
 
+	//-----------------------------------------------------
 	AddPage(m_pModules				, _TL("Modules")	, false, IMG_MODULES);
 	AddPage(m_pData->GetParent()	, _TL("Data")		, false, IMG_DATA);
 	AddPage(m_pMaps->GetParent()	, _TL("Maps")		, false, IMG_MAPS);
 
+	if( CONFIG_Read("/DATA", "TAB", lValue) )
+	{
+		SetSelection((size_t)lValue);
+	}
+
+	//-----------------------------------------------------
 	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData			, SUBNB_CAPTION_TREE	, false, 0);
 	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData_Buttons	, SUBNB_CAPTION_BUTTONS	, false, 1);
 
-	if( CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("TAB"), lValue) )
+	if( CONFIG_Read("/DATA/BUTTONS", "TAB", lValue) )
+	{
 		((wxNotebook *)m_pData->GetParent())->SetSelection((size_t)lValue);
+	}
 
+	//-----------------------------------------------------
 	((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps			, SUBNB_CAPTION_TREE	, false, 0);
 	((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps_Buttons	, SUBNB_CAPTION_BUTTONS	, false, 1);
 
-	if( CONFIG_Read(wxT("/BUTTONS_MAPS"), wxT("TAB"), lValue) )
+	if( CONFIG_Read("/MAPS/BUTTONS", "TAB", lValue) )
+	{
 		((wxNotebook *)m_pMaps->GetParent())->SetSelection((size_t)lValue);
+	}
 }
 
 //---------------------------------------------------------
 CWKSP::~CWKSP(void)
 {
-	CONFIG_Write(wxT("/BUTTONS_DATA"), wxT("TAB"), (long)((wxNotebook *)m_pData->GetParent())->GetSelection());
-	CONFIG_Write(wxT("/BUTTONS_MAPS"), wxT("TAB"), (long)((wxNotebook *)m_pMaps->GetParent())->GetSelection());
+	CONFIG_Write("/DATA", "TAB", (long)GetSelection());
+
+	CONFIG_Write("/DATA/BUTTONS", "TAB", (long)((wxNotebook *)m_pData->GetParent())->GetSelection());
+	CONFIG_Write("/MAPS/BUTTONS", "TAB", (long)((wxNotebook *)m_pMaps->GetParent())->GetSelection());
 
 	g_pWKSP		= NULL;
 }
