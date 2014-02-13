@@ -81,52 +81,34 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Method_Key
-{
-	METHOD_KEY_MIN		= 0,
-	METHOD_KEY_MAX,
-	METHOD_KEY_MEAN,
-	METHOD_KEY_MAJORITY,
-	METHOD_KEY_Count
-}
-TSG_Method_Key;
-
-//---------------------------------------------------------
-const SG_Char	gSG_Method_Key_Names[METHOD_KEY_Count][32]	=
-{
-	SG_T("min"),
-	SG_T("max"),
-	SG_T("mean"),
-	SG_T("majority")
-};
-
-
-//---------------------------------------------------------
 class CGrid_Shrink_Expand : public CSG_Module_Grid
 {
 public:
 	CGrid_Shrink_Expand(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Gaps") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Grid|Gaps") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int				On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	int						m_Radius, m_Threshold;
+	int						m_Threshold;
 
-	CSG_Grid				m_Kernel, *m_pInput;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
-	CSG_Class_Statistics	m_Majority;
+	CSG_Grid				*m_pInput;
 
 
-	double					Get_Majority	(int x, int y);
+	bool					Do_Shrink				(CSG_Grid *pResult);
+	bool					Do_Expand				(CSG_Grid *pResult);
+
+	bool					Get_Expand_Value		(int x, int y, int Method, double &Value);
 
 };
 
