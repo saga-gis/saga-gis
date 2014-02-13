@@ -80,7 +80,7 @@ CCRS_Assign::CCRS_Assign(void)
 		"The module allows to define the Coordinate Reference System (CRS) "
 		"of the supplied data sets. The module applies no transformation to "
 		"the data sets, it just updates their CRS metadata.\n"
-		"A complete and correct description of the CRS of a dataset is neccessary "
+		"A complete and correct description of the CRS of a dataset is necessary "
 		"in order to be able to actually apply a projection with one of the "
 		"'Coordinate Transformation' modules later.\n\n"
 	));
