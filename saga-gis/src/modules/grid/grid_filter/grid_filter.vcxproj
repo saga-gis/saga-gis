@@ -304,6 +304,7 @@
     <ClCompile Include="Filter_Multi_Dir_Lee.cpp" />
     <ClCompile Include="Filter_Rank.cpp" />
     <ClCompile Include="Filter_Resample.cpp" />
+    <ClCompile Include="Filter_Sieve.cpp" />
     <ClCompile Include="Filter_Terrain_SlopeBased.cpp" />
     <ClCompile Include="geodesic_morph_rec\bin_geovinc.c" />
     <ClCompile Include="geodesic_morph_rec\combcontour.c" />
@@ -341,6 +342,7 @@
     <ClInclude Include="Filter_Multi_Dir_Lee.h" />
     <ClInclude Include="Filter_Rank.h" />
     <ClInclude Include="Filter_Resample.h" />
+    <ClInclude Include="Filter_Sieve.h" />
     <ClInclude Include="Filter_Terrain_SlopeBased.h" />
     <ClInclude Include="geodesic_morph_rec\bin_geovinc.h" />
     <ClInclude Include="geodesic_morph_rec\combcontour.h" />

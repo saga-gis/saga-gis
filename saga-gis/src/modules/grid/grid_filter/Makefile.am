@@ -24,6 +24,7 @@ Filter_Morphology.cpp\
 Filter_Multi_Dir_Lee.cpp\
 Filter_Rank.cpp\
 Filter_Resample.cpp\
+Filter_Sieve.cpp\
 Filter_Terrain_SlopeBased.cpp\
 FilterClumps.cpp\
 geomrec.cpp\
@@ -44,6 +45,7 @@ Filter_Morphology.h\
 Filter_Multi_Dir_Lee.h\
 Filter_Rank.h\
 Filter_Resample.h\
+Filter_Sieve.h\
 Filter_Terrain_SlopeBased.h\
 FilterClumps.h\
 geomrec.h\
