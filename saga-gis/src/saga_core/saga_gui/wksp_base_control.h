@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/treectrl.h>
+#include "wksp_base_item.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -106,6 +106,8 @@ public:
 
 	wxMenu *					Get_Context_Menu	(void);
 
+	CWKSP_Base_Item	*			Search_Item			(const wxString &Caption, TWKSP_Item Type = WKSP_ITEM_Undefined);
+
 
 protected:
 
@@ -130,8 +132,8 @@ protected:
 	bool						_Copy_Settings		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem);
 
 	bool						_Search_Compare		(wxString A, wxString B, bool bCase);
+	bool						_Search_Get_List	(class CSG_Table *pList, class CWKSP_Base_Item *pItem, const wxString &String, bool bName, bool bDesc, bool bCase, TWKSP_Item Type);
 	bool						_Search_Item		(void);
-	bool						_Search_Get_List	(class CSG_Table *pList, class CWKSP_Base_Item *pItem, const wxString &String, bool bName, bool bDesc, bool bCase);
 
 
 //---------------------------------------------------------

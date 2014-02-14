@@ -167,7 +167,7 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 	{
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
-		s	+= CSG_String::Format(SG_T("\n%s:\n"), _TL("modules"));
+		s	+= CSG_String::Format(SG_T("\n%s:\n"), _TL("tools"));
 
 		for(i=0; i<Get_Count(); i++)
 		{
@@ -182,14 +182,14 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_HTML: default:
 		s	+= CSG_String::Format(SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
-				_TL("Module Library"), Get_Info(MLB_INFO_Name),
-				_TL("Author"        ), Get_Info(MLB_INFO_Author),
-				_TL("Version"       ), Get_Info(MLB_INFO_Version),
-				_TL("File"          ), Get_File_Name().c_str(),
+				_TL("Tool Library"), Get_Info(MLB_INFO_Name),
+				_TL("Author"      ), Get_Info(MLB_INFO_Author),
+				_TL("Version"     ), Get_Info(MLB_INFO_Version),
+				_TL("File"        ), Get_File_Name().c_str(),
 				Get_Info(MLB_INFO_Description)
 			);
 
-		s	+= CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("Modules"));
+		s	+= CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("Tools"));
 
 		for(i=0; i<Get_Count(); i++)
 		{
@@ -612,7 +612,7 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 	{
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
-		s	+= CSG_String::Format(SG_T("\n%d %s (%d %s):\n"), Get_Count(), _TL("loaded module libraries"), nModules, _TL("modules"));
+		s	+= CSG_String::Format(SG_T("\n%d %s (%d %s):\n"), Get_Count(), _TL("loaded tool libraries"), nModules, _TL("tools"));
 
 		for(i=0; i<Get_Count(); i++)
 		{
@@ -623,18 +623,18 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_HTML: default:
-		s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Module Libraries"));
+		s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Tool Libraries"));
 
 		s	+= SG_T("<table border=\"0\">");
 		SUMMARY_HTML_ADD_INT(_TL("Available Libraries"), Get_Count());
-		SUMMARY_HTML_ADD_INT(_TL("Available Modules"  ), nModules);
+		SUMMARY_HTML_ADD_INT(_TL("Available Tools"    ), nModules);
 		s	+= SG_T("</table>");
 
-		s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Module Libraries"));
+		s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Tool Libraries"));
 
 		s	+= CSG_String::Format(SG_T("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
 				_TL("Library"),
-				_TL("Modules"),
+				_TL("Tools"),
 				_TL("Name"),
 				_TL("Location")
 			);

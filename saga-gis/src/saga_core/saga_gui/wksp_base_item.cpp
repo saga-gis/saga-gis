@@ -85,9 +85,9 @@ wxString CWKSP_Base_Item::Get_Type_Name(TWKSP_Item Type)
 {
 	switch( Type )
 	{
-	case WKSP_ITEM_Module_Manager:		return( _TL("Module Manager") );
-	case WKSP_ITEM_Module_Library:		return( _TL("Module Library") );
-	case WKSP_ITEM_Module:				return( _TL("Module") );
+	case WKSP_ITEM_Module_Manager:		return( _TL("Tool Manager") );
+	case WKSP_ITEM_Module_Library:		return( _TL("Tool Library") );
+	case WKSP_ITEM_Module:				return( _TL("Tool") );
 
 	case WKSP_ITEM_Data_Manager:		return( _TL("Data Manager") );
 

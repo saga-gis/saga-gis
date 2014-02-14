@@ -241,7 +241,7 @@ bool		Execute(int argc, char *argv[])
 	}
 
 	if( argc == 3 && CMD_Get_XML() )
-	{	// Just output module synopsis as XML-tagged text, then return.
+	{	// Just output tool synopsis as XML-tagged text, then return.
 		SG_PRINTF(pModule->Get_Summary(true, "", "", true).c_str());
 
 		return( true );
@@ -249,7 +249,7 @@ bool		Execute(int argc, char *argv[])
 
 	if( pModule->is_Interactive() )
 	{
-		CMD_Print_Error(_TL("cannot execute interactive module"), pModule->Get_Name());
+		CMD_Print_Error(_TL("cannot execute interactive tool"), pModule->Get_Name());
 
 		return( false );
 	}
@@ -412,7 +412,7 @@ bool		Load_Libraries(void)
 
 		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
 
-		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("modules")));
+		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("tools")));
     #endif
 
 	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) )
@@ -427,7 +427,7 @@ bool		Load_Libraries(void)
 
 	if( SG_Get_Module_Library_Manager().Get_Count() <= 0 )
 	{
-		CMD_Print_Error(SG_T("could not load any module library"));
+		CMD_Print_Error(SG_T("could not load any tool library"));
 
 		return( false );
 	}
@@ -554,7 +554,7 @@ void		Print_Libraries	(void)
 //---------------------------------------------------------
 void		Print_Modules	(CSG_Module_Library *pLibrary)
 {
-	CMD_Print_Error(_TL("module"));
+	CMD_Print_Error(_TL("tool"));
 
 	if( CMD_Get_Show_Messages() )
 	{
@@ -589,7 +589,7 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 			SG_PRINTF(SG_T("_____________________________________________\n"));
 			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
 			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("module name "), pModule ->Get_Name     ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("tool name   "), pModule ->Get_Name     ().c_str());
 			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
 			SG_PRINTF(SG_T("_____________________________________________\n\n"));
 		}
@@ -671,7 +671,7 @@ void		Print_Help		(void)
 		"[-h], [--help]   : help on usage\n"
 		"[-v], [--version]: print version information\n"
 		"[-b], [--batch]  : create a batch file example\n"
-		"[-d], [--docs]   : create module documentation in current working directory\n"
+		"[-d], [--docs]   : create tool documentation in current working directory\n"
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
@@ -685,9 +685,9 @@ void		Print_Help		(void)
 		"  x              : use XML markups for synopses and messages\n"
 		"\n"
 		"<LIBRARY>        : name of the library\n"
-		"<MODULE>         : either name or index of the module\n"
-		"<OPTIONS>        : module specific options\n"
-		"<SCRIPT>         : saga cmd script file with one or more module calls\n"
+		"<MODULE>         : either name or index of the tool\n"
+		"<OPTIONS>        : tool specific options\n"
+		"<SCRIPT>         : saga cmd script file with one or more tool calls\n"
 		"\n"
 		"_____________________________________________\n"
 		"Example:\n"
@@ -695,13 +695,13 @@ void		Print_Help		(void)
 		"  saga_cmd -f=s ta_lighting 0 -ELEVATION=c:\\dem.sgrd -SHADE=c:\\shade.sgrd\n"
 		"\n"
 		"_____________________________________________\n"
-		"Module libraries in the \'modules\' subdirectory of the SAGA installation\n"
+		"Tool libraries in the \'modules\' subdirectory of the SAGA installation\n"
 		"will be loaded automatically. Additional directories can be specified\n"
 		"by adding the environment variable \'SAGA_MLB\' and let it point to one\n"
 		"or more directories, just the way it is done with the DOS \'PATH\' variable.\n"
 		"\n"
 		"The SAGA command line interpreter is particularly useful for the processing\n"
-		"of complex work flows by defining a series of subsequent module calls in a\n"
+		"of complex work flows by defining a series of subsequent tool calls in a\n"
 		"script file. Calling saga_cmd with the option \'-b\' or \'--batch\' will\n"
 		"create an example of a DOS batch script file, which might be a good starting\n"
 		"point for the implementation of your own specific work flows.\n"
@@ -823,7 +823,7 @@ void		Create_Docs		(void)
 
 	if( Load_Libraries() )
 	{
-		CMD_Print(_TL("creating module documentation files"));
+		CMD_Print(_TL("creating tool documentation files"));
 
 		CMD_Set_Show_Messages(false);
 

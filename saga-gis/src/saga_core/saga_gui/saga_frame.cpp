@@ -431,7 +431,7 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 		{
 			if( g_pModule )
 			{
-				DLG_Message_Show(_TL("Please stop module execution before exiting SAGA."), _TL("Exit SAGA"));
+				DLG_Message_Show(_TL("Please stop tool execution before exiting SAGA."), _TL("Exit SAGA"));
 			}
 
 			event.Veto();
@@ -752,7 +752,7 @@ bool CSAGA_Frame::Process_Set_Okay(bool bOkay)
 {
 	StatusBar_Set_Text(_TL("ready"));
 
-	ProgressBar_Set_Position(0);
+	ProgressBar_Set_Position(-1);
 
 	g_pSAGA->Process_Set_Okay(bOkay);
 
@@ -764,16 +764,19 @@ bool CSAGA_Frame::ProgressBar_Set_Position(int Position)
 {
 	if( Position < 0 )
 	{
-		Position	= 0;
+		m_pProgressBar->SetValue(0);
 	}
-	else if( Position > 100 )
+	else
 	{
-		Position	= 100;
-	}
+		if( Position > 100 )
+		{
+			Position	= 100;
+		}
 
-	if( m_pProgressBar->GetValue() != Position )
-	{
-		m_pProgressBar->SetValue(Position);
+		if( m_pProgressBar->GetValue() != Position )
+		{
+			m_pProgressBar->SetValue(Position);
+		}
 	}
 
 	return( Process_Get_Okay(false) );
@@ -969,10 +972,10 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	//-----------------------------------------------------
 	wxMenuBar	*pMenuBar	= new wxMenuBar;
 
-	pMenuBar->Append(g_pData   ->Get_Menu_Files  ()->Get_Menu(), _TL("File"   ));	// 0
-	pMenuBar->Append(g_pModules->Get_Menu_Modules()->Get_Menu(), _TL("Modules"));	// 1
-	pMenuBar->Append(pMenu_Window                              , _TL("Window" ));	// 2
-	pMenuBar->Append(pMenu_Help                                , _TL("?"      ));	// 3
+	pMenuBar->Append(g_pData   ->Get_Menu_Files  ()->Get_Menu(), _TL("File"         ));	// 0
+	pMenuBar->Append(g_pModules->Get_Menu_Modules()->Get_Menu(), _TL("Geoprocessing"));	// 1
+	pMenuBar->Append(pMenu_Window                              , _TL("Window"       ));	// 2
+	pMenuBar->Append(pMenu_Help                                , _TL("?"            ));	// 3
 
 	SetMenuBar(pMenuBar);
 
@@ -1119,6 +1122,8 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_ACTIVE_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_DATA_SOURCE_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_INFO_SHOW);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MODULES_SEARCH);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);
 

@@ -213,7 +213,7 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 		break;
 
 	case WKSP_ITEM_Module_Library:
-		m_pFiles->SetPath(((CWKSP_Module_Library *)pItem)->Get_File_Name());
+	//	m_pFiles->SetPath(((CWKSP_Module_Library *)pItem)->Get_File_Name());
 		break;
 
 	case WKSP_ITEM_Module:

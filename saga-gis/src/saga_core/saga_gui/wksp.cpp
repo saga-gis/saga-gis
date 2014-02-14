@@ -184,9 +184,9 @@ void CWKSP::Add_Pages(void)
 	long	lValue;
 
 	//-----------------------------------------------------
-	AddPage(m_pModules				, _TL("Modules")	, false, IMG_MODULES);
-	AddPage(m_pData->GetParent()	, _TL("Data")		, false, IMG_DATA);
-	AddPage(m_pMaps->GetParent()	, _TL("Maps")		, false, IMG_MAPS);
+	AddPage(m_pModules          , _TL("Tools"), false, IMG_MODULES);
+	AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA);
+	AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS);
 
 	if( CONFIG_Read("/DATA", "TAB", lValue) )
 	{

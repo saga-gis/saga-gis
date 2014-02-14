@@ -194,7 +194,7 @@ wxMenu * CWKSP_Module::Get_Menu(void)
 
 	pMenu	= new wxMenu(Get_Name());
 
-	pMenu->AppendCheckItem(Get_Menu_ID(), _TL("Execute"), _TL("Execute Module"));
+	pMenu->AppendCheckItem(Get_Menu_ID(), _TL("Execute"), _TL("Execute Tool"));
 
 	pMenu->AppendSeparator();
 
@@ -308,7 +308,7 @@ void CWKSP_Module::_Save_Script(void)
 		}
 		else if( SG_File_Cmp_Extension(FileName, SG_T("py" )) )
 		{
-			Command	+= SG_T("# Python script template for SAGA module execution (automatically created, experimental)\n\n");
+			Command	+= SG_T("# Python script template for SAGA tool execution (automatically created, experimental)\n\n");
 			Command	+= SG_T("import saga_api, sys, os\n");
 			Command	+= SG_T("\n");
 			Command	+= SG_T("def Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes):\n");
@@ -318,7 +318,7 @@ void CWKSP_Module::_Save_Script(void)
 			Command	+= SG_T("    if Library.Create(saga_api.CSG_String('");
 			Command	+= ((CWKSP_Module_Library *)Get_Manager())->Get_File_Name().wc_str();
 			Command	+= SG_T("')) == 0:\n");
-			Command	+= SG_T("        print 'unable to load SAGA module library'\n");
+			Command	+= SG_T("        print 'unable to load SAGA tool library'\n");
 			Command	+= SG_T("        return 0\n");
 			Command	+= SG_T("\n");
 
@@ -637,14 +637,14 @@ bool CWKSP_Module::Execute(bool bDialog)
 		{
 			if( g_pModule->is_Executing() )
 			{
-				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Module Execution")) )
+				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Tool Execution")) )
 				{
 					PROCESS_Set_Okay(false);
 				}
 			}
 			else if( m_pModule->is_Interactive() )
 			{
-				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Module Execution")) )
+				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Tool Execution")) )
 				{
 					bResult		= ((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
 					g_pModule	= NULL;
@@ -652,15 +652,15 @@ bool CWKSP_Module::Execute(bool bDialog)
 					PROCESS_Set_Okay(true);
 
 					MSG_ADD2(bResult,
-						_TL("Interactive module execution has been stopped"),
-						_TL("Interactive module execution failed")
+						_TL("Interactive tool execution has been stopped"),
+						_TL("Interactive tool execution failed")
 					);
 				}
 			}
 		}
 		else
 		{
-			DLG_Message_Show(_TL("Can't execute a module while another runs"), _TL("Module Execution"));
+			DLG_Message_Show(_TL("Can't execute a tool while another runs"), _TL("Tool Execution"));
 		}
 	}
 
@@ -675,7 +675,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();
-			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("Executing module"), m_pModule->Get_Name().c_str()));
+			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("Executing tool"), m_pModule->Get_Name().c_str()));
 
 			STATUSBAR_Set_Text(m_pModule->Get_Name().w_str());
 
@@ -686,15 +686,15 @@ bool CWKSP_Module::Execute(bool bDialog)
 			if( m_pModule->is_Interactive() )
 			{
 				MSG_ADD2(bResult,
-					_TL("Interactive module execution has been started"),
-					_TL("Interactive module execution failed")
+					_TL("Interactive tool execution has been started"),
+					_TL("Interactive tool execution failed")
 				);
 			}
 			else
 			{
 				MSG_ADD2(bResult,
-					_TL("Module execution succeeded"),
-					_TL("Module execution failed")
+					_TL("Tool execution succeeded"),
+					_TL("Tool execution failed")
 				);
 			}
 

@@ -216,7 +216,7 @@ bool CCMD_Module::Execute(CSG_String sLibName, int argc, char *argv[])
 	}
 	else
 	{
-		CMD_Print_Error(_TL("executing module"), m_pModule->Get_Name());
+		CMD_Print_Error(_TL("executing tool"), m_pModule->Get_Name());
 	}
 
 	return( bResult );

@@ -132,9 +132,10 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DB_TABLE_INFO:			return( _TL("Field Description") );
 	case ID_CMD_DB_TABLE_FROM_QUERY:	return( _TL("Query") );
 
-	case ID_CMD_MODULES_OPEN:			return( _TL("Load Module Library") );
+	case ID_CMD_MODULES_OPEN:			return( _TL("Load Tool Library") );
+	case ID_CMD_MODULES_SEARCH:			return( _TL("Find and Run Tool") );
 	case ID_CMD_MODULES_SAVE_SCRIPT:	return( _TL("Create Script Command File") );
-	case ID_CMD_MODULES_SAVE_DOCS:		return( _TL("Create Module Description Files") );
+	case ID_CMD_MODULES_SAVE_DOCS:		return( _TL("Create Tool Description Files") );
 
 	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("Close All") );
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
@@ -343,6 +344,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_WKSP_OPEN:				return( ID_IMG_TB_OPEN );
 	case ID_CMD_WKSP_SAVE:				return( ID_IMG_TB_SAVE );
 	case ID_CMD_MODULES_OPEN:			return( ID_IMG_TB_OPEN_MODULE );
+	case ID_CMD_MODULES_SEARCH:			return( ID_IMG_NB_WKSP_MODULES );
 	case ID_CMD_TABLES_OPEN:			return( ID_IMG_TB_OPEN_TABLE );
 	case ID_CMD_SHAPES_OPEN:			return( ID_IMG_TB_OPEN_SHAPES );
 	case ID_CMD_GRIDS_OPEN:				return( ID_IMG_TB_OPEN_GRID );

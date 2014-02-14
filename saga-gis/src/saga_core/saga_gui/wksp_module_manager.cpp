@@ -72,6 +72,7 @@
 
 #include "helper.h"
 
+#include "wksp_module_control.h"
 #include "wksp_module_manager.h"
 #include "wksp_module_library.h"
 #include "wksp_module_menu.h"
@@ -135,7 +136,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 #endif
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_MODULES", _TL("Modules"), _TL(""));
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_MODULES", _TL("Tools"), _TL(""));
 
 	m_Parameters.Add_Value(
 		pNode	, "BEEP"			, _TL("Beep when finished"),
@@ -144,7 +145,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	);
 
 	m_Parameters.Add_Choice(
-		pNode	, "HELP_SOURCE"		, _TL("Module Description Source"),
+		pNode	, "HELP_SOURCE"		, _TL("Tool Description Source"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("built-in"),
@@ -258,7 +259,7 @@ bool CWKSP_Module_Manager::Finalise(void)
 //---------------------------------------------------------
 wxString CWKSP_Module_Manager::Get_Name(void)
 {
-	return( _TL("Module Libraries") );
+	return( _TL("Tool Libraries") );
 }
 
 //---------------------------------------------------------
@@ -272,7 +273,7 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(_TL("Module Libraries"));
+	pMenu	= new wxMenu(_TL("Tool Libraries"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_OPEN);
 
@@ -307,13 +308,24 @@ bool CWKSP_Module_Manager::On_Command(int Cmd_ID)
 		Open();
 		break;
 
+	case ID_CMD_MODULES_SEARCH:
+		{
+			CWKSP_Base_Item	*pItem	= g_pModule_Ctrl->Search_Item(_TL("Run Tool"), WKSP_ITEM_Module);
+
+			if( pItem && pItem->GetId().IsOk() && pItem->Get_Type() == WKSP_ITEM_Module )
+			{
+				((CWKSP_Module *)pItem)->Execute(true);
+			}
+		}
+		break;
+
 	case ID_CMD_MODULES_SAVE_DOCS:
 		{
 			wxString	Path;
 
-			if( DLG_Directory(Path, _TL("Create Module Description Files")) )
+			if( DLG_Directory(Path, _TL("Create Tool Description Files")) )
 			{
-				MSG_General_Add(wxString::Format(SG_T("%s..."), _TL("Create Module Description Files")), true, true);
+				MSG_General_Add(wxString::Format(SG_T("%s..."), _TL("Create Tool Description Files")), true, true);
 
 				SG_Get_Module_Library_Manager().Get_Summary(&Path);
 
@@ -335,6 +347,8 @@ bool CWKSP_Module_Manager::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
 	case ID_CMD_WKSP_ITEM_CLOSE:
+	case ID_CMD_MODULES_SEARCH:
+	case ID_CMD_MODULES_SAVE_DOCS:
 		event.Enable(Get_Count() > 0 && g_pModule == NULL);
 		break;
 	}

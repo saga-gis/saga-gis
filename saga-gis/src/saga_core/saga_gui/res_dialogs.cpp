@@ -148,7 +148,7 @@ wxString DLG_Get_FILE_Caption(int ID_DLG)
 	{
 	case ID_DLG_WKSP_OPEN:			return( _TL("Load") );
 
-	case ID_DLG_MODULES_OPEN:		return( _TL("Load Module Library") );
+	case ID_DLG_MODULES_OPEN:		return( _TL("Load Tool Library") );
 
 	case ID_DLG_PROJECT_OPEN:		return( _TL("Load Project") );
 	case ID_DLG_PROJECT_SAVE:		return( _TL("Save Project") );
@@ -216,7 +216,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			wxT("%s|*.*"),
 			_TL("All Recognised Files"),
 			_TL("SAGA Projects"),
-			_TL("SAGA Module Libraries"),
+			_TL("SAGA Tool Libraries"),
 			_TL("Grids"),
 			_TL("ESRI Shape Files"),
 			_TL("Tables"),
@@ -228,7 +228,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 		return( wxString::Format(
 			wxT("%s (*.dll, *.so)|*.mlb;*.dll;*.so|")
 			wxT("%s|*.*"),
-			_TL("SAGA Module Libraries"),
+			_TL("SAGA Tool Libraries"),
 			_TL("All Files")
 		));
 

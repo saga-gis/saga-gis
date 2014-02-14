@@ -294,7 +294,7 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 	//-----------------------------------------------------
 	else
 	{
-		Node	= AppendItem(Parent, _TL("Module"), IMG_NODE);
+		Node	= AppendItem(Parent, _TL("Tool"), IMG_NODE);
 
 		AppendItem(Node, pEntry->Get_Content().c_str(), IMG_ENTRY);
 

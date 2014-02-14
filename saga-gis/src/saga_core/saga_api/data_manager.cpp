@@ -726,21 +726,21 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	CSG_String	s;
 
-/*	s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Module Libraries"));
+/*	s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Tool Libraries"));
 
 	s	+= SG_T("<table border=\"0\">");
 
 	SUMMARY_ADD_INT(_TL("Available Libraries"), Get_Count());
-	SUMMARY_ADD_INT(_TL("Available Modules"  ), nModules);
+	SUMMARY_ADD_INT(_TL("Available Tools"    ), nModules);
 
 	s	+= SG_T("</table>");
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Module Libraries"));
+	s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Tool Libraries"));
 
 	s	+= CSG_String::Format(SG_T("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
 			_TL("Library"),
-			_TL("Modules"),
+			_TL("Tools"),
 			_TL("Name"),
 			_TL("Location")
 		);

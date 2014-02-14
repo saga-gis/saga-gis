@@ -216,7 +216,7 @@ bool CSG_Module::Execute(void)
 		}	// try
 		__except(1)
 		{
-			Message_Dlg(SG_T("Module caused access violation!"));
+			Message_Dlg(SG_T("Tool caused access violation!"));
 		}	// except(1)
 #endif
 ///////////////////////////////////////////////////////////
@@ -941,7 +941,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 	//-----------------------------------------------------
 	else
 	{
-		s	+= CSG_String::Format(SG_T("<b>%s</b><table border=\"0\">"), _TL("Module"));
+		s	+= CSG_String::Format(SG_T("<b>%s</b><table border=\"0\">"), _TL("Tool"));
 
 		SUMMARY_ADD_STR(_TL("Name"  ), Get_Name  ().c_str());
 		SUMMARY_ADD_INT(_TL("ID"    ), Get_ID    ());

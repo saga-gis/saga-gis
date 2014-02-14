@@ -143,8 +143,8 @@ void CWKSP_Menu_Modules::Update(void)
 		}
 
 		m_pMenu->InsertSeparator(0);
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_WKSP_ITEM_CLOSE, 0);
 		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_OPEN	, 0);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_SEARCH	, 1);
 
 		_Set_Recent(m_pMenu);
 	}

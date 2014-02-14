@@ -858,28 +858,31 @@ bool CWKSP_Base_Control::_Search_Compare(wxString A, wxString B, bool bCase)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pItem, const wxString &String, bool bName, bool bDesc, bool bCase)
+bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pItem, const wxString &String, bool bName, bool bDesc, bool bCase, TWKSP_Item Type)
 {
 	if( pItem == NULL )
 	{
 		return( false );
 	}
 
-	if(	(bName && _Search_Compare(String, pItem->Get_Name       (), bCase))
-	||	(bDesc && _Search_Compare(String, pItem->Get_Description(), bCase)) )
+	if(	Type == WKSP_ITEM_Undefined || Type == pItem->Get_Type() )
 	{
-		CSG_Table_Record	*pRecord	= pList->Add_Record();
+		if( (bName && _Search_Compare(String, pItem->Get_Name       (), bCase))
+		||  (bDesc && _Search_Compare(String, pItem->Get_Description(), bCase)) )
+		{
+			CSG_Table_Record	*pRecord	= pList->Add_Record();
 
-		pRecord->Set_Value(0, pItem->Get_Name().wx_str());
-		pRecord->Set_Value(1, pItem->Get_Type_Name(pItem->Get_Type()).wx_str());
-		pRecord->Set_Value(2, (long)pItem);
+			pRecord->Set_Value(0, pItem->Get_Name().wx_str());
+			pRecord->Set_Value(1, pItem->Get_Type_Name(pItem->Get_Type()).wx_str());
+			pRecord->Set_Value(2, (long)pItem);
+		}
 	}
 
 	if( pItem->is_Manager() )
 	{
 		for(int i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
 		{
-			_Search_Get_List(pList, ((CWKSP_Base_Manager *)pItem)->Get_Item(i), String, bName, bDesc, bCase);
+			_Search_Get_List(pList, ((CWKSP_Base_Manager *)pItem)->Get_Item(i), String, bName, bDesc, bCase, Type);
 		}
 	}
 
@@ -887,9 +890,9 @@ bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pIt
 }
 
 //---------------------------------------------------------
-bool CWKSP_Base_Control::_Search_Item(void)
+CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP_Item Type)
 {
-	static CSG_Parameters	Search(NULL, _TL("Search for..."), _TL(""));
+	static CSG_Parameters	Search(NULL, Caption, _TL(""));
 
 	if( Search.Get_Count() == 0 )
 	{
@@ -901,7 +904,7 @@ bool CWKSP_Base_Control::_Search_Item(void)
 
 	if( !DLG_Parameters(&Search) )
 	{
-		return( false );
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
@@ -911,42 +914,61 @@ bool CWKSP_Base_Control::_Search_Item(void)
 	List.Add_Field(_TL("TYPE")	, SG_DATATYPE_String);
 	List.Add_Field(_TL("ADDR")	, SG_DATATYPE_Long);
 
-	_Search_Get_List(&List, m_pManager, Search("STRING")->asString(), Search("NAME")->asBool(), Search("DESC")->asBool(), Search("CASE")->asBool());
+	_Search_Get_List(&List, m_pManager, Search("STRING")->asString(), Search("NAME")->asBool(), Search("DESC")->asBool(), Search("CASE")->asBool(), Type);
 
 	if( List.Get_Count() <= 0 )
 	{
 		wxMessageBox(_TL("Search text not found"), _TL("Search for..."), wxOK|wxICON_EXCLAMATION);
 
-		return( false );
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
+	List.Set_Index(1, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);
+
 	wxArrayString	Items;
 
 	for(int i=0; i<List.Get_Count(); i++)
 	{
-		Items.Add(wxString::Format(wxT("[%s] %s"), List[i].asString(1), List[i].asString(0)));
+		if( Type == WKSP_ITEM_Undefined )
+		{
+			Items.Add(wxString::Format(wxT("[%s] %s"), List[i].asString(1), List[i].asString(0)));
+		}
+		else
+		{
+			Items.Add(List[i].asString(0));
+		}
 	}
 
 	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
-		_TL("Locate..."),
-		wxString::Format(wxT("%s: %s"), _TL("Search Text"), Search("STRING")->asString()),
-		Items
+		wxString::Format(wxT("%s: '%s'"), _TL("Search Result"), Search("STRING")->asString()),
+		Caption, Items
 	);
 
 	if( dlg.ShowModal() != wxID_OK )
 	{
-		return( false );
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
-	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)List.Get_Record(dlg.GetSelection())->asInt(2);
+	return( (CWKSP_Base_Item *)List[dlg.GetSelection()].asInt(2) );
+}
 
-	EnsureVisible	(pItem->GetId());
-	SelectItem		(pItem->GetId());
-	ScrollTo		(pItem->GetId());
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Search_Item(void)
+{
+	CWKSP_Base_Item	*pItem	= Search_Item(_TL("Locate..."));
 
-	return( true );
+	if( pItem && pItem->GetId().IsOk() )
+	{
+		EnsureVisible	(pItem->GetId());
+		SelectItem		(pItem->GetId());
+		ScrollTo		(pItem->GetId());
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
