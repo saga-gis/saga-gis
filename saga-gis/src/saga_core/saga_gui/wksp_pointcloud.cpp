@@ -162,8 +162,12 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SHOW);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SAVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SAVEAS);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);

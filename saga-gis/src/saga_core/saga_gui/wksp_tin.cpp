@@ -153,6 +153,9 @@ wxMenu * CWKSP_TIN::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_SHOW);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	pMenu->AppendSeparator();

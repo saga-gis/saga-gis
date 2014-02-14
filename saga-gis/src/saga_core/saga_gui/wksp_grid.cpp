@@ -175,27 +175,25 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 {
 	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
 
-	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_CLOSE);
-	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SAVE);
-	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SAVEAS);
-	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SAVEAS_IMAGE);
-	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SHOW);
-
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SHOW);
 	pMenu->AppendSeparator();
-
-	CMD_Menu_Add_Item(pMenu		, true , ID_CMD_GRIDS_HISTOGRAM);
-
-	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SCATTERPLOT);
-	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
-
-	//-----------------------------------------------------
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVEAS);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVEAS_IMAGE);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRIDS_HISTOGRAM);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SCATTERPLOT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	//-----------------------------------------------------
 	wxMenu	*pSubMenu	= new wxMenu(_TL("Classification"));
 
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_FIT_MINMAX);
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_FIT_STDDEV);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_SET_LUT);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_MINMAX);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_STDDEV);
 
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Classification"), pSubMenu);
 

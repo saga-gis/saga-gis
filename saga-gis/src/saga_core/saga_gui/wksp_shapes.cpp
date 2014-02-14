@@ -153,9 +153,13 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SHOW);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SAVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SAVEAS);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SHOW);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);

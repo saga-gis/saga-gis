@@ -68,6 +68,7 @@
 #include "res_controls.h"
 #include "res_commands.h"
 #include "res_dialogs.h"
+#include "res_images.h"
 
 #include "helper.h"
 #include "dc_helper.h"
@@ -130,19 +131,19 @@ BEGIN_EVENT_TABLE(CWKSP_Data_Button, wxPanel)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
-CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Layer *pLayer)
+CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Data_Item *pItem)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
 {
-	m_pLayer	= pLayer;
-	m_pObject	= pLayer->Get_Object();
-	m_Title		= pLayer->Get_Name();
+	m_pItem	= pItem;
+	m_pObject	= pItem->Get_Object();
+	m_Title		= pItem->Get_Name();
 }
 
 //---------------------------------------------------------
 CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, const wxString &Title)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, 0)
 {
-	m_pLayer	= NULL;
+	m_pItem	= NULL;
 	m_pObject	= NULL;
 	m_Title		= Title;
 
@@ -159,16 +160,27 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 	wxPaintDC	dc(this);
 	wxRect		r(wxPoint(0, 0), GetClientSize());
 
-	if( m_pLayer && m_pLayer->GetId().IsOk() && m_pLayer->Get_Object() == m_pObject && g_pData->Get(m_pObject) )
+	if( m_pItem && m_pItem->GetId().IsOk() && m_pItem->Get_Object() == m_pObject && g_pData->Get(m_pObject) )
 	{
-		if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pLayer->Get_Name()) )
+		if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pItem->Get_Name()) )
 		{
-			SetToolTip(m_pLayer->Get_Name());
+			SetToolTip(m_pItem->Get_Name());
 		}
 
-		dc.DrawBitmap(m_pLayer->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1), r.GetLeft(), r.GetTop(), true);
+		wxBitmap	BMP;
 
-		if( m_pLayer->is_Selected() )
+		if( m_pItem->Get_Type() == WKSP_ITEM_Table )
+		{
+			BMP	= IMG_Get_Bitmap(ID_IMG_WKSP_TABLE, r.GetWidth() - 1);
+		}
+		else
+		{
+			BMP	= ((CWKSP_Layer *)m_pItem)->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1);
+		}
+
+		dc.DrawBitmap(BMP, r.GetLeft(), r.GetTop(), true);
+
+		if( m_pItem->is_Selected() )
 		{
 			dc.SetPen(wxPen(((CWKSP_Data_Buttons *)GetParent())->Get_Active_Color()));
 			Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
@@ -189,9 +201,9 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 bool CWKSP_Data_Button::_Select(bool bKeepOthers)
 {
-	if( m_pLayer && SG_Get_Data_Manager().Exists(m_pObject) )
+	if( m_pItem && SG_Get_Data_Manager().Exists(m_pObject) )
 	{
-		g_pData_Ctrl->Set_Item_Selected(m_pLayer, bKeepOthers);
+		g_pData_Ctrl->Set_Item_Selected(m_pItem, bKeepOthers);
 
 		GetParent()->Refresh();
 
@@ -216,7 +228,7 @@ void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 {
 	if( _Select(false) )
 	{
-		m_pLayer->On_Command(ID_CMD_WKSP_ITEM_RETURN);
+		m_pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
 	}
 
 	event.Skip();
@@ -456,21 +468,23 @@ bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 		default:
 			return( false );
 
+		case WKSP_ITEM_Table:
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
 		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
-			return( _Add_Item((CWKSP_Layer *)pItem) );
+			return( _Add_Item((CWKSP_Data_Item *)pItem) );
 
 		case WKSP_ITEM_Data_Manager:
 		case WKSP_ITEM_Grid_Manager:
 		case WKSP_ITEM_Shapes_Manager:
 			break;
 
-		case WKSP_ITEM_Grid_System:
+		case WKSP_ITEM_Table_Manager:
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_TIN_Manager:
 		case WKSP_ITEM_PointCloud_Manager:
+		case WKSP_ITEM_Grid_System:
 			if( m_bCategorised )
 			{
 				_Add_Item(pItem->Get_Name());
@@ -490,7 +504,7 @@ bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Layer *pLayer)
+bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Data_Item *pLayer)
 {
 	if( pLayer )
 	{

@@ -89,7 +89,7 @@ class CWKSP_Data_Button : public wxPanel
 	DECLARE_CLASS(CWKSP_Data_Button)
 
 public:
-	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Layer *pLayer);
+	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Data_Item *pItem);
 	CWKSP_Data_Button(wxWindow *pParent, const wxString &Title);
 	virtual ~CWKSP_Data_Button(void)	{}
 
@@ -99,14 +99,14 @@ public:
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	bool						is_Title			(void)		{	return( m_pLayer == NULL );	}
+	bool						is_Title			(void)		{	return( m_pItem == NULL );	}
 
 
 private:
 
 	wxString					m_Title;
 
-	class CWKSP_Layer			*m_pLayer;
+	class CWKSP_Data_Item		*m_pItem;
 
 	CSG_Data_Object				*m_pObject;
 
@@ -153,7 +153,7 @@ private:
 	void						_Set_Positions		(void);
 
 	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
-	bool						_Add_Item			(class CWKSP_Layer *pLayer);
+	bool						_Add_Item			(class CWKSP_Data_Item *pItem);
 	bool						_Add_Item			(const wxString &Title);
 	bool						_Del_Items			(void);
 

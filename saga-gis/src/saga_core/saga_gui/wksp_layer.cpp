@@ -182,6 +182,10 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 	case ID_CMD_POINTCLOUD_SHOW:
 		g_pMaps->Add(this);
 		break;
+
+	case ID_CMD_DATA_PROJECTION:
+		_Set_Projection();
+		break;
 	}
 
 	return( true );
@@ -507,6 +511,33 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 	}
 
 	return( CSG_Rect(0.0, 0.0, 0.0, 0.0) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Layer::_Set_Projection(void)
+{
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 15);	// CCRS_Picker
+
+	if(	pModule && Get_Object() )
+	{
+		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
+
+		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , Get_Object()->Get_Projection().Get_Proj4())
+		&&	DLG_Parameters(pModule->Get_Parameters())
+		&&  pModule->Execute() )
+		{
+			Get_Object()->Get_Projection().Assign(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+		}
+
+		pModule->Get_Parameters()->Assign_Values(&P);
+	}
 }
 
 

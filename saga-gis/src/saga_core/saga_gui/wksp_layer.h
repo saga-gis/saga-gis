@@ -175,6 +175,8 @@ private:
 
 	bool							_Set_Thumbnail			(bool bRefresh);
 
+	void							_Set_Projection			(void);
+
 };
 
 
