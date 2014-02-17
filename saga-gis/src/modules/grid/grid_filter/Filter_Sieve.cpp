@@ -208,7 +208,7 @@ bool CFilter_Sieve::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CFilter_Sieve::Get_Size(int x, int y)
+int CFilter_Sieve::Get_Size(int x, int y, int n)
 {
 	if( m_pGrid->is_InGrid(x, y) && m_Class == m_pGrid->asDouble(x, y) )
 	{
@@ -218,11 +218,11 @@ int CFilter_Sieve::Get_Size(int x, int y)
 			{
 				Lock_Set(x, y, 1);
 
-				int		n	= 1;
+				n++;
 
 				for(int i=0; i<8 && n<m_Threshold; i+=m_Mode)
 				{
-					n	+= Get_Size(Get_xTo(i, x), Get_yTo(i, y));
+					n	= Get_Size(Get_xTo(i, x), Get_yTo(i, y), n);
 				}
 
 				return( n );

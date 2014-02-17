@@ -102,7 +102,7 @@ private:
 	CSG_Grid				*m_pGrid;
 
 
-	int						Get_Size				(int x, int y);
+	int						Get_Size				(int x, int y, int n = 0);
 
 	void					Do_Keep					(int x, int y);
 	void					Do_Sieve				(int x, int y);
