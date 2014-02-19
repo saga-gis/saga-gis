@@ -156,9 +156,15 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_FILES", _TL("Files"), _TL(""));
 
+	m_Parameters.Add_Value(
+		pNode	, "LNG_OLDSTYLE"	, _TL("Old Style Namings"),
+		_TL("Use old style namings (e.g. 'modules' instead of 'tools'). Ignored if translation file is used. You need to restart SAGA to apply changes."),
+		PARAMETER_TYPE_Bool, true
+	);
+
 	m_Parameters.Add_FilePath(
 		pNode	, "LNG_FILE_DIC"	, _TL("Language Translations"),
-		_TL("Dictionary for translations from built-in (English) to local language (editable text table)"),
+		_TL("Dictionary for translations from built-in (English) to local language (editable text table). You need to restart SAGA to apply changes."),
 		CSG_String::Format(SG_T("%s|*.lng|%s|*.txt|%s|*.*"),
 			_TL("Dictionary Files (*.lng)"),
 			_TL("Text Table (*.txt)"),

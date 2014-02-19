@@ -72,7 +72,7 @@
 
 #include "helper.h"
 
-#include "res_images.h"	},
+#include "res_images.h"
 
 #include "saga.h"
 #include "saga_frame.h"
@@ -128,6 +128,9 @@ CSAGA::~CSAGA(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void Make_OldStyle_Naming(void);
 
 //---------------------------------------------------------
 bool CSAGA::OnInit(void)
@@ -210,6 +213,8 @@ bool CSAGA::OnInit(void)
 	}
 
 	SG_Get_Translator().Create(&File, false);
+
+	Make_OldStyle_Naming();
 
 	//-----------------------------------------------------
 	if( !CONFIG_Read("/MODULES", "CRS_FILE_DIC", File) || !wxFileExists(File) )
@@ -378,41 +383,72 @@ bool CSAGA::Process_Get_Okay(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char tool2module[32][2][256]	=
+void Make_OldStyle_Naming(void)
 {
-	{	"Available Tools",	"Available Modules"	},
-	{	"Can't execute a tool while another runs",		"Can't execute a module while another runs"	},
-	{	"Create Tool Description Files",		"Create Module Description Files"	},
-	{	"Execute Tool",		"Execute Module"	},
-	{	"Executing tool",		"Executing module"	},
-	{	"Find and Run Tool",		"Find and Run Module"	},
-	{	"Interactive tool execution failed",		"Interactive module execution failed"	},
-	{	"Interactive tool execution has been started",		"Interactive module execution has been started"	},
-	{	"Interactive tool execution has been stopped",		"Interactive module execution has been stopped"	},
-	{	"Load Tool Library",		"Load Module Library"	},
-	{	"Please stop tool execution before exiting SAGA.",		"Please stop module execution before exiting SAGA."	},
-	{	"Run Tool",		"Run Module"	},
-	{	"SAGA Tool Libraries",		"SAGA Module Libraries"	},
-	{	"Tool",		"Module"	},
-	{	"Tool Description Source",		"Module Description Source"	},
-	{	"Tool Execution",		"Module Execution"	},
-	{	"Tool Libraries",		"Module Libraries"	},
-	{	"Tool Library",		"Module Library"	},
-	{	"Tool Manager",		"Module Manager"	},
-	{	"Tool execution failed",		"Module execution failed"	},
-	{	"Tool execution succeeded",		"Module execution succeeded"	},
-	{	"Tools",		"Modules"	},
-	{	"cannot execute interactive tool",		"cannot execute interactive module"	},
-	{	"could not execute tool",		"could not execute module"	},
-	{	"could not find tool",		"could not find module"	},
-	{	"could not initialize tool",		"could not initialize module"	},
-	{	"creating tool documentation files",		"creating module documentation files"	},
-	{	"executing tool",		"executing module"	},
-	{	"loaded tool libraries",		"loaded module libraries"	},
-	{	"tool",		"module"	},
-	{	"tool name   ",		"module name   "	},
-	{	"tools",	"modules"	}
-};
+	long	oldstyle;
+
+	if( !CONFIG_Read("/MODULES", "LNG_OLDSTYLE", oldstyle) || !oldstyle || SG_Get_Translator().Get_Count() > 0 )
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
+	CSG_Table	t;
+
+	t.Add_Field("OLD", SG_DATATYPE_String);
+	t.Add_Field("NEW", SG_DATATYPE_String);
+
+	//-----------------------------------------------------
+	const int	tool2module_count	= 33;
+
+	const char	tool2module[tool2module_count][2][256]	=
+	{
+		{	"Geoprocessing",	"Modules"	},
+		{	"Available Tools",	"Available Modules"	},
+		{	"Can't execute a tool while another runs",		"Can't execute a module while another runs"	},
+		{	"Create Tool Description Files",		"Create Module Description Files"	},
+		{	"Execute Tool",		"Execute Module"	},
+		{	"Executing tool",		"Executing module"	},
+		{	"Find and Run Tool",		"Find and Run Module"	},
+		{	"Interactive tool execution failed",		"Interactive module execution failed"	},
+		{	"Interactive tool execution has been started",		"Interactive module execution has been started"	},
+		{	"Interactive tool execution has been stopped",		"Interactive module execution has been stopped"	},
+		{	"Load Tool Library",		"Load Module Library"	},
+		{	"Please stop tool execution before exiting SAGA.",		"Please stop module execution before exiting SAGA."	},
+		{	"Run Tool",		"Run Module"	},
+		{	"SAGA Tool Libraries",		"SAGA Module Libraries"	},
+		{	"Tool",		"Module"	},
+		{	"Tool Description Source",		"Module Description Source"	},
+		{	"Tool Execution",		"Module Execution"	},
+		{	"Tool Libraries",		"Module Libraries"	},
+		{	"Tool Library",		"Module Library"	},
+		{	"Tool Manager",		"Module Manager"	},
+		{	"Tool execution failed",		"Module execution failed"	},
+		{	"Tool execution succeeded",		"Module execution succeeded"	},
+		{	"Tools",		"Modules"	},
+		{	"cannot execute interactive tool",		"cannot execute interactive module"	},
+		{	"could not execute tool",		"could not execute module"	},
+		{	"could not find tool",		"could not find module"	},
+		{	"could not initialize tool",		"could not initialize module"	},
+		{	"creating tool documentation files",		"creating module documentation files"	},
+		{	"executing tool",		"executing module"	},
+		{	"loaded tool libraries",		"loaded module libraries"	},
+		{	"tool",		"module"	},
+		{	"tool name   ",		"module name   "	},
+		{	"tools",	"modules"	}
+	};
+
+	for(int i=0; i<tool2module_count; i++)
+	{
+		CSG_Table_Record	*pR	= t.Add_Record();
+
+		pR->Set_Value(0, tool2module[i][0]);
+		pR->Set_Value(1, tool2module[i][1]);
+	}
+
+	//-----------------------------------------------------
+	SG_Get_Translator().Create(&t);
+}
 
 
 ///////////////////////////////////////////////////////////
