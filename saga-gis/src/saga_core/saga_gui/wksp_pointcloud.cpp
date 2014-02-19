@@ -175,7 +175,7 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	pMenu->AppendSeparator();
 
 	//-----------------------------------------------------
-	wxMenu	*pSubMenu	= new wxMenu(_TL("Classificaton"));
+	wxMenu	*pSubMenu	= new wxMenu(_TL("Classification"));
 
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV150);
