@@ -1,0 +1,77 @@
+Copyright and License Statement
+_______________________________________________________________________________
+
+
+The System for Automated Geoscientific Analyses (SAGA) is copyright by the
+authors listed below.
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License (GPL) and the GNU Lesser General
+Public License (LGPL) as published by the Free Software Foundation.
+
+_______________________________________________________________________________
+
+------------------------------------------
+ SAGA GUI - SAGA Graphical User Interface
+------------------------------------------
+
+Copyrights (c) 2005-2014 by Olaf Conrad
+Portions (c) 2008-2014 by Volker Wichmann
+
+GNU General Public License (GPL)
+
+
+----------------------------------------
+ SAGA CMD - SAGA Command Line Processor
+----------------------------------------
+
+Copyrights (c) 2005-2014 by Olaf Conrad
+
+GNU General Public License (GPL)
+
+
+---------------------------------------------------
+ SAGA API - SAGA Application Programming Interface
+---------------------------------------------------
+
+Copyrights (c) 2002-2014 by Olaf Conrad
+Portions (c) 2008-2014 by Volker Wichmann
+Portions (c) 2005-2006 by Victor Olaya
+Portions (c) 2002 by Andre Ringeler
+
+GNU Lesser General Public License (LGPL)
+
+
+--------------
+ SAGA Modules
+--------------
+
+Please have a look at the module descriptions supplied with each module on
+information about the responsible authors and the licenses used. Most modules
+are licensed under the GNU General Public License (GPL).
+
+
+_______________________________________________________________________________
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License (GPL) and GNU Lesser
+General Public License (LGPL) for more details.
+
+You should have received a copy of both licenses along with this program; if
+not, write to the
+
+    Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor
+    Boston, MA 02110-1301, USA
+
+
+_______________________________________________________________________________
+
+Questions regarding SAGA GIS should be directed to one of the SAGA forums or
+the developer mailing list available here:
+
+https://sourceforge.net/projects/saga-gis/
+
+Project homepage:  http://www.saga-gis.org/
+
