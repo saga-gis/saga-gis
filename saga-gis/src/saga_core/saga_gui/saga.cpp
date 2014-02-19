@@ -72,7 +72,7 @@
 
 #include "helper.h"
 
-#include "res_images.h"
+#include "res_images.h"	},
 
 #include "saga.h"
 #include "saga_frame.h"
@@ -369,6 +369,50 @@ bool CSAGA::Process_Get_Okay(void)
 
 	return( m_Process_bContinue );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+const char tool2module[32][2][256]	=
+{
+	{	"Available Tools",	"Available Modules"	},
+	{	"Can't execute a tool while another runs",		"Can't execute a module while another runs"	},
+	{	"Create Tool Description Files",		"Create Module Description Files"	},
+	{	"Execute Tool",		"Execute Module"	},
+	{	"Executing tool",		"Executing module"	},
+	{	"Find and Run Tool",		"Find and Run Module"	},
+	{	"Interactive tool execution failed",		"Interactive module execution failed"	},
+	{	"Interactive tool execution has been started",		"Interactive module execution has been started"	},
+	{	"Interactive tool execution has been stopped",		"Interactive module execution has been stopped"	},
+	{	"Load Tool Library",		"Load Module Library"	},
+	{	"Please stop tool execution before exiting SAGA.",		"Please stop module execution before exiting SAGA."	},
+	{	"Run Tool",		"Run Module"	},
+	{	"SAGA Tool Libraries",		"SAGA Module Libraries"	},
+	{	"Tool",		"Module"	},
+	{	"Tool Description Source",		"Module Description Source"	},
+	{	"Tool Execution",		"Module Execution"	},
+	{	"Tool Libraries",		"Module Libraries"	},
+	{	"Tool Library",		"Module Library"	},
+	{	"Tool Manager",		"Module Manager"	},
+	{	"Tool execution failed",		"Module execution failed"	},
+	{	"Tool execution succeeded",		"Module execution succeeded"	},
+	{	"Tools",		"Modules"	},
+	{	"cannot execute interactive tool",		"cannot execute interactive module"	},
+	{	"could not execute tool",		"could not execute module"	},
+	{	"could not find tool",		"could not find module"	},
+	{	"could not initialize tool",		"could not initialize module"	},
+	{	"creating tool documentation files",		"creating module documentation files"	},
+	{	"executing tool",		"executing module"	},
+	{	"loaded tool libraries",		"loaded module libraries"	},
+	{	"tool",		"module"	},
+	{	"tool name   ",		"module name   "	},
+	{	"tools",	"modules"	}
+};
 
 
 ///////////////////////////////////////////////////////////

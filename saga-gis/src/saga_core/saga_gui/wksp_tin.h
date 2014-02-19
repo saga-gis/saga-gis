@@ -107,6 +107,10 @@ public:
 
 	wxString					Get_Name_Attribute		(void);
 
+	virtual TSG_Rect			Edit_Get_Extent			(void);
+	virtual bool				Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				Edit_Set_Attributes		(void);
+
 
 protected:
 
@@ -133,11 +137,10 @@ protected:
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
-	virtual bool				On_Edit_Set_Attributes	(void);
-	virtual TSG_Rect			On_Edit_Get_Extent		(void);
-
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
+
+
+private:
 
 	void						_Draw_Points			(CWKSP_Map_DC &dc_Map);
 	void						_Draw_Edges				(CWKSP_Map_DC &dc_Map);

@@ -110,6 +110,15 @@ public:
 
 	bool						is_Editing				(void)	{	return( m_Edit_pShape != NULL );	}
 
+	virtual wxMenu *			Edit_Get_Menu			(void);
+	virtual TSG_Rect			Edit_Get_Extent			(void);
+	virtual bool				Edit_On_Key_Down		(int KeyCode);
+	virtual bool				Edit_On_Mouse_Down		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				Edit_On_Mouse_Move		(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key);
+	virtual bool				Edit_Set_Index			(int Index);
+	virtual bool				Edit_Set_Attributes		(void);
+
 
 protected:
 
@@ -163,22 +172,11 @@ protected:
 	bool						_Chart_Set_Options		(void);
 	bool						_Chart_Get_Options		(void);
 
+	void						_LUT_Create				(void);
+
 
 	//-----------------------------------------------------
 	// Editing...
-
-	virtual wxMenu *			On_Edit_Get_Menu		(void);
-	virtual TSG_Rect			On_Edit_Get_Extent		(void);
-	virtual bool				On_Edit_Set_Attributes	(void);
-
-	virtual bool				On_Edit_On_Key_Down		(int KeyCode);
-	virtual bool				On_Edit_On_Mouse_Down	(CSG_Point Point, double ClientToWorld, int Key);
-	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
-	virtual bool				On_Edit_On_Mouse_Move	(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key);
-
-	void						_LUT_Create				(void);
-
-	bool						_Edit_Set_Attributes	(void);
 
 	bool						_Edit_Shape				(void);
 	bool						_Edit_Shape_Start		(void);

@@ -90,16 +90,20 @@ public:
 	CACTIVE_Attributes(wxWindow *pParent);
 	virtual ~CACTIVE_Attributes(void);
 
-	void						On_Size				(wxSizeEvent &event);
+	void						On_Size				(wxSizeEvent     &event);
 
-	void						On_Apply			(wxCommandEvent &event);
+	void						On_Choice			(wxCommandEvent  &event);
+
+	void						On_Apply			(wxCommandEvent  &event);
 	void						On_Apply_UI			(wxUpdateUIEvent &event);
-	void						On_Restore			(wxCommandEvent &event);
+	void						On_Restore			(wxCommandEvent  &event);
 	void						On_Restore_UI		(wxUpdateUIEvent &event);
 
 	void						Set_Layer			(class CWKSP_Layer *pLayer);
 
 	void						Set_Attributes		(void);
+
+	void						Save_Changes		(bool bConfirm);
 
 
 protected:
@@ -108,7 +112,11 @@ protected:
 
 	class wxButton				*m_Btn_Restore, *m_Btn_Apply;
 
+	class wxChoice				*m_pSelections;
+
 	class CSG_Table				*m_pAttributes;
+	
+	class CSG_Shapes			*m_pShapes;
 
 	class CVIEW_Table_Control	*m_pControl;
 
@@ -116,8 +124,6 @@ protected:
 
 
 	void						_Set_Positions		(void);
-
-	void						_Save_Changes		(bool bConfirm);
 
 
 //---------------------------------------------------------

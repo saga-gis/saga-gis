@@ -107,6 +107,11 @@ public:
 
 	wxString					Get_Name_Attribute		(void);
 
+	virtual wxMenu *			Edit_Get_Menu			(void);
+	virtual TSG_Rect			Edit_Get_Extent			(void);
+	virtual bool				Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				Edit_Set_Attributes		(void);
+
 
 protected:
 
@@ -124,11 +129,6 @@ protected:
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 	virtual void				On_Update_Views			(void);
-
-	virtual wxMenu *			On_Edit_Get_Menu		(void);
-	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
-	virtual bool				On_Edit_Set_Attributes	(void);
-	virtual TSG_Rect			On_Edit_Get_Extent		(void);
 
 	void						_LUT_Create				(void);
 

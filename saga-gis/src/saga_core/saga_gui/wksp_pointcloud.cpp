@@ -792,11 +792,9 @@ bool CWKSP_PointCloud::asImage(CSG_Grid *pImage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CWKSP_PointCloud::On_Edit_Get_Menu(void)
+wxMenu * CWKSP_PointCloud::Edit_Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu;
+	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
@@ -806,7 +804,18 @@ wxMenu * CWKSP_PointCloud::On_Edit_Get_Menu(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_PointCloud::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
+TSG_Rect CWKSP_PointCloud::Edit_Get_Extent(void)
+{
+	if( Get_PointCloud()->Get_Selection_Count() > 0 )
+	{
+		return( Get_PointCloud()->Get_Selection_Extent().m_rect );
+	}
+
+	return( Get_PointCloud()->Get_Extent() );
+}
+
+//---------------------------------------------------------
+bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	if( Key & MODULE_INTERACTIVE_KEY_RIGHT )
 	{
@@ -850,15 +859,15 @@ bool CWKSP_PointCloud::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld
 }
 
 //---------------------------------------------------------
-bool CWKSP_PointCloud::On_Edit_Set_Attributes(void)
+bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 {
-	CSG_Table_Record	*pRecord;
+	CSG_Table_Record	*pSelection	= Get_PointCloud()->Get_Selection(m_Edit_Index);
 
-	if( (pRecord = Get_PointCloud()->Get_Selection()) != NULL )
+	if( pSelection )
 	{
 		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
 		{
-			pRecord->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
+			pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
 		}
 
 		Update_Views(false);
@@ -867,12 +876,6 @@ bool CWKSP_PointCloud::On_Edit_Set_Attributes(void)
 	}
 
 	return( false );
-}
-
-//---------------------------------------------------------
-TSG_Rect CWKSP_PointCloud::On_Edit_Get_Extent(void)
-{
-	return( Get_PointCloud()->Get_Extent() );
 }
 
 

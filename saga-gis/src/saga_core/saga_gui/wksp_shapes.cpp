@@ -935,18 +935,17 @@ wxString CWKSP_Shapes::Get_Name_Attribute(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 {
-	int			iShape;
-	CSG_Shape	*pShape;
-
 	//-----------------------------------------------------
 	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
 	{
+		int		iShape;
+
 		double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;
 
 		CWKSP_Map_DC	*pDC	= Transparency > 0.0 ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(255, 255, 255)) : NULL;
 		CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
 
-		m_Sel_Color		= Get_Color_asWX(m_Parameters("SEL_COLOR") ->asInt());
+		m_Sel_Color		= Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
 		m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
 
 		_Draw_Initialize(dc);
@@ -956,7 +955,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		{
 			for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
-				pShape	= Get_Shapes()->Get_Shape(iShape);
+				CSG_Shape	*pShape	= Get_Shapes()->Get_Shape(iShape);
 
 				if( !pShape->is_Selected() && dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 				{
@@ -965,13 +964,18 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			}
 
 			//---------------------------------------------
-			for(iShape=1; iShape<Get_Shapes()->Get_Selection_Count(); iShape++)
+			if( Get_Shapes()->Get_Selection_Count() > 1 )
 			{
-				pShape	= Get_Shapes()->Get_Selection(iShape);
+				m_Sel_Color	= Get_Color_asWX(0);
 
-				if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
+				for(iShape=0; iShape<Get_Shapes()->Get_Selection_Count(); iShape++)
 				{
-					_Draw_Shape(dc, pShape, true);
+					CSG_Shape	*pShape	= Get_Shapes()->Get_Selection(iShape);
+
+					if( iShape != m_Edit_Index && dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
+					{
+						_Draw_Shape(dc, pShape, true);
+					}
 				}
 			}
 
@@ -981,10 +985,12 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			}
 			else
 			{
-				pShape	= Get_Shapes()->Get_Selection(0);
+				CSG_Shape	*pShape	= Get_Shapes()->Get_Selection(m_Edit_Index);
 
 				if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 				{
+					m_Sel_Color	= Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
+
 					_Draw_Shape(dc, pShape, true);
 				}
 			}
@@ -995,7 +1001,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		{
 			for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
-				pShape	= Get_Shapes()->Get_Shape(iShape);
+				CSG_Shape	*pShape	= Get_Shapes()->Get_Shape(iShape);
 
 				if( (m_pClassify->Get_Mode() != CLASSIFY_METRIC || m_iColor < 0 || !pShape->is_NoData(m_iColor))
 				&&	dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
@@ -1008,7 +1014,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			{
 				for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 				{
-					pShape	= Get_Shapes()->Get_Shape(iShape);
+					CSG_Shape	*pShape	= Get_Shapes()->Get_Shape(iShape);
 
 					if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 					{
@@ -1045,7 +1051,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 
 				for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 				{
-					pShape	= Get_Shapes()->Get_Shape(iShape);
+					CSG_Shape	*pShape	= Get_Shapes()->Get_Shape(iShape);
 
 					if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 					{
@@ -1057,7 +1063,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			{
 				for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 				{
-					pShape	= Get_Shapes()->Get_Shape(iShape);
+					CSG_Shape	*pShape	= Get_Shapes()->Get_Shape(iShape);
 
 					if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None
 					&&	(Size = (int)(0.5 + dSize * pShape->asDouble(m_iLabel_Size))) > 0 )

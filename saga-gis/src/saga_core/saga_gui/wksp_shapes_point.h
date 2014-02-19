@@ -95,6 +95,8 @@ public:
 
 	void						Draw_Symbol				(wxDC &dc, int x, int y, int size);
 
+	virtual wxMenu *			Edit_Get_Menu			(void);
+
 
 protected:
 
@@ -123,8 +125,6 @@ protected:
 	virtual bool				_Draw_Initialize		(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, bool bSelection);
 	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection);
 	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
-
-	virtual wxMenu *			On_Edit_Get_Menu		(void);
 
 };
 

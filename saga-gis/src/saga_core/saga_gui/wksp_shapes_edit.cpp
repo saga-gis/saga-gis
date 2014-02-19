@@ -96,7 +96,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Shapes::On_Edit_Get_Menu(void)
+wxMenu * CWKSP_Shapes::Edit_Get_Menu(void)
 {
 	wxMenu	*pMenu	= new wxMenu;
 
@@ -113,7 +113,7 @@ wxMenu * CWKSP_Shapes::On_Edit_Get_Menu(void)
 }
 
 //---------------------------------------------------------
-TSG_Rect CWKSP_Shapes::On_Edit_Get_Extent(void)
+TSG_Rect CWKSP_Shapes::Edit_Get_Extent(void)
 {
 	if( m_Edit_pShape )
 	{
@@ -136,7 +136,7 @@ TSG_Rect CWKSP_Shapes::On_Edit_Get_Extent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_On_Key_Down(int KeyCode)
+bool CWKSP_Shapes::Edit_On_Key_Down(int KeyCode)
 {
 	switch( KeyCode )
 	{
@@ -169,13 +169,15 @@ bool CWKSP_Shapes::On_Edit_On_Key_Down(int KeyCode)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Shapes::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int Key)
 {
-	int		iPart, iPoint;
+	CWKSP_Layer::Edit_On_Mouse_Down(Point, ClientToWorld, Key);
 
 	//-----------------------------------------------------
 	if( m_Edit_pShape )
 	{
+		int		iPart, iPoint;
+
 		if( m_Edit_iPart >= 0 && m_Edit_iPoint < 0 )
 		{
 		}
@@ -212,13 +214,8 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, 
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Shapes::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	CSG_Rect		rWorld(m_Edit_Mouse_Down, Point);
-	CSG_Table_Record	*pRecord;
-	wxFileName		FileName;
-
-
 	//-----------------------------------------------------
 	if( Key & MODULE_INTERACTIVE_KEY_RIGHT )
 	{
@@ -266,30 +263,28 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, in
 	//-----------------------------------------------------
 	else
 	{
-		rWorld.Assign(m_Edit_Mouse_Down, Point);
+		g_pACTIVE->Get_Attributes()->Save_Changes(true);
+
+		CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 
 		if( rWorld.Get_XRange() == 0.0 && rWorld.Get_YRange() == 0.0 )
 		{
 			rWorld.Inflate(2.0 * ClientToWorld, false);
 		}
 
-		g_pACTIVE->Get_Attributes()->Set_Attributes();
+		int		Count	= Get_Shapes()->Get_Selection_Count();
 
-		pRecord	= Get_Shapes()->Get_Selection();
-		
 		Get_Shapes()->Select(rWorld, (Key & MODULE_INTERACTIVE_KEY_CTRL) != 0);
+
+		Edit_Set_Index((Key & MODULE_INTERACTIVE_KEY_CTRL) == 0 ? 0 :
+			Count < Get_Shapes()->Get_Selection_Count() || m_Edit_Index >= Get_Shapes()->Get_Selection_Count() ? Get_Shapes()->Get_Selection_Count() - 1 :
+			m_Edit_Index
+		);
 
 		if( m_pTable->Get_View() )
 		{
 			m_pTable->Get_View()->Update_Selection();
 		}
-
-		if( pRecord != Get_Shapes()->Get_Selection() )
-		{
-			_Edit_Set_Attributes();
-		}
-
-		pRecord	= Get_Shapes()->Get_Selection();
 
 		Update_Views(false);
 
@@ -300,7 +295,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, in
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
+bool CWKSP_Shapes::Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
 {
 	if( m_Edit_pShape )
 	{
@@ -329,17 +324,9 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoin
 
 			switch( _Edit_Shape_HitTest(Point, EDIT_TICKMARK_SIZE * ClientToWorld, iPart, iPoint) )
 			{
-			case 0:	default:
-				pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_SELECT));
-				break;
-
-			case 1:
-				pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_EDIT_POINT_MOVE));
-				break;
-
-			case 2:
-				pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_EDIT_POINT_ADD));
-				break;
+			default:	pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_SELECT         ));	break;
+			case  1:	pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_EDIT_POINT_MOVE));	break;
+			case  2:	pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_EDIT_POINT_ADD ));	break;
 			}
 
 			return( true );
@@ -357,20 +344,32 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoin
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::_Edit_Set_Attributes(void)
+bool CWKSP_Shapes::Edit_Set_Index(int Index)
 {
-	CSG_Table_Record	*pAttribute, *pRecord;
-
 	m_Edit_Attributes.Del_Records();
 
-	if( (pRecord = Get_Shapes()->Get_Selection()) != NULL )
+	if( Index > Get_Shapes()->Get_Selection_Count() )
 	{
+		Index	= Get_Shapes()->Get_Selection_Count();
+	}
+
+	CSG_Table_Record	*pSelection	= Get_Shapes()->Get_Selection(Index);
+
+	if( pSelection )
+	{
+		m_Edit_Index	= Index;
+
 		for(int i=0; i<Get_Shapes()->Get_Field_Count(); i++)
 		{
-			pAttribute	= m_Edit_Attributes.Add_Record();
-			pAttribute->Set_Value(0, pRecord->Get_Table()->Get_Field_Name(i));
-			pAttribute->Set_Value(1, pRecord->asString(i));
+			CSG_Table_Record	*pRecord	= m_Edit_Attributes.Add_Record();
+
+			pRecord->Set_Value(0, pSelection->Get_Table()->Get_Field_Name(i));
+			pRecord->Set_Value(1, pSelection->asString(i));
 		}
+	}
+	else
+	{
+		m_Edit_Index	= 0;
 	}
 
 	g_pACTIVE->Get_Attributes()->Set_Attributes();
@@ -379,15 +378,15 @@ bool CWKSP_Shapes::_Edit_Set_Attributes(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_Set_Attributes(void)
+bool CWKSP_Shapes::Edit_Set_Attributes(void)
 {
-	CSG_Table_Record	*pRecord;
+	CSG_Table_Record	*pSelection	= Get_Shapes()->Get_Selection(m_Edit_Index);
 
-	if( (pRecord = Get_Shapes()->Get_Selection()) != NULL )
+	if( pSelection )
 	{
 		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
 		{
-			pRecord->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
+			pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
 		}
 
 		Update_Views(false);
@@ -414,10 +413,9 @@ bool CWKSP_Shapes::_Edit_Shape(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Edit_Shape_Start(void)
 {
-	if( m_Edit_pShape == NULL && Get_Shapes()->Get_Selection(0) != NULL )
+	if( m_Edit_pShape == NULL && Get_Shapes()->Get_Selection(m_Edit_Index) != NULL )
 	{
-		m_Edit_pShape	= m_Edit_Shapes.Add_Shape();
-		m_Edit_pShape->Assign(Get_Shapes()->Get_Selection(0), false);
+		m_Edit_pShape	= m_Edit_Shapes.Add_Shape(Get_Shapes()->Get_Selection(m_Edit_Index), SHAPE_COPY_GEOM);
 
 		m_Edit_iPart	= -1;
 		m_Edit_iPoint	= -1;
@@ -442,14 +440,13 @@ bool CWKSP_Shapes::_Edit_Shape_Stop(bool bSave)
 	{
 		if( bSave )
 		{
-			CSG_Shape	*pShape;
+			CSG_Shape	*pShape	= Get_Shapes()->Get_Selection(m_Edit_Index);
 
-			if( (pShape = Get_Shapes()->Get_Selection(0)) == NULL )
+			if( pShape == NULL )
 			{
-				if( (pShape = Get_Shapes()->Add_Shape()) != NULL )
-				{
-					Get_Shapes()->Select(pShape);
-				}
+				Get_Shapes()->Select(pShape = Get_Shapes()->Add_Shape());
+
+				m_Edit_Index	= 0;
 			}
 
 			if( pShape != NULL )
@@ -461,8 +458,9 @@ bool CWKSP_Shapes::_Edit_Shape_Stop(bool bSave)
 		m_Edit_Shapes.Del_Shapes();
 		m_Edit_pShape	= NULL;
 
+		Edit_Set_Index(m_Edit_Index);
+
 		Update_Views();
-		_Edit_Set_Attributes();
 
 		return( true );
 	}
@@ -477,7 +475,7 @@ bool CWKSP_Shapes::_Edit_Shape_Add(void)
 	{
 		if( Get_Shapes()->Get_Selection_Count() > 0 )
 		{
-			Get_Shapes()->Select((CSG_Shape*)NULL);
+			Get_Shapes()->Select();	// deselect
 		}
 
 		m_Edit_pShape	= m_Edit_Shapes.Add_Shape();
@@ -515,7 +513,7 @@ bool CWKSP_Shapes::_Edit_Shape_Del(void)
 			{
 				_Edit_Shape_Stop(false);
 
-				Get_Shapes()->Del_Shape(Get_Shapes()->Get_Selection(0));
+				Get_Shapes()->Del_Shape(Get_Shapes()->Get_Selection(m_Edit_Index));
 			}
 			else
 			{
@@ -719,7 +717,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 //---------------------------------------------------------
 void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shapes *pShapes, bool bLine)
 {
-	CSG_Shape	*pSelected	= pShapes->Get_Selection();
+	CSG_Shape	*pSelected	= pShapes->Get_Selection(m_Edit_Index);
 
 	if( pShapes->Select(CSG_Rect(Point.Get_X() - snap_Dist, Point.Get_Y() - snap_Dist, Point.Get_X() + snap_Dist, Point.Get_Y() + snap_Dist)) )
 	{

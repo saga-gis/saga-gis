@@ -671,7 +671,7 @@ void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int size)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Shapes_Point::On_Edit_Get_Menu(void)
+wxMenu * CWKSP_Shapes_Point::Edit_Get_Menu(void)
 {
 	wxMenu	*pMenu;
 

@@ -147,6 +147,8 @@ CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
 	m_pLegend		= new CWKSP_Layer_Legend(this);
 
 	m_pHistogram	= NULL;
+
+	m_Edit_Index	= 0;
 }
 
 //---------------------------------------------------------
@@ -757,28 +759,17 @@ void CWKSP_Layer::Histogram_Toggle(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
+
 //---------------------------------------------------------
 wxMenu * CWKSP_Layer::Edit_Get_Menu(void)
 {
-	return( On_Edit_Get_Menu() );
-}
-
-//---------------------------------------------------------
-TSG_Rect CWKSP_Layer::Edit_Get_Extent(void)
-{
-	return( On_Edit_Get_Extent() );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Layer::Edit_Set_Attributes(void)
-{
-	return( On_Edit_Set_Attributes() );
+	return( NULL );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Layer::Edit_On_Key_Down(int KeyCode)
 {
-	return( On_Edit_On_Key_Down(KeyCode) );
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -786,19 +777,37 @@ bool CWKSP_Layer::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int 
 {
 	m_Edit_Mouse_Down	= Point;
 
-	return( On_Edit_On_Mouse_Down(Point, ClientToWorld, Key) );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Layer::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	return( On_Edit_On_Mouse_Up(Point, ClientToWorld, Key) );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CWKSP_Layer::Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
 {
-	return( On_Edit_On_Mouse_Move(pMap, rWorld, pt, ptLast, Key) );
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Layer::Edit_Set_Index(int Index)
+{
+	return( true );
+}
+
+//---------------------------------------------------------
+int CWKSP_Layer::Edit_Get_Index(void)
+{
+	return( m_Edit_Index );
+}
+
+//---------------------------------------------------------
+CSG_Table * CWKSP_Layer::Edit_Get_Attributes(void)
+{
+	return( &m_Edit_Attributes );
 }
 
 

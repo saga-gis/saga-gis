@@ -826,7 +826,7 @@ double CWKSP_Grid::Get_Value_Range(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Grid::On_Edit_Get_Menu(void)
+wxMenu * CWKSP_Grid::Edit_Get_Menu(void)
 {
 	if( m_Edit_Attributes.Get_Count() < 1 )
 	{
@@ -842,7 +842,23 @@ wxMenu * CWKSP_Grid::On_Edit_Get_Menu(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::On_Edit_On_Key_Down(int KeyCode)
+TSG_Rect CWKSP_Grid::Edit_Get_Extent(void)
+{
+	if( m_Edit_Attributes.Get_Count() > 0 )
+	{
+		return( CSG_Rect(
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
+			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count()))
+		);
+	}
+
+	return( Get_Grid()->Get_Extent().m_rect );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Grid::Edit_On_Key_Down(int KeyCode)
 {
 	switch( KeyCode )
 	{
@@ -855,7 +871,7 @@ bool CWKSP_Grid::On_Edit_On_Key_Down(int KeyCode)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	if( Key & MODULE_INTERACTIVE_KEY_LEFT )
 	{
@@ -923,7 +939,7 @@ bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int 
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::On_Edit_Set_Attributes(void)
+bool CWKSP_Grid::Edit_Set_Attributes(void)
 {
 	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
@@ -950,22 +966,6 @@ bool CWKSP_Grid::On_Edit_Set_Attributes(void)
 	}
 
 	return( false );
-}
-
-//---------------------------------------------------------
-TSG_Rect CWKSP_Grid::On_Edit_Get_Extent(void)
-{
-	if( m_Edit_Attributes.Get_Count() > 0 )
-	{
-		return( CSG_Rect(
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count()))
-		);
-	}
-
-	return( Get_Grid()->Get_Extent().m_rect );
 }
 
 

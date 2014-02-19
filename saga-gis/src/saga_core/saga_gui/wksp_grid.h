@@ -108,6 +108,12 @@ public:
 
 	virtual bool				Update					(CWKSP_Layer *pChanged)	{	return( pChanged == this || pChanged == m_pOverlay[0] || pChanged == m_pOverlay[1] );	}
 
+	virtual wxMenu *			Edit_Get_Menu			(void);
+	virtual TSG_Rect			Edit_Get_Extent			(void);
+	virtual bool				Edit_On_Key_Down		(int KeyCode);
+	virtual bool				Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				Edit_Set_Attributes		(void);
+
 
 protected:
 
@@ -118,12 +124,6 @@ protected:
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
-
-	virtual wxMenu *			On_Edit_Get_Menu		(void);
-	virtual bool				On_Edit_On_Key_Down		(int KeyCode);
-	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
-	virtual bool				On_Edit_Set_Attributes	(void);
-	virtual TSG_Rect			On_Edit_Get_Extent		(void);
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 

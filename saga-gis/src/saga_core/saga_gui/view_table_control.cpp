@@ -515,7 +515,7 @@ bool CVIEW_Table_Control::Save(const wxString &File_Name, int Format)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Size(wxSizeEvent &event)//&WXUNUSED(event))
 {
-	if( m_Field_Offset && GetNumberCols() )
+	if( m_Field_Offset && GetNumberCols() && GetClientSize().x > GetRowLabelSize() )
 	{
 		SetColSize(0, GetClientSize().x - GetRowLabelSize());
 	}
