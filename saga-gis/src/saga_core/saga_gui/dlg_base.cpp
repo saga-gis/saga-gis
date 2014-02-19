@@ -89,6 +89,7 @@ IMPLEMENT_CLASS(CDLG_Base, wxDialog)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_Base, wxDialog)
 	EVT_SIZE			(CDLG_Base::On_Size)
+	EVT_KEY_DOWN		(CDLG_Base::On_Key)
 
 	EVT_BUTTON			(wxID_OK		, CDLG_Base::On_Ok)
 	EVT_BUTTON			(wxID_CANCEL	, CDLG_Base::On_Cancel)
@@ -163,6 +164,19 @@ void CDLG_Base::On_Size(wxSizeEvent &event)
 }
 
 //---------------------------------------------------------
+void CDLG_Base::On_Key(wxKeyEvent &event)
+{
+	if( event.GetKeyCode() == WXK_RETURN )
+	{
+		_Exit(true);
+	}
+	else
+	{
+		event.Skip();
+	}
+}
+
+//---------------------------------------------------------
 void CDLG_Base::Set_Positions(void)
 {
 	int		xDivide, yTotal;
@@ -173,11 +187,6 @@ void CDLG_Base::Set_Positions(void)
 	m_Panel_Buttons->SetSize(wxRect(xDivide + CONTROL_DIST, CONTROL_DIST, BUTTON_WIDTH, yTotal));
 
 	Set_Position(wxRect(CONTROL_DIST, CONTROL_DIST, xDivide - 2 * CONTROL_DIST, yTotal));
-}
-
-//---------------------------------------------------------
-void CDLG_Base::Set_Position(wxRect r)
-{
 }
 
 
@@ -212,11 +221,6 @@ void CDLG_Base::_Exit(bool bOk)
 	{
 		EndModal(wxID_CANCEL);
 	}
-}
-
-//---------------------------------------------------------
-void CDLG_Base::Save_Changes(void)
-{
 }
 
 

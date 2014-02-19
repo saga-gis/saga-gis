@@ -90,7 +90,8 @@ public:
 	CDLG_Base(int ID_WMD, wxString Caption, bool bCancelBtn = true);
 	virtual ~CDLG_Base(void);
 
-	void						On_Size			(wxSizeEvent &event);
+	void						On_Size			(wxSizeEvent    &event);
+	void						On_Key			(wxKeyEvent     &event);
 
 	void						On_Ok			(wxCommandEvent &event);
 	void						On_Cancel		(wxCommandEvent &event);
@@ -101,9 +102,9 @@ protected:
 	void						Add_Button		(int Button_ID);
 
 	void						Set_Positions	(void);
-	virtual void				Set_Position	(wxRect r);
+	virtual void				Set_Position	(wxRect r)	{}
 
-	virtual void				Save_Changes	(void);
+	virtual void				Save_Changes	(void)		{}
 
 
 private:

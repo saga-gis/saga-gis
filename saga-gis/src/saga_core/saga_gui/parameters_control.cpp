@@ -85,6 +85,8 @@
 //---------------------------------------------------------
 class CParameters_Grid : public wxPropertyGrid
 {
+	DECLARE_CLASS(CParameters_Grid)
+
 public:
 	CParameters_Grid(void)
 	{}
@@ -95,7 +97,29 @@ public:
 
 	virtual wxStatusBar *		GetStatusBar		(void)	{	return( NULL );	}
 
+	void						On_Key				(wxKeyEvent &event)
+	{
+		event.Skip();
+
+		wxPostEvent(GetParent()->GetParent(), event);
+	}
+
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
+
+//---------------------------------------------------------
+IMPLEMENT_CLASS(CParameters_Grid, wxPropertyGrid)
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CParameters_Grid, wxPropertyGrid)
+	EVT_KEY_DOWN		(CParameters_Grid::On_Key)
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CParameters_Grid_Manager : public wxPropertyGridManager
@@ -141,6 +165,7 @@ IMPLEMENT_CLASS(CParameters_Control, wxPanel)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CParameters_Control, wxPanel)
 	EVT_SIZE			(CParameters_Control::On_Size)
+	EVT_KEY_DOWN		(CParameters_Control::On_Key)
 
 	EVT_PG_SELECTED		(ID_WND_PARM, CParameters_Control::On_PG_Selected)
 	EVT_PG_CHANGED		(ID_WND_PARM, CParameters_Control::On_PG_Changed)
@@ -157,7 +182,7 @@ END_EVENT_TABLE()
 CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxCLIP_CHILDREN)
 {
-	m_pParameters	= new CSG_Parameters();
+	m_pParameters	= new CSG_Parameters;
 	m_pOriginal		= NULL;
 
 	CParameters_Grid_Manager	*pPGM	= new CParameters_Grid_Manager;
@@ -166,9 +191,6 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 
 //	pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
 
-	m_pPG->AddActionTrigger(wxPG_ACTION_NEXT_PROPERTY, WXK_DOWN);
-	m_pPG->AddActionTrigger(wxPG_ACTION_PREV_PROPERTY, WXK_UP);
-	m_pPG->AddActionTrigger(wxPG_ACTION_EDIT         , WXK_TAB);
 	m_pPG->AddActionTrigger(wxPG_ACTION_PRESS_BUTTON , WXK_SPACE);
 
 //	m_pPG->SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
@@ -204,13 +226,33 @@ void CParameters_Control::On_Size(wxSizeEvent &event)
 }
 
 //---------------------------------------------------------
-void CParameters_Control::On_PG_Selected(wxPropertyGridEvent &WXUNUSED(event))
-{}
+void CParameters_Control::On_Key(wxKeyEvent &event)
+{
+	if( event.GetKeyCode() == WXK_RETURN )
+	{
+		wxPostEvent(GetParent(), event);
+	}
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CParameters_Control::On_PG_Selected(wxPropertyGridEvent &event)
+{
+	event.Skip();
+}
 
 //---------------------------------------------------------
 void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 {
 	_Set_Parameter(event.GetPropertyName());
+
+	if( event.GetProperty() )
+	{
+		m_pPG->SelectProperty(event.GetProperty());
+	}
+
+	event.Skip();
 }
 
 

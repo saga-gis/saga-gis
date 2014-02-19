@@ -87,6 +87,7 @@ IMPLEMENT_CLASS(CACTIVE_Parameters, wxPanel)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CACTIVE_Parameters, wxPanel)
 	EVT_SIZE			(CACTIVE_Parameters::On_Size)
+	EVT_KEY_DOWN		(CACTIVE_Parameters::On_Key)
 
 	EVT_BUTTON			(ID_BTN_APPLY	, CACTIVE_Parameters::On_Apply)
 	EVT_UPDATE_UI		(ID_BTN_APPLY	, CACTIVE_Parameters::On_Apply_UI)
@@ -144,9 +145,22 @@ CACTIVE_Parameters::~CACTIVE_Parameters(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_Parameters::On_Size(wxSizeEvent &WXUNUSED(event))
+void CACTIVE_Parameters::On_Size(wxSizeEvent &event)
 {
 	_Set_Positions();
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CACTIVE_Parameters::On_Key(wxKeyEvent &event)
+{
+	if( event.GetKeyCode() == WXK_RETURN && m_pItem )
+	{
+		Update_Parameters(m_pItem->Get_Parameters(), true);
+	}
+
+	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -318,16 +332,20 @@ bool CACTIVE_Parameters::Update_Parameters(CSG_Parameters *pParameters, bool bSa
 {
 	if( pParameters && m_pItem && (m_pItem->Get_Parameters() == pParameters || m_pControl->Get_Parameters() == pParameters) )
 	{
+		CWKSP_Base_Item	*pItem	= m_pItem;	m_pItem	= NULL;
+
 		if( bSave )
 		{
 			m_pControl->Save_Changes(true);
 
-			m_pItem->Parameters_Changed();
+			pItem->Parameters_Changed();
 		}
 		else
 		{
 			m_pControl->Set_Parameters(pParameters);
 		}
+
+		m_pItem	= pItem;
 
 		return( true );
 	}

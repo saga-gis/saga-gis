@@ -91,6 +91,7 @@ public:
 	virtual ~CACTIVE_Parameters(void);
 
 	void						On_Size				(wxSizeEvent     &event);
+	void						On_Key				(wxKeyEvent      &event);
 
 	void						On_Apply			(wxCommandEvent  &event);
 	void						On_Apply_UI			(wxUpdateUIEvent &event);
