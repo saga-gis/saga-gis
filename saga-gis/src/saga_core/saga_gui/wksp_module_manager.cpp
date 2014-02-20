@@ -159,7 +159,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_Parameters.Add_Value(
 		pNode	, "LNG_OLDSTYLE"	, _TL("Old Style Namings"),
 		_TL("Use old style namings (e.g. 'modules' instead of 'tools'). Ignored if translation file is used. You need to restart SAGA to apply changes."),
-		PARAMETER_TYPE_Bool, true
+		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_FilePath(

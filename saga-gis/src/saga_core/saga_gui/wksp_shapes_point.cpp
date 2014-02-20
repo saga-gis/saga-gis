@@ -99,7 +99,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 {
 	CWKSP_Shapes::On_Create_Parameters();
 
-	_BrushList_Add(
+	BrushList_Add(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, _TL("Fill Style"),
 		_TL("")
 	);
@@ -171,7 +171,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Label...
 
-	_AttributeList_Add(
+	AttributeList_Add(
 		m_Parameters("LABEL_ATTRIB")	, "LABEL_ANGLE_ATTRIB"	, _TL("Rotation by Attribute"),
 		_TL("")
 	);
@@ -214,7 +214,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 0
 	);
 
-	_AttributeList_Add(
+	AttributeList_Add(
 		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
@@ -262,8 +262,8 @@ void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
 	CWKSP_Shapes::On_DataObject_Changed();
 
-	_AttributeList_Set(m_Parameters("SIZE_ATTRIB")			, true);
-	_AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB")	, true);
+	AttributeList_Set(m_Parameters("SIZE_ATTRIB")			, true);
+	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB")	, true);
 }
 
 //---------------------------------------------------------
@@ -321,7 +321,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_bOutline	= m_Parameters("OUTLINE")->asBool();
 	m_Pen		= wxPen(!m_bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxSOLID);
-	m_Brush		= wxBrush(m_Def_Color, _BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
+	m_Brush		= wxBrush(m_Def_Color, BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
 }
 
 
@@ -420,7 +420,7 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
+inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
 	dc_Map.dc.SetBrush	(m_Brush);
 	dc_Map.dc.SetPen	(m_Pen);
@@ -429,7 +429,7 @@ inline void CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, bool bSelection)
+inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection)
 {
 	//-----------------------------------------------------
 	double	dSize;
@@ -462,16 +462,16 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 	//-----------------------------------------------------
 	if( Size > 0 )
 	{
-		if( bSelection )
+		if( Selection )
 		{
-			dc_Map.dc.SetBrush	(wxBrush(m_Sel_Color_Fill	, wxSOLID));
-			dc_Map.dc.SetPen	(wxPen	(m_Sel_Color     , 0, wxSOLID));
+			dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill	, wxSOLID));
+			dc_Map.dc.SetPen  (wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxSOLID));
 		}
 		else
 		{
 			int		Color;
 
-			if( _Get_Class_Color(pShape, Color) )
+			if( Get_Class_Color(pShape, Color) )
 			{
 				wxBrush	Brush(m_Brush);
 				Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
@@ -493,7 +493,7 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
+void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	if( m_iSize >= 0 && pShape->is_NoData(m_iSize) )
 	{
@@ -503,29 +503,28 @@ void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bo
 	//-----------------------------------------------------
 	int		Size;
 
-	if( _Draw_Initialize(dc_Map, Size, pShape, bSelection) )
+	if( Draw_Initialize(dc_Map, Size, pShape, Selection) )
 	{
 		TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
 		Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
 
 		//-------------------------------------------------
-		if( bSelection )
+		if( Selection )
 		{
-			_Draw_Initialize(dc_Map);
+			Draw_Initialize(dc_Map);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
+void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
-	wxString		s(pShape->asString(m_iLabel, m_Label_Prec));	s.Trim(true).Trim(false);
 
 	double	Angle	= m_iLabel_Angle < 0 ? m_Label_Angle : pShape->asDouble(m_iLabel_Angle);
 
-	Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, Angle, s, m_Label_Eff, m_Label_Eff_Color);
+	Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, Angle, Label, m_Label_Eff, m_Label_Eff_Color);
 }
 
 
@@ -661,29 +660,6 @@ void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int size)
 		}
 		break;
 	}	
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxMenu * CWKSP_Shapes_Point::Edit_Get_Menu(void)
-{
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu;
-
-	CMD_Menu_Add_Item(pMenu, true , ID_CMD_SHAPES_EDIT_SHAPE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_SHAPE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
-
-	return( pMenu );
 }
 
 

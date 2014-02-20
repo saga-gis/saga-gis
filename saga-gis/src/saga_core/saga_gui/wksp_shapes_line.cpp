@@ -137,7 +137,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
-	_AttributeList_Add(
+	AttributeList_Add(
 		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
@@ -167,7 +167,7 @@ void CWKSP_Shapes_Line::On_DataObject_Changed(void)
 {
 	CWKSP_Shapes::On_DataObject_Changed();
 
-	_AttributeList_Set(m_Parameters("SIZE_ATTRIB"), true);
+	AttributeList_Set(m_Parameters("SIZE_ATTRIB"), true);
 }
 
 //---------------------------------------------------------
@@ -257,7 +257,7 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
 	switch( m_Parameters("LINE_STYLE")->asInt() )
 	{
@@ -283,7 +283,7 @@ void CWKSP_Shapes_Line::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
+void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	if( m_iSize >= 0 && pShape->is_NoData(m_iSize) )
 	{
@@ -291,16 +291,16 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 	}
 
 	//-----------------------------------------------------
-	if( bSelection )
+	if( Selection )
 	{
-		dc_Map.dc.SetPen(wxPen(m_Sel_Color, m_Size + (pShape == Get_Shapes()->Get_Selection(0) ? 2 : 0), m_Line_Style));
+		dc_Map.dc.SetPen(wxPen(m_Sel_Color, m_Size + (Selection == 1 ? 2 : 0), m_Line_Style));
 	}
 	else if( m_iColor >= 0 || m_iSize >= 0 )
 	{
 		int		Color;
 		wxPen	Pen(m_Pen);
 
-		if( _Get_Class_Color(pShape, Color) )
+		if( Get_Class_Color(pShape, Color) )
 		{
 			Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		}
@@ -359,7 +359,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 	}
 
 	//-----------------------------------------------------
-	if( bSelection )
+	if( Selection )
 	{
 		dc_Map.dc.SetPen(m_Pen);
 	}
@@ -369,27 +369,24 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 #define GET_ANGLE(a, b)	M_RAD_TO_DEG * (b.x != a.x ? M_PI_180 - atan2((double)(b.y - a.y), (double)(b.x - a.x)) : (b.y > a.y ? M_PI_270 : (b.y < a.y ? M_PI_090 : 0.0)))
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
+void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
-	bool			bLabel;
-	int				iPart, iPoint;
-	double			d;
-	TSG_Point_Int	A, B;
-	wxCoord			sx, sy;
-	wxString		s(pShape->asString(m_iLabel, m_Label_Prec));	s.Trim(true).Trim(false);
+	wxCoord			Width, Height;
+
+	dc_Map.dc.GetTextExtent(Label, &Width, &Height);
 
 	m_Label_Freq	= 10;
 
-	dc_Map.dc.GetTextExtent(s, &sx, &sy);
-
 	//-----------------------------------------------------
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		if( dc_Map.m_World2DC * ((CSG_Shape_Line *)pShape)->Get_Length(iPart) > (2 * m_Label_Freq) * sx )
+		if( dc_Map.m_World2DC * ((CSG_Shape_Line *)pShape)->Get_Length(iPart) > (2 * m_Label_Freq) * Width )
 		{
-			A		= dc_Map.World2DC(pShape->Get_Point(0, iPart));
+			bool			bLabel	= false;
+			double			d		= 0.0;
+			TSG_Point_Int	B, A	= dc_Map.World2DC(pShape->Get_Point(0, iPart));
 
-			for(iPoint=1, d=0.0, bLabel=false; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
 				//-----------------------------------------
 				if( !bLabel )
@@ -397,7 +394,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 					B		= A;
 					A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-					if( (d += SG_Get_Distance(A.x, A.y, B.x, B.y)) > m_Label_Freq * sx )
+					if( (d += SG_Get_Distance(A.x, A.y, B.x, B.y)) > m_Label_Freq * Width )
 					{
 						bLabel	= true;
 						B		= A;
@@ -409,12 +406,12 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 				{
 					A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-					if( SG_Get_Distance(A.x, A.y, B.x, B.y) > sx )
+					if( SG_Get_Distance(A.x, A.y, B.x, B.y) > Width )
 					{
 						bLabel	= false;
 						d		= 0.0;
 
-						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, B.x, B.y, GET_ANGLE(A, B), s, m_Label_Eff, m_Label_Eff_Color);
+						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color);
 
 					//	dc_Map.dc.DrawRotatedText(s, B.x, B.y, GET_ANGLE(A, B));
 					//	dc_Map.dc.DrawCircle(A.x, A.y, 3);	dc_Map.dc.DrawCircle(B.x, B.y, 3);
@@ -439,7 +436,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 									(int)((rWorld.Get_YMax() - ptWorld.y) / ClientToWorld));	}
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
+void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
 {
 	int			nPoints;
 	TSG_Point	ptWorld;
@@ -466,13 +463,13 @@ void CWKSP_Shapes_Line::_Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double 
 					DRAW_MOVELINE(m_Edit_iPoint + 1);
 			}
 
-			CWKSP_Shapes::_Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, Point);
+			CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, Point);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Line::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 {
 	int			iPart, iPoint;
 	TSG_Point_Int	ptA, ptB;
@@ -497,18 +494,18 @@ void CWKSP_Shapes_Line::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 			}
 		}
 
-		CWKSP_Shapes::_Edit_Shape_Draw(dc_Map);
+		CWKSP_Shapes::Edit_Shape_Draw(dc_Map);
 	}
 }
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Line::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
+int CWKSP_Shapes_Line::Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
 {
 	int			Result, iPart, iPoint;
 	double		d;
 	TSG_Point	A, B, Point, hit_Point;
 
-	Result	= CWKSP_Shapes::_Edit_Shape_HitTest(pos_Point, max_Dist, pos_iPart, pos_iPoint);
+	Result	= CWKSP_Shapes::Edit_Shape_HitTest(pos_Point, max_Dist, pos_iPart, pos_iPoint);
 
 	if( Result == 0 && m_Edit_pShape )
 	{
@@ -543,7 +540,7 @@ int CWKSP_Shapes_Line::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist,
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
+void CWKSP_Shapes_Line::Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
 {
 	int			iPart, iPoint;
 	double		d;

@@ -66,6 +66,7 @@
 
 #include "active.h"
 #include "active_parameters.h"
+#include "active_attributes.h"
 
 #include "wksp_base_control.h"
 
@@ -371,6 +372,11 @@ bool CWKSP_Data_Item::Update_Views(bool bAll)
 		m_bUpdating	= true;
 
 		On_Update_Views(bAll);
+
+		if( g_pACTIVE->Get_Active_Data_Item() == this )
+		{
+			g_pACTIVE->Get_Attributes()->Set_Attributes();
+		}
 
 		m_bUpdating	= false;
 

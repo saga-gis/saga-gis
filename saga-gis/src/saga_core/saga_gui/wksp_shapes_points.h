@@ -90,8 +90,8 @@ public:
 
 protected:
 
-	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection);
-	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
+	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection);
+	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label);
 
 };
 

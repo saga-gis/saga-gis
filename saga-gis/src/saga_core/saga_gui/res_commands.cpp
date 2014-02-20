@@ -200,6 +200,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	return( _TL("Delete Selected Shape(s)") );
 	case ID_CMD_SHAPES_EDIT_DEL_PART:	return( _TL("Delete Selected Part") );
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:	return( _TL("Delete Selected Point") );
+	case ID_CMD_SHAPES_EDIT_SPLIT:		return( _TL("Split with Line") );
+	case ID_CMD_SHAPES_EDIT_MOVE:		return( _TL("Move") );
 
 	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( _TL("Set Range to Minmum/Maximum") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:		return( _TL("Set Range to Standard Deviation (1.5)") );
@@ -215,7 +217,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard [Ctrl+L]") );
 	case ID_CMD_MAPS_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
 	case ID_CMD_MAPS_SCALEBAR:					return( _TL("Scale Bar") );
-	case ID_CMD_MAPS_PROJECTION:				return( _TL("Set Coordinate System") );
+	case ID_CMD_MAPS_PROJECTION:				return( _TL("Spatial Reference") );
 	case ID_CMD_MAPS_GRATICULE_ADD:				return( _TL("Add Graticule") );
 	case ID_CMD_MAPS_LAYER_SHOW:				return( _TL("Show Layer") );
 	case ID_CMD_MAPS_MOVE_TOP:					return( _TL("Move To Top") );

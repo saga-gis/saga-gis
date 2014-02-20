@@ -101,13 +101,29 @@ wxMenu * CWKSP_Shapes::Edit_Get_Menu(void)
 	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_SHAPES_EDIT_SHAPE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_SHAPE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_PART);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_PART);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_POINT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
+
+	if( !is_Editing() )
+	{
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_SHAPE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
+	}
+	else if( Get_Shapes()->Get_Type() != SHAPE_TYPE_Point )
+	{
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_PART);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_PART);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_POINT);
+
+		if( Get_Shapes()->Get_Type() != SHAPE_TYPE_Points )
+		{
+		//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SPLIT);
+		//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_MOVE);
+		}
+	}
 
 	return( pMenu );
 }
@@ -181,7 +197,7 @@ bool CWKSP_Shapes::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int
 		if( m_Edit_iPart >= 0 && m_Edit_iPoint < 0 )
 		{
 		}
-		else switch( _Edit_Shape_HitTest(Point, EDIT_TICKMARK_SIZE * ClientToWorld, iPart, iPoint) )
+		else switch( Edit_Shape_HitTest(Point, EDIT_TICKMARK_SIZE * ClientToWorld, iPart, iPoint) )
 		{
 		//-------------------------------------------------
 		case 0:	default:
@@ -277,8 +293,8 @@ bool CWKSP_Shapes::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int K
 		Get_Shapes()->Select(rWorld, (Key & MODULE_INTERACTIVE_KEY_CTRL) != 0);
 
 		Edit_Set_Index((Key & MODULE_INTERACTIVE_KEY_CTRL) == 0 ? 0 :
-			Count < Get_Shapes()->Get_Selection_Count() || m_Edit_Index >= Get_Shapes()->Get_Selection_Count() ? Get_Shapes()->Get_Selection_Count() - 1 :
-			m_Edit_Index
+			Count < Get_Shapes()->Get_Selection_Count() || m_Edit_Index >= Get_Shapes()->Get_Selection_Count()
+			? Get_Shapes()->Get_Selection_Count() - 1 : m_Edit_Index
 		);
 
 		if( m_pTable->Get_View() )
@@ -309,8 +325,8 @@ bool CWKSP_Shapes::Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint p
 				wxClientDC	dc(pMap);
 				dc.SetLogicalFunction(wxINVERT);
 
-				_Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, ptLast);
-				_Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, pt);
+				Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, ptLast);
+				Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, pt);
 			}
 
 			return( true );
@@ -322,7 +338,7 @@ bool CWKSP_Shapes::Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint p
 			int			iPart, iPoint;
 			CSG_Point	Point(rWorld.Get_XMin() + pt.x * ClientToWorld, rWorld.Get_YMax() - pt.y * ClientToWorld);
 
-			switch( _Edit_Shape_HitTest(Point, EDIT_TICKMARK_SIZE * ClientToWorld, iPart, iPoint) )
+			switch( Edit_Shape_HitTest(Point, EDIT_TICKMARK_SIZE * ClientToWorld, iPart, iPoint) )
 			{
 			default:	pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_SELECT         ));	break;
 			case  1:	pMap->SetCursor(IMG_Get_Cursor(ID_IMG_CRS_EDIT_POINT_MOVE));	break;
@@ -371,8 +387,6 @@ bool CWKSP_Shapes::Edit_Set_Index(int Index)
 	{
 		m_Edit_Index	= 0;
 	}
-
-	g_pACTIVE->Get_Attributes()->Set_Attributes();
 
 	return( true );
 }
@@ -520,6 +534,8 @@ bool CWKSP_Shapes::_Edit_Shape_Del(void)
 				Get_Shapes()->Del_Selection();
 			}
 
+			Edit_Set_Index(0);
+
 			Update_Views();
 
 			return( true );
@@ -632,13 +648,13 @@ void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, int x, int y, bool bSelected
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
+void CWKSP_Shapes::Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
 {
 	_Edit_Shape_Draw_Point(dc, Point.x, Point.y, false);
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 {
 	int		iPart, iPoint;
 
@@ -727,11 +743,11 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point Point, CSG_Point &snap_Point, doub
 			{
 				if( bLine )
 				{
-					_Edit_Snap_Point_ToLine(Point, snap_Point, snap_Dist, pShapes->Get_Selection(i));
+					Edit_Snap_Point_ToLine(Point, snap_Point, snap_Dist, pShapes->Get_Selection(i));
 				}
 				else
 				{
-					_Edit_Snap_Point       (Point, snap_Point, snap_Dist, pShapes->Get_Selection(i));
+					_Edit_Snap_Point      (Point, snap_Point, snap_Dist, pShapes->Get_Selection(i));
 				}
 			}
 		}
@@ -766,9 +782,8 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point pos_Point, CSG_Point &snap_Point, 
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
-{
-}
+void CWKSP_Shapes::Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -778,7 +793,7 @@ void CWKSP_Shapes::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
+int CWKSP_Shapes::Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
 {
 	int			Result, iPart, iPoint;
 	double		d, dx, dy;

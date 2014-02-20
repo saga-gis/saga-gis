@@ -261,6 +261,8 @@ void CACTIVE_Attributes::Set_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 void CACTIVE_Attributes::Set_Attributes(void)
 {
+	Freeze();
+
 	m_pSelections->Clear();
 
 	if( m_pLayer && m_pLayer->Edit_Get_Attributes()->is_Valid() )
@@ -286,13 +288,13 @@ void CACTIVE_Attributes::Set_Attributes(void)
 		m_pAttributes->Destroy();
 	}
 
-//	m_pSelections->Show(m_pSelections->GetCount() > 1);
-
 	m_pAttributes->Set_Modified(false);
 
 	m_pControl->Update_Table();
 
 	_Set_Positions();
+
+	Thaw();
 }
 
 

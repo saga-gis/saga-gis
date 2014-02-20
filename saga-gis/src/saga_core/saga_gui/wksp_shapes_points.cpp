@@ -85,7 +85,7 @@ CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
+void CWKSP_Shapes_Points::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
 	if( (m_iSize >= 0 && pShape->is_NoData(m_iSize)) || (m_iColor >= 0 && pShape->is_NoData(m_iColor)) )
 		return;
@@ -93,7 +93,7 @@ void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, b
 	//-----------------------------------------------------
 	int		Size;
 
-	if( CWKSP_Shapes_Point::_Draw_Initialize(dc_Map, Size, pShape, bSelection) )
+	if( CWKSP_Shapes_Point::Draw_Initialize(dc_Map, Size, pShape, Selection) )
 	{
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -106,19 +106,19 @@ void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, b
 		}
 
 		//-------------------------------------------------
-		if( bSelection )
+		if( Selection )
 		{
-			CWKSP_Shapes_Point::_Draw_Initialize(dc_Map);
+			CWKSP_Shapes_Point::Draw_Initialize(dc_Map);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
+void CWKSP_Shapes_Points::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 
-	Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, pShape->asString(m_iLabel, m_Label_Prec), m_Label_Eff, m_Label_Eff_Color);
+	Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color);
 }
 
 
