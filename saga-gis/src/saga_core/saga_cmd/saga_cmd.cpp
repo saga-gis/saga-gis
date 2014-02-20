@@ -412,7 +412,7 @@ bool		Load_Libraries(void)
 
 		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
 
-		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("tools")));
+		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("modules")));
     #endif
 
 	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) )
@@ -500,6 +500,11 @@ bool		Check_Flags		(const CSG_String &Argument)
 		{
 			SG_Get_Projections().Create(SG_File_Make_Path(SG_File_Get_Path(SG_UI_Get_Application_Path()),
 				SG_T("saga_prj"), SG_T("srs")));
+		}
+
+		if( s.Find('o') >= 0 )	// o: load old style naming, has no effect if l-flag is set.
+		{
+			SG_Set_OldStyle_Naming();
 		}
 
 		return( true );
