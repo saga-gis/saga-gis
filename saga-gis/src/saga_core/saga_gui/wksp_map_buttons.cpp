@@ -252,7 +252,6 @@ IMPLEMENT_CLASS(CWKSP_Map_Buttons, wxScrolledWindow)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Map_Buttons, wxScrolledWindow)
-	EVT_RIGHT_DOWN		(CWKSP_Map_Buttons::On_Mouse_RDown)
 	EVT_SIZE			(CWKSP_Map_Buttons::On_Size)
 END_EVENT_TABLE()
 
@@ -274,34 +273,11 @@ CWKSP_Map_Buttons::CWKSP_Map_Buttons(wxWindow *pParent)
 
 	m_Items			= NULL;
 	m_nItems		= 0;
-
-	//-----------------------------------------------------
-	m_Parameters.Create(this, _TL("Options for Map Thumbnails"), _TL(""));
-
-	m_Parameters.Add_Value(
-		NULL, "SIZE"		, _TL("Thumbnail Size"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 75, 10, true
-	);
-
-	m_Parameters.Add_Value(
-		NULL, "SELCOLOR"	, _TL("Selection Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color, Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
-	);
-
-	//-----------------------------------------------------
-	CONFIG_Read("/MAPS/BUTTONS", &m_Parameters);
-
-	m_Size			= m_Parameters("SIZE"    )->asInt();
-	m_Active_Color	= m_Parameters("SELCOLOR")->asColor();
 }
 
 //---------------------------------------------------------
 CWKSP_Map_Buttons::~CWKSP_Map_Buttons(void)
 {
-	CONFIG_Write("/MAPS/BUTTONS", &m_Parameters);
-
 	_Del_Items();
 
 	g_pMap_Buttons	= NULL;
@@ -313,20 +289,6 @@ CWKSP_Map_Buttons::~CWKSP_Map_Buttons(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Map_Buttons::On_Mouse_RDown(wxMouseEvent &event)
-{
-	if( DLG_Parameters(&m_Parameters) )
-	{
-		m_Size			= m_Parameters("SIZE")		->asInt();
-		m_Active_Color	= m_Parameters("SELCOLOR")	->asColor();
-
-		Update_Buttons();
-	}
-
-	event.Skip();
-}
 
 //---------------------------------------------------------
 void CWKSP_Map_Buttons::On_Size(wxSizeEvent &event)
@@ -345,6 +307,9 @@ void CWKSP_Map_Buttons::On_Size(wxSizeEvent &event)
 void CWKSP_Map_Buttons::Update_Buttons(void)
 {
 	Freeze();
+
+	m_Size			= g_pMaps->Get_Parameter("THUMBNAIL_SIZE"    )->asInt  ();
+	m_Active_Color	= g_pMaps->Get_Parameter("THUMBNAIL_SELCOLOR")->asColor();
 
 	_Del_Items();
 	_Add_Items(g_pMaps);

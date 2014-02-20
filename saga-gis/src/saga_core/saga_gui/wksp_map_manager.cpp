@@ -69,6 +69,8 @@
 #include "helper.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_map_buttons.h"
+
 #include "wksp_layer.h"
 
 #include "wksp_map_control.h"
@@ -174,6 +176,21 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_THUMBNAILS", _TL("Thumbnails"), _TL(""));
+
+	m_Parameters.Add_Value(
+		pNode	, "THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 75, 10, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode	, "THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
+		_TL(""),
+		PARAMETER_TYPE_Color, Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
+	);
+
+	//-----------------------------------------------------
 	CONFIG_Read("/MAPS", &m_Parameters);
 }
 
@@ -245,6 +262,21 @@ bool CWKSP_Map_Manager::On_Command(int Cmd_ID)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Map_Manager::Parameters_Changed(void)
+{
+	g_pMap_Buttons->Update_Buttons();
+
+	CWKSP_Base_Manager::Parameters_Changed();
 }
 
 

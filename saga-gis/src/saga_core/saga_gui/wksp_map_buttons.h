@@ -125,8 +125,6 @@ public:
 	CWKSP_Map_Buttons(wxWindow *pParent);
 	virtual ~CWKSP_Map_Buttons(void);
 
-	void						On_Mouse_RDown		(wxMouseEvent &event);
-
 	void						On_Size				(wxSizeEvent  &event);
 
 	void						Update_Buttons		(void);
@@ -142,8 +140,6 @@ private:
 	long						m_Active_Color;
 
 	CWKSP_Map_Button			**m_Items;
-
-	CSG_Parameters				m_Parameters;
 
 
 	void						_Set_Positions		(void);

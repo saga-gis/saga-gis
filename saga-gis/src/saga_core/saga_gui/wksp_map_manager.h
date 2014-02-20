@@ -90,26 +90,28 @@ public:
 	CWKSP_Map_Manager(void);
 	virtual ~CWKSP_Map_Manager(void);
 
-	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_Map_Manager );	}
+	virtual TWKSP_Item			Get_Type			(void)		{	return( WKSP_ITEM_Map_Manager );	}
 
-	virtual wxString			Get_Name		(void);
-	virtual wxString			Get_Description	(void);
+	virtual wxString			Get_Name			(void);
+	virtual wxString			Get_Description		(void);
 
-	virtual wxMenu *			Get_Menu		(void);
+	virtual wxMenu *			Get_Menu			(void);
 
-	virtual bool				On_Command		(int Cmd_ID);
+	virtual bool				On_Command			(int Cmd_ID);
 
-	class CWKSP_Map *			Get_Map			(int i)		{	return( (class CWKSP_Map *)Get_Item(i) );	}
+	virtual void				Parameters_Changed	(void);
 
-	bool						Exists			(class CWKSP_Map *pMap);
+	class CWKSP_Map *			Get_Map				(int i)		{	return( (class CWKSP_Map *)Get_Item(i) );	}
 
-	bool						Close			(bool bSilent);
+	bool						Exists				(class CWKSP_Map *pMap);
 
-	bool						Add				(class CWKSP_Map   *pMap);
-	bool						Add				(class CWKSP_Layer *pLayer);
-	bool						Add				(class CWKSP_Layer *pLayer, class CWKSP_Map *pMap);
-	bool						Del				(class CWKSP_Layer *pLayer);
-	bool						Update			(class CWKSP_Layer *pLayer, bool bMapsOnly);
+	bool						Close				(bool bSilent);
+
+	bool						Add					(class CWKSP_Map   *pMap);
+	bool						Add					(class CWKSP_Layer *pLayer);
+	bool						Add					(class CWKSP_Layer *pLayer, class CWKSP_Map *pMap);
+	bool						Del					(class CWKSP_Layer *pLayer);
+	bool						Update				(class CWKSP_Layer *pLayer, bool bMapsOnly);
 
 
 private:

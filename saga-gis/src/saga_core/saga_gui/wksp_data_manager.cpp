@@ -79,6 +79,7 @@
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_files.h"
+#include "wksp_data_layers.h"
 
 #include "wksp_layer.h"
 
@@ -153,6 +154,27 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		pNode	, "HISTORY_DEPTH"			, _TL("History Depth"),
 		_TL("Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off."),
 		PARAMETER_TYPE_Int, SG_Get_History_Depth(), -1, true
+	);
+
+	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_THUMBNAILS", _TL("Thumbnails"), _TL(""));
+
+	m_Parameters.Add_Value(
+		pNode	, "THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 75, 10, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode	, "THUMBNAIL_CATEGORY"	, _TL("Show Categories"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode	, "THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
+		_TL(""),
+		PARAMETER_TYPE_Color, Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
 	);
 
 	//-----------------------------------------------------
@@ -523,6 +545,8 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	SG_Set_History_Depth(m_Parameters("HISTORY_DEPTH")->asInt());
 
 	m_Numbering	= m_Parameters("NUMBERING")->asInt();
+
+	g_pData_Buttons->Update_Buttons();
 
 	CWKSP_Base_Manager::Parameters_Changed();
 }

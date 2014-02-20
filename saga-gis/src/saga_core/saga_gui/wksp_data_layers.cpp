@@ -268,7 +268,6 @@ IMPLEMENT_CLASS(CWKSP_Data_Buttons, wxScrolledWindow)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Data_Buttons, wxScrolledWindow)
-	EVT_RIGHT_DOWN		(CWKSP_Data_Buttons::On_Mouse_RDown)
 	EVT_SIZE			(CWKSP_Data_Buttons::On_Size)
 END_EVENT_TABLE()
 
@@ -290,41 +289,11 @@ CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 
 	m_Items			= NULL;
 	m_nItems		= 0;
-
-	//-----------------------------------------------------
-	m_Parameters.Create(this, _TL("Options for Data Thumbnails"), _TL(""));
-
-	m_Parameters.Add_Value(
-		NULL, "SIZE"		, _TL("Thumbnail Size"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 75, 10, true
-	);
-
-	m_Parameters.Add_Value(
-		NULL, "CATEGORY"	, _TL("Show Categories"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	m_Parameters.Add_Value(
-		NULL, "SELCOLOR"	, _TL("Selection Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color, Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
-	);
-
-	//-----------------------------------------------------
-	CONFIG_Read("/DATA/BUTTONS", &m_Parameters);
-
-	m_Size			= m_Parameters("SIZE"    )->asInt();
-	m_bCategorised	= m_Parameters("CATEGORY")->asBool();
-	m_Active_Color	= m_Parameters("SELCOLOR")->asColor();
 }
 
 //---------------------------------------------------------
 CWKSP_Data_Buttons::~CWKSP_Data_Buttons(void)
 {
-	CONFIG_Write("/DATA/BUTTONS", &m_Parameters);
-
 	_Del_Items();
 
 	g_pData_Buttons	= NULL;
@@ -336,21 +305,6 @@ CWKSP_Data_Buttons::~CWKSP_Data_Buttons(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Data_Buttons::On_Mouse_RDown(wxMouseEvent &event)
-{
-	if( DLG_Parameters(&m_Parameters) )
-	{
-		m_Size			= m_Parameters("SIZE"    )->asInt();
-		m_bCategorised	= m_Parameters("CATEGORY")->asBool();
-		m_Active_Color	= m_Parameters("SELCOLOR")->asColor();
-
-		Update_Buttons();
-	}
-
-	event.Skip();
-}
 
 //---------------------------------------------------------
 void CWKSP_Data_Buttons::On_Size(wxSizeEvent &event)
@@ -369,6 +323,10 @@ void CWKSP_Data_Buttons::On_Size(wxSizeEvent &event)
 void CWKSP_Data_Buttons::Update_Buttons(void)
 {
 	Freeze();
+
+	m_Size			= g_pData->Get_Parameter("THUMBNAIL_SIZE"    )->asInt  ();
+	m_bCategorised	= g_pData->Get_Parameter("THUMBNAIL_CATEGORY")->asBool ();
+	m_Active_Color	= g_pData->Get_Parameter("THUMBNAIL_SELCOLOR")->asColor();
 
 	_Del_Items();
 	_Add_Items(g_pData);
