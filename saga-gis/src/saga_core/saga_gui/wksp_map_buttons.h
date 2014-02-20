@@ -94,7 +94,7 @@ public:
 	virtual ~CWKSP_Map_Button(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
-
+	void						On_Key				(wxKeyEvent   &event);
 	void						On_Mouse_LDown		(wxMouseEvent &event);
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
@@ -111,10 +111,14 @@ private:
 
 	bool						_Set_Layer_Active	(void);
 
-
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CWKSP_Map_Buttons : public wxScrolledWindow
@@ -126,6 +130,7 @@ public:
 	virtual ~CWKSP_Map_Buttons(void);
 
 	void						On_Size				(wxSizeEvent  &event);
+	void						On_Mouse_LDown		(wxMouseEvent &event);
 
 	void						Update_Buttons		(void);
 
@@ -150,8 +155,8 @@ private:
 	bool						_Del_Items			(void);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------

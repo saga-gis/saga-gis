@@ -94,7 +94,7 @@ public:
 	virtual ~CWKSP_Data_Button(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
-
+	void						On_Key				(wxKeyEvent   &event);
 	void						On_Mouse_LDown		(wxMouseEvent &event);
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
@@ -113,10 +113,14 @@ private:
 
 	bool						_Select				(bool bKeepOthers);
 
-
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CWKSP_Data_Buttons : public wxScrolledWindow
@@ -128,6 +132,7 @@ public:
 	virtual ~CWKSP_Data_Buttons(void);
 
 	void						On_Size				(wxSizeEvent  &event);
+	void						On_Mouse_LDown		(wxMouseEvent &event);
 
 	void						Update_Buttons		(void);
 
@@ -153,9 +158,8 @@ private:
 	bool						_Add_Item			(const wxString &Title);
 	bool						_Del_Items			(void);
 
-
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------

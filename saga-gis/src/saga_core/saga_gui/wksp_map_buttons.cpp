@@ -123,6 +123,7 @@ IMPLEMENT_CLASS(CWKSP_Map_Button, wxPanel)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Map_Button, wxPanel)
 	EVT_PAINT			(CWKSP_Map_Button::On_Paint)
+	EVT_KEY_DOWN		(CWKSP_Map_Button::On_Key)
 	EVT_LEFT_DOWN		(CWKSP_Map_Button::On_Mouse_LDown)
 	EVT_LEFT_DCLICK		(CWKSP_Map_Button::On_Mouse_LDClick)
 	EVT_RIGHT_DOWN		(CWKSP_Map_Button::On_Mouse_RDown)
@@ -202,6 +203,17 @@ bool CWKSP_Map_Button::_Set_Layer_Active(void)
 }
 
 //---------------------------------------------------------
+void CWKSP_Map_Button::On_Key(wxKeyEvent &event)
+{
+	if( event.GetKeyCode() == WXK_DELETE )
+	{
+		g_pMap_Ctrl->Delete(m_pMap->GetId());
+
+		g_pMap_Buttons->Update_Buttons();
+	}
+}
+
+//---------------------------------------------------------
 void CWKSP_Map_Button::On_Mouse_LDown(wxMouseEvent &event)
 {
 	_Set_Layer_Active();
@@ -225,15 +237,13 @@ void CWKSP_Map_Button::On_Mouse_RDown(wxMouseEvent &event)
 {
 	if( _Set_Layer_Active() )
 	{
-		wxMenu	*pMenu;
+		wxMenu	*pMenu	= m_pMap->Get_Menu();
 
-		if( (pMenu = m_pMap->Get_Menu()) != NULL )
+		if( pMenu )
 		{
 			GetParent()->PopupMenu(pMenu, GetParent()->ScreenToClient(ClientToScreen(event.GetPosition())));
 
 			delete(pMenu);
-
-			return;
 		}
 	}
 
@@ -253,6 +263,7 @@ IMPLEMENT_CLASS(CWKSP_Map_Buttons, wxScrolledWindow)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Map_Buttons, wxScrolledWindow)
 	EVT_SIZE			(CWKSP_Map_Buttons::On_Size)
+	EVT_LEFT_DOWN		(CWKSP_Map_Buttons::On_Mouse_LDown)
 END_EVENT_TABLE()
 
 
@@ -294,6 +305,18 @@ CWKSP_Map_Buttons::~CWKSP_Map_Buttons(void)
 void CWKSP_Map_Buttons::On_Size(wxSizeEvent &event)
 {
 	_Set_Positions();
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CWKSP_Map_Buttons::On_Mouse_LDown(wxMouseEvent &event)
+{
+	g_pACTIVE->Set_Active(NULL);
+
+	Refresh();
+
+	event.Skip();
 }
 
 

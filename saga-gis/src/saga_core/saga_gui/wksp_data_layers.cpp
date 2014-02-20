@@ -125,6 +125,7 @@ IMPLEMENT_CLASS(CWKSP_Data_Button, wxPanel)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Data_Button, wxPanel)
 	EVT_PAINT			(CWKSP_Data_Button::On_Paint)
+	EVT_KEY_DOWN		(CWKSP_Data_Button::On_Key)
 	EVT_LEFT_DOWN		(CWKSP_Data_Button::On_Mouse_LDown)
 	EVT_LEFT_DCLICK		(CWKSP_Data_Button::On_Mouse_LDClick)
 	EVT_RIGHT_DOWN		(CWKSP_Data_Button::On_Mouse_RDown)
@@ -199,6 +200,21 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 }
 
 //---------------------------------------------------------
+void CWKSP_Data_Button::On_Key(wxKeyEvent &event)
+{
+	if( event.GetKeyCode() == WXK_DELETE )
+	{
+		wxCommandEvent	Command;
+
+		Command.SetId(ID_CMD_WKSP_ITEM_CLOSE);
+
+		g_pData_Ctrl->On_Command(Command);
+
+	//	g_pData_Buttons->Update_Buttons();
+	}
+}
+
+//---------------------------------------------------------
 bool CWKSP_Data_Button::_Select(bool bKeepOthers)
 {
 	if( m_pItem && SG_Get_Data_Manager().Exists(m_pObject) )
@@ -269,6 +285,7 @@ IMPLEMENT_CLASS(CWKSP_Data_Buttons, wxScrolledWindow)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Data_Buttons, wxScrolledWindow)
 	EVT_SIZE			(CWKSP_Data_Buttons::On_Size)
+	EVT_LEFT_DOWN		(CWKSP_Data_Buttons::On_Mouse_LDown)
 END_EVENT_TABLE()
 
 
@@ -310,6 +327,16 @@ CWKSP_Data_Buttons::~CWKSP_Data_Buttons(void)
 void CWKSP_Data_Buttons::On_Size(wxSizeEvent &event)
 {
 	_Set_Positions();
+}
+
+//---------------------------------------------------------
+void CWKSP_Data_Buttons::On_Mouse_LDown(wxMouseEvent &event)
+{
+	g_pData_Ctrl->UnselectAll();
+
+	Refresh();
+
+	event.Skip();
 }
 
 

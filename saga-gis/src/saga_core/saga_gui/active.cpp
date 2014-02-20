@@ -308,7 +308,15 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	{
 		STATUSBAR_Set_Text(SG_T(""), STATUSBAR_ACTIVE);
 
-		if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
+		if( g_pSAGA_Frame   )	g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
+		if( g_pData_Buttons )	g_pData_Buttons->Refresh();
+		if( g_pMap_Buttons  )	g_pMap_Buttons ->Refresh();
+
+		_Hide_Page(m_pHistory);
+		_Hide_Page(m_pLegend);
+		_Hide_Page(m_pAttributes);
+
+		SendSizeEvent();
 
 		return( true );
 	}
