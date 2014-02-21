@@ -229,7 +229,7 @@ bool CTables_Merge::On_Execute(void)
 
 			if( Index )
 			{
-				for(int i=bInfo?1:0; i<pTable->Get_Field_Count(); i++)
+				for(int i=0; i<pTable->Get_Field_Count(); i++)
 				{
 					if( Index[i] >= 0 )
 					{
