@@ -97,10 +97,7 @@
 #define SCROLL_BAR_DY	wxSystemSettings::GetMetric(wxSYS_HSCROLL_Y)
 
 //---------------------------------------------------------
-#define THUMBNAIL_SIZE	75
 #define THUMBNAIL_DIST	5
-
-#define TITLE_FONT		wxFont(8, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD)
 
 
 ///////////////////////////////////////////////////////////
@@ -133,33 +130,32 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Data_Item *pItem)
-	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxBORDER_RAISED)
 {
-	m_pItem	= pItem;
+	m_pManager	= NULL;
+	m_pItem		= pItem;
 	m_pObject	= pItem->Get_Object();
 	m_Title		= pItem->Get_Name();
 }
 
 //---------------------------------------------------------
-CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, const wxString &Title)
-	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, 0)
+CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, CWKSP_Base_Manager *pItem)
+	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxBORDER_RAISED)
 {
-	m_pItem	= NULL;
+	m_pManager	= pItem;
+	m_pItem		= NULL;
 	m_pObject	= NULL;
-	m_Title		= Title;
+	m_Title		= pItem->Get_Name();
 
-	int			x, y, d, e;
 	wxClientDC	dc(this);
-	wxFont		Font(TITLE_FONT);
-	dc.GetTextExtent(m_Title, &x, &y, &d, &e, &Font);
-	SetSize(-1, -1, x + 4, y + d + e + 4);
+	SetSize(wxDefaultSize.GetWidth(), dc.GetTextExtent(m_Title).GetHeight() + 10);
 }
 
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC	dc(this);
-	wxRect		r(wxPoint(0, 0), GetClientSize());
+	wxRect		r(GetClientRect());
 
 	if( m_pItem && m_pItem->GetId().IsOk() && m_pItem->Get_Object() == m_pObject && g_pData->Get(m_pObject) )
 	{
@@ -191,11 +187,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 	}
 	else
 	{
-		dc.DrawLine(0, 0, r.GetWidth(), 0);
-		dc.DrawLine(0, 1, r.GetWidth(), 1);
-		dc.SetFont(TITLE_FONT);
 		dc.DrawText(m_Title, 2, 2);
-		dc.DrawLine(0, r.GetBottom(), r.GetWidth(), r.GetBottom());
 	}
 }
 
@@ -209,26 +201,9 @@ void CWKSP_Data_Button::On_Key(wxKeyEvent &event)
 		Command.SetId(ID_CMD_WKSP_ITEM_CLOSE);
 
 		g_pData_Ctrl->On_Command(Command);
-
-	//	g_pData_Buttons->Update_Buttons();
-	}
-}
-
-//---------------------------------------------------------
-bool CWKSP_Data_Button::_Select(bool bKeepOthers)
-{
-	if( m_pItem && SG_Get_Data_Manager().Exists(m_pObject) )
-	{
-		g_pData_Ctrl->Set_Item_Selected(m_pItem, bKeepOthers);
-
-		GetParent()->Refresh();
-
-		return( true );
 	}
 
-	m_pObject	= NULL;
-
-	return( false );
+	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -242,7 +217,7 @@ void CWKSP_Data_Button::On_Mouse_LDown(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 {
-	if( _Select(false) )
+	if( _Select(false) && m_pItem )
 	{
 		m_pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
 	}
@@ -270,6 +245,29 @@ void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 	}
 
 	event.Skip();
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Button::_Select(bool bKeepOthers)
+{
+	if( m_pItem && SG_Get_Data_Manager().Exists(m_pObject) )
+	{
+		g_pData_Ctrl->Set_Item_Selected(m_pItem, bKeepOthers);
+
+		return( true );
+	}
+
+	m_pObject	= NULL;
+
+	if( m_pManager )
+	{
+		g_pData_Ctrl->SelectChildren(m_pManager->GetId());
+		g_pData_Buttons->Update_Buttons();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -384,8 +382,8 @@ void CWKSP_Data_Buttons::_Set_Positions(void)
 		xSize	= m_Size + THUMBNAIL_DIST;
 	}
 
-	xPos	= THUMBNAIL_DIST;
-	yPos	= THUMBNAIL_DIST;
+	xPos	= 0;
+	yPos	= 0;
 	xAdd	= 0;
 	yAdd	= 0;
 
@@ -396,7 +394,7 @@ void CWKSP_Data_Buttons::_Set_Positions(void)
 		if( pItem->is_Title() )
 		{
 			xPos	 = THUMBNAIL_DIST;
-			yPos	+= THUMBNAIL_DIST + yAdd;
+			yPos	+= yAdd;	if( yPos > 0 )	yPos	+= THUMBNAIL_DIST;
 
 			CalcScrolledPosition(0, yPos, &x, &y);
 			pItem->SetSize(x, y, xSize + SCROLL_BAR_DX, -1, wxSIZE_USE_EXISTING);
@@ -460,11 +458,6 @@ bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Grid:
 			return( _Add_Item((CWKSP_Data_Item *)pItem) );
 
-		case WKSP_ITEM_Data_Manager:
-		case WKSP_ITEM_Grid_Manager:
-		case WKSP_ITEM_Shapes_Manager:
-			break;
-
 		case WKSP_ITEM_Table_Manager:
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_TIN_Manager:
@@ -472,8 +465,13 @@ bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Grid_System:
 			if( m_bCategorised )
 			{
-				_Add_Item(pItem->Get_Name());
+				_Add_Item((CWKSP_Base_Manager *)pItem);
 			}
+			break;
+
+		case WKSP_ITEM_Data_Manager:
+		case WKSP_ITEM_Grid_Manager:
+		case WKSP_ITEM_Shapes_Manager:
 			break;
 		}
 
@@ -489,12 +487,12 @@ bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Data_Item *pLayer)
+bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Data_Item *pItem)
 {
-	if( pLayer )
+	if( pItem )
 	{
 		m_Items	= (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
-		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, pLayer);
+		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, pItem);
 
 		return( true );
 	}
@@ -503,12 +501,12 @@ bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Data_Item *pLayer)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Buttons::_Add_Item(const wxString &Title)
+bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Base_Manager *pItem)
 {
-	if( Title.Length() > 0 )
+	if( pItem )
 	{
 		m_Items	= (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
-		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, Title);
+		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, pItem);
 
 		return( true );
 	}

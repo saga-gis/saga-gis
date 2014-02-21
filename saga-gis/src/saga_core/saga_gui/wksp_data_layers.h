@@ -89,8 +89,8 @@ class CWKSP_Data_Button : public wxPanel
 	DECLARE_CLASS(CWKSP_Data_Button)
 
 public:
-	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Data_Item *pItem);
-	CWKSP_Data_Button(wxWindow *pParent, const wxString &Title);
+	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Data_Item    *pItem);
+	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Base_Manager *pItem);
 	virtual ~CWKSP_Data_Button(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
@@ -106,9 +106,11 @@ private:
 
 	wxString					m_Title;
 
+	CSG_Data_Object				*m_pObject;
+
 	class CWKSP_Data_Item		*m_pItem;
 
-	CSG_Data_Object				*m_pObject;
+	class CWKSP_Base_Manager	*m_pManager;
 
 
 	bool						_Select				(bool bKeepOthers);
@@ -153,9 +155,9 @@ private:
 
 	void						_Set_Positions		(void);
 
-	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
-	bool						_Add_Item			(class CWKSP_Data_Item *pItem);
-	bool						_Add_Item			(const wxString &Title);
+	bool						_Add_Items			(class CWKSP_Base_Item    *pItem);
+	bool						_Add_Item			(class CWKSP_Data_Item    *pItem);
+	bool						_Add_Item			(class CWKSP_Base_Manager *pItem);
 	bool						_Del_Items			(void);
 
 	//-----------------------------------------------------

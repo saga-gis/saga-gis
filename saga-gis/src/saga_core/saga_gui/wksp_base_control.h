@@ -90,9 +90,9 @@ public:
 	CWKSP_Base_Control(wxWindow *pParent, wxWindowID id);
 	virtual ~CWKSP_Base_Control(void);
 
+	int							Get_Selection_Count	(void);
 	class CWKSP_Base_Item *		Get_Item_Selected	(void);
 	bool						Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
-	int							Get_Selection_Count	(void);
 
 	void						On_Command			(wxCommandEvent  &event);
 	void						On_Command_UI		(wxUpdateUIEvent &event);
@@ -111,6 +111,8 @@ public:
 
 protected:
 
+	bool						m_bUpdating;
+
 	class CWKSP_Base_Manager	*m_pManager;
 
 
@@ -120,7 +122,6 @@ protected:
 	bool						_Del_Item			(class CWKSP_Base_Item *pItem, bool bSilent);
 	bool						_Del_Item_Confirm	(class CWKSP_Base_Item *pItem);
 
-	bool						_Set_Active			(void);
 	bool						_Del_Active			(bool bSilent);
 
 	bool						_Show_Active		(void);

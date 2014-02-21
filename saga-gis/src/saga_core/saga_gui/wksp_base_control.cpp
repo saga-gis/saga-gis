@@ -150,6 +150,7 @@ CWKSP_Base_Control::CWKSP_Base_Control(wxWindow *pParent, wxWindowID id)
 	: wxTreeCtrl(pParent, id, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
 	m_pManager	= NULL;
+	m_bUpdating	= false;
 
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_NOITEMS);
@@ -157,8 +158,7 @@ CWKSP_Base_Control::CWKSP_Base_Control(wxWindow *pParent, wxWindowID id)
 
 //---------------------------------------------------------
 CWKSP_Base_Control::~CWKSP_Base_Control(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -445,6 +445,23 @@ bool CWKSP_Base_Control::_Del_Item_Confirm(CWKSP_Base_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CWKSP_Base_Control::Get_Selection_Count(void)
+{
+	if( GetWindowStyle() & wxTR_MULTIPLE )
+	{
+		wxArrayTreeItemIds	IDs;
+
+		return( GetSelections(IDs) );
+	}
+	else
+	{
+		wxTreeItemId	ID	= GetSelection();
+
+		return( ID.IsOk() ? 1 : 0 );
+	}
+}
+
+//---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(void)
 {
 	wxTreeItemId	ID;
@@ -471,40 +488,41 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 {
 	if( pItem && pItem->Get_Control() == this && pItem->GetId().IsOk() )
 	{
-		g_pACTIVE->Freeze();
-
-		bool	bSelect	= bKeepMultipleSelection ? !IsSelected(pItem->GetId()) : true;
-
-		if( !bKeepMultipleSelection )
+		if( GetWindowStyle() & wxTR_MULTIPLE )
 		{
-			UnselectAll();
+			if( bKeepMultipleSelection )
+			{
+				ToggleItemSelection(pItem->GetId());
+			}
+			else
+			{
+				m_bUpdating	= true;
+				SelectItem(pItem->GetId());
+				m_bUpdating	= false;
+
+				wxArrayTreeItemIds	IDs;
+				
+				if( GetSelections(IDs) > 1 )
+				{
+					for(size_t i=0; i<IDs.Count(); i++)
+					{
+						if( IDs[i] != pItem->GetId() )
+						{
+							UnselectItem(IDs[i]);
+						}
+					}
+				}
+			}
 		}
-
-		SelectItem(pItem->GetId(), bSelect);
-
-		g_pACTIVE->Thaw();
+		else
+		{
+			SelectItem(pItem->GetId());
+		}
 
 		return( true );
 	}
 
 	return( false );
-}
-
-//---------------------------------------------------------
-int CWKSP_Base_Control::Get_Selection_Count(void)
-{
-	if( GetWindowStyle() & wxTR_MULTIPLE )
-	{
-		wxArrayTreeItemIds	IDs;
-
-		return( GetSelections(IDs) );
-	}
-	else
-	{
-		wxTreeItemId	ID	= GetSelection();
-
-		return( ID.IsOk() ? 1 : 0 );
-	}
 }
 
 
@@ -555,19 +573,6 @@ wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_Base_Control::_Set_Active(void)
-{
-	if( g_pACTIVE )
-	{
-		g_pACTIVE->Set_Active(Get_Item_Selected());
-
-		return( true );
-	}
-
-	return( false );
-}
 
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Del_Active(bool bSilent)
@@ -981,7 +986,7 @@ bool CWKSP_Base_Control::_Search_Item(void)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_LClick(wxMouseEvent &event)
 {
-	_Set_Active();
+	g_pACTIVE->Set_Active(Get_Item_Selected());
 
 	event.Skip();
 }
@@ -1004,7 +1009,7 @@ void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 	{
 	//	SelectItem(event.GetItem());
 
-		_Set_Active();
+		g_pACTIVE->Set_Active(Get_Item_Selected());
 	}
 
 	wxMenu	*pMenu	= Get_Context_Menu();
@@ -1046,7 +1051,10 @@ void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 {
-	_Set_Active();
+	if( g_pACTIVE && (!m_bUpdating || Get_Item_Selected()) )
+	{
+		g_pACTIVE->Set_Active(Get_Item_Selected());
+	}
 
 	event.Skip();
 }
