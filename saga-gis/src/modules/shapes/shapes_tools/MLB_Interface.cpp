@@ -131,6 +131,7 @@ CSG_Module *		Create_Module(int i)
 	{
 	case  0:	return( new CShapes_Create_Empty );
 	case  2:	return( new CShapes_Merge );
+	case 24:	return( new CTables_Merge );
 
 	case  3:	return( new CSelect_Numeric );
 	case  4:	return( new CSelect_String );

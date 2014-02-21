@@ -20,149 +20,244 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Shapes_Merge.h"
-#include <string>
-#include <vector>
 
-CShapes_Merge::CShapes_Merge(void){
 
-	Set_Name(_TL("Merge Shapes Layers"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CShapes_Merge::CShapes_Merge(void) : CTables_Merge()
+{
+	Parameters.Del_Parameters();
+
+	Set_Name		(_TL("Merge Layers"));
+
+	Set_Author		("V.Olaya (c) 2004");
+
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Merge Shapes Layers"));
+		"Merge vector layers."
+	));
 
-	Parameters.Add_Shapes(NULL, 
-						"OUT", 
-						_TL("Merged Layer"), 
-						_TL(""), 
-						PARAMETER_OUTPUT);
+	Parameters.Add_Shapes_List(
+		NULL	, "INPUT"	, _TL("Layers"),
+		_TL("Output will inherit shape type and table structure from the first layer in this list."),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Shapes(NULL, 
-						"MAIN", 
-						_TL("Main Layer"),
-						_TL("Main Layer. Output layer will have the same field in the attributes table as this layer"),
-						PARAMETER_INPUT);
+	Parameters.Add_Shapes(
+		NULL	, "MERGED"	, _TL("Merged Layer"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
 
-	Parameters.Add_Shapes_List(NULL,
-						"LAYERS", 
-						_TL("Additional Layers"),
-						_TL("Layers to merge with main layer"),
-						PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Value(
+		NULL	, "SRCINFO"	, _TL("Add Source Information"),
+		_TL("Adds a field with the name of the original input data set."),
+		PARAMETER_TYPE_Bool, true
+	);
 
-}//constructor
+	Parameters.Add_Value(
+		NULL	, "MATCH"	, _TL("Match Fields by Name"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+}
 
 
-CShapes_Merge::~CShapes_Merge(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CShapes_Merge::On_Execute(void){
+//---------------------------------------------------------
+CTables_Merge::CTables_Merge(void)
+{
+	Set_Name		(_TL("Merge Tables"));
 
-	CSG_Table *pTable;
-	CSG_Shapes *pShapes, *pOutput;
-	CSG_Shape *pShape, *pShape2;
-	CSG_Parameter_Shapes_List	*pShapesList;
-	CSG_Shapes* pMainShapes;
-	int i,j;
-	int iLayer, iField, nFields;
-	int iFieldMain, iFieldAdditional;
-	std::vector<int> FieldsMain, FieldsAdditional;
-	CSG_String sName1,sName2;
-	
-	pOutput = Parameters("OUT")->asShapes();
-	pMainShapes = Parameters("MAIN")->asShapes();
-	TSG_Shape_Type MainType = pMainShapes->Get_Type();
+	Set_Author		("O.Conrad (c) 2014");
 
-	pOutput->Create(MainType, _TL("Shapes_Merge"));
+	Set_Description	(_TW(
+		"Merge tables."
+	));
 
-	pTable	= pMainShapes;
-	nFields	= pTable->Get_Field_Count();
+	Parameters.Add_Table_List(
+		NULL	, "INPUT"	, _TL("Tables"),
+		_TL("The resulting table inherits its field structure from the first table in this list."),
+		PARAMETER_INPUT
+	);
 
-	for (i=0; i<nFields; i++)
+	Parameters.Add_Table(
+		NULL	, "MERGED"	, _TL("Merged Table"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SRCINFO"	, _TL("Add Source Information"),
+		_TL("Adds a field with the name of the original input data set."),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "MATCH"	, _TL("Match Fields by Name"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTables_Merge::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Parameter_List	*pList	= Parameters("INPUT")->asList();
+
+	if( pList->Get_Type() == PARAMETER_TYPE_Shapes_List )
 	{
-		pOutput->Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));
-	}//for
+		int	n	= pList->Get_Count();
 
-	pOutput->Add_Field(SG_T("LAYER_ID")	, SG_DATATYPE_Int);
-	pOutput->Add_Field(SG_T("LAYER")	, SG_DATATYPE_String);
-	
-	//copy main layer into destination
-	for(i=0; i<pMainShapes->Get_Count(); i++)
-	{
-		pShape	= pMainShapes->Get_Shape(i);
-		pShape2	= pOutput->Add_Shape(pShape);
-		pShape2	->Set_Value(nFields + 0, 1);
-		pShape2	->Set_Value(nFields + 1, pMainShapes->Get_Name());
-
-		for	(iField = 0; iField<nFields; iField++)
+		for(int i=n-1; i>0; i--)
 		{
-			if (pTable->Get_Field_Type(iField) == SG_DATATYPE_String)
+			if( ((CSG_Shapes *)pList->asDataObject(0))->Get_Type() != ((CSG_Shapes *)pList->asDataObject(i))->Get_Type() )
 			{
-				pShape2->Set_Value(iField, pShape->asString(iField));
-			}//if
-			else
-			{
-				pShape2->Set_Value(iField, pShape->asDouble(iField));
-			}//else
-		}//for
-	}//for
+				pList->Del_Item(i);
+			}
+		}
 
-	//now copy the additional layers	
-	if( (pShapesList = Parameters("LAYERS")->asShapesList()) != NULL && pShapesList->Get_Count() > 0 )
-	{
-		for (iLayer=0; iLayer<pShapesList->Get_Count(); iLayer++)
+		if( n > pList->Get_Count() )
 		{
-			if( (pShapes = pShapesList->asShapes(iLayer)) != NULL )
+			Message_Add(CSG_String::Format(SG_T("%s [%d]"), _TL("incompatible items have been removed from input list"), n - pList->Get_Count()));
+		}
+	}
+
+	if( pList->Get_Count() < 2 )
+	{
+		Error_Set(_TL("Nothing to do! Merging needs more than one input data set."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table	*pMerged	= Parameters("MERGED")->asTable();
+
+	if( pList->Get_Type() == PARAMETER_TYPE_Shapes_List )
+	{
+		((CSG_Shapes *)pMerged)->Create(*((CSG_Shapes *)pList->asDataObject(0)));
+	}
+	else // if( pList->Get_Type() == PARAMETER_TYPE_Table_List )
+	{
+		pMerged->Create(*((CSG_Table *)pList->asDataObject(0)));
+	}
+
+	pMerged->Set_Name(_TL("Merged Layers"));
+
+	//-----------------------------------------------------
+	bool	bInfo	= Parameters("SRCINFO")->asBool();
+
+	if( bInfo )
+	{
+		pMerged->Add_Field(_TL("Source"), SG_DATATYPE_String, 0);
+
+		for(int i=0; i<pMerged->Get_Count(); i++)
+		{
+			pMerged->Set_Value(i, 0, pList->asDataObject(0)->Get_Name());
+		}
+	}
+
+	int		*Index	= NULL;
+
+	//-----------------------------------------------------
+	for(int iTable=1; iTable<pList->Get_Count() && Process_Get_Okay(); iTable++)
+	{
+		CSG_Table	*pTable	= (CSG_Table *)pList->asDataObject(iTable);
+
+		//-------------------------------------------------
+		if( Parameters("MATCH")->asBool() )	// see which fields are in both attributes tables
+		{
+			Index	= (int *)SG_Realloc(Index, pTable->Get_Field_Count() * sizeof(int));
+
+			for(int i=0; i<pTable->Get_Field_Count(); i++)
 			{
-				if (pShapes->Get_Type() == MainType)
+				CSG_String	Name(pTable->Get_Field_Name(i));
+
+				Index[i]	= -1;
+
+				for(int j=bInfo?1:0; Index[i]<0 && j<pMerged->Get_Field_Count(); j++)
 				{
-					FieldsMain.clear();
-					FieldsAdditional.clear();
-
-					//see which fields are in both attributes tables
-					for (i=0; i<nFields; i++)
+					if( !Name.CmpNoCase(pMerged->Get_Field_Name(j)) )
 					{
-						for (j=0; j<pShapes->Get_Field_Count(); j++)
-						{
-							sName1 = pShapes->Get_Field_Name(j);
-							sName2 = pTable->Get_Field_Name(i);
+						Index[i]	= j;
+					}
+				}
+			}
+		}
 
-							if (!sName1.CmpNoCase(sName2))
-							{
-								FieldsMain.push_back(i);
-								FieldsAdditional.push_back(j);
-								continue;
-							}//if
-						}//for
-					}//for
+		//-------------------------------------------------
+		for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+		{
+			CSG_Table_Record	*pOutput, *pInput 	= pTable->Get_Record(iRecord);
 
-					//copy shapes and attributes
-					for(i=0; i<pShapes->Get_Count(); i++)
+			if( pMerged->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+			{
+				pOutput	= ((CSG_Shapes *)pMerged)->Add_Shape(pInput, SHAPE_COPY_GEOM);
+			}
+			else // if( pMerged->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+			{
+				pOutput	= pMerged->Add_Record();
+			}
+
+			if( bInfo )
+			{
+				pOutput->Set_Value(0, pTable->Get_Name());
+			}
+
+			if( Index )
+			{
+				for(int i=bInfo?1:0; i<pTable->Get_Field_Count(); i++)
+				{
+					if( Index[i] >= 0 )
 					{
-						pShape	= pShapes->Get_Shape(i);					
-						pShape2 = pOutput->Add_Shape(pShape);
-						pShape2	->Set_Value(nFields + 0, 2 + iLayer);
-						pShape2	->Set_Value(nFields + 1, pShapes->Get_Name());
+						*pOutput->Get_Value(Index[i])	= *pInput->Get_Value(i);
+					}
+				}
+			}
+			else // if( !Index )
+			{
+				for(int i=0, j=bInfo?1:0; i<pTable->Get_Field_Count() && j<pMerged->Get_Field_Count(); i++, j++)
+				{
+					*pOutput->Get_Value(j)	= *pInput->Get_Value(i);
+				}
+			}
+		}
+	}
 
-						for (j=0; j<FieldsMain.size(); j++)
-						{
-							iFieldMain			= FieldsMain.at(j);
-							iFieldAdditional	= FieldsAdditional.at(j);
+	//-----------------------------------------------------
+	SG_FREE_SAFE(Index);
 
-							if (pTable->Get_Field_Type(iFieldMain) == SG_DATATYPE_String)
-							{
-								pShape2->Set_Value(iFieldMain, pShape->asString(iFieldAdditional));
-							}//if
-							else
-							{
-								pShape2->Set_Value(iFieldMain, pShape->asDouble(iFieldAdditional));
-							}//else
-						}//for
-					}//for
-				}//if
-			}//if
-		}//for
-	}//if
+	return( true );
+}
 
-	return true;
 
-}//method
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
