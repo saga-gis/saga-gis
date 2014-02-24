@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       io_virtual                       //
+//                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//               pc_tileshape_from_spcvf.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2014 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,14 +40,15 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata.at                  //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    LASERDATA GmbH                         //
+//                Management and Analysis of             //
+//                Laserscanning Data                     //
+//                Technikerstr. 21a                      //
+//                6020 Innsbruck                         //
+//                Austria                                //
+//                www.laserdata.at                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -56,62 +57,48 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__pc_tileshape_from_spcvf_H
+#define HEADER_INCLUDED__pc_tileshape_from_spcvf_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CPointCloud_Create_Tileshape_From_SPCVF : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - Virtual") );
+public:
+	CPointCloud_Create_Tileshape_From_SPCVF(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group Associaton (c) 2014") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the handling of virtual datasets.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Virtual") );
-	}
-}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "pc_create_spcvf.h"
-#include "pc_get_subset_spcvf.h"
-#include "pc_tileshape_from_spcvf.h"
+	virtual bool				On_Execute			(void);
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CPointCloud_Create_SPCVF );
-	case 1:		return( new CPointCloud_Get_Subset_SPCVF );
-	case 2:		return( new CPointCloud_Create_Tileshape_From_SPCVF );
-	}
+private:
 
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -121,8 +108,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__pc_tileshape_from_spcvf_H

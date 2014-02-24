@@ -19,9 +19,11 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LFLG)
 pkglib_LTLIBRARIES = libio_virtual.la
 libio_virtual_la_SOURCES =\
 MLB_Interface.cpp\
+pc_tileshape_from_spcvf.cpp\
 pc_create_spcvf.cpp\
 pc_get_subset_spcvf.cpp\
 MLB_Interface.h\
+pc_tileshape_from_spcvf.h\
 pc_create_spcvf.h\
 pc_get_subset_spcvf.h
 
