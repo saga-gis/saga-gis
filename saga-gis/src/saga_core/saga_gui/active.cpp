@@ -207,30 +207,6 @@ CACTIVE::~CACTIVE(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Layer * CACTIVE::Get_Active_Layer(void)
-{
-	if( m_pItem && m_pItem->GetId().IsOk() )
-	{
-		switch( m_pItem->Get_Type() )
-		{
-		default:
-			break;
-
-		case WKSP_ITEM_Map_Layer:
-			return( ((CWKSP_Map_Layer *)m_pItem)->Get_Layer() );
-
-		case WKSP_ITEM_TIN:
-		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_Grid:
-			return( (CWKSP_Layer *)m_pItem );
-		}
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
 CWKSP_Data_Item * CACTIVE::Get_Active_Data_Item(void)
 {
 	if( m_pItem && m_pItem->GetId().IsOk() )
@@ -256,18 +232,22 @@ CWKSP_Data_Item * CACTIVE::Get_Active_Data_Item(void)
 }
 
 //---------------------------------------------------------
+CWKSP_Layer * CACTIVE::Get_Active_Layer(void)
+{
+	if( Get_Active_Data_Item() && m_pItem->Get_Type() != WKSP_ITEM_Table )
+	{
+		return( (CWKSP_Layer *)m_pItem );
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
 CWKSP_Map * CACTIVE::Get_Active_Map(void)
 {
-	if( m_pItem && m_pItem->GetId().IsOk() )
+	if( m_pItem && m_pItem->GetId().IsOk() && m_pItem->Get_Type() == WKSP_ITEM_Map )
 	{
-		switch( m_pItem->Get_Type() )
-		{
-		default:
-			break;
-
-		case WKSP_ITEM_Map:
-			return( (CWKSP_Map *)m_pItem );
-		}
+		return( (CWKSP_Map *)m_pItem );
 	}
 
 	return( NULL );
@@ -288,11 +268,6 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		return( true );
 	}
 
-	if( g_pData_Source )
-	{
-		g_pData_Source->Set_Data_Source(pItem);
-	}
-
 	//-----------------------------------------------------
 	m_pItem		= pItem;
 
@@ -304,11 +279,13 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
 
+	//-----------------------------------------------------
 	if( m_pItem == NULL )
 	{
 		STATUSBAR_Set_Text(SG_T(""), STATUSBAR_ACTIVE);
 
 		if( g_pSAGA_Frame   )	g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
+
 		if( g_pData_Buttons )	g_pData_Buttons->Refresh();
 		if( g_pMap_Buttons  )	g_pMap_Buttons ->Refresh();
 
@@ -321,54 +298,26 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
 
 	if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 
 	//-----------------------------------------------------
 	if( Get_Active_Data_Item() )
-	{
-		m_pHistory->Set_Item(Get_Active_Data_Item());
-
-		_Show_Page(m_pHistory);
-	}
-	else
-	{
-		_Hide_Page(m_pHistory);
-	}
+	{	_Show_Page(m_pHistory   );	}	else	{	_Hide_Page(m_pHistory   );	}
 
 	if( Get_Active_Layer() || Get_Active_Map() )
-	{
-		m_pLegend->Set_Item(Get_Active_Layer() ? Get_Active_Layer() : m_pItem);
-
-		_Show_Page(m_pLegend);
-	}
-	else
-	{
-		_Hide_Page(m_pLegend);
-	}
+	{	_Show_Page(m_pLegend    );	}	else	{	_Hide_Page(m_pLegend    );	}
 
 	if( Get_Active_Layer() )
-	{
-		m_pAttributes->Set_Layer(Get_Active_Layer());
-
-		_Show_Page(m_pAttributes);
-	}
-	else
-	{
-		_Hide_Page(m_pAttributes);
-	}
+	{	_Show_Page(m_pAttributes);	}	else	{	_Hide_Page(m_pAttributes);	}
 
 	//-----------------------------------------------------
-	if( g_pData_Buttons )
-	{
-		g_pData_Buttons->Refresh(false);
-	}
+	if( g_pData_Buttons )	g_pData_Buttons->Refresh(false);
+	if( g_pMap_Buttons  )	g_pMap_Buttons ->Refresh(false);
 
-	if( g_pMap_Buttons )
-	{
-		g_pMap_Buttons->Refresh(false);
-	}
+	if( g_pData_Source  )	g_pData_Source->Set_Data_Source(m_pItem);
 
 	//-----------------------------------------------------
 	CSG_Data_Object	*pObject	= Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
@@ -400,11 +349,16 @@ bool CACTIVE::_Show_Page(wxWindow *pPage)
 	int		Image_ID	= -1;
 
 	//-----------------------------------------------------
-	if( pPage == m_pParameters )	Image_ID	= IMG_PARAMETERS;
+	if( pPage == m_pParameters  )	Image_ID	= IMG_PARAMETERS;
 	if( pPage == m_pDescription )	Image_ID	= IMG_DESCRIPTION;
-	if( pPage == m_pHistory )		Image_ID	= IMG_HISTORY;
-	if( pPage == m_pLegend )		Image_ID	= IMG_LEGEND;
-	if( pPage == m_pAttributes )	Image_ID	= IMG_ATTRIBUTES;
+	if( pPage == m_pHistory     )	Image_ID	= IMG_HISTORY;
+	if( pPage == m_pLegend      )	Image_ID	= IMG_LEGEND;
+	if( pPage == m_pAttributes  )	Image_ID	= IMG_ATTRIBUTES;
+
+	//-----------------------------------------------------
+	if( pPage == m_pHistory     )	m_pHistory   ->Set_Item(Get_Active_Data_Item());
+	if( pPage == m_pLegend      )	m_pLegend    ->Set_Item(Get_Active_Layer() ? Get_Active_Layer() : Get_Active_Map() ? m_pItem : NULL);
+	if( pPage == m_pAttributes  )	m_pAttributes->Set_Item(Get_Active_Layer());
 
 	//-----------------------------------------------------
 	if( pPage )
@@ -428,7 +382,16 @@ bool CACTIVE::_Show_Page(wxWindow *pPage)
 //---------------------------------------------------------
 bool CACTIVE::_Hide_Page(wxWindow *pPage)
 {
-#ifndef ACTIVE_SHOW_ALL_PAGES
+#ifdef ACTIVE_SHOW_ALL_PAGES
+	return( true );
+#endif
+
+	//-----------------------------------------------------
+	if( pPage == m_pHistory     )	m_pHistory   ->Set_Item(NULL);
+	if( pPage == m_pLegend      )	m_pLegend    ->Set_Item(NULL);
+	if( pPage == m_pAttributes  )	m_pAttributes->Set_Item(NULL);
+
+	//-----------------------------------------------------
 	for(int i=0; i<(int)GetPageCount(); i++)
 	{
 		if( GetPage(i) == pPage )
@@ -443,7 +406,6 @@ bool CACTIVE::_Hide_Page(wxWindow *pPage)
 			return( true );
 		}
 	}
-#endif
 
 	return( false );
 }

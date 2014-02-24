@@ -179,17 +179,26 @@ CVIEW_Table_Control::~CVIEW_Table_Control(void)
 //---------------------------------------------------------
 void CVIEW_Table_Control::Set_Labeling(bool bOn)
 {
-	if( bOn )
+	if( bOn && m_Field_Offset == 0 )
 	{
 		m_Field_Offset	= 1;
 
 		SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 	}
-	else
+	else if( !bOn && m_Field_Offset != 0 )
 	{
 		m_Field_Offset	= 0;
 
 		SetRowLabelAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+
+		Freeze();
+
+		for(int i=0; i<GetRows(); i++)
+		{
+			SetRowLabelValue(i, wxString::Format("%d", 1 + i));
+		}
+
+		Thaw();
 	}
 }
 

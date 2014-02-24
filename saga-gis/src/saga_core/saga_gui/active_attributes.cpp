@@ -109,7 +109,8 @@ CACTIVE_Attributes::CACTIVE_Attributes(wxWindow *pParent)
 {
 	m_pAttributes	= new CSG_Table;
 	m_pControl		= new CVIEW_Table_Control(this, m_pAttributes, TABLE_CTRL_FIXED_TABLE|TABLE_CTRL_COL1ISLABEL);
-	m_pLayer		= NULL;
+
+	m_pItem			= NULL;
 
 	//-----------------------------------------------------
 	m_Btn_Apply		= new wxButton(this, ID_BTN_APPLY	, CTRL_Get_Name(ID_BTN_APPLY)	, wxPoint(0, 0));
@@ -118,7 +119,6 @@ CACTIVE_Attributes::CACTIVE_Attributes(wxWindow *pParent)
 	m_btn_height	= m_Btn_Apply->GetDefaultSize().y;
 
 	m_pSelections	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0);
-	m_pShapes		= NULL;
 
 	//-----------------------------------------------------
 	m_pAttributes->Set_Modified(false);
@@ -217,12 +217,12 @@ void CACTIVE_Attributes::On_Restore_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CACTIVE_Attributes::On_Choice(wxCommandEvent &event)
 {
-	if( m_pShapes && m_pSelections->GetSelection() < m_pShapes->Get_Selection_Count() )
+	if( _Get_Table() && m_pSelections->GetSelection() < _Get_Table()->Get_Selection_Count() )
 	{
 		Save_Changes(true);
 
-		m_pLayer->Edit_Set_Index(m_pSelections->GetSelection());
-		m_pLayer->Update_Views(false);
+		m_pItem->Edit_Set_Index(m_pSelections->GetSelection());
+		m_pItem->Update_Views(false);
 	}
 }
 
@@ -234,25 +234,27 @@ void CACTIVE_Attributes::On_Choice(wxCommandEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_Attributes::Set_Layer(CWKSP_Layer *pLayer)
+inline CSG_Table * CACTIVE_Attributes::_Get_Table(void)
 {
-	if( m_pLayer != pLayer )
+	switch( m_pItem ? m_pItem->Get_Type() : WKSP_ITEM_Undefined )
+	{
+	default:
+		return( NULL );
+
+	case WKSP_ITEM_Shapes:
+	case WKSP_ITEM_PointCloud:
+		return( (CSG_Table *)m_pItem->Get_Object() );
+	}
+}
+
+//---------------------------------------------------------
+void CACTIVE_Attributes::Set_Item(CWKSP_Layer *pItem)
+{
+	if( m_pItem != pItem )
 	{
 		Save_Changes(true);
 
-		m_pLayer	= pLayer;
-
-		switch( m_pLayer->Get_Type() )
-		{
-		default:
-			m_pShapes	= NULL;
-			break;
-
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_PointCloud:
-			m_pShapes	= (CSG_Shapes *)m_pLayer->Get_Object();
-			break;
-		}
+		m_pItem	= pItem;
 
 		Set_Attributes();
 	}
@@ -265,22 +267,20 @@ void CACTIVE_Attributes::Set_Attributes(void)
 
 	m_pSelections->Clear();
 
-	if( m_pLayer && m_pLayer->Edit_Get_Attributes()->is_Valid() )
+	if( m_pItem && m_pItem->Edit_Get_Attributes()->is_Valid() )
 	{
 		Save_Changes(true);
 
-		m_pAttributes->Assign(m_pLayer->Edit_Get_Attributes());
+		m_pAttributes->Assign(m_pItem->Edit_Get_Attributes());
 
-		m_pControl->Set_Labeling(m_pShapes != NULL);
-
-		if( m_pShapes && m_pShapes->Get_Selection_Count() > 1 )
+		if( _Get_Table() && _Get_Table()->Get_Selection_Count() > 1 )
 		{
-			for(int i=0; i<m_pShapes->Get_Selection_Count(); i++)
+			for(int i=0; i<_Get_Table()->Get_Selection_Count(); i++)
 			{
 				m_pSelections->Append(wxString::Format("%d", i + 1));
 			}
 
-			m_pSelections->Select(m_pLayer->Edit_Get_Index());
+			m_pSelections->Select(m_pItem->Edit_Get_Index());
 		}
 	}
 	else
@@ -290,7 +290,11 @@ void CACTIVE_Attributes::Set_Attributes(void)
 
 	m_pAttributes->Set_Modified(false);
 
+	m_pControl->Set_Labeling(_Get_Table() != NULL);
+
 	m_pControl->Update_Table();
+
+	m_pSelections->Show(m_pSelections->GetCount() > 1);
 
 	_Set_Positions();
 
@@ -307,10 +311,10 @@ void CACTIVE_Attributes::Set_Attributes(void)
 //---------------------------------------------------------
 void CACTIVE_Attributes::Save_Changes(bool bConfirm)
 {
-	if( m_pLayer && m_pAttributes->is_Modified() && (!bConfirm || DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes"))) )
+	if( m_pItem && m_pAttributes->is_Modified() && (!bConfirm || DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes"))) )
 	{
-		m_pLayer->Edit_Get_Attributes()->Assign_Values(m_pAttributes);
-		m_pLayer->Edit_Set_Attributes();
+		m_pItem->Edit_Get_Attributes()->Assign_Values(m_pAttributes);
+		m_pItem->Edit_Set_Attributes();
 
 		m_pAttributes->Set_Modified(false);
 	}

@@ -202,8 +202,10 @@ void CWKSP_Data_Button::On_Key(wxKeyEvent &event)
 
 		g_pData_Ctrl->On_Command(Command);
 	}
-
-	event.Skip();
+	else
+	{
+		event.Skip();
+	}
 }
 
 //---------------------------------------------------------

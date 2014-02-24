@@ -99,7 +99,7 @@ public:
 	void						On_Restore			(wxCommandEvent  &event);
 	void						On_Restore_UI		(wxUpdateUIEvent &event);
 
-	void						Set_Layer			(class CWKSP_Layer *pLayer);
+	void						Set_Item			(class CWKSP_Layer *pItem);
 
 	void						Set_Attributes		(void);
 
@@ -116,14 +116,14 @@ protected:
 
 	class CSG_Table				*m_pAttributes;
 	
-	class CSG_Shapes			*m_pShapes;
-
 	class CVIEW_Table_Control	*m_pControl;
 
-	class CWKSP_Layer			*m_pLayer;
+	class CWKSP_Layer			*m_pItem;
 
 
 	void						_Set_Positions		(void);
+
+	class CSG_Table *			_Get_Table			(void);
 
 
 //---------------------------------------------------------
