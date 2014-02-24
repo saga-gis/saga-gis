@@ -278,7 +278,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	if( r.Get_YMax() >   90.0 )	r.m_rect.yMax	=   90.0;
 
 	//-----------------------------------------------------
-	double	Resolution	= Parameters("RESOLUTION")->asDouble();
+	double	Resolution	= Parameters("RESOLUTION")->asDouble();	if( Resolution <= 0.0 )	Resolution	= Interval;
 
 	if( Interval > Resolution )
 	{
