@@ -234,9 +234,11 @@ CWKSP_Data_Item * CACTIVE::Get_Active_Data_Item(void)
 //---------------------------------------------------------
 CWKSP_Layer * CACTIVE::Get_Active_Layer(void)
 {
-	if( Get_Active_Data_Item() && m_pItem->Get_Type() != WKSP_ITEM_Table )
+	CWKSP_Data_Item	*pItem	= Get_Active_Data_Item();
+
+	if( pItem && pItem->Get_Type() != WKSP_ITEM_Table )
 	{
-		return( (CWKSP_Layer *)m_pItem );
+		return( (CWKSP_Layer *)pItem );
 	}
 
 	return( NULL );
