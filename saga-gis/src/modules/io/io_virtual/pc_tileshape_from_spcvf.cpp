@@ -119,6 +119,7 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 
 	CSG_MetaData	SPCVF;
 	CSG_String		sPathSPCVF, sFilePath;
+	int				iPoints;
 	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax;
 
 
@@ -158,9 +159,10 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 	//-----------------------------------------------------
 	pShapes->Destroy();
 
-	pShapes->Add_Field(_TL("ID"), SG_DATATYPE_Int);
-	pShapes->Add_Field(_TL("Filepath"), SG_DATATYPE_String);
-	pShapes->Add_Field(_TL("File"), SG_DATATYPE_String);
+	pShapes->Add_Field(_TL("ID"),		SG_DATATYPE_Int);
+	pShapes->Add_Field(_TL("Filepath"),	SG_DATATYPE_String);
+	pShapes->Add_Field(_TL("File"),		SG_DATATYPE_String);
+	pShapes->Add_Field(_TL("Points"),	SG_DATATYPE_Int);
 
 	pShapes->Set_Name(CSG_String::Format(_TL("Tileshape_%s"), SG_File_Get_Name(sFileName, false).c_str()));
 
@@ -174,6 +176,8 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 		CSG_MetaData	*pBBox		= pDataset->Get_Child(SG_T("BBox"));
 
 		pDataset->Get_Property(SG_T("File"), sFilePath);
+
+		pDataset->Get_Property(SG_T("Points"), iPoints);
 
 		pBBox->Get_Property(SG_T("XMin"), dBBoxXMin);
 		pBBox->Get_Property(SG_T("YMin"), dBBoxYMin);
@@ -200,6 +204,8 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 			pShape->Set_Value(1, sPathSPCVF);
 			pShape->Set_Value(2, sFilePath);
 		}
+
+		pShape->Set_Value(3, iPoints);
 	}
 
 

@@ -144,7 +144,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	double						dBBoxYMin = std::numeric_limits<int>::max();
 	double						dBBoxXMax = std::numeric_limits<int>::min();
 	double						dBBoxYMax = std::numeric_limits<int>::min();
-	int							iSkipped = 0;
+	int							iSkipped = 0, iEmpty = 0;
 
 	//-----------------------------------------------------
 	sFileName		= Parameters("FILENAME")->asString();
@@ -243,6 +243,13 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 			}
 		}
 
+		//-----------------------------------------------------
+		if( pPC->Get_Point_Count() <= 0 )
+		{
+			delete( pPC );
+			iEmpty++;
+			continue;
+		}
 
 		//-----------------------------------------------------
 		CSG_MetaData	*pDataset	= pSPCVFDatasets->Add_Child(SG_T("PointCloud"));
@@ -259,6 +266,8 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 		sFilePath.Replace(SG_T("\\"), SG_T("/"));
 
 		pDataset->Add_Property(SG_T("File"), sFilePath);
+
+		pDataset->Add_Property(SG_T("Points"), pPC->Get_Point_Count());
 
 		//-----------------------------------------------------
 		CSG_MetaData	*pBBox		= pDataset->Add_Child(SG_T("BBox"));
@@ -300,7 +309,12 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 		SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: %d dataset(s) skipped because of incompatibilities!"), iSkipped), true);
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("SPCVF successfully created from %d dataset(s)."), sFiles.Get_Count() - iSkipped), true);
+	if( iEmpty > 0 )
+	{
+		SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: %d dataset(s) skipped because they are empty!"), iEmpty), true);
+	}
+
+	SG_UI_Msg_Add(CSG_String::Format(_TL("SPCVF successfully created from %d dataset(s)."), sFiles.Get_Count() - iSkipped - iEmpty), true);
 
 	//-----------------------------------------------------
 	return( true );
