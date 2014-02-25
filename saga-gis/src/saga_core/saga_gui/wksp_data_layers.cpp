@@ -202,18 +202,12 @@ void CWKSP_Data_Button::On_Key(wxKeyEvent &event)
 
 		g_pData_Ctrl->On_Command(Command);
 	}
-	else
-	{
-		event.Skip();
-	}
 }
 
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_LDown(wxMouseEvent &event)
 {
 	_Select(event.ControlDown());
-
-	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -223,8 +217,6 @@ void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 	{
 		m_pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
 	}
-
-	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -245,8 +237,6 @@ void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 
 		return;
 	}
-
-	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -335,8 +325,6 @@ void CWKSP_Data_Buttons::On_Mouse_LDown(wxMouseEvent &event)
 	g_pData_Ctrl->UnselectAll();
 
 	Refresh();
-
-	event.Skip();
 }
 
 
