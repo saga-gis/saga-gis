@@ -193,7 +193,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Pen		= wxPen(m_Def_Color, (int)m_Size, m_Line_Style);
 
-	m_bPoints	= m_Parameters("DISPLAY_POINTS")->asBool();
+	m_bVertices	= m_Parameters("DISPLAY_POINTS")->asBool();
 }
 
 
@@ -324,36 +324,17 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 	}
 
 	//-----------------------------------------------------
-	int				iPart, iPoint;
-	TSG_Point_Int	A, B;
-
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		if( pShape->Get_Point_Count(iPart) > 1 )
 		{
-			A		= dc_Map.World2DC(pShape->Get_Point(0, iPart));
+			TSG_Point_Int	B, A	= dc_Map.World2DC(pShape->Get_Point(0, iPart));
 
-			for(iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				B		= A;
-				A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+				B	= A;	A	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
 				dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
-			}
-		}
-	}
-
-	if( m_bPoints )
-	{
-		dc_Map.dc.SetPen(*wxBLACK_PEN);
-		dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
-
-		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-		{
-			for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-			{
-				A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
-				dc_Map.dc.DrawCircle(A.x, A.y, 2);
 			}
 		}
 	}
@@ -430,26 +411,19 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DRAW_MOVELINE(i)	{	ptWorld	= m_Edit_pShape->Get_Point(i, m_Edit_iPart);\
-								dc.DrawLine(Point.x, Point.y,\
-									(int)((ptWorld.x - rWorld.Get_XMin()) / ClientToWorld),\
-									(int)((rWorld.Get_YMax() - ptWorld.y) / ClientToWorld));	}
-
-//---------------------------------------------------------
-void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
+void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point)
 {
-	int			nPoints;
-	TSG_Point	ptWorld;
-
 	if( m_Edit_pShape && m_Edit_iPart >= 0 )
 	{
-		nPoints	= m_Edit_pShape->Get_Point_Count(m_Edit_iPart);
+		int	nPoints	= m_Edit_pShape->Get_Point_Count(m_Edit_iPart);
 
 		if( m_Edit_iPoint < 0 )
 		{
 			if( nPoints > 0 )
 			{
-				DRAW_MOVELINE(nPoints - 1);
+				CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
+					m_Edit_pShape->Get_Point(nPoints - 1, m_Edit_iPart)
+				);
 			}
 		}
 		else
@@ -457,13 +431,21 @@ void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double C
 			if( nPoints > 1 )
 			{
 				if( m_Edit_iPoint > 0 )
-					DRAW_MOVELINE(m_Edit_iPoint - 1);
+				{
+					CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
+						m_Edit_pShape->Get_Point(m_Edit_iPoint - 1, m_Edit_iPart)
+					);
+				}
 
 				if( m_Edit_iPoint < nPoints - 1 )
-					DRAW_MOVELINE(m_Edit_iPoint + 1);
+				{
+					CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
+						m_Edit_pShape->Get_Point(m_Edit_iPoint + 1, m_Edit_iPart)
+					);
+				}
 			}
 
-			CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, Point);
+			CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point);
 		}
 	}
 }

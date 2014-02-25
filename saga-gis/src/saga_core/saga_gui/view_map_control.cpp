@@ -777,6 +777,10 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 		{
 			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_RDOWN, GET_KEYS(event));
 		}
+		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
+		{
+			Get_Active_Layer()->Edit_On_Mouse_Down(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event));
+		}
 		break;
 
 	//-----------------------------------------------------

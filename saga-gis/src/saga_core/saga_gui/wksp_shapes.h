@@ -82,6 +82,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	EDIT_SHAPE_MODE_Normal	= 0,
+	EDIT_SHAPE_MODE_Split,
+	EDIT_SHAPE_MODE_Move
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWKSP_Shapes : public CWKSP_Layer
 {
 public:
@@ -122,19 +137,13 @@ public:
 
 protected:
 
-	int							m_iColor, m_iLabel, m_Label_Prec, m_Label_Eff, m_Edit_iPart, m_Edit_iPoint, m_Chart_Type, m_Chart_sField, m_Chart_sType;
+	bool						m_bVertices;
 
-	double						m_Chart_sSize, m_Chart_sRange;
+	int							m_iColor, m_iLabel, m_Label_Prec, m_Label_Eff, m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint;
 
 	wxColour					m_Def_Color, m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
 
-	CSG_Points_Int				m_Chart;
-
-	CSG_Parameters				m_Chart_Options;
-
 	CSG_Shape					*m_Edit_pShape;
-
-	CSG_Shapes					m_Edit_Shapes;
 
 	class CWKSP_Table			*m_pTable;
 
@@ -164,7 +173,8 @@ protected:
 	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)			= 0;
 	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)	= 0;
 
-	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point);
+	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point, const TSG_Point &ptWorld);
+	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point);
 	virtual void				Edit_Shape_Draw			(CWKSP_Map_DC &dc_Map);
 	virtual int					Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
 	virtual void				Edit_Snap_Point_ToLine	(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
@@ -181,6 +191,15 @@ private:
 	//-----------------------------------------------------
 	// Charts...
 
+	int							m_Chart_Type, m_Chart_sField, m_Chart_sType;
+
+	double						m_Chart_sSize, m_Chart_sRange;
+
+	CSG_Points_Int				m_Chart;
+
+	CSG_Parameters				m_Chart_Options;
+
+
 	bool						_Chart_is_Valid			(void)	{	return( m_Chart.Get_Count() > 0 );	}
 	bool						_Chart_Set_Options		(void);
 	bool						_Chart_Get_Options		(void);
@@ -193,6 +212,9 @@ private:
 	//-----------------------------------------------------
 	// Editing...
 
+	CSG_Shapes					m_Edit_Shapes;
+
+
 	bool						_Edit_Shape				(void);
 	bool						_Edit_Shape_Start		(void);
 	bool						_Edit_Shape_Stop		(void);
@@ -202,6 +224,9 @@ private:
 	bool						_Edit_Part_Add			(void);
 	bool						_Edit_Part_Del			(void);
 	bool						_Edit_Point_Del			(void);
+	bool						_Edit_Merge				(void);
+	bool						_Edit_Split				(void);
+	bool						_Edit_Move				(bool bToggle = true);
 
 	void						_Edit_Shape_Draw_Point	(wxDC &dc, TSG_Point_Int Point, bool bSelected);
 	void						_Edit_Shape_Draw_Point	(wxDC &dc, int x, int y, bool bSelected);

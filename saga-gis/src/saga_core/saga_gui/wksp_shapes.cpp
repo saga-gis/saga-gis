@@ -95,6 +95,10 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
 
 	m_Edit_Color    = wxColor(0, 0, 0);
+
+	m_Edit_Mode		= EDIT_SHAPE_MODE_Normal;
+
+	m_bVertices		= false;
 }
 
 //---------------------------------------------------------
@@ -193,33 +197,20 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
-	case ID_CMD_SHAPES_SET_LUT:
-		_LUT_Create();
-		break;
+	//-----------------------------------------------------
+	case ID_CMD_SHAPES_SET_LUT       :	_LUT_Create     ();	break;
+	case ID_CMD_SHAPES_HISTOGRAM     :	Histogram_Toggle();	break;
 
-	case ID_CMD_SHAPES_EDIT_SHAPE:
-		_Edit_Shape();
-		break;
-
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:
-		_Edit_Shape_Add();
-		break;
-
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
-		_Edit_Shape_Del();
-		break;
-
-	case ID_CMD_SHAPES_EDIT_ADD_PART:
-		_Edit_Part_Add();
-		break;
-
-	case ID_CMD_SHAPES_EDIT_DEL_PART:
-		_Edit_Part_Del();
-		break;
-
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:
-		_Edit_Point_Del();
-		break;
+	//-----------------------------------------------------
+	case ID_CMD_SHAPES_EDIT_SHAPE    :	_Edit_Shape    ();	break;
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	_Edit_Shape_Add();	break;
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	_Edit_Shape_Del();	break;
+	case ID_CMD_SHAPES_EDIT_ADD_PART :	_Edit_Part_Add ();	break;
+	case ID_CMD_SHAPES_EDIT_DEL_PART :	_Edit_Part_Del ();	break;
+	case ID_CMD_SHAPES_EDIT_DEL_POINT:	_Edit_Point_Del();	break;
+	case ID_CMD_SHAPES_EDIT_MERGE    :	_Edit_Merge    ();	break;
+	case ID_CMD_SHAPES_EDIT_SPLIT    :	_Edit_Split    ();	break;
+	case ID_CMD_SHAPES_EDIT_MOVE     :	_Edit_Move     ();	break;
 
 	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
 		Get_Shapes()->Select();
@@ -231,13 +222,9 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		Update_Views();
 		break;
 
-	case ID_CMD_TABLES_SHOW:
-		m_pTable->Toggle_View();
-		break;
-
-	case ID_CMD_TABLES_DIAGRAM:
-		m_pTable->Toggle_Diagram();
-		break;
+	//-----------------------------------------------------
+	case ID_CMD_TABLES_SHOW   :	m_pTable->Toggle_View   ();	break;
+	case ID_CMD_TABLES_DIAGRAM:	m_pTable->Toggle_Diagram();	break;
 
 	case ID_CMD_TABLES_SCATTERPLOT:
 		Add_ScatterPlot(Get_Table()->Get_Table());
@@ -254,10 +241,6 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 				Table.Save(&File);
 			}
 		}
-		break;
-
-	case ID_CMD_SHAPES_HISTOGRAM:
-		Histogram_Toggle();
 		break;
 	}
 
@@ -315,6 +298,10 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_SHAPES_HISTOGRAM:
 		event.Check(m_pHistogram != NULL);
+		break;
+
+	case ID_CMD_SHAPES_EDIT_MOVE:
+		event.Check(m_Edit_Mode == EDIT_SHAPE_MODE_Move);
 		break;
 	}
 
@@ -965,6 +952,28 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			{
 				Edit_Shape_Draw(dc);
 			}
+
+			if( m_Edit_Mode == EDIT_SHAPE_MODE_Split )
+			{
+				CSG_Shape	*pSplit	= m_Edit_Shapes.Get_Shape(1);
+
+				if( pSplit && pSplit->Get_Point_Count() > 1 )
+				{
+					for(int i=0; i<=1; i++)
+					{
+						dc_Map.dc.SetPen(wxPen(i == 0 ? *wxWHITE : *wxBLACK, i == 0 ? 3 : 1));
+
+						TSG_Point_Int	B, A	= dc_Map.World2DC(pSplit->Get_Point(0));
+
+						for(int iPoint=1; iPoint<pSplit->Get_Point_Count(); iPoint++)
+						{
+							B	= A;	A	= dc_Map.World2DC(pSplit->Get_Point(iPoint));
+
+							dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+						}
+					}
+				}
+			}
 		}
 
 		//-------------------------------------------------
@@ -1046,6 +1055,22 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 	if( pShape && dc_Map.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
 		Draw_Shape(dc_Map, pShape, Selection);
+
+		if( m_bVertices )
+		{
+			dc_Map.dc.SetPen  (*wxBLACK_PEN  );
+			dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					TSG_Point_Int	A	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+
+					dc_Map.dc.DrawCircle(A.x, A.y, 2);
+				}
+			}
+		}
 	}
 }
 

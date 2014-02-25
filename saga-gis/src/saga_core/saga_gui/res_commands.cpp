@@ -201,6 +201,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SHAPES_EDIT_DEL_PART:	return( _TL("Delete Selected Part") );
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:	return( _TL("Delete Selected Point") );
 	case ID_CMD_SHAPES_EDIT_SPLIT:		return( _TL("Split with Line") );
+	case ID_CMD_SHAPES_EDIT_MERGE:		return( _TL("Merge Selection") );
 	case ID_CMD_SHAPES_EDIT_MOVE:		return( _TL("Move") );
 
 	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( _TL("Set Range to Minmum/Maximum") );

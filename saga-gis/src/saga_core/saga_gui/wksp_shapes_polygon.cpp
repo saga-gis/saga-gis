@@ -164,8 +164,8 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 	m_Pen		= wxPen(!m_bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxSOLID);
 	m_Brush		= wxBrush(m_Def_Color, BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
 
-	m_bPoints	= m_Parameters("DISPLAY_POINTS")	->asBool();
-	m_bCentroid	= m_Parameters("DISPLAY_CENTROID")	->asBool();
+	m_bVertices	= m_Parameters("DISPLAY_POINTS"  )->asBool();
+	m_bCentroid	= m_Parameters("DISPLAY_CENTROID")->asBool();
 }
 
 
@@ -240,11 +240,6 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 
 		dc_Map.dc.DrawCircle((int)dc_Map.xWorld2DC(Point.x), (int)dc_Map.yWorld2DC(Point.y), 2);
 	}
-
-	if( m_bPoints )
-	{
-		_Draw_Polygon_Points(dc_Map, (CSG_Shape_Polygon *)pShape);
-	}
 }
 
 //---------------------------------------------------------
@@ -278,42 +273,45 @@ void CWKSP_Shapes_Polygon::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DRAW_MOVELINE(i)	{	ptWorld	= m_Edit_pShape->Get_Point(i, m_Edit_iPart);\
-								dc.DrawLine(Point.x, Point.y,\
-									(int)((ptWorld.x - rWorld.Get_XMin()) / ClientToWorld),\
-									(int)((rWorld.Get_YMax() - ptWorld.y) / ClientToWorld));	}
-
-//---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
+void CWKSP_Shapes_Polygon::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point)
 {
-	int			nPoints;
-	TSG_Point	ptWorld;
-
 	if( m_Edit_pShape && m_Edit_iPart >= 0 )
 	{
-		nPoints	= m_Edit_pShape->Get_Point_Count(m_Edit_iPart);
+		int	nPoints	= m_Edit_pShape->Get_Point_Count(m_Edit_iPart);
 
 		if( m_Edit_iPoint < 0 )
 		{
 			if( nPoints > 0 )
 			{
-				DRAW_MOVELINE(0);
+				CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
+					m_Edit_pShape->Get_Point(0, m_Edit_iPart)
+				);
 
 				if( nPoints > 1 )
-					DRAW_MOVELINE(nPoints - 1);
+				{
+					CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
+						m_Edit_pShape->Get_Point(nPoints - 1, m_Edit_iPart)
+					);
+				}
 			}
 		}
 		else
 		{
 			if( nPoints > 1 )
 			{
-				DRAW_MOVELINE(m_Edit_iPoint > 0 ? m_Edit_iPoint - 1 : nPoints - 1);
+				CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point, m_Edit_pShape->Get_Point(
+					m_Edit_iPoint > 0 ? m_Edit_iPoint - 1 : nPoints - 1, m_Edit_iPart, true)
+				);
 
 				if( nPoints > 2 )
-					DRAW_MOVELINE(m_Edit_iPoint >= nPoints - 1 ? 0 : m_Edit_iPoint + 1);
+				{
+					CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point, m_Edit_pShape->Get_Point(
+						m_Edit_iPoint >= nPoints - 1 ? 0 : m_Edit_iPoint + 1, m_Edit_iPart, true)
+					);
+				}
 			}
 
-			CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, ClientToWorld, Point);
+			CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point);
 		}
 	}
 }
@@ -417,36 +415,6 @@ void CWKSP_Shapes_Polygon::Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point
 			{
 				snap_Dist	= d;
 				snap_Point	= Point;
-			}
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Draw_Polygon_Points(CWKSP_Map_DC &dc_Map, CSG_Shape_Polygon *pPolygon)
-{
-	int			iPart, iPoint;
-	TSG_Point	Point;
-
-	dc_Map.dc.SetPen(*wxBLACK_PEN);
-	dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
-
-	for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
-	{
-		if( pPolygon->Get_Point_Count(iPart) > 2 )
-		{
-			for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
-			{
-				Point	= pPolygon->Get_Point(iPoint, iPart);
-
-				dc_Map.dc.DrawCircle((int)dc_Map.xWorld2DC(Point.x), (int)dc_Map.yWorld2DC(Point.y), 2);
 			}
 		}
 	}

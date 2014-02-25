@@ -94,7 +94,7 @@ public:
 
 protected:
 
-	bool						m_bPoints, m_bCentroid, m_bOutline;
+	bool						m_bCentroid, m_bOutline;
 
 	wxColour					m_Sel_Color_Fill;
 
@@ -113,15 +113,11 @@ protected:
 	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection);
 	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label);
 
-	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point);
+	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point);
 	virtual void				Edit_Shape_Draw			(CWKSP_Map_DC &dc_Map);
 	virtual int					Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
 	virtual void				Edit_Snap_Point_ToLine	(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
 
-
-private:
-
-	void						_Draw_Polygon_Points	(CWKSP_Map_DC &dc_Map, CSG_Shape_Polygon *pPolygon);
 
 };
 
