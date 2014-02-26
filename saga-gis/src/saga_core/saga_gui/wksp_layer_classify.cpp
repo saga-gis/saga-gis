@@ -139,6 +139,11 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 		pRecord->Set_Value(LUT_MAX			, 2.0);
 	}
 
+	if( m_pLUT )
+	{
+		m_pLUT->Set_Index(LUT_MIN, TABLE_INDEX_Ascending);
+	}
+
 	return( true );
 }
 

@@ -414,6 +414,8 @@ void CWKSP_Layer::On_Parameters_Changed(void)
 	);
 
 	//-----------------------------------------------------
+	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), m_Parameters("METRIC_COLORS")->asColors());
+
 	m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());
 
 	m_pClassify->Set_Unique_Color(m_Parameters("UNISYMBOL_COLOR")->asInt());

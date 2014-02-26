@@ -269,7 +269,12 @@ bool CWKSP_Data_Button::_Set_Active(bool bKeepOthers)
 	{
 		SetFocus();
 
-		return( g_pData_Ctrl->Set_Item_Selected(m_pItem, bKeepOthers) );
+		if( g_pData_Ctrl->Set_Item_Selected(m_pItem, bKeepOthers) )
+		{
+			g_pData_Buttons->Refresh(false);
+		}
+
+		return( true );
 	}
 
 	m_pItem	= NULL;

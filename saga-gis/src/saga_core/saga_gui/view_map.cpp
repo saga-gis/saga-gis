@@ -414,6 +414,10 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_MAP_ZOOM_FORWARD:
 		event.Enable(m_pMap->Set_Extent_Forward(true));
 		break;
+
+	case ID_CMD_MAP_GRATICULE_ADD:
+		event.Enable(m_pMap->Get_Count() > 0 && m_pMap->Get_Projection().is_Okay());
+		break;
 	}
 }
 

@@ -460,21 +460,18 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version)
 {
-	TSG_Data_Object_Type	Type;
-	wxString				File;
-	CWKSP_Base_Item			*pItem;
-
 	if( Entry.Get_Name().Cmp(SG_T("DATASET")) )
 	{
 		return( false );
 	}
 
-	Type	= Entry.Cmp_Property(SG_T("type"), SG_T("GRID"))	? DATAOBJECT_TYPE_Grid
-			: Entry.Cmp_Property(SG_T("type"), SG_T("TABLE"))	? DATAOBJECT_TYPE_Table
-			: Entry.Cmp_Property(SG_T("type"), SG_T("SHAPES"))	? DATAOBJECT_TYPE_Shapes
-			: Entry.Cmp_Property(SG_T("type"), SG_T("TIN"))		? DATAOBJECT_TYPE_TIN
-			: Entry.Cmp_Property(SG_T("type"), SG_T("POINTS"))	? DATAOBJECT_TYPE_PointCloud
-			: DATAOBJECT_TYPE_Undefined;
+	TSG_Data_Object_Type	Type	=
+		Entry.Cmp_Property("type", "GRID"  ) ? DATAOBJECT_TYPE_Grid
+	:	Entry.Cmp_Property("type", "TABLE" ) ? DATAOBJECT_TYPE_Table
+	:	Entry.Cmp_Property("type", "SHAPES") ? DATAOBJECT_TYPE_Shapes
+	:	Entry.Cmp_Property("type", "TIN"   ) ? DATAOBJECT_TYPE_TIN
+	:	Entry.Cmp_Property("type", "POINTS") ? DATAOBJECT_TYPE_PointCloud
+	:	DATAOBJECT_TYPE_Undefined;
 
 	if( Type == DATAOBJECT_TYPE_Undefined )
 	{
@@ -486,26 +483,22 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 		return( false );
 	}
 
-	File	= Get_FilePath_Absolute(ProjectDir, Entry.Get_Child(SG_T("FILE"))->Get_Content().c_str());
+	wxString	File(Get_FilePath_Absolute(ProjectDir, Entry.Get_Child(SG_T("FILE"))->Get_Content().c_str()));
 
 	if( !wxFileExists(File) )
 	{
 		return( false );
 	}
 
-	pItem	= bLoad ? g_pData->Open(File, Type) : _Get_byFileName(File);
+	CWKSP_Base_Item	*pItem	= bLoad ? g_pData->Open(File, Type) : _Get_byFileName(File);
 
-	if(	!pItem )
+	if( !pItem || !pItem->Get_Parameters() || !Entry.Get_Child("PARAMETERS") )
 	{
 		return( false );
 	}
 
-	if( pItem->Get_Parameters() && Entry.Get_Child(SG_T("PARAMETERS")) )
-	{
-		pItem->Get_Parameters()->Serialize(*Entry.Get_Child(SG_T("PARAMETERS")), false);
-		_Compatibility_Data((TSG_Data_Type)Type, pItem->Get_Parameters(), Version);
-		pItem->Parameters_Changed();
-	}
+	pItem->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false);
+	pItem->Parameters_Changed();
 
 	return( true );
 }
