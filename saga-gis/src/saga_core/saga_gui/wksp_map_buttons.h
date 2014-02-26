@@ -74,8 +74,6 @@
 //---------------------------------------------------------
 #include <wx/scrolwin.h>
 
-#include <saga_api/saga_api.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -90,8 +88,12 @@ class CWKSP_Map_Button : public wxPanel
 
 public:
 	CWKSP_Map_Button(wxWindow *pParent, class CWKSP_Map *pMap);
-	CWKSP_Map_Button(wxWindow *pParent, const wxString &Title);
-	virtual ~CWKSP_Map_Button(void)	{}
+
+
+private:
+
+	class CWKSP_Map				*m_pMap;
+
 
 	void						On_Paint			(wxPaintEvent &event);
 	void						On_Key				(wxKeyEvent   &event);
@@ -99,17 +101,7 @@ public:
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	bool						is_Title			(void)		{	return( m_pMap == NULL );	}
-
-
-private:
-
-	wxString					m_Title;
-
-	class CWKSP_Map				*m_pMap;
-
-
-	bool						_Set_Layer_Active	(void);
+	bool						_Set_Active			(void);
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
@@ -129,30 +121,24 @@ public:
 	CWKSP_Map_Buttons(wxWindow *pParent);
 	virtual ~CWKSP_Map_Buttons(void);
 
-	void						On_Size				(wxSizeEvent  &event);
-	void						On_Mouse_LDown		(wxMouseEvent &event);
-
 	void						Update_Buttons		(void);
-
-	int							Get_Item_Size		(void)		{	return( m_Size );	}
-	long						Get_Active_Color	(void)		{	return( m_Active_Color );	}
 
 
 private:
 
-	int							m_xScroll, m_yScroll, m_nItems, m_Size;
-
-	long						m_Active_Color;
+	int							m_nItems, m_xScroll, m_yScroll;
 
 	CWKSP_Map_Button			**m_Items;
 
 
-	void						_Set_Positions		(void);
+	void						On_Size				(wxSizeEvent  &event);
+	void						On_Mouse_LDown		(wxMouseEvent &event);
 
+	bool						_Del_Items			(void);
 	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
 	bool						_Add_Item			(class CWKSP_Map *pMap);
-	bool						_Add_Item			(const wxString &Title);
-	bool						_Del_Items			(void);
+
+	void						_Set_Positions		(void);
 
 
 	//-----------------------------------------------------

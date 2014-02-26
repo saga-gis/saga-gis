@@ -74,8 +74,6 @@
 //---------------------------------------------------------
 #include <wx/scrolwin.h>
 
-#include <saga_api/saga_api.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -89,9 +87,15 @@ class CWKSP_Data_Button : public wxPanel
 	DECLARE_CLASS(CWKSP_Data_Button)
 
 public:
-	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Data_Item    *pItem);
-	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Base_Manager *pItem);
-	virtual ~CWKSP_Data_Button(void)	{}
+	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Base_Item *pItem);
+
+	bool						is_Manager			(void);
+
+
+private:
+
+	class CWKSP_Base_Item		*m_pItem;
+
 
 	void						On_Paint			(wxPaintEvent &event);
 	void						On_Key				(wxKeyEvent   &event);
@@ -99,21 +103,7 @@ public:
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	bool						is_Title			(void)		{	return( m_pItem == NULL );	}
-
-
-private:
-
-	wxString					m_Title;
-
-	CSG_Data_Object				*m_pObject;
-
-	class CWKSP_Data_Item		*m_pItem;
-
-	class CWKSP_Base_Manager	*m_pManager;
-
-
-	bool						_Select				(bool bKeepOthers);
+	bool						_Set_Active			(bool bKeepOthers);
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
@@ -133,32 +123,25 @@ public:
 	CWKSP_Data_Buttons(wxWindow *pParent);
 	virtual ~CWKSP_Data_Buttons(void);
 
-	void						On_Size				(wxSizeEvent  &event);
-	void						On_Mouse_LDown		(wxMouseEvent &event);
-
 	void						Update_Buttons		(void);
-
-	int							Get_Item_Size		(void)		{	return( m_Size );	}
-	long						Get_Active_Color	(void)		{	return( m_Active_Color );	}
 
 
 private:
 
-	bool						m_bCategorised;
-
-	int							m_xScroll, m_yScroll, m_nItems, m_Size;
-
-	long						m_Active_Color;
+	int							m_nItems, m_xScroll, m_yScroll;
 
 	CWKSP_Data_Button			**m_Items;
 
 
-	void						_Set_Positions		(void);
+	void						On_Size				(wxSizeEvent  &event);
+	void						On_Mouse_LDown		(wxMouseEvent &event);
 
+	bool						_Del_Items			(void);
 	bool						_Add_Items			(class CWKSP_Base_Item    *pItem);
 	bool						_Add_Item			(class CWKSP_Data_Item    *pItem);
 	bool						_Add_Item			(class CWKSP_Base_Manager *pItem);
-	bool						_Del_Items			(void);
+
+	void						_Set_Positions		(void);
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()

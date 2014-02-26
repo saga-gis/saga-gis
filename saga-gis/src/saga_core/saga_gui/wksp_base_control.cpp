@@ -194,76 +194,53 @@ bool CWKSP_Base_Control::_Set_Manager(CWKSP_Base_Manager *pManager)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 {
-	//-----------------------------------------------------
-	if( event.GetId() == ID_CMD_WKSP_ITEM_CLOSE )
+	switch( event.GetId() )
 	{
+	case ID_CMD_WKSP_ITEM_CLOSE:
 		_Del_Active(false);
+		break;
 
-		return;
-	}
-
-	//-----------------------------------------------------
-	if( event.GetId() == ID_CMD_WKSP_ITEM_SHOW )
-	{
+	case ID_CMD_WKSP_ITEM_SHOW:
 		_Show_Active();
+		break;
 
-		return;
-	}
-
-	//-----------------------------------------------------
-	if( event.GetId() == ID_CMD_WKSP_ITEM_SETTINGS_LOAD && Get_Selection_Count() > 1 )
-	{
+	case ID_CMD_WKSP_ITEM_SETTINGS_LOAD:
 		_Load_Settings();
+		break;
 
-		return;
-	}
-
-	//-----------------------------------------------------
-	if( event.GetId() == ID_CMD_WKSP_ITEM_SETTINGS_COPY && Get_Selection_Count() > 0 )
-	{
+	case ID_CMD_WKSP_ITEM_SETTINGS_COPY:
 		_Copy_Settings();
+		break;
 
-		return;
-	}
-
-	//-----------------------------------------------------
-	if( event.GetId() == ID_CMD_WKSP_ITEM_SEARCH )
-	{
+	case ID_CMD_WKSP_ITEM_SEARCH:
 		_Search_Item();
-
-		return;
-	}
+		break;
 
 	//-----------------------------------------------------
-	if( m_pManager->On_Command(event.GetId()) )
-	{
-		return;
-	}
+	default:
+		if( !m_pManager->On_Command(event.GetId()) )
+		{
+			CWKSP_Base_Item	*pItem	= Get_Item_Selected();
 
-	//-----------------------------------------------------
-	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
-
-	if( pItem )
-	{
-		pItem->On_Command(event.GetId());
+			if( pItem )
+			{
+				pItem->On_Command(event.GetId());
+			}
+		}
 	}
 }
 
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Command_UI(wxUpdateUIEvent &event)
 {
-	//-----------------------------------------------------
-	if( m_pManager->On_Command_UI(event) )
+	if( !m_pManager->On_Command_UI(event) )
 	{
-		return;
-	}
+		CWKSP_Base_Item	*pItem	= Get_Item_Selected();
 
-	//-----------------------------------------------------
-	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
-
-	if( pItem )
-	{
-		pItem->On_Command_UI(event);
+		if( pItem )
+		{
+			pItem->On_Command_UI(event);
+		}
 	}
 }
 
