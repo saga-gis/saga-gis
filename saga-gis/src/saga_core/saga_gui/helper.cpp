@@ -675,6 +675,9 @@ bool		CONFIG_Read(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 			pConfig->Read(Entry + "_FONT" , &s) && pParameter->Set_Value((const SG_Char *)s)
 		&&	pConfig->Read(Entry + "_COLOR", &l) && pParameter->Set_Value((int)l)
 		);
+
+	case PARAMETER_TYPE_Parameters:
+		return( CONFIG_Read(Entry + "/" + pParameter->Get_Identifier(), pParameter->asParameters()) );
 	}
 }
 
@@ -728,6 +731,9 @@ bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 			pConfig->Write(Entry + "_FONT" , (const SG_Char *)pParameter->asPointer())
 		&&	pConfig->Write(Entry + "_COLOR", pParameter->asInt())
 		);
+
+	case PARAMETER_TYPE_Parameters:
+		return( CONFIG_Write(Entry + "/" + pParameter->Get_Identifier(), pParameter->asParameters()) );
 	}
 }
 
