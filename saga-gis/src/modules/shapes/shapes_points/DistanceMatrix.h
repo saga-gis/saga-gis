@@ -20,20 +20,43 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CDistanceMatrix : public CSG_Module {
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CDistanceMatrix : public CSG_Module
+{
 public:
 	CDistanceMatrix(void);
-	virtual ~CDistanceMatrix(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
+
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual int		On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool	On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
