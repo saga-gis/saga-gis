@@ -111,6 +111,10 @@ CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID)
 	SetStatusBarPane(-1);
 
 	SetIcon(IMG_Get_Icon(Icon_ID));
+
+	g_pSAGA_Frame->Freeze();
+	Show();
+	g_pSAGA_Frame->Thaw();
 }
 
 //---------------------------------------------------------

@@ -61,7 +61,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/string.h>
 #include <wx/menu.h>
 
 #include <saga_api/saga_api.h>
@@ -70,6 +69,8 @@
 
 #include "wksp_data_menu_files.h"
 #include "wksp_data_menu_file.h"
+
+#include "saga_frame.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -171,12 +172,14 @@ inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_Files::_Update(void)
 {
+	g_pSAGA_Frame->Freeze();
 	m_Projects   .Update(m_pMenu->FindItem(ID_CMD_DATA_FIRST      )->GetSubMenu());
 	m_Tables     .Update(m_pMenu->FindItem(ID_CMD_TABLES_FIRST    )->GetSubMenu());
 	m_Shapes     .Update(m_pMenu->FindItem(ID_CMD_SHAPES_FIRST    )->GetSubMenu());
 	m_TINs       .Update(m_pMenu->FindItem(ID_CMD_TIN_FIRST       )->GetSubMenu());
 	m_PointClouds.Update(m_pMenu->FindItem(ID_CMD_POINTCLOUD_FIRST)->GetSubMenu());
 	m_Grids      .Update(m_pMenu->FindItem(ID_CMD_GRIDS_FIRST     )->GetSubMenu());
+	g_pSAGA_Frame->Thaw();
 }
 
 
