@@ -1175,6 +1175,14 @@ bool CSG_Parameters::DataObjects_Create(void)
 		}
 
 		//-------------------------------------------------
+		else if( p->is_DataObject() && p->is_Enabled() == false )
+		{
+			if( !m_pManager || !m_pManager->Exists(p->asDataObject()) )
+			{
+				p->Set_Value(DATAOBJECT_NOTSET);
+			}
+		}
+
 		else if( p->is_DataObject() )
 		{
 			CSG_Data_Object	*pDataObject	= p->asDataObject();

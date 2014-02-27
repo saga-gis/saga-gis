@@ -790,16 +790,19 @@ void CSG_Module::_Set_Output_History(void)
 		{
 			CSG_Parameter	*p	= pParameters->Get_Parameter(i);
 
-			if( p->is_Output() && p->is_DataObject() && p->asDataObject() )
+			if( p->is_Output() && p->is_Enabled() )
 			{
-				p->asDataObject()->Get_History().Assign(History);
-			}
-
-			if( p->is_Output() && p->is_DataObject_List() )
-			{
-				for(int j=0; j<p->asList()->Get_Count(); j++)
+				if( p->is_DataObject() && p->asDataObject() )
 				{
-					p->asList()->asDataObject(j)->Get_History().Assign(History);
+					p->asDataObject()->Get_History().Assign(History);
+				}
+
+				if( p->is_DataObject_List() )
+				{
+					for(int j=0; j<p->asList()->Get_Count(); j++)
+					{
+						p->asList()->asDataObject(j)->Get_History().Assign(History);
+					}
 				}
 			}
 		}
