@@ -76,7 +76,7 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Overland Flow Distance to Channel Network"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001-11"));
+	Set_Author		(SG_T("O.Conrad (c) 2001-14"));
 
 	Set_Description	(_TW(
 		"This module calculates overland flow distances to a channel network "
@@ -92,8 +92,6 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 
 	//-----------------------------------------------------
-	// Input...
-
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
 		_TL("A grid that contains elevation data."),
@@ -107,10 +105,13 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Grid(
+		NULL	, "ROUTE"		, _TL("Preferred Routing"),
+		_TL("Downhill flow is bound to preferred routing cells, where these are not no-data. Helps to model e.g. small ditches, that are not well represented in the elevation data."),
+		PARAMETER_INPUT_OPTIONAL
+	);
 
 	//-----------------------------------------------------
-	// Output...
-
 	Parameters.Add_Grid(
 		NULL	, "DISTANCE"	, _TL("Overland Flow Distance"),
 		_TW("The overland flow distance in map units. "
@@ -130,14 +131,23 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 		PARAMETER_OUTPUT
 	);
 
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "FIELDS"		, _TL("Fields"),
+		_TL("If set, output is given about the number of fields a flow path visits downhill. For D8 only."),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "PASSES"		, _TL("Fields Visited"),
+		_TL("Number of fields a flow path visits downhill starting at a cell. For D8 only."),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+	);
 
 	//-----------------------------------------------------
-	// Options...
-
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Flow Algorithm"),
 		_TL("Choose a flow routing algorithm that shall be used for the overland flow distance calculation:\n- D8\n- MFD"),
-
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("D8"),
 			_TL("MFD")
@@ -145,9 +155,29 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CChannelNetwork_Distance::~CChannelNetwork_Distance(void)
-{}
+int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Get_Parameter("FIELDS")->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Get_Parameter("PASSES")->Set_Enabled(pParameter->asInt() == 0 && pParameters->Get_Parameter("FIELDS")->asGrid() != NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )
+	{
+		pParameters->Get_Parameter("PASSES")->Set_Enabled(pParameter->is_Enabled() && pParameter->asGrid() != NULL);
+	}
+
+	return( 1 );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -159,56 +189,61 @@ CChannelNetwork_Distance::~CChannelNetwork_Distance(void)
 //---------------------------------------------------------
 bool CChannelNetwork_Distance::On_Execute(void)
 {
-	int			x, y, Method;
 	CSG_Grid	*pChannels;
 
 	//-----------------------------------------------------
-	m_pDTM		= Parameters("ELEVATION")->asGrid();
-	pChannels	= Parameters("CHANNELS")->asGrid();
+	m_pDEM		= Parameters("ELEVATION")->asGrid();
+	m_pRoute	= Parameters("ROUTE"    )->asGrid();
+	pChannels	= Parameters("CHANNELS" )->asGrid();
 
-	m_pDistance	= Parameters("DISTANCE")->asGrid();
-	m_pDistVert	= Parameters("DISTVERT")->asGrid();
-	m_pDistHorz	= Parameters("DISTHORZ")->asGrid();
+	m_pDistance	= Parameters("DISTANCE" )->asGrid();
+	m_pDistVert	= Parameters("DISTVERT" )->asGrid();
+	m_pDistHorz	= Parameters("DISTHORZ" )->asGrid();
 
-	Method		= Parameters("METHOD")->asInt();
+	int	Method	= Parameters("METHOD"   )->asInt ();
 
 	//-----------------------------------------------------
 	switch( Method )
 	{
-	case 0:	default:	Initialize_D8();	break;
-	case 1:				Initialize_MFD();	break;
+	default:	Initialize_D8 ();	break;
+	case  1:	Initialize_MFD();	break;
 	}
 
 	m_pDistance	->Assign_NoData();
 	m_pDistVert	->Assign_NoData();
 	m_pDistHorz	->Assign_NoData();
 
-	m_pDTM		->Set_Index(true);
+	m_pDEM		->Set_Index(true);
 
 	//-----------------------------------------------------
 	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		m_pDTM->Get_Sorted(n, x, y, false, false);
+		int		x, y;
 
-		if( !m_pDTM->is_NoData(x, y) && !(pChannels->is_NoData(x, y) && m_pDistance->is_NoData(x, y)) )
+		if( m_pDEM->Get_Sorted(n, x, y, false, true) && !(pChannels->is_NoData(x, y) && m_pDistance->is_NoData(x, y)) )
 		{
 			if( !pChannels->is_NoData(x, y) )
 			{
 				m_pDistance->Set_Value(x, y, 0.0);
 				m_pDistVert->Set_Value(x, y, 0.0);
 				m_pDistHorz->Set_Value(x, y, 0.0);
+
+				if( m_pFields )
+				{
+					m_pPasses->Set_Value(x, y, 0.0);
+				}
 			}
 
 			switch( Method )
 			{
-			case 0:	default:	Execute_D8(x, y);	break;
-			case 1:				Execute_MFD(x, y);	break;
+			default:	Execute_D8 (x, y);	break;
+			case  1:	Execute_MFD(x, y);	break;
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_Dir	.Destroy();
+	m_Dir.Destroy();
 
 	for(int i=0; i<=8; i++)
 	{
@@ -231,18 +266,62 @@ void CChannelNetwork_Distance::Initialize_D8(void)
 {
 	m_Dir.Create(*Get_System(), SG_DATATYPE_Char);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	if( (m_pFields = Parameters("FIELDS")->asGrid()) != NULL )
+	{
+		m_pPasses	= Parameters("PASSES")->asGrid();
+		m_pPasses	->Set_NoData_Value(-1.0);
+		m_pPasses	->Assign_NoData();
+	}
+
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			m_Dir.Set_Value(x, y, m_pDTM->Get_Gradient_NeighborDir(x, y));
+			if( !m_pDEM->is_NoData(x, y) )
+			{
+				Initialize_D8(x, y);
+			}
 		}
 	}
 }
 
 //---------------------------------------------------------
+void CChannelNetwork_Distance::Initialize_D8(int x, int y)
+{
+	int		i, iMax, iRoute;
+	double	z, dz, dzMax, dzRoute;
+
+	for(i=0, iMax=-1, dzMax=0.0, iRoute=-1, dzRoute=0.0, z=m_pDEM->asDouble(x, y); i<8; i++)
+	{
+		int	ix	= Get_xTo(i, x);
+		int	iy	= Get_yTo(i, y);
+
+		if( is_InGrid(ix, iy) && (dz = (z - m_pDEM->asDouble(ix, iy)) / Get_Length(i)) > 0.0 )
+		{
+			if( dz > dzMax )
+			{
+				iMax	= i;
+				dzMax	= dz;
+			}
+
+			if( m_pRoute && !m_pRoute->is_NoData(ix, iy) && dz > dzRoute )
+			{
+				iRoute	= i;
+				dzRoute	= dz;
+			}
+		}
+	}
+
+	m_Dir.Set_Value(x, y, iRoute >= 0 ? iRoute : iMax);
+}
+
+//---------------------------------------------------------
 void CChannelNetwork_Distance::Execute_D8(int x, int y)
 {
+	int		nPasses	= m_pFields ? m_pPasses->asInt   (x, y) : 0;
+	double	Field	= m_pFields ? m_pFields->asDouble(x, y) : 0;
+
 	double	zDist, zVert, zHorz, dVert, dHorz;
 
 	zDist	= m_pDistance->asDouble(x, y);
@@ -254,14 +333,19 @@ void CChannelNetwork_Distance::Execute_D8(int x, int y)
 		int	ix	= Get_xFrom(i, x);
 		int	iy	= Get_yFrom(i, y);
 
-		if( m_pDTM->is_InGrid(ix, iy) && m_Dir.asInt(ix, iy) == i )
+		if( m_pDEM->is_InGrid(ix, iy) && m_Dir.asInt(ix, iy) == i )
 		{
-			dVert	= m_pDTM->asDouble(ix, iy) - m_pDTM->asDouble(x, y);
+			dVert	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
 			dHorz	= Get_Length(i);
 
 			m_pDistVert->Set_Value(ix, iy, zVert + dVert);
 			m_pDistHorz->Set_Value(ix, iy, zHorz + dHorz);
 			m_pDistance->Set_Value(ix, iy, zDist + sqrt(dVert*dVert + dHorz*dHorz));
+
+			if( m_pFields )
+			{
+				m_pPasses->Set_Value(ix, iy, Field != m_pFields->asDouble(ix, iy) ? nPasses + 1 : nPasses);
+			}
 		}
 	}
 }
@@ -276,53 +360,73 @@ void CChannelNetwork_Distance::Execute_D8(int x, int y)
 //---------------------------------------------------------
 void CChannelNetwork_Distance::Initialize_MFD(void)
 {
-	const double	MFD_Convergence	= 1.1;
+	m_pFields	= NULL;
+	m_pPasses	= NULL;
 
-	int		i;
-
-	for(i=0; i<=8; i++)
+	for(int i=0; i<=8; i++)
 	{
 		m_Flow[i].Create(*Get_System(), SG_DATATYPE_Float);
 	}
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !m_pDTM->is_NoData(x, y) )
+			if( !m_pDEM->is_NoData(x, y) )
 			{
-				double	z, dz, zSum, Flow[8];
+				Initialize_MFD(x, y);
+			}
+		}
+	}
+}
 
-				z		= m_pDTM->asDouble(x, y);
-				zSum	= 0.0;
+//---------------------------------------------------------
+void CChannelNetwork_Distance::Initialize_MFD(int x, int y)
+{
+	const double	MFD_Convergence	= 1.1;
 
-				for(i=0; i<8; i++)
-				{
-					int	ix	= Get_xTo(i, x);
-					int	iy	= Get_yTo(i, y);
+	double	Flow[8], dz, zSum = 0.0, z = m_pDEM->asDouble(x, y);
 
-					if( m_pDTM->is_InGrid(ix, iy) && z > (dz = m_pDTM->asDouble(ix, iy)) )
-					{
-						zSum	+= (Flow[i]	= pow((z - dz) / Get_Length(i), MFD_Convergence));
-					}
-					else
-					{
-						Flow[i]	= 0.0;
-					}
-				}
+	if( m_pRoute )
+	{
+		for(int i=0, ix, iy; i<8; i++)
+		{
+			if( m_pDEM->is_InGrid(ix=Get_xTo(i, x), iy=Get_yTo(i, y)) && !m_pRoute->is_NoData(ix, iy) && (dz = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
+			{
+				zSum	+= (Flow[i]	= pow(dz / Get_Length(i), MFD_Convergence));
+			}
+			else
+			{
+				Flow[i]	= 0.0;
+			}
+		}
+	}
 
-				if( zSum > 0.0 )
-				{
-					m_Flow[8].Set_Value(x, y, zSum);
+	if( zSum == 0.0 )
+	{
+		for(int i=0, ix, iy; i<8; i++)
+		{
+			if( m_pDEM->is_InGrid(ix=Get_xTo(i, x), iy=Get_yTo(i, y)) && (dz = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
+			{
+				zSum	+= (Flow[i]	= pow(dz / Get_Length(i), MFD_Convergence));
+			}
+			else
+			{
+				Flow[i]	= 0.0;
+			}
+		}
+	}
 
-					for(i=0; i<8; i++)
-					{
-						if( Flow[i] > 0.0 )
-						{
-							m_Flow[i].Set_Value(x, y, Flow[i] / zSum);
-						}
-					}
-				}
+	if( zSum > 0.0 )
+	{
+		m_Flow[8].Set_Value(x, y, zSum);
+
+		for(int i=0; i<8; i++)
+		{
+			if( Flow[i] > 0.0 )
+			{
+				m_Flow[i].Set_Value(x, y, Flow[i] / zSum);
 			}
 		}
 	}
@@ -352,9 +456,9 @@ void CChannelNetwork_Distance::Execute_MFD(int x, int y)
 		int	ix	= Get_xTo(i, x);
 		int	iy	= Get_yTo(i, y);
 
-		if( m_pDTM->is_InGrid(ix, iy) && (dFlow = m_Flow[(i + 4) % 8].asDouble(ix, iy)) > 0.0 )
+		if( m_pDEM->is_InGrid(ix, iy) && (dFlow = m_Flow[(i + 4) % 8].asDouble(ix, iy)) > 0.0 )
 		{
-			dVert	= m_pDTM->asDouble(ix, iy) - m_pDTM->asDouble(x, y);
+			dVert	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
 			dHorz	= Get_Length(i);
 
 			dDist	= dFlow * (zDist + sqrt(dVert*dVert + dHorz*dHorz));

@@ -82,28 +82,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CChannelNetwork_Distance : public CSG_Module_Grid  
+class CChannelNetwork_Distance : public CSG_Module_Grid  
 {
 public:
 	CChannelNetwork_Distance(void);
-	virtual ~CChannelNetwork_Distance(void);
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_Grid				*m_pDTM, *m_pDistance, *m_pDistVert, *m_pDistHorz, m_Dir, m_Flow[9];
+	CSG_Grid				*m_pDEM, *m_pRoute, *m_pDistance, *m_pDistVert, *m_pDistHorz, *m_pFields, *m_pPasses, m_Dir, m_Flow[9];
 
 
-	void					Initialize_D8	(void);
-	void					Execute_D8		(int x, int y);
+	void					Initialize_D8			(void);
+	void					Initialize_D8			(int x, int y);
+	void					Execute_D8				(int x, int y);
 
-	void					Initialize_MFD	(void);
-	void					Execute_MFD		(int x, int y);
+	void					Initialize_MFD			(void);
+	void					Initialize_MFD			(int x, int y);
+	void					Execute_MFD				(int x, int y);
 
 };
 
