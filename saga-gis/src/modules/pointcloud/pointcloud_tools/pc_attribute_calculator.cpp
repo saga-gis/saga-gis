@@ -136,6 +136,12 @@ CPC_Attribute_Calculator::CPC_Attribute_Calculator(void)
 		), 7
 	);
 
+	Parameters.Add_Value(
+		NULL	, "USE_NODATA"	, _TL("Use NoData"),
+		_TL("Check this in order to include NoData points in the calculation."),
+		PARAMETER_TYPE_Bool, false
+	);
+
 }
 
 
@@ -155,11 +161,13 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 {
 	CSG_PointCloud	*pInput, *pResult;
 	TSG_Data_Type	Type;
+	bool			bUseNoData;
 
 
 	//---------------------------------------------------------
 	pInput		= Parameters("PC_IN")->asPointCloud();
 	pResult		= Parameters("PC_OUT")->asPointCloud();
+	bUseNoData	= Parameters("USE_NODATA")->asBool();
 
 	switch( Parameters("TYPE")->asInt() )
 	{
@@ -237,13 +245,13 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 		bool	bOkay	= true;
 
 		pResult->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
-		
+
 		for( int iField=2; iField<pInput->Get_Field_Count(); iField++ )
 			pResult->Set_Value(i, iField, pInput->Get_Value(i, iField));
 
 		for( int iField=0; iField<nFields && bOkay; iField++ )
 		{
-			if( !pInput->is_NoData(i, pFields[iField]) )
+			if( !pInput->is_NoData(i, pFields[iField]) || bUseNoData )
 			{
 				Values[iField]	= pInput->Get_Value(i, pFields[iField]);
 			}
