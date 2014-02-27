@@ -207,6 +207,11 @@ bool CWKSP_Shapes::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int
 {
 	CWKSP_Layer::Edit_On_Mouse_Down(Point, ClientToWorld, Key);
 
+	if( !(Key & MODULE_INTERACTIVE_KEY_LEFT) )
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	switch( m_Edit_Mode )
 	{
@@ -513,7 +518,7 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 	{
 		CSG_Shape	*pShape	= Get_Shapes()->Get_Selection(i);
 
-		for(int iPart=0, jPart=pMerged->Get_Part_Count(); iPart<pShape->Get_Part_Count(); iPart++)
+		for(int iPart=0, jPart=pMerged->Get_Part_Count(); iPart<pShape->Get_Part_Count(); iPart++, jPart++)
 		{
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
