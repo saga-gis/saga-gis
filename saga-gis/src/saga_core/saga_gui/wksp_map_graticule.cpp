@@ -193,6 +193,12 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 		_TL("")
 	);
 
+	m_Parameters.Add_Value(
+		pNode_1	, "LABEL_SIZE"	, _TL("Size"),
+		_TL("Font size given as percentage of map size."),
+		PARAMETER_TYPE_Double, 2, 0.0, true, 10.0, true
+	);
+
 	m_Parameters.Add_Choice(
 		pNode_1	, "LABEL_EFFECT", _TL("Boundary Effect"),
 		_TL(""),
@@ -399,6 +405,7 @@ int CWKSP_Map_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL")) )
 		{
 			pParameters->Get_Parameter("LABEL_FONT"  )->Set_Enabled(pParameter->asBool());
+			pParameters->Get_Parameter("LABEL_SIZE"  )->Set_Enabled(pParameter->asBool());
 			pParameters->Get_Parameter("LABEL_EFFECT")->Set_Enabled(pParameter->asBool());
 			pParameters->Get_Parameter("LABEL_EFFCOL")->Set_Enabled(pParameter->asBool());
 		}
@@ -541,41 +548,51 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	if( m_Parameters("LABEL")->asBool() )
 	{
-		int			Effect;
-		wxColour	Effect_Color	= Get_Color_asWX(m_Parameters("LABEL_EFFCOL")->asInt());
-		wxFont		Font	= Get_Font(m_Parameters("LABEL_FONT"));
+		int	Size	= (int)(0.5 + 0.01 * m_Parameters("LABEL_SIZE")->asDouble()
+		*	( dc.m_rDC.GetWidth() < dc.m_rDC.GetHeight()
+			? dc.m_rDC.GetWidth() : dc.m_rDC.GetHeight() )
+		);
 
-		dc.dc.SetFont(Font);
-		dc.dc.SetTextForeground(m_Parameters("LABEL_FONT")->asColor());
-
-		switch( m_Parameters("LABEL_EFFECT")->asInt() )
+		if( Size > 2 )
 		{
-		default:	Effect	= TEXTEFFECT_NONE;			break;
-		case 1:		Effect	= TEXTEFFECT_FRAME;			break;
-		case 2:		Effect	= TEXTEFFECT_TOP;			break;
-		case 3:		Effect	= TEXTEFFECT_TOPLEFT;		break;
-		case 4:		Effect	= TEXTEFFECT_LEFT;			break;
-		case 5:		Effect	= TEXTEFFECT_BOTTOMLEFT;	break;
-		case 6:		Effect	= TEXTEFFECT_BOTTOM;		break;
-		case 7:		Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
-		case 8:		Effect	= TEXTEFFECT_RIGHT;			break;
-		case 9:		Effect	= TEXTEFFECT_TOPRIGHT;		break;
-		}
+			int			Effect;
+			wxColour	Effect_Color	= Get_Color_asWX(m_Parameters("LABEL_EFFCOL")->asInt());
+			wxFont		Font	= Get_Font(m_Parameters("LABEL_FONT"));
 
-		for(int iPoint=0; iPoint<m_Coordinates.Get_Count(); iPoint++)
-		{
-			CSG_Shape	*pPoint	= m_Coordinates.Get_Shape(iPoint);
+			Font.SetPointSize(Size);
 
-			TSG_Point_Int	p(dc.World2DC(pPoint->Get_Point(0)));
-			wxString		Type(pPoint->asString(0));
+			dc.dc.SetFont(Font);
+			dc.dc.SetTextForeground(m_Parameters("LABEL_FONT")->asColor());
 
-			int	Align	= !Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT
-						: !Type.Cmp("LAT_MAX") ? TEXTALIGN_CENTERRIGHT
-						: !Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER
-						: !Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER
-						: TEXTALIGN_CENTER;
+			switch( m_Parameters("LABEL_EFFECT")->asInt() )
+			{
+			default:	Effect	= TEXTEFFECT_NONE;			break;
+			case 1:		Effect	= TEXTEFFECT_FRAME;			break;
+			case 2:		Effect	= TEXTEFFECT_TOP;			break;
+			case 3:		Effect	= TEXTEFFECT_TOPLEFT;		break;
+			case 4:		Effect	= TEXTEFFECT_LEFT;			break;
+			case 5:		Effect	= TEXTEFFECT_BOTTOMLEFT;	break;
+			case 6:		Effect	= TEXTEFFECT_BOTTOM;		break;
+			case 7:		Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
+			case 8:		Effect	= TEXTEFFECT_RIGHT;			break;
+			case 9:		Effect	= TEXTEFFECT_TOPRIGHT;		break;
+			}
 
-			Draw_Text(dc.dc, Align, p.x, p.y, 0.0, pPoint->asString(1), Effect, Effect_Color);
+			for(int iPoint=0; iPoint<m_Coordinates.Get_Count(); iPoint++)
+			{
+				CSG_Shape	*pPoint	= m_Coordinates.Get_Shape(iPoint);
+
+				TSG_Point_Int	p(dc.World2DC(pPoint->Get_Point(0)));
+				wxString		Type(pPoint->asString(0));
+
+				int	Align	= !Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT
+							: !Type.Cmp("LAT_MAX") ? TEXTALIGN_CENTERRIGHT
+							: !Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER
+							: !Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER
+							: TEXTALIGN_CENTER;
+
+				Draw_Text(dc.dc, Align, p.x, p.y, 0.0, pPoint->asString(1), Effect, Effect_Color);
+			}
 		}
 	}
 

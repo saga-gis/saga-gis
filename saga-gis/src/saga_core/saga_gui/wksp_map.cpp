@@ -199,11 +199,7 @@ CWKSP_Map::CWKSP_Map(void)
 	m_pLayout		= NULL;
 	m_pLayout_Info	= new CVIEW_Layout_Info(this);
 
-	m_bScaleBar		= g_pMaps->Get_Parameter("SCALE_BAR")->asBool();
-	m_bSynchronise	= false;
 	m_Img_bSave		= false;
-
-	m_GCS_Interval	= 1.0;
 
 	On_Create_Parameters();
 }
@@ -312,7 +308,11 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_MAPS_SCALEBAR:
-		Set_ScaleBar(!m_bScaleBar);
+		Set_ScaleBar(!m_Parameters("SCALE_SHOW")->asBool());
+		break;
+
+	case ID_CMD_MAPS_SYNCHRONIZE:
+		Set_Synchronising(!m_Parameters("SYNC_MAPS")->asBool());
 		break;
 
 	case ID_CMD_MAPS_GRATICULE_ADD:
@@ -321,10 +321,6 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 
 	case ID_CMD_MAPS_PROJECTION:
 		Set_Projection();
-		break;
-
-	case ID_CMD_MAPS_SYNCHRONIZE:
-		Set_Synchronising(!m_bSynchronise);
 		break;
 
 	case ID_CMD_MAPS_SHOW:
@@ -409,6 +405,12 @@ void CWKSP_Map::On_Create_Parameters(void)
 		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameter("GOTO_NEWLAYER")->asBool()
 	);
 
+	m_Parameters.Add_Value(
+		pNode_0	, "SYNC_MAPS"		, _TL("Synchronize Map Extents"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
 		NULL	, "NODE_FRAME"		, _TL("Frame"),
@@ -425,6 +427,47 @@ void CWKSP_Map::On_Create_Parameters(void)
 		pNode_0	, "FRAME_WIDTH"		, _TL("Width"),
 		_TL(""),
 		PARAMETER_TYPE_Int, g_pMaps->Get_Parameter("FRAME_WIDTH")->asInt(), 5, true
+	);
+
+	//-----------------------------------------------------
+	pNode_0	= m_Parameters.Add_Node(
+		NULL	, "NODE_SCALE"		, _TL("Scale Bar"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "SCALE_SHOW"		, _TL("Show"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameter("SCALE_BAR")->asBool()
+	);
+
+	pNode_1	= m_Parameters.Add_Node(
+		pNode_0	, "NODE_SCALE_SIZE"	, _TL("Size and Position"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "SCALE_WIDTH"		, _TL("Width"),
+		_TL("Width given as percentage of map size"),
+		PARAMETER_TYPE_Double, 40, 1, true, 100, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "SCALE_HEIGHT"	, _TL("Height"),
+		_TL("Height given as percentage of map size"),
+		PARAMETER_TYPE_Double, 4, 0.1, true, 100, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "SCALE_OFFSET_X"	, _TL("Horizontal Offset"),
+		_TL("Offset given as percentage of map size"),
+		PARAMETER_TYPE_Double, 5, 0, true, 100, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "SCALE_OFFSET_Y"	, _TL("Vertical Offset"),
+		_TL("Offset given as percentage of map size"),
+		PARAMETER_TYPE_Double, 7.5, 0, true, 100, true
 	);
 
 	//-----------------------------------------------------
@@ -564,6 +607,8 @@ void CWKSP_Map::Parameters_Changed(void)
 	}
 
 	View_Refresh(false);
+
+	Set_Synchronising(m_Parameters("SYNC_MAPS")->asBool());
 
 	CWKSP_Base_Manager::Parameters_Changed();
 }
@@ -710,7 +755,7 @@ void CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 	{
 		View_Refresh(true);
 
-		if( m_bSynchronise )
+		if( m_Parameters("SYNC_MAPS")->asBool() )
 		{
 			_Synchronise_Extents();
 		}
@@ -835,11 +880,16 @@ bool CWKSP_Map::Set_Extent_Forward(bool bCheck_Only)
 }
 
 //---------------------------------------------------------
+bool CWKSP_Map::is_ScaleBar(void)
+{
+	return( m_Parameters("SCALE_SHOW")->asBool() );
+}
+
 void CWKSP_Map::Set_ScaleBar(bool bOn)
 {
-	if( m_bScaleBar != bOn )
+	if( m_Parameters("SCALE_SHOW")->asBool() != bOn )
 	{
-		m_bScaleBar	= bOn;
+		m_Parameters("SCALE_SHOW")->Set_Value(bOn ? 1 : 0);
 
 		if( m_pView )
 		{
@@ -850,11 +900,19 @@ void CWKSP_Map::Set_ScaleBar(bool bOn)
 }
 
 //---------------------------------------------------------
+bool CWKSP_Map::is_Synchronising(void)
+{
+	return( m_Parameters("SYNC_MAPS")->asBool() );
+}
+
 void CWKSP_Map::Set_Synchronising(bool bOn)
 {
-	m_bSynchronise	= bOn;
+	if( m_Parameters("SYNC_MAPS")->asBool() != bOn )
+	{
+		m_Parameters("SYNC_MAPS")->Set_Value(bOn ? 1 : 0);
+	}
 
-	if( m_bSynchronise )
+	if( bOn )
 	{
 		_Synchronise_Extents();
 	}
@@ -1509,27 +1567,18 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 	}
 
 	//-----------------------------------------------------
-	if( m_bScaleBar )
+	if( m_Parameters("SCALE_SHOW")->asBool() )
 	{
-		double	dScale	= 0.4 * rWorld.Get_XRange();
-		wxRect	r, rScale(10, rClient.GetHeight() - 25, (int)(0.5 + dc_Map.xWorld2DC(rWorld.Get_XMin() + dScale)), 20);
+		double	dWidth	= 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
 
-		dc_Map.dc.SetPen(wxPen(*wxWHITE));
-		dc_Map.dc.SetTextForeground(*wxWHITE);
+		wxRect	r(
+			(int)(0.5 + rClient.GetWidth () * 0.01 * m_Parameters("SCALE_OFFSET_X")->asDouble()), rClient.GetHeight() -
+			(int)(0.5 + rClient.GetHeight() * 0.01 * m_Parameters("SCALE_OFFSET_Y")->asDouble()),
+			(int)(0.5 + rClient.GetWidth () * dWidth),
+			(int)(0.5 + rClient.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
+		);
 
-		r	= rScale; r.Offset( 0,  1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-		r	= rScale; r.Offset( 1,  1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-		r	= rScale; r.Offset( 1,  0); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-		r	= rScale; r.Offset( 1, -1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-		r	= rScale; r.Offset( 0, -1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-		r	= rScale; r.Offset(-1, -1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-		r	= rScale; r.Offset(-1,  0); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-		r	= rScale; r.Offset(-1,  1); Draw_Scale(dc_Map.dc, r, 0.0, dScale, true, true, true, true);
-
-		dc_Map.dc.SetPen(wxPen(*wxBLACK));
-		dc_Map.dc.SetTextForeground(*wxBLACK);
-
-		Draw_Scale(dc_Map.dc, rScale, 0.0, dScale, true, true, true, true);
+		Draw_Scale(dc_Map.dc, r, 0.0, dWidth * rWorld.Get_XRange(), SCALE_HORIZONTAL, SCALE_TICK_TOP, SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING);
 	}
 
 	//-----------------------------------------------------
@@ -1580,7 +1629,7 @@ bool CWKSP_Map::Draw_Legend(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Posi
 			{
 				pLayer->Get_Legend()->Draw(dc, Zoom, Zoom_Map, Position, &s);
 
-				if( pLayer->Get_Legend()->Get_Orientation() == LEGEND_VERTICAL )
+				if( 1 )	// m_pLayout->Get_Legend()->Get_Orientation() == LEGEND_VERTICAL )
 				{
 					s.y			+= (int)(Zoom * LEGEND_SPACE);
 					Position.y	+= s.y;

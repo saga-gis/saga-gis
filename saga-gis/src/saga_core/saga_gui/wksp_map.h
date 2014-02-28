@@ -142,11 +142,11 @@ public:
 	bool						Set_Extent_Back			(bool bCheck_Only = false);
 	bool						Set_Extent_Forward		(bool bCheck_Only = false);
 
-	void						Set_Synchronising		(bool bOn);
-	bool						is_Synchronising		(void)	{	return( m_bSynchronise );	}
-
+	bool						is_ScaleBar				(void);
 	void						Set_ScaleBar			(bool bOn);
-	bool						is_ScaleBar				(void)	{	return( m_bScaleBar );	}
+
+	bool						is_Synchronising		(void);
+	void						Set_Synchronising		(bool bOn);
 
 	bool						is_Image_Save_Mode		(void)	{	return( m_Img_bSave );		}
 
@@ -206,11 +206,9 @@ protected:
 
 private:
 
-	bool						m_bScaleBar, m_bSynchronise, m_Img_bSave;
+	bool						m_Img_bSave;
 
 	int							m_Img_Type, m_Img_Count;
-
-	double						m_GCS_Interval;
 
 	wxString					m_Name, m_Img_File;
 
@@ -219,8 +217,6 @@ private:
 	CSG_Parameters				m_Img_Parms;
 
 	CSG_Projection				m_Projection;
-
-	CSG_Shapes					m_Graticule;
 
 	CWKSP_Map_Extents			m_Extents;
 
