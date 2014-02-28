@@ -91,7 +91,7 @@ enum
 {
 	IMG_MAP_MANAGER		= 1,
 	IMG_MAP,
-
+	IMG_MAP_GRATICULE,
 	IMG_SHAPES_POINT,
 	IMG_SHAPES_POINTS,
 	IMG_SHAPES_LINE,
@@ -143,7 +143,7 @@ CWKSP_Map_Control::CWKSP_Map_Control(wxWindow *pParent)
 	//-----------------------------------------------------
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MAP_MANAGER);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MAP);
-
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MAP_GRATICULE);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINT);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINTS);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_LINE);
@@ -197,33 +197,31 @@ inline int CWKSP_Map_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 {
 	if( pItem )
 	{
+		if( pItem->Get_Type() == WKSP_ITEM_Map_Graticule )
+		{
+			return( IMG_MAP_GRATICULE );
+		}
+
 		if( pItem->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
 			pItem	= ((CWKSP_Map_Layer *)pItem)->Get_Layer();
 
 			switch( pItem->Get_Type() )
 			{
-			default:
-				break;
-
+			default:						break;
+			case WKSP_ITEM_Grid:			return( IMG_GRID );
+			case WKSP_ITEM_TIN:				return( IMG_TIN );
+			case WKSP_ITEM_PointCloud:		return( IMG_POINTCLOUD );
 			case WKSP_ITEM_Shapes:
 				switch( ((CWKSP_Shapes *)pItem)->Get_Shapes()->Get_Type() )
 				{
-				default:
 				case SHAPE_TYPE_Point:		return( IMG_SHAPES_POINT );
 				case SHAPE_TYPE_Points:		return( IMG_SHAPES_POINTS );
 				case SHAPE_TYPE_Line:		return( IMG_SHAPES_LINE );
 				case SHAPE_TYPE_Polygon:	return( IMG_SHAPES_POLYGON );
+				default:	break;
 				}
-
-			case WKSP_ITEM_TIN:				return( IMG_TIN );
-			case WKSP_ITEM_PointCloud:		return( IMG_POINTCLOUD );
-			case WKSP_ITEM_Grid:			return( IMG_GRID );
 			}
-		}
-
-		if( pItem->Get_Type() == WKSP_ITEM_Map_Graticule )
-		{
 		}
 	}
 

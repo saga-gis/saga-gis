@@ -180,6 +180,7 @@
 #include "./res/xpm/wksp_grid_system.xpm"
 #include "./res/xpm/wksp_map.xpm"
 #include "./res/xpm/wksp_map_manager.xpm"
+#include "./res/xpm/wksp_map_graticule.xpm"
 #include "./res/xpm/wksp_module.xpm"
 #include "./res/xpm/wksp_module_library.xpm"
 #include "./res/xpm/wksp_module_manager.xpm"
@@ -318,6 +319,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_WKSP_GRID_MANAGER:	return( wksp_grid_manager_xpm );
 	case ID_IMG_WKSP_GRID_SYSTEM:	return( wksp_grid_system_xpm );
 	case ID_IMG_WKSP_MAP:	return( wksp_map_xpm );
+	case ID_IMG_WKSP_MAP_GRATICULE:	return( wksp_map_graticule_xpm );
 	case ID_IMG_WKSP_MAP_MANAGER:	return( wksp_map_manager_xpm );
 	case ID_IMG_WKSP_MODULE:	return( wksp_module_xpm );
 	case ID_IMG_WKSP_MODULE_LIBRARY:	return( wksp_module_library_xpm );
