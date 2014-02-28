@@ -184,7 +184,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 
 	bAddOverlap	= Parameters("AOI_ADD_OVERLAP")->asBool();
 	dOverlap	= Parameters("OVERLAP")->asDouble();
-	
+
 
 	//-----------------------------------------------------
 	if( pShapes == NULL && pGrid == NULL && (dAoiXMin == dAoiXMax || dAoiYMin == dAoiYMax) )
@@ -198,7 +198,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 		if( pShapes->Get_Selection_Count() > 0 )
 		{
 			AOI = pShapes->Get_Selection(0)->Get_Extent();
-			
+
 			for(int i=1; i<pShapes->Get_Selection_Count(); i++)
 			{
 				AOI.Union(pShapes->Get_Selection(i)->Get_Extent());
@@ -257,11 +257,11 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMax"), dBBoxXMax);
 	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMax"), dBBoxYMax);
 	BBoxSPCVF.Assign(dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax);
-	
+
 	if( !AOI.Intersect(BBoxSPCVF) )
 	{
-		SG_UI_Msg_Add_Error(_TL("AOI does not intersect bounding box of SPCVF, nothing to do!"));
-		return( false );
+		SG_UI_Msg_Add(_TL("AOI does not intersect bounding box of SPCVF, nothing to do!"), true);
+		return( true );
 	}
 
 
@@ -285,7 +285,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 		if( AOI.Intersects(BBox) )
 		{
 			CSG_String sFilePath;
-			
+
 			pDataset->Get_Property(SG_T("File"), sFilePath);
 			sFilePath.Prepend(sPathSPCVF);
 
@@ -295,8 +295,8 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 
 	if( sFilePaths.Get_Count() == 0 )
 	{
-		SG_UI_Msg_Add_Error(_TL("AOI does not intersect with any bounding box of the SPCVF datasets, nothing to do!"));
-		return( false );
+		SG_UI_Msg_Add(_TL("AOI does not intersect with any bounding box of the SPCVF datasets, nothing to do!"), true);
+		return( true );
 	}
 
 
@@ -339,8 +339,8 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 
 	if( pPC_out->Get_Count() == 0 )
 	{
-		SG_UI_Msg_Add_Error(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"));
-		return( false );
+		SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
+		return( true );
 	}
 
 
@@ -349,7 +349,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 
 	CSG_Parameters	sParms;
 	DataObject_Get_Parameters(pPC_out, sParms);
-	
+
 	if( sParms("METRIC_ZRANGE") )
 	{
 		sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPC_out->Get_Minimum(2), pPC_out->Get_Maximum(2));
