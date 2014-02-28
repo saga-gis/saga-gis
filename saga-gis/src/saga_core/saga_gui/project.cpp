@@ -282,6 +282,8 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		g_pData->Get_Menu_Files()->Set_Update(true);
 
 		//-------------------------------------------------
+		g_pSAGA_Frame->Freeze();
+
 		if( (pNode = Project.Get_Child(SG_T("MAPS"))) != NULL && pNode->Get_Children_Count() > 0 )
 		{
 			for(int j=0; j<pNode->Get_Children_Count(); j++)
@@ -289,6 +291,8 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 				_Load_Map(*pNode->Get_Child(j), SG_File_Get_Path(FileName).w_str());
 			}
 		}
+
+		g_pSAGA_Frame->Thaw();
 	}
 
 	//-----------------------------------------------------
