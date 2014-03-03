@@ -216,6 +216,19 @@ wksp_tin_manager.h
 
 saga_gui_LDADD = ../saga_api/libsaga_api.la
 
+applicationsdir = $(datadir)/applications
+dist_applications_DATA = res/saga.desktop
+
+pixmapdir = $(datadir)/pixmaps
+dist_pixmap_DATA = res/saga.png
+
+dist_pkgdata_DATA = res/saga_tip.txt res/saga_dic.txt res/saga_srs.txt
+
+install-data-hook:
+	cd $(pkgdatadir); \
+	mv saga_srs.txt saga.srs; \
+	mv saga_dic.txt saga.dic;
+
 dist-hook:
 	 mkdir $(distdir)/res
 	 cp -Rp $(srcdir)/res/* $(distdir)/res/
