@@ -24,4 +24,10 @@ sgdi_dialog.h\
 sgdi_helper.h\
 saga_gdi.h
 
+otherincludedir = $(pkgincludedir)/saga_core/saga_gdi
+otherinclude_HEADERS = saga_gdi.h \
+sgdi_diagram.h \
+sgdi_dialog.h \
+sgdi_helper.h
+
 libsaga_gdi_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

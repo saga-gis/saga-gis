@@ -18,6 +18,27 @@ libsaga_api_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 
 lib_LTLIBRARIES = libsaga_api.la
 
+otherincludedir = $(pkgincludedir)/saga_core/saga_api
+otherinclude_HEADERS = api_core.h \
+compatibility.h \
+data_manager.h \
+dataobject.h \
+geo_tools.h \
+grid.h \
+grid_pyramid.h \
+mat_tools.h \
+metadata.h \
+module.h \
+module_library.h \
+parameters.h \
+pointcloud.h \
+saga_api.h \
+shapes.h \
+table_dbase.h \
+table.h \
+table_value.h \
+tin.h
+
 libsaga_api_la_SOURCES =\
 api_callback.cpp\
 api_colors.cpp\
