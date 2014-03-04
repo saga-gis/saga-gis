@@ -81,16 +81,139 @@ CSG_Projections &	SG_Get_Projections(void)
 	return( gSG_Projections );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_String			SG_Get_Projection_Type_Name(TSG_Projection_Type Type)
+TSG_Projection_Type	SG_Get_Projection_Type				(const CSG_String &Identifier)
+{
+	if( !Identifier.CmpNoCase("PROJCS") )	return( SG_PROJ_TYPE_CS_Projected  );
+	if( !Identifier.CmpNoCase("GEOGCS") )	return( SG_PROJ_TYPE_CS_Geographic );
+	if( !Identifier.CmpNoCase("GEOCCS") )	return( SG_PROJ_TYPE_CS_Geocentric );
+
+	return( SG_PROJ_TYPE_CS_Undefined );
+}
+
+//---------------------------------------------------------
+CSG_String			SG_Get_Projection_Type_Identifier	(TSG_Projection_Type Type)
 {
 	switch( Type )
 	{
-	default:
-	case SG_PROJ_TYPE_CS_Undefined:		return( _TL("Undefined Coordinate System") );
-	case SG_PROJ_TYPE_CS_Projected:		return( _TL("Projected Coordinate System") );
+	case SG_PROJ_TYPE_CS_Projected :	return( "PROJCS"    );
+	case SG_PROJ_TYPE_CS_Geographic:	return( "GEOGCS"    );
+	case SG_PROJ_TYPE_CS_Geocentric:	return( "GEOCCS"    );
+	default                        :	return( "UNDEFINED" );
+	}
+}
+
+//---------------------------------------------------------
+CSG_String			SG_Get_Projection_Type_Name			(TSG_Projection_Type Type)
+{
+	switch( Type )
+	{
+	case SG_PROJ_TYPE_CS_Projected :	return( _TL("Projected Coordinate System" ) );
 	case SG_PROJ_TYPE_CS_Geographic:	return( _TL("Geographic Coordinate System") );
 	case SG_PROJ_TYPE_CS_Geocentric:	return( _TL("Geocentric Coordinate System") );
+	default                        :	return( _TL("Undefined Coordinate System" ) );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+const char	SG_Projection_Units[SG_PROJ_UNIT_Undefined + 1][3][32]	=
+{
+	{	"km"    , "Kilometers" , "Kilometer"					},
+	{	"m"    	, "Meters"	   , "Meter"						},
+	{	"dm"    , "Decimeters" , "Decimeter"					},
+	{	"cm"    , "Centimeters", "Centimeter"					},
+	{	"mm"    , "Millimeters", "Millimeter"					},
+	{	"kmi"   , "Miles"      , "International Nautical Mile"	},
+	{	"in"    , "Inches"     , "International Inch"			},
+	{	"ft"    , "Feet"       , "International Foot"			},
+	{	"yd"    , "Yards"      , "International Yard"			},
+	{	"mi"    , "Miles"      , "International Statute Mile"	},
+	{	"fath"  , "Fathoms"    , "International Fathom"			},
+	{	"ch"    , "Chains"     , "International Chain"			},
+	{	"link"  , "Links"      , "International Link"			},
+	{	"us-in" , "Inches"     , "U.S. Surveyor's Inch"			},
+	{	"us-ft" , "Feet"       , "U.S. Surveyor's Foot"			},
+	{	"us-yd" , "Yards"      , "U.S. Surveyor's Yard"			},
+	{	"us-ch" , "Chains"     , "U.S. Surveyor's Chain"		},
+	{	"us-mi" , "Miles"      , "U.S. Surveyor's Statute Mile"	},
+	{	"ind-yd", "Yards"      , "Indian Yard"					},
+	{	"ind-ft", "Feet"       , "Indian Foot"					},
+	{	"ind-ch", "Chains"     , "Indian Chain"					},
+	{	""      , ""           , ""								}
+};
+
+//---------------------------------------------------------
+// same as proj4.
+TSG_Projection_Unit	SG_Get_Projection_Unit				(const CSG_String &Identifier)
+{
+	for(int i=0; i<SG_PROJ_UNIT_Undefined; i++)
+	{
+		if( !Identifier.CmpNoCase(SG_Projection_Units[i][0])
+		||  !Identifier.CmpNoCase(SG_Projection_Units[i][2]) )
+		{
+			return( (TSG_Projection_Unit)i );
+		}
+	}
+
+	return( SG_PROJ_UNIT_Undefined );
+}
+
+//---------------------------------------------------------
+// same as proj4.
+CSG_String			SG_Get_Projection_Unit_Identifier	(TSG_Projection_Unit Unit)
+{
+	if(	Unit < 0 || Unit > SG_PROJ_UNIT_Undefined )
+		Unit	= SG_PROJ_UNIT_Undefined;
+
+	return( SG_Projection_Units[Unit][0] );
+}
+
+//---------------------------------------------------------
+CSG_String			SG_Get_Projection_Unit_Name			(TSG_Projection_Unit Unit, bool bSimple)
+{
+	if(	Unit < 0 || Unit > SG_PROJ_UNIT_Undefined )
+		Unit	= SG_PROJ_UNIT_Undefined;
+
+	return( SG_Projection_Units[Unit][bSimple ? 1 : 2] );
+}
+
+//---------------------------------------------------------
+double				SG_Get_Projection_Unit_To_Meter		(TSG_Projection_Unit Unit)
+{
+	switch( Unit )
+	{
+	case SG_PROJ_UNIT_Kilometer        :	return( 1000.0 );
+	case SG_PROJ_UNIT_Meter            :	return( 1.0 );
+	case SG_PROJ_UNIT_Decimeter        :	return( 0.1 );
+	case SG_PROJ_UNIT_Centimeter       :	return( 0.01 );
+	case SG_PROJ_UNIT_Millimeter       :	return( 0.001 );
+	case SG_PROJ_UNIT_Int_Nautical_Mile:	return( 1852.0 );
+	case SG_PROJ_UNIT_Int_Inch         :	return( 0.0254 );
+	case SG_PROJ_UNIT_Int_Foot         :	return( 0.3048 );
+	case SG_PROJ_UNIT_Int_Yard         :	return( 0.9144 );
+	case SG_PROJ_UNIT_Int_Statute_Mile :	return( 1609.344 );
+	case SG_PROJ_UNIT_Int_Fathom       :	return( 1.8288 );
+	case SG_PROJ_UNIT_Int_Chain        :	return( 20.1168 );
+	case SG_PROJ_UNIT_Int_Link         :	return( 0.201168 );
+	case SG_PROJ_UNIT_US_Inch          :	return( 1.0 / 39.37 );
+	case SG_PROJ_UNIT_US_Foot          :	return( 0.304800609601219 );
+	case SG_PROJ_UNIT_US_Yard          :	return( 0.914401828803658 );
+	case SG_PROJ_UNIT_US_Chain         :	return( 20.11684023368047 );
+	case SG_PROJ_UNIT_US_Statute_Mile  :	return( 1609.347218694437 );
+	case SG_PROJ_UNIT_Indian_Yard      :	return( 0.91439523 );
+	case SG_PROJ_UNIT_Indian_Foot      :	return( 0.30479841 );
+	case SG_PROJ_UNIT_Indian_Chain     :	return( 20.11669506 );
+	default                            :	return( 1.0 );
 	}
 }
 
@@ -127,6 +250,9 @@ bool CSG_Projection::Assign(const CSG_Projection &Projection)
 {
 	m_Name			= Projection.m_Name;
 	m_Type			= Projection.m_Type;
+	m_Unit			= Projection.m_Unit;
+	m_Unit_To_Meter	= Projection.m_Unit_To_Meter;
+	m_Unit_Name		= Projection.m_Unit_Name;
 	m_WKT			= Projection.m_WKT;
 	m_Proj4			= Projection.m_Proj4;
 	m_Authority		= Projection.m_Authority;
@@ -169,11 +295,13 @@ bool CSG_Projection::Create(const CSG_String &Projection, TSG_Projection_Format 
 bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format Format)
 {
 	int				i;
+	double			d;
 	CSG_String		s;
 	CSG_MetaData	m;
 
 	Destroy();
 
+	//-----------------------------------------------------
 	switch( Format )
 	{
 	default:
@@ -216,10 +344,28 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 
 	//-----------------------------------------------------
 	m_Name	= m.Get_Property("name");
-	m_Type	= !m.Get_Name().Cmp(SG_T("GEOCCS")) ? SG_PROJ_TYPE_CS_Geocentric
-			: !m.Get_Name().Cmp(SG_T("GEOGCS")) ? SG_PROJ_TYPE_CS_Geographic
-			: !m.Get_Name().Cmp(SG_T("PROJCS")) ? SG_PROJ_TYPE_CS_Projected
-			: SG_PROJ_TYPE_CS_Undefined;
+	m_Type	= SG_Get_Projection_Type(m.Get_Name());
+
+	if( m["UNIT"].is_Valid() )
+	{
+		if( m["UNIT"].Get_Property("name", s) )
+		{
+			if( (m_Unit = SG_Get_Projection_Unit(s)) != SG_PROJ_UNIT_Undefined )
+			{
+				m_Unit_Name		= SG_Get_Projection_Unit_Name    (m_Unit);
+				m_Unit_To_Meter	= SG_Get_Projection_Unit_To_Meter(m_Unit);
+			}
+			else if( !s.is_Empty() )
+			{
+				m_Unit_Name		= s;
+			}
+		}
+
+		if( m["UNIT"].Get_Content().asDouble(d) && d > 0.0 )
+		{
+			m_Unit_To_Meter	=  d;
+		}
+	}
 
 	return( true );
 }
@@ -229,6 +375,9 @@ void CSG_Projection::Destroy(void)
 {
 	m_Name			= _TL("undefined");
 	m_Type			= SG_PROJ_TYPE_CS_Undefined;
+	m_Unit			= SG_PROJ_UNIT_Undefined;
+	m_Unit_To_Meter	= 1.0;
+	m_Unit_Name		.Clear();
 	m_WKT			.Clear();
 	m_Proj4			.Clear();
 	m_Authority		.Clear();
@@ -320,9 +469,9 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 {
 	Projection.Del_Children();
 
-	Projection.Add_Child(SG_T("OGC_WKT"), m_WKT  );
-	Projection.Add_Child(SG_T("PROJ4")  , m_Proj4);
-	Projection.Add_Child(SG_T("EPSG")   , Get_EPSG() );
+	Projection.Add_Child("OGC_WKT", m_WKT      );
+	Projection.Add_Child("PROJ4"  , m_Proj4    );
+	Projection.Add_Child("EPSG"   , Get_EPSG() );
 
 	return( true );
 }
@@ -417,11 +566,11 @@ void CSG_Projections::_On_Construction(void)
 {
 	m_pProjections	= new CSG_Table;
 
-	m_pProjections->Add_Field(SG_T("srid")		, SG_DATATYPE_Int);		// PRJ_FIELD_SRID
-	m_pProjections->Add_Field(SG_T("auth_name")	, SG_DATATYPE_String);	// PRJ_FIELD_AUTH_NAME
-	m_pProjections->Add_Field(SG_T("auth_srid")	, SG_DATATYPE_Int);		// PRJ_FIELD_AUTH_SRID
-	m_pProjections->Add_Field(SG_T("srtext")	, SG_DATATYPE_String);	// PRJ_FIELD_SRTEXT
-	m_pProjections->Add_Field(SG_T("proj4text")	, SG_DATATYPE_String);	// PRJ_FIELD_PROJ4TEXT
+	m_pProjections->Add_Field("srid"     , SG_DATATYPE_Int   );	// PRJ_FIELD_SRID
+	m_pProjections->Add_Field("auth_name", SG_DATATYPE_String);	// PRJ_FIELD_AUTH_NAME
+	m_pProjections->Add_Field("auth_srid", SG_DATATYPE_Int   );	// PRJ_FIELD_AUTH_SRID
+	m_pProjections->Add_Field("srtext"   , SG_DATATYPE_String);	// PRJ_FIELD_SRTEXT
+	m_pProjections->Add_Field("proj4text", SG_DATATYPE_String);	// PRJ_FIELD_PROJ4TEXT
 
 	Reset_Dictionary();
 }
@@ -712,7 +861,7 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 	CSG_Strings	Content;
 
 	//-----------------------------------------------------
-	Content.Add(SG_T(""));
+	Content.Add("");
 
 	for(i=0, l=-1; l!=0 && i<(int)WKT.Length(); i++)
 	{
@@ -752,52 +901,53 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 	}
 
 	//-----------------------------------------------------
-	if( !Key.Cmp(SG_T("AUTHORITY")) && Content.Get_Count() == 2 )		// AUTHORITY  ["<name>", "<code>"]
+	if( !Key.Cmp("AUTHORITY" ) && Content.Get_Count() == 2 )	// AUTHORITY  ["<name>", "<code>"]
 	{
-		MetaData.Add_Property(SG_T("authority_name"), Content[0]);
-		MetaData.Add_Property(SG_T("authority_code"), Content[1]);
+		MetaData.Add_Property("authority_name", Content[0]);
+		MetaData.Add_Property("authority_code", Content[1]);
 
 		return( true );
 	}
 
 	CSG_MetaData	*pKey	= MetaData.Add_Child(Key);
 
-	if(	(!Key.Cmp(SG_T("GEOCCS"))		&& Content.Get_Count() >= 4)	// GEOCCS     ["<name>", <datum>, <prime meridian>, <linear unit> {,<axis>, <axis>, <axis>} {,<authority>}]
-	||	(!Key.Cmp(SG_T("GEOGCS"))		&& Content.Get_Count() >= 4)	// GEOGCS     ["<name>", <datum>, <prime meridian>, <angular unit> {,<twin axes>} {,<authority>}]
-	||	(!Key.Cmp(SG_T("PROJCS"))		&& Content.Get_Count() >= 3)	// PROJCS     ["<name>", <geographic cs>, <projection>, {<parameter>,}* <linear unit> {,<twin axes>}{,<authority>}]
-	||	(!Key.Cmp(SG_T("DATUM"))		&& Content.Get_Count() >= 2) )	// DATUM      ["<name>", <spheroid> {,<to wgs84>} {,<authority>}]
+	if(	(!Key.Cmp("GEOCCS"    ) && Content.Get_Count() >= 4)  	// GEOCCS     ["<name>", <datum>, <prime meridian>, <linear unit> {,<axis>, <axis>, <axis>} {,<authority>}]
+	||	(!Key.Cmp("GEOGCS"    ) && Content.Get_Count() >= 4)  	// GEOGCS     ["<name>", <datum>, <prime meridian>, <angular unit> {,<twin axes>} {,<authority>}]
+	||	(!Key.Cmp("PROJCS"    ) && Content.Get_Count() >= 3)  	// PROJCS     ["<name>", <geographic cs>, <projection>, {<parameter>,}* <linear unit> {,<twin axes>}{,<authority>}]
+	||	(!Key.Cmp("DATUM"     ) && Content.Get_Count() >= 2) )	// DATUM      ["<name>", <spheroid> {,<to wgs84>} {,<authority>}]
 	{
-		pKey->Add_Property(SG_T("name"), Content[0]);
+		pKey->Add_Property("name", Content[0]);
 	}
 
-	if(	(!Key.Cmp(SG_T("PRIMEM"))		&& Content.Get_Count() >= 2)	// PRIMEM     ["<name>", <longitude> {,<authority>}]
-	||	(!Key.Cmp(SG_T("UNIT"))			&& Content.Get_Count() >= 2)	// UNIT       ["<name>", <conversion factor> {,<authority>}]
-	||	(!Key.Cmp(SG_T("AXIS"))			&& Content.Get_Count() >= 2)	// AXIS       ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
-	||	(!Key.Cmp(SG_T("PARAMETER"))	&& Content.Get_Count() >= 2) )	// PARAMETER  ["<name>", <value>]
+	if(	(!Key.Cmp("PRIMEM"    ) && Content.Get_Count() >= 2)  	// PRIMEM     ["<name>", <longitude> {,<authority>}]
+	||	(!Key.Cmp("UNIT"      ) && Content.Get_Count() >= 2)  	// UNIT       ["<name>", <conversion factor> {,<authority>}]
+	||	(!Key.Cmp("AXIS"      ) && Content.Get_Count() >= 2)  	// AXIS       ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
+	||	(!Key.Cmp("PARAMETER" ) && Content.Get_Count() >= 2) )	// PARAMETER  ["<name>", <value>]
 	{
-		pKey->Add_Property(SG_T("name"), Content[0]);
+		pKey->Add_Property("name", Content[0]);
+
 		pKey->Set_Content(Content[1]);
 	}
 
-	if( (!Key.Cmp(SG_T("SPHEROID"))		&& Content.Get_Count() >= 3) )	// SPHEROID   ["<name>", <semi-major axis>, <inverse flattening> {,<authority>}]
+	if( (!Key.Cmp("SPHEROID"  ) && Content.Get_Count() >= 3) )	// SPHEROID   ["<name>", <semi-major axis>, <inverse flattening> {,<authority>}]
 	{
-		pKey->Add_Property(SG_T("name"), Content[0]);
-		pKey->Add_Child   (SG_T("a")   , Content[1]);
-		pKey->Add_Child   (SG_T("rf")  , Content[2]);
+		pKey->Add_Property("name", Content[0]);
+		pKey->Add_Child   ("a"   , Content[1]);
+		pKey->Add_Child   ("rf"  , Content[2]);
 	}
 
-	if( (!Key.Cmp(SG_T("TOWGS84"))		&& Content.Get_Count() >= 7) )	// TOWGS84    [<dx>, <dy>, <dz>, <ex>, <ey>, <ez>, <ppm>]
+	if( (!Key.Cmp("TOWGS84"   ) && Content.Get_Count() >= 7) )	// TOWGS84    [<dx>, <dy>, <dz>, <ex>, <ey>, <ez>, <ppm>]
 	{
-		pKey->Add_Child(SG_T("dx")     , Content[0]);
-		pKey->Add_Child(SG_T("dy")     , Content[1]);
-		pKey->Add_Child(SG_T("dz")     , Content[2]);
-		pKey->Add_Child(SG_T("ex")     , Content[3]);
-		pKey->Add_Child(SG_T("ey")     , Content[4]);
-		pKey->Add_Child(SG_T("ez")     , Content[5]);
-		pKey->Add_Child(SG_T("ppm")    , Content[6]);
+		pKey->Add_Child("dx"     , Content[0]);
+		pKey->Add_Child("dy"     , Content[1]);
+		pKey->Add_Child("dz"     , Content[2]);
+		pKey->Add_Child("ex"     , Content[3]);
+		pKey->Add_Child("ey"     , Content[4]);
+		pKey->Add_Child("ez"     , Content[5]);
+		pKey->Add_Child("ppm"    , Content[6]);
 	}
 
-	if( (!Key.Cmp(SG_T("PROJECTION"))	&& Content.Get_Count() >= 1) )	// PROJECTION ["<name>" {,<authority>}]
+	if( (!Key.Cmp("PROJECTION") && Content.Get_Count() >= 1) )	// PROJECTION ["<name>" {,<authority>}]
 	{
 		pKey->Set_Content(Content[0]);
 	}
@@ -851,9 +1001,9 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 	int			Authority_Code;
 	CSG_String	Authority_Name;
 
-	if(	m.Get_Property("authority_name", Authority_Name) && Authority_Name.CmpNoCase(SG_T("EPSG")) == 0
+	if(	m.Get_Property("authority_name", Authority_Name) && Authority_Name.CmpNoCase("EPSG") == 0
 	&&	m.Get_Property("authority_code", Authority_Code) && EPSG_to_Proj4(Proj4, Authority_Code) )
-	{	//	Proj4.Printf(SG_T("+init=epsg:%d"), Authority_Code);
+	{	//	Proj4.Printf("+init=epsg:%d", Authority_Code);
 		return( true );
 	}
 
@@ -863,7 +1013,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 	CSG_String	s;
 
 	//-----------------------------------------------------
-	if( !m.Get_Name().Cmp(SG_T("GEOCCS")) )
+	if( !m.Get_Name().Cmp("GEOCCS") )
 	{
 		return( false );
 	}
@@ -879,7 +1029,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER],
 	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
 	// ]
-	if( !m.Get_Name().Cmp(SG_T("GEOGCS")) )
+	if( !m.Get_Name().Cmp("GEOGCS") )
 	{
 		if(	!m["DATUM"].is_Valid()
 		||	!m["DATUM"]["SPHEROID"].is_Valid()
@@ -1267,43 +1417,14 @@ bool CSG_Projections::_Proj4_Get_Prime_Meridian(CSG_String &Value, const CSG_Str
 //---------------------------------------------------------
 bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4) const
 {
-	const char	unit[21][3][32]	=
-	{
-		{	"km"		,"1000.0"				, "Kilometer"						},
-		{	"m"			,"1.0"					, "Meter"							},
-		{	"dm"		,"0.1"					, "Decimeter"						},
-		{	"cm"		,"0.01"					, "Centimeter"						},
-		{	"mm"		,"0.001"				, "Millimeter"						},
-		{	"kmi"		,"1852.0"				, "International Nautical Mile"		},
-		{	"in"		,"0.0254"				, "International Inch"				},
-		{	"ft"		,"0.3048"				, "International Foot"				},
-		{	"yd"		,"0.9144"				, "International Yard"				},
-		{	"mi"		,"1609.344"				, "International Statute Mile"		},
-		{	"fath"		,"1.8288"				, "International Fathom"			},
-		{	"ch"		,"20.1168"				, "International Chain"				},
-		{	"link"		,"0.201168"				, "International Link"				},
-		{	"us-in"		,"1./39.37"				, "U.S. Surveyor's Inch"			},
-		{	"us-ft"		,"0.304800609601219"	, "U.S. Surveyor's Foot"			},
-		{	"us-yd"		,"0.914401828803658"	, "U.S. Surveyor's Yard"			},
-		{	"us-ch"		,"20.11684023368047"	, "U.S. Surveyor's Chain"			},
-		{	"us-mi"		,"1609.347218694437"	, "U.S. Surveyor's Statute Mile"	},
-		{	"ind-yd"	,"0.91439523"			, "Indian Yard"						},
-		{	"ind-ft"	,"0.30479841"			, "Indian Foot"						},
-		{	"ind-ch"	,"20.11669506"			, "Indian Chain"					}
-	};
-
 	//-----------------------------------------------------
-	if( _Proj4_Read_Parameter(Value, Proj4, "units") )
-	{
-		for(int i=0; i<21; i++)
-		{
-			if( !Value.CmpNoCase(unit[i][0]) )
-			{
-				Value.Printf(SG_T("UNIT[\"%s\",%s]"), SG_STR_MBTOSG(unit[i][2]), SG_STR_MBTOSG(unit[i][1]));
+	TSG_Projection_Unit	Unit	= _Proj4_Read_Parameter(Value, Proj4, "units") ? SG_Get_Projection_Unit(Value) : SG_PROJ_UNIT_Undefined;
 
-				return( true );
-			}
-		}
+	if( Unit != SG_PROJ_UNIT_Undefined )
+	{
+		Value	= "UNIT[\"" + SG_Get_Projection_Unit_Name(Unit) + "\"," + SG_Get_String(SG_Get_Projection_Unit_To_Meter(Unit), -16) + "]";
+
+		return( true );
 	}
 
 	//-----------------------------------------------------

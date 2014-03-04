@@ -491,6 +491,7 @@ public:
 	void						Set_Items				(const SG_Char *String);
 
 	const SG_Char *				Get_Item				(int Index)	const;
+	CSG_String					Get_Item_Data			(int Index)	const;
 
 	bool						Get_Data				(int        &Value)	const;
 	bool						Get_Data				(double     &Value)	const;

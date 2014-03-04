@@ -903,6 +903,30 @@ const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)	const
 }
 
 //---------------------------------------------------------
+CSG_String CSG_Parameter_Choice::Get_Item_Data(int Index)	const
+{
+	CSG_String	Value;
+
+	if( Index >= 0 && Index < m_Items.Get_Count() )
+	{
+		const SG_Char	*Item	= m_Items[Index].c_str();
+
+		if( *Item == SG_T('{') )
+		{
+			Item++;
+
+			do
+			{
+				Value	+= *(Item++);
+			}
+			while( *Item && *Item != SG_T('}') );
+		}
+	}
+
+	return( Value );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter_Choice::Get_Data(int        &Value)	const
 {
 	CSG_String	sValue;

@@ -617,24 +617,55 @@ TSG_Projection_Format;
 //---------------------------------------------------------
 typedef enum ESG_Projection_Type
 {
-	SG_PROJ_TYPE_CS_Undefined	= 0,
 	SG_PROJ_TYPE_CS_Projected,
 	SG_PROJ_TYPE_CS_Geographic,
-	SG_PROJ_TYPE_CS_Geocentric
+	SG_PROJ_TYPE_CS_Geocentric,
+	SG_PROJ_TYPE_CS_Undefined
 }
 TSG_Projection_Type;
 
 //---------------------------------------------------------
-const SG_Char	gSG_Projection_Type_Identifier[][32]	=
+typedef enum ESG_Projection_Unit
 {
-	SG_T("Undefined"),
-	SG_T("PROJCS"),
-	SG_T("GEOGCS"),
-	SG_T("GEOCCS")
-};
+	SG_PROJ_UNIT_Kilometer,
+	SG_PROJ_UNIT_Meter,
+	SG_PROJ_UNIT_Decimeter,
+	SG_PROJ_UNIT_Centimeter,
+	SG_PROJ_UNIT_Millimeter,
+	SG_PROJ_UNIT_Int_Nautical_Mile,
+	SG_PROJ_UNIT_Int_Inch,
+	SG_PROJ_UNIT_Int_Foot,
+	SG_PROJ_UNIT_Int_Yard,
+	SG_PROJ_UNIT_Int_Statute_Mile,
+	SG_PROJ_UNIT_Int_Fathom,
+	SG_PROJ_UNIT_Int_Chain,
+	SG_PROJ_UNIT_Int_Link,
+	SG_PROJ_UNIT_US_Inch,
+	SG_PROJ_UNIT_US_Foot,
+	SG_PROJ_UNIT_US_Yard,
+	SG_PROJ_UNIT_US_Chain,
+	SG_PROJ_UNIT_US_Statute_Mile,
+	SG_PROJ_UNIT_Indian_Yard,
+	SG_PROJ_UNIT_Indian_Foot,
+	SG_PROJ_UNIT_Indian_Chain,
+	SG_PROJ_UNIT_Undefined
+}
+TSG_Projection_Unit;
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CSG_String	SG_Get_Projection_Type_Name	(TSG_Projection_Type Type);
+SAGA_API_DLL_EXPORT TSG_Projection_Type	SG_Get_Projection_Type				(const CSG_String &Identifier);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Type_Identifier	(TSG_Projection_Type Type);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Type_Name			(TSG_Projection_Type Type);
+
+SAGA_API_DLL_EXPORT TSG_Projection_Unit	SG_Get_Projection_Unit				(const CSG_String &Identifier);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Unit_Identifier	(TSG_Projection_Unit Unit);
+SAGA_API_DLL_EXPORT CSG_String			SG_Get_Projection_Unit_Name			(TSG_Projection_Unit Unit, bool bSimple = false);
+SAGA_API_DLL_EXPORT double				SG_Get_Projection_Unit_To_Meter		(TSG_Projection_Unit Unit);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Projection
@@ -683,24 +714,38 @@ public:
 	CSG_String						Get_Description			(void)	const;
 
 	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type  );	}
-	CSG_String						Get_Type_Name			(void)	const	{	return( gSG_Projection_Type_Identifier[m_Type] );	}
-	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Name(m_Type) );		}
+	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Identifier(m_Type) );	}
+	CSG_String						Get_Type_Name			(void)	const	{	return( SG_Get_Projection_Type_Name      (m_Type) );	}
+
+	TSG_Projection_Unit				Get_Unit				(void)	const	{	return( m_Unit  );	}
+	CSG_String						Get_Unit_Identifier		(void)	const	{	return( SG_Get_Projection_Unit_Identifier(m_Unit) );	}
+	CSG_String						Get_Unit_Name			(void)	const	{	return( m_Unit_Name     );	}
+	double							Get_Unit_To_Meter		(void)	const	{	return( m_Unit_To_Meter );	}
 
 
 private:
 
 	int								m_Authority_ID;
 
+	double							m_Unit_To_Meter;
+
 	TSG_Projection_Type				m_Type;
 
-	CSG_String						m_Name, m_WKT, m_Proj4, m_Authority;
+	TSG_Projection_Unit				m_Unit;
+
+	CSG_String						m_Name, m_WKT, m_Proj4, m_Authority, m_Unit_Name;
 
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 /** CSG_Projections is a projections dictionary and translator
-  * for EPSG codes, OGc Well-Known-Text, and Proj.4.
+  * for EPSG codes, OGC Well-Known-Text, and Proj.4.
 */
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Projections
