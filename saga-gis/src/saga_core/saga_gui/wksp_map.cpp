@@ -431,6 +431,42 @@ void CWKSP_Map::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
+		NULL	, "NODE_NORTH"		, _TL("North Arrow"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "NORTH_SHOW"		, _TL("Show"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "NORTH_ANGLE"		, _TL("Direction"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.0, -180.0, true, 360.0, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "NORTH_SIZE"		, _TL("Size"),
+		_TL("Size given as percentage of map size"),
+		PARAMETER_TYPE_Double, 8, 1, true, 100, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "NORTH_OFFSET_X"	, _TL("Horizontal Offset"),
+		_TL("Offset given as percentage of map size"),
+		PARAMETER_TYPE_Double, 10, 0, true, 100, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "NORTH_OFFSET_Y"	, _TL("Vertical Offset"),
+		_TL("Offset given as percentage of map size"),
+		PARAMETER_TYPE_Double, 90, 0, true, 100, true
+	);
+
+	//-----------------------------------------------------
+	pNode_0	= m_Parameters.Add_Node(
 		NULL	, "NODE_SCALE"		, _TL("Scale Bar"),
 		_TL("")
 	);
@@ -441,31 +477,26 @@ void CWKSP_Map::On_Create_Parameters(void)
 		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameter("SCALE_BAR")->asBool()
 	);
 
-	pNode_1	= m_Parameters.Add_Node(
-		pNode_0	, "NODE_SCALE_SIZE"	, _TL("Size and Position"),
-		_TL("")
-	);
-
 	m_Parameters.Add_Value(
-		pNode_1	, "SCALE_WIDTH"		, _TL("Width"),
+		pNode_0	, "SCALE_WIDTH"		, _TL("Width"),
 		_TL("Width given as percentage of map size"),
 		PARAMETER_TYPE_Double, 40, 1, true, 100, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "SCALE_HEIGHT"	, _TL("Height"),
+		pNode_0	, "SCALE_HEIGHT"	, _TL("Height"),
 		_TL("Height given as percentage of map size"),
 		PARAMETER_TYPE_Double, 4, 0.1, true, 100, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "SCALE_OFFSET_X"	, _TL("Horizontal Offset"),
+		pNode_0	, "SCALE_OFFSET_X"	, _TL("Horizontal Offset"),
 		_TL("Offset given as percentage of map size"),
 		PARAMETER_TYPE_Double, 5, 0, true, 100, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "SCALE_OFFSET_Y"	, _TL("Vertical Offset"),
+		pNode_0	, "SCALE_OFFSET_Y"	, _TL("Vertical Offset"),
 		_TL("Offset given as percentage of map size"),
 		PARAMETER_TYPE_Double, 7.5, 0, true, 100, true
 	);
@@ -880,6 +911,25 @@ bool CWKSP_Map::Set_Extent_Forward(bool bCheck_Only)
 }
 
 //---------------------------------------------------------
+bool CWKSP_Map::is_North_Arrow(void)
+{
+	return( m_Parameters("SCALE_SHOW")->asBool() );
+}
+
+void CWKSP_Map::Set_North_Arrow(bool bOn)
+{
+	if( m_Parameters("NORTH_SHOW")->asBool() != bOn )
+	{
+		m_Parameters("NORTH_SHOW")->Set_Value(bOn ? 1 : 0);
+
+		if( m_pView )
+		{
+			m_pView->Refresh_Map();
+		}
+	}
+}
+
+//---------------------------------------------------------
 bool CWKSP_Map::is_ScaleBar(void)
 {
 	return( m_Parameters("SCALE_SHOW")->asBool() );
@@ -947,7 +997,7 @@ void CWKSP_Map::Set_Projection(void)
 		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
 
 		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , m_Projection.Get_Proj4())
-		&&	DLG_Parameters(pModule->Get_Parameters())
+		&&	pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters())
 		&&  pModule->Execute() )
 		{
 			m_Projection.Assign(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
@@ -1567,19 +1617,8 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 	}
 
 	//-----------------------------------------------------
-	if( m_Parameters("SCALE_SHOW")->asBool() )
-	{
-		double	dWidth	= 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
-
-		wxRect	r(
-			(int)(0.5 + rClient.GetWidth () * 0.01 * m_Parameters("SCALE_OFFSET_X")->asDouble()), rClient.GetHeight() -
-			(int)(0.5 + rClient.GetHeight() * 0.01 * m_Parameters("SCALE_OFFSET_Y")->asDouble()),
-			(int)(0.5 + rClient.GetWidth () * dWidth),
-			(int)(0.5 + rClient.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
-		);
-
-		Draw_Scale(dc_Map.dc, r, 0.0, dWidth * rWorld.Get_XRange(), SCALE_HORIZONTAL, SCALE_TICK_TOP, SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING);
-	}
+	Draw_ScaleBar   (dc_Map.dc, rWorld, rClient);
+	Draw_North_Arrow(dc_Map.dc, rWorld, rClient);
 
 	//-----------------------------------------------------
 	dc_Map.Draw(dc);
@@ -1666,6 +1705,92 @@ bool CWKSP_Map::Get_Legend_Size(wxSize &Size, double Zoom_Map, double Zoom)
 	wxMemoryDC	dc(bmp);
 
 	return( Draw_Legend(dc, Zoom_Map, Zoom, wxPoint(0, 0), &Size) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::Draw_North_Arrow(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rClient)
+{
+	if( !m_Parameters("NORTH_SHOW")->asBool() )
+	{
+		return( true );
+	}
+
+	const double	Arrow[3][2]	= { { 0.0, 1.0 }, { 0.0, 0.0 }, { 0.5, -1.0 } };
+
+	double	cos_a	= cos(-m_Parameters("NORTH_ANGLE")->asDouble() * M_DEG_TO_RAD);
+	double	sin_a	= sin(-m_Parameters("NORTH_ANGLE")->asDouble() * M_DEG_TO_RAD);
+	double	scale	= m_Parameters("NORTH_SIZE"    )->asDouble() * 0.01 * rClient.GetHeight();
+
+	int		xOff	= (int)(0.5 +                       m_Parameters("NORTH_OFFSET_X")->asDouble() * 0.01 * rClient.GetWidth ());
+	int		yOff	= (int)(0.5 + rClient.GetHeight() - m_Parameters("NORTH_OFFSET_Y")->asDouble() * 0.01 * rClient.GetHeight());
+
+	for(int side=0; side<=1; side++)
+	{
+		wxPoint	Points[3];
+
+		for(int i=0; i<3; i++)
+		{
+			double	x	= scale * Arrow[i][0] * (side ? 1 : -1);
+			double	y	= scale * Arrow[i][1];
+
+			Points[i].x	= xOff + (int)(0.5 + cos_a * x - sin_a * y);
+			Points[i].y	= yOff - (int)(0.5 + sin_a * x + cos_a * y);
+		}
+
+		if( side == 0 )
+		{
+		//	dc.SetPen  (*wxWHITE);
+			dc.SetBrush(*wxBLACK);
+		}
+		else
+		{
+			dc.SetPen  (*wxBLACK);
+			dc.SetBrush(*wxWHITE);
+		}
+
+		dc.DrawPolygon(3, Points);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::Draw_ScaleBar(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rClient)
+{
+	if( !m_Parameters("SCALE_SHOW")->asBool() )
+	{
+		return( true );
+	}
+
+	double	dWidth	= 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
+
+	wxRect	r(
+		(int)(0.5 + rClient.GetWidth () * 0.01 * m_Parameters("SCALE_OFFSET_X")->asDouble()), rClient.GetHeight() -
+		(int)(0.5 + rClient.GetHeight() * 0.01 * m_Parameters("SCALE_OFFSET_Y")->asDouble()),
+		(int)(0.5 + rClient.GetWidth () * dWidth),
+		(int)(0.5 + rClient.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
+	);
+
+	dWidth	*= rWorld.Get_XRange();
+
+	CSG_String	Unit;
+
+	if( m_Projection.is_Okay() )
+	{
+		Unit	= SG_Get_Projection_Unit_Name(m_Projection.Get_Unit(), true);
+			
+		if( Unit.is_Empty() )	Unit	= m_Projection.Get_Unit_Name();
+
+		if( m_Projection.Get_Unit() == SG_PROJ_UNIT_Meter && dWidth > 10000.0 )
+		{
+			Unit	 = SG_Get_Projection_Unit_Name(SG_PROJ_UNIT_Kilometer, true);
+			dWidth	/= 1000.0;
+		}
+	}
+
+	Draw_Scale(dc, r, 0.0, dWidth, SCALE_HORIZONTAL, SCALE_TICK_TOP, SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING, Unit.c_str());
+
+	return( true );
 }
 
 

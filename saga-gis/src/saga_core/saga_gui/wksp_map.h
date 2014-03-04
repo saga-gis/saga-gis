@@ -142,6 +142,9 @@ public:
 	bool						Set_Extent_Back			(bool bCheck_Only = false);
 	bool						Set_Extent_Forward		(bool bCheck_Only = false);
 
+	bool						is_North_Arrow			(void);
+	void						Set_North_Arrow			(bool bOn);
+
 	bool						is_ScaleBar				(void);
 	void						Set_ScaleBar			(bool bOn);
 
@@ -183,6 +186,8 @@ public:
 	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
 	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width);
 	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL);
+	bool						Draw_North_Arrow		(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rClient);
+	bool						Draw_ScaleBar			(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rClient);
 
 	const wxBitmap &			Get_Thumbnail			(int dx, int dy);
 

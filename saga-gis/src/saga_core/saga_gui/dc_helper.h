@@ -166,6 +166,8 @@ void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxStr
 #define SCALE_STYLE_DESCENDENT	0x02
 #define SCALE_STYLE_LINECONN	0x04
 #define SCALE_STYLE_GLOOMING	0x08
+#define SCALE_STYLE_UNIT_ABOVE	0x10
+#define SCALE_STYLE_UNIT_BELOW	0x20
 
 //---------------------------------------------------------
 void			Draw_Scale			(wxDC &dc, const wxRect &r, double min_Value, double max_Value, int Orientation = SCALE_HORIZONTAL, int Tick = SCALE_TICK_NONE, int Style = SCALE_STYLE_DEFAULT, const wxString &Unit = "");
