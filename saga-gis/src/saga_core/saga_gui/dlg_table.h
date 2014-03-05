@@ -90,6 +90,16 @@ public:
 	CDLG_Table(class CSG_Table *pTable, wxString Caption);
 	virtual ~CDLG_Table(void);
 
+
+protected:
+
+	class CSG_Table				*m_pTable, *m_pTable_Orig;
+
+	class CVIEW_Table_Control	*m_pControl;
+
+
+	void						On_Key			(wxKeyEvent     &event);
+
 	void						On_Load			(wxCommandEvent &event);
 	void						On_Save			(wxCommandEvent &event);
 
@@ -98,14 +108,6 @@ public:
 	void						On_Delete		(wxCommandEvent &event);
 	void						On_Delete_All	(wxCommandEvent &event);
 	void						On_Colors		(wxCommandEvent &event);
-
-
-protected:
-
-	class CSG_Table				*m_pTable, *m_pTable_Orig;
-
-	class CVIEW_Table_Control	*m_pControl;
-
 
 	virtual void				Set_Position	(wxRect r);
 
