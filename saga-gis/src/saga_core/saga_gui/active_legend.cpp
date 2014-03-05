@@ -208,7 +208,7 @@ void CACTIVE_Legend::On_Copy(wxCommandEvent &event)
 	
 	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s);
 
-	BMP.Create(s.GetWidth() + p.x, s.GetHeight(), + p.y);
+	BMP.Create(s.GetWidth() + p.x, s.GetHeight() + p.y);
 	dc.SelectObject(BMP);
 	dc.SetBackground(*wxWHITE_BRUSH);
 	dc.Clear();
