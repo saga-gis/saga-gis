@@ -1008,11 +1008,14 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 
 			if( iSize < 0 || iSize >= Get_Shapes()->Get_Field_Count() )
 			{
-				iSize	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ? (int)(0.5 + dSize) : dc.dc.GetFont().GetPointSize();
+				int	Size	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ? (int)(0.5 + dSize) : dc.dc.GetFont().GetPointSize();
 
-				for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+				if( Size > 0 )
 				{
-					_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), iSize);
+					for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+					{
+						_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
+					}
 				}
 			}
 			else if( iSize >= 0 )

@@ -538,6 +538,8 @@ void CWKSP_Layer::_Set_Projection(void)
 		&&  pModule->Execute() )
 		{
 			Get_Object()->Get_Projection().Assign(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+
+			DataObject_Changed();
 		}
 
 		pModule->Get_Parameters()->Assign_Values(&P);

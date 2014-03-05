@@ -94,6 +94,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_3D_SHOW						, CVIEW_Map::On_Map_3D_Show)
 	EVT_MENU			(ID_CMD_MAP_LAYOUT_SHOW					, CVIEW_Map::On_Map_Layout_Show)
 	EVT_MENU			(ID_CMD_MAP_SCALEBAR					, CVIEW_Map::On_Map_ScaleBar)
+	EVT_MENU			(ID_CMD_MAP_NORTH_ARROW					, CVIEW_Map::On_Map_North_Arrow)
 	EVT_MENU			(ID_CMD_MAP_GRATICULE_ADD				, CVIEW_Map::On_Map_Graticule)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE					, CVIEW_Map::On_Map_Save_Image)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE		, CVIEW_Map::On_Map_Save_Image_On_Change)
@@ -165,6 +166,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_LAYOUT_SHOW);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SCALEBAR);
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_NORTH_ARROW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_GRATICULE_ADD);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
@@ -210,6 +212,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_3D_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_LAYOUT_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_SCALEBAR);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_NORTH_ARROW);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Map"));
 
@@ -382,6 +385,10 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		event.Check(m_pMap->is_ScaleBar());
 		break;
 
+	case ID_CMD_MAP_NORTH_ARROW:
+		event.Check(m_pMap->is_North_Arrow());
+		break;
+
 	case ID_CMD_MAP_SYNCHRONIZE:
 		event.Enable(m_pMap->Get_Manager()->Get_Count() > 1);
 		event.Check(m_pMap->is_Synchronising());
@@ -517,6 +524,12 @@ void CVIEW_Map::On_Map_Zoom_Extent(wxCommandEvent &event)
 void CVIEW_Map::On_Map_ScaleBar(wxCommandEvent &event)
 {
 	m_pMap->Set_ScaleBar(!m_pMap->is_ScaleBar());
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_North_Arrow(wxCommandEvent &event)
+{
+	m_pMap->Set_North_Arrow(!m_pMap->is_North_Arrow());
 }
 
 //---------------------------------------------------------

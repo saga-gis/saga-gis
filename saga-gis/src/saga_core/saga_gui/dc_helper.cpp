@@ -372,97 +372,87 @@ void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orient
 	}
 
 	//-----------------------------------------------------
-	int			dTick, Decimals, zDC, yDC;
-	double		z, dz, zToDC;
-	wxString	s;
-	wxFont		Font, oldFont(dc.GetFont());
+	wxPen	oldPen  (dc.GetPen  ());
+	wxBrush	oldBrush(dc.GetBrush());
+	wxFont	oldFont (dc.GetFont ());
+
+	dc.SetFont(wxFont(
+		(int)((Tick == SCALE_TICK_NONE ? 0.60 : 0.45) * (double)Height),
+		wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL
+	));
 
 	//-----------------------------------------------------
-	dTick		= (int)((Tick == SCALE_TICK_NONE ? 1.00 : 0.30) * (double)Height);
-	yDC			= (int)((Tick == SCALE_TICK_NONE ? 0.60 : 0.45) * (double)Height);
+	double	zToDC		= (double)Width / (zMax - zMin);
+	double	dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
+	int		Decimals	= dz >= 1.0 ? 0 : (int)floor(-log10(dz));
 
-	Font.Create(yDC, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-	dc.SetFont(Font);
+	int		h	= dc.GetTextExtent(wxString::Format("%.*f", Decimals, zMax)).GetWidth();
+
+	while( zToDC * dz < h + TEXTSPACE )	{	dz	*= 2;	}
 
 	//-----------------------------------------------------
-	zToDC		= (double)Width / (zMax - zMin);
+	int		Align, x[2], y[2];	h	= 0;
 
-	dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
-	Decimals	= dz >= 1.0 ? 0 : (int)floor(-log10(dz));
-
-	s.Printf(wxT("%.*f"), Decimals, zMax);
-	dc.GetTextExtent(s, &zDC, &yDC);
-	while( zToDC * dz < zDC + TEXTSPACE )
+	switch( Tick )
 	{
-		dz	*= 2;
+	default               :	Align = TEXTALIGN_TOPLEFT     ;	break;
+	case SCALE_TICK_TOP   :	Align = TEXTALIGN_TOPCENTER   ;	break;
+	case SCALE_TICK_BOTTOM:	Align = TEXTALIGN_BOTTOMCENTER;	break;
+	}
+
+	if( Orientation != SCALE_VERTICAL )
+	{
+		x[0]	= -1;	x[1]	= (int)((Tick == SCALE_TICK_NONE ? 1.00 : 0.30) * (double)Height);
+		y[0]	= r.GetTop () + (Tick != SCALE_TICK_BOTTOM ? 0    : Height);
+		y[1]	= r.GetTop () + (Tick != SCALE_TICK_BOTTOM ? x[1] : Height - x[1]);
+	}
+	else // if( Orientation == SCALE_VERTICAL )
+	{
+		y[0]	= -1;	y[1]	= (int)((Tick == SCALE_TICK_NONE ? 1.00 : 0.30) * (double)Height);
+		x[0]	= r.GetLeft() + (Tick != SCALE_TICK_BOTTOM ? 0    : Height);
+		x[1]	= r.GetLeft() + (Tick != SCALE_TICK_BOTTOM ? y[1] : Height - y[1]);
 	}
 
 	//-----------------------------------------------------
-	z			= dz * floor(zMin / dz);
-
-	if( Tick != SCALE_TICK_NONE && z < zMin )
+	for(double z=dz*floor(zMin/dz); z<=zMax; z+=dz)
 	{
-		z	+= dz;
-	}
-
-	if( z == z + dz )
-	{
-		return;
-	}
-
-	//-----------------------------------------------------
-	for(; z<=zMax; z+=dz)
-	{
-		s.Printf(wxT("%.*f"), Decimals, z);
-
-		zDC	= !(Style & SCALE_STYLE_DESCENDENT) ? (int)(zToDC * (z - zMin)) : Width - 1 - (int)(zToDC * (z - zMin));
-
-		if( Orientation != SCALE_VERTICAL )
+		if( Tick == SCALE_TICK_NONE || z >= zMin )
 		{
-			int	x	= r.GetLeft() + zDC;
-			int	y	= r.GetTop ();
+			int	zDC	= Style & SCALE_STYLE_DESCENDENT
+				? Width - 1 - (int)(zToDC * (z - zMin))
+				:             (int)(zToDC * (z - zMin));
 
-			switch( Tick )
+			if( Orientation != SCALE_VERTICAL )
 			{
-			default:
-				dc.DrawLine(x, y, x, y + dTick);
-				Draw_Text(dc, TEXTALIGN_CENTERLEFT  , x + 2, y + Height / 2, s);
-				break;
+				int	xLast	= x[0];	x[0] = x[1] = r.GetLeft() + zDC;
 
-			case SCALE_TICK_TOP:
-				dc.DrawLine(x, y, x, y + dTick);
-				Draw_Text(dc, TEXTALIGN_TOPCENTER   , x, y + dTick, s);
-				break;
+				if( Style & SCALE_STYLE_BLACKWHITE && xLast >= 0 )
+				{
+					dc.SetBrush(h++ % 2 ? *wxWHITE : *wxBLACK);
 
-			case SCALE_TICK_BOTTOM:
-				dc.DrawLine(x, y + Height, x, y + Height - dTick);
-				Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, x, y + Height - dTick, s);
-				break;
+					dc.DrawRectangle(xLast, y[0], x[1] - xLast, y[1] - y[0]);
+				}
 			}
-		}
-
-		else // if( Orientation == SCALE_VERTICAL )
-		{
-			int	x	= r.GetLeft();
-			int	y	= r.GetTop () + zDC;
-
-			switch( Tick )
+			else // if( Orientation == SCALE_VERTICAL )
 			{
-			default:
-				dc.DrawLine(x, y, x + dTick, y);
-				Draw_Text(dc, TEXTALIGN_CENTERLEFT  , x + Height / 2, y - 2, 90.0, s);
-				break;
+				int	yLast	= y[0]; y[0] = y[1] = r.GetTop () + zDC;
 
-			case SCALE_TICK_TOP:
-				dc.DrawLine(x, y, x + dTick, y);
-				Draw_Text(dc, TEXTALIGN_TOPCENTER   , x + dTick, y, 90.0, s);
-				break;
+				if( Style & SCALE_STYLE_BLACKWHITE && yLast >= 0 )
+				{
+					dc.SetBrush(h++ % 2 ? *wxWHITE : *wxBLACK);
 
-			case SCALE_TICK_BOTTOM:
-				dc.DrawLine(x + Height, y, x + Height - dTick, y);
-				Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, x + Height - dTick, y, 90.0, s);
-				break;
+					dc.DrawRectangle(x[0], yLast, x[1] - x[0], y[1] - yLast);
+				}
 			}
+
+			if( !(Style & SCALE_STYLE_BLACKWHITE) )
+			{
+				dc.DrawLine(x[0], y[0], x[1], y[1]);
+			}
+
+			Draw_Text(dc, Align, x[1], y[1], Orientation != SCALE_VERTICAL ? 0 : 90,
+				wxString::Format("%.*f", Decimals, z)
+			);
 		}
 	}
 
@@ -471,7 +461,7 @@ void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orient
 	{
 		if( Style & SCALE_STYLE_LINECONN )
 		{
-			dc.DrawLine(r.GetLeft(), r.GetTop(), r.GetLeft() + zDC, r.GetTop());
+			dc.DrawLine(r.GetLeft(), y[0], x[1], y[0]);
 		}
 
 		if( !Unit.IsEmpty() )
@@ -490,7 +480,7 @@ void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orient
 	{
 		if( Style & SCALE_STYLE_LINECONN )
 		{
-			dc.DrawLine(r.GetLeft(), r.GetTop(), r.GetLeft(), r.GetTop() + zDC);
+			dc.DrawLine(x[0], r.GetTop(), x[0], y[1]);
 		}
 
 		if( !Unit.IsEmpty() )
@@ -507,7 +497,9 @@ void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orient
 	}
 
 	//-----------------------------------------------------
-	dc.SetFont(oldFont);
+	dc.SetPen  (oldPen  );
+	dc.SetBrush(oldBrush);
+	dc.SetFont (oldFont );
 }
 
 //---------------------------------------------------------
