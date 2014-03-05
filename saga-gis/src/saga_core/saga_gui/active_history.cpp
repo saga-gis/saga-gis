@@ -86,6 +86,7 @@ enum
 {
 	IMG_ROOT	= 0,
 	IMG_NODE,
+	IMG_TOOL,
 	IMG_ENTRY,
 	IMG_GRID,
 	IMG_TABLE,
@@ -124,8 +125,9 @@ CACTIVE_History::CACTIVE_History(wxWindow *pParent)
 	: wxTreeCtrl(pParent, ID_WND_ACTIVE_HISTORY , wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DATA_MANAGER);		// ROOT
+	IMG_ADD_TO_TREECTRL(ID_IMG_NB_ACTIVE_HISTORY);		// ROOT
 	IMG_ADD_TO_TREECTRL(ID_IMG_TB_MAP_ZOOM_NEXT);		// NODE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE);			// TOOL
 	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO);				// ENTRY
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID);				// GRID
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TABLE);				// TABLE
@@ -147,7 +149,7 @@ CACTIVE_History::CACTIVE_History(wxWindow *pParent)
 //---------------------------------------------------------
 void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
 {
-	wxMenu	Menu(_TL("Legend"));
+	wxMenu	Menu(_TL("History"));
 
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_CLEAR);
 
@@ -174,6 +176,7 @@ void CACTIVE_History::On_Clear(wxCommandEvent &event)
 	if( pObject && DLG_Get_Number(Depth, _TL("Delete History Entries"), _TL("Depth")) )
 	{
 		pObject->Get_History().Del_Children(Depth);
+		pObject->Set_Modified(true);
 
 		Set_Item(pItem);
 	}
@@ -260,7 +263,7 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 	}
 
 	//-----------------------------------------------------
-	int					i;
+	int					i, n;
 	TSG_Parameter_Type	Type;
 	CSG_String			Name;
 	CSG_MetaData		*pEntry;
@@ -275,18 +278,15 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 
 			if( pEntry->Get_Children_Count() > 0 )
 			{
-				_Add_History(AppendItem(Parent, wxString::Format(wxT("%s"), pEntry->Get_Name().c_str()), IMG_NODE), *pEntry);
+				_Add_History(AppendItem(Parent, wxString::Format("%s", pEntry->Get_Name().c_str()), IMG_NODE), *pEntry);
+			}
+			else if( !pEntry->Get_Name().Cmp(SG_T("FILE")) )
+			{
+				AppendItem(Parent, wxString::Format("%s", pEntry->Get_Content().c_str()), IMG_FILE);
 			}
 			else
 			{
-				if( !pEntry->Get_Name().Cmp(SG_T("FILE")) )
-				{
-					AppendItem(Parent, wxString::Format(wxT("%s"), pEntry->Get_Content().c_str()), IMG_FILE);
-				}
-				else
-				{
-					AppendItem(Parent, wxString::Format(wxT("[%s] %s"), pEntry->Get_Name().c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY);
-				}
+				AppendItem(Parent, wxString::Format("[%s] %s", pEntry->Get_Name().c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY);
 			}
 		}
 	}
@@ -294,23 +294,19 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 	//-----------------------------------------------------
 	else
 	{
-		Node	= AppendItem(Parent, _TL("Tool"), IMG_NODE);
-
-		AppendItem(Node, pEntry->Get_Content().c_str(), IMG_ENTRY);
-
-		Expand(Node);
+		Node	= AppendItem(Parent, pEntry->Get_Content().c_str(), IMG_TOOL);
 
 		//-------------------------------------------------
-		Node	= AppendItem(Parent, _TL("Options"), IMG_NODE);
-
-		for(i=0; i<History.Get_Children_Count(); i++)
+		for(i=0, n=0; i<History.Get_Children_Count(); i++)	// Options
 		{
 			pEntry	= History.Get_Child(i);
-			Name	= pEntry->Get_Property(SG_T("name"));
-			Type	= SG_Parameter_Type_Get_Type(pEntry->Get_Property(SG_T("type")));
+			Name	= pEntry->Get_Property("name");
+			Type	= SG_Parameter_Type_Get_Type(pEntry->Get_Property("type"));
 
-			if( !pEntry->Get_Name().Cmp(SG_T("OPTION")) )
+			if( !pEntry->Get_Name().Cmp("OPTION") )
 			{
+				n++;
+
 				switch( Type )
 				{
 				case PARAMETER_TYPE_Bool:
@@ -324,7 +320,7 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 				case PARAMETER_TYPE_String:
 				case PARAMETER_TYPE_Text:
 				case PARAMETER_TYPE_FilePath:
-					AppendItem(Node, wxString::Format(wxT("%s [%s: %s]"),
+					AppendItem(Node, wxString::Format("%s [%s: %s]",
 						Name.c_str(), SG_Parameter_Type_Get_Name(Type).c_str(),
 						pEntry->Get_Content().c_str()),
 						IMG_ENTRY
@@ -332,6 +328,14 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 					break;
 
 				case PARAMETER_TYPE_Grid_System:
+					if( pEntry->Get_Children_Count() == 0 )
+					{
+						AppendItem(Node, wxString::Format("%s [%s: %s]",
+							Name.c_str(), SG_Parameter_Type_Get_Name(Type).c_str(),
+							pEntry->Get_Content().c_str()),
+							IMG_ENTRY
+						);
+					}
 					break;
 
 				case PARAMETER_TYPE_FixedTable:
@@ -344,42 +348,36 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 			}
 		}
 
-		if( GetChildrenCount(Node, false) == 0 )
+		if( n == 0 )
 		{
 			AppendItem(Node, _TL("no options"), IMG_ENTRY);
 		}
 
-		Expand(Node);
-
 		//-------------------------------------------------
-		Node	= AppendItem(Parent, _TL("Input Data"), IMG_NODE);
-
-		for(i=0; i<History.Get_Children_Count(); i++)
+		for(i=0; i<History.Get_Children_Count(); i++)	// Input Data
 		{
 			pEntry	= History.Get_Child(i);
-			Name	= pEntry->Get_Property(SG_T("name"));
-			Type	= SG_Parameter_Type_Get_Type(pEntry->Get_Property(SG_T("type")));
+			Name	= pEntry->Get_Property("name");
+			Type	= SG_Parameter_Type_Get_Type(pEntry->Get_Property("type"));
 
-			if( !pEntry->Get_Name().Cmp(SG_T("DATA")) )
+			if( !pEntry->Get_Name().Cmp("DATA") )
 			{
-				_Add_History(AppendItem(Node, wxString::Format(wxT("%s"), Name.c_str()), _Get_Image(Type)), *pEntry);
+				_Add_History(AppendItem(Node, wxString::Format("%s", Name.c_str()), _Get_Image(Type)), *pEntry);
 			}
-			else if( !pEntry->Get_Name().Cmp(SG_T("DATA_LIST")) )
+			else if( !pEntry->Get_Name().Cmp("DATA_LIST") )
 			{
-				wxTreeItemId	List	= AppendItem(Node, wxString::Format(wxT("%s %s"), Name.c_str(), _TL("List")), _Get_Image(Type));
-
-				for(int j=0; j<pEntry->Get_Children_Count(); j++)
+				if( pEntry->Get_Children_Count() > 0 )
 				{
-					_Add_History(AppendItem(List, wxString::Format(wxT("%d. %s"), j + 1, _TL("Item")), _Get_Image(Type)), *pEntry->Get_Child(j));
+					wxTreeItemId	List	= AppendItem(Node, wxString::Format("%s %s", Name.c_str(), _TL("List")), _Get_Image(Type));
+
+					for(int j=0; j<pEntry->Get_Children_Count(); j++)
+					{
+						_Add_History(List, *pEntry->Get_Child(j));
+					}
+
+					Expand(List);
 				}
-
-				Expand(List);
 			}
-		}
-
-		if( GetChildrenCount(Node, false) == 0 )
-		{
-			AppendItem(Node, _TL("no input data"), IMG_ENTRY);
 		}
 
 		Expand(Node);
