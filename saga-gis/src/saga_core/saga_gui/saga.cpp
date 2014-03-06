@@ -218,7 +218,12 @@ bool CSAGA::OnInit(void)
 	//-----------------------------------------------------
 	if( !CONFIG_Read("/MODULES", "CRS_FILE_DIC", File) || !wxFileExists(File) )
 	{
+#if defined(_SAGA_LINUX)
+		File	= wxFileName(SHARE_PATH, "saga_prj", "dic").GetFullPath();
+#endif
+#if defined(_SAGA_MSW)
 		File	= wxFileName(Get_App_Path(), "saga_prj", "dic").GetFullPath();
+#endif
 	}
 
 	SG_Get_Projections().Load_Dictionary(&File);
@@ -226,7 +231,12 @@ bool CSAGA::OnInit(void)
 	//-----------------------------------------------------
 	if( !CONFIG_Read("/MODULES", "CRS_FILE_SRS", File) || !wxFileExists(File) )
 	{
+#if defined(_SAGA_LINUX)
+		File	= wxFileName(SHARE_PATH, "saga_prj", "srs").GetFullPath();
+#endif
+#if defined(_SAGA_MSW)
 		File	= wxFileName(Get_App_Path(), "saga_prj", "srs").GetFullPath();
+#endif
 	}
 
 	SG_Get_Projections().Load_DB(&File);
