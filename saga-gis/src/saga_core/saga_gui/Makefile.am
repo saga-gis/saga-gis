@@ -226,8 +226,8 @@ dist_pkgdata_DATA = res/saga_tip.txt res/saga_dic.txt res/saga_srs.txt
 
 install-data-hook:
 	cd $(pkgdatadir); \
-	mv saga_srs.txt saga.srs; \
-	mv saga_dic.txt saga.dic;
+	mv saga_srs.txt saga_prj.srs; \
+	mv saga_dic.txt saga_prj.dic;
 
 dist-hook:
 	 mkdir $(distdir)/res
