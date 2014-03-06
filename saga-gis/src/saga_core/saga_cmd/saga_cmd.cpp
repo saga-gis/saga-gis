@@ -498,8 +498,14 @@ bool		Check_Flags		(const CSG_String &Argument)
 
 		if( s.Find('p') >= 0 )	// p: load projections dictionary
 		{
-			SG_Get_Projections().Create(SG_File_Make_Path(SG_File_Get_Path(SG_UI_Get_Application_Path()),
-				SG_T("saga_prj"), SG_T("srs")));
+#if defined(_SAGA_LINUX)
+		SG_Get_Projections().Create(SG_File_Make_Path(SG_File_Get_Path( CSG_String(SHARE_PATH)),
+			SG_T("saga_prj"), SG_T("srs")));
+#endif
+#if defined(_SAGA_MSW)
+		SG_Get_Projections().Create(SG_File_Make_Path(SG_File_Get_Path(SG_UI_Get_Application_Path()),
+			SG_T("saga_prj"), SG_T("srs")));
+#endif
 		}
 
 		if( s.Find('o') >= 0 )	// o: load old style naming, has no effect if l-flag is set.
