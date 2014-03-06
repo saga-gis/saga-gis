@@ -672,11 +672,11 @@ void		Print_Help		(void)
 		"saga_cmd [-b, --batch]\n"
 		"saga_cmd [-d, --docs]\n"
 #ifdef _OPENMP
-		"saga_cmd [-f, --flags][=qrsilpx][-c, --cores][=#] <LIBRARY> <MODULE> <OPTIONS>\n"
-		"saga_cmd [-f, --flags][=qrsilpx][-c, --cores][=#] <SCRIPT>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo][-c, --cores][=#] <LIBRARY> <MODULE> <OPTIONS>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo][-c, --cores][=#] <SCRIPT>\n"
 #else
-		"saga_cmd [-f, --flags][=qrsilpx] <LIBRARY> <MODULE> <module specific options...>\n"
-		"saga_cmd [-f, --flags][=qrsilpx] <SCRIPT>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo] <LIBRARY> <MODULE> <module specific options...>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo] <SCRIPT>\n"
 #endif
 		"\n"
 		"[-h], [--help]   : help on usage\n"
@@ -686,7 +686,7 @@ void		Print_Help		(void)
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
-		"[-f], [--flags]  : various flags for general usage [qrsilpx]\n"
+		"[-f], [--flags]  : various flags for general usage [qrsilpxo]\n"
 		"  q              : no progress report\n"
 		"  r              : no messages report\n"
 		"  s              : silent mode (no progress and no messages report)\n"
@@ -694,6 +694,7 @@ void		Print_Help		(void)
 		"  l              : load translation dictionary\n"
 		"  p              : load projections dictionary\n"
 		"  x              : use XML markups for synopses and messages\n"
+		"  o              : load old style naming\n"
 		"\n"
 		"<LIBRARY>        : name of the library\n"
 		"<MODULE>         : either name or index of the tool\n"
