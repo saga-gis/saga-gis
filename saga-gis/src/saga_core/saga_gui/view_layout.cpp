@@ -121,6 +121,8 @@ CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pInfo)
 	m_pRuler_Y	= new CVIEW_Ruler(this, RULER_VERTICAL  |RULER_EDGE_SUNKEN);
 
 	m_pControl	= new CVIEW_Layout_Control(this);
+
+	Show();
 }
 
 //---------------------------------------------------------

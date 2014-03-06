@@ -112,7 +112,10 @@ CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID)
 
 	SetIcon(IMG_Get_Icon(Icon_ID));
 
-	Show();
+	if( m_View_ID != ID_VIEW_LAYOUT )	// linux: cview_layout constructor has to create its controls before it is shown!
+	{
+		Show();
+	}
 }
 
 //---------------------------------------------------------
