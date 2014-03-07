@@ -158,7 +158,34 @@ bool CTables_Merge::On_Execute(void)
 
 	if( pList->Get_Type() == PARAMETER_TYPE_Shapes_List )
 	{
-		((CSG_Shapes *)pMerged)->Create(*((CSG_Shapes *)pList->asDataObject(0)));
+		CSG_Shapes	*pShapesIn = ((CSG_Shapes *)pList->asDataObject(0));
+
+		((CSG_Shapes *)pMerged)->Create(pShapesIn->Get_Type(), pShapesIn->Get_Name(), pShapesIn, pShapesIn->Get_Vertex_Type());
+
+		CSG_Shapes	*pShapesOut = ((CSG_Shapes *)pMerged);
+
+		for(int i=0; i<pShapesIn->Get_Count(); i++)
+		{
+			CSG_Shape	*pShape	= pShapesIn->Get_Shape(i);
+
+			pShapesOut->Add_Shape(pShape);
+
+			if( pShapesIn->Get_Vertex_Type() > SG_VERTEX_TYPE_XY )
+			{
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				{
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					{
+						pShapesOut->Get_Shape(i)->Set_Z(pShape->Get_Z(iPoint, iPart), iPoint, iPart);
+
+						if( pShapesIn->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							pShapesOut->Get_Shape(i)->Set_M(pShape->Get_M(iPoint, iPart), iPoint, iPart);
+						}
+					}
+				}
+			}
+		}
 	}
 	else // if( pList->Get_Type() == PARAMETER_TYPE_Table_List )
 	{
@@ -215,7 +242,27 @@ bool CTables_Merge::On_Execute(void)
 
 			if( pMerged->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
 			{
-				pOutput	= ((CSG_Shapes *)pMerged)->Add_Shape(pInput, SHAPE_COPY_GEOM);
+				CSG_Shape	*pShapeOut;
+
+				pOutput	= pShapeOut = ((CSG_Shapes *)pMerged)->Add_Shape(pInput, SHAPE_COPY_GEOM);
+
+				if( pMerged->asShapes()->Get_Vertex_Type() > SG_VERTEX_TYPE_XY )
+				{
+					CSG_Shape	*pShapeIn = pTable->asShapes()->Get_Shape(iRecord);
+
+					for(int iPart=0; iPart<pShapeIn->Get_Part_Count(); iPart++)
+					{
+						for(int iPoint=0; iPoint<pShapeIn->Get_Point_Count(iPart); iPoint++)
+						{
+							pShapeOut->Set_Z(pShapeIn->Get_Z(iPoint, iPart), iPoint, iPart);
+
+							if( pMerged->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+							{
+								pShapeOut->Set_M(pShapeIn->Get_M(iPoint, iPart), iPoint, iPart);
+							}
+						}
+					}
+				}
 			}
 			else // if( pMerged->Get_ObjectType() == DATAOBJECT_TYPE_Table )
 			{
