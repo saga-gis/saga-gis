@@ -225,7 +225,7 @@ dist_pixmap_DATA = res/saga.png
 dist_pkgdata_DATA = res/saga_tip.txt res/saga_dic.txt res/saga_srs.txt
 
 install-data-hook:
-	cd $(pkgdatadir); \
+	cd $(DESTDIR)/$(pkgdatadir); \
 	mv saga_srs.txt saga_prj.srs; \
 	mv saga_dic.txt saga_prj.dic;
 
