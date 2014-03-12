@@ -359,7 +359,10 @@ void CPoints_View_Control::On_Mouse_LDown(wxMouseEvent &event)
 	m_xDown			= m_zRotate;
 	m_yDown			= m_xRotate;
 
-	CaptureMouse();
+	if( !HasCapture() )
+	{
+		CaptureMouse();
+	}
 }
 
 void CPoints_View_Control::On_Mouse_LUp(wxMouseEvent &event)
@@ -389,7 +392,10 @@ void CPoints_View_Control::On_Mouse_RDown(wxMouseEvent &event)
 	m_xDown			= m_xShift;
 	m_yDown			= m_yShift;
 
-	CaptureMouse();
+	if( !HasCapture() )
+	{
+		CaptureMouse();
+	}
 }
 
 void CPoints_View_Control::On_Mouse_RUp(wxMouseEvent &event)
@@ -419,7 +425,10 @@ void CPoints_View_Control::On_Mouse_MDown(wxMouseEvent &event)
 	m_xDown			= m_yRotate;
 	m_yDown			= m_zShift;
 
-	CaptureMouse();
+	if( !HasCapture() )
+	{
+		CaptureMouse();
+	}
 }
 
 void CPoints_View_Control::On_Mouse_MUp(wxMouseEvent &event)

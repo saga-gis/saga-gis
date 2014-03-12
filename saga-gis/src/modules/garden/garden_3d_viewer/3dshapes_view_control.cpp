@@ -337,7 +337,10 @@ void C3DShapes_View_Control::On_Mouse_LDown(wxMouseEvent &event)
 	m_xDown			= m_zRotate;
 	m_yDown			= m_xRotate;
 
-	CaptureMouse();
+	if( !HasCapture() )
+	{
+		CaptureMouse();
+	}
 }
 
 void C3DShapes_View_Control::On_Mouse_LUp(wxMouseEvent &event)
@@ -367,7 +370,10 @@ void C3DShapes_View_Control::On_Mouse_RDown(wxMouseEvent &event)
 	m_xDown			= m_xShift;
 	m_yDown			= m_yShift;
 
-	CaptureMouse();
+	if( !HasCapture() )
+	{
+		CaptureMouse();
+	}
 }
 
 void C3DShapes_View_Control::On_Mouse_RUp(wxMouseEvent &event)
@@ -397,7 +403,10 @@ void C3DShapes_View_Control::On_Mouse_MDown(wxMouseEvent &event)
 	m_xDown			= m_yRotate;
 	m_yDown			= m_zShift;
 
-	CaptureMouse();
+	if( !HasCapture() )
+	{
+		CaptureMouse();
+	}
 }
 
 void C3DShapes_View_Control::On_Mouse_MUp(wxMouseEvent &event)
@@ -965,7 +974,7 @@ inline void C3DShapes_View_Control::_Draw_Pixel(int x, int y, double z, int colo
 			break;
 
 		case COLOR_MODE_BLUE:
-			RGB[1]	= 
+			RGB[1]	=
 			RGB[2]	= (SG_GET_R(color) + SG_GET_G(color) + SG_GET_B(color)) / 3;
 			break;
 		}
