@@ -102,21 +102,14 @@ CWKSP_Data_Item::CWKSP_Data_Item(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Data_Item::~CWKSP_Data_Item(void)
 {
+	for(int i=m_Views.GetCount()-1; i>=0; i--)
+	{
+		((CVIEW_Base *)m_Views[i])->Do_Destroy();
+	}
+
+	//-----------------------------------------------------
 	if( m_pObject )
 	{
-		m_bUpdating	= true;
-
-		for(int i=m_Views.GetCount()-1; i>=0; i--)
-		{
-			if( wxDynamicCast(m_Views[i], CVIEW_ScatterPlot) != NULL )
-			{
-				CVIEW_ScatterPlot	*pView	= ((CVIEW_ScatterPlot *)m_Views[i]);
-				pView->Destroy();
-				delete(pView);
-			}
-		}
-
-		//-------------------------------------------------
 		CSG_Data_Object	*pObject	= m_pObject;	m_pObject	= NULL;
 
 		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("Close"), pObject->Get_Name()), true, true);

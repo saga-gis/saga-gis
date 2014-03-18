@@ -96,6 +96,8 @@ public:
 
 	virtual void				On_Command_UI		(wxUpdateUIEvent &event);
 
+	virtual void				Do_Destroy			(void);
+
 
 protected:
 

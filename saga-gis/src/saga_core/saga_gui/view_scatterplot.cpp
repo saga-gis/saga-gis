@@ -176,7 +176,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
-	: CVIEW_Base(ID_VIEW_SCATTERPLOT, _TL("Scatterplot"), ID_IMG_WND_SCATTERPLOT)
+	: CVIEW_Base(ID_VIEW_SCATTERPLOT, wxString::Format("%s: %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT)
 {
 	m_pItem		= pItem;
 
@@ -198,7 +198,16 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 
 	_On_Construction();
 
-	m_pItem->View_Opened(this);
+	if( DLG_Parameters(&m_Parameters) )
+	{
+		Update_Data();
+
+		m_pItem->View_Opened(this);
+	}
+	else
+	{
+		Destroy();
+	}
 }
 
 //---------------------------------------------------------
@@ -208,6 +217,14 @@ CVIEW_ScatterPlot::~CVIEW_ScatterPlot(void)
 	{
 		m_pItem->View_Closes(this);
 	}
+}
+
+//---------------------------------------------------------
+void CVIEW_ScatterPlot::Do_Destroy(void)
+{
+	m_pItem	= NULL;
+
+	Destroy();
 }
 
 
@@ -382,11 +399,6 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 
 	//-----------------------------------------------------
 	m_Parameters.Set_Callback_On_Parameter_Changed(&Scatter_Plot_On_Parameter_Changed);
-
-	if( DLG_Parameters(&m_Parameters) )
-	{
-		Update_Data();
-	}
 }
 
 

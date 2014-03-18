@@ -93,6 +93,8 @@ public:
 	static class wxToolBarBase *	_Create_ToolBar				(void);
 	static class wxMenu *			_Create_Menu				(void);
 
+	virtual void					Do_Destroy					(void);
+
 	void							On_Size						(wxSizeEvent    &event);
 	void							On_Paint					(wxPaintEvent   &event);
 
