@@ -168,7 +168,7 @@ bool CSG_CRSProjector::Set_Source(const CSG_Projection &Projection)
 {
 	SG_UI_Msg_Add_Execution(CSG_String::Format(SG_T("\n%s: %s"), _TL("source"), Projection.Get_Proj4().c_str()), false);
 
-	return( _Set_Projection(Projection, &m_pSource, true) );
+	return( _Set_Projection(Projection, &m_pSource,  true) && m_Source.Create(Projection) );
 }
 
 //---------------------------------------------------------
@@ -176,7 +176,7 @@ bool CSG_CRSProjector::Set_Target(const CSG_Projection &Projection)
 {
 	SG_UI_Msg_Add_Execution(CSG_String::Format(SG_T("\n%s: %s"), _TL("target"), Projection.Get_Proj4().c_str()), false);
 
-	return( _Set_Projection(Projection, &m_pTarget, false) );
+	return( _Set_Projection(Projection, &m_pTarget, false) && m_Target.Create(Projection) );
 }
 
 
