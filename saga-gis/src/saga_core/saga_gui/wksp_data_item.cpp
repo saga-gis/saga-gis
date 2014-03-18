@@ -82,6 +82,7 @@
 #include "wksp_data_item.h"
 
 #include "view_histogram.h"
+#include "view_scatterplot.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -103,6 +104,19 @@ CWKSP_Data_Item::~CWKSP_Data_Item(void)
 {
 	if( m_pObject )
 	{
+		m_bUpdating	= true;
+
+		for(int i=m_Views.GetCount()-1; i>=0; i--)
+		{
+			if( wxDynamicCast(m_Views[i], CVIEW_ScatterPlot) != NULL )
+			{
+				CVIEW_ScatterPlot	*pView	= ((CVIEW_ScatterPlot *)m_Views[i]);
+				pView->Destroy();
+				delete(pView);
+			}
+		}
+
+		//-------------------------------------------------
 		CSG_Data_Object	*pObject	= m_pObject;	m_pObject	= NULL;
 
 		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("Close"), pObject->Get_Name()), true, true);
@@ -288,19 +302,17 @@ bool CWKSP_Data_Item::Save(const wxString &File_Name)
 //---------------------------------------------------------
 void CWKSP_Data_Item::Parameters_Changed(void)
 {
-	static bool	bUpdates	= false;
-
-	if( !bUpdates )
+	if( !m_bUpdating )
 	{
-		bUpdates	= true;
+		m_bUpdating	= true;
 
 		On_Parameters_Changed();
 
 		CWKSP_Base_Item::Parameters_Changed();
 
-		Update_Views(true);
+		m_bUpdating	= false;
 
-		bUpdates	= false;
+		Update_Views(true);
 	}
 }
 
@@ -365,6 +377,47 @@ void CWKSP_Data_Item::On_DataObject_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Data_Item::Add_ScatterPlot(void)
+{
+	new CVIEW_ScatterPlot(this);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Data_Item::View_Opened(wxMDIChildFrame *pView)
+{
+	if( m_Views.Index(pView) == wxNOT_FOUND )	// only add once
+	{
+		m_Views.Add(pView);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Item::View_Closes(wxMDIChildFrame *pView)
+{
+	if( m_Views.Index(pView) != wxNOT_FOUND )
+	{
+		m_Views.Remove(pView);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Data_Item::Update_Views(bool bAll)
 {
 	if( !m_bUpdating )
@@ -372,6 +425,17 @@ bool CWKSP_Data_Item::Update_Views(bool bAll)
 		m_bUpdating	= true;
 
 		On_Update_Views(bAll);
+
+		if( bAll )
+		{
+			for(size_t i=0; i<m_Views.Count(); i++)
+			{
+				if( wxDynamicCast(m_Views[i], CVIEW_ScatterPlot) != NULL )
+				{
+					((CVIEW_ScatterPlot *)m_Views[i])->Update_Data();
+				}
+			}
+		}
 
 		if( g_pACTIVE->Get_Active_Data_Item() == this )
 		{

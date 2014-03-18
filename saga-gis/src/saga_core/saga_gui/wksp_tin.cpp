@@ -72,8 +72,6 @@
 #include "wksp_tin.h"
 #include "wksp_table.h"
 
-#include "view_scatterplot.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -193,7 +191,7 @@ bool CWKSP_TIN::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_TABLES_SCATTERPLOT:
-		Add_ScatterPlot(Get_Table()->Get_Table());
+		Add_ScatterPlot();
 		break;
 	}
 

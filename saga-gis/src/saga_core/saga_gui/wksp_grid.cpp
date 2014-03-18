@@ -84,8 +84,6 @@
 #include "wksp_grid_manager.h"
 #include "wksp_grid.h"
 
-#include "view_scatterplot.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -224,7 +222,7 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_GRIDS_SCATTERPLOT:
-		Add_ScatterPlot(Get_Grid());
+		Add_ScatterPlot();
 		break;
 
 	case ID_CMD_GRIDS_FIT_MINMAX:

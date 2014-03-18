@@ -72,7 +72,6 @@
 
 #include "view_table.h"
 #include "view_table_diagram.h"
-#include "view_scatterplot.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -192,7 +191,7 @@ bool CWKSP_Table::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_TABLES_SCATTERPLOT:
-		Add_ScatterPlot(Get_Table());
+		Add_ScatterPlot();
 		break;
 	}
 
@@ -314,6 +313,10 @@ bool CWKSP_Table::View_Closes(wxMDIChildFrame *pView)
 	else if	( wxDynamicCast(pView, CVIEW_Table_Diagram) )
 	{
 		m_pDiagram	= NULL;
+	}
+	else
+	{
+		CWKSP_Data_Item::View_Closes(pView);
 	}
 
 	return( true );

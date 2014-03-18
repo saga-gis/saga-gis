@@ -725,6 +725,10 @@ bool CWKSP_Layer::View_Closes(wxMDIChildFrame *pView)
 	{
 		m_pHistogram	= NULL;
 	}
+	else
+	{
+		CWKSP_Data_Item::View_Closes(pView);
+	}
 
 	return( true );
 }

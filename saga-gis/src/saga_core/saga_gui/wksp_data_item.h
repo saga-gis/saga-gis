@@ -72,6 +72,8 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+#include <wx/dynarray.h>
+
 #include "wksp_base_item.h"
 
 
@@ -107,8 +109,10 @@ public:
 	virtual bool					Show					(int Flags = 0)	= 0;
 	virtual bool					Update					(CWKSP_Data_Item *pChanged)		{	return( pChanged == this );	}
 
+	virtual bool					View_Opened				(class wxMDIChildFrame *pView);
+	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
+
 	virtual bool					Update_Views			(bool bAll = true);
-	virtual bool					View_Closes				(class wxMDIChildFrame *pView)	{	return( true );	}
 
 
 protected:
@@ -121,10 +125,14 @@ protected:
 	virtual void					On_DataObject_Changed	(void);
 	virtual void					On_Update_Views			(bool bAll)	{}
 
+	bool							Add_ScatterPlot			(void);
+
 
 private:
 
 	bool							m_bUpdating;
+
+	wxArrayPtrVoid					m_Views;
 
 };
 

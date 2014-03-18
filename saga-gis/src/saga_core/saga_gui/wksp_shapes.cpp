@@ -72,8 +72,6 @@
 #include "wksp_shapes.h"
 #include "wksp_table.h"
 
-#include "view_scatterplot.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -227,7 +225,7 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 	case ID_CMD_TABLES_DIAGRAM:	m_pTable->Toggle_Diagram();	break;
 
 	case ID_CMD_TABLES_SCATTERPLOT:
-		Add_ScatterPlot(Get_Table()->Get_Table());
+		Add_ScatterPlot();
 		break;
 
 	case ID_CMD_TABLES_SAVEAS:

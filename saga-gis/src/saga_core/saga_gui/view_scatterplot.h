@@ -84,22 +84,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Add_ScatterPlot(CSG_Grid *pGrid);
-void		Add_ScatterPlot(CSG_Table *pTable);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CVIEW_ScatterPlot : public CVIEW_Base
 {
 public:
-	CVIEW_ScatterPlot(CSG_Grid  *pGrid);
-	CVIEW_ScatterPlot(CSG_Table *pTable);
+	CVIEW_ScatterPlot(CWKSP_Data_Item *pItem);
+	~CVIEW_ScatterPlot(void);
 
 	static class wxToolBarBase *	_Create_ToolBar				(void);
 	static class wxMenu *			_Create_Menu				(void);
@@ -115,8 +104,12 @@ public:
 
 	void							Draw						(wxDC &dc, wxRect r);
 
+	bool							Update_Data					(void);
+
 
 private:
+
+	class CWKSP_Data_Item			*m_pItem;
 
 	CSG_Grid						*m_pGrid, m_Count;
 
@@ -131,7 +124,6 @@ private:
 
 	void							_On_Construction			(void);
 
-	bool							_Initialize					(void);
 	bool							_Initialize_Count			(void);
 	bool							_Initialize_Grids			(void);
 	bool							_Initialize_Shapes			(void);
