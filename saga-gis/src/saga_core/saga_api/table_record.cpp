@@ -242,13 +242,16 @@ void CSG_Table_Record::Set_Modified(bool bOn)
 		if( bOn )
 		{
 			m_Flags	|=  SG_TABLE_REC_FLAG_Modified;
-
-			m_pTable->Set_Modified();
 		}
 		else
 		{
 			m_Flags	&= ~SG_TABLE_REC_FLAG_Modified;
 		}
+	}
+
+	if( bOn )
+	{
+		m_pTable->Set_Modified();
 	}
 }
 
@@ -519,6 +522,8 @@ bool CSG_Table_Record::Assign(CSG_Table_Record *pRecord)
 		{
 			*(m_Values[iField])	= *(pRecord->m_Values[iField]);
 		}
+
+		Set_Modified();
 
 		return( true );
 	}

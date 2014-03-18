@@ -269,9 +269,8 @@ void CACTIVE_Attributes::Set_Attributes(void)
 
 	if( m_pItem && m_pItem->Edit_Get_Attributes()->is_Valid() )
 	{
-		Save_Changes(true);
-
 		m_pAttributes->Assign(m_pItem->Edit_Get_Attributes());
+		m_pAttributes->Set_Modified(false);
 
 		if( _Get_Table() && _Get_Table()->Get_Selection_Count() > 1 )
 		{
