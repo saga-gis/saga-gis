@@ -239,7 +239,10 @@ void CParameters_Control::On_Key(wxKeyEvent &event)
 //---------------------------------------------------------
 void CParameters_Control::On_PG_Selected(wxPropertyGridEvent &event)
 {
-	SetFocus();
+	if( m_pParameters && m_pOriginal )
+	{
+		SetFocus();
+	}
 
 	event.Skip();
 }
