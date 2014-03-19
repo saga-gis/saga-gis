@@ -165,7 +165,7 @@ TSG_Projection_Unit	SG_Get_Projection_Unit				(const CSG_String &Identifier)
 		}
 	}
 
-	return( SG_PROJ_UNIT_Undefined );
+	return( !Identifier.CmpNoCase("metre") ? SG_PROJ_UNIT_Meter : SG_PROJ_UNIT_Undefined );
 }
 
 //---------------------------------------------------------
@@ -215,6 +215,27 @@ double				SG_Get_Projection_Unit_To_Meter		(TSG_Projection_Unit Unit)
 	case SG_PROJ_UNIT_Indian_Chain     :	return( 20.11669506 );
 	default                            :	return( 1.0 );
 	}
+}
+
+//---------------------------------------------------------
+bool				SG_Set_Projection_Unit		(const CSG_MetaData &m, TSG_Projection_Unit &Unit, CSG_String &Name, double &To_Meter)
+{
+	if( m["UNIT"].is_Valid() )
+	{
+		if( m["UNIT"].Get_Property("name", Name) && (Unit = SG_Get_Projection_Unit(Name)) != SG_PROJ_UNIT_Undefined )
+		{
+			Name		= SG_Get_Projection_Unit_Name    (Unit);
+			To_Meter	= SG_Get_Projection_Unit_To_Meter(Unit);
+		}
+		else if( !m["UNIT"].Get_Content().asDouble(To_Meter) || To_Meter <= 0.0 )
+		{
+			To_Meter	=  1.0;
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -295,7 +316,6 @@ bool CSG_Projection::Create(const CSG_String &Projection, TSG_Projection_Format 
 bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format Format)
 {
 	int				i;
-	double			d;
 	CSG_String		s;
 	CSG_MetaData	m;
 
@@ -346,26 +366,7 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 	m_Name	= m.Get_Property("name");
 	m_Type	= SG_Get_Projection_Type(m.Get_Name());
 
-	if( m["UNIT"].is_Valid() )
-	{
-		if( m["UNIT"].Get_Property("name", s) )
-		{
-			if( (m_Unit = SG_Get_Projection_Unit(s)) != SG_PROJ_UNIT_Undefined )
-			{
-				m_Unit_Name		= SG_Get_Projection_Unit_Name    (m_Unit);
-				m_Unit_To_Meter	= SG_Get_Projection_Unit_To_Meter(m_Unit);
-			}
-			else if( !s.is_Empty() )
-			{
-				m_Unit_Name		= s;
-			}
-		}
-
-		if( m["UNIT"].Get_Content().asDouble(d) && d > 0.0 )
-		{
-			m_Unit_To_Meter	=  d;
-		}
-	}
+	SG_Set_Projection_Unit(m, m_Unit, m_Unit_Name, m_Unit_To_Meter);
 
 	return( true );
 }
@@ -738,6 +739,8 @@ CSG_Projection CSG_Projections::Get_Projection(int Index)	const
 							: !m.Get_Name().Cmp(SG_T("GEOGCS")) ? SG_PROJ_TYPE_CS_Geographic
 							: !m.Get_Name().Cmp(SG_T("PROJCS")) ? SG_PROJ_TYPE_CS_Projected
 							: SG_PROJ_TYPE_CS_Undefined;
+
+		SG_Set_Projection_Unit(m, Projection.m_Unit, Projection.m_Unit_Name, Projection.m_Unit_To_Meter);
 	}
 
 	return( Projection );

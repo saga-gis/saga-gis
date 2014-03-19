@@ -533,11 +533,12 @@ void CWKSP_Layer::_Set_Projection(void)
 	{
 		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
 
-		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , Get_Object()->Get_Projection().Get_Proj4())
+		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4", Get_Object()->Get_Projection().Get_Proj4())
 		&&	pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters())
 		&&  pModule->Execute() )
 		{
-			Get_Object()->Get_Projection().Assign(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			Get_Object()->Get_Projection().Create(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			Get_Object()->Set_Modified();
 
 			DataObject_Changed();
 		}

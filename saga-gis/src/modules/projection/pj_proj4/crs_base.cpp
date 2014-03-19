@@ -194,9 +194,9 @@ bool CCRS_Base::On_Before_Execution(void)
 int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CRS_DIALOG")) )
+	if(	!SG_STR_CMP(pParameters->Get_Identifier(), "CRS_DIALOG") )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJ_TYPE")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PROJ_TYPE") )
 		{
 			pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[pParameter->asInt()].id)));
 		}
@@ -214,13 +214,13 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_DIALOG")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_DIALOG") )
 	{
 		Projection.Create(Get_User_Definition(*pParameter->asParameters()), SG_PROJ_FMT_Proj4);
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_FILE")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_FILE") )
 	{
 		Projection.Load(pParameter->asString());
 
@@ -228,14 +228,14 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG") )
 	{
 		Projection.Create(pParameter->asInt());
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_GEOGCS"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_PROJCS")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_GEOGCS")
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_PROJCS") )
 	{
 		int		EPSG;
 
@@ -246,8 +246,8 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_GRID"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_SHAPES")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_GRID")
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_SHAPES") )
 	{
 		CSG_Data_Object	*pPick	= pParameter->asParameters()->Get_Parameter("PICK")->asDataObject();
 
@@ -278,16 +278,16 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CRS_DIALOG")) )
+	if(	!SG_STR_CMP(pParameters->Get_Identifier(), "CRS_DIALOG") )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJ_TYPE")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PROJ_TYPE") )
 		{
 		//	pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[pParameter->asInt()].id)));
 
 			pParameters->Get_Parameter("OPTIONS")->Set_Enabled(pParameters->Get_Parameter("OPTIONS")->asParameters()->Get_Count() > 0);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DATUM_DEF")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DATUM_DEF") )
 		{
 			int		Value	= pParameter->asInt();
 
@@ -295,7 +295,7 @@ int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *
 			pParameters->Get_Parameter("ELLIPSOID")->Set_Enabled(Value == 1);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ELLIPSOID")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ELLIPSOID") )
 		{
 			int		Value	= pParameter->asInt();
 
@@ -308,7 +308,7 @@ int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *
 			pParameters->Get_Parameter("ELLPS_ES" )->Set_Enabled(Value == 5);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DATUM_SHIFT")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DATUM_SHIFT") )
 		{
 			int		Value	= pParameter->asInt();
 
@@ -354,7 +354,7 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 	}
 	else
 	{
-		Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+		Projection	= m_Projection;
 	}
 
 	return( Projection.is_Okay() );
