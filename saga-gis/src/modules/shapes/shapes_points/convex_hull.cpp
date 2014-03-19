@@ -126,15 +126,15 @@ bool CConvex_Hull::On_Execute(void)
 	CSG_Shapes	*pShapes, *pHulls, *pBoxes;
 
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	pHulls	= Parameters("HULLS")	->asShapes();
-	pBoxes	= Parameters("BOXES")	->asShapes();
+	pShapes	= Parameters("SHAPES")->asShapes();
+	pHulls	= Parameters("HULLS" )->asShapes();
+	pBoxes	= Parameters("BOXES" )->asShapes();
 
 	//-----------------------------------------------------
 	pHulls->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Convex Hull")));
-	pHulls->Add_Field(_TL("ID")			, SG_DATATYPE_Int);
-	pHulls->Add_Field(_TL("AREA")		, SG_DATATYPE_Double);
-	pHulls->Add_Field(_TL("PERIMETER")	, SG_DATATYPE_Double);
+	pHulls->Add_Field(_TL("ID"       ), SG_DATATYPE_Int);
+	pHulls->Add_Field(_TL("AREA"     ), SG_DATATYPE_Double);
+	pHulls->Add_Field(_TL("PERIMETER"), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	int	nOkay	= 0;
@@ -152,6 +152,14 @@ bool CConvex_Hull::On_Execute(void)
 
 		int	Construction	= Parameters("POLYPOINTS")->asInt();
 
+		if( Construction != 0 )
+		{
+			for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
+			{
+				pHulls->Add_Field(pShapes->Get_Field_Name(iField), pShapes->Get_Field_Type(iField));
+			}
+		}
+
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
@@ -165,13 +173,13 @@ bool CConvex_Hull::On_Execute(void)
 
 				if( Construction == 2 )	// one hull per shape part
 				{
-					if( Get_Chain_Hull(&Points, pHulls) )	nOkay++;	Points.Del_Records();
+					if( Get_Chain_Hull(&Points, pHulls, pShape) )	nOkay++;	Points.Del_Records();
 				}
 			}
 
 			if( Construction == 1 )	// one hull per shape
 			{
-				if( Get_Chain_Hull(&Points, pHulls) )	nOkay++;	Points.Del_Records();
+				if( Get_Chain_Hull(&Points, pHulls, pShape) )	nOkay++;	Points.Del_Records();
 			}
 		}
 
@@ -284,7 +292,7 @@ bool CConvex_Hull::Get_Bounding_Box(CSG_Shape *pHull, CSG_Shape *pBox)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls)
+bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_Shape *pAttributes)
 {
 	int			i, n;
 	CSG_Points	Points, Hull;
@@ -329,6 +337,14 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls)
 	pHull->Set_Value(0, pHull->Get_Index());
 	pHull->Set_Value(1, ((CSG_Shape_Polygon *)pHull)->Get_Area());
 	pHull->Set_Value(2, ((CSG_Shape_Polygon *)pHull)->Get_Perimeter());
+
+	if( pAttributes )
+	{
+		for(i=3, n=0; i<pHulls->Get_Field_Count(); i++, n++)
+		{
+			*pHull->Get_Value(i)	= *pAttributes->Get_Value(n);
+		}
+	}
 
 	//-----------------------------------------------------
 	return( true );
