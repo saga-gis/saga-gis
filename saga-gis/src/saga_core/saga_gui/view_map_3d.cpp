@@ -165,7 +165,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
-	: CVIEW_Base(ID_VIEW_MAP_3D, _TL("3D View"), ID_IMG_WND_MAP3D)
+	: CVIEW_Base(ID_VIEW_MAP_3D, _TL("3D View"), ID_IMG_WND_MAP3D, false)
 {
 	SetTitle(wxString::Format(wxT("%s [%s]"), pMap->Get_Name().c_str(), _TL("3D View")));
 
@@ -178,19 +178,27 @@ CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
 	//-----------------------------------------------------
 	m_Play_Mode	= PLAY_MODE_NONE;
 
-	m_Play.Add_Field(_TL("Rotate X")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("Rotate Y")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("Rotate Z")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("Shift X")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("Shift Y")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("Shift Z")			, SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("Exaggeration")		, SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Rotate X"          ), SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Rotate Y"          ), SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Rotate Z"          ), SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Shift X"           ), SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Shift Y"           ), SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Shift Z"           ), SG_DATATYPE_Double);
+	m_Play.Add_Field(_TL("Exaggeration"      ), SG_DATATYPE_Double);
 	m_Play.Add_Field(_TL("Central Projection"), SG_DATATYPE_Double);
-	m_Play.Add_Field(_TL("Steps to Next")		, SG_DATATYPE_Int);
+	m_Play.Add_Field(_TL("Steps to Next"     ), SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
 	_Parms_Create();
-	_Parms_Dlg();
+
+	if( _Parms_Dlg() )
+	{
+		Show();
+	}
+	else
+	{
+		Destroy();
+	}
 }
 
 //---------------------------------------------------------

@@ -200,8 +200,6 @@ CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKS
 	Fit_Size();
 
 	_Initialize();
-
-	Set_Parameters();
 }
 
 //---------------------------------------------------------
@@ -1001,7 +999,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
-	: CVIEW_Base(ID_VIEW_TABLE_DIAGRAM, wxString::Format(wxT("%s [%s]"), _TL("Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM)
+	: CVIEW_Base(ID_VIEW_TABLE_DIAGRAM, wxString::Format(wxT("%s [%s]"), _TL("Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, false)
 {
 	SYS_Set_Color_BG_Window(this);
 
@@ -1009,9 +1007,18 @@ CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
 
 	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
 
-	wxCommandEvent	dummy;
+	if( m_pControl->Set_Parameters() )
+	{
+		wxCommandEvent	dummy;
 
-	On_Size_Fit(dummy);
+		On_Size_Fit(dummy);
+
+		Show();
+	}
+	else
+	{
+		Destroy();
+	}
 }
 
 //---------------------------------------------------------

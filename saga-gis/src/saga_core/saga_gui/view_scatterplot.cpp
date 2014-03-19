@@ -176,7 +176,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
-	: CVIEW_Base(ID_VIEW_SCATTERPLOT, wxString::Format("%s: %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT)
+	: CVIEW_Base(ID_VIEW_SCATTERPLOT, wxString::Format("%s: %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT, false)
 {
 	m_pItem		= pItem;
 
@@ -203,6 +203,8 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 		Update_Data();
 
 		m_pItem->View_Opened(this);
+
+		Show();
 	}
 	else
 	{

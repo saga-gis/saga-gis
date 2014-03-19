@@ -69,6 +69,9 @@
 
 #include "helper.h"
 
+#include "active.h"
+
+#include "wksp_layer.h"
 #include "wksp_map.h"
 
 #include "view_ruler.h"
@@ -391,7 +394,7 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_MAP_SYNCHRONIZE:
 		event.Enable(m_pMap->Get_Manager()->Get_Count() > 1);
-		event.Check(m_pMap->is_Synchronising());
+		event.Check (m_pMap->is_Synchronising());
 		break;
 
 	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:
@@ -412,6 +415,14 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_MAP_MODE_DISTANCE:
 		event.Check(m_pControl->Get_Mode() == MAP_MODE_DISTANCE);
+		break;
+
+	case ID_CMD_MAP_ZOOM_ACTIVE:
+		event.Enable(g_pACTIVE->Get_Active_Layer() != NULL);
+		break;
+
+	case ID_CMD_MAP_ZOOM_SELECTION:
+		event.Enable(g_pACTIVE->Get_Active_Layer() && g_pACTIVE->Get_Active_Layer()->Edit_Get_Attributes());
 		break;
 
 	case ID_CMD_MAP_ZOOM_BACK:

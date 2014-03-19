@@ -109,7 +109,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pInfo)
-	: CVIEW_Base(ID_VIEW_LAYOUT, _TL("Layout"), ID_IMG_WND_LAYOUT)
+	: CVIEW_Base(ID_VIEW_LAYOUT, _TL("Layout"), ID_IMG_WND_LAYOUT, false)
 {
 	SetTitle(wxString::Format(wxT("%s [%s]"), pInfo->Get_Map()->Get_Name().c_str(), _TL("Layout")));
 

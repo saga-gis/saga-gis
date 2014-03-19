@@ -100,7 +100,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID)
+CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, bool bShow)
 	: wxMDIChildFrame(g_pSAGA_Frame, -1, Caption, MDI_Get_Def_Position(), MDI_Get_Def_Size(), wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 {
 	m_View_ID		= View_ID;
@@ -112,7 +112,7 @@ CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID)
 
 	SetIcon(IMG_Get_Icon(Icon_ID));
 
-	if( m_View_ID != ID_VIEW_LAYOUT )	// linux: cview_layout constructor has to create its controls before it is shown!
+	if( bShow )
 	{
 		Show();
 	}

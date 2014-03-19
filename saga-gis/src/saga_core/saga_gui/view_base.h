@@ -86,7 +86,7 @@
 class CVIEW_Base : public wxMDIChildFrame
 {
 public:
-	CVIEW_Base(int View_ID, wxString Caption, int Icon_ID);
+	CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, bool bShow = true);
 	virtual ~CVIEW_Base(void);
 
 	void						On_Size				(wxSizeEvent     &event);
