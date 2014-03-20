@@ -154,8 +154,6 @@ CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Layer::~CWKSP_Layer(void)
 {
-	Histogram_Show(false);
-
 	if( g_pMaps     )	{	g_pMaps->Del(this);	}
 
 	if( m_pClassify )	{	delete(m_pClassify);	}
@@ -704,17 +702,12 @@ bool CWKSP_Layer::Update(CWKSP_Layer *pChanged)
 //---------------------------------------------------------
 void CWKSP_Layer::On_Update_Views(bool bAll)
 {
+	_Set_Thumbnail(true);
+
 	g_pMaps->Update(this, !bAll);
 
 	if( bAll )
 	{
-		_Set_Thumbnail(true);
-
-		if( Histogram_Get() )
-		{
-			Histogram_Get()->Update_Histogram();
-		}
-
 		On_Update_Views();
 	}
 }
@@ -722,16 +715,12 @@ void CWKSP_Layer::On_Update_Views(bool bAll)
 //---------------------------------------------------------
 bool CWKSP_Layer::View_Closes(wxMDIChildFrame *pView)
 {
-	if( wxDynamicCast(pView, CVIEW_Histogram) != NULL )
+	if( pView == m_pHistogram )
 	{
 		m_pHistogram	= NULL;
 	}
-	else
-	{
-		CWKSP_Data_Item::View_Closes(pView);
-	}
 
-	return( true );
+	return( CWKSP_Data_Item::View_Closes(pView) );
 }
 
 

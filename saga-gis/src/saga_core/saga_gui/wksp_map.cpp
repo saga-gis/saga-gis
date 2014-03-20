@@ -207,9 +207,9 @@ CWKSP_Map::CWKSP_Map(void)
 //---------------------------------------------------------
 CWKSP_Map::~CWKSP_Map(void)
 {
-	View_Show			(false);
-	View_3D_Show		(false);
-	View_Layout_Show	(false);
+	if( m_pView    )	m_pView   ->Do_Destroy();
+	if( m_pView_3D )	m_pView_3D->Do_Destroy();
+	if( m_pLayout  )	m_pLayout ->Do_Destroy();
 
 	delete(m_pLayout_Info);
 }
@@ -950,7 +950,7 @@ void CWKSP_Map::Set_North_Arrow(bool bOn)
 
 		if( m_pView )
 		{
-			m_pView->Refresh_Map();
+			m_pView->Do_Update();
 		}
 	}
 }
@@ -969,7 +969,7 @@ void CWKSP_Map::Set_ScaleBar(bool bOn)
 
 		if( m_pView )
 		{
-			m_pView->Refresh_Map();
+			m_pView->Do_Update();
 			m_pView->Ruler_Refresh();
 		}
 	}
@@ -1045,20 +1045,9 @@ void CWKSP_Map::Set_Projection(void)
 //---------------------------------------------------------
 void CWKSP_Map::View_Closes(wxMDIChildFrame *pView)
 {
-	if( wxDynamicCast(pView, CVIEW_Map) != NULL )
-	{
-		m_pView		= NULL;
-	}
-
-	if( wxDynamicCast(pView, CVIEW_Map_3D) != NULL )
-	{
-		m_pView_3D	= NULL;
-	}
-
-	if( wxDynamicCast(pView, CVIEW_Layout) != NULL )
-	{
-		m_pLayout	= NULL;
-	}
+	if( pView == m_pView    )	m_pView		= NULL;
+	if( pView == m_pView_3D )	m_pView_3D	= NULL;
+	if( pView == m_pLayout  )	m_pLayout	= NULL;
 }
 
 //---------------------------------------------------------
@@ -1069,20 +1058,9 @@ void CWKSP_Map::View_Refresh(bool bMapOnly)
 		g_pACTIVE->Get_Legend()->Refresh(true);
 	}
 
-	if( m_pView )
-	{
-		m_pView->Refresh_Map();
-	}
-
-	if( m_pView_3D )
-	{
-		m_pView_3D->On_Source_Changed();
-	}
-
-	if( m_pLayout )
-	{
-		m_pLayout->Refresh_Layout();
-	}
+	if( m_pView    )	m_pView   ->Do_Update();
+	if( m_pView_3D )	m_pView_3D->Do_Update();
+	if( m_pLayout  )	m_pLayout ->Do_Update();
 
 	_Set_Thumbnail();
 
@@ -1104,13 +1082,13 @@ void CWKSP_Map::View_Show(bool bShow)
 		else
 		{
 			View_Refresh(false);
+
 			m_pView->Activate();
 		}
 	}
 	else if( m_pView )
 	{
 		m_pView->Destroy();
-		delete(m_pView);
 	}
 }
 
@@ -1130,7 +1108,6 @@ void CWKSP_Map::View_3D_Show(bool bShow)
 	else if( !bShow && m_pView_3D )
 	{
 		m_pView_3D->Destroy();
-		delete(m_pView_3D);
 	}
 }
 
@@ -1150,7 +1127,6 @@ void CWKSP_Map::View_Layout_Show(bool bShow)
 	else if( !bShow && m_pLayout )
 	{
 		m_pLayout->Destroy();
-		delete(m_pLayout);
 	}
 }
 

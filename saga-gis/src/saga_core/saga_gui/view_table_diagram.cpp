@@ -159,8 +159,9 @@ private:
 	void							_Draw_Bars			(wxDC &dc, wxRect r, double dx, double dy, int iField);
 
 
-	DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_Table_Diagram_Control)
+	DECLARE_EVENT_TABLE()
 
 };
 
@@ -999,32 +1000,22 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
-	: CVIEW_Base(ID_VIEW_TABLE_DIAGRAM, wxString::Format(wxT("%s [%s]"), _TL("Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, false)
+	: CVIEW_Base(pTable, ID_VIEW_TABLE_DIAGRAM, wxString::Format(wxT("%s [%s]"), _TL("Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, false)
 {
 	SYS_Set_Color_BG_Window(this);
-
-	m_pOwner	= pTable;
 
 	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
 
 	if( m_pControl->Set_Parameters() )
 	{
-		wxCommandEvent	dummy;
+		m_pControl->Fit_Size();
 
-		On_Size_Fit(dummy);
-
-		Show();
+		Do_Show();
 	}
 	else
 	{
 		Destroy();
 	}
-}
-
-//---------------------------------------------------------
-CVIEW_Table_Diagram::~CVIEW_Table_Diagram(void)
-{
-	m_pOwner->View_Closes(this);
 }
 
 
@@ -1067,9 +1058,9 @@ wxToolBarBase * CVIEW_Table_Diagram::_Create_ToolBar(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Table_Diagram::Update_Diagram(void)
+void CVIEW_Table_Diagram::Do_Update(void)
 {
-	return( m_pControl->Update_Diagram() );
+	m_pControl->Update_Diagram();
 }
 
 

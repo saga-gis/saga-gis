@@ -88,25 +88,11 @@ class CVIEW_ScatterPlot : public CVIEW_Base
 {
 public:
 	CVIEW_ScatterPlot(CWKSP_Data_Item *pItem);
-	~CVIEW_ScatterPlot(void);
 
 	static class wxToolBarBase *	_Create_ToolBar				(void);
 	static class wxMenu *			_Create_Menu				(void);
 
-	virtual void					Do_Destroy					(void);
-
-	void							On_Size						(wxSizeEvent    &event);
-	void							On_Paint					(wxPaintEvent   &event);
-
-	void							On_Parameters				(wxCommandEvent &event);
-	void							On_Options					(wxCommandEvent &event);
-	void							On_Update					(wxCommandEvent &event);
-	void							On_AsTable					(wxCommandEvent &event);
-	void							On_ToClipboard				(wxCommandEvent &event);
-
-	void							Draw						(wxDC &dc, wxRect r);
-
-	bool							Update_Data					(void);
+	virtual void					Do_Update					(void);
 
 
 private:
@@ -124,13 +110,25 @@ private:
 	CSG_String						m_sTitle, m_sX, m_sY;
 
 
+	void							On_Size						(wxSizeEvent    &event);
+	void							On_Paint					(wxPaintEvent   &event);
+
+	void							On_Parameters				(wxCommandEvent &event);
+	void							On_Options					(wxCommandEvent &event);
+	void							On_Update					(wxCommandEvent &event);
+	void							On_AsTable					(wxCommandEvent &event);
+	void							On_ToClipboard				(wxCommandEvent &event);
+
 	void							_On_Construction			(void);
+
+	bool							_Update_Data				(void);
 
 	bool							_Initialize_Count			(void);
 	bool							_Initialize_Grids			(void);
 	bool							_Initialize_Shapes			(void);
 	bool							_Initialize_Table			(void);
 
+	void							_Draw						(wxDC &dc, wxRect r);
 	wxRect							_Draw_Get_rDiagram			(wxRect r);
 	void							_Draw_Legend				(wxDC &dc, wxRect r);
 	void							_Draw_Image					(wxDC &dc, wxRect r);
@@ -139,10 +137,9 @@ private:
 	void							_Draw_Frame					(wxDC &dc, wxRect r);
 
 
-private:
-
-	DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_ScatterPlot)
+	DECLARE_EVENT_TABLE()
 
 };
 

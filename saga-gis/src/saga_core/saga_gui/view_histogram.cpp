@@ -477,16 +477,9 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
-	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
+	: CVIEW_Base(pLayer, ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
 {
-	m_pLayer	= pLayer;
 	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
-}
-
-//---------------------------------------------------------
-CVIEW_Histogram::~CVIEW_Histogram(void)
-{
-	m_pLayer->View_Closes(this);
 }
 
 
@@ -524,6 +517,17 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Histogram::Do_Update(void)
+{
+	m_pControl->Update_Histogram();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
@@ -551,48 +555,43 @@ void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 {
-	int					i, n;
-	double				dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
-	CSG_Table			*pTable;
-	CSG_Table_Record	*pRecord;
+	CWKSP_Layer_Classify	*pClassifier	= ((CWKSP_Layer *)m_pOwner)->Get_Classifier();
 
-	if( (n = m_pLayer->Get_Classifier()->Get_Class_Count()) > 0 )
+	if( pClassifier->Get_Class_Count() > 0 )
 	{
-		pTable	= new CSG_Table;
+		CSG_Data_Object	*pObject	= ((CWKSP_Layer *)m_pOwner)->Get_Object();
 
-		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Histogram"), m_pLayer->Get_Object()->Get_Name()));
+		CSG_Table	*pTable	= new CSG_Table;
 
-		pTable->Add_Field(_TL("CLASS")	, SG_DATATYPE_Int);
-		pTable->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("COUNT")	, SG_DATATYPE_Int);
-		pTable->Add_Field(_TL("CUMUL")	, SG_DATATYPE_Int);
-		pTable->Add_Field(_TL("NAME")	, SG_DATATYPE_String);
-		pTable->Add_Field(_TL("MIN")	, SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("CENTER")	, SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("MAX")	, SG_DATATYPE_Double);
+		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Histogram"), pObject->Get_Name()));
 
-		for(i=0; i<n; i++)
+		pTable->Add_Field(_TL("CLASS" ), SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("AREA"  ), SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("COUNT" ), SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("CUMUL" ), SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("NAME"  ), SG_DATATYPE_String);
+		pTable->Add_Field(_TL("MIN"   ), SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("CENTER"), SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("MAX"   ), SG_DATATYPE_Double);
+
+		double	dArea	= pObject->asGrid() != NULL ? pObject->asGrid()->Get_Cellarea() : 1.0;
+
+		for(int i=0; i<pClassifier->Get_Class_Count(); i++)
 		{
-			pRecord	= pTable->Add_Record();
+			CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
 			pRecord->Set_Value(0, i + 1);
-			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count     (i, false) * dArea);
-			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count     (i, false));
-			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Histogram_Get_Cumulative(i, false));
-			pRecord->Set_Value(4, m_pLayer->Get_Classifier()->Get_Class_Name          (i).wx_str());
-			pRecord->Set_Value(5, m_pLayer->Get_Classifier()->Get_Class_Value_Minimum (i));
-			pRecord->Set_Value(6, m_pLayer->Get_Classifier()->Get_Class_Value_Center  (i));
-			pRecord->Set_Value(7, m_pLayer->Get_Classifier()->Get_Class_Value_Maximum (i));
+			pRecord->Set_Value(2, pClassifier->Histogram_Get_Count     (i, false) * dArea);
+			pRecord->Set_Value(1, pClassifier->Histogram_Get_Count     (i, false));
+			pRecord->Set_Value(3, pClassifier->Histogram_Get_Cumulative(i, false));
+			pRecord->Set_Value(4, pClassifier->Get_Class_Name          (i).wx_str());
+			pRecord->Set_Value(5, pClassifier->Get_Class_Value_Minimum (i));
+			pRecord->Set_Value(6, pClassifier->Get_Class_Value_Center  (i));
+			pRecord->Set_Value(7, pClassifier->Get_Class_Value_Maximum (i));
 		}
 
 		g_pData->Add(pTable);
 	}
-}
-
-//---------------------------------------------------------
-bool CVIEW_Histogram::Update_Histogram(void)
-{
-	return( m_pControl->Update_Histogram() );
 }
 
 

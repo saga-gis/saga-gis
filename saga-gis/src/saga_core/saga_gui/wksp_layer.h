@@ -121,7 +121,6 @@ public:
 
 	const wxBitmap &				Get_Thumbnail			(int dx, int dy);
 
-	class CVIEW_Histogram *			Histogram_Get			(void)	{	return( m_pHistogram );	}
 	void							Histogram_Show			(bool bShow);
 	void							Histogram_Toggle		(void);
 

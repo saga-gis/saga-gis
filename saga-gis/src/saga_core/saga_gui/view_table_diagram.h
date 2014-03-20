@@ -86,19 +86,16 @@ class CVIEW_Table_Diagram : public CVIEW_Base
 {
 public:
 	CVIEW_Table_Diagram(class CWKSP_Table *pTable);
-	virtual ~CVIEW_Table_Diagram(void);
 
 	static class wxToolBarBase *		_Create_ToolBar		(void);
 	static class wxMenu *				_Create_Menu		(void);
 
-	bool								Update_Diagram		(void);
+	virtual void						Do_Update			(void);
 
 
 private:
 
 	class CVIEW_Table_Diagram_Control	*m_pControl;
-
-	class CWKSP_Table					*m_pOwner;
 
 
 	void								On_Parameters		(wxCommandEvent &event);
@@ -109,10 +106,9 @@ private:
 	void								On_Key_Down			(wxKeyEvent     &event);
 
 
-private:
-
-	DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_Table_Diagram)
+	DECLARE_EVENT_TABLE()
 
 };
 

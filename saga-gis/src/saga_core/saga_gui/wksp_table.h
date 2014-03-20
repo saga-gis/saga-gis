@@ -111,11 +111,6 @@ public:
 	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
 
 
-protected:
-
-	virtual void					On_Update_Views			(bool bAll);
-
-
 private:
 
 	class CVIEW_Table				*m_pView;

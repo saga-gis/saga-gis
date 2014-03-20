@@ -176,7 +176,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
-	: CVIEW_Base(ID_VIEW_SCATTERPLOT, wxString::Format("%s: %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT, false)
+	: CVIEW_Base(pItem, ID_VIEW_SCATTERPLOT, wxString::Format("%s: %s", _TL("Scatterplot"), pItem->Get_Object()->Get_Name()), ID_IMG_WND_SCATTERPLOT, false)
 {
 	m_pItem		= pItem;
 
@@ -200,11 +200,9 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 
 	if( DLG_Parameters(&m_Parameters) )
 	{
-		Update_Data();
+		_Update_Data();
 
-		m_pItem->View_Opened(this);
-
-		Show();
+		Do_Show();
 	}
 	else
 	{
@@ -212,21 +210,17 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 	}
 }
 
-//---------------------------------------------------------
-CVIEW_ScatterPlot::~CVIEW_ScatterPlot(void)
-{
-	if( m_pItem )
-	{
-		m_pItem->View_Closes(this);
-	}
-}
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::Do_Destroy(void)
+void CVIEW_ScatterPlot::Do_Update(void)
 {
-	m_pItem	= NULL;
-
-	Destroy();
+	_Update_Data();
 }
 
 
@@ -415,7 +409,7 @@ void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 {
 	if( DLG_Parameters(&m_Parameters) )
 	{
-		Update_Data();
+		_Update_Data();
 	}
 }
 
@@ -424,14 +418,14 @@ void CVIEW_ScatterPlot::On_Options(wxCommandEvent &event)
 {
 	if( DLG_Parameters(&m_Options) )
 	{
-		Update_Data();
+		_Update_Data();
 	}
 }
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::On_Update(wxCommandEvent &event)
 {
-	Update_Data();
+	_Update_Data();
 }
 
 //---------------------------------------------------------
@@ -474,7 +468,7 @@ void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
 	dc.SetBackground(*wxWHITE_BRUSH);
 	dc.Clear();
 
-	Draw(dc, wxRect(BMP.GetSize()));
+	_Draw(dc, wxRect(BMP.GetSize()));
 
 	dc.SelectObject(wxNullBitmap);
 
@@ -521,11 +515,11 @@ void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
-	Draw(dc, r);
+	_Draw(dc, r);
 }
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::Draw(wxDC &dc, wxRect r)
+void CVIEW_ScatterPlot::_Draw(wxDC &dc, wxRect r)
 {
 	r	= _Draw_Get_rDiagram(r);
 
@@ -745,7 +739,7 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_ScatterPlot::Update_Data(void)
+bool CVIEW_ScatterPlot::_Update_Data(void)
 {
 	bool	bResult;
 

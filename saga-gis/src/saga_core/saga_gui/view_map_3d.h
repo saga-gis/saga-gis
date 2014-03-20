@@ -95,10 +95,31 @@ public:
 	static class wxToolBarBase *	_Create_ToolBar			(void);
 	static class wxMenu *			_Create_Menu			(void);
 
-	void							On_Size					(wxSizeEvent &event);
+	virtual void					Do_Update				(void);
+
+
+private:
+
+	int								m_Play_Mode;
+
+	double							m_xDown, m_yDown;
+
+	CSG_Parameters					m_Parameters;
+
+	CSG_Table						m_Play;
+
+	wxPoint							m_Mouse_Down;
+
+	class CVIEW_Map_3D_Image		*m_pImage;
+
+
+	void							On_Command				(wxCommandEvent  &event);
+	void							On_Command_UI			(wxUpdateUIEvent &event);
+
+	void							On_Size					(wxSizeEvent  &event);
 	void							On_Paint				(wxPaintEvent &event);
 
-	void							On_Key_Down				(wxKeyEvent &event);
+	void							On_Key_Down				(wxKeyEvent   &event);
 
 	void							On_Mouse_LDown			(wxMouseEvent &event);
 	void							On_Mouse_LUp			(wxMouseEvent &event);
@@ -108,29 +129,6 @@ public:
 	void							On_Mouse_MUp			(wxMouseEvent &event);
 	void							On_Mouse_Motion			(wxMouseEvent &event);
 	void							On_Mouse_Wheel			(wxMouseEvent &event);
-
-	void							On_Command				(wxCommandEvent &event);
-	void							On_Command_UI			(wxUpdateUIEvent &event);
-
-	void							On_Source_Changed		(void);
-
-
-private:
-
-	int								m_Play_Mode;
-
-	double							m_xDown, m_yDown;
-
-	CSG_Parameters						m_Parameters;
-
-	CSG_Table							m_Play;
-
-	wxPoint							m_Mouse_Down;
-
-	class CWKSP_Map					*m_pMap;
-
-	class CVIEW_Map_3D_Image		*m_pImage;
-
 
 	void							_Paint					(void);
 	void							_Paint					(wxDC &dc);
@@ -154,10 +152,9 @@ private:
 	bool							_Play					(void);
 
 
-private:
-
-	DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_Map_3D)
+	DECLARE_EVENT_TABLE()
 
 };
 

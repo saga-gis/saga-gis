@@ -128,7 +128,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
-	: CVIEW_Base(ID_VIEW_MAP, pMap->Get_Name(), ID_IMG_WND_MAP)
+	: CVIEW_Base(pMap, ID_VIEW_MAP, pMap->Get_Name(), ID_IMG_WND_MAP)
 {
 	SYS_Set_Color_BG_Window(this);
 
@@ -144,12 +144,6 @@ CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
 	m_Ruler_Size	= 20;
 
 	Ruler_Set_Width(Frame_Width);
-}
-
-//---------------------------------------------------------
-CVIEW_Map::~CVIEW_Map(void)
-{
-	m_pMap->View_Closes(this);
 }
 
 
@@ -220,6 +214,19 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add(pToolBar, _TL("Map"));
 
 	return( pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Map::Do_Update(void)
+{
+	m_pControl->Refresh_Map();
 }
 
 
@@ -577,19 +584,6 @@ void CVIEW_Map::On_Map_Mode_Select(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Mode_Distance(wxCommandEvent &event)
 {
 	m_pControl->Set_Mode(MAP_MODE_DISTANCE);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Map::Refresh_Map(void)
-{
-	m_pControl->Refresh_Map();
 }
 
 

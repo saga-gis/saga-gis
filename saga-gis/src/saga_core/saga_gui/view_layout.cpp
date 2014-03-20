@@ -109,7 +109,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pInfo)
-	: CVIEW_Base(ID_VIEW_LAYOUT, _TL("Layout"), ID_IMG_WND_LAYOUT, false)
+: CVIEW_Base(pInfo->Get_Map(), ID_VIEW_LAYOUT, _TL("Layout"), ID_IMG_WND_LAYOUT, false)
 {
 	SetTitle(wxString::Format(wxT("%s [%s]"), pInfo->Get_Map()->Get_Name().c_str(), _TL("Layout")));
 
@@ -122,13 +122,7 @@ CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pInfo)
 
 	m_pControl	= new CVIEW_Layout_Control(this);
 
-	Show();
-}
-
-//---------------------------------------------------------
-CVIEW_Layout::~CVIEW_Layout(void)
-{
-	m_pInfo->Get_Map()->View_Closes(this);
+	Do_Show();
 }
 
 
@@ -166,6 +160,19 @@ wxToolBarBase * CVIEW_Layout::_Create_ToolBar(void)
 	CMD_ToolBar_Add(pToolBar, _TL("Layout"));
 
 	return( pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Layout::Do_Update(void)
+{
+	m_pControl->Refresh_Layout();
 }
 
 
@@ -222,19 +229,6 @@ void CVIEW_Layout::Ruler_Refresh(double xMin, double xMax, double yMin, double y
 
 	m_pRuler_X->Set_Range(xMin, xMax);
 	m_pRuler_Y->Set_Range(yMin, yMax);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CVIEW_Layout::Refresh_Layout(void)
-{
-	return( m_pControl->Refresh_Layout() );
 }
 
 

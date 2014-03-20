@@ -86,25 +86,16 @@ class CVIEW_Layout : public CVIEW_Base
 {
 public:
 	CVIEW_Layout(class CVIEW_Layout_Info *pInfo);
-	virtual ~CVIEW_Layout(void);
 
 	static class wxToolBarBase *	_Create_ToolBar		(void);
 	static class wxMenu *			_Create_Menu		(void);
 
-	void							On_Size				(wxSizeEvent  &event);
-
-	void							On_Page_Setup		(wxCommandEvent &event);
-	void							On_Print_Setup		(wxCommandEvent &event);
-	void							On_Print			(wxCommandEvent &event);
-	void							On_Print_Preview	(wxCommandEvent &event);
-	void							On_Fit_Scale		(wxCommandEvent &event);
+	virtual void					Do_Update			(void);
 
 	class CVIEW_Layout_Info *		Get_Info			(void)	{	return( m_pInfo );	}
 
 	void							Ruler_Set_Position	(int x, int y);
 	void							Ruler_Refresh		(double xMin, double xMax, double yMin, double yMax);
-
-	bool							Refresh_Layout		(void);
 
 
 private:
@@ -116,10 +107,18 @@ private:
 	class CVIEW_Layout_Control		*m_pControl;
 
 
-private:
+	void							On_Size				(wxSizeEvent  &event);
 
-	DECLARE_EVENT_TABLE()
+	void							On_Page_Setup		(wxCommandEvent &event);
+	void							On_Print_Setup		(wxCommandEvent &event);
+	void							On_Print			(wxCommandEvent &event);
+	void							On_Print_Preview	(wxCommandEvent &event);
+	void							On_Fit_Scale		(wxCommandEvent &event);
+
+
+	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_Layout)
+	DECLARE_EVENT_TABLE()
 
 };
 

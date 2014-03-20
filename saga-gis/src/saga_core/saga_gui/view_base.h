@@ -86,22 +86,27 @@
 class CVIEW_Base : public wxMDIChildFrame
 {
 public:
-	CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, bool bShow = true);
+	CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Caption, int Icon_ID, bool bShow = true);
 	virtual ~CVIEW_Base(void);
 
-	void						On_Size				(wxSizeEvent     &event);
-	void						On_Activate			(wxActivateEvent &event);
-
-	void						On_Quit				(wxCommandEvent  &event);
+	virtual void				Do_Destroy			(void);
+	virtual void				Do_Update			(void);
 
 	virtual void				On_Command_UI		(wxUpdateUIEvent &event);
-
-	virtual void				Do_Destroy			(void);
 
 
 protected:
 
+	class CWKSP_Base_Item		*m_pOwner;
+
+
+	void						Do_Show				(void);
+
 	void						Set_Size_Min		(int x, int y);
+
+	void						On_Size				(wxSizeEvent     &event);
+	void						On_Activate			(wxActivateEvent &event);
+	void						On_Quit				(wxCommandEvent  &event);
 
 
 private:
@@ -111,10 +116,10 @@ private:
 	wxSize						m_Size_Min;
 
 
-private:
-
-	DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_Base)
+	DECLARE_EVENT_TABLE()
+
 };
 
 

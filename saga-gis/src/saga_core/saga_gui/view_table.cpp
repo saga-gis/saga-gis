@@ -118,17 +118,9 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table::CVIEW_Table(CWKSP_Table *pTable)
-	: CVIEW_Base(ID_VIEW_TABLE, pTable->Get_Name(), ID_IMG_WND_TABLE)
+	: CVIEW_Base(pTable, ID_VIEW_TABLE, pTable->Get_Name(), ID_IMG_WND_TABLE)
 {
-	m_pTable	= pTable;
-
-	m_pControl	= new CVIEW_Table_Control(this, m_pTable->Get_Table(), 0);
-}
-
-//---------------------------------------------------------
-CVIEW_Table::~CVIEW_Table(void)
-{
-	m_pTable->View_Closes(this);
+	m_pControl	= new CVIEW_Table_Control(this, pTable->Get_Table(), 0);
 }
 
 
@@ -170,6 +162,25 @@ wxToolBarBase * CVIEW_Table::_Create_ToolBar(void)
 	CMD_ToolBar_Add(pToolBar, _TL("Table"));
 
 	return( pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table::Do_Update(void)
+{
+	m_pControl->Update_Table();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table::Update_Selection(void)
+{
+	m_pControl->Update_Selection();
 }
 
 
@@ -287,25 +298,6 @@ void CVIEW_Table::On_Sel_To_Top(wxCommandEvent &event)
 void CVIEW_Table::On_Sel_To_Top_UI(wxUpdateUIEvent &event)
 {
 	m_pControl->On_Sel_To_Top_UI(event);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Table::Update_Table(void)
-{
-	m_pControl->Update_Table();
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::Update_Selection(void)
-{
-	m_pControl->Update_Selection();
 }
 
 

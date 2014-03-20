@@ -84,14 +84,23 @@
 //---------------------------------------------------------
 class CVIEW_Table : public CVIEW_Base
 {
-	DECLARE_CLASS(CVIEW_Table)
-
 public:
 	CVIEW_Table(class CWKSP_Table *pTable);
-	virtual ~CVIEW_Table(void);
 
 	static class wxToolBarBase *	_Create_ToolBar		(void);
 	static class wxMenu *			_Create_Menu		(void);
+
+	virtual void					Do_Update			(void);
+
+	void							Update_Selection	(void);
+
+
+private:
+
+	class CWKSP_Table				*m_pTable;
+
+	class CVIEW_Table_Control		*m_pControl;
+
 
 	void							On_Field_Add		(wxCommandEvent  &event);
 	void							On_Field_Add_UI		(wxUpdateUIEvent &event);
@@ -115,19 +124,10 @@ public:
 	void							On_Sel_To_Top		(wxCommandEvent  &event);
 	void							On_Sel_To_Top_UI	(wxUpdateUIEvent &event);
 
-	void							Update_Table		(void);
-	void							Update_Selection	(void);
 
-
-private:
-
-	class CWKSP_Table				*m_pTable;
-
-	class CVIEW_Table_Control		*m_pControl;
-
-
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_CLASS(CVIEW_Table)
+	DECLARE_EVENT_TABLE()
 };
 
 

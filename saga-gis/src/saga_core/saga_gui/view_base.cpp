@@ -76,6 +76,9 @@
 
 #include "view_base.h"
 
+#include "wksp_data_item.h"
+#include "wksp_map.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -100,9 +103,10 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, bool bShow)
+CVIEW_Base::CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Caption, int Icon_ID, bool bShow)
 	: wxMDIChildFrame(g_pSAGA_Frame, -1, Caption, MDI_Get_Def_Position(), MDI_Get_Def_Size(), wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 {
+	m_pOwner		= pOwner;
 	m_View_ID		= View_ID;
 
 	m_Size_Min.x	= 0;
@@ -114,23 +118,71 @@ CVIEW_Base::CVIEW_Base(int View_ID, wxString Caption, int Icon_ID, bool bShow)
 
 	if( bShow )
 	{
-		Show();
+		Do_Show();
 	}
 }
 
 //---------------------------------------------------------
 CVIEW_Base::~CVIEW_Base(void)
 {
+	if( m_pOwner )
+	{
+		switch( m_pOwner->Get_Type() )
+		{
+		case WKSP_ITEM_Map:
+			((CWKSP_Map       *)m_pOwner)->View_Closes(this);
+			break;
+
+		default:
+			((CWKSP_Data_Item *)m_pOwner)->View_Closes(this);
+			break;
+		}
+	}
+
 	if( g_pSAGA_Frame )
 	{
 		g_pSAGA_Frame->On_Child_Activates(-1);
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Base::Do_Show(void)
+{
+	switch( m_pOwner->Get_Type() )
+	{
+	case WKSP_ITEM_Map:
+		// NOP
+		break;
+
+	default:
+		((CWKSP_Data_Item *)m_pOwner)->View_Opened(this);
+		break;
+	}
+
+	Show();
+
+	Activate();
+}
+
 //---------------------------------------------------------
 void CVIEW_Base::Do_Destroy(void)
 {
+	m_pOwner	= NULL;
+
 	Destroy();
+}
+
+//---------------------------------------------------------
+void CVIEW_Base::Do_Update(void)
+{
+	// NOP
 }
 
 

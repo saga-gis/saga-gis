@@ -86,30 +86,28 @@ class CVIEW_Histogram : public CVIEW_Base
 {
 public:
 	CVIEW_Histogram(class CWKSP_Layer *pLayer);
-	virtual ~CVIEW_Histogram(void);
 
 	static class wxToolBarBase *	_Create_ToolBar		(void);
 	static class wxMenu *			_Create_Menu		(void);
 
-	bool							Update_Histogram	(void);
+	virtual void					Do_Update			(void);
+
+	virtual void					On_Command_UI		(wxUpdateUIEvent &event);
 
 
 private:
 
-	class CWKSP_Layer				*m_pLayer;
-
 	class CVIEW_Histogram_Control	*m_pControl;
 
-
-	virtual void					On_Command_UI		(wxUpdateUIEvent &event);
 
 	void							On_Cumulative		(wxCommandEvent  &event);
 	void							On_Cumulative_UI	(wxUpdateUIEvent &event);
 	void							On_AsTable			(wxCommandEvent  &event);
 
 
-	DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
 	DECLARE_CLASS(CVIEW_Histogram)
+	DECLARE_EVENT_TABLE()
 
 };
 

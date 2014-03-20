@@ -423,10 +423,7 @@ bool CWKSP_Data_Item::Update_Views(bool bAll)
 		{
 			for(size_t i=0; i<m_Views.Count(); i++)
 			{
-				if( wxDynamicCast(m_Views[i], CVIEW_ScatterPlot) != NULL )
-				{
-					((CVIEW_ScatterPlot *)m_Views[i])->Update_Data();
-				}
+				((CVIEW_Base *)m_Views[i])->Do_Update();
 			}
 		}
 

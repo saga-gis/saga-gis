@@ -165,14 +165,13 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
-	: CVIEW_Base(ID_VIEW_MAP_3D, _TL("3D View"), ID_IMG_WND_MAP3D, false)
+	: CVIEW_Base(pMap, ID_VIEW_MAP_3D, _TL("3D View"), ID_IMG_WND_MAP3D, false)
 {
 	SetTitle(wxString::Format(wxT("%s [%s]"), pMap->Get_Name().c_str(), _TL("3D View")));
 
 	CreateStatusBar(MAP3D_STATUSBAR_COUNT);
 
 	//-----------------------------------------------------
-	m_pMap		= pMap;
 	m_pImage	= new CVIEW_Map_3D_Image(this, pMap);
 
 	//-----------------------------------------------------
@@ -193,7 +192,7 @@ CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
 
 	if( _Parms_Dlg() )
 	{
-		Show();
+		Do_Show();
 	}
 	else
 	{
@@ -207,8 +206,6 @@ CVIEW_Map_3D::~CVIEW_Map_3D(void)
 	_Play_Stop();
 
 	delete(m_pImage);
-
-	m_pMap->View_Closes(this);
 }
 
 
@@ -308,6 +305,21 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	CMD_ToolBar_Add(pToolBar, _TL("3D-View"));
 
 	return( pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Map_3D::Do_Update(void)
+{
+	m_pImage->m_Src_bUpdate	= true;
+
+	m_pImage->Set_Source();
 }
 
 
@@ -586,21 +598,6 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 		event.Check(m_Play_Mode == PLAY_MODE_RUN_SAVE);
 		break;
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Map_3D::On_Source_Changed(void)
-{
-	m_pImage->m_Src_bUpdate	= true;
-
-	m_pImage->Set_Source();
 }
 
 
