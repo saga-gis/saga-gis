@@ -447,14 +447,14 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		&&  pModule->Get_Parameters()->Set_Parameter("XMAX"      , Extent.Get_XMax())
 		&&  pModule->Get_Parameters()->Set_Parameter("YMIN"      , Extent.Get_YMin())
 		&&  pModule->Get_Parameters()->Set_Parameter("YMAX"      , Extent.Get_YMax())
-		&&  pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , Get_Map()->Get_Projection().Get_Proj4())
 		&&  pModule->Get_Parameters()->Set_Parameter("INTERVAL"  , m_Parameters("INTERVAL"))
 		&&  pModule->Get_Parameters()->Set_Parameter("FIXED"     , m_Parameters("FIXED"))
 		&&  pModule->Get_Parameters()->Set_Parameter("FITTED"    , m_Parameters("FITTED"))
 		&&  pModule->Get_Parameters()->Set_Parameter("RESOLUTION", m_Parameters("RESOLUTION"))
 		&&  pModule->Get_Parameters()->Set_Parameter("GRATICULE" , &m_Graticule)
 		&&  pModule->Get_Parameters()->Set_Parameter("COORDS"    , &m_Coordinates)
-		&&  pModule->Execute() )
+		&&  pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , Get_Map()->Get_Projection().Get_Proj4())
+		&&  pModule->On_Before_Execution() && pModule->Execute() )
 		{
 			pModule->Get_Parameters()->Assign_Values(&P);
 			pModule->Set_Manager(P.Get_Manager());

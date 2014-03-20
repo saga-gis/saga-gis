@@ -180,9 +180,9 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 bool CCRS_Base::On_Before_Execution(void)
 {
-	CSG_Projection	Projection(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	m_Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
-	if( Projection.is_Okay() )
+	if( m_Projection.is_Okay() )
 	{
 		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), Parameters("CRS_PROJ4")->asString());
 	}
