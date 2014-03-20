@@ -208,6 +208,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_3D_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_LAYOUT_SHOW);
+	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_SCALEBAR);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_NORTH_ARROW);
 
@@ -429,7 +430,10 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_MAP_ZOOM_SELECTION:
-		event.Enable(g_pACTIVE->Get_Active_Layer() && g_pACTIVE->Get_Active_Layer()->Edit_Get_Attributes());
+		event.Enable(g_pACTIVE->Get_Active_Layer()
+			&& g_pACTIVE->Get_Active_Layer()->Get_Object()->asShapes()
+			&& g_pACTIVE->Get_Active_Layer()->Get_Object()->asShapes()->Get_Selection_Count() > 0
+		);
 		break;
 
 	case ID_CMD_MAP_ZOOM_BACK:
