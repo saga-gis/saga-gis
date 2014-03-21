@@ -725,6 +725,8 @@ bool CErosion_LS_Fields::Get_Statistics(void)
 
 	//-------------------------------------------------
 	delete[](Statistics);
+
+	return( true );
 }
 
 
