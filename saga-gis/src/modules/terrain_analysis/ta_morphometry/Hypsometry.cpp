@@ -206,7 +206,7 @@ bool CHypsometry::On_Execute(void)
 bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int nClasses)
 {
 	int		i;
-	long	n, *Cells_Count;
+	sLong	n, *Cells_Count;
 	double	z, dz, A, a, Min, Max, za, zb;
 
 	CSG_Table_Record	*pRecord;
@@ -248,7 +248,7 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 
 	if( A > 0 && Min < Max )
 	{
-		Cells_Count	= (long *)SG_Calloc(nClasses + 1, sizeof(long));
+		Cells_Count	= (sLong *)SG_Calloc(nClasses + 1, sizeof(sLong));
 
 		for(n=0; n<pDEM->Get_NCells() && Set_Progress_NCells(n); n++)
 		{
@@ -295,7 +295,7 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int nClasses, double zMin, double zMax)
 {
 	int		x, y, i;
-	long	n, nMin, nMax, nStep, nRange;
+	sLong	n, nMin, nMax, nStep, nRange;
 	double	z, zRange;
 
 	//-----------------------------------------------------

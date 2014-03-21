@@ -217,7 +217,7 @@ bool CGridding_Spline_CSA::On_Execute(void)
 	m_Points.Clear();
 
 	//-----------------------------------------------------
-	point	*pDst	= (point *)SG_Malloc((long) m_pGrid->Get_NCells() * sizeof(point));
+	point	*pDst	= (point *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(point));
 
 	for(y=0, i=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
 	{

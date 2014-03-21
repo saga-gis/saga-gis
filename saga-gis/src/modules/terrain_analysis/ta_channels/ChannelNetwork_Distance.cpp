@@ -216,7 +216,7 @@ bool CChannelNetwork_Distance::On_Execute(void)
 	m_pDEM		->Set_Index(true);
 
 	//-----------------------------------------------------
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		int		x, y;
 

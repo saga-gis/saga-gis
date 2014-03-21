@@ -527,17 +527,17 @@ public:
 	CSG_Simple_Statistics(void);
 	CSG_Simple_Statistics(bool bHoldValues);
 	CSG_Simple_Statistics(const CSG_Simple_Statistics &Statistics);
-	CSG_Simple_Statistics(double Mean, double StdDev, int Count = 1000);
+	CSG_Simple_Statistics(double Mean, double StdDev, sLong Count = 1000);
 
 	bool						Create				(bool bHoldValues = false);
 	bool						Create				(const CSG_Simple_Statistics &Statistics);
-	bool						Create				(double Mean, double StdDev, int Count = 1000);
+	bool						Create				(double Mean, double StdDev, sLong Count = 1000);
 
 	void						Invalidate			(void);
 
 	bool						is_Evaluated		(void)	const	{	return( m_bEvaluated );	}
 
-	int							Get_Count			(void)	const	{	return( m_nValues );	}
+	sLong						Get_Count			(void)	const	{	return( m_nValues );	}
 	double						Get_Weights			(void)	const	{	return( m_Weights );	}
 
 	double						Get_Minimum			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Minimum	);	}
@@ -552,7 +552,7 @@ public:
 
 	void						Add_Value			(double Value, double Weight = 1.0);
 
-	double						Get_Value			(int i)	const	{	return( i >= 0 && i < (int)m_Values.Get_Size() ? ((double *)m_Values.Get_Array())[i] : m_Mean );	}
+	double						Get_Value			(sLong i)	const	{	return( i >= 0 && i < (sLong)m_Values.Get_Size() ? ((double *)m_Values.Get_Array())[i] : m_Mean );	}
 
 	CSG_Simple_Statistics &		operator  =			(const CSG_Simple_Statistics &Statistics)	{	Create(Statistics);	return( *this );	}
 	CSG_Simple_Statistics &		operator +=			(const CSG_Simple_Statistics &Statistics)	{	Add(Statistics);	return( *this );	}
@@ -563,7 +563,7 @@ protected:
 
 	bool						m_bEvaluated;
 
-	int							m_nValues;
+	sLong						m_nValues;
 
 	double						m_Weights, m_Sum, m_Sum2, m_Minimum, m_Maximum, m_Range, m_Mean, m_Variance, m_StdDev;
 

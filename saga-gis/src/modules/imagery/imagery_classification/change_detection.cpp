@@ -353,7 +353,7 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 	{
 		double	z;
 
-		for(long i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
+		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
 			double iz	= pGrid->asDouble(pGrid->Get_Sorted(i, false, false));
 

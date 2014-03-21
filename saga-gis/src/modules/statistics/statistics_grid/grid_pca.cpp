@@ -172,7 +172,7 @@ bool CGrid_PCA::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CGrid_PCA::is_NoData(int iCell)
+inline bool CGrid_PCA::is_NoData(sLong iCell)
 {
 	for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 	{
@@ -186,7 +186,7 @@ inline bool CGrid_PCA::is_NoData(int iCell)
 }
 
 //---------------------------------------------------------
-inline double CGrid_PCA::Get_Value(int iCell, int iFeature)
+inline double CGrid_PCA::Get_Value(sLong iCell, int iFeature)
 {
 	CSG_Grid	*pGrid	= m_pGrids->asGrid(iFeature);
 
@@ -208,7 +208,7 @@ inline double CGrid_PCA::Get_Value(int iCell, int iFeature)
 bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 {
 	int		j1, j2;
-	long	iCell;
+	sLong	iCell;
 
 	Matrix.Create(m_nFeatures, m_nFeatures);
 	Matrix.Set_Zero();

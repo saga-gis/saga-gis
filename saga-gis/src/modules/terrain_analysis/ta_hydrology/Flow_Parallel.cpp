@@ -282,7 +282,7 @@ bool CFlow_Parallel::Set_Flow(void)
 	}
 
 	//-----------------------------------------------------
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		pDTM->Get_Sorted(n,x,y);
 
@@ -354,7 +354,7 @@ bool CFlow_Parallel::Set_Flow(void)
 	//-----------------------------------------------------
 	if( pRoute )
 	{
-		for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 		{
 			pDTM->Get_Sorted(n, x, y, false);
 

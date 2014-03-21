@@ -574,7 +574,7 @@ bool CGW_Multi_Regression_Grid::Get_Regression(int x, int y, double &Quality, CS
 int CGW_Multi_Regression_Grid::Get_Variables(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y)
 {
 	TSG_Point	Point	= m_dimModel.Get_Grid_to_World(x, y);
-	int			nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_Points.Get_Count();
+	int			nPoints	= m_Search.is_Okay() ? (int)m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_Points.Get_Count();
 
 	z.Create(nPoints);
 	w.Create(nPoints);

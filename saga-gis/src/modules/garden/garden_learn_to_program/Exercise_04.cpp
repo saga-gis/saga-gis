@@ -424,9 +424,6 @@ bool CExercise_04::Method_05(void)
 //---------------------------------------------------------
 bool CExercise_04::Method_06(void)
 {
-	long	n;
-	double	v;
-
 	//-----------------------------------------------------
 	if( Method_05() == false )
 	{
@@ -434,11 +431,11 @@ bool CExercise_04::Method_06(void)
 	}
 
 	//-----------------------------------------------------
-	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( m_pOutput->is_NoData(n) == false )
 		{
-			v	= m_pOutput->asDouble(n);
+			double	v	= m_pOutput->asDouble(n);
 
 			m_pOutput->Set_Value(n, sqrt(v));
 		}

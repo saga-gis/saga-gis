@@ -228,7 +228,7 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 	pH->Assign(0.0);
 
 	//-----------------------------------------------------
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( !pDEM->Get_Sorted(n, x, y, true, false) || pDEM->is_NoData(x, y) )
 		{

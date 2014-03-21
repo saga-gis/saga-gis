@@ -217,7 +217,7 @@ CSG_Simple_Statistics::CSG_Simple_Statistics(const CSG_Simple_Statistics &Statis
 	Create(Statistics);
 }
 
-CSG_Simple_Statistics::CSG_Simple_Statistics(double Mean, double StdDev, int Count)
+CSG_Simple_Statistics::CSG_Simple_Statistics(double Mean, double StdDev, sLong Count)
 {
 	Create(Mean, StdDev, Count);
 }
@@ -253,7 +253,7 @@ bool CSG_Simple_Statistics::Create(const CSG_Simple_Statistics &Statistics)
 	return( true );
 }
 
-bool CSG_Simple_Statistics::Create(double Mean, double StdDev, int Count)
+bool CSG_Simple_Statistics::Create(double Mean, double StdDev, sLong Count)
 {
 	m_bEvaluated	= true;
 
@@ -261,7 +261,7 @@ bool CSG_Simple_Statistics::Create(double Mean, double StdDev, int Count)
 	m_StdDev		= StdDev;
 	m_Variance		= StdDev*StdDev;
 	m_nValues		= Count;
-	m_Weights		= Count;
+	m_Weights		= (double)Count;
 
 	m_Sum			= m_Weights *  m_Mean;
 	m_Sum2			= m_Weights * (m_Mean*m_Mean + m_Variance);
@@ -313,7 +313,7 @@ void CSG_Simple_Statistics::Add(const CSG_Simple_Statistics &Statistics)
 	//--------------------------------------------------------
 	if( m_Values.Get_Size() == m_nValues && Statistics.m_Values.Get_Size() == Statistics.m_nValues && m_Values.Set_Array(m_nValues + Statistics.m_nValues) )
 	{
-		for(int i=0, j=m_nValues; i<Statistics.m_nValues; i++, j++)
+		for(sLong i=0, j=m_nValues; i<Statistics.m_nValues; i++, j++)
 		{
 			((double *)m_Values.Get_Array())[j]	= Statistics.Get_Value(i);
 		}

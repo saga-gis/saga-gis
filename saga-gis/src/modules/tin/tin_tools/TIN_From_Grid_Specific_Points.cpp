@@ -500,7 +500,7 @@ bool CTIN_From_Grid_Specific_Points::Get_FlowDirection2(CSG_Grid *pResult, CSG_G
 	Grid.Invert();
 	Get_FlowDirection(&Result, &Grid, -1, Threshold);
 
-	for(long n=0; n<Get_NCells(); n++)
+	for(sLong n=0; n<Get_NCells(); n++)
 	{
 		if( Result.asInt(n) > 0 )
 		{

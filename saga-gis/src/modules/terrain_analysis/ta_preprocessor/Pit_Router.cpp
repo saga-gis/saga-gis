@@ -347,7 +347,7 @@ int CPit_Router::Find_Pits(void)
 {
 	bool	bLower, bFlat;
 	int		x, y, i, ix, iy, nFlats, nPits;
-	long	n;
+	sLong	n;
 	double	z;
 	TPit	*pPit;
 
@@ -355,7 +355,7 @@ int CPit_Router::Find_Pits(void)
 	nFlats		= 0;
 	nPits		= 0;
 
-	for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress(n, Get_NCells()); n++)
+	for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress((double)n, (double)Get_NCells()); n++)
 	{
 		m_pDEM->Get_Sorted(n,x,y,false);	// von tief nach hoch...
 
@@ -417,7 +417,7 @@ int CPit_Router::Find_Outlets(int nPits)
 	int		x, y, i, ix, iy, iMin,
 			iID, j, jID, Pit_ID[8];
 
-	long	n;
+	sLong	n;
 
 	double	z, dz, dzMin;
 
@@ -432,7 +432,7 @@ int CPit_Router::Find_Outlets(int nPits)
 		m_Junction	= (int **)SG_Calloc(nPits, sizeof(int *));
 
 		//-------------------------------------------------
-		for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress(n, Get_NCells()); n++)
+		for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress((double)n, (double)Get_NCells()); n++)
 		{
 			if(	m_pDEM->Get_Sorted(n, x, y, false) && m_pPits->asInt(x,y) == 0 )
 			{
@@ -1023,8 +1023,7 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 //---------------------------------------------------------
 int CPit_Router::Process_Threshold(void)
 {
-	int		x, y, n;
-	long	i;
+	int		x, y, n, i;
 
 	m_Route.Create(*Get_System(), SG_DATATYPE_Char);
 

@@ -216,7 +216,7 @@ bool CFillSinks_WL_XXL::On_Execute(void)
 
 		progress += 1.0;
 		if( ((int)progress) % 10000 == 0 )
-			Set_Progress(progress, pElev->Get_NCells());
+			Set_Progress(progress, (double)pElev->Get_NCells());
 			//DataObject_Update(pFilled, pElev->Get_ZMin(), pElev->Get_ZMax(), true);
 		
 	}

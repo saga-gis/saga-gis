@@ -116,33 +116,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// this is defined by configure, but will not be on a normal
-// application build
-//
+// this is defined by configure, but will not be on a normal application build
 #ifndef SIZEOF_LONG
 	#if defined(__alpha) || defined(__sparcv9) || defined(__LP64__) || (defined(__HOS_AIX__) && defined(_LP64))
-		#define SIZEOF_LONG        8
+		#define SIZEOF_LONG		8
 	#else
-		#define SIZEOF_LONG        4
+		#define SIZEOF_LONG		4
 	#endif
 #endif
 
 //---------------------------------------------------------
 #ifdef _TYPEDEF_BOOL
-	typedef unsigned int	bool;
-	#define true			((bool)1)
-	#define false			((bool)0)
+	typedef unsigned int		bool;
+	#define true				((bool)1)
+	#define false				((bool)0)
 #endif	// _TYPEDEF_BOOL
 
 //---------------------------------------------------------
 #ifdef _TYPEDEF_BYTE
-	typedef unsigned char	BYTE;
+	typedef unsigned char		BYTE;
 #endif	// _TYPEDEF_BYTE
 
 //---------------------------------------------------------
 #ifdef _TYPEDEF_WORD
-	typedef unsigned short	WORD;
-	#if (SIZEOF_LONG == 4)
+	typedef unsigned short		WORD;
+	#if SIZEOF_LONG == 4
 		typedef unsigned long	DWORD;
 	#else
 		typedef unsigned int	DWORD;
@@ -150,13 +148,22 @@
 #endif	// _TYPEDEF_WORD
 
 //---------------------------------------------------------
+#if SIZEOF_LONG == 4
+	typedef   signed long long	sLong;
+	typedef unsigned long long	uLong;
+#else
+	typedef   signed long		sLong;
+	typedef unsigned long		uLong;
+#endif
+
+//---------------------------------------------------------
 #if defined(_SAGA_MSW)
 	#include <float.h>
-	#define SG_is_NaN	_isnan
+	#define SG_is_NaN			_isnan
 #elif defined(isnan)
-	#define SG_is_NaN	isnan
+	#define SG_is_NaN			isnan
 #else
-	#define SG_is_NaN(x)	(x != x)
+	#define SG_is_NaN(x)		(x != x)
 #endif
 
 
@@ -831,8 +838,8 @@ inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
 	case SG_DATATYPE_Short:		return( sizeof(short int) );
 	case SG_DATATYPE_DWord:		return( sizeof(unsigned int) );
 	case SG_DATATYPE_Int:		return( sizeof(int) );
-	case SG_DATATYPE_ULong:		return( sizeof(unsigned long) );
-	case SG_DATATYPE_Long:		return( sizeof(long) );
+	case SG_DATATYPE_ULong:		return( sizeof(uLong) );
+	case SG_DATATYPE_Long:		return( sizeof(sLong) );
 	case SG_DATATYPE_Float:		return( sizeof(float) );
 	case SG_DATATYPE_Double:	return( sizeof(double) );
 	case SG_DATATYPE_String:	return( 0 );

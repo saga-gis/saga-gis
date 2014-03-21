@@ -184,7 +184,7 @@ bool CExercise_08::Method_01(void)
 			Area_of_Cell	= Get_Cellsize() * Get_Cellsize();
 
 	//-----------------------------------------------------
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		m_pDTM->Get_Sorted(n, x, y, true, false);
 
@@ -239,7 +239,7 @@ bool CExercise_08::Method_02(void)
 			MFD_Converge	= 1.1;
 
 	//-----------------------------------------------------
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		m_pDTM->Get_Sorted(n, x, y, true, false);
 

@@ -460,9 +460,9 @@ void CSG_Module::Process_Set_Text(const CSG_String &Text)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Set_Progress(int Position)
+bool CSG_Module::Set_Progress(double Percent)
 {
-	return( Set_Progress(Position, 100.0) );
+	return( Set_Progress(Percent, 100.0) );
 }
 
 //---------------------------------------------------------

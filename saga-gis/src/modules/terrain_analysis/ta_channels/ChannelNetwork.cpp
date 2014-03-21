@@ -202,7 +202,7 @@ CChannelNetwork::~CChannelNetwork(void)
 bool CChannelNetwork::On_Execute(void)
 {
 	int		x, y, ID, Trace_Method, Init_Method;
-	long	n;
+	sLong	n;
 	double	Init_Threshold;
 	CSG_Grid	*Trace_pRoute, *Trace_pWeight, *Init_pGrid;
 

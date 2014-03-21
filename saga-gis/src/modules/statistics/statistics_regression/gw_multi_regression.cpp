@@ -465,7 +465,7 @@ int CGW_Multi_Regression::Set_Variables(int x, int y)
 	CSG_Shape	*pPoint;
 
 	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
-	nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_pPoints->Get_Count();
+	nPoints	= m_Search.is_Okay() ? (int)m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_pPoints->Get_Count();
 
 	for(iPoint=0, jPoint=0; iPoint<nPoints; iPoint++)
 	{

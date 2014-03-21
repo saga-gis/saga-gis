@@ -193,8 +193,10 @@ bool CFlow_by_Slope::On_Execute(void)
 	DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE, false);
 
 	//-----------------------------------------------------
-	for(int i=0, x, y; i<Get_NCells() && Set_Progress_NCells(i); i++)
+	for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 	{
+		int	x, y;
+
 		if( !m_pDEM->Get_Sorted(i, x, y, true) || m_pDEM->is_NoData(x, y) )
 		{
 			m_pFlow->Set_NoData(x, y);

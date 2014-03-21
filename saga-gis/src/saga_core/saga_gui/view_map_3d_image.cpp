@@ -203,7 +203,7 @@ void CVIEW_Map_3D_Image::Save(const wxString &file, int type)
 {
 	if( m_img.Ok() && file.Length() > 0 )
 	{
-		m_img.SaveFile(file, type);
+		m_img.SaveFile(file, (wxBitmapType)type);
 	}
 }
 

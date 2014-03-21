@@ -145,11 +145,11 @@ void		Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString	Get_nBytes_asString(long nBytes, int Precision)
+wxString	Get_nBytes_asString(double nBytes, int Precision)
 {
 	if( nBytes < 1024 )
 	{
-		return( wxString::Format(wxT("%ld %s"), nBytes, wxT("bytes")) );
+		return( wxString::Format(wxT("%.0f %s"), nBytes, wxT("bytes")) );
 	}
 
 	double	dSize	= nBytes / 1024.0;

@@ -268,7 +268,7 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 	double	Slope_Weight	= Parameters("SLOPE_WEIGHT")->asDouble();
 
 	//-----------------------------------------------------
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		m_pDEM->Get_Sorted(n, x, y, true, false);
 

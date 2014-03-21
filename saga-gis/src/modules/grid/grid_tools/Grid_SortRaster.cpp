@@ -68,8 +68,10 @@ bool CSortRaster::On_Execute(void)
 
 	pIndex->Set_NoData_Value(0.0);
 
-	for(int i=0, Index=0, ix, iy; i<Get_NCells() && Set_Progress(i, Get_NCells()); i++)
+	for(sLong i=0, Index=0; i<Get_NCells() && Set_Progress(i, Get_NCells()); i++)
 	{
+		int	ix, iy;
+
 		pGrid->Get_Sorted(i, ix, iy, bDown, false);
 
 		if( pGrid->is_NoData(ix, iy) )

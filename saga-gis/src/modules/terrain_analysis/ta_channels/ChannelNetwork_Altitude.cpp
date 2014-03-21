@@ -182,7 +182,7 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	*pBase	= Parameters("BASELEVEL")->asGrid();
 
-	for(long n=0; n<Get_NCells(); n++)
+	for(sLong n=0; n<Get_NCells(); n++)
 	{
 		if( m_pDistance->is_NoData(n) || m_pDTM->is_NoData(n) )
 		{

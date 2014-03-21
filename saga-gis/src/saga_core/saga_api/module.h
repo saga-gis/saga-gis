@@ -256,7 +256,7 @@ protected:
 	virtual bool				Process_Get_Okay			(bool bBlink = false);
 	virtual void				Process_Set_Text			(const CSG_String &Text);
 
-	virtual bool				Set_Progress				(int Position);
+	virtual bool				Set_Progress				(double Percent);
 	virtual bool				Set_Progress				(double Position, double Range);
 
 	bool						Stop_Execution				(bool bDialog = true);
@@ -342,14 +342,14 @@ public:
 
 protected:
 
-	virtual bool				Set_Progress			(int iRow);
+	virtual bool				Set_Progress_NCells		(sLong iCell);
+	virtual bool				Set_Progress			(int  iRow);
 	virtual bool				Set_Progress			(double Position, double Range);
-	virtual bool				Set_Progress_NCells		(int iCell);
 
 	//-----------------------------------------------------
 	int							Get_NX					(void)						{	return( Get_System()->Get_NX() );				}
 	int							Get_NY					(void)						{	return( Get_System()->Get_NY() );				}
-	long						Get_NCells				(void)						{	return( Get_System()->Get_NCells() );			}
+	sLong						Get_NCells				(void)						{	return( Get_System()->Get_NCells() );			}
 	double						Get_Cellsize			(void)						{	return( Get_System()->Get_Cellsize() );			}
 	double						Get_Cellarea			(void)						{	return( Get_System()->Get_Cellarea() );			}
 	double						Get_XMin				(void)						{	return( Get_System()->Get_XMin() );				}

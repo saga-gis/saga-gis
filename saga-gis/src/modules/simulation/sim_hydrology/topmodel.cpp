@@ -283,7 +283,7 @@ CTOPMODEL::~CTOPMODEL(void)
 bool CTOPMODEL::On_Execute(void)
 {
 	bool				bInfiltration;
-	long				n;
+	sLong				n;
 	int					iClass, nClasses, iTime, nTimeSteps, k;
 	double				Precipitation, Evaporation, Infiltration, Infiltration_Excess;
 	CSG_String			Time;

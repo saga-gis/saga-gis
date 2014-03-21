@@ -547,9 +547,9 @@ bool CSG_Grid::_Save_ASCII(CSG_File &Stream, int xA, int yA, int xN, int yN, boo
 //---------------------------------------------------------
 #include "parameters.h"
 
-long SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
+sLong SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 {
-	if(	SG_Grid_Cache_Get_Automatic() && ((long) m_System.Get_NCells() * nValueBytes) > SG_Grid_Cache_Get_Threshold() )
+	if(	SG_Grid_Cache_Get_Automatic() && (m_System.Get_NCells() * nValueBytes) > SG_Grid_Cache_Get_Threshold() )
 	{
 		switch( SG_Grid_Cache_Get_Confirm() )
 		{
@@ -564,7 +564,7 @@ long SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 					_TL("Shall I activate file caching for new grid."),
 					m_System.Get_Name(),
 					_TL("Total memory size"),
-					((long) m_System.Get_NCells() * nValueBytes) / (double)N_MEGABYTE_BYTES
+					(m_System.Get_NCells() * nValueBytes) / (double)N_MEGABYTE_BYTES
 				);
 
 				if( SG_UI_Dlg_Continue(s, _TL("Activate Grid File Cache?")) )
@@ -590,9 +590,9 @@ long SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 				{
 				//	Memory_Type	= GRID_MEMORY_Cache;
 
-				//	Set_Buffer_Size((int)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES));
+				//	Set_Buffer_Size((sLong)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES));
 
-					return( (long)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES) );
+					return( (sLong)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES) );
 				}
 			}
 			break;
@@ -606,7 +606,7 @@ long SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool			bResult, hdr_bFlip, hdr_bSwapBytes;
-	long			hdr_Offset, iType, NX, NY;
+	sLong			hdr_Offset, iType, NX, NY;
 	double			Cellsize, xMin, yMin;
 	CSG_File		Stream;
 	TSG_Data_Type	hdr_Type;
@@ -696,7 +696,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 				||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat"))	, SG_FILE_R, false)
 				||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat"))	, SG_FILE_R, false) )
 				{
-					Stream.Seek(hdr_Offset);
+					Stream.Seek((long)hdr_Offset);
 					bResult	= _Load_ASCII(Stream, Memory_Type, hdr_bFlip);
 				}
 			}
@@ -731,7 +731,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 					||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat"))	, SG_FILE_R, true)
 					||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat"))	, SG_FILE_R, true) )
 					{
-						Stream.Seek(hdr_Offset);
+						Stream.Seek((long)hdr_Offset);
 						bResult	= _Load_Binary(Stream, hdr_Type, hdr_bFlip, hdr_bSwapBytes);
 					}
 				}

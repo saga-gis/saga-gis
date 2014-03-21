@@ -146,7 +146,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_STR (_TL("No Data Value")		, Get_Grid()->Get_NoData_Value() < Get_Grid()->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), Get_Grid()->Get_NoData_Value(), Get_Grid()->Get_NoData_hiValue()).c_str() : SG_Get_String(Get_Grid()->Get_NoData_Value(), -2).c_str());
 	DESC_ADD_FLT (_TL("Arithmetic Mean")	, Get_Grid()->Get_ArithMean(true));
 	DESC_ADD_FLT (_TL("Standard Deviation")	, Get_Grid()->Get_StdDev(true));
-	DESC_ADD_STR (_TL("Memory Size")		, Get_nBytes_asString(Get_Grid()->Get_NCells() * Get_Grid()->Get_nValueBytes(), 2).c_str());
+	DESC_ADD_STR (_TL("Memory Size")		, Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
 
 	if( Get_Grid()->is_Compressed() )
 	{
@@ -650,7 +650,7 @@ void CWKSP_Grid::_LUT_Create(void)
 		{
 			double		Value;
 
-			for(long iCell=0, jCell; iCell<Get_Grid()->Get_NCells() && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
+			for(sLong iCell=0, jCell; iCell<Get_Grid()->Get_NCells() && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
 			{
 				if( Get_Grid()->Get_Sorted(iCell, jCell, false) && (pLUT->Get_Record_Count() == 0 || Value != Get_Grid()->asDouble(jCell)) )
 				{
@@ -710,7 +710,7 @@ void CWKSP_Grid::_LUT_Create(void)
 				pColors->Set_Count(Get_Grid()->Get_NCells());
 			}
 
-			long	jCell, nCells;
+			sLong	jCell, nCells;
 			double	Minimum, Maximum, iCell, Count;
 
 			Maximum	= Get_Grid()->Get_ZMin();
@@ -719,7 +719,7 @@ void CWKSP_Grid::_LUT_Create(void)
 
 			for(iCell=0.0; iCell<Get_Grid()->Get_NCells(); iCell++)
 			{
-				if( Get_Grid()->Get_Sorted((long)iCell, jCell, false) )
+				if( Get_Grid()->Get_Sorted(iCell, jCell, false) )
 				{
 					break;
 				}
@@ -729,7 +729,7 @@ void CWKSP_Grid::_LUT_Create(void)
 
 			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iCell+=Count)
 			{
-				Get_Grid()->Get_Sorted((long)iCell, jCell, false);
+				Get_Grid()->Get_Sorted(iCell, jCell, false);
 
 				Minimum	= Maximum;
 				Maximum	= iCell < Get_Grid()->Get_NCells() ? Get_Grid()->asDouble(jCell) : Get_Grid()->Get_ZMax() + 1.0;

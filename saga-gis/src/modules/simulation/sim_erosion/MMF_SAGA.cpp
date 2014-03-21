@@ -718,7 +718,7 @@ bool CMMF_SAGA::On_Execute(void)
 		Ro	= R / Rn;											// Equ. (9) mean rain per rain day
 
 
-		for (long n=0; n<Get_NCells() && Set_Progress(n); n++)
+		for (sLong n=0; n<Get_NCells() && Set_Progress(n); n++)
 		{
 			pDTM->Get_Sorted(n, x, y, true, false);
 

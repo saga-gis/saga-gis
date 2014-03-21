@@ -842,8 +842,8 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 				if( !pGrid_Y->is_NoData((long)i) )
 				{
 					m_Regression.Add_Values(
-						m_pGrid->asDouble((long)i, true),
-						pGrid_Y->asDouble((long)i, true)
+						m_pGrid->asDouble((sLong)i, true),
+						pGrid_Y->asDouble((sLong)i, true)
 					);
 				}
 			}
@@ -855,7 +855,7 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 
 				if(	pGrid_Y->Get_Value(m_pGrid->Get_System().Get_Grid_to_World(x, y), z, Interpolation, true) )
 				{
-					m_Regression.Add_Values(m_pGrid->asDouble((long)i, true), z);
+					m_Regression.Add_Values(m_pGrid->asDouble((sLong)i, true), z);
 				}
 			}
 		}

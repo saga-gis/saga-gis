@@ -254,8 +254,8 @@ void CFast_Representativeness::FastRep_Initialize(void)
 	double logNx2,logNy2;
 	int pow2y, pow2x;
 	int x,y;
-	long i;
-	long size;
+	sLong i;
+	sLong size;
 
 	logNx2	= log((double)pOrgInput->Get_NX())/log(2.0f);
 	
@@ -368,7 +368,7 @@ void CFast_Representativeness::FastRep_Init_Radius(void)
 {
 	int		k, maxZ;
 	
-	long	i, j, iijj, rr, r1r1, z;
+	sLong	i, j, iijj, rr, r1r1, z;
 	
 	maxZ		= z	= 0;
 	rLength[0]	= 0;

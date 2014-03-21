@@ -486,7 +486,7 @@ CSG_Grid * CViGrA_Random_Forest::Get_Class_Grid(CSG_Table &Classes)
 	pClasses->Set_NoData_Value(-1.0);
 
 	#pragma omp parallel for
-	for(int i=0; i<Get_NCells(); i++)
+	for(sLong i=0; i<Get_NCells(); i++)
 	{
 		bool	bOkay	= true;
 

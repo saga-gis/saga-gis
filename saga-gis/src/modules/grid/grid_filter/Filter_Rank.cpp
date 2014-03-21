@@ -130,7 +130,7 @@ CFilter_Rank::CFilter_Rank(void)
 //---------------------------------------------------------
 bool CFilter_Rank::On_Execute(void)
 {
-	int			x, y, ix, iy;
+	int			x, y;
 	double		Rank;
 	CSG_Grid	*pResult;
 

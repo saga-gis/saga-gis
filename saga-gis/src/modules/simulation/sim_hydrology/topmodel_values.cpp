@@ -169,7 +169,7 @@ void CTOPMODEL_Values::Destroy(void)
 //---------------------------------------------------------
 void CTOPMODEL_Values::Create(double dTime, int anTimeSteps, CSG_Parameters *pParameters, CSG_Grid *pAtanB, int anClasses, CSG_Grid *pClass)
 {
-	long	n, iClass, nCells;
+	sLong	n, iClass, nCells;
 
 	double	zMin, zRange, dz;
 

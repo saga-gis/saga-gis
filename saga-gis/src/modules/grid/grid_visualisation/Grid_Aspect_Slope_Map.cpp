@@ -247,7 +247,7 @@ bool CGrid_Aspect_Slope_Map::On_Execute(void)
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
-	for(long n=0; n<Get_NCells(); n++)
+	for(sLong n=0; n<Get_NCells(); n++)
 	{
 		int		iAspectClass, iSlopeClass;
 

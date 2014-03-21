@@ -216,7 +216,7 @@ bool CKinWav_D8::On_Execute(void)
 
 			m_pFlow->Assign(0.0);
 
-			for(long n=0; n<m_pDEM->Get_NCells() && Process_Get_Okay(false); n++)
+			for(sLong n=0; n<m_pDEM->Get_NCells() && Process_Get_Okay(false); n++)
 			{
 				if( m_pDEM->Get_Sorted(n, x, y) )
 				{

@@ -231,7 +231,7 @@ public:
 
 	int							Get_NX				(void)	const	{	return( m_NX );			}
 	int							Get_NY				(void)	const	{	return( m_NY );			}
-	long						Get_NCells			(void)	const	{	return( m_NCells );		}
+	sLong						Get_NCells			(void)	const	{	return( m_NCells );		}
 
 	const CSG_Rect &			Get_Extent			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells : m_Extent );	}
 
@@ -356,7 +356,8 @@ public:
 private:	///////////////////////////////////////////////
 
 	int							m_NX, m_NY;
-	long						m_NCells;
+
+	sLong						m_NCells;
 
 	double						m_Cellsize, m_Cellarea, m_Diagonal;
 
@@ -429,7 +430,7 @@ public:		///////////////////////////////////////////////
 
 	int							Get_NX			(void)	const	{	return( m_System.Get_NX() );		}
 	int							Get_NY			(void)	const	{	return( m_System.Get_NY() );		}
-	long						Get_NCells		(void)	const	{	return( m_System.Get_NCells() );	}
+	sLong						Get_NCells		(void)	const	{	return( m_System.Get_NCells() );	}
 
 	double						Get_Cellsize	(void)	const	{	return( m_System.Get_Cellsize() );	}
 	double						Get_Cellarea	(void)	const	{	return( m_System.Get_Cellarea() );	}
@@ -455,7 +456,7 @@ public:		///////////////////////////////////////////////
 	double						Get_StdDev		(bool bZFactor = false);
 	double						Get_Variance	(void);
 
-	long							Get_NoData_Count		(void);
+	sLong						Get_NoData_Count(void);
 
 	virtual bool				Save	(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
 	virtual bool				Save	(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN);
@@ -482,15 +483,18 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Memory...
 
-	int							Get_Buffer_Size				(void)					{	return( LineBuffer_Count * Get_nLineBytes() );	}
-	bool						Set_Buffer_Size				(int Size);
+	sLong						Get_Memory_Size				(void)		const	{	return( Get_NCells() * Get_nValueBytes() );	}
+	double						Get_Memory_Size_MB			(void)		const	{	return( (double)Get_Memory_Size() / N_MEGABYTE_BYTES );	}
+
+	bool						Set_Buffer_Size				(sLong nBytes);
+	int							Get_Buffer_Size				(void)		const	{	return( m_LineBuffer_Count * Get_nLineBytes() );	}
 
 	bool						Set_Cache					(bool bOn);
-	bool						is_Cached					(void);
+	bool						is_Cached					(void)		const	{	return( m_Memory_Type == GRID_MEMORY_Cache );	}
 
 	bool						Set_Compression				(bool bOn);
-	bool						is_Compressed				(void);
-	double						Get_Compression_Ratio		(void);
+	bool						is_Compressed				(void)		const	{	return( m_Memory_Type == GRID_MEMORY_Compression );	};
+	double						Get_Compression_Ratio		(void)		const;
 
 
 	//-----------------------------------------------------
@@ -537,7 +541,7 @@ public:		///////////////////////////////////////////////
 
 	bool						Set_Index		(bool bOn = false);
 
-	long						Get_Sorted		(long Position, bool bDown = true, bool bCheckNoData = true)
+	sLong						Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
 	{
 		if( Position >= 0 && Position < Get_NCells() && (m_bIndexed || Set_Index(true)) )
 		{
@@ -552,12 +556,12 @@ public:		///////////////////////////////////////////////
 		return( -1 );
 	}
 
-	bool						Get_Sorted		(long Position, long &n, bool bDown = true, bool bCheckNoData = true)
+	bool						Get_Sorted		(sLong Position, sLong &n, bool bDown = true, bool bCheckNoData = true)
 	{
 		return( (n = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 );
 	}
 
-	bool						Get_Sorted		(long Position, int &x, int &y, bool bDown = true, bool bCheckNoData = true)
+	bool						Get_Sorted		(sLong Position, int &x, int &y, bool bDown = true, bool bCheckNoData = true)
 	{
 		if( (Position = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 )
 		{
@@ -577,10 +581,10 @@ public:		///////////////////////////////////////////////
 	// No Data Value...
 
 	virtual bool				is_NoData		(int x, int y)	const	{	return( is_NoData_Value(asDouble(x, y)) );	}
-	virtual bool				is_NoData		(long n)		const	{	return( is_NoData_Value(asDouble(   n)) );	}
+	virtual bool				is_NoData		(sLong n)		const	{	return( is_NoData_Value(asDouble(   n)) );	}
 
 	virtual void				Set_NoData		(int x, int y)	{	Set_Value(x, y, Get_NoData_Value() );	}
-	virtual void				Set_NoData		(long n)		{	Set_Value(   n, Get_NoData_Value() );	}
+	virtual void				Set_NoData		(sLong n)		{	Set_Value(   n, Get_NoData_Value() );	}
 
 
 	//-----------------------------------------------------
@@ -629,20 +633,22 @@ public:		///////////////////////////////////////////////
 	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
 
 	virtual BYTE				asByte	(int x, int y, bool bZFactor = false) const	{	return( (BYTE )asDouble(x, y, bZFactor) );	}
-	virtual BYTE				asByte	(      long n, bool bZFactor = false) const	{	return( (BYTE )asDouble(   n, bZFactor) );	}
+	virtual BYTE				asByte	(     sLong n, bool bZFactor = false) const	{	return( (BYTE )asDouble(   n, bZFactor) );	}
 	virtual char				asChar	(int x, int y, bool bZFactor = false) const	{	return( (char )asDouble(x, y, bZFactor) );	}
-	virtual char				asChar	(      long n, bool bZFactor = false) const	{	return( (char )asDouble(   n, bZFactor) );	}
+	virtual char				asChar	(     sLong n, bool bZFactor = false) const	{	return( (char )asDouble(   n, bZFactor) );	}
 	virtual short				asShort	(int x, int y, bool bZFactor = false) const	{	return( (short)asDouble(x, y, bZFactor) );	}
-	virtual short				asShort	(      long n, bool bZFactor = false) const	{	return( (short)asDouble(   n, bZFactor) );	}
+	virtual short				asShort	(     sLong n, bool bZFactor = false) const	{	return( (short)asDouble(   n, bZFactor) );	}
 	virtual int					asInt	(int x, int y, bool bZFactor = false) const	{	return( (int  )asDouble(x, y, bZFactor) );	}
-	virtual int					asInt	(      long n, bool bZFactor = false) const	{	return( (int  )asDouble(   n, bZFactor) );	}
+	virtual int					asInt	(     sLong n, bool bZFactor = false) const	{	return( (int  )asDouble(   n, bZFactor) );	}
+	virtual sLong				asLong	(int x, int y, bool bZFactor = false) const	{	return( (sLong)asDouble(x, y, bZFactor) );	}
+	virtual sLong				asLong	(     sLong n, bool bZFactor = false) const	{	return( (sLong)asDouble(   n, bZFactor) );	}
 	virtual float				asFloat	(int x, int y, bool bZFactor = false) const	{	return( (float)asDouble(x, y, bZFactor) );	}
-	virtual float				asFloat	(      long n, bool bZFactor = false) const	{	return( (float)asDouble(   n, bZFactor) );	}
+	virtual float				asFloat	(     sLong n, bool bZFactor = false) const	{	return( (float)asDouble(   n, bZFactor) );	}
 
 	//-----------------------------------------------------
-	virtual double				asDouble(      long n, bool bZFactor = false) const
+	virtual double				asDouble(     sLong n, bool bZFactor = false) const
 	{
-		return( asDouble(n % Get_NX(), n / Get_NX(), bZFactor) );
+		return( asDouble((int)(n % Get_NX()), (int)(n / Get_NX()), bZFactor) );
 	}
 
 	virtual double				asDouble(int x, int y, bool bZFactor = false) const
@@ -683,15 +689,15 @@ public:		///////////////////////////////////////////////
 	// Set Value...
 
 	virtual void				Add_Value(int x, int y, double Value)	{	Set_Value(x, y, asDouble(x, y) + Value );	}
-	virtual void				Add_Value(      long n, double Value)	{	Set_Value(   n, asDouble(   n) + Value );	}
+	virtual void				Add_Value(     sLong n, double Value)	{	Set_Value(   n, asDouble(   n) + Value );	}
 
 	virtual void				Mul_Value(int x, int y, double Value)	{	Set_Value(x, y, asDouble(x, y) * Value );	}
-	virtual void				Mul_Value(      long n, double Value)	{	Set_Value(   n, asDouble(   n) * Value );	}
+	virtual void				Mul_Value(     sLong n, double Value)	{	Set_Value(   n, asDouble(   n) * Value );	}
 
 	//-----------------------------------------------------
-	virtual void				Set_Value(      long n, double Value)
+	virtual void				Set_Value(     sLong n, double Value)
 	{
-		Set_Value(n % Get_NX(), n / Get_NX(), Value);
+		Set_Value((int)(n % Get_NX()), (int)(n / Get_NX()), Value);
 	}
 
 	virtual void				Set_Value(int x, int y, double Value)
@@ -723,7 +729,7 @@ public:		///////////////////////////////////////////////
 		Set_Modified();
 	}
 
-	virtual void				Set_Value_And_Sort(      long n, double Value);
+	virtual void				Set_Value_And_Sort(     sLong n, double Value);
 	virtual void				Set_Value_And_Sort(int x, int y, double Value);
 
 
@@ -739,17 +745,17 @@ private:	///////////////////////////////////////////////
 	void						**m_Values;
 
 	bool						m_bCreated, m_bIndexed, m_Memory_bLock,
-								Cache_bTemp, Cache_bSwap, Cache_bFlip;
+								m_Cache_bTemp, m_Cache_bSwap, m_Cache_bFlip;
 
-	int							LineBuffer_Count;
+	int							m_LineBuffer_Count;
 
-	long						*m_Index, Cache_Offset;
+	sLong						*m_Index, m_Cache_Offset;
 
 	double						m_zFactor;
 
 	CSG_Simple_Statistics		m_zStats;
 
-	CSG_File					Cache_Stream;
+	CSG_File					m_Cache_Stream;
 
 	TSG_Data_Type				m_Type;
 
@@ -757,7 +763,7 @@ private:	///////////////////////////////////////////////
 
 	CSG_Grid_System				m_System;
 
-	CSG_String					m_Unit, Cache_Path;
+	CSG_String					m_Unit, m_Cache_Path;
 
 
 	//-----------------------------------------------------
@@ -772,7 +778,7 @@ private:	///////////////////////////////////////////////
 	}
 	TSG_Grid_Line;
 
-	TSG_Grid_Line				*LineBuffer;
+	TSG_Grid_Line				*m_LineBuffer;
 
 
 	//-----------------------------------------------------
@@ -801,7 +807,7 @@ private:	///////////////////////////////////////////////
 	bool						_Array_Create			(void);
 	void						_Array_Destroy			(void);
 
-	bool						_Cache_Create			(const SG_Char *FilePath, TSG_Data_Type File_Type, long Offset, bool bSwap, bool bFlip);
+	bool						_Cache_Create			(const SG_Char *FilePath, TSG_Data_Type File_Type, sLong Offset, bool bSwap, bool bFlip);
 	bool						_Cache_Create			(void);
 	bool						_Cache_Destroy			(bool bMemory_Restore);
 	void						_Cache_LineBuffer_Save	(TSG_Grid_Line *pLine)			const;
@@ -897,7 +903,7 @@ SAGA_API_DLL_EXPORT int				SG_Grid_Cache_Get_Confirm		(void);
 
 SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Threshold		(int nBytes);
 SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Threshold_MB	(double nMegabytes);
-SAGA_API_DLL_EXPORT long			SG_Grid_Cache_Get_Threshold		(void);
+SAGA_API_DLL_EXPORT sLong			SG_Grid_Cache_Get_Threshold		(void);
 SAGA_API_DLL_EXPORT double			SG_Grid_Cache_Get_Threshold_MB	(void);
 
 

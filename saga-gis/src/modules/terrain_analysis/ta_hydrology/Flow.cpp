@@ -188,7 +188,7 @@ void CFlow::Set_Point(int x, int y)
 bool CFlow::On_Execute(void)
 {
 	bool	bResult	= false;
-	long	n;
+	sLong	n;
 	double	d;
 
 	//-------------------------------------------------
@@ -363,7 +363,7 @@ void CFlow::Init_Cell(int x, int y)
 //---------------------------------------------------------
 void CFlow::Finalize(void)
 {
-	for(long n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		if( pDTM->is_NoData(n) )
 		{

@@ -615,7 +615,7 @@ int CSG_Formula::Del_Function(SG_Char *name)
 
 	_Set_Error();
 
-	return( pFunction - gSG_Functions );
+	return( (int)(pFunction - gSG_Functions) );
 }
 
 //---------------------------------------------------------
@@ -726,7 +726,7 @@ int CSG_Formula::_Get_Function(SG_Char *name)
 
 	_Set_Error();
 
-	return( pFunction - gSG_Functions );
+	return( (int)(pFunction - gSG_Functions) );
 }
 
 

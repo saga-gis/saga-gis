@@ -82,7 +82,7 @@ CGridsFromTableAndGrid::CGridsFromTableAndGrid(void)
 bool CGridsFromTableAndGrid::On_Execute(void)
 {
 	int						iField, iRecord, iAttribute, nAttributes, *Attribute;
-	long					iCell, jCell;
+	sLong					iCell, jCell;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_Grid				*pClasses;
 	CSG_Table				*pTable;

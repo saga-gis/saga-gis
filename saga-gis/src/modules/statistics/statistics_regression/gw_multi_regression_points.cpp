@@ -410,7 +410,7 @@ int CGW_Multi_Regression_Points::Set_Variables(const TSG_Point &Point)
 	int			iPoint, jPoint, nPoints, iPredictor;
 	CSG_Shape	*pPoint;
 
-	nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_pPoints->Get_Count();
+	nPoints	= m_Search.is_Okay() ? (int)m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_pPoints->Get_Count();
 
 	for(iPoint=0, jPoint=0; iPoint<nPoints; iPoint++)
 	{

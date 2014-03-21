@@ -133,7 +133,7 @@ CGSPoints_Variogram_Surface::CGSPoints_Variogram_Surface(void)
 //---------------------------------------------------------
 bool CGSPoints_Variogram_Surface::On_Execute(void)
 {
-	long				i;
+	sLong				i;
 	int					j, x, y, n, nx, ny, nSkip, Attribute, nDistances;
 	double				zi, zj, zMean, v, c, lagDistance;
 	TSG_Point			Pt_i, Pt_j;

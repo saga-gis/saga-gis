@@ -821,7 +821,7 @@ public:
 
 	virtual bool			has_Statistics	(void)	const	{	return( true );	}
 
-	int						Get_Count		(void)	{	return( s_z.Get_Count   () );	}
+	sLong					Get_Count		(void)	{	return( s_z.Get_Count   () );	}
 	double					Get_Value		(int i)	{	return( s_z.Get_Value  (i) );	}
 	double					Get_Minimum		(void)	{	return( s_z.Get_Minimum () );	}
 	double					Get_Maximum		(void)	{	return( s_z.Get_Maximum () );	}

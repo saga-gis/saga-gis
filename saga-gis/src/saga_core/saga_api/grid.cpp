@@ -231,8 +231,8 @@ void CSG_Grid::_On_Construction(void)
 
 	m_Values			= NULL;
 
-	LineBuffer			= NULL;
-	LineBuffer_Count	= 5;
+	m_LineBuffer		= NULL;
+	m_LineBuffer_Count	= 5;
 
 	m_zFactor			= 1.0;
 
@@ -420,7 +420,7 @@ bool CSG_Grid::is_Valid(void) const
 			return( m_Values != NULL );
 
 		case GRID_MEMORY_Cache:
-			return( Cache_Stream.is_Open() );
+			return( m_Cache_Stream.is_Open() );
 		}
 	}
 
@@ -580,7 +580,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double d
 	}
 	else
 	{
-		long	v;
+		sLong	v;
 		double	z[4], n = 0.0;
 
 		z[0] = z[1] = z[2] = z[3] = 0.0;
@@ -634,7 +634,7 @@ inline double CSG_Grid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, d
 		}
 		else
 		{
-			long	v;
+			sLong	v;
 			double	z[4], n = 0.0, d;
 
 			z[0] = z[1] = z[2] = z[3] = 0.0;
@@ -1057,7 +1057,7 @@ double CSG_Grid::Get_Variance(void)
 	Update();	return( m_zStats.Get_Variance() );
 }
 
-long CSG_Grid::Get_NoData_Count(void)
+sLong CSG_Grid::Get_NoData_Count(void)
 {
 	Update();	return( Get_NCells() - m_zStats.Get_Count() );
 }
@@ -1098,7 +1098,7 @@ bool CSG_Grid::On_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::Set_Value_And_Sort(long n, double Value)
+void CSG_Grid::Set_Value_And_Sort(sLong n, double Value)
 {
 	if( !m_bIndexed )
 	{
@@ -1113,7 +1113,7 @@ void CSG_Grid::Set_Value_And_Sort(long n, double Value)
 	if( Value == asDouble(n) )
 		return;
 
-	long	i, j;
+	sLong	i, j;
 
 	for(i=0, j=-1; i<Get_NCells() && j<0; i++)	// find index, could be faster...
 	{
@@ -1223,9 +1223,9 @@ bool CSG_Grid::Set_Index(bool bOn)
 
 bool CSG_Grid::_Set_Index(void)
 {
-	const long	M	= 7;
+	const sLong	M	= 7;
 
-	long	i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
+	sLong	i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
 	double	a;
 
 	//-----------------------------------------------------
@@ -1233,7 +1233,7 @@ bool CSG_Grid::_Set_Index(void)
 
 	if( m_Index == NULL )
 	{
-		m_Index		= (long *)SG_Calloc(Get_NCells(), sizeof(long));
+		m_Index		= (sLong *)SG_Calloc(Get_NCells(), sizeof(sLong));
 
 		if( m_Index == NULL )
 		{
@@ -1276,14 +1276,14 @@ bool CSG_Grid::_Set_Index(void)
 	ir		= Get_NCells() - 1;
 
 	nstack	= 64;
-	istack	= (long *)SG_Malloc(nstack * sizeof(long));
+	istack	= (sLong *)SG_Malloc(nstack * sizeof(sLong));
 	jstack	= 0;
 
 	for(;;)
 	{
 		if( ir - l < M )
 		{
-			if( !SG_UI_Process_Set_Progress(n += M - 1, nCells) )
+			if( !SG_UI_Process_Set_Progress((double)(n += M - 1), (double)nCells) )
 			{
 				SG_Free(istack);
 
@@ -1358,7 +1358,7 @@ bool CSG_Grid::_Set_Index(void)
 			if( jstack >= nstack )
 			{
 				nstack	+= 64;
-				istack	= (long *)SG_Realloc(istack, nstack * sizeof(int));
+				istack	= (sLong *)SG_Realloc(istack, nstack * sizeof(int));
 			}
 
 			if( ir - i + 1 >= j - l )

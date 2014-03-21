@@ -207,7 +207,7 @@ void CFlow_RecursiveDown::On_Initialize(void)
 void CFlow_RecursiveDown::On_Finalize(void)
 {
 	int		x, y, dir;
-	long	n;
+	sLong	n;
 	double	qFlow;
 
 	//-----------------------------------------------------

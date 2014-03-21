@@ -138,7 +138,7 @@ bool CFillSinks_WL::On_Execute(void)
 	double		z, iz, progress;
 	double		minslope, mindiff[8];
 	bool		preserve;
-	long		id;
+	sLong		id;
 
 	pElev		= Parameters("ELEV")->asGrid();
 	pFilled		= Parameters("FILLED")->asGrid();
@@ -211,7 +211,7 @@ bool CFillSinks_WL::On_Execute(void)
 		y = tempNode.y;
 		theQueue.pop();
 
-		id	= (long) pWshed->asDouble(x, y);
+		id	= (sLong) pWshed->asDouble(x, y);
 		z	= pFilled->asDouble(x, y);
 
 		for(i=0; i<8; i++)
@@ -254,7 +254,7 @@ bool CFillSinks_WL::On_Execute(void)
 
 		progress += 1.0;
 		if( ((int)progress) % 10000 == 0 )
-			Set_Progress(progress, pElev->Get_NCells());
+			Set_Progress(progress, (double)pElev->Get_NCells());
 			//DataObject_Update(pFilled, pElev->Get_ZMin(), pElev->Get_ZMax(), true);
 		
 	}

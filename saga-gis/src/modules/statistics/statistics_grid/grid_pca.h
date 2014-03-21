@@ -90,8 +90,8 @@ private:
 	CSG_Parameter_Grid_List	*m_pGrids;
 
 
-	bool					is_NoData			(int iCell);
-	double					Get_Value			(int iCell, int iFeature);
+	bool					is_NoData			(sLong iCell);
+	double					Get_Value			(sLong iCell, int iFeature);
 	
 	bool					Get_Matrix			(CSG_Matrix &Matrix);
 

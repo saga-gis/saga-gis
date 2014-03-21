@@ -223,7 +223,7 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 	{
 		m_NX		= NX;
 		m_NY		= NY;
-		m_NCells	= (long) NY * NX;
+		m_NCells	= (sLong)NY * NX;
 
 		m_Cellsize	= Cellsize;
 		m_Cellarea	= Cellsize * Cellsize;
