@@ -100,7 +100,7 @@ public:
 	bool						Close			(bool bSilent);
 
 	void						Add_Item		(class CWKSP_Base_Manager *pManager, class CWKSP_Base_Item *pItem);
-	bool						Del_Item		(class CWKSP_Map *pMap, class CWKSP_Layer *pLayer);
+	bool						Del_Item		(class CWKSP_Map *pMap             , class CWKSP_Base_Item *pItem);
 
 
 private:

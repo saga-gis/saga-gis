@@ -252,22 +252,26 @@ void CWKSP_Map_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item *
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map_Control::Del_Item(CWKSP_Map *pMap, CWKSP_Layer *pLayer)
+bool CWKSP_Map_Control::Del_Item(CWKSP_Map *pMap, CWKSP_Base_Item *pItem)
 {
-	CWKSP_Map_Layer	*pItem;
-
-	if( pMap && (pItem = pMap->Find_Layer(pLayer)) != NULL )
+	if( pMap && pItem )
 	{
-		bool	bRefresh	= pMap->Get_Count() > 1;
-
-		_Del_Item(pItem, true);
-
-		if( bRefresh )
+		if( pItem->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			pMap->View_Refresh(false);
+			pItem	= pMap->Find_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer());
 		}
 
-		return( true );
+		bool	bRefresh	= pMap->Get_Count() > 1;
+
+		if( pItem && _Del_Item(pItem, true) )
+		{
+			if( bRefresh )
+			{
+				pMap->View_Refresh(false);
+			}
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -326,23 +330,27 @@ void CWKSP_Map_Control::On_Drag_End(wxTreeEvent &event)
 
 		if( pDst_Map )
 		{
+			Freeze();
+
 			if( pDst_Map == pSrc_Map )
 			{
 				pDst_Map->Move_To(pSrc, pDst);
 
 				pDst_Map->View_Refresh(false);
 			}
-			else if( pSrc->Get_Type() == WKSP_ITEM_Map_Layer && (pCpy = pDst_Map->Add_Layer(((CWKSP_Map_Layer *)pSrc)->Get_Layer())) != NULL )
+			else if( (pCpy = pDst_Map->Add_Copy(pSrc)) != NULL )
 			{
 				pDst_Map->Move_To(pCpy, pDst);
 
 				if( pCpy && !wxGetKeyState(WXK_CONTROL) )
 				{
-					Del_Item(pSrc_Map, ((CWKSP_Map_Layer *)pSrc)->Get_Layer());
+					Del_Item(pSrc_Map, pSrc);
 				}
 
 				pDst_Map->View_Refresh(false);
 			}
+
+			Thaw();
 		}
 	}
 

@@ -158,7 +158,9 @@ public:
 	class CWKSP_Map_Layer *		Find_Layer				(class CWKSP_Layer *pLayer);
 	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
 	class CWKSP_Map_Graticule *	Add_Graticule			(CSG_MetaData *pEntry = NULL);
+	class CWKSP_Base_Item *		Add_Copy				(CWKSP_Base_Item *pItem);
 
+    bool                        View_Opened             (class wxMDIChildFrame *pView);
 	void						View_Closes				(class wxMDIChildFrame *pView);
 	void						View_Refresh			(bool bMapOnly);
 	class CVIEW_Map *			View_Get				(void)		{	return( m_pView );		}

@@ -798,6 +798,29 @@ CWKSP_Map_Graticule * CWKSP_Map::Add_Graticule(CSG_MetaData *pEntry)
 	return( NULL );
 }
 
+//---------------------------------------------------------
+CWKSP_Base_Item * CWKSP_Map::Add_Copy(CWKSP_Base_Item *pItem)
+{
+	if( pItem )
+	{
+		if( pItem->Get_Type() == WKSP_ITEM_Map_Layer )
+		{
+			return( Add_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer()) );
+		}
+
+		if( pItem->Get_Type() == WKSP_ITEM_Map_Graticule )
+		{
+			CWKSP_Map_Graticule	*pGraticule	= Add_Graticule();
+
+			pGraticule->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
+
+			return( pGraticule );
+		}
+	}
+
+	return( NULL );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1043,6 +1066,16 @@ void CWKSP_Map::Set_Projection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Map::View_Opened(wxMDIChildFrame *pView)
+{
+    if( wxDynamicCast(pView, CVIEW_Map   ) != NULL )    {	m_pView		= (CVIEW_Map    *)pView;	return( true );	}
+    if( wxDynamicCast(pView, CVIEW_Map_3D) != NULL )	{	m_pView_3D	= (CVIEW_Map_3D *)pView;	return( true );	}
+	if( wxDynamicCast(pView, CVIEW_Layout) != NULL )	{	m_pLayout	= (CVIEW_Layout *)pView;	return( true );	}
+
+    return( false );
+}
+
+//---------------------------------------------------------
 void CWKSP_Map::View_Closes(wxMDIChildFrame *pView)
 {
 	if( pView == m_pView    )	m_pView		= NULL;
@@ -1053,14 +1086,14 @@ void CWKSP_Map::View_Closes(wxMDIChildFrame *pView)
 //---------------------------------------------------------
 void CWKSP_Map::View_Refresh(bool bMapOnly)
 {
+	if( m_pView    )	m_pView   ->Do_Update();
+	if( m_pView_3D )	m_pView_3D->Do_Update();
+	if( m_pLayout  )	m_pLayout ->Do_Update();
+
 	if( !bMapOnly && g_pACTIVE && g_pACTIVE->Get_Legend() )
 	{
 		g_pACTIVE->Get_Legend()->Refresh(true);
 	}
-
-	if( m_pView    )	m_pView   ->Do_Update();
-	if( m_pView_3D )	m_pView_3D->Do_Update();
-	if( m_pLayout  )	m_pLayout ->Do_Update();
 
 	_Set_Thumbnail();
 
@@ -1077,7 +1110,7 @@ void CWKSP_Map::View_Show(bool bShow)
 	{
 		if( !m_pView )
 		{
-			m_pView	= new CVIEW_Map(this, Get_Frame_Width());
+			new CVIEW_Map(this, Get_Frame_Width());
 		}
 		else
 		{
@@ -1103,7 +1136,7 @@ void CWKSP_Map::View_3D_Show(bool bShow)
 {
 	if( bShow && !m_pView_3D )
 	{
-		m_pView_3D	= new CVIEW_Map_3D(this);
+		new CVIEW_Map_3D(this);
 	}
 	else if( !bShow && m_pView_3D )
 	{
@@ -1122,7 +1155,7 @@ void CWKSP_Map::View_Layout_Show(bool bShow)
 {
 	if( bShow && !m_pLayout )
 	{
-		m_pLayout	= new CVIEW_Layout(m_pLayout_Info);
+		new CVIEW_Layout(m_pLayout_Info);
 	}
 	else if( !bShow && m_pLayout )
 	{
@@ -1349,7 +1382,7 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 
 	if( !DLG_Parameters(&P) || P("CELLSIZE")->asDouble() <= 0.0 )
 		return;
-	
+
 	nx	= Extent.Get_XRange() / P("CELLSIZE")->asDouble();
 	ny	= Extent.Get_YRange() / P("CELLSIZE")->asDouble();
 
@@ -1372,7 +1405,7 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 
 		g_pData->Add(pGrid);
 		g_pData->Get_Parameters(pGrid, &P);
-		
+
 		if( P("COLORS_TYPE") )
 		{
 			P("COLORS_TYPE")->Set_Value(3);
@@ -1450,7 +1483,7 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 		case wxBITMAP_TYPE_JPEG:	fn.SetExt(wxT("jgw"));		break;
 		case wxBITMAP_TYPE_PNG:		fn.SetExt(wxT("pgw"));		break;
 		case wxBITMAP_TYPE_PCX:		fn.SetExt(wxT("pxw"));		break;
-		case wxBITMAP_TYPE_TIF:		fn.SetExt(wxT("tfw"));		break; 
+		case wxBITMAP_TYPE_TIF:		fn.SetExt(wxT("tfw"));		break;
 		}
 
 		if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
@@ -1747,6 +1780,7 @@ bool CWKSP_Map::Draw_North_Arrow(wxDC &dc, const CSG_Rect &rWorld, const wxRect 
 			dc.SetPen     (wxPen  (*wxBLACK, 0));
 			dc.SetBrush   (wxBrush(*wxBLACK));
 			dc.DrawPolygon(3, Points);
+            dc.DrawPolygon(3, Points);
 		}
 		else
 		{
@@ -1784,7 +1818,7 @@ bool CWKSP_Map::Draw_ScaleBar(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rC
 	if( m_Projection.is_Okay() && m_Parameters("SCALE_UNIT")->asBool() )
 	{
 		Unit	= SG_Get_Projection_Unit_Name(m_Projection.Get_Unit(), true);
-			
+
 		if( Unit.is_Empty() )	Unit	= m_Projection.Get_Unit_Name();
 
 		if( m_Projection.Get_Unit() == SG_PROJ_UNIT_Meter && dWidth > 10000.0 )
@@ -1795,7 +1829,7 @@ bool CWKSP_Map::Draw_ScaleBar(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rC
 	}
 
 	int	Style	= SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING;
-	
+
 	if( m_Parameters("SCALE_STYLE")->asInt() == 1 )
 		Style	|= SCALE_STYLE_BLACKWHITE;
 

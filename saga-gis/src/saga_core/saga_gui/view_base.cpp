@@ -158,7 +158,7 @@ void CVIEW_Base::Do_Show(void)
 	switch( m_pOwner->Get_Type() )
 	{
 	case WKSP_ITEM_Map:
-		// NOP
+		((CWKSP_Map       *)m_pOwner)->View_Opened(this);
 		break;
 
 	default:

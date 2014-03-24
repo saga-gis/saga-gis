@@ -128,7 +128,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
-	: CVIEW_Base(pMap, ID_VIEW_MAP, pMap->Get_Name(), ID_IMG_WND_MAP)
+	: CVIEW_Base(pMap, ID_VIEW_MAP, pMap->Get_Name(), ID_IMG_WND_MAP, false)
 {
 	SYS_Set_Color_BG_Window(this);
 
@@ -144,6 +144,8 @@ CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
 	m_Ruler_Size	= 20;
 
 	Ruler_Set_Width(Frame_Width);
+
+	Do_Show();
 }
 
 
