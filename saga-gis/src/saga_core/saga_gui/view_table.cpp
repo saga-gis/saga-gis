@@ -118,9 +118,11 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table::CVIEW_Table(CWKSP_Table *pTable)
-	: CVIEW_Base(pTable, ID_VIEW_TABLE, pTable->Get_Name(), ID_IMG_WND_TABLE)
+	: CVIEW_Base(pTable, ID_VIEW_TABLE, pTable->Get_Name(), ID_IMG_WND_TABLE, false)
 {
 	m_pControl	= new CVIEW_Table_Control(this, pTable->Get_Table(), 0);
+
+	Do_Show();
 }
 
 
