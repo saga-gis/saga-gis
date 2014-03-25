@@ -256,10 +256,9 @@ bool CWKSP_Map_Control::Del_Item(CWKSP_Map *pMap, CWKSP_Base_Item *pItem)
 {
 	if( pMap && pItem )
 	{
-		if( pItem->Get_Type() == WKSP_ITEM_Map_Layer )
-		{
-			pItem	= pMap->Find_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer());
-		}
+		pItem	= pItem->Get_Type() == WKSP_ITEM_Map_Layer
+				? pMap->Find_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer())
+				: pMap->Find_Layer( (CWKSP_Layer     *)pItem);
 
 		bool	bRefresh	= pMap->Get_Count() > 1;
 
