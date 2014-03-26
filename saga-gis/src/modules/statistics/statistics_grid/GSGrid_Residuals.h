@@ -100,7 +100,7 @@ private:
 	CSG_Grid				*m_pGrid, *m_pMean, *m_pDiff, *m_pStdDev, *m_pRange, *m_pMin, *m_pMax, *m_pDevMean, *m_pPercent;
 
 
-	bool					Get_Statistics	(int x, int y);
+	bool					Get_Statistics	(int x, int y, bool bCenter);
 
 };
 

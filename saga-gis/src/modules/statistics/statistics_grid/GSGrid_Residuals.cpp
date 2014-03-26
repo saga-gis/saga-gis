@@ -106,6 +106,8 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 
 	Parameters.Add_Value(	NULL, "RADIUS"	, _TL("Radius (Cells)")				, _TL(""), PARAMETER_TYPE_Int, 7, 1, true);
 
+	Parameters.Add_Value(	NULL, "BCENTER"	, _TL("Include Center Cell")		, _TL(""), PARAMETER_TYPE_Bool, true);
+
 	Parameters.Add_Parameters(
 		NULL, "WEIGHTING"	, _TL("Weighting"),
 		_TL("")
@@ -149,12 +151,15 @@ bool CGSGrid_Residuals::On_Execute(void)
 		return( false );
 	}
 
+	bool	bCenter	= Parameters("BCENTER")->asBool();
+
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			Get_Statistics(x, y);
+			Get_Statistics(x, y, bCenter);
 		}
 	}
 
@@ -172,7 +177,7 @@ bool CGSGrid_Residuals::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGSGrid_Residuals::Get_Statistics(int x, int y)
+bool CGSGrid_Residuals::Get_Statistics(int x, int y, bool bCenter)
 {
 	if( m_pGrid->is_InGrid(x, y) )
 	{
@@ -183,7 +188,7 @@ bool CGSGrid_Residuals::Get_Statistics(int x, int y)
 
 		for(i=0, nLower=0, z=m_pGrid->asDouble(x, y); i<m_Cells.Get_Count(); i++)
 		{
-			if( m_Cells.Get_Values(i, ix = x, iy = y, id, iw, true) && id > 0.0 && m_pGrid->is_InGrid(ix, iy) )
+			if( m_Cells.Get_Values(i, ix = x, iy = y, id, iw, true) && (bCenter || id > 0.0) && m_pGrid->is_InGrid(ix, iy) )
 			{
 				Statistics.Add_Value(iz = m_pGrid->asDouble(ix, iy), iw);
 
