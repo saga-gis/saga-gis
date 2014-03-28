@@ -110,21 +110,21 @@ void		Create_Docs		(void);
 //---------------------------------------------------------
 int		main	(int argc, char *argv[])
 {
-#if wxCHECK_VERSION(2, 8, 11)
-	if( !wxInitialize(argc, argv) )
-#else
 	if( !wxInitialize() )
-#endif
 	{
 		CMD_Print_Error(SG_T("initialisation failed"));
 
 		return( 1 );
 	}
 
+#if !defined(_DEBUG)
+	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds
+#endif
+
 //---------------------------------------------------------
 #if !defined(_DEBUG) && defined(_SAGA_VC)
 #define _MODULE_EXCEPTION
-_try 
+_try
 {
 #endif
 //---------------------------------------------------------
@@ -165,7 +165,7 @@ _except(1)
 bool		Run(int argc, char *argv[])
 {
 	setlocale(LC_NUMERIC, "C");
-	
+
 	SG_Set_UI_Callback(CMD_Get_Callback());
 
 	//-----------------------------------------------------
@@ -651,7 +651,7 @@ void		Print_Get_Help	(void)
 	{
 		CMD_Print(_TL("type -h or --help for further information"));
 		CMD_Print("");
-	} 
+	}
 }
 
 //---------------------------------------------------------
