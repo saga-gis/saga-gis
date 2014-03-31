@@ -80,14 +80,20 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 	Set_Description	(_TW(
 		"This module calculates overland flow distances to a channel network "
-		"based on gridded digital elevation data and channel network information.\n"
-		"The flow algorithm may be either Deterministic 8 (O'Callaghan & Mark 1984) or Multiple Flow Direction (Freeman 1991)\n"
+		"based on gridded digital elevation data and channel network information. "
+		"The flow algorithm may be either Deterministic 8 (O'Callaghan & Mark 1984) "
+		"or Multiple Flow Direction (Freeman 1991). Sediment Delivery Rates (SDR) "
+		"according to Ali & De Boer (2010) can be computed optionally. "
 		"\n\nReferences:\n"
-		"- Freeman, G.T., 1991: 'Calculating catchment area with divergent flow based on a regular grid', Computers and Geosciences, 17:413-22\n"
-		"- O'Callaghan, J.F., Mark, D.M., 1984: 'The extraction of drainage networks from digital elevation data', Computer Vision, Graphics and Image Processing, 28:323-344\n"
-		"- Nobre, A.D., Cuartas, L.A., Hodnett, M., Renno, C.D., Rodrigues, G., Silveira, A., Waterloo, M., Saleska S. (2011): Height Above the Nearest Drainage - a hydrologically relevant new terrain model. "
-		"Journal of Hydrology, Vol. 404, Issues 1-2, pp. 13-29, ISSN 0022-1694, 10.1016/j.jhydrol.2011.03.051. "
-		"<a target=\"_blank\" href=\"http://www.sciencedirect.com/science/article/pii/S0022169411002599\">online</a>\n"
+		"- Ali, K. F., De Boer, D. H. (2010): Spatially distributed erosion and sediment yield modeling in the upper Indus River basin."
+		" Water Resources Research, 46(8), W08504. doi:10.1029/2009WR008762\n"
+		"- Freeman, G.T., 1991: Calculating catchment area with divergent flow based on a regular grid."
+		" Computers and Geosciences, 17:413-22.\n"
+		"- O'Callaghan, J.F., Mark, D.M., 1984: The extraction of drainage networks from digital elevation data."
+		" Computer Vision, Graphics and Image Processing, 28:323-344.\n"
+		"- Nobre, A.D., Cuartas, L.A., Hodnett, M., Renno, C.D., Rodrigues, G., Silveira, A., Waterloo, M., Saleska S. (2011): Height Above the Nearest Drainage - a hydrologically relevant new terrain model."
+		" Journal of Hydrology, Vol. 404, Issues 1-2, pp. 13-29, ISSN 0022-1694, 10.1016/j.jhydrol.2011.03.051."
+		" <a target=\"_blank\" href=\"http://www.sciencedirect.com/science/article/pii/S0022169411002599\">online</a>\n"
 	));
 
 
@@ -133,6 +139,13 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
+		NULL	, "SDR"			, _TL("Sediment Yield Delivery Ratio"),
+		_TL("This is the horizontal component of the overland flow"),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
 		NULL	, "FIELDS"		, _TL("Fields"),
 		_TL("If set, output is given about the number of fields a flow path visits downhill. For D8 only."),
 		PARAMETER_INPUT_OPTIONAL
@@ -152,6 +165,12 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 			_TL("D8"),
 			_TL("MFD")
 		), 1
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SDR_BETA"	, _TL("Beta"),
+		_TL("catchment specific parameter for sediment delivery ratio calculation"),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 }
 
@@ -174,6 +193,11 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )
 	{
 		pParameters->Get_Parameter("PASSES")->Set_Enabled(pParameter->is_Enabled() && pParameter->asGrid() != NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SDR") )
+	{
+		pParameters->Get_Parameter("SDR_BETA")->Set_Enabled(pParameter->asGrid() != NULL);
 	}
 
 	return( 1 );
@@ -200,7 +224,10 @@ bool CChannelNetwork_Distance::On_Execute(void)
 	m_pDistVert	= Parameters("DISTVERT" )->asGrid();
 	m_pDistHorz	= Parameters("DISTHORZ" )->asGrid();
 
-	int	Method	= Parameters("METHOD"   )->asInt ();
+	m_pSDR		= Parameters("SDR"      )->asGrid();
+	m_Beta		= Parameters("SDR_BETA" )->asDouble();
+
+	int	Method	= Parameters("METHOD"   )->asInt();
 
 	//-----------------------------------------------------
 	switch( Method )
@@ -212,6 +239,11 @@ bool CChannelNetwork_Distance::On_Execute(void)
 	m_pDistance	->Assign_NoData();
 	m_pDistVert	->Assign_NoData();
 	m_pDistHorz	->Assign_NoData();
+
+	if( m_pSDR )
+	{
+		m_pSDR	->Assign_NoData();
+	}
 
 	m_pDEM		->Set_Index(true);
 
@@ -227,6 +259,11 @@ bool CChannelNetwork_Distance::On_Execute(void)
 				m_pDistance->Set_Value(x, y, 0.0);
 				m_pDistVert->Set_Value(x, y, 0.0);
 				m_pDistHorz->Set_Value(x, y, 0.0);
+
+				if( m_pSDR )
+				{
+					m_pSDR   ->Set_Value(x, y, 0.0);
+				}
 
 				if( m_pFields )
 				{
@@ -252,6 +289,19 @@ bool CChannelNetwork_Distance::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline double CChannelNetwork_Distance::Get_Travel_Time(double dz, double dx)
+{
+	return( sqrt(dz / dx) );
 }
 
 
@@ -322,11 +372,9 @@ void CChannelNetwork_Distance::Execute_D8(int x, int y)
 	int		nPasses	= m_pFields ? m_pPasses->asInt   (x, y) : 0;
 	double	Field	= m_pFields ? m_pFields->asDouble(x, y) : 0;
 
-	double	zDist, zVert, zHorz, dVert, dHorz;
-
-	zDist	= m_pDistance->asDouble(x, y);
-	zVert	= m_pDistVert->asDouble(x, y);
-	zHorz	= m_pDistHorz->asDouble(x, y);
+	double	sz	= m_pDistVert->asDouble(x, y);
+	double	sx	= m_pDistHorz->asDouble(x, y);
+	double	sd	= m_pDistance->asDouble(x, y);
 
 	for(int i=0; i<8; i++)
 	{
@@ -335,18 +383,28 @@ void CChannelNetwork_Distance::Execute_D8(int x, int y)
 
 		if( m_pDEM->is_InGrid(ix, iy) && m_Dir.asInt(ix, iy) == i )
 		{
-			dVert	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
-			dHorz	= Get_Length(i);
+			double	dz	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
+			double	dx	= Get_Length(i);
 
-			m_pDistVert->Set_Value(ix, iy, zVert + dVert);
-			m_pDistHorz->Set_Value(ix, iy, zHorz + dHorz);
-			m_pDistance->Set_Value(ix, iy, zDist + sqrt(dVert*dVert + dHorz*dHorz));
+			m_pDistVert->Set_Value(ix, iy, sz + dz);
+			m_pDistHorz->Set_Value(ix, iy, sx + dx);
+			m_pDistance->Set_Value(ix, iy, sd + sqrt(dz*dz + dx*dx));
+
+			if( m_pSDR )
+			{
+				m_pSDR->Set_Value(ix, iy, m_pSDR->asDouble(x, y) + Get_Travel_Time(dz, dx));
+			}
 
 			if( m_pFields )
 			{
 				m_pPasses->Set_Value(ix, iy, Field != m_pFields->asDouble(ix, iy) ? nPasses + 1 : nPasses);
 			}
 		}
+	}
+
+	if( m_pSDR )
+	{
+		m_pSDR->Set_Value(x, y, exp(-m_Beta * m_pSDR->asDouble(x, y)));
 	}
 }
 
@@ -435,51 +493,66 @@ void CChannelNetwork_Distance::Initialize_MFD(int x, int y)
 //---------------------------------------------------------
 void CChannelNetwork_Distance::Execute_MFD(int x, int y)
 {
-	double	zDist, zVert, zHorz, dDist, dVert, dHorz, dFlow;
+	double	df	= m_Flow[8].asDouble(x, y);
 
-	dDist	= m_Flow[8].asDouble(x, y);
-
-	if( dDist > 0.0 )
+	if( df > 0.0 )
 	{
-		dDist	= 1.0 / dDist;
-		m_pDistance->Mul_Value(x, y, dDist);
-		m_pDistVert->Mul_Value(x, y, dDist);
-		m_pDistHorz->Mul_Value(x, y, dDist);
+		m_pDistance->Mul_Value(x, y, 1.0 / df);
+		m_pDistVert->Mul_Value(x, y, 1.0 / df);
+		m_pDistHorz->Mul_Value(x, y, 1.0 / df);
+
+		if( m_pSDR )
+		{
+			m_pSDR ->Mul_Value(x, y, 1.0 / df);
+		}
 	}
 
-	zDist	= m_pDistance->asDouble(x, y);
-	zVert	= m_pDistVert->asDouble(x, y);
-	zHorz	= m_pDistHorz->asDouble(x, y);
+	double	sz	= m_pDistVert->asDouble(x, y);
+	double	sx	= m_pDistHorz->asDouble(x, y);
+	double	sd	= m_pDistance->asDouble(x, y);
 
 	for(int i=0; i<8; i++)
 	{
 		int	ix	= Get_xTo(i, x);
 		int	iy	= Get_yTo(i, y);
 
-		if( m_pDEM->is_InGrid(ix, iy) && (dFlow = m_Flow[(i + 4) % 8].asDouble(ix, iy)) > 0.0 )
+		if( m_pDEM->is_InGrid(ix, iy) && (df = m_Flow[(i + 4) % 8].asDouble(ix, iy)) > 0.0 )
 		{
-			dVert	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
-			dHorz	= Get_Length(i);
-
-			dDist	= dFlow * (zDist + sqrt(dVert*dVert + dHorz*dHorz));
-			dVert	= dFlow * (zVert + dVert);
-			dHorz	= dFlow * (zHorz + dHorz);
+			double	dz	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
+			double	dx	= Get_Length(i);
 
 			if( m_pDistance->is_NoData(ix, iy) )
 			{
-				m_pDistVert->Set_Value(ix, iy, dVert);
-				m_pDistHorz->Set_Value(ix, iy, dHorz);
-				m_pDistance->Set_Value(ix, iy, dDist);
-				m_Flow[8].Set_Value(ix, iy, dFlow);
+				m_Flow[8]   .Set_Value(ix, iy, df);
+
+				m_pDistVert->Set_Value(ix, iy, df * (sz + dz));
+				m_pDistHorz->Set_Value(ix, iy, df * (sx + dx));
+				m_pDistance->Set_Value(ix, iy, df * (sd + sqrt(dz*dz + dx*dx)));
+
+				if( m_pSDR )
+				{
+					m_pSDR ->Set_Value(ix, iy, df * (m_pSDR->asDouble(x, y) + Get_Travel_Time(dz, dx)));
+				}
 			}
 			else
 			{
-				m_pDistVert->Add_Value(ix, iy, dVert);
-				m_pDistHorz->Add_Value(ix, iy, dHorz);
-				m_pDistance->Add_Value(ix, iy, dDist);
-				m_Flow[8].Add_Value(ix, iy, dFlow);
+				m_Flow[8]   .Add_Value(ix, iy, df);
+
+				m_pDistVert->Add_Value(ix, iy, df * (sz + dz));
+				m_pDistHorz->Add_Value(ix, iy, df * (sx + dx));
+				m_pDistance->Add_Value(ix, iy, df * (sd + sqrt(dz*dz + dx*dx)));
+
+				if( m_pSDR )
+				{
+					m_pSDR ->Add_Value(ix, iy, df * (m_pSDR->asDouble(x, y) + Get_Travel_Time(dz, dx)));
+				}
 			}
 		}
+	}
+
+	if( m_pSDR )
+	{
+		m_pSDR->Set_Value(x, y, exp(-m_Beta * m_pSDR->asDouble(x, y)));
 	}
 }
 
