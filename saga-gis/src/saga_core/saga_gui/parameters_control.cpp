@@ -185,6 +185,8 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 	m_pParameters	= new CSG_Parameters;
 	m_pOriginal		= NULL;
 
+	m_bFocus		= 0;
+
 	CParameters_Grid_Manager	*pPGM	= new CParameters_Grid_Manager;
 	
 	m_pPG	= pPGM->Initialize(this);
@@ -239,7 +241,7 @@ void CParameters_Control::On_Key(wxKeyEvent &event)
 //---------------------------------------------------------
 void CParameters_Control::On_PG_Selected(wxPropertyGridEvent &event)
 {
-	if( m_pParameters && m_pOriginal )
+	if( m_bFocus == 0 && m_pParameters && m_pOriginal )
 	{
 		SetFocus();
 	}
@@ -371,6 +373,8 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 {
 	if( pParameters != m_pParameters )
 	{
+		m_bFocus++;
+
 		m_pPG->Freeze();
 
 		m_bModified	= false;
@@ -408,6 +412,8 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 		}
 
 		m_pPG->Thaw();
+
+		m_bFocus--;
 	}
 
 	//-----------------------------------------------------

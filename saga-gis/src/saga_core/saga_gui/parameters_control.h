@@ -72,12 +72,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/panel.h>
-#include <wx/scrolwin.h>
-#include <wx/toolbar.h>
-#include <wx/stattext.h>
-#include <wx/dcclient.h>
-#include <wx/button.h>
 #include <wx/propgrid/propgrid.h>
 
 
@@ -119,6 +113,8 @@ public:
 private:
 
 	bool						m_bModified;
+	
+	int							m_bFocus;
 
 	class CSG_Parameters		*m_pParameters, *m_pOriginal;
 
