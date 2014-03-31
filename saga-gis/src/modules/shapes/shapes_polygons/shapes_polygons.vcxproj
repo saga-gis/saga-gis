@@ -306,6 +306,7 @@
     <ClCompile Include="Polygons_From_Lines.cpp" />
     <ClCompile Include="Polygon_Centroids.cpp" />
     <ClCompile Include="Polygon_Clip.cpp" />
+    <ClCompile Include="polygon_flatten.cpp" />
     <ClCompile Include="Polygon_Geometrics.cpp" />
     <ClCompile Include="Polygon_Intersection.cpp" />
     <ClCompile Include="polygon_line_intersection.cpp" />
@@ -340,6 +341,7 @@
     <ClInclude Include="Polygons_From_Lines.h" />
     <ClInclude Include="Polygon_Centroids.h" />
     <ClInclude Include="Polygon_Clip.h" />
+    <ClInclude Include="polygon_flatten.h" />
     <ClInclude Include="Polygon_Geometrics.h" />
     <ClInclude Include="Polygon_Intersection.h" />
     <ClInclude Include="polygon_line_intersection.h" />
