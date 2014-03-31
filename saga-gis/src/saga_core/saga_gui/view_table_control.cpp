@@ -68,6 +68,9 @@
 #include "res_commands.h"
 #include "res_dialogs.h"
 
+#include "active.h"
+#include "active_attributes.h"
+
 #include "helper.h"
 
 #include "wksp_data_manager.h"
@@ -98,14 +101,17 @@ IMPLEMENT_CLASS(CVIEW_Table_Control, wxGrid)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
-	EVT_GRID_CELL_CHANGE		(CVIEW_Table_Control::On_Change)
+	EVT_SIZE					(CVIEW_Table_Control::On_Size)
+	EVT_KEY_DOWN				(CVIEW_Table_Control::On_Key)
+
+	EVT_GRID_EDITOR_SHOWN		(CVIEW_Table_Control::On_Edit_Start)
+	EVT_GRID_EDITOR_HIDDEN		(CVIEW_Table_Control::On_Edit_Stop)
+	EVT_GRID_CELL_CHANGED		(CVIEW_Table_Control::On_Changed)
 	EVT_GRID_CELL_LEFT_CLICK	(CVIEW_Table_Control::On_LClick)
 	EVT_GRID_LABEL_LEFT_CLICK	(CVIEW_Table_Control::On_LClick_Label)
 	EVT_GRID_LABEL_LEFT_DCLICK	(CVIEW_Table_Control::On_LDClick_Label)
 	EVT_GRID_LABEL_RIGHT_CLICK	(CVIEW_Table_Control::On_RClick_Label)
 	EVT_GRID_RANGE_SELECT		(CVIEW_Table_Control::On_Select)
-
-	EVT_SIZE					(CVIEW_Table_Control::On_Size)
 
 	EVT_MENU					(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table_Control::On_Field_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table_Control::On_Field_Add_UI)
@@ -152,6 +158,7 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	m_pRecords		= NULL;
 	m_Constraint	= Constraint;
 	m_bSelOnly		= false;
+	m_bEditing		= false;
 
 	Set_Labeling(false);
 
@@ -533,16 +540,52 @@ void CVIEW_Table_Control::On_Size(wxSizeEvent &event)//&WXUNUSED(event))
 }
 
 //---------------------------------------------------------
-void CVIEW_Table_Control::On_Change(wxGridEvent &event)
+void CVIEW_Table_Control::On_Key(wxKeyEvent &event)
 {
-	int					iField		= m_Field_Offset + event.GetCol();
+	event.Skip(true);
+
+	if( event.GetKeyCode() == WXK_RETURN )
+	{
+		if( !m_bEditing && GetParent() == g_pACTIVE->Get_Attributes() )
+		{
+			event.Skip(false);
+
+			g_pACTIVE->Get_Attributes()->Save_Changes(false);
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Edit_Start(wxGridEvent &event)
+{
+	m_bEditing	= true;
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Edit_Stop(wxGridEvent &event)
+{
+	m_bEditing	= false;
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Changed(wxGridEvent &event)
+{
 	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
 
-	if( pRecord && iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
+	if( pRecord )
 	{
-		pRecord->Set_Value(iField, GetCellValue(event.GetRow(), event.GetCol()).wx_str());
+		int	iField	= m_Field_Offset + event.GetCol();
 
-		SetCellValue(event.GetRow(), event.GetCol(), pRecord->asString(iField));
+		if( iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
+		{
+			pRecord->Set_Value(iField, GetCellValue(event.GetRow(), event.GetCol()).wx_str());
+
+			SetCellValue(event.GetRow(), event.GetCol(), pRecord->asString(iField));
+		}
 	}
 }
 

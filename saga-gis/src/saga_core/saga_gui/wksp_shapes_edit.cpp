@@ -485,7 +485,10 @@ bool CWKSP_Shapes::Edit_Set_Attributes(void)
 	{
 		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
 		{
-			pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1));
+			if( !pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1)) )
+			{
+				m_Edit_Attributes.Get_Record(i)->Set_Value(1, pSelection->asString(i));
+			}
 		}
 
 		Update_Views(false);

@@ -315,7 +315,7 @@ void CACTIVE_Attributes::Save_Changes(bool bConfirm)
 		m_pItem->Edit_Get_Attributes()->Assign_Values(m_pAttributes);
 		m_pItem->Edit_Set_Attributes();
 
-		m_pAttributes->Set_Modified(false);
+		Set_Attributes();
 	}
 }
 

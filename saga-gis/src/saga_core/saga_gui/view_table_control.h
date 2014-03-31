@@ -132,12 +132,16 @@ public:
 	void						On_Autosize_Cols	(wxCommandEvent  &event);
 	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
-	void						On_Size				(wxSizeEvent &event);
-	void						On_Change			(wxGridEvent &event);
-	void						On_LClick			(wxGridEvent &event);
-	void						On_LClick_Label		(wxGridEvent &event);
-	void						On_RClick_Label		(wxGridEvent &event);
-	void						On_LDClick_Label	(wxGridEvent &event);
+	void						On_Size				(wxSizeEvent     &event);
+	void						On_Key				(wxKeyEvent      &event);
+
+	void						On_Edit_Start		(wxGridEvent     &event);
+	void						On_Edit_Stop		(wxGridEvent     &event);
+	void						On_Changed			(wxGridEvent     &event);
+	void						On_LClick			(wxGridEvent     &event);
+	void						On_LClick_Label		(wxGridEvent     &event);
+	void						On_RClick_Label		(wxGridEvent     &event);
+	void						On_LDClick_Label	(wxGridEvent     &event);
 	void						On_Select			(wxGridRangeSelectEvent &event);
 
 	void						Set_Labeling		(bool bOn);
@@ -157,7 +161,7 @@ public:
 
 private:
 
-	bool						m_bSelOnly;
+	bool						m_bSelOnly, m_bEditing;
 
 	int							m_Constraint, m_Field_Offset;
 
