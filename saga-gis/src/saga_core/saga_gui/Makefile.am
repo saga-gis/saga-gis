@@ -230,7 +230,6 @@ install-data-hook:
 	mv saga_dic.txt saga_prj.dic;
 
 dist-hook:
-	 mkdir $(distdir)/res
 	 cp -Rp $(srcdir)/res/* $(distdir)/res/
 
 SUBDIRS=man 
