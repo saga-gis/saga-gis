@@ -117,7 +117,6 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 	m_pLayer	= pLayer;
 	m_pLUT		= pLUT;
 	m_pColors	= pColors;
-	m_pColors	->Set_Count(11);
 
 	//-----------------------------------------------------
 	if( m_pLUT && m_pLUT->Get_Record_Count() == 0 )
