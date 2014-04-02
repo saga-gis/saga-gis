@@ -279,6 +279,7 @@ bool CParameters_Control::Save_Changes(bool bSilent)
 		m_bModified	= false;
 
 		m_pPG->ClearModifiedStatus();
+		m_pPG->Refresh();
 
 		return( true );
 	}
