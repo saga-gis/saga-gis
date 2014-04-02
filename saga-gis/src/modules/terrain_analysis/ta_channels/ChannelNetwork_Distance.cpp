@@ -139,6 +139,12 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
+		NULL	, "TIME"		, _TL("Flow Travel Time"),
+		_TL("flow travel time to channel expressed in hours based on Manning's Equation"),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
 		NULL	, "SDR"			, _TL("Sediment Yield Delivery Ratio"),
 		_TL("This is the horizontal component of the overland flow"),
 		PARAMETER_OUTPUT_OPTIONAL
@@ -168,9 +174,21 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "SDR_BETA"	, _TL("Beta"),
+		NULL	, "FLOW_B"		, _TL("Beta"),
 		_TL("catchment specific parameter for sediment delivery ratio calculation"),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
+
+	Parameters.Add_Grid_or_Const(
+		NULL	, "FLOW_K"		, _TL("Manning-Strickler Coefficient"),
+		_TL("Manning-Strickler coefficient for flow travel time estimation (reciprocal of Manning's Roughness Coefficient)"),
+		20.0, 0.0, true
+	);
+
+	Parameters.Add_Grid_or_Const(
+		NULL	, "FLOW_R"		, _TL("Flow Depth"),
+		_TL("flow depth [m] for flow travel time estimation"),
+		0.05, 0.0, true
 	);
 }
 
@@ -195,9 +213,14 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 		pParameters->Get_Parameter("PASSES")->Set_Enabled(pParameter->is_Enabled() && pParameter->asGrid() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SDR") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") || !SG_STR_CMP(pParameter->Get_Identifier(), "SDR") )
 	{
-		pParameters->Get_Parameter("SDR_BETA")->Set_Enabled(pParameter->asGrid() != NULL);
+		bool	bEnable	= pParameters->Get_Parameter("TIME")->asGrid() != NULL
+					||	  pParameters->Get_Parameter("SDR" )->asGrid() != NULL;
+
+		pParameters->Get_Parameter("FLOW_B")->Set_Enabled(bEnable);
+		pParameters->Get_Parameter("FLOW_K")->Set_Enabled(bEnable);
+		pParameters->Get_Parameter("FLOW_R")->Set_Enabled(bEnable);
 	}
 
 	return( 1 );
@@ -224,28 +247,31 @@ bool CChannelNetwork_Distance::On_Execute(void)
 	m_pDistVert	= Parameters("DISTVERT" )->asGrid();
 	m_pDistHorz	= Parameters("DISTHORZ" )->asGrid();
 
+	m_pTime		= Parameters("TIME"     )->asGrid();
 	m_pSDR		= Parameters("SDR"      )->asGrid();
-	m_Beta		= Parameters("SDR_BETA" )->asDouble();
+
+	m_Flow_B	= Parameters("FLOW_B"   )->asDouble();
+	m_Flow_K	= Parameters("FLOW_K"   )->asDouble();
+	m_Flow_R	= Parameters("FLOW_R"   )->asDouble();
+	m_pFlow_K	= Parameters("FLOW_K"   )->asGrid();
+	m_pFlow_R	= Parameters("FLOW_R"   )->asGrid();
 
 	int	Method	= Parameters("METHOD"   )->asInt();
 
 	//-----------------------------------------------------
+	if( m_pDistance )	m_pDistance->Assign_NoData();
+	if( m_pDistVert )	m_pDistVert->Assign_NoData();
+	if( m_pDistHorz )	m_pDistHorz->Assign_NoData();
+	if( m_pTime     )	m_pTime    ->Assign_NoData();
+	if( m_pSDR      )	m_pSDR     ->Assign_NoData();
+
 	switch( Method )
 	{
 	default:	Initialize_D8 ();	break;
 	case  1:	Initialize_MFD();	break;
 	}
 
-	m_pDistance	->Assign_NoData();
-	m_pDistVert	->Assign_NoData();
-	m_pDistHorz	->Assign_NoData();
-
-	if( m_pSDR )
-	{
-		m_pSDR	->Assign_NoData();
-	}
-
-	m_pDEM		->Set_Index(true);
+	m_pDEM->Set_Index(true);
 
 	//-----------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
@@ -256,19 +282,12 @@ bool CChannelNetwork_Distance::On_Execute(void)
 		{
 			if( !pChannels->is_NoData(x, y) )
 			{
-				m_pDistance->Set_Value(x, y, 0.0);
-				m_pDistVert->Set_Value(x, y, 0.0);
-				m_pDistHorz->Set_Value(x, y, 0.0);
-
-				if( m_pSDR )
-				{
-					m_pSDR   ->Set_Value(x, y, 0.0);
-				}
-
-				if( m_pFields )
-				{
-					m_pPasses->Set_Value(x, y, 0.0);
-				}
+				if( m_pDistance )	m_pDistance->Set_Value(x, y, 0.0);
+				if( m_pDistVert )	m_pDistVert->Set_Value(x, y, 0.0);
+				if( m_pDistHorz )	m_pDistHorz->Set_Value(x, y, 0.0);
+				if( m_pTime     )	m_pTime    ->Set_Value(x, y, 0.0);
+				if( m_pSDR      )	m_pSDR     ->Set_Value(x, y, 0.0);
+				if( m_pFields   )	m_pPasses  ->Set_Value(x, y, 0.0);
 			}
 
 			switch( Method )
@@ -299,9 +318,16 @@ bool CChannelNetwork_Distance::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double CChannelNetwork_Distance::Get_Travel_Time(double dz, double dx)
+inline double CChannelNetwork_Distance::Get_Travel_Time(int x, int y, int i)
 {
-	return( sqrt(dz / dx) );
+	double	dz	= m_pDEM->asDouble(Get_xTo(i, x), Get_yTo(i, y)) - m_pDEM->asDouble(x, y);
+	double	dx	= Get_Length(i);
+	double	k	= m_pFlow_K && !m_pFlow_K->is_NoData(x, y) ? m_pFlow_K->asDouble(x, y) : m_Flow_K;
+	double	R	= m_pFlow_R && !m_pFlow_R->is_NoData(x, y) ? m_pFlow_R->asDouble(x, y) : m_Flow_R;
+
+	double	v	= k * pow(R, 2.0 / 3.0) * sqrt(dz / dx);	// [m / s], simplified Manning equation
+
+	return( dx / (v * 3600.0) );	// return travel time in hours
 }
 
 
@@ -386,25 +412,18 @@ void CChannelNetwork_Distance::Execute_D8(int x, int y)
 			double	dz	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
 			double	dx	= Get_Length(i);
 
-			m_pDistVert->Set_Value(ix, iy, sz + dz);
-			m_pDistHorz->Set_Value(ix, iy, sx + dx);
-			m_pDistance->Set_Value(ix, iy, sd + sqrt(dz*dz + dx*dx));
-
-			if( m_pSDR )
-			{
-				m_pSDR->Set_Value(ix, iy, m_pSDR->asDouble(x, y) + Get_Travel_Time(dz, dx));
-			}
-
-			if( m_pFields )
-			{
-				m_pPasses->Set_Value(ix, iy, Field != m_pFields->asDouble(ix, iy) ? nPasses + 1 : nPasses);
-			}
+			if( m_pDistVert )	m_pDistVert->Set_Value(ix, iy, sz + dz);
+			if( m_pDistHorz )	m_pDistHorz->Set_Value(ix, iy, sx + dx);
+			if( m_pDistance )	m_pDistance->Set_Value(ix, iy, sd + sqrt(dz*dz + dx*dx));
+			if( m_pTime     )	m_pTime    ->Set_Value(ix, iy, m_pTime->asDouble(x, y) + Get_Travel_Time(x, y, i));
+			if( m_pSDR      )	m_pSDR     ->Set_Value(ix, iy, m_pSDR ->asDouble(x, y) + Get_Travel_Time(x, y, i));
+			if( m_pFields   )	m_pPasses  ->Set_Value(ix, iy, Field != m_pFields->asDouble(ix, iy) ? nPasses + 1 : nPasses);
 		}
 	}
 
 	if( m_pSDR )
 	{
-		m_pSDR->Set_Value(x, y, exp(-m_Beta * m_pSDR->asDouble(x, y)));
+		m_pSDR->Set_Value(x, y, exp(-m_Flow_B * m_pSDR->asDouble(x, y)));
 	}
 }
 
@@ -497,14 +516,11 @@ void CChannelNetwork_Distance::Execute_MFD(int x, int y)
 
 	if( df > 0.0 )
 	{
-		m_pDistance->Mul_Value(x, y, 1.0 / df);
-		m_pDistVert->Mul_Value(x, y, 1.0 / df);
-		m_pDistHorz->Mul_Value(x, y, 1.0 / df);
-
-		if( m_pSDR )
-		{
-			m_pSDR ->Mul_Value(x, y, 1.0 / df);
-		}
+		if( m_pDistance )	m_pDistance->Mul_Value(x, y, 1.0 / df);
+		if( m_pDistVert )	m_pDistVert->Mul_Value(x, y, 1.0 / df);
+		if( m_pDistHorz )	m_pDistHorz->Mul_Value(x, y, 1.0 / df);
+		if( m_pTime     )	m_pTime    ->Mul_Value(x, y, 1.0 / df);
+		if( m_pSDR      )	m_pSDR     ->Mul_Value(x, y, 1.0 / df);
 	}
 
 	double	sz	= m_pDistVert->asDouble(x, y);
@@ -520,39 +536,34 @@ void CChannelNetwork_Distance::Execute_MFD(int x, int y)
 		{
 			double	dz	= m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y);
 			double	dx	= Get_Length(i);
+			double	dt	= m_pTime || m_pSDR ? Get_Travel_Time(x, y, i) : 1.0;
 
 			if( m_pDistance->is_NoData(ix, iy) )
 			{
-				m_Flow[8]   .Set_Value(ix, iy, df);
+				m_Flow[8].Set_Value(ix, iy, df);
 
-				m_pDistVert->Set_Value(ix, iy, df * (sz + dz));
-				m_pDistHorz->Set_Value(ix, iy, df * (sx + dx));
-				m_pDistance->Set_Value(ix, iy, df * (sd + sqrt(dz*dz + dx*dx)));
-
-				if( m_pSDR )
-				{
-					m_pSDR ->Set_Value(ix, iy, df * (m_pSDR->asDouble(x, y) + Get_Travel_Time(dz, dx)));
-				}
+				if( m_pDistVert )	m_pDistVert->Set_Value(ix, iy, df * (sz + dz));
+				if( m_pDistHorz )	m_pDistHorz->Set_Value(ix, iy, df * (sx + dx));
+				if( m_pDistance )	m_pDistance->Set_Value(ix, iy, df * (sd + sqrt(dz*dz + dx*dx)));
+				if( m_pTime     )	m_pTime    ->Set_Value(ix, iy, df * (m_pTime->asDouble(x, y) + dt));
+				if( m_pSDR      )	m_pSDR     ->Set_Value(ix, iy, df * (m_pSDR ->asDouble(x, y) + dt));
 			}
 			else
 			{
-				m_Flow[8]   .Add_Value(ix, iy, df);
+				m_Flow[8].Add_Value(ix, iy, df);
 
-				m_pDistVert->Add_Value(ix, iy, df * (sz + dz));
-				m_pDistHorz->Add_Value(ix, iy, df * (sx + dx));
-				m_pDistance->Add_Value(ix, iy, df * (sd + sqrt(dz*dz + dx*dx)));
-
-				if( m_pSDR )
-				{
-					m_pSDR ->Add_Value(ix, iy, df * (m_pSDR->asDouble(x, y) + Get_Travel_Time(dz, dx)));
-				}
+				if( m_pDistVert )	m_pDistVert->Add_Value(ix, iy, df * (sz + dz));
+				if( m_pDistHorz )	m_pDistHorz->Add_Value(ix, iy, df * (sx + dx));
+				if( m_pDistance )	m_pDistance->Add_Value(ix, iy, df * (sd + sqrt(dz*dz + dx*dx)));
+				if( m_pTime     )	m_pTime    ->Add_Value(ix, iy, df * (m_pTime->asDouble(x, y) + dt));
+				if( m_pSDR      )	m_pSDR     ->Add_Value(ix, iy, df * (m_pSDR ->asDouble(x, y) + dt));
 			}
 		}
 	}
 
 	if( m_pSDR )
 	{
-		m_pSDR->Set_Value(x, y, exp(-m_Beta * m_pSDR->asDouble(x, y)));
+		m_pSDR->Set_Value(x, y, exp(-m_Flow_B * m_pSDR->asDouble(x, y)));
 	}
 }
 

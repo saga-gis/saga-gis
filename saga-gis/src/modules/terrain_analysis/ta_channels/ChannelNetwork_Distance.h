@@ -97,12 +97,14 @@ protected:
 
 private:
 
-	double					m_Beta;
+	double					m_Flow_B, m_Flow_K, m_Flow_R;
 
-	CSG_Grid				*m_pDEM, *m_pRoute, *m_pDistance, *m_pDistVert, *m_pDistHorz, *m_pSDR, *m_pFields, *m_pPasses, m_Dir, m_Flow[9];
+	CSG_Grid				*m_pDEM, *m_pRoute, m_Dir, m_Flow[9], *m_pFlow_K, *m_pFlow_R,
+							*m_pDistance, *m_pDistVert, *m_pDistHorz,
+							*m_pFields, *m_pPasses, *m_pTime, *m_pSDR;
 
 
-	double					Get_Travel_Time			(double dz, double dx);
+	double					Get_Travel_Time			(int x, int y, int Direction);
 
 	void					Initialize_D8			(void);
 	void					Initialize_D8			(int x, int y);
