@@ -1970,9 +1970,9 @@ bool CSG_Parameter_Data_Object_Output::Set_Value(void *Value)
 		if( m_pOwner->Get_Manager() )
 		{
 			m_pOwner->Get_Manager()->Add(m_pDataObject);
-		}
 
-		SG_UI_DataObject_Add(m_pDataObject, false);
+			SG_UI_DataObject_Add(m_pDataObject, false);
+		}
 	}
 
 	return( true );
