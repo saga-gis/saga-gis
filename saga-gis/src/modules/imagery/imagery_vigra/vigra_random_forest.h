@@ -90,6 +90,8 @@ public:
 
 protected:
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
 
 
@@ -98,7 +100,7 @@ private:
 	CSG_Parameter_Grid_List		*m_pFeatures;
 
 
-	CSG_Grid *					Get_Class_Grid			(CSG_Table &Classes);
+	CSG_Grid *					Get_Class_Grid			(void);
 	void						Set_Classification		(CSG_Table &Classes);
 
 	CSG_Parameter_Grid_List *	Get_Propability_Grids	(CSG_Table &Classes);
