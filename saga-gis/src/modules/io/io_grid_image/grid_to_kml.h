@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: grid_to_kml.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       image_io                        //
+//                     io_grid_image                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     grid_to_kml.h                     //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -42,11 +42,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,63 +54,51 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__grid_to_kml_H
+#define HEADER_INCLUDED__grid_to_kml_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CGrid_to_KML : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - Images") );
+public:
+	CGrid_to_KML(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2005") );
-
-	case MLB_INFO_Description:
-		return( _TL("Image Import/Export.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Grid") );
-	}
-}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Export") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "grid_export.h"
-#include "grid_import.h"
-#include "grid_to_kml.h"
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:	return( new CGrid_Export );
-	case 1:	return( new CGrid_Import );
-	case 2:	return( new CGrid_to_KML );
-	}
 
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -122,8 +108,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__grid_to_kml_H

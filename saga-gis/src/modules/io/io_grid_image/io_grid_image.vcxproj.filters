@@ -14,13 +14,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MLB_Interface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="grid_export.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grid_import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grid_to_kml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,6 +86,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_import.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_to_kml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
