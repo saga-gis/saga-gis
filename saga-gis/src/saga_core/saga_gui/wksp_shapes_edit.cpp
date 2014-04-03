@@ -111,13 +111,16 @@ wxMenu * CWKSP_Shapes::Edit_Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
 
-		if( Get_Shapes()->Get_Selection_Count() > 1 && Get_Shapes()->Get_Type() != SHAPE_TYPE_Point )
+		if( Get_Shapes()->Get_Selection_Count()  > 1
+		&&  Get_Shapes()->Get_Type() != SHAPE_TYPE_Point )
 		{
 			pMenu->AppendSeparator();
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_MERGE);
 		}
 
-		if( Get_Shapes()->Get_Selection_Count() == 1 && Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
+		if( Get_Shapes()->Get_Selection_Count() == 1
+		&& (Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon
+		||  Get_Shapes()->Get_Type() == SHAPE_TYPE_Line) )
 		{
 			pMenu->AppendSeparator();
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SPLIT);
@@ -130,17 +133,15 @@ wxMenu * CWKSP_Shapes::Edit_Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_PART);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_POINT);
 
-		if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
+		pMenu->AppendSeparator();
+
+		if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Line
+		||  Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
 		{
-			pMenu->AppendSeparator();
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SPLIT);
-			CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_EDIT_MOVE);
 		}
-		else if( Get_Shapes()->Get_Type() != SHAPE_TYPE_Point )
-		{
-			pMenu->AppendSeparator();
-			CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_EDIT_MOVE);
-		}
+
+		CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_EDIT_MOVE);
 	}
 
 	return( pMenu );
@@ -547,7 +548,8 @@ bool CWKSP_Shapes::_Edit_Merge(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Edit_Split(void)
 {
-	if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
+	if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon
+	||  Get_Shapes()->Get_Type() == SHAPE_TYPE_Line )
 	{
 		switch( m_Edit_Mode )
 		{
@@ -578,11 +580,13 @@ bool CWKSP_Shapes::_Edit_Split(void)
 		case EDIT_SHAPE_MODE_Split:
 			m_Edit_Mode	= EDIT_SHAPE_MODE_Normal;
 
-			CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_polygons"), 8); // Polygon-Line Intersection
+			CSG_Module	*pModule	= Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon
+			?	SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_polygons"), 8)	// Polygon-Line Intersection
+			:	SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_lines"   ), 6); // Split Lines with Lines
 
 			if(	pModule )
 			{
-				CSG_Shapes	Line(SHAPE_TYPE_Line), Split(SHAPE_TYPE_Polygon);
+				CSG_Shapes	Line(SHAPE_TYPE_Line), Split(Get_Shapes()->Get_Type());
 
 				Line.Add_Shape();
 
@@ -593,14 +597,30 @@ bool CWKSP_Shapes::_Edit_Split(void)
 
 				m_Edit_Shapes.Del_Shape(1);
 
+				//-----------------------------------------
+				bool	bResult;
+
 				CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
 
 				pModule->Set_Manager(NULL);
 
-				if( pModule->Get_Parameters()->Set_Parameter("POLYGONS" , &m_Edit_Shapes)
-				&&  pModule->Get_Parameters()->Set_Parameter("LINES"    , &Line)
-				&&  pModule->Get_Parameters()->Set_Parameter("INTERSECT", &Split)
-				&&  pModule->Execute() )
+				if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
+				{
+					bResult	= pModule->Get_Parameters()->Set_Parameter("POLYGONS" , &m_Edit_Shapes)
+						&&    pModule->Get_Parameters()->Set_Parameter("LINES"    , &Line)
+						&&    pModule->Get_Parameters()->Set_Parameter("INTERSECT", &Split)
+						&&    pModule->Execute();
+				}
+				else //	if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Line )
+				{
+					bResult	= pModule->Get_Parameters()->Set_Parameter("LINES"    , &m_Edit_Shapes)
+						&&    pModule->Get_Parameters()->Set_Parameter("SPLIT"    , &Line)
+						&&    pModule->Get_Parameters()->Set_Parameter("INTERSECT", &Split)
+						&&    pModule->Execute();
+				}
+
+				//-----------------------------------------
+				if( bResult )
 				{
 					if( m_Edit_pShape )
 					{
