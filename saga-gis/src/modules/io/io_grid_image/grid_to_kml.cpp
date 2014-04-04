@@ -170,17 +170,20 @@ CGrid_to_KML::CGrid_to_KML(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Range(
-        NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
-        _TL("Allows to scale shade brightness, [percent]"),
-        0.0, 100.0, 0.0, true, 100.0, true
-    );
-
 	Parameters.Add_Value(
         NULL	, "INTERPOL"	, _TL("Interpolation"),
         _TL("interpolate values if projection is needed"),
         PARAMETER_TYPE_Bool, true
     );
+
+	if( !SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Range(
+			NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
+			_TL("Allows to scale shade brightness, [percent]"),
+			0.0, 100.0, 0.0, true, 100.0, true
+		);
+	}
 }
 
 
@@ -201,7 +204,7 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("LUT"        )->Set_Enabled(pParameter->asInt() == 3);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") && pParameters->Get_Parameter("SHADE_BRIGHT") )
 	{
 		pParameters->Get_Parameter("SHADE_BRIGHT")->Set_Enabled(pParameter->asGrid() != NULL);
 	}
@@ -306,7 +309,7 @@ bool CGrid_to_KML::On_Execute(void)
 	&&  pModule->Get_Parameters()->Set_Parameter("STDDEV"      , Parameters("STDDEV"))
 	&&  pModule->Get_Parameters()->Set_Parameter("STRETCH"     , Parameters("STRETCH"))
 	&&  pModule->Get_Parameters()->Set_Parameter("LUT"         , Parameters("LUT"))
-	&&  pModule->Get_Parameters()->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT"))
+	&&  (SG_UI_Get_Window_Main() || pModule->Get_Parameters()->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
 	&&  pModule->Execute() )
 	{
 		bResult	= true;

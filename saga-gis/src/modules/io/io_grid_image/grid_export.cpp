@@ -406,6 +406,11 @@ bool CGrid_Export::On_Execute(void)
 	//-----------------------------------------------------
 	wxImage	Image(Get_NX(), Get_NY());
 
+	if( Grid.Get_NoData_Count() > 0 )
+	{
+		Image.SetAlpha();
+	}
+
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for
@@ -413,10 +418,20 @@ bool CGrid_Export::On_Execute(void)
 		{
 			if( Grid.is_NoData(x, y) )
 			{
+				if( Image.HasAlpha() )
+				{
+					Image.SetAlpha(x, y, wxIMAGE_ALPHA_TRANSPARENT);
+				}
+
 				Image.SetRGB(x, y, 255, 255, 255);
 			}
 			else
 			{
+				if( Image.HasAlpha() )
+				{
+					Image.SetAlpha(x, y, wxIMAGE_ALPHA_OPAQUE);
+				}
+
 				int	r, g, b, c	= Grid.asInt(x, y);
 
 				r	= SG_GET_R(c);
