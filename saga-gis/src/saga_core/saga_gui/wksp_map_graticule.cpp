@@ -443,6 +443,9 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 
 		pModule->Set_Manager(NULL);
 
+		SG_UI_Msg_Lock     (true);
+		SG_UI_Progress_Lock(true);
+
 		if( pModule->Get_Parameters()->Set_Parameter("XMIN"      , Extent.Get_XMin())
 		&&  pModule->Get_Parameters()->Set_Parameter("XMAX"      , Extent.Get_XMax())
 		&&  pModule->Get_Parameters()->Set_Parameter("YMIN"      , Extent.Get_YMin())
@@ -456,11 +459,16 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		&&  pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , Get_Map()->Get_Projection().Get_Proj4())
 		&&  pModule->On_Before_Execution() && pModule->Execute() )
 		{
+			SG_UI_Msg_Lock     (false);
+			SG_UI_Progress_Lock(false);
+
 			pModule->Get_Parameters()->Assign_Values(&P);
 			pModule->Set_Manager(P.Get_Manager());
 
 			return( true );
 		}
+
+		SG_UI_Progress_Lock(false);
 
 		pModule->Get_Parameters()->Assign_Values(&P);
 		pModule->Set_Manager(P.Get_Manager());
