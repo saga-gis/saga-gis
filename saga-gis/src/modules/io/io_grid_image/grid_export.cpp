@@ -81,11 +81,10 @@ CGrid_Export::CGrid_Export(void)
 	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
 	Set_Description	(_TW(
-		"Saves a grid as image using display properties as used by the graphical user interface.\n\n"
-		"On the command line there are further parameters available: It is possible to either use one "
-		"of the default palettes, to use a Lookup Table for coloring or to interpret the grid as RGB coded. "
-		"In case a shade grid is specified, it's minimum and maximum brightness values can be specified in "
-		"percent (0 - 100 percent).\n")
+		"The module allows to save a grid as image.\n\n"
+		"On the command line, in case a shade grid is specified, "
+		"it's minimum and maximum brightness values can be specified in "
+		"percent.\n")
 	);
 
 	Parameters.Add_Grid(
@@ -197,11 +196,14 @@ CGrid_Export::CGrid_Export(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Range(
-        NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
-        _TL("Allows to scale shade brightness, [percent]"),
-        0.0, 100.0, 0.0, true, 100.0, true
-    );
+	if( !SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Range(
+			NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
+			_TL("Allows to scale shade brightness [percent]"),
+			0.0, 100.0, 0.0, true, 100.0, true
+		);
+	}
 }
 
 
@@ -220,11 +222,6 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("STDDEV"     )->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("STRETCH"    )->Set_Enabled(pParameter->asInt() == 2);
 		pParameters->Get_Parameter("LUT"        )->Set_Enabled(pParameter->asInt() == 3);
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHADE")) )
-	{
-		pParameters->Get_Parameter("SHADE_BRIGHT")->Set_Enabled(pParameter->asGrid() != NULL);
 	}
 
 	return( 1 );
@@ -369,24 +366,25 @@ bool CGrid_Export::On_Execute(void)
 	{
 		pShade	= NULL;
 	}
-	else // if( !SG_UI_DataObject_asImage(pShade, &Shade) )
+	else if( !SG_UI_DataObject_asImage(pShade, &Shade) )
 	{
-		double	zMin, zScale;
+		double	dMinBright, dMaxBright;
 
-		zMin	= Parameters("SHADE_BRIGHT")->asRange()->Get_LoVal() / 100.0;
-		zScale	= Parameters("SHADE_BRIGHT")->asRange()->Get_HiVal() / 100.0;
+		dMinBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_LoVal() / 100.0;
+		dMaxBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_HiVal() / 100.0;
 
-		if( zMin >= zScale )
+		if( dMinBright >= dMaxBright )
 		{
 			SG_UI_Msg_Add_Error(_TL("Minimum shade brightness must be lower than maximum shade brightness!"));
 
 			return( false );
 		}
 
-		zScale	= (zScale - zMin) / pShade->Get_ZRange();
+		int			nColors	= 100;
+		CSG_Colors	Colors(nColors, SG_COLORS_BLACK_WHITE, true);
 
 	    //-------------------------------------------------
-		Shade.Create(*Get_System(), SG_DATATYPE_Float);
+		Shade.Create(*Get_System(), SG_DATATYPE_Int);
 
 		for(y=0, iy=Get_NY()-1; y<Get_NY() && Set_Progress(y); y++, iy--)
 		{
@@ -399,7 +397,7 @@ bool CGrid_Export::On_Execute(void)
 				}
 				else
 				{
-					Shade.Set_Value (x, iy, zMin + zScale * (pShade->Get_ZMax() - pShade->asDouble(x, y)));
+					Shade.Set_Value (x, iy, Colors[(int)(nColors * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_ZMin()) / pShade->Get_ZRange() + dMinBright)]);
 				}
 			}
 		}
@@ -413,24 +411,31 @@ bool CGrid_Export::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int	r, g, b, c	= Grid.asInt(x, y);
-
-			if( !pShade )
+			if( Grid.is_NoData(x, y) )
 			{
-				r	= SG_GET_R(c);
-				g	= SG_GET_G(c);
-				b	= SG_GET_B(c);
+				Image.SetRGB(x, y, 255, 255, 255);
 			}
 			else
 			{
-				double	d	= Shade.asDouble(x, y);
+				int	r, g, b, c	= Grid.asInt(x, y);
 
-				r	= (int)(d * SG_GET_R(c));
-				g	= (int)(d * SG_GET_G(c));
-				b	= (int)(d * SG_GET_B(c));
+				r	= SG_GET_R(c);
+				g	= SG_GET_G(c);
+				b	= SG_GET_B(c);
+
+				if( pShade )
+				{
+					c	= Shade.asInt(x, y);
+
+					double d	= (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) / (3.0 * 255.0);
+
+					r	= (int)(d * r);
+					g	= (int)(d * g);
+					b	= (int)(d * b);
+				}
+
+				Image.SetRGB(x, y, r, g, b);
 			}
-
-			Image.SetRGB(x, y, r, g, b);
 		}
 	}
 
