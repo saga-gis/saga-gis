@@ -64,6 +64,8 @@
 //---------------------------------------------------------
 #include <vigra/random_forest.hxx>
 
+#define WITH_HDF5
+
 #if defined(WITH_HDF5)
 #include <vigra/random_forest_hdf5_impex.hxx>
 #endif
@@ -93,7 +95,7 @@ enum
 //---------------------------------------------------------
 CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 {
-	CSG_Parameter	*pNode, *pModel;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Random Forest (ViGrA)"));
@@ -233,7 +235,7 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 //---------------------------------------------------------
 int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_STR_CMP(pParameters->Get_Identifier(), "RF_IMPORT") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RF_IMPORT") )
 	{
 		bool	bTraining	= !SG_File_Exists(pParameter->asString());
 
@@ -280,7 +282,9 @@ bool CViGrA_Random_Forest::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	Classes;
 
-	vigra::RandomForest<int>	Forest;
+	vigra::RandomForestOptions	Options;
+	vigra::RandomForest<int>	Forest(Options);
+
 
 #if defined(WITH_HDF5)
 	if( SG_File_Exists(Parameters("RF_IMPORT")->asString()) )
@@ -288,6 +292,13 @@ bool CViGrA_Random_Forest::On_Execute(void)
 		if( !vigra::rf_import_HDF5(Forest, CSG_String(Parameters("RF_IMPORT")->asString()).b_str()) )
 		{
 			Error_Set(_TL("could not import random forest"));
+
+			return( false );
+		}
+
+		if( Forest.feature_count() != m_pFeatures->Get_Count() )
+		{
+			Error_Set(CSG_String::Format(SG_T("%s\n%s: %d"), _TL("invalid number of features"), _TL("expected"), Forest.feature_count()));
 
 			return( false );
 		}
@@ -326,21 +337,10 @@ bool CViGrA_Random_Forest::On_Execute(void)
 		//-------------------------------------------------
 		// Random Forest Options
 
-		Forest.set_options().tree_count(
-			Parameters("RF_TREE_COUNT")->asInt()
-		);
-
-		Forest.set_options().samples_per_tree(
-			Parameters("RF_TREE_SAMPLES")->asDouble()
-		);
-
-		Forest.set_options().sample_with_replacement(
-			Parameters("RF_REPLACE")->asBool()
-		);
-
-		Forest.set_options().min_split_node_size(
-			Parameters("RF_SPLIT_MIN_SIZE")->asInt()
-		);
+		Forest.set_options().tree_count             (Parameters("RF_TREE_COUNT"    )->asInt   ());
+		Forest.set_options().samples_per_tree       (Parameters("RF_TREE_SAMPLES"  )->asDouble());
+		Forest.set_options().sample_with_replacement(Parameters("RF_REPLACE"       )->asBool  ());
+		Forest.set_options().min_split_node_size    (Parameters("RF_SPLIT_MIN_SIZE")->asInt   ());
 
 		switch( Parameters("RF_NODE_FEATURES")->asInt() )
 		{
