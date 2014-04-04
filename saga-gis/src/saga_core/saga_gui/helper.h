@@ -149,6 +149,8 @@ void				MSG_Execution_Add_Line			(void);
 void				MSG_Execution_Add				(const wxString &Message, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 //---------------------------------------------------------
+bool				CONFIG_Do_Save					(bool bOn);
+
 bool				CONFIG_Read						(const wxString &Group, const wxString &Entry,       wxString &Value);
 bool				CONFIG_Read						(const wxString &Group, const wxString &Entry, long           &Value);
 bool				CONFIG_Read						(const wxString &Group, const wxString &Entry, double         &Value);

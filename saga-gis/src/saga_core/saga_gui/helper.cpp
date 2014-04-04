@@ -532,6 +532,25 @@ void		MSG_Execution_Add(const wxString &Message, bool bNewLine, bool bTime, TSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool		g_CONFIG_bSave	= true;
+
+//---------------------------------------------------------
+bool		CONFIG_Do_Save(bool bOn)
+{
+	if( g_CONFIG_bSave != bOn )
+	{
+		g_CONFIG_bSave	= bOn;
+
+		if( g_CONFIG_bSave )
+		{
+			wxConfigBase::Get()->Flush();
+		}
+	}
+
+	return( g_CONFIG_bSave );
+}
+
+//---------------------------------------------------------
 bool		CONFIG_Read(const wxString &Group, const wxString &Entry, wxString &Value)
 {
 	wxConfigBase	*pConfig	= wxConfigBase::Get();
@@ -574,11 +593,16 @@ bool		CONFIG_Read(const wxString &Group, const wxString &Entry, bool &Value)
 //---------------------------------------------------------
 bool		CONFIG_Write(const wxString &Group, const wxString &Entry, const wxString &Value)
 {
-	wxConfigBase	*pConfig	= wxConfigBase::Get();
+	if( g_CONFIG_bSave )
+	{
+		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
 
-	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+	}
+
+	return( true );
 }
 
 bool		CONFIG_Write(const wxString &Group, const wxString &Entry, const char *Value)
@@ -594,48 +618,73 @@ bool		CONFIG_Write(const wxString &Group, const wxString &Entry, const wchar_t *
 //---------------------------------------------------------
 bool		CONFIG_Write(const wxString &Group, const wxString &Entry, long Value)
 {
-	wxConfigBase	*pConfig	= wxConfigBase::Get();
+	if( g_CONFIG_bSave )
+	{
+		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
 
-	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool		CONFIG_Write(const wxString &Group, const wxString &Entry, double Value)
 {
-	wxConfigBase	*pConfig	= wxConfigBase::Get();
+	if( g_CONFIG_bSave )
+	{
+		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
 
-	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool		CONFIG_Write(const wxString &Group, const wxString &Entry, bool Value)
 {
-	wxConfigBase	*pConfig	= wxConfigBase::Get();
+	if( g_CONFIG_bSave )
+	{
+		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
 
-	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool		CONFIG_Delete(const wxString &Group)
 {
-	wxConfigBase	*pConfig	= wxConfigBase::Get();
+	if( g_CONFIG_bSave )
+	{
+		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	return( pConfig->DeleteGroup(Group) ? pConfig->Flush() : false );
+		return( pConfig->DeleteGroup(Group) ? pConfig->Flush() : false );
+	}
+
+	return( true );
 }
 
 bool		CONFIG_Delete(const wxString &Group, const wxString &Entry)
 {
-	wxConfigBase	*pConfig	= wxConfigBase::Get();
+	if( g_CONFIG_bSave )
+	{
+		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
 
-	return( pConfig->DeleteEntry(Entry) ? pConfig->Flush() : false );
+		return( pConfig->DeleteEntry(Entry) ? pConfig->Flush() : false );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -699,57 +748,67 @@ bool		CONFIG_Read(const wxString &Group, CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 {
-	wxString	Entry(pParameter->Get_Identifier());
-
-	switch( pParameter->Get_Type() )
+	if( g_CONFIG_bSave )
 	{
-	default:	return( false );
+		wxString	Entry(pParameter->Get_Identifier());
 
-	case PARAMETER_TYPE_Bool    :
-	case PARAMETER_TYPE_Int     :
-	case PARAMETER_TYPE_Choice  :
-	case PARAMETER_TYPE_Color   :
-		return( pConfig->Write(Entry, pParameter->asInt()) );
+		switch( pParameter->Get_Type() )
+		{
+		default:	return( false );
 
-	case PARAMETER_TYPE_Double  :
-	case PARAMETER_TYPE_Degree  :
-		return( pConfig->Write(Entry, pParameter->asDouble()) );
+		case PARAMETER_TYPE_Bool    :
+		case PARAMETER_TYPE_Int     :
+		case PARAMETER_TYPE_Choice  :
+		case PARAMETER_TYPE_Color   :
+			return( pConfig->Write(Entry, pParameter->asInt()) );
 
-	case PARAMETER_TYPE_String  :
-	case PARAMETER_TYPE_Text    :
-	case PARAMETER_TYPE_FilePath:
-		return( pConfig->Write(Entry, pParameter->asString()) );
+		case PARAMETER_TYPE_Double  :
+		case PARAMETER_TYPE_Degree  :
+			return( pConfig->Write(Entry, pParameter->asDouble()) );
 
-	case PARAMETER_TYPE_Range   :
-		return(
-			pConfig->Write(Entry + "_LO", pParameter->asRange()->Get_LoVal())
-		&&	pConfig->Write(Entry + "_HI", pParameter->asRange()->Get_HiVal())
-		);
+		case PARAMETER_TYPE_String  :
+		case PARAMETER_TYPE_Text    :
+		case PARAMETER_TYPE_FilePath:
+			return( pConfig->Write(Entry, pParameter->asString()) );
 
-	case PARAMETER_TYPE_Font    :
-		return(
-			pConfig->Write(Entry + "_FONT" , (const SG_Char *)pParameter->asPointer())
-		&&	pConfig->Write(Entry + "_COLOR", pParameter->asInt())
-		);
+		case PARAMETER_TYPE_Range   :
+			return(
+				pConfig->Write(Entry + "_LO", pParameter->asRange()->Get_LoVal())
+			&&	pConfig->Write(Entry + "_HI", pParameter->asRange()->Get_HiVal())
+			);
 
-	case PARAMETER_TYPE_Parameters:
-		return( CONFIG_Write(Entry + "/" + pParameter->Get_Identifier(), pParameter->asParameters()) );
+		case PARAMETER_TYPE_Font    :
+			return(
+				pConfig->Write(Entry + "_FONT" , (const SG_Char *)pParameter->asPointer())
+			&&	pConfig->Write(Entry + "_COLOR", pParameter->asInt())
+			);
+
+		case PARAMETER_TYPE_Parameters:
+			return( CONFIG_Write(Entry + "/" + pParameter->Get_Identifier(), pParameter->asParameters()) );
+		}
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool		CONFIG_Write(const wxString &Group, CSG_Parameters *pParameters)
 {
-	wxConfigBase	*pConfig	= wxConfigBase::Get();
-
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
-
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	if( g_CONFIG_bSave )
 	{
-		CONFIG_Write(pConfig, pParameters->Get_Parameter(i));
+		wxConfigBase	*pConfig	= wxConfigBase::Get();
+
+		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+
+		for(int i=0; i<pParameters->Get_Count(); i++)
+		{
+			CONFIG_Write(pConfig, pParameters->Get_Parameter(i));
+		}
+
+		return( pConfig->Flush() );
 	}
 
-	return( pConfig->Flush() );
+	return( true );
 }
 
 
