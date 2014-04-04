@@ -125,6 +125,12 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 		PARAMETER_TYPE_Int	, 0, 0, true
 	);
 
+	m_Parameters.Add_Value(
+		pNode	, "SAVE_CONFIG"		, _TL("Save Configuration"),
+		_TL("disabling might help to shut down faster, particularly if started from slow devices"),
+		PARAMETER_TYPE_Bool	, true
+	);
+
 #ifdef _OPENMP
 	m_Parameters.Add_Value(
 		pNode	, "OMP_THREADS_MAX"	, _TL("Number of CPU Cores [# physical processors]"),
@@ -249,7 +255,18 @@ bool CWKSP_Module_Manager::Finalise(void)
 
 	for(int i=0; i<Get_Count(); i++)
 	{
+#ifdef _SAGA_MSW
+		wxFileName	fLib(Get_Library(i)->Get_File_Name());
+
+		if( fLib.GetPath().Find(g_pSAGA->Get_App_Path()) == 0 )
+		{
+			fLib.MakeRelativeTo(g_pSAGA->Get_App_Path());
+		}
+
+		CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, i), fLib.GetFullPath());
+#else
 		CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, i), Get_Library(i)->Get_File_Name());
+#endif
 	}
 
 	return( true );
@@ -406,13 +423,20 @@ void CWKSP_Module_Manager::On_Execute_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::Parameters_Changed(void)
 {
+	CWKSP_Base_Item::Parameters_Changed();
+
 	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
+
+	if( m_Parameters("SAVE_CONFIG")->asBool() == false )
+	{
+		CONFIG_Write("/MODULES", &m_Parameters);
+	}
+
+	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
 
 #ifdef _OPENMP
 	SG_Set_Max_Num_Threads_Omp(m_Parameters("OMP_THREADS_MAX")->asInt());
 #endif
-
-	CWKSP_Base_Item::Parameters_Changed();
 }
 
 //---------------------------------------------------------
