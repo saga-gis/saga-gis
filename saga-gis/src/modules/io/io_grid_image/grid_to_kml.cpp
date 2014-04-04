@@ -253,7 +253,7 @@ bool CGrid_to_KML::On_Execute(void)
 
 		pModule->Set_Manager(NULL);
 
-		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4"    , "+proj=longlat +ellps=WGS84 +datum=WGS84")
+		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4"    , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 		&&  pModule->Get_Parameters()->Set_Parameter("INTERPOLATION", Parameters("INTERPOL")->asBool() ? 4 : 0)
 		&&  pModule->Get_Parameters()->Set_Parameter("SOURCE"       , pGrid)
 		&&  pModule->Execute() )
