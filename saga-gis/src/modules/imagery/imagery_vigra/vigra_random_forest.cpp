@@ -369,7 +369,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 		Message_Add(CSG_String::Format(SG_T("\n%s: %f"), _TL("out-of-bag error"), oob_v.oob_breiman), false);
 
 #if defined(WITH_HDF5)
-		if( Parameters("RF_EXPORT")->asString() )
+		if( Parameters("RF_EXPORT")->asString() && *Parameters("RF_EXPORT")->asString() )
 		{
 			vigra::rf_export_HDF5(Forest, CSG_String(Parameters("RF_EXPORT")->asString()).b_str());
 		}
