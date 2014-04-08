@@ -94,7 +94,7 @@ private:
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Shapes					m_Target_Area;
+	CSG_Grid					m_Target_Area;
 
 
 	bool						Transform					(CSG_Grid                *pGrid );
@@ -109,8 +109,8 @@ private:
 	void						Get_MinMax					(TSG_Rect &r, double x, double y);
 	bool						Get_Target_System			(const CSG_Grid_System &System, bool bEdge);
 
-	bool						Set_Target_Area				(const CSG_Grid_System &System, bool bGeogCS);
-	bool						is_In_Target_Area			(const TSG_Point &Point);
+	bool						Set_Target_Area				(const CSG_Grid_System &Source, const CSG_Grid_System &Target);
+	bool						is_In_Target_Area			(int x, int y);
 
 };
 
