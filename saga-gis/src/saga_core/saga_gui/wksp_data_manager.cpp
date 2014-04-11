@@ -987,7 +987,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Data_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 {
-	if( pObject && pObject != DATAOBJECT_CREATE && Get_Manager(pObject->Get_ObjectType(), true) )
+	if( SG_Get_Data_Manager().Add(pObject) && Get_Manager(pObject->Get_ObjectType(), true) )
 	{
 		switch( pObject->Get_ObjectType() )
 		{

@@ -1408,7 +1408,7 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 
 		if( P("COLORS_TYPE") )
 		{
-			P("COLORS_TYPE")->Set_Value(3);
+			P("COLORS_TYPE")->Set_Value(6);	// RGB
 
 			g_pData->Set_Parameters(pGrid, &P);
 		}
