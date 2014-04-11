@@ -316,10 +316,11 @@ CGrid_Clip::CGrid_Clip(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "EXTENT"		, _TL("Extent"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("user defined"),
 			_TL("grid system"),
-			_TL("shapes extent")
+			_TL("shapes extent"),
+			_TL("polygon")
 		), 0
 	);
 
@@ -334,12 +335,24 @@ CGrid_Clip::CGrid_Clip(void)
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Shapes(
+		pNode	, "POLYGONS"	, _TL("Polygon"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
 	Parameters.Add_Value(pNode, "XMIN", _TL("Left"   ), _TL(""), PARAMETER_TYPE_Double);
 	Parameters.Add_Value(pNode, "XMAX", _TL("Right"  ), _TL(""), PARAMETER_TYPE_Double);
 	Parameters.Add_Value(pNode, "YMIN", _TL("Bottom" ), _TL(""), PARAMETER_TYPE_Double);
 	Parameters.Add_Value(pNode, "YMAX", _TL("Top"    ), _TL(""), PARAMETER_TYPE_Double);
 	Parameters.Add_Value(pNode, "NX"  , _TL("Columns"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
 	Parameters.Add_Value(pNode, "NY"  , _TL("Rows"   ), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
+
+	Parameters.Add_Value(
+		NULL	, "BUFFER"		, _TL("Buffer"),
+		_TL("add buffer (map units) to extent"),
+		PARAMETER_TYPE_Double, 0.0, 0.0, true
+	);
 }
 
 
@@ -378,6 +391,8 @@ int CGrid_Clip::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Get_Parameter("NY"        )->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("GRIDSYSTEM")->Set_Enabled(pParameter->asInt() == 1);
 		pParameters->Get_Parameter("SHAPES"    )->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("POLYGONS"  )->Set_Enabled(pParameter->asInt() == 3);
+		pParameters->Get_Parameter("BUFFER"    )->Set_Enabled(pParameter->asInt() != 3);	// no buffering for polygon clip
 	}
 
 	return( 1 );
@@ -391,31 +406,52 @@ int CGrid_Clip::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 bool CGrid_Clip::On_Execute(void)
 {
-	CSG_Grid_System	System;
-	
+	//--------------------------------------------------------
+	CSG_Rect	Extent;
+
 	switch( Parameters("EXTENT")->asInt() )
 	{
 	case 0:	// user defined
-		System	= Fit_Extent(*Get_System(), CSG_Rect(
-			Parameters("XMIN")->asDouble(),
-			Parameters("YMIN")->asDouble(),
-			Parameters("XMAX")->asDouble(),
-			Parameters("YMAX")->asDouble()
-		));
+		Extent.Assign(
+			Parameters("XMIN")->asDouble(), Parameters("YMIN")->asDouble(),
+			Parameters("XMAX")->asDouble(), Parameters("YMAX")->asDouble()
+		);
 		break;
 
 	case 1: // grid system
-		System	= Fit_Extent(*Get_System(), Parameters("GRIDSYSTEM")->asGrid_System()->Get_Extent());
+		Extent.Assign(Parameters("GRIDSYSTEM")->asGrid_System()->Get_Extent());
 		break;
 
 	case 2:	// shapes extent
-		System	= Fit_Extent(*Get_System(), Parameters("SHAPES")->asShapes()->Get_Extent());
+		Extent.Assign(Parameters("SHAPES"  )->asShapes()->Get_Extent());
+		break;
+
+	case 3:	// polygon
+		Extent.Assign(Parameters("POLYGONS")->asShapes()->Get_Extent());
 		break;
 	}
+
+	if( Parameters("BUFFER")->asDouble() > 0.0 && Parameters("EXTENT")->asInt() != 3 )	// no buffering for polygon clip
+	{
+		Extent.Inflate(Parameters("BUFFER")->asDouble(), false);
+	}
+
+	//--------------------------------------------------------
+	CSG_Grid_System	System	= Fit_Extent(*Get_System(), Extent);
 
 	if( !System.is_Valid() )
 	{
 		Error_Set(_TL("clip extent does not match grid's extent"));
+
+		return( false );
+	}
+
+	//--------------------------------------------------------
+	CSG_Grid	Mask;
+	
+	if( Parameters("EXTENT")->asInt() == 3 && !Get_Mask(Mask, System, Parameters("POLYGONS")->asShapes()) )
+	{
+		Error_Set(_TL("failed to create polygon clipping mask"));
 
 		return( false );
 	}
@@ -431,10 +467,118 @@ bool CGrid_Clip::On_Execute(void)
 		pClip->Assign  (pInput->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
 		pClip->Set_Name(pInput->asGrid(i)->Get_Name());
 
+		if( Mask.is_Valid() ) // && Parameters("EXTENT")->asInt() == 3 )	// polygon clip
+		{
+			for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+			{
+				#pragma omp parallel for
+				for(int x=0; x<System.Get_NX(); x++)
+				{
+					if( Mask.is_NoData(x, y) )
+					{
+						pClip->Set_NoData(x, y);
+					}
+				}
+			}
+		}
+
 		pOutput->Add_Item(pClip);
-		DataObject_Add   (pClip);
 	}
 
+	//--------------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Clip::Get_Mask(CSG_Grid &Mask, CSG_Grid_System &System, CSG_Shapes *pPolygons)
+{
+	//-----------------------------------------------------
+	if( !Mask.Create(System, SG_DATATYPE_Char) )
+	{
+		return( false );
+	}
+
+	Mask.Set_NoData_Value(0);
+
+	//-----------------------------------------------------
+	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	{
+		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
+
+        if( pPolygons->Get_Selection_Count() > 0 && !pPolygon->is_Selected() )
+		{
+			continue;
+		}
+
+		int	xA	= System.Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()) - 1; if( xA <  0               ) xA = 0;
+		int	xB	= System.Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()) + 1; if( xB >= System.Get_NX() ) xB = System.Get_NX() - 1;
+
+		//-------------------------------------------------
+		#pragma omp parallel for
+		for(int y=0; y<System.Get_NY(); y++)
+		{
+			double	yRow	= System.Get_yGrid_to_World(y);
+
+			if( yRow >= pPolygon->Get_Extent().Get_YMin()
+			&&  yRow <= pPolygon->Get_Extent().Get_YMax() )
+			{
+				TSG_Point	Row[2];
+
+				Row[0].x	= System.Get_XMin(true) - 1.0;
+				Row[1].x	= System.Get_XMax(true) + 1.0;
+				Row[0].y	= Row[1].y	= yRow;
+
+				//-----------------------------------------
+				int	*nCrossings	= (int *)SG_Calloc(System.Get_NX(), sizeof(int));
+
+				for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+				{
+					TSG_Point	C, A, B	= pPolygon->Get_Point(0, iPart, false);	// last point
+
+					for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+					{
+						A	= B;	B	= pPolygon->Get_Point(iPoint, iPart, true);
+
+						if( (A.y <= yRow && yRow <  B.y)
+						||  (A.y >  yRow && yRow >= B.y) )
+						{
+							SG_Get_Crossing(C, A, B, Row[0], Row[1], false);
+
+							int x	= System.Get_xWorld_to_Grid(C.x);	if( x < 0 )	x	= 0;
+
+							if( x >= 0 && x < System.Get_NX() )
+							{
+								nCrossings[x]	= nCrossings[x] ? 0 : 1;
+							}
+						}
+					}
+				}
+
+				//-----------------------------------------
+				for(int x=xA, Fill=0; x<=xB; x++)
+				{
+					if( nCrossings[x] )
+					{
+						Fill	= Fill ? 0 : 1;
+					}
+
+					if( Fill )
+					{
+						Mask.Set_Value(x, y, 1);
+					}
+				}
+
+				SG_Free(nCrossings);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
