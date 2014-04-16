@@ -218,7 +218,7 @@ double CShape_Index::Get_Distance(CSG_Shape *pShape)
 		{
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				TSG_Point	A	= pShape->Get_Point(0, iPart);
+				TSG_Point	A	= pShape->Get_Point(iPoint, iPart);
 
 				for(int jPoint=iPoint+1; jPoint<pShape->Get_Point_Count(iPart); jPoint++)
 				{
