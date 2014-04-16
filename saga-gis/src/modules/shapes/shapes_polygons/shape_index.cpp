@@ -166,6 +166,7 @@ bool CShape_Index::On_Execute(void)
 
 				pShape->Set_Value(iField + 0, Area);
 				pShape->Set_Value(iField + 1, Perimeter);
+
 				if (Area > 0.0)
 				{
 					pShape->Set_Value(iField + 2, Perimeter / Area);
@@ -176,7 +177,9 @@ bool CShape_Index::On_Execute(void)
 					pShape->Set_NoData(iField + 2);
 					pShape->Set_NoData(iField + 3);
 				}
+
 				pShape->Set_Value(iField + 4, Distance);
+
 				if (Area > 0.0)
 				{
 					pShape->Set_Value(iField + 5, Distance / Area);
@@ -207,25 +210,24 @@ bool CShape_Index::On_Execute(void)
 //---------------------------------------------------------
 double CShape_Index::Get_Distance(CSG_Shape *pShape)
 {
-	double	d, dMax	= 0.0;
+	double	dMax	= 0.0;
 
 	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		if( pShape->Get_Point_Count(iPart) > 2 )
 		{
-			TSG_Point	A, B;
-
-			A	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
-
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				B	= A;
-				A	= pShape->Get_Point(iPoint, iPart);
-				d	= SG_Get_Distance(A, B);
+				TSG_Point	A	= pShape->Get_Point(0, iPart);
 
-				if( dMax < d )
+				for(int jPoint=iPoint+1; jPoint<pShape->Get_Point_Count(iPart); jPoint++)
 				{
-					dMax	= d;
+					double	d	= SG_Get_Distance(A, pShape->Get_Point(jPoint, iPart));
+
+					if( dMax < d )
+					{
+						dMax	= d;
+					}
 				}
 			}
 		}
