@@ -158,7 +158,7 @@ AC_ARG_ENABLE(openmp,
   else
     if test -n "$GOMPFOUND" ; then 
       AC_MSG_RESULT([        Building with OpenMP support using libgomp])
-      GOMPFLAGS="-fopenmp"
+      GOMPFLAGS="-fopenmp -lgomp"
     else 
       AC_MSG_RESULT([        libgomp not found, OpenMP support disabled]) 
       GOMPFLAGS=""
@@ -196,8 +196,6 @@ AC_ARG_ENABLE(python,
       AM_CONDITIONAL(SAGA_PYTHON, test x$python = xtrue)
 if test x$python = xtrue; then
 AM_PATH_PYTHON
-# PYTHON_EXTRA_LIBS='-lgomp'
-# PYTHON_EXTRA_LDFLAGS='-lgomp'
 AX_PYTHON_DEVEL([])
 
 AX_PKG_SWIG(1.3.17,[],[])
