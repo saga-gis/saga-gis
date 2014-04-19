@@ -12,11 +12,11 @@ def morphometry(fDEM):
         print 'ERROR: loading grid [' + fDEM + ']'
         return 0
     
-    slope  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
-    aspect = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
-    hcurv  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
-    vcurv  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
-    ccurv  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    slope      = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    aspect     = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    plancurv   = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    profcurv   = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
+    classcurv  = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())
 
     # ------------------------------------
     # 'Slope, Aspect, Curvature'
@@ -27,8 +27,8 @@ def morphometry(fDEM):
     p.Get(unicode('ELEVATION')).Set_Value(dem)
     p.Get(unicode('SLOPE'    )).Set_Value(slope)
     p.Get(unicode('ASPECT'   )).Set_Value(aspect)
-    p.Get(unicode('HCURV'    )).Set_Value(hcurv)
-    p.Get(unicode('VCURV'    )).Set_Value(vcurv)
+    p.Get(unicode('C_PLAN'   )).Set_Value(plancurv)
+    p.Get(unicode('C_PROF'   )).Set_Value(profcurv)
 
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
@@ -40,9 +40,8 @@ def morphometry(fDEM):
     m       = saga_api.SG_Get_Module_Library_Manager().Get_Module('ta_morphometry', 4)
     p       = m.Get_Parameters()
     p.Get_Grid_System().Assign(dem.Get_System())        # grid module needs to use conformant grid system!
-    p.Get(unicode('CPLAN'    )).Set_Value(hcurv)
-    p.Get(unicode('CPROF'    )).Set_Value(vcurv)
-    p.Get(unicode('CLASS'    )).Set_Value(ccurv)
+    p.Get(unicode('DEM'      )).Set_Value(dem)
+    p.Get(unicode('CLASS'    )).Set_Value(classcurv)
     
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
@@ -55,11 +54,11 @@ def morphometry(fDEM):
     if path == '':
         path = './'
 
-    slope .Save(saga_api.CSG_String(path + '/slope' ))
-    aspect.Save(saga_api.CSG_String(path + '/aspect'))
-    hcurv .Save(saga_api.CSG_String(path + '/hcurv' ))
-    vcurv .Save(saga_api.CSG_String(path + '/vcurv' ))
-    ccurv .Save(saga_api.CSG_String(path + '/ccurv' ))
+    slope    .Save(saga_api.CSG_String(path + '/slope'))
+    aspect   .Save(saga_api.CSG_String(path + '/aspect'))
+    plancurv .Save(saga_api.CSG_String(path + '/plancurv'))
+    profcurv .Save(saga_api.CSG_String(path + '/profcurv'))
+    classcurv.Save(saga_api.CSG_String(path + '/classcurv'))
     
     # ------------------------------------
     print 'success'
