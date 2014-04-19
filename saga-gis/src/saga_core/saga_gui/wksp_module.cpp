@@ -308,31 +308,57 @@ void CWKSP_Module::_Save_Script(void)
 		}
 		else if( SG_File_Cmp_Extension(FileName, SG_T("py" )) )
 		{
+			#ifndef _SAGA_MSW
+			Command	+= SG_T("#! /usr/bin/env python\n");
+			#endif
 			Command	+= SG_T("# Python script template for SAGA tool execution (automatically created, experimental)\n\n");
 			Command	+= SG_T("import saga_api, sys, os\n");
 			Command	+= SG_T("\n");
-			Command	+= SG_T("def Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes):\n");
-			Command	+= SG_T("    print saga_api.SAGA_API_Get_Version()\n");
+			Command	+= SG_T("##########################################\n");
+			Command	+= SG_T("def Call_SAGA_Module(fDEM):            # pass your input file(s) here\n");
 			Command	+= SG_T("\n");
-			Command	+= SG_T("    Library = saga_api.CSG_Module_Library()\n");
-			Command	+= SG_T("    if Library.Create(saga_api.CSG_String('");
-			Command	+= ((CWKSP_Module_Library *)Get_Manager())->Get_File_Name().wc_str();
-			Command	+= SG_T("')) == 0:\n");
-			Command	+= SG_T("        print 'unable to load SAGA tool library'\n");
+			Command	+= SG_T("    # ------------------------------------\n");
+			Command	+= SG_T("    # initialize input dataset(s)\n");
+			Command	+= SG_T("    dem    = saga_api.SG_Get_Data_Manager().Add_Grid(unicode(fDEM))\n");
+			Command	+= SG_T("    if dem == None or dem.is_Valid() == 0:\n");
+			Command	+= SG_T("        print 'ERROR: loading grid [' + fDEM + ']'\n");
 			Command	+= SG_T("        return 0\n");
 			Command	+= SG_T("\n");
+			Command	+= SG_T("    # ------------------------------------\n");
+			Command	+= SG_T("    # initialize output dataset(s)\n");
+			Command	+= SG_T("    outgrid = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    # ------------------------------------\n");
+			Command	+= SG_T("    # call module\n");
+//			Command	+= SG_T("    Library = saga_api.CSG_Module_Library()\n");
+//			Command	+= SG_T("    if Library.Create(saga_api.CSG_String('");
+//			Command	+= ((CWKSP_Module_Library *)Get_Manager())->Get_File_Name().wc_str();
+//			Command	+= SG_T("')) == 0:\n");
+//			Command	+= SG_T("        print 'unable to load SAGA tool library'\n");
+//			Command	+= SG_T("        return 0\n");
+//			Command	+= SG_T("\n");
 
-			switch( m_pModule->Get_Type() )
+			#ifdef _SAGA_MSW
+			Command	+= CSG_String::Format(SG_T("    Module = saga_api.SG_Get_Module_Library_Manager().Get_Module('%s','%s')\n"), SG_File_Get_Name(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), false).c_str(), m_pModule->Get_Name().c_str());
+			#else
+			Command	+= CSG_String::Format(SG_T("    Module = saga_api.SG_Get_Module_Library_Manager().Get_Module('%s','%s')\n"), SG_File_Get_Name(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), false).Remove(0, 3).c_str(), m_pModule->Get_Name().c_str());
+			#endif
+
+			if( m_pModule->Get_Type() )
+			{
+				Command	+= SG_T("    Module.Get_Parameters().Get_Grid_System().Assign(dem.Get_System())\n");
+			}
+/*			switch( m_pModule->Get_Type() )
 			{
 			default:
-				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module('%s')\n")		, m_pModule->Get_Name().c_str());
+				Command	+= CSG_String::Format(SG_T("    Module = saga_api.SG_Get_Module_Library_Manager().Get_Module('%s')\n")		, m_pModule->Get_Name().c_str());
 				break;
 
 			case MODULE_TYPE_Grid:
-				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module_Grid('%s')\n")	, m_pModule->Get_Name().c_str());
-				Command	+= SG_T("    Module.Get_System().Assign(in__grid.Get_System())\n");
+				Command	+= CSG_String::Format(SG_T("    Module = saga_api.SG_Get_Module_Library_Manager().Get_Module_Grid('%s')\n")	, m_pModule->Get_Name().c_str());
+				Command	+= SG_T("    Module.Get_Parameters().Get_Grid_System().Assign(dem.Get_System())\n");
 				break;
-			}
+			}*/
 
 			Command	+= SG_T("\n");
 			Command	+= SG_T("    Parms = Module.Get_Parameters() # default parameter list\n");
@@ -347,25 +373,62 @@ void CWKSP_Module::_Save_Script(void)
 
 			Command	+= SG_T("\n");
 			Command	+= SG_T("    if Module.Execute() == 0:\n");
-			Command	+= SG_T("        print 'module execution failed'\n");
+			Command	+= SG_T("        print 'Module execution failed!'\n");
 			Command	+= SG_T("        return 0\n");
-			Command	+= SG_T("    print 'module successfully executed'\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    print\n");
+			Command	+= SG_T("    print 'The module has been executed.'\n");
+			Command	+= SG_T("    print 'Now you would like to save your output datasets, please edit the script to do so.'\n");
+			Command	+= SG_T("    return 0                           # remove this line once you have edited the script\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    # ------------------------------------\n");
+			Command	+= SG_T("    # save results\n");
+			Command	+= SG_T("    path   = os.path.split(fDEM)[0]\n");
+			Command	+= SG_T("    if path == '':\n");
+			Command	+= SG_T("        path = './'\n");
+			Command	+= SG_T("    outgrid.Save(saga_api.CSG_String(path + '/outgrid'))\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    print\n");
+			Command	+= SG_T("    print 'Module successfully executed!'\n");
 			Command	+= SG_T("    return 1\n");
 			Command	+= SG_T("\n");
 			Command	+= SG_T("\n");
+			Command	+= SG_T("##########################################\n");
 			Command	+= SG_T("if __name__ == '__main__':\n");
-			Command	+= SG_T("    if len( sys.argv ) != 4:\n");
-			Command	+= SG_T("        print 'Usage: this_script.py <in: gridfile> <out: gridfile> <in: shapefile> <out: shapefile>'\n");
+			Command	+= SG_T("    print 'Python - Version ' + sys.version\n");
+			Command	+= SG_T("    print saga_api.SAGA_API_Get_Version()\n");
+			Command	+= SG_T("    print\n");
+			Command	+= CSG_String::Format(SG_T("    print 'Usage: %s <in: filename>'\n"), FileName.wc_str());
+			Command	+= SG_T("    print\n");
+			Command	+= SG_T("    print 'This is a simple template, please edit the script and add the necessary input and output file(s)!'\n");
+			Command	+= SG_T("    print 'We will exit the script for now.'\n");
+			Command	+= SG_T("    sys.exit()                         # remove this line once you have edited the script\n");
+			Command	+= SG_T("    # This might look like this:\n");
+			Command	+= SG_T("    # fDEM    = sys.argv[1]\n");
+			Command	+= SG_T("    # if os.path.split(fDEM)[0] == '':\n");
+			Command	+= SG_T("    #    fDEM    = './' + fDEM\n");
+			Command	+= SG_T("    fDEM = './../test_data/test.sgrd'  # remove this line once you have edited the script\n");
+			Command	+= SG_T("\n\n");
+			Command	+= SG_T("    saga_api.SG_UI_Msg_Lock(1)\n");
+			Command	+= SG_T("    if os.name == 'nt':    # Windows\n");
+			Command	+= SG_T("        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA'] + '/bin/saga_vc_Win32/dll'\n");
+			Command	+= SG_T("        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules', 0)\n");
+			Command	+= SG_T("    else:                  # Linux\n");
+			Command	+= SG_T("        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)\n");
+			Command	+= SG_T("    saga_api.SG_UI_Msg_Lock(0)\n");
 			Command	+= SG_T("\n");
-			Command	+= SG_T("    else:\n");
-			Command	+= SG_T("        in__grid    = saga_api.SG_Create_Grid(saga_api.CSG_String(sys.argv[1]))\n");
-			Command	+= SG_T("        out_grid    = saga_api.SG_Create_Grid(grid_in.Get_System())\n");
-			Command	+= SG_T("        in__shapes  = saga_api.SG_Create_Shapes(saga_api.CSG_String(sys.argv[3]))\n");
-			Command	+= SG_T("        out_shapes  = saga_api.SG_Create_Shapes()\n");
-			Command	+= SG_T("\n");
-			Command	+= SG_T("        if Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes) != 0:\n");
-			Command	+= SG_T("            grid_out  .Save(saga_api.CSG_String(sys.argv[2]))\n");
-			Command	+= SG_T("            shapes_out.Save(saga_api.CSG_String(sys.argv[4]))\n");
+			Command	+= SG_T("    Call_SAGA_Module(fDEM)             # pass your input file(s) here\n");
+//			Command	+= SG_T("    else:\n");
+//			Command	+= SG_T("        in__grid    = saga_api.SG_Create_Grid(saga_api.CSG_String(sys.argv[1]))\n");
+//			Command	+= SG_T("        out_grid    = saga_api.SG_Create_Grid(grid_in.Get_System())\n");
+//			Command	+= SG_T("        in__shapes  = saga_api.SG_Create_Shapes(saga_api.CSG_String(sys.argv[3]))\n");
+//			Command	+= SG_T("        out_shapes  = saga_api.SG_Create_Shapes()\n");
+//			Command	+= SG_T("\n");
+//			Command	+= SG_T("        if Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes) != 0:\n");
+//			Command	+= SG_T("            grid_out  .Save(saga_api.CSG_String(sys.argv[2]))\n");
+//			Command	+= SG_T("            shapes_out.Save(saga_api.CSG_String(sys.argv[4]))\n");
 		}
 
 		if( File.Open(&FileName, SG_FILE_W, false) && Command.Length() > 0 )
@@ -495,43 +558,43 @@ void CWKSP_Module::_Save_Script_Python(CSG_String &Command, CSG_Parameters *pPar
 			break;
 
 		case PARAMETER_TYPE_Bool:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%d)\n"), p->Get_Identifier(), p->asBool() ? 1 : 0);
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%d)\n"), p->Get_Identifier(), p->asBool() ? 1 : 0);
 			break;
 
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Choice:
 		case PARAMETER_TYPE_Table_Field:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%d)\n"), p->Get_Identifier(), p->asInt());
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%d)\n"), p->Get_Identifier(), p->asInt());
 			break;
 
 		case PARAMETER_TYPE_Table_Fields:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%f)\n"), p->Get_Identifier(), p->asDouble());
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%f)\n"), p->Get_Identifier(), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').asRange().Set_LoVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_LoVal());
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').asRange().Set_HiVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_HiVal());
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).asRange().Set_LoVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_LoVal());
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).asRange().Set_HiVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_HiVal());
 			break;
 
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			Command	+= CSG_String::Format(SG_T("#   Parms('%s').Set_Value(saga_api.SG_Create_Table('table.txt'))\n"), p->Get_Identifier());
+			Command	+= CSG_String::Format(SG_T("#   Parms.Get(unicode('%s')).Set_Value(saga_api.SG_Create_Table('table.txt'))\n"), p->Get_Identifier());
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
 			if( p->Get_Children_Count() == 0 )
 			{
-				Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n"), p->Get_Identifier(),
+				Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n"), p->Get_Identifier(),
 					p->asGrid_System()->Get_Cellsize(),
 					p->asGrid_System()->Get_XMin()	, p->asGrid_System()->Get_YMin(),
 					p->asGrid_System()->Get_NX()	, p->asGrid_System()->Get_NY());
@@ -539,25 +602,25 @@ void CWKSP_Module::_Save_Script_Python(CSG_String &Command, CSG_Parameters *pPar
 			break;
 
 		case PARAMETER_TYPE_Grid:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s grid\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s grid\n"), p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
 
 		case PARAMETER_TYPE_Table:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s table\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s table\n"), p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
 
 		case PARAMETER_TYPE_Shapes:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s shapes\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s shapes\n"), p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
 
 		case PARAMETER_TYPE_TIN:
-			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s TIN\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s TIN\n"), p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
@@ -570,9 +633,9 @@ void CWKSP_Module::_Save_Script_Python(CSG_String &Command, CSG_Parameters *pPar
 			if( p->is_Input() )
 			{
 				if( !p->is_Optional() )
-					Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # data object list\n"), p->Get_Identifier());
+					Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # data object list\n"), p->Get_Identifier());
 				else
-					Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # optional data object list\n"), p->Get_Identifier());
+					Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # optional data object list\n"), p->Get_Identifier());
 			}
 			break;
 		}
