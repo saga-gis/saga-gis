@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: Hypsometry.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -80,6 +80,22 @@ CHypsometry::CHypsometry(void)
 
 	Set_Description	(_TW(
 		"Calculates the hypsometric curve for a given DEM.\n\n"
+		"The hypsometric curve is an empirical cumulative distribution function of "
+		"elevations in a catchment or of a whole planet. The module calculates both "
+		"the relative (scaled from 0 to 100 percent) and absolute (minimum "
+		"to maximum values) distributions. The former scales elevation and area "
+		"by the maximum values. Such a non-dimensional curve allows to asses the "
+		"similarity of watersheds as differences in hypsometric curves arise from "
+		"different geomorphic processes shaping a landscape.\n\n"
+		"In case the hypsometric curve should not be calculated for the whole "
+		"elevation range of the input dataset, a user-specified elevation range "
+		"can be specified with the classification constant area.\n\n"
+		"The output table has two attribute columns with relative height and area "
+		"values, and two columns with absolute height and area values. In order to "
+		"plot the non-dimensional hypsometric curve as diagram, use the relative "
+		"area as x-axis values and the relative height for the y-axis. For a "
+		"diagram with absolute values, use the absolute area as x-axis values "
+		"and the absolute height for the y-axis.\n\n"
 		"References:\n"
 		"- Harlin, J.M (1978):\n"
 		"    'Statistical moments of the hypsometric curve and its density function',\n"
@@ -115,13 +131,13 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Value(
 		NULL	, "COUNT"		, _TL("Number of Classes"),
-		_TL(""),
+		_TL("Number of discrete intervals (bins) used for sampling"),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "SORTING"		, _TL("Sort"),
-		_TL(""),
+		_TL("Choose how to sort the elevation dataset before sampling"),
 
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("up"),
@@ -131,7 +147,7 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Classification Constant"),
-		_TL(""),
+		_TL("Choose the classification constant to use"),
 
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("height"),
@@ -141,13 +157,13 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Value(
 		NULL	, "BZRANGE"		, _TL("Use Z-Range"),
-		_TL(""),
+		_TL("Use a user-specified elevation range instead of min/max of the input dataset"),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Range(
 		NULL	, "ZRANGE"		, _TL("Z-Range"),
-		_TL(""),
+		_TL("User specified elevation range"),
 		0.0, 1000.0
 	);
 }
@@ -179,6 +195,14 @@ bool CHypsometry::On_Execute(void)
 	zMin		= Parameters("BZRANGE")		->asBool() ? Parameters("ZRANGE")->asRange()->Get_LoVal() : 0.0;
 	zMax		= Parameters("BZRANGE")		->asBool() ? Parameters("ZRANGE")->asRange()->Get_HiVal() : 0.0;
 	
+	if( !bDown && Parameters("BZRANGE")->asBool() && Parameters("METHOD")->asInt() == 1 )
+	{
+		SG_UI_Msg_Add_Error(_TW("The selected module parameter configuration (classification constant area, upward sorting and use "
+								"of an user-specified elevation range) is not supported."));
+
+		return( false );
+	}
+
 	pTable->Destroy();
 	pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Hypsometric Curve"), pDEM->Get_Name()));
 	pTable->Add_Field(_TL("Relative Height"), SG_DATATYPE_Double);
@@ -281,6 +305,8 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 		return( true );
 	}
 
+	SG_UI_Msg_Add_Error(_TL("Total area is zero or minimum elevation is equal or lower than maximum elevation!"));
+
 	return( false );
 }
 
@@ -361,7 +387,28 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 		return( true );
 	}
 
+	SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Elevation range (zMax (%.2f) - zMin (%.2f)) is equal or lower than zero!"), zMax, zMin));
+
 	return( false );
+}
+
+
+//---------------------------------------------------------
+int CHypsometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		pParameters->Get_Parameter("BZRANGE")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Get_Parameter("ZRANGE")->Set_Enabled(pParameter->asInt() == 1);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BZRANGE")) )
+	{
+		pParameters->Get_Parameter("ZRANGE")->Set_Enabled(pParameter->asBool());
+	}
+	
+	//-----------------------------------------------------
+	return (1);
 }
 
 

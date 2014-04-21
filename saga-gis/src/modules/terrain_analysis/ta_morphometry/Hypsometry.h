@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: Hypsometry.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -92,6 +92,8 @@ public:
 protected:
 
 	virtual bool		On_Execute		(void);
+
+	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
