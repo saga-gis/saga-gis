@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: classify_supervised.cpp 1308 2012-01-12 15:27:56Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -114,6 +114,11 @@ CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(void)
 		_TL("")
 	);
 
+	Parameters.Add_Table_Fields(
+		pNode	, "FIELDS"		, _TL("Attributes"),
+		_TL("")
+	);
+
 	Parameters.Add_Shapes(
 		NULL	, "CLASSES"			, _TL("Classification"),
 		_TL(""),
@@ -124,11 +129,6 @@ CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(void)
 		NULL	, "CLASS_INFO"		, _TL("Summary"),
 		_TL(""),
 		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Parameters(
-		NULL	, "FEATURES"		, _TL("Features"),
-		_TL("")
 	);
 
 	Parameters.Add_Choice(
@@ -165,32 +165,6 @@ CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CPolygon_Classify_Supervised::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POLYGONS")) )
-	{
-		CSG_Shapes		*pShapes	= pParameter->asShapes();
-		CSG_Parameters	*pFeatures	= pParameters->Get_Parameter("FEATURES")->asParameters();
-
-		pFeatures->Del_Parameters();
-
-		if( pShapes && pShapes->Get_Field_Count() > 0 )
-		{
-			for(int i=0; i<pShapes->Get_Field_Count(); i++)
-			{
-				if( SG_Data_Type_is_Numeric(pShapes->Get_Field_Type(i)) )
-				{
-					pFeatures->Add_Value(NULL, CSG_String::Format(SG_T("%d_FEATURE"), i), pShapes->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	return( 1 );
-}
 
 //---------------------------------------------------------
 int CPolygon_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -239,22 +213,12 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	CSG_Parameters	*pFeatures	= Parameters("FEATURES")->asParameters();
+	m_Features	= (int *)Parameters("FIELDS")->asPointer();
+	m_nFeatures	=        Parameters("FIELDS")->asInt    ();
 
-	m_Features	= (int *)SG_Calloc(m_pPolygons->Get_Field_Count(), sizeof(int));
-	m_nFeatures	= 0;
-
-	for(i=0; i<pFeatures->Get_Count(); i++)
+	if( !m_Features || m_nFeatures <= 0 )
 	{
-		if( pFeatures->Get_Parameter(i)->asBool() )
-		{
-			m_Features[m_nFeatures++]	= CSG_String(pFeatures->Get_Parameter(i)->Get_Identifier()).asInt();
-		}
-	}
-
-	if( m_nFeatures <= 0 )
-	{
-		Error_Set(_TL("no features have been selected"));
+		Error_Set(_TL("no features in selection"));
 
 		return( false );
 	}
@@ -287,7 +251,7 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 				else
 				{
 					Features[i]	= pPolygon->asDouble(m_Features[i]);
-					
+
 					if( m_bNormalise )
 					{
 						Features[i]	= (Features[i] - m_pPolygons->Get_Mean(m_Features[i])) / m_pPolygons->Get_StdDev(m_Features[i]);
@@ -330,7 +294,7 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 			else
 			{
 				Features[i]	= pPolygon->asDouble(m_Features[i]);
-					
+
 				if( m_bNormalise )
 				{
 					Features[i]	= (Features[i] - m_pPolygons->Get_Mean(m_Features[i])) / m_pPolygons->Get_StdDev(m_Features[i]);
@@ -354,7 +318,6 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 	//-----------------------------------------------------
 	Finalize();
 
-	SG_Free(m_Features);
 
 	return( true );
 }

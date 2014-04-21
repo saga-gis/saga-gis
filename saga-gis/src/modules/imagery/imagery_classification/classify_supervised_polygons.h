@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: classify_supervised.h 1308 2012-01-12 15:27:56Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -88,7 +88,6 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
