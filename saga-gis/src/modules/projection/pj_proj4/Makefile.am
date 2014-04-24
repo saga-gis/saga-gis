@@ -17,6 +17,7 @@ libpj_proj4_la_SOURCES =\
 MLB_Interface.cpp\
 crs_assign.cpp\
 crs_base.cpp\
+crs_indicatrix.cpp\
 crs_transform.cpp\
 crs_transform_grid.cpp\
 crs_transform_shapes.cpp\
@@ -28,6 +29,7 @@ PROJ4_Shapes.cpp\
 MLB_Interface.h\
 crs_assign.h\
 crs_base.h\
+crs_indicatrix.h\
 crs_transform.h\
 crs_transform_grid.h\
 crs_transform_shapes.h\

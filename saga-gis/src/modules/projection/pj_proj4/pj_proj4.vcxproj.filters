@@ -47,6 +47,9 @@
     <ClCompile Include="gcs_graticule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="crs_indicatrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -131,6 +134,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gcs_graticule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="crs_indicatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
