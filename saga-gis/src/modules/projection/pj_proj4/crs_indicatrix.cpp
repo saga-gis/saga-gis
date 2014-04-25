@@ -69,6 +69,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double	SG_Get_Rounded(double Value, int Decimals = 0)
+{
+	if( Decimals <= 0 )
+	{
+		return( (int)(0.5 + Value) );
+	}
+
+	double	d	= pow(10.0, Decimals);
+
+	return( ((int)(0.5 + d * Value)) / d );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CCRS_Indicatrix::CCRS_Indicatrix(void)
 {
 	//-----------------------------------------------------
@@ -92,19 +112,19 @@ CCRS_Indicatrix::CCRS_Indicatrix(void)
 	Parameters.Add_Value(
 		NULL	, "NY"		, _TL("Number in Latitudinal Direction"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 11, 1, true
+		PARAMETER_TYPE_Int, 5, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NX"		, _TL("Number in Meridional Direction"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 20, 1, true
+		PARAMETER_TYPE_Int, 11, 1, true
 	);
 
 	Parameters.Add_Value(
-		NULL	, "SIZE"	, _TL("Size"),
+		NULL	, "SCALE"	, _TL("Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 50.0, 1.0, true, 100.0, true
+		PARAMETER_TYPE_Double, 25.0, 1.0, true
 	);
 }
 
@@ -129,19 +149,21 @@ enum
 //---------------------------------------------------------
 bool CCRS_Indicatrix::On_Execute_Transformation(void)
 {
-	m_Projector.Set_Source(CSG_Projection("+proj=longlat +ellps=WGS84 +datum=WGS84", SG_PROJ_FMT_Proj4));
+	//-----------------------------------------------------
+	double	yStep	= 180.0 / Parameters("NY")->asDouble();
+	double	xStep	= 360.0 / Parameters("NX")->asDouble();
+
+	m_Size	= 1.0;
+	m_Scale	= (40000000.0 / 360.0) * (yStep < xStep ? yStep : xStep) * 0.005 * Parameters("SCALE")->asDouble() / m_Size;
 
 	//-----------------------------------------------------
-	double	yStep	=  90.0 / Parameters("NY")->asDouble();
-	double	xStep	= 180.0 / Parameters("NX")->asDouble();
+	m_Circle.Add(0.0, 0.0);
+	m_Circle.Add(sin(M_PI_090), cos(M_PI_090));
+	m_Circle.Add(0.0, 0.0);
 
-	m_Scale	= 0.0001;
-	m_Size	= Parameters("SIZE")->asDouble() / m_Scale;
-
-	//-----------------------------------------------------
 	for(double a=0.0; a<M_PI_360; a+=5.0*M_DEG_TO_RAD)
 	{
-		m_Circle.Add(m_Scale * sin(a), m_Scale * cos(a));
+		m_Circle.Add(sin(a), cos(a));
 	}
 
 	//-----------------------------------------------------
@@ -197,10 +219,14 @@ bool CCRS_Indicatrix::On_Execute_Transformation(void)
 //---------------------------------------------------------
 bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicatrix)
 {
+	m_Projector.Set_Source(
+		CSG_Projection(CSG_String::Format(SG_T("+proj=ortho +lon_0=%f +lat_0=%f +datum=WGS84"), lon, lat), SG_PROJ_FMT_Proj4)
+	);
+
 	TSG_Point	Center, Point;
 
-	Center.x	= lon;
-	Center.y	= lat;
+	Center.x	= 0.0;
+	Center.y	= 0.0;
 
 	if( !m_Projector.Get_Projection(Center) )
 	{
@@ -208,50 +234,55 @@ bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicat
 	}
 
 	//-----------------------------------------------------
-	Point.x		= lon + m_Scale;
-	Point.y		= lat;
+	Point.x		= m_Size;
+	Point.y		= 0.0;
 
 	if( !m_Projector.Get_Projection(Point) )
 	{
 		return( false );
 	}
 
-	double	a	= SG_Get_Distance(Center, Point);
+	double	h	= SG_Get_Distance(Center, Point) / m_Size;
 
 	//-----------------------------------------------------
-	Point.x		= lon;
-	Point.y		= lat + m_Scale;
+	Point.x		= 0.0;
+	Point.y		= m_Size;
 
 	if( !m_Projector.Get_Projection(Point) )
 	{
 		return( false );
 	}
 
-	double	b	= SG_Get_Distance(Center, Point);
+	double	k	= SG_Get_Distance(Center, Point) / m_Size;
 
 	//-----------------------------------------------------
-	pIndicatrix->Set_Value(FIELD_LON, lon);
-	pIndicatrix->Set_Value(FIELD_LAT, lat);
-	pIndicatrix->Set_Value(FIELD_a  , a);
-	pIndicatrix->Set_Value(FIELD_b  , b);
-	pIndicatrix->Set_Value(FIELD_h  , a / m_Scale);
-	pIndicatrix->Set_Value(FIELD_k  , b / m_Scale);
-	pIndicatrix->Set_Value(FIELD_w  , 2.0 * asin((a - b) / (a + b)));
-	pIndicatrix->Set_Value(FIELD_PHI, a * b);
+	double	a	= h > k ? h : k;
+	double	b	= h > k ? k : h;
+	double	w	= 2.0 * M_RAD_TO_DEG * asin((a - b) / (a + b));
+	double	phi	= a * b;
+
+	pIndicatrix->Set_Value(FIELD_LON, SG_Get_Rounded(lon, 2));
+	pIndicatrix->Set_Value(FIELD_LAT, SG_Get_Rounded(lat, 2));
+	pIndicatrix->Set_Value(FIELD_h  , SG_Get_Rounded(h  , 2));
+	pIndicatrix->Set_Value(FIELD_k  , SG_Get_Rounded(k  , 2));
+	pIndicatrix->Set_Value(FIELD_a  , SG_Get_Rounded(a  , 2));
+	pIndicatrix->Set_Value(FIELD_b  , SG_Get_Rounded(b  , 2));
+	pIndicatrix->Set_Value(FIELD_w  , SG_Get_Rounded(w  , 1));
+	pIndicatrix->Set_Value(FIELD_PHI, SG_Get_Rounded(phi, 1));
 
 	//-----------------------------------------------------
 	for(int iPoint=0; iPoint<m_Circle.Get_Count(); iPoint++)
 	{
-		Point.x	= lon + m_Circle[iPoint].x;
-		Point.y	= lat + m_Circle[iPoint].y;
+		Point.x	= m_Size * m_Circle[iPoint].x;
+		Point.y	= m_Size * m_Circle[iPoint].y;
 
 		if( !m_Projector.Get_Projection(Point) )
 		{
 			return( false );
 		}
 
-		Point.x	= Center.x + m_Size * (Point.x - Center.x);
-		Point.y	= Center.y + m_Size * (Point.y - Center.y);
+		Point.x	= Center.x + m_Scale * (Point.x - Center.x);
+		Point.y	= Center.y + m_Scale * (Point.y - Center.y);
 
 		pIndicatrix->Add_Point(Point);
 	}
