@@ -217,9 +217,7 @@ bool CFlow_AreaUpslope::Get_Area(void)
 	{
 		for(i=0; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress((double)i, (double)m_pDTM->Get_NCells()); i++)
 		{
-			m_pDTM->Get_Sorted(i, x, y, false, false);
-
-			if( m_pFlow->asDouble(x, y) > 0.0 )
+			if( m_pDTM->Get_Sorted(i, x, y, false) &&  m_pFlow->asDouble(x, y) > 0.0 )
 			{
 				break;
 			}
@@ -227,9 +225,10 @@ bool CFlow_AreaUpslope::Get_Area(void)
 
 		for(i++; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress((double)i, (double)m_pDTM->Get_NCells()); i++)
 		{
-			m_pDTM->Get_Sorted(i, x, y, false, false);
-
-			Set_Value(x, y);
+			if( m_pDTM->Get_Sorted(i, x, y, false) && m_pFlow->asDouble(x, y) <= 0.0 )
+			{
+				Set_Value(x, y);
+			}
 		}
 
 		return( true );
