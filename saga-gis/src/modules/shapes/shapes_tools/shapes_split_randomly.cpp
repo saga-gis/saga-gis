@@ -105,11 +105,13 @@ CShapes_Split_Randomly::CShapes_Split_Randomly(void)
 		_TL(""),
 		PARAMETER_TYPE_Double, 25.0, 0.0, true, 100.0, true
 	);
-}
 
-//---------------------------------------------------------
-CShapes_Split_Randomly::~CShapes_Split_Randomly(void)
-{}
+	Parameters.Add_Value(
+		NULL	, "EXACT"		, _TL("Exact"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -121,42 +123,63 @@ CShapes_Split_Randomly::~CShapes_Split_Randomly(void)
 //---------------------------------------------------------
 bool CShapes_Split_Randomly::On_Execute(void)
 {
-	double		Percent;
-	CSG_Shapes	*pShapes, *pA, *pB;
-
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	pA		= Parameters("A")		->asShapes();
-	pB		= Parameters("B")		->asShapes();
-	Percent	= Parameters("PERCENT")	->asDouble();
+	CSG_Shapes	*pSplit[2], *pShapes	= Parameters("SHAPES")->asShapes();
 
-	//-----------------------------------------------------
-	pA->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(100.5 - Percent)), pShapes);
-	pB->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(  0.5 + Percent)), pShapes);
-
-	Percent	*= RAND_MAX / 100.0;
-
-	//-----------------------------------------------------
-	if( pShapes->is_Valid() )
+	if( !pShapes->is_Valid() )
 	{
-		srand((unsigned)time(NULL));
+		Error_Set(SG_T("invalid input"));
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			if( Percent < rand() )
-			{
-				pA->Add_Shape(pShapes->Get_Shape(iShape));
-			}
-			else
-			{
-				pB->Add_Shape(pShapes->Get_Shape(iShape));
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	double	Percent	= Parameters("PERCENT")->asDouble();
+
+	pSplit[0]	= Parameters("A")->asShapes();
+	pSplit[1]	= Parameters("B")->asShapes();
+
+	pSplit[0]->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(100.5 - Percent)), pShapes);
+	pSplit[1]->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(  0.5 + Percent)), pShapes);
+
+	//-----------------------------------------------------
+	if( !Parameters("EXACT")->asBool() )
+	{
+		for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		{
+			pSplit[Percent >= CSG_Random::Get_Uniform(0, 100) ? 1 : 0]->Add_Shape(pShapes->Get_Shape(i));
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		int		i, n	= (int)(0.5 + pShapes->Get_Count() * Percent / 100.0);
+
+		CSG_Table	Random;
+
+		Random.Add_Field("INDEX"  , SG_DATATYPE_Int);
+		Random.Add_Field("PERCENT", SG_DATATYPE_Double);
+
+		for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		{
+			CSG_Table_Record	*pRecord	= Random.Add_Record();
+
+			pRecord->Set_Value(0, i);
+			pRecord->Set_Value(1, CSG_Random::Get_Uniform(0, 100));
+		}
+
+		Random.Set_Index(1, TABLE_INDEX_Ascending);
+
+		//-------------------------------------------------
+		for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		{
+			pSplit[i < n ? 1 : 0]->Add_Shape(pShapes->Get_Shape(Random[i].asInt(0)));
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
