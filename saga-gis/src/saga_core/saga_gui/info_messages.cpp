@@ -180,6 +180,9 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style)
 	wxFont		f	= wxSystemSettings::GetFont(wxSYS_ANSI_VAR_FONT);//wxSYS_SYSTEM_FONT);
 	wxTextAttr	t;
 
+	f.SetPointSize((int)(0.5 + 0.9 * f.GetPointSize()));	// generally scale message window font to 90 percent
+
+
 	switch( Style )
 	{
 	default:
@@ -204,12 +207,12 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style)
 
 	case SG_UI_MSG_STYLE_BIG:
 		f.SetWeight(wxFONTWEIGHT_BOLD);
-		f.SetPointSize((int)(0.5 + 1.2 * f.GetPointSize()));
+		f.SetPointSize((int)(0.5 + 1.1 * f.GetPointSize()));
 		break;
 
 	case SG_UI_MSG_STYLE_SMALL:
 		f.SetWeight(wxFONTWEIGHT_LIGHT);
-		f.SetPointSize((int)(0.5 + 0.8 * f.GetPointSize()));
+		f.SetPointSize((int)(0.5 + 0.9 * f.GetPointSize()));
 		break;
 
 	case SG_UI_MSG_STYLE_01:
@@ -227,7 +230,6 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style)
 		break;
 	}
 
-	t.SetFlags(wxTEXT_ATTR_TEXT_COLOUR|wxTEXT_ATTR_FONT_WEIGHT|wxTEXT_ATTR_FONT_ITALIC|wxTEXT_ATTR_FONT_SIZE|wxTEXT_ATTR_LEFT_INDENT);
 
 	t.SetLeftIndent(i);
 	t.SetTextColour(c);
