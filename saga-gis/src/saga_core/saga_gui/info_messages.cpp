@@ -176,8 +176,8 @@ void CINFO_Messages::_Add_Text(wxString Text)
 void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style)
 {
 	int			i	= 0;
-	wxColour	c	= wxColour(  0,   0,   0);
-	wxFont		f	= wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	wxColour	c	= wxColour(0, 0, 0);
+	wxFont		f	= wxSystemSettings::GetFont(wxSYS_ANSI_VAR_FONT);//wxSYS_SYSTEM_FONT);
 	wxTextAttr	t;
 
 	switch( Style )
@@ -204,19 +204,18 @@ void CINFO_Messages::_Set_Style(TSG_UI_MSG_STYLE Style)
 
 	case SG_UI_MSG_STYLE_BIG:
 		f.SetWeight(wxFONTWEIGHT_BOLD);
-		f.SetPointSize(12);
+		f.SetPointSize((int)(0.5 + 1.2 * f.GetPointSize()));
 		break;
 
 	case SG_UI_MSG_STYLE_SMALL:
 		f.SetWeight(wxFONTWEIGHT_LIGHT);
-		f.SetPointSize(8);
+		f.SetPointSize((int)(0.5 + 0.8 * f.GetPointSize()));
 		break;
 
 	case SG_UI_MSG_STYLE_01:
 		i	= 50;
 		c	= wxColour(  0,   0, 127);
 		f.SetWeight(wxFONTWEIGHT_LIGHT);
-		f.SetPointSize(10);
 		break;
 
 	case SG_UI_MSG_STYLE_02:
