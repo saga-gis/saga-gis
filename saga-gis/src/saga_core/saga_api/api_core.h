@@ -1119,11 +1119,26 @@ public:
 	bool							Set_Blue			(int Index, int Value);
 	bool							Set_Brightness		(int Index, int Value);
 
-	long							Get_Color			(int Index) const	{	return( Index >= 0 && Index < m_nColors ? m_Colors[Index] : 0 );	}
-	long							Get_Red				(int Index) const	{	return( SG_GET_R(Get_Color(Index)) );	}
-	long							Get_Green			(int Index) const	{	return( SG_GET_G(Get_Color(Index)) );	}
-	long							Get_Blue			(int Index) const	{	return( SG_GET_B(Get_Color(Index)) );	}
-	long							Get_Brightness		(int Index) const	{	return( (Get_Red(Index) + Get_Green(Index) + Get_Blue(Index)) / 3 );	}
+	long							Get_Color			(int Index)	const	{	return( m_nColors > 0 ? m_Colors[Index < 0 ? 0 : Index >= m_nColors ? m_nColors - 1 : Index] : 0 );	}
+	long							Get_Red				(int Index)	const	{	return( SG_GET_R(Get_Color(Index)) );	}
+	long							Get_Green			(int Index)	const	{	return( SG_GET_G(Get_Color(Index)) );	}
+	long							Get_Blue			(int Index)	const	{	return( SG_GET_B(Get_Color(Index)) );	}
+	long							Get_Brightness		(int Index)	const	{	return( (Get_Red(Index) + Get_Green(Index) + Get_Blue(Index)) / 3 );	}
+
+	long							Get_Interpolated	(double Index)	const
+	{
+		if( m_nColors <= 0             )	return( 0 );
+		if( Index     <= 0             )	return( m_Colors[0] );
+		if( Index     >= m_nColors - 1 )	return( m_Colors[m_nColors - 1] );
+
+		int	i	= (int)Index;	Index	-= i;
+
+		return( SG_GET_RGB(
+			SG_GET_R(m_Colors[i]) + Index * (SG_GET_R(m_Colors[i + 1]) - SG_GET_R(m_Colors[i])),
+			SG_GET_G(m_Colors[i]) + Index * (SG_GET_G(m_Colors[i + 1]) - SG_GET_G(m_Colors[i])),
+			SG_GET_B(m_Colors[i]) + Index * (SG_GET_B(m_Colors[i + 1]) - SG_GET_B(m_Colors[i])))
+		);
+	}
 
 	bool							Set_Default			(int nColors = 11);
 	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 11);
