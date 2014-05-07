@@ -247,9 +247,9 @@ bool		Execute(int argc, char *argv[])
 		return( true );
 	}
 
-	if( pModule->is_Interactive() )
+	if( pModule->needs_GUI() )
 	{
-		CMD_Print_Error(_TL("cannot execute interactive tool"), pModule->Get_Name());
+		CMD_Print_Error(_TL("tool needs graphical user interface"), pModule->Get_Name());
 
 		return( false );
 	}

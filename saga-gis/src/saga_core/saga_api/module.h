@@ -211,6 +211,8 @@ public:
 
 	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
 
+	virtual bool				needs_GUI					(void)	{	return( false );	}
+
 	virtual bool				is_Grid						(void)	{	return( false );	}
 	virtual bool				is_Interactive				(void)	{	return( false );	}
 	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
@@ -504,6 +506,8 @@ public:
 
 	virtual TSG_Module_Type		Get_Type				(void)	{	return( MODULE_TYPE_Interactive );	}
 
+	virtual bool				needs_GUI				(void)	{	return( true );	}
+
 	virtual bool				is_Interactive			(void)	{	return( true );	}
 
 };
@@ -527,6 +531,8 @@ public:
 	virtual ~CSG_Module_Grid_Interactive(void);
 
 	virtual TSG_Module_Type		Get_Type				(void)	{	return( MODULE_TYPE_Grid_Interactive );	}
+
+	virtual bool				needs_GUI				(void)	{	return( true );	}
 
 	virtual bool				is_Interactive			(void)	{	return( true );	}
 
