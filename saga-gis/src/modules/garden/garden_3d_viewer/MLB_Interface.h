@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.h 1922 2014-01-09 10:28:46Z oconrad $
+ * Version $Id: MLB_Interface.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                   pointcloud_viewer                   //
+//                      3d_viewer                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                    MLB_Interface.h                    //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -63,7 +63,7 @@
 #define HEADER_INCLUDED__pointcloud_viewer_mlb_H
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
+#include <saga_gdi/3d_view.h>
 
 //---------------------------------------------------------
 #ifdef pointcloud_viewer_EXPORTS

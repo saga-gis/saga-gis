@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: 3d_view_panel.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    sgdi_helper.h                      //
+//                    3d_view_panel.h                    //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,8 +46,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -62,8 +60,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_helper_H
-#define HEADER_INCLUDED__SAGA_GDI_sgdi_helper_H
+#ifndef HEADER_INCLUDED__3d_view_panel_H
+#define HEADER_INCLUDED__3d_view_panel_H
 
 
 ///////////////////////////////////////////////////////////
@@ -73,48 +71,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "sgdi_core.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-	#pragma hdrstop
-#endif
-
-#include <wx/dc.h>
-#include <wx/button.h>
-#include <wx/choice.h>
-#include <wx/checkbox.h>
-#include <wx/textctrl.h>
-#include <wx/slider.h>
-#include <wx/spinctrl.h>
-#include <wx/dialog.h>
 #include <wx/panel.h>
 #include <wx/image.h>
 
+#include "saga_gdi.h"
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define SGDI_CTRL_WIDTH				100
-#define SGDI_CTRL_SPACE				10
-#define SGDI_CTRL_SMALLSPACE		2
-
-#define SGDI_BTN_HEIGHT				25
-#define SGDI_BTN_WIDTH				SGDI_CTRL_WIDTH
-#define SGDI_BTN_SIZE				wxSize(SGDI_BTN_WIDTH, SGDI_BTN_HEIGHT)
+#include "3d_view_tools.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -124,55 +86,85 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define TEXTALIGN_LEFT				0x01
-#define TEXTALIGN_XCENTER			0x02
-#define TEXTALIGN_RIGHT				0x04
-#define TEXTALIGN_TOP				0x08
-#define TEXTALIGN_YCENTER			0x10
-#define TEXTALIGN_BOTTOM			0x20
-
-#define TEXTALIGN_TOPLEFT			(TEXTALIGN_TOP    |TEXTALIGN_LEFT)
-#define TEXTALIGN_TOPCENTER			(TEXTALIGN_TOP    |TEXTALIGN_XCENTER)
-#define TEXTALIGN_TOPRIGHT			(TEXTALIGN_TOP    |TEXTALIGN_RIGHT)
-#define TEXTALIGN_CENTERLEFT		(TEXTALIGN_YCENTER|TEXTALIGN_LEFT)
-#define TEXTALIGN_CENTER			(TEXTALIGN_YCENTER|TEXTALIGN_XCENTER)
-#define TEXTALIGN_CENTERRIGHT		(TEXTALIGN_YCENTER|TEXTALIGN_RIGHT)
-#define TEXTALIGN_BOTTOMLEFT		(TEXTALIGN_BOTTOM |TEXTALIGN_LEFT)
-#define TEXTALIGN_BOTTOMCENTER		(TEXTALIGN_BOTTOM |TEXTALIGN_XCENTER)
-#define TEXTALIGN_BOTTOMRIGHT		(TEXTALIGN_BOTTOM |TEXTALIGN_RIGHT)
-
-//---------------------------------------------------------
-SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, const wxString &Text);
-SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text);
-
-SGDI_API_DLL_EXPORT bool	Draw_Ruler	(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent = true, int FontSize = 7, const wxColour &Colour = wxColour(127, 127, 127));
+enum
+{
+	SG_3DVIEW_PLAY_STOP	= 0,
+	SG_3DVIEW_PLAY_RUN_ONCE,
+	SG_3DVIEW_PLAY_RUN_LOOP,
+	SG_3DVIEW_PLAY_RUN_SAVE
+};
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SGDI_API_DLL_EXPORT CSGDI_Slider : public wxSlider
+class SGDI_API_DLL_EXPORT CSG_3DView_Panel : public wxPanel, public CSG_3DView_Canvas
 {
 public:
-	CSGDI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSL_HORIZONTAL);
-	virtual ~CSGDI_Slider(void);
+	CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape = NULL);
 
-	bool				Set_Value			(double Value);
-	double				Get_Value			(void);
+	CSG_Parameters				m_Parameters;
 
-	double				Get_Min				(void)	{	return( m_Min );	}
-	double				Get_Max				(void)	{	return( m_Max );	}
-	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
-	bool				Set_Range			(double minValue, double maxValue);
+
+	virtual bool				Update_View				(bool bStatistics = false);
+
+	void						Play_Pos_Add			(void);
+	void						Play_Pos_Del			(void);
+	void						Play_Pos_Clr			(void);
+	CSG_Table &					Play_Pos_Table			(void)	{	return( *m_pPlay );	}
+
+	void						Play_Once				(void);
+	void						Play_Loop				(void);
+	void						Play_Save				(void);
+	void						Play_Stop				(void);
+	int							Play_Get_State			(void)	{	return( m_Play_State );	}
+
+
+protected:
+
+	int							m_Play_State;
+
+	TSG_Point					m_Down_Value;
+
+	CSG_Table					*m_pPlay;
+
+	wxPoint						m_Down_Screen;
+
+	wxImage						m_Image;
+
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual void				Update_Statistics		(void);
+	virtual void				Update_Parent			(void);
+
+	virtual void				On_Size					(wxSizeEvent  &event);
+	virtual void				On_Paint				(wxPaintEvent &event);
+	virtual void				On_Key_Down				(wxKeyEvent   &event);
+	virtual void				On_Mouse_LDown			(wxMouseEvent &event);
+	virtual void				On_Mouse_LUp			(wxMouseEvent &event);
+	virtual void				On_Mouse_RDown			(wxMouseEvent &event);
+	virtual void				On_Mouse_RUp			(wxMouseEvent &event);
+	virtual void				On_Mouse_MDown			(wxMouseEvent &event);
+	virtual void				On_Mouse_MUp			(wxMouseEvent &event);
+	virtual void				On_Mouse_Motion			(wxMouseEvent &event);
+	virtual void				On_Mouse_Wheel			(wxMouseEvent &event);
+
+	virtual bool				On_Before_Draw			(void)	{	return( true );	}
+	virtual bool				On_Draw					(void)	= 0;
 
 
 private:
 
-	double				m_Min, m_Max;
+	static int					_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
+
+	bool						_Play					(void);
+
+
+	DECLARE_EVENT_TABLE()
 
 };
 
@@ -184,26 +176,66 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SGDI_API_DLL_EXPORT CSGDI_SpinCtrl : public wxSpinCtrl
+enum
+{
+	MENU_USER_FIRST	= 0,
+	MENU_USER_LAST	= 100
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define MENU_TOGGLE(id)			m_pPanel->m_Parameters(id)->Set_Value(m_pPanel->m_Parameters(id)->asBool() ? 0 : 1); Update_Controls(); m_pPanel->Update_View(true);
+#define MENU_VALUE_ADD(id, add)	m_pPanel->m_Parameters(id)->Set_Value(m_pPanel->m_Parameters(id)->asDouble() + add); Update_Controls(); m_pPanel->Update_View();
+
+//---------------------------------------------------------
+#define CHECKBOX_UPDATE(pControl, id)		if( event.GetEventObject() == pControl )\
+	{\
+		m_pPanel->m_Parameters(id)->Set_Value(pControl->GetValue() == 1 ? true : false);\
+		m_pPanel->Update_View();\
+		return;\
+	}\
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SGDI_API_DLL_EXPORT CSG_3DView_Dialog : public CSGDI_Dialog
 {
 public:
-	CSGDI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent = false, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSP_ARROW_KEYS);
-	virtual ~CSGDI_SpinCtrl(void);
+	CSG_3DView_Dialog(const CSG_String &Caption);
 
-	bool				Set_Value			(double Value);
-	double				Get_Value			(void);
+	virtual void				Update_Controls			(void);
 
-	double				Get_Min				(void)	{	return( m_Min );	}
-	double				Get_Max				(void)	{	return( m_Max );	}
-	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
-	bool				Set_Range			(double minValue, double maxValue);
+
+protected:
+
+	wxButton					*m_pCommands;
+
+	CSGDI_Slider				*m_pRotate_X, *m_pRotate_Z, *m_pCentral;
+
+	CSG_3DView_Panel			*m_pPanel;
+
+
+	bool						Create					(CSG_3DView_Panel *pPanel);
+
+	virtual void				On_Update_Control		(wxCommandEvent &event);
+	virtual void				On_Update_Choices		(wxCommandEvent &event);
+	virtual void				On_Button				(wxCommandEvent &event);
+
+	virtual void				Set_Menu				(wxMenu &Menu)	{}
+	virtual void				On_Menu					(wxCommandEvent &event);
+	virtual void				On_Menu_UI				(wxUpdateUIEvent &event);
 
 
 private:
 
-	bool				m_bPercent;
-
-	double				m_Min, m_Max;
+	DECLARE_EVENT_TABLE()
 
 };
 
@@ -215,7 +247,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_helper_H
+#endif // #ifndef HEADER_INCLUDED__3d_view_panel_H
 
 
 ///////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: 3d_multigrid_view_control.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: points_view_module.cpp 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,14 +8,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                      3d_viewer                        //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_GDI                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               3d_multigrid_view_control.h             //
+//                 3d_view_projector.cpp                 //
 //                                                       //
-//                 Copyright (C) 2013 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -42,11 +43,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//    contact:    Olaf Conrad                            //
+//                Institute for Geography                //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +60,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__3d_multigrid_view_control_H
-#define HEADER_INCLUDED__3d_multigrid_view_control_H
+#include "3d_view_tools.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,126 +70,154 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_gdi/saga_gdi.h>
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-enum
+CSG_3DView_Projector::CSG_3DView_Projector(void)
 {
-	COLOR_MODE_RGB,
-	COLOR_MODE_RED,
-	COLOR_MODE_BLUE
-};
+	Set_Center  (0.0, 0.0, 0.0);
+	Set_Scaling (1.0, 1.0, 1.0);
+	Set_Rotation(0.0, 0.0, 0.0);
+	Set_Shift   (0.0, 0.0, 1500.0);
+	Set_Screen  (100, 100);
 
-//---------------------------------------------------------
-typedef struct SNode
-{
-	double	x, y, z, c;
+	m_Scale		= 1.0;
+	m_bCentral	= true;
+	m_dCentral	= 1000.0;
 }
-TNode;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class C3D_MultiGrid_View_Control : public wxPanel
+void CSG_3DView_Projector::Set_Center(double x, double y, double z)
 {
-public:
-	C3D_MultiGrid_View_Control(wxWindow *pParent, CSG_Parameter_Grid_List *pGrids, int Field_Color, CSG_Parameters &Settings);
-	virtual ~C3D_MultiGrid_View_Control(void);
+	m_Center.x	= x;
+	m_Center.y	= y;
+	m_Center.z	= z;
+}
 
-	bool						m_bCentral, m_bStereo, m_bFrame;
+//---------------------------------------------------------
+void CSG_3DView_Projector::Set_Scale(double Scale)
+{
+	if( Scale > 0.0 )
+	{
+		m_Scale	= Scale;
+	}
+}
 
-	int							m_cField, m_Style, m_Shading;
+//---------------------------------------------------------
+void CSG_3DView_Projector::Set_Scaling(double x, double y, double z)
+{
+	m_Scaling.x	= x;
+	m_Scaling.y	= y;
+	m_Scaling.z	= z;
+}
 
-	double						m_xRotate, m_yRotate, m_zRotate, m_xShift, m_yShift, m_zShift, m_dCentral, m_Light_Hgt, m_Light_Dir;
+void CSG_3DView_Projector::Set_xScaling(double x)
+{	m_Scaling.x = x;	}
 
-	void						Update_View				(void);
-	void						Update_Extent			(void);
+void CSG_3DView_Projector::Set_yScaling(double y)
+{	m_Scaling.y = y;	}
 
-	void						On_Size					(wxSizeEvent  &event);
-	void						On_Paint				(wxPaintEvent &event);
-	void						On_Key_Down				(wxKeyEvent   &event);
-	void						On_Mouse_LDown			(wxMouseEvent &event);
-	void						On_Mouse_LUp			(wxMouseEvent &event);
-	void						On_Mouse_RDown			(wxMouseEvent &event);
-	void						On_Mouse_RUp			(wxMouseEvent &event);
-	void						On_Mouse_MDown			(wxMouseEvent &event);
-	void						On_Mouse_MUp			(wxMouseEvent &event);
-	void						On_Mouse_Motion			(wxMouseEvent &event);
-	void						On_Mouse_Wheel			(wxMouseEvent &event);
+void CSG_3DView_Projector::Set_zScaling(double z)
+{	m_Scaling.z = z;	}
 
+//---------------------------------------------------------
+void CSG_3DView_Projector::Set_Rotation(double x, double y, double z)
+{
+	Set_xRotation(x);
+	Set_yRotation(y);
+	Set_zRotation(z);
+}
 
-private:
+void CSG_3DView_Projector::Set_xRotation(double x)
+{	m_Rotate.x = x; m_Sin.x = sin(x - M_PI_180); m_Cos.x = cos(x - M_PI_180);	}
 
-	int							m_Color_Mode, m_Size_Def;
+void CSG_3DView_Projector::Set_yRotation(double y)
+{	m_Rotate.y = y; m_Sin.y = sin(y); m_Cos.y = cos(y);	}
 
-	double						m_xDown, m_yDown, m_cMin, m_cScale, m_Size_Scale, m_zMin, m_zMax;
+void CSG_3DView_Projector::Set_zRotation(double z)
+{	m_Rotate.z = z; m_Sin.z = sin(z); m_Cos.z = cos(z);	}
 
-	double						r_sin_x, r_sin_y, r_sin_z, r_cos_x, r_cos_y, r_cos_z, r_xc, r_yc, r_zc, r_Scale, r_Scale_z;
+//---------------------------------------------------------
+void CSG_3DView_Projector::Set_Shift(double x, double y, double z)
+{
+	Set_xShift(x);
+	Set_yShift(y);
+	Set_zShift(z);
+}
 
-	CSG_Rect					m_Extent;
+void CSG_3DView_Projector::Set_xShift(double x)
+{	m_Shift.x = x;	}
 
-	CSG_Matrix					m_Image_zMax;
+void CSG_3DView_Projector::Set_yShift(double y)
+{	m_Shift.y = y;	}
 
-	CSG_Parameters				*m_pSettings;
+void CSG_3DView_Projector::Set_zShift(double z)
+{	m_Shift.z = z;	}
 
-	CSG_Colors					*m_pColors;
+//---------------------------------------------------------
+void CSG_3DView_Projector::Set_Screen(int Width, int Height)
+{
+	m_Screen_NX	= Width;
+	m_Screen_NY	= Height;
+}
 
-	CSG_Parameter_Grid_List		*m_pGrids;
+//---------------------------------------------------------
+void CSG_3DView_Projector::do_Central(bool bOn)
+{
+	m_bCentral	= bOn;
+}
 
-	wxPoint						m_Mouse_Down;
-
-	wxImage						m_Image;
-
-
-	void						_Set_Size				(void);
-
-	bool						_Draw_Image				(void);
-
-	void						_Draw_Grid				(CSG_Grid *pGrid);
-
-	void						_Draw_Point				(int iPoint);
-	void						_Draw_Point				(int x, int y, double z, int color, int Size);
-
-	void						_Draw_Line				(TNode a, TNode b, int Color);
-
-	void						_Draw_Triangle			(TNode a, TNode b, TNode c, double c_NoData_Lo, double c_NoData_Hi);
-	void						_Draw_Triangle			(TNode p[3], double dim);
-	void						_Draw_Triangle_Line		(int y, double xa, double xb, double za, double zb, double ca, double cb, double dim);
-
-	void						_Draw_Background		(void);
-	void						_Draw_Frame				(void);
-	void						_Draw_Pixel				(int x, int y, double z, int color);
-
-	int							_Get_Color				(double value, double dim = -1.0);
-
-	void						_Get_Projection			(TNode &p);
-
-
-	DECLARE_EVENT_TABLE()
-
-};
+void CSG_3DView_Projector::Set_Central_Distance(double Distance)
+{
+	m_dCentral	= Distance;
+}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__3d_multigrid_view_control_H
+void CSG_3DView_Projector::Get_Projection(double &x, double &y, double &z)
+{
+	double		a, b;
+	TSG_Point_Z	q;
+
+	x	= (x - m_Center.x) * m_Scale * m_Scaling.x;
+	y	= (y - m_Center.y) * m_Scale * m_Scaling.y;
+	z	= (z - m_Center.z) * m_Scale * m_Scaling.z;
+
+	a	= (m_Cos.y * z + m_Sin.y * (m_Sin.z * y + m_Cos.z * x));
+	b	= (m_Cos.z * y - m_Sin.z * x);
+
+	q.x	= m_Shift.x + (m_Cos.y * (m_Sin.z * y + m_Cos.z * x) - m_Sin.y * z);
+	q.y	= m_Shift.y + (m_Sin.x * a + m_Cos.x * b);
+	q.z	= m_Shift.z + (m_Cos.x * a - m_Sin.x * b);
+
+	if( m_bCentral )
+	{
+		q.x	*= m_dCentral / q.z;
+		q.y	*= m_dCentral / q.z;
+	}
+	else
+	{
+		double	z	= m_dCentral / m_Shift.z;
+		q.x	*= z;
+		q.y	*= z;
+	//	q.z	 = -q.z;
+	}
+
+	x	= q.x + 0.5 * m_Screen_NX;
+	y	= q.y + 0.5 * m_Screen_NY;
+	z	= q.z;
+}
+
+void CSG_3DView_Projector::Get_Projection(TSG_Point_Z &p)
+{
+	Get_Projection(p.x, p.y, p.z);
+}
 
 
 ///////////////////////////////////////////////////////////

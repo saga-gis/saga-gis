@@ -292,37 +292,12 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="3dshapes_view_control.cpp" />
-    <ClCompile Include="3dshapes_view_dialog.cpp" />
-    <ClCompile Include="3dshapes_view_module.cpp" />
-    <ClCompile Include="3d_multigrid_view_control.cpp" />
-    <ClCompile Include="3d_multigrid_view_dialog.cpp" />
-    <ClCompile Include="3d_multigrid_view_module.cpp" />
-    <ClCompile Include="MLB_Interface.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\metadata.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\module_library.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
-    <ClInclude Include="3dshapes_view_control.h" />
-    <ClInclude Include="3dshapes_view_dialog.h" />
-    <ClInclude Include="3dshapes_view_module.h" />
-    <ClInclude Include="3d_multigrid_view_control.h" />
-    <ClInclude Include="3d_multigrid_view_dialog.h" />
-    <ClInclude Include="3d_multigrid_view_module.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />
@@ -334,6 +309,20 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="3d_viewer_globe_grid.h" />
+    <ClInclude Include="3d_viewer_multiple_grids.h" />
+    <ClInclude Include="3d_viewer_pointcloud.h" />
+    <ClInclude Include="3d_viewer_shapes.h" />
+    <ClInclude Include="3d_viewer_tin.h" />
+    <ClInclude Include="MLB_Interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="3d_viewer_globe_grid.cpp" />
+    <ClCompile Include="3d_viewer_multiple_grids.cpp" />
+    <ClCompile Include="3d_viewer_pointcloud.cpp" />
+    <ClCompile Include="3d_viewer_shapes.cpp" />
+    <ClCompile Include="3d_viewer_tin.cpp" />
+    <ClCompile Include="MLB_Interface.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

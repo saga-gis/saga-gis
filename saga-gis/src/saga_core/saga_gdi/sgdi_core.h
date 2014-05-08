@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: 3d_multigrid_view_module.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: sgdi_core.h 1922 2014-01-09 10:28:46Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,14 +8,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                       3d_viewer                       //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_GDI                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               3d_multigrid_view_module.h              //
+//                     sgdi_core.h                       //
 //                                                       //
-//                 Copyright (C) 2013 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,17 +55,13 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__3d_multigrid_view_module_H
-#define HEADER_INCLUDED__3d_multigrid_view_module_H
-
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_core_H
+#define HEADER_INCLUDED__SAGA_GDI_sgdi_core_H
 
 
 ///////////////////////////////////////////////////////////
@@ -74,18 +71,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class C3D_MultiGrid_View_Module : public CSG_Module  
-{
-public:
-	C3D_MultiGrid_View_Module(void);
+#include <saga_api/saga_api.h>
 
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-};
+#ifdef _SAGA_GDI_EXPORTS
+	#define	SGDI_API_DLL_EXPORT		_SAGA_DLL_EXPORT
+#else
+ 	#define	SGDI_API_DLL_EXPORT		_SAGA_DLL_IMPORT
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -95,4 +87,13 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__points_view_module_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_core_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

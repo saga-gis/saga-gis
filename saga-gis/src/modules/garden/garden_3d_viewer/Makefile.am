@@ -15,18 +15,16 @@ AM_LDFLAGS         = $(DEP_LFLG) -avoid-version
 pkglib_LTLIBRARIES = libgarden_3d_viewer.la
 libgarden_3d_viewer_la_SOURCES =\
 MLB_Interface.cpp\
-3d_multigrid_view_control.cpp\
-3d_multigrid_view_dialog.cpp\
-3d_multigrid_view_module.cpp\
-3dshapes_view_control.cpp\
-3dshapes_view_dialog.cpp\
-3dshapes_view_module.cpp\
+3d_viewer_globe_grid.cpp\
+3d_viewer_multiple_grids.cpp\
+3d_viewer_pointcloud.cpp\
+3d_viewer_shapes.cpp\
+3d_viewer_tin.cpp\
 MLB_Interface.h\
-3d_multigrid_view_control.h\
-3d_multigrid_view_dialog.h\
-3d_multigrid_view_module.h\
-3dshapes_view_control.h\
-3dshapes_view_dialog.h\
-3dshapes_view_module.h
+3d_viewer_globe_grid.h\
+3d_viewer_multiple_grids.h\
+3d_viewer_pointcloud.h\
+3d_viewer_shapes.h\
+3d_viewer_tin.h
 
 libgarden_3d_viewer_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(top_srcdir)/src/saga_core/saga_gdi/libsaga_gdi.la $(ADD_MLBS)

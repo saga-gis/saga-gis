@@ -141,6 +141,8 @@
     <PostBuildEvent>
       <Command>md $(OutDir)include
 md $(OutDir)include\saga_gdi
+copy 3d_view.h $(OutDir)include\saga_gdi
+copy 3d_view_tools.h $(OutDir)include\saga_gdi
 copy saga_gdi.h $(OutDir)include\saga_gdi
 copy sgdi_diagram.h $(OutDir)include\saga_gdi
 copy sgdi_dialog.h $(OutDir)include\saga_gdi
@@ -201,6 +203,8 @@ copy sgdi_helper.h $(OutDir)include\saga_gdi
     <PostBuildEvent>
       <Command>md $(OutDir)include
 md $(OutDir)include\saga_gdi
+copy 3d_view.h $(OutDir)include\saga_gdi
+copy 3d_view_tools.h $(OutDir)include\saga_gdi
 copy saga_gdi.h $(OutDir)include\saga_gdi
 copy sgdi_diagram.h $(OutDir)include\saga_gdi
 copy sgdi_dialog.h $(OutDir)include\saga_gdi
@@ -260,6 +264,8 @@ copy sgdi_helper.h $(OutDir)include\saga_gdi
     <PostBuildEvent>
       <Command>md $(OutDir)include
 md $(OutDir)include\saga_gdi
+copy 3d_view.h $(OutDir)include\saga_gdi
+copy 3d_view_tools.h $(OutDir)include\saga_gdi
 copy saga_gdi.h $(OutDir)include\saga_gdi
 copy sgdi_diagram.h $(OutDir)include\saga_gdi
 copy sgdi_dialog.h $(OutDir)include\saga_gdi
@@ -320,6 +326,8 @@ copy sgdi_helper.h $(OutDir)include\saga_gdi
     <PostBuildEvent>
       <Command>md $(OutDir)include
 md $(OutDir)include\saga_gdi
+copy 3d_view.h $(OutDir)include\saga_gdi
+copy 3d_view_tools.h $(OutDir)include\saga_gdi
 copy saga_gdi.h $(OutDir)include\saga_gdi
 copy sgdi_diagram.h $(OutDir)include\saga_gdi
 copy sgdi_dialog.h $(OutDir)include\saga_gdi
@@ -328,12 +336,19 @@ copy sgdi_helper.h $(OutDir)include\saga_gdi
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3d_view_canvas.cpp" />
+    <ClCompile Include="3d_view_dialog.cpp" />
+    <ClCompile Include="3d_view_panel.cpp" />
+    <ClCompile Include="3d_view_projector.cpp" />
     <ClCompile Include="sgdi_diagram.cpp" />
     <ClCompile Include="sgdi_dialog.cpp" />
     <ClCompile Include="sgdi_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3d_view.h" />
+    <ClInclude Include="3d_view_tools.h" />
     <ClInclude Include="saga_gdi.h" />
+    <ClInclude Include="sgdi_core.h" />
     <ClInclude Include="sgdi_diagram.h" />
     <ClInclude Include="sgdi_dialog.h" />
     <ClInclude Include="sgdi_helper.h" />

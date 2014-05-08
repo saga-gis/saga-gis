@@ -15,10 +15,17 @@ AM_LDFLAGS         = $(DEP_LFLG)
 lib_LTLIBRARIES    = libsaga_gdi.la
 libsaga_gdi_la_LDFLAGS=$(AM_LDFLAGS) -release $(VERSION)
 libsaga_gdi_la_SOURCES =\
+3d_view_canvas.cpp\
+3d_view_dialog.cpp\
+3d_view_panel.cpp\
+3d_view_projector.cpp\
 sgdi_diagram.cpp\
 sgdi_dialog.cpp\
 sgdi_helper.cpp\
 saga_gdi.cpp\
+3d_view.h\
+3d_view_tools.h\
+sgdi_core.h\
 sgdi_diagram.h\
 sgdi_dialog.h\
 sgdi_helper.h\
@@ -26,8 +33,11 @@ saga_gdi.h
 
 otherincludedir = $(pkgincludedir)/saga_core/saga_gdi
 otherinclude_HEADERS = saga_gdi.h \
-sgdi_diagram.h \
-sgdi_dialog.h \
+3d_view.h\
+3d_view_tools.h\
+sgdi_core.h\
+sgdi_diagram.h\
+sgdi_dialog.h\
 sgdi_helper.h
 
 libsaga_gdi_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
