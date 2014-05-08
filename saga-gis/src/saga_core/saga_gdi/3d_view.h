@@ -73,6 +73,7 @@
 //---------------------------------------------------------
 #include <wx/panel.h>
 #include <wx/image.h>
+#include <wx/menu.h>
 
 #include "saga_gdi.h"
 
