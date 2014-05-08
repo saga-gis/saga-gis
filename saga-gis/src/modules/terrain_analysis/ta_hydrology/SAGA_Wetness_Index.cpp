@@ -104,6 +104,12 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 	);
 
 	Parameters.Add_Grid(
+		NULL	, "WEIGHT"		, _TL("Weights"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
 		NULL	, "AREA"		, _TL("Catchment area"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -255,6 +261,8 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 	int		x, y, i, ix, iy;
 	double	z, d, dz[8], dzSum, Area, Slope;
 
+	CSG_Grid	*pWeight	= Parameters("WEIGHT")->asGrid();
+
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("catchment area and slope..."));
 
@@ -285,8 +293,8 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 			d	= pow(Suction, Slope_Weight * Slope);
 			m_Suction.Set_Value(x, y, pow(1.0 / d, exp(d)));
 
-			Area	= 1.0   + m_pArea ->asDouble(x, y);
-			Slope	= Slope + m_pSlope->asDouble(x, y);
+			Area	= m_pArea ->asDouble(x, y) + (!pWeight ? 1.0 : pWeight->is_NoData(x, y) ? 0.0 : pWeight->asDouble(x, y));
+			Slope	= m_pSlope->asDouble(x, y) + Slope;
 
 			m_pArea ->Set_Value(x, y, Area);
 			m_pSlope->Set_Value(x, y, Slope / Area);
