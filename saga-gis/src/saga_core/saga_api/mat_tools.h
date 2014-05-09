@@ -129,7 +129,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT double		SG_Get_Square			(double x);
+SAGA_API_DLL_EXPORT double		SG_Get_Square			(double Value);
+
+SAGA_API_DLL_EXPORT double		SG_Get_Rounded			(double Value, int Decimals = 0);
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT int			SG_Get_Digit_Count		(int Number);
