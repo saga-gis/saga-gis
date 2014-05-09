@@ -158,7 +158,7 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(
-		NULL	, "APPEARANCE"		, _TL("Appearance"),
+		NULL	, "NODE_VIEW"		, _TL("Point View Settings"),
 		_TL("")
 	);
 

@@ -196,7 +196,7 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	);
 
 	m_Parameters.Add_FilePath(
-		NULL	, "PLAY_FILE"		, _TL("Image File"),
+		pNode	, "PLAY_FILE"		, _TL("Image File"),
 		_TL("file path, name and type used to save frames to image files"),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
 			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),

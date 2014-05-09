@@ -153,7 +153,7 @@ C3D_Viewer_Shapes_Panel::C3D_Viewer_Shapes_Panel(wxWindow *pParent, CSG_Shapes *
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(
-		NULL	, "APPEARANCE"		, _TL("Appearance"),
+		NULL	, "NODE_VIEW"		, _TL("Shapes View Settings"),
 		_TL("")
 	);
 

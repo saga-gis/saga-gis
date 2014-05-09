@@ -146,7 +146,7 @@ C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pPare
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(
-		NULL	, "APPEARANCE"		, _TL("Appearance"),
+		NULL	, "NODE_VIEW"		, _TL("Grid View Settings"),
 		_TL("")
 	);
 

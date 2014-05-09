@@ -139,7 +139,7 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1;
+	CSG_Parameter	*pNode, *pNode_1, *pNode_2;
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters("NODE_GENERAL");
@@ -157,36 +157,41 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Value(
-		NULL	, "DRAW_FACES"		, _TL("Draw Faces"),
+	pNode	= m_Parameters.Add_Node(
+		NULL	, "NODE_VIEW"		, _TL("TIN View Settings"),
+		_TL("")
+	);
+
+	pNode_1	= m_Parameters.Add_Value(
+		pNode	, "DRAW_FACES"		, _TL("Draw Faces"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "COLORS_ATTR"		, _TL("Colour Attribute"),
+	pNode_2	= m_Parameters.Add_Choice(
+		pNode_1	, "COLORS_ATTR"		, _TL("Colour Attribute"),
 		_TL(""),
 		Attributes, cField
 	);
 
 	m_Parameters.Add_Colors(
-		pNode_1	, "COLORS"			, _TL("Colours"),
+		pNode_2	, "COLORS"			, _TL("Colours"),
 		_TL("")
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "COLORS_GRAD"		, _TL("Graduated"),
+		pNode_2	, "COLORS_GRAD"		, _TL("Graduated"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Range(
-		pNode_1	, "COLORS_RANGE"	, _TL("Value Range"),
+		pNode_2	, "COLORS_RANGE"	, _TL("Value Range"),
 		_TL("")
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "SHADING"			, _TL("Shading"),
+	pNode_2	= m_Parameters.Add_Choice(
+		pNode_1	, "SHADING"			, _TL("Shading"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("none"),
@@ -196,32 +201,32 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "SHADE_DEC"		, _TL("Light Source Height"),
+		pNode_2	, "SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 45.0, -90.0, true, 90.0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "SHADE_AZI"		, _TL("Light Source Direction"),
+		pNode_2	, "SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 90.0, 0.0, true, 360.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Value(
-		NULL	, "DRAW_EDGES"		, _TL("Draw Wire"),
+	pNode_1	= m_Parameters.Add_Value(
+		pNode	, "DRAW_EDGES"		, _TL("Draw Wire"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
-	pNode_1	= m_Parameters.Add_Value(
-		NULL	, "EDGE_COLOR_UNI"	, _TL("Single Colour"),
+	pNode_2	= m_Parameters.Add_Value(
+		pNode_1	, "EDGE_COLOR_UNI"	, _TL("Single Colour"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "EDGE_COLOR"		, _TL("Colour"),
+		pNode_2	, "EDGE_COLOR"		, _TL("Colour"),
 		_TL(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(150, 150, 150)
 	);
