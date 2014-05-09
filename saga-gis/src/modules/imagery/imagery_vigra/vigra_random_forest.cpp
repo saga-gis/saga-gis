@@ -61,11 +61,37 @@
 //---------------------------------------------------------
 #include "vigra_random_forest.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#if !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
+// define some dummies
+CViGrA_Random_Forest::CViGrA_Random_Forest()	{}
+int                       CViGrA_Random_Forest::On_Parameters_Enable (CSG_Parameters *pParameters, CSG_Parameter *pParameter)	{	return(0);		}
+bool                      CViGrA_Random_Forest::On_Execute           (void)														{	return(false);	}
+CSG_Grid *                CViGrA_Random_Forest::Get_Class_Grid       (void)														{	return(NULL);	}
+void                      CViGrA_Random_Forest::Set_Classification   (CSG_Table &Classes)										{					}
+CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table &Classes)										{	return(NULL);	}
+bool                      CViGrA_Random_Forest::Get_Training         (CSG_Matrix &Data, CSG_Table &Classes)						{	return(false);	}
+int                       CViGrA_Random_Forest::Get_Training         (CSG_Matrix &Data, int ID, CSG_Shape_Polygon *pArea)		{	return(0);		}
+#else
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include <vigra/random_forest.hxx>
 
 #define WITH_HDF5
-
 #if defined(WITH_HDF5)
 #include <vigra/random_forest_hdf5_impex.hxx>
 #endif
@@ -656,6 +682,16 @@ CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table 
 
 	return( NULL );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
 
 
 ///////////////////////////////////////////////////////////
