@@ -69,26 +69,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double	SG_Get_Rounded(double Value, int Decimals = 0)
-{
-	if( Decimals <= 0 )
-	{
-		return( (int)(0.5 + Value) );
-	}
-
-	double	d	= pow(10.0, Decimals);
-
-	return( ((int)(0.5 + d * Value)) / d );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CCRS_Indicatrix::CCRS_Indicatrix(void)
 {
 	//-----------------------------------------------------
@@ -161,7 +141,7 @@ bool CCRS_Indicatrix::On_Execute_Transformation(void)
 	m_Circle.Add(sin(M_PI_090), cos(M_PI_090));
 	m_Circle.Add(0.0, 0.0);
 
-	for(double a=0.0; a<M_PI_360; a+=5.0*M_DEG_TO_RAD)
+	for(double a=0.0; a<M_PI_360; a+=2.0*M_DEG_TO_RAD)
 	{
 		m_Circle.Add(sin(a), cos(a));
 	}
@@ -256,8 +236,40 @@ bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicat
 	double	k	= SG_Get_Distance(Center, Point) / m_Size;
 
 	//-----------------------------------------------------
-	double	a	= h > k ? h : k;
-	double	b	= h > k ? k : h;
+	double	a	= h > k ? h : k;	// major semi-axis
+	double	b	= h > k ? k : h;	// minor semi-axis
+
+	for(int iPoint=0; iPoint<m_Circle.Get_Count(); iPoint++)
+	{
+		Point.x	= m_Size * m_Circle[iPoint].x;
+		Point.y	= m_Size * m_Circle[iPoint].y;
+
+		if( !m_Projector.Get_Projection(Point) )
+		{
+			return( false );
+		}
+
+		if( iPoint >= 3 )
+		{
+			double	d	= SG_Get_Distance(Center, Point) / m_Size;
+
+			if( a < d )
+			{
+				a	= d;
+			}
+			else if( b > d )
+			{
+				b	= d;
+			}
+		}
+
+		Point.x	= Center.x + m_Scale * (Point.x - Center.x);
+		Point.y	= Center.y + m_Scale * (Point.y - Center.y);
+
+		pIndicatrix->Add_Point(Point);
+	}
+
+	//-----------------------------------------------------
 	double	w	= 2.0 * M_RAD_TO_DEG * asin((a - b) / (a + b));
 	double	phi	= a * b;
 
@@ -269,23 +281,6 @@ bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicat
 	pIndicatrix->Set_Value(FIELD_b  , SG_Get_Rounded(b  , 2));
 	pIndicatrix->Set_Value(FIELD_w  , SG_Get_Rounded(w  , 1));
 	pIndicatrix->Set_Value(FIELD_PHI, SG_Get_Rounded(phi, 1));
-
-	//-----------------------------------------------------
-	for(int iPoint=0; iPoint<m_Circle.Get_Count(); iPoint++)
-	{
-		Point.x	= m_Size * m_Circle[iPoint].x;
-		Point.y	= m_Size * m_Circle[iPoint].y;
-
-		if( !m_Projector.Get_Projection(Point) )
-		{
-			return( false );
-		}
-
-		Point.x	= Center.x + m_Scale * (Point.x - Center.x);
-		Point.y	= Center.y + m_Scale * (Point.y - Center.y);
-
-		pIndicatrix->Add_Point(Point);
-	}
 
 	return( true );
 }
