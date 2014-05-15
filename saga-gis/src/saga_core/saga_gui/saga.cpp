@@ -201,6 +201,7 @@ bool CSAGA::OnInit(void)
 	}
 
 	wxSetEnv("GDAL_DRIVER_PATH", Get_App_Path() + "\\dll");
+	wxSetEnv("GDAL_DATA"       , Get_App_Path() + "\\dll\\gdal-data");
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
