@@ -68,7 +68,7 @@ view_layout_info.cpp\
 view_layout_printout.cpp\
 view_map.cpp\
 view_map_3d.cpp\
-view_map_3d_image.cpp\
+view_map_3d_panel.cpp\
 view_map_control.cpp\
 view_ruler.cpp\
 view_scatterplot.cpp\
@@ -165,7 +165,7 @@ view_layout_info.h\
 view_layout_printout.h\
 view_map.h\
 view_map_3d.h\
-view_map_3d_image.h\
+view_map_3d_panel.h\
 view_map_control.h\
 view_ruler.h\
 view_scatterplot.h\
@@ -214,7 +214,7 @@ wksp_table_manager.h\
 wksp_tin.h\
 wksp_tin_manager.h
 
-saga_gui_LDADD = ../saga_api/libsaga_api.la
+saga_gui_LDADD = ../saga_api/libsaga_api.la ../saga_gdi/libsaga_gdi.la
 
 applicationsdir = $(datadir)/applications
 dist_applications_DATA = res/saga.desktop

@@ -1416,6 +1416,39 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 }
 
 //---------------------------------------------------------
+void CWKSP_Map::SaveAs_Image_To_Grid(CSG_Grid &Grid, int Size)
+{
+	if( Size < 1 )
+		return;
+
+	CSG_Rect	Extent(Get_Extent());
+	wxImage		Image;
+
+	if( Extent.Get_XRange() > Extent.Get_YRange() )
+	{
+		Image.Create(Size, Size * Extent.Get_YRange() / Extent.Get_XRange());
+	}
+	else
+	{
+		Image.Create(Size * Extent.Get_XRange() / Extent.Get_YRange(), Size);
+	}
+
+	if( Get_Image(Image, Extent) )
+	{
+		Grid.Create(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
+		Grid.Set_NoData_Value(16711935);
+
+		for(int y=0, yy=Grid.Get_NY()-1; y<Grid.Get_NY(); y++, yy--)
+		{
+			for(int x=0; x<Grid.Get_NX(); x++)
+			{
+				Grid.Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
 void CWKSP_Map::SaveAs_Image_On_Change(void)
 {
 	if( m_Img_bSave )

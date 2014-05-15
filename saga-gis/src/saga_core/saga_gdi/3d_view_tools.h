@@ -193,8 +193,8 @@ protected:
 	}
 	TSG_Triangle_Node;
 
-	void						Draw_Triangle			(TSG_Triangle_Node p[3], double Light_Dec, double Light_Azi);
-	void						Draw_Triangle			(TSG_Triangle_Node p[3], double dim = 1.0);
+	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double Light_Dec, double Light_Azi);
+	void						Draw_Triangle			(TSG_Triangle_Node p[3], bool bValueAsColor, double dim = 1.0);
 
 
 private:
@@ -210,7 +210,7 @@ private:
 	void						_Draw_Box				(void);
 
 	void						_Draw_Pixel				(int x, int y, double z, int color);
-	void						_Draw_Triangle_Line		(int y, double xa, double xb, double za, double zb, double ca, double cb, double da, double db, double dim);
+	void						_Draw_Triangle_Line		(int y, double a[], double b[], double dim, int mode);
 
 	int							_Dim_Color				(int Color, double dim);
 

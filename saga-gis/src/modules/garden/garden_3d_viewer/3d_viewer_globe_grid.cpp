@@ -416,11 +416,12 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 		);
 	}
 
+	bool	bValueAsColor	= m_Parameters("COLOR_ASRGB")->asBool();
+
 	m_Colors		= *m_Parameters("COLORS")->asColors();
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
 	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_LoVal();
-	m_Color_Scale	= m_Parameters("COLOR_ASRGB")->asBool() ? 0.0
-					: m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() - m_Color_Min);
+	m_Color_Scale	= m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() - m_Color_Min);
 
 	//-----------------------------------------------------
 	if( m_Parameters("DRAW_FACES")->asBool() )	// Faces
@@ -434,25 +435,19 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 		{
 			for(int x=1; x<m_pGrid->Get_NX(); x++)
 			{
-				TSG_Triangle_Node	a, b, p[3];
+				TSG_Triangle_Node	p[3];
 
-				if( Get_Node(x - 1, y - 1, a)
-				&&  Get_Node(x    , y    , b) )
+				if( Get_Node(x - 1, y - 1, p[0])
+				&&  Get_Node(x    , y    , p[1]) )
 				{
-					if( Get_Node(x    , y - 1, p[2]) )
+					if( Get_Node(x, y - 1, p[2]) )
 					{
-						p[0]	= a;
-						p[1]	= b;
-
-						if( Shading ) Draw_Triangle(p, Shade_Dec, Shade_Azi); else Draw_Triangle(p);
+						if( Shading ) Draw_Triangle(p, bValueAsColor, Shade_Dec, Shade_Azi); else Draw_Triangle(p, bValueAsColor);
 					}
 
-					if( Get_Node(x - 1, y    , p[2]) )
+					if( Get_Node(x - 1, y, p[2]) )
 					{
-						p[0]	= a;
-						p[1]	= b;
-
-						if( Shading ) Draw_Triangle(p, Shade_Dec, Shade_Azi); else Draw_Triangle(p);
+						if( Shading ) Draw_Triangle(p, bValueAsColor, Shade_Dec, Shade_Azi); else Draw_Triangle(p, bValueAsColor);
 					}
 				}
 			}
@@ -464,25 +459,46 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 	{
 		int	Color	= m_Parameters("EDGE_COLOR")->asColor();
 
-		for(int y0=0, y1=1; y1<m_pGrid->Get_NY(); y0++, y1++)
+		#pragma omp parallel for
+		for(int y=1; y<m_pGrid->Get_NY(); y++)
 		{
-			for(int x0=0, x1=1; x1<m_pGrid->Get_NX(); x0++, x1++)
+			for(int x=1; x<m_pGrid->Get_NX(); x++)
 			{
-				TSG_Triangle_Node	p[3];
+				TSG_Triangle_Node	p[2];
 
-				Get_Node(x0, y0, p[0]); p[0].c	= Get_Color(p[0].c);
-				Get_Node(x1, y1, p[1]); p[1].c	= Get_Color(p[1].c);
-				Draw_Line(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[0].c, p[1].c);
+				if( Get_Node(x - 1, y - 1, p[0])
+				&&  Get_Node(x    , y    , p[1]) )
+				{
+					if( !bValueAsColor )
+					{
+						p[0].c	= Get_Color(p[0].c);
+						p[1].c	= Get_Color(p[1].c);
+					}
 
-				//-----------------------------------------
-				Get_Node(x1, y0, p[2]); p[2].c	= Get_Color(p[2].c);
-				Draw_Line(p[0].x, p[0].y, p[0].z, p[2].x, p[2].y, p[2].z, p[0].c, p[2].c);
-				Draw_Line(p[1].x, p[1].y, p[1].z, p[2].x, p[2].y, p[2].z, p[1].c, p[2].c);
+					Draw_Line(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[0].c, p[1].c);
 
-				//-----------------------------------------
-				Get_Node(x0, y1, p[2]); p[2].c	= Get_Color(p[2].c);
-				Draw_Line(p[0].x, p[0].y, p[0].z, p[2].x, p[2].y, p[2].z, p[0].c, p[2].c);
-				Draw_Line(p[1].x, p[1].y, p[1].z, p[2].x, p[2].y, p[2].z, p[1].c, p[2].c);
+					if( Get_Node(x, y - 1, p[1]) )
+					{
+						if( !bValueAsColor )
+						{
+							p[1].c	= Get_Color(p[1].c);
+						}
+
+						Draw_Line(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[0].c, p[1].c);
+						Draw_Line(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[0].c, p[1].c);
+					}
+
+					if( Get_Node(x - 1, y, p[1]) )
+					{
+						if( !bValueAsColor )
+						{
+							p[1].c	= Get_Color(p[1].c);
+						}
+
+						Draw_Line(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[0].c, p[1].c);
+						Draw_Line(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[0].c, p[1].c);
+					}
+				}
 			}
 		}
 	}
@@ -500,7 +516,7 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 
 				Get_Node(x, y, p);
 
-				Draw_Point(p.x, p.y, p.z, Get_Color(p.c), 2);
+				Draw_Point(p.x, p.y, p.z, bValueAsColor ? p.c : Get_Color(p.c), 2);
 			}
 		}
 	}

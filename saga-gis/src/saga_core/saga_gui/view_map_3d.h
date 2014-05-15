@@ -86,70 +86,36 @@
 //---------------------------------------------------------
 class CVIEW_Map_3D : public CVIEW_Base
 {
-	friend class CVIEW_Map_3D_Image;
+	friend class CView_Map_3DPanel;
 
 public:
 	CVIEW_Map_3D(class CWKSP_Map *pMap);
-	virtual ~CVIEW_Map_3D(void);
 
 	static class wxToolBarBase *	_Create_ToolBar			(void);
 	static class wxMenu *			_Create_Menu			(void);
 
 	virtual void					Do_Update				(void);
 
+	void							Update_StatusBar		(void);
+
 
 private:
 
-	int								m_Play_Mode;
-
-	double							m_xDown, m_yDown;
-
 	CSG_Parameters					m_Parameters;
 
-	CSG_Table						m_Play;
+	CSG_Grid						m_Map;
 
-	wxPoint							m_Mouse_Down;
-
-	class CVIEW_Map_3D_Image		*m_pImage;
+	class CView_Map_3DPanel			*m_pPanel;
 
 
 	void							On_Command				(wxCommandEvent  &event);
 	void							On_Command_UI			(wxUpdateUIEvent &event);
 
 	void							On_Size					(wxSizeEvent  &event);
-	void							On_Paint				(wxPaintEvent &event);
-
-	void							On_Key_Down				(wxKeyEvent   &event);
-
-	void							On_Mouse_LDown			(wxMouseEvent &event);
-	void							On_Mouse_LUp			(wxMouseEvent &event);
-	void							On_Mouse_RDown			(wxMouseEvent &event);
-	void							On_Mouse_RUp			(wxMouseEvent &event);
-	void							On_Mouse_MDown			(wxMouseEvent &event);
-	void							On_Mouse_MUp			(wxMouseEvent &event);
-	void							On_Mouse_Motion			(wxMouseEvent &event);
-	void							On_Mouse_Wheel			(wxMouseEvent &event);
-
-	void							_Paint					(void);
-	void							_Paint					(wxDC &dc);
 
 	void							_Parms_Create			(void);
-	bool							_Parms_Update			(bool bGet);
-	bool							_Parms_Update			(bool bGet, class CVIEW_Map_3D_Image *pImage);
-	void							_Parms_StatusBar		(void);
+	void							_Parms_Update			(bool bGet);
 	void							_Parms_Command			(int Command);
-	bool							_Parms_Dlg				(void);
-	void							_Parms_Changed			(void);
-
-	void							_Play_Pos_Add			(void);
-	void							_Play_Pos_Del			(void);
-	void							_Play_Pos_Clr			(void);
-	void							_Play_Pos_Edit			(void);
-	void							_Play_Once				(void);
-	void							_Play_Loop				(void);
-	void							_Play_Save				(void);
-	void							_Play_Stop				(void);
-	bool							_Play					(void);
 
 
 	//-----------------------------------------------------

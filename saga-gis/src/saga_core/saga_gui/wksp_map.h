@@ -182,6 +182,7 @@ public:
 	void						SaveAs_Image_Clipboard	(bool bLegend = false);
 	void						SaveAs_Image_To_Memory	(int nx, int ny);
 	void						SaveAs_Image_On_Change	(void);
+	void						SaveAs_Image_To_Grid	(CSG_Grid &Grid, int Size);
 
 	void						Draw_Map				(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);

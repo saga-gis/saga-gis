@@ -470,15 +470,15 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 			switch( Shading )
 			{
 			default:
-			case 0:	Draw_Triangle(p);						break;
-			case 1:	Draw_Triangle(p, Shade_Dec, Shade_Azi);	break;
+			case 0:	Draw_Triangle(p, false);						break;
+			case 1:	Draw_Triangle(p, false, Shade_Dec, Shade_Azi);	break;
 			case 2:
 				{
 					double	s, a;
 
 					pTriangle->Get_Gradient(zField, s, a);
 
-					Draw_Triangle(p, acos(sin(M_PI_090 - s) * sin(Shade_Dec) + cos(M_PI_090 - s) * cos(Shade_Dec) * cos(a - Shade_Azi)) / M_PI_090);
+					Draw_Triangle(p, false, acos(sin(M_PI_090 - s) * sin(Shade_Dec) + cos(M_PI_090 - s) * cos(Shade_Dec) * cos(a - Shade_Azi)) / M_PI_090);
 				}
 				break;
 			}

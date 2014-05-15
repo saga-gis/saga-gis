@@ -528,7 +528,7 @@ void CSG_3DView_Canvas::Draw_Line(const TSG_Point_Z &a, const TSG_Point_Z &b, in
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], double Light_Dec, double Light_Azi)
+void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], bool bValueAsColor, double Light_Dec, double Light_Azi)
 {
 	double	A	= p[0].z * (p[1].x - p[2].x) + p[1].z * (p[2].x - p[0].x) + p[2].z * (p[0].x - p[1].x);
 	double	B	= p[0].y * (p[1].z - p[2].z) + p[1].y * (p[2].z - p[0].z) + p[2].y * (p[0].z - p[1].z);
@@ -550,144 +550,203 @@ void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], double Light_Dec, 
 		a	= 0.0;
 	}
 
-	Draw_Triangle(p, (acos(sin(s) * sin(Light_Dec) + cos(s) * cos(Light_Dec) * cos(a - Light_Azi))) / M_PI_090);
+	Draw_Triangle(p, bValueAsColor, (acos(sin(s) * sin(Light_Dec) + cos(s) * cos(Light_Dec) * cos(a - Light_Azi))) / M_PI_090);
 }
 
 //---------------------------------------------------------
-void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node p[3], double dim)
+#define TRIANGLE_SET_POINT(dst, index)	{	int i = index;\
+	dst[0]	= Point[i].x;\
+	dst[1]	= Point[i].y;\
+	dst[2]	= Point[i].z;\
+	switch( mode )\
+	{\
+	default:\
+		dst[3]	= Point[i].c;\
+		break;\
+	case 1:\
+		dst[3]	= Point[i].c;\
+		dst[4]	= Point[i].d;\
+		break;\
+	case 2:\
+		dst[3]	= SG_GET_R((int)Point[i].c);\
+		dst[4]	= SG_GET_G((int)Point[i].c);\
+		dst[5]	= SG_GET_B((int)Point[i].c);\
+		break;\
+	}\
+}
+
+//---------------------------------------------------------
+#define TRIANGLE_GET_GRADIENT(dst, A, B)	if( (dst[1] = B[1] - A[1]) > 0.0 ) {\
+	switch( mode )\
+	{\
+	case 2:	dst[5] = (B[5] - A[5]) / dst[1];\
+	case 1:	dst[4] = (B[4] - A[4]) / dst[1];\
+	case 0:	dst[3] = (B[3] - A[3]) / dst[1];\
+			dst[2] = (B[2] - A[2]) / dst[1];\
+			dst[0] = (B[0] - A[0]) / dst[1];\
+	}\
+}
+
+//---------------------------------------------------------
+#define TRIANGLE_SET_GRADIENT(dst, P, D)	{ double dy = y - P[1];\
+	switch( mode )\
+	{\
+	case 2:	dst[5]	= P[5] + D[5] * dy;\
+	case 1:	dst[4]	= P[4] + D[4] * dy;\
+	case 0:	dst[3]	= P[3] + D[3] * dy;\
+			dst[2]	= P[2] + D[2] * dy;\
+			dst[0]	= P[0] + D[0] * dy;\
+	}\
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Canvas::Draw_Triangle(TSG_Triangle_Node Point[3], bool bValueAsColor, double dim)
 {
-	if( p[0].z < 0.0 || p[1].z < 0.0 || p[2].z < 0.0 )
+	//-----------------------------------------------------
+	if( Point[0].z < 0.0 || Point[1].z < 0.0 || Point[2].z < 0.0 )
+	{
+		return;	// completely in front of projection plane
+	}
+
+	CSG_Rect	r(
+		Point[0].x, Point[0].y,
+		Point[1].x, Point[1].y
+	);
+
+	r.Union(CSG_Point(
+		Point[2].x, Point[2].y
+	));
+
+	if( r.Get_XMax() < 0.0 || r.Get_XMin() >= m_Image_NX
+	||	r.Get_YMax() < 0.0 || r.Get_YMin() >= m_Image_NY )
+	{
+		return;	// completely off screen
+	}
+
+	if( r.Get_XRange() <= 0.0 || r.Get_YRange() <= 0.0 )
+	{
+		return;	// has no area (... should draw a point ?!)
+	}
+
+	//-----------------------------------------------------
+	int	mode	= m_pDrape ? 1 : bValueAsColor ? 2 : 0;
+
+	double	p[3][6], d[3][6], a[6], b[6];
+
+	if( Point[0].y < Point[1].y && Point[0].y < Point[2].y )
+	{
+		TRIANGLE_SET_POINT(p[0], 0);								// top point
+		TRIANGLE_SET_POINT(p[1], Point[1].y < Point[2].y ? 1 : 2);	// middle point
+		TRIANGLE_SET_POINT(p[2], Point[1].y < Point[2].y ? 2 : 1);	// bottom point
+	}
+	else if( Point[1].y < Point[0].y && Point[1].y < Point[2].y )
+	{
+		TRIANGLE_SET_POINT(p[0], 1);								// top point
+		TRIANGLE_SET_POINT(p[1], Point[0].y < Point[2].y ? 0 : 2);	// middle point
+		TRIANGLE_SET_POINT(p[2], Point[0].y < Point[2].y ? 2 : 0);	// bottom point
+	}
+	else // if( Point[2].y < Point[0].y && Point[2].y < Point[1].y )
+	{
+		TRIANGLE_SET_POINT(p[0], 2);								// top point
+		TRIANGLE_SET_POINT(p[1], Point[0].y < Point[1].y ? 0 : 1);	// middle point
+		TRIANGLE_SET_POINT(p[2], Point[0].y < Point[1].y ? 1 : 0);	// bottom point
+	}
+
+	TRIANGLE_GET_GRADIENT(d[0], p[0], p[2]);	// from top to bottom point
+	TRIANGLE_GET_GRADIENT(d[1], p[0], p[1]);	// from top to midlle point
+	TRIANGLE_GET_GRADIENT(d[2], p[1], p[2]);	// from middle to bottom point
+
+	int	ay	= (int)r.Get_YMin(); if( ay < 0           ) ay	= 0; if( ay < r.Get_YMin() ) ay++;
+	int	by	= (int)r.Get_YMax(); if( by >= m_Image_NY ) by	= m_Image_NY - 1;
+
+	//-----------------------------------------------------
+	for(int y=ay; y<=by; y++)
+	{
+		if( y <= p[1][1] && d[1][1] > 0.0 )
+		{
+			TRIANGLE_SET_GRADIENT(a, p[0], d[0]);	//	a	= p[0] + d[0] * (y - p[0][1]);	// using CSG_Vector is, unluckily, significantly slower!!
+			TRIANGLE_SET_GRADIENT(b, p[0], d[1]);
+
+			if( a[0] < b[0] )
+			{
+				_Draw_Triangle_Line(y, a, b, dim, mode);
+			}
+			else
+			{
+				_Draw_Triangle_Line(y, b, a, dim, mode);
+			}
+		}
+		else if( d[2][1] > 0.0 )
+		{
+			TRIANGLE_SET_GRADIENT(a, p[0], d[0]);
+			TRIANGLE_SET_GRADIENT(b, p[1], d[2]);
+
+			if( a[0] < b[0] )
+			{
+				_Draw_Triangle_Line(y, a, b, dim, mode);
+			}
+			else
+			{
+				_Draw_Triangle_Line(y, b, a, dim, mode);
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
+inline void CSG_3DView_Canvas::_Draw_Triangle_Line(int y, double a[], double b[], double dim, int mode)
+{
+	if( a[0] == b[0] )
 	{
 		return;
 	}
 
-	//-----------------------------------------------------
-	if( p[1].y < p[0].y ) {	TSG_Triangle_Node pp = p[1]; p[1] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[0].y ) {	TSG_Triangle_Node pp = p[2]; p[2] = p[0]; p[0] = pp;	}
-	if( p[2].y < p[1].y ) {	TSG_Triangle_Node pp = p[2]; p[2] = p[1]; p[1] = pp;	}
+	int	ax	= (int)a[0]; if( ax <  0          )	ax	= 0;
+	int	bx	= (int)b[0]; if( bx >= m_Image_NX )	bx	= m_Image_NX - 1;
 
-	//-----------------------------------------------------
-	TSG_Rect	r;
+	double	d[6];
 
-	r.yMin	= p[0].y;
-	r.yMax	= p[2].y;
-	r.xMin	= p[0].x < p[1].x ? (p[0].x < p[2].x ? p[0].x : p[2].x) : (p[1].x < p[2].x ? p[1].x : p[2].x);
-	r.xMax	= p[0].x > p[1].x ? (p[0].x > p[2].x ? p[0].x : p[2].x) : (p[1].x > p[2].x ? p[1].x : p[2].x);
-
-	if( r.yMin >= r.yMax || r.xMin >= r.xMax )
+	switch( mode )
 	{
-		return;	// no area
+	case 2:	d[5]	= (b[5] - a[5]) / (bx - ax);
+	case 1:	d[4]	= (b[4] - a[4]) / (bx - ax);
 	}
 
-	if( (r.yMin < 0.0 && r.yMax < 0.0) || (r.yMin >= m_Image_NY && r.yMax >= m_Image_NY)
-	||	(r.xMin < 0.0 && r.xMax < 0.0) || (r.xMin >= m_Image_NX && r.xMax >= m_Image_NX) )
+	d[3]	= (b[3] - a[3]) / (bx - ax);
+	d[2]	= (b[2] - a[2]) / (bx - ax);
+
+	for(int x=ax, dx=0; x<=bx; x++, dx++)
 	{
-		return;	// completely outside grid
-	}
+		double	z	= a[2] + dx * d[2];
 
-	//-----------------------------------------------------
-	TSG_Triangle_Node	q[3];
-
-	if( (q[0].y	= p[2].y - p[0].y) > 0.0 )
-	{
-		q[0].x	= (p[2].x - p[0].x) / q[0].y;
-		q[0].z	= (p[2].z - p[0].z) / q[0].y;
-		q[0].c	= (p[2].c - p[0].c) / q[0].y;
-		q[0].d	= (p[2].d - p[0].d) / q[0].y;
-	}
-
-	if( (q[1].y	= p[1].y - p[0].y) > 0.0 )
-	{
-		q[1].x	= (p[1].x - p[0].x) / q[1].y;
-		q[1].z	= (p[1].z - p[0].z) / q[1].y;
-		q[1].c	= (p[1].c - p[0].c) / q[1].y;
-		q[1].d	= (p[1].d - p[0].d) / q[1].y;
-	}
-
-	if( (q[2].y	= p[2].y - p[1].y) > 0.0 )
-	{
-		q[2].x	= (p[2].x - p[1].x) / q[2].y;
-		q[2].z	= (p[2].z - p[1].z) / q[2].y;
-		q[2].c	= (p[2].c - p[1].c) / q[2].y;
-		q[2].d	= (p[2].d - p[1].d) / q[2].y;
-	}
-
-	//-----------------------------------------------------
-	int	ay	= (int)r.yMin;	if( ay < 0 )	ay	= 0;	if( ay < r.yMin )	ay++;
-	int	by	= (int)r.yMax;	if( by >= m_Image_NY )	by	= m_Image_NY - 1;
-
-	for(int y=ay; y<=by; y++)
-	{
-		if( y <= p[1].y && q[1].y > 0.0 )
+		switch( mode )
 		{
-			_Draw_Triangle_Line(y,
-				p[0].x + (y - p[0].y) * q[0].x,
-				p[0].x + (y - p[0].y) * q[1].x,
-				p[0].z + (y - p[0].y) * q[0].z,
-				p[0].z + (y - p[0].y) * q[1].z,
-				p[0].c + (y - p[0].y) * q[0].c,
-				p[0].c + (y - p[0].y) * q[1].c,
-				p[0].d + (y - p[0].y) * q[0].d,
-				p[0].d + (y - p[0].y) * q[1].d,
-				dim
-			);
-		}
-		else if( q[2].y > 0.0 )
-		{
-			_Draw_Triangle_Line(y,
-				p[0].x + (y - p[0].y) * q[0].x,
-				p[1].x + (y - p[1].y) * q[2].x,
-				p[0].z + (y - p[0].y) * q[0].z,
-				p[1].z + (y - p[1].y) * q[2].z,
-				p[0].c + (y - p[0].y) * q[0].c,
-				p[1].c + (y - p[1].y) * q[2].c,
-				p[0].d + (y - p[0].y) * q[0].d,
-				p[1].d + (y - p[1].y) * q[2].d,
-				dim
-			);
-		}
-	}
-}
-
-//---------------------------------------------------------
-inline void CSG_3DView_Canvas::_Draw_Triangle_Line(int y, double xa, double xb, double za, double zb, double ca, double cb, double da, double db, double dim)
-{
-	if( xb < xa )
-	{
-		double	d;
-
-		d	= xa;	xa	= xb;	xb	= d;
-		d	= za;	za	= zb;	zb	= d;
-		d	= ca;	ca	= cb;	cb	= d;
-		d	= da;	da	= db;	db	= d;
-	}
-
-	if( xb > xa )
-	{
-		double	dz	= (zb - za) / (xb - xa);
-		double	dc	= (cb - ca) / (xb - xa);
-		double	dd	= (db - da) / (xb - xa);
-
-		int		ax	= (int)xa;	if( ax < 0 )	ax	= 0;	if( ax < xa )	ax++;
-		int		bx	= (int)xb;	if( bx >= m_Image_NX )	bx	= m_Image_NX - 1;
-
-		for(int x=ax; x<=bx; x++)
-		{
-			double	z	= za + dz * (x - xa);
-			double	c	= ca + dc * (x - xa);
-			double	d	= da + dd * (x - xa);
-
-			if( m_pDrape )
+		default:
 			{
-				if( m_pDrape->Get_Value(c, d, c, m_Drape_Mode, false, true) )
+				_Draw_Pixel(x, y, z, _Dim_Color(Get_Color(a[3] + dx * d[3]), dim));
+			}
+			break;
+
+		case 1:
+			{
+				double	Value;
+
+				if( m_pDrape->Get_Value(a[3] + dx * d[3], a[4] + dx * d[4], Value, m_Drape_Mode, false, true) )
 				{
-					_Draw_Pixel(x, y, z, _Dim_Color((int)(0.5 + c), dim));
+					_Draw_Pixel(x, y, z, _Dim_Color((int)Value, dim));
 				}
 			}
-			else
+			break;
+
+		case 2:
 			{
-				_Draw_Pixel(x, y, z, _Dim_Color(Get_Color(c), dim));
+				_Draw_Pixel(x, y, z, _Dim_Color(SG_GET_RGB(
+					a[3] + dx * d[3],
+					a[4] + dx * d[4],
+					a[5] + dx * d[5])
+				, dim));
 			}
+			break;
 		}
 	}
 }

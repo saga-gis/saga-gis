@@ -211,11 +211,11 @@ int C3D_Viewer_Multiple_Grids_Panel::On_Parameters_Enable(CSG_Parameters *pParam
 //---------------------------------------------------------
 void C3D_Viewer_Multiple_Grids_Panel::Update_Statistics(void)
 {
-	m_Data_Min.x	= m_pGrids->asGrid(0)->Get_Extent().Get_XMin();
-	m_Data_Max.x	= m_pGrids->asGrid(0)->Get_Extent().Get_XMax();
+	m_Data_Min.x	= m_pGrids->asGrid(0)->Get_XMin();
+	m_Data_Max.x	= m_pGrids->asGrid(0)->Get_XMax();
 
-	m_Data_Min.y	= m_pGrids->asGrid(0)->Get_Extent().Get_YMin();
-	m_Data_Max.y	= m_pGrids->asGrid(0)->Get_Extent().Get_YMax();
+	m_Data_Min.y	= m_pGrids->asGrid(0)->Get_YMin();
+	m_Data_Max.y	= m_pGrids->asGrid(0)->Get_YMax();
 
 	m_Data_Min.z	= m_pGrids->asGrid(0)->Get_ZMin();
 	m_Data_Max.z	= m_pGrids->asGrid(0)->Get_ZMax();
@@ -224,15 +224,15 @@ void C3D_Viewer_Multiple_Grids_Panel::Update_Statistics(void)
 	{
 		CSG_Grid	*pGrid	= m_pGrids->asGrid(i);
 
-		if( m_Data_Min.x > pGrid->Get_Extent().Get_XMin() )
-			m_Data_Min.x = pGrid->Get_Extent().Get_XMin();	else
-		if( m_Data_Max.x < pGrid->Get_Extent().Get_XMax() )
-			m_Data_Max.x = pGrid->Get_Extent().Get_XMax();
+		if( m_Data_Min.x > pGrid->Get_XMin() )
+			m_Data_Min.x = pGrid->Get_XMin();	else
+		if( m_Data_Max.x < pGrid->Get_XMax() )
+			m_Data_Max.x = pGrid->Get_XMax();
 
-		if( m_Data_Min.y > pGrid->Get_Extent().Get_YMin() )
-			m_Data_Min.y = pGrid->Get_Extent().Get_YMin();	else
-		if( m_Data_Max.y < pGrid->Get_Extent().Get_YMax() )
-			m_Data_Max.y = pGrid->Get_Extent().Get_YMax();
+		if( m_Data_Min.y > pGrid->Get_YMin() )
+			m_Data_Min.y = pGrid->Get_YMin();	else
+		if( m_Data_Max.y < pGrid->Get_YMax() )
+			m_Data_Max.y = pGrid->Get_YMax();
 
 		if( m_Data_Min.z > pGrid->Get_ZMin() )
 			m_Data_Min.z = pGrid->Get_ZMin();	else
@@ -240,7 +240,6 @@ void C3D_Viewer_Multiple_Grids_Panel::Update_Statistics(void)
 			m_Data_Max.z = pGrid->Get_ZMax();
 	}
 
-	//-----------------------------------------------------
 	Update_View();
 }
 
@@ -376,25 +375,19 @@ void C3D_Viewer_Multiple_Grids_Panel::Draw_Grid(CSG_Grid *pGrid)
 	{
 		for(int x=1; x<pGrid->Get_NX(); x++)
 		{
-			TSG_Triangle_Node	a, b, p[3];
+			TSG_Triangle_Node	p[3];
 
-			if( Get_Node(pGrid, x - 1, y - 1, a)
-			&&  Get_Node(pGrid, x    , y    , b) )
+			if( Get_Node(pGrid, x - 1, y - 1, p[0])
+			&&  Get_Node(pGrid, x    , y    , p[1]) )
 			{
 				if( Get_Node(pGrid, x    , y - 1, p[2]) )
 				{
-					p[0]	= a;
-					p[1]	= b;
-
-					if( Shading ) Draw_Triangle(p, Shade_Dec, Shade_Azi); else Draw_Triangle(p);
+					if( Shading ) Draw_Triangle(p, false, Shade_Dec, Shade_Azi); else Draw_Triangle(p, false);
 				}
 
 				if( Get_Node(pGrid, x - 1, y    , p[2]) )
 				{
-					p[0]	= a;
-					p[1]	= b;
-
-					if( Shading ) Draw_Triangle(p, Shade_Dec, Shade_Azi); else Draw_Triangle(p);
+					if( Shading ) Draw_Triangle(p, false, Shade_Dec, Shade_Azi); else Draw_Triangle(p, false);
 				}
 			}
 		}
