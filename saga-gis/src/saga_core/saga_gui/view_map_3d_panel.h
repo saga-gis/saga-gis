@@ -87,7 +87,13 @@ public:
 
 	double						m_zScale;
 
-	bool						Set_DEM					(CSG_Grid *pDEM);
+	bool						Set_Options				(CSG_Grid *pDEM, int DEM_Res, int Map_Res);
+
+	int							Get_DEM_Res				(void)	{	return( m_DEM_Res );	}
+	bool						Inc_DEM_Res				(int Step);
+
+	int							Get_Map_Res				(void)	{	return( m_Map_Res );	}
+	bool						Inc_Map_Res				(int Step);
 
 
 protected:
@@ -104,6 +110,8 @@ protected:
 private:
 
 	bool						m_Color_bGrad;
+
+	int							m_DEM_Res, m_Map_Res;
 
 	double						m_Color_Min, m_Color_Scale;
 

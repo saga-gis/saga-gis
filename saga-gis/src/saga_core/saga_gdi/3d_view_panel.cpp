@@ -580,6 +580,19 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_3DView_Panel::Save_asImage(const CSG_String &FileName)
+{
+	return( m_Image.SaveFile(FileName.c_str()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CSG_3DView_Panel::Play_Pos_Add(void)
 {
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )	

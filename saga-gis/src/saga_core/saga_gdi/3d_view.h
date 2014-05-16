@@ -111,6 +111,8 @@ public:
 
 	virtual bool				Update_View				(bool bStatistics = false);
 
+	bool						Save_asImage			(const CSG_String &FileName);
+
 	void						Play_Pos_Add			(void);
 	void						Play_Pos_Del			(void);
 	void						Play_Pos_Clr			(void);

@@ -129,18 +129,26 @@ CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
 	m_pPanel	= new CView_Map_3DPanel(this, pMap);
 
 	//-----------------------------------------------------
-	_Parms_Create();
+	Parameters_Create();
 
 	if( DLG_Parameters(&m_Parameters) )
 	{
-		_Parms_Update(true);
+		Parameters_Update(false);
 
 		Do_Show();
+
+		m_pPanel->SetFocus();
 	}
 	else
 	{
 		Destroy();
 	}
+}
+
+//---------------------------------------------------------
+CVIEW_Map_3D::~CVIEW_Map_3D(void)
+{
+	m_pPanel->Destroy();
 }
 
 
@@ -157,7 +165,7 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
 
-	pMenu_Sub	= new wxMenu();
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Rotation"), pMenu_Sub = new wxMenu());
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_X_LESS);
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_X_MORE);
 //	pMenu_Sub->AppendSeparator();
@@ -166,9 +174,8 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	pMenu_Sub->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_LESS);
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_ROTATE_Z_MORE);
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Rotation"), pMenu_Sub);
 
-	pMenu_Sub	= new wxMenu();
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Shift"), pMenu_Sub = new wxMenu());
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_X_LESS);
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_X_MORE);
 	pMenu_Sub->AppendSeparator();
@@ -177,7 +184,16 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	pMenu_Sub->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_LESS);
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SHIFT_Z_MORE);
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Shift"), pMenu_Sub);
+
+	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Sequencer"), pMenu_Sub = new wxMenu());
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_ADD);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL_ALL);
+	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_EDIT);
+	pMenu_Sub->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY);
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY_LOOP);
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_SAVE);
 
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_LESS);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_MORE);
@@ -190,18 +206,8 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_STEREO_LESS);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_STEREO_MORE);
 	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_INTERPOLATED);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_SAVE);
-
-	pMenu_Sub	= new wxMenu();
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_ADD);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL_ALL);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_EDIT);
-	pMenu_Sub->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY);
-	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY_LOOP);
-	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_SAVE);
-	pMenu->Append(ID_CMD_MAP3D_FIRST, _TL("Sequencer"), pMenu_Sub);
 
 	return( pMenu );
 }
@@ -212,7 +218,9 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
+	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_STEREO);
+	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_INTERPOLATED);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_LESS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_ROTATE_X_MORE);
@@ -284,15 +292,6 @@ void CVIEW_Map_3D::On_Size(wxSizeEvent &event)
 	event.Skip();
 }
 
-//---------------------------------------------------------
-/*	case WXK_F10:		_Parms_Command(ID_CMD_MAP3D_PARAMETERS);		break;
-	case 'C':			_Parms_Command(ID_CMD_MAP3D_CENTRAL);			break;
-	case WXK_F5:		_Parms_Command(ID_CMD_MAP3D_CENTRAL_LESS);		break;
-	case WXK_F6:		_Parms_Command(ID_CMD_MAP3D_CENTRAL_MORE);		break;
-	case WXK_F7:		_Parms_Command(ID_CMD_MAP3D_SRC_RES_LESS);		break;
-	case WXK_F8:		_Parms_Command(ID_CMD_MAP3D_SRC_RES_MORE);		break;
-/**/
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -303,7 +302,83 @@ void CVIEW_Map_3D::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 {
-	_Parms_Command(event.GetId());
+	switch( event.GetId() )
+	{
+	default:	return;
+
+	//-----------------------------------------------------
+	case ID_CMD_MAP3D_PARAMETERS:
+		{
+			Parameters_Update(true);
+
+			if( DLG_Parameters(&m_Parameters) )
+			{
+				Parameters_Update(false);
+			}
+		}
+		return;
+
+	//-----------------------------------------------------
+	case ID_CMD_MAP3D_SAVE:
+		{
+			int			FileType;
+			wxString	FileName;
+
+			if( DLG_Image_Save(FileName, FileType) )
+			{
+				m_pPanel->Save_asImage(&FileName);
+			}
+		}
+		return;
+
+	//-----------------------------------------------------
+	case ID_CMD_MAP3D_SEQ_POS_EDIT:
+		{
+			DLG_Table(_TL("Edit 3D-View Sequencer Positions"), m_pPanel->m_Parameters("PLAY")->asTable());
+		}
+		return;
+
+	//-----------------------------------------------------
+	case ID_CMD_MAP3D_SEQ_POS_ADD    :	m_pPanel->Play_Pos_Add();	return;
+	case ID_CMD_MAP3D_SEQ_POS_DEL    :	m_pPanel->Play_Pos_Del();	return;
+	case ID_CMD_MAP3D_SEQ_POS_DEL_ALL:	m_pPanel->Play_Pos_Clr();	return;
+	case ID_CMD_MAP3D_SEQ_PLAY       :	m_pPanel->Play_Once   ();	return;
+	case ID_CMD_MAP3D_SEQ_PLAY_LOOP  :	m_pPanel->Play_Loop   ();	return;
+	case ID_CMD_MAP3D_SEQ_SAVE       :	m_pPanel->Play_Save   ();	return;
+
+	//-----------------------------------------------------
+	case ID_CMD_MAP3D_ROTATE_X_LESS  :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() + 4.0 * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_X_MORE  :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() - 4.0 * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Y_LESS  :	m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() + 4.0 * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Y_MORE  :	m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() - 4.0 * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Z_LESS  :	m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() + 4.0 * M_DEG_TO_RAD);	break;
+	case ID_CMD_MAP3D_ROTATE_Z_MORE  :	m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() - 4.0 * M_DEG_TO_RAD);	break;
+
+	case ID_CMD_MAP3D_SHIFT_X_LESS   :	m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() - 10.0);	break;
+	case ID_CMD_MAP3D_SHIFT_X_MORE   :	m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() + 10.0);	break;
+	case ID_CMD_MAP3D_SHIFT_Y_LESS   :	m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() + 10.0);	break;
+	case ID_CMD_MAP3D_SHIFT_Y_MORE   :	m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() - 10.0);	break;
+	case ID_CMD_MAP3D_SHIFT_Z_LESS   :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() - 10.0);	break;
+	case ID_CMD_MAP3D_SHIFT_Z_MORE   :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() + 10.0);	break;
+
+//	case ID_CMD_MAP3D_DRAW_BOX       :	m_pPanel->m_Parameters("DRAW_BOX"    )->Set_Value(m_pPanel->m_Parameters("DRAW_BOX"    )->asBool() == false    );	break;
+	case ID_CMD_MAP3D_STEREO         :	m_pPanel->m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"      )->asBool() == false    );	break;
+	case ID_CMD_MAP3D_STEREO_LESS    :	m_pPanel->m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST" )->asDouble() - 2       );	break;
+	case ID_CMD_MAP3D_STEREO_MORE    :	m_pPanel->m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST" )->asDouble() + 2       );	break;
+	case ID_CMD_MAP3D_CENTRAL        :	m_pPanel->m_Parameters("CENTRAL"     )->Set_Value(m_pPanel->m_Parameters("CENTRAL"     )->asBool() == false    );	break;
+	case ID_CMD_MAP3D_CENTRAL_LESS   :	m_pPanel->m_Parameters("CENTRAL_DIST")->Set_Value(m_pPanel->m_Parameters("CENTRAL_DIST")->asDouble() - 50      );	break;
+	case ID_CMD_MAP3D_CENTRAL_MORE   :	m_pPanel->m_Parameters("CENTRAL_DIST")->Set_Value(m_pPanel->m_Parameters("CENTRAL_DIST")->asDouble() + 50      );	break;
+	case ID_CMD_MAP3D_INTERPOLATED   :	m_pPanel->m_Parameters("DRAPE_MODE"  )->Set_Value(m_pPanel->m_Parameters("DRAPE_MODE"  )->asInt() == 0 ? 1 : 0 );	break;
+
+	case ID_CMD_MAP3D_EXAGGERATE_LESS:	m_pPanel->m_zScale	-= 0.5;	break;
+	case ID_CMD_MAP3D_EXAGGERATE_MORE:	m_pPanel->m_zScale	+= 0.5;	break;
+
+//	case ID_CMD_MAP3D_SRC_RES_LESS   :	m_pPanel->;	break;
+//	case ID_CMD_MAP3D_SRC_RES_MORE   :	m_pPanel->;	break;
+	}
+
+	Parameters_Update(true);
+	m_pPanel->Update_View();
 }
 
 //---------------------------------------------------------
@@ -313,6 +388,15 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	case ID_CMD_MAP3D_CENTRAL:
 		event.Check(m_pPanel->Get_Projector().is_Central());
+		break;
+
+	case ID_CMD_MAP3D_CENTRAL_LESS:
+	case ID_CMD_MAP3D_CENTRAL_MORE:
+		event.Enable(m_pPanel->Get_Projector().is_Central());
+		break;
+
+	case ID_CMD_MAP3D_INTERPOLATED:
+		event.Check(m_pPanel->m_Parameters("DRAPE_MODE")->asInt() != 0);
 		break;
 
 	case ID_CMD_MAP3D_STEREO:
@@ -340,110 +424,38 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 //														 //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-void CVIEW_Map_3D::_Parms_Create(void)
-{
-	CSG_Parameter	*pNode;
 
-	m_Parameters.Create(NULL, _TL("3D-View"), _TL(""));
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Grid(
-		NULL	, "ELEVATION"		, _TL("Elevation"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "ROTATION", _TL("Rotation"), _TL(""));
-
-	m_Parameters.Add_Value(pNode, "ROTATION_X", _TL("X"), _TL(""), PARAMETER_TYPE_Double,  55.0, -360.0, true, 360.0, true);
-	m_Parameters.Add_Value(pNode, "ROTATION_Y", _TL("Y"), _TL(""), PARAMETER_TYPE_Double,   0.0, -360.0, true, 360.0, true);
-	m_Parameters.Add_Value(pNode, "ROTATION_Z", _TL("Z"), _TL(""), PARAMETER_TYPE_Double, -45.0, -360.0, true, 360.0, true);
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "SHIFT", _TL("Shift"), _TL(""));
-
-	m_Parameters.Add_Value(pNode, "SHIFT_X", _TL("Left/Right"), _TL(""), PARAMETER_TYPE_Double,    0.0);
-	m_Parameters.Add_Value(pNode, "SHIFT_Y", _TL("Up/Down"   ), _TL(""), PARAMETER_TYPE_Double,    0.0);
-	m_Parameters.Add_Value(pNode, "SHIFT_Z", _TL("In/Out"    ), _TL(""), PARAMETER_TYPE_Double, 1500.0);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		NULL	, "Z_SCALE"		, _TL("Exaggeration"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
-	);
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_PROJECTION", _TL("Projection"), _TL(""));
-
-	m_Parameters.Add_Choice(
-		pNode	, "CENTRAL"			, _TL("Projection"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("parallel"),
-			_TL("central")
-		), 1
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "CENTRAL_DIST"	, _TL("Perspectivic Distance"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 200, 1, true
-	);
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_FIGURE", _TL("Figure"), _TL(""));
-
-	m_Parameters.Add_Choice(
-		pNode	, "FIGURE"			, _TL("Figure"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("plain"),
-			_TL("cylinder"),
-			_TL("ball"),
-			_TL("panorama")
-		), 0
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "FIGURE_WEIGHT"	, _TL("Weight"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
-	);
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_STEREO", _TL("Anaglyph"), _TL(""));
-
-	m_Parameters.Add_Choice(
-		pNode	, "STEREO"			, _TL("Anaglyph"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("normal view"),
-			_TL("red-cyan"),
-			_TL("red-green")
-		), 0
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "STEREO_DIST"		, _TL("Eye Distance [Degree]"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 2.0, 0, true, 180, true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		NULL	, "BGCOLOR"			, _TL("Background Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
-	);
-}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Map_3D::_Parms_Update(bool bGet)
+void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 {
-	if( bGet )
+	if( bFromPanel )
+	{
+		m_Parameters("ROTATION_X"  )->Set_Value(m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG);
+		m_Parameters("ROTATION_Y"  )->Set_Value(m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG);
+		m_Parameters("ROTATION_Z"  )->Set_Value(m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG);
+
+		m_Parameters("SHIFT_X"     )->Set_Value(m_pPanel->Get_Projector().Get_xShift());
+		m_Parameters("SHIFT_Y"     )->Set_Value(m_pPanel->Get_Projector().Get_yShift());
+		m_Parameters("SHIFT_Z"     )->Set_Value(m_pPanel->Get_Projector().Get_zShift());
+
+		m_Parameters("CENTRAL"     )->Set_Value(m_pPanel->Get_Projector().is_Central() ? 1 : 0);
+		m_Parameters("CENTRAL_DIST")->Set_Value(m_pPanel->Get_Projector().Get_Central_Distance());
+
+		m_Parameters("BGCOLOR"     )->Set_Value(m_pPanel->m_Parameters("BGCOLOR"    )->asInt());
+		m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"     )->asInt());
+		m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST")->asDouble());
+
+		m_Parameters("Z_SCALE"     )->Set_Value(m_pPanel->m_zScale);
+		m_Parameters("DEM_RES"     )->Set_Value(m_pPanel->Get_DEM_Res());
+		m_Parameters("MAP_RES"     )->Set_Value(m_pPanel->Get_Map_Res());
+	}
+
+	//-----------------------------------------------------
+	else
 	{
 		m_pPanel->Get_Projector().Set_Rotation(
 			m_Parameters("ROTATION_X")->asDouble() * M_DEG_TO_RAD,
@@ -465,120 +477,128 @@ void CVIEW_Map_3D::_Parms_Update(bool bGet)
 			m_Parameters("CENTRAL_DIST")->asDouble()
 		);
 
-		m_pPanel->m_Parameters("BGCOLOR"    )->Set_Value(m_Parameters("BGCOLOR"    )->asColor ());
-		m_pPanel->m_Parameters("STEREO"     )->Set_Value(m_Parameters("STEREO"     )->asInt   ());
-		m_pPanel->m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble() * M_DEG_TO_RAD);
+		m_pPanel->m_Parameters("BGCOLOR"    )->Set_Value(m_Parameters("BGCOLOR"    )->asInt());
+		m_pPanel->m_Parameters("STEREO"     )->Set_Value(m_Parameters("STEREO"     )->asInt());
+		m_pPanel->m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble());
+		m_pPanel->m_Parameters("DRAPE_MODE" )->Set_Value(m_Parameters("DRAPE_MODE" )->asInt());
 
-		m_pPanel->m_zScale			= m_Parameters("Z_SCALE")->asDouble();
-
-	//	m_pPanel->m_Figure			= m_Parameters("FIGURE")		->asInt();
-	//	m_pPanel->m_Figure_Weight	= m_Parameters("FIGURE_WEIGHT")	->asDouble();
+		m_pPanel->m_zScale	= m_Parameters("Z_SCALE")->asDouble();
 
 		//-------------------------------------------------
-		CSG_Grid	*pDEM	= m_Parameters("ELEVATION")->asGrid();
+		CSG_Grid	*pDEM	= m_Parameters("DEM")->asGrid();
 
-		m_pPanel->Set_DEM(SG_Get_Data_Manager().Exists(pDEM) ? pDEM : NULL);
-
-		m_pPanel->Update_View(true);
-	}
-
-	//-----------------------------------------------------
-	else
-	{
-		m_Parameters("ROTATION_X"  )->Set_Value(m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG);
-		m_Parameters("ROTATION_Y"  )->Set_Value(m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG);
-		m_Parameters("ROTATION_Z"  )->Set_Value(m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG);
-
-		m_Parameters("SHIFT_X"     )->Set_Value(m_pPanel->Get_Projector().Get_xShift());
-		m_Parameters("SHIFT_Y"     )->Set_Value(m_pPanel->Get_Projector().Get_yShift());
-		m_Parameters("SHIFT_Z"     )->Set_Value(m_pPanel->Get_Projector().Get_zShift());
-
-		m_Parameters("Z_SCALE"     )->Set_Value(m_pPanel->m_zScale);
-
-		m_Parameters("CENTRAL"     )->Set_Value(m_pPanel->Get_Projector().is_Central() ? 1 : 0);
-		m_Parameters("CENTRAL_DIST")->Set_Value(m_pPanel->Get_Projector().Get_Central_Distance());
-
-		m_Parameters("BGCOLOR"     )->Set_Value(m_pPanel->m_Parameters("BGCOLOR"    )->asColor ());
-		m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"     )->asBool  ());
-		m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST")->asDouble() * M_RAD_TO_DEG);
+		if( !m_pPanel->Set_Options(
+			SG_Get_Data_Manager().Exists(pDEM) ? pDEM : NULL,
+			m_Parameters("DEM_RES")->asInt(),
+			m_Parameters("MAP_RES")->asInt()) )
+		{
+			m_pPanel->Update_View();
+		}
 	}
 
 	Update_StatusBar();
 }
 
 //---------------------------------------------------------
-void CVIEW_Map_3D::_Parms_Command(int Command)
+void CVIEW_Map_3D::Parameters_Create(void)
 {
-	switch( Command )
-	{
-	default:
-		return;
+	CSG_Parameter	*pNode;
+
+	m_Parameters.Create(NULL, _TL("3D-View"), _TL(""));
 
 	//-----------------------------------------------------
-	case ID_CMD_MAP3D_PARAMETERS:
-		_Parms_Update(false);
+	pNode	= m_Parameters.Add_Grid(
+		NULL	, "DEM"			, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-		if( DLG_Parameters(&m_Parameters) )
-		{
-			_Parms_Update(true);
-		}
-		return;
+	m_Parameters.Add_Value(
+		pNode	, "DEM_RES"		, _TL("Resolution"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 100, 2, true
+	);
 
-//	case ID_CMD_MAP3D_SAVE:				m_pPanel->Save();	return;
-
-	//-----------------------------------------------------
-	case ID_CMD_MAP3D_SRC_RES_LESS:
-//		m_Parameters("SRC_RESOLUTION")	->Set_Value(m_pPanel->m_Resolution - STEP_SRC_RES);
-//		_Parms_Update(true);
-		return;
-
-	case ID_CMD_MAP3D_SRC_RES_MORE:
-//		m_Parameters("SRC_RESOLUTION")	->Set_Value(m_pPanel->m_Resolution + STEP_SRC_RES);
-//		_Parms_Update(true);
-		return;
+	m_Parameters.Add_Value(
+		pNode	, "Z_SCALE"		, _TL("Exaggeration"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0
+	);
 
 	//-----------------------------------------------------
-	case ID_CMD_MAP3D_SEQ_POS_ADD    :	m_pPanel->Play_Pos_Add();	return;
-	case ID_CMD_MAP3D_SEQ_POS_DEL    :	m_pPanel->Play_Pos_Del();	return;
-	case ID_CMD_MAP3D_SEQ_POS_DEL_ALL:	m_pPanel->Play_Pos_Clr();	return;
-	case ID_CMD_MAP3D_SEQ_PLAY       :	m_pPanel->Play_Once   ();	return;
-	case ID_CMD_MAP3D_SEQ_PLAY_LOOP  :	m_pPanel->Play_Loop   ();	return;
-	case ID_CMD_MAP3D_SEQ_SAVE       :	m_pPanel->Play_Save   ();	return;
-//	case ID_CMD_MAP3D_SEQ_POS_EDIT   :  _Play_Pos_Edit();	return;
+	pNode	= m_Parameters.Add_Node(NULL, "MAP", _TL("Map"), _TL(""));
+
+	m_Parameters.Add_Value(
+		pNode	, "MAP_RES"		, _TL("Resolution"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 1000, 2, true
+	);
+
+	m_Parameters.Add_Choice(
+		pNode	, "DRAPE_MODE"	, _TL("Map Draping Interpolation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("None"),
+			_TL("Bilinear"),
+			_TL("Inverse Distance"),
+			_TL("Bicubic Spline"),
+			_TL("B-Spline")
+		), 0
+	);
 
 	//-----------------------------------------------------
-	case ID_CMD_MAP3D_ROTATE_X_LESS  :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() - 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_X_MORE  :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() + 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Y_LESS  :	m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() - 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Y_MORE  :	m_pPanel->Get_Projector().Set_yRotation(m_pPanel->Get_Projector().Get_yRotation() + 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Z_LESS  :	m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() - 4.0 * M_DEG_TO_RAD);	break;
-	case ID_CMD_MAP3D_ROTATE_Z_MORE  :	m_pPanel->Get_Projector().Set_zRotation(m_pPanel->Get_Projector().Get_zRotation() + 4.0 * M_DEG_TO_RAD);	break;
+	pNode	= m_Parameters.Add_Node(NULL, "ROTATION", _TL("Rotation"), _TL(""));
 
-	case ID_CMD_MAP3D_SHIFT_X_LESS   :	m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() - 10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_X_MORE   :	m_pPanel->Get_Projector().Set_xShift(m_pPanel->Get_Projector().Get_xShift() + 10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Y_LESS   :	m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() - 10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Y_MORE   :	m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() + 10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Z_LESS   :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() - 10.0);	break;
-	case ID_CMD_MAP3D_SHIFT_Z_MORE   :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() + 10.0);	break;
+	m_Parameters.Add_Value(pNode, "ROTATION_X", _TL("X"), _TL(""), PARAMETER_TYPE_Double,  55.0, -360.0, true, 360.0, true);
+	m_Parameters.Add_Value(pNode, "ROTATION_Y", _TL("Y"), _TL(""), PARAMETER_TYPE_Double,   0.0, -360.0, true, 360.0, true);
+	m_Parameters.Add_Value(pNode, "ROTATION_Z", _TL("Z"), _TL(""), PARAMETER_TYPE_Double, -45.0, -360.0, true, 360.0, true);
 
-	case ID_CMD_MAP3D_EXAGGERATE_LESS:	m_pPanel->m_zScale	-= 0.5;	break;
-	case ID_CMD_MAP3D_EXAGGERATE_MORE:	m_pPanel->m_zScale	+= 0.5;	break;
+	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "SHIFT", _TL("Shift"), _TL(""));
 
-//	case ID_CMD_MAP3D_CENTRAL_LESS:		m_pPanel->Get_Projector().Set_Central_Distance(m_pPanel->Get_Projector().Get_Central_Distance() - STEP_CENTRAL);	break;
-//	case ID_CMD_MAP3D_CENTRAL_MORE:		m_pPanel->m_Central			+= STEP_CENTRAL;			break;
-//	case ID_CMD_MAP3D_CENTRAL:			m_pPanel->m_bCentral		 = !m_pPanel->m_bCentral;	break;
+	m_Parameters.Add_Value(pNode, "SHIFT_X", _TL("Left/Right"), _TL(""), PARAMETER_TYPE_Double,    0.0);
+	m_Parameters.Add_Value(pNode, "SHIFT_Y", _TL("Up/Down"   ), _TL(""), PARAMETER_TYPE_Double,    0.0);
+	m_Parameters.Add_Value(pNode, "SHIFT_Z", _TL("In/Out"    ), _TL(""), PARAMETER_TYPE_Double, 1500.0);
 
-//	case ID_CMD_MAP3D_STEREO_LESS:		m_pPanel->m_Stereo			-= STEP_STEREO;				break;
-//	case ID_CMD_MAP3D_STEREO_MORE:		m_pPanel->m_Stereo			+= STEP_STEREO;				break;
-	case ID_CMD_MAP3D_STEREO:			m_pPanel->m_Parameters("STEREO")->Set_Value(!m_pPanel->m_Parameters("STEREO")->asBool());	break;
+	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_PROJECTION", _TL("Projection"), _TL(""));
 
-//	case MENU_BOX          :	MENU_TOGGLE("DRAW_BOX");	break;
-//	case MENU_CENTRAL      :	MENU_TOGGLE("CENTRAL" );	break;
-	}
+	m_Parameters.Add_Choice(
+		pNode	, "CENTRAL"			, _TL("Projection"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("parallel"),
+			_TL("central")
+		), 1
+	);
 
-	_Parms_Update(false);
+	m_Parameters.Add_Value(
+		pNode	, "CENTRAL_DIST"	, _TL("Perspectivic Distance"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 200, 1, true
+	);
 
-	m_pPanel->Update_View();
+	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_STEREO", _TL("Anaglyph"), _TL(""));
+
+	m_Parameters.Add_Value(
+		pNode	, "STEREO"			, _TL("Anaglyph"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	m_Parameters.Add_Value(
+		pNode	, "STEREO_DIST"		, _TL("Eye Distance [Degree]"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 2.0, 0, true, 180, true
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Value(
+		NULL	, "BGCOLOR"			, _TL("Background Color"),
+		_TL(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
+	);
 }
 
 

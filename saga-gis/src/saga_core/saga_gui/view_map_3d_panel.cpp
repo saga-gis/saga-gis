@@ -86,8 +86,13 @@ END_EVENT_TABLE()
 CView_Map_3DPanel::CView_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	: CSG_3DView_Panel(pParent, &m_Map)
 {
-	m_pDEM	= NULL;
-	m_pMap	= pMap;
+	m_pDEM		= NULL;
+	m_pMap		= pMap;
+
+	m_DEM_Res	= 100;
+	m_Map_Res	= 400;
+
+	m_Parameters("DRAW_BOX")->Set_Value(false);
 }
 
 
@@ -98,23 +103,23 @@ CView_Map_3DPanel::CView_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 //---------------------------------------------------------
 void CView_Map_3DPanel::Update_Statistics(void)
 {
-	if( !m_pDEM || !m_pMap )
-	{
-		return;
-	}
-
+	//-----------------------------------------------------
 	CSG_Rect	r(m_pDEM->Get_Extent());
 
-	if( !r.Intersect(m_pMap->Get_Extent()) )
+	if( !m_pMap || !r.Intersect(m_pMap->Get_Extent()) )
 	{
+		m_DEM.Destroy();
+
 		return;
 	}
 
-	m_pMap->SaveAs_Image_To_Grid(m_Map, 400);
+	//-----------------------------------------------------
+	double	Cellsize	= (r.Get_XRange() > r.Get_YRange() ? r.Get_XRange() : r.Get_YRange()) / m_DEM_Res;
+	
+	if( Cellsize < m_pDEM->Get_Cellsize() )
+		Cellsize = m_pDEM->Get_Cellsize();
 
-	double	c	= (r.Get_XRange() > r.Get_YRange() ? r.Get_XRange() : r.Get_YRange()) / 100.0; if( c < m_pDEM->Get_Cellsize() ) c = m_pDEM->Get_Cellsize();
-
-	m_DEM.Create(CSG_Grid_System(c, r), SG_DATATYPE_Float);
+	m_DEM.Create(CSG_Grid_System(Cellsize, r), SG_DATATYPE_Float);
 
 	for(int y=0; y<m_DEM.Get_NY(); y++)
 	{
@@ -124,7 +129,7 @@ void CView_Map_3DPanel::Update_Statistics(void)
 		{
 			double	z;
 
-			if( m_pDEM->Get_Value(m_DEM.Get_XMin() + c * x, wy, z) )
+			if( m_pDEM->Get_Value(m_DEM.Get_XMin() + m_DEM.Get_Cellsize() * x, wy, z) )
 			{
 				m_DEM.Set_Value(x, y, z);
 			}
@@ -135,33 +140,55 @@ void CView_Map_3DPanel::Update_Statistics(void)
 		}
 	}
 
-	m_Data_Min.x	= m_DEM.Get_XMin();
-	m_Data_Max.x	= m_DEM.Get_XMax();
+	m_Data_Min.x	= m_DEM.Get_XMin();	m_Data_Max.x	= m_DEM.Get_XMax();
+	m_Data_Min.y	= m_DEM.Get_YMin();	m_Data_Max.y	= m_DEM.Get_YMax();
+	m_Data_Min.z	= m_DEM.Get_ZMin();	m_Data_Max.z	= m_DEM.Get_ZMax();
 
-	m_Data_Min.y	= m_DEM.Get_YMin();
-	m_Data_Max.y	= m_DEM.Get_YMax();
-
-	m_Data_Min.z	= m_DEM.Get_ZMin();
-	m_Data_Max.z	= m_DEM.Get_ZMax();
+	m_pMap->SaveAs_Image_To_Grid(m_Map, m_Map_Res);
 
 	Update_View();
-}
-
-//---------------------------------------------------------
-bool CView_Map_3DPanel::Set_DEM(CSG_Grid *pDEM)
-{
-	if( m_pDEM != pDEM )
-	{
-		m_pDEM	= pDEM;
-	}
-
-	return( m_pDEM != NULL );
 }
 
 //---------------------------------------------------------
 void CView_Map_3DPanel::Update_Parent(void)
 {
 	((CVIEW_Map_3D *)GetParent())->Update_StatusBar();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CView_Map_3DPanel::Set_Options(CSG_Grid *pDEM, int DEM_Res, int Map_Res)
+{
+	if( m_pDEM == pDEM && m_DEM_Res == DEM_Res && m_Map_Res == Map_Res )
+	{
+		return( false );	// nothing to do
+	}
+
+	//-----------------------------------------------------
+	m_pDEM	= pDEM;
+
+	if( DEM_Res >= 2 )	m_DEM_Res	= DEM_Res;
+	if( Map_Res >= 2 )	m_Map_Res	= Map_Res;
+
+	Update_Statistics();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CView_Map_3DPanel::Inc_DEM_Res(int Step)
+{
+	return( m_DEM_Res + Step >= 2 ? Set_Options(m_pDEM, m_DEM_Res + Step, m_Map_Res) : false );
+}
+
+//---------------------------------------------------------
+bool CView_Map_3DPanel::Inc_Map_Res(int Step)
+{
+	return( m_Map_Res + Step >= 2 ? Set_Options(m_pDEM, m_DEM_Res, m_Map_Res + Step) : false );
 }
 
 
@@ -178,6 +205,12 @@ void CView_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 
 	case WXK_F1:	m_zScale	-=  0.5;	break;
 	case WXK_F2:	m_zScale	+=  0.5;	break;
+
+	case WXK_F5:	Inc_DEM_Res(-25);		break;
+	case WXK_F6:	Inc_DEM_Res( 25);		break;
+
+	case WXK_F7:	Inc_DEM_Res(-25);		break;
+	case WXK_F8:	Inc_DEM_Res( 25);		break;
 	}
 
 	//-----------------------------------------------------
@@ -209,11 +242,11 @@ bool CView_Map_3DPanel::On_Before_Draw(void)
 //---------------------------------------------------------
 inline bool CView_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 {
-	if( m_pDEM->is_InGrid(x, y) )
+	if( m_DEM.is_InGrid(x, y) )
 	{
-		Node.x	= Node.c = m_pDEM->Get_System().Get_xGrid_to_World(x);
-		Node.y	= Node.d = m_pDEM->Get_System().Get_yGrid_to_World(y);
-		Node.z	= m_pDEM->asDouble(x, y);
+		Node.x	= Node.c = m_DEM.Get_System().Get_xGrid_to_World(x);
+		Node.y	= Node.d = m_DEM.Get_System().Get_yGrid_to_World(y);
+		Node.z	= m_DEM.asDouble(x, y);
 
 		m_Projector.Get_Projection(Node.x, Node.y, Node.z);
 
@@ -231,16 +264,16 @@ inline bool CView_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 //---------------------------------------------------------
 bool CView_Map_3DPanel::On_Draw(void)
 {
-	if( !m_pDEM )
+	if( !m_DEM.is_Valid() )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
-	for(int y=1; y<m_pDEM->Get_NY(); y++)
+	for(int y=1; y<m_DEM.Get_NY(); y++)
 	{
-		for(int x=1; x<m_pDEM->Get_NX(); x++)
+		for(int x=1; x<m_DEM.Get_NX(); x++)
 		{
 			TSG_Triangle_Node	p[3];
 

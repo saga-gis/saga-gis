@@ -72,8 +72,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
 #include "view_base.h"
 
 
@@ -90,6 +88,7 @@ class CVIEW_Map_3D : public CVIEW_Base
 
 public:
 	CVIEW_Map_3D(class CWKSP_Map *pMap);
+	virtual ~CVIEW_Map_3D(void);
 
 	static class wxToolBarBase *	_Create_ToolBar			(void);
 	static class wxMenu *			_Create_Menu			(void);
@@ -108,14 +107,13 @@ private:
 	class CView_Map_3DPanel			*m_pPanel;
 
 
+	void							On_Size					(wxSizeEvent     &event);
+
 	void							On_Command				(wxCommandEvent  &event);
 	void							On_Command_UI			(wxUpdateUIEvent &event);
 
-	void							On_Size					(wxSizeEvent  &event);
-
-	void							_Parms_Create			(void);
-	void							_Parms_Update			(bool bGet);
-	void							_Parms_Command			(int Command);
+	void							Parameters_Create		(void);
+	void							Parameters_Update		(bool bToPanel);
 
 
 	//-----------------------------------------------------
