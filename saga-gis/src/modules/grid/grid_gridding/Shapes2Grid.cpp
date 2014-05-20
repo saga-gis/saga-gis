@@ -219,6 +219,11 @@ int CShapes2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("MULTIPLE" )->Set_Enabled(pParameter->asInt() == 2);
 	}
 
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TARGET")) && pParameters->Get_Parameter("FITTOCELLS") )
+	{
+		pParameters->Get_Parameter("FITTOCELLS")->Set_Enabled(pParameter->asInt() == 0);
+	}
+
 	return( 1 );
 }
 

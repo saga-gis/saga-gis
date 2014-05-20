@@ -834,6 +834,14 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
 		else
 			r.m_rect.yMin	= r.Get_YMax() - Size * (int)(r.Get_YRange() / Size);
 	}
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLS")) && pCols->asInt() > 0 )
+	{
+		pSize->Set_Value(Size	= r.Get_XRange() / pCols->asDouble());
+	}
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ROWS")) && pRows->asInt() > 0 )
+	{
+		pSize->Set_Value(Size	= r.Get_YRange() / pRows->asDouble());
+	}
 
 	//-----------------------------------------------------
 	pCols->Set_Value(1 + (int)((r.Get_XRange()) / Size));
@@ -863,21 +871,37 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
 */
 bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows, bool bFitToCells)
 {
-	if( !m_pUser || Extent.xMin >= Extent.xMax || Extent.yMin >= Extent.yMax || Rows < 1 )
+	if( !m_pUser || Rows < 1 )
 	{
 		return( false );
 	}
 
+	CSG_Rect	r(Extent);
+
+	if( r.Get_XRange() == 0.0 && r.Get_YRange() == 0.0 )
+	{
+		r.Inflate(0.5 * Rows, false);	// assume cellsize = 1.0
+	}
+	else if( r.Get_XRange() == 0.0 )
+	{
+		double	d	= 0.5 * r.Get_YRange() / Rows;	r.m_rect.xMin	-= d;	r.m_rect.xMax	+= d;	// inflate by half cellsize
+	}
+	else if( r.Get_YRange() == 0.0 )
+	{
+		double	d	= 0.5 * r.Get_XRange() / Rows;	r.m_rect.yMin	-= d;	r.m_rect.yMax	+= d;	// inflate by half cellsize
+	}
+
+	//-----------------------------------------------------
 	m_bFitToCells	= bFitToCells;
 
-	double	Size	= (Extent.yMax - Extent.yMin) / (double)Rows;
+	double	Size	= r.Get_YRange() / Rows;
 
-	int		Cols	= (bFitToCells ? 0 : 1) + (int)((Extent.xMax - Extent.xMin) / Size);
+	int		Cols	= (bFitToCells ? 0 : 1) + (int)(r.Get_XRange() / Size);
 
-	m_pUser->Get_Parameter("XMIN")->Set_Value(Extent.xMin);
-	m_pUser->Get_Parameter("XMAX")->Set_Value(Extent.xMax);
-	m_pUser->Get_Parameter("YMIN")->Set_Value(Extent.yMin);
-	m_pUser->Get_Parameter("YMAX")->Set_Value(Extent.yMax);
+	m_pUser->Get_Parameter("XMIN")->Set_Value(r.Get_XMin());
+	m_pUser->Get_Parameter("XMAX")->Set_Value(r.Get_XMax());
+	m_pUser->Get_Parameter("YMIN")->Set_Value(r.Get_YMin());
+	m_pUser->Get_Parameter("YMAX")->Set_Value(r.Get_YMax());
 	m_pUser->Get_Parameter("SIZE")->Set_Value(Size);
 	m_pUser->Get_Parameter("COLS")->Set_Value(Cols);
 	m_pUser->Get_Parameter("ROWS")->Set_Value(Rows);
