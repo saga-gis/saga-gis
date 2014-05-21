@@ -182,7 +182,7 @@ bool CCRS_Base::On_Before_Execution(void)
 {
 	m_Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
-	if( m_Projection.is_Okay() )
+	if( m_Projection.is_Okay() && Parameters("CRS_DIALOG") )
 	{
 		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), Parameters("CRS_PROJ4")->asString());
 	}
