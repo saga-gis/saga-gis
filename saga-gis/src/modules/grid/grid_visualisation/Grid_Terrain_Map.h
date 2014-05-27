@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  Grid_Terrain_Map.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2014 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,14 +40,14 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@alps-gmbh.com                 //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    alpS GmbH                              //
+//                Center for Climate Change Adaptation   //
+//                Grabenweg 68                           //
+//                6020 Innsbruck                         //
+//                Austria                                //
+//                www.alps-gmbh.com                      //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -56,74 +56,53 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Grid_Terrain_Map_H
+#define HEADER_INCLUDED__Grid_Terrain_Map_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CGrid_Terrain_Map : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Visualisation") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Wichmann (c) 2002-2014") );
-
-	case MLB_INFO_Description:
-		return( _TL("Special visualisation functions for grids.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Visualisation") );
-	}
-}
+public:
+	CGrid_Terrain_Map(void);
+	virtual ~CGrid_Terrain_Map(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Grid_Color_Rotate.h"
-#include "Grid_Color_Blend.h"
-#include "Grid_Colors_Fit.h"
-#include "Grid_RGB_Composite.h"
-#include "Grid_3D_Image.h"
-#include "Grid_Color_Triangle.h"
-#include "Grid_Histogram_Surface.h"
-#include "Grid_Aspect_Slope_Map.h"
-#include "Grid_Terrain_Map.h"
+	virtual bool		On_Execute				(void);
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CGrid_Color_Rotate );
-	case 1:		return( new CGrid_Color_Blend );
-	case 2:		return( new CGrid_Colors_Fit );
-	case 3:		return( new CGrid_RGB_Composite );
-	case 4:		return( new CGrid_3D_Image );
-	case 5:		return( new CGrid_Color_Triangle );
-	case 6:		return( new CGrid_Histogram_Surface );
-	case 7:		return( new CGrid_Aspect_Slope_Map );
-	case 8:		return( new CGrid_Terrain_Map );
-	}
+private:
 
-	return( NULL );
-}
+	bool				Generate_Topography		(void);
+	bool				Generate_Morphology		(void);
+	
+	bool				Generate_Contours		(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -133,8 +112,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Grid_Terrain_Map_H

@@ -300,6 +300,7 @@
     <ClCompile Include="Grid_Color_Triangle.cpp" />
     <ClCompile Include="Grid_Histogram_Surface.cpp" />
     <ClCompile Include="Grid_RGB_Composite.cpp" />
+    <ClCompile Include="Grid_Terrain_Map.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -326,6 +327,7 @@
     <ClInclude Include="Grid_Color_Triangle.h" />
     <ClInclude Include="Grid_Histogram_Surface.h" />
     <ClInclude Include="Grid_RGB_Composite.h" />
+    <ClInclude Include="Grid_Terrain_Map.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
