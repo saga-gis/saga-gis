@@ -351,9 +351,9 @@ bool CGrid_IMCORR::On_Execute(void)
 			
 			if (okparam ==1)
 			{
-				disp = sqrt(best_fit[1]*best_fit[1] + best_fit[2]*best_fit[2]);
-				double DirNormX = best_fit[2]/disp;
-				double DirNormY = best_fit[1]/disp;
+				disp = sqrt(best_fit[1]*best_fit[1] + best_fit[2]*best_fit[2]) * Get_Cellsize();
+				double DirNormX = (best_fit[2] * Get_Cellsize()) / disp;
+				double DirNormY = (best_fit[1] * Get_Cellsize()) / disp;
 				double Aspect;
 				
 
@@ -369,8 +369,8 @@ bool CGrid_IMCORR::On_Execute(void)
 				double xReal = pGrid1->Get_System().Get_xGrid_to_World(gx1);
 				double yReal = pGrid1->Get_System().Get_yGrid_to_World(gy1);
 				
-				double xReal2 = pGrid1->Get_System().Get_xGrid_to_World(gx1+(int)(best_fit[2]));
-				double yReal2 = pGrid1->Get_System().Get_yGrid_to_World(gy1+(int)(best_fit[1]));
+				double xReal2	= xReal + best_fit[2] * Get_Cellsize();
+				double yReal2	= yReal + best_fit[1] * Get_Cellsize();
 
 				if (pDTM1 == NULL || pDTM2 == NULL)
 				{
@@ -382,10 +382,10 @@ bool CGrid_IMCORR::On_Execute(void)
 					pCorrPt->Set_Value(3, xReal);
 					pCorrPt->Set_Value(4, yReal);
 					pCorrPt->Set_Value(5, disp);
-					pCorrPt->Set_Value(6,strength);
+					pCorrPt->Set_Value(6, strength);
 					pCorrPt->Set_Value(7, okparam);
-					pCorrPt->Set_Value(8, best_fit[2]);
-					pCorrPt->Set_Value(9, best_fit[1]);
+					pCorrPt->Set_Value(8, best_fit[2] * Get_Cellsize());
+					pCorrPt->Set_Value(9, best_fit[1] * Get_Cellsize());
 					pCorrPt->Set_Value(10, DirNormX);
 					pCorrPt->Set_Value(11, DirNormY);
 					pCorrPt->Set_Value(12, xReal2);
@@ -403,10 +403,10 @@ bool CGrid_IMCORR::On_Execute(void)
 					pCorrLine->Set_Value(3, xReal);
 					pCorrLine->Set_Value(4, yReal);
 					pCorrLine->Set_Value(5, disp);
-					pCorrLine->Set_Value(6,strength);
+					pCorrLine->Set_Value(6, strength);
 					pCorrLine->Set_Value(7, okparam);
-					pCorrLine->Set_Value(8, best_fit[2]);
-					pCorrLine->Set_Value(9, best_fit[1]);
+					pCorrLine->Set_Value(8, best_fit[2] * Get_Cellsize());
+					pCorrLine->Set_Value(9, best_fit[1] * Get_Cellsize());
 					pCorrLine->Set_Value(10, DirNormX);
 					pCorrLine->Set_Value(11, DirNormY);
 					pCorrLine->Set_Value(12, xReal2);
@@ -417,7 +417,7 @@ bool CGrid_IMCORR::On_Execute(void)
 				}
 				else
 				{
-					double zReal2 = pDTM2->asDouble(gx1+(int)(best_fit[2]), gy1+(int)(best_fit[1]));
+					double zReal2 = pDTM2->Get_Value(xReal2, yReal2);
 					double zReal = pDTM1->asDouble(gx1, gy1);
 					double Slope = (atan((zReal2-zReal)/fabs(disp)))*M_RAD_TO_DEG;
 					double dispReal = sqrt(pow(zReal2-zReal,2) + disp*disp);
@@ -432,10 +432,10 @@ bool CGrid_IMCORR::On_Execute(void)
 					pCorrPt->Set_Value(5, zReal);
 					pCorrPt->Set_Value(6, disp);
 					pCorrPt->Set_Value(7, dispReal);
-					pCorrPt->Set_Value(8,strength);
+					pCorrPt->Set_Value(8, strength);
 					pCorrPt->Set_Value(9, okparam);
-					pCorrPt->Set_Value(10, best_fit[2]);
-					pCorrPt->Set_Value(11, best_fit[1]);
+					pCorrPt->Set_Value(10, best_fit[2] * Get_Cellsize());
+					pCorrPt->Set_Value(11, best_fit[1] * Get_Cellsize());
 					pCorrPt->Set_Value(12, zReal2-zReal);
 					pCorrPt->Set_Value(13, DirNormX);
 					pCorrPt->Set_Value(14, DirNormY);
@@ -460,10 +460,10 @@ bool CGrid_IMCORR::On_Execute(void)
 					pCorrLine->Set_Value(5, zReal);
 					pCorrLine->Set_Value(6, disp);
 					pCorrLine->Set_Value(7, dispReal);
-					pCorrLine->Set_Value(8,strength);
+					pCorrLine->Set_Value(8, strength);
 					pCorrLine->Set_Value(9, okparam);
-					pCorrLine->Set_Value(10, best_fit[2]);
-					pCorrLine->Set_Value(11, best_fit[1]);
+					pCorrLine->Set_Value(10, best_fit[2] * Get_Cellsize());
+					pCorrLine->Set_Value(11, best_fit[1] * Get_Cellsize());
 					pCorrLine->Set_Value(12, zReal2-zReal);
 					pCorrLine->Set_Value(13, DirNormX);
 					pCorrLine->Set_Value(14, DirNormY);
