@@ -225,7 +225,7 @@ void fehler (int zeile,
       cp4 = cp2;
    }
 
-   fprintf (protfile, cp1);
+   fprintf (protfile, "%s", cp1);
 
    if (fil -> art == 'E')
    {
@@ -415,7 +415,7 @@ void error_message (int zeile,
       cp4 = cp2;
    }
 
-   sprintf (fmessage + sl_all, cp1);
+   sprintf (fmessage + sl_all, "%s", cp1);
    sl_all = strlen (fmessage);
    
    sl_alt = strlen (*error_list);
@@ -577,7 +577,7 @@ void fehler2 (int zeile,
 
    va_end (ap);
 
-   fprintf (protfile, cp1);
+   fprintf (protfile, "%s", cp1);
 
    if (fil -> art == 'E')
    {
@@ -756,7 +756,7 @@ void fehler3 (int zeile,
 
    va_end (ap);
 
-   sprintf (fmessage + sl_all, cp1);
+   sprintf (fmessage + sl_all, "%s", cp1);
    sl_all = strlen (fmessage);
    
    sl_alt = strlen (*error_list);
