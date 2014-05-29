@@ -213,7 +213,7 @@ bool Ckff_synthesis::On_Execute(void)
 	   }
    }
 
-   Parameters("OUTPUT GRID")->Set_Value(poutgrid);
+   Parameters("OUTPUT_GRID")->Set_Value(poutgrid);
 
    matrix_all_free ((void **) gitter);
    matrix_all_free ((void **) c_lm);
