@@ -402,9 +402,21 @@ bool CResection::On_Execute(void)
 		SG_Matrix_Eigen_Reduction(N, eigenVecs, eigenVals, true);
 
 		// One of the Eigen Values is 0
-		if (std::any_of(eigenVals.cbegin(),
-		                eigenVals.cend(),
-		                [] (double i) { return i == 0; })) {
+		// workaround the problem that the following snippet is C++11:
+		// if (std::any_of(eigenVals.cbegin(), eigenVals.cend(), [] (double i) { return i == 0; }))
+		bool	bValid = true;
+
+		for (int i=0; i < eigenVals.Get_Size(); i++)
+		{
+			if (eigenVals.Get_Data(i) == 0.0)
+			{
+				bValid = false;
+				break;
+			}
+		}
+
+		if (!bValid)
+		{
 			msg = "The Normal Matrix has a rank defect. Please measure more points.";
 			pTabStream->Write(msg + SG_T("\n"));
 			SG_UI_Msg_Add(msg, true);
