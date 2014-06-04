@@ -99,7 +99,7 @@ private:
 
 	bool					m_bLocalSVF, m_bBending;
 
-	int						m_Time, m_Method, m_Day_A, m_Day_B, m_dDays, m_bUpdate;
+	int						m_Time, m_Method, m_Shadowing, m_Day_A, m_Day_B, m_dDays, m_bUpdate;
 
 	double					m_Solar_Const, m_Hour_A, m_Hour_B, m_dHour, m_Latitude, m_Atmosphere, m_Vapour, m_Transmittance, m_Pressure, m_Water, m_Dust;
 
@@ -118,11 +118,11 @@ private:
 
 	bool					Get_Irradiance			(int x, int y, double Sol_Height, double Sol_Azimuth, double &Direct, double &Diffus);
 
-	bool					Get_Shade				(double Sol_Height, double Sol_Azimuth);
-	void					Set_Shade				(int x, int y, double dx, double dy, double dz);
-	void					Set_Shade_Bended		(int x, int y, char iLock);
-	bool					Get_Shade_Complete		(int x, int y);
+	bool					is_Shadowed				(int x, int y);
 	void					Get_Shade_Params		(double Sol_Height, double Sol_Azimuth, double &dx, double &dy, double &dz);
+	bool					Get_Shade				(double Sol_Height, double Sol_Azimuth);
+	void					Set_Shade				(double x, double y, double z, double dx, double dy, double dz);
+	void					Set_Shade_Bended		(double x, double y, double z);
 
 	int						Get_Day_of_Year			(int Month);
 	bool					Get_Solar_Position		(int Day, double Hour, double Lat, double Lon, double &Sol_Height, double &Sol_Azimuth);

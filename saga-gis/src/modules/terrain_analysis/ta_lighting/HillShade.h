@@ -86,30 +86,28 @@ class ta_lighting_EXPORT CHillShade : public CSG_Module_Grid
 {
 public:
 	CHillShade(void);
-	virtual ~CHillShade(void);
 
 
 protected:
 
 	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool		On_Execute			(void);
+	virtual bool		On_Execute				(void);
 
 
 private:
 
 	int					RT_Dir_Top, RT_Dir_Right;
 
-	double				Exaggeration,
-						RT_Tan, RT_Cot, RT_Dz;
+	double				m_zScale, RT_Tan, RT_Cot, RT_Dz;
 
-	CSG_Grid			*pDTM, *pHillShade;
+	CSG_Grid			*m_pDEM, *m_pShade, m_Shade;
 
 
-	void				Get_Shading			(double Azimuth, double Declination, bool bDelimit, bool bCombine);
+	void				Get_Shading				(double Azimuth, double Declination, bool bDelimit, bool bCombine);
 
-	void				RayTrace			(double Azimuth, double Declination);
-	void				RayTrace_Trace		(int x, int y, double dx, double dy, double dz);
+	void				Shadow					(double Azimuth, double Declination);
+	void				Shadow_Trace			(double x, double y, double z, double dx, double dy, double dz);
 
 	void				AmbientOcclusion		(int iDirs, double dRadius);
 	bool				AmbientOcclusion_Trace	(int x, int y, CSG_Point_Z Direction, double dRadius);

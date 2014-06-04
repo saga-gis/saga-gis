@@ -74,12 +74,12 @@
 CHillShade::CHillShade(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Analytical Hillshading"));
+	Set_Name		(_TL("Analytical Hillshading"));
 
-	Set_Author		(SG_T("O.Conrad, V.Wichmann (c) 2003-2013"));
+	Set_Author		("O.Conrad, V.Wichmann (c) 2003-2013");
 
 	Set_Description(_TW(
-		"Analytical hillshading calculation.\n\n\n"
+		"Analytical hillshading calculation.\n"
 		"Method 'Ambient Occlusion' is based on concepts of Tarini et al. (2006), but only "
 		"the northern half-space is considered.\n"
 		"\n"
@@ -89,19 +89,12 @@ CHillShade::CHillShade(void)
 		"IEEE Transactions on Visualization and Computer Graphics, Vol. 12, No. 5, pp. 1237-1244.\n"
 	));
 
-
 	//-----------------------------------------------------
-	// Input...
-
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
-
-
-	//-----------------------------------------------------
-	// Output...
 
 	Parameters.Add_Grid(
 		NULL	, "SHADE"			, _TL("Analytical Hillshading"),
@@ -109,10 +102,7 @@ CHillShade::CHillShade(void)
 		PARAMETER_OUTPUT
 	);
 
-
 	//-----------------------------------------------------
-	// Options...
-
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Shading Method"),
 		_TL(""),
@@ -132,88 +122,93 @@ CHillShade::CHillShade(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "DECLINATION"		, _TL("Declination [Degree]"),
-		_TL("Declination of the light source, measured in degree above the horizon."),
+		NULL	, "DECLINATION"		, _TL("Height [Degree]"),
+		_TL("Height of the light source, measured in degree above the horizon."),
 		PARAMETER_TYPE_Double		, 45
 	);
 
 	Parameters.Add_Value(
-		NULL	, "EXAGGERATION"	, _TL("Exaggeration"),
+		NULL	, "EXAGGERATION"	, _TL("m_zScale"),
 		_TL("The terrain exaggeration factor allows to increase the shading contrasts in flat areas."),
 		PARAMETER_TYPE_Double		, 4
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "SHADOW"			, _TL("Shadow"),
+		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow. The first is slightly faster but might show some artifacts."),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("slim"),
+			_TL("fat")
+		), 1
+	);
+
 	Parameters.Add_Value(
-		NULL	, "NDIRS"		, _TL("Number of Directions"),
+		NULL	, "NDIRS"			, _TL("Number of Directions"),
 		_TW("Number of sample directions for ambient occlusion. Divides azimuth range (270 to 0 to 90 degree) into sectors. "
 			"Declination (0 to 90 degree) is devided in (Number of Directions / 4) sectors."),
-		PARAMETER_TYPE_Int		, 8.0, 2, true
+		PARAMETER_TYPE_Int, 8.0, 2, true
 	);
 
 	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Search Radius"),
+		NULL	, "RADIUS"			, _TL("Search Radius"),
 		_TL("Radius used to trace for shadows (ambient occlusion) [map units]."),
-		PARAMETER_TYPE_Double	, 10.0, 0.001, true
+		PARAMETER_TYPE_Double, 10.0, 0.001, true
 	);
 }
-
-//---------------------------------------------------------
-CHillShade::~CHillShade(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CHillShade::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		pParameters->Get_Parameter("AZIMUTH"     )->Set_Enabled(pParameter->asInt()  < 4);
+		pParameters->Get_Parameter("DECLINATION" )->Set_Enabled(pParameter->asInt()  < 4);
+		pParameters->Get_Parameter("EXAGGERATION")->Set_Enabled(pParameter->asInt()  < 4);
+		pParameters->Get_Parameter("SHADOW"      )->Set_Enabled(pParameter->asInt() == 3);
+		pParameters->Get_Parameter("NDIRS"       )->Set_Enabled(pParameter->asInt() == 4);
+		pParameters->Get_Parameter("RADIUS"      )->Set_Enabled(pParameter->asInt() == 4);
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CHillShade::On_Execute(void)
 {
-	double	Azimuth, Declination;
-	int		iDirs;
-	double	dRadius;
-
 	//-----------------------------------------------------
-	pDTM			= Parameters("ELEVATION")	->asGrid();
+	m_pDEM			= Parameters("ELEVATION"   )->asGrid();
+	m_pShade		= Parameters("SHADE"       )->asGrid();
+	m_zScale		= Parameters("EXAGGERATION")->asDouble();
 
-	pHillShade		= Parameters("SHADE")		->asGrid();
-
-	Azimuth			= Parameters("AZIMUTH")		->asDouble() * M_DEG_TO_RAD;
-	Declination		= Parameters("DECLINATION")	->asDouble() * M_DEG_TO_RAD;
-	Exaggeration	= Parameters("EXAGGERATION")->asDouble();
-	iDirs			= Parameters("NDIRS")		->asInt();
-	dRadius			= Parameters("RADIUS")		->asDouble();
+	double	Azimuth	= Parameters("AZIMUTH"     )->asDouble() * M_DEG_TO_RAD;
+	double	Height	= Parameters("DECLINATION" )->asDouble() * M_DEG_TO_RAD;
+	double	dRadius	= Parameters("RADIUS"      )->asDouble();
+	int		iDirs	= Parameters("NDIRS"       )->asInt();
 
 	//-----------------------------------------------------
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:
-		Get_Shading			(Azimuth, Declination, false, false);
-		break;
-
-	case 1:
-		Get_Shading			(Azimuth, Declination, true , false);
-		break;
-
-	case 2:
-		Get_Shading			(Azimuth, Declination, false, true);
-		break;
-
-	case 3:
-		RayTrace			(Azimuth, Declination);
-		break;
-
-	case 4:
-		AmbientOcclusion	(iDirs, dRadius);
-		break;
+	case 0:	Get_Shading     (Azimuth, Height, false, false);	break;
+	case 1:	Get_Shading     (Azimuth, Height, true , false);	break;
+	case 2:	Get_Shading     (Azimuth, Height, false, true );	break;
+	case 3:	Shadow	        (Azimuth, Height);					break;
+	case 4:	AmbientOcclusion(iDirs, dRadius);					break;
 	}
 
 	//-----------------------------------------------------
-	pHillShade->Set_ZFactor(M_RAD_TO_DEG);
+	m_pShade->Set_ZFactor(M_RAD_TO_DEG);
 
-	DataObject_Set_Colors(pHillShade, 100, SG_COLORS_BLACK_WHITE, true);
+	DataObject_Set_Colors(m_pShade, 100, SG_COLORS_BLACK_WHITE, true);
 
 	return( true );
 }
@@ -226,13 +221,11 @@ bool CHillShade::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CHillShade::Get_Shading(double Azimuth, double Declination, bool bDelimit, bool bCombine)
+void CHillShade::Get_Shading(double Azimuth, double Height, bool bDelimit, bool bCombine)
 {
-	double	sinDec, cosDec;
-
 	//-----------------------------------------------------
-	sinDec	= sin(Declination);
-	cosDec	= cos(Declination);
+	double	sinHgt	= sin(Height);
+	double	cosHgt	= cos(Height);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -241,15 +234,16 @@ void CHillShade::Get_Shading(double Azimuth, double Declination, bool bDelimit, 
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	s, a, d;
-			if( !pDTM->Get_Gradient(x, y, s, a) )
+
+			if( !m_pDEM->Get_Gradient(x, y, s, a) )
 			{
-				pHillShade->Set_NoData(x, y);
+				m_pShade->Set_NoData(x, y);
 			}
 			else
 			{
 				s	= tan(s);
-				d	= M_PI_090 - atan(Exaggeration * s);
-				d	= acos(sin(d) * sinDec + cos(d) * cosDec * cos(a - Azimuth));
+				d	= M_PI_090 - atan(m_zScale * s);
+				d	= acos(sin(d) * sinHgt + cos(d) * cosHgt * cos(a - Azimuth));
 
 				if( bDelimit && d > M_PI_090 )
 				{
@@ -261,7 +255,7 @@ void CHillShade::Get_Shading(double Azimuth, double Declination, bool bDelimit, 
 					d	*= s / M_PI_090;
 				}
 
-				pHillShade->Set_Value(x, y, d);
+				m_pShade->Set_Value(x, y, d);
 			}
 		}
 	}
@@ -270,104 +264,102 @@ void CHillShade::Get_Shading(double Azimuth, double Declination, bool bDelimit, 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CHillShade::RayTrace(double Azimuth, double Declination)
+void CHillShade::Shadow(double Azimuth, double Height)
 {
-	int		 y, iy, xStart, yStart, xStep, yStep;
-	double	dx, dy, dz;
+	//-----------------------------------------------------
+	Get_Shading(Azimuth, Height, true, false);
 
 	//-----------------------------------------------------
-	Get_Shading(Azimuth, Declination, true, false);
-
-	//-----------------------------------------------------
-	Azimuth	= Azimuth + M_PI_180;
-
-	if( sin(Azimuth) > 0.0 )
-	{
-		xStart	= 0;
-		xStep	= 1;
-	}
-	else
-	{
-		xStart	= Get_NX() - 1;
-		xStep	= -1;
-	}
-
-	if( cos(Azimuth) > 0.0 )
-	{
-		yStart	= 0;
-		yStep	= 1;
-	}
-	else
-	{
-		yStart	= Get_NY() - 1;
-		yStep	= -1;
-	}
-
-	//-----------------------------------------------------
-	dx		= sin(Azimuth);
-	dy		= cos(Azimuth);
+	double	dx	= sin(Azimuth + M_PI_180);
+	double	dy	= cos(Azimuth + M_PI_180);
 
 	if( fabs(dx) > fabs(dy) )
 	{
 		dy	/= fabs(dx);
-		dx	= dx < 0 ? -1 : 1;
+		dx	 = dx < 0 ? -1 : 1;
 	}
 	else if( fabs(dy) > fabs(dx) )
 	{
 		dx	/= fabs(dy);
-		dy	= dy < 0 ? -1 : 1;
+		dy	 = dy < 0 ? -1 : 1;
 	}
 	else
 	{
-		dx	= dx < 0 ? -1 : 1;
-		dy	= dy < 0 ? -1 : 1;
+		dx	 = dx < 0 ? -1 : 1;
+		dy	 = dy < 0 ? -1 : 1;
 	}
 
-	dz		= tan(Declination) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
+	double	dz	= tan(Height) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
 
 	//-----------------------------------------------------
-	for(iy=0, y=yStart; iy<Get_NY() && Set_Progress(iy); iy++, y+=yStep)
+	const double	dShadow	= 0.49;
+
+	int	Shadowing	= Parameters("SHADOW")->asInt();
+
+	m_Shade.Create(*Get_System(), SG_DATATYPE_Float);
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(int ix=0, x=xStart; ix<Get_NX(); ix++, x+=xStep)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			RayTrace_Trace(x, y, dx, dy, dz);
+			if( !m_pDEM->is_NoData(x, y) )
+			{
+				switch( Shadowing )
+				{
+				default:	// slim
+					Shadow_Trace(x, y, m_pDEM->asDouble(x, y), dx, dy, dz);
+					break;
+
+				case 1:		// fat
+					Shadow_Trace(x - dShadow, y - dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
+					Shadow_Trace(x + dShadow, y - dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
+					Shadow_Trace(x - dShadow, y + dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
+					Shadow_Trace(x + dShadow, y + dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
+					break;
+				}
+			}
 		}
 	}
+
+	//-----------------------------------------------------
+	m_Shade.Destroy();
 }
 
 //---------------------------------------------------------
-void CHillShade::RayTrace_Trace(int x, int y, double dx, double dy, double dz)
+void CHillShade::Shadow_Trace(double x, double y, double z, double dx, double dy, double dz)
 {
-	double	ix, iy, iz;
-
-	if( !pDTM->is_NoData(x, y) )
+	for(x+=dx+0.5, y+=dy+0.5, z-=dz; ; x+=dx, y+=dy, z-=dz)
 	{
-		for(ix=x+0.5, iy=y+0.5, iz=pDTM->asDouble(x, y); ; )
+		int	ix	= (int)x,	iy	= (int)y;
+
+		if( !is_InGrid(ix, iy) )
 		{
-			ix	+= dx;
-			iy	+= dy;
-			iz	-= dz;
+			return;
+		}
 
-			x	= (int)ix;
-			y	= (int)iy;
+		if( !m_pDEM->is_NoData(ix, iy) )
+		{
+			double	zDiff	= z - m_pDEM->asDouble(ix, iy);
 
-			if( !is_InGrid(x, y) || pDTM->asDouble(x, y) > iz )
+			if( zDiff <= 0.0 )
 			{
-				break;
+				return;
 			}
-			else if( pDTM->is_InGrid(x, y) )
-			{
-				pHillShade->Set_Value(x, y, M_PI_090);
-			}
+
+			m_Shade.Set_Value(ix, iy, zDiff);
 		}
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CHillShade::AmbientOcclusion(int iDirs, double dRadius)
@@ -383,7 +375,7 @@ void CHillShade::AmbientOcclusion(int iDirs, double dRadius)
 		Directions[i].y	= cos(Directions[i].z - M_PI_090);
 	}
 
-	pHillShade->Assign(0.0);
+	m_pShade->Assign(0.0);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -392,9 +384,9 @@ void CHillShade::AmbientOcclusion(int iDirs, double dRadius)
 		{
 			double	s, a;
 
-			if( !pDTM->Get_Gradient(x, y, s, a) )
+			if( !m_pDEM->Get_Gradient(x, y, s, a) )
 			{
-				pHillShade->Set_NoData(x, y);
+				m_pShade->Set_NoData(x, y);
 				continue;
 			}
 
@@ -414,30 +406,29 @@ void CHillShade::AmbientOcclusion(int iDirs, double dRadius)
 
 					if( AmbientOcclusion_Trace(x, y, Directions[i], dRadius) )
 					{
-						pHillShade->Add_Value(x, y, dAngle);
+						m_pShade->Add_Value(x, y, dAngle);
 					}
 				}
 			}
 
-			if( !pHillShade->is_NoData(x, y) )
-				pHillShade->Set_Value(x, y, M_PI - pHillShade->asDouble(x, y) / (iDirs * (iDirs / 4.0)));
+			if( !m_pShade->is_NoData(x, y) )
+				m_pShade->Set_Value(x, y, M_PI - m_pShade->asDouble(x, y) / (iDirs * (iDirs / 4.0)));
 		}
 	}
 }
-
 
 //---------------------------------------------------------
 bool CHillShade::AmbientOcclusion_Trace(int x, int y, CSG_Point_Z Direction, double dRadius)
 {
 	double		dDistance, iDistance, dx, dy, dz, ix, iy, iz, z;
 
-	z			= pDTM->asDouble(x, y);
+	z			= m_pDEM->asDouble(x, y);
 	dx			= Direction.Get_X();
 	dy			= Direction.Get_Y();
 	dz			= tan( asin(Direction.Get_Z()) ) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
 	ix			= x;
 	iy			= y;
-	iz			= pDTM->asDouble(x, y);
+	iz			= m_pDEM->asDouble(x, y);
 	dDistance	= 0.0;
 	iDistance	= Get_Cellsize() * M_GET_LENGTH(dx, dy);
 
@@ -447,31 +438,13 @@ bool CHillShade::AmbientOcclusion_Trace(int x, int y, CSG_Point_Z Direction, dou
 		iy	+= dy;	y	= (int)(0.5 + iy);
 		iz	+= dz;
 
-		if( pDTM->is_InGrid(x, y) && pDTM->asDouble(x, y) > iz )
+		if( m_pDEM->is_InGrid(x, y) && m_pDEM->asDouble(x, y) > iz )
 			return( false );
 
 		dDistance	+= iDistance;
 	}
 
 	return( true );
-}
-
-
-//---------------------------------------------------------
-int CHillShade::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
-	{
-		pParameters->Get_Parameter("AZIMUTH")		->Set_Enabled(pParameter->asInt() < 4);
-		pParameters->Get_Parameter("DECLINATION")	->Set_Enabled(pParameter->asInt() < 4);
-		pParameters->Get_Parameter("EXAGGERATION")	->Set_Enabled(pParameter->asInt() < 4);
-
-		pParameters->Get_Parameter("NDIRS")			->Set_Enabled(pParameter->asInt() == 4);
-		pParameters->Get_Parameter("RADIUS")		->Set_Enabled(pParameter->asInt() == 4);
-	}
-
-	return( 0 );
 }
 
 
