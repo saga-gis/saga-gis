@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: HillShade.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ CHillShade::CHillShade(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "EXAGGERATION"	, _TL("m_zScale"),
+		NULL	, "EXAGGERATION"	, _TL("Exaggeration"),
 		_TL("The terrain exaggeration factor allows to increase the shading contrasts in flat areas."),
 		PARAMETER_TYPE_Double		, 4
 	);

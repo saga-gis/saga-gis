@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: SolarRadiation.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -971,7 +971,7 @@ bool CSolarRadiation::Get_Insolation(double Sol_Height, double Sol_Azimuth, doub
 	#pragma omp parallel for
 	for(int y=0; y<Get_NY(); y++)
 	{
-		for(int x=0; x<Get_NX() && Process_Get_Okay(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{
