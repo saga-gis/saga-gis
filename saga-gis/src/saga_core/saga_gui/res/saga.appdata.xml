@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+    <id type="desktop">saga.desktop</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <name>SAGA</name>
+    <summary>System for Automated Geoscientific Analyses</summary>
+    <description>
+        <p>
+            SAGA is a Geographic Information System (GIS) software with 
+            immense capabilities for geodata processing and analysis. 
+            Due to the modular organization of the geoprocessing tools, they can 
+            be accessed either through the graphical user interface or 
+            via the command line application. 
+        </p>
+        <p>      
+            Furthermoe SAGA provides an effective Application Programming Interface
+            which makes it easy to implemetaion new tools and functionality.
+        </p>
+    </description>
+    <url type="homepage">http://www.saga-gis.org</url>    
+</application>

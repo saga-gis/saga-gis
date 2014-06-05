@@ -222,6 +222,9 @@ dist_applications_DATA = res/saga.desktop
 pixmapdir = $(datadir)/pixmaps
 dist_pixmap_DATA = res/saga.png
 
+appdatadir = $(datadir)/appdata
+dist_appdata_DATA = res/saga.appdata.xml
+
 dist_pkgdata_DATA = res/saga_tip.txt res/saga_dic.txt res/saga_srs.txt
 
 install-data-hook:
