@@ -154,6 +154,13 @@ void CSG_Parameters::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * Set the responsible data manager for this parameter list.
+  * If it is not NULL, the parameter list will perform checks
+  * beforehand module executions, e.g. check if all data sets
+  * in its parameter list are really loaded.
+*/
+//---------------------------------------------------------
 void CSG_Parameters::Set_Manager(CSG_Data_Manager *pManager)
 {
 	m_pManager		= pManager;
@@ -168,11 +175,19 @@ void CSG_Parameters::Set_Manager(CSG_Data_Manager *pManager)
 }
 
 //---------------------------------------------------------
+/**
+  * Change the identifier of this parameter list after construction.
+*/
+//---------------------------------------------------------
 void CSG_Parameters::Set_Identifier(const CSG_String &String)
 {
 	m_Identifier	= String;
 }
 
+//---------------------------------------------------------
+/**
+  * Change the name of this parameter list after construction.
+*/
 //---------------------------------------------------------
 void CSG_Parameters::Set_Name(const CSG_String &String)
 {
@@ -180,17 +195,40 @@ void CSG_Parameters::Set_Name(const CSG_String &String)
 }
 
 //---------------------------------------------------------
+/**
+  * Change the description for this parameter list after construction.
+*/
+//---------------------------------------------------------
 void CSG_Parameters::Set_Description(const CSG_String &String)
 {
 	m_Description	= String;
 }
 
 //---------------------------------------------------------
+/**
+  * Enable or disable all parameters.
+*/
+//---------------------------------------------------------
 void CSG_Parameters::Set_Enabled(bool bEnabled)
 {
 	for(int i=0; i<m_nParameters; i++)
 	{
 		m_Parameters[i]->Set_Enabled(bEnabled);
+	}
+}
+
+//---------------------------------------------------------
+/**
+  * Enable or disable parameter with given identifier.
+*/
+//---------------------------------------------------------
+void CSG_Parameters::Set_Enabled(const CSG_String &Identifier, bool bEnabled)
+{
+	CSG_Parameter	*pParameter	= Get_Parameter(Identifier);
+
+	if( pParameter )
+	{
+		pParameter->Set_Enabled(bEnabled);
 	}
 }
 

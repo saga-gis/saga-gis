@@ -1391,7 +1391,8 @@ public:
 	void						Set_Description			(const CSG_String &String);
 	const CSG_String &			Get_Description			(void)	const	{	return( m_Description );	}
 
-	void						Set_Enabled				(bool bEnabled);
+	void						Set_Enabled				(bool bEnabled = true);
+	void						Set_Enabled				(const CSG_String &Identifier, bool bEnabled = true);
 
 	//-----------------------------------------------------
 	void						Set_Callback_On_Parameter_Changed	(TSG_PFNC_Parameter_Changed pCallback);
