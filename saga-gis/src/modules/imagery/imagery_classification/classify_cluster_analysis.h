@@ -83,18 +83,20 @@ public:
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	void					Save_Statistics		(CSG_Parameter_Grid_List *pGrids, bool bNormalize, const CSG_Cluster_Analysis &Analysis);
-	void					Save_LUT			(CSG_Grid *pCluster, int nClusters);
+	void					Save_Statistics			(CSG_Parameter_Grid_List *pGrids, bool bNormalize, const CSG_Cluster_Analysis &Analysis);
+	void					Save_LUT				(CSG_Grid *pCluster, int nClusters);
 
 
-	bool					_On_Execute			(void);
-	double					_MinimumDistance	(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
-	double					_HillClimbing		(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
+	bool					_On_Execute				(void);
+	double					_MinimumDistance		(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
+	double					_HillClimbing			(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
 
 };
 

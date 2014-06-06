@@ -128,6 +128,12 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 	);
 
 	Parameters.Add_Value(
+		NULL	, "MAXITER"		, _TL("Maximum Iterations"),
+		_TL("maximum number of iterations, ignored if set to zero (default)"),
+		PARAMETER_TYPE_Int, 0, 0, true
+	);
+
+	Parameters.Add_Value(
 		NULL	, "NORMALISE"	, _TL("Normalise"),
 		_TL("Automatically normalise grids by standard deviation before clustering."),
 		PARAMETER_TYPE_Bool, false
@@ -137,6 +143,25 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 	CSG_Parameter	*pNode	=
 	Parameters.Add_Value(NULL	, "OLDVERSION", _TL("Old Version"), _TL("slower but memory saving"), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode	, "UPDATEVIEW", _TL("Update View"), _TL(""), PARAMETER_TYPE_Bool, true);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Cluster_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OLDVERSION") )
+	{
+		pParameters->Set_Enabled("MAXITER"   , pParameter->asBool() == false);
+		pParameters->Set_Enabled("UPDATEVIEW", pParameter->asBool() == true );
+	}
+
+	return( 1 );
 }
 
 
@@ -159,9 +184,9 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")		->asGridList();
-	pCluster	= Parameters("CLUSTER")		->asGrid();
-	bNormalize	= Parameters("NORMALISE")	->asBool();
+	pGrids		= Parameters("GRIDS"    )->asGridList();
+	pCluster	= Parameters("CLUSTER"  )->asGrid();
+	bNormalize	= Parameters("NORMALISE")->asBool();
 
 	if( !Analysis.Create(pGrids->Get_Count()) )
 	{
@@ -213,7 +238,11 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= Analysis.Execute(Parameters("METHOD")->asInt(), Parameters("NCLUSTER")->asInt());
+	bool	bResult	= Analysis.Execute(
+		Parameters("METHOD"  )->asInt(),
+		Parameters("NCLUSTER")->asInt(),
+		Parameters("MAXITER" )->asInt()
+	);
 
 	for(iElement=0, nElements=0; iElement<Get_NCells(); iElement++)
 	{
@@ -240,12 +269,9 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 //---------------------------------------------------------
 void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bool bNormalize, const CSG_Cluster_Analysis &Analysis)
 {
-	int					iCluster, iFeature;
-	CSG_String			s;
-	CSG_Table_Record	*pRecord;
-	CSG_Table			*pTable;
-
-	pTable	= Parameters("STATISTICS")->asTable();
+	int			iCluster, iFeature;
+	CSG_String	s;
+	CSG_Table	*pTable	= Parameters("STATISTICS")->asTable();
 
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Cluster Analysis"));
@@ -254,7 +280,8 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 	pTable->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
 	pTable->Add_Field(_TL("Std.Dev.")	, SG_DATATYPE_Double);
 
-	s.Printf(SG_T("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s"),
+	s.Printf(SG_T("\n%s:\t%d \n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s"),
+		_TL("Number of Iterations")	, Analysis.Get_Iteration(),
 		_TL("Number of Elements")	, Analysis.Get_nElements(),
 		_TL("Number of Variables")	, Analysis.Get_nFeatures(),
 		_TL("Number of Clusters")	, Analysis.Get_nClusters(),
@@ -275,7 +302,8 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 	{
 		s.Printf(SG_T("\n%d\t%d\t%f"), iCluster, Analysis.Get_nMembers(iCluster), sqrt(Analysis.Get_Variance(iCluster)));
 
-		pRecord	= pTable->Add_Record();
+		CSG_Table_Record	*pRecord	= pTable->Add_Record();
+
 		pRecord->Set_Value(0, iCluster);
 		pRecord->Set_Value(1, Analysis.Get_nMembers(iCluster));
 		pRecord->Set_Value(2, sqrt(Analysis.Get_Variance(iCluster)));
