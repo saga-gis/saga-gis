@@ -301,9 +301,7 @@ bool CSG_PRQuadTree::Create(CSG_Shapes *pShapes, int Attribute, bool bStatistics
 				{
 					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
-
-						Add_Point(p.x, p.y, z);
+						Add_Point(pShape->Get_Point(iPoint, iPart), z);
 					}
 				}
 			}

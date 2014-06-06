@@ -244,7 +244,7 @@ inline bool CInterpolation_InverseDistance::Get_Point(int iPoint, double x, doub
 	{
 		CSG_Shape	*pPoint	= m_pShapes->Get_Shape(iPoint);
 
-		if( !pPoint )
+		if( !pPoint || pPoint->is_NoData(m_zField) )
 		{
 			return( false );
 		}
