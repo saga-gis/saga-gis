@@ -598,7 +598,7 @@ bool CSG_Cluster_Analysis::Set_Feature(int iElement, int iFeature, double Value)
 }
 
 //---------------------------------------------------------
-bool CSG_Cluster_Analysis::Execute(int Method, int nClusters)
+bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations)
 {
 	if( Get_nElements() <= 1 || nClusters <= 1 )
 	{
@@ -627,17 +627,10 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters)
 	//-----------------------------------------------------
 	switch( Method )
 	{
-	case 0: default:
-		bResult	= Minimum_Distance(true);
-		break;
-
-	case 1:
-		bResult	= Hill_Climbing(true);
-		break;
-
-	case 2:
-		bResult	= Minimum_Distance(true) && Hill_Climbing(false);
-		break;
+	default:	bResult	= Minimum_Distance(true , nMaxIterations);	break;
+	case  1:	bResult	= Hill_Climbing   (true , nMaxIterations);	break;
+	case  2:	bResult	= Minimum_Distance(true , nMaxIterations)
+					   && Hill_Climbing   (false, nMaxIterations);	break;
 	}
 
 	if( bResult )
@@ -652,9 +645,8 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters)
 }
 
 //---------------------------------------------------------
-bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize)
+bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize, int nMaxIterations)
 {
-	bool	bContinue;
 	int		iElement, iFeature, iCluster, nShifts;
 	double	*Feature, SP_Last	= -1.0;
 
@@ -670,7 +662,7 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize)
 	}
 
 	//-----------------------------------------------------
-	for(m_Iteration=1, bContinue=true; bContinue && SG_UI_Process_Get_Okay(); m_Iteration++)
+	for(m_Iteration=1; SG_UI_Process_Get_Okay(); m_Iteration++)
 	{
 		for(iCluster=0; iCluster<m_nClusters; iCluster++)
 		{
@@ -709,7 +701,7 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize)
 		}
 
 		//-------------------------------------------------
-		for(iElement=0, Feature=(double *)m_Features.Get_Array(), m_SP=0.0, nShifts=0; iElement<Get_nElements() && bContinue; iElement++, Feature+=m_nFeatures)
+		for(iElement=0, Feature=(double *)m_Features.Get_Array(), m_SP=0.0, nShifts=0; iElement<Get_nElements(); iElement++, Feature+=m_nFeatures)
 		{
 			double	minVariance	= -1.0;
 			int		minCluster	= -1;
@@ -741,11 +733,6 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize)
 		}
 
 		//-------------------------------------------------
-		if( nShifts == 0 )
-		{
-			bContinue	= false;
-		}
-
 		m_SP	/= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
@@ -753,16 +740,20 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize)
 			_TL("change")	, m_Iteration <= 1 ? m_SP : SP_Last - m_SP
 		));
 
-		SP_Last		= m_SP;
+		SP_Last	 = m_SP;
+
+		if( nShifts == 0 || (nMaxIterations > 0 && nMaxIterations <= m_Iteration) )
+		{
+			break;
+		}
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
+bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
 {
-	bool	bContinue;
 	int		iElement, iFeature, iCluster, noShift;
 	double	*Feature, Variance, SP_Last	= -1.0;
 
@@ -811,78 +802,69 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
 		m_Variance[iCluster]	-= m_nMembers[iCluster] * Variance;
 	}
 
-	noShift		= 0;
-
 	//-----------------------------------------------------
-	for(m_Iteration=1, bContinue=true; bContinue && SG_UI_Process_Get_Okay(false); m_Iteration++)
+	for(m_Iteration=1, noShift=0; SG_UI_Process_Get_Okay(false); m_Iteration++)
 	{
-		for(iElement=0, Feature=(double *)m_Features.Get_Array(); iElement<Get_nElements() && bContinue; iElement++, Feature+=m_nFeatures)
+		for(iElement=0, Feature=(double *)m_Features.Get_Array(); iElement<Get_nElements(); iElement++, Feature+=m_nFeatures)
 		{
-			if( (iCluster = m_Cluster[iElement]) >= 0 )
+			if( (iCluster = m_Cluster[iElement]) >= 0 && noShift++ < Get_nElements() && m_nMembers[iCluster] > 1 )
 			{
-				if( noShift++ >= Get_nElements() )
+				int		jCluster, kCluster;
+				double	VMin, V1, V2;
+
+				for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
 				{
-					bContinue	= false;
+					Variance	+= SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
 				}
-				else if( m_nMembers[iCluster] > 1 )
+
+				V1		= Variance * m_nMembers[iCluster] / (m_nMembers[iCluster] - 1.0);
+				VMin	= -1.0;
+
+				//-----------------------------------------
+				// Bestimme Gruppe iCluster mit evtl. groesster Verbesserung...
+
+				for(jCluster=0; jCluster<m_nClusters; jCluster++)
 				{
-					int		jCluster, kCluster;
-					double	VMin, V1, V2;
-
-					for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
+					if( jCluster != iCluster )
 					{
-						Variance	+= SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
-					}
-
-					V1		= Variance * m_nMembers[iCluster] / (m_nMembers[iCluster] - 1.0);
-					VMin	= -1.0;
-
-					//-----------------------------------------
-					// Bestimme Gruppe iCluster mit evtl. groesster Verbesserung...
-
-					for(jCluster=0; jCluster<m_nClusters; jCluster++)
-					{
-						if( jCluster != iCluster )
+						for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
 						{
-							for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
-							{
-								Variance	+= SG_Get_Square(m_Centroid[jCluster][iFeature] - Feature[iFeature]);
-							}
-
-							V2		= Variance * m_nMembers[jCluster] / (m_nMembers[jCluster] + 1.0);
-
-							if( VMin < 0.0 || V2 < VMin )
-							{
-								VMin		= V2;
-								kCluster	= jCluster;
-							}
-						}
-					}
-
-					//-----------------------------------------
-					// Gruppenwechsel und Neuberechnung der Gruppencentroide...
-
-					if( VMin >= 0 && VMin < V1 )
-					{
-						noShift					= 0;
-						m_Variance[iCluster]	-= V1;
-						m_Variance[kCluster]	+= VMin;
-						V1						= 1.0 / (m_nMembers[iCluster] - 1.0);
-						V2						= 1.0 / (m_nMembers[kCluster] + 1.0);
-
-						for(iFeature=0; iFeature<m_nFeatures; iFeature++)
-						{
-							double	d	= Feature[iFeature];
-
-							m_Centroid[iCluster][iFeature]	= (m_nMembers[iCluster] * m_Centroid[iCluster][iFeature] - d) * V1;
-							m_Centroid[kCluster][iFeature]	= (m_nMembers[kCluster] * m_Centroid[kCluster][iFeature] + d) * V2;
+							Variance	+= SG_Get_Square(m_Centroid[jCluster][iFeature] - Feature[iFeature]);
 						}
 
-						m_Cluster[iElement]	= kCluster;
+						V2		= Variance * m_nMembers[jCluster] / (m_nMembers[jCluster] + 1.0);
 
-						m_nMembers[iCluster]--;
-						m_nMembers[kCluster]++;
+						if( VMin < 0.0 || V2 < VMin )
+						{
+							VMin		= V2;
+							kCluster	= jCluster;
+						}
 					}
+				}
+
+				//-----------------------------------------
+				// Gruppenwechsel und Neuberechnung der Gruppencentroide...
+
+				if( VMin >= 0 && VMin < V1 )
+				{
+					noShift					 = 0;
+					m_Variance[iCluster]	-= V1;
+					m_Variance[kCluster]	+= VMin;
+					V1						 = 1.0 / (m_nMembers[iCluster] - 1.0);
+					V2						 = 1.0 / (m_nMembers[kCluster] + 1.0);
+
+					for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+					{
+						double	d	= Feature[iFeature];
+
+						m_Centroid[iCluster][iFeature]	= (m_nMembers[iCluster] * m_Centroid[iCluster][iFeature] - d) * V1;
+						m_Centroid[kCluster][iFeature]	= (m_nMembers[kCluster] * m_Centroid[kCluster][iFeature] + d) * V2;
+					}
+
+					m_Cluster[iElement]	= kCluster;
+
+					m_nMembers[iCluster]--;
+					m_nMembers[kCluster]++;
 				}
 			}
 		}
@@ -896,11 +878,16 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize)
 		m_SP	/= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			_TL("pass")		, m_Iteration,
-			_TL("change")	, m_Iteration <= 1 ? m_SP : SP_Last - m_SP
+			_TL("pass"  ), m_Iteration,
+			_TL("change"), m_Iteration <= 1 ? m_SP : SP_Last - m_SP
 		));
 
 		SP_Last		= m_SP;
+
+		if( noShift >= Get_nElements() || (nMaxIterations > 0 && nMaxIterations <= m_Iteration) )
+		{
+			break;
+		}
 	}
 
 	return( true );

@@ -554,7 +554,9 @@ public:
 
 	void						Add_Value			(double Value, double Weight = 1.0);
 
-	double						Get_Value			(sLong i)	const	{	return( i >= 0 && i < (sLong)m_Values.Get_Size() ? ((double *)m_Values.Get_Array())[i] : m_Mean );	}
+	double						Get_Value			(sLong i)	const	{	return( i >= 0 && i < (sLong)m_Values.Get_Size() ? Get_Values()[i] : m_Mean );	}
+	double *					Get_Values			(void)		const	{	return( (double *)m_Values.Get_Array() );	}
+
 
 	CSG_Simple_Statistics &		operator  =			(const CSG_Simple_Statistics &Statistics)	{	Create(Statistics);	return( *this );	}
 	CSG_Simple_Statistics &		operator +=			(const CSG_Simple_Statistics &Statistics)	{	Add(Statistics);	return( *this );	}
@@ -686,7 +688,7 @@ public:
 
 	int						Get_Cluster			(int iElement)	const	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Cluster[iElement] : -1 );	}
 
-	bool					Execute				(int Method, int nClusters);
+	bool					Execute				(int Method, int nClusters, int nMaxIterations = 0);
 
 	int						Get_nElements		(void)	const	{	return( (int)m_Features.Get_Size() );	}
 	int						Get_nFeatures		(void)	const	{	return( m_nFeatures );	}
@@ -710,8 +712,8 @@ private:
 	CSG_Array				m_Features;
 
 
-	bool					Minimum_Distance	(bool bInitialize);
-	bool					Hill_Climbing		(bool bInitialize);
+	bool					Minimum_Distance	(bool bInitialize, int nMaxIterations);
+	bool					Hill_Climbing		(bool bInitialize, int nMaxIterations);
 
 };
 
