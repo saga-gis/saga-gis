@@ -10,11 +10,11 @@
             immense capabilities for geodata processing and analysis. 
             Due to the modular organization of the geoprocessing tools, they can 
             be accessed either through the graphical user interface or 
-            via the command line application. 
+            via the command line application.
         </p>
-        <p>      
-            Furthermoe SAGA provides an effective Application Programming Interface
-            which makes it easy to implemetaion new tools and functionality.
+        <p>
+            Furthermore, SAGA provides an effective Application Programming Interface 
+            which makes it easy to implement new tools and functionality.
         </p>
     </description>
     <url type="homepage">http://www.saga-gis.org</url>    
