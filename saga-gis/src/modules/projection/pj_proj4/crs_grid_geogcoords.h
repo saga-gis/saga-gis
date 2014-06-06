@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: crs_grid_geogcoords.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 crs_grid_geogcoords.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,94 +54,42 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "crs_transform.h"
-
+#ifndef HEADER_INCLUDED__crs_grid_geogcoords_H
+#define HEADER_INCLUDED__crs_grid_geogcoords_H
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "crs_base.h"
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCRS_Grid_GeogCoords : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Projection - Proj.4") );
+public:
+	CCRS_Grid_GeogCoords(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2004-14") );
-
-	case MLB_INFO_Description:
-		return( CSG_CRSProjector::Get_Description() );
-
-	case MLB_INFO_Version:
-		return( _TL("2.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Projection") );
-	}
-}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Tools") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "crs_assign.h"
-#include "crs_transform_shapes.h"
-#include "crs_transform_grid.h"
-
-#include "PROJ4_Shapes.h"
-#include "PROJ4_Grid.h"
-
-#include "gcs_lon_range.h"
-
-#include "gcs_graticule.h"
-
-#include "crs_indicatrix.h"
-#include "crs_grid_geogcoords.h"
+	virtual bool			On_Execute			(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CCRS_Assign() );
-	case  1:	return( new CCRS_Transform_Shapes(true ) );
-	case  2:	return( new CCRS_Transform_Shapes(false) );
-	case  3:	return( new CCRS_Transform_Grid  (true ) );
-	case  4:	return( new CCRS_Transform_Grid  (false) );
 
-	case  5:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, false) );
-	case  6:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, false) );
-	case  7:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, false) );
-	case  8:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, false) );
-	case  9:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, true) );
-	case 10:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, true) );
-	case 11:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, true) );
-	case 12:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, true) );
-
-	case 13:	return( new CGCS_Grid_Longitude_Range() );
-
-	case 14:	return( new CGCS_Graticule() );
-
-	case 15:	return( new CCRS_Picker() );
-
-	case 16:	return( new CCRS_Indicatrix() );
-	case 17:	return( new CCRS_Grid_GeogCoords() );
-
-	case 20:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -153,8 +99,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__crs_grid_geogcoords_H
