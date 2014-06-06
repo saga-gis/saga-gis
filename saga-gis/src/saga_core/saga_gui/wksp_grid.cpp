@@ -192,6 +192,7 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_SET_LUT);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_STDDEV);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_PCTL);
 
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Classification"), pSubMenu);
 
@@ -239,6 +240,17 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 			Set_Color_Range(
 				Get_Grid()->Get_ArithMean(true) - d * Get_Grid()->Get_StdDev(true),
 				Get_Grid()->Get_ArithMean(true) + d * Get_Grid()->Get_StdDev(true)
+			);
+		}
+		break;
+
+	case ID_CMD_GRIDS_FIT_PCTL:
+		{
+			double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_PCTL")->asDouble();
+
+			Set_Color_Range(
+				Get_Grid()->Get_Percentile(        d, true),
+				Get_Grid()->Get_Percentile(100.0 - d, true)
 			);
 		}
 		break;
@@ -1025,27 +1037,39 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 //---------------------------------------------------------
 bool CWKSP_Grid::Fit_Color_Range(void)
 {
-	double		zMin, zMax;
-
-	int		Method	= g_pData->Get_Parameter("GRID_COLORS_FIT")->asInt();
-
-	if( Method == 0 )
+	switch( g_pData->Get_Parameter("GRID_COLORS_FIT")->asInt() )
 	{
-		zMin	= Get_Grid()->Get_ZMin(true);
-		zMax	= Get_Grid()->Get_ZMax(true);
+	default:
+		{
+			return( Set_Color_Range(
+				Get_Grid()->Get_ZMin(true),
+				Get_Grid()->Get_ZMax(true))
+			);
+		}
+
+	case  1:
+		{
+			double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_STDDEV")->asDouble();
+
+			double	min	= Get_Grid()->Get_ArithMean(true) - Get_Grid()->Get_StdDev(true) * d;
+			double	max	= Get_Grid()->Get_ArithMean(true) + Get_Grid()->Get_StdDev(true) * d;
+
+			return( Set_Color_Range(
+				min < Get_Grid()->Get_ZMin(true) ? Get_Grid()->Get_ZMin(true) : min,
+				max > Get_Grid()->Get_ZMax(true) ? Get_Grid()->Get_ZMax(true) : max)
+			);
+		}
+
+	case  2:
+		{
+			double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_PCTL")->asDouble();
+
+			return( Set_Color_Range(
+				Get_Grid()->Get_Percentile(        d, true),
+				Get_Grid()->Get_Percentile(100.0 - d, true))
+			);
+		}
 	}
-	else
-	{
-		double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_STDDEV")->asDouble();
-
-		zMin	= Get_Grid()->Get_ArithMean(true) - Get_Grid()->Get_StdDev(true) * d;
-		zMax	= Get_Grid()->Get_ArithMean(true) + Get_Grid()->Get_StdDev(true) * d;
-
-		if( zMin < Get_Grid()->Get_ZMin(true) )	zMin	= Get_Grid()->Get_ZMin(true);
-		if( zMax > Get_Grid()->Get_ZMax(true) )	zMax	= Get_Grid()->Get_ZMax(true);
-	}
-
-	return( Set_Color_Range(zMin, zMax) );
 }
 
 //---------------------------------------------------------
@@ -1056,13 +1080,14 @@ bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
 		return( false );
 	}
 
-	int		xMin	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
-	int		yMin	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
-	int		xMax	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
-	int		yMax	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
+	int	xMin	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
+	int	yMin	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
+	int	xMax	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
+	int	yMax	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
 
-	double	zMin	= 1.0;
-	double	zMax	= 0.0;
+	int	Method	= g_pData->Get_Parameter("GRID_COLORS_FIT")->asInt();
+
+	CSG_Simple_Statistics	s(Method == 2);
 
 	for(int y=yMin; y<=yMax; y++)
 	{
@@ -1070,16 +1095,48 @@ bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
 		{
 			if( Get_Grid()->is_InGrid(x, y) )
 			{
-				double	z	= Get_Grid()->asDouble(x, y);
-
-				if( zMin > zMax )	{	zMin	= zMax	= z;	}
-				else if( z < zMin )	{	zMin	= z;			}
-				else if( z > zMax )	{	zMax	= z;			}
+				s	+= Get_Grid()->asDouble(x, y, true);
 			}
 		}
 	}
 
-	return( Set_Color_Range(zMin, zMax) );
+	if( s.Get_Count() > 0 )
+	{
+		switch( Method )
+		{
+		default:
+			{
+				return( Set_Color_Range(
+					s.Get_Minimum(),
+					s.Get_Maximum())
+				);
+			}
+
+		case  1:
+			{
+				double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_STDDEV")->asDouble();
+
+				return( Set_Color_Range(
+					s.Get_Mean() - s.Get_StdDev() * d,
+					s.Get_Mean() + s.Get_StdDev() * d)
+				);
+			}
+
+		case  2:
+			{
+				CSG_Index	Index(s.Get_Count(), s.Get_Values());
+
+				double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_PCTL")->asDouble() / 100.0;
+
+				return( Set_Color_Range(
+					s.Get_Value(Index[(int)((    d) * s.Get_Count())]),
+					s.Get_Value(Index[(int)((1 - d) * s.Get_Count())]))
+				);
+			}
+		}
+	}
+
+	return( false );
 }
 
 

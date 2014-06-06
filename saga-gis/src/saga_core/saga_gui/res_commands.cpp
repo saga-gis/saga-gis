@@ -188,6 +188,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_GRIDS_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
 	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Fit Colours to Minimum/Maximum") );
 	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Fit Colours to Standard Deviation") );
+	case ID_CMD_GRIDS_FIT_PCTL  :		return( _TL("Fit Colours to Percentile") );
 	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Fit Colours Dialog") );
 	case ID_CMD_GRIDS_SEL_CLEAR:		return( _TL("Clear Selection") );
 	case ID_CMD_GRIDS_SEL_DELETE:		return( _TL("Delete Selection") );
@@ -225,7 +226,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_MOVE_BOTTOM:				return( _TL("Move To Bottom") );
 	case ID_CMD_MAPS_MOVE_UP:					return( _TL("Move Up") );
 	case ID_CMD_MAPS_MOVE_DOWN:					return( _TL("Move Down") );
-	case ID_CMD_MAPS_GRID_FITCOLORS:			return( _TL("Fit Grid Colors To Map Extent") );
+	case ID_CMD_MAPS_GRID_FITCOLORS:			return( _TL("Adjust Histogram Stretch to Map Extent") );
 
 	//-----------------------------------------------------
 	// Views...

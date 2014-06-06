@@ -129,7 +129,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_pMenu_Files	= new CWKSP_Data_Menu_Files;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1;
+	CSG_Parameter	*pNode, *pNode_1, *pNode_2;
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", _TL("General"), _TL(""));
@@ -183,19 +183,26 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Node(pNode, "NODE_GRID_DISPLAY", _TL("Display"), _TL(""));
 
-	m_Parameters.Add_Choice(
-		pNode_1	, "GRID_COLORS_FIT"			, _TL("Fit Colors"),
+	pNode_2	= m_Parameters.Add_Choice(
+		pNode_1	, "GRID_COLORS_FIT"			, _TL("Histogram Stretch"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Minimum/Maximum"),
-			_TL("Standard Deviation")
+			_TL("Standard Deviation"),
+			_TL("Percentile")
 		), 1
 	);
 
 	m_Parameters.Add_Value(
-		pNode_1	, "GRID_COLORS_FIT_STDDEV"	, _TL("Fit to Standard Deviation"),
-		_TL("Multiple of Standard Deviation used as default for colour classifications."),
+		pNode_2	, "GRID_COLORS_FIT_STDDEV"	, _TL("Standard Deviation"),
+		_TL("Multiple of Standard Deviation used as default for histogram stretch."),
 		PARAMETER_TYPE_Double, 2.0, 0.01, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_2	, "GRID_COLORS_FIT_PCTL"	, _TL("Percentile"),
+		_TL("Percentile used as default for histogram stretch."),
+		PARAMETER_TYPE_Double, 2.0, 0.0, true, 50.0, true
 	);
 
 	//-----------------------------------------------------
