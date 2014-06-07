@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 SAGA Development Team -->
 <application>
     <id type="desktop">saga.desktop</id>
     <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-2.0 and LGPL-2.1</project_license>
     <name>SAGA</name>
     <summary>System for Automated Geoscientific Analyses</summary>
     <description>
@@ -17,5 +19,9 @@
             which makes it easy to implement new tools and functionality.
         </p>
     </description>
-    <url type="homepage">http://www.saga-gis.org</url>    
+    <screenshots>
+        <screenshot type="default" width="1280" height="720">http://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/Other/AppData/screenshot_SAGA_GUI.png</screenshot>
+    </screenshots>
+    <url type="homepage">http://www.saga-gis.org</url>
+    <updatecontact>http://sourceforge.net/p/saga-gis/feature-requests/?source=navbar</updatecontact>
 </application>
