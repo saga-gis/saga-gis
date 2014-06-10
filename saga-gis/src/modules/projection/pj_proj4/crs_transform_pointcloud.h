@@ -13,9 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    crs_transform.h                    //
+//               crs_transform_pointcloud.h              //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2014 by                 //
+//                    Volker Wichmann                    //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,12 +41,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata.at                  //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -59,11 +61,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__crs_transform_H
-#define HEADER_INCLUDED__crs_transform_H
+#ifndef HEADER_INCLUDED__crs_transform_pointcloud_H
+#define HEADER_INCLUDED__crs_transform_pointcloud_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "crs_base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,48 +75,22 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CSG_CRSProjector
+class pj_proj4_EXPORT CCRS_Transform_PointCloud : public CCRS_Transform
 {
 public:
-	CSG_CRSProjector(void);
-	virtual ~CSG_CRSProjector(void);
+	CCRS_Transform_PointCloud(bool bList);
 
-	bool					Destroy						(void);
 
-	static CSG_String		Get_Version					(void);
-	static CSG_String		Get_Description				(void);
+protected:
 
-	bool					Set_Source					(const CSG_Projection &Projection);
-	const CSG_Projection &	Get_Source					(void)	const		{	return( m_Source );	}
+	virtual bool			On_Execute_Transformation	(void);
 
-	bool					Set_Target					(const CSG_Projection &Projection);
-	const CSG_Projection &	Get_Target					(void)	const		{	return( m_Target );	}
+	bool					Transform					(CSG_PointCloud *pSource, CSG_PointCloud *pTarget);
 
-	bool					Set_Inverse					(bool bOn = true);
-	bool					Get_Inverse					(void)	const		{	return( m_bInverse );	}
-
-	bool					Set_Precise_Mode			(bool bOn = true);
-	bool					Get_Precise_Mode			(void)	const		{	return( m_pGCS != NULL );	}
-
-	bool					Get_Projection				(double &x, double &y)	const;
-	bool					Get_Projection				(TSG_Point &Point)		const;
-	bool					Get_Projection				(CSG_Point &Point)		const;
-
-	bool					Get_Projection				(double &x, double &y, double &z)	const;
-	bool					Get_Projection				(TSG_Point_Z &Point)				const;
-	bool					Get_Projection				(CSG_Point_Z &Point)				const;
 
 private:
 
-	bool					m_bInverse;
-
-	void					*m_pSource, *m_pTarget, *m_pGCS;
-
-	CSG_Projection			m_Source, m_Target;
-
-
-	bool					_Set_Projection			(const CSG_Projection &Projection, void **ppProjection, bool bInverse);
-
+	bool					m_bList;
 
 };
 
@@ -126,4 +102,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__crs_transform_H
+#endif // #ifndef HEADER_INCLUDED__crs_transform_pointcloud_H

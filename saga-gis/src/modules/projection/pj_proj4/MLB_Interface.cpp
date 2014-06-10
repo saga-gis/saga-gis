@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -108,6 +108,7 @@ CSG_String Get_Info(int i)
 #include "crs_indicatrix.h"
 #include "crs_grid_geogcoords.h"
 
+#include "crs_transform_pointcloud.h"
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -139,6 +140,9 @@ CSG_Module *		Create_Module(int i)
 
 	case 16:	return( new CCRS_Indicatrix() );
 	case 17:	return( new CCRS_Grid_GeogCoords() );
+
+	case 18:	return( new CCRS_Transform_PointCloud(true ) );
+	case 19:	return( new CCRS_Transform_PointCloud(false) );
 
 	case 20:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );

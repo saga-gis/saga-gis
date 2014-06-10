@@ -53,6 +53,9 @@
     <ClCompile Include="crs_grid_geogcoords.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="crs_transform_pointcloud.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="crs_grid_geogcoords.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="crs_transform_pointcloud.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

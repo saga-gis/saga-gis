@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: crs_transform.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -292,6 +292,68 @@ bool CSG_CRSProjector::Get_Projection(CSG_Point &Point)	const
 	return( false );
 }
 
+
+//---------------------------------------------------------
+bool CSG_CRSProjector::Get_Projection(double &x, double &y, double &z)	const
+{
+	if( !m_pSource || !m_pTarget )
+	{
+		return( false );
+	}
+
+	if( pj_is_latlong((PJ *)m_pSource) )
+	{
+		x	*= DEG_TO_RAD;
+		y	*= DEG_TO_RAD;
+	}
+
+	if( m_pGCS )	// precise datum conversion
+	{
+		if( pj_transform((PJ *)m_pSource, (PJ *)m_pGCS   , 1, 0, &x, &y, &z) != 0
+		||  pj_transform((PJ *)m_pGCS   , (PJ *)m_pTarget, 1, 0, &x, &y, &z) != 0 )
+		{
+			return( false );
+		}
+	}
+	else			// direct projection
+	{
+		if( pj_transform((PJ *)m_pSource, (PJ *)m_pTarget, 1, 0, &x, &y, &z) != 0 )
+		{
+			return( false );
+		}
+	}
+
+	if( pj_is_latlong((PJ *)m_pTarget) )
+	{
+		x	*= RAD_TO_DEG;
+		y	*= RAD_TO_DEG;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_CRSProjector::Get_Projection(TSG_Point_Z &Point)	const
+{
+	return( Get_Projection(Point.x, Point.y, Point.z) );
+}
+
+//---------------------------------------------------------
+bool CSG_CRSProjector::Get_Projection(CSG_Point_Z &Point)	const
+{
+	double	x	= Point.Get_X();
+	double	y	= Point.Get_Y();
+	double	z	= Point.Get_Z();
+
+	if( Get_Projection(x, y, z) )
+	{
+		Point.Assign(x, y, z);
+
+		return( true );
+	}
+
+	return( false );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am 1443 2012-07-10 10:29:32Z oconrad $
+# $Id$
 #
 DEP_LIBS = -lproj
 if DEBUG
@@ -21,6 +21,7 @@ crs_grid_geogcoords.cpp\
 crs_indicatrix.cpp\
 crs_transform.cpp\
 crs_transform_grid.cpp\
+crs_transform_pointcloud.cpp\
 crs_transform_shapes.cpp\
 gcs_graticule.cpp\
 gcs_lon_range.cpp\
@@ -34,6 +35,7 @@ crs_grid_geogcoords.h\
 crs_indicatrix.h\
 crs_transform.h\
 crs_transform_grid.h\
+crs_transform_pointcloud.h\
 crs_transform_shapes.h\
 gcs_graticule.h\
 gcs_lon_range.h\
