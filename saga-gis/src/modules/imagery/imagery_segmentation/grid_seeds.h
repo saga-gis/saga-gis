@@ -86,18 +86,23 @@ protected:
 
 private:
 
-	int						m_Method;
+	bool					m_bNormalize;
 
-	CSG_Points_Z			m_Direction;
+	int						m_Method, m_nFeatures;
 
-	CSG_Grid				m_Smooth;
+	CSG_Matrix				m_Norm;
 
-	CSG_Parameter_Grid_List	*m_pGrids;
+	CSG_Grid_Cell_Addressor	m_Cells;
+
+	CSG_Grid				*m_pVariance, **m_pFeatures;
 
 
-	bool					Get_Surface		(CSG_Grid *pFeature, CSG_Grid *pSurface, bool bNormalize);
-	bool					Add_Surface		(CSG_Grid *pSurface, CSG_Grid *pAdd, int Method);
-	bool					Get_Seeds		(CSG_Grid *pSurface, CSG_Shapes *pShapes, CSG_Grid *pGrid, int Method);
+	double					Get_Feature		(int i, int x, int y);
+
+	bool					Get_Resampled	(int x, int y);
+	bool					Get_Radius		(int x, int y);
+
+	bool					Get_Seeds		(void);
 
 };
 

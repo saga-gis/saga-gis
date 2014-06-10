@@ -74,7 +74,7 @@ CGrid_Seeds::CGrid_Seeds(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Seed Generation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		""
@@ -82,79 +82,58 @@ CGrid_Seeds::CGrid_Seeds(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"			, _TL("Features"),
+		NULL	, "FEATURES"		, _TL("Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SURFACE"			, _TL("Surface"),
+		NULL	, "VARIANCE"		, _TL("Variance"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SEEDS_GRID"		, _TL("Seeds Grid"),
+		NULL	, "SEED_GRID"		, _TL("Seeds Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "SEEDS"			, _TL("Seeds"),
+		NULL	, "SEED_POINTS"		, _TL("Seed Points"),
 		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Value(
-		NULL	, "FACTOR"			, _TL("Bandwidth (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 2.0, 1.0, true
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TYPE_SURFACE"	, _TL("Type of Surface"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("smoothed surface"),
-			_TL("variance (a)"),
-			_TL("variance (b)")
-		), 1
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "TYPE_SEEDS"		, _TL("Extraction of..."),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("minima"),
-			_TL("maxima"),
-			_TL("minima and maxima")
-		), 0
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "TYPE_MERGE"		, _TL("Feature Aggregation"),
+		NULL	, "SEED_TYPE"		, _TL("Seed Type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("additive"),
-			_TL("multiplicative")
+			_TL("minima of variance"),
+			_TL("maxima of variance")
+		), 0
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"			, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("band width smoothing"),
+			_TL("band width search")
 		), 0
 	);
 
 	Parameters.Add_Value(
-		NULL	, "NORMALIZE"		, _TL("Normalized"),
+		NULL	, "BAND_WIDTH"		, _TL("Bandwidth (Cells)"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 10.0, 1.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "NORMALIZE"		, _TL("Normalize Features"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
-
-	//-----------------------------------------------------
-	m_Direction.Set_Count(8);
-
-	for(int i=0; i<8; i++)
-	{
-		m_Direction[i].z	= (M_PI_360 * i) / 8.0;
-		m_Direction[i].x	= sin(m_Direction[i].z);
-		m_Direction[i].y	= cos(m_Direction[i].z);
-	}
 }
 
 
@@ -167,62 +146,129 @@ CGrid_Seeds::CGrid_Seeds(void)
 //---------------------------------------------------------
 bool CGrid_Seeds::On_Execute(void)
 {
-	bool		bNormalize;
-	int			Merge;
-	double		Cellsize;
-	CSG_Grid	*pSurface, Surface, *pSeeds_Grid;
-	CSG_Shapes	*pSeeds;
-
 	//-----------------------------------------------------
-	m_pGrids	= Parameters("GRIDS")		->asGridList();
-	pSurface	= Parameters("SURFACE")		->asGrid();
-	pSeeds_Grid	= Parameters("SEEDS_GRID")	->asGrid();
-	pSeeds		= Parameters("SEEDS")		->asShapes();
+	CSG_Parameter_Grid_List	*pFeatures	= Parameters("FEATURES")->asGridList();
 
-	m_Method	= Parameters("TYPE_SURFACE")->asInt();
-	Cellsize	= Parameters("FACTOR")		->asDouble() * Get_Cellsize();
-	Merge		= Parameters("TYPE_MERGE")	->asInt();
-	bNormalize	= Parameters("NORMALIZE")	->asBool();
-
-	//-----------------------------------------------------
-	m_Smooth.Create(SG_DATATYPE_Float,
-		4 + (int)(Get_System()->Get_XRange() / Cellsize),
-		4 + (int)(Get_System()->Get_YRange() / Cellsize),
-		Cellsize,
-		Get_XMin() - Cellsize,
-		Get_YMin() - Cellsize
-	);
-
-	if( !m_Smooth.is_Valid() )
+	if( (m_nFeatures = pFeatures->Get_Count()) <= 0 )
 	{
+		Error_Set(_TL("no features in input list") );
+
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	if( m_pGrids->Get_Count() > 1 )
-	{
-		Surface.Create(*Get_System(), pSurface->Get_Type());
-	}
-
-	for(int i=0; i<m_pGrids->Get_Count(); i++)
-	{
-		m_Smooth.Assign(m_pGrids->asGrid(i), GRID_INTERPOLATION_Mean_Cells);
-
-		if( i == 0 )
-		{
-			Get_Surface(m_pGrids->asGrid(i), pSurface, bNormalize);
-		}
-		else
-		{
-			Get_Surface(m_pGrids->asGrid(i), &Surface, bNormalize);
-
-			Add_Surface(pSurface, &Surface, Merge);
-		}
-	}
-
-	Get_Seeds(pSurface, pSeeds, pSeeds_Grid, Parameters("TYPE_SEEDS")->asInt());
+	m_pFeatures	= (CSG_Grid **)SG_Calloc(m_nFeatures, sizeof(CSG_Grid *));
 
 	//-----------------------------------------------------
+	int	Method	= Parameters("METHOD")->asInt();
+
+	if( Method == 0 )	// resampling
+	{
+		double	Cellsize	= Parameters("BAND_WIDTH")->asDouble() * Get_Cellsize();
+
+		CSG_Grid	Smoothed(SG_DATATYPE_Float,
+			4 + (int)(Get_System()->Get_XRange() / Cellsize),
+			4 + (int)(Get_System()->Get_YRange() / Cellsize),
+			Cellsize,
+			Get_XMin() - Cellsize,
+			Get_YMin() - Cellsize
+		);
+
+		for(int i=0; i<m_nFeatures; i++)
+		{
+			Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("resampling"), pFeatures->asGrid(i)->Get_Name()));
+
+			SG_UI_Progress_Lock(true);
+
+			Smoothed.Assign(pFeatures->asGrid(i), GRID_INTERPOLATION_Mean_Cells);
+
+			m_pFeatures[i]	= new CSG_Grid(*Get_System(), SG_DATATYPE_Float);
+			m_pFeatures[i]	->Assign(&Smoothed, GRID_INTERPOLATION_BSpline);
+			m_pFeatures[i]	->Set_Name(pFeatures->asGrid(i)->Get_Name());
+
+			SG_UI_Progress_Lock(false);
+		}
+	}
+	else	// search radius
+	{
+		m_Cells.Set_Radius(Parameters("BAND_WIDTH")->asInt());
+
+		for(int i=0; i<m_nFeatures; i++)
+		{
+			m_pFeatures[i]	= pFeatures->asGrid(i);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( (m_bNormalize = Parameters("NORMALIZE")->asBool()) == true )
+	{
+		m_Norm.Create(m_nFeatures, 2);
+
+		for(int i=0; i<m_nFeatures; i++)
+		{
+			m_Norm[0][i]	= pFeatures->asGrid(i)->Get_ArithMean();
+			m_Norm[1][i]	= pFeatures->asGrid(i)->Get_StdDev   ();	if( m_Norm[1][i] == 0.0 )	m_Norm[1][i]	= 1.0;
+		}
+	}
+
+	//-----------------------------------------------------
+	int	x, y;
+
+	m_pVariance		= Parameters("VARIANCE")->asGrid();
+	m_pVariance->Set_NoData_Value(-1.0);
+
+	Process_Set_Text(_TL("masking no data"));
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for private(x)
+		for(x=0; x<Get_NX(); x++)
+		{
+			bool	bNoData	= false;
+
+			for(int i=0; !bNoData && i<m_nFeatures; i++)
+			{
+				bNoData	= m_pFeatures[i]->is_NoData(x, y);
+			}
+
+			m_pVariance->Set_Value(x, y, bNoData ? -1.0 : 0.0);
+		}
+	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("calculating variance"));
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for private(x)
+		for(x=0; x<Get_NX(); x++)
+		{
+			if( !m_pVariance->is_NoData(x, y) )
+			{
+				if( Method == 0 )
+				{
+					Get_Resampled(x, y);
+				}
+				else
+				{
+					Get_Radius(x, y);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	Get_Seeds();
+
+	//-----------------------------------------------------
+	for(int i=0; m_Method==0 && i<m_nFeatures; i++)
+	{
+		delete(m_pFeatures[i]);
+	}
+
+	SG_Free(m_pFeatures);
+
+	m_Norm.Destroy();
+
 	return( true );
 }
 
@@ -232,109 +278,81 @@ bool CGrid_Seeds::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Seeds::Get_Surface(CSG_Grid *pFeature, CSG_Grid *pSurface, bool bNormalize)
+inline double CGrid_Seeds::Get_Feature(int i, int x, int y)
 {
-	int			x, y;
-	double		z, Radius;
-	TSG_Point	p;
+	double	z	= m_pFeatures[i]->asDouble(x, y);
 
-	Radius	= m_Method == 2 ? Get_Cellsize() : m_Smooth.Get_Cellsize();
+	if( m_bNormalize )
+	{
+		return( (z - m_Norm[0][i]) / m_Norm[1][i] );
+	}
+
+	return( z );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Seeds::Get_Resampled(int x, int y)
+{
+	int			ix, iy, n, iFeature;
+	CSG_Vector	Centroid(m_nFeatures);
 
 	//-----------------------------------------------------
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(n=0, iy=y-1; iy<=y+1; iy++)
 	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
+		for(ix=x-1; ix<=x+1; ix++)
 		{
-			if( pFeature->is_InGrid(x, y) && m_Smooth.Get_Value(p, z) )
+			if( m_pVariance->is_InGrid(ix, iy) )
 			{
-				switch( m_Method )
+				for(n++, iFeature=0; iFeature<m_nFeatures; iFeature++)
 				{
-				case 0:
+					Centroid[iFeature]	= Get_Feature(iFeature, ix, iy);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( n > 0 )
+	{
+		CSG_Simple_Statistics	s;
+
+		Centroid	*= 1.0 / n;
+
+		for(iy=y-1; iy<=y+1; iy++)
+		{
+			for(ix=x-1; ix<=x+1; ix++)
+			{
+				if( m_pVariance->is_InGrid(ix, iy) )
+				{
+					double	Distance	= 0.0;
+
+					for(iFeature=0, Distance=0.0; iFeature<m_nFeatures; iFeature++)
 					{
-						pSurface->Set_Value(x, y, z);
+						Distance	+= SG_Get_Square(Centroid[iFeature] - Get_Feature(iFeature, ix, iy));
 					}
-					break;
 
-				case 1: case 2:
-					{
-						CSG_Simple_Statistics	s;
-
-						s.Add_Value(z);
-
-						for(int i=0; i<8; i++)
-						{
-							TSG_Point	q;
-
-							q.x	= p.x + Radius * m_Direction[i].x;
-							q.y	= p.y + Radius * m_Direction[i].y;
-
-							if( m_Smooth.Get_Value(q, z) )
-							{
-								s.Add_Value(z);
-							}
-						}
-
-						if( s.Get_Count() > 0 )
-						{
-							pSurface->Set_Value(x, y, s.Get_StdDev());
-						}
-						else
-						{
-							pSurface->Set_NoData(x, y);
-						}
-					}
-					break;
+					s	+= sqrt(Distance);
 				}
 			}
-			else
-			{
-				pSurface->Set_NoData(x, y);
-			}
 		}
-	}
 
-	//-----------------------------------------------------
-	if( bNormalize && pSurface->Get_StdDev() > 0.0 )
-	{
-		pSurface->Multiply(1.0 / pSurface->Get_StdDev());
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGrid_Seeds::Add_Surface(CSG_Grid *pSurface, CSG_Grid *pAdd, int Method)
-{
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(int x=0; x<Get_NX(); x++)
+		//-------------------------------------------------
+		if( s.Get_Count() > 0 )
 		{
-			if( !pSurface->is_NoData(x, y) )
-			{
-				if( pAdd->is_NoData(x, y) )
-				{
-					pSurface->Set_NoData(x, y);
-				}
-				else switch( Method )
-				{
-				case 0:
-					pSurface->Add_Value(x, y, pAdd->asDouble(x, y));
-					break;
+			m_pVariance->Set_Value(x, y, s.Get_Variance());
 
-				case 1:
-					pSurface->Mul_Value(x, y, pAdd->asDouble(x, y));
-					break;
-				}
-			}
+			return( true );
 		}
 	}
 
-	return( true );
+	m_pVariance->Set_NoData(x, y);
+
+	return( false );
 }
 
 
@@ -343,79 +361,142 @@ bool CGrid_Seeds::Add_Surface(CSG_Grid *pSurface, CSG_Grid *pAdd, int Method)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Seeds::Get_Seeds(CSG_Grid *pSurface, CSG_Shapes *pSeeds, CSG_Grid *pGrid, int Method)
+bool CGrid_Seeds::Get_Radius(int x, int y)
 {
-	bool		bMinimum, bMaximum;
-	int			x, y, i, ix, iy, id;
-	double		z;
-	TSG_Point	p;
+	int			iFeature, iCell, ix, iy;
+	double		iDistance, iWeight, Weights, Distance;
+	CSG_Vector	Centroid(m_nFeatures);
 
 	//-----------------------------------------------------
-	pSeeds->Create(SHAPE_TYPE_Point, _TL("Seeds"));
-	pSeeds->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-	pSeeds->Add_Field(SG_T("X") , SG_DATATYPE_Int);
-	pSeeds->Add_Field(SG_T("Y") , SG_DATATYPE_Int);
-	pSeeds->Add_Field(SG_T("S") , SG_DATATYPE_Double);
-
-	for(i=0; i<m_pGrids->Get_Count(); i++)
+	for(iCell=0, Weights=0.0; iCell<m_Cells.Get_Count(); iCell++)
 	{
-		pSeeds->Add_Field(m_pGrids->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+		if( m_Cells.Get_Values(iCell, ix = x, iy = y, iDistance, iWeight, true) && m_pVariance->is_InGrid(ix, iy) )
+		{
+			for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+			{
+				Centroid[iFeature]	+= iWeight * Get_Feature(iFeature, ix, iy);
+			}
+
+			Weights			+= iWeight;
+		}
 	}
 
-	if( pGrid )
+	//-----------------------------------------------------
+	if( Weights > 0.0 )
+	{
+		CSG_Simple_Statistics	s;
+
+		Centroid	*= 1.0 / Weights;
+
+		for(iCell=0; iCell<m_Cells.Get_Count(); iCell++)
+		{
+			if( m_Cells.Get_Values(iCell, ix = x, iy = y, iDistance, iWeight, true) && m_pVariance->is_InGrid(ix, iy) )
+			{
+				for(iFeature=0, Distance=0.0; iFeature<m_nFeatures; iFeature++)
+				{
+					Distance	+= SG_Get_Square(Centroid[iFeature] - Get_Feature(iFeature, ix, iy));
+				}
+
+				s.Add_Value(sqrt(Distance), iWeight);
+			}
+		}
+
+		m_pVariance->Set_Value(x, y, s.Get_Variance());
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	m_pVariance->Set_NoData(x, y);
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Seeds::Get_Seeds(void)
+{
+	int	Type	= Parameters("SEED_TYPE")->asInt();
+
+	//-----------------------------------------------------
+	CSG_Shapes	*pPoints	= Parameters("SEED_POINTS")->asShapes();
+
+	if( pPoints )
+	{
+		pPoints->Create(SHAPE_TYPE_Point, _TL("Seeds"));
+
+		pPoints->Add_Field(SG_T("ID" ), SG_DATATYPE_Int);
+		pPoints->Add_Field(SG_T("X"  ), SG_DATATYPE_Int);
+		pPoints->Add_Field(SG_T("Y"  ), SG_DATATYPE_Int);
+		pPoints->Add_Field(SG_T("VAR"), SG_DATATYPE_Double);
+
+		for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
+		{
+			pPoints->Add_Field(m_pFeatures[iFeature]->Get_Name(), SG_DATATYPE_Double);
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= Parameters("SEED_GRID")->asGrid();
+
+	if( (pGrid = Parameters("SEED_GRID")->asGrid()) != NULL )
 	{
 		pGrid->Assign_NoData();
 	}
 
 	//-----------------------------------------------------
-	for(id=0, y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int n=0, y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !pSurface->is_NoData(x, y) )
+			if( !m_pVariance->is_NoData(x, y) )
 			{
-				for(i=0, z=pSurface->asDouble(x, y), bMinimum=true, bMaximum=true; (bMinimum || bMaximum) && i<8; i++)
-				{
-					ix	= Get_xTo(i, x);
-					iy	= Get_yTo(i, y);
+				bool	bExtreme	= true;
 
-					if( !pSurface->is_InGrid(ix, iy) )
+				double	z	= m_pVariance->asDouble(x, y);
+
+				for(int i=0; bExtreme && i<8; i++)
+				{
+					int	ix	= Get_xTo(i, x);
+					int	iy	= Get_yTo(i, y);
+
+					if( !m_pVariance->is_InGrid(ix, iy)
+					||  (Type == 0 && z > m_pVariance->asDouble(ix, iy))   // minimum
+					||  (Type == 1 && z < m_pVariance->asDouble(ix, iy)) ) // maximum
 					{
-						bMinimum	= bMaximum	= false;
-					}
-					else if( z > pSurface->asDouble(ix, iy) )
-					{
-						bMinimum	= false;
-					}
-					else if( z < pSurface->asDouble(ix, iy) )
-					{
-						bMaximum	= false;
+						bExtreme	= false;
 					}
 				}
 
 				//-----------------------------------------
-				if( (Method == 0 && bMinimum)
-				||	(Method == 1 && bMaximum)
-				||	(Method == 2 && (bMinimum || bMaximum)) )
+				if( bExtreme )
 				{
-					CSG_Shape	*pSeed	= pSeeds->Add_Shape();
+					n++;
 
-					id++;
-
-					pSeed->Add_Point(p);
-					pSeed->Set_Value(0, id);
-					pSeed->Set_Value(1, x);
-					pSeed->Set_Value(2, y);
-					pSeed->Set_Value(3, z);
-
-					for(i=0; i<m_pGrids->Get_Count(); i++)
+					if( pPoints )
 					{
-						pSeed->Set_Value(3 + i, m_pGrids->asGrid(i)->asDouble(x, y));
+						CSG_Shape	*pPoint	= pPoints->Add_Shape();
+
+						pPoint->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+
+						pPoint->Set_Value(0, n);
+						pPoint->Set_Value(1, x);
+						pPoint->Set_Value(2, y);
+						pPoint->Set_Value(3, z);
+
+						for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
+						{
+							pPoint->Set_Value(3 + iFeature, m_pFeatures[iFeature]->asDouble(x, y));
+						}
 					}
 
 					if( pGrid )
 					{
-						pGrid->Set_Value(x, y, id);
+						pGrid->Set_Value(x, y, n);
 					}
 				}
 			}
