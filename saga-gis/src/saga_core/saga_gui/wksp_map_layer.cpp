@@ -67,7 +67,9 @@
 
 #include "res_commands.h"
 
+#include "wksp_data_manager.h"
 #include "wksp_layer.h"
+#include "wksp_layer_classify.h"
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
 
@@ -200,7 +202,25 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 
 	case ID_CMD_MAPS_GRID_FITCOLORS:
 		if( m_pLayer->Get_Type() == WKSP_ITEM_Grid )
-			((CWKSP_Grid *)m_pLayer)->Fit_Color_Range(((CWKSP_Map *)Get_Manager())->Get_Extent());
+		{
+			CSG_Rect	rWorld	= ((CWKSP_Map *)Get_Manager())->Get_Extent();
+			CWKSP_Grid	*pGrid	= (CWKSP_Grid *)m_pLayer;
+
+			pGrid->Fit_Color_Range(rWorld);
+
+			if( m_pLayer->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
+			{
+				if( (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_1")->asGrid())) != NULL )
+				{
+					pGrid->Fit_Color_Range(rWorld);
+				}
+
+				if( (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_2")->asGrid())) != NULL )
+				{
+					pGrid->Fit_Color_Range(rWorld);
+				}
+			}
+		}
 		break;
 	}
 

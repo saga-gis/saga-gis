@@ -186,10 +186,10 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( _TL("Save As Image...") );
 	case ID_CMD_GRIDS_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
-	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Fit Colours to Minimum/Maximum") );
-	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Fit Colours to Standard Deviation") );
-	case ID_CMD_GRIDS_FIT_PCTL  :		return( _TL("Fit Colours to Percentile") );
-	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Fit Colours Dialog") );
+	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Histogram Stretch to Minimum/Maximum") );
+	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Histogram Stretch to Standard Deviation") );
+	case ID_CMD_GRIDS_FIT_PCTL  :		return( _TL("Histogram Stretch to Percentile") );
+	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Histogram Stretch Dialog") );
 	case ID_CMD_GRIDS_SEL_CLEAR:		return( _TL("Clear Selection") );
 	case ID_CMD_GRIDS_SEL_DELETE:		return( _TL("Delete Selection") );
 

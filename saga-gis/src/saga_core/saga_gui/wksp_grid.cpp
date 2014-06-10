@@ -184,17 +184,18 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRIDS_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SCATTERPLOT);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SET_LUT);
 
 	//-----------------------------------------------------
-	wxMenu	*pSubMenu	= new wxMenu(_TL("Classification"));
+	wxMenu	*pSubMenu	= new wxMenu(_TL("Histogram Stretch"));
 
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_SET_LUT);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_MINMAX);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_STDDEV);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRIDS_FIT_PCTL);
 
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Classification"), pSubMenu);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Histogram Stretch"), pSubMenu);
 
 	return( pMenu );
 }
