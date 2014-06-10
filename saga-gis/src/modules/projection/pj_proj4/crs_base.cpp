@@ -230,7 +230,10 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	//-----------------------------------------------------
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG") )
 	{
-		Projection.Create(pParameter->asInt());
+		if (!Projection.Create(pParameter->asInt()))
+		{
+			SG_UI_Dlg_Message(_TL("Unkown EPSG Code"), _TL("WARNING"));
+		}
 	}
 
 	//-----------------------------------------------------
