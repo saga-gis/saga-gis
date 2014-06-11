@@ -1182,7 +1182,7 @@ double CSG_Grid::Get_Percentile(double Percent, bool bZFactor)
 		Percent	= 100.0;
 	}
 
-	if( Get_Sorted((int)(Percent * Get_NCells() / 100.0), x, y, true) )
+	if( Get_Sorted((int)(Percent * Get_NCells() / 100.0), x, y, false) )
 	{
 		return( asDouble(x, y, bZFactor) );
 	}
