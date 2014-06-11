@@ -134,12 +134,30 @@ CGrid_Seeds::CGrid_Seeds(void)
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	m_Cells.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
+	m_Cells.Get_Weighting().Set_BandWidth(5.0);
+	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Seeds::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("DISTANCE_WEIGHTING", pParameter->asInt() == 1);
+	}
+
+	return( m_Cells.Get_Weighting().Enable_Parameters(pParameters) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -190,6 +208,7 @@ bool CGrid_Seeds::On_Execute(void)
 	}
 	else	// search radius
 	{
+		m_Cells.Get_Weighting().Set_Parameters(&Parameters);
 		m_Cells.Set_Radius(Parameters("BAND_WIDTH")->asInt());
 
 		for(int i=0; i<m_nFeatures; i++)

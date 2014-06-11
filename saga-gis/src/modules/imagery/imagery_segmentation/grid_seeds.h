@@ -81,7 +81,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
@@ -97,12 +99,12 @@ private:
 	CSG_Grid				*m_pVariance, **m_pFeatures;
 
 
-	double					Get_Feature		(int i, int x, int y);
+	double					Get_Feature				(int i, int x, int y);
 
-	bool					Get_Resampled	(int x, int y);
-	bool					Get_Radius		(int x, int y);
+	bool					Get_Resampled			(int x, int y);
+	bool					Get_Radius				(int x, int y);
 
-	bool					Get_Seeds		(void);
+	bool					Get_Seeds				(void);
 
 };
 
