@@ -65,26 +65,69 @@
 #define HEADER_INCLUDED__Grid_RGB_Composite_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CGrid_RGB_Composite : public CSG_Module_Grid  
 {
 public:
 	CGrid_RGB_Composite(void);
-	virtual ~CGrid_RGB_Composite(void);
 
 
 protected:
 
-	virtual bool		On_Execute(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	CSG_Grid *				_Get_Grid	(CSG_Grid *pGrid, int Method, CSG_Parameter_Range *pRange, CSG_Parameter_Range *pPerctl, double Percent, double &Min, double &Range);
+	CSG_Grid *			_Get_Grid	(CSG_Grid *pGrid, int Method, CSG_Parameter_Range *pRange, CSG_Parameter_Range *pPerctl, double StdDev, double &Min, double &Range);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_RGB_Split : public CSG_Module_Grid  
+{
+public:
+	CGrid_RGB_Split(void);
+
+
+protected:
+
+	virtual bool		On_Execute	(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_RGB_Composite_H

@@ -111,15 +111,16 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CGrid_Color_Rotate );
-	case 1:		return( new CGrid_Color_Blend );
-	case 2:		return( new CGrid_Colors_Fit );
-	case 3:		return( new CGrid_RGB_Composite );
-	case 4:		return( new CGrid_3D_Image );
-	case 5:		return( new CGrid_Color_Triangle );
-	case 6:		return( new CGrid_Histogram_Surface );
-	case 7:		return( new CGrid_Aspect_Slope_Map );
-	case 8:		return( new CGrid_Terrain_Map );
+	case  0:	return( new CGrid_Color_Rotate );
+	case  1:	return( new CGrid_Color_Blend );
+	case  2:	return( new CGrid_Colors_Fit );
+	case  3:	return( new CGrid_RGB_Composite );
+	case  4:	return( new CGrid_3D_Image );
+	case  5:	return( new CGrid_Color_Triangle );
+	case  6:	return( new CGrid_Histogram_Surface );
+	case  7:	return( new CGrid_Aspect_Slope_Map );
+	case  8:	return( new CGrid_Terrain_Map );
+	case  9:	return( new CGrid_RGB_Split );
 	}
 
 	return( NULL );
