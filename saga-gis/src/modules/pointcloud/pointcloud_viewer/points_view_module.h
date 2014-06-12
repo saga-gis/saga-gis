@@ -79,6 +79,8 @@ class CPoints_View_Module : public CSG_Module
 public:
 	CPoints_View_Module(void);
 
+	virtual bool			needs_GUI		(void)	{	return( true );	}
+
 
 protected:
 

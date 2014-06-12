@@ -148,6 +148,9 @@ public:
 	// destructor
 	~Cihacres_basin(void);
 
+	virtual bool			needs_GUI		(void)	{	return( true );	}
+
+
 protected:
 
 	///////////////////////////////////////////////////////////////////

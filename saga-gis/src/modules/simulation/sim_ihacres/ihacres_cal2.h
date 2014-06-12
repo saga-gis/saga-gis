@@ -64,6 +64,9 @@ public:
 	// destructor
 	virtual ~Cihacres_cal2(void);
 
+	virtual bool			needs_GUI		(void)	{	return( true );	}
+
+
 protected:
 
 	///////////////////////////////////////////////////////////////////

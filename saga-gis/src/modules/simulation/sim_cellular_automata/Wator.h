@@ -87,6 +87,8 @@ class CWator : public CSG_Module
 public:
 	CWator(void);
 
+	virtual bool			needs_GUI		(void)	{	return( true );	}
+
 
 protected:
 

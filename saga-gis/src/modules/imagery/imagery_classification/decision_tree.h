@@ -85,6 +85,8 @@ class CDecision_Tree : public CSG_Module_Grid
 public:
 	CDecision_Tree(void);
 
+	virtual bool			needs_GUI		(void)	{	return( true );	}
+
 
 protected:
 

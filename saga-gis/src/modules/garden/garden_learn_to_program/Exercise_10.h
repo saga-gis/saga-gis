@@ -81,6 +81,8 @@ public:
 	CExercise_10(void);
 	virtual ~CExercise_10(void);
 
+	virtual bool			needs_GUI		(void)	{	return( true );	}
+
 
 protected:
 

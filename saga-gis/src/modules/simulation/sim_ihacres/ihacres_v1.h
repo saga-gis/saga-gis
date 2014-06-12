@@ -68,6 +68,9 @@ public:
 	// destructor
 	virtual ~Cihacres_v1(void);
 
+	virtual bool			needs_GUI		(void)	{	return( true );	}
+
+
 protected:
 
 	// execute module
