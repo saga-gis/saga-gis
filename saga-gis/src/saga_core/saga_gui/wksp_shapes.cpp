@@ -1059,8 +1059,8 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 
 		if( m_bVertices )
 		{
-			dc_Map.dc.SetPen  (*wxBLACK_PEN  );
-			dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
+			wxPen	oldPen  (dc_Map.dc.GetPen  ());	dc_Map.dc.SetPen  (*wxBLACK_PEN  );
+			wxBrush	oldBrush(dc_Map.dc.GetBrush());	dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
@@ -1071,6 +1071,9 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 					dc_Map.dc.DrawCircle(A.x, A.y, 2);
 				}
 			}
+
+			dc_Map.dc.SetPen  (oldPen  );
+			dc_Map.dc.SetBrush(oldBrush);
 		}
 	}
 }
