@@ -119,6 +119,12 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 			_TL("each island as separated polygon")
 		), 0
 	);
+
+	Parameters.Add_Value(
+		NULL	, "ALLVERTICES"	, _TL("Keep Vertices on Straight Lines"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -256,6 +262,8 @@ bool CGrid_Classes_To_Shapes::Get_Edges(void)
 	m_Edges.Set_NoData_Value(-2);
 	m_Edges.Assign_NoData();
 
+	m_bAllVertices	= Parameters("ALLVERTICES")->asBool();
+
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Process_Get_Okay(); y++)
 	{
@@ -368,7 +376,10 @@ bool CGrid_Classes_To_Shapes::Get_Edge(int x, int y, int i, int Class)
 
 			if( m_Edges.is_InGrid(ix, iy) && m_Edges.asInt(ix, iy) == -1 )	// go ahead ?
 			{
-				// nop
+				if( m_bAllVertices )
+				{
+					pPolygon->Add_Point(m_Edges.Get_System().Get_Grid_to_World(x, y), iPart);
+				}
 			}
 			else
 			{

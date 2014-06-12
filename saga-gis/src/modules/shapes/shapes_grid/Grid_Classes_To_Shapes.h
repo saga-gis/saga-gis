@@ -90,6 +90,8 @@ protected:
 
 private:
 
+	bool					m_bAllVertices;
+
 	CSG_Grid				m_Classes, m_Edges;
 
 	CSG_Shapes				*m_pPolygons;
