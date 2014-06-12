@@ -86,7 +86,8 @@ class CGrid_Colors_Fit : public CSG_Module_Grid
 {
 public:
 	CGrid_Colors_Fit(void);
-	virtual ~CGrid_Colors_Fit(void);
+
+	virtual bool			needs_GUI		(void)	{	return( true );	}
 
 
 protected:

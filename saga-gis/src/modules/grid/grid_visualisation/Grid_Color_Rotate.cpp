@@ -87,10 +87,6 @@ CGrid_Color_Rotate::CGrid_Color_Rotate(void)
 
 }
 
-//---------------------------------------------------------
-CGrid_Color_Rotate::~CGrid_Color_Rotate(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //

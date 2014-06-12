@@ -87,6 +87,8 @@ class CGrid_Color_Blend : public CSG_Module_Grid
 public:
 	CGrid_Color_Blend(void);
 
+	virtual bool			needs_GUI				(void)	{	return( true );	}
+
 
 protected:
 

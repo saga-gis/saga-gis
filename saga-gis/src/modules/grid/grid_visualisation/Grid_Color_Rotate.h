@@ -73,7 +73,8 @@ class CGrid_Color_Rotate : public CSG_Module_Grid
 {
 public:
 	CGrid_Color_Rotate(void);
-	virtual ~CGrid_Color_Rotate(void);
+
+	virtual bool			needs_GUI		(void)	{	return( true );	}
 
 
 protected:
