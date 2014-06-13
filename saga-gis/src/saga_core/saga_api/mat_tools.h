@@ -814,6 +814,97 @@ private:
 
 
 ///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum ESG_mRMR_Method
+{
+	SG_mRMR_Method_MID	= 0,	// Mutual Information Difference (MID)
+	SG_mRMR_Method_MIQ			// Mutual Information Quotient (MIQ)
+};
+
+//---------------------------------------------------------
+enum
+{
+	SG_mRMR_SELFLD_RANK	= 0,
+	SG_mRMR_SELFLD_INDEX,
+	SG_mRMR_SELFLD_NAME,
+	SG_mRMR_SELFLD_SCORE
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_mRMR
+{
+public: ////// public members and functions: //////////////
+
+	CSG_mRMR(void);
+	virtual ~CSG_mRMR(void);
+
+	void						Destroy				(void);
+
+	static CSG_String			Get_Description		(void);
+
+	static bool					Parameters_Add		(class CSG_Parameters *pParameters, class CSG_Parameter *pNode = NULL);
+	static int					Parameters_Enable	(class CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
+
+	void						Set_Verbose			(bool bOn = true)	{	m_bVerbose	= bOn;	}
+
+	bool						Set_Data			(CSG_Table &Table, int ClassField, class CSG_Parameters *pParameters);
+	bool						Set_Data			(CSG_Table &Table, int ClassField = 0, double Threshold = -1.0);
+
+	bool						Get_Selection		(class CSG_Parameters *pParameters);
+	bool						Get_Selection		(int nFeatures, int Method);
+
+	int							Get_Count			(void)	const;
+	int							Get_Index			(int i)	const;
+	CSG_String					Get_Name			(int i)	const;
+	double						Get_Score			(int i)	const;
+
+
+private: ///// private members and functions: /////////////
+
+	bool						m_bDiscretized, m_bVerbose;
+
+	long						m_nSamples, m_nVars;
+
+	double						**m_Samples;
+
+	CSG_Strings					m_VarNames;
+
+	class CSG_Table				*m_pSelection;
+
+
+	bool						Discretize			(double Threshold);
+
+	double						Get_MutualInfo		(long v1, long v2);
+	double						Get_MutualInfo		(double *pab, long pabhei, long pabwid);
+
+	template <class T> double *	Get_JointProb		(T *img1, T *img2, long len, long maxstatenum, int &nstate1, int &nstate2);
+	template <class T> void		Copy_Vector			(T *srcdata, long len, int *desdata, int &nstate);
+
+
+	typedef struct SPool
+	{
+		char	Mask;
+		long	Index;
+		double	mival;
+	}
+	TPool;
+
+	static int					Pool_Compare		(const void *a, const void *b);
+
+};
+
+
+///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //

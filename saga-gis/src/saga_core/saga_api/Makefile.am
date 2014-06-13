@@ -64,6 +64,7 @@ mat_indexing.cpp\
 mat_matrix.cpp\
 mat_regression.cpp\
 mat_regression_multiple.cpp\
+mat_mRMR.cpp\
 mat_spline.cpp\
 mat_tools.cpp\
 mat_trend.cpp\
