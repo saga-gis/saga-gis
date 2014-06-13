@@ -84,38 +84,58 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_Table_Value_Type
+{
+	SG_TABLE_VALUE_TYPE_Binary,
+	SG_TABLE_VALUE_TYPE_String,
+	SG_TABLE_VALUE_TYPE_Date,
+	SG_TABLE_VALUE_TYPE_Int,
+	SG_TABLE_VALUE_TYPE_Double
+}
+TSG_Table_Value_Type;
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CSG_Table_Value
 {
 public:
 	CSG_Table_Value(void)			{}
 	virtual ~CSG_Table_Value(void)	{}
 
-	//-----------------------------------------------------
-	virtual bool				Set_Value		(const CSG_Bytes &Value)	= 0;
-	virtual bool				Set_Value		(const SG_Char   *Value)	= 0;
-	virtual bool				Set_Value		(int              Value)	= 0;
-	virtual bool				Set_Value		(double           Value)	= 0;
+	virtual TSG_Table_Value_Type	Get_Type		(void)				const	= 0;
 
 	//-----------------------------------------------------
-	virtual CSG_Bytes			asBinary		(void)				const
+	virtual bool					Set_Value		(const CSG_Bytes &Value)	= 0;
+	virtual bool					Set_Value		(const SG_Char   *Value)	= 0;
+	virtual bool					Set_Value		(int              Value)	= 0;
+	virtual bool					Set_Value		(double           Value)	= 0;
+
+	//-----------------------------------------------------
+	virtual CSG_Bytes				asBinary		(void)				const
 	{
 		const SG_Char *s	= asString();
 
 		return( CSG_Bytes((BYTE *)s, (int)(s && *s ? SG_STR_LEN(s) : 0) * sizeof(SG_Char)) );
 	}
 
-	virtual const SG_Char *		asString		(int Decimals = -1)	const	= 0;
-	virtual int					asInt			(void)				const	= 0;
-	virtual double				asDouble		(void)				const	= 0;
+	virtual const SG_Char *			asString		(int Decimals = -1)	const	= 0;
+	virtual int						asInt			(void)				const	= 0;
+	virtual double					asDouble		(void)				const	= 0;
 
 	//-----------------------------------------------------
-	operator const SG_Char *					(void)				const	{	return( asString() );	}
-	operator double								(void)				const	{	return( asDouble() );	}
+	operator const SG_Char *						(void)				const	{	return( asString() );	}
+	operator double									(void)				const	{	return( asDouble() );	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &	operator = (const SG_Char         *Value)	{	Set_Value(Value);	return( *this );	}
-	virtual CSG_Table_Value &	operator = (double                 Value)	{	Set_Value(Value);	return( *this );	}
-	virtual CSG_Table_Value &	operator = (const CSG_Table_Value &Value)	= 0;
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value);	return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value);	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	= 0;
 
 };
 
@@ -133,46 +153,48 @@ public:
 	CSG_Table_Value_Binary(void) {}
 	virtual ~CSG_Table_Value_Binary(void) {}
 
+	virtual TSG_Table_Value_Type	Get_Type		(void)				const	{	return( SG_TABLE_VALUE_TYPE_Binary );	}
+
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const CSG_Bytes &Value)
+	virtual bool					Set_Value		(const CSG_Bytes &Value)
 	{
 		return( m_Value.Create(Value) );
 	}
 
-	virtual bool				Set_Value		(const SG_Char   *Value)
+	virtual bool					Set_Value		(const SG_Char   *Value)
 	{
 		return( m_Value.Create((BYTE *)Value, (int)((Value && *Value ? SG_STR_LEN(Value) : 0 * sizeof(SG_Char)))) );
 	}
 
-	virtual bool				Set_Value		(int              Value)
+	virtual bool					Set_Value		(int              Value)
 	{
 		return( m_Value.Create((BYTE *)&Value, sizeof(Value)) );
 	}
 
-	virtual bool				Set_Value		(double           Value)
+	virtual bool					Set_Value		(double           Value)
 	{
 		return( m_Value.Create((BYTE *)&Value, sizeof(Value)) );
 	}
 
 	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)						{	return( m_Value.Destroy() );		}
-	virtual bool				is_NoData		(void)				const	{	return( m_Value.Get_Count() <= 0 );	}
+	virtual bool					Set_NoData		(void)						{	return( m_Value.Destroy() );		}
+	virtual bool					is_NoData		(void)				const	{	return( m_Value.Get_Count() <= 0 );	}
 
 	//-----------------------------------------------------
-	virtual CSG_Bytes			asBinary		(void)				const	{	return( m_Value );					}
-	virtual const SG_Char *		asString		(int Decimals = -1)	const	{	return( (const SG_Char *)m_Value.Get_Bytes() );	}
-	virtual int					asInt			(void)				const	{	return( m_Value.Get_Count() );		}
-	virtual double				asDouble		(void)				const	{	return( 0.0 );	}
+	virtual CSG_Bytes				asBinary		(void)				const	{	return( m_Value );					}
+	virtual const SG_Char *			asString		(int Decimals = -1)	const	{	return( (const SG_Char *)m_Value.Get_Bytes() );	}
+	virtual int						asInt			(void)				const	{	return( m_Value.Get_Count() );		}
+	virtual double					asDouble		(void)				const	{	return( 0.0 );	}
 
-	virtual CSG_Table_Value &	operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asBinary());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asBinary());	return( *this );	}
 
 	//-----------------------------------------------------
-	CSG_Bytes &					Get_Binary		(void)						{	return( m_Value );	}
+	CSG_Bytes &						Get_Binary		(void)						{	return( m_Value );	}
 
 
 private:
 
-	CSG_Bytes					m_Value;
+	CSG_Bytes						m_Value;
 
 };
 
@@ -190,13 +212,15 @@ public:
 	CSG_Table_Value_String(void) {}
 	virtual ~CSG_Table_Value_String(void) {}
 
+	virtual TSG_Table_Value_Type	Get_Type		(void)				const	{	return( SG_TABLE_VALUE_TYPE_String );	}
+
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const CSG_Bytes &Value)
+	virtual bool					Set_Value		(const CSG_Bytes &Value)
 	{
 		return( Set_Value((SG_Char *)Value.Get_Bytes()) );
 	}
 
-	virtual bool				Set_Value		(const SG_Char   *Value)
+	virtual bool					Set_Value		(const SG_Char   *Value)
 	{
 		if( Value && m_Value.Cmp(Value) )
 		{
@@ -208,28 +232,28 @@ public:
 		return( false );
 	}
 
-	virtual bool				Set_Value		(int              Value)
+	virtual bool					Set_Value		(int              Value)
 	{
 		return( Set_Value(CSG_String::Format(SG_T("%d"), Value).c_str()) );
 	}
 
-	virtual bool				Set_Value		(double           Value)
+	virtual bool					Set_Value		(double           Value)
 	{
 		return( Set_Value(CSG_String::Format(SG_T("%f"), Value).c_str()) );
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals = -1)	const	{	return( m_Value );							}
-	virtual int					asInt			(void)				const	{	return( m_Value.asInt() );					}
-	virtual double				asDouble		(void)				const	{	return( m_Value.asDouble() );				}
+	virtual const SG_Char *			asString		(int Decimals = -1)	const	{	return( m_Value );							}
+	virtual int						asInt			(void)				const	{	return( m_Value.asInt() );					}
+	virtual double					asDouble		(void)				const	{	return( m_Value.asDouble() );				}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &	operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
 
 
 private:
 
-	CSG_String					m_Value;
+	CSG_String						m_Value;
 
 };
 
@@ -247,18 +271,20 @@ public:
 	CSG_Table_Value_Date(void) {	Set_Value(SG_T("0"));	}
 	virtual ~CSG_Table_Value_Date(void) {}
 
+	virtual TSG_Table_Value_Type	Get_Type		(void)				const	{	return( SG_TABLE_VALUE_TYPE_Date );	}
+
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const CSG_Bytes &Value)
+	virtual bool					Set_Value		(const CSG_Bytes &Value)
 	{
 		return( Set_Value((SG_Char *)Value.Get_Bytes()) );
 	}
 
-	virtual bool				Set_Value		(const SG_Char   *Value)
+	virtual bool					Set_Value		(const SG_Char   *Value)
 	{
 		return( Set_Value(SG_Date_To_Number(Value)) );
 	}
 
-	virtual bool				Set_Value		(int              Value)
+	virtual bool					Set_Value		(int              Value)
 	{
 		if( m_Value != Value )
 		{
@@ -271,24 +297,24 @@ public:
 		return( false );
 	}
 
-	virtual bool				Set_Value		(double           Value)
+	virtual bool					Set_Value		(double           Value)
 	{
 		return( Set_Value((int)Value) );
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals = -1)	const	{	return( m_Date );	}
-	virtual int					asInt			(void)				const	{	return( m_Value );	}
-	virtual double				asDouble		(void)				const	{	return( m_Value );	}
+	virtual const SG_Char *			asString		(int Decimals = -1)	const	{	return( m_Date );	}
+	virtual int						asInt			(void)				const	{	return( m_Value );	}
+	virtual double					asDouble		(void)				const	{	return( m_Value );	}
 
-	virtual CSG_Table_Value &	operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
 
 
 private:
 
-	int							m_Value;
+	int								m_Value;
 
-	CSG_String					m_Date;
+	CSG_String						m_Date;
 
 };
 
@@ -306,13 +332,15 @@ public:
 	CSG_Table_Value_Int(void)	{	m_Value	= 0;	}
 	virtual ~CSG_Table_Value_Int(void) {}
 
+	virtual TSG_Table_Value_Type	Get_Type		(void)				const	{	return( SG_TABLE_VALUE_TYPE_Int );	}
+
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const CSG_Bytes &Value)
+	virtual bool					Set_Value		(const CSG_Bytes &Value)
 	{
 		return( Set_Value((SG_Char *)Value.Get_Bytes()) );
 	}
 
-	virtual bool				Set_Value		(const SG_Char   *Value)
+	virtual bool					Set_Value		(const SG_Char   *Value)
 	{
 		int			i;
 		CSG_String	s(Value);
@@ -320,7 +348,7 @@ public:
 		return( s.asInt(i) ? Set_Value(i) : false );
 	}
 
-	virtual bool				Set_Value		(int              Value)
+	virtual bool					Set_Value		(int              Value)
 	{
 		if( m_Value != Value )
 		{
@@ -332,13 +360,13 @@ public:
 		return( false );
 	}
 
-	virtual bool				Set_Value		(double           Value)
+	virtual bool					Set_Value		(double           Value)
 	{
 		return( Set_Value((int)Value) );
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals = -1)	const
+	virtual const SG_Char *			asString		(int Decimals = -1)	const
 	{
 		static CSG_String	s;
 
@@ -347,15 +375,15 @@ public:
 		return( s.c_str() );
 	}
 
-	virtual int					asInt			(void)				const	{	return( m_Value );	}
-	virtual double				asDouble		(void)				const	{	return( m_Value );	}
+	virtual int						asInt			(void)				const	{	return( m_Value );	}
+	virtual double					asDouble		(void)				const	{	return( m_Value );	}
 
-	virtual CSG_Table_Value &	operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asInt());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asInt());	return( *this );	}
 
 
 private:
 
-	int							m_Value;
+	int								m_Value;
 
 };
 
@@ -373,13 +401,15 @@ public:
 	CSG_Table_Value_Double(void) {	m_Value	= 0.0;	}
 	virtual ~CSG_Table_Value_Double(void) {}
 
+	virtual TSG_Table_Value_Type	Get_Type		(void)				const	{	return( SG_TABLE_VALUE_TYPE_Double );	}
+
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const CSG_Bytes &Value)
+	virtual bool					Set_Value		(const CSG_Bytes &Value)
 	{
 		return( Set_Value((SG_Char *)Value.Get_Bytes()) );
 	}
 
-	virtual bool				Set_Value		(const SG_Char   *Value)
+	virtual bool					Set_Value		(const SG_Char   *Value)
 	{
 		double		d;
 		CSG_String	s(Value);
@@ -387,12 +417,12 @@ public:
 		return( s.asDouble(d) ? Set_Value(d) : false );
 	}
 
-	virtual bool				Set_Value		(int             Value)
+	virtual bool					Set_Value		(int             Value)
 	{
 		return( Set_Value((double)Value) );
 	}
 
-	virtual bool				Set_Value		(double           Value)
+	virtual bool					Set_Value		(double           Value)
 	{
 		if( m_Value != Value )
 		{
@@ -405,7 +435,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals = -1)	const
+	virtual const SG_Char *			asString		(int Decimals = -1)	const
 	{
 		static CSG_String	s;
 
@@ -414,15 +444,15 @@ public:
 		return( s.c_str() );
 	}
 
-	virtual int					asInt			(void)				const	{	return( (int)m_Value );	}
-	virtual double				asDouble		(void)				const	{	return( m_Value );		}
+	virtual int						asInt			(void)				const	{	return( (int)m_Value );	}
+	virtual double					asDouble		(void)				const	{	return( m_Value );		}
 
-	virtual CSG_Table_Value &	operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asDouble());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asDouble());	return( *this );	}
 
 
 private:
 
-	double						m_Value;
+	double							m_Value;
 
 };
 
