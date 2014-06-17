@@ -20,7 +20,7 @@ Table_Calculator.cpp\
 table_cluster_analysis.cpp\
 table_field_analyzer.cpp\
 table_fill_record_gaps.cpp\
-table_mRMR\
+table_mRMR.cpp\
 table_pca.cpp\
 table_running_average.cpp\
 Fit.h\
@@ -30,7 +30,7 @@ Table_Calculator.h\
 table_cluster_analysis.h\
 table_field_analyzer.h\
 table_fill_record_gaps.h\
-table_mRMR\
+table_mRMR.h\
 table_pca.h\
 table_running_average.h
 
