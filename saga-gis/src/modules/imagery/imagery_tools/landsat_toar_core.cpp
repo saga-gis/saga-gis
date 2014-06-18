@@ -93,8 +93,6 @@ void get_metdata(const char metdata[], const char *text, char value[])
 
 bool lsat_metdata(const char metdata[], lsat_data *lsat)
 {
-	memset(lsat, 0, sizeof(lsat_data));
-
 	char	value[MAX_STR];
 
     /* --------------------------------------- */
@@ -359,7 +357,10 @@ int lsat_new_mtl(const CSG_MetaData &m, lsat_data * lsat)
 	{
 		for(int i=0; i<lsat->bands; i++)
 		{
-			CSG_String	Code(CSG_String::Format(SG_T("_%d"), lsat->band[i].code));
+			CSG_String	Code(lsat->number == 7 && lsat->band[i].thermal
+				? CSG_String::Format(SG_T("_6_VCID_%d"), lsat->band[i].code - 60)
+				: CSG_String::Format(SG_T(       "_%d"), lsat->band[i].code)
+			);
 
 			IF_GET_METADATA("RADIANCE_MULT_BAND" + Code)	lsat->band[i].gain	= s.asDouble();
 			IF_GET_METADATA("RADIANCE_ADD_BAND"  + Code)	lsat->band[i].bias	= s.asDouble();
@@ -407,6 +408,8 @@ int lsat_new_mtl(const CSG_MetaData &m, lsat_data * lsat)
 //---------------------------------------------------------
 bool lsat_metadata(const char *metafile, lsat_data *lsat)
 {
+	memset(lsat, 0, sizeof(lsat_data));
+
 	//-----------------------------------------------------
 	FILE	*f	= fopen(metafile, "r");
 
@@ -928,8 +931,7 @@ void set_TM5(lsat_data * lsat)
  *****************************************************************************/
 void set_ETM(lsat_data * lsat, const char gain[])
 {
-    int i, k, j;
-    double julian, *lmax, *lmin;
+    double	*lmax, *lmin;
 
     /** USGS Calibration Parameter Files 2012 */
 
@@ -958,34 +960,38 @@ void set_ETM(lsat_data * lsat, const char gain[])
 
     /*  Thermal band calibration constants: K1 = 666.09   K2 = 1282.71 */
 
-    julian = julian_char(lsat->creation);
-    if (julian < julian_char("2000-07-01"))
-	k = 0;
-    else
-	k = 1;
+    int	k	= (julian_char(lsat->creation) < julian_char("2000-07-01")) ? 0 : 1;
 
     lsat->number = 7;
     sensor_ETM(lsat);
 
     lsat->dist_es = earth_sun(lsat->date);
 
-    for (i = 0; i < lsat->bands; i++) {
-	j = lsat->band[i].number - 1;
-	lsat->band[i].esun = *(esun + j);
-	if (gain[i] == 'H' || gain[i] == 'h') {
-	    lmax = LmaxH[k];
-	    lmin = LminH[k];
-	}
-	else {
-	    lmax = LmaxL[k];
-	    lmin = LminL[k];
-	}
-	lsat->band[i].lmax = *(lmax + j);
-	lsat->band[i].lmin = *(lmin + j);
-	if (lsat->band[i].thermal) {
-	    lsat->band[i].K1 = 666.09;
-	    lsat->band[i].K2 = 1282.71;
-	}
+    for(int i=0; i<lsat->bands; i++)
+	{
+		int	j	= lsat->band[i].number - 1;
+
+		lsat->band[i].esun	= esun[j];
+
+		if( gain[i] == 'H' || gain[i] == 'h' )
+		{
+			lmax = LmaxH[k];
+			lmin = LminH[k];
+		}
+		else
+		{
+			lmax = LmaxL[k];
+			lmin = LminL[k];
+		}
+
+		lsat->band[i].lmax = *(lmax + j);
+		lsat->band[i].lmin = *(lmin + j);
+
+		if (lsat->band[i].thermal)
+		{
+			lsat->band[i].K1 = 666.09;
+			lsat->band[i].K2 = 1282.71;
+		}
     }
     G_debug(1, "Landsat-7 ETM+");
     return;
