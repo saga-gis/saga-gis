@@ -70,9 +70,9 @@ inline void chrncpy(char *dest, const char src[], int n)
 /****************************************************************************
  * PURPOSE:     Read values of Landsat MSS/TM from header (.met) file
  *****************************************************************************/
-void get_metdata(const char mettext[], const char *text, char value[])
+void get_metdata(const char metdata[], const char *text, char value[])
 {
-    const char *ptr	= strstr(mettext, text);
+    const char *ptr	= strstr(metdata, text);
 
     if (ptr == NULL)
     {
@@ -91,32 +91,26 @@ void get_metdata(const char mettext[], const char *text, char value[])
     return;
 }
 
-int lsat_metdata(const char *metfile, lsat_data * lsat)
+bool lsat_metdata(const char metdata[], lsat_data *lsat)
 {
 	memset(lsat, 0, sizeof(lsat_data));
 
-	char		mettext[TM5_MET_SIZE], value[MAX_STR];
-	CSG_File	f;
-
-	if( !f.Open(metfile, SG_FILE_R, false) || f.Read(mettext, TM5_MET_SIZE) == 0 )
-	{
-		return( false );
-	}
+	char	value[MAX_STR];
 
     /* --------------------------------------- */
-    get_metdata(mettext, "PLATFORMSHORTNAME", value);
+    get_metdata(metdata, "PLATFORMSHORTNAME", value);
     lsat->number = atoi(value + 8);
 
-    get_metdata(mettext, "SENSORSHORTNAME", value);
+    get_metdata(metdata, "SENSORSHORTNAME", value);
     chrncpy(lsat->sensor, value + 1, 4);
 
-    get_metdata(mettext, "CALENDARDATE", value);
+    get_metdata(metdata, "CALENDARDATE", value);
     chrncpy(lsat->date, value, 10);
 
-	get_metdata(mettext, "PRODUCTIONDATETIME", value);
+	get_metdata(metdata, "PRODUCTIONDATETIME", value);
 	chrncpy(lsat->creation, value, 10);
 
-	get_metdata(mettext, "SolarElevation", value);
+	get_metdata(metdata, "SolarElevation", value);
 	lsat->sun_elev = atof(value);
 
     /* Fill data with the sensor_XXX functions */
@@ -130,6 +124,35 @@ int lsat_metdata(const char *metfile, lsat_data * lsat)
 	case 5:	if( lsat->sensor[0] == 'M' ) set_MSS5(lsat); else set_TM5(lsat); break;
     }
 
+	// "RADIANCE & QUANTIZE from band setting of the metadata file"
+	for(int i=0; i<lsat->bands; i++)
+	{
+		CSG_String	key;
+		
+		key.Printf(SG_T("Band%dGainSetting"), lsat->band[i].code);
+		get_metdata(metdata, key, value);
+		if (value[0] == '\0')
+		{
+			G_warning(key);
+			continue;
+		}
+		lsat->band[i].gain = atof(value);
+
+		key.Printf(SG_T("Band%dBiasSetting"), lsat->band[i].code);
+		get_metdata(metdata, key, value);
+		if (value[0] == '\0')
+		{
+			G_warning(key);
+			continue;
+		}
+
+		lsat->band[i].bias		= atof(value);
+		lsat->band[i].qcalmax	= 255.;
+		lsat->band[i].qcalmin	= 1.;
+		lsat->band[i].lmin		= lsat->band[i].gain * lsat->band[i].qcalmin + lsat->band[i].bias;
+		lsat->band[i].lmax		= lsat->band[i].gain * lsat->band[i].qcalmax + lsat->band[i].bias;
+	}
+
     /* --------------------------------------- */
 	lsat->flag	= METADATAFILE;
 
@@ -140,179 +163,6 @@ int lsat_metdata(const char *metfile, lsat_data * lsat)
 /****************************************************************************
  * PURPOSE:     Read values of Landsat from MTL metadata (MTL.txt) file
  *****************************************************************************/
-
-/*int get_mtldata(const char mtltext[], const char *text, char value[])
-{
-	const char *ptr	= strstr(mtltext, text);
-
-	if( ptr == NULL )
-	{
-		value[0] = '\0';
-
-		return( 0 );
-	}
-
-	while( *ptr++ != '=' );
-	while( *ptr <= ' ' || *ptr == '\"' )	*ptr++;
-
-	int i = 0;
-	while( i < MAX_STR && *ptr != '\"' && *ptr > ' ' )	value[i++]	= *ptr++;
-	value[i] = '\0';
-
-	return( i );
-}
-
-int lsat_mtldata(const char *mtlfile, lsat_data *lsat)
-{
-	memset(lsat, 0, sizeof(lsat_data));
-
-    char		mtldata[METADATA_SIZE], value[MAX_STR];
-	CSG_File	f;
-
-	if( !f.Open(mtlfile, SG_FILE_R, false) || f.Read(mtldata, METADATA_SIZE) == 0 )
-	{
-		return( false );
-	}
-
-	//-------------------------------------------
-    get_mtldata(mtldata, "SPACECRAFT_ID"   , value);	if( !(*value) )	return( false );
-    lsat->number = atoi(value + 7);
-
-    get_mtldata(mtldata, "SENSOR_ID"       , value);	if( !(*value) )	return( false );
-    chrncpy(lsat->sensor, value, 4);
-
-    get_mtldata(mtldata, "ACQUISITION_DATE", value);	if( !(*value) )	return( false );
-    chrncpy(lsat->date, value, 10);
-
-    get_mtldata(mtldata, "CREATION_TIME"   , value);	if( !(*value) )	return( false );
-    chrncpy(lsat->creation, value, 10);
-
-    get_mtldata(mtldata, "SUN_ELEVATION"   , value);	if( !(*value) )	return( false );
-    lsat->sun_elev = atof(value);
-
-	switch( lsat->number )	// Fill data with the sensor_XXX functions
-	{
-	default: return( false );
-	case 1:	set_MSS1(lsat); break;
-	case 2:	set_MSS2(lsat); break;
-	case 3:	set_MSS3(lsat); break;
-	case 4:	if( lsat->sensor[0] == 'M' ) set_MSS4(lsat); else set_TM4(lsat); break;
-	case 5:	if( lsat->sensor[0] == 'M' ) set_MSS5(lsat); else set_TM5(lsat); break;
-	case 7:
-		get_mtldata(mtldata, "BAND1_GAIN",  value);
-		get_mtldata(mtldata, "BAND2_GAIN",  value + 1);
-		get_mtldata(mtldata, "BAND3_GAIN",  value + 2);
-		get_mtldata(mtldata, "BAND4_GAIN",  value + 3);
-		get_mtldata(mtldata, "BAND5_GAIN",  value + 4);
-		get_mtldata(mtldata, "BAND6_GAIN1", value + 5);
-		get_mtldata(mtldata, "BAND6_GAIN2", value + 6);
-		get_mtldata(mtldata, "BAND7_GAIN",  value + 7);
-		get_mtldata(mtldata, "BAND8_GAIN",  value + 8);
-		value[9] = '\0';
-		set_ETM(lsat, value);
-		break;
-    }
-
-
-    for(int i=0; i<lsat->bands; i++)	// Update the information from metadata file
-	{
-        get_mtldata(mtldata, CSG_String::Format(SG_T("LMAX_BAND%d"   ), lsat->band[i].code), value);
-        if( *value ) lsat->band[i].lmax    = atof(value);
-
-        get_mtldata(mtldata, CSG_String::Format(SG_T("LMIN_BAND%d"   ), lsat->band[i].code), value);
-        if( *value ) lsat->band[i].lmin    = atof(value);
-
-        get_mtldata(mtldata, CSG_String::Format(SG_T("QCALMAX_BAND%d"), lsat->band[i].code), value);
-        if( *value ) lsat->band[i].qcalmax = atof(value);
-
-        get_mtldata(mtldata, CSG_String::Format(SG_T("QCALMIN_BAND%d"), lsat->band[i].code), value);
-        if( *value ) lsat->band[i].qcalmin = atof(value);
-    }
-
-	//-------------------------------------------
-    return( *lsat->sensor ? true : false );
-}
-
-/*int lsat_newdata(const char *mtlfile, lsat_data * lsat)
-{
-	memset(lsat, 0, sizeof(lsat_data));
-
-    char		mtldata[METADATA_SIZE], value[MAX_STR];
-	CSG_File	f;
-
-	if( !f.Open(mtlfile, SG_FILE_R, false) || f.Read(mtldata, METADATA_SIZE) == 0 )
-	{
-		return( false );
-	}
-
-    //-------------------------------------------
-    get_mtldata(mtldata, "SPACECRAFT_ID", value);	if( !(*value) )	return( false );
-    lsat->number = atoi(value + 8);
-
-    get_mtldata(mtldata, "SENSOR_ID"    , value);	if( !(*value) )	return( false );
-    chrncpy(lsat->sensor, value, 4);
-
-    get_mtldata(mtldata, "DATE_ACQUIRED", value);	if( !(*value) )	return( false );
-    chrncpy(lsat->date, value, 10);
-
-    get_mtldata(mtldata, "FILE_DATE"    , value);	if( !(*value) )	return( false );
-    chrncpy(lsat->creation, value, 10);
-
-    get_mtldata(mtldata, "SUN_ELEVATION", value);	if( !(*value) )	return( false );
-    lsat->sun_elev = atof(value);
-
-    // Fill data with the sensor_XXX functions
-	switch( lsat->number )
-	{
-	default: return( false );
-	case 1:	set_MSS1(lsat); break;
-	case 2:	set_MSS2(lsat); break;
-	case 3:	set_MSS3(lsat); break;
-	case 4:	if( lsat->sensor[0] == 'M' ) set_MSS4(lsat); else set_TM4(lsat); break;
-	case 5:	if( lsat->sensor[0] == 'M' ) set_MSS5(lsat); else set_TM5(lsat); break;
-	case 7:
-		get_mtldata(mtldata, "GAIN_BAND_1"       , value + 0);
-		get_mtldata(mtldata, "GAIN_BAND_2"       , value + 1);
-		get_mtldata(mtldata, "GAIN_BAND_3"       , value + 2);
-		get_mtldata(mtldata, "GAIN_BAND_4"       , value + 3);
-		get_mtldata(mtldata, "GAIN_BAND_5"       , value + 4);
-		get_mtldata(mtldata, "GAIN_BAND_6_VCID_1", value + 5);
-		get_mtldata(mtldata, "GAIN_BAND_6_VCID_2", value + 6);
-		get_mtldata(mtldata, "GAIN_BAND_7"       , value + 7);
-		get_mtldata(mtldata, "GAIN_BAND_8"       , value + 8);
-		value[9] = '\0';
-		set_ETM(lsat, value);
-		break;
-    }
-
-    // Update the information from metadata file
-    for(int i=0; i<lsat->bands; i++)
-	{
-		CSG_String	Code;
-
-		if( lsat->band[i].code == 61 )
-			Code	= "6_VCID_1";
-		else if( lsat->band[i].code == 62 )
-			Code	= "6_VCID_1";
-		else
-			Code.Printf(SG_T("%d"), lsat->band[i].code);
-
-		get_mtldata(mtldata, CSG_String::Format(SG_T("RADIANCE_MAXIMUM_BAND_%s"), Code.c_str()), value);
-        if( *value ) lsat->band[i].lmax    = atof(value);
-
-        get_mtldata(mtldata, CSG_String::Format(SG_T("RADIANCE_MINIMUM_BAND_%s"), Code.c_str()), value);
-        if( *value ) lsat->band[i].lmin    = atof(value);
-
-        get_mtldata(mtldata, CSG_String::Format(SG_T("QUANTIZE_CAL_MAX_BAND_%s"), Code.c_str()), value);
-        if( *value ) lsat->band[i].qcalmax = atof(value);
-
-        get_mtldata(mtldata, CSG_String::Format(SG_T("QUANTIZE_CAL_MIN_BAND_%s"), Code.c_str()), value);
-        if( *value ) lsat->band[i].qcalmin = atof(value);
-    }
-
-	//-------------------------------------------
-    return( *lsat->sensor ? true : false );
-}/**/
 
 //---------------------------------------------------------
 bool Load_MetaData(const char *filename, CSG_MetaData &MetaData)
@@ -364,19 +214,11 @@ bool Get_MetaData(const CSG_MetaData &MetaData, const CSG_String &key, CSG_Strin
 #define IF_GET_METADATA(key)	if( Get_MetaData(m, key, s) == true )
 
 //---------------------------------------------------------
-int lsat_mtldata(const char *mtlfile, lsat_data *lsat)
+int lsat_old_mtl(const CSG_MetaData &m, lsat_data *lsat)
 {
-	memset(lsat, 0, sizeof(lsat_data));
+	CSG_String	s;
 
-	CSG_String		s;
-	CSG_MetaData	m;
-
-	if( !Load_MetaData(mtlfile, m) )
-	{
-		return( false );
-	}
-
-    //-------------------------------------------
+	//-------------------------------------------
 	GET_METADATA("SPACECRAFT_ID"              ); lsat->number		= CSG_String(s.Get_Char(7)).asInt();
 	GET_METADATA("SENSOR_ID"                  ); chrncpy(lsat->sensor  , s,  4);
 	GET_METADATA("ACQUISITION_DATE"           ); chrncpy(lsat->date    , s, 10);
@@ -391,6 +233,7 @@ int lsat_mtldata(const char *mtlfile, lsat_data *lsat)
 	case 3:	set_MSS3(lsat); break;
 	case 4:	if( lsat->sensor[0] == 'M' ) set_MSS4(lsat); else set_TM4(lsat); break;
 	case 5:	if( lsat->sensor[0] == 'M' ) set_MSS5(lsat); else set_TM5(lsat); break;
+	case 8:	set_OLI(lsat); break;
 	case 7:
 		{
 			char	gain[9];
@@ -410,6 +253,7 @@ int lsat_mtldata(const char *mtlfile, lsat_data *lsat)
 		break;
     }
 
+	//-----------------------------------------------------
     for(int i=0; i<lsat->bands; i++)	// Update the information from metadata file
 	{
 		CSG_String	Code(CSG_String::Format(SG_T("%d"), lsat->band[i].code));
@@ -420,26 +264,18 @@ int lsat_mtldata(const char *mtlfile, lsat_data *lsat)
         IF_GET_METADATA("QCALMIN_BAND" + Code) lsat->band[i].qcalmin = s.asDouble();
     }
 
-	//-------------------------------------------
+	//-----------------------------------------------------
 	lsat->flag	= METADATAFILE;
 
     return( *lsat->sensor ? true : false );
 }
 
 //---------------------------------------------------------
-int lsat_newdata(const char *mtlfile, lsat_data * lsat)
+int lsat_new_mtl(const CSG_MetaData &m, lsat_data * lsat)
 {
-	memset(lsat, 0, sizeof(lsat_data));
+	CSG_String	s;
 
-	CSG_String		s;
-	CSG_MetaData	m;
-
-	if( !Load_MetaData(mtlfile, m) )
-	{
-		return( false );
-	}
-
-    //-------------------------------------------
+	//-----------------------------------------------------
 	GET_METADATA("SPACECRAFT_ID"); lsat->number		= CSG_String(s.Get_Char(8)).asInt();
 	GET_METADATA("SENSOR_ID"    ); chrncpy(lsat->sensor  , s,  4);
 	GET_METADATA("DATE_ACQUIRED"); chrncpy(lsat->date    , s, 10);
@@ -454,6 +290,7 @@ int lsat_newdata(const char *mtlfile, lsat_data * lsat)
 	case 3:	set_MSS3(lsat); break;
 	case 4:	if( lsat->sensor[0] == 'M' ) set_MSS4(lsat); else set_TM4(lsat); break;
 	case 5:	if( lsat->sensor[0] == 'M' ) set_MSS5(lsat); else set_TM5(lsat); break;
+	case 8:	set_OLI(lsat); break;
 	case 7:
 		{
 			char	gain[9];
@@ -473,27 +310,138 @@ int lsat_newdata(const char *mtlfile, lsat_data * lsat)
 		break;
     }
 
-    for(int i=0; i<lsat->bands; i++)	// Update the information from metadata file
+	//-----------------------------------------------------
+	// Update the information from metadata file
+
+	// Other possible values in the metadata file
+	IF_GET_METADATA("EARTH_SUN_DISTANCE") lsat->dist_es	= s.asDouble();	// Necessary after
+
+	//-----------------------------------------------------
+	// RADIANCE & QUANTIZE from MIN_MAX_(RADIANCE|PIXEL_VALUE)
+	if( m.Get_Child("RADIANCE_MAXIMUM_BAND_" + SG_Get_String(lsat->band[0].code)) != NULL )
 	{
-		CSG_String	Code;
+		for(int i=0; i<lsat->bands; i++)
+		{
+			CSG_String	Code(lsat->number == 7 && lsat->band[i].thermal
+				? CSG_String::Format(SG_T("_6_VCID_%d"), lsat->band[i].code - 60)
+				: CSG_String::Format(SG_T(       "_%d"), lsat->band[i].code)
+			);
 
-		if( lsat->band[i].code == 61 )
-			Code	= "6_VCID_1";
-		else if( lsat->band[i].code == 62 )
-			Code	= "6_VCID_2";
-		else
-			Code.Printf(SG_T("%d"), lsat->band[i].code);
+			IF_GET_METADATA("RADIANCE_MAXIMUM_BAND" + Code) lsat->band[i].lmax    = s.asDouble();
+			IF_GET_METADATA("RADIANCE_MINIMUM_BAND" + Code) lsat->band[i].lmin    = s.asDouble();
+			IF_GET_METADATA("QUANTIZE_CAL_MAX_BAND" + Code) lsat->band[i].qcalmax = s.asDouble();
+			IF_GET_METADATA("QUANTIZE_CAL_MIN_BAND" + Code) lsat->band[i].qcalmin = s.asDouble();
 
-		IF_GET_METADATA("RADIANCE_MAXIMUM_BAND_" + Code) lsat->band[i].lmax    = s.asDouble();
-		IF_GET_METADATA("RADIANCE_MINIMUM_BAND_" + Code) lsat->band[i].lmin    = s.asDouble();
-        IF_GET_METADATA("QUANTIZE_CAL_MAX_BAND_" + Code) lsat->band[i].qcalmax = s.asDouble();
-        IF_GET_METADATA("QUANTIZE_CAL_MIN_BAND_" + Code) lsat->band[i].qcalmin = s.asDouble();
-    }
+			// other possible values of each band
+			if( lsat->band[i].thermal )
+			{
+				Code.Printf(SG_T("%d"), lsat->band[i].code);	// ??!! see grass implementation!!
 
-	//-------------------------------------------
+				IF_GET_METADATA("K1_CONSTANT_BAND" + Code) lsat->band[i].K1	= s.asDouble();
+				IF_GET_METADATA("K2_CONSTANT_BAND" + Code) lsat->band[i].K2	= s.asDouble();
+			}
+			else if( lsat->number == 8 )	// ESUN from  REFLECTANCE and RADIANCE ADD_BAND
+			{
+				IF_GET_METADATA("REFLECTANCE_MAXIMUM_BAND" + Code)
+					lsat->band[i].esun	= (M_PI * lsat->dist_es * lsat->dist_es * lsat->band[i].lmax) / s.asDouble();
+			}
+		}
+
+		if( lsat->number == 8 )
+		{
+			G_warning("ESUN evaluated from REFLECTANCE_MAXIMUM_BAND");
+		}
+	}
+
+	//-----------------------------------------------------
+	// RADIANCE & QUANTIZE from RADIOMETRIC_RESCALING
+	else
+	{
+		for(int i=0; i<lsat->bands; i++)
+		{
+			CSG_String	Code(CSG_String::Format(SG_T("_%d"), lsat->band[i].code));
+
+			IF_GET_METADATA("RADIANCE_MULT_BAND" + Code)	lsat->band[i].gain	= s.asDouble();
+			IF_GET_METADATA("RADIANCE_ADD_BAND"  + Code)	lsat->band[i].bias	= s.asDouble();
+
+			// reversing to calculate the values of Lmin and Lmax ...
+			lsat->band[i].lmin	= lsat->band[i].gain * lsat->band[i].qcalmin + lsat->band[i].bias;
+			lsat->band[i].lmax	= lsat->band[i].gain * lsat->band[i].qcalmax + lsat->band[i].bias;
+
+			// ... qcalmax and qcalmin loaded in previous sensor_function
+			if( lsat->number == 8 )
+			{
+				if( lsat->band[i].thermal )
+				{
+					IF_GET_METADATA("K1_CONSTANT_BAND"      + Code)	lsat->band[i].K1 = s.asDouble();
+					IF_GET_METADATA("K2_CONSTANT_BAND"      + Code)	lsat->band[i].K2 = s.asDouble();
+				}
+				else	// ESUN from REFLECTANCE_ADD_BAND
+				{
+					IF_GET_METADATA("REFLECTANCE_MULT_BAND" + Code)	lsat->band[i].K1 = s.asDouble();
+					IF_GET_METADATA("REFLECTANCE_ADD_BAND"  + Code)	lsat->band[i].K2 = s.asDouble();
+
+					lsat->band[i].esun	= (M_PI * lsat->dist_es * lsat->dist_es * lsat->band[i].bias) / lsat->band[i].K2;
+
+				//	double esun1	= (M_PI * lsat->dist_es * lsat->dist_es * lsat->band[i].bias) / lsat->band[i].K2;
+				//	double esun2	= (M_PI * lsat->dist_es * lsat->dist_es * lsat->band[i].gain) / lsat->band[i].K1;
+				//	lsat->band[i].esun	= (esun1 + esun2) / 2.;
+				}
+			}
+		}
+
+		G_warning("ESUN evaluated from REFLECTANCE_ADDITIVE_FACTOR_BAND");
+	}
+
+	//-----------------------------------------------------
 	lsat->flag	= METADATAFILE;
 
     return( *lsat->sensor ? true : false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool lsat_metadata(const char *metafile, lsat_data *lsat)
+{
+	//-----------------------------------------------------
+	FILE	*f	= fopen(metafile, "r");
+
+	if( f == NULL )
+	{
+		G_warning("Metadata file not found");
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	char	mtldata[METADATA_SIZE];
+	int		i	= fread(mtldata, METADATA_SIZE, 1, f);
+	fclose(f);
+
+	//-----------------------------------------------------
+	if( strstr(mtldata, " VALUE ") != NULL )	// get_metformat
+	{
+		return( lsat_metdata(mtldata, lsat) );
+	}
+
+	//-----------------------------------------------------
+	CSG_MetaData	m;
+
+	if( !Load_MetaData(metafile, m) )
+	{
+		return( false );
+	}
+
+	if( m.Get_Child("QCALMAX_BAND") != NULL )	// ver_mtl = (strstr(mtldata, "QCALMAX_BAND") != NULL) ? 0 : 1;
+	{
+		return( lsat_old_mtl(m, lsat) );	// old format
+	}
+
+	return( lsat_new_mtl(m, lsat) );	// new format
 }
 
 
@@ -585,6 +533,33 @@ void sensor_ETM(lsat_data * lsat)
 	}
 
 	return;
+}
+
+void sensor_OLI(lsat_data * lsat)
+{
+    int i;
+
+    /* coastal aerosol, blue, green, red, near infrared, shortwave IR (SWIR) 1, SWIR 2, panchromatic,
+     * cirrus, thermal infrared (TIR) 1, TIR 2 */
+    int band[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+    int code[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+    double wmin[] =	{ 0.433, 0.450, 0.525, 0.630, 0.845, 1.560, 2.100, 0.500, 1.360, 10.3, 11.5 };
+    double wmax[] =	{ 0.453, 0.515, 0.600, 0.680, 0.885, 1.660, 2.300, 0.680, 1.390, 11.3, 12.5 };
+    /* 30, 30, 30, 30, 30, 30, 30, 15, 30, 100, 100 */
+
+    strcpy(lsat->sensor, "OLI/TIRS");
+
+    lsat->bands = 11;
+    for (i = 0; i < lsat->bands; i++) {
+	lsat->band[i].number = *(band + i);
+	lsat->band[i].code = *(code + i);
+	lsat->band[i].wavemax = *(wmax + i);
+	lsat->band[i].wavemin = *(wmin + i);
+	lsat->band[i].qcalmax = 65535.;
+	lsat->band[i].qcalmin = 1.;
+	lsat->band[i].thermal = (lsat->band[i].number > 9 ? 1 : 0);
+    }
+    return;
 }
 
 
@@ -1014,6 +989,48 @@ void set_ETM(lsat_data * lsat, const char gain[])
     }
     G_debug(1, "Landsat-7 ETM+");
     return;
+}
+
+/****************************************************************************
+ * PURPOSE:     Store values of Landsat-8 OLI/TIRS
+ *              February 14, 2013
+ *****************************************************************************/
+void set_OLI(lsat_data * lsat)
+{
+	int i, j;
+	double *lmax, *lmin;
+
+	/* Spectral radiances at detector */
+	/* estimates */
+	double Lmax[][11] = {	{	755.8, 770.7, 705.7, 597.7, 362.7, 91.4, 29.7, 673.3, 149.0, 22.0, 22.0	}	};
+	double Lmin[][11] = {	{	-62.4, -63.6, -58.3, -49.4, -30.0, -7.5, -2.5, -55.6, -12.3, 0.1, 0.1	}	};
+
+	/* Solar exoatmospheric spectral irradiances estimates */
+	double esun[] =
+	{ 2026.8, 2066.8, 1892.5, 1602.8, 972.6, 245.0, 79.7, 1805.5, 399.7, 0., 0. };
+
+	lmax = Lmax[0];
+	lmin = Lmin[0];
+
+	lsat->number = 8;
+	sensor_OLI(lsat);
+
+	lsat->dist_es = earth_sun(lsat->date);
+
+	for (i = 0; i < lsat->bands; i++)
+	{
+		j = lsat->band[i].number - 1;
+		lsat->band[i].esun = *(esun + j);
+		lsat->band[i].lmax = *(lmax + j);
+		lsat->band[i].lmin = *(lmin + j);
+		if (lsat->band[i].thermal)
+		{
+			lsat->band[i].K1 = (lsat->band[i].number == 10 ? 774.89 : 480.89);
+			lsat->band[i].K2 = (lsat->band[i].number == 10 ? 1321.08 : 1201.14);
+		}
+	}
+	G_debug(1, "Landsat-8 OLI/TIRS");
+	return;
 }
 
 

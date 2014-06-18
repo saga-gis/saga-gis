@@ -21,39 +21,42 @@
  * Esun in  W / (m^2 * µm)               -> Irradiance
  ****************************************************/
 
-#define MAX_BANDS   9
+#define MAX_BANDS   11
 
 typedef struct
 {
-    int number;			/* Band number                   */
-    int code;			/* Band code                     */
+    int number;			/* Band number */
+    int code;			/* Band code */
 
-    double wavemax, wavemin;	/* Wavelength in µm              */
+    double wavemax, wavemin;	/* Wavelength in micron */
 
-    double lmax, lmin;		/* Spectral radiance             */
-    double qcalmax, qcalmin;	/* Quantized calibrated pixel    */
-    double esun;		/* Mean solar irradiance         */
+    double esun;		/* Mean solar irradiance */
+    double lmax, lmin;		/* Spectral radiance */
+    double qcalmax, qcalmin;	/* Quantized calibrated pixel */
 
-    char thermal;		/* Flag to thermal band          */
-    double gain, bias;		/* Gain and Bias of sensor       */
-    double K1, K2;		/* Thermal calibration constants,
-				   or Rad2Ref constants          */
-
+    char thermal;		/* Flag to thermal band */
+    double gain, bias;		/* Gain and Bias of sensor */
+    double K1, K2;		/* Thermal calibration 
+				 * or Rad2Ref constants */
 } band_data;
 
 typedef struct
 {
-    int flag;
-    unsigned char number;	/* Landsat number                */
+    int flag;			/* Line-data or file-data */
+    unsigned char number;	/* Landsat number */
 
-    char creation[11];		/* Image production date         */
-    char date[11];		/* Image acquisition date        */
-    double dist_es;		/* Distance Earth-Sun            */
-    double sun_elev;		/* Solar elevation               */
+    char creation[11];		/* Image production date */
+    char date[11];		/* Image acquisition date */
+    double time;		/* Image acquisition time */
 
-    char sensor[5];		/* Type of sensor: MSS, TM, ETM+ */
-    int bands;			/* Total number of bands         */
-    band_data band[MAX_BANDS];	/* Data for each band            */
+    double dist_es;		/* Distance Earth-Sun */
+    double sun_elev;		/* Sun elevation */
+    double sun_az;		/* Sun azimuth */
+
+    char sensor[10];		/* Sensor: MSS, TM, ETM+, OLI/TIRS */
+    int bands;			/* Total number of bands */
+    band_data band[MAX_BANDS];	/* Data for each band */
+
 } lsat_data;
 
 
@@ -68,9 +71,7 @@ double lsat_rad2temp(double, band_data *);
 void lsat_bandctes(lsat_data *, int, char, double, int, double);
 
 //---------------------------------------------------------
-int lsat_mtldata(const char *, lsat_data *);
-int lsat_metdata(const char *, lsat_data *);
-int lsat_newdata(const char *, lsat_data *);
+bool lsat_metadata(const char *, lsat_data *);
 
 void set_MSS1(lsat_data *);
 void set_MSS2(lsat_data *);
@@ -82,6 +83,8 @@ void set_TM4(lsat_data *);
 void set_TM5(lsat_data *);
 
 void set_ETM(lsat_data *, const char[]);
+
+void set_OLI(lsat_data *);
 
 //---------------------------------------------------------
 void G_debug	(int i, const char *s);
