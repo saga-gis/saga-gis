@@ -97,7 +97,9 @@ protected:
 
 private:
 
-	CSG_Parameter_Grid_List		*m_pFeatures;
+	int							m_nFeatures;
+
+	CSG_Grid					**m_pFeatures;
 
 
 	CSG_Grid *					Get_Class_Grid			(void);
