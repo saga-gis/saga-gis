@@ -218,12 +218,20 @@ int CSG_mRMR::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPar
 }
 
 //---------------------------------------------------------
-bool CSG_mRMR::Set_Data(CSG_Table &Table, int ClassField, CSG_Parameters *pParameters)
+bool CSG_mRMR::Set_Data(CSG_Table &Data, int ClassField, CSG_Parameters *pParameters)
 {
 	bool	bDiscretize	= pParameters->Get("mRMR_DISCRETIZE") ? pParameters->Get("mRMR_DISCRETIZE")->asBool  () : true;
 	double	Threshold	= pParameters->Get("mRMR_THRESHOLD" ) ? pParameters->Get("mRMR_THRESHOLD" )->asDouble() : 1.0;
 
-	return( Set_Data(Table, ClassField, bDiscretize ? Threshold : -1.0) );
+	return( Set_Data(Data, ClassField, bDiscretize ? Threshold : -1.0) );
+}
+
+bool CSG_mRMR::Set_Data(CSG_Matrix &Data, int ClassField, CSG_Parameters *pParameters)
+{
+	bool	bDiscretize	= pParameters->Get("mRMR_DISCRETIZE") ? pParameters->Get("mRMR_DISCRETIZE")->asBool  () : true;
+	double	Threshold	= pParameters->Get("mRMR_THRESHOLD" ) ? pParameters->Get("mRMR_THRESHOLD" )->asDouble() : 1.0;
+
+	return( Set_Data(Data, ClassField, bDiscretize ? Threshold : -1.0) );
 }
 
 //---------------------------------------------------------
@@ -276,25 +284,25 @@ double CSG_mRMR::Get_Score(int i) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_mRMR::Set_Data(CSG_Table &Table, int ClassField, double Threshold)
+bool CSG_mRMR::Get_Memory(int nVars, int nSamples)
 {
 	Destroy();
 
 	//-----------------------------------------------------
-	m_nVars		= Table.Get_Field_Count();
+	m_nVars		= nVars;
 
 	if( m_nVars <= 0 )
 	{
-		SG_UI_Msg_Add_Error("no variables in table.");
+		SG_UI_Msg_Add_Error("no features");
 
 		return( false );
 	}
 
-	m_nSamples	= Table.Get_Count();
+	m_nSamples	= nSamples;
 
 	if( m_nSamples <= 0 )
 	{
-		SG_UI_Msg_Add_Error("no samples in table.");
+		SG_UI_Msg_Add_Error("no samples");
 
 		return( false );
 	}
@@ -318,13 +326,24 @@ bool CSG_mRMR::Set_Data(CSG_Table &Table, int ClassField, double Threshold)
 		return( false );
 	}
 
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_mRMR::Set_Data(CSG_Table &Data, int ClassField, double Threshold)
+{
+	if( !Get_Memory(Data.Get_Field_Count(), Data.Get_Count()) )
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	if( ClassField < 0 || ClassField >= m_nVars )
 	{
 		ClassField	= 0;
 	}
 
-	Table.Set_Index(ClassField, TABLE_INDEX_Ascending);
+	Data.Set_Index(ClassField, TABLE_INDEX_Ascending);
 
 	CSG_String	s;
 
@@ -332,9 +351,9 @@ bool CSG_mRMR::Set_Data(CSG_Table &Table, int ClassField, double Threshold)
 	{
 		double	*pData	= m_Samples[iSample] = m_Samples[0] + iSample * m_nVars;
 
-		if( s.Cmp(Table[iSample].asString(ClassField)) )
+		if( s.Cmp(Data[iSample].asString(ClassField)) )
 		{
-			s	= Table[iSample].asString(ClassField);
+			s	= Data[iSample].asString(ClassField);
 
 			Class++;
 		}
@@ -345,20 +364,68 @@ bool CSG_mRMR::Set_Data(CSG_Table &Table, int ClassField, double Threshold)
 		{
 			if( iVar != ClassField )
 			{
-				*pData++	= Table[iSample].asDouble(iVar);
+				*pData++	= Data[iSample].asDouble(iVar);
 			}
 		}
 	}
 
-	Table.Del_Index();
+	Data.Del_Index();
 
-	m_VarNames	+= Table.Get_Field_Name(ClassField);
+	m_VarNames	+= Data.Get_Field_Name(ClassField);
 
 	for(int iVar=0; iVar<m_nVars; iVar++)
 	{
 		if( iVar != ClassField )
 		{
-			m_VarNames	+= Table.Get_Field_Name(iVar);
+			m_VarNames	+= Data.Get_Field_Name(iVar);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Threshold >= 0.0 )	// discretization
+	{
+		Discretize(Threshold);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_mRMR::Set_Data(CSG_Matrix &Data, int ClassField, double Threshold)
+{
+	if( !Get_Memory(Data.Get_NCols(), Data.Get_NRows()) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( ClassField < 0 || ClassField >= m_nVars )
+	{
+		ClassField	= 0;
+	}
+
+	for(int iSample=0; iSample<m_nSamples; iSample++)
+	{
+		double	*pData	= m_Samples[iSample] = m_Samples[0] + iSample * m_nVars;
+
+		*pData++	= Data[iSample][ClassField];
+
+		for(int iVar=0; iVar<m_nVars; iVar++)
+		{
+			if( iVar != ClassField )
+			{
+				*pData++	= Data[iSample][iVar];
+			}
+		}
+	}
+
+	m_VarNames	+= "CLASS";
+
+	for(int iVar=0; iVar<m_nVars; iVar++)
+	{
+		if( iVar != ClassField )
+		{
+			m_VarNames	+= CSG_String::Format(SG_T("FEATURE_%02d"), iVar);
 		}
 	}
 

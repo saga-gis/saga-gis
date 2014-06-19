@@ -857,8 +857,10 @@ public: ////// public members and functions: //////////////
 
 	void						Set_Verbose			(bool bOn = true)	{	m_bVerbose	= bOn;	}
 
-	bool						Set_Data			(CSG_Table &Table, int ClassField, class CSG_Parameters *pParameters);
-	bool						Set_Data			(CSG_Table &Table, int ClassField = 0, double Threshold = -1.0);
+	bool						Set_Data			(CSG_Table  &Data, int ClassField, class CSG_Parameters *pParameters);
+	bool						Set_Data			(CSG_Matrix &Data, int ClassField, class CSG_Parameters *pParameters);
+	bool						Set_Data			(CSG_Table  &Data, int ClassField = 0, double Threshold = -1.0);
+	bool						Set_Data			(CSG_Matrix &Data, int ClassField = 0, double Threshold = -1.0);
 
 	bool						Get_Selection		(class CSG_Parameters *pParameters);
 	bool						Get_Selection		(int nFeatures, int Method);
@@ -881,6 +883,8 @@ private: ///// private members and functions: /////////////
 
 	class CSG_Table				*m_pSelection;
 
+
+	bool						Get_Memory			(int nVars, int nSamples);
 
 	bool						Discretize			(double Threshold);
 
