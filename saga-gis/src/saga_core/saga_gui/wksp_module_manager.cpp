@@ -221,6 +221,10 @@ bool CWKSP_Module_Manager::Initialise(void)
 {
 	CONFIG_Read("/MODULES", &m_Parameters);
 
+	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
+
+	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
+
 #ifdef _OPENMP
 	SG_Set_Max_Num_Threads_Omp(m_Parameters("OMP_THREADS_MAX")->asInt());
 #endif
@@ -425,14 +429,14 @@ void CWKSP_Module_Manager::Parameters_Changed(void)
 {
 	CWKSP_Base_Item::Parameters_Changed();
 
-	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
-
 	if( m_Parameters("SAVE_CONFIG")->asBool() == false )
 	{
 		CONFIG_Write("/MODULES", &m_Parameters);
 	}
 
 	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
+
+	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
 
 #ifdef _OPENMP
 	SG_Set_Max_Num_Threads_Omp(m_Parameters("OMP_THREADS_MAX")->asInt());
