@@ -199,6 +199,23 @@ bool CSG_Parameter::Set_Enabled(bool bEnabled)
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::is_Enabled(void) const
+{
+	return( m_bEnabled && (Get_Parent() == NULL || Get_Parent()->is_Enabled()) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter::Set_Children_Enabled(bool bEnabled)
+{
+	for(int i=0; i<Get_Children_Count(); i++)
+	{
+		Get_Child(i)->Set_Enabled(bEnabled);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter::is_Option(void)	const
 {
 	if( !is_Information() )

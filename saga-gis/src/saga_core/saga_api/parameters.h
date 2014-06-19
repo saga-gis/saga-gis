@@ -1249,8 +1249,8 @@ public:
 	CSG_String					Get_Description			(int Flags)								const;
 	CSG_String					Get_Description			(int Flags, const SG_Char *Separator)	const;
 
-	bool						Set_Enabled				(bool bEnabled);
-	bool						is_Enabled				(void)	const	{	return( m_bEnabled );				}
+	bool						Set_Enabled				(bool bEnabled = true);
+	bool						is_Enabled				(void)	const;
 
 	bool						ignore_Projection		(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_IGNORE_PROJECTION) );	}
 
@@ -1269,6 +1269,7 @@ public:
 
 	int							Get_Children_Count		(void)	const	{	return( m_nChildren );		}
 	CSG_Parameter *				Get_Child				(int iChild)	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}
+	bool						Set_Children_Enabled	(bool bEnabled = true);
 
 	//-----------------------------------------------------
 	bool						Set_Value				(int               Value);
