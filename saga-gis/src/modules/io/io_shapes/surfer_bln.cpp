@@ -78,13 +78,13 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Import Surfer Blanking Files"));
+	Set_Name		(_TL("Import Surfer Blanking Files"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
-		"Import polygons/polylines from Golden Software's Surfer Blanking File format.\n")
-	);
+		"Import polygons/polylines from Golden Software's Surfer Blanking File format.\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -111,7 +111,6 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "TYPE"	, _TL("Shape Type"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("points"),
 			_TL("lines"),
@@ -119,10 +118,6 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 		), 1
 	);
 }
-
-//---------------------------------------------------------
-CSurfer_BLN_Import::~CSurfer_BLN_Import(void)
-{}
 
 //---------------------------------------------------------
 bool CSurfer_BLN_Import::On_Execute(void)
@@ -180,10 +175,10 @@ bool CSurfer_BLN_Import::On_Execute(void)
 				pTable->Destroy();
 			}
 
-			pTable->			 Add_Field("ID"		, SG_DATATYPE_Int);
-			pTable->			 Add_Field("FLAG"	, SG_DATATYPE_Int);
-			pTable->			 Add_Field("NAME"	, SG_DATATYPE_String);
-			pTable->			 Add_Field("DESC"	, SG_DATATYPE_String);
+			pTable ->Add_Field("ID"		, SG_DATATYPE_Int);
+			pTable ->Add_Field("FLAG"	, SG_DATATYPE_Int);
+			pTable ->Add_Field("NAME"	, SG_DATATYPE_String);
+			pTable ->Add_Field("DESC"	, SG_DATATYPE_String);
 
 			pShapes->Add_Field("ID"		, SG_DATATYPE_Int);
 			pShapes->Add_Field("ID_LUT"	, SG_DATATYPE_Int);
@@ -281,143 +276,95 @@ CSurfer_BLN_Export::CSurfer_BLN_Export(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Export Surfer Blanking File"));
+	Set_Name		(_TL("Export Surfer Blanking File"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
-		"Export shapes to Golden Software's Surfer Blanking File format.\n")
-	);
+		"Export shapes to Golden Software's Surfer Blanking File format.\n"
+	));
 
 
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	CSG_Parameter	*pNode;
-
-	pNode	= Parameters.Add_Shapes(
+	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "NAME"	, _TL("Name"),
-		_TL("")
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "DESC"	, _TL("Description"),
-		_TL("")
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "ZVAL"	, _TL("z values"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		NULL	, "BNAME"	, _TL("Export names"),
-		_TL(""),
-		PARAMETER_TYPE_Bool	, false
-	);
-
-	Parameters.Add_Value(
-		NULL	, "BDESC"	, _TL("Export descriptions"),
-		_TL(""),
-		PARAMETER_TYPE_Bool	, false
-	);
-
-	Parameters.Add_Value(
-		NULL	, "BZVAL"	, _TL("Export z values"),
-		_TL(""),
-		PARAMETER_TYPE_Bool	, false
-	);
+	Parameters.Add_Table_Field(pNode, "NAME", _TL("Name"       ), _TL(""), true);
+	Parameters.Add_Table_Field(pNode, "DESC", _TL("Description"), _TL(""), true);
+	Parameters.Add_Table_Field(pNode, "ZVAL", _TL("z values"   ), _TL(""), true);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL(
-		"Surfer Blanking Files (*.bln)|*.bln|All Files|*.*"), NULL, true
+		CSG_String::Format(SG_T("%s|*bln|%s|*.*"),
+			_TL("Surfer Blanking Files (*.bln)"),
+			_TL("All Files")
+		), NULL, true
 	);
 }
 
 //---------------------------------------------------------
-CSurfer_BLN_Export::~CSurfer_BLN_Export(void)
-{}
-
-//---------------------------------------------------------
 bool CSurfer_BLN_Export::On_Execute(void)
 {
-	int			iShape, iPart, iPoint, iName, iDesc, iZVal, Flag;
-	double		z;
-	FILE		*Stream;
-	TSG_Point	p;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pShapes;
-	CSG_String	fName;
-
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	fName	= Parameters("FILE")	->asString();
+	CSG_File	Stream;
 
-	iName	= Parameters("BNAME")	->asBool() ? Parameters("NAME")->asInt() : -1;
-	iDesc	= Parameters("BDESC")	->asBool() ? Parameters("DESC")->asInt() : -1;
-	iZVal	= Parameters("BZVAL")	->asBool() ? Parameters("ZVAL")->asInt() : -1;
-
-	Flag	= 1;
-
-	//-----------------------------------------------------
-	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W) )
 	{
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			pShape	= pShapes->Get_Shape(iShape);
+		return( false );
+	}
 
-			if( iZVal >= 0 )
-			{
-				z		= pShape->asDouble(iZVal);
-			}
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				fprintf(Stream, "%d,%d", pShape->Get_Point_Count(iPart), Flag);
-
-				if( iName >= 0 )
-				{
-					fprintf(Stream, ",\"%s\"", pShape->asString(iName));
-				}
-
-				if( iDesc >= 0 )
-				{
-					fprintf(Stream, ",\"%s\"", pShape->asString(iDesc));
-				}
-
-				fprintf(Stream, "\n");
-
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					p	= pShape->Get_Point(iPoint, iPart);
-
-					if( iZVal >= 0 )
-					{
-						fprintf(Stream, "%f,%f,%f\n", p.x, p.y, z);
-					}
-					else
-					{
-						fprintf(Stream, "%f,%f\n"   , p.x, p.y);
-					}
-				}
-			}
-		}
-
-		fclose(Stream);
-
-		return( true );
+	if( !pShapes->is_Valid() || pShapes->Get_Count() <= 0 )
+	{
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	int iName	= Parameters("BNAME" )->asBool() ? Parameters("NAME")->asInt() : -1;
+	int iDesc	= Parameters("BDESC" )->asBool() ? Parameters("DESC")->asInt() : -1;
+	int iZVal	= Parameters("BZVAL" )->asBool() ? Parameters("ZVAL")->asInt() : -1;
+
+	int Flag	= 1;
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		{
+			Stream.Printf(SG_T("%d,%d"), pShape->Get_Point_Count(iPart), Flag);
+
+			if( iName >= 0 )	{	Stream.Printf(SG_T(",\"%s\""), pShape->asString(iName));	}
+			if( iDesc >= 0 )	{	Stream.Printf(SG_T(",\"%s\""), pShape->asString(iDesc));	}
+
+			Stream.Printf(SG_T("\n"));
+
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+
+				if( iZVal >= 0 )
+				{
+					Stream.Printf(SG_T("%f,%f,%f\n"), p.x, p.y, pShape->asDouble(iZVal));
+				}
+				else
+				{
+					Stream.Printf(SG_T("%f,%f\n"   ), p.x, p.y);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

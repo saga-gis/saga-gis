@@ -72,7 +72,7 @@ CWASP_MAP_Export::CWASP_MAP_Export(void)
 {
 	Set_Name		(_TL("Export WASP terrain map file"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Reference:\n"
@@ -103,95 +103,91 @@ CWASP_MAP_Export::CWASP_MAP_Export(void)
 }
 
 //---------------------------------------------------------
-CWASP_MAP_Export::~CWASP_MAP_Export(void)
-{}
-
-//---------------------------------------------------------
 bool CWASP_MAP_Export::On_Execute(void)
 {
-	int			zField;
-	FILE		*Stream;
-	CSG_String	fName;
-	CSG_Shape	*pLine;
-	CSG_Shapes	*pLines;
-
 	//-----------------------------------------------------
-	pLines	= Parameters("SHAPES")		->asShapes();
-	zField	= Parameters("ELEVATION")	->asInt();
-	fName	= Parameters("FILE")		->asString();
+	CSG_File	Stream;
 
-	//-----------------------------------------------------
-	if( pLines && pLines->is_Valid() && (Stream = fopen(fName.b_str(), "w")) != NULL )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W) )
 	{
-		// 1)	Text string identifying the terrain map: + ...
+		return( false );
+	}
 
-		fprintf(Stream, "+ %s\n", pLines->Get_Name());
+	CSG_Shapes	*pLines	= Parameters("SHAPES")->asShapes();
 
+	if( !pLines->is_Valid() || pLines->Get_Count() <= 0 )
+	{
+		return( false );
+	}
 
-		// 2)	Fixed point #1 in user and metric [m] coordinates:
-		//			X1(user) Y1(user) X1(metric) Y1(metric)
+	//-----------------------------------------------------
+	// 1)	Text string identifying the terrain map: + ...
 
-		fprintf(Stream, "%f %f %f %f\n", 0.0, 0.0, 0.0, 0.0);
-
-
-		// 3)	Fixed point #2 in user and metric [m] coordinates:
-		//			X2(user) Y2(user) X2(metric) Y2(metric)
-
-		fprintf(Stream, "%f %f %f %f\n", 1.0, 1.0, 1.0, 1.0);
-
-
-		// 4)	Scaling factor and offset for height scale (Z):
-		//			Zmetric = {scaling factor}(Zuser + {offset})
-
-		fprintf(Stream, "%f %f\n", 1.0, 0.0);
+	Stream.Printf(SG_T("+ %s\n"), pLines->Get_Name());
 
 
-		for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	// 2)	Fixed point #1 in user and metric [m] coordinates:
+	//			X1(user) Y1(user) X1(metric) Y1(metric)
+
+	Stream.Printf(SG_T("%f %f %f %f\n"), 0.0, 0.0, 0.0, 0.0);
+
+
+	// 3)	Fixed point #2 in user and metric [m] coordinates:
+	//			X2(user) Y2(user) X2(metric) Y2(metric)
+
+	Stream.Printf(SG_T("%f %f %f %f\n"), 1.0, 1.0, 1.0, 1.0);
+
+
+	// 4)	Scaling factor and offset for height scale (Z):
+	//			Zmetric = {scaling factor}(Zuser + {offset})
+
+	Stream.Printf(SG_T("%f %f\n"), 1.0, 0.0);
+
+	int	zField	= Parameters("ELEVATION")->asInt();
+
+	//-----------------------------------------------------
+	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	{
+		CSG_Shape	*pLine	= pLines->Get_Shape(iLine);
+
+		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
-			pLine	= pLines->Get_Shape(iLine);
-
-			for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+			if( pLine->Get_Point_Count(iPart) > 1 )
 			{
-				if( pLine->Get_Point_Count(iPart) > 1 )
+				// 5a)	Height contour: elevation (Z) and number of points (n) in line:
+				//			Z n
+
+				Stream.Printf(SG_T("%f %d\n"), pLine->asDouble(zField), pLine->Get_Point_Count(iPart));
+
+
+				// 5b)	Roughness change line:
+				//			roughness lengths to the left (z0l) and right (z0r) side of the line,
+				//			respectively, and number of points:
+				//				z0l z0r n
+
+				// 5c)	Roughness and contour line:
+				//			roughness lengths to the left and right of the line,
+				//			respectively, elevation and number of points:
+				//				z0l z0r Z n
+
+
+				// 6–)	Cartesian coordinates (X, Y) of line described in 5a, 5b or 5c:
+				//			X1 Y1 [... Xn Yn]
+				//			Xn+1 Yn+1
+				//			... where [] embrace optional numbers and n is > 0
+
+				for(int iPoint=0; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 				{
-					// 5a)	Height contour: elevation (Z) and number of points (n) in line:
-					//			Z n
+					TSG_Point	p	= pLine->Get_Point(iPoint, iPart);
 
-					fprintf(Stream, "%f %d\n", pLine->asDouble(zField), pLine->Get_Point_Count(iPart));
-
-
-					// 5b)	Roughness change line:
-					//			roughness lengths to the left (z0l) and right (z0r) side of the line,
-					//			respectively, and number of points:
-					//				z0l z0r n
-
-					// 5c)	Roughness and contour line:
-					//			roughness lengths to the left and right of the line,
-					//			respectively, elevation and number of points:
-					//				z0l z0r Z n
-
-
-					// 6–)	Cartesian coordinates (X, Y) of line described in 5a, 5b or 5c:
-					//			X1 Y1 [... Xn Yn]
-					//			Xn+1 Yn+1
-					//			... where [] embrace optional numbers and n is > 0
-
-					for(int iPoint=0; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
-					{
-						TSG_Point	p	= pLine->Get_Point(iPoint, iPart);
-
-						fprintf(Stream, "%f\t%f\n", p.x, p.y);
-					}
+					Stream.Printf(SG_T("%f\t%f\n"), p.x, p.y);
 				}
 			}
 		}
-
-		fclose(Stream);
-
-		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -206,7 +202,7 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 {
 	Set_Name		(_TL("Import WASP terrain map file"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Reference:\n"
@@ -233,7 +229,6 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Input Specification"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("elevation"),
 			_TL("roughness"),
@@ -241,10 +236,6 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 		), 0
 	);
 }
-
-//---------------------------------------------------------
-CWASP_MAP_Import::~CWASP_MAP_Import(void)
-{}
 
 //---------------------------------------------------------
 bool CWASP_MAP_Import::On_Execute(void)
@@ -258,9 +249,9 @@ bool CWASP_MAP_Import::On_Execute(void)
 	CSG_Shapes	*pLines;
 
 	//-----------------------------------------------------
-	pLines	= Parameters("SHAPES")		->asShapes();
-	fName	= Parameters("FILE")		->asString();
-	Method	= Parameters("METHOD")		->asInt();
+	pLines	= Parameters("SHAPES")->asShapes();
+	fName	= Parameters("FILE"  )->asString();
+	Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
 	if( (Stream = fopen(fName.b_str(), "r")) != NULL )

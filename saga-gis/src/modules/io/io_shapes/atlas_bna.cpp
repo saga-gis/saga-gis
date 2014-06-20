@@ -78,7 +78,7 @@ CAtlas_BNA_Import::CAtlas_BNA_Import(void)
 
 	Set_Name		(_TL("Import Atlas Boundary File"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"\n"
@@ -91,13 +91,12 @@ CAtlas_BNA_Import::CAtlas_BNA_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL("Atlas Boundary Files (*.bna)|*.bna|All Files|*.*")
+		CSG_String::Format(SG_T("%s|*.bna|%s|*.*"),
+			_TL("Atlas Boundary Files (*.bna)"),
+			_TL("All Files")
+		)
 	);
 }
-
-//---------------------------------------------------------
-CAtlas_BNA_Import::~CAtlas_BNA_Import(void)
-{}
 
 //---------------------------------------------------------
 bool CAtlas_BNA_Import::On_Execute(void)
@@ -230,7 +229,7 @@ CAtlas_BNA_Export::CAtlas_BNA_Export(void)
 
 	Set_Name		(_TL("Export Atlas Boundary File"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"\n"
@@ -261,119 +260,106 @@ CAtlas_BNA_Export::CAtlas_BNA_Export(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL(
-		"Atlas Boundary Files (*.bna)|*.bna|All Files|*.*"), NULL, true
+		CSG_String::Format(SG_T("%s|*.bna|%s|*.*"),
+			_TL("Atlas Boundary Files (*.bna)"),
+			_TL("All Files")
+		), NULL, true
 	);
 }
 
 //---------------------------------------------------------
-CAtlas_BNA_Export::~CAtlas_BNA_Export(void)
-{}
-
-//---------------------------------------------------------
 bool CAtlas_BNA_Export::On_Execute(void)
 {
-	int			iShape, iPart, iPoint, iName1, iName2;
-	FILE		*Stream;
-	TSG_Point	p;
-	CSG_Points	Pts;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pShapes;
-	CSG_String	fName;
-
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	fName	= Parameters("FILE")	->asString();
+	CSG_File	Stream;
 
-	iName1	= Parameters("PNAME")	->asInt();
-	iName2	= Parameters("SNAME")	->asInt();
-
-	//-----------------------------------------------------
-	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W) )
 	{
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		return( false );
+	}
+
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	if( !pShapes->is_Valid() || pShapes->Get_Count() <= 0 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int	iName1	= Parameters("PNAME")->asInt();
+	int	iName2	= Parameters("SNAME")->asInt();
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		switch( pShapes->Get_Type() )
 		{
-			pShape	= pShapes->Get_Shape(iShape);
+		default:
+			break;
 
-			switch( pShapes->Get_Type() )
+		//---------------------------------------------
+		case SHAPE_TYPE_Point:
+			if( pShape->is_Valid() )
 			{
-			default:
-				break;
-
-			//---------------------------------------------
-			case SHAPE_TYPE_Point:
-				fprintf(Stream, "\"%s\",\"%s\",%d\n",
+				Stream.Printf(SG_T("\"%s\",\"%s\",%d\n"),
 					pShape->asString(iName1),
 					pShape->asString(iName2),
 					1
 				);
 
-				p	= pShape->Get_Point(0);
-				fprintf(Stream, "%f,%f\n", p.x, p.y);
-				break;
+				TSG_Point	p	= pShape->Get_Point(0);
+				Stream.Printf(SG_T("%f,%f\n"), p.x, p.y);
+			}
+			break;
 
-			//---------------------------------------------
-			case SHAPE_TYPE_Line:
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		//---------------------------------------------
+		case SHAPE_TYPE_Line:
+			if( pShape->is_Valid() )
+			{
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					fprintf(Stream, "\"%s\",\"%s\",%d\n",
+					Stream.Printf(SG_T("\"%s\",\"%s\",%d\n"),
 						pShape->asString(iName1),
 						pShape->asString(iName2),
-						-pShape->Get_Point_Count(iPart)
+						pShape->Get_Point_Count(iPart)
 					);
 
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						p	= pShape->Get_Point(iPoint, iPart);
-						fprintf(Stream, "%f,%f\n", p.x, p.y);
+						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+						Stream.Printf(SG_T("%f,%f\n"), p.x, p.y);
 					}
 				}
-				break;
-
-			//---------------------------------------------
-			case SHAPE_TYPE_Polygon:
-				if( pShape->Get_Part_Count() > 0 && pShape->Get_Point_Count(0) > 2 )
-				{
-					Pts.Clear();
-
-					for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-					{
-						for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-						{
-							Pts.Add(pShape->Get_Point(iPoint, iPart));
-						}
-
-						if( iPart > 0 )
-						{
-							Pts.Add(pShape->Get_Point(0, 0));
-						}
-					}
-
-					if( Pts.Get_Count() > 2 )
-					{
-						fprintf(Stream, "\"%s\",\"%s\",%d\n",
-							pShape->asString(iName1),
-							pShape->asString(iName2),
-							Pts.Get_Count()
-						);
-
-						for(iPoint=0; iPoint<Pts.Get_Count(); iPoint++)
-						{
-							fprintf(Stream, "%f,%f\n", Pts[iPoint].x, Pts[iPoint].y);
-						}
-					}
-				}
-				break;
 			}
+			break;
+
+		//---------------------------------------------
+		case SHAPE_TYPE_Polygon:
+			if( pShape->is_Valid() )
+			{
+				Stream.Printf(SG_T("\"%s\",\"%s\",%d\n"),
+					pShape->asString(iName1),
+					pShape->asString(iName2),
+					pShape->Get_Point_Count()
+				);
+
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				{
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					{
+						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+						Stream.Printf(SG_T("%f,%f\n"), p.x, p.y);
+					}
+				}
+			}
+			break;
 		}
-
-		fclose(Stream);
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	return( true );
 }
 
 

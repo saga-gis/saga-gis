@@ -86,7 +86,6 @@ class CAtlas_BNA_Import : public CSG_Module
 {
 public:
 	CAtlas_BNA_Import(void);
-	virtual ~CAtlas_BNA_Import(void);
 
 	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
@@ -100,8 +99,6 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -109,7 +106,6 @@ class CAtlas_BNA_Export : public CSG_Module
 {
 public:
 	CAtlas_BNA_Export(void);
-	virtual ~CAtlas_BNA_Export(void);
 
 	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Export") );	}
 

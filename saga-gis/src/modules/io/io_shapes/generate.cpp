@@ -73,15 +73,15 @@
 //---------------------------------------------------------
 CGenerate_Export::CGenerate_Export(void)
 {
-	CSG_Parameter	*pNode;
+	Set_Name		(_TL("Export Shapes to Generate"));
 
-	Set_Name(_TL("Export Shapes to Generate"));
+	Set_Author		("O.Conrad (c) 2003");
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Description	(_TW(
+		"Export generate shapes format."
+	));
 
-	Set_Description	(_TW("Export generate shapes format."));
-
-	pNode	= Parameters.Add_Shapes(
+	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
@@ -93,85 +93,81 @@ CGenerate_Export::CGenerate_Export(void)
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILENAME", _TL("File"),
+		NULL	, "FILE"	, _TL("File"),
 		_TL("")
 	);
 }
 
-//---------------------------------------------------------
-CGenerate_Export::~CGenerate_Export(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGenerate_Export::On_Execute(void)
 {
-	int			iShape, iPart, iPoint, iField;
-	FILE		*aus;
-	TSG_Point	Point;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pLayer;
-	CSG_String	fName;
+	//-----------------------------------------------------
+	CSG_File	Stream;
 
-	fName	= Parameters("FILENAME")->asString();
-
-	if(	(pLayer = Parameters("SHAPES")->asShapes()) != NULL )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W) )
 	{
-		if( (aus = fopen(fName.b_str(), "w")) != NULL )
+		return( false );
+	}
+
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	if( !pShapes->is_Valid() || pShapes->Get_Count() <= 0 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int	iField	= Parameters("FIELD")->asInt();
+
+	if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
+	{
+		iField	= -1;
+	}
+
+	Stream.Printf(SG_T("EXP %s\nARC "), pShapes->Get_Name());
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			if( pLayer->Get_Field_Count() > 0 )
+			if( iField < 0 )	// Value...
 			{
-				iField	= Parameters("FIELD")->asInt();
-
-				if( pLayer->Get_Field_Type(iField) == SG_DATATYPE_String )
-				{
-					iField	= -1;
-				}
-
-				fprintf(aus, "EXP %s\nARC ", pLayer->Get_Name());
-
-				for(iShape=0; iShape<pLayer->Get_Count() && Set_Progress(iShape, pLayer->Get_Count()); iShape++)
-				{
-					pShape	= pLayer->Get_Shape(iShape);
-
-					for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-					{
-						// Value...
-						if( iField < 0 )
-						{
-							fprintf(aus, "%d ", iShape + 1);
-						}
-						else
-						{
-							fprintf(aus, "%lf ", pShape->asDouble(iField));
-						}
-
-						// dummy_I dummy_I dummy_I dummy_I dummy_I...
-						fprintf(aus, "1 2 3 4 5 ");
-						// I_np...
-						fprintf(aus, "%d ", pShape->Get_Point_Count(iPart));
-
-						for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-						{
-							Point	= pShape->Get_Point(iPoint, iPart);
-
-							fprintf(aus, "%f %f ", Point.x, Point.y);
-						}
-					}
-				}
+				Stream.Printf(SG_T("%d "), iShape + 1);
+			}
+			else
+			{
+				Stream.Printf(SG_T("%lf "), pShape->asDouble(iField));
 			}
 
-			fclose(aus);
+			Stream.Printf(SG_T("1 2 3 4 5 "));	// dummy_I dummy_I dummy_I dummy_I dummy_I...
+			Stream.Printf(SG_T("%d "), pShape->Get_Point_Count(iPart));	// I_np...
 
-			return( true );
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+
+				Stream.Printf(SG_T("%f %f "), p.x, p.y);
+			}
 		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
