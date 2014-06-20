@@ -698,24 +698,35 @@ inline void CSG_3DView_Canvas::_Draw_Triangle_Line(int y, double a[], double b[]
 {
 	if( a[0] == b[0] )
 	{
+		if( a[2] < b[2] )
+		{
+			_Draw_Pixel((int)a[0], y, a[2], _Dim_Color(Get_Color(a[3]), dim));
+		}
+		else
+		{
+			_Draw_Pixel((int)b[0], y, b[2], _Dim_Color(Get_Color(b[3]), dim));
+		}
+
 		return;
 	}
+
+	double	d[6], dx = b[0] - a[0];
+
+	switch( mode )
+	{
+	case 2:	d[5]	= (b[5] - a[5]) / dx;
+	case 1:	d[4]	= (b[4] - a[4]) / dx;
+	}
+
+	d[3]	= (b[3] - a[3]) / dx;
+	d[2]	= (b[2] - a[2]) / dx;
 
 	int	ax	= (int)a[0]; if( ax <  0          )	ax	= 0;
 	int	bx	= (int)b[0]; if( bx >= m_Image_NX )	bx	= m_Image_NX - 1;
 
-	double	d[6];
+	dx	= ax - a[0];
 
-	switch( mode )
-	{
-	case 2:	d[5]	= (b[5] - a[5]) / (bx - ax);
-	case 1:	d[4]	= (b[4] - a[4]) / (bx - ax);
-	}
-
-	d[3]	= (b[3] - a[3]) / (bx - ax);
-	d[2]	= (b[2] - a[2]) / (bx - ax);
-
-	for(int x=ax, dx=0; x<=bx; x++, dx++)
+	for(int x=ax; x<=bx; x++, dx++)
 	{
 		double	z	= a[2] + dx * d[2];
 
