@@ -209,6 +209,10 @@ bool CPolygons_From_Lines::Add_Line(CSG_Shape *pPolygon, CSG_Shape *pLine, int i
 		{
 			Add_Part(pPolygon, pLine, iPart_Polygon, iPart_Line, bAscending);	pLine->Del_Part(iPart_Line);
 		}
+		else // start a new polygon part
+		{
+			Add_Part(pPolygon, pLine, ++iPart_Polygon, 0);	pLine->Del_Part(0);
+		}
 	}
 
 	return( true );
