@@ -273,7 +273,7 @@ TSG_Data_Type CSG_OGR_Drivers::Get_Data_Type(int Type)
 	case OFTBinary:			// Raw Binary data
 	case OFTDate:			// Date
 	case OFTTime:			// Time
-		return( SG_DATATYPE_Undefined );
+		return( SG_DATATYPE_String );
 	}
 }
 
