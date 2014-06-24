@@ -97,6 +97,10 @@ protected:
 
 private:
 
+	bool						Add_Part		(CSG_Shape *pPolygon, CSG_Shape *pLine, int iPart_Polygon, int iPart_Line, bool bAscending = true);
+	bool						Add_Line		(CSG_Shape *pPolygon, CSG_Shape *pLine, int iPart_Polygon = 0);
+	bool						Get_Part		(CSG_Point Point, CSG_Shape *pLine, int &iPart, bool &bAscending);
+
 };
 
 
