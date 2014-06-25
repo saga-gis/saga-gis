@@ -160,6 +160,8 @@ bool CLines_From_Points::On_Execute(void)
 	}
 
 	//-------------------------------------------------
+	int	iVertex = 0;
+
 	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 	{
 		pPoint	= pPoints->Get_Shape_byIndex(iPoint);
@@ -167,6 +169,7 @@ bool CLines_From_Points::On_Execute(void)
 		if( pLines->Get_Count() == 0 || (Separate >= 0 && s.Cmp(pPoint->asString(Separate))) )
 		{
 			pLine	= pLines->Add_Shape();
+			iVertex	= 0;
 
 			pLine->Set_Value(0, pLines->Get_Count());
 
@@ -180,7 +183,8 @@ bool CLines_From_Points::On_Execute(void)
 
 		if( Elevation >= 0 )
 		{
-			pLine->Set_Z(pPoint->asDouble(Elevation), iPoint);
+			pLine->Set_Z(pPoint->asDouble(Elevation), iVertex);
+			iVertex++;
 		}
 	}
 
