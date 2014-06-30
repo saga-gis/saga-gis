@@ -95,7 +95,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("Image File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
 			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
 			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
 			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
@@ -104,20 +104,21 @@ CGrid_to_KML::CGrid_to_KML(void)
 		), NULL, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "COLOURING"	, _TL("Colouring"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("stretch to grid's standard deviation"),
-			_TL("stretch to grid's value range"),
-			_TL("stretch to specified value range"),
-			_TL("lookup table"),
-			_TL("rgb coded values")
-		), 0
-	);
-
 	if( SG_UI_Get_Window_Main() )
 	{
+		Parameters.Add_Choice(
+			NULL	, "COLOURING"	, _TL("Colouring"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+				_TL("stretch to grid's standard deviation"),
+				_TL("stretch to grid's value range"),
+				_TL("stretch to specified value range"),
+				_TL("lookup table"),
+				_TL("rgb coded values"),
+				_TL("same as in graphical user interface")
+			), 5
+		);
+
 		Parameters.Add_Colors(
 			NULL	, "COL_PALETTE"	, _TL("Colours Palette"),
 			_TL("")
@@ -125,6 +126,18 @@ CGrid_to_KML::CGrid_to_KML(void)
 	}
 	else
 	{
+		Parameters.Add_Choice(
+			NULL	, "COLOURING"	, _TL("Colouring"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+				_TL("stretch to grid's standard deviation"),
+				_TL("stretch to grid's value range"),
+				_TL("stretch to specified value range"),
+				_TL("lookup table"),
+				_TL("rgb coded values")
+			), 0
+		);
+
 		Parameters.Add_Choice(
 			NULL	, "COL_PALETTE"	, _TL("Color Palette"),
 			_TL(""),
@@ -235,8 +248,25 @@ bool CGrid_to_KML::On_Execute(void)
 	CSG_Parameters	P;
 	CSG_Module		*pModule;
 
-	CSG_Grid	Grid , *pGrid	= Parameters("GRID" )->asGrid();
+	CSG_Grid	Grid , *pGrid	= Parameters("GRID" )->asGrid(), Image;
 	CSG_Grid	Shade, *pShade	= Parameters("SHADE")->asGrid();
+
+	//-----------------------------------------------------
+	int	Method	= Parameters("COLOURING")->asInt();
+
+	if( Method == 5 )	// same as in graphical user interface
+	{
+		if( !SG_UI_DataObject_asImage(pGrid, &Image) )
+		{
+			Error_Set("could not retrieve colour coding from graphical user interface.");
+
+			return( false );
+		}
+
+		Image.Flip();
+		pGrid	= &Image;
+		Method	= 4;	// rgb coded values
+	}
 
 	//-----------------------------------------------------
 	if( pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Undefined )
@@ -304,7 +334,7 @@ bool CGrid_to_KML::On_Execute(void)
 	&&  pModule->Get_Parameters()->Set_Parameter("SHADE"       , pShade)
 	&&  pModule->Get_Parameters()->Set_Parameter("FILE_KML"    , true)
 	&&  pModule->Get_Parameters()->Set_Parameter("FILE"        , Parameters("FILE"))
-	&&  pModule->Get_Parameters()->Set_Parameter("COLOURING"   , Parameters("COLOURING"))
+	&&  pModule->Get_Parameters()->Set_Parameter("COLOURING"   , Method)
 	&&  pModule->Get_Parameters()->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE"))
 	&&  pModule->Get_Parameters()->Set_Parameter("STDDEV"      , Parameters("STDDEV"))
 	&&  pModule->Get_Parameters()->Set_Parameter("STRETCH"     , Parameters("STRETCH"))
