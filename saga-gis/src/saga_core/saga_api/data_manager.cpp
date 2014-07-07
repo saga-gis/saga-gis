@@ -471,6 +471,8 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 {
 	//-----------------------------------------------------
+	bool		bResult	= false;
+
 	CSG_Module	*pImport;
 
 	if( !SG_File_Exists(File) )
@@ -479,37 +481,49 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	if(	SG_File_Cmp_Extension(File, SG_T("bmp"))
-	||	SG_File_Cmp_Extension(File, SG_T("gif"))
-	||	SG_File_Cmp_Extension(File, SG_T("jpg"))
-	||	SG_File_Cmp_Extension(File, SG_T("png"))
-	||	SG_File_Cmp_Extension(File, SG_T("pcx")) )
-	{
-		pImport	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_grid_image"), 1);	// Image Import
+	// Image Import
 
-		if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILE"), File, PARAMETER_TYPE_FilePath) && pImport->Execute() )
-		{
-			return( true );
-		}
+	if(	(	SG_File_Cmp_Extension(File, SG_T("bmp"))
+		||	SG_File_Cmp_Extension(File, SG_T("gif"))
+		||	SG_File_Cmp_Extension(File, SG_T("jpg"))
+		||	SG_File_Cmp_Extension(File, SG_T("png"))
+		||	SG_File_Cmp_Extension(File, SG_T("pcx")) )
+	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module(SG_T("io_grid_image"), 1)) != NULL
+	&&   pImport->Get_Parameters()->Set_Parameter("FILE", File, PARAMETER_TYPE_FilePath) )
+	{
+		pImport->Set_Manager(this);
+		bResult	= pImport->Execute();
+		pImport->Set_Manager(&g_Data_Manager);
 	}
 
 	//-----------------------------------------------------
-	pImport	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_gdal"), 0);			// GDAL Import
+	// GDAL Import
 
-	if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File, PARAMETER_TYPE_FilePath) && pImport->Execute() )
+	if( !bResult
+	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module(SG_T("io_gdal"), 0)) != NULL
+	&&   pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File, PARAMETER_TYPE_FilePath) )
 	{
-		return( true );
+		pImport->Set_Manager(this);
+		bResult	= pImport->Execute();
+		if( this != &g_Data_Manager )	{	pImport->Set_Manager(&g_Data_Manager);	}
 	}
 
 	//-----------------------------------------------------
-	pImport	= SG_Get_Module_Library_Manager().Get_Module(SG_T("io_gdal"), 3);			// OGR Import
+	// OGR Import
 
-	if( pImport && pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File, PARAMETER_TYPE_FilePath) && pImport->Execute() )
+	if( !bResult
+	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module(SG_T("io_gdal"), 3)) != NULL
+	&&   pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), File, PARAMETER_TYPE_FilePath) )
 	{
-		return( true );
+		pImport->Set_Manager(this);
+		bResult	= pImport->Execute();
+		pImport->Set_Manager(&g_Data_Manager);
 	}
 
-	return( false );
+	//-----------------------------------------------------
+
+
+	return( bResult );
 }
 
 

@@ -1394,6 +1394,7 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 
 		pGrid->Set_Name(Get_Name().wx_str());
 		pGrid->Set_NoData_Value(16711935);
+		pGrid->Get_Projection().Create(m_Projection);
 
 		for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY(); y++, yy--)
 		{

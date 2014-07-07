@@ -552,7 +552,12 @@ bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 		Parameters.Get_Manager()->Add(pDataObject);
 	}
 
-	return( SG_UI_DataObject_Add(pDataObject, bUpdate) );
+	if( Parameters.Get_Manager() == &SG_Get_Data_Manager() )	// prevent that local data manager send their data objects to gui
+	{
+		return( SG_UI_DataObject_Add(pDataObject, bUpdate) );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
