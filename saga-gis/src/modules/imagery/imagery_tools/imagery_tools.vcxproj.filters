@@ -41,6 +41,9 @@
     <ClCompile Include="landsat_toar_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="landsat_import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -119,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="landsat_toar_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="landsat_import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
