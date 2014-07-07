@@ -322,7 +322,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 
 				for(int iField=0; iField<pPC->Get_Attribute_Count(); iField++)
 				{
-					pPC_out->Set_Attribute(iPoint, iField, pPC->Get_Attribute(iPoint, iField));
+					pPC_out->Set_Attribute(iField, pPC->Get_Attribute(iPoint, iField));
 				}
 
 				bFound = true;
