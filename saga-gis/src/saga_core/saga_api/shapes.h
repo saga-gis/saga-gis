@@ -125,7 +125,8 @@ public:
 	virtual bool				Assign				(CSG_Shape *pShape);
 	virtual bool				Assign				(CSG_Shape *pShape, bool bAssign_Attributes);
 
-	TSG_Shape_Type				Get_Type			(void);
+	TSG_Shape_Type				Get_Type			(void)	const;
+	TSG_Vertex_Type				Get_Vertex_Type		(void)	const;
 
 	virtual bool				is_Valid			(void)											= 0;
 
@@ -1111,8 +1112,10 @@ enum ESG_OGIS_ByteOrder
 };
 
 //---------------------------------------------------------
-enum ESG_SG_OGIS_Type_Geometry
+typedef enum ESG_OGIS_Type_Geometry
 {
+	SG_OGIS_TYPE_Undefined				=    0,
+
 	SG_OGIS_TYPE_Point					=    1,
 	SG_OGIS_TYPE_LineString				=    2,
 	SG_OGIS_TYPE_Polygon				=    3,
@@ -1133,7 +1136,7 @@ enum ESG_SG_OGIS_Type_Geometry
 	SG_OGIS_TYPE_GeometryCollectionZ	= 1007,
 	SG_OGIS_TYPE_PolyhedralSurfaceZ		= 1015,
 	SG_OGIS_TYPE_TINZ					= 1016,
-	SG_OGIS_TYPE_Trianglez				= 1017,
+	SG_OGIS_TYPE_TriangleZ				= 1017,
 
 	SG_OGIS_TYPE_PointM					= 2001,
 	SG_OGIS_TYPE_LineStringM			= 2002,
@@ -1154,54 +1157,10 @@ enum ESG_SG_OGIS_Type_Geometry
 	SG_OGIS_TYPE_MultiPolygonZM			= 3006,
 	SG_OGIS_TYPE_GeometryCollectionZM	= 3007,
 	SG_OGIS_TYPE_PolyhedralSurfaceZM	= 3015,
-	SG_OGIS_TYPE_TinZM					= 3016,
+	SG_OGIS_TYPE_TINZM					= 3016,
 	SG_OGIS_TYPE_TriangleZM				= 3017
-};
-
-//---------------------------------------------------------
-#define SG_OGIS_TYPE_STR_Point					SG_T("Point")
-#define SG_OGIS_TYPE_STR_Line					SG_T("LineString")
-#define SG_OGIS_TYPE_STR_Polygon				SG_T("Polygon")
-#define SG_OGIS_TYPE_STR_MultiPoint				SG_T("MultiPoint")
-#define SG_OGIS_TYPE_STR_MultiLine				SG_T("MultiLineString")
-#define SG_OGIS_TYPE_STR_MultiPolygon			SG_T("MultiPolygon")
-#define SG_OGIS_TYPE_STR_GeometryCollection		SG_T("GeometryCollection")
-#define SG_OGIS_TYPE_STR_PolyhedralSurface		SG_T("PolyhedralSurface")
-#define SG_OGIS_TYPE_STR_TIN					SG_T("TIN")
-#define SG_OGIS_TYPE_STR_Triangle				SG_T("Triangle")
-
-#define SG_OGIS_TYPE_STR_Point_Z				SG_T("Point Z")
-#define SG_OGIS_TYPE_STR_Line_Z					SG_T("LineString Z")
-#define SG_OGIS_TYPE_STR_Polygon_Z				SG_T("Polygon Z")
-#define SG_OGIS_TYPE_STR_MultiPoint_Z			SG_T("MultiPoint Z")
-#define SG_OGIS_TYPE_STR_MultiLine_Z			SG_T("MultiLineString Z")
-#define SG_OGIS_TYPE_STR_MultiPolygon_Z			SG_T("MultiPolygon Z")
-#define SG_OGIS_TYPE_STR_GeometryCollection_Z	SG_T("GeometryCollection Z")
-#define SG_OGIS_TYPE_STR_PolyhedralSurface_Z	SG_T("PolyhedralSurface Z")
-#define SG_OGIS_TYPE_STR_TIN_Z					SG_T("TIN Z")
-#define SG_OGIS_TYPE_STR_Triangle_Z				SG_T("Triangle Z")
-
-#define SG_OGIS_TYPE_STR_Point_M				SG_T("Point M")
-#define SG_OGIS_TYPE_STR_Line_M					SG_T("LineString M")
-#define SG_OGIS_TYPE_STR_Polygon_M				SG_T("Polygon M")
-#define SG_OGIS_TYPE_STR_MultiPoint_M			SG_T("MultiPoint M")
-#define SG_OGIS_TYPE_STR_MultiLine_M			SG_T("MultiLineString M")
-#define SG_OGIS_TYPE_STR_MultiPolygon_M			SG_T("MultiPolygon M")
-#define SG_OGIS_TYPE_STR_GeometryCollection_M	SG_T("GeometryCollection M")
-#define SG_OGIS_TYPE_STR_PolyhedralSurface_M	SG_T("PolyhedralSurface M")
-#define SG_OGIS_TYPE_STR_TIN_M					SG_T("TIN M")
-#define SG_OGIS_TYPE_STR_Triangle_M				SG_T("Triangle M")
-
-#define SG_OGIS_TYPE_STR_Point_ZM				SG_T("Point ZM")
-#define SG_OGIS_TYPE_STR_Line_ZM				SG_T("LineString ZM")
-#define SG_OGIS_TYPE_STR_Polygon_ZM				SG_T("Polygon ZM")
-#define SG_OGIS_TYPE_STR_MultiPoint_ZM			SG_T("MultiPoint ZM")
-#define SG_OGIS_TYPE_STR_MultiLine_ZM			SG_T("MultiLineString ZM")
-#define SG_OGIS_TYPE_STR_MultiPolygon_ZM		SG_T("MultiPolygon ZM")
-#define SG_OGIS_TYPE_STR_GeometryCollection_ZM	SG_T("GeometryCollection ZM")
-#define SG_OGIS_TYPE_STR_PolyhedralSurface_ZM	SG_T("PolyhedralSurface ZM")
-#define SG_OGIS_TYPE_STR_TIN_ZM					SG_T("TIN ZM")
-#define SG_OGIS_TYPE_STR_Triangle_ZM			SG_T("Triangle ZM")
+}
+TSG_OGIS_Type_Geometry;
 
 
 ///////////////////////////////////////////////////////////
@@ -1228,6 +1187,9 @@ public:
 	static bool				from_ShapeType			(DWORD            &Type, TSG_Shape_Type  Shape, TSG_Vertex_Type  Vertex = SG_VERTEX_TYPE_XY);
 	static bool				to_ShapeType			(DWORD             Type, TSG_Shape_Type &Shape, TSG_Vertex_Type &Vertex);
 	static TSG_Shape_Type	to_ShapeType			(DWORD             Type);
+
+	static CSG_String		Type_asWKText			(DWORD             Type);
+	static DWORD			Type_asWKBinary			(const CSG_String &Type);
 
 
 private:

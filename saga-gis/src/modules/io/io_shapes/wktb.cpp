@@ -131,7 +131,7 @@ bool CWKT_Import::On_Execute(void)
 	pList->Del_Items();
 
 	//-----------------------------------------------------
-	for(int iFile=0, iPosition; iFile<Files.Get_Count() && Process_Get_Okay(); iFile++)
+	for(int iFile=0; iFile<Files.Get_Count() && Process_Get_Okay(); iFile++)
 	{
 		CSG_String	WKT;
 		CSG_Shapes	Shapes;
@@ -171,7 +171,7 @@ bool CWKT_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define IS_OF_TYPE(t_wkt, t_shape, t_vertex)	{	CSG_String	Type(t_wkt); Type.Make_Upper();	if( WKT.Find(Type) >= 0 )	{\
+#define IS_OF_TYPE(t, t_shape, t_vertex)	{	CSG_String	Type(CSG_Shapes_OGIS_Converter::Type_asWKText(t)); Type.Make_Upper();	if( WKT.Find(Type) >= 0 )	{\
 	Shapes.Create(t_shape, NULL, NULL, t_vertex);\
 	Shapes.Add_Field("OID", SG_DATATYPE_Int);\
 	WKT.Replace(Type, SEPARATOR + Type);\
@@ -185,35 +185,35 @@ bool CWKT_Import::Get_Type(CSG_String &WKT, CSG_Shapes &Shapes)
 
 	WKT.Make_Upper();
 
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPoint_ZM  , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XYZM);
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPoint_Z   , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPoint_M   , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPoint     , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XY  );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPointZM     , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XYZM);
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPointZ      , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPointM      , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPoint       , SHAPE_TYPE_Points , SG_VERTEX_TYPE_XY  );
 
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiLine_ZM   , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZM);
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiLine_Z    , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiLine_M    , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiLine      , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XY  );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiLineStringZM, SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZM);
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiLineStringZ , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiLineStringM , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiLineString  , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XY  );
 
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPolygon_ZM, SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZM);
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPolygon_Z , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPolygon_M , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_MultiPolygon   , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XY  );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPolygonZM   , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZM);
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPolygonZ    , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPolygonM    , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_MultiPolygon     , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XY  );
 
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Point_ZM       , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XYZM);
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Point_Z        , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Point_M        , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Point          , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XY  );
+	IS_OF_TYPE(SG_OGIS_TYPE_PointZM          , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XYZM);
+	IS_OF_TYPE(SG_OGIS_TYPE_PointZ           , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_PointM           , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_Point            , SHAPE_TYPE_Point  , SG_VERTEX_TYPE_XY  );
 
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Line_ZM        , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZM);
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Line_Z         , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Line_M         , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Line           , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XY  );
+	IS_OF_TYPE(SG_OGIS_TYPE_LineStringZM     , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZM);
+	IS_OF_TYPE(SG_OGIS_TYPE_LineStringZ      , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_LineStringM      , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_LineString       , SHAPE_TYPE_Line   , SG_VERTEX_TYPE_XY  );
 
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Polygon_ZM     , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZM);
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Polygon_Z      , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Polygon_M      , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
-	IS_OF_TYPE(SG_OGIS_TYPE_STR_Polygon        , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XY  );
+	IS_OF_TYPE(SG_OGIS_TYPE_PolygonZM        , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZM);
+	IS_OF_TYPE(SG_OGIS_TYPE_PolygonZ         , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_PolygonM         , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XYZ );
+	IS_OF_TYPE(SG_OGIS_TYPE_Polygon          , SHAPE_TYPE_Polygon, SG_VERTEX_TYPE_XY  );
 
 	return( false );
 }

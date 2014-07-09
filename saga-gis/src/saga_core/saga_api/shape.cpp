@@ -103,9 +103,15 @@ void CSG_Shape::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Shape_Type CSG_Shape::Get_Type(void)
+TSG_Shape_Type CSG_Shape::Get_Type(void) const
 {
 	return( ((CSG_Shapes *)m_pTable)->Get_Type() );
+}
+
+//---------------------------------------------------------
+TSG_Vertex_Type CSG_Shape::Get_Vertex_Type(void) const
+{
+	return( ((CSG_Shapes *)m_pTable)->Get_Vertex_Type() );
 }
 
 //---------------------------------------------------------
