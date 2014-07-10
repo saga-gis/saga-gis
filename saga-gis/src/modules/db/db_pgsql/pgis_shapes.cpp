@@ -179,7 +179,10 @@ int CShapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	{
 		CSG_Shapes	*pShapes	= pParameter->asShapes() ? pParameter->asShapes() : NULL;
 
-		pParameters->Get_Parameter("NAME")->Set_Value(pShapes ? pShapes->Get_Name() : SG_T(""));
+		if( pShapes && *pShapes->Get_Name() )
+		{
+			pParameters->Get_Parameter("NAME")->Set_Value(pShapes->Get_Name());
+		}
 
 		Set_SRID(pParameters, pShapes ? pShapes->Get_Projection().Get_EPSG() : -1);
 	}

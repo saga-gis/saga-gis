@@ -493,7 +493,12 @@ bool		DLG_Table_Fields(const wxString &Caption, CSG_Parameter_Table_Fields *pFie
 
 		for(i=0; i<pFields->Get_Count(); i++)
 		{
-			P(pFields->Get_Index(i))->Set_Value(true);
+			CSG_Parameter	*pParameter	= P(pFields->Get_Index(i));
+
+			if( pParameter )
+			{
+				pParameter->Set_Value(true);
+			}
 		}
 
 		if( DLG_Parameters(&P) )
