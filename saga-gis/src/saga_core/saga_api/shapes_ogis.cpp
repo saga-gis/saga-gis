@@ -126,7 +126,7 @@ CSG_String	CSG_Shapes_OGIS_Converter::Type_asWKText	(DWORD Type)
 //---------------------------------------------------------
 DWORD CSG_Shapes_OGIS_Converter::Type_asWKBinary(const CSG_String &Type)
 {
-	#define TYPE_AS_WKB(t)	if( Type.CmpNoCase(Type_asWKText(t)) )	return( t );
+	#define TYPE_AS_WKB(t)	if( !Type.CmpNoCase(Type_asWKText(t)) )	return( t );
 
 	TYPE_AS_WKB(SG_OGIS_TYPE_Point                );
 	TYPE_AS_WKB(SG_OGIS_TYPE_LineString           );
