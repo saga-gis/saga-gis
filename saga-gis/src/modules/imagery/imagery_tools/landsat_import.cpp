@@ -141,9 +141,13 @@ int CLandsat_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 				Choices	+= SG_File_Get_Name(Files[i], false) + "|";
 			}
 
-			pParameters->Get_Parameter("SHOW_R")->asChoice()->Set_Items(Choices);	pParameters->Get_Parameter("SHOW_R")->Set_Value(2);
-			pParameters->Get_Parameter("SHOW_G")->asChoice()->Set_Items(Choices);	pParameters->Get_Parameter("SHOW_G")->Set_Value(1);
-			pParameters->Get_Parameter("SHOW_B")->asChoice()->Set_Items(Choices);	pParameters->Get_Parameter("SHOW_B")->Set_Value(0);
+			int	iR	= pParameters->Get_Parameter("SHOW_R")->asChoice()->Get_Count() > 1 ? pParameters->Get_Parameter("SHOW_R")->asInt() : 2;
+			int	iG	= pParameters->Get_Parameter("SHOW_G")->asChoice()->Get_Count() > 1 ? pParameters->Get_Parameter("SHOW_G")->asInt() : 1;
+			int	iB	= pParameters->Get_Parameter("SHOW_B")->asChoice()->Get_Count() > 1 ? pParameters->Get_Parameter("SHOW_B")->asInt() : 0;
+
+			pParameters->Get_Parameter("SHOW_R")->asChoice()->Set_Items(Choices); pParameters->Get_Parameter("SHOW_R")->Set_Value(iR);
+			pParameters->Get_Parameter("SHOW_G")->asChoice()->Set_Items(Choices); pParameters->Get_Parameter("SHOW_G")->Set_Value(iG);
+			pParameters->Get_Parameter("SHOW_B")->asChoice()->Set_Items(Choices); pParameters->Get_Parameter("SHOW_B")->Set_Value(iB);
 		}
 	}
 
