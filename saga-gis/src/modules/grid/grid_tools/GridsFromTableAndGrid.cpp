@@ -4,7 +4,7 @@
 /*******************************************************************************
     GridsFromTableAndGrid.cpp
     Copyright (C) Victor Olaya
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
-*******************************************************************************/ 
+*******************************************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -43,30 +43,32 @@ CGridsFromTableAndGrid::CGridsFromTableAndGrid(void)
 
 	Set_Name		(_TL("Grids from classified grid and table"));
 
+	Set_Author(SG_T("Copyrights (c) 2004 by Victor Olaya"));
+
 	Set_Description	(_TW(
 		"Creates several grids using a classified grid and a table with data values for each class."
 	));
 
 	pNode	= Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Table"),
-		_TL(""),
+		_TL("The table with the (numeric) data values for each class. The module creates a grid for each table column (besides the ID)."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "ID_FIELD"	, _TL("Attribute"),
-		_TL("")
+		_TL("The attribute with the class IDs, used to link the table and the grid.")
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CLASSES"		, _TL("Classes"), 						
-		_TL(""),
+		NULL	, "CLASSES"		, _TL("Classes"),
+		_TL("The grid coded with the class IDs."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"		, _TL("Grids"),
-		_TL(""),
+		_TL("The output grids, one grid for each table column."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 }
@@ -107,14 +109,6 @@ bool CGridsFromTableAndGrid::On_Execute(void)
 	if( !pTable->Set_Index(iField, TABLE_INDEX_Ascending) )
 	{
 		Message_Add(_TL("failed to create index for table"));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( !pClasses->Get_Sorted(0, iCell, false, true) )
-	{
-		Message_Add(_TL("failed to create index for grid"));
 
 		return( false );
 	}
