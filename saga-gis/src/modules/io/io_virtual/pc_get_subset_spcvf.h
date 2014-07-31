@@ -83,6 +83,35 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CPointCloud_Get_Subset_SPCVF_Base
+{
+public:
+	CPointCloud_Get_Subset_SPCVF_Base(void);
+	virtual ~CPointCloud_Get_Subset_SPCVF_Base(void);
+
+	void					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap, CSG_String sFilename, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_PointCloud_List *pPointCloudList);
+	void					Finalise	(void);
+	bool					Get_Subset	(void);
+
+protected:
+
+
+private:
+
+	int						m_iOutputs;
+	CSG_Rect				m_AOI;
+	CSG_Shapes				*m_pShapes;
+	int						m_iFieldName;
+	bool					m_bMultiple, m_bAddOverlap;
+	double					m_dOverlap;
+	CSG_String				m_sFileName;
+	CSG_Parameter_File_Name	*m_pFilePath;
+	CSG_Parameter_PointCloud_List	*m_pPointCloudList;
+
+};
+
+
+//---------------------------------------------------------
 class CPointCloud_Get_Subset_SPCVF : public CSG_Module
 {
 public:
@@ -99,6 +128,32 @@ protected:
 
 
 private:
+
+	CPointCloud_Get_Subset_SPCVF_Base		m_Get_Subset_SPCVF;
+
+};
+
+
+//---------------------------------------------------------
+class CPointCloud_Get_Subset_SPCVF_Interactive : public CSG_Module_Interactive
+{
+public:
+	CPointCloud_Get_Subset_SPCVF_Interactive(void);
+
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
+
+
+protected:
+
+	virtual bool				On_Execute			(void);
+	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+
+private:
+
+	CSG_Point					m_ptDown;
+
+	CPointCloud_Get_Subset_SPCVF_Base		m_Get_Subset_SPCVF;
 
 };
 

@@ -108,6 +108,7 @@ CSG_Module *		Create_Module(int i)
 	case 0:		return( new CPointCloud_Create_SPCVF );
 	case 1:		return( new CPointCloud_Get_Subset_SPCVF );
 	case 2:		return( new CPointCloud_Create_Tileshape_From_SPCVF );
+	case 3:		return( new CPointCloud_Get_Subset_SPCVF_Interactive );
 	}
 
 	return( NULL );
