@@ -74,6 +74,39 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool		SG_Is_Equal(double a, double b, double epsilon)
+{
+	return( fabs(a - b) <= epsilon );
+}
+
+//---------------------------------------------------------
+bool		SG_Is_Equal(const TSG_Point &A, const TSG_Point &B, double epsilon)
+{
+	return( SG_Is_Equal(A.x, B.x, epsilon)
+		&&  SG_Is_Equal(A.y, B.y, epsilon) );
+}
+
+//---------------------------------------------------------
+bool		SG_Is_Between(double x, double a, double b, double epsilon)
+{
+	return( (a - epsilon <= x && x <= b + epsilon)
+		||  (b - epsilon <= x && x <= a + epsilon) );
+}
+
+bool		SG_Is_Between(const TSG_Point &Point, const TSG_Point &Corner_A, const TSG_Point &Corner_B, double epsilon)
+{
+	return( SG_Is_Between(Point.x, Corner_A.x, Corner_B.x, epsilon)
+		&&  SG_Is_Between(Point.y, Corner_A.y, Corner_B.y, epsilon) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 double		SG_Get_Length(double dx, double dy)
 {
 	return( sqrt(dx*dx + dy*dy) );
@@ -321,6 +354,25 @@ bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, const TSG_Point &a, const TSG
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		SG_Is_Point_On_Line(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, bool bExactMatch, double Epsilon)
+{
+	if( SG_Is_Equal(Ln_B.x, Ln_A.x, Epsilon) )	// vertical line
+	{
+		return( SG_Is_Between(Point.y, Ln_A.y, Ln_B.y, Epsilon) && (!bExactMatch || SG_Is_Between(Point.x, Ln_A.x, Ln_B.x, Epsilon)) );
+	}
+
+	if( bExactMatch && !SG_Is_Between(Point, Ln_A, Ln_B, Epsilon) )
+	{
+		return( false );
+	}
+
+	double	b	= (Ln_B.y - Ln_A.y) / (Ln_B.x - Ln_A.x);
+	double	a	= Ln_A.y - b * Ln_A.x;
+
+	return( SG_Is_Equal(Point.y, a + b * Point.x, Epsilon) );
+}
 
 //---------------------------------------------------------
 double		SG_Get_Nearest_Point_On_Line(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, TSG_Point &Ln_Point, bool bExactMatch)

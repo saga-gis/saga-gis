@@ -165,6 +165,20 @@ TSG_Rect;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Is_Equal			(double a, double b, double epsilon = 0.0);
+SAGA_API_DLL_EXPORT bool		SG_Is_Equal			(const TSG_Point &A, const TSG_Point &B, double epsilon = 0.0);
+
+SAGA_API_DLL_EXPORT bool		SG_Is_Between		(double x, double a, double b, double epsilon = 0.0);
+SAGA_API_DLL_EXPORT bool		SG_Is_Between		(const TSG_Point &Point, const TSG_Point &Corner_A, const TSG_Point &Corner_B, double epsilon = 0.0);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Point
 {
 public:
@@ -199,8 +213,8 @@ public:
 	virtual void				Add				(const CSG_Point &Point);
 	virtual void				Subtract		(const CSG_Point &Point);
 
-	virtual bool				is_Equal		(double x, double y)		const	{	return(	m_x == x && m_y == y );	}
-	virtual bool				is_Equal		(const CSG_Point &Point)	const	{	return(	m_x == Point.m_x && m_y == Point.m_y );	}
+	virtual bool				is_Equal		(double x, double y    , double epsilon = 0.0)	const	{	return( SG_Is_Equal(m_x, x, epsilon) && SG_Is_Equal(m_y, y, epsilon) );	}
+	virtual bool				is_Equal		(const CSG_Point &Point, double epsilon = 0.0)	const	{	return(	is_Equal(Point.m_x, Point.m_y, epsilon) );	}
 
 
 protected:
@@ -242,8 +256,8 @@ public:
 	virtual void				Add				(const CSG_Point_Z &Point);
 	virtual void				Subtract		(const CSG_Point_Z &Point);
 
-	virtual bool				is_Equal		(double x, double y, double z)	const	{	return(	m_x == x && m_y == y && m_z == z );	}
-	virtual bool				is_Equal		(const CSG_Point_Z &Point)		const	{	return(	m_x == Point.m_x && m_y == Point.m_y && m_z == Point.m_z );	}
+	virtual bool				is_Equal		(double x, double y, double z, double epsilon = 0.0)	const	{	return(	SG_Is_Equal(m_x, x, epsilon) && SG_Is_Equal(m_y, y, epsilon) && SG_Is_Equal(m_z, z, epsilon) );	}
+	virtual bool				is_Equal		(const CSG_Point_Z &Point    , double epsilon = 0.0)	const	{	return(	is_Equal(Point.m_x, Point.m_y, Point.m_z, epsilon) );	}
 
 
 protected:
@@ -285,8 +299,8 @@ public:
 	virtual void				Add				(const CSG_Point_ZM &Point);
 	virtual void				Subtract		(const CSG_Point_ZM &Point);
 
-	virtual bool				is_Equal		(double x, double y, double z, double m)	const	{	return(	m_x == x && m_y == y && m_z == z && m_m == m );	}
-	virtual bool				is_Equal		(const CSG_Point_ZM &Point)					const	{	return(	m_x == Point.m_x && m_y == Point.m_y && m_z == Point.m_z && m_m == Point.m_m );	}
+	virtual bool				is_Equal		(double x, double y, double z, double m, double epsilon = 0.0)	const	{	return(	SG_Is_Equal(m_x, x, epsilon) && SG_Is_Equal(m_y, y, epsilon) && SG_Is_Equal(m_z, z, epsilon) && SG_Is_Equal(m_m, m, epsilon) );	}
+	virtual bool				is_Equal		(const CSG_Point_ZM &Point             , double epsilon = 0.0)	const	{	return(	is_Equal(Point.m_x, Point.m_y, Point.m_z, Point.m_m, epsilon) );	}
 
 
 protected:
@@ -439,8 +453,8 @@ public:
 	void						Set_TopRight	(double x, double y);
 	void						Set_TopRight	(const CSG_Point &Point);
 
-	bool						is_Equal		(double xMin, double yMin, double xMax, double yMax) const;
-	bool						is_Equal		(const CSG_Rect &Rect) const;
+	bool						is_Equal		(double xMin, double yMin, double xMax, double yMax, double epsilon = 0.0) const;
+	bool						is_Equal		(const CSG_Rect &Rect                              , double epsilon = 0.0) const;
 
 	double						Get_XMin		(void) const	{	return( m_rect.xMin );	}
 	double						Get_XMax		(void) const	{	return( m_rect.xMax );	}
@@ -840,6 +854,7 @@ SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(const TSG_Point &A, cons
 SAGA_API_DLL_EXPORT bool		SG_Get_Crossing					(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &a2, const TSG_Point &b1, const TSG_Point &b2, bool bExactMatch = true);
 SAGA_API_DLL_EXPORT bool		SG_Get_Crossing_InRegion		(TSG_Point &Crossing, const TSG_Point &a , const TSG_Point & b, const TSG_Rect &Region);
 
+SAGA_API_DLL_EXPORT bool		SG_Is_Point_On_Line				(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, bool bExactMatch = false, double Epsilon = 0.0);
 SAGA_API_DLL_EXPORT double		SG_Get_Nearest_Point_On_Line	(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, TSG_Point &Ln_Point, bool bExactMatch = true);
 
 SAGA_API_DLL_EXPORT bool		SG_Get_Triangle_CircumCircle	(TSG_Point Triangle[3], TSG_Point &Point, double &Radius);

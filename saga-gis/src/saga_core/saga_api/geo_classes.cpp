@@ -791,15 +791,15 @@ void CSG_Rect::Set_TopRight(const CSG_Point &Point)
 }
 
 //---------------------------------------------------------
-bool CSG_Rect::is_Equal(double xMin, double yMin, double xMax, double yMax) const
+bool CSG_Rect::is_Equal(double xMin, double yMin, double xMax, double yMax, double epsilon) const
 {
-	return(	m_rect.xMin == xMin && m_rect.yMin == yMin
-		&&	m_rect.xMax == xMax && m_rect.yMax == yMax	);
+	return(	SG_Is_Equal(m_rect.xMin, xMin, epsilon) && SG_Is_Equal(m_rect.yMin, yMin, epsilon)
+		&&	SG_Is_Equal(m_rect.xMax, xMax, epsilon) && SG_Is_Equal(m_rect.yMax, yMax, epsilon)	);
 }
 
-bool CSG_Rect::is_Equal(const CSG_Rect &Rect) const
+bool CSG_Rect::is_Equal(const CSG_Rect &Rect, double epsilon) const
 {
-	return(	is_Equal(Rect.Get_XMin(), Rect.Get_YMin(), Rect.Get_XMax(), Rect.Get_YMax()) );
+	return(	is_Equal(Rect.Get_XMin(), Rect.Get_YMin(), Rect.Get_XMax(), Rect.Get_YMax(), epsilon) );
 }
 
 //---------------------------------------------------------
