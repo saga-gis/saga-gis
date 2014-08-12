@@ -270,7 +270,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 		CSG_String	sPath = SG_T("");
 
-		if( !SG_UI_Get_Window_Main() )
+		if( m_pFilePath != NULL )
 		{
 			sPath = m_pFilePath->asString();
 			sPath += SG_T("/");
@@ -295,7 +295,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
 
 
-		if( SG_UI_Get_Window_Main() )
+		if( m_pFilePath == NULL )
 		{
 			m_pPointCloudList->Add_Item(pPC_out);
 		}
@@ -339,6 +339,10 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 		"by this attribute. Otherwise the output file names are build "
 		"from the lower left coordinate of each tile.\n"
 		"Optionally, an overlap can be added to the AOI.\n"
+		"The derived datasets can be outputted either as point cloud "
+		"list or written to an output directory. For the latter, "
+		"you must provide a valid file path with the 'Optional Output "
+		"Filepath' parameter.\n"
 		"A virtual point cloud dataset is a simple XML format "
 		"with the file extension .spcvf, which can be created "
 		"with the 'Create Virtual Point Cloud Dataset' module.\n\n"
@@ -355,23 +359,19 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 		)
  	);
 
-	if( SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_PointCloud_List(
-			NULL	, "PC_OUT"			, _TL("Point Cloud"),
-			_TL("The output point cloud(s)"),
-			PARAMETER_OUTPUT
-		);
-	}
-	else
-	{
-		Parameters.Add_FilePath(
-			NULL	, "FILEPATH"		, _TL("Output Filepath"),
-			_TL("The full path to which the output(s) should be written"),
-			(const wchar_t *)0, (const wchar_t *)0,
-			true, true, false
-		);
-	}
+	Parameters.Add_PointCloud_List(
+		NULL	, "PC_OUT"			, _TL("Point Cloud"),
+		_TL("The output point cloud(s)"),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "FILEPATH"		, _TL("Optional Output Filepath"),
+		_TL("The full path to which the output(s) should be written. Leave empty to output the datasets as point cloud list."),
+		(const wchar_t *)0, (const wchar_t *)0,
+		true, true, false
+	);
+
 
 	CSG_Parameter *pNode = Parameters.Add_Node(NULL, "NODE_AOI", _TL("AOI"), _TL("AOI Input Settings"));
 
@@ -446,32 +446,31 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	sFileName	= Parameters("FILENAME")->asString();
+	sFileName		= Parameters("FILENAME")->asString();
+	pPointCloudList	= Parameters("PC_OUT")->asPointCloudList();
+	pFilePath		= Parameters("FILEPATH")->asFilePath();
+	pShapes			= Parameters("AOI_SHP")->asShapes();
+	iFieldName		= Parameters("FIELD_TILENAME")->asInt();
+	pGrid			= Parameters("AOI_GRID")->asGrid();
+	dAoiXMin		= Parameters("AOI_XRANGE")->asRange()->Get_LoVal();
+	dAoiXMax		= Parameters("AOI_XRANGE")->asRange()->Get_HiVal();
+	dAoiYMin		= Parameters("AOI_YRANGE")->asRange()->Get_LoVal();
+	dAoiYMax		= Parameters("AOI_YRANGE")->asRange()->Get_HiVal();
 
-	if( SG_UI_Get_Window_Main() )
-	{
-		pPointCloudList	= Parameters("PC_OUT")->asPointCloudList();
-	}
-	else
-	{
-		pFilePath = Parameters("FILEPATH")->asFilePath();
-	}
-
-	pShapes		= Parameters("AOI_SHP")->asShapes();
-	iFieldName	= Parameters("FIELD_TILENAME")->asInt();
-	pGrid		= Parameters("AOI_GRID")->asGrid();
-	dAoiXMin	= Parameters("AOI_XRANGE")->asRange()->Get_LoVal();
-	dAoiXMax	= Parameters("AOI_XRANGE")->asRange()->Get_HiVal();
-	dAoiYMin	= Parameters("AOI_YRANGE")->asRange()->Get_LoVal();
-	dAoiYMax	= Parameters("AOI_YRANGE")->asRange()->Get_HiVal();
-
-	bAddOverlap	= Parameters("AOI_ADD_OVERLAP")->asBool();
-	dOverlap	= Parameters("OVERLAP")->asDouble();
-	bMultiple	= Parameters("ONE_PC_PER_POLYGON")->asBool();
+	bAddOverlap		= Parameters("AOI_ADD_OVERLAP")->asBool();
+	dOverlap		= Parameters("OVERLAP")->asDouble();
+	bMultiple		= Parameters("ONE_PC_PER_POLYGON")->asBool();
 
 	if( pShapes == NULL )
 	{
 		bMultiple = false;
+	}
+
+	CSG_String	sPath = pFilePath->asString();
+	
+	if( sPath.Length() <= 1 )
+	{
+		pFilePath = NULL;
 	}
 
 
