@@ -78,7 +78,10 @@ CLandsat_Import::CLandsat_Import(void)
 
 	Set_Description	(_TW(
 		"This tool facilitates the import and display of Landsat scenes, "
-		"which have each band given as a single GeoTIFF file. "
+		"which have each band given as a single GeoTIFF file.\n"
+		"\n"
+		"The development of this tool has been requested and sponsored by "
+		"Rohan Fisher, Charles Darwin University, Australia. "
 	));
 
 	//-----------------------------------------------------
@@ -97,10 +100,14 @@ CLandsat_Import::CLandsat_Import(void)
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "UTM_SOUTH"	, _TL("UTM South"),
+	Parameters.Add_Choice(
+		NULL	, "PROJECTION"	, _TL("UTM South"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("UTM North"),
+			_TL("UTM South"),
+			_TL("Geographic Coordinates")
+		), 0
 	);
 
 	CSG_Parameter	*pNode	= Parameters.Add_Value(
@@ -185,7 +192,7 @@ bool CLandsat_Import::On_Execute(void)
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), SG_File_Get_Name(Files[i], false).c_str()));
 
-		CSG_Grid	*pBand	= Get_Band(Files[i], Parameters("UTM_SOUTH")->asBool());
+		CSG_Grid	*pBand	= Get_Band(Files[i]);
 
 		if( pBand )
 		{
@@ -226,62 +233,124 @@ bool CLandsat_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File, bool bSouth)
+CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 {
 	CSG_Data_Manager	tmpMgr;
 
-	CSG_Grid	*pBand	= (CSG_Grid *)(tmpMgr.Add(File) && tmpMgr.Get_Grid_System(0) ? tmpMgr.Get_Grid_System(0)->Get(0) : NULL);
-
-	if( !pBand )
+	if( !tmpMgr.Add(File) || !tmpMgr.Get_Grid_System(0) || !tmpMgr.Get_Grid_System(0)->Get(0) )
 	{
 		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("could not load file"), File.c_str()));
 
 		return( NULL );
 	}
 
+	CSG_Grid	*pBand	= NULL;
+
 	//-----------------------------------------------------
-	CSG_String	Projection	= pBand->Get_Projection().Get_Proj4();
-
-	if( Projection.Find("+proj=utm") < 0
-	|| (Projection.Find("+south") >= 0 && bSouth == true )
-	|| (Projection.Find("+south") <  0 && bSouth == false) )
+	if( !tmpMgr.Get_Grid_System(0)->Get(0)->Get_Projection().is_Okay() )
 	{
-		tmpMgr.Delete(pBand, true);	// make permanent, detach from temporary data manager
-
-		return( pBand );
+		// undefined coordinate system, nothing to do be done further...
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pCopy	= SG_Create_Grid(pBand->Get_Type(), pBand->Get_NX(), pBand->Get_NY(), pBand->Get_Cellsize(),
-		pBand->Get_XMin(), pBand->Get_YMin() + (bSouth ? 10000000 : -10000000)
-	);
-
-	if( !pCopy )
+	else if( Parameters("PROJECTION")->asInt() == 2 )	// Geographic Coordinates
 	{
-		Error_Set(_TL("memory allocation failed"));
-
-		return( NULL );
+		pBand	= Get_Projection((CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0), "+proj=longlat +ellps=WGS84 +datum=WGS84");
 	}
 
-	if( bSouth )	Projection.Append (" +south");	else	Projection.Replace(" +south", "");
-
-	pCopy->Get_Projection().Create(Projection, SG_PROJ_FMT_Proj4);
-
-	pCopy->Set_Name              (pBand->Get_Name());
-	pCopy->Set_Description       (pBand->Get_Description());
-	pCopy->Set_NoData_Value_Range(pBand->Get_NoData_Value(), pBand->Get_NoData_hiValue());
-	pCopy->Set_ZFactor           (pBand->Get_ZFactor());
-
-	#pragma omp parallel for
-	for(int y=0; y<pCopy->Get_NY(); y++)
+	//-----------------------------------------------------
+	else												// UTM
 	{
-		for(int x=0; x<pCopy->Get_NX(); x++)
+		CSG_Grid	*pTmp	= (CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0);
+
+		CSG_String	Projection	= pTmp->Get_Projection().Get_Proj4();
+
+		if( Projection.Find("+proj=utm") >= 0
+		&&  (  (Projection.Find("+south") >= 0 && Parameters("PROJECTION")->asInt() == 0)
+		    || (Projection.Find("+south") <  0 && Parameters("PROJECTION")->asInt() == 1))
+		&&  (pBand = SG_Create_Grid(pTmp->Get_Type(), pTmp->Get_NX(), pTmp->Get_NY(), pTmp->Get_Cellsize(),
+				pTmp->Get_XMin(), pTmp->Get_YMin() + (Parameters("PROJECTION")->asInt() == 1 ? 10000000 : -10000000)
+			)) != NULL )
 		{
-			pCopy->Set_Value(x, y, pBand->asDouble(x, y));
+			if( Parameters("PROJECTION")->asInt() == 1 )
+				Projection.Append (" +south");
+			else
+				Projection.Replace(" +south", "");
+
+			pBand->Get_Projection().Create(Projection, SG_PROJ_FMT_Proj4);
+
+			pBand->Set_Name              (pTmp->Get_Name());
+			pBand->Set_Description       (pTmp->Get_Description());
+			pBand->Set_NoData_Value_Range(pTmp->Get_NoData_Value(), pTmp->Get_NoData_hiValue());
+			pBand->Set_ZFactor           (pTmp->Get_ZFactor());
+
+			#pragma omp parallel for
+			for(int y=0; y<pBand->Get_NY(); y++)
+			{
+				for(int x=0; x<pBand->Get_NX(); x++)
+				{
+					pBand->Set_Value(x, y, pTmp->asDouble(x, y));
+				}
+			}
 		}
 	}
 
-	return( pCopy );
+	//-----------------------------------------------------
+	if( !pBand )
+	{
+		pBand	= (CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0);
+
+		tmpMgr.Delete(tmpMgr.Get_Grid_System(0)->Get(0), true);	// make permanent, detach from temporary data manager
+	}
+
+	return( pBand );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Proj4)
+{
+	if( pGrid->Get_Projection().is_Okay() == false )
+	{
+		return( false );
+	}
+
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 4);	// Coordinate Transformation (Grid)
+
+	if(	pModule == NULL )
+	{
+		return( false );
+	}
+
+	Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
+
+	CSG_Parameters	P;	P.Assign(pModule->Get_Parameters());
+
+	pModule->Set_Manager(NULL);
+
+	if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4"    , Proj4)
+	&&  pModule->Get_Parameters()->Set_Parameter("INTERPOLATION", 4) // b-spline // Parameters("INTERPOL")->asBool() ? 4 : 0)
+	&&  pModule->Get_Parameters()->Set_Parameter("SOURCE"       , pGrid)
+	&&  pModule->Execute() )
+	{
+		pGrid	= pModule->Get_Parameters("GET_USER")->Get_Parameter("GRID")->asGrid();
+
+		pModule->Get_Parameters()->Assign_Values(&P);
+		pModule->Set_Manager(P.Get_Manager());
+
+		return( pGrid );
+	}
+
+	pModule->Get_Parameters()->Assign_Values(&P);
+	pModule->Set_Manager(P.Get_Manager());
+
+	Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("re-projection"), _TL("failed")), false);
+
+	return( NULL );
 }
 
 

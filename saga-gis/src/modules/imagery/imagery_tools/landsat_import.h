@@ -98,7 +98,9 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	CSG_Grid *			Get_Band				(const CSG_String &File, bool bSouth);
+	CSG_Grid *			Get_Band				(const CSG_String &File);
+
+	CSG_Grid *			Get_Projection			(CSG_Grid *pGrid, const CSG_String &Proj4);
 
 };
 
