@@ -25,6 +25,7 @@ Polygon_StatisticsFromPoints.cpp\
 Polygon_Union.cpp\
 Polygons_From_Lines.cpp\
 polygon_line_intersection.cpp\
+polygon_shared_edges.cpp\
 polygon_split_parts.cpp\
 polygon_to_edges_nodes.cpp\
 polygon_to_points.cpp\
@@ -41,6 +42,7 @@ Polygon_StatisticsFromPoints.h\
 Polygon_Union.h\
 Polygons_From_Lines.h\
 polygon_line_intersection.h\
+polygon_shared_edges.h\
 polygon_split_parts.h\
 polygon_to_edges_nodes.h\
 polygon_to_points.h\

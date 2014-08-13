@@ -311,6 +311,7 @@
     <ClCompile Include="Polygon_Intersection.cpp" />
     <ClCompile Include="polygon_line_intersection.cpp" />
     <ClCompile Include="Polygon_SelfIntersection.cpp" />
+    <ClCompile Include="polygon_shared_edges.cpp" />
     <ClCompile Include="polygon_split_parts.cpp" />
     <ClCompile Include="Polygon_StatisticsFromPoints.cpp" />
     <ClCompile Include="polygon_to_edges_nodes.cpp" />
@@ -346,6 +347,7 @@
     <ClInclude Include="Polygon_Intersection.h" />
     <ClInclude Include="polygon_line_intersection.h" />
     <ClInclude Include="Polygon_SelfIntersection.h" />
+    <ClInclude Include="polygon_shared_edges.h" />
     <ClInclude Include="polygon_split_parts.h" />
     <ClInclude Include="Polygon_StatisticsFromPoints.h" />
     <ClInclude Include="polygon_to_edges_nodes.h" />
