@@ -227,6 +227,19 @@ CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, const SG_Char *Co
 }
 
 //---------------------------------------------------------
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_MetaData &MetaData, bool bAddChildren)
+{
+	CSG_MetaData	*pChild	= Add_Child();
+
+	if( pChild )
+	{
+		pChild->Assign(MetaData, bAddChildren);
+	}
+
+	return( pChild );
+}
+
+//---------------------------------------------------------
 bool CSG_MetaData::Del_Child(int Index)
 {
 	if( Index >= 0 && Index < m_nChildren )
@@ -255,6 +268,20 @@ bool CSG_MetaData::Del_Child(int Index)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Add_Children(const CSG_MetaData &MetaData)
+{
+	if( &MetaData != this )
+	{
+		for(int i=0; i<MetaData.Get_Children_Count(); i++)
+		{
+			Add_Child(MetaData[i], true);
+		}
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -510,33 +537,24 @@ CSG_Table CSG_MetaData::asTable(int Flags) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_MetaData::Assign(const CSG_MetaData &MetaData, bool bAppend)
+bool CSG_MetaData::Assign(const CSG_MetaData &MetaData, bool bAddChildren)
 {
-	if( &MetaData == this )
-	{
-		return( true );
-	}
-
-	int		i;
-
-	if( !bAppend )
+	if( &MetaData != this )
 	{
 		Destroy();
 
 		Set_Name	(MetaData.Get_Name   ());
 		Set_Content	(MetaData.Get_Content());
 
-		//-------------------------------------------------
-		for(i=0; i<MetaData.Get_Property_Count(); i++)
+		for(int i=0; i<MetaData.Get_Property_Count(); i++)
 		{
 			Add_Property(MetaData.Get_Property_Name(i), MetaData.Get_Property(i));
 		}
-	}
 
-	//-----------------------------------------------------
-	for(i=0; i<MetaData.Get_Children_Count(); i++)
-	{
-		Add_Child()->Assign(*MetaData.Get_Child(i), false);
+		if( bAddChildren )
+		{
+			Add_Children(MetaData);
+		}
 	}
 
 	return( true );

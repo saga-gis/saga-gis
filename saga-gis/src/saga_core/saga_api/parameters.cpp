@@ -1563,7 +1563,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 						}
 
 						pEntry	= p->Serialize(*pGrids, true);
-						pEntry->Assign(pObject->Get_History(), true);
+						pEntry->Add_Children(pObject->Get_History());
 					}
 				}
 			}
@@ -1574,7 +1574,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 				if( p->is_DataObject() && (pObject = p->asDataObject()) != NULL  )
 				{
 					pEntry	= p->Serialize(MetaData, true);
-					pEntry->Assign(pObject->Get_History(), true);
+					pEntry->Add_Children(pObject->Get_History());
 				}
 
 				else if( p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
@@ -1587,7 +1587,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 					for(int j=0; j<p->asList()->Get_Count(); j++)
 					{
 						pEntry	= pList->Add_Child(SG_T("DATA"));
-						pEntry->Assign(p->asList()->asDataObject(j)->Get_History(), true);
+						pEntry->Add_Children(p->asList()->asDataObject(j)->Get_History());
 					}
 				}
 			}

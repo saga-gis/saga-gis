@@ -782,7 +782,7 @@ void CSG_Module::_Set_Output_History(void)
 
 	Parameters.Set_History(History);
 
-	History.Assign(History_Supplement, true);
+	History.Add_Children(History_Supplement);
 
 	History.Del_Children(SG_Get_History_Depth());
 

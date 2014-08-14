@@ -177,7 +177,7 @@ bool CSG_TIN::Create(const CSG_String &File_Name)
 	if( Create(&Shapes) )
 	{
 		Get_History().Add_Child(_TL("Created from file"), File_Name);
-		Get_History()	+= Shapes.Get_History();
+		Get_History().Add_Children(Shapes.Get_History());
 
 		Set_File_Name(File_Name);
 		Set_Modified(false);

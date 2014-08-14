@@ -109,9 +109,10 @@ public:
 	bool						Load_WKT			(const CSG_String &WKT);
 	bool						Save_WKT			(      CSG_String &WKT)		const;
 
-	bool						Assign				(const CSG_MetaData &MetaData, bool bAppend = false);
-	CSG_MetaData &				operator  =			(const CSG_MetaData &MetaData)		{	Assign(MetaData, false);	return( *this );	}
-	CSG_MetaData &				operator +=			(const CSG_MetaData &MetaData)		{	Assign(MetaData, true );	return( *this );	}
+	bool						Assign				(const CSG_MetaData &MetaData, bool bAddChildren = true);
+
+	CSG_MetaData &				operator  =			(const CSG_MetaData &MetaData)		{	Assign   (MetaData, true);	return( *this );	}
+	CSG_MetaData &				operator +=			(const CSG_MetaData &MetaData)		{	Add_Child(MetaData, true);	return( *this );	}
 
 	const CSG_String &			Get_Name			(void)						const	{	return( m_Name );		}
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
@@ -127,9 +128,11 @@ public:
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, const SG_Char *Content = NULL);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, double         Content);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, int            Content);
+	CSG_MetaData *				Add_Child			(const CSG_MetaData &MetaData, bool bAddChildren = true);
 	bool						Del_Child			(int Index);
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
 
+	bool						Add_Children		(const CSG_MetaData &MetaData);
 	bool						Del_Children		(int Depth = 0);
 
 	const CSG_MetaData &		operator []			(int Index)					const	{	CSG_MetaData	*pData	= Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL;	return( *pData );	}

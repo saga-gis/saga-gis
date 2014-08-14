@@ -752,7 +752,7 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 			break;
 		}
 
-		Get_History()	+= ((CSG_Grid *)&Grid)->Get_History();
+		Get_History().Add_Children(((CSG_Grid *)&Grid)->Get_History());
 	}
 
 	return( *this );
