@@ -444,7 +444,13 @@ bool			SG_Dir_Create(const SG_Char *Directory)
 //---------------------------------------------------------
 CSG_String		SG_Dir_Get_Current(void)
 {
-	return( CSG_String(wxGetCwd().wc_str()) );
+	return( CSG_String(&wxFileName::GetCwd()) );
+}
+
+//---------------------------------------------------------
+CSG_String		SG_Dir_Get_Temp(void)
+{
+	return( CSG_String(&wxFileName::GetTempDir()) );
 }
 
 
@@ -467,7 +473,7 @@ bool			SG_File_Delete(const SG_Char *FileName)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_TmpName(const SG_Char *Prefix, const SG_Char *Directory)
+CSG_String		SG_File_Get_Name_Temp(const SG_Char *Prefix, const SG_Char *Directory)
 {
 	if( !SG_Dir_Exists(Directory) )
 	{
