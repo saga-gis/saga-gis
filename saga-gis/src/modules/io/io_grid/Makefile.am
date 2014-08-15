@@ -14,6 +14,7 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libio_grid.la
 libio_grid_la_SOURCES =\
 bmp_export.cpp\
+citygml_import.cpp\
 erdas_lan.cpp\
 esri_arcinfo.cpp\
 grid_table.cpp\
@@ -26,6 +27,7 @@ usgs_srtm.cpp\
 wrf.cpp\
 xyz.cpp\
 bmp_export.h\
+citygml_import.h\
 erdas_lan.h\
 esri_arcinfo.h\
 grid_table.h\
