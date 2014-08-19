@@ -144,6 +144,12 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 		), 4
 	);
 
+	Parameters.Add_Value(
+		pNode	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		pNode	, "TARGET_TYPE"	, _TL("Target"),
@@ -263,7 +269,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 {
 	if( pGrid->Get_Projection().is_Okay() && m_Projector.Set_Source(pGrid->Get_Projection()) )
 	{
-		TSG_Data_Type	Type	= m_Interpolation == 0 ? pGrid->Get_Type() : SG_DATATYPE_Float;
+		TSG_Data_Type	Type	= m_Interpolation == 0 || Parameters("KEEP_TYPE")->asBool() ? pGrid->Get_Type() : SG_DATATYPE_Float;
 
 		switch( Parameters("TARGET_TYPE")->asInt() )
 		{

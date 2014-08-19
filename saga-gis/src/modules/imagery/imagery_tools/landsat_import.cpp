@@ -85,6 +85,8 @@ CLandsat_Import::CLandsat_Import(void)
 	));
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pNode;
+
 	Parameters.Add_FilePath(
 		NULL	, "FILES"		, _TL("Files"),
 		_TL(""),
@@ -100,8 +102,8 @@ CLandsat_Import::CLandsat_Import(void)
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "PROJECTION"	, _TL("UTM South"),
+	pNode	= Parameters.Add_Choice(
+		NULL	, "PROJECTION"	, _TL("Coordinate System"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("UTM North"),
@@ -110,7 +112,17 @@ CLandsat_Import::CLandsat_Import(void)
 		), 0
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Value(
+	Parameters.Add_Choice(
+		pNode	, "INTERPOLATION"	, _TL("Interpolation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Nearest Neighbour"),
+			_TL("Bilinear Interpolation"),
+			_TL("Cubic Convolution")
+		), 2
+	);
+
+	pNode	= Parameters.Add_Value(
 		NULL	, "SHOW_RGB"	, _TL("Show a Composite"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
@@ -158,6 +170,11 @@ int CLandsat_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		}
 	}
 
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROJECTION") )
+	{
+		pParameters->Set_Enabled("INTERPOLATION", pParameter->asInt() == 2);
+	}
+
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_RGB") )
 	{
 		pParameters->Set_Enabled("SHOW_R", pParameter->asBool());
@@ -197,8 +214,6 @@ bool CLandsat_Import::On_Execute(void)
 		if( pBand )
 		{
 			pBands->Add_Item(pBand);
-
-			pBand->Set_NoData_Value(0);	// landsat 8 pretends to use a value of 65535 (2^16 - 1)
 
 			DataObject_Add(pBand);
 			DataObject_Set_Colors(pBand, 11, SG_COLORS_BLACK_WHITE);
@@ -243,6 +258,8 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 
 		return( NULL );
 	}
+
+	tmpMgr.Get_Grid_System(0)->Get(0)->Set_NoData_Value(0);	// landsat 8 pretends to use a value of 65535 (2^16 - 1)
 
 	CSG_Grid	*pBand	= NULL;
 
@@ -326,6 +343,15 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 		return( false );
 	}
 
+	int	Interpolation;
+
+	switch( Parameters("INTERPOLATION")->asInt() )
+	{
+	case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
+	case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear        ;	break;
+	default:	Interpolation	= GRID_INTERPOLATION_BSpline         ;	break;
+	}
+
 	Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
 
 	CSG_Parameters	P;	P.Assign(pModule->Get_Parameters());
@@ -333,7 +359,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 	pModule->Set_Manager(NULL);
 
 	if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4"    , Proj4)
-	&&  pModule->Get_Parameters()->Set_Parameter("INTERPOLATION", 4) // b-spline // Parameters("INTERPOL")->asBool() ? 4 : 0)
+	&&  pModule->Get_Parameters()->Set_Parameter("INTERPOLATION", Interpolation)
 	&&  pModule->Get_Parameters()->Set_Parameter("SOURCE"       , pGrid)
 	&&  pModule->Execute() )
 	{

@@ -124,7 +124,16 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, TSG
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
 {
-	return( new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, Memory_Type) );
+	CSG_Grid	*pGrid	= new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, Memory_Type);
+
+	if( pGrid && !pGrid->is_Valid() )
+	{
+		delete(pGrid);
+
+		pGrid	= NULL;
+	}
+
+	return( pGrid );
 }
 
 
