@@ -444,13 +444,15 @@ bool			SG_Dir_Create(const SG_Char *Directory)
 //---------------------------------------------------------
 CSG_String		SG_Dir_Get_Current(void)
 {
-	return( CSG_String(&wxFileName::GetCwd()) );
+	wxString cwd = wxFileName::GetCwd();
+	return( CSG_String(&cwd) );
 }
 
 //---------------------------------------------------------
 CSG_String		SG_Dir_Get_Temp(void)
 {
-	return( CSG_String(&wxFileName::GetTempDir()) );
+        wxString fname = wxFileName::GetTempDir();
+	return( CSG_String(&fname) );
 }
 
 
