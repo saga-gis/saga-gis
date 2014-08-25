@@ -180,7 +180,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 			m_AOI.Inflate(m_dOverlap, false);
 		}
 	
-		if( !m_AOI.Intersect(BBoxSPCVF) )
+		if( m_AOI.Intersects(BBoxSPCVF) == INTERSECTION_None )
 		{
 			SG_UI_Msg_Add(_TL("AOI does not intersect bounding box of SPCVF, nothing to do!"), true);
 			continue;
@@ -204,7 +204,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 			CSG_Rect BBox(dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax);
 
-			if( m_AOI.Intersects(BBox) )
+			if( m_AOI.Intersects(BBox) > INTERSECTION_None )
 			{
 				CSG_String sFilePath;
 
@@ -224,7 +224,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 		//-----------------------------------------------------
 		int				iDatasets = 0;
-		CSG_PointCloud	*pPC_out;
+		CSG_PointCloud	*pPC_out = NULL;
 
 		for(int i=0; i<sFilePaths.Get_Count() && SG_UI_Process_Set_Progress(i, sFilePaths.Get_Count()); i++)
 		{
@@ -261,7 +261,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 		}
 
 		//---------------------------------------------------------
-		if( pPC_out->Get_Count() == 0 )
+		if( pPC_out != NULL && pPC_out->Get_Count() == 0 )
 		{
 			SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
 			delete( pPC_out );
