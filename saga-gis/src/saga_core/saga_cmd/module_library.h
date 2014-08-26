@@ -88,28 +88,32 @@ class CCMD_Module
 {
 public:
 	CCMD_Module(void);
-	CCMD_Module(CSG_Module *pModule);
+	CCMD_Module(CSG_Module_Library *pLibrary, CSG_Module *pModule);
 	virtual ~CCMD_Module(void);
 
-	bool						Create					(CSG_Module *pModule);
+	bool						Create					(CSG_Module_Library *pLibrary, CSG_Module *pModule);
 	void						Destroy					(void);
 
-	bool						Execute					(CSG_String sLibName, int argc, char *argv[]);
+	void						Usage					(void);
 
-	bool						Get_Parameters			(CSG_Parameters *pParameters)	{	return( _Get_Parameters(pParameters) );	}
+	bool						Execute					(int argc, char *argv[]);
+
+	bool						Get_Parameters			(CSG_Parameters *pParameters)	{	return( _Get_Parameters(pParameters, false) );	}
 
 
 private:
+
+	CSG_Module_Library			*m_pLibrary;
 
 	CSG_Module					*m_pModule;
 
 	wxCmdLineParser				m_CMD;
 
 
-	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = wxT(""));
+	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = "");
 
 	bool						_Set_Parameters			(CSG_Parameters *pParameters, bool bOptional);
-	bool						_Get_Parameters			(CSG_Parameters *pParameters);
+	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bInitialize);
 
 	bool						_Load_Input				(CSG_Parameter  *pParameter);
 	bool						_Save_Output			(CSG_Parameters *pParameters);

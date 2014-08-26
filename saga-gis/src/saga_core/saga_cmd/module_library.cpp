@@ -75,14 +75,13 @@
 //---------------------------------------------------------
 CCMD_Module::CCMD_Module(void)
 {
+	m_pLibrary	= NULL;
 	m_pModule	= NULL;
 }
 
-CCMD_Module::CCMD_Module(CSG_Module *pModule)
+CCMD_Module::CCMD_Module(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 {
-	m_pModule	= NULL;
-
-	Create(pModule);
+	Create(pLibrary, pModule);
 }
 
 //---------------------------------------------------------
@@ -99,13 +98,11 @@ CCMD_Module::~CCMD_Module(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::Create(CSG_Module *pModule)
+bool CCMD_Module::Create(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 {
 	Destroy();
 
-	m_CMD.SetSwitchChars(SG_T("-"));
-
-	if( (m_pModule = pModule) != NULL )
+	if( (m_pLibrary = pLibrary) != NULL && (m_pModule = pModule) != NULL )
 	{
 		_Set_Parameters(m_pModule->Get_Parameters(), false);
 
@@ -123,9 +120,28 @@ bool CCMD_Module::Create(CSG_Module *pModule)
 //---------------------------------------------------------
 void CCMD_Module::Destroy(void)
 {
+	m_pLibrary	= NULL;
 	m_pModule	= NULL;
 
 	m_CMD.Reset();
+	m_CMD.SetSwitchChars(SG_T("-"));
+}
+
+//---------------------------------------------------------
+void CCMD_Module::Usage(void)
+{
+	if( m_pLibrary && m_pModule )
+	{
+		CMD_Print("");
+
+		wxString	sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %d %s"),
+			m_pLibrary->Get_Library_Name().c_str(),
+			m_pModule->Get_ID(),
+			m_CMD.GetUsageString().AfterFirst(' ').AfterFirst(' ')
+		);
+
+		SG_PRINTF(sUsage);
+	}
 }
 
 
@@ -136,21 +152,17 @@ void CCMD_Module::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::Execute(CSG_String sLibName, int argc, char *argv[])
+bool CCMD_Module::Execute(int argc, char *argv[])
 {
-	int		i;
-
 	//-----------------------------------------------------
-	if( !m_pModule )
+	if( !m_pLibrary || !m_pModule )
 	{
 		return( false );
 	}
 
 	if( argc <= 1 )
 	{
-		wxString sUsage = m_CMD.GetUsageString();
-		sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %d %s"), sLibName.c_str(), m_pModule->Get_ID(), sUsage.AfterFirst(' ').AfterFirst(' '));
-		SG_PRINTF(sUsage);
+		Usage();
 
 		return( false );
 	}
@@ -161,39 +173,50 @@ bool CCMD_Module::Execute(CSG_String sLibName, int argc, char *argv[])
 	// We can't do it this way (passing argv as char**) because then we use an
 	// overload of the method which (re-)sets the locale from the current
 	// enviromment; in order to prevent this, we use wxString overload
-
-	wxString	sCmdLine;
-
-	for(i=1; i<argc; i++)
 	{
-		wxString	sTmp = argv[i];
+		wxString	sCmdLine;
 
-		sCmdLine += wxString::Format(SG_T("\"%s\" "), sTmp.c_str());
+		for(int i=1; i<argc; i++)
+		{
+			if( i > 1 )
+			{
+				sCmdLine	+= " ";
+			}
+
+			sCmdLine	+= argv[i];
+		}
+
+		m_CMD.SetCmdLine(sCmdLine);
 	}
 
-	m_CMD.SetCmdLine(sCmdLine);
+	if( m_CMD.Parse(false) != 0 )
+	{
+		Usage();
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	bool	bResult	= _Get_Parameters(m_pModule->Get_Parameters());
+	int		i;
+
+	bool	bResult	= _Get_Parameters(m_pModule->Get_Parameters(), true);
 
 	for(i=0; bResult && i<m_pModule->Get_Parameters_Count(); i++)
 	{
-		_Get_Parameters(m_pModule->Get_Parameters(i));
+		bResult	= _Get_Parameters(m_pModule->Get_Parameters(i), true);
 	}
 
 	if( !bResult )
 	{
-		CMD_Print("");
+		Usage();
 
-		wxString sUsage = m_CMD.GetUsageString();
-		sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %d %s"), sLibName.c_str(), m_pModule->Get_ID(), sUsage.AfterFirst(' ').AfterFirst(' '));
-		SG_PRINTF(sUsage);
+		return( false );
 	}
 
 	//-----------------------------------------------------
 	CMD_Set_Module(this);
 
-	if( bResult && m_pModule->On_Before_Execution() )
+	if( m_pModule->On_Before_Execution() )
 	{
 		bResult	= m_pModule->Execute();
 
@@ -295,7 +318,7 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bOptional)
 				break;
 
 			case PARAMETER_TYPE_Bool:
-				m_CMD.AddSwitch(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_PARAM_OPTIONAL);
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
 			case PARAMETER_TYPE_Int:
@@ -353,11 +376,16 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bOptional)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
+bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bInitialize)
 {
-	if( !pParameters || m_CMD.Parse(false) != 0 )
+	if( !pParameters )
 	{
 		return( false );
+	}
+
+	if( bInitialize )
+	{
+		pParameters->Restore_Defaults();
 	}
 
 	//-----------------------------------------------------
@@ -392,11 +420,27 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_Parameters:
-				_Get_Parameters(pParameter->asParameters());
+				_Get_Parameters(pParameter->asParameters(), bInitialize);
 				break;
 
 			case PARAMETER_TYPE_Bool:
-				pParameter->Set_Value(m_CMD.Found(_Get_ID(pParameter)) ? 1 : 0);
+				if( m_CMD.Found(_Get_ID(pParameter), &s) )
+				{
+					if(      (s.ToLong(&l) && l == 1) || !s.CmpNoCase("true" ) )
+					{
+						pParameter->Set_Value(1);
+					}
+					else if( (s.ToLong(&l) && l == 0) || !s.CmpNoCase("false") )
+					{
+						pParameter->Set_Value(0);
+					}
+					else
+					{
+						CMD_Print_Error(pParameter->Get_Name(), _TL("invalid boolean value ('0', '1', 'false', 'true')"));
+
+						return( false );
+					}
+				}
 				break;
 
 			case PARAMETER_TYPE_Int:

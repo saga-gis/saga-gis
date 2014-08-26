@@ -314,6 +314,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\saga_api\API_Core.h" />
+    <ClInclude Include="..\saga_api\DataObject.h" />
+    <ClInclude Include="..\saga_api\data_manager.h" />
+    <ClInclude Include="..\saga_api\GEO_Tools.h" />
+    <ClInclude Include="..\saga_api\Grid.h" />
+    <ClInclude Include="..\saga_api\grid_pyramid.h" />
+    <ClInclude Include="..\saga_api\MAT_Tools.h" />
+    <ClInclude Include="..\saga_api\Module.h" />
+    <ClInclude Include="..\saga_api\module_library.h" />
+    <ClInclude Include="..\saga_api\Parameters.h" />
+    <ClInclude Include="..\saga_api\pointcloud.h" />
+    <ClInclude Include="..\saga_api\saga_api.h" />
+    <ClInclude Include="..\saga_api\Shapes.h" />
+    <ClInclude Include="..\saga_api\Table.h" />
+    <ClInclude Include="..\saga_api\table_dbase.h" />
+    <ClInclude Include="..\saga_api\table_value.h" />
+    <ClInclude Include="..\saga_api\TIN.h" />
     <ClInclude Include="callback.h" />
     <ClInclude Include="module_library.h" />
   </ItemGroup>

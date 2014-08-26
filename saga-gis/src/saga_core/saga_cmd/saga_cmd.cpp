@@ -257,9 +257,9 @@ bool		Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	Print_Execution(pLibrary, pModule);
 
-	CCMD_Module	CMD_Module(pModule);
+	CCMD_Module	CMD_Module(pLibrary, pModule);
 
-	return( CMD_Module.Execute(pLibrary->Get_Library_Name(), argc - 2, argv + 2) );
+	return( CMD_Module.Execute(argc - 2, argv + 2) );
 }
 
 
@@ -598,10 +598,14 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 		else
 		{
 			SG_PRINTF(SG_T("_____________________________________________\n"));
-			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library path"), pLibrary->Get_File_Name().c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("library name"), pLibrary->Get_Name     ().c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("tool name   "), pModule ->Get_Name     ().c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"), _TL("author      "), pModule ->Get_Author   ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library path"), SG_File_Get_Path(pLibrary->Get_File_Name()       ).c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library name"), SG_File_Get_Name(pLibrary->Get_File_Name(), false).c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library     "), pLibrary->Get_Name     ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("tool        "), pModule ->Get_Name     ().c_str());
+			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("author      "), pModule ->Get_Author   ().c_str());
+		#ifdef _OPENMP
+			SG_PRINTF(SG_T("%s:\t%d [%d]\n"), _TL("processors  "), SG_Get_Max_Num_Threads_Omp(), SG_Get_Max_Num_Procs_Omp());
+		#endif // _OPENMP
 			SG_PRINTF(SG_T("_____________________________________________\n\n"));
 		}
 	}

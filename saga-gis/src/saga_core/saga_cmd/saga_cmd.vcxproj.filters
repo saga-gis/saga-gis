@@ -8,6 +8,9 @@
       <UniqueIdentifier>{23144f0c-b50d-4bfe-b3a6-4bcab520ba7b}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{0a192cce-906d-43a4-84f6-33ca68dbac4f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="callback.cpp">
@@ -21,10 +24,61 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="callback.h">
+    <ClInclude Include="module_library.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="module_library.h">
+    <ClInclude Include="..\saga_api\API_Core.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\data_manager.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\DataObject.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\GEO_Tools.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\Grid.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\grid_pyramid.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\MAT_Tools.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\Module.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\module_library.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\Parameters.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\pointcloud.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\saga_api.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\Shapes.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\Table.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\table_dbase.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\table_value.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\saga_api\TIN.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="callback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
