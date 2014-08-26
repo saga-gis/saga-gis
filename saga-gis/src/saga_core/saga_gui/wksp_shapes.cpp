@@ -427,11 +427,11 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		m_Parameters("NODE_EDIT")		, "EDIT_SNAP_LIST"			, _TL("Snap to..."),
 		_TL(""),
 		PARAMETER_INPUT
-	);
+	)->asShapesList()->Add_Item(m_pObject);
 
 	m_Parameters.Add_Value(
 		m_Parameters("EDIT_SNAP_LIST")	, "EDIT_SNAP_DIST"			, _TL("Snap Distance"),
-		_TL(""),
+		_TL("snap distance in screen units (pixels)"),
 		PARAMETER_TYPE_Int, 10, 0, true
 	);
 
@@ -575,19 +575,19 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OUTLINE") )
 		{
-			pParameters->Get_Parameter("OUTLINE_COLOR")->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("OUTLINE_SIZE" )->Set_Enabled(pParameter->asBool());
+			pParameters->Set_Enabled("OUTLINE_COLOR", pParameter->asBool());
+			pParameters->Set_Enabled("OUTLINE_SIZE" , pParameter->asBool());
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get_Parameter("LABEL_ATTRIB_FONT"     )->Set_Enabled(Value);
-			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_TYPE")->Set_Enabled(Value);
-			pParameters->Get_Parameter("LABEL_ATTRIB_PREC"     )->Set_Enabled(Value);
-			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_BY"  )->Set_Enabled(Value);
-			pParameters->Get_Parameter("LABEL_ATTRIB_EFFECT"   )->Set_Enabled(Value);
+			pParameters->Set_Enabled("LABEL_ATTRIB_FONT"     , Value);
+			pParameters->Set_Enabled("LABEL_ATTRIB_SIZE_TYPE", Value);
+			pParameters->Set_Enabled("LABEL_ATTRIB_PREC"     , Value);
+			pParameters->Set_Enabled("LABEL_ATTRIB_SIZE_BY"  , Value);
+			pParameters->Set_Enabled("LABEL_ATTRIB_EFFECT"   , Value);
 		}
 
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB_SIZE_TYPE")
@@ -596,19 +596,19 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			bool	Value	= pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_TYPE")->asInt() != 0
 						||    pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_BY"  )->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get_Parameter("LABEL_ATTRIB_SIZE")->Set_Enabled(Value);
+			pParameters->Set_Enabled("LABEL_ATTRIB_SIZE", Value);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB_EFFECT") )
 		{
 			bool	Value	= pParameter->asInt() > 0;
 
-			pParameters->Get_Parameter("LABEL_ATTRIB_EFFECT_COLOR")->Set_Enabled(Value);
+			pParameters->Set_Enabled("LABEL_ATTRIB_EFFECT_COLOR", Value);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "EDIT_SNAP_LIST") )
 		{
-			pParameters->Get_Parameter("EDIT_SNAP_DIST")->Set_Enabled(pParameter->asList()->Get_Count() > 0);
+			pParameters->Set_Enabled("EDIT_SNAP_DIST", pParameter->asList()->Get_Count() > 0);
 		}
 
 		if(	!SG_STR_CMP(pParameters->Get_Identifier(), "DISPLAY_CHART") )
@@ -619,10 +619,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			{
 				s.Replace("FIELD_", "COLOR_");
 
-				if( pParameters->Get_Parameter(s) )
-				{
-					pParameters->Get_Parameter(s)->Set_Enabled(pParameter->asBool());
-				}
+				pParameters->Set_Enabled(s, pParameter->asBool());
 			}
 		}
 	}

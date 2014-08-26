@@ -1019,7 +1019,17 @@ void CWKSP_Shapes::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 		{
 			iPoint	= m_Parameters("EDIT_SNAP_DIST")->asInt();
 
+			dc_Map.dc.SetBrush(wxNullBrush);
+			dc_Map.dc.SetPen  (*wxWHITE);
+			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, iPoint - 1);
+			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, iPoint + 1);
+
+			dc_Map.dc.SetPen  (*wxBLACK);
 			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, iPoint);
+
+			dc_Map.dc.SetBrush(*wxBLACK);
+			dc_Map.dc.SetPen  (*wxBLACK);
+			dc_Map.dc.DrawCircle(1 + iPoint, 1 + iPoint, 1);
 		}
 	}
 }
