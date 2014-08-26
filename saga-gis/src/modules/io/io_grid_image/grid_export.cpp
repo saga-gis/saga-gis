@@ -265,7 +265,7 @@ bool CGrid_Export::On_Execute(void)
 	{
 		double		zMin, zScale;
 		CSG_Colors	Colors;
-		CSG_Table	*pLUT	= Parameters("LUT")->asTable();
+		CSG_Table	LUT;
 
 		if( SG_UI_Get_Window_Main() )
 		{
@@ -304,12 +304,14 @@ bool CGrid_Export::On_Execute(void)
 			break;
 
 		case 3:	// lookup table
-			if( !pLUT || pLUT->Get_Field_Count() < 5 )
+			if( !Parameters("LUT")->asTable() || Parameters("LUT")->asTable()->Get_Field_Count() < 5 )
 			{
 				Error_Set(_TL("invalid lookup table."));
 
 				return( false );
 			}
+
+			LUT.Create(*Parameters("LUT")->asTable());
 			break;
 
 		case 4:	// rgb coded values
@@ -328,13 +330,21 @@ bool CGrid_Export::On_Execute(void)
 
 				if( Method == 3 )	// lookup table
 				{
-					int		i, iColor;
+					int	i, iColor	= -1;
 
-					for(i=0, iColor=-1; i<pLUT->Get_Record_Count() && iColor<0; i++)
+					for(i=0; iColor<0 && i<LUT.Get_Count(); i++)
 					{
-						if( z >= pLUT->Get_Record(i)->asDouble(3) && z < pLUT->Get_Record(i)->asDouble(4) )
+						if( z == LUT[i][3] )
 						{
-							Grid.Set_Value(x, iy, pLUT->Get_Record(iColor = i)->asInt(0));
+							Grid.Set_Value(x, iy, LUT[iColor = i].asInt(0));
+						}
+					}
+
+					for(i=0; iColor<0 && i<LUT.Get_Count(); i++)
+					{
+						if( z >= LUT[i][3] && z <= LUT[i][4] )
+						{
+							Grid.Set_Value(x, iy, LUT[iColor = i].asInt(0));
 						}
 					}
 
@@ -349,13 +359,13 @@ bool CGrid_Export::On_Execute(void)
 				}
 				else if( Method == 4 )	// rgb coded values
 				{
-					Grid.Set_Value (x, iy, z);
+					Grid.Set_Value(x, iy, z);
 				}
 				else
 				{
 					int	i	= (int)(zScale * (z - zMin));
 
-					Grid.Set_Value (x, iy, Colors[i < 0 ? 0 : i >= Colors.Get_Count() ? Colors.Get_Count() - 1 : i]);
+					Grid.Set_Value(x, iy, Colors[i < 0 ? 0 : i >= Colors.Get_Count() ? Colors.Get_Count() - 1 : i]);
 				}
 			}
 		}
