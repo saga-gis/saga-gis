@@ -148,7 +148,7 @@ CGrid_Calculator::CGrid_Calculator(void)
 	Parameters.Add_Value(
 		pNode	, "FNAME"	, _TL("Take Formula"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Value(
@@ -258,7 +258,7 @@ bool CGrid_Calculator::On_Execute(void)
 			bool		bNoData	= false;
 			int			i, n;
 			double		Result, px	= Get_XMin() + x * Get_Cellsize();
-			CSG_Vector	Values(pGrids->Get_Count() + pXGrids->Get_Count() + 2);
+			CSG_Vector	Values(pGrids->Get_Count() + pXGrids->Get_Count() + 4);
 
 			for(i=0, n=0; !bNoData && i<pGrids->Get_Count(); i++)
 			{
