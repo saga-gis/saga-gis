@@ -179,6 +179,10 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 		{
 			m_AOI.Inflate(m_dOverlap, false);
 		}
+		else
+		{
+			m_dOverlap = 0.0;
+		}
 	
 		if( m_AOI.Intersects(BBoxSPCVF) == INTERSECTION_None )
 		{
@@ -284,7 +288,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 			}
 			else
 			{
-				pPC_out->Set_Name(CSG_String::Format(SG_T("%s%d_%d"), sPath.c_str(), (int)m_AOI.Get_XMin(), (int)m_AOI.Get_YMin()));
+				pPC_out->Set_Name(CSG_String::Format(SG_T("%s%d_%d"), sPath.c_str(), (int)(m_AOI.Get_XMin() + m_dOverlap), (int)(m_AOI.Get_YMin() + m_dOverlap)));
 			}
 		}
 		else
