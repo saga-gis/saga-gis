@@ -89,9 +89,9 @@ bool _finite(double val)
 CGrid_Calculator::CGrid_Calculator(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Grid Calculator"));
+	Set_Name	(_TL("Grid Calculator"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
+	Set_Author	(_TL("A.Ringeler (c) 2003"));
 
 	CSG_String	s(_TW(
 		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula. "
@@ -107,18 +107,23 @@ CGrid_Calculator::CGrid_Calculator(void)
 
 	s	+= CSG_Formula::Get_Help_Operators();
 
+	s	+= _TW(
+		"xpos(), ypos() - get the x/y coordinates of the current cell\n"
+		"row(), col() - get the current cell's column/row index\n"
+	);
+
 	Set_Description(s);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"	, _TL("Grids"),
-		_TL("in formula these grids are addressed in order of the list as 'g1, g2, g3, ...'"),
-		PARAMETER_INPUT
+		_TL("in the formula these grids are addressed in order of the list as 'g1, g2, g3, ...'"),
+		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_List(
 		NULL	, "XGRIDS"	, _TL("Grids from different Systems"),
-		_TL("in formula these grids are addressed in order of the list as 'h1, h2, h3, ...'"),
+		_TL("in the formula these grids are addressed in order of the list as 'h1, h2, h3, ...'"),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 
@@ -251,11 +256,11 @@ bool CGrid_Calculator::On_Execute(void)
 		for(int x=0; x<Get_NX(); x++)
 		{
 			bool		bNoData	= false;
-			int			i, j;
-			double		Result;
-			CSG_Vector	Values(pGrids->Get_Count() + pXGrids->Get_Count());
+			int			i, n;
+			double		Result, px	= Get_XMin() + x * Get_Cellsize();
+			CSG_Vector	Values(pGrids->Get_Count() + pXGrids->Get_Count() + 2);
 
-			for(i=0; i<pGrids->Get_Count() && !bNoData; i++)
+			for(i=0, n=0; !bNoData && i<pGrids->Get_Count(); i++)
 			{
 				if( !bUseNoData && pGrids->asGrid(i)->is_NoData(x, y) )
 				{
@@ -263,22 +268,31 @@ bool CGrid_Calculator::On_Execute(void)
 				}
 				else
 				{
-					Values[i]	= pGrids->asGrid(i)->asDouble(x, y);
+					Values[n++]	= pGrids->asGrid(i)->asDouble(x, y);
 				}
 			}
 
-			if( !bNoData && pXGrids->Get_Count() )
+			for(i=0, n=pGrids->Get_Count(); !bNoData && i<pXGrids->Get_Count(); i++)
 			{
-				for(i=0, j=pGrids->Get_Count(); i<pXGrids->Get_Count() && !bNoData; i++, j++)
+				if( !pXGrids->asGrid(i)->Get_Value(px, py, Values[n++]) )
 				{
-					if( !pXGrids->asGrid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), Values[j]) )
-					{
-						bNoData		= true;
-					}
+					bNoData		= true;
 				}
 			}
 
-			if( bNoData || !_finite(Result = Formula.Get_Value(Values)) )
+			if( !bNoData )
+			{
+				n	= pGrids->Get_Count() + pXGrids->Get_Count();
+
+				Values[n++]	= y;	// col()
+				Values[n++]	= x;	// row()
+				Values[n++]	= py;	// ypos()
+				Values[n++]	= px;	// xpos()
+
+				bNoData	= !_finite(Result = Formula.Get_Value(Values));
+			}
+
+			if( bNoData )
 			{
 				pResult->Set_NoData(x, y);
 			}
@@ -309,7 +323,7 @@ bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, in
 	const SG_Char	Vars[nVars]	= SG_T("abcdefghijklmnopqrstuvwxyz");
 
 	//-----------------------------------------------------
-	if( nGrids + nXGrids > nVars )
+	if( nGrids + nXGrids + 4 > nVars )
 	{
 		Error_Set(_TL("too many input grids"));
 
@@ -317,7 +331,12 @@ bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, in
 	}
 
 	//-----------------------------------------------------
-	int		i, n = nGrids + nXGrids - 1;
+	int		i, n = nGrids + nXGrids + 4 - 1;
+
+	sFormula.Replace("xpos()", Vars[n--]);
+	sFormula.Replace("ypos()", Vars[n--]);
+	sFormula.Replace("row()" , Vars[n--]);
+	sFormula.Replace("col()" , Vars[n--]);
 
 	for(i=nXGrids; i>0; i--, n--)
 	{
