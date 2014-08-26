@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: opencv_stereo_match.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 opencv_stereo_match.h                 //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2014 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,76 +54,46 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__opencv_stereo_match_H
+#define HEADER_INCLUDED__opencv_stereo_match_H
 
-#include "MLB_Interface.h"
 
-#include <opencv/cv.h>
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "opencv.h"
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class COpenCV_Stereo_Match : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - OpenCV") );
+public:
+	COpenCV_Stereo_Match(void);
 
-	case MLB_INFO_Author:
-		return( _TL("O. Conrad (c) 2009") );
-
-	case MLB_INFO_Description:
-		{
-			CSG_String	s;
-
-			s	+= _TW("OpenCV - \"Open Source Computer Vision Library\"\nVersion: ");
-			s	+= CV_VERSION;
-			s	+= "\n<a target=\"_blank\" href=\"http://opencv.org\">OpenCV homepage</a>";
-
-			return( s );
-		}
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery") );
-	}
-}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Garden|Imagery") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "opencv_morphology.h"
-#include "opencv_fourier.h"
-#include "opencv_svd.h"
-#include "opencv_nnet.h"
-#include "opencv_stereo_match.h"
+	virtual bool			On_Execute			(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new COpenCV_Morphology );
-	case  1:	return( new COpenCV_FFT );
-	case  2:	return( new COpenCV_SVD );
-	case  3:	return( new COpenCV_NNet );
-	case  4:	return( new COpenCV_Stereo_Match );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -133,8 +103,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__opencv_stereo_match_H

@@ -83,13 +83,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int			Get_CVType				(TSG_Data_Type Type);
+int			Get_CVMatrix_Type		(TSG_Data_Type Type);
+
+bool		Copy_Grid_To_CVMatrix	(CSG_Grid *pGrid, cv::Mat *pMatrix, bool bCheckSize = true);
+bool		Copy_CVMatrix_To_Grid	(CSG_Grid *pGrid, cv::Mat *pMatrix, bool bCheckSize = true);
+
+bool		Get_CVMatrix			(cv::Mat &Matrix, int nx, int ny , TSG_Data_Type Type);
+bool		Get_CVMatrix			(cv::Mat &Matrix, CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined);
 
 //---------------------------------------------------------
+int			Get_CVImage_Type		(TSG_Data_Type Type);
+
 bool		Copy_Grid_To_CVImage	(CSG_Grid *pGrid, IplImage *pImage, bool bCheckSize = true);
 bool		Copy_CVImage_To_Grid	(CSG_Grid *pGrid, IplImage *pImage, bool bCheckSize = true);
 
-//---------------------------------------------------------
 IplImage *	Get_CVImage				(int nx, int ny , TSG_Data_Type Type);
 IplImage *	Get_CVImage				(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined);
 
