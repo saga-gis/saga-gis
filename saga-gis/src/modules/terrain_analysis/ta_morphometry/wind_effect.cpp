@@ -80,7 +80,14 @@ CWind_Effect::CWind_Effect(void)
 	Set_Author		(SG_T("J.Boehner, A.Ringeler (c) 2008, O.Conrad (c) 2011"));
 
 	Set_Description	(_TW(
-		""
+		"The 'Wind Effect' is a dimensionless index. Values below 1 indicate wind shadowed areas "
+		"whereas values above 1 indicate areas exposed to wind, all with regard to the specified "
+		"wind direction. Wind direction, i.e. the direction into which the wind blows, might be "
+		"either constant or variying in space, if a wind direction grid is supplied.\n"
+		"\nReferences:\n"
+		"- Boehner, J., Antonic, O. (2009): 'Land-surface parameters specific to topo-climatology'."
+		" in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'."
+		" Developments in Soil Science, Volume 33, p.195-226, Elsevier.\n"
 	));
 
 	Parameters.Add_Grid(
@@ -89,16 +96,31 @@ CWind_Effect::CWind_Effect(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
+	pNode	= Parameters.Add_Grid(
 		NULL	, "DIR"			, _TL("Wind Direction"),
+		_TL("Direction into which the wind blows, starting with 0 for North and increasing clockwise."),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "DIR_UNITS"	, _TL("Wind Direction Units"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("radians"),
+			_TL("degree")
+		), 0
+	);
+
+	pNode	= Parameters.Add_Grid(
+		NULL	, "LEN"			, _TL("Wind Speed"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LEN"			, _TL("Wind Speed"),
+	Parameters.Add_Value(
+		pNode	, "LEN_SCALE"	, _TL("Scaling"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
+		PARAMETER_TYPE_Double, 1.0
 	);
 
 	Parameters.Add_Grid(
@@ -108,33 +130,27 @@ CWind_Effect::CWind_Effect(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "LUV"			, _TL("Windward Effect"),
+		NULL	, "AFH"			, _TL("Effective Air Flow Heights"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "LEE"			, _TL("Leeward Effect"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	pNode	= Parameters.Add_Value(
-		NULL	, "DIR_CONST"	, _TL("Constant Wind Direction [Degree]"),
-		_TL("constant wind direction to be used if no direction grid is given"),
-		PARAMETER_TYPE_Double, 135.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "OLDVER"		, _TL("Old Version"),
-		_TL("use old version (no acceleration option) with constant wind direction"),
-		PARAMETER_TYPE_Bool, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "MAXDIST"		, _TL("Search Distance [km]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 300.0, 0.0, true
+	);
+
+	pNode	= Parameters.Add_Value(
+		NULL	, "DIR_CONST"	, _TL("Constant Wind Direction"),
+		_TL("constant direction into the wind blows, given as degree"),
+		PARAMETER_TYPE_Double, 135.0
+	);
+
+	Parameters.Add_Value(
+		pNode	, "OLDVER"		, _TL("Old Version"),
+		_TL("use old version for constant wind direction (no acceleration and averaging option)"),
+		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Value(
@@ -144,28 +160,13 @@ CWind_Effect::CWind_Effect(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "PYRAMIDS"	, _TL("Use Pyramids"),
-		_TL(""),
+		NULL	, "PYRAMIDS"	, _TL("Elevation Averaging"),
+		_TL("use more averaged elevations when looking at increasing distances"),
 		PARAMETER_TYPE_Bool, false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DIR_UNITS"	, _TL("Wind Direction Units"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("radians"),
-			_TL("degree")
-		), 0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "LEN_SCALE"	, _TL("Wind Speed Scale Factor"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
-	);
-
 /*	Parameters.Add_Value(
-		NULL	, "DIR_TRACE"	, _TL("Precise Tracing"),
+		NULL	, "TRACE"		, _TL("Precise Tracing"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);/**/
@@ -179,23 +180,50 @@ CWind_Effect::CWind_Effect(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CWind_Effect::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIR") )
+	{
+		pParameters->Set_Enabled("DIR_CONST", pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("DIR_UNITS", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("LEN"      , pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("OLDVER"   , pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("PYRAMIDS" , pParameters->Get_Parameter("OLDVER")->asBool() == false);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "LEN") )
+	{
+		pParameters->Set_Enabled("LEN_SCALE", pParameter->asGrid() != NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OLDVER") )
+	{
+		pParameters->Set_Enabled("ACCEL"    , pParameter->asBool() == false);
+		pParameters->Set_Enabled("PYRAMIDS" , pParameter->asBool() == false);
+	}
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CWind_Effect::On_Execute(void)
 {
-	bool		bOldVer;
-	int			x, y;
-	CSG_Grid	*pDirection, *pSpeed, *pEffect, *pLuv, *pLee;
+	CSG_Grid	*pEffect, *pAFH;
 
 	//-----------------------------------------------------
-	m_pDEM			= Parameters("DEM")			->asGrid();
-	pDirection		= Parameters("DIR")			->asGrid();
-	pSpeed			= Parameters("LEN")			->asGrid();
-	pEffect			= Parameters("EFFECT")		->asGrid();
-	pLuv			= Parameters("LUV")			->asGrid();
-	pLee			= Parameters("LEE")			->asGrid();
-	m_maxDistance	= Parameters("MAXDIST")		->asDouble() * 1000.0;
-	m_Acceleration	= Parameters("ACCEL")		->asDouble();
-	bOldVer			= Parameters("OLDVER")		->asBool() && !pDirection;
-//	m_bTrace		= Parameters("DIR_TRACE")	->asBool();
+	m_pDEM			= Parameters("DEM"    )->asGrid();
+	pEffect			= Parameters("EFFECT" )->asGrid();
+	pAFH			= Parameters("AFH"    )->asGrid();
+	m_maxDistance	= Parameters("MAXDIST")->asDouble() * 1000.0;
+	m_Acceleration	= Parameters("ACCEL"  )->asDouble();
+//	m_bTrace		= Parameters("TRACE"  )->asBool();
 
 	//-----------------------------------------------------
 	CSG_Colors	Colors(5);
@@ -206,71 +234,84 @@ bool CWind_Effect::On_Execute(void)
 	Colors.Set_Color(3, 127, 127, 175);
 	Colors.Set_Color(4,   0,   0, 100);
 
-	Colors.Set_Count(100);
-
 	DataObject_Set_Colors(pEffect, Colors);
-	DataObject_Set_Colors(pLuv   , Colors);
-	DataObject_Set_Colors(pLee   , Colors);
+	DataObject_Set_Colors(pAFH   , Colors);
 
 	//-----------------------------------------------------
-	if( pDirection )
+	bool	bOldVer	= false;
+
+	if( Parameters("DIR")->asGrid() == NULL )
 	{
+		bOldVer	= Parameters("OLDVER")->asBool();
+
+		m_Dir_Const.x	= sin(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
+		m_Dir_Const.y	= cos(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
+
+		if( fabs(m_Dir_Const.x) > fabs(m_Dir_Const.y) )
+		{
+			m_Dir_Const.y	/= fabs(m_Dir_Const.x);
+			m_Dir_Const.x	= m_Dir_Const.x < 0 ? -1 : 1;
+		}
+		else
+		{
+			m_Dir_Const.x	/= fabs(m_Dir_Const.y);
+			m_Dir_Const.y	= m_Dir_Const.y < 0 ? -1 : 1;
+		}
+	}
+	else
+	{
+		if( !m_DX.Create(*Get_System()) || !m_DY.Create(*Get_System()) )
+		{
+			Error_Set(_TL("could not allocate sufficient memory"));
+
+			return( false );
+		}
+
+		CSG_Grid	*pDir	= Parameters("DIR")->asGrid();
+		CSG_Grid	*pLen	= Parameters("LEN")->asGrid();
+
 		double	dRadians	= Parameters("DIR_UNITS")->asInt() == 0 ? 1.0 : M_DEG_TO_RAD;
 		double	dScale		= Parameters("LEN_SCALE")->asDouble();
 
-		m_DX.Create(*Get_System());
-		m_DY.Create(*Get_System());
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
-				if( pDirection->is_NoData(x, y) )
+				if( pDir->is_NoData(x, y) )
 				{
 					m_DX.Set_NoData(x, y);
 				}
 				else
 				{
-					double	d	= pSpeed ? (!pSpeed->is_NoData(x, y) ? dScale * pSpeed->asDouble(x, y) : 0.0) : 1.0;
+					double	d	= pLen ? (!pLen->is_NoData(x, y) ? dScale * pLen->asDouble(x, y) : 0.0) : 1.0;
 
-					m_DX.Set_Value(x, y, d * sin(pDirection->asDouble(x, y) * dRadians));
-					m_DY.Set_Value(x, y, d * cos(pDirection->asDouble(x, y) * dRadians));
+					m_DX.Set_Value(x, y, d * sin(pDir->asDouble(x, y) * dRadians));
+					m_DY.Set_Value(x, y, d * cos(pDir->asDouble(x, y) * dRadians));
 				}
 			}
 		}
 	}
-	else
-	{
-		m_dx	= sin(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
-		m_dy	= cos(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
 
-		if( fabs(m_dx) > fabs(m_dy) )
-		{
-			m_dy	/= fabs(m_dx);
-			m_dx	= m_dx < 0 ? -1 : 1;
-		}
-		else
-		{
-			m_dx	/= fabs(m_dy);
-			m_dy	= m_dy < 0 ? -1 : 1;
-		}
-	}
-
-	if( Parameters("PYRAMIDS")->asBool() && (pDirection || !bOldVer) )
+	if( Parameters("PYRAMIDS")->asBool() && !bOldVer )
 	{
 		m_DEM.Create(m_pDEM, 2.0);
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{
-				if( pLuv    )	pLuv   ->Set_NoData(x, y);
-				if( pLee    )	pLee   ->Set_NoData(x, y);
-				if( pEffect )	pEffect->Set_NoData(x, y);
+				pEffect->Set_NoData(x, y);
+
+				if( pAFH )
+				{
+					pAFH->Set_NoData(x, y);
+				}
 			}
 			else
 			{
@@ -278,8 +319,8 @@ bool CWind_Effect::On_Execute(void)
 
 				if( bOldVer )
 				{
-					Get_Luv(x, y,  m_dx,  m_dy, Luv);
-					Get_Lee(x, y, -m_dx, -m_dy, Luv_Lee, Lee);
+					Get_Luv_Old(x, y,  m_Dir_Const.x,  m_Dir_Const.y, Luv);
+					Get_Lee_Old(x, y, -m_Dir_Const.x, -m_Dir_Const.y, Luv_Lee, Lee);
 				}
 				else
 				{
@@ -287,6 +328,18 @@ bool CWind_Effect::On_Execute(void)
 					Get_Lee(x, y, Luv_Lee, Lee);
 				}
 
+				//-----------------------------------------
+				if( pAFH )
+				{
+					double	d, z	= m_pDEM->asDouble(x, y);
+
+					d	= 1.0 + (z + Lee != 0.0 ? (z - Lee) / (z + Lee) : 0.0);
+					d	= (Luv > Luv_Lee ? Luv - Luv_Lee : 0.0) + z * d*d / 2.0;
+
+					pAFH->Set_Value(x, y, d < 0.0 ? 0.0 : d);
+				}
+
+				//-----------------------------------------
 				Luv		+= Luv_Lee;
 
 				Luv		= Luv > 0.0
@@ -300,18 +353,15 @@ bool CWind_Effect::On_Execute(void)
 				Luv		= pow(Luv, 0.25);
 				Lee		= pow(Lee, 0.25);
 
-				if( pLuv    )	pLuv   ->Set_Value(x, y, Luv);
-				if( pLee    )	pLee   ->Set_Value(x, y, Lee);
-				if( pEffect )	pEffect->Set_Value(x, y, Luv * Lee);
+				pEffect->Set_Value(x, y, Luv * Lee);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_DX	.Destroy();
-	m_DY	.Destroy();
-
-	m_DEM	.Destroy();
+	m_DX .Destroy();
+	m_DY .Destroy();
+	m_DEM.Destroy();
 
 	return( true );
 }
@@ -333,9 +383,14 @@ inline bool CWind_Effect::Get_Next(TSG_Point &Position, double Distance, bool bR
 
 	double	dx, dy;
 
-	if( m_DX.is_Valid() )
+	if( !m_DX.is_Valid() )
 	{
-/*		if( m_bTrace )
+		dx	= m_Dir_Const.x;
+		dy	= m_Dir_Const.y;
+	}
+	else
+	{
+	/*	if( m_bTrace )
 		{
 			double	d, dMove	= bReverse ? -Get_Cellsize() : Get_Cellsize();
 
@@ -352,16 +407,12 @@ inline bool CWind_Effect::Get_Next(TSG_Point &Position, double Distance, bool bR
 
 			Distance	-= d;
 		}
-/**/
+	/**/
+
 		if( !m_DX.Get_Value(Position, dx) || !m_DY.Get_Value(Position, dy) )
 		{
 			return( false );
 		}
-	}
-	else
-	{
-		dx	= m_dx;
-		dy	= m_dy;
 	}
 
 	if( bReverse )
@@ -476,7 +527,7 @@ void CWind_Effect::Get_Lee(int x, int y, double &Sum_A, double &Sum_B)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWind_Effect::Get_Luv(int x, int y, double dx, double dy, double &Sum_A)
+void CWind_Effect::Get_Luv_Old(int x, int y, double dx, double dy, double &Sum_A)
 {
 	double	Weight_A	= Sum_A	= 0.0;
 
@@ -495,7 +546,7 @@ void CWind_Effect::Get_Luv(int x, int y, double dx, double dy, double &Sum_A)
 }
 
 //---------------------------------------------------------
-void CWind_Effect::Get_Lee(int x, int y, double dx, double dy, double &Sum_A, double &Sum_B)
+void CWind_Effect::Get_Lee_Old(int x, int y, double dx, double dy, double &Sum_A, double &Sum_B)
 {
 	double	Weight_A	= Sum_A	= 0.0;
 	double	Weight_B	= Sum_B	= 0.0;

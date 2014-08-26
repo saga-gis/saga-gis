@@ -80,7 +80,10 @@ CAir_Flow_Height::CAir_Flow_Height(void)
 	Set_Author		(SG_T("J.Boehner, O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		""
+		"\nReferences:\n"
+		"- Boehner, J., Antonic, O. (2009): 'Land-surface parameters specific to topo-climatology'."
+		" in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'."
+		" Developments in Soil Science, Volume 33, p.195-226, Elsevier.\n"
 	));
 
 	Parameters.Add_Grid(
@@ -89,40 +92,55 @@ CAir_Flow_Height::CAir_Flow_Height(void)
 		PARAMETER_INPUT
 	);
 
+	pNode	= Parameters.Add_Grid(
+		NULL	, "DIR"			, _TL("Wind Direction"),
+		_TL("Direction into which the wind blows, starting with 0 for North and increasing clockwise."),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "DIR_UNITS"	, _TL("Wind Direction Units"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("radians"),
+			_TL("degree")
+		), 0
+	);
+
+	pNode	= Parameters.Add_Grid(
+		NULL	, "LEN"			, _TL("Wind Speed"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Value(
+		pNode	, "LEN_SCALE"	, _TL("Scaling"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0
+	);
+
 	Parameters.Add_Grid(
 		NULL	, "AFH"			, _TL("Effective Air Flow Heights"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "DIR"			, _TL("Wind Direction"),
+	Parameters.Add_Value(
+		NULL	, "MAXDIST"		, _TL("Search Distance [km]"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "LEN"			, _TL("Wind Speed"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
+		PARAMETER_TYPE_Double, 300.0, 0.0, true
 	);
 
 	pNode	= Parameters.Add_Value(
-		NULL	, "DIR_CONST"	, _TL("Constant Wind Direction [Degree]"),
-		_TL("constant wind direction to be used if no direction grid is given"),
+		NULL	, "DIR_CONST"	, _TL("Constant Wind Direction"),
+		_TL("constant direction into the wind blows, given as degree"),
 		PARAMETER_TYPE_Double, 135.0
 	);
 
 	Parameters.Add_Value(
 		pNode	, "OLDVER"		, _TL("Old Version"),
-		_TL("use old version (no acceleration option) with constant wind direction"),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "MAXDIST"		, _TL("Search Distance [km]"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 300.0, 0.0, true
+		_TL("use old version for constant wind direction (no acceleration and averaging option)"),
+		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Value(
@@ -132,40 +150,25 @@ CAir_Flow_Height::CAir_Flow_Height(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "PYRAMIDS"	, _TL("Use Pyramids with New Version"),
-		_TL(""),
+		NULL	, "PYRAMIDS"	, _TL("Elevation Averaging"),
+		_TL("use more averaged elevations when looking at increasing distances"),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Value(
-		NULL	, "LEEFACT"		, _TL("Lee Factor"),
+		NULL	, "LEE"			, _TL("Windward Factor"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 0.5
 	);
 
 	Parameters.Add_Value(
-		NULL	, "LUVFACT"		, _TL("Luv Factor"),
+		NULL	, "LUV"			, _TL("Luv Factor"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DIR_UNITS"	, _TL("Wind Direction Units"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("radians"),
-			_TL("degree")
-		), 0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "LEN_SCALE"	, _TL("Wind Speed Scale Factor"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
-	);
-
 /*	Parameters.Add_Value(
-		NULL	, "DIR_TRACE"	, _TL("Precise Tracing"),
+		NULL	, "TRACE"		, _TL("Precise Tracing"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);/**/
@@ -179,23 +182,51 @@ CAir_Flow_Height::CAir_Flow_Height(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CAir_Flow_Height::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIR") )
+	{
+		pParameters->Set_Enabled("DIR_CONST", pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("DIR_UNITS", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("LEN"      , pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("OLDVER"   , pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("PYRAMIDS" , pParameters->Get_Parameter("OLDVER")->asBool() == false);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "LEN") )
+	{
+		pParameters->Set_Enabled("LEN_SCALE", pParameter->asGrid() != NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OLDVER") )
+	{
+		pParameters->Set_Enabled("ACCEL"    , pParameter->asBool() == false);
+		pParameters->Set_Enabled("PYRAMIDS" , pParameter->asBool() == false);
+	}
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CAir_Flow_Height::On_Execute(void)
 {
-	bool		bOldVer;
-	int			x, y;
-	CSG_Grid	*pDirection, *pSpeed, *pAFH;
+	CSG_Grid	*pAFH;
 
 	//-----------------------------------------------------
-	m_pDEM			= Parameters("DEM")			->asGrid();
-	pDirection		= Parameters("DIR")			->asGrid();
-	pSpeed			= Parameters("LEN")			->asGrid();
-	pAFH			= Parameters("AFH")			->asGrid();
-	m_maxDistance	= Parameters("MAXDIST")		->asDouble() * 1000.0;
-	m_Acceleration	= Parameters("ACCEL")		->asDouble();
-	bOldVer			= Parameters("OLDVER")		->asBool() && !pDirection;
-	m_dLee			= Parameters("LEEFACT")		->asDouble();
-	m_dLuv			= Parameters("LUVFACT")		->asDouble();
-//	m_bTrace		= Parameters("DIR_TRACE")	->asBool();
+	m_pDEM			= Parameters("DEM"    )->asGrid();
+	pAFH			= Parameters("AFH"    )->asGrid();
+	m_maxDistance	= Parameters("MAXDIST")->asDouble() * 1000.0;
+	m_Acceleration	= Parameters("ACCEL"  )->asDouble();
+	m_dLee			= Parameters("LEE"    )->asDouble();
+	m_dLuv			= Parameters("LUV"    )->asDouble();
+//	m_bTrace		= Parameters("TRACE"  )->asBool();
 
 	//-----------------------------------------------------
 	CSG_Colors	Colors(5);
@@ -206,63 +237,74 @@ bool CAir_Flow_Height::On_Execute(void)
 	Colors.Set_Color(3, 127, 127, 175);
 	Colors.Set_Color(4,   0,   0, 100);
 
-	Colors.Set_Count(100);
-
 	DataObject_Set_Colors(pAFH, Colors);
 
 	//-----------------------------------------------------
-	if( pDirection )
+	bool	bOldVer	= false;
+
+	if( Parameters("DIR")->asGrid() == NULL )
 	{
+		bOldVer	= Parameters("OLDVER")->asBool();
+
+		m_Dir_Const.x	= sin(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
+		m_Dir_Const.y	= cos(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
+
+		if( fabs(m_Dir_Const.x) > fabs(m_Dir_Const.y) )
+		{
+			m_Dir_Const.y	/= fabs(m_Dir_Const.x);
+			m_Dir_Const.x	= m_Dir_Const.x < 0 ? -1 : 1;
+		}
+		else
+		{
+			m_Dir_Const.x	/= fabs(m_Dir_Const.y);
+			m_Dir_Const.y	= m_Dir_Const.y < 0 ? -1 : 1;
+		}
+	}
+	else
+	{
+		if( !m_DX.Create(*Get_System()) || !m_DY.Create(*Get_System()) )
+		{
+			Error_Set(_TL("could not allocate sufficient memory"));
+
+			return( false );
+		}
+
+		CSG_Grid	*pDir	= Parameters("DIR")->asGrid();
+		CSG_Grid	*pLen	= Parameters("LEN")->asGrid();
+
 		double	dRadians	= Parameters("DIR_UNITS")->asInt() == 0 ? 1.0 : M_DEG_TO_RAD;
 		double	dScale		= Parameters("LEN_SCALE")->asDouble();
 
-		m_DX.Create(*Get_System());
-		m_DY.Create(*Get_System());
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
-				if( pDirection->is_NoData(x, y) )
+				if( pDir->is_NoData(x, y) )
 				{
 					m_DX.Set_NoData(x, y);
 				}
 				else
 				{
-					double	d	= pSpeed ? (!pSpeed->is_NoData(x, y) ? dScale * pSpeed->asDouble(x, y) : 0.0) : 1.0;
+					double	d	= pLen ? (!pLen->is_NoData(x, y) ? dScale * pLen->asDouble(x, y) : 0.0) : 1.0;
 
-					m_DX.Set_Value(x, y, d * sin(pDirection->asDouble(x, y) * dRadians));
-					m_DY.Set_Value(x, y, d * cos(pDirection->asDouble(x, y) * dRadians));
+					m_DX.Set_Value(x, y, d * sin(pDir->asDouble(x, y) * dRadians));
+					m_DY.Set_Value(x, y, d * cos(pDir->asDouble(x, y) * dRadians));
 				}
 			}
 		}
 	}
-	else
-	{
-		m_dx	= sin(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
-		m_dy	= cos(Parameters("DIR_CONST")->asDouble() * M_DEG_TO_RAD);
 
-		if( fabs(m_dx) > fabs(m_dy) )
-		{
-			m_dy	/= fabs(m_dx);
-			m_dx	= m_dx < 0 ? -1 : 1;
-		}
-		else
-		{
-			m_dx	/= fabs(m_dy);
-			m_dy	= m_dy < 0 ? -1 : 1;
-		}
-	}
-
-	if( Parameters("PYRAMIDS")->asBool() && (pDirection || !bOldVer) )
+	if( Parameters("PYRAMIDS")->asBool() && !bOldVer )
 	{
 		m_DEM.Create(m_pDEM, 2.0);
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{
@@ -270,12 +312,12 @@ bool CAir_Flow_Height::On_Execute(void)
 			}
 			else
 			{
-				double	Luv, Luv_Lee, Lee, d, z;
+				double	Luv, Luv_Lee, Lee;
 
 				if( bOldVer )
 				{
-					Get_Luv(x, y,  m_dx,  m_dy, Luv);
-					Get_Lee(x, y, -m_dx, -m_dy, Luv_Lee, Lee);
+					Get_Luv_Old(x, y,  m_Dir_Const.x,  m_Dir_Const.y, Luv);
+					Get_Lee_Old(x, y, -m_Dir_Const.x, -m_Dir_Const.y, Luv_Lee, Lee);
 				}
 				else
 				{
@@ -283,7 +325,8 @@ bool CAir_Flow_Height::On_Execute(void)
 					Get_Lee(x, y, Luv_Lee, Lee);
 				}
 
-				z	= m_pDEM->asDouble(x, y);
+				//-----------------------------------------
+				double	d, z	= m_pDEM->asDouble(x, y);
 
 				d	= 1.0 + (z + Lee != 0.0 ? (z - Lee) / (z + Lee) : 0.0);
 				d	= (Luv > Luv_Lee ? Luv - Luv_Lee : 0.0) + z * d*d / 2.0;
@@ -294,6 +337,10 @@ bool CAir_Flow_Height::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_DX .Destroy();
+	m_DY .Destroy();
+	m_DEM.Destroy();
+
 	return( true );
 }
 
@@ -314,13 +361,18 @@ inline bool CAir_Flow_Height::Get_Next(TSG_Point &Position, double Distance, boo
 
 	double	dx, dy;
 
-	if( m_DX.is_Valid() )
+	if( !m_DX.is_Valid() )
 	{
-/*		if( m_bTrace )
+		dx	= m_Dir_Const.x;
+		dy	= m_Dir_Const.y;
+	}
+	else
+	{
+	/*	if( m_bTrace )
 		{
-			double	dMove	= bReverse ? -Get_Cellsize() : Get_Cellsize();
+			double	d, dMove	= bReverse ? -Get_Cellsize() : Get_Cellsize();
 
-			for( ; Distance>Get_Cellsize(); Distance-=Get_Cellsize())
+			for(d=0.0; d<Distance; d+=Get_Cellsize())
 			{
 				if( !m_DX.Get_Value(Position, dx) || !m_DY.Get_Value(Position, dy) )
 				{
@@ -330,29 +382,24 @@ inline bool CAir_Flow_Height::Get_Next(TSG_Point &Position, double Distance, boo
 				Position.x	+= dMove * dx;
 				Position.y	+= dMove * dy;
 			}
+
+			Distance	-= d;
 		}
-/**/
+	/**/
+
 		if( !m_DX.Get_Value(Position, dx) || !m_DY.Get_Value(Position, dy) )
 		{
 			return( false );
 		}
 	}
-	else
-	{
-		dx	= m_dx;
-		dy	= m_dy;
-	}
 
 	if( bReverse )
 	{
-		Position.x	-= Distance * dx;
-		Position.y	-= Distance * dy;
+		Distance	= -Distance;
 	}
-	else
-	{
-		Position.x	+= Distance * dx;
-		Position.y	+= Distance * dy;
-	}
+
+	Position.x	+= Distance * dx;
+	Position.y	+= Distance * dy;
 
 	return( Get_System()->Get_Extent(true).Contains(Position) );
 }
@@ -454,7 +501,7 @@ void CAir_Flow_Height::Get_Lee(int x, int y, double &Sum_A, double &Sum_B)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CAir_Flow_Height::Get_Luv(int x, int y, double dx, double dy, double &Sum_A)
+void CAir_Flow_Height::Get_Luv_Old(int x, int y, double dx, double dy, double &Sum_A)
 {
 	double	Weight_A	= Sum_A	= 0.0;
 
@@ -473,7 +520,7 @@ void CAir_Flow_Height::Get_Luv(int x, int y, double dx, double dy, double &Sum_A
 }
 
 //---------------------------------------------------------
-void CAir_Flow_Height::Get_Lee(int x, int y, double dx, double dy, double &Sum_A, double &Sum_B)
+void CAir_Flow_Height::Get_Lee_Old(int x, int y, double dx, double dy, double &Sum_A, double &Sum_B)
 {
 	double	Weight_A	= Sum_A	= 0.0;
 	double	Weight_B	= Sum_B	= 0.0;
