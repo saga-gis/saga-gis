@@ -74,7 +74,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "dataobject.h"
 #include "table.h"
 #include "grid_pyramid.h"
 
@@ -126,6 +125,7 @@ typedef enum ESG_Grid_File_Key
 	GRID_FILE_KEY_CELLCOUNT_Y,
 	GRID_FILE_KEY_CELLSIZE,
 	GRID_FILE_KEY_Z_FACTOR,
+	GRID_FILE_KEY_Z_OFFSET,
 	GRID_FILE_KEY_NODATA_VALUE,
 	GRID_FILE_KEY_TOPTOBOTTOM,
 	GRID_FILE_KEY_Count
@@ -148,12 +148,13 @@ const SG_Char	gSG_Grid_File_Key_Names[GRID_FILE_KEY_Count][32]	=
 	SG_T("CELLCOUNT_Y"),
 	SG_T("CELLSIZE"),
 	SG_T("Z_FACTOR"),
+	SG_T("Z_OFFSET"),
 	SG_T("NODATA_VALUE"),
 	SG_T("TOPTOBOTTOM")
 };
 
 //---------------------------------------------------------
-#define GRID_FILE_KEY_TRUE		SG_T("TRUE")
+#define GRID_FILE_KEY_TRUE	SG_T("TRUE")
 #define GRID_FILE_KEY_FALSE	SG_T("FALSE")
 
 
@@ -445,15 +446,17 @@ public:		///////////////////////////////////////////////
 	double						Get_YMax		(bool bCells = false)	const	{	return( m_System.Get_YMax  (bCells) );	}
 	double						Get_YRange		(bool bCells = false)	const	{	return( m_System.Get_YRange(bCells) );	}
 
-	double						Get_ZMin		(bool bZFactor = false);
-	double						Get_ZMax		(bool bZFactor = false);
-	double						Get_ZRange		(bool bZFactor = false);
+	double						Get_ZMin		(void);
+	double						Get_ZMax		(void);
+	double						Get_ZRange		(void);
 
-	void						Set_ZFactor		(double Value);
-	double						Get_ZFactor		(void)	const;
+	void						Set_Scaling		(double Scale = 1.0, double Offset = 0.0);
+	double						Get_Scaling		(void)	const;
+	double						Get_Offset		(void)	const;
+	bool						is_Scaled		(void)	const	{	return( m_zScale != 1.0 || m_zOffset != 0.0 );	}
 
-	double						Get_ArithMean	(bool bZFactor = false);
-	double						Get_StdDev		(bool bZFactor = false);
+	double						Get_Mean		(void);
+	double						Get_StdDev		(void);
 	double						Get_Variance	(void);
 
 	sLong						Get_NoData_Count(void);
@@ -574,17 +577,17 @@ public:		///////////////////////////////////////////////
 		return( false );
 	}
 
-	double						Get_Percentile	(double Percent, bool bZFactor = false);
+	double						Get_Percentile	(double Percent);
 
 
 	//-----------------------------------------------------
 	// No Data Value...
 
-	virtual bool				is_NoData		(int x, int y)	const	{	return( is_NoData_Value(asDouble(x, y)) );	}
-	virtual bool				is_NoData		(sLong n)		const	{	return( is_NoData_Value(asDouble(   n)) );	}
+	virtual bool				is_NoData		(int x, int y)	const	{	return( is_NoData_Value(asDouble(x, y, false)) );	}
+	virtual bool				is_NoData		(sLong n)		const	{	return( is_NoData_Value(asDouble(   n, false)) );	}
 
-	virtual void				Set_NoData		(int x, int y)	{	Set_Value(x, y, Get_NoData_Value() );	}
-	virtual void				Set_NoData		(sLong n)		{	Set_Value(   n, Get_NoData_Value() );	}
+	virtual void				Set_NoData		(int x, int y)	{	Set_Value(x, y, Get_NoData_Value(), false);	}
+	virtual void				Set_NoData		(sLong n)		{	Set_Value(   n, Get_NoData_Value(), false);	}
 
 
 	//-----------------------------------------------------
@@ -627,61 +630,58 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Get Value...
 
-	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
 
-	virtual BYTE				asByte	(int x, int y, bool bZFactor = false) const	{	return( (BYTE )asDouble(x, y, bZFactor) );	}
-	virtual BYTE				asByte	(     sLong n, bool bZFactor = false) const	{	return( (BYTE )asDouble(   n, bZFactor) );	}
-	virtual char				asChar	(int x, int y, bool bZFactor = false) const	{	return( (char )asDouble(x, y, bZFactor) );	}
-	virtual char				asChar	(     sLong n, bool bZFactor = false) const	{	return( (char )asDouble(   n, bZFactor) );	}
-	virtual short				asShort	(int x, int y, bool bZFactor = false) const	{	return( (short)asDouble(x, y, bZFactor) );	}
-	virtual short				asShort	(     sLong n, bool bZFactor = false) const	{	return( (short)asDouble(   n, bZFactor) );	}
-	virtual int					asInt	(int x, int y, bool bZFactor = false) const	{	return( (int  )asDouble(x, y, bZFactor) );	}
-	virtual int					asInt	(     sLong n, bool bZFactor = false) const	{	return( (int  )asDouble(   n, bZFactor) );	}
-	virtual sLong				asLong	(int x, int y, bool bZFactor = false) const	{	return( (sLong)asDouble(x, y, bZFactor) );	}
-	virtual sLong				asLong	(     sLong n, bool bZFactor = false) const	{	return( (sLong)asDouble(   n, bZFactor) );	}
-	virtual float				asFloat	(int x, int y, bool bZFactor = false) const	{	return( (float)asDouble(x, y, bZFactor) );	}
-	virtual float				asFloat	(     sLong n, bool bZFactor = false) const	{	return( (float)asDouble(   n, bZFactor) );	}
+	virtual BYTE				asByte	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(x, y, bScaled)) );	}
+	virtual BYTE				asByte	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(   n, bScaled)) );	}
+	virtual char				asChar	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_CHAR (asDouble(x, y, bScaled)) );	}
+	virtual char				asChar	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_CHAR (asDouble(   n, bScaled)) );	}
+	virtual short				asShort	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_SHORT(asDouble(x, y, bScaled)) );	}
+	virtual short				asShort	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_SHORT(asDouble(   n, bScaled)) );	}
+	virtual int					asInt	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_INT  (asDouble(x, y, bScaled)) );	}
+	virtual int					asInt	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_INT  (asDouble(   n, bScaled)) );	}
+	virtual sLong				asLong	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_SLONG(asDouble(x, y, bScaled)) );	}
+	virtual sLong				asLong	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_SLONG(asDouble(   n, bScaled)) );	}
+	virtual float				asFloat	(int x, int y, bool bScaled = true) const	{	return( (float)          (asDouble(x, y, bScaled)) );	}
+	virtual float				asFloat	(     sLong n, bool bScaled = true) const	{	return( (float)          (asDouble(   n, bScaled)) );	}
 
 	//-----------------------------------------------------
-	virtual double				asDouble(     sLong n, bool bZFactor = false) const
+	virtual double				asDouble(     sLong n, bool bScaled = true) const
 	{
-		return( asDouble((int)(n % Get_NX()), (int)(n / Get_NX()), bZFactor) );
+		return( asDouble((int)(n % Get_NX()), (int)(n / Get_NX()), bScaled) );
 	}
 
-	virtual double				asDouble(int x, int y, bool bZFactor = false) const
+	virtual double				asDouble(int x, int y, bool bScaled = true) const
 	{
-		double	Result;
+		double	Value;
 
-		if( m_Memory_Type == GRID_MEMORY_Normal )
+		if( m_Memory_Type != GRID_MEMORY_Normal )
 		{
-			switch( m_Type )
-			{
-				default:					Result	= 0.0;							break;
-				case SG_DATATYPE_Byte:		Result	= ((BYTE   **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Char:		Result	= ((char   **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Word:		Result	= ((WORD   **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Short:		Result	= ((short  **)m_Values)[y][x];	break;
-				case SG_DATATYPE_DWord:		Result	= ((DWORD  **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Int:		Result	= ((int    **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Float:		Result	= ((float  **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Double:	Result	= ((double **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Bit:		Result	=(((BYTE   **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
-			}
+			Value	= _LineBuffer_Get_Value(x, y);
 		}
-		else
+		else switch( m_Type )
 		{
-			Result	= _LineBuffer_Get_Value(x, y);
+			default:	return( 0.0 );
+			case SG_DATATYPE_Byte:		Value	= ((BYTE   **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Char:		Value	= ((char   **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Word:		Value	= ((WORD   **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Short:		Value	= ((short  **)m_Values)[y][x];	break;
+			case SG_DATATYPE_DWord:		Value	= ((DWORD  **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Int:		Value	= ((int    **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Float:		Value	= ((float  **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Double:	Value	= ((double **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Bit:		Value	=(((BYTE   **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
 		}
 
-		if( bZFactor )
+		if( bScaled && is_Scaled() )
 		{
-			Result	*= m_zFactor;
+			Value	= m_zOffset + m_zScale * Value;
 		}
 
-		return( Result );
+		return( Value );
 	}
 
 
@@ -695,35 +695,37 @@ public:		///////////////////////////////////////////////
 	virtual void				Mul_Value(     sLong n, double Value)	{	Set_Value(   n, asDouble(   n) * Value );	}
 
 	//-----------------------------------------------------
-	virtual void				Set_Value(     sLong n, double Value)
+	virtual void				Set_Value(     sLong n, double Value, bool bScaled = true)
 	{
-		Set_Value((int)(n % Get_NX()), (int)(n / Get_NX()), Value);
+		Set_Value((int)(n % Get_NX()), (int)(n / Get_NX()), Value, bScaled);
 	}
 
-	virtual void				Set_Value(int x, int y, double Value)
+	virtual void				Set_Value(int x, int y, double Value, bool bScaled = true)
 	{
-		if( m_Memory_Type == GRID_MEMORY_Normal )
+		if( bScaled && is_Scaled() )
 		{
-			switch( m_Type )
-			{
-			    default:																break;
-				case SG_DATATYPE_Byte:		((BYTE   **)m_Values)[y][x]	= (BYTE  )Value;	break;
-				case SG_DATATYPE_Char:		((char   **)m_Values)[y][x]	= (char  )Value;	break;
-				case SG_DATATYPE_Word:		((WORD   **)m_Values)[y][x]	= (WORD  )Value;	break;
-				case SG_DATATYPE_Short:		((short  **)m_Values)[y][x]	= (short )Value;	break;
-				case SG_DATATYPE_DWord:		((DWORD  **)m_Values)[y][x]	= (DWORD )Value;	break;
-				case SG_DATATYPE_Int:		((int    **)m_Values)[y][x]	= (int   )Value;	break;
-				case SG_DATATYPE_Float:		((float  **)m_Values)[y][x]	= (float )Value;	break;
-				case SG_DATATYPE_Double:	((double **)m_Values)[y][x]	= (double)Value;	break;
-				case SG_DATATYPE_Bit:		((BYTE   **)m_Values)[y][x / 8]	= Value != 0.0
-						? ((BYTE  **)m_Values)[y][x / 8] |   m_Bitmask[x % 8]
-						: ((BYTE  **)m_Values)[y][x / 8] & (~m_Bitmask[x % 8]);
-					break;
-			}
+			Value	= (Value - m_zOffset) / m_zScale;
 		}
-		else
+
+		if( m_Memory_Type != GRID_MEMORY_Normal )
 		{
 			_LineBuffer_Set_Value(x, y, Value);
+		}
+		else switch( m_Type )
+		{
+			default:	return;
+			case SG_DATATYPE_Byte:		((BYTE   **)m_Values)[y][x]	= SG_ROUND_TO_BYTE (Value);	break;
+			case SG_DATATYPE_Char:		((char   **)m_Values)[y][x]	= SG_ROUND_TO_CHAR (Value);	break;
+			case SG_DATATYPE_Word:		((WORD   **)m_Values)[y][x]	= SG_ROUND_TO_WORD (Value);	break;
+			case SG_DATATYPE_Short:		((short  **)m_Values)[y][x]	= SG_ROUND_TO_SHORT(Value);	break;
+			case SG_DATATYPE_DWord:		((DWORD  **)m_Values)[y][x]	= SG_ROUND_TO_DWORD(Value);	break;
+			case SG_DATATYPE_Int:		((int    **)m_Values)[y][x]	= SG_ROUND_TO_INT  (Value);	break;
+			case SG_DATATYPE_Float:		((float  **)m_Values)[y][x]	= (float )Value;			break;
+			case SG_DATATYPE_Double:	((double **)m_Values)[y][x]	= (double)Value;			break;
+			case SG_DATATYPE_Bit:		((BYTE   **)m_Values)[y][x / 8]	= Value != 0.0
+					? ((BYTE  **)m_Values)[y][x / 8] |   m_Bitmask[x % 8]
+					: ((BYTE  **)m_Values)[y][x / 8] & (~m_Bitmask[x % 8]);
+				break;
 		}
 
 		Set_Modified();
@@ -751,7 +753,7 @@ private:	///////////////////////////////////////////////
 
 	sLong						*m_Index, m_Cache_Offset;
 
-	double						m_zFactor;
+	double						m_zOffset, m_zScale;
 
 	CSG_Simple_Statistics		m_zStats;
 

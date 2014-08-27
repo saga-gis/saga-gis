@@ -411,7 +411,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bWeighted, bool bAbsolute)
 	//-----------------------------------------------------
 	if( !bAbsolute )
 	{
-		Noise	= Parameters("NOISE_REL")->asDouble() * m_pStdDev->Get_ArithMean();
+		Noise	= Parameters("NOISE_REL")->asDouble() * m_pStdDev->Get_Mean();
 		Noise2	= Noise*Noise;
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)

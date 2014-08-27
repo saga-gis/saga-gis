@@ -243,7 +243,8 @@ void CSG_Grid::_On_Construction(void)
 	m_LineBuffer		= NULL;
 	m_LineBuffer_Count	= 5;
 
-	m_zFactor			= 1.0;
+	m_zScale			= 1.0;
+	m_zOffset			= 0.0;
 
 	m_bIndexed			= false;
 	m_Index				= NULL;
@@ -342,7 +343,8 @@ bool CSG_Grid::Destroy(void)
 	m_Type			= SG_DATATYPE_Undefined;
 	m_Memory_Type	= GRID_MEMORY_Normal;
 
-	m_zFactor		= 1.0;
+	m_zScale		= 1.0;
+	m_zOffset		= 0.0;
 
 	m_Unit			.Clear();
 
@@ -400,15 +402,31 @@ const SG_Char * CSG_Grid::Get_Unit(void) const
 }
 
 //---------------------------------------------------------
-void CSG_Grid::Set_ZFactor(double Value)
+void CSG_Grid::Set_Scaling(double Scale, double Offset)
 {
-	m_zFactor		= Value;
+	if( (Scale != m_zScale && Scale != 0.0) || Offset != m_zOffset )
+	{
+		if( Scale != 0.0 )
+		{
+			m_zScale	= Scale;
+		}
+
+		m_zOffset	= Offset;
+
+		Set_Update_Flag();
+	}
 }
 
 //---------------------------------------------------------
-double CSG_Grid::Get_ZFactor(void) const
+double CSG_Grid::Get_Scaling(void) const
 {
-	return( m_zFactor );
+	return( m_zScale );
+}
+
+//---------------------------------------------------------
+double CSG_Grid::Get_Offset(void) const
+{
+	return( m_zOffset );
 }
 
 
@@ -476,27 +494,27 @@ bool CSG_Grid::is_Compatible(int NX, int NY, double Cellsize, double xMin, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
+double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
 {
 	double	Value;
 
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
+	return( Get_Value(Position.x, Position.y, Value, Interpolation, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
 }
 
-double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
+double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
 {
 	double	Value;
 
-	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
+	return( Get_Value(xPosition, yPosition, Value, Interpolation, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
 }
 
-bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
+bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
 {
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) );
+	return( Get_Value(Position.x, Position.y, Value, Interpolation, bByteWise, bOnlyValidCells) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
+bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
 {
 	if(	m_System.Get_Extent(true).Contains(xPosition, yPosition) )
 	{
@@ -532,15 +550,7 @@ bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int 
 				break;
 			}
 
-			if( !is_NoData_Value(Value) )
-			{
-				if( bZFactor )
-				{
-					Value	*= m_zFactor;
-				}
-
-				return( true );
-			}
+			return( !is_NoData_Value(Value) );
 		}
 	}
 
@@ -1036,29 +1046,29 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grid::Get_ZMin(bool bZFactor)
+double CSG_Grid::Get_ZMin(void)
 {
-	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Minimum() );
+	Update();	return( m_zStats.Get_Minimum() );
 }
 
-double CSG_Grid::Get_ZMax(bool bZFactor)
+double CSG_Grid::Get_ZMax(void)
 {
-	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Maximum() );
+	Update();	return( m_zStats.Get_Maximum() );
 }
 
-double CSG_Grid::Get_ZRange(bool bZFactor)
+double CSG_Grid::Get_ZRange(void)
 {
-	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Range() );
+	Update();	return( m_zStats.Get_Range() );
 }
 
-double CSG_Grid::Get_ArithMean(bool bZFactor)
+double CSG_Grid::Get_Mean(void)
 {
-	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Mean() );
+	Update();	return( m_zStats.Get_Mean() );
 }
 
-double CSG_Grid::Get_StdDev(bool bZFactor)
+double CSG_Grid::Get_StdDev(void)
 {
-	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_StdDev() );
+	Update();	return( m_zStats.Get_StdDev() );
 }
 
 double CSG_Grid::Get_Variance(void)
@@ -1078,22 +1088,16 @@ bool CSG_Grid::On_Update(void)
 	{
 		m_zStats.Invalidate();
 
-		for(int y=0; y<Get_NY(); y++)
+		for(int y=0; y<Get_NY() && SG_UI_Process_Get_Okay(); y++)
 		{
-			SG_UI_Process_Get_Okay();
-
 			for(int x=0; x<Get_NX(); x++)
 			{
-				double	z	= asDouble(x, y);
-
-				if( !is_NoData_Value(z) )
+				if( !is_NoData(x, y) )
 				{
-					m_zStats.Add_Value(z);
+					m_zStats.Add_Value(asDouble(x, y));
 				}
 			}
 		}
-
-		SG_UI_Process_Set_Ready();
 	}
 
 	return( true );
@@ -1178,25 +1182,18 @@ void CSG_Grid::Set_Value_And_Sort(int x, int y, double Value)
 }
 
 //---------------------------------------------------------
-double CSG_Grid::Get_Percentile(double Percent, bool bZFactor)
+double CSG_Grid::Get_Percentile(double Percent)
 {
-	int		x, y;
+	Percent	= Percent <= 0.0 ? 0.0 : Percent >= 100.0 ? 1.0 : Percent / 100.0;
 
-	if( Percent < 0.0 )
+	sLong	n	= Get_NoData_Count() + (sLong)(Percent * (Get_NCells() - Get_NoData_Count() - 1));
+
+	if( Get_Sorted(n, n, false) )
 	{
-		Percent	= 0.0;
-	}
-	else if( Percent > 100.0 )
-	{
-		Percent	= 100.0;
+		return( asDouble(n) );
 	}
 
-	if( Get_Sorted((int)(Percent * Get_NCells() / 100.0), x, y, false) )
-	{
-		return( asDouble(x, y, bZFactor) );
-	}
-
-	return( 0.0 );
+	return( Get_NoData_Value() );
 }
 
 //---------------------------------------------------------

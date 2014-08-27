@@ -242,12 +242,12 @@ void CChannelNetwork_Altitude::Set_Surface(int nCells)
 			//---------------------------------------------
 			if( nz > 0 )
 			{
-				m_Mask.Set_Value(x, y, true);
+				m_Mask.Set_Value(x, y, 1.0);
 				m_Dist.Set_Value(x, y, z / nz);
 			}
 			else
 			{
-				m_Mask.Set_Value(x, y, false);
+				m_Mask.Set_Value(x, y, 1.0);
 
 				if( m_pDistance->is_NoData(x, y) )
 				{

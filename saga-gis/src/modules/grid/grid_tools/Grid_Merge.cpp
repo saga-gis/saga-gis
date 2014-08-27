@@ -490,16 +490,16 @@ inline void CGrid_Merge::Set_Value(int x, int y, double Value, double Weight)
 		if( m_pMosaic->is_NoData(x, y) )
 		{
 			m_pMosaic->Set_Value(x, y, Value);
-			m_Weights .Set_Value(x, y, Weight / m_Weights.Get_ZFactor());
+			m_Weights .Set_Value(x, y, Weight);
 		}
 		else
 		{
-			double	d	= (Weight - m_Weights.asDouble(x, y, true)) / m_dBlend;
+			double	d	= (Weight - m_Weights.asDouble(x, y)) / m_dBlend;
 
 			if( d >= 1.0 )
 			{
 				m_pMosaic->Set_Value(x, y, Value);
-				m_Weights .Set_Value(x, y, Weight / m_Weights.Get_ZFactor());
+				m_Weights .Set_Value(x, y, Weight);
 			}
 			else if( d > -1.0 )
 			{
@@ -509,7 +509,7 @@ inline void CGrid_Merge::Set_Value(int x, int y, double Value, double Weight)
 
 				if( d > 0.5 )
 				{
-					m_Weights .Set_Value(x, y, Weight / m_Weights.Get_ZFactor());
+					m_Weights .Set_Value(x, y, Weight);
 				}
 			}
 		}
@@ -563,7 +563,7 @@ inline void CGrid_Merge::Set_Value(int x, int y, CSG_Grid *pGrid, double px, dou
 //---------------------------------------------------------
 inline double CGrid_Merge::Get_Weight(int x, int y)
 {
-	return( m_Weight.is_Valid() ? m_Weight.asDouble(x, y, true) : 1.0 );
+	return( m_Weight.is_Valid() ? m_Weight.asDouble(x, y) : 1.0 );
 }
 
 //---------------------------------------------------------
@@ -649,11 +649,11 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 	switch( m_Overlap )
 	{
 	case 5:	// blending
-		m_Weight.Set_ZFactor(1.0 / dBlend);	// normalize (0 <= z <= 1)
+		m_Weight.Set_Scaling(1.0 / dBlend);	// normalize (0 <= z <= 1)
 		break;
 
 	case 6:	// feathering
-		m_Weight.Set_ZFactor(m_Weight.Get_Cellsize());
+		m_Weight.Set_Scaling(m_Weight.Get_Cellsize());
 		break;
 	}
 

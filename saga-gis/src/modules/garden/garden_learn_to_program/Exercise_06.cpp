@@ -229,7 +229,7 @@ bool CExercise_06::Method_02(int Radius)
 		{
 			Distance	= sqrt((double)(ix*ix + iy*iy));
 
-			gMask.Set_Value(xMask, yMask, Distance <= Radius ? true : false);
+			gMask.Set_Value(xMask, yMask, Distance <= Radius ? 1.0 : 0.0);
 		}
 	}
 

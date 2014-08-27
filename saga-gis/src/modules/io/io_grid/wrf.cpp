@@ -668,7 +668,7 @@ bool CWRF_Import::Load(const CSG_String &File)
 		pGrid->Set_Description	(m_Index.m_DESCRIPTION);
 		pGrid->Set_Unit			(m_Index.m_UNITS);
 		pGrid->Set_NoData_Value	(m_Index.m_MISSING_VALUE);
-		pGrid->Set_ZFactor		(m_Index.m_SCALE_FACTOR);
+		pGrid->Set_Scaling		(m_Index.m_SCALE_FACTOR);
 
 		Parameters("GRIDS")->asGridList()->Add_Item(pGrid);
 

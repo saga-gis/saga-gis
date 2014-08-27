@@ -707,7 +707,7 @@ int CSkeletonization::Hilditch_Step(CSG_Grid *pPrev, CSG_Grid *pNext, CSG_Grid *
 				}
 				else
 				{
-					pNext->Set_Value(x, y, true);
+					pNext->Set_Value(x, y, 1.0);
 				}
 			}
 		}

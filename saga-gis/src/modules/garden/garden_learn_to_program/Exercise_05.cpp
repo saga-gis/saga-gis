@@ -150,12 +150,8 @@ bool CExercise_05::On_Execute(void)
 
 	Method		= Parameters("METHOD")->asInt();
 
-
-	m_pSlope	->Set_ZFactor(180.0 / M_PI);
-	m_pSlope	->Set_Unit(SG_T("Degree"));
-
-	m_pAspect	->Set_ZFactor(180.0 / M_PI);
-	m_pAspect	->Set_Unit(SG_T("Degree"));
+	m_pSlope	->Set_Unit(_TL("radians"));
+	m_pAspect	->Set_Unit(_TL("radians"));
 
 
 	//-----------------------------------------------------

@@ -421,8 +421,8 @@ void CWKSP_Layer::On_Parameters_Changed(void)
 	m_pClassify->Set_Metric(
 		m_Parameters("METRIC_SCALE_MODE")->asInt(),
 		m_Parameters("METRIC_SCALE_LOG")->asDouble(),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0)
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal(),
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal()
 	);
 
 	m_pLegend->Set_Orientation(m_Parameters("LEGEND_STYLE")->asInt() == LEGEND_VERTICAL ? LEGEND_VERTICAL : LEGEND_HORIZONTAL);

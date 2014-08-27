@@ -357,14 +357,14 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 		pRecord->Set_Value("DATA_CELLS"  , pGrid->Get_NCells() - pGrid->Get_NoData_Count());
 		pRecord->Set_Value("NODATA_CELLS", pGrid->Get_NoData_Count());
 		pRecord->Set_Value("CELLSIZE"    , pGrid->Get_Cellsize());
-		pRecord->Set_Value("MEAN"        , pGrid->Get_ArithMean());
+		pRecord->Set_Value("MEAN"        , pGrid->Get_Mean());
 		pRecord->Set_Value("MIN"         , pGrid->Get_ZMin());
 		pRecord->Set_Value("MAX"         , pGrid->Get_ZMax());
 		pRecord->Set_Value("RANGE"       , pGrid->Get_ZRange());
 		pRecord->Set_Value("VAR"         , pGrid->Get_Variance());
 		pRecord->Set_Value("STDDEV"      , pGrid->Get_StdDev());
-		pRecord->Set_Value("STDDEVLO"    , pGrid->Get_ArithMean() - pGrid->Get_StdDev());
-		pRecord->Set_Value("STDDEVHI"    , pGrid->Get_ArithMean() + pGrid->Get_StdDev());
+		pRecord->Set_Value("STDDEVLO"    , pGrid->Get_Mean() - pGrid->Get_StdDev());
+		pRecord->Set_Value("STDDEVHI"    , pGrid->Get_Mean() + pGrid->Get_StdDev());
 
 		if( dRank > 0.0 && dRank < 100.0 )
 		{

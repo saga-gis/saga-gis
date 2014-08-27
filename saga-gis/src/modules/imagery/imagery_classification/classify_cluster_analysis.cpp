@@ -222,7 +222,7 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 				if( bNormalize )
 				{
-					d	= (d - pGrids->asGrid(iFeature)->Get_ArithMean()) / pGrids->asGrid(iFeature)->Get_StdDev();
+					d	= (d - pGrids->asGrid(iFeature)->Get_Mean()) / pGrids->asGrid(iFeature)->Get_StdDev();
 				}
 
 				Analysis.Set_Feature(nElements, iFeature, d);
@@ -314,7 +314,7 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 
 			if( bNormalize )
 			{
-				Centroid	= pGrids->asGrid(iFeature)->Get_ArithMean() + Centroid * pGrids->asGrid(iFeature)->Get_StdDev();
+				Centroid	= pGrids->asGrid(iFeature)->Get_Mean() + Centroid * pGrids->asGrid(iFeature)->Get_StdDev();
 			}
 
 			s	+= CSG_String::Format(SG_T("\t%f"), Centroid);
@@ -450,7 +450,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 
 			for(j=0; j<nCluster; j++)
 			{
-				Centroids[j][i]	= pGrids->asGrid(i)->Get_StdDev() * Centroids[j][i] + pGrids->asGrid(i)->Get_ArithMean();
+				Centroids[j][i]	= pGrids->asGrid(i)->Get_StdDev() * Centroids[j][i] + pGrids->asGrid(i)->Get_Mean();
 			}
 		}
 	}
@@ -507,7 +507,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 
 			if( Parameters("NORMALISE")->asBool() )
 			{
-				Centroid	= pGrids->asGrid(iFeature)->Get_ArithMean() + Centroid * pGrids->asGrid(iFeature)->Get_StdDev();
+				Centroid	= pGrids->asGrid(iFeature)->Get_Mean() + Centroid * pGrids->asGrid(iFeature)->Get_StdDev();
 			}
 
 			s	+= CSG_String::Format(SG_T("\t%f"), Centroid);

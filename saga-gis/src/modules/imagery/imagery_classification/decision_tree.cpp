@@ -211,7 +211,7 @@ int CDecision_Tree::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 	{
 		if( pParameter->asGrid() )
 		{
-			pParameters->Get_Parameter("THRESHOLD")->Set_Value(pParameter->asGrid()->Get_ArithMean());
+			pParameters->Get_Parameter("THRESHOLD")->Set_Value(pParameter->asGrid()->Get_Mean());
 		}
 	}
 

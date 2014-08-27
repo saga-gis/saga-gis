@@ -358,7 +358,7 @@ CSG_Grid * CGrid_Color_Triangle::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Para
 
 		case 4:	// Standard deviation
 			Range	= sqrt(pGrid->Get_Variance()) * Percent / 100.0;
-			Min		= pGrid->Get_ArithMean() - Range;
+			Min		= pGrid->Get_Mean() - Range;
 			Range	= Range * 2.0;
 			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
 			break;

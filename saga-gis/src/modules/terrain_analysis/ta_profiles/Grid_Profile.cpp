@@ -339,7 +339,7 @@ bool CGrid_Profile::Add_Point(CSG_Point Point)
 
 		for(i=0; i<m_pValues->Get_Count(); i++)
 		{
-			pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y, true));
+			pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y));
 		}
 
 		return( true );

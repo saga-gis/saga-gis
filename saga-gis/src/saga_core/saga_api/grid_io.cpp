@@ -645,7 +645,8 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 			case GRID_FILE_KEY_POSITION_XMIN:	xMin			= Value.asDouble();	break;
 			case GRID_FILE_KEY_POSITION_YMIN:	yMin			= Value.asDouble();	break;
 			case GRID_FILE_KEY_CELLSIZE:		Cellsize		= Value.asDouble();	break;
-			case GRID_FILE_KEY_Z_FACTOR:		m_zFactor		= Value.asDouble();	break;
+			case GRID_FILE_KEY_Z_FACTOR:		m_zScale		= Value.asDouble();	break;
+			case GRID_FILE_KEY_Z_OFFSET:		m_zOffset		= Value.asDouble();	break;
 			case GRID_FILE_KEY_NODATA_VALUE:	Set_NoData_Value(Value.asDouble());	break;
 
 			case GRID_FILE_KEY_DATAFILE_OFFSET:	hdr_Offset		= Value.asInt();	break;
@@ -775,7 +776,8 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_X	], xN );
 		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_Y	], yN );
 		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLSIZE		], Get_Cellsize() );
-		Stream.Printf(SG_T("%s\t= %f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_FACTOR		], m_zFactor );
+		Stream.Printf(SG_T("%s\t= %f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_FACTOR		], m_zScale );
+		Stream.Printf(SG_T("%s\t= %f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_OFFSET		], m_zOffset );
 		Stream.Printf(SG_T("%s\t= %f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NODATA_VALUE	], Get_NoData_Value() );
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_TOPTOBOTTOM	], GRID_FILE_KEY_FALSE );
 

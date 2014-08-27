@@ -139,7 +139,7 @@ bool CGrid_Autocorrelation::On_Execute(void)
 		{
 			if( !pGrid->is_NoData(x, y) )
 			{
-				double	dz	= pGrid->asDouble(x, y) - pGrid->Get_ArithMean();
+				double	dz	= pGrid->asDouble(x, y) - pGrid->Get_Mean();
 
 				for(int i=0; i<8; i+=nContiguity)
 				{
@@ -149,7 +149,7 @@ bool CGrid_Autocorrelation::On_Execute(void)
 					if( pGrid->is_InGrid(ix, iy) )
 					{
 						nNeighbours	++;
-						Sum			+= dz * (pGrid->asDouble(ix, iy) - pGrid->Get_ArithMean());
+						Sum			+= dz * (pGrid->asDouble(ix, iy) - pGrid->Get_Mean());
 					}
 				}
 			}
@@ -189,7 +189,7 @@ bool CGrid_Autocorrelation::On_Execute(void)
 	pRecord->Set_Value(2, Moran_I);
 	pRecord->Set_Value(3, nNeighbours);
 	pRecord->Set_Value(4, pGrid->Get_NCells());
-	pRecord->Set_Value(5, pGrid->Get_ArithMean());
+	pRecord->Set_Value(5, pGrid->Get_Mean());
 	pRecord->Set_Value(6, pGrid->Get_Variance() * pGrid->Get_NCells());
 	pRecord->Set_Value(7, Sum);
 

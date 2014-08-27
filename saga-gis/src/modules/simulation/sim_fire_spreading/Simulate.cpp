@@ -310,7 +310,7 @@ int CSimulate::CalculateFireSpreading(float fTimeLimit){
 				Fire_SpreadNoWindNoSlope(m_Catalog, modelNumber, moisture);
 				Fire_SpreadWindSlopeMax(m_Catalog, modelNumber, dWindSpd,
 										 m_pWindDirGrid->asFloat(x,y), tan(m_pSlopeGrid->asFloat(x,y)),
-										 m_pAspectGrid->asFloat(x,y, true));
+										 m_pAspectGrid->asFloat(x,y));
 
 				for (n=0; n<8; n++){
 					x2 = x + nX[n];

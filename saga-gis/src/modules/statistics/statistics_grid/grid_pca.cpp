@@ -194,10 +194,10 @@ inline double CGrid_PCA::Get_Value(sLong iCell, int iFeature)
 	{
 	default:
 	case 0:	// Correlation matrix: Center and reduce the column vectors.
-		return( (pGrid->asDouble(iCell) - pGrid->Get_ArithMean()) / (sqrt(Get_NCells() * pGrid->Get_Variance())) );
+		return( (pGrid->asDouble(iCell) - pGrid->Get_Mean()) / (sqrt(Get_NCells() * pGrid->Get_Variance())) );
 
 	case 1:	// Variance-covariance matrix: Center the column vectors.
-		return( (pGrid->asDouble(iCell) - pGrid->Get_ArithMean()) );
+		return( (pGrid->asDouble(iCell) - pGrid->Get_Mean()) );
 
 	case 2:	// Sums-of-squares-and-cross-products matrix
 		return( (pGrid->asDouble(iCell)) );

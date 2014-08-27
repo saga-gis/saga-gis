@@ -144,8 +144,8 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_FLT (_TL("Value Maximum")		, Get_Grid()->Get_ZMax());
 	DESC_ADD_FLT (_TL("Value Range")		, Get_Grid()->Get_ZRange());
 	DESC_ADD_STR (_TL("No Data Value")		, Get_Grid()->Get_NoData_Value() < Get_Grid()->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), Get_Grid()->Get_NoData_Value(), Get_Grid()->Get_NoData_hiValue()).c_str() : SG_Get_String(Get_Grid()->Get_NoData_Value(), -2).c_str());
-	DESC_ADD_FLT (_TL("Arithmetic Mean")	, Get_Grid()->Get_ArithMean(true));
-	DESC_ADD_FLT (_TL("Standard Deviation")	, Get_Grid()->Get_StdDev(true));
+	DESC_ADD_FLT (_TL("Arithmetic Mean")	, Get_Grid()->Get_Mean());
+	DESC_ADD_FLT (_TL("Standard Deviation")	, Get_Grid()->Get_StdDev());
 	DESC_ADD_STR (_TL("Memory Size")		, Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
 
 	if( Get_Grid()->is_Compressed() )
@@ -229,8 +229,8 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 
 	case ID_CMD_GRIDS_FIT_MINMAX:
 		Set_Color_Range(
-			Get_Grid()->Get_ZMin(true),
-			Get_Grid()->Get_ZMax(true)
+			Get_Grid()->Get_ZMin(),
+			Get_Grid()->Get_ZMax()
 		);
 		break;
 
@@ -238,9 +238,12 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 		{
 			double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_STDDEV")->asDouble();
 
+			double	min	= Get_Grid()->Get_Mean() - d * Get_Grid()->Get_StdDev();
+			double	max	= Get_Grid()->Get_Mean() + d * Get_Grid()->Get_StdDev();
+
 			Set_Color_Range(
-				Get_Grid()->Get_ArithMean(true) - d * Get_Grid()->Get_StdDev(true),
-				Get_Grid()->Get_ArithMean(true) + d * Get_Grid()->Get_StdDev(true)
+				min < Get_Grid()->Get_ZMin() ? Get_Grid()->Get_ZMin() : min,
+				max > Get_Grid()->Get_ZMax() ? Get_Grid()->Get_ZMax() : max
 			);
 		}
 		break;
@@ -250,8 +253,8 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 			double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_PCTL")->asDouble();
 
 			Set_Color_Range(
-				Get_Grid()->Get_Percentile(        d, true),
-				Get_Grid()->Get_Percentile(100.0 - d, true)
+				Get_Grid()->Get_Percentile(        d),
+				Get_Grid()->Get_Percentile(100.0 - d)
 			);
 		}
 		break;
@@ -321,9 +324,15 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_FACTOR"		, _TL("Z-Factor"),
+		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_FACTOR"		, _TL("Z-Scale"),
 		_TL(""),
-		PARAMETER_TYPE_Double
+		PARAMETER_TYPE_Double, 1.0
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_OFFSET"		, _TL("Z-Offset"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.0
 	);
 
 	//-----------------------------------------------------
@@ -497,7 +506,11 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 	);
 
 	m_Parameters("GENERAL_Z_FACTOR"  )->Set_Value(
-		Get_Grid()->Get_ZFactor()
+		Get_Grid()->Get_Scaling()
+	);
+
+	m_Parameters("GENERAL_Z_OFFSET"  )->Set_Value(
+		Get_Grid()->Get_Offset()
 	);
 
 	//-----------------------------------------------------
@@ -517,7 +530,7 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 
 	//-----------------------------------------------------
 	Get_Grid()->Set_Unit   (m_Parameters("GENERAL_Z_UNIT"  )->asString());
-	Get_Grid()->Set_ZFactor(m_Parameters("GENERAL_Z_FACTOR")->asDouble());
+	Get_Grid()->Set_Scaling(m_Parameters("GENERAL_Z_FACTOR")->asDouble(), m_Parameters("GENERAL_Z_OFFSET")->asDouble());
 
 	//-----------------------------------------------------
 	m_pOverlay[0]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_1")->asGrid());
@@ -796,21 +809,13 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			break;
 
 		default:
-			switch( Get_Grid()->Get_Type() )
+			if( ::SG_Get_Significant_Decimals(Value) > 0 )
 			{
-			case SG_DATATYPE_Byte:
-			case SG_DATATYPE_Char:
-			case SG_DATATYPE_Word:
-			case SG_DATATYPE_Short:
-			case SG_DATATYPE_DWord:
-			case SG_DATATYPE_Int:
+				s.Printf(wxT("%f%s"),      Value, Get_Grid()->Get_Unit());
+			}
+			else
+			{
 				s.Printf(wxT("%d%s"), (int)Value, Get_Grid()->Get_Unit());
-				break;
-
-			case SG_DATATYPE_Float:	default:
-			case SG_DATATYPE_Double:
-				s.Printf(wxT("%f%s"), Value, Get_Grid()->Get_Unit());
-				break;
 			}
 			break;
 
@@ -929,7 +934,7 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key
 				{
 					if( !Get_Grid()->is_NoData(m_xSel + x, m_ySel + ny - 1 - y) )
 					{
-						pRecord->Set_Value(x, Get_Grid()->asDouble(m_xSel + x, m_ySel + ny - 1 - y, false));
+						pRecord->Set_Value(x, Get_Grid()->asDouble(m_xSel + x, m_ySel + ny - 1 - y));
 					}
 					else
 					{
@@ -1043,8 +1048,8 @@ bool CWKSP_Grid::Fit_Color_Range(void)
 	default:
 		{
 			return( Set_Color_Range(
-				Get_Grid()->Get_ZMin(true),
-				Get_Grid()->Get_ZMax(true))
+				Get_Grid()->Get_ZMin(),
+				Get_Grid()->Get_ZMax())
 			);
 		}
 
@@ -1052,12 +1057,12 @@ bool CWKSP_Grid::Fit_Color_Range(void)
 		{
 			double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_STDDEV")->asDouble();
 
-			double	min	= Get_Grid()->Get_ArithMean(true) - Get_Grid()->Get_StdDev(true) * d;
-			double	max	= Get_Grid()->Get_ArithMean(true) + Get_Grid()->Get_StdDev(true) * d;
+			double	min	= Get_Grid()->Get_Mean() - Get_Grid()->Get_StdDev() * d;
+			double	max	= Get_Grid()->Get_Mean() + Get_Grid()->Get_StdDev() * d;
 
 			return( Set_Color_Range(
-				min < Get_Grid()->Get_ZMin(true) ? Get_Grid()->Get_ZMin(true) : min,
-				max > Get_Grid()->Get_ZMax(true) ? Get_Grid()->Get_ZMax(true) : max)
+				min < Get_Grid()->Get_ZMin() ? Get_Grid()->Get_ZMin() : min,
+				max > Get_Grid()->Get_ZMax() ? Get_Grid()->Get_ZMax() : max)
 			);
 		}
 
@@ -1066,8 +1071,8 @@ bool CWKSP_Grid::Fit_Color_Range(void)
 			double	d	= g_pData->Get_Parameter("GRID_COLORS_FIT_PCTL")->asDouble();
 
 			return( Set_Color_Range(
-				Get_Grid()->Get_Percentile(        d, true),
-				Get_Grid()->Get_Percentile(100.0 - d, true))
+				Get_Grid()->Get_Percentile(        d),
+				Get_Grid()->Get_Percentile(100.0 - d))
 			);
 		}
 	}
@@ -1096,7 +1101,7 @@ bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
 		{
 			if( Get_Grid()->is_InGrid(x, y) )
 			{
-				s	+= Get_Grid()->asDouble(x, y, true);
+				s	+= Get_Grid()->asDouble(x, y);
 			}
 		}
 	}
@@ -1414,7 +1419,7 @@ void CWKSP_Grid::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, int Interpolation, bool b
 	{
 		double	Value;
 
-		if( Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, bByteWise, true) )
+		if( Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, bByteWise, true) )
 		{
 			if( m_bOverlay == false )
 			{
@@ -1431,10 +1436,10 @@ void CWKSP_Grid::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, int Interpolation, bool b
 
 				c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(Value));
 
-				c[1]	= m_pOverlay[0] && m_pOverlay[0]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
+				c[1]	= m_pOverlay[0] && m_pOverlay[0]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, true)
 						? (int)(255.0 * m_pOverlay[0]->m_pClassify->Get_MetricToRelative(Value)) : 255;
 
-				c[2]	= m_pOverlay[1] && m_pOverlay[1]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, false, true)
+				c[2]	= m_pOverlay[1] && m_pOverlay[1]->Get_Grid()->Get_Value(xMap, yMap, Value, Interpolation, false, true)
 						? (int)(255.0 * m_pOverlay[1]->m_pClassify->Get_MetricToRelative(Value)) : 255;
 
 				dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(
@@ -1490,12 +1495,11 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 
 	//-----------------------------------------------------
 	int			ax, ay, bx, by, Decimals, Effect;
-	double		axDC, ayDC, dDC, zFactor;
+	double		axDC, ayDC, dDC;
 	wxColour	Effect_Color;
 	wxFont		Font;
 
 	dDC			= Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
-	zFactor		= Get_Grid()->Get_ZFactor();
 	Decimals	= m_Parameters("VALUES_DECIMALS")->asInt();
 	Font		= Get_Font(m_Parameters("VALUES_FONT"));
 	Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.0));
@@ -1554,7 +1558,7 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 
 				default:
 					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, wxString::Format(
-						wxT("%.*f"), Decimals, zFactor * Value
+						wxT("%.*f"), Decimals, Value
 					), Effect, Effect_Color);
 					break;
 				}

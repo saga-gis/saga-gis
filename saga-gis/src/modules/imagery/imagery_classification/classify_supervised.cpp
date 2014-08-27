@@ -261,7 +261,7 @@ inline double CGrid_Classify_Supervised::Get_Value(int x, int y, int iGrid)
 	CSG_Grid	*pGrid	= m_pGrids->asGrid(iGrid);
 
 	return( m_bNormalise
-		? (pGrid->asDouble(x, y) - pGrid->Get_ArithMean()) / pGrid->Get_StdDev()
+		? (pGrid->asDouble(x, y) - pGrid->Get_Mean()) / pGrid->Get_StdDev()
 		:  pGrid->asDouble(x, y)
 	);
 }
@@ -506,7 +506,7 @@ bool CGrid_Classify_Supervised::Finalize(void)
 		{
 			CSG_Simple_Statistics	*pStatistics	= m_Classifier.Get_Statistics(iClass) + iGrid;
 
-			double	m	= m_bNormalise ? m_pGrids->asGrid(iGrid)->Get_ArithMean() : 0.0;
+			double	m	= m_bNormalise ? m_pGrids->asGrid(iGrid)->Get_Mean() : 0.0;
 			double	s	= m_bNormalise ? m_pGrids->asGrid(iGrid)->Get_StdDev()    : 1.0;
 
 			pRecord->Set_Value(iOffset + CLASS_ROI_M  , pStatistics->Get_Mean   () * s + m);

@@ -261,7 +261,7 @@ bool CRaw_Import::On_Execute(void)
 		if( (pGrid = Load_Data(Stream, data_type, nx, ny, dxy, xmin, ymin, data_head, line_head, line_tail, bDown, bBig)) != NULL )
 		{
 			pGrid->Set_Unit			(Unit);
-			pGrid->Set_ZFactor		(zFactor);
+			pGrid->Set_Scaling		(zFactor);
 			pGrid->Set_NoData_Value	(zNoData);
 			pGrid->Set_Name			(SG_File_Get_Name(FileName, false));
 

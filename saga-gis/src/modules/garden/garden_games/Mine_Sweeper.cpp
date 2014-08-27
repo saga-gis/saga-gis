@@ -433,7 +433,7 @@ void CMine_Sweeper::SetSprite(int xpos, int ypos, int nr)
 	for(y=0;y<SPRITE_SIZE;y++)
 	for(x=0;x<SPRITE_SIZE;x++)
 		pInput->Set_Value( xpos * SPRITE_SIZE + x, pInput->Get_NY() - ypos * SPRITE_SIZE - y -1,
-		                   mine_res[ y * SPRITE_SIZE + x + nr * SPRITE_SIZE * SPRITE_SIZE]);
+		                   (double)mine_res[ y * SPRITE_SIZE + x + nr * SPRITE_SIZE * SPRITE_SIZE]);
 }
 
 

@@ -156,7 +156,7 @@ bool CGrid_Colors_Fit::On_Execute(void)
 		{
 			bZ	= aZ;
 			bC	= aC;
-			aZ	= (pGrid->Get_Percentile(iColor * dColor, false) - zMin) / zRange;
+			aZ	= (pGrid->Get_Percentile(iColor * dColor) - zMin) / zRange;
 			aC	= Colors_Old.Get_Color(iColor);
 			_Set_Colors(Colors_New, bZ, bC, aZ, aC);
 		}

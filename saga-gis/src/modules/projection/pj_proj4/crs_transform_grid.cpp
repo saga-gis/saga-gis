@@ -388,7 +388,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 
 	//-------------------------------------------------
 	pTarget->Set_NoData_Value_Range	(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
-	pTarget->Set_ZFactor			(pGrid->Get_ZFactor());
+	pTarget->Set_Scaling			(pGrid->Get_Scaling(), pGrid->Get_Offset());
 	pTarget->Set_Name				(CSG_String::Format(SG_T("%s"), pGrid->Get_Name()));
 	pTarget->Set_Unit				(pGrid->Get_Unit());
 	pTarget->Assign_NoData();
@@ -472,7 +472,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 		if( pTarget )
 		{
 			pTarget->Set_NoData_Value_Range	(pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
-			pTarget->Set_ZFactor			(pSource->Get_ZFactor());
+			pTarget->Set_Scaling			(pSource->Get_Scaling(), pSource->Get_Offset());
 			pTarget->Set_Name				(CSG_String::Format(SG_T("%s"), pSource->Get_Name()));
 			pTarget->Set_Unit				(pSource->Get_Unit());
 			pTarget->Assign_NoData();

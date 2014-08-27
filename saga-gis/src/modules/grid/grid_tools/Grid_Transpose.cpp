@@ -147,7 +147,7 @@ bool CGrid_Transpose::On_Execute(void)
 
 		pTransposed->Set_Name(pGrid->Get_Name());
 		pTransposed->Set_Unit(pGrid->Get_Unit());
-		pTransposed->Set_ZFactor(pGrid->Get_ZFactor());
+		pTransposed->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
 		pTransposed->Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
 		pTransposed->Get_MetaData  ()	= pGrid->Get_MetaData  ();
 		pTransposed->Get_Projection()	= pGrid->Get_Projection();

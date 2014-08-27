@@ -193,19 +193,18 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 bool CSAGA_Wetness_Index::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")		->asGrid();
-	m_pSlope	= Parameters("SLOPE")	->asGrid();
-	m_pArea		= Parameters("AREA")	->asGrid();
+	m_pDEM		= Parameters("DEM"     )->asGrid();
+	m_pSlope	= Parameters("SLOPE"   )->asGrid();
+	m_pArea		= Parameters("AREA"    )->asGrid();
 	m_pAreaMod	= Parameters("AREA_MOD")->asGrid();
-	m_pTWI		= Parameters("TWI")		->asGrid();
+	m_pTWI		= Parameters("TWI"     )->asGrid();
 
 	DataObject_Set_Colors(m_pArea   , 100, SG_COLORS_WHITE_BLUE);
 	DataObject_Set_Colors(m_pAreaMod, 100, SG_COLORS_WHITE_BLUE);
 	DataObject_Set_Colors(m_pSlope  , 100, SG_COLORS_YELLOW_RED);
 	DataObject_Set_Colors(m_pTWI    , 100, SG_COLORS_RED_GREY_BLUE);
 
-	m_pSlope->Set_ZFactor	(M_RAD_TO_DEG);
-	m_pSlope->Set_Unit		(_TL("Degree"));
+	m_pSlope->Set_Unit		(_TL("radians"));
 
 	//-----------------------------------------------------
 	Get_Area();

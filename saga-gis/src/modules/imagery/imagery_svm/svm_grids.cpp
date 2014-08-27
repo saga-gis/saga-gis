@@ -294,7 +294,7 @@ inline double CSVM_Grids::Get_Value(int x, int y, int iGrid)
 	{
 	default:	return( (pGrid->asDouble(x, y)) );
 	case  1:	return( (pGrid->asDouble(x, y) - pGrid->Get_ZMin()) / pGrid->Get_ZRange() );
-	case  2:	return( (pGrid->asDouble(x, y) - pGrid->Get_ArithMean()) / pGrid->Get_StdDev() );
+	case  2:	return( (pGrid->asDouble(x, y) - pGrid->Get_Mean()) / pGrid->Get_StdDev() );
 	}
 }
 

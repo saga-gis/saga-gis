@@ -222,7 +222,7 @@ bool CGrid_Table_Import::On_Execute(void)
 		}
 
 		pGrid->Set_Unit			(Unit);
-		pGrid->Set_ZFactor		(zFactor);
+		pGrid->Set_Scaling		(zFactor);
 		pGrid->Set_NoData_Value	(zNoData);
 		pGrid->Set_Name			(SG_File_Get_Name(FileName, false));
 

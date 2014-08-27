@@ -122,10 +122,10 @@ void CThresholdBuffer::BufferPoint(int x, int y){
 	float fBaseValue;
 	double dThreshold;
 
-	fBaseValue = m_pValueGrid->asFloat(x,y,true);
+	fBaseValue = m_pValueGrid->asFloat(x,y);
 
 	if (m_pThresholdGrid){
-		dThreshold = m_pThresholdGrid->asFloat(x,y,true);
+		dThreshold = m_pThresholdGrid->asFloat(x,y);
 	}//if
 	else{
 		dThreshold = m_dThreshold;
@@ -149,10 +149,10 @@ void CThresholdBuffer::BufferPoint(int x, int y){
 						iValue = m_pBuffer->asInt(x2,y2);
 						if (!m_pValueGrid->is_NoData(x2, y2) && iValue == 0){
 							if (m_iThresholdType == THRESHOLD_ABSOLUTE){
-								dValue = m_pValueGrid->asFloat(x2,y2,true);
+								dValue = m_pValueGrid->asFloat(x2,y2);
 							}//if
 							else{
-								dValue = fabs(m_pValueGrid->asFloat(x2,y2,true) - fBaseValue);
+								dValue = fabs(m_pValueGrid->asFloat(x2,y2) - fBaseValue);
 							}//else
 							if(dValue < dThreshold){
 								m_pBuffer->Set_Value(x2, y2, BUFFER);

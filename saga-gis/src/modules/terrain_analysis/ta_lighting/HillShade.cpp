@@ -206,7 +206,7 @@ bool CHillShade::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pShade->Set_ZFactor(M_RAD_TO_DEG);
+	m_pShade->Set_Unit(_TL("radians"));
 
 	DataObject_Set_Colors(m_pShade, 100, SG_COLORS_BLACK_WHITE, true);
 

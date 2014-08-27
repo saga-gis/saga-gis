@@ -568,27 +568,16 @@ bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
 
 bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show)
 {
-	CSG_Parameters	Parameters;
-
-	if( pDataObject )
+	if( !pDataObject )
 	{
-		switch( pDataObject->Get_ObjectType() )
-		{
-		default:
-			break;
-
-		case DATAOBJECT_TYPE_Grid:
-			Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""),
-				Parm_1 * ((CSG_Grid *)pDataObject)->Get_ZFactor(),
-				Parm_2 * ((CSG_Grid *)pDataObject)->Get_ZFactor()
-			);
-			break;
-		}
-
-		return( SG_UI_DataObject_Update(pDataObject, Show, &Parameters) );
+		return( false );
 	}
 
-	return( false );
+	CSG_Parameters	Parameters;
+
+	Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""), Parm_1, Parm_2);
+
+	return( SG_UI_DataObject_Update(pDataObject, Show, &Parameters) );
 }
 
 //---------------------------------------------------------

@@ -249,7 +249,7 @@ double CTopographic_Correction::Get_Correction(double Slope, double Illumination
 		break;
 
 	case 1:	// Cosine Correction (Civco 1989)
-		Value	= Value + (Value * ((m_Illumination.Get_ArithMean() - Illumination) / m_Illumination.Get_ArithMean()));
+		Value	= Value + (Value * ((m_Illumination.Get_Mean() - Illumination) / m_Illumination.Get_Mean()));
 		break;
 
 	case 2:	// Minnaert Correction
@@ -278,7 +278,7 @@ double CTopographic_Correction::Get_Correction(double Slope, double Illumination
 		break;
 
 	case 6:	// Normalization
-		Value	= Value + ((Value * ((m_Illumination.Get_ArithMean() - Illumination) / m_Illumination.Get_ArithMean())) * m_C);
+		Value	= Value + ((Value * ((m_Illumination.Get_Mean() - Illumination) / m_Illumination.Get_Mean())) * m_C);
 		break;
 	}
 

@@ -668,19 +668,8 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 	}
 
 	//-------------------------------------------------
-	int		bSuccess;
-
-	double	zScale	= pBand->GetScale (&bSuccess);	if( !bSuccess || !zScale )	zScale	= 1.0;
-	double	zMin	= pBand->GetOffset(&bSuccess);	if( !bSuccess            )	zMin	= 0.0;
-
 	TSG_Data_Type	Type	= gSG_GDAL_Drivers.Get_SAGA_Type(pBand->GetRasterDataType());
 
-	if( SG_Get_Significant_Decimals(zScale) > 0 && (Type != SG_DATATYPE_Float || Type != SG_DATATYPE_Double) )
-	{
-		Type	= SG_DATATYPE_Float;	// force to float, we will rescale data in any case!
-	}
-
-	//-------------------------------------------------
 	CSG_Grid	*pGrid	= SG_Create_Grid(Type, Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin());
 
 	if( !pGrid )
@@ -689,9 +678,15 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 	}
 
 	//-------------------------------------------------
+	int		bSuccess;
+
+	double	zScale	= pBand->GetScale (&bSuccess);	if( !bSuccess || !zScale )	zScale	= 1.0;
+	double	zOffset	= pBand->GetOffset(&bSuccess);	if( !bSuccess            )	zOffset	= 0.0;
+
 	pGrid->Set_Name			(Get_Name       (i));
 	pGrid->Set_Description	(Get_Description(i));
 	pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
+	pGrid->Set_Scaling		(zScale, zOffset);
 
 	pBand->GetNoDataValue(&bSuccess);
 
@@ -716,7 +711,7 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 			for(int x=0; x<Get_NX(); x++)
 			{
 			//	double	NaN	= 0.0;	NaN	= -1.0 / NaN;	if( NaN == zLine[x] )	pGrid->Set_NoData(x, yy); else
-				pGrid->Set_Value(x, yy, zMin + zScale * zLine[x]);
+				pGrid->Set_Value(x, yy, zLine[x], false);
 			}
 		}
 	}
@@ -763,7 +758,7 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid, double noDataValue)
 
 	//-----------------------------------------------------
 	pBand->SetNoDataValue	(noDataValue);
-	pBand->SetStatistics	(pGrid->Get_ZMin(), pGrid->Get_ZMax(), pGrid->Get_ArithMean(), pGrid->Get_StdDev());
+	pBand->SetStatistics	(pGrid->Get_ZMin(), pGrid->Get_ZMax(), pGrid->Get_Mean(), pGrid->Get_StdDev());
 
 	return( true );	
 }

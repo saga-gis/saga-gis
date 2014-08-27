@@ -240,7 +240,7 @@ bool CSet_Grid_Georeference::On_Execute(void)
 
 		pReferenced->Set_Name(pGrid->Get_Name());
 		pReferenced->Set_Unit(pGrid->Get_Unit());
-		pReferenced->Set_ZFactor(pGrid->Get_ZFactor());
+		pReferenced->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
 		pReferenced->Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
 		pReferenced->Get_MetaData  ()	= pGrid->Get_MetaData  ();
 		pReferenced->Get_Projection()	= pGrid->Get_Projection();

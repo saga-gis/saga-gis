@@ -193,7 +193,7 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 //			Set_Name				(pGrid->Get_Name());
 			Set_Description			(pGrid->Get_Description());
 			Set_Unit				(pGrid->Get_Unit());
-			Set_ZFactor				(pGrid->Get_ZFactor());
+			Set_Scaling				(pGrid->Get_Scaling(), pGrid->Get_Offset());
 			Set_NoData_Value_Range	(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
 		}
 	}
@@ -998,7 +998,7 @@ bool CSG_Grid::Standardise(void)
 
 	SG_UI_Process_Set_Text(_TL("Standardisation"));
 
-	double	Mean	= Get_ArithMean();
+	double	Mean	= Get_Mean();
 	double	StdDev	= Get_StdDev();
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)

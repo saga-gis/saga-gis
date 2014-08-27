@@ -224,7 +224,7 @@ bool CGrid_Seeds::On_Execute(void)
 
 		for(int i=0; i<m_nFeatures; i++)
 		{
-			m_Norm[0][i]	= pFeatures->asGrid(i)->Get_ArithMean();
+			m_Norm[0][i]	= pFeatures->asGrid(i)->Get_Mean();
 			m_Norm[1][i]	= pFeatures->asGrid(i)->Get_StdDev   ();	if( m_Norm[1][i] == 0.0 )	m_Norm[1][i]	= 1.0;
 		}
 	}

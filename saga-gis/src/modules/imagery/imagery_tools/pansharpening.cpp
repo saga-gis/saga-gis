@@ -247,8 +247,8 @@ bool CPanSharp_IHS::On_Execute(void)
 	}
 	else
 	{
-		Offset_Pan	= pPan->Get_ArithMean();
-		Offset		= pR->Get_ArithMean();
+		Offset_Pan	= pPan->Get_Mean();
+		Offset		= pR->Get_Mean();
 		Scale		= pR->Get_StdDev() / pPan->Get_StdDev();
 	}
 
@@ -738,8 +738,8 @@ bool CPanSharp_PCA::On_Execute(void)
 	}
 	else
 	{
-		Offset_Pan	= pPan->Get_ArithMean();
-		Offset		= pPCA_0->asGrid(0)->Get_ArithMean();
+		Offset_Pan	= pPan->Get_Mean();
+		Offset		= pPCA_0->asGrid(0)->Get_Mean();
 		Scale		= pPCA_0->asGrid(0)->Get_StdDev() / pPan->Get_StdDev();
 	}
 

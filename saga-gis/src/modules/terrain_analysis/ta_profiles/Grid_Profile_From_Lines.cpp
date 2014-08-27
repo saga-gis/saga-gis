@@ -348,17 +348,17 @@ bool CGrid_Profile_From_Lines::Add_Point(int Line_ID, bool bStart, const TSG_Poi
 		pPoint	= m_pProfile->Add_Shape();
 		pPoint->Add_Point(Point);
 
-		pPoint->Set_Value(F_LINE_ID	, Line_ID);
-		pPoint->Set_Value(F_ID		, m_pProfile->Get_Count());
-		pPoint->Set_Value(F_DIST		, Distance);
-		pPoint->Set_Value(F_DIST_SURF	, Distance_2);
-		pPoint->Set_Value(F_X			, Point.x);
-		pPoint->Set_Value(F_Y			, Point.y);
-		pPoint->Set_Value(F_Z			, z);
+		pPoint->Set_Value(F_LINE_ID  , Line_ID);
+		pPoint->Set_Value(F_ID       , m_pProfile->Get_Count());
+		pPoint->Set_Value(F_DIST     , Distance);
+		pPoint->Set_Value(F_DIST_SURF, Distance_2);
+		pPoint->Set_Value(F_X        , Point.x);
+		pPoint->Set_Value(F_Y        , Point.y);
+		pPoint->Set_Value(F_Z        , z);
 
 		for(i=0; i<m_pValues->Get_Count(); i++)
 		{
-			pPoint->Set_Value(F_VALUES + i, m_pValues->asGrid(i)->asDouble(x, y, true));
+			pPoint->Set_Value(F_VALUES + i, m_pValues->asGrid(i)->asDouble(x, y));
 		}
 
 		return( true );

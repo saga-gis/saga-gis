@@ -280,7 +280,7 @@ bool CFlowDepth::getWetAreaAndPerimeter(int iX,
 	int iStepX, iStepY;
 	int pStepX[4] = {1,1,0,1};
 	int pStepY[4] = {0,-1,1,1};
-	int iDir = (m_pAspect->asInt(iX, iY,true) / 45) % 4;
+	int iDir = (m_pAspect->asInt(iX, iY) / 45) % 4;
 	double fDist;
 	double fLocalDist;
 	double fBaseHeight = m_pDEM->asFloat(iX, iY);	

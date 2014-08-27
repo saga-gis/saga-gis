@@ -571,7 +571,7 @@ bool CPROJ4_Grid::Init_Target(CSG_Grid *pSource, CSG_Grid *pTarget)
 	if( pSource && pTarget )
 	{
 		pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
-		pTarget->Set_ZFactor(pSource->Get_ZFactor());
+		pTarget->Set_Scaling(pSource->Get_Scaling(), pSource->Get_Offset());
 		pTarget->Set_Name	(CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name(false).c_str()));
 		pTarget->Set_Unit	(pSource->Get_Unit());
 		pTarget->Assign_NoData();

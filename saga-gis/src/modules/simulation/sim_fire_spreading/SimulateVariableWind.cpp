@@ -398,7 +398,7 @@ int CSimulateVariableWind::CalculateFireSpreading(double fTimeLimit){
 				Fire_SpreadNoWindNoSlope(m_Catalog, modelNumber, moisture);
 				Fire_SpreadWindSlopeMax(m_Catalog, modelNumber, dWindSpd,
 										 dWindDir, tan(m_pSlopeGrid->asDouble(x,y)),
-										 m_pAspectGrid->asDouble(x,y, true));
+										 m_pAspectGrid->asDouble(x,y));
 
 				for (i = -2; i < 3 ; i++){
 					for (j = -2; j < 3; j++){						
@@ -642,9 +642,9 @@ void CSimulateVariableWind::CalculateReportParameters(){
 					iFuelModel = m_pFuelGrid->asInt(x,y) - 1;
 					m_pAreaByFuelModel[iFuelModel] += m_pFuelGrid->Get_Cellarea();
 				}//if
-				m_fSlope += m_pSlopeGrid->asDouble(x,y, true);
+				m_fSlope += m_pSlopeGrid->asDouble(x,y);
 				if (!m_pAspectGrid->is_NoData(x,y)){
-					fAspect = m_pAspectGrid->asDouble(x,y, true);
+					fAspect = m_pAspectGrid->asDouble(x,y);
 					if (fAspect > 180){
 						fAspect = 360 - fAspect;
 					}//if

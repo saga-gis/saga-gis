@@ -293,7 +293,7 @@ bool CFilter_LoG::Initialise(void)
 			}
 		}
 
-		m_Kernel	+= -m_Kernel.Get_ArithMean();
+		m_Kernel	+= -m_Kernel.Get_Mean();
 
 		break;
 	}

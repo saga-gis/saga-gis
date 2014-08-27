@@ -283,7 +283,7 @@ bool CGrid_Export::On_Execute(void)
 		switch( Method )
 		{
 		case 0:	// stretch to grid's standard deviation
-			zMin	= pGrid->Get_ArithMean() -  Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
+			zMin	= pGrid->Get_Mean() -  Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
 			zScale	= Colors.Get_Count() / (2 * Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev());
 			break;
 

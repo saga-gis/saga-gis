@@ -499,7 +499,7 @@ void CWKSP_Layer_Legend::_Draw_Grid(wxDC &dc, CWKSP_Grid *pLayer)
 		}
 
 	default:
-		_Draw_Boxes(dc, m_Position.y, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL, pLayer->Get_Grid()->Get_ZFactor());
+		_Draw_Boxes(dc, m_Position.y, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL);
 		break;
 
 	case CLASSIFY_RGB:

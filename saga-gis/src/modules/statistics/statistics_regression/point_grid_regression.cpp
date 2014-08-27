@@ -71,16 +71,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_ZFACTOR	true
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CPoint_Grid_Regression::CPoint_Grid_Regression(void)
 {
 	CSG_Parameter	*pNode;
@@ -256,7 +246,7 @@ bool CPoint_Grid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes
 			{
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					if( pGrid->Get_Value(Point = pShape->Get_Point(iPoint, iPart), zGrid, m_Interpolation, GRID_ZFACTOR) )
+					if( pGrid->Get_Value(Point = pShape->Get_Point(iPoint, iPart), zGrid, m_Interpolation) )
 					{
 						m_Regression.Add_Values(zGrid, zShape);
 
@@ -288,7 +278,7 @@ bool CPoint_Grid_Regression::Set_Regression(CSG_Grid *pGrid, CSG_Grid *pRegressi
 			if( pGrid->is_NoData(x, y) )
 				pRegression->Set_NoData(x, y);
 			else
-				pRegression->Set_Value (x, y, m_Regression.Get_y(pGrid->asDouble(x, y, GRID_ZFACTOR)));
+				pRegression->Set_Value (x, y, m_Regression.Get_y(pGrid->asDouble(x, y)));
 		}
 	}
 

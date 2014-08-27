@@ -121,6 +121,16 @@
 
 #define M_SET_SIGN(x, sign)			((sign) < 0 ? (x < 0 ? x : -x) : (x > 0 ? x : -x))
 
+//---------------------------------------------------------
+#define SG_ROUND_TO_BYTE(x)		((BYTE )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_CHAR(x)		((char )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_WORD(x)		((WORD )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SHORT(x)	((short)(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_DWORD(x)	((DWORD)(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_INT(x)		((int  )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_LONG(x)		((long )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SLONG(x)	((sLong)(x < 0.0 ? x - 0.5 : x + 0.5))
+
 
 ///////////////////////////////////////////////////////////
 //														 //

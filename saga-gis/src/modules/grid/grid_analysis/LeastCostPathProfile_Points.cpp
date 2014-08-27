@@ -304,7 +304,7 @@ bool CLeastCostPathProfile_Points::Add_Point(int x, int y, CSG_Shapes *pPoints, 
 
 		for( i=0; i<m_pValues->Get_Count(); i++ )
 		{
-			pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y, true));
+			pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y));
 		}
 
 		pLine->Get_Shape(0)->Add_Point(Point);

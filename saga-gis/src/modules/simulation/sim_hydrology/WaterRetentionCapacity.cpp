@@ -114,7 +114,7 @@ bool CWaterRetentionCapacity::On_Execute(void){
 		}//for
 		iX = (int)((pShape->Get_Point(0).x - pDEM->Get_XMin())/pDEM->Get_Cellsize());
 		iY = (int)((pShape->Get_Point(0).y - pDEM->Get_YMin())/pDEM->Get_Cellsize());
-		fC = (float)(1. - tan(m_pSlope->asFloat(iX,iY,false)));
+		fC = (float)(1. - tan(m_pSlope->asFloat(iX,iY)));
 		pShape = m_pOutput->Get_Shape(iShape);
 		CalculateWaterRetention(pData, iRows, fC, pShape);
 	}//for
@@ -192,7 +192,7 @@ void CWaterRetentionCapacity::CorrectWithSlope(){
 
 	for (x = 0; x < m_pRetention->Get_NX(); x++) {
 		for (y = 0; y < m_pRetention->Get_NY(); y++) {
-			fC = (float)(1. - tan(m_pSlope->asFloat(x,y,false)));
+			fC = (float)(1. - tan(m_pSlope->asFloat(x,y)));
 			if (fC < 0.){
 				fC = 0.;
 			}//if

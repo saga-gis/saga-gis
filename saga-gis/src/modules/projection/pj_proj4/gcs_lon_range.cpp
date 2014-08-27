@@ -194,7 +194,7 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 
 		pOut->Set_Name(pIn->Get_Name());
 		pOut->Set_NoData_Value_Range(pIn->Get_NoData_Value(), pIn->Get_NoData_hiValue());
-		pOut->Set_ZFactor(pIn->Get_ZFactor());
+		pOut->Set_Scaling(pIn->Get_Scaling(), pIn->Get_Offset());
 
 		pOutput->Add_Item(pOut);
 

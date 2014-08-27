@@ -585,9 +585,9 @@ bool CTC_Classification::Get_Classes(void)
 	{
 		Process_Set_Text(CSG_String::Format(SG_T("%s: %d"), _TL("Level"), Level));
 
-		m_Mean_Slope		= Level == 1 ? m_pSlope    ->Get_ArithMean() : stat_Slope    .Get_Mean();
-		m_Mean_Convexity	= Level == 1 ? m_pConvexity->Get_ArithMean() : stat_Convexity.Get_Mean();
-		m_Mean_Texture  	= Level == 1 ? m_pTexture  ->Get_ArithMean() : stat_Texture  .Get_Mean();
+		m_Mean_Slope		= Level == 1 ? m_pSlope    ->Get_Mean() : stat_Slope    .Get_Mean();
+		m_Mean_Convexity	= Level == 1 ? m_pConvexity->Get_Mean() : stat_Convexity.Get_Mean();
+		m_Mean_Texture  	= Level == 1 ? m_pTexture  ->Get_Mean() : stat_Texture  .Get_Mean();
 
 		stat_Slope    .Invalidate();
 		stat_Convexity.Invalidate();

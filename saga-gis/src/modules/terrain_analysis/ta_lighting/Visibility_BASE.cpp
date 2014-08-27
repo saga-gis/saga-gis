@@ -80,26 +80,24 @@ void CVisibility_BASE::Initialize(CSG_Grid *pVisibility, int iMethod)
 	{
 	case 0:		// Visibility
 		pVisibility->Assign(0.0);
-		pVisibility->Set_ZFactor(1.0);
 		Colors.Set_Count(2);
 		Colors.Set_Ramp(SG_GET_RGB(0, 0, 0), SG_GET_RGB(255, 255, 255));
 		break;
 
 	case 1:		// Shade
 		pVisibility->Assign(M_PI_090);
-		pVisibility->Set_ZFactor(M_RAD_TO_DEG);
+		pVisibility->Set_Unit(_TL("radians"));
 		Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(0, 0, 0));
 		break;
 
 	case 2:		// Distance
 		pVisibility->Assign_NoData();
-		pVisibility->Set_ZFactor(1.0);
 		Colors.Set_Ramp(SG_GET_RGB(255, 255, 191), SG_GET_RGB(0, 95, 0));
 		break;
 
 	case 3:		// Size
 		pVisibility->Assign_NoData();
-		pVisibility->Set_ZFactor(M_RAD_TO_DEG);
+		pVisibility->Set_Unit(_TL("radians"));
 		Colors.Set_Ramp(SG_GET_RGB(0, 95, 0), SG_GET_RGB(255, 255, 191));
 		break;
 	}
@@ -240,23 +238,16 @@ bool CVisibility_BASE::Trace_Point(CSG_Grid *pDTM, int x, int y, double dx, doub
 void CVisibility_BASE::Finalize(CSG_Grid *pVisibility, int iMethod)
 {
 	CSG_Parameters	Parameters;
-	double			Parm_1 = 0.0, Parm_2 = 1.0;
-
-	if( iMethod == 1 )	// Shade
-		Parm_2 = M_PI_090;
-
-	Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""),
-				Parm_1 * pVisibility->Get_ZFactor(),
-				Parm_2 * pVisibility->Get_ZFactor()
-			);
 
 	switch( iMethod )
 	{
 	case 0:		// Visibility
+		Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""), 0.0, 1.0);
 		SG_UI_DataObject_Update(pVisibility, true, &Parameters);
 		break;
 
 	case 1:		// Shade
+		Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""), 0.0, M_PI_090);
 		SG_UI_DataObject_Update(pVisibility, true, &Parameters);
 		break;
 

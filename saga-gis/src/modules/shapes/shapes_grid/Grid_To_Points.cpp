@@ -135,7 +135,7 @@ CGrid_To_Points::~CGrid_To_Points(void)
 //---------------------------------------------------------
 bool CGrid_To_Points::On_Execute(void)
 {
-	bool					bZFactor, bNoNoData;
+	bool					bNoNoData;
 	int						x, y, iGrid, iPoint, Type;
 	double					xPos, yPos;
 	CSG_Grid				*pGrid;
@@ -149,8 +149,6 @@ bool CGrid_To_Points::On_Execute(void)
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	bNoNoData	= Parameters("NODATA")	->asBool();
 	Type		= Parameters("TYPE")	->asInt();
-
-	bZFactor	= true;
 
 	//-----------------------------------------------------
 	if( pGrids->Get_Count() > 0 )
@@ -202,7 +200,7 @@ bool CGrid_To_Points::On_Execute(void)
 					{
 						pGrid	= pGrids->asGrid(iGrid);
 
-						pShape->Set_Value(iGrid + 3, pGrid->is_NoData(x, y) ? -99999 : pGrid->asDouble(x, y, bZFactor));
+						pShape->Set_Value(iGrid + 3, pGrid->is_NoData(x, y) ? -99999 : pGrid->asDouble(x, y));
 					}
 				}
 			}

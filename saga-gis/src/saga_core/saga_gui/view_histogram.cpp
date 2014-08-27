@@ -246,12 +246,11 @@ void CVIEW_Histogram_Control::On_Mouse_LUp(wxMouseEvent &event)
 		m_Mouse_Move	= event.GetPosition();
 
 		wxRect	r(_Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
-		double	zFactor	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZFactor() : 1.0;
 
 		m_pLayer->Set_Color_Range(
-			zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(
+			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
 				(double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
-			zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(
+			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
 				(double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
 		);
 	}
@@ -276,8 +275,8 @@ void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
 
 		case WKSP_ITEM_Grid:
 			m_pLayer->Set_Color_Range(
-				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMin(true),
-				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMax(true)
+				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMin(),
+				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMax()
 			);
 			break;
 
@@ -422,15 +421,13 @@ void CVIEW_Histogram_Control::_Draw_Frame(wxDC &dc, wxRect r)
 	}
 	else
 	{
-		double	zFactor	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZFactor() : 1.0;
-
 		for(iStep=0; iStep<=nSteps; iStep++)
 		{
 			iPixel	= r.GetLeft() + (int)(dPixel * iStep);
 			dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
 			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
 			//	wxString::Format(wxT("%.*f"), Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
-				SG_Get_String(zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz), -2).c_str()
+				SG_Get_String(m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz), -2).c_str()
 			);
 		}
 	}

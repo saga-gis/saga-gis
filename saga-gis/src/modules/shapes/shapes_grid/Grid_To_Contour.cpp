@@ -138,15 +138,13 @@ CGrid_To_Contour::~CGrid_To_Contour(void)
 //---------------------------------------------------------
 bool CGrid_To_Contour::On_Execute(void)
 {
-	double				zMin, zMax, zStep;
-
 	pGrid		= Parameters("INPUT"		)->asGrid();
 	pLayer		= Parameters("CONTOUR"		)->asShapes();
 	m_iFormat	= Parameters("OUTPUT_FORMAT")->asInt();
 
-	zMin	= Parameters("ZMIN"   )->asDouble()	/ pGrid->Get_ZFactor();
-	zMax	= Parameters("ZMAX"   )->asDouble()	/ pGrid->Get_ZFactor();
-	zStep	= Parameters("ZSTEP"  )->asDouble()	/ pGrid->Get_ZFactor();
+	double	zMin	= Parameters("ZMIN" )->asDouble();
+	double	zMax	= Parameters("ZMAX" )->asDouble();
+	double	zStep	= Parameters("ZSTEP")->asDouble();
 
 	if( zMin <= zMax && zStep > 0 )
 	{

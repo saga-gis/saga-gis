@@ -209,7 +209,7 @@ bool CGeoref_Grid_Move::On_Execute_Finish(void)
 
 			m_pGrid->Set_Name   (m_pSource->Get_Name());
 			m_pGrid->Set_Unit   (m_pSource->Get_Unit());
-			m_pGrid->Set_ZFactor(m_pSource->Get_ZFactor());
+			m_pGrid->Set_Scaling(m_pSource->Get_Scaling(), m_pSource->Get_Offset());
 
 			for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
 			{

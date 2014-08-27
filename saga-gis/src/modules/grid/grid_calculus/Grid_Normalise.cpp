@@ -217,7 +217,7 @@ bool CGrid_Standardise::On_Execute(void)
 	pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pGrid->Get_Name(), _TL("Standard Score")));
 
 	//-----------------------------------------------------
-	double	Mean	= pGrid->Get_ArithMean();
+	double	Mean	= pGrid->Get_Mean();
 	double	Stretch	= Parameters("STRETCH")->asDouble() / pGrid->Get_StdDev();
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)

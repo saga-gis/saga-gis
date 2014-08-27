@@ -185,13 +185,13 @@ bool CGrid_Color_Blend::On_Execute(void)
 		{
 			double	StdDev	= Parameters("STDDEV")->asDouble();
 
-			m_Range_Min	= pGrids->asGrid(0)->Get_ArithMean() - StdDev * pGrids->asGrid(0)->Get_StdDev();
-			m_Range_Max	= pGrids->asGrid(0)->Get_ArithMean() + StdDev * pGrids->asGrid(0)->Get_StdDev();
+			m_Range_Min	= pGrids->asGrid(0)->Get_Mean() - StdDev * pGrids->asGrid(0)->Get_StdDev();
+			m_Range_Max	= pGrids->asGrid(0)->Get_Mean() + StdDev * pGrids->asGrid(0)->Get_StdDev();
 
 			for(int i=1; i<pGrids->Get_Count(); i++)
 			{
-				double	Min	= pGrids->asGrid(i)->Get_ArithMean() - StdDev * pGrids->asGrid(i)->Get_StdDev();
-				double	Max	= pGrids->asGrid(i)->Get_ArithMean() + StdDev * pGrids->asGrid(i)->Get_StdDev();
+				double	Min	= pGrids->asGrid(i)->Get_Mean() - StdDev * pGrids->asGrid(i)->Get_StdDev();
+				double	Max	= pGrids->asGrid(i)->Get_Mean() + StdDev * pGrids->asGrid(i)->Get_StdDev();
 
 				if( m_Range_Min > Min )	m_Range_Min	= Min;
 				if( m_Range_Max < Max )	m_Range_Max	= Max;

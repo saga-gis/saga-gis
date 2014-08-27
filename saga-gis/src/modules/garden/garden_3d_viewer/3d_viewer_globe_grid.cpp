@@ -300,8 +300,8 @@ void C3D_Viewer_Globe_Grid_Panel::Update_Statistics(void)
 	double	zScale	= m_pZ ? m_Parameters("Z_SCALE")->asDouble() : 0.0;
 
 	m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
-		m_pGrid->Get_ArithMean() - 1.5 * m_pGrid->Get_StdDev(),
-		m_pGrid->Get_ArithMean() + 1.5 * m_pGrid->Get_StdDev()
+		m_pGrid->Get_Mean() - 1.5 * m_pGrid->Get_StdDev(),
+		m_pGrid->Get_Mean() + 1.5 * m_pGrid->Get_StdDev()
 	);
 
 	m_Data_Min.x = m_Data_Max.x = 0.0;
@@ -411,8 +411,8 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() )
 	{
 		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
-			m_pGrid->Get_ArithMean() - 1.5 * m_pGrid->Get_StdDev(),
-			m_pGrid->Get_ArithMean() + 1.5 * m_pGrid->Get_StdDev()
+			m_pGrid->Get_Mean() - 1.5 * m_pGrid->Get_StdDev(),
+			m_pGrid->Get_Mean() + 1.5 * m_pGrid->Get_StdDev()
 		);
 	}
 
