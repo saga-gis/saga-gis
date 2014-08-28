@@ -587,10 +587,10 @@ public:
 			G->Set_Value(x,y, G->asDouble(x,y-1));
 
 		// die vier Randpunkte setzen
-		G->Set_Value(        0,        0, G->asDouble(        1,        1));
-		G->Set_Value(G->xanz-1,        0, G->asDouble(G->xanz-2,        1));
-		G->Set_Value(        0,G->yanz-1, G->asDouble(        1,G->yanz-2));
-		G->Set_Value(G->xanz-1,G->yanz-1, G->asDouble(G->xanz-2,G->yanz-2));
+		G->Set_Value(        0,        0, G->asDouble(        1,        1,true),true);
+		G->Set_Value(G->xanz-1,        0, G->asDouble(G->xanz-2,        1,true),true);
+		G->Set_Value(        0,G->yanz-1, G->asDouble(        1,G->yanz-2,true),true);
+		G->Set_Value(G->xanz-1,G->yanz-1, G->asDouble(G->xanz-2,G->yanz-2,true),true);
 	};
 };
 

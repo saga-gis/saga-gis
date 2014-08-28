@@ -472,7 +472,7 @@ void ausfuehren_zuweisung(BBZuweisung& z)
 			
 		//	z.ZuVar.MatrixIndex.MVar->M->Z[p.y][p.x] = auswert_float(*z.ZuArt.IF);
 
-			(*z.ZuVar.MatrixIndex.MVar->M).Set_Value(p.x,p.y, auswert_float(*z.ZuArt.IF));
+			(*z.ZuVar.MatrixIndex.MVar->M).Set_Value(p.x, p.y, auswert_float(*z.ZuArt.IF), true);
 
 		}
 		break;
