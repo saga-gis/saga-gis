@@ -92,6 +92,7 @@ public:
 	void					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap, CSG_String sFilename, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_PointCloud_List *pPointCloudList);
 	void					Finalise	(void);
 	bool					Get_Subset	(void);
+	void					Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets);
 
 protected:
 

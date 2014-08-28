@@ -159,6 +159,9 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 
 	//-----------------------------------------------------
+	int				iDatasets = 0;
+	CSG_PointCloud	*pPC_out = NULL;
+
 	for(int iAOI=0; iAOI<m_iOutputs; iAOI++)
 	{
 		if( m_iOutputs > 1 )
@@ -170,8 +173,18 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 			SG_UI_Process_Set_Text(_TL("Processing AOI ..."));
 		}
 
-		if( m_pShapes != NULL && m_bMultiple )
+		if( m_bMultiple )
 		{
+			iDatasets = 0;
+		}
+
+		if( m_pShapes != NULL )
+		{
+			if( m_pShapes->Get_Selection_Count() > 0 && !m_pShapes->is_Selected(iAOI) )
+			{
+				continue;
+			}
+
 			m_AOI = m_pShapes->Get_Shape(iAOI)->Get_Extent();
 		}
 
@@ -210,6 +223,11 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 			if( m_AOI.Intersects(BBox) > INTERSECTION_None )
 			{
+				if( m_pShapes != NULL && !m_bAddOverlap && m_pShapes->Get_Shape(iAOI)->Intersects(BBox) == INTERSECTION_None )
+				{
+					continue;
+				}
+
 				CSG_String sFilePath;
 
 				pDataset->Get_Property(SG_T("File"), sFilePath);
@@ -227,14 +245,11 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 
 		//-----------------------------------------------------
-		int				iDatasets = 0;
-		CSG_PointCloud	*pPC_out = NULL;
-
 		for(int i=0; i<sFilePaths.Get_Count() && SG_UI_Process_Set_Progress(i, sFilePaths.Get_Count()); i++)
 		{
 			CSG_PointCloud	*pPC = SG_Create_PointCloud(sFilePaths.Get_String(i));
 
-			if( i == 0 )
+			if( pPC_out == NULL && i == 0 )
 			{
 				pPC_out = SG_Create_PointCloud(pPC);
 			}
@@ -245,6 +260,14 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 			{
 				if( m_AOI.Contains(pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
 				{
+					if( m_pShapes != NULL && !m_bAddOverlap )
+					{
+						CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)m_pShapes->Get_Shape(iAOI);
+
+						if( !pPolygon->Contains(pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
+							continue;
+					}
+							
 					pPC_out->Add_Point(pPC->Get_X(iPoint), pPC->Get_Y(iPoint), pPC->Get_Z(iPoint));
 
 					for(int iField=0; iField<pPC->Get_Attribute_Count(); iField++)
@@ -265,52 +288,78 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 		}
 
 		//---------------------------------------------------------
+		if( m_bMultiple )
+		{
+			if( pPC_out != NULL && pPC_out->Get_Count() == 0 )
+			{
+				SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
+				delete( pPC_out );
+				continue;
+			}
+
+			Write_Subset(pPC_out, iAOI, iDatasets);
+
+			pPC_out = NULL;
+		}
+	}
+
+	//---------------------------------------------------------
+	if( !m_bMultiple )
+	{
 		if( pPC_out != NULL && pPC_out->Get_Count() == 0 )
 		{
 			SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
 			delete( pPC_out );
-			continue;
+			return( true );
 		}
 
-		CSG_String	sPath = SG_T("");
-
-		if( m_pFilePath != NULL )
-		{
-			sPath = m_pFilePath->asString();
-			sPath += SG_T("/");
-		}
-
-		if( m_bMultiple )
-		{
-			if( m_iFieldName > -1 )
-			{
-				pPC_out->Set_Name(CSG_String::Format(SG_T("%s%s"), sPath.c_str(), m_pShapes->Get_Record(iAOI)->asString(m_iFieldName)));
-			}
-			else
-			{
-				pPC_out->Set_Name(CSG_String::Format(SG_T("%s%d_%d"), sPath.c_str(), (int)(m_AOI.Get_XMin() + m_dOverlap), (int)(m_AOI.Get_YMin() + m_dOverlap)));
-			}
-		}
-		else
-		{
-			pPC_out->Set_Name(CSG_String::Format(SG_T("%spc_subset_%s"), sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str()));
-		}
-
-		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
-
-
-		if( m_pFilePath == NULL )
-		{
-			m_pPointCloudList->Add_Item(pPC_out);
-		}
-		else
-		{
-			pPC_out->Save(pPC_out->Get_Name());
-			delete( pPC_out );
-		}
+		Write_Subset(pPC_out, 0, iDatasets);
 	}
 
 	return( true );
+}
+
+
+//---------------------------------------------------------
+void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets)
+{
+	CSG_String	sPath = SG_T("");
+
+	if( m_pFilePath != NULL )
+	{
+		sPath = m_pFilePath->asString();
+		sPath += SG_T("/");
+	}
+
+	if( m_bMultiple )
+	{
+		if( m_iFieldName > -1 )
+		{
+			pPC_out->Set_Name(CSG_String::Format(SG_T("%s%s"), sPath.c_str(), m_pShapes->Get_Record(iAOI)->asString(m_iFieldName)));
+		}
+		else
+		{
+			pPC_out->Set_Name(CSG_String::Format(SG_T("%s%d_%d"), sPath.c_str(), (int)(m_AOI.Get_XMin() + m_dOverlap), (int)(m_AOI.Get_YMin() + m_dOverlap)));
+		}
+	}
+	else
+	{
+		pPC_out->Set_Name(CSG_String::Format(SG_T("%spc_subset_%s"), sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str()));
+	}
+
+	SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
+
+	if( m_pFilePath == NULL )
+	{
+		m_pPointCloudList->Add_Item(pPC_out);
+	}
+	else
+	{
+		pPC_out->Save(pPC_out->Get_Name());
+		delete( pPC_out );
+	}
+
+	return;
 }
 
 
@@ -330,19 +379,20 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 	Set_Description	(_TW(
 		"The module allows to retrieve a point cloud from a virtual "
 		"point cloud dataset by applying the provided area-of-interest "
-		"(AOI). The extent of the AOI can be provided either as "
-		"shapefile, grid or by coordinates. In case the AOI is "
-		"provided as shapefile, additional functionality is available:\n"
-		"* in case the output is written to a single point cloud and "
-		"one or more shapes are selected in the AOI shapefile, "
-		"only the extent of the selected shapes is used.\n"
+		"(AOI). The extent of the AOI can be provided either as polygon "
+		"shapefile, grid or by coordinates. Optionally, an overlap can "
+		"be added to the AOI. In case an overlap is used and the AOI "
+		"is provided as polygon shapfile, only the bounding boxes of the "
+		"polygons are used.\n"
+		"With polygon shapefiles additional functionality is available:\n"
+		"* in case one or more polygons are selected, only the selected "
+		"polygons are used.\n"
 		"* in case the shapefile contains several polygons and the "
 		"'One Point Cloud per Polygon' parameter is checked, a point "
 		"cloud dataset is outputted for each polygon. In case the "
 		"'Tilename' attribute is provided, the output files are named "
 		"by this attribute. Otherwise the output file names are build "
 		"from the lower left coordinate of each tile.\n"
-		"Optionally, an overlap can be added to the AOI.\n"
 		"The derived datasets can be outputted either as point cloud "
 		"list or written to an output directory. For the latter, "
 		"you must provide a valid file path with the 'Optional Output "
@@ -382,7 +432,7 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 	CSG_Parameter *pNodeField = Parameters.Add_Shapes(
 		pNode	, "AOI_SHP"			, _TL("Shape"),
 		_TL("Shapefile describing the AOI."),
-		PARAMETER_INPUT_OPTIONAL
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 	Parameters.Add_Table_Field(
 		pNodeField	, "FIELD_TILENAME", _TL("Tilename"),
@@ -487,23 +537,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	if( pShapes != NULL && !bMultiple )
-	{
-		if( pShapes->Get_Selection_Count() > 0 )
-		{
-			AOI = pShapes->Get_Selection(0)->Get_Extent();
-
-			for(int i=1; i<pShapes->Get_Selection_Count(); i++)
-			{
-				AOI.Union(pShapes->Get_Selection(i)->Get_Extent());
-			}
-		}
-		else
-		{
-			AOI = pShapes->Get_Extent();
-		}
-	}
-	else if( pShapes != NULL && bMultiple )
+	if( pShapes != NULL )
 	{
 		iOutputs = pShapes->Get_Count();
 	}
@@ -637,7 +671,9 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 
 		CSG_Parameter_PointCloud_List	PointCloudList(NULL, PARAMETER_INFORMATION);
 
-		m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, false, 0.0, Parameters("FILENAME")->asString(), NULL, &PointCloudList);
+		// as long as this module only supports to drag a box, we initialize it with a fake overlap in order
+		// to use CSG_Rect instead of CSG_Shape for point in polygon check in Get_Subset():
+		m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, true, 0.0, Parameters("FILENAME")->asString(), NULL, &PointCloudList);
 
 		bool bResult = m_Get_Subset_SPCVF.Get_Subset();
 
