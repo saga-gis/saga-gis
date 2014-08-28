@@ -53,7 +53,7 @@ int innerhalb(const I_Vec& I, const GridWerte& W)
 {
 	int x = I.X();
 	int y = I.Y();
-	
+
 	return (x >= 0 && x < W.xanz && y >= 0 && y < W.yanz);
 }
 
@@ -61,7 +61,7 @@ int innerhalb(const I_Vec& I, const IVecWerte& W)
 {
 	int x = I.X();
 	int y = I.Y();
-	
+
 	return (x >= 0 && x < W().xanz && y >= 0 && y < W().yanz);
 }
 */
@@ -101,7 +101,7 @@ double min3(double x, double y, double z)
 
 
 static int
-NachbarBesetzt(int y0, int y1, int x0, int x1, int y, int x, 
+NachbarBesetzt(int y0, int y1, int x0, int x1, int y, int x,
 			   GridWerte& G)
 {
 	for (int i=y0; i<=y1; i++)
@@ -152,19 +152,19 @@ LinRand( GridWerte& G, GridWerte& Erg)
 	j = 0;
 	for (i=1; i<=G.yanz; i++)
 		Erg.Set_Value(j,i, 2.0*G(j,i-1)-G(j+1,i-1));
-	
+
 	// rechte Kante
 	j = G.xanz-1;
 
 	for (i=1; i<=G.yanz; i++)
 		Erg.Set_Value(j+2,i, 2.0*G(j,i-1)-G(j-1,i-1));
-	
+
 	// untere Kante
 	i = 0;
 //	for (j=1; j<=G.xanz; j++)
 	for (j=1; j<=xxx; j++)
 		Erg.Set_Value(j,i, 2.0*G(j-1,i)-G(j-1,i+1));
-	
+
 	// obere Kante
 	i = G.yanz-1;
 //	for (j=1; j<=G.xanz; j++)
@@ -175,24 +175,24 @@ LinRand( GridWerte& G, GridWerte& Erg)
 	// Ecke ul
 	m1 = 2*Erg(0,1)-Erg(0,2);
 	m2 = 2*Erg(1,0)-Erg(2,0);
-	Erg.Set_Value(0,0, (m1+m2)/2);
-	
+	Erg.Set_Value(0,0, (m1+m2)/2, true);
+
 	// Ecke ur
 	m1 = 2*Erg(Erg.xanz-1,1)-Erg(Erg.xanz-1,2);
 	m2 = 2*Erg(Erg.xanz-2,0)-Erg(Erg.xanz-3,0);
-	Erg.Set_Value(Erg.xanz-1,0, (m1+m2)/2);
+	Erg.Set_Value(Erg.xanz-1,0, (m1+m2)/2, true);
 
 	// Ecke ol
 	m1 = 2*Erg(0,Erg.yanz-2)-Erg(0,Erg.yanz-3);
 	m2 = 2*Erg(1,Erg.yanz-1)-Erg(2,Erg.yanz-1);
-	Erg.Set_Value(0,Erg.yanz-1, (m1+m2)/2);
+	Erg.Set_Value(0,Erg.yanz-1, (m1+m2)/2, true);
 
 	// Ecke or
 	m1 = 2*Erg(Erg.xanz-1,Erg.yanz-2)-Erg(Erg.xanz-1,Erg.yanz-3);
 	m2 = 2*Erg(Erg.xanz-2,Erg.yanz-1)-Erg(Erg.xanz-3,Erg.yanz-1);
-	
-	Erg.Set_Value(Erg.xanz-1,Erg.yanz-1, (m1+m2)/2);
-	 
+
+	Erg.Set_Value(Erg.xanz-1,Erg.yanz-1, (m1+m2)/2, true);
+
 	Erg.calcMinMax();
 }
 
@@ -218,7 +218,7 @@ void copyGrid(GridWerte &Dest,  GridWerte &Source, bool newmem)
 			Dest.Set_Value(j,i, wert);
 		}
 	}
-	
+
 
 }
 
@@ -235,11 +235,11 @@ void calcExpoAbweichung(GridWerte& Erg,  GridWerte& Expo)
 	w[0] = double( 45.0/180.0*M_PI);  // -1 -1
 	w[1] = double(  0.0/180.0*M_PI);  //  0 -1
 	w[2] = double(315.0/180.0*M_PI);  //  1 -1
-	
+
 	w[3] = double( 90.0/180.0*M_PI);  // -1  0
 	w[4] = double(  0.0/180.0*M_PI);  //  0  0 egal, wird nicht benutzt
 	w[5] = double(270.0/180.0*M_PI);  //  1  0
-	
+
 	w[6] = double(135.0/180.0*M_PI);  // -1 +1
 	w[7] = double(180.0/180.0*M_PI);  //  0 +1
 	w[8] = double(225.0/180.0*M_PI);  //  1 +1
@@ -286,11 +286,11 @@ static double calcMittelwert( GridWerte& H, int x, int y)
 		return (H(x,y) + H(x,y+1) + H(x+1,y) + H(x+1,y+1))/4.0f;
 	else if (x == H.xanz-1)
 	{
-		return (H(x,y) + H(x,y+1))/2.0f; 
+		return (H(x,y) + H(x,y+1))/2.0f;
 	}
 	else
 	{
-		return (H(x,y) + H(x+1,y))/2.0f; 
+		return (H(x,y) + H(x+1,y))/2.0f;
 	}
 }
 
