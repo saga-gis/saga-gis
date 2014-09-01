@@ -141,27 +141,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		Parameters("TARGET_NODE"),
-		"TARGET_TYPE"	, _TL("Target"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("user defined"),
-			_TL("grid"),
-			_TL("shapes")
-		), 0
-	);
-
-	//-----------------------------------------------------
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
-
-	pParameters->Add_Shapes(
-		NULL, "SHAPES"		, _TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
-	);
+	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")));
 }
 
 
@@ -174,7 +154,13 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 //---------------------------------------------------------
 int CGEOTRANS_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CGEOTRANS_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -191,56 +177,19 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 	TSG_Data_Type	Type;
 	TSG_Rect		Extent;
 	CSG_Grid		*pSource, *pGrid;
-	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
-	pSource			= Parameters("SOURCE")			->asGrid();
-	Interpolation	= Parameters("INTERPOLATION")	->asInt();
-
+	pSource			= Parameters("SOURCE"       )->asGrid();
+	Interpolation	= Parameters("INTERPOLATION")->asInt();
 	Type			= Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
 
-	pGrid			= NULL;
-	pShapes			= NULL;
-
 	//-----------------------------------------------------
-	switch( Parameters("TARGET_TYPE")->asInt() )
+	if( Get_Target_Extent(pSource, Extent, true) )
 	{
-	case 0:	// create new user defined grid...
-		if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
-		{
-			pGrid	= m_Grid_Target.Get_User(Type);
-		}
-		break;
-
-	case 1:	// select grid...
-		if( Dlg_Parameters("GET_GRID") )
-		{
-			pGrid	= m_Grid_Target.Get_Grid(Type);
-		}
-		break;
-
-	case 2:	// shapes...
-		if( Dlg_Parameters("GET_SHAPES") )
-		{
-			pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
-
-			if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
-			{
-				Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
-			}
-		}
-		break;
+		m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSource->Get_NY());
 	}
 
-	//--------------------------------------------------------
-	if( pShapes )
-	{
-		Parameters("OUT_SHAPES")->Set_Value(pShapes);
-
-		return( Set_Shapes(pSource, pShapes) );
-	}
-
-	if( pGrid )
+	if( Dlg_Parameters("SYSTEM") && (pGrid = m_Grid_Target.Get_Grid(Type)) != NULL )
 	{
 		return( Set_Grid(pSource, pGrid, Interpolation) );
 	}

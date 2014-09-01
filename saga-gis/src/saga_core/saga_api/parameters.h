@@ -1189,33 +1189,29 @@ class SAGA_API_DLL_EXPORT CSG_Parameters_Grid_Target
 public:
 	CSG_Parameters_Grid_Target(void);
 
-	void						Create					(void);
+	bool						Create					(CSG_Parameters *pParameters, bool bAddDefaultGrid = true, CSG_Parameter *pNode = NULL, const CSG_String &Prefix = "");
 
-	bool						Add_Parameters_User		(CSG_Parameters *pParameters, bool bAddDefaultGrid = true);
-	bool						Add_Parameters_Grid		(CSG_Parameters *pParameters, bool bAddDefaultGrid = true);
-	bool						Add_Parameters_System	(CSG_Parameters *pParameters);
+	bool						Add_Grid				(const CSG_String &Identifier, const CSG_String &Name, bool bOptional);
 
-	bool						Add_Grid_Parameter		(const CSG_String &Identifier, const CSG_String &Name, bool bOptional);
+	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						On_User_Changed			(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, bool bFitToCells = false);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells = false);
 
-	bool						Init_User				(const TSG_Rect &Extent, int Rows = 100, bool bFitToCells = false);
-	bool						Init_User				(double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells = false);
+	CSG_Grid_System				Get_System				(void);
 
-	CSG_Grid *					Get_User				(                              TSG_Data_Type Type = SG_DATATYPE_Float);
-	CSG_Grid *					Get_User				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);
-	CSG_Grid *					Get_Grid				(                              TSG_Data_Type Type = SG_DATATYPE_Float);
 	CSG_Grid *					Get_Grid				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);
-
-	bool						Get_System_User			(CSG_Grid_System &System);
-	bool						Get_System				(CSG_Grid_System &System);
+	CSG_Grid *					Get_Grid				(                              TSG_Data_Type Type = SG_DATATYPE_Float);
 
 
 private:
 
 	bool						m_bFitToCells;
 
-	CSG_Parameters				*m_pUser, *m_pGrid, *m_pSystem;
+	CSG_String					m_Prefix;
+
+	CSG_Parameters				*m_pParameters;
 
 };
 

@@ -95,9 +95,9 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid * SG_Create_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
-	return( new CSG_Grid(File_Name, Type, Memory_Type) );
+	return( new CSG_Grid(File_Name, Type, Memory_Type, bLoadData) );
 }
 
 //---------------------------------------------------------
@@ -172,12 +172,12 @@ CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
   * Create a grid from file.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 	: CSG_Data_Object()
 {
 	_On_Construction();
 
-	Create(File_Name, Type, Memory_Type);
+	Create(File_Name, Type, Memory_Type, bLoadData);
 }
 
 //---------------------------------------------------------
@@ -295,9 +295,9 @@ bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Gri
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
-	return( _Load(File_Name, Type, Memory_Type) );
+	return( _Load(File_Name, Type, Memory_Type, bLoadData) );
 }
 
 //---------------------------------------------------------
@@ -1076,6 +1076,11 @@ double CSG_Grid::Get_Variance(void)
 	Update();	return( m_zStats.Get_Variance() );
 }
 
+sLong CSG_Grid::Get_Data_Count(void)
+{
+	Update();	return( m_zStats.Get_Count() );
+}
+
 sLong CSG_Grid::Get_NoData_Count(void)
 {
 	Update();	return( Get_NCells() - m_zStats.Get_Count() );
@@ -1186,7 +1191,7 @@ double CSG_Grid::Get_Percentile(double Percent)
 {
 	Percent	= Percent <= 0.0 ? 0.0 : Percent >= 100.0 ? 1.0 : Percent / 100.0;
 
-	sLong	n	= Get_NoData_Count() + (sLong)(Percent * (Get_NCells() - Get_NoData_Count() - 1));
+	sLong	n	= Get_NoData_Count() + (sLong)(Percent * (Get_Data_Count() - 1));
 
 	if( Get_Sorted(n, n, false) )
 	{

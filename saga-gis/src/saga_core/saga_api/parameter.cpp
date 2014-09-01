@@ -708,14 +708,60 @@ CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
 //---------------------------------------------------------
 CSG_Parameters_Grid_Target::CSG_Parameters_Grid_Target(void)
 {
-	Create();
+	m_pParameters	= NULL;
 }
 
 //---------------------------------------------------------
-void CSG_Parameters_Grid_Target::Create(void)
+bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDefaultGrid, CSG_Parameter *pNode, const CSG_String &Prefix)
 {
-	m_pUser		= NULL;
-	m_pGrid		= NULL;
+	if( pParameters == NULL )
+	{
+		return( false );
+	}
+
+	m_pParameters	= pParameters;
+	m_Prefix		= Prefix;
+
+	//-----------------------------------------------------
+	pNode	= m_pParameters->Add_Choice(
+		pNode, m_Prefix + "TARGET", _TL("Target Grid System"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("user defined"),
+			_TL("grid or grid system")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_XMIN", _TL("Left"    ), _TL(""), PARAMETER_TYPE_Double,   0.0);
+	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_XMAX", _TL("Right"   ), _TL(""), PARAMETER_TYPE_Double, 100.0);
+	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_YMIN", _TL("Bottom"  ), _TL(""), PARAMETER_TYPE_Double,   0.0);
+	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_YMAX", _TL("Top"     ), _TL(""), PARAMETER_TYPE_Double, 100.0);
+	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_SIZE", _TL("Cellsize"), _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true);
+	m_pParameters->Add_Info_Value(pNode, m_Prefix + "USER_COLS", _TL("Columns" ), _TL(""), PARAMETER_TYPE_Int   , 100);
+	m_pParameters->Add_Info_Value(pNode, m_Prefix + "USER_ROWS", _TL("Rows"    ), _TL(""), PARAMETER_TYPE_Int   , 100);
+	m_pParameters->Add_Choice    (pNode, m_Prefix + "USER_FITS", _TL("Fit"     ), _TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("nodes"),
+			_TL("cells")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	pNode	= m_pParameters->Add_Grid_System(pNode, m_Prefix + "SYSTEM", _TL("Grid System"), _TL(""));
+
+	if( !SG_UI_Get_Window_Main() )
+	{
+		m_pParameters->Add_Grid(pNode, m_Prefix + "GRID_SYSTEM", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT, false);
+	}
+
+	//-----------------------------------------------------
+	if( bAddDefaultGrid )
+	{
+		Add_Grid(m_Prefix + "TARGET_GRID", _TL("Grid"), false);
+	}
+
+	return( true );
 }
 
 
@@ -724,82 +770,21 @@ void CSG_Parameters_Grid_Target::Create(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Add_Parameters_User(CSG_Parameters *pParameters, bool bAddDefaultGrid)
+bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameters == NULL )
+	if( !m_pParameters || !pParameters || !pParameter || SG_STR_CMP(m_pParameters->Get_Identifier(), pParameters->Get_Identifier()) )
 	{
 		return( false );
 	}
 
-	m_pUser	= pParameters;
-
-	pParameters->Add_Value(
-		NULL, "XMIN"		, _TL("Left")		, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "XMAX"		, _TL("Right")		, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "YMIN"		, _TL("Bottom")		, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top")		, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "SIZE"		, _TL("Cellsize")	, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
-	pParameters->Add_Info_Value(
-		NULL, "COLS"		, _TL("Columns")	, _TL(""), PARAMETER_TYPE_Int
-	);
-
-	pParameters->Add_Info_Value(
-		NULL, "ROWS"		, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int
-	);
-
-	pParameters->Add_Choice(
-		NULL, "FIT"			, _TL("Fit")		, _TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("nodes"),
-			_TL("cells")
-		), 0
-	);
-
-	if( bAddDefaultGrid )
-	{
-		pParameters->Add_Grid_Output(
-			NULL, "GRID"		, _TL("Grid")		, _TL("")
-		);
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if( !m_pUser || !pParameters || !pParameter || SG_STR_CMP(m_pUser->Get_Identifier(), pParameters->Get_Identifier()) )
-	{
-		return( false );
-	}
-
-	CSG_Parameter	*pXMin	= pParameters->Get_Parameter("XMIN");
-	CSG_Parameter	*pXMax	= pParameters->Get_Parameter("XMAX");
-	CSG_Parameter	*pYMin	= pParameters->Get_Parameter("YMIN");
-	CSG_Parameter	*pYMax	= pParameters->Get_Parameter("YMAX");
-	CSG_Parameter	*pSize	= pParameters->Get_Parameter("SIZE");
-	CSG_Parameter	*pRows	= pParameters->Get_Parameter("ROWS");
-	CSG_Parameter	*pCols	= pParameters->Get_Parameter("COLS");
-	CSG_Parameter	*pFit	= pParameters->Get_Parameter("FIT" );
-
-	if( !pXMin || !pXMax || !pYMin || !pYMax || !pSize || !pRows || !pCols || !pFit )
-	{
-		return( false );
-	}
+	CSG_Parameter	*pXMin	= pParameters->Get_Parameter(m_Prefix + "USER_XMIN");
+	CSG_Parameter	*pXMax	= pParameters->Get_Parameter(m_Prefix + "USER_XMAX");
+	CSG_Parameter	*pYMin	= pParameters->Get_Parameter(m_Prefix + "USER_YMIN");
+	CSG_Parameter	*pYMax	= pParameters->Get_Parameter(m_Prefix + "USER_YMAX");
+	CSG_Parameter	*pSize	= pParameters->Get_Parameter(m_Prefix + "USER_SIZE");
+	CSG_Parameter	*pRows	= pParameters->Get_Parameter(m_Prefix + "USER_ROWS");
+	CSG_Parameter	*pCols	= pParameters->Get_Parameter(m_Prefix + "USER_COLS");
+	CSG_Parameter	*pFits	= pParameters->Get_Parameter(m_Prefix + "USER_FITS");
 
 	double		Size	= pSize->asDouble();
 
@@ -811,51 +796,51 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
 	}
 
 	//-----------------------------------------------------
-	if(      !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIT")) )
+	if(      !SG_STR_CMP(pParameter->Get_Identifier(), pFits->Get_Identifier()) )
 	{
-		if( m_bFitToCells != (pFit->asInt() == 1) )
+		if( m_bFitToCells != (pFits->asInt() == 1) )
 		{
-			m_bFitToCells	= pFit->asInt() == 1;
+			m_bFitToCells	= pFits->asInt() == 1;
 		}
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pSize->Get_Identifier()) )
 	{
 		r.m_rect.xMax	= r.Get_XMin() + Size * (int)(r.Get_XRange() / Size);
 		r.m_rect.yMax	= r.Get_YMin() + Size * (int)(r.Get_YRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pXMin->Get_Identifier()) )
 	{
 		if( r.Get_XRange() <= 0.0 )
 			r.m_rect.xMin	= r.Get_XMax() - Size * pCols->asInt();
 		else
 			r.m_rect.xMax	= r.Get_XMin() + Size * (int)(r.Get_XRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pXMax->Get_Identifier()) )
 	{
 		if( r.Get_XRange() <= 0.0 )
 			r.m_rect.xMax	= r.Get_XMin() + Size * pCols->asInt();
 		else
 			r.m_rect.xMin	= r.Get_XMax() - Size * (int)(r.Get_XRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pYMin->Get_Identifier()) )
 	{
 		if( r.Get_YRange() <= 0.0 )
 			r.m_rect.yMin	= r.Get_YMax() - Size * pRows->asInt();
 		else
 			r.m_rect.yMax	= r.Get_YMin() + Size * (int)(r.Get_YRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pYMax->Get_Identifier()) )
 	{
 		if( r.Get_YRange() <= 0.0 )
 			r.m_rect.yMax	= r.Get_YMin() + Size * pRows->asInt();
 		else
 			r.m_rect.yMin	= r.Get_YMax() - Size * (int)(r.Get_YRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLS")) && pCols->asInt() > 0 )
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pCols->Get_Identifier()) && pCols->asInt() > 0 )
 	{
 		pSize->Set_Value(Size	= r.Get_XRange() / pCols->asDouble());
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ROWS")) && pRows->asInt() > 0 )
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pRows->Get_Identifier()) && pRows->asInt() > 0 )
 	{
 		pSize->Set_Value(Size	= r.Get_YRange() / pRows->asDouble());
 	}
@@ -874,7 +859,34 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
 	pYMin->Set_Value(r.Get_YMin());
 	pYMax->Set_Value(r.Get_YMax());
 
-	pFit ->Set_Value(m_bFitToCells);
+	pFits->Set_Value(m_bFitToCells);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !m_pParameters || !pParameters || !pParameter || SG_STR_CMP(m_pParameters->Get_Identifier(), pParameters->Get_Identifier()) )
+	{
+		return( false );
+	}
+
+	if( (pParameter = pParameters->Get_Parameter(m_Prefix + "TARGET")) == NULL )
+	{
+		return( false );
+	}
+
+	pParameters->Set_Enabled(m_Prefix + "USER_XMIN", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_XMAX", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_YMIN", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_YMAX", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_SIZE", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_ROWS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_COLS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_FITS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_OPTS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "SYSTEM"   , pParameter->asInt() == 1);
 
 	return( true );
 }
@@ -886,11 +898,21 @@ bool CSG_Parameters_Grid_Target::On_User_Changed(CSG_Parameters *pParameters, CS
   * so automatically adjusting the extent based on grid nodes to
   * to an extent based on the grid cells.
 */
-bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows, bool bFitToCells)
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, bool bFitToCells)
 {
-	if( !m_pUser || Rows < 1 )
+	if( !pParameters )
 	{
 		return( false );
+	}
+
+	if( Rows < 1 )
+	{
+		Rows	= m_pParameters->Get_Parameter(m_Prefix + "USER_ROWS")->asInt();
+
+		if( Rows < 1 )
+		{
+			Rows	= 100;
+		}
 	}
 
 	CSG_Rect	r(Extent);
@@ -915,19 +937,20 @@ bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows, boo
 
 	int		Cols	= (bFitToCells ? 0 : 1) + (int)(r.Get_XRange() / Size);
 
-	m_pUser->Get_Parameter("XMIN")->Set_Value(r.Get_XMin());
-	m_pUser->Get_Parameter("XMAX")->Set_Value(r.Get_XMax());
-	m_pUser->Get_Parameter("YMIN")->Set_Value(r.Get_YMin());
-	m_pUser->Get_Parameter("YMAX")->Set_Value(r.Get_YMax());
-	m_pUser->Get_Parameter("SIZE")->Set_Value(Size);
-	m_pUser->Get_Parameter("COLS")->Set_Value(Cols);
-	m_pUser->Get_Parameter("ROWS")->Set_Value(Rows);
-	m_pUser->Get_Parameter("FIT" )->Set_Value(m_bFitToCells);
+	pParameters->Get_Parameter(m_Prefix + "USER_XMIN")->Set_Value(r.Get_XMin());
+	pParameters->Get_Parameter(m_Prefix + "USER_XMAX")->Set_Value(r.Get_XMax());
+	pParameters->Get_Parameter(m_Prefix + "USER_YMIN")->Set_Value(r.Get_YMin());
+	pParameters->Get_Parameter(m_Prefix + "USER_YMAX")->Set_Value(r.Get_YMax());
+	pParameters->Get_Parameter(m_Prefix + "USER_SIZE")->Set_Value(Size);
+	pParameters->Get_Parameter(m_Prefix + "USER_COLS")->Set_Value(Cols);
+	pParameters->Get_Parameter(m_Prefix + "USER_ROWS")->Set_Value(Rows);
+	pParameters->Get_Parameter(m_Prefix + "USER_FITS")->Set_Value(m_bFitToCells);
 
 	return( true );
 }
 
-bool CSG_Parameters_Grid_Target::Init_User(double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells)
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells)
 {
 	if( Size <= 0.0 || nx < 1 || ny < 1 )
 	{
@@ -942,163 +965,141 @@ bool CSG_Parameters_Grid_Target::Init_User(double xMin, double yMin, double Size
 		Extent.m_rect.yMax	+= Size;
 	}
 
-	return( Init_User(Extent, ny, bFitToCells) );
+	return( Set_User_Defined(pParameters, Extent, ny, bFitToCells) );
 }
 
-//---------------------------------------------------------
-CSG_Grid * CSG_Parameters_Grid_Target::Get_User(TSG_Data_Type Type)
-{
-	return( Get_User(SG_T("GRID"), Type) );
-}
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CSG_Parameters_Grid_Target::Get_User(const CSG_String &Identifier, TSG_Data_Type Type)
+bool CSG_Parameters_Grid_Target::Add_Grid(const CSG_String &Identifier, const CSG_String &Name, bool bOptional)
 {
-	CSG_Grid	*pGrid	= NULL;
-
-	if( m_pUser )
+	if( !m_pParameters || Identifier.Length() == 0 || m_pParameters->Get_Parameter(Identifier) != NULL )
 	{
-		double		Size	= m_pUser->Get_Parameter("SIZE")->asDouble();
+		return( false );
+	}
 
-		CSG_Rect	r(
-			m_pUser->Get_Parameter("XMIN")->asDouble(),
-			m_pUser->Get_Parameter("YMIN")->asDouble(),
-			m_pUser->Get_Parameter("XMAX")->asDouble(),
-			m_pUser->Get_Parameter("YMAX")->asDouble()
-		);
+	CSG_Parameter	*pTarget	= m_pParameters->Get_Parameter(m_Prefix + "TARGET");
+	CSG_Parameter	*pSystem	= NULL;
 
-		if( m_bFitToCells )
+	for(int i=0; i<pTarget->Get_Children_Count() && !pSystem; i++)
+	{
+		if( pTarget->Get_Child(i)->Get_Type() == PARAMETER_TYPE_Grid_System )
 		{
-			r.Deflate(0.5 * Size, false);
-		}
-
-		CSG_Grid_System	System(Size, r);
-
-		if( System.is_Valid() )
-		{
-			pGrid	= SG_Create_Grid(System, Type);
-		}
-
-		if( Identifier.Length() > 0 && m_pUser->Get_Parameter(Identifier) )
-		{
-			m_pUser->Get_Parameter(Identifier)->Set_Value(pGrid);
+			pSystem	= pTarget->Get_Child(i);
 		}
 	}
 
-	return( pGrid );
+	m_pParameters->Add_Grid(pSystem, Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
+
+	if( bOptional && SG_UI_Get_Window_Main() )
+	{
+		CSG_Parameter	*pNode	= m_pParameters->Get_Parameter(m_Prefix + "USER_OPTS");
+
+		if( !pNode )
+		{
+			pNode	= m_pParameters->Add_Node(pTarget, m_Prefix + "USER_OPTS", _TL("Optional Target Grids"), _TL(""));
+		}
+
+		m_pParameters->Add_Value(pNode, Identifier + "_CREATE", Name, _TL(""), PARAMETER_TYPE_Bool, false);
+	}
+
+	return( true );
 }
 
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Get_System_User(CSG_Grid_System &System)
-{
-	if( m_pUser )
-	{
-		if( m_pUser->Get_Parameter("SIZE")->asDouble() > 0.0
-		&&	m_pUser->Get_Parameter("COLS")->asInt()    > 0
-		&&	m_pUser->Get_Parameter("ROWS")->asInt()    > 0	)
-		{
-			On_User_Changed(m_pUser, m_pUser->Get_Parameter("SIZE"));
 
-			System.Assign(
-				m_pUser->Get_Parameter("SIZE")->asDouble(),
-				m_pUser->Get_Parameter("XMIN")->asDouble(),
-				m_pUser->Get_Parameter("YMIN")->asDouble(),
-				m_pUser->Get_Parameter("COLS")->asInt(),
-				m_pUser->Get_Parameter("ROWS")->asInt()
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(void)
+{
+	CSG_Grid_System	System;
+
+	if( m_pParameters )
+	{
+		if( m_pParameters->Get_Parameter(m_Prefix + "TARGET")->asInt() == 0 )	// user defined
+		{
+			double	Size	= m_pParameters->Get_Parameter(m_Prefix + "USER_SIZE")->asDouble();
+
+			CSG_Rect	r(
+				m_pParameters->Get_Parameter(m_Prefix + "USER_XMIN")->asDouble(),
+				m_pParameters->Get_Parameter(m_Prefix + "USER_YMIN")->asDouble(),
+				m_pParameters->Get_Parameter(m_Prefix + "USER_XMAX")->asDouble(),
+				m_pParameters->Get_Parameter(m_Prefix + "USER_YMAX")->asDouble()
 			);
 
-			return( System.is_Valid() );
-		}
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Add_Grid_Parameter(const CSG_String &Identifier, const CSG_String &Name, bool bOptional)
-{
-	if( Identifier.Length() == 0 )
-	{
-		return( false );
-	}
-
-	if( m_pUser && m_pUser->Get_Parameter(Identifier) == NULL )
-	{
-		m_pUser->Add_Grid_Output(NULL, Identifier, Name, _TL(""));
-	}
-
-	if( m_pGrid && m_pGrid->Get_Parameter(Identifier) == NULL )
-	{
-		CSG_Parameter	*pSystem	= NULL;
-
-		for(int i=0; i<m_pGrid->Get_Count() && !pSystem; i++)
-		{
-			if( m_pGrid->Get_Parameter(i)->Get_Type() == PARAMETER_TYPE_Grid_System )
+			if( m_bFitToCells )
 			{
-				pSystem	= m_pGrid->Get_Parameter(i);
+				r.Deflate(0.5 * Size, false);
+			}
+
+			System.Assign(Size, r);
+		}
+		else
+		{
+			CSG_Parameter	*pParameter	= SG_UI_Get_Window_Main()
+				? m_pParameters->Get_Parameter(m_Prefix + "SYSTEM")
+				: m_pParameters->Get_Parameter(m_Prefix + "GRID_SYSTEM")->Get_Parent();
+
+			if( pParameter->asGrid_System() )
+			{
+				System.Assign(*pParameter->asGrid_System());
 			}
 		}
-
-		m_pGrid->Add_Grid(pSystem, Identifier, Name, _TL(""), SG_UI_Get_Window_Main()
-			? (bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT)
-			: (bOptional ? PARAMETER_INPUT_OPTIONAL  : PARAMETER_INPUT ), false
-		);
 	}
 
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Add_Parameters_Grid(CSG_Parameters *pParameters, bool bAddDefaultGrid)
-{
-	if( pParameters == NULL )
-	{
-		return( false );
-	}
-
-	m_pGrid	= pParameters;
-
-	if( bAddDefaultGrid )
-	{
-		pParameters->Add_Grid(
-			NULL	, "GRID"	, _TL("Grid")		, _TL(""), SG_UI_Get_Window_Main() ? PARAMETER_OUTPUT : PARAMETER_INPUT_OPTIONAL, false
-		);
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(TSG_Data_Type Type)
-{
-	return( Get_Grid(SG_T("GRID"), Type) );
+	return( System );
 }
 
 //---------------------------------------------------------
 CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TSG_Data_Type Type)
 {
-	CSG_Parameter	*pParameter	= m_pGrid && Identifier.Length() > 0 ? m_pGrid->Get_Parameter(Identifier) : NULL;
-
-	if( !pParameter || !pParameter->Get_Parent()->asGrid_System()->is_Valid() )
+	if( !m_pParameters )
 	{
 		return( NULL );
 	}
 
-	CSG_Grid	*pGrid	= pParameter->asGrid();
+	CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(Identifier);
 
-	if( (pGrid == DATAOBJECT_NOTSET && !pParameter->is_Optional()) || pGrid == DATAOBJECT_CREATE )
+	if( !pParameter )
 	{
-		pParameter->Set_Value(pGrid	= SG_Create_Grid(*pParameter->Get_Parent()->asGrid_System(), Type));
+		return( NULL );
+	}
+
+	CSG_Grid_System	System(Get_System());
+
+	if( !System.is_Valid() )
+	{
+		return( NULL );
+	}
+
+	CSG_Grid	*pGrid	= NULL;
+
+	if( m_pParameters->Get_Parameter(m_Prefix + "TARGET")->asInt() == 0 )
+	{
+		if( m_pParameters->Get_Parameter(Identifier + "_CREATE") == NULL
+		||  m_pParameters->Get_Parameter(Identifier + "_CREATE")->asBool() )
+		{
+			pGrid	= SG_Create_Grid(System, Type);
+		}
+	}
+	else
+	{
+		pGrid	= pParameter->asGrid();
+
+		if( (pGrid == DATAOBJECT_NOTSET && !pParameter->is_Optional()) || pGrid == DATAOBJECT_CREATE )
+		{
+			pGrid	= SG_Create_Grid(System, Type);
+		}
+	}
+
+	if( pGrid && pGrid != pParameter->asGrid() )
+	{
+		pParameter->Set_Value(pGrid);
 
 		if( pParameter->Get_Manager() )
 		{
@@ -1109,37 +1110,10 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 	return( pGrid );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Add_Parameters_System(CSG_Parameters *pParameters)
+CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(TSG_Data_Type Type)
 {
-	if( pParameters == NULL )
-	{
-		return( false );
-	}
-
-	m_pSystem	= pParameters;
-
-	m_pSystem->Add_Grid_System(NULL, "SYSTEM", _TL("Grid System"), _TL(""));
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Get_System(CSG_Grid_System &System)
-{
-	if( m_pSystem && m_pSystem->Get_Parameter("SYSTEM") && m_pSystem->Get_Parameter("SYSTEM")->asGrid_System() )
-	{
-		System.Assign(*m_pSystem->Get_Parameter("SYSTEM")->asGrid_System());
-
-		return( System.is_Valid() );
-	}
-
-	return( false );
+	return( Get_Grid(m_Prefix + "TARGET_GRID", Type) );
 }
 
 

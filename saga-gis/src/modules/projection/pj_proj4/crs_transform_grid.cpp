@@ -81,7 +81,7 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 		: _TL("Coordinate Transformation (Grid)")
 	);
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Coordinate transformation for grids.\n"
@@ -90,6 +90,8 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
+	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
+
 	if( m_bList )
 	{
 		pNode	= Parameters.Add_Grid_List(
@@ -103,9 +105,6 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
-
-		m_Grid_Target.Add_Parameters_User  (Add_Parameters("GET_USER"  , _TL("User Defined Grid System"), _TL("")), false);
-		m_Grid_Target.Add_Parameters_System(Add_Parameters("GET_SYSTEM", _TL("Select Grid System")      , _TL("")));
 	}
 
 	//-----------------------------------------------------
@@ -117,19 +116,11 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 			PARAMETER_INPUT
 		);
 
-		m_Grid_Target.Add_Parameters_User  (Add_Parameters("GET_USER"  , _TL("User Defined Grid"), _TL("")));
-		m_Grid_Target.Add_Parameters_Grid  (Add_Parameters("GET_GRID"  , _TL("Select Grid")      , _TL("")));
+		m_Grid_Target.Add_Grid("TARGET", _TL("Target"), false);
 	}
 
-	//-----------------------------------------------------
-	Parameters.Add_Value(
-		pNode	, "CREATE_XY"	, _TL("Create X/Y Grids"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Grid_Output(NULL, "OUT_X", _TL("X Coordinates"), _TL(""));
-	Parameters.Add_Grid_Output(NULL, "OUT_Y", _TL("Y Coordinates"), _TL(""));
+	m_Grid_Target.Add_Grid("OUT_X", _TL("X Coordinates"), true);
+	m_Grid_Target.Add_Grid("OUT_Y", _TL("Y Coordinates"), true);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
@@ -151,29 +142,10 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		pNode	, "TARGET_TYPE"	, _TL("Target"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("user defined grid system"),
-			_TL("existing grid system"),
-			_TL("points")
-		), 0
-	);
-
 	Parameters.Add_Value(
 		pNode	, "TARGET_AREA"	, _TL("Use Target Area Polygon"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
-	);
-
-	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("POINTS", _TL("Points"), _TL(""));
-
-	pParameters->Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 }
 
@@ -187,7 +159,15 @@ int CCRS_Transform_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 {
 	CCRS_Transform::On_Parameter_Changed(pParameters, pParameter);
 
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CCRS_Transform_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	CCRS_Transform::On_Parameters_Enable(pParameters, pParameter);
+
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -267,40 +247,12 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 {
-	if( pGrid->Get_Projection().is_Okay() && m_Projector.Set_Source(pGrid->Get_Projection()) )
+	if( pGrid->Get_Projection().is_Okay() && m_Projector.Set_Source(pGrid->Get_Projection())
+	&&  Get_Target_System(pGrid->Get_System(), true) )
 	{
 		TSG_Data_Type	Type	= m_Interpolation == 0 || Parameters("KEEP_TYPE")->asBool() ? pGrid->Get_Type() : SG_DATATYPE_Float;
 
-		switch( Parameters("TARGET_TYPE")->asInt() )
-		{
-		case 0:	// create user defined grid...
-			if( Get_Target_System(pGrid->Get_System(), true) )
-			{
-				return( Transform(pGrid, m_Grid_Target.Get_User(Type)) );
-			}
-			break;
-
-		case 1:	// select existing grid system...
-			if( Dlg_Parameters("GET_GRID") )
-			{
-				return( Transform(pGrid, m_Grid_Target.Get_Grid(Type)) );
-			}
-			break;
-
-		case 2:	// points as target...
-			if( Dlg_Parameters("POINTS") )
-			{
-				CSG_Shapes	*pPoints	= Get_Parameters("POINTS")->Get_Parameter("POINTS")->asShapes();
-
-				if( pPoints == DATAOBJECT_NOTSET || pPoints == DATAOBJECT_CREATE )
-				{
-					Get_Parameters("POINTS")->Get_Parameter("POINTS")->Set_Value(pPoints = SG_Create_Shapes(SHAPE_TYPE_Point));
-				}
-
-				return( Transform(pGrid, pPoints) );
-			}
-			break;
-		}
+		return( Transform(pGrid, m_Grid_Target.Get_Grid("TARGET", Type)) );
 	}
 
 	return( false );
@@ -309,40 +261,12 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pGrids)
 {
-	if( pGrids->Get_Count() > 0 && m_Projector.Set_Source(pGrids->asGrid(0)->Get_Projection()) )
+	if( pGrids->Get_Count() > 0 && m_Projector.Set_Source(pGrids->asGrid(0)->Get_Projection())
+	&&  Get_Target_System(pGrids->asGrid(0)->Get_System(), true) )
 	{
-		CSG_Grid_System	System;
+		CSG_Grid_System	System(m_Grid_Target.Get_System());
 
-		switch( Parameters("TARGET_TYPE")->asInt() )
-		{
-		case 0:	// create user defined grid system...
-			if( Get_Target_System(pGrids->asGrid(0)->Get_System(), true) && m_Grid_Target.Get_System_User(System) )
-			{
-				return( Transform(pGrids, Parameters("TARGET")->asGridList(), System) );
-			}
-			break;
-
-		case 1:	// select existing grid system...
-			if( Dlg_Parameters("GET_SYSTEM") && m_Grid_Target.Get_System(System) )
-			{
-				return( Transform(pGrids, Parameters("TARGET")->asGridList(), System) );
-			}
-			break;
-
-		case 2:	// points as target...
-			if( Dlg_Parameters("POINTS") )
-			{
-				CSG_Shapes	*pPoints	= Get_Parameters("POINTS")->Get_Parameter("POINTS")->asShapes();
-
-				if( pPoints == DATAOBJECT_NOTSET || pPoints == DATAOBJECT_CREATE )
-				{
-					Get_Parameters("POINTS")->Get_Parameter("POINTS")->Set_Value(pPoints = SG_Create_Shapes());
-				}
-
-				return( Transform(pGrids, pPoints) );
-			}
-			break;
-		}
+		return( Transform(pGrids, Parameters("TARGET")->asGridList(), System) );
 	}
 
 	return( false );
@@ -364,20 +288,17 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	//-----------------------------------------------------
 	CSG_Grid	*pX, *pY;
 
-	if( !Parameters("CREATE_XY")->asBool() )
+	if( (pX = m_Grid_Target.Get_Grid("OUT_X")) != NULL )
 	{
-		pX	= pY	= NULL;
-	}
-	else
-	{
-		Parameters("OUT_X")->Set_Value(pX	= SG_Create_Grid(pTarget->Get_System(), SG_DATATYPE_Float));
 		pX->Assign_NoData();
-		pX->Set_Name(_TL("X-Coordinate"));
+		pX->Set_Name(_TL("X Coordinates"));
 		pX->Get_Projection().Create(m_Projector.Get_Target());
+	}
 
-		Parameters("OUT_Y")->Set_Value(pY	= SG_Create_Grid(pTarget->Get_System(), SG_DATATYPE_Float));
+	if( (pY = m_Grid_Target.Get_Grid("OUT_Y")) != NULL )
+	{
 		pY->Assign_NoData();
-		pY->Set_Name(_TL("Y-Coordinate"));
+		pY->Set_Name(_TL("Y Coordinates"));
 		pY->Get_Projection().Create(m_Projector.Get_Target());
 	}
 
@@ -439,20 +360,17 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 	//-----------------------------------------------------
 	CSG_Grid	*pX, *pY;
 
-	if( !Parameters("CREATE_XY")->asBool() )
+	if( (pX = m_Grid_Target.Get_Grid("OUT_X")) != NULL )
 	{
-		pX	= pY	= NULL;
-	}
-	else
-	{
-		Parameters("OUT_X")->Set_Value(pX	= SG_Create_Grid(Target_System, SG_DATATYPE_Float));
 		pX->Assign_NoData();
-		pX->Set_Name(_TL("X-Coordinate"));
+		pX->Set_Name(_TL("X Coordinates"));
 		pX->Get_Projection().Create(m_Projector.Get_Target());
+	}
 
-		Parameters("OUT_Y")->Set_Value(pY	= SG_Create_Grid(Target_System, SG_DATATYPE_Float));
+	if( (pY = m_Grid_Target.Get_Grid("OUT_Y")) != NULL )
+	{
 		pY->Assign_NoData();
-		pY->Set_Name(_TL("Y-Coordinate"));
+		pY->Set_Name(_TL("Y Coordinates"));
 		pY->Get_Projection().Create(m_Projector.Get_Target());
 	}
 
@@ -717,8 +635,8 @@ bool CCRS_Transform_Grid::Get_Target_System(const CSG_Grid_System &System, bool 
 	}
 
 	return(	is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax
-		&&	m_Grid_Target.Init_User(Extent, System.Get_NY())
-		&&	Dlg_Parameters("GET_USER")
+		&&	m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, System.Get_NY())
+		&&  Dlg_Parameters("SYSTEM") && m_Grid_Target.Get_System().is_Valid()
 	);
 }
 

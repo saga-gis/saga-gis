@@ -84,18 +84,7 @@ CInterpolation::CInterpolation(void)
 		_TL("")
 	);
 
-	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+	m_Grid_Target.Create(&Parameters);
 }
 
 
@@ -108,7 +97,18 @@ CInterpolation::CInterpolation(void)
 //---------------------------------------------------------
 int CInterpolation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+	}
+
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CInterpolation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -121,34 +121,14 @@ int CInterpolation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CInterpolation::On_Execute(void)
 {
+	//-----------------------------------------------------
+	m_pShapes	= Parameters("SHAPES")->asShapes();
+	m_zField	= Parameters("FIELD" )->asInt();
+
+	//-----------------------------------------------------
 	bool	bResult	= false;
 
-	//-----------------------------------------------------
-	m_pShapes	= Parameters("SHAPES")	->asShapes();
-	m_zField	= Parameters("FIELD")	->asInt();
-
-	//-----------------------------------------------------
-	m_pGrid		= NULL;
-
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_pShapes->Get_Extent()) && Dlg_Parameters("USER") )
-		{
-			m_pGrid	= m_Grid_Target.Get_User();
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			m_pGrid	= m_Grid_Target.Get_Grid();
-		}
-		break;
-	}
-
-	//-----------------------------------------------------
-	if( m_pGrid )
+	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
 	{
 		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("FIELD")->asString(), Get_Name().c_str()));
 

@@ -181,7 +181,7 @@ int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParame
 		pParameters->Get_Parameter("WEIGHT_BANDWIDTH" )->Set_Enabled(pParameter->asInt() >= 2);	// exponential or gaussian
 	}
 
-	return( 1 );
+	return( CInterpolation::On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 

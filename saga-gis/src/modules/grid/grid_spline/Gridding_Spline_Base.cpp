@@ -99,17 +99,7 @@ CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 	}
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+	m_Grid_Target.Create(&Parameters);
 }
 
 
@@ -122,7 +112,18 @@ CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 //---------------------------------------------------------
 int CGridding_Spline_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+	}
+
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CGridding_Spline_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -154,33 +155,21 @@ bool CGridding_Spline_Base::Initialise(CSG_Points_Z &Points, bool bInGridOnly)
 //---------------------------------------------------------
 bool CGridding_Spline_Base::_Get_Grid(void)
 {
-	CSG_Grid	*pGrid		=  m_bGridPoints ? Parameters("GRIDPOINTS")->asGrid  () : NULL;
-	CSG_Shapes	*pShapes	= !m_bGridPoints ? Parameters("SHAPES")    ->asShapes() : NULL;
-
 	//-----------------------------------------------------
-	m_pGrid		= NULL;
-
-	switch( Parameters("TARGET")->asInt() )
+	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
 	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_bGridPoints ? pGrid->Get_Extent() : pShapes->Get_Extent()) && Dlg_Parameters("USER") )
+		if( m_bGridPoints )
 		{
-			m_pGrid	= m_Grid_Target.Get_User();
+			m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("GRIDPOINTS")->asGrid()->Get_Name(), Get_Name().c_str()));
 		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
+		else
 		{
-			m_pGrid	= m_Grid_Target.Get_Grid();
+			m_pGrid->Set_Name(CSG_String::Format(SG_T("%s - %s [%s]"),
+				Parameters("SHAPES")->asShapes()->Get_Name(),
+				Parameters("FIELD" )->asString(), Get_Name().c_str())
+			);
 		}
-		break;
-	}
 
-	//-------------------------------------------------
-	if( m_pGrid )
-	{
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_bGridPoints ? pGrid->Get_Name() : Parameters("FIELD")->asString(), Get_Name().c_str()));
 		m_pGrid->Assign_NoData();
 	}
 

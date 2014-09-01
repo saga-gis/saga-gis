@@ -83,7 +83,7 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 		m_bInputList ? _TL("List of Grids") : _TL("Grid")
 	));
 
-	Set_Author		(SG_T("O. Conrad (c) 2004-8"));
+	Set_Author		("O. Conrad (c) 2004-8");
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Grids.\n"
@@ -94,6 +94,8 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 
 
 	//-----------------------------------------------------
+	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
+
 	if( m_bInputList )
 	{
 		Parameters.Add_Grid_List(
@@ -109,14 +111,6 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
-
-		m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")), false);
-
-		pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
-
-		pParameters->Add_Grid_System(
-			NULL, "SYSTEM"		, _TL("System")		, _TL("")
-		);
 	}
 	else
 	{
@@ -127,33 +121,11 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 			PARAMETER_INPUT
 		);
 
-		m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
-		m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
+		m_Grid_Target.Add_Grid("TARGET", _TL("Target"), false);
 	}
 
-	Parameters.Add_Shapes_Output(
-		NULL,
-		"SHAPES"		, _TL("Shapes"),
-		_TL("")
-	);
-
-
-	//-----------------------------------------------------
-	Parameters.Add_Value(
-		Parameters("TARGET_NODE")	, "CREATE_XY"		, _TL("Create X/Y Grids"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_X"	, _TL("X Coordinates"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_Y"	, _TL("Y Coordinates"),
-		_TL("")
-	);
+	m_Grid_Target.Add_Grid("OUT_X", _TL("X Coordinates"), true);
+	m_Grid_Target.Add_Grid("OUT_Y", _TL("Y Coordinates"), true);
 
 
 	//-----------------------------------------------------
@@ -167,26 +139,6 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
 		), 4
-	);
-
-
-	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		Parameters("TARGET_NODE")	, "TARGET_TYPE"		, _TL("Target"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("user defined"),
-			_TL("grid"),
-			_TL("shapes")
-		), 0
-	);
-
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
-
-	pParameters->Add_Shapes(
-		NULL, "SHAPES"		, _TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
 	);
 }
 
@@ -202,7 +154,15 @@ int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	CPROJ4_Base::On_Parameter_Changed(pParameters, pParameter);
 
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CPROJ4_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	CPROJ4_Base::On_Parameters_Enable(pParameters, pParameter);
+
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -215,10 +175,7 @@ int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 bool CPROJ4_Grid::On_Execute_Conversion(void)
 {
-	TSG_Data_Type	Type;
-	TSG_Rect		Extent;
-	CSG_Grid		*pSource, *pGrid;
-	CSG_Shapes		*pShapes;
+	TSG_Rect	Extent;
 
 	m_Interpolation	= Parameters("INTERPOLATION")->asInt();
 
@@ -233,59 +190,26 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 			return( false );
 		}
 
-		pSource			= pSources->asGrid(0);
-		pGrid			= NULL;
-		pShapes			= NULL;
-		Type			= m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
-
-		switch( Parameters("TARGET_TYPE")->asInt() )
+		if( Get_Target_Extent(pSources->asGrid(0), Extent) )
 		{
-		case 0:	// create new user defined grid...
-			if( Get_Target_Extent(pSource, Extent) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
-			{
-				pGrid	= m_Grid_Target.Get_User(Type);
-			}
-			break;
-
-		case 1:	// select grid system...
-			if( Dlg_Parameters("<") && Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()->is_Valid() )
-			{
-				pGrid	= SG_Create_Grid(*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), Type);
-			}
-			break;
-
-		case 2:	// shapes...
-			if( Dlg_Parameters("GET_SHAPES") )
-			{
-				pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
-
-				if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
-				{
-					Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
-				}
-			}
-			break;
+			m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSources->asGrid(0)->Get_NY());
 		}
+
+		if( !Dlg_Parameters("SYSTEM") )
+		{
+			return( false );
+		}
+
+		CSG_Grid_System	System(m_Grid_Target.Get_System());
 
 		//-------------------------------------------------
-		if( pShapes )
-		{
-			Parameters("SHAPES")->Set_Value(pShapes);
-
-			return( Set_Shapes(pSources, pShapes) );
-		}
-
-		if( pGrid )
+		if( System.is_Valid() )
 		{
 			pTargets->Del_Items();
 
-			pTargets->Add_Item(pGrid);
-
-			Init_Target(pSource, pGrid);
-
-			for(int i=1; i<pSources->Get_Count(); i++)
+			for(int i=0; i<pSources->Get_Count(); i++)
 			{
-				pTargets->Add_Item(SG_Create_Grid(pGrid->Get_System(), m_Interpolation == 0 ? pSources->asGrid(i)->Get_Type() : SG_DATATYPE_Float));
+				pTargets->Add_Item(SG_Create_Grid(System, m_Interpolation == 0 ? pSources->asGrid(i)->Get_Type() : SG_DATATYPE_Float));
 
 				Init_Target(pSources->asGrid(i), pTargets->asGrid(i));
 			}
@@ -297,51 +221,24 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 	//-----------------------------------------------------
 	else
 	{
-		pSource			= Parameters("SOURCE")->asGrid();
-		pGrid			= NULL;
-		pShapes			= NULL;
-		Type			= m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
+		CSG_Grid	*pSource	= Parameters("SOURCE")->asGrid();
 
-		switch( Parameters("TARGET_TYPE")->asInt() )
+		if( Get_Target_Extent(pSource, Extent) )
 		{
-		case 0:	// create new user defined grid...
-			if( Get_Target_Extent(pSource, Extent) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
-			{
-				pGrid	= m_Grid_Target.Get_User(Type);
-			}
-			break;
-
-		case 1:	// select grid...
-			if( Dlg_Parameters("GET_GRID") )
-			{
-				pGrid	= m_Grid_Target.Get_Grid(Type);
-			}
-			break;
-
-		case 2:	// shapes...
-			if( Dlg_Parameters("GET_SHAPES") )
-			{
-				pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
-
-				if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
-				{
-					Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
-				}
-			}
-			break;
+			m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSource->Get_NY());
 		}
+
+		if( !Dlg_Parameters("SYSTEM") )
+		{
+			return( false );
+		}
+
+		CSG_Grid	*pTarget	= m_Grid_Target.Get_Grid(m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float);
 
 		//-------------------------------------------------
-		if( pShapes )
+		if( pTarget )
 		{
-			Parameters("SHAPES")->Set_Value(pShapes);
-
-			return( Set_Shapes(pSource, pShapes) );
-		}
-
-		if( pGrid )
-		{
-			return( Set_Grid(pSource, pGrid) );
+			return( Set_Grid(pSource, pTarget) );
 		}
 	}
 
@@ -547,22 +444,21 @@ bool CPROJ4_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 //---------------------------------------------------------
 bool CPROJ4_Grid::Init_XY(const CSG_Grid_System &System, CSG_Grid **ppX, CSG_Grid **ppY)
 {
-	if( Parameters("CREATE_XY")->asBool() )
-	{
-		Parameters("OUT_X")->Set_Value(*ppX	= SG_Create_Grid(System, SG_DATATYPE_Float));
-		(*ppX)->Assign_NoData();
-		(*ppX)->Set_Name(_TL("X-Coordinate"));
-
-		Parameters("OUT_Y")->Set_Value(*ppY	= SG_Create_Grid(System, SG_DATATYPE_Float));
-		(*ppY)->Assign_NoData();
-		(*ppY)->Set_Name(_TL("Y-Coordinate"));
-
-		return( true );
-	}
-
 	*ppX	= *ppY	= NULL;
 
-	return( false );
+	if( (*ppX	= m_Grid_Target.Get_Grid("OUT_X", SG_DATATYPE_Float)) != NULL )
+	{
+		(*ppX)->Assign_NoData();
+		(*ppX)->Set_Name(_TL("X Coordinates"));
+	}
+
+	if( (*ppY	= m_Grid_Target.Get_Grid("OUT_Y", SG_DATATYPE_Float)) != NULL )
+	{
+		(*ppY)->Assign_NoData();
+		(*ppY)->Set_Name(_TL("Y Coordinates"));
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------

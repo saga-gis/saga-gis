@@ -84,17 +84,7 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+	m_Grid_Target.Create(&Parameters);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
@@ -145,7 +135,7 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 //---------------------------------------------------------
 int CGrid_Random_Field::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 //---------------------------------------------------------
@@ -157,7 +147,7 @@ int CGrid_Random_Field::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 		pParameters->Get_Parameter("NODE_GAUSS"  )->Set_Enabled(pParameter->asInt() == 1);
 	}
 
-	return( 0 );
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -169,24 +159,7 @@ int CGrid_Random_Field::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 bool CGrid_Random_Field::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= NULL;
-
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(0.0, 0.0, 1.0, 100, 100) && Dlg_Parameters("USER") )
-		{
-			pGrid	= m_Grid_Target.Get_User();
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			pGrid	= m_Grid_Target.Get_Grid();
-		}
-		break;
-	}
+	CSG_Grid	*pGrid	= m_Grid_Target.Get_Grid();
 
 	if( !pGrid )
 	{

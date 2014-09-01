@@ -101,21 +101,11 @@ CGW_Regression::CGW_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grids"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
+	m_Grid_Target.Create(&Parameters, false);
 
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")), false);
-
-	m_Grid_Target.Add_Grid_Parameter(SG_T("QUALITY")   , _TL("Quality")  , false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("INTERCEPT") , _TL("Intercept"), false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("SLOPE")     , _TL("Slope")    , false);
+	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);
+	m_Grid_Target.Add_Grid("SLOPE"    , _TL("Slope"    ), false);
+	m_Grid_Target.Add_Grid("QUALITY"  , _TL("Quality"  ), false);
 
 	//-----------------------------------------------------
 	Parameters.Add_Parameters(
@@ -188,26 +178,31 @@ CGW_Regression::CGW_Regression(void)
 //---------------------------------------------------------
 int CGW_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+	}
+
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 //---------------------------------------------------------
 int CGW_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_RANGE") )
 	{
-		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
+		pParameters->Set_Enabled("SEARCH_RADIUS"    , pParameter->asInt() == 0);	// local
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_POINTS_ALL") )
 	{
-		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
-		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
+		pParameters->Set_Enabled("SEARCH_POINTS_MAX", pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Set_Enabled("SEARCH_DIRECTION" , pParameter->asInt() == 0);	// maximum number of points per quadrant
 	}
 
 	m_Weighting.Enable_Parameters(pParameters);
 
-	return( 1 );
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -241,32 +236,11 @@ bool CGW_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pIntercept	= NULL;
-	m_pSlope		= NULL;
-	m_pQuality		= NULL;
+	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
+	m_pSlope		= m_Grid_Target.Get_Grid("SLOPE"    );
+	m_pIntercept	= m_Grid_Target.Get_Grid("INTERCEPT");
 
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
-		{
-			m_pIntercept	= m_Grid_Target.Get_User(SG_T("INTERCEPT"));
-			m_pSlope		= m_Grid_Target.Get_User(SG_T("SLOPE"));
-			m_pQuality		= m_Grid_Target.Get_User(SG_T("QUALITY"));
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			m_pIntercept	= m_Grid_Target.Get_Grid(SG_T("INTERCEPT"));
-			m_pSlope		= m_Grid_Target.Get_Grid(SG_T("SLOPE"));
-			m_pQuality		= m_Grid_Target.Get_Grid(SG_T("QUALITY"));
-		}
-		break;
-	}
-
-	if( m_pIntercept == NULL )
+	if( !m_pIntercept || !m_pSlope || !m_pQuality )
 	{
 		m_Search.Destroy();
 

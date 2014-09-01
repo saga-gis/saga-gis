@@ -139,24 +139,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET_TYPE"	, _TL("Target"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("user defined"),
-			_TL("grid or grid system"),
-			_TL("points from grid nodes")
-		), 0
-	);
-
-	//-----------------------------------------------------
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid"), _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid"      ), _TL("")));
-
-	//-----------------------------------------------------
-	Add_Parameters("GET_POINTS", _TL("Grid Nodes as Points"), _TL(""))->Add_Shapes(
-		NULL, "POINTS", _TL("Grid Nodes"), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point
-	);
+	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
 }
 
 
@@ -169,7 +152,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 //---------------------------------------------------------
 int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 //---------------------------------------------------------
@@ -177,21 +160,16 @@ int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_TARGET") )
 	{
-		pParameters->Get_Parameter("XFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
-		pParameters->Get_Parameter("YFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
+		pParameters->Set_Enabled("XFIELD", pParameter->asShapes() == NULL);
+		pParameters->Set_Enabled("YFIELD", pParameter->asShapes() == NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
-		pParameters->Get_Parameter("ORDER")->Set_Enabled(pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
+		pParameters->Set_Enabled("ORDER", pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET_TYPE") )
-	{
-		pParameters->Get_Parameter("INTERPOLATION")->Set_Enabled(pParameter->asInt() != 2);	// don't show for points
-	}
-
-	return( 1 );
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -247,57 +225,24 @@ bool CGeoref_Grid::On_Execute(void)
 //---------------------------------------------------------
 bool CGeoref_Grid::Get_Conversion(void)
 {
-	int				Interpolation;
-	TSG_Data_Type	Type;
-	CSG_Rect		Extent;
-	CSG_Grid		*pSource, *pReferenced;
-	CSG_Shapes		*pPoints;
+	//-----------------------------------------------------
+	CSG_Rect	Extent;
+
+	CSG_Grid	*pSource	= Parameters("GRID")->asGrid();
 
 	//-----------------------------------------------------
-	pSource			= Parameters("GRID")->asGrid();
-
-	pReferenced		= NULL;
-	pPoints			= NULL;
-
-	Interpolation	= Parameters("INTERPOLATION")->asInt();
-	Type			= Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
-
-	//-----------------------------------------------------
-	switch( Parameters("TARGET_TYPE")->asInt() )
+	if( !Get_Target_Extent(Extent, true)
+	||  !m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSource->Get_NY())
+	||	!Dlg_Parameters("SYSTEM") )
 	{
-	case 0:	// create new user defined grid...
-		if( Get_Target_Extent(Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
-		{
-			pReferenced	= m_Grid_Target.Get_User(Type);
-		}
-		break;
-
-	case 1:	// select grid...
-		if( Dlg_Parameters("GET_GRID") )
-		{
-			pReferenced	= m_Grid_Target.Get_Grid(Type);
-		}
-		break;
-
-	case 2:	// shapes...
-		if( Dlg_Parameters("GET_POINTS") )
-		{
-			pPoints	= Get_Parameters("GET_POINTS")->Get_Parameter("POINTS")->asShapes();
-
-			if( pPoints == DATAOBJECT_NOTSET || pPoints == DATAOBJECT_CREATE )
-			{
-				Get_Parameters("GET_POINTS")->Get_Parameter("POINTS")->Set_Value(pPoints = SG_Create_Shapes(SHAPE_TYPE_Point));
-			}
-		}
-		break;
+		return( false );
 	}
 
-	//-----------------------------------------------------
-	if( pPoints )
-	{
-		return( Set_Points(pSource, pPoints) );
-	}
+	int	Interpolation	= Parameters("INTERPOLATION")->asInt();
 
+	CSG_Grid	*pReferenced	= m_Grid_Target.Get_Grid(Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float);
+
+	//-----------------------------------------------------
 	if( pReferenced )
 	{
 		return( Set_Grid(pSource, pReferenced, Interpolation) );

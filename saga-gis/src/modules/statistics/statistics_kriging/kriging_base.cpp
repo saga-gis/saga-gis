@@ -92,15 +92,6 @@ CKriging_Base::CKriging_Base(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
-
-	Parameters.Add_Choice(
 		NULL	, "TQUALITY"	, _TL("Type of Quality Measure"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
@@ -159,23 +150,8 @@ CKriging_Base::CKriging_Base(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	pParameters = Add_Parameters("USER", _TL("User Defined Grid")	, _TL(""));
-
-	pParameters->Add_Value(
-		NULL	, "BVARIANCE"	, _TL("Create Quality Grid"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	m_Grid_Target.Add_Parameters_User(pParameters);
-
-	//-----------------------------------------------------
-	pParameters = Add_Parameters("GRID", _TL("Choose Grid")			, _TL(""));
-
-	m_Grid_Target.Add_Parameters_Grid(pParameters);
-
-	//-----------------------------------------------------
-	m_Grid_Target.Add_Grid_Parameter(SG_T("VARIANCE"), _TL("Quality Measure"), true);
+	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Add_Grid("VARIANCE", _TL("Quality Measure"), true);
 }
 
 
@@ -188,29 +164,34 @@ CKriging_Base::CKriging_Base(void)
 //---------------------------------------------------------
 int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+	}
+
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 //---------------------------------------------------------
 int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_RANGE") )
 	{
-		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
+		pParameters->Set_Enabled("SEARCH_RADIUS"    , pParameter->asInt() == 0);	// local
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_POINTS_ALL") )
 	{
-		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
-		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
+		pParameters->Set_Enabled("SEARCH_POINTS_MAX", pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Set_Enabled("SEARCH_DIRECTION" , pParameter->asInt() == 0);	// maximum number of points per quadrant
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BLOCK")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BLOCK") )
 	{
-		pParameters->Get_Parameter("DBLOCK")		->Set_Enabled(pParameter->asBool());		// block size
+		pParameters->Set_Enabled("DBLOCK"           , pParameter->asBool()    );	// block size
 	}
 
-	return( 1 );
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -317,47 +298,19 @@ bool CKriging_Base::On_Execute(void)
 //---------------------------------------------------------
 bool CKriging_Base::_Initialise_Grids(void)
 {
-	m_pGrid		= NULL;
-	m_pVariance	= NULL;
-
-	//-----------------------------------------------------
-	switch( Parameters("TARGET")->asInt() )
+	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
 	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str()));
+
+		if( (m_pVariance = m_Grid_Target.Get_Grid("VARIANCE")) != NULL )
 		{
-			m_pGrid		= m_Grid_Target.Get_User();
-
-			if( Get_Parameters("USER")->Get_Parameter("BVARIANCE")->asBool() )
-			{
-				m_pVariance	= m_Grid_Target.Get_User(SG_T("VARIANCE"));
-			}
+			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s [%s %s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
 		}
-		break;
 
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			m_pGrid		= m_Grid_Target.Get_Grid();
-			m_pVariance	= m_Grid_Target.Get_Grid(SG_T("VARIANCE"));
-		}
-		break;
+		return( true );
 	}
 
-	if( !m_pGrid )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str()));
-
-	if( m_pVariance )
-	{
-		m_pVariance->Set_Name(CSG_String::Format(SG_T("%s [%s %s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
-	}
-
-	return( true );
+	return( false );
 }
 
 

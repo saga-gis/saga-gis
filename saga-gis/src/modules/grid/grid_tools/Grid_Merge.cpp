@@ -148,17 +148,7 @@ CGrid_Merge::CGrid_Merge(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("existing grid or grid system")
-		), 0
-	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+	m_Grid_Target.Create(&Parameters);
 }
 
 
@@ -171,7 +161,28 @@ CGrid_Merge::CGrid_Merge(void)
 //---------------------------------------------------------
 int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") && pParameter->asGridList()->Get_Count() > 0 )
+	{
+		double		d	= pParameter->asGridList()->asGrid(0)->Get_Cellsize();
+		CSG_Rect	r	= pParameter->asGridList()->asGrid(0)->Get_Extent();
+
+		for(int i=1; i<pParameter->asGridList()->Get_Count(); i++)
+		{
+			if( d > pParameter->asGridList()->asGrid(i)->Get_Cellsize() )
+			{
+				d	= pParameter->asGridList()->asGrid(i)->Get_Cellsize();
+			}
+
+			r.Union(pParameter->asGridList()->asGrid(i)->Get_Extent());
+		}
+
+		int	nx	= 1 + (int)(r.Get_XRange() / d);
+		int	ny	= 1 + (int)(r.Get_YRange() / d);
+
+		m_Grid_Target.Set_User_Defined(pParameters, r.Get_XMin(), r.Get_YMin(), d, nx, ny);
+	}
+
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 //---------------------------------------------------------
@@ -182,7 +193,7 @@ int CGrid_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 		pParameters->Get_Parameter("BLEND_DIST")->Set_Enabled(pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
 
-	return( 1 );
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -344,45 +355,7 @@ bool CGrid_Merge::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		{
-			double		d	= m_pGrids->asGrid(0)->Get_Cellsize();
-			CSG_Rect	r	= m_pGrids->asGrid(0)->Get_Extent();
-
-			for(int i=1; i<m_pGrids->Get_Count(); i++)
-			{
-				if( d > m_pGrids->asGrid(i)->Get_Cellsize() )
-				{
-					d	= m_pGrids->asGrid(i)->Get_Cellsize();
-				}
-
-				r.Union(m_pGrids->asGrid(i)->Get_Extent());
-			}
-
-			int	nx	= 1 + (int)(r.Get_XRange() / d);
-			int	ny	= 1 + (int)(r.Get_YRange() / d);
-
-			if( m_Grid_Target.Init_User(r.Get_XMin(), r.Get_YMin(), d, nx, ny) && Dlg_Parameters("USER") )
-			{
-				m_pMosaic	= m_Grid_Target.Get_User(Type);
-			}
-		}
-		break;
-
-	case 1:	// grid...
-		{
-			if( Dlg_Parameters("GRID") )
-			{
-				m_pMosaic	= m_Grid_Target.Get_Grid(Type);
-			}
-		}
-		break;
-	}
-
-	//-----------------------------------------------------
-	if( m_pMosaic )
+	if( (m_pMosaic = m_Grid_Target.Get_Grid(Type)) != NULL )
 	{
 		m_pMosaic->Set_Name(_TL("Mosaic"));
 

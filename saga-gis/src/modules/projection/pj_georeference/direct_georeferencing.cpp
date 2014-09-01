@@ -241,8 +241,7 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 		), 0
 	);
 
-	m_Grid_Target.Add_Parameters_User  (Add_Parameters("USER"  , _TL("User Defined Grid System"), _TL("")), false);
-	m_Grid_Target.Add_Parameters_System(Add_Parameters("SYSTEM", _TL("Select Grid System")      , _TL("")));
+	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
 }
 
 
@@ -253,7 +252,13 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 //---------------------------------------------------------
 int CDirect_Georeferencing::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CDirect_Georeferencing::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -308,22 +313,19 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 	CSG_Grid_System	System(Cellsize, r);
 
-	switch( Parameters("TARGET_TYPE")->asInt() )
-	{
-	case 0:	// create user defined grid system...
-		if( !m_Grid_Target.Init_User(r, (int)(1 + r.Get_YRange() / Cellsize))
-		||  !Dlg_Parameters("USER"  ) || !m_Grid_Target.Get_System_User(System) )
-		{
-			return( false );
-		}
-		break;
+	m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), r, Get_NX());
+//	m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), r, (int)(1 + r.Get_YRange() / Cellsize));
 
-	case 1:	// select existing grid system...
-		if( !Dlg_Parameters("SYSTEM") || !m_Grid_Target.Get_System(System) )
-		{
-			return( false );
-		}
-		break;
+	if( !Dlg_Parameters("SYSTEM") )
+	{
+		return( false );
+	}
+
+	System	= m_Grid_Target.Get_System();
+
+	if( !System.is_Valid() )
+	{
+		return( false );
 	}
 
 	//-----------------------------------------------------

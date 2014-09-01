@@ -161,34 +161,9 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
+	m_Grid_Target.Create(&Parameters);
 
-	if( SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Value(
-			NULL	, "FITTOCELLS"	, _TL("Fit to Cells"),
-			_TL(""),
-			PARAMETER_TYPE_Bool, true
-		);
-	}
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
-
-	m_Grid_Target.Add_Grid_Parameter(SG_T("COUNT"), _TL("Number of Values"), true);
-
-	Get_Parameters("USER")->Add_Value(
-		NULL	, "BCOUNT"		, _TL("Number of Values"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
+	m_Grid_Target.Add_Grid("COUNT", _TL("Number of Values"), true);
 }
 
 
@@ -201,7 +176,12 @@ CShapes2Grid::CShapes2Grid(void)
 //---------------------------------------------------------
 int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) && pParameter->asShapes() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent()); 
+	}
+
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 //---------------------------------------------------------
@@ -209,22 +189,17 @@ int CShapes2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) )
 	{
-		pParameters->Get_Parameter("LINE_TYPE")->Set_Enabled(pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line);
-		pParameters->Get_Parameter("POLY_TYPE")->Set_Enabled(pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
+		pParameters->Set_Enabled("LINE_TYPE", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line);
+		pParameters->Set_Enabled("POLY_TYPE", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OUTPUT")) )
 	{
-		pParameters->Get_Parameter("FIELD"    )->Set_Enabled(pParameter->asInt() == 2);
-		pParameters->Get_Parameter("MULTIPLE" )->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Set_Enabled("FIELD"    , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("MULTIPLE" , pParameter->asInt() == 2);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TARGET")) && pParameters->Get_Parameter("FITTOCELLS") )
-	{
-		pParameters->Get_Parameter("FITTOCELLS")->Set_Enabled(pParameter->asInt() == 0);
-	}
-
-	return( 1 );
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -259,15 +234,20 @@ TSG_Data_Type CShapes2Grid::Get_Grid_Type(int iType)
 //---------------------------------------------------------
 bool CShapes2Grid::On_Execute(void)
 {
-	int		iField, iType, iShape;
-
 	//-----------------------------------------------------
 	m_pShapes			= Parameters("INPUT"    )->asShapes();
+
 	m_Method_Lines		= Parameters("LINE_TYPE")->asInt();
 	m_Method_Polygon	= Parameters("POLY_TYPE")->asInt();
 	m_Method_Multi		= Parameters("MULTIPLE" )->asInt();
-	iType				= Parameters("GRID_TYPE")->asInt();
-	bool	bFitToCells	= Parameters("FITTOCELLS") ? Parameters("FITTOCELLS")->asBool() : false;
+
+	if( m_pShapes->Get_Type() == SHAPE_TYPE_Polygon && m_Method_Polygon == 1 )	// all cells intersected have to be marked
+	{
+		m_Method_Lines	= 1;	// thick, each cell crossed by polygon boundary will be marked additionally
+	}
+
+	//-----------------------------------------------------
+	int		iField;
 
 	switch( Parameters("OUTPUT")->asInt() )
 	{
@@ -284,34 +264,11 @@ bool CShapes2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pGrid		= NULL;
-	m_pCount	= NULL;
-
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_pShapes->Get_Extent(), 100, bFitToCells) && Dlg_Parameters("USER") )
-		{
-			m_pGrid		= m_Grid_Target.Get_User(Get_Grid_Type(iType));
-			m_pCount	= Get_Parameters("USER")->Get_Parameter("BCOUNT")->asBool() ? m_Grid_Target.Get_User(SG_T("COUNT")) : NULL;
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			m_pGrid		= m_Grid_Target.Get_Grid(Get_Grid_Type(iType));
-			m_pCount	= m_Grid_Target.Get_Grid(SG_T("COUNT"));
-		}
-		break;
-	}
-
-	if( m_pGrid == NULL )
+	if( (m_pGrid = m_Grid_Target.Get_Grid(Get_Grid_Type(Parameters("GRID_TYPE")->asInt()))) == NULL )
 	{
 		return( false );
 	}
 
-	//-------------------------------------------------
 	if( iField < 0 )
 	{
 		m_pGrid->Set_NoData_Value(0.0);
@@ -320,9 +277,12 @@ bool CShapes2Grid::On_Execute(void)
 	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), iField < 0 ? _TL("ID") : m_pShapes->Get_Field_Name(iField)));
 	m_pGrid->Assign_NoData();
 
+	//-------------------------------------------------
+	m_pCount	= m_Grid_Target.Get_Grid("COUNT", m_pShapes->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word);
+
 	if( m_pCount == NULL )
 	{
-		m_Count.Create(m_pGrid->Get_System(), SG_DATATYPE_Int);
+		m_Count.Create(m_pGrid->Get_System(), SG_DATATYPE_Word);
 
 		m_pCount	= &m_Count;
 	}
@@ -332,13 +292,7 @@ bool CShapes2Grid::On_Execute(void)
 	m_pCount->Assign(0.0);
 
 	//-----------------------------------------------------
-	if( m_pShapes->Get_Type() == SHAPE_TYPE_Polygon && m_Method_Polygon == 1 )	// all cells intersected have to be marked
-	{
-		m_Method_Lines	= 1;	// thick, each cell crossed by polygon boundary will be marked additionally
-	}
-
-	//-----------------------------------------------------
-	for(iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 

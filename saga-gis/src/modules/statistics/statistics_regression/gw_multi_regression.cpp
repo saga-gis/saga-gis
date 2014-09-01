@@ -112,20 +112,16 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grids"),
+	m_Grid_Target.Create(&Parameters, false);
+
+	m_Grid_Target.Add_Grid("QUALITY"  , _TL("Quality"  ), false);
+	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);
+
+	Parameters.Add_Grid_List(
+		NULL	, "SLOPES"		, _TL("Slopes"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
+		PARAMETER_OUTPUT
 	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")), false);
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")), false);
-
-	m_Grid_Target.Add_Grid_Parameter(SG_T("QUALITY")   , _TL("Quality")  , false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("INTERCEPT") , _TL("Intercept"), false);
 
 	//-----------------------------------------------------
 	Parameters.Add_Parameters(
@@ -202,12 +198,7 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 //---------------------------------------------------------
 int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( m_Grid_Target.On_User_Changed(pParameters, pParameter) )
-	{
-		return( true );
-	}
-
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POINTS")) )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
 		CSG_Shapes		*pPoints		= pParameters->Get_Parameter("POINTS"    )->asShapes();
 		CSG_Parameters	*pAttributes	= pParameters->Get_Parameter("PREDICTORS")->asParameters();
@@ -215,53 +206,42 @@ int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 		pAttributes->Destroy();
 		pAttributes->Set_Name(_TL("Predictors"));
 
-		for(int i=0; pPoints && i<pPoints->Get_Field_Count(); i++)
+		if( pPoints )
 		{
-			switch( pPoints->Get_Field_Type(i) )
+			for(int i=0; pPoints && i<pPoints->Get_Field_Count(); i++)
 			{
-			default:	// not numeric
-				break;
-
-			case SG_DATATYPE_Byte:
-			case SG_DATATYPE_Char:
-			case SG_DATATYPE_Word:
-			case SG_DATATYPE_Short:
-			case SG_DATATYPE_DWord:
-			case SG_DATATYPE_Int:
-			case SG_DATATYPE_ULong:
-			case SG_DATATYPE_Long:
-			case SG_DATATYPE_Float:
-			case SG_DATATYPE_Double:
-				pAttributes->Add_Value(
-					NULL, SG_Get_String(i, 0), pPoints->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
-				);
-				break;
+				if( SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(i)) )
+				{
+					pAttributes->Add_Value(
+						NULL, SG_Get_String(i, 0), pPoints->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
+					);
+				}
 			}
-		}
 
-		return( true );
+			m_Grid_Target.Set_User_Defined(pParameters, pPoints->Get_Extent());
+		}
 	}
 
-	return( false );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 //---------------------------------------------------------
 int CGW_Multi_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_RANGE") )
 	{
-		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
+		pParameters->Set_Enabled("SEARCH_RADIUS"    , pParameter->asInt() == 0);	// local
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_POINTS_ALL") )
 	{
-		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
-		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
+		pParameters->Set_Enabled("SEARCH_POINTS_MAX", pParameter->asInt() == 0);	// maximum number of points
+		pParameters->Set_Enabled("SEARCH_DIRECTION" , pParameter->asInt() == 0);	// maximum number of points per quadrant
 	}
 
 	m_Weighting.Enable_Parameters(pParameters);
 
-	return( 1 );
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -274,42 +254,17 @@ int CGW_Multi_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CGW_Multi_Regression::Get_Predictors(void)
 {
-	int				i;
-	CSG_Shapes		*pPoints		= Parameters("POINTS")		->asShapes();
-	CSG_Parameters	*pAttributes	= Parameters("PREDICTORS")	->asParameters();
+	CSG_Shapes		*pPoints		= Parameters("POINTS"    )->asShapes();
+	CSG_Parameters	*pAttributes	= Parameters("PREDICTORS")->asParameters();
 
 	m_nPredictors	= 0;
 	m_iPredictor	= new int[pPoints->Get_Field_Count()];
 
-	for(i=0; i<pAttributes->Get_Count(); i++)
+	for(int i=0; i<pAttributes->Get_Count(); i++)
 	{
 		if( pAttributes->Get_Parameter(i)->asBool() )
 		{
 			m_iPredictor[m_nPredictors++]	= CSG_String(pAttributes->Get_Parameter(i)->Get_Identifier()).asInt();
-		}
-	}
-
-	CSG_Parameters	*pGrids	= Get_Parameters("GRID"), Tmp;
-
-	Tmp.Assign(pGrids);
-
-	pGrids->Create(this, Tmp.Get_Name(), Tmp.Get_Description(), Tmp.Get_Identifier(), false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("QUALITY")   , _TL("Quality")  , false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("INTERCEPT") , _TL("Intercept"), false);
-
-	pGrids->Get_Parameter("QUALITY")->Get_Parent()->asGrid_System()->Assign(*Tmp("QUALITY")->Get_Parent()->asGrid_System());
-	pGrids->Get_Parameter("QUALITY")  ->Set_Value(Tmp("QUALITY")  ->asGrid());
-	pGrids->Get_Parameter("INTERCEPT")->Set_Value(Tmp("INTERCEPT")->asGrid());
-
-	for(i=0; i<m_nPredictors; i++)
-	{
-		m_Grid_Target.Add_Grid_Parameter(SG_Get_String(i, 0),
-			CSG_String::Format(SG_T("%s [%s]"), _TL("Slope"), pPoints->Get_Field_Name(m_iPredictor[i])), false
-		);
-
-		if( Tmp(SG_Get_String(i, 0)) )
-		{
-			pGrids->Get_Parameter(SG_Get_String(i, 0))->Set_Value(Tmp(SG_Get_String(i, 0))->asGrid());
 		}
 	}
 
@@ -369,42 +324,10 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		i;
+	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
+	m_pIntercept	= m_Grid_Target.Get_Grid("INTERCEPT");
 
-	m_pQuality		= NULL;
-	m_pIntercept	= NULL;
-	m_pSlopes		= (CSG_Grid **)SG_Calloc(m_nPredictors, sizeof(CSG_Grid *));
-
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
-		{
-			m_pQuality		= m_Grid_Target.Get_User(SG_T("QUALITY"  ));
-			m_pIntercept	= m_Grid_Target.Get_User(SG_T("INTERCEPT"));
-
-			for(i=0; i<m_nPredictors; i++)
-			{
-				m_pSlopes[i]	= m_Grid_Target.Get_User(SG_Get_String(i, 0));
-			}
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			m_pQuality		= m_Grid_Target.Get_Grid(SG_T("QUALITY"  ));
-			m_pIntercept	= m_Grid_Target.Get_Grid(SG_T("INTERCEPT"));
-
-			for(i=0; i<m_nPredictors; i++)
-			{
-				m_pSlopes[i]	= m_Grid_Target.Get_Grid(SG_Get_String(i, 0));
-			}
-		}
-		break;
-	}
-
-	if( m_pQuality == NULL )
+	if( !m_pQuality || !m_pIntercept )
 	{
 		Finalize();
 
@@ -414,8 +337,15 @@ bool CGW_Multi_Regression::On_Execute(void)
 	m_pQuality  ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), Parameters("DEPENDENT")->asString(), _TL("GWR Quality")));
 	m_pIntercept->Set_Name(CSG_String::Format(SG_T("%s (%s)"), Parameters("DEPENDENT")->asString(), _TL("GWR Intercept")));
 
-	for(i=0; i<m_nPredictors; i++)
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List	*pSlopes	= Parameters("SLOPES")->asGridList();
+
+	m_pSlopes	= (CSG_Grid **)SG_Calloc(m_nPredictors, sizeof(CSG_Grid *));
+
+	for(int i=0; i<m_nPredictors; i++)
 	{
+		pSlopes->Add_Item(m_pSlopes[i] = SG_Create_Grid(m_pQuality->Get_System()));
+
 		m_pSlopes[i]->Set_Name(CSG_String::Format(SG_T("%s (%s)"), Parameters("DEPENDENT")->asString(), m_pPoints->Get_Field_Name(m_iPredictor[i])));
 	}
 
@@ -436,7 +366,7 @@ bool CGW_Multi_Regression::On_Execute(void)
 				m_pQuality  ->Set_NoData(x, y);
 				m_pIntercept->Set_NoData(x, y);
 
-				for(i=0; i<m_nPredictors; i++)
+				for(int i=0; i<m_nPredictors; i++)
 				{
 					m_pSlopes[i]->Set_NoData(x, y);
 				}

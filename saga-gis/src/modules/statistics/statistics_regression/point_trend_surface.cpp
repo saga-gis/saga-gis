@@ -137,17 +137,7 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Trend Surface"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+	m_Grid_Target.Create(&Parameters);
 }
 
 
@@ -160,7 +150,23 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 //---------------------------------------------------------
 int CPoint_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+	}
+
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CPoint_Trend_Surface::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYNOM") )
+	{
+		pParameters->Set_Enabled("NODE_USER", pParameter->asInt() == 4);
+	}
+
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -178,9 +184,9 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	CSG_Grid	*pRegression;
 
 	//-----------------------------------------------------
-	pPoints		= Parameters("POINTS")		->asShapes();
-	pResiduals	= Parameters("RESIDUALS")	->asShapes();
-	iAttribute	= Parameters("ATTRIBUTE")	->asInt();
+	pPoints		= Parameters("POINTS"   )->asShapes();
+	pResiduals	= Parameters("RESIDUALS")->asShapes();
+	iAttribute	= Parameters("ATTRIBUTE")->asInt();
 
 	switch( Parameters("POLYNOM")->asInt() )
 	{
@@ -204,26 +210,7 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	Set_Message();
 
 	//-----------------------------------------------------
-	pRegression		= NULL;
-
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(pPoints->Get_Extent()) && Dlg_Parameters("USER") )
-		{
-			pRegression	= m_Grid_Target.Get_User();
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			pRegression	= m_Grid_Target.Get_Grid();
-		}
-		break;
-	}
-
-	if( pRegression == NULL )
+	if( (pRegression = m_Grid_Target.Get_Grid()) == NULL )
 	{
 		return( false );
 	}

@@ -41,7 +41,7 @@ CConstantGrid::CConstantGrid(void)
 {
 	Set_Name		(_TL("Constant Grid"));
 
-	Set_Author		(SG_T("Victor Olaya (c) 2004"));
+	Set_Author		("Victor Olaya (c) 2004");
 
 	Set_Description	(_TW(
 		"Constant grid creation."
@@ -78,17 +78,7 @@ CConstantGrid::CConstantGrid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+	m_Grid_Target.Create(&Parameters);
 }
 
 
@@ -99,7 +89,13 @@ CConstantGrid::CConstantGrid(void)
 //---------------------------------------------------------
 int CConstantGrid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+//---------------------------------------------------------
+int CConstantGrid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -127,24 +123,7 @@ bool CConstantGrid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= NULL;
-
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(0.0, 0.0, 1.0, 101, 101) && Dlg_Parameters("USER") )
-		{
-			pGrid	= m_Grid_Target.Get_User(Type);
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			pGrid	= m_Grid_Target.Get_Grid(Type);
-		}
-		break;
-	}
+	CSG_Grid	*pGrid	= m_Grid_Target.Get_Grid(Type);
 
 	if( pGrid == NULL )
 	{
