@@ -91,12 +91,14 @@ public:
 
 	void				On_Mouse_RDown			(wxMouseEvent   &event);
 	void				On_Clear				(wxCommandEvent &event);
+	void				On_SaveAs_Model			(wxCommandEvent &event);
 
 	bool				Set_Item				(class CWKSP_Base_Item *pItem);
 
 
 private:
-	
+
+	CSG_Data_Object *	_Get_Object				(void);
 	int					_Get_Image				(TSG_Parameter_Type Type);
 	int					_Get_Image				(const CSG_String  &Type);
 	bool				_Add_History			(wxTreeItemId Parent, CSG_MetaData &History);

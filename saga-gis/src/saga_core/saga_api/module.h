@@ -143,7 +143,8 @@ typedef enum ESG_Module_Type
 	MODULE_TYPE_Base			= 0,
 	MODULE_TYPE_Interactive,
 	MODULE_TYPE_Grid,
-	MODULE_TYPE_Grid_Interactive
+	MODULE_TYPE_Grid_Interactive,
+	MODULE_TYPE_Chain
 }
 TSG_Module_Type;
 
@@ -209,6 +210,11 @@ public:
 
 	bool						Update_Parameter_States		(void);
 
+	void						Set_Manager					(class CSG_Data_Manager *pManager);
+
+	bool						Settings_Push				(class CSG_Data_Manager *pManager = NULL);
+	bool						Settings_Pop				(void);
+
 	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
 
 	virtual bool				needs_GUI					(void)	{	return( false );	}
@@ -217,8 +223,6 @@ public:
 	virtual bool				is_Interactive				(void)	{	return( false );	}
 	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
-
-	void						Set_Manager					(class CSG_Data_Manager *pManager);
 
 	void						Set_Show_Progress			(bool bOn = true);
 
@@ -301,6 +305,8 @@ private:
 	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress;
 
 	int							m_ID, m_npParameters;
+
+	CSG_Array					m_Settings_Stack;
 
 	CSG_Parameters				**m_pParameters;
 

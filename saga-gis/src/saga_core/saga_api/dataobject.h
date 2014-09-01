@@ -205,6 +205,7 @@ public:
 	CSG_MetaData &					Get_MetaData	(void)	const			{	return( *m_pMetaData );		}
 	CSG_MetaData &					Get_MetaData_DB	(void)					{	return( *m_pMetaData_DB );	}
 	CSG_MetaData &					Get_History		(void)					{	return( *m_pHistory );		}
+	const CSG_MetaData &			Get_History		(void)	const			{	return( *m_pHistory );		}
 
 	CSG_Projection &				Get_Projection	(void)					{	return( m_Projection );		}
 
@@ -223,6 +224,8 @@ public:
 	{
 		return( SG_is_NaN(Value) || (m_NoData_Value < m_NoData_hiValue ? m_NoData_Value <= Value && Value <= m_NoData_hiValue : Value == m_NoData_Value) );
 	}
+
+	bool							Save_History_to_Model	(const CSG_String &File)	const;
 
 
 protected:

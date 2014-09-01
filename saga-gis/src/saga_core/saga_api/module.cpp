@@ -94,6 +94,14 @@ CSG_Module::CSG_Module(void)
 //---------------------------------------------------------
 CSG_Module::~CSG_Module(void)
 {
+	if( m_Settings_Stack.Get_Size() > 0 )
+	{
+		for(size_t i=0; i<m_Settings_Stack.Get_Size(); i++)
+		{
+			delete(((CSG_Parameters **)m_Settings_Stack.Get_Array())[i]);
+		}
+	}
+
 	if( m_pParameters )
 	{
 		for(int i=0; i<m_npParameters; i++)
@@ -319,30 +327,6 @@ bool CSG_Module::Get_Projection(CSG_Projection &Projection)	const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Module::Set_Manager(class CSG_Data_Manager *pManager)
-{
-	Parameters.Set_Manager(pManager);
-
-	for(int i=0; i<m_npParameters; i++)
-	{
-		m_pParameters[i]->Set_Manager(pManager);
-	}
-}
-
-//---------------------------------------------------------
-void CSG_Module::Set_Show_Progress(bool bOn)
-{
-	m_bShow_Progress	= bOn;
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //						Parameters						 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -443,9 +427,93 @@ bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &C
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Module::Set_Manager(class CSG_Data_Manager *pManager)
+{
+	Parameters.Set_Manager(pManager);
+
+	for(int i=0; i<m_npParameters; i++)
+	{
+		m_pParameters[i]->Set_Manager(pManager);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Module::Settings_Push(CSG_Data_Manager *pManager)
+{
+	if( !m_Settings_Stack.Get_Value_Size() )
+	{
+		m_Settings_Stack.Create(sizeof(CSG_Parameters *));
+	}
+
+	int	n	= m_Settings_Stack.Get_Size();
+
+	CSG_Parameters	**pP	= (CSG_Parameters **)m_Settings_Stack.Get_Array(n + 1 + m_npParameters);
+
+	if( pP )
+	{
+		pP[n++]	= new CSG_Parameters(Parameters);	Parameters.Restore_Defaults();
+
+		for(int i=0; i<m_npParameters; i++)
+		{
+			pP[n++]	= new CSG_Parameters(*m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
+		}
+
+		Set_Manager(pManager);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Module::Settings_Pop(void)
+{
+	CSG_Parameters	**pP	= (CSG_Parameters **)m_Settings_Stack.Get_Array();
+
+	if( pP && m_Settings_Stack.Get_Size() >= 1 + m_npParameters )
+	{
+		int	n	= m_Settings_Stack.Get_Size() - 1;
+
+		for(int i=m_npParameters-1; i>=0; i--, n--)
+		{
+			m_pParameters[i]->Assign(pP[n]); delete(pP[n]);
+		}
+
+		Parameters.Assign(pP[n]); delete(pP[n]);
+
+		m_Settings_Stack.Set_Array(n);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						Progress						 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Module::Set_Show_Progress(bool bOn)
+{
+	m_bShow_Progress	= bOn;
+}
 
 //---------------------------------------------------------
 bool CSG_Module::Process_Get_Okay(bool bBlink)

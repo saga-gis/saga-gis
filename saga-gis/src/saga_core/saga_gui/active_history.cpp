@@ -110,7 +110,8 @@ IMPLEMENT_CLASS(CACTIVE_History, wxTreeCtrl)
 BEGIN_EVENT_TABLE(CACTIVE_History, wxTreeCtrl)
 	EVT_RIGHT_DOWN		(CACTIVE_History::On_Mouse_RDown)
 
-	EVT_MENU			(ID_CMD_DATA_HISTORY_CLEAR	, CACTIVE_History::On_Clear)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_CLEAR   , CACTIVE_History::On_Clear)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_TO_MODEL, CACTIVE_History::On_SaveAs_Model)
 END_EVENT_TABLE()
 
 
@@ -147,62 +148,13 @@ CACTIVE_History::CACTIVE_History(wxWindow *pParent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
-{
-	wxMenu	Menu(_TL("History"));
-
-	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_CLEAR);
-
-	PopupMenu(&Menu, event.GetPosition());
-
-	event.Skip();
-}
-
-//---------------------------------------------------------
-void CACTIVE_History::On_Clear(wxCommandEvent &event)
-{
-	CWKSP_Base_Item	*pItem		= g_pACTIVE->Get_Active();
-
-	CSG_Data_Object	*pObject	= pItem && pItem->GetId().IsOk()
-	&&	(	pItem->Get_Type() == WKSP_ITEM_Table
-		||	pItem->Get_Type() == WKSP_ITEM_TIN
-		||	pItem->Get_Type() == WKSP_ITEM_PointCloud
-		||	pItem->Get_Type() == WKSP_ITEM_Shapes
-		||	pItem->Get_Type() == WKSP_ITEM_Grid )
-	? ((CWKSP_Data_Item *)pItem)->Get_Object() : NULL;
-
-	int	Depth	= 0;
-
-	if( pObject && DLG_Get_Number(Depth, _TL("Delete History Entries"), _TL("Depth")) )
-	{
-		pObject->Get_History().Del_Children(Depth);
-		pObject->Set_Modified(true);
-
-		Set_Item(pItem);
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 {
-	CSG_Data_Object	*pObject	= pItem && pItem->GetId().IsOk()
-	&&	(	pItem->Get_Type() == WKSP_ITEM_Table
-		||	pItem->Get_Type() == WKSP_ITEM_TIN
-		||	pItem->Get_Type() == WKSP_ITEM_PointCloud
-		||	pItem->Get_Type() == WKSP_ITEM_Shapes
-		||	pItem->Get_Type() == WKSP_ITEM_Grid )
-	? ((CWKSP_Data_Item *)pItem)->Get_Object() : NULL;
-
 	Freeze();
 
 	DeleteAllItems();
+
+	CSG_Data_Object	*pObject	= _Get_Object();
 
 	if( pObject == NULL || pObject->Get_History().Get_Children_Count() <= 0 )
 	{
@@ -218,6 +170,81 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 	Thaw();
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Data_Object * CACTIVE_History::_Get_Object(void)
+{
+	CWKSP_Base_Item	*pItem	= g_pACTIVE->Get_Active();
+
+	CSG_Data_Object	*pObject	= pItem && pItem->GetId().IsOk()
+	&&	(	pItem->Get_Type() == WKSP_ITEM_Table
+		||	pItem->Get_Type() == WKSP_ITEM_TIN
+		||	pItem->Get_Type() == WKSP_ITEM_PointCloud
+		||	pItem->Get_Type() == WKSP_ITEM_Shapes
+		||	pItem->Get_Type() == WKSP_ITEM_Grid )
+	? ((CWKSP_Data_Item *)pItem)->Get_Object() : NULL;
+
+	return( pObject );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
+{
+	wxMenu	Menu(_TL("History"));
+
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_CLEAR);
+
+	PopupMenu(&Menu, event.GetPosition());
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CACTIVE_History::On_Clear(wxCommandEvent &event)
+{
+	CSG_Data_Object	*pObject	= _Get_Object();
+
+	int	Depth	= 0;
+
+	if( pObject && DLG_Get_Number(Depth, _TL("Delete History Entries"), _TL("Depth")) )
+	{
+		pObject->Get_History().Del_Children(Depth);
+		pObject->Set_Modified(true);
+
+		Set_Item(g_pACTIVE->Get_Active());
+	}
+}
+
+//---------------------------------------------------------
+void CACTIVE_History::On_SaveAs_Model(wxCommandEvent &event)
+{
+	const wxString	Filter	= wxString::Format("%s|*.smdl;*.xml|%s|*.*",
+		_TL("Recognized Files"), _TL("All Files")
+	);
+
+	wxString	File;
+
+	CSG_Data_Object	*pObject	= _Get_Object();
+
+	if( pObject && pObject->Get_History().Get_Children_Count() > 0 && DLG_Save(File, _TL("Save History as Model"), Filter) )
+	{
+		pObject->Save_History_to_Model(&File);
+	}
 }
 
 

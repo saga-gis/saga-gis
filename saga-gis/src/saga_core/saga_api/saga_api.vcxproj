@@ -635,6 +635,7 @@ copy tin.h $(OutDir)include\saga_api
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="module_chain.cpp" />
     <ClCompile Include="module_grid.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -923,6 +924,7 @@ copy tin.h $(OutDir)include\saga_api
     <ClInclude Include="MAT_Tools.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="Module.h" />
+    <ClInclude Include="module_chain.h" />
     <ClInclude Include="module_library.h" />
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="pointcloud.h" />

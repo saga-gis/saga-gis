@@ -70,6 +70,7 @@ mat_tools.cpp\
 mat_trend.cpp\
 metadata.cpp\
 module.cpp\
+module_chain.cpp\
 module_grid.cpp\
 module_grid_interactive.cpp\
 module_interactive.cpp\
@@ -113,6 +114,7 @@ grid_pyramid.h\
 mat_tools.h\
 metadata.h\
 module.h\
+module_chain.h\
 module_library.h\
 parameters.h\
 pointcloud.h\

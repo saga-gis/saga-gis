@@ -70,6 +70,8 @@
 
 #include "saga_api.h"
 
+#include "module_chain.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -147,14 +149,14 @@ bool CSG_Module_Library::_Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * CSG_Module_Library::Get_Info(int Type) const
+CSG_String CSG_Module_Library::Get_Info(int Type) const
 {
 	if( m_pInterface != NULL )
 	{
 		return( m_pInterface->Get_Info(Type) );
 	}
 
-	return( SG_T("") );
+	return( "" );
 }
 
 //---------------------------------------------------------
@@ -441,12 +443,13 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 //---------------------------------------------------------
 int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnlySubDirectories)
 {
-	int			nOpened	= 0;
-	wxDir		Dir;
-	wxString	File_Name;
+	int		nOpened	= 0;
+	wxDir	Dir;
 
 	if( Dir.Open(Directory) )
 	{
+		wxString	File_Name;
+
 		if( !bOnlySubDirectories && Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_FILES) )
 		{
 			do
@@ -467,6 +470,63 @@ int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOn
 				{
 					nOpened	+= Add_Directory(SG_File_Make_Path(Dir.GetName(), File_Name, NULL), false);
 				}
+			}
+			while( Dir.GetNext(&File_Name) );
+		}
+	}
+
+	return( nOpened );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Module_Library_Manager::Add_Module_Chain(const SG_Char *File_Name)
+{
+	//-----------------------------------------------------
+	if( !SG_File_Cmp_Extension(File_Name, SG_T("smdl"))
+	&&	!SG_File_Cmp_Extension(File_Name, SG_T("xml" )) )
+	{
+		return( NULL );
+	}
+
+	//-----------------------------------------------------
+	CSG_Module_Chain	*pModule	= new CSG_Module_Chain(File_Name);
+
+	//-----------------------------------------------------
+	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_Module_Library_Manager::Add_Module_Chains(const SG_Char *Directory)
+{
+	int		nOpened	= 0;
+	wxDir	Dir;
+
+	if( Dir.Open(Directory) )
+	{
+		wxString	File_Name;
+
+		if( Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_FILES) )
+		{
+			do
+			{	
+				if( Add_Module_Chain(SG_File_Make_Path(Dir.GetName(), File_Name, NULL)) )
+				{
+					nOpened++;
+				}
+			}
+			while( Dir.GetNext(&File_Name) );
+		}
+
+		if( Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_DIRS) )
+		{
+			do
+			{
+				nOpened	+= Add_Module_Chains(SG_File_Make_Path(Dir.GetName(), File_Name, NULL));
 			}
 			while( Dir.GetNext(&File_Name) );
 		}

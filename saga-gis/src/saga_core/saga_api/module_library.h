@@ -84,6 +84,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_Module_Library_Type
+{
+	MODULE_LIBRARY		= 0,
+	MODULE_CHAINS
+}
+TSG_Module_Library_Type;
+
+//---------------------------------------------------------
 enum
 {
 	SG_SUMMARY_FMT_FLAT	= 0,
@@ -107,12 +115,14 @@ class SAGA_API_DLL_EXPORT CSG_Module_Library
 
 public:
 
+	virtual TSG_Module_Library_Type	Get_Type			(void)	const	{	return( MODULE_LIBRARY );	}
+
 	bool							is_Valid			(void)	const	{	return( Get_Count() > 0 );	}
 
 	const CSG_String &				Get_File_Name		(void)	const	{	return( m_File_Name );		}
 	const CSG_String &				Get_Library_Name	(void)	const	{	return( m_Library_Name );	}
 
-	const SG_Char *					Get_Info			(int Type)	const;
+	virtual CSG_String				Get_Info			(int Type)	const;
 	CSG_String						Get_Name			(void)	const	{	return( Get_Info(MLB_INFO_Name       ) );	}
 	CSG_String						Get_Description		(void)	const	{	return( Get_Info(MLB_INFO_Description) );	}
 	CSG_String						Get_Author			(void)	const	{	return( Get_Info(MLB_INFO_Author     ) );	}
@@ -121,9 +131,9 @@ public:
 	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
 	bool							Get_Summary			(const CSG_String &Path)			const;
 
-	int								Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
+	virtual int						Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
-	CSG_String						Get_Menu			(int i)	const;
+	virtual CSG_String				Get_Menu			(int i)	const;
 
 	CSG_Module *					Get_Module			(int           Index, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
 	CSG_Module *					Get_Module			(const SG_Char *Name, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
@@ -135,6 +145,13 @@ public:
 	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(int           Index)	const;
 	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(const SG_Char *Name)	const;
 
+	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
+
+
+protected:
+
+	CSG_String						m_File_Name, m_Library_Name;
+
 
 private:
 
@@ -143,8 +160,6 @@ private:
 
 	bool							_Destroy			(void);
 
-
-	CSG_String						m_File_Name, m_Library_Name;
 
 	CSG_Module_Library_Interface	*m_pInterface;
 
@@ -172,6 +187,9 @@ public:
 
 	CSG_Module_Library *			Add_Library			(const SG_Char *File_Name);
 	int								Add_Directory		(const SG_Char *Directory, bool bOnlySubDirectories);
+
+	bool							Add_Module_Chain	(const SG_Char *File_Name);
+	int								Add_Module_Chains	(const SG_Char *Directory);
 
 	bool							Del_Library			(int i);
 	bool							Del_Library			(CSG_Module_Library *pLibrary);
@@ -219,9 +237,7 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 	{\
 		Process_Set_Text(pModule->Get_Name());\
 		\
-		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());\
-		\
-		pModule->Set_Manager(NULL);\
+		pModule->Settings_Push();\
 		\
 		if( !(CONDITION) )\
 		{\
@@ -236,8 +252,7 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 			bRetVal	= true;\
 		}\
 		\
-		pModule->Get_Parameters()->Assign_Values(&P);\
-		pModule->Set_Manager(P.Get_Manager());\
+		pModule->Settings_Pop();\
 	}\
 }
 

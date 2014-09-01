@@ -146,6 +146,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( _TL("Increase Legend Size") );
 	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( _TL("Decrease Legend Size") );
 	case ID_CMD_DATA_HISTORY_CLEAR:		return( _TL("Clear History") );
+	case ID_CMD_DATA_HISTORY_TO_MODEL:	return( _TL("Save as Model") );
 	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
 
 	case ID_CMD_GRIDS_OPEN:

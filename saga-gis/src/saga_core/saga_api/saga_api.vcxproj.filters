@@ -200,6 +200,9 @@
     <ClCompile Include="mat_mRMR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="module_chain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API_Core.h">
@@ -257,6 +260,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="module_chain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
