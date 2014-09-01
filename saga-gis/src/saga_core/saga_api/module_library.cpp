@@ -184,11 +184,11 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_HTML: default:
 		s	+= CSG_String::Format(SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
-				_TL("Tool Library"), Get_Info(MLB_INFO_Name),
-				_TL("Author"      ), Get_Info(MLB_INFO_Author),
-				_TL("Version"     ), Get_Info(MLB_INFO_Version),
+				_TL("Tool Library"), Get_Info(MLB_INFO_Name   ).c_str(),
+				_TL("Author"      ), Get_Info(MLB_INFO_Author ).c_str(),
+				_TL("Version"     ), Get_Info(MLB_INFO_Version).c_str(),
 				_TL("File"        ), Get_File_Name().c_str(),
-				Get_Info(MLB_INFO_Description)
+				Get_Info(MLB_INFO_Description).c_str()
 			);
 
 		s	+= CSG_String::Format(SG_T("<hr><b>%s:<ul>"), _TL("Tools"));
