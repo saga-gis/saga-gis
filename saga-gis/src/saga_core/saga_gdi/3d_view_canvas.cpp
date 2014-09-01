@@ -742,7 +742,7 @@ inline void CSG_3DView_Canvas::_Draw_Triangle_Line(int y, double a[], double b[]
 			{
 				double	Value;
 
-				if( m_pDrape->Get_Value(a[3] + dx * d[3], a[4] + dx * d[4], Value, m_Drape_Mode, false, true) )
+				if( m_pDrape->Get_Value(a[3] + dx * d[3], a[4] + dx * d[4], Value, m_Drape_Mode, true) )
 				{
 					_Draw_Pixel(x, y, z, _Dim_Color((int)Value, dim));
 				}
