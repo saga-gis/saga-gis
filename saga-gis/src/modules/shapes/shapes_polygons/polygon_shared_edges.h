@@ -96,6 +96,8 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
+	bool				m_bDouble;
+
 	int					m_Field;
 
 	CSG_Shapes			*m_pEdges, *m_pNodes;

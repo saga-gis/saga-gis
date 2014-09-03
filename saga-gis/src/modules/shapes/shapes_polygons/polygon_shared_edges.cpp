@@ -116,6 +116,12 @@ CPolygon_Shared_Edges::CPolygon_Shared_Edges(void)
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	Parameters.Add_Value(
+		NULL	, "DOUBLE"		, _TL("Double Edges"),
+		_TL("give output of an edge twice, i.e. once for each of the two adjacent polygons"),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -203,6 +209,19 @@ bool CPolygon_Shared_Edges::On_Execute(void)
 					}
 				}
 			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("DOUBLE")->asBool() )
+	{
+		for(int iEdge=0, nEdges=m_pEdges->Get_Count(); iEdge<nEdges && Set_Progress(iEdge, nEdges); iEdge++)
+		{
+			CSG_Shape	*pA	= m_pEdges->Get_Shape(iEdge);
+			CSG_Shape	*pB	= m_pEdges->Add_Shape(pA);
+
+			*(pB->Get_Value(0))	= *(pA->Get_Value(1));
+			*(pB->Get_Value(1))	= *(pA->Get_Value(0));
 		}
 	}
 
