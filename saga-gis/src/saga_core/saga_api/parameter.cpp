@@ -752,13 +752,13 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 
 	if( !SG_UI_Get_Window_Main() )
 	{
-		m_pParameters->Add_Grid(pNode, m_Prefix + "GRID_SYSTEM", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT, false);
+		m_pParameters->Add_Grid(pNode, m_Prefix + "TARGET_SYSTEM", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT_OPTIONAL, false);
 	}
 
 	//-----------------------------------------------------
 	if( bAddDefaultGrid )
 	{
-		Add_Grid(m_Prefix + "TARGET_GRID", _TL("Grid"), false);
+		Add_Grid(m_Prefix + "TARGET_GRID", _TL("Target Grid"), false);
 	}
 
 	return( true );
@@ -1041,9 +1041,7 @@ CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(void)
 		}
 		else
 		{
-			CSG_Parameter	*pParameter	= SG_UI_Get_Window_Main()
-				? m_pParameters->Get_Parameter(m_Prefix + "SYSTEM")
-				: m_pParameters->Get_Parameter(m_Prefix + "GRID_SYSTEM")->Get_Parent();
+			CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(m_Prefix + "SYSTEM");
 
 			if( pParameter->asGrid_System() )
 			{
