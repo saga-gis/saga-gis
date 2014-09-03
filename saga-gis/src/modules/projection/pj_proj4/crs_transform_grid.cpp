@@ -90,7 +90,7 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
+	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), false);
 
 	if( m_bList )
 	{
@@ -101,7 +101,7 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 		);
 
 		Parameters.Add_Grid_List(
-			NULL	, "TARGET"		, _TL("Target"),
+			NULL	, "GRIDS"		, _TL("Target"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
@@ -116,7 +116,7 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 			PARAMETER_INPUT
 		);
 
-		m_Grid_Target.Add_Grid("TARGET", _TL("Target"), false);
+		m_Grid_Target.Add_Grid("GRID", _TL("Target"), false);
 	}
 
 	m_Grid_Target.Add_Grid("OUT_X", _TL("X Coordinates"), true);
@@ -188,7 +188,7 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 		CSG_Parameter_Grid_List	*pSources, *pTargets, *pGrids;
 
 		pSources	= Parameters("SOURCE")->asGridList();
-		pTargets	= Parameters("TARGET")->asGridList();
+		pTargets	= Parameters("GRIDS" )->asGridList();
 
 		pTargets->Del_Items();
 
@@ -252,7 +252,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 	{
 		TSG_Data_Type	Type	= m_Interpolation == 0 || Parameters("KEEP_TYPE")->asBool() ? pGrid->Get_Type() : SG_DATATYPE_Float;
 
-		return( Transform(pGrid, m_Grid_Target.Get_Grid("TARGET", Type)) );
+		return( Transform(pGrid, m_Grid_Target.Get_Grid("GRID", Type)) );
 	}
 
 	return( false );
@@ -266,7 +266,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pGrids)
 	{
 		CSG_Grid_System	System(m_Grid_Target.Get_System());
 
-		return( Transform(pGrids, Parameters("TARGET")->asGridList(), System) );
+		return( Transform(pGrids, Parameters("GRIDS")->asGridList(), System) );
 	}
 
 	return( false );
@@ -635,8 +635,8 @@ bool CCRS_Transform_Grid::Get_Target_System(const CSG_Grid_System &System, bool 
 	}
 
 	return(	is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax
-		&&	m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, System.Get_NY())
-		&&  Dlg_Parameters("SYSTEM") && m_Grid_Target.Get_System().is_Valid()
+		&&	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, System.Get_NY())
+		&&  Dlg_Parameters("TARGET") && m_Grid_Target.Get_System().is_Valid()
 	);
 }
 

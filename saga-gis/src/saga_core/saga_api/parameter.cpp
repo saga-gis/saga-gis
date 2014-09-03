@@ -724,7 +724,7 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 
 	//-----------------------------------------------------
 	pNode	= m_pParameters->Add_Choice(
-		pNode, m_Prefix + "TARGET", _TL("Target Grid System"),
+		pNode, m_Prefix + "DEFINITION", _TL("Target Grid System"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("user defined"),
@@ -752,13 +752,13 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 
 	if( !SG_UI_Get_Window_Main() )
 	{
-		m_pParameters->Add_Grid(pNode, m_Prefix + "TARGET_SYSTEM", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT_OPTIONAL, false);
+		m_pParameters->Add_Grid(pNode, m_Prefix + "TEMPLATE", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT_OPTIONAL, false);
 	}
 
 	//-----------------------------------------------------
 	if( bAddDefaultGrid )
 	{
-		Add_Grid(m_Prefix + "TARGET_GRID", _TL("Target Grid"), false);
+		Add_Grid(m_Prefix + "OUT_GRID", _TL("Target Grid"), false);
 	}
 
 	return( true );
@@ -872,7 +872,7 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 		return( false );
 	}
 
-	if( (pParameter = pParameters->Get_Parameter(m_Prefix + "TARGET")) == NULL )
+	if( (pParameter = pParameters->Get_Parameter(m_Prefix + "DEFINITION")) == NULL )
 	{
 		return( false );
 	}
@@ -981,7 +981,7 @@ bool CSG_Parameters_Grid_Target::Add_Grid(const CSG_String &Identifier, const CS
 		return( false );
 	}
 
-	CSG_Parameter	*pTarget	= m_pParameters->Get_Parameter(m_Prefix + "TARGET");
+	CSG_Parameter	*pTarget	= m_pParameters->Get_Parameter(m_Prefix + "DEFINITION");
 	CSG_Parameter	*pSystem	= NULL;
 
 	for(int i=0; i<pTarget->Get_Children_Count() && !pSystem; i++)
@@ -1021,7 +1021,7 @@ CSG_Grid_System CSG_Parameters_Grid_Target::Get_System(void)
 
 	if( m_pParameters )
 	{
-		if( m_pParameters->Get_Parameter(m_Prefix + "TARGET")->asInt() == 0 )	// user defined
+		if( m_pParameters->Get_Parameter(m_Prefix + "DEFINITION")->asInt() == 0 )	// user defined
 		{
 			double	Size	= m_pParameters->Get_Parameter(m_Prefix + "USER_SIZE")->asDouble();
 
@@ -1077,7 +1077,7 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 
 	CSG_Grid	*pGrid	= NULL;
 
-	if( m_pParameters->Get_Parameter(m_Prefix + "TARGET")->asInt() == 0 )
+	if( m_pParameters->Get_Parameter(m_Prefix + "DEFINITION")->asInt() == 0 )
 	{
 		if( m_pParameters->Get_Parameter(Identifier + "_CREATE") == NULL
 		||  m_pParameters->Get_Parameter(Identifier + "_CREATE")->asBool() )
@@ -1098,11 +1098,6 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 	if( pGrid && pGrid != pParameter->asGrid() )
 	{
 		pParameter->Set_Value(pGrid);
-
-		if( pParameter->Get_Manager() )
-		{
-			pParameter->Get_Manager()->Add(pGrid);
-		}
 	}
 
 	return( pGrid );
@@ -1111,7 +1106,7 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 //---------------------------------------------------------
 CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(TSG_Data_Type Type)
 {
-	return( Get_Grid(m_Prefix + "TARGET_GRID", Type) );
+	return( Get_Grid(m_Prefix + "OUT_GRID", Type) );
 }
 
 
