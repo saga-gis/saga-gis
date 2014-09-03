@@ -124,7 +124,7 @@ void CCMD_Module::Destroy(void)
 	m_pModule	= NULL;
 
 	m_CMD.Reset();
-	m_CMD.SetSwitchChars(SG_T("-"));
+	m_CMD.SetSwitchChars("-");
 }
 
 //---------------------------------------------------------
@@ -178,12 +178,7 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 
 		for(int i=1; i<argc; i++)
 		{
-			if( i > 1 )
-			{
-				sCmdLine	+= " ";
-			}
-
-			sCmdLine	+= argv[i];
+			sCmdLine	+= wxString(i == 1 ? "\"" : " \"") + argv[i] + "\"";
 		}
 
 		m_CMD.SetCmdLine(sCmdLine);
@@ -651,8 +646,8 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 
 		do
 		{
-			FileName	= FileNames.BeforeFirst	(';');
-			FileNames	= FileNames.AfterFirst	(';');
+			FileName	= FileNames.BeforeFirst(';').Trim(false);
+			FileNames	= FileNames.AfterFirst (';');
 
 			if( !SG_Get_Data_Manager().Find(&FileName) )
 			{
@@ -745,6 +740,8 @@ bool CCMD_Module::_Save_Output(CSG_Parameters *pParameters)
 
 				for(int i=0; i<pParameter->asList()->Get_Count(); i++)
 				{
+					FileNames[i].Trim();
+
 					if( i < nFileNames )
 					{
 						pParameter->asList()->asDataObject(i)->Save(FileNames[i]);
