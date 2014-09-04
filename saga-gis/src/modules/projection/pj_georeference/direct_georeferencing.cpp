@@ -241,7 +241,7 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 		), 0
 	);
 
-	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
+	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), false);
 }
 
 
@@ -313,10 +313,10 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 	CSG_Grid_System	System(Cellsize, r);
 
-	m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), r, Get_NX());
-//	m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), r, (int)(1 + r.Get_YRange() / Cellsize));
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), r, Get_NX());
+//	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), r, (int)(1 + r.Get_YRange() / Cellsize));
 
-	if( !Dlg_Parameters("SYSTEM") )
+	if( !Dlg_Parameters("TARGET") )
 	{
 		return( false );
 	}

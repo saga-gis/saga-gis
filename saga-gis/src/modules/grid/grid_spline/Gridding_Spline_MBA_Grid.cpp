@@ -76,7 +76,7 @@ CGridding_Spline_MBA_Grid::CGridding_Spline_MBA_Grid(void)
 {
 	Set_Name		(_TL("Multilevel B-Spline Interpolation (from Grid)"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Multilevel B-spline algorithm for spatial interpolation of scattered data "
@@ -101,7 +101,6 @@ CGridding_Spline_MBA_Grid::CGridding_Spline_MBA_Grid(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("without B-spline refinement"),
 			_TL("with B-spline refinement")
@@ -156,17 +155,17 @@ bool CGridding_Spline_MBA_Grid::On_Execute(void)
 	{
 		if( Parameters("DATATYPE")->asInt() == 0 )
 		{
-			m_Points.Create(*Parameters("GRIDPOINTS")->asGrid());
+			m_Points.Create(*Parameters("GRID")->asGrid());
 		}
 		else
 		{
-			m_Points.Create(Parameters("GRIDPOINTS")->asGrid());
-			m_Points.Assign(Parameters("GRIDPOINTS")->asGrid());
+			m_Points.Create(Parameters("GRID")->asGrid());
+			m_Points.Assign(Parameters("GRID")->asGrid());
 		}
 
-		m_Epsilon	= Parameters("EPSILON")		->asDouble();
-		m_Level_Max	= Parameters("LEVEL_MAX")	->asInt();
-		m_bUpdate	= Parameters("UPDATE")		->asBool();
+		m_Epsilon	= Parameters("EPSILON"  )->asDouble();
+		m_Level_Max	= Parameters("LEVEL_MAX")->asInt   ();
+		m_bUpdate	= Parameters("UPDATE"   )->asBool  ();
 
 		double	dCell	= m_pGrid->Get_XRange() > m_pGrid->Get_YRange() ? m_pGrid->Get_XRange() : m_pGrid->Get_YRange();
 
@@ -197,8 +196,8 @@ bool CGridding_Spline_MBA_Grid::On_Execute(void)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_Grid::_Set_MBA(double dCell)
 {
-	bool	bContinue;
-	int		nCells;
+	bool		bContinue;
+	int			nCells;
 	CSG_Grid	Phi;
 
 	for(bContinue=true, nCells=1; bContinue; nCells*=2, dCell/=2.0)
@@ -226,8 +225,8 @@ bool CGridding_Spline_MBA_Grid::_Set_MBA(double dCell)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(double dCell)
 {
-	bool	bContinue;
-	int		nCells;
+	bool		bContinue;
+	int			nCells;
 	CSG_Grid	A, B, *Phi, *Psi, *pTmp;
 
 	for(bContinue=true, Psi=&A, Phi=&B, nCells=1; bContinue; nCells*=2, dCell/=2.0)

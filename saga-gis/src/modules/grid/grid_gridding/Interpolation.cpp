@@ -84,7 +84,7 @@ CInterpolation::CInterpolation(void)
 		_TL("")
 	);
 
-	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 }
 
 
@@ -127,6 +127,8 @@ bool CInterpolation::On_Execute(void)
 
 	//-----------------------------------------------------
 	bool	bResult	= false;
+
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pShapes->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
 	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
 	{

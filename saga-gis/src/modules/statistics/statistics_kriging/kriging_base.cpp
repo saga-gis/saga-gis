@@ -150,8 +150,10 @@ CKriging_Base::CKriging_Base(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters);
-	m_Grid_Target.Add_Grid("VARIANCE", _TL("Quality Measure"), true);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")), false);
+
+	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
+	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"), true);
 }
 
 
@@ -298,7 +300,9 @@ bool CKriging_Base::On_Execute(void)
 //---------------------------------------------------------
 bool CKriging_Base::_Initialise_Grids(void)
 {
-	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
+	if( (m_pGrid = m_Grid_Target.Get_Grid("PREDICTION")) != NULL )
 	{
 		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str()));
 

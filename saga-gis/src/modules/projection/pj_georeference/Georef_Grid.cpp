@@ -139,7 +139,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
+	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), false);
 }
 
 
@@ -232,8 +232,8 @@ bool CGeoref_Grid::Get_Conversion(void)
 
 	//-----------------------------------------------------
 	if( !Get_Target_Extent(Extent, true)
-	||  !m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSource->Get_NY())
-	||	!Dlg_Parameters("SYSTEM") )
+	||  !m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY())
+	||	!Dlg_Parameters("TARGET") )
 	{
 		return( false );
 	}

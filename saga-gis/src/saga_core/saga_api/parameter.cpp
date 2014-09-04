@@ -772,7 +772,7 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 //---------------------------------------------------------
 bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !m_pParameters || !pParameters || !pParameter || SG_STR_CMP(m_pParameters->Get_Identifier(), pParameters->Get_Identifier()) )
+	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) || !pParameter )
 	{
 		return( false );
 	}
@@ -867,7 +867,7 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !m_pParameters || !pParameters || !pParameter || SG_STR_CMP(m_pParameters->Get_Identifier(), pParameters->Get_Identifier()) )
+	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) || !pParameter )
 	{
 		return( false );
 	}
@@ -900,7 +900,7 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 */
 bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, bool bFitToCells)
 {
-	if( !pParameters )
+	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) )
 	{
 		return( false );
 	}

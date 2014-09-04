@@ -127,7 +127,7 @@ CKernel_Density::CKernel_Density(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 }
 
 
@@ -185,6 +185,8 @@ bool CKernel_Density::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
 	if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 	{
 		return( false );

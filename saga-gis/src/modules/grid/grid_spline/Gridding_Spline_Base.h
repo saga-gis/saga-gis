@@ -94,6 +94,7 @@ protected:
 
 	CSG_Grid					*m_pGrid;
 
+
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
@@ -105,8 +106,6 @@ protected:
 
 
 private:
-
-	bool						m_bGridPoints;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 

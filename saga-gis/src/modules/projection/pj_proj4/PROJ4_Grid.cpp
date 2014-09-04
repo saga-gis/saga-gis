@@ -94,7 +94,7 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")), false);
+	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), false);
 
 	if( m_bInputList )
 	{
@@ -192,10 +192,10 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 
 		if( Get_Target_Extent(pSources->asGrid(0), Extent) )
 		{
-			m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSources->asGrid(0)->Get_NY());
+			m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSources->asGrid(0)->Get_NY());
 		}
 
-		if( !Dlg_Parameters("SYSTEM") )
+		if( !Dlg_Parameters("TARGET") )
 		{
 			return( false );
 		}
@@ -225,10 +225,10 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 
 		if( Get_Target_Extent(pSource, Extent) )
 		{
-			m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSource->Get_NY());
+			m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY());
 		}
 
-		if( !Dlg_Parameters("SYSTEM") )
+		if( !Dlg_Parameters("TARGET") )
 		{
 			return( false );
 		}

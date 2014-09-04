@@ -146,7 +146,7 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 }
 
 
@@ -183,91 +183,79 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CGrid_Resample::On_Execute(void)
 {
-	bool					bResult, bKeepType;
-	TSG_Grid_Interpolation	Interpolation;
-	CSG_Grid				*pInput, *pOutput;
-	CSG_Parameters			*pParameters;
+	//-----------------------------------------------------
+	CSG_Grid	*pInput	= Parameters("INPUT")->asGrid();
 
 	//-----------------------------------------------------
-	bResult		= false;
-	bKeepType	= Parameters("KEEP_TYPE")->asBool();
-	pInput		= Parameters("INPUT")->asGrid();
-	pOutput		= m_Grid_Target.Get_Grid(bKeepType ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pInput->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
-	//-----------------------------------------------------
+	CSG_Grid	*pOutput	= m_Grid_Target.Get_Grid(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+
 	if( !pOutput || !pInput->is_Intersecting(pOutput->Get_Extent()) )
 	{
 		return( false );
 	}
 
-	pParameters	= NULL;
-
 	//-------------------------------------------------
-	// Up-Scaling...
+	TSG_Grid_Interpolation	Interpolation;
 
-	if( pInput->Get_Cellsize() < pOutput->Get_Cellsize() )
+	if( pInput->Get_Cellsize() < pOutput->Get_Cellsize() )	// Up-Scaling...
 	{
-		if( Dlg_Parameters("SCALE_UP") )
+		if( !Dlg_Parameters("SCALE_UP") )
 		{
-			switch( Get_Parameters("SCALE_UP")->Get_Parameter("METHOD")->asInt() )
-			{
-			case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-			case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-			case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-			case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-			case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
-			case 5:	Interpolation	= GRID_INTERPOLATION_Mean_Nodes;		break;
-			case 6:	Interpolation	= GRID_INTERPOLATION_Mean_Cells;		break;
-			case 7:	Interpolation	= GRID_INTERPOLATION_Minimum;			break;
-			case 8:	Interpolation	= GRID_INTERPOLATION_Maximum;			break;
-			case 9:	Interpolation	= GRID_INTERPOLATION_Majority;			break;
-			}
+			return( false );
+		}
 
-			pParameters	= Get_Parameters("SCALE_UP");
+		switch( Get_Parameters("SCALE_UP")->Get_Parameter("METHOD")->asInt() )
+		{
+		case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
+		case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
+		case  2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
+		case  3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
+		case  4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
+		case  5:	Interpolation	= GRID_INTERPOLATION_Mean_Nodes;		break;
+		case  6:	Interpolation	= GRID_INTERPOLATION_Mean_Cells;		break;
+		case  7:	Interpolation	= GRID_INTERPOLATION_Minimum;			break;
+		case  8:	Interpolation	= GRID_INTERPOLATION_Maximum;			break;
+		case  9:	Interpolation	= GRID_INTERPOLATION_Majority;			break;
+		}
+	}
+	else	// Down-Scaling...
+	{
+		if( !Dlg_Parameters("SCALE_DOWN") )
+		{
+			return( false );
+		}
+
+		switch( Get_Parameters("SCALE_DOWN")->Get_Parameter("METHOD")->asInt() )
+		{
+		case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
+		case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
+		case  2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
+		case  3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
+		case  4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
 		}
 	}
 
 	//-------------------------------------------------
-	// Down-Scaling...
-
-	else
-	{
-		if( Dlg_Parameters("SCALE_DOWN") )
-		{
-			switch( Get_Parameters("SCALE_DOWN")->Get_Parameter("METHOD")->asInt() )
-			{
-			case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-			case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-			case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-			case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-			case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
-			}
-
-			pParameters	= Get_Parameters("SCALE_DOWN");
-		}
-	}
-
-	//-------------------------------------------------
-	if( !pParameters )
-	{
-		return( false );
-	}
-
 	pOutput->Assign(pInput, Interpolation);
 	pOutput->Set_Name(pInput->Get_Name());
 
 	//-------------------------------------------------
 	CSG_Grid_System	System(pOutput->Get_System());
 
-	CSG_Parameter_Grid_List	*pInputs	= Parameters("INPUT_ADD")	->asGridList();
-	CSG_Parameter_Grid_List	*pOutputs	= Parameters("OUTPUT_ADD")	->asGridList();
+	CSG_Parameter_Grid_List	*pInputs	= Parameters("INPUT_ADD" )->asGridList();
+	CSG_Parameter_Grid_List	*pOutputs	= Parameters("OUTPUT_ADD")->asGridList();
 
 	pOutputs->Del_Items();
 
 	for(int i=0; i<pInputs->Get_Count() && Process_Get_Okay(); i++)
 	{
 		pInput	= pInputs->asGrid(i);
-		pOutput	= SG_Create_Grid(pOutput->Get_System(), bKeepType ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+
+		pOutput	= SG_Create_Grid(pOutput->Get_System(),
+			Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined
+		);
 
 		pOutput->Assign(pInput, Interpolation);
 		pOutput->Set_Name(pInput->Get_Name());

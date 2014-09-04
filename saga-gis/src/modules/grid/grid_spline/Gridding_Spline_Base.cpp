@@ -73,33 +73,33 @@
 //---------------------------------------------------------
 CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 {
-	m_bGridPoints	= bGridPoints;
-
 	//-----------------------------------------------------
-	if( m_bGridPoints )
+	if( bGridPoints )
 	{
 		Parameters.Add_Grid(
-			NULL	, "GRIDPOINTS"	, _TL("Grid"),
+			NULL	, "GRID"	, _TL("Grid"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 	}
+
+	//-----------------------------------------------------
 	else
 	{
 		CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-			NULL	, "SHAPES"		, _TL("Points"),
+			NULL	, "SHAPES"	, _TL("Points"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
 		Parameters.Add_Table_Field(
-			pNode	, "FIELD"		, _TL("Attribute"),
+			pNode	, "FIELD"	, _TL("Attribute"),
 			_TL("")
 		);
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 }
 
 
@@ -115,6 +115,11 @@ int CGridding_Spline_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asGrid()->Get_Extent());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -156,25 +161,39 @@ bool CGridding_Spline_Base::Initialise(CSG_Points_Z &Points, bool bInGridOnly)
 bool CGridding_Spline_Base::_Get_Grid(void)
 {
 	//-----------------------------------------------------
-	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
+	if( Parameters("GRID") )
 	{
-		if( m_bGridPoints )
+		CSG_Grid	*pPoints	= Parameters("GRID")->asGrid();
+
+		m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
+		if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 		{
-			m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("GRIDPOINTS")->asGrid()->Get_Name(), Get_Name().c_str()));
-		}
-		else
-		{
-			m_pGrid->Set_Name(CSG_String::Format(SG_T("%s - %s [%s]"),
-				Parameters("SHAPES")->asShapes()->Get_Name(),
-				Parameters("FIELD" )->asString(), Get_Name().c_str())
-			);
+			return( false );
 		}
 
-		m_pGrid->Assign_NoData();
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), Get_Name().c_str()));
 	}
 
 	//-----------------------------------------------------
-	return( m_pGrid != NULL );
+	else
+	{
+		CSG_Shapes	*pPoints	= Parameters("SHAPES")->asShapes();
+
+		m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
+		if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
+		{
+			return( false );
+		}
+
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s.%s [%s]"), pPoints->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str()));
+	}
+
+	//-----------------------------------------------------
+	m_pGrid->Assign_NoData();
+
+	return( true );
 }
 
 
@@ -189,11 +208,12 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 {
 	Points.Clear();
 
-	if( m_bGridPoints )
+	//-----------------------------------------------------
+	if( Parameters("GRID") )
 	{
 		int			x, y;
 		TSG_Point	p;
-		CSG_Grid	*pGrid	= Parameters("GRIDPOINTS")	->asGrid();
+		CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
 		for(y=0, p.y=pGrid->Get_YMin(); y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++, p.y+=pGrid->Get_Cellsize())
 		{
@@ -206,10 +226,12 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 			}
 		}
 	}
+
+	//-----------------------------------------------------
 	else
 	{
-		CSG_Shapes	*pShapes	= Parameters("SHAPES")	->asShapes();
-		int			zField		= Parameters("FIELD")	->asInt();
+		CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+		int			zField		= Parameters("FIELD" )->asInt   ();
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{

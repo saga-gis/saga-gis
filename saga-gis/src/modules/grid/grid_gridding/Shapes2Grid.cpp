@@ -161,7 +161,7 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 
 	m_Grid_Target.Add_Grid("COUNT", _TL("Number of Values"), true);
 }
@@ -178,7 +178,7 @@ int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) && pParameter->asShapes() )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent()); 
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -264,6 +264,8 @@ bool CShapes2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pShapes->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
 	if( (m_pGrid = m_Grid_Target.Get_Grid(Get_Grid_Type(Parameters("GRID_TYPE")->asInt()))) == NULL )
 	{
 		return( false );

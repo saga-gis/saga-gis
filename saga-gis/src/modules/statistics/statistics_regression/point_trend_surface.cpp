@@ -137,7 +137,7 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 }
 
 
@@ -210,6 +210,8 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	Set_Message();
 
 	//-----------------------------------------------------
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
 	if( (pRegression = m_Grid_Target.Get_Grid()) == NULL )
 	{
 		return( false );

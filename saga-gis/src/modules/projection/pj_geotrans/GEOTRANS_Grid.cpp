@@ -141,7 +141,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(Add_Parameters("SYSTEM", _TL("Target Grid System"), _TL("")));
+	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")));
 }
 
 
@@ -186,10 +186,10 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 	//-----------------------------------------------------
 	if( Get_Target_Extent(pSource, Extent, true) )
 	{
-		m_Grid_Target.Set_User_Defined(Get_Parameters("SYSTEM"), Extent, pSource->Get_NY());
+		m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY());
 	}
 
-	if( Dlg_Parameters("SYSTEM") && (pGrid = m_Grid_Target.Get_Grid(Type)) != NULL )
+	if( Dlg_Parameters("TARGET") && (pGrid = m_Grid_Target.Get_Grid(Type)) != NULL )
 	{
 		return( Set_Grid(pSource, pGrid, Interpolation) );
 	}

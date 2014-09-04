@@ -106,6 +106,8 @@ private:
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
+	bool						Set_Target				(CSG_Parameters *pParameters, CSG_Parameter_Grid_List *pGrids);
+
 	bool						Initialize				(void);
 
 	bool						is_Aligned				(CSG_Grid *pGrid);

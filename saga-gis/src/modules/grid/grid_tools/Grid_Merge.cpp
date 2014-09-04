@@ -148,7 +148,7 @@ CGrid_Merge::CGrid_Merge(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 }
 
 
@@ -161,25 +161,9 @@ CGrid_Merge::CGrid_Merge(void)
 //---------------------------------------------------------
 int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") && pParameter->asGridList()->Get_Count() > 0 )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
 	{
-		double		d	= pParameter->asGridList()->asGrid(0)->Get_Cellsize();
-		CSG_Rect	r	= pParameter->asGridList()->asGrid(0)->Get_Extent();
-
-		for(int i=1; i<pParameter->asGridList()->Get_Count(); i++)
-		{
-			if( d > pParameter->asGridList()->asGrid(i)->Get_Cellsize() )
-			{
-				d	= pParameter->asGridList()->asGrid(i)->Get_Cellsize();
-			}
-
-			r.Union(pParameter->asGridList()->asGrid(i)->Get_Extent());
-		}
-
-		int	nx	= 1 + (int)(r.Get_XRange() / d);
-		int	ny	= 1 + (int)(r.Get_YRange() / d);
-
-		m_Grid_Target.Set_User_Defined(pParameters, r.Get_XMin(), r.Get_YMin(), d, nx, ny);
+		Set_Target(pParameters, pParameter->asGridList());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -326,6 +310,8 @@ bool CGrid_Merge::Initialize(void)
 		return( false );
 	}
 
+	Set_Target(Get_Parameters("TARGET"), m_pGrids);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
 	//-----------------------------------------------------
 	switch( Parameters("INTERPOL")->asInt() )
 	{
@@ -388,6 +374,33 @@ bool CGrid_Merge::Initialize(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Merge::Set_Target(CSG_Parameters *pParameters, CSG_Parameter_Grid_List *pGrids)
+{
+	if( pGrids && pGrids->Get_Count() > 0 )
+	{
+		double		d	= pGrids->asGrid(0)->Get_Cellsize();
+		CSG_Rect	r	= pGrids->asGrid(0)->Get_Extent();
+
+		for(int i=1; i<pGrids->Get_Count(); i++)
+		{
+			if( d > pGrids->asGrid(i)->Get_Cellsize() )
+			{
+				d	= pGrids->asGrid(i)->Get_Cellsize();
+			}
+
+			r.Union(pGrids->asGrid(i)->Get_Extent());
+		}
+
+		int	nx	= 1 + (int)(r.Get_XRange() / d);
+		int	ny	= 1 + (int)(r.Get_YRange() / d);
+
+		m_Grid_Target.Set_User_Defined(pParameters, r.Get_XMin(), r.Get_YMin(), d, nx, ny);
+	}
+
+	return( false );
+}
 
 //---------------------------------------------------------
 bool CGrid_Merge::is_Aligned(CSG_Grid *pGrid)
