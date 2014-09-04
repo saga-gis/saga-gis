@@ -834,14 +834,17 @@ void CSG_Module::_Set_Output_History(void)
 	//-----------------------------------------------------
 	History.Set_Name(SG_META_HST);
 
-	History.Add_Child(SG_T("MODULE")	, Get_Name());
-//	History.Add_Child(SG_T("LIBRARY")	, Get_Library());
+	if( SG_Get_History_Depth() )
+	{
+		History.Add_Child(SG_T("MODULE")	, Get_Name());
+	//	History.Add_Child(SG_T("LIBRARY")	, Get_Library());
 
-	Parameters.Set_History(History);
+		Parameters.Set_History(History);
 
-	History.Add_Children(History_Supplement);
+		History.Add_Children(History_Supplement);
 
-	History.Del_Children(SG_Get_History_Depth());
+		History.Del_Children(SG_Get_History_Depth());
+	}
 
 	//-----------------------------------------------------
 	for(int j=-1; j<Get_Parameters_Count(); j++)
@@ -852,7 +855,7 @@ void CSG_Module::_Set_Output_History(void)
 		{
 			CSG_Parameter	*p	= pParameters->Get_Parameter(i);
 
-			if( p->is_Output() && p->is_Enabled() )
+			if( p->is_Output() && (p->is_Enabled() || !SG_UI_Get_Window_Main()) )
 			{
 				if( p->is_DataObject() && p->asDataObject() )
 				{

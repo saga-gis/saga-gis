@@ -516,18 +516,30 @@ bool		Check_Flags		(const CSG_String &Argument)
 		return( true );
 	}
 
-	else if( !s.CmpNoCase(SG_T("-c")) || !s.CmpNoCase(SG_T("--cores")) )
+	else if( !s.CmpNoCase("-c") || !s.CmpNoCase("--cores") )
 	{
 		#ifdef _OPENMP
 		int	nCores	= 1;
 
-		if( !CSG_String(Argument).AfterFirst(SG_T('=')).asInt(nCores) || nCores > SG_Get_Max_Num_Procs_Omp() )
+		if( !CSG_String(Argument).AfterFirst('=').asInt(nCores) || nCores > SG_Get_Max_Num_Procs_Omp() )
 		{
 			nCores	= SG_Get_Max_Num_Procs_Omp();
 		}
 
 		SG_Set_Max_Num_Threads_Omp(nCores);
 		#endif // _OPENMP
+
+		return( true );
+	}
+
+	else if( !s.CmpNoCase("-s") || !s.CmpNoCase("--story") )
+	{
+		int	Depth;
+
+		if( CSG_String(Argument).AfterFirst('=').asInt(Depth) )
+		{
+			SG_Set_History_Depth(Depth);
+		}
 
 		return( true );
 	}
@@ -676,17 +688,18 @@ void		Print_Help		(void)
 		"saga_cmd [-b, --batch]\n"
 		"saga_cmd [-d, --docs]\n"
 #ifdef _OPENMP
-		"saga_cmd [-f, --flags][=qrsilpxo][-c, --cores][=#] <LIBRARY> <MODULE> <OPTIONS>\n"
-		"saga_cmd [-f, --flags][=qrsilpxo][-c, --cores][=#] <SCRIPT>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#] <LIBRARY> <MODULE> <OPTIONS>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#] <SCRIPT>\n"
 #else
-		"saga_cmd [-f, --flags][=qrsilpxo] <LIBRARY> <MODULE> <module specific options...>\n"
-		"saga_cmd [-f, --flags][=qrsilpxo] <SCRIPT>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#] <LIBRARY> <MODULE> <module specific options...>\n"
+		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#] <SCRIPT>\n"
 #endif
 		"\n"
 		"[-h], [--help]   : help on usage\n"
 		"[-v], [--version]: print version information\n"
 		"[-b], [--batch]  : create a batch file example\n"
 		"[-d], [--docs]   : create tool documentation in current working directory\n"
+		"[-s], [--story]  : maximum data history depth (default is unlimited)\n"
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
