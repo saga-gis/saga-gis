@@ -85,9 +85,9 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("GWR Gridding (Points/Grids)"));
+	Set_Name		(_TL("GWR for Multiple Predictor Grids"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"References:\n"

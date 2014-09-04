@@ -84,12 +84,23 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Geographically Weighted Multiple Regression (Points)"));
+	Set_Name		(_TL("GWR for Multiple Predictors"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
+		"Geographically Weighted Regression for multiple predictors. "
+		"Regression details are stored in a copy of input points.\n"
 		"Reference:\n"
+		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
+		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
+		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
+		"\n"
+		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
+		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
+		" Environment and Planning A 30(11), 1905–1927."
+		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+		"\n"
 		" - Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
 	));
 
@@ -105,7 +116,7 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 		_TL("")
 	);
 
-	Parameters.Add_Parameters(
+	Parameters.Add_Table_Fields(
 		pNode	, "PREDICTORS"	, _TL("Predictors"),
 		_TL("")
 	);
@@ -117,13 +128,8 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	);
-
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pSearch	= Parameters.Add_Node(
@@ -187,28 +193,7 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 //---------------------------------------------------------
 int CGW_Multi_Regression_Points::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POINTS")) )
-	{
-		CSG_Shapes		*pPoints		= pParameters->Get_Parameter("POINTS")		->asShapes();
-		CSG_Parameters	*pAttributes	= pParameters->Get_Parameter("PREDICTORS")	->asParameters();
-
-		pAttributes->Destroy();
-		pAttributes->Set_Name(_TL("Predictors"));
-
-		for(int i=0; pPoints && i<pPoints->Get_Field_Count(); i++)
-		{
-			if( SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(i)) )
-			{
-				pAttributes->Add_Value(
-					NULL, SG_Get_String(i, 0), pPoints->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
-				);
-			}
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( 1 );
 }
 
 //---------------------------------------------------------
@@ -240,9 +225,8 @@ int CGW_Multi_Regression_Points::On_Parameters_Enable(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Points::Get_Predictors(void)
 {
-	int				i, iDependent, *Predictor;
+	int				i, iDependent;
 	CSG_Shapes		*pPoints;
-	CSG_Parameters	*pAttributes;
 
 	//-----------------------------------------------------
 	m_pPoints		= Parameters("REGRESSION"       )->asShapes();
@@ -254,50 +238,36 @@ bool CGW_Multi_Regression_Points::Get_Predictors(void)
 					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
 	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
 
-	m_Weighting.Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Set_Parameters(&Parameters);
 
 	//-----------------------------------------------------
-	iDependent		= Parameters("DEPENDENT" )->asInt();
-	pPoints			= Parameters("POINTS"    )->asShapes();;
-	pAttributes		= Parameters("PREDICTORS")->asParameters();
+	iDependent	= Parameters("DEPENDENT")->asInt   ();
+	pPoints		= Parameters("POINTS"   )->asShapes();
 
-	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s: %s]"), pPoints->Get_Name(), _TL("GWR"), pPoints->Get_Field_Name(iDependent)));
+	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s.%s [%s]"), pPoints->Get_Name(), pPoints->Get_Field_Name(iDependent), _TL("GWR")));
 	m_pPoints->Add_Field(pPoints->Get_Field_Name(iDependent), SG_DATATYPE_Double);
 
-	m_nPredictors	= 0;
-	Predictor		= new int[pPoints->Get_Field_Count()];
+	//-----------------------------------------------------
+	CSG_Parameter_Table_Fields	*pFields	= Parameters("PREDICTORS")->asTableFields();
 
-	for(i=0; i<pAttributes->Get_Count(); i++)
+	if( (m_nPredictors = pFields->Get_Count()) <= 0 )
 	{
-		CSG_Parameter	*pAttribute	= pAttributes->Get_Parameter(i);
-
-		if( pAttribute->asBool() )
-		{
-			Predictor[m_nPredictors++]	= CSG_String(pAttribute->Get_Identifier()).asInt();
-
-			m_pPoints->Add_Field(CSG_String::Format(SG_T("P%d %s"), m_nPredictors, pAttribute->Get_Name()), SG_DATATYPE_Double);
-		}
-	}
-
-	if( m_nPredictors == 0 )
-	{
-		delete[](Predictor);
-
 		Error_Set(_TL("no predictors have been selected"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	m_pPoints->Add_Field(SG_T("R2")			, SG_DATATYPE_Double);
-	m_pPoints->Add_Field(SG_T("REGRESSION")	, SG_DATATYPE_Double);
-	m_pPoints->Add_Field(SG_T("RESIDUAL")	, SG_DATATYPE_Double);
-	m_pPoints->Add_Field(SG_T("INTERCEPT")	, SG_DATATYPE_Double);
-
 	for(i=0; i<m_nPredictors; i++)
 	{
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("R%d"), 1 + i), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(pPoints->Get_Field_Name(pFields->Get_Index(i)), SG_DATATYPE_Double);
 	}
+
+	m_pPoints->Add_Field("DEPENDENT" , SG_DATATYPE_Double);	// m_nPredictors + 0
+	m_pPoints->Add_Field("R2"        , SG_DATATYPE_Double);	// m_nPredictors + 1
+	m_pPoints->Add_Field("REGRESSION", SG_DATATYPE_Double);	// m_nPredictors + 2
+	m_pPoints->Add_Field("RESIDUAL"  , SG_DATATYPE_Double);	// m_nPredictors + 3
+	m_pPoints->Add_Field("INTERCEPT" , SG_DATATYPE_Double);	// m_nPredictors + 4
 
 	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 	{
@@ -307,28 +277,21 @@ bool CGW_Multi_Regression_Points::Get_Predictors(void)
 
 		for(i=0; bAdd && i<m_nPredictors; i++)
 		{
-			if( pPoint->is_NoData(Predictor[i]) )
-			{
-				bAdd	= false;
-			}
+			bAdd	= !pPoint->is_NoData(pFields->Get_Index(i));
 		}
 
 		if( bAdd )
 		{
-			CSG_Shape	*pAdd	= m_pPoints->Add_Shape();
-
-			pAdd->Add_Point(pPoint->Get_Point(0));
-
-			pAdd->Set_Value(0, pPoint->asDouble(iDependent));
+			CSG_Shape	*pAdd	= m_pPoints->Add_Shape(pPoint, SHAPE_COPY_GEOM);
 
 			for(i=0; i<m_nPredictors; i++)
 			{
-				pAdd->Set_Value(1 + i, pPoint->asDouble(Predictor[i]));
+				pAdd->Set_Value(i, pPoint->asDouble(pFields->Get_Index(i)));
 			}
+
+			pAdd->Set_Value(m_nPredictors, pPoint->asDouble(iDependent));
 		}
 	}
-
-	delete[](Predictor);
 
 	//-----------------------------------------------------
 	if( m_pPoints->Get_Count() == 0 )
@@ -427,12 +390,12 @@ int CGW_Multi_Regression_Points::Set_Variables(const TSG_Point &Point)
 			pPoint	= m_pPoints->Get_Shape(iPoint);
 		}
 
-		m_z[iPoint]	= pPoint->asDouble(0);
+		m_z[iPoint]	= pPoint->asDouble(m_nPredictors);
 		m_w[iPoint]	= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
 
 		for(iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
 		{
-			m_y[iPoint][iPredictor]	= pPoint->asDouble(1 + iPredictor);
+			m_y[iPoint][iPredictor]	= pPoint->asDouble(iPredictor);
 		}
 	}
 

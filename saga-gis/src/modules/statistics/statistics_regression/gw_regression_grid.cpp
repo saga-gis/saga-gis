@@ -86,12 +86,23 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Geographically Weighted Regression (Points/Grid)"));
+	Set_Name		(_TL("GWR for Single Predictor Grid"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
+		"Geographically Weighted Regression for a single predictor supplied as grid, "
+		"to which the regression model is applied. Further details can be stored optionally.\n"
 		"Reference:\n"
+		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
+		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
+		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
+		"\n"
+		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
+		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
+		" Environment and Planning A 30(11), 1905–1927."
+		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+		"\n"
 		" - Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
 	));
 
@@ -144,13 +155,8 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	);
-
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pSearch	= Parameters.Add_Node(
@@ -256,7 +262,7 @@ bool CGW_Regression_Grid::On_Execute(void)
 					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
 	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
 
-	m_Weighting.Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Set_Parameters(&Parameters);
 
 	//-----------------------------------------------------
 	if( (m_nPoints_Max > 0 || m_Radius > 0.0) && !m_Search.Create(m_pPoints, -1) )

@@ -85,12 +85,24 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Geographically Weighted Multiple Regression"));
+	Set_Name		(_TL("GWR for Multiple Predictors (Gridded Model Output)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
+		"Geographically Weighted Regression for multiple predictors. "
+		"Determination coefficients and regression model parameters "
+		"are given as grids.\n"
 		"Reference:\n"
+		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
+		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
+		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
+		"\n"
+		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
+		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
+		" Environment and Planning A 30(11), 1905–1927."
+		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+		"\n"
 		" - Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
 	));
 
@@ -106,13 +118,19 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 		_TL("")
 	);
 
-	Parameters.Add_Parameters(
+	Parameters.Add_Table_Fields(
 		pNode	, "PREDICTORS"	, _TL("Predictors"),
 		_TL("")
 	);
 
+	Parameters.Add_Shapes(
+		NULL	, "REGRESSION"		, _TL("Regression"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
+
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")), false);
 
 	m_Grid_Target.Add_Grid("QUALITY"  , _TL("Quality"  ), false);
 	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);
@@ -124,13 +142,8 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	);
-
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pSearch	= Parameters.Add_Node(
@@ -198,28 +211,9 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 //---------------------------------------------------------
 int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
 	{
-		CSG_Shapes		*pPoints		= pParameters->Get_Parameter("POINTS"    )->asShapes();
-		CSG_Parameters	*pAttributes	= pParameters->Get_Parameter("PREDICTORS")->asParameters();
-
-		pAttributes->Destroy();
-		pAttributes->Set_Name(_TL("Predictors"));
-
-		if( pPoints )
-		{
-			for(int i=0; pPoints && i<pPoints->Get_Field_Count(); i++)
-			{
-				if( SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(i)) )
-				{
-					pAttributes->Add_Value(
-						NULL, SG_Get_String(i, 0), pPoints->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
-					);
-				}
-			}
-
-			m_Grid_Target.Set_User_Defined(pParameters, pPoints->Get_Extent());
-		}
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -254,21 +248,21 @@ int CGW_Multi_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CGW_Multi_Regression::Get_Predictors(void)
 {
-	CSG_Shapes		*pPoints		= Parameters("POINTS"    )->asShapes();
-	CSG_Parameters	*pAttributes	= Parameters("PREDICTORS")->asParameters();
+	CSG_Parameter_Table_Fields	*pFields	= Parameters("PREDICTORS")->asTableFields();
 
-	m_nPredictors	= 0;
-	m_iPredictor	= new int[pPoints->Get_Field_Count()];
-
-	for(int i=0; i<pAttributes->Get_Count(); i++)
+	if( (m_nPredictors = pFields->Get_Count()) > 0 )
 	{
-		if( pAttributes->Get_Parameter(i)->asBool() )
+		m_iPredictor	= new int[m_nPredictors];
+
+		for(int i=0; i<m_nPredictors; i++)
 		{
-			m_iPredictor[m_nPredictors++]	= CSG_String(pAttributes->Get_Parameter(i)->Get_Identifier()).asInt();
+			m_iPredictor[i]	= pFields->Get_Index(i);
 		}
+
+		return( true );
 	}
 
-	return( m_nPredictors > 0 );
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -306,7 +300,7 @@ bool CGW_Multi_Regression::On_Execute(void)
 					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
 	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
 
-	m_Weighting.Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Set_Parameters(&Parameters);
 
 	//-----------------------------------------------------
 	if( !Get_Predictors() )
@@ -324,6 +318,8 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
 	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
 	m_pIntercept	= m_Grid_Target.Get_Grid("INTERCEPT");
 

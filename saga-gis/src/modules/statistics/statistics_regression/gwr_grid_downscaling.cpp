@@ -74,9 +74,9 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("GWR Grid Downscaling"));
+	Set_Name		(_TL("GWR for Grid Downscaling"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"References:\n"

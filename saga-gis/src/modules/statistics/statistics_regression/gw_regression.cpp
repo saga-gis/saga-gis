@@ -74,12 +74,21 @@ CGW_Regression::CGW_Regression(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Geographically Weighted Regression"));
+	Set_Name		(_TL("GWR for Single Predictor (Gridded Model Output)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Reference:\n"
+		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
+		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
+		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
+		"\n"
+		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
+		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
+		" Environment and Planning A 30(11), 1905–1927."
+		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+		"\n"
 		" - Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
 	));
 
@@ -101,20 +110,15 @@ CGW_Regression::CGW_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 
 	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);
 	m_Grid_Target.Add_Grid("SLOPE"    , _TL("Slope"    ), false);
 	m_Grid_Target.Add_Grid("QUALITY"  , _TL("Quality"  ), false);
 
 	//-----------------------------------------------------
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	);
-
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pSearch	= Parameters.Add_Node(
@@ -227,7 +231,7 @@ bool CGW_Regression::On_Execute(void)
 					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
 	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
 
-	m_Weighting.Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Weighting.Set_Parameters(&Parameters);
 
 	//-----------------------------------------------------
 	if( (m_nPoints_Max > 0 || m_Radius > 0.0) && !m_Search.Create(m_pPoints, -1) )
@@ -236,6 +240,8 @@ bool CGW_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+
 	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
 	m_pSlope		= m_Grid_Target.Get_Grid("SLOPE"    );
 	m_pIntercept	= m_Grid_Target.Get_Grid("INTERCEPT");
