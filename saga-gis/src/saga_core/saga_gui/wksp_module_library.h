@@ -98,6 +98,8 @@ public:
 	virtual bool					On_Command		(int Cmd_ID);
 	virtual bool					On_Command_UI	(wxUpdateUIEvent &event);
 
+	class CSG_Module_Library *		Get_Library		(void)		{	return( m_pLibrary );	}
+
 	class CWKSP_Module *			Get_Module		(int i)		{	return( (class CWKSP_Module *)Get_Item(i) );	}
 	class CWKSP_Module *			Get_Module		(class CWKSP_Module *pModule);
 	class CWKSP_Module *			Get_Module_byID	(int CMD_ID);

@@ -404,15 +404,17 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 	&&	!SG_File_Cmp_Extension(File_Name, SG_T("so"   ))
 	&&	!SG_File_Cmp_Extension(File_Name, SG_T("dylib")) )
 	{
-		return( NULL );
+		return( _Add_Module_Chain(File_Name) );
 	}
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load library"), File_Name), true);
 
 	//-----------------------------------------------------
+	wxFileName	fn(File_Name);
+
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( SG_STR_CMP(File_Name, Get_Library(i)->Get_File_Name()) == 0 )
+		if( fn == Get_Library(i)->Get_File_Name().c_str() )
 		{
 			SG_UI_Msg_Add(_TL("has already been loaded"), false);
 
@@ -453,7 +455,7 @@ int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOn
 		if( !bOnlySubDirectories && Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_FILES) )
 		{
 			do
-			{	if( File_Name.Find(wxT("saga_")) < 0 && File_Name.Find(wxT("wx")) < 0 )
+			{	if( File_Name.Find("saga_") < 0 && File_Name.Find("wx") < 0 )
 				if( Add_Library(SG_File_Make_Path(Dir.GetName(), File_Name, NULL)) )
 				{
 					nOpened++;
@@ -466,7 +468,7 @@ int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOn
 		{
 			do
 			{
-				if( File_Name.CmpNoCase(wxT("dll")) )
+				if( File_Name.CmpNoCase("dll") )
 				{
 					nOpened	+= Add_Directory(SG_File_Make_Path(Dir.GetName(), File_Name, NULL), false);
 				}
@@ -484,7 +486,7 @@ int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOn
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Library_Manager::Add_Module_Chain(const SG_Char *File_Name)
+CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char *File_Name)
 {
 	//-----------------------------------------------------
 	if( !SG_File_Cmp_Extension(File_Name, SG_T("smdl"))
@@ -497,42 +499,7 @@ bool CSG_Module_Library_Manager::Add_Module_Chain(const SG_Char *File_Name)
 	CSG_Module_Chain	*pModule	= new CSG_Module_Chain(File_Name);
 
 	//-----------------------------------------------------
-	return( false );
-}
-
-//---------------------------------------------------------
-int CSG_Module_Library_Manager::Add_Module_Chains(const SG_Char *Directory)
-{
-	int		nOpened	= 0;
-	wxDir	Dir;
-
-	if( Dir.Open(Directory) )
-	{
-		wxString	File_Name;
-
-		if( Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_FILES) )
-		{
-			do
-			{	
-				if( Add_Module_Chain(SG_File_Make_Path(Dir.GetName(), File_Name, NULL)) )
-				{
-					nOpened++;
-				}
-			}
-			while( Dir.GetNext(&File_Name) );
-		}
-
-		if( Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_DIRS) )
-		{
-			do
-			{
-				nOpened	+= Add_Module_Chains(SG_File_Make_Path(Dir.GetName(), File_Name, NULL));
-			}
-			while( Dir.GetNext(&File_Name) );
-		}
-	}
-
-	return( nOpened );
+	return( NULL );
 }
 
 
@@ -623,6 +590,20 @@ CSG_Module_Library * CSG_Module_Library_Manager::Get_Library(const SG_Char *Name
 	}
 
 	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_Module_Library_Manager::is_Loaded(CSG_Module_Library *pLibrary) const
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( pLibrary == Get_Library(i) )
+		{
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 

@@ -188,14 +188,13 @@ public:
 	CSG_Module_Library *			Add_Library			(const SG_Char *File_Name);
 	int								Add_Directory		(const SG_Char *Directory, bool bOnlySubDirectories);
 
-	bool							Add_Module_Chain	(const SG_Char *File_Name);
-	int								Add_Module_Chains	(const SG_Char *Directory);
-
 	bool							Del_Library			(int i);
 	bool							Del_Library			(CSG_Module_Library *pLibrary);
 
 	CSG_Module_Library *			Get_Library			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
 	CSG_Module_Library *			Get_Library			(const SG_Char *Name, bool bLibrary)	const;
+
+	bool							is_Loaded			(CSG_Module_Library *pLibrary)	const;
 
 	CSG_Module *					Get_Module			(const SG_Char *Library, int            Module)	const;
 	CSG_Module *					Get_Module			(const SG_Char *Library, const SG_Char *Module)	const;
@@ -209,6 +208,9 @@ private:
 	int								m_nLibraries;
 
 	CSG_Module_Library				**m_pLibraries;
+
+
+	CSG_Module_Library *			_Add_Module_Chain	(const SG_Char *File_Name);
 
 };
 

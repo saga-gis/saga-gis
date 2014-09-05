@@ -196,7 +196,10 @@ wxString	Get_FilePath_Relative(const wxString &Directory, const wxString &FileNa
 {
 	wxFileName	fn(FileName);
 
-	fn.MakeRelativeTo(Directory);
+	if( fn.GetPath().Find(Directory) == 0 )
+	{
+		fn.MakeRelativeTo(Directory);
+	}
 
 	return( fn.GetFullPath() );
 }

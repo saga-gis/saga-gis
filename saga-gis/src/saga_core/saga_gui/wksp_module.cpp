@@ -75,7 +75,6 @@
 
 #include "wksp_module_manager.h"
 #include "wksp_module_library.h"
-#include "wksp_module_menu.h"
 #include "wksp_module.h"
 
 
@@ -734,7 +733,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 		if( m_pModule->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pModule->Get_Parameters())) )
 		{
-			g_pModules->Get_Menu_Modules()->Set_Recent(this);
+			g_pModules->Set_Recently_Used(this);
 
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();

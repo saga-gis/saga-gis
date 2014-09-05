@@ -109,8 +109,12 @@ public:
 	void							On_Execute_UI		(wxUpdateUIEvent &event);
 
 	class CWKSP_Module_Library *	Get_Library			(int i)		{	return( (class CWKSP_Module_Library *)Get_Item(i) );	}
+	class CWKSP_Module_Library *	Get_Library			(CSG_Module_Library *pLibrary);
 
-	class CWKSP_Menu_Modules *		Get_Menu_Modules	(void)		{	return( m_pMenu_Modules );	}
+	bool							Update				(void);
+
+	wxMenu *						Get_Menu_Modules	(void);
+	void							Set_Recently_Used	(class CWKSP_Module *pModule);
 
 	bool							Do_Beep				(void);
 
@@ -127,7 +131,7 @@ private:
 	class CWKSP_Menu_Modules		*m_pMenu_Modules;
 
 
-	int								_Open_Directory		(const wxString &sDirectory, bool bOnlySubDirectories = false);
+	bool							_Update				(bool bSyncToCtrl);
 
 };
 

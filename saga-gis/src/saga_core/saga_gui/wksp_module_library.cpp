@@ -105,8 +105,6 @@ CWKSP_Module_Library::~CWKSP_Module_Library(void)
 		Del_Item(pItem);
 		delete(pItem);
 	}
-
-	SG_Get_Module_Library_Manager().Del_Library(m_pLibrary);
 }
 
 
@@ -196,6 +194,10 @@ bool CWKSP_Module_Library::On_Command(int Cmd_ID)
 	{
 	default:
 		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
+
+	case ID_CMD_WKSP_ITEM_CLOSE:
+		SG_Get_Module_Library_Manager().Del_Library(m_pLibrary);
+		break;
 
 	case ID_CMD_WKSP_ITEM_RETURN:
 		break;

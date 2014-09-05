@@ -83,7 +83,6 @@
 
 #include "wksp_module_control.h"
 #include "wksp_module_manager.h"
-#include "wksp_module_menu.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_layers.h"
@@ -319,7 +318,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			if( g_pModule_Ctrl && m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
 			{
-				g_pModules->Get_Menu_Modules()->Update();
+				g_pModules->Update();
 			}
 
 			//---------------------------------------------
@@ -369,7 +368,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 		if( m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
 		{
-			g_pModules->Get_Menu_Modules()->Update();
+			g_pModules->Update();
 		}
 
 		if( pItem_Manager != NULL && pItem_Manager->Get_Type() == WKSP_ITEM_Map )

@@ -94,7 +94,6 @@
 
 #include "wksp_module_manager.h"
 #include "wksp_module.h"
-#include "wksp_module_menu.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_files.h"
@@ -974,7 +973,7 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	wxMenuBar	*pMenuBar	= new wxMenuBar;
 
 	pMenuBar->Append(g_pData   ->Get_Menu_Files  ()->Get_Menu(), _TL("File"         ));	// 0
-	pMenuBar->Append(g_pModules->Get_Menu_Modules()->Get_Menu(), _TL("Geoprocessing"));	// 1
+	pMenuBar->Append(g_pModules->Get_Menu_Modules()            , _TL("Geoprocessing"));	// 1
 	pMenuBar->Append(pMenu_Window                              , _TL("Window"       ));	// 2
 	pMenuBar->Append(pMenu_Help                                , _TL("?"            ));	// 3
 

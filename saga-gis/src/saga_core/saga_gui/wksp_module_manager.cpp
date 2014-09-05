@@ -234,21 +234,28 @@ bool CWKSP_Module_Manager::Initialise(void)
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Library); i++)
 	{
-		Open(Library);
+		SG_Get_Module_Library_Manager().Add_Library(Library);
 	}
 
-	if( Get_Count() == 0 )
+	if( SG_Get_Module_Library_Manager().Get_Count() == 0 )
 	{
 #if defined(_SAGA_LINUX)
-	if( _Open_Directory(wxT(MODULE_LIBRARY_PATH)) == 0 )
+	if( SG_Get_Module_Library_Manager().Add_Directory(wxT(MODULE_LIBRARY_PATH)) == 0 )
 #endif
-		_Open_Directory(g_pSAGA->Get_App_Path(), true);
+		SG_Get_Module_Library_Manager().Add_Directory(g_pSAGA->Get_App_Path(), true);
 	}
 
-	m_pMenu_Modules->Update();
+	_Update(false);
 
 	return( true );
 }
+
+//---------------------------------------------------------
+#ifdef _SAGA_MSW
+	#define GET_LIBPATH(path)	Get_FilePath_Relative(g_pSAGA->Get_App_Path(), path.c_str())
+#else
+	#define GET_LIBPATH(path)	path.c_str()
+#endif
 
 //---------------------------------------------------------
 bool CWKSP_Module_Manager::Finalise(void)
@@ -257,20 +264,21 @@ bool CWKSP_Module_Manager::Finalise(void)
 
 	CONFIG_Delete(CFG_LIBS);
 
-	for(int i=0; i<Get_Count(); i++)
+	for(int i=0, n=0; i<Get_Count(); i++, n++)
 	{
-#ifdef _SAGA_MSW
-		wxFileName	fLib(Get_Library(i)->Get_File_Name());
+		CSG_Module_Library	*pLibrary	= Get_Library(i)->Get_Library();
 
-		if( fLib.GetPath().Find(g_pSAGA->Get_App_Path()) == 0 )
+		if( pLibrary->Get_Type() == MODULE_CHAINS )
 		{
-			fLib.MakeRelativeTo(g_pSAGA->Get_App_Path());
+			for(int j=0; j<pLibrary->Get_Count(); j++, n++)
+			{
+				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n), GET_LIBPATH(pLibrary->Get_File_Name(j)));
+			}
 		}
-
-		CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, i), fLib.GetFullPath());
-#else
-		CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, i), Get_Library(i)->Get_File_Name());
-#endif
+		else
+		{
+			CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n), GET_LIBPATH(pLibrary->Get_File_Name()));
+		}
 	}
 
 	return( true );
@@ -457,40 +465,69 @@ bool CWKSP_Module_Manager::Do_Beep(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Module_Manager::_Open_Directory(const wxString &sDirectory, bool bOnlySubDirectories)
+CWKSP_Module_Library * CWKSP_Module_Manager::Get_Library(CSG_Module_Library *pLibrary)
 {
-	int			nOpened	= 0;
-	wxDir		Dir;
-	wxString	FileName;
-
-	if( Dir.Open(sDirectory) )
+	for(int i=0; i<Get_Count(); i++)
 	{
-		if( !bOnlySubDirectories && Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
+		if( pLibrary == Get_Library(i)->Get_Library() )
 		{
-			do
-			{	if( FileName.Find(wxT("saga_")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
-				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL).w_str()) )
-				{
-					nOpened++;
-				}
-			}
-			while( Dir.GetNext(&FileName) );
-		}
-
-		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_DIRS) )
-		{
-			do
-			{
-				if( FileName.CmpNoCase(wxT("dll")) )	// ignore subdirectory 'dll'
-				{
-					nOpened	+= _Open_Directory(SG_File_Make_Path(Dir.GetName(), FileName, NULL).c_str());
-				}
-			}
-			while( Dir.GetNext(&FileName) );
+			return( Get_Library(i) );
 		}
 	}
 
-	return( nOpened );
+	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
+{
+//	Get_Control()->Freeze();
+
+	for(int i=SG_Get_Module_Library_Manager().Get_Count()-1; i>=0; i--)
+	{
+		if( !Get_Library(SG_Get_Module_Library_Manager().Get_Library(i)) )
+		{
+			if( bSyncToCtrl )
+			{
+				SG_Get_Module_Library_Manager().Del_Library(i);
+			}
+			else
+			{
+				Add_Item(new CWKSP_Module_Library(SG_Get_Module_Library_Manager().Get_Library(i)));
+			}
+		}
+	}
+
+//	Get_Control()->Thaw();
+
+	m_pMenu_Modules->Update();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Module_Manager::Update(void)
+{
+	return( _Update(true) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxMenu * CWKSP_Module_Manager::Get_Menu_Modules(void)
+{
+	return( m_pMenu_Modules->Get_Menu() );
+}
+
+//---------------------------------------------------------
+void CWKSP_Module_Manager::Set_Recently_Used(CWKSP_Module *pModule)
+{
+	m_pMenu_Modules->Set_Recent(pModule);
 }
 
 
@@ -509,21 +546,33 @@ void CWKSP_Module_Manager::Open(void)
 	{
 		MSG_General_Add_Line();
 
+		bool	bUpdate	= false;
+
 		for(size_t i=0; i<File_Paths.GetCount(); i++)
 		{
-			Open(File_Paths[i]);
+			if( SG_Get_Module_Library_Manager().Add_Library(File_Paths[i]) )
+			{
+				bUpdate	= true;
+			}
 		}
 
-		m_pMenu_Modules->Update();
+		if( bUpdate )
+		{
+			_Update(false);
+		}
 	}
 }
 
 //---------------------------------------------------------
 bool CWKSP_Module_Manager::Open(const wxString &File_Name)
 {
+	MSG_General_Add_Line();
+
 	if( SG_Get_Module_Library_Manager().Add_Library(File_Name) )
 	{
-		return( Add_Item(new CWKSP_Module_Library(SG_Get_Module_Library_Manager().Get_Library(SG_Get_Module_Library_Manager().Get_Count() - 1))) );
+		_Update(false);
+
+		return( true );
 	}
 
 	return( false );
