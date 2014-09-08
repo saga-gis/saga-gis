@@ -208,6 +208,7 @@ void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
 	wxMenu	Menu(_TL("History"));
 
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_CLEAR);
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_TO_MODEL);
 
 	PopupMenu(&Menu, event.GetPosition());
 

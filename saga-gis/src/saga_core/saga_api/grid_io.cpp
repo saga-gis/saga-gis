@@ -229,226 +229,212 @@ void CSG_Grid::_Swap_Bytes(char *Bytes, int nBytes) const
 //---------------------------------------------------------
 bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes)
 {
-	char	*Line, *pValue;
-	int		x, y, i, iy, dy, nxBytes, nValueBytes;
-
-	if( Stream.is_Open() && is_Valid() )
+	if( !Stream.is_Open() || !is_Valid() )
 	{
-		Set_File_Type(GRID_FILE_FORMAT_Binary);
-
-		if( bFlip )
-		{
-			y	= Get_NY() - 1;
-			dy	= -1;
-		}
-		else
-		{
-			y	= 0;
-			dy	= 1;
-		}
-
-		//-------------------------------------------------
-		if( File_Type == SG_DATATYPE_Bit )
-		{
-			nxBytes		= Get_NX() / 8 + 1;
-
-			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal )
-			{
-				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
-				{
-					Stream.Read(m_Values[y], sizeof(char), nxBytes);
-				}
-			}
-			else
-			{
-				Line	= (char *)SG_Malloc(nxBytes);
-
-				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
-				{
-					Stream.Read(Line, sizeof(char), nxBytes);
-
-					for(x=0, pValue=Line; x<Get_NX(); pValue++)
-					{
-						for(i=0; i<8 && x<Get_NX(); i++, x++)
-						{
-							Set_Value(x, y, (*pValue & m_Bitmask[i]) == 0 ? 0.0 : 1.0);
-						}
-					}
-				}
-
-				SG_Free(Line);
-			}
-		}
-
-		//-------------------------------------------------
-		else
-		{
-			nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
-			nxBytes		= Get_NX() * nValueBytes;
-
-			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
-			{
-				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
-				{
-					Stream.Read(m_Values[y], sizeof(char), nxBytes);
-				}
-			}
-			else
-			{
-				Line	= (char *)SG_Malloc(nxBytes);
-
-				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
-				{
-					Stream.Read(Line, sizeof(char), nxBytes);
-
-					for(x=0, pValue=Line; x<Get_NX(); x++, pValue+=nValueBytes)
-					{
-						if( bSwapBytes )
-						{
-							_Swap_Bytes(pValue, nValueBytes);
-						}
-
-						switch( File_Type )
-						{
-						default:													break;
-						case SG_DATATYPE_Byte:	Set_Value(x, y, *(BYTE   *)pValue);	break;
-						case SG_DATATYPE_Char:	Set_Value(x, y, *(char   *)pValue);	break;
-						case SG_DATATYPE_Word:	Set_Value(x, y, *(WORD   *)pValue);	break;
-						case SG_DATATYPE_Short:	Set_Value(x, y, *(short  *)pValue);	break;
-						case SG_DATATYPE_DWord:	Set_Value(x, y, *(DWORD  *)pValue);	break;
-						case SG_DATATYPE_Int:		Set_Value(x, y, *(int    *)pValue);	break;
-						case SG_DATATYPE_Float:	Set_Value(x, y, *(float  *)pValue);	break;
-						case SG_DATATYPE_Double:	Set_Value(x, y, *(double *)pValue);	break;
-						}
-					}
-				}
-
-				SG_Free(Line);
-			}
-		}
-
-		//-------------------------------------------------
-		SG_UI_Process_Set_Ready();
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	Set_File_Type(GRID_FILE_FORMAT_Binary);
+
+	int	y	= bFlip ? Get_NY() - 1 : 0;
+	int	dy	= bFlip ? -1 : 1;
+
+	//-----------------------------------------------------
+	if( File_Type == SG_DATATYPE_Bit )
+	{
+		int	nxBytes	= Get_NX() / 8 + 1;
+
+		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal )
+		{
+			for(int iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+			{
+				Stream.Read(m_Values[y], sizeof(char), nxBytes);
+			}
+		}
+		else
+		{
+			char	*Line	= (char *)SG_Malloc(nxBytes);
+
+			for(int iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+			{
+				Stream.Read(Line, sizeof(char), nxBytes);
+
+				char	*pValue	= Line;
+
+				for(int x=0; x<Get_NX(); pValue++)
+				{
+					for(int i=0; i<8 && x<Get_NX(); i++, x++)
+					{
+						Set_Value(x, y, (*pValue & m_Bitmask[i]) == 0 ? 0.0 : 1.0);
+					}
+				}
+			}
+
+			SG_Free(Line);
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		int	nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
+		int	nxBytes		= Get_NX() * nValueBytes;
+
+		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
+		{
+			for(int iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+			{
+				Stream.Read(m_Values[y], sizeof(char), nxBytes);
+			}
+		}
+		else
+		{
+			char	*Line	= (char *)SG_Malloc(nxBytes);
+
+			for(int iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+			{
+				Stream.Read(Line, sizeof(char), nxBytes);
+
+				char	*pValue	= Line;
+
+				for(int x=0; x<Get_NX(); x++, pValue+=nValueBytes)
+				{
+					if( bSwapBytes )
+					{
+						_Swap_Bytes(pValue, nValueBytes);
+					}
+
+					switch( File_Type )
+					{
+					case SG_DATATYPE_Byte  :	Set_Value(x, y, *(BYTE   *)pValue, false);	break;
+					case SG_DATATYPE_Char  :	Set_Value(x, y, *(char   *)pValue, false);	break;
+					case SG_DATATYPE_Word  :	Set_Value(x, y, *(WORD   *)pValue, false);	break;
+					case SG_DATATYPE_Short :	Set_Value(x, y, *(short  *)pValue, false);	break;
+					case SG_DATATYPE_DWord :	Set_Value(x, y, *(DWORD  *)pValue, false);	break;
+					case SG_DATATYPE_Int   :	Set_Value(x, y, *(int    *)pValue, false);	break;
+					case SG_DATATYPE_Float :	Set_Value(x, y, *(float  *)pValue, false);	break;
+					case SG_DATATYPE_Double:	Set_Value(x, y, *(double *)pValue, false);	break;
+					default:	break;
+					}
+				}
+			}
+
+			SG_Free(Line);
+		}
+	}
+
+	//-----------------------------------------------------
+	SG_UI_Process_Set_Ready();
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes)
 {
-	char	*Line, *pValue;
-	int		x, y, i, ix, iy, dy, axBytes, nxBytes, nValueBytes;
-
 	//-----------------------------------------------------
-	if( Stream.is_Open() && m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
+	if( !Stream.is_Open() || !m_System.is_Valid() || m_Type == SG_DATATYPE_Undefined )
 	{
-		Set_File_Type(GRID_FILE_FORMAT_Binary);
-
-		if( bFlip )
-		{
-			y	= yA + yN - 1;
-			dy	= -1;
-		}
-		else
-		{
-			y	= yA;
-			dy	= 1;
-		}
-
-		//-------------------------------------------------
-		if( File_Type == SG_DATATYPE_Bit )
-		{
-			nxBytes		= xN / 8 + 1;
-
-			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && xA % 8 == 0 )
-			{
-				axBytes		= xA / 8;
-
-				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
-				{
-					Stream.Write((char *)m_Values[y] + axBytes, sizeof(char), nxBytes);
-				}
-			}
-			else
-			{
-				Line	= (char *)SG_Malloc(nxBytes);
-
-				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
-				{
-					for(ix=0, x=xA, pValue=Line; ix<xN; pValue++)
-					{
-						for(i=0; i<8 && ix<xN; i++, ix++, x++)
-						{
-							*pValue	= asChar(x, y) != 0.0 ? *pValue | m_Bitmask[i] : *pValue & (~m_Bitmask[i]);
-						}
-					}
-
-					Stream.Write(Line, sizeof(char), nxBytes);
-				}
-
-				SG_Free(Line);
-			}
-		}
-
-		//-------------------------------------------------
-		else
-		{
-			nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
-			nxBytes		= xN * nValueBytes;
-
-			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
-			{
-				axBytes	= xA * nValueBytes;
-
-				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
-				{
-					Stream.Write((char *)m_Values[y] + axBytes, sizeof(char), nxBytes);
-				}
-			}
-			else
-			{
-				Line	= (char *)SG_Malloc(nxBytes);
-
-				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
-				{
-					for(ix=0, x=xA, pValue=Line; ix<xN; ix++, x++, pValue+=nValueBytes)
-					{
-						switch( File_Type )
-						{
-						default:														break;
-						case SG_DATATYPE_Byte:	*(BYTE   *)pValue	= asChar	(x, y);	break;
-						case SG_DATATYPE_Char:	*(char   *)pValue	= asChar	(x, y);	break;
-						case SG_DATATYPE_Word:	*(WORD   *)pValue	= asShort	(x, y);	break;
-						case SG_DATATYPE_Short:	*(short  *)pValue	= asShort	(x, y);	break;
-						case SG_DATATYPE_DWord:	*(DWORD  *)pValue	= asInt		(x, y);	break;
-						case SG_DATATYPE_Int:		*(int    *)pValue	= asInt		(x, y);	break;
-						case SG_DATATYPE_Float:	*(float  *)pValue	= asFloat	(x, y);	break;
-						case SG_DATATYPE_Double:	*(double *)pValue	= asDouble	(x, y);	break;
-						}
-
-						if( bSwapBytes )
-						{
-							_Swap_Bytes(pValue, nValueBytes);
-						}
-					}
-
-					Stream.Write(Line, sizeof(char), nxBytes);
-				}
-
-				SG_Free(Line);
-			}
-		}
-
-		//-------------------------------------------------
-		SG_UI_Process_Set_Ready();
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	Set_File_Type(GRID_FILE_FORMAT_Binary);
+
+	int	y	= bFlip ? yA + yN - 1 : yA;
+	int	dy	= bFlip ? -1 : 1;
+
+	//-----------------------------------------------------
+	if( File_Type == SG_DATATYPE_Bit )
+	{
+		int	nxBytes	= xN / 8 + 1;
+
+		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && xA % 8 == 0 )
+		{
+			int	axBytes	= xA / 8;
+
+			for(int iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
+			{
+				Stream.Write((char *)m_Values[y] + axBytes, sizeof(char), nxBytes);
+			}
+		}
+		else
+		{
+			char	*Line	= (char *)SG_Malloc(nxBytes);
+
+			for(int iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
+			{
+				char	*pValue	= Line;
+
+				for(int ix=0, x=xA; ix<xN; pValue++)
+				{
+					for(int i=0; i<8 && ix<xN; i++, ix++, x++)
+					{
+						*pValue	= asChar(x, y) != 0.0 ? *pValue | m_Bitmask[i] : *pValue & (~m_Bitmask[i]);
+					}
+				}
+
+				Stream.Write(Line, sizeof(char), nxBytes);
+			}
+
+			SG_Free(Line);
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		int	nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
+		int	nxBytes		= xN * nValueBytes;
+
+		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
+		{
+			int	axBytes	= xA * nValueBytes;
+
+			for(int iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
+			{
+				Stream.Write((char *)m_Values[y] + axBytes, sizeof(char), nxBytes);
+			}
+		}
+		else
+		{
+			char	*Line	= (char *)SG_Malloc(nxBytes);
+
+			for(int iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
+			{
+				char	*pValue	= Line;
+
+				for(int ix=0, x=xA; ix<xN; ix++, x++, pValue+=nValueBytes)
+				{
+					switch( File_Type )
+					{
+					case SG_DATATYPE_Byte  :	*(BYTE   *)pValue	= asByte  (x, y, false);	break;
+					case SG_DATATYPE_Char  :	*(char   *)pValue	= asChar  (x, y, false);	break;
+					case SG_DATATYPE_Word  :	*(WORD   *)pValue	= asShort (x, y, false);	break;
+					case SG_DATATYPE_Short :	*(short  *)pValue	= asShort (x, y, false);	break;
+					case SG_DATATYPE_DWord :	*(DWORD  *)pValue	= asInt   (x, y, false);	break;
+					case SG_DATATYPE_Int   :	*(int    *)pValue	= asInt   (x, y, false);	break;
+					case SG_DATATYPE_Float :	*(float  *)pValue	= asFloat (x, y, false);	break;
+					case SG_DATATYPE_Double:	*(double *)pValue	= asDouble(x, y, false);	break;
+					default:	break;
+					}
+
+					if( bSwapBytes )
+					{
+						_Swap_Bytes(pValue, nValueBytes);
+					}
+				}
+
+				Stream.Write(Line, sizeof(char), nxBytes);
+			}
+
+			SG_Free(Line);
+		}
+	}
+
+	//-----------------------------------------------------
+	SG_UI_Process_Set_Ready();
+
+	return( true );
 }
 
 
