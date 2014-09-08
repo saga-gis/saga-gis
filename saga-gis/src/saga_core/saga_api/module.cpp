@@ -452,7 +452,7 @@ void CSG_Module::Set_Manager(class CSG_Data_Manager *pManager)
 //---------------------------------------------------------
 bool CSG_Module::Settings_Push(CSG_Data_Manager *pManager)
 {
-	if( !m_Settings_Stack.Get_Value_Size() )
+	if( m_Settings_Stack.Get_Value_Size() != sizeof(CSG_Parameters *) )
 	{
 		m_Settings_Stack.Create(sizeof(CSG_Parameters *));
 	}
@@ -463,11 +463,13 @@ bool CSG_Module::Settings_Push(CSG_Data_Manager *pManager)
 
 	if( pP )
 	{
-		pP[n++]	= new CSG_Parameters(Parameters);	Parameters.Restore_Defaults();
+	//	pP[n++]	= new CSG_Parameters(Parameters);	Parameters.Restore_Defaults();	// ToDo: CSG_Parameters still misses a copy constructor
+		pP[n]	= new CSG_Parameters();	pP[n++]->Assign(&Parameters);	Parameters.Restore_Defaults();
 
 		for(int i=0; i<m_npParameters; i++)
 		{
-			pP[n++]	= new CSG_Parameters(*m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
+		//	pP[n++]	= new CSG_Parameters(*m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
+			pP[n]	= new CSG_Parameters();	pP[n++]->Assign(m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
 		}
 
 		Set_Manager(pManager);
@@ -489,10 +491,10 @@ bool CSG_Module::Settings_Pop(void)
 
 		for(int i=m_npParameters-1; i>=0; i--, n--)
 		{
-			m_pParameters[i]->Assign(pP[n]); delete(pP[n]);
+			m_pParameters[i]->Assign_Values(pP[n]); delete(pP[n]);
 		}
 
-		Parameters.Assign(pP[n]); delete(pP[n]);
+		Parameters.Assign_Values(pP[n]); delete(pP[n]);
 
 		m_Settings_Stack.Set_Array(n);
 
