@@ -125,101 +125,115 @@ bool CSG_Grid::Assign(double Value)
 //---------------------------------------------------------
 bool CSG_Grid::Assign(CSG_Data_Object *pObject)
 {
-	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() && Assign((CSG_Grid *)pObject, GRID_INTERPOLATION_Undefined) )
-	{
-		if( pObject->Get_Projection().is_Okay() )
-		{
-			Get_Projection()	= pObject->Get_Projection();
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType()
+		&&  Assign((CSG_Grid *)pObject, GRID_INTERPOLATION_Undefined) );
 }
 
 bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 {
-	bool	bResult	= false;
-
 	//-----------------------------------------------------
-	if(	is_Valid() && pGrid && pGrid->is_Valid() && is_Intersecting(pGrid->Get_Extent()) != INTERSECTION_None )
+	if(	!is_Valid() || !pGrid || !pGrid->is_Valid() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
 	{
-		if(	Get_Cellsize() == pGrid->Get_Cellsize()			// No-Scaling...
-		&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
-		&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0	)
-		{
-			bResult	= _Assign_Interpolated	(pGrid, GRID_INTERPOLATION_NearestNeighbour);
-		}
-		else switch( Interpolation )
-		{
-			case GRID_INTERPOLATION_NearestNeighbour:
-			case GRID_INTERPOLATION_Bilinear:
-			case GRID_INTERPOLATION_InverseDistance:
-			case GRID_INTERPOLATION_BicubicSpline:
-			case GRID_INTERPOLATION_BSpline:
-				bResult	= _Assign_Interpolated	(pGrid, Interpolation);
-				break;
-
-			case GRID_INTERPOLATION_Mean_Nodes:
-			case GRID_INTERPOLATION_Mean_Cells:
-				bResult	= _Assign_MeanValue		(pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
-				break;
-
-			case GRID_INTERPOLATION_Minimum:
-			case GRID_INTERPOLATION_Maximum:
-				bResult	= _Assign_ExtremeValue	(pGrid, Interpolation == GRID_INTERPOLATION_Maximum);
-				break;
-
-			case GRID_INTERPOLATION_Majority:
-				bResult	= _Assign_Majority		(pGrid);
-				break;
-
-			default:
-				if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
-				{
-					bResult	= _Assign_Interpolated	(pGrid, GRID_INTERPOLATION_BSpline);
-				}
-				else											// Up-Scaling...
-				{
-					bResult	= _Assign_MeanValue		(pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
-				}
-				break;
-		}
-
-		//-------------------------------------------------
-		if( bResult )
-		{
-//			Set_Name				(pGrid->Get_Name());
-			Set_Description			(pGrid->Get_Description());
-			Set_Unit				(pGrid->Get_Unit());
-			Set_Scaling				(pGrid->Get_Scaling(), pGrid->Get_Offset());
-			Set_NoData_Value_Range	(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
-		}
+		return( false );
 	}
 
-	//-----------------------------------------------------
+	bool	bResult	= false;
+
+	//---------------------------------------------------------
+	if(	Get_Cellsize() == pGrid->Get_Cellsize()	// No-Scaling...
+	&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
+	&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0	)
+	{
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
+			{
+				if( pGrid->is_NoData(x, y) )
+				{
+					Set_NoData(x, y);
+				}
+				else
+				{
+					Set_Value(x, y, pGrid->asDouble(x, y));
+				}
+			}
+		}
+
+		bResult	= true;
+	}
+
+	//---------------------------------------------------------
+	else switch( Interpolation )
+	{
+	case GRID_INTERPOLATION_NearestNeighbour:
+	case GRID_INTERPOLATION_Bilinear:
+	case GRID_INTERPOLATION_InverseDistance:
+	case GRID_INTERPOLATION_BicubicSpline:
+	case GRID_INTERPOLATION_BSpline:
+		bResult	= _Assign_Interpolated(pGrid, Interpolation);
+		break;
+
+	case GRID_INTERPOLATION_Mean_Nodes:
+	case GRID_INTERPOLATION_Mean_Cells:
+		bResult	= _Assign_MeanValue   (pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
+		break;
+
+	case GRID_INTERPOLATION_Minimum:
+	case GRID_INTERPOLATION_Maximum:
+		bResult	= _Assign_ExtremeValue(pGrid, Interpolation == GRID_INTERPOLATION_Maximum);
+		break;
+
+	case GRID_INTERPOLATION_Majority:
+		bResult	= _Assign_Majority    (pGrid);
+		break;
+
+	default:
+		if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
+		{
+			bResult	= _Assign_Interpolated(pGrid, GRID_INTERPOLATION_BSpline);
+		}
+		else											// Up-Scaling...
+		{
+			bResult	= _Assign_MeanValue(pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
+		}
+		break;
+	}
+
+	//---------------------------------------------------------
+	if( bResult )
+	{
+		Set_Unit(pGrid->Get_Unit());
+
+		if( pGrid->Get_Projection().is_Okay() )
+		{
+			Get_Projection()	= pGrid->Get_Projection();
+		}
+
+		Get_History()	= pGrid->Get_History();
+	}
+
+	//---------------------------------------------------------
+	SG_UI_Process_Set_Ready();
+
 	return( bResult );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 {
-	int		x, y;
-	double	yPosition;
+	double	py	= Get_YMin();
 
-	Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
-
-	for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, py+=Get_Cellsize())
 	{
-		#pragma omp parallel for private(x)
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
 			double	z;
 
-			if( pGrid->Get_Value(Get_XMin() + x * Get_Cellsize(), yPosition, z, Interpolation) )
+			if( pGrid->Get_Value(Get_XMin() + x * Get_Cellsize(), py, z, Interpolation) )
 			{
-				Set_Value (x, y, z);
+				Set_Value(x, y, z);
 			}
 			else
 			{
@@ -228,52 +242,48 @@ bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Inte
 		}
 	}
 
-	Get_History()	= pGrid->Get_History();
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()))->Add_Property(SG_T("NAME"), _TL("Resampling"));
-
-	SG_UI_Process_Set_Ready();
-
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum)
 {
-	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
+	if( Get_Cellsize() < pGrid->Get_Cellsize() )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int			x, y, ix, iy;
-	double		px, py, ax, ay, d, z;
-	CSG_Matrix	S(Get_NY(), Get_NX()), N(Get_NY(), Get_NX());
-
-	d	= pGrid->Get_Cellsize() / Get_Cellsize();
-
-	Set_NoData_Value(pGrid->Get_NoData_Value());
-
 	Assign_NoData();
 
-	//-----------------------------------------------------
-	ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
-	ay	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
+	double	ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
+	double	py	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
 
-	for(y=0, py=ay; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
+	double	d	= pGrid->Get_Cellsize() / Get_Cellsize();
+
+	for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
 	{
-		if( (iy = (int)floor(py)) >= 0 && iy < Get_NY() )
-		{
-			for(x=0, px=ax; x<pGrid->Get_NX(); x++, px+=d)
-			{
-				if( !pGrid->is_NoData(x, y) && (ix = (int)floor(px)) >= 0 && ix < Get_NX() )
-				{
-					z	= pGrid->asDouble(x, y);
+		int	iy	= (int)floor(py);
 
-					if( is_NoData(ix, iy)
-					||	(bMaximum == true  && z > asDouble(ix, iy))
-					||	(bMaximum == false && z < asDouble(ix, iy)) )
+		if( iy >= 0 && iy < Get_NY() )
+		{
+			#pragma omp parallel for
+			for(int x=0; x<pGrid->Get_NX(); x++)
+			{
+				if( !pGrid->is_NoData(x, y) )
+				{
+					int	ix	= (int)floor(ax + x * d);
+					
+					if( ix >= 0 && ix < Get_NX() )
 					{
-						Set_Value(ix, iy, z);
+						double	z	= pGrid->asDouble(x, y);
+
+						if( is_NoData(ix, iy)
+						||	(bMaximum ==  true && z > asDouble(ix, iy))
+						||	(bMaximum == false && z < asDouble(ix, iy)) )
+						{
+							Set_Value(ix, iy, z);
+						}
 					}
 				}
 			}
@@ -281,49 +291,48 @@ bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum)
 	}
 
 	//-----------------------------------------------------
-	Get_History()	= pGrid->Get_History();
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()))->Add_Property(SG_T("NAME"), _TL("Resampling"));
-
-	SG_UI_Process_Set_Ready();
-
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 {
-	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
+	if( Get_Cellsize() < pGrid->Get_Cellsize() )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int			x, y, ix, iy, jx, jy;
-	double		px, py, ax, ay, d, w, wx, wy, z;
+	Assign_NoData();
+
 	CSG_Matrix	S(Get_NY(), Get_NX()), N(Get_NY(), Get_NX());
 
-	d	= pGrid->Get_Cellsize() / Get_Cellsize();
-
-	Set_NoData_Value(pGrid->Get_NoData_Value());
-
-	Assign_NoData();
+	double	d	= pGrid->Get_Cellsize() / Get_Cellsize();
 
 	//-----------------------------------------------------
 	if( bAreaProportional == false )
 	{
-		ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
-		ay	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
+		double	ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
+		double	py	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
 
-		for(y=0, py=ay; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
+		for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
 		{
-			if( (iy = (int)floor(py)) >= 0 && iy < Get_NY() )
+			int	iy	= (int)floor(py);
+
+			if( iy >= 0 && iy < Get_NY() )
 			{
-				for(x=0, px=ax; x<pGrid->Get_NX(); x++, px+=d)
+				#pragma omp parallel for
+				for(int x=0; x<pGrid->Get_NX(); x++)
 				{
-					if( !pGrid->is_NoData(x, y) && (ix = (int)floor(px)) >= 0 && ix < Get_NX() )
+					if( !pGrid->is_NoData(x, y) )
 					{
-						S[ix][iy]	+= pGrid->asDouble(x, y);
-						N[ix][iy]	++;
+						int	ix	= (int)floor(ax + x * d);
+						
+						if( ix >= 0 && ix < Get_NX() )
+						{
+							S[ix][iy]	+= pGrid->asDouble(x, y);
+							N[ix][iy]	++;
+						}
 					}
 				}
 			}
@@ -333,58 +342,64 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 	//-----------------------------------------------------
 	else // if( bAreaProportional == true )
 	{
-		ax	= ((pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_XMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
-		ay	= ((pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_YMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
+		double	ax	= ((pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_XMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
+		double	py	= ((pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_YMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
 
-		for(y=0, py=ay; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
+		for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
 		{
 			if( py > -d || py < Get_NY() )
 			{
-				iy	= (int)floor(py);
-				wy	= (py + d) - iy;
-				wy	= wy < 1.0 ? 1.0 : wy - 1.0; 
+				int		iy	= (int)floor(py);
 
-				for(x=0, px=ax; x<pGrid->Get_NX(); x++, px+=d)
+				double	wy	= (py + d) - iy;	wy	= wy < 1.0 ? 1.0 : wy - 1.0; 
+
+				#pragma omp parallel for
+				for(int x=0; x<pGrid->Get_NX(); x++)
 				{
-					if( !pGrid->is_NoData(x, y) && (px > -d && px < Get_NX()) )
+					if( !pGrid->is_NoData(x, y) )
 					{
-						ix	= (int)floor(px);
-						wx	= (px + d) - ix;
-						wx	= wx < 1.0 ? 1.0 : wx - 1.0; 
+						double	px	= ax + x * d;
 
-						z	= pGrid->asDouble(x, y);
-
-						if( iy >= 0 && iy < Get_NY() )		// wy > 0.0 is always true
+						if( px > -d && px < Get_NX() )
 						{
-							if( ix >= 0 && ix < Get_NX() )	// wx > 0.0 is always true
+							int		jy, jx, ix	= (int)floor(px);
+
+							double	wx	= (px + d) - ix;	wx	= wx < 1.0 ? 1.0 : wx - 1.0; 
+
+							double	z	= pGrid->asDouble(x, y);
+
+							if( iy >= 0 && iy < Get_NY() )		// wy > 0.0 is always true
 							{
-								w	= wx * wy;
-								S[ix][iy]	+= w * z;
-								N[ix][iy]	+= w;
+								if( ix >= 0 && ix < Get_NX() )	// wx > 0.0 is always true
+								{
+									double	w	= wx * wy;
+									S[ix][iy]	+= w * z;
+									N[ix][iy]	+= w;
+								}
+
+								if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
+								{
+									double	w	= (1.0 - wx) * wy;
+									S[jx][iy]	+= w * z;
+									N[jx][iy]	+= w;
+								}
 							}
 
-							if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
+							if( wy < 1.0 && (jy = iy + 1) >= 0 && jy < Get_NY() )
 							{
-								w	= (1.0 - wx) * wy;
-								S[jx][iy]	+= w * z;
-								N[jx][iy]	+= w;
-							}
-						}
+								if( ix >= 0 && ix < Get_NX() )
+								{
+									double	w	= wx * (1.0 - wy);
+									S[ix][jy]	+= w * z;
+									N[ix][jy]	+= w;
+								}
 
-						if( wy < 1.0 && (jy = iy + 1) >= 0 && jy < Get_NY() )
-						{
-							if( ix >= 0 && ix < Get_NX() )
-							{
-								w	= wx * (1.0 - wy);
-								S[ix][jy]	+= w * z;
-								N[ix][jy]	+= w;
-							}
-
-							if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
-							{
-								w	= (1.0 - wx) * (1.0 - wy);
-								S[jx][jy]	+= w * z;
-								N[jx][jy]	+= w;
+								if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
+								{
+									double	w	= (1.0 - wx) * (1.0 - wy);
+									S[jx][jy]	+= w * z;
+									N[jx][jy]	+= w;
+								}
 							}
 						}
 					}
@@ -394,11 +409,12 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( N[x][y] )
+			if( N[x][y] > 0.0 )
 			{
 				Set_Value(x, y, S[x][y] / N[x][y]);
 			}
@@ -410,11 +426,6 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 	}
 
 	//-----------------------------------------------------
-	Get_History()	= pGrid->Get_History();
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()))->Add_Property(SG_T("NAME"), _TL("Resampling"));
-
-	SG_UI_Process_Set_Ready();
-
 	return( true );
 }
 
@@ -426,7 +437,7 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 //---------------------------------------------------------
 bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 {
-	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
+	if( Get_Cellsize() < pGrid->Get_Cellsize() )
 	{
 		return( false );
 	}
@@ -503,11 +514,6 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 	}
 
 	//-----------------------------------------------------
-	Get_History()	= pGrid->Get_History();
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()))->Add_Property(SG_T("NAME"), _TL("Resampling"));
-
-	SG_UI_Process_Set_Ready();
-
 	return( true );
 }
 

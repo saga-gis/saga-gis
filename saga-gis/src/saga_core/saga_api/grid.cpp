@@ -262,12 +262,15 @@ void CSG_Grid::_On_Construction(void)
 //---------------------------------------------------------
 bool CSG_Grid::Create(const CSG_Grid &Grid)
 {
-	if( Create((CSG_Grid *)&Grid, ((CSG_Grid *)&Grid)->Get_Type()) )
+	if( Create(Grid.Get_System(), Grid.Get_Type()) )
 	{
-		Set_Name       (Grid.Get_Name       ());
-		Set_Description(Grid.Get_Description());
+		Set_Name              (Grid.Get_Name       ());
+		Set_Description       (Grid.Get_Description());
+		Set_Unit              (Grid.Get_Unit       ());
+		Set_Scaling           (Grid.Get_Scaling(), Grid.Get_Offset());
+		Set_NoData_Value_Range(Grid.Get_NoData_Value(), Grid.Get_NoData_hiValue());
 
-		return( Assign((CSG_Data_Object *)&Grid) );
+		return( Assign((CSG_Grid *)&Grid, GRID_INTERPOLATION_Undefined) );
 	}
 
 	return( false );
