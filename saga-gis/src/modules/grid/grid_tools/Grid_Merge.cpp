@@ -603,6 +603,8 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 				m_Weight.Set_Value(x, y, d = 0);
 			else if( m_Weight.asDouble(x, y) > d )
 				m_Weight.Set_Value(x, y, d);
+			else
+				d	= m_Weight.asDouble(x, y);
 
 			if( dBlend <= 0 || d < dBlend )	d++;
 		}
@@ -616,6 +618,8 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 				m_Weight.Set_Value(x, y, d = 0);
 			else if( m_Weight.asDouble(x, y) > d )
 				m_Weight.Set_Value(x, y, d);
+			else
+				d	= m_Weight.asDouble(x, y);
 
 			if( dBlend <= 0 || d < dBlend )	d++;
 		}
@@ -626,6 +630,8 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 				m_Weight.Set_Value(x, y, d = 0);
 			else if( m_Weight.asDouble(x, y) > d )
 				m_Weight.Set_Value(x, y, d);
+			else
+				d	= m_Weight.asDouble(x, y);
 
 			if( dBlend <= 0 || d < dBlend )	d++;
 		}
