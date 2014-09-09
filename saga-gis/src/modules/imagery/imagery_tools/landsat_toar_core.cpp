@@ -217,11 +217,12 @@ int lsat_old_mtl(const CSG_MetaData &m, lsat_data *lsat)
 	CSG_String	s;
 
 	//-------------------------------------------
-	GET_METADATA("SPACECRAFT_ID"              ); lsat->number		= CSG_String(s.Get_Char(7)).asInt();
-	GET_METADATA("SENSOR_ID"                  ); chrncpy(lsat->sensor  , s,  4);
-	GET_METADATA("ACQUISITION_DATE"           ); chrncpy(lsat->date    , s, 10);
-    GET_METADATA("ORTHO_PRODUCT_CREATION_TIME"); chrncpy(lsat->creation, s, 10);
-	GET_METADATA("SUN_ELEVATION"              ); lsat->sun_elev	= s.asDouble();
+	IF_GET_METADATA("SPACECRAFT_ID"              )	lsat->number = CSG_String(s.Get_Char(7)).asInt();	else return( false );
+	IF_GET_METADATA("SENSOR_ID"                  )	chrncpy(lsat->sensor  , s,  4);						else return( false );
+	IF_GET_METADATA("ACQUISITION_DATE"           )	chrncpy(lsat->date    , s, 10);
+	IF_GET_METADATA("PRODUCT_CREATION_TIME"      )	chrncpy(lsat->creation, s, 10);	else
+	IF_GET_METADATA("ORTHO_PRODUCT_CREATION_TIME")	chrncpy(lsat->creation, s, 10);
+	IF_GET_METADATA("SUN_ELEVATION"              )	lsat->sun_elev = s.asDouble();
 
 	switch( lsat->number )	// Fill data with the sensor_XXX functions
 	{
@@ -439,7 +440,7 @@ bool lsat_metadata(const char *metafile, lsat_data *lsat)
 		return( false );
 	}
 
-	if( m.Get_Child("QCALMAX_BAND") != NULL )	// ver_mtl = (strstr(mtldata, "QCALMAX_BAND") != NULL) ? 0 : 1;
+	if( m.Get_Child("QCALMAX_BAND1") != NULL )	// ver_mtl = (strstr(mtldata, "QCALMAX_BAND") != NULL) ? 0 : 1;
 	{
 		return( lsat_old_mtl(m, lsat) );	// old format
 	}
