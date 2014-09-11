@@ -140,9 +140,7 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 	bool	bResult	= false;
 
 	//---------------------------------------------------------
-	if(	Get_Cellsize() == pGrid->Get_Cellsize()	// No-Scaling...
-	&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
-	&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0	)
+	if( m_System == pGrid->m_System )
 	{
 		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
@@ -161,6 +159,13 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 		}
 
 		bResult	= true;
+	}
+
+	else if(  Get_Cellsize() == pGrid->Get_Cellsize()	// No-Scaling...
+	&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
+	&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0	)
+	{
+		bResult	= _Assign_Interpolated(pGrid, GRID_INTERPOLATION_NearestNeighbour);
 	}
 
 	//---------------------------------------------------------
