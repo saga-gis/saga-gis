@@ -181,7 +181,7 @@ CWETNESS::CWETNESS(void)
 		);
 
 	Parameters.Add_Choice(
-		NULL	, "Method"		, _TL("Catchment Area Calculation"),
+		NULL	, "METHOD"		, _TL("Catchment Area Calculation"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
 			_TL("Deterministic 8"),
@@ -257,7 +257,7 @@ bool CWETNESS::On_Execute(void)
 		RUN_MODULE("ta_hydrology"			, 0,
 				SET_PARAMETER("ELEVATION"	, &DEM)
 			&&	SET_PARAMETER("CAREA"		, pB)
-			&&	SET_PARAMETER("Method"		, Parameters("Method"))
+			&&	SET_PARAMETER("METHOD"		, Parameters("METHOD"))
 		)
 	}
 	else
@@ -265,7 +265,7 @@ bool CWETNESS::On_Execute(void)
 		RUN_MODULE("ta_hydrology"			, 0,
 				SET_PARAMETER("ELEVATION"	, pDEM)
 			&&	SET_PARAMETER("CAREA"		, pB)
-			&&	SET_PARAMETER("Method"		, Parameters("Method"))
+			&&	SET_PARAMETER("METHOD"		, Parameters("METHOD"))
 		)
 	}
 

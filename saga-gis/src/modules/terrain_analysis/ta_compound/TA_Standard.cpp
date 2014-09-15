@@ -76,114 +76,30 @@ CTA_Standard::CTA_Standard(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Basic Terrain Analysis"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2005"));
+	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
 		"A selection of basic parameters and objects to be derived from a Digital Terrain Model using standard settings."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "SHADE"		, _TL("Analytical Hillshading"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "SLOPE"		, _TL("Slope"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "ASPECT"		, _TL("Aspect"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "HCURV"		, _TL("Plan Curvature"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "VCURV"		, _TL("Profile Curvature"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "CONVERGENCE"	, _TL("Convergence Index"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "SINKS"		, _TL("Closed Depressions"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "CAREA"		, _TL("Catchment Area"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "WETNESS"		, _TL("Wetness Index"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "LSFACTOR"	, _TL("LS-Factor"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "CHANNELS"	, _TL("Channel Network"),
-		_TL(""),
-		PARAMETER_OUTPUT		, SHAPE_TYPE_Line
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "BASINS"		, _TL("Drainage Basins"),
-		_TL(""),
-		PARAMETER_OUTPUT		, SHAPE_TYPE_Polygon
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "CHNL_BASE"	, _TL("Channel Network Base Level"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "CHNL_ALTI"	, _TL("Vertical Distance to Channel Network"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "VALL_DEPTH"	, _TL("Valley Depth"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "RSP"			, _TL("Relative Slope Position"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Grid  (NULL, "ELEVATION"  , _TL("Elevation"                 ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid  (NULL, "SHADE"      , _TL("Analytical Hillshading"    ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "SLOPE"      , _TL("Slope"                     ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "ASPECT"     , _TL("Aspect"                    ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "HCURV"      , _TL("Plan Curvature"            ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "VCURV"      , _TL("Profile Curvature"         ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "CONVERGENCE", _TL("Convergence Index"         ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "SINKS"      , _TL("Closed Depressions"        ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "CAREA"      , _TL("Catchment Area"            ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "WETNESS"    , _TL("Topographic Wetness Index" ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "LSFACTOR"   , _TL("LS-Factor"                 ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Shapes(NULL, "CHANNELS"   , _TL("Channel Network"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line);
+	Parameters.Add_Shapes(NULL, "BASINS"     , _TL("Drainage Basins"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Polygon);
+	Parameters.Add_Grid  (NULL, "CHNL_BASE"  , _TL("Channel Network Base Level"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "CHNL_DIST"  , _TL("Channel Network Distance"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "VALL_DEPTH" , _TL("Valley Depth"              ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "RSP"        , _TL("Relative Slope Position"   ), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Value(
 		NULL	, "THRESHOLD"	, _TL("Channel Density"), 
@@ -260,7 +176,7 @@ bool CTA_Standard::On_Execute(void)
 	RUN_MODULE("ta_hydrology"			, 0,
 			SET_PARAMETER("ELEVATION"	, &DEMP)	// << preprocessed DEM
 		&&	SET_PARAMETER("CAREA"		, Parameters("CAREA"))
-		&&	SET_PARAMETER("Method"		, 4)		// MFD
+		&&	SET_PARAMETER("METHOD"		, 4)		// MFD
 	)
 
 	Parameters("SINKS")->asGrid()->Assign(&(TMP2 = DEMP - *Parameters("ELEVATION")->asGrid()));
@@ -304,7 +220,7 @@ bool CTA_Standard::On_Execute(void)
 	RUN_MODULE("ta_channels"			, 3,
 			SET_PARAMETER("ELEVATION"	, &DEMP)
 		&&	SET_PARAMETER("CHANNELS"	, &TMP1)
-		&&	SET_PARAMETER("DISTANCE"	, Parameters("CHNL_ALTI"))
+		&&	SET_PARAMETER("DISTANCE"	, Parameters("CHNL_DIST"))
 		&&	SET_PARAMETER("BASELEVEL"	, Parameters("CHNL_BASE"))
 	)
 
@@ -331,7 +247,7 @@ bool CTA_Standard::On_Execute(void)
 	Parameters("VALL_DEPTH")->asGrid()->Set_Name(_TL("Valley Depth"));
 
 	Parameters("RSP")->asGrid()->Assign(&(TMP1 =
-		*Parameters("CHNL_ALTI")->asGrid() / (*Parameters("CHNL_ALTI")->asGrid() + *Parameters("VALL_DEPTH")->asGrid())
+		*Parameters("CHNL_DIST")->asGrid() / (*Parameters("CHNL_DIST")->asGrid() + *Parameters("VALL_DEPTH")->asGrid())
 	));
 
 	//-----------------------------------------------------

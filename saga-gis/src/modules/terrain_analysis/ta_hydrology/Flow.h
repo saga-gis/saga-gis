@@ -105,7 +105,6 @@ class ta_hydrology_EXPORT CFlow : public CSG_Module_Grid
 {
 public:
 	CFlow(void);
-	virtual ~CFlow(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
 
@@ -114,24 +113,15 @@ public:
 
 protected:
 
-	bool					bKill_Slope, bKill_Aspect;
+	bool					m_bKill_Slope, m_bKill_Aspect;
 
-	int						Step;
+	int						m_Step;
 
-	double					MFD_Converge;
+	double					m_Converge;
 
-	CSG_Grid					*pDTM, *pRoute, *pWeight,
-							*pCatch,
-							*pCatch_Slope,
-							*pCatch_Height,
-							*pCatch_Aspect,
-							*pFlowPath,
-							*pCatch_AspectY,
-							*pMaterial,
-							*pTarget,
-							*pAccu_Tot,
-							*pAccu_Left,
-							*pAccu_Right;
+	CSG_Grid				*m_pDTM, *m_pRoute, *m_pWeight,
+							*m_pCatch, *m_pCatch_Slope, *m_pCatch_Height, *m_pCatch_Aspect, *m_pCatch_AspectY, *m_pFlowPath,
+							*m_pMaterial, *m_pTarget, *m_pAccu_Tot, *m_pAccu_Left, *m_pAccu_Right;
 
 
 	virtual bool			On_Execute(void);
@@ -146,19 +136,19 @@ protected:
 
 	void					Get_Gradient	(int x, int y, double &Slope, double &Aspect);
 
-	void					Add_Fraction	(int x, int y, int Direction, double Fraction = 1);
+	void					Add_Fraction	(int x, int y, int Direction, double Fraction = 1.0);
 	void					Add_Portion		(int x, int y, int ix, int iy, int Direction);
 	void					Find_Sides		(int x, int y, int Direction, bool &left, bool &right);
 
 
 private:
 
-	bool					bPoint, delete_pMaterial;
+	bool					m_bPoint, m_bKill_Material;
 
-	int						xPoint, yPoint;
+	int						m_xPoint, m_yPoint;
 
 
-	void					Finalize		(void);
+	void					_Finalize		(void);
 
 };
 

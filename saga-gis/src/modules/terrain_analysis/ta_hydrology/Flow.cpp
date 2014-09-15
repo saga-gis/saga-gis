@@ -71,10 +71,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SET_GRID_TO(grd, val)	if( grd )	{	grd->Assign(val);	}
+
+#define SET_GRID_CELL_VAL(x, y, grid, val)	if( grid )	{	grid->Set_Value(x, y, val);	}
+#define ADD_GRID_CELL_VAL(x, y, grid, val)	if( grid )	{	grid->Add_Value(x, y, val);	}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CFlow::CFlow(void)
 {
-	pCatch_AspectY	= NULL;
-	bPoint			= false;
+	m_pCatch_AspectY	= NULL;
+	m_bPoint			= false;
 
 	//-----------------------------------------------------
 	Set_Description (_TW(
@@ -83,77 +96,23 @@ CFlow::CFlow(void)
 
 
 	//-----------------------------------------------------
-	// Input...
+	Parameters.Add_Grid(NULL, "ELEVATION" , _TL("Elevation"                           ), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Grid(NULL, "SINKROUTE" , _TL("Sink Routes"                         ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "WEIGHT"    , _TL("Weight"                              ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
-	Parameters.Add_Grid(
-		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "WEIGHT"		, _TL("Weight"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "MATERIAL"	, _TL("Material"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "TARGET"		, _TL("Target"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);	
-
+	Parameters.Add_Grid(NULL, "MATERIAL"  , _TL("Material"                            ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "TARGET"    , _TL("Target"                              ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	//-----------------------------------------------------
-	// Output...
+	Parameters.Add_Grid(NULL, "CAREA"     , _TL("Catchment Area"                      ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Grid(
-		NULL	, "CAREA"		, _TL("Catchment Area"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Grid(NULL, "CHEIGHT"   , _TL("Catchment Height"                    ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "CSLOPE"    , _TL("Catchment Slope"                     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
-	Parameters.Add_Grid(
-		NULL	, "CHEIGHT"		, _TL("Catchment Height"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "CSLOPE"		, _TL("Catchment Slope"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "ACCU_TOT"	, _TL("Total accumulated Material"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);	
-
-	Parameters.Add_Grid(
-		NULL	, "ACCU_LEFT"	, _TL("Accumulated Material from _left_ side"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);		
-
-	Parameters.Add_Grid(
-		NULL	, "ACCU_RIGHT"	, _TL("Accumulated Material from _right_ side"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);		
+	Parameters.Add_Grid(NULL, "ACCU_TOT"  , _TL("Total accumulated Material"          ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);	
+	Parameters.Add_Grid(NULL, "ACCU_LEFT" , _TL("Accumulated Material from Left Side" ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
+	Parameters.Add_Grid(NULL, "ACCU_RIGHT", _TL("Accumulated Material from Right Side"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
 	
 	//-----------------------------------------------------
 	// Options...
@@ -165,10 +124,6 @@ CFlow::CFlow(void)
 	);
 }
 
-//---------------------------------------------------------
-CFlow::~CFlow(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -179,121 +134,104 @@ CFlow::~CFlow(void)
 //---------------------------------------------------------
 void CFlow::Set_Point(int x, int y)
 {
-	bPoint	= true;
-	xPoint	= x;
-	yPoint	= y;
+	m_bPoint	= true;
+
+	m_xPoint	= x;
+	m_yPoint	= y;
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFlow::On_Execute(void)
 {
-	bool	bResult	= false;
-	sLong	n;
-	double	d;
-
 	//-------------------------------------------------
-	pDTM			= Parameters("ELEVATION")	->asGrid();
-	pRoute			= Parameters("SINKROUTE")	->asGrid();
-	pWeight			= Parameters("WEIGHT")		->asGrid();
-	pMaterial		= Parameters("MATERIAL")	->asGrid();
-	pTarget			= Parameters("TARGET")		->asGrid();
+	m_pDTM			= Parameters("ELEVATION")->asGrid();
+	m_pRoute		= Parameters("SINKROUTE")->asGrid();
+	m_pWeight		= Parameters("WEIGHT"   )->asGrid();
+	m_pMaterial		= Parameters("MATERIAL" )->asGrid();
+	m_pTarget		= Parameters("TARGET"   )->asGrid();
+	m_pCatch		= Parameters("CAREA"    )->asGrid();
+	m_pCatch_Height	= NULL;
+	m_pCatch_Slope	= NULL;
+	m_pCatch_Aspect	= NULL;
+	m_pFlowPath		= NULL;
+	m_pAccu_Tot		= NULL;
+	m_pAccu_Left	= NULL;
+	m_pAccu_Right	= NULL;
 
-	pCatch			= Parameters("CAREA")		->asGrid();
-	DataObject_Set_Colors(pCatch, 100, SG_COLORS_WHITE_BLUE);
-	pCatch_Height	= NULL;
-	pCatch_Slope	= NULL;
-	pCatch_Aspect	= NULL;
-	pFlowPath		= NULL;
-	pAccu_Tot		= NULL;
-	pAccu_Left		= NULL;
-	pAccu_Right		= NULL;
+	m_Step			= Parameters("STEP")->asInt();
 
-	Step			= Parameters("STEP")		->asInt();
-
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	On_Initialize();
 
-	//-------------------------------------------------
-	if( pCatch )
+	SET_GRID_TO(m_pCatch       , 0.0);
+	SET_GRID_TO(m_pCatch_Height, 0.0);
+	SET_GRID_TO(m_pCatch_Slope , 0.0);
+	SET_GRID_TO(m_pCatch_Aspect, 0.0);
+	SET_GRID_TO(m_pFlowPath    , 0.0);
+	SET_GRID_TO(m_pAccu_Tot    , 1.0);
+	SET_GRID_TO(m_pAccu_Left   , 1.0);
+	SET_GRID_TO(m_pAccu_Right  , 1.0);
+
+	if( m_pCatch_Aspect )
 	{
-		pCatch			->Assign(0.0);
+		m_pCatch_AspectY	= SG_Create_Grid(m_pCatch_Aspect);
 	}
 
-	if( pCatch_Height )
-	{
-		pCatch_Height	->Assign(0.0);
-	}
-
-	if( pCatch_Slope )
-	{
-		pCatch_Slope	->Assign(0.0);
-	}
-
-	if( pCatch_Aspect )
-	{
-		pCatch_Aspect	->Assign(0.0);
-		pCatch_AspectY	 = SG_Create_Grid(pCatch_Aspect);
-	}
-
-	if( pFlowPath )
-	{
-		pFlowPath		->Assign(0.0);
-	}
-
-	if( pAccu_Tot )
-	{
-		pAccu_Tot		->Assign(1.0);
-	}	
-
-	if( pAccu_Left )
-	{
-		pAccu_Left		->Assign(1.0);
-	}	
-
-	if( pAccu_Right )
-	{
-		pAccu_Right		->Assign(1.0);
-	}	
+	DataObject_Set_Colors(m_pCatch, 11, SG_COLORS_WHITE_BLUE);
 	
-	//-------------------------------------------------
-	if( bPoint )
+	//-----------------------------------------------------
+	if( m_bPoint )
 	{
-		bPoint	= false;
+		m_bPoint	= false;
 
-		if( is_InGrid(xPoint, yPoint) )
+		if( is_InGrid(m_xPoint, m_yPoint) )
 		{
-			Calculate(xPoint, yPoint);
+			Calculate(m_xPoint, m_yPoint);
 
 			On_Finalize();
 
-			for(n=0; n<Get_NCells(); n++)
-			{
-				d	= pCatch->asDouble(n);
-				pCatch->Set_Value(n, 100.0 * d);
-			}
+			m_pCatch->Multiply(100.0);	// output as percentage
 
-			bResult		= true;
+			return( true );
 		}
 	}
+
+	//-----------------------------------------------------
 	else
 	{
-		pCatch_Height	= Parameters("CHEIGHT")	->asGrid();
-		pCatch_Slope	= Parameters("CSLOPE")	->asGrid();
+		m_pCatch_Height	= Parameters("CHEIGHT"   )->asGrid();
+		m_pCatch_Slope	= Parameters("CSLOPE"    )->asGrid();
+		m_pAccu_Tot		= Parameters("ACCU_TOT"  )->asGrid();
+		m_pAccu_Left	= Parameters("ACCU_LEFT" )->asGrid();
+		m_pAccu_Right	= Parameters("ACCU_RIGHT")->asGrid();
 		
-		pAccu_Tot		= Parameters("ACCU_TOT")	->asGrid();
-		pAccu_Left		= Parameters("ACCU_LEFT")	->asGrid();
-		pAccu_Right		= Parameters("ACCU_RIGHT")	->asGrid();
-		
+		DataObject_Set_Colors(m_pCatch_Height, 11, SG_COLORS_RED_GREEN);
+		DataObject_Set_Colors(m_pCatch_Slope , 11, SG_COLORS_RED_GREEN);
+		DataObject_Set_Colors(m_pCatch_Aspect, 11, SG_COLORS_ASPECT_3);
+		DataObject_Set_Colors(m_pFlowPath    , 11, SG_COLORS_RED_GREY_BLUE);
+
+		if( m_pCatch_Height )	{	m_pCatch_Slope ->Set_Unit(m_pDTM->Get_Unit()); }
+		if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Set_Unit(_TL("radians")); }
+		if( m_pCatch_Aspect )	{	m_pCatch_Aspect->Set_Unit(_TL("radians")); }
+
 		Calculate();
 
 		On_Finalize();
-		Finalize();
 
-		bResult			= true;
+		_Finalize();
+
+		return( true );
 	}
 
-	//-------------------------------------------------
-	return( bResult );
+	//-----------------------------------------------------
+	return( false );
 }
 
 
@@ -306,51 +244,30 @@ bool CFlow::On_Execute(void)
 //---------------------------------------------------------
 void CFlow::Init_Cell(int x, int y)
 {
-	double	Weight, Material, Slope, Aspect;
+	double	Weight, Slope, Aspect;
 
-	Weight		= pWeight   ? pWeight  ->asDouble(x, y) : 1.0;
-	Material	= pMaterial ? pMaterial->asDouble(x, y) : 1.0;
-
-	if( pCatch )
-	{
-		pCatch			->Add_Value(x, y, Weight);
-	}
-
-	if( pCatch_Height )
-	{
-		pCatch_Height	->Add_Value(x, y, Weight * pDTM->asDouble(x, y));
-	}
-
-	if( pCatch_Slope )
+	if( m_pCatch_Slope || m_pCatch_Aspect )
 	{
 		Get_Gradient(x, y, Slope, Aspect);
-
-		pCatch_Slope	->Add_Value(x, y, Weight * Slope);
+	}
+	else
+	{
+		Slope	= Aspect	= 0.0;
 	}
 
-	if( pCatch_Aspect && pCatch_AspectY )
-	{
-		Get_Gradient(x, y, Slope, Aspect);
+	Weight	= m_pWeight ? m_pWeight->asDouble(x, y) : 1.0;
 
-		pCatch_Aspect	->Add_Value(x, y, Weight * sin(Aspect));
-		pCatch_AspectY	->Add_Value(x, y, Weight * cos(Aspect));
-	}
-	
-	if( pAccu_Tot )
-	{
-		pAccu_Tot		->Set_Value(x, y, Weight * Material);
-	}	
+	ADD_GRID_CELL_VAL(x, y, m_pCatch        , Weight);
+	ADD_GRID_CELL_VAL(x, y, m_pCatch_Height , Weight * m_pDTM->asDouble(x, y));
+	ADD_GRID_CELL_VAL(x, y, m_pCatch_Slope  , Weight * Slope);
+	ADD_GRID_CELL_VAL(x, y, m_pCatch_Aspect , Weight * sin(Aspect));
+	ADD_GRID_CELL_VAL(x, y, m_pCatch_AspectY, Weight * cos(Aspect));
 
-	if( pAccu_Left )
-	{
-		pAccu_Left		->Set_Value(x, y, Weight * Material);
-	}	
+	Weight	*= m_pMaterial ? m_pMaterial->asDouble(x, y) : 1.0;
 
-	if( pAccu_Right )
-	{
-		pAccu_Right		->Set_Value(x, y, Weight * Material);
-	}	
-	
+	SET_GRID_CELL_VAL(x, y, m_pAccu_Tot     , Weight);
+	SET_GRID_CELL_VAL(x, y, m_pAccu_Left    , Weight);
+	SET_GRID_CELL_VAL(x, y, m_pAccu_Right   , Weight);
 }
 
 
@@ -361,89 +278,80 @@ void CFlow::Init_Cell(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow::Finalize(void)
+void CFlow::_Finalize(void)
 {
-	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	#pragma omp parallel for
+	for(sLong n=0; n<Get_NCells(); n++)
 	{
-		if( pDTM->is_NoData(n) )
+		if( m_pDTM->is_NoData(n) )
 		{
-			if( pCatch )		{	pCatch			->Set_NoData(n);	}
-			if( pCatch_Height )	{	pCatch_Height	->Set_NoData(n);	}
-			if( pCatch_Slope )	{	pCatch_Slope	->Set_NoData(n);	}
-			if( pCatch_Aspect )	{	pCatch_Aspect	->Set_NoData(n);	}
-			if( pFlowPath )		{	pFlowPath		->Set_NoData(n);	}
-			if( pAccu_Tot )		{	pAccu_Tot		->Set_NoData(n);	}
-			if( pAccu_Left )	{	pAccu_Left		->Set_NoData(n);	}
-			if( pAccu_Right )	{	pAccu_Right		->Set_NoData(n);	}
+			if( m_pCatch        )	{	m_pCatch       ->Set_NoData(n);	}
+			if( m_pCatch_Height )	{	m_pCatch_Height->Set_NoData(n);	}
+			if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Set_NoData(n);	}
+			if( m_pCatch_Aspect )	{	m_pCatch_Aspect->Set_NoData(n);	}
+			if( m_pFlowPath     )	{	m_pFlowPath    ->Set_NoData(n);	}
+			if( m_pAccu_Tot     )	{	m_pAccu_Tot    ->Set_NoData(n);	}
+			if( m_pAccu_Left    )	{	m_pAccu_Left   ->Set_NoData(n);	}
+			if( m_pAccu_Right   )	{	m_pAccu_Right  ->Set_NoData(n);	}
 		}
 		else
 		{
 			//---------------------------------------------
-			double	Catch	= pCatch->asDouble(n);
+			double	Catch	= m_pCatch->asDouble(n);
 
-			if( pCatch )
+			if( m_pCatch )
 			{
-				pCatch	->Set_Value(n, Catch * Get_System()->Get_Cellarea());
+				m_pCatch->Set_Value(n, Catch * Get_System()->Get_Cellarea());
 			}
 
 			if( Catch > 0.0 )
 			{
-				if( pCatch_Height )	{	pCatch_Height	->Set_Value(n, pCatch_Height->asDouble(n) / Catch - pDTM->asDouble(n));	}
-				if( pCatch_Slope )	{	pCatch_Slope	->Mul_Value(n, 1.0 / Catch);	}
-				if( pFlowPath )		{	pFlowPath		->Mul_Value(n, 1.0 / Catch);	}
+				if( m_pCatch_Height )	{	m_pCatch_Height->Set_Value(n, m_pCatch_Height->asDouble(n) / Catch - m_pDTM->asDouble(n));	}
+				if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Mul_Value(n, 1.0 / Catch);	}
+				if( m_pFlowPath     )	{	m_pFlowPath    ->Mul_Value(n, 1.0 / Catch);	}
 			}
 			else
 			{
-				if( pCatch_Height )	{	pCatch_Height	->Set_Value(n, pDTM->asDouble(n));	}
-				if( pCatch_Slope )	{	pCatch_Slope	->Set_Value(n, 0.0);	}
-				if( pFlowPath )		{	pFlowPath		->Set_Value(n, 0.0);	}
+				if( m_pCatch_Height )	{	m_pCatch_Height->Set_Value(n, m_pDTM->asDouble(n));	}
+				if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Set_Value(n, 0.0);	}
+				if( m_pFlowPath     )	{	m_pFlowPath    ->Set_Value(n, 0.0);	}
 			}
 
 			//---------------------------------------------
-			if( pCatch_Aspect && pCatch_AspectY )
+			if( m_pCatch_Aspect && m_pCatch_AspectY )
 			{
-				double	G	= pCatch_Aspect	->asDouble(n);
-				double	H	= pCatch_AspectY->asDouble(n);
+				double	G	= m_pCatch_Aspect ->asDouble(n);
+				double	H	= m_pCatch_AspectY->asDouble(n);
 
-				pCatch_Aspect	->Set_Value(n, G ? fmod(M_PI_270 + atan2(H, G), M_PI_360) : (H > 0 ? M_PI_270 : (H < 0 ? M_PI_090 : -1)));
+				m_pCatch_Aspect->Set_Value(n, G ? fmod(M_PI_270 + atan2(H, G), M_PI_360) : (H > 0 ? M_PI_270 : (H < 0 ? M_PI_090 : -1)));
 			}
 			
 			//---------------------------------------------
-			double	Material	= pMaterial ? pMaterial->asDouble(n) : 1.0;
-			double	Weight		= pWeight   ? pWeight  ->asDouble(n) : 1.0;
-
-			if( pAccu_Left && pTarget )
+			if( m_pTarget )
 			{
-				if( pTarget->is_NoData(n) )
+				if( m_pTarget->is_NoData(n) )
 				{
-					pAccu_Left	->Set_NoData(n);
+					if( m_pAccu_Left  )	{	m_pAccu_Left ->Set_NoData(n);	}
+					if( m_pAccu_Right )	{	m_pAccu_Right->Set_NoData(n);	}
 				}
 				else
 				{
-					pAccu_Left	->Add_Value(n, - 0.5 * Weight * Material);
+					double	Material	= m_pMaterial ? m_pMaterial->asDouble(n) : 1.0;
+					double	Weight		= m_pWeight   ? m_pWeight  ->asDouble(n) : 1.0;
+
+					if( m_pAccu_Left  )	{	m_pAccu_Left ->Add_Value(n, - 0.5 * Weight * Material);	}
+					if( m_pAccu_Right )	{	m_pAccu_Right->Add_Value(n, - 0.5 * Weight * Material);	}
 				}
 			}
-			
-			if( pAccu_Right && pTarget )
-			{
-				if( pTarget->is_NoData(n) )
-				{	
-					pAccu_Right	->Set_NoData(n);
-				}
-				else
-				{
-					pAccu_Right	->Add_Value(n, - 0.5 * Weight * Material);
-				}
-			}			
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pCatch_AspectY )
+	if( m_pCatch_AspectY )
 	{
-		delete(pCatch_AspectY);
+		delete(m_pCatch_AspectY);
 
-		pCatch_AspectY	= NULL;
+		m_pCatch_AspectY	= NULL;
 	}
 }
 
@@ -457,10 +365,123 @@ void CFlow::Finalize(void)
 //---------------------------------------------------------
 void CFlow::Get_Gradient(int x, int y, double &Slope, double &Aspect)
 {
-	pDTM->Get_Gradient(x, y, Slope, Aspect);
+	m_pDTM->Get_Gradient(x, y, Slope, Aspect);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CFlow::Add_Fraction(int x, int y, int Direction, double Fraction)
+{
+	if( !is_InGrid(x, y) || Direction < 0 )
+	{
+		return;
+	}
+
+	int	ix	= Get_xTo(Direction, x);
+	int	iy	= Get_yTo(Direction, y);
+		
+	if( !is_InGrid(ix, iy) )
+	{
+		return;
+	}
+
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch         , Fraction * m_pCatch         ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Height  , Fraction * m_pCatch_Height  ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Slope   , Fraction * m_pCatch_Slope   ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Aspect  , Fraction * m_pCatch_Aspect  ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_AspectY , Fraction * m_pCatch_AspectY ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pFlowPath      , Fraction * (m_pFlowPath     ->asDouble(x, y) + Get_Length(Direction)));
+
+	if( !m_pTarget )
+	{
+		ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Tot  , Fraction * m_pAccu_Tot      ->asDouble(x, y));
+		ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Left , Fraction * m_pAccu_Left     ->asDouble(x, y));
+		ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Right, Fraction * m_pAccu_Right    ->asDouble(x, y));
+	}
+	else if(  m_pTarget->is_NoData(ix, iy) && m_pTarget->is_NoData(x, y) )
+	{
+		ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Tot  , Fraction * m_pAccu_Tot      ->asDouble(x, y));
+		ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Left , Fraction * m_pAccu_Left     ->asDouble(x, y));
+		ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Right, Fraction * m_pAccu_Right    ->asDouble(x, y));
+	}
+	else if( !m_pTarget->is_NoData(ix, iy) && m_pTarget->is_NoData(x, y) )
+	{
+		bool	left, right;
+
+		Find_Sides(x, y, Direction, left, right);
+
+		ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Tot  , Fraction * m_pAccu_Tot      ->asDouble(x, y));
+
+		if( left && right )
+		{
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Right, Fraction * m_pAccu_Right->asDouble(x, y) * 0.5);
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Left , Fraction * m_pAccu_Left ->asDouble(x, y) * 0.5);
+		}
+		else if( right && !left )
+		{
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Right, Fraction * m_pAccu_Right->asDouble(x, y));
+		}				
+		else if( left && !right )
+		{
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Left , Fraction * m_pAccu_Left ->asDouble(x, y));
+		}
+	}
 }
 
 //---------------------------------------------------------
+void CFlow::Add_Portion(int x, int y, int ix, int iy, int Direction)
+{
+	if( !is_InGrid(x, y) || !is_InGrid(ix, iy) )
+	{
+		return;
+	}
+
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch        , m_pCatch        ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Height , m_pCatch_Height ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Slope  , m_pCatch_Slope  ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pFlowPath     , m_pFlowPath     ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Aspect , m_pCatch_Aspect ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_AspectY, m_pCatch_AspectY->asDouble(x, y));
+
+	if( m_pTarget )
+	{
+		if( m_pTarget->is_NoData(ix, iy) && m_pTarget->is_NoData(x, y) )
+		{
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Tot  , m_pAccu_Tot  ->asDouble(x, y));
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Left , m_pAccu_Left ->asDouble(x, y));
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Right, m_pAccu_Right->asDouble(x, y));				
+		}
+		else if( !m_pTarget->is_NoData(ix, iy) && m_pTarget->is_NoData(x, y))
+		{
+			bool	left, right;
+
+			Find_Sides(x, y, Direction, left, right);
+
+			ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Tot, m_pAccu_Tot->asDouble(x, y));
+				
+			if( left && right )
+			{
+				ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Right, m_pAccu_Right->asDouble(x, y) * 0.5);
+				ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Left , m_pAccu_Left ->asDouble(x, y) * 0.5);
+			}
+			else if( right && !left )
+			{
+				ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Right, m_pAccu_Right->asDouble(x, y));
+			}
+			else if( left && !right )
+			{
+				ADD_GRID_CELL_VAL(ix, iy, m_pAccu_Left , m_pAccu_Left ->asDouble(x, y));
+			}				
+		}
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //		            SIDE-Algorithm                       //
@@ -515,6 +536,8 @@ void CFlow::Get_Gradient(int x, int y, double &Slope, double &Aspect)
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+
 ///////////////////////////////////////////////////////////
 //														 //
 // List of variables:                                    //
@@ -560,6 +583,7 @@ void CFlow::Get_Gradient(int x, int y, double &Slope, double &Aspect)
 //                           tributaries to a junction   //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 void CFlow::Find_Sides(int x, int y, int Direction, bool &left, bool &right)
 {
 	int			FL_Dir, stream1_Dir, stream2_Dir;
@@ -579,7 +603,7 @@ void CFlow::Find_Sides(int x, int y, int Direction, bool &left, bool &right)
 	FL_Dir		        = Direction;
 	stream1_X			= Get_xTo( FL_Dir, x );
 	stream1_Y			= Get_yTo( FL_Dir, y );
-	stream1_Dir			= pTarget->asInt(stream1_X, stream1_Y);
+	stream1_Dir			= m_pTarget->asInt(stream1_X, stream1_Y);
 
 	/*--Note: At this point it is already assumed that FL_Dir points to 
 	    a grid cell that belongs to the stream network. Thus, stream1_X,
@@ -654,10 +678,10 @@ void CFlow::Find_Sides(int x, int y, int Direction, bool &left, bool &right)
 			if( is_InGrid(stream2_X, stream2_Y)	)
 			{
 				// Make sure it is not a missing-value
-				if ( ! pTarget->is_NoData( stream2_X, stream2_Y ) )
+				if ( ! m_pTarget->is_NoData( stream2_X, stream2_Y ) )
 				{
 					// Is the stream cell an upstream tributary?
-					stream2_Dir = pTarget->asInt(stream2_X, stream2_Y);
+					stream2_Dir = m_pTarget->asInt(stream2_X, stream2_Y);
 					is_upstream = stream1_X == Get_xTo(stream2_Dir, stream2_X) && 
 									stream1_Y == Get_yTo(stream2_Dir, stream2_Y);
 								
@@ -726,141 +750,10 @@ void CFlow::Find_Sides(int x, int y, int Direction, bool &left, bool &right)
 }
 
 
-//---------------------------------------------------------
-void CFlow::Add_Fraction(int x, int y, int Direction, double Fraction)
-{
-	int		ix, iy;
-
-	if( is_InGrid(x, y) )
-	{
-		ix	= Get_xTo(Direction, x);
-		iy	= Get_yTo(Direction, y);
-		
-		if( is_InGrid(ix, iy) )
-		{
-			if( pCatch )
-			{
-				pCatch			->Add_Value(ix, iy, Fraction * pCatch			->asDouble(x, y));
-			}
-
-			if( pCatch_Height )
-			{
-				pCatch_Height	->Add_Value(ix, iy, Fraction * pCatch_Height	->asDouble(x, y));
-			}
-
-			if( pCatch_Slope )
-			{
-				pCatch_Slope	->Add_Value(ix, iy, Fraction * pCatch_Slope		->asDouble(x, y));
-			}
-
-			if( pFlowPath )
-			{
-				pFlowPath		->Add_Value(ix, iy, Fraction * (pFlowPath		->asDouble(x, y) + Get_Length(Direction)));
-			}
-
-			if( pCatch_Aspect && pCatch_AspectY )
-			{
-				pCatch_Aspect	->Add_Value(ix, iy, Fraction * pCatch_Aspect	->asDouble(x, y));
-				pCatch_AspectY	->Add_Value(ix, iy, Fraction * pCatch_AspectY	->asDouble(x, y));
-			}
-			
-			if( !pTarget )
-			{
-				if( pAccu_Tot ) pAccu_Tot -> Add_Value(ix, iy, Fraction * pAccu_Tot ->asDouble(x, y));
-				if( pAccu_Left ) pAccu_Left -> Add_Value(ix, iy, Fraction * pAccu_Left ->asDouble(x, y));
-				if( pAccu_Right ) pAccu_Right -> Add_Value(ix, iy, Fraction * pAccu_Right ->asDouble(x, y));				
-			}
-			
-			if( pTarget ) if( pTarget->is_NoData(ix, iy) && pTarget->is_NoData(x, y) )
-			{
-				if( pAccu_Tot ) pAccu_Tot -> Add_Value(ix, iy, Fraction * pAccu_Tot ->asDouble(x, y));
-				if( pAccu_Left ) pAccu_Left -> Add_Value(ix, iy, Fraction * pAccu_Left ->asDouble(x, y));
-				if( pAccu_Right ) pAccu_Right -> Add_Value(ix, iy, Fraction * pAccu_Right ->asDouble(x, y));				
-			}
-			
-
-			if( pTarget ) if( !pTarget->is_NoData(ix, iy) && pTarget->is_NoData(x, y))
-			{
-				
-				bool left, right;
-
-				Find_Sides(x, y, Direction, left, right);
-			
-				if( pAccu_Tot ) pAccu_Tot -> Add_Value(ix, iy, Fraction * pAccu_Tot ->asDouble(x, y));
-				
-				if( right && !left && pAccu_Right ) pAccu_Right -> Add_Value(ix, iy, Fraction * pAccu_Right ->asDouble(x, y));
-				
-				if( left && !right && pAccu_Left ) pAccu_Left -> Add_Value(ix, iy, Fraction * pAccu_Left ->asDouble(x, y));
-				
-				if( left && right )
-				{
-					if( pAccu_Right ) pAccu_Right -> Add_Value(ix, iy, 0.5 * Fraction * pAccu_Right ->asDouble(x, y));
-
-					if( pAccu_Left ) pAccu_Left -> Add_Value(ix, iy, 0.5 * Fraction * pAccu_Left ->asDouble(x, y));			
-				}				
-			}
-		}
-	}
-}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow::Add_Portion(int x, int y, int ix, int iy, int Direction)
-{
-	if( is_InGrid(x, y) && is_InGrid(ix, iy) )
-	{
-		
-		if( pCatch )
-		{
-			pCatch			->Add_Value(ix, iy, pCatch			->asDouble(x, y));
-		}
-
-		if( pCatch_Height )
-		{
-			pCatch_Height	->Add_Value(ix, iy, pCatch_Height	->asDouble(x, y));
-		}
-
-		if( pCatch_Slope )
-		{
-			pCatch_Slope	->Add_Value(ix, iy, pCatch_Slope	->asDouble(x, y));
-		}
-
-		if( pFlowPath )
-		{
-			pFlowPath		->Add_Value(ix, iy, pFlowPath		->asDouble(x, y));
-		}
-
-		if( pCatch_Aspect && pCatch_AspectY )
-		{
-			pCatch_Aspect	->Add_Value(ix, iy, pCatch_Aspect	->asDouble(x, y));
-			pCatch_AspectY	->Add_Value(ix, iy, pCatch_AspectY	->asDouble(x, y));
-		}
-		
-		if( pTarget ) if( pTarget->is_NoData(ix, iy) && pTarget->is_NoData(x, y) )
-		{
-			if( pAccu_Tot ) pAccu_Tot -> Add_Value(ix, iy, pAccu_Tot ->asDouble(x, y));
-			if( pAccu_Left ) pAccu_Left -> Add_Value(ix, iy, pAccu_Left ->asDouble(x, y));
-			if( pAccu_Right ) pAccu_Right -> Add_Value(ix, iy, pAccu_Right ->asDouble(x, y));				
-		}
-		if( pTarget ) if( !pTarget->is_NoData(ix, iy) && pTarget->is_NoData(x, y))
-			{
-				
-				bool left, right;
-
-				Find_Sides(x, y, Direction, left, right);
-					
-				if( pAccu_Tot )pAccu_Tot -> Add_Value(ix, iy, pAccu_Tot->asDouble(x, y));
-				
-				if( right && !left && pAccu_Right ) pAccu_Right -> Add_Value(ix, iy, pAccu_Right->asDouble(x, y));
-				
-				if( left && !right && pAccu_Left ) pAccu_Left -> Add_Value(ix, iy, pAccu_Left->asDouble(x, y));
-				
-				if( left && right )
-				{
-					if( pAccu_Right ) pAccu_Right -> Add_Value(ix, iy, 0.5 * pAccu_Right->asDouble(x, y));
-					if( pAccu_Left ) pAccu_Left -> Add_Value(ix, iy, 0.5 * pAccu_Left->asDouble(x, y));			
-				}
-				
-			}		
-		
-	}
-}

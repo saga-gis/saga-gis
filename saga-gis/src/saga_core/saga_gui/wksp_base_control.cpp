@@ -553,6 +553,11 @@ wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 {
+	if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager && PROCESS_is_Executing() )	// never allow data deletion during module execution!
+	{
+		return( false );
+	}
+
 	if( GetWindowStyle() & wxTR_MULTIPLE )
 	{
 		wxArrayTreeItemIds	IDs;

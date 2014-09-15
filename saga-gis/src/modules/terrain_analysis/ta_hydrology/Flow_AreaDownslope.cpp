@@ -162,12 +162,14 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),
 			_TL("Deterministic Infinity"),
 			_TL("Multiple Flow Direction"),
+			_TL("Multiple Triangular Flow Directon"),
+			_TL("Multiple Maximum Downslope Gradient Based Flow Directon"),
 			_TL("Kinematic Routing Algorithm"),
 			_TL("DEMON")
 		), 4
@@ -215,38 +217,48 @@ bool CFlow_AreaDownslope::On_Execute(void)
 		// Parallel...
 		case 0:	// Deterministic 8...
 			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("Method")->Set_Value(0.0);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(0.0);
 			break;
 
 		case 1:	// Rho 8...
 			pFlow	= new CFlow_RecursiveDown;
-			pFlow->Get_Parameters()->Get_Parameter("Method")->Set_Value(0.0);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(0.0);
 			break;
 
 		case 2:	// BRM...
 			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("Method")->Set_Value(2);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(2);
 			break;
 
 		case 3:	// Deterministic Infinity...
 			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("Method")->Set_Value(3);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(3);
 			break;
 
 		case 4:	// MFD...
 			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("Method")->Set_Value(4);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(4);
+			break;
+
+		case 5:	// Triangular MFD...
+			pFlow	= new CFlow_Parallel;
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(5);
+			break;
+
+		case 6:	// Multiple Maximum Downslope Gradient Based Flow Directon...
+			pFlow	= new CFlow_Parallel;
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(6);
 			break;
 
 		// Downward Recursive...
-		case 5:	// KRA...
+		case 7:	// KRA...
 			pFlow	= new CFlow_RecursiveDown;
-			pFlow->Get_Parameters()->Get_Parameter("Method")->Set_Value(1);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(1);
 			break;
 
-		case 6:	// DEMON...
+		case 8:	// DEMON...
 			pFlow	= new CFlow_RecursiveDown;
-			pFlow->Get_Parameters()->Get_Parameter("Method")->Set_Value(2);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(2);
 			//pFlow->Parameters(DEMON_minDQV)-Set_Value(0)	 = 0;
 			break;
 		}

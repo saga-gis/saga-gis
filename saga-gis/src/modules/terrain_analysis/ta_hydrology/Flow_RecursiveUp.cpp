@@ -98,7 +98,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
 		"    Water Resources Research, Vol.33, No.2, p.309-319\n\n"
 
-		"Multiple Flow Direction:\n"
+		"Multiple m_Flow Direction:\n"
 		"- Freeman, G.T. (1991):\n"
 		"    'Calculating catchment area with divergent flow based on a regular grid',\n"
 		"    Computers and Geosciences, 17:413-22\n\n"
@@ -123,7 +123,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	// Output...
 
 	Parameters.Add_Grid(
-		NULL	, "FLOWLEN"		, _TL("Flow Path Length"),
+		NULL	, "FLOWLEN"		, _TL("m_Flow Path Length"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -133,13 +133,13 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	// Method...
 
 	Parameters.Add_Choice(
-		NULL	, "Method"		, _TL("Method"),
+		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Deterministic Infinity"),
-			_TL("Multiple Flow Direction")
+			_TL("Multiple m_Flow Direction")
 		), 3
 	);
 
@@ -149,7 +149,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 	Parameters.Add_Value(
 		NULL	, "CONVERGENCE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991)"),
+		_TL("Convergence factor for Multiple m_Flow Direction Algorithm (Freeman 1991)"),
 		PARAMETER_TYPE_Double	, 1.1
 	);
 
@@ -157,12 +157,8 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	//-----------------------------------------------------
 	// Initialisations...
 
-	Flow	= NULL;
+	m_Flow	= NULL;
 }
-
-//---------------------------------------------------------
-CFlow_RecursiveUp::~CFlow_RecursiveUp(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -174,61 +170,45 @@ CFlow_RecursiveUp::~CFlow_RecursiveUp(void)
 //---------------------------------------------------------
 void CFlow_RecursiveUp::On_Create(void)
 {
-	int		x, y, Method;
-
-	double	*p;
+	int	x, y;
 
 	//-----------------------------------------------------
 	On_Destroy();
 
-	Flow	= (double ***)SG_Malloc(    Get_NY    () * sizeof(double **));
-	p		= (double   *)SG_Malloc(8 * Get_NCells() * sizeof(double   ));
+	m_Flow		= (double ***)SG_Malloc(    Get_NY    () * sizeof(double **));
+	double *p	= (double   *)SG_Malloc(8 * Get_NCells() * sizeof(double   ));
 
 	for(y=0; y<Get_NY(); y++)
 	{
-		Flow[y]	= (double **)SG_Malloc( Get_NX    () * sizeof(double  *));
+		m_Flow[y]	= (double **)SG_Malloc( Get_NX    () * sizeof(double  *));
 
 		for(x=0; x<Get_NX(); x++, p+=8)
 		{
-			Flow[y][x]	= p;
+			m_Flow[y][x]	= p;
 		}
 	}
 
 	//-----------------------------------------------------
 	Lock_Create();
 
-	Method	= Parameters("Method")->asInt();
+	int Method	= Parameters("METHOD")->asInt();
 
-	memset(Flow[0][0], 0, 8 * Get_NCells() * sizeof(double) );
+	memset(m_Flow[0][0], 0, 8 * Get_NCells() * sizeof(double) );
 
 	for(y=0; y<Get_NY(); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( pRoute && pRoute->asChar(x,y) > 0 )
+			if( m_pRoute && m_pRoute->asChar(x, y) > 0 )
 			{
-				Flow[y][x][pRoute->asChar(x,y) % 8]	= 1.0;
+				m_Flow[y][x][m_pRoute->asChar(x, y) % 8]	= 1.0;
 			}
-			else
+			else switch( Method )
 			{
-				switch( Method )
-				{
-					case 0:
-						Set_D8(x,y);
-						break;
-
-					case 1:
-						Set_Rho8(x,y);
-						break;
-
-					case 2:
-						Set_DInf(x,y);
-						break;
-
-					case 3:
-						Set_MFD(x,y);
-						break;
-				}
+				case 0:	Set_D8  (x, y);	break;
+				case 1:	Set_Rho8(x, y);	break;
+				case 2:	Set_DInf(x, y);	break;
+				case 3:	Set_MFD (x, y);	break;
 			}
 		}
 	}
@@ -237,20 +217,18 @@ void CFlow_RecursiveUp::On_Create(void)
 //---------------------------------------------------------
 void CFlow_RecursiveUp::On_Destroy(void)
 {
-	int		y;
-
-	if( Flow )
+	if( m_Flow )
 	{
-		SG_Free(Flow[0][0]);
+		SG_Free(m_Flow[0][0]);
 
-		for(y=0; y<Get_NY(); y++)
+		for(int y=0; y<Get_NY(); y++)
 		{
-			SG_Free(Flow[y]);
+			SG_Free(m_Flow[y]);
 		}
 
-		SG_Free(Flow);
+		SG_Free(m_Flow);
 
-		Flow	= NULL;
+		m_Flow	= NULL;
 	}
 }
 
@@ -264,9 +242,9 @@ void CFlow_RecursiveUp::On_Destroy(void)
 //---------------------------------------------------------
 void CFlow_RecursiveUp::On_Initialize(void)
 {
-	pFlowPath			= Parameters("FLOWLEN")->asGrid();
+	m_pFlowPath	= Parameters("FLOWLEN")->asGrid();
 
-	MFD_Converge		= Parameters("CONVERGENCE")->asDouble();
+	m_Converge	= Parameters("CONVERGENCE")->asDouble();
 }
 
 
@@ -338,7 +316,7 @@ void CFlow_RecursiveUp::Get_Flow(int x, int y)
 
 			if( is_InGrid(ix,iy) )
 			{
-				jFlow	= Flow[iy][ix][j];
+				jFlow	= m_Flow[iy][ix][j];
 
 				if( jFlow > 0 )
 				{
@@ -361,13 +339,11 @@ void CFlow_RecursiveUp::Get_Flow(int x, int y)
 //---------------------------------------------------------
 void CFlow_RecursiveUp::Set_D8(int x, int y)
 {
-	int		Direction;
-
-	Direction	= pDTM->Get_Gradient_NeighborDir(x,y);
+	int		Direction	= m_pDTM->Get_Gradient_NeighborDir(x,y);
 
 	if( Direction >= 0 )
 	{
-		Flow[y][x][Direction % 8]	= 1.0;
+		m_Flow[y][x][Direction % 8]	= 1.0;
 	}
 }
 
@@ -398,7 +374,7 @@ void CFlow_RecursiveUp::Set_Rho8(int x, int y)
 
 		Direction	%= 8;
 
-		Flow[y][x][Direction]	= 1.0;
+		m_Flow[y][x][Direction]	= 1.0;
 	}
 }
 
@@ -425,8 +401,8 @@ void CFlow_RecursiveUp::Set_DInf(int x, int y)
 		Direction	= (int)(Aspect / 45.0);
 		Aspect		= fmod(Aspect,45) / 45.0;
 
-		Flow[y][x][(Direction    ) % 8]	= 1 - Aspect;
-		Flow[y][x][(Direction + 1) % 8]	=     Aspect;
+		m_Flow[y][x][(Direction    ) % 8]	= 1 - Aspect;
+		m_Flow[y][x][(Direction + 1) % 8]	=     Aspect;
 	}
 }
 
@@ -440,32 +416,42 @@ void CFlow_RecursiveUp::Set_DInf(int x, int y)
 //---------------------------------------------------------
 void CFlow_RecursiveUp::Set_MFD(int x, int y)
 {
-	int		i, ix, iy;
+	int		i;
+	double	z, *dz, dzSum;
 
-	double	z, d, *dz, dzSum;
-
-	z		= pDTM->asDouble(x,y);
-	dz		= Flow[y][x];
-	dzSum	= 0;
-
-	for(i=0; i<8; i++)
+	for(i=0, dzSum=0.0, dz=m_Flow[y][x], z=m_pDTM->asDouble(x, y); i<8; i++)
 	{
-		ix	= Get_xTo(i,x);
-		iy	= Get_yTo(i,y);
+		int	ix	= Get_xTo(i,x);
+		int	iy	= Get_yTo(i,y);
 
 		if( is_InGrid(ix,iy) )
 		{
-			d	= z - pDTM->asDouble(ix,iy);
+			double	d	= z - m_pDTM->asDouble(ix,iy);
 
 			if( d > 0 )
-				dzSum	+= dz[i]	= pow(d / Get_Length(i), MFD_Converge);
+			{
+				dzSum	+= dz[i]	= pow(d / Get_Length(i), m_Converge);
+			}
 		}
 	}
 
 	if( dzSum )
 	{
 		for(i=0; i<8; i++)
+		{
 			if( dz[i] > 0 )
+			{
 				dz[i]	/= dzSum;
+			}
+		}
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -86,7 +86,6 @@ class ta_hydrology_EXPORT CFlow_RecursiveUp : public CFlow
 {
 public:
 	CFlow_RecursiveUp(void);
-	virtual ~CFlow_RecursiveUp(void);
 
 
 protected:
@@ -99,7 +98,7 @@ protected:
 
 private:
 
-	double					***Flow;
+	double					***m_Flow;
 
 
 	void					On_Create		(void);

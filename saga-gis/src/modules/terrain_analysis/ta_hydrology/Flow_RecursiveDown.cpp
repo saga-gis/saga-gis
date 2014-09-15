@@ -113,7 +113,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 	// Method...
 
 	Parameters.Add_Choice(
-		NULL	, "Method"		, _TL("Method"),
+		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Rho 8"),
@@ -157,11 +157,11 @@ void CFlow_RecursiveDown::On_Initialize(void)
 	double	Slope, Aspect;
 
 	//-----------------------------------------------------
-	Method			= Parameters("Method"	)->asInt();
-	DEMON_minDQV	= Parameters("MINDQV"	)->asDouble();
-	bFlowPathWeight	= Parameters("CORRECT"	)->asBool();
+	Method			= Parameters("METHOD" )->asInt();
+	DEMON_minDQV	= Parameters("MINDQV" )->asDouble();
+	bFlowPathWeight	= Parameters("CORRECT")->asBool();
 
-	pLinear			= 1 ? SG_Create_Grid(pDTM, SG_DATATYPE_Float) : NULL;
+	pLinear			= 1 ? SG_Create_Grid(m_pDTM, SG_DATATYPE_Float) : NULL;
 
 	//-----------------------------------------------------
 	Lock_Create();
@@ -179,14 +179,14 @@ void CFlow_RecursiveDown::On_Initialize(void)
 	//-----------------------------------------------------
 	case 1:	case 2:		// KRA, DEMON...
 
-		pDir		= SG_Create_Grid(pDTM, SG_DATATYPE_Char);
-		pDif		= SG_Create_Grid(pDTM, SG_DATATYPE_Float);
+		pDir		= SG_Create_Grid(m_pDTM, SG_DATATYPE_Char);
+		pDif		= SG_Create_Grid(m_pDTM, SG_DATATYPE_Float);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
-				if( !pDTM->is_NoData(x, y) )
+				if( !m_pDTM->is_NoData(x, y) )
 				{
 					Get_Gradient(x, y, Slope, Aspect);
 
@@ -230,16 +230,16 @@ void CFlow_RecursiveDown::On_Finalize(void)
 		{
 			;
 
-			if( pDTM->Get_Sorted(n, x, y) && (qFlow = pLinear->asDouble(x, y)) > 0.0 )
+			if( m_pDTM->Get_Sorted(n, x, y) && (qFlow = pLinear->asDouble(x, y)) > 0.0 )
 			{
 				Add_Flow(x, y, qFlow);
 
-				if( (dir = pDTM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+				if( (dir = m_pDTM->Get_Gradient_NeighborDir(x, y)) >= 0 )
 				{
 					x	= Get_xTo(dir, x);
 					y	= Get_yTo(dir, y);
 
-					if( pDTM->is_InGrid(x, y) )
+					if( m_pDTM->is_InGrid(x, y) )
 					{
 						pLinear->Add_Value(x, y, qFlow);
 					}
@@ -263,9 +263,9 @@ void CFlow_RecursiveDown::On_Finalize(void)
 //---------------------------------------------------------
 bool CFlow_RecursiveDown::Calculate(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y+=m_Step)
 	{	//if( !(y%2) )DataObject_Update(pFlow);
-		for(int x=0; x<Get_NX(); x+=Step)
+		for(int x=0; x<Get_NX(); x+=m_Step)
 		{
 			Calculate(x, y);
 		}
@@ -279,11 +279,11 @@ bool CFlow_RecursiveDown::Calculate(int x, int y)
 {
 	double 	Slope, Aspect, qFlow;
 
-	if( !pDTM->is_NoData(x, y) && (qFlow = pWeight ? pWeight->asDouble(x, y) : 1.0) > 0.0 )
+	if( !m_pDTM->is_NoData(x, y) && (qFlow = m_pWeight ? m_pWeight->asDouble(x, y) : 1.0) > 0.0 )
 	{
 		Get_Gradient(x, y, Slope, Aspect);
 
-		Src_Height	= pDTM->asDouble(x,y);
+		Src_Height	= m_pDTM->asDouble(x,y);
 		Src_Slope	= Slope;
 
 		Add_Flow(x, y, qFlow);
@@ -321,20 +321,9 @@ bool CFlow_RecursiveDown::Calculate(int x, int y)
 //---------------------------------------------------------
 void CFlow_RecursiveDown::Add_Flow(int x, int y, double Fraction)
 {
-	if( pCatch )
-	{
-		pCatch			->Add_Value(x, y, Fraction );
-	}
-
-	if( pCatch_Height )
-	{
-		pCatch_Height	->Add_Value(x, y, Fraction * Src_Height );
-	}
-
-	if( pCatch_Slope )
-	{
-		pCatch_Slope	->Add_Value(x, y, Fraction * Src_Slope );
-	}
+	if( m_pCatch        )	{	m_pCatch       ->Add_Value(x, y, Fraction);	}
+	if( m_pCatch_Height )	{	m_pCatch_Height->Add_Value(x, y, Fraction * Src_Height);	}
+	if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Add_Value(x, y, Fraction * Src_Slope );	}
 }
 
 
@@ -428,7 +417,7 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 	y	= Get_yTo(Direction, y);
 
 	//-----------------------------------------------------
-	if( pDTM->is_InGrid(x, y) && !is_Locked(x, y) )
+	if( m_pDTM->is_InGrid(x, y) && !is_Locked(x, y) )
 	{
 		Lock_Set(x, y, 1);
 
@@ -562,7 +551,7 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 	y	= Get_yTo(Direction, y);
 
 	//-----------------------------------------------------
-	if( pDTM->is_InGrid(x, y) && !is_Locked(x, y) )
+	if( m_pDTM->is_InGrid(x, y) && !is_Locked(x, y) )
 	{
 		Lock_Set(x, y, 1);
 
@@ -735,3 +724,12 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 		Lock_Set(x, y, 0);
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

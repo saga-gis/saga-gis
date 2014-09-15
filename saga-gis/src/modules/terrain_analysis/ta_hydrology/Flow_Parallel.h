@@ -86,35 +86,35 @@ class ta_hydrology_EXPORT CFlow_Parallel : public CFlow
 {
 public:
 	CFlow_Parallel(void);
-	virtual ~CFlow_Parallel(void);
 
 
 protected:
 
-	virtual void			On_Initialize	(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			Calculate		(void);
-	virtual bool			Calculate		(int x, int y);
+	virtual void			On_Initialize			(void);
+
+	virtual bool			Calculate				(void);
+	virtual bool			Calculate				(int x, int y);
 
 
 private:
 
-	int						BRM_kgexp[8], BRM_idreh[8];
-
-	double					TH_LinearFlow, BRM_sinus[361], BRM_cosin[361];
-
-	CSG_Grid				*pTH_LinearFlow,
-							*pD8_Direction;
-
 	bool					Set_Flow		(void);
+
 	void					Check_Route		(int x, int y);
 
-	void					Set_D8			(int x, int y, int dir = -1 );
+	void					Set_D8			(int x, int y, int Direction = -1);
 	void					Set_Rho8		(int x, int y );
-	void					Set_MDInf		(int x, int y );	
 	void					Set_DInf		(int x, int y );
 	void					Set_MFD			(int x, int y );
+	void					Set_MMDGFD		(int x, int y );	
+	void					Set_MDInf		(int x, int y );	
 	void					Set_BRM			(int x, int y );
+
+	//-----------------------------------------------------
+	int						BRM_kgexp[8  ], BRM_idreh[8  ];
+	double					BRM_sinus[361], BRM_cosin[361];
 
 	void					BRM_Init		(void);
 	int						BRM_InitRZ		(int x, int y, int ix[3], int iy[3]);
