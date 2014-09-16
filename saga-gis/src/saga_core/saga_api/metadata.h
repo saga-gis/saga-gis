@@ -125,9 +125,10 @@ public:
 	CSG_MetaData *				Get_Child			(int Index)					const	{	return( Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL );	}
 	CSG_MetaData *				Get_Child			(const CSG_String &Name)	const	{	return( Get_Child(_Get_Child(Name)) );	}
 	CSG_MetaData *				Add_Child			(void);
-	CSG_MetaData *				Add_Child			(const CSG_String &Name, const SG_Char *Content = NULL);
-	CSG_MetaData *				Add_Child			(const CSG_String &Name, double         Content);
-	CSG_MetaData *				Add_Child			(const CSG_String &Name, int            Content);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name, const CSG_String &Content);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name, double            Content);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name, int               Content);
 	CSG_MetaData *				Add_Child			(const CSG_MetaData &MetaData, bool bAddChildren = true);
 	bool						Del_Child			(int Index);
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}

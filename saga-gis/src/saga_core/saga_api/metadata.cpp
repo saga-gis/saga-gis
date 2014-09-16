@@ -202,6 +202,25 @@ CSG_MetaData * CSG_MetaData::Add_Child(void)
 	return( m_pChildren[m_nChildren++]	= new CSG_MetaData(this) );
 }
 
+//---------------------------------------------------------
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, const CSG_String &Content)
+{
+	CSG_MetaData	*pChild	= Add_Child();
+
+	if( pChild )
+	{
+		pChild->m_Name		= Name;
+		pChild->m_Content	= Content;
+	}
+
+	return( pChild );
+}
+
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name)
+{
+	return( Add_Child(Name, CSG_String("")) );
+}
+
 CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, double Content)
 {
 	return( Add_Child(Name, SG_Get_String(Content, -16)) );
@@ -210,20 +229,6 @@ CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, double Content)
 CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, int Content)
 {
 	return( Add_Child(Name, CSG_String::Format(SG_T("%d"), Content)) );
-}
-
-//---------------------------------------------------------
-CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, const SG_Char *Content)
-{
-	CSG_MetaData	*pChild	= Add_Child();
-
-	if( pChild )
-	{
-		pChild->m_Name		= Name;
-		pChild->m_Content	= Content ? Content : SG_T("");
-	}
-
-	return( pChild );
 }
 
 //---------------------------------------------------------
