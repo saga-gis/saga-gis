@@ -527,7 +527,9 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	case DATAOBJECT_TYPE_PointCloud:	pEntry->Add_Property(SG_T("type"), SG_T("POINTS"));	break;
 	}
 
-	pEntry->Add_Child(SG_T("FILE"), &Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name()));
+	wxString	s(Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name()));
+
+	pEntry->Add_Child("FILE", &s);
 
 	if( pParameters )
 	{
@@ -657,7 +659,9 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 
 			if( pObject && pObject->Get_File_Name() && wxFileExists(pObject->Get_File_Name()) )
 			{
-				pEntry->Add_Child("FILE", &Get_FilePath_Relative(ProjectDir, pObject->Get_File_Name()));
+				wxString	s(Get_FilePath_Relative(ProjectDir, pObject->Get_File_Name()));
+
+				pEntry->Add_Child("FILE", &s);
 			}
 		}
 
