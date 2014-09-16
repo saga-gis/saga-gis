@@ -80,6 +80,14 @@ CSG_Parameters::CSG_Parameters(void)
 }
 
 //---------------------------------------------------------
+CSG_Parameters::CSG_Parameters(const CSG_Parameters &Parameters)
+{
+	_On_Construction();
+
+	Create(Parameters);
+}
+
+//---------------------------------------------------------
 CSG_Parameters::CSG_Parameters(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
 {
 	_On_Construction();
@@ -117,7 +125,46 @@ void CSG_Parameters::_On_Construction(void)
 }
 
 //---------------------------------------------------------
-void CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
+bool CSG_Parameters::Create(const CSG_Parameters &Parameters)
+{
+	Destroy();
+
+	m_pOwner		= Parameters.m_pOwner;
+	m_pManager		= Parameters.m_pManager;
+
+	m_Callback		= Parameters.m_Callback;
+	m_bCallback		= Parameters.m_bCallback;
+
+	Set_Identifier	(Parameters.Get_Identifier());
+	Set_Name		(Parameters.Get_Name());
+	Set_Description	(Parameters.Get_Description());
+
+	//-----------------------------------------------------
+	int		i;
+
+	for(i=0; i<Parameters.m_nParameters; i++)
+	{
+		_Add(Parameters.m_Parameters[i]);
+	}
+
+	for(i=0; i<Parameters.m_nParameters; i++)
+	{
+		if( Get_Parameter(i) && Parameters.m_Parameters[i]->m_pParent )
+		{
+			Get_Parameter(i)->m_pParent	= Get_Parameter(Parameters.m_Parameters[i]->m_pParent->Get_Identifier());
+		}
+	}
+
+	if( Parameters.m_pGrid_System )
+	{
+		m_pGrid_System	= Get_Parameter(Parameters.m_pGrid_System->Get_Identifier());
+	}
+
+	return( m_nParameters == Parameters.m_nParameters );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
 {
 	Destroy();
 
@@ -135,6 +182,8 @@ void CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *De
 			_TL("Grid system")
 		);
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1069,58 +1118,13 @@ bool CSG_Parameters::Restore_Defaults(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Parameters::Assign(CSG_Parameters *pSource)
+bool CSG_Parameters::Assign(CSG_Parameters *pSource)
 {
-	if( pSource != this )
-	{
-		Destroy();
-
-		if( pSource )
-		{
-			m_pOwner		= pSource->m_pOwner;
-			m_pManager		= pSource->m_pManager;
-
-			m_Callback		= pSource->m_Callback;
-			m_bCallback		= pSource->m_bCallback;
-
-			Set_Identifier	(pSource->Get_Identifier());
-			Set_Name		(pSource->Get_Name());
-			Set_Description	(pSource->Get_Description());
-
-			if( pSource->Get_Count() > 0 )
-			{
-				int		i;
-
-				for(i=0; i<pSource->Get_Count(); i++)
-				{
-					_Add(pSource->Get_Parameter(i));
-				}
-
-				for(i=0; i<pSource->Get_Count(); i++)
-				{
-					CSG_Parameter	*pParameter;
-
-					if( Get_Parameter(i) && (pParameter = pSource->Get_Parameter(i)->Get_Parent()) != NULL )
-					{
-						Get_Parameter(i)->m_pParent	= Get_Parameter(pParameter->Get_Identifier());
-					}
-				}
-
-				if( pSource->m_pGrid_System )
-				{
-					m_pGrid_System	= Get_Parameter(pSource->m_pGrid_System->Get_Identifier());
-				}
-			}
-
-			return( m_nParameters );
-		}
-	}
-
-	return( -1 );
+	return( pSource && pSource != this && Create(*pSource) );
 }
 
 //---------------------------------------------------------
-int CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
+bool CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
 {
 	if( pSource && pSource != this )
 	{
@@ -1137,10 +1141,10 @@ int CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
 			}
 		}
 
-		return( n );
+		return( n > 0 );
 	}
 
-	return( 0 );
+	return( false );
 }
 
 

@@ -98,6 +98,8 @@ public:
 
 	virtual TSG_Module_Type		Get_Type				(void)			{	return( MODULE_TYPE_Chain );	}
 
+	bool						is_Okay					(void)	const	{	return( m_Chain.is_Valid() );	}
+
 	const CSG_String &			Get_File_Name			(void)	const	{	return( m_File_Name );	}
 
 	static bool					Save_History_to_Model	(const CSG_MetaData &History, const CSG_String &File);
@@ -112,6 +114,8 @@ private:
 
 	CSG_String					m_File_Name;
 
+	CSG_MetaData				m_Chain;
+
 };
 
 
@@ -122,7 +126,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Chains
+class SAGA_API_DLL_EXPORT CSG_Module_Chains : public CSG_Module_Library
 {
 	friend class CSG_Module_Library_Manager;
 
@@ -130,25 +134,30 @@ public:
 
 	virtual TSG_Module_Library_Type	Get_Type			(void)		const	{	return( MODULE_CHAINS );	}
 
-	virtual int						Get_Count			(void)		const	{	return( m_nModules );	}
-
-	virtual CSG_String				Get_File_Name		(int i)		const	{	return( i >= 0 && i < m_nModules ? m_pModules[i]->Get_File_Name() : "" );	}
-
 	virtual CSG_String				Get_Info			(int Type)	const;
 
 	bool							Add_Module			(CSG_Module_Chain *pModule);
 
-	virtual CSG_String				Get_Menu			(int i)		const;
+	virtual int						Get_Count			(void)		const	{	return( m_nModules );	}
+
+	virtual CSG_Module *			Get_Module			(int Index, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
+
+	virtual CSG_String				Get_File_Name		(int Index)	const	{	return( Index >= 0 && Index < m_nModules ? m_pModules[Index]->Get_File_Name() : "" );	}
+
+
+protected:
+
+	CSG_Module_Chains(const CSG_String &Library_Name, const CSG_String &Name, const CSG_String &Description, const CSG_String &Menu);
+	virtual ~CSG_Module_Chains(void);
 
 
 private:
 
-	CSG_Module_Chains(void);
-	virtual ~CSG_Module_Chains(void);
-
 	int								m_nModules;
 
 	CSG_Module_Chain				**m_pModules;
+
+	CSG_String						m_Name, m_Description, m_Menu;
 
 };
 

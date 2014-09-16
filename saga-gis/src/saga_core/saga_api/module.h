@@ -195,9 +195,10 @@ public:
 
 	int							Get_ID						(void)	{	return( m_ID );	}
 
-	const CSG_String &			Get_Name					(void);
-	const CSG_String &			Get_Description				(void);
-	const CSG_String &			Get_Author					(void);
+	const CSG_String &			Get_Library					(void)	const;
+	const CSG_String &			Get_Name					(void)	const;
+	const CSG_String &			Get_Description				(void)	const;
+	const CSG_String &			Get_Author					(void)	const;
 	const SG_Char *				Get_Icon					(void)	{	return( NULL );	}
 	CSG_String					Get_Summary					(bool bParameters = true, const CSG_String &Menu = "", const CSG_String &Description = "", bool bXML = false);
 
@@ -310,7 +311,7 @@ private:
 
 	CSG_Parameters				**m_pParameters;
 
-	CSG_String					m_Author;
+	CSG_String					m_Library, m_Author;
 
 
 	bool						_Synchronize_DataObjects	(void);
@@ -568,6 +569,8 @@ typedef enum ESG_MLB_Info
 	MLB_INFO_Version,
 	MLB_INFO_Menu_Path,
 	MLB_INFO_User,
+	MLB_INFO_File,
+	MLB_INFO_Library,
 	MLB_INFO_Count
 }
 TSG_MLB_Info;
@@ -587,12 +590,11 @@ public:
 	CSG_Module *				Get_Module				(int iModule);
 
 	void						Set_File_Name			(const CSG_String &File_Name);
-	const CSG_String &			Get_File_Name			(void)	{	return( m_File_Name );	}
 
 
 private:
 
-	CSG_String					m_File_Name, m_Info[MLB_INFO_Count];
+	CSG_String					m_Info[MLB_INFO_Count];
 
 	int							m_nModules;
 
@@ -635,7 +637,7 @@ extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_Version			(void)\
 \
 	while( MLB_Interface.Add_Module(Create_Module(i), i) ) i++;\
 \
-	for(i=0; i<MLB_INFO_Count; i++)\
+	for(i=0; i<MLB_INFO_User; i++)\
 	{\
 		MLB_Interface.Set_Info(i, Get_Info(i));\
 	}\

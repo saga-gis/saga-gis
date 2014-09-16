@@ -1366,8 +1366,11 @@ public:
 	CSG_Parameters(void);
 	virtual ~CSG_Parameters(void);
 
+								CSG_Parameters			(const CSG_Parameters &Parameters);
+	bool						Create					(const CSG_Parameters &Parameters);
+
 								CSG_Parameters			(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier = NULL, bool bGrid_System = false);
-	void						Create					(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier = NULL, bool bGrid_System = false);
+	bool						Create					(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier = NULL, bool bGrid_System = false);
 
 	void						Destroy					(void);
 
@@ -1396,6 +1399,8 @@ public:
 	void						Set_Callback			(bool bActive = true);
 
 	//-----------------------------------------------------
+	CSG_Parameters &			operator =				(const CSG_Parameters &Parameters)	{	Create(Parameters);	return( *this );	}
+
 	CSG_Parameter *				Get_Parameter			(int i)							{	return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL );	}
 	CSG_Parameter *				Get_Parameter			(const CSG_String &Identifier);
 
@@ -1470,8 +1475,8 @@ public:
 
 	bool						Restore_Defaults		(void);
 
-	int							Assign					(CSG_Parameters *pSource);
-	int							Assign_Values			(CSG_Parameters *pSource);
+	bool						Assign					(CSG_Parameters *pSource);
+	bool						Assign_Values			(CSG_Parameters *pSource);
 
 	bool						Serialize				(const CSG_String &File_Name, bool bSave);
 	bool						Serialize				(CSG_MetaData &Entry        , bool bSave);

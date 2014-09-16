@@ -138,12 +138,18 @@ void CSG_Module::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+const CSG_String & CSG_Module::Get_Library(void) const
+{
+	return( m_Library );
+}
+
+//---------------------------------------------------------
 void CSG_Module::Set_Name(const CSG_String &String)
 {
 	Parameters.Set_Name(String);
 }
 
-const CSG_String & CSG_Module::Get_Name(void)
+const CSG_String & CSG_Module::Get_Name(void) const
 {
 	return( Parameters.Get_Name() );
 }
@@ -154,7 +160,7 @@ void CSG_Module::Set_Description(const CSG_String &String)
 	Parameters.Set_Description(String);
 }
 
-const CSG_String & CSG_Module::Get_Description(void)
+const CSG_String & CSG_Module::Get_Description(void) const
 {
 	return( Parameters.Get_Description() );
 }
@@ -165,7 +171,7 @@ void CSG_Module::Set_Author(const CSG_String &String)
 	m_Author	= String;
 }
 
-const CSG_String & CSG_Module::Get_Author(void)
+const CSG_String & CSG_Module::Get_Author(void) const
 {
 	return( m_Author );
 }
@@ -463,13 +469,11 @@ bool CSG_Module::Settings_Push(CSG_Data_Manager *pManager)
 
 	if( pP )
 	{
-	//	pP[n++]	= new CSG_Parameters(Parameters);	Parameters.Restore_Defaults();	// ToDo: CSG_Parameters still misses a copy constructor
-		pP[n]	= new CSG_Parameters();	pP[n++]->Assign(&Parameters);	Parameters.Restore_Defaults();
+		pP[n++]	= new CSG_Parameters(Parameters);	Parameters.Restore_Defaults();
 
 		for(int i=0; i<m_npParameters; i++)
 		{
-		//	pP[n++]	= new CSG_Parameters(*m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
-			pP[n]	= new CSG_Parameters();	pP[n++]->Assign(m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
+			pP[n++]	= new CSG_Parameters(*m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
 		}
 
 		Set_Manager(pManager);
@@ -829,6 +833,9 @@ void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "module_library.h"
+
+//---------------------------------------------------------
 void CSG_Module::_Set_Output_History(void)
 {
 	CSG_MetaData	History;
@@ -838,8 +845,10 @@ void CSG_Module::_Set_Output_History(void)
 
 	if( SG_Get_History_Depth() )
 	{
-		History.Add_Child(SG_T("MODULE")	, Get_Name());
-	//	History.Add_Child(SG_T("LIBRARY")	, Get_Library());
+		CSG_MetaData	*pChild	= History.Add_Child("MODULE", Get_Name());
+
+		pChild->Add_Property("library", Get_Library());
+		pChild->Add_Property("id"     , Get_ID     ());
 
 		Parameters.Set_History(History);
 
@@ -857,7 +866,7 @@ void CSG_Module::_Set_Output_History(void)
 		{
 			CSG_Parameter	*p	= pParameters->Get_Parameter(i);
 
-			if( p->is_Output() && (p->is_Enabled() || !SG_UI_Get_Window_Main()) )
+			if( p->is_Output() )//&& (p->is_Enabled() || !SG_UI_Get_Window_Main()) )
 			{
 				if( p->is_DataObject() && p->asDataObject() )
 				{

@@ -133,10 +133,8 @@ public:
 
 	virtual int						Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
-	virtual CSG_String				Get_Menu			(int i)	const;
-
-	CSG_Module *					Get_Module			(int           Index, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
-	CSG_Module *					Get_Module			(const SG_Char *Name, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
+	virtual CSG_Module *			Get_Module			(int           Index, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
+	virtual CSG_Module *			Get_Module			(const SG_Char *Name, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
 
 	CSG_Module_Grid *				Get_Module_Grid				(int           Index)	const;
 	CSG_Module_Grid *				Get_Module_Grid				(const SG_Char *Name)	const;
@@ -146,17 +144,20 @@ public:
 	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(const SG_Char *Name)	const;
 
 	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
+	virtual CSG_String				Get_Menu			(int i)	const;
 
 
 protected:
+
+	CSG_Module_Library(void);
+	CSG_Module_Library(const CSG_String &File_Name);
+	virtual ~CSG_Module_Library(void);
+
 
 	CSG_String						m_File_Name, m_Library_Name;
 
 
 private:
-
-	CSG_Module_Library(const CSG_String &File_Name);
-	virtual ~CSG_Module_Library(void);
 
 	bool							_Destroy			(void);
 
@@ -247,7 +248,7 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 		}\
 		else if( !pModule->Execute() )\
 		{\
-			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), _TL("could not execute tool")   , SG_T(LIBRARY), pModule->Get_Name().c_str()));\
+			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), _TL("could not execute tool"   ), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
 		}\
 		else\
 		{\
@@ -257,6 +258,28 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 		pModule->Settings_Pop();\
 	}\
 }
+
+//---------------------------------------------------------
+#define SG_RUN_MODULE_ExitOnError(LIBRARY, MODULE, CONDITION)	{\
+	\
+	bool	bResult;\
+	\
+	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	\
+	if( !bResult )\
+	{\
+		return( false );\
+	}\
+}
+
+//---------------------------------------------------------
+#define SG_MODULE_PARAMETER_SET(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+
+#define SG_MODULE_PARAMLIST_ADD(IDENTIFIER, VALUE)	(\
+		pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)\
+	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
+	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Add_Item(VALUE)\
+)
 
 
 ///////////////////////////////////////////////////////////

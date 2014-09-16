@@ -80,39 +80,35 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Module_Library::CSG_Module_Library(void)
+{
+	m_pInterface	= NULL;
+	m_pLibrary		= NULL;
+}
+
+//---------------------------------------------------------
 CSG_Module_Library::CSG_Module_Library(const CSG_String &File_Name)
 {
-	m_File_Name		= SG_File_Get_Path_Absolute(File_Name);
-	m_Library_Name	= SG_File_Get_Name(File_Name, false);
-
-#if !defined(_SAGA_MSW)
-	if( m_Library_Name.Find(SG_T("lib")) == 0 )
-	{
-		m_Library_Name	= m_Library_Name.Right(m_Library_Name.Length() - 3).c_str();
-	}
-#endif
-
-	//-----------------------------------------------------
-	m_pLibrary	= new wxDynamicLibrary(m_File_Name.c_str(), wxDL_DEFAULT|wxDL_QUIET);
+	m_pLibrary	= new wxDynamicLibrary(SG_File_Get_Path_Absolute(File_Name).c_str(), wxDL_DEFAULT|wxDL_QUIET);
 
 	if(	m_pLibrary->IsLoaded()
 	&&	m_pLibrary->HasSymbol(SYMBOL_MLB_Get_Interface)
 	&&	m_pLibrary->HasSymbol(SYMBOL_MLB_Initialize)
 	&&	m_pLibrary->HasSymbol(SYMBOL_MLB_Finalize)
-	&&	((TSG_PFNC_MLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_MLB_Initialize))(m_File_Name) )
+	&&	((TSG_PFNC_MLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_MLB_Initialize))(File_Name) )
 	{
 		m_pInterface	= ((TSG_PFNC_MLB_Get_Interface)m_pLibrary->GetSymbol(SYMBOL_MLB_Get_Interface))();
-	}
-	else
-	{
-		m_pInterface	= NULL;
+
+		if( m_pInterface->Get_Count() > 0 )
+		{
+			m_File_Name		= m_pInterface->Get_Info(MLB_INFO_File   );
+			m_Library_Name	= m_pInterface->Get_Info(MLB_INFO_Library);
+
+			return;	// success
+		}
 	}
 
-	//-----------------------------------------------------
-	if( Get_Count() <= 0 )
-	{
-		_Destroy();
-	}
+	_Destroy();
 }
 
 //---------------------------------------------------------
@@ -495,11 +491,71 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 		return( NULL );
 	}
 
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load tool chain"), File_Name), true);
+
+	//-----------------------------------------------------
+	{
+		wxFileName	fn(File_Name);
+
+		for(int iLibrary=0; iLibrary<Get_Count(); iLibrary++)
+		{
+			if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS )
+			{
+				for(int iModule=0; iModule<Get_Library(iLibrary)->Get_Count(); iModule++)
+				{
+					if( fn == ((CSG_Module_Chain *)Get_Library(iLibrary)->Get_Module(iModule))->Get_File_Name().c_str() )
+					{
+						SG_UI_Msg_Add(_TL("has already been loaded"), false);
+
+						return( NULL );
+					}
+				}
+			}
+		}
+	}
+
 	//-----------------------------------------------------
 	CSG_Module_Chain	*pModule	= new CSG_Module_Chain(File_Name);
 
+	if( !pModule || !pModule->is_Okay() )
+	{
+		if( pModule )
+		{
+			delete(pModule);
+		}
+
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+		return( NULL );
+	}
+
 	//-----------------------------------------------------
-	return( NULL );
+	CSG_Module_Chains	*pLibrary	= NULL;
+
+	{
+		for(int iLibrary=0; !pLibrary && iLibrary<Get_Count(); iLibrary++)
+		{
+			if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS )
+			{
+				pLibrary	= (CSG_Module_Chains *)Get_Library(iLibrary);
+			}
+		}
+
+		if( !pLibrary )
+		{
+			pLibrary	= new CSG_Module_Chains("tool_chains", _TL("Tool Chains"), _TL("unsorted tool chains"), _TL("Tool Chains"));
+		}
+
+		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
+		m_pLibraries[m_nLibraries++]	= pLibrary;
+	}
+
+	pLibrary->Add_Module(pModule);
+
+	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+	//-----------------------------------------------------
+	return( pLibrary );
 }
 
 
@@ -538,6 +594,7 @@ bool CSG_Module_Library_Manager::Destroy(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 bool CSG_Module_Library_Manager::Del_Library(CSG_Module_Library *pLibrary)
 {
 	for(int i=0; i<Get_Count(); i++)

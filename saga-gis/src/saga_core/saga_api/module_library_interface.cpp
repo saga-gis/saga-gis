@@ -86,10 +86,13 @@ CSG_Module_Library_Interface::~CSG_Module_Library_Interface(void)
 	{
 		for(int i=0; i<m_nModules; i++)
 		{
-			delete(m_Modules[i]);
+			if( m_Modules[i] )
+			{
+				delete(m_Modules[i]);
+			}
 		}
 
-		SG_Free( m_Modules );
+		SG_Free(m_Modules);
 	}
 }
 
@@ -103,7 +106,10 @@ CSG_Module_Library_Interface::~CSG_Module_Library_Interface(void)
 //---------------------------------------------------------
 void CSG_Module_Library_Interface::Set_Info(int ID, const CSG_String &Info)
 {
-	m_Info[ID]	= SG_Translate(Info);
+	if( ID <= MLB_INFO_User )
+	{
+		m_Info[ID]	= SG_Translate(Info);
+	}
 }
 
 //---------------------------------------------------------
@@ -136,7 +142,8 @@ bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 		}
 		else
 		{
-			pModule->m_ID	= ID;
+			pModule->m_ID		= ID;
+			pModule->m_Library	= Get_Info(MLB_INFO_Library);
 		}
 
 		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
@@ -169,7 +176,18 @@ CSG_Module * CSG_Module_Library_Interface::Get_Module(int iModule)
 //---------------------------------------------------------
 void CSG_Module_Library_Interface::Set_File_Name(const CSG_String &File_Name)
 {
-	m_File_Name	= File_Name;
+	m_Info[MLB_INFO_File]	= SG_File_Get_Path_Absolute(File_Name);
+
+	CSG_String	Library		= SG_File_Get_Name(File_Name, false);
+
+#if !defined(_SAGA_MSW)
+	if( Library.Find("lib") == 0 )
+	{
+		Library	= Library.Right(Library.Length() - 3);
+	}
+#endif
+
+	m_Info[MLB_INFO_Library]	= Library;
 }
 
 

@@ -116,15 +116,6 @@ CTA_Standard::CTA_Standard(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
-	bool	bResult;\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
-	if( !bResult ) return( false );\
-}
-
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
-
-//---------------------------------------------------------
 bool CTA_Standard::On_Execute(void)
 {
 	CSG_Grid	DEMP(*Get_System(), SG_DATATYPE_Float);
@@ -132,123 +123,127 @@ bool CTA_Standard::On_Execute(void)
 	CSG_Grid	TMP2(*Get_System(), SG_DATATYPE_Float);
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_preprocessor"		, 2,
-			SET_PARAMETER("DEM"			, Parameters("ELEVATION"))
-		&&	SET_PARAMETER("DEM_PREPROC"	, &DEMP)	// >> preprocessed DEM
+	SG_RUN_MODULE_ExitOnError("ta_preprocessor"    , 2,
+			SG_MODULE_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
+		&&	SG_MODULE_PARAMETER_SET("DEM_PREPROC"  , &DEMP)	// >> preprocessed DEM
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_lighting"			, 0,
-			SET_PARAMETER("ELEVATION"	, &DEMP)
-		&&	SET_PARAMETER("SHADE"		, Parameters("SHADE"))
+	SG_RUN_MODULE_ExitOnError("ta_lighting"        , 0,
+			SG_MODULE_PARAMETER_SET("ELEVATION"    , &DEMP)
+		&&	SG_MODULE_PARAMETER_SET("SHADE"        , Parameters("SHADE"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_morphometry"			, 0,
-			SET_PARAMETER("ELEVATION"	, &DEMP)
-		&&	SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
-		&&	SET_PARAMETER("ASPECT"		, Parameters("ASPECT"))
-		&&	SET_PARAMETER("C_CROS"		, (CSG_Grid *)NULL)
-		&&	SET_PARAMETER("C_LONG"		, (CSG_Grid *)NULL)
+	SG_RUN_MODULE_ExitOnError("ta_morphometry"     , 0,
+			SG_MODULE_PARAMETER_SET("ELEVATION"    , &DEMP)
+		&&	SG_MODULE_PARAMETER_SET("SLOPE"        , Parameters("SLOPE"))
+		&&	SG_MODULE_PARAMETER_SET("ASPECT"       , Parameters("ASPECT"))
+		&&	SG_MODULE_PARAMETER_SET("C_CROS"       , (CSG_Grid *)NULL)
+		&&	SG_MODULE_PARAMETER_SET("C_LONG"       , (CSG_Grid *)NULL)
 	)
 
-	RUN_MODULE("grid_filter"			, 0,
-			SET_PARAMETER("INPUT"		, &DEMP)
-		&&	SET_PARAMETER("RESULT"		, &TMP1)
-		&&	SET_PARAMETER("RADIUS"		, 3)
+	SG_RUN_MODULE_ExitOnError("grid_filter"        , 0,
+			SG_MODULE_PARAMETER_SET("INPUT"        , &DEMP)
+		&&	SG_MODULE_PARAMETER_SET("RESULT"       , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("RADIUS"       , 3)
 	)
 
-	RUN_MODULE("ta_morphometry"			, 0,
-			SET_PARAMETER("ELEVATION"	, &TMP1)
-		&&	SET_PARAMETER("SLOPE"		, &TMP2)
-		&&	SET_PARAMETER("ASPECT"		, &TMP2)
-		&&	SET_PARAMETER("C_CROS"		, Parameters("HCURV"))
-		&&	SET_PARAMETER("C_LONG"		, Parameters("VCURV"))
-	)
-
-	//-----------------------------------------------------
-	RUN_MODULE("ta_morphometry"			, 1,
-			SET_PARAMETER("ELEVATION"	, &TMP1)
-		&&	SET_PARAMETER("RESULT"		, Parameters("CONVERGENCE"))
+	SG_RUN_MODULE_ExitOnError("ta_morphometry"     , 0,
+			SG_MODULE_PARAMETER_SET("ELEVATION"    , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("SLOPE"        , &TMP2)
+		&&	SG_MODULE_PARAMETER_SET("ASPECT"       , &TMP2)
+		&&	SG_MODULE_PARAMETER_SET("C_CROS"       , Parameters("HCURV"))
+		&&	SG_MODULE_PARAMETER_SET("C_LONG"       , Parameters("VCURV"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_hydrology"			, 0,
-			SET_PARAMETER("ELEVATION"	, &DEMP)	// << preprocessed DEM
-		&&	SET_PARAMETER("CAREA"		, Parameters("CAREA"))
-		&&	SET_PARAMETER("METHOD"		, 4)		// MFD
+	SG_RUN_MODULE_ExitOnError("ta_morphometry"     , 1,
+			SG_MODULE_PARAMETER_SET("ELEVATION"    , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("RESULT"       , Parameters("CONVERGENCE"))
+	)
+
+	//-----------------------------------------------------
+	SG_RUN_MODULE_ExitOnError("ta_hydrology"       , 0,
+			SG_MODULE_PARAMETER_SET("ELEVATION"    , &DEMP)	// << preprocessed DEM
+		&&	SG_MODULE_PARAMETER_SET("CAREA"        , Parameters("CAREA"))
+		&&	SG_MODULE_PARAMETER_SET("METHOD"       , 4)		// MFD
 	)
 
 	Parameters("SINKS")->asGrid()->Assign(&(TMP2 = DEMP - *Parameters("ELEVATION")->asGrid()));
 	Parameters("SINKS")->asGrid()->Set_NoData_Value(0.0);
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_hydrology"			, 19,
-			SET_PARAMETER("DEM"			, &DEMP)
-		&&	SET_PARAMETER("TCA"			, Parameters("CAREA"))
-		&&	SET_PARAMETER("WIDTH"		, &TMP2)
-		&&	SET_PARAMETER("SCA"			, &TMP1)	// >> specific catchment area
-		&&	SET_PARAMETER("METHOD"		, 1)
+	SG_RUN_MODULE_ExitOnError("ta_hydrology"       , 19,
+			SG_MODULE_PARAMETER_SET("DEM"          , &DEMP)
+		&&	SG_MODULE_PARAMETER_SET("TCA"          , Parameters("CAREA"))
+		&&	SG_MODULE_PARAMETER_SET("WIDTH"        , &TMP2)
+		&&	SG_MODULE_PARAMETER_SET("SCA"          , &TMP1)	// >> specific catchment area
+		&&	SG_MODULE_PARAMETER_SET("METHOD"       , 1)
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_hydrology"			, 20,
-			SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
-		&&	SET_PARAMETER("AREA"		, &TMP1)	// << specific catchment area
-		&&	SET_PARAMETER("TWI"			, Parameters("WETNESS"))
-		&&	SET_PARAMETER("CONV"		, 0)
+	SG_RUN_MODULE_ExitOnError("ta_hydrology"       , 20,
+			SG_MODULE_PARAMETER_SET("SLOPE"        , Parameters("SLOPE"))
+		&&	SG_MODULE_PARAMETER_SET("AREA"         , &TMP1)	// << specific catchment area
+		&&	SG_MODULE_PARAMETER_SET("TWI"          , Parameters("WETNESS"))
+		&&	SG_MODULE_PARAMETER_SET("CONV"         , 0)
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_hydrology"			, 22,
-			SET_PARAMETER("SLOPE"		, Parameters("SLOPE"))
-		&&	SET_PARAMETER("AREA"		, &TMP1)	// << specific catchment area
-		&&	SET_PARAMETER("LS"			, Parameters("LSFACTOR"))
-		&&	SET_PARAMETER("CONV"		, 0)
+	SG_RUN_MODULE_ExitOnError("ta_hydrology"       , 22,
+			SG_MODULE_PARAMETER_SET("SLOPE"        , Parameters("SLOPE"))
+		&&	SG_MODULE_PARAMETER_SET("AREA"         , &TMP1)	// << specific catchment area
+		&&	SG_MODULE_PARAMETER_SET("LS"           , Parameters("LSFACTOR"))
+		&&	SG_MODULE_PARAMETER_SET("CONV"         , 0)
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_channels"			, 5,
-			SET_PARAMETER("DEM"			, &DEMP)	// << preprocessed DEM
-		&&	SET_PARAMETER("SEGMENTS"	, Parameters("CHANNELS"))
-		&&	SET_PARAMETER("BASINS"		, Parameters("BASINS"))
-		&&	SET_PARAMETER("ORDER"		, &TMP1)
-		&&	SET_PARAMETER("THRESHOLD"	, Parameters("THRESHOLD"))
+	SG_RUN_MODULE_ExitOnError("ta_channels"        , 5,
+			SG_MODULE_PARAMETER_SET("DEM"          , &DEMP)	// << preprocessed DEM
+		&&	SG_MODULE_PARAMETER_SET("SEGMENTS"     , Parameters("CHANNELS"))
+		&&	SG_MODULE_PARAMETER_SET("BASINS"       , Parameters("BASINS"))
+		&&	SG_MODULE_PARAMETER_SET("ORDER"        , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("THRESHOLD"    , Parameters("THRESHOLD"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_channels"			, 3,
-			SET_PARAMETER("ELEVATION"	, &DEMP)
-		&&	SET_PARAMETER("CHANNELS"	, &TMP1)
-		&&	SET_PARAMETER("DISTANCE"	, Parameters("CHNL_DIST"))
-		&&	SET_PARAMETER("BASELEVEL"	, Parameters("CHNL_BASE"))
+	SG_RUN_MODULE_ExitOnError("ta_channels"        , 3,
+			SG_MODULE_PARAMETER_SET("ELEVATION"    , &DEMP)
+		&&	SG_MODULE_PARAMETER_SET("CHANNELS"     , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("DISTANCE"     , Parameters("CHNL_DIST"))
+		&&	SG_MODULE_PARAMETER_SET("BASELEVEL"    , Parameters("CHNL_BASE"))
 	)
 
 	//-----------------------------------------------------
-	RUN_MODULE("grid_tools"				, 19,	// grid orientation
-			SET_PARAMETER("INPUT"		, &DEMP)
-		&&	SET_PARAMETER("RESULT"		, &TMP1)
-		&&	SET_PARAMETER("METHOD"		, 3)	// invert
+	SG_RUN_MODULE_ExitOnError("grid_tools"         , 19,	// grid orientation
+			SG_MODULE_PARAMETER_SET("INPUT"        , &DEMP)
+		&&	SG_MODULE_PARAMETER_SET("RESULT"       , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("METHOD"       , 3)	// invert
 	)
 
-	RUN_MODULE("ta_channels"			, 6,	// strahler order
-			SET_PARAMETER("DEM"			, &TMP1)
-		&&	SET_PARAMETER("STRAHLER"	, &TMP2)
+	SG_RUN_MODULE_ExitOnError("ta_channels"        , 6,	// strahler order
+			SG_MODULE_PARAMETER_SET("DEM"          , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("STRAHLER"     , &TMP2)
 	)
 
 	TMP2.Set_NoData_Value_Range(0, 4);
 
-	RUN_MODULE("ta_channels"			, 3,	// vertical channel network distance
-			SET_PARAMETER("ELEVATION"	, &TMP1)
-		&&	SET_PARAMETER("CHANNELS"	, &TMP2)
-		&&	SET_PARAMETER("DISTANCE"	, Parameters("VALL_DEPTH"))
+	SG_RUN_MODULE_ExitOnError("ta_channels"        , 3,	// vertical channel network distance
+			SG_MODULE_PARAMETER_SET("ELEVATION"    , &TMP1)
+		&&	SG_MODULE_PARAMETER_SET("CHANNELS"     , &TMP2)
+		&&	SG_MODULE_PARAMETER_SET("DISTANCE"     , Parameters("VALL_DEPTH"))
 	)
 
 	Parameters("VALL_DEPTH")->asGrid()->Set_Name(_TL("Valley Depth"));
 
-	Parameters("RSP")->asGrid()->Assign(&(TMP1 =
-		*Parameters("CHNL_DIST")->asGrid() / (*Parameters("CHNL_DIST")->asGrid() + *Parameters("VALL_DEPTH")->asGrid())
-	));
+	SG_RUN_MODULE_ExitOnError("grid_calculus"      , 1,	// grid calculator
+			SG_MODULE_PARAMETER_SET("RESULT"       , Parameters("RSP"))
+		&&	SG_MODULE_PARAMETER_SET("FORMULA"      , SG_T("g1 / (g1 + g2)"))
+		&&	SG_MODULE_PARAMETER_SET("NAME"         , _TL("Relative Slope Position"))
+		&&	SG_MODULE_PARAMLIST_ADD("GRIDS"        , Parameters("CHNL_DIST" )->asGrid())
+		&&	SG_MODULE_PARAMLIST_ADD("GRIDS"        , Parameters("VALL_DEPTH")->asGrid())
+	)
 
 	//-----------------------------------------------------
 	return( true );
