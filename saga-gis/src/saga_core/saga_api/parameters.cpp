@@ -1528,8 +1528,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 			CSG_Parameter	*p	= m_Parameters[i];
 
 			if(	p->is_Option() && !p->is_Information()
-			&&	!(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password())
-			&&	!(p->Get_Type() == PARAMETER_TYPE_Grid_System && p->Get_Children_Count() > 0) )
+			&&	!(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
 			{
 				p->Serialize(MetaData, true);
 			}
@@ -1550,47 +1549,48 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 			CSG_Parameter	*p	= m_Parameters[i];
 
 			//---------------------------------------------
-			if(	p->Get_Type() == PARAMETER_TYPE_Grid_System && p->Get_Children_Count() > 0 )
-			{
-				CSG_Parameter	*pSystem	= p;
-				CSG_MetaData	*pGrids		= NULL;
-
-				for(int j=0; j<pSystem->Get_Children_Count(); j++)
-				{
-					p	= pSystem->Get_Child(j);
-
-					if( p->is_Input() && p->is_DataObject() && (pObject = p->asDataObject()) != NULL )
-					{
-						if( pGrids == NULL )
-						{
-							pGrids	= pSystem->Serialize(MetaData, true);
-						}
-
-						pEntry	= p->Serialize(*pGrids, true);
-						pEntry->Add_Children(pObject->Get_History());
-					}
-				}
-			}
-
-			//---------------------------------------------
-			else if( p->is_Input() )
+			if( p->is_Input() )
 			{
 				if( p->is_DataObject() && (pObject = p->asDataObject()) != NULL  )
 				{
-					pEntry	= p->Serialize(MetaData, true);
-					pEntry->Add_Children(pObject->Get_History());
+					pEntry	= MetaData.Add_Child("INPUT");
+
+					pEntry->Add_Property("type", p->Get_Type_Identifier());
+					pEntry->Add_Property("id"  , p->Get_Identifier     ());
+					pEntry->Add_Property("name", p->Get_Name           ());
+
+					if( p->Get_Type() == PARAMETER_TYPE_Grid )
+					{
+						pEntry->Add_Property("system", p->Get_Parent()->Get_Identifier());
+					}
+
+					if( pObject->Get_History().Get_Children_Count() > 0 )
+					{
+						pEntry->Add_Children(pObject->Get_History());
+					}
+					else if( pObject->Get_File_Name() && *pObject->Get_File_Name() )
+					{
+						pEntry	= pEntry->Add_Child("FILE", pObject->Get_File_Name());
+					}
 				}
 
 				else if( p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
 				{
-					CSG_MetaData	*pList	= MetaData.Add_Child(SG_T("DATA_LIST"));
-					pList->Add_Property(SG_T("type"), p->Get_Type_Identifier());
-					pList->Add_Property(SG_T("id")  , p->Get_Identifier());
-					pList->Add_Property(SG_T("name"), p->Get_Name());
+					CSG_MetaData	*pList	= MetaData.Add_Child("INPUT_LIST");
+
+					pList->Add_Property("type", p->Get_Type_Identifier());
+					pList->Add_Property("id"  , p->Get_Identifier     ());
+					pList->Add_Property("name", p->Get_Name           ());
+
+					if( p->Get_Type() == PARAMETER_TYPE_Grid_List )
+					{
+						pList->Add_Property("system", p->Get_Parent()->Get_Identifier());
+					}
 
 					for(int j=0; j<p->asList()->Get_Count(); j++)
 					{
-						pEntry	= pList->Add_Child(SG_T("DATA"));
+						pEntry	= pList->Add_Child("INPUT");
+
 						pEntry->Add_Children(p->asList()->asDataObject(j)->Get_History());
 					}
 				}

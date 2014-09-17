@@ -441,6 +441,7 @@ bool CACTIVE::Update_Description(void)
 		break;
 
 	case WKSP_ITEM_Module:
+		if( !((CWKSP_Module *)m_pItem)->Get_File_Name().IsEmpty() )
 		{
 			wxFileName	FileName;
 

@@ -181,10 +181,10 @@ bool				PROGRESSBAR_Set_Position		(int Position);
 bool				PROGRESSBAR_Set_Position		(double Position, double Range);
 
 //---------------------------------------------------------
-bool				Open_Application				(const wxString &Reference, const wxString &Mime_Extension = wxT(""));
+bool				Open_Application				(const wxString &Reference, const wxString &Mime_Extension = "");
 bool				Open_WebBrowser					(const wxString &Reference);
 
-wxString			Get_Online_Module_Description	(const wxString &Library, int ID = -1);
+wxString			Get_Online_Module_Description	(const wxString &Library, const wxString &ID = "");
 
 //---------------------------------------------------------
 enum

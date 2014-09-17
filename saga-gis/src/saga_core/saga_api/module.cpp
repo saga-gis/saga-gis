@@ -77,7 +77,7 @@
 //---------------------------------------------------------
 CSG_Module::CSG_Module(void)
 {
-	m_ID			= -1;
+	m_ID			= "-1";
 
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
@@ -835,26 +835,35 @@ void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 #include "module_library.h"
 
+#include "saga_api.h"
+
 //---------------------------------------------------------
 void CSG_Module::_Set_Output_History(void)
 {
-	CSG_MetaData	History;
+	CSG_MetaData	History, *pOutput;
 
 	//-----------------------------------------------------
 	History.Set_Name(SG_META_HST);
+	History.Add_Property("version", SG_META_HST_VERSION);
 
 	if( SG_Get_History_Depth() )
 	{
-		CSG_MetaData	*pChild	= History.Add_Child("MODULE", Get_Name());
+		CSG_MetaData	*pModule	= History.Add_Child("MODULE");
 
-		pChild->Add_Property("library", Get_Library());
-		pChild->Add_Property("id"     , Get_ID     ());
+		pModule->Add_Property("library", Get_Library());
+		pModule->Add_Property("id"     , Get_ID     ());
+		pModule->Add_Property("name"   , Get_Name   ());
 
-		Parameters.Set_History(History);
+		Parameters.Set_History(*pModule);
 
-		History.Add_Children(History_Supplement);
+		pModule->Add_Children(History_Supplement);
 
-		History.Del_Children(SG_Get_History_Depth());
+		pOutput	= pModule->Add_Child("OUTPUT");
+		pOutput->Add_Property("type", "");
+		pOutput->Add_Property("id"  , "");
+		pOutput->Add_Property("name", "");
+
+		pModule->Del_Children(SG_Get_History_Depth());
 	}
 
 	//-----------------------------------------------------
@@ -868,8 +877,14 @@ void CSG_Module::_Set_Output_History(void)
 
 			if( p->is_Output() )//&& (p->is_Enabled() || !SG_UI_Get_Window_Main()) )
 			{
+				pOutput->Set_Property("type", p->Get_Type_Identifier());
+				pOutput->Set_Property("id"  , p->Get_Identifier     ());
+				pOutput->Set_Property("name", p->Get_Name           ());
+
 				if( p->is_DataObject() && p->asDataObject() )
 				{
+					pOutput->Set_Content(p->asDataObject()->Get_Name());
+
 					p->asDataObject()->Get_History().Assign(History);
 				}
 
@@ -877,6 +892,8 @@ void CSG_Module::_Set_Output_History(void)
 				{
 					for(int j=0; j<p->asList()->Get_Count(); j++)
 					{
+						pOutput->Set_Content(p->asList()->asDataObject(j)->Get_Name());
+
 						p->asList()->asDataObject(j)->Get_History().Assign(History);
 					}
 				}

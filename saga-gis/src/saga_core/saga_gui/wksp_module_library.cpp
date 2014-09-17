@@ -154,9 +154,9 @@ wxString CWKSP_Module_Library::Get_Description(void)
 
 	for(int iModule=0; iModule<Get_Count(); iModule++)
 	{
-		s	+= wxString::Format(wxT("<li>[%d] %s</li>"),
-				Get_Module(iModule)->Get_Module()->Get_ID(),
-				Get_Module(iModule)->Get_Module()->Get_Name().w_str()
+		s	+= wxString::Format(wxT("<li>[%s] %s</li>"),
+				Get_Module(iModule)->Get_Module()->Get_ID  ().c_str(),
+				Get_Module(iModule)->Get_Module()->Get_Name().c_str()
 			);
 	}
 

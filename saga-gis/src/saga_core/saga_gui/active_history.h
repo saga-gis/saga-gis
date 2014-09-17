@@ -101,7 +101,10 @@ private:
 	CSG_Data_Object *	_Get_Object				(void);
 	int					_Get_Image				(TSG_Parameter_Type Type);
 	int					_Get_Image				(const CSG_String  &Type);
+
 	bool				_Add_History			(wxTreeItemId Parent, CSG_MetaData &History);
+
+	bool				_OLD_Add_History		(wxTreeItemId Parent, CSG_MetaData &History);
 
 
 //---------------------------------------------------------

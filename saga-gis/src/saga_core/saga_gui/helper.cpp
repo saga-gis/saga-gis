@@ -956,7 +956,7 @@ bool		Open_WebBrowser(const wxString &Reference)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString Get_Online_Module_Description(const wxString &Library, int ID)
+wxString Get_Online_Module_Description(const wxString &Library, const wxString &ID)
 {
 	static bool	bBuisy	= false;
 
@@ -980,9 +980,9 @@ wxString Get_Online_Module_Description(const wxString &Library, int ID)
 			sPage.Remove(0, 3);
 		}
 
-		if( ID >= 0 )
+		if( !ID.IsEmpty() )
 		{
-			sPage	+= wxString::Format(wxT("_%d"), ID);
+			sPage	+= "_" + ID;
 		}
 
 		if( Server.Connect(sServer) && (pStream = Server.GetInputStream(sPath + sPage)) != NULL )

@@ -671,15 +671,14 @@ CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
 		if( !is_Information() && Get_Type() != PARAMETER_TYPE_Node && Get_Type() != PARAMETER_TYPE_Undefined )
 		{
 			CSG_MetaData	*pEntry	= Entry.Add_Child(
-				is_Option()          ? SG_T("OPTION")    :
-				is_DataObject()      ? SG_T("DATA")      :
-				is_DataObject_List() ? SG_T("DATA_LIST") :
-				                       SG_T("PARAMETER")
+				is_Option         () ? "OPTION"    :
+				is_DataObject     () ? "DATA"      :
+				is_DataObject_List() ? "DATA_LIST" : "PARAMETER"
 			);
 
-			pEntry->Add_Property(SG_T("type"), Get_Type_Identifier());
-			pEntry->Add_Property(SG_T("id")  , Get_Identifier());
-			pEntry->Add_Property(SG_T("name"), Get_Name());
+			pEntry->Add_Property("type", Get_Type_Identifier());
+			pEntry->Add_Property("id"  , Get_Identifier     ());
+			pEntry->Add_Property("name", Get_Name           ());
 
 			m_pData->Serialize(*pEntry, bSave);
 
@@ -688,8 +687,8 @@ CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
-		if(	Entry.Cmp_Property(SG_T("type"), Get_Type_Identifier())
-		&&	Entry.Cmp_Property(SG_T("id")  , Get_Identifier()) )
+		if(	Entry.Cmp_Property("type", Get_Type_Identifier())
+		&&	Entry.Cmp_Property("id"  , Get_Identifier     ()) )
 		{
 			return( m_pData->Serialize(Entry, bSave) ? &Entry : NULL );
 		}

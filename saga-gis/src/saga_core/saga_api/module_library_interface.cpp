@@ -142,7 +142,7 @@ bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 		}
 		else
 		{
-			pModule->m_ID		= ID;
+			pModule->m_ID.Printf(SG_T("%d"), ID);
 			pModule->m_Library	= Get_Info(MLB_INFO_Library);
 		}
 

@@ -180,7 +180,7 @@ wxString CWKSP_Module::Get_Description(void)
 
 	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
-		Description	= Get_Online_Module_Description(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), Get_Module()->Get_ID());
+		Description	= Get_Online_Module_Description(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), Get_Module()->Get_ID().c_str());
 	}
 
 	return( m_pModule->Get_Summary(true, &m_Menu_Path, &Description).c_str() );

@@ -134,9 +134,9 @@ void CCMD_Module::Usage(void)
 	{
 		CMD_Print("");
 
-		wxString	sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %d %s"),
+		wxString	sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %s %s"),
 			m_pLibrary->Get_Library_Name().c_str(),
-			m_pModule->Get_ID(),
+			m_pModule ->Get_ID          ().c_str(),
 			m_CMD.GetUsageString().AfterFirst(' ').AfterFirst(' ')
 		);
 

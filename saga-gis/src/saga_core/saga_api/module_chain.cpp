@@ -61,7 +61,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "saga_api.h"
+
 #include "module_chain.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define TOOL_CHAIN_VERSION	"SAGA_TOOL_CHAIN_v1.0.0"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,7 +85,7 @@
 //---------------------------------------------------------
 CSG_Module_Chain::CSG_Module_Chain(void)
 {
-	Create();
+	Destroy();
 }
 
 //---------------------------------------------------------
@@ -85,6 +97,15 @@ CSG_Module_Chain::CSG_Module_Chain(const CSG_String &File)
 //---------------------------------------------------------
 CSG_Module_Chain::~CSG_Module_Chain(void)
 {
+	Destroy();
+}
+
+//---------------------------------------------------------
+void CSG_Module_Chain::Destroy(void)
+{
+	Parameters.Destroy();
+
+	m_Chain.Destroy();
 }
 
 
@@ -93,24 +114,27 @@ CSG_Module_Chain::~CSG_Module_Chain(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Create(void)
-{
-	return( false );
-}
+#define GET_CONTENT(md, id, def)	(md.Get_Child(id) ? md.Get_Child(id)->Get_Content() : CSG_String(def))
 
 //---------------------------------------------------------
 bool CSG_Module_Chain::Create(const CSG_String &File)
 {
-	if( !m_Chain.Load(File)
-	||  !m_Chain.Get_Child("VERSION") || !m_Chain.Get_Child("VERSION")->Cmp_Content("SAGA_TOOL_CHAIN_v1.0")
-	||  !m_Chain.Get_Child("GROUP")
-	||  !m_Chain.Get_Child("IDENTIFIER")
-	||  !m_Chain.Get_Child("NAME")	)
+	Destroy();
+
+	if( !m_Chain.Load(File) || m_Chain.Get_Name().CmpNoCase("toolchain")
+	||  !m_Chain.Get_Child("version"   ) || !m_Chain.Get_Child("version")->Cmp_Content(TOOL_CHAIN_VERSION)
+	||  !m_Chain.Get_Child("identifier") )
 	{
-		m_Chain.Destroy();
+		Destroy();
 
 		return( false );
 	}
+
+	m_ID			= GET_CONTENT(m_Chain, "identifier" , "");
+	m_Library		= GET_CONTENT(m_Chain, "group"      , "tool_chains");
+	m_Library_Name	= GET_CONTENT(m_Chain, "group_name" , _TL("Tool Chains"));
+	Set_Name         (GET_CONTENT(m_Chain, "name"       , _TL("Unnamed")));
+	Set_Description  (GET_CONTENT(m_Chain, "description", _TL("")));
 
 	return( is_Okay() );
 }
@@ -136,19 +160,27 @@ bool CSG_Module_Chain::Save_History_to_Model(const CSG_MetaData &History, const 
 {
 	CSG_MetaData	Chain;
 
-	CSG_MetaData	&Parameter	= *Chain.Add_Child("PARAMETERS");
-	CSG_MetaData	&Tools		= *Chain.Add_Child("TOOLS");
-	CSG_MetaData	&Data		= *Chain.Add_Child("DATA");
+	Chain.Set_Name ("toolchain");
 
-	Chain.Add_Child("VERSION"   , "SAGA_TOOL_CHAIN_v1.0");
-	Chain.Add_Child("GROUP"     , "tool_chains")->Add_Property("NAME", "Tool Chains");
-	Chain.Add_Child("IDENTIFIER", SG_File_Get_Name(File, false));
-	Chain.Add_Child("NAME"      , SG_File_Get_Name(File, false));
-	Chain.Add_Child("DESCRIPTON", _TL("Created from history."));
+	Chain.Add_Child("version"    , TOOL_CHAIN_VERSION);
+	Chain.Add_Child("group"      , "tool_chains");
+	Chain.Add_Child("group_name" , "Tool Chains");
+	Chain.Add_Child("identifier" , SG_File_Get_Name(File, false));
+	Chain.Add_Child("name"       , SG_File_Get_Name(File, false));
+	Chain.Add_Child("description", _TL("created from history"));
 
+	CSG_MetaData	&Parameters	= *Chain.Add_Child("parameters");
+	CSG_MetaData	&Tools		= *Chain.Add_Child("tools");
 
-	return( Chain.Save(File, SG_T("xml")) );
-//	return( Chain.Save(File, SG_T("smdl")) );
+	_Save_History_to_Model(History, Tools, Parameters);
+
+	return( Chain.Save(File, SG_T("xml")) );	//	return( Chain.Save(File, SG_T("smdl")) );
+}
+
+//---------------------------------------------------------
+bool CSG_Module_Chain::_Save_History_to_Model(const CSG_MetaData &DataSetHistory, CSG_MetaData &Tools, CSG_MetaData &Parameters)
+{
+	return( true );
 }
 
 

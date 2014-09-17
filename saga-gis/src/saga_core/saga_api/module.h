@@ -183,6 +183,7 @@ class SAGA_API_DLL_EXPORT CSG_Module
 {
 	friend class CSG_Module_Interactive_Base;
 	friend class CSG_Module_Library_Interface;
+	friend class CSG_Module_Chain;
 
 public:
 
@@ -193,7 +194,7 @@ public:
 
 	virtual TSG_Module_Type		Get_Type					(void)	{	return( MODULE_TYPE_Base );	}
 
-	int							Get_ID						(void)	{	return( m_ID );	}
+	const CSG_String &			Get_ID						(void)	const	{	return( m_ID );	}
 
 	const CSG_String &			Get_Library					(void)	const;
 	const CSG_String &			Get_Name					(void)	const;
@@ -305,13 +306,13 @@ private:
 
 	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress;
 
-	int							m_ID, m_npParameters;
+	int							m_npParameters;
 
 	CSG_Array					m_Settings_Stack;
 
 	CSG_Parameters				**m_pParameters;
 
-	CSG_String					m_Library, m_Author;
+	CSG_String					m_ID, m_Library, m_Author;
 
 
 	bool						_Synchronize_DataObjects	(void);
