@@ -583,7 +583,7 @@ bool CSG_Module::Error_Set(TSG_Module_Error Error_ID)
 	{
 	default:
 		return( Error_Set(_TL("Unknown Error")) );
-	    
+
 	case MODULE_ERROR_Calculation:
 		return( Error_Set(_TL("Calculation Error")) );
 	}
@@ -840,7 +840,7 @@ void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 void CSG_Module::_Set_Output_History(void)
 {
-	CSG_MetaData	History, *pOutput;
+	CSG_MetaData	History, *pOutput   = NULL;
 
 	//-----------------------------------------------------
 	History.Set_Name(SG_META_HST);
@@ -877,9 +877,12 @@ void CSG_Module::_Set_Output_History(void)
 
 			if( p->is_Output() )//&& (p->is_Enabled() || !SG_UI_Get_Window_Main()) )
 			{
-				pOutput->Set_Property("type", p->Get_Type_Identifier());
-				pOutput->Set_Property("id"  , p->Get_Identifier     ());
-				pOutput->Set_Property("name", p->Get_Name           ());
+                if( pOutput )
+                {
+                    pOutput->Set_Property("type", p->Get_Type_Identifier());
+                    pOutput->Set_Property("id"  , p->Get_Identifier     ());
+                    pOutput->Set_Property("name", p->Get_Name           ());
+				}
 
 				if( p->is_DataObject() && p->asDataObject() )
 				{
@@ -1040,7 +1043,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 		s	+= CSG_String::Format(SG_T("<b>%s</b><table border=\"0\">"), _TL("Tool"));
 
 		SUMMARY_ADD_STR(_TL("Name"  ), Get_Name  ().c_str());
-		SUMMARY_ADD_INT(_TL("ID"    ), Get_ID    ());
+		SUMMARY_ADD_STR(_TL("ID"    ), Get_ID    ().c_str());
 		SUMMARY_ADD_STR(_TL("Author"), Get_Author().c_str());
 
 		if( is_Interactive() && is_Grid() )

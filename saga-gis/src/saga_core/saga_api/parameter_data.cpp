@@ -565,11 +565,13 @@ bool CSG_Parameter_Int::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Fmt_Content(SG_T("%d"), m_Value);
+		Entry.Add_Property("index", m_Value);
+
+		Entry.Set_Content(asString());
 	}
 	else
 	{
-		return( Entry.Get_Content().asInt(m_Value) );
+		return( Entry.Get_Property("index", m_Value) );
 	}
 
 	return( true );
