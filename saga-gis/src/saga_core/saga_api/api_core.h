@@ -491,7 +491,11 @@ public:
 	size_t				Get_Value_Size	(void)	const			{	return( m_Value_Size );	}
 	size_t				Get_Size		(void)	const			{	return( m_nValues );	}
 
-	void *				Get_Entry		(size_t Index)	const	{	return( Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );		}
+	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
+	void *				Get_Entry		(size_t Index)	const	{	return( Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );	}
+
+	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
+	void *				Get_Entry		(int    Index)	const	{	return( Index >= 0 ? Get_Entry((size_t)Index) : NULL );	}
 
 	void *				Get_Array		(void)	const			{	return( m_Values );		}
 	void *				Get_Array		(size_t nValues)		{	Set_Array(nValues);	return( m_Values );	}

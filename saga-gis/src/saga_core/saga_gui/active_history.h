@@ -89,14 +89,17 @@ class CACTIVE_History : public wxTreeCtrl
 public:
 	CACTIVE_History(wxWindow *pParent);
 
-	void				On_Mouse_RDown			(wxMouseEvent   &event);
-	void				On_Clear				(wxCommandEvent &event);
-	void				On_SaveAs_Model			(wxCommandEvent &event);
-
 	bool				Set_Item				(class CWKSP_Base_Item *pItem);
 
 
 private:
+
+	void				On_Mouse_RDown			(wxMouseEvent   &event);
+	void				On_Clear				(wxCommandEvent &event);
+	void				On_SaveAs_Model			(wxCommandEvent &event);
+	void				On_Options_Expand		(wxCommandEvent &event);
+
+	void				_Expand					(wxTreeItemId Node, const wxString &Name, bool bExpand);
 
 	CSG_Data_Object *	_Get_Object				(void);
 	int					_Get_Image				(TSG_Parameter_Type Type);

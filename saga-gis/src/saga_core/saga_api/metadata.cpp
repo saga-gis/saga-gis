@@ -136,9 +136,8 @@ CSG_MetaData::CSG_MetaData(CSG_MetaData *pParent)
 void CSG_MetaData::_On_Construction(void)
 {
 	m_pParent	= NULL;
-	m_pChildren	= NULL;
-	m_nChildren	= 0;
-	m_nBuffer	= 0;
+
+	m_Children.Create(sizeof(CSG_MetaData **), 0, SG_ARRAY_GROWTH_1);
 }
 
 //---------------------------------------------------------
@@ -150,19 +149,14 @@ CSG_MetaData::~CSG_MetaData(void)
 //---------------------------------------------------------
 void CSG_MetaData::Destroy(void)
 {
-	if( m_pChildren )
+	CSG_MetaData	**m_pChildren	= (CSG_MetaData **)m_Children.Get_Array();
+
+	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		for(int i=0; i<m_nChildren; i++)
-		{
-			delete(m_pChildren[i]);
-		}
-
-		SG_Free(m_pChildren);
-
-		m_pChildren	= NULL;
-		m_nChildren	= 0;
-		m_nBuffer	= 0;
+		delete(m_pChildren[i]);
 	}
+
+	m_Children.Destroy();
 
 //	m_pParent	= NULL;
 
@@ -179,27 +173,16 @@ void CSG_MetaData::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_GROW_SIZE(n)	(n < 64 ? 1 : (n < 1024 ? 32 : 256))
-
-//---------------------------------------------------------
 CSG_MetaData * CSG_MetaData::Add_Child(void)
 {
-	if( (m_nChildren + 1) >= m_nBuffer )
+	if( m_Children.Inc_Array() )
 	{
-		CSG_MetaData	**pChildren	= (CSG_MetaData **)SG_Realloc(m_pChildren, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_MetaData *));
+		CSG_MetaData	**m_pChildren	= (CSG_MetaData **)m_Children.Get_Array();
 
-		if( pChildren )
-		{
-			m_pChildren	= pChildren;
-			m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
-		}
-		else
-		{
-			return( NULL );
-		}
+		return( m_pChildren[Get_Children_Count() - 1] = new CSG_MetaData(this) );
 	}
 
-	return( m_pChildren[m_nChildren++]	= new CSG_MetaData(this) );
+	return( NULL );
 }
 
 //---------------------------------------------------------
@@ -247,27 +230,18 @@ CSG_MetaData * CSG_MetaData::Add_Child(const CSG_MetaData &MetaData, bool bAddCh
 //---------------------------------------------------------
 bool CSG_MetaData::Del_Child(int Index)
 {
-	if( Index >= 0 && Index < m_nChildren )
+	if( Index >= 0 && Index < Get_Children_Count() )
 	{
-		delete(m_pChildren[Index]);
+		CSG_MetaData	**pChildren	= (CSG_MetaData **)m_Children.Get_Array();
 
-		m_nChildren--;
+		delete(pChildren[Index]);
 
-		for(int i=Index; i<m_nChildren; i++)
+		for(int i=Index, j=Index+1; j<Get_Children_Count(); i++, j++)
 		{
-			m_pChildren[i]	= m_pChildren[i + 1];
+			pChildren[i]	= pChildren[j];
 		}
 
-		if( (m_nChildren - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
-		{
-			CSG_MetaData	**pChildren	= (CSG_MetaData **)SG_Realloc(m_pChildren, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_MetaData *));
-
-			if( pChildren )
-			{
-				m_pChildren	= pChildren;
-				m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
-			}
-		}
+		m_Children.Dec_Array();
 
 		return( true );
 	}
@@ -290,45 +264,64 @@ bool CSG_MetaData::Add_Children(const CSG_MetaData &MetaData)
 }
 
 //---------------------------------------------------------
-bool CSG_MetaData::Del_Children(int Depth)
+/**
+  * Deletes children if depth level is reached, i.e. if depth level equals zero
+  * all children of the node will be deleted, if it is one only the grandchildren
+  * will be affected, and so on.
+  * If Name is a valid string, only those children are taken into account that
+  * have this name.
+*/
+//---------------------------------------------------------
+bool CSG_MetaData::Del_Children(int Depth, const SG_Char *Name)
 {
-	if( Depth == 0 )
+	if( Depth < 0 )
 	{
-		if( m_pChildren )
+		// nop
+	}
+	else if( Name && *Name )
+	{
+		for(int i=Get_Children_Count()-1; i>=0; i--)
 		{
-			for(int i=0; i<m_nChildren; i++)
+			if( Get_Child(i)->Get_Name().CmpNoCase(Name) )
 			{
-				delete(m_pChildren[i]);
+				Get_Child(i)->Del_Children(Depth, Name);
 			}
-
-			SG_Free(m_pChildren);
-
-			m_pChildren	= NULL;
-			m_nChildren	= 0;
-			m_nBuffer	= 0;
-
-			return( true );
+			else if( Depth > 0 )
+			{
+				Get_Child(i)->Del_Children(Depth - 1, Name);
+			}
+			else
+			{
+				Del_Child(i);
+			}
 		}
 	}
 	else if( Depth > 0 )
 	{
 		for(int i=0; i<Get_Children_Count(); i++)
 		{
-			Get_Child(i)->Del_Children(Depth - 1);
+			Get_Child(i)->Del_Children(Depth - 1, Name);
+		}
+	}
+	else
+	{
+		for(int i=0; i<Get_Children_Count(); i++)
+		{
+			delete(Get_Child(i));
 		}
 
-		return( true );
+		m_Children.Destroy();
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
 int CSG_MetaData::_Get_Child(const CSG_String &Name) const
 {
-	for(int i=0; i<m_nChildren; i++)
+	for(int i=0; i<Get_Children_Count(); i++)
 	{
-		if( Name.CmpNoCase(m_pChildren[i]->Get_Name()) == 0 )
+		if( Name.CmpNoCase(Get_Child(i)->Get_Name()) == 0 )
 		{
 			return( i );
 		}

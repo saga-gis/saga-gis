@@ -121,8 +121,8 @@ public:
 	void						Fmt_Content			(const SG_Char *Format, ...);
 	bool						Cmp_Content			(const CSG_String &String, bool bNoCase = false)	const;
 
-	int							Get_Children_Count	(void)						const	{	return( m_nChildren );	}
-	CSG_MetaData *				Get_Child			(int Index)					const	{	return( Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL );	}
+	int							Get_Children_Count	(void)						const	{	return( (int)m_Children.Get_Size() );	}
+	CSG_MetaData *				Get_Child			(int Index)					const	{	return( Index >= 0 ? *((CSG_MetaData **)m_Children.Get_Entry((size_t)Index)) : NULL );	}
 	CSG_MetaData *				Get_Child			(const CSG_String &Name)	const	{	return( Get_Child(_Get_Child(Name)) );	}
 	CSG_MetaData *				Add_Child			(void);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name);
@@ -134,9 +134,12 @@ public:
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
 
 	bool						Add_Children		(const CSG_MetaData &MetaData);
-	bool						Del_Children		(int Depth = 0);
+	bool						Del_Children		(int Depth = 0, const SG_Char *Name = SG_T(""));
 
-	const CSG_MetaData &		operator []			(int Index)					const	{	CSG_MetaData	*pData	= Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL;	return( *pData );	}
+	CSG_MetaData *				operator ()			(int Index)					const	{	return(  Get_Child(Index           ) );	}
+	CSG_MetaData *				operator ()			(const CSG_String &Name)	const	{	return(  Get_Child(_Get_Child(Name)) );	}
+
+	const CSG_MetaData &		operator []			(int Index)					const	{	return( *Get_Child(Index           ) );	}
 	const CSG_MetaData &		operator []			(const CSG_String &Name)	const	{	return( *Get_Child(_Get_Child(Name)) );	}
 
 	bool						is_Valid			(void)						const	{	return( this != NULL );					}
@@ -165,9 +168,9 @@ private:
 	CSG_MetaData(CSG_MetaData *pParent);
 
 
-	int							m_nChildren, m_nBuffer;
+	CSG_Array					m_Children;
 
-	CSG_MetaData				**m_pChildren, *m_pParent, *m_pDummy;
+	CSG_MetaData				*m_pParent, *m_pDummy;
 
 	CSG_String					m_Name, m_Content;
 

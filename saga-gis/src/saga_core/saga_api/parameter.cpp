@@ -676,9 +676,10 @@ CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
 				is_DataObject_List() ? "DATA_LIST" : "PARAMETER"
 			);
 
-			pEntry->Add_Property("type", Get_Type_Identifier());
-			pEntry->Add_Property("id"  , Get_Identifier     ());
-			pEntry->Add_Property("name", Get_Name           ());
+			pEntry->Add_Property("type" , Get_Type_Identifier());
+			pEntry->Add_Property("id"   , Get_Identifier     ());
+			pEntry->Add_Property("name" , Get_Name           ());
+			pEntry->Add_Property("parms", Get_Name           ());
 
 			m_pData->Serialize(*pEntry, bSave);
 

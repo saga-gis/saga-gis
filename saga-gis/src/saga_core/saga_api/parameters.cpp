@@ -1527,7 +1527,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 		{
 			CSG_Parameter	*p	= m_Parameters[i];
 
-			if(	p->is_Option() && !p->is_Information()
+			if(	p->is_Option() && p->is_Enabled() && !p->is_Information()
 			&&	!(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
 			{
 				p->Serialize(MetaData, true);
@@ -1555,9 +1555,10 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 				{
 					pEntry	= MetaData.Add_Child("INPUT");
 
-					pEntry->Add_Property("type", p->Get_Type_Identifier());
-					pEntry->Add_Property("id"  , p->Get_Identifier     ());
-					pEntry->Add_Property("name", p->Get_Name           ());
+					pEntry->Add_Property("type" , p->Get_Type_Identifier());
+					pEntry->Add_Property("id"   , p->Get_Identifier     ());
+					pEntry->Add_Property("name" , p->Get_Name           ());
+					pEntry->Add_Property("parms",    Get_Identifier     ());
 
 					if( p->Get_Type() == PARAMETER_TYPE_Grid )
 					{
@@ -1578,20 +1579,30 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 				{
 					CSG_MetaData	*pList	= MetaData.Add_Child("INPUT_LIST");
 
-					pList->Add_Property("type", p->Get_Type_Identifier());
-					pList->Add_Property("id"  , p->Get_Identifier     ());
-					pList->Add_Property("name", p->Get_Name           ());
+					pList->Add_Property("type" , p->Get_Type_Identifier());
+					pList->Add_Property("id"   , p->Get_Identifier     ());
+					pList->Add_Property("name" , p->Get_Name           ());
+					pList->Add_Property("parms",    Get_Identifier     ());
 
-					if( p->Get_Type() == PARAMETER_TYPE_Grid_List )
+					if( p->Get_Type() == PARAMETER_TYPE_Grid_List && p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 					{
 						pList->Add_Property("system", p->Get_Parent()->Get_Identifier());
 					}
 
 					for(int j=0; j<p->asList()->Get_Count(); j++)
 					{
-						pEntry	= pList->Add_Child("INPUT");
+						pObject	= p->asList()->asDataObject(j);
 
-						pEntry->Add_Children(p->asList()->asDataObject(j)->Get_History());
+						pEntry	= pList->Add_Child(*pList, false); pEntry->Set_Name("INPUT");
+
+						if( pObject->Get_History().Get_Children_Count() > 0 )
+						{
+							pEntry->Add_Children(pObject->Get_History());
+						}
+						else if( pObject->Get_File_Name() && *pObject->Get_File_Name() )
+						{
+							pEntry	= pEntry->Add_Child("FILE", pObject->Get_File_Name());
+						}
 					}
 				}
 			}

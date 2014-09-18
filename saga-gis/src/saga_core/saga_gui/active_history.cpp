@@ -110,8 +110,10 @@ IMPLEMENT_CLASS(CACTIVE_History, wxTreeCtrl)
 BEGIN_EVENT_TABLE(CACTIVE_History, wxTreeCtrl)
 	EVT_RIGHT_DOWN		(CACTIVE_History::On_Mouse_RDown)
 
-	EVT_MENU			(ID_CMD_DATA_HISTORY_CLEAR   , CACTIVE_History::On_Clear)
-	EVT_MENU			(ID_CMD_DATA_HISTORY_TO_MODEL, CACTIVE_History::On_SaveAs_Model)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_CLEAR           , CACTIVE_History::On_Clear)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_TO_MODEL        , CACTIVE_History::On_SaveAs_Model)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE, CACTIVE_History::On_Options_Expand)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_OPTIONS_EXPAND  , CACTIVE_History::On_Options_Expand)
 END_EVENT_TABLE()
 
 
@@ -158,7 +160,7 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 
 	if( pObject == NULL || pObject->Get_History().Get_Children_Count() <= 0 )
 	{
-		AddRoot(_TL("No history available"), IMG_ROOT);
+		AddRoot(_TL("no history"), IMG_ROOT);
 	}
 	else if( pObject->Get_History().Get_Property("version") )	// new version
 	{
@@ -212,7 +214,14 @@ void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
 	wxMenu	Menu(_TL("History"));
 
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_CLEAR);
-	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_TO_MODEL);
+
+	if( _Get_Object() && _Get_Object()->Get_History().Get_Property("version") )
+	{
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_TO_MODEL);
+		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_OPTIONS_EXPAND);
+	}
 
 	PopupMenu(&Menu, event.GetPosition());
 
@@ -228,7 +237,7 @@ void CACTIVE_History::On_Clear(wxCommandEvent &event)
 
 	if( pObject && DLG_Get_Number(Depth, _TL("Delete History Entries"), _TL("Depth")) )
 	{
-		pObject->Get_History().Del_Children(Depth);
+		pObject->Get_History().Del_Children(Depth, Depth > 0 ? SG_T("MODULE") : SG_T(""));
 		pObject->Set_Modified(true);
 
 		Set_Item(g_pACTIVE->Get_Active());
@@ -249,6 +258,41 @@ void CACTIVE_History::On_SaveAs_Model(wxCommandEvent &event)
 	if( pObject && pObject->Get_History().Get_Children_Count() > 0 && DLG_Save(File, _TL("Save History as Model"), Filter) )
 	{
 		pObject->Save_History_to_Model(&File);
+	}
+}
+
+//---------------------------------------------------------
+void CACTIVE_History::On_Options_Expand(wxCommandEvent &event)
+{
+	_Expand(GetRootItem(), "Options", event.GetId() == ID_CMD_DATA_HISTORY_OPTIONS_EXPAND);
+}
+
+//---------------------------------------------------------
+void CACTIVE_History::_Expand(wxTreeItemId Node, const wxString &Name, bool bExpand)
+{
+	if( !GetItemText(Node).Cmp(Name) )
+	{
+		if( bExpand )
+		{
+			Expand(Node);
+		}
+		else
+		{
+			Collapse(Node);
+		}
+	}
+	else
+	{
+		wxTreeItemIdValue	Cookie;
+
+		wxTreeItemId	Child	= GetFirstChild(Node, Cookie);
+
+		while( Child.IsOk() )
+		{
+			_Expand(Child, Name, bExpand);
+
+			Child	= GetNextChild(Node, Cookie);
+		}
 	}
 }
 
@@ -289,33 +333,30 @@ int CACTIVE_History::_Get_Image(const CSG_String &Type)
 //---------------------------------------------------------
 bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 {
-	if( !Parent.IsOk() || Data.Get_Children_Count() <= 0 )
+	if( !Parent.IsOk() )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pModule	= Data.Get_Child("MODULE");
+	CSG_MetaData	*pModule	= Data("MODULE");
 
-	if( !pModule )
+	if( !pModule || !pModule->Get_Child("OUTPUT") )
 	{
-		if( Data.Get_Child("FILE") )
+		if( Data("FILE") )
 		{
 			AppendItem(Parent, Data["FILE"].Get_Content().c_str(), IMG_FILE);
 		}
 		else
 		{
-			AppendItem(Parent, wxString::Format("[%s] %s",
-				Data["FILE"].Get_Name()   .c_str(),
-				Data["FILE"].Get_Content().c_str()), IMG_ENTRY
-			);
+			AppendItem(Parent, Data.Get_Name().c_str(), IMG_FILE);
 		}
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		int	i, n;
+		int	i;
 
 		wxTreeItemId	Node	= AppendItem(Parent, wxString::Format("%s [%s]",
 			pModule->Get_Child("OUTPUT")->Get_Property("name"), pModule->Get_Property("name")
@@ -325,7 +366,7 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 		//-------------------------------------------------
 		wxTreeItemId	Options	= AppendItem(Node  , _TL("Options"), IMG_ENTRY);
 
-		for(i=0, n=0; i<pModule->Get_Children_Count(); i++)	// Options
+		for(i=0; i<pModule->Get_Children_Count(); i++)	// Options
 		{
 			CSG_MetaData		*pEntry	= pModule->Get_Child(i);
 			CSG_String			Name	= pEntry->Get_Property("name");
@@ -346,23 +387,15 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 				case PARAMETER_TYPE_String:
 				case PARAMETER_TYPE_Text:
 				case PARAMETER_TYPE_FilePath:
-					n++;
-					AppendItem(Options, wxString::Format("%s [%s: %s]",
-						Name.c_str(), SG_Parameter_Type_Get_Name(Type).c_str(),
-						pEntry->Get_Content().c_str()),
-						IMG_ENTRY
-					);
+				//	AppendItem(Options, wxString::Format("%s [%s: %s]", Name.c_str(), SG_Parameter_Type_Get_Name(Type).c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY);
+					AppendItem(Options, wxString::Format("%s [%s]", Name.c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY);
 					break;
 
 				case PARAMETER_TYPE_Grid_System:
 					if( pEntry->Get_Children_Count() == 0 )
 					{
-						n++;
-						AppendItem(Options, wxString::Format("%s [%s: %s]",
-							Name.c_str(), SG_Parameter_Type_Get_Name(Type).c_str(),
-							pEntry->Get_Content().c_str()),
-							IMG_ENTRY
-						);
+					//	AppendItem(Options, wxString::Format("%s [%s: %s]", Name.c_str(), SG_Parameter_Type_Get_Name(Type).c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY);
+						AppendItem(Options, wxString::Format("%s [%s]", Name.c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY);
 					}
 					break;
 

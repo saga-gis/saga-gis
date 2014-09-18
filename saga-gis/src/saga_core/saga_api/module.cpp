@@ -835,8 +835,6 @@ void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 #include "module_library.h"
 
-#include "saga_api.h"
-
 //---------------------------------------------------------
 void CSG_Module::_Set_Output_History(void)
 {
@@ -863,7 +861,7 @@ void CSG_Module::_Set_Output_History(void)
 		pOutput->Add_Property("id"  , "");
 		pOutput->Add_Property("name", "");
 
-		pModule->Del_Children(SG_Get_History_Depth());
+		pModule->Del_Children(SG_Get_History_Depth(), SG_T("MODULE"));
 	}
 
 	//-----------------------------------------------------

@@ -566,8 +566,6 @@ void CWKSP_Module_Manager::Open(void)
 //---------------------------------------------------------
 bool CWKSP_Module_Manager::Open(const wxString &File_Name)
 {
-	MSG_General_Add_Line();
-
 	if( SG_Get_Module_Library_Manager().Add_Library(File_Name) )
 	{
 		_Update(false);
