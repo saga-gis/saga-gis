@@ -89,25 +89,29 @@ class CACTIVE_History : public wxTreeCtrl
 public:
 	CACTIVE_History(wxWindow *pParent);
 
-	bool				Set_Item				(class CWKSP_Base_Item *pItem);
+	bool					Set_Item				(class CWKSP_Base_Item *pItem);
 
 
 private:
 
-	void				On_Mouse_RDown			(wxMouseEvent   &event);
-	void				On_Clear				(wxCommandEvent &event);
-	void				On_SaveAs_Model			(wxCommandEvent &event);
-	void				On_Options_Expand		(wxCommandEvent &event);
+	class CWKSP_Base_Item	*m_pItem;
 
-	void				_Expand					(wxTreeItemId Node, const wxString &Name, bool bExpand);
 
-	CSG_Data_Object *	_Get_Object				(void);
-	int					_Get_Image				(TSG_Parameter_Type Type);
-	int					_Get_Image				(const CSG_String  &Type);
+	void					On_Mouse_RDown			(wxMouseEvent   &event);
+	void					On_Clear				(wxCommandEvent &event);
+	void					On_SaveAs_Model			(wxCommandEvent &event);
+	void					On_Options_Expand		(wxCommandEvent &event);
 
-	bool				_Add_History			(wxTreeItemId Parent, CSG_MetaData &History);
+	void					_Expand					(wxTreeItemId Node, const wxString &Name, bool bExpand);
 
-	bool				_OLD_Add_History		(wxTreeItemId Parent, CSG_MetaData &History);
+	CSG_Data_Object *		_Get_Object				(void);
+
+	int						_Get_Image				(TSG_Parameter_Type Type);
+	int						_Get_Image				(const CSG_String  &Type);
+
+	bool					_Set_History			(void);
+	bool					_Add_History			(wxTreeItemId Parent, CSG_MetaData &History);
+	bool					_Add_History_OLD		(wxTreeItemId Parent, CSG_MetaData &History);
 
 
 //---------------------------------------------------------
