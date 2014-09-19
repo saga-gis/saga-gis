@@ -565,13 +565,11 @@ bool CSG_Parameter_Int::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Add_Property("index", m_Value);
-
 		Entry.Set_Content(asString());
 	}
 	else
 	{
-		return( Entry.Get_Property("index", m_Value) );
+		return( Entry.Get_Content().asInt(m_Value) );
 	}
 
 	return( true );
@@ -652,7 +650,7 @@ bool CSG_Parameter_Double::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Fmt_Content(SG_T("%f"), m_Value);
+		Entry.Set_Content(asString());
 	}
 	else
 	{
@@ -984,6 +982,25 @@ void CSG_Parameter_Choice::On_Assign(CSG_Parameter_Data *pSource)
 	m_Items	= ((CSG_Parameter_Choice *)pSource)->m_Items;
 
 	CSG_Parameter_Int::On_Assign(pSource);
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choice::On_Serialize(CSG_MetaData &Entry, bool bSave)
+{
+	if( bSave )
+	{
+		Entry.Add_Property("index", m_Value);
+
+		Entry.Set_Content(asString());
+
+		return( true );
+	}
+	else
+	{
+		int	Index;
+
+		return( (Entry.Get_Property("index", Index) || Entry.Get_Content().asInt(Index)) && CSG_Parameter_Int::Set_Value(Index) );
+	}
 }
 
 
