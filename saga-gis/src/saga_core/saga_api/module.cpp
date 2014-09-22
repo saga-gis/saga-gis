@@ -498,6 +498,8 @@ bool CSG_Module::Settings_Pop(void)
 			m_pParameters[i]->Assign_Values(pP[n]); delete(pP[n]);
 		}
 
+		Set_Manager(pP[n]->Get_Manager());
+
 		Parameters.Assign_Values(pP[n]); delete(pP[n]);
 
 		m_Settings_Stack.Set_Array(n);
