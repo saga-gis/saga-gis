@@ -235,6 +235,13 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 	}
 
 
+	if( !pSurface->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	for(sLong n=0; n<Get_NCells() && Set_Progress(n); n++)
 	{
 		pSurface->Get_Sorted(n, x, y, true);

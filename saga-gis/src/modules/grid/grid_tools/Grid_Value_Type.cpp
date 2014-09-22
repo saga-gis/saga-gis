@@ -74,15 +74,15 @@
 CGrid_Value_Type::CGrid_Value_Type(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Convert Data Storage Type"));
+	Set_Name		(_TL("Change Data Storage"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Changes the storage data type of a grid "
-		"(e.g. from 4 byte floating point to 2 byte signed integer). "
-		"If the target is not set, the original grid's storage type will be changed. ")
-	);
+		"Changes a grid's data storage type, offset and scaling, e.g. from 4 byte floating point "
+		"to 2 byte signed integer. This might be useful to increase precision or to save memory. "
+		"If the target is not set, the original grid's storage type will be changed."
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -110,7 +110,19 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str()
-		)
+		), 7
+	);
+
+	Parameters.Add_Value(
+		NULL	, "OFFSET"	, _TL("Offset"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.0
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SCALE"	, _TL("Scale"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0
 	);
 }
 
@@ -125,19 +137,35 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 bool CGrid_Value_Type::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pOutput	= Parameters("OUTPUT")	->asGrid();
-	CSG_Grid	*pInput		= Parameters("INPUT")	->asGrid();
+	CSG_Grid	*pOutput	= Parameters("OUTPUT")->asGrid();
+	CSG_Grid	*pInput		= Parameters("INPUT" )->asGrid(), Input;
 
 	if( pOutput == NULL || pOutput == pInput )
 	{
+		Input.Create(*pInput);
 		pOutput	= pInput;
-		pInput	= new CSG_Grid(*pOutput);
+		pInput	= &Input;
+	}
+
+	//-----------------------------------------------------
+	double	Offset	= Parameters("OFFSET")->asDouble();
+	double	Scale	= Parameters("SCALE" )->asDouble();
+
+	if( Scale == 0.0 )
+	{
+		Error_Set(_TL("scale factor must not equal zero"));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
 	switch( Parameters("TYPE")->asInt() )
 	{
 	default:
+		Error_Set(_TL("undefined data type"));
+
+		return( false );
+
 	case 0:	pOutput->Create(*Get_System(), SG_DATATYPE_Bit   );	break;
 	case 1:	pOutput->Create(*Get_System(), SG_DATATYPE_Byte  );	break;
 	case 2:	pOutput->Create(*Get_System(), SG_DATATYPE_Char  );	break;
@@ -149,8 +177,12 @@ bool CGrid_Value_Type::On_Execute(void)
 	case 8:	pOutput->Create(*Get_System(), SG_DATATYPE_Double);	break;
 	}
 
+	pOutput->Set_Name       (pInput->Get_Name       ());
+	pOutput->Set_Description(pInput->Get_Description());
+	pOutput->Set_Unit       (pInput->Get_Unit       ());
+	pOutput->Set_Scaling    (Scale, Offset);
+
 	//-----------------------------------------------------
-	
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for
@@ -158,19 +190,19 @@ bool CGrid_Value_Type::On_Execute(void)
 		{
 			if( pInput->is_NoData(x, y) )
 			{
-			  pOutput->Set_NoData(x, y);
+				pOutput->Set_NoData(x, y);
 			}
 			else
 			{
-			  pOutput->Set_Value(x, y, pInput->asDouble(x, y));	    
+				pOutput->Set_Value(x, y, pInput->asDouble(x, y));
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pInput != Parameters("INPUT")->asGrid() )
+	if( pOutput == Parameters("INPUT")->asGrid() )
 	{
-		delete(pInput);
+		DataObject_Update(pOutput);
 	}
 
 	return( true );

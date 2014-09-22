@@ -316,9 +316,10 @@ bool CErosion_LS_Fields::On_Execute(void)
 bool CErosion_LS_Fields::Get_Flow(void)
 {
 	//-----------------------------------------------------
-	int		x, y;
-
-	m_pDEM->Get_Sorted(0, x, y);	// create index ...
+	if( !m_pDEM->Set_Index() )	// create index ...
+	{
+		return( false );
+	}
 
 	Process_Set_Text(_TL("Flow Accumulation"));
 
@@ -328,6 +329,7 @@ bool CErosion_LS_Fields::Get_Flow(void)
 
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
+		int		x, y;
 		double	dzSum, dz[8], Slope, Aspect;
 
 		if( m_pDEM->Get_Sorted(n, x, y) && !m_Fields.is_NoData(x, y) && m_pDEM->Get_Gradient(x, y, Slope, Aspect) )

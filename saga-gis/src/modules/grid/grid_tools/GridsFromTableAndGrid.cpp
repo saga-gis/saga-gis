@@ -43,7 +43,7 @@ CGridsFromTableAndGrid::CGridsFromTableAndGrid(void)
 
 	Set_Name		(_TL("Grids from classified grid and table"));
 
-	Set_Author(SG_T("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Author		("Victor Olaya (c) 2004");
 
 	Set_Description	(_TW(
 		"Creates several grids using a classified grid and a table with data values for each class."
@@ -90,12 +90,19 @@ bool CGridsFromTableAndGrid::On_Execute(void)
 	CSG_Table				*pTable;
 
 	//-----------------------------------------------------
-	pClasses	= Parameters("CLASSES")		->asGrid();
-	pGrids		= Parameters("GRIDS")		->asGridList();
-	pTable		= Parameters("TABLE")		->asTable();
-	iField		= Parameters("ID_FIELD")	->asInt();
+	pClasses	= Parameters("CLASSES" )->asGrid();
+	pGrids		= Parameters("GRIDS"   )->asGridList();
+	pTable		= Parameters("TABLE"   )->asTable();
+	iField		= Parameters("ID_FIELD")->asInt();
 
 	pGrids->Del_Items();
+
+	if( !pClasses->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	if( pTable->Get_Field_Count() == 0 || pTable->Get_Count() == 0 )

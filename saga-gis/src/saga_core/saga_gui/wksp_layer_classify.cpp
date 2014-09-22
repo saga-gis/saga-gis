@@ -473,12 +473,17 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 		pGrid	= ((CWKSP_Grid *)m_pLayer)->Get_Grid();
 		dClass	= (double)pGrid->Get_NCells() / (double)(nClasses);
 
+		if( !pGrid->Set_Index() )
+		{
+			return;
+		}
+
 		pGrid->Get_Sorted(0, x, y, false, false);
 		zA		= pGrid->asDouble(x, y);
 
 		for(iClass=0; iClass<nClasses-1; iClass++)
 		{
-			pGrid->Get_Sorted((int)(dClass * (iClass + 1.0)), x, y, false, false);
+			pGrid->Get_Sorted((sLong)(dClass * (iClass + 1.0)), x, y, false, false);
 			zB		= zA;
 			zA		= pGrid->asDouble(x, y);
 

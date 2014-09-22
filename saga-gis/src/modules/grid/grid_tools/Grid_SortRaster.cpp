@@ -41,7 +41,7 @@ CSortRaster::CSortRaster(void)
 	Parameters.Add_Grid(
 		NULL	, "INDEX"	, _TL("Index"), 						
 		_TL(""), 
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Long
 	);
 
 	Parameters.Add_Choice(
@@ -56,7 +56,15 @@ CSortRaster::CSortRaster(void)
 
 bool CSortRaster::On_Execute(void)
 {
-	CSG_Grid	*pGrid	= Parameters("GRID" )->asGrid(); 
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	if( !pGrid->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	CSG_Grid	*pIndex	= Parameters("INDEX")->asGrid();
 
 	bool	bDown	= Parameters("ORDER")->asInt() == 1;
@@ -72,15 +80,13 @@ bool CSortRaster::On_Execute(void)
 	{
 		int	ix, iy;
 
-		pGrid->Get_Sorted(i, ix, iy, bDown, false);
-
-		if( pGrid->is_NoData(ix, iy) )
+		if( pGrid->Get_Sorted(i, ix, iy, bDown) )
 		{
-			pIndex->Set_NoData(ix, iy);
+			pIndex->Set_Value(ix, iy, ++Index);
 		}
 		else
 		{
-			pIndex->Set_Value(ix, iy, ++Index);
+			pIndex->Set_NoData(ix, iy);
 		}
 	}
 

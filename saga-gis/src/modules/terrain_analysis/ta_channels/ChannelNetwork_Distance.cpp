@@ -271,7 +271,12 @@ bool CChannelNetwork_Distance::On_Execute(void)
 	case  1:	Initialize_MFD();	break;
 	}
 
-	m_pDEM->Set_Index(true);
+	if( !m_pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)

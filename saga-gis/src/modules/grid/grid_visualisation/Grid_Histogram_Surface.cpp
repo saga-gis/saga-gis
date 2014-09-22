@@ -218,7 +218,7 @@ bool CGrid_Histogram_Surface::Get_Circle(void)
 		{
 			double	d	= SG_Get_Distance(x, y, r, r);
 
-			if( d < r && m_pGrid->Get_Sorted((long)(d*d*M_PI), i) )
+			if( d < r && m_pGrid->Get_Sorted((sLong)(d*d*M_PI), i) )
 			{
 				pHist->Set_Value(x, y, m_pGrid->asDouble(i));
 			}

@@ -458,6 +458,7 @@ public:		///////////////////////////////////////////////
 	double						Get_Mean		(void);
 	double						Get_StdDev		(void);
 	double						Get_Variance	(void);
+	double						Get_Percentile	(double Percent);
 
 	sLong						Get_Data_Count	(void);
 	sLong						Get_NoData_Count(void);
@@ -527,15 +528,15 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Set update flag when modified...
 
-	virtual void				Set_Modified	(bool bFlag = true)
+	virtual void				Set_Modified	(bool bOn = true)
 	{
-		CSG_Data_Object::Set_Modified(bFlag);
+		CSG_Data_Object::Set_Modified(bOn);
 
-		if( bFlag )
+		if( bOn )
 		{
 			Set_Update_Flag();
 
-			m_bIndexed	= false;
+			Set_Index(false);
 		}
 	}
 
@@ -543,11 +544,21 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Index...
 
-	bool						Set_Index		(bool bOn = false);
+	bool						Set_Index		(bool bOn = true)
+	{
+		if( !bOn )
+		{
+			SG_FREE_SAFE(m_Index);
+
+			return( true );
+		}
+
+		return( m_Index != NULL || _Set_Index() );
+	}
 
 	sLong						Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( Position >= 0 && Position < Get_NCells() && (m_bIndexed || Set_Index(true)) )
+		if( Position >= 0 && Position < Get_NCells() && Set_Index(true) )
 		{
 			Position	= m_Index[bDown ? Get_NCells() - Position - 1 : Position];
 
@@ -577,8 +588,6 @@ public:		///////////////////////////////////////////////
 
 		return( false );
 	}
-
-	double						Get_Percentile	(double Percent);
 
 
 	//-----------------------------------------------------
@@ -732,9 +741,6 @@ public:		///////////////////////////////////////////////
 		Set_Modified();
 	}
 
-	virtual void				Set_Value_And_Sort(     sLong n, double Value);
-	virtual void				Set_Value_And_Sort(int x, int y, double Value);
-
 
 //---------------------------------------------------------
 protected:	///////////////////////////////////////////////
@@ -747,7 +753,7 @@ private:	///////////////////////////////////////////////
 
 	void						**m_Values;
 
-	bool						m_bCreated, m_bIndexed, m_Memory_bLock,
+	bool						m_bCreated, m_Memory_bLock,
 								m_Cache_bTemp, m_Cache_bSwap, m_Cache_bFlip;
 
 	int							m_LineBuffer_Count;

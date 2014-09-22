@@ -201,24 +201,30 @@ CChannelNetwork::~CChannelNetwork(void)
 //---------------------------------------------------------
 bool CChannelNetwork::On_Execute(void)
 {
-	int		x, y, ID, Trace_Method, Init_Method;
-	sLong	n;
-	double	Init_Threshold;
+	int			x, y, ID, Trace_Method, Init_Method;
+	sLong		n;
+	double		Init_Threshold;
 	CSG_Grid	*Trace_pRoute, *Trace_pWeight, *Init_pGrid;
 
 
 	//-----------------------------------------------------
-	pDTM				= Parameters("ELEVATION")	->asGrid();
-	pConvergence		= Parameters("DIV_GRID")	->asGrid();
+	pDTM				= Parameters("ELEVATION")->asGrid();
+	pConvergence		= Parameters("DIV_GRID" )->asGrid();
 
-	pChannels			= Parameters("CHNLNTWRK")	->asGrid();
-	pChannelRoute		= Parameters("CHNLROUTE")	->asGrid();
-	pShapes				= Parameters("SHAPES")		->asShapes();
+	pChannels			= Parameters("CHNLNTWRK")->asGrid();
+	pChannelRoute		= Parameters("CHNLROUTE")->asGrid();
+	pShapes				= Parameters("SHAPES"   )->asShapes();
 
-	minLength			= Parameters("MINLEN")		->asInt();
+	minLength			= Parameters("MINLEN"   )->asInt();
 
-	maxDivCells			= Parameters("DIV_GRID")->asGrid() ? Parameters("DIV_CELLS")->asInt() : -1;
+	maxDivCells			= Parameters("DIV_GRID" )->asGrid() ? Parameters("DIV_CELLS")->asInt() : -1;
 
+	if( !pDTM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	// 1. Flow Direction...

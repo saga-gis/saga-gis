@@ -141,6 +141,13 @@ bool CMelton_Ruggedness::On_Execute(void)
 	pZMax		= Parameters("ZMAX")->asGrid();
 	pMRN		= Parameters("MRN" )->asGrid();
 
+	if( !pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	pArea->Set_NoData_Value(0.0);
 	pArea->Assign_NoData();
 	pZMax->Assign_NoData();

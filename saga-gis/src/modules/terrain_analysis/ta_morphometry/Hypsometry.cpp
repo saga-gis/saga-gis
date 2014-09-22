@@ -182,23 +182,32 @@ CHypsometry::~CHypsometry(void)
 //---------------------------------------------------------
 bool CHypsometry::On_Execute(void)
 {
-	bool	bDown;
-	int		nClasses;
-	double	zMin, zMax;
+	bool		bDown;
+	int			nClasses;
+	double		zMin, zMax;
 	CSG_Grid	*pDEM;
 	CSG_Table	*pTable;
 
-	pDEM		= Parameters("ELEVATION")	->asGrid();
-	pTable		= Parameters("TABLE")		->asTable();
-	bDown		= Parameters("SORTING")		->asInt() == 1;
-	nClasses	= Parameters("COUNT")		->asInt();
-	zMin		= Parameters("BZRANGE")		->asBool() ? Parameters("ZRANGE")->asRange()->Get_LoVal() : 0.0;
-	zMax		= Parameters("BZRANGE")		->asBool() ? Parameters("ZRANGE")->asRange()->Get_HiVal() : 0.0;
+	pDEM		= Parameters("ELEVATION")->asGrid();
+	pTable		= Parameters("TABLE"    )->asTable();
+	bDown		= Parameters("SORTING"  )->asInt() == 1;
+	nClasses	= Parameters("COUNT"    )->asInt();
+	zMin		= Parameters("BZRANGE"  )->asBool() ? Parameters("ZRANGE")->asRange()->Get_LoVal() : 0.0;
+	zMax		= Parameters("BZRANGE"  )->asBool() ? Parameters("ZRANGE")->asRange()->Get_HiVal() : 0.0;
 	
 	if( !bDown && Parameters("BZRANGE")->asBool() && Parameters("METHOD")->asInt() == 1 )
 	{
-		SG_UI_Msg_Add_Error(_TW("The selected module parameter configuration (classification constant area, upward sorting and use "
-								"of an user-specified elevation range) is not supported."));
+		SG_UI_Msg_Add_Error(_TW(
+			"The selected module parameter configuration (classification constant area, "
+			"upward sorting and use of an user-specified elevation range) is not supported."
+		));
+
+		return( false );
+	}
+
+	if( !pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
 
 		return( false );
 	}

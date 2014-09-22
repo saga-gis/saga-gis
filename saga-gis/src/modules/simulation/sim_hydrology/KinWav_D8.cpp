@@ -195,6 +195,13 @@ bool CKinWav_D8::On_Execute(void)
 
 	Roughness			= Parameters("ROUGHNESS")		->asDouble();
 
+	if( !m_pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	if( Initialize(Roughness) )
 	{

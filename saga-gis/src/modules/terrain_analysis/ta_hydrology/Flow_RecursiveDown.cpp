@@ -206,10 +206,6 @@ void CFlow_RecursiveDown::On_Initialize(void)
 //---------------------------------------------------------
 void CFlow_RecursiveDown::On_Finalize(void)
 {
-	int		x, y, dir;
-	sLong	n;
-	double	qFlow;
-
 	//-----------------------------------------------------
 	if( pDir )
 	{
@@ -226,22 +222,26 @@ void CFlow_RecursiveDown::On_Finalize(void)
 	//-----------------------------------------------------
 	if( pLinear )
 	{
-		for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+		if( m_pDTM->Set_Index() )
 		{
-			;
-
-			if( m_pDTM->Get_Sorted(n, x, y) && (qFlow = pLinear->asDouble(x, y)) > 0.0 )
+			for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 			{
-				Add_Flow(x, y, qFlow);
+				int		x, y, dir;
+				double	qFlow;
 
-				if( (dir = m_pDTM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+				if( m_pDTM->Get_Sorted(n, x, y) && (qFlow = pLinear->asDouble(x, y)) > 0.0 )
 				{
-					x	= Get_xTo(dir, x);
-					y	= Get_yTo(dir, y);
+					Add_Flow(x, y, qFlow);
 
-					if( m_pDTM->is_InGrid(x, y) )
+					if( (dir = m_pDTM->Get_Gradient_NeighborDir(x, y)) >= 0 )
 					{
-						pLinear->Add_Value(x, y, qFlow);
+						x	= Get_xTo(dir, x);
+						y	= Get_yTo(dir, y);
+
+						if( m_pDTM->is_InGrid(x, y) )
+						{
+							pLinear->Add_Value(x, y, qFlow);
+						}
 					}
 				}
 			}

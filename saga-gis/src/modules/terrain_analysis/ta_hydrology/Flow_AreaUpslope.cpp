@@ -210,31 +210,31 @@ bool CFlow_AreaUpslope::Get_Area(int x, int y)
 //---------------------------------------------------------
 bool CFlow_AreaUpslope::Get_Area(void)
 {
+	if( !m_pDTM || !m_pFlow || !m_pDTM->Set_Index() )
+	{
+		return( false );
+	}
+
 	sLong	i;
 	int		x, y;
 
-	if( m_pDTM && m_pFlow )
+	for(i=0; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress((double)i, (double)m_pDTM->Get_NCells()); i++)
 	{
-		for(i=0; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress((double)i, (double)m_pDTM->Get_NCells()); i++)
+		if( m_pDTM->Get_Sorted(i, x, y, false) &&  m_pFlow->asDouble(x, y) > 0.0 )
 		{
-			if( m_pDTM->Get_Sorted(i, x, y, false) &&  m_pFlow->asDouble(x, y) > 0.0 )
-			{
-				break;
-			}
+			break;
 		}
-
-		for(i++; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress((double)i, (double)m_pDTM->Get_NCells()); i++)
-		{
-			if( m_pDTM->Get_Sorted(i, x, y, false) && m_pFlow->asDouble(x, y) <= 0.0 )
-			{
-				Set_Value(x, y);
-			}
-		}
-
-		return( true );
 	}
 
-	return( false );
+	for(i++; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress((double)i, (double)m_pDTM->Get_NCells()); i++)
+	{
+		if( m_pDTM->Get_Sorted(i, x, y, false) && m_pFlow->asDouble(x, y) <= 0.0 )
+		{
+			Set_Value(x, y);
+		}
+	}
+
+	return( true );
 }
 
 

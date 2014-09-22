@@ -272,7 +272,7 @@ bool CFlow_Parallel::Calculate(int x, int y)
 bool CFlow_Parallel::Set_Flow(void)
 {
 	//-----------------------------------------------------
-	if( !m_pDTM->Get_Sorted(0) )
+	if( !m_pDTM->Set_Index() )
 	{
 		return( false );
 	}

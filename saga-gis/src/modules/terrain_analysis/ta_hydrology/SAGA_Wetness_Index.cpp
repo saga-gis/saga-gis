@@ -206,6 +206,13 @@ bool CSAGA_Wetness_Index::On_Execute(void)
 
 	m_pSlope->Set_Unit		(_TL("radians"));
 
+	if( !m_pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	Get_Area();
 

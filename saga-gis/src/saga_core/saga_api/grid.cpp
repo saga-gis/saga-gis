@@ -246,7 +246,6 @@ void CSG_Grid::_On_Construction(void)
 	m_zScale			= 1.0;
 	m_zOffset			= 0.0;
 
-	m_bIndexed			= false;
 	m_Index				= NULL;
 
 	Set_Update_Flag();
@@ -1049,6 +1048,28 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Grid::On_Update(void)
+{
+	if( is_Valid() )
+	{
+		m_zStats.Invalidate();
+
+		for(int y=0; y<Get_NY() && SG_UI_Process_Get_Okay(); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
+			{
+				if( !is_NoData(x, y) )
+				{
+					m_zStats.Add_Value(asDouble(x, y));
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 double CSG_Grid::Get_ZMin(void)
 {
 	Update();	return( m_zStats.Get_Minimum() );
@@ -1079,6 +1100,7 @@ double CSG_Grid::Get_Variance(void)
 	Update();	return( m_zStats.Get_Variance() );
 }
 
+//---------------------------------------------------------
 sLong CSG_Grid::Get_Data_Count(void)
 {
 	Update();	return( m_zStats.Get_Count() );
@@ -1087,106 +1109,6 @@ sLong CSG_Grid::Get_Data_Count(void)
 sLong CSG_Grid::Get_NoData_Count(void)
 {
 	Update();	return( Get_NCells() - m_zStats.Get_Count() );
-}
-
-//---------------------------------------------------------
-bool CSG_Grid::On_Update(void)
-{
-	if( is_Valid() )
-	{
-		m_zStats.Invalidate();
-
-		for(int y=0; y<Get_NY() && SG_UI_Process_Get_Okay(); y++)
-		{
-			for(int x=0; x<Get_NX(); x++)
-			{
-				if( !is_NoData(x, y) )
-				{
-					m_zStats.Add_Value(asDouble(x, y));
-				}
-			}
-		}
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//						Index							 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Grid::Set_Value_And_Sort(sLong n, double Value)
-{
-	if( !m_bIndexed )
-	{
-		Set_Value(n, Value);
-
-		Set_Index(true);
-
-		return;
-	}
-
-	//-----------------------------------------------------
-	if( Value == asDouble(n) )
-		return;
-
-	sLong	i, j;
-
-	for(i=0, j=-1; i<Get_NCells() && j<0; i++)	// find index, could be faster...
-	{
-		if( n == m_Index[i] )
-		{
-			j	= i;
-		}
-	}
-
-	if( j > 0 )
-	{
-		if( Value < asDouble(n) )
-		{
-			for(i=j-1; i>=0; i--, j--)
-			{
-				if( Value < asDouble(m_Index[i]) )
-				{
-					m_Index[j]	= m_Index[i];
-				}
-				else
-				{
-					m_Index[j]	= n;
-					break;
-				}
-			}
-		}
-		else
-		{
-			for(i=j+1; i<Get_NCells(); i++, j++)
-			{
-				if( Value > asDouble(m_Index[i]) )
-				{
-					m_Index[j]	= m_Index[i];
-				}
-				else
-				{
-					m_Index[j]	= n;
-					break;
-				}
-			}
-		}
-
-		Set_Value(n, Value);
-
-		m_bIndexed	= true;
-	}
-}
-
-//---------------------------------------------------------
-void CSG_Grid::Set_Value_And_Sort(int x, int y, double Value)
-{
-	Set_Value_And_Sort(x + y * Get_NX(), Value);
 }
 
 //---------------------------------------------------------
@@ -1204,43 +1126,22 @@ double CSG_Grid::Get_Percentile(double Percent)
 	return( Get_NoData_Value() );
 }
 
-//---------------------------------------------------------
-bool CSG_Grid::Set_Index(bool bOn)
-{
-	if( bOn && !m_bIndexed && Get_NoData_Count() < Get_NCells() )
-	{
-		m_bIndexed	= true;
 
-		if( _Set_Index() == false )
-		{
-			Set_Index(false);
-
-			return( false );
-		}
-	}
-	else if( !bOn || Get_NoData_Count() >= Get_NCells() )
-	{
-		m_bIndexed	= false;
-
-		if( m_Index )
-		{
-			SG_Free(m_Index);
-			m_Index		= NULL;
-		}
-	}
-
-	return( m_bIndexed );
-}
+///////////////////////////////////////////////////////////
+//														 //
+//						Index							 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #define SORT_SWAP(a,b)	{itemp=(a);(a)=(b);(b)=itemp;}
 
 bool CSG_Grid::_Set_Index(void)
 {
-	const sLong	M	= 7;
-
-	sLong	i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
-	double	a;
+	if( Get_NoData_Count() >= Get_NCells() )
+	{
+		return( false );	// nothing to do
+	}
 
 	//-----------------------------------------------------
 	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Create index"), Get_Name()));
@@ -1252,37 +1153,38 @@ bool CSG_Grid::_Set_Index(void)
 		if( m_Index == NULL )
 		{
 			SG_UI_Msg_Add_Error(_TL("could not create index: insufficient memory"));
-
 			SG_UI_Process_Set_Ready();
 
 			return( false );
 		}
-
-		for(i=0, l=0; i<Get_NCells(); i++)
-		{
-			if(  is_NoData(i) )
-			{
-				m_Index[l++]	= i;
-			}
-		}
-
-		for(i=0, j=l; i<Get_NCells(); i++)
-		{
-			if( !is_NoData(i) )
-			{
-				m_Index[j++]	= i;
-			}
-		}
-	}
-	else
-	{
-		l	= 0;
 	}
 
 	//-----------------------------------------------------
-	if( (nCells = Get_NCells() - l) <= 1 )
+	const sLong	M	= 7;
+
+	sLong	i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
+	double	a;
+
+	//-----------------------------------------------------
+	l	= 0;	nCells	= Get_NCells();
+
+	if( Get_NoData_Count() > 0 )
 	{
-		return( false );
+		for(i=0; i<Get_NCells(); i++)
+		{
+			if( is_NoData(i) )
+			{
+				m_Index[l++]	= i;	nCells--;
+			}
+		}
+	}
+
+	for(i=0, j=l; i<Get_NCells(); i++)
+	{
+		if( !is_NoData(i) )
+		{
+			m_Index[j++]	= i;
+		}
 	}
 
 	//-----------------------------------------------------
@@ -1299,7 +1201,11 @@ bool CSG_Grid::_Set_Index(void)
 		{
 			if( !SG_UI_Process_Set_Progress((double)(n += M - 1), (double)nCells) )
 			{
-				SG_Free(istack);
+				SG_FREE_SAFE(istack);
+				SG_FREE_SAFE(m_Index);
+
+				SG_UI_Msg_Add_Error(_TL("index creation stopped by user"));
+				SG_UI_Process_Set_Ready();
 
 				return( false );
 			}

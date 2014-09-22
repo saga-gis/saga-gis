@@ -351,6 +351,13 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 	//-----------------------------------------------------
 	else
 	{
+		if( !pGrid->Set_Index() )
+		{
+			Error_Set(_TL("index creation failed"));
+
+			return( false );
+		}
+
 		double	z;
 
 		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)

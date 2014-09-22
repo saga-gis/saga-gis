@@ -149,19 +149,21 @@ CRelative_Heights::CRelative_Heights(void)
 //---------------------------------------------------------
 bool CRelative_Heights::On_Execute(void)
 {
-	double		w, t, e;
-
-	CSG_Grid	*pDEM, *pHO, *pHU;
-
 	//-----------------------------------------------------
-	pDEM	= Parameters("DEM")	->asGrid();
+	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+	CSG_Grid	*pHO	= Parameters("HO" )->asGrid();
+	CSG_Grid	*pHU	= Parameters("HU" )->asGrid();
 
-	pHO		= Parameters("HO")	->asGrid();
-	pHU		= Parameters("HU")	->asGrid();
+	double	w	= Parameters("W")->asDouble();
+	double	t	= Parameters("T")->asDouble();
+	double	e	= Parameters("E")->asDouble();
 
-	w		= Parameters("W")	->asDouble();
-	t		= Parameters("T")	->asDouble();
-	e		= Parameters("E")	->asDouble();
+	if( !pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	Message_Add(_TL("Pass 1"));

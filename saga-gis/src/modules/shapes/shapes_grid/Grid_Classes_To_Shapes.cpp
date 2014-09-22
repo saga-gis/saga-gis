@@ -198,6 +198,13 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	//-----------------------------------------------------
 	if( Parameters("CLASS_ALL")->asInt() == 1 )
 	{
+		if( !pGrid->Set_Index() )
+		{
+			Error_Set(_TL("index creation failed"));
+
+			return( false );
+		}
+
 		for(i=0, id=-1; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
 			if( pGrid->Get_Sorted(i, x, y, false) )

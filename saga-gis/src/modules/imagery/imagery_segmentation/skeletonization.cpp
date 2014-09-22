@@ -189,17 +189,9 @@ bool CSkeletonization::On_Execute(void)
 	//-----------------------------------------------------
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:	default:
-		Standard_Execute();
-		break;
-
-	case 1:
-		Hilditch_Execute();
-		break;
-
-	case 2:
-		SK_Execute();
-		break;
+	default:	Standard_Execute();		break;
+	case  1:	Hilditch_Execute();		break;
+	case  2:	SK_Execute();			break;
 	}
 
 	//-------------------------------------------------
@@ -761,16 +753,18 @@ inline bool CSkeletonization::Hilditch_Check(CSG_Grid *pNC_Gaps, int x, int y, i
 //---------------------------------------------------------
 void CSkeletonization::SK_Execute(void)
 {
-	int		x, y, i, ix, iy, n,
-			Convergence, NB[8];
-
+	int		x, y, i, ix, iy, n, NB[8], Convergence;
 	double	z, iz;
 
-	CSG_Grid	*pInput;
-
 	//-----------------------------------------------------
+	CSG_Grid	*pInput		= Parameters("INPUT")->asGrid();
+
+	if( !pInput->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+	}
+
 	Convergence	= Parameters("CONVERGENCE")->asInt();
-	pInput		= Parameters("INPUT")->asGrid();
 
 	pResult->Assign();
 

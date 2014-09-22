@@ -273,10 +273,9 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 //---------------------------------------------------------
 bool CPit_Router::Initialize(void)
 {
-	if(	m_pDEM && m_pDEM->is_Valid()
+	if(	m_pDEM && m_pDEM->is_Valid() && m_pDEM->Set_Index()
 	&&	m_pRoute && m_pRoute->is_Valid()
 	&&	m_pDEM->Get_System() == m_pRoute->Get_System()	)
-//	&&	m_pDEM->is_Compatible(m_pRoute->Get_System())	)
 	{
 		m_pRoute->Assign();
 

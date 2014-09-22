@@ -334,6 +334,13 @@ bool CWatershed_Segmentation::Get_Segments(void)
 	double	Threshold	= Parameters("THRESHOLD")->asDouble();
 	int		Join		= Threshold > 0.0 ? Parameters("JOIN")->asInt() : 0;
 
+	if( !m_pGrid->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)	
 	{

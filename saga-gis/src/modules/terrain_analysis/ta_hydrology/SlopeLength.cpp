@@ -73,14 +73,22 @@ bool CSlopeLength::On_Execute(void)
 	int		x, y;
 
 	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")		->asGrid();
-	m_pLength	= Parameters("LENGTH")	->asGrid();
+	m_pDEM		= Parameters("DEM"   )->asGrid();
+	m_pLength	= Parameters("LENGTH")->asGrid();
+
+	if( !m_pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	m_Slope.Create(*Get_System());
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
 		{
 			double	Slope, Aspect;

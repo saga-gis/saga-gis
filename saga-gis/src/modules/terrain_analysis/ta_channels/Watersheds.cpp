@@ -132,14 +132,21 @@ bool CWatersheds::On_Execute(void)
 	CSG_Grid	*pDTM, *pSeed, *pRoute;
 
 	//-----------------------------------------------------
-	pDTM		= Parameters("ELEVATION")	->asGrid();
-	pSeed		= Parameters("CHANNELS")	->asGrid();
-	pRoute		= Parameters("SINKROUTE")	->asGrid();
-	nCells_Min	= Parameters("MINSIZE")		->asInt();
-	m_pBasins	= Parameters("BASINS")		->asGrid();
+	pDTM		= Parameters("ELEVATION")->asGrid();
+	pSeed		= Parameters("CHANNELS" )->asGrid();
+	pRoute		= Parameters("SINKROUTE")->asGrid();
+	nCells_Min	= Parameters("MINSIZE"  )->asInt();
+	m_pBasins	= Parameters("BASINS"   )->asGrid();
 
 	m_pBasins->Set_NoData_Value(NO_BASIN);
 	m_pBasins->Assign_NoData();
+
+	if( !pDTM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	m_Direction.Create(m_pBasins, SG_DATATYPE_Char);
 

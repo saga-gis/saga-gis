@@ -174,17 +174,24 @@ bool CFlow_Distance::On_Execute(void)
 	CSG_Grid	*pSeed;
 
 	//-------------------------------------------------
-	m_pDTM		= Parameters("ELEVATION")	->asGrid();
-	pSeed		= Parameters("SEED")		->asGrid();
-	m_pLength	= Parameters("LENGTH")		->asGrid();
+	m_pDTM		= Parameters("ELEVATION"  )->asGrid();
+	pSeed		= Parameters("SEED"       )->asGrid();
+	m_pLength	= Parameters("LENGTH"     )->asGrid();
 
-	m_Converge	= Parameters("CONVERGENCE")	->asDouble();
-	bSeeds		= Parameters("SEEDS_ONLY")	->asBool();
-	Method		= Parameters("METHOD")		->asInt();
+	m_Converge	= Parameters("CONVERGENCE")->asDouble();
+	bSeeds		= Parameters("SEEDS_ONLY" )->asBool();
+	Method		= Parameters("METHOD"     )	->asInt();
 
 	m_pWeight	= SG_Create_Grid(m_pLength, SG_DATATYPE_Float);
 	m_pWeight	->Assign(0.0);
 	m_pLength	->Assign(0.0);
+
+	if( !m_pDTM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	//-------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)

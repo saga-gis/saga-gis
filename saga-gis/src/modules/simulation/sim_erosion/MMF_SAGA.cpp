@@ -472,6 +472,14 @@ bool CMMF_SAGA::On_Execute(void)
 
 
 	pDTM		= Parameters("DTM")->asGrid();
+
+	if( !pDTM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	pS			= Parameters("S")->asGrid();
     pChannel    = Parameters("CHANNEL")->asGrid();
 	pPI			= Parameters("PI")->asGrid();

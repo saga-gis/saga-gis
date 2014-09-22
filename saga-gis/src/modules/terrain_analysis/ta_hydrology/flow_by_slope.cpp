@@ -192,6 +192,13 @@ bool CFlow_by_Slope::On_Execute(void)
 
 	DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE, false);
 
+	if( !m_pDEM->Set_Index() )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 	{
