@@ -247,6 +247,7 @@ void CSG_Grid::_On_Construction(void)
 	m_zOffset			= 0.0;
 
 	m_Index				= NULL;
+	m_bIndex			= false;
 
 	Set_Update_Flag();
 }
@@ -1064,6 +1065,9 @@ bool CSG_Grid::On_Update(void)
 				}
 			}
 		}
+
+		m_bIndex	= false;
+		SG_FREE_SAFE(m_Index);
 	}
 
 	return( true );
@@ -1138,58 +1142,44 @@ double CSG_Grid::Get_Percentile(double Percent)
 
 bool CSG_Grid::_Set_Index(void)
 {
-	if( Get_NoData_Count() >= Get_NCells() )
+	if( Get_Data_Count() <= 0 )
 	{
 		return( false );	// nothing to do
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Create index"), Get_Name()));
-
-	if( m_Index == NULL )
+	if( m_Index == NULL && (m_Index = (sLong *)SG_Malloc(Get_NCells() * sizeof(sLong))) == NULL )
 	{
-		m_Index		= (sLong *)SG_Calloc(Get_NCells(), sizeof(sLong));
+		SG_UI_Msg_Add_Error(_TL("could not create index: insufficient memory"));
 
-		if( m_Index == NULL )
-		{
-			SG_UI_Msg_Add_Error(_TL("could not create index: insufficient memory"));
-			SG_UI_Process_Set_Ready();
-
-			return( false );
-		}
+		return( false );
 	}
 
 	//-----------------------------------------------------
 	const sLong	M	= 7;
 
-	sLong	i, j, k, l, ir, n, nCells, *istack, jstack, nstack, indxt, itemp;
+	sLong	i, j, k, l, ir, n, *istack, jstack, nstack, indxt, itemp;
 	double	a;
 
 	//-----------------------------------------------------
-	l	= 0;	nCells	= Get_NCells();
+	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Create index"), Get_Name()));
 
-	if( Get_NoData_Count() > 0 )
+	for(i=0, j=0, k=Get_Data_Count(); i<Get_NCells(); i++)
 	{
-		for(i=0; i<Get_NCells(); i++)
+		if( is_NoData(i) )
 		{
-			if( is_NoData(i) )
-			{
-				m_Index[l++]	= i;	nCells--;
-			}
+			m_Index[k++]	= i;
 		}
-	}
-
-	for(i=0, j=l; i<Get_NCells(); i++)
-	{
-		if( !is_NoData(i) )
+		else // if( !is_NoData(i) )
 		{
 			m_Index[j++]	= i;
 		}
 	}
 
 	//-----------------------------------------------------
+	l		= 0;
 	n		= 0;
-	ir		= Get_NCells() - 1;
+	ir		= Get_Data_Count() - 1;
 
 	nstack	= 64;
 	istack	= (sLong *)SG_Malloc(nstack * sizeof(sLong));
@@ -1199,7 +1189,7 @@ bool CSG_Grid::_Set_Index(void)
 	{
 		if( ir - l < M )
 		{
-			if( !SG_UI_Process_Set_Progress((double)(n += M - 1), (double)nCells) )
+			if( !SG_UI_Process_Set_Progress((double)(n += M - 1), (double)Get_Data_Count()) )
 			{
 				SG_FREE_SAFE(istack);
 				SG_FREE_SAFE(m_Index);
@@ -1300,6 +1290,8 @@ bool CSG_Grid::_Set_Index(void)
 	SG_Free(istack);
 
 	SG_UI_Process_Set_Ready();
+
+	m_bIndex	= true;
 
 	return( true );
 }

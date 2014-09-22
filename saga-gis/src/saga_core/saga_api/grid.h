@@ -548,17 +548,17 @@ public:		///////////////////////////////////////////////
 	{
 		if( !bOn )
 		{
-			SG_FREE_SAFE(m_Index);
+			m_bIndex	= false;
 
 			return( true );
 		}
 
-		return( m_Index != NULL || _Set_Index() );
+		return( m_bIndex || _Set_Index() );
 	}
 
 	sLong						Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( Position >= 0 && Position < Get_NCells() && Set_Index(true) )
+		if( Position >= 0 && Position < Get_NCells() && (m_bIndex || _Set_Index()) )
 		{
 			Position	= m_Index[bDown ? Get_NCells() - Position - 1 : Position];
 
@@ -753,7 +753,7 @@ private:	///////////////////////////////////////////////
 
 	void						**m_Values;
 
-	bool						m_bCreated, m_Memory_bLock,
+	bool						m_bCreated, m_bIndex, m_Memory_bLock,
 								m_Cache_bTemp, m_Cache_bSwap, m_Cache_bFlip;
 
 	int							m_LineBuffer_Count;
