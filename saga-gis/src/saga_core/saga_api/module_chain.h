@@ -119,7 +119,7 @@ private:
 //---------------------------------------------------------
 public: 	static bool			Save_History_to_Model	(const CSG_MetaData &History, const CSG_String &File);
 
-private:	static bool			_Save_History_to_Model	(const CSG_MetaData &DataSetHistory, CSG_MetaData &Tools, CSG_MetaData &Parameters);
+private:	static bool			_Save_History_to_Model	(const CSG_MetaData &History, CSG_MetaData &Tools, CSG_MetaData &Parameters, const CSG_String &Output_ID);
 
 };
 
