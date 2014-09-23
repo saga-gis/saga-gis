@@ -195,27 +195,33 @@ bool CGrid_Histogram_Surface::Get_Lines(bool bRows)
 //---------------------------------------------------------
 bool CGrid_Histogram_Surface::Get_Circle(void)
 {
-	long		i;
-	int			n;
-	double		r;
-	CSG_Grid	*pHist;
-
-	r	= sqrt(m_pGrid->Get_NCells() / M_PI);
-	n	= 1 + (int)(2.0 * r);
-
 	//-----------------------------------------------------
-	Parameters("HIST")->Set_Value(pHist	= SG_Create_Grid(m_pGrid->Get_Type(), n, n, m_pGrid->Get_Cellsize(), -r * m_pGrid->Get_Cellsize(), -r * m_pGrid->Get_Cellsize()));
+	double	r	= sqrt(m_pGrid->Get_NCells() / M_PI);
+	int		n	= 1 + (int)(2.0 * r);
+
+	CSG_Grid	*pHist	= SG_Create_Grid(m_pGrid->Get_Type(), n, n, m_pGrid->Get_Cellsize(),
+		-r * m_pGrid->Get_Cellsize(),
+		-r * m_pGrid->Get_Cellsize()
+	);
+
+	Parameters("HIST")->Set_Value(pHist);
 
 	pHist->Set_NoData_Value_Range(
 		m_pGrid->Get_NoData_Value(),
 		m_pGrid->Get_NoData_hiValue()
 	);
 
+	if( !m_pGrid->Set_Index() )
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	for(int y=0; y<n && Set_Progress(y, n); y++)
 	{
 		for(int x=0; x<n; x++)
 		{
+			sLong	i;
 			double	d	= SG_Get_Distance(x, y, r, r);
 
 			if( d < r && m_pGrid->Get_Sorted((sLong)(d*d*M_PI), i) )
