@@ -134,7 +134,7 @@ public:
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
 
 	bool						Add_Children		(const CSG_MetaData &MetaData);
-	bool						Del_Children		(int Depth = 0, const SG_Char *Name = SG_T(""));
+	bool						Del_Children		(int Depth = 0, const SG_Char *Name = NULL);
 
 	CSG_MetaData *				operator ()			(int Index)					const	{	return(  Get_Child(Index           ) );	}
 	CSG_MetaData *				operator ()			(const CSG_String &Name)	const	{	return(  Get_Child(_Get_Child(Name)) );	}
