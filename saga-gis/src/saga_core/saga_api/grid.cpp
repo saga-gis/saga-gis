@@ -1120,7 +1120,7 @@ double CSG_Grid::Get_Percentile(double Percent)
 {
 	Percent	= Percent <= 0.0 ? 0.0 : Percent >= 100.0 ? 1.0 : Percent / 100.0;
 
-	sLong	n	= Get_NoData_Count() + (sLong)(Percent * (Get_Data_Count() - 1));
+	sLong	n	= (sLong)(Percent * (Get_Data_Count() - 1));
 
 	if( Get_Sorted(n, n, false) )
 	{

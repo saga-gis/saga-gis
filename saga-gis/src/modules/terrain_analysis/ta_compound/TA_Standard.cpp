@@ -128,6 +128,17 @@ bool CTA_Standard::On_Execute(void)
 		&&	SG_MODULE_PARAMETER_SET("DEM_PREPROC"  , &DEMP)	// >> preprocessed DEM
 	)
 
+	Parameters("SINKS")->asGrid()->Set_NoData_Value(0.0);
+//	Parameters("SINKS")->asGrid()->Assign(&(TMP2 = DEMP - *Parameters("ELEVATION")->asGrid()));
+
+	SG_RUN_MODULE_ExitOnError("grid_calculus"      , 1,	// grid calculator
+			SG_MODULE_PARAMETER_SET("RESULT"       , Parameters("SINKS"))
+		&&	SG_MODULE_PARAMETER_SET("FORMULA"      , SG_T("g1 - g2"))
+		&&	SG_MODULE_PARAMETER_SET("NAME"         , _TL("Closed Depressions"))
+		&&	SG_MODULE_PARAMLIST_ADD("GRIDS"        , &DEMP)
+		&&	SG_MODULE_PARAMLIST_ADD("GRIDS"        , Parameters("ELEVATION")->asGrid())
+	)
+
 	//-----------------------------------------------------
 	SG_RUN_MODULE_ExitOnError("ta_lighting"        , 0,
 			SG_MODULE_PARAMETER_SET("ELEVATION"    , &DEMP)
@@ -169,9 +180,6 @@ bool CTA_Standard::On_Execute(void)
 		&&	SG_MODULE_PARAMETER_SET("CAREA"        , Parameters("CAREA"))
 		&&	SG_MODULE_PARAMETER_SET("METHOD"       , 4)		// MFD
 	)
-
-	Parameters("SINKS")->asGrid()->Assign(&(TMP2 = DEMP - *Parameters("ELEVATION")->asGrid()));
-	Parameters("SINKS")->asGrid()->Set_NoData_Value(0.0);
 
 	//-----------------------------------------------------
 	SG_RUN_MODULE_ExitOnError("ta_hydrology"       , 19,
