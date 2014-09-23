@@ -53,10 +53,14 @@ protected:
 
 private:
 
-	CSG_Grid				*m_pDEM, *m_pContamination, m_Edge;
+	CSG_Grid				*m_pDEM, *m_pEffect;
 
 
-	int						Get_Contamination	(int x, int y);
+	int						Get_D8				(int x, int y);
+	int						Set_D8				(int x, int y);
+
+	bool					Get_MFD				(int x, int y, double dz[8]);
+	int						Set_MFD				(int x, int y);
 
 };
 

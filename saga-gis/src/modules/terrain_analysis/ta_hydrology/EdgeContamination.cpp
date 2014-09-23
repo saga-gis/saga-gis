@@ -51,14 +51,17 @@ CEdgeContamination::CEdgeContamination(void)
 {
 	Set_Name		(_TL("Edge Contamination"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004"));
+	Set_Author		("V.Olaya (c) 2004");
 
 	Set_Description	(_TW(
-		""
+		"This tool uses flow directions to estimate possible contamination "
+		"effects moving from outside of the grid passing the edge into its interior. "
+		"This means that derived contributing area values might be underestimated "
+		"for the marked cells. Cells not contamined will be marked as no data. "
 	));
 
 	Parameters.Add_Grid(
-		NULL	,  "DEM"			, _TL("Elevation"),
+		NULL	,  "ELEVATION"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -66,9 +69,34 @@ CEdgeContamination::CEdgeContamination(void)
 	Parameters.Add_Grid(
 		NULL	, "CONTAMINATION"	, _TL("Edge Contamination"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"			, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("single flow direction"),
+			_TL("multiple flow direction")
+		), 0
 	);
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum
+{
+	EFFECT_NO		= -1,
+	EFFECT_NODATA	=  0,
+	EFFECT_EDGE		=  1,
+	EFFECT_YES		=  2,
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -80,76 +108,49 @@ CEdgeContamination::CEdgeContamination(void)
 //---------------------------------------------------------
 bool CEdgeContamination::On_Execute(void)
 {
-	int		x, y;
+	//-----------------------------------------------------
+	m_pDEM		= Parameters("ELEVATION"    )->asGrid(); 
+	m_pEffect	= Parameters("CONTAMINATION")->asGrid();
+
+	int	Method	= Parameters("METHOD")->asInt();
+
+	m_pEffect->Assign(0.0);
+	m_pEffect->Set_NoData_Value_Range(EFFECT_NO, EFFECT_NODATA);
 
 	//-----------------------------------------------------
-	m_pDEM				= Parameters("DEM")				->asGrid(); 
-	m_pContamination	= Parameters("CONTAMINATION")	->asGrid();
-
-	//-----------------------------------------------------
-	m_pContamination->Set_NoData_Value(-2);
-
-	m_Edge.Create(*Get_System(), SG_DATATYPE_Byte);
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( m_pDEM->is_InGrid(x, y) )
-			{
-				for(int i=0; i<8; i++)
-				{
-					if( !m_pDEM->is_InGrid(Get_xTo(i, x), Get_yTo(i, y)) )
-					{
-						m_Edge.Set_Value(x, y, 1);
-
-						break;
-					}
-				}
-
-				m_pContamination->Set_Value(x, y, -1);
-			}
-			else
-			{
-				m_pContamination->Set_NoData(x, y);
-			}
-		}
-	}
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( m_pDEM->is_InGrid(x, y) && !m_Edge.asInt(x, y) )
-			{
-				for(int i=0; i<8; i++)
-				{
-					if( m_Edge.asInt(Get_xTo(i, x), Get_yTo(i, y)) == 1 )
-					{
-						m_Edge.Set_Value(x, y, 2);
-
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !m_pDEM->is_NoData(x, y) )
 			{
-				Get_Contamination(x, y);
+				bool	bEdge	= false;
+
+				for(int i=0; i<8 && !bEdge; i++)
+				{
+					if( !m_pDEM->is_InGrid(Get_xTo(i, x), Get_yTo(i, y)) )
+					{
+						bEdge	= true;
+					}
+				}
+
+				if( bEdge )
+				{
+					switch( Method )
+					{
+					default:	Set_D8	(x, y);	break;
+					case  1:	Set_MFD	(x, y);	break;
+					}
+				}
+				else if( m_pEffect->asInt(x, y) == EFFECT_NODATA )
+				{
+					m_pEffect->Set_Value(x, y, EFFECT_NO);
+				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_Edge.Destroy();
-
 	return( true );
 }
 
@@ -161,35 +162,140 @@ bool CEdgeContamination::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CEdgeContamination::Get_Contamination(int x, int y)
+int CEdgeContamination::Get_D8(int x, int y)
 {
-	if( m_pDEM->is_NoData(x, y) )
+	int		iMax	= -1;
+
+	if( m_pDEM->is_InGrid(x, y) )
 	{
-		return( 0 );
-	}
+		double	z		= m_pDEM->asDouble(x, y);
+		double	dzMax	= 0.0;
 
-	if( m_pContamination->asInt(x, y) >= 0 )
-	{
-		return( m_pContamination->asInt(x, y) );
-	}
-
-	//-----------------------------------------------------
-	int	Contamination	= m_Edge.asInt(x, y) ? 1 : 0;
-
-	for(int i=0; i<8; i++)
-	{
-		int	ix	= Get_xFrom(i, x);
-		int	iy	= Get_yFrom(i, y);
-
-		if( m_pDEM->Get_Gradient_NeighborDir(ix, iy) == i )
+		for(int i=0; i<8; i++)
 		{
-			Contamination	+= Get_Contamination(ix, iy);
+			int	ix	= Get_xTo(i, x);
+			int	iy	= Get_yTo(i, y);
+
+			if( m_pDEM->is_InGrid(ix, iy) )
+			{
+				double	dz	= (z - m_pDEM->asDouble(ix, iy)) / Get_Length(i);
+
+				if( dz > dzMax )
+				{
+					iMax	= i;
+					dzMax	= dz;
+				}
+			}
 		}
 	}
 
-	m_pContamination->Set_Value(x, y, Contamination);
+	return( iMax );
+}
 
-	return( Contamination );
+//---------------------------------------------------------
+int CEdgeContamination::Set_D8(int x, int y)
+{
+	m_pEffect->Set_Value(x, y, EFFECT_EDGE);
+
+	int	i, nContaminated	= 1;
+
+	//-----------------------------------------------------
+	while( (i = Get_D8(x, y)) >= 0
+		&&  m_pDEM->is_InGrid(x = Get_xTo(i, x), y = Get_yTo(i, y))
+		&&  m_pEffect->asInt(x, y) <= EFFECT_NODATA )
+	{
+		m_pEffect->Set_Value(x, y, EFFECT_YES);
+
+		nContaminated++;
+	}
+
+	//-----------------------------------------------------
+	return( nContaminated );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CEdgeContamination::Get_MFD(int x, int y, double dz[8])
+{
+	if( m_pDEM->is_InGrid(x, y) )
+	{
+		int		i;
+		double	z, d, dzSum;
+
+		for(i=0, dzSum=0.0, z=m_pDEM->asDouble(x, y); i<8; i++)
+		{
+			int	ix	= Get_xTo(i, x);
+			int	iy	= Get_yTo(i, y);
+
+			if( m_pDEM->is_InGrid(ix, iy) && (d = (z - m_pDEM->asDouble(ix, iy)) / Get_Length(i)) > 0.0 )
+			{
+				dzSum	+= (dz[i] = d);
+			}
+			else
+			{
+				dz[i]	= 0.0;
+			}
+		}
+
+		if( dzSum > 0.0 )
+		{
+			for(i=0; i<8; i++)
+			{
+				if( dz[i] > 0.0 )
+				{
+					dz[i]	/= dzSum;
+				}
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int CEdgeContamination::Set_MFD(int x, int y)
+{
+	m_pEffect->Set_Value(x, y, EFFECT_EDGE);
+
+	CSG_Grid_Stack	Stack;	Stack.Push(x, y);
+
+	double	dz[8];
+
+	//-----------------------------------------------------
+	while( Stack.Get_Size() > 0 && Process_Get_Okay() )
+	{
+		Stack.Pop(x, y);
+
+		if( Get_MFD(x, y, dz) )
+		{
+			for(int i=0; i<8; i++)
+			{
+				if( dz[i] > 0.0 )
+				{
+					int	ix	= Get_xTo(i, x);
+					int	iy	= Get_yTo(i, y);
+
+					if( m_pEffect->asInt(ix, iy) <= EFFECT_NODATA )
+					{
+						m_pEffect->Set_Value(ix, iy, EFFECT_YES);
+
+						Stack.Push(ix, iy);
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( 0 );
 }
 
 
