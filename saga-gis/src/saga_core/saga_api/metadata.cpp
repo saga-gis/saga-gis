@@ -336,6 +336,17 @@ int CSG_MetaData::_Get_Child(const CSG_String &Name) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_MetaData::Cmp_Name(const CSG_String &String, bool bNoCase) const
+{
+	return( bNoCase ? !m_Name.CmpNoCase(String) : !m_Name.Cmp(String) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CSG_MetaData::Fmt_Content(const SG_Char *Format, ...)
 {
 	wxString	s;
@@ -369,10 +380,10 @@ bool CSG_MetaData::Cmp_Content(const CSG_String &String, bool bNoCase) const
 //---------------------------------------------------------
 bool CSG_MetaData::Add_Property(const CSG_String &Name, const CSG_String &Value)
 {
-	if( _Get_Property(Name) < 0 )
+	if( !Value.is_Empty() &&_Get_Property(Name) < 0 )
 	{
-		m_Prop_Names	.Add(Name);
-		m_Prop_Values	.Add(Value);
+		m_Prop_Names .Add(Name );
+		m_Prop_Values.Add(Value);
 
 		return( true );
 	}

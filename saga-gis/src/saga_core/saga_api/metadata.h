@@ -116,10 +116,13 @@ public:
 
 	const CSG_String &			Get_Name			(void)						const	{	return( m_Name );		}
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
+	bool						Cmp_Name			(const CSG_String &String, bool bNoCase =  true)	const;
 	const CSG_String &			Get_Content			(void)						const	{	return( m_Content );	}
 	void						Set_Content			(const CSG_String &Content)			{	m_Content	= Content;	}
 	void						Fmt_Content			(const SG_Char *Format, ...);
 	bool						Cmp_Content			(const CSG_String &String, bool bNoCase = false)	const;
+
+	CSG_MetaData *				Get_Parent			(void)						const	{	return( m_pParent );	}
 
 	int							Get_Children_Count	(void)						const	{	return( (int)m_Children.Get_Size() );	}
 	CSG_MetaData *				Get_Child			(int Index)					const	{	return( Index >= 0 ? *((CSG_MetaData **)m_Children.Get_Entry((size_t)Index)) : NULL );	}
