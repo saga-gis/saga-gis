@@ -94,13 +94,10 @@ public:
 								CSG_Module_Chain		(const CSG_String &File);
 	bool						Create					(const CSG_String &File);
 
-	virtual void				Destroy					(void);
-
 	virtual TSG_Module_Type		Get_Type				(void)			{	return( MODULE_TYPE_Chain );	}
 
 	bool						is_Okay					(void)	const	{	return( m_Chain.Get_Children_Count() > 0 );	}
 
-	const CSG_String &			Get_File_Name			(void)	const	{	return( m_File_Name    );	}
 	const CSG_String &			Get_Library_Name		(void)	const	{	return( m_Library_Name );	}
 
 
@@ -111,15 +108,20 @@ protected:
 
 private:
 
-	CSG_String					m_File_Name, m_Library_Name;
+	CSG_String					m_Library_Name;
 
 	CSG_MetaData				m_Chain;
 
 
-//---------------------------------------------------------
-public: 	static bool			Save_History_to_Model	(const CSG_MetaData &History, const CSG_String &File);
+	void						_Destroy				(void);
 
-private:	static bool			_Save_History_to_Model	(const CSG_MetaData &History, CSG_MetaData &Tools, CSG_MetaData &Parameters, const CSG_String &Output_ID);
+
+//---------------------------------------------------------
+public: 	static bool			Save_History_to_Model		(const CSG_MetaData &History, const CSG_String &File);
+
+private:	static bool			_Save_History_Add_Tool		(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tools, bool bAddOutput = false);
+private:	static bool			_Save_History_Add_Input		(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool);
+private:	static bool			_Save_History_Add_Data		(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool, bool bInput);
 
 };
 

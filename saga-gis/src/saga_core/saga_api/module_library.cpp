@@ -484,23 +484,23 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 		return( NULL );
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load tool chain"), File_Name), true);
-
 	//-----------------------------------------------------
+	CSG_Module_Chains	*pLibrary	= NULL;
+	CSG_Module_Chain	*pModule	= NULL;
+
 	{
 		wxFileName	fn(File_Name);
 
-		for(int iLibrary=0; iLibrary<Get_Count(); iLibrary++)
+		for(int iLibrary=0; !pModule && iLibrary<Get_Count(); iLibrary++)
 		{
 			if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS )
 			{
-				for(int iModule=0; iModule<Get_Library(iLibrary)->Get_Count(); iModule++)
+				for(int iModule=0; !pModule && iModule<Get_Library(iLibrary)->Get_Count(); iModule++)
 				{
 					if( fn == ((CSG_Module_Chain *)Get_Library(iLibrary)->Get_Module(iModule))->Get_File_Name().c_str() )
 					{
-						SG_UI_Msg_Add(_TL("has already been loaded"), false);
-
-						return( NULL );
+						pLibrary	= (CSG_Module_Chains *)Get_Library(iLibrary);
+						pModule		= (CSG_Module_Chain  *)Get_Library(iLibrary)->Get_Module(iModule);
 					}
 				}
 			}
@@ -508,7 +508,21 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	}
 
 	//-----------------------------------------------------
-	CSG_Module_Chain	*pModule	= new CSG_Module_Chain(File_Name);
+	if( pModule )
+	{
+		SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Reload tool chain"), File_Name), true);
+
+		pModule->Create(File_Name);
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( pLibrary );
+	}
+
+	//-----------------------------------------------------
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load tool chain"), File_Name), true);
+
+	pModule	= new CSG_Module_Chain(File_Name);
 
 	if( !pModule || !pModule->is_Okay() )
 	{
@@ -523,26 +537,22 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	}
 
 	//-----------------------------------------------------
-	CSG_Module_Chains	*pLibrary	= NULL;
-
+	for(int iLibrary=0; !pLibrary && iLibrary<Get_Count(); iLibrary++)
 	{
-		for(int iLibrary=0; !pLibrary && iLibrary<Get_Count(); iLibrary++)
+		if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS
+		&&  Get_Library(iLibrary)->Get_Library_Name().Cmp(pModule->Get_Library()) == 0 )
 		{
-			if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS
-			&&  Get_Library(iLibrary)->Get_Library_Name().Cmp(pModule->Get_Library()) == 0 )
-			{
-				pLibrary	= (CSG_Module_Chains *)Get_Library(iLibrary);
-			}
+			pLibrary	= (CSG_Module_Chains *)Get_Library(iLibrary);
 		}
-
-		if( !pLibrary )
-		{
-			pLibrary	= new CSG_Module_Chains(pModule->Get_Library(), pModule->Get_Library_Name(), pModule->Get_Library_Name(), pModule->Get_Library_Name());
-		}
-
-		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
-		m_pLibraries[m_nLibraries++]	= pLibrary;
 	}
+
+	if( !pLibrary )
+	{
+		pLibrary	= new CSG_Module_Chains(pModule->Get_Library(), pModule->Get_Library_Name(), pModule->Get_Library_Name(), pModule->Get_Library_Name());
+	}
+
+	m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
+	m_pLibraries[m_nLibraries++]	= pLibrary;
 
 	pLibrary->Add_Module(pModule);
 

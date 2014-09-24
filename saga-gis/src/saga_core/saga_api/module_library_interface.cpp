@@ -143,7 +143,8 @@ bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 		else
 		{
 			pModule->m_ID.Printf(SG_T("%d"), ID);
-			pModule->m_Library	= Get_Info(MLB_INFO_Library);
+			pModule->m_Library		= Get_Info(MLB_INFO_Library);
+			pModule->m_File_Name	= Get_Info(MLB_INFO_File);
 		}
 
 		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));

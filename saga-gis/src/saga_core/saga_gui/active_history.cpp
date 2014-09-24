@@ -71,6 +71,7 @@
 #include "wksp_table.h"
 #include "wksp_layer.h"
 #include "wksp_map_layer.h"
+#include "wksp_module_manager.h"
 
 #include "active.h"
 #include "active_history.h"
@@ -242,9 +243,11 @@ void CACTIVE_History::On_SaveAs_Model(wxCommandEvent &event)
 
 	CSG_Data_Object	*pObject	= _Get_Object();
 
-	if( pObject && pObject->Get_History().Get_Children_Count() > 0 && DLG_Save(File, _TL("Save History as Model"), Filter) )
+	if( pObject && pObject->Get_History().Get_Children_Count() > 0
+	&&  DLG_Save(File, _TL("Save History as Model"), Filter)
+	&&  pObject->Save_History_to_Model(&File) )
 	{
-		pObject->Save_History_to_Model(&File);
+		g_pModules->Open(File);
 	}
 }
 
