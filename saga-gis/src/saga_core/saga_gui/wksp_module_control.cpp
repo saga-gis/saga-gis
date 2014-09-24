@@ -184,7 +184,6 @@ void CWKSP_Module_Control::Add_Library(CWKSP_Module_Library *pLibrary)
 		for(int i=0; i<pLibrary->Get_Count(); i++)
 		{
 			AppendItem(pLibrary->GetId(), pLibrary->Get_Module(i)->Get_Name(), IMG_MODULE, IMG_MODULE, pLibrary->Get_Module(i));
-			pLibrary->Get_Module(i)->Set_File_Name(pLibrary->Get_File_Name());
 		}
 
 		SortChildren(pLibrary->GetId());

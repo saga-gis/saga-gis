@@ -197,6 +197,7 @@ public:
 	const CSG_String &			Get_ID						(void)	const	{	return( m_ID );	}
 
 	const CSG_String &			Get_Library					(void)	const;
+	const CSG_String &			Get_File_Name				(void)	const;	// Returns the file name of the module's library or, if this is a module chain, the associated XML file.
 	const CSG_String &			Get_Name					(void)	const;
 	const CSG_String &			Get_Description				(void)	const;
 	const CSG_String &			Get_Author					(void)	const;
@@ -312,7 +313,7 @@ private:
 
 	CSG_Parameters				**m_pParameters;
 
-	CSG_String					m_ID, m_Library, m_Author;
+	CSG_String					m_ID, m_Library, m_File_Name, m_Author;
 
 
 	bool						_Synchronize_DataObjects	(void);

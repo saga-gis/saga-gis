@@ -168,9 +168,9 @@ wxString CWKSP_Module::Get_Name(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Module::Set_File_Name(const wxString &File_Name)
+wxString CWKSP_Module::Get_File_Name(void)
 {
-	m_File_Name = File_Name;
+	return( m_pModule->Get_File_Name().c_str() );
 }
 
 //---------------------------------------------------------

@@ -144,6 +144,12 @@ const CSG_String & CSG_Module::Get_Library(void) const
 }
 
 //---------------------------------------------------------
+const CSG_String & CSG_Module::Get_File_Name(void) const
+{
+	return( m_File_Name );
+}
+
+//---------------------------------------------------------
 void CSG_Module::Set_Name(const CSG_String &String)
 {
 	Parameters.Set_Name(String);

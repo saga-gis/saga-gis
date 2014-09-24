@@ -107,8 +107,7 @@ public:
 	int								Get_Menu_ID			(void)			{	return( m_Menu_ID );	}
 	const wxString &				Get_Menu_Path		(void)			{	return( m_Menu_Path );	}
 
-	void							Set_File_Name		(const wxString &File_Name);
-	const wxString &				Get_File_Name		(void)			{	return( m_File_Name );	}
+	wxString						Get_File_Name		(void);
 
 	bool							is_Interactive		(void);
 	bool							is_Executing		(void);
@@ -121,7 +120,7 @@ private:
 
 	int								m_Menu_ID;
 
-	wxString						m_Menu_Path, m_File_Name;
+	wxString						m_Menu_Path;
 
 	class CSG_Module				*m_pModule;
 

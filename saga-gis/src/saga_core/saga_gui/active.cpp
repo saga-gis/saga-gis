@@ -462,9 +462,10 @@ bool CACTIVE::Update_Description(void)
 			{
 				return( true );
 			}
-
-			Description	= m_pItem->Get_Description();
 		}
+
+		Description	= m_pItem->Get_Description();
+
 		break;
 	}
 
