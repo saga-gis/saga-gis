@@ -175,20 +175,66 @@ void CSG_MetaData::Destroy(void)
 //---------------------------------------------------------
 CSG_MetaData * CSG_MetaData::Add_Child(void)
 {
-	if( m_Children.Inc_Array() )
-	{
-		CSG_MetaData	**m_pChildren	= (CSG_MetaData **)m_Children.Get_Array();
+	return( Ins_Child(-1) );
+}
 
-		return( m_pChildren[Get_Children_Count() - 1] = new CSG_MetaData(this) );
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name)
+{
+	return( Ins_Child(Name, -1) );
+}
+
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, const CSG_String &Content)
+{
+	return( Ins_Child(Name, Content, -1) );
+}
+
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, double Content)
+{
+	return( Ins_Child(Name, SG_Get_String(Content, -16), -1) );
+}
+
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, int Content)
+{
+	return( Ins_Child(Name, CSG_String::Format(SG_T("%d"), Content), -1) );
+}
+
+CSG_MetaData * CSG_MetaData::Add_Child(const CSG_MetaData &MetaData, bool bAddChildren)
+{
+	return( Ins_Child(MetaData, -1, bAddChildren) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_MetaData * CSG_MetaData::Ins_Child(int Position)
+{
+	if( !m_Children.Inc_Array() )
+	{
+		return( NULL );
 	}
 
-	return( NULL );
+	CSG_MetaData	**pChildren	= (CSG_MetaData **)m_Children.Get_Array();
+
+	if( Position < 0 || Position >= Get_Children_Count() )
+	{
+		Position	= Get_Children_Count() - 1;
+	}
+
+	for(int i=Get_Children_Count()-1; i>Position; i--)
+	{
+		pChildren[i]	= pChildren[i - 1];
+	}
+
+	return( pChildren[Position] = new CSG_MetaData(this) );
 }
 
 //---------------------------------------------------------
-CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, const CSG_String &Content)
+CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, const CSG_String &Content, int Position)
 {
-	CSG_MetaData	*pChild	= Add_Child();
+	CSG_MetaData	*pChild	= Ins_Child(Position);
 
 	if( pChild )
 	{
@@ -199,25 +245,24 @@ CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, const CSG_String 
 	return( pChild );
 }
 
-CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name)
+CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, int Position)
 {
-	return( Add_Child(Name, CSG_String("")) );
+	return( Ins_Child(Name, CSG_String(""), Position) );
 }
 
-CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, double Content)
+CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, double Content, int Position)
 {
-	return( Add_Child(Name, SG_Get_String(Content, -16)) );
+	return( Ins_Child(Name, SG_Get_String(Content, -16), Position) );
 }
 
-CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, int Content)
+CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_String &Name, int Content, int Position)
 {
-	return( Add_Child(Name, CSG_String::Format(SG_T("%d"), Content)) );
+	return( Ins_Child(Name, CSG_String::Format(SG_T("%d"), Content), Position) );
 }
 
-//---------------------------------------------------------
-CSG_MetaData * CSG_MetaData::Add_Child(const CSG_MetaData &MetaData, bool bAddChildren)
+CSG_MetaData * CSG_MetaData::Ins_Child(const CSG_MetaData &MetaData, int Position, bool bAddChildren)
 {
-	CSG_MetaData	*pChild	= Add_Child();
+	CSG_MetaData	*pChild	= Ins_Child(Position);
 
 	if( pChild )
 	{
@@ -226,6 +271,51 @@ CSG_MetaData * CSG_MetaData::Add_Child(const CSG_MetaData &MetaData, bool bAddCh
 
 	return( pChild );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_MetaData::Mov_Child(int from_Index, int to_Index)
+{
+	if( from_Index < 0 || from_Index >= Get_Children_Count()
+	||    to_Index < 0 ||   to_Index >= Get_Children_Count() )
+	{
+		return( false );
+	}
+
+	if( from_Index != to_Index )
+	{
+		CSG_MetaData	**pChildren	= (CSG_MetaData **)m_Children.Get_Array();
+		CSG_MetaData	*pChild	= pChildren[from_Index];
+
+		if( from_Index < to_Index )
+		{
+			for(int i=from_Index; i<to_Index; i++)
+			{
+				pChildren[i]	= pChildren[i + 1];
+			}
+		}
+		else // if( from_Index > to_Index )
+		{
+			for(int i=from_Index; i>to_Index; i--)
+			{
+				pChildren[i]	= pChildren[i - 1];
+			}
+		}
+
+		pChildren[to_Index]	= pChild;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_MetaData::Del_Child(int Index)

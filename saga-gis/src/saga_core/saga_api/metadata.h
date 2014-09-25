@@ -118,6 +118,8 @@ public:
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
 	bool						Cmp_Name			(const CSG_String &String, bool bNoCase =  true)	const;
 	const CSG_String &			Get_Content			(void)						const	{	return( m_Content );	}
+	const SG_Char *				Get_Content			(int Index)					const	{	return( Get_Child(Index) ? Get_Child(Index)->Get_Content().c_str() : NULL );	}
+	const SG_Char *				Get_Content			(const CSG_String &Name)	const	{	return( Get_Content(_Get_Child(Name)) );	}
 	void						Set_Content			(const CSG_String &Content)			{	m_Content	= Content;	}
 	void						Fmt_Content			(const SG_Char *Format, ...);
 	bool						Cmp_Content			(const CSG_String &String, bool bNoCase = false)	const;
@@ -133,6 +135,13 @@ public:
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, double            Content);
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, int               Content);
 	CSG_MetaData *				Add_Child			(const CSG_MetaData &MetaData, bool bAddChildren = true);
+	CSG_MetaData *				Ins_Child			(                                                   int Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name                           , int Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, const CSG_String &Content, int Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, double            Content, int Position);
+	CSG_MetaData *				Ins_Child			(const CSG_String &Name, int               Content, int Position);
+	CSG_MetaData *				Ins_Child			(const CSG_MetaData &MetaData                     , int Position, bool bAddChildren = true);
+	bool						Mov_Child			(int from_Index, int to_Index);
 	bool						Del_Child			(int Index);
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
 
