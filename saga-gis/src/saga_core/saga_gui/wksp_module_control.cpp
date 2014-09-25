@@ -190,6 +190,12 @@ void CWKSP_Module_Control::Add_Library(CWKSP_Module_Library *pLibrary)
 	}
 }
 
+//---------------------------------------------------------
+void CWKSP_Module_Control::Add_Module(CWKSP_Module_Library *pLibrary, CWKSP_Module *pModule)
+{
+	AppendItem(pLibrary->GetId(), pModule->Get_Name(), IMG_MODULE, IMG_MODULE, pModule);
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

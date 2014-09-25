@@ -92,10 +92,11 @@ public:
 
 	class CWKSP_Module_Manager *	Get_Manager			(void)	{	return( (class CWKSP_Module_Manager *)m_pManager );	}
 
-	void							On_Execute			(wxCommandEvent &event);
+	void							On_Execute			(wxCommandEvent  &event);
 	void							On_Execute_UI		(wxUpdateUIEvent &event);
 
 	void							Add_Library			(class CWKSP_Module_Library *pLibrary);
+	void							Add_Module			(class CWKSP_Module_Library *pLibrary, class CWKSP_Module *pModule);
 
 
 private:

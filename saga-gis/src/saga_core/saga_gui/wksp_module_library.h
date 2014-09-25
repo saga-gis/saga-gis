@@ -100,6 +100,8 @@ public:
 
 	class CSG_Module_Library *		Get_Library		(void)		{	return( m_pLibrary );	}
 
+	void							Update			(void);
+
 	class CWKSP_Module *			Get_Module		(int i)		{	return( (class CWKSP_Module *)Get_Item(i) );	}
 	class CWKSP_Module *			Get_Module		(class CWKSP_Module *pModule);
 	class CWKSP_Module *			Get_Module_byID	(int CMD_ID);
@@ -112,6 +114,10 @@ public:
 private:
 
 	class CSG_Module_Library		*m_pLibrary;
+
+
+	void							_Add_Modules	(void);
+	void							_Del_Modules	(void);
 
 };
 

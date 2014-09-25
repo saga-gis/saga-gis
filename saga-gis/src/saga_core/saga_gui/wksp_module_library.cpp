@@ -69,6 +69,7 @@
 
 #include "helper.h"
 
+#include "wksp_module_control.h"
 #include "wksp_module_manager.h"
 #include "wksp_module_library.h"
 #include "wksp_module.h"
@@ -85,27 +86,97 @@ CWKSP_Module_Library::CWKSP_Module_Library(CSG_Module_Library *pLibrary)
 {
 	m_pLibrary	= pLibrary;
 
+	_Add_Modules();
+}
+
+//---------------------------------------------------------
+CWKSP_Module_Library::~CWKSP_Module_Library(void)
+{
+	_Del_Modules();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Module_Library::Update(void)
+{
+	int		i;
+
+	for(i=Get_Count()-1; i>=0; i--)
+	{
+		CWKSP_Module	*pItem	= Get_Module(i);
+
+		if( !m_pLibrary->Get_Module(pItem->Get_Module()->Get_Name()) )
+		{
+			Del_Item(pItem);
+
+			Get_Control()->Delete(pItem->GetId());
+		}
+	}
+
 	for(int i=0; i<m_pLibrary->Get_Count(); i++)
 	{
 		CSG_Module	*pModule	= m_pLibrary->Get_Module(i);
 
 		if( pModule != NULL && pModule != MLB_INTERFACE_SKIP_MODULE )
 		{
-			Add_Item(new CWKSP_Module(pModule, m_pLibrary->Get_Menu().w_str()));
+			for(int j=0; j<Get_Count() && pModule; j++)
+			{
+				if( pModule == Get_Module(j)->Get_Module() )
+				{
+					pModule	= NULL;
+				}
+			}
+
+			if( pModule )
+			{
+				CWKSP_Module	*pItem	= new CWKSP_Module(pModule, m_pLibrary->Get_Menu().w_str());
+
+				Add_Item(pItem);
+
+				g_pModule_Ctrl->Add_Module(this, pItem);
+			}
+		}
+	}
+
+	Get_Control()->SortChildren(GetId());
+}
+
+//---------------------------------------------------------
+void CWKSP_Module_Library::_Add_Modules(void)
+{
+	for(int i=0; i<m_pLibrary->Get_Count(); i++)
+	{
+		CSG_Module	*pModule	= m_pLibrary->Get_Module(i);
+
+		if( pModule != NULL && pModule != MLB_INTERFACE_SKIP_MODULE )
+		{
+			CWKSP_Module	*pItem	= new CWKSP_Module(pModule, m_pLibrary->Get_Menu().w_str());
+
+			Add_Item(pItem);
 		}
 	}
 }
 
 //---------------------------------------------------------
-CWKSP_Module_Library::~CWKSP_Module_Library(void)
+void CWKSP_Module_Library::_Del_Modules(void)
 {
 	for(int i=Get_Count()-1; i>=0; i--)
 	{
 		CWKSP_Module	*pItem	= Get_Module(i);
+
 		Del_Item(pItem);
-		delete(pItem);
+
+	//	Get_Control()->Delete(pItem->GetId());
+	//	delete(pItem);
 	}
 }
+
 
 
 ///////////////////////////////////////////////////////////

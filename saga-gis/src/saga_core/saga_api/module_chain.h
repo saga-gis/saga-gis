@@ -72,6 +72,7 @@
 
 //---------------------------------------------------------
 #include "module_library.h"
+#include "data_manager.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -112,8 +113,12 @@ private:
 
 	CSG_MetaData				m_Chain;
 
+	CSG_Data_Manager			m_Manager;
+
 
 	void						_Destroy				(void);
+
+	bool						Run_Tool				(const CSG_MetaData &Tool);
 
 
 //---------------------------------------------------------

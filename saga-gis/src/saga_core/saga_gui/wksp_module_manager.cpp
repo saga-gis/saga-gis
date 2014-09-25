@@ -485,7 +485,9 @@ bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
 
 	for(int i=SG_Get_Module_Library_Manager().Get_Count()-1; i>=0; i--)
 	{
-		if( !Get_Library(SG_Get_Module_Library_Manager().Get_Library(i)) )
+		CWKSP_Module_Library	*pLibrary	= Get_Library(SG_Get_Module_Library_Manager().Get_Library(i));
+
+		if( !pLibrary )
 		{
 			if( bSyncToCtrl )
 			{
@@ -495,6 +497,10 @@ bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
 			{
 				Add_Item(new CWKSP_Module_Library(SG_Get_Module_Library_Manager().Get_Library(i)));
 			}
+		}
+		else if( !bSyncToCtrl && pLibrary->Get_Library()->Get_Type() == MODULE_CHAINS )
+		{
+			pLibrary->Update();
 		}
 	}
 

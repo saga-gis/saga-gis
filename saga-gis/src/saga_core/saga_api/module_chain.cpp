@@ -140,17 +140,17 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	{
 		for(int i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
 		{
-			CSG_MetaData	*pParameter	= m_Chain["parameters"](i);
+			CSG_MetaData	&Parameter	= *m_Chain["parameters"](i);
 
-			CSG_Parameter	*pParent	= Parameters(pParameter->Get_Property("parent"));
+			CSG_Parameter	*pParent	= Parameters(Parameter.Get_Content("parent"));
 
-			CSG_String	ID		= pParameter->Get_Property("tool");	ID	= ID + "::" + pParameter->Get_Property("id");
-			CSG_String	Name	= pParameter->Get_Property("name");
-			CSG_String	Value	= pParameter->Get_Content();
+			CSG_String	ID		= Parameter.Get_Property("tool");	ID	= ID + "::" + Parameter.Get_Property("id");
+			CSG_String	Name	= Parameter.Get_Content("name" );
+			CSG_String	Value	= Parameter.Get_Content("value");
 
-			int		Constraint	= pParameter->Get_Name().CmpNoCase("input") ? PARAMETER_OUTPUT : PARAMETER_INPUT;
+			int		Constraint	= Parameter.Cmp_Name("input") ? PARAMETER_INPUT : PARAMETER_OUTPUT;
 
-			switch( SG_Parameter_Type_Get_Type(pParameter->Get_Property("type")) )
+			switch( SG_Parameter_Type_Get_Type(Parameter.Get_Property("type")) )
 			{
 			case PARAMETER_TYPE_PointCloud  :	Parameters.Add_PointCloud  (pParent, ID, Name, "", Constraint);	break;
 			case PARAMETER_TYPE_Grid        :	Parameters.Add_Grid        (pParent, ID, Name, "", Constraint);	break;
@@ -168,7 +168,7 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 
 			case PARAMETER_TYPE_FilePath    :	Parameters.Add_FilePath    (pParent, ID, Name, "", Value);	break;
 
-			case PARAMETER_TYPE_Choice      :	Parameters.Add_Choice      (pParent, ID, Name, "", pParameter->Get_Property("choices"))->Set_Value(Value);	break;
+			case PARAMETER_TYPE_Choice      :	Parameters.Add_Choice      (pParent, ID, Name, "", Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 			case PARAMETER_TYPE_Range       :	break;
 
 			case PARAMETER_TYPE_Table_Field :	Parameters.Add_Table_Field (pParent, ID, Name, "", !Value.CmpNoCase("TRUE"));	break;
@@ -192,11 +192,63 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 //---------------------------------------------------------
 bool CSG_Module_Chain::On_Execute(void)
 {
-	for(int i=m_Chain["tools"].Get_Children_Count()-1; i>=0; i--)
+	bool	bResult	= true;
+
+	for(int i=0; i<m_Chain["tools"].Get_Children_Count() && bResult; i++)
 	{
+		bResult	= Run_Tool(m_Chain["tools"][i]);
 	}
 
-	return( true );
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CSG_Module_Chain::Run_Tool(const CSG_MetaData &Tool)
+{
+	//-----------------------------------------------------
+	if( !Tool.Cmp_Name("tool") || !Tool.Get_Property("library") || !Tool.Get_Property("module") )
+	{
+		Error_Set(_TL("invalid tool definition"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_String	Module(Tool.Get_Property("module"));
+
+	CSG_Module	*pModule;
+
+	if(	!(pModule = SG_Get_Module_Library_Manager().Get_Module(Tool.Get_Property("library"), Module        ))
+	&&  !(pModule = SG_Get_Module_Library_Manager().Get_Module(Tool.Get_Property("library"), Module.asInt())) )
+	{
+		Error_Fmt("%s [%s].[%s]", _TL("could not find tool"),  Tool.Get_Property("library"), Module.c_str());
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(pModule->Get_Name());
+
+	pModule->Settings_Push();
+
+	bool	bResult	= false;
+
+	if( !(0) )
+	{
+		Error_Fmt("%s [%s].[%s]", _TL("could not initialize tool"), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+	}
+	else if( !pModule->Execute() )
+	{
+		Error_Fmt("%s [%s].[%s]", _TL("could not execute tool"   ), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+	}
+	else
+	{
+		bResult	= true;
+	}
+
+	pModule->Settings_Pop();
+
+	return( bResult );
 }
 
 
@@ -310,7 +362,7 @@ bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_M
 		return( false );
 	}
 
-	CSG_MetaData	*pParameter, &Tool	= *Tools.Add_Child("tool");
+	CSG_MetaData	*pParameter, &Tool	= *Tools.Ins_Child("tool", 0);
 
 	CSG_String		Tool_ID(CSG_String::Format(SG_T("tool_%02d"), Tools.Get_Children_Count()));
 
@@ -334,34 +386,41 @@ bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_M
 
 		if( !pChild->Get_Name().Cmp("OPTION") )
 		{
+			pParameter	= NULL;
+
 			switch( SG_Parameter_Type_Get_Type(pChild->Get_Property("type")) )
 			{
-			case PARAMETER_TYPE_Grid_System:
+			case PARAMETER_TYPE_Bool        :
+			case PARAMETER_TYPE_Int         :
+			case PARAMETER_TYPE_Double      :
+			case PARAMETER_TYPE_Degree      :
+			case PARAMETER_TYPE_Range       :
+			case PARAMETER_TYPE_String      :
+			case PARAMETER_TYPE_Text        :
+			case PARAMETER_TYPE_FilePath    :
+			case PARAMETER_TYPE_Table_Field :
+			case PARAMETER_TYPE_Table_Fields:
+				pParameter	= Tool.Add_Child("option", pChild->Get_Content());
+				break;
+
+			case PARAMETER_TYPE_Choice      :
+				pParameter	= Tool.Add_Child("option", pChild->Get_Property("index"));
+				break;
+
+			case PARAMETER_TYPE_Grid_System :
 				if( pChild->Get_Children_Count() == 0 )
 				{
-					break;
+					pParameter	= Tool.Add_Child("option", pChild->Get_Content());
 				}
+				break;
 
-			case PARAMETER_TYPE_Bool:
-			case PARAMETER_TYPE_Int:
-			case PARAMETER_TYPE_Double:
-			case PARAMETER_TYPE_Degree:
-			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_Range:
-			case PARAMETER_TYPE_Table_Field:
-			case PARAMETER_TYPE_Table_Fields:
-			case PARAMETER_TYPE_String:
-			case PARAMETER_TYPE_Text:
-			case PARAMETER_TYPE_FilePath:
-				pParameter	= Tool.Add_Child("option", pChild->Get_Content());
+			default: break;
+			}
+
+			if( pParameter )
+			{
 				pParameter->Add_Property("id"   , pChild->Get_Property("id"   ));
 				pParameter->Add_Property("parms", pChild->Get_Property("parms"));
-				break;
-
-			case PARAMETER_TYPE_FixedTable:
-			case PARAMETER_TYPE_Parameters:
-			default:
-				break;
 			}
 		}
 		else if( !pChild->Get_Name().Cmp("INPUT") )
@@ -383,19 +442,19 @@ bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_M
 //---------------------------------------------------------
 bool CSG_Module_Chain::_Save_History_Add_Input(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool)
 {
-	CSG_MetaData	*pParameter	= Tool.Add_Child("input");
+	CSG_MetaData	*pInput	= Tool.Add_Child("input");
 
-	pParameter->Add_Property("id"   , History.Get_Property("id"   ));
-	pParameter->Add_Property("parms", History.Get_Property("parms"));
+	pInput->Add_Property("id"   , History.Get_Property("id"   ));
+	pInput->Add_Property("parms", History.Get_Property("parms"));
 
 	if( !History("MODULE") || !History["MODULE"]("OUTPUT") )
 	{
-		pParameter->Fmt_Content(SG_T("%s::%s"), Tool.Get_Property("id"), History.Get_Property("id"));
+		pInput->Set_Content("__input__");
 
 		return( _Save_History_Add_Data(History, Parms, Tool, true) );
 	}
 
-	pParameter->Fmt_Content(SG_T("tool_%02d::%s"), Tool.Get_Parent()->Get_Children_Count(), History["MODULE"]["OUTPUT"].Get_Property("id"));
+	pInput->Fmt_Content(SG_T("tool_%02d::%s"), Tool.Get_Parent()->Get_Children_Count() + 1, History["MODULE"]["OUTPUT"].Get_Property("id"));
 
 	return( _Save_History_Add_Tool(History["MODULE"], Parms, *Tool.Get_Parent()) );
 }
@@ -403,12 +462,14 @@ bool CSG_Module_Chain::_Save_History_Add_Input(const CSG_MetaData &History, CSG_
 //---------------------------------------------------------
 bool CSG_Module_Chain::_Save_History_Add_Data(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool, bool bInput)
 {
-	CSG_MetaData	*pParameter	= Parms.Add_Child(bInput ? "input" : "output", CSG_String::Format(SG_T("%s::%s"), Tool.Get_Property("id"), History.Get_Property("id")));
+	CSG_MetaData	*pParameter	= Parms.Add_Child(bInput ? "input" : "output");
 
-	pParameter->Add_Property("tool", Tool   .Get_Property("id"  ));
-	pParameter->Add_Property("id"  , History.Get_Property("id"  ));
-	pParameter->Add_Property("type", History.Get_Property("type"));
-	pParameter->Add_Property("name", History.Get_Property("name"));
+	pParameter->Add_Property("tool"       , Tool   .Get_Property("id"  ));
+	pParameter->Add_Property("id"         , History.Get_Property("id"  ));
+	pParameter->Add_Property("type"       , History.Get_Property("type"));
+
+	pParameter->Add_Child   ("name"       , History.Get_Property("name"));
+	pParameter->Add_Child   ("description", History.Get_Property("name"));
 
 	return( true );
 }
