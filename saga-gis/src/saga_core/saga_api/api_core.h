@@ -313,8 +313,10 @@ public:
 
 	void							Clear				(void);
 
-	static CSG_String				Format				(const SG_Char *Format, ...);
-	int								Printf				(const SG_Char *Format, ...);
+	static CSG_String				Format				(const char    *Format, ...);
+	static CSG_String				Format				(const wchar_t *Format, ...);
+	int								Printf				(const char    *Format, ...);
+	int								Printf				(const wchar_t *Format, ...);
 
 	size_t							Replace				(const CSG_String &sOld, const CSG_String &sNew, bool bReplaceAll = true);
 
@@ -924,7 +926,8 @@ public:
 
 	bool							Flush				(void)	const;
 
-	int								Printf				(const SG_Char *Format, ...);
+	int								Printf				(const char    *Format, ...);
+	int								Printf				(const wchar_t *Format, ...);
 
 	size_t							Read				(void             *Buffer, size_t Size, size_t Count = 1)	const;
 	size_t							Write				(void             *Buffer, size_t Size, size_t Count = 1)	const;

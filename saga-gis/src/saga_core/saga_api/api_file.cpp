@@ -227,20 +227,47 @@ bool CSG_File::Flush(void) const
 }
 
 //---------------------------------------------------------
-int CSG_File::Printf(const SG_Char *Format, ...)
+int CSG_File::Printf(const char *Format, ...)
 {
-	int		result	= 0;
-
-	if( m_pStream )
+	if( !m_pStream )
 	{
-		va_list	argptr;
-
-		va_start(argptr, Format);
-
-		result	= wxVfprintf(m_pStream, Format, argptr);
-
-		va_end(argptr);
+		return( 0 );
 	}
+
+	wxString	_Format(Format);
+
+#ifdef _SAGA_LINUX
+	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+#endif
+
+	va_list	argptr;	va_start(argptr, _Format);
+
+	int	result	= wxVfprintf(m_pStream, _Format, argptr);
+
+	va_end(argptr);
+
+	return( result );
+}
+
+//---------------------------------------------------------
+int CSG_File::Printf(const wchar_t *Format, ...)
+{
+	if( !m_pStream )
+	{
+		return( 0 );
+	}
+
+	wxString	_Format(Format);
+
+#ifdef _SAGA_LINUX
+	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+#endif
+
+	va_list	argptr;	va_start(argptr, _Format);
+
+	int	result	= wxVfprintf(m_pStream, _Format, argptr);
+
+	va_end(argptr);
 
 	return( result );
 }

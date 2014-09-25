@@ -758,7 +758,7 @@ void		Create_Example	(void)
 		return;
 	}
 
-	Stream.Printf(CSG_String(
+	Stream.Printf(
 		"@ECHO OFF\n"
 		"\n"
 		"SET FLAGS=-f=q\n"
@@ -800,7 +800,7 @@ void		Create_Example	(void)
 		"saga_cmd %%FLAGS%% saga_cmd_example.txt\n"
 		"\n"
 		"PAUSE\n"
-	));
+	);
 
 	//-----------------------------------------------------
 	if( !Stream.Open(SG_File_Make_Path(SG_Dir_Get_Current(), SG_T("saga_cmd_example"), SG_T("txt")), SG_FILE_W, false) )
@@ -810,7 +810,7 @@ void		Create_Example	(void)
 		return;
 	}
 
-	Stream.Printf(CSG_String(
+	Stream.Printf(
 		"REM \'REM\' or \'#\' can be used for comments, \'ECHO\' for message output.\n"
 		"REM environment variables can be accessed using the ms-dos/window style\n"
 		"\n"
@@ -834,7 +834,7 @@ void		Create_Example	(void)
 		"\n"
 		"ECHO _____________________________________________\n"
 		"ECHO\n"
-	));
+	);
 
 	//-----------------------------------------------------
 	CMD_Print(_TL("okay"));

@@ -140,8 +140,8 @@ bool CTable_Text_Export::On_Execute(void)
 	CSG_Table	*pTable;
 
 	//-----------------------------------------------------
-	pTable		= Parameters("TABLE")		->asTable();
-	StrFormat	= Parameters("STRQUOTA")	->asBool() ? SG_T("\"%s\"") : SG_T("%s");
+	pTable		= Parameters("TABLE"   )->asTable();
+	StrFormat	= Parameters("STRQUOTA")->asBool() ? SG_T("\"%s\"") : SG_T("%s");
 
 	switch( Parameters("SEPARATOR")->asInt() )
 	{
@@ -165,7 +165,7 @@ bool CTable_Text_Export::On_Execute(void)
 		{
 			for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
 			{
-				Stream.Printf(StrFormat, pTable->Get_Field_Name(iField));
+				Stream.Printf(StrFormat.c_str(), pTable->Get_Field_Name(iField));
 				Stream.Printf(iField < pTable->Get_Field_Count() - 1 ? Separator.c_str() : SG_T("\n"));
 			}
 		}
@@ -183,7 +183,7 @@ bool CTable_Text_Export::On_Execute(void)
 				case SG_DATATYPE_Char:
 				case SG_DATATYPE_String:
 				case SG_DATATYPE_Date:
-					Stream.Printf(StrFormat		, pRecord->asString(iField));
+					Stream.Printf(StrFormat.c_str(), pRecord->asString(iField));
 					break;
 
 				case SG_DATATYPE_Short:

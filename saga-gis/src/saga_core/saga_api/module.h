@@ -276,6 +276,8 @@ protected:
 
 	bool						Error_Set					(TSG_Module_Error Error_ID = MODULE_ERROR_Unknown);
 	bool						Error_Set					(const CSG_String &Error_Text);
+	bool						Error_Fmt					(const char    *Format, ...);
+	bool						Error_Fmt					(const wchar_t *Format, ...);
 
 
 	//-----------------------------------------------------

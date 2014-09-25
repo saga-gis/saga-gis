@@ -273,25 +273,21 @@ void CSG_String::Clear(void)
 }
 
 //---------------------------------------------------------
-CSG_String CSG_String::Format(const SG_Char *Format, ...)
+CSG_String CSG_String::Format(const char *Format, ...)
 {
 	CSG_String	s;
 
-	va_list		argptr;
+	va_list	argptr;
 	
 #ifdef _SAGA_LINUX
-	/* workaround as we only use wide characters since wx 2.9.4, 
-	so interpret strings as multibyte */
-	wxString	sFormat;
-	sFormat = Format;
-	sFormat.Replace("%s", "%ls");
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
 
-	va_start(argptr, sFormat);
-
-	s.m_pString->PrintfV(sFormat, argptr);
+	va_start(argptr, _Format);
+	s.m_pString->PrintfV(_Format, argptr);
 #else
 	va_start(argptr, Format);
-
 	s.m_pString->PrintfV(Format, argptr);
 #endif
 
@@ -301,23 +297,62 @@ CSG_String CSG_String::Format(const SG_Char *Format, ...)
 }
 
 //---------------------------------------------------------
-int CSG_String::Printf(const SG_Char *Format, ...)
+CSG_String CSG_String::Format(const wchar_t *Format, ...)
+{
+	CSG_String	s;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	s.m_pString->PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	s.m_pString->PrintfV(Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	return( s );
+}
+
+//---------------------------------------------------------
+int CSG_String::Printf(const char *Format, ...)
 {
 	va_list	argptr;
 
 #ifdef _SAGA_LINUX
-	/* workaround as we only use wide characters since wx 2.9.4, 
-	so interpret strings as multibyte */
-	wxString	sFormat;
-	sFormat = Format;
-	sFormat.Replace("%s", "%ls");
-
-	va_start(argptr, sFormat);
-
-	m_pString->PrintfV(sFormat, argptr);
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	m_pString->PrintfV(_Format, argptr);
 #else
 	va_start(argptr, Format);
+	m_pString->PrintfV(Format, argptr);
+#endif
 
+	va_end(argptr);
+
+	return( (int)Length() );
+}
+
+//---------------------------------------------------------
+int CSG_String::Printf(const wchar_t *Format, ...)
+{
+	va_list	argptr;
+
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	m_pString->PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
 	m_pString->PrintfV(Format, argptr);
 #endif
 

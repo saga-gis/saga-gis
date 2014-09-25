@@ -619,6 +619,58 @@ bool CSG_Module::Error_Set(const CSG_String &Error_Text)
 	return( SG_UI_Process_Get_Okay(false) );
 }
 
+//---------------------------------------------------------
+#include <wx/string.h>
+
+bool CSG_Module::Error_Fmt(const char *Format, ...)
+{
+	wxString	Error;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	Error.PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	Error.PrintfV(Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&Error);
+
+	return( Error_Set(s) );
+}
+
+//---------------------------------------------------------
+bool CSG_Module::Error_Fmt(const wchar_t *Format, ...)
+{
+	wxString	Error;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	Error.PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	Error.PrintfV(Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&Error);
+
+	return( Error_Set(s) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
