@@ -631,7 +631,7 @@ bool CSG_Module::Error_Fmt(const char *Format, ...)
 #ifdef _SAGA_LINUX
 	// workaround as we only use wide characters
 	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
 	va_start(argptr, _Format);
 	Error.PrintfV(_Format, argptr);
 #else
@@ -656,7 +656,7 @@ bool CSG_Module::Error_Fmt(const wchar_t *Format, ...)
 #ifdef _SAGA_LINUX
 	// workaround as we only use wide characters
 	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	sFormat.Replace("%s", "%ls");
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
 	va_start(argptr, _Format);
 	Error.PrintfV(_Format, argptr);
 #else
