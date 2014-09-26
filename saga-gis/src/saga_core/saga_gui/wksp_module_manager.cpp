@@ -264,20 +264,20 @@ bool CWKSP_Module_Manager::Finalise(void)
 
 	CONFIG_Delete(CFG_LIBS);
 
-	for(int i=0, n=0; i<Get_Count(); i++, n++)
+	for(int i=0, n=0; i<Get_Count(); i++)
 	{
 		CSG_Module_Library	*pLibrary	= Get_Library(i)->Get_Library();
 
 		if( pLibrary->Get_Type() == MODULE_CHAINS )
 		{
-			for(int j=0; j<pLibrary->Get_Count(); j++, n++)
+			for(int j=0; j<pLibrary->Get_Count(); j++)
 			{
-				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n), GET_LIBPATH(pLibrary->Get_File_Name(j)));
+				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name(j)));
 			}
 		}
 		else
 		{
-			CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n), GET_LIBPATH(pLibrary->Get_File_Name()));
+			CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name()));
 		}
 	}
 

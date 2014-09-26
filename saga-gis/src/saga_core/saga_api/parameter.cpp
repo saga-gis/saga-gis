@@ -658,9 +658,14 @@ bool CSG_Parameter::Check(bool bSilent)
 //---------------------------------------------------------
 bool CSG_Parameter::Assign(CSG_Parameter *pSource)
 {
-	m_bEnabled	= pSource->m_bEnabled;
+	if( pSource )
+	{
+		m_bEnabled	= pSource->m_bEnabled;
 
-	return( m_pData->Assign(pSource->m_pData) );
+		return( m_pData->Assign(pSource->m_pData) );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

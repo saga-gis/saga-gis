@@ -113,12 +113,20 @@ private:
 
 	CSG_MetaData				m_Chain;
 
-	CSG_Data_Manager			m_Manager;
+	CSG_Parameters				m_Data;
+
+	CSG_Data_Manager			m_Data_Manager;
 
 
-	void						_Destroy				(void);
+	void						Reset					(void);
 
-	bool						Run_Tool				(const CSG_MetaData &Tool);
+	bool						Data_Add				(const CSG_String &ID, TSG_Parameter_Type Type, CSG_Data_Object *pData);
+	bool						Data_Initialize			(void);
+	bool						Data_Finalize			(void);
+
+	bool						Tool_Run				(const CSG_MetaData &Tool);
+	bool						Tool_Initialize			(const CSG_MetaData &Tool, CSG_Module *pModule);
+	bool						Tool_Finalize			(const CSG_MetaData &Tool, CSG_Module *pModule);
 
 
 //---------------------------------------------------------
