@@ -743,21 +743,21 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 		//-------------------------------------------------
 		// Header...
 
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NAME			], Get_Name() );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DESCRIPTION	], Get_Description() );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
-		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], bBinary ? gSG_Data_Type_Identifier[Get_Type()] : SG_T("ASCII") );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], bBigEndian ? GRID_FILE_KEY_TRUE : GRID_FILE_KEY_FALSE );
-		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
-		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );
-		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_X	], xN );
-		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_Y	], yN );
-		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLSIZE		], Get_Cellsize() );
-		Stream.Printf(SG_T("%s\t= %f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_FACTOR		], m_zScale );
-		Stream.Printf(SG_T("%s\t= %f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_OFFSET		], m_zOffset );
-		Stream.Printf(SG_T("%s\t= %f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NODATA_VALUE	], Get_NoData_Value() );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_TOPTOBOTTOM	], GRID_FILE_KEY_FALSE );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NAME           ], Get_Name() );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DESCRIPTION    ], Get_Description() );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_UNITNAME       ], Get_Unit() );
+		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFORMAT     ], bBinary ? gSG_Data_Type_Identifier[Get_Type()] : SG_T("ASCII") );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], bBigEndian ? GRID_FILE_KEY_TRUE : GRID_FILE_KEY_FALSE );
+		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_POSITION_XMIN  ], Get_XMin() + Get_Cellsize() * xA );
+		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_POSITION_YMIN  ], Get_YMin() + Get_Cellsize() * yA );
+		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLCOUNT_X    ], xN );
+		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLCOUNT_Y    ], yN );
+		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLSIZE       ], Get_Cellsize() );
+		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_Z_FACTOR       ], m_zScale );
+		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_Z_OFFSET       ], m_zOffset );
+		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NODATA_VALUE   ], Get_NoData_Value() );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_TOPTOBOTTOM    ], GRID_FILE_KEY_FALSE );
 
 
 		//-------------------------------------------------
