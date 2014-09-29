@@ -153,7 +153,7 @@ bool CTL_Extract::On_Execute(void)
 			Text	= Elements.Get_Record_byIndex(i)->asString(0);
 
 			CSG_Table_Record	*pRecord	= pTarget->Add_Record();
-			
+
 			pRecord->Set_Value(0, Text);
 
 			if( bLocation )
@@ -175,7 +175,7 @@ bool CTL_Extract::On_Execute(void)
 //---------------------------------------------------------
 bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Elements)
 {
-	wxString	Name;
+	wxString	Name, FullPath;
 	wxFileName	File;
 	wxDir		Dir;
 
@@ -191,7 +191,8 @@ bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Element
 		do
 		{
 			File.SetFullName(Name);
-			Read_File(&File.GetFullPath(), Elements);
+			FullPath = File.GetFullPath();
+			Read_File(&FullPath, Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
@@ -201,18 +202,21 @@ bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Element
 		do
 		{
 			File.SetFullName(Name);
-			Read_File(&File.GetFullPath(), Elements);
+			FullPath = File.GetFullPath();
+			Read_File(&FullPath, Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
 
 	if(	Dir.GetFirst(&Name, wxT("*")    , wxDIR_DIRS |wxDIR_HIDDEN) )
 	{
+		wxString	Directory;
 		do
 		{
 			File.AssignDir(Directory.c_str());
 			File.AppendDir(Name);
-			Read_Directory(&File.GetPath(), Elements);
+			Directory = File.GetPath();
+			Read_Directory(&Directory, Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
@@ -266,7 +270,7 @@ bool CTL_Extract::Read_File(const CSG_String &File, CSG_Table &Elements)
 			if( Text.Length() > 0 )
 			{
 				CSG_Table_Record	*pRecord	= Elements.Add_Record();
-				
+
 				pRecord->Set_Value(0, Text);
 				pRecord->Set_Value(1, File);
 			}
