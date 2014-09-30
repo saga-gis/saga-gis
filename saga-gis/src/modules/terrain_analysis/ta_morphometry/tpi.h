@@ -88,7 +88,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
@@ -98,7 +100,7 @@ private:
 	CSG_Grid				*m_pDEM, *m_pTPI;
 
 
-	bool					Get_Statistics	(int x, int y);
+	bool					Get_Statistics			(int x, int y);
 
 };
 
@@ -118,7 +120,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:

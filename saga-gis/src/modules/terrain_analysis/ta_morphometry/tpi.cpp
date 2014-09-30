@@ -84,6 +84,7 @@ CTPI::CTPI(void)
 		"Topographic Position Index (TPI) calculation as proposed by Guisan et al. (1999). "
 		"This is literally the same as the difference to the mean calculation (residual analysis) "
 		"proposed by Wilson & Gallant (2000).\n"
+		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius.\n"
 		"\n"
 		"References:\n"
 		"- Guisan, A., Weiss, S.B., Weiss, A.D. (1999): GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.\n"
@@ -120,10 +121,20 @@ CTPI::CTPI(void)
 	);
 
 	m_Cells.Get_Weighting().Set_BandWidth(75.0);	// 75%
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("bandwidth has to be given as percentage of the (outer) radius")
-	)->asParameters()->Assign(m_Cells.Get_Weighting().Get_Parameters());
+	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CTPI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Cells.Get_Weighting().Enable_Parameters(pParameters);
+
+	return( 1 );
 }
 
 
@@ -134,8 +145,8 @@ CTPI::CTPI(void)
 //---------------------------------------------------------
 bool CTPI::On_Execute(void)
 {
-	m_pDEM		= Parameters("DEM")	->asGrid();
-	m_pTPI		= Parameters("TPI")	->asGrid();
+	m_pDEM		= Parameters("DEM")->asGrid();
+	m_pTPI		= Parameters("TPI")->asGrid();
 
 	DataObject_Set_Colors(m_pTPI, 100, SG_COLORS_RED_GREY_BLUE, true);
 
@@ -143,7 +154,7 @@ bool CTPI::On_Execute(void)
 	double	r_inner	= Parameters("RADIUS")->asRange()->Get_LoVal() / Get_Cellsize();
 	double	r_outer	= Parameters("RADIUS")->asRange()->Get_HiVal() / Get_Cellsize();
 
-	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
 	m_Cells.Get_Weighting().Set_BandWidth(r_outer * m_Cells.Get_Weighting().Get_BandWidth() / 100.0);
 
 	if( !m_Cells.Set_Annulus(r_inner, r_outer) )
@@ -233,6 +244,7 @@ CTPI_Classification::CTPI_Classification(void)
 		"Topographic Position Index (TPI) calculation as proposed by Guisan et al. (1999). "
 		"This is literally the same as the difference to the mean calculation (residual analysis) "
 		"proposed by Wilson & Gallant (2000).\n"
+		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius.\n"
 		"\n"
 		"References:\n"
 		"- Guisan, A., Weiss, S.B., Weiss, A.D. (1999): GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.\n"
@@ -269,10 +281,7 @@ CTPI_Classification::CTPI_Classification(void)
 	);
 
 	m_Weighting.Set_BandWidth(75.0);	// 75%
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("bandwidth has to be given as percentage of the (outer) radius")
-	)->asParameters()->Assign(m_Weighting.Get_Parameters());
+	m_Weighting.Create_Parameters(&Parameters, false);
 }
 
 
@@ -302,6 +311,19 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CTPI_Classification::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Weighting.Enable_Parameters(pParameters);
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CTPI_Classification::On_Execute(void)
 {
 	//-----------------------------------------------------
@@ -312,8 +334,8 @@ bool CTPI_Classification::On_Execute(void)
 
 	TPI.Set_Manager(NULL);
 
-	TPI.Get_Parameters()->Set_Parameter("DEM"      , Parameters("DEM"      ));
-	TPI.Get_Parameters()->Set_Parameter("WEIGHTING", Parameters("WEIGHTING"));
+	TPI.Get_Parameters()->Assign_Values(&Parameters);	// set DEM and Weighting scheme
+
 	TPI.Get_Parameters()->Get_Parameter("STANDARD")->Set_Value(true);
 
 	//-----------------------------------------------------
