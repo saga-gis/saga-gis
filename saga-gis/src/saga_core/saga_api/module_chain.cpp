@@ -635,7 +635,7 @@ bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_M
 	//-----------------------------------------------------
 	const CSG_MetaData	&Output	= History["OUTPUT"];
 
-	CSG_String	VarName	= CSG_String::Format("%s__%s", Tool_ID, Output.Get_Property("id"));
+	CSG_String	VarName	= CSG_String::Format("%s__%s", Tool_ID.c_str(), Output.Get_Property("id"));
 
 	pParameter	= Tool.Add_Child("output", VarName);
 	pParameter->Add_Property("id"   , Output.Get_Property("id"   ));
