@@ -99,6 +99,8 @@ public:
 
 	bool						is_Okay					(void)	const	{	return( m_Chain.Get_Children_Count() > 0 );	}
 
+	virtual CSG_String			Get_MenuPath			(void)			{	return( m_Menu );	}
+
 	const CSG_String &			Get_Library_Name		(void)	const	{	return( m_Library_Name );	}
 
 
@@ -109,7 +111,7 @@ protected:
 
 private:
 
-	CSG_String					m_Library_Name;
+	CSG_String					m_Library_Name, m_Menu;
 
 	CSG_MetaData				m_Chain;
 
@@ -121,6 +123,7 @@ private:
 	void						Reset					(void);
 
 	bool						Data_Add				(const CSG_String &ID, TSG_Parameter_Type Type, CSG_Data_Object *pData);
+	bool						Data_Exists				(CSG_Data_Object *pData);
 	bool						Data_Initialize			(void);
 	bool						Data_Finalize			(void);
 
@@ -134,7 +137,6 @@ public: 	static bool			Save_History_to_Model		(const CSG_MetaData &History, cons
 
 private:	static bool			_Save_History_Add_Tool		(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tools, bool bAddOutput = false);
 private:	static bool			_Save_History_Add_Input		(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool);
-private:	static bool			_Save_History_Add_Data		(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool, bool bInput);
 
 };
 

@@ -551,9 +551,9 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
 		m_pLibraries[m_nLibraries++]	= pLibrary	= new CSG_Module_Chains(
 			pModule->Get_Library(),
-			pModule->Get_Library_Name(),
-			pModule->Get_Library_Name(),
-			pModule->Get_Library_Name()
+			_TL("Tool Chains"),
+			_TL("Tool Chains"),
+			_TL("Tool Chains")
 		);
 	}
 
