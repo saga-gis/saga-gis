@@ -117,10 +117,6 @@ CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 	);
 }
 
-//---------------------------------------------------------
-CGrid_Flow_Profile::~CGrid_Flow_Profile(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -131,12 +127,37 @@ CGrid_Flow_Profile::~CGrid_Flow_Profile(void)
 //---------------------------------------------------------
 bool CGrid_Flow_Profile::On_Execute(void)
 {
-	m_pDEM		= Parameters("DEM")		->asGrid();
-	m_pValues	= Parameters("VALUES")	->asGridList();
-	m_pPoints	= Parameters("POINTS")	->asShapes();
-	m_pLine		= Parameters("LINE")	->asShapes();
+	m_pDEM		= Parameters("DEM"   )->asGrid();
+	m_pValues	= Parameters("VALUES")->asGridList();
+	m_pPoints	= Parameters("POINTS")->asShapes();
+	m_pLines	= Parameters("LINE"  )->asShapes();
 
-	DataObject_Update(m_pDEM, true);
+	//-----------------------------------------------------
+	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
+
+	m_pPoints->Add_Field("ID"           , SG_DATATYPE_Int);
+	m_pPoints->Add_Field(_TL("Distance"), SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Overland"), SG_DATATYPE_Double);
+	m_pPoints->Add_Field("X"            , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Y"            , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z"            , SG_DATATYPE_Double);
+
+	for(int i=0; i<m_pValues->Get_Count(); i++)
+	{
+		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+	}
+
+	//-----------------------------------------------------
+	m_pLines->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", m_pDEM->Get_Name(), _TL("Profile")));
+	m_pLines->Add_Field("ID"	, SG_DATATYPE_Int);
+	m_pLine	= m_pLines->Add_Shape();
+	m_pLine->Set_Value(0, 1);
+
+	//-----------------------------------------------------
+	DataObject_Update(m_pDEM  , SG_UI_DATAOBJECT_SHOW_NEW_MAP );
+	DataObject_Update(m_pLines, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+
+	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
 
 	return( true );
 }
@@ -153,15 +174,13 @@ bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inter
 {
 	switch( Mode )
 	{
-	default:
-		break;
-
 	case MODULE_INTERACTIVE_LDOWN:
-		Set_Profile(Get_System()->Fit_to_Grid_System(ptWorld));
-		break;
-	}
+	case MODULE_INTERACTIVE_MOVE_LDOWN:
+		return( Set_Profile(Get_System()->Fit_to_Grid_System(ptWorld)) );
 
-	return( true );
+	default:
+		return( false );
+	}
 }
 
 
@@ -174,112 +193,77 @@ bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inter
 //---------------------------------------------------------
 bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 {
-	int			x, y, i;
+	int		x, y;
+
+	if( !Get_System()->Get_World_to_Grid(x, y, ptWorld) || !m_pDEM->is_InGrid(x, y) )
+	{
+		return( false );
+	}
+
+	m_pPoints->Del_Shapes();
+	m_pLine  ->Del_Parts ();
 
 	//-----------------------------------------------------
-	if( Get_System()->Get_World_to_Grid(x, y, ptWorld) && m_pDEM->is_InGrid(x, y) )
-	{
-		m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
-
-		m_pPoints->Add_Field("ID"				, SG_DATATYPE_Int);
-		m_pPoints->Add_Field(_TL("Distance")			, SG_DATATYPE_Double);
-		m_pPoints->Add_Field(_TL("Distance Overland"), SG_DATATYPE_Double);
-		m_pPoints->Add_Field("X"				, SG_DATATYPE_Double);
-		m_pPoints->Add_Field("Y"				, SG_DATATYPE_Double);
-		m_pPoints->Add_Field("Z"				, SG_DATATYPE_Double);
-
-		for(i=0; i<m_pValues->Get_Count(); i++)
-		{
-			m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
-		}
-
-		//-----------------------------------------------------
-		m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
-		m_pLine->Add_Field("ID"	, SG_DATATYPE_Int);
-		m_pLine->Add_Shape()->Set_Value(0, 1);
-
-		//-----------------------------------------------------
-		Set_Profile(x, y);
-
-		//-----------------------------------------------------
-		DataObject_Update(m_pLine	, false);
-		DataObject_Update(m_pPoints	, false);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CGrid_Flow_Profile::Set_Profile(int x, int y)
-{
 	int		Direction;
 
-	if( Add_Point(x, y) && (Direction = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+	while( Add_Point(x, y) && (Direction = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
 	{
-		Set_Profile(
-			Get_System()->Get_xTo(Direction, x),
-			Get_System()->Get_yTo(Direction, y)
-		);
-
-		return( true );
+		x	+= Get_System()->Get_xTo(Direction);
+		y	+= Get_System()->Get_yTo(Direction);
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CGrid_Flow_Profile::Add_Point(int x, int y)
 {
-	int			i;
-	double		z, Distance, Distance_2;
-	TSG_Point	Point;
-	CSG_Shape		*pPoint, *pLast;
-
-	if( m_pDEM->is_InGrid(x, y) )
+	if( !m_pDEM->is_InGrid(x, y) )
 	{
-		z		= m_pDEM->asDouble(x, y);
-		Point	= Get_System()->Get_Grid_to_World(x, y);
-
-		if( m_pPoints->Get_Count() == 0 )
-		{
-			Distance	= 0.0;
-			Distance_2	= 0.0;
-		}
-		else
-		{
-			pLast		= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
-			Distance	= SG_Get_Distance(Point, pLast->Get_Point(0));
-
-			Distance_2	= pLast->asDouble(5) - z;
-			Distance_2	= sqrt(Distance*Distance + Distance_2*Distance_2);
-
-			Distance	+= pLast->asDouble(1);
-			Distance_2	+= pLast->asDouble(2);
-		}
-
-		pPoint	= m_pPoints->Add_Shape();
-		pPoint->Add_Point(Point);
-
-		pPoint->Set_Value(0, m_pPoints->Get_Count());
-		pPoint->Set_Value(1, Distance);
-		pPoint->Set_Value(2, Distance_2);
-		pPoint->Set_Value(3, Point.x);
-		pPoint->Set_Value(4, Point.y);
-		pPoint->Set_Value(5, z);
-
-		for(i=0; i<m_pValues->Get_Count(); i++)
-		{
-			pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y));
-		}
-
-		m_pLine->Get_Shape(0)->Add_Point(Point);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	TSG_Point	Point	= Get_System()->Get_Grid_to_World(x, y);
+
+	double	d, dSurface;
+
+	if( m_pPoints->Get_Count() == 0 )
+	{
+		d	= dSurface	= 0.0;
+	}
+	else
+	{
+		CSG_Shape	*pLast	= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
+
+		d			= SG_Get_Distance(Point, pLast->Get_Point(0));
+
+		dSurface	= pLast->asDouble(5) - m_pDEM->asDouble(x, y);
+		dSurface	= sqrt(d*d + dSurface*dSurface);
+
+		d			+= pLast->asDouble(1);
+		dSurface	+= pLast->asDouble(2);
+	}
+
+	CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
+
+	pPoint->Add_Point(Point);
+
+	pPoint->Set_Value(0, m_pPoints->Get_Count());
+	pPoint->Set_Value(1, d);
+	pPoint->Set_Value(2, dSurface);
+	pPoint->Set_Value(3, Point.x);
+	pPoint->Set_Value(4, Point.y);
+	pPoint->Set_Value(5, m_pDEM->asDouble(x, y));
+
+	for(int i=0; i<m_pValues->Get_Count(); i++)
+	{
+		pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y));
+	}
+
+	m_pLine->Add_Point(Point);
+
+	return( true );
 }
 
 

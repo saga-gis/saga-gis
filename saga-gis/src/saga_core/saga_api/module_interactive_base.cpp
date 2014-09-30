@@ -98,28 +98,31 @@ CSG_Module_Interactive_Base::~CSG_Module_Interactive_Base(void)
 //---------------------------------------------------------
 bool CSG_Module_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys)
 {
-	bool	bResult	= false;
-
-	if( m_pModule && !m_pModule->m_bExecutes )
+	if( !m_pModule || m_pModule->m_bExecutes )
 	{
-		m_pModule->m_bExecutes		= true;
-		m_pModule->m_bError_Ignore	= false;
-
-		m_Point_Last				= m_Point;
-		m_Point						= ptWorld;
-
-		m_Keys						= Keys;
-
-		bResult						= On_Execute_Position(m_Point, Mode);
-
-		m_Keys						= 0;
-
-		m_pModule->_Synchronize_DataObjects();
-
-		m_pModule->m_bExecutes		= false;
-
-		SG_UI_Process_Set_Okay();
+		return( false );
 	}
+
+	m_pModule->m_bExecutes		= true;
+	m_pModule->m_bError_Ignore	= false;
+
+	m_Point_Last	= m_Point;
+	m_Point			= ptWorld;
+
+	m_Keys			= Keys;
+
+	bool	bResult	= On_Execute_Position(m_Point, Mode);
+
+	m_Keys			= 0;
+
+	if( bResult )
+	{
+		m_pModule->_Synchronize_DataObjects();
+	}
+
+	m_pModule->m_bExecutes		= false;
+
+	SG_UI_Process_Set_Okay();
 
 	return( bResult );
 }
