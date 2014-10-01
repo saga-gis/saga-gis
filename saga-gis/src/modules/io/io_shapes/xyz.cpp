@@ -86,7 +86,7 @@ CXYZ_Export::CXYZ_Export(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+		NULL	, "POINTS"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -130,18 +130,18 @@ bool CXYZ_Export::On_Execute(void)
 	bool		bHeader;
 	int			Field, off_Field, Separate;
 	CSG_File	Stream;
-	CSG_Shapes	*pShapes;
+	CSG_Shapes	*pPoints;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES"  )->asShapes();
+	pPoints		= Parameters("POINTS"  )->asShapes();
 	bHeader		= Parameters("HEADER"  )->asBool();
 	Field		= Parameters("FIELD"   )->asInt();
-	Separate	= pShapes->Get_Type() == SHAPE_TYPE_Point ? 0
+	Separate	= pPoints->Get_Type() == SHAPE_TYPE_Point ? 0
 				: Parameters("SEPARATE")->asInt();
-	off_Field	= pShapes->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? 2 : 0;
+	off_Field	= pPoints->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? 2 : 0;
 
 	//-----------------------------------------------------
-	if( pShapes->Get_Field_Count() == 0 )
+	if( pPoints->Get_Field_Count() == 0 )
 	{
 		Error_Set(_TL("data set has no attributes"));
 
@@ -163,9 +163,9 @@ bool CXYZ_Export::On_Execute(void)
 
 		if( Field < 0 )
 		{
-			for(int iField=off_Field; iField<pShapes->Get_Field_Count(); iField++)
+			for(int iField=off_Field; iField<pPoints->Get_Field_Count(); iField++)
 			{
-				Stream.Printf(SG_T("\t%s"), pShapes->Get_Field_Name(iField));
+				Stream.Printf(SG_T("\t%s"), pPoints->Get_Field_Name(iField));
 			}
 		}
 		else
@@ -177,9 +177,9 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
 
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -202,9 +202,9 @@ bool CXYZ_Export::On_Execute(void)
 
 				if( Field < 0 )
 				{
-					for(int iField=off_Field; iField<pShapes->Get_Field_Count(); iField++)
+					for(int iField=off_Field; iField<pPoints->Get_Field_Count(); iField++)
 					{
-						switch( pShapes->Get_Field_Type(iField) )
+						switch( pPoints->Get_Field_Type(iField) )
 						{
 						case SG_DATATYPE_String:
 						case SG_DATATYPE_Date:
@@ -217,7 +217,7 @@ bool CXYZ_Export::On_Execute(void)
 						}
 					}
 				}
-				else switch( pShapes->Get_Field_Type(Field) )
+				else switch( pPoints->Get_Field_Type(Field) )
 				{
 				case SG_DATATYPE_String:
 				case SG_DATATYPE_Date:
@@ -256,32 +256,22 @@ CXYZ_Import::CXYZ_Import(void)
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Point shapes import from text formated XYZ-table."
+		"Imports points from a table with only list of x, y, z coordinates provided as simple text. "
+		"If your table has a more complex structure, you should import it as table "
+		"and then use the \'points from table\' conversion tool. "
 	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Points"),
+		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-//	Parameters.Add_Value(
-//		NULL	, "HEADLINE"	, "File contains headline",
-//		_TL(""),
-//		PARAMETER_TYPE_Bool		, true
-//	);
-
 	Parameters.Add_Value(
-		pNode	, "X_FIELD"		, _TL("X Column"),
+		NULL	, "HEADLINE"	, "File contains headline",
 		_TL(""),
-		PARAMETER_TYPE_Int		, 1, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "Y_FIELD"		, _TL("Y Column"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 2, 1, true
+		PARAMETER_TYPE_Bool		, true
 	);
 
 	Parameters.Add_FilePath(
@@ -298,55 +288,50 @@ CXYZ_Import::CXYZ_Import(void)
 //---------------------------------------------------------
 bool CXYZ_Import::On_Execute(void)
 {
-	CSG_Table	Table;
+	CSG_File	Stream;
 
-	//-----------------------------------------------------
-	if( !Table.Create(Parameters("FILENAME")->asString()) )	// Parameters("HEADLINE")->asBool()
+	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R) )
 	{
-		Error_Set(_TL("Table could not be opened."));
+		Error_Set(_TL("file could not be opened"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( Table.Get_Record_Count() <= 0 )
-	{
-		Error_Set(_TL("Table does not contain any data."));
+	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
 
-		return( false );
+	pPoints->Create(SHAPE_TYPE_Point, SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
+
+	pPoints->Add_Field("Z", SG_DATATYPE_Double);
+
+	//-----------------------------------------------------
+	if( Parameters("HEADLINE")->asBool() )
+	{
+		CSG_String	sLine;
+
+		if( !Stream.Read_Line(sLine) )
+		{
+			Error_Set(_TL("could not read headline"));
+
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
-	int	xField	= Parameters("X_FIELD")->asInt() - 1;
-	int	yField	= Parameters("Y_FIELD")->asInt() - 1;
+	long	Length	= Stream.Length();
 
-	if( xField == yField
-	||  xField < 0 || xField >= Table.Get_Field_Count()
-	||  yField < 0 || yField >= Table.Get_Field_Count() )
+	double	x, y, z;
+
+	while( Stream.Scan(x) && Stream.Scan(y) && Stream.Scan(z) && Set_Progress(Stream.Tell(), Length) )
 	{
-		Error_Set(_TL("Invalid X/Y fields."));
+		CSG_Shape	*pPoint	= pPoints->Add_Shape();
 
-		return( false );
+		pPoint->Add_Point(x, y);
+
+		pPoint->Set_Value(0, z);
 	}
 
-	//-----------------------------------------------------
-	CSG_Shapes	*pShapes	= Parameters("SHAPES" )->asShapes();
-
-	pShapes->Create(SHAPE_TYPE_Point, Table.Get_Name(), &Table);
-
-	for(int iRecord=0; iRecord<Table.Get_Record_Count(); iRecord++)
-	{
-		CSG_Table_Record	*pRecord	= Table.Get_Record(iRecord);
-
-		CSG_Shape	*pShape	= pShapes->Add_Shape(pRecord);
-
-		pShape->Add_Point(
-			pRecord->asDouble(xField),
-			pRecord->asDouble(yField)
-		);
-	}
-
-	return( true );
+	return( pPoints->Get_Count() > 0 );
 }
 
 
