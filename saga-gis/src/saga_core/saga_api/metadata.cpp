@@ -437,21 +437,43 @@ bool CSG_MetaData::Cmp_Name(const CSG_String &String, bool bNoCase) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_MetaData::Fmt_Content(const SG_Char *Format, ...)
+void CSG_MetaData::Fmt_Content(const char *Format, ...)
 {
 	wxString	s;
-	va_list		argptr;
 
+	va_list	argptr;
+
+#ifdef _SAGA_LINUX
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_start(argptr, _Format);
+	s.PrintfV(_Format, argptr);
+#else
 	va_start(argptr, Format);
+	s.PrintfV(Format, argptr);
+#endif
 
-	if( s.PrintfV(Format, argptr) > 0 )
-	{
-		m_Content	= s.wc_str();
-	}
-	else
-	{
-		m_Content.Clear();
-	}
+	m_Content	= CSG_String(&s);
+
+	va_end(argptr);
+}
+
+//---------------------------------------------------------
+void CSG_MetaData::Fmt_Content(const wchar_t *Format, ...)
+{
+	wxString	s;
+
+	va_list	argptr;
+
+#ifdef _SAGA_LINUX
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_start(argptr, _Format);
+	s.PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	s.PrintfV(Format, argptr);
+#endif
+
+	m_Content	= CSG_String(&s);
 
 	va_end(argptr);
 }
