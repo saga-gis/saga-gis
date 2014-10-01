@@ -286,8 +286,9 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Bool );	}
 
-	virtual bool				Set_Value				(int    Value);
-	virtual bool				Set_Value				(double Value);
+	virtual bool				Set_Value				(int               Value);
+	virtual bool				Set_Value				(double            Value);
+	virtual bool				Set_Value				(const CSG_String &Value);
 
 	virtual int					asInt					(void)	const	{	return( m_Value );		}
 

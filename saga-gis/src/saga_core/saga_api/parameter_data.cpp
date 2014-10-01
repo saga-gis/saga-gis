@@ -375,6 +375,28 @@ bool CSG_Parameter_Bool::Set_Value(double Value)
 	return( Set_Value((int)Value) );
 }
 
+bool CSG_Parameter_Bool::Set_Value(const CSG_String &Value)
+{
+	int		i;
+
+	if( !Value.CmpNoCase("true") )
+	{
+		return( Set_Value(1) );
+	}
+
+	if( !Value.CmpNoCase("false") )
+	{
+		return( Set_Value(0) );
+	}
+
+	if( Value.asInt(i) )
+	{
+		return( Set_Value(i) );
+	}
+
+	return( false );
+}
+
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Bool::asString(void)
 {
