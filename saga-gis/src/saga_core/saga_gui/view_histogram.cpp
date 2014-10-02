@@ -100,6 +100,8 @@ public:
 
 	void							Draw				(wxDC &dc, wxRect rDraw);
 
+	void							ToClipboard			(void);
+
 
 private:
 
@@ -450,6 +452,31 @@ wxRect CVIEW_Histogram_Control::_Draw_Get_rDiagram(wxRect r)
 	));
 }
 
+//---------------------------------------------------------
+#include <wx/clipbrd.h>
+
+void CVIEW_Histogram_Control::ToClipboard(void)
+{
+	wxBitmap	BMP(GetSize());
+	wxMemoryDC	dc;
+	
+	dc.SelectObject(BMP);
+	dc.SetBackground(*wxWHITE_BRUSH);
+	dc.Clear();
+
+	Draw(dc, wxRect(BMP.GetSize()));
+
+	dc.SelectObject(wxNullBitmap);
+
+	if( wxTheClipboard->Open() )
+	{
+		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		pBMP->SetBitmap(BMP);
+		wxTheClipboard->SetData(pBMP);
+		wxTheClipboard->Close();
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -465,6 +492,7 @@ BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
 	EVT_MENU			(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative)
 	EVT_UPDATE_UI		(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative_UI)
 	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_Histogram::On_AsTable)
+	EVT_MENU			(ID_CMD_HISTOGRAM_TO_CLIPBOARD  , CVIEW_Histogram::On_ToClipboard)
 END_EVENT_TABLE()
 
 
@@ -490,7 +518,9 @@ wxMenu * CVIEW_Histogram::_Create_Menu(void)
 	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
 
 	return( pMenu );
 }
@@ -502,6 +532,7 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
+//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Histogram"));
 
@@ -589,6 +620,12 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 
 		g_pData->Add(pTable);
 	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_ToClipboard(wxCommandEvent &event)
+{
+	m_pControl->ToClipboard();
 }
 
 

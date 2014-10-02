@@ -103,6 +103,7 @@ private:
 	void							On_Cumulative		(wxCommandEvent  &event);
 	void							On_Cumulative_UI	(wxUpdateUIEvent &event);
 	void							On_AsTable			(wxCommandEvent  &event);
+	void							On_ToClipboard		(wxCommandEvent  &event);
 
 
 	//-----------------------------------------------------
