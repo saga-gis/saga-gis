@@ -76,17 +76,22 @@
 class CTable_Cluster_Analysis : public CSG_Module
 {
 public:
-	CTable_Cluster_Analysis(void);
+	CTable_Cluster_Analysis(bool bShapes);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( m_bShapes ? _TL("A:Shapes|Table") : _TL("") );	}
 
 
 protected:
 
-	virtual bool			On_Execute				(void);
+	virtual bool			On_Execute		(void);
 
 
 private:
 
-	void					Save_Statistics			(CSG_Table *pTable, int *Features, bool bNormalize, const CSG_Cluster_Analysis &Analysis);
+	bool					m_bShapes;
+
+
+	void					Save_Statistics	(CSG_Table *pTable, int *Features, bool bNormalize, const CSG_Cluster_Analysis &Analysis);
 
 };
 

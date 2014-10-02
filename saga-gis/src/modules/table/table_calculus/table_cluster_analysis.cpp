@@ -69,14 +69,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Cluster_Analysis::CTable_Cluster_Analysis(void)
+CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 {
+	m_bShapes	= bShapes;
+
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Cluster Analysis"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Cluster Analysis for grids.\n\nReferences:\n\n"
@@ -93,11 +95,18 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	if( m_bShapes )
+	{
+		pNode	= 
+		Parameters.Add_Shapes(NULL, "INPUT" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Shapes(NULL, "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	}
+	else
+	{
+		pNode	=
+		Parameters.Add_Table(NULL, "INPUT"  , _TL("Table" ), _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Table(NULL, "RESULT" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	}
 
 	Parameters.Add_Table_Fields(
 		pNode	, "FIELDS"		, _TL("Attributes"),
@@ -108,12 +117,6 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(void)
 		pNode	, "CLUSTER"		, _TL("Cluster"),
 		_TL(""),
 		true
-	);
-
-	Parameters.Add_Table(
-		NULL	, "RESULT"		, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table(
@@ -182,13 +185,20 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 		return( false );
 	}
 
-	if( pTable && pTable != Parameters("TABLE")->asTable() )
+	if( pTable && pTable != Parameters("INPUT")->asTable() )
 	{
-		pTable->Create(*Parameters("TABLE")->asTable());
+		if( m_bShapes )
+		{
+			((CSG_Shapes *)pTable)->Create(*Parameters("INPUT")->asShapes());
+		}
+		else
+		{
+			pTable->Create(*Parameters("INPUT")->asTable());
+		}
 	}
 	else
 	{
-		pTable	= Parameters("TABLE")->asTable();
+		pTable	= Parameters("INPUT")->asTable();
 	}
 
 	if( Cluster < 0 )

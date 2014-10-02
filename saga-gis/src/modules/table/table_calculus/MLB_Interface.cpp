@@ -117,7 +117,8 @@ CSG_Module *		Create_Module(int i)
 	case  2:	return( new CTable_Calculator_Shapes );
 
 	case  5:	return( new CTable_Running_Average );
-	case  6:	return( new CTable_Cluster_Analysis );
+	case  6:	return( new CTable_Cluster_Analysis(false) );
+	case 14:	return( new CTable_Cluster_Analysis(true) );
 	case  7:	return( new CTable_PCA );
 
 	case  8:	return( new CTable_Fill_Record_Gaps );
