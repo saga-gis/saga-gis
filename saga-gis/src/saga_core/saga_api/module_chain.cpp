@@ -268,20 +268,33 @@ bool CSG_Module_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 		return( false );
 	}
 
+	switch( pData->Get_Type() )
+	{
+	case PARAMETER_TYPE_PointCloud     : m_Data.Add_PointCloud     (NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_Grid           : m_Data.Add_Grid           (NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_Table          : m_Data.Add_Table          (NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_Shapes         : m_Data.Add_Shapes         (NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_TIN            : m_Data.Add_TIN            (NULL, ID, "", "", 0)->Assign(pData);	break;
+
+	case PARAMETER_TYPE_PointCloud_List: m_Data.Add_PointCloud_List(NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_Grid_List      : m_Data.Add_Grid_List      (NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_Table_List     : m_Data.Add_Table_List     (NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_Shapes_List    : m_Data.Add_Shapes_List    (NULL, ID, "", "", 0)->Assign(pData);	break;
+	case PARAMETER_TYPE_TIN_List       : m_Data.Add_TIN_List       (NULL, ID, "", "", 0)->Assign(pData);	break;
+
+	default: return( false );
+	}
+
 	if( pData->is_DataObject() )
 	{
-		switch( pData->Get_Type() )
-		{
-		case PARAMETER_TYPE_PointCloud:	m_Data.Add_PointCloud(NULL, ID, "", "", 0)->Assign(pData);	break;
-		case PARAMETER_TYPE_Grid      :	m_Data.Add_Grid      (NULL, ID, "", "", 0)->Assign(pData);	break;
-		case PARAMETER_TYPE_Table     :	m_Data.Add_Table     (NULL, ID, "", "", 0)->Assign(pData);	break;
-		case PARAMETER_TYPE_Shapes    :	m_Data.Add_Shapes    (NULL, ID, "", "", 0)->Assign(pData);	break;
-		case PARAMETER_TYPE_TIN       :	m_Data.Add_TIN       (NULL, ID, "", "", 0)->Assign(pData);	break;
-
-		default: return( false );
-		}
-
 		m_Data_Manager.Add(pData->asDataObject());
+	}
+	else if( pData->is_DataObject_List() )
+	{
+		for(int i=0; i<pData->asList()->Get_Count(); i++)
+		{
+			m_Data_Manager.Add(pData->asList()->asDataObject(i));
+		}
 	}
 
 	return( true );
@@ -330,11 +343,18 @@ bool CSG_Module_Chain::Data_Initialize(void)
 //---------------------------------------------------------
 bool CSG_Module_Chain::Data_Finalize(void)
 {
-	for(int i=0; i<Parameters.Get_Count(); i++)
+	for(int i=0; i<Parameters.Get_Count(); i++)	// detach non temporary data before freeing the local data manager !!!
 	{
 		if( Parameters(i)->is_DataObject() )
 		{
-			m_Data_Manager.Delete(Parameters(i)->asDataObject(), true);	// detach non temporary data !!!
+			m_Data_Manager.Delete(Parameters(i)->asDataObject(), true);
+		}
+		else if( Parameters(i)->is_DataObject_List() )
+		{
+			for(int j=0; j<Parameters(i)->asList()->Get_Count(); j++)
+			{
+				m_Data_Manager.Delete(Parameters(i)->asList()->asDataObject(j), true);
+			}
 		}
 	}
 
@@ -376,6 +396,7 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 
 	//-----------------------------------------------------
 	Process_Set_Text(pModule->Get_Name());
+	Message_Add(CSG_String::Format("\n%s: %s", _TL("Run Tool"), pModule->Get_Name().c_str()), false);
 
 	pModule->Settings_Push(&m_Data_Manager);
 
@@ -412,7 +433,8 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 	CSG_String	Tool_ID	= Tool.Get_Property("id");
 
-	for(i=0; i<Tool.Get_Children_Count(); i++)
+	//-----------------------------------------------------
+	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data objects first
 	{
 		const CSG_MetaData	&Parameter	= Tool[i];
 
@@ -439,22 +461,22 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 				return( false );
 			}
 
-			if( pParameter->is_DataObject() )
+			if( pParameter->is_DataObject() || pParameter->is_DataObject_List() )
 			{
-				if( !pParameter->Assign(pData) )
+				if( pParameter->Get_Type() == pData->Get_Type() )
 				{
-					return( false );
+					if( !pParameter->Assign(pData) )
+					{
+						return( false );
+					}
 				}
-			}
-			else if( pParameter->is_DataObject_List() )
-			{
-				if( !pParameter->asList()->Add_Item(pData->asDataObject()) )
+				else if( pParameter->is_DataObject_List() && pData->is_DataObject() )
 				{
-					return( false );
+					pParameter->asList()->Add_Item(pData->asDataObject());
 				}
-			}
 
-			pParameter->has_Changed();
+				pParameter->has_Changed();
+			}
 		}
 		else if( Parameter.Cmp_Name("output") )
 		{
@@ -462,6 +484,27 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 			{
 				pParameter->Set_Value(DATAOBJECT_CREATE);
 			}
+		}
+	}
+
+	//-----------------------------------------------------
+	for(i=0; i<Tool.Get_Children_Count(); i++)	// now set options
+	{
+		const CSG_MetaData	&Parameter	= Tool[i];
+
+		CSG_String	ID	= Parameter.Get_Property("id");
+
+		CSG_Parameter	*pParameter	= pModule->Get_Parameters(Parameter.Get_Property("parms"))
+			? pModule->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID)
+			: pModule->Get_Parameters()->Get_Parameter(ID);
+
+		if( !pParameter )
+		{
+			return( false );
+		}
+		else if( Parameter.Cmp_Name("option") )
+		{
+			pParameter->Set_Value(Parameter.Get_Content());
 		}
 	}
 
@@ -511,7 +554,7 @@ bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModu
 	}
 
 	//-----------------------------------------------------
-	for(i=-1; i<pModule->Get_Parameters_Count(); i++)	// free all data objects that have not been added to variable list
+	for(i=-1; i<pModule->Get_Parameters_Count(); i++)	// save memory: free all data objects that have not been added to variable list
 	{
 		CSG_Parameters	*pParameters	= i < 0 ? pModule->Get_Parameters() : pModule->Get_Parameters(i);
 
@@ -521,18 +564,21 @@ bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModu
 
 			if( pParameter->is_Output() )
 			{
-				if( !Data_Exists(pParameter->asDataObject()) )
+				if( pParameter->is_DataObject() )
 				{
-					m_Data_Manager.Delete(pParameter->asDataObject());
-				}
-			}
-			else if( pParameter->is_DataObject_List() )
-			{
-				for(int k=0; k<m_Data.Get_Count(); k++)
-				{
-					if( !Data_Exists(pParameter->asList()->asDataObject(k)) )
+					if( !Data_Exists(pParameter->asDataObject()) )
 					{
-						m_Data_Manager.Delete(pParameter->asList()->asDataObject(k));
+						m_Data_Manager.Delete(pParameter->asDataObject());
+					}
+				}
+				else if( pParameter->is_DataObject_List() )
+				{
+					for(int k=0; k<m_Data.Get_Count(); k++)
+					{
+						if( !Data_Exists(pParameter->asList()->asDataObject(k)) )
+						{
+							m_Data_Manager.Delete(pParameter->asList()->asDataObject(k));
+						}
 					}
 				}
 			}
@@ -751,7 +797,7 @@ bool CSG_Module_Chain::_Save_History_Add_Input(const CSG_MetaData &History, CSG_
 
 	if( History("MODULE") && History["MODULE"]("OUTPUT") && History["MODULE"]["OUTPUT"].Get_Property("id") )
 	{
-		pInput->Fmt_Content("tool_%02d::%s", Tool.Get_Parent()->Get_Children_Count() + 1, History["MODULE"]["OUTPUT"].Get_Property("id"));
+		pInput->Fmt_Content("tool_%02d__%s", Tool.Get_Parent()->Get_Children_Count() + 1, History["MODULE"]["OUTPUT"].Get_Property("id"));
 
 		return( _Save_History_Add_Tool(History["MODULE"], Parms, *Tool.Get_Parent()) );
 	}
