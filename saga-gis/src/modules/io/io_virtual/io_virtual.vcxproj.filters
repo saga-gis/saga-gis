@@ -77,6 +77,9 @@
     <ClInclude Include="pc_tileshape_from_spcvf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pc_get_grid_spcvf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MLB_Interface.cpp">
@@ -89,6 +92,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pc_tileshape_from_spcvf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pc_get_grid_spcvf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -311,12 +311,14 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="pc_create_spcvf.h" />
+    <ClInclude Include="pc_get_grid_spcvf.h" />
     <ClInclude Include="pc_get_subset_spcvf.h" />
     <ClInclude Include="pc_tileshape_from_spcvf.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MLB_Interface.cpp" />
     <ClCompile Include="pc_create_spcvf.cpp" />
+    <ClCompile Include="pc_get_grid_spcvf.cpp" />
     <ClCompile Include="pc_get_subset_spcvf.cpp" />
     <ClCompile Include="pc_tileshape_from_spcvf.cpp" />
   </ItemGroup>

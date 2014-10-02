@@ -97,6 +97,8 @@ CSG_String Get_Info(int i)
 #include "pc_create_spcvf.h"
 #include "pc_get_subset_spcvf.h"
 #include "pc_tileshape_from_spcvf.h"
+#include "pc_get_grid_spcvf.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -109,6 +111,8 @@ CSG_Module *		Create_Module(int i)
 	case 1:		return( new CPointCloud_Get_Subset_SPCVF );
 	case 2:		return( new CPointCloud_Create_Tileshape_From_SPCVF );
 	case 3:		return( new CPointCloud_Get_Subset_SPCVF_Interactive );
+	case 4:		return( new CPointCloud_Get_Grid_SPCVF );
+	case 5:		return( new CPointCloud_Get_Grid_SPCVF_Interactive );
 	}
 
 	return( NULL );
