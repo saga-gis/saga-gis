@@ -265,7 +265,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	SetDropTarget		(new CSAGA_Frame_DropTarget);
 
 	//-----------------------------------------------------
-	int		STATUSBAR_Sizes[STATUSBAR_COUNT]	= {	-1, -1, 90, 90, 90, -1	};
+	int		STATUSBAR_Sizes[STATUSBAR_COUNT]	= {	-1, 100, 100, 100, -1	};
 
 	CreateStatusBar		(STATUSBAR_COUNT);
 	SetStatusWidths		(STATUSBAR_COUNT, STATUSBAR_Sizes);

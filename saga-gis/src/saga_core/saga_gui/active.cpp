@@ -284,8 +284,6 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	//-----------------------------------------------------
 	if( m_pItem == NULL )
 	{
-		STATUSBAR_Set_Text(SG_T(""), STATUSBAR_ACTIVE);
-
 		if( g_pSAGA_Frame   )	g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
 
 		if( g_pData_Buttons )	g_pData_Buttons->Refresh();
@@ -301,8 +299,6 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
-
 	if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 
 	//-----------------------------------------------------

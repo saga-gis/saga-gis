@@ -190,7 +190,6 @@ wxString			Get_Online_Module_Description	(const wxString &Library, const wxStrin
 enum
 {
 	STATUSBAR_DEFAULT	= 0,
-	STATUSBAR_ACTIVE,
 	STATUSBAR_VIEW_X,
 	STATUSBAR_VIEW_Y,
 	STATUSBAR_VIEW_Z,
