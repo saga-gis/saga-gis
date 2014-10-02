@@ -895,7 +895,7 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape((int)i);
 
-		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(0), z, GRID_INTERPOLATION_BSpline, true) )
+		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(0), z, GRID_INTERPOLATION_BSpline, false, true) )
 		{
 			m_Regression.Add_Values(z, pShape->asDouble(Field));
 		}
