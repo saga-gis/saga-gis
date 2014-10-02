@@ -88,6 +88,7 @@
 typedef enum
 {
 	WKSP_ITEM_Module_Manager,
+	WKSP_ITEM_Module_Group,
 	WKSP_ITEM_Module_Library,
 	WKSP_ITEM_Module,
 

@@ -91,8 +91,6 @@ CWKSP_Module_Manager	*g_pModules	= NULL;
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -208,8 +206,6 @@ CWKSP_Module_Manager::~CWKSP_Module_Manager(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -266,18 +262,23 @@ bool CWKSP_Module_Manager::Finalise(void)
 
 	for(int i=0, n=0; i<Get_Count(); i++)
 	{
-		CSG_Module_Library	*pLibrary	= Get_Library(i)->Get_Library();
+		CWKSP_Module_Group	*pGroup	= Get_Group(i);
 
-		if( pLibrary->Get_Type() == MODULE_CHAINS )
+		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
-			for(int j=0; j<pLibrary->Get_Count(); j++)
+			CSG_Module_Library	*pLibrary	= pGroup->Get_Library(j)->Get_Library();
+
+			if( pLibrary->Get_Type() == MODULE_CHAINS )
 			{
-				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name(j)));
+				for(int j=0; j<pLibrary->Get_Count(); j++)
+				{
+					CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name(j)));
+				}
 			}
-		}
-		else
-		{
-			CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name()));
+			else
+			{
+				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name()));
+			}
 		}
 	}
 
@@ -286,8 +287,6 @@ bool CWKSP_Module_Manager::Finalise(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -326,8 +325,6 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -428,8 +425,6 @@ void CWKSP_Module_Manager::On_Execute_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -460,18 +455,35 @@ bool CWKSP_Module_Manager::Do_Beep(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWKSP_Module_Group * CWKSP_Module_Manager::Get_Group(const wxString &Group)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( !Group.Cmp(Get_Group(i)->Get_Name()) )
+		{
+			return( Get_Group(i) );
+		}
+	}
+
+	return( NULL );
+}
 
 //---------------------------------------------------------
 CWKSP_Module_Library * CWKSP_Module_Manager::Get_Library(CSG_Module_Library *pLibrary)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( pLibrary == Get_Library(i)->Get_Library() )
+		CWKSP_Module_Group	*pGroup	= Get_Group(i);
+
+		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
-			return( Get_Library(i) );
+			if( pLibrary == pGroup->Get_Library(j)->Get_Library() )
+			{
+				return( pGroup->Get_Library(j) );
+			}
 		}
 	}
 
@@ -485,9 +497,10 @@ bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
 
 	for(int i=SG_Get_Module_Library_Manager().Get_Count()-1; i>=0; i--)
 	{
-		CWKSP_Module_Library	*pLibrary	= Get_Library(SG_Get_Module_Library_Manager().Get_Library(i));
+		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(i);
+		CWKSP_Module_Library	*pItem	= Get_Library(pLibrary);
 
-		if( !pLibrary )
+		if( !pItem )
 		{
 			if( bSyncToCtrl )
 			{
@@ -495,12 +508,21 @@ bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
 			}
 			else
 			{
-				Add_Item(new CWKSP_Module_Library(SG_Get_Module_Library_Manager().Get_Library(i)));
+				wxString	Group	= pLibrary->Get_Name().BeforeFirst('-').c_str();	Group.Trim(true);
+
+				CWKSP_Module_Group	*pGroup	= Get_Group(Group);
+
+				if( !pGroup )
+				{
+					Add_Item(pGroup = new CWKSP_Module_Group(Group));
+				}
+
+				pGroup->Add_Library(pLibrary);
 			}
 		}
-		else if( !bSyncToCtrl && pLibrary->Get_Library()->Get_Type() == MODULE_CHAINS )
+		else if( !bSyncToCtrl && pItem->Get_Library()->Get_Type() == MODULE_CHAINS )
 		{
-			pLibrary->Update();
+			pItem->Update();
 		}
 	}
 
@@ -520,8 +542,6 @@ bool CWKSP_Module_Manager::Update(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -538,8 +558,6 @@ void CWKSP_Module_Manager::Set_Recently_Used(CWKSP_Module *pModule)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -585,8 +603,6 @@ bool CWKSP_Module_Manager::Open(const wxString &File_Name)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -594,9 +610,14 @@ bool CWKSP_Module_Manager::Exists(CWKSP_Module *pModule)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( Get_Library(i)->Get_Module(pModule) != NULL )
+		CWKSP_Module_Group	*pGroup	= Get_Group(i);
+
+		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
-			return( true );
+			if( pGroup->Get_Library(j)->Get_Module(pModule) != NULL )
+			{
+				return( true );
+			}
 		}
 	}
 
@@ -610,9 +631,96 @@ CWKSP_Module * CWKSP_Module_Manager::Get_Module_byID(int CMD_ID)
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( (pModule = Get_Library(i)->Get_Module_byID(CMD_ID)) != NULL )
+		CWKSP_Module_Group	*pGroup	= Get_Group(i);
+
+		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
-			return( pModule );
+			if( (pModule = pGroup->Get_Library(j)->Get_Module_byID(CMD_ID)) != NULL )
+			{
+				return( pModule );
+			}
+		}
+	}
+
+	return( NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWKSP_Module_Group::CWKSP_Module_Group(const wxString &Name)
+{
+	m_Name	= Name;
+}
+
+//---------------------------------------------------------
+CWKSP_Module_Group::~CWKSP_Module_Group(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxString CWKSP_Module_Group::Get_Description(void)
+{
+	wxString	s;
+
+	s.Printf(wxT("<b>%s</b>: %d<br>"), _TL("Tool Libraries"), Get_Count());
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Module_Group::On_Command(int Cmd_ID)
+{
+//	switch( Cmd_ID )
+	{
+//	default:
+		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
+	}
+}
+
+//---------------------------------------------------------
+bool CWKSP_Module_Group::On_Command_UI(wxUpdateUIEvent &event)
+{
+//	switch( event.GetId() )
+	{
+//	default:
+		return( CWKSP_Base_Manager::On_Command_UI(event) );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Module_Group::Add_Library(CSG_Module_Library *pLibrary)
+{
+	return( pLibrary && Add_Item(new CWKSP_Module_Library(pLibrary)) );
+}
+
+//---------------------------------------------------------
+CWKSP_Module_Library * CWKSP_Module_Group::Get_Library(CSG_Module_Library *pLibrary)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( pLibrary == Get_Library(i)->Get_Library() )
+		{
+			return( Get_Library(i) );
 		}
 	}
 

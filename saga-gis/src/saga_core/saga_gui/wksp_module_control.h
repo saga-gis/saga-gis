@@ -95,8 +95,9 @@ public:
 	void							On_Execute			(wxCommandEvent  &event);
 	void							On_Execute_UI		(wxUpdateUIEvent &event);
 
-	void							Add_Library			(class CWKSP_Module_Library *pLibrary);
-	void							Add_Module			(class CWKSP_Module_Library *pLibrary, class CWKSP_Module *pModule);
+	void							Add_Group			(class CWKSP_Module_Group *pGroup);
+	void							Add_Library			(const wxTreeItemId &Group, class CWKSP_Module_Library *pLibrary);
+	void							Add_Module			(const wxTreeItemId &Library, class CWKSP_Module *pModule);
 
 
 private:

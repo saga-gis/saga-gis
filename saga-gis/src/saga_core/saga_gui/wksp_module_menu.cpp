@@ -111,34 +111,37 @@ void CWKSP_Menu_Modules::Update(void)
 	{
 		ID_Menu	= ID_CMD_MODULE_START;
 
-		for(int iLibrary=0; iLibrary<g_pModules->Get_Count(); iLibrary++)
+		for(int iGroup=0; iGroup<g_pModules->Get_Count(); iGroup++)
 		{
-			CWKSP_Module_Library	*pLibrary	= g_pModules->Get_Library(iLibrary);
-
-			for(int iModule=0; iModule<pLibrary->Get_Count(); iModule++, ID_Menu++)
+			for(int iLibrary=0; iLibrary<g_pModules->Get_Group(iGroup)->Get_Count(); iLibrary++)
 			{
-				CWKSP_Module	*pModule	= pLibrary->Get_Module(iModule);
-				wxMenu			*pSubMenu	= _Get_SubMenu(m_pMenu, pModule->Get_Menu_Path());
+				CWKSP_Module_Library	*pLibrary	= g_pModules->Get_Group(iGroup)->Get_Library(iLibrary);
 
-				pModule->Set_Menu_ID(ID_Menu);
-
-				size_t	iPos;
-
-				for(iPos=0; iPos<pSubMenu->GetMenuItemCount(); iPos++)
+				for(int iModule=0; iModule<pLibrary->Get_Count(); iModule++, ID_Menu++)
 				{
-				#if defined(MODULES_MENU_SORT_SIMPLE)
-					if( pSubMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(pModule->Get_Name()) > 0 )
-				#else
-					if(	pSubMenu->FindItemByPosition(iPos)->IsSubMenu() == false
-					&&	pSubMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(pModule->Get_Name()) > 0 )
-				#endif
-					{
-						break;
-					}
-				}
+					CWKSP_Module	*pModule	= pLibrary->Get_Module(iModule);
+					wxMenu			*pSubMenu	= _Get_SubMenu(m_pMenu, pModule->Get_Menu_Path());
 
-				pSubMenu->InsertCheckItem(iPos, ID_Menu, pModule->Get_Name(), pModule->Get_Name());
-			//	pSubMenu->AppendCheckItem(ID_Menu, pModule->Get_Name(), pModule->Get_Name());
+					pModule->Set_Menu_ID(ID_Menu);
+
+					size_t	iPos;
+
+					for(iPos=0; iPos<pSubMenu->GetMenuItemCount(); iPos++)
+					{
+					#if defined(MODULES_MENU_SORT_SIMPLE)
+						if( pSubMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(pModule->Get_Name()) > 0 )
+					#else
+						if(	pSubMenu->FindItemByPosition(iPos)->IsSubMenu() == false
+						&&	pSubMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(pModule->Get_Name()) > 0 )
+					#endif
+						{
+							break;
+						}
+					}
+
+					pSubMenu->InsertCheckItem(iPos, ID_Menu, pModule->Get_Name(), pModule->Get_Name());
+				//	pSubMenu->AppendCheckItem(ID_Menu, pModule->Get_Name(), pModule->Get_Name());
+				}
 			}
 		}
 

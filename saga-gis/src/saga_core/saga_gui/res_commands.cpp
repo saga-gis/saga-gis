@@ -146,7 +146,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( _TL("Increase Legend Size") );
 	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( _TL("Decrease Legend Size") );
 	case ID_CMD_DATA_HISTORY_CLEAR:		return( _TL("Clear History") );
-	case ID_CMD_DATA_HISTORY_TO_MODEL:	return( _TL("Save as Model") );
+	case ID_CMD_DATA_HISTORY_TO_MODEL:	return( _TL("Save as Tool Chain") );
 	case ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE:	return( _TL("Collpase Options") );
 	case ID_CMD_DATA_HISTORY_OPTIONS_EXPAND:	return( _TL("Expand Options") );
 	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
@@ -319,8 +319,9 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SCATTERPLOT_AS_TABLE:		return( _TL("Convert To Table") );
 	case ID_CMD_SCATTERPLOT_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 
-	case ID_CMD_HISTOGRAM_CUMULATIVE:	return( _TL("Cumulative") );
-	case ID_CMD_HISTOGRAM_AS_TABLE:		return( _TL("Convert To Table") );
+	case ID_CMD_HISTOGRAM_CUMULATIVE:		return( _TL("Cumulative") );
+	case ID_CMD_HISTOGRAM_AS_TABLE:			return( _TL("Convert To Table") );
+	case ID_CMD_HISTOGRAM_TO_CLIPBOARD:		return( _TL("Copy to Clipboard") );
 	}
 
 	//-----------------------------------------------------

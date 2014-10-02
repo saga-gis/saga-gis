@@ -120,7 +120,11 @@ bool CWKSP_Base_Manager::Add_Item(CWKSP_Base_Item *pItem)
 			break;
 
 		case WKSP_ITEM_Module_Manager:
-			g_pModule_Ctrl->Add_Library((CWKSP_Module_Library *)pItem);
+			g_pModule_Ctrl->Add_Group((CWKSP_Module_Group *)pItem);
+			break;
+
+		case WKSP_ITEM_Module_Group:
+			g_pModule_Ctrl->Add_Library(GetId(), (CWKSP_Module_Library *)pItem);
 			break;
 
 		case WKSP_ITEM_Data_Manager:

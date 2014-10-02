@@ -226,8 +226,8 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	case ID_DLG_MODULES_OPEN:
 		return( wxString::Format(
-			wxT("%s (*.dll, *.so)|*.mlb;*.dll;*.so;*.dylib|")
-			wxT("%s (*.smdl, *.xml)|*.smdl;*.xml|")
+			wxT("%s (*.dll, *.so)|*.xml;*.mlb;*.dll;*.so;*.dylib|")
+			wxT("%s (*.xml)|*.xml|")
 			wxT("%s|*.*"),
 			_TL("Tool Libraries"),
 			_TL("Tool Chains"),

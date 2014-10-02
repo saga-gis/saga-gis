@@ -86,7 +86,9 @@
 enum
 {
 	IMG_MANAGER		= 1,
+	IMG_GROUP,
 	IMG_LIBRARY,
+	IMG_CHAIN,
 	IMG_MODULE
 };
 
@@ -129,7 +131,9 @@ CWKSP_Module_Control::CWKSP_Module_Control(wxWindow *pParent)
 
 	//-----------------------------------------------------
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_MANAGER)
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_GROUP);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_LIBRARY);
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_CHAIN);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE);
 
 	//-----------------------------------------------------
@@ -175,25 +179,47 @@ void CWKSP_Module_Control::On_Execute_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module_Control::Add_Library(CWKSP_Module_Library *pLibrary)
+void CWKSP_Module_Control::Add_Group(CWKSP_Module_Group *pGroup)
+{
+	_Add_Item(pGroup, IMG_GROUP, IMG_GROUP);
+}
+
+//---------------------------------------------------------
+void CWKSP_Module_Control::Add_Library(const wxTreeItemId &Group, CWKSP_Module_Library *pLibrary)
 {
 	if( pLibrary != NULL )
 	{
-		_Add_Item(pLibrary, IMG_LIBRARY, IMG_LIBRARY);
+		wxString	Name	= pLibrary->Get_Name().AfterFirst('-');
+
+		if( Name.IsEmpty() )
+		{
+			Name	= pLibrary->Get_Name();
+		}
+		else
+		{
+			Name.Trim(false);
+		}
+
+		AppendItem(Group, Name, IMG_LIBRARY, IMG_LIBRARY, pLibrary);
 
 		for(int i=0; i<pLibrary->Get_Count(); i++)
 		{
-			AppendItem(pLibrary->GetId(), pLibrary->Get_Module(i)->Get_Name(), IMG_MODULE, IMG_MODULE, pLibrary->Get_Module(i));
+			Add_Module(pLibrary->GetId(), pLibrary->Get_Module(i));
 		}
 
 		SortChildren(pLibrary->GetId());
 	}
+
+	SortChildren(Group);
 }
 
 //---------------------------------------------------------
-void CWKSP_Module_Control::Add_Module(CWKSP_Module_Library *pLibrary, CWKSP_Module *pModule)
+void CWKSP_Module_Control::Add_Module(const wxTreeItemId &Library, CWKSP_Module *pModule)
 {
-	AppendItem(pLibrary->GetId(), pModule->Get_Name(), IMG_MODULE, IMG_MODULE, pModule);
+	if( pModule != NULL )
+	{
+		AppendItem(Library, pModule->Get_Name(), IMG_MODULE, IMG_MODULE, pModule);
+	}
 }
 
 

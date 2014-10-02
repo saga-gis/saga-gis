@@ -108,7 +108,9 @@ public:
 	void							On_Execute			(wxCommandEvent  &event);
 	void							On_Execute_UI		(wxUpdateUIEvent &event);
 
-	class CWKSP_Module_Library *	Get_Library			(int i)		{	return( (class CWKSP_Module_Library *)Get_Item(i) );	}
+	class CWKSP_Module_Group *		Get_Group			(int i)		{	return( (class CWKSP_Module_Group *)Get_Item(i) );	}
+	class CWKSP_Module_Group *		Get_Group			(const wxString &Group);
+
 	class CWKSP_Module_Library *	Get_Library			(CSG_Module_Library *pLibrary);
 
 	bool							Update				(void);
@@ -137,6 +139,39 @@ private:
 
 //---------------------------------------------------------
 extern CWKSP_Module_Manager			*g_pModules;
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWKSP_Module_Group : public CWKSP_Base_Manager
+{
+public:
+	CWKSP_Module_Group(const wxString &Name);
+	virtual ~CWKSP_Module_Group(void);
+
+	virtual TWKSP_Item				Get_Type			(void)		{	return( WKSP_ITEM_Module_Group );	}
+
+	virtual wxString				Get_Name			(void)		{	return( m_Name );	}
+	virtual wxString				Get_Description		(void);
+
+	virtual bool					On_Command			(int Cmd_ID);
+	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
+
+	bool							Add_Library			(CSG_Module_Library *pLibrary);
+	class CWKSP_Module_Library *	Get_Library			(int i)		{	return( (class CWKSP_Module_Library *)Get_Item(i) );	}
+	class CWKSP_Module_Library *	Get_Library			(CSG_Module_Library *pLibrary);
+
+
+private:
+
+	wxString						m_Name;
+
+};
 
 
 ///////////////////////////////////////////////////////////

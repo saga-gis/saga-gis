@@ -324,7 +324,9 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_WKSP_MAP_GRATICULE:	return( wksp_map_graticule_xpm );
 	case ID_IMG_WKSP_MAP_MANAGER:	return( wksp_map_manager_xpm );
 	case ID_IMG_WKSP_MODULE:	return( wksp_module_xpm );
+	case ID_IMG_WKSP_MODULE_CHAIN:	return( wksp_module_xpm );
 	case ID_IMG_WKSP_MODULE_LIBRARY:	return( wksp_module_library_xpm );
+	case ID_IMG_WKSP_MODULE_GROUP:	return( wksp_module_library_xpm );
 	case ID_IMG_WKSP_MODULE_MANAGER:	return( wksp_module_manager_xpm );
 	case ID_IMG_WKSP_NOITEMS:	return( wksp_noitems_xpm );
 	case ID_IMG_WKSP_DB_SOURCES:	return( wksp_odbc_sources_xpm );

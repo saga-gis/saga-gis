@@ -139,7 +139,7 @@ void CWKSP_Module_Library::Update(void)
 
 				Add_Item(pItem);
 
-				g_pModule_Ctrl->Add_Module(this, pItem);
+				g_pModule_Ctrl->Add_Module(GetId(), pItem);
 			}
 		}
 	}
