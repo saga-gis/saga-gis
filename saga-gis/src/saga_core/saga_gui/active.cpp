@@ -430,39 +430,9 @@ bool CACTIVE::Update_Description(void)
 	{
 		Description	= _TL("No description available");
 	}
-	else switch( m_pItem->Get_Type() )
+	else
 	{
-	default:
 		Description	= m_pItem->Get_Description();
-		break;
-
-	case WKSP_ITEM_Module:
-		if( !((CWKSP_Module *)m_pItem)->Get_File_Name().IsEmpty() )
-		{
-			wxFileName	FileName;
-
-			FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
-			FileName.AppendDir	(FileName.GetName());
-			FileName.SetName	(wxString::Format(wxT("%s_%02d"), FileName.GetName().c_str(), m_pItem->Get_Index()));
-
-			FileName.SetExt		(wxT("html"));
-
-			if( FileName.FileExists() && m_pDescription->LoadPage(FileName.GetFullPath()) )
-			{
-				return( true );
-			}
-
-			FileName.SetExt		(wxT("htm"));
-
-			if( FileName.FileExists() && m_pDescription->LoadPage(FileName.GetFullPath()) )
-			{
-				return( true );
-			}
-		}
-
-		Description	= m_pItem->Get_Description();
-
-		break;
 	}
 
 	//-----------------------------------------------------

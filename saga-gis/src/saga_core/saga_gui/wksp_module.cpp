@@ -62,6 +62,7 @@
 
 //---------------------------------------------------------
 #include <wx/utils.h>
+#include <wx/filename.h>
 
 #include "res_commands.h"
 #include "res_dialogs.h"
@@ -176,6 +177,32 @@ wxString CWKSP_Module::Get_File_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Module::Get_Description(void)
 {
+	//-----------------------------------------------------
+	if( !Get_File_Name().IsEmpty() )
+	{
+		CSG_String	Description;
+		CSG_File	Stream;
+
+		wxFileName	FileName(Get_File_Name());
+		FileName.AppendDir	(FileName.GetName());
+		FileName.SetName	(wxString::Format("%s_%02d", FileName.GetName().c_str(), Get_Index()));
+
+		FileName.SetExt		("html");
+
+		if( Stream.Open(&FileName.GetFullPath(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
+		{
+			return( Description.c_str() );
+		}
+
+		FileName.SetExt		("htm");
+
+		if( Stream.Open(&FileName.GetFullPath(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
+		{
+			return( Description.c_str() );
+		}
+	}
+
+	//-----------------------------------------------------
 	wxString	Description;
 
 	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )

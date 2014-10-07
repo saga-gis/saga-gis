@@ -969,50 +969,49 @@ wxString Get_Online_Module_Description(const wxString &Library, const wxString &
 		wxInputStream	*pStream;
 		wxHTTP			Server;
 
-		wxString	sServer	= wxT("sourceforge.net");
-		wxString	sPath	= wxT("/apps/trac/saga-gis/wiki/");
-		wxString	sRoot	= wxT("/apps/trac/saga-gis/");
+		wxString	sServer	= "sourceforge.net";
+		wxString	sPath	= SG_File_Get_Name(Library, false).c_str();
 
-		wxString	sPage	= SG_File_Get_Name(Library, false).w_str();
-
-		if( sPage.Length() > 3 && sPage[0] == wxT('l') && sPage[1] == wxT('i') && sPage[2] == wxT('b') )	// remove linux prefix 'lib'
+		if( sPath.Find("lib") == 0 )	// remove linux prefix 'lib'
 		{
-			sPage.Remove(0, 3);
+			sPath.Remove(0, 3);
 		}
 
 		if( !ID.IsEmpty() )
 		{
-			sPage	+= "_" + ID;
+			sPath	+= "_" + ID;
 		}
 
-		if( Server.Connect(sServer) && (pStream = Server.GetInputStream(sPath + sPage)) != NULL )
+		sPath	= "/p/saga-gis/wiki/" + sPath + "/";
+
+		if( Server.Connect(sServer) && (pStream = Server.GetInputStream(sPath)) != NULL )
 		{
 			while( !pStream->Eof() )
 			{
 				Description	+= pStream->GetC();
 			}
 
-			if( Description.Find(wxT("Trac Error")) >= 0 )
+			int		n;
+
+			if( (n = Description.Find("<div class=\"markdown_content\">")) < 0 )
 			{
 				Description.Clear();
 			}
 			else
 			{
-				int		n;
+				Description.Remove(0, n);
 
-				if( (n = Description.Find(wxT("<div class=\"wikipage searchable\">"))) > 0 )
+				if( (n = Description.Find("</div>")) > 0 )
 				{
-					Description.Remove(0, n);
-
-					if( (n = Description.Find(wxT("</div>"))) > 0 )
-					{
-						Description.RemoveLast(Description.Length() - (n - 6));
-					}
+					Description.Truncate(n + 6);
 				}
 
-				Description.Replace(sRoot, wxT("http://") + sServer + sRoot);
-				Description.Replace(wxT("\n"), wxT(""));
+				Description.Replace("./attachment"      ,        "http://" + sServer + sPath + "attachment");
+				Description.Replace("href=\"/p/saga-gis", "href=\"http://" + sServer + "/p/saga-gis");
+				Description.Replace("\n", "");
 			}
+
+			delete(pStream);
 		}
 
 		bBuisy	= false;
