@@ -224,8 +224,8 @@ bool CGrid_Seeds::On_Execute(void)
 
 		for(int i=0; i<m_nFeatures; i++)
 		{
-			m_Norm[0][i]	= pFeatures->asGrid(i)->Get_Mean();
-			m_Norm[1][i]	= pFeatures->asGrid(i)->Get_StdDev   ();	if( m_Norm[1][i] == 0.0 )	m_Norm[1][i]	= 1.0;
+			m_Norm[0][i]	= pFeatures->asGrid(i)->Get_Mean  ();
+			m_Norm[1][i]	= pFeatures->asGrid(i)->Get_StdDev();	if( m_Norm[1][i] == 0.0 )	m_Norm[1][i]	= 1.0;
 		}
 	}
 
@@ -279,7 +279,7 @@ bool CGrid_Seeds::On_Execute(void)
 	Get_Seeds();
 
 	//-----------------------------------------------------
-	for(int i=0; m_Method==0 && i<m_nFeatures; i++)
+	for(int i=0; Method==0 && i<m_nFeatures; i++)
 	{
 		delete(m_pFeatures[i]);
 	}

@@ -90,7 +90,7 @@ private:
 
 	bool					m_bNormalize;
 
-	int						m_Method, m_nFeatures;
+	int						m_nFeatures;
 
 	CSG_Matrix				m_Norm;
 
