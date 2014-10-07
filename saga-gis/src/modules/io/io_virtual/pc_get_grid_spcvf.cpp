@@ -328,6 +328,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 			{
 				SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
 				delete( pGrid );
+				pGrid = NULL;
 				continue;
 			}
 

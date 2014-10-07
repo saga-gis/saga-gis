@@ -294,6 +294,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 			{
 				SG_UI_Msg_Add(_TL("AOI does not intersect with any point of the SPCVF datasets, nothing to do!"), true);
 				delete( pPC_out );
+				pPC_out = NULL;
 				continue;
 			}
 
