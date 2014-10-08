@@ -189,14 +189,14 @@ wxString CWKSP_Module::Get_Description(void)
 
 		FileName.SetExt		("html");
 
-		if( Stream.Open(&FileName.GetFullPath(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
+		if( Stream.Open(FileName.GetFullPath().wc_str(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
 		{
 			return( Description.c_str() );
 		}
 
 		FileName.SetExt		("htm");
 
-		if( Stream.Open(&FileName.GetFullPath(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
+		if( Stream.Open(FileName.GetFullPath().wc_str(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
 		{
 			return( Description.c_str() );
 		}
