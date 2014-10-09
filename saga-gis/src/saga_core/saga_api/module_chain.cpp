@@ -75,6 +75,9 @@
 //---------------------------------------------------------
 #define TOOL_CHAIN_VERSION	"1.0.0"
 
+//---------------------------------------------------------
+#define GET_XML_CONTENT(md, id, def)	(md(id) ? md(id)->Get_Content() : CSG_String(def))
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -131,9 +134,6 @@ CSG_String CSG_Module_Chain::Get_Option_ID(const SG_Char *Tool, const SG_Char *P
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_CONTENT(md, id, def)	(md(id) ? md(id)->Get_Content() : CSG_String(def))
-
-//---------------------------------------------------------
 bool CSG_Module_Chain::Create(const CSG_String &File)
 {
 	Reset();
@@ -150,12 +150,12 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	//-----------------------------------------------------
 	m_File_Name		= File;
 
-	m_ID			= GET_CONTENT(m_Chain, "identifier" , "");
-	m_Library		= GET_CONTENT(m_Chain, "group"      , "toolchains");
-//	m_Library_Name	= GET_CONTENT(m_Chain, "group_name" , _TL("Tool Chains"));
-	m_Menu			= GET_CONTENT(m_Chain, "menu"       , "");
-	Set_Name         (GET_CONTENT(m_Chain, "name"       , _TL("Unnamed")));
-	Set_Description  (GET_CONTENT(m_Chain, "description", _TL("no description")));
+	m_ID			= GET_XML_CONTENT(m_Chain, "identifier" , "");
+	m_Library		= GET_XML_CONTENT(m_Chain, "group"      , "toolchains");
+//	m_Library_Name	= GET_XML_CONTENT(m_Chain, "group_name" , _TL("Tool Chains"));
+	m_Menu			= GET_XML_CONTENT(m_Chain, "menu"       , "");
+	Set_Name         (GET_XML_CONTENT(m_Chain, "name"       , _TL("Unnamed")));
+	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description")));
 
 	//-----------------------------------------------------
 	for(int i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
@@ -597,15 +597,34 @@ bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModu
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Chains::CSG_Module_Chains(const CSG_String &Library_Name, const CSG_String &Name, const CSG_String &Description, const CSG_String &Menu)
+CSG_Module_Chains::CSG_Module_Chains(const CSG_String &Library_Name, const CSG_String &Path)
 {
 	m_Library_Name	= Library_Name;
-	m_Name			= Name;
-	m_Description	= Description;
-	m_Menu			= Menu;
 
-	m_nModules		= 0;
-	m_pModules		= NULL;
+	if( m_Library_Name.is_Empty() )
+	{
+		m_Library_Name	= "toolchains";
+		m_Name			= _TL("Unsorted");
+		m_Description	= _TL("Unsorted tool chains");
+		m_Menu			= _TL("Tool Chains");
+	}
+	else
+	{
+		CSG_MetaData	XML(SG_File_Make_Path(Path, Library_Name, SG_T("xml")));
+
+		if( !XML.Cmp_Name("toolchains") )
+		{
+			XML.Destroy();
+		}
+
+		m_Name			= GET_XML_CONTENT(XML, "name"       , m_Library_Name);
+		m_Description	= GET_XML_CONTENT(XML, "description", _TL("no description"));
+		m_Menu			= GET_XML_CONTENT(XML, "menu"       , _TL("Tool Chains"));
+	}
+
+	//-----------------------------------------------------
+	m_nModules	= 0;
+	m_pModules	= NULL;
 }
 
 //---------------------------------------------------------
@@ -634,6 +653,7 @@ CSG_String CSG_Module_Chains::Get_Info(int Type) const
 	case MLB_INFO_Name       :	return( m_Name );
 	case MLB_INFO_Description:	return( m_Description );
 	case MLB_INFO_Menu_Path  :	return( m_Menu );
+	case MLB_INFO_Category   :	return( _TL("Tool Chains") );
 	}
 
 	return( "" );

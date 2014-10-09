@@ -136,6 +136,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MODULES_SEARCH:			return( _TL("Find and Run Tool") );
 	case ID_CMD_MODULES_SAVE_SCRIPT:	return( _TL("Create Script Command File") );
 	case ID_CMD_MODULES_SAVE_DOCS:		return( _TL("Create Tool Description Files") );
+	case ID_CMD_MODULES_CHAIN_RELOAD:	return( _TL("Reload") );
+	case ID_CMD_MODULES_CHAIN_EDIT:		return( _TL("Edit") );
 
 	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("Close All") );
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );

@@ -572,6 +572,7 @@ typedef enum ESG_MLB_Info
 	MLB_INFO_Author,
 	MLB_INFO_Version,
 	MLB_INFO_Menu_Path,
+	MLB_INFO_Category,
 	MLB_INFO_User,
 	MLB_INFO_File,
 	MLB_INFO_Library,

@@ -171,7 +171,10 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 		{
 			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_FLAT || !Get_Module(i)->is_Interactive()) )
 			{
-				s	+= CSG_String::Format(SG_T(" %d\t- %s\n"), i, Get_Module(i)->Get_Name().c_str());
+				s	+= CSG_String::Format(SG_T(" %s\t- %s\n"),
+					Get_Module(i)->Get_ID  ().c_str(),
+					Get_Module(i)->Get_Name().c_str()
+				);
 			}
 		}
 
@@ -205,22 +208,23 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_XML: case SG_SUMMARY_FMT_XML_NO_INTERACTIVE:
-		s	+= SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
-		s	+= CSG_String::Format(SG_T("<%s>\n"), SG_XML_LIBRARY);
-		s	+= CSG_String::Format(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-		s	+= CSG_String::Format(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_NAME, Get_Name     ().c_str(), SG_XML_LIBRARY_NAME);
+		s	+= "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
+		s	+= CSG_String::Format("<%s>\n"         , SG_XML_LIBRARY);
+		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, Get_Name     ().c_str(), SG_XML_LIBRARY_NAME);
 
 		for(i=0; i<Get_Count(); i++)
 		{
 			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_XML || !Get_Module(i)->is_Interactive()) )
 			{
-				s	+= CSG_String::Format(SG_T("\t<%s %s=\"%d\" %s=\"%s\">\n"), SG_XML_MODULE,
-					SG_XML_MODULE_ATT_ID, i, SG_XML_MODULE_ATT_NAME, Get_Module(i)->Get_Name().c_str()
+				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\">\n", SG_XML_MODULE,
+					SG_XML_MODULE_ATT_ID  , Get_Module(i)->Get_ID  ().c_str(),
+					SG_XML_MODULE_ATT_NAME, Get_Module(i)->Get_Name().c_str()
 				);
 			}
 		}
 
-		s	+= CSG_String::Format(SG_T("</%s>\n"), SG_XML_LIBRARY);
+		s	+= CSG_String::Format("</%s>\n", SG_XML_LIBRARY);
 
 		break;
 	}
@@ -269,7 +273,7 @@ CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name, TSG_Module_Type
 	{
 		CSG_Module	*pModule	= Get_Module(i, Type);
 
-		if( pModule && !pModule->Get_Name().Cmp(Name) )
+		if( pModule && (!pModule->Get_ID().Cmp(Name) || !pModule->Get_Name().Cmp(Name)) )
 		{
 			return( pModule );
 		}
@@ -510,7 +514,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	//-----------------------------------------------------
 	if( pModule )
 	{
-		SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Reload tool chain"), File_Name), true);
+		SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Reload tool chain"), File_Name), true);
 
 		pModule->Create(File_Name);
 
@@ -520,7 +524,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load tool chain"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load tool chain"), File_Name), true);
 
 	pModule	= new CSG_Module_Chain(File_Name);
 
@@ -546,15 +550,19 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 		}
 	}
 
-	if( !pLibrary )
+	if( !pLibrary && (pLibrary = new CSG_Module_Chains(pModule->Get_Library(), SG_File_Get_Path(File_Name))) != NULL )
 	{
 		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
-		m_pLibraries[m_nLibraries++]	= pLibrary	= new CSG_Module_Chains(
-			pModule->Get_Library(),
-			_TL("Tool Chains"),
-			_TL("Tool Chains"),
-			_TL("Tool Chains")
-		);
+		m_pLibraries[m_nLibraries++]	= pLibrary;
+	}
+
+	if( !pLibrary )	// this should never happen, but who knows...
+	{
+		delete(pModule);
+
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+		return( NULL );
 	}
 
 	pLibrary->Add_Module(pModule);

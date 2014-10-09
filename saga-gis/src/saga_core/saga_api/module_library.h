@@ -128,6 +128,7 @@ public:
 	CSG_String						Get_Author			(void)	const	{	return( Get_Info(MLB_INFO_Author     ) );	}
 	CSG_String						Get_Version			(void)	const	{	return( Get_Info(MLB_INFO_Version    ) );	}
 	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(MLB_INFO_Menu_Path  ) );	}
+	CSG_String						Get_Category		(void)	const	{	return( Get_Info(MLB_INFO_Category   ) );	}
 	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
 	bool							Get_Summary			(const CSG_String &Path)			const;
 

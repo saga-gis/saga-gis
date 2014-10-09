@@ -171,7 +171,7 @@ public:
 
 protected:
 
-	CSG_Module_Chains(const CSG_String &Library_Name, const CSG_String &Name, const CSG_String &Description, const CSG_String &Menu);
+	CSG_Module_Chains(const CSG_String &Library_Name, const CSG_String &Path);
 	virtual ~CSG_Module_Chains(void);
 
 
