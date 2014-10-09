@@ -70,7 +70,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Compound Analyses" ));
+		return( _TL("Compound Analyses" ));
+
+	case MLB_INFO_Category:
+		return( _TL("Terrain Analysis") );
 
 	case MLB_INFO_Author:
 		return( SG_T("Olaf Conrad, Goettingen (c) 2005") );

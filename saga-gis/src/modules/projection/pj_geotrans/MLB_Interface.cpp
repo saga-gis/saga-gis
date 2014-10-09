@@ -74,7 +74,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Projection - GeoTRANS") );
+		return( _TL("GeoTRANS") );
+
+	case MLB_INFO_Category:
+		return( _TL("Projection") );
 
 	case MLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2002") );

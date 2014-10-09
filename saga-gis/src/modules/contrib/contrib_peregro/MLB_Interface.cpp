@@ -49,7 +49,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Filter (Perego 2009)") );
+		return( _TL("Filter (Perego 2009)") );
+
+	case MLB_INFO_Category:
+		return( _TL("Grid") );
 
 	case MLB_INFO_Author:
 		return( _TL("Alessandro Perego") );

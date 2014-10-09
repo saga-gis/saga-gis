@@ -72,7 +72,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - ViGrA") );
+		return( _TL("ViGrA") );
+
+	case MLB_INFO_Category:
+		return( _TL("Imagery") );
 
 	case MLB_INFO_Author:
 		return( _TL("O. Conrad (c) 2009") );

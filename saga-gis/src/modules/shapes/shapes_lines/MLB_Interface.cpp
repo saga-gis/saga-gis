@@ -74,7 +74,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Lines") );
+		return( _TL("Lines") );
+
+	case MLB_INFO_Category:
+		return( _TL("Shapes") );
 
 	case MLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2005") );

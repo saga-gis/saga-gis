@@ -70,7 +70,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Preprocessing" ));
+		return( _TL("Preprocessing" ));
+
+	case MLB_INFO_Category:
+		return( _TL("Terrain Analysis") );
 
 	case MLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2001, V. Wichmann (c) 2003") );

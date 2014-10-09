@@ -508,13 +508,11 @@ bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
 			}
 			else
 			{
-				wxString	Group	= pLibrary->Get_Name().BeforeFirst('-').c_str();	Group.Trim(true);
-
-				CWKSP_Module_Group	*pGroup	= Get_Group(Group);
+				CWKSP_Module_Group	*pGroup	= Get_Group(pLibrary->Get_Category().c_str());
 
 				if( !pGroup )
 				{
-					Add_Item(pGroup = new CWKSP_Module_Group(Group));
+					Add_Item(pGroup = new CWKSP_Module_Group(pLibrary->Get_Category().c_str()));
 				}
 
 				pGroup->Add_Library(pLibrary);

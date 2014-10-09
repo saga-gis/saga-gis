@@ -70,7 +70,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Segmentation") );
+		return( _TL("Segmentation") );
+
+	case MLB_INFO_Category:
+		return( _TL("Imagery") );
 
 	case MLB_INFO_Author:
 		return( SG_T("SAGA User Group Assoc. (c) 2009") );

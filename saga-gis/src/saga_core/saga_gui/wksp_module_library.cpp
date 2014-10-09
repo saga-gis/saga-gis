@@ -107,7 +107,7 @@ void CWKSP_Module_Library::Update(void)
 {
 	int		i;
 
-	for(i=Get_Count()-1; i>=0; i--)
+	for(i=Get_Count()-1; i>=0; i--)	// first remove tools that are not available anymore
 	{
 		CWKSP_Module	*pItem	= Get_Module(i);
 
@@ -119,7 +119,7 @@ void CWKSP_Module_Library::Update(void)
 		}
 	}
 
-	for(int i=0; i<m_pLibrary->Get_Count(); i++)
+	for(i=0; i<m_pLibrary->Get_Count(); i++)	// then add tools that are not yet present in the list
 	{
 		CSG_Module	*pModule	= m_pLibrary->Get_Module(i);
 
@@ -129,6 +129,8 @@ void CWKSP_Module_Library::Update(void)
 			{
 				if( pModule == Get_Module(j)->Get_Module() )
 				{
+					Get_Control()->SetItemText(Get_Module(j)->GetId(), Get_Module(j)->Get_Name());	// just in case name has changed
+
 					pModule	= NULL;
 				}
 			}

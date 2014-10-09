@@ -101,7 +101,10 @@ const SG_Char *	Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - Tables using MySQL native driver") );
+		return( _TL("Tables using MySQL native driver") );
+
+	case MLB_INFO_Category:
+		return( _TL("Import/Export") );
 
 	case MLB_INFO_Author:
 		return( _TL("Ferhat Bingöl (c) 2009") );

@@ -180,6 +180,8 @@ bool		Run(int argc, char *argv[])
 		argc--;	argv++;
 	}
 
+	Print_Logo();
+
 	//-----------------------------------------------------
 	if( !Load_Libraries() )
 	{
@@ -199,8 +201,6 @@ bool		Run(int argc, char *argv[])
 	}
 
 	//-----------------------------------------------------
-	Print_Logo();
-
 	if( argc == 2 && SG_File_Exists(CSG_String(argv[1])) )
 	{
 		return( Execute_Script(argv[1]) );
@@ -445,28 +445,28 @@ bool		Load_Libraries(void)
 //---------------------------------------------------------
 bool		Check_First		(const CSG_String &Argument)
 {
-	if( !Argument.CmpNoCase(SG_T("-h")) || !Argument.CmpNoCase(SG_T("--help")) )
+	if( !Argument.CmpNoCase("-h") || !Argument.CmpNoCase("--help") )
 	{
 		Print_Help();
 
 		return( true );
 	}
 
-	if( !Argument.CmpNoCase(SG_T("-v")) || !Argument.CmpNoCase(SG_T("--version")) )
+	if( !Argument.CmpNoCase("-v") || !Argument.CmpNoCase("--version") )
 	{
 		Print_Version();
 
 		return( true );
 	}
 
-	if( !Argument.CmpNoCase(SG_T("-b")) || !Argument.CmpNoCase(SG_T("--batch")) )
+	if( !Argument.CmpNoCase("-b") || !Argument.CmpNoCase("--batch") )
 	{
 		Create_Example();
 
 		return( true );
 	}
 
-	if( !Argument.CmpNoCase(SG_T("-d")) || !Argument.CmpNoCase(SG_T("--docs")) )
+	if( !Argument.CmpNoCase("-d") || !Argument.CmpNoCase("--docs") )
 	{
 		Create_Docs();
 
@@ -481,7 +481,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 {
 	CSG_String	s(Argument.BeforeFirst(SG_T('=')));
 
-	if( !s.CmpNoCase(SG_T("-f")) || !s.CmpNoCase(SG_T("--flags")) )
+	if( !s.CmpNoCase("-f") || !s.CmpNoCase("--flags") )
 	{
 		s	= CSG_String(Argument).AfterFirst(SG_T('='));
 
@@ -557,7 +557,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 //---------------------------------------------------------
 void		Print_Libraries	(void)
 {
-	CMD_Print_Error(_TL("library"));
+	CMD_Print_Error(_TL("select a library"));
 
 	if( CMD_Get_Show_Messages() )
 	{
@@ -577,7 +577,7 @@ void		Print_Libraries	(void)
 //---------------------------------------------------------
 void		Print_Modules	(CSG_Module_Library *pLibrary)
 {
-	CMD_Print_Error(_TL("tool"));
+	CMD_Print_Error(_TL("select a tool"));
 
 	if( CMD_Get_Show_Messages() )
 	{
@@ -609,7 +609,7 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 		}
 		else
 		{
-			SG_PRINTF(SG_T("_____________________________________________\n"));
+			SG_PRINTF(SG_T("____________________________\n"));
 			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library path"), SG_File_Get_Path(pLibrary->Get_File_Name()       ).c_str());
 			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library name"), SG_File_Get_Name(pLibrary->Get_File_Name(), false).c_str());
 			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library     "), pLibrary->Get_Name     ().c_str());
@@ -618,7 +618,7 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 		#ifdef _OPENMP
 			SG_PRINTF(SG_T("%s:\t%d [%d]\n"), _TL("processors  "), SG_Get_Max_Num_Threads_Omp(), SG_Get_Max_Num_Procs_Omp());
 		#endif // _OPENMP
-			SG_PRINTF(SG_T("_____________________________________________\n\n"));
+			SG_PRINTF(SG_T("____________________________\n\n"));
 		}
 	}
 }
@@ -636,15 +636,17 @@ void		Print_Logo		(void)
 	if( CMD_Get_Show_Messages() )
 	{
 		CMD_Print(
-			"_____________________________________________\n"
+			"____________________________\n"
 			"\n"
 			"   #####   ##   #####    ##\n"
 			"  ###     ###  ##       ###\n"
 			"   ###   # ## ##  #### # ##\n"
 			"    ### ##### ##    # #####\n"
 			" ##### #   ##  ##### #   ##\n"
-			"_____________________________________________\n"
+			"____________________________\n"
 		);
+
+		Print_Version();
 	}
 }
 
@@ -675,12 +677,10 @@ void		Print_Help		(void)
 {
 	Print_Logo();
 
-	Print_Version();
-
 	CMD_Print(
 		"under GNU General Public License (GPL)\n"
 		"\n"
-		"_____________________________________________\n"
+		"____________________________\n"
 		"Usage:\n"
 		"\n"
 		"saga_cmd [-h, --help]\n"
@@ -718,12 +718,12 @@ void		Print_Help		(void)
 		"<OPTIONS>        : tool specific options\n"
 		"<SCRIPT>         : saga cmd script file with one or more tool calls\n"
 		"\n"
-		"_____________________________________________\n"
+		"____________________________\n"
 		"Example:\n"
 		"\n"
 		"  saga_cmd -f=s ta_lighting 0 -ELEVATION=c:\\dem.sgrd -SHADE=c:\\shade.sgrd\n"
 		"\n"
-		"_____________________________________________\n"
+		"____________________________\n"
 		"Tool libraries in the \'modules\' subdirectory of the SAGA installation\n"
 		"will be loaded automatically. Additional directories can be specified\n"
 		"by adding the environment variable \'SAGA_MLB\' and let it point to one\n"
@@ -734,7 +734,7 @@ void		Print_Help		(void)
 		"script file. Calling saga_cmd with the option \'-b\' or \'--batch\' will\n"
 		"create an example of a DOS batch script file, which might be a good starting\n"
 		"point for the implementation of your own specific work flows.\n"
-		"_____________________________________________\n"
+		"____________________________\n"
 	);
 }
 
@@ -746,6 +746,8 @@ void		Print_Help		(void)
 //---------------------------------------------------------
 void		Create_Example	(void)
 {
+	Print_Logo();
+
 	CSG_File	Stream;
 
 	CMD_Print(_TL("creating batch file example"));
@@ -769,13 +771,13 @@ void		Create_Example	(void)
 		"IF EXIST dem.sgrd GOTO :GO\n"
 		"IF EXIST srtm.tif GOTO :SRTM\n"
 		"\n"
-		"ECHO _____________________________________________\n"
+		"ECHO ____________________________\n"
 		"ECHO create a Gaussian landscape\n"
 		"saga_cmd %%FLAGS%% recreations_fractals 5 -GRID=dem.sgrd -NX=400 -NY=400 -H=0.75\n"
 		"GOTO :GO\n"
 		"\n"
 		":SRTM\n"
-		"ECHO _____________________________________________\n"
+		"ECHO ____________________________\n"
 		"ECHO import and project srtm (geotiff)\n"
 		"saga_cmd %%FLAGS%% io_gdal              0 -FILES=srtm.tif -GRIDS=srtm -TRANSFORM\n"
 		"saga_cmd %%FLAGS%% pj_proj4             7 -SOURCE=srtm.sgrd -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -SOURCE_PROJ=\"+proj=longlat +datum=WGS84\" -TARGET_PROJ=\"+proj=cea +datum=WGS84 +lat_ts=0\"\n"
@@ -783,18 +785,18 @@ void		Create_Example	(void)
 		"REM saga_cmd -f=qp pj_proj4             4 -SOURCE=srtm.sgrd -GET_USER_GRID=dem.sgrd -GET_USER_SIZE=1000.0 -CRS_PROJ4=\"+proj=cea +datum=WGS84 +lat_ts=0\"\n"
 		"\n"
 		":GO\n"
-		"ECHO _____________________________________________\n"
+		"ECHO ____________________________\n"
 		"ECHO create contour lines from DEM\n"
 		"saga_cmd %%FLAGS%% shapes_grid          5 -INPUT=dem.sgrd -CONTOUR=contour.shp -ZSTEP=100.0\n"
 		"\n"
-		"ECHO _____________________________________________\n"
+		"ECHO ____________________________\n"
 		"ECHO do some terrain analysis\n"
 		"saga_cmd %%FLAGS%% ta_preprocessor      2 -DEM=dem.sgrd -DEM_PREPROC=dem.sgrd\n"
 		"saga_cmd %%FLAGS%% ta_lighting          0 -ELEVATION=dem.sgrd -SHADE=shade.sgrd -METHOD=0 -AZIMUTH=-45 -DECLINATION=45\n"
 		"saga_cmd %%FLAGS%% ta_morphometry       0 -ELEVATION=dem.sgrd -SLOPE=slope.sgrd -ASPECT=aspect.sgrd -HCURV=hcurv.sgrd -VCURV=vcurv.sgrd\n"
 		"saga_cmd %%FLAGS%% ta_hydrology         0 -ELEVATION=dem.sgrd -CAREA=carea.sgrd\n"
 		"\n"
-		"ECHO _____________________________________________\n"
+		"ECHO ____________________________\n"
 		"ECHO run saga cmd script\n"
 		"SET INPUT=dem.sgrd;slope.sgrd;hcurv.sgrd;vcurv.sgrd\n"
 		"saga_cmd %%FLAGS%% saga_cmd_example.txt\n"
@@ -814,7 +816,7 @@ void		Create_Example	(void)
 		"REM \'REM\' or \'#\' can be used for comments, \'ECHO\' for message output.\n"
 		"REM environment variables can be accessed using the ms-dos/window style\n"
 		"\n"
-		"ECHO _____________________________________________\n"
+		"ECHO ____________________________\n"
 		"ECHO cluster analysis and vectorisation\n"
 		"\n"
 		"# cluster analysis\n"
@@ -832,7 +834,7 @@ void		Create_Example	(void)
 		"# save selectione\n"
 		"shapes_tools           6 -INPUT=cluster.shp -OUTPUT=cluster_class1.shp\n"
 		"\n"
-		"ECHO _____________________________________________\n"
+		"ECHO ____________________________\n"
 		"ECHO\n"
 	);
 

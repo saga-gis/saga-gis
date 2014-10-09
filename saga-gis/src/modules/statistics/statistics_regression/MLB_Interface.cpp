@@ -72,7 +72,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Spatial and Geostatistics - Regression") );
+		return( _TL("Regression") );
+
+	case MLB_INFO_Category:
+		return( _TL("Spatial and Geostatistics") );
 
 	case MLB_INFO_Author:
 		return( _TL("O.Conrad (c) 2010" ));

@@ -72,13 +72,16 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - GPS Tools") );
+		return( _TL("GPS Tools") );
+
+	case MLB_INFO_Category:
+		return( _TL("Import/Export") );
 
 	case MLB_INFO_Author:
 		return( SG_T("Victor Olaya (c) 2004") );
 
 	case MLB_INFO_Description:
-		return( _TL("Modules for GPS data handling.") );
+		return( _TL("Tools for GPS data handling.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );

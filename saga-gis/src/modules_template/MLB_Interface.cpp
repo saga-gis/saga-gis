@@ -74,6 +74,9 @@ CSG_String Get_Info(int i)
 	case MLB_INFO_Name:	default:
 		return( _TL("Module Library Template") );
 
+	case MLB_INFO_Category:
+		return( _TL("Templates") );
+
 	case MLB_INFO_Author:
 		return( SG_T("George Orwell (c) 1984") );
 

@@ -73,7 +73,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return(_TL("Simulation - Erosion"));
+		return(_TL("Erosion"));
+
+	case MLB_INFO_Category:
+		return( _TL("Simulation") );
 
 	case MLB_INFO_Author:
 		return(_TL("V. Wichmann, M. Setiawan (c) 2009-2012"));

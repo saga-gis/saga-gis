@@ -68,7 +68,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Reports - HTML") );
+		return( _TL("HTML") );
+
+	case MLB_INFO_Category:
+		return( _TL("Reports") );
 
 	case MLB_INFO_Author:
 		return( SG_T("SAGA User Group (c) 2010") );

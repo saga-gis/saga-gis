@@ -72,7 +72,10 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return(_TL("Terrain Analysis - Slope Stability"));
+		return(_TL("Slope Stability"));
+
+	case MLB_INFO_Category:
+		return( _TL("Terrain Analysis") );
 
 	case MLB_INFO_Author:
 		return("A. Günther (c) 2012");

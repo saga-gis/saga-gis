@@ -226,6 +226,14 @@ wxMenu * CWKSP_Module::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_SCRIPT);
 
+	if( m_pModule->Get_Type() == MODULE_TYPE_Chain )
+	{
+		pMenu->AppendSeparator();
+
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_CHAIN_RELOAD);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_CHAIN_EDIT);
+	}
+
 	return( pMenu );
 }
 
@@ -256,6 +264,20 @@ bool CWKSP_Module::On_Command(int Cmd_ID)
 
 	case ID_CMD_MODULES_SAVE_SCRIPT:
 		_Save_Script();
+		break;
+
+	case ID_CMD_MODULES_CHAIN_RELOAD:
+		if( m_pModule->Get_Type() == MODULE_TYPE_Chain )
+		{
+			g_pModules->Open(m_pModule->Get_File_Name().c_str());
+		}
+		break;
+
+	case ID_CMD_MODULES_CHAIN_EDIT:
+		if( m_pModule->Get_Type() == MODULE_TYPE_Chain )
+		{
+			Open_Application(m_pModule->Get_File_Name().c_str(), "txt");
+		}
 		break;
 	}
 
