@@ -126,7 +126,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const SG_Char *	SAGA_API_Get_Version(void);
+#define SAGA_MAJOR_VERSION		2
+#define SAGA_MINOR_VERSION		1
+#define SAGA_RELEASE_NUMBER		3
+#define SAGA_VERSION			SG_T("2.1.3")
 
 
 ///////////////////////////////////////////////////////////
@@ -136,7 +139,14 @@ SAGA_API_DLL_EXPORT const SG_Char *	SAGA_API_Get_Version(void);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_VERSION			SG_T("2.1.3")
+SAGA_API_DLL_EXPORT const SG_Char *	SAGA_API_Get_Version	(void);
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT int	SG_Compare_Version	(const CSG_String &Version, int Major, int Minor, int Release);
+SAGA_API_DLL_EXPORT int	SG_Compare_Version	(const CSG_String &Version, const CSG_String &Release);
+
+SAGA_API_DLL_EXPORT int	SG_Compare_SAGA_Version	(int Major, int Minor, int Release);
+SAGA_API_DLL_EXPORT int	SG_Compare_SAGA_Version	(const CSG_String &Version);
 
 
 ///////////////////////////////////////////////////////////
