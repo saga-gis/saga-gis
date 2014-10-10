@@ -495,7 +495,7 @@ bool CSG_Module::Settings_Pop(void)
 {
 	CSG_Parameters	**pP	= (CSG_Parameters **)m_Settings_Stack.Get_Array();
 
-	if( pP && m_Settings_Stack.Get_Size() >= 1 + m_npParameters )
+	if( pP && (int)m_Settings_Stack.Get_Size() >= 1 + m_npParameters )
 	{
 		int	n	= m_Settings_Stack.Get_Size() - 1;
 
@@ -893,16 +893,15 @@ void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module_library.h"
+#include "saga_api.h"
 
 //---------------------------------------------------------
-void CSG_Module::_Set_Output_History(void)
+CSG_MetaData CSG_Module::_Get_Output_History(void)
 {
-	CSG_MetaData	History, *pOutput   = NULL;
+	CSG_MetaData	History;
 
-	//-----------------------------------------------------
 	History.Set_Name(SG_META_HST);
-	History.Add_Property("version", SG_META_HST_VERSION);
+	History.Add_Property("version", SAGA_VERSION);
 
 	if( SG_Get_History_Depth() )
 	{
@@ -916,13 +915,21 @@ void CSG_Module::_Set_Output_History(void)
 
 		pModule->Add_Children(History_Supplement);
 
-		pOutput	= pModule->Add_Child("OUTPUT");
+		CSG_MetaData	*pOutput	= pModule->Add_Child("OUTPUT");
 		pOutput->Add_Property("type", "");
 		pOutput->Add_Property("id"  , "");
 		pOutput->Add_Property("name", "");
 
 		pModule->Del_Children(SG_Get_History_Depth(), SG_T("MODULE"));
 	}
+
+	return( History );
+}
+
+//---------------------------------------------------------
+void CSG_Module::_Set_Output_History(void)
+{
+	CSG_MetaData	History(_Get_Output_History());
 
 	//-----------------------------------------------------
 	for(int j=-1; j<Get_Parameters_Count(); j++)
@@ -931,36 +938,72 @@ void CSG_Module::_Set_Output_History(void)
 
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
-			CSG_Parameter	*p	= pParameters->Get_Parameter(i);
+			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-			if( p->is_Output() )//&& (p->is_Enabled() || !SG_UI_Get_Window_Main()) )
+			if( pParameter->is_Output() )//&& (pParameter->is_Enabled() || !SG_UI_Get_Window_Main()) )
 			{
-                if( pOutput )
-                {
-                    pOutput->Set_Property("type", p->Get_Type_Identifier());
-                    pOutput->Set_Property("id"  , p->Get_Identifier     ());
-                    pOutput->Set_Property("name", p->Get_Name           ());
-				}
-
-				if( p->is_DataObject() && p->asDataObject() )
-				{
-					pOutput->Set_Content(p->asDataObject()->Get_Name());
-
-					p->asDataObject()->Get_History().Assign(History);
-				}
-
-				if( p->is_DataObject_List() )
-				{
-					for(int j=0; j<p->asList()->Get_Count(); j++)
-					{
-						pOutput->Set_Content(p->asList()->asDataObject(j)->Get_Name());
-
-						p->asList()->asDataObject(j)->Get_History().Assign(History);
-					}
-				}
+				DataObject_Set_History(pParameter, &History);
 			}
 		}
 	}
+}
+
+//---------------------------------------------------------
+bool CSG_Module::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *pHistory)
+{
+	if( pParameter )
+	{
+		CSG_MetaData	History;
+
+		if( !pHistory )
+		{
+			History		= _Get_Output_History();
+
+			pHistory	= &History;
+		}
+
+		if( History("OUTPUT") )
+		{
+			History("OUTPUT")->Set_Property("type", pParameter->Get_Type_Identifier());
+			History("OUTPUT")->Set_Property("id"  , pParameter->Get_Identifier     ());
+			History("OUTPUT")->Set_Property("name", pParameter->Get_Name           ());
+		}
+
+		//-------------------------------------------------
+		if( pParameter->is_DataObject() )
+		{
+			if( pParameter->asDataObject() )
+			{
+				if( History("OUTPUT") )
+				{
+					History("OUTPUT")->Set_Content(pParameter->asDataObject()->Get_Name());
+				}
+
+				pParameter->asDataObject()->Get_History().Assign(History);
+
+				return( true );
+			}
+		}
+
+		//-------------------------------------------------
+		else if( pParameter->is_DataObject_List() )
+		{
+			for(int j=0; j<pParameter->asList()->Get_Count(); j++)
+			{
+				if( History("OUTPUT") )
+				{
+					History("OUTPUT")->Set_Content(pParameter->asList()->asDataObject(j)->Get_Name());
+				}
+
+				pParameter->asList()->asDataObject(j)->Get_History().Assign(History);
+			}
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
+	return( false );
 }
 
 

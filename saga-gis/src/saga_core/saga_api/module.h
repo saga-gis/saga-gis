@@ -302,6 +302,8 @@ protected:
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal);	// Range Parameter
 
+	bool						DataObject_Set_History		(CSG_Parameter *pParameter, CSG_MetaData *pHistory = NULL);
+
 	bool						Get_Projection				(CSG_Projection &Projection)	const;
 
 
@@ -320,6 +322,7 @@ private:
 
 	bool						_Synchronize_DataObjects	(void);
 
+	CSG_MetaData				_Get_Output_History			(void);
 	void						_Set_Output_History			(void);
 
 	void						_Update_Parameter_States	(CSG_Parameters *pParameters);
