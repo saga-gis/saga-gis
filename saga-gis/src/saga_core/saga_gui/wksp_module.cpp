@@ -267,9 +267,12 @@ bool CWKSP_Module::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_MODULES_CHAIN_RELOAD:
-		if( m_pModule->Get_Type() == MODULE_TYPE_Chain )
+		if( m_pModule->Get_Type() == MODULE_TYPE_Chain
+		&&  g_pModules->Open(m_pModule->Get_File_Name().c_str())
+		&&  g_pACTIVE->Get_Active() == this )
 		{
-			g_pModules->Open(m_pModule->Get_File_Name().c_str());
+			g_pACTIVE->Set_Active(NULL);
+			g_pACTIVE->Set_Active(this);
 		}
 		break;
 

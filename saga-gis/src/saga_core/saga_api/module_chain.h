@@ -122,8 +122,6 @@ private:
 
 	void						Reset					(void);
 
-	static CSG_String			Get_Option_ID			(const SG_Char *Tool, const SG_Char *Parms, const SG_Char *Option);
-
 	bool						Data_Add				(const CSG_String &ID, CSG_Parameter *pData);
 	bool						Data_Exists				(CSG_Data_Object *pData);
 	bool						Data_Initialize			(void);

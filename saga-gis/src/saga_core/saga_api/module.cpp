@@ -1160,6 +1160,11 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
 		}
 
+		if( Get_Type() == MODULE_TYPE_Chain )
+		{
+			SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
+		}
+
 		if( Menu.Length() > 0 )
 		{
 			CSG_String	sMenu(Menu);

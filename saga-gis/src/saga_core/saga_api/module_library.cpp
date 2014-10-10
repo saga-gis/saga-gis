@@ -516,9 +516,18 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	{
 		SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Reload tool chain"), File_Name), true);
 
-		pModule->Create(File_Name);
+		CSG_Module_Chain	Module;
 
-		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		if( Module.Create(File_Name) )	// don't reset loaded module in case reloading fails!!!
+		{
+			pModule->Create(File_Name);
+
+			SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		}
+		else
+		{
+			SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		}
 
 		return( pLibrary );
 	}
@@ -541,10 +550,12 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	}
 
 	//-----------------------------------------------------
+	CSG_String	Library	= pModule->Get_Library();	if( Library.is_Empty() )	Library	= "toolchains";
+
 	for(int iLibrary=0; !pLibrary && iLibrary<Get_Count(); iLibrary++)
 	{
 		if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS
-		&&  Get_Library(iLibrary)->Get_Library_Name().Cmp(pModule->Get_Library()) == 0 )
+		&&  Get_Library(iLibrary)->Get_Library_Name().Cmp(Library) == 0 )
 		{
 			pLibrary	= (CSG_Module_Chains *)Get_Library(iLibrary);
 		}

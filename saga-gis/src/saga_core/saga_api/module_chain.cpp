@@ -73,9 +73,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define TOOL_CHAIN_VERSION	"1.0.0"
-
-//---------------------------------------------------------
 #define GET_XML_CONTENT(md, id, def)	(md(id) ? md(id)->Get_Content() : CSG_String(def))
 
 
@@ -117,29 +114,13 @@ void CSG_Module_Chain::Reset(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Chain::Get_Option_ID(const SG_Char *Tool, const SG_Char *Parms, const SG_Char *Option)
-{
-	CSG_String	ID;
-
-	if( Tool   && *Tool   )	{	                                 ID	+= Tool;	}
-	if( Parms  && *Parms  )	{	if( !ID.is_Empty() ) ID	+= "::"; ID	+= Parms;	}
-	if( Option && *Option )	{	if( !ID.is_Empty() ) ID	+= "::"; ID	+= Option;	}
-
-	return( ID );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CSG_Module_Chain::Create(const CSG_String &File)
 {
 	Reset();
 
 	//-----------------------------------------------------
-	if( !m_Chain.Load(File) || !m_Chain.Cmp_Name("toolchain") || !m_Chain.Cmp_Property("version", TOOL_CHAIN_VERSION)
+	if( !m_Chain.Load(File) || !m_Chain.Cmp_Name("toolchain")
+	||  SG_Compare_Version(m_Chain.Get_Property("version"), "2.1.3") < 0
 	||  !m_Chain("identifier") || !m_Chain("parameters") )
 	{
 		Reset();
@@ -152,9 +133,9 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 
 	m_ID			= GET_XML_CONTENT(m_Chain, "identifier" , "");
 	m_Library		= GET_XML_CONTENT(m_Chain, "group"      , "toolchains");
-//	m_Library_Name	= GET_XML_CONTENT(m_Chain, "group_name" , _TL("Tool Chains"));
 	m_Menu			= GET_XML_CONTENT(m_Chain, "menu"       , "");
-	Set_Name         (GET_XML_CONTENT(m_Chain, "name"       , _TL("Unnamed")));
+	Set_Name         (GET_XML_CONTENT(m_Chain, "name"       , _TL("Not Named")));
+	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown")));
 	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description")));
 
 	//-----------------------------------------------------
@@ -163,21 +144,18 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		const CSG_MetaData	&Parameter	= m_Chain["parameters"][i];
 
 		int			Constraint	= 0;
-		CSG_String	ID, Value;
+		CSG_String	Value, ID	= Parameter.Get_Property("varname");
 
 		if( Parameter.Cmp_Name("input") )
 		{
-			ID			= Parameter.Get_Property("varname");
 			Constraint	= PARAMETER_INPUT;
 		}
 		else if( Parameter.Cmp_Name("output") )
 		{
-			ID			= Parameter.Get_Property("varname");
 			Constraint	= PARAMETER_OUTPUT;
 		}
 		else if( Parameter.Cmp_Name("option") )
 		{
-			ID			= Get_Option_ID(Parameter.Get_Property("tool"), Parameter.Get_Property("parms"), Parameter.Get_Property("id"));
 			Value		= Parameter.Get_Content("value");
 		}
 
@@ -195,7 +173,9 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		switch( SG_Parameter_Type_Get_Type(Parameter.Get_Property("type")) )
 		{
 		case PARAMETER_TYPE_PointCloud     : Parameters.Add_PointCloud     (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Grid           : Parameters.Add_Grid           (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Grid           : Parameter.Cmp_Property("target", "none") 
+			                               ? Parameters.Add_Grid_Output    (   NULL, ID, Name, Desc)
+			                               : Parameters.Add_Grid           (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_Table          : Parameters.Add_Table          (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_Shapes         : Parameters.Add_Shapes         (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_TIN            : Parameters.Add_TIN            (pParent, ID, Name, Desc, Constraint);	break;
@@ -347,6 +327,11 @@ bool CSG_Module_Chain::Data_Finalize(void)
 	{
 		if( Parameters(i)->is_DataObject() )
 		{
+			if( Parameters(i)->Get_Type() == PARAMETER_TYPE_DataObject_Output && m_Data(Parameters(i)->Get_Identifier()) )
+			{
+				Parameters(i)->Set_Value(m_Data(Parameters(i)->Get_Identifier())->asDataObject());
+			}
+
 			m_Data_Manager.Delete(Parameters(i)->asDataObject(), true);
 		}
 		else if( Parameters(i)->is_DataObject_List() )
@@ -450,7 +435,14 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 		}
 		else if( Parameter.Cmp_Name("option") )
 		{
-			pParameter->Set_Value(Parameter.Get_Content());
+			if( Parameter.Cmp_Property("varname", "1") || Parameter.Cmp_Property("varname", "true", true) )
+			{	// does option want a value from tool chain parameters and do these provide one ?
+				pParameter->Assign(Parameters(Parameter.Get_Content()));
+			}
+			else
+			{
+				pParameter->Set_Value(Parameter.Get_Content());
+			}
 		}
 		else if( Parameter.Cmp_Name("input") )
 		{
@@ -504,22 +496,13 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 		}
 		else if( Parameter.Cmp_Name("option") )
 		{
-			pParameter->Set_Value(Parameter.Get_Content());
-		}
-	}
-
-	//-----------------------------------------------------
-	for(i=-1; i<pModule->Get_Parameters_Count(); i++)	// set from tool chain parameters
-	{
-		CSG_Parameters	*pParameters	= i < 0 ? pModule->Get_Parameters() : pModule->Get_Parameters(i);
-
-		for(int j=0; j<pParameters->Get_Count(); j++)
-		{
-			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(j);
-
-			if( pParameter->is_Option() )
+			if( Parameter.Cmp_Property("varname", "1") || Parameter.Cmp_Property("varname", "true", true) )
+			{	// does option want a value from tool chain parameters and do these provide one ?
+				pParameter->Assign(Parameters(Parameter.Get_Content()));
+			}
+			else
 			{
-				pParameter->Assign(Parameters(Get_Option_ID(Tool_ID, pParameters->Get_Identifier(), pParameter->Get_Identifier())));
+				pParameter->Set_Value(Parameter.Get_Content());
 			}
 		}
 	}
@@ -604,7 +587,7 @@ CSG_Module_Chains::CSG_Module_Chains(const CSG_String &Library_Name, const CSG_S
 	if( m_Library_Name.is_Empty() )
 	{
 		m_Library_Name	= "toolchains";
-		m_Name			= _TL("Unsorted");
+		m_Name			= _TL("Tool Chains");
 		m_Description	= _TL("Unsorted tool chains");
 		m_Menu			= _TL("Tool Chains");
 	}
@@ -695,7 +678,7 @@ bool CSG_Module_Chain::Save_History_to_Model(const CSG_MetaData &History, const 
 	CSG_MetaData	Chain;
 
 	Chain.Set_Name    ("toolchain"  );
-	Chain.Add_Property("version"    , TOOL_CHAIN_VERSION);
+	Chain.Add_Property("version"    , SAGA_VERSION);
 
 	Chain.Add_Child   ("group"      , "toolchains");
 	Chain.Add_Child   ("identifier" , SG_File_Get_Name(File, false));
