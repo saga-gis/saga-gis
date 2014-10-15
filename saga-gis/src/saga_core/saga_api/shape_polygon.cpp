@@ -160,36 +160,28 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 {
 	if(	m_nPoints > 2 && Get_Extent().Contains(x, y) )
 	{
-		int			nCrossings;
-		TSG_Point	A, B, C, *pA, *pB;
+		int	nCrossings	= 0;
 
-		nCrossings	= 0;
+		TSG_Point	*pA	= m_Points;
+		TSG_Point	*pB	= m_Points + m_nPoints - 1;
 
-		A.x			= Get_Extent().Get_XMin();
-		B.x			= x;
-		A.y = B.y	= y;
-
-		pB	= m_Points + m_nPoints - 1;
-		pA	= m_Points;
-
-		for(int iPoint=0, goNext=0; iPoint<m_nPoints; iPoint++, pB=pA++)
+		for(int iPoint=0; iPoint<m_nPoints; iPoint++, pB=pA++)
 		{
-			if( pA->y != pB->y )
+			if( y < pA->y )	// pA above ray
 			{
-				if( pA->y == y )
+				if( pB->y <= y )	// pB on or below ray
 				{
-					goNext	= pA->y > pB->y ? 1 : -1;
-				}
-				else if( goNext )	// pB->y == y
-				{
-					if( ((goNext > 0 && pA->y > pB->y) || (goNext < 0 && pA->y < pB->y)) && pB->x <= B.x )
+					if( ((y - pB->y) * (pA->x - pB->x)) > ((x - pB->x) * (pA->y - pB->y)) )
+					{
 						nCrossings++;
-
-					goNext	= 0;
+					}
 				}
-				else if( ((pB->y < y && y <= pA->y) || (pB->y > y && y >= pA->y)) && (pB->x < x || pA->x < x) )
+			}
+			else			// pA on or below ray
+			{
+				if( pB->y >  y )	// pB above ray
 				{
-					if( SG_Get_Crossing(C, *pA, *pB, A, B) )
+					if( ((y - pB->y) * (pA->x - pB->x)) < ((x - pB->x) * (pA->y - pB->y)) )
 					{
 						nCrossings++;
 					}
@@ -594,14 +586,7 @@ bool CSG_Shape_Polygon::Contains(double x, double y)
 {
 	if( Get_Extent().Contains(x, y) )
 	{
-		int			nCrossings;
-		TSG_Point	A, B, C, *pA, *pB;
-
-		nCrossings	= 0;
-
-		A.x			= Get_Extent().Get_XMin();
-		B.x			= x;
-		A.y = B.y	= y;
+		int	nCrossings	= 0;
 
 		for(int iPart=0; iPart<m_nParts; iPart++)
 		{
@@ -609,32 +594,26 @@ bool CSG_Shape_Polygon::Contains(double x, double y)
 
 			if( pPart->m_nPoints > 2 && pPart->Get_Extent().Contains(x, y) )
 			{
-				pB	= pPart->m_Points + pPart->m_nPoints - 1;
-				pA	= pPart->m_Points;
+				TSG_Point	*pA	= pPart->m_Points;
+				TSG_Point	*pB	= pPart->m_Points + pPart->m_nPoints - 1;
 
-				for(int iPoint=0, goNext=0; iPoint<pPart->m_nPoints; iPoint++, pB=pA++)
+				for(int iPoint=0; iPoint<pPart->m_nPoints; iPoint++, pB=pA++)
 				{
-					if( pA->y != pB->y )
+					if( y < pA->y )	// pA above ray
 					{
-						if( pA->y == y )
+						if( pB->y <= y )	// pB on or below ray
 						{
-							if( pA->x == x )
+							if( ((y - pB->y) * (pA->x - pB->x)) > ((x - pB->x) * (pA->y - pB->y)) )
 							{
-								return( true );
-							}
-
-							goNext	= pA->y > pB->y ? 1 : -1;
-						}
-						else if( goNext )	// pB->y == y
-						{
-							if( ((goNext > 0 && pA->y > pB->y) || (goNext < 0 && pA->y < pB->y)) && pB->x <= B.x )
 								nCrossings++;
-
-							goNext	= 0;
+							}
 						}
-						else if( ((pB->y < y && y <= pA->y) || (pB->y > y && y >= pA->y)) && (pB->x < x || pA->x < x) )
+					}
+					else			// pA on or below ray
+					{
+						if( pB->y >  y )	// pB above ray
 						{
-							if( SG_Get_Crossing(C, *pA, *pB, A, B) )
+							if( ((y - pB->y) * (pA->x - pB->x)) < ((x - pB->x) * (pA->y - pB->y)) )
 							{
 								nCrossings++;
 							}
