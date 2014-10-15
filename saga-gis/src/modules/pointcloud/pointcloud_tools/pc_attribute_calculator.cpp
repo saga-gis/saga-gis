@@ -195,7 +195,7 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Formula	Formula;
 
-	int		nFields		= 0;
+	int		nFields		= pInput->Get_Field_Count();
 	int		*pFields	= new int[nFields];
 
 	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pInput, pFields, nFields)) )
