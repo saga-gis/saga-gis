@@ -77,7 +77,7 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
-	Set_Name		(CSG_String::Format(SG_T("%s (%s, %s)"),
+	Set_Name		(CSG_String::Format(SG_T("[deprecated] %s (%s, %s)"),
 		_TL("Proj.4"),
 		Interface == PROJ4_INTERFACE_DIALOG ? _TL("Dialog") : _TL("Command Line Arguments"),
 		m_bInputList ? _TL("List of Grids") : _TL("Grid")

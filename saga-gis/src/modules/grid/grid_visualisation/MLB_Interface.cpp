@@ -83,13 +83,13 @@ CSG_String Get_Info(int i)
 		return( SG_T("O. Conrad, V. Wichmann (c) 2002-2014") );
 
 	case MLB_INFO_Description:
-		return( _TL("Special visualisation functions for grids.") );
+		return( _TL("Visualization tools for grids.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Visualisation") );
+		return( _TL("Visualization|Grid") );
 	}
 }
 

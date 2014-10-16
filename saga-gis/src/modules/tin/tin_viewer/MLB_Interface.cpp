@@ -72,7 +72,7 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Visualisation") );
+		return( _TL("Visualization") );
 
 	case MLB_INFO_Category:
 		return( _TL("TIN") );
@@ -87,7 +87,7 @@ CSG_String Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("TIN|Visualisation" ));
+		return( _TL("Visualization|3D Viewer" ));
 	}
 }
 

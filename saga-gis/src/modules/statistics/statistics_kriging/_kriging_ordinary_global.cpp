@@ -74,7 +74,7 @@
 C_Kriging_Ordinary_Global::C_Kriging_Ordinary_Global(void)
 	: C_Kriging_Base()
 {
-	Set_Name		(_TL("Ordinary Kriging (Global)"));
+	Set_Name		(_TL("[deprecated] Ordinary Kriging (Global)"));
 
 	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 

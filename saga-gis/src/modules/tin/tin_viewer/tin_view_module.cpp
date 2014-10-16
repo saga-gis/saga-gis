@@ -74,7 +74,7 @@
 CTIN_View_Module::CTIN_View_Module(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("TIN Viewer"));
+	Set_Name		(_TL("[deprecated] TIN Viewer"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2011"));
 

@@ -74,7 +74,7 @@
 CPoints_View_Module::CPoints_View_Module(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Point Cloud Viewer"));
+	Set_Name		(_TL("[deprecated] Point Cloud Viewer"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2009"));
 
