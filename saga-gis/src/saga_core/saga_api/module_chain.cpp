@@ -120,7 +120,7 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 
 	//-----------------------------------------------------
 	if( !m_Chain.Load(File) || !m_Chain.Cmp_Name("toolchain")
-	||  SG_Compare_Version(m_Chain.Get_Property("version"), "2.1.3") < 0
+	||  SG_Compare_Version(m_Chain.Get_Property("saga-version"), "2.1.3") < 0
 	||  !m_Chain("identifier") || !m_Chain("parameters") )
 	{
 		Reset();
@@ -669,7 +669,8 @@ CSG_Module * CSG_Module_Chains::Get_Module(int Index, TSG_Module_Type Type) cons
 //---------------------------------------------------------
 bool CSG_Module_Chain::Save_History_to_Model(const CSG_MetaData &History, const CSG_String &File)
 {
-	if( !History.Get_Property("version") || !History("MODULE") || !History("MODULE")->Get_Child("OUTPUT") )
+	if( SG_Compare_Version(History.Get_Property("saga-version"), "2.1.3") < 0
+	||  !History("MODULE") || !History("MODULE")->Get_Child("OUTPUT") )
 	{
 		return( false );
 	}
@@ -678,7 +679,7 @@ bool CSG_Module_Chain::Save_History_to_Model(const CSG_MetaData &History, const 
 	CSG_MetaData	Chain;
 
 	Chain.Set_Name    ("toolchain"  );
-	Chain.Add_Property("version"    , SAGA_VERSION);
+	Chain.Add_Property("saga-version", SAGA_VERSION);
 
 	Chain.Add_Child   ("group"      , "toolchains");
 	Chain.Add_Child   ("identifier" , SG_File_Get_Name(File, false));

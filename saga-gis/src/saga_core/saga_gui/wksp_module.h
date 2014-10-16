@@ -125,9 +125,12 @@ private:
 	class CSG_Module				*m_pModule;
 
 
-	void							_Save_Script		(void);
-	void							_Save_Script_CMD	(CSG_String &Command, CSG_Parameters *pParameters);
-	void							_Save_Script_Python	(CSG_String &Command, CSG_Parameters *pParameters);
+	void							_Save_to_Clipboard		(void);
+	void							_Save_to_Clipboard		(CSG_MetaData &Tool, CSG_Parameters *pParameters);
+
+	void							_Save_to_Script			(void);
+	void							_Save_to_Script_CMD		(CSG_String &Command, CSG_Parameters *pParameters);
+	void							_Save_to_Script_Python	(CSG_String &Command, CSG_Parameters *pParameters);
 
 };
 

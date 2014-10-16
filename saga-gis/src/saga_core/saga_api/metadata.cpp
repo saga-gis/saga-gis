@@ -628,6 +628,11 @@ CSG_String CSG_MetaData::asText(int Flags) const
 		XML.Save(Stream);
 
 		s	= &Stream.GetString();
+
+		if( Flags == 2 )	// remove <xml>
+		{
+			s	= s.AfterFirst('\n');
+		}
 	}
 
 	return( s );

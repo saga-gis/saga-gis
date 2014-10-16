@@ -901,7 +901,7 @@ CSG_MetaData CSG_Module::_Get_Output_History(void)
 	CSG_MetaData	History;
 
 	History.Set_Name(SG_META_HST);
-	History.Add_Property("version", SAGA_VERSION);
+	History.Add_Property("saga-version", SAGA_VERSION);
 
 	if( SG_Get_History_Depth() )
 	{
