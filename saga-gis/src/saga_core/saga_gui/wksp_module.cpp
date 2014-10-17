@@ -463,7 +463,20 @@ void CWKSP_Module::_Save_to_Clipboard(void)
 
 	if( wxTheClipboard->Open() )
 	{
-		CSG_String	s(Tool.asText(2));
+		CSG_MetaData	Tools;	Tools.Set_Name("toolchain");
+
+		Tools.Add_Property("saga-version", SAGA_VERSION);
+
+		Tools.Add_Child("group");
+		Tools.Add_Child("identifier");
+		Tools.Add_Child("name");
+		Tools.Add_Child("author");
+		Tools.Add_Child("description");
+		Tools.Add_Child("menu");
+		Tools.Add_Child("parameters");
+		Tools.Add_Child("tools")->Add_Child(Tool);
+
+		CSG_String	s(Tools.asText(1));
 
 		wxTheClipboard->SetData(new wxTextDataObject(s.c_str()));
 		wxTheClipboard->Close();
@@ -518,10 +531,12 @@ void CWKSP_Module::_Save_to_Clipboard(CSG_MetaData &Tool, CSG_Parameters *pParam
 			if( p->is_Input() )
 			{
 				pChild	= Tool.Add_Child("input");
+				pChild->Set_Content(p->is_Optional() ? "input_optional" : "input");
 			}
 			else if( p->is_Output() )
 			{
 				pChild	= Tool.Add_Child("output");
+				pChild->Set_Content("output");
 			}
 			break;
 		}

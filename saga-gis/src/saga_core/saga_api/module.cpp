@@ -951,55 +951,61 @@ void CSG_Module::_Set_Output_History(void)
 //---------------------------------------------------------
 bool CSG_Module::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *pHistory)
 {
-	if( pParameter )
+	if( !pParameter )
 	{
-		CSG_MetaData	History;
+		return( false );
+	}
 
-		if( !pHistory )
+	//-----------------------------------------------------
+	CSG_MetaData	History;
+
+	if( !pHistory )
+	{
+		History		= _Get_Output_History();
+
+		pHistory	= &History;
+	}
+
+	//-----------------------------------------------------
+	CSG_MetaData	*pOutput	= pHistory->Get_Child("MODULE") ? pHistory->Get_Child("MODULE")->Get_Child("OUTPUT") : NULL;
+
+	if( pOutput )
+	{
+		pOutput->Set_Property("type", pParameter->Get_Type_Identifier());
+		pOutput->Set_Property("id"  , pParameter->Get_Identifier     ());
+		pOutput->Set_Property("name", pParameter->Get_Name           ());
+	}
+
+	//-----------------------------------------------------
+	if( pParameter->is_DataObject() )
+	{
+		if( pParameter->asDataObject() )
 		{
-			History		= _Get_Output_History();
-
-			pHistory	= &History;
-		}
-
-		if( History("OUTPUT") )
-		{
-			History("OUTPUT")->Set_Property("type", pParameter->Get_Type_Identifier());
-			History("OUTPUT")->Set_Property("id"  , pParameter->Get_Identifier     ());
-			History("OUTPUT")->Set_Property("name", pParameter->Get_Name           ());
-		}
-
-		//-------------------------------------------------
-		if( pParameter->is_DataObject() )
-		{
-			if( pParameter->asDataObject() )
+			if( pOutput )
 			{
-				if( History("OUTPUT") )
-				{
-					History("OUTPUT")->Set_Content(pParameter->asDataObject()->Get_Name());
-				}
-
-				pParameter->asDataObject()->Get_History().Assign(History);
-
-				return( true );
+				pOutput->Set_Content(pParameter->asDataObject()->Get_Name());
 			}
-		}
 
-		//-------------------------------------------------
-		else if( pParameter->is_DataObject_List() )
-		{
-			for(int j=0; j<pParameter->asList()->Get_Count(); j++)
-			{
-				if( History("OUTPUT") )
-				{
-					History("OUTPUT")->Set_Content(pParameter->asList()->asDataObject(j)->Get_Name());
-				}
-
-				pParameter->asList()->asDataObject(j)->Get_History().Assign(History);
-			}
+			pParameter->asDataObject()->Get_History().Assign(*pHistory);
 
 			return( true );
 		}
+	}
+
+	//-----------------------------------------------------
+	else if( pParameter->is_DataObject_List() )
+	{
+		for(int j=0; j<pParameter->asList()->Get_Count(); j++)
+		{
+			if( pOutput )
+			{
+				pOutput->Set_Content(pParameter->asList()->asDataObject(j)->Get_Name());
+			}
+
+			pParameter->asList()->asDataObject(j)->Get_History().Assign(*pHistory);
+		}
+
+		return( true );
 	}
 
 	//-----------------------------------------------------

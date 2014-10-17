@@ -172,7 +172,7 @@ bool CACTIVE_History::_Set_History(void)
 	{
 		AddRoot(_TL("no history"), IMG_ROOT);
 	}
-	else if( pObject->Get_History().Get_Property("version") )	// new version
+	else if( SG_Compare_Version(pObject->Get_History().Get_Property("saga-version"), "2.1.3") >= 0 )	// new version
 	{
 		_Add_History(AddRoot(pObject->Get_Name(), IMG_ROOT), pObject->Get_History());
 	}
@@ -205,7 +205,7 @@ void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_OPTIONS_EXPAND);
 
-	if( _Get_Object() && _Get_Object()->Get_History().Get_Property("version") )
+	if( _Get_Object() && SG_Compare_Version(_Get_Object()->Get_History().Get_Property("saga-version"), "2.1.3") >= 0 )	// new version
 	{
 		Menu.AppendSeparator();
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_HISTORY_TO_MODEL);

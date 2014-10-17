@@ -138,6 +138,14 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown")));
 	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description")));
 
+	if( !m_Menu.is_Empty() && (m_Menu.Length() < 2 || m_Menu[1] != ':') )
+	{
+		if( m_Chain["menu"].Cmp_Property("absolute", "true", true) || m_Chain["menu"].Cmp_Property("absolute", "1") )
+			m_Menu.Prepend("A:");	// absolute path
+		else
+			m_Menu.Prepend("R:");	// relative path
+	}
+
 	//-----------------------------------------------------
 	for(int i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
 	{
