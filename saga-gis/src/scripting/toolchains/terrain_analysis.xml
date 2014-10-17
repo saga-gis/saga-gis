@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>terrain_analysis</group>
+  <identifier>terrain_analysis</identifier>
+  <name>Terrain Analysis</name>
+  <description>Tool chains dedicated to terrain analysis.</description>
+  <menu>Terrain Analysis</menu>
+</toolchains>

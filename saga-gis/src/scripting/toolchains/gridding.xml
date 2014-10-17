@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain version="2.1.3">
+  <group></group>
+  <identifier>gridding</identifier>
+  <name>Gridding of Points</name>
+  <author>O.Conrad (c) 2014</author>
+  <description>created from history</description>
+  <parameters>
+    <input varname="SHAPES" type="shapes">
+      <name>Points</name>
+    </input>
+    <option varname="ATTRIBUTE" type="table_field" parent="SHAPES">
+      <name>Attribute</name>
+      <description>attribute to become interpolated</description>
+	</option>
+    <option varname="CELL_SIZE" type="double">
+      <name>Precision</name>
+      <description>this is the internal grid cell size determining the precision of contours</description>
+	  <value>10.0</value>
+	</option>
+    <output varname="INTERPOLATION" type="grid" target="none">
+      <name>Interpolation</name>
+    </output>
+  </parameters>
+  <tools>
+    <tool library="grid_spline" module="4" name="Multilevel B-Spline Interpolation">
+      <option id="FIELD" varname="1">ATTRIBUTE</option>
+      <option id="USER_SIZE" varname="1">CELL_SIZE</option>
+      <option id="METHOD">1</option>
+      <option id="EPSILON">0.000100</option>
+      <option id="LEVEL_MAX">11</option>
+      <input id="SHAPES">SHAPES</input>
+      <output id="OUT_GRID">INTERPOLATION</output>
+    </tool>
+  </tools>
+</toolchain>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="2.1.3">
+  <group></group>
+  <identifier>SieveAndClump</identifier>
+  <name>Sieve and Clump</name>
+  <author>O.Conrad (c) 2014</author>
+  <description>created from history</description>
+  <menu absolute="true">Grid|Filter</menu>
+  <parameters>
+    <option varname="GRID_SYSTEM" type="grid_system">
+      <name>Grid System</name>
+    </option>
+    <input varname="CLASSES" type="grid" parent="GRID_SYSTEM">
+      <name>Classes</name>
+    </input>
+    <output varname="FILTERED" type="grid" parent="GRID_SYSTEM">
+      <name>Sieve and Clump</name>
+    </output>
+    <option varname="SIEVE" type="integer">
+      <name>Sieving Threshold</name>
+	  <value>2</value>
+	</option>
+    <option varname="EXPAND" type="integer">
+      <name>Maximum Expansion Distance</name>
+	  <value>4</value>
+	</option>
+  </parameters>
+  <tools>
+    <tool library="grid_filter" module="15" name="Sieving Classes">
+      <option id="MODE">1</option>
+      <option id="ALL">1</option>
+      <option id="THRESHOLD" varname="1">SIEVE</option>
+      <output id="OUTPUT">SIEVED</output>
+      <input id="INPUT">CLASSES</input>
+    </tool>
+    <tool library="grid_tools" module="28" name="Shrink and Expand">
+      <option id="OPERATION">3</option>
+      <option id="CIRCLE">1</option>
+      <option id="EXPAND">3</option>
+      <option id="RADIUS" varname="1">EXPAND</option>
+      <output id="RESULT">FILTERED</output>
+      <input id="INPUT">SIEVED</input>
+    </tool>
+  </tools>
+</toolchain>

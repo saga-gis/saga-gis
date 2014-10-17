@@ -152,6 +152,9 @@ copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
+md $(OutDir)\modules
+md $(OutDir)\modules\toolchains
+copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -217,6 +220,9 @@ copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
+md $(OutDir)\modules
+md $(OutDir)\modules\toolchains
+copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -281,6 +287,9 @@ copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
+md $(OutDir)\modules
+md $(OutDir)\modules\toolchains
+copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -346,6 +355,9 @@ copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
+md $(OutDir)\modules
+md $(OutDir)\modules\toolchains
+copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

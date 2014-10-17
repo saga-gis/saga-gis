@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain version="1.0.0">
+  <group>toolchains</group>
+  <identifier>TerrainSegment</identifier>
+  <name>Terrain Segmentation</name>
+  <description>created from history</description>
+  <parameters>
+    <option id="GRID_SYSTEM" type="grid_system">
+      <name>Grid System</name>
+    </option>
+    <input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
+      <name>Features</name>
+    </input>
+    <output varname="OBJECTS" type="shapes">
+      <name>Objects</name>
+    </output>
+    <option tool="seeds" id="BAND_WIDTH" type="double">
+      <name>Band Width</name>
+      <description>increase band width to get less seed points</description>
+      <value>10</value>
+    </option>
+    <option tool="majority" id="RADIUS" type="integer">
+      <name>Generalization</name>
+      <description>majority filter radius</description>
+      <value>2</value>
+    </option>
+    <option tool="cluster" id="NCLUSTER" type="integer">
+      <name>Number of Clusters</name>
+      <description>number of clusters</description>
+      <value>10</value>
+    </option>
+  </parameters>
+  <tools>
+    <tool id="seeds" library="imagery_segmentation" module="2" name="Seed Generation">
+      <output id="SEED_GRID">SEED_GRID</output>
+      <option id="SEED_TYPE">0</option>
+      <option id="METHOD">0</option>
+      <option id="BAND_WIDTH">10.000000</option>
+      <option id="NORMALIZE">FALSE</option>
+      <input id="FEATURES">FEATURES</input>
+    </tool>
+    <tool id="tool_04" library="imagery_segmentation" module="3" name="Simple Region Growing">
+      <output id="SEGMENTS">SEGMENTS_GRID</output>
+      <option id="METHOD">0</option>
+      <option id="NEIGHBOUR">1</option>
+      <option id="SIG_1">1.000000</option>
+      <option id="SIG_2">1.000000</option>
+      <option id="THRESHOLD">0.000000</option>
+      <option id="REFRESH">FALSE</option>
+      <option id="LEAFSIZE">256</option>
+      <input id="SEEDS">SEED_GRID</input>
+      <input id="FEATURES">FEATURES</input>
+    </tool>
+    <tool id="majority" library="grid_filter" module="6" name="Majority Filter">
+      <output id="RESULT">SEGMENTS_GRID_B</output>
+      <option id="MODE">1</option>
+      <option id="THRESHOLD">0.000000</option>
+      <input id="INPUT">SEGMENTS_GRID</input>
+    </tool>
+    <tool id="tool_03" library="shapes_grid" module="6" name="Vectorising Grid Classes">
+      <output id="POLYGONS">SEGMENTS</output>
+      <option id="CLASS_ALL">1</option>
+      <option id="CLASS_ID">1.000000</option>
+      <option id="SPLIT">0</option>
+      <option id="ALLVERTICES">FALSE</option>
+      <input id="GRID">SEGMENTS_GRID_B</input>
+    </tool>
+    <tool id="tool_02" library="shapes_grid" module="2" name="Grid Statistics for Polygons">
+      <output id="RESULT">CLUSTERS</output>
+      <option id="METHOD">0</option>
+      <option id="NAMING">1</option>
+      <option id="COUNT">FALSE</option>
+      <option id="MIN">FALSE</option>
+      <option id="MAX">FALSE</option>
+      <option id="RANGE">FALSE</option>
+      <option id="SUM">FALSE</option>
+      <option id="MEAN">TRUE</option>
+      <option id="VAR">FALSE</option>
+      <option id="STDDEV">FALSE</option>
+      <option id="QUANTILE">0</option>
+      <input id="GRIDS">FEATURES</input>
+      <input id="POLYGONS">SEGMENTS</input>
+    </tool>
+    <tool id="cluster" library="table_calculus" module="14" name="Cluster Analysis">
+      <option id="FIELDS">3,4,5,6,7,8,9,10,11,12,13,14</option>
+      <option id="METHOD">1</option>
+      <option id="NCLUSTER">10</option>
+      <option id="NORMALISE">FALSE</option>
+      <input id="INPUT">CLUSTERS</input>
+    </tool>
+    <tool id="dissolve" library="shapes_polygons" module="5" name="Polygon Dissolve">
+      <output id="DISSOLVED">DISSOLVED</output>
+      <option id="FIELD_1">CLUSTER</option>
+      <option id="BND_KEEP">FALSE</option>
+      <option id="STAT_FIELDS">&lt;no attributes&gt;</option>
+      <input id="POLYGONS">CLUSTERS</input>
+    </tool>
+    <tool id="split_polygons" library="shapes_polygons" module="10" name="Polygon Parts to Separate Polygons">
+      <output id="PARTS">OBJECTS</output>
+      <option id="LAKES">FALSE</option>
+      <input id="POLYGONS">DISSOLVED</input>
+    </tool>
+  </tools>
+</toolchain>
