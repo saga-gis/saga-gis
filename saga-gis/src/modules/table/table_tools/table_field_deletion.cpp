@@ -77,13 +77,13 @@ CTable_Field_Deletion::CTable_Field_Deletion(void)
 	Set_Author	(_TL("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Deletes selected fields from a table. "
+		"Deletes selected fields from a table or shapefile. "
 	));
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode	= Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Table"),
-		_TL(""),
+		_TL("Input table or shapefile"),
 		PARAMETER_INPUT
 	);
 
@@ -93,13 +93,13 @@ CTable_Field_Deletion::CTable_Field_Deletion(void)
 	);
 
 	Parameters.Add_Table(
-		NULL	, "OUT_TABLE"	, _TL("Table with Text Replacements"),
+		NULL	, "OUT_TABLE"	, _TL("Output table with field(s) deleted"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "OUT_SHAPES"	, _TL("Shapes with Text Replacements"),
+		NULL	, "OUT_SHAPES"	, _TL("Output shapes with field(s) deleted"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -156,7 +156,7 @@ bool CTable_Field_Deletion::On_Execute(void)
 	{
 		if( (pOutput = Parameters("OUT_SHAPES")->asShapes()) != NULL && pOutput != pTable )
 		{
-			((CSG_Shapes *)pOutput)->Create(((CSG_Shapes *)pTable)->Get_Type());
+			((CSG_Shapes *)pOutput)->Create(((CSG_Shapes *)pTable)->Get_Type(), (const wchar_t*)0, (CSG_Table *)0, ((CSG_Shapes *)pTable)->Get_Vertex_Type());
 		}
 	}
 	else // if( pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
@@ -170,15 +170,37 @@ bool CTable_Field_Deletion::On_Execute(void)
 	//-----------------------------------------------------
 	if( pOutput )
 	{
-		int		iField;
+		int		nFields		= pTable->Get_Field_Count() - pFields->Get_Count();
+		int		*pFieldsOut	= new int[nFields];
+
+		int		iField = 0;
+
+		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		{
+			bool bDelete = false;
+
+			for(int j=0; j<pFields->Get_Count(); j++)
+			{
+				if( i == pFields->Get_Index(j) )
+				{
+					bDelete = true;
+					break;
+				}
+			}
+
+			if( !bDelete )
+			{
+				pFieldsOut[iField] = i;
+				iField++;
+			}
+		}
+
 
 		pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pTable->Get_Name(), _TL("Changed")));
 
-		for(iField=0; iField<pFields->Get_Count(); iField++)
+		for(iField=0; iField<nFields; iField++)
 		{
-			int	Index	= pFields->Get_Index(iField);
-
-			pOutput->Add_Field(pTable->Get_Field_Name(Index), pTable->Get_Field_Type(Index));
+			pOutput->Add_Field(pTable->Get_Field_Name(pFieldsOut[iField]), pTable->Get_Field_Type(pFieldsOut[iField]));
 		}
 
 		for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
@@ -188,17 +210,35 @@ bool CTable_Field_Deletion::On_Execute(void)
 			if( pOutput->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
 			{
 				pOut	= ((CSG_Shapes *)pOutput)->Add_Shape(pIn, SHAPE_COPY_GEOM);
+
+				if( ((CSG_Shapes *)pOutput)->Get_Vertex_Type() > SG_VERTEX_TYPE_XY )
+				{
+					for(int iPart=0; iPart<((CSG_Shape *)pIn)->Get_Part_Count(); iPart++)
+					{
+						for(int iPoint=0; iPoint<((CSG_Shape *)pIn)->Get_Point_Count(iPart); iPoint++)
+						{
+							((CSG_Shape *)pOut)->Set_Z(((CSG_Shape *)pIn)->Get_Z(iPoint, iPart), iPoint, iPart);
+
+							if( ((CSG_Shapes *)pOutput)->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+							{
+								((CSG_Shape *)pOut)->Set_M(((CSG_Shape *)pIn)->Get_M(iPoint, iPart), iPoint, iPart);
+							}
+						}
+					}
+				}
 			}
 			else
 			{
 				pOut	= pOutput->Add_Record();
 			}
 
-			for(iField=0; iField<pFields->Get_Count(); iField++)
+			for(iField=0; iField<nFields; iField++)
 			{
-				*pOut->Get_Value(iField)	= *pIn->Get_Value(pFields->Get_Index(iField));
+				*pOut->Get_Value(iField)	= *pIn->Get_Value(pFieldsOut[iField]);
 			}
 		}
+
+		delete[] pFieldsOut;
 	}
 	else
 	{
