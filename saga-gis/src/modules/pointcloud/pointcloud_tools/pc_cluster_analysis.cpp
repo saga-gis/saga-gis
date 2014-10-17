@@ -86,12 +86,6 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 
 	Set_Description	(_TW(		
 		"Cluster Analysis for Point Clouds.\n\n"
-		"Module usage is different between SAGA GUI and SAGA CMD: With "
-		"SAGA GUI you will get prompted to choose the attributes to use "
-		"once you execute the module. With SAGA CMD you have to provide "
-		"a string with the -ATTR_FIELDS parameter containing the field "
-		"numbers of the attributes to use (separated by semicolon). Field "
-		"numbers start with 1, e.g. -ATTR_FIELDS=\"4;5;7\".\n\n" 
 		
 		"References:\n\n"
 
@@ -114,10 +108,15 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 	//-----------------------------------------------------
 	// 2. Datasets...
 
-	Parameters.Add_PointCloud(
+	CSG_Parameter *pNode = Parameters.Add_PointCloud(
 		NULL	, "PC_IN"		,_TL("Point Cloud"),
 		_TL("Input"),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Fields(
+		pNode	, "FIELDS"		, _TL("Attributes"),
+		_TL("The attribute fields to cluster")
 	);
 
 	Parameters.Add_PointCloud(
@@ -158,15 +157,7 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 		PARAMETER_TYPE_Bool, true
 	);
 
-	if (!SG_UI_Get_Window_Main())
-	{
-		Parameters.Add_String(
-            NULL	, "ATTR_FIELDS"    , _TL("Attribute Fields"),
-            _TL("The numbers (starting from 1) of the fields to use for clustering, separated by semicolon, e.g. \"4;5;7\""),
-            SG_T("")
-        );
-	}
-	else
+	if (SG_UI_Get_Window_Main())
 	{
 		Parameters.Add_Value(
 			NULL	, "UPDATEVIEW"	, _TL("Update View"),
@@ -186,249 +177,196 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 //---------------------------------------------------------
 bool CPC_Cluster_Analysis::On_Execute(void)
 {
-	int						i, j, nCluster, cnt;
-	long					nElements;
-	double					SP;
-	CSG_Parameters			Parms;
+	int				nCluster;
+	long			nElements;
+	double			SP;
+	CSG_Parameters Parms;
+
+	m_bUpdateView = false;
 
 	//-----------------------------------------------------
 	nCluster	= Parameters("NCLUSTER")->asInt();
 	pInput		= Parameters("PC_IN")	->asPointCloud();
 	pResult		= Parameters("PC_OUT")	->asPointCloud();
-	pResult		->Create(pInput);
-	pResult		->Set_Name(CSG_String::Format(SG_T("%s_cluster"), pInput->Get_Name()));
-	pResult		->Add_Field(SG_T("CLUSTER"), SG_DATATYPE_Int);
-	DataObject_Update(pResult);
-	pResult		->Set_NoData_Value(- 1.0);
-	clustField	= pResult->Get_Field_Count()-1;
 
-	vFields.resize(pInput->Get_Field_Count());
+	if( SG_UI_Get_Window_Main() )
+		m_bUpdateView = Parameters("UPDATEVIEW")->asBool();
+
+	//-------------------------------------------------
+	m_Features	= (int *)Parameters("FIELDS")->asPointer();
+	m_nFeatures	=        Parameters("FIELDS")->asInt    ();
+
+	if( !m_Features || m_nFeatures <= 0 )
+	{
+		Error_Set(_TL("no features in selection"));
+
+		return( false );
+	}
+
 
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )	// GUI
-    {
-		CSG_Parameters			Parms;
-		CSG_String				fName, fID;
+	pResult->Create(pInput);
+	pResult->Set_Name(CSG_String::Format(SG_T("%s_cluster"), pInput->Get_Name()));
+	pResult->Add_Field(SG_T("CLUSTER"), SG_DATATYPE_Int);
+	DataObject_Update(pResult);
 
-		Parms.Set_Name(_TL("Choose the attributes to use for clustering:"));
-
-		for( int iField=0; iField<pInput->Get_Field_Count(); iField++ )
-		{
-			fName.Printf(SG_T("%s"), pInput->Get_Field_Name(iField));
-			fID.Printf(SG_T("FIELD_%03d"), iField);
-			Parms.Add_Value(NULL, fID, fName, _TL(""), PARAMETER_TYPE_Bool, false);
-		}
-
-		if( Dlg_Parameters(&Parms, _TL("")) )
-		{
-			for( int iField=0; iField<pInput->Get_Field_Count(); iField++ )
-			{
-				fID.Printf(SG_T("FIELD_%03d"), iField);
-
-				if( Parms.Get_Parameter(fID)->asBool() )
-					vFields.at(iField) = true;
-			}
-		}
-		else
-			return( false );
-	}
-	else		// CMD LINE
-	{
-		CSG_String		attrFields;
-		CSG_String		token;
-		int				field;
-
-		Parameters.Add_Value(
-			NULL	, "UPDATEVIEW"	, _TL("Update View"),
-			_TL("Update cluster view while clustering."),
-			PARAMETER_TYPE_Bool, false
-		);
-
-		attrFields		= Parameters("ATTR_FIELDS")->asString();
-
-		CSG_String_Tokenizer   tkz_fields(attrFields, ";", SG_TOKEN_STRTOK);
-
-		while( tkz_fields.Has_More_Tokens() )
-		{
-			token	= tkz_fields.Get_Next_Token();
-
-			if( token.Length() == 0 )
-				break;
-
-			if( !token.asInt(field) )
-			{
-				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: can't convert to number"));
-				return( false );
-			}
-
-			field	-= 1;
-
-			if( field < 0 || field > (int)vFields.size() - 1 )
-			{
-				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: field index out of range"));
-				return( false );
-			}
-			else
-				vFields.at(field)	= true;
-		}
-	}
+	pResult->Set_NoData_Value(-1.0);
+	clustField	= pResult->Get_Field_Count() - 1;
 
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Initializing ..."));
 
-	nFields		= 0;
+	for( int i=0; i<m_nFeatures; i++ )
+		vValues.push_back( std::vector<double>() );
 
-	for( i=0; i<(int)vFields.size(); i++ )
+	for( int i=0; i<pInput->Get_Record_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Record_Count()); i++ )
 	{
-		if( vFields.at(i) )
-			nFields++;
-	}
+		pResult->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 
-	if( nFields > 0 )
-	{
-		for( i=0; i<nFields; i++ )
-			vValues.push_back( std::vector<double>() );
+		for( int j=0; j<pInput->Get_Attribute_Count(); j++ )
+			pResult->Set_Attribute(i, j, pInput->Get_Attribute(i, j));
 
-		for( i=0; i<pInput->Get_Record_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Record_Count()); i++ )
-		{
-			pResult->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
-			
-			cnt		= 0;
-
-			for( j=0; j<pInput->Get_Field_Count(); j++ )
-			{
-				if( vFields.at(j) )
-				{
-					if( Parameters("NORMALISE")->asBool() )
-						vValues.at(cnt).push_back( (pInput->Get_Value(i, j) - pInput->Get_Mean(j)) / pInput->Get_StdDev(j) );
-					else
-						vValues.at(cnt).push_back(pInput->Get_Value(i, j));
-
-					cnt++;
-				}
-
-				if( j > 2 )
-					pResult->Set_Value(j, pInput->Get_Value(i, j));
-			}
-		}
+		pResult->Set_NoData(i, clustField);
 		
-		pResult->Set_NoData(clustField);
+		bool bNoData = false;
 
-		if( Parameters("UPDATEVIEW")->asBool() )
+		for( int j=0; j<m_nFeatures; j++)
 		{
-			if( DataObject_Get_Parameters(pResult, Parms) && Parms("COLORS_TYPE") && Parms("METRIC_ATTRIB") && Parms("METRIC_COLORS") && Parms("METRIC_ZRANGE") )
+			if( pInput->is_NoData(i, m_Features[j]) )
 			{
-				Parms("COLORS_TYPE")					->Set_Value(2);			// graduated color
-				Parms("METRIC_COLORS")->asColors()		->Set_Count(nCluster);
-				Parms("METRIC_ATTRIB")					->Set_Value(clustField);
-				Parms("METRIC_ZRANGE")->asRange()		->Set_Range(0, nCluster);
-			}
-			DataObject_Set_Parameters(pResult, Parms);
-			DataObject_Update(pResult, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
-		}
-
-
-		nMembers	= (int     *)SG_Malloc(nCluster * sizeof(int));
-		Variances	= (double  *)SG_Malloc(nCluster * sizeof(double));
-		Centroids	= (double **)SG_Malloc(nCluster * sizeof(double *));
-
-		for( i=0; i<nCluster; i++ )
-		{
-			Centroids[i]	= (double  *)SG_Malloc(nFields * sizeof(double));
-		}
-
-		//-------------------------------------------------
-		nElements	= pInput->Get_Point_Count();
-
-		switch( Parameters("METHOD")->asInt() )
-		{
-		case 0:
-			SP	= MinimumDistance	(nElements, nCluster);
-			break;
-
-		case 1:
-			SP	= HillClimbing		(nElements, nCluster);
-			break;
-
-		case 2:
-			SP	= MinimumDistance	(nElements, nCluster);
-
-			nElements	= pInput->Get_Point_Count();	// may have been diminished because of no data values...
-
-			SP	= HillClimbing		(nElements, nCluster);
-			break;
-		}
-
-		//-------------------------------------------------
-		if( Parameters("NORMALISE")->asBool() )
-		{
-			int		iv = 0;
-
-			for( i=0; i<(int)vFields.size(); i++ )
-			{
-				if( vFields.at(i) )
-				{
-					for( j=0; j<nCluster; j++ )
-					{
-						Centroids[j][iv]	= sqrt(pInput->Get_Variance(i)) * Centroids[j][iv] + pInput->Get_Mean(i);
-					}
-
-					iv++;
-				}
+				bNoData = true;
+				break;
 			}
 		}
 
-		Write_Result(Parameters("STATISTICS")->asTable(), nElements, nCluster, SP);
-
-		//-------------------------------------------------
-		if( DataObject_Get_Parameters(pResult, Parms) && Parms("COLORS_TYPE") && Parms("LUT") && Parms("LUT_ATTRIB") )
+		if( !bNoData )
 		{
-			CSG_Table_Record	*pClass;
-			CSG_Table			*pLUT	= Parms("LUT")->asTable();
-
-			for( i=0; i<nCluster; i++ )
+			for( int j=0; j<m_nFeatures; j++ )
 			{
-				if( (pClass = pLUT->Get_Record(i)) == NULL )
-				{
-					pClass	= pLUT->Add_Record();
-					pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
-				}
-
-				pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
-				pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
-				pClass->Set_Value(3, i);
-				pClass->Set_Value(4, i);
+				if( Parameters("NORMALISE")->asBool() )
+					vValues.at(j).push_back( (pInput->Get_Value(i, m_Features[j]) - pInput->Get_Mean(m_Features[j])) / pInput->Get_StdDev(m_Features[j]) );
+				else
+					vValues.at(j).push_back(pInput->Get_Value(i, m_Features[j]));
 			}
-
-			while( pLUT->Get_Record_Count() > nCluster )
-			{
-				pLUT->Del_Record(pLUT->Get_Record_Count() - 1);
-			}
-
-			Parms("COLORS_TYPE")	->Set_Value(1);	// Color Classification Type: Lookup Table
-			Parms("LUT_ATTRIB")		->Set_Value(clustField);
-
-			DataObject_Set_Parameters(pResult, Parms);
 		}
-
-		//-------------------------------------------------
-		for( i=0; i<nCluster; i++ )
+		else
 		{
-			SG_Free(Centroids[i]);
+			for( int j=0; j<m_nFeatures; j++ )
+			{
+				vValues.at(j).push_back(pInput->Get_NoData_Value());
+			}
 		}
-
-		SG_Free(Centroids);
-		SG_Free(Variances);
-		SG_Free(nMembers);
-
-		vFields.clear();
-		vValues.clear();
-
-		return( true );
 	}
 
-	return( false );
+
+	if( m_bUpdateView )
+	{
+		if( DataObject_Get_Parameters(pResult, Parms) && Parms("COLORS_TYPE") && Parms("METRIC_ATTRIB") && Parms("METRIC_COLORS") && Parms("METRIC_ZRANGE") )
+		{
+			Parms("COLORS_TYPE")					->Set_Value(2);			// graduated color
+			Parms("METRIC_COLORS")->asColors()		->Set_Count(nCluster);
+			Parms("METRIC_ATTRIB")					->Set_Value(clustField);
+			Parms("METRIC_ZRANGE")->asRange()		->Set_Range(0, nCluster);
+		}
+		DataObject_Set_Parameters(pResult, Parms);
+		DataObject_Update(pResult, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	}
+
+
+	nMembers	= (int     *)SG_Malloc(nCluster * sizeof(int));
+	Variances	= (double  *)SG_Malloc(nCluster * sizeof(double));
+	Centroids	= (double **)SG_Malloc(nCluster * sizeof(double *));
+
+	for( int i=0; i<nCluster; i++ )
+	{
+		Centroids[i]	= (double  *)SG_Malloc(m_nFeatures * sizeof(double));
+	}
+
+	//-------------------------------------------------
+	nElements	= pInput->Get_Point_Count();
+
+	switch( Parameters("METHOD")->asInt() )
+	{
+	case 0:
+		SP	= MinimumDistance	(nElements, nCluster);
+		break;
+
+	case 1:
+		SP	= HillClimbing		(nElements, nCluster);
+		break;
+
+	case 2:
+		SP	= MinimumDistance	(nElements, nCluster);
+
+		nElements	= pInput->Get_Point_Count();	// may have been diminished because of no data values...
+
+		SP	= HillClimbing		(nElements, nCluster);
+		break;
+	}
+
+	//-------------------------------------------------
+	if( Parameters("NORMALISE")->asBool() )
+	{
+		int		iv = 0;
+
+		for( int i=0; i<m_nFeatures; i++ )
+		{
+			for( int j=0; j<nCluster; j++ )
+			{
+				Centroids[j][iv]	= sqrt(pInput->Get_Variance(m_Features[i])) * Centroids[j][iv] + pInput->Get_Mean(m_Features[i]);
+			}
+
+			iv++;
+		}
+	}
+
+	Write_Result(Parameters("STATISTICS")->asTable(), nElements, nCluster, SP);
+
+	//-------------------------------------------------
+	if( DataObject_Get_Parameters(pResult, Parms) && Parms("COLORS_TYPE") && Parms("LUT") && Parms("LUT_ATTRIB") )
+	{
+		CSG_Table_Record	*pClass;
+		CSG_Table			*pLUT	= Parms("LUT")->asTable();
+
+		for( int i=0; i<nCluster; i++ )
+		{
+			if( (pClass = pLUT->Get_Record(i)) == NULL )
+			{
+				pClass	= pLUT->Add_Record();
+				pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
+			}
+
+			pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
+			pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
+			pClass->Set_Value(3, i);
+			pClass->Set_Value(4, i);
+		}
+
+		while( pLUT->Get_Record_Count() > nCluster )
+		{
+			pLUT->Del_Record(pLUT->Get_Record_Count() - 1);
+		}
+
+		Parms("COLORS_TYPE")	->Set_Value(1);	// Color Classification Type: Lookup Table
+		Parms("LUT_ATTRIB")		->Set_Value(clustField);
+
+		DataObject_Set_Parameters(pResult, Parms);
+	}
+
+	//-------------------------------------------------
+	for( int i=0; i<nCluster; i++ )
+	{
+		SG_Free(Centroids[i]);
+	}
+
+	SG_Free(Centroids);
+	SG_Free(Variances);
+	SG_Free(nMembers);
+
+	vValues.clear();
+
+	return( true );
 }
 
 
@@ -441,7 +379,6 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 //---------------------------------------------------------
 void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int nCluster, double SP)
 {
-	int					i, j, cntField;
 	CSG_String			s;
 	CSG_Table_Record	*pRecord;
 
@@ -456,28 +393,22 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 
 	s.Printf(SG_T("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f"),
 		_TL("Number of Elements")			, nElements,
-		_TL("\nNumber of Variables")		, nFields,
+		_TL("\nNumber of Variables")		, m_nFeatures,
 		_TL("\nNumber of Clusters")			, nCluster,
 		_TL("\nValue of Target Function")	, SP
 	);
 
 	s.Append(CSG_String::Format(SG_T("%s\t%s\t%s"), _TL("Cluster"), _TL("Elements"), _TL("Variance")));
 
-	cntField	= 1;
-
-	for( j=0; j<(int)vFields.size(); j++ )
+	for( int j=0; j<m_nFeatures; j++ )
 	{
-		if( vFields.at(j) )
-		{
-			s.Append(CSG_String::Format(SG_T("\t%02d_%s"), cntField, pInput->Get_Field_Name(j)));
-			pTable->Add_Field(pInput->Get_Field_Name(j), SG_DATATYPE_Double);
-			cntField++;
-		}
+		s.Append(CSG_String::Format(SG_T("\t%02d_%s"), j + 1, pInput->Get_Field_Name(m_Features[j])));
+		pTable->Add_Field(pInput->Get_Field_Name(m_Features[j]), SG_DATATYPE_Double);
 	}
 
 	Message_Add(s);
 
-	for( i=0; i<nCluster; i++ )
+	for( int i=0; i<nCluster; i++ )
 	{
 		s.Printf(SG_T("%d\t%d\t%f"), i, nMembers[i], Variances[i]);
 
@@ -486,7 +417,7 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 		pRecord->Set_Value(1, nMembers[i]);
 		pRecord->Set_Value(2, Variances[i]);
 
-		for( j=0; j<nFields; j++ )
+		for( int j=0; j<m_nFeatures; j++ )
 		{
 			s.Append(CSG_String::Format(SG_T("\t%f"), Centroids[i][j]));
 
@@ -547,7 +478,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 		}
 	}
 
-	if( Parameters("UPDATEVIEW")->asBool() )
+	if( m_bUpdateView )
 	{
 		DataObject_Update(pResult);
 	}
@@ -564,7 +495,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 			Variances[iCluster]	= 0;
 			nMembers [iCluster]	= 0;
 
-			for( iField=0; iField<nFields; iField++ )
+			for( iField=0; iField<m_nFeatures; iField++ )
 			{
 				Centroids[iCluster][iField]	= 0;
 			}
@@ -578,7 +509,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 				iCluster	= (int)pResult->Get_Value(iElement, clustField);
 				nMembers[iCluster]++;
 
-				for( iField=0; iField<nFields; iField++ )
+				for( iField=0; iField<m_nFeatures; iField++ )
 				{
 					Centroids[iCluster][iField]	+= vValues.at(iField).at(iElement);
 				}
@@ -590,7 +521,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 		{
 			d		= nMembers[iCluster] > 0 ? 1.0 / (double)nMembers[iCluster] : 0;
 
-			for( iField=0; iField<nFields; iField++ )
+			for( iField=0; iField<m_nFeatures; iField++ )
 			{
 				Centroids[iCluster][iField]	*= d;
 			}
@@ -618,7 +549,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 				{
 					Variance	= 0;
 
-					for( iField=0; iField<nFields; iField++ )
+					for( iField=0; iField<m_nFeatures; iField++ )
 					{
 						d			= Centroids[iCluster][iField] - vValues.at(iField).at(iElement);
 						Variance	+= d * d;
@@ -657,7 +588,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 
 		SP_Last		= SP;
 
-		if( Parameters("UPDATEVIEW")->asBool() )
+		if( m_bUpdateView )
 		{
 			DataObject_Update(pResult);
 		}
@@ -693,7 +624,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 		Variances[iCluster]	= 0;
 		nMembers [iCluster]	= 0;
 
-		for( iField=0; iField<nFields; iField++)
+		for( iField=0; iField<m_nFeatures; iField++)
 		{
 			Centroids[iCluster][iField]	= 0;
 		}
@@ -729,7 +660,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 
 			V			= 0.0;
 
-			for( iField=0; iField<nFields; iField++)
+			for( iField=0; iField<m_nFeatures; iField++)
 			{
 				d							 = vValues.at(iField).at(iElement);
 				Centroids[iCluster][iField]	+= d;
@@ -754,7 +685,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 		d	= nMembers[iCluster] != 0 ? 1.0 / (double)nMembers[iCluster] : 0;
 		V	= 0.0;
 
-		for( iField=0; iField<nFields; iField++)
+		for( iField=0; iField<m_nFeatures; iField++)
 		{
 			Centroids[iCluster][iField]	*= d;
 			e							 = Centroids[iCluster][iField];
@@ -765,7 +696,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 		SP					+= Variances[iCluster];
 	}
 
-	if( Parameters("UPDATEVIEW")->asBool() )
+	if( m_bUpdateView )
 	{
 		DataObject_Update(pResult);
 	}
@@ -802,7 +733,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 					{
 						V	= 0.0;
 
-						for( iField=0; iField<nFields; iField++)
+						for( iField=0; iField<m_nFeatures; iField++)
 						{
 							d	= Centroids[iCluster][iField] - vValues.at(iField).at(iElement);
 							V	+= d * d;
@@ -821,7 +752,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 							{
 								V	= 0.0;
 
-								for( iField=0; iField<nFields; iField++)
+								for( iField=0; iField<m_nFeatures; iField++)
 								{
 									d	= Centroids[jCluster][iField] - vValues.at(iField).at(iElement);
 									V	+= d * d;
@@ -852,7 +783,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 							n_jK				= nMembers[kCluster];
 							V2					= 1.0 / (n_jK + 1.0);
 
-							for( iField=0; iField<nFields; iField++)
+							for( iField=0; iField<m_nFeatures; iField++)
 							{
 								d							= vValues.at(iField).at(iElement);
 								Centroids[iCluster][iField]	= (n_iK * Centroids[iCluster][iField] - d) * V1;
@@ -876,7 +807,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 
 		SP_Last		= SP;
 
-		if( Parameters("UPDATEVIEW")->asBool() )
+		if( m_bUpdateView )
 		{
 			DataObject_Update(pResult);
 		}

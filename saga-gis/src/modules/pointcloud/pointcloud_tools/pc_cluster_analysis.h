@@ -96,13 +96,14 @@ protected:
 
 private:
 
-	int						nFields, clustField, *nMembers;
+	bool					m_bUpdateView;
+
+	int						*m_Features, m_nFeatures, clustField, *nMembers;
 
 	double					**Centroids, *Variances;
 
 	CSG_PointCloud			*pInput, *pResult;
 
-	std::vector<bool>					vFields;
 	std::vector< std::vector<double> >	vValues;	
 
 	void					Write_Result	(CSG_Table *pTable, long nElements, int nCluster, double SP);
