@@ -139,7 +139,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), false);
+	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), true);
 }
 
 
