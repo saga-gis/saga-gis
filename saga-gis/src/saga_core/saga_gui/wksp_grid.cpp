@@ -361,7 +361,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("Shade"           ),	// CLASSIFY_SHADE
 			_TL("RGB Overlay"     ),	// CLASSIFY_OVERLAY
-			_TL("RGB"             )		// CLASSIFY_RGB
+			_TL("RGB Composite"   )		// CLASSIFY_RGB
 		)
 	);
 

@@ -138,6 +138,12 @@ CGeoref_Grid::CGeoref_Grid(void)
 		), 4
 	);
 
+	Parameters.Add_Value(
+		NULL	, "BYTEWISE"		, _TL("Bytewise Interpolation"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
 	//-----------------------------------------------------
 	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), true);
 }
@@ -152,6 +158,11 @@ CGeoref_Grid::CGeoref_Grid(void)
 //---------------------------------------------------------
 int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "INTERPOLATION") )
+	{
+		pParameters->Set_Enabled("BYTEWISE", pParameter->asInt() > 0);
+	}
+
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
@@ -231,25 +242,50 @@ bool CGeoref_Grid::Get_Conversion(void)
 	CSG_Grid	*pSource	= Parameters("GRID")->asGrid();
 
 	//-----------------------------------------------------
-	if( !Get_Target_Extent(Extent, true)
-	||  !m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY())
-	||	!Dlg_Parameters("TARGET") )
+	if( !Get_Target_Extent(Extent, true) ||  !m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSource->Get_NY()) )
+	{
+		Error_Set(_TL("failed to estimate target extent"));
+
+		return( false );
+	}
+
+	if( !Dlg_Parameters("TARGET") )
 	{
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	int	Interpolation	= Parameters("INTERPOLATION")->asInt();
 
 	CSG_Grid	*pReferenced	= m_Grid_Target.Get_Grid(Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float);
 
-	//-----------------------------------------------------
-	if( pReferenced )
+	if( !pReferenced )
 	{
-		return( Set_Grid(pSource, pReferenced, Interpolation) );
+		Error_Set(_TL("failed to initialize target grid"));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	if( !Set_Grid(pSource, pReferenced, Interpolation) )
+	{
+		Error_Set(_TL("failed to project target grid"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Parameters  P;
+
+	if( DataObject_Get_Parameters(pSource, P) )
+	{
+		DataObject_Add(pReferenced);
+
+		DataObject_Set_Parameters(pReferenced, P);
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -341,10 +377,15 @@ bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, int Interpol
 	}
 
 	//-----------------------------------------------------
+	bool	bBytewise   = Parameters("BYTEWISE")->asBool();
+
+	//-----------------------------------------------------
 	pReferenced->Set_Name	(pGrid->Get_Name());
 	pReferenced->Set_Unit	(pGrid->Get_Unit());
 	pReferenced->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
 	pReferenced->Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+
+	pReferenced->Assign_NoData();
 
 	//-----------------------------------------------------
 	for(int y=0; y<pReferenced->Get_NY() && Set_Progress(y, pReferenced->Get_NY()); y++)
@@ -355,7 +396,7 @@ bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, int Interpol
 			double		z;
 			TSG_Point	p	= pReferenced->Get_System().Get_Grid_to_World(x, y);
 
-			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Interpolation) )
+			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Interpolation, bBytewise) )
 			{
 				pReferenced->Set_Value(x, y, z);
 			}
