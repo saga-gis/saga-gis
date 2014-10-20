@@ -375,6 +375,11 @@ CSG_Module_Library_Manager::CSG_Module_Library_Manager(void)
 {
 	m_pLibraries	= NULL;
 	m_nLibraries	= 0;
+
+	if( this == &g_Module_Library_Manager )
+	{
+		CSG_Random::Initialize();	// initialize with current time on startup
+	}
 }
 
 //---------------------------------------------------------
