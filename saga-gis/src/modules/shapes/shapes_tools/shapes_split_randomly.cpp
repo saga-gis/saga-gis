@@ -58,8 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <time.h>
-
 #include "shapes_split_randomly.h"
 
 
@@ -74,7 +72,7 @@ CShapes_Split_Randomly::CShapes_Split_Randomly(void)
 {
 	Set_Name		(_TL("Split Shapes Layer Randomly"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Randomly splits one shapes layer into to new shapes layers. "
@@ -141,6 +139,8 @@ bool CShapes_Split_Randomly::On_Execute(void)
 
 	pSplit[0]->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(100.5 - Percent)), pShapes);
 	pSplit[1]->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(  0.5 + Percent)), pShapes);
+
+	CSG_Random::Initialize();	// initialize with current time
 
 	//-----------------------------------------------------
 	if( !Parameters("EXACT")->asBool() )
