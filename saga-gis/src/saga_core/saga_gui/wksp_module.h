@@ -105,7 +105,7 @@ public:
 
 	void							Set_Menu_ID			(int Menu_ID);
 	int								Get_Menu_ID			(void)			{	return( m_Menu_ID );	}
-	const wxString &				Get_Menu_Path		(void)			{	return( m_Menu_Path );	}
+	wxString						Get_Menu_Path		(void);
 
 	wxString						Get_File_Name		(void);
 
@@ -119,8 +119,6 @@ public:
 private:
 
 	int								m_Menu_ID;
-
-	wxString						m_Menu_Path;
 
 	class CSG_Module				*m_pModule;
 

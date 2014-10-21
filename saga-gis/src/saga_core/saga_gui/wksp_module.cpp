@@ -100,39 +100,6 @@ CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const wxString &Menu_Library)
 {
 	m_pModule	= pModule;
 	m_Menu_ID	= -1;
-	m_Menu_Path	.Clear();
-
-	//-----------------------------------------------------
-	wxString	Menu_Module	= m_pModule->Get_MenuPath().w_str();
-
-	if( Menu_Module.Length() > 2 && Menu_Module[1] == ':' )
-	{
-		if( Menu_Module[0] == 'A' || Menu_Module[0] == 'a' )		// absolute menu path, overwrites library's default menu path
-		{
-			m_Menu_Path.Printf(wxT("%s"), Menu_Module.AfterFirst(':'));
-		}
-		else //if( Menu_Module[0] == 'R' || Menu_Module[0] == 'r' )	// menu path explicitly declared as relative to library's default menu path
-		{
-			Menu_Module	= Menu_Module.AfterFirst(':');
-		}
-	}
-
-	//-----------------------------------------------------
-	if( m_Menu_Path.Length() == 0 )	// menu path is relative to library's default menu
-	{
-		if( Menu_Library.Length() > 0 && Menu_Module.Length() > 0 )
-		{
-			m_Menu_Path.Printf(wxT("%s|%s"), Menu_Library, Menu_Module);
-		}
-		else if( Menu_Library.Length() > 0 )
-		{
-			m_Menu_Path.Printf(wxT("%s"), Menu_Library);
-		}
-		else if( Menu_Module.Length() > 0 )
-		{
-			m_Menu_Path.Printf(wxT("%s"), Menu_Module);
-		}
-	}
 }
 
 //---------------------------------------------------------
@@ -166,6 +133,38 @@ wxString CWKSP_Module::Get_Name(void)
 		? wxString::Format(wxT("%s [%s]"), m_pModule->Get_Name().c_str(), _TL("interactive"))
 		: wxString::Format(wxT("%s")     , m_pModule->Get_Name().c_str())
 	);
+}
+
+//---------------------------------------------------------
+wxString CWKSP_Module::Get_Menu_Path(void)
+{
+	//-----------------------------------------------------
+	wxString	Menu	= m_pModule->Get_MenuPath().c_str();
+
+	if( Menu.Length() > 1 && Menu[1] == ':' )
+	{
+		if( Menu[0] == 'A' || Menu[0] == 'a' )		// absolute menu path, overwrites library's default menu path
+		{
+			return( Menu.AfterFirst(':') );
+		}
+
+		Menu	= Menu.AfterFirst(':');	// Menu[0] == 'R' || Menu[0] == 'r'	// menu path explicitly declared as relative to library's default menu path
+	}
+
+	//-----------------------------------------------------
+	wxString	Root	= ((CWKSP_Module_Library *)Get_Manager())->Get_Library()->Get_Menu().c_str();
+
+	if( Root.IsEmpty() )
+	{
+		return( Menu );
+	}
+
+	if( Menu.IsEmpty() )
+	{
+		return( Root );
+	}
+
+	return( Root + "|" + Menu );
 }
 
 //---------------------------------------------------------
@@ -203,14 +202,14 @@ wxString CWKSP_Module::Get_Description(void)
 	}
 
 	//-----------------------------------------------------
-	wxString	Description;
+	wxString	Menu(Get_Menu_Path()), Description;
 
 	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
 		Description	= Get_Online_Module_Description(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), Get_Module()->Get_ID().c_str());
 	}
 
-	return( m_pModule->Get_Summary(true, &m_Menu_Path, &Description).c_str() );
+	return( m_pModule->Get_Summary(true, &Menu, &Description).c_str() );
 }
 
 //---------------------------------------------------------

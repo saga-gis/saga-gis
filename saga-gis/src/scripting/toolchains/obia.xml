@@ -5,6 +5,7 @@
   <name>Object Based Image Segmentation</name>
   <author>O.Conrad (c) 2014</author>
   <description>created from history</description>
+  <menu absolute="true">Imagery|Segmentation</menu>
   <parameters>
     <option varname="GRID_SYSTEM" type="grid_system">
       <name>Grid System</name>

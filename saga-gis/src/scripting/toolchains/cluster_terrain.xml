@@ -5,6 +5,7 @@
   <name>Terrain Clustering</name>
   <author>O.Conrad (c) 2014</author>
   <description>created from history</description>
+  <menu>Terrain Classification</menu>
   <parameters>
     <option varname="GRID_SYSTEM" type="grid_system">
       <name>Grid System</name>
