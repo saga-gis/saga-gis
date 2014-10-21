@@ -355,7 +355,7 @@ CRGA_Basic::CRGA_Basic(void)
 
 	Set_Description	(_TW(
 		"\nReferences:\n"
-		"Adams, R. & Bischof, L. (1994): Seeded Region Growing. ",
+		"Adams, R. & Bischof, L. (1994): Seeded Region Growing. "
 		"IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.\n"
 		"\n"
 		"Bechtel, B., Ringeler, A. & Boehner, J. (2008): "
