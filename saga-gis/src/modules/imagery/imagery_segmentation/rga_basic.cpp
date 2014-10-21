@@ -349,14 +349,16 @@ CRGA_Basic::CRGA_Basic(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Simple Region Growing"));
+	Set_Name		(_TL("Seeded Region Growing"));
 
-	Set_Author		(SG_T("B. Bechtel, O. Conrad (c) 2008"));
+	Set_Author		("B. Bechtel, O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
+		"\nReferences:\n"
+		"Adams, R. & Bischof, L. (1994): Seeded Region Growing. ",
+		"IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.\n"
 		"\n"
-		"References\n"
-		"Bechtel, B., Ringeler, A., Boehner, J. (2008): "
+		"Bechtel, B., Ringeler, A. & Boehner, J. (2008): "
 		"Segmentation for Object Extraction of Trees using MATLAB and SAGA. "
 		"In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. "
 		"Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, 19:59-70. "
