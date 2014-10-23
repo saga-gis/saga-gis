@@ -85,23 +85,23 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"	, _TL("Grid"),
+		NULL, "GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "CONTOUR"	, _TL("Contour Lines"),
+		NULL, "CONTOUR"	, _TL("Contour"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL, "OUTPUT_FORMAT"	, _TL("Output Format"),
-		_TL("Choose the format of the shapefile."),
-		CSG_String::Format(SG_T("%s|%s|"),
-		_TL("2D Shapefile"),
-		_TL("3D Shapefile")
+		NULL, "VERTEX"	, _TL("Vertex Type"),
+		_TL("choose vertex type for resulting contours"),
+		CSG_String::Format("%s|%s|",
+			SG_T("x, y"),
+			SG_T("x, y, z")
 		), 0
 	);
 
@@ -124,9 +124,19 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CGrid_To_Contour::~CGrid_To_Contour(void)
-{}
+int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+
+	return( 0 );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -138,41 +148,234 @@ CGrid_To_Contour::~CGrid_To_Contour(void)
 //---------------------------------------------------------
 bool CGrid_To_Contour::On_Execute(void)
 {
-	pGrid		= Parameters("INPUT"		)->asGrid();
-	pLayer		= Parameters("CONTOUR"		)->asShapes();
-	m_iFormat	= Parameters("OUTPUT_FORMAT")->asInt();
-
-	double	zMin	= Parameters("ZMIN" )->asDouble();
-	double	zMax	= Parameters("ZMAX" )->asDouble();
-	double	zStep	= Parameters("ZSTEP")->asDouble();
+	m_pGrid			= Parameters("GRID"   )->asGrid  ();
+	m_pContours		= Parameters("CONTOUR")->asShapes();
+	double	zMin	= Parameters("ZMIN"   )->asDouble();
+	double	zMax	= Parameters("ZMAX"   )->asDouble();
+	double	zStep	= Parameters("ZSTEP"  )->asDouble();
 
 	if( zMin <= zMax && zStep > 0 )
 	{
-		if( zMin < pGrid->Get_ZMin() )
+	}
+
+	if( zStep <= 0 )
+		zStep	= 1;
+
+	if( zMin < m_pGrid->Get_ZMin() )
+	{
+		zMin	+= zStep * (int)((m_pGrid->Get_ZMin() - zMin) / zStep);
+	}
+
+	if( zMax > m_pGrid->Get_ZMax() )
+	{
+		zMax	= m_pGrid->Get_ZMax() + 1.0;
+	}
+
+	//-----------------------------------------------------
+	m_pContours->Create(SHAPE_TYPE_Line, m_pGrid->Get_Name(), NULL,
+		Parameters("VERTEX")->asInt() == 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ
+	);
+
+	m_pContours->Add_Field("ID", SG_DATATYPE_Int);
+	m_pContours->Add_Field(CSG_String::Format(SG_T("%s"),m_pGrid->Get_Name()).BeforeFirst(SG_Char('.')), SG_DATATYPE_Double);
+
+	//-----------------------------------------------------
+	m_Rows.Create(SG_DATATYPE_Char, Get_NX() + 1, Get_NY() + 1);
+	m_Cols.Create(SG_DATATYPE_Char, Get_NX() + 1, Get_NY() + 1);
+
+	for(double z=zMin; z<=zMax && Set_Progress(z - zMin, zMax - zMin); z+=zStep)
+	{
+		Process_Set_Text(CSG_String::Format("%s: %f", _TL("Contour"), z));
+
+		Get_Contour(z);
+	}
+
+	m_Rows.Destroy();
+	m_Cols.Destroy();
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define IS_EDGE(x, y)	((!m_pGrid->is_InGrid(x, y) || m_pGrid->asDouble(x, y) < z) ? 1.0 : 0.0)
+
+//---------------------------------------------------------
+bool CGrid_To_Contour::Get_Contour(double z)
+{
+	int		y;
+
+	//-----------------------------------------------------
+	#pragma omp parallel for private(y)
+	for(y=0; y<Get_NY()-1; y++)	// Find Border Cells
+	{
+		for(int x=0; x<Get_NX()-1; x++)
 		{
-			zMin	+= zStep * (int)((pGrid->Get_ZMin() - zMin) / zStep);
+			if( !m_pGrid->is_NoData(x, y) )
+			{
+				if( m_pGrid->asDouble(x, y) >= z )
+				{
+					m_Rows.Set_Value(x, y, !m_pGrid->is_NoData(x + 1, y    ) && m_pGrid->asDouble(x + 1, y    ) <  z ? 1 : 0);
+					m_Cols.Set_Value(x, y, !m_pGrid->is_NoData(x    , y + 1) && m_pGrid->asDouble(x    , y + 1) <  z ? 1 : 0);
+				}
+				else
+				{
+					m_Rows.Set_Value(x, y, !m_pGrid->is_NoData(x + 1, y    ) && m_pGrid->asDouble(x + 1, y    ) >= z ? 1 : 0);
+					m_Cols.Set_Value(x, y, !m_pGrid->is_NoData(x    , y + 1) && m_pGrid->asDouble(x    , y + 1) >= z ? 1 : 0);
+				}
+			}
+		}
+ 	}
+
+	/*/-----------------------------------------------------
+	#pragma omp parallel for private(y)
+	for(y=0; y<Get_NY(); y++)	// mark edges
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !m_pGrid->is_NoData(x, y) && m_pGrid->asDouble(x, y) >= z )
+			{
+				m_Rows.Set_Value(x    , y    , IS_EDGE(x - 1, y    ));
+				m_Rows.Set_Value(x + 1, y    , IS_EDGE(x + 1, y    ));
+
+				m_Cols.Set_Value(x    , y    , IS_EDGE(x    , y - 1));
+				m_Cols.Set_Value(x    , y + 1, IS_EDGE(x    , y + 1));
+			}
+		}
+ 	}/**/
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY()-1; y++)	// Interpolation + Delineation
+	{
+		for(int x=0; x<Get_NX()-1; x++)
+		{
+			if( m_Rows(x, y) )
+			{
+				for(int i=0; i<2; i++)
+				{
+					Start(x, y, z, true);
+				}
+
+				m_Rows.Set_Value(x, y, 0.0);
+			}
+
+			if( m_Cols(x, y) )
+			{
+				for(int i=0; i<2; i++)
+				{
+					Start(x, y, z, false);
+				}
+
+				m_Cols.Set_Value(x, y, 0.0);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_To_Contour::Start(int x, int y, double z, bool bRow)
+{
+	CSG_Shape	*pContour	= m_pContours->Add_Shape();
+
+	pContour->Set_Value(0, m_pContours->Get_Count());
+	pContour->Set_Value(1, z);
+
+	//-----------------------------------------------------
+	bool	bContinue;
+
+	int		zx	= bRow ? x + 1 : x;
+	int		zy	= bRow ? y : y + 1, Dir	= 0;
+
+	//-----------------------------------------------------
+	do
+	{
+		double	d	= m_pGrid->asDouble(x, y);	d	= (d - z) / (d - m_pGrid->asDouble(zx, zy));
+
+		pContour->Add_Point(
+			m_pGrid->Get_XMin() + Get_Cellsize() * (x + d * (zx - x)),
+			m_pGrid->Get_YMin() + Get_Cellsize() * (y + d * (zy - y))
+		);
+
+		if( pContour->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+		{
+			pContour->Set_Z(z, pContour->Get_Point_Count() - 1);
 		}
 
-		if( zMax > pGrid->Get_ZMax() )
-		{
-			zMax	= pGrid->Get_ZMax();
-		}
+		//-------------------------------------------------
+		bContinue	= Find_Next(Dir, x, y, bRow) || Find_Next(Dir, x, y, bRow);
 
-		if( m_iFormat == 0 )
+		Dir		= (Dir + 5) % 8;
+
+		//-------------------------------------------------
+		if( bRow )
 		{
-			pLayer->Create(SHAPE_TYPE_Line, pGrid->Get_Name());
+			m_Rows.Set_Value(x, y, 0.0);
+			zx	= x + 1;
+			zy	= y;
 		}
 		else
 		{
-			pLayer->Create(SHAPE_TYPE_Line, pGrid->Get_Name(), (CSG_Table*)0, SG_VERTEX_TYPE_XYZ);
+			m_Cols.Set_Value(x, y, 0.0);
+			zx	= x;
+			zy	= y + 1;
 		}
+	}
+	while( bContinue );
 
-		pLayer->Add_Field("ID", SG_DATATYPE_Int);
-		pLayer->Add_Field(CSG_String::Format(SG_T("%s"),pGrid->Get_Name()).BeforeFirst(SG_Char('.')), SG_DATATYPE_Double);
+	//-----------------------------------------------------
+	return( pContour->Get_Point_Count(0) > 1 );
+}
 
-		Contour_Create(zMin, zMax, zStep);
-
-		return( true );
+//---------------------------------------------------------
+inline bool CGrid_To_Contour::Find_Next(int &Dir, int &x, int &y, bool &bRow)
+{
+	if( bRow )
+	{
+		switch( Dir )
+		{
+		case  0: if( m_Rows(x    , y + 1) ) { Dir = 0;                    y++; return( true ); }	// Norden
+		case  1: if( m_Cols(x + 1, y    ) ) { Dir = 1; bRow = false; x++;      return( true ); }	// Nord-Ost
+		case  2:	// Osten ist nicht...
+		case  3: if( y - 1 >= 0
+				 &&  m_Cols(x + 1, y - 1) ) { Dir = 3; bRow = false; x++; y--; return( true ); }	// Sued-Ost
+		case  4: if( y - 1 >= 0
+				 &&  m_Rows(x    , y - 1) ) { Dir = 4;      y--;               return( true ); }	// Sueden
+		case  5: if( y - 1 >= 0
+				 &&  m_Cols(x    , y - 1) ) { Dir = 5; bRow = false;      y--; return( true ); }	// Sued-West
+		case  6:	// Westen ist nicht...
+		case  7: if( m_Cols(x    , y    ) ) { Dir = 7; bRow = false;           return( true ); }	// Nord-West
+		default:
+			Dir = 0;
+		}
+	}
+	else
+	{
+		switch( Dir )
+		{
+		case  0:	// Norden ist nicht...
+		case  1: if( m_Rows(x    , y + 1) ) { Dir = 1; bRow =  true;      y++; return( true ); }	// Nord-Ost
+		case  2: if( m_Cols(x + 1, y    ) ) { Dir = 2;               x++;      return( true ); }	// Osten
+		case  3: if( m_Rows(x    , y    ) ) { Dir = 3; bRow =  true;           return( true ); }	// Sued-Ost
+		case  4:	// Sueden ist nicht...
+		case  5: if( x - 1 >= 0
+				 &&  m_Rows(x - 1, y    ) ) { Dir = 5; bRow =  true; x--;      return( true ); }	// Sued-West
+		case  6: if( x - 1 >= 0
+				 &&  m_Cols(x - 1, y    ) ) { Dir = 6; x--;                    return( true ); }	// Westen
+		case  7: if( x - 1 >= 0
+				 &&  m_Rows(x - 1, y + 1) ) { Dir = 7; bRow =  true; x--; y++; return( true ); }	// Nord-West
+		default:
+			Dir = 0;
+		}
 	}
 
 	return( false );
@@ -186,202 +389,3 @@ bool CGrid_To_Contour::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_To_Contour::Contour_Create(double zMin, double zMax, double zStep)
-{
-	int		x, y, i, ID;
-
-	double	zValue;
-
-	//-----------------------------------------------------
-	// Initialize...
-	col		= (char **)SG_Calloc(Get_NY(), sizeof(char *));
-	row		= (char **)SG_Calloc(Get_NY(), sizeof(char *));
-
-	for(y=0; y<Get_NY(); y++)
-	{
-		col[y]	= (char *)SG_Calloc(Get_NX(), sizeof(char));
-		row[y]	= (char *)SG_Calloc(Get_NX(), sizeof(char));
-	}
-
-	if( zStep <= 0 )
-		zStep	= 1;
-
-	//-----------------------------------------------------
-	for(zValue=zMin, ID=0; zValue<=zMax && Set_Progress(zValue - zMin, zMax - zMin); zValue+=zStep)
-	{
-		//-------------------------------------------------
-		// Step1: Find Border Cells
-		for(y=0; y<Get_NY()-1; y++)
-			for(x=0; x<Get_NX()-1; x++)
-				if( pGrid->asDouble(x,y) >= zValue )
-				{
-					row[y][x]	= pGrid->asDouble(x+1,y  ) <  zValue ? 1 : 0;
-					col[y][x]	= pGrid->asDouble(x  ,y+1) <  zValue ? 1 : 0;
-				}
-				else
-				{
-					row[y][x]	= pGrid->asDouble(x+1,y  ) >= zValue ? 1 : 0;
-					col[y][x]	= pGrid->asDouble(x  ,y+1) >= zValue ? 1 : 0;
-				}
-
-		//-------------------------------------------------
-		// Step2: Interpolation + Delineation
-		for(y=0; y<Get_NY()-1; y++)
-			for(x=0; x<Get_NX()-1; x++)
-			{
-				if(row[y][x])
-				{
-					for(i=0; i<2; i++)
-						Contour_Find(x, y, zValue, true, ID++);
-					row[y][x]	= 0;
-				}
-
-				if(col[y][x])
-				{
-					for(i=0; i<2; i++)
-						Contour_Find(x, y, zValue, false, ID++);
-					col[y][x]	= 0;
-				}
-			}
-	}
-
-	//-----------------------------------------------------
-	// Finalize...
-	for(y=0; y<Get_NY(); y++)
-	{
-		SG_Free(col[y]);
-		SG_Free(row[y]);
-	}
-
-	SG_Free(col);
-	SG_Free(row);
-}
-
-//---------------------------------------------------------
-void CGrid_To_Contour::Contour_Find(int x, int y, double z, bool doRow, int ID)
-{
-	bool	doContinue	= true;
-
-	int		zx			= doRow ? x + 1 : x,
-			zy			= doRow ? y : y + 1,
-			Dir			= 0;
-
-	DWORD	n			= 0;
-
-	double	d, xPos, yPos,
-			xMin		= pGrid->Get_XMin(),
-			yMin		= pGrid->Get_YMin();
-
-	int		iPoint		= 0;
-
-	CSG_Shape	*pShape	= pLayer->Add_Shape();
-
-	pShape->Set_Value(0, ID);
-	pShape->Set_Value(1, z);
-
-	do
-	{
-		//-------------------------------------------------
-		// Interpolation...
-		d		= pGrid->asDouble(x,y);
-		d		= (d - z) / (d - pGrid->asDouble(zx,zy));
-
-		xPos	= xMin + Get_Cellsize() * (x + d * (zx - x));
-		yPos	= yMin + Get_Cellsize() * (y + d * (zy - y));
-		pShape->Add_Point(xPos, yPos);
-
-		if( m_iFormat == 1 )
-		{
-			pShape->Set_Z(z, iPoint);
-			iPoint++;
-		}
-
-		//-------------------------------------------------
-		// Naechstes (x/y) (col/row) finden...
-		if( !Contour_FindNext(Dir, x ,y ,doRow) )
-			doContinue	= Contour_FindNext(Dir, x, y, doRow);
-
-		Dir		= (Dir + 5) % 8;
-
-		//-------------------------------------------------
-		// Loeschen und initialisieren...
-		if(doRow)
-		{
-			row[y][x]	= 0;
-			zx			= x + 1;
-			zy			= y;
-		}
-		else
-		{
-			col[y][x]	= 0;
-			zx			= x;
-			zy			= y + 1;
-		}
-	}
-	while(doContinue);
-}
-
-//---------------------------------------------------------
-inline bool CGrid_To_Contour::Contour_FindNext(int &Dir, int &x, int &y, bool &doRow)
-{
-	bool	doContinue;
-
-	if(doRow)
-	{
-		switch(Dir)
-		{
-		case 0:	// Norden
-			if(row[y+1][x  ])
-			{			y++;					Dir=0; doContinue=true; break; }
-		case 1:	// Nord-Ost
-			if(col[y  ][x+1])
-			{	x++;			doRow=false;	Dir=1; doContinue=true; break; }
-		case 2:	// Osten ist nicht...
-		case 3:	// Sued-Ost
-			if(y-1>=0) if(col[y-1][x+1])
-			{	x++;	y--;	doRow=false;	Dir=3; doContinue=true; break; }
-		case 4:	// Sueden
-			if(y-1>=0) if(row[y-1][x  ])
-			{			y--;					Dir=4; doContinue=true; break; }
-		case 5:	// Sued-West
-			if(y-1>=0) if(col[y-1][x  ])
-			{			y--;	doRow=false;	Dir=5; doContinue=true; break; }
-		case 6:	// Westen ist nicht...
-		case 7:	// Nord-West
-			if(col[y  ][x  ])
-			{					doRow=false;	Dir=7; doContinue=true; break; }
-		default:
-			Dir=0; doContinue=false;
-		}
-	}
-	else
-	{
-		switch(Dir)
-		{
-		case 0:	// Norden ist nicht...
-		case 1:	// Nord-Ost
-			if(row[y+1][x  ])
-			{			y++;	doRow=true;		Dir=1; doContinue=true; break; }
-		case 2:	// Osten
-			if(col[y  ][x+1])
-			{	x++;							Dir=2; doContinue=true; break; }
-		case 3:	// Sued-Ost
-			if(row[y  ][x  ])
-			{					doRow=true;		Dir=3; doContinue=true; break; }
-		case 4:	// Sueden ist nicht...
-		case 5:	// Sued-West
-			if(x-1>=0)	if(row[y  ][x-1])
-			{	x--;			doRow=true;		Dir=5; doContinue=true; break; }
-		case 6:	// Westen
-			if(x-1>=0)	if(col[y  ][x-1])
-			{	x--;							Dir=6; doContinue=true; break; }
-		case 7:	// Nord-West
-			if(x-1>=0)	if(row[y+1][x-1])
-			{	x--;	y++;	doRow=true;		Dir=7; doContinue=true; break; }
-		default:
-			Dir=0; doContinue=false;
-		}
-	}
-
-	return(doContinue);
-}

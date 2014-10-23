@@ -65,6 +65,14 @@
 #define HEADER_INCLUDED__Grid_To_Contour_H
 
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
@@ -80,30 +88,38 @@ class CGrid_To_Contour : public CSG_Module_Grid
 {
 public:
 	CGrid_To_Contour(void);
-	virtual ~CGrid_To_Contour(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Vectorization") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Vectorization") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	char					**col, **row;
+	CSG_Grid				*m_pGrid, m_Cols, m_Rows;
 
-	CSG_Grid				*pGrid;
+	CSG_Shapes				*m_pContours;
 
-	CSG_Shapes				*pLayer;
 
-	int						m_iFormat;
+	bool					Get_Contour				(double z);
 
-	void					Contour_Create		(double zStart, double zStop, double zDist);
-	void					Contour_Find		(int x, int y, double z, bool doRow, int ID);
-	bool					Contour_FindNext	(int &Dir, int &x, int &y, bool &doRow);
+	bool					Start					(int x, int y, double z, bool bRow);
+
+	bool					Find_Next				(int &Dir, int &x, int &y, bool &bRow);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_To_Contour_H
