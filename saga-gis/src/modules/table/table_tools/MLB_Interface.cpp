@@ -83,7 +83,7 @@ CSG_String Get_Info(int i)
 		return( _TL("SAGA User Group Associaton (c) 2002-2013") );
 
 	case MLB_INFO_Description:
-		return( _TL("") );
+		return( _TL("Tools for the creation and manipulation of tables.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );

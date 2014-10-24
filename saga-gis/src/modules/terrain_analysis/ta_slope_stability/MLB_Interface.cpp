@@ -82,8 +82,8 @@ CSG_String Get_Info(int i)
 
 	case MLB_INFO_Description:
 		return(_TW(
-			"Some terrain analysis tools for slope stability \n"
-			"Developed by Andreas Günther, BGR, B2.2"
+			"Tools for slope stability analyses. "
+			"Developed by Andreas G&uuml;nther, BGR, B2.2"
 		));
 
 	case MLB_INFO_Version:
