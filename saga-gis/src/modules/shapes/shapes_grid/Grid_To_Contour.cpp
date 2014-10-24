@@ -134,6 +134,27 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 //---------------------------------------------------------
 int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() != NULL )
+	{
+		double	zStep	= pParameter->asGrid()->Get_ZRange() / 10.0;
+
+		pParameters->Get_Parameter("ZMIN" )->Set_Value(pParameter->asGrid()->Get_ZMin  ());
+		pParameters->Get_Parameter("ZMAX" )->Set_Value(pParameter->asGrid()->Get_ZMax  ());
+		pParameters->Get_Parameter("ZSTEP")->Set_Value(zStep);
+
+		pParameters->Set_Enabled("ZMAX", zStep > 0.0);
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+int CGrid_To_Contour::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ZSTEP") )
+	{
+		pParameters->Set_Enabled("ZMAX", pParameter->asDouble() > 0.0);
+	}
 
 	return( 0 );
 }
@@ -150,25 +171,25 @@ bool CGrid_To_Contour::On_Execute(void)
 {
 	m_pGrid			= Parameters("GRID"   )->asGrid  ();
 	m_pContours		= Parameters("CONTOUR")->asShapes();
+
 	double	zMin	= Parameters("ZMIN"   )->asDouble();
 	double	zMax	= Parameters("ZMAX"   )->asDouble();
 	double	zStep	= Parameters("ZSTEP"  )->asDouble();
 
-	if( zMin <= zMax && zStep > 0 )
+	//-----------------------------------------------------
+	if( zStep <= 0 )	// just one contour value (zMin)
 	{
-	}
-
-	if( zStep <= 0 )
 		zStep	= 1;
-
-	if( zMin < m_pGrid->Get_ZMin() )
+		zMax	= zMin;
+	}
+	else if( zMin < m_pGrid->Get_ZMin() )
 	{
 		zMin	+= zStep * (int)((m_pGrid->Get_ZMin() - zMin) / zStep);
 	}
 
 	if( zMax > m_pGrid->Get_ZMax() )
 	{
-		zMax	= m_pGrid->Get_ZMax() + 1.0;
+		zMax	= m_pGrid->Get_ZMax();
 	}
 
 	//-----------------------------------------------------
@@ -185,16 +206,19 @@ bool CGrid_To_Contour::On_Execute(void)
 
 	for(double z=zMin; z<=zMax && Set_Progress(z - zMin, zMax - zMin); z+=zStep)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %f", _TL("Contour"), z));
+		if( z >= m_pGrid->Get_ZMin() && z <= m_pGrid->Get_ZMax() )
+		{
+			Process_Set_Text(CSG_String::Format("%s: %s", _TL("Contour"), SG_Get_String(z, -2).c_str()));
 
-		Get_Contour(z);
+			Get_Contour(z);
+		}
 	}
 
 	m_Rows.Destroy();
 	m_Cols.Destroy();
 
 	//-----------------------------------------------------
-	return( true );
+	return( m_pContours->Get_Count() > 0 );
 }
 
 
