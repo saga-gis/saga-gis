@@ -320,8 +320,8 @@ bool CGeoref_Engine::Evaluate(int Method, int Order)
 	//-----------------------------------------------------
 	if( Method == GEOREF_NotSet )	// Automatic
 	{
-		if( Get_Reference_Count() >= 10 )	return( Evaluate(GEOREF_Spline) );
-		if( Get_Reference_Count() >=  4 )	return( Evaluate(GEOREF_Polynomial_1st_Order) );
+		if( Get_Reference_Count() >= 4 )	return( Evaluate(GEOREF_Spline) );
+	//	if( Get_Reference_Count() >= 4 )	return( Evaluate(GEOREF_Polynomial_1st_Order) );
 		
 		return( Evaluate(GEOREF_Affine) );
 	}

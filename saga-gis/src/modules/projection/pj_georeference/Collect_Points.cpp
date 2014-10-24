@@ -97,10 +97,22 @@ CCollect_Points::CCollect_Points(void)
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
+		_TL(""),
+		GEOREF_METHODS_CHOICE, 0
+	);
+
+	Parameters.Add_Value(
+		NULL	, "ORDER"		,_TL("Polynomial Order"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 3, 1, true
+	);
+
 	Parameters.Add_Value(
 		NULL	, "REFRESH"		, _TL("Clear Reference Points"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		PARAMETER_TYPE_Bool, false
 	);
 
 	//-----------------------------------------------------
@@ -136,6 +148,11 @@ bool CCollect_Points::is_Compatible(CSG_Shapes *pPoints)
 //---------------------------------------------------------
 int CCollect_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("ORDER", pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
+	}
+
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_SOURCE") )
 	{
 		pParameters->Get_Parameter("REFRESH")->Set_Enabled(is_Compatible(pParameter->asShapes()));
@@ -157,6 +174,8 @@ bool CCollect_Points::On_Execute(void)
 	m_Engine.Destroy();
 
 	m_pPoints	= Parameters("REF_SOURCE")->asShapes();
+
+	Get_Parameters("REFERENCE")->Restore_Defaults();
 
 	if( !is_Compatible(m_pPoints) || Parameters("REFRESH")->asBool() )
 	{
@@ -180,7 +199,10 @@ bool CCollect_Points::On_Execute(void)
 			));
 		}
 
-		m_Engine.Evaluate();
+		int	Method	= Parameters("METHOD")->asInt();
+		int	Order	= Parameters("ORDER" )->asInt();
+
+		m_Engine.Evaluate(Method, Order);
 	}
 
 	return( true );
@@ -201,6 +223,9 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interact
 
 		if( Dlg_Parameters("REFERENCE") )
 		{
+			int	Method	= Parameters("METHOD")->asInt();
+			int	Order	= Parameters("ORDER" )->asInt();
+
 			CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
 
 			pPoint->Add_Point(ptWorld);
@@ -209,7 +234,7 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interact
 			pPoint->Set_Value(2, ptTarget.x = Get_Parameters("REFERENCE")->Get_Parameter("X")->asDouble());
 			pPoint->Set_Value(3, ptTarget.y = Get_Parameters("REFERENCE")->Get_Parameter("Y")->asDouble());
 
-			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate() && m_pPoints->Get_Count() == m_Engine.Get_Reference_Count() )
+			if( m_Engine.Add_Reference(ptWorld, ptTarget) && m_Engine.Evaluate(Method, Order) && m_pPoints->Get_Count() == m_Engine.Get_Reference_Count() )
 			{
 				for(int i=0; i<m_pPoints->Get_Count(); i++)
 				{

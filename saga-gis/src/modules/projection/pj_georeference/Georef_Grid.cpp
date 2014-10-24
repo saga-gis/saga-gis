@@ -158,9 +158,10 @@ CGeoref_Grid::CGeoref_Grid(void)
 //---------------------------------------------------------
 int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "INTERPOLATION") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_SOURCE") && pParameter->asShapes() )
 	{
-		pParameters->Set_Enabled("BYTEWISE", pParameter->asInt() > 0);
+		pParameters->Get_Parameter("XFIELD")->Set_Value(pParameter->asShapes()->Get_Field("X_MAP"));
+		pParameters->Get_Parameter("YFIELD")->Set_Value(pParameter->asShapes()->Get_Field("Y_MAP"));
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -178,6 +179,11 @@ int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
 		pParameters->Set_Enabled("ORDER", pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "INTERPOLATION") )
+	{
+		pParameters->Set_Enabled("BYTEWISE", pParameter->asInt() > 0);
 	}
 
 	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
