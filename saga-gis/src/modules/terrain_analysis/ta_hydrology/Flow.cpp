@@ -145,7 +145,7 @@ int CFlow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPar
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "VAL_INPUT") )
 	{
-		pParameters->Set_Enabled("VAL_MEAN", pParameter->asGrid());
+		pParameters->Set_Enabled("VAL_MEAN", pParameter->asGrid() != NULL);
 	}
 
 	return( 1 );
