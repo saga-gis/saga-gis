@@ -86,7 +86,6 @@ class ta_hydrology_EXPORT CFlow_RecursiveDown : public CFlow
 {
 public:
 	CFlow_RecursiveDown(void);
-	virtual ~CFlow_RecursiveDown(void);
 
 
 protected:
@@ -104,7 +103,7 @@ private:
 
 	int						Method;
 
-	double					Src_Height, Src_Slope, DEMON_minDQV;
+	double					Src_Value, DEMON_minDQV;
 
 	CSG_Grid				*pLinear, *pDir, *pDif;
 

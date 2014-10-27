@@ -86,37 +86,30 @@
 //---------------------------------------------------------
 CFlow::CFlow(void)
 {
-	m_pCatch_AspectY	= NULL;
-	m_bPoint			= false;
+	m_bPoint	= false;
 
 	//-----------------------------------------------------
 	Set_Description (_TW(
 		""
 	));
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL, "ELEVATION" , _TL("Elevation"                           ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid(NULL, "ELEVATION" , _TL("Elevation"                                ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid(NULL, "SINKROUTE" , _TL("Sink Routes"                              ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "WEIGHT"    , _TL("Weight"                                   ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
-	Parameters.Add_Grid(NULL, "SINKROUTE" , _TL("Sink Routes"                         ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "WEIGHT"    , _TL("Weight"                              ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "CAREA"     , _TL("Catchment Area"                           ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Grid(NULL, "MATERIAL"  , _TL("Material"                            ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "TARGET"    , _TL("Target"                              ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "VAL_INPUT" , _TL("Input for Mean over Catchment Calculation"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "VAL_MEAN"  , _TL("Mean over Catchment"                      ), _TL(""), PARAMETER_OUTPUT);
 
-	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL, "CAREA"     , _TL("Catchment Area"                      ), _TL(""), PARAMETER_OUTPUT);
-
-	Parameters.Add_Grid(NULL, "CHEIGHT"   , _TL("Catchment Height"                    ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "CSLOPE"    , _TL("Catchment Slope"                     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-
-	Parameters.Add_Grid(NULL, "ACCU_TOT"  , _TL("Total accumulated Material"          ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);	
-	Parameters.Add_Grid(NULL, "ACCU_LEFT" , _TL("Accumulated Material from Left Side" ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
-	Parameters.Add_Grid(NULL, "ACCU_RIGHT", _TL("Accumulated Material from Right Side"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
+	Parameters.Add_Grid(NULL, "MATERIAL"  , _TL("Material"                                 ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "TARGET"    , _TL("Accumulation Target"                      ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "ACCU_TOT"  , _TL("Total accumulated Material"               ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);	
+	Parameters.Add_Grid(NULL, "ACCU_LEFT" , _TL("Accumulated Material from Left Side"      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
+	Parameters.Add_Grid(NULL, "ACCU_RIGHT", _TL("Accumulated Material from Right Side"     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
 	
 	//-----------------------------------------------------
-	// Options...
-
 	Parameters.Add_Value(
 		NULL	, "STEP"		, _TL("Step"),
 		_TL(""),
@@ -148,6 +141,24 @@ void CFlow::Set_Point(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CFlow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "VAL_INPUT") )
+	{
+		pParameters->Set_Enabled("VAL_MEAN", pParameter->asGrid());
+	}
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CFlow::On_Execute(void)
 {
 	//-------------------------------------------------
@@ -157,10 +168,20 @@ bool CFlow::On_Execute(void)
 	m_pMaterial		= Parameters("MATERIAL" )->asGrid();
 	m_pTarget		= Parameters("TARGET"   )->asGrid();
 	m_pCatch		= Parameters("CAREA"    )->asGrid();
-	m_pCatch_Height	= NULL;
-	m_pCatch_Slope	= NULL;
-	m_pCatch_Aspect	= NULL;
+
 	m_pFlowPath		= NULL;
+
+	if( (m_pVal_Input = Parameters("VAL_INPUT")->asGrid()) != NULL
+	&&  (m_pVal_Mean  = Parameters("VAL_MEAN" )->asGrid()) != NULL )
+	{
+		m_pVal_Mean->Set_Name(CSG_String::Format("%s [%s]", m_pVal_Input->Get_Name(), _TL("Mean over Catchment")));
+		m_pVal_Mean->Set_Unit(m_pVal_Input->Get_Unit());
+	}
+	else
+	{
+		m_pVal_Mean	= NULL;
+	}
+
 	m_pAccu_Tot		= NULL;
 	m_pAccu_Left	= NULL;
 	m_pAccu_Right	= NULL;
@@ -170,19 +191,12 @@ bool CFlow::On_Execute(void)
 	//-----------------------------------------------------
 	On_Initialize();
 
-	SET_GRID_TO(m_pCatch       , 0.0);
-	SET_GRID_TO(m_pCatch_Height, 0.0);
-	SET_GRID_TO(m_pCatch_Slope , 0.0);
-	SET_GRID_TO(m_pCatch_Aspect, 0.0);
-	SET_GRID_TO(m_pFlowPath    , 0.0);
-	SET_GRID_TO(m_pAccu_Tot    , 1.0);
-	SET_GRID_TO(m_pAccu_Left   , 1.0);
-	SET_GRID_TO(m_pAccu_Right  , 1.0);
-
-	if( m_pCatch_Aspect )
-	{
-		m_pCatch_AspectY	= SG_Create_Grid(m_pCatch_Aspect);
-	}
+	SET_GRID_TO(m_pCatch     , 0.0);
+	SET_GRID_TO(m_pFlowPath  , 0.0);
+	SET_GRID_TO(m_pVal_Mean  , 0.0);
+	SET_GRID_TO(m_pAccu_Tot  , 1.0);
+	SET_GRID_TO(m_pAccu_Left , 1.0);
+	SET_GRID_TO(m_pAccu_Right, 1.0);
 
 	DataObject_Set_Colors(m_pCatch, 11, SG_COLORS_WHITE_BLUE);
 	
@@ -206,20 +220,11 @@ bool CFlow::On_Execute(void)
 	//-----------------------------------------------------
 	else
 	{
-		m_pCatch_Height	= Parameters("CHEIGHT"   )->asGrid();
-		m_pCatch_Slope	= Parameters("CSLOPE"    )->asGrid();
 		m_pAccu_Tot		= Parameters("ACCU_TOT"  )->asGrid();
 		m_pAccu_Left	= Parameters("ACCU_LEFT" )->asGrid();
 		m_pAccu_Right	= Parameters("ACCU_RIGHT")->asGrid();
 		
-		DataObject_Set_Colors(m_pCatch_Height, 11, SG_COLORS_RED_GREEN);
-		DataObject_Set_Colors(m_pCatch_Slope , 11, SG_COLORS_RED_GREEN);
-		DataObject_Set_Colors(m_pCatch_Aspect, 11, SG_COLORS_ASPECT_3);
-		DataObject_Set_Colors(m_pFlowPath    , 11, SG_COLORS_RED_GREY_BLUE);
-
-		if( m_pCatch_Height )	{	m_pCatch_Slope ->Set_Unit(m_pDTM->Get_Unit()); }
-		if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Set_Unit(_TL("radians")); }
-		if( m_pCatch_Aspect )	{	m_pCatch_Aspect->Set_Unit(_TL("radians")); }
+		DataObject_Set_Colors(m_pFlowPath, 11, SG_COLORS_RED_GREY_BLUE);
 
 		Calculate();
 
@@ -244,30 +249,20 @@ bool CFlow::On_Execute(void)
 //---------------------------------------------------------
 void CFlow::Init_Cell(int x, int y)
 {
-	double	Weight, Slope, Aspect;
+	double	Weight	= m_pWeight ? m_pWeight->asDouble(x, y) : 1.0;
 
-	if( m_pCatch_Slope || m_pCatch_Aspect )
+	ADD_GRID_CELL_VAL(x, y, m_pCatch, Weight);
+
+	if( m_pVal_Mean && !m_pVal_Input->is_NoData(x, y) )
 	{
-		Get_Gradient(x, y, Slope, Aspect);
+		ADD_GRID_CELL_VAL(x, y, m_pVal_Mean, Weight * m_pVal_Input->asDouble(x, y));
 	}
-	else
-	{
-		Slope	= Aspect	= 0.0;
-	}
-
-	Weight	= m_pWeight ? m_pWeight->asDouble(x, y) : 1.0;
-
-	ADD_GRID_CELL_VAL(x, y, m_pCatch        , Weight);
-	ADD_GRID_CELL_VAL(x, y, m_pCatch_Height , Weight * m_pDTM->asDouble(x, y));
-	ADD_GRID_CELL_VAL(x, y, m_pCatch_Slope  , Weight * Slope);
-	ADD_GRID_CELL_VAL(x, y, m_pCatch_Aspect , Weight * sin(Aspect));
-	ADD_GRID_CELL_VAL(x, y, m_pCatch_AspectY, Weight * cos(Aspect));
 
 	Weight	*= m_pMaterial ? m_pMaterial->asDouble(x, y) : 1.0;
 
-	SET_GRID_CELL_VAL(x, y, m_pAccu_Tot     , Weight);
-	SET_GRID_CELL_VAL(x, y, m_pAccu_Left    , Weight);
-	SET_GRID_CELL_VAL(x, y, m_pAccu_Right   , Weight);
+	SET_GRID_CELL_VAL(x, y, m_pAccu_Tot  , Weight);
+	SET_GRID_CELL_VAL(x, y, m_pAccu_Left , Weight);
+	SET_GRID_CELL_VAL(x, y, m_pAccu_Right, Weight);
 }
 
 
@@ -285,14 +280,12 @@ void CFlow::_Finalize(void)
 	{
 		if( m_pDTM->is_NoData(n) )
 		{
-			if( m_pCatch        )	{	m_pCatch       ->Set_NoData(n);	}
-			if( m_pCatch_Height )	{	m_pCatch_Height->Set_NoData(n);	}
-			if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Set_NoData(n);	}
-			if( m_pCatch_Aspect )	{	m_pCatch_Aspect->Set_NoData(n);	}
-			if( m_pFlowPath     )	{	m_pFlowPath    ->Set_NoData(n);	}
-			if( m_pAccu_Tot     )	{	m_pAccu_Tot    ->Set_NoData(n);	}
-			if( m_pAccu_Left    )	{	m_pAccu_Left   ->Set_NoData(n);	}
-			if( m_pAccu_Right   )	{	m_pAccu_Right  ->Set_NoData(n);	}
+			if( m_pCatch      )	{	m_pCatch     ->Set_NoData(n);	}
+			if( m_pFlowPath   )	{	m_pFlowPath  ->Set_NoData(n);	}
+			if( m_pVal_Mean   )	{	m_pVal_Mean  ->Set_NoData(n);	}
+			if( m_pAccu_Tot   )	{	m_pAccu_Tot  ->Set_NoData(n);	}
+			if( m_pAccu_Left  )	{	m_pAccu_Left ->Set_NoData(n);	}
+			if( m_pAccu_Right )	{	m_pAccu_Right->Set_NoData(n);	}
 		}
 		else
 		{
@@ -306,26 +299,15 @@ void CFlow::_Finalize(void)
 
 			if( Catch > 0.0 )
 			{
-				if( m_pCatch_Height )	{	m_pCatch_Height->Set_Value(n, m_pCatch_Height->asDouble(n) / Catch - m_pDTM->asDouble(n));	}
-				if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Mul_Value(n, 1.0 / Catch);	}
-				if( m_pFlowPath     )	{	m_pFlowPath    ->Mul_Value(n, 1.0 / Catch);	}
+				if( m_pFlowPath )	{	m_pFlowPath->Mul_Value(n, 1.0 / Catch);	}
+				if( m_pVal_Mean )	{	m_pVal_Mean->Mul_Value(n, 1.0 / Catch);	}
 			}
 			else
 			{
-				if( m_pCatch_Height )	{	m_pCatch_Height->Set_Value(n, m_pDTM->asDouble(n));	}
-				if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Set_Value(n, 0.0);	}
-				if( m_pFlowPath     )	{	m_pFlowPath    ->Set_Value(n, 0.0);	}
+				if( m_pFlowPath )	{	m_pFlowPath->Set_Value(n, 0.0);	}
+				if( m_pVal_Mean )	{	m_pVal_Mean->Set_Value(n, 0.0);	}
 			}
 
-			//---------------------------------------------
-			if( m_pCatch_Aspect && m_pCatch_AspectY )
-			{
-				double	G	= m_pCatch_Aspect ->asDouble(n);
-				double	H	= m_pCatch_AspectY->asDouble(n);
-
-				m_pCatch_Aspect->Set_Value(n, G ? fmod(M_PI_270 + atan2(H, G), M_PI_360) : (H > 0 ? M_PI_270 : (H < 0 ? M_PI_090 : -1)));
-			}
-			
 			//---------------------------------------------
 			if( m_pTarget )
 			{
@@ -344,14 +326,6 @@ void CFlow::_Finalize(void)
 				}
 			}
 		}
-	}
-
-	//-----------------------------------------------------
-	if( m_pCatch_AspectY )
-	{
-		delete(m_pCatch_AspectY);
-
-		m_pCatch_AspectY	= NULL;
 	}
 }
 
@@ -391,12 +365,9 @@ void CFlow::Add_Fraction(int x, int y, int Direction, double Fraction)
 		return;
 	}
 
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch         , Fraction * m_pCatch         ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Height  , Fraction * m_pCatch_Height  ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Slope   , Fraction * m_pCatch_Slope   ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Aspect  , Fraction * m_pCatch_Aspect  ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_AspectY , Fraction * m_pCatch_AspectY ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pFlowPath      , Fraction * (m_pFlowPath     ->asDouble(x, y) + Get_Length(Direction)));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch   , Fraction *  m_pCatch   ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pFlowPath, Fraction * (m_pFlowPath->asDouble(x, y) + Get_Length(Direction)));
+	ADD_GRID_CELL_VAL(ix, iy, m_pVal_Mean, Fraction *  m_pVal_Mean->asDouble(x, y));
 
 	if( !m_pTarget )
 	{
@@ -442,12 +413,9 @@ void CFlow::Add_Portion(int x, int y, int ix, int iy, int Direction)
 		return;
 	}
 
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch        , m_pCatch        ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Height , m_pCatch_Height ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Slope  , m_pCatch_Slope  ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pFlowPath     , m_pFlowPath     ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_Aspect , m_pCatch_Aspect ->asDouble(x, y));
-	ADD_GRID_CELL_VAL(ix, iy, m_pCatch_AspectY, m_pCatch_AspectY->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pCatch   , m_pCatch   ->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pFlowPath, m_pFlowPath->asDouble(x, y));
+	ADD_GRID_CELL_VAL(ix, iy, m_pVal_Mean, m_pVal_Mean->asDouble(x, y));
 
 	if( m_pTarget )
 	{

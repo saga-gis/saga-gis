@@ -129,12 +129,6 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "CASPECT"		, _TL("Catchment Aspect"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
 		NULL	, "FLOWLEN"		, _TL("Flow Path Length"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
@@ -225,9 +219,7 @@ int CFlow_Parallel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 void CFlow_Parallel::On_Initialize(void)
 {
-	m_pCatch_Aspect	= Parameters("CASPECT")->asGrid();
-	m_pFlowPath		= Parameters("FLOWLEN")->asGrid();
-
+	m_pFlowPath	= Parameters("FLOWLEN"    )->asGrid  ();
 	m_Converge	= Parameters("CONVERGENCE")->asDouble();
 }
 

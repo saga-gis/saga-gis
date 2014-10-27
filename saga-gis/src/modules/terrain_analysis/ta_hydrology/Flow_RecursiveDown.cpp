@@ -139,10 +139,6 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 	);
 }
 
-//---------------------------------------------------------
-CFlow_RecursiveDown::~CFlow_RecursiveDown(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -277,32 +273,21 @@ bool CFlow_RecursiveDown::Calculate(void)
 //---------------------------------------------------------
 bool CFlow_RecursiveDown::Calculate(int x, int y)
 {
-	double 	Slope, Aspect, qFlow;
+	double	qFlow;
 
 	if( !m_pDTM->is_NoData(x, y) && (qFlow = m_pWeight ? m_pWeight->asDouble(x, y) : 1.0) > 0.0 )
 	{
-		Get_Gradient(x, y, Slope, Aspect);
-
-		Src_Height	= m_pDTM->asDouble(x,y);
-		Src_Slope	= Slope;
+		Src_Value	= m_pVal_Mean && !m_pVal_Input->is_NoData(x, y) ? m_pVal_Input->asDouble(x, y) : 0.0;
 
 		Add_Flow(x, y, qFlow);
+
 		Lock_Set(x, y, 1);
 
-		//-------------------------------------------------
 		switch( Method )
 		{
-		case 0:
-			Rho8_Start(		x, y, qFlow );
-			break;
-
-		case 1:
-			KRA_Start(		x, y, qFlow );
-			break;
-
-		case 2:
-			DEMON_Start(	x, y, qFlow );
-			break;
+		case 0:	Rho8_Start (x, y, qFlow);	break;
+		case 1:	KRA_Start  (x, y, qFlow);	break;
+		case 2:	DEMON_Start(x, y, qFlow);	break;
 		}
 
 		Lock_Set(x, y, 0);
@@ -321,9 +306,8 @@ bool CFlow_RecursiveDown::Calculate(int x, int y)
 //---------------------------------------------------------
 void CFlow_RecursiveDown::Add_Flow(int x, int y, double Fraction)
 {
-	if( m_pCatch        )	{	m_pCatch       ->Add_Value(x, y, Fraction);	}
-	if( m_pCatch_Height )	{	m_pCatch_Height->Add_Value(x, y, Fraction * Src_Height);	}
-	if( m_pCatch_Slope  )	{	m_pCatch_Slope ->Add_Value(x, y, Fraction * Src_Slope );	}
+	if( m_pCatch    )	{	m_pCatch   ->Add_Value(x, y, Fraction);	}
+	if( m_pVal_Mean )	{	m_pVal_Mean->Add_Value(x, y, Fraction * Src_Value );	}
 }
 
 

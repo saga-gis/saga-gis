@@ -106,39 +106,38 @@ class ta_hydrology_EXPORT CFlow : public CSG_Module_Grid
 public:
 	CFlow(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Catchment Area" ));	}
 
-	void					Set_Point		(int x, int y);
+	void					Set_Point				(int x, int y);
 
 
 protected:
-
-	bool					m_bKill_Slope, m_bKill_Aspect;
 
 	int						m_Step;
 
 	double					m_Converge;
 
-	CSG_Grid				*m_pDTM, *m_pRoute, *m_pWeight,
-							*m_pCatch, *m_pCatch_Slope, *m_pCatch_Height, *m_pCatch_Aspect, *m_pCatch_AspectY, *m_pFlowPath,
+	CSG_Grid				*m_pDTM, *m_pRoute, *m_pWeight, *m_pCatch, *m_pFlowPath, *m_pVal_Input, *m_pVal_Mean,
 							*m_pMaterial, *m_pTarget, *m_pAccu_Tot, *m_pAccu_Left, *m_pAccu_Right;
 
 
-	virtual bool			On_Execute(void);
+	virtual	int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual void			On_Initialize	(void)			= 0;
-	virtual void			On_Finalize		(void)			{}
+	virtual bool			On_Execute				(void);
 
-	virtual bool			Calculate		(void)			= 0;
-	virtual bool			Calculate		(int x, int y)	= 0;
+	virtual void			On_Initialize			(void)			= 0;
+	virtual void			On_Finalize				(void)			{}
 
-	void					Init_Cell		(int x, int y);
+	virtual bool			Calculate				(void)			= 0;
+	virtual bool			Calculate				(int x, int y)	= 0;
 
-	void					Get_Gradient	(int x, int y, double &Slope, double &Aspect);
+	void					Init_Cell				(int x, int y);
 
-	void					Add_Fraction	(int x, int y, int Direction, double Fraction = 1.0);
-	void					Add_Portion		(int x, int y, int ix, int iy, int Direction);
-	void					Find_Sides		(int x, int y, int Direction, bool &left, bool &right);
+	void					Get_Gradient			(int x, int y, double &Slope, double &Aspect);
+
+	void					Add_Fraction			(int x, int y, int Direction, double Fraction = 1.0);
+	void					Add_Portion				(int x, int y, int ix, int iy, int Direction);
+	void					Find_Sides				(int x, int y, int Direction, bool &left, bool &right);
 
 
 private:
@@ -148,7 +147,7 @@ private:
 	int						m_xPoint, m_yPoint;
 
 
-	void					_Finalize		(void);
+	void					_Finalize				(void);
 
 };
 
