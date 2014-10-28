@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<toolchain version="2.1.3">
+<toolchain saga-version="2.1.3">
   <group></group>
   <identifier>gridding</identifier>
   <name>Gridding of Points</name>

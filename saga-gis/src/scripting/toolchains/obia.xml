@@ -48,8 +48,9 @@
     </tool>
     <tool library="imagery_segmentation" module="3" name="Simple Region Growing">
       <output id="SEGMENTS">SEGMENTS_GRID</output>
-      <option id="METHOD">0</option>
+      <option id="NORMALIZE" varname="true">NORMALIZE</option>
       <option id="NEIGHBOUR">1</option>
+      <option id="METHOD">0</option>
       <option id="SIG_1">1.000000</option>
       <option id="SIG_2">1.000000</option>
       <option id="THRESHOLD">0.000000</option>

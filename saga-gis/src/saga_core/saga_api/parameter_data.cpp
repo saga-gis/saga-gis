@@ -838,7 +838,9 @@ CSG_Parameter_Choice::CSG_Parameter_Choice(CSG_Parameter *pOwner, long Constrain
 //---------------------------------------------------------
 bool CSG_Parameter_Choice::Set_Value(const CSG_String &Value)
 {
-	for(int i=0; i<m_Items.Get_Count(); i++)
+	int		i;
+
+	for(i=0; i<m_Items.Get_Count(); i++)
 	{
 		if( m_Items[i].Cmp(Value) == 0 )
 		{
@@ -846,6 +848,13 @@ bool CSG_Parameter_Choice::Set_Value(const CSG_String &Value)
 
 			return( true );
 		}
+	}
+
+	if( Value.asInt(i) )
+	{
+		m_Value	= i;
+
+		return( true );
 	}
 
 	return( false );
