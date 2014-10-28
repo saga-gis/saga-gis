@@ -133,10 +133,14 @@ public:
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
+
+	bool					m_bNormalize;
 
 	int						m_Method, m_nFeatures, m_dNeighbour;
 
@@ -151,11 +155,13 @@ private:
 	CCandidates				m_Candidates;
 
 
-	bool					Get_Next_Candidate	(int &x, int &y, int &Segment);
+	double					Get_Feature				(int  x, int  y, int iFeature);
 
-	bool					Add_To_Segment		(int  x, int  y, int  Segment);
+	bool					Get_Next_Candidate		(int &x, int &y, int &Segment);
 
-	double					Get_Similarity		(int  x, int  y, int  Segment);
+	bool					Add_To_Segment			(int  x, int  y, int  Segment);
+
+	double					Get_Similarity			(int  x, int  y, int  Segment);
 
 };
 

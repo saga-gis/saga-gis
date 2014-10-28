@@ -397,13 +397,10 @@ CRGA_Basic::CRGA_Basic(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Value(
+		NULL	, "NORMALIZE"	, _TL("Normalize"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("feature space and position"),
-			_TL("feature space")
-		), 0
+		PARAMETER_TYPE_Bool		, false
 	);
 
 	Parameters.Add_Choice(
@@ -415,9 +412,13 @@ CRGA_Basic::CRGA_Basic(void)
 		), 0
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_COLSPACE"	, _TL("Feature Space Options"),
-		_TL("")
+	pNode	= Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("feature space and position"),
+			_TL("feature space")
+		), 0
 	);
 
 	Parameters.Add_Value(
@@ -433,19 +434,19 @@ CRGA_Basic::CRGA_Basic(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "THRESHOLD"		, _TL("Threshold - Similarity"),
+		pNode	, "THRESHOLD"		, _TL("Similarity Threshold"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 0.0, 0.0, true	// 0.15
 	);
 
 	Parameters.Add_Value(
-		pNode	, "REFRESH"			, _TL("Refresh"),
+		NULL	, "REFRESH"			, _TL("Refresh"),
 		_TL(""),
 		PARAMETER_TYPE_Bool			, false
 	);
 
 	Parameters.Add_Value(
-		pNode	, "LEAFSIZE"		, _TL("Leaf Size (for Speed Optimisation)"),
+		NULL	, "LEAFSIZE"		, _TL("Leaf Size (for Speed Optimisation)"),
 		_TL(""),
 		PARAMETER_TYPE_Int			, 256, 2, true
 	);
@@ -459,31 +460,50 @@ CRGA_Basic::CRGA_Basic(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CRGA_Basic::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("SIG_2", pParameter->asInt() == 0);
+	}
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CRGA_Basic::On_Execute(void)
 {
 	bool		bRefresh;
-	sLong		n;
 	int			x, y, i, Segment;
 	CSG_Grid	*pSeeds;
 
 	//-----------------------------------------------------
-	m_pSegments		= Parameters("SEGMENTS")	->asGrid();
-	m_pFeatures		= Parameters("FEATURES")	->asGridList();
+	m_pSegments		= Parameters("SEGMENTS"  )->asGrid();
+	m_pFeatures		= Parameters("FEATURES"  )->asGridList();
 	m_nFeatures		= m_pFeatures->Get_Count();
 
-	pSeeds			= Parameters("SEEDS")		->asGrid();
-	m_pSeeds		= Parameters("TABLE")		->asTable();
+	pSeeds			= Parameters("SEEDS"     )->asGrid();
+	m_pSeeds		= Parameters("TABLE"     )->asTable();
 
-	m_pSimilarity	= Parameters("SIMILARITY")	->asGrid();
+	m_pSimilarity	= Parameters("SIMILARITY")->asGrid();
 
-	m_dNeighbour	= Parameters("NEIGHBOUR")->asInt() == 0 ? 2 : 1;
+	m_dNeighbour	= Parameters("NEIGHBOUR" )->asInt() == 0 ? 2 : 1;
 
 	m_Var_1			= SG_Get_Square(Parameters("SIG_1")->asDouble());
 	m_Var_2			= SG_Get_Square(Parameters("SIG_2")->asDouble());
-	m_Threshold		= Parameters("THRESHOLD")	->asDouble();
+	m_Threshold		= Parameters("THRESHOLD" )->asDouble();
 
-	m_Method		= Parameters("METHOD")		->asInt();
-	bRefresh		= Parameters("REFRESH")		->asBool();
+	m_bNormalize	= Parameters("NORMALIZE" )->asBool();
+
+	m_Method		= Parameters("METHOD"    )->asInt();
+	bRefresh		= Parameters("REFRESH"   )->asBool();
 
 	//-----------------------------------------------------
 	m_pSegments		->Assign(-1);
@@ -495,10 +515,10 @@ bool CRGA_Basic::On_Execute(void)
 	//-----------------------------------------------------
 	m_pSeeds->Destroy();
 
-	m_pSeeds->Add_Field(_TL("ID")	, SG_DATATYPE_Int);
-	m_pSeeds->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);
-	m_pSeeds->Add_Field(_TL("X")	, SG_DATATYPE_Double);
-	m_pSeeds->Add_Field(_TL("Y")	, SG_DATATYPE_Double);
+	m_pSeeds->Add_Field(_TL("ID"  ), SG_DATATYPE_Int);
+	m_pSeeds->Add_Field(_TL("AREA"), SG_DATATYPE_Double);
+	m_pSeeds->Add_Field(_TL("X"   ), SG_DATATYPE_Double);
+	m_pSeeds->Add_Field(_TL("Y"   ), SG_DATATYPE_Double);
 
 	for(i=0; i<m_pFeatures->Get_Count(); i++)
 	{
@@ -508,7 +528,7 @@ bool CRGA_Basic::On_Execute(void)
 	m_Candidates.Create(Parameters("LEAFSIZE")->asInt());
 
 	//-----------------------------------------------------
-	for(y=0, n=0; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -516,26 +536,26 @@ bool CRGA_Basic::On_Execute(void)
 			{
 				CSG_Table_Record	*pRec	= m_pSeeds->Add_Record();
 
-				pRec->Set_Value(0, n);
+				pRec->Set_Value(0, m_pSeeds->Get_Count() - 1);
 				pRec->Set_Value(SEEDFIELD_X, x);
 				pRec->Set_Value(SEEDFIELD_Y, y);
 
 				for(i=0; i<m_pFeatures->Get_Count(); i++)
 				{
-					pRec->Set_Value(SEEDFIELD_Z + i, m_pFeatures->asGrid(i)->asDouble(x, y));
+					pRec->Set_Value(SEEDFIELD_Z + i, Get_Feature(x, y, i));
 				}
 
 				m_pSimilarity->Set_Value(x, y, 1.0);
 
-				Add_To_Segment(x, y, n++);
+				Add_To_Segment(x, y, m_pSeeds->Get_Count() - 1);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( n > 0 )
+	if( m_pSeeds->Get_Count() > 1 )
 	{
-		n	= 0;
+		sLong	n	= 0;
 
 		while( n++ < Get_NCells() && Set_Progress_NCells(n) && Get_Next_Candidate(x, y, Segment) )
 		{
@@ -543,7 +563,7 @@ bool CRGA_Basic::On_Execute(void)
 
 			if( bRefresh && (n % Get_NX()) == 0 )
 			{
-				DataObject_Update(m_pSegments, 0, m_pSeeds->Get_Record_Count());
+				DataObject_Update(m_pSegments, 0, m_pSeeds->Get_Count());
 
 				Process_Set_Text(CSG_String::Format(SG_T("%.2f"), 100.0 * m_Candidates.Get_Count() / Get_NCells()));
 			}
@@ -558,6 +578,26 @@ bool CRGA_Basic::On_Execute(void)
 	m_Candidates.Destroy();
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline double CRGA_Basic::Get_Feature(int x, int y, int iFeature)
+{
+	double	Value	= m_pFeatures->asGrid(iFeature)->asDouble(x, y);
+
+	if( m_bNormalize )
+	{
+		Value	= (Value - m_pFeatures->asGrid(iFeature)->Get_Mean()) / m_pFeatures->asGrid(iFeature)->Get_StdDev();
+	}
+
+	return( Value );
 }
 
 
@@ -628,7 +668,7 @@ double CRGA_Basic::Get_Similarity(int x, int y, int Segment)
 		case 0:	// feature space and position
 			for(i=0, a=0.0; i<m_nFeatures; i++)
 			{
-				a	+= SG_Get_Square(m_pFeatures->asGrid(i)->asDouble(x, y) - pSeed->asDouble(SEEDFIELD_Z + i));
+				a	+= SG_Get_Square(Get_Feature(x, y, i) - pSeed->asDouble(SEEDFIELD_Z + i));
 			}
 
 			b	= SG_Get_Square(x - pSeed->asDouble(SEEDFIELD_X))
@@ -642,7 +682,7 @@ double CRGA_Basic::Get_Similarity(int x, int y, int Segment)
 		case 1:	// feature space
 			for(i=0, a=0.0; i<m_nFeatures; i++)
 			{
-				a	+= SG_Get_Square(m_pFeatures->asGrid(i)->asDouble(x, y) - pSeed->asDouble(SEEDFIELD_Z + i));
+				a	+= SG_Get_Square(Get_Feature(x, y, i) - pSeed->asDouble(SEEDFIELD_Z + i));
 			}
 
 			Result	= a / m_Var_1;
