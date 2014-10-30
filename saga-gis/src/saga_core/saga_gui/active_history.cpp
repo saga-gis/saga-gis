@@ -235,8 +235,8 @@ void CACTIVE_History::On_Clear(wxCommandEvent &event)
 //---------------------------------------------------------
 void CACTIVE_History::On_SaveAs_Model(wxCommandEvent &event)
 {
-	const wxString	Filter	= wxString::Format("%s|*.smdl;*.xml|%s|*.*",
-		_TL("Recognized Files"), _TL("All Files")
+	const wxString	Filter	= wxString::Format("%s|*.xml|%s|*.*",
+		_TL("XML Files"), _TL("All Files")
 	);
 
 	wxString	File;

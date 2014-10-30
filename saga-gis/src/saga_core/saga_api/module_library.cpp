@@ -487,8 +487,7 @@ int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOn
 CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char *File_Name)
 {
 	//-----------------------------------------------------
-	if( !SG_File_Cmp_Extension(File_Name, SG_T("smdl"))
-	&&	!SG_File_Cmp_Extension(File_Name, SG_T("xml" )) )
+	if( !SG_File_Cmp_Extension(File_Name, SG_T("xml" )) )
 	{
 		return( NULL );
 	}

@@ -331,7 +331,10 @@ bool CSG_Module_Chain::Data_Initialize(void)
 //---------------------------------------------------------
 bool CSG_Module_Chain::Data_Finalize(void)
 {
-	for(int i=0; i<Parameters.Get_Count(); i++)	// detach non temporary data before freeing the local data manager !!!
+	int		i;
+
+	//-----------------------------------------------------
+	for(i=0; i<Parameters.Get_Count(); i++)	// detach non temporary data before freeing the local data manager !!!
 	{
 		if( Parameters(i)->is_DataObject() )
 		{
@@ -355,6 +358,34 @@ bool CSG_Module_Chain::Data_Finalize(void)
 
 	m_Data.Destroy();
 
+	//-----------------------------------------------------
+	for(i=0; i<m_Chain["parameters"].Get_Children_Count(); i++)
+	{
+		const CSG_MetaData	&Parameter	= m_Chain["parameters"][i];
+
+		if( Parameter.Cmp_Name("output") )
+		{
+			CSG_Parameter	*pParameter	= Parameters(Parameter.Get_Property("varname"));
+
+			if( pParameter && pParameter->is_DataObject() && pParameter->asDataObject() )
+			{
+				if( Parameter("output_name") && !Parameter["output_name"].Get_Content().is_Empty() )
+				{
+					pParameter->asDataObject()->Set_Name(Parameter["output_name"].Get_Content());
+				}
+
+				if( Parameter("colours") )
+				{
+					DataObject_Set_Colors(pParameter->asDataObject(), 11,
+						Parameter["colours"].Get_Content().asInt(),
+						Parameter["colours"].Cmp_Property("revert", "true", true) || Parameter["colours"].Cmp_Property("revert", "1")
+					);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -425,6 +456,22 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 	int		i;
 
 	CSG_String	Tool_ID	= Tool.Get_Property("id");
+
+	//-----------------------------------------------------
+	for(i=-1; i<pModule->Get_Parameters_Count(); i++)	// clear data object lists (could be done in csg_module::reset_defaults() in future?!)
+	{
+		CSG_Parameters	*pParameters	= i < 0 ? &Parameters : Get_Parameters(i);
+
+		for(int j=0; j<pParameters->Get_Count(); j++)
+		{
+			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(j);
+
+			if( pParameter->is_DataObject_List() )
+			{
+				pParameter->asList()->Del_Items();
+			}
+		}
+	}
 
 	//-----------------------------------------------------
 	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data objects first
