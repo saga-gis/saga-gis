@@ -458,22 +458,6 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 	CSG_String	Tool_ID	= Tool.Get_Property("id");
 
 	//-----------------------------------------------------
-	for(i=-1; i<pModule->Get_Parameters_Count(); i++)	// clear data object lists (could be done in csg_module::reset_defaults() in future?!)
-	{
-		CSG_Parameters	*pParameters	= i < 0 ? &Parameters : Get_Parameters(i);
-
-		for(int j=0; j<pParameters->Get_Count(); j++)
-		{
-			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(j);
-
-			if( pParameter->is_DataObject_List() )
-			{
-				pParameter->asList()->Del_Items();
-			}
-		}
-	}
-
-	//-----------------------------------------------------
 	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data objects first
 	{
 		const CSG_MetaData	&Parameter	= Tool[i];
