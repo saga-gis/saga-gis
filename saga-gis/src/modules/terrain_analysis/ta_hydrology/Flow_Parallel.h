@@ -113,8 +113,7 @@ private:
 	void					Set_BRM			(int x, int y );
 
 	//-----------------------------------------------------
-	int						BRM_kgexp[8  ], BRM_idreh[8  ];
-	double					BRM_sinus[361], BRM_cosin[361];
+	int						BRM_kgexp[8], BRM_idreh[8];
 
 	void					BRM_Init		(void);
 	int						BRM_InitRZ		(int x, int y, int ix[3], int iy[3]);

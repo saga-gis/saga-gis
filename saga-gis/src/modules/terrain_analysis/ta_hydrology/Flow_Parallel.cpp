@@ -886,13 +886,6 @@ void CFlow_Parallel::BRM_Init(void)
 	for(i=0; i<4; i++)
 		BRM_kgexp[i+4]	= BRM_kgexp[i] + 180;
 
-	//-----------------------------------------------------
-	for(i=0; i<=360; i++)
-	{
-		BRM_sinus[i]	= -sin(i * M_DEG_TO_RAD);
-		BRM_cosin[i]	= -cos(i * M_DEG_TO_RAD);
-	}
-
 	//---BRM_idreh---------------------------------------------
 	BRM_idreh[0]	= 180;
 	BRM_idreh[1]	= 180 -	BRM_nint(atan2(Get_Cellsize(), Get_Cellsize()) * M_RAD_TO_DEG);
@@ -1047,9 +1040,8 @@ void CFlow_Parallel::BRM_QStreuung(int i64, int g64, double nnei[6], int nexp[6]
 	for(i=0; i<i64; i++)
 	{
 		a		= sg * nnei[i];
-		j		= nexp[i];
-		s[i]	= a * BRM_sinus[j];
-		c[i]	= a * BRM_cosin[j];
+		s[i]	= a * -sin(nexp[i] * M_DEG_TO_RAD);
+		c[i]	= a * -cos(nexp[i] * M_DEG_TO_RAD);
 	}
 
     //---QLinks-ermitteln----------------------------------
