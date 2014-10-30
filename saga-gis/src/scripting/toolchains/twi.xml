@@ -16,41 +16,39 @@
     <output varname="TWI" type="grid" parent="GRID_SYSTEM">
       <name>Topographic Wetness Index</name>
     </output>
+    <option varname="FLOW_METHOD" type="choice">
+      <name>Flow Distribution</name>
+      <choices>Deterministic 8|Rho 8|Braunschweiger Reliefmodell|Deterministic Infinity|Multiple Flow Direction|Multiple Triangular Flow Direction|Multiple Maximum Downslope Gradient Based Flow Direction|</choices>
+      <value>4</value>
+    </option>
   </parameters>
   <tools>
     <tool library="ta_preprocessor" module="2" name="Sink Removal">
-      <output id="DEM_PREPROC">DEM_PREPROC</output>
-      <option id="METHOD">1</option>
-      <option id="THRESHOLD">FALSE</option>
-      <option id="THRSHEIGHT">100.000000</option>
       <input id="DEM">DEM</input>
+      <output id="DEM_PREPROC">DEM_PREPROC</output>
     </tool>
     <tool library="ta_hydrology" module="0" name="Catchment Area (Top-Down)">
-      <output id="CAREA">CAREA</output>
-      <option id="STEP">1</option>
-      <option id="METHOD">6</option>
-      <option id="LINEAR_DO">FALSE</option>
       <input id="ELEVATION">DEM_PREPROC</input>
+      <output id="CAREA">CAREA</output>
+      <option id="METHOD" varname="true">FLOW_METHOD</option>
     </tool>
     <tool library="ta_hydrology" module="19" name="Flow Width and Specific Catchment Area">
-      <output id="SCA">SCA</output>
-      <option id="METHOD">2</option>
       <input id="DEM">DEM_PREPROC</input>
       <input id="TCA">CAREA</input>
+      <output id="SCA">SCA</output>
+      <option id="METHOD">2</option>
     </tool>
     <tool library="ta_morphometry" module="0" name="Slope, Aspect, Curvature">
+      <input id="ELEVATION">DEM_PREPROC</input>
       <output id="SLOPE">SLOPE</output>
       <option id="METHOD">6</option>
-      <option id="UNIT_SLOPE">0</option>
-      <option id="UNIT_ASPECT">0</option>
-      <input id="ELEVATION">DEM_PREPROC</input>
     </tool>
     <tool library="ta_hydrology" module="20" name="Topographic Wetness Index (TWI)">
+      <input id="SLOPE">SLOPE</input>
+      <input id="AREA">SCA</input>
       <output id="TWI">TWI</output>
       <option id="CONV">0</option>
       <option id="METHOD">0</option>
-      <input id="SLOPE">SLOPE</input>
-      <input id="AREA">SCA</input>
     </tool>
   </tools>
 </toolchain>

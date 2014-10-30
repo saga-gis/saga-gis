@@ -41,7 +41,7 @@
       <option id="ZSTEP" varname="1">ZSTEP</option>
       <option id="ZMIN">0.000000</option>
       <option id="ZMAX">10000.000000</option>
-      <input id="INPUT">INTERPOLATION</input>
+      <input id="GRID">INTERPOLATION</input>
       <output id="CONTOUR">CONTOUR</output>
     </tool>
   </tools>

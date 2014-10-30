@@ -4,18 +4,21 @@
   <identifier>gridding</identifier>
   <name>Gridding of Points</name>
   <author>O.Conrad (c) 2014</author>
-  <description>created from history</description>
+  <menu absolute="true">Garden|Tool Chain Examples</menu>
+  <description>
+	This tool chain simply demonstrates how to create an output grid without having to choose a target grid system before execution by setting the output parameter's &lt;i&gt;"target"&lt;/i&gt; attribute to &lt;i&gt;"none"&lt;/i&gt;.
+  </description>
   <parameters>
-    <input varname="SHAPES" type="shapes">
+    <input varname="POINTS" type="shapes">
       <name>Points</name>
     </input>
-    <option varname="ATTRIBUTE" type="table_field" parent="SHAPES">
+    <option varname="ATTRIBUTE" type="table_field" parent="POINTS">
       <name>Attribute</name>
       <description>attribute to become interpolated</description>
 	</option>
     <option varname="CELL_SIZE" type="double">
-      <name>Precision</name>
-      <description>this is the internal grid cell size determining the precision of contours</description>
+      <name>Cell Size</name>
+      <description>cell size of target grid</description>
 	  <value>10.0</value>
 	</option>
     <output varname="INTERPOLATION" type="grid" target="none">
@@ -24,13 +27,10 @@
   </parameters>
   <tools>
     <tool library="grid_spline" module="4" name="Multilevel B-Spline Interpolation">
+      <input id="SHAPES">POINTS</input>
+      <output id="OUT_GRID">INTERPOLATION</output>
       <option id="FIELD" varname="1">ATTRIBUTE</option>
       <option id="USER_SIZE" varname="1">CELL_SIZE</option>
-      <option id="METHOD">1</option>
-      <option id="EPSILON">0.000100</option>
-      <option id="LEVEL_MAX">11</option>
-      <input id="SHAPES">SHAPES</input>
-      <output id="OUT_GRID">INTERPOLATION</output>
     </tool>
   </tools>
 </toolchain>
