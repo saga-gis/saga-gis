@@ -231,7 +231,7 @@ float CCluster::GetMinVal(int dim)
 //---------------------------------------------------------
 CFast_Region_Growing::CFast_Region_Growing(void)
 {
-	Set_Name		(_TL("Fast Region Growing Algorithm"));
+	Set_Name		(_TL("[deprecated] Fast Region Growing Algorithm"));
 
 	Set_Author		(SG_T("A.Ringeler (c) 2009"));
 
