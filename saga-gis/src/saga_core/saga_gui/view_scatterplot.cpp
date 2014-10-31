@@ -833,29 +833,31 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 	int		maxSamples		= m_Options("SAMPLES_MAX")->asInt();
 	double	Step			= maxSamples > 0 && m_pGrid->Get_NCells() > maxSamples ? m_pGrid->Get_NCells() / maxSamples : 1.0;
 
-	for(double i=0; i<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, m_pGrid->Get_NCells()); i+=Step)
+	for(double dCell=0; dCell<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(dCell, m_pGrid->Get_NCells()); dCell+=Step)
 	{
-		if( !m_pGrid->is_NoData((long)i) )
+		sLong	iCell	= (sLong)dCell;
+
+		if( !m_pGrid->is_NoData(iCell) )
 		{
 			if( bEqual )
 			{
-				if( !pGrid_Y->is_NoData((long)i) )
+				if( !pGrid_Y->is_NoData(iCell) )
 				{
-					m_Regression.Add_Values(
-						m_pGrid->asDouble((sLong)i, true),
-						pGrid_Y->asDouble((sLong)i, true)
-					);
+					m_Regression.Add_Values(m_pGrid->asDouble(iCell), pGrid_Y->asDouble(iCell));
 				}
 			}
 			else
 			{
-				int		x	= ((long)i) % m_pGrid->Get_NX();
-				int		y	= ((long)i) / m_pGrid->Get_NX();
+				TSG_Point	p	= m_pGrid->Get_System().Get_Grid_to_World(
+					(int)(iCell % m_pGrid->Get_NX()),
+					(int)(iCell / m_pGrid->Get_NX())
+				);
+
 				double	z;
 
-				if(	pGrid_Y->Get_Value(m_pGrid->Get_System().Get_Grid_to_World(x, y), z, Interpolation, true) )
+				if(	pGrid_Y->Get_Value(p, z, Interpolation, false, true) )
 				{
-					m_Regression.Add_Values(m_pGrid->asDouble((sLong)i, true), z);
+					m_Regression.Add_Values(m_pGrid->asDouble(iCell), z);
 				}
 			}
 		}

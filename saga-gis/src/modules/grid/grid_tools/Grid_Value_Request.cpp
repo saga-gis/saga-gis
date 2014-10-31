@@ -224,7 +224,7 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Interpolation, true) )
+					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Interpolation, false, true) )
 					{
 						m_pTable->Get_Record(iGrid + FIELD_GRIDS)->Set_Value(FIELD_VALUE, Value);
 					}
@@ -254,7 +254,7 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Interpolation, true) )
+					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Interpolation, false, true) )
 					{
 						pRecord->Set_Value(FIELD_GRIDS + iGrid, Value);
 					}

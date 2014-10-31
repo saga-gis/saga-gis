@@ -79,7 +79,6 @@ class CGrid_Swath_Profile : public CSG_Module_Grid_Interactive
 {
 public:
 	CGrid_Swath_Profile(void);
-	virtual ~CGrid_Swath_Profile(void);
 
 
 protected:
@@ -106,7 +105,7 @@ private:
 	bool						Set_Profile	(CSG_Point A, CSG_Point B, CSG_Point Left, CSG_Point Right);
 
 	bool						Add_Point	(CSG_Point Point, CSG_Point Left, CSG_Point Right, CSG_Point Step);
-	bool						Add_Swath	(CSG_Table_Record *pRecord, int iEntry, CSG_Grid *pGrid, CSG_Point Left, CSG_Point Right, CSG_Point Step);
+	bool						Add_Swath	(CSG_Shape *pPoint, int iEntry, CSG_Grid *pGrid, CSG_Point Left, CSG_Point Right, CSG_Point Step);
 
 };
 

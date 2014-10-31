@@ -807,7 +807,7 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 	double		Value;
 	wxString	s;
 
-	if( Get_Grid()->Get_Value(ptWorld, Value, GRID_INTERPOLATION_NearestNeighbour, true) )
+	if( Get_Grid()->Get_Value(ptWorld, Value, GRID_INTERPOLATION_NearestNeighbour) )
 	{
 		switch( m_pClassify->Get_Mode() )
 		{

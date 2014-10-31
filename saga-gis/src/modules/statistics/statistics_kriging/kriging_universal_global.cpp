@@ -240,7 +240,7 @@ bool CKriging_Universal_Global::Get_Value(const TSG_Point &p, double &z, double 
 
 		for(i=0, j=n+1; i<nGrids; i++, j++)
 		{
-			if( !m_pGrids->asGrid(i)->Get_Value(p, G[j], m_Interpolation, true) )
+			if( !m_pGrids->asGrid(i)->Get_Value(p, G[j], m_Interpolation, false, true) )
 			{
 				return( false );
 			}
