@@ -257,7 +257,7 @@ bool CGrid_Terrain_Map::Generate_Topography()
 	//-----------------------------------------------------
 	DataObject_Set_Colors(Parameters("DEM")->asGrid()	, 11, SG_COLORS_TOPOGRAPHY , false);
 	DataObject_Set_Colors(pShade						, 11, SG_COLORS_BLACK_WHITE, true);
-	
+
 
 	CSG_Parameters	Parms;
 
@@ -372,7 +372,7 @@ bool CGrid_Terrain_Map::Generate_Contours()
 
 	//-----------------------------------------------------
 	RUN_MODULE("shapes_grid"			, 5,
-			SET_PARAMETER("INPUT"		, Parameters("DEM"))
+			SET_PARAMETER("GRID"		, Parameters("DEM"))
 		&&	SET_PARAMETER("CONTOUR"		, pContours)
 		&&	SET_PARAMETER("ZSTEP"		, Parameters("EQUIDISTANCE"))
 	)
