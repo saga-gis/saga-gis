@@ -333,14 +333,14 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 {
 	if( pGrid->Get_Projection().is_Okay() == false )
 	{
-		return( false );
+		return( NULL );
 	}
 
 	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 4);	// Coordinate Transformation (Grid)
 
 	if(	pModule == NULL )
 	{
-		return( false );
+		return( NULL );
 	}
 
 	int	Interpolation;
@@ -354,25 +354,21 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 
 	Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
 
-	CSG_Parameters	P;	P.Assign(pModule->Get_Parameters());
-
-	pModule->Set_Manager(NULL);
+	pModule->Settings_Push(NULL);
 
 	if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4"    , Proj4)
 	&&  pModule->Get_Parameters()->Set_Parameter("INTERPOLATION", Interpolation)
 	&&  pModule->Get_Parameters()->Set_Parameter("SOURCE"       , pGrid)
 	&&  pModule->Execute() )
 	{
-		pGrid	= pModule->Get_Parameters("GET_USER")->Get_Parameter("GRID")->asGrid();
+		pGrid	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 
-		pModule->Get_Parameters()->Assign_Values(&P);
-		pModule->Set_Manager(P.Get_Manager());
+		pModule->Settings_Pop();
 
 		return( pGrid );
 	}
 
-	pModule->Get_Parameters()->Assign_Values(&P);
-	pModule->Set_Manager(P.Get_Manager());
+	pModule->Settings_Pop();
 
 	Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("re-projection"), _TL("failed")), false);
 
