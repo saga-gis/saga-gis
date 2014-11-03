@@ -1612,7 +1612,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"\n"
 		"/* ----------------------- getXMLData object ----------------------------- */\n"
 		"/* ----------------------------------------------------------------------- */\n"
-		"//this object allows to make network requests using getURL or XMLHttpRequest\n"
+		"//this object allows one to make network requests using getURL or XMLHttpRequest\n"
 		"//you may specify a url and a callBackFunction\n"
 		"//the callBackFunction receives a XML node representing the rootElement of the fragment received\n"
 		"function getXMLData(url,callBackFunction) {\n"

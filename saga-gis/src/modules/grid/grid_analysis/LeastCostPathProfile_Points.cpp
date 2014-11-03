@@ -86,7 +86,7 @@ CLeastCostPathProfile_Points::CLeastCostPathProfile_Points(void)
 	Set_Author(SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2004-2010"));
 
 	Parameters.Set_Description(_TW(
-		"This module allows to compute least cost path profile(s). It takes an "
+		"This module allows one to compute least cost path profile(s). It takes an "
 		"accumulated cost surface grid and a point shapefile as input. Each "
 		"point in the shapefile represents a source for which the least cost path "
 		"is calculated.\n"

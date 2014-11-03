@@ -89,7 +89,7 @@ CGrid_Terrain_Map::CGrid_Terrain_Map(void)
 	Set_Author(_TL("Copyrights (c) 2014 by Volker Wichmann"));
 
 	Set_Description	(_TW(
-		"This module allows to create different terrain visualisations from an elevation dataset:\n\n"
+		"This module allows one to create different terrain visualisations from an elevation dataset:\n\n"
 		"* Topography: a simple map with an analytical hillshading of the terrain\n\n"
 		"* Morphology: a map which visualizes the terrain by combining positive and "
 		"negative openess (Yokoyama et al. 2002) with terrain slope in a single map. "

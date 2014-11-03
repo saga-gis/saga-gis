@@ -82,8 +82,8 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows to create a virtual point cloud dataset from "
-		"a set of SAGA point cloud files. Such a virtual "
+		"The module allows one to create a virtual point cloud dataset "
+		"from a set of SAGA point cloud files. Such a virtual "
 		"dataset is a simple XML format with the file extension .spcvf, "
 		"which describes a mosaic of individual point cloud files. Such "
 		"a virtual point cloud dataset can be used for seamless data "

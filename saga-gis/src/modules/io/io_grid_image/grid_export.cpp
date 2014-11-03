@@ -200,7 +200,7 @@ CGrid_Export::CGrid_Export(void)
 	{
 		Parameters.Add_Range(
 			NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
-			_TL("Allows to scale shade brightness [percent]"),
+			_TL("Allows one to scale shade brightness [percent]"),
 			0.0, 100.0, 0.0, true, 100.0, true
 		);
 	}

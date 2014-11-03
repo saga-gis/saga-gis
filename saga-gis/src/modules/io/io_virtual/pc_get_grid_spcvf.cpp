@@ -412,7 +412,7 @@ CPointCloud_Get_Grid_SPCVF::CPointCloud_Get_Grid_SPCVF(void)
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows to retrieve a grid from a virtual "
+		"The module allows one to retrieve a grid from a virtual "
 		"point cloud dataset by applying the provided area-of-interest "
 		"(AOI). The extent of the AOI can be provided either as polygon "
 		"shapefile, grid or by coordinates. Optionally, an overlap can "
@@ -656,7 +656,7 @@ CPointCloud_Get_Grid_SPCVF_Interactive::CPointCloud_Get_Grid_SPCVF_Interactive(v
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows to retrieve a grid from a virtual "
+		"The module allows one to retrieve a grid from a virtual "
 		"point cloud dataset by dragging a box (AOI) in a Map View.\n"
 		"A virtual point cloud dataset is a simple XML format "
 		"with the file extension .spcvf, which can be created "

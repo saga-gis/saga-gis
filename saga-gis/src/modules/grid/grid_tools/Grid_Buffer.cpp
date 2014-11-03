@@ -38,7 +38,7 @@ CGrid_Buffer::CGrid_Buffer(void){
 	Set_Name(_TL("Grid Buffer"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
 	Set_Description	(_TW(
-		"The module allows to buffer features. The features must be encoded by values greater zero. "
+		"The module allows one to buffer features. The features must be encoded by values greater zero. "
 		"With the buffer distance method 'cell value', the buffer distance must be encoded in the "
 		"features grid. The output buffer grid is encoded as follows: one inside the buffer, two "
 		"at feature locations.\n\n"));

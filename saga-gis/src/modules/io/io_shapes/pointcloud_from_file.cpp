@@ -77,7 +77,7 @@ CPointCloud_From_File::CPointCloud_From_File(void)
 	Set_Author		(SG_T("O. Conrad (c) 2009"));
 
 	Set_Description	(_TW(
-		"Allows to import a point cloud from a point shapefile."
+		"Allows one to import a point cloud from a point shapefile."
 	));
 
 	//-----------------------------------------------------
