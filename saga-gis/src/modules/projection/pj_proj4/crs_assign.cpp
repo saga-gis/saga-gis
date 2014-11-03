@@ -77,7 +77,7 @@ CCRS_Assign::CCRS_Assign(void)
 	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
 	Set_Description	(_TW(
-		"The module allows to define the Coordinate Reference System (CRS) "
+		"The module allows one to define the Coordinate Reference System (CRS) "
 		"of the supplied data sets. The module applies no transformation to "
 		"the data sets, it just updates their CRS metadata.\n"
 		"A complete and correct description of the CRS of a dataset is necessary "

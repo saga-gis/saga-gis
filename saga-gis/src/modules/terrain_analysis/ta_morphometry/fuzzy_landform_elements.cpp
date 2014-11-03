@@ -164,7 +164,7 @@ CFuzzy_Landform_Elements::CFuzzy_Landform_Elements(void)
 	Set_Author		(SG_T("O.Conrad (c) 2013"));
 
 	Set_Description	(_TW(
-		"Algorithm for derivation of form elements acording to slope, maximum curvature, "
+		"Algorithm for derivation of form elements according to slope, maximum curvature, "
 		"minimum curvature, profile curvature, tangential curvature, "
 		"based on a linear semantic import model for slope and curvature and a fuzzy classification "
 		"Based on the AML script \'felementf\' by Jochen Schmidt, Landcare Research. "

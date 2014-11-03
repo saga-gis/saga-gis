@@ -92,7 +92,7 @@ CMorphometry::CMorphometry(void)
 		"Maximum Triangle Slope\n"
 		"- Tarboton, D.G. (1997):\n"
 		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
-		"    Water Ressources Research, Vol.33, No.2, p.309-319\n\n"
+		"    Water Resources Research, Vol.33, No.2, p.309-319\n\n"
 
 		"Least Squares or Best Fitted Plane\n"
 		"- Horn, B. K. (1981):\n"
@@ -660,7 +660,7 @@ void CMorphometry::Set_MaximumSlope(int x, int y)
 //
 // Tarboton, D.G. (1997):
 //		'A new method for the determination of flow directions and upslope areas in grid digital elevation models',
-//		Water Ressources Research, Vol.33, No.2, p.309-319
+//		Water Resources Research, Vol.33, No.2, p.309-319
 //
 //---------------------------------------------------------
 void CMorphometry::Set_Tarboton(int x, int y)

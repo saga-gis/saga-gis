@@ -84,7 +84,7 @@ CHypsometry::CHypsometry(void)
 		"elevations in a catchment or of a whole planet. The module calculates both "
 		"the relative (scaled from 0 to 100 percent) and absolute (minimum "
 		"to maximum values) distributions. The former scales elevation and area "
-		"by the maximum values. Such a non-dimensional curve allows to asses the "
+		"by the maximum values. Such a non-dimensional curve allows one to asses the "
 		"similarity of watersheds as differences in hypsometric curves arise from "
 		"different geomorphic processes shaping a landscape.\n\n"
 		"In case the hypsometric curve should not be calculated for the whole "

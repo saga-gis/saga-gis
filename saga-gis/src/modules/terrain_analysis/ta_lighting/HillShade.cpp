@@ -145,7 +145,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Value(
 		NULL	, "NDIRS"			, _TL("Number of Directions"),
 		_TW("Number of sample directions for ambient occlusion. Divides azimuth range (270 to 0 to 90 degree) into sectors. "
-			"Declination (0 to 90 degree) is devided in (Number of Directions / 4) sectors."),
+			"Declination (0 to 90 degree) is divided in (Number of Directions / 4) sectors."),
 		PARAMETER_TYPE_Int, 8.0, 2, true
 	);
 

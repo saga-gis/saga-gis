@@ -77,7 +77,7 @@ CAdd_Point_Attributes::CAdd_Point_Attributes(void)
 		"Spatial join for polygons. Retrieves for each polygon the selected "
 		"attributes from that point, which is contained in the polygon. In case "
 		"a polygon contains more than one point, the last point wins.\n"
-		"Optionally, the module allows to attach the geometrical properties "
+		"Optionally, the module allows one to attach the geometrical properties "
 		"(x,y(z,m)) of each point as additional attributes.\n\n"
 	));
 

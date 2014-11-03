@@ -80,7 +80,7 @@ CPC_Cut::CPC_Cut(void)
 	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-10"));
 
 	Set_Description	(_TW(
-		"This modules allows to extract subsets from a Point Cloud. The area-of-interest "
+		"This modules allows one to extract subsets from a Point Cloud. The area-of-interest "
 		"is defined either by bounding box coordinates, the extent of a grid system or "
 		"a shapes layer, or by polygons of a shapes layer. Note that the latter "
 		"does not support the inverse selection.\n\n"
@@ -328,7 +328,7 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-10"));
 
 	Set_Description	(_TW(
-		"This modules allows to extract subsets from a Point Cloud. The area-of-interest "
+		"This modules allows one to extract subsets from a Point Cloud. The area-of-interest "
 		"is interactively defined either by dragging a box or by digitizing a polygon.\n"
 		"Best practice is to display the Point Cloud in a new Map View first and then "
 		"execute the module. Use the Action tool to define the AOI.\n\n"
