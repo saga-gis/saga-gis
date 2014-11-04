@@ -795,44 +795,22 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 //---------------------------------------------------------
 CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 {
-	int			iArc, nArcs, id;
-	CSG_Shapes	*pPolygons;
-
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Arcs to polygons"));
 
-	pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon);
+	CSG_Shapes	*pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon);
+
 	pPolygons->Add_Field("ID", SG_DATATYPE_Int);
 
-	nArcs		= pArcs->Get_Count();
-
 	//-----------------------------------------------------
-	while( (iArc = pArcs->Get_Count() - 1) >= 0 && Set_Progress(nArcs - iArc - 1, nArcs) )
+	for(int iArc=0; iArc<pArcs->Get_Count() && Set_Progress(iArc, pArcs->Get_Count()); iArc++)
 	{
-		id	= pArcs->Get_Shape(iArc)->asInt(ARC_LPOL);
-
-		if( id == pArcs->Get_Shape(iArc)->asInt(ARC_RPOL) )
-		{
-			pArcs->Del_Shape(iArc);
-		}
-		else if( id > 1 )
-		{
-			Arcs2Polygon(pArcs, pPolygons, id);
-		}
-
-		if( (iArc = pArcs->Get_Count() - 1) >= 0 )
-		{
-			id	= pArcs->Get_Shape(iArc)->asInt(ARC_RPOL);
-
-			if( id > 1 )
-			{
-				Arcs2Polygon(pArcs, pPolygons, id);
-			}
-		}
+		Arcs2Polygon(pArcs, pPolygons, pArcs->Get_Shape(iArc)->asInt(ARC_LPOL));
+		Arcs2Polygon(pArcs, pPolygons, pArcs->Get_Shape(iArc)->asInt(ARC_RPOL));
 	}
 
 	//-----------------------------------------------------
-	delete( pArcs );
+	delete(pArcs);
 
 	pPolygons->Make_Clean();
 
@@ -842,99 +820,93 @@ CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 //---------------------------------------------------------
 void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, int id)
 {
-	int			iShape, iPart, iPoint;
-	CSG_Shape	*pArc, *pShape;
-	CSG_Shapes	Arcs;
-
 	//-----------------------------------------------------
-	Arcs.Create(SHAPE_TYPE_Line);
-	Arcs.Add_Field("FNODE", SG_DATATYPE_Int);
-	Arcs.Add_Field("TNODE", SG_DATATYPE_Int);
-
-	//-----------------------------------------------------
-	for(iShape=pArcs->Get_Count()-1; iShape>=0; iShape--)
+	if( id <= 1 )
 	{
-		pShape	= pArcs->Get_Shape(iShape);
-
-		if( id == pShape->asInt(ARC_LPOL) )
-		{
-			pArc	= Arcs.Add_Shape();
-			pArc->Set_Value(0, pShape->asInt(ARC_FNODE));
-			pArc->Set_Value(1, pShape->asInt(ARC_TNODE));
-
-			for(iPoint=0; iPoint<pShape->Get_Point_Count(0); iPoint++)
-			{
-				pArc->Add_Point(pShape->Get_Point(iPoint, 0), 0);
-			}
-
-			if( pShape->asInt(ARC_RPOL) <= 1 )
-			{
-				pArcs->Del_Shape(iShape);
-			}
-			else
-			{
-				pShape->Set_Value(ARC_LPOL, 1);
-			}
-		}
-		else if( id == pShape->asInt(ARC_RPOL) )
-		{
-			pArc	= Arcs.Add_Shape();
-			pArc->Set_Value(1, pShape->asInt(ARC_FNODE));
-			pArc->Set_Value(0, pShape->asInt(ARC_TNODE));
-
-			for(iPoint=pShape->Get_Point_Count(0)-1; iPoint>=0; iPoint--)
-			{
-				pArc->Add_Point(pShape->Get_Point(iPoint, 0), 0);
-			}
-
-			if( pShape->asInt(ARC_LPOL) <= 1 )
-			{
-				pArcs->Del_Shape(iShape);
-			}
-			else
-			{
-				pShape->Set_Value(ARC_RPOL, 1);
-			}
-		}
+		return;
 	}
 
 	//-----------------------------------------------------
-	if( Arcs.Get_Count() > 0 )
+	CSG_Shapes	Segments(SHAPE_TYPE_Line);
+
+	Segments.Add_Field("FNODE", SG_DATATYPE_Int);
+	Segments.Add_Field("TNODE", SG_DATATYPE_Int);
+
+	//-----------------------------------------------------
+	for(int iArc=0; iArc<pArcs->Get_Count(); iArc++)
 	{
-		iPart	= 0;
-		pShape	= pPolygons->Add_Shape();
-		pShape->Set_Value(0, id);
+		CSG_Shape	*pArc	= pArcs->Get_Shape(iArc);
 
-		while( (pArc = Arcs.Get_Shape(0)) != NULL )
+		if( id == pArc->asInt(ARC_LPOL) )
 		{
-			do
+			CSG_Shape	*pSegment	= Segments.Add_Shape();
+
+			pSegment->Set_Value(0, pArc->asInt(ARC_FNODE));
+			pSegment->Set_Value(1, pArc->asInt(ARC_TNODE));
+
+			for(int iVertex=0; iVertex<pArc->Get_Point_Count(0); iVertex++)
 			{
-				for(iPoint=0; iPoint<pArc->Get_Point_Count(0); iPoint++)
+				pSegment->Add_Point(pArc->Get_Point(iVertex, 0, false), 0);
+			}
+
+			pArc->Set_Value(ARC_LPOL, -1);
+		}
+		else if( id == pArc->asInt(ARC_RPOL) )
+		{
+			CSG_Shape	*pSegment	= Segments.Add_Shape();
+
+			pSegment->Set_Value(1, pArc->asInt(ARC_FNODE));
+			pSegment->Set_Value(0, pArc->asInt(ARC_TNODE));
+
+			for(int iVertex=0; iVertex<pArc->Get_Point_Count(0); iVertex++)
+			{
+				pSegment->Add_Point(pArc->Get_Point(iVertex, 0,  true), 0);
+			}
+
+			pArc->Set_Value(ARC_RPOL, -1);
+		}
+	}
+
+	if( Segments.Get_Count() <= 0 )
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
+	CSG_Shape	*pPolygon	= pPolygons->Add_Shape();
+
+	pPolygon->Set_Value(0, id);
+
+	while( Segments.Get_Count() > 0 )
+	{
+		CSG_Shape	*pSegment	= Segments.Get_Shape(0);
+
+		int	iPart	= pPolygon->Get_Part_Count();
+
+		do
+		{
+			for(int iVertex=0; iVertex<pSegment->Get_Point_Count(0); iVertex++)
+			{
+				pPolygon->Add_Point(pSegment->Get_Point(iVertex), iPart);
+			}
+
+			int		fNode	= pSegment->asInt(0);
+			int		tNode	= pSegment->asInt(1);
+
+			Segments.Del_Shape(pSegment);	pSegment	= NULL;
+
+			if( fNode != tNode )
+			{
+				for(int iSegment=0; iSegment<Segments.Get_Count() && !pSegment; iSegment++)
 				{
-					pShape->Add_Point(pArc->Get_Point(iPoint, 0, false), iPart);
-				}
-
-				int		fNode	= pArc->asInt(0);
-				int		tNode	= pArc->asInt(1);
-
-				Arcs.Del_Shape(pArc);
-				pArc	= NULL;
-
-				if( fNode != tNode )
-				{
-					for(iShape=0; iShape<Arcs.Get_Count() && !pArc; iShape++)
+					if( fNode == Segments.Get_Shape(iSegment)->asInt(1) )
 					{
-						if( fNode == Arcs.Get_Shape(iShape)->asInt(1) )
-						{
-							pArc	= Arcs.Get_Shape(iShape);
-						}
+						pSegment	= Segments.Get_Shape(iSegment);
 					}
 				}
 			}
-			while( pArc );
-
-			iPart++;
 		}
+		while( pSegment );
 	}
 }
 
@@ -1478,10 +1450,11 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 
 	for(int i=0; i<m_pPAT->Get_Count() && Set_Progress(i, m_pPAT->Get_Count()); i++)
 	{
-		CSG_Table_Record	*pRecord	= m_pPAT->Get_Record(i);
-		CSG_Shape			*pShape		= pShapes->Get_Shape(pRecord->asInt(2));
+		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-		if( pShape )
+		CSG_Table_Record	*pRecord	= m_pPAT->Get_Record(pShape->asInt(0) - 1);
+
+		if( pRecord )
 		{
 			for(iField=0; iField<m_pPAT->Get_Field_Count(); iField++)
 			{
