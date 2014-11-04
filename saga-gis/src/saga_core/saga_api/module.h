@@ -211,6 +211,12 @@ public:
 	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	CSG_Parameters *			Get_Parameters				(const CSG_String &Identifier);
 
+	bool						Set_Parameter				(const CSG_String &Identifier, CSG_Parameter *pSource);
+	bool						Set_Parameter				(const CSG_String &Identifier, int            Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter				(const CSG_String &Identifier, double         Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter				(const CSG_String &Identifier, void          *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter				(const CSG_String &Identifier, const SG_Char *Value, int Type = PARAMETER_TYPE_Undefined);
+
 	bool						Update_Parameter_States		(void);
 
 	void						Set_Manager					(class CSG_Data_Manager *pManager);

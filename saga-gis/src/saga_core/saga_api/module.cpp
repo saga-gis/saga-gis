@@ -852,6 +852,63 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * Direct 'set a value' access to this module's default parameters list.
+*/
+//---------------------------------------------------------
+bool CSG_Module::Set_Parameter(const CSG_String &Identifier, CSG_Parameter *pSource)
+{
+	return( Parameters.Set_Parameter(Identifier, pSource) );
+}
+
+//---------------------------------------------------------
+/**
+  * Direct 'set a value' access to this module's default parameters list.
+*/
+//---------------------------------------------------------
+bool CSG_Module::Set_Parameter(const CSG_String &Identifier, int Value, int Type)
+{
+	return( Parameters.Set_Parameter(Identifier, Value, Type) );
+}
+
+//---------------------------------------------------------
+/**
+  * Direct 'set a value' access to this module's default parameters list.
+*/
+//---------------------------------------------------------
+bool CSG_Module::Set_Parameter(const CSG_String &Identifier, double Value, int Type)
+{
+	return( Parameters.Set_Parameter(Identifier, Value, Type) );
+}
+
+//---------------------------------------------------------
+/**
+  * Direct 'set a value' access to this module's default parameters list.
+*/
+//---------------------------------------------------------
+bool CSG_Module::Set_Parameter(const CSG_String &Identifier, void *Value, int Type)
+{
+	return( Parameters.Set_Parameter(Identifier, Value, Type) );
+}
+
+//---------------------------------------------------------
+/**
+  * Direct 'set a value' access to this module's default parameters list.
+*/
+//---------------------------------------------------------
+bool CSG_Module::Set_Parameter(const CSG_String &Identifier, const SG_Char *Value, int Type)
+{
+	return( Parameters.Set_Parameter(Identifier, Value, Type) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Module::Update_Parameter_States(void)
 {
 	_Update_Parameter_States(&Parameters);

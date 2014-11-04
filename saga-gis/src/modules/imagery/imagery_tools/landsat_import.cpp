@@ -221,7 +221,7 @@ bool CLandsat_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("SHOW_RGB")->asBool() )
+	if( Parameters("SHOW_RGB")->is_Enabled() && Parameters("SHOW_RGB")->asBool() )
 	{
 		CSG_Grid	*pR	= pBands->asGrid(Parameters("SHOW_R")->asInt());
 		CSG_Grid	*pG	= pBands->asGrid(Parameters("SHOW_G")->asInt());
@@ -356,9 +356,9 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 
 	pModule->Settings_Push(NULL);
 
-	if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4"    , Proj4)
-	&&  pModule->Get_Parameters()->Set_Parameter("INTERPOLATION", Interpolation)
-	&&  pModule->Get_Parameters()->Set_Parameter("SOURCE"       , pGrid)
+	if( pModule->Set_Parameter("CRS_PROJ4"    , Proj4        )
+	&&  pModule->Set_Parameter("INTERPOLATION", Interpolation)
+	&&  pModule->Set_Parameter("SOURCE"       , pGrid        )
 	&&  pModule->Execute() )
 	{
 		pGrid	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
