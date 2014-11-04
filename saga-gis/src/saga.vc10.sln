@@ -115,8 +115,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_classification", "m
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_opencv", "modules\imagery\imagery_opencv\imagery_opencv.vcxproj", "{AC303E9F-28C5-4F95-8E25-A5D59E8DB01D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_rga", "modules\imagery\imagery_rga\imagery_rga.vcxproj", "{3A5F7690-A08C-4CF7-9692-A91F9E924192}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_segmentation", "modules\imagery\imagery_segmentation\imagery_segmentation.vcxproj", "{0DAF1789-55BC-46D5-BA4E-B964DB4A360B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_svm", "modules\imagery\imagery_svm\imagery_svm.vcxproj", "{3371544B-1387-439C-A4E8-717D60C3BC7F}"
@@ -495,14 +493,6 @@ Global
 		{AC303E9F-28C5-4F95-8E25-A5D59E8DB01D}.Release|Win32.Build.0 = Release|Win32
 		{AC303E9F-28C5-4F95-8E25-A5D59E8DB01D}.Release|x64.ActiveCfg = Release|x64
 		{AC303E9F-28C5-4F95-8E25-A5D59E8DB01D}.Release|x64.Build.0 = Release|x64
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Debug|Win32.Build.0 = Debug|Win32
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Debug|x64.ActiveCfg = Debug|x64
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Debug|x64.Build.0 = Debug|x64
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Release|Win32.ActiveCfg = Release|Win32
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Release|Win32.Build.0 = Release|Win32
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Release|x64.ActiveCfg = Release|x64
-		{3A5F7690-A08C-4CF7-9692-A91F9E924192}.Release|x64.Build.0 = Release|x64
 		{0DAF1789-55BC-46D5-BA4E-B964DB4A360B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0DAF1789-55BC-46D5-BA4E-B964DB4A360B}.Debug|Win32.Build.0 = Debug|Win32
 		{0DAF1789-55BC-46D5-BA4E-B964DB4A360B}.Debug|x64.ActiveCfg = Debug|x64
