@@ -95,9 +95,11 @@ protected:
 
 	bool						m_bPoints;
 
-	int							m_iSize, m_Size_Type, m_Line_Style, m_Label_Freq;
+	int							m_iSize, m_Size_Type, m_Line_Style, m_Label_Freq, m_Effect;
 
 	double						m_Size, m_dSize, m_Size_Min;
+
+	wxColour					m_Effect_Color;
 
 	wxPen						m_Pen;
 
@@ -116,6 +118,11 @@ protected:
 	virtual void				Edit_Shape_Draw			(CWKSP_Map_DC &dc_Map);
 	virtual int					Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
 	virtual void				Edit_Snap_Point_ToLine	(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
+
+
+private:
+
+	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int xOffset = 0, int yOffset = 0);
 
 };
 

@@ -394,6 +394,12 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
 	);
 
+	m_Parameters.Add_Value(
+		m_Parameters("LABEL_ATTRIB_EFFECT"), "LABEL_ATTRIB_EFFECT_SIZE"		, _TL("Size"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 1, 1, true
+	);
+
 	AttributeList_Add(
 		m_Parameters("LABEL_ATTRIB")	, "LABEL_ATTRIB_SIZE_BY"	, _TL("Size by Attribute"),
 		_TL("")
@@ -513,7 +519,10 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 		m_iLabel	= -1;
 	}
 
-	m_Label_Prec		= m_Parameters("LABEL_ATTRIB_PREC")->asInt() - 2;
+	m_Label_Prec		= m_Parameters("LABEL_ATTRIB_PREC"        )->asInt  () - 2;
+
+	m_Label_Eff_Color	= m_Parameters("LABEL_ATTRIB_EFFECT_COLOR")->asColor();
+	m_Label_Eff_Size	= m_Parameters("LABEL_ATTRIB_EFFECT_SIZE" )->asInt  ();
 
 	switch( m_Parameters("LABEL_ATTRIB_EFFECT")->asInt() )
 	{
@@ -528,8 +537,6 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	case 8:		m_Label_Eff	= TEXTEFFECT_RIGHT;			break;
 	case 9:		m_Label_Eff	= TEXTEFFECT_TOPRIGHT;		break;
 	}
-
-	m_Label_Eff_Color	= m_Parameters("LABEL_ATTRIB_EFFECT_COLOR")->asColor();
 
 	//-----------------------------------------------------
 	_Chart_Get_Options();

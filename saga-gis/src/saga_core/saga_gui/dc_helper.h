@@ -142,8 +142,8 @@ void			Draw_FillRect		(wxDC &dc, wxColour Color, wxRect r);
 void			Draw_Text			(wxDC &dc, int Align, int x, int y              , const wxString &Text);
 void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text);
 
-void			Draw_Text			(wxDC &dc, int Align, int x, int y              , const wxString &Text, int Effect, wxColour Color);
-void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text, int Effect, wxColour Color);
+void			Draw_Text			(wxDC &dc, int Align, int x, int y              , const wxString &Text, int Effect, wxColour Effect_Color, int Effect_Size = 1);
+void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text, int Effect, wxColour Effect_Color, int Effect_Size = 1);
 
 
 ///////////////////////////////////////////////////////////

@@ -153,6 +153,33 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
+
+
+	//-----------------------------------------------------
+	// Boundary Effect...
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_DISPLAY")	, "BOUNDARY_EFFECT"	, _TL("Boundary Effect"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("none"),
+			_TL("all sides"),
+			_TL("top"),
+			_TL("top left"),
+			_TL("left"),
+			_TL("bottom left"),
+			_TL("bottom"),
+			_TL("bottom right"),
+			_TL("right"),
+			_TL("top right")
+		), 0
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("BOUNDARY_EFFECT")	, "BOUNDARY_EFFECT_COLOR"	, _TL("Color"),
+		_TL(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
+	);
 }
 
 
@@ -191,9 +218,26 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Pen		= wxPen(m_Def_Color, (int)m_Size, m_Line_Style);
+	m_Pen			= wxPen(m_Def_Color, (int)m_Size, m_Line_Style);
 
-	m_bVertices	= m_Parameters("DISPLAY_POINTS")->asBool();
+	m_bVertices		= m_Parameters("DISPLAY_POINTS")->asBool();
+
+	//-----------------------------------------------------
+	m_Effect_Color	= m_Parameters("BOUNDARY_EFFECT_COLOR")->asColor();
+
+	switch( m_Parameters("BOUNDARY_EFFECT")->asInt() )
+	{
+	default:	m_Effect	= TEXTEFFECT_NONE;			break;
+	case 1:		m_Effect	= TEXTEFFECT_FRAME;			break;
+	case 2:		m_Effect	= TEXTEFFECT_TOP;			break;
+	case 3:		m_Effect	= TEXTEFFECT_TOPLEFT;		break;
+	case 4:		m_Effect	= TEXTEFFECT_LEFT;			break;
+	case 5:		m_Effect	= TEXTEFFECT_BOTTOMLEFT;	break;
+	case 6:		m_Effect	= TEXTEFFECT_BOTTOM;		break;
+	case 7:		m_Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
+	case 8:		m_Effect	= TEXTEFFECT_RIGHT;			break;
+	case 9:		m_Effect	= TEXTEFFECT_TOPRIGHT;		break;
+	}
 }
 
 
@@ -209,12 +253,17 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE_ATTRIB")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SIZE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get_Parameter("SIZE_RANGE"  )->Set_Enabled(Value == true);
-			pParameters->Get_Parameter("SIZE_DEFAULT")->Set_Enabled(Value == false);
+			pParameters->Set_Enabled("SIZE_RANGE"  , Value == true);
+			pParameters->Set_Enabled("SIZE_DEFAULT", Value == false);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BOUNDARY_EFFECT") )
+		{
+			pParameters->Set_Enabled("BOUNDARY_EFFECT_COLOR", pParameter->asInt() != 0);
 		}
 	}
 
@@ -291,58 +340,89 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 	}
 
 	//-----------------------------------------------------
+	wxPen	Pen(m_Pen);
+
 	if( Selection )
 	{
-		dc_Map.dc.SetPen(wxPen(m_Sel_Color, m_Size + (Selection == 1 ? 2 : 0), m_Line_Style));
+		Pen	= wxPen(m_Sel_Color, m_Size + (Selection == 1 ? 2 : 0), m_Line_Style);
 	}
-	else if( m_iColor >= 0 || m_iSize >= 0 )
+	else
 	{
-		int		Color;
-		wxPen	Pen(m_Pen);
-
-		if( Get_Class_Color(pShape, Color) )
+		//-------------------------------------------------
+		if( m_iSize >= 0 )
 		{
-			Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-		}
+			double	dSize	= m_Size;
 
-		double	dSize	= m_iSize < 0 ? m_Size
-						: m_Size + (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize;
-
-		switch( m_Size_Type )
-		{
-		default:
-		case 0:	dSize	*= dc_Map.m_Scale;		break;
-		case 1:	dSize	*= dc_Map.m_World2DC;	break;
-		}
-
-		if( dSize >= 0 )
-		{
-			Pen.SetWidth((int)(0.5 + dSize));
-		}
-
-		dc_Map.dc.SetPen(Pen);
-	}
-
-	//-----------------------------------------------------
-	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-	{
-		if( pShape->Get_Point_Count(iPart) > 1 )
-		{
-			TSG_Point_Int	B, A	= dc_Map.World2DC(pShape->Get_Point(0, iPart));
-
-			for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			if( m_iSize >= 0 )
 			{
-				B	= A;	A	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+				dSize	+= (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+			}
 
-				dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+			switch( m_Size_Type )
+			{
+			default:	dSize	*= dc_Map.m_Scale;		break;
+			case  1:	dSize	*= dc_Map.m_World2DC;	break;
+			}
+
+			if( dSize >= 0 )
+			{
+				Pen.SetWidth((int)(0.5 + dSize));
+			}
+		}
+
+		//-------------------------------------------------
+		if( m_iColor >= 0 )
+		{
+			int		Color;
+
+			if( Get_Class_Color(pShape, Color) )
+			{
+				Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( Selection )
+	if( m_Effect )
 	{
-		dc_Map.dc.SetPen(m_Pen);
+		wxColour	Color	= Pen.GetColour();	Pen.SetColour(m_Effect_Color);	dc_Map.dc.SetPen(Pen);
+
+		if( m_Effect & TEXTEFFECT_TOP         )	_Draw_Shape(dc_Map, pShape,  0, -1);
+		if( m_Effect & TEXTEFFECT_TOPLEFT     )	_Draw_Shape(dc_Map, pShape, -1, -1);
+		if( m_Effect & TEXTEFFECT_LEFT        )	_Draw_Shape(dc_Map, pShape, -1,  0);
+		if( m_Effect & TEXTEFFECT_BOTTOMLEFT  )	_Draw_Shape(dc_Map, pShape, -1,  1);
+		if( m_Effect & TEXTEFFECT_BOTTOM      )	_Draw_Shape(dc_Map, pShape,  0,  1);
+		if( m_Effect & TEXTEFFECT_BOTTOMRIGHT )	_Draw_Shape(dc_Map, pShape,  1,  1);
+		if( m_Effect & TEXTEFFECT_RIGHT       )	_Draw_Shape(dc_Map, pShape,  1,  0);
+		if( m_Effect & TEXTEFFECT_TOPRIGHT    )	_Draw_Shape(dc_Map, pShape,  1, -1);
+
+		Pen.SetColour(Color);
+	}
+
+	//-----------------------------------------------------
+	dc_Map.dc.SetPen(Pen);
+
+	_Draw_Shape(dc_Map, pShape);
+
+	dc_Map.dc.SetPen(m_Pen);
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int xOffset, int yOffset)
+{
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	{
+		if( pShape->Get_Point_Count(iPart) > 1 )
+		{
+			TSG_Point_Int	B, A	= dc_Map.World2DC(pShape->Get_Point(0, iPart)); A.x += xOffset; A.y += yOffset;
+
+			for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				B	= A;	A	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart)); A.x += xOffset; A.y += yOffset;
+
+				dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+			}
+		}
 	}
 }
 
@@ -392,7 +472,7 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 						bLabel	= false;
 						d		= 0.0;
 
-						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color);
+						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 
 					//	dc_Map.dc.DrawRotatedText(s, B.x, B.y, GET_ANGLE(A, B));
 					//	dc_Map.dc.DrawCircle(A.x, A.y, 3);	dc_Map.dc.DrawCircle(B.x, B.y, 3);

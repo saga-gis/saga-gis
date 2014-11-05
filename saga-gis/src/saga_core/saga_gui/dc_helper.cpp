@@ -299,26 +299,54 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString 
 }
 
 //---------------------------------------------------------
-void			Draw_Text			(wxDC &dc, int Align, int x, int y, const wxString &Text, int Effect, wxColour Color)
+void			Draw_Text			(wxDC &dc, int Align, int x, int y, const wxString &Text, int Effect, wxColour Effect_Color, int Effect_Size)
 {
-	Draw_Text(dc, Align, x, y, 0.0, Text, Effect, Color);
+	Draw_Text(dc, Align, x, y, 0.0, Text, Effect, Effect_Color);
 }
 
-void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text, int Effect, wxColour Color)
+void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text, int Effect, wxColour Effect_Color, int Effect_Size)
 {
 	if( Effect != TEXTEFFECT_NONE )
 	{
-		int			d			= 1;
-		wxColour	oldColor	= dc.GetTextForeground();	dc.SetTextForeground(Color);
+		wxColour	oldColor	= dc.GetTextForeground();	dc.SetTextForeground(Effect_Color);
 
-		if( Effect & TEXTEFFECT_TOP         )	Draw_Text(dc, Align, x    , y - d, Angle, Text);
-		if( Effect & TEXTEFFECT_TOPLEFT     )	Draw_Text(dc, Align, x - d, y - d, Angle, Text);
-		if( Effect & TEXTEFFECT_LEFT        )	Draw_Text(dc, Align, x - d, y    , Angle, Text);
-		if( Effect & TEXTEFFECT_BOTTOMLEFT  )	Draw_Text(dc, Align, x - d, y + d, Angle, Text);
-		if( Effect & TEXTEFFECT_BOTTOM      )	Draw_Text(dc, Align, x    , y + d, Angle, Text);
-		if( Effect & TEXTEFFECT_BOTTOMRIGHT )	Draw_Text(dc, Align, x + d, y + d, Angle, Text);
-		if( Effect & TEXTEFFECT_RIGHT       )	Draw_Text(dc, Align, x + d, y    , Angle, Text);
-		if( Effect & TEXTEFFECT_TOPRIGHT    )	Draw_Text(dc, Align, x + d, y - d, Angle, Text);
+		if( Effect_Size <= 1 )
+		{
+			int	d	= 1;
+
+			if( Effect & TEXTEFFECT_TOP         )	Draw_Text(dc, Align, x    , y - d, Angle, Text);
+			if( Effect & TEXTEFFECT_TOPLEFT     )	Draw_Text(dc, Align, x - d, y - d, Angle, Text);
+			if( Effect & TEXTEFFECT_LEFT        )	Draw_Text(dc, Align, x - d, y    , Angle, Text);
+			if( Effect & TEXTEFFECT_BOTTOMLEFT  )	Draw_Text(dc, Align, x - d, y + d, Angle, Text);
+			if( Effect & TEXTEFFECT_BOTTOM      )	Draw_Text(dc, Align, x    , y + d, Angle, Text);
+			if( Effect & TEXTEFFECT_BOTTOMRIGHT )	Draw_Text(dc, Align, x + d, y + d, Angle, Text);
+			if( Effect & TEXTEFFECT_RIGHT       )	Draw_Text(dc, Align, x + d, y    , Angle, Text);
+			if( Effect & TEXTEFFECT_TOPRIGHT    )	Draw_Text(dc, Align, x + d, y - d, Angle, Text);
+		}
+		else if( Effect != TEXTEFFECT_FRAME )
+		{
+			for(int d=1; d<=Effect_Size; d++)
+			{
+				if( Effect & TEXTEFFECT_TOP         )	Draw_Text(dc, Align, x    , y - d, Angle, Text);
+				if( Effect & TEXTEFFECT_TOPLEFT     )	Draw_Text(dc, Align, x - d, y - d, Angle, Text);
+				if( Effect & TEXTEFFECT_LEFT        )	Draw_Text(dc, Align, x - d, y    , Angle, Text);
+				if( Effect & TEXTEFFECT_BOTTOMLEFT  )	Draw_Text(dc, Align, x - d, y + d, Angle, Text);
+				if( Effect & TEXTEFFECT_BOTTOM      )	Draw_Text(dc, Align, x    , y + d, Angle, Text);
+				if( Effect & TEXTEFFECT_BOTTOMRIGHT )	Draw_Text(dc, Align, x + d, y + d, Angle, Text);
+				if( Effect & TEXTEFFECT_RIGHT       )	Draw_Text(dc, Align, x + d, y    , Angle, Text);
+				if( Effect & TEXTEFFECT_TOPRIGHT    )	Draw_Text(dc, Align, x + d, y - d, Angle, Text);
+			}
+		}
+		else
+		{
+			for(int dy=y-Effect_Size; dy<=y+Effect_Size; dy++)
+			{
+				for(int dx=x-Effect_Size; dx<=x+Effect_Size; dx++)
+				{
+					Draw_Text(dc, Align, dx, dy, Angle, Text);
+				}
+			}
+		}
 
 		dc.SetTextForeground(oldColor);
 	}

@@ -96,7 +96,7 @@ protected:
 
 	bool						m_bCentroid, m_bOutline;
 
-	wxColour					m_Sel_Color_Fill;
+	wxColour					m_Sel_Color_Fill[2];
 
 	wxPen						m_Pen;
 

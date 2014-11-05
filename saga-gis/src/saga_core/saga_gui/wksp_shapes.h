@@ -139,7 +139,7 @@ protected:
 
 	bool						m_bVertices;
 
-	int							m_iColor, m_iLabel, m_Label_Prec, m_Label_Eff, m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint;
+	int							m_iColor, m_iLabel, m_Label_Prec, m_Label_Eff, m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint, m_Label_Eff_Size;
 
 	wxColour					m_Def_Color, m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
 

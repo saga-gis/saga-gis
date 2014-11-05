@@ -118,7 +118,7 @@ void CWKSP_Shapes_Points::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, co
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 
-	Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color);
+	Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 }
 
 

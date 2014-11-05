@@ -135,9 +135,15 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"			, _TL("Fill Color"),
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL_0"		, _TL("Fill Color 1"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 225, 0)
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL_1"		, _TL("Fill Color 2"),
+		_TL("if more than one feature is in selection, this colour is used for the non active features"),
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 127)
 	);
 }
 
@@ -194,7 +200,8 @@ void CWKSP_Shapes_Polygon::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 	dc_Map.dc.SetBrush(m_Brush);
 	dc_Map.dc.SetPen(m_Pen);
 
-	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
+	m_Sel_Color_Fill[0]	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL_0")->asInt());
+	m_Sel_Color_Fill[1]	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL_1")->asInt());
 }
 
 //---------------------------------------------------------
@@ -203,8 +210,8 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	//-----------------------------------------------------
 	if( Selection )
 	{
-		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, wxSOLID));
-		dc_Map.dc.SetPen(wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxSOLID));
+		dc_Map.dc.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], wxSOLID));
+		dc_Map.dc.SetPen(wxPen(m_Sel_Color, 0, wxSOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 
@@ -249,7 +256,7 @@ void CWKSP_Shapes_Polygon::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, c
 	{
 		TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color);
+		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 	}
 	else
 	{
@@ -259,7 +266,7 @@ void CWKSP_Shapes_Polygon::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, c
 			{
 				TSG_Point_Int	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
 
-				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color);
+				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 			}
 		}
 	}
