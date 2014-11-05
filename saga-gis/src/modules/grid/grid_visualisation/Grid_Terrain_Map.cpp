@@ -319,6 +319,7 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 	)
 
 	pOpenness->Subtract(TMP1);
+	pOpenness->Set_Name(_TL("Openness"));
 
 
 	//-----------------------------------------------------
@@ -331,7 +332,7 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 
 	//-----------------------------------------------------
 	DataObject_Set_Colors(pOpenness, 11, SG_COLORS_BLACK_WHITE, false);
-	DataObject_Set_Colors(pSlope   , 11, SG_COLORS_TOPOGRAPHY , false);
+	DataObject_Set_Colors(pSlope   , 11, SG_COLORS_WHITE_RED  , false);
 
 	CSG_Parameters	Parms;
 
