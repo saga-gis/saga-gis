@@ -155,10 +155,6 @@ public:
 	bool						IMG_Draw_Begin			(double Transparency);
 	bool						IMG_Draw_End			(void);
 
-	BYTE						IMG_Get_Mask_Red		(void)	{	return( m_Mask_Red );	}
-	BYTE						IMG_Get_Mask_Green		(void)	{	return( m_Mask_Green );	}
-	BYTE						IMG_Get_Mask_Blue		(void)	{	return( m_Mask_Blue );	}
-
 	//-----------------------------------------------------
 	void						IMG_Set_Pixel_Direct	(int n, int Color)
 	{
@@ -221,9 +217,7 @@ public:
 
 private:
 
-	BYTE						m_Mask_Red, m_Mask_Green, m_Mask_Blue;
-
-	BYTE						*m_img_rgb, *m_img_dc_rgb;
+	BYTE						*m_img_rgb, *m_img_dc_rgb, m_Background[3];
 
 	int							m_img_nx, m_img_nBytes, m_img_mode;
 

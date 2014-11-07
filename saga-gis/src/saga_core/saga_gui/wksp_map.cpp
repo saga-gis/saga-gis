@@ -1226,8 +1226,8 @@ CSG_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint ptClient)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MASK_R	255
-#define MASK_G	0
+#define MASK_R	254
+#define MASK_G	255
 #define MASK_B	255
 
 //---------------------------------------------------------
@@ -1437,7 +1437,7 @@ void CWKSP_Map::SaveAs_Image_To_Grid(CSG_Grid &Grid, int Size)
 	if( Get_Image(Image, Extent) )
 	{
 		Grid.Create(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
-		Grid.Set_NoData_Value(16711935);
+		Grid.Set_NoData_Value(SG_GET_RGB(MASK_R, MASK_G, MASK_B));
 
 		for(int y=0, yy=Grid.Get_NY()-1; y<Grid.Get_NY(); y++, yy--)
 		{

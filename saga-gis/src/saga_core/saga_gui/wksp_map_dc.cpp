@@ -84,9 +84,9 @@ CWKSP_Map_DC::CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Sca
 	m_img_rgb		= NULL;
 	m_img_dc_rgb	= NULL;
 
-	m_Mask_Red		= 1;
-	m_Mask_Green	= 2;
-	m_Mask_Blue		= 3;
+	m_Background[0]	= SG_GET_R(Background);
+	m_Background[1]	= SG_GET_G(Background);
+	m_Background[2]	= SG_GET_B(Background);
 
 	//-----------------------------------------------------
 	if( m_rWorld.Get_XRange() == 0.0 || m_rWorld.Get_YRange() == 0.0 )
@@ -115,7 +115,7 @@ CWKSP_Map_DC::CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Sca
 	//-----------------------------------------------------
 	dc_BMP.Create(m_rDC.GetWidth(), m_rDC.GetHeight());
 	dc.SelectObject(dc_BMP);
-	dc.SetBackground(wxBrush(Get_Color_asWX(Background), wxSOLID));
+	dc.SetBackground(wxBrush(wxColour(m_Background[0], m_Background[1], m_Background[2]), wxSOLID));
 	dc.Clear();
 }
 
@@ -176,13 +176,15 @@ void CWKSP_Map_DC::Draw_DC(CWKSP_Map_DC &dc_Source, double Transparency)
 		src_rgb	= src_img.GetData();
 
 		//-------------------------------------------------
-		for(i=0; i<n; i+=3)
+		for(i=0; i<n; i+=3, src_rgb+=3, dst_rgb+=3)
 		{
-			if( src_rgb[i + 0] < 255 || src_rgb[i + 1] < 255 || src_rgb[i + 2] < 255 )
+			if( src_rgb[0] != dc_Source.m_Background[0]
+			||  src_rgb[1] != dc_Source.m_Background[1]
+			||  src_rgb[2] != dc_Source.m_Background[2] )
 			{
-				dst_rgb[i + 0]	= (int)(d * src_rgb[i + 0] + Transparency * dst_rgb[i + 0]);
-				dst_rgb[i + 1]	= (int)(d * src_rgb[i + 1] + Transparency * dst_rgb[i + 1]);
-				dst_rgb[i + 2]	= (int)(d * src_rgb[i + 2] + Transparency * dst_rgb[i + 2]);
+				dst_rgb[0]	= (int)(d * src_rgb[0] + Transparency * dst_rgb[0]);
+				dst_rgb[1]	= (int)(d * src_rgb[1] + Transparency * dst_rgb[1]);
+				dst_rgb[2]	= (int)(d * src_rgb[2] + Transparency * dst_rgb[2]);
 			}
 		}
 
@@ -227,16 +229,16 @@ bool CWKSP_Map_DC::IMG_Draw_Begin(double Transparency)
 	{
 		m_img.Create(m_rDC.GetWidth(), m_rDC.GetHeight());
 		m_img.SetMask(true);
-		m_img.SetMaskColour(m_Mask_Red, m_Mask_Green, m_Mask_Blue);
+		m_img.SetMaskColour(m_Background[0], m_Background[1], m_Background[2]);
 		m_img_rgb		= m_img.GetData();
 		m_img_nx		= m_rDC.GetWidth();
 		m_img_nBytes	= 3 * m_rDC.GetHeight() * m_rDC.GetWidth();
 
 		for(i=0, pRGB=m_img_rgb; i<m_img_nBytes; i+=3)
 		{
-			*pRGB++	= m_Mask_Red;
-			*pRGB++	= m_Mask_Green;
-			*pRGB++	= m_Mask_Blue;
+			*pRGB++	= m_Background[0];
+			*pRGB++	= m_Background[1];
+			*pRGB++	= m_Background[2];
 		}
 
 		if( Transparency > 0.0 )
