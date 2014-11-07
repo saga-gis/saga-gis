@@ -118,33 +118,53 @@ CTL_Extract::CTL_Extract(void)
 //---------------------------------------------------------
 bool CTL_Extract::On_Execute(void)
 {
-	bool		bLocation;
-	CSG_String	Text, Directory;
-	CSG_Table	Elements, *pTarget;
-
 	//-----------------------------------------------------
-	pTarget		= Parameters("TARGET")		->asTable();
-	Directory	= Parameters("DIRECTORY")	->asString();
-	bLocation	= Parameters("LOCATION")	->asBool();
+	CSG_Table	Elements;
 
-	//-----------------------------------------------------
 	Elements.Add_Field(SG_T("TEXT"), SG_DATATYPE_String);
 	Elements.Add_Field(SG_T("FILE"), SG_DATATYPE_String);
 
-	if( !Read_Directory(Directory, Elements) || Elements.Get_Count() <= 0 )
+	int	nFiles	= Read_Directory(Parameters("DIRECTORY")->asString(), Elements);
+
+	if( nFiles <= 0 )
+	{
+		Error_Set(SG_T("no source code files found"));
+
+		return( false );
+	}
+
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("number of scanned files"), nFiles), false);
+		
+	if( Elements.Get_Count() <= 0 )
 	{
 		Error_Set(SG_T("no translatable text elements found"));
 
 		return( false );
 	}
 
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("number of translatable elements"), Elements.Get_Count()), false);
+
 	//-----------------------------------------------------
-	Elements.Set_Index(0, TABLE_INDEX_Ascending);
+	Process_Set_Text(_TL("collecting elements"));
+
+	CSG_String	Text;
+
+	bool		bLocation	= Parameters("LOCATION" )->asBool();
+
+	CSG_Table	*pTarget	= Parameters("TARGET")->asTable();
 
 	pTarget->Destroy();
+	pTarget->Set_Name(_TL("Translatable Elements"));
 
-	pTarget->Add_Field(SG_T("TEXT")       , SG_DATATYPE_String);
-	pTarget->Add_Field(SG_T("TRANSLATION"), SG_DATATYPE_String);
+	pTarget->Add_Field("TEXT"       , SG_DATATYPE_String);
+	pTarget->Add_Field("TRANSLATION", SG_DATATYPE_String);
+
+	if( bLocation )
+	{
+		pTarget->Add_Field("FILE"   , SG_DATATYPE_String);
+	}
+
+	Elements.Set_Index(0, TABLE_INDEX_Ascending);
 
 	for(int i=0; i<Elements.Get_Count() && Set_Progress(i, Elements.Get_Count()); i++)
 	{
@@ -158,7 +178,7 @@ bool CTL_Extract::On_Execute(void)
 
 			if( bLocation )
 			{
-				pRecord->Set_Value(1, Elements.Get_Record_byIndex(i)->asString(1));
+				pRecord->Set_Value(2, Elements.Get_Record_byIndex(i)->asString(1));
 			}
 		}
 	}
@@ -173,55 +193,56 @@ bool CTL_Extract::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Elements)
+int CTL_Extract::Read_Directory(const SG_Char *Directory, CSG_Table &Elements)
 {
-	wxString	Name, FullPath;
+	int		nFiles	= 0;
+
+	wxString	Name, s;
 	wxFileName	File;
 	wxDir		Dir;
 
-	if( !Dir.Open(Directory.c_str()) )
+	if( !Dir.Open(Directory) )
 	{
-		return( false );
+		return( nFiles );
 	}
 
-	File.AssignDir(Directory.c_str());
+	File.AssignDir(Directory);
 
-	if(	Dir.GetFirst(&Name, wxT("*.cpp"), wxDIR_FILES|wxDIR_HIDDEN) )
+	if(	Dir.GetFirst(&Name, "*.cpp", wxDIR_FILES|wxDIR_HIDDEN) )
 	{
 		do
 		{
 			File.SetFullName(Name);
-			FullPath = File.GetFullPath();
-			Read_File(&FullPath, Elements);
+
+			nFiles	+= Read_File(s = File.GetFullPath(), Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
 
-	if(	Dir.GetFirst(&Name, wxT("*.h")  , wxDIR_FILES|wxDIR_HIDDEN) )
+	if(	Dir.GetFirst(&Name, "*.h"  , wxDIR_FILES|wxDIR_HIDDEN) )
 	{
 		do
 		{
 			File.SetFullName(Name);
-			FullPath = File.GetFullPath();
-			Read_File(&FullPath, Elements);
+
+			nFiles	+= Read_File(s = File.GetFullPath(), Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
 
-	if(	Dir.GetFirst(&Name, wxT("*")    , wxDIR_DIRS |wxDIR_HIDDEN) )
+	if(	Dir.GetFirst(&Name, "*"    , wxDIR_DIRS |wxDIR_HIDDEN) )
 	{
-		wxString	Directory;
 		do
 		{
-			File.AssignDir(Directory.c_str());
+			File.AssignDir(Directory);
 			File.AppendDir(Name);
-			Directory = File.GetPath();
-			Read_Directory(&Directory, Elements);
+
+			nFiles	+= Read_Directory(s = File.GetFullPath(), Elements);
 		}
 		while( Dir.GetNext(&Name) );
 	}
 
-	return( Elements.Get_Count() > 0 );
+	return( nFiles );
 }
 
 
@@ -230,22 +251,24 @@ bool CTL_Extract::Read_Directory(const CSG_String &Directory, CSG_Table &Element
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTL_Extract::Read_File(const CSG_String &File, CSG_Table &Elements)
+int CTL_Extract::Read_File(const SG_Char *File, CSG_Table &Elements)
 {
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
 	if( !Stream.Open(File, SG_FILE_R, false) )
 	{
-		return( false );
+		return( 0 );
 	}
+
+	Process_Set_Text(CSG_String::Format("%s: %s", _TL("scanning"), File));
 
 	//-----------------------------------------------------
 	CSG_String	String, Text;
 
 	if( !Stream.Read(String, Stream.Length()) )
 	{
-		return( false );
+		return( 0 );
 	}
 
 	//-----------------------------------------------------
@@ -277,7 +300,7 @@ bool CTL_Extract::Read_File(const CSG_String &File, CSG_Table &Elements)
 		}
 	}
 
-	return( Elements.Get_Count() > 0 );
+	return( 1 );
 }
 
 
