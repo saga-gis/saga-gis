@@ -84,9 +84,9 @@ CWKSP_Map_DC::CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Sca
 	m_img_rgb		= NULL;
 	m_img_dc_rgb	= NULL;
 
-	m_Background[0]	= SG_GET_R(Background);
-	m_Background[1]	= SG_GET_G(Background);
-	m_Background[2]	= SG_GET_B(Background);
+	m_Background[0]	= Background >= 0 ? SG_GET_R(Background) : 254;
+	m_Background[1]	= Background >= 0 ? SG_GET_G(Background) : 255;
+	m_Background[2]	= Background >= 0 ? SG_GET_B(Background) : 255;
 
 	//-----------------------------------------------------
 	if( m_rWorld.Get_XRange() == 0.0 || m_rWorld.Get_YRange() == 0.0 )
