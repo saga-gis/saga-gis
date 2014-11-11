@@ -320,7 +320,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	{
 		double	yTarget	= pTarget->Get_YMin() + y * pTarget->Get_Cellsize();
 
-		#pragma omp parallel for
+	//	#pragma omp parallel for
 		for(int x=0; x<pTarget->Get_NX(); x++)
 		{
 			double	z, ySource, xSource	= pTarget->Get_XMin() + x * pTarget->Get_Cellsize();
@@ -405,7 +405,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 	{
 		double	yTarget	= Target_System.Get_YMin() + y * Target_System.Get_Cellsize();
 
-		#pragma omp parallel for private(i)
+	//	#pragma omp parallel for private(i)
 		for(int x=0; x<Target_System.Get_NX(); x++)
 		{
 			double	z, ySource, xSource	= Target_System.Get_XMin() + x * Target_System.Get_Cellsize();
