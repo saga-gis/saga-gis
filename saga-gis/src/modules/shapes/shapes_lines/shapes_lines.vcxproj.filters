@@ -38,6 +38,9 @@
     <ClCompile Include="line_split_with_lines.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="line_smoothing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -113,6 +116,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="line_split_with_lines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="line_smoothing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
