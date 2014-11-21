@@ -251,7 +251,6 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 	m_NX			= 0;
 	m_NY			= 0;
 	m_NCells		= 0;
-	m_Cellsize		= 0.0;
 	m_Cellarea		= 0.0;
 	m_Diagonal		= 0.0;
 	m_Extent		.Assign(0.0, 0.0, 0.0, 0.0);
