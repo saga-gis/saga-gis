@@ -76,12 +76,10 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Cluster Analysis"));
-
 	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Cluster Analysis for grids.\n\nReferences:\n\n"
+		"Cluster Analysis for tables.\n\nReferences:\n\n"
 		                                                                                                                                                                                                                  
 		"Iterative Minimum Distance:\n"
 		"- Forgy, E. (1965):\n"
@@ -97,12 +95,16 @@ CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 	//-----------------------------------------------------
 	if( m_bShapes )
 	{
+		Set_Name		(_TL("Cluster Analysis (Shapes)"));
+
 		pNode	= 
 		Parameters.Add_Shapes(NULL, "INPUT" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
 		Parameters.Add_Shapes(NULL, "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 	else
 	{
+		Set_Name		(_TL("Cluster Analysis"));
+
 		pNode	=
 		Parameters.Add_Table(NULL, "INPUT"  , _TL("Table" ), _TL(""), PARAMETER_INPUT);
 		Parameters.Add_Table(NULL, "RESULT" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
