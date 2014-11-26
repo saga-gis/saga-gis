@@ -247,7 +247,7 @@ void CChannelNetwork_Altitude::Set_Surface(int nCells)
 			}
 			else
 			{
-				m_Mask.Set_Value(x, y, 1.0);
+				m_Mask.Set_Value(x, y, 0.0);
 
 				if( m_pDistance->is_NoData(x, y) )
 				{
