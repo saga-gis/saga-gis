@@ -307,6 +307,7 @@
     <ClCompile Include="Table_Calculator.cpp" />
     <ClCompile Include="table_cluster_analysis.cpp" />
     <ClCompile Include="table_field_analyzer.cpp" />
+    <ClCompile Include="table_field_statistics.cpp" />
     <ClCompile Include="table_fill_record_gaps.cpp" />
     <ClCompile Include="table_mRMR.cpp" />
     <ClCompile Include="table_pca.cpp" />
@@ -336,6 +337,7 @@
     <ClInclude Include="Table_Calculator.h" />
     <ClInclude Include="table_cluster_analysis.h" />
     <ClInclude Include="table_field_analyzer.h" />
+    <ClInclude Include="table_field_statistics.h" />
     <ClInclude Include="table_fill_record_gaps.h" />
     <ClInclude Include="table_mRMR.h" />
     <ClInclude Include="table_pca.h" />

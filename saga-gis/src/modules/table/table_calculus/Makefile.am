@@ -19,6 +19,7 @@ MLB_Interface.cpp\
 Table_Calculator.cpp\
 table_cluster_analysis.cpp\
 table_field_analyzer.cpp\
+table_field_statistics.cpp\
 table_fill_record_gaps.cpp\
 table_mRMR.cpp\
 table_pca.cpp\
@@ -29,6 +30,7 @@ MLB_Interface.h\
 Table_Calculator.h\
 table_cluster_analysis.h\
 table_field_analyzer.h\
+table_field_statistics.h\
 table_fill_record_gaps.h\
 table_mRMR.h\
 table_pca.h\

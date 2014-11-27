@@ -44,6 +44,9 @@
     <ClCompile Include="table_mRMR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="table_field_statistics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_mRMR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="table_field_statistics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
