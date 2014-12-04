@@ -96,6 +96,8 @@ protected:
 
 private:
 
+	bool					Calc_SIA(CSG_Shapes *pLines, CSG_Shapes *pSmooth, int iMethod, int iSS, int iSI, double dSP);
+	bool					Calc_Gaussian(CSG_Shapes *pLines, CSG_Shapes *pSmooth, double dSigma);
 
 };
 
