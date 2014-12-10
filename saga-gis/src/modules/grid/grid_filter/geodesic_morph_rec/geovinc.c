@@ -550,7 +550,16 @@ int geodesic_morphological_reconstruction (
 
    flat_region_list (&mr_first, &mr_last, &first_pix, &last_pix, marker);
   
-   memset (*marker, 0x00, numrows * numcols * sizeof (double));
+   //memset (*marker, 0x00, numrows * numcols * sizeof (double));	// this does not work with negative cell values, so we use the following:
+
+   for (row = 0; row < numrows; row ++)
+   {
+	   for (col = 0; col < numcols; col ++)
+	   {
+		  marker [row][col] = -9.9e+19;
+	   }
+   }
+
 
    for (curr_pix = first_pix; curr_pix != NULL; curr_pix = curr_pix -> next)
    {

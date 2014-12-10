@@ -96,7 +96,7 @@ CGeomrec::CGeomrec(void)
 	CSG_Parameter	*pNode;
 
 	Parameters.Add_Grid (NULL, "INPUT_GRID", _TL ("Input Grid"), _TL ("Input for the morphological reconstruction"), PARAMETER_INPUT);
-	Parameters.Add_Grid (NULL, "OBJECT_GRID", _TL("Object Grid"), _TL("Binary object mask"), PARAMETER_OUTPUT, true, SG_DATATYPE_Bit);
+	Parameters.Add_Grid (NULL, "OBJECT_GRID", _TL("Object Grid"), _TL("Binary object mask"), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
 	Parameters.Add_Grid (NULL, "DIFFERENCE_GRID", _TL ("Difference Input - Reconstruction"), _TL ("Difference Input - Reconstruction"), PARAMETER_OUTPUT);
 	Parameters.Add_Value (Parameters ("SHIFT"), "SHIFT_VALUE", _TL ("Shift value"), _TL ("Shift value"), PARAMETER_TYPE_Double, 5);
 	Parameters.Add_Value (NULL, "BORDER_YES_NO", _TL ("Preserve 1px border Yes/No"), _TL ("Preserve 1px border Yes/No"), PARAMETER_TYPE_Bool, true);
@@ -146,8 +146,8 @@ bool CGeomrec::On_Execute(void)
        {
 		  if (pinpgrid->is_NoData(x,y)) // check if there are no_data in input datasets
 		  {
-		 	 mask [x][y] = 0;
-		 	 marker [x][y] = 0;
+		 	 mask [x][y] = -999999.9;
+		 	 marker [x][y] = -999999.9;
 		  }
 		  else if ((pborder) && ((x==0)||(y==0)||(x==Get_NX()-1)||(y==Get_NY()-1)))
    		  {
