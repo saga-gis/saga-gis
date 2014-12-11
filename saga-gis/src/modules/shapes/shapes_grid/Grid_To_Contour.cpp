@@ -136,13 +136,22 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() != NULL )
 	{
-		double	zStep	= pParameter->asGrid()->Get_ZRange() / 10.0;
+		double	zStep	= SG_Get_Rounded_To_SignificantFigures(pParameter->asGrid()->Get_ZRange() / 10.0, 1);
 
-		pParameters->Get_Parameter("ZMIN" )->Set_Value(pParameter->asGrid()->Get_ZMin  ());
-		pParameters->Get_Parameter("ZMAX" )->Set_Value(pParameter->asGrid()->Get_ZMax  ());
 		pParameters->Get_Parameter("ZSTEP")->Set_Value(zStep);
 
 		pParameters->Set_Enabled("ZMAX", zStep > 0.0);
+
+		if( zStep > 0.0 )
+		{
+			pParameters->Get_Parameter("ZMIN")->Set_Value(zStep * floor(pParameter->asGrid()->Get_ZMin() / zStep));
+			pParameters->Get_Parameter("ZMAX")->Set_Value(zStep * ceil (pParameter->asGrid()->Get_ZMax() / zStep));
+		}
+		else
+		{
+			pParameters->Get_Parameter("ZMIN")->Set_Value(pParameter->asGrid()->Get_ZMin());
+			pParameters->Get_Parameter("ZMAX")->Set_Value(pParameter->asGrid()->Get_ZMax());
+		}
 	}
 
 	return( 0 );

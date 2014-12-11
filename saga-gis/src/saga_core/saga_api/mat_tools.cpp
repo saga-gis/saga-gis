@@ -101,6 +101,24 @@ double			SG_Get_Rounded(double Value, int Decimals)
 	return( ((int)(0.5 + d * Value)) / d );
 }
 
+//---------------------------------------------------------
+double			SG_Get_Rounded_To_SignificantFigures(double Value, int Decimals)
+{
+	if( Decimals <= 0 || Value == 0.0 )
+	{
+		return( (int)(0.5 + Value) );
+	}
+
+	Decimals	= -(ceil(log10(fabs(Value))) - Decimals);
+
+	double	d	= pow(10.0, Decimals);
+
+	return( Value < 0.0
+		? -((int)(0.5 - d * Value)) / d
+		:  ((int)(0.5 + d * Value)) / d
+	);
+}
+
 
 ///////////////////////////////////////////////////////////
 //                                                       //
