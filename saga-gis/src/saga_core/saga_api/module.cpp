@@ -182,6 +182,39 @@ const CSG_String & CSG_Module::Get_Author(void) const
 	return( m_Author );
 }
 
+//---------------------------------------------------------
+CSG_String CSG_Module::Get_MenuPath(bool bSolved)
+{
+	if( !bSolved )
+	{
+		return( Get_MenuPath() );
+	}
+
+	CSG_String	Menu	= Get_MenuPath();
+
+	if( Menu.Length() > 1 && Menu[1] == ':' )
+	{
+		if( Menu[0] == 'A' || Menu[0] == 'a' )	// absolute menu path, overwrites library's default menu path
+		{
+			return( Menu.AfterFirst(':') );
+		}
+
+		Menu	= Menu.AfterFirst(':');	// Menu[0] == 'R' || Menu[0] == 'r'	// menu path explicitly declared as relative to library's default menu path
+	}
+
+	if( m_Library_Menu.is_Empty() )
+	{
+		return( Menu );
+	}
+
+	if( Menu.is_Empty() )
+	{
+		return( m_Library_Menu );
+	}
+
+	return( m_Library_Menu + "|" + Menu );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

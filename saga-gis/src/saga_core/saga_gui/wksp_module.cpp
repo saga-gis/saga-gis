@@ -136,38 +136,6 @@ wxString CWKSP_Module::Get_Name(void)
 }
 
 //---------------------------------------------------------
-wxString CWKSP_Module::Get_Menu_Path(void)
-{
-	//-----------------------------------------------------
-	wxString	Menu	= m_pModule->Get_MenuPath().c_str();
-
-	if( Menu.Length() > 1 && Menu[1] == ':' )
-	{
-		if( Menu[0] == 'A' || Menu[0] == 'a' )		// absolute menu path, overwrites library's default menu path
-		{
-			return( Menu.AfterFirst(':') );
-		}
-
-		Menu	= Menu.AfterFirst(':');	// Menu[0] == 'R' || Menu[0] == 'r'	// menu path explicitly declared as relative to library's default menu path
-	}
-
-	//-----------------------------------------------------
-	wxString	Root	= ((CWKSP_Module_Library *)Get_Manager())->Get_Library()->Get_Menu().c_str();
-
-	if( Root.IsEmpty() )
-	{
-		return( Menu );
-	}
-
-	if( Menu.IsEmpty() )
-	{
-		return( Root );
-	}
-
-	return( Root + "|" + Menu );
-}
-
-//---------------------------------------------------------
 wxString CWKSP_Module::Get_File_Name(void)
 {
 	return( m_pModule->Get_File_Name().c_str() );
@@ -202,7 +170,7 @@ wxString CWKSP_Module::Get_Description(void)
 	}
 
 	//-----------------------------------------------------
-	wxString	Menu(Get_Menu_Path()), Description;
+	wxString	Menu(m_pModule->Get_MenuPath(true).c_str()), Description;
 
 	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{

@@ -193,6 +193,15 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 			_TL("All Files")
 		)
 	);
+
+	m_Parameters.Add_FilePath(
+		pNode	, "TOOL_MENUS"			, _TL("User defined tool menus"),
+		_TL("User defined tool menus."),
+		CSG_String::Format(SG_T("%s|*.xml|%s|*.*"),
+			_TL("XML Files (*.xml)"),
+			_TL("All Files")
+		)
+	);
 }
 
 //---------------------------------------------------------
@@ -444,6 +453,8 @@ void CWKSP_Module_Manager::Parameters_Changed(void)
 #ifdef _OPENMP
 	SG_Set_Max_Num_Threads_Omp(m_Parameters("OMP_THREADS_MAX")->asInt());
 #endif
+
+	m_pMenu_Modules->Update();
 }
 
 //---------------------------------------------------------

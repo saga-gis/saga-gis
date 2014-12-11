@@ -311,42 +311,12 @@ CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_Interactive(co
 //---------------------------------------------------------
 CSG_String CSG_Module_Library::Get_Menu(int i) const
 {
-	CSG_String	Menu;
-
 	if( Get_Module(i) )
 	{
-		Menu	= Get_Module(i)->Get_MenuPath();
-
-		if( Menu.Length() > 2 && Menu[1] == ':' )
-		{
-			if( Menu[0] == 'A' || Menu[0] == 'a' )
-			{	// menu path is absolute, i.e. relative to top menu...
-				return( Menu.Right(2) + '|' + Get_Info(MLB_INFO_Name) );
-			}
-
-			Menu	= Menu.Right(2);	// menu path is relative to library menu...
-		}
-
-		CSG_String	Root(Get_Info(MLB_INFO_Menu_Path));
-
-		if( Menu.is_Empty() )
-		{
-			Menu	= Root;
-		}
-		else if( !Root.is_Empty() )
-		{
-			Menu	= Root + '|' + Menu;
-		}
-
-		if( Menu.Length() > 0 )
-		{
-			Menu	+= '|';
-		}
-
-		Menu	+= Get_Info(MLB_INFO_Name);
+		return( Get_Module(i)->Get_MenuPath(true) );
 	}
 
-	return( Menu );
+	return( "" );
 }
 
 

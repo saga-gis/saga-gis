@@ -106,7 +106,7 @@ private:
 
 
 	void						_Update				(wxMenu *pMenu);
-	wxMenu *					_Get_SubMenu		(wxMenu *pMenu, wxString Menu_Path);
+	bool						_Get_SubMenu		(class CWKSP_Module *pModule, class CSG_MetaData *pUser);
 	wxMenu *					_Get_SubMenu_byToken(wxMenu *pMenu, wxString Token);
 	void						_Set_Recent			(wxMenu *pMenu);
 

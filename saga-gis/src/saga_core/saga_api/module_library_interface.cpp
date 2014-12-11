@@ -144,6 +144,7 @@ bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 		{
 			pModule->m_ID.Printf(SG_T("%d"), ID);
 			pModule->m_Library		= Get_Info(MLB_INFO_Library);
+			pModule->m_Library_Menu	= Get_Info(MLB_INFO_Menu_Path);
 			pModule->m_File_Name	= Get_Info(MLB_INFO_File);
 		}
 

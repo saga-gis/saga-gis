@@ -105,7 +105,6 @@ public:
 
 	void							Set_Menu_ID			(int Menu_ID);
 	int								Get_Menu_ID			(void)			{	return( m_Menu_ID );	}
-	wxString						Get_Menu_Path		(void);
 
 	wxString						Get_File_Name		(void);
 

@@ -205,6 +205,7 @@ public:
 	CSG_String					Get_Summary					(bool bParameters = true, const CSG_String &Menu = "", const CSG_String &Description = "", bool bXML = false);
 
 	virtual CSG_String			Get_MenuPath				(void)	{	return( SG_T("") );	}
+	virtual CSG_String			Get_MenuPath				(bool bSolved);
 
 	int							Get_Parameters_Count		(void)	{	return( m_npParameters );	}
 	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
@@ -323,7 +324,7 @@ private:
 
 	CSG_Parameters				**m_pParameters;
 
-	CSG_String					m_ID, m_Library, m_File_Name, m_Author;
+	CSG_String					m_ID, m_Library, m_Library_Menu, m_File_Name, m_Author;
 
 
 	bool						_Synchronize_DataObjects	(void);
@@ -645,16 +646,17 @@ extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_Version			(void)\
 //---------------------------------------------------------
 #define MLB_INTERFACE_INITIALIZE	extern "C" _SAGA_DLL_EXPORT bool MLB_Initialize	(const SG_Char *File_Name)\
 {\
+	int		i;\
+\
 	MLB_Interface.Set_File_Name(File_Name);\
-\
-	int		i	= 0;\
-\
-	while( MLB_Interface.Add_Module(Create_Module(i), i) ) i++;\
 \
 	for(i=0; i<MLB_INFO_User; i++)\
 	{\
 		MLB_Interface.Set_Info(i, Get_Info(i));\
 	}\
+\
+	for(i=0; MLB_Interface.Add_Module(Create_Module(i), i); i++)\
+	{}\
 \
 	return( MLB_Interface.Get_Count() > 0 );\
 }\
