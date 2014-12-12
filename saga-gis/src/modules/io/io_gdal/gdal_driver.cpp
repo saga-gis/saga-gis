@@ -283,8 +283,8 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 	{
 		m_bTransform	= true;
 		m_Cellsize		= 1.0;
-		m_xMin			= 0.5;
-		m_yMin			= 0.5;
+		m_xMin			= 0.0;
+		m_yMin			= 0.0;
 	}
 
 	m_TF_A[0]		= Transform[0];

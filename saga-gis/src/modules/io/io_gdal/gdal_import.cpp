@@ -355,29 +355,30 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 
 	if( Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transform() )
 	{
-		double		s;
 		CSG_Vector	v(2);
 		CSG_Rect	r;
 
-		v[0]	= DataSet.Get_xMin();	v[1]	= DataSet.Get_yMin();	v	= B * v + A;	r.Assign(v[0], v[1], v[0], v[1]);
-		v[0]	= DataSet.Get_xMin();	v[1]	= DataSet.Get_yMax();	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
-		v[0]	= DataSet.Get_xMax();	v[1]	= DataSet.Get_yMax();	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
-		v[0]	= DataSet.Get_xMax();	v[1]	= DataSet.Get_yMin();	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
+		v[0]	= DataSet.Get_xMin() + 0.5;	v[1]	= DataSet.Get_yMin() + 0.5;	v	= B * v + A;	r.Assign(v[0], v[1], v[0], v[1]);
+		v[0]	= DataSet.Get_xMin() + 0.5;	v[1]	= DataSet.Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
+		v[0]	= DataSet.Get_xMax() - 0.5;	v[1]	= DataSet.Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
+		v[0]	= DataSet.Get_xMax() - 0.5;	v[1]	= DataSet.Get_yMin() + 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
 
-		v[0]	= 0;	v[1] = 1;	v = B * v;	s	= fabs(v.Get_Length());
-		v[0]	= 1;	v[1] = 0;	v = B * v;
+		v[0]	= 1;	v[1] = 0;	v = B * v;	double	dx	= v.Get_Length();
+		v[0]	= 0;	v[1] = 1;	v = B * v;	double	dy	= v.Get_Length();
 
-		if( s != fabs(v.Get_Length()) )
+		if( dx != dy )
 		{
-			if( s > fabs(v.Get_Length()) )
+			Message_Add(CSG_String::Format(SG_T("\n%s: %s\n\t%s: %f"), _TL("warning"), _TL("top-to-bottom and left-to-right cell sizes differ."), _TL("Difference"), fabs(dy - dx)), false);
+
+			if( dx > dy )
 			{
-				s	= fabs(v.Get_Length());
+				dx	= dy;
 			}
 
-			Message_Add(CSG_String::Format(SG_T("\n%s: %s\n\t%s: %f\n"), _TL("warning"), _TL("top-to-bottom and left-to-right cell sizes differ."), _TL("using cellsize"), s), false);
+			Message_Add(CSG_String::Format(SG_T("\n\t%s: %f\n"), _TL("using cellsize"), dx), false);
 		}
 
-		Transform.Assign(s, r);
+		Transform.Assign(dx, r);
 	}
 
 	//-----------------------------------------------------
@@ -410,7 +411,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 				m_pGrids->Add_Item(pGrid);
 
 				DataObject_Add			(pGrid);
-				DataObject_Set_Colors	(pGrid, CSG_Colors(100, SG_COLORS_BLACK_WHITE, false));
+				DataObject_Set_Colors	(pGrid, CSG_Colors(11, SG_COLORS_BLACK_WHITE, false));
 			}
 		}
     }
