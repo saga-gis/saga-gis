@@ -99,8 +99,8 @@ public:
 
 	bool						is_Okay					(void)	const	{	return( m_Chain.Get_Children_Count() > 0 );	}
 
+	void						Set_Library_Menu		(const CSG_String &Menu);
 	virtual CSG_String			Get_MenuPath			(void)			{	return( m_Menu );	}
-
 	const CSG_String &			Get_Library_Name		(void)	const	{	return( m_Library_Name );	}
 
 

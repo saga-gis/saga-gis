@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saga_gui_tool_menus saga-version="2.2.0">
+  <description>
+    This file shall serve as a template for user defined tool menus.
+	A tool's entry has to be defined as a subitem of its library entry
+	and is identified by either its identifier or name property ('id_or_name=...').
+	The desired menu path is given as the entry's content. Optionally the 
+	menu command's name can be changed with the 'name=...' property. If
+	you don't want to have a menu entry for a tool at all, then simply
+	remove its entry from this file. Activate your user defined tool menus
+	by choosing your file in the SAGA GUI's tool manager settings option:
+	'User defined tool menus'.
+  </description>
+  <library name="io_gdal">
+    <tool id_or_name="GDAL: Import Raster" name="Load Raster">File</tool>
+    <tool id_or_name="GDAL: Export Raster" name="Save Raster">File</tool>
+    <tool id_or_name="GDAL: Export Raster to GeoTIFF" name="Export GeoTIFF">File|Export</tool>
+  </library>
+  <library name="io_grid">
+    <tool id_or_name="Export ESRI Arc/Info Grid">File|Export</tool>
+    <tool id_or_name="Import ESRI Arc/Info Grid">File|Import</tool>
+  </library>
+  <library name="io_grid_image">
+    <tool id_or_name="Export Image (bmp, jpg, pcx, png, tif)">File|Export</tool>
+    <tool id_or_name="Import Image (bmp, jpg, png, tif, gif, pnm, xpm)">File|Import</tool>
+    <tool id_or_name="Export Grid to KML">File|Export</tool>
+  </library>
+  <library name="imagery_vigra">
+    <tool id_or_name="Edge Detection (ViGrA)">Segmentation</tool>
+    <tool id_or_name="Morphological Filter (ViGrA)">Filter</tool>
+    <tool id_or_name="Watershed Segmentation (ViGrA)">Segmentation</tool>
+    <tool id_or_name="Random Forest (ViGrA)">Classification</tool>
+  </library>
+  <library name="imagery_tools">
+    <tool id_or_name="Vegetation Index (Distance Based)">Image Tools|Vegetation Indices</tool>
+    <tool id_or_name="Vegetation Index (Slope Based)">Image Tools|Vegetation Indices</tool>
+    <tool id_or_name="Enhanced Vegetation Index">Image Tools|Vegetation Indices</tool>
+    <tool id_or_name="Tasseled Cap Transformation">Image Tools|Vegetation Indices</tool>
+    <tool id_or_name="IHS Sharpening">Image Tools|Image Sharpening</tool>
+    <tool id_or_name="Colour Normalized Brovey Sharpening">Image Tools|Image Sharpening</tool>
+    <tool id_or_name="Colour Normalized Spectral Sharpening">Image Tools|Image Sharpening</tool>
+    <tool id_or_name="Principle Components Based Image Sharpening">Image Tools|Image Sharpening</tool>
+    <tool id_or_name="Top of Atmosphere Reflectance">Image Tools|Landsat</tool>
+    <tool id_or_name="Automated Cloud Cover Assessment">Image Tools|Landsat</tool>
+    <tool id_or_name="Landsat Import with Options">File|Import</tool>
+  </library>
+  <library name="imagery_svm">
+    <tool id_or_name="SVM Classification">Classification</tool>
+  </library>
+  <library name="imagery_segmentation">
+    <tool id_or_name="Watershed Segmentation">Segmentation</tool>
+    <tool id_or_name="Grid Skeletonization">Segmentation</tool>
+    <tool id_or_name="Seed Generation">Segmentation</tool>
+    <tool id_or_name="Seeded Region Growing">Segmentation</tool>
+  </library>
+  <library name="imagery_opencv">
+    <tool id_or_name="Morphological Filter (OpenCV)">Filter</tool>
+    <tool id_or_name="Neural Networks Classification">Classification</tool>
+  </library>
+  <library name="imagery_classification">
+    <tool id_or_name="Supervised Classification">Classification</tool>
+    <tool id_or_name="Cluster Analysis for Grids" name="Unsupervised Classification">Classification</tool>
+    <tool id_or_name="Change Detection">Classification</tool>
+  </library>
+  <library name="toolchains">
+    <tool id_or_name="Object Based Image Segmentation">Segmentation</tool>
+    <tool id_or_name="Sieve and Clump">Filter</tool>
+  </library>
+  <library name="ta_lighting">
+    <tool id_or_name="Topographic Correction">Raster Tools</tool>
+  </library>
+  <library name="shapes_grid">
+    <tool id_or_name="Vectorising Classes">Classification</tool>
+  </library>
+  <library name="grid_visualisation">
+    <tool id_or_name="RGB Composite">Image Tools|Composites</tool>
+    <tool id_or_name="Color Triangle Composite">Image Tools|Composites</tool>
+    <tool id_or_name="Split RGB Composite">Image Tools|Composites</tool>
+  </library>
+  <library name="pj_proj4">
+    <tool id_or_name="Set Coordinate Reference System">Projection</tool>
+    <tool id_or_name="Coordinate Transformation (Shapes List)" name="Project Features">Projection</tool>
+    <tool id_or_name="Coordinate Transformation (Grid List)" name="Project Raster">Projection</tool>
+  </library>
+  <library name="pj_georeference">
+    <tool id_or_name="Create Reference Points">Projection|Georeferencing</tool>
+    <tool id_or_name="Rectify Grid">Projection|Georeferencing</tool>
+    <tool id_or_name="Move Grid">Projection|Georeferencing</tool>
+    <tool id_or_name="Direct Georeferencing of Airborne Photographs">Projection|Georeferencing</tool>
+    <tool id_or_name="Define Georeference for Grids">Projection|Georeferencing</tool>
+  </library>
+  <library name="grid_tools">
+    <tool id_or_name="Resampling">Raster Tools</tool>
+    <tool id_or_name="Aggregate">Raster Tools</tool>
+    <tool id_or_name="Clip Grids">Raster Tools</tool>
+    <tool id_or_name="Mosaicking">Raster Tools</tool>
+    <tool id_or_name="Patching">Raster Tools</tool>
+    <tool id_or_name="Close Gaps with Spline">Raster Tools</tool>
+    <tool id_or_name="Tiling">Raster Tools</tool>
+    <tool id_or_name="Shrink and Expand">Raster Tools</tool>
+    <tool id_or_name="Clip Grids">Raster Tools</tool>
+  </library>
+  <library name="grid_filter">
+    <tool id_or_name="Gaussian Filter">Filter</tool>
+    <tool id_or_name="Laplacian Filter">Filter</tool>
+    <tool id_or_name="User Defined Filter">Filter</tool>
+    <tool id_or_name="Majority Filter">Filter</tool>
+    <tool id_or_name="Morphological Filter">Filter</tool>
+    <tool id_or_name="Rank Filter">Filter</tool>
+    <tool id_or_name="Mesh Denoise">Filter</tool>
+    <tool id_or_name="Resampling Filter">Filter</tool>
+    <tool id_or_name="Sieving Classes">Filter</tool>
+  </library>
+  <library name="grid_calculus">
+    <tool id_or_name="Grid Normalisation">Raster Tools</tool>
+    <tool id_or_name="Grid Calculator">Raster Tools</tool>
+    <tool id_or_name="Grid Difference">Raster Tools</tool>
+    <tool id_or_name="Grid Standardisation">Raster Tools</tool>
+  </library>
+</saga_gui_tool_menus>

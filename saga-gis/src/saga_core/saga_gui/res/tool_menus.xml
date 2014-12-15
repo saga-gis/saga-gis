@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saga_gui_tool_menus saga-version="2.2.0">
+  <description>
+    This file shall serve as a template for user defined tool menus.
+	A tool's entry has to be defined as a subitem of its library entry
+	and is identified by either its identifier or name property ('id_or_name=...').
+	The desired menu path is given as the entry's content. Optionally the 
+	menu command's name can be changed with the 'name=...' property. If
+	you don't want to have a menu entry for a tool at all, then simply
+	remove its entry from this file. Activate your user defined tool menus
+	by choosing your file in the SAGA GUI's tool manager settings option:
+	'User defined tool menus'.
+  </description>
+  <library name="climate_tools">
+    <tool id_or_name="Multi Level to Surface Interpolation">Climate</tool>
+    <tool id_or_name="Multi Level to Points Interpolation">Climate</tool>
+    <tool id_or_name="Earth's Orbital Parameters">Climate|Earth's Orbital Parameters</tool>
+    <tool id_or_name="Annual Course of Daily Insolation">Climate|Earth's Orbital Parameters</tool>
+    <tool id_or_name="Daily Insolation over Latitude">Climate|Earth's Orbital Parameters</tool>
+    <tool id_or_name="Monthly Global by Latitude">Climate|Earth's Orbital Parameters</tool>
+    <tool id_or_name="PET (after Hargreave)">Climate|Evapotranspiration</tool>
+    <tool id_or_name="Daily to Hourly PET">Climate|Evapotranspiration</tool>
+  </library>
+  <library name="docs_html">
+    <tool id_or_name="Create Web Content">File|Reports</tool>
+    <tool id_or_name="SVG Interactive Map">File|Reports</tool>
+  </library>
+  <library name="docs_pdf">
+    <tool id_or_name="Shapes Report">File|Reports</tool>
+    <tool id_or_name="Shapes Summary Report">File|Reports</tool>
+    <tool id_or_name="Terrain Path Cross Sections">File|Reports</tool>
+  </library>
+  <library name="garden_fractals">
+    <tool id_or_name="Bifurcation">Garden|Recreations|Fractals</tool>
+    <tool id_or_name="Pythagoras' Tree">Garden|Recreations|Fractals</tool>
+    <tool id_or_name="Mandelbrot Set">Garden|Recreations|Fractals</tool>
+    <tool id_or_name="Fractal Dimension of Grid Surface">Garden|Recreations|Fractals</tool>
+    <tool id_or_name="Newton-Raphson">Garden|Recreations|Fractals</tool>
+    <tool id_or_name="Gaussian Landscapes">Garden|Recreations|Fractals</tool>
+  </library>
+  <library name="garden_games">
+    <tool id_or_name="Mine Sweeper">Garden|Recreations|Games</tool>
+    <tool id_or_name="Sudoku">Garden|Recreations|Games</tool>
+  </library>
+  <library name="contrib_perego">
+    <tool id_or_name="Average With Thereshold 1">Grid|Filter|Averages</tool>
+    <tool id_or_name="Average With Thereshold 2">Grid|Filter|Averages</tool>
+    <tool id_or_name="Average With Thereshold 3">Grid|Filter|Averages</tool>
+    <tool id_or_name="Average With Mask 1">Grid|Filter|Averages</tool>
+    <tool id_or_name="Average With Mask 2">Grid|Filter|Averages</tool>
+    <tool id_or_name="Destriping">Grid|Filter</tool>
+    <tool id_or_name="Destriping with Mask">Grid|Filter</tool>
+    <tool id_or_name="Directional Average">Grid|Filter|Averages</tool>
+  </library>
+  <library name="grid_analysis">
+    <tool id_or_name="Accumulated Cost (Isotropic)">Grid|Analysis|Cost Analysis</tool>
+    <tool id_or_name="Accumulated Cost (Anisotropic)">Grid|Analysis|Cost Analysis</tool>
+    <tool id_or_name="Least Cost Path">Grid|Analysis|Cost Analysis</tool>
+    <tool id_or_name="Least Cost Paths">Grid|Analysis|Cost Analysis</tool>
+    <tool id_or_name="Change Vector Analysis">Imagery|Tools</tool>
+    <tool id_or_name="Covered Distance">Grid|Analysis</tool>
+    <tool id_or_name="Pattern Analysis">Grid|Analysis</tool>
+    <tool id_or_name="Layer of extreme value">Grid|Analysis</tool>
+    <tool id_or_name="Analytical Hierarchy Process">Grid|Analysis</tool>
+    <tool id_or_name="Ordered Weighted Averaging (OWA)">Grid|Analysis</tool>
+    <tool id_or_name="Aggregation Index">Grid|Analysis</tool>
+    <tool id_or_name="Cross-Classification and Tabulation">Grid|Analysis</tool>
+    <tool id_or_name="Soil Texture Classification">Grid|Analysis|Soil Analysis</tool>
+    <tool id_or_name="Fragmentation (Standard)">Grid|Analysis|Fragmentation Analysis</tool>
+    <tool id_or_name="Fragmentation (Alternative)">Grid|Analysis|Fragmentation Analysis</tool>
+    <tool id_or_name="Fragmentation Classes from Density and Connectivity">Grid|Analysis|Fragmentation Analysis</tool>
+    <tool id_or_name="Accumulation Functions">Grid|Analysis</tool>
+    <tool id_or_name="IMCORR - Feature Tracking">Grid|Analysis</tool>
+  </library>
+  <library name="grid_calculus">
+    <tool id_or_name="Grid Normalisation">Grid|Calculus</tool>
+    <tool id_or_name="Grid Calculator">Grid|Calculus</tool>
+    <tool id_or_name="Grid Volume">Grid|Calculus</tool>
+    <tool id_or_name="Grid Difference">Grid|Calculus</tool>
+    <tool id_or_name="Function">Grid|Calculus|Grid Generation</tool>
+    <tool id_or_name="Geometric Figures">Grid|Calculus|Grid Generation</tool>
+    <tool id_or_name="Random Terrain Generation">Grid|Calculus|Grid Generation</tool>
+    <tool id_or_name="Random Field">Grid|Calculus|Grid Generation</tool>
+    <tool id_or_name="Grids Sum">Grid|Calculus</tool>
+    <tool id_or_name="Grids Product">Grid|Calculus</tool>
+    <tool id_or_name="Grid Standardisation">Grid|Calculus</tool>
+    <tool id_or_name="Fuzzify">Grid|Calculus|Fuzzy Logic</tool>
+    <tool id_or_name="Fuzzy Intersection (AND)">Grid|Calculus|Fuzzy Logic</tool>
+    <tool id_or_name="Fuzzy Union (OR)">Grid|Calculus|Fuzzy Logic</tool>
+    <tool id_or_name="Metric Conversions">Grid|Calculus|Conversions</tool>
+    <tool id_or_name="Gradient Vector from Cartesian to Polar Coordinates">Grid|Calculus|Conversions</tool>
+    <tool id_or_name="Gradient Vector from Polar to Cartesian Coordinates">Grid|Calculus|Conversions</tool>
+    <tool id_or_name="Grid Division">Grid|Calculus</tool>
+    <tool id_or_name="Spherical Harmonic Synthesis">Grid|Calculus|Grid Generation</tool>
+  </library>
+  <library name="grid_calculus_bsl">
+    <tool id_or_name="BSL">Grid|Calculus</tool>
+    <tool id_or_name="BSL from File">Grid|Calculus</tool>
+  </library>
+  <library name="grid_filter">
+    <tool id_or_name="Simple Filter">Grid|Filter</tool>
+    <tool id_or_name="Gaussian Filter">Grid|Filter</tool>
+    <tool id_or_name="Laplacian Filter">Grid|Filter</tool>
+    <tool id_or_name="Multi Direction Lee Filter">Grid|Filter</tool>
+    <tool id_or_name="User Defined Filter">Grid|Filter</tool>
+    <tool id_or_name="Filter Clumps">Grid|Filter</tool>
+    <tool id_or_name="Majority Filter">Grid|Filter</tool>
+    <tool id_or_name="DTM Filter (slope-based)">Grid|Filter</tool>
+    <tool id_or_name="Morphological Filter">Grid|Filter</tool>
+    <tool id_or_name="Rank Filter">Grid|Filter</tool>
+    <tool id_or_name="Mesh Denoise">Grid|Filter</tool>
+    <tool id_or_name="Resampling Filter">Grid|Filter</tool>
+    <tool id_or_name="Geodesic Morphological Reconstruction">Grid|Filter</tool>
+    <tool id_or_name="Binary Erosion-Reconstruction">Grid|Filter</tool>
+    <tool id_or_name="Connectivity Analysis">Grid|Filter</tool>
+    <tool id_or_name="Sieving Classes">Grid|Filter</tool>
+  </library>
+  <library name="grid_gridding">
+    <tool id_or_name="Shapes to Grid">Grid|Gridding</tool>
+    <tool id_or_name="Inverse Distance Weighted">Grid|Gridding|Interpolation from Points</tool>
+    <tool id_or_name="Nearest Neighbour">Grid|Gridding|Interpolation from Points</tool>
+    <tool id_or_name="Natural Neighbour">Grid|Gridding|Interpolation from Points</tool>
+    <tool id_or_name="Modifed Quadratic Shepard">Grid|Gridding|Interpolation from Points</tool>
+    <tool id_or_name="Triangulation">Grid|Gridding|Interpolation from Points</tool>
+    <tool id_or_name="Kernel Density Estimation">Grid|Gridding</tool>
+    <tool id_or_name="Angular Distance Weighted">Grid|Gridding|Interpolation from Points</tool>
+  </library>
+  <library name="grid_spline">
+    <tool id_or_name="Thin Plate Spline (Global)">Grid|Gridding|Spline Interpolation</tool>
+    <tool id_or_name="Thin Plate Spline (Local)">Grid|Gridding|Spline Interpolation</tool>
+    <tool id_or_name="Thin Plate Spline (TIN)">Grid|Gridding|Spline Interpolation</tool>
+    <tool id_or_name="B-Spline Approximation">Grid|Gridding|Spline Interpolation</tool>
+    <tool id_or_name="Multilevel B-Spline Interpolation">Grid|Gridding|Spline Interpolation</tool>
+    <tool id_or_name="Multilevel B-Spline Interpolation (from Grid)">Grid|Gridding|Spline Interpolation</tool>
+    <tool id_or_name="Cubic Spline Approximation">Grid|Gridding|Spline Interpolation</tool>
+  </library>
+  <library name="grid_tools">
+    <tool id_or_name="Resampling">Grid|Grid System</tool>
+    <tool id_or_name="Aggregate">Grid|Grid System</tool>
+    <tool id_or_name="Clip Grids">Grid|Grid System</tool>
+    <tool id_or_name="Mosaicking">Grid|Grid System</tool>
+    <tool id_or_name="Constant Grid">Grid|Values</tool>
+    <tool id_or_name="Patching">Grid|Gaps</tool>
+    <tool id_or_name="Close One Cell Gaps">Grid|Gaps</tool>
+    <tool id_or_name="Close Gaps">Grid|Gaps</tool>
+    <tool id_or_name="Grid Buffer">Grid|Distances</tool>
+    <tool id_or_name="Threshold Buffer">Grid|Distances</tool>
+    <tool id_or_name="Grid Proximity Buffer">Grid|Distances</tool>
+    <tool id_or_name="Change Data Storage">Grid|Values</tool>
+    <tool id_or_name="Change Grid Values">Grid|Values</tool>
+    <tool id_or_name="Change Cell Values">Grid|Values</tool>
+    <tool id_or_name="Grid Value Request">Grid|Values</tool>
+    <tool id_or_name="Reclassify Grid Values">Grid|Values</tool>
+    <tool id_or_name="Change Grid Values - Flood Fill">Grid|Values</tool>
+    <tool id_or_name="Crop to Data">Grid|Grid System</tool>
+    <tool id_or_name="Invert Data/No-Data">Grid|Values</tool>
+    <tool id_or_name="Grid Orientation">Grid|Values</tool>
+    <tool id_or_name="Combine Grids">Grid|Values</tool>
+    <tool id_or_name="Grid Cell Index">Grid|Values</tool>
+    <tool id_or_name="Grids from classified grid and table">Grid|Values</tool>
+    <tool id_or_name="Create Grid System">Grid|Grid System</tool>
+    <tool id_or_name="Grid Masking">Grid|Values</tool>
+    <tool id_or_name="Close Gaps with Spline">Grid|Gaps</tool>
+    <tool id_or_name="Proximity Grid">Grid|Distances</tool>
+    <tool id_or_name="Tiling">Grid|Grid System</tool>
+    <tool id_or_name="Shrink and Expand">Grid|Gaps</tool>
+    <tool id_or_name="Close Gaps with Stepwise Resampling">Grid|Gaps</tool>
+    <tool id_or_name="Transpose Grids">Grid|Grid System</tool>
+    <tool id_or_name="Clip Grids">Grid|Grid System</tool>
+  </library>
+  <library name="imagery_classification">
+    <tool id_or_name="Supervised Classification">Imagery|Classification</tool>
+    <tool id_or_name="Cluster Analysis for Grids">Imagery|Classification</tool>
+    <tool id_or_name="Change Detection">Imagery|Classification</tool>
+    <tool id_or_name="Decision Tree">Imagery|Classification</tool>
+    <tool id_or_name="Supervised Classification for Polygons">Imagery|Classification</tool>
+  </library>
+  <library name="imagery_opencv">
+    <tool id_or_name="Morphological Filter (OpenCV)">Grid|Filter</tool>
+    <tool id_or_name="Fourier Transformation (OpenCV)">Imagery|Fourier Analysis</tool>
+    <tool id_or_name="Single Value Decomposition (OpenCV)">Imagery|Fourier Analysis</tool>
+    <tool id_or_name="Neural Networks (OpenCV)">Imagery|Classification</tool>
+    <tool id_or_name="Stereo Match (OpenCV)">Garden|Imagery</tool>
+  </library>
+  <library name="imagery_photogrammetry">
+    <tool id_or_name="Resection (Terrestrial)">Imagery|Photogrammetry</tool>
+    <tool id_or_name="Colorisation (PC)">Imagery|Photogrammetry</tool>
+  </library>
+  <library name="imagery_segmentation">
+    <tool id_or_name="Watershed Segmentation">Imagery|Segmentation</tool>
+    <tool id_or_name="Grid Skeletonization">Imagery|Segmentation</tool>
+    <tool id_or_name="Seed Generation">Imagery|Segmentation</tool>
+    <tool id_or_name="Seeded Region Growing">Imagery|Segmentation</tool>
+  </library>
+  <library name="imagery_svm">
+    <tool id_or_name="SVM Classification">Imagery|Classification</tool>
+  </library>
+  <library name="imagery_tools">
+    <tool id_or_name="Vegetation Index (Distance Based)">Imagery|Vegetation Indices</tool>
+    <tool id_or_name="Vegetation Index (Slope Based)">Imagery|Vegetation Indices</tool>
+    <tool id_or_name="Enhanced Vegetation Index">Imagery|Vegetation Indices</tool>
+    <tool id_or_name="Tasseled Cap Transformation">Imagery|Vegetation Indices</tool>
+    <tool id_or_name="IHS Sharpening">Imagery|Image Sharpening</tool>
+    <tool id_or_name="Colour Normalized Brovey Sharpening">Imagery|Image Sharpening</tool>
+    <tool id_or_name="Colour Normalized Spectral Sharpening">Imagery|Image Sharpening</tool>
+    <tool id_or_name="Principle Components Based Image Sharpening">Imagery|Image Sharpening</tool>
+    <tool id_or_name="Top of Atmosphere Reflectance">Imagery|Landsat</tool>
+    <tool id_or_name="Automated Cloud Cover Assessment">Imagery|Landsat</tool>
+    <tool id_or_name="Landsat Import with Options">Imagery|Landsat</tool>
+  </library>
+  <library name="imagery_vigra">
+    <tool id_or_name="Smoothing (ViGrA)">Grid|Filter</tool>
+    <tool id_or_name="Edge Detection (ViGrA)">Imagery|Segmentation</tool>
+    <tool id_or_name="Morphological Filter (ViGrA)">Grid|Filter</tool>
+    <tool id_or_name="Distance (ViGrA)">Grid|Distances</tool>
+    <tool id_or_name="Watershed Segmentation (ViGrA)">Imagery|Segmentation</tool>
+    <tool id_or_name="Fourier Transform (ViGrA)">Imagery|Fourier Analysis</tool>
+    <tool id_or_name="Fourier Transform Inverse (ViGrA)">Imagery|Fourier Analysis</tool>
+    <tool id_or_name="Fourier Transform (Real, ViGrA)">Imagery|Fourier Analysis</tool>
+    <tool id_or_name="Fourier Filter (ViGrA)">Imagery|Fourier Analysis</tool>
+    <tool id_or_name="Random Forest (ViGrA)">Imagery|Classification</tool>
+  </library>
+  <library name="db_odbc">
+    <tool id_or_name="Connect to ODBC Source">Database|ODBC</tool>
+    <tool id_or_name="Disconnect from ODBC Source">Database|ODBC</tool>
+    <tool id_or_name="Commit/Rollback Transaction">Database|ODBC|Tools</tool>
+    <tool id_or_name="Execute SQL">Database|ODBC|Tools</tool>
+    <tool id_or_name="List Table Fields">Database|ODBC|Tools</tool>
+    <tool id_or_name="Import Table">Database|ODBC|Tables</tool>
+    <tool id_or_name="Export Table">Database|ODBC|Tables</tool>
+    <tool id_or_name="Drop Table">Database|ODBC|Tables</tool>
+    <tool id_or_name="Import Table from SQL Query">Database|ODBC|Tables</tool>
+    <tool id_or_name="List ODBC Servers">Database|ODBC|Tools</tool>
+    <tool id_or_name="List Tables">Database|ODBC|Tools</tool>
+    <tool id_or_name="Disconnect All">Database|ODBC|Tools</tool>
+  </library>
+  <library name="db_pgsql">
+    <tool id_or_name="List PostgreSQL Connections">Database|PostgreSQL|Tools</tool>
+    <tool id_or_name="Connect to PostgreSQL">Database|PostgreSQL</tool>
+    <tool id_or_name="Disconnect from PostgreSQL">Database|PostgreSQL</tool>
+    <tool id_or_name="Disconnect All">Database|PostgreSQL|Tools</tool>
+    <tool id_or_name="Begin Transaction">Database|PostgreSQL|Tools</tool>
+    <tool id_or_name="Commit/Rollback Transaction">Database|PostgreSQL|Tools</tool>
+    <tool id_or_name="Execute SQL">Database|PostgreSQL|Tools</tool>
+    <tool id_or_name="List Tables">Database|PostgreSQL|Tools</tool>
+    <tool id_or_name="List Table Fields">Database|PostgreSQL|Tools</tool>
+    <tool id_or_name="Import Table">Database|PostgreSQL|Tables</tool>
+    <tool id_or_name="Export Table">Database|PostgreSQL|Tables</tool>
+    <tool id_or_name="Drop Table">Database|PostgreSQL|Tables</tool>
+    <tool id_or_name="Import Table from SQL Query">Database|PostgreSQL|Tables</tool>
+    <tool id_or_name="Import Shapes from PostGIS">Database|PostgreSQL|Shapes</tool>
+    <tool id_or_name="Export Shapes to PostGIS">Database|PostgreSQL|Shapes</tool>
+    <tool id_or_name="Update Shapes SRID">Database|PostgreSQL|Shapes</tool>
+    <tool id_or_name="Import Raster from PostGIS">Database|PostgreSQL|Raster</tool>
+    <tool id_or_name="Export Raster to PostGIS">Database|PostgreSQL|Raster</tool>
+    <tool id_or_name="Update Raster SRID">Database|PostgreSQL|Raster</tool>
+  </library>
+  <library name="io_esri_e00">
+    <tool id_or_name="Import ESRI E00 File">File|ESRI E00</tool>
+  </library>
+  <library name="io_gdal">
+    <tool id_or_name="GDAL: Import Raster">File|GDAL/OGR</tool>
+    <tool id_or_name="GDAL: Export Raster">File|GDAL/OGR</tool>
+    <tool id_or_name="GDAL: Export Raster to GeoTIFF">File|GDAL/OGR</tool>
+    <tool id_or_name="OGR: Import Vector Data">File|GDAL/OGR</tool>
+    <tool id_or_name="OGR: Export Vector Data">File|GDAL/OGR</tool>
+    <tool id_or_name="OGR: Export Shapes to KML">File|GDAL/OGR</tool>
+    <tool id_or_name="GDAL: Import NetCDF">File|GDAL/OGR</tool>
+  </library>
+  <library name="io_gps">
+    <tool id_or_name="GPX to shapefile">File|GPS Import</tool>
+    <tool id_or_name="GPSBabel">File|GPS Import</tool>
+  </library>
+  <library name="io_grid">
+    <tool id_or_name="Export ESRI Arc/Info Grid">File|Grid|Export</tool>
+    <tool id_or_name="Import ESRI Arc/Info Grid">File|Grid|Import</tool>
+    <tool id_or_name="Export Surfer Grid">File|Grid|Export</tool>
+    <tool id_or_name="Import Surfer Grid">File|Grid|Import</tool>
+    <tool id_or_name="Import Binary Raw Data">File|Grid|Import</tool>
+    <tool id_or_name="Export Grid to XYZ">File|Grid|Export</tool>
+    <tool id_or_name="Import Grid from XYZ">File|Grid|Import</tool>
+    <tool id_or_name="Import USGS SRTM Grid">File|Grid|Import</tool>
+    <tool id_or_name="Import MOLA Grid (MEGDR)">File|Grid|Import</tool>
+    <tool id_or_name="Import SRTM30 DEM">File|Grid|Import</tool>
+    <tool id_or_name="Export True Color Bitmap">File|Grid|Export</tool>
+    <tool id_or_name="Import Erdas LAN/GIS">File|Grid|Import</tool>
+    <tool id_or_name="Import Grid from Table">File|Grid|Import</tool>
+    <tool id_or_name="Import WRF Geogrid Binary Format">File|Grid|Import</tool>
+    <tool id_or_name="Export WRF Geogrid Binary Format">File|Grid|Export</tool>
+    <tool id_or_name="Import Building Sketches from CityGML">File|Grid|Import</tool>
+  </library>
+  <library name="io_grid_grib2">
+    <tool id_or_name="Import GRIB2 record">File|Grid|Import</tool>
+  </library>
+  <library name="io_grid_image">
+    <tool id_or_name="Export Image (bmp, jpg, pcx, png, tif)">File|Grid|Export</tool>
+    <tool id_or_name="Import Image (bmp, jpg, png, tif, gif, pnm, xpm)">File|Grid|Import</tool>
+    <tool id_or_name="Export Grid to KML">File|Grid|Export</tool>
+  </library>
+  <library name="io_shapes">
+    <tool id_or_name="Export GStat Shapes">File|Shapes|Export</tool>
+    <tool id_or_name="Import GStat Shapes">File|Shapes|Import</tool>
+    <tool id_or_name="Export Shapes to XYZ">File|Shapes|Export</tool>
+    <tool id_or_name="Import Shapes from XYZ">File|Shapes|Import</tool>
+    <tool id_or_name="Export Shapes to Generate">File|Shapes|Export</tool>
+    <tool id_or_name="Export Surfer Blanking File">File|Shapes|Export</tool>
+    <tool id_or_name="Import Surfer Blanking Files">File|Shapes|Import</tool>
+    <tool id_or_name="Export Atlas Boundary File">File|Shapes|Export</tool>
+    <tool id_or_name="Import Atlas Boundary File">File|Shapes|Import</tool>
+    <tool id_or_name="Export WASP terrain map file">File|Shapes|Export</tool>
+    <tool id_or_name="Import WASP terrain map file">File|Shapes|Import</tool>
+    <tool id_or_name="Import Stereo Lithography File (STL)">File|Shapes|Import</tool>
+    <tool id_or_name="Export TIN to Stereo Lithography File (STL)">File|Shapes|Export</tool>
+    <tool id_or_name="Import GPX">File|Shapes|Import</tool>
+    <tool id_or_name="Export GPX">File|Shapes|Export</tool>
+    <tool id_or_name="Import Point Cloud from Shape File">File|Shapes|Import</tool>
+    <tool id_or_name="Import Point Cloud from Text File">File|Shapes|Import</tool>
+    <tool id_or_name="Export Scalable Vector Graphics (SVG) File">File|Shapes|Export</tool>
+    <tool id_or_name="Export Point Cloud to Text File">File|Shapes|Export</tool>
+    <tool id_or_name="Import Simple Features from Well Known Text">File|Shapes|Import</tool>
+    <tool id_or_name="Export Simple Features to Well Known Text">File|Shapes|Export</tool>
+  </library>
+  <library name="io_shapes_dxf">
+    <tool id_or_name="Import DXF Files">File|Shapes|Import</tool>
+  </library>
+  <library name="io_table">
+    <tool id_or_name="Export Text Table">File|Tables|Export</tool>
+    <tool id_or_name="Import Text Table">File|Tables|Import</tool>
+    <tool id_or_name="Import Text Table with Numbers only">File|Tables|Import</tool>
+    <tool id_or_name="Import Text Table (Fixed Column Sizes)">File|Tables|Import</tool>
+  </library>
+  <library name="io_virtual">
+    <tool id_or_name="Create Virtual Point Cloud Dataset">File|Virtual|Point Cloud</tool>
+    <tool id_or_name="Get Subset from Virtual Point Cloud">File|Virtual|Point Cloud</tool>
+    <tool id_or_name="Create Tileshape from Virtual Point Cloud">File|Virtual|Point Cloud</tool>
+    <tool id_or_name="Get Subset from Virtual Point Cloud">File|Virtual|Point Cloud</tool>
+    <tool id_or_name="Get Grid from Virtual Point Cloud">File|Virtual|Point Cloud</tool>
+    <tool id_or_name="Get Grid from Virtual Point Cloud">File|Virtual|Point Cloud</tool>
+  </library>
+  <library name="pj_georeference">
+    <tool id_or_name="Create Reference Points">Projection|Georeferencing</tool>
+    <tool id_or_name="Rectify Grid">Projection|Georeferencing</tool>
+    <tool id_or_name="Warping Shapes">Projection|Georeferencing</tool>
+    <tool id_or_name="Move Grid">Projection|Georeferencing</tool>
+    <tool id_or_name="Direct Georeferencing of Airborne Photographs">Projection|Georeferencing</tool>
+    <tool id_or_name="Define Georeference for Grids">Projection|Georeferencing</tool>
+  </library>
+  <library name="pj_geotrans">
+    <tool id_or_name="GeoTrans (Shapes)">Projection|Alternatives</tool>
+    <tool id_or_name="GeoTrans (Grid)">Projection|Alternatives</tool>
+  </library>
+  <library name="pj_proj4">
+    <tool id_or_name="Set Coordinate Reference System">Projection</tool>
+    <tool id_or_name="Coordinate Transformation (Shapes List)">Projection</tool>
+    <tool id_or_name="Coordinate Transformation (Shapes)">Projection</tool>
+    <tool id_or_name="Coordinate Transformation (Grid List)">Projection</tool>
+    <tool id_or_name="Coordinate Transformation (Grid)">Projection</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Command Line Arguments, Shapes)">Projection|Alternatives</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Dialog, Shapes)">Projection|Alternatives</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Command Line Arguments, Grid)">Projection|Alternatives</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Dialog, Grid)">Projection|Alternatives</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Command Line Arguments, List of Shapes Layers)">Projection|Alternatives</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Dialog, List of Shapes Layers)">Projection|Alternatives</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Command Line Arguments, List of Grids)">Projection|Alternatives</tool>
+    <tool id_or_name="[deprecated] Proj.4 (Dialog, List of Grids)">Projection|Alternatives</tool>
+    <tool id_or_name="Change Longitudinal Range for Grids">Projection|Tools</tool>
+    <tool id_or_name="Latitude/Longitude Graticule">Projection|Tools</tool>
+    <tool id_or_name="Coordinate Reference System Picker">Projection|Tools</tool>
+    <tool id_or_name="Tissot's Indicatrix">Projection|Tools</tool>
+    <tool id_or_name="Geographic Coordinate Grids">Projection|Tools</tool>
+    <tool id_or_name="Coordinate Transformation (Point Cloud List)">Projection</tool>
+    <tool id_or_name="Coordinate Transformation (Point Cloud)">Projection</tool>
+  </library>
+  <library name="garden_3d_viewer">
+    <tool id_or_name="TIN Viewer">Visualization|3D Viewer</tool>
+    <tool id_or_name="Point Cloud Viewer">Visualization|3D Viewer</tool>
+    <tool id_or_name="3D Shapes Viewer">Visualization|3D Viewer</tool>
+    <tool id_or_name="Globe Viewer for Grids">Visualization|3D Viewer</tool>
+    <tool id_or_name="Multiple Grids Viewer">Visualization|3D Viewer</tool>
+  </library>
+  <library name="grid_visualisation">
+    <tool id_or_name="Color Palette Rotation">Visualization|Grid</tool>
+    <tool id_or_name="Color Blending">Visualization|Grid</tool>
+    <tool id_or_name="Fit Color Palette to Grid Values">Visualization|Grid</tool>
+    <tool id_or_name="RGB Composite">Visualization|Grid</tool>
+    <tool id_or_name="Create 3D Image">Visualization|Grid</tool>
+    <tool id_or_name="Color Triangle Composite">Visualization|Grid</tool>
+    <tool id_or_name="Histogram Surface">Visualization|Grid</tool>
+    <tool id_or_name="Aspect-Slope Grid">Visualization|Grid</tool>
+    <tool id_or_name="Terrain Map View">Visualization|Grid</tool>
+    <tool id_or_name="Split RGB Composite">Visualization|Grid</tool>
+  </library>
+  <library name="pointcloud_viewer">
+    <tool id_or_name="[deprecated] Point Cloud Viewer">Visualization|3D Viewer</tool>
+  </library>
+  <library name="pointcloud_tools">
+    <tool id_or_name="Point Cloud Cutter">Shapes|Point Clouds|Tools</tool>
+    <tool id_or_name="Point Cloud Cutter">Shapes|Point Clouds|Tools</tool>
+    <tool id_or_name="Point Cloud from Grid Points">Shapes|Point Clouds|Conversion</tool>
+    <tool id_or_name="Point Cloud from Shapes">Shapes|Point Clouds|Conversion</tool>
+    <tool id_or_name="Point Cloud to Grid">Shapes|Point Clouds|Conversion</tool>
+    <tool id_or_name="Point Cloud to Shapes">Shapes|Point Clouds|Conversion</tool>
+    <tool id_or_name="Point Cloud Reclassifier / Subset Extractor">Shapes|Point Clouds|Tools</tool>
+    <tool id_or_name="Drop Point Cloud Attributes">Shapes|Point Clouds|Tools</tool>
+    <tool id_or_name="Transform Point Cloud">Shapes|Point Clouds|Tools</tool>
+    <tool id_or_name="Point Cloud Thinning (simple)">Shapes|Point Clouds|Tools</tool>
+    <tool id_or_name="Point Cloud Attribute Calculator">Shapes|Point Clouds|Tools</tool>
+    <tool id_or_name="Cluster Analysis for Point Clouds">Shapes|Point Clouds|Classification</tool>
+    <tool id_or_name="Merge Point Clouds">Shapes|Point Clouds|Tools</tool>
+  </library>
+  <library name="shapes_grid">
+    <tool id_or_name="Add Grid Values to Points">Shapes|Grid|Grid Values</tool>
+    <tool id_or_name="Add Grid Values to Shapes">Shapes|Grid|Grid Values</tool>
+    <tool id_or_name="Grid Statistics for Polygons">Shapes|Grid|Grid Values</tool>
+    <tool id_or_name="Grid Values to Points">Shapes|Grid|Vectorization</tool>
+    <tool id_or_name="Grid Values to Points (randomly)">Shapes|Grid|Vectorization</tool>
+    <tool id_or_name="Contour Lines from Grid">Shapes|Grid|Vectorization</tool>
+    <tool id_or_name="Vectorising Grid Classes">Shapes|Grid|Vectorization</tool>
+    <tool id_or_name="Clip Grid with Polygon">Shapes|Grid|Spatial Extent</tool>
+    <tool id_or_name="Local Minima and Maxima">Shapes|Grid|Grid Values</tool>
+    <tool id_or_name="Grid System Extent">Shapes|Grid|Spatial Extent</tool>
+    <tool id_or_name="Clip Grid with Rectangle">Shapes|Grid|Spatial Extent</tool>
+    <tool id_or_name="Gradient Vectors from Surface">Shapes|Grid|Vectorization</tool>
+    <tool id_or_name="Gradient Vectors from Direction and Length">Shapes|Grid|Vectorization</tool>
+    <tool id_or_name="Gradient Vectors from Directional Components">Shapes|Grid|Vectorization</tool>
+  </library>
+  <library name="shapes_lines">
+    <tool id_or_name="Convert Polygons to Lines">Shapes|Conversion</tool>
+    <tool id_or_name="Convert Points to Line(s)">Shapes|Conversion</tool>
+    <tool id_or_name="Line Properties">Shapes|Lines</tool>
+    <tool id_or_name="Line-Polygon Intersection">Shapes|Lines</tool>
+    <tool id_or_name="Line Simplification">Shapes|Lines</tool>
+    <tool id_or_name="Line Dissolve">Shapes|Lines</tool>
+    <tool id_or_name="Split Lines with Lines">Shapes|Lines</tool>
+    <tool id_or_name="Line Smoothing">Shapes|Lines</tool>
+  </library>
+  <library name="shapes_points">
+    <tool id_or_name="Convert Table to Points">Shapes|Conversion</tool>
+    <tool id_or_name="Count Points in Polygons">Shapes|Points</tool>
+    <tool id_or_name="Create Point Grid">Shapes|Points</tool>
+    <tool id_or_name="Point Distances">Shapes|Points</tool>
+    <tool id_or_name="Fit N Points to shape">Shapes|Points</tool>
+    <tool id_or_name="Convert Lines to Points">Shapes|Conversion</tool>
+    <tool id_or_name="Add Coordinates to points">Shapes|Points</tool>
+    <tool id_or_name="Remove Duplicate Points">Shapes|Points</tool>
+    <tool id_or_name="Clip Points with Polygons">Shapes|Points</tool>
+    <tool id_or_name="Separate points by direction">Shapes|Points</tool>
+    <tool id_or_name="Add Polygon Attributes to Points">Shapes|Points</tool>
+    <tool id_or_name="Points Filter">Shapes|Points</tool>
+    <tool id_or_name="Convex Hull">Shapes|Tools</tool>
+    <tool id_or_name="Select Points">Shapes|Selection</tool>
+    <tool id_or_name="Points Thinning">Shapes|Points</tool>
+    <tool id_or_name="Convert Multipoints to Points">Shapes|Conversion</tool>
+    <tool id_or_name="Thiessen Polygons">Shapes|Points</tool>
+    <tool id_or_name="Aggregate Point Observations">Shapes|Points</tool>
+    <tool id_or_name="Snap Points to Points">Shapes|Points</tool>
+    <tool id_or_name="Snap Points to Lines">Shapes|Points</tool>
+    <tool id_or_name="Snap Points to Grid">Shapes|Points</tool>
+  </library>
+  <library name="shapes_polygons">
+    <tool id_or_name="Polygon Centroids">Shapes|Polygons</tool>
+    <tool id_or_name="Polygon Properties">Shapes|Polygons</tool>
+    <tool id_or_name="Convert Lines to Polygons">Shapes|Conversion</tool>
+    <tool id_or_name="Point Statistics for Polygons">Shapes|Polygons</tool>
+    <tool id_or_name="Polygon Dissolve">Shapes|Polygons</tool>
+    <tool id_or_name="Convert Polygon/Line Vertices to Points">Shapes|Conversion</tool>
+    <tool id_or_name="Polygon Shape Indices">Shapes|Polygons</tool>
+    <tool id_or_name="Polygon-Line Intersection">Shapes|Polygons</tool>
+    <tool id_or_name="Polygons to Edges and Nodes">Shapes|Polygons</tool>
+    <tool id_or_name="Polygon Parts to Separate Polygons">Shapes|Polygons</tool>
+    <tool id_or_name="Polygon Clipping">Shapes|Polygons</tool>
+    <tool id_or_name="Polygon Self-Intersection">Shapes|Polygons</tool>
+    <tool id_or_name="Intersect">Shapes|Polygons|Overlay</tool>
+    <tool id_or_name="Difference">Shapes|Polygons|Overlay</tool>
+    <tool id_or_name="Symmetrical Difference">Shapes|Polygons|Overlay</tool>
+    <tool id_or_name="Union">Shapes|Polygons|Overlay</tool>
+    <tool id_or_name="Update">Shapes|Polygons|Overlay</tool>
+    <tool id_or_name="Identity">Shapes|Polygons|Overlay</tool>
+    <tool id_or_name="Add Point Attributes to Polygons">Shapes|Polygons</tool>
+    <tool id_or_name="Flatten Polygon Layer">Shapes|Polygons</tool>
+    <tool id_or_name="Shared Polygon Edges">Shapes|Polygons</tool>
+  </library>
+  <library name="shapes_tools">
+    <tool id_or_name="Create New Shapes Layer">Shapes|Construction</tool>
+    <tool id_or_name="Merge Layers">Shapes|Construction</tool>
+    <tool id_or_name="Select by Attributes... (Numerical Expression)">Shapes|Selection</tool>
+    <tool id_or_name="Select by Attributes... (String Expression)">Shapes|Selection</tool>
+    <tool id_or_name="Select by Location...">Shapes|Selection</tool>
+    <tool id_or_name="Copy Selection to New Shapes Layer">Shapes|Selection</tool>
+    <tool id_or_name="Delete Selection from Shapes Layer">Shapes|Selection</tool>
+    <tool id_or_name="Invert Selection of Shapes Layer">Shapes|Selection</tool>
+    <tool id_or_name="Split Shapes Layer Completely">Shapes|Construction</tool>
+    <tool id_or_name="Transform Shapes">Shapes|Tools</tool>
+    <tool id_or_name="Create Chart Layer (bars/sectors)">Shapes|Tools</tool>
+    <tool id_or_name="Create Graticule">Shapes|Tools</tool>
+    <tool id_or_name="Cut Shapes Layer">Shapes|Construction</tool>
+    <tool id_or_name="Cut Shapes Layer">Shapes|Construction</tool>
+    <tool id_or_name="Split Shapes Layer">Shapes|Construction</tool>
+    <tool id_or_name="Split Shapes Layer Randomly">Shapes|Construction</tool>
+    <tool id_or_name="Split Table/Shapes by Attribute">Shapes|Construction</tool>
+    <tool id_or_name="Shapes Buffer">Shapes|Tools</tool>
+    <tool id_or_name="Get Shapes Extents">Shapes|Tools</tool>
+    <tool id_or_name="QuadTree Structure to Shapes">Shapes|Tools</tool>
+    <tool id_or_name="Polar to Cartesian Coordinates">Shapes|Tools</tool>
+    <tool id_or_name="Generate Shapes">Shapes|Construction</tool>
+    <tool id_or_name="Convert Vertex Type (2D/3D)">Shapes|Conversion</tool>
+    <tool id_or_name="Merge Tables">Table|Tools</tool>
+  </library>
+  <library name="shapes_transect">
+    <tool id_or_name="Transect through polygon shapefile">Shapes|Lines|Transects</tool>
+  </library>
+  <library name="sim_cellular_automata">
+    <tool id_or_name="Conway's Life">Simulation|Cellular Automata</tool>
+    <tool id_or_name="Wa-Tor">Simulation|Cellular Automata</tool>
+  </library>
+  <library name="sim_erosion">
+    <tool id_or_name="MMF-SAGA Soil Erosion Model">Simulation|Erosion</tool>
+  </library>
+  <library name="sim_fire_spreading">
+    <tool id_or_name="Fire Risk Analysis">Simulation|Fire Spreading</tool>
+    <tool id_or_name="Simulation">Simulation|Fire Spreading</tool>
+  </library>
+  <library name="sim_hydrology">
+    <tool id_or_name="Soil Moisture Content">Simulation|Hydrology</tool>
+    <tool id_or_name="Overland Flow - Kinematic Wave D8">Simulation|Hydrology</tool>
+    <tool id_or_name="TOPMODEL">Simulation|Hydrology</tool>
+    <tool id_or_name="Water Retention Capacity">Simulation|Hydrology</tool>
+  </library>
+  <library name="sim_ihacres">
+    <tool id_or_name="IHACRES Calibration (2)">Simulation|Hydrology|IHACRES</tool>
+    <tool id_or_name="IHACRES Version 1.0">Simulation|Hydrology|IHACRES</tool>
+    <tool id_or_name="IHACRES Basin">Simulation|Hydrology|IHACRES</tool>
+    <tool id_or_name="IHACRES Elevation Bands">Simulation|Hydrology|IHACRES</tool>
+    <tool id_or_name="IHACRES Elevation Bands Calibration">Simulation|Hydrology|IHACRES</tool>
+  </library>
+  <library name="statistics_grid">
+    <tool id_or_name="Fast Representativeness">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Residual Analysis (Grid)">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Representativeness (Grid)">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Radius of Variance (Grid)">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Statistics for Grids">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Zonal Grid Statistics">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Directional Statistics for Single Grid">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Global Moran's I for Grids">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Principle Components Analysis">Spatial and Geostatistics|Grids|Principle Components</tool>
+    <tool id_or_name="Multi-Band Variation">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Inverse Principle Components Rotation">Spatial and Geostatistics|Grids|Principle Components</tool>
+    <tool id_or_name="Longitudinal Grid Statistics">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Meridional Grid Statistics">Spatial and Geostatistics|Grids</tool>
+    <tool id_or_name="Save Grid Statistics to Table">Spatial and Geostatistics|Grids</tool>
+  </library>
+  <library name="statistics_kriging">
+    <tool id_or_name="Ordinary Kriging">Spatial and Geostatistics|Kriging</tool>
+    <tool id_or_name="Ordinary Kriging (Global)">Spatial and Geostatistics|Kriging</tool>
+    <tool id_or_name="Universal Kriging">Spatial and Geostatistics|Kriging</tool>
+    <tool id_or_name="Universal Kriging (Global)">Spatial and Geostatistics|Kriging</tool>
+    <tool id_or_name="Variogram (Dialog))">Spatial and Geostatistics|Points</tool>
+    <tool id_or_name="[deprecated] Ordinary Kriging">Spatial and Geostatistics|Kriging|Without Variogram Fit</tool>
+    <tool id_or_name="[deprecated] Ordinary Kriging (Global)">Spatial and Geostatistics|Kriging|Without Variogram Fit</tool>
+    <tool id_or_name="[deprecated] Universal Kriging">Spatial and Geostatistics|Kriging|Without Variogram Fit</tool>
+    <tool id_or_name="[deprecated] Universal Kriging (Global)">Spatial and Geostatistics|Kriging|Without Variogram Fit</tool>
+  </library>
+  <library name="statistics_points">
+    <tool id_or_name="Variogram">Spatial and Geostatistics|Points</tool>
+    <tool id_or_name="Variogram Cloud">Spatial and Geostatistics|Points</tool>
+    <tool id_or_name="Variogram Surface">Spatial and Geostatistics|Points</tool>
+    <tool id_or_name="Minimum Distance Analysis">Spatial and Geostatistics|Points</tool>
+    <tool id_or_name="Spatial Point Pattern Analysis">Spatial and Geostatistics|Points</tool>
+  </library>
+  <library name="statistics_regression">
+    <tool id_or_name="Regression Analysis (Points/Grid)">Spatial and Geostatistics|Regression</tool>
+    <tool id_or_name="Multiple Regression Analysis (Points/Grids)">Spatial and Geostatistics|Regression</tool>
+    <tool id_or_name="Polynomial Regression">Spatial and Geostatistics|Regression</tool>
+    <tool id_or_name="GWR for Single Predictor (Gridded Model Output)">Spatial and Geostatistics|Regression|GWR</tool>
+    <tool id_or_name="GWR for Single Predictor Grid">Spatial and Geostatistics|Regression|GWR</tool>
+    <tool id_or_name="GWR for Multiple Predictors (Gridded Model Output)">Spatial and Geostatistics|Regression|GWR</tool>
+    <tool id_or_name="GWR for Multiple Predictor Grids">Spatial and Geostatistics|Regression|GWR</tool>
+    <tool id_or_name="GWR for Multiple Predictors">Spatial and Geostatistics|Regression|GWR</tool>
+    <tool id_or_name="Multiple Regression Analysis (Grid/Grids)">Spatial and Geostatistics|Regression</tool>
+    <tool id_or_name="Polynomial Trend from Grids">Spatial and Geostatistics|Regression</tool>
+    <tool id_or_name="Trend Analysis">Spatial and Geostatistics|Regression|Table</tool>
+    <tool id_or_name="Trend Analysis (Shapes)">Spatial and Geostatistics|Regression|Shapes</tool>
+    <tool id_or_name="Multiple Linear Regression Analysis">Spatial and Geostatistics|Regression|Table</tool>
+    <tool id_or_name="Multiple Linear Regression Analysis (Shapes)">Spatial and Geostatistics|Regression|Shapes</tool>
+    <tool id_or_name="GWR for Grid Downscaling">Spatial and Geostatistics|Regression|GWR</tool>
+  </library>
+  <library name="table_calculus">
+    <tool id_or_name="Function Fit">Table|Calculus</tool>
+    <tool id_or_name="Table Calculator">Table|Calculus</tool>
+    <tool id_or_name="Table Calculator (Shapes)">Shapes|Table</tool>
+    <tool id_or_name="Running Average">Table|Calculus</tool>
+    <tool id_or_name="Cluster Analysis">Table|Calculus</tool>
+    <tool id_or_name="Principle Components Analysis">Table|Calculus</tool>
+    <tool id_or_name="Fill Gaps in Records">Table|Calculus</tool>
+    <tool id_or_name="Find Field of Extreme Value">Table|Calculus</tool>
+    <tool id_or_name="Minimum Redundancy Feature Selection">Table|Calculus</tool>
+    <tool id_or_name="Cluster Analysis (Shapes)">Shapes|Table</tool>
+    <tool id_or_name="Field Statistics">Table|Calculus</tool>
+  </library>
+  <library name="table_tools">
+    <tool id_or_name="Create New Table">Table|Construction</tool>
+    <tool id_or_name="Transpose Table">Table|Tools</tool>
+    <tool id_or_name="Enumerate Table Field">Table|Tools</tool>
+    <tool id_or_name="Join Attributes from a Table">Table|Tools</tool>
+    <tool id_or_name="Join Attributes from a Table (Shapes)">Shapes|Table</tool>
+    <tool id_or_name="Change Date Format">Table|Tools</tool>
+    <tool id_or_name="Change Time Format">Table|Tools</tool>
+    <tool id_or_name="Change Field Type">Table|Tools</tool>
+    <tool id_or_name="Append Rows from Table">Table|Tools</tool>
+    <tool id_or_name="Change Color Format">Table|Tools</tool>
+    <tool id_or_name="Replace Text">Table|Tools</tool>
+    <tool id_or_name="Delete Fields">Table|Tools</tool>
+    <tool id_or_name="Copy Selection">Table|Selection</tool>
+    <tool id_or_name="Delete Selection">Table|Selection</tool>
+    <tool id_or_name="Invert Selection">Table|Selection</tool>
+    <tool id_or_name="Select by Numerical Expression">Table|Selection</tool>
+    <tool id_or_name="Select by String Expression">Table|Selection</tool>
+  </library>
+  <library name="ta_channels">
+    <tool id_or_name="Channel Network">Terrain Analysis|Channels</tool>
+    <tool id_or_name="Watershed Basins">Terrain Analysis|Channels</tool>
+    <tool id_or_name="Watershed Basins (Extended)">Terrain Analysis|Channels</tool>
+    <tool id_or_name="Vertical Distance to Channel Network">Terrain Analysis|Channels</tool>
+    <tool id_or_name="Overland Flow Distance to Channel Network">Terrain Analysis|Channels</tool>
+    <tool id_or_name="Channel Network and Drainage Basins">Terrain Analysis|Channels</tool>
+    <tool id_or_name="Strahler Order">Terrain Analysis|Channels</tool>
+    <tool id_or_name="Valley Depth">Terrain Analysis|Channels</tool>
+  </library>
+  <library name="ta_compound">
+    <tool id_or_name="Basic Terrain Analysis">Terrain Analysis</tool>
+  </library>
+  <library name="ta_hydrology">
+    <tool id_or_name="Catchment Area (Top-Down)">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Catchment Area (Recursive)">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Catchment Area (Flow Tracing)">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Upslope Area">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Upslope Area">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Downslope Area">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Flow Path Length">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Slope Length">Terrain Analysis|Hydrology|Miscellaneous</tool>
+    <tool id_or_name="Isochrones Constant Speed">Terrain Analysis|Hydrology|Dynamics</tool>
+    <tool id_or_name="Isochrones Variable Speed">Terrain Analysis|Hydrology|Dynamics</tool>
+    <tool id_or_name="Cell Balance">Terrain Analysis|Hydrology|Miscellaneous</tool>
+    <tool id_or_name="Flow Sinuosity">Terrain Analysis|Hydrology|Dynamics</tool>
+    <tool id_or_name="Flow Depth">Terrain Analysis|Hydrology|Dynamics</tool>
+    <tool id_or_name="Edge Contamination">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="SAGA Wetness Index">Terrain Analysis|Hydrology|Topographic Indices</tool>
+    <tool id_or_name="Lake Flood">Terrain Analysis|Hydrology|Miscellaneous</tool>
+    <tool id_or_name="Lake Flood">Terrain Analysis|Hydrology|Miscellaneous</tool>
+    <tool id_or_name="Catchment Area (Mass-Flux Method)">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Flow Width and Specific Catchment Area">Terrain Analysis|Hydrology|Catchment Area</tool>
+    <tool id_or_name="Topographic Wetness Index (TWI)">Terrain Analysis|Hydrology|Topographic Indices</tool>
+    <tool id_or_name="Stream Power Index">Terrain Analysis|Hydrology|Topographic Indices</tool>
+    <tool id_or_name="LS Factor">Terrain Analysis|Hydrology|Topographic Indices</tool>
+    <tool id_or_name="Melton Ruggedness Number">Terrain Analysis|Hydrology|Topographic Indices</tool>
+    <tool id_or_name="TCI Low">Terrain Analysis|Hydrology|Topographic Indices</tool>
+    <tool id_or_name="LS-Factor, Field Based">Terrain Analysis|Hydrology|Topographic Indices</tool>
+    <tool id_or_name="Slope Limited Flow Accumulation">Terrain Analysis|Hydrology|Catchment Area</tool>
+  </library>
+  <library name="ta_lighting">
+    <tool id_or_name="Analytical Hillshading">Terrain Analysis|Lighting</tool>
+    <tool id_or_name="Visibility (single point)">Terrain Analysis|Lighting</tool>
+    <tool id_or_name="Potential Incoming Solar Radiation">Terrain Analysis|Lighting</tool>
+    <tool id_or_name="Sky View Factor">Terrain Analysis|Lighting</tool>
+    <tool id_or_name="Topographic Correction">Terrain Analysis|Lighting</tool>
+    <tool id_or_name="Topographic Openness">Terrain Analysis|Lighting</tool>
+    <tool id_or_name="Visibility (points)">Terrain Analysis|Lighting</tool>
+  </library>
+  <library name="ta_morphometry">
+    <tool id_or_name="Slope, Aspect, Curvature">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Convergence Index">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Convergence Index (Search Radius)">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Surface Specific Points">Terrain Analysis|Terrain Classification</tool>
+    <tool id_or_name="Curvature Classification">Terrain Analysis|Terrain Classification</tool>
+    <tool id_or_name="Hypsometry">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Real Surface Area">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Morphometric Protection Index">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Multiresolution Index of Valley Bottom Flatness (MRVBF)">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Downslope Distance Gradient">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Mass Balance Index">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Effective Air Flow Heights">Terrain Analysis|Climate and Weather</tool>
+    <tool id_or_name="Diurnal Anisotropic Heating">Terrain Analysis|Climate and Weather</tool>
+    <tool id_or_name="Land Surface Temperature">Terrain Analysis|Climate and Weather</tool>
+    <tool id_or_name="Relative Heights and Slope Positions">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Wind Effect (Windward / Leeward Index)">Terrain Analysis|Climate and Weather</tool>
+    <tool id_or_name="Terrain Ruggedness Index (TRI)">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Vector Ruggedness Measure (VRM)">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Topographic Position Index (TPI)">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="TPI Based Landform Classification">Terrain Analysis|Terrain Classification</tool>
+    <tool id_or_name="Terrain Surface Texture">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Terrain Surface Convexity">Terrain Analysis|Morphometry</tool>
+    <tool id_or_name="Terrain Surface Classification">Terrain Analysis|Terrain Classification</tool>
+    <tool id_or_name="Morphometric Features">Terrain Analysis|Terrain Classification</tool>
+    <tool id_or_name="Valley and Ridge Detection (Top Hat Approach)">Terrain Analysis|Terrain Classification</tool>
+    <tool id_or_name="Fuzzy Landform Element Classification">Terrain Analysis|Terrain Classification</tool>
+  </library>
+  <library name="ta_preprocessor">
+    <tool id_or_name="Flat Detection">Terrain Analysis|Preprocessing</tool>
+    <tool id_or_name="Sink Drainage Route Detection">Terrain Analysis|Preprocessing</tool>
+    <tool id_or_name="Sink Removal">Terrain Analysis|Preprocessing</tool>
+    <tool id_or_name="Fill Sinks (Planchon/Darboux, 2001)">Terrain Analysis|Preprocessing</tool>
+    <tool id_or_name="Fill Sinks (Wang &amp; Liu)">Terrain Analysis|Preprocessing</tool>
+    <tool id_or_name="Fill Sinks XXL (Wang &amp; Liu)">Terrain Analysis|Preprocessing</tool>
+    <tool id_or_name="Burn Stream Network into DEM">Terrain Analysis|Preprocessing</tool>
+  </library>
+  <library name="ta_profiles">
+    <tool id_or_name="Profile">Terrain Analysis|Profiles</tool>
+    <tool id_or_name="Flow Path Profile">Terrain Analysis|Profiles</tool>
+    <tool id_or_name="Swath Profile">Terrain Analysis|Profiles</tool>
+    <tool id_or_name="Cross Profiles">Terrain Analysis|Profiles</tool>
+    <tool id_or_name="Profiles from Lines">Terrain Analysis|Profiles</tool>
+    <tool id_or_name="Profile from points">Terrain Analysis|Profiles</tool>
+  </library>
+  <library name="ta_slope_stability">
+    <tool id_or_name="SAFETYFACTOR">Terrain Analysis|Slope Stability</tool>
+    <tool id_or_name="TOBIA">Terrain Analysis|Slope Stability</tool>
+    <tool id_or_name="SHALSTAB">Terrain Analysis|Slope Stability</tool>
+    <tool id_or_name="WETNESS">Terrain Analysis|Slope Stability</tool>
+    <tool id_or_name="WEDGEFAIL">Terrain Analysis|Slope Stability</tool>
+    <tool id_or_name="ANGMAP">Terrain Analysis|Slope Stability</tool>
+  </library>
+  <library name="tin_tools">
+    <tool id_or_name="Grid to TIN">TIN|Conversion</tool>
+    <tool id_or_name="Grid to TIN (Surface Specific Points)">TIN|Conversion</tool>
+    <tool id_or_name="Shapes to TIN">TIN|Conversion</tool>
+    <tool id_or_name="TIN to Shapes">TIN|Conversion</tool>
+    <tool id_or_name="Gradient">TIN|Terrain Analysis</tool>
+    <tool id_or_name="Flow Accumulation (Trace)">TIN|Terrain Analysis</tool>
+    <tool id_or_name="Flow Accumulation (Parallel)">TIN|Terrain Analysis</tool>
+  </library>
+  <library name="tin_viewer">
+    <tool id_or_name="[deprecated] TIN Viewer">Visualization|3D Viewer</tool>
+  </library>
+</saga_gui_tool_menus>

@@ -108,6 +108,12 @@ void CSG_Module_Chain::Reset(void)
 	m_Menu.Clear();
 }
 
+//---------------------------------------------------------
+void CSG_Module_Chain::Set_Library_Menu(const CSG_String &Menu)
+{
+	m_Library_Menu	= Menu;
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -686,6 +692,8 @@ bool CSG_Module_Chains::Add_Module(CSG_Module_Chain *pModule)
 {
 	m_pModules	= (CSG_Module_Chain **)SG_Realloc(m_pModules, (m_nModules + 1) * sizeof(CSG_Module_Chain *));
 	m_pModules[m_nModules++]	= pModule;
+
+	pModule->Set_Library_Menu(Get_Info(MLB_INFO_Menu_Path));
 
 	return( true );
 }
