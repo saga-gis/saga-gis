@@ -233,11 +233,11 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TARGET_TYPE"	, _TL("Target"),
+		NULL	, "ROW_ORDER"	, _TL("Row Order"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined grid system"),
-			_TL("existing grid system")
+			_TL("top down"),
+			_TL("bottom up")
 		), 0
 	);
 
@@ -279,6 +279,8 @@ bool CDirect_Georeferencing::On_Execute(void)
 	CSG_Grid	*pDEM			= Parameters("DEM"          )->asGrid();
 	double		zRef			= Parameters("ZREF"         )->asDouble();
 	int			Interpolation	= Parameters("INTERPOLATION")->asInt();
+	
+	m_bFlip	= Parameters("ROW_ORDER")->asInt() == 1;
 
 	//-----------------------------------------------------
 	TSG_Point	p[4];
@@ -486,7 +488,9 @@ inline TSG_Point CDirect_Georeferencing::World_to_Image(double x_w, double y_w, 
 	p.y		= m_O[1] - (m_f / m_s) * (Pc[1] / Pc[2]);
 
 	p.x		= Get_XMin() + p.x * Get_Cellsize();
-	p.y		= Get_YMin() + p.y * Get_Cellsize();
+	p.y		= m_bFlip
+			? Get_YMin() + p.y * Get_Cellsize()
+			: Get_YMax() - p.y * Get_Cellsize();
 
 	return( p );
 }

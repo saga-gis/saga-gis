@@ -89,6 +89,8 @@ protected:
 
 private:
 
+	bool						m_bFlip;
+
 	double						m_f, m_s;
 
 	CSG_Vector					m_T, m_O;
