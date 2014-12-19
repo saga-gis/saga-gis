@@ -108,6 +108,7 @@ CSG_Module *		Create_Module(int i)
 	case  2:	return( new CGeoref_Shapes );
 	case  3:	return( new CGeoref_Grid_Move );
 	case  4:	return( new CDirect_Georeferencing );
+	case  6:	return( new CDirect_Georeferencing_WorldFile );
 	case  5:	return( new CSet_Grid_Georeference );
 
 	case 10:	return( NULL );

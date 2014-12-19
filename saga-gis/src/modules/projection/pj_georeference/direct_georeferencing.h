@@ -73,6 +73,36 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CSG_Direct_Georeferencer
+{
+public:
+	CSG_Direct_Georeferencer(void);
+
+	bool						Add_Parameters			(CSG_Parameters &Parameters);
+
+	bool						Set_Transformation		(CSG_Parameters &Parameters, int nCols, int nRows);
+	const CSG_Matrix &			Get_Transformation		(void)	const	{	return( m_R );	}
+
+	TSG_Point					World_to_Image			(double x_w, double y_w, double z_w = 0.0);
+	TSG_Point					Image_to_World			(double x_i, double y_i, double z_w = 0.0);
+
+
+private:
+
+	double						m_f, m_s;
+
+	CSG_Vector					m_T, m_O;
+
+	CSG_Matrix					m_R, m_Rinv;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CDirect_Georeferencing : public CSG_Module_Grid
 {
 public:
@@ -89,21 +119,32 @@ protected:
 
 private:
 
-	bool						m_bFlip;
-
-	double						m_f, m_s;
-
-	CSG_Vector					m_T, m_O;
-
-	CSG_Matrix					m_R, m_Rinv;
-
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
+	CSG_Direct_Georeferencer	m_Georeferencer;
 
-	bool						Set_Transformation		(void);
+};
 
-	TSG_Point					World_to_Image			(double x_w, double y_w, double z_w);
-	TSG_Point					Image_to_World			(double x_i, double y_i, double z_w);
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CDirect_Georeferencing_WorldFile : public CSG_Module
+{
+public:
+	CDirect_Georeferencing_WorldFile(void);
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CSG_Direct_Georeferencer	m_Georeferencer;
 
 };
 

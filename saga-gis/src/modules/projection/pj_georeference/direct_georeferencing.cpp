@@ -69,45 +69,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDirect_Georeferencing::CDirect_Georeferencing(void)
+CSG_Direct_Georeferencer::CSG_Direct_Georeferencer(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Direct_Georeferencer::Add_Parameters(CSG_Parameters &Parameters)
 {
 	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
-	Set_Name		(_TL("Direct Georeferencing of Airborne Photographs"));
-
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
-
-	Set_Description	(_TW(
-		"Direct georeferencing of aerial photographs uses extrinsic "
-		"(position, attitude) and intrinsic (focal length, physical "
-		"pixel size) camera parameters. Orthorectification routine supports "
-		"additional data from a Digital Elevation Model (DEM).\n"
-		"\nReferences:\n"
-		"Baumker, M. / Heimes, F.J. (2001): "
-		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System. "
-		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001. "
-		"<a target=\"_blank\" href=\"http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf\">online</a>.\n"
-	));
-
-	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "INPUT"		, _TL("Unreferenced Grids"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid_List(
-		NULL	, "OUTPUT"		, _TL("Referenced Grids"),
-		_TL(""),
-		PARAMETER_OUTPUT, false
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "EXTENT"		, _TL("Extent"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
-	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
@@ -191,17 +164,170 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "ZREF"		, _TL("Reference Height"),
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Direct_Georeferencer::Set_Transformation(CSG_Parameters &Parameters, int nCols, int nRows)
+{
+	//-----------------------------------------------------
+	m_O.Create(2);
+
+	m_O[0]	= nCols / 2.0;
+	m_O[1]	= nRows / 2.0;
+
+	m_f		= Parameters("CFL"   )->asDouble() / 1000;		// [mm]     -> [m]
+	m_s		= Parameters("PXSIZE")->asDouble() / 1000000;	// [micron] -> [m]
+
+	//-----------------------------------------------------
+	m_T.Create(3);
+
+	m_T[0]	= Parameters("X")->asDouble();
+	m_T[1]	= Parameters("Y")->asDouble();
+	m_T[2]	= Parameters("Z")->asDouble();
+
+	//-----------------------------------------------------
+	double		a;
+	CSG_Matrix	Rx(3, 3), Ry(3, 3), Rz(3, 3);
+
+	a	= Parameters("OMEGA")->asDouble() * M_DEG_TO_RAD;
+	Rx[0][0] =       1; Rx[0][1] =       0; Rx[0][2] =       0;
+	Rx[1][0] =       0; Rx[1][1] =  cos(a); Rx[1][2] = -sin(a);
+	Rx[2][0] =       0; Rx[2][1] =  sin(a); Rx[2][2] =  cos(a);
+
+	a	= Parameters("PHI"  )->asDouble() * M_DEG_TO_RAD;
+	Ry[0][0] =  cos(a); Ry[0][1] =       0; Ry[0][2] =  sin(a);
+	Ry[1][0] =       0; Ry[1][1] =       1; Ry[1][2] =       0;
+	Ry[2][0] = -sin(a); Ry[2][1] =       0; Ry[2][2] =  cos(a);
+
+	a	= Parameters("KAPPA")->asDouble() * M_DEG_TO_RAD + Parameters("KAPPA_OFF")->asDouble() * M_DEG_TO_RAD;
+	Rz[0][0] =  cos(a); Rz[0][1] = -sin(a); Rz[0][2] =       0;
+	Rz[1][0] =  sin(a); Rz[1][1] =  cos(a); Rz[1][2] =       0;
+	Rz[2][0] =       0; Rz[2][1] =       0; Rz[2][2] =       1;
+
+	switch( Parameters("ORIENTATION")->asInt() )
+	{
+	case 0:	default:	m_R	= Rz * Rx * Ry;	break;	// BLUH
+	case 1:				m_R	= Rx * Ry * Rz;	break;	// PATB
+	}
+
+	m_Rinv	= m_R.Get_Inverse();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline TSG_Point CSG_Direct_Georeferencer::World_to_Image(double x_w, double y_w, double z_w)
+{
+	TSG_Point	p;
+	CSG_Vector	Pw(3), Pc;
+	
+	Pw[0]	= x_w;
+	Pw[1]	= y_w;
+	Pw[2]	= z_w;
+
+	Pc		= m_Rinv * (Pw - m_T);
+
+	p.x		= m_O[0] - (m_f / m_s) * (Pc[0] / Pc[2]);
+	p.y		= m_O[1] - (m_f / m_s) * (Pc[1] / Pc[2]);
+
+	return( p );
+}
+
+//---------------------------------------------------------
+inline TSG_Point CSG_Direct_Georeferencer::Image_to_World(double x_i, double y_i, double z_w)
+{
+	double		k;
+	TSG_Point	p;
+	CSG_Vector	Pc(3), Pw;
+	
+	Pc[0]	= (m_O[0] - x_i) * m_s;
+	Pc[1]	= (m_O[1] - y_i) * m_s;
+	Pc[2]	= m_f;
+
+	Pw		= m_R * Pc;
+
+	k		= (z_w - m_T[2]) / Pw[2];
+
+	p.x		= m_T[0] + k * Pw[0];
+	p.y		= m_T[1] + k * Pw[1];
+
+	return( p );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CDirect_Georeferencing::CDirect_Georeferencing(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Set_Name		(_TL("Direct Georeferencing of Airborne Photographs"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2012"));
+
+	Set_Description	(_TW(
+		"Direct georeferencing of aerial photographs uses extrinsic "
+		"(position, attitude) and intrinsic (focal length, physical "
+		"pixel size) camera parameters. Orthorectification routine supports "
+		"additional data from a Digital Elevation Model (DEM).\n"
+		"\nReferences:\n"
+		"Baumker, M. / Heimes, F.J. (2001): "
+		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System. "
+		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001. "
+		"<a target=\"_blank\" href=\"http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf\">online</a>.\n"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List(
+		NULL	, "INPUT"		, _TL("Unreferenced Grids"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
+		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
+	Parameters.Add_Grid_List(
+		NULL	, "OUTPUT"		, _TL("Referenced Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT, false
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "EXTENT"		, _TL("Extent"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
+	);
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Grid(
 		NULL	, "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
+
+	Parameters.Add_Value(
+		pNode	, "ZREF"		, _TL("Default Reference Height"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, 0.0
+	);
+
+	//-----------------------------------------------------
+	m_Georeferencer.Add_Parameters(Parameters);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
@@ -241,6 +367,7 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 		), 0
 	);
 
+	//-----------------------------------------------------
 	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), false);
 }
 
@@ -270,7 +397,7 @@ int CDirect_Georeferencing::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 bool CDirect_Georeferencing::On_Execute(void)
 {
 	//-----------------------------------------------------
-	if( !Set_Transformation() )
+	if( !m_Georeferencer.Set_Transformation(Parameters, Get_NX(), Get_NY()) )
 	{
 		return( false );
 	}
@@ -279,20 +406,17 @@ bool CDirect_Georeferencing::On_Execute(void)
 	CSG_Grid	*pDEM			= Parameters("DEM"          )->asGrid();
 	double		zRef			= Parameters("ZREF"         )->asDouble();
 	int			Interpolation	= Parameters("INTERPOLATION")->asInt();
-	
-	m_bFlip	= Parameters("ROW_ORDER")->asInt() == 1;
+	bool		bFlip			= Parameters("ROW_ORDER"    )->asInt() == 1;
 
 	//-----------------------------------------------------
 	TSG_Point	p[4];
 
-	p[0]	= Image_to_World(       0,        0, zRef);
-	p[1]	= Image_to_World(Get_NX(),        0, zRef);
-	p[2]	= Image_to_World(Get_NX(), Get_NY(), zRef);
-	p[3]	= Image_to_World(       0, Get_NY(), zRef);
+	p[0]	= m_Georeferencer.Image_to_World(       0,        0, zRef);
+	p[1]	= m_Georeferencer.Image_to_World(Get_NX(),        0, zRef);
+	p[2]	= m_Georeferencer.Image_to_World(Get_NX(), Get_NY(), zRef);
+	p[3]	= m_Georeferencer.Image_to_World(       0, Get_NY(), zRef);
 
-	CSG_Rect	r(p[0], p[1]);
-	r.Union(p[2]);
-	r.Union(p[3]);
+	CSG_Rect	r(p[0], p[1]);	r.Union(p[2]);	r.Union(p[3]);
 
 	//-----------------------------------------------------
 	CSG_Shapes	*pShapes	= Parameters("EXTENT")->asShapes();
@@ -316,7 +440,6 @@ bool CDirect_Georeferencing::On_Execute(void)
 	CSG_Grid_System	System(Cellsize, r);
 
 	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), r, Get_NX());
-//	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), r, (int)(1 + r.Get_YRange() / Cellsize));
 
 	if( !Dlg_Parameters("TARGET") )
 	{
@@ -392,7 +515,12 @@ bool CDirect_Georeferencing::On_Execute(void)
 				pz	= zRef;
 			}
 
-			TSG_Point	p	= World_to_Image(px, py, pz);
+			TSG_Point	p	= m_Georeferencer.World_to_Image(px, py, pz);
+
+			if( bFlip )
+			{
+				p.y	= (Get_NY() - 1) - p.y;
+			}
 
 			for(int i=0; i<pInput->Get_Count(); i++)
 			{
@@ -415,105 +543,136 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CDirect_Georeferencing::Set_Transformation(void)
+CDirect_Georeferencing_WorldFile::CDirect_Georeferencing_WorldFile(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Set_Name		(_TL("World File from Flight and Camera Settings"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2014"));
+
+	Set_Description	(_TW(
+		"Creates a world file (RST = rotation, scaling, translation) "
+		"for georeferencing images by direct georeferencing. "
+		"Direct georeferencing uses extrinsic "
+		"(position, attitude) and intrinsic (focal length, physical "
+		"pixel size) camera parameters.\n"
+		"\nReferences:\n"
+		"Baumker, M. / Heimes, F.J. (2001): "
+		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System. "
+		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001. "
+		"<a target=\"_blank\" href=\"http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf\">online</a>.\n"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(
+		NULL	, "EXTENT"		, _TL("Extent"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "FILE"		, _TL("World File"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|*.*"), _TL("All Files")), NULL, true
+	);
+
+	pNode	= Parameters.Add_Node(
+		NULL	, "NODE_IMAGE"	, _TL("Image Properties"),
+		_TL("")
+	);
+
+	Parameters.Add_Value(
+		pNode	, "NX"			, _TL("Number of Columns"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 100, 1, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "NY"			, _TL("Number of Columns"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 100, 1, true
+	);
+
+	//-----------------------------------------------------
+	m_Georeferencer.Add_Parameters(Parameters);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CDirect_Georeferencing_WorldFile::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_O.Create(2);
-	m_O[0]	= Get_NX() / 2.0;
-	m_O[1]	= Get_NY() / 2.0;
+	int	nx	= Parameters("NX")->asInt();
+	int	ny	= Parameters("NY")->asInt();
 
-	m_f		= Parameters("CFL"   )->asDouble() / 1000;		// [mm]     -> [m]
-	m_s		= Parameters("PXSIZE")->asDouble() / 1000000;	// [micron] -> [m]
-
-	//-----------------------------------------------------
-	m_T.Create(3);
-
-	m_T[0]	= Parameters("X")->asDouble();
-	m_T[1]	= Parameters("Y")->asDouble();
-	m_T[2]	= Parameters("Z")->asDouble();
-
-	//-----------------------------------------------------
-	double		a;
-	CSG_Matrix	Rx(3, 3), Ry(3, 3), Rz(3, 3);
-
-	a	= Parameters("OMEGA" )->asDouble() * M_DEG_TO_RAD;
-	Rx[0][0] =       1; Rx[0][1] =       0; Rx[0][2] =       0;
-	Rx[1][0] =       0; Rx[1][1] =  cos(a); Rx[1][2] = -sin(a);
-	Rx[2][0] =       0; Rx[2][1] =  sin(a); Rx[2][2] =  cos(a);
-
-	a	= Parameters("PHI"   )->asDouble() * M_DEG_TO_RAD;
-	Ry[0][0] =  cos(a); Ry[0][1] =       0; Ry[0][2] =  sin(a);
-	Ry[1][0] =       0; Ry[1][1] =       1; Ry[1][2] =       0;
-	Ry[2][0] = -sin(a); Ry[2][1] =       0; Ry[2][2] =  cos(a);
-
-	a	= Parameters("KAPPA" )->asDouble() * M_DEG_TO_RAD + Parameters("KAPPA_OFF" )->asDouble() * M_DEG_TO_RAD;
-	Rz[0][0] =  cos(a); Rz[0][1] = -sin(a); Rz[0][2] =       0;
-	Rz[1][0] =  sin(a); Rz[1][1] =  cos(a); Rz[1][2] =       0;
-	Rz[2][0] =       0; Rz[2][1] =       0; Rz[2][2] =       1;
-
-	switch( Parameters("ORIENTATION")->asInt() )
+	if( !m_Georeferencer.Set_Transformation(Parameters, nx, ny) )
 	{
-	case 0:	default:	m_R	= Rz * Rx * Ry;	break;	// BLUH
-	case 1:				m_R	= Rx * Ry * Rz;	break;	// PATB
+		return( false );
 	}
 
-	m_Rinv	= m_R.Get_Inverse();
+	//-----------------------------------------------------
+	CSG_String	File	= Parameters("FILE")->asString();
 
+	if( File.is_Empty() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_File	Stream;
+
+	if( !Stream.Open(File, SG_FILE_W, false) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Matrix	R(m_Georeferencer.Get_Transformation());
+
+	R	*= 0.001 * Parameters("Z")->asDouble() / Parameters("CFL")->asDouble() * Parameters("PXSIZE")->asDouble();
+
+	TSG_Point	p	= m_Georeferencer.Image_to_World(0, ny);
+
+	Stream.Printf(SG_T("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
+		 R[0][0],	// A: pixel size in the x-direction in map units/pixel
+		 R[1][0],	// D: rotation about y-axis
+		-R[0][1],	// B: rotation about x-axis
+		-R[1][1],	// E: pixel size in the y-direction in map units, almost always negative
+		     p.x,	// X: top left pixel center
+		     p.y	// Y: top left pixel center
+	);
+
+	//-----------------------------------------------------
+	CSG_Shapes	*pExtents	= Parameters("EXTENT")->asShapes();
+
+	if( pExtents )
+	{
+		pExtents->Create(SHAPE_TYPE_Polygon, SG_File_Get_Name(File, false));
+		pExtents->Add_Field(_TL("NAME"), SG_DATATYPE_String);
+
+		CSG_Shape	*pExtent	= pExtents->Add_Shape();
+
+		p	= m_Georeferencer.Image_to_World( 0,  0);	pExtent->Add_Point(p.x, p.y);
+		p	= m_Georeferencer.Image_to_World( 0, ny);	pExtent->Add_Point(p.x, p.y);
+		p	= m_Georeferencer.Image_to_World(nx, ny);	pExtent->Add_Point(p.x, p.y);
+		p	= m_Georeferencer.Image_to_World(nx,  0);	pExtent->Add_Point(p.x, p.y);
+
+		pExtent->Set_Value(0, SG_File_Get_Name(File, false));
+	}
+
+	//-----------------------------------------------------
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-inline TSG_Point CDirect_Georeferencing::World_to_Image(double x_w, double y_w, double z_w)
-{
-	TSG_Point	p;
-	CSG_Vector	Pw(3), Pc;
-	
-	Pw[0]	= x_w;
-	Pw[1]	= y_w;
-	Pw[2]	= z_w;
-
-	Pc		= m_Rinv * (Pw - m_T);
-
-	p.x		= m_O[0] - (m_f / m_s) * (Pc[0] / Pc[2]);
-	p.y		= m_O[1] - (m_f / m_s) * (Pc[1] / Pc[2]);
-
-	p.x		= Get_XMin() + p.x * Get_Cellsize();
-	p.y		= m_bFlip
-			? Get_YMin() + p.y * Get_Cellsize()
-			: Get_YMax() - p.y * Get_Cellsize();
-
-	return( p );
-}
-
-//---------------------------------------------------------
-inline TSG_Point CDirect_Georeferencing::Image_to_World(double x_i, double y_i, double z_w)
-{
-	double		k;
-	TSG_Point	p;
-	CSG_Vector	Pc(3), Pw;
-	
-	Pc[0]	= (m_O[0] - x_i) * m_s;
-	Pc[1]	= (m_O[1] - y_i) * m_s;
-	Pc[2]	= m_f;
-
-	Pw		= m_R * Pc;
-
-	k		= (z_w - m_T[2]) / Pw[2];
-
-	p.x		= m_T[0] + k * Pw[0];
-	p.y		= m_T[1] + k * Pw[1];
-
-	return( p );
 }
 
 
