@@ -426,7 +426,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Grid_System &System, const CSG_Vector &A, const CSG_Matrix &B)
+bool CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Grid_System &System, const CSG_Vector &A, const CSG_Matrix &B)
 {
 	//-----------------------------------------------------
 	TSG_Grid_Interpolation	Interpolation;
@@ -445,7 +445,14 @@ void CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Grid_System &
 	CSG_Matrix	BInv(B.Get_Inverse());
 
 	CSG_Grid	*pImage	= *ppGrid;
-	CSG_Grid	*pWorld	= *ppGrid	= SG_Create_Grid(System, pImage->Get_Type());
+	CSG_Grid	*pWorld	= SG_Create_Grid(System, pImage->Get_Type());
+
+	if( !pWorld )
+	{
+		return( false );
+	}
+
+	*ppGrid	= pWorld;
 
 	pWorld->Set_Name              (pImage->Get_Name        ());
 	pWorld->Set_Description       (pImage->Get_Description ());
@@ -486,6 +493,8 @@ void CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Grid_System &
 	}
 
 	delete(pImage);
+
+	return( true );
 }
 
 

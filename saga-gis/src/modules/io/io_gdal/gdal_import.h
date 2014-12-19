@@ -92,7 +92,7 @@ private:
 	bool						Load_Sub				(CSG_GDAL_DataSet &DataSet);
 	bool						Load					(CSG_GDAL_DataSet &DataSet, const CSG_String &Name);
 
-	void						Set_Transformation		(CSG_Grid **ppGrid, const CSG_Grid_System &System, const CSG_Vector &A, const CSG_Matrix &B);
+	bool						Set_Transformation		(CSG_Grid **ppGrid, const CSG_Grid_System &System, const CSG_Vector &A, const CSG_Matrix &B);
 
 };
 
