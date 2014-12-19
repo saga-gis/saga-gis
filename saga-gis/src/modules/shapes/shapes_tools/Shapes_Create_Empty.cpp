@@ -90,17 +90,25 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 
 	Set_Author		(SG_T("O. Conrad (c) 2008"));
 
-	Set_Description	(_TW(
+	Set_Description	(CSG_String::Format(_TW(
 		"Creates a new empty shapes layer of given type, "
-		"which might be either point, multipoint, line or polygon. "
+		"which might be either point, multipoint, line or polygon.\n\n"
 		"Possible field types for the attributes table are:\n"
-		" - character string\n"
-		" - 1 byte integer\n"
-		" - 2 byte integer\n"
-		" - 4 byte integer\n"
-		" - 4 byte floating point\n"
-		" - 8 byte floating point\n"
-		" - 32 bit true color (RGB)\n"
+		"- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n- %s\n"),
+		SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
+		SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
 	));
 
 
@@ -170,14 +178,21 @@ void CShapes_Create_Empty::_Set_Field_Count(CSG_Parameters *pAttributes, int nAt
 	//-----------------------------------------------------
 	CSG_String	Types;
 
-	Types.Printf(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
-		_TL("character string"),
-		_TL("1 byte integer"),
-		_TL("2 byte integer"),
-		_TL("4 byte integer"),
-		_TL("4 byte floating point"),
-		_TL("8 byte floating point"),
-		_TL("color (rgb)")
+	Types = CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
 	);
 
 	//-----------------------------------------------------
@@ -285,13 +300,20 @@ bool CShapes_Create_Empty::On_Execute(void)
 		switch( pAttributes->Get_Parameter(GET_TYPE(i))->asInt() )
 		{
 		default:
-		case 0:	Type	= SG_DATATYPE_String;	break;
-		case 1:	Type	= SG_DATATYPE_Char  ;	break;
-		case 2:	Type	= SG_DATATYPE_Short ;	break;
-		case 3:	Type	= SG_DATATYPE_Int   ;	break;
-		case 4:	Type	= SG_DATATYPE_Float ;	break;
-		case 5:	Type	= SG_DATATYPE_Double;	break;
-		case 6:	Type	= SG_DATATYPE_Color ;	break;
+		case  0:	Type	= SG_DATATYPE_String;	break;
+		case  1:	Type	= SG_DATATYPE_Date;		break;
+		case  2:	Type	= SG_DATATYPE_Color;	break;
+		case  3:	Type	= SG_DATATYPE_Byte;		break;
+		case  4:	Type	= SG_DATATYPE_Char;		break;
+		case  5:	Type	= SG_DATATYPE_Word;		break;
+		case  6:	Type	= SG_DATATYPE_Short;	break;
+		case  7:	Type	= SG_DATATYPE_DWord;	break;
+		case  8:	Type	= SG_DATATYPE_Int;		break;
+		case  9:	Type	= SG_DATATYPE_ULong;	break;
+		case 10:	Type	= SG_DATATYPE_Long;		break;
+		case 11:	Type	= SG_DATATYPE_Float;	break;
+		case 12:	Type	= SG_DATATYPE_Double;	break;
+		case 13:	Type	= SG_DATATYPE_Binary;	break;
 		}
 
 		pShapes->Add_Field(pAttributes->Get_Parameter(GET_NAME(i))->asString(), Type);
