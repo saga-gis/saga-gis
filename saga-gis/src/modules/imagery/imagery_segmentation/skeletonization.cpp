@@ -123,7 +123,7 @@ CSkeletonization::CSkeletonization(void)
 
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Less than"),
-			_TL("Greater than") 
+			_TL("Greater than")
 		),1
 	);
 
@@ -171,14 +171,14 @@ bool CSkeletonization::On_Execute(void)
 		switch( Initiation )
 		{
 		case 0: default:
-			if( pInput->asDouble(n) < Threshold )
+			if( !pInput->is_NoData(n) && pInput->asDouble(n) < Threshold )
 			{
 				pResult->Set_Value(n, 1);
 			}
 			break;
 
 		case 1:
-			if( pInput->asDouble(n) > Threshold )
+			if( !pInput->is_NoData(n) && pInput->asDouble(n) > Threshold )
 			{
 				pResult->Set_Value(n, 1);
 			}
@@ -207,14 +207,14 @@ bool CSkeletonization::On_Execute(void)
 			switch( Initiation )
 			{
 			case 0: default:
-				if( pInput->asDouble(n) < Threshold )
+				if( !pInput->is_NoData(n) && pInput->asDouble(n) < Threshold )
 				{
 					pResult->Add_Value(n, 1);
 				}
 				break;
 
 			case 1:
-				if( pInput->asDouble(n) > Threshold )
+				if( !pInput->is_NoData(n) && pInput->asDouble(n) > Threshold )
 				{
 					pResult->Add_Value(n, 1);
 				}
@@ -293,7 +293,7 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 			if( pResult->asByte(x, y) )
 			{
 				n	= Get_Neighbours(x, y, pResult, z);
-				
+
 				if( n == 1 )
 				{
 					Lock_Set(x, y, SEGMENT_END);
@@ -802,7 +802,7 @@ void CSkeletonization::SK_Execute(void)
 	// 2.) Find channels...
 
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
-	{	
+	{
 		if( pInput->Get_Sorted(n, x, y) )	// Von oben nach unten...
 		{
 			z	= pInput->asDouble(x, y);
