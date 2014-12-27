@@ -313,6 +313,7 @@
     <ClInclude Include="pc_create_spcvf.h" />
     <ClInclude Include="pc_get_grid_spcvf.h" />
     <ClInclude Include="pc_get_subset_spcvf.h" />
+    <ClInclude Include="pc_remove_overlap_from_spcvf.h" />
     <ClInclude Include="pc_tileshape_from_spcvf.h" />
   </ItemGroup>
   <ItemGroup>
@@ -320,6 +321,7 @@
     <ClCompile Include="pc_create_spcvf.cpp" />
     <ClCompile Include="pc_get_grid_spcvf.cpp" />
     <ClCompile Include="pc_get_subset_spcvf.cpp" />
+    <ClCompile Include="pc_remove_overlap_from_spcvf.cpp" />
     <ClCompile Include="pc_tileshape_from_spcvf.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

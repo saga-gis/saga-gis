@@ -279,7 +279,8 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 
 			for(int iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
 			{
-				if( m_AOI.Contains(pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
+				if( m_AOI.Get_XMin() <= pPC->Get_X(iPoint) && pPC->Get_X(iPoint) < m_AOI.Get_XMax() &&
+					m_AOI.Get_YMin() <= pPC->Get_Y(iPoint) && pPC->Get_Y(iPoint) < m_AOI.Get_YMax() )
 				{
 					if( m_pShapes != NULL && !m_bAddOverlap )
 					{

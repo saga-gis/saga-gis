@@ -88,7 +88,7 @@ CPointCloud_Get_Subset_SPCVF_Base::~CPointCloud_Get_Subset_SPCVF_Base(void)
 
 
 //---------------------------------------------------------
-void CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap, CSG_String sFileName, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_PointCloud_List *pPointCloudList)
+void CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap, CSG_String sFileNameTileInfo, CSG_String sFileName, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_PointCloud_List *pPointCloudList)
 {
 	m_iOutputs			= iOutputs;
 	m_AOI				= AOI;
@@ -97,6 +97,7 @@ void CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, C
 	m_bMultiple			= bMultiple;
 	m_bAddOverlap		= bAddOverlap;
 	m_dOverlap			= dOverlap;
+	m_sFileNameTileInfo	= sFileNameTileInfo;
 	m_sFileName			= sFileName;
 	m_pFilePath			= pFilePath;
 	m_pPointCloudList	= pPointCloudList;
@@ -123,7 +124,10 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax;
 	CSG_Rect		BBoxSPCVF;
 	CSG_MetaData	SPCVF;
-	
+
+	CSG_MetaData	SPCVF_Tile_Info;
+	CSG_MetaData	*pSPCVF_Tiles = NULL;
+	bool			bAbsolutePaths = false;
 
 	//-----------------------------------------------------
 	if( !SPCVF.Create(m_sFileName) || SPCVF.Get_Name().CmpNoCase(SG_T("SPCVFDataset")) )
@@ -138,6 +142,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 	if( !sMethodPaths.CmpNoCase(SG_T("absolute")) )
 	{
 		sPathSPCVF = SG_T("");
+		bAbsolutePaths = true;
 	}
 	else if( !sMethodPaths.CmpNoCase(SG_T("relative")) )
 	{
@@ -156,6 +161,25 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMax"), dBBoxXMax);
 	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMax"), dBBoxYMax);
 	BBoxSPCVF.Assign(dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax);
+
+
+	//-----------------------------------------------------
+	if( !m_sFileNameTileInfo.is_Empty() )
+	{
+		SPCVF_Tile_Info.Set_Name(SG_T("SPCVF_Tile_Info"));
+		SPCVF_Tile_Info.Add_Property(SG_T("Version"), SG_T("1.0"));
+	
+		if( bAbsolutePaths )
+		{
+			SPCVF_Tile_Info.Add_Property(SG_T("Paths"), SG_T("absolute"));
+		}
+		else
+		{
+			SPCVF_Tile_Info.Add_Property(SG_T("Paths"), SG_T("relative"));
+		}
+
+		pSPCVF_Tiles = SPCVF_Tile_Info.Add_Child(SG_T("Tiles"));
+	}
 
 
 	//-----------------------------------------------------
@@ -258,7 +282,8 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 			for(int iPoint=0; iPoint<pPC->Get_Count(); iPoint++)
 			{
-				if( m_AOI.Contains(pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
+				if( m_AOI.Get_XMin() <= pPC->Get_X(iPoint) && pPC->Get_X(iPoint) < m_AOI.Get_XMax() &&
+					m_AOI.Get_YMin() <= pPC->Get_Y(iPoint) && pPC->Get_Y(iPoint) < m_AOI.Get_YMax() )
 				{
 					if( m_pShapes != NULL && !m_bAddOverlap )
 					{
@@ -298,7 +323,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 				continue;
 			}
 
-			Write_Subset(pPC_out, iAOI, iDatasets);
+			Write_Subset(pPC_out, iAOI, iDatasets, pSPCVF_Tiles, bAbsolutePaths);
 
 			pPC_out = NULL;
 		}
@@ -314,7 +339,19 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 			return( true );
 		}
 
-		Write_Subset(pPC_out, 0, iDatasets);
+		Write_Subset(pPC_out, 0, iDatasets, pSPCVF_Tiles, bAbsolutePaths);
+	}
+
+
+	//-----------------------------------------------------
+	if( !m_sFileNameTileInfo.is_Empty() )
+	{
+		if( !SPCVF_Tile_Info.Save(m_sFileNameTileInfo) )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unable to save file %s!"), m_sFileNameTileInfo.c_str()));
+
+			return( false );
+		}
 	}
 
 	return( true );
@@ -322,7 +359,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 
 //---------------------------------------------------------
-void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets)
+void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets, CSG_MetaData *pSPCVF_Tiles, bool bAbsolutePaths)
 {
 	CSG_String	sPath = SG_T("");
 
@@ -348,6 +385,35 @@ void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, in
 		pPC_out->Set_Name(CSG_String::Format(SG_T("%spc_subset_%s"), sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str()));
 	}
 
+	//-----------------------------------------------------
+	if( pSPCVF_Tiles != NULL )
+	{
+		CSG_MetaData	*pDataset = pSPCVF_Tiles->Add_Child(SG_T("PointCloud"));
+
+		CSG_String		sTilePath;
+
+		if( bAbsolutePaths )
+			sTilePath = pPC_out->Get_Name();
+		else
+			sTilePath = SG_File_Get_Path_Relative(SG_File_Get_Path(m_sFileNameTileInfo), pPC_out->Get_Name());
+
+		sTilePath.Replace(SG_T("\\"), SG_T("/"));
+		sTilePath.Append(SG_T(".spc"));
+
+		pDataset->Add_Property(SG_T("File"), sTilePath);
+
+
+		//-----------------------------------------------------
+		CSG_MetaData	*pBBox = pDataset->Add_Child(SG_T("BBox"));
+
+		pBBox->Add_Property(SG_T("XMin"), m_AOI.Get_XMin() + m_dOverlap);
+		pBBox->Add_Property(SG_T("YMin"), m_AOI.Get_YMin() + m_dOverlap);
+		pBBox->Add_Property(SG_T("XMax"), m_AOI.Get_XMax() - m_dOverlap);
+		pBBox->Add_Property(SG_T("YMax"), m_AOI.Get_YMax() - m_dOverlap);
+	}
+
+
+	//-----------------------------------------------------
 	SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %d dataset(s) written to output point cloud %s."), pPC_out->Get_Count(), iDatasets, pPC_out->Get_Name()), true);
 
 	if( m_pFilePath == NULL )
@@ -382,7 +448,9 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 		"point cloud dataset by applying the provided area-of-interest "
 		"(AOI). The extent of the AOI can be provided either as polygon "
 		"shapefile, grid or by coordinates. Optionally, an overlap can "
-		"be added to the AOI. In case an overlap is used and the AOI "
+		"be added to the AOI and a spcvf tile info file can be outputted. "
+		"The latter can be used to remove the overlap later.\n"
+		"In case an overlap is used and the AOI "
 		"is provided as polygon shapfile, only the bounding boxes of the "
 		"polygons are used.\n"
 		"With polygon shapefiles additional functionality is available:\n"
@@ -468,6 +536,17 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 		PARAMETER_TYPE_Double,
 		50.0, 0.0, true
 	);
+	Parameters.Add_FilePath(
+		Parameters("AOI_ADD_OVERLAP")	, "FILENAME_TILE_INFO"	, _TL("Optional Tile Info Filename"),
+		_TW("The full path and name of an optional spcvf tile info file. "
+		"Such a file contains information about the bounding boxes without "
+		"overlap and can be used to remove the overlap from the tiles later. "
+		"Leave empty to not output such a file."),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+			_TL("SAGA Point Cloud Virtual Format Tile Info (*.spcvf_tile_info)"), SG_T("*.spcvf_tile_info"),
+			_TL("All Files")													, SG_T("*.*")
+		), NULL, true, false, false
+	);
 
 	Parameters.Add_Value(
 		pNode	, "ONE_PC_PER_POLYGON"	, _TL("One Point Cloud per Polygon"),
@@ -495,26 +574,28 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	double			dAoiXMin, dAoiYMin, dAoiXMax, dAoiYMax;
 	bool			bAddOverlap;
 	double			dOverlap;
+	CSG_String		sFileNameTileInfo;
 	bool			bMultiple;
 	int				iOutputs = 1;
 	CSG_Rect		AOI;
 
 
 	//-----------------------------------------------------
-	sFileName		= Parameters("FILENAME")->asString();
-	pPointCloudList	= Parameters("PC_OUT")->asPointCloudList();
-	pFilePath		= Parameters("FILEPATH")->asFilePath();
-	pShapes			= Parameters("AOI_SHP")->asShapes();
-	iFieldName		= Parameters("FIELD_TILENAME")->asInt();
-	pGrid			= Parameters("AOI_GRID")->asGrid();
-	dAoiXMin		= Parameters("AOI_XRANGE")->asRange()->Get_LoVal();
-	dAoiXMax		= Parameters("AOI_XRANGE")->asRange()->Get_HiVal();
-	dAoiYMin		= Parameters("AOI_YRANGE")->asRange()->Get_LoVal();
-	dAoiYMax		= Parameters("AOI_YRANGE")->asRange()->Get_HiVal();
+	sFileName			= Parameters("FILENAME")->asString();
+	pPointCloudList		= Parameters("PC_OUT")->asPointCloudList();
+	pFilePath			= Parameters("FILEPATH")->asFilePath();
+	pShapes				= Parameters("AOI_SHP")->asShapes();
+	iFieldName			= Parameters("FIELD_TILENAME")->asInt();
+	pGrid				= Parameters("AOI_GRID")->asGrid();
+	dAoiXMin			= Parameters("AOI_XRANGE")->asRange()->Get_LoVal();
+	dAoiXMax			= Parameters("AOI_XRANGE")->asRange()->Get_HiVal();
+	dAoiYMin			= Parameters("AOI_YRANGE")->asRange()->Get_LoVal();
+	dAoiYMax			= Parameters("AOI_YRANGE")->asRange()->Get_HiVal();
 
-	bAddOverlap		= Parameters("AOI_ADD_OVERLAP")->asBool();
-	dOverlap		= Parameters("OVERLAP")->asDouble();
-	bMultiple		= Parameters("ONE_PC_PER_POLYGON")->asBool();
+	bAddOverlap			= Parameters("AOI_ADD_OVERLAP")->asBool();
+	dOverlap			= Parameters("OVERLAP")->asDouble();
+	sFileNameTileInfo	= Parameters("FILENAME_TILE_INFO")->asString();
+	bMultiple			= Parameters("ONE_PC_PER_POLYGON")->asBool();
 
 	if( pShapes == NULL )
 	{
@@ -551,7 +632,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 		AOI.Assign(dAoiXMin, dAoiYMin, dAoiXMax, dAoiYMax);
 	}
 
-	m_Get_Subset_SPCVF.Initialise(iOutputs, AOI, pShapes, iFieldName, bMultiple, bAddOverlap, dOverlap, sFileName, pFilePath, pPointCloudList);
+	m_Get_Subset_SPCVF.Initialise(iOutputs, AOI, pShapes, iFieldName, bMultiple, bAddOverlap, dOverlap, sFileNameTileInfo, sFileName, pFilePath, pPointCloudList);
 
 	bool bResult = m_Get_Subset_SPCVF.Get_Subset();
 
@@ -585,7 +666,8 @@ int CPointCloud_Get_Subset_SPCVF::On_Parameters_Enable(CSG_Parameters *pParamete
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AOI_ADD_OVERLAP")) )
 	{
-		pParameters->Get_Parameter("OVERLAP")->Set_Enabled(pParameter->asBool());
+		pParameters->Get_Parameter("OVERLAP"			)->Set_Enabled(pParameter->asBool());
+		pParameters->Get_Parameter("FILENAME_TILE_INFO"	)->Set_Enabled(pParameter->asBool());
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AOI_SHP")) )
@@ -674,7 +756,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 
 		// as long as this module only supports to drag a box, we initialize it with a fake overlap in order
 		// to use CSG_Rect instead of CSG_Shape for point in polygon check in Get_Subset():
-		m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, true, 0.0, Parameters("FILENAME")->asString(), NULL, &PointCloudList);
+		m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, true, 0.0, SG_T(""), Parameters("FILENAME")->asString(), NULL, &PointCloudList);
 
 		bool bResult = m_Get_Subset_SPCVF.Get_Subset();
 

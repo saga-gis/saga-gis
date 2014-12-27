@@ -101,6 +101,7 @@ CSG_String Get_Info(int i)
 #include "pc_get_subset_spcvf.h"
 #include "pc_tileshape_from_spcvf.h"
 #include "pc_get_grid_spcvf.h"
+#include "pc_remove_overlap_from_spcvf.h"
 
 
 //---------------------------------------------------------
@@ -116,6 +117,7 @@ CSG_Module *		Create_Module(int i)
 	case 3:		return( new CPointCloud_Get_Subset_SPCVF_Interactive );
 	case 4:		return( new CPointCloud_Get_Grid_SPCVF );
 	case 5:		return( new CPointCloud_Get_Grid_SPCVF_Interactive );
+	case 6:		return( new CPointCloud_Remove_Overlap_From_SPCVF );
 	}
 
 	return( NULL );

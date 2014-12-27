@@ -23,10 +23,12 @@ pc_tileshape_from_spcvf.cpp\
 pc_create_spcvf.cpp\
 pc_get_grid_spcvf.cpp\
 pc_get_subset_spcvf.cpp\
+pc_remove_overlap_from_spcvf.cpp\
 MLB_Interface.h\
 pc_tileshape_from_spcvf.h\
 pc_create_spcvf.h\
 pc_get_grid_spcvf.h\
-pc_get_subset_spcvf.h
+pc_get_subset_spcvf.h\
+pc_remove_overlap_from_spcvf.h
 
 libio_virtual_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)

@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 pc_get_subset_spcvf.h                 //
+//             pc_remove_overlap_from_spcvf.h            //
 //                                                       //
 //                 Copyright (C) 2014 by                 //
 //                    Volker Wichmann                    //
@@ -62,8 +62,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__pc_get_subset_spcvf_H
-#define HEADER_INCLUDED__pc_get_subset_spcvf_H
+#ifndef HEADER_INCLUDED__pc_remove_overlap_from_spcvf_H
+#define HEADER_INCLUDED__pc_remove_overlap_from_spcvf_H
 
 
 ///////////////////////////////////////////////////////////
@@ -83,41 +83,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPointCloud_Get_Subset_SPCVF_Base
+class CPointCloud_Remove_Overlap_From_SPCVF : public CSG_Module
 {
 public:
-	CPointCloud_Get_Subset_SPCVF_Base(void);
-	virtual ~CPointCloud_Get_Subset_SPCVF_Base(void);
-
-	void					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap, CSG_String sFileNameTileInfo, CSG_String sFilename, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_PointCloud_List *pPointCloudList);
-	void					Finalise	(void);
-	bool					Get_Subset	(void);
-	void					Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets, CSG_MetaData *pSPCVF_Tiles, bool bAbsolutePaths);
-
-protected:
-
-
-private:
-
-	int						m_iOutputs;
-	CSG_Rect				m_AOI;
-	CSG_Shapes				*m_pShapes;
-	int						m_iFieldName;
-	bool					m_bMultiple, m_bAddOverlap;
-	double					m_dOverlap;
-	CSG_String				m_sFileNameTileInfo;
-	CSG_String				m_sFileName;
-	CSG_Parameter_File_Name	*m_pFilePath;
-	CSG_Parameter_PointCloud_List	*m_pPointCloudList;
-
-};
-
-
-//---------------------------------------------------------
-class CPointCloud_Get_Subset_SPCVF : public CSG_Module
-{
-public:
-	CPointCloud_Get_Subset_SPCVF(void);
+	CPointCloud_Remove_Overlap_From_SPCVF(void);
 
 	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
 
@@ -126,36 +95,8 @@ protected:
 
 	virtual bool				On_Execute			(void);
 
-	virtual int					On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
 
 private:
-
-	CPointCloud_Get_Subset_SPCVF_Base		m_Get_Subset_SPCVF;
-
-};
-
-
-//---------------------------------------------------------
-class CPointCloud_Get_Subset_SPCVF_Interactive : public CSG_Module_Interactive
-{
-public:
-	CPointCloud_Get_Subset_SPCVF_Interactive(void);
-
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
-
-
-protected:
-
-	virtual bool				On_Execute			(void);
-	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
-
-
-private:
-
-	CSG_Point					m_ptDown;
-
-	CPointCloud_Get_Subset_SPCVF_Base		m_Get_Subset_SPCVF;
 
 };
 
@@ -167,4 +108,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__pc_get_subset_spcvf_H
+#endif // #ifndef HEADER_INCLUDED__pc_remove_overlap_from_spcvf_H
