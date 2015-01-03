@@ -922,11 +922,15 @@ bool CSG_PointCloud::On_Update(void)
 
 		_Stats_Update(0);
 		_Stats_Update(1);
+		_Stats_Update(2);
 
 		m_Extent.Assign(
 			m_Field_Stats[0]->Get_Minimum(), m_Field_Stats[1]->Get_Minimum(),
 			m_Field_Stats[0]->Get_Maximum(), m_Field_Stats[1]->Get_Maximum()
 		);
+
+		m_ZMin = m_Field_Stats[2]->Get_Minimum();
+		m_ZMax = m_Field_Stats[2]->Get_Maximum();
 	}
 
 	return( true );
