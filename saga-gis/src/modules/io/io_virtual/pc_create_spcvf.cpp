@@ -145,6 +145,10 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	double						dBBoxXMax = std::numeric_limits<int>::min();
 	double						dBBoxYMax = std::numeric_limits<int>::min();
 	int							iSkipped = 0, iEmpty = 0;
+	int							iDatasetCount = 0;
+	double						dPointCount = 0.0;
+	double						dZMin = std::numeric_limits<double>::max();
+	double						dZMax = std::numeric_limits<double>::min();
 
 	//-----------------------------------------------------
 	sFileName		= Parameters("FILENAME")->asString();
@@ -159,7 +163,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 
 	//-----------------------------------------------------
 	SPCVF.Set_Name(SG_T("SPCVFDataset"));
-	SPCVF.Add_Property(SG_T("Version"), SG_T("1.0"));
+	SPCVF.Add_Property(SG_T("Version"), SG_T("1.1"));
 	
 	switch( iMethodPaths )
 	{
@@ -171,8 +175,17 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_MetaData	*pSPCVFBBox		= SPCVF.Add_Child(SG_T("BBox"));
 
+	CSG_MetaData	*pSPCVFNoData	= SPCVF.Add_Child(SG_T("NoData"));
+
+	CSG_MetaData	*pSRS			= SPCVF.Add_Child(SG_T("SRS"));
+
+	CSG_MetaData	*pSPCVFAttr		= SPCVF.Add_Child(SG_T("Attributes"));
+
+	CSG_MetaData	*pSPCVFMeta		= SPCVF.Add_Child(SG_T("Metadata"));
+
 	//-----------------------------------------------------
 	CSG_MetaData	*pSPCVFDatasets;
+	
 
 	//-----------------------------------------------------
 	for(int i=0; i<sFiles.Get_Count() && Set_Progress(i, sFiles.Get_Count()); i++)
@@ -185,16 +198,30 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 			projSPCVF	= pPC->Get_Projection();
 			dNoData		= pPC->Get_NoData_Value();
 
+			pSPCVFNoData->Add_Property(SG_T("Value"), dNoData);
+
+			pSPCVFAttr->Add_Property(SG_T("Count"), pPC->Get_Field_Count());
+
 			for(int iField=0; iField<pPC->Get_Field_Count(); iField++)
 			{
 				vFieldTypes.push_back(pPC->Get_Field_Type(iField));
 				vFieldNames.push_back(pPC->Get_Field_Name(iField));
+
+				CSG_MetaData	*pSPCVFField = pSPCVFAttr->Add_Child(CSG_String::Format(SG_T("Field_%d"), iField + 1));
+
+				pSPCVFField->Add_Property(SG_T("Name"), pPC->Get_Field_Name(iField));
+				pSPCVFField->Add_Property(SG_T("Type"), gSG_Data_Type_Identifier[pPC->Get_Field_Type(iField)]);
+
 			}
 
 			if( projSPCVF.is_Okay() )
 			{
-				CSG_MetaData	*pSRS	= SPCVF.Add_Child(SG_T("SRS"));
+				pSRS->Add_Property(SG_T("Projection"), projSPCVF.Get_Name());
 				pSRS->Add_Property(SG_T("WKT"), projSPCVF.Get_WKT());
+			}
+			else
+			{
+				pSRS->Add_Property(SG_T("Projection"), SG_T("Undefined Coordinate System"));
 			}
 
 			pSPCVFDatasets	= SPCVF.Add_Child(SG_T("Datasets"));
@@ -269,6 +296,9 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 
 		pDataset->Add_Property(SG_T("Points"), pPC->Get_Point_Count());
 
+		pDataset->Add_Property(SG_T("ZMin"), pPC->Get_ZMin());
+		pDataset->Add_Property(SG_T("ZMax"), pPC->Get_ZMax());
+
 		//-----------------------------------------------------
 		CSG_MetaData	*pBBox		= pDataset->Add_Child(SG_T("BBox"));
 
@@ -286,6 +316,15 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 		if( dBBoxYMax < pPC->Get_Extent().Get_YMax() )
 			dBBoxYMax = pPC->Get_Extent().Get_YMax();
 		
+		iDatasetCount	+= 1;
+		dPointCount		+= pPC->Get_Point_Count();
+
+		if( dZMin > pPC->Get_ZMin() )
+			dZMin = pPC->Get_ZMin();
+		if( dZMax < pPC->Get_ZMax() )
+			dZMax = pPC->Get_ZMax();
+
+
 		delete( pPC );
 	}
 
@@ -294,6 +333,11 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	pSPCVFBBox->Add_Property(SG_T("YMin"), dBBoxYMin);
 	pSPCVFBBox->Add_Property(SG_T("XMax"), dBBoxXMax);
 	pSPCVFBBox->Add_Property(SG_T("YMax"), dBBoxYMax);
+
+	pSPCVFMeta->Add_Property(SG_T("Datasets"), iDatasetCount);
+	pSPCVFMeta->Add_Property(SG_T("Points"), CSG_String::Format(SG_T("%.0f"), dPointCount));
+	pSPCVFMeta->Add_Property(SG_T("ZMin"), dZMin);
+	pSPCVFMeta->Add_Property(SG_T("ZMax"), dZMax);
 
 	//-----------------------------------------------------
 	if( !SPCVF.Save(sFileName) )
@@ -314,7 +358,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 		SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: %d dataset(s) skipped because they are empty!"), iEmpty), true);
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("SPCVF successfully created from %d dataset(s)."), sFiles.Get_Count() - iSkipped - iEmpty), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("SPCVF successfully created from %d dataset(s)."), iDatasetCount), true);
 
 	//-----------------------------------------------------
 	return( true );
