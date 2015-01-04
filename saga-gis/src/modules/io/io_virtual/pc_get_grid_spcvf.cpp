@@ -122,7 +122,7 @@ void CPointCloud_Get_Grid_SPCVF_Base::Finalise(void)
 //---------------------------------------------------------
 bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 {
-	CSG_String		sPathSPCVF, sMethodPaths;
+	CSG_String		sVersion, sPathSPCVF, sMethodPaths;
 	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax;
 	CSG_Rect		BBoxSPCVF;
 	CSG_MetaData	SPCVF;
@@ -136,6 +136,8 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 	}
 
 	//-----------------------------------------------------
+	SPCVF.Get_Property(SG_T("Version"), sVersion);
+
 	SPCVF.Get_Property(SG_T("Paths"), sMethodPaths);
 
 	if( !sMethodPaths.CmpNoCase(SG_T("absolute")) )
@@ -154,10 +156,23 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 	}
 
 	//-----------------------------------------------------
-	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMin"), dBBoxXMin);
-	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMin"), dBBoxYMin);
-	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMax"), dBBoxXMax);
-	SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMax"), dBBoxYMax);
+	if( !sVersion.CmpNoCase(SG_T("1.0")) )
+	{
+		SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMin"), dBBoxXMin);
+		SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMin"), dBBoxYMin);
+		SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMax"), dBBoxXMax);
+		SPCVF.Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMax"), dBBoxYMax);
+	}
+	else // 1.1
+	{
+		CSG_MetaData	*pHeader = SPCVF.Get_Child(SG_T("Header"));
+
+		pHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMin"), dBBoxXMin);
+		pHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMin"), dBBoxYMin);
+		pHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMax"), dBBoxXMax);
+		pHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMax"), dBBoxYMax);
+	}
+
 	BBoxSPCVF.Assign(dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax);
 
 

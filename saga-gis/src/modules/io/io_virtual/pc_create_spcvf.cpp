@@ -173,18 +173,17 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pSPCVFBBox		= SPCVF.Add_Child(SG_T("BBox"));
+	CSG_MetaData	*pSPCVFHeader	= SPCVF.Add_Child(			SG_T("Header"));
 
-	CSG_MetaData	*pSPCVFNoData	= SPCVF.Add_Child(SG_T("NoData"));
+	CSG_MetaData	*pSPCVFFiles	= pSPCVFHeader->Add_Child(	SG_T("Datasets"));
+	CSG_MetaData	*pSPCVFPoints	= pSPCVFHeader->Add_Child(	SG_T("Points"));
+	CSG_MetaData	*pSRS			= pSPCVFHeader->Add_Child(	SG_T("SRS"));
+	CSG_MetaData	*pSPCVFBBox		= pSPCVFHeader->Add_Child(	SG_T("BBox"));
+	CSG_MetaData	*pSPCVFZStats	= pSPCVFHeader->Add_Child(	SG_T("ZStats"));
+	CSG_MetaData	*pSPCVFNoData	= pSPCVFHeader->Add_Child(	SG_T("NoData"));
+	CSG_MetaData	*pSPCVFAttr		= pSPCVFHeader->Add_Child(	SG_T("Attributes"));
 
-	CSG_MetaData	*pSRS			= SPCVF.Add_Child(SG_T("SRS"));
-
-	CSG_MetaData	*pSPCVFAttr		= SPCVF.Add_Child(SG_T("Attributes"));
-
-	CSG_MetaData	*pSPCVFMeta		= SPCVF.Add_Child(SG_T("Metadata"));
-
-	//-----------------------------------------------------
-	CSG_MetaData	*pSPCVFDatasets;
+	CSG_MetaData	*pSPCVFDatasets	= NULL;
 	
 
 	//-----------------------------------------------------
@@ -334,10 +333,10 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	pSPCVFBBox->Add_Property(SG_T("XMax"), dBBoxXMax);
 	pSPCVFBBox->Add_Property(SG_T("YMax"), dBBoxYMax);
 
-	pSPCVFMeta->Add_Property(SG_T("Datasets"), iDatasetCount);
-	pSPCVFMeta->Add_Property(SG_T("Points"), CSG_String::Format(SG_T("%.0f"), dPointCount));
-	pSPCVFMeta->Add_Property(SG_T("ZMin"), dZMin);
-	pSPCVFMeta->Add_Property(SG_T("ZMax"), dZMax);
+	pSPCVFFiles->Add_Property(SG_T("Count"), iDatasetCount);
+	pSPCVFPoints->Add_Property(SG_T("Count"), CSG_String::Format(SG_T("%.0f"), dPointCount));
+	pSPCVFZStats->Add_Property(SG_T("ZMin"), dZMin);
+	pSPCVFZStats->Add_Property(SG_T("ZMax"), dZMax);
 
 	//-----------------------------------------------------
 	if( !SPCVF.Save(sFileName) )
