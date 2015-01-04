@@ -89,7 +89,9 @@ public:
 	CPointCloud_Get_Grid_SPCVF_Base(void);
 	virtual ~CPointCloud_Get_Grid_SPCVF_Base(void);
 
-	void					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap, CSG_String sFilename, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_Grid_List *pGridList, double dCellsize, bool bFitToCells, int iMethod);
+	void					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
+										 CSG_String sFilename, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_Grid_List *pGridList, double dCellsize,
+										 bool bFitToCells, int iMethod, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange);
 	void					Finalise	(void);
 	bool					Get_Subset	(void);
 	void					Write_Subset(CSG_Grid *pGrid, int iAOI, int iDatasets, double dPoints);
@@ -111,6 +113,9 @@ private:
 	double					m_dCellsize;
 	bool					m_bFitToCells;
 	int						m_iMethod;
+	bool					m_bConstrain;
+	int						m_iField;
+	double					m_dMinAttrRange, m_dMaxAttrRange;
 
 };
 
@@ -151,6 +156,8 @@ protected:
 
 	virtual bool				On_Execute			(void);
 	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+	virtual int					On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
