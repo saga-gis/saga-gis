@@ -293,13 +293,13 @@ bool CGrid_to_KML::On_Execute(void)
 		{
 			bDelete	= true;
 
-			pGrid	= pModule->Get_Parameters("GET_USER")->Get_Parameter("GRID")->asGrid();
+			pGrid	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 
 			if( pShade
 			&&  pModule->Get_Parameters()->Set_Parameter("SOURCE", pShade)
 			&&  pModule->Execute() )
 			{
-				pShade	= pModule->Get_Parameters("GET_USER")->Get_Parameter("GRID")->asGrid();
+				pShade	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 			}
 			else
 			{
