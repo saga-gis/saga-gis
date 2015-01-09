@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: MBASpline_for_Categories.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLP_Interface.cpp                   //
+//                MBASpline_for_Categories.h             //
 //                                                       //
-//                 Copyright (C) 2006 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,82 +54,54 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__MBASpline_for_Categories_H
+#define HEADER_INCLUDED__MBASpline_for_Categories_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CMBASpline_for_Categories : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Spline Interpolation") );
+public:
+	CMBASpline_for_Categories(void);
 
-	case MLB_INFO_Category:
-		return( _TL("Grid") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2006-10") );
-
-	case MLB_INFO_Description:
-		return( _TW(
-			"Several spline interpolation/approximation methods for the gridding of scattered data. "
-			"In most cases the 'Multilevel B-spline Interpolation' might be the optimal choice. "
-		));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Gridding") );
-	}
-}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Spline Interpolation") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Gridding_Spline_TPS_Global.h"
-#include "Gridding_Spline_TPS_Local.h"
-#include "Gridding_Spline_TPS_TIN.h"
-#include "Gridding_Spline_BA.h"
-#include "Gridding_Spline_MBA.h"
-#include "Gridding_Spline_MBA_Grid.h"
-#include "Gridding_Spline_CSA.h"
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-#include "MBASpline_for_Categories.h"
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CGridding_Spline_TPS_Global );
-	case 1:		return( new CGridding_Spline_TPS_Local );
-	case 2:		return( new CGridding_Spline_TPS_TIN );
-	case 3:		return( new CGridding_Spline_BA );
-	case 4:		return( new CGridding_Spline_MBA );
-	case 5:		return( new CGridding_Spline_MBA_Grid );
-	case 6:		return( new CGridding_Spline_CSA );
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	case 7:		return( new CMBASpline_for_Categories );
 
-	case 10:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -141,8 +111,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__MBASpline_for_Categories_H

@@ -44,6 +44,9 @@
     <ClCompile Include="Gridding_Spline_TPS_TIN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MBASpline_for_Categories.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Gridding_Spline_TPS_TIN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MBASpline_for_Categories.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
