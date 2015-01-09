@@ -83,10 +83,25 @@ protected:
 
 	virtual bool			On_Execute		(void);
 
+};
 
-private:
 
-	int						Get_Texture		(double Sand, double Clay);
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSoil_Texture_Table : public CSG_Module
+{
+public:
+	CSoil_Texture_Table(void);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Soil Analysis") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
 
 };
 

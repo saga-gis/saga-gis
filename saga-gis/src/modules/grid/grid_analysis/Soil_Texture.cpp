@@ -71,7 +71,7 @@ struct SClass
 {
 	int			ID, Color;
 
-	CSG_String	Name;
+	CSG_String	Key, Name;
 
 	int			nPoints;
 
@@ -82,60 +82,113 @@ struct SClass
 const struct SClass	Classes[12]	=
 {	
 	{
-		 1, SG_GET_RGB(000, 000, 255), _TL("Clay"),
-		 6,	{   0,   0,  20,  45,  45,   0	},
-			{ 100,  60,  40,  40,  55, 100	}
+		 1, SG_GET_RGB(000, 000, 255), "C"   , _TL("Clay"),
+		 6,	{   0,   0,  20,  45,  45,   0				},
+			{ 100,  60,  40,  40,  55, 100				}
 	},	{
-		 2, SG_GET_RGB(000, 200, 255), _TL("Silty Clay"),
-		 4,	{   0,   0,  20,   0	},
-			{ 100,  60,  40,  40	}
+		 2, SG_GET_RGB(000, 200, 255), "SiC" , _TL("Silty Clay"),
+		 4,	{   0,   0,  20,   0						},
+			{ 100,  60,  40,  40						}
 	},	{
-		 3, SG_GET_RGB(000, 200, 200), _TL("Silty Clay-Loam"),
-		 5,	{   0,   0,  20,  20,   0	},
-			{  40,  27,  27,  40,  40	}
+		 3, SG_GET_RGB(000, 200, 200), "SiCL", _TL("Silty Clay Loam"),
+		 5,	{   0,   0,  20,  20,   0					},
+			{  40,  27,  27,  40,  40					}
 	},	{
-		 4, SG_GET_RGB(200, 000, 255), _TL("Sandy Clay"),
-		 4,	{  45,  45,  65,  45	},
-			{  55,  35,  35,  55	}
+		 4, SG_GET_RGB(200, 000, 255), "SC"  , _TL("Sandy Clay"),
+		 4,	{  45,  45,  65,  45						},
+			{  55,  35,  35,  55						}
 	},	{
-		 5, SG_GET_RGB(200, 200, 200), _TL("Sandy Clay-Loam"),
-		 6,	{  45,  45,  52,  80,  65,  45	},
-			{  35,  27,  20,  20,  35,  35	}
+		 5, SG_GET_RGB(200, 200, 200), "SCL" , _TL("Sandy Clay Loam"),
+		 6,	{  45,  45,  52,  80,  65,  45				},
+			{  35,  27,  20,  20,  35,  35				}
 	},	{
-		 6, SG_GET_RGB(127, 127, 200), _TL("Clay-Loam"),
-		 5,	{  20,  20,  45,  45,  20	},
-			{  40,  27,  27,  40,  40	}
+		 6, SG_GET_RGB(127, 127, 200), "CL"  , _TL("Clay Loam"),
+		 5,	{  20,  20,  45,  45,  20					},
+			{  40,  27,  27,  40,  40					}
 	},	{
-		 7, SG_GET_RGB(000, 255, 000), _TL("Silt"),
-		 5,	{   0,   0,  20,   8,   0	},
-			{  12,   0,   0,  12,  12	}
+		 7, SG_GET_RGB(000, 255, 000), "Si"  , _TL("Silt"),
+		 5,	{   0,   0,  20,   8,   0					},
+			{  12,   0,   0,  12,  12					}
 	},	{
-		 8, SG_GET_RGB(127, 255, 127), _TL("Silt-Loam"),
-		 7,	{   8,  20,  50,  23,   0,   0,   8	},
-			{  12,   0,   0,  27,  27,  12,  12	}
+		 8, SG_GET_RGB(127, 255, 127), "SiL" , _TL("Silt Loam"),
+		 7,	{   8,  20,  50,  23,   0,   0,   8			},
+			{  12,   0,   0,  27,  27,  12,  12			}
 	},	{
-		 9, SG_GET_RGB(127, 127, 127), _TL("Loam"),
-		 6,	{  23,  43,  52,  52,  45,  23	},
-			{  27,   7,   7,  20,  27,  27	}
+		 9, SG_GET_RGB(127, 127, 127), "L"   , _TL("Loam"),
+		 6,	{  23,  43,  52,  52,  45,  23				},
+			{  27,   7,   7,  20,  27,  27				}
 	},	{
-		10, SG_GET_RGB(255, 000, 000), _TL("Sand"),
-		 4,	{  85, 100,  90,  85	},
-			{   0,   0,  10,   0	}
+		10, SG_GET_RGB(255, 000, 000), "S"   , _TL("Sand"),
+		 4,	{  85, 100,  90,  85						},
+			{   0,   0,  10,   0						}
 	},	{
-		11, SG_GET_RGB(255, 000, 127), _TL("Loamy Sand"),
-		 5,	{  70,  85,  90,  85,  70	},
-			{   0,   0,  10,  15,   0	}
+		11, SG_GET_RGB(255, 000, 127), "LS"  , _TL("Loamy Sand"),
+		 5,	{  70,  85,  90,  85,  70					},
+			{   0,   0,  10,  15,   0					}
 	},	{
-		12, SG_GET_RGB(200, 127, 127), _TL("Sandy Loam"),
+		12, SG_GET_RGB(200, 127, 127), "SL"  , _TL("Sandy Loam"),
 		 8,	{  43,  50,  70,  85,  80,  52,  52,  43	},
 			{   7,   0,   0,  15,  20,  20,   7,   7	}
 	}
 };
 
+//---------------------------------------------------------
+const CSG_String	Description	= _TW(
+	"Derive soil texture classes with USDA scheme from sand, silt and clay contents.\n\n"
+	"  1 - Clay\n"
+	"  2 - Silty Clay\n"
+	"  3 - Silty Clay Loam\n"
+	"  4 - Sandy Clay\n"
+	"  5 - Sandy Clay Loam\n"
+	"  6 - Clay Loam\n"
+	"  7 - Silt\n"
+	"  8 - Silt Loam\n"
+	"  9 - Loam\n"
+	" 10 - Sand\n"
+	" 11 - Loamy Sand\n"
+	" 12 - Sandy Loam\n"
+	"\nReference:\n"
+	"<a target=\"_blank\" href=\"http://soils.usda.gov/technical/aids/investigations/texture/\">USDA NRCS Soils Website</a>\n"
+);
+
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Construction/Destruction				 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int Get_Texture(double Sand, double Clay)
+{
+	//-----------------------------------------------------
+	for(int iClass=0; iClass<12; iClass++)
+	{
+		const struct SClass	*c	= Classes + iClass;
+
+		bool	bClass	= false;
+
+		for(int i=0, j=c->nPoints-1; i<c->nPoints; j=i++)
+		{
+			if( ((c->Clay[i] <= Clay && Clay < c->Clay[j]) || (c->Clay[j] <= Clay && Clay < c->Clay[i]))
+			&&	Sand < (c->Sand[j] - c->Sand[i]) * (Clay - c->Clay[i]) / (c->Clay[j] - c->Clay[i]) + c->Sand[i] )
+			{
+				bClass	= !bClass;
+			}
+		}
+
+		if( bClass )
+		{
+			return( iClass );
+		}
+	}
+
+	//-----------------------------------------------------
+	return( -1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -144,30 +197,11 @@ CSoil_Texture::CSoil_Texture(void)
 {
 	Set_Name		(_TL("Soil Texture Classification"));
 
-	Set_Author		(_TL("Gianluca Massei (c) 2007 (g_massa@libero.it)"));
+	Set_Author		("Gianluca Massei (c) 2007 (g_massa@libero.it)");
 
-	Set_Description	(_TW(
-		"Derive soil texture classes with USDA scheme from sand, silt and clay contents.\n\n"
-		"  1 - Clay\n"
-		"  2 - Silty Clay\n"
-		"  3 - Silty Clay-Loam\n"
-		"  4 - Sandy Clay\n"
-		"  5 - Sandy Clay-Loam\n"
-		"  6 - Clay-Loam\n"
-		"  7 - Silt\n"
-		"  8 - Silt-Loam\n"
-		"  9 - Loam\n"
-		" 10 - Sand\n"
-		" 11 - Loamy Sand\n"
-		" 12 - Sandy Loam\n"
-		"\nReference:\n"
-		"<a target=\"_blank\" href=\"http://soils.usda.gov/technical/aids/investigations/texture/\">USDA NRCS Soils Website</a>\n"
-	));
-
+	Set_Description	(Description);
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Grid(
 		NULL, "SAND"	, _TL("Sand"),
 		_TL("sand content given as percentage"),
@@ -202,21 +236,17 @@ CSoil_Texture::CSoil_Texture(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSoil_Texture::On_Execute(void)
 {
-	CSG_Grid	*pSand, *pSilt, *pClay, *pTexture, *pSum;
-
 	//-----------------------------------------------------
-	pSand		= Parameters("SAND")	->asGrid();
-	pSilt		= Parameters("SILT")	->asGrid();
-	pClay		= Parameters("CLAY")	->asGrid();
-	pTexture	= Parameters("TEXTURE")	->asGrid();
-	pSum		= Parameters("SUM")		->asGrid();
+	CSG_Grid	*pSand		= Parameters("SAND"   )->asGrid();
+	CSG_Grid	*pSilt		= Parameters("SILT"   )->asGrid();
+	CSG_Grid	*pClay		= Parameters("CLAY"   )->asGrid();
+	CSG_Grid	*pTexture	= Parameters("TEXTURE")->asGrid();
+	CSG_Grid	*pSum		= Parameters("SUM"    )->asGrid();
 
 	//-----------------------------------------------------
 	if( (pSand ? 1 : 0) + (pSilt ? 1 : 0) + (pClay ? 1 : 0) < 2 )
@@ -227,46 +257,46 @@ bool CSoil_Texture::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pTexture->Set_NoData_Value(0.0);
+	pTexture->Set_NoData_Value(-1.0);
 
-	CSG_Parameters	P;
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pTexture, "LUT");
 
-	if( DataObject_Get_Parameters(pTexture, P) && P("COLORS_TYPE") && P("LUT") )
+	if( pLUT && pLUT->asTable() )
 	{
-		CSG_Table	*pLUT	= P("LUT")->asTable();
+		CSG_Table	*pClasses	= pLUT->asTable();
 
 		for(int iClass=0; iClass<12; iClass++)
 		{
-			CSG_Table_Record	*pClass;
+			CSG_Table_Record	*pClass	= pClasses->Get_Record(iClass);
 
-			if( (pClass = pLUT->Get_Record(iClass)) == NULL )
+			if( pClass == NULL )
 			{
-				pClass	= pLUT->Add_Record();
+				pClass	= pClasses->Add_Record();
 			}
 
 			pClass->Set_Value(0, Classes[iClass].Color);
 			pClass->Set_Value(1, Classes[iClass].Name);
-			pClass->Set_Value(2, Classes[iClass].Name);
-			pClass->Set_Value(3, Classes[iClass].ID);
-			pClass->Set_Value(4, Classes[iClass].ID);
+			pClass->Set_Value(2, Classes[iClass].Key);
+			pClass->Set_Value(3, iClass);
+			pClass->Set_Value(4, iClass);
 		}
 
-		while( pLUT->Get_Record_Count() > 12 )
+		while( pClasses->Get_Count() > 12 )
 		{
-			pLUT->Del_Record(pLUT->Get_Record_Count() - 1);
+			pClasses->Del_Record(pClasses->Get_Count() - 1);
 		}
 
-		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
-
-		DataObject_Set_Parameters(pTexture, P);
+		DataObject_Set_Parameter(pTexture, pLUT);	// Lookup Table
+		DataObject_Set_Parameter(pTexture, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int		Texture	= 0;
+			int		iClass	= -1;
 			double	Sum		= 0.0;
 
 			if(	!(pSand && pSand->is_NoData(x, y))
@@ -285,13 +315,13 @@ bool CSoil_Texture::On_Execute(void)
 						Clay	*= 100.0 / Sum;
 					}
 
-					Texture	= Get_Texture(Sand, Clay);
+					iClass	= Get_Texture(Sand, Clay);
 				}
 			}
 
-			if( Texture )
+			if( iClass >= 0 )
 			{
-				pTexture->Set_Value(x, y, Texture);
+				pTexture->Set_Value(x, y, iClass);
 
 				if( pSum )
 				{
@@ -322,31 +352,153 @@ bool CSoil_Texture::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSoil_Texture::Get_Texture(double Sand, double Clay)
+CSoil_Texture_Table::CSoil_Texture_Table(void)
 {
-	for(int iClass=0; iClass<12; iClass++)
+	Set_Name		(_TL("Soil Texture Classification for Tables"));
+
+	Set_Author		("O.Conrad (c) 2015");
+
+	Set_Description	(Description);
+
+	//-----------------------------------------------------
+	CSG_Parameter	*pNode	= Parameters.Add_Table(
+		NULL	, "TABLE"	, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "SAND"	, _TL("Sand"),
+		_TL("sand content given as percentage"),
+		true
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "SILT"	, _TL("Silt"),
+		_TL("silt content given as percentage"),
+		true
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "CLAY"	, _TL("Clay"),
+		_TL("clay content given as percentage"),
+		true
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "TEXTURE"	, _TL("Texture"),
+		_TL("soil texture"),
+		true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSoil_Texture_Table::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Table	*pTable		= Parameters("TABLE")->asTable();
+
+	int		iSand		= Parameters("SAND"   )->asInt();
+	int		iSilt		= Parameters("SILT"   )->asInt();
+	int		iClay		= Parameters("CLAY"   )->asInt();
+	int		iTexture	= Parameters("TEXTURE")->asInt();
+
+	//-----------------------------------------------------
+	if( (iSand >= 0 ? 1 : 0) + (iSilt >= 0 ? 1 : 0) + (iClay >= 0 ? 1 : 0) < 2 )
 	{
-		const struct SClass	*c	= Classes + iClass;
+		Error_Set(_TL("at least two contents (sand, silt, clay) have to be given"));
 
-		bool	bClass	= false;
-
-		for(int i=0, j=c->nPoints-1; i<c->nPoints; j=i++)
-		{
-			if( ((c->Clay[i] <= Clay && Clay < c->Clay[j]) || (c->Clay[j] <= Clay && Clay < c->Clay[i]))
-			&&	Sand < (c->Sand[j] - c->Sand[i]) * (Clay - c->Clay[i]) / (c->Clay[j] - c->Clay[i]) + c->Sand[i] )
-			{
-				bClass	= !bClass;
-			}
-		}
-
-		if( bClass )
-		{
-			return( c->ID );
-		}
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	return( 0 );
+	if( iTexture < 0 )
+	{
+		iTexture	= pTable->Get_Field_Count();
+
+		pTable->Add_Field("TEXTURE", SG_DATATYPE_String);
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+	{
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+
+		int		iClass	= -1;
+		double	Sum		= 0.0;
+
+		if(	!(iSand >= 0 && pRecord->is_NoData(iSand))
+		&&	!(iSilt >= 0 && pRecord->is_NoData(iSilt))
+		&&	!(iClay >= 0 && pRecord->is_NoData(iClay)) )
+		{
+			double	Sand	= iSand >= 0 ? pRecord->asDouble(iSand) : 100.0 - (pRecord->asDouble(iSilt) + pRecord->asDouble(iClay));
+			double	Silt	= iSilt >= 0 ? pRecord->asDouble(iSilt) : 100.0 - (pRecord->asDouble(iSand) + pRecord->asDouble(iClay));
+			double	Clay	= iClay >= 0 ? pRecord->asDouble(iClay) : 100.0 - (pRecord->asDouble(iSand) + pRecord->asDouble(iSilt));
+
+			if( (Sum = Sand + Silt + Clay) > 0.0 )
+			{
+				if( Sum != 100.0 )
+				{
+					Sand	*= 100.0 / Sum;
+					Clay	*= 100.0 / Sum;
+				}
+
+				iClass	= Get_Texture(Sand, Clay);
+			}
+		}
+
+		if( iClass >= 0 )
+		{
+			pRecord->Set_Value (iTexture, Classes[iClass].Key);
+		}
+		else
+		{
+			pRecord->Set_NoData(iTexture);
+		}
+	}
+
+	DataObject_Update(pTable);
+
+	//-----------------------------------------------------
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pTable, "LUT");
+
+	if( pLUT && pLUT->asTable() )
+	{
+		CSG_Table	*pClasses	= pLUT->asTable();
+
+		for(int iClass=0; iClass<12; iClass++)
+		{
+			CSG_Table_Record	*pClass	= pClasses->Get_Record(iClass);
+
+			if( pClass == NULL )
+			{
+				pClass	= pClasses->Add_Record();
+			}
+
+			pClass->Set_Value(0, Classes[iClass].Color);
+			pClass->Set_Value(1, Classes[iClass].Name);
+			pClass->Set_Value(2, Classes[iClass].Name);
+			pClass->Set_Value(3, Classes[iClass].Key);
+			pClass->Set_Value(4, Classes[iClass].Key);
+		}
+
+		while( pClasses->Get_Count() > 12 )
+		{
+			pClasses->Del_Record(pClasses->Get_Count() - 1);
+		}
+
+		DataObject_Set_Parameter(pTable, pLUT);	// Lookup Table
+		DataObject_Set_Parameter(pTable, "LUT_ATTRIB" , iTexture);	// Lookup Table Attribute
+		DataObject_Set_Parameter(pTable, "COLORS_TYPE", 1       );	// Color Classification Type: Lookup Table
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

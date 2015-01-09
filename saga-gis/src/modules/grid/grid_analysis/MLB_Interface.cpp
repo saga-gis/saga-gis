@@ -139,6 +139,7 @@ CSG_Module *		Create_Module(int i)
 	case 13:	return( new CCrossClassification );
 
 	case 14:	return( new CSoil_Texture );
+	case 20:	return( new CSoil_Texture_Table );
 
 	case 15:	return( new CFragmentation_Standard );
 	case 16:	return( new CFragmentation_Resampling );
