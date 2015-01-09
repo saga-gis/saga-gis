@@ -15,6 +15,7 @@ pkglib_LTLIBRARIES = libtable_tools.la
 libtable_tools_la_SOURCES =\
 Join_Tables.cpp\
 MLB_Interface.cpp\
+table_categories_to_indicators.cpp\
 table_change_color_format.cpp\
 table_change_date_format.cpp\
 table_change_field_type.cpp\
@@ -26,6 +27,7 @@ table_selection.cpp\
 table_text_replacer.cpp\
 Join_Tables.h\
 MLB_Interface.h\
+table_categories_to_indicators.h\
 table_change_color_format.h\
 table_change_date_format.h\
 table_change_field_type.h\
