@@ -115,11 +115,20 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 {
 	Del_Parts();
 
+	TSG_Vertex_Type	Vertex_Type	= Get_Vertex_Type();
+
 	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			CSG_Shape::Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
+
+			switch( Vertex_Type )
+			{
+			case SG_VERTEX_TYPE_XYZM:	CSG_Shape::Set_M(pShape->Get_M(iPoint, iPart), iPoint, iPart);
+			case SG_VERTEX_TYPE_XYZ :	CSG_Shape::Set_Z(pShape->Get_Z(iPoint, iPart), iPoint, iPart);
+			default:	break;
+			}
 		}
 	}
  
