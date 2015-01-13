@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: _kriging_ordinary_global.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: kriging_simple.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              _Kriging_Ordinary_Global.cpp             //
+//                 kriging_simple.cpp                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "_kriging_ordinary_global.h"
+#include "kriging_simple.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -71,146 +69,209 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-C_Kriging_Ordinary_Global::C_Kriging_Ordinary_Global(void)
-	: C_Kriging_Base()
+CKriging_Simple::CKriging_Simple(void)
+	: CKriging_Simple_Global()
 {
-	Set_Name		(_TL("[deprecated] Ordinary Kriging (Global)"));
-
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
-
-	Set_Description	(_TW(
-		"Ordinary Kriging for grid interpolation from irregular sample points. "
-		"This implementation does not use a maximum search radius. The weighting "
-		"matrix is generated once globally for all points."
-	));
-}
-
-//---------------------------------------------------------
-C_Kriging_Ordinary_Global::~C_Kriging_Ordinary_Global(void)
-{}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool C_Kriging_Ordinary_Global::On_Initialise(void)
-{
-	return( Get_Weights() );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool C_Kriging_Ordinary_Global::Get_Value(double x, double y, double &z, double &v)
-{
-	int		i, j, n;
-	double	Lambda;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	if(	(n = m_Points.Get_Count()) > 0 )
+	Set_Name		(_TL("Simple Kriging"));
+
+	Set_Author		("O.Conrad (c) 2015");
+
+	Set_Description	(_TW(
+		"Simple Kriging for grid interpolation from irregular sample points."
+	));
+
+	//-----------------------------------------------------
+	CSG_Parameter	*pSearch	= Parameters.Add_Node(
+		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
+		_TL("")
+	);
+
+	pNode	= Parameters.Add_Choice(
+		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("local"),
+			_TL("global")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
+		_TL("local maximum search distance given in map units"),
+		PARAMETER_TYPE_Double	, 1000.0, 0, true
+	);
+
+	pNode	= Parameters.Add_Choice(
+		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("maximum number of nearest points"),
+			_TL("all points within search distance")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
+		_TL("minimum number of points to use"),
+		PARAMETER_TYPE_Int, 4, 1, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
+		_TL("maximum number of nearest points"),
+		PARAMETER_TYPE_Int, 20, 1, true
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("all directions"),
+			_TL("quadrants")
+		)
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Simple::On_Initialize(void)
+{
+	m_nPoints_Min	= Parameters("SEARCH_POINTS_MIN")->asInt   ();
+	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt   () == 0
+					? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
+	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt   () == 0
+					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
+	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
+
+	//-----------------------------------------------------
+	if( m_nPoints_Max <= 0 && m_Radius <= 0 )	// global
 	{
-		for(i=0; i<n; i++)
+		return( CKriging_Simple_Global::On_Initialize() );
+	}
+
+	//-----------------------------------------------------
+	m_Search.Create(m_pPoints->Get_Extent());
+
+	for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
+	{
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(iPoint);
+
+		if( !pPoint->is_NoData(m_zField) )
 		{
-			if( !m_bBlock )
+			m_Search.Add_Point(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
+		}
+	}
+
+	if( !m_Search.is_Okay() )
+	{
+		SG_UI_Msg_Add(_TL("could not initialize point search engine"), true);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CKriging_Simple::On_Finalize(void)
+{
+	m_Search.Destroy();
+
+	return( CKriging_Simple_Global::On_Finalize() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CKriging_Simple::Get_Weights(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z &Points)
+{
+	int		n	= m_Search.Get_Nearest_Points(Points, p, m_nPoints_Max, m_Radius, m_Direction);
+
+	if( n >= m_nPoints_Min )
+	{
+		W.Create(n, n);
+
+		for(int i=0; i<n; i++)
+		{
+			W[i][i]	= 0.0;				// diagonal...
+
+			for(int j=i+1; j<n; j++)
 			{
-				m_G[i]	=	Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
-			}
-			else
-			{
-				m_G[i]	= (	Get_Weight((x          ) - m_Points[i].x, (y          ) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y) ) / 5.0;
+				W[i][j]	= W[j][i]	= Get_Weight(Points[i], Points[j]);
 			}
 		}
 
-		m_G[n]	= 1.0;
+		if( W.Set_Inverse(true, n) )
+		{
+			return( n );
+		}
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Simple::Get_Value(const TSG_Point &p, double &z, double &v)
+{
+	//-----------------------------------------------------
+	if( m_nPoints_Max <= 0 && m_Radius <= 0 )	// global
+	{
+		return( CKriging_Simple_Global::Get_Value(p, z, v) );
+	}
+
+	//-----------------------------------------------------
+	int				i, j, n;
+	CSG_Points_Z	Points;
+	CSG_Matrix		W;
+
+	//-----------------------------------------------------
+	if(	(n = Get_Weights(p, W, Points)) > 0 )
+	{
+		CSG_Vector	G(n);
+
+		for(i=0; i<n; i++)
+		{
+			G[i]	=	Get_Weight(p.x, p.y, Points[i].x, Points[i].y);
+		}
 
 		//-------------------------------------------------
 		for(i=0, z=0.0, v=0.0; i<n; i++)
 		{
-			for(j=0, Lambda=0.0; j<=n; j++)
+			double	Lambda	= 0.0;
+
+			for(j=0; j<n; j++)
 			{
-				Lambda	+= m_W[i][j] * m_G[j];
+				Lambda	+= W[i][j] * G[j];
 			}
 
-			z	+= Lambda * m_Points[i].z;
-			v	+= Lambda * m_G[i];
+			z	+= Lambda * Points[i].z;
+			v	+= Lambda * G[i];
 		}
 
 		//-------------------------------------------------
 		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool C_Kriging_Ordinary_Global::Get_Weights(void)
-{
-	int		i, j, n;
-
-	//-----------------------------------------------------
-	for(int iShape=0; iShape<m_pShapes->Get_Count(); iShape++)
-	{
-		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
-
-		if( !pShape->is_NoData(m_zField) )
-		{
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					m_Points.Add(
-						pShape->Get_Point(iPoint, iPart).x,
-						pShape->Get_Point(iPoint, iPart).y,
-						pShape->asDouble(m_zField)
-					);
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( (n = m_Points.Get_Count()) > 4 )
-	{
-		m_G	.Create(n + 1);
-		m_W	.Create(n + 1, n + 1);
-
-		for(i=0; i<n; i++)
-		{
-			m_W[i][i]	= 0.0;				// diagonal...
-			m_W[i][n]	= m_W[n][i]	= 1.0;	// edge...
-
-			for(j=i+1; j<n; j++)
-			{
-				m_W[i][j]	= m_W[j][i]	= Get_Weight(
-					m_Points[i].x - m_Points[j].x,
-					m_Points[i].y - m_Points[j].y
-				);
-			}
-		}
-
-		m_W[n][n]	= 0.0;
-
-		return( m_W.Set_Inverse(false) );
 	}
 
 	return( false );

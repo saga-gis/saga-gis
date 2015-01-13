@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: _kriging_universal.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: kriging_simple_global.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                 Geostatistics_Kriging                 //
+//            geostatistics_kriging_variogram            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  _Kriging_Universal.h                 //
+//                kriging_simple_global.h                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED___Kriging_UNIVERSAL_H
-#define HEADER_INCLUDED___Kriging_UNIVERSAL_H
+#ifndef HEADER_INCLUDED__kriging_simple_global_H
+#define HEADER_INCLUDED__kriging_simple_global_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "_kriging_universal_global.h"
+#include "kriging_base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,28 +80,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class C_Kriging_Universal : public C_Kriging_Universal_Global
+class CKriging_Simple_Global : public CKriging_Base
 {
 public:
-	C_Kriging_Universal(void);
-	virtual ~C_Kriging_Universal(void);
+	CKriging_Simple_Global(void);
 
 
 protected:
 
-	virtual bool			On_Initialise	(void);
+	virtual bool			On_Initialize		(void);
+	virtual bool			On_Finalize			(void);
 
-	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
+	virtual bool			Get_Value			(const TSG_Point &p, double &z, double &v);
 
 
 private:
 
-	int						m_nPoints_Min, m_nPoints_Max;
+	CSG_Points_Z			m_Points;
 
-	double					m_Radius;
+	CSG_Matrix				m_W;
 
-
-	int						Get_Weights		(double x, double y);
 
 };
 
@@ -115,4 +111,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED___Kriging_UNIVERSAL_H
+#endif // #ifndef HEADER_INCLUDED__kriging_simple_global_H

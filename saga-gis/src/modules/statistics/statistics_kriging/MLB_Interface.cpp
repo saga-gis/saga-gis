@@ -97,17 +97,11 @@ CSG_String Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
+#include "kriging_simple.h"
 #include "kriging_ordinary.h"
-#include "kriging_ordinary_global.h"
 #include "kriging_universal.h"
-#include "kriging_universal_global.h"
 
 #include "semivariogram.h"
-
-#include "_kriging_ordinary.h"
-#include "_kriging_ordinary_global.h"
-#include "_kriging_universal.h"
-#include "_kriging_universal_global.h"
 
 
 //---------------------------------------------------------
@@ -117,20 +111,19 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CKriging_Ordinary );
-	case 1:		return( new CKriging_Ordinary_Global );
-	case 2:		return( new CKriging_Universal );
-	case 3:		return( new CKriging_Universal_Global );
+	case  9:	return( new CKriging_Simple );
+	case  0:	return( new CKriging_Ordinary );
+	case  2:	return( new CKriging_Universal );
 
-	case 4:		return( new CSemiVariogram );
+//	case 10:	return( new CKriging_Simple_Global );
+//	case  1:	return( new CKriging_Ordinary_Global );
+//	case  3:	return( new CKriging_Universal_Global );
 
-	case 5:		return( new C_Kriging_Ordinary );
-	case 6:		return( new C_Kriging_Ordinary_Global );
-	case 7:		return( new C_Kriging_Universal );
-	case 8:		return( new C_Kriging_Universal_Global );
+	case  4:	return( new CSemiVariogram );
+
+	case 15:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
-
-	return( NULL );
 }
 
 

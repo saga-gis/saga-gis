@@ -17,21 +17,6 @@
     <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="_kriging_base.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="_kriging_ordinary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="_kriging_ordinary_global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="_kriging_universal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="_kriging_universal_global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="kriging_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,6 +36,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="variogram_dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kriging_simple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kriging_simple_global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -109,21 +100,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="_kriging_base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="_kriging_ordinary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="_kriging_ordinary_global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="_kriging_universal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="_kriging_universal_global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="kriging_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -143,6 +119,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="variogram_dialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kriging_simple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kriging_simple_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

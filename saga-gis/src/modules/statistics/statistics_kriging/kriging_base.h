@@ -86,6 +86,7 @@ class CKriging_Base : public CSG_Module
 {
 public:
 	CKriging_Base(void);
+	~CKriging_Base(void);
 
 
 protected:
@@ -149,6 +150,8 @@ private:
 	CSG_Trend					m_Model;
 
 	CSG_Grid					*m_pGrid, *m_pVariance;
+
+	class CVariogram_Dialog		*m_pVariogram;
 
 
 	bool						_Initialise_Grids		(void);

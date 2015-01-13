@@ -146,6 +146,12 @@ CKriging_Base::CKriging_Base(void)
 			_TL(""),
 			SG_T("a + b * x")
 		);
+
+		m_pVariogram	= NULL;
+	}
+	else
+	{
+		m_pVariogram	= new CVariogram_Dialog;
 	}
 
 	///////////////////////////////////////////////////////
@@ -154,6 +160,15 @@ CKriging_Base::CKriging_Base(void)
 
 	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
 	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"), true);
+}
+
+//---------------------------------------------------------
+CKriging_Base::~CKriging_Base(void)
+{
+	if( m_pVariogram )
+	{
+		delete(m_pVariogram);
+	}
 }
 
 
@@ -179,7 +194,8 @@ int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_RANGE") )
 	{
-		pParameters->Set_Enabled("SEARCH_RADIUS"    , pParameter->asInt() == 0);	// local
+		pParameters->Set_Enabled("SEARCH_RADIUS"    , pParameter->asInt() == 0);	// when global, no radius
+		pParameters->Set_Enabled("SEARCH_POINTS_MIN", pParameter->asInt() == 0);	// when global, no minimum number of points
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_POINTS_ALL") )
@@ -226,11 +242,9 @@ bool CKriging_Base::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	Variogram;
 
-	if( SG_UI_Get_Window_Main() )
+	if( m_pVariogram )
 	{
-		static CVariogram_Dialog	dlg;
-
-		if( dlg.Execute(m_pPoints, m_zField, m_bLog, &Variogram, &m_Model) )
+		if( m_pVariogram->Execute(m_pPoints, m_zField, m_bLog, &Variogram, &m_Model) )
 		{
 			bResult	= true;
 		}

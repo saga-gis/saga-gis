@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: _kriging_base.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: kriging_simple_global.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    _Kriging_Base.h                    //
+//               kriging_simple_global.cpp               //
 //                                                       //
-//                 Copyright (C) 2006 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,11 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED___Kriging_Base_H
-#define HEADER_INCLUDED___Kriging_Base_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "kriging_simple_global.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -75,61 +69,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class C_Kriging_Base : public CSG_Module
+CKriging_Simple_Global::CKriging_Simple_Global(void)
+	: CKriging_Base()
 {
-public:
-	C_Kriging_Base(void);
-	virtual ~C_Kriging_Base(void);
+	Set_Name		(_TL("Simple Kriging (Global)"));
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Without Variogram Fit") );	}
+	Set_Author		("O.Conrad (c) 2015");
 
-
-protected:
-
-	virtual bool			On_Execute		(void);
-
-
-	bool					m_bBlock;
-
-	int						m_zField;
-
-	double					m_Block;
-
-	CSG_Points_Z			m_Points;
-
-	CSG_Vector				m_G;
-
-	CSG_Matrix				m_W;
-
-	CSG_PRQuadTree			m_Search;
-
-	CSG_Grid				*m_pGrid, *m_pVariance;
-
-	CSG_Shapes				*m_pShapes;
-
-
-	virtual bool			On_Initialise	(void)	{	return( true );	}
-
-	virtual bool			Get_Value		(double x, double y, double &z, double &Variance)	= 0;
-
-	double					Get_Weight		(double Distance);
-	double					Get_Weight		(double dx, double dy);
-
-
-private:
-
-	bool					m_bLog;
-
-	int						m_Model;
-
-	double					m_Nugget, m_Sill, m_Range, m_BLIN, m_BEXP, m_APOW, m_BPOW;
-
-
-	bool					_Get_Points		(void);
-	bool					_Get_Grid		(void);
-	CSG_Grid *				_Get_Grid		(TSG_Rect Extent);
-
-};
+	Set_Description	(_TW(
+		"Simple Kriging for grid interpolation from irregular sample points. "
+		"This implementation does not use a maximum search radius. The weighting "
+		"matrix is generated once globally for all points."
+	));
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -139,4 +91,103 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED___Kriging_Base_H
+bool CKriging_Simple_Global::On_Initialize(void)
+{
+	int		i, j, n;
+
+	//-----------------------------------------------------
+	m_Points.Clear();
+
+	for(i=0; i<m_pPoints->Get_Count(); i++)
+	{
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+
+		if( !pPoint->is_NoData(m_zField) )
+		{
+			m_Points.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
+		}
+	}
+
+	//-----------------------------------------------------
+	if( (n = m_Points.Get_Count()) > 1 )
+	{
+		m_W.Create(n, n);
+
+		for(i=0; i<n; i++)
+		{
+			m_W[i][i]	= 0.0;				// diagonal...
+
+			for(j=i+1; j<n; j++)
+			{
+				m_W[i][j]	= m_W[j][i]	= Get_Weight(m_Points[i], m_Points[j]);
+			}
+		}
+
+		return( m_W.Set_Inverse(false) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CKriging_Simple_Global::On_Finalize(void)
+{
+	m_Points.Clear();
+	m_W.Destroy();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Simple_Global::Get_Value(const TSG_Point &p, double &z, double &v)
+{
+	int		i, j, n;
+
+	//-----------------------------------------------------
+	if(	(n = m_Points.Get_Count()) > 0 )
+	{
+		CSG_Vector	G(n);
+
+		for(i=0; i<n; i++)
+		{
+			G[i]	= Get_Weight(p.x, p.y, m_Points[i].x, m_Points[i].y);
+		}
+
+		G[n]	= 1.0;
+
+		//-------------------------------------------------
+		for(i=0, z=0.0, v=0.0; i<n; i++)
+		{
+			double	Lambda	= 0.0;
+
+			for(j=0; j<n; j++)
+			{
+				Lambda	+= m_W[i][j] * G[j];
+			}
+
+			z	+= Lambda * m_Points[i].z;
+			v	+= Lambda * G[i];
+		}
+
+		//-------------------------------------------------
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
