@@ -235,9 +235,20 @@ int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters,
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POINTS")) && pParameter->asShapes() )
 	{
-		double	d	= pParameter->asShapes()->Get_Extent().Get_XRange() / 20.0;
+		CSG_Shapes	*pPoints	= pParameter->asShapes();
 
-		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Value(d);
+		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Value(
+			SG_Get_Rounded_To_SignificantFigures(pPoints->Get_Extent().Get_XRange() / 20.0, 2)
+		);
+
+		if( pPoints->Get_Count() > 1 )	// get a rough estimation of point density for band width suggestion
+		{
+			double	d	= (pPoints->Get_Extent().Get_XRange() * pPoints->Get_Extent().Get_YRange()) / pPoints->Get_Count();
+
+			pParameters->Get_Parameter("DW_BANDWIDTH")->Set_Value(
+				SG_Get_Rounded_To_SignificantFigures(2.0 * sqrt(d), 1)
+			);
+		}
 	}
 
 	return( 1 );
@@ -488,18 +499,17 @@ bool CGW_Multi_Regression_Grid::Get_Model(void)
 	{
 		for(int x=0; x<m_dimModel.Get_NX(); x++)
 		{
-			double		q;
-			CSG_Vector	b;
+			CSG_Regression_Weighted	Model;
 
-			if( Get_Regression(x, y, q, b) )
+			if( Get_Model(x, y, Model) )
 			{
-				m_pQuality->Set_Value(x, y, q);
+				m_pQuality->Set_Value(x, y, Model.Get_R2());
 
-				m_pModel[m_nPredictors]->Set_Value(x, y, b[0]);
+				m_pModel[m_nPredictors]->Set_Value(x, y, Model[0]);
 
 				for(int i=0; i<m_nPredictors; i++)
 				{
-					m_pModel[i]->Set_Value(x, y, b[i + 1]);
+					m_pModel[i]->Set_Value(x, y, Model[i + 1]);
 				}
 			}
 			else
@@ -519,66 +529,15 @@ bool CGW_Multi_Regression_Grid::Get_Model(void)
 }
 
 //---------------------------------------------------------
-bool CGW_Multi_Regression_Grid::Get_Regression(int x, int y, double &Quality, CSG_Vector &b)
+bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
 {
 	//-----------------------------------------------------
-	int			i, nPoints;
-	double		zMean, zr, rss, tss;
-	CSG_Vector	z, w;
-	CSG_Matrix	Y, YtW;
-
-	if( (nPoints = Get_Variables(x, y, z, w, Y)) <= m_nPredictors )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	YtW.Create(nPoints, 1 + m_nPredictors);
-
-	for(i=0, zMean=0.0; i<nPoints; i++)
-	{
-		zMean		+= z[i];
-		YtW[0][i]	 = w[i];
-
-		for(int j=1; j<=m_nPredictors; j++)
-		{
-			YtW[j][i]	= Y[i][j] * w[i];
-		}
-	}
-
-	//-----------------------------------------------------
-	b		= (YtW * Y).Get_Inverse() * (YtW * z);
-
-	zMean	/= nPoints;
-
-	for(i=0, rss=0.0, tss=0.0; i<nPoints; i++)
-	{
-		zr	= b[0];
-
-		for(int j=1; j<=m_nPredictors; j++)
-		{
-			zr	+= b[j] * Y[i][j];
-		}
-
-		rss	+= w[i] * SG_Get_Square(z[i] - zr);
-		tss	+= w[i] * SG_Get_Square(z[i] - zMean);
-	}
-
-	Quality	= tss > 0.0 ? (tss - rss) / tss : 0.0;
-
-	//-----------------------------------------------------
-	return( true );
-}
-
-//---------------------------------------------------------
-int CGW_Multi_Regression_Grid::Get_Variables(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y)
-{
 	TSG_Point	Point	= m_dimModel.Get_Grid_to_World(x, y);
 	int			nPoints	= m_Search.is_Okay() ? (int)m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_Points.Get_Count();
 
-	z.Create(nPoints);
-	w.Create(nPoints);
-	Y.Create(1 + m_nPredictors, nPoints);
+	CSG_Vector	Predictors(m_nPredictors);
+
+	Model.Destroy();
 
 	for(int iPoint=0; iPoint<nPoints; iPoint++)
 	{
@@ -588,17 +547,20 @@ int CGW_Multi_Regression_Grid::Get_Variables(int x, int y, CSG_Vector &z, CSG_Ve
 			? m_Points.Get_Shape((int)iz)
 			: m_Points.Get_Shape(iPoint);
 
-		z[iPoint]		= pPoint->asDouble(0);
-		w[iPoint]		= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
-		Y[iPoint][0]	= 1.0;
-
-		for(int iPredictor=1; iPredictor<=m_nPredictors; iPredictor++)
+		for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
 		{
-			Y[iPoint][iPredictor]	= pPoint->asDouble(iPredictor);
+			Predictors[iPredictor]	= pPoint->asDouble(1 + iPredictor);
 		}
+
+		Model.Add_Sample(
+			m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
+			pPoint->asDouble(0),
+			Predictors
+		);
 	}
 
-	return( nPoints );
+	//-----------------------------------------------------
+	return( Model.Calculate() );
 }
 
 
@@ -607,30 +569,6 @@ int CGW_Multi_Regression_Grid::Get_Variables(int x, int y, CSG_Vector &z, CSG_Ve
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGW_Multi_Regression_Grid::Set_Model(double x, double y, double &Value)
-{
-	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_INTERPOLATION_BSpline) )
-	{
-		return( false );
-	}
-
-	double	Model, Predictor;
-
-	for(int i=0; i<m_nPredictors; i++)
-	{
-		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_INTERPOLATION_BSpline)
-		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_INTERPOLATION_NearestNeighbour) )
-		{
-			return( false );
-		}
-
-		Value	+= Model * Predictor;
-	}
-
-	return( true );
-}
 
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::Set_Model(void)
@@ -671,6 +609,30 @@ bool CGW_Multi_Regression_Grid::Set_Model(void)
 
 	//-----------------------------------------------------
 	Set_Residuals();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGW_Multi_Regression_Grid::Set_Model(double x, double y, double &Value)
+{
+	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_INTERPOLATION_BSpline) )
+	{
+		return( false );
+	}
+
+	double	Model, Predictor;
+
+	for(int i=0; i<m_nPredictors; i++)
+	{
+		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_INTERPOLATION_BSpline)
+		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_INTERPOLATION_NearestNeighbour) )
+		{
+			return( false );
+		}
+
+		Value	+= Model * Predictor;
+	}
 
 	return( true );
 }
