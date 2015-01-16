@@ -238,7 +238,7 @@ int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters,
 		CSG_Shapes	*pPoints	= pParameter->asShapes();
 
 		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Value(
-			SG_Get_Rounded_To_SignificantFigures(pPoints->Get_Extent().Get_XRange() / 20.0, 2)
+			SG_Get_Rounded_To_SignificantFigures(pPoints->Get_Extent().Get_XRange() / 20.0, 1)
 		);
 
 		if( pPoints->Get_Count() > 1 )	// get a rough estimation of point density for band width suggestion
@@ -246,7 +246,7 @@ int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters,
 			double	d	= (pPoints->Get_Extent().Get_XRange() * pPoints->Get_Extent().Get_YRange()) / pPoints->Get_Count();
 
 			pParameters->Get_Parameter("DW_BANDWIDTH")->Set_Value(
-				SG_Get_Rounded_To_SignificantFigures(2.0 * sqrt(d), 1)
+				SG_Get_Rounded_To_SignificantFigures(4.0 * sqrt(d), 1)
 			);
 		}
 	}
