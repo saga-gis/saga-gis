@@ -164,12 +164,7 @@ CKriging_Base::CKriging_Base(void)
 
 //---------------------------------------------------------
 CKriging_Base::~CKriging_Base(void)
-{
-	if( m_pVariogram )
-	{
-		delete(m_pVariogram);
-	}
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
