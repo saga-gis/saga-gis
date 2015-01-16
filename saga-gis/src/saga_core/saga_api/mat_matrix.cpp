@@ -216,8 +216,16 @@ bool CSG_Vector::Add_Row(double Value)
 }
 
 //---------------------------------------------------------
-bool CSG_Vector::Del_Row(void)
+bool CSG_Vector::Del_Row(int iRow)
 {
+	if( iRow >= 0 && iRow < Get_N() - 1 )
+	{
+		for(int i=iRow, j=iRow+1; j<Get_N(); i++, j++)
+		{
+			Get_Data()[i]	= Get_Data()[j];
+		}
+	}
+
 	return( m_Array.Dec_Array() );
 }
 

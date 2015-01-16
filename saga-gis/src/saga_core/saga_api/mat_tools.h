@@ -228,7 +228,7 @@ public:
 	bool						Add_Rows			(int nRows);
 	bool						Del_Rows			(int nRows);
 	bool						Add_Row				(double Value = 0.0);
-	bool						Del_Row				(void);
+	bool						Del_Row				(int iRow = -1);
 
 	int							Get_N				(void)	const	{	return( (int)Get_Size() );					}
 	size_t						Get_Size			(void)	const	{	return( m_Array.Get_Size() );				}
@@ -1296,6 +1296,53 @@ protected:
 
 	bool						_Set_Step_Info		(const CSG_Matrix &X);
 	bool						_Set_Step_Info		(const CSG_Matrix &X, double R2_prev, int iVariable, bool bIn);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Regression_Weighted
+{
+public:
+	CSG_Regression_Weighted(void);
+	virtual ~CSG_Regression_Weighted(void);
+
+	bool						Destroy				(void);
+
+	bool						Add_Sample			(double Weight, double Dependent, const CSG_Vector &Predictors);
+	int							Get_Sample_Count	(void)	const	{	return( m_Y.Get_NRows()     );	}
+	int							Get_Predictor_Count	(void)	const	{	return( m_Y.Get_NCols() - 1 );	}
+
+	bool						Calculate			(const CSG_Vector &Weights, const CSG_Vector &Dependents, const CSG_Matrix &Predictors);
+	bool						Calculate			(void);
+
+	double						Get_R2				(void)	const	{	return( m_r2   );	}
+	const CSG_Vector &			Get_RCoeff			(void)	const	{	return( m_b    );	}
+	double						Get_RCoeff			(int i)	const	{	return( m_b[i] );	}
+	double						operator []			(int i)	const	{	return( m_b[i] );	}
+
+	//-----------------------------------------------------
+	bool						Get_CrossValidation	(int nSubSamples = 0);
+
+	int							Get_CV_nSamples		(void)	const	{	return( m_CV_nSamples );	}
+	double						Get_CV_RMSE			(void)	const	{	return( m_CV_RMSE     );	}
+	double						Get_CV_NRMSE		(void)	const	{	return( m_CV_NRMSE    );	}
+	double						Get_CV_R2			(void)	const	{	return( m_CV_R2       );	}
+
+
+private:
+
+	int							m_CV_nSamples;
+
+	double						m_r2, m_CV_RMSE, m_CV_NRMSE, m_CV_R2;
+
+	CSG_Vector					m_x, m_w, m_b;
+
+	CSG_Matrix					m_Y;
 
 };
 
