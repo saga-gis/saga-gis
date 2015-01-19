@@ -81,10 +81,9 @@ CGrid_Export::CGrid_Export(void)
 	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
 	Set_Description	(_TW(
-		"The module allows to save a grid as image.\n\n"
-		"On the command line, in case a shade grid is specified, "
-		"it's minimum and maximum brightness values can be specified in "
-		"percent.\n")
+		"The module allows one to save a grid as image.\n"
+		"Optionally, a shade grid can be overlayed and it's "
+		"transparency and brightness can be adjusted.\n\n")
 	);
 
 	Parameters.Add_Grid(
@@ -196,14 +195,17 @@ CGrid_Export::CGrid_Export(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	if( !SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Range(
-			NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
-			_TL("Allows one to scale shade brightness [percent]"),
-			0.0, 100.0, 0.0, true, 100.0, true
-		);
-	}
+	Parameters.Add_Value(
+		NULL	, "SHADE_TRANS"	, _TL("Shade Transparency [%]"),
+		_TL("The transparency of the shade [%]"),
+		PARAMETER_TYPE_Double, 40.0, 0.0, true, 100.0, true
+	);
+
+	Parameters.Add_Range(
+		NULL	, "SHADE_BRIGHT", _TL("Shade Brightness [%]"),
+		_TL("Allows one to scale shade brightness [%]"),
+		0.0, 100.0, 0.0, true, 100.0, true
+	);
 }
 
 
@@ -224,6 +226,12 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("LUT"        )->Set_Enabled(pParameter->asInt() == 3);
 	}
 
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHADE")) )
+	{
+		pParameters->Get_Parameter("SHADE_TRANS"	)->Set_Enabled(pParameter->asGrid() != NULL);
+		pParameters->Get_Parameter("SHADE_BRIGHT"	)->Set_Enabled(pParameter->asGrid() != NULL);
+	}
+
 	return( 1 );
 }
 
@@ -239,12 +247,14 @@ bool CGrid_Export::On_Execute(void)
 {
 	//-----------------------------------------------------
 	int			y, iy, Method;
+	double		dTrans;
 	CSG_Grid	*pGrid, *pShade, Grid, Shade;
 
 	//-----------------------------------------------------
-	pGrid	= Parameters("GRID"     )->asGrid();
-	pShade	= Parameters("SHADE"    )->asGrid();
-	Method	= Parameters("COLOURING")->asInt ();
+	pGrid		= Parameters("GRID"			)->asGrid();
+	pShade		= Parameters("SHADE"		)->asGrid();
+	Method		= Parameters("COLOURING"	)->asInt ();
+	dTrans		= Parameters("SHADE_TRANS"	)->asDouble() / 100.0;
 
 	if( !pGrid )
 	{
@@ -376,7 +386,7 @@ bool CGrid_Export::On_Execute(void)
 	{
 		pShade	= NULL;
 	}
-	else if( !SG_UI_DataObject_asImage(pShade, &Shade) )
+	else
 	{
 		double	dMinBright, dMaxBright;
 
@@ -426,7 +436,7 @@ bool CGrid_Export::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( Grid.is_NoData(x, y) )
+			if( Grid.is_NoData(x, y) || (pShade != NULL && Shade.is_NoData(x, y)) )
 			{
 				if( Image.HasAlpha() )
 				{
@@ -452,11 +462,9 @@ bool CGrid_Export::On_Execute(void)
 				{
 					c	= Shade.asInt(x, y);
 
-					double d	= (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) / (3.0 * 255.0);
-
-					r	= (int)(d * r);
-					g	= (int)(d * g);
-					b	= (int)(d * b);
+					r	= dTrans * r + SG_GET_R(c) * (1.0 - dTrans);
+					g	= dTrans * g + SG_GET_G(c) * (1.0 - dTrans);
+					b	= dTrans * b + SG_GET_B(c) * (1.0 - dTrans);
 				}
 
 				Image.SetRGB(x, y, r, g, b);
