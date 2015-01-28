@@ -1198,8 +1198,8 @@ public:
 	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, bool bFitToCells = false);
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells = false);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, bool bFitToCells = false, int Rounding = 0);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells = false, int Rounding = 0);
 
 	CSG_Grid_System				Get_System				(void);
 

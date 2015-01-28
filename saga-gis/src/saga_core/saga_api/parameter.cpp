@@ -901,9 +901,12 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
   * Initializes the grid system from Extent and number of rows.
   * If bFitToCells is true, the extent is deflated by half a cell size,
   * so automatically adjusting the extent based on grid nodes to
-  * to an extent based on the grid cells.
+  * an extent based on the grid cells. If Rounding is greater than
+  * zero it specifies the number of significant figures to which
+  * the cell size is rounded and also adjuts the extent coordinates
+  * to be a multiple of cell size.
 */
-bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, bool bFitToCells)
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, bool bFitToCells, int Rounding)
 {
 	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) )
 	{
@@ -938,24 +941,37 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	//-----------------------------------------------------
 	m_bFitToCells	= bFitToCells;
 
-	double	Size	= r.Get_YRange() / Rows;
+	double	Size	= r.Get_YRange() / ((m_bFitToCells ? 0 : 1) + Rows);
 
+	if( Rounding > 0 )
+	{
+		Size	= SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
+
+		r.m_rect.xMin	= Size * (int)(0.5 + r.m_rect.xMin / Size);
+		r.m_rect.yMin	= Size * (int)(0.5 + r.m_rect.yMin / Size);
+
+		r.m_rect.yMax	= r.Get_YMin() + Rows * Size;
+	}
+
+	//-----------------------------------------------------
 	int		Cols	= (bFitToCells ? 0 : 1) + (int)(r.Get_XRange() / Size);
 
-	pParameters->Get_Parameter(m_Prefix + "USER_XMIN")->Set_Value(r.Get_XMin());
-	pParameters->Get_Parameter(m_Prefix + "USER_XMAX")->Set_Value(r.Get_XMax());
-	pParameters->Get_Parameter(m_Prefix + "USER_YMIN")->Set_Value(r.Get_YMin());
-	pParameters->Get_Parameter(m_Prefix + "USER_YMAX")->Set_Value(r.Get_YMax());
-	pParameters->Get_Parameter(m_Prefix + "USER_SIZE")->Set_Value(Size);
-	pParameters->Get_Parameter(m_Prefix + "USER_COLS")->Set_Value(Cols);
-	pParameters->Get_Parameter(m_Prefix + "USER_ROWS")->Set_Value(Rows);
-	pParameters->Get_Parameter(m_Prefix + "USER_FITS")->Set_Value(m_bFitToCells);
+	r.m_rect.xMax	= r.Get_XMin() + Cols * Size;
+
+	pParameters->Set_Parameter(m_Prefix + "USER_XMIN", r.Get_XMin() );
+	pParameters->Set_Parameter(m_Prefix + "USER_XMAX", r.Get_XMax() );
+	pParameters->Set_Parameter(m_Prefix + "USER_YMIN", r.Get_YMin() );
+	pParameters->Set_Parameter(m_Prefix + "USER_YMAX", r.Get_YMax() );
+	pParameters->Set_Parameter(m_Prefix + "USER_SIZE", Size         );
+	pParameters->Set_Parameter(m_Prefix + "USER_COLS", Cols         );
+	pParameters->Set_Parameter(m_Prefix + "USER_ROWS", Rows         );
+	pParameters->Set_Parameter(m_Prefix + "USER_FITS", m_bFitToCells);
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells)
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells, int Rounding)
 {
 	if( Size <= 0.0 || nx < 1 || ny < 1 )
 	{
@@ -970,7 +986,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, d
 		Extent.m_rect.yMax	+= Size;
 	}
 
-	return( Set_User_Defined(pParameters, Extent, ny, bFitToCells) );
+	return( Set_User_Defined(pParameters, Extent, ny, bFitToCells, Rounding) );
 }
 
 
