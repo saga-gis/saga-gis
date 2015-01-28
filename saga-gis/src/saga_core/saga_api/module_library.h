@@ -134,15 +134,15 @@ public:
 
 	virtual int						Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
-	virtual CSG_Module *			Get_Module			(int           Index, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
-	virtual CSG_Module *			Get_Module			(const SG_Char *Name, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
+	virtual CSG_Module *			Get_Module			(int               Index , TSG_Module_Type Type = MODULE_TYPE_Base)	const;
+	virtual CSG_Module *			Get_Module			(const CSG_String &Module, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
 
-	CSG_Module_Grid *				Get_Module_Grid				(int           Index)	const;
-	CSG_Module_Grid *				Get_Module_Grid				(const SG_Char *Name)	const;
-	CSG_Module_Interactive *		Get_Module_Interactive		(int           Index)	const;
-	CSG_Module_Interactive *		Get_Module_Interactive		(const SG_Char *Name)	const;
-	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(int           Index)	const;
-	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(const SG_Char *Name)	const;
+	CSG_Module_Grid *				Get_Module_Grid				(int               Index )	const;
+	CSG_Module_Grid *				Get_Module_Grid				(const CSG_String &Module)	const;
+	CSG_Module_Interactive *		Get_Module_Interactive		(int               Index )	const;
+	CSG_Module_Interactive *		Get_Module_Interactive		(const CSG_String &Module)	const;
+	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(int               Index )	const;
+	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(const CSG_String &Module)	const;
 
 	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
 	virtual CSG_String				Get_Menu			(int i)	const;
@@ -198,8 +198,8 @@ public:
 
 	bool							is_Loaded			(CSG_Module_Library *pLibrary)	const;
 
-	CSG_Module *					Get_Module			(const SG_Char *Library, int            Module)	const;
-	CSG_Module *					Get_Module			(const SG_Char *Library, const SG_Char *Module)	const;
+	CSG_Module *					Get_Module			(const CSG_String &Library, int               ID    )	const;
+	CSG_Module *					Get_Module			(const CSG_String &Library, const CSG_String &Module)	const;
 
 	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
 	bool							Get_Summary			(const CSG_String &Path)			const;

@@ -416,8 +416,7 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 
 	CSG_Module	*pModule;
 
-	if(	!(pModule = SG_Get_Module_Library_Manager().Get_Module(Tool.Get_Property("library"), Module        ))
-	&&  !(pModule = SG_Get_Module_Library_Manager().Get_Module(Tool.Get_Property("library"), Module.asInt())) )
+	if(	!(pModule = SG_Get_Module_Library_Manager().Get_Module(Tool.Get_Property("library"), Module)) )
 	{
 		Error_Fmt("%s [%s].[%s]", _TL("could not find tool"),  Tool.Get_Property("library"), Module.c_str());
 

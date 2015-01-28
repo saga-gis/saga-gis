@@ -267,13 +267,13 @@ CSG_Module * CSG_Module_Library::Get_Module(int Index, TSG_Module_Type Type) con
 }
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name, TSG_Module_Type Type) const
+CSG_Module * CSG_Module_Library::Get_Module(const CSG_String &Module, TSG_Module_Type Type) const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
 		CSG_Module	*pModule	= Get_Module(i, Type);
 
-		if( pModule && (!pModule->Get_ID().Cmp(Name) || !pModule->Get_Name().Cmp(Name)) )
+		if( pModule && (!pModule->Get_ID().Cmp(Module) || !pModule->Get_Name().Cmp(Module)) )
 		{
 			return( pModule );
 		}
@@ -284,24 +284,24 @@ CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name, TSG_Module_Type
 
 //---------------------------------------------------------
 CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(int Index) const
-{	return( (CSG_Module_Grid *)Get_Module(Index, MODULE_TYPE_Grid) );	}
+{	return( (CSG_Module_Grid *)Get_Module(Index , MODULE_TYPE_Grid) );	}
 
-CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(const SG_Char *Name) const
-{	return( (CSG_Module_Grid *)Get_Module(Name , MODULE_TYPE_Grid) );	}
+CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(const CSG_String &Module) const
+{	return( (CSG_Module_Grid *)Get_Module(Module, MODULE_TYPE_Grid) );	}
 
 //---------------------------------------------------------
 CSG_Module_Interactive * CSG_Module_Library::Get_Module_Interactive(int Index) const
-{	return( (CSG_Module_Interactive *)Get_Module(Index, MODULE_TYPE_Interactive) );	}
+{	return( (CSG_Module_Interactive *)Get_Module(Index , MODULE_TYPE_Interactive) );	}
 
-CSG_Module_Interactive * CSG_Module_Library::Get_Module_Interactive(const SG_Char *Name) const
-{	return( (CSG_Module_Interactive *)Get_Module(Name , MODULE_TYPE_Interactive) );	}
+CSG_Module_Interactive * CSG_Module_Library::Get_Module_Interactive(const CSG_String &Module) const
+{	return( (CSG_Module_Interactive *)Get_Module(Module, MODULE_TYPE_Interactive) );	}
 
 //---------------------------------------------------------
 CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_Interactive(int Index) const
-{	return( (CSG_Module_Grid_Interactive *)Get_Module(Index, MODULE_TYPE_Grid_Interactive) );	}
+{	return( (CSG_Module_Grid_Interactive *)Get_Module(Index , MODULE_TYPE_Grid_Interactive) );	}
 
-CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_Interactive(const SG_Char *Name) const
-{	return( (CSG_Module_Grid_Interactive *)Get_Module(Name , MODULE_TYPE_Grid_Interactive) );	}
+CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_Interactive(const CSG_String &Module) const
+{	return( (CSG_Module_Grid_Interactive *)Get_Module(Module, MODULE_TYPE_Grid_Interactive) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -669,15 +669,15 @@ bool CSG_Module_Library_Manager::is_Loaded(CSG_Module_Library *pLibrary) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library_Manager::Get_Module(const SG_Char *Library, int Module)	const
+CSG_Module * CSG_Module_Library_Manager::Get_Module(const CSG_String &Library, int ID)	const
 {
 	CSG_Module_Library	*pLibrary	= Get_Library(Library, true);
 
-	return( pLibrary ? pLibrary->Get_Module(Module) : NULL );
+	return( pLibrary ? pLibrary->Get_Module(CSG_String::Format("%d", ID)) : NULL );
 }
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library_Manager::Get_Module(const SG_Char *Library, const SG_Char *Module)	const
+CSG_Module * CSG_Module_Library_Manager::Get_Module(const CSG_String &Library, const CSG_String &Module)	const
 {
 	CSG_Module_Library	*pLibrary	= Get_Library(Library, true);
 
@@ -740,7 +740,7 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 		for(i=0; i<Get_Count(); i++)
 		{
 			s	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>"),
-					SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str(),
+					Get_Library(i)->Get_Library_Name().c_str(),
 					Get_Library(i)->Get_Count(),
 					Get_Library(i)->Get_Name().c_str(),
 					SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str()

@@ -134,27 +134,22 @@ int CSG_Module_Library_Interface::Get_Count(void)
 //---------------------------------------------------------
 bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
 {
-	if( pModule )
+	if( pModule == NULL )
 	{
-		if( pModule == MLB_INTERFACE_SKIP_MODULE )
-		{
-			pModule	= NULL;
-		}
-		else
-		{
-			pModule->m_ID.Printf(SG_T("%d"), ID);
-			pModule->m_Library		= Get_Info(MLB_INFO_Library);
-			pModule->m_Library_Menu	= Get_Info(MLB_INFO_Menu_Path);
-			pModule->m_File_Name	= Get_Info(MLB_INFO_File);
-		}
-
-		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
-		m_Modules[m_nModules++]	= pModule;
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( pModule != MLB_INTERFACE_SKIP_MODULE )
+	{
+		pModule->m_ID.Printf(SG_T("%d"), ID);
+		pModule->m_Library		= Get_Info(MLB_INFO_Library);
+		pModule->m_Library_Menu	= Get_Info(MLB_INFO_Menu_Path);
+		pModule->m_File_Name	= Get_Info(MLB_INFO_File);
+		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
+		m_Modules[m_nModules++]	= pModule;
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------

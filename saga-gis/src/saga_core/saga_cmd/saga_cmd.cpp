@@ -231,9 +231,7 @@ bool		Execute(int argc, char *argv[])
 		return( false );
 	}
 
-	if( argc == 2
-	||  (  (pModule = pLibrary->Get_Module(CSG_String(argv[2])        )) == NULL
-	    && (pModule = pLibrary->Get_Module(CSG_String(argv[2]).asInt())) == NULL) )
+	if( argc == 2 || (pModule = pLibrary->Get_Module(argv[2])) == NULL )
 	{
 		Print_Modules(pLibrary);
 
