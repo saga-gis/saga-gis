@@ -118,6 +118,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_INFO_CLEAR:				return( _TL("Clear") );
 	case ID_CMD_INFO_COPY:				return( _TL("Copy") );
+	case ID_CMD_INFO_SELECTALL:			return( _TL("Select All") );
 
 	case ID_CMD_DATASOURCE_REFRESH:		return( _TL("Refresh") );
 

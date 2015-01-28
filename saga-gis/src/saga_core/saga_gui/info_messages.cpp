@@ -78,16 +78,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CINFO_Messages, wxTextCtrl)
+wxBEGIN_EVENT_TABLE(CINFO_Messages, wxTextCtrl)
+	EVT_RIGHT_UP	(CINFO_Messages::On_Context_Menu)
 
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CINFO_Messages, wxTextCtrl)
-    EVT_CONTEXT_MENU(CINFO_Messages::On_Context_Menu)
-
-	EVT_MENU		(ID_CMD_INFO_COPY	, CINFO_Messages::On_Copy)
-	EVT_MENU		(ID_CMD_INFO_CLEAR	, CINFO_Messages::On_Clear)
-
-END_EVENT_TABLE()
+	EVT_MENU		(ID_CMD_INFO_SELECTALL	, CINFO_Messages::On_SelectAll)
+	EVT_MENU		(ID_CMD_INFO_COPY		, CINFO_Messages::On_Copy)
+	EVT_MENU		(ID_CMD_INFO_CLEAR		, CINFO_Messages::On_Clear)
+wxEND_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
@@ -103,11 +100,6 @@ CINFO_Messages::CINFO_Messages(wxWindow *pParent)
 	m_MaxLength	= 0x10000;
 }
 
-//---------------------------------------------------------
-CINFO_Messages::~CINFO_Messages(void)
-{
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -116,14 +108,31 @@ CINFO_Messages::~CINFO_Messages(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CINFO_Messages::On_Context_Menu(wxContextMenuEvent &event)
+void CINFO_Messages::On_Context_Menu(wxMouseEvent &event)
 {
 	wxMenu	Menu;
 
-	Menu.Append(ID_CMD_INFO_COPY		, _TL("Copy"));
-	Menu.Append(ID_CMD_INFO_CLEAR		, _TL("Clear"));
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_INFO_CLEAR);
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_INFO_SELECTALL);
+
+	if( CanCopy() )
+	{
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_INFO_COPY);
+	}
 
 	PopupMenu(&Menu);
+}
+
+//---------------------------------------------------------
+void CINFO_Messages::On_Clear(wxCommandEvent &WXUNUSED(event))
+{
+	Clear();
+}
+
+//---------------------------------------------------------
+void CINFO_Messages::On_SelectAll(wxCommandEvent &WXUNUSED(event))
+{
+	SelectAll();
 }
 
 //---------------------------------------------------------
@@ -131,7 +140,7 @@ void CINFO_Messages::On_Copy(wxCommandEvent &WXUNUSED(event))
 {
 	if( GetStringSelection().IsEmpty() )
 	{
-		SetSelection(-1, -1);
+		SelectAll();
 		Copy();
 		SetSelection(GetLastPosition(), GetLastPosition());
 	}
@@ -139,12 +148,6 @@ void CINFO_Messages::On_Copy(wxCommandEvent &WXUNUSED(event))
 	{
 		Copy();
 	}
-}
-
-//---------------------------------------------------------
-void CINFO_Messages::On_Clear(wxCommandEvent &WXUNUSED(event))
-{
-	Clear();
 }
 
 

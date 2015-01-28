@@ -84,11 +84,8 @@
 //---------------------------------------------------------
 class CINFO_Messages : public wxTextCtrl
 {
-	DECLARE_CLASS(CINFO_Messages)
-
 public:
 	CINFO_Messages(wxWindow *pParent);
-	virtual ~CINFO_Messages(void);
 
 	void						Add_Time		(bool bNewLine = true);
 	void						Add_Line		(void);
@@ -100,10 +97,11 @@ private:
 	int							m_MaxLength;
 
 
-	void						On_Context_Menu	(wxContextMenuEvent &event);
+	void						On_Context_Menu	(wxMouseEvent   &event);
 
 	void						On_Copy			(wxCommandEvent &event);
 	void						On_Clear		(wxCommandEvent &event);
+	void						On_SelectAll	(wxCommandEvent &event);
 
 	void						_Add_Text		(wxString Text);
 
@@ -111,7 +109,7 @@ private:
 
 
 //---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+wxDECLARE_EVENT_TABLE();
 };
 
 
