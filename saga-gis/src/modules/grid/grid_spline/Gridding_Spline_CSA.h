@@ -85,8 +85,6 @@ protected:
 
 	virtual bool			On_Execute		(void);
 
-	virtual bool			On_Initialise	(void);
-
 
 private:
 

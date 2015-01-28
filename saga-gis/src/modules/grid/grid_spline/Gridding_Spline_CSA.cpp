@@ -169,20 +169,6 @@ CGridding_Spline_CSA::CGridding_Spline_CSA(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_CSA::On_Initialise(void)
-{
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CGridding_Spline_CSA::On_Execute(void)
 {
 	//-----------------------------------------------------
@@ -197,10 +183,10 @@ bool CGridding_Spline_CSA::On_Execute(void)
 
 	csa			*pCSA	= csa_create();
 
-	csa_setnpmin(pCSA, Parameters("NPMIN")	->asInt());
-	csa_setnpmax(pCSA, Parameters("NPMAX")	->asInt());
-	csa_setk	(pCSA, Parameters("K")		->asInt());
-	csa_setnppc	(pCSA, Parameters("NPPC")	->asDouble());
+	csa_setnpmin(pCSA, Parameters("NPMIN")->asInt   ());
+	csa_setnpmax(pCSA, Parameters("NPMAX")->asInt   ());
+	csa_setk	(pCSA, Parameters("K"    )->asInt   ());
+	csa_setnppc	(pCSA, Parameters("NPPC" )->asDouble());
 
 	//-----------------------------------------------------
 	point	*pSrc	= (point *)SG_Malloc(m_Points.Get_Count() * sizeof(point));
