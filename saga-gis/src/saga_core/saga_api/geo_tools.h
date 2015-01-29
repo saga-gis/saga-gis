@@ -464,8 +464,11 @@ public:
 	double						Get_XRange		(void) const	{	return( m_rect.xMax - m_rect.xMin );	}
 	double						Get_YRange		(void) const	{	return( m_rect.yMax - m_rect.yMin );	}
 
-	CSG_Point					Get_TopLeft		(void)			{	return( CSG_Point(m_rect.xMin, m_rect.yMax) );	}
-	CSG_Point					Get_BottomRight	(void)			{	return( CSG_Point(m_rect.xMax, m_rect.yMin) );	}
+	double						Get_Area		(void) const	{	return( Get_XRange() * Get_YRange() );	}
+	double						Get_Diameter	(void) const	{	return( sqrt(Get_XRange()*Get_XRange() + Get_YRange()*Get_YRange()) );	}
+
+	CSG_Point					Get_TopLeft		(void) const	{	return( CSG_Point(m_rect.xMin, m_rect.yMax) );	}
+	CSG_Point					Get_BottomRight	(void) const	{	return( CSG_Point(m_rect.xMax, m_rect.yMin) );	}
 
 	CSG_Point					Get_Center		(void) const	{	return( CSG_Point(Get_XCenter(), Get_YCenter()) );	}
 	double						Get_XCenter		(void) const	{	return( (m_rect.xMin + m_rect.xMax) / 2.0 );	}

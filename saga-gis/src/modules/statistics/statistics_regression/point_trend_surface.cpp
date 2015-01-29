@@ -150,9 +150,9 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 //---------------------------------------------------------
 int CPoint_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -210,7 +210,7 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	Set_Message();
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
 	if( (pRegression = m_Grid_Target.Get_Grid()) == NULL )
 	{

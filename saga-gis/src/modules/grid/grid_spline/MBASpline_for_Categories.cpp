@@ -106,9 +106,9 @@ CMBASpline_for_Categories::CMBASpline_for_Categories(void)
 //---------------------------------------------------------
 int CMBASpline_for_Categories::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -149,7 +149,7 @@ bool CMBASpline_for_Categories::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	*pGrid, *pProp, Prop;
 
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Points.Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), &Points);	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
 	if( !(pGrid = m_Grid_Target.Get_Grid("CATEGORIES", nCategories < 128 ? SG_DATATYPE_Char : SG_DATATYPE_Int))
 	||  !(pProp = m_Grid_Target.Get_Grid("PROPABILITY")) )

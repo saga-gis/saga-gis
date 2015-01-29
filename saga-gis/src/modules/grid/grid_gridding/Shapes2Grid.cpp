@@ -176,9 +176,9 @@ CShapes2Grid::CShapes2Grid(void)
 //---------------------------------------------------------
 int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) && pParameter->asShapes() )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -264,7 +264,7 @@ bool CShapes2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pShapes->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pShapes);	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
 	if( (m_pGrid = m_Grid_Target.Get_Grid(Get_Grid_Type(Parameters("GRID_TYPE")->asInt()))) == NULL )
 	{

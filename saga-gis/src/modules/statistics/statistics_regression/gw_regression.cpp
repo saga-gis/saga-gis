@@ -182,9 +182,9 @@ CGW_Regression::CGW_Regression(void)
 //---------------------------------------------------------
 int CGW_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -240,7 +240,7 @@ bool CGW_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
 	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
 	m_pSlope		= m_Grid_Target.Get_Grid("SLOPE"    );

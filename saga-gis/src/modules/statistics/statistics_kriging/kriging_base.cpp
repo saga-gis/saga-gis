@@ -176,9 +176,14 @@ CKriging_Base::~CKriging_Base(void)
 //---------------------------------------------------------
 int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+		if( m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()) )
+		{
+			pParameters->Get_Parameter("SEARCH_RADIUS")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
+				5 * sqrt(pParameter->asShapes()->Get_Extent().Get_Area() / pParameter->asShapes()->Get_Count()), 1
+			));
+		}
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -309,7 +314,7 @@ bool CKriging_Base::On_Execute(void)
 //---------------------------------------------------------
 bool CKriging_Base::_Initialise_Grids(void)
 {
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
 	if( (m_pGrid = m_Grid_Target.Get_Grid("PREDICTION")) != NULL )
 	{

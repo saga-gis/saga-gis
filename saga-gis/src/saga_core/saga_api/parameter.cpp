@@ -947,10 +947,9 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	{
 		Size	= SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
-		r.m_rect.xMin	= Size * (int)(0.5 + r.m_rect.xMin / Size);
-		r.m_rect.yMin	= Size * (int)(0.5 + r.m_rect.yMin / Size);
-
-		r.m_rect.yMax	= r.Get_YMin() + Rows * Size;
+		r.m_rect.xMin	= Size * floor(r.m_rect.xMin / Size);
+		r.m_rect.yMin	= Size * floor(r.m_rect.yMin / Size);
+		r.m_rect.yMax	= Size * ceil (r.m_rect.yMax / Size);
 	}
 
 	//-----------------------------------------------------
@@ -971,7 +970,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells, int Rounding)
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells)
 {
 	if( Size <= 0.0 || nx < 1 || ny < 1 )
 	{
@@ -986,7 +985,22 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, d
 		Extent.m_rect.yMax	+= Size;
 	}
 
-	return( Set_User_Defined(pParameters, Extent, ny, bFitToCells, Rounding) );
+	return( Set_User_Defined(pParameters, Extent, ny, bFitToCells, 0) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale, bool bFitToCells, int Rounding)
+{
+	if( !pPoints || pPoints->Get_Count() <= 0 || pPoints->Get_Extent().Get_Area() <= 0.0 )
+	{
+		return( false );
+	}
+
+	double	d	= sqrt(pPoints->Get_Extent().Get_Area() / pPoints->Get_Count());	// edge length of a square given as average area per point (cell size)
+
+	int	Rows	= (int)(0.5 + pPoints->Get_Extent().Get_YRange() / d);	if( Scale > 1 ) Rows *= Scale;
+
+	return( Set_User_Defined(pParameters, pPoints->Get_Extent(), Rows, bFitToCells, Rounding) );
 }
 
 

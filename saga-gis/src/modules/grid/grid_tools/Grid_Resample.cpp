@@ -73,33 +73,24 @@
 //---------------------------------------------------------
 CGrid_Resample::CGrid_Resample(void)
 {
-	CSG_Parameter	*pNode;
-	CSG_Parameters	*pParameters;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Resampling"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Resampling of grids."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid_List(
+		NULL	, "INPUT"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "INPUT_ADD"	, _TL("Additional Grids"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid_List(
-		NULL	, "OUTPUT_ADD"	, _TL("Additional Grids"),
+		NULL	, "OUTPUT"		, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -111,10 +102,8 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SCALE_UP"	, _TL("Up-Scaling")				, _TL(""));
-
-	pNode	= pParameters->Add_Choice(
-		NULL	, "METHOD"		, _TL("Interpolation Method"),
+	Parameters.Add_Choice(
+		NULL	, "SCALE_UP"	, _TL("Upscaling Method"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
@@ -131,10 +120,8 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SCALE_DOWN"	, _TL("Down-Scaling")			, _TL(""));
-
-	pNode	= pParameters->Add_Choice(
-		NULL	, "METHOD"		, _TL("Interpolation Method"),
+	Parameters.Add_Choice(
+		NULL	, "SCALE_DOWN"	, _TL("Downscaling Method"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
@@ -146,7 +133,7 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")), false);
 }
 
 
@@ -159,9 +146,14 @@ CGrid_Resample::CGrid_Resample(void)
 //---------------------------------------------------------
 int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") && pParameter->asGrid() )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asGrid()->Get_Extent());
+		if( pParameter->asGrid_System() )
+		{
+			CSG_Grid_System	Input	= *pParameter->asGrid_System();
+
+			m_Grid_Target.Set_User_Defined(pParameters, Input.Get_Extent(), Input.Get_NY(), false, 0);
+		}
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -170,6 +162,28 @@ int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( SG_UI_Get_Window_Main() )
+	{
+		double	Scaling	= 0.0;
+
+		if( pParameters->Get_Parameter("INPUT")->asGridList()->Get_Count() > 0 )
+		{
+			double	Input	= pParameters->Get_Parameter("INPUT")->asGridList()->asGrid(0)->Get_System().Get_Cellsize();
+
+			if( pParameters->Get_Parameter("DEFINITION")->asInt() == 0 )	// user defined
+			{
+				Scaling	= Input - pParameters->Get_Parameter("USER_SIZE")->asDouble();
+			}
+			else if( pParameters->Get_Parameter("SYSTEM")->asGrid_System() && pParameters->Get_Parameter("SYSTEM")->asGrid_System()->Get_Cellsize() > 0.0 )
+			{
+				Scaling	= Input - pParameters->Get_Parameter("SYSTEM")->asGrid_System()->Get_Cellsize();
+			}
+		}
+
+		pParameters->Set_Enabled("SCALE_UP"  , Scaling < 0.0);
+		pParameters->Set_Enabled("SCALE_DOWN", Scaling > 0.0);
+	}
+
 	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
 
@@ -184,29 +198,34 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 bool CGrid_Resample::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pInput	= Parameters("INPUT")->asGrid();
+	CSG_Parameter_Grid_List	*pInputs	= Parameters("INPUT" )->asGridList();
+	CSG_Parameter_Grid_List	*pOutputs	= Parameters("OUTPUT")->asGridList();
+
+	if( pInputs->Get_Count() <= 0 )
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pInput->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	CSG_Grid_System	Input	= pInputs->asGrid(0)->Get_System();
 
-	CSG_Grid	*pOutput	= m_Grid_Target.Get_Grid(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Input.Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
-	if( !pOutput || !pInput->is_Intersecting(pOutput->Get_Extent()) )
+	CSG_Grid_System	Output	= m_Grid_Target.Get_System();
+
+	if( Input.Get_Extent().Intersects(Output.Get_Extent()) == INTERSECTION_None )
 	{
+		Error_Set(_TL("clip extent does not match extent of input grids"));
+
 		return( false );
 	}
 
 	//-------------------------------------------------
 	TSG_Grid_Interpolation	Interpolation;
 
-	if( pInput->Get_Cellsize() < pOutput->Get_Cellsize() )	// Up-Scaling...
+	if( Input.Get_Cellsize() < Output.Get_Cellsize() )	// Up-Scaling...
 	{
-		if( !Dlg_Parameters("SCALE_UP") )
-		{
-			return( false );
-		}
-
-		switch( Get_Parameters("SCALE_UP")->Get_Parameter("METHOD")->asInt() )
+		switch( Parameters("SCALE_UP")->asInt() )
 		{
 		case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
 		case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
@@ -222,12 +241,7 @@ bool CGrid_Resample::On_Execute(void)
 	}
 	else	// Down-Scaling...
 	{
-		if( !Dlg_Parameters("SCALE_DOWN") )
-		{
-			return( false );
-		}
-
-		switch( Get_Parameters("SCALE_DOWN")->Get_Parameter("METHOD")->asInt() )
+		switch( Parameters("SCALE_DOWN")->asInt() )
 		{
 		case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
 		case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
@@ -238,22 +252,13 @@ bool CGrid_Resample::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	pOutput->Assign(pInput, Interpolation);
-	pOutput->Set_Name(pInput->Get_Name());
-
-	//-------------------------------------------------
-	CSG_Grid_System	System(pOutput->Get_System());
-
-	CSG_Parameter_Grid_List	*pInputs	= Parameters("INPUT_ADD" )->asGridList();
-	CSG_Parameter_Grid_List	*pOutputs	= Parameters("OUTPUT_ADD")->asGridList();
-
 	pOutputs->Del_Items();
 
 	for(int i=0; i<pInputs->Get_Count() && Process_Get_Okay(); i++)
 	{
-		pInput	= pInputs->asGrid(i);
+		CSG_Grid	*pInput		= pInputs->asGrid(i);
 
-		pOutput	= SG_Create_Grid(pOutput->Get_System(),
+		CSG_Grid	*pOutput	= SG_Create_Grid(Output,
 			Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined
 		);
 
@@ -263,6 +268,7 @@ bool CGrid_Resample::On_Execute(void)
 		pOutputs->Add_Item(pOutput);
 	}
 
+	//-------------------------------------------------
 	return( true );
 }
 

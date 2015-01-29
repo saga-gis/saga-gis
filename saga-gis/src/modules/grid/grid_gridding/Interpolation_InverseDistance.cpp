@@ -162,6 +162,19 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CInterpolation_InverseDistance::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() )
+	{
+		pParameters->Get_Parameter("SEARCH_RADIUS")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
+			5 * sqrt(pParameter->asShapes()->Get_Extent().Get_Area() / pParameter->asShapes()->Get_Count()), 1
+		));
+	}
+
+	return( CInterpolation::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
@@ -181,7 +194,7 @@ int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParame
 		pParameters->Get_Parameter("WEIGHT_BANDWIDTH" )->Set_Enabled(pParameter->asInt() >= 2);	// exponential or gaussian
 	}
 
-	return( CInterpolation::On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	return( CInterpolation::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

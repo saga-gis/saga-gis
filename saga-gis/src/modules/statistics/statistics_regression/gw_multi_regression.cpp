@@ -211,9 +211,14 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 //---------------------------------------------------------
 int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()->Get_Extent());
+		if( m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()) )
+		{
+			pParameters->Get_Parameter("SEARCH_RADIUS")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
+				5 * sqrt(pParameter->asShapes()->Get_Extent().Get_Area() / pParameter->asShapes()->Get_Count()), 1
+			));
+		}
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -318,7 +323,7 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
 	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
 	m_pIntercept	= m_Grid_Target.Get_Grid("INTERCEPT");
