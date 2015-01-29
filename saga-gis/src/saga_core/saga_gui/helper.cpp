@@ -194,12 +194,14 @@ double		Get_Random(double loValue, double hiValue)
 //---------------------------------------------------------
 wxString	Get_FilePath_Relative(const wxString &Directory, const wxString &FileName)
 {
+	if( FileName.Find(Directory) != 0 )
+	{
+		return( FileName );
+	}
+
 	wxFileName	fn(FileName);
 
-	if( fn.GetPath().Find(Directory) == 0 )
-	{
-		fn.MakeRelativeTo(Directory);
-	}
+	fn.MakeRelativeTo(Directory);
 
 	return( fn.GetFullPath() );
 }
