@@ -243,11 +243,9 @@ int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters,
 
 		if( pPoints->Get_Count() > 1 )	// get a rough estimation of point density for band width suggestion
 		{
-			double	d	= (pPoints->Get_Extent().Get_XRange() * pPoints->Get_Extent().Get_YRange()) / pPoints->Get_Count();
-
-			pParameters->Get_Parameter("DW_BANDWIDTH")->Set_Value(
-				SG_Get_Rounded_To_SignificantFigures(4.0 * sqrt(d), 1)
-			);
+			pParameters->Get_Parameter("DW_BANDWIDTH")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
+				4.0 * sqrt(pPoints->Get_Extent().Get_Area() / pPoints->Get_Count()), 1
+			));
 		}
 	}
 

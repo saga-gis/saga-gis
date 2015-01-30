@@ -94,23 +94,16 @@ protected:
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Initialize			(void);
+	virtual bool			On_Finalize				(void);
 
 	virtual bool			Get_Value				(double x, double y, double &z);
 
 
 private:
 
-	int						m_Weighting, m_nPoints_Max, m_iQuadrant;
+	CSG_Parameters_Search_Points	m_Search;
 
-	double					m_Power, m_Bandwidth, m_Radius;
-
-
-	double					Get_Weight				(double Distance);
-
-	int						Get_Count				(double x, double y);
-
-	bool					Get_Point				(int iPoint, double x, double y, double &iw, double &iz);
-
+	CSG_Distance_Weighting			m_Weighting;
 
 };
 

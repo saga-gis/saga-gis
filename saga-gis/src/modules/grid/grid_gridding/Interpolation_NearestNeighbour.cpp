@@ -75,7 +75,7 @@ CInterpolation_NearestNeighbour::CInterpolation_NearestNeighbour(void)
 {
 	Set_Name		(_TL("Nearest Neighbour"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Nearest Neighbour method for grid interpolation from irregular distributed points.")
@@ -85,15 +85,26 @@ CInterpolation_NearestNeighbour::CInterpolation_NearestNeighbour(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CInterpolation_NearestNeighbour::On_Initialize(void)
 {
-	return( Set_Search_Engine() );
+	return( m_Search.Create(m_pShapes, m_zField) );
 }
+
+//---------------------------------------------------------
+bool CInterpolation_NearestNeighbour::On_Finalize(void)
+{
+	m_Search.Destroy();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CInterpolation_NearestNeighbour::Get_Value(double x, double y, double &z)

@@ -138,8 +138,6 @@ bool CInterpolation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Search.Destroy();
-
 	if( m_pShapes != Parameters("SHAPES")->asShapes() )
 	{
 		delete(m_pShapes);
@@ -230,12 +228,6 @@ CSG_Shapes * CInterpolation::Get_Points(bool bOnlyNonPoints)
 	}
 
 	return( m_pShapes );
-}
-
-//---------------------------------------------------------
-bool CInterpolation::Set_Search_Engine(void)
-{
-	return( m_Search.Create(m_pShapes, m_zField) );
 }
 
 

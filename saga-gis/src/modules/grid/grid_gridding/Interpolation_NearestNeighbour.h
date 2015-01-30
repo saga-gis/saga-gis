@@ -90,9 +90,15 @@ public:
 
 protected:
 
-	virtual bool			On_Initialize		(void);
+	virtual bool				On_Initialize		(void);
+	virtual bool				On_Finalize			(void);
 
-	virtual bool			Get_Value			(double x, double y, double &z);
+	virtual bool				Get_Value			(double x, double y, double &z);
+
+
+private:
+
+	CSG_PRQuadTree				m_Search;
 
 };
 

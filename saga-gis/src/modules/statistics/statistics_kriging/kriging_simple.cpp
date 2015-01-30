@@ -13,7 +13,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 kriging_simple.cpp                  //
+//                  kriging_simple.cpp                   //
 //                                                       //
 //                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
@@ -72,8 +72,6 @@
 CKriging_Simple::CKriging_Simple(void)
 	: CKriging_Simple_Global()
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Simple Kriging"));
 
@@ -84,55 +82,7 @@ CKriging_Simple::CKriging_Simple(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pSearch	= Parameters.Add_Node(
-		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
-		_TL("")
-	);
-
-	pNode	= Parameters.Add_Choice(
-		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("local"),
-			_TL("global")
-		)
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
-		_TL("local maximum search distance given in map units"),
-		PARAMETER_TYPE_Double	, 1000.0, 0, true
-	);
-
-	pNode	= Parameters.Add_Choice(
-		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("maximum number of nearest points"),
-			_TL("all points within search distance")
-		)
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
-		_TL("minimum number of points to use"),
-		PARAMETER_TYPE_Int, 4, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
-		_TL("maximum number of nearest points"),
-		PARAMETER_TYPE_Int, 20, 1, true
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all directions"),
-			_TL("quadrants")
-		)
-	);
+	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 4);
 }
 
 
@@ -145,47 +95,44 @@ CKriging_Simple::CKriging_Simple(void)
 //---------------------------------------------------------
 bool CKriging_Simple::On_Initialize(void)
 {
-	m_nPoints_Min	= Parameters("SEARCH_POINTS_MIN")->asInt   ();
-	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt   () == 0
-					? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
-	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt   () == 0
-					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
-	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
-
 	//-----------------------------------------------------
-	if( m_nPoints_Max <= 0 && m_Radius <= 0 )	// global
+	if( m_Search.Do_Use_All(true) )	// global
 	{
 		return( CKriging_Simple_Global::On_Initialize() );
 	}
 
 	//-----------------------------------------------------
-	m_Search.Create(m_pPoints->Get_Extent());
-
-	for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
+	if( !m_bLog )
 	{
-		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(iPoint);
-
-		if( !pPoint->is_NoData(m_zField) )
-		{
-			m_Search.Add_Point(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
-		}
+		return( m_Search.Initialize(m_pPoints, m_zField) );
 	}
-
-	if( !m_Search.is_Okay() )
+	else
 	{
-		SG_UI_Msg_Add(_TL("could not initialize point search engine"), true);
+		m_Points.Create(SHAPE_TYPE_Point);
+		m_Points.Add_Field("Z", SG_DATATYPE_Double);
 
-		return( false );
+		for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
+		{
+			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(iPoint);
+
+			if( !pPoint->is_NoData(m_zField) )
+			{
+				m_Points.Add_Shape(pPoint, SHAPE_COPY_GEOM)->Set_Value(0, log(pPoint->asDouble(m_zField)));
+			}
+		}
+
+		return( m_Search.Initialize(&m_Points, 0) );
 	}
 
 	//-----------------------------------------------------
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CKriging_Simple::On_Finalize(void)
 {
-	m_Search.Destroy();
+	m_Search.Finalize();
+	m_Points.Destroy();
 
 	return( CKriging_Simple_Global::On_Finalize() );
 }
@@ -200,10 +147,10 @@ bool CKriging_Simple::On_Finalize(void)
 //---------------------------------------------------------
 int CKriging_Simple::Get_Weights(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z &Points)
 {
-	int		n	= m_Search.Get_Nearest_Points(Points, p, m_nPoints_Max, m_Radius, m_Direction);
-
-	if( n >= m_nPoints_Min )
+	if( m_Search.Get_Points(p, Points) )
 	{
+		int	n	= Points.Get_Count();
+
 		W.Create(n, n);
 
 		for(int i=0; i<n; i++)
@@ -236,7 +183,7 @@ int CKriging_Simple::Get_Weights(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z
 bool CKriging_Simple::Get_Value(const TSG_Point &p, double &z, double &v)
 {
 	//-----------------------------------------------------
-	if( m_nPoints_Max <= 0 && m_Radius <= 0 )	// global
+	if( m_Search.Do_Use_All() )	// global
 	{
 		return( CKriging_Simple_Global::Get_Value(p, z, v) );
 	}

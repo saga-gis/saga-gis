@@ -98,11 +98,7 @@ protected:
 
 private:
 
-	int						m_nPoints_Min, m_nPoints_Max, m_Direction;
-
-	double					m_Radius;
-
-	CSG_PRQuadTree			m_Search;
+	CSG_Shapes				m_Points;
 
 
 	int						Get_Weights			(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z &Points);

@@ -91,27 +91,29 @@ public:
 
 protected:
 
-	bool						m_bLog;
+	bool							m_bLog;
 
-	int							m_zField;
+	int								m_zField;
 
-	CSG_Shapes					*m_pPoints;
+	CSG_Shapes						*m_pPoints;
+
+	CSG_Parameters_Search_Points	m_Search;
 
 
-	virtual bool				On_Execute				(void);
+	virtual bool					On_Execute				(void);
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Initialize			(void)	{	return( true );	}
-	virtual bool				On_Finalize				(void)	{	return( true );	}
+	virtual bool					On_Initialize			(void)	{	return( true );	}
+	virtual bool					On_Finalize				(void)	{	return( true );	}
 
-	virtual bool				Get_Value				(const TSG_Point &p, double &z, double &v)	= 0;
+	virtual bool					Get_Value				(const TSG_Point &p, double &z, double &v)	= 0;
 
-	double						Get_Weight				(double d)											{	return( m_Model.Get_Value(d) );	}
-	double						Get_Weight				(double dx, double dy)								{	return( Get_Weight(sqrt(dx*dx + dy*dy)) );	}
-	double						Get_Weight				(const TSG_Point_Z &a, const TSG_Point_Z &b)		{	return( Get_Weight(a.x - b.x, a.y - b.y) );	}
-	double						Get_Weight				(double ax, double ay, double bx, double by)
+	double							Get_Weight				(double d)											{	return( m_Model.Get_Value(d) );	}
+	double							Get_Weight				(double dx, double dy)								{	return( Get_Weight(sqrt(dx*dx + dy*dy)) );	}
+	double							Get_Weight				(const TSG_Point_Z &a, const TSG_Point_Z &b)		{	return( Get_Weight(a.x - b.x, a.y - b.y) );	}
+	double							Get_Weight				(double ax, double ay, double bx, double by)
 	{
 		if( m_Block > 0.0 )
 		{
@@ -126,13 +128,13 @@ protected:
 		return( Get_Weight(ax - bx, ay - by) );
 	}
 
-	void						Set_Value				(int x, int y, double z, double v)
+	void							Set_Value				(int x, int y, double z, double v)
 	{
 		if( m_pGrid     )	m_pGrid    ->Set_Value(x, y, m_bLog    ? exp (z) : z);
 		if( m_pVariance )	m_pVariance->Set_Value(x, y, m_bStdDev ? sqrt(v) : v);
 	}
 
-	void						Set_NoData				(int x, int y)
+	void							Set_NoData				(int x, int y)
 	{
 		if( m_pGrid     )	m_pGrid    ->Set_NoData(x, y);
 		if( m_pVariance )	m_pVariance->Set_NoData(x, y);
@@ -141,20 +143,20 @@ protected:
 
 private:
 
-	bool						m_bStdDev;
+	bool							m_bStdDev;
 
-	double						m_Block;
+	double							m_Block;
 
-	CSG_Parameters_Grid_Target	m_Grid_Target;
+	CSG_Parameters_Grid_Target		m_Grid_Target;
 
-	CSG_Trend					m_Model;
+	CSG_Trend						m_Model;
 
-	CSG_Grid					*m_pGrid, *m_pVariance;
+	CSG_Grid						*m_pGrid, *m_pVariance;
 
-	class CVariogram_Dialog		*m_pVariogram;
+	class CVariogram_Dialog			*m_pVariogram;
 
 
-	bool						_Initialise_Grids		(void);
+	bool							_Initialise_Grids		(void);
 
 };
 

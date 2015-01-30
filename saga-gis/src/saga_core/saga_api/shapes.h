@@ -1022,6 +1022,53 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameters_Search_Points
+{
+public:
+	CSG_Parameters_Search_Points(void);
+
+	bool						Create					(CSG_Parameters *pParameters, CSG_Parameter *pNode = NULL, int nPoints_Min = -1);
+
+	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	bool						Initialize				(CSG_Shapes *pPoints, int zField);
+	bool						Finalize				(void);
+
+	int							Set_Location			(double x, double y);
+	int							Set_Location			(const TSG_Point &p);
+
+	int							Get_Count				(void)	const	{	return( m_nPoints );	}
+	bool						Get_Point				(int Index, double &x, double &y, double &z);
+
+	bool						Get_Points				(double x, double y, CSG_Points_Z &Points);
+	bool						Get_Points				(const TSG_Point &p, CSG_Points_Z &Points);
+
+	bool						Do_Use_All				(bool bUpdate = false);
+
+
+private:
+
+	int							m_zField, m_nPoints, m_nPoints_Min, m_nPoints_Max, m_Quadrant;
+
+	double						m_Radius;
+
+	CSG_Shapes					*m_pPoints;
+
+	CSG_Parameters				*m_pParameters;
+
+	CSG_PRQuadTree				m_Search;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//					Search Engine						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Shapes_Search
 {
 public:

@@ -178,12 +178,9 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
-		if( m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()) )
-		{
-			pParameters->Get_Parameter("SEARCH_RADIUS")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
-				5 * sqrt(pParameter->asShapes()->Get_Extent().Get_Area() / pParameter->asShapes()->Get_Count()), 1
-			));
-		}
+		m_Search.On_Parameter_Changed(pParameters, pParameter);
+
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -192,22 +189,12 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_RANGE") )
-	{
-		pParameters->Set_Enabled("SEARCH_RADIUS"    , pParameter->asInt() == 0);	// when global, no radius
-		pParameters->Set_Enabled("SEARCH_POINTS_MIN", pParameter->asInt() == 0);	// when global, no minimum number of points
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_POINTS_ALL") )
-	{
-		pParameters->Set_Enabled("SEARCH_POINTS_MAX", pParameter->asInt() == 0);	// maximum number of points
-		pParameters->Set_Enabled("SEARCH_DIRECTION" , pParameter->asInt() == 0);	// maximum number of points per quadrant
-	}
-
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BLOCK") )
 	{
-		pParameters->Set_Enabled("DBLOCK"           , pParameter->asBool()    );	// block size
+		pParameters->Set_Enabled("DBLOCK", pParameter->asBool());	// block size
 	}
+
+	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
 	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
 }
