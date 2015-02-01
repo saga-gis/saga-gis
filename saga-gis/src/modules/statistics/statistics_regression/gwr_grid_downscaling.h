@@ -78,31 +78,31 @@ class CGWR_Grid_Downscaling : public CSG_Module_Grid
 public:
 	CGWR_Grid_Downscaling(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{ return(_TL("A:Spatial and Geostatistics|Geographically Weighted Regression")); }
 
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute				(void);
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	int							m_nPredictors;
+	int								m_nPredictors;
 
-	CSG_Grid_Cell_Addressor		m_Search;
+	CSG_Grid_Cell_Addressor			m_Search;
 
-	CSG_Grid					*m_pDependent, **m_pPredictors, **m_pModel, *m_pQuality, *m_pResiduals;
+	CSG_Grid						*m_pDependent, **m_pPredictors, **m_pModel, *m_pQuality, *m_pResiduals;
 
 
-	bool						Set_Model				(double x, double y, double &Value, double &Residual);
-	bool						Set_Model				(void);
+	bool							Set_Model				(double x, double y, double &Value, double &Residual);
+	bool							Set_Model				(void);
 
-	bool						Get_Model				(void);
-	int							Get_Variables			(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y);
-	bool						Get_Regression			(int x, int y);
+	bool							Get_Model				(void);
+	int								Get_Variables			(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y);
+	bool							Get_Regression			(int x, int y);
 
 };
 

@@ -69,17 +69,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_SET_NODATA(g, x, y)	if( g ) { g->Set_NoData(x, y); }
-#define GRID_SET_VALUE(g, x, y, z)	if( g ) { g->Set_Value(x, y, z); }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 {
 	CSG_Parameter	*pNode;
@@ -91,17 +80,25 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 
 	Set_Description	(_TW(
 		"References:\n"
-		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
-		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
-		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
-		"\n"
-		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
-		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
-		" Environment and Planning A 30(11), 1905–1927."
-		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
-		"\n"
-		"- Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
-	));
+	) + GWR_References);
+
+	//-----------------------------------------------------
+	pNode = Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "DEPENDENT"	, _TL("Dependent Variable"),
+		_TL("")
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "RESIDUALS"	, _TL("Residuals"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
@@ -134,23 +131,6 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 		PARAMETER_TYPE_Bool, false
 	);
 
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "DEPENDENT"	, _TL("Dependent Variable"),
-		_TL("")
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "RESIDUALS"	, _TL("Residuals"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
-	);
-
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Choice(
 		NULL	, "RESOLUTION"	, _TL("Model Resolution"),
@@ -172,81 +152,26 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pSearch	= Parameters.Add_Node(
-		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
-		_TL("")
-	);
+	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 
-	pNode	= Parameters.Add_Choice(
-		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("local"),
-			_TL("global")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
-		_TL("local maximum search distance given in map units"),
-		PARAMETER_TYPE_Double	, 1000.0, 0, true
-	);
-
-	pNode	= Parameters.Add_Choice(
-		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("maximum number of nearest points"),
-			_TL("all points within search distance")
-		), 0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
-		_TL("minimum number of points to use"),
-		PARAMETER_TYPE_Int, 4, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
-		_TL("maximum number of nearest points"),
-		PARAMETER_TYPE_Int, 50, 1, true
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all directions"),
-			_TL("quadrants")
-		)
-	);
+	Parameters("SEARCH_RANGE"     )->Set_Value(1);
+	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POINTS")) && pParameter->asShapes() )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
 	{
-		CSG_Shapes	*pPoints	= pParameter->asShapes();
+		m_Search.On_Parameter_Changed(pParameters, pParameter);
 
-		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Value(
-			SG_Get_Rounded_To_SignificantFigures(pPoints->Get_Extent().Get_XRange() / 20.0, 1)
-		);
-
-		if( pPoints->Get_Count() > 1 )	// get a rough estimation of point density for band width suggestion
-		{
-			pParameters->Get_Parameter("DW_BANDWIDTH")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
-				4.0 * sqrt(pPoints->Get_Extent().Get_Area() / pPoints->Get_Count()), 1
-			));
-		}
+		pParameters->Set_Parameter("RESOLUTION_VAL", GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
+		pParameters->Set_Parameter("DW_BANDWIDTH"  , GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
 	}
 
 	return( 1 );
@@ -257,20 +182,10 @@ int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters,
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("RESOLUTION")) )
 	{
-		pParameters->Get_Parameter("RESOLUTION_VAL"   )->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Enabled(pParameter->asInt() == 1);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_RANGE")) )
-	{
-		pParameters->Get_Parameter("SEARCH_RADIUS"    )->Set_Enabled(pParameter->asInt() == 0);	// local
-		pParameters->Get_Parameter("SEARCH_POINTS_MIN")->Set_Enabled(pParameter->asInt() == 0);	// local
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SEARCH_POINTS_ALL")) )
-	{
-		pParameters->Get_Parameter("SEARCH_POINTS_MAX")->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points
-		pParameters->Get_Parameter("SEARCH_DIRECTION" )->Set_Enabled(pParameter->asInt() == 0);	// maximum number of points per quadrant
-	}
+	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
 
@@ -279,8 +194,6 @@ int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters,
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -399,8 +312,6 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -461,31 +372,20 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 	}
 
 	//-----------------------------------------------------
-	m_nPoints_Min	= Parameters("SEARCH_POINTS_MIN")->asInt   ();
-	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt   () == 0
-					? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
-	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt   () == 0
-					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
-	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
-
 	m_Weighting.Set_Parameters(&Parameters);
 
-	return( m_Points.Get_Count() > m_nPredictors
-		&& ((m_nPoints_Max <= 0 && m_Radius <= 0.0) || m_Search.Create(&m_Points, -1))
-	);
+	return( m_Points.Get_Count() > m_nPredictors && m_Search.Initialize(&m_Points, -1) );
 }
 
 //---------------------------------------------------------
 void CGW_Multi_Regression_Grid::Finalize(void)
 {
+	m_Search.Finalize();
 	m_Points.Destroy();
-	m_Search.Destroy();
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -531,7 +431,7 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 {
 	//-----------------------------------------------------
 	TSG_Point	Point	= m_dimModel.Get_Grid_to_World(x, y);
-	int			nPoints	= m_Search.is_Okay() ? (int)m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_Points.Get_Count();
+	int			nPoints = m_Search.Set_Location(Point);
 
 	CSG_Vector	Predictors(m_nPredictors);
 
@@ -541,7 +441,7 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 	{
 		double	ix, iy, iz;
 
-		CSG_Shape	*pPoint	= m_Search.is_Okay() && m_Search.Get_Selected_Point(iPoint, ix, iy, iz)
+		CSG_Shape	*pPoint = m_Search.Do_Use_All() && m_Search.Get_Point(iPoint, ix, iy, iz)
 			? m_Points.Get_Shape((int)iz)
 			: m_Points.Get_Shape(iPoint);
 
@@ -563,8 +463,6 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -594,13 +492,13 @@ bool CGW_Multi_Regression_Grid::Set_Model(void)
 
 			if( Set_Model(p_x, p_y, Value) )
 			{
-				GRID_SET_VALUE(pRegression, x, y, Value);
-				GRID_SET_VALUE(pQuality   , x, y, m_pQuality->Get_Value(p_x, p_y));
+				SG_GRID_PTR_SAFE_SET_VALUE(pRegression, x, y, Value);
+				SG_GRID_PTR_SAFE_SET_VALUE(pQuality   , x, y, m_pQuality->Get_Value(p_x, p_y));
 			}
 			else
 			{
-				GRID_SET_NODATA(pRegression, x, y);
-				GRID_SET_NODATA(pQuality   , x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pRegression, x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pQuality   , x, y);
 			}
 		}
 	}
@@ -637,8 +535,6 @@ bool CGW_Multi_Regression_Grid::Set_Model(double x, double y, double &Value)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

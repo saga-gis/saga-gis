@@ -78,43 +78,32 @@ class CGW_Multi_Regression_Points : public CSG_Module
 public:
 	CGW_Multi_Regression_Points(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{ return(_TL("A:Spatial and Geostatistics|Geographically Weighted Regression")); }
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual bool					On_Execute				(void);
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	int							m_nPredictors, m_nPoints_Min, m_nPoints_Max, m_Direction;
+	int								m_nPredictors;
 
-	double						m_Radius;
+	CSG_Distance_Weighting			m_Weighting;
 
-	CSG_Distance_Weighting		m_Weighting;
+	CSG_Parameters_Search_Points	m_Search;
 
-	CSG_PRQuadTree				m_Search;
-
-	CSG_Vector					m_z, m_w;
-
-	CSG_Matrix					m_y;
-
-	CSG_Shapes					*m_pPoints;
+	CSG_Shapes						*m_pPoints;
 
 
-	void						Finalize				(void);
+	bool							Initialize				(void);
+	void							Finalize				(void);
 
-	bool						Get_Predictors			(void);
-
-	int							Set_Variables			(const TSG_Point &Point);
-
-	bool						Get_Regression			(CSG_Shape *pPoint);
-
-	bool						Set_Residuals			(void);
+	bool							Get_Model				(const TSG_Point &Point, CSG_Regression_Weighted &Model);
 
 };
 

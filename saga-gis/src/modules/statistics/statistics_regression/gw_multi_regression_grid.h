@@ -78,44 +78,42 @@ class CGW_Multi_Regression_Grid : public CSG_Module_Grid
 public:
 	CGW_Multi_Regression_Grid(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("A:Spatial and Geostatistics|Geographically Weighted Regression") );	}
 
 
 protected:
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute				(void);
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	int							m_nPredictors, m_nPoints_Min, m_nPoints_Max, m_Direction;
+	int								m_nPredictors;
 
-	CSG_Grid					**m_pPredictors, **m_pModel, *m_pQuality;
+	CSG_Grid						**m_pPredictors, **m_pModel, *m_pQuality;
 
-	CSG_Grid_System				m_dimModel;
+	CSG_Grid_System					m_dimModel;
 
-	double						m_Radius;
+	CSG_Distance_Weighting			m_Weighting;
 
-	CSG_Distance_Weighting		m_Weighting;
+	CSG_Parameters_Search_Points	m_Search;
 
-	CSG_PRQuadTree				m_Search;
-
-	CSG_Shapes					m_Points;
+	CSG_Shapes						m_Points;
 
 
-	bool						Initialize				(CSG_Shapes *pPoints, int iDependent, CSG_Parameter_Grid_List *pPredictors);
-	void						Finalize				(void);
+	bool							Initialize				(CSG_Shapes *pPoints, int iDependent, CSG_Parameter_Grid_List *pPredictors);
+	void							Finalize				(void);
 
-	bool						Get_Model				(void);
-	bool						Get_Model				(int x, int y, CSG_Regression_Weighted &Model);
+	bool							Get_Model				(void);
+	bool							Get_Model				(int x, int y, CSG_Regression_Weighted &Model);
 
-	bool						Set_Model				(void);
-	bool						Set_Model				(double x, double y, double &Value);
+	bool							Set_Model				(void);
+	bool							Set_Model				(double x, double y, double &Value);
 
-	bool						Set_Residuals			(void);
+	bool							Set_Residuals			(void);
 
 };
 

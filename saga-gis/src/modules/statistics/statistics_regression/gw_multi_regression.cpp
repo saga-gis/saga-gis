@@ -69,17 +69,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_ARRAY_DELETE(A)		if( A ) { delete[](A); A = NULL; }
-#define SG_ARRAY_FREE(A)		if( A ) { SG_Free (A); A = NULL; }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CGW_Multi_Regression::CGW_Multi_Regression(void)
 {
 	CSG_Parameter	*pNode;
@@ -91,20 +80,10 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 
 	Set_Description	(_TW(
 		"Geographically Weighted Regression for multiple predictors. "
-		"Determination coefficients and regression model parameters "
-		"are given as grids.\n"
+		"Predictors have to be supplied as attributes of ingoing points data. "
+		"Regression model parameters are generated as continuous fields, i.e. as grids.\n"
 		"Reference:\n"
-		"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
-		" Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
-		" <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
-		"\n"
-		"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
-		" Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
-		" Environment and Planning A 30(11), 1905–1927."
-		" <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
-		"\n"
-		" - Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
-	));
+	) + GWR_References);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
@@ -124,7 +103,7 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "REGRESSION"		, _TL("Regression"),
+		NULL	, "REGRESSION"	, _TL("Regression"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
@@ -146,55 +125,10 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pSearch	= Parameters.Add_Node(
-		NULL	, "NODE_SEARCH"			, _TL("Search Options"),
-		_TL("")
-	);
+	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 
-	pNode	= Parameters.Add_Choice(
-		pSearch	, "SEARCH_RANGE"		, _TL("Search Range"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("local"),
-			_TL("global")
-		)
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
-		_TL("local maximum search distance given in map units"),
-		PARAMETER_TYPE_Double	, 1000.0, 0, true
-	);
-
-	pNode	= Parameters.Add_Choice(
-		pSearch	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("maximum number of nearest points"),
-			_TL("all points within search distance")
-		)
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
-		_TL("minimum number of points to use"),
-		PARAMETER_TYPE_Int, 4, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
-		_TL("maximum number of nearest points"),
-		PARAMETER_TYPE_Int, 20, 1, true
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "SEARCH_DIRECTION"	, _TL("Search Direction"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all directions"),
-			_TL("quadrants")
-		)
-	);
+	Parameters("SEARCH_RANGE"     )->Set_Value(1);
+	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
 
 	//-----------------------------------------------------
 	m_iPredictor	= NULL;
@@ -204,8 +138,6 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -213,12 +145,11 @@ int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
-		if( m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes()) )
-		{
-			pParameters->Get_Parameter("SEARCH_RADIUS")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
-				5 * sqrt(pParameter->asShapes()->Get_Extent().Get_Area() / pParameter->asShapes()->Get_Count()), 1
-			));
-		}
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
+
+		m_Search.On_Parameter_Changed(pParameters, pParameter);
+
+		pParameters->Set_Parameter("DW_BANDWIDTH", GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
 	}
 
 	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
@@ -227,16 +158,7 @@ int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 int CGW_Multi_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_RANGE") )
-	{
-		pParameters->Set_Enabled("SEARCH_RADIUS"    , pParameter->asInt() == 0);	// local
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_POINTS_ALL") )
-	{
-		pParameters->Set_Enabled("SEARCH_POINTS_MAX", pParameter->asInt() == 0);	// maximum number of points
-		pParameters->Set_Enabled("SEARCH_DIRECTION" , pParameter->asInt() == 0);	// maximum number of points per quadrant
-	}
+	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
 
@@ -246,12 +168,10 @@ int CGW_Multi_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGW_Multi_Regression::Get_Predictors(void)
+bool CGW_Multi_Regression::Initialize(void)
 {
 	CSG_Parameter_Table_Fields	*pFields	= Parameters("PREDICTORS")->asTableFields();
 
@@ -273,21 +193,14 @@ bool CGW_Multi_Regression::Get_Predictors(void)
 //---------------------------------------------------------
 void CGW_Multi_Regression::Finalize(void)
 {
-	SG_ARRAY_DELETE(m_iPredictor);
+	SG_DELETE_ARRAY(m_iPredictor);
+	SG_FREE_SAFE   (m_pSlopes);
 
-	SG_ARRAY_FREE  (m_pSlopes);
-
-	m_Search.Destroy();
-
-	m_y.Destroy();
-	m_z.Destroy();
-	m_w.Destroy();
+	m_Search.Finalize();
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -295,27 +208,18 @@ void CGW_Multi_Regression::Finalize(void)
 bool CGW_Multi_Regression::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pPoints		= Parameters("POINTS"           )->asShapes();
-	m_iDependent	= Parameters("DEPENDENT"        )->asInt   ();
-
-	m_nPoints_Min	= Parameters("SEARCH_POINTS_MIN")->asInt   ();
-	m_nPoints_Max	= Parameters("SEARCH_POINTS_ALL")->asInt   () == 0
-					? Parameters("SEARCH_POINTS_MAX")->asInt   () : 0;
-	m_Radius		= Parameters("SEARCH_RANGE"     )->asInt   () == 0
-					? Parameters("SEARCH_RADIUS"    )->asDouble() : 0.0;
-	m_Direction		= Parameters("SEARCH_DIRECTION" )->asInt   () == 0 ? -1 : 4;
-
-	m_Weighting.Set_Parameters(&Parameters);
+	m_pPoints		= Parameters("POINTS"   )->asShapes();
+	m_iDependent	= Parameters("DEPENDENT")->asInt   ();
 
 	//-----------------------------------------------------
-	if( !Get_Predictors() )
+	if( !Initialize() )
 	{
 		Finalize();
 
 		return( false );
 	}
 
-	if( (m_nPoints_Max > 0 || m_Radius > 0.0) && !m_Search.Create(m_pPoints, -1) )
+	if( !m_Search.Initialize(m_pPoints, -1) )
 	{
 		Finalize();
 
@@ -325,7 +229,9 @@ bool CGW_Multi_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
 
-	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
+	m_Weighting.Set_Parameters(&Parameters);
+
+	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY");
 	m_pIntercept	= m_Grid_Target.Get_Grid("INTERCEPT");
 
 	if( !m_pQuality || !m_pIntercept )
@@ -351,18 +257,23 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	nPoints_Max	= m_nPoints_Max > 0 ? m_nPoints_Max : m_pPoints->Get_Count();
-
-	m_y.Create(1 + m_nPredictors, nPoints_Max);
-	m_z.Create(nPoints_Max);
-	m_w.Create(nPoints_Max);
-
-	//-----------------------------------------------------
 	for(int y=0; y<m_pIntercept->Get_NY() && Set_Progress(y, m_pIntercept->Get_NY()); y++)
 	{
 		for(int x=0; x<m_pIntercept->Get_NX(); x++)
 		{
-			if( !Get_Regression(x, y) )
+			CSG_Regression_Weighted	Model;
+
+			if( Get_Model(x, y, Model) )
+			{
+				m_pQuality  ->Set_Value(x, y, Model.Get_R2());
+				m_pIntercept->Set_Value(x, y, Model[0]);
+
+				for(int i=0; i<m_nPredictors; i++)
+				{
+					m_pSlopes[i]->Set_Value(x, y, Model[i + 1]);
+				}
+			}
+			else
 			{
 				m_pQuality  ->Set_NoData(x, y);
 				m_pIntercept->Set_NoData(x, y);
@@ -384,126 +295,55 @@ bool CGW_Multi_Regression::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGW_Multi_Regression::Set_Variables(int x, int y)
+bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
 {
-	int			iPoint, jPoint, nPoints, iPredictor;
-	TSG_Point	Point;
-	CSG_Shape	*pPoint;
+	//-----------------------------------------------------
+	TSG_Point	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
+	int			nPoints = m_Search.Set_Location(Point);
 
-	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
-	nPoints	= m_Search.is_Okay() ? (int)m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Direction) : m_pPoints->Get_Count();
+	CSG_Vector	Predictors(m_nPredictors);
 
-	for(iPoint=0, jPoint=0; iPoint<nPoints; iPoint++)
+	Model.Destroy();
+
+	for(int iPoint=0; iPoint<nPoints; iPoint++)
 	{
-		if( m_Search.is_Okay() )
-		{
-			double	ix, iy, iz;
+		double	ix, iy, iz;
 
-			m_Search.Get_Selected_Point(iPoint, ix, iy, iz);
-
-			pPoint	= m_pPoints->Get_Shape((int)iz);
-		}
-		else
-		{
-			pPoint	= m_pPoints->Get_Shape(iPoint);
-		}
+		CSG_Shape	*pPoint = m_Search.Do_Use_All() && m_Search.Get_Point(iPoint, ix, iy, iz)
+			? m_pPoints->Get_Shape((int)iz)
+			: m_pPoints->Get_Shape(iPoint);
 
 		if( !pPoint->is_NoData(m_iDependent) )
 		{
-			m_z[jPoint]	= pPoint->asDouble(m_iDependent);
-			m_w[jPoint]	= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
+			bool	bOkay	= true;
 
-			for(iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+			for(int iPredictor=0; iPredictor<m_nPredictors && bOkay; iPredictor++)
 			{
 				if( !pPoint->is_NoData(m_iPredictor[iPredictor]) )
 				{
-					m_y[jPoint][iPredictor]	= pPoint->asDouble(m_iPredictor[iPredictor]);
+					Predictors[iPredictor]	= pPoint->asDouble(m_iPredictor[iPredictor]);
 				}
 				else
 				{
-					iPredictor	= m_nPredictors + 1;
+					bOkay	= false;
 				}
 			}
 
-			if( iPredictor == m_nPredictors )
+			if( bOkay )
 			{
-				jPoint++;
+				Model.Add_Sample(
+					m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
+					pPoint->asDouble(m_iDependent), Predictors
+				);
 			}
 		}
 	}
 
-	return( jPoint );
-}
-
-//---------------------------------------------------------
-bool CGW_Multi_Regression::Get_Regression(int x, int y)
-{
-	int		nPoints	= Set_Variables(x, y);
-
-	if( nPoints < m_nPoints_Min )
-	{
-		return( false );
-	}
-
 	//-----------------------------------------------------
-	int			i;
-	double		zMean, rss, tss;
-	CSG_Vector	b, z;
-	CSG_Matrix	Y, YtW;
-
-	//-----------------------------------------------------
-	z  .Create(nPoints);
-	Y  .Create(1 + m_nPredictors, nPoints);
-	YtW.Create(nPoints, 1 + m_nPredictors);
-
-	for(i=0, zMean=0.0; i<nPoints; i++)
-	{
-		Y  [i][0]	= 1.0;
-		YtW[0][i]	= m_w[i];
-
-		for(int j=0; j<m_nPredictors; j++)
-		{
-			Y  [i][j + 1]	= m_y[i][j];
-			YtW[j + 1][i]	= m_y[i][j] * m_w[i];
-		}
-
-		zMean		+= (z[i] = m_z[i]);
-	}
-
-	//-----------------------------------------------------
-	b		= (YtW * Y).Get_Inverse() * (YtW * z);
-
-	zMean	/= nPoints;
-
-	for(i=0, rss=0.0, tss=0.0; i<nPoints; i++)
-	{
-		double	zr	= b[0];
-
-		for(int j=0; j<m_nPredictors; j++)
-		{
-			zr	+= b[j + 1] * m_y[i][j];
-		}
-
-		rss	+= m_w[i] * SG_Get_Square(m_z[i] - zr);
-		tss	+= m_w[i] * SG_Get_Square(m_z[i] - zMean);
-	}
-
-	m_pQuality  ->Set_Value(x, y, tss > 0.0 ? (tss - rss) / tss : 0.0);
-
-	m_pIntercept->Set_Value(x, y, b[0]);
-
-	for(i=0; i<m_nPredictors; i++)
-	{
-		m_pSlopes[i]->Set_Value(x, y, b[i + 1]);
-	}
-
-	//-----------------------------------------------------
-	return( true );
+	return( Model.Calculate() );
 }
 
 

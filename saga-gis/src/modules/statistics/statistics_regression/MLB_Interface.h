@@ -75,4 +75,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+const CSG_String	GWR_References =
+	"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
+	"  Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
+	"  <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
+	"\n"
+	"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
+	"  Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
+	"  Environment and Planning A 30(11), 1905–1927."
+	"  <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
+	"\n"
+	"- Lloyd, C. (2010):"
+	"  Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n";
+
+//---------------------------------------------------------
+double	GWR_Fit_To_Density(CSG_Shapes *pPoints, double Bandwidth, int Rounding = 1);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__statistics_regression_H

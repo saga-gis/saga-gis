@@ -78,38 +78,33 @@ class CGW_Regression_Grid : public CSG_Module_Grid
 public:
 	CGW_Regression_Grid(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:GWR") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{ return(_TL("A:Spatial and Geostatistics|Geographically Weighted Regression")); }
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual bool					On_Execute				(void);
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	int							m_iDependent, m_nPoints_Min, m_nPoints_Max, m_Direction;
+	int								m_iDependent;
 
-	double						m_Radius;
+	CSG_Distance_Weighting			m_Weighting;
 
-	CSG_Distance_Weighting		m_Weighting;
+	CSG_Parameters_Search_Points	m_Search;
 
-	CSG_PRQuadTree				m_Search;
+	CSG_Shapes						*m_pPoints;
 
-	CSG_Vector					m_y, m_z, m_w;
-
-	CSG_Shapes					*m_pPoints;
-
-	CSG_Grid					*m_pPredictor, *m_pRegression, *m_pQuality, *m_pIntercept, *m_pSlope;
+	CSG_Grid						*m_pPredictor, *m_pRegression, *m_pQuality, *m_pIntercept, *m_pSlope;
 
 
-	int							Set_Variables			(int x, int y);
+	bool							Get_Model				(int x, int y, CSG_Regression_Weighted &Model);
 
-	bool						Get_Regression			(int x, int y);
-
-	bool						Set_Residuals			(void);
+	bool							Set_Residuals			(void);
 
 };
 

@@ -159,3 +159,42 @@ CSG_Module *		Create_Module(int i)
 	MLB_INTERFACE
 
 //}}AFX_SAGA
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double	GWR_Fit_To_Density(CSG_Shapes *pPoints, double Bandwidth, int Rounding)
+{
+	if (pPoints && pPoints->Get_Count() > 0 && pPoints->Get_Extent().Get_Area() > 0.0)
+	{
+		double	d = sqrt(pPoints->Get_Extent().Get_Area() / pPoints->Get_Count());	// get a rough estimation of point density for band width suggestion
+
+		if (Bandwidth > 0.0)
+		{
+			d *= Bandwidth;
+		}
+
+		if (Rounding > 0)
+		{
+			d = SG_Get_Rounded_To_SignificantFigures(d, Rounding);
+		}
+
+		return(d);
+	}
+
+	return(-1.0);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
