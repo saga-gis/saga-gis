@@ -1044,7 +1044,7 @@ bool CSG_Parameters_Search_Points::Get_Point(int Index, double &x, double &y, do
 
 		x	= pPoint->Get_Point(0).x;
 		y	= pPoint->Get_Point(0).y;
-		z	= pPoint->asDouble(m_zField);
+		z	= m_zField < 0 ? Index : pPoint->asDouble(m_zField);
 	}
 
 	return( true );
