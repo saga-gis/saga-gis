@@ -877,7 +877,7 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 		m_pParameters->Add_Value(
 			pSub	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
 			_TL("minimum number of points to use"),
-			PARAMETER_TYPE_Int, 4, 1, true
+			PARAMETER_TYPE_Int, nPoints_Min, 1, true
 		);
 	}
 
