@@ -19,7 +19,6 @@ Gridding_Spline_Base.cpp\
 Gridding_Spline_CSA.cpp\
 Gridding_Spline_MBA.cpp\
 Gridding_Spline_MBA_Grid.cpp\
-Gridding_Spline_TPS_Global.cpp\
 Gridding_Spline_TPS_Local.cpp\
 Gridding_Spline_TPS_TIN.cpp\
 MBASpline_for_Categories.cpp\
@@ -30,7 +29,6 @@ Gridding_Spline_Base.h\
 Gridding_Spline_MBA.h\
 Gridding_Spline_CSA.h\
 Gridding_Spline_MBA_Grid.h\
-Gridding_Spline_TPS_Global.h\
 Gridding_Spline_TPS_Local.h\
 Gridding_Spline_TPS_TIN.h\
 MBASpline_for_Categories.h\

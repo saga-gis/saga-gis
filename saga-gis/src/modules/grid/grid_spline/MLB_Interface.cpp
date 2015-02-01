@@ -100,7 +100,6 @@ CSG_String Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "Gridding_Spline_TPS_Global.h"
 #include "Gridding_Spline_TPS_Local.h"
 #include "Gridding_Spline_TPS_TIN.h"
 #include "Gridding_Spline_BA.h"
@@ -118,7 +117,6 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CGridding_Spline_TPS_Global );
 	case 1:		return( new CGridding_Spline_TPS_Local );
 	case 2:		return( new CGridding_Spline_TPS_TIN );
 	case 3:		return( new CGridding_Spline_BA );

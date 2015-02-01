@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Gridding_Spline_TPS_Global.h"
+#include "Gridding_Spline_Base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,11 +82,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_spline_EXPORT CGridding_Spline_TPS_TIN : public CGridding_Spline_TPS_Global
+class CGridding_Spline_TPS_TIN : public CGridding_Spline_Base
 {
 public:
 	CGridding_Spline_TPS_TIN(void);
-	virtual ~CGridding_Spline_TPS_TIN(void);
 
 
 protected:
@@ -95,6 +94,8 @@ protected:
 
 
 private:
+
+	double					m_Regularisation;
 
 	int						m_nPoints, m_nPoints_Buf, m_Level;
 
@@ -105,7 +106,7 @@ private:
 	bool					_Finalise		(void);
 
 	void					_Set_Triangle	(CSG_TIN_Triangle *pTriangle);
-	void					_Set_Grid		(CSG_TIN_Triangle *pTriangle);
+	void					_Set_Grid		(CSG_TIN_Triangle *pTriangle, CSG_Thin_Plate_Spline &Spline);
 
 	void					_Add_Points		(CSG_TIN_Node *Point, int Level);
 	bool					_Add_Point		(CSG_TIN_Node *Point);

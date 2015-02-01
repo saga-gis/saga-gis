@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Gridding_Spline_TPS_Global.h"
+#include "Gridding_Spline_Base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_spline_EXPORT CGridding_Spline_TPS_Local : public CGridding_Spline_TPS_Global
+class grid_spline_EXPORT CGridding_Spline_TPS_Local : public CGridding_Spline_Base
 {
 public:
 	CGridding_Spline_TPS_Local(void);
@@ -90,23 +90,22 @@ public:
 
 protected:
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	int						m_nPoints_Max, m_Direction;
+	double							m_Regularisation;
 
-	double					m_Radius;
+	CSG_Thin_Plate_Spline			m_Spline;
 
-	CSG_PRQuadTree			m_Search;
+	CSG_Parameters_Search_Points	m_Search;
 
 
-	int						Get_Points				(const TSG_Point &p, int iQuadrant = -1);
-
-	bool					Set_Value				(int x, int y, const TSG_Point &p);
+	bool							Set_Value				(int x, int y, const TSG_Point &p);
 
 };
 

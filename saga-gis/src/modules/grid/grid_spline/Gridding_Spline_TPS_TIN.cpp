@@ -72,11 +72,10 @@
 
 //---------------------------------------------------------
 CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
-	: CGridding_Spline_TPS_Global()
 {
 	Set_Name		(_TL("Thin Plate Spline (TIN)"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Creates a 'Thin Plate Spline' function for each triangle of a TIN "
@@ -105,6 +104,13 @@ CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
 	));
 
 	//-----------------------------------------------------
+	Parameters.Add_Value(
+		NULL, "REGULARISATION"	, _TL("Regularisation"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.0001, 0.0, true
+	);
+
+	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "LEVEL"		, _TL("Neighbourhood"),
 		_TL(""),
@@ -123,10 +129,6 @@ CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
 	);
 }
 
-//---------------------------------------------------------
-CGridding_Spline_TPS_TIN::~CGridding_Spline_TPS_TIN(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -137,12 +139,13 @@ CGridding_Spline_TPS_TIN::~CGridding_Spline_TPS_TIN(void)
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_TIN::_Initialise(void)
 {
-	m_Level			= Parameters("LEVEL")	->asInt();
+	m_Regularisation	= Parameters("REGULARISATION")->asDouble();
+	m_Level				= Parameters("LEVEL")->asInt();
 
-	m_Points		= NULL;
-	m_nPoints_Buf	= 0;
+	m_Points			= NULL;
+	m_nPoints_Buf		= 0;
 
-	return( CGridding_Spline_TPS_Global::On_Initialise() );
+	return( CGridding_Spline_Base::On_Initialise() );
 }
 
 //---------------------------------------------------------
@@ -155,8 +158,6 @@ bool CGridding_Spline_TPS_TIN::_Finalise(void)
 
 	m_Points		= NULL;
 	m_nPoints_Buf	= 0;
-
-	m_Spline.Destroy();
 
 	return( true );
 }
@@ -199,37 +200,38 @@ bool CGridding_Spline_TPS_TIN::On_Execute(void)
 //---------------------------------------------------------
 void CGridding_Spline_TPS_TIN::_Set_Triangle(CSG_TIN_Triangle *pTriangle)
 {
-	int			i, j;
-	CSG_TIN_Node	*pPoint;
-
 	if( m_pGrid->Get_Extent().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
 	{
+		int		i, j;
+
 		for(j=0, m_nPoints=0; j<3; j++)
 		{
-			for(i=0, pPoint=pTriangle->Get_Node(j); i<pPoint->Get_Neighbor_Count(); i++)
+			CSG_TIN_Node	*pPoint = pTriangle->Get_Node(j);
+
+			for(i=0; i<pPoint->Get_Neighbor_Count(); i++)
 			{
 				_Add_Points(pPoint->Get_Neighbor(i), 0);
 			}
 		}
 
-		m_Spline.Destroy();
+		CSG_Thin_Plate_Spline	Spline;
 
 		for(i=0; i<m_nPoints; i++)
 		{
-			pPoint	= m_Points[i];
+			CSG_TIN_Node	*pPoint = m_Points[i];
 
-			m_Spline.Add_Point(pPoint->Get_Point().x, pPoint->Get_Point().y, pPoint->asDouble(m_zField));
+			Spline.Add_Point(pPoint->Get_Point().x, pPoint->Get_Point().y, pPoint->asDouble(0));
 		}
 
-		if( m_Spline.Create(m_Regularisation, true) )
+		if( Spline.Create(m_Regularisation, true) )
 		{
-			_Set_Grid(pTriangle);
+			_Set_Grid(pTriangle, Spline);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CGridding_Spline_TPS_TIN::_Set_Grid(CSG_TIN_Triangle *pTriangle)
+void CGridding_Spline_TPS_TIN::_Set_Grid(CSG_TIN_Triangle *pTriangle, CSG_Thin_Plate_Spline &Spline)
 {
 	int		ix, iy, ax, ay, bx, by;
 	double	x, y, xMin, yMin;
@@ -247,7 +249,7 @@ void CGridding_Spline_TPS_TIN::_Set_Grid(CSG_TIN_Triangle *pTriangle)
 		{
 			if( pTriangle->is_Containing(x, y) )
 			{
-				m_pGrid->Set_Value(ix, iy, m_Spline.Get_Value(x, y));
+				m_pGrid->Set_Value(ix, iy, Spline.Get_Value(x, y));
 			}
 		}
 	}
@@ -263,16 +265,15 @@ void CGridding_Spline_TPS_TIN::_Set_Grid(CSG_TIN_Triangle *pTriangle)
 //---------------------------------------------------------
 void CGridding_Spline_TPS_TIN::_Add_Points(CSG_TIN_Node *pPoint, int Level)
 {
-	int			i, j;
-	CSG_TIN_Node	*p;
-
 	_Add_Point(pPoint);
 
 	if( Level < m_Level )
 	{
-		for(j=0; j<pPoint->Get_Neighbor_Count(); j++)
+		for(int j=0; j<pPoint->Get_Neighbor_Count(); j++)
 		{
-			for(i=0, p=pPoint->Get_Neighbor(j); i<p->Get_Neighbor_Count(); i++)
+			CSG_TIN_Node	*p	= pPoint->Get_Neighbor(j);
+
+			for(int i=0; i<p->Get_Neighbor_Count(); i++)
 			{
 				_Add_Points(p->Get_Neighbor(i), Level + 1);
 			}
@@ -314,66 +315,62 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 {
 	TIN.Destroy();
 
-	if( Parameters("FRAME")->asBool() )
+	bool		bFrame		= Parameters("FRAME" )->asBool  ();
+	int			zField		= Parameters("FIELD" )->asInt   ();
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	double	x[4], y[4], z[4], dMin[4];
+
+	x[0]	= m_pGrid->Get_Extent().Get_XMin();	y[0]	= m_pGrid->Get_Extent().Get_YMin();	dMin[0]	= -1.0;
+	x[1]	= m_pGrid->Get_Extent().Get_XMin();	y[1]	= m_pGrid->Get_Extent().Get_YMax();	dMin[1]	= -1.0;
+	x[2]	= m_pGrid->Get_Extent().Get_XMax();	y[2]	= m_pGrid->Get_Extent().Get_YMax();	dMin[2]	= -1.0;
+	x[3]	= m_pGrid->Get_Extent().Get_XMax();	y[3]	= m_pGrid->Get_Extent().Get_YMin();	dMin[3]	= -1.0;
+
+	TIN.Add_Field("Z", SG_DATATYPE_Double);
+
+	for (int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		int			iShape, iPart, iPoint, iCorner, iField, z[4];
-		double		x[4], y[4], dMin[4], d;
-		TSG_Point	p;
-		CSG_Shape		*pShape;
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-		for(iField=0; iField<m_pShapes->Get_Field_Count(); iField++)
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			TIN.Add_Field(m_pShapes->Get_Field_Name(iField), m_pShapes->Get_Field_Type(iField));
-		}
-
-		x[0]	= m_pGrid->Get_Extent().Get_XMin();	y[0]	= m_pGrid->Get_Extent().Get_YMin();	dMin[0]	= -1.0;
-		x[1]	= m_pGrid->Get_Extent().Get_XMin();	y[1]	= m_pGrid->Get_Extent().Get_YMax();	dMin[1]	= -1.0;
-		x[2]	= m_pGrid->Get_Extent().Get_XMax();	y[2]	= m_pGrid->Get_Extent().Get_YMax();	dMin[2]	= -1.0;
-		x[3]	= m_pGrid->Get_Extent().Get_XMax();	y[3]	= m_pGrid->Get_Extent().Get_YMin();	dMin[3]	= -1.0;
-
-		for(iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
-		{
-			pShape	= m_pShapes->Get_Shape(iShape);
-
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				TSG_Point	p = pShape->Get_Point(iPoint, iPart);
+
+				TIN.Add_Node(p, NULL, false)->Set_Value(0, pShape->asDouble(zField));
+
+				if( bFrame )
 				{
-					p	= pShape->Get_Point(iPoint, iPart);
-
-					TIN.Add_Node(p, pShape, false);
-
-					for(iCorner=0; iCorner<4; iCorner++)
+					for(int iCorner=0; iCorner<4; iCorner++)
 					{
-						d	= SG_Get_Distance(p.x, p.y, x[iCorner], y[iCorner]);
+						double d	= SG_Get_Distance(p.x, p.y, x[iCorner], y[iCorner]);
 
 						if( dMin[iCorner] < 0.0 || d < dMin[iCorner] )
 						{
 							dMin[iCorner]	= d;
-							z   [iCorner]	= iShape;
+							z   [iCorner]	= pShape->asDouble(zField);
 						}
 					}
 				}
 			}
 		}
+	}
 
-		for(iCorner=0; iCorner<4; iCorner++)
+	if( bFrame )
+	{
+		for(int iCorner=0; iCorner<4; iCorner++)
 		{
 			if( dMin[iCorner] >= 0.0 )
 			{
-				p.x	= x[iCorner];
-				p.y	= y[iCorner];
+				CSG_Point	p(x[iCorner], y[iCorner]);
 
-				TIN.Add_Node(p, m_pShapes->Get_Shape(z[iCorner]), false);
+				TIN.Add_Node(p, NULL, false)->Set_Value(0, z[iCorner]);
 			}
 		}
+	}
 
-		TIN.Update();
-	}
-	else
-	{
-		TIN.Create(m_pShapes);
-	}
+	TIN.Update();
 
 	return( TIN.Get_Triangle_Count() > 0 );
 }
