@@ -201,7 +201,8 @@ SAGA_API_DLL_EXPORT void *			SG_Calloc			(size_t num, size_t size);
 SAGA_API_DLL_EXPORT void *			SG_Realloc			(void *memblock, size_t size);
 SAGA_API_DLL_EXPORT void			SG_Free				(void *memblock);
 
-#define SG_FREE_SAFE(PTR)			{ if( PTR ) { SG_Free(PTR); PTR = NULL; } }
+#define SG_FREE_SAFE(PTR)			{ if( PTR ) { SG_Free (PTR); PTR = NULL; } }
+#define SG_DELETE_ARRAY(PTR)		{ if( PTR ) { delete[](PTR); PTR = NULL; } }
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT void			SG_Swap_Bytes		(void *Buffer, int nBytes);

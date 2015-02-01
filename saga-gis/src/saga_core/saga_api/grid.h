@@ -879,6 +879,10 @@ private:	///////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SG_GRID_PTR_SAFE_SET_NODATA(g, x, y)	{ if( g && g->is_InGrid(x, y, false) ) { g->Set_NoData(x, y   ); } }
+#define SG_GRID_PTR_SAFE_SET_VALUE(g, x, y, z)	{ if( g && g->is_InGrid(x, y, false) ) { g->Set_Value (x, y, z); } }
+
+//---------------------------------------------------------
 /** Safe grid construction */
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(void);
 
