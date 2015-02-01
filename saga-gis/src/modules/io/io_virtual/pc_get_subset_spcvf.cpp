@@ -77,6 +77,8 @@ CPointCloud_Get_Subset_SPCVF_Base::CPointCloud_Get_Subset_SPCVF_Base(void)
 	m_pShapes			= NULL;
 	m_pFilePath			= NULL;
 	m_pPointCloudList	= NULL;
+
+	m_vAttrMapper.clear();
 }
 
 
@@ -88,9 +90,10 @@ CPointCloud_Get_Subset_SPCVF_Base::~CPointCloud_Get_Subset_SPCVF_Base(void)
 
 
 //---------------------------------------------------------
-void CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
+bool CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
 												   CSG_String sFileNameTileInfo, CSG_String sFileName, CSG_Parameter_File_Name *pFilePath,
-												   CSG_Parameter_PointCloud_List *pPointCloudList, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange)
+												   CSG_Parameter_PointCloud_List *pPointCloudList, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange,
+												   bool bCopyAttr, CSG_String sAttrList)
 {
 	m_iOutputs			= iOutputs;
 	m_AOI				= AOI;
@@ -108,7 +111,54 @@ void CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, C
 	m_dMinAttrRange		= dMinAttrRange;
 	m_dMaxAttrRange		= dMaxAttrRange;
 
-	return;
+	if (!bCopyAttr)
+	{
+		CSG_String_Tokenizer	tkz_fields(sAttrList, ";", SG_TOKEN_STRTOK);
+		CSG_String				token;
+		int						iValue;
+		std::vector<int>		vValues;
+
+		while( tkz_fields.Has_More_Tokens() )
+		{
+			token	= tkz_fields.Get_Next_Token();
+
+			if( token.Length() == 0 )
+				break;
+
+			if( !token.asInt(iValue) )
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: can't convert to number!"));
+				return( false );
+			}
+
+			iValue	-= 1;
+
+			if( iValue < 0)
+			{
+				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: field index out of range!"));
+				return( false );
+			}
+			else
+				vValues.push_back(iValue);
+		}
+
+		std::sort(vValues.begin(), vValues.end());
+
+		if( vValues.at(0) != 0 || vValues.at(1) != 1 || vValues.at(2) != 2) 
+		{
+			SG_UI_Msg_Add_Error(_TL("Attribute fields one to three (x;y;z) are mandatory!"));
+			return( false );
+		}
+
+		m_vAttrMapper.clear();
+
+		for(int i=3; i<(int)vValues.size(); i++)
+		{
+			m_vAttrMapper.push_back(vValues.at(i) - 3);
+		}
+	}
+
+	return( true );
 }
 
 
@@ -119,12 +169,14 @@ void CPointCloud_Get_Subset_SPCVF_Base::Finalise(void)
 	m_pFilePath			= NULL;
 	m_pPointCloudList	= NULL;
 
+	m_vAttrMapper.clear();
+
 	return;
 }
 
 
 //---------------------------------------------------------
-bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
+bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 {
 	CSG_String		sVersion, sPathSPCVF, sMethodPaths;
 	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax;
@@ -142,7 +194,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 		return( false );
 	}
 
-	if( m_bConstrain )
+	if( !bCopyAttr || m_bConstrain )
 	{
 		CSG_MetaData	*pHeader = SPCVF.Get_Child(SG_T("Header"));
 
@@ -152,10 +204,22 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 			pHeader->Get_Child(SG_T("Attributes"))->Get_Property(SG_T("Count"), iFieldCount);
 
-			if( m_iField >= iFieldCount )
+			if( !bCopyAttr )
 			{
-				SG_UI_Msg_Add_Error(_TL("Constraining attribute field number is out of range!"));
-				return( false );
+				if( m_vAttrMapper.at(m_vAttrMapper.size()-1) >= iFieldCount-3 )
+				{
+					SG_UI_Msg_Add_Error(_TL("Attribute field number to copy is out of range!"));
+					return( false );
+				}
+			}
+
+			if( m_bConstrain )
+			{
+				if( m_iField < 0 || m_iField >= iFieldCount )
+				{
+					SG_UI_Msg_Add_Error(_TL("Constraining attribute field number is out of range!"));
+					return( false );
+				}
 			}
 		}
 	}
@@ -315,7 +379,22 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 			if( pPC_out == NULL && i == 0 )
 			{
-				pPC_out = SG_Create_PointCloud(pPC);
+				if( bCopyAttr )
+				{
+					pPC_out = SG_Create_PointCloud(pPC);
+				}
+				else
+				{
+					pPC_out = SG_Create_PointCloud();
+
+					for(size_t iField=0; iField<m_vAttrMapper.size(); iField++)
+					{
+						if( iField >= pPC->Get_Attribute_Count() )
+							continue;
+
+						pPC_out->Add_Field(pPC->Get_Attribute_Name(m_vAttrMapper.at(iField)), pPC->Get_Attribute_Type(m_vAttrMapper.at(iField)));
+					}
+				}
 			}
 
 			bool bFound = false;
@@ -343,9 +422,22 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(void)
 
 					pPC_out->Add_Point(pPC->Get_X(iPoint), pPC->Get_Y(iPoint), pPC->Get_Z(iPoint));
 
-					for(int iField=0; iField<pPC->Get_Attribute_Count(); iField++)
+					if( bCopyAttr )
 					{
-						pPC_out->Set_Attribute(iField, pPC->Get_Attribute(iPoint, iField));
+						for(int iField=0; iField<pPC->Get_Attribute_Count(); iField++)
+						{
+							pPC_out->Set_Attribute(iField, pPC->Get_Attribute(iPoint, iField));
+						}
+					}
+					else
+					{
+						for(int iField=0; iField<(int)m_vAttrMapper.size(); iField++)
+						{
+							if( iField >= pPC->Get_Attribute_Count() )
+								continue;
+
+							pPC_out->Set_Attribute(iField, pPC->Get_Attribute(iPoint, m_vAttrMapper.at(iField)));
+						}
 					}
 
 					bFound = true;
@@ -546,11 +638,22 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 	);
 
 	Parameters.Add_Value(
+		NULL	, "COPY_ATTR"	, _TL("Copy existing Attributes"),
+		_TL("Copy attributes from input to output point cloud."),
+		PARAMETER_TYPE_Bool, true
+	);
+	Parameters.Add_String(
+		Parameters("COPY_ATTR")	, "ATTRIBUTE_LIST"	, _TL("Copy Attributes"),
+		_TL("Field numbers (starting from 1) of the attributes to copy, separated by semicolon; fields one to three (x;y;z) are mandatory."),
+		SG_T("1;2;3")
+	);
+
+	Parameters.Add_Value(
 		NULL	, "CONSTRAIN_QUERY"	, _TL("Constrain Query"),
 		_TL("Check this parameter to constrain the query by an attribute range."),
 		PARAMETER_TYPE_Bool, false
 	);
-	
+
 	Parameters.Add_Value(
 		Parameters("CONSTRAIN_QUERY")	, "ATTR_FIELD"	, _TL("Attribute Field"),
 		_TL("The attribute field to use as constraint. Field numbers start with 1."),
@@ -649,7 +752,8 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	bool			bMultiple;
 	int				iOutputs = 1;
 	CSG_Rect		AOI;
-
+	bool			bCopyAttr;
+	CSG_String		sAttrList;
 
 	//-----------------------------------------------------
 	sFileName			= Parameters("FILENAME")->asString();
@@ -671,6 +775,9 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	dOverlap			= Parameters("OVERLAP")->asDouble();
 	sFileNameTileInfo	= Parameters("FILENAME_TILE_INFO")->asString();
 	bMultiple			= Parameters("ONE_PC_PER_POLYGON")->asBool();
+
+	bCopyAttr			= Parameters("COPY_ATTR")->asBool();
+	sAttrList			= Parameters("ATTRIBUTE_LIST")->asString();
 
 	if( pShapes == NULL )
 	{
@@ -707,10 +814,13 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 		AOI.Assign(dAoiXMin, dAoiYMin, dAoiXMax, dAoiYMax);
 	}
 
-	m_Get_Subset_SPCVF.Initialise(iOutputs, AOI, pShapes, iFieldName, bMultiple, bAddOverlap, dOverlap, sFileNameTileInfo, sFileName, pFilePath, pPointCloudList,
-								  bConstrain, iField, dMinAttrRange, dMaxAttrRange);
+	if( !m_Get_Subset_SPCVF.Initialise(iOutputs, AOI, pShapes, iFieldName, bMultiple, bAddOverlap, dOverlap, sFileNameTileInfo, sFileName, pFilePath, pPointCloudList,
+								  bConstrain, iField, dMinAttrRange, dMaxAttrRange, bCopyAttr, sAttrList) )
+	{
+		return( false );
+	}
 
-	bool bResult = m_Get_Subset_SPCVF.Get_Subset();
+	bool bResult = m_Get_Subset_SPCVF.Get_Subset(bCopyAttr);
 
 	//---------------------------------------------------------
 	if( SG_UI_Get_Window_Main() )
@@ -740,6 +850,11 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 //---------------------------------------------------------
 int CPointCloud_Get_Subset_SPCVF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COPY_ATTR")) )
+	{
+		pParameters->Get_Parameter("ATTRIBUTE_LIST"		)->Set_Enabled(pParameter->asBool() == false);
+	}
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CONSTRAIN_QUERY")) )
 	{
 		pParameters->Get_Parameter("ATTR_FIELD"			)->Set_Enabled(pParameter->asBool());
@@ -803,6 +918,17 @@ CPointCloud_Get_Subset_SPCVF_Interactive::CPointCloud_Get_Subset_SPCVF_Interacti
 	);
 
 	Parameters.Add_Value(
+		NULL	, "COPY_ATTR"	, _TL("Copy existing Attributes"),
+		_TL("Copy attributes from input to output point cloud."),
+		PARAMETER_TYPE_Bool, true
+	);
+	Parameters.Add_String(
+		Parameters("COPY_ATTR")	, "ATTRIBUTE_LIST"	, _TL("Copy Attributes"),
+		_TL("Field numbers (starting from 1) of the attributes to copy, separated by semicolon; fields one to three (x;y;z) are mandatory."),
+		SG_T("1;2;3")
+	);
+
+	Parameters.Add_Value(
 		NULL	, "CONSTRAIN_QUERY"	, _TL("Constrain Query"),
 		_TL("Check this parameter to constrain the query by an attribute range."),
 		PARAMETER_TYPE_Bool, false
@@ -857,11 +983,15 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 
 		// as long as this module only supports to drag a box, we initialize it with a fake overlap in order
 		// to use CSG_Rect instead of CSG_Shape for point in polygon check in Get_Subset():
-		m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, true, 0.0, SG_T(""), Parameters("FILENAME")->asString(), NULL, &PointCloudList,
+		if( !m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, true, 0.0, SG_T(""), Parameters("FILENAME")->asString(), NULL, &PointCloudList,
 									  Parameters("CONSTRAIN_QUERY")->asBool(), Parameters("ATTR_FIELD")->asInt()-1,
-									  Parameters("VALUE_RANGE")->asRange()->Get_LoVal(), Parameters("VALUE_RANGE")->asRange()->Get_HiVal());
+									  Parameters("VALUE_RANGE")->asRange()->Get_LoVal(), Parameters("VALUE_RANGE")->asRange()->Get_HiVal(),
+									  Parameters("COPY_ATTR")->asBool(), Parameters("ATTRIBUTE_LIST")->asString()) )
+		{
+			return( false );
+		}
 
-		bool bResult = m_Get_Subset_SPCVF.Get_Subset();
+		bool bResult = m_Get_Subset_SPCVF.Get_Subset(Parameters("COPY_ATTR")->asBool());
 
 		if( bResult )
 		{
@@ -893,6 +1023,11 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 //---------------------------------------------------------
 int CPointCloud_Get_Subset_SPCVF_Interactive::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COPY_ATTR")) )
+	{
+		pParameters->Get_Parameter("ATTRIBUTE_LIST"		)->Set_Enabled(pParameter->asBool() == false);
+	}
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CONSTRAIN_QUERY")) )
 	{
 		pParameters->Get_Parameter("ATTR_FIELD"			)->Set_Enabled(pParameter->asBool());

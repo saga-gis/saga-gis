@@ -74,6 +74,8 @@
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+#include <vector>
+#include <algorithm>
 
 
 ///////////////////////////////////////////////////////////
@@ -89,11 +91,12 @@ public:
 	CPointCloud_Get_Subset_SPCVF_Base(void);
 	virtual ~CPointCloud_Get_Subset_SPCVF_Base(void);
 
-	void					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
+	bool					Initialise	(int iOutputs, CSG_Rect	AOI, CSG_Shapes *pShapes, int iFieldName, bool bMultiple, bool bAddOverlap, double dOverlap,
 										 CSG_String sFileNameTileInfo, CSG_String sFilename, CSG_Parameter_File_Name *pFilePath,
-										 CSG_Parameter_PointCloud_List *pPointCloudList, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange);
+										 CSG_Parameter_PointCloud_List *pPointCloudList, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange,
+										 bool bCopyAttr, CSG_String sAttrList);
 	void					Finalise	(void);
-	bool					Get_Subset	(void);
+	bool					Get_Subset	(bool bCopyAttr);
 	void					Write_Subset(CSG_PointCloud *pPC_out, int iAOI, int iDatasets, CSG_MetaData *pSPCVF_Tiles, bool bAbsolutePaths);
 
 protected:
@@ -114,6 +117,7 @@ private:
 	bool					m_bConstrain;
 	int						m_iField;
 	double					m_dMinAttrRange, m_dMaxAttrRange;
+	std::vector<int>		m_vAttrMapper;
 
 };
 
