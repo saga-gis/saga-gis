@@ -126,7 +126,7 @@ void CPointCloud_Get_Grid_SPCVF_Base::Finalise(void)
 
 
 //---------------------------------------------------------
-bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
+bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 {
 	CSG_String		sVersion, sPathSPCVF, sMethodPaths;
 	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax;
@@ -141,16 +141,23 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 		return( false );
 	}
 
-	if( m_bConstrain )
+
+	CSG_MetaData	*pHeader = SPCVF.Get_Child(SG_T("Header"));
+
+	if( pHeader != NULL )
 	{
-		CSG_MetaData	*pHeader = SPCVF.Get_Child(SG_T("Header"));
+		int		iFieldCount;
 
-		if( pHeader != NULL )
+		pHeader->Get_Child(SG_T("Attributes"))->Get_Property(SG_T("Count"), iFieldCount);
+
+		if( iFieldToGrid < 0 || iFieldToGrid >= iFieldCount )
 		{
-			int		iFieldCount;
+			SG_UI_Msg_Add_Error(_TL("Attribute field number to grid is out of range!"));
+			return( false );
+		}
 
-			pHeader->Get_Child(SG_T("Attributes"))->Get_Property(SG_T("Count"), iFieldCount);
-
+		if( m_bConstrain )
+		{
 			if( m_iField >= iFieldCount )
 			{
 				SG_UI_Msg_Add_Error(_TL("Constraining attribute field number is out of range!"));
@@ -158,6 +165,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 			}
 		}
 	}
+
 
 
 	//-----------------------------------------------------
@@ -343,15 +351,15 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(void)
 						switch( m_iMethod )
 						{
 						default:
-						case 0:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) > pPC->Get_Z(iPoint) )
+						case 0:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) > pPC->Get_Value(iPoint, iFieldToGrid) )
 									{
-										pGrid->Set_Value(x, y, pPC->Get_Z(iPoint));
+										pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
 									}
 									break;
 
-						case 1:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) < pPC->Get_Z(iPoint) )
+						case 1:		if( pGrid->is_NoData(x, y) || pGrid->asDouble(x, y) < pPC->Get_Value(iPoint, iFieldToGrid) )
 									{
-										pGrid->Set_Value(x, y, pPC->Get_Z(iPoint));
+										pGrid->Set_Value(x, y, pPC->Get_Value(iPoint, iFieldToGrid));
 									}
 									break;
 						}
@@ -512,6 +520,12 @@ CPointCloud_Get_Grid_SPCVF::CPointCloud_Get_Grid_SPCVF(void)
 	);
 
 	Parameters.Add_Value(
+		NULL	, "ATTR_FIELD_GRID"	, _TL("Attribute Field to Grid"),
+		_TL("The attribute field to grid. Field numbers start with 1, so elevation is attribute field 3."),
+		PARAMETER_TYPE_Int, 1, 3, true
+	);
+
+	Parameters.Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Cellsize"),
 		_TL("Cellsize of the output grid [map units]"),
 		PARAMETER_TYPE_Double, 1.0, 0.001, true
@@ -530,8 +544,8 @@ CPointCloud_Get_Grid_SPCVF::CPointCloud_Get_Grid_SPCVF(void)
 		NULL	, "METHOD"	, _TL("Aggregation"),
 		_TL("Choose how to aggregate the values"),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("lowest z"),
-			_TL("highest z")
+			_TL("lowest"),
+			_TL("highest")
 		), 1
 	);
 
@@ -609,6 +623,7 @@ bool CPointCloud_Get_Grid_SPCVF::On_Execute(void)
 	CSG_String		sFileName;
 	CSG_Parameter_Grid_List	*pGridList = NULL;
 	CSG_Parameter_File_Name	*pFilePath = NULL;
+	int				iFieldToGrid;
 	double			dCellsize;
 	bool			bFitToCells;
 	int				iMethod;
@@ -630,6 +645,7 @@ bool CPointCloud_Get_Grid_SPCVF::On_Execute(void)
 	sFileName		= Parameters("FILENAME")->asString();
 	pGridList		= Parameters("GRID_OUT")->asGridList();
 	pFilePath		= Parameters("FILEPATH")->asFilePath();
+	iFieldToGrid	= Parameters("ATTR_FIELD_GRID")->asInt() - 1;
 	dCellsize		= Parameters("CELL_SIZE")->asDouble();
 	bFitToCells		= Parameters("GRID_SYSTEM_FIT")->asBool();
 	iMethod			= Parameters("METHOD")->asInt();
@@ -693,7 +709,7 @@ bool CPointCloud_Get_Grid_SPCVF::On_Execute(void)
 	m_Get_Grid_SPCVF.Initialise(iOutputs, AOI, pShapes, iFieldName, bMultiple, bAddOverlap, dOverlap, sFileName, pFilePath, pGridList, dCellsize, bFitToCells, iMethod,
 								bConstrain, iField, dMinAttrRange, dMaxAttrRange);
 
-	bool bResult = m_Get_Grid_SPCVF.Get_Subset();
+	bool bResult = m_Get_Grid_SPCVF.Get_Subset(iFieldToGrid);
 
 	m_Get_Grid_SPCVF.Finalise();
 
@@ -766,6 +782,12 @@ CPointCloud_Get_Grid_SPCVF_Interactive::CPointCloud_Get_Grid_SPCVF_Interactive(v
 	);
 
 	Parameters.Add_Value(
+		NULL	, "ATTR_FIELD_GRID"	, _TL("Attribute Field to Grid"),
+		_TL("The attribute field to grid. Field numbers start with 1, so elevation is attribute field 3."),
+		PARAMETER_TYPE_Int, 1, 3, true
+	);
+
+	Parameters.Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Cellsize"),
 		_TL("Cellsize of the output grid [map units]"),
 		PARAMETER_TYPE_Double, 1.0, 0.001, true
@@ -784,8 +806,8 @@ CPointCloud_Get_Grid_SPCVF_Interactive::CPointCloud_Get_Grid_SPCVF_Interactive(v
 		NULL	, "METHOD"	, _TL("Aggregation"),
 		_TL("Choose how to aggregate the values"),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("lowest z"),
-			_TL("highest z")
+			_TL("lowest"),
+			_TL("highest")
 		), 1
 	);
 
@@ -846,8 +868,8 @@ bool CPointCloud_Get_Grid_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWor
 									Parameters("GRID_SYSTEM_FIT")->asBool(), Parameters("METHOD")->asInt(),
 									Parameters("CONSTRAIN_QUERY")->asBool(), Parameters("ATTR_FIELD")->asInt()-1,
 									Parameters("VALUE_RANGE")->asRange()->Get_LoVal(), Parameters("VALUE_RANGE")->asRange()->Get_HiVal());
-
-		bool bResult = m_Get_Grid_SPCVF.Get_Subset();
+		
+		bool bResult = m_Get_Grid_SPCVF.Get_Subset(Parameters("ATTR_FIELD_GRID")->asInt()-1);
 
 		if( bResult )
 		{

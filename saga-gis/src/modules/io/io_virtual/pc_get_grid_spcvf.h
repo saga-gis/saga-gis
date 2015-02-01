@@ -93,7 +93,7 @@ public:
 										 CSG_String sFilename, CSG_Parameter_File_Name *pFilePath, CSG_Parameter_Grid_List *pGridList, double dCellsize,
 										 bool bFitToCells, int iMethod, bool bConstrain, int iField, double dMinAttrRange, double dMaxAttrRange);
 	void					Finalise	(void);
-	bool					Get_Subset	(void);
+	bool					Get_Subset	(int iFieldToGrid);
 	void					Write_Subset(CSG_Grid *pGrid, int iAOI, int iDatasets, double dPoints);
 
 protected:
