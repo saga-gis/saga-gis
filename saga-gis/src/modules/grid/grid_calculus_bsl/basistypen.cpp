@@ -7,6 +7,7 @@
 #include <sstream>
 #include <sstream>
 #include <locale>
+#include <functional>
 
 #include "basistypen.h"
 

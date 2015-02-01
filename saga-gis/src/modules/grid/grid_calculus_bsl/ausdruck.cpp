@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <vector>
+#include <functional>
 #include "ausdruck.h"
 #include "funktion.h"
 
