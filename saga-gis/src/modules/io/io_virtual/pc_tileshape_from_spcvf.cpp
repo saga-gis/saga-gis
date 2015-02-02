@@ -80,7 +80,9 @@ CPointCloud_Create_Tileshape_From_SPCVF::CPointCloud_Create_Tileshape_From_SPCVF
 
 	Set_Description	(_TW(
 		"The module allows to create a polygon shapefile with the "
-		"bounding boxes of a virtual point cloud dataset.\n"
+		"bounding boxes of a virtual point cloud dataset. Additionally, "
+		"the header information of the chosen virtual point cloud "
+		"dataset is reported (since SPCVFDataset version 1.1).\n"
 		"A virtual point cloud dataset is a simple XML format "
 		"with the file extension .spcvf, which can be created "
 		"with the 'Create Virtual Point Cloud Dataset' module.\n\n"
@@ -120,7 +122,7 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 	CSG_MetaData	SPCVF;
 	CSG_String		sPathSPCVF, sFilePath;
 	int				iPoints;
-	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax;
+	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax, dZMin, dZMax;
 
 
 	//-----------------------------------------------------
@@ -157,12 +159,76 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 
 
 	//-----------------------------------------------------
+	CSG_MetaData	*pSPCVFHeader = SPCVF.Get_Child(SG_T("Header"));
+
+	if( pSPCVFHeader != NULL )	// i.e. we have a file version >= 1.1
+	{
+		int				iValue;
+		double			dValue;
+		CSG_String		sValue;
+		CSG_Projection	projSPCVF;
+
+		SG_UI_Msg_Add(SG_T(""), true);
+		SG_UI_Msg_Add(_TL("Metadata from Header:"), true);
+
+		pSPCVFHeader->Get_Child(SG_T("Datasets"))->Get_Property(SG_T("Count"), iValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("Total number of referenced datasets: %d"), iValue), true);
+
+		pSPCVFHeader->Get_Child(SG_T("Points"))->Get_Property(SG_T("Count"), sValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("Total number of points: %s"), sValue.c_str()), true);
+
+		pSPCVFHeader->Get_Child(SG_T("SRS"))->Get_Property(SG_T("Projection"), sValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("Spatial Reference System: %s"), sValue.c_str()), true);
+
+		if( pSPCVFHeader->Get_Child(SG_T("SRS"))->Get_Property(SG_T("WKT"), sValue) )
+			SG_UI_Msg_Add(CSG_String::Format(_TL("WKT: %s"), sValue.c_str()), true);
+
+		pSPCVFHeader->Get_Child(SG_T("NoData"))->Get_Property(SG_T("Value"), dValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("NoData Value: %.6f"), dValue), true);
+
+		SG_UI_Msg_Add(SG_T(""), true);
+		SG_UI_Msg_Add(_TL("Overall Bounding Box:"), true);
+		pSPCVFHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMin"), dValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("XMin: %.6f"), dValue), true);
+		pSPCVFHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMin"), dValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("YMin: %.6f"), dValue), true);
+		pSPCVFHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("XMax"), dValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("XMax: %.6f"), dValue), true);
+		pSPCVFHeader->Get_Child(SG_T("BBox"))->Get_Property(SG_T("YMax"), dValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("YMax: %.6f"), dValue), true);
+		pSPCVFHeader->Get_Child(SG_T("ZStats"))->Get_Property(SG_T("ZMin"), dValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("ZMin: %.6f"), dValue), true);
+		pSPCVFHeader->Get_Child(SG_T("ZStats"))->Get_Property(SG_T("ZMax"), dValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("ZMax: %.6f"), dValue), true);
+
+		SG_UI_Msg_Add(SG_T(""), true);
+		pSPCVFHeader->Get_Child(SG_T("Attributes"))->Get_Property(SG_T("Count"), iValue);
+		SG_UI_Msg_Add(CSG_String::Format(_TL("Number of attribute fields: %d"), iValue), true);
+
+		for (int iField=0; iField<iValue; iField++)
+		{
+			CSG_MetaData	*pField = pSPCVFHeader->Get_Child(SG_T("Attributes"))->Get_Child(CSG_String::Format(SG_T("Field_%d"), iField + 1));
+			pField->Get_Property(SG_T("Name"), sValue);
+			SG_UI_Msg_Add(CSG_String::Format(_TL("Field %d: Name=\"%s\" "), iField + 1, sValue.c_str()), true);
+			pField->Get_Property(SG_T("Type"), sValue);
+			SG_UI_Msg_Add(CSG_String::Format(_TL("Type=\"%s\""), sValue.c_str()), false);
+		}
+	}
+
+
+	//-----------------------------------------------------
 	pShapes->Destroy();
 
 	pShapes->Add_Field(_TL("ID"),		SG_DATATYPE_Int);
 	pShapes->Add_Field(_TL("Filepath"),	SG_DATATYPE_String);
 	pShapes->Add_Field(_TL("File"),		SG_DATATYPE_String);
 	pShapes->Add_Field(_TL("Points"),	SG_DATATYPE_Int);
+
+	if( pSPCVFHeader != NULL )
+	{
+		pShapes->Add_Field(_TL("ZMin"),		SG_DATATYPE_Double);
+		pShapes->Add_Field(_TL("ZMax"),		SG_DATATYPE_Double);
+	}
 
 	pShapes->Set_Name(CSG_String::Format(_TL("Tileshape_%s"), SG_File_Get_Name(sFileName, false).c_str()));
 
@@ -206,6 +272,15 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 		}
 
 		pShape->Set_Value(3, iPoints);
+
+		if( pSPCVFHeader != NULL )
+		{
+			pDataset->Get_Property(SG_T("ZMin"), dZMin);
+			pDataset->Get_Property(SG_T("ZMax"), dZMax);
+
+			pShape->Set_Value(4, dZMin);
+			pShape->Set_Value(5, dZMax);
+		}
 	}
 
 
