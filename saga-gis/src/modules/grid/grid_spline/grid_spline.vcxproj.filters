@@ -35,9 +35,6 @@
     <ClCompile Include="Gridding_Spline_MBA_Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Gridding_Spline_TPS_Global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Gridding_Spline_TPS_Local.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -119,9 +116,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Gridding_Spline_MBA_Grid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Gridding_Spline_TPS_Global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Gridding_Spline_TPS_Local.h">

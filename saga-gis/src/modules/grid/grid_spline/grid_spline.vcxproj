@@ -298,7 +298,6 @@
     <ClCompile Include="Gridding_Spline_CSA.cpp" />
     <ClCompile Include="Gridding_Spline_MBA.cpp" />
     <ClCompile Include="Gridding_Spline_MBA_Grid.cpp" />
-    <ClCompile Include="Gridding_Spline_TPS_Global.cpp" />
     <ClCompile Include="Gridding_Spline_TPS_Local.cpp" />
     <ClCompile Include="Gridding_Spline_TPS_TIN.cpp" />
     <ClCompile Include="MBASpline_for_Categories.cpp" />
@@ -326,7 +325,6 @@
     <ClInclude Include="Gridding_Spline_CSA.h" />
     <ClInclude Include="Gridding_Spline_MBA.h" />
     <ClInclude Include="Gridding_Spline_MBA_Grid.h" />
-    <ClInclude Include="Gridding_Spline_TPS_Global.h" />
     <ClInclude Include="Gridding_Spline_TPS_Local.h" />
     <ClInclude Include="Gridding_Spline_TPS_TIN.h" />
     <ClInclude Include="MBASpline_for_Categories.h" />
