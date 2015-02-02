@@ -300,8 +300,8 @@ bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value, double 
 
 	for(int i=0; i<m_nPredictors; i++)
 	{
-		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_INTERPOLATION_BSpline)
-		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_INTERPOLATION_NearestNeighbour) )
+		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_INTERPOLATION_BSpline, false, true)
+		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_INTERPOLATION_BSpline, false, true) )
 		{
 			return( false );
 		}
@@ -395,15 +395,29 @@ bool CGWR_Grid_Downscaling::Get_Model(void)
 		#pragma omp parallel for
 		for(int x=0; x<System.Get_NX(); x++)
 		{
-			if( !Get_Regression(x, y) )
+			CSG_Regression_Weighted	Model;
+
+			if( Get_Model(x, y, Model) )
 			{
-				m_pQuality  ->Set_NoData(x, y);
-				m_pResiduals->Set_NoData(x, y);
+				m_pQuality->Set_Value(x, y, Model.Get_R2());
+
+				m_pModel[m_nPredictors]->Set_Value(x, y, Model[0]);	// intercept
+
+				for(int i=0; i<m_nPredictors; i++)
+				{
+					m_pModel[i]->Set_Value(x, y, Model[i + 1]);
+				}
+			}
+			else
+			{
+				m_pQuality->Set_NoData(x, y);
 
 				for(int i=0; i<=m_nPredictors; i++)
 				{
 					m_pModel[i]->Set_NoData(x, y);
 				}
+
+				m_pResiduals->Set_NoData(x, y);
 			}
 		}
 	}
@@ -422,133 +436,67 @@ bool CGWR_Grid_Downscaling::Get_Model(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGWR_Grid_Downscaling::Get_Variables(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y)
+bool CGWR_Grid_Downscaling::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
 {
-	int		n	= 0;
+	//-----------------------------------------------------
+	CSG_Vector	Predictors(m_nPredictors);
 
-	z.Create(m_Search.Get_Count());
-	w.Create(m_Search.Get_Count());
-	Y.Create(1 + m_nPredictors, m_Search.Get_Count());
+	Model.Destroy();
 
 	//-----------------------------------------------------
 	for(int i=0, ix, iy; i<m_Search.Get_Count(); i++)
 	{
-		double	id, iw;
+		double	Distance, Weight;
 
-		if( m_Search.Get_Values(i, ix = x, iy = y, id, iw, true) && m_pDependent->is_InGrid(ix, iy) )
+		if( m_Search.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && m_pDependent->is_InGrid(ix, iy) )
 		{
-			z[n]	= m_pDependent->asDouble(ix, iy);
-			w[n]	= iw;
-			Y[n][0]	= 1.0;
-
-			for(int j=0; j<m_nPredictors && iw>0.0; j++)
+			for(int iPredictor=0; iPredictor<m_nPredictors && Weight>0.0; iPredictor++)
 			{
-				if( !m_pPredictors[j]->is_NoData(ix, iy) )
+				if( !m_pPredictors[iPredictor]->is_NoData(ix, iy) )
 				{
-					Y[n][j + 1]	= m_pPredictors[j]->asDouble(ix, iy);
+					Predictors[iPredictor]	= m_pPredictors[iPredictor]->asDouble(ix, iy);
 				}
 				else
 				{
-					iw	= 0.0;
+					Weight	= 0.0;
 				}
 			}
 
-			if( iw > 0.0 )
+			if( Weight > 0.0 )
 			{
-				n++;
+				Model.Add_Sample(Weight, m_pDependent->asDouble(ix, iy), Predictors);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	z.Set_Rows(n);
-	w.Set_Rows(n);
-	Y.Set_Rows(n);
-
-	return( n );
-}
-
-//---------------------------------------------------------
-bool CGWR_Grid_Downscaling::Get_Regression(int x, int y)
-{
-	//-----------------------------------------------------
-	int			i, nPoints;
-	double		zMean, zr, rss, tss;
-	CSG_Vector	b, z, w;
-	CSG_Matrix	Y, YtW;
-
-	if( (nPoints = Get_Variables(x, y, z, w, Y)) <= m_nPredictors )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	YtW.Create(nPoints, 1 + m_nPredictors);
-
-	for(i=0, zMean=0.0; i<nPoints; i++)
-	{
-		zMean		+= z[i];
-		YtW[0][i]	 = w[i];
-
-		for(int j=1; j<=m_nPredictors; j++)
-		{
-			YtW[j][i]	= Y[i][j] * w[i];
-		}
-	}
-
-	//-----------------------------------------------------
-	b		= (YtW * Y).Get_Inverse() * (YtW * z);
-
-	zMean	/= nPoints;
-
-	for(i=0, rss=0.0, tss=0.0; i<nPoints; i++)
-	{
-		zr	= b[0];
-
-		for(int j=1; j<=m_nPredictors; j++)
-		{
-			zr	+= b[j] * Y[i][j];
-		}
-
-		rss	+= w[i] * SG_Get_Square(z[i] - zr);
-		tss	+= w[i] * SG_Get_Square(z[i] - zMean);
-	}
-
-	m_pQuality->Set_Value(x, y, tss > 0.0 ? (tss - rss) / tss : 0.0);
-
-	for(i=0; i<m_nPredictors; i++)
-	{
-		m_pModel[i]->Set_Value(x, y, b[i + 1]);
-	}
-
-	m_pModel[m_nPredictors]->Set_Value(x, y, b[0]);
-
-	//-----------------------------------------------------
-	if( m_pDependent->is_NoData(x, y) )
+	if( Model.Calculate() )
 	{
 		m_pResiduals->Set_NoData(x, y);
-	}
-	else
-	{
-		zr	= b[0];
 
-		for(i=0; i<m_nPredictors; i++)
+		if( m_pDependent->is_NoData(x, y) )
 		{
-			if( m_pPredictors[i]->is_NoData(x, y) )
-			{
-				m_pResiduals->Set_NoData(x, y);
+			return( true );
+		}
 
+		double	Value	= Model[0];
+
+		for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+		{
+			if( m_pPredictors[iPredictor]->is_NoData(x, y) )
+			{
 				return( true );
 			}
 
-			zr	+= b[i + 1] * m_pPredictors[i]->asDouble(x, y);
+			Value	+= Model[1 + iPredictor] * m_pPredictors[iPredictor]->asDouble(x, y);
 		}
 
-		m_pResiduals->Set_Value(x, y, m_pDependent->asDouble(x, y) - zr);
+		m_pResiduals->Set_Value(x, y, m_pDependent->asDouble(x, y) - Value);
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	return( true );
+	return( false );
 }
 
 

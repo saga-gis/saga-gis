@@ -101,8 +101,7 @@ private:
 	bool							Set_Model				(void);
 
 	bool							Get_Model				(void);
-	int								Get_Variables			(int x, int y, CSG_Vector &z, CSG_Vector &w, CSG_Matrix &Y);
-	bool							Get_Regression			(int x, int y);
+	bool							Get_Model				(int x, int y, CSG_Regression_Weighted &Model);
 
 };
 
