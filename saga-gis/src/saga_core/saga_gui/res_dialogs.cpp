@@ -63,7 +63,7 @@
 //---------------------------------------------------------
 #include <wx/utils.h>
 #include <wx/msgdlg.h>
-#include <wx/dirdlg.h>
+#include <wx/dirdlg.h> 
 #include <wx/filedlg.h>
 #include <wx/fontdlg.h>
 #include <wx/textdlg.h>
@@ -579,7 +579,7 @@ bool		DLG_Colors(int &Palette)
 	wxSingleChoiceDialog	dlg(
 		MDI_Get_Top_Window(),
 		wxT(""),
-		_TL("Preset Selection"),
+		_TL("Preset Selection"),		
 		SG_COLORS_COUNT, Palettes
 	);
 
@@ -775,7 +775,7 @@ bool		DLG_Save(wxString &File_Path, const wxString &Caption, const wxString &Fil
 //---------------------------------------------------------
 bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &def_Dir, const wxString &def_File, const wxString &Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, def_File, Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_CHANGE_DIR);
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, def_File, Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
@@ -811,7 +811,7 @@ bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &Fil
 //---------------------------------------------------------
 bool		DLG_Open(wxArrayString &File_Paths, const wxString &Caption, const wxString &def_Dir, const wxString &Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, wxT(""), Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE|wxFD_CHANGE_DIR);
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, wxT(""), Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
