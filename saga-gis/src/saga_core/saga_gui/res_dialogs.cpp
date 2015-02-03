@@ -735,12 +735,10 @@ bool		DLG_Save(wxString &File_Path, const wxString &Caption, const wxString &def
 {
 	wxString	Dir(def_Dir);
 
-	if( !wxFileExists(def_Dir) )
+	if( !wxDirExists(def_Dir) )
 	{
 		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
 	}
-
-	bool	bDirDefault	= !wxFileExists(def_Dir);
 
 	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, Dir, def_File, Filter, wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
@@ -748,7 +746,7 @@ bool		DLG_Save(wxString &File_Path, const wxString &Caption, const wxString &def
 	{
 		File_Path	= dlg.GetPath();
 
-		if( !wxFileExists(def_Dir) )
+		if( !wxDirExists(def_Dir) )
 		{
 			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
 		}
@@ -766,7 +764,7 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 	def_Name	= SG_File_Get_Name(File_Path, true).w_str();
 	def_Dir		= SG_File_Get_Path(File_Path).w_str();
 
-	if( !wxFileExists(def_Dir) )
+	if( !wxDirExists(def_Dir) )
 	{
 		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), def_Dir);
 	}
@@ -791,7 +789,7 @@ bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &def
 {
 	wxString	Dir(def_Dir);
 
-	if( !wxFileExists(def_Dir) )
+	if( !wxDirExists(def_Dir) )
 	{
 		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
 	}
@@ -802,7 +800,7 @@ bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &def
 	{
 		File_Path	= dlg.GetPath();
 
-		if( !wxFileExists(def_Dir) )
+		if( !wxDirExists(def_Dir) )
 		{
 			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
 		}
@@ -839,7 +837,7 @@ bool		DLG_Open(wxArrayString &File_Paths, const wxString &Caption, const wxStrin
 {
 	wxString	Dir(def_Dir);
 
-	if( !wxFileExists(def_Dir) )
+	if( !wxDirExists(def_Dir) )
 	{
 		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
 	}
@@ -852,7 +850,7 @@ bool		DLG_Open(wxArrayString &File_Paths, const wxString &Caption, const wxStrin
 
 		if( File_Paths.GetCount() > 0 )
 		{
-			if( !wxFileExists(def_Dir) )
+			if( !wxDirExists(def_Dir) )
 			{
 				CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Paths[0]).w_str());
 			}
@@ -899,7 +897,7 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 
 	wxString	Dir(def_Dir);
 
-	if( !wxFileExists(def_Dir) )
+	if( !wxDirExists(def_Dir) )
 	{
 		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
 	}
@@ -940,7 +938,7 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 		case 6:	Type	= wxBITMAP_TYPE_PNM;	break;
 		}
 
-		if( !wxFileExists(def_Dir) )
+		if( !wxDirExists(def_Dir) )
 		{
 			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
 		}
