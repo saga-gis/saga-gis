@@ -733,11 +733,25 @@ bool		DLG_Directory(wxString &Directory, const wxString &Caption)
 //---------------------------------------------------------
 bool		DLG_Save(wxString &File_Path, const wxString &Caption, const wxString &def_Dir, const wxString &def_File, const wxString &Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, def_File, Filter, wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+	wxString	Dir(def_Dir);
+
+	if( !wxFileExists(def_Dir) )
+	{
+		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
+	}
+
+	bool	bDirDefault	= !wxFileExists(def_Dir);
+
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, Dir, def_File, Filter, wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
 		File_Path	= dlg.GetPath();
+
+		if( !wxFileExists(def_Dir) )
+		{
+			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
+		}
 
 		return( true );
 	}
@@ -775,11 +789,23 @@ bool		DLG_Save(wxString &File_Path, const wxString &Caption, const wxString &Fil
 //---------------------------------------------------------
 bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &def_Dir, const wxString &def_File, const wxString &Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, def_File, Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+	wxString	Dir(def_Dir);
+
+	if( !wxFileExists(def_Dir) )
+	{
+		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
+	}
+
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, Dir, def_File, Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
 		File_Path	= dlg.GetPath();
+
+		if( !wxFileExists(def_Dir) )
+		{
+			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
+		}
 
 		return( true );
 	}
@@ -811,13 +837,28 @@ bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &Fil
 //---------------------------------------------------------
 bool		DLG_Open(wxArrayString &File_Paths, const wxString &Caption, const wxString &def_Dir, const wxString &Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, wxT(""), Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
+	wxString	Dir(def_Dir);
+
+	if( !wxFileExists(def_Dir) )
+	{
+		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
+	}
+
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, Dir, wxT(""), Filter, wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
 		dlg.GetPaths(File_Paths);
 
-		return( File_Paths.GetCount() > 0 );
+		if( File_Paths.GetCount() > 0 )
+		{
+			if( !wxFileExists(def_Dir) )
+			{
+				CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Paths[0]).w_str());
+			}
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -856,8 +897,15 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 {
 	static	int	Filter_Index	= 3;
 
+	wxString	Dir(def_Dir);
+
+	if( !wxFileExists(def_Dir) )
+	{
+		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), Dir);
+	}
+
 	wxFileDialog	dlg(
-		MDI_Get_Top_Window(), _TL("Save As Image"), def_Dir, def_File, wxString::Format(
+		MDI_Get_Top_Window(), _TL("Save As Image"), Dir, def_File, wxString::Format(
 			wxT("%s (*.bmp)|*.bmp|")
 			wxT("%s (*.jpg)|*.jpg;*.jif;*.jpeg|")
 			wxT("%s (*.tif)|*.tif;*.tiff|")
@@ -890,6 +938,11 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 		case 4:	Type	= wxBITMAP_TYPE_GIF;	break;
  		case 5:	Type	= wxBITMAP_TYPE_PCX;	break;
 		case 6:	Type	= wxBITMAP_TYPE_PNM;	break;
+		}
+
+		if( !wxFileExists(def_Dir) )
+		{
+			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
 		}
 
 		return( true );
