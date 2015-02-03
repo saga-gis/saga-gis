@@ -356,7 +356,7 @@ bool CSAGA::Process_Wait(bool bEnforce)
 	static bool			bYield	= false;
 	static wxDateTime	tYield	= wxDateTime::UNow();
 
-	if( !bYield && (bEnforce || m_Process_Frequency <= 0 || (wxDateTime::Now() - tYield).GetMilliseconds() > m_Process_Frequency) )
+	if( !bYield && (bEnforce || m_Process_Frequency <= 0 || (wxDateTime::UNow() - tYield).GetMilliseconds() > m_Process_Frequency) )
 	{
 		bYield	= true;
 
