@@ -162,13 +162,13 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 
 	m_Parameters.Add_Value(
 		pNode	, "LNG_OLDSTYLE"	, _TL("Old Style Namings"),
-		_TL("Use old style namings (e.g. 'modules' instead of 'tools'). Ignored if translation file is used. You need to restart SAGA to apply changes."),
+		_TL("Use old style namings (e.g. 'modules' instead of 'tools'). Ignored if translation file is used. You need to restart SAGA to apply the changes."),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	m_Parameters.Add_FilePath(
 		pNode	, "LNG_FILE_DIC"	, _TL("Language Translations"),
-		_TL("Dictionary for translations from built-in (English) to local language (editable text table). You need to restart SAGA to apply changes."),
+		_TL("Dictionary for translations from built-in (English) to local language (editable text table). You need to restart SAGA to apply the changes."),
 		CSG_String::Format(SG_T("%s|*.lng|%s|*.txt|%s|*.*"),
 			_TL("Dictionary Files (*.lng)"),
 			_TL("Text Table (*.txt)"),
@@ -178,7 +178,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 
 	m_Parameters.Add_FilePath(
 		pNode	, "CRS_FILE_SRS"		, _TL("CRS Database"),
-		_TL("Database with Coordinate Reference System (CRS) definitions. You have to restart SAGA to make changes take affect!"),
+		_TL("Database with Coordinate Reference System (CRS) definitions. A restart of SAGA is required to have the changes take effect!"),
 		CSG_String::Format(SG_T("%s|*.srs|%s|*.*"),
 			_TL("Spatial Reference System Files (*.srs)"),
 			_TL("All Files")
@@ -187,7 +187,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 
 	m_Parameters.Add_FilePath(
 		pNode	, "CRS_FILE_DIC"		, _TL("CRS Dictionary"),
-		_TL("Dictionary for Proj.4/OGC WKT translations. You have to restart SAGA to make changes take affect!"),
+		_TL("Dictionary for Proj.4/OGC WKT translations. A restart of SAGA is required to have the changes take effect!"),
 		CSG_String::Format(SG_T("%s|*.dic|%s|*.*"),
 			_TL("Dictionary Files (*.dic)"),
 			_TL("All Files")
