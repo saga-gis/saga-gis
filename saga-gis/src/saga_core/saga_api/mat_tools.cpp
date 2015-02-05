@@ -111,12 +111,27 @@ double			SG_Get_Rounded_To_SignificantFigures(double Value, int Decimals)
 
 	Decimals	= -(ceil(log10(fabs(Value))) - Decimals);
 
-	double	d	= pow(10.0, Decimals);
+	if( Decimals > 0 )
+	{
+		double	d	= pow(10.0, Decimals);
 
-	return( Value < 0.0
-		? -((int)(0.5 - d * Value)) / d
-		:  ((int)(0.5 + d * Value)) / d
-	);
+		return( Value < 0.0
+			? -((int)(0.5 - Value * d)) / d
+			:  ((int)(0.5 + Value * d)) / d
+		); 
+	}
+
+	if( Decimals < 0 )
+	{
+		double	d	= pow(10.0, -Decimals);
+
+		return( Value < 0.0
+			? -((int)(0.5 - Value / d)) * d
+			:  ((int)(0.5 + Value / d)) * d
+		);
+	}
+
+	return( Value );
 }
 
 
