@@ -573,17 +573,17 @@ public:		///////////////////////////////////////////////
 
 	bool						Get_Sorted		(sLong Position, sLong &n, bool bDown = true, bool bCheckNoData = true)
 	{
-		return( (n = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 );
+		return( (n = Get_Sorted(Position, bDown, false)) >= 0 && (!bCheckNoData || !is_NoData(n)) );
 	}
 
 	bool						Get_Sorted		(sLong Position, int &x, int &y, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( (Position = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 )
+		if( (Position = Get_Sorted(Position, bDown, false)) >= 0 )
 		{
 			x	= (int)(Position % Get_NX());
 			y	= (int)(Position / Get_NX());
 
-			return( true );
+			return( !bCheckNoData || !is_NoData(x, y) );
 		}
 
 		return( false );
