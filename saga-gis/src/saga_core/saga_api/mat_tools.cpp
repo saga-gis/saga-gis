@@ -120,8 +120,7 @@ double			SG_Get_Rounded_To_SignificantFigures(double Value, int Decimals)
 			:  ((int)(0.5 + Value * d)) / d
 		); 
 	}
-
-	if( Decimals < 0 )
+	else
 	{
 		double	d	= pow(10.0, -Decimals);
 
@@ -130,8 +129,6 @@ double			SG_Get_Rounded_To_SignificantFigures(double Value, int Decimals)
 			:  ((int)(0.5 + Value / d)) * d
 		);
 	}
-
-	return( Value );
 }
 
 
