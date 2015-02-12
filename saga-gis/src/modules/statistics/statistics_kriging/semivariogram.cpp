@@ -76,13 +76,13 @@ CSemiVariogram::CSemiVariogram(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Variogram (Dialog))"));
+	Set_Name		(_TL("Variogram (Dialog)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
-	Set_Description(
-		_TL("")
-	);
+	Set_Description	(_TW(
+		""
+	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(

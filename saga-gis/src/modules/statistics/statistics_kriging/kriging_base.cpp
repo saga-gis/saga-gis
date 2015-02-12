@@ -110,13 +110,13 @@ CKriging_Base::CKriging_Base(void)
 	pNode	= Parameters.Add_Value(
 		NULL	, "BLOCK"		, _TL("Block Kriging"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, false
+		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Value(
 		pNode	, "DBLOCK"		, _TL("Block Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 100.0, 0.0, true
+		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
 	///////////////////////////////////////////////////////
@@ -126,13 +126,13 @@ CKriging_Base::CKriging_Base(void)
 		Parameters.Add_Value(
 			NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
 			_TL(""),
-			PARAMETER_TYPE_Double	, -1.0
+			PARAMETER_TYPE_Double, -1.0
 		);
 
 		Parameters.Add_Value(
 			NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
 			_TL("initial number of lag distance classes"),
-			PARAMETER_TYPE_Int		, 100, 1, true
+			PARAMETER_TYPE_Int, 100, 1, true
 		);
 
 		Parameters.Add_Value(
@@ -164,7 +164,14 @@ CKriging_Base::CKriging_Base(void)
 
 //---------------------------------------------------------
 CKriging_Base::~CKriging_Base(void)
-{}
+{
+	if( m_pVariogram )
+	{
+		m_pVariogram->Destroy();
+
+		delete(m_pVariogram);
+	}
+}
 
 
 ///////////////////////////////////////////////////////////
