@@ -504,20 +504,16 @@ CWKSP_Module_Library * CWKSP_Module_Manager::Get_Library(CSG_Module_Library *pLi
 //---------------------------------------------------------
 bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
 {
-//	Get_Control()->Freeze();
-
-	for(int i=SG_Get_Module_Library_Manager().Get_Count()-1; i>=0; i--)
+	if( !bSyncToCtrl )
 	{
-		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(i);
-		CWKSP_Module_Library	*pItem	= Get_Library(pLibrary);
+	//	Get_Control()->Freeze();
 
-		if( !pItem )
+		for(int i=SG_Get_Module_Library_Manager().Get_Count()-1; i>=0; i--)
 		{
-			if( bSyncToCtrl )
-			{
-				SG_Get_Module_Library_Manager().Del_Library(i);
-			}
-			else
+			CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(i);
+			CWKSP_Module_Library	*pItem	= Get_Library(pLibrary);
+
+			if( !pItem )
 			{
 				CWKSP_Module_Group	*pGroup	= Get_Group(pLibrary->Get_Category().c_str());
 
@@ -528,14 +524,14 @@ bool CWKSP_Module_Manager::_Update(bool bSyncToCtrl)
 
 				pGroup->Add_Library(pLibrary);
 			}
+			else if( pItem->Get_Library()->Get_Type() == MODULE_CHAINS )
+			{
+				pItem->Update();
+			}
 		}
-		else if( !bSyncToCtrl && pItem->Get_Library()->Get_Type() == MODULE_CHAINS )
-		{
-			pItem->Update();
-		}
-	}
 
-//	Get_Control()->Thaw();
+	//	Get_Control()->Thaw();
+	}
 
 	m_pMenu_Modules->Update();
 

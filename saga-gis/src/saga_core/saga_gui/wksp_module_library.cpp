@@ -93,6 +93,8 @@ CWKSP_Module_Library::CWKSP_Module_Library(CSG_Module_Library *pLibrary)
 CWKSP_Module_Library::~CWKSP_Module_Library(void)
 {
 	_Del_Modules();
+
+	SG_Get_Module_Library_Manager().Del_Library(m_pLibrary);
 }
 
 

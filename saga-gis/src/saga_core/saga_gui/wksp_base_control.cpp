@@ -91,6 +91,7 @@
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_buttons.h"
+#include "wksp_layer.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -301,14 +302,10 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 		{
 			Freeze();
 
-			if( g_pData_Buttons )
+			if( m_pManager == g_pData || m_pManager == g_pMaps )
 			{
-				g_pData_Buttons->Freeze();
-			}
-
-			if( g_pMap_Buttons )
-			{
-				g_pMap_Buttons->Freeze();
+				if( g_pData_Buttons )	{	g_pData_Buttons->Freeze();	}
+				if( g_pMap_Buttons  )	{	g_pMap_Buttons ->Freeze();	}
 			}
 
 			//---------------------------------------------
@@ -316,7 +313,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			AppendItem		(m_pManager->GetId(), _TL("<no items>"), 0, 0, NULL);
 			Expand			(m_pManager->GetId());
 
-			if( g_pModule_Ctrl && m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
+			if( g_pModules == m_pManager )
 			{
 				g_pModules->Update();
 			}
@@ -324,16 +321,10 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			//---------------------------------------------
 			Thaw();
 
-			if( g_pData_Buttons )
+			if( m_pManager == g_pData || m_pManager == g_pMaps )
 			{
-				g_pData_Buttons->Thaw();
-				g_pData_Buttons->Update_Buttons();
-			}
-
-			if( g_pMap_Buttons )
-			{
-				g_pMap_Buttons->Thaw();
-				g_pMap_Buttons->Update_Buttons();
+				if( g_pData_Buttons )	{	g_pData_Buttons->Thaw();	g_pData_Buttons->Update_Buttons();	}
+				if( g_pMap_Buttons  )	{	g_pMap_Buttons ->Thaw();	g_pMap_Buttons ->Update_Buttons();	}
 			}
 
 			return( true );
