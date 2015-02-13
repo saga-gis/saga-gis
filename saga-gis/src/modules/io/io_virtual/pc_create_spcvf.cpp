@@ -83,7 +83,10 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 
 	Set_Description	(_TW(
 		"The module allows one to create a virtual point cloud dataset "
-		"from a set of SAGA point cloud files. Such a virtual "
+		"from a set of SAGA point cloud files. For a large number of "
+		"files, it is advised to use an input file list, i.e. a text "
+		"file with the full path to an input point cloud on each line.\n"
+		"A virtual point cloud "
 		"dataset is a simple XML format with the file extension .spcvf, "
 		"which describes a mosaic of individual point cloud files. Such "
 		"a virtual point cloud dataset can be used for seamless data "
@@ -100,6 +103,15 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 			_TL("SAGA Point Clouds")	, SG_T("*.spc"),
             _TL("All Files")            , SG_T("*.*")
         ), NULL, false, false, true
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "INPUT_FILE_LIST"		, _TL("Input File List"),
+		_TL("A text file with the full path to an input point cloud on each line"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+			_TL("Text Files")			, SG_T("*.txt"),
+            _TL("All Files")            , SG_T("*.*")
+        ), NULL, false, false, false
 	);
 
 	Parameters.Add_FilePath(
@@ -132,7 +144,7 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 bool CPointCloud_Create_SPCVF::On_Execute(void)
 {
 	CSG_Strings					sFiles;
-	CSG_String					sFileName;
+	CSG_String					sFileInputList, sFileName;
 	int							iMethodPaths;
 
 	CSG_MetaData				SPCVF;
@@ -153,13 +165,37 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	//-----------------------------------------------------
 	sFileName		= Parameters("FILENAME")->asString();
 	iMethodPaths	= Parameters("METHOD_PATHS")->asInt();
+	sFileInputList	= Parameters("INPUT_FILE_LIST")->asString();
 
 	//-----------------------------------------------------
-    if( !Parameters("FILES")->asFilePath()->Get_FilePaths(sFiles) )
+	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(sFiles) && sFileInputList.Length() <= 0 )
 	{
 		SG_UI_Msg_Add_Error(_TL("Please provide some input files!"));
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	if( sFiles.Get_Count() <= 0 )
+	{
+		CSG_Table	*pTable = new CSG_Table();
+
+		if( !pTable->Create(sFileInputList, TABLE_FILETYPE_Text_NoHeadLine) )
+		{
+			SG_UI_Msg_Add_Error(_TL("Input file list could not be opened!"));
+			delete( pTable );
+			return( false );
+		}
+
+		sFiles.Clear();
+
+		for (int i=0; i<pTable->Get_Record_Count(); i++)
+		{
+			sFiles.Add(pTable->Get_Record(i)->asString(0));
+		}
+
+		delete( pTable );
+	}
+
 
 	//-----------------------------------------------------
 	SPCVF.Set_Name(SG_T("SPCVFDataset"));
