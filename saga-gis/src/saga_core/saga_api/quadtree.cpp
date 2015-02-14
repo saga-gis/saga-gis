@@ -169,7 +169,7 @@ bool CSG_PRQuadTree_Node::Add_Point(double x, double y, double z)
 		}
 
 		//-----------------------------------------------------
-		else if( m_pChildren[i]->is_Leaf() )
+		if( m_pChildren[i]->is_Leaf() )
 		{
 			CSG_PRQuadTree_Leaf	*pLeaf	= m_pChildren[i]->asLeaf();
 
@@ -202,7 +202,7 @@ bool CSG_PRQuadTree_Node::Add_Point(double x, double y, double z)
 		}
 
 		//-------------------------------------------------
-		else // if( m_pChildren[i]->is_Node() )
+	//	if( m_pChildren[i]->is_Node() )
 		{
 			return( ((CSG_PRQuadTree_Node *)m_pChildren[i])->Add_Point(x, y, z) );
 		}
@@ -323,7 +323,7 @@ void CSG_PRQuadTree::Destroy(void)
 		m_pRoot	= NULL;
 	}
 
-	m_nPoints		= 0;
+	m_nPoints	= 0;
 
 	m_Selection.Destroy();
 }
@@ -611,7 +611,7 @@ CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pI
 //---------------------------------------------------------
 inline CSG_PRQuadTree::TLeaf * CSG_PRQuadTree::_Get_Selected(const CSG_Array &Selection, size_t i)	const
 {
-	return( i < Selection.Get_Size() ? ((TLeaf *)Selection.Get_Array()) + i : NULL );
+	return( (TLeaf *)Selection.Get_Entry(i) );
 }
 
 //---------------------------------------------------------
@@ -619,7 +619,7 @@ inline bool CSG_PRQuadTree::_Add_Selected(CSG_Array &Selection, CSG_PRQuadTree_L
 {
 	if( Selection.Inc_Array() )
 	{
-		TLeaf	*pL		= _Get_Selected(Selection, Selection.Get_Size() - 1);
+		TLeaf	*pL		= (TLeaf *)Selection.Get_Entry(Selection.Get_Size() - 1);
 
 		pL->pLeaf		= pLeaf;
 		pL->Distance	= Distance;
@@ -633,7 +633,7 @@ inline bool CSG_PRQuadTree::_Add_Selected(CSG_Array &Selection, CSG_PRQuadTree_L
 //---------------------------------------------------------
 inline bool CSG_PRQuadTree::_Set_Selected(CSG_Array &Selection, size_t i, CSG_PRQuadTree_Leaf *pLeaf, double Distance)	const
 {
-	TLeaf	*pL		= _Get_Selected(Selection, i);
+	TLeaf	*pL		= (TLeaf *)Selection.Get_Entry(i);
 
 	if( pL )
 	{
@@ -666,7 +666,14 @@ size_t CSG_PRQuadTree::Select_Nearest_Points(double x, double y, size_t maxPoint
 //---------------------------------------------------------
 size_t CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, double x, double y, size_t maxPoints, double Radius, int iQuadrant)	const
 {
-	Selection.Create(sizeof(TLeaf), 0, SG_ARRAY_GROWTH_3);
+	if( Selection.Get_Value_Size() != sizeof(TLeaf) )
+	{
+		Selection.Create(sizeof(TLeaf), 0, SG_ARRAY_GROWTH_3);
+	}
+	else
+	{
+		Selection.Set_Array(0, false);
+	}
 
 	if( m_pRoot )
 	{

@@ -776,6 +776,8 @@ protected:
 		m_Size		= Size;
 	}
 
+	virtual ~CSG_PRQuadTree_Item(void)	{}
+
 
 	double					m_xCenter, m_yCenter, m_Size;
 
@@ -805,6 +807,8 @@ protected:
 		m_Point.y	= y;
 		m_z			= z;
 	}
+
+	virtual ~CSG_PRQuadTree_Leaf(void)	{}
 
 
 	double					m_z;
@@ -842,6 +846,8 @@ protected:
 
 		s_z.Add_Value(z);
 	}
+
+	virtual ~CSG_PRQuadTree_Leaf_List(void)	{}
 
 	void					Add_Value		(double z)
 	{
@@ -908,6 +914,8 @@ protected:
 	CSG_PRQuadTree_Node_Statistics(CSG_PRQuadTree_Leaf *pLeaf)
 		: CSG_PRQuadTree_Node(pLeaf)
 	{}
+
+	virtual ~CSG_PRQuadTree_Node_Statistics(void)	{}
 
 
 	CSG_Simple_Statistics	m_x, m_y, m_z;
