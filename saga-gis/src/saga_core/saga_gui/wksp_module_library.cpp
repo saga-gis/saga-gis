@@ -94,7 +94,10 @@ CWKSP_Module_Library::~CWKSP_Module_Library(void)
 {
 	_Del_Modules();
 
-	SG_Get_Module_Library_Manager().Del_Library(m_pLibrary);
+	if( MDI_Get_Frame() )	// don't unload library, if gui is closing (i.e. main window == NULL)
+	{
+		SG_Get_Module_Library_Manager().Del_Library(m_pLibrary);
+	}
 }
 
 

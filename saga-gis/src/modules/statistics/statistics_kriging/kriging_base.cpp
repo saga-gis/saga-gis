@@ -76,7 +76,6 @@
 CKriging_Base::CKriging_Base(void)
 {
 	CSG_Parameter	*pNode;
-	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
@@ -165,7 +164,7 @@ CKriging_Base::CKriging_Base(void)
 //---------------------------------------------------------
 CKriging_Base::~CKriging_Base(void)
 {
-	if( m_pVariogram )
+	if( m_pVariogram && SG_UI_Get_Window_Main() )	// don't destroy dialog, if gui is closing (i.e. main window == NULL)
 	{
 		m_pVariogram->Destroy();
 
