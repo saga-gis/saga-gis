@@ -475,6 +475,8 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 		{
 			double	Value;
 
+			sLine.Trim();
+
 			if( (bOkay = sLine.asDouble(Value)) == true )
 			{
 				pRecord->Set_Value(i, Value);
