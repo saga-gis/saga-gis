@@ -908,6 +908,11 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 */
 bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, bool bFitToCells, int Rounding)
 {
+	if( !SG_UI_Get_Window_Main() )	// no cancel button, so set parameters directly
+	{
+		pParameters	= m_pParameters;
+	}
+
 	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) )
 	{
 		return( false );
@@ -957,6 +962,11 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 
 	r.m_rect.xMax	= r.Get_XMin() + Cols * Size;
 
+	if( !SG_UI_Get_Window_Main() )	// no cancel button, so set parameters directly
+	{
+		pParameters->Set_Callback(false);
+	}
+
 	pParameters->Set_Parameter(m_Prefix + "USER_XMIN", r.Get_XMin() );
 	pParameters->Set_Parameter(m_Prefix + "USER_XMAX", r.Get_XMax() );
 	pParameters->Set_Parameter(m_Prefix + "USER_YMIN", r.Get_YMin() );
@@ -965,6 +975,11 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	pParameters->Set_Parameter(m_Prefix + "USER_COLS", Cols         );
 	pParameters->Set_Parameter(m_Prefix + "USER_ROWS", Rows         );
 	pParameters->Set_Parameter(m_Prefix + "USER_FITS", m_bFitToCells);
+
+	if( !SG_UI_Get_Window_Main() )	// no cancel button, so set parameters directly
+	{
+		pParameters->Set_Callback(true);
+	}
 
 	return( true );
 }
@@ -1001,6 +1016,53 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, C
 	int	Rows	= (int)(0.5 + pPoints->Get_Extent().Get_YRange() / d);	if( Scale > 1 ) Rows *= Scale;
 
 	return( Set_User_Defined(pParameters, pPoints->Get_Extent(), Rows, bFitToCells, Rounding) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Cmd_Update(const TSG_Rect &Extent)
+{
+	if( SG_UI_Get_Window_Main() || !m_pParameters )
+	{
+		return( false );
+	}
+
+	if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() )	// tool is run by saga_cmd
+	{
+		Set_User_Defined(m_pParameters, Extent);
+
+		SG_UI_Dlg_Parameters(m_pParameters, m_pParameters->Get_Name());
+	}
+	else	// tool is run as part of a tool chain
+	{
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Cmd_Update(CSG_Shapes *pPoints)
+{
+	if( SG_UI_Get_Window_Main() || !m_pParameters )
+	{
+		return( false );
+	}
+
+	if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() )	// tool is run by saga_cmd
+	{
+		Set_User_Defined(m_pParameters, pPoints);
+
+		SG_UI_Dlg_Parameters(m_pParameters, m_pParameters->Get_Name());
+	}
+	else	// tool is run as part of a tool chain
+	{
+	}
+
+	return( true );
 }
 
 

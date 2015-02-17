@@ -220,6 +220,7 @@ public:
 
 	bool						Update_Parameter_States		(void);
 
+	void						Set_Callback				(bool bActive = true);
 	void						Set_Manager					(class CSG_Data_Manager *pManager);
 
 	bool						Settings_Push				(class CSG_Data_Manager *pManager = NULL);

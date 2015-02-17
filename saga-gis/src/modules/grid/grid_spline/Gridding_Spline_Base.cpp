@@ -165,7 +165,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	{
 		CSG_Grid	*pPoints	= Parameters("GRID")->asGrid();
 
-		m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints->Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+		m_Grid_Target.Cmd_Update(pPoints->Get_Extent());	// if called from saga_cmd
 
 		if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 		{
@@ -180,7 +180,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	{
 		CSG_Shapes	*pPoints	= Parameters("SHAPES")->asShapes();
 
-		m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+		m_Grid_Target.Cmd_Update(pPoints);					// if called from saga_cmd
 
 		if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 		{

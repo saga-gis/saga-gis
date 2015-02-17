@@ -477,6 +477,17 @@ bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSG_Module::Set_Callback(bool bActive)
+{
+	Parameters.Set_Callback(bActive);
+
+	for(int i=0; i<m_npParameters; i++)
+	{
+		m_pParameters[i]->Set_Callback(bActive);
+	}
+}
+
+//---------------------------------------------------------
 void CSG_Module::Set_Manager(class CSG_Data_Manager *pManager)
 {
 	Parameters.Set_Manager(pManager);

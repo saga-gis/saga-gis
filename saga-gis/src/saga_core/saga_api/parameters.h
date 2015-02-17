@@ -1202,6 +1202,9 @@ public:
 	bool						Set_User_Defined		(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells = false);
 	bool						Set_User_Defined		(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale = 4  , bool bFitToCells = false, int Rounding = 2);
 
+	bool						Cmd_Update				(const TSG_Rect &Extent);
+	bool						Cmd_Update				(CSG_Shapes *pPoints);
+
 	CSG_Grid_System				Get_System				(void);
 
 	CSG_Grid *					Get_Grid				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);

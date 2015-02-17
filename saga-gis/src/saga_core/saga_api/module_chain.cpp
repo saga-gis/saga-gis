@@ -234,14 +234,16 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 //---------------------------------------------------------
 bool CSG_Module_Chain::On_Execute(void)
 {
-	bool	bResult	= true;
+	bool	bResult	= Data_Initialize();
 
-	if( Data_Initialize() )
+	if( !bResult )
 	{
-		for(int i=0; i<m_Chain["tools"].Get_Children_Count() && bResult; i++)
-		{
-			bResult	= Tool_Run(m_Chain["tools"][i]);
-		}
+		Error_Set(_TL("no data objects"));
+	}
+
+	for(int i=0; bResult && i<m_Chain["tools"].Get_Children_Count(); i++)
+	{
+		bResult	= Tool_Run(m_Chain["tools"][i]);
 	}
 
 	Data_Finalize();
@@ -276,7 +278,11 @@ bool CSG_Module_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 	case PARAMETER_TYPE_Shapes_List    : m_Data.Add_Shapes_List    (NULL, ID, "", "", 0)->Assign(pData);	break;
 	case PARAMETER_TYPE_TIN_List       : m_Data.Add_TIN_List       (NULL, ID, "", "", 0)->Assign(pData);	break;
 
-	default: return( false );
+	case PARAMETER_TYPE_DataObject_Output:
+		return( true );
+
+	default:
+		return( false );
 	}
 
 	if( pData->is_DataObject() )
@@ -326,12 +332,17 @@ bool CSG_Module_Chain::Data_Initialize(void)
 {
 	m_Data.Set_Manager(NULL);
 
+	bool	bResult	= false;
+
 	for(int i=0; i<Parameters.Get_Count(); i++)
 	{
-		Data_Add(Parameters(i)->Get_Identifier(), Parameters(i));
+		if( Data_Add(Parameters(i)->Get_Identifier(), Parameters(i)) )
+		{
+			bResult	= true;
+		}
 	}
 
-	return( m_Data.Get_Count() > 0 );
+	return( bResult );
 }
 
 //---------------------------------------------------------
@@ -456,11 +467,9 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pModule)
 {
 	//-----------------------------------------------------
-	pModule->Get_Parameters()->Set_Callback();	// ???!!!
+	pModule->Set_Callback();	// ???!!!
 
 	int		i;
-
-	CSG_String	Tool_ID	= Tool.Get_Property("id");
 
 	//-----------------------------------------------------
 	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data objects first
@@ -475,6 +484,8 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 		if( !pParameter )
 		{
+			Error_Set(CSG_String::Format("%s: %s", _TL("parameter not found"), ID.c_str()));
+
 			return( false );
 		}
 		else if( Parameter.Cmp_Name("option") )
@@ -494,6 +505,8 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 			if( !pData )	// each input for this tool should be available now !!!
 			{
+				Error_Set(CSG_String::Format("%s: %s", _TL("input"), ID.c_str()));
+
 				return( false );
 			}
 
@@ -503,6 +516,8 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 				{
 					if( !pParameter->Assign(pData) )
 					{
+						Error_Set(CSG_String::Format("%s: %s", _TL("set input"), ID.c_str()));
+
 						return( false );
 					}
 				}
