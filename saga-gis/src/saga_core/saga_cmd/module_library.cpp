@@ -720,39 +720,36 @@ bool CCMD_Module::_Save_Output(CSG_Parameters *pParameters)
 			{
 				CSG_Strings	FileNames;
 
-				while( FileName.Length() > 0 )
+				while( !FileName.IsEmpty() && FileNames.Get_Count() < pParameter->asList()->Get_Count() )
 				{
-					CSG_String	s(&FileName); s = s.BeforeFirst(';');
+					wxString	s = FileName.BeforeFirst(';'); s.Trim(true); s.Trim(false);
 
-					if( s.Length() > 0 )
+					if( !s.IsEmpty() )
 					{
-						FileNames	+= s;
-						FileName	 = FileName.AfterFirst(';');
+						FileNames	+= &s;
 					}
-					else
-					{
-						FileNames	+= &FileName;
-						FileName	.Clear();
-					}
+
+					FileName = FileName.AfterFirst(';');
 				}
 
-				int	nFileNames	= pParameter->asList()->Get_Count() <= FileNames.Get_Count() ? FileNames.Get_Count() : FileNames.Get_Count() - 1;
-
-				for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+				if( FileNames.Get_Count() > 0 )	// e.g.: GRIDS=" ;;"
 				{
-					FileNames[i].Trim();
+					int	nFileNames	= pParameter->asList()->Get_Count() <= FileNames.Get_Count() ? FileNames.Get_Count() : FileNames.Get_Count() - 1;
 
-					if( i < nFileNames )
+					for(int i=0; i<pParameter->asList()->Get_Count(); i++)
 					{
-						pParameter->asList()->asDataObject(i)->Save(FileNames[i]);
-					}
-					else
-					{
-						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%0*d"),
-							FileNames[FileNames.Get_Count() - 1].c_str(),
-							SG_Get_Digit_Count(pParameter->asList()->Get_Count()),
-							1 + i - nFileNames
-						));
+						if( i < nFileNames )
+						{
+							pParameter->asList()->asDataObject(i)->Save(FileNames[i]);
+						}
+						else
+						{
+							pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%0*d"),
+								FileNames[nFileNames].c_str(),
+								SG_Get_Digit_Count(pParameter->asList()->Get_Count()),
+								1 + i - nFileNames
+							));
+						}
 					}
 				}
 			}
