@@ -234,7 +234,7 @@ CTable_Text_Import::CTable_Text_Import(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Import Text Table"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		""
@@ -285,36 +285,29 @@ CTable_Text_Import::CTable_Text_Import(void)
 //---------------------------------------------------------
 bool CTable_Text_Import::On_Execute(void)
 {
-	bool		bHeader;
-	CSG_String	Separator;
-	CSG_Table	*pTable;
-
 	//-----------------------------------------------------
-	pTable	= Parameters("TABLE")		->asTable();
-	bHeader	= Parameters("HEADLINE")	->asBool();
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+
+	CSG_String	Separator;
 
 	switch( Parameters("SEPARATOR")->asInt() )
 	{
-	case 0:		Separator	= "\t";	break;
-	case 1:		Separator	=  ";";	break;
-	case 2:		Separator	=  ",";	break;
-	case 3:		Separator	=  " ";	break;
+	case  0:	Separator	= "\t";	break;
+	case  1:	Separator	=  ";";	break;
+	case  2:	Separator	=  ",";	break;
+	case  3:	Separator	=  " ";	break;
 	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
 	}
 
 	//-----------------------------------------------------
-	if( !pTable->Create(Parameters("FILENAME")->asString(), bHeader ? TABLE_FILETYPE_Text : TABLE_FILETYPE_Text_NoHeadLine, Separator) )
+	if( !pTable->Create(Parameters("FILENAME")->asString(), Parameters("HEADLINE")->asBool() ? TABLE_FILETYPE_Text : TABLE_FILETYPE_Text_NoHeadLine, Separator) )
 	{
-		Message_Add(_TL("table could not be opened."));
+		Error_Set(_TL("table could not be opened."));
+
+		return( false );
 	}
 
-	//-----------------------------------------------------
-	else
-	{
-		return( true );
-	}
-
-	return( false );
+	return( true );
 }
 
 
@@ -327,9 +320,12 @@ bool CTable_Text_Import::On_Execute(void)
 //---------------------------------------------------------
 CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 {
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
 	Set_Name		(_TL("Import Text Table with Numbers only"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		""
@@ -343,24 +339,31 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "HEADLINE"	, _TL("File contains headline"),
+		NULL	, "SKIP"		, _TL("Skip Lines"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, false
+		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
-	Parameters.Add_Choice(
+	Parameters.Add_Value(
+		NULL	, "HEADLINE"	, _TL("Headline"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	pNode	= Parameters.Add_Choice(
 		NULL	, "SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("tabulator"),
-			_TL(";"),
-			_TL(","),
+			SG_T(";"),
+			SG_T(","),
+			_TL("space"),
 			_TL("other")
 		), 0
 	);
 
 	Parameters.Add_String(
-		NULL	, "SEP_OTHER"	, _TL("Separator (other)"),
+		pNode	, "SEP_OTHER"	, _TL("other"),
 		_TL(""),
 		SG_T("*")
 	);
@@ -379,89 +382,114 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 //---------------------------------------------------------
 bool CTable_Text_Import_Numbers::On_Execute(void)
 {
-	bool		bHeader;
-	double		Value;
-	CSG_String	sLine, sHead, Separator;
+	CSG_String	sHead, sLine, Separator;
 	CSG_File	Stream;
-	CSG_Table	*pTable;
-
-	//-----------------------------------------------------
-	pTable	= Parameters("TABLE")		->asTable();
-	bHeader	= Parameters("HEADLINE")	->asBool();
-
-	switch( Parameters("SEPARATOR")->asInt() )
-	{
-	case 0:		Separator	= "\t";	break;
-	case 1:		Separator	=  ";";	break;
-	case 2:		Separator	=  ",";	break;
-	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
-	}
 
 	//-----------------------------------------------------
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, false) )
 	{
-		Message_Add(_TL("file could not be opened"));
+		Error_Set(_TL("file could not be opened"));
+
+		return( false );
 	}
 
+	if( Parameters("SKIP")->asInt() > 0 )
+	{
+		int	i	= Parameters("SKIP")->asInt();
+		
+		while( i > 0 && Stream.Read_Line(sLine) )	{ i--; }
+	}
+
+	if( !Stream.Read_Line(sHead) || sHead.Length() == 0 )
+	{
+		Error_Set(_TL("empty or corrupted file"));
+
+		return( false );
+	}
+
+	if( !Parameters("HEADLINE")->asBool() )
+	{
+		sLine	= sHead;
+	}
 	else if( !Stream.Read_Line(sLine) || sLine.Length() == 0 )
 	{
-		Message_Add(_TL("empty or corrupted file"));
-	}
+		Error_Set(_TL("empty or corrupted file"));
 
-	else if( bHeader && (!Stream.Read_Line(sLine) || sLine.Length() == 0) )
-	{
-		Message_Add(_TL("empty or corrupted file"));
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	else
+	switch( Parameters("SEPARATOR")->asInt() )
 	{
-		pTable->Destroy();
-		pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
-
-		sLine.Replace(Separator, SG_T("\t"));
-		sHead	= sLine;
-
-		do
-		{
-			sHead.Trim();
-
-			if( sHead.asDouble(Value) )
-			{
-				pTable->Add_Field(CSG_String::Format(SG_T("%d"), 1 + pTable->Get_Field_Count()), SG_DATATYPE_Double);
-			}
-
-			sHead	= sHead.AfterFirst('\t');
-		}
-		while( sHead.Length() > 0 );
-
-		//-------------------------------------------------
-		if( pTable->Get_Field_Count() > 0 )
-		{
-			int		fLength	= Stream.Length();
-
-			do
-			{
-				sLine.Replace(Separator, SG_T("\t"));
-
-				CSG_Table_Record	*pRecord	= pTable->Add_Record();
-
-				for(int i=0; i<pTable->Get_Field_Count(); i++)
-				{
-					sLine.Trim();
-
-					pRecord->Set_Value(i, sLine.asDouble());
-
-					sLine	= sLine.AfterFirst('\t');
-				}
-			}
-			while( Stream.Read_Line(sLine) && sLine.Length() > 0 && Set_Progress(Stream.Tell(), fLength) );
-		}
-
-		return( true );
+	case  0:	Separator	= "\t";	break;
+	case  1:	Separator	=  ";";	break;
+	case  2:	Separator	=  ",";	break;
+	case  3:	Separator	=  " ";	break;
+	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+
+	pTable->Destroy();
+	pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
+
+	sHead.Trim(true);
+	sHead.Replace(Separator, "\t");
+
+	while( sHead.Length() > 0 )
+	{
+		sHead.Trim();
+
+		if( Parameters("HEADLINE")->asBool() )
+		{
+			pTable->Add_Field(sHead.BeforeFirst('\t'), SG_DATATYPE_Double);
+		}
+		else
+		{
+			pTable->Add_Field(CSG_String::Format("FIELD%02d", 1 + pTable->Get_Field_Count()), SG_DATATYPE_Double);
+		}
+
+		sHead	= sHead.AfterFirst('\t');
+	}
+
+	if( pTable->Get_Field_Count() <= 0 )
+	{
+		Error_Set(_TL("empty or corrupted file"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int		fLength	= Stream.Length();
+
+	bool	bOkay	= true;
+
+	do
+	{
+		sLine.Replace(Separator, "\t");
+
+		CSG_Table_Record	*pRecord	= pTable->Add_Record();
+
+		for(int i=0; bOkay && i<pTable->Get_Field_Count(); i++)
+		{
+			double	Value;
+
+			if( (bOkay = sLine.asDouble(Value)) == true )
+			{
+				pRecord->Set_Value(i, Value);
+
+				sLine	= sLine.AfterFirst('\t');
+			}
+			else
+			{
+				pTable->Del_Record(pTable->Get_Count() - 1);
+			}
+		}
+	}
+	while( bOkay && Stream.Read_Line(sLine) && Set_Progress(Stream.Tell(), fLength) );
+
+	return( pTable->Get_Count() > 0 );
 }
 
 
