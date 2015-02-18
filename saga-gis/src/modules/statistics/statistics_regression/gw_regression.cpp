@@ -169,7 +169,7 @@ bool CGW_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Cmd_Update(m_pPoints);	// if called from saga_cmd
 
 	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
 	m_pSlope		= m_Grid_Target.Get_Grid("SLOPE"    );

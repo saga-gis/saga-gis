@@ -185,7 +185,7 @@ bool CKernel_Density::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Cmd_Update(pPoints);	// if called from saga_cmd
 
 	if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 	{

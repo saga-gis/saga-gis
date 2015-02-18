@@ -149,7 +149,7 @@ bool CMBASpline_for_Categories::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	*pGrid, *pProp, Prop;
 
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), &Points);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Cmd_Update(&Points);	// if called from saga_cmd
 
 	if( !(pGrid = m_Grid_Target.Get_Grid("CATEGORIES", nCategories < 128 ? SG_DATATYPE_Char : SG_DATATYPE_Int))
 	||  !(pProp = m_Grid_Target.Get_Grid("PROPABILITY")) )

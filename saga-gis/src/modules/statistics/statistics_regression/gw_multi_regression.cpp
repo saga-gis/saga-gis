@@ -227,7 +227,7 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Cmd_Update(m_pPoints);	// if called from saga_cmd
 
 	m_Weighting.Set_Parameters(&Parameters);
 

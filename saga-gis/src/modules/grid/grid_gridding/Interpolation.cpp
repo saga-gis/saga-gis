@@ -128,7 +128,7 @@ bool CInterpolation::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bResult	= false;
 
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), m_pShapes);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Cmd_Update(m_pShapes);	// if called from saga_cmd
 
 	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
 	{

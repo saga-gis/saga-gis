@@ -209,7 +209,7 @@ bool CGrid_Resample::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid_System	Input	= pInputs->asGrid(0)->Get_System();
 
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Input.Get_Extent());	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Cmd_Update(Input.Get_Extent());	// if called from saga_cmd
 
 	CSG_Grid_System	Output	= m_Grid_Target.Get_System();
 

@@ -378,7 +378,7 @@ bool CGrid_Merge::Initialize(void)
 //---------------------------------------------------------
 bool CGrid_Merge::Set_Target(CSG_Parameters *pParameters, CSG_Parameter_Grid_List *pGrids)
 {
-	if( pGrids && pGrids->Get_Count() > 0 )
+	if( pParameters && pGrids && pGrids->Get_Count() > 0 )
 	{
 		double		d	= pGrids->asGrid(0)->Get_Cellsize();
 		CSG_Rect	r	= pGrids->asGrid(0)->Get_Extent();

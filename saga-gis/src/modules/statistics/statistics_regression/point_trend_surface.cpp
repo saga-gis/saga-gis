@@ -210,7 +210,7 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	Set_Message();
 
 	//-----------------------------------------------------
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), pPoints);	Dlg_Parameters("TARGET");	// if called from saga_cmd
+	m_Grid_Target.Cmd_Update(pPoints);	// if called from saga_cmd
 
 	if( (pRegression = m_Grid_Target.Get_Grid()) == NULL )
 	{
