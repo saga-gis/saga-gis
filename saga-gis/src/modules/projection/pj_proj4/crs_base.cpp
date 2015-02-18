@@ -338,26 +338,32 @@ int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
-	if( Parameters("CRS_METHOD") )
-	{
-		switch( Parameters("CRS_METHOD")->asInt() )
-		{
-		case 0:	default:	// Proj4 Parameters
-			Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
-			break;
-
-		case 1:				// EPSG Code
-			Projection.Create(Parameters("CRS_EPSG" )->asInt());
-			break;
-
-		case 2:				// Well Known Text File
-			Projection.Load (Parameters("CRS_FILE"  )->asString());
-			break;
-		}
-	}
-	else
+	if( !Parameters("CRS_METHOD") )
 	{
 		Projection	= m_Projection;
+	}
+	else switch( Parameters("CRS_METHOD")->asInt() )
+	{
+	default:	// Proj4 Parameters
+		if( !Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4) )
+		{
+			Error_Set(_TL("Proj4 defintion string error"));
+		}
+		break;
+
+	case  1:	// EPSG Code
+		if( !Projection.Create(Parameters("CRS_EPSG" )->asInt()) )
+		{
+			Error_Set(_TL("EPSG code error"));
+		}
+		break;
+
+	case  2:	// Well Known Text File
+		if( !Projection.Load (Parameters("CRS_FILE"  )->asString()) )
+		{
+			Error_Set(_TL("Well Known Text file error"));
+		}
+		break;
 	}
 
 	return( Projection.is_Okay() );
