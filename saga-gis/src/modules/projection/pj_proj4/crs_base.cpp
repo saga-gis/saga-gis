@@ -347,7 +347,7 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 	default:	// Proj4 Parameters
 		if( !Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4) )
 		{
-			Error_Set(_TL("Proj4 defintion string error"));
+			Error_Set(_TL("Proj4 definition string error"));
 		}
 		break;
 
