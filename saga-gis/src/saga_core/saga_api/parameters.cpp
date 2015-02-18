@@ -970,8 +970,12 @@ bool CSG_Parameters::Del_Parameters(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Parameters::Set_Callback_On_Parameter_Changed(TSG_PFNC_Parameter_Changed Callback)
+// Callback function used to react on parameter changes.
+// Return value is the previously set callback function.
+TSG_PFNC_Parameter_Changed CSG_Parameters::Set_Callback_On_Parameter_Changed(TSG_PFNC_Parameter_Changed Callback)
 {
+	TSG_PFNC_Parameter_Changed	Previous	= m_Callback;
+
 	m_Callback	= Callback;
 
 	for(int i=0; i<m_nParameters; i++)
@@ -981,11 +985,18 @@ void CSG_Parameters::Set_Callback_On_Parameter_Changed(TSG_PFNC_Parameter_Change
 			m_Parameters[i]->asParameters()->Set_Callback_On_Parameter_Changed(Callback);
 		}
 	}
+
+	return( Previous );
 }
 
 //---------------------------------------------------------
-void CSG_Parameters::Set_Callback(bool bActive)
+// If switched off parameter changes will not invoke a
+// consecutive call to the On_Parameter_Changed function.
+// Return value is the previous state.
+bool CSG_Parameters::Set_Callback(bool bActive)
 {
+	bool	bPrevious	= m_bCallback;
+
 	m_bCallback	= bActive;
 
 	for(int i=0; i<m_nParameters; i++)
@@ -995,6 +1006,8 @@ void CSG_Parameters::Set_Callback(bool bActive)
 			m_Parameters[i]->asParameters()->Set_Callback(bActive);
 		}
 	}
+
+	return( bPrevious );
 }
 
 //---------------------------------------------------------

@@ -1401,8 +1401,8 @@ public:
 	void						Set_Enabled				(const CSG_String &Identifier, bool bEnabled = true);
 
 	//-----------------------------------------------------
-	void						Set_Callback_On_Parameter_Changed	(TSG_PFNC_Parameter_Changed pCallback);
-	void						Set_Callback			(bool bActive = true);
+	TSG_PFNC_Parameter_Changed	Set_Callback_On_Parameter_Changed	(TSG_PFNC_Parameter_Changed pCallback);
+	bool						Set_Callback			(bool bActive = true);
 
 	//-----------------------------------------------------
 	CSG_Parameters &			operator =				(const CSG_Parameters &Parameters)	{	Create(Parameters);	return( *this );	}
