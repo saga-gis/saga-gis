@@ -28,9 +28,9 @@
   <tools>
     <tool library="grid_spline" module="4" name="Multilevel B-Spline Interpolation">
       <input id="SHAPES">POINTS</input>
-      <output id="OUT_GRID">INTERPOLATION</output>
+      <output id="OUT_GRID"  parms="TARGET">INTERPOLATION</output>
       <option id="FIELD" varname="1">ATTRIBUTE</option>
-      <option id="USER_SIZE" varname="1">CELL_SIZE</option>
+      <option id="USER_SIZE" parms="TARGET" varname="1">CELL_SIZE</option>
     </tool>
   </tools>
 </toolchain>
