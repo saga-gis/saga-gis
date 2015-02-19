@@ -83,6 +83,7 @@
 
 #include "wksp_module_control.h"
 #include "wksp_module_manager.h"
+#include "wksp_module.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_layers.h"
@@ -282,6 +283,11 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 	//-----------------------------------------------------
 	if( pItem == NULL || pItem->GetId().IsOk() == false || pItem->Get_Control() != this )
 	{
+		return( false );
+	}
+
+	if( pItem->Get_Type() == WKSP_ITEM_Module && ((CWKSP_Module *)pItem)->Get_Module()->Get_Type() != MODULE_TYPE_Chain )
+	{	// tool libraries can be unloaded, tools not! (except of tool chain tools)
 		return( false );
 	}
 
