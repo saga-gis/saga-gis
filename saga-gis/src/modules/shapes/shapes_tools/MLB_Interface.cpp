@@ -124,6 +124,8 @@ CSG_String Get_Info(int i)
 #include "shapes_generate.h"
 #include "shapes_convert_vertex_type.h"
 
+#include "LandUse_Scenario.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -160,6 +162,8 @@ CSG_Module *		Create_Module(int i)
 	case 21:	return( new CShapes_Polar_to_Cartes );
 	case 22:	return( new CShapes_Generate );
 	case 23:	return( new CShapes_Convert_Vertex_Type );
+
+	case 25:	return( new CLandUse_Scenario );
 
 	case 30:	return( NULL );
 	}

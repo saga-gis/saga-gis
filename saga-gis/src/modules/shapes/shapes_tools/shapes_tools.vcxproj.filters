@@ -80,6 +80,9 @@
     <ClCompile Include="shapes_convert_vertex_type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LandUse_Scenario.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -197,6 +200,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shapes_convert_vertex_type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LandUse_Scenario.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

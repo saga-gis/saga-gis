@@ -294,6 +294,7 @@
   <ItemGroup>
     <ClCompile Include="CreateChartLayer.cpp" />
     <ClCompile Include="GraticuleBuilder.cpp" />
+    <ClCompile Include="LandUse_Scenario.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -333,6 +334,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="CreateChartLayer.h" />
     <ClInclude Include="GraticuleBuilder.h" />
+    <ClInclude Include="LandUse_Scenario.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
