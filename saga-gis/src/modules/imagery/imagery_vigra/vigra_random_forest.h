@@ -115,6 +115,39 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CViGrA_RF_Presence : public CSG_Module_Grid
+{
+public:
+	CViGrA_RF_Presence(void);
+
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Grid|Analysis|Macroecology") );	}
+
+
+protected:
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	int							m_nFeatures;
+
+	CSG_Grid					**m_pFeatures;
+
+
+	bool						Get_Training			(CSG_Matrix &Data);
+	bool						Get_Training			(CSG_Matrix &Data, int x, int y, int ID);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

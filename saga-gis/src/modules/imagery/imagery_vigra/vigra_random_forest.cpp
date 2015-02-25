@@ -71,14 +71,18 @@
 //---------------------------------------------------------
 #if !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
 // define some dummies
-CViGrA_Random_Forest::CViGrA_Random_Forest()	{}
-int                       CViGrA_Random_Forest::On_Parameters_Enable (CSG_Parameters *pParameters, CSG_Parameter *pParameter)	{	return(0);		}
-bool                      CViGrA_Random_Forest::On_Execute           (void)														{	return(false);	}
-CSG_Grid *                CViGrA_Random_Forest::Get_Class_Grid       (void)														{	return(NULL);	}
-void                      CViGrA_Random_Forest::Set_Classification   (CSG_Table &Classes)										{					}
-CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table &Classes)										{	return(NULL);	}
-bool                      CViGrA_Random_Forest::Get_Training         (CSG_Matrix &Data, CSG_Table &Classes)						{	return(false);	}
-int                       CViGrA_Random_Forest::Get_Training         (CSG_Matrix &Data, int ID, CSG_Shape_Polygon *pArea)		{	return(0);		}
+#include <vigra\matrix.hxx>
+class CRandom_Forest
+{
+public:
+	CRandom_Forest(CSG_Parameters *pParameters)	{}
+	static bool				Parameters_Create	(CSG_Parameters &Parameters)		{	return( true );	}
+	bool					Load_Model			(bool bLoadNow)						{	return( true );	}
+	bool					Train_Model			(const CSG_Matrix &Data)			{	return( true );	}
+	int						Get_Feature_Count	(void)								{	return( 0 );	}
+	int						Get_Prediction		(vigra::Matrix<double> features)	{	return( 0 );	}
+	vigra::Matrix<double>	Get_Probabilities	(vigra::Matrix<double> features)	{	vigra::Matrix<double> p(0, 0); return( p );	}
+};
 #else
 
 
@@ -99,71 +103,53 @@ int                       CViGrA_Random_Forest::Get_Training         (CSG_Matrix
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
+class CRandom_Forest
 {
-	CLASS_ID	= 0,
-	CLASS_NAME,
-	CLASS_COUNT
+public:
+	CRandom_Forest(CSG_Parameters *pParameters);
+
+	static bool					Parameters_Create		(CSG_Parameters &Parameters);
+
+	bool						Load_Model				(bool bLoadNow);
+	bool						Train_Model				(const CSG_Matrix &Data);
+
+	int							Get_Feature_Count		(void)	{	return( m_Forest.feature_count() );	}
+
+	int							Get_Prediction			(vigra::Matrix<double> features);
+	vigra::Matrix<double>		Get_Probabilities		(vigra::Matrix<double> features);
+
+
+private:
+
+	CSG_Parameters				*m_pParameters;
+
+	vigra::RandomForest<int>	m_Forest;
+	
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CRandom_Forest::CRandom_Forest(CSG_Parameters *pParameters)
+{
+	m_pParameters	= pParameters;
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CViGrA_Random_Forest::CViGrA_Random_Forest(void)
+bool CRandom_Forest::Parameters_Create(CSG_Parameters &Parameters)
 {
 	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
-	Set_Name		(_TL("Random Forest (ViGrA)"));
-
-	Set_Author		("O.Conrad (c) 2013");
-
-	Set_Description	(_TW(
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
-	));
-
-	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "FEATURES"			, _TL("Features"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "CLASSES"				, _TL("Random Forest Classification"),
-		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "PROBABILITY"			, _TL("Prediction Probability"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Value(
-		NULL	, "BPROBABILITIES"		, _TL("Feature Probabilities"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Grid_List(
-		NULL	, "PROBABILITIES"		, _TL("Feature Probabilities"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
 
 	//-----------------------------------------------------
 #if defined(WITH_HDF5)
@@ -175,32 +161,8 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 #endif
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "TRAINING"			, _TL("Training Areas"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"				, _TL("Label Field"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "LABEL_AS_ID"			, _TL("Use Label as Identifier"),
-		_TL("Use training area labels as identifier in classification result, assumes all label values are integer numbers!"),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Value(
-		pNode	, "DO_MRMR"				, _TL("Minimum Redundancy Feature Selection"),
-		_TL("Use only features selected by the minimum Redundancy Maximum Relevance (mRMR) algorithm"),
-		PARAMETER_TYPE_Bool, false
-	));
-
-	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
-		NULL	, "RF_OPTIONS"			, _TL("Options"),
+		NULL	, "RF_OPTIONS"			, _TL("Random Forest Options"),
 		_TL("")
 	);
 
@@ -255,12 +217,221 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 			_TL("proportional")
 		), 0
 	);
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CRandom_Forest::Load_Model(bool bLoadNow)
+{
+#if defined(WITH_HDF5)
+	if( SG_File_Exists((*m_pParameters)("RF_IMPORT")->asString()) )
+	{
+		if( bLoadNow == false )
+		{
+			return( true );
+		}
+
+		if( vigra::rf_import_HDF5(m_Forest, CSG_String((*m_pParameters)("RF_IMPORT")->asString()).b_str()) )
+		{
+			return( true );
+		}
+	}
+#endif
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CRandom_Forest::Train_Model(const CSG_Matrix &Data)
+{
+	//-----------------------------------------------------
+	int	nFeatures	= Data.Get_NCols() - 1;
+
+	vigra::Matrix<double>	train_features(Data.Get_NRows(), nFeatures);
+	vigra::Matrix<int>		train_response(Data.Get_NRows(), 1);
+
+	for(int iSample=0; iSample<Data.Get_NRows(); iSample++)
+	{
+		train_response(iSample, 0)	= (int)Data[iSample][nFeatures];
+
+		for(int iFeature=0; iFeature<nFeatures; iFeature++)
+		{
+			train_features(iSample, iFeature)	= Data[iSample][iFeature];
+		}
+	}
+
+	//-----------------------------------------------------
+	m_Forest.set_options().tree_count             ((*m_pParameters)("RF_TREE_COUNT"    )->asInt   ());
+	m_Forest.set_options().samples_per_tree       ((*m_pParameters)("RF_TREE_SAMPLES"  )->asDouble());
+	m_Forest.set_options().sample_with_replacement((*m_pParameters)("RF_REPLACE"       )->asBool  ());
+	m_Forest.set_options().min_split_node_size    ((*m_pParameters)("RF_SPLIT_MIN_SIZE")->asInt   ());
+
+	switch( (*m_pParameters)("RF_NODE_FEATURES")->asInt() )
+	{
+	case  0:	m_Forest.set_options().features_per_node(vigra::RF_LOG );	break;
+	default:	m_Forest.set_options().features_per_node(vigra::RF_SQRT);	break;
+	case  1:	m_Forest.set_options().features_per_node(vigra::RF_ALL );	break;
+	}
+
+	switch( (*m_pParameters)("RF_STRATIFICATION")->asInt() )
+	{
+	default:	m_Forest.set_options().use_stratification(vigra::RF_NONE        );	break;
+	case  1:	m_Forest.set_options().use_stratification(vigra::RF_EQUAL       );	break;
+	case  2:	m_Forest.set_options().use_stratification(vigra::RF_PROPORTIONAL);	break;
+	}
+
+	//-----------------------------------------------------
+	SG_UI_Process_Set_Text(_TL("learning"));
+
+	vigra::rf::visitors::OOB_Error	oob_v;	// construct visitor to calculate out-of-bag error
+
+	m_Forest.learn(train_features, train_response, vigra::rf::visitors::create_visitor(oob_v));
+
+	SG_UI_Msg_Add_Execution(CSG_String::Format(SG_T("\n%s: %f"), _TL("out-of-bag error"), oob_v.oob_breiman), false);
+
+#if defined(WITH_HDF5)
+	if( (*m_pParameters)("RF_EXPORT")->asString() && *(*m_pParameters)("RF_EXPORT")->asString() )
+	{
+		vigra::rf_export_HDF5(m_Forest, CSG_String((*m_pParameters)("RF_EXPORT")->asString()).b_str());
+	}
+#endif
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CRandom_Forest::Get_Prediction(vigra::Matrix<double> features)
+{
+	return( m_Forest.predictLabel(features) );
+}
+
+//---------------------------------------------------------
+vigra::Matrix<double> CRandom_Forest::Get_Probabilities(vigra::Matrix<double> features)
+{
+	vigra::Matrix<double>	p(1, m_Forest.class_count());
+
+	m_Forest.predictProbabilities(features, p);
+
+	return( p );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum
+{
+	CLASS_ID	= 0,
+	CLASS_NAME,
+	CLASS_COUNT
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CViGrA_Random_Forest::CViGrA_Random_Forest(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Set_Name		(_TL("Random Forest Classification (ViGrA)"));
+
+	Set_Author		("O.Conrad (c) 2013");
+
+	Set_Description	(_TW(
+		"References:\n"
+		"ViGrA - Vision with Generic Algorithms\n"
+		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List(
+		NULL	, "FEATURES"			, _TL("Features"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "CLASSES"				, _TL("Random Forest Classification"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "PROBABILITY"			, _TL("Prediction Probability"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BPROBABILITIES"		, _TL("Feature Probabilities"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Grid_List(
+		NULL	, "PROBABILITIES"		, _TL("Feature Probabilities"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "TRAINING"			, _TL("Training Areas"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"				, _TL("Label Field"),
+		_TL("")
+	);
+
+	Parameters.Add_Value(
+		pNode	, "LABEL_AS_ID"			, _TL("Use Label as Identifier"),
+		_TL("Use training area labels as identifier in classification result, assumes all label values are integer numbers!"),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Value(
+		pNode	, "DO_MRMR"				, _TL("Minimum Redundancy Feature Selection"),
+		_TL("Use only features selected by the minimum Redundancy Maximum Relevance (mRMR) algorithm"),
+		PARAMETER_TYPE_Bool, false
+	));
+
+	//-----------------------------------------------------
+	CRandom_Forest::Parameters_Create(Parameters);
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -290,8 +461,6 @@ int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -329,35 +498,30 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	CSG_Table	Classes;
+	// Model Creation
 
-	vigra::RandomForestOptions	Options;
-	vigra::RandomForest<int>	Forest(Options);
+	CRandom_Forest	Model(&Parameters);
 
+	CSG_Table		Classes;
 
-#if defined(WITH_HDF5)
-	if( SG_File_Exists(Parameters("RF_IMPORT")->asString()) )
+	if( Model.Load_Model(false) )	// load model from file ...
 	{
-		if( !vigra::rf_import_HDF5(Forest, CSG_String(Parameters("RF_IMPORT")->asString()).b_str()) )
+		if( !Model.Load_Model(true) )
 		{
 			Error_Set(_TL("could not import random forest"));
 
 			return( false );
 		}
 
-		if( Forest.feature_count() != m_nFeatures )
+		if( Model.Get_Feature_Count() != m_nFeatures )
 		{
-			Error_Set(CSG_String::Format(SG_T("%s\n%s: %d"), _TL("invalid number of features"), _TL("expected"), Forest.feature_count()));
+			Error_Set(CSG_String::Format(SG_T("%s\n%s: %d"), _TL("invalid number of features"), _TL("expected"), Model.Get_Feature_Count()));
 
 			return( false );
 		}
 	}
-	else
-#endif
+	else							// train model from training data ...
 	{
-		//-------------------------------------------------
-		// Training Data
-
 		CSG_Matrix	Data;
 
 		if( !Get_Training(Data, Classes) )
@@ -367,63 +531,9 @@ bool CViGrA_Random_Forest::On_Execute(void)
 			return( false );
 		}
 
-		vigra::Matrix<double>	train_features(Data.Get_NRows(), m_nFeatures);
-		vigra::Matrix<int>		train_response(Data.Get_NRows(), 1);
-
-		for(int iSample=0; iSample<Data.Get_NRows(); iSample++)
-		{
-			train_response(iSample, 0)	= (int)Data[iSample][m_nFeatures];
-
-			for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
-			{
-				train_features(iSample, iFeature)	= Data[iSample][iFeature];
-			}
-		}
-
-		Data.Destroy();
-
-
-		//-------------------------------------------------
-		// Random Forest Options
-
-		Forest.set_options().tree_count             (Parameters("RF_TREE_COUNT"    )->asInt   ());
-		Forest.set_options().samples_per_tree       (Parameters("RF_TREE_SAMPLES"  )->asDouble());
-		Forest.set_options().sample_with_replacement(Parameters("RF_REPLACE"       )->asBool  ());
-		Forest.set_options().min_split_node_size    (Parameters("RF_SPLIT_MIN_SIZE")->asInt   ());
-
-		switch( Parameters("RF_NODE_FEATURES")->asInt() )
-		{
-		case  0:	Forest.set_options().features_per_node(vigra::RF_LOG );	break;
-		default:	Forest.set_options().features_per_node(vigra::RF_SQRT);	break;
-		case  1:	Forest.set_options().features_per_node(vigra::RF_ALL );	break;
-		}
-
-		switch( Parameters("RF_STRATIFICATION")->asInt() )
-		{
-		default:	Forest.set_options().use_stratification(vigra::RF_NONE        );	break;
-		case  1:	Forest.set_options().use_stratification(vigra::RF_EQUAL       );	break;
-		case  2:	Forest.set_options().use_stratification(vigra::RF_PROPORTIONAL);	break;
-		}
-
-
-		//-------------------------------------------------
-		// Learning
-
-		Process_Set_Text(_TL("learning"));
-
-		vigra::rf::visitors::OOB_Error	oob_v;	// construct visitor to calculate out-of-bag error
-
-		Forest.learn(train_features, train_response, vigra::rf::visitors::create_visitor(oob_v));
-
-		Message_Add(CSG_String::Format(SG_T("\n%s: %f"), _TL("out-of-bag error"), oob_v.oob_breiman), false);
-
-#if defined(WITH_HDF5)
-		if( Parameters("RF_EXPORT")->asString() && *Parameters("RF_EXPORT")->asString() )
-		{
-			vigra::rf_export_HDF5(Forest, CSG_String(Parameters("RF_EXPORT")->asString()).b_str());
-		}
-#endif
+		Model.Train_Model(Data);
 	}
+
 
 	//-----------------------------------------------------
 	// Output Grids
@@ -434,7 +544,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 	CSG_Parameter_Grid_List	*pProbabilities	= Get_Propability_Grids(Classes);
 
-	DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN);
+	if( !pProbability->Get_ZRange() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN);
 
 
 	//-----------------------------------------------------
@@ -456,20 +566,15 @@ bool CViGrA_Random_Forest::On_Execute(void)
 					features(0, iFeature)	= m_pFeatures[iFeature]->asDouble(x, y);
 				}
 
-				int		id	= Forest.predictLabel(features);
+				int	id	= Model.Get_Prediction(features);
 
 				pClasses->Set_Value(x, y, id);
 
 				if( pProbability || pProbabilities )
 				{
-					vigra::Matrix<double>	p(1, Forest.class_count());
+					vigra::Matrix<double>	p	= Model.Get_Probabilities(features);
 
-					Forest.predictProbabilities(features, p);
-
-					if( pProbability )
-					{
-						pProbability->Set_Value(x, y, p(0, id - 1));
-					}
+					SG_GRID_PTR_SAFE_SET_VALUE(pProbability, x, y, p(0, id - 1));
 
 					for(int i=0; pProbabilities && i<pProbabilities->Get_Count(); i++)
 					{
@@ -479,10 +584,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 			}
 			else // if( pClasses->is_NoData(x, y) )
 			{
-				if( pProbability )
-				{
-					pProbability->Set_NoData(x, y);
-				}
+				SG_GRID_PTR_SAFE_SET_NODATA(pProbability, x, y);
 
 				for(int i=0; pProbabilities && i<pProbabilities->Get_Count(); i++)
 				{
@@ -498,14 +600,11 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 	Set_Classification(Classes);
 
-	//-----------------------------------------------------
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -610,25 +709,26 @@ int CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, int ID, CSG_Shape_Polyg
 		{
 			if( pArea->Contains(Get_System()->Get_Grid_to_World(x, y)) )
 			{
-				int	iRow	= Data.Get_NRows();
+				CSG_Vector	z(1 + m_nFeatures);
 
-				if( iRow == 0 )
-				{
-					Data.Create(1 + m_nFeatures, 1);
-				}
-				else
-				{
-					Data.Add_Row();
-				}
+				z[m_nFeatures]	= ID;
 
-				Data[iRow][m_nFeatures]	= ID;
+				bool	bOkay	= true;
 
-				for(int i=0; i<m_nFeatures; i++)
+				for(int i=0; bOkay && i<m_nFeatures; i++)
 				{
-					Data[iRow][i]	= m_pFeatures[i]->asDouble(x, y);
+					if( (bOkay = !m_pFeatures[i]->is_NoData(x, y)) == true )
+					{
+						z[i]	= m_pFeatures[i]->asDouble(x, y);
+					}
 				}
 
-				Count++;
+				if( bOkay )
+				{
+					Data.Add_Row(z);
+
+					Count++;
+				}
 			}
 		}
 	}
@@ -638,8 +738,6 @@ int CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, int ID, CSG_Shape_Polyg
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -710,8 +808,6 @@ void CViGrA_Random_Forest::Set_Classification(CSG_Table &Classes)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -753,7 +849,309 @@ CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
+CViGrA_RF_Presence::CViGrA_RF_Presence(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Random Forest Presence Prediction (ViGrA)"));
+
+	Set_Author		("O.Conrad (c) 2015");
+
+	Set_Description	(_TW(
+		"References:\n"
+		"ViGrA - Vision with Generic Algorithms\n"
+		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List(
+		NULL	, "FEATURES"			, _TL("Features"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "PREDICTION"			, _TL("Presence Prediction"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "PROBABILITY"			, _TL("Presence Probability"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "PRESENCE"			, _TL("Presence Data"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Value(
+		NULL	, "BACKGROUND"			, _TL("Background Sample Density [Percent]"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1, 0.0, true, 100, true
+	);
+
+	//-----------------------------------------------------
+	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Value(
+		NULL	, "DO_MRMR"				, _TL("Minimum Redundancy Feature Selection"),
+		_TL("Use only features selected by the minimum Redundancy Maximum Relevance (mRMR) algorithm"),
+		PARAMETER_TYPE_Bool, false
+	));
+
+	//-----------------------------------------------------
+	CRandom_Forest::Parameters_Create(Parameters);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CViGrA_RF_Presence::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RF_IMPORT") )
+	{
+		bool	bTraining	= !SG_File_Exists(pParameter->asString());
+
+		pParameters->Set_Enabled("RF_OPTIONS", bTraining);
+		pParameters->Set_Enabled("PRESENCE"  , bTraining);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_MRMR") )
+	{
+		pParameters->Get("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
+	}
+
+	if( pParameters->Get("DO_MRMR")->asBool() )
+	{
+		CSG_mRMR::Parameters_Enable(pParameters, pParameter);
+	}
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CViGrA_RF_Presence::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List		*pFeatures	= Parameters("FEATURES")->asGridList();
+
+	CSG_Array	Features(sizeof(CSG_Grid *), pFeatures->Get_Count());
+
+	m_pFeatures	= (CSG_Grid **)Features.Get_Array();
+	m_nFeatures	= 0;
+
+	for(int i=pFeatures->Get_Count()-1; i>=0; i--)
+	{
+		if( pFeatures->asGrid(i)->Get_ZRange() <= 0.0 )
+		{
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("grid has been dropped"), pFeatures->asGrid(i)->Get_Name()));
+		}
+		else
+		{
+			m_pFeatures[m_nFeatures++]	= pFeatures->asGrid(i);
+		}
+	}
+
+	if( m_nFeatures <= 0 )
+	{
+		Error_Set(_TL("no valid grid in features list."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CRandom_Forest	Model(&Parameters);
+
+	if( Model.Load_Model(false) )	// load model from file ...
+	{
+		if( !Model.Load_Model(true) )
+		{
+			Error_Set(_TL("could not import random forest"));
+
+			return( false );
+		}
+
+		if( Model.Get_Feature_Count() != m_nFeatures )
+		{
+			Error_Set(CSG_String::Format(SG_T("%s\n%s: %d"), _TL("invalid number of features"), _TL("expected"), Model.Get_Feature_Count()));
+
+			return( false );
+		}
+	}
+	else							// train model from training data ...
+	{
+		CSG_Matrix	Data;
+
+		if( !Get_Training(Data) )
+		{
+			Error_Set(_TL("insufficient training samples"));
+
+			return( false );
+		}
+
+		Process_Set_Text(_TL("training"));
+
+		Model.Train_Model(Data);
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pPrediction	= Parameters("PREDICTION" )->asGrid();
+	CSG_Grid	*pProbability	= Parameters("PROBABILITY")->asGrid();
+
+	if( !pPrediction ->Get_ZRange() ) DataObject_Set_Colors(pPrediction , 11, SG_COLORS_YELLOW_GREEN);
+	if( !pProbability->Get_ZRange() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_YELLOW_GREEN);
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("prediction"));
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			bool	bOkay	= true;
+
+			vigra::Matrix<double>	features(1, m_nFeatures);
+
+			for(int iFeature=0; bOkay && iFeature<m_nFeatures; iFeature++)
+			{
+				if( (bOkay = !m_pFeatures[iFeature]->is_NoData(x, y)) == true )
+				{
+					features(0, iFeature)	= m_pFeatures[iFeature]->asDouble(x, y);
+				}
+			}
+
+			if( bOkay )
+			{
+			//	vigra::Matrix<double>	p	= Model.Get_Probabilities(features);
+			//	pProbability->Set_Value(x, y, p(0, 0));
+				pPrediction ->Set_Value(x, y, Model.Get_Prediction   (features));
+				pProbability->Set_Value(x, y, Model.Get_Probabilities(features)(0, 0));
+			}
+			else // if( pClasses->is_NoData(x, y) )
+			{
+				pPrediction ->Set_NoData(x, y);
+				pProbability->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
+{
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("collecting presence data"));
+
+	CSG_Shapes	*pPresence	= Parameters("PRESENCE")->asShapes();
+
+	for(int iPoint=0; iPoint<pPresence->Get_Count() && Set_Progress(iPoint, pPresence->Get_Count()); iPoint++)
+	{
+		TSG_Point	p	= pPresence->Get_Shape(iPoint)->Get_Point(0);
+
+		int	x	= Get_System()->Get_xWorld_to_Grid(p.x);
+		int	y	= Get_System()->Get_yWorld_to_Grid(p.y);
+
+		Get_Training(Data, x, y, 1);
+	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("collecting background data"));
+
+	double	Background	= Parameters("BACKGROUND")->asDouble() / 100.0;
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( CSG_Random::Get_Uniform() <= Background )
+			{
+				Get_Training(Data, x, y, 0);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 && Parameters("DO_MRMR")->asBool() )
+	{
+		CSG_mRMR	Selector;
+
+		if( Selector.Set_Data(Data, m_nFeatures, &Parameters) && Selector.Get_Selection(&Parameters)
+		&&  Selector.Get_Count() > 0 && Selector.Get_Count() < m_nFeatures )
+		{
+			int	i, j, *bSelected	= (int *)SG_Calloc(m_nFeatures, sizeof(int));
+
+			for(i=0; i<Selector.Get_Count(); i++)
+			{
+				bSelected[j = Selector.Get_Index(i) - 1]	= 1;
+
+				Message_Add(CSG_String::Format(SG_T("\n%02d. %s (%s: %f)"),
+					i + 1, m_pFeatures[j]->Get_Name(), _TL("Score"), Selector.Get_Score(i)
+				), false);
+			}
+
+			Message_Add("\n", false);
+
+			for(i=0, j=0; i<m_nFeatures; i++)
+			{
+				if( bSelected[m_nFeatures - i - 1] == 0 )
+				{
+					Data.Del_Col(m_nFeatures - i - 1);
+				}
+
+				if( bSelected[i] == 1 )
+				{
+					m_pFeatures[j++]	= m_pFeatures[i];
+				}
+			}
+
+			m_nFeatures	= Selector.Get_Count();
+
+			delete[](bSelected);
+		}
+	}
+
+	return( Data.Get_NCols() > 1 && Data.Get_NRows() > 1 );
+}
+
+//---------------------------------------------------------
+bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data, int x, int y, int ID)
+{
+	CSG_Vector	z(1 + m_nFeatures);
+
+	z[m_nFeatures]	= ID;
+
+	for(int i=0; i<m_nFeatures; i++)
+	{
+		if( !m_pFeatures[i]->is_InGrid(x, y) )
+		{
+			return( false );
+		}
+
+		z[i]	= m_pFeatures[i]->asDouble(x, y);
+	}
+
+	Data.Add_Row(z);
+
+	return( true );
+}
 
 
 ///////////////////////////////////////////////////////////

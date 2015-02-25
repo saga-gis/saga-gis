@@ -189,6 +189,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_photogrammetry", "m
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_virtual", "modules\io\io_virtual\io_virtual.vcxproj", "{04E57DDF-3500-4424-A1A0-A14C306B2CD1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_maxent", "modules\imagery\imagery_maxent\imagery_maxent.vcxproj", "{E1C454F8-2E71-485C-B598-F58C2741ECBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -789,6 +791,14 @@ Global
 		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Release|Win32.Build.0 = Release|Win32
 		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Release|x64.ActiveCfg = Release|x64
 		{04E57DDF-3500-4424-A1A0-A14C306B2CD1}.Release|x64.Build.0 = Release|x64
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Debug|Win32.Build.0 = Debug|Win32
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Debug|x64.ActiveCfg = Debug|x64
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Debug|x64.Build.0 = Debug|x64
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Release|Win32.ActiveCfg = Release|Win32
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Release|Win32.Build.0 = Release|Win32
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Release|x64.ActiveCfg = Release|x64
+		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
