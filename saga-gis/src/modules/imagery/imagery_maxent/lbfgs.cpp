@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <stdio.h>
 #include <cmath>
 #include "mathvec.h"
 #include "lbfgs.h"
