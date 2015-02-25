@@ -113,22 +113,24 @@ CSG_String Get_Info(int i)
 #include "param_scale.h"
 #include "top_hat.h"
 #include "fuzzy_landform_elements.h"
+#include "Curvature_UpDownSlope.h"
+
 
 //---------------------------------------------------------
 CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CMorphometry );
-	case 1:		return( new CConvergence );
-	case 2:		return( new CConvergence_Radius );
-	case 3:		return( new CSurfaceSpecificPoints );
-	case 4:		return( new CCurvature_Classification );
-	case 5:		return( new CHypsometry );
-	case 6:		return( new CRealArea );
-	case 7:		return( new CProtectionIndex );
-	case 8:		return( new CMRVBF );
-	case 9:		return( new CDistance_Gradient );
+	case  0:	return( new CMorphometry );
+	case  1:	return( new CConvergence );
+	case  2:	return( new CConvergence_Radius );
+	case  3:	return( new CSurfaceSpecificPoints );
+	case  4:	return( new CCurvature_Classification );
+	case  5:	return( new CHypsometry );
+	case  6:	return( new CRealArea );
+	case  7:	return( new CProtectionIndex );
+	case  8:	return( new CMRVBF );
+	case  9:	return( new CDistance_Gradient );
 	case 10:	return( new CMass_Balance_Index );
 	case 11:	return( new CAir_Flow_Height );
 	case 12:	return( new CAnisotropic_Heating );
@@ -145,6 +147,10 @@ CSG_Module *		Create_Module(int i)
 	case 23:	return( new CParam_Scale );
 	case 24:	return( new CTop_Hat );
 	case 25:	return( new CFuzzy_Landform_Elements );
+	case 26:	return( new CCurvature_UpDownSlope );
+
+	case 30:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 
 	return( NULL );

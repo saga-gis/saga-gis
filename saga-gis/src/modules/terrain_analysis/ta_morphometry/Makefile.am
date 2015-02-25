@@ -16,6 +16,7 @@ libta_morphometry_la_SOURCES =\
 Convergence.cpp\
 Convergence_Radius.cpp\
 Curvature_Classification.cpp\
+Curvature_UpDownSlope.cpp\
 Hypsometry.cpp\
 MLB_Interface.cpp\
 Morphometry.cpp\
@@ -39,6 +40,7 @@ wind_effect.cpp\
 Convergence.h\
 Convergence_Radius.h\
 Curvature_Classification.h\
+Curvature_UpDownSlope.h\
 Hypsometry.h\
 MLB_Interface.h\
 Morphometry.h\

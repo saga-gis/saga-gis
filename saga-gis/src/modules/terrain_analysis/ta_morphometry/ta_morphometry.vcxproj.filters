@@ -83,6 +83,9 @@
     <ClCompile Include="top_hat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Curvature_UpDownSlope.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -203,6 +206,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="top_hat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Curvature_UpDownSlope.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -297,6 +297,7 @@
     <ClCompile Include="Convergence.cpp" />
     <ClCompile Include="Convergence_Radius.cpp" />
     <ClCompile Include="Curvature_Classification.cpp" />
+    <ClCompile Include="Curvature_UpDownSlope.cpp" />
     <ClCompile Include="distance_gradient.cpp" />
     <ClCompile Include="fuzzy_landform_elements.cpp" />
     <ClCompile Include="Hypsometry.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="Convergence.h" />
     <ClInclude Include="Convergence_Radius.h" />
     <ClInclude Include="Curvature_Classification.h" />
+    <ClInclude Include="Curvature_UpDownSlope.h" />
     <ClInclude Include="distance_gradient.h" />
     <ClInclude Include="fuzzy_landform_elements.h" />
     <ClInclude Include="Hypsometry.h" />
