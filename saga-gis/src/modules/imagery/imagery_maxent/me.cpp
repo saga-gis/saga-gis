@@ -13,11 +13,16 @@
 
 #include <iostream>
 #include <cmath>
+#include <float.h>
 
 #include "me.h"
 
 /////////////////////////////////////////////////////////////////////////
+#ifdef _SAGA_MSW
 #define isinf(x) (!_finite(x))
+#else
+#define isinf(x) (!finite(x))
+#endif
 
 /** The input array contains a set of log probabilities lp1, lp2, lp3
     ... The return value should be the log of the sum of the
