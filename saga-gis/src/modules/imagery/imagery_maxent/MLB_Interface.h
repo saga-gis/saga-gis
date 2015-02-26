@@ -15,8 +15,8 @@
 //                                                       //
 //                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2015 by                 //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,14 +40,18 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__MLB_Interface_H
+#define HEADER_INCLUDED__MLB_Interface_H
 
 
 ///////////////////////////////////////////////////////////
@@ -57,12 +61,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__imagery_tools_H
-#define HEADER_INCLUDED__imagery_tools_H
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__imagery_tools_H
+#endif // #ifndef HEADER_INCLUDED__MLB_Interface_H

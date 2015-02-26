@@ -15,7 +15,7 @@
 //                                                       //
 //                    classify_grid.h                    //
 //                                                       //
-//                 Copyright (C) 2013 by                 //
+//                 Copyright (C) 2015 by                 //
 //                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,6 @@
 
 //---------------------------------------------------------
 #include "maxent.h"
-#include "me.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -119,11 +118,11 @@ private:
 
 	ME_Model					m_YT_Model;
 
-	EventSet					*m_DL_Events;
+	class EventSet				*m_DL_Events;
 
-	GISTrainer					*m_DL_Trainer;
+	class GISTrainer			*m_DL_Trainer;
 
-	MaxEntModel					*m_DL_Model;
+	class MaxEntModel			*m_DL_Model;
 
 
 	CSG_String					Get_Feature		(int x, int y, int i);
