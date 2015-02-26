@@ -291,11 +291,14 @@ void		SG_UI_Dlg_Message(const CSG_String &Message, const CSG_String &Caption)
 //---------------------------------------------------------
 bool		SG_UI_Dlg_Continue(const CSG_String &Message, const CSG_String &Caption)
 {
-	if( gSG_UI_Callback )
+	if( gSG_UI_Progress_Lock == 0 )
 	{
-		CSG_UI_Parameter	p1(Message), p2(Caption);
+		if( gSG_UI_Callback )
+		{
+			CSG_UI_Parameter	p1(Message), p2(Caption);
 
-		return( gSG_UI_Callback(CALLBACK_DLG_CONTINUE, p1, p2) != 0 );
+			return( gSG_UI_Callback(CALLBACK_DLG_CONTINUE, p1, p2) != 0 );
+		}
 	}
 
 	return( true );
@@ -304,6 +307,14 @@ bool		SG_UI_Dlg_Continue(const CSG_String &Message, const CSG_String &Caption)
 //---------------------------------------------------------
 int			SG_UI_Dlg_Error(const CSG_String &Message, const CSG_String &Caption)
 {
+	if( gSG_UI_Progress_Lock != 0 )
+	{
+		SG_UI_Msg_Add_Error(Caption);
+		SG_UI_Msg_Add_Error(Message);
+
+		return( 0 );
+	}
+
 	if( gSG_UI_Callback )
 	{
 		CSG_UI_Parameter	p1(Message), p2(Caption);
@@ -385,9 +396,6 @@ void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE S
 //---------------------------------------------------------
 void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 {
-	if( gSG_UI_Msg_Lock )
-		return;
-
 	if( gSG_UI_Callback )
 	{
 		CSG_UI_Parameter	p1(Message), p2;
