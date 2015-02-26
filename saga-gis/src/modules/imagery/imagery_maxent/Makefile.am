@@ -16,13 +16,15 @@ maxent.cpp\
 me.cpp\
 MLB_Interface.cpp\
 owlqn.cpp\
+presence_prediction.cpp\
 sgd.cpp\
 classify_grid.h\
 lbfgs.h\
 mathvec.h\
 maxent.h\
 me.h\
-MLB_Interface.h
+MLB_Interface.h\
+presence_prediction.h
 
 libimagery_maxent_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
