@@ -77,10 +77,11 @@ CPC_Cut::CPC_Cut(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
-	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-10"));
+	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-15"));
 
 	Set_Description	(_TW(
-		"This modules allows one to extract subsets from a Point Cloud. The area-of-interest "
+		"This modules allows one to extract subsets from one or several "
+		"point cloud datasets. The area-of-interest "
 		"is defined either by bounding box coordinates, the extent of a grid system or "
 		"a shapes layer, or by polygons of a shapes layer. Note that the latter "
 		"does not support the inverse selection.\n\n"
@@ -88,15 +89,15 @@ CPC_Cut::CPC_Cut(void)
 
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud(
+	Parameters.Add_PointCloud_List(
 		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
+		_TL("One or several input point cloud datasets to cut."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_PointCloud(
+	Parameters.Add_PointCloud_List(
 		NULL	, "CUT"			, _TL("Cut"),
-		_TL(""),
+		_TL("The cutted output point cloud dataset(s)."),
 		PARAMETER_OUTPUT
 	);
 
@@ -154,8 +155,8 @@ CPC_Cut::CPC_Cut(void)
 //---------------------------------------------------------
 bool CPC_Cut::On_Execute(void)
 {
-	CSG_PointCloud	*pPoints	= Parameters("POINTS")	->asPointCloud();
-	CSG_PointCloud	*pCut		= Parameters("CUT")		->asPointCloud();
+	CSG_Parameter_PointCloud_List	*pPointsList	= Parameters("POINTS")	->asPointCloudList();
+	CSG_Parameter_PointCloud_List	*pCutList		= Parameters("CUT")		->asPointCloudList();
 
 	switch( Parameters("AREA")->asInt() )
 	{
@@ -170,7 +171,7 @@ bool CPC_Cut::On_Execute(void)
 				Get_Parameters("USER")->Get_Parameter("YMAX")->asDouble()
 			);
 
-			return( Get_Cut(pPoints, pCut, r, Parameters("INVERSE")->asBool()) );
+			return( Get_Cut(pPointsList, pCutList, r, Parameters("INVERSE")->asBool()) );
 		}
 		break;
 
@@ -178,7 +179,7 @@ bool CPC_Cut::On_Execute(void)
 	case 1:	// Grid System Extent
 		if( Dlg_Parameters("GRID") )
 		{
-			return( Get_Cut(pPoints, pCut, Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid_System()->Get_Extent(), Parameters("INVERSE")->asBool()) );
+			return( Get_Cut(pPointsList, pCutList, Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid_System()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
 
@@ -193,7 +194,7 @@ bool CPC_Cut::On_Execute(void)
 				return( false );
 			}
 
-			return( Get_Cut(pPoints, pCut, Get_Parameters("EXTENT")->Get_Parameter("EXTENT")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
+			return( Get_Cut(pPointsList, pCutList, Get_Parameters("EXTENT")->Get_Parameter("EXTENT")->asShapes()->Get_Extent(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
 
@@ -215,7 +216,7 @@ bool CPC_Cut::On_Execute(void)
 				return (false);
 			}
 
-			return( Get_Cut(pPoints, pCut, Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes(), Parameters("INVERSE")->asBool()) );
+			return( Get_Cut(pPointsList, pCutList, Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes(), Parameters("INVERSE")->asBool()) );
 		}
 		break;
 	}
@@ -230,67 +231,105 @@ bool CPC_Cut::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPC_Cut::Get_Cut(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, const CSG_Rect &Extent, bool bInverse)
+bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, const CSG_Rect &Extent, bool bInverse)
 {
-	if( pPoints && pPoints->is_Valid() && pCut )
+	for(int iItem=0; iItem<pPointsList->Get_Count(); iItem++)
 	{
-		pCut->Create(pPoints);
-		pCut->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Cut")));
+		SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing dataset %d"), iItem+1));
 
-		if( Extent.Intersects(pPoints->Get_Extent()) )
+		CSG_PointCloud	*pPoints = pPointsList->asPointCloud(iItem);
+
+		if( pPoints && pPoints->is_Valid() )
 		{
-			for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count()); i++)
+			CSG_PointCloud *pCut = new CSG_PointCloud(pPoints);
+
+			pCut->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Cut")));
+
+			if( Extent.Intersects(pPoints->Get_Extent()) )
 			{
-				pPoints->Set_Cursor(i);
-
-				if( (Extent.Contains(pPoints->Get_X(), pPoints->Get_Y()) && !bInverse) || (!Extent.Contains(pPoints->Get_X(), pPoints->Get_Y()) && bInverse) )
+				for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count()); i++)
 				{
-					pCut->Add_Point(pPoints->Get_X(), pPoints->Get_Y(), pPoints->Get_Z());
+					pPoints->Set_Cursor(i);
 
-					for(int j=0; j<pPoints->Get_Field_Count() - 3; j++)
+					if( (Extent.Contains(pPoints->Get_X(), pPoints->Get_Y()) && !bInverse) || (!Extent.Contains(pPoints->Get_X(), pPoints->Get_Y()) && bInverse) )
 					{
-						pCut->Set_Attribute(j, pPoints->Get_Attribute(j));
+						pCut->Add_Point(pPoints->Get_X(), pPoints->Get_Y(), pPoints->Get_Z());
+
+						for(int j=0; j<pPoints->Get_Field_Count() - 3; j++)
+						{
+							pCut->Set_Attribute(j, pPoints->Get_Attribute(j));
+						}
 					}
 				}
 			}
-		}
 
-		return( pCut->Get_Count() > 0 );
+			if( pCut->Get_Count() <= 0 )
+			{
+				delete pCut;
+
+				SG_UI_Msg_Add(CSG_String::Format(_TL("Cutting %s resulted in an empty point cloud, skipping output!"), pPoints->Get_Name()), true);
+			}
+			else
+			{
+				pCutList->Add_Item(pCut);
+
+				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Point_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
+			}
+		}
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CPC_Cut::Get_Cut(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, CSG_Shapes *pPolygons, bool bInverse)
+bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, CSG_Shapes *pPolygons, bool bInverse)
 {
-	if( pPoints && pPoints->is_Valid() && pCut )
+	for(int iItem=0; iItem<pPointsList->Get_Count(); iItem++)
 	{
-		pCut->Create(pPoints);
-		pCut->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPolygons->Get_Name()));
+		SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing dataset %d"), iItem+1));
 
-		if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon && pPolygons->Get_Extent().Intersects(pPoints->Get_Extent()) )
+		CSG_PointCloud	*pPoints = pPointsList->asPointCloud(iItem);
+
+		if( pPoints && pPoints->is_Valid() )
 		{
-			for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count()); i++)
+			CSG_PointCloud *pCut = new CSG_PointCloud(pPoints);
+
+			pCut->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPolygons->Get_Name()));
+
+			if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon && pPolygons->Get_Extent().Intersects(pPoints->Get_Extent()) )
 			{
-				pPoints->Set_Cursor(i);
-
-				if( (Contains(pPolygons, pPoints->Get_X(), pPoints->Get_Y()) && !bInverse) || (!Contains(pPolygons, pPoints->Get_X(), pPoints->Get_Y()) && bInverse) )
+				for(int i=0; i<pPoints->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Point_Count()); i++)
 				{
-					pCut->Add_Point(pPoints->Get_X(), pPoints->Get_Y(), pPoints->Get_Z());
+					pPoints->Set_Cursor(i);
 
-					for(int j=0; j<pPoints->Get_Field_Count() - 3; j++)
+					if( (Contains(pPolygons, pPoints->Get_X(), pPoints->Get_Y()) && !bInverse) || (!Contains(pPolygons, pPoints->Get_X(), pPoints->Get_Y()) && bInverse) )
 					{
-						pCut->Set_Attribute(j, pPoints->Get_Attribute(j));
+						pCut->Add_Point(pPoints->Get_X(), pPoints->Get_Y(), pPoints->Get_Z());
+
+						for(int j=0; j<pPoints->Get_Field_Count() - 3; j++)
+						{
+							pCut->Set_Attribute(j, pPoints->Get_Attribute(j));
+						}
 					}
 				}
 			}
-		}
 
-		return( pCut->Get_Count() > 0 );
+			if( pCut->Get_Count() <= 0 )
+			{
+				delete pCut;
+
+				SG_UI_Msg_Add(CSG_String::Format(_TL("Cutting %s resulted in an empty point cloud, skipping output!"), pPoints->Get_Name()), true);
+			}
+			else
+			{
+				pCutList->Add_Item(pCut);
+
+				SG_UI_Msg_Add(CSG_String::Format(_TL("%d points from %s written to output %s."), pCut->Get_Point_Count(), pPoints->Get_Name(), pCut->Get_Name()), true);
+			}
+		}
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -325,10 +364,11 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
-	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-10"));
+	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-15"));
 
 	Set_Description	(_TW(
-		"This modules allows one to extract subsets from a Point Cloud. The area-of-interest "
+		"This modules allows one to extract subsets from one or several "
+		"point cloud datasets. The area-of-interest "
 		"is interactively defined either by dragging a box or by digitizing a polygon.\n"
 		"Best practice is to display the Point Cloud in a new Map View first and then "
 		"execute the module. Use the Action tool to define the AOI.\n\n"
@@ -336,15 +376,15 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud(
+	Parameters.Add_PointCloud_List(
 		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
+		_TL("One or several input point cloud datasets to cut."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_PointCloud(
+	Parameters.Add_PointCloud_List(
 		NULL	, "CUT"			, _TL("Cut"),
-		_TL(""),
+		_TL("The cutted output point cloud dataset(s)."),
 		PARAMETER_OUTPUT
 	);
 
@@ -382,11 +422,11 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 //---------------------------------------------------------
 bool CPC_Cut_Interactive::On_Execute(void)
 {
-	m_pPoints	= Parameters("POINTS")	->asPointCloud();
-	m_pCut		= Parameters("CUT")		->asPointCloud();
-	m_bAOIBox	= Parameters("AOI")		->asInt() == 0 ? true : false;
-	m_pAOI		= Parameters("AOISHAPE")->asShapes();
-	m_bInverse	= Parameters("INVERSE")	->asBool();
+	m_pPointsList	= Parameters("POINTS")	->asPointCloudList();
+	m_pCutList		= Parameters("CUT")		->asPointCloudList();
+	m_bAOIBox		= Parameters("AOI")		->asInt() == 0 ? true : false;
+	m_pAOI			= Parameters("AOISHAPE")->asShapes();
+	m_bInverse		= Parameters("INVERSE")	->asBool();
 
 
 	if( !m_bAOIBox )
@@ -396,7 +436,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 
 		if( m_pAOI == NULL )
 		{
-			m_pAOI = SG_Create_Shapes(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("AOI_%s"), m_pPoints->Get_Name()));
+			m_pAOI = SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_T("AOI_Cutter"));
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 			Parameters("AOISHAPE")->Set_Value(m_pAOI);
 			DataObject_Add(m_pAOI, true);
@@ -404,7 +444,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 		else if( m_pAOI->Get_Field_Count() < 1)
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 
-		
+
 		CSG_Parameters	sParms;
 		if( DataObject_Get_Parameters(m_pAOI, sParms) && sParms("DISPLAY_BRUSH") && sParms("OUTLINE_COLOR"))
 		{
@@ -472,10 +512,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 					pParameters->Get_Parameter("YMAX")->asDouble()
 				);
 
-				if( CPC_Cut::Get_Cut(m_pPoints, m_pCut, r, m_bInverse) )
-				{
-					DataObject_Update(m_pCut);
-				}
+				CPC_Cut::Get_Cut(m_pPointsList, m_pCutList, r, m_bInverse);
 			}
 
 			return( true );
@@ -490,10 +527,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		{
 			m_bAdd    = false;
 
-			if( CPC_Cut::Get_Cut(m_pPoints, m_pCut, m_pAOI, m_bInverse) )
-			{
-				DataObject_Update(m_pCut);
-			}
+			CPC_Cut::Get_Cut(m_pPointsList, m_pCutList, m_pAOI, m_bInverse);
 
 			return( true );
 		}
