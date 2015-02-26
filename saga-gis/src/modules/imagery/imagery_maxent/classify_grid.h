@@ -102,9 +102,11 @@ private:
 
 	typedef struct
 	{
-		CSG_Grid				*pGrid;
-
 		bool					bNumeric;
+
+		char					Name[256];
+
+		CSG_Grid				*pGrid;
 	}
 	TFeature;
 

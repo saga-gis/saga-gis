@@ -105,9 +105,15 @@ CClassify_Grid::CClassify_Grid(void)
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "FEATURES"		, _TL("Features"),
+		NULL	, "FEATURES_NUM"	, _TL("Numerical Features"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid_List(
+		NULL	, "FEATURES_CAT"	, _TL("Categorical Features"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
@@ -135,18 +141,6 @@ CClassify_Grid::CClassify_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "PROB_MIN"		, _TL("Minimum Probability"),
-		_TL("Minimum probability to accept a classification result for a cell."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 1.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "NUM_CLASSES"		, _TL("Numeric Value Classes"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 32, 1, true
-	);
-
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Method"),
 		_TL(""),
@@ -157,6 +151,18 @@ CClassify_Grid::CClassify_Grid(void)
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_FilePath(
+		NULL	, "YT_FILE_LOAD"	, _TL("Load from File..."),
+		_TL(""),
+		NULL, NULL, false
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "YT_FILE_SAVE"	, _TL("Save to File..."),
+		_TL(""),
+		NULL, NULL, true
+	);
+
 	pNode	= Parameters.Add_Choice(
 		NULL	, "YT_REGUL"		, _TL("Regularization"),
 		_TL(""),
@@ -174,21 +180,9 @@ CClassify_Grid::CClassify_Grid(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "YT_NUMASREAL"	, _TL("Real-valued Numeric Features"),
+		NULL	, "YT_NUMASREAL"	, _TL("Real-valued Numerical Features"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
-	);
-
-	Parameters.Add_FilePath(
-		NULL	, "YT_FILE_SAVE"	, _TL("Save to File..."),
-		_TL(""),
-		NULL, NULL, true
-	);
-
-	Parameters.Add_FilePath(
-		NULL	, "YT_FILE_LOAD"	, _TL("Load from File..."),
-		_TL(""),
-		NULL, NULL, false
 	);
 
 	//-----------------------------------------------------
@@ -208,6 +202,19 @@ CClassify_Grid::CClassify_Grid(void)
 		NULL	, "DL_ITERATIONS"	, _TL("Maximum Iterations"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Value(
+		NULL	, "NUM_CLASSES"		, _TL("Number of Numeric Value Classes"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 32, 1, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "PROB_MIN"		, _TL("Minimum Probability"),
+		_TL("Minimum probability to accept a classification result for a cell."),
+		PARAMETER_TYPE_Double, 0.0, 0.0, true, 1.0, true
 	);
 }
 
@@ -335,7 +342,7 @@ bool CClassify_Grid::On_Execute(void)
 					{
 						if( m_bYT_Weights && m_Features[i].bNumeric )
 						{
-							Sample.add_feature(SG_Get_String(i, 0).b_str(), m_Features[i].pGrid->asDouble(x, y));
+							Sample.add_feature(m_Features[i].Name, m_Features[i].pGrid->asDouble(x, y));
 						}
 						else
 						{
@@ -404,14 +411,26 @@ CSG_String CClassify_Grid::Get_Feature(int x, int y, int i)
 //---------------------------------------------------------
 bool CClassify_Grid::Get_Features(CSG_Array &Features)
 {
-	CSG_Parameter_Grid_List	*pFeatures	= Parameters("FEATURES")->asGridList();
+	CSG_Parameter_Grid_List	*pNum	= Parameters("FEATURES_NUM")->asGridList();
+	CSG_Parameter_Grid_List	*pCat	= Parameters("FEATURES_CAT")->asGridList();
 
-	m_Features	= (TFeature *)Features.Create(sizeof(TFeature), m_nFeatures = pFeatures->Get_Count());
+	m_Features	= (TFeature *)Features.Create(sizeof(TFeature), m_nFeatures = pNum->Get_Count() + pCat->Get_Count());
 
 	for(int i=0; i<m_nFeatures; i++)
 	{
-		m_Features[i].pGrid		= pFeatures->asGrid(i);
-		m_Features[i].bNumeric	= true;
+		if( i < pNum->Get_Count() )
+		{
+			m_Features[i].bNumeric	= true;
+			m_Features[i].pGrid		= pNum->asGrid(i);
+		}
+		else
+		{
+			m_Features[i].bNumeric	= false;
+			m_Features[i].pGrid		= pCat->asGrid(i - pNum->Get_Count());
+		}
+
+		CSG_String	Name(m_Features[i].pGrid->Get_Name());
+		strncpy(m_Features[i].Name, Name.b_str(), 255);	m_Features[i].Name[255]	= '\0';
 	}
 
 	return( m_nFeatures > 0 );
@@ -626,7 +645,7 @@ void CClassify_Grid::Get_Training(const CSG_String &ID, CSG_Shape_Polygon *pArea
 							{
 								if( m_bYT_Weights && m_Features[i].bNumeric )
 								{
-									Sample.add_feature(SG_Get_String(i, 0).b_str(), m_Features[i].pGrid->asDouble(x, y));
+									Sample.add_feature(m_Features[i].Name, m_Features[i].pGrid->asDouble(x, y));
 								}
 								else
 								{
