@@ -87,7 +87,7 @@ void CTable_Regression_Multiple_Base::Initialise(void)
 	);
 
 	Parameters.Add_Parameters(
-		pNode	, "PREDICTORS"	, _TL("Independent Variables"),
+		pNode	, "PREDICTORS"	, _TL("Predictors"),
 		_TL("")
 	);
 
@@ -121,14 +121,8 @@ void CTable_Regression_Multiple_Base::Initialise(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "P_IN"		, _TL("P in"),
-		_TL("Level of significance for automated predictor selection, given as percentage"),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "P_OUT"		, _TL("P out"),
-		_TL("Level of significance for automated predictor selection, given as percentage"),
+		NULL	, "P_VALUE"		, _TL("Significance Level"),
+		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
 		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
 	);
 
@@ -185,8 +179,7 @@ int CTable_Regression_Multiple_Base::On_Parameters_Enable(CSG_Parameters *pParam
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
 	{
-		pParameters->Get_Parameter("P_IN" )->Set_Enabled(pParameter->asInt() == 1 || pParameter->asInt() == 3);	// forward or stepwise
-		pParameters->Get_Parameter("P_OUT")->Set_Enabled(pParameter->asInt() == 2 || pParameter->asInt() == 3);	// backward or stepwise
+		pParameters->Set_Enabled("P_VALUE", pParameter->asInt() > 0);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CROSSVAL")) )
@@ -291,16 +284,15 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Regression_Multiple	Regression;
 
-	double	P_in	= Parameters("P_IN" )->asDouble();
-	double	P_out	= Parameters("P_OUT")->asDouble();
+	double	P	= Parameters("P_VALUE")->asDouble();
 
 	switch( Parameters("METHOD")->asInt() )
 	{
 	default:
-	case 0:	if( !Regression.Get_Model         (Samples             , &Names) )	return( false );	break;
-	case 1:	if( !Regression.Get_Model_Forward (Samples, P_in       , &Names) )	return( false );	break;
-	case 2:	if( !Regression.Get_Model_Backward(Samples,       P_out, &Names) )	return( false );	break;
-	case 3:	if( !Regression.Get_Model_Stepwise(Samples, P_in, P_out, &Names) )	return( false );	break;
+	case 0:	if( !Regression.Get_Model         (Samples      , &Names) )	return( false );	break;
+	case 1:	if( !Regression.Get_Model_Forward (Samples, P   , &Names) )	return( false );	break;
+	case 2:	if( !Regression.Get_Model_Backward(Samples,    P, &Names) )	return( false );	break;
+	case 3:	if( !Regression.Get_Model_Stepwise(Samples, P, P, &Names) )	return( false );	break;
 	}
 
 	Message_Add(Regression.Get_Info(), false);

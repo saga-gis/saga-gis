@@ -313,6 +313,7 @@
     <ClCompile Include="point_grid_regression.cpp" />
     <ClCompile Include="point_multi_grid_regression.cpp" />
     <ClCompile Include="point_trend_surface.cpp" />
+    <ClCompile Include="point_zonal_multi_grid_regression.cpp" />
     <ClCompile Include="table_regression_multiple.cpp" />
     <ClCompile Include="table_trend.cpp" />
   </ItemGroup>
@@ -346,6 +347,7 @@
     <ClInclude Include="point_grid_regression.h" />
     <ClInclude Include="point_multi_grid_regression.h" />
     <ClInclude Include="point_trend_surface.h" />
+    <ClInclude Include="point_zonal_multi_grid_regression.h" />
     <ClInclude Include="table_regression_multiple.h" />
     <ClInclude Include="table_trend.h" />
   </ItemGroup>

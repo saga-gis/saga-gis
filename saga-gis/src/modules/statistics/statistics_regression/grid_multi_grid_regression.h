@@ -83,7 +83,9 @@ public:
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
@@ -91,9 +93,9 @@ private:
 	CSG_Regression_Multiple		m_Regression;
 
 
-	bool						Get_Samples			(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Matrix &Samples, CSG_Strings &Names);
+	bool						Get_Samples		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Matrix &Samples, CSG_Strings &Names);
 
-	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Grid *pRegression, CSG_Grid *pResiduals, const CSG_String &Name);
+	bool						Set_Regression	(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pDependent, CSG_Grid *pRegression, CSG_Grid *pResiduals, const CSG_String &Name);
 
 };
 

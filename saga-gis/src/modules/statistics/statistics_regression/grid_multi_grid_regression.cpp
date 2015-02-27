@@ -74,9 +74,9 @@
 CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Multiple Regression Analysis (Grid/Grids)"));
+	Set_Name		(_TL("Multiple Regression Analysis (Grid and Predictor Grids)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Linear regression analysis of one grid as dependent and multiple grids as indepentent (predictor) variables. "
@@ -92,13 +92,13 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEPENDENT"	, _TL("Dependent"),
+		NULL	, "DEPENDENT"	, _TL("Dependent Variable"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+		NULL	, "PREDICTORS"	, _TL("Predictors"),
 		_TL(""),
 		PARAMETER_INPUT, false
 	);
@@ -169,16 +169,50 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "P_IN"		, _TL("P in"),
-		_TL("Level of significance for automated predictor selection, given as percentage"),
+		NULL	, "P_VALUE"		, _TL("Significance Level"),
+		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
 		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "P_OUT"		, _TL("P out"),
-		_TL("Level of significance for automated predictor selection, given as percentage"),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
+	Parameters.Add_Choice(
+		NULL	,"CROSSVAL"		, _TL("Cross Validation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("none"),
+			_TL("leave one out"),
+			_TL("2-fold"),
+			_TL("k-fold")
+		), 0
 	);
+
+	Parameters.Add_Value(
+		NULL	, "CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
+		_TL("number of subsamples for k-fold cross validation"),
+		PARAMETER_TYPE_Int, 10, 2, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Multi_Grid_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CROSSVAL") )
+	{
+		pParameters->Set_Enabled("CROSSVAL_K", pParameter->asInt() == 3);	// k-fold
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("P_VALUE", pParameter->asInt() > 0);
+	}
+
+	return( 0 );
 }
 
 
@@ -192,19 +226,18 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 bool CGrid_Multi_Grid_Regression::On_Execute(void)
 {
 	bool					bResult;
-	double					P_in, P_out;
+	double					P;
 	CSG_Strings				Names;
 	CSG_Matrix				Samples;
 	CSG_Grid				*pDependent, *pRegression, *pResiduals;
 	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
-	pDependent		= Parameters("DEPENDENT")	->asGrid();
-	pGrids			= Parameters("GRIDS")		->asGridList();
-	pRegression		= Parameters("REGRESSION")	->asGrid();
-	pResiduals		= Parameters("RESIDUALS")	->asGrid();
-	P_in			= Parameters("P_IN")		->asDouble() / 100.0;
-	P_out			= Parameters("P_OUT")		->asDouble() / 100.0;
+	pDependent		= Parameters("DEPENDENT" )->asGrid();
+	pGrids			= Parameters("PREDICTORS")->asGridList();
+	pRegression		= Parameters("REGRESSION")->asGrid();
+	pResiduals		= Parameters("RESIDUALS" )->asGrid();
+	P				= Parameters("P_VALUE"   )->asDouble() / 100.0;
 
 	//-----------------------------------------------------
 	if( !Get_Samples(pGrids, pDependent, Samples, Names) )
@@ -216,10 +249,10 @@ bool CGrid_Multi_Grid_Regression::On_Execute(void)
 	switch( Parameters("METHOD")->asInt() )
 	{
 	default:
-	case 0:	bResult	= m_Regression.Get_Model         (Samples             , &Names);	break;
-	case 1:	bResult	= m_Regression.Get_Model_Forward (Samples, P_in       , &Names);	break;
-	case 2:	bResult	= m_Regression.Get_Model_Backward(Samples,       P_out, &Names);	break;
-	case 3:	bResult	= m_Regression.Get_Model_Stepwise(Samples, P_in, P_out, &Names);	break;
+	case 0:	bResult	= m_Regression.Get_Model         (Samples      , &Names);	break;
+	case 1:	bResult	= m_Regression.Get_Model_Forward (Samples, P   , &Names);	break;
+	case 2:	bResult	= m_Regression.Get_Model_Backward(Samples,    P, &Names);	break;
+	case 3:	bResult	= m_Regression.Get_Model_Stepwise(Samples, P, P, &Names);	break;
 	}
 
 	if( bResult == false )
@@ -228,6 +261,27 @@ bool CGrid_Multi_Grid_Regression::On_Execute(void)
 	}
 
 	Message_Add(m_Regression.Get_Info(), false);
+
+	//-----------------------------------------------------
+	int	CrossVal;
+
+	switch( Parameters("CROSSVAL")->asInt() )
+	{
+	default:	CrossVal	= 0;									break;	// none
+	case 1:		CrossVal	= 1;									break;	// leave one out (LOOVC)
+	case 2:		CrossVal	= 2;									break;	// 2-fold
+	case 3:		CrossVal	= Parameters("CROSSVAL_K")->asInt();	break;	// k-fold
+	}
+
+	if( CrossVal > 0 && m_Regression.Get_CrossValidation(CrossVal) )
+	{
+		Message_Add(CSG_String::Format(SG_T("\n%s:\n"      ), _TL("Cross Validation")), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%s\n"  ), _TL("Type"   ), Parameters("CROSSVAL")->asString() ), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%d\n"  ), _TL("Samples"), m_Regression.Get_CV_nSamples()     ), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%f\n"  ), _TL("RMSE"   ), m_Regression.Get_CV_RMSE()         ), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("NRMSE"  ), m_Regression.Get_CV_NRMSE() * 100.0), false);
+		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("R2"     ), m_Regression.Get_CV_R2()    * 100.0), false);
+	}
 
 	//-----------------------------------------------------
 	Set_Regression(pGrids, pDependent, pRegression, pResiduals, CSG_String::Format(SG_T("%s [%s]"), pDependent->Get_Name(), _TL("Regression Model")));

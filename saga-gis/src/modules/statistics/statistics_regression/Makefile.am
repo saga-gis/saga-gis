@@ -25,6 +25,7 @@ MLB_Interface.cpp\
 point_grid_regression.cpp\
 point_multi_grid_regression.cpp\
 point_trend_surface.cpp\
+point_zonal_multi_grid_regression.cpp\
 table_regression_multiple.cpp\
 table_trend.cpp\
 grid_multi_grid_regression.h\
@@ -39,6 +40,7 @@ MLB_Interface.h\
 point_grid_regression.h\
 point_multi_grid_regression.h\
 point_trend_surface.h\
+point_zonal_multi_grid_regression.h\
 table_regression_multiple.h\
 table_trend.h
 

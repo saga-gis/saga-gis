@@ -76,12 +76,12 @@ CPoint_Grid_Regression::CPoint_Grid_Regression(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Regression Analysis (Points/Grid)"));
+	Set_Name		(_TL("Regression Analysis (Points and Predictor Grid)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2004"));
 
 	Set_Description	(_TW(
-		"Regression analysis of point attributes with grid values. "
+		"Regression analysis of point attributes with a grid as predictor. "
 		"The regression function is used to create a new grid with regression based values. \n"
 		"\n"
 		"Reference:\n"
@@ -92,19 +92,19 @@ CPoint_Grid_Regression::CPoint_Grid_Regression(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
+		NULL	, "PREDICTOR"	, _TL("Predictor"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "ATTRIBUTE"	, _TL("Attribute"),
+		pNode	, "ATTRIBUTE"	, _TL("Dependent Variable"),
 		_TL("")
 	);
 
@@ -164,12 +164,12 @@ bool CPoint_Grid_Regression::On_Execute(void)
 	CSG_Grid			*pGrid, *pRegression;
 
 	//-----------------------------------------------------
-	pGrid			= Parameters("GRID")		->asGrid();
-	pRegression		= Parameters("REGRESSION")	->asGrid();
-	pShapes			= Parameters("SHAPES")		->asShapes();
-	pResiduals		= Parameters("RESIDUAL")	->asShapes();
-	iAttribute		= Parameters("ATTRIBUTE")	->asInt();
-	m_Interpolation	= Parameters("INTERPOL")	->asInt();
+	pGrid			= Parameters("PREDICTOR" )->asGrid();
+	pRegression		= Parameters("REGRESSION")->asGrid();
+	pShapes			= Parameters("POINTS"    )->asShapes();
+	iAttribute		= Parameters("ATTRIBUTE" )->asInt();
+	pResiduals		= Parameters("RESIDUAL"  )->asShapes();
+	m_Interpolation	= Parameters("INTERPOL"  )->asInt();
 
 	switch( Parameters("METHOD")->asInt() )
 	{

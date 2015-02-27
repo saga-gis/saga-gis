@@ -98,6 +98,7 @@ CSG_String Get_Info(int i)
 #include "point_grid_regression.h"
 #include "point_multi_grid_regression.h"
 #include "point_trend_surface.h"
+#include "point_zonal_multi_grid_regression.h"
 
 #include "gw_regression.h"
 #include "gw_regression_grid.h"
@@ -122,6 +123,7 @@ CSG_Module *		Create_Module(int i)
 	{
 	case  0:	return( new CPoint_Grid_Regression );
 	case  1:	return( new CPoint_Multi_Grid_Regression );
+	case 15:	return( new CPoint_Zonal_Multi_Grid_Regression );
 	case  2:	return( new CPoint_Trend_Surface );
 
 	case  3:	return( new CGW_Regression );

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: point_multi_grid_regression.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: point_zonal_multi_grid_regression.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              point_multi_grid_regression.h            //
+//           point_zonal_multi_grid_regression.h         //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__point_multi_grid_regression_H
-#define HEADER_INCLUDED__point_multi_grid_regression_H
+#ifndef HEADER_INCLUDED__point_zonal_multi_grid_regression_H
+#define HEADER_INCLUDED__point_zonal_multi_grid_regression_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -75,31 +73,22 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoint_Multi_Grid_Regression : public CSG_Module_Grid
+class CPoint_Zonal_Multi_Grid_Regression : public CSG_Module_Grid
 {
 public:
-	CPoint_Multi_Grid_Regression(void);
+	CPoint_Zonal_Multi_Grid_Regression(void);
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_Regression_Multiple		m_Regression;
-
-
-	bool						Get_Samples			(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute, CSG_Matrix &Samples, CSG_Strings &Names);
-
-	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression, const CSG_String &Name);
-
-	bool						Set_Residuals		(CSG_Shapes *pResiduals);
-
-	bool						Set_Residual_Corr	(CSG_Grid *pRegression, CSG_Shapes *pResiduals, CSG_Grid *pCorrection);
+	bool						Set_Residuals			(CSG_Shapes *pShapes, CSG_Grid *pRegression);
 
 };
 
@@ -111,4 +100,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__point_multi_grid_regression_H
+#endif // #ifndef HEADER_INCLUDED__point_zonal_multi_grid_regression_H
