@@ -23,13 +23,7 @@
     <ClCompile Include="kriging_ordinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="kriging_ordinary_global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="kriging_universal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="kriging_universal_global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="semivariogram.cpp">
@@ -41,7 +35,7 @@
     <ClCompile Include="kriging_simple.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="kriging_simple_global.cpp">
+    <ClCompile Include="kriging_regression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,13 +100,7 @@
     <ClInclude Include="kriging_ordinary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="kriging_ordinary_global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="kriging_universal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="kriging_universal_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="semivariogram.h">
@@ -124,7 +112,7 @@
     <ClInclude Include="kriging_simple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="kriging_simple_global.h">
+    <ClInclude Include="kriging_regression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

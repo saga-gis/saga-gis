@@ -358,7 +358,7 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	Formulas.Add(SG_T("a + b * x + c * x^2"));										// 2nd order polynom (quadric)
 	Formulas.Add(SG_T("a + b * x + c * x^2 + d * x^3"));							// 3rd order polynom (cubic)
 	Formulas.Add(SG_T("a + b * x + c * x^2 + d * x^3 + e * x^4"));					// 4th order polynom
-	Formulas.Add(SG_T("a + b * sqrt(c + x)"));										// square root
+	Formulas.Add(SG_T("a + b * sqrt(x)"));											// square root
 	Formulas.Add(SG_T("a + b * ln(x)"));											// logarithmic
 	Formulas.Add(SG_T("a + b * x^c"));												// exponential
 	Formulas.Add(SG_T("a + b * (1 - exp(-(x / b)^2))"));							// gaussian

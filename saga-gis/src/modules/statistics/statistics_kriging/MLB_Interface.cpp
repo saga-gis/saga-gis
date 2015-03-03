@@ -100,6 +100,7 @@ CSG_String Get_Info(int i)
 #include "kriging_simple.h"
 #include "kriging_ordinary.h"
 #include "kriging_universal.h"
+#include "kriging_regression.h"
 
 #include "semivariogram.h"
 
@@ -111,17 +112,14 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case  9:	return( new CKriging_Simple );
+	case  1:	return( new CKriging_Simple );
 	case  0:	return( new CKriging_Ordinary );
 	case  2:	return( new CKriging_Universal );
-
-//	case 10:	return( new CKriging_Simple_Global );
-//	case  1:	return( new CKriging_Ordinary_Global );
-//	case  3:	return( new CKriging_Universal_Global );
+	case  3:	return( new CKriging_Regression );
 
 	case  4:	return( new CSemiVariogram );
 
-	case 15:	return( NULL );
+	case  5:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 }

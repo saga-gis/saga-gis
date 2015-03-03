@@ -77,6 +77,7 @@ CKriging_Base::CKriging_Base(void)
 {
 	CSG_Parameter	*pNode;
 
+	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
@@ -85,10 +86,11 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "ZFIELD"		, _TL("Attribute"),
+		pNode	, "FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
+	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "TQUALITY"	, _TL("Type of Quality Measure"),
@@ -99,7 +101,6 @@ CKriging_Base::CKriging_Base(void)
 		), 0
 	);
 
-	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "LOG"			, _TL("Logarithmic Transformation"),
 		_TL(""),
@@ -159,8 +160,12 @@ CKriging_Base::CKriging_Base(void)
 
 	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
 	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"), true);
+
+	//-----------------------------------------------------
+	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 }
 
+///////////////////////////////////////////////////////////
 //---------------------------------------------------------
 CKriging_Base::~CKriging_Base(void)
 {
@@ -174,8 +179,6 @@ CKriging_Base::~CKriging_Base(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -208,8 +211,6 @@ int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -223,7 +224,7 @@ bool CKriging_Base::On_Execute(void)
 	m_bLog		= Parameters("LOG"     )->asBool();
 
 	m_pPoints	= Parameters("POINTS"  )->asShapes();
-	m_zField	= Parameters("ZFIELD"  )->asInt();
+	m_zField	= Parameters("FIELD"   )->asInt();
 
 	if( m_pPoints->Get_Count() <= 1 )
 	{
@@ -290,17 +291,16 @@ bool CKriging_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Model.Clr_Data();
-
-	On_Finalize();
+	m_Model .Clr_Data();
+	m_Search.Finalize();
+	m_Data  .Clear();
+	m_W     .Destroy();
 
 	return( bResult );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -311,17 +311,65 @@ bool CKriging_Base::_Initialise_Grids(void)
 
 	if( (m_pGrid = m_Grid_Target.Get_Grid("PREDICTION")) != NULL )
 	{
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str()));
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s.%s [%s]"), Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str()));
 
 		if( (m_pVariance = m_Grid_Target.Get_Grid("VARIANCE")) != NULL )
 		{
-			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s [%s %s]"), Parameters("ZFIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
+			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s.%s [%s %s]"), Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
 		}
 
 		return( true );
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Base::On_Initialize(void)
+{
+	//-----------------------------------------------------
+	if( m_Search.Do_Use_All(true) )	// global
+	{
+		m_Data.Clear();
+
+		for(int i=0; i<m_pPoints->Get_Count(); i++)
+		{
+			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+
+			if( !pPoint->is_NoData(m_zField) )
+			{
+				m_Data.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
+			}
+		}
+
+		return( Get_Weights(m_Data, m_W) );
+	}
+
+	//-----------------------------------------------------
+	if( m_bLog )
+	{
+		CSG_Shapes	Points(SHAPE_TYPE_Point); Points.Add_Field("Z", SG_DATATYPE_Double);
+
+		for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
+		{
+			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+
+			if( !pPoint->is_NoData(m_zField) )
+			{
+				Points.Add_Shape(pPoint, SHAPE_COPY_GEOM)->Set_Value(0, log(pPoint->asDouble(m_zField)));
+			}
+		}
+
+		return( m_Search.Initialize(&Points, 0) );
+	}
+
+	//-----------------------------------------------------
+	return( m_Search.Initialize(m_pPoints, m_zField) );
 }
 
 

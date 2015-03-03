@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: kriging_universal_global.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: kriging_regression.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//            geostatistics_kriging_variogram            //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              Kriging_Universal_Global.h               //
+//                  kriging_regression.h                 //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Kriging_Universal_Global_H
-#define HEADER_INCLUDED__Kriging_Universal_Global_H
+#ifndef HEADER_INCLUDED__kriging_regression_H
+#define HEADER_INCLUDED__kriging_regression_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "kriging_base.h"
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,35 +80,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CKriging_Universal_Global : public CKriging_Base
+class CKriging_Regression : public CSG_Module_Grid
 {
 public:
-	CKriging_Universal_Global(void);
+	CKriging_Regression(void);
 
 
 protected:
 
-	bool					m_bCoords;
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	int						m_Interpolation;
-
-	CSG_Parameter_Grid_List	*m_pGrids;
-
-
-	virtual bool			On_Initialize		(void);
-	virtual bool			On_Finalize			(void);
-
-	virtual bool			Get_Value			(const TSG_Point &p, double &z, double &v);
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	CSG_Points_Z			m_Points;
-
-	CSG_Matrix				m_W;
-
-
-	bool					Get_Weights			(void);
+	CSG_Parameters_Search_Points	m_Search;
 
 };
 
@@ -122,4 +108,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Kriging_Universal_Global_H
+#endif // #ifndef HEADER_INCLUDED__kriging_regression_H

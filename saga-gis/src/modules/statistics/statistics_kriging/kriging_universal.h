@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "kriging_universal_global.h"
+#include "kriging_base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CKriging_Universal : public CKriging_Universal_Global
+class CKriging_Universal : public CKriging_Base
 {
 public:
 	CKriging_Universal(void);
@@ -91,17 +91,19 @@ public:
 protected:
 
 	virtual bool			On_Initialize		(void);
-	virtual bool			On_Finalize			(void);
+
+	virtual bool			Get_Weights			(const CSG_Points_Z &Points, CSG_Matrix &W);
 
 	virtual bool			Get_Value			(const TSG_Point &p, double &z, double &v);
 
 
 private:
 
-	CSG_Shapes				m_Points;
+	bool					m_bCoords;
 
+	int						m_Interpolation;
 
-	int						Get_Weights			(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z &Points);
+	CSG_Parameter_Grid_List	*m_pGrids;
 
 };
 

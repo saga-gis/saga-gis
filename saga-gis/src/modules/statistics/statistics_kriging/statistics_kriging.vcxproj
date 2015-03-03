@@ -294,11 +294,9 @@
   <ItemGroup>
     <ClCompile Include="kriging_base.cpp" />
     <ClCompile Include="kriging_ordinary.cpp" />
-    <ClCompile Include="kriging_ordinary_global.cpp" />
+    <ClCompile Include="kriging_regression.cpp" />
     <ClCompile Include="kriging_simple.cpp" />
-    <ClCompile Include="kriging_simple_global.cpp" />
     <ClCompile Include="kriging_universal.cpp" />
-    <ClCompile Include="kriging_universal_global.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -321,11 +319,9 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="kriging_base.h" />
     <ClInclude Include="kriging_ordinary.h" />
-    <ClInclude Include="kriging_ordinary_global.h" />
+    <ClInclude Include="kriging_regression.h" />
     <ClInclude Include="kriging_simple.h" />
-    <ClInclude Include="kriging_simple_global.h" />
     <ClInclude Include="kriging_universal.h" />
-    <ClInclude Include="kriging_universal_global.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

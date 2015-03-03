@@ -70,7 +70,6 @@
 
 //---------------------------------------------------------
 CKriging_Simple::CKriging_Simple(void)
-	: CKriging_Simple_Global()
 {
 	//-----------------------------------------------------
 	Set_Name		(_TL("Simple Kriging"));
@@ -82,72 +81,19 @@ CKriging_Simple::CKriging_Simple(void)
 	));
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 4);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Simple::On_Initialize(void)
+bool CKriging_Simple::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
 {
-	//-----------------------------------------------------
-	if( m_Search.Do_Use_All(true) )	// global
-	{
-		return( CKriging_Simple_Global::On_Initialize() );
-	}
+	int	n	= Points.Get_Count();
 
-	//-----------------------------------------------------
-	if( !m_bLog )
-	{
-		return( m_Search.Initialize(m_pPoints, m_zField) );
-	}
-	else
-	{
-		m_Points.Create(SHAPE_TYPE_Point);
-		m_Points.Add_Field("Z", SG_DATATYPE_Double);
-
-		for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
-		{
-			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(iPoint);
-
-			if( !pPoint->is_NoData(m_zField) )
-			{
-				m_Points.Add_Shape(pPoint, SHAPE_COPY_GEOM)->Set_Value(0, log(pPoint->asDouble(m_zField)));
-			}
-		}
-
-		return( m_Search.Initialize(&m_Points, 0) );
-	}
-
-	//-----------------------------------------------------
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CKriging_Simple::On_Finalize(void)
-{
-	m_Search.Finalize();
-	m_Points.Destroy();
-
-	return( CKriging_Simple_Global::On_Finalize() );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CKriging_Simple::Get_Weights(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z &Points)
-{
-	if( m_Search.Get_Points(p, Points) )
+	if( n > 0 )
 	{
 		int	n	= Points.Get_Count();
 
@@ -159,23 +105,18 @@ int CKriging_Simple::Get_Weights(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z
 
 			for(int j=i+1; j<n; j++)
 			{
-				W[i][j]	= W[j][i]	= Get_Weight(Points[i], Points[j]);
+				W[i][j]	= W[j][i]	= Get_Weight(Points.Get_X(i), Points.Get_Y(i), Points.Get_X(j), Points.Get_Y(j));
 			}
 		}
 
-		if( W.Set_Inverse(true, n) )
-		{
-			return( n );
-		}
+		return( W.Set_Inverse(!m_Search.Do_Use_All(), n) );
 	}
 
-	return( 0 );
+	return( false );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -183,24 +124,34 @@ int CKriging_Simple::Get_Weights(const TSG_Point &p, CSG_Matrix &W, CSG_Points_Z
 bool CKriging_Simple::Get_Value(const TSG_Point &p, double &z, double &v)
 {
 	//-----------------------------------------------------
+	int				i, n;
+	double			**W;
+	CSG_Matrix		_W;
+	CSG_Points_Z	_Data, *pData;
+
 	if( m_Search.Do_Use_All() )	// global
 	{
-		return( CKriging_Simple_Global::Get_Value(p, z, v) );
+		pData	= &m_Data;
+		W		= m_W.Get_Data();
+	}
+	else if( m_Search.Get_Points(p, _Data) && Get_Weights(_Data, _W) )	// local
+	{
+		pData	= &_Data;
+		W		= _W.Get_Data();
+	}
+	else
+	{
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	int				i, j, n;
-	CSG_Points_Z	Points;
-	CSG_Matrix		W;
-
-	//-----------------------------------------------------
-	if(	(n = Get_Weights(p, W, Points)) > 0 )
+	if(	(n = pData->Get_Count()) > 0 )
 	{
 		CSG_Vector	G(n);
 
 		for(i=0; i<n; i++)
 		{
-			G[i]	=	Get_Weight(p.x, p.y, Points[i].x, Points[i].y);
+			G[i]	= Get_Weight(p, pData->Get_Point(i));
 		}
 
 		//-------------------------------------------------
@@ -208,12 +159,12 @@ bool CKriging_Simple::Get_Value(const TSG_Point &p, double &z, double &v)
 		{
 			double	Lambda	= 0.0;
 
-			for(j=0; j<n; j++)
+			for(int j=0; j<n; j++)
 			{
 				Lambda	+= W[i][j] * G[j];
 			}
 
-			z	+= Lambda * Points[i].z;
+			z	+= Lambda * pData->Get_Z(i);
 			v	+= Lambda * G[i];
 		}
 

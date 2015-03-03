@@ -95,6 +95,10 @@ protected:
 
 	int								m_zField;
 
+	CSG_Points_Z					m_Data;
+
+	CSG_Matrix						m_W;
+
 	CSG_Shapes						*m_pPoints;
 
 	CSG_Parameters_Search_Points	m_Search;
@@ -105,14 +109,16 @@ protected:
 	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool					On_Initialize			(void)	{	return( true );	}
-	virtual bool					On_Finalize				(void)	{	return( true );	}
+	virtual bool					On_Initialize			(void);
+
+	virtual bool					Get_Weights				(const CSG_Points_Z &Points, CSG_Matrix &W)	= 0;
 
 	virtual bool					Get_Value				(const TSG_Point &p, double &z, double &v)	= 0;
 
 	double							Get_Weight				(double d)											{	return( m_Model.Get_Value(d) );	}
 	double							Get_Weight				(double dx, double dy)								{	return( Get_Weight(sqrt(dx*dx + dy*dy)) );	}
 	double							Get_Weight				(const TSG_Point_Z &a, const TSG_Point_Z &b)		{	return( Get_Weight(a.x - b.x, a.y - b.y) );	}
+	double							Get_Weight				(const TSG_Point   &a, const TSG_Point_Z &b)		{	return( Get_Weight(a.x - b.x, a.y - b.y) );	}
 	double							Get_Weight				(double ax, double ay, double bx, double by)
 	{
 		if( m_Block > 0.0 )

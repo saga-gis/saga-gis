@@ -16,21 +16,17 @@ pkglib_LTLIBRARIES = libstatistics_kriging.la
 libstatistics_kriging_la_SOURCES =\
 kriging_base.cpp\
 kriging_ordinary.cpp\
-kriging_ordinary_global.cpp\
+kriging_regression.cpp\
 kriging_simple.cpp\
-kriging_simple_global.cpp\
 kriging_universal.cpp\
-kriging_universal_global.cpp\
 MLB_Interface.cpp\
 semivariogram.cpp\
 variogram_dialog.cpp\
 kriging_base.h\
 kriging_ordinary.h\
-kriging_ordinary_global.h\
+kriging_regression.h\
 kriging_simple.h\
-kriging_simple_global.h\
 kriging_universal.h\
-kriging_universal_global.h\
 MLB_Interface.h\
 semivariogram.h\
 variogram_dialog.h

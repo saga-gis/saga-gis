@@ -324,7 +324,7 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Set_Regression(pGrids, pRegression, CSG_String::Format("%s [%s]", Parameters("ATTRIBUTE")->asString(), _TL("Regression")));
+	Set_Regression(pGrids, pRegression, CSG_String::Format("%s.%s [%s]", pPoints->Get_Name(), Parameters("ATTRIBUTE")->asString(), _TL("Regression")));
 
 	//-----------------------------------------------------
 	if( Parameters("INFO_COEFF")->asTable() )
@@ -546,7 +546,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residuals(CSG_Shapes *pResiduals)
 	int			Interpolation	= Parameters("INTERPOL"  )->asInt();
 
 	//-----------------------------------------------------
-	pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", Parameters("ATTRIBUTE")->asString(), _TL("Residuals")));
+	pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s.%s [%s]", pPoints->Get_Name(), Parameters("ATTRIBUTE")->asString(), _TL("Residuals")));
 	pResiduals->Add_Field(pPoints->Get_Field_Name(iAttribute), SG_DATATYPE_Double);
 	pResiduals->Add_Field("TREND"	, SG_DATATYPE_Double);
 	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
@@ -615,7 +615,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 		{
 			SG_RUN_MODULE_ExitOnError("grid_spline", 4,
 				   SG_MODULE_PARAMETER_SET("SHAPES"           , pResiduals)
-				&& SG_MODULE_PARAMETER_SET("FIELD"            , Parameters("ATTRIBUTE"))
+				&& SG_MODULE_PARAMETER_SET("FIELD"            , 2)
 				&& SG_MODULE_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
 				&& SG_MODULE_PARAMETER_SET("TARGET_OUT_GRID"  , pCorrection)
 			);
@@ -624,7 +624,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 		{
 			SG_RUN_MODULE_ExitOnError("grid_spline", 4,
 				   SG_MODULE_PARAMETER_SET("SHAPES"           , pResiduals)
-				&& SG_MODULE_PARAMETER_SET("FIELD"            , Parameters("ATTRIBUTE"))
+				&& SG_MODULE_PARAMETER_SET("FIELD"            , 2)
 				&& SG_MODULE_PARAMETER_SET("DEFINITION"       , 1)	// grid or grid system
 				&& SG_MODULE_PARAMETER_SET("OUT_GRID"         , pCorrection)
 			);
@@ -636,7 +636,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 		{
 			SG_RUN_MODULE_ExitOnError("grid_gridding", 1,
 				   SG_MODULE_PARAMETER_SET("SHAPES"           , pResiduals)
-				&& SG_MODULE_PARAMETER_SET("FIELD"            , Parameters("ATTRIBUTE"))
+				&& SG_MODULE_PARAMETER_SET("FIELD"            , 2)
 				&& SG_MODULE_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
 				&& SG_MODULE_PARAMETER_SET("TARGET_OUT_GRID"  , pCorrection)
 				&& SG_MODULE_PARAMETER_SET("SEARCH_RANGE"     , 1)	// global
@@ -647,7 +647,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 		{
 			SG_RUN_MODULE_ExitOnError("grid_gridding", 1,
 				   SG_MODULE_PARAMETER_SET("SHAPES"           , pResiduals)
-				&& SG_MODULE_PARAMETER_SET("FIELD"            , Parameters("ATTRIBUTE"))
+				&& SG_MODULE_PARAMETER_SET("FIELD"            , 2)
 				&& SG_MODULE_PARAMETER_SET("DEFINITION"       , 1)
 				&& SG_MODULE_PARAMETER_SET("OUT_GRID"         , pCorrection)
 				&& SG_MODULE_PARAMETER_SET("SEARCH_RANGE"     , 1)	// global
@@ -674,7 +674,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 		}
 	}
 
-	pCorrection->Set_Name(CSG_String::Format("%s [%s]", Parameters("ATTRIBUTE")->asString(), _TL("Residual Corrected Regression")));
+	pCorrection->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("ATTRIBUTE")->asString(), _TL("Residual Corrected Regression")));
 
 	//-----------------------------------------------------
 	return( true );
