@@ -129,19 +129,20 @@ CSG_Table_Value * CSG_Table_Record::_Create_Value(TSG_Data_Type Type)
 	default:
 	case SG_DATATYPE_String:	return( new CSG_Table_Value_String() );
 
-	case SG_DATATYPE_Date:		return( new CSG_Table_Value_Date() );
+	case SG_DATATYPE_Date  :	return( new CSG_Table_Value_Date  () );
 
-	case SG_DATATYPE_Color:
-	case SG_DATATYPE_Byte:
-	case SG_DATATYPE_Char:
-	case SG_DATATYPE_Word:
-	case SG_DATATYPE_Short:
-	case SG_DATATYPE_DWord:
-	case SG_DATATYPE_Int:
-	case SG_DATATYPE_ULong:
-	case SG_DATATYPE_Long:		return( new CSG_Table_Value_Int() );
+	case SG_DATATYPE_Color :
+	case SG_DATATYPE_Byte  :
+	case SG_DATATYPE_Char  :
+	case SG_DATATYPE_Word  :
+	case SG_DATATYPE_Short :
+	case SG_DATATYPE_DWord :
+	case SG_DATATYPE_Int   :	return( new CSG_Table_Value_Int   () );
 
-	case SG_DATATYPE_Float:
+	case SG_DATATYPE_ULong :
+	case SG_DATATYPE_Long  :	return( new CSG_Table_Value_Long  () );
+
+	case SG_DATATYPE_Float :
 	case SG_DATATYPE_Double:	return( new CSG_Table_Value_Double() );
 
 	case SG_DATATYPE_Binary:	return( new CSG_Table_Value_Binary() );
@@ -490,6 +491,17 @@ int CSG_Table_Record::asInt(int iField) const
 int CSG_Table_Record::asInt(const CSG_String &Field) const
 {
 	return( asInt(_Get_Field(Field)) );
+}
+
+//---------------------------------------------------------
+sLong CSG_Table_Record::asLong(int iField) const
+{
+	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asLong() : 0 );
+}
+
+sLong CSG_Table_Record::asLong(const CSG_String &Field) const
+{
+	return( asLong(_Get_Field(Field)) );
 }
 
 //---------------------------------------------------------

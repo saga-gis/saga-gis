@@ -468,9 +468,9 @@ public: ///////////////////////////////////////////////////
 
 protected: ////////////////////////////////////////////////
 
-	int							m_Mode, m_zMode, m_Shade_Mode, m_Count,
-								m_UNI_Color,
-								*m_HST_Count, *m_HST_Cumul, m_HST_Maximum, m_HST_Total;
+	int							m_Mode, m_zMode, m_Shade_Mode, m_Count, m_UNI_Color;
+
+	sLong						*m_HST_Count, *m_HST_Cumul, m_HST_Maximum, m_HST_Total;
 
 	double						m_zMin, m_zRange, m_zLogRange, m_zLogMax;
 

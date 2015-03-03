@@ -156,8 +156,8 @@ public:
 	short						asShort			(const CSG_String &Field)	const	{	return( (short  )asInt   ( Field) );	}
 	int							asInt			(int              iField)	const;
 	int							asInt			(const CSG_String &Field)	const;
-	sLong						asLong			(int              iField)	const	{	return( (sLong  )asDouble(iField) );	}
-	sLong						asLong			(const CSG_String &Field)	const	{	return( (sLong  )asDouble( Field) );	}
+	sLong						asLong			(int              iField)	const;
+	sLong						asLong			(const CSG_String &Field)	const;
 	float						asFloat			(int              iField)	const	{	return( (float  )asDouble(iField) );	}
 	float						asFloat			(const CSG_String &Field)	const	{	return( (float  )asDouble( Field) );	}
 	double						asDouble		(int              iField)	const;

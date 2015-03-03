@@ -593,10 +593,10 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 
 		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Histogram"), pObject->Get_Name()));
 
-		pTable->Add_Field(_TL("CLASS" ), SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("CLASS" ), SG_DATATYPE_Int   );
 		pTable->Add_Field(_TL("AREA"  ), SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("COUNT" ), SG_DATATYPE_Int);
-		pTable->Add_Field(_TL("CUMUL" ), SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("COUNT" ), SG_DATATYPE_Long  );
+		pTable->Add_Field(_TL("CUMUL" ), SG_DATATYPE_Long  );
 		pTable->Add_Field(_TL("NAME"  ), SG_DATATYPE_String);
 		pTable->Add_Field(_TL("MIN"   ), SG_DATATYPE_Double);
 		pTable->Add_Field(_TL("CENTER"), SG_DATATYPE_Double);

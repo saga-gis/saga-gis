@@ -974,15 +974,22 @@ bool CSG_Parameters_Search_Points::Do_Use_All(bool bUpdate)
 //---------------------------------------------------------
 bool CSG_Parameters_Search_Points::Initialize(CSG_Shapes *pPoints, int zField)
 {
+	Finalize();
+
 	if( !m_pParameters || !pPoints || pPoints->Get_Count() < 1 )
 	{
 		return( false );
 	}
 
-	m_pPoints		= pPoints;
-	m_zField		= zField;
+	if( Do_Use_All(true) )
+	{
+		m_pPoints	= pPoints;
+		m_zField	= zField;
 
-	return( Do_Use_All(true) || m_Search.Create(m_pPoints, m_zField) );
+		return( true );
+	}
+
+	return( m_Search.Create(pPoints, zField) );
 }
 
 //---------------------------------------------------------
@@ -1033,14 +1040,7 @@ int CSG_Parameters_Search_Points::Set_Location(const TSG_Point &p)
 //---------------------------------------------------------
 bool CSG_Parameters_Search_Points::Get_Point(int Index, double &x, double &y, double &z)
 {
-	if( m_nPoints_Max > 0 || m_Radius > 0.0 )	// using search engine
-	{
-		if( !m_Search.Get_Selected_Point(Index, x, y, z) )
-		{
-			return( false );
-		}
-	}
-	else										// without search engine
+	if( m_pPoints )	// without search engine
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(Index);
 
@@ -1052,6 +1052,13 @@ bool CSG_Parameters_Search_Points::Get_Point(int Index, double &x, double &y, do
 		x	= pPoint->Get_Point(0).x;
 		y	= pPoint->Get_Point(0).y;
 		z	= m_zField < 0 ? Index : pPoint->asDouble(m_zField);
+	}
+	else			// using search engine
+	{
+		if( !m_Search.Get_Selected_Point(Index, x, y, z) )
+		{
+			return( false );
+		}
 	}
 
 	return( true );

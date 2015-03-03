@@ -89,19 +89,14 @@ CWKSP_Layer_Classify::CWKSP_Layer_Classify(void)
 	m_pLUT			= NULL;
 
 	m_HST_Count		= NULL;
+	m_HST_Cumul		= NULL;
 }
 
 //---------------------------------------------------------
 CWKSP_Layer_Classify::~CWKSP_Layer_Classify(void)
 {
-	if( m_HST_Count )
-	{
-		SG_Free(m_HST_Count);
-		m_HST_Count	= NULL;
-
-		SG_Free(m_HST_Cumul);
-		m_HST_Cumul	= NULL;
-	}
+	SG_FREE_SAFE(m_HST_Count);
+	SG_FREE_SAFE(m_HST_Cumul);
 }
 
 
@@ -520,24 +515,17 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 //---------------------------------------------------------
 bool CWKSP_Layer_Classify::Histogram_Update(void)
 {
-	int		i;
-
 	//-----------------------------------------------------
-	if( m_HST_Count )
-	{
-		SG_Free(m_HST_Count);
-		SG_Free(m_HST_Cumul);
-		m_HST_Count	= NULL;
-		m_HST_Cumul	= NULL;
-	}
+	SG_FREE_SAFE(m_HST_Count);
+	SG_FREE_SAFE(m_HST_Cumul);
 
 	//-----------------------------------------------------
 	if( Get_Class_Count() > 0 )
 	{
 		STATUSBAR_Set_Text(_TL("Build Histogram..."));
 
-		m_HST_Count	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
-		m_HST_Cumul	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
+		m_HST_Count	= (sLong *)SG_Calloc(Get_Class_Count(), sizeof(sLong));
+		m_HST_Cumul	= (sLong *)SG_Calloc(Get_Class_Count(), sizeof(sLong));
 
 		switch( m_pLayer->Get_Type() )
 		{
@@ -560,6 +548,8 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 		PROCESS_Set_Okay();
 
 		//-------------------------------------------------
+		int		i;
+
 		for(i=0, m_HST_Maximum=0, m_HST_Total=0; i<Get_Class_Count(); i++)
 		{
 			m_HST_Cumul[i]	= (m_HST_Total += m_HST_Count[i]);
