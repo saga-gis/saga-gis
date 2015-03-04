@@ -1479,7 +1479,7 @@ public:
 	bool						Set_Parameter			(const CSG_String &Identifier, void          *Value, int Type = PARAMETER_TYPE_Undefined);
 	bool						Set_Parameter			(const CSG_String &Identifier, const SG_Char *Value, int Type = PARAMETER_TYPE_Undefined);
 
-	bool						Restore_Defaults		(void);
+	bool						Restore_Defaults		(bool bClearData = false);
 
 	bool						Assign					(CSG_Parameters *pSource);
 	bool						Assign_Values			(CSG_Parameters *pSource);

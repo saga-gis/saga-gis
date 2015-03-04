@@ -2474,7 +2474,10 @@ void CSG_Parameter_List::On_Assign(CSG_Parameter_Data *pSource)
 
 	for(int i=0; i<((CSG_Parameter_List *)pSource)->Get_Count(); i++)
 	{
-		Add_Item(((CSG_Parameter_List *)pSource)->asDataObject(i));
+		if( m_pOwner->Get_Manager() != &SG_Get_Data_Manager() || SG_Get_Data_Manager().Exists(((CSG_Parameter_List *)pSource)->asDataObject(i)) )
+		{
+			Add_Item(((CSG_Parameter_List *)pSource)->asDataObject(i));
+		}
 	}
 }
 

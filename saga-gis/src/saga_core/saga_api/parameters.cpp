@@ -1113,11 +1113,23 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, const SG_Char *
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters::Restore_Defaults(void)
+bool CSG_Parameters::Restore_Defaults(bool bClearData)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
 		m_Parameters[i]->Restore_Default();
+
+		if( bClearData )
+		{
+			if( m_Parameters[i]->is_DataObject() )
+			{
+				m_Parameters[i]->Set_Value(DATAOBJECT_NOTSET);
+			}
+			else if( m_Parameters[i]->is_DataObject_List() )
+			{
+				m_Parameters[i]->asList()->Del_Items();
+			}
+		}
 	}
 
 	return( true );

@@ -513,20 +513,18 @@ bool CSG_Module::Settings_Push(CSG_Data_Manager *pManager)
 		m_Settings_Stack.Create(sizeof(CSG_Parameters *));
 	}
 
-	int	n	= m_Settings_Stack.Get_Size();
+	size_t	n	= m_Settings_Stack.Get_Size();
 
 	CSG_Parameters	**pP	= (CSG_Parameters **)m_Settings_Stack.Get_Array(n + 1 + m_npParameters);
 
 	if( pP )
 	{
-		pP[n++]	= new CSG_Parameters(Parameters);	Parameters.Restore_Defaults();
+		pP[n++]	= new CSG_Parameters(Parameters); Parameters.Restore_Defaults(true); Parameters.Set_Manager(pManager);
 
 		for(int i=0; i<m_npParameters; i++)
 		{
-			pP[n++]	= new CSG_Parameters(*m_pParameters[i]);	m_pParameters[i]->Restore_Defaults();
+			pP[n++]	= new CSG_Parameters(*m_pParameters[i]); m_pParameters[i]->Restore_Defaults(true); m_pParameters[i]->Set_Manager(pManager);
 		}
-
-		Set_Manager(pManager);
 
 		return( true );
 	}
@@ -541,16 +539,14 @@ bool CSG_Module::Settings_Pop(void)
 
 	if( pP && (int)m_Settings_Stack.Get_Size() >= 1 + m_npParameters )
 	{
-		int	n	= m_Settings_Stack.Get_Size() - 1;
+		size_t	n	= m_Settings_Stack.Get_Size() - 1;
 
 		for(int i=m_npParameters-1; i>=0; i--, n--)
 		{
-			m_pParameters[i]->Assign_Values(pP[n]); delete(pP[n]);
+			m_pParameters[i]->Assign_Values(pP[n]); m_pParameters[i]->Set_Manager(pP[n]->Get_Manager()); delete(pP[n]);
 		}
 
-		Set_Manager(pP[n]->Get_Manager());
-
-		Parameters.Assign_Values(pP[n]); delete(pP[n]);
+		Parameters.Assign_Values(pP[n]); Parameters.Set_Manager(pP[n]->Get_Manager()); delete(pP[n]);
 
 		m_Settings_Stack.Set_Array(n);
 
