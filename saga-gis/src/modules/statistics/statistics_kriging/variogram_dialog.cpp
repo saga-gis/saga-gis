@@ -345,6 +345,7 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	: CSGDI_Dialog(_TL("Variogram"))
 {
 	m_pPoints		= NULL;
+	m_nPoints		= 0;
 	m_Attribute		= 0;
 	m_pVariogram	= NULL;
 	m_pModel		= NULL;
@@ -393,18 +394,20 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	//-----------------------------------------------------
 	m_Settings.Set_Name(_TL("Variogram Settings"));
 
-	m_Settings.Add_Value (NULL, "SKIP"		, _TL("Skip")				, _TL(""), PARAMETER_TYPE_Int   , 1,   1, true);
-	m_Settings.Add_Value (NULL, "LAGDIST"	, _TL("Lag Distance")		, _TL(""), PARAMETER_TYPE_Double, 1, 0.0, true);
-	m_Settings.Add_Value (NULL, "MAXDIST"	, _TL("Maximum Distance")	, _TL(""), PARAMETER_TYPE_Double, 1, 0.0, true);
-	m_Settings.Add_String(NULL, "MODEL"		, _TL("Model")				, _TL(""), SG_T("a + b * x"));
+	m_Settings.Add_Value (NULL, "SKIP"   , _TL("Skip"            ), _TL(""), PARAMETER_TYPE_Int   , 1,   1, true);
+	m_Settings.Add_Value (NULL, "LAGDIST", _TL("Lag Distance"    ), _TL(""), PARAMETER_TYPE_Double, 1, 0.0, true);
+	m_Settings.Add_Value (NULL, "MAXDIST", _TL("Maximum Distance"), _TL(""), PARAMETER_TYPE_Double, 1, 0.0, true);
+	m_Settings.Add_String(NULL, "MODEL"  , _TL("Model"           ), _TL(""), SG_T("a + b * x"));
 }
 
 //---------------------------------------------------------
 bool CVariogram_Dialog::Execute(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG_Table *pVariogram, CSG_Trend *pModel)
 {
-	if( m_pPoints != pPoints )
+	if( m_pPoints != pPoints || m_nPoints != pPoints->Get_Count() || !m_Extent.is_Equal(pPoints->Get_Extent()) )
 	{
 		m_pPoints	= pPoints;
+		m_nPoints	= pPoints->Get_Count();
+		m_Extent	= pPoints->Get_Extent();
 		m_Distance	= -1;
 
 		int	nSkip	= 1 + m_pPoints->Get_Count() / 10000;

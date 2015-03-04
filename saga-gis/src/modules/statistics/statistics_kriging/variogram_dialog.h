@@ -143,9 +143,11 @@ private:
 
 	CSG_Shapes					*m_pPoints;
 
+	CSG_Rect					m_Extent;
+
 	bool						m_bLog;
 
-	int							m_Attribute;
+	int							m_Attribute, m_nPoints;
 
 	double						m_Distance;
 

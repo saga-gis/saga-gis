@@ -300,47 +300,64 @@ bool CKriging_Regression::On_Execute(void)
 	);
 
 	//-----------------------------------------------------
+	Process_Set_Text(m_OK.Get_Name());
+
+	m_OK.Set_Manager(NULL);
+
 	if( !SG_UI_Get_Window_Main() )	// saga_cmd
 	{
-		SG_RUN_MODULE_ExitOnError("statistics_kriging", 0,	// Ordinary Kriging
-			   SG_MODULE_PARAMETER_SET("POINTS"           , &Points)
-			&& SG_MODULE_PARAMETER_SET("FIELD"            , 2)
-			&& SG_MODULE_PARAMETER_SET("LOG"              , Parameters("LOG"              ))
-			&& SG_MODULE_PARAMETER_SET("BLOCK"            , Parameters("BLOCK"            ))
-			&& SG_MODULE_PARAMETER_SET("DBLOCK"           , Parameters("DBLOCK"           ))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
-			&& SG_MODULE_PARAMETER_SET("VAR_MAXDIST"      , Parameters("VAR_MAXDIST"      ))
-			&& SG_MODULE_PARAMETER_SET("VAR_NCLASSES"     , Parameters("VAR_NCLASSES"     ))
-			&& SG_MODULE_PARAMETER_SET("VAR_NSKIP"        , Parameters("VAR_NSKIP"        ))
-			&& SG_MODULE_PARAMETER_SET("VAR_MODEL"        , Parameters("VAR_MODEL"        ))
-			&& SG_MODULE_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
-			&& SG_MODULE_PARAMETER_SET("TARGET_PREDICTION", pResiduals)
-			&& SG_MODULE_PARAMETER_SET("TARGET_VARIANCE"  , pVariance )
-		);
+		if( !m_OK.Set_Parameter("POINTS"           , &Points)
+		||  !m_OK.Set_Parameter("FIELD"            , 2)	// residual
+		||  !m_OK.Set_Parameter("LOG"              , Parameters("LOG"              ))
+		||  !m_OK.Set_Parameter("BLOCK"            , Parameters("BLOCK"            ))
+		||  !m_OK.Set_Parameter("DBLOCK"           , Parameters("DBLOCK"           ))
+		||  !m_OK.Set_Parameter("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
+		||  !m_OK.Set_Parameter("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
+		||  !m_OK.Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
+		||  !m_OK.Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
+		||  !m_OK.Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
+		||  !m_OK.Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
+		||  !m_OK.Set_Parameter("VAR_MAXDIST"      , Parameters("VAR_MAXDIST"      ))
+		||  !m_OK.Set_Parameter("VAR_NCLASSES"     , Parameters("VAR_NCLASSES"     ))
+		||  !m_OK.Set_Parameter("VAR_NSKIP"        , Parameters("VAR_NSKIP"        ))
+		||  !m_OK.Set_Parameter("VAR_MODEL"        , Parameters("VAR_MODEL"        ))
+		||  !m_OK.Set_Parameter("TARGET_DEFINITION", 1)	// grid or grid system
+		||  !m_OK.Set_Parameter("TARGET_PREDICTION", pResiduals)
+		||  !m_OK.Set_Parameter("TARGET_VARIANCE"  , pVariance ) )
+		{
+			Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));
+
+			return( false );
+		}
 	}
 	else
 	{
-		SG_RUN_MODULE_ExitOnError("statistics_kriging", 0,	// Ordinary Kriging
-			   SG_MODULE_PARAMETER_SET("POINTS"           , &Points)
-			&& SG_MODULE_PARAMETER_SET("FIELD"            , 2)
-			&& SG_MODULE_PARAMETER_SET("LOG"              , Parameters("LOG"              ))
-			&& SG_MODULE_PARAMETER_SET("BLOCK"            , Parameters("BLOCK"            ))
-			&& SG_MODULE_PARAMETER_SET("DBLOCK"           , Parameters("DBLOCK"           ))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
-			&& SG_MODULE_PARAMETER_SET("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
-			&& SG_MODULE_PARAMETER_SET("DEFINITION"       , 1)	// grid or grid system
-			&& SG_MODULE_PARAMETER_SET("PREDICTION"       , pResiduals)
-			&& SG_MODULE_PARAMETER_SET("VARIANCE"         , pVariance )
-		);
+		if( !m_OK.Set_Parameter("POINTS"           , &Points)
+		||  !m_OK.Set_Parameter("FIELD"            , 2)	// residual
+		||  !m_OK.Set_Parameter("LOG"              , Parameters("LOG"              ))
+		||  !m_OK.Set_Parameter("BLOCK"            , Parameters("BLOCK"            ))
+		||  !m_OK.Set_Parameter("DBLOCK"           , Parameters("DBLOCK"           ))
+		||  !m_OK.Set_Parameter("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
+		||  !m_OK.Set_Parameter("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
+		||  !m_OK.Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
+		||  !m_OK.Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
+		||  !m_OK.Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
+		||  !m_OK.Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
+		||  !m_OK.Set_Parameter("DEFINITION"       , 1)	// grid or grid system
+		||  !m_OK.Set_Parameter("PREDICTION"       , pResiduals)
+		||  !m_OK.Set_Parameter("VARIANCE"         , pVariance ) )
+		{
+			Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));
+
+			return( false );
+		}
+	}
+
+	if( !m_OK.Execute() )
+	{
+		Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not execute tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));\
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -371,7 +388,7 @@ bool CKriging_Regression::On_Execute(void)
 
 	if( pVariance )
 	{
-		pVariance->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asGrid()->Get_Name(), Parameters("FIELD")->asString(), _TL("Quality")));
+		pVariance ->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asGrid()->Get_Name(), Parameters("FIELD")->asString(), _TL("Quality")));
 	}
 
 	//-----------------------------------------------------

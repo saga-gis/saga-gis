@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "kriging_ordinary.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -95,6 +95,8 @@ protected:
 
 
 private:
+
+	CKriging_Ordinary				m_OK;
 
 	CSG_Parameters_Search_Points	m_Search;
 
