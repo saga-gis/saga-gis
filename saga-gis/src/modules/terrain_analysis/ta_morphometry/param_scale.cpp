@@ -148,8 +148,8 @@ CParam_Scale::CParam_Scale(void)
 	Parameters.Add_Grid(NULL, "PLANC"    , _TL("Plan Curvature")           , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "LONGC"    , _TL("Longitudinal Curvature")   , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "CROSC"    , _TL("Cross-Sectional Curvature"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "MINIC"    , _TL("Maximum Curvature")        , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "MAXIC"    , _TL("Minimum Curvature")        , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "MAXIC"    , _TL("Maximum Curvature")        , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "MINIC"    , _TL("Minimum Curvature")        , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	Parameters.Add_Value(
 		NULL	, "SIZE"		, _TL("Scale Radius (Cells)"),
