@@ -584,7 +584,7 @@ bool CSG_PointCloud::Del_Field(int iField)
 
 	//-----------------------------------------------------
 	m_nFields		--;
-	m_nPointBytes	-= PC_GET_NBYTES(m_Field_Type[m_nFields]);
+	m_nPointBytes	-= PC_GET_NBYTES(m_Field_Type[iField]);
 
 	for(i=0; i<m_nRecords; i++)
 	{
