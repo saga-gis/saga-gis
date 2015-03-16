@@ -144,7 +144,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Initialise(int iOutputs, CSG_Rect AOI, C
 
 		std::sort(vValues.begin(), vValues.end());
 
-		if( vValues.at(0) != 0 || vValues.at(1) != 1 || vValues.at(2) != 2) 
+		if( vValues.at(0) != 0 || vValues.at(1) != 1 || vValues.at(2) != 2)
 		{
 			SG_UI_Msg_Add_Error(_TL("Attribute fields one to three (x;y;z) are mandatory!"));
 			return( false );
@@ -223,7 +223,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 			}
 		}
 	}
-		
+
 
 	//-----------------------------------------------------
 	SPCVF.Get_Property(SG_T("Version"), sVersion);
@@ -272,7 +272,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 	{
 		SPCVF_Tile_Info.Set_Name(SG_T("SPCVF_Tile_Info"));
 		SPCVF_Tile_Info.Add_Property(SG_T("Version"), SG_T("1.0"));
-	
+
 		if( bAbsolutePaths )
 		{
 			SPCVF_Tile_Info.Add_Property(SG_T("Paths"), SG_T("absolute"));
@@ -324,7 +324,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 		{
 			m_dOverlap = 0.0;
 		}
-	
+
 		if( m_AOI.Intersects(BBoxSPCVF) == INTERSECTION_None )
 		{
 			SG_UI_Msg_Add(_TL("AOI does not intersect bounding box of SPCVF, nothing to do!"), true);
@@ -411,7 +411,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 						if( !pPolygon->Contains(pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
 							continue;
 					}
-					
+
 					if( m_bConstrain )
 					{
 						if( pPC->Get_Value(iPoint, m_iField) < m_dMinAttrRange || pPC->Get_Value(iPoint, m_iField) > m_dMaxAttrRange)
@@ -470,7 +470,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 	}
 
 	//---------------------------------------------------------
-	if( !m_bMultiple )
+	if( !m_bMultiple && pPC_out != NULL)
 	{
 		if( pPC_out != NULL && pPC_out->Get_Count() == 0 )
 		{
@@ -659,7 +659,7 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 		_TL("The attribute field to use as constraint. Field numbers start with 1."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
-	
+
 	Parameters.Add_Range(
 		Parameters("CONSTRAIN_QUERY")	, "VALUE_RANGE"	, _TL("Value Range"),
 		_TL("Minimum and maximum of attribute range []."),
@@ -785,7 +785,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	}
 
 	CSG_String	sPath = pFilePath->asString();
-	
+
 	if( sPath.Length() <= 1 )
 	{
 		pFilePath = NULL;
@@ -836,7 +836,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 			}
 
 			DataObject_Set_Parameters(pPointCloudList->asPointCloud(i), sParms);
-	
+
 			DataObject_Update(pPointCloudList->asPointCloud(i));
 		}
 	}
@@ -860,7 +860,7 @@ int CPointCloud_Get_Subset_SPCVF::On_Parameters_Enable(CSG_Parameters *pParamete
 		pParameters->Get_Parameter("ATTR_FIELD"			)->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("VALUE_RANGE"		)->Set_Enabled(pParameter->asBool());
 	}
-	  
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AOI_ADD_OVERLAP")) )
 	{
 		pParameters->Get_Parameter("OVERLAP"			)->Set_Enabled(pParameter->asBool());
@@ -872,7 +872,7 @@ int CPointCloud_Get_Subset_SPCVF::On_Parameters_Enable(CSG_Parameters *pParamete
 		pParameters->Get_Parameter("FIELD_TILENAME"		)->Set_Enabled(pParameter->asShapes() != NULL);
 		pParameters->Get_Parameter("ONE_PC_PER_POLYGON"	)->Set_Enabled(pParameter->asShapes() != NULL);
 	}
-	
+
 	//-----------------------------------------------------
 	return (1);
 }
@@ -939,7 +939,7 @@ CPointCloud_Get_Subset_SPCVF_Interactive::CPointCloud_Get_Subset_SPCVF_Interacti
 		_TL("The attribute field to use as constraint. Field numbers start with 1."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
-	
+
 	Parameters.Add_Range(
 		Parameters("CONSTRAIN_QUERY")	, "VALUE_RANGE"	, _TL("Value Range"),
 		_TL("Minimum and maximum of attribute range []."),
@@ -1007,7 +1007,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 			}
 
 			DataObject_Set_Parameters(pPC, sParms);
-	
+
 			DataObject_Update(pPC, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 		}
 

@@ -132,7 +132,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 	double			dBBoxXMin, dBBoxYMin, dBBoxXMax, dBBoxYMax;
 	CSG_Rect		BBoxSPCVF;
 	CSG_MetaData	SPCVF;
-	
+
 
 	//-----------------------------------------------------
 	if( !SPCVF.Create(m_sFileName) || SPCVF.Get_Name().CmpNoCase(SG_T("SPCVFDataset")) )
@@ -248,7 +248,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 		{
 			m_dOverlap = 0.0;
 		}
-	
+
 		if( m_AOI.Intersects(BBoxSPCVF) == INTERSECTION_None )
 		{
 			SG_UI_Msg_Add(_TL("AOI does not intersect bounding box of SPCVF, nothing to do!"), true);
@@ -337,7 +337,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 						if( !pPolygon->Contains(pPC->Get_X(iPoint), pPC->Get_Y(iPoint)) )
 							continue;
 					}
-					
+
 					if( m_bConstrain )
 					{
 						if( pPC->Get_Value(iPoint, m_iField) < m_dMinAttrRange || pPC->Get_Value(iPoint, m_iField) > m_dMaxAttrRange)
@@ -396,7 +396,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 	}
 
 	//---------------------------------------------------------
-	if( !m_bMultiple )
+	if( !m_bMultiple && pGrid != NULL)
 	{
 		if( pGrid != NULL && dPoints == 0.0 )
 		{
@@ -539,7 +539,7 @@ CPointCloud_Get_Grid_SPCVF::CPointCloud_Get_Grid_SPCVF(void)
 			_TL("cells")
 		), 1
 	);
-	
+
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Aggregation"),
 		_TL("Choose how to aggregate the values"),
@@ -560,7 +560,7 @@ CPointCloud_Get_Grid_SPCVF::CPointCloud_Get_Grid_SPCVF(void)
 		_TL("The attribute field to use as constraint. Field numbers start with 1."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
-	
+
 	Parameters.Add_Range(
 		Parameters("CONSTRAIN_QUERY")	, "VALUE_RANGE"	, _TL("Value Range"),
 		_TL("Minimum and maximum of attribute range []."),
@@ -675,7 +675,7 @@ bool CPointCloud_Get_Grid_SPCVF::On_Execute(void)
 	}
 
 	CSG_String	sPath = pFilePath->asString();
-	
+
 	if( sPath.Length() <= 1 )
 	{
 		pFilePath = NULL;
@@ -735,7 +735,7 @@ int CPointCloud_Get_Grid_SPCVF::On_Parameters_Enable(CSG_Parameters *pParameters
 	{
 		pParameters->Get_Parameter("FIELD_TILENAME"		)->Set_Enabled(pParameter->asShapes() != NULL);
 	}
-	
+
 	//-----------------------------------------------------
 	return (1);
 }
@@ -822,7 +822,7 @@ CPointCloud_Get_Grid_SPCVF_Interactive::CPointCloud_Get_Grid_SPCVF_Interactive(v
 		_TL("The attribute field to use as constraint. Field numbers start with 1."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
-	
+
 	Parameters.Add_Range(
 		Parameters("CONSTRAIN_QUERY")	, "VALUE_RANGE"	, _TL("Value Range"),
 		_TL("Minimum and maximum of attribute range []."),
@@ -868,13 +868,13 @@ bool CPointCloud_Get_Grid_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWor
 									Parameters("GRID_SYSTEM_FIT")->asBool(), Parameters("METHOD")->asInt(),
 									Parameters("CONSTRAIN_QUERY")->asBool(), Parameters("ATTR_FIELD")->asInt()-1,
 									Parameters("VALUE_RANGE")->asRange()->Get_LoVal(), Parameters("VALUE_RANGE")->asRange()->Get_HiVal());
-		
+
 		bool bResult = m_Get_Grid_SPCVF.Get_Subset(Parameters("ATTR_FIELD_GRID")->asInt()-1);
 
 		if( bResult )
 		{
 			CSG_Grid *pGrid = Parameters("GRID_OUT")->asGridList()->asGrid(Parameters("GRID_OUT")->asGridList()->Get_Count()-1);
-	
+
 			DataObject_Update(pGrid, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 		}
 
