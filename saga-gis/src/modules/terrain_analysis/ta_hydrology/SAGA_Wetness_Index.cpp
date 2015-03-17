@@ -92,7 +92,12 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 		"- Boehner, J., Koethe, R. Conrad, O., Gross, J., Ringeler, A., Selige, T. (2002): "
 		"Soil Regionalisation by Means of Terrain Analysis and Process Parameterisation. "
 		"In: Micheli, E., Nachtergaele, F., Montanarella, L. [Ed.]: Soil Classification 2001. "
-		"European Soil Bureau, Research Report No. 7, EUR 20398 EN, Luxembourg. pp.213-222."
+		"European Soil Bureau, Research Report No. 7, EUR 20398 EN, Luxembourg. pp.213-222.\n\n"
+		"- Boehner, J. and Selige, T. (2006): Spatial prediction of soil attributes using "
+		"terrain analysis and climate regionalisation. In: Boehner, J., McCloy, K.R., Strobl, J. "
+		"[Ed.]: SAGA - Analysis and Modelling Applications, Goettinger Geographische Abhandlungen, "
+		"Goettingen: 13-28. "
+		"(<a target=\"_blank\" href=\"http://downloads.sourceforge.net/saga-gis/gga115_02.pdf\">pdf</a>)\n\n"
 	));
 
 
@@ -545,8 +550,8 @@ Float a, wul, wll, wol, woo, wor, wrr, wur, wuu;
 Integer t, h, i, j, gefunden;
 
 a = 0.0174532;
-t = 10; 
-pul.x = -1;	pul.y = -1; 
+t = 10;
+pul.x = -1;	pul.y = -1;
 pu.x = 0;	pu.y = -1;
 pur.x = 1;	pur.y = -1;
 pl.x = -1;	pl.y = 0;
@@ -611,15 +616,15 @@ foreach p in Z do
 {
 if(p.x == 0 && p.y == 0)
 	{
-	if((M[p] - M[p+po]) > 0) 
+	if((M[p] - M[p+po]) > 0)
 	{woo = atan	((M[p] - M[p+po])	/	M.dxy);}
 	else
 	{woo = 0;}
-	if((M[p] - M[p+por]) > 0) 
+	if((M[p] - M[p+por]) > 0)
 	{wor = atan	((M[p] - M[p+por])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wor = 0;}
-	if((M[p] - M[p+pr]) > 0) 
+	if((M[p] - M[p+pr]) > 0)
 	{wrr = atan	((M[p] - M[p+pr])	/	M.dxy);}
 	else
 	{wrr = 0;}
@@ -632,15 +637,15 @@ else
 {
 if(p.x == 0 && p.y == (M.yanz - 1))
 	{
-	if((M[p] - M[p+pr]) > 0) 
+	if((M[p] - M[p+pr]) > 0)
 	{wrr = atan	((M[p] - M[p+pr])	/	M.dxy);}
 	else
 	{wrr = 0;}
-	if((M[p] - M[p+pur]) > 0) 
+	if((M[p] - M[p+pur]) > 0)
 	{wur = atan	((M[p] - M[p+pur])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wur = 0;}
-	if((M[p] - M[p+pu]) > 0) 
+	if((M[p] - M[p+pu]) > 0)
 	{wuu = atan	((M[p] - M[p+pu])	/	M.dxy);}
 	else
 	{wuu = 0;}
@@ -649,19 +654,19 @@ if(p.x == 0 && p.y == (M.yanz - 1))
 	else
 	{Z[p] = wrr + wur + wuu;}
 	}
-else	
+else
 {
 if(p.x == M.xanz - 1 && p.y == M.yanz - 1)
 	{
-	if((M[p] - M[p+pul]) > 0) 
+	if((M[p] - M[p+pul]) > 0)
 	{wul = atan	((M[p] - M[p+pul])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wul = 0;}
-	if((M[p] - M[p+pl]) > 0) 
+	if((M[p] - M[p+pl]) > 0)
 	{wll = atan	((M[p] - M[p+pl])	/	M.dxy);}
 	else
 	{wll = 0;}
-	if((M[p] - M[p+pu]) > 0) 
+	if((M[p] - M[p+pu]) > 0)
 	{wuu = atan	((M[p] - M[p+pu])	/	M.dxy);}
 	else
 	{wuu = 0;}
@@ -670,19 +675,19 @@ if(p.x == M.xanz - 1 && p.y == M.yanz - 1)
 	else
 	{Z[p] = wul + wll + wuu;}
 	}
-else	
+else
 {
 if(p.x == M.xanz - 1 && p.y == 0)
 	{
-	if((M[p] - M[p+pl]) > 0) 
+	if((M[p] - M[p+pl]) > 0)
 	{wll = atan	((M[p] - M[p+pl])	/	M.dxy);}
 	else
 	{wll = 0;}
-	if((M[p] - M[p+pol]) > 0) 
+	if((M[p] - M[p+pol]) > 0)
 	{wol = atan	((M[p] - M[p+pol])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wol = 0;}
-	if((M[p] - M[p+po]) > 0) 
+	if((M[p] - M[p+po]) > 0)
 	{woo = atan	((M[p] - M[p+po])	/	M.dxy);}
 	else
 	{woo = 0;}
@@ -691,27 +696,27 @@ if(p.x == M.xanz - 1 && p.y == 0)
 	else
 	{Z[p] = wll + wol + woo;}
 	}
-else	
+else
 {
 if(p.x == 0)
 	{
-	if((M[p] - M[p+po]) > 0) 
+	if((M[p] - M[p+po]) > 0)
 	{woo = atan	((M[p] - M[p+po])	/	M.dxy);}
 	else
 	{woo = 0;}
-	if((M[p] - M[p+por]) > 0) 
+	if((M[p] - M[p+por]) > 0)
 	{wor = atan	((M[p] - M[p+por])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wor = 0;}
-	if((M[p] - M[p+pr]) > 0) 
+	if((M[p] - M[p+pr]) > 0)
 	{wrr = atan	((M[p] - M[p+pr])	/	M.dxy);}
 	else
 	{wrr = 0;}
-	if((M[p] - M[p+pur]) > 0) 
+	if((M[p] - M[p+pur]) > 0)
 	{wur = atan	((M[p] - M[p+pur])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wur = 0;}
-	if((M[p] - M[p+pu]) > 0) 
+	if((M[p] - M[p+pu]) > 0)
 	{wuu = atan	((M[p] - M[p+pu])	/	M.dxy);}
 	else
 	{wuu = 0;}
@@ -720,27 +725,27 @@ if(p.x == 0)
 	else
 	{Z[p] = woo + wor + wrr + wur + wuu;}
 	}
-else	
+else
 {
 if(p.x == M.xanz - 1)
 	{
-	if((M[p] - M[p+pul]) > 0) 
+	if((M[p] - M[p+pul]) > 0)
 	{wul = atan	((M[p] - M[p+pul])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wul = 0;}
-	if((M[p] - M[p+pl]) > 0) 
+	if((M[p] - M[p+pl]) > 0)
 	{wll = atan	((M[p] - M[p+pl])	/	M.dxy);}
 	else
 	{wll = 0;}
-	if((M[p] - M[p+pol]) > 0) 
+	if((M[p] - M[p+pol]) > 0)
 	{wol = atan	((M[p] - M[p+pol])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wol = 0;}
-	if((M[p] - M[p+po]) > 0) 
+	if((M[p] - M[p+po]) > 0)
 	{woo = atan	((M[p] - M[p+po])	/	M.dxy);}
 	else
 	{woo = 0;}
-	if((M[p] - M[p+pu]) > 0) 
+	if((M[p] - M[p+pu]) > 0)
 	{wuu = atan	((M[p] - M[p+pu])	/	M.dxy);}
 	else
 	{wuu = 0;}
@@ -749,27 +754,27 @@ if(p.x == M.xanz - 1)
 	else
 	{Z[p] = wul + wll + wol + woo + wuu;}
 	}
-else	
+else
 {
 if(p.y == 0)
 	{
-	if((M[p] - M[p+pl]) > 0) 
+	if((M[p] - M[p+pl]) > 0)
 	{wll = atan	((M[p] - M[p+pl])	/	M.dxy);}
 	else
 	{wll = 0;}
-	if((M[p] - M[p+pol]) > 0) 
+	if((M[p] - M[p+pol]) > 0)
 	{wol = atan	((M[p] - M[p+pol])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wol = 0;}
-	if((M[p] - M[p+po]) > 0) 
+	if((M[p] - M[p+po]) > 0)
 	{woo = atan	((M[p] - M[p+po])	/	M.dxy);}
 	else
 	{woo = 0;}
-	if((M[p] - M[p+por]) > 0) 
+	if((M[p] - M[p+por]) > 0)
 	{wor = atan	((M[p] - M[p+por])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wor = 0;}
-	if((M[p] - M[p+pr]) > 0) 
+	if((M[p] - M[p+pr]) > 0)
 	{wrr = atan	((M[p] - M[p+pr])	/	M.dxy);}
 	else
 	{wrr = 0;}
@@ -778,27 +783,27 @@ if(p.y == 0)
 	else
 	{Z[p] = wll + wol + woo + wor + wrr;}
 	}
-else	
+else
 {
 if(p.y == M.yanz - 1)
 	{
-	if((M[p] - M[p+pul]) > 0) 
+	if((M[p] - M[p+pul]) > 0)
 	{wul = atan	((M[p] - M[p+pul])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wul = 0;}
-	if((M[p] - M[p+pl]) > 0) 
+	if((M[p] - M[p+pl]) > 0)
 	{wll = atan	((M[p] - M[p+pl])	/	M.dxy);}
 	else
 	{wll = 0;}
-	if((M[p] - M[p+pr]) > 0) 
+	if((M[p] - M[p+pr]) > 0)
 	{wrr = atan	((M[p] - M[p+pr])	/	M.dxy);}
 	else
 	{wrr = 0;}
-	if((M[p] - M[p+pur]) > 0) 
+	if((M[p] - M[p+pur]) > 0)
 	{wur = atan	((M[p] - M[p+pur])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wur = 0;}
-	if((M[p] - M[p+pu]) > 0) 
+	if((M[p] - M[p+pu]) > 0)
 	{wuu = atan	((M[p] - M[p+pu])	/	M.dxy);}
 	else
 	{wuu = 0;}
@@ -807,37 +812,37 @@ if(p.y == M.yanz - 1)
 	else
 	{Z[p] = wul + wll + wrr + wur + wuu;}
 	}
-else	
-{	
-	if((M[p] - M[p+pul]) > 0) 
+else
+{
+	if((M[p] - M[p+pul]) > 0)
 	{wul = atan	((M[p] - M[p+pul])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wul = 0;}
-	if((M[p] - M[p+pl]) > 0) 
+	if((M[p] - M[p+pl]) > 0)
 	{wll = atan	((M[p] - M[p+pl])	/	M.dxy);}
 	else
 	{wll = 0;}
-	if((M[p] - M[p+pol]) > 0) 
+	if((M[p] - M[p+pol]) > 0)
 	{wol = atan	((M[p] - M[p+pol])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wol = 0;}
-	if((M[p] - M[p+po]) > 0) 
+	if((M[p] - M[p+po]) > 0)
 	{woo = atan	((M[p] - M[p+po])	/	M.dxy);}
 	else
 	{woo = 0;}
-	if((M[p] - M[p+por]) > 0) 
+	if((M[p] - M[p+por]) > 0)
 	{wor = atan	((M[p] - M[p+por])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wor = 0;}
-	if((M[p] - M[p+pr]) > 0) 
+	if((M[p] - M[p+pr]) > 0)
 	{wrr = atan	((M[p] - M[p+pr])	/	M.dxy);}
 	else
 	{wrr = 0;}
-	if((M[p] - M[p+pur]) > 0) 
+	if((M[p] - M[p+pur]) > 0)
 	{wur = atan	((M[p] - M[p+pur])	/	(2 * M.dxy^2)^0.5);}
 	else
 	{wur = 0;}
-	if((M[p] - M[p+pu]) > 0) 
+	if((M[p] - M[p+pu]) > 0)
 	{wuu = atan	((M[p] - M[p+pu])	/	M.dxy);}
 	else
 	{wuu = 0;}
@@ -852,7 +857,7 @@ foreach p in UL do
 {	if (p.x == 0 || p.y == 0)
 	{UL[p] = 0;}
 	else	{
-		if((M[p] - M[p+pul]) < 0 && Z[p+pul] > 0) 
+		if((M[p] - M[p+pul]) < 0 && Z[p+pul] > 0)
 		{UL[p] = (atan((M[p+pul] - M[p])/(2 * M.dxy^2)^0.5))/Z[p+pul];}
 		else
 		{UL[p] = 0;}
@@ -862,7 +867,7 @@ foreach p in LL do
 {	if (p.x == 0)
 	{LL[p] = 0;}
 	else	{
-		if((M[p] - M[p+pl]) < 0 && Z[p+pl] > 0) 
+		if((M[p] - M[p+pl]) < 0 && Z[p+pl] > 0)
 		{LL[p] = (atan((M[p+pl] - M[p])/M.dxy))/Z[p+pl];}
 		else
 		{LL[p] = 0;}
@@ -872,7 +877,7 @@ foreach p in OL do
 {	if (p.x == 0 || p.y == M.yanz - 1)
 	{OL[p] = 0;}
 	else	{
-		if((M[p] - M[p+pol]) < 0 && Z[p+pol] > 0) 
+		if((M[p] - M[p+pol]) < 0 && Z[p+pol] > 0)
 		{OL[p] = (atan((M[p+pol] - M[p])/(2 * M.dxy^2)^0.5))/Z[p+pol];}
 		else
 		{OL[p] = 0;}
@@ -882,7 +887,7 @@ foreach p in OO do
 {	if (p.y == M.yanz - 1)
 	{OO[p] = 0;}
 	else	{
-		if((M[p] - M[p+po]) < 0 && Z[p+po] > 0) 
+		if((M[p] - M[p+po]) < 0 && Z[p+po] > 0)
 		{OO[p] = (atan((M[p+po] - M[p])/M.dxy))/Z[p+po];}
 		else
 		{OO[p] = 0;}
@@ -892,7 +897,7 @@ foreach p in OR do
 {	if (p.x == M.xanz - 1 || p.y == M.yanz - 1)
 	{OR[p] = 0;}
 	else	{
-		if((M[p] - M[p+por]) < 0 && Z[p+por] > 0) 
+		if((M[p] - M[p+por]) < 0 && Z[p+por] > 0)
 		{OR[p] = (atan((M[p+por] - M[p])/(2 * M.dxy^2)^0.5))/Z[p+por];}
 		else
 		{OR[p] = 0;}
@@ -902,7 +907,7 @@ foreach p in RR do
 {	if (p.x == M.xanz - 1)
 	{RR[p] = 0;}
 	else	{
-		if((M[p] - M[p+pr]) < 0 && Z[p+pr] > 0) 
+		if((M[p] - M[p+pr]) < 0 && Z[p+pr] > 0)
 		{RR[p] = (atan((M[p+pr] - M[p])/M.dxy))/Z[p+pr];}
 		else
 		{RR[p] = 0;}
@@ -912,7 +917,7 @@ foreach p in UR do
 {	if (p.x == M.xanz - 1 || p.y == 0)
 	{UR[p] = 0;}
 	else	{
-		if((M[p] - M[p+pur]) < 0 && Z[p+pur] > 0) 
+		if((M[p] - M[p+pur]) < 0 && Z[p+pur] > 0)
 		{UR[p] = (atan((M[p+pur] - M[p])/(2 * M.dxy^2)^0.5))/Z[p+pur];}
 		else
 		{UR[p] = 0;}
@@ -922,7 +927,7 @@ foreach p in UU do
 {	if (p.y == 0)
 	{UU[p] = 0;}
 	else	{
-		if((M[p] - M[p+pu]) < 0 && Z[p+pu] > 0) 
+		if((M[p] - M[p+pu]) < 0 && Z[p+pu] > 0)
 		{UU[p] = (atan((M[p+pu] - M[p])/M.dxy))/Z[p+pu];}
 		else
 		{UU[p] = 0;}
@@ -965,17 +970,17 @@ foreach p in CS do
 	{
 	if(X[p] > C[p] || X[p+pul] > C[p+pul] || X[p+pl] > X[p+pl] || X[p+pol] > C[p+pol] || X[p+po] > C[p+po] || X[p+por] > C[p+por] || X[p+pr] > C[p+pr] || X[p+pur] > C[p+pur] || X[p+pu] > C[p+pu])
 	{CS[p] = ln((X[p] + X[p+pul] + X[p+pu] + X[p+pur] + X[p+pl] + X[p+pr] + X[p+pol] + X[p+po] + X[p+por])/9);}
-	else	
+	else
 	{CS[p] = ln(X[p]);}
 	}
 }
-setRandN (CS);	
+setRandN (CS);
 showMatrix(CS);
 // in den folgenden zwei Schritten wird der SAGA Bodenfeuchteindex SB ermittelt. Der a-Parameter muss bei den Settings definiert werden und sorgt dafuer, das nicht durch 0 dividiert wird //
 foreach p in SB do
 {SB[p] = exp(CS[p])/tan(N[p] + a);}
 foreach p in SB do
-{SB[p] = ln(SB[p]);}	
+{SB[p] = ln(SB[p]);}
 showMatrix(SB);
 /**/
 
