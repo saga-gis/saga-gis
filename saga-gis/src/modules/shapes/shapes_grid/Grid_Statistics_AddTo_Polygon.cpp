@@ -65,9 +65,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <vector>
-#include <list>
-
 #include "Grid_Statistics_AddTo_Polygon.h"
 
 
@@ -80,23 +77,16 @@
 //---------------------------------------------------------
 CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Grid Statistics for Polygons"));
 
-	Set_Author		(SG_T("(c) 2003 by Olaf Conrad, Quantile Calculation (c) 2007 by Johan Van de Wauw"));
+	Set_Author		("O.Conrad (c) 2003, Quantile Calculation (c) 2007 by Johan Van de Wauw");
 
 	Set_Description	(_TW(
-		"For each polygon statistics about the values of all contained grid nodes will be generated."
+		"Zonal grid statistics. For each polygon statistics based on all covered grid cells will be calculated."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"		, _TL("Grids"),
 		_TL(""),
@@ -112,7 +102,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("standard"),
 			_TL("shape wise, supports overlapping polygons")
 		), 0
@@ -121,27 +111,28 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	Parameters.Add_Choice(
 		NULL	, "NAMING"		, _TL("Field Naming"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("grid number"),
 			_TL("grid name")
 		), 1
 	);
 
-	pNode	= Parameters.Add_Shapes(
+	//-----------------------------------------------------
+	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "RESULT"		, _TL("Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(pNode, "COUNT"   , _TL("Number of Cells")   , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MIN"     , _TL("Minimum")           , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MAX"     , _TL("Maximum")           , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "RANGE"   , _TL("Range")             , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "SUM"     , _TL("Sum")               , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MEAN"    , _TL("Mean")              , _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "VAR"     , _TL("Variance")          , _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "COUNT"   , _TL("Number of Cells"   ), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "MIN"     , _TL("Minimum"           ), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "MAX"     , _TL("Maximum"           ), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "RANGE"   , _TL("Range"             ), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "SUM"     , _TL("Sum"               ), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "MEAN"    , _TL("Mean"              ), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "VAR"     , _TL("Variance"          ), _TL(""), PARAMETER_TYPE_Bool, true);
 	Parameters.Add_Value(pNode, "STDDEV"  , _TL("Standard Deviation"), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "QUANTILE", _TL("Quantile")          , 
+	Parameters.Add_Value(pNode, "QUANTILE", _TL("Quantile"          ), 
 		_TL("Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation."),
 		PARAMETER_TYPE_Int, 0, 0, true, 50, true
 	);
@@ -155,23 +146,42 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format(SG_T("G%02d_%s"), iGrid + 1, VAR) : CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), VAR)
+#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format("G%02d_%s", iGrid + 1, VAR) : CSG_String::Format("%s [%s]", pGrids->asGrid(iGrid)->Get_Name(), VAR)
 
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 {
-	int						Method, Naming, Quantile;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Shapes				*pShapes;
+	//-----------------------------------------------------
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+
+	if( pPolygons->Get_Count() <= 0 )
+	{
+		Error_Set(_TL("no polygons in input layer"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	pGrids			= Parameters("GRIDS"   )->asGridList();
-	pShapes			= Parameters("POLYGONS")->asShapes();
-	Method			= Parameters("METHOD"  )->asInt();
-	Naming			= Parameters("NAMING"  )->asInt();
-	Quantile		= Parameters("QUANTILE")->asInt();
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
+	if( pGrids->Get_Count() < 1 )
+	{
+		Error_Set(_TL("no grids in selection"));
+
+		return( false );
+	}
+
+	if( !Get_System()->Get_Extent().Intersects(pPolygons->Get_Extent()) )
+	{
+		Error_Set(_TL("no spatial intersection between grid(s) and polygon layer"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int	Quantile	= Parameters("QUANTILE")->asInt();
 	int	nFields		= 0;
+
 	int	fCOUNT		= Parameters("COUNT"   )->asBool() ? nFields++ : -1;
 	int	fMIN		= Parameters("MIN"     )->asBool() ? nFields++ : -1;
 	int	fMAX		= Parameters("MAX"     )->asBool() ? nFields++ : -1;
@@ -189,121 +199,102 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 		return( false );
 	}
 
-	if( pShapes->Get_Count() <= 0 )
+	//-----------------------------------------------------
+	int	Naming	= Parameters("NAMING")->asInt();
+	int	Method	= Parameters("METHOD")->asInt();
+
+	if( Method == 0 && !Get_Index(pPolygons) )
 	{
-		Error_Set(_TL("no polygons in polygon layer"));
+		Error_Set(_TL("no grids in selection"));
 
-		return( false );
-	}
-
-	if( !Get_System()->Get_Extent().Intersects(pShapes->Get_Extent()) )
-	{
-		Error_Set(_TL("no spatial intersection between grid(s) and polygon layer"));
-
-		return( false );
-	}
-
-	if( Method == 0 && !Get_ShapeIDs(pShapes) )
-	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("RESULT")->asShapes() != NULL && Parameters("RESULT")->asShapes() != pShapes )
+	if( Parameters("RESULT")->asShapes() != NULL && Parameters("RESULT")->asShapes() != pPolygons )
 	{
-		pShapes		= Parameters("RESULT")->asShapes();
-		pShapes		->Assign(Parameters("POLYGONS")->asShapes());
+		pPolygons	= Parameters("RESULT")->asShapes();
+		pPolygons	->Assign(Parameters("POLYGONS")->asShapes());
+		pPolygons	->Set_Name(CSG_String::Format("%s [%s]", Parameters("POLYGONS")->asShapes()->Get_Name(), _TL("Grid Statistics")));
 	}
+
+	CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pPolygons->Get_Count()];
 
 	//-----------------------------------------------------
 	for(int iGrid=0; iGrid<pGrids->Get_Count() && Process_Get_Okay(); iGrid++)
 	{
-		CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pShapes->Get_Count()];
-		CSG_Table				*Values		= fQUANTILE >= 0 ? new CSG_Table[pShapes->Get_Count()] : NULL;
-		CSG_Grid				*pGrid		= pGrids->asGrid(iGrid);
+		Process_Set_Text(CSG_String::Format("[%d/%d] %s", 1 + iGrid, pGrids->Get_Count(), pGrids->asGrid(iGrid)->Get_Name()));
 
-		Process_Set_Text(CSG_String::Format(SG_T("[%d/%d] %s"), 1 + iGrid, pGrids->Get_Count(), pGrid->Get_Name()));
-
-		if( (Method == 0 && Get_Statistics    (pGrid, pShapes, Statistics, Values))
-		||  (Method == 1 && Get_Statistics_Alt(pGrid, pShapes, Statistics, Values)) )
+		if( (Method == 0 && Get_Statistics    (pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0))
+		||  (Method == 1 && Get_Statistics_Alt(pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0)) )
 		{
-			nFields		= pShapes->Get_Field_Count();
+			nFields	= pPolygons->Get_Field_Count();
 
-			if( fCOUNT    >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("CELLS")   ), SG_DATATYPE_Int   );
-			if( fMIN      >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("MIN")     ), SG_DATATYPE_Double);
-			if( fMAX      >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("MAX")     ), SG_DATATYPE_Double);
-			if( fRANGE    >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("RANGE")   ), SG_DATATYPE_Double);
-			if( fSUM      >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("SUM")     ), SG_DATATYPE_Double);
-			if( fMEAN     >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("MEAN")    ), SG_DATATYPE_Double);
-			if( fVAR      >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("VARIANCE")), SG_DATATYPE_Double);
-			if( fSTDDEV   >= 0 )	pShapes->Add_Field(GET_FIELD_NAME(_TL("STDDEV")  ), SG_DATATYPE_Double);
+			if( fCOUNT    >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("CELLS"   )), SG_DATATYPE_Int   );
+			if( fMIN      >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("MIN"     )), SG_DATATYPE_Double);
+			if( fMAX      >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("MAX"     )), SG_DATATYPE_Double);
+			if( fRANGE    >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("RANGE"   )), SG_DATATYPE_Double);
+			if( fSUM      >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("SUM"     )), SG_DATATYPE_Double);
+			if( fMEAN     >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("MEAN"    )), SG_DATATYPE_Double);
+			if( fVAR      >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("VARIANCE")), SG_DATATYPE_Double);
+			if( fSTDDEV   >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("STDDEV"  )), SG_DATATYPE_Double);
 			if( fQUANTILE >= 0 )
 			{
 				for(int iQuantile=Quantile; iQuantile<100; iQuantile+=Quantile)
 				{
-					pShapes->Add_Field(GET_FIELD_NAME(CSG_String::Format(SG_T("Q%02d"), iQuantile).c_str()), SG_DATATYPE_Double);
+					pPolygons->Add_Field(GET_FIELD_NAME(CSG_String::Format("Q%02d", iQuantile).c_str()), SG_DATATYPE_Double);
 				}
 			}
 
 			//---------------------------------------------
-			for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+			for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 			{
-				CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+				CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
 
-				if( Statistics[iShape].Get_Count() == 0 )
+				if( Statistics[i].Get_Count() == 0 )
 				{
-					if( fCOUNT    >= 0 )	pShape->Set_NoData(nFields + fCOUNT);
-					if( fMIN      >= 0 )	pShape->Set_NoData(nFields + fMIN);
-					if( fMAX      >= 0 )	pShape->Set_NoData(nFields + fMAX);
-					if( fRANGE    >= 0 )	pShape->Set_NoData(nFields + fRANGE);
-					if( fSUM      >= 0 )	pShape->Set_NoData(nFields + fSUM);
-					if( fMEAN     >= 0 )	pShape->Set_NoData(nFields + fMEAN);
-					if( fVAR      >= 0 )	pShape->Set_NoData(nFields + fVAR);
-					if( fSTDDEV   >= 0 )	pShape->Set_NoData(nFields + fSTDDEV);
+					if( fCOUNT    >= 0 )	pPolygon->Set_NoData(nFields + fCOUNT );
+					if( fMIN      >= 0 )	pPolygon->Set_NoData(nFields + fMIN   );
+					if( fMAX      >= 0 )	pPolygon->Set_NoData(nFields + fMAX   );
+					if( fRANGE    >= 0 )	pPolygon->Set_NoData(nFields + fRANGE );
+					if( fSUM      >= 0 )	pPolygon->Set_NoData(nFields + fSUM   );
+					if( fMEAN     >= 0 )	pPolygon->Set_NoData(nFields + fMEAN  );
+					if( fVAR      >= 0 )	pPolygon->Set_NoData(nFields + fVAR   );
+					if( fSTDDEV   >= 0 )	pPolygon->Set_NoData(nFields + fSTDDEV);
 					if( fQUANTILE >= 0 )
 					{
 						for(int iQuantile=Quantile, iField=nFields + fQUANTILE; iQuantile<100; iQuantile+=Quantile, iField++)
 						{
-							pShape->Set_NoData(iField);
+							pPolygon->Set_NoData(iField);
 						}
 					}
 				}
 				else
 				{
-					if( fCOUNT    >= 0 )	pShape->Set_Value(nFields + fCOUNT	, Statistics[iShape].Get_Count   ());
-					if( fMIN      >= 0 )	pShape->Set_Value(nFields + fMIN	, Statistics[iShape].Get_Minimum ());
-					if( fMAX      >= 0 )	pShape->Set_Value(nFields + fMAX	, Statistics[iShape].Get_Maximum ());
-					if( fRANGE    >= 0 )	pShape->Set_Value(nFields + fRANGE	, Statistics[iShape].Get_Range   ());
-					if( fSUM      >= 0 )	pShape->Set_Value(nFields + fSUM	, Statistics[iShape].Get_Sum     ());
-					if( fMEAN     >= 0 )	pShape->Set_Value(nFields + fMEAN	, Statistics[iShape].Get_Mean    ());
-					if( fVAR      >= 0 )	pShape->Set_Value(nFields + fVAR	, Statistics[iShape].Get_Variance());
-					if( fSTDDEV   >= 0 )	pShape->Set_Value(nFields + fSTDDEV	, Statistics[iShape].Get_StdDev  ());
+					if( fCOUNT    >= 0 )	pPolygon->Set_Value(nFields + fCOUNT , Statistics[i].Get_Count   ());
+					if( fMIN      >= 0 )	pPolygon->Set_Value(nFields + fMIN   , Statistics[i].Get_Minimum ());
+					if( fMAX      >= 0 )	pPolygon->Set_Value(nFields + fMAX   , Statistics[i].Get_Maximum ());
+					if( fRANGE    >= 0 )	pPolygon->Set_Value(nFields + fRANGE , Statistics[i].Get_Range   ());
+					if( fSUM      >= 0 )	pPolygon->Set_Value(nFields + fSUM   , Statistics[i].Get_Sum     ());
+					if( fMEAN     >= 0 )	pPolygon->Set_Value(nFields + fMEAN  , Statistics[i].Get_Mean    ());
+					if( fVAR      >= 0 )	pPolygon->Set_Value(nFields + fVAR   , Statistics[i].Get_Variance());
+					if( fSTDDEV   >= 0 )	pPolygon->Set_Value(nFields + fSTDDEV, Statistics[i].Get_StdDev  ());
 					if( fQUANTILE >= 0 )
 					{
-						Values[iShape].Set_Index(0, TABLE_INDEX_Ascending);
-
-						double	dQuantile	= Values[iShape].Get_Count() / 100.0;
-
 						for(int iQuantile=Quantile, iField=nFields + fQUANTILE; iQuantile<100; iQuantile+=Quantile, iField++)
 						{
-							pShape->Set_Value(iField, Values[iShape].Get_Record_byIndex((int)(iQuantile * dQuantile))->asDouble(0));
+							pPolygon->Set_Value(iField, Statistics[i].Get_Quantile(iQuantile));
 						}
 					}
 				}
 			}
 		}
-
-		//-------------------------------------------------
-		delete[](Statistics);
-
-		if( Values )
-		{
-			delete[](Values);
-		}
 	}
 
 	//-----------------------------------------------------
-	DataObject_Update(pShapes);
+	delete[](Statistics);
+
+	DataObject_Update(pPolygons);
 
 	return( true );
 }
@@ -316,27 +307,22 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Statistics(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Simple_Statistics *Statistics, CSG_Table *Values)
+bool CGrid_Statistics_AddTo_Polygon::Get_Statistics(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles)
 {
-	int		x, y, iShape;
+	int		i;
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(i=0; i<pPolygons->Get_Count(); i++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		Statistics[i].Create(bQuantiles);
+	}
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !pGrid->is_NoData(x, y) && (iShape = m_ShapeIDs.asInt(x, y)) >= 0 && iShape < pShapes->Get_Count() )
+			if( (i = m_Index.asInt(x, y)) >= 0 && i < pPolygons->Get_Count() )
 			{
-				Statistics[iShape].Add_Value(pGrid->asDouble(x, y));
-
-				if( Values )
-				{
-					if( Values[iShape].Get_Field_Count() == 0 )
-					{
-						Values[iShape].Add_Field("Z", SG_DATATYPE_Double);
-					}
-
-					Values[iShape].Add_Record()->Set_Value(0, pGrid->asDouble(x, y));
-				}
+				Statistics[i]	+= pGrid->asDouble(x, y);
 			}
 		}
 	}
@@ -345,16 +331,18 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Statistics(CSG_Grid *pGrid, CSG_Shapes 
 }
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Statistics_Alt(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Simple_Statistics *Statistics, CSG_Table *Values)
+bool CGrid_Statistics_AddTo_Polygon::Get_Statistics_Alt(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles)
 {
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape_Polygon	*pShape	= (CSG_Shape_Polygon *)pShapes->Get_Shape(iShape);
+		Statistics[i].Create(bQuantiles);
 
-		int	ax	= Get_System()->Get_xWorld_to_Grid(pShapes->Get_Extent().Get_XMin()) - 1;	if( ax < 0 )			ax	= 0;
-		int	bx	= Get_System()->Get_xWorld_to_Grid(pShapes->Get_Extent().Get_XMax()) + 1;	if( bx >= Get_NX() )	bx	= Get_NX() - 1;
-		int	ay	= Get_System()->Get_yWorld_to_Grid(pShapes->Get_Extent().Get_YMin()) - 1;	if( ay < 0 )			ay	= 0;
-		int	by	= Get_System()->Get_yWorld_to_Grid(pShapes->Get_Extent().Get_YMax()) + 1;	if( by >= Get_NY() )	by	= Get_NY() - 1;
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
+
+		int	ax	= Get_System()->Get_xWorld_to_Grid(pPolygons->Get_Extent().Get_XMin()) - 1;	if( ax < 0         )	ax	= 0;
+		int	bx	= Get_System()->Get_xWorld_to_Grid(pPolygons->Get_Extent().Get_XMax()) + 1;	if( bx >= Get_NX() )	bx	= Get_NX() - 1;
+		int	ay	= Get_System()->Get_yWorld_to_Grid(pPolygons->Get_Extent().Get_YMin()) - 1;	if( ay < 0         )	ay	= 0;
+		int	by	= Get_System()->Get_yWorld_to_Grid(pPolygons->Get_Extent().Get_YMax()) + 1;	if( by >= Get_NY() )	by	= Get_NY() - 1;
 
 		double	py	= Get_System()->Get_yGrid_to_World(ay);
 
@@ -364,19 +352,9 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Statistics_Alt(CSG_Grid *pGrid, CSG_Sha
 
 			for(int x=ax; x<=bx; x++, px+=Get_Cellsize())
 			{
-				if( !pGrid->is_NoData(x, y) && pShape->Contains(px, py) )
+				if( !pGrid->is_NoData(x, y) && pPolygon->Contains(px, py) )
 				{
-					Statistics[iShape].Add_Value(pGrid->asDouble(x, y));
-
-					if( Values )
-					{
-						if( Values[iShape].Get_Field_Count() == 0 )
-						{
-							Values[iShape].Add_Field("Z", SG_DATATYPE_Double);
-						}
-
-						Values[iShape].Add_Record()->Set_Value(0, pGrid->asDouble(x, y));
-					}
+					Statistics[i]	+= pGrid->asDouble(x, y);
 				}
 			}
 		}
@@ -393,26 +371,26 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Statistics_Alt(CSG_Grid *pGrid, CSG_Sha
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes)
+bool CGrid_Statistics_AddTo_Polygon::Get_Index(CSG_Shapes *pPolygons)
 {
 	bool		bFill, *bCrossing;
 	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
 	double		yPos;
 	TSG_Point	pLeft, pRight, pa, pb, p;
 	TSG_Rect	Extent;
-	CSG_Shape	*pShape;
+	CSG_Shape	*pPolygon;
 
 	//-----------------------------------------------------
-	m_ShapeIDs.Create(*Get_System(), pShapes->Get_Count() < 32767 ? SG_DATATYPE_Short : SG_DATATYPE_Int);
-	m_ShapeIDs.Assign(-1.0);
+	m_Index.Create(*Get_System(), pPolygons->Get_Count() < 32767 ? SG_DATATYPE_Short : SG_DATATYPE_Int);
+	m_Index.Assign(-1.0);
 
 	bCrossing	= (bool *)SG_Malloc(Get_NX() * sizeof(bool));
 
 	//-----------------------------------------------------
-	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
 	{
-		pShape		= pShapes->Get_Shape(iShape);
-		Extent		= pShape->Get_Extent().m_rect;
+		pPolygon		= pPolygons->Get_Shape(iShape);
+		Extent		= pPolygon->Get_Extent().m_rect;
 
 		xStart		= Get_System()->Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
 		xStop		= Get_System()->Get_xWorld_to_Grid(Extent.xMax) + 1;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
@@ -430,14 +408,14 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes)
 				pLeft.y	= pRight.y	= yPos;
 
 				//-----------------------------------------
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 				{
-					pb		= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
+					pb		= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
 
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 					{
 						pa	= pb;
-						pb	= pShape->Get_Point(iPoint, iPart);
+						pb	= pPolygon->Get_Point(iPoint, iPart);
 
 						if(	(	(pa.y <= yPos && yPos < pb.y)
 							||	(pa.y > yPos && yPos >= pb.y)	)	)
@@ -470,7 +448,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes)
 
 					if( bFill )
 					{
-						m_ShapeIDs.Set_Value(x, y, iShape);
+						m_Index.Set_Value(x, y, iShape);
 					}
 				}
 			}

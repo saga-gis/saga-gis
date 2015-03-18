@@ -53,6 +53,9 @@
     <ClCompile Include="grid_rectangle_clip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grid_Statistics_For_Points.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_rectangle_clip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid_Statistics_For_Points.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

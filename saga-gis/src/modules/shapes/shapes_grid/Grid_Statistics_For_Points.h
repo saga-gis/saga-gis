@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: Grid_Statistics_For_Points.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//              Grid_Statistics_For_Points.h             //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,102 +54,60 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Grid_Statistics_For_Points_H
+#define HEADER_INCLUDED__Grid_Statistics_For_Points_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid Tools") );
-
-	case MLB_INFO_Category:
-		return( _TL("Shapes") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad, V.Wichmann (c) 2002-13") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools related to gridded and vector data (conversions, combinations, etc.).") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Grid") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Grid_Values_AddTo_Points.h"
-#include "Grid_Values_AddTo_Shapes.h"
-#include "Grid_Statistics_AddTo_Polygon.h"
-#include "Grid_Statistics_For_Points.h"
-#include "Grid_To_Points.h"
-#include "Grid_To_Points_Random.h"
-#include "Grid_To_Contour.h"
-#include "Grid_Classes_To_Shapes.h"
-#include "Grid_Polygon_Clip.h"
-#include "Grid_To_Gradient.h"
-#include "grid_local_extremes_to_points.h"
-#include "grid_extent.h"
-#include "grid_rectangle_clip.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CGrid_Values_AddTo_Points );
-	case  1:	return( new CGrid_Values_AddTo_Shapes );
-	case  2:	return( new CGrid_Statistics_AddTo_Polygon );
-	case  8:	return( new CGrid_Statistics_For_Points );
-	case  3:	return( new CGrid_To_Points );
-	case  4:	return( new CGrid_To_Points_Random );
-	case  5:	return( new CGrid_To_Contour );
-	case  6:	return( new CGrid_Classes_To_Shapes );
-	case  7:	return( new CGrid_Polygon_Clip );
-
-	case  9:	return( new CGrid_Local_Extremes_to_Points );
-	case 10:	return( new CGrid_Extent );
-	case 11:	return( new CGrid_Rectangle_Clip );
-
-	case 15:	return( new CGrid_To_Gradient(0) );
-	case 16:	return( new CGrid_To_Gradient(1) );
-	case 17:	return( new CGrid_To_Gradient(2) );
-
-	case 20:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CGrid_Statistics_For_Points : public CSG_Module_Grid  
+{
+public:
+	CGrid_Statistics_For_Points(void);
 
-	MLB_INTERFACE
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Grid Values") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+
+private:
+
+	CSG_Grid_Cell_Addressor	m_Kernel;
+
+
+	bool					Get_Statistics		(const TSG_Point &Point, CSG_Grid *pGrid, CSG_Simple_Statistics &Statistics);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Grid_Statistics_For_Points_H

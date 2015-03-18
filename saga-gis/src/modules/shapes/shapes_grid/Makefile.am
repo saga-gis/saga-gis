@@ -19,6 +19,7 @@ grid_local_extremes_to_points.cpp\
 Grid_Polygon_Clip.cpp\
 grid_rectangle_clip.cpp\
 Grid_Statistics_AddTo_Polygon.cpp\
+Grid_Statistics_For_Points.cpp\
 Grid_To_Contour.cpp\
 Grid_To_Gradient.cpp\
 Grid_To_Points.cpp\
@@ -32,6 +33,7 @@ grid_local_extremes_to_points.h\
 Grid_Polygon_Clip.h\
 grid_rectangle_clip.h\
 Grid_Statistics_AddTo_Polygon.h\
+Grid_Statistics_For_Points.h\
 Grid_To_Contour.h\
 Grid_To_Gradient.h\
 Grid_To_Points.h\

@@ -97,13 +97,13 @@ protected:
 
 private:
 
-	CSG_Grid				m_ShapeIDs;
+	CSG_Grid				m_Index;
 
 
-	bool					Get_Statistics		(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Simple_Statistics *Statistics, CSG_Table *Values);
-	bool					Get_Statistics_Alt	(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Simple_Statistics *Statistics, CSG_Table *Values);
+	bool					Get_Statistics		(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles);
+	bool					Get_Statistics_Alt	(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles);
 
-	bool					Get_ShapeIDs		(CSG_Shapes *pShapes);
+	bool					Get_Index			(CSG_Shapes *pPolygons);
 
 };
 
