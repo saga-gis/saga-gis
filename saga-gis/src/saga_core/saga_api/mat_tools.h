@@ -150,6 +150,11 @@ SAGA_API_DLL_EXPORT int			SG_Get_Digit_Count		(int Number);
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT	CSG_String	SG_Get_Double_asString	(double Number, int Width = -1, int Precision = -1, bool bScientific = false);
 
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT	int			SG_Compare_int			(const void *a, const void *b);
+SAGA_API_DLL_EXPORT	int			SG_Compare_Double		(const void *a, const void *b);
+SAGA_API_DLL_EXPORT	int			SG_Compare_PCChar		(const void *a, const void *b);
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -238,7 +243,8 @@ public:
 	double &					operator []			(int x)			{	return( Get_Data()[x] );	}
 	operator const double *							(void)	const	{	return( Get_Data() );		}
 
-	CSG_String					asString			(int Width = -1, int Precision = -1, bool bScientific = false)	const;
+	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, SG_Char Separator = SG_T(' '))	const;
+	bool						from_String			(const CSG_String &String);
 
 	bool						is_Equal			(const CSG_Vector &Vector)	const;
 
@@ -271,6 +277,8 @@ public:
 
 	bool						Set_Zero			(void);
 	bool						Set_Unity			(void);
+
+	bool						Sort				(void);
 
 	double						Get_Length			(void)						const;
 	double						Get_Angle			(const CSG_Vector &Vector)	const;
@@ -350,7 +358,8 @@ public:
 	double						operator ()			(int y, int x)	const	{	return( m_z[y][x] );	}
 	double *					operator []			(int y)			const	{	return( m_z[y] );		}
 
-	CSG_String					asString			(int Width = -1, int Precision = -1, bool bScientific = false)	const;
+	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, SG_Char Separator = SG_T(' '))	const;
+	bool						from_String			(const CSG_String &String);
 
 	bool						is_Square			(void)	const	{	return( m_nx > 0 && m_nx == m_ny );	}
 	bool						is_Equal			(const CSG_Matrix &Matrix)	const;
@@ -406,7 +415,7 @@ private:
 SAGA_API_DLL_EXPORT CSG_Matrix	operator *			(double Scalar, const CSG_Matrix &Matrix);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool		SG_Matrix_LU_Decomposition	(int n,       int *Permutation,       double **Matrix                , bool bSilent = true);
+SAGA_API_DLL_EXPORT bool		SG_Matrix_LU_Decomposition	(int n,       int *Permutation,       double **Matrix                , bool bSilent = true, int *nRowChanges = NULL);
 SAGA_API_DLL_EXPORT bool		SG_Matrix_LU_Solve			(int n, const int *Permutation, const double **Matrix, double *Vector, bool bSilent = true);
 
 SAGA_API_DLL_EXPORT bool		SG_Matrix_Solve				(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent = true);
@@ -561,6 +570,9 @@ public:
 	double						Get_Variance		(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Variance	);	}
 	double						Get_StdDev			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_StdDev	);	}
 
+	double						Get_Median			(void)		{	return( Get_Quantile(50.0) );	}
+	double						Get_Quantile		(double Quantile);
+
 	void						Add					(const CSG_Simple_Statistics &Statistics);
 
 	void						Add_Value			(double Value, double Weight = 1.0);
@@ -576,7 +588,7 @@ public:
 
 protected:
 
-	bool						m_bEvaluated;
+	bool						m_bEvaluated, m_bSorted;
 
 	sLong						m_nValues;
 
@@ -759,35 +771,39 @@ public:
 	void						Create						(int nFeatures);
 	void						Destroy						(void);
 
-	int							Get_Feature_Count			(void)			{	return( m_nFeatures );			}
+	bool						Load						(const CSG_String &File);
+	bool						Save						(const CSG_String &File, const CSG_String &Feature_Info = SG_T(""));
 
-	int							Get_Element_Count			(int iClass)	{	return( m_nElements[iClass] );	}
-	void						Del_Element_Count			(void);
+	bool						Train_Clr_Samples			(void);
+	bool						Train_Add_Sample			(const CSG_String &Class_ID, const CSG_Vector &Features);
+	bool						Train						(bool bClr_Samples = false);
 
-	int							Get_Class_Count				(void)			{	return( m_IDs.Get_Count() );	}
-	const CSG_String &			Get_Class_ID				(int iClass)	{	return( m_IDs[iClass] );		}
+	CSG_String					Print						(void);
+
+	//-----------------------------------------------------
+	int							Get_Feature_Count			(void)			{	return( m_nFeatures );				}
+
+	int							Get_Class_Count				(void)			{	return( m_nClasses );				}
+	const CSG_String &			Get_Class_ID				(int iClass)	{	return( m_pClasses[iClass]->m_ID );	}
 
 	int							Get_Class					(const CSG_String &Class_ID);
-
-	CSG_Simple_Statistics *		Get_Statistics				(const CSG_String &Class_ID);
-	CSG_Simple_Statistics *		Get_Statistics				(int iClass)	{	return( m_Statistics[iClass] );	}
-	CSG_Simple_Statistics *		operator []					(int iClass)	{	return( m_Statistics[iClass] );	}
-
 	bool						Get_Class					(const CSG_Vector &Features, int &Class, double &Quality, int Method);
 
-	void						Set_Distance_Threshold		(double Value)	{	m_Distance_Threshold	= Value;	}
-	double						Get_Distance_Threshold		(void)			{	return( m_Distance_Threshold );		}
+	//-----------------------------------------------------
+	void						Set_Threshold_Distance		(double Value);
+	double						Get_Threshold_Distance		(void);
 
-	void						Set_Probability_Threshold	(double Value)	{	m_Probability_Threshold	= Value;	}
-	double						Get_Probability_Threshold	(void)			{	return( m_Probability_Threshold );	}
-	void						Set_Probability_Relative	(bool   Value)	{	m_Probability_Relative	= Value;	}
-	bool						Get_Probability_Relative	(void)			{	return( m_Probability_Relative );	}
+	void						Set_Threshold_Angle			(double Value);
+	double						Get_Threshold_Angle			(void);
 
-	void						Set_Angle_Threshold			(double Value)	{	m_Angle_Threshold		= Value;	}
-	double						Get_Angle_Threshold			(void)			{	return( m_Angle_Threshold );		}
+	void						Set_Threshold_Probability	(double Value);
+	double						Get_Threshold_Probability	(void);
 
-	void						Set_WTA						(int Method, bool bOn)	{	if( Method >= 0 && Method < SG_CLASSIFY_SUPERVISED_WTA ) m_bWTA[Method]	= bOn;		}
-	bool						Get_WTA						(int Method)			{	return( Method >= 0 && Method < SG_CLASSIFY_SUPERVISED_WTA ? m_bWTA[Method] : false );	}
+	void						Set_Probability_Relative	(bool   Value);
+	bool						Get_Probability_Relative	(void);
+
+	void						Set_WTA						(int Method, bool bOn);
+	bool						Get_WTA						(int Method);
 
 	static CSG_String			Get_Name_of_Method			(int Method);
 	static CSG_String			Get_Name_of_Quality			(int Method);
@@ -795,22 +811,36 @@ public:
 
 private:
 
+	//-----------------------------------------------------
+	class CClass
+	{
+	public:
+		CClass(const CSG_String &ID) : m_ID(ID)	{}
+
+		CSG_String				m_ID;
+
+		double					m_Cov_Det, m_BE_m;
+
+		CSG_Vector				m_Mean, m_Min, m_Max, m_BE_s;
+
+		CSG_Matrix				m_Cov, m_Cov_Inv, m_Samples;
+
+
+		bool					Update						(void);
+
+	};
+
+	//-----------------------------------------------------
 	bool						m_Probability_Relative, m_bWTA[SG_CLASSIFY_SUPERVISED_WTA];
 
-	int							m_nFeatures, *m_nElements;
+	int							m_nFeatures, m_nClasses;
 
-	double						m_Distance_Threshold, m_Probability_Threshold, m_Angle_Threshold;
+	double						m_Threshold_Distance, m_Threshold_Probability, m_Threshold_Angle;
 
-	CSG_Strings					m_IDs;
+	CSG_String					m_Info;
 
-	CSG_Simple_Statistics		**m_Statistics;
+	CClass						**m_pClasses;
 
-	CSG_Vector					m_ML_s, m_SAM_l, m_BE_m;
-
-	CSG_Matrix					m_ML_a, m_ML_b, m_BE_s;
-
-
-	void						_Update						(void);
 
 	void						_Get_Binary_Encoding		(const CSG_Vector &Features, int &Class, double &Quality);
 	void						_Get_Parallel_Epiped		(const CSG_Vector &Features, int &Class, double &Quality);

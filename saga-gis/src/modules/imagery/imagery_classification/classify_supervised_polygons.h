@@ -81,28 +81,34 @@
 class CPolygon_Classify_Supervised : public CSG_Module
 {
 public:
-	CPolygon_Classify_Supervised(void);
+	CPolygon_Classify_Supervised(bool bShapes);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( m_bShapes ? _TL("A:Shapes|Table") : _TL("A:Table|Tools") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool						m_bNormalise;
+	bool						m_bShapes, m_bNormalise;
 
-	int							m_Class_ID, *m_Features, m_nFeatures;
+	int							*m_Features, m_nFeatures;
 
-	CSG_Classifier_Supervised	m_Classifier;
-
-	CSG_Shapes					*m_pPolygons, *m_pClasses;
+	CSG_Table					*m_pTable;
 
 
-	bool						Finalize				(void);
+	bool						Get_Features			(void);
+	bool						Get_Features			(int iRecord, CSG_Vector &Features);
+
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, int Training);
+
+	bool						Set_Classification		(CSG_Classifier_Supervised &Classifier);
 
 };
 

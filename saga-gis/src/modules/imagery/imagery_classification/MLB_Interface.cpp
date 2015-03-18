@@ -115,10 +115,12 @@ CSG_Module *		Create_Module(int i)
 	case  1:	return( new CGrid_Cluster_Analysis );
 	case  2:	return( new CChange_Detection );
 	case  3:	return( new CDecision_Tree );
-	case  4:	return( new CPolygon_Classify_Supervised );
-	}
+	case  4:	return( new CPolygon_Classify_Supervised( true) );
+	case  5:	return( new CPolygon_Classify_Supervised(false) );
 
-	return( NULL );
+	case  6:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 

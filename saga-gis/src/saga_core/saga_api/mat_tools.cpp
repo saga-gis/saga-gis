@@ -109,7 +109,7 @@ double			SG_Get_Rounded_To_SignificantFigures(double Value, int Decimals)
 		return( (int)(0.5 + Value) );
 	}
 
-	Decimals	= -(ceil(log10(fabs(Value))) - Decimals);
+	Decimals	= (int)(-(ceil(log10(fabs(Value))) - Decimals));
 
 	if( Decimals > 0 )
 	{
@@ -172,6 +172,43 @@ CSG_String		SG_Get_Double_asString(double Number, int Width, int Precision, bool
 
 		return( CSG_String::Format(SG_T("%f"), Number) );
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int SG_Compare_Int(const void *a, const void *b)
+{
+	if( *((int *)a) < *((int *)b) )
+		return( -1  );
+
+	if( *((int *)a) > *((int *)b) )
+		return(  1  );
+
+	return(  0  );
+}
+
+//---------------------------------------------------------
+int SG_Compare_Double(const void *a, const void *b)
+{
+	if( *((double *)a) < *((double *)b) )
+		return( -1  );
+
+	if( *((double *)a) > *((double *)b) )
+		return(  1  );
+
+	return(  0  );
+}
+
+//---------------------------------------------------------
+int SG_Compare_PCChar(const void *a, const void *b)
+{
+	return( strcmp((const char *)a, (const char *)b) );
 }
 
 
@@ -298,6 +335,7 @@ bool CSG_Simple_Statistics::Create(const CSG_Simple_Statistics &Statistics)
 	m_Variance		= Statistics.m_Variance;
 	m_StdDev		= Statistics.m_StdDev;
 
+	m_bSorted		= Statistics.m_bSorted;
 	m_Values		.Create(Statistics.m_Values);
 
 	return( true );
@@ -320,6 +358,7 @@ bool CSG_Simple_Statistics::Create(double Mean, double StdDev, sLong Count)
 	m_Maximum		= m_Mean + 1.5 * m_StdDev;
 	m_Range			= m_Maximum - m_Minimum;
 
+	m_bSorted		= false;
 	m_Values		.Destroy();
 
 	return( true );
@@ -342,6 +381,7 @@ void CSG_Simple_Statistics::Invalidate(void)
 	m_Variance		= 0.0;
 	m_StdDev		= 0.0;
 
+	m_bSorted		= false;
 	m_Values		.Destroy();
 }
 
@@ -361,7 +401,7 @@ void CSG_Simple_Statistics::Add(const CSG_Simple_Statistics &Statistics)
 	}
 
 	//--------------------------------------------------------
-	if( m_Values.Get_Size() == m_nValues && Statistics.m_Values.Get_Size() == Statistics.m_nValues && m_Values.Set_Array(m_nValues + Statistics.m_nValues) )
+	if( m_Values.Get_Size() == m_nValues && Statistics.m_Values.Get_Size() == Statistics.m_nValues && m_Values.Set_Array((size_t)(m_nValues + Statistics.m_nValues)) )
 	{
 		for(sLong i=0, j=m_nValues; i<Statistics.m_nValues; i++, j++)
 		{
@@ -385,6 +425,7 @@ void CSG_Simple_Statistics::Add(const CSG_Simple_Statistics &Statistics)
 		m_Maximum	= Statistics.m_Maximum;
 
 	m_bEvaluated	= false;
+	m_bSorted		= false;
 }
 
 //---------------------------------------------------------
@@ -414,6 +455,8 @@ void CSG_Simple_Statistics::Add_Value(double Value, double Weight)
 
 	if( m_Values.Get_Value_Size() > 0 && m_Values.Inc_Array() )
 	{
+		m_bSorted		= false;
+
 		((double *)m_Values.Get_Array())[m_nValues]	= Value;
 	}
 
@@ -432,6 +475,30 @@ void CSG_Simple_Statistics::_Evaluate(void)
 
 		m_bEvaluated	= true;
 	}
+}
+
+//---------------------------------------------------------
+/**
+  * The quantile is expected to be given as percentage.
+  * A percentage of 50 returns the median. Remark:
+  * Quantile calculation is only possible, if statistics
+  * has been created with the bHoldValues option set to true.
+*/
+double CSG_Simple_Statistics::Get_Quantile(double Quantile)
+{
+	if( m_Values.Get_Size() > 0 )
+	{
+		if( !m_bSorted )
+		{
+			qsort(m_Values.Get_Array(), m_Values.Get_Size(), sizeof(double), SG_Compare_Double);
+
+			m_bSorted	= true;
+		}
+
+		return( Get_Value((sLong)(0.5 + (m_Values.Get_Size() - 1) * Quantile / 100.0)) );
+	}
+
+	return( m_Mean );
 }
 
 
@@ -933,14 +1000,15 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
 //---------------------------------------------------------
 CSG_Classifier_Supervised::CSG_Classifier_Supervised(void)
 {
-	m_Statistics			= NULL;
-	m_nElements				= NULL;
 	m_nFeatures				= 0;
 
-	m_Distance_Threshold	= 0.0;
-	m_Probability_Threshold	= 0.0;
+	m_nClasses				= 0;
+	m_pClasses				= NULL;
+
+	m_Threshold_Distance	= 0.0;
+	m_Threshold_Angle		= 0.0;
+	m_Threshold_Probability	= 0.0;
 	m_Probability_Relative	= false;
-	m_Angle_Threshold		= 0.0;
 
 	for(int i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
@@ -971,40 +1039,331 @@ void CSG_Classifier_Supervised::Create(int nFeatures)
 //---------------------------------------------------------
 void CSG_Classifier_Supervised::Destroy(void)
 {
-	if( Get_Class_Count() > 0 )
+	if( m_nClasses > 0 )
 	{
-		for(int i=0; i<Get_Class_Count(); i++)
+		for(int i=0; i<m_nClasses; i++)
 		{
-			delete[](m_Statistics[i]);
+			delete(m_pClasses[i]);
 		}
 
-		SG_Free(m_Statistics);
-		SG_Free(m_nElements);
-
-		m_Statistics	= NULL;
-		m_nElements		= NULL;
-
-		m_BE_m	.Destroy();
-		m_BE_s	.Destroy();
-		m_SAM_l	.Destroy();
-		m_ML_s	.Destroy();
-		m_ML_a	.Destroy();
-		m_ML_b	.Destroy();
-
-		m_IDs	.Clear();
+		SG_FREE_SAFE(m_pClasses);
 	}
 
 	m_nFeatures	= 0;
+
+	m_Info.Clear();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void   CSG_Classifier_Supervised::Set_Threshold_Distance   (double Value)	{	m_Threshold_Distance	= Value;	}
+double CSG_Classifier_Supervised::Get_Threshold_Distance   (void)			{	return( m_Threshold_Distance );		}
+
+//---------------------------------------------------------
+void   CSG_Classifier_Supervised::Set_Threshold_Angle      (double Value)	{	m_Threshold_Angle		= Value;	}
+double CSG_Classifier_Supervised::Get_Threshold_Angle      (void)			{	return( m_Threshold_Angle );		}
+
+//---------------------------------------------------------
+void   CSG_Classifier_Supervised::Set_Threshold_Probability(double Value)	{	m_Threshold_Probability	= Value;	}
+double CSG_Classifier_Supervised::Get_Threshold_Probability(void)			{	return( m_Threshold_Probability );	}
+
+//---------------------------------------------------------
+void   CSG_Classifier_Supervised::Set_Probability_Relative (bool   Value)	{	m_Probability_Relative	= Value;	}
+bool   CSG_Classifier_Supervised::Get_Probability_Relative (void)			{	return( m_Probability_Relative );	}
+
+//---------------------------------------------------------
+void CSG_Classifier_Supervised::Set_WTA(int Method, bool bOn)
+{
+	if( Method >= 0 && Method < SG_CLASSIFY_SUPERVISED_WTA )
+	{
+		m_bWTA[Method]	= bOn;
+	}
+}
+
+bool CSG_Classifier_Supervised::Get_WTA(int Method)
+{
+	return( Method >= 0 && Method < SG_CLASSIFY_SUPERVISED_WTA ? m_bWTA[Method] : false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include "saga_api.h"
+
+//---------------------------------------------------------
+bool CSG_Classifier_Supervised::Load(const CSG_String &File)
+{
+	int	nFeatures	= m_nFeatures;	Destroy();	m_nFeatures	= nFeatures;
+
+	//-----------------------------------------------------
+	CSG_MetaData	Data;
+
+	if( !Data.Load(File) || !Data.Cmp_Name("supervised_classifier") || SG_Compare_Version(Data.Get_Property("saga-version"), "2.1.4") < 0 )
+	{
+		return( false );
+	}
+
+	if( !Data("classes") || !Data("features") || !Data["features"]("count") || Data["features"]["count"].Get_Content().asInt() != m_nFeatures || m_nFeatures == 0 )
+	{
+		return( false );
+	}
+
+	if( Data["features"]("info") )
+	{
+		m_Info	= Data["features"]["info"].Get_Content();
+	}
+
+	//-----------------------------------------------------
+	CSG_MetaData	&Classes	= *Data.Get_Child("CLASSES");
+
+	for(int i=0; i<Classes.Get_Children_Count(); i++)
+	{
+		if( Classes[i].Cmp_Name("class") && Classes[i].Get_Child("id") )
+		{
+			bool	bAdd	= true;
+
+			CClass	*pClass	= new CClass(Classes[i]["id"].Get_Content());
+
+			if( !pClass->m_Cov .from_String(Classes[i]["cov" ].Get_Content()) || pClass->m_Cov .Get_NX() != m_nFeatures || !pClass->m_Cov.is_Square() )	{	bAdd	= false;	}
+			if( !pClass->m_Mean.from_String(Classes[i]["mean"].Get_Content()) || pClass->m_Mean.Get_N () != m_nFeatures )	{	bAdd	= false;	}
+			if( !pClass->m_Min .from_String(Classes[i]["min" ].Get_Content()) || pClass->m_Min .Get_N () != m_nFeatures )	{	bAdd	= false;	}
+			if( !pClass->m_Max .from_String(Classes[i]["max" ].Get_Content()) || pClass->m_Max .Get_N () != m_nFeatures )	{	bAdd	= false;	}
+			if( !pClass->m_BE_s.from_String(Classes[i]["be_s"].Get_Content()) || pClass->m_BE_s.Get_N () != m_nFeatures )	{	bAdd	= false;	}
+			if( !                           Classes[i]["be_m"].Get_Content().asDouble(pClass->m_BE_m) )	{	bAdd	= false;	}
+
+			//---------------------------------------------
+			if( !bAdd )
+			{
+				delete(pClass);
+			}
+			else
+			{
+				m_pClasses	= (CClass **)SG_Realloc(m_pClasses, (m_nClasses + 1) * sizeof(CClass *));
+				m_pClasses[m_nClasses++]	= pClass;
+
+				pClass->m_Cov_Det	= pClass->m_Cov.Get_Determinant();
+				pClass->m_Cov_Inv	= pClass->m_Cov.Get_Inverse();
+			}
+		}
+	}
+
+	return( m_nClasses > 0 );
 }
 
 //---------------------------------------------------------
-void CSG_Classifier_Supervised::Del_Element_Count(void)
+bool CSG_Classifier_Supervised::Save(const CSG_String &File, const CSG_String &Feature_Info)
 {
-	for(int i=0; i<Get_Class_Count(); i++)
+	if( m_nFeatures < 1 || m_nClasses < 1 || File.is_Empty() )
 	{
-		m_nElements[i]	= 0;
+		return( false );
 	}
+
+	CSG_MetaData	Data;
+
+	Data.Set_Name    ("supervised_classifier");
+	Data.Add_Property("saga-version", SAGA_VERSION);
+
+	CSG_MetaData	&Features	= *Data.Add_Child("features");
+	
+	Features.Add_Child("count", m_nFeatures);
+	Features.Add_Child("info" , Feature_Info);
+
+	CSG_MetaData	&Classes	= *Data.Add_Child("classes");
+	
+	Classes.Add_Property("count", m_nClasses);
+
+	for(int i=0; i<m_nClasses; i++)
+	{
+		CSG_MetaData	&Class	= *Classes.Add_Child("class");
+
+		CClass	*pClass	= m_pClasses[i];
+
+		Class.Add_Child("id"  , pClass->m_ID              );
+		Class.Add_Child("mean", pClass->m_Mean.to_String());
+		Class.Add_Child("min" , pClass->m_Min .to_String());
+		Class.Add_Child("max" , pClass->m_Max .to_String());
+		Class.Add_Child("cov" , pClass->m_Cov .to_String());
+		Class.Add_Child("be_s", pClass->m_BE_s.to_String());
+		Class.Add_Child("be_m", pClass->m_BE_m            );
+	}
+
+	return( Data.Save(File) );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Classifier_Supervised::Print(void)
+{
+	CSG_String	s;
+
+	if( m_nFeatures > 0 && m_nClasses > 0 )
+	{
+		s	+= "\n";
+
+		for(int iClass=0; iClass<m_nClasses; iClass++)
+		{
+			CClass	*pClass	= m_pClasses[iClass];
+
+			s	+= "\n____\n" + pClass->m_ID + "\nFeature\tMean\tMin\tMax\tStdDev";
+
+			for(int i=0; i<m_nFeatures; i++)
+			{
+				s	+= CSG_String::Format("\n%3d.", i + 1);
+				s	+= "\t" + SG_Get_String(pClass->m_Mean[i]);
+				s	+= "\t" + SG_Get_String(pClass->m_Min [i]);
+				s	+= "\t" + SG_Get_String(pClass->m_Max [i]);
+				s	+= "\t" + SG_Get_String(sqrt(pClass->m_Cov[i][i]));
+			}
+
+			s	+= "\n";
+		}
+	}
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Classifier_Supervised::Train_Clr_Samples(void)
+{
+	for(int i=0; i<m_nClasses; i++)
+	{
+		m_pClasses[i]->m_Samples.Destroy();
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Classifier_Supervised::Train_Add_Sample(const CSG_String &Class_ID, const CSG_Vector &Features)
+{
+	if( m_nFeatures > 0 && m_nFeatures == Features.Get_N() )
+	{
+		int	iClass	= Get_Class(Class_ID);
+
+		if( iClass < 0 )
+		{
+			CClass	**pClasses	= (CClass **)SG_Realloc(m_pClasses, (m_nClasses + 1) * sizeof(CClass *));
+
+			if( pClasses )
+			{
+				m_pClasses	= pClasses;
+
+				m_pClasses[iClass = m_nClasses++]	= new CClass(Class_ID);
+			}
+		}
+
+		if( iClass >= 0 )
+		{
+			return( m_pClasses[iClass]->m_Samples.Add_Row(Features) );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Classifier_Supervised::CClass::Update(void)
+{
+	int	iFeature;
+
+	m_Mean.Create(m_Samples.Get_NCols());
+	m_Min .Create(m_Samples.Get_NCols());
+	m_Max .Create(m_Samples.Get_NCols());
+	m_Cov .Create(m_Samples.Get_NCols(), m_Samples.Get_NCols());
+	m_BE_s.Create(m_Samples.Get_NCols());
+	m_BE_m	= 0.0;
+
+	for(iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
+	{
+		CSG_Simple_Statistics	s;
+
+		for(int iSample=0; iSample<m_Samples.Get_NRows(); iSample++)
+		{
+			s	+= m_Samples[iSample][iFeature];
+		}
+
+		m_Mean[iFeature]	= s.Get_Mean   ();
+		m_Min [iFeature]	= s.Get_Minimum();
+		m_Max [iFeature]	= s.Get_Maximum();
+
+		m_BE_m	+= s.Get_Mean();
+	}
+
+	m_BE_m	/= m_Samples.Get_NCols();
+
+	for(iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
+	{
+		for(int jFeature=iFeature; jFeature<m_Samples.Get_NCols(); jFeature++)
+		{
+			double	cov	= 0.0;
+
+			for(int iSample=0; iSample<m_Samples.Get_NRows(); iSample++)
+			{
+				cov	+= (m_Samples[iSample][iFeature] - m_Mean[iFeature]) * (m_Samples[iSample][jFeature] - m_Mean[jFeature]); 
+			}
+
+			if( m_Samples.Get_NRows() > 1 )
+			{
+				cov	/= m_Samples.Get_NRows() - 1;
+			}
+
+			m_Cov[iFeature][jFeature]	= m_Cov[jFeature][iFeature]	= cov;
+		}
+
+		m_BE_s[iFeature]	= m_Mean[iFeature] < m_BE_m ? 0.0 : 1.0;
+	}
+
+	//	m_ML_Scale	= 1.0 / (pow(2.0 * M_PI, m_Samples.Get_NCols() / 2.0) * sqrt(fabs(m_Cov.Get_Determinant())));
+	m_Cov_Det	= m_Cov.Get_Determinant();
+	m_Cov_Inv	= m_Cov.Get_Inverse();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Classifier_Supervised::Train(bool bClear_Samples)
+{
+	if( m_nClasses < 1 )
+	{
+		return( false );
+	}
+
+	for(int iClass=0; iClass<m_nClasses; iClass++)
+	{
+		if( !m_pClasses[iClass]->Update() )
+		{
+			return( false );
+		}
+	}
+
+	if( bClear_Samples )
+	{
+		Train_Clr_Samples();
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CSG_Classifier_Supervised::Get_Class(const CSG_String &Class_ID)
@@ -1024,83 +1383,29 @@ int CSG_Classifier_Supervised::Get_Class(const CSG_String &Class_ID)
 }
 
 //---------------------------------------------------------
-CSG_Simple_Statistics * CSG_Classifier_Supervised::Get_Statistics(const CSG_String &Class_ID)
+bool CSG_Classifier_Supervised::Get_Class(const CSG_Vector &Features, int &Class, double &Quality, int Method)
 {
-	if( m_nFeatures > 0 )
+	Class	= -1;
+	Quality	= 0.0;
+
+	if( Get_Feature_Count() == Features.Get_N() )
 	{
-		int		iClass	= Get_Class(Class_ID);
-
-		if( iClass < 0 )
+		switch( Method )
 		{
-			iClass					 = Get_Class_Count();
-
-			m_IDs					+= Class_ID;
-
-			m_nElements				 = (int *)SG_Realloc(m_nElements, m_IDs.Get_Count() * sizeof(int));
-			m_nElements[iClass]		 = 0;
-
-			m_Statistics			 = (CSG_Simple_Statistics **)SG_Realloc(m_Statistics, m_IDs.Get_Count() * sizeof(CSG_Simple_Statistics *));
-			m_Statistics[iClass]	 = new CSG_Simple_Statistics[m_nFeatures];
+		case SG_CLASSIFY_SUPERVISED_BinaryEncoding   :	_Get_Binary_Encoding       (Features, Class, Quality);	break;
+		case SG_CLASSIFY_SUPERVISED_ParallelEpiped   :	_Get_Parallel_Epiped       (Features, Class, Quality);	break;
+		case SG_CLASSIFY_SUPERVISED_MinimumDistance  :	_Get_Minimum_Distance      (Features, Class, Quality);	break;
+		case SG_CLASSIFY_SUPERVISED_Mahalonobis      :	_Get_Mahalanobis_Distance  (Features, Class, Quality);	break;
+		case SG_CLASSIFY_SUPERVISED_MaximumLikelihood:	_Get_Maximum_Likelihood    (Features, Class, Quality);	break;
+		case SG_CLASSIFY_SUPERVISED_SAM              :	_Get_Spectral_Angle_Mapping(Features, Class, Quality);	break;
+		case SG_CLASSIFY_SUPERVISED_SID              :	_Get_Spectral_Divergence   (Features, Class, Quality);	break;
+		case SG_CLASSIFY_SUPERVISED_WTA              :	_Get_Winner_Takes_All      (Features, Class, Quality);	break;
 		}
 
-		return( m_Statistics[iClass] );
+		return( Class >= 0 );
 	}
 
-	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Classifier_Supervised::_Update(void)
-{
-	if( m_SAM_l.Get_N() != Get_Class_Count() )
-	{
-		int		iClass, iFeature;
-
-		m_BE_s	.Create(Get_Feature_Count(), Get_Class_Count());
-		m_BE_m	.Create(Get_Class_Count());
-		m_SAM_l	.Create(Get_Class_Count());
-		m_ML_s	.Create(Get_Class_Count());
-		m_ML_a	.Create(Get_Feature_Count(), Get_Class_Count());
-		m_ML_b	.Create(Get_Feature_Count(), Get_Class_Count());
-
-		for(iClass=0; iClass<Get_Class_Count(); iClass++)
-		{
-			CSG_Simple_Statistics	*Statistic	= m_Statistics[iClass];
-
-			double	m	= 0.0;
-			double	l	= 0.0;
-			double	s	= 1.0;
-
-			for(iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
-			{
-				m	+= Statistic[iFeature].Get_Mean();
-				l	+= SG_Get_Square(Statistic[iFeature].Get_Mean());
-				s	*= Statistic[iFeature].Get_Variance();
-
-				m_ML_a[iClass][iFeature]	=  1.0 / sqrt(Statistic[iFeature].Get_Variance() * 2.0 * M_PI);
-				m_ML_b[iClass][iFeature]	= -1.0 /     (Statistic[iFeature].Get_Variance() * 2.0);
-			}
-
-			m_BE_m  [iClass]	= m / Get_Feature_Count();
-			m_SAM_l	[iClass]	= sqrt(l);
-			m_ML_s	[iClass]	= 1.0 / (pow(2.0 * M_PI, Get_Feature_Count() / 2.0) * sqrt(s));
-		}
-
-		for(iClass=0; iClass<Get_Class_Count(); iClass++)
-		{
-			CSG_Simple_Statistics	*Statistic	= m_Statistics[iClass];
-
-			for(iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
-			{
-				m_BE_s[iClass][iFeature]	= Statistic[iFeature].Get_Mean() < m_BE_m[iClass] ? 0.0 : 1.0;
-			}
-		}
-	}
+	return( false );
 }
 
 
@@ -1113,15 +1418,15 @@ CSG_String CSG_Classifier_Supervised::Get_Name_of_Method(int Method)
 {
 	switch( Method )
 	{
-	case SG_CLASSIFY_SUPERVISED_BinaryEncoding:		return( _TL("Binary Encoding") );
-	case SG_CLASSIFY_SUPERVISED_ParallelEpiped:		return( _TL("Parallelepiped") );
-	case SG_CLASSIFY_SUPERVISED_MinimumDistance:	return( _TL("Minimum Distance") );
-	case SG_CLASSIFY_SUPERVISED_Mahalonobis:		return( _TL("Mahalanobis Distance") );
+	case SG_CLASSIFY_SUPERVISED_BinaryEncoding   :	return( _TL("Binary Encoding") );
+	case SG_CLASSIFY_SUPERVISED_ParallelEpiped   :	return( _TL("Parallelepiped") );
+	case SG_CLASSIFY_SUPERVISED_MinimumDistance  :	return( _TL("Minimum Distance") );
+	case SG_CLASSIFY_SUPERVISED_Mahalonobis      :	return( _TL("Mahalanobis Distance") );
 	case SG_CLASSIFY_SUPERVISED_MaximumLikelihood:	return( _TL("Maximum Likelihood") );
-	case SG_CLASSIFY_SUPERVISED_SAM:				return( _TL("Spectral Angle Mapping") );
-	case SG_CLASSIFY_SUPERVISED_SID:				return( _TL("Spectral Information Divergence") );
-	case SG_CLASSIFY_SUPERVISED_SVM:				return( _TL("Support Vector Machine") );
-	case SG_CLASSIFY_SUPERVISED_WTA:				return( _TL("Winner Takes All") );
+	case SG_CLASSIFY_SUPERVISED_SAM              :	return( _TL("Spectral Angle Mapping") );
+	case SG_CLASSIFY_SUPERVISED_SID              :	return( _TL("Spectral Information Divergence") );
+	case SG_CLASSIFY_SUPERVISED_SVM              :	return( _TL("Support Vector Machine") );
+	case SG_CLASSIFY_SUPERVISED_WTA              :	return( _TL("Winner Takes All") );
 	}
 
 	return( SG_T("") );
@@ -1132,51 +1437,18 @@ CSG_String CSG_Classifier_Supervised::Get_Name_of_Quality(int Method)
 {
 	switch( Method )
 	{
-	case SG_CLASSIFY_SUPERVISED_BinaryEncoding:		return( _TL("Difference") );
-	case SG_CLASSIFY_SUPERVISED_ParallelEpiped:		return( _TL("Memberships") );
-	case SG_CLASSIFY_SUPERVISED_MinimumDistance:	return( _TL("Distance") );
-	case SG_CLASSIFY_SUPERVISED_Mahalonobis:		return( _TL("Distance") );
+	case SG_CLASSIFY_SUPERVISED_BinaryEncoding   :	return( _TL("Difference") );
+	case SG_CLASSIFY_SUPERVISED_ParallelEpiped   :	return( _TL("Memberships") );
+	case SG_CLASSIFY_SUPERVISED_MinimumDistance  :	return( _TL("Distance") );
+	case SG_CLASSIFY_SUPERVISED_Mahalonobis      :	return( _TL("Distance") );
 	case SG_CLASSIFY_SUPERVISED_MaximumLikelihood:	return( _TL("Proximity") );
-	case SG_CLASSIFY_SUPERVISED_SAM:				return( _TL("Angle") );
-	case SG_CLASSIFY_SUPERVISED_SID:				return( _TL("Divergence") );
-	case SG_CLASSIFY_SUPERVISED_SVM:				return( _TL("") );
-	case SG_CLASSIFY_SUPERVISED_WTA:				return( _TL("Votes") );
+	case SG_CLASSIFY_SUPERVISED_SAM              :	return( _TL("Angle") );
+	case SG_CLASSIFY_SUPERVISED_SID              :	return( _TL("Divergence") );
+	case SG_CLASSIFY_SUPERVISED_SVM              :	return( _TL("") );
+	case SG_CLASSIFY_SUPERVISED_WTA              :	return( _TL("Votes") );
 	}
 
 	return( SG_T("") );
-}
-
-//---------------------------------------------------------
-bool CSG_Classifier_Supervised::Get_Class(const CSG_Vector &Features, int &Class, double &Quality, int Method)
-{
-	Class	= -1;
-	Quality	= 0.0;
-
-	if( Get_Feature_Count() == Features.Get_N() )
-	{
-		_Update();
-
-		switch( Method )
-		{
-		case SG_CLASSIFY_SUPERVISED_BinaryEncoding:		_Get_Binary_Encoding       (Features, Class, Quality);	break;
-		case SG_CLASSIFY_SUPERVISED_ParallelEpiped:		_Get_Parallel_Epiped       (Features, Class, Quality);	break;
-		case SG_CLASSIFY_SUPERVISED_MinimumDistance:	_Get_Minimum_Distance      (Features, Class, Quality);	break;
-		case SG_CLASSIFY_SUPERVISED_Mahalonobis:		_Get_Mahalanobis_Distance  (Features, Class, Quality);	break;
-		case SG_CLASSIFY_SUPERVISED_MaximumLikelihood:	_Get_Maximum_Likelihood    (Features, Class, Quality);	break;
-		case SG_CLASSIFY_SUPERVISED_SAM:				_Get_Spectral_Angle_Mapping(Features, Class, Quality);	break;
-		case SG_CLASSIFY_SUPERVISED_SID:				_Get_Spectral_Divergence   (Features, Class, Quality);	break;
-		case SG_CLASSIFY_SUPERVISED_WTA:				_Get_Winner_Takes_All      (Features, Class, Quality);	break;
-		}
-
-		if( Class >= 0 )
-		{
-			m_nElements[Class]++;
-
-			return( true );
-		}
-	}
-
-	return( false );
 }
 
 
@@ -1189,11 +1461,13 @@ void CSG_Classifier_Supervised::_Get_Binary_Encoding(const CSG_Vector &Features,
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
+		CClass	*pClass	= m_pClasses[iClass];
+
 		int		d	= 0;
 
 		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
 		{
-			if(	(Features(iFeature) < m_BE_m[iClass]) != (m_BE_s[iClass][iFeature] != 0.0) )
+			if(	(Features(iFeature) < pClass->m_BE_m) != (pClass->m_BE_s[iFeature] != 0.0) )
 			{
 				d	++;
 			}
@@ -1212,17 +1486,13 @@ void CSG_Classifier_Supervised::_Get_Parallel_Epiped(const CSG_Vector &Features,
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
+		CClass	*pClass	= m_pClasses[iClass];
+
 		bool	bMember	= true;
 
 		for(int iFeature=0; bMember && iFeature<Get_Feature_Count(); iFeature++)
 		{
-			double	d	= Features(iFeature);
-
-			if(	d < m_Statistics[iClass][iFeature].Get_Minimum()
-			||	d > m_Statistics[iClass][iFeature].Get_Maximum() )
-			{
-				bMember	= false;
-			}
+			bMember	= pClass->m_Min[iFeature] <= Features[iFeature] && Features[iFeature] <= pClass->m_Max[iFeature];
 		}
 
 		if( bMember )
@@ -1238,23 +1508,18 @@ void CSG_Classifier_Supervised::_Get_Minimum_Distance(const CSG_Vector &Features
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		double	d	= 0.0;
+		CClass	*pClass	= m_pClasses[iClass];
 
-		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
-		{
-			d	+= SG_Get_Square(Features(iFeature) - m_Statistics[iClass][iFeature].Get_Mean());
-		}
+		double	Distance	= (Features - pClass->m_Mean).Get_Length();
 
-		if( Class < 0 || Quality > d )
+		if( Class < 0 || Quality > Distance )
 		{
-			Quality	= d;
+			Quality	= Distance;
 			Class	= iClass;
 		}
 	}
 
-	Quality	= sqrt(Quality);
-
-	if( m_Distance_Threshold > 0.0 && Quality > m_Distance_Threshold )
+	if( m_Threshold_Distance > 0.0 && Quality > m_Threshold_Distance )
 	{
 		Class	= -1;
 	}
@@ -1265,23 +1530,20 @@ void CSG_Classifier_Supervised::_Get_Mahalanobis_Distance(const CSG_Vector &Feat
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		double	d	= 0.0;
+		CClass	*pClass	= m_pClasses[iClass];
 
-		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
-		{
-			d	+= SG_Get_Square((Features(iFeature) - m_Statistics[iClass][iFeature].Get_Mean()) / m_Statistics[iClass][iFeature].Get_StdDev());
-		}
+		CSG_Vector	D	= Features - pClass->m_Mean;
 
-		if( Class < 0 || Quality > d )
+		double	Distance	= D * (pClass->m_Cov_Inv * D);
+
+		if( Class < 0 || Quality > Distance )
 		{
-			Quality	= d;
+			Quality	= Distance;
 			Class	= iClass;
 		}
 	}
 
-	Quality	= sqrt(Quality);
-
-	if( m_Distance_Threshold > 0.0 && Quality > m_Distance_Threshold )
+	if( m_Threshold_Distance > 0.0 && Quality > m_Threshold_Distance )
 	{
 		Class	= -1;
 	}
@@ -1294,36 +1556,27 @@ void CSG_Classifier_Supervised::_Get_Maximum_Likelihood(const CSG_Vector &Featur
 
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		double	d	= 1.0;
+		CClass	*pClass	= m_pClasses[iClass];
 
-		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
+		CSG_Vector	D	= Features - pClass->m_Mean;
+
+		double	Distance	= D * (pClass->m_Cov_Inv * D);
+
+	//	double	Probability	= pClass->m_ML_Scale * exp(-0.5 * Distance);
+		double	Probability	= -log(fabs(pClass->m_Cov_Det)) - Distance;
+
+		dSum	+= Probability;
+
+		if( Class < 0 || Quality < Probability )
 		{
-			d	*= m_ML_a[iClass][iFeature] * exp(m_ML_b[iClass][iFeature] * SG_Get_Square(Features(iFeature) - m_Statistics[iClass][iFeature].Get_Mean()));
-		}
-
-		dSum	+= (d	= pow(d, 1.0 / Get_Feature_Count()));
-
-		/*
-		double	d	= 0.0;
-
-		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
-		{
-			d	+= SG_Get_Square((Features(iFeature) - m_Statistics[iClass][iFeature].Get_Mean()) / m_Statistics[iClass][iFeature].Get_StdDev());
-		}
-
-		dSum	+= (d	= m_ML_s[iClass] * exp(-0.5 * d));
-		*/
-
-		if( Quality < d )
-		{
-			Quality	= d;
+			Quality	= Probability;
 			Class	= iClass;
 		}
 	}
 
 	Quality	= m_Probability_Relative ? 100.0 * Quality / dSum : 100.0 * Quality;
 
-	if( m_Probability_Threshold > 0.0 && Quality < m_Probability_Threshold )
+	if( m_Threshold_Probability > 0.0 && Quality < m_Threshold_Probability )
 	{
 		Class	= -1;
 	}
@@ -1334,29 +1587,20 @@ void CSG_Classifier_Supervised::_Get_Spectral_Angle_Mapping(const CSG_Vector &Fe
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		double	d	= 0.0;
-		double	e	= 0.0;
+		CClass	*pClass	= m_pClasses[iClass];
 
-		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
+		double	Angle	= Features.Get_Angle(pClass->m_Mean);
+
+		if( Class < 0 || Quality > Angle )
 		{
-			double	v	= Features(iFeature);
-
-			d	+= v * m_Statistics[iClass][iFeature].Get_Mean();
-			e	+= v*v;
-		}
-
-		d	= acos(d / (sqrt(e) * m_SAM_l[iClass]));
-
-		if( Class < 0 || Quality > d )
-		{
-			Quality	= d;
+			Quality	= Angle;
 			Class	= iClass;
 		}
 	}
 
 	Quality	*= M_RAD_TO_DEG;
 
-	if( m_Angle_Threshold > 0.0 && Quality > m_Angle_Threshold )
+	if( m_Threshold_Angle > 0.0 && Quality > m_Threshold_Angle )
 	{
 		Class	= -1;
 	}

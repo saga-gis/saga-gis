@@ -88,26 +88,25 @@ public:
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
 	bool						m_bNormalise;
 
-	CSG_Classifier_Supervised	m_Classifier;
-
-	CSG_Grid					*m_pClasses, *m_pQuality;
-
-	CSG_Parameter_Grid_List		*m_pGrids;
+	CSG_Parameter_Grid_List		*m_pFeatures;
 
 
-	double						Get_Value				(int x, int y, int iGrid);
+	bool						Get_Features			(void);
+	bool						Get_Features			(int x, int y, CSG_Vector &Features);
 
-	bool						Initialize				(void);
-	bool						Finalize				(void);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier);
+	bool						Set_Classifier			(CSG_Classifier_Supervised &Classifier, CSG_Shapes *pPolygons, int Field);
+
+	bool						Set_Classification		(CSG_Classifier_Supervised &Classifier);
 
 };
 

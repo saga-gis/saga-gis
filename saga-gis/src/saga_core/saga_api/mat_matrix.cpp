@@ -237,16 +237,37 @@ bool CSG_Vector::Del_Row(int iRow)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Vector::asString(int Width, int Precision, bool bScientific)	const
+CSG_String CSG_Vector::to_String(int Width, int Precision, bool bScientific, SG_Char Separator)	const
 {
 	CSG_String	s;
 
 	for(int i=0; i<Get_N(); i++)
 	{
-		s	+= SG_Get_Double_asString(Get_Data(i), Width, Precision, bScientific) + "\n";
+		s	+= SG_Get_Double_asString(Get_Data(i), Width, Precision, bScientific) + Separator;
 	}
 
 	return( s );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::from_String(const CSG_String &String)
+{
+	Destroy();
+
+	CSG_String_Tokenizer	Line(String);
+
+	while( Line.Has_More_Tokens() )
+	{
+		double		d;
+		CSG_String	s(Line.Get_Next_Token());
+
+		if( s.asDouble(d) )
+		{
+			Add_Row(d);
+		}
+	}
+
+	return( Get_N() > 0 );
 }
 
 
@@ -569,6 +590,26 @@ bool CSG_Vector::Set_Unity(void)
 		{
 			Get_Data()[i]	/= Length;
 		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Vector::Sort(void)
+{
+	if( Get_Size() > 0 )
+	{
+		qsort(Get_Data(), Get_Size(), sizeof(double), SG_Compare_Double);
 
 		return( true );
 	}
@@ -1134,23 +1175,53 @@ CSG_Vector CSG_Matrix::Get_Row(int iRow)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Matrix::asString(int Width, int Precision, bool bScientific)	const
+CSG_String CSG_Matrix::to_String(int Width, int Precision, bool bScientific, SG_Char Separator)	const
 {
 	CSG_String	s;
 
 	for(int y=0, n=SG_Get_Digit_Count(m_ny + 1); y<m_ny; y++)
 	{
-		s	+= CSG_String::Format(SG_T("%0*d:"), n, y + 1);
+		s	+= CSG_String::Format("\n%0*d:", n, y + 1);
 
 		for(int x=0; x<m_nx; x++)
 		{
-			s	+= "\t" + SG_Get_Double_asString(m_z[y][x], Width, Precision, bScientific);
+			s	+= Separator + SG_Get_Double_asString(m_z[y][x], Width, Precision, bScientific);
 		}
-
-		s	+= "\n";
 	}
 
+	s	+= "\n";
+
 	return( s );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::from_String(const CSG_String &String)
+{
+	Destroy();
+
+	CSG_String_Tokenizer	Lines(String, "\r\n");
+
+	while( Lines.Has_More_Tokens() )
+	{
+		CSG_String_Tokenizer	Line(Lines.Get_Next_Token().AfterFirst(':'));
+
+		CSG_Vector	z;
+
+		while( Line.Has_More_Tokens() )
+		{
+			double		d;
+			CSG_String	s(Line.Get_Next_Token());
+
+			if( s.asDouble(d) )
+			{
+				z.Add_Row(d);
+			}
+		}
+
+		Add_Row(z);
+	}
+
+	return( Get_NRows() > 0 );
 }
 
 
@@ -1529,10 +1600,9 @@ bool CSG_Matrix::Set_Transpose(void)
 //---------------------------------------------------------
 bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 {
-	bool	bResult	= false;
-	int		n		= 0;
-
 	//-----------------------------------------------------
+	int		n	= 0;
+
 	if( nSubSquare > 0 )
 	{
 		if( nSubSquare <= m_nx && nSubSquare <= m_ny )
@@ -1549,9 +1619,9 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 	if( n > 0 )
 	{
 		CSG_Matrix	m(*this);
-		int		*Permutation	= (int *)SG_Malloc(n * sizeof(int));
+		CSG_Array	p(sizeof(int), n);
 
-		if( SG_Matrix_LU_Decomposition(n, Permutation, m.Get_Data(), bSilent) )
+		if( SG_Matrix_LU_Decomposition(n, (int *)p.Get_Array(), m.Get_Data(), bSilent) )
 		{
 			CSG_Vector	v(n);
 
@@ -1560,7 +1630,7 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 				v.Set_Zero();
 				v[j]	= 1.0;
 
-				SG_Matrix_LU_Solve(n, Permutation, m, v.Get_Data(), true);
+				SG_Matrix_LU_Solve(n, (int *)p.Get_Array(), m, v.Get_Data(), true);
 
 				for(int i=0; i<n; i++)
 				{
@@ -1568,13 +1638,11 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 				}
 			}
 
-			bResult	= true;
+			return( true );
 		}
-
-		SG_Free(Permutation);
 	}
 
-	return( bResult );
+	return( false );
 }
 
 
@@ -1589,10 +1657,20 @@ double CSG_Matrix::Get_Determinant(void) const
 {
 	double	d	= 0.0;
 
-	for(int y=0; y<m_ny; y++)
+	if( is_Square() )	// det is only defined for squared matrices !
 	{
-		for(int x=0; x<m_nx; x++)
+		int			n;
+		CSG_Matrix	m(*this);
+		CSG_Array	p(sizeof(int), m_nx);
+
+		if( SG_Matrix_LU_Decomposition(m_nx, (int *)p.Get_Array(), m.Get_Data(), true, &n) )
 		{
+			d	= n % 2 ? -1.0 : 1.0;
+
+			for(int i=0; i<m_nx; i++)
+			{
+				d	*= m[i][i];
+			}
 		}
 	}
 
@@ -1635,24 +1713,19 @@ CSG_Matrix CSG_Matrix::Get_Inverse(bool bSilent, int nSubSquare) const
 //---------------------------------------------------------
 bool		SG_Matrix_Solve(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent)
 {
-	bool	bResult	= false;
-	int		n		= Vector.Get_N();
+	int	n	= Vector.Get_N();
 
 	if( n > 0 && n == Matrix.Get_NX() && n == Matrix.Get_NY() )
 	{
-		int	*Permutation	= (int *)SG_Malloc(n * sizeof(int));
+		CSG_Array	Permutation(sizeof(int), n);
 
-		if( SG_Matrix_LU_Decomposition(n, Permutation, Matrix.Get_Data(), bSilent) )
+		if( SG_Matrix_LU_Decomposition(n, (int *)Permutation.Get_Array(), Matrix.Get_Data(), bSilent) )
 		{
-			SG_Matrix_LU_Solve(n, Permutation, Matrix, Vector.Get_Data(), bSilent);
-
-			bResult	= true;
+			return( SG_Matrix_LU_Solve(n, (int *)Permutation.Get_Array(), Matrix, Vector.Get_Data(), bSilent) );
 		}
-
-		SG_Free(Permutation);
 	}
 
-	return( bResult );
+	return( false );
 }
 
 
@@ -1680,13 +1753,15 @@ bool		SG_Matrix_Eigen_Reduction(const CSG_Matrix &Matrix, CSG_Matrix &Eigen_Vect
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool bSilent)
+bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool bSilent, int *nRowChanges)
 {
 	int			i, j, k, iMax;
 	double		dMax, d, Sum;
 	CSG_Vector	Vector;
 	
 	Vector.Create(n);
+
+	if( nRowChanges )	(*nRowChanges)	= 0;
 
 	for(i=0, iMax=0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); i++)
 	{
@@ -1750,6 +1825,8 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 			}
 
 			Vector[iMax]	= Vector[j];
+
+			if( nRowChanges )	(*nRowChanges)++;
 		}
 
 		Permutation[j]	= iMax;

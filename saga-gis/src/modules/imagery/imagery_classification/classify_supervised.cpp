@@ -71,26 +71,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
-{
-	CLASS_ID	= 0,
-	CLASS_ROI_M,
-	CLASS_ROI_S,
-	CLASS_TOT_N,
-	CLASS_ROI_N
-};
-
-//---------------------------------------------------------
-#define CLASS_NPARMS	(CLASS_ROI_S - CLASS_ROI_M + 1)
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 {
 	int				i;
@@ -98,42 +78,25 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Supervised Classification"));
+	Set_Name		(_TL("Supervised Classification for Grids"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2005"));
+	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
 		"Supervised Classification"
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"			, _TL("Grids"),
+	pNode	= Parameters.Add_Grid_List(
+		NULL	, "GRIDS"			, _TL("Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "ROI"				, _TL("Training Areas"),
+	Parameters.Add_Value(
+		pNode	, "NORMALISE"		, _TL("Normalise"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
-	);
-
-	Parameters.Add_Table_Field(
-		pNode	, "ROI_ID"			, _TL("Class Identifier"),
-		_TL("")
-	);
-
-	Parameters.Add_Table(
-		NULL	, "STATS"			, _TL("Class Statistics"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Table(
-		NULL	, "CLASS_INFO"		, _TL("Summary"),
-		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Grid(
@@ -148,18 +111,34 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "STATS_SRC"		, _TL("Get Class Statistics from..."),
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "TRAINING"		, _TL("Training Areas"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("training areas"),
-			_TL("table")
-		), 0
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
+	Parameters.Add_Table_Field(
+		pNode	, "TRAINING_CLASS"	, _TL("Class Identifier"),
+		_TL("")
+	);
+
+	Parameters.Add_FilePath(
+		pNode	, "FILE_LOAD"		, _TL("Load Statistics from File..."),
+		_TL(""),
+		NULL, NULL, false
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "FILE_SAVE"		, _TL("Save Statistics to File..."),
+		_TL(""),
+		NULL, NULL, true
+	);
+
+	//-----------------------------------------------------
 	for(i=0; i<=SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
-		s	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + SG_T("|");
+		s	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + "|";
 	}
 
 	Parameters.Add_Choice(
@@ -169,36 +148,30 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "NORMALISE"		, _TL("Normalise"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Value(
 		NULL	, "THRESHOLD_DIST"	, _TL("Distance Threshold"),
-		_TL("Let pixel stay unclassified, if minimum or mahalanobis distance is greater than threshold."),
+		_TL("Let pixel stay unclassified, if minimum euclidian or mahalanobis distance is greater than threshold."),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD_PROB"	, _TL("Probability Threshold (Percent)"),
-		_TL("Let pixel stay unclassified, if maximum likelihood probability is less than threshold."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "RELATIVE_PROB"	, _TL("Probability Reference"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("absolute"),
-			_TL("relative")
-		), 1
 	);
 
 	Parameters.Add_Value(
 		NULL	, "THRESHOLD_ANGLE"	, _TL("Spectral Angle Threshold (Degree)"),
 		_TL("Let pixel stay unclassified, if spectral angle distance is greater than threshold."),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 90.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "THRESHOLD_PROB"	, _TL("Probability Threshold"),
+		_TL("Let pixel stay unclassified, if maximum likelihood probability value is less than threshold."),
+		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "RELATIVE_PROB"	, _TL("Probability Reference"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("absolute"),
+			_TL("relative")
+		), 1
 	);
 
 	pNode	= Parameters.Add_Node(
@@ -209,7 +182,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	for(i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
 		Parameters.Add_Value(
-			pNode, CSG_String::Format(SG_T("WTA_%d"), i), CSG_Classifier_Supervised::Get_Name_of_Method(i), _TL(""),
+			pNode, CSG_String::Format("WTA_%d", i), CSG_Classifier_Supervised::Get_Name_of_Method(i), _TL(""),
 			PARAMETER_TYPE_Bool, false
 		);
 	}
@@ -218,244 +191,129 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("STATS_SRC")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRAINING") )
 	{
-		int	Value	= pParameter->asInt();
-
-		pParameters->Get_Parameter("ROI"  )->Set_Enabled(Value == 0);
-		pParameters->Get_Parameter("STATS")->Set_Enabled(Value == 1);
+		pParameters->Set_Enabled("FILE_LOAD", pParameter->asShapes() == NULL);
+		pParameters->Set_Enabled("FILE_SAVE", pParameter->asShapes() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
-		int	Value	= pParameter->asInt();
-
-		pParameters->Get_Parameter("THRESHOLD_DIST" )->Set_Enabled(Value == SG_CLASSIFY_SUPERVISED_MinimumDistance || Value == SG_CLASSIFY_SUPERVISED_Mahalonobis);
-		pParameters->Get_Parameter("THRESHOLD_PROB" )->Set_Enabled(Value == SG_CLASSIFY_SUPERVISED_MaximumLikelihood);
-		pParameters->Get_Parameter("RELATIVE_PROB"  )->Set_Enabled(Value == SG_CLASSIFY_SUPERVISED_MaximumLikelihood);
-		pParameters->Get_Parameter("THRESHOLD_ANGLE")->Set_Enabled(Value == SG_CLASSIFY_SUPERVISED_SAM);
-		pParameters->Get_Parameter("WTA"            )->Set_Enabled(Value == SG_CLASSIFY_SUPERVISED_WTA);
+		pParameters->Set_Enabled("THRESHOLD_DIST" , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MinimumDistance
+			||                                      pParameter->asInt() == SG_CLASSIFY_SUPERVISED_Mahalonobis      );
+		pParameters->Set_Enabled("THRESHOLD_PROB" , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MaximumLikelihood);
+		pParameters->Set_Enabled("RELATIVE_PROB"  , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MaximumLikelihood);
+		pParameters->Set_Enabled("THRESHOLD_ANGLE", pParameter->asInt() == SG_CLASSIFY_SUPERVISED_SAM              );
+		pParameters->Set_Enabled("WTA"            , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_WTA              );
 	}
 
-	//-----------------------------------------------------
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-inline double CGrid_Classify_Supervised::Get_Value(int x, int y, int iGrid)
-{
-	CSG_Grid	*pGrid	= m_pGrids->asGrid(iGrid);
-
-	return( m_bNormalise
-		? (pGrid->asDouble(x, y) - pGrid->Get_Mean()) / pGrid->Get_StdDev()
-		:  pGrid->asDouble(x, y)
-	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::On_Execute(void)
 {
-	int			Method, Class, i;
-	double		Quality;
-
-	//-------------------------------------------------
-	m_pGrids		= Parameters("GRIDS"    )->asGridList();
- 	m_pClasses		= Parameters("CLASSES"  )->asGrid();
-	m_pQuality		= Parameters("QUALITY"  )->asGrid();
-	m_bNormalise	= Parameters("NORMALISE")->asBool();
-	Method			= Parameters("METHOD"   )->asInt();
-
-	m_Classifier.Set_Distance_Threshold   (Parameters("THRESHOLD_DIST" )->asDouble());
-	m_Classifier.Set_Probability_Threshold(Parameters("THRESHOLD_PROB" )->asDouble() / 100.0);
-	m_Classifier.Set_Probability_Relative (Parameters("RELATIVE_PROB"  )->asBool  ());
-	m_Classifier.Set_Angle_Threshold      (Parameters("THRESHOLD_ANGLE")->asDouble() * M_DEG_TO_RAD);
-
-	for(i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
+	//-----------------------------------------------------
+	if( !Get_Features() )
 	{
-		m_Classifier.Set_WTA(i, Parameters(CSG_String::Format(SG_T("WTA_%d"), i))->asBool());
+		Error_Set(_TL("invalid features"));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	for(i=m_pGrids->Get_Count()-1; i>=0; i--)
-	{
-		if( m_pGrids->asGrid(i)->Get_ZRange() <= 0.0 )
-		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("grid has been dropped"), m_pGrids->asGrid(i)->Get_Name()));
+	CSG_Classifier_Supervised	Classifier;
 
-			m_pGrids->Del_Item(i);
-		}
-	}
-
-	if( m_pGrids->Get_Count() <= 0 )
-	{
-		Error_Set(_TL("no valid grid in list."));
-
-		return( false );
-	}
-
-	//-------------------------------------------------
-	Process_Set_Text(_TL("initializing"));
-
-	if( !Initialize() )
+	if( !Set_Classifier(Classifier) )
 	{
 		return( false );
 	}
 
-	//-------------------------------------------------
-	Process_Set_Text(_TL("running classification"));
+	//-----------------------------------------------------
+	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
+	CSG_Grid	*pQuality	= Parameters("QUALITY")->asGrid();
 
-	CSG_Vector	Features(m_pGrids->Get_Count());
+	pClasses->Set_NoData_Value(0);
+	pClasses->Assign(0.0);
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("prediction"));
+
+	int	Method	= Parameters("METHOD")->asInt();
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !m_pClasses->is_NoData(x, y) )
+			int			Class;
+			double		Quality;
+			CSG_Vector	Features(m_pFeatures->Get_Count());
+
+			if( Get_Features(x, y, Features) && Classifier.Get_Class(Features, Class, Quality, Method) )
 			{
-				for(i=0; i<m_pGrids->Get_Count(); i++)
-				{
-					Features[i]	= Get_Value(x, y, i);
-				}
-
-				if( m_Classifier.Get_Class(Features, Class, Quality, Method) )
-				{
-					m_pClasses->Set_Value(x, y, 1 + Class);
-				}
-				else
-				{
-					m_pClasses->Set_NoData(x, y);
-				}
-
-				if( m_pQuality )
-				{
-					m_pQuality->Set_Value(x, y, Quality);
-				}
+				SG_GRID_PTR_SAFE_SET_VALUE(pClasses, x, y, 1 + Class);
+				SG_GRID_PTR_SAFE_SET_VALUE(pQuality, x, y, Quality  );
+			}
+			else
+			{
+				SG_GRID_PTR_SAFE_SET_NODATA(pClasses, x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pQuality, x, y);
 			}
 		}
 	}
 
-	return( Finalize() );
+	//-----------------------------------------------------
+	return( Set_Classification(Classifier) );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Classify_Supervised::Initialize(void)
+bool CGrid_Classify_Supervised::Get_Features(void)
 {
-	bool		bNoData;
-	int			x, y, iGrid, iROI_ID;
-	TSG_Point	p;
-	CSG_Shapes	*pROIs;
+	m_pFeatures		= Parameters("GRIDS"    )->asGridList();
+	m_bNormalise	= Parameters("NORMALISE")->asBool();
 
-	//-----------------------------------------------------
-	m_pClasses->Set_NoData_Value(-1);
-	m_pClasses->Assign(0.0);
-
-	m_Classifier.Create(m_pGrids->Get_Count());
-
-	if( Parameters("STATS_SRC")->asInt() == 0 )
+	for(int i=m_pFeatures->Get_Count()-1; i>=0; i--)
 	{
-		pROIs	= Parameters("ROI"   )->asShapes();
-		iROI_ID	= Parameters("ROI_ID")->asInt();
-	}
-	else
-	{
-		pROIs	= NULL;
-
-		CSG_Table	*pStats	= Parameters("STATS")->asTable();
-
-		if( pStats->Get_Field_Count() < (1 + 2 * m_pGrids->Get_Count()) )
+		if( m_pFeatures->asGrid(i)->Get_ZRange() <= 0.0 )
 		{
-			Error_Set(_TL("not entries in statistics table."));
+			Message_Add(CSG_String::Format("%s: %s", _TL("feature has been dropped"), m_pFeatures->asGrid(i)->Get_Name()));
 
+			m_pFeatures->Del_Item(i);
+		}
+	}
+
+	return( m_pFeatures->Get_Count() > 0 );
+}
+
+//---------------------------------------------------------
+bool CGrid_Classify_Supervised::Get_Features(int x, int y, CSG_Vector &Features)
+{
+	for(int i=0; i<m_pFeatures->Get_Count(); i++)
+	{
+		CSG_Grid	*pGrid	= m_pFeatures->asGrid(i);
+
+		if( pGrid->is_NoData(x, y) )
+		{
 			return( false );
 		}
 
-		for(int iClass=0; iClass<pStats->Get_Count(); iClass++)
-		{
-			CSG_Table_Record		*pRecord	= pStats->Get_Record(iClass);
-			CSG_Simple_Statistics	*pClass		= m_Classifier.Get_Statistics(pRecord->asString(0));
-
-			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
-			{
-				pClass[iGrid].Create(pRecord->asDouble(1 + 2 * iGrid), pRecord->asDouble(2 + 2 * iGrid));
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
-	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
-		{
-			for(iGrid=0, bNoData=false; iGrid<m_pGrids->Get_Count() && !bNoData; iGrid++)
-			{
-				if( m_pGrids->asGrid(iGrid)->is_NoData(x, y) )
-				{
-					bNoData	= true;
-				}
-			}
-
-			if( bNoData )
-			{
-				m_pClasses->Set_NoData(x, y);
-
-				if( m_pQuality )
-				{
-					m_pQuality->Set_NoData(x, y);
-				}
-			}
-			else if( pROIs )
-			{
-				for(int iROI=0; iROI<pROIs->Get_Count(); iROI++)
-				{
-					CSG_Simple_Statistics	*pClass;
-					CSG_Shape_Polygon		*pROI	= (CSG_Shape_Polygon *)pROIs->Get_Shape(iROI);
-
-					if( pROI->Contains(p) && (pClass = m_Classifier.Get_Statistics(pROI->asString(iROI_ID))) != NULL )
-					{
-						for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
-						{
-							pClass[iGrid].Add_Value(Get_Value(x, y, iGrid));
-						}
-					}
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( m_Classifier.Get_Class_Count() <= 0 )
-	{
-		Error_Set(_TL("no training areas could be analysed."));
-
-		return( false );
+		Features[i]	= m_bNormalise ? (pGrid->asDouble(x, y) - pGrid->Get_Mean()) / pGrid->Get_StdDev() : pGrid->asDouble(x, y);
 	}
 
 	return( true );
@@ -464,105 +322,138 @@ bool CGrid_Classify_Supervised::Initialize(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier)
+{
+	Classifier.Create(m_pFeatures->Get_Count());
+
+	Classifier.Set_Threshold_Distance   (Parameters("THRESHOLD_DIST" )->asDouble());
+	Classifier.Set_Threshold_Angle      (Parameters("THRESHOLD_ANGLE")->asDouble() * M_DEG_TO_RAD);
+	Classifier.Set_Threshold_Probability(Parameters("THRESHOLD_PROB" )->asDouble());
+	Classifier.Set_Probability_Relative (Parameters("RELATIVE_PROB"  )->asBool  ());
+
+	for(int i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
+	{
+		Classifier.Set_WTA(i, Parameters(CSG_String::Format("WTA_%d", i))->asBool());
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("TRAINING")->asShapes() != NULL )	// training areas
+	{
+		if( !Set_Classifier(Classifier, Parameters("TRAINING")->asShapes(), Parameters("TRAINING_CLASS")->asInt()) )
+		{
+			Error_Set(_TL("could not initialize classifier from training areas"));
+
+			return( false );
+		}
+	}
+	else	// from file
+	{
+		if( !Classifier.Load(Parameters("FILE_LOAD")->asString()) )
+		{
+			Error_Set(_TL("could not initialize classifier from file"));
+
+			return( false );
+		}
+	}
+
+	//-----------------------------------------------------
+	Message_Add(Classifier.Print(), false);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier, CSG_Shapes *pPolygons, int Field)
+{
+	Process_Set_Text(_TL("training"));
+
+	//-----------------------------------------------------
+	TSG_Point	p;	p.y	= Get_YMin();
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	{
+		p.x	= Get_XMin();
+
+		for(int x=0; x<Get_NX(); x++, p.x+=Get_Cellsize())
+		{
+			CSG_Vector	Features(m_pFeatures->Get_Count());
+
+			if( Get_Features(x, y, Features) )
+			{
+				for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+				{
+					CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+
+					if( pPolygon->Contains(p) )
+					{
+						Classifier.Train_Add_Sample(pPolygon->asString(Field), Features);
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Classifier.Train(true) )
+	{
+		Classifier.Save(Parameters("FILE_SAVE")->asString());
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Classify_Supervised::Finalize(void)
+bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier)
 {
-	int			iClass, iGrid, iOffset, nClasses;
-	CSG_String	Name_Method, Name_Quality;
-	CSG_Table	*pTable;
+	//-----------------------------------------------------
+	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
+
+	pClasses->Set_Name(CSG_String::Format("%s [%s]", _TL("Classification"), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str()));
 
 	//-----------------------------------------------------
-	Name_Method		= CSG_Classifier_Supervised::Get_Name_of_Method (Parameters("METHOD")->asInt());
-	Name_Quality	= CSG_Classifier_Supervised::Get_Name_of_Quality(Parameters("METHOD")->asInt());
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pClasses, "LUT");
 
-	//-----------------------------------------------------
-	pTable	= Parameters("CLASS_INFO")->asTable();
-
-	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Class Information"), Name_Method.c_str()));
-
-	pTable->Add_Field(_TL("ID")   , SG_DATATYPE_String);	// CLASS_ID
-
-	for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+	if( pLUT && pLUT->asTable() )
 	{
-		pTable->Add_Field(CSG_String::Format(SG_T("B%02d_MEAN")  , iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_M
-		pTable->Add_Field(CSG_String::Format(SG_T("B%02d_STDDEV"), iGrid + 1), SG_DATATYPE_Double);	// CLASS_ROI_S
-	}
-
-	pTable->Add_Field(_TL("TOT_N"), SG_DATATYPE_Int);		// CLASS_TOT_N
-	pTable->Add_Field(_TL("ROI_N"), SG_DATATYPE_Int);		// CLASS_ROI_N
-
-	for(iClass=0; iClass<m_Classifier.Get_Class_Count(); iClass++)
-	{
-		CSG_Table_Record	*pRecord	= pTable->Add_Record();
-
-		pRecord->Set_Value(CLASS_ID   , m_Classifier.Get_Class_ID(iClass).c_str());
-
-		for(iGrid=0, iOffset=0; iGrid<m_Classifier.Get_Feature_Count(); iGrid++, iOffset+=CLASS_NPARMS)
+		for(int iClass=0; iClass<Classifier.Get_Class_Count(); iClass++)
 		{
-			CSG_Simple_Statistics	*pStatistics	= m_Classifier.Get_Statistics(iClass) + iGrid;
+			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(iClass);
 
-			double	m	= m_bNormalise ? m_pGrids->asGrid(iGrid)->Get_Mean() : 0.0;
-			double	s	= m_bNormalise ? m_pGrids->asGrid(iGrid)->Get_StdDev()    : 1.0;
-
-			pRecord->Set_Value(iOffset + CLASS_ROI_M  , pStatistics->Get_Mean   () * s + m);
-			pRecord->Set_Value(iOffset + CLASS_ROI_S  , pStatistics->Get_StdDev () * s);
-		//	pRecord->Set_Value(iOffset + CLASS_ROI_MIN, pStatistics->Get_Minimum() * s + m);
-		//	pRecord->Set_Value(iOffset + CLASS_ROI_MAX, pStatistics->Get_Maximum() * s + m);
-		}
-
-		pRecord->Set_Value(CLASS_NPARMS * m_Classifier.Get_Feature_Count() + 1, m_Classifier.Get_Statistics(iClass)->Get_Count());
-		pRecord->Set_Value(CLASS_NPARMS * m_Classifier.Get_Feature_Count() + 2, m_Classifier.Get_Element_Count(iClass));
-	}
-
-	//-----------------------------------------------------
-	CSG_Parameters	P;
-
-	if( DataObject_Get_Parameters(m_pClasses, P) && P("COLORS_TYPE") && P("LUT") )
-	{
-		pTable	= P("LUT")->asTable();
-
-		for(iClass=0, nClasses=0; iClass<m_Classifier.Get_Class_Count(); iClass++)
-		{
-			if( m_Classifier.Get_Element_Count(iClass) > 0 )
+			if( !pClass )
 			{
-				CSG_Table_Record	*pRecord	= pTable->Get_Record(nClasses++);
-
-				if( pRecord == NULL )
-				{
-					pRecord	= pTable->Add_Record();
-					pRecord->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
-				}
-
-				pRecord->Set_Value(1, m_Classifier.Get_Class_ID(iClass).c_str());
-				pRecord->Set_Value(2, m_Classifier.Get_Class_ID(iClass).c_str());
-				pRecord->Set_Value(3, iClass + 1);
-				pRecord->Set_Value(4, iClass + 1);
+				(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
 			}
+
+			pClass->Set_Value(1, Classifier.Get_Class_ID(iClass).c_str());
+			pClass->Set_Value(2, "");
+			pClass->Set_Value(3, iClass + 1);
+			pClass->Set_Value(4, iClass + 1);
 		}
 
-		while( pTable->Get_Record_Count() > m_Classifier.Get_Class_Count() )
-		{
-			pTable->Del_Record(pTable->Get_Record_Count() - 1);
-		}
+		pLUT->asTable()->Set_Record_Count(Classifier.Get_Class_Count());
 
-		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
-
-		DataObject_Set_Parameters(m_pClasses, P);
+		DataObject_Set_Parameter(pClasses, pLUT);
+		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 
 	//-----------------------------------------------------
-	m_pClasses->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification"), Name_Method.c_str()));
+	CSG_Grid	*pQuality	= Parameters("QUALITY")->asGrid();
 
-	if( m_pQuality )
+	if( pQuality )
 	{
-		m_pQuality->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification Quality"), Name_Quality.c_str()));
+		pQuality->Set_Name(CSG_String::Format("%s [%s]", _TL("Classification Quality"), CSG_Classifier_Supervised::Get_Name_of_Quality(Parameters("METHOD")->asInt()).c_str()));
 
-		DataObject_Set_Colors(m_pQuality, 100, SG_COLORS_WHITE_GREEN);
+		DataObject_Set_Colors(pQuality, 11, SG_COLORS_YELLOW_GREEN);
 	}
 
 	//-----------------------------------------------------
