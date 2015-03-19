@@ -13,16 +13,16 @@ def grid_contour(fGrid, fLines):
 
     # ------------------------------------
     if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/shapes_grid.dll')
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/modules/shapes_grid.dll')
     else:                  # Linux
         saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_grid.so')
 
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('shapes_grid', 5) # 'Contour Lines from Grid'
+    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('shapes_grid'), 5) # 'Contour Lines from Grid'
     p      = m.Get_Parameters()
     p.Get_Grid_System().Assign(Grid.Get_System()) # module needs to use conformant grid system!
-    p.Get(unicode('INPUT'  )).Set_Value(Grid)
-    p.Get(unicode('CONTOUR')).Set_Value(Lines)
-    p.Get(unicode('ZSTEP'  )).Set_Value(25.0)
+    p(saga_api.CSG_String('GRID'   )).Set_Value(Grid)
+    p(saga_api.CSG_String('CONTOUR')).Set_Value(Lines)
+    p(saga_api.CSG_String('ZSTEP'  )).Set_Value(25.0)
 
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
@@ -43,8 +43,8 @@ if __name__ == '__main__':
     if len( sys.argv ) != 4:
         print 'Usage: grid_contour.py <in: grid> <out: contour>'
         print '... trying to run with test_data'
-        fGrid   = './../test_data/test.sgrd'
-        fLines  = './../test_data/test_contours'
+        fGrid   = './test.sgrd'
+        fLines  = './test_contours'
     else:
         fGrid   = sys.argv[1]
         if os.path.split(fGrid)[0] == '':

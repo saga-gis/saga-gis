@@ -11,14 +11,14 @@ def shp2xyz(fshp, fxyz):
 
     # ------------------------------------
     if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules/io_shapes.dll')
+        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/modules/io_shapes.dll')
     else:                  # Linux
         saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_shapes.so')
 
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module('io_shapes', 2) # 'Export Shapes to XYZ'
+    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('io_shapes'), 2) # 'Export Shapes to XYZ'
     p      = m.Get_Parameters()
-    p.Get(unicode('SHAPES'  )).Set_Value(shp)
-    p.Get(unicode('FILENAME')).Set_Value(saga_api.CSG_String(fxyz))
+    p(saga_api.CSG_String('POINTS'  )).Set_Value(shp)
+    p(saga_api.CSG_String('FILENAME')).Set_Value(saga_api.CSG_String(fxyz))
     
     if m.Execute() == 0:
         print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
@@ -37,8 +37,8 @@ if __name__ == '__main__':
     if len( sys.argv ) != 3:
         print 'Usage: shp2xyz.py <in: shape file> <out: x/y/z-data as text table>'
         print '... trying to run with test_data'
-        fshp = './../test_data/test_pts.shp'
-        fxyz = './../test_data/test.xyz'
+        fshp = './test_contours.shp'
+        fxyz = './test.xyz'
     else:
         fshp = sys.argv[1]
         if os.path.split(fshp)[0] == '':
