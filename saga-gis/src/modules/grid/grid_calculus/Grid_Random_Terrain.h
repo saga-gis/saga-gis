@@ -19,33 +19,72 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Random_Terrain_H
 #define HEADER_INCLUDED__Grid_Random_Terrain_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGrid_Random_Terrain : public CSG_Module
 {
 public:
 	CGrid_Random_Terrain(void);
-	virtual ~CGrid_Random_Terrain(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Grid Generation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Grid Generation") );	}
 
 
 protected:
 
-	CSG_Grid *pGrid;
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool On_Execute(void);
-	void addBump (CSG_Grid*, int);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_Grid* Get_Target_Grid(CSG_Parameters *pParameters);
+	double						m_Radius;
+
+	CSG_Grid					*m_pGrid;
+
+	CSG_Grid_Cell_Addressor		m_Kernel;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	void						Add_Bump				(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Random_Terrain_H

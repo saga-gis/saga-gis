@@ -20,194 +20,130 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Grid_Random_Terrain.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 {	 
-	CSG_Parameters	*pParameters;
-	
-	Set_Name(_TL("Random Terrain Generation"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Name		(_TL("Random Terrain"));
+
+	Set_Author		("V.Olaya (c) 2004");
+
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Terrain Generation"));
+		"(c) 2004 by Victor Olaya. Random Terrain Generation"
+	));
 
-	Parameters.Add_Value(NULL, 
-						"RADIUS", 
-						_TL("Radius (cells)"), 
-						_TL("Radius (cells)"), 
-						PARAMETER_TYPE_Int, 
-						15);
-	
-	Parameters.Add_Value(NULL, 
-						"ITERATIONS", 
-						_TL("Iterations"), 
-						_TL("Iterations"), 
-						PARAMETER_TYPE_Int, 
-						10);
-	
-	Parameters.Add_Choice(
-		NULL, 
-		"TARGET_TYPE", 
-		_TL("Target Dimensions"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),_TL("User defined"), _TL("Grid Project"), _TL("Grid")), 
-		0);
+	Parameters.Add_Value(
+		NULL	, "RADIUS"	, _TL("Radius (cells)"), 
+		_TL(""), 
+		PARAMETER_TYPE_Int, 25
+	);
 
-	Parameters.Add_Grid_List(
-		NULL, 
-		"TARGET_GRID", 
-		_TL("Grid"),
+	Parameters.Add_Value(
+		NULL,	 "ITERATIONS"	, _TL("Iterations"), 
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, 
-		false);
-	
-	pParameters	= Add_Parameters("USER", _TL("User defined grid"), _TL(""));
-
-	pParameters->Add_Value(
-		NULL, 
-		"CELL_SIZE",
-		_TL("Grid Size"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 
-		100.0, 
-		0.0, 
-		true);
-
-	pParameters->Add_Value(
-		NULL, 
-		"COLS",
-		_TL("Cols"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 
-		100, 
-		0.0, 
-		true);		
-
-	pParameters->Add_Value(
-		NULL, 
-		"ROWS", 
-		_TL("Rows"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 
-		100, 
-		0.0, 
-		true);
+		PARAMETER_TYPE_Int, 100
+	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, _TL("")
-	);
-
-
-	pParameters	= Add_Parameters("GRID", _TL("Choose Grid"), _TL(""));
-
-	pParameters->Add_Grid(NULL, 
-		"GRID", 
-		_TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT	, false
-	);
+	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
 }
 
-CGrid_Random_Terrain::~CGrid_Random_Terrain(void)
-{}
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_Grid * CGrid_Random_Terrain::Get_Target_Grid(CSG_Parameters *pParameters )
+//---------------------------------------------------------
+int CGrid_Random_Terrain::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-
-	double iCellSize;
-	int iRows,iCols;
-
-	iCellSize	= pParameters->Get_Parameter("CELL_SIZE")->asDouble();
-	iRows = pParameters->Get_Parameter("ROWS")->asInt();
-	iCols = pParameters->Get_Parameter("COLS")->asInt();
-	
-	return( SG_Create_Grid(SG_DATATYPE_Float, iCols, iRows, iCellSize, 0, 0) );
+	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
+//---------------------------------------------------------
+int CGrid_Random_Terrain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGrid_Random_Terrain::On_Execute(void)
 {
-	
-	Parameters("TARGET_GRID")->asGridList()->Del_Items();
-
-	pGrid		= NULL;
-
-	switch( Parameters("TARGET_TYPE")->asInt() )
+	//-----------------------------------------------------
+	if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 	{
-	case 0:	// User defined...
-		if( Dlg_Parameters("USER") )
-		{
-			pGrid	= Get_Target_Grid(Get_Parameters("USER"));
-		}
-		break;
+		Error_Set(_TL("invalid target grid"));
 
-	case 1:	// Grid Project...
-		if( Dlg_Parameters("GET_SYSTEM") )
-		{
-			pGrid	= SG_Create_Grid(
-						*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
-					);
-		}
-		break;
+		return( false );
+	}
 
-	case 2:	// Grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			pGrid	= Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
-		}
-		break;
-	}//switch
+	m_pGrid->Set_Name(_TL("Random Terrain"));
 
-	//-------------------------------------------------
-	if( pGrid )
+	m_pGrid->Assign(0.0);
+
+	//-----------------------------------------------------
+	m_Kernel.Set_Radius(m_Radius = Parameters("RADIUS")->asInt());
+
+	int Iterations	= Parameters("ITERATIONS")->asInt();
+
+	for(int i=0; i<Iterations && Set_Progress(i, Iterations); i++)
 	{
-		Parameters("TARGET_GRID")->asGridList()->Add_Item(pGrid);
+		Add_Bump();
+	}
 
-		pGrid->Set_Name(_TL("DEM"));
-		pGrid->Assign(0.0);
+	//-----------------------------------------------------
+	m_Kernel.Destroy();
 
-		int iIterations = Parameters("ITERATIONS")->asInt();
-		int iRadius = Parameters("RADIUS")->asInt();
-
-		for	(int i=0 ; i<iIterations && Set_Progress(i,iIterations) ; i++){
-			addBump(pGrid, iRadius);
-		}//for
-
-		return( true );
-	}//if
-
-	return( false );
-
-}//method
+	return( true );
+}
 
 
-void CGrid_Random_Terrain::addBump(CSG_Grid* pGrid, int iRadius){
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	double dOffset;
-	int x,y,x2,y2;
-	double dDist;
-	double dValue;
+//---------------------------------------------------------
+void CGrid_Random_Terrain::Add_Bump(void)
+{
+	int	x	= CSG_Random::Get_Uniform(-m_Radius, m_Radius + m_pGrid->Get_NX());
+	int	y	= CSG_Random::Get_Uniform(-m_Radius, m_Radius + m_pGrid->Get_NY());
 
-	x = rand() % pGrid->Get_NX();
-	y = rand() % pGrid->Get_NY();
+	for(int i=0; i<m_Kernel.Get_Count(); i++)
+	{
+		int	ix	= m_Kernel.Get_X(i, x);
+		int	iy	= m_Kernel.Get_Y(i, y);
 
-	for	(int i=-iRadius ; i<iRadius ; i++){
-		for (int j=-iRadius ; j<iRadius ; j++){
-			x2 = x+i;
-			y2 = y+j;
-			if (x2>0 && y2>0 && x2<pGrid->Get_NX() && y2 < pGrid->Get_NY()){
-				dDist= M_GET_LENGTH(x-x2, y-y2);
-				if (dDist<=iRadius){
-					dOffset = (iRadius * iRadius) - (dDist * dDist);
-					dValue = pGrid->asDouble(x2,y2);
-					pGrid->Set_Value(x2,y2,dValue+dOffset);	
-				}//else
-			}//if
-		}//for
-	}//for
+		if( m_pGrid->is_InGrid(ix, iy) )
+		{
+			m_pGrid->Add_Value(ix, iy, (m_Radius*m_Radius) - SG_Get_Square(m_Kernel.Get_Distance(i)));
+		}
+	}
+}
 
 
-}//method
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
