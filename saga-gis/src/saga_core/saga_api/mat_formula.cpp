@@ -118,6 +118,12 @@ static double f_atan2(double x, double val)
 }
 
 //---------------------------------------------------------
+static double f_pow(double x, double val)
+{
+	return( pow(x, val) );
+}
+
+//---------------------------------------------------------
 static double f_gt(double x, double val)
 {
 	return( x > val ? 1.0 : 0.0 );
@@ -148,6 +154,12 @@ static double f_int(double x)
 }
 
 //---------------------------------------------------------
+static double f_sqr(double x)
+{
+	return( x*x );
+}
+
+//---------------------------------------------------------
 static double f_fmod(double x, double val)
 {
 	return( fmod(x, val) );
@@ -156,7 +168,8 @@ static double f_fmod(double x, double val)
 //---------------------------------------------------------
 static double f_ifelse(double condition, double x, double y)
 {
-	return( fabs(condition - 1.0) < EPSILON ? x : y );
+	return( condition ? x : y );
+//	return( fabs(condition) >= EPSILON ? x : y );
 }
 
 
@@ -169,26 +182,28 @@ static double f_ifelse(double condition, double x, double y)
 //---------------------------------------------------------
 static CSG_Formula::TSG_Formula_Item gSG_Functions[MAX_CTABLE]	=
 {
-	{SG_T("exp")	,						exp		, 1, 0},	//  1
-	{SG_T("ln")		,						log		, 1, 0},	//  2
-	{SG_T("sin")	,						sin		, 1, 0},	//  3
-	{SG_T("cos")	,						cos		, 1, 0},	//  4
-	{SG_T("tan")	,						tan		, 1, 0},	//  5
-	{SG_T("asin")	,						asin	, 1, 0},	//  6
-	{SG_T("acos")	,						acos	, 1, 0},	//  7
-	{SG_T("atan")	,						atan	, 1, 0},	//  8
-	{SG_T("atan2")	, (TSG_PFNC_Formula_1)	f_atan2	, 2, 0},	//  9
-	{SG_T("abs")	,						fabs	, 1, 0},	// 10
-	{SG_T("sqrt")	,						sqrt	, 1, 0},	// 11
-	{SG_T("gt")		, (TSG_PFNC_Formula_1)	f_gt	, 2, 0},	// 12
-	{SG_T("lt")		, (TSG_PFNC_Formula_1)	f_lt	, 2, 0},	// 13
-	{SG_T("eq")		, (TSG_PFNC_Formula_1)	f_eq	, 2, 0},	// 14
-	{SG_T("pi")		, (TSG_PFNC_Formula_1)	f_pi	, 0, 0},	// 15
-	{SG_T("int")	, (TSG_PFNC_Formula_1)	f_int	, 1, 0},	// 16
-	{SG_T("mod")	, (TSG_PFNC_Formula_1)	f_fmod	, 2, 0},	// 17
-	{SG_T("ifelse")	, (TSG_PFNC_Formula_1)	f_ifelse, 3, 0},	// 18
-	{SG_T("log")	,						log10	, 1, 0},	// 19
-	{NULL			,						NULL	, 0, 0}
+	{SG_T("exp"   ),                      exp     , 1, 0},	//  1
+	{SG_T("ln"    ),                      log     , 1, 0},	//  2
+	{SG_T("sin"   ),                      sin     , 1, 0},	//  3
+	{SG_T("cos"   ),                      cos     , 1, 0},	//  4
+	{SG_T("tan"   ),                      tan     , 1, 0},	//  5
+	{SG_T("asin"  ),                      asin    , 1, 0},	//  6
+	{SG_T("acos"  ),                      acos    , 1, 0},	//  7
+	{SG_T("atan"  ),                      atan    , 1, 0},	//  8
+	{SG_T("atan2" ), (TSG_PFNC_Formula_1) f_atan2 , 2, 0},	//  9
+	{SG_T("abs"   ),                      fabs    , 1, 0},	// 10
+	{SG_T("sqrt"  ),                      sqrt    , 1, 0},	// 11
+	{SG_T("gt"    ), (TSG_PFNC_Formula_1) f_gt    , 2, 0},	// 12
+	{SG_T("lt"    ), (TSG_PFNC_Formula_1) f_lt    , 2, 0},	// 13
+	{SG_T("eq"    ), (TSG_PFNC_Formula_1) f_eq    , 2, 0},	// 14
+	{SG_T("pi"    ), (TSG_PFNC_Formula_1) f_pi    , 0, 0},	// 15
+	{SG_T("int"   ), (TSG_PFNC_Formula_1) f_int   , 1, 0},	// 16
+	{SG_T("mod"   ), (TSG_PFNC_Formula_1) f_fmod  , 2, 0},	// 17
+	{SG_T("ifelse"), (TSG_PFNC_Formula_1) f_ifelse, 3, 0},	// 18
+	{SG_T("log"   ),                      log10   , 1, 0},	// 19
+	{SG_T("pow"   ), (TSG_PFNC_Formula_1) f_pow   , 2, 0},	// 20
+	{SG_T("sqr"   ), (TSG_PFNC_Formula_1) f_sqr   , 1, 0},	// 11
+	{NULL          ,                      NULL    , 0, 0}
 };
 
 
@@ -244,10 +259,12 @@ CSG_String CSG_Formula::Get_Help_Operators(void)
 		SG_T("/ Division\n")
 		SG_T("^ power\n")
 		SG_T("abs(x)          - absolute value\n")
+		SG_T("sqr(x)          - square\n")
 		SG_T("sqrt(x)         - square root\n")
 		SG_T("ln(x)           - natural logarithm\n")
 		SG_T("log(x)          - base 10 logarithm\n")
 		SG_T("exp(x)          - exponential\n")
+		SG_T("pow(x, y)       - power with mantisse x and exponent y\n")
 		SG_T("sin(x)          - sine\n")
 		SG_T("cos(x)          - cosine\n")
 		SG_T("tan(x)          - tangent\n")
@@ -255,11 +272,14 @@ CSG_String CSG_Formula::Get_Help_Operators(void)
 		SG_T("acos(x)         - arccosine\n")
 		SG_T("atan(x)         - arctangent\n")
 		SG_T("atan2(x, y)     - arctangent of x/y\n")
-		SG_T("gt(x, y)        - if x&gt;y the result is 1.0, else 0.0\n")
-		SG_T("lt(x, y)        - if x&lt;y the result is 1.0, else 0.0\n")
-		SG_T("eq(x, y)        - if x=y the result is 1.0, else 0.0\n")
+		SG_T("gt(x, y)        - the result is 1.0, if x is greater than y else 0.0\n")
+		SG_T("x > y           - the result is 1.0, if x is greater than y else 0.0\n")
+		SG_T("lt(x, y)        - the result is 1.0, if x is less than y, else 0.0\n")
+		SG_T("x < y           - the result is 1.0, if x is less than y, else 0.0\n")
+		SG_T("eq(x, y)        - the result is 1.0, if x equals y, else 0.0\n")
+		SG_T("x = y           - the result is 1.0, if x equals y, else 0.0\n")
 		SG_T("mod(x, y)       - returns the floating point remainder of x/y\n")
-		SG_T("ifelse(c, x, y) - if c=1 the result is x, else y\n")
+		SG_T("ifelse(c, x, y) - if condition c is not 0.0 the result is x, else y\n")
 		SG_T("int(x)          - integer part of floating point value x\n")
 		SG_T("pi()            - returns the value of Pi\n")
 	));
