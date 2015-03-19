@@ -14,8 +14,8 @@ module1 = Extension(
 	],
 
 	library_dirs = [
-		os.environ['WXWIN'] + '/lib/vc_dll',
-		os.environ['SAGA'] + '/bin/saga_vc_x64'
+		os.environ['WXWIN'] + '/lib/vc_x64_dll',
+		os.environ['SAGA']
 	],
 
 	libraries = [

@@ -151,9 +151,9 @@ SAGA_API_DLL_EXPORT int			SG_Get_Digit_Count		(int Number);
 SAGA_API_DLL_EXPORT	CSG_String	SG_Get_Double_asString	(double Number, int Width = -1, int Precision = -1, bool bScientific = false);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT	int			SG_Compare_int			(const void *a, const void *b);
+SAGA_API_DLL_EXPORT	int			SG_Compare_Int			(const void *a, const void *b);
 SAGA_API_DLL_EXPORT	int			SG_Compare_Double		(const void *a, const void *b);
-SAGA_API_DLL_EXPORT	int			SG_Compare_PCChar		(const void *a, const void *b);
+SAGA_API_DLL_EXPORT	int			SG_Compare_Char_Ptr		(const void *a, const void *b);
 
 
 ///////////////////////////////////////////////////////////

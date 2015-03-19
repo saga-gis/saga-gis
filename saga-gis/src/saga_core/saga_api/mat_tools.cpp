@@ -206,7 +206,7 @@ int SG_Compare_Double(const void *a, const void *b)
 }
 
 //---------------------------------------------------------
-int SG_Compare_PCChar(const void *a, const void *b)
+int SG_Compare_Char_Ptr(const void *a, const void *b)
 {
 	return( strcmp((const char *)a, (const char *)b) );
 }
