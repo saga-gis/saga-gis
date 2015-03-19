@@ -275,7 +275,7 @@ bool CGW_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model
 		{
 			Model.Add_Sample(
 				m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0))),
-				pPoint->asDouble(m_iDependent), iz
+				pPoint->asDouble(m_iDependent), CSG_Vector(1, &iz)
 			);
 		}
 	}
