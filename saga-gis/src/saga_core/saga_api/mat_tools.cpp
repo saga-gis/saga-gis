@@ -1158,7 +1158,7 @@ bool CSG_Classifier_Supervised::Load(const CSG_String &File)
 }
 
 //---------------------------------------------------------
-bool CSG_Classifier_Supervised::Save(const CSG_String &File, const CSG_String &Feature_Info)
+bool CSG_Classifier_Supervised::Save(const CSG_String &File, const SG_Char *Feature_Info)
 {
 	if( m_nFeatures < 1 || m_nClasses < 1 || File.is_Empty() )
 	{
@@ -1173,7 +1173,11 @@ bool CSG_Classifier_Supervised::Save(const CSG_String &File, const CSG_String &F
 	CSG_MetaData	&Features	= *Data.Add_Child("features");
 	
 	Features.Add_Child("count", m_nFeatures);
-	Features.Add_Child("info" , Feature_Info);
+
+	if( Feature_Info && *Feature_Info )
+	{
+		Features.Add_Child("info", Feature_Info);
+	}
 
 	CSG_MetaData	&Classes	= *Data.Add_Child("classes");
 	

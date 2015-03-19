@@ -243,7 +243,7 @@ public:
 	double &					operator []			(int x)			{	return( Get_Data()[x] );	}
 	operator const double *							(void)	const	{	return( Get_Data() );		}
 
-	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, SG_Char Separator = SG_T(' '))	const;
+	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
 	bool						from_String			(const CSG_String &String);
 
 	bool						is_Equal			(const CSG_Vector &Vector)	const;
@@ -358,7 +358,7 @@ public:
 	double						operator ()			(int y, int x)	const	{	return( m_z[y][x] );	}
 	double *					operator []			(int y)			const	{	return( m_z[y] );		}
 
-	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, SG_Char Separator = SG_T(' '))	const;
+	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
 	bool						from_String			(const CSG_String &String);
 
 	bool						is_Square			(void)	const	{	return( m_nx > 0 && m_nx == m_ny );	}
@@ -772,7 +772,7 @@ public:
 	void						Destroy						(void);
 
 	bool						Load						(const CSG_String &File);
-	bool						Save						(const CSG_String &File, const CSG_String &Feature_Info = SG_T(""));
+	bool						Save						(const CSG_String &File, const SG_Char *Feature_Info = NULL);
 
 	bool						Train_Clr_Samples			(void);
 	bool						Train_Add_Sample			(const CSG_String &Class_ID, const CSG_Vector &Features);

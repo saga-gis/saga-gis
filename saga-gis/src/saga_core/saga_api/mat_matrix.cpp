@@ -237,9 +237,9 @@ bool CSG_Vector::Del_Row(int iRow)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Vector::to_String(int Width, int Precision, bool bScientific, SG_Char Separator)	const
+CSG_String CSG_Vector::to_String(int Width, int Precision, bool bScientific, const SG_Char *Separator)	const
 {
-	CSG_String	s;
+	CSG_String	s, sep(Separator && *Separator ? Separator : SG_T(" "));
 
 	for(int i=0; i<Get_N(); i++)
 	{
@@ -1175,9 +1175,9 @@ CSG_Vector CSG_Matrix::Get_Row(int iRow)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Matrix::to_String(int Width, int Precision, bool bScientific, SG_Char Separator)	const
+CSG_String CSG_Matrix::to_String(int Width, int Precision, bool bScientific, const SG_Char *Separator)	const
 {
-	CSG_String	s;
+	CSG_String	s, sep(Separator && *Separator ? Separator : SG_T(" "));
 
 	for(int y=0, n=SG_Get_Digit_Count(m_ny + 1); y<m_ny; y++)
 	{
