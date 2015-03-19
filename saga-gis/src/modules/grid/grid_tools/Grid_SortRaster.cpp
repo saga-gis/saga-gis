@@ -76,7 +76,7 @@ bool CSortRaster::On_Execute(void)
 
 	pIndex->Set_NoData_Value(0.0);
 
-	for(sLong i=0, Index=0; i<Get_NCells() && Set_Progress(i, Get_NCells()); i++)
+	for(sLong i=0, Index=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 	{
 		int	ix, iy;
 

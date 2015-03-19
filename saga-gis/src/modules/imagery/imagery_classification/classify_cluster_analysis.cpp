@@ -178,7 +178,8 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 	//-----------------------------------------------------
 	bool					bNormalize;
-	sLong					iFeature, iElement, nElements;
+	int						iFeature;
+	sLong					iElement, nElements;
 	CSG_Cluster_Analysis	Analysis;
 	CSG_Grid				*pCluster;
 	CSG_Parameter_Grid_List	*pGrids;

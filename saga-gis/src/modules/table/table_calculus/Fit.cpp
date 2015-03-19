@@ -239,7 +239,7 @@ bool CFit::On_Execute(void)
 		if (uservars[i] >='a' && uservars[i] <= 'z')
 		{
 			if (uservars[i] != 'x')
-				vars[NrVars++] = uservars[i];
+				vars[NrVars++] = (char)(uservars[i]);
 		}
 	}
 	

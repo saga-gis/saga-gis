@@ -1105,7 +1105,7 @@ bool CWKSP_Data_Manager::Get_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 {
 	CWKSP_Data_Item	*pItem	= pParameters ? Get(pObject) : NULL;
 
-	return( pItem && pParameters->Assign(pItem->Get_Parameters()) > 0 );
+	return( pItem && pParameters->Assign(pItem->Get_Parameters()) );
 }
 
 //---------------------------------------------------------
@@ -1113,7 +1113,7 @@ bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 {
 	CWKSP_Data_Item	*pItem	= pParameters ? Get(pObject) : NULL;
 
-	if( pItem && pItem->Get_Parameters()->Assign_Values(pParameters) > 0 )
+	if( pItem && pItem->Get_Parameters()->Assign_Values(pParameters) )
 	{
 		pItem->Parameters_Changed();
 

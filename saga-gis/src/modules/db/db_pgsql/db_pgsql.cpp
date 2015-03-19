@@ -1317,7 +1317,7 @@ bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String 
 		{
 			CSG_String	hex(Band.toHexString());
 
-			PQputCopyData(m_pgConnection, hex, hex.Length());
+			PQputCopyData(m_pgConnection, hex, (int)hex.Length());
 		}
 
 		PQputCopyEnd (m_pgConnection, NULL);

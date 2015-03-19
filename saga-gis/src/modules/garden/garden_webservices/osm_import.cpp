@@ -282,9 +282,9 @@ bool COSM_Import::Load_Nodes(wxXmlNode *pRoot)
 	{
 		if( !pNode->GetName().CmpNoCase(SG_T("node")) )
 		{
-			if(	pNode->GetPropVal(SG_T("id" ), &sValue) && sValue.ToLong  (&id)
-			&&	pNode->GetPropVal(SG_T("lon"), &sValue) && sValue.ToDouble(&lon)
-			&&	pNode->GetPropVal(SG_T("lat"), &sValue) && sValue.ToDouble(&lat) )
+			if(	pNode->GetAttribute(SG_T("id" ), &sValue) && sValue.ToLong  (&id)
+			&&	pNode->GetAttribute(SG_T("lon"), &sValue) && sValue.ToDouble(&lon)
+			&&	pNode->GetAttribute(SG_T("lat"), &sValue) && sValue.ToDouble(&lat) )
 			{
 				wxXmlNode	*pTag	= pNode->GetChildren();
 
@@ -402,7 +402,7 @@ bool COSM_Import::Load_Ways(wxXmlNode *pRoot)
 	{
 		if( !pNode->GetName().CmpNoCase(SG_T("way")) )
 		{
-			if(	pNode->GetPropVal(SG_T("id" ), &sValue) && sValue.ToLong  (&id) )
+			if(	pNode->GetAttribute(SG_T("id" ), &sValue) && sValue.ToLong  (&id) )
 			{
 				wxXmlNode	*pChild	= pNode->GetChildren();
 
@@ -410,7 +410,7 @@ bool COSM_Import::Load_Ways(wxXmlNode *pRoot)
 
 				while( pChild )
 				{
-					if( !pChild->GetName().CmpNoCase(SG_T("nd")) && pChild->GetPropVal(SG_T("ref"), &sValue) && sValue.ToLong(&idnode) )
+					if( !pChild->GetName().CmpNoCase(SG_T("nd")) && pChild->GetAttribute(SG_T("ref"), &sValue) && sValue.ToLong(&idnode) )
 					{
 						Nodes[nNodes++]	= idnode;
 					}

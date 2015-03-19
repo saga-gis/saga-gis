@@ -269,7 +269,7 @@ bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_M
 			Push(x, y);
 
 			//---------------------------------------------
-			while( m_iStack > 0 && Set_Progress(nReplaced, m_pGrid->Get_NCells()) )
+			while( m_iStack > 0 && Set_Progress_NCells(nReplaced) )
 			{
 				Pop(x, y);
 

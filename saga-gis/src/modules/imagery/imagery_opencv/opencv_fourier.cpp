@@ -227,7 +227,6 @@ bool DFT(IplImage *im, IplImage **ppReal, IplImage **ppImag)
 	CvMat* dft_A, tmp;
 	IplImage * image_Re;
 	IplImage * image_Im;
-	double m, M;
 
 	if( !im )
 		return false;

@@ -286,7 +286,7 @@ void CForecasting::CalculateGrids(){
 	m_CentralPoints	.Clear();
 	m_AdjPoints		.Clear();
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	Process_Set_Text(_TL("Calculating danger..."));
 	for(i=0; i<m_iNumEvents && Set_Progress(i, m_iNumEvents); i++){

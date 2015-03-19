@@ -198,9 +198,10 @@ bool CTable_Text_Replacer::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pReplacer		= Parameters("REPLACE")->asTable();
-	int	iField		= Parameters("FIELD"  )->asInt();
-	int	nChanges	= 0;
+	m_pReplacer	= Parameters("REPLACE")->asTable();
+	int	iField	= Parameters("FIELD"  )->asInt  ();
+
+	size_t	nChanges	= 0;
 
 	for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
 	{
@@ -236,11 +237,11 @@ bool CTable_Text_Replacer::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline int CTable_Text_Replacer::Replace(CSG_Table_Record *pRecord, int iField)
+inline size_t CTable_Text_Replacer::Replace(CSG_Table_Record *pRecord, int iField)
 {
 	CSG_String	Text(pRecord->asString(iField));
 
-	int	nChanges	= 0;
+	size_t	nChanges	= 0;
 
 	for(int i=0; i<m_pReplacer->Get_Count(); i++)
 	{

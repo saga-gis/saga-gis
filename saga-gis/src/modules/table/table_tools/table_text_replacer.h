@@ -97,7 +97,7 @@ private:
 	CSG_Table			*m_pReplacer;
 
 
-	int					Replace					(CSG_Table_Record *pRecord, int iField);
+	size_t				Replace					(CSG_Table_Record *pRecord, int iField);
 
 };
 

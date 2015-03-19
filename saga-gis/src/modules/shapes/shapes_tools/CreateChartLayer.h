@@ -33,8 +33,8 @@ public:
 	virtual bool is_ProjectDependent(void) {return( false );}
 
 private:
-	float m_fMaxValue, m_fMinValue;
-	float m_fMaxSize, m_fMinSize;
+	double m_fMaxValue, m_fMinValue;
+	double m_fMaxSize, m_fMinSize;
 	CSG_Parameters *m_pExtraParameters;
 	bool *m_bIncludeParam;
 	CSG_Shapes *m_pOutput;

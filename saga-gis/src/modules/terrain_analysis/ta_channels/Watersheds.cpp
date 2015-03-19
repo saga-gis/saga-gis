@@ -165,7 +165,7 @@ bool CWatersheds::On_Execute(void)
 					n	= pDTM->Get_Gradient_NeighborDir(x, y);
 				}
 
-				m_Direction.Set_Value(x, y, n < 0 ? -1 : (n + 4) % 8);
+				m_Direction.Set_Value(x, y, (int)(n < 0 ? -1 : (n + 4) % 8));
 			}
 		}
 	}

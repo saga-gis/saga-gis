@@ -251,7 +251,7 @@ bool CWMS_Capabilities::_Get_Node_PropVal(wxXmlNode *pNode, CSG_String &Value, c
 {
 	wxString	PropVal;
 
-	if( pNode != NULL && pNode->GetPropVal(Property.c_str(), &PropVal) )
+	if( pNode != NULL && pNode->GetAttribute(Property.c_str(), &PropVal) )
 	{
 		Value	= PropVal.wc_str();
 
@@ -697,7 +697,6 @@ bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, const CS
 	//-----------------------------------------------------
 	if( pServer && Dlg_Parameters(&p, _TL("WMS Import")) )
 	{
-		long		tFormat;
 		int			NX, NY;
 		double		Cellsize;
 		CSG_String	Layers, Format;
@@ -733,17 +732,19 @@ bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, const CS
 		}
 
 		//-------------------------------------------------
+		wxBitmapType	tFormat;
+
 		Format	= p("FORMAT")->asString();
 
-		if(      Format.Contains(SG_T("image/gif")) )	tFormat	= wxBITMAP_TYPE_GIF;
+		if(      Format.Contains(SG_T("image/gif" )) )	tFormat	= wxBITMAP_TYPE_GIF ;
 		else if( Format.Contains(SG_T("image/jpeg")) )	tFormat	= wxBITMAP_TYPE_JPEG;
-		else if( Format.Contains(SG_T("image/png")) )	tFormat	= wxBITMAP_TYPE_PNG;
-		else if( Format.Contains(SG_T("image/wbmp")) )	tFormat	= wxBITMAP_TYPE_BMP;
-		else if( Format.Contains(SG_T("image/bmp")) )	tFormat	= wxBITMAP_TYPE_BMP;
-		else if( Format.Contains(SG_T("image/tiff")) )	tFormat	= wxBITMAP_TYPE_TIF;
-		else if( Format.Contains(SG_T("GIF")) )			tFormat	= wxBITMAP_TYPE_GIF;
-		else if( Format.Contains(SG_T("JPEG")) )		tFormat	= wxBITMAP_TYPE_JPEG;
-		else if( Format.Contains(SG_T("PNG")) )			tFormat	= wxBITMAP_TYPE_PNG;
+		else if( Format.Contains(SG_T("image/png" )) )	tFormat	= wxBITMAP_TYPE_PNG ;
+		else if( Format.Contains(SG_T("image/wbmp")) )	tFormat	= wxBITMAP_TYPE_BMP ;
+		else if( Format.Contains(SG_T("image/bmp" )) )	tFormat	= wxBITMAP_TYPE_BMP ;
+		else if( Format.Contains(SG_T("image/tiff")) )	tFormat	= wxBITMAP_TYPE_TIF ;
+		else if( Format.Contains(SG_T("GIF"       )) )	tFormat	= wxBITMAP_TYPE_GIF ;
+		else if( Format.Contains(SG_T("JPEG"      )) )	tFormat	= wxBITMAP_TYPE_JPEG;
+		else if( Format.Contains(SG_T("PNG"       )) )	tFormat	= wxBITMAP_TYPE_PNG ;
 		else
 		{
 			return( false );

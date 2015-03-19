@@ -591,7 +591,7 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 		{
 			if( pGrid->is_NoData(x, y) )
 				m_Weight.Set_Value(x, y, d = 0);
-			else //if( m_Weight.asDouble(x, y) > d )
+			else //if( m_Weight.asInt(x, y) > d )
 				m_Weight.Set_Value(x, y, d);
 
 			if( dBlend <= 0 || d < dBlend )	d++;
@@ -601,10 +601,10 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 		{
 			if( pGrid->is_NoData(x, y) )
 				m_Weight.Set_Value(x, y, d = 0);
-			else if( m_Weight.asDouble(x, y) > d )
+			else if( m_Weight.asInt(x, y) > d )
 				m_Weight.Set_Value(x, y, d);
 			else
-				d	= m_Weight.asDouble(x, y);
+				d	= m_Weight.asInt(x, y);
 
 			if( dBlend <= 0 || d < dBlend )	d++;
 		}
@@ -616,10 +616,10 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 		{
 			if( pGrid->is_NoData(x, y) )
 				m_Weight.Set_Value(x, y, d = 0);
-			else if( m_Weight.asDouble(x, y) > d )
+			else if( m_Weight.asInt(x, y) > d )
 				m_Weight.Set_Value(x, y, d);
 			else
-				d	= m_Weight.asDouble(x, y);
+				d	= m_Weight.asInt(x, y);
 
 			if( dBlend <= 0 || d < dBlend )	d++;
 		}
@@ -628,10 +628,10 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 		{
 			if( pGrid->is_NoData(x, y) )
 				m_Weight.Set_Value(x, y, d = 0);
-			else if( m_Weight.asDouble(x, y) > d )
+			else if( m_Weight.asInt(x, y) > d )
 				m_Weight.Set_Value(x, y, d);
 			else
-				d	= m_Weight.asDouble(x, y);
+				d	= m_Weight.asInt(x, y);
 
 			if( dBlend <= 0 || d < dBlend )	d++;
 		}
@@ -696,7 +696,7 @@ void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
 
 		CSG_Regression	r;
 
-		if( r.Calculate(Z[0].Get_Size(), Z[0].Get_Data(), Z[1].Get_Data()) )
+		if( r.Calculate((int)Z[0].Get_Size(), Z[0].Get_Data(), Z[1].Get_Data()) )
 		{
 			m_Match.Create(2);
 

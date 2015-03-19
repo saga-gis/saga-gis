@@ -422,7 +422,7 @@ void CShapes_Summary::CreatePDFDocs(){
 	pShapesTable = m_pShapes;
 	pShapes = new CSG_Shapes();
 	for (i = 0; i < (int)m_ClassesID.size(); i++){
-		Set_Progress(i,m_ClassesID.size());
+		Set_Progress(i,(int)m_ClassesID.size());
 		pShapes->Create(m_pShapes->Get_Type());
 		for (j = 0; j < m_pShapes->Get_Count(); j++){
 			if (m_pClasses[j] == i){

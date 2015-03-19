@@ -74,8 +74,6 @@
 CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 	: CPROJ4_Base(Interface, bInputList)
 {
-	CSG_Parameters	*pParameters;
-
 	//-----------------------------------------------------
 	Set_Name		(CSG_String::Format(SG_T("[deprecated] %s (%s, %s)"),
 		_TL("Proj.4"),

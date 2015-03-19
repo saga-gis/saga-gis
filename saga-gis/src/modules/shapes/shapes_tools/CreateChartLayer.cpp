@@ -95,8 +95,8 @@ bool CCreateChartLayer::On_Execute(void){
 	if (GetExtraParameters()){
 
 		iSizeField = Parameters("SIZE")->asInt();
-		m_fMaxSize = (float) Parameters("MAXSIZE")->asDouble();
-		m_fMinSize = (float) Parameters("MINSIZE")->asDouble();
+		m_fMaxSize = (double) Parameters("MAXSIZE")->asDouble();
+		m_fMinSize = (double) Parameters("MINSIZE")->asDouble();
 
 		if (m_fMinSize > m_fMaxSize){
 			m_fMinSize = m_fMaxSize;
@@ -210,10 +210,10 @@ void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 	int iSteps;
 	int iSizeField;
 	int iField;
-	float fSum = 0;
-	float fPartialSum = 0;
-	float fSize;	
-	float fSectorSize;
+	double fSum = 0;
+	double fPartialSum = 0;
+	double fSize;	
+	double fSectorSize;
 	double dX, dY;
 	CSG_Shape *pSector;
 	CSG_Table_Record *pRecord;
@@ -256,8 +256,8 @@ void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 			pSector->Add_Point(dX,dY);
 			iSteps = (int) (fSectorSize * 200.);
 			for (j = 0; j < iSteps; j++){
-				pSector->Add_Point(dX + fSize * sin((fPartialSum + (float)j / 200.) * PI2),
-									dY + fSize * cos((fPartialSum + (float)j / 200.) * PI2));
+				pSector->Add_Point(dX + fSize * sin((fPartialSum + (double)j / 200.) * PI2),
+									dY + fSize * cos((fPartialSum + (double)j / 200.) * PI2));
 			}//for
 			fPartialSum +=fSectorSize;
 			pSector->Add_Point(dX + fSize * sin(fPartialSum * PI2),
@@ -276,10 +276,10 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 	int iSizeField;
 	int iField;
 	int iValidFields = 0;
-	float fMax;	
-	float fMin;
-	float fSize;	
-	float fBarHeight, fBarWidth;
+	double fMax;	
+	double fMin;
+	double fSize;	
+	double fBarHeight, fBarWidth;
 	double dX, dY;
 	CSG_Shape *pSector;
 	CSG_Table_Record *pRecord;
@@ -332,7 +332,7 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 	dX = Point.x;
 	dY = Point.y;
 	
-	fBarWidth = fSize / (float)iValidFields;
+	fBarWidth = fSize / (double)iValidFields;
 
 	iField = 1;
 	for (i = 0; i < pRecord->Get_Table()->Get_Field_Count(); i++){
@@ -358,8 +358,8 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 TSG_Point CCreateChartLayer::GetLineMidPoint(CSG_Shape_Line *pLine){
 
 	int i;
-	float fDist, fAccDist = 0;
-	float fLength = pLine->Get_Length(0) / 2.;
+	double fDist, fAccDist = 0;
+	double fLength = pLine->Get_Length(0) / 2.;
 	TSG_Point Point, Point2, ReturnPoint;
 
 	for (i = 0; i < pLine->Get_Point_Count(0) - 1; i++){

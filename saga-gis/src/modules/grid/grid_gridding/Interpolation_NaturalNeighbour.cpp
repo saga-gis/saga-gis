@@ -151,7 +151,7 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("creating interpolator"));
-	nnai	*pNN	= nnai_build(pTIN, m_pGrid->Get_NCells(), xDst, yDst);
+	nnai	*pNN	= nnai_build(pTIN, (long)m_pGrid->Get_NCells(), xDst, yDst);
 
     Process_Set_Text(_TL("interpolating"));
     nnai_interpolate(pNN, zSrc, zDst);

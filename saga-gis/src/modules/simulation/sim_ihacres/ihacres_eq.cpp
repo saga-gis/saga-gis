@@ -58,7 +58,7 @@ Cihacres_eq::Cihacres_eq(date_array date_in,
 						 double l, double p,
 						 double aq, double as, double bq, double bs)
 {
-	sizeAll			= streamflow.size();
+	sizeAll			= (int)streamflow.size();
 	date			= date_in;
 	streamflow_obs	= streamflow;
 	precipitation	= pcp;
@@ -72,7 +72,7 @@ Cihacres_eq::Cihacres_eq(date_array date_in,
 	this->bq		= bq;
 	this->bs		= bs;
 	// Initialize Vectors
-	_InitVectorsStart(streamflow_obs.size());
+	_InitVectorsStart((int)streamflow_obs.size());
 }
 //---------------------------------------------------------------------
 // two storages
@@ -94,7 +94,7 @@ Cihacres_eq::Cihacres_eq(date_array date_in,
 						 int delay)
 {
 	// Initialize Parameters and Vectors
-	sizeAll			= streamflow.size();
+	sizeAll			= (int)streamflow.size();
 	date			= date_in;
 	streamflow_obs	= streamflow;
 	precipitation	= pcp;
@@ -223,7 +223,7 @@ Cihacres_eq::Cihacres_eq(int size, // array size
 	this->bq		= bq;
 	this->bs		= bs;
 	// Initialize Vectors
-	_InitVectorsStart(streamflow_obs.size());
+	_InitVectorsStart((int)streamflow_obs.size());
 }
 //---------------------------------------------------------------------
 // end constructors ///////////////////////////////////////////////////
@@ -306,7 +306,7 @@ void Cihacres_eq::SimStreamflowSingle(vector_d &excessRain, double initVal,
 									  double a, double b)
 {
 	int i;
-	int size = streamflow_sim.size();
+	int size = (int)streamflow_sim.size();
 	// using the first observed streamflow value as initial simulation value
 	for (i = 0; i < delay; i++)
 		streamflow_sim[i] = initVal;
@@ -344,7 +344,7 @@ void Cihacres_eq::SimStreamflow2Parallel(vector_d &excessRain, vector_d &streamf
 										 int IHAC_vers, int delay)
 {
 	int i;
-	int size = streamflow_sim.size();
+	int size = (int)streamflow_sim.size();
 	double *sf_q = new double[size]; // quick streamflow component
 	double *sf_s = new double[size]; // slow streamflow component
 

@@ -163,7 +163,7 @@ bool CCreateWebContent::On_Execute_Finish(void){
 				Pictures[j] = m_Pictures[i].at(j).c_str();
 			}//for*/
 		
-			HTMLDoc.AddThumbnails(Pictures, m_Pictures[i].size(), 4);
+			HTMLDoc.AddThumbnails(Pictures, (int)m_Pictures[i].size(), 4);
 			HTMLDoc.AddLineBreak();
 			for (j = 0; j < m_Links[i].size(); j++){
 				HTMLDoc.AddHyperlink(m_LinksDescription[i].at(j).c_str(), m_Links[i].at(j).c_str());

@@ -160,8 +160,7 @@ bool CFilter_Majority::On_Execute(void)
 
 	m_Majority.Create();
 
-	m_Threshold	= m_Kernel.Get_NoData_Count();
-
+//	m_Threshold	= (int)m_Kernel.Get_NoData_Count();
 	m_Threshold	= 1 + (int)(0.01 * Parameters("THRESHOLD")->asDouble() * (1 + m_Kernel.Get_NCells() - m_Kernel.Get_NoData_Count()));
 
 	//-----------------------------------------------------
@@ -179,6 +178,7 @@ bool CFilter_Majority::On_Execute(void)
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(x=0; x<Get_NX(); x++)
 		{
 			if( m_pInput->is_InGrid(x, y) )

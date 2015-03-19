@@ -374,7 +374,7 @@ void CDLG_List_Base::On_Down(wxCommandEvent &event)
 	{
 		Selections.Sort(ArrayInt_CMP_Down);
 
-		if( Selections.Item(0) < m_pAdd->GetCount() - 1 )
+		if( (int)Selections.Item(0) < m_pAdd->GetCount() - 1 )
 		{
 			for(size_t i=0; i<Selections.GetCount(); i++)
 			{

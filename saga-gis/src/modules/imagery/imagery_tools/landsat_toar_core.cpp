@@ -212,7 +212,7 @@ bool Get_MetaData(const CSG_MetaData &MetaData, const CSG_String &key, CSG_Strin
 #define IF_GET_METADATA(key)	if( Get_MetaData(m, key, s) == true )
 
 //---------------------------------------------------------
-int lsat_old_mtl(const CSG_MetaData &m, lsat_data *lsat)
+bool lsat_old_mtl(const CSG_MetaData &m, lsat_data *lsat)
 {
 	CSG_String	s;
 
@@ -270,7 +270,7 @@ int lsat_old_mtl(const CSG_MetaData &m, lsat_data *lsat)
 }
 
 //---------------------------------------------------------
-int lsat_new_mtl(const CSG_MetaData &m, lsat_data * lsat)
+bool lsat_new_mtl(const CSG_MetaData &m, lsat_data * lsat)
 {
 	CSG_String	s;
 
@@ -423,7 +423,7 @@ bool lsat_metadata(const char *metafile, lsat_data *lsat)
 
 	//-----------------------------------------------------
 	char	mtldata[METADATA_SIZE];
-	int		i	= fread(mtldata, METADATA_SIZE, 1, f);
+	size_t	i	= fread(mtldata, METADATA_SIZE, 1, f);
 	fclose(f);
 
 	//-----------------------------------------------------

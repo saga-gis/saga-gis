@@ -275,7 +275,7 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 	//-----------------------------------------------------
 	if( m_Method == 1 )	// last point
 	{
-		pKeep	= m_pPoints->Get_Shape((int)pList->Get_Value(pList->Get_Count() - 1));
+		pKeep	= m_pPoints->Get_Shape((int)pList->Get_Value((int)(pList->Get_Count() - 1)));
 	}
 
 	if( pKeep )
@@ -283,7 +283,7 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 		((CSG_Table_Record *)pPoint)->Assign(pKeep);
 	}
 
-	pPoint->Set_Value(m_pPoints->Get_Field_Count() - 1, pList->Get_Count());
+	pPoint->Set_Value(m_pPoints->Get_Field_Count() - 1, (double)pList->Get_Count());
 
 	//-----------------------------------------------------
 	if( m_Numeric > 0 )

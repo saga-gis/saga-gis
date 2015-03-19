@@ -242,7 +242,7 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 		return( false );
 	}
 
-	for(sLong n=0; n<Get_NCells() && Set_Progress(n); n++)
+	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		pSurface->Get_Sorted(n, x, y, true);
 
