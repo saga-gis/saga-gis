@@ -309,6 +309,11 @@ CSG_Simple_Statistics::CSG_Simple_Statistics(double Mean, double StdDev, sLong C
 	Create(Mean, StdDev, Count);
 }
 
+CSG_Simple_Statistics::CSG_Simple_Statistics(const CSG_Vector &Values, bool bHoldValues)
+{
+	Create(Values, bHoldValues);
+}
+
 //---------------------------------------------------------
 bool CSG_Simple_Statistics::Create(bool bHoldValues)
 {
@@ -362,6 +367,21 @@ bool CSG_Simple_Statistics::Create(double Mean, double StdDev, sLong Count)
 	m_Values		.Destroy();
 
 	return( true );
+}
+
+bool CSG_Simple_Statistics::Create(const CSG_Vector &Values, bool bHoldValues)
+{
+	if( Create(bHoldValues) )
+	{
+		for(size_t i=0; i<Values.Get_Size(); i++)
+		{
+			Add_Value(Values[i]);
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1135,8 +1155,6 @@ bool CSG_Classifier_Supervised::Load(const CSG_String &File)
 			if( !pClass->m_Mean.from_String(Classes[i]["mean"].Get_Content()) || pClass->m_Mean.Get_N () != m_nFeatures )	{	bAdd	= false;	}
 			if( !pClass->m_Min .from_String(Classes[i]["min" ].Get_Content()) || pClass->m_Min .Get_N () != m_nFeatures )	{	bAdd	= false;	}
 			if( !pClass->m_Max .from_String(Classes[i]["max" ].Get_Content()) || pClass->m_Max .Get_N () != m_nFeatures )	{	bAdd	= false;	}
-			if( !pClass->m_BE_s.from_String(Classes[i]["be_s"].Get_Content()) || pClass->m_BE_s.Get_N () != m_nFeatures )	{	bAdd	= false;	}
-			if( !                           Classes[i]["be_m"].Get_Content().asDouble(pClass->m_BE_m) )	{	bAdd	= false;	}
 
 			//---------------------------------------------
 			if( !bAdd )
@@ -1150,6 +1168,8 @@ bool CSG_Classifier_Supervised::Load(const CSG_String &File)
 
 				pClass->m_Cov_Det	= pClass->m_Cov.Get_Determinant();
 				pClass->m_Cov_Inv	= pClass->m_Cov.Get_Inverse();
+
+				pClass->m_Mean_Spectral	= CSG_Simple_Statistics(pClass->m_Mean).Get_Mean();
 			}
 		}
 	}
@@ -1194,8 +1214,6 @@ bool CSG_Classifier_Supervised::Save(const CSG_String &File, const SG_Char *Feat
 		Class.Add_Child("min" , pClass->m_Min .to_String());
 		Class.Add_Child("max" , pClass->m_Max .to_String());
 		Class.Add_Child("cov" , pClass->m_Cov .to_String());
-		Class.Add_Child("be_s", pClass->m_BE_s.to_String());
-		Class.Add_Child("be_m", pClass->m_BE_m            );
 	}
 
 	return( Data.Save(File) );
@@ -1243,6 +1261,45 @@ CSG_String CSG_Classifier_Supervised::Print(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Classifier_Supervised::Add_Class(const CSG_String &Class_ID, const CSG_Vector &Mean, const CSG_Vector &Min, const CSG_Vector &Max, const CSG_Matrix &Cov)
+{
+	if( m_nFeatures < 1 || Mean.Get_N() != m_nFeatures || Min.Get_N() != m_nFeatures || Max.Get_N() != m_nFeatures || Cov.Get_NCols() != m_nFeatures || Cov.Get_NRows() != m_nFeatures )
+	{
+		return( false );
+	}
+
+	CClass	*pClass, **pClasses	= (CClass **)SG_Realloc(m_pClasses, (m_nClasses + 1) * sizeof(CClass *));
+
+	if( pClasses )
+	{
+		m_pClasses	= pClasses;
+
+		m_pClasses[m_nClasses++]	= pClass	= new CClass(Class_ID);
+
+		pClass->m_ID	= Class_ID;
+
+		pClass->m_Mean	= Mean;
+		pClass->m_Min	= Min;
+		pClass->m_Max	= Max;
+		pClass->m_Cov	= Cov;
+
+		pClass->m_Cov_Inv	= Cov.Get_Inverse();
+		pClass->m_Cov_Det	= Cov.Get_Determinant();
+
+		pClass->m_Mean_Spectral	= CSG_Simple_Statistics(Mean).Get_Mean();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Classifier_Supervised::Train_Clr_Samples(void)
 {
 	for(int i=0; i<m_nClasses; i++)
@@ -1282,16 +1339,48 @@ bool CSG_Classifier_Supervised::Train_Add_Sample(const CSG_String &Class_ID, con
 }
 
 //---------------------------------------------------------
-bool CSG_Classifier_Supervised::CClass::Update(void)
+bool CSG_Classifier_Supervised::Train(bool bClear_Samples)
 {
+	if( m_nFeatures < 1 || m_nClasses < 1 )
+	{
+		return( false );
+	}
+
+	for(int iClass=0; iClass<m_nClasses; iClass++)
+	{
+		if( !m_pClasses[iClass]->Train() )
+		{
+			return( false );
+		}
+	}
+
+	if( bClear_Samples )
+	{
+		Train_Clr_Samples();
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Classifier_Supervised::CClass::Train(void)
+{
+	if( m_Samples.Get_NCols() < 1 || m_Samples.Get_NRows() < 1 )
+	{
+		return( false );
+	}
+
 	int	iFeature;
 
+	//-----------------------------------------------------
 	m_Mean.Create(m_Samples.Get_NCols());
 	m_Min .Create(m_Samples.Get_NCols());
 	m_Max .Create(m_Samples.Get_NCols());
-	m_Cov .Create(m_Samples.Get_NCols(), m_Samples.Get_NCols());
-	m_BE_s.Create(m_Samples.Get_NCols());
-	m_BE_m	= 0.0;
 
 	for(iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
 	{
@@ -1305,11 +1394,10 @@ bool CSG_Classifier_Supervised::CClass::Update(void)
 		m_Mean[iFeature]	= s.Get_Mean   ();
 		m_Min [iFeature]	= s.Get_Minimum();
 		m_Max [iFeature]	= s.Get_Maximum();
-
-		m_BE_m	+= s.Get_Mean();
 	}
 
-	m_BE_m	/= m_Samples.Get_NCols();
+	//-----------------------------------------------------
+	m_Cov.Create(m_Samples.Get_NCols(), m_Samples.Get_NCols());
 
 	for(iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
 	{
@@ -1329,38 +1417,14 @@ bool CSG_Classifier_Supervised::CClass::Update(void)
 
 			m_Cov[iFeature][jFeature]	= m_Cov[jFeature][iFeature]	= cov;
 		}
-
-		m_BE_s[iFeature]	= m_Mean[iFeature] < m_BE_m ? 0.0 : 1.0;
 	}
 
-	//	m_ML_Scale	= 1.0 / (pow(2.0 * M_PI, m_Samples.Get_NCols() / 2.0) * sqrt(fabs(m_Cov.Get_Determinant())));
-	m_Cov_Det	= m_Cov.Get_Determinant();
-	m_Cov_Inv	= m_Cov.Get_Inverse();
+	m_Cov_Inv	= m_Cov.Get_Inverse    ();
+	m_Cov_Det	= m_Cov.Get_Determinant();	// m_ML_Scale	= pow(2 * M_PI, -m_Samples.Get_NCols() / 2.0) * pow(fabs(m_Cov.Get_Determinant()), -0.5);
 
-	return( true );
-}
+	m_Mean_Spectral	= CSG_Simple_Statistics(m_Mean).Get_Mean();
 
-//---------------------------------------------------------
-bool CSG_Classifier_Supervised::Train(bool bClear_Samples)
-{
-	if( m_nClasses < 1 )
-	{
-		return( false );
-	}
-
-	for(int iClass=0; iClass<m_nClasses; iClass++)
-	{
-		if( !m_pClasses[iClass]->Update() )
-		{
-			return( false );
-		}
-	}
-
-	if( bClear_Samples )
-	{
-		Train_Clr_Samples();
-	}
-
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -1461,23 +1525,39 @@ CSG_String CSG_Classifier_Supervised::Get_Name_of_Quality(int Method)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// Mazer, A. S., Martin, M., Lee, M., and Solomon, J. E. (1988):
+// Image Processing Software for Imaging Spectrometry Analysis.
+// Remote Sensing of Environment, v. 24, no. 1, p. 201-210.
+//
 void CSG_Classifier_Supervised::_Get_Binary_Encoding(const CSG_Vector &Features, int &Class, double &Quality)
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
 		CClass	*pClass	= m_pClasses[iClass];
 
+		double	Mean_Spectral	= CSG_Simple_Statistics(Features).Get_Mean();
+
 		int		d	= 0;
 
 		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
 		{
-			if(	(Features(iFeature) < pClass->m_BE_m) != (pClass->m_BE_s[iFeature] != 0.0) )
+			d	+= (Features(iFeature) < Mean_Spectral) == (pClass->m_Mean[iFeature] < pClass->m_Mean_Spectral) ? 0 : 1;
+
+			if( iFeature == 0 )	// spectral slopes
 			{
-				d	++;
+				d	+= (Features[iFeature    ] < Features[iFeature + 1]) == (pClass->m_Mean[iFeature    ] < pClass->m_Mean[iFeature + 1]) ? 0 : 1;
+			}
+			else if( iFeature == Get_Feature_Count() - 1 )
+			{
+				d	+= (Features[iFeature - 1] < Features[iFeature    ]) == (pClass->m_Mean[iFeature - 1] < pClass->m_Mean[iFeature    ]) ? 0 : 1;
+			}
+			else
+			{
+				d	+= (Features[iFeature - 1] < Features[iFeature + 1]) == (pClass->m_Mean[iFeature - 1] < pClass->m_Mean[iFeature + 1]) ? 0 : 1;
 			}
 		}
 
-		if( Class < 0 || Quality < d )
+		if( Class < 0 || Quality > d )	// find the minimum 'Hamming' distance
 		{
 			Quality	= d;
 			Class	= iClass;

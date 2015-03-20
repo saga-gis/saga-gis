@@ -550,10 +550,12 @@ public:
 	CSG_Simple_Statistics(bool bHoldValues);
 	CSG_Simple_Statistics(const CSG_Simple_Statistics &Statistics);
 	CSG_Simple_Statistics(double Mean, double StdDev, sLong Count = 1000);
+	CSG_Simple_Statistics(const CSG_Vector &Values, bool bHoldValues = false);
 
 	bool						Create				(bool bHoldValues = false);
 	bool						Create				(const CSG_Simple_Statistics &Statistics);
 	bool						Create				(double Mean, double StdDev, sLong Count = 1000);
+	bool						Create				(const CSG_Vector &Values, bool bHoldValues = false);
 
 	void						Invalidate			(void);
 
@@ -778,6 +780,8 @@ public:
 	bool						Train_Add_Sample			(const CSG_String &Class_ID, const CSG_Vector &Features);
 	bool						Train						(bool bClr_Samples = false);
 
+	bool						Add_Class					(const CSG_String &Class_ID, const CSG_Vector &Mean, const CSG_Vector &Min, const CSG_Vector &Max, const CSG_Matrix &Cov);
+
 	CSG_String					Print						(void);
 
 	//-----------------------------------------------------
@@ -819,14 +823,14 @@ private:
 
 		CSG_String				m_ID;
 
-		double					m_Cov_Det, m_BE_m;
+		double					m_Cov_Det, m_Mean_Spectral;
 
-		CSG_Vector				m_Mean, m_Min, m_Max, m_BE_s;
+		CSG_Vector				m_Mean, m_Min, m_Max;
 
 		CSG_Matrix				m_Cov, m_Cov_Inv, m_Samples;
 
 
-		bool					Update						(void);
+		bool					Train						(void);
 
 	};
 

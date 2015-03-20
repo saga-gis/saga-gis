@@ -267,8 +267,6 @@ bool CPolygon_Classify_Supervised::On_Execute(void)
 		((CSG_Shapes *)pClasses)->Create(pShapes->Get_Type(), NULL, NULL, pShapes->Get_Vertex_Type());
 	}
 
-	pClasses->Set_Name(CSG_String::Format("%s [%s]", m_pTable->Get_Name(), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str()));
-
 	pClasses->Add_Field(_TL("CLASS_NR"), SG_DATATYPE_Int);
 	pClasses->Add_Field(_TL("CLASS_ID"), SG_DATATYPE_String);
 	pClasses->Add_Field(_TL("QUALITY" ), SG_DATATYPE_Double);
@@ -462,6 +460,8 @@ bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised 
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 		DataObject_Set_Parameter(pClasses, "LUT_ATTRIB" , 0);	// Lookup Table Attribute
 	}
+
+	pClasses->Set_Name(CSG_String::Format("%s [%s]", m_pTable->Get_Name(), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str()));
 
 	//-----------------------------------------------------
 	return( true );

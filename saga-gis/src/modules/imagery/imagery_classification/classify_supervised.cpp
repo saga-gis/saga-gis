@@ -418,8 +418,6 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 	//-----------------------------------------------------
 	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
 
-	pClasses->Set_Name(CSG_String::Format("%s [%s]", _TL("Classification"), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str()));
-
 	//-----------------------------------------------------
 	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pClasses, "LUT");
 
@@ -446,14 +444,16 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 
+	pClasses->Set_Name(CSG_String::Format("%s [%s]", _TL("Classification"), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str()));
+
 	//-----------------------------------------------------
 	CSG_Grid	*pQuality	= Parameters("QUALITY")->asGrid();
 
 	if( pQuality )
 	{
-		pQuality->Set_Name(CSG_String::Format("%s [%s]", _TL("Classification Quality"), CSG_Classifier_Supervised::Get_Name_of_Quality(Parameters("METHOD")->asInt()).c_str()));
-
 		DataObject_Set_Colors(pQuality, 11, SG_COLORS_YELLOW_GREEN);
+
+		pQuality->Set_Name(CSG_String::Format("%s [%s]", _TL("Classification Quality"), CSG_Classifier_Supervised::Get_Name_of_Quality(Parameters("METHOD")->asInt()).c_str()));
 	}
 
 	//-----------------------------------------------------
