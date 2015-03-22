@@ -74,7 +74,7 @@ CMMF_SAGA::CMMF_SAGA(void)
 	Set_Name	(_TL("MMF-SAGA Soil Erosion Model"));
 
 	Set_Author	(SG_T("(c) 2009-2012 V. Wichmann, M. Setiawan"));
-	
+
 	Set_Description(_TW("Soil erosion modelling with a modified MMF (Morgan-Morgan-Finney) model "
 						"(Morgan & Duzant 2008).<br/>"
 						"This module is called MMF-SAGA because some things have been implemented differently "
@@ -106,106 +106,107 @@ CMMF_SAGA::CMMF_SAGA(void)
 
 	// comments on equation numbers refer to Morgan & Duzant (2008)
 
-	
+
 	//pNodeTerrain = Parameters.Add_Node(NULL, "TERRAIN", _TL("Terrain"), _TL("Terrain parameters"));
 	Parameters.Add_Grid(
-		NULL, "DTM", _TL("Digital Terrain Model"), 
-		_TL("DTM, digital terrain model [m]"), 
+		NULL, "DTM", _TL("Digital Terrain Model"),
+		_TL("DTM, digital terrain model [m]"),
 		PARAMETER_INPUT
 	);
 	Parameters.Add_Grid(
-		NULL, "S", _TL("Slope"), 
-		_TL("S, slope [rad]"), 
+		NULL, "S", _TL("Slope"),
+		_TL("S, slope [rad]"),
 		PARAMETER_INPUT
 	);
     Parameters.Add_Grid(
-		NULL, "CHANNEL", _TL("Channel Network"), 
-		_TL("Channel network, all other cells NoData"), 
+		NULL, "CHANNEL", _TL("Channel Network"),
+		_TL("Channel network, all other cells NoData"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	//pNodeVegetation = Parameters.Add_Node(NULL, "VEGETATION", _TL("Vegetation"), _TL("Vegetation parameters"));
-	Parameters.Add_Grid(	
-		NULL, "PI", _TL("Permament Interception"), 
-		_TL("PI, permanent interception expressed as the proportion [between 0-1] of rainfall"), 
+	Parameters.Add_Grid(
+		NULL, "PI", _TL("Permament Interception"),
+		_TL("PI, permanent interception expressed as the proportion [between 0-1] of rainfall"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "CC", _TL("Canopy Cover"), 
-		_TL("CC, canopy cover expressed as a portion [between 0-1] of the soil surface protected by vegetation or crop"), 
+	Parameters.Add_Grid(
+		NULL, "CC", _TL("Canopy Cover"),
+		_TL("CC, canopy cover expressed as a portion [between 0-1] of the soil surface protected by vegetation or crop"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "PH", _TL("Plant Height"), 
-		_TL("PH, plant height [m], representing the effective height from which raindrops fall from the crop or vegetation"), 
+	Parameters.Add_Grid(
+		NULL, "PH", _TL("Plant Height"),
+		_TL("PH, plant height [m], representing the effective height from which raindrops fall from the crop or vegetation"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "EtEo", _TL("Ratio Evapotranspiration"), 
-		_TL("Et/Eo, ratio of actual to potential evapotranspiration"), 
+	Parameters.Add_Grid(
+		NULL, "EtEo", _TL("Ratio Evapotranspiration"),
+		_TL("Et/Eo, ratio of actual to potential evapotranspiration"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "GC", _TL("Ground cover"), 
-		_TL("GC, Ground cover expressed as a portion [between 0-1] of the soil surface protected by vegetation or crop cover on the ground"), 
+	Parameters.Add_Grid(
+		NULL, "GC", _TL("Ground cover"),
+		_TL("GC, Ground cover expressed as a portion [between 0-1] of the soil surface protected by vegetation or crop cover on the ground"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "D", _TL("Diameter plant elements"), 
-		_TL("D, Average diameter [m] of the individual plants elements (stem, leaves) at the ground surface"), 
+	Parameters.Add_Grid(
+		NULL, "D", _TL("Diameter plant elements"),
+		_TL("D, Average diameter [m] of the individual plants elements (stem, leaves) at the ground surface"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "NV", _TL("Number plant elements"), 
-		_TL("NV, Number of plant elements per unit area [number/unit area] at the ground surface"), 
+	Parameters.Add_Grid(
+		NULL, "NV", _TL("Number plant elements"),
+		_TL("NV, Number of plant elements per unit area [number/unit area] at the ground surface"),
 		PARAMETER_INPUT
 	);
 
 	//pNodeSoil = Parameters.Add_Node(NULL, "SOIL", _TL("Soil"), _TL("Soil parameters"));
-	Parameters.Add_Grid(	
-		NULL, "MS", _TL("Soil moisture (at FC)"), 
-		_TL("MS, Soil moisture at field capacity [% w/w]"), 
+	Parameters.Add_Grid(
+		NULL, "MS", _TL("Soil moisture (at FC)"),
+		_TL("MS, Soil moisture at field capacity [% w/w]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "BD", _TL("Bulk density top layer"), 
-		_TL("BD, Bulk density of the top layer [Mg/m3]"), 
+	Parameters.Add_Grid(
+		NULL, "BD", _TL("Bulk density top layer"),
+		_TL("BD, Bulk density of the top layer [Mg/m3]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "EHD", _TL("Effective hydrological depth"), 
-		_TL("EHD, Effective hydrological depth of the soil [m]"), 
+	Parameters.Add_Grid(
+		NULL, "EHD", _TL("Effective hydrological depth"),
+		_TL("EHD, Effective hydrological depth of the soil [m]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "LP", _TL("Sat. lateral permeability"), 
-		_TL("LP, Saturated lateral permeability of the soil [m/day]"), 
+	Parameters.Add_Grid(
+		NULL, "LP", _TL("Sat. lateral permeability"),
+		_TL("LP, Saturated lateral permeability of the soil [m/day]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "PER_C", _TL("Percentage clays"), 
-		_TL("c, Percentage clays [%]"), 
+	Parameters.Add_Grid(
+		NULL, "PER_C", _TL("Percentage clays"),
+		_TL("c, Percentage clays [%]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "PER_Z", _TL("Percentage silt"), 
-		_TL("z, Percentage silt [%]"), 
+	Parameters.Add_Grid(
+		NULL, "PER_Z", _TL("Percentage silt"),
+		_TL("z, Percentage silt [%]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "PER_S", _TL("Percentage sand"), 
-		_TL("s, Percentage sand [%]"), 
+	Parameters.Add_Grid(
+		NULL, "PER_S", _TL("Percentage sand"),
+		_TL("s, Percentage sand [%]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "ST", _TL("Percentage rock fragments"), 
-		_TL("ST, Percentage rock fragments on the soil surface [%]"), 
+	Parameters.Add_Grid(
+		NULL, "ST", _TL("Percentage rock fragments"),
+		_TL("ST, Percentage rock fragments on the soil surface [%]"),
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "RFR", _TL("Surface roughness"), 
-		_TL("RFR, Surface roughness [cm/m]"), 
-		PARAMETER_INPUT
+	Parameters.Add_Grid(
+		NULL, "RFR", _TL("Surface roughness"),
+		_TW("RFR, Surface roughness [cm/m]. In case the surface roughness is not provided as input, v_flow_t is "
+			"set to 1.0, i.e. natural soil surface roughness is not accounted for."),
+		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table(
@@ -213,9 +214,9 @@ CMMF_SAGA::CMMF_SAGA(void)
 		_TL("Meteorological data for multiple timestep modelling [model step (day); temperature (Celsius); rainfall (mm), rainfall intensity (mm/h); rainfall duration (day); timespan (days)]"),
 		PARAMETER_INPUT_OPTIONAL
 	);
-	Parameters.Add_FilePath( 
-		Parameters("TAB_METEO"), "OUT_PATH", _TL("Output file path"), 
-		_TL("Full path to the directory for the output grids of each model step"), 
+	Parameters.Add_FilePath(
+		Parameters("TAB_METEO"), "OUT_PATH", _TL("Output file path"),
+		_TL("Full path to the directory for the output grids of each model step"),
 		SG_T("\0*.*\0\0*.*\0"), _TL(""), true, true
 	);
 
@@ -226,41 +227,41 @@ CMMF_SAGA::CMMF_SAGA(void)
 		PARAMETER_TYPE_Bool, true
 	);
 
-	Parameters.Add_Value( 
-		Parameters("INTERFLOW"), "T", _TL("Mean temperature"), 
-		_TL("T, mean temperature [degree C]"), 
-		PARAMETER_TYPE_Double, 
+	Parameters.Add_Value(
+		Parameters("INTERFLOW"), "T", _TL("Mean temperature"),
+		_TL("T, mean temperature [degree C]"),
+		PARAMETER_TYPE_Double,
 		18.0
 	);
 
-	Parameters.Add_Value( 
-		Parameters("INTERFLOW"), "TIMESPAN", _TL("Timespan (days)"), 
-		_TL("The number of days to model."), 
+	Parameters.Add_Value(
+		Parameters("INTERFLOW"), "TIMESPAN", _TL("Timespan (days)"),
+		_TL("The number of days to model."),
 		PARAMETER_TYPE_Int, 30.0,
         1.0, true, 365, true
 	);
 
-	Parameters.Add_Grid(	
-		Parameters("INTERFLOW"), "IF", _TL("Interflow"), 
-		_TL("IF"), 
+	Parameters.Add_Grid(
+		Parameters("INTERFLOW"), "IF", _TL("Interflow"),
+		_TL("IF"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
-	Parameters.Add_Value( 
-		NULL, "R", _TL("Rainfall"), 
-		_TL("R, height of precipitation in timespan [mm]"), 
-		PARAMETER_TYPE_Double, 
+	Parameters.Add_Value(
+		NULL, "R", _TL("Rainfall"),
+		_TL("R, height of precipitation in timespan [mm]"),
+		PARAMETER_TYPE_Double,
 		200.0
 	);
-	Parameters.Add_Value( 
-		NULL, "I", _TL("Rainfall intensity"), 
-		_TL("I, rainfall intensity [mm/h]"), 
-		PARAMETER_TYPE_Double, 
+	Parameters.Add_Value(
+		NULL, "I", _TL("Rainfall intensity"),
+		_TL("I, rainfall intensity [mm/h]"),
+		PARAMETER_TYPE_Double,
 		20.0
 	);
-	Parameters.Add_Value( 
-		NULL, "Rn", _TL("Rainfall Duration"), 
-		_TL("Rn, number of rain days in timespan [-]"), 
-		PARAMETER_TYPE_Double, 
+	Parameters.Add_Value(
+		NULL, "Rn", _TL("Rainfall Duration"),
+		_TL("Rn, number of rain days in timespan [-]"),
+		PARAMETER_TYPE_Double,
 		20.0
 	);
 
@@ -277,9 +278,9 @@ CMMF_SAGA::CMMF_SAGA(void)
 	);
 
     //pNodeOptions = Parameters.Add_Node(NULL, "OPTIONS", _TL("Model Options"), _TL("Model parameters"));
-    Parameters.Add_Value( 
-		NULL, "FLOWD_VA", _TL("Flow Depth (actual flow velocity)"), 
-		_TL("The flow depth used to calculate the actual flow velocity [m] (e.g. 0.005 unchannelled flow, 0.01 shallow rills, 0.25 deeper rills."), 
+    Parameters.Add_Value(
+		NULL, "FLOWD_VA", _TL("Flow Depth (actual flow velocity)"),
+		_TL("The flow depth used to calculate the actual flow velocity [m] (e.g. 0.005 unchannelled flow, 0.01 shallow rills, 0.25 deeper rills."),
 		PARAMETER_TYPE_Double, 0.005,
         0.00000001, true
 	);
@@ -291,96 +292,96 @@ CMMF_SAGA::CMMF_SAGA(void)
 
 
 	//pNodeOutput = Parameters.Add_Node(NULL, "OUTPUT", _TL("Output"), _TL("Output parameters"));
-	Parameters.Add_Grid(	
-		NULL, "Q", _TL("Mean runoff"), 
-		_TL("Q, estimation of mean runoff [mm]"), 
+	Parameters.Add_Grid(
+		NULL, "Q", _TL("Mean runoff"),
+		_TL("Q, estimation of mean runoff [mm]"),
 		PARAMETER_OUTPUT
 	);
-	Parameters.Add_Grid(	
-		NULL, "SL", _TL("Mean soil loss"), 
-		_TL("SL, estimation of mean soil loss [kg]"), 
+	Parameters.Add_Grid(
+		NULL, "SL", _TL("Mean soil loss"),
+		_TL("SL, estimation of mean soil loss [kg]"),
 		PARAMETER_OUTPUT
 	);
 
 	#ifdef _TMP_OUT			// define this preprocessor variable to get intermediate grids as output
-		Parameters.Add_Grid(	
-			NULL, "Rf", _TL("Effective Rainfall"), 
-			_TL("Rf"), 
+		Parameters.Add_Grid(
+			NULL, "Rf", _TL("Effective Rainfall"),
+			_TL("Rf"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "KE", _TL("Total Kinetic Energy"), 
-			_TL("KE"), 
+		Parameters.Add_Grid(
+			NULL, "KE", _TL("Total Kinetic Energy"),
+			_TL("KE"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-				NULL, "Rc", _TL("Soil moisture storage capacity"), 
-				_TL("Rc"), 
+		Parameters.Add_Grid(
+				NULL, "Rc", _TL("Soil moisture storage capacity"),
+				_TL("Rc"),
 				PARAMETER_OUTPUT
 			);
-		Parameters.Add_Grid(	
-			NULL, "TCc", _TL("Transport Capacity Clay"), 
-			_TL("TCc"), 
+		Parameters.Add_Grid(
+			NULL, "TCc", _TL("Transport Capacity Clay"),
+			_TL("TCc"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "TCz", _TL("Transport Capacity Silt"), 
-			_TL("TCz"), 
+		Parameters.Add_Grid(
+			NULL, "TCz", _TL("Transport Capacity Silt"),
+			_TL("TCz"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "TCs", _TL("Transport Capacity Sand"), 
-			_TL("SLs"), 
+		Parameters.Add_Grid(
+			NULL, "TCs", _TL("Transport Capacity Sand"),
+			_TL("SLs"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "Gc", _TL("Available Clay"), 
-			_TL("Gc"), 
+		Parameters.Add_Grid(
+			NULL, "Gc", _TL("Available Clay"),
+			_TL("Gc"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "Gz", _TL("Available Silt"), 
-			_TL("Gz"), 
+		Parameters.Add_Grid(
+			NULL, "Gz", _TL("Available Silt"),
+			_TL("Gz"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "Gs", _TL("Available Sand"), 
-			_TL("Gs"), 
+		Parameters.Add_Grid(
+			NULL, "Gs", _TL("Available Sand"),
+			_TL("Gs"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "SLc", _TL("Sediment Balance Clay"), 
-			_TL("SLc"), 
+		Parameters.Add_Grid(
+			NULL, "SLc", _TL("Sediment Balance Clay"),
+			_TL("SLc"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "SLz", _TL("Sediment Balance Silt"), 
-			_TL("SLz"), 
+		Parameters.Add_Grid(
+			NULL, "SLz", _TL("Sediment Balance Silt"),
+			_TL("SLz"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "SLs", _TL("Sediment Balance Sand"), 
-			_TL("SLs"), 
+		Parameters.Add_Grid(
+			NULL, "SLs", _TL("Sediment Balance Sand"),
+			_TL("SLs"),
 			PARAMETER_OUTPUT
 		);
-		Parameters.Add_Grid(	
-			NULL, "TCONDc", _TL("Transport Condition Clay"), 
-			CSG_String::Format(_TL("Sediment Limited [%d], Transport Limited (SL = TC) [%d], Transport Limited (SL = G) [%d]"), TCOND_SED_LIMITED, TCOND_TRANS_LIMITED_TC, TCONF_TRANS_LIMITED_G), 
+		Parameters.Add_Grid(
+			NULL, "TCONDc", _TL("Transport Condition Clay"),
+			CSG_String::Format(_TL("Sediment Limited [%d], Transport Limited (SL = TC) [%d], Transport Limited (SL = G) [%d]"), TCOND_SED_LIMITED, TCOND_TRANS_LIMITED_TC, TCONF_TRANS_LIMITED_G),
 			PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 		);
-		Parameters.Add_Grid(	
-			NULL, "TCONDz", _TL("Transport Condition Silt"), 
-			CSG_String::Format(_TL("Sediment Limited [%d], Transport Limited (SL = TC) [%d], Transport Limited (SL = G) [%d]"), TCOND_SED_LIMITED, TCOND_TRANS_LIMITED_TC, TCONF_TRANS_LIMITED_G), 
+		Parameters.Add_Grid(
+			NULL, "TCONDz", _TL("Transport Condition Silt"),
+			CSG_String::Format(_TL("Sediment Limited [%d], Transport Limited (SL = TC) [%d], Transport Limited (SL = G) [%d]"), TCOND_SED_LIMITED, TCOND_TRANS_LIMITED_TC, TCONF_TRANS_LIMITED_G),
 			PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 		);
-		Parameters.Add_Grid(	
-			NULL, "TCONDs", _TL("Transport Condition Sand"), 
-			CSG_String::Format(_TL("Sediment Limited [%d], Transport Limited (SL = TC) [%d], Transport Limited (SL = G) [%d]"), TCOND_SED_LIMITED, TCOND_TRANS_LIMITED_TC, TCONF_TRANS_LIMITED_G), 
+		Parameters.Add_Grid(
+			NULL, "TCONDs", _TL("Transport Condition Sand"),
+			CSG_String::Format(_TL("Sediment Limited [%d], Transport Limited (SL = TC) [%d], Transport Limited (SL = G) [%d]"), TCOND_SED_LIMITED, TCOND_TRANS_LIMITED_TC, TCONF_TRANS_LIMITED_G),
 			PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 		);
-		Parameters.Add_Grid(	
-			NULL, "W_up", _TL("Upslope Flow Width"), 
-			_TL("W_up"), 
+		Parameters.Add_Grid(
+			NULL, "W_up", _TL("Upslope Flow Width"),
+			_TL("W_up"),
 			PARAMETER_OUTPUT
 		);
 	#endif
@@ -423,7 +424,7 @@ bool CMMF_SAGA::On_Execute(void)
 	// input parameters
 	double		R, I, Rn;
 	int			KE_I_method;
-	
+
 	// temporary variables
 	double		    LD, DT, KE_DT, KE_LD, L, Q, Ro;
 	double		    per_c, per_z, per_s, ST, KE, GC, sin_S;
@@ -498,7 +499,7 @@ bool CMMF_SAGA::On_Execute(void)
 	pD			= Parameters("D")->asGrid();
 	pNV			= Parameters("NV")->asGrid();
 	pRFR		= Parameters("RFR")->asGrid();
-	
+
 	pMeteoTab	= Parameters("TAB_METEO")->asTable();
 	sOutPath	= Parameters("OUT_PATH")->asString();
 
@@ -559,7 +560,7 @@ bool CMMF_SAGA::On_Execute(void)
 					InvalidGrid = SG_T("D");
 				if (pNV->is_NoData(x, y))
 					InvalidGrid = SG_T("NV");
-				if (pRFR->is_NoData(x, y))
+				if (pRFR != NULL && pRFR->is_NoData(x, y))
 					InvalidGrid = SG_T("RFR");
 
 				if (InvalidGrid.Length() > 0)
@@ -571,8 +572,8 @@ bool CMMF_SAGA::On_Execute(void)
 			}
 		}
 	}
-	
-	#ifdef _TMP_OUT								
+
+	#ifdef _TMP_OUT
 		pRf		= Parameters("Rf")->asGrid();
 		pKE		= Parameters("KE")->asGrid();
 		pRc		= Parameters("Rc")->asGrid();
@@ -675,7 +676,7 @@ bool CMMF_SAGA::On_Execute(void)
 					pRf->Set_Value(x, y, (R * (1-pPI->asDouble(x, y))) / cos(pS->asDouble(x, y)));	// Equ. (1)
 					LD = pRf->asDouble(x, y) * pCC->asDouble(x, y);									// Equ. (2)
 					DT = pRf->asDouble(x, y) - LD;													// Equ. (3)
-				
+
 					switch (KE_I_method)		// Equ. (4), see Table 2 in Morgan (2001)
 					{
 					case MMF_KE_I_WISCHMEIER_SMITH_1978:
@@ -696,7 +697,7 @@ bool CMMF_SAGA::On_Execute(void)
 					case MMF_KE_I_MCISAAC_1990:
 						KE_DT = DT * (26.8 * (1 - 0.29 * exp(-0.049 * I))); break;
 					}
-				
+
 					if (pPH->asDouble(x, y) < 0.15)
 						KE_LD = 0.0;																// Equ. (5)
 					else
@@ -717,7 +718,7 @@ bool CMMF_SAGA::On_Execute(void)
 
 		if (bInterflow)
 		{
-			Z		= 300 + (25 * T) + (0.05 * T * T * T);		// Equ. (12)
+			Z		= 300 + (25 * T) + (0.05 * T * T * T);		// Equ. (12), wrong in Morgan and Duzant (2008) -> original annual Turc equation uses T^3, not T^2
 			Rmod	= R * (365/timespan);						// scale up from timespan to annual values
 			E		= Rmod / sqrt(0.9 + (Rmod*Rmod)/(Z*Z));		// Equ. (11)
 			E		= E / (365/timespan);                       // calculate E for timespan
@@ -756,9 +757,9 @@ bool CMMF_SAGA::On_Execute(void)
 					Q = pRf->asDouble(x, y) + pQ->asDouble(x, y);
 				else
 					Q = (pRf->asDouble(x, y) + pQ->asDouble(x, y)) * exp((-1.0 * pRc->asDouble(x, y)) / Ro) * pow(L/10,0.1);		// Equ. (9)
-            
+
 				//double Qe = pRf->asDouble(x, y) * exp((-1.0 * pRc->asDouble(x, y)) / Ro);
-			
+
 				if (bInterflow)
 				{
 					IF = ((R - E - Q) * pLP->asDouble(x, y) * sin(pS->asDouble(x, y))) / timespan;		// Equ. (13)
@@ -790,8 +791,8 @@ bool CMMF_SAGA::On_Execute(void)
 				{
 					for (int i=0; i<8; i++)
 					{
-						ix	= Get_xTo(i, x);			
-						iy	= Get_yTo(i, y);			
+						ix	= Get_xTo(i, x);
+						iy	= Get_yTo(i, y);
 
 						if( pDTM->is_InGrid(ix, iy) )
 						{
@@ -822,7 +823,7 @@ bool CMMF_SAGA::On_Execute(void)
 						}
 					}
 				}
-			
+
 				// flow routing
 				//-----------------------------------------------------
 				if (dzSum > 0.0)
@@ -834,7 +835,7 @@ bool CMMF_SAGA::On_Execute(void)
 							ix	= Get_xTo(steepestN, x);
 							iy	= Get_yTo(steepestN, y);
 
-							pQ->Add_Value(ix, iy, Q);								// distribute				
+							pQ->Add_Value(ix, iy, Q);								// distribute
 							pW_up->Add_Value(ix, iy, Get_Length(steepestN));		// upslope CL of ix,iy
 							W_down = Get_Length(steepestN);							// downslope CL of x,y
 							if (bInterflow)
@@ -898,16 +899,16 @@ bool CMMF_SAGA::On_Execute(void)
 					// ... for standard bare soil
 					n_manning = 0.015;
 					d_flow = 0.005;
-	
+
 					slopeFract = tan(pS->asDouble(x, y));
 					if (slopeFract == 0.0)
 						slopeFract = 0.001;	// workaround for velocity calculations, otherwise v_flow and thus TC may become NaN!
 
 					v_flow_b = 1.0 / n_manning * pow(d_flow, 0.67) * pow(slopeFract, 0.5);	// Equ. (22)
-				
+
 					// ... actual flow velocity
 					n_manning = 0.015;
-					// if ....		     // global method							
+					// if ....		     // global method
 					//d_flow = 0.005;	// unchannelled flow
 					//d_flow = 0.01;	// shallow rills
 					//d_flow = 0.25;	// deeper rills
@@ -922,10 +923,16 @@ bool CMMF_SAGA::On_Execute(void)
 
 					// ... for the effect of tillage
 					d_flow = 0.005;
-					//n_manning = pow(M_EULER, log(-2.1132 + 0.0349 * pRFR->asDouble(x, y)));	// Equ. (27)
-					n_manning = pow(M_EULER, -2.1132 + 0.0349 * pRFR->asDouble(x, y));	// Equ. (27)
-					v_flow_t = 1.0 / n_manning * pow(d_flow, 0.67) * pow(slopeFract, 0.5);
-					// v_flow_t = 1.0 if not under arable cultivation and natural soil surface roughness is not accounted for
+
+					if (pRFR != NULL)
+					{
+						n_manning = pow(M_EULER, -2.1132 + 0.0349 * pRFR->asDouble(x, y));	// Equ. (27)
+						v_flow_t = 1.0 / n_manning * pow(d_flow, 0.67) * pow(slopeFract, 0.5);
+					}
+					else
+					{
+						v_flow_t = 1.0; // if not under arable cultivation and natural soil surface roughness is not accounted for
+					}
 
 					// particle fall number
 					//d_flow = 0.005;
@@ -962,7 +969,7 @@ bool CMMF_SAGA::On_Execute(void)
 
 					if (pW_up->asDouble(x, y) == 0)
 						W_up = W_down;
-				
+
 
 					Gc	= (Fc + Hc) * (1.0 - DEPc / 100.0) + (pSLc->asDouble(x, y) * W_up/W_down);	// Equ. (35)
 					Gz	= (Fz + Hz) * (1.0 - DEPz / 100.0) + (pSLz->asDouble(x, y) * W_up/W_down);	// Equ. (36)
@@ -1090,7 +1097,7 @@ bool CMMF_SAGA::On_Execute(void)
 						if (pChannel != NULL && !pChannel->is_NoData(x, y) && bChannelT)		// Transport along channel, ignore (new) sediment balance within channel
 						{
 							if (steepestN != -1)
-							{					
+							{
 								ix	= Get_xTo(steepestN, x);
 								iy	= Get_yTo(steepestN, y);
 
