@@ -1420,7 +1420,7 @@ bool CSG_Classifier_Supervised::CClass::Train(void)
 	}
 
 	m_Cov_Inv	= m_Cov.Get_Inverse    ();
-	m_Cov_Det	= m_Cov.Get_Determinant();	// m_ML_Scale	= pow(2 * M_PI, -m_Samples.Get_NCols() / 2.0) * pow(fabs(m_Cov.Get_Determinant()), -0.5);
+	m_Cov_Det	= m_Cov.Get_Determinant();
 
 	m_Mean_Spectral	= CSG_Simple_Statistics(m_Mean).Get_Mean();
 
@@ -1646,8 +1646,8 @@ void CSG_Classifier_Supervised::_Get_Maximum_Likelihood(const CSG_Vector &Featur
 
 		double	Distance	= D * (pClass->m_Cov_Inv * D);
 
-	//	double	Probability	= pClass->m_ML_Scale * exp(-0.5 * Distance);
-		double	Probability	= -log(fabs(pClass->m_Cov_Det)) - Distance;
+		double	Probability	= pow(2.0 * M_PI, -0.5 * m_nFeatures) * pow(pClass->m_Cov_Det, -0.5) * exp(-0.5 * Distance);
+	//	double	Probability	= -log(pClass->m_Cov_Det) - Distance;
 
 		dSum	+= Probability;
 
@@ -1658,11 +1658,17 @@ void CSG_Classifier_Supervised::_Get_Maximum_Likelihood(const CSG_Vector &Featur
 		}
 	}
 
-	Quality	= m_Probability_Relative ? 100.0 * Quality / dSum : 100.0 * Quality;
-
-	if( m_Threshold_Probability > 0.0 && Quality < m_Threshold_Probability )
+	if( Class >= 0 )
 	{
-		Class	= -1;
+		if( m_Probability_Relative )
+		{
+			Quality	= 100.0 * Quality / dSum;
+		}
+
+		if( m_Threshold_Probability > 0.0 && Quality < m_Threshold_Probability )
+		{
+			Class	= -1;
+		}
 	}
 }
 
