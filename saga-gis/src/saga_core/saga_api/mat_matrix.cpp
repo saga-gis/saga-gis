@@ -243,7 +243,7 @@ CSG_String CSG_Vector::to_String(int Width, int Precision, bool bScientific, con
 
 	for(int i=0; i<Get_N(); i++)
 	{
-		s	+= SG_Get_Double_asString(Get_Data(i), Width, Precision, bScientific) + Separator;
+		s	+= sep + SG_Get_Double_asString(Get_Data(i), Width, Precision, bScientific);
 	}
 
 	return( s );
@@ -1185,7 +1185,7 @@ CSG_String CSG_Matrix::to_String(int Width, int Precision, bool bScientific, con
 
 		for(int x=0; x<m_nx; x++)
 		{
-			s	+= Separator + SG_Get_Double_asString(m_z[y][x], Width, Precision, bScientific);
+			s	+= sep + SG_Get_Double_asString(m_z[y][x], Width, Precision, bScientific);
 		}
 	}
 
