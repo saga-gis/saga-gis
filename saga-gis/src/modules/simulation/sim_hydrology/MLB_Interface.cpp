@@ -101,43 +101,25 @@ CSG_String Get_Info(int i)
 #include "KinWav_D8.h"
 #include "topmodel.h"
 #include "WaterRetentionCapacity.h"
+#include "diffuse_pollution_risk.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CDVWK_SoilMoisture;
-		break;
+	case  0:	return( new CDVWK_SoilMoisture );
+	case  1:	return( new CKinWav_D8 );
+	case  2:	return( new CTOPMODEL );
+	case  3:	return( new CWaterRetentionCapacity );
+	case  4:	return( new CDiffuse_Pollution_Risk );
 
-	case 1:
-		pModule	= new CKinWav_D8;
-		break;
-
-	case 2:
-		pModule	= new CTOPMODEL;
-		break;
-	
-	case 3:
-		pModule = new CWaterRetentionCapacity;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case  5:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
-
-	return( pModule );
 }
 
 

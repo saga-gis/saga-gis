@@ -14,12 +14,14 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libsim_hydrology.la
 libsim_hydrology_la_SOURCES =\
 DVWK_SoilMoisture.cpp\
+diffuse_pollution_risk.cpp\
 idw.cpp\
 KinWav_D8.cpp\
 MLB_Interface.cpp\
 topmodel.cpp\
 topmodel_values.cpp\
 WaterRetentionCapacity.cpp\
+diffuse_pollution_risk.h\
 DVWK_SoilMoisture.h\
 idw.h\
 KinWav_D8.h\
