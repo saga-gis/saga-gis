@@ -22,10 +22,12 @@ MLB_Interface.cpp\
 tl_extract.cpp\
 tl_merge.cpp\
 tl_union.cpp\
+tool_counter.cpp\
 MLB_Interface.h\
 tl_extract.h\
 tl_merge.h\
-tl_union.h
+tl_union.h\
+tool_counter.h
 
 libdev_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

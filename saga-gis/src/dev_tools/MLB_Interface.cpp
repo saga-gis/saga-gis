@@ -98,6 +98,7 @@ CSG_String Get_Info(int i)
 #include "tl_extract.h"
 #include "tl_union.h"
 #include "tl_merge.h"
+#include "tool_counter.h"
 
 
 //---------------------------------------------------------
@@ -107,9 +108,10 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CTL_Extract );
-	case 1:		return( new CTL_Union );
-	case 2:		return( new CTL_Merge );
+	case  0:	return( new CTL_Extract );
+	case  1:	return( new CTL_Union );
+	case  2:	return( new CTL_Merge );
+	case  3:	return( new CTool_Counter );
 	}
 
 	return( NULL );
