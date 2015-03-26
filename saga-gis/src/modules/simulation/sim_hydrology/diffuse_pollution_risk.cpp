@@ -103,10 +103,10 @@ CDiffuse_Pollution_Risk::CDiffuse_Pollution_Risk(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
+	Parameters.Add_Grid_or_Const(
 		NULL	, "WEIGHT"			, _TL("Land Cover Weights"),
 		_TL(""),
-		PARAMETER_INPUT
+		1.0, 0.0, true
 	);
 
 	Parameters.Add_Grid_or_Const(
@@ -116,13 +116,13 @@ CDiffuse_Pollution_Risk::CDiffuse_Pollution_Risk(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "NETWORK"			, _TL("Network Index"),
+		NULL	, "DELIVERY"		, _TL("Delivery Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RISK_POINT"		, _TL("Point Scale Risk"),
+		NULL	, "RISK_POINT"		, _TL("Locational Risk"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -138,13 +138,13 @@ CDiffuse_Pollution_Risk::CDiffuse_Pollution_Risk(void)
 		NULL	, "METHOD"			, _TL("Flow Direction Algorithm"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
-			_TL("single (Deterministic 8)"),
-			_TL("multiple (Freeman 1991)")
+			_TL("single"),
+			_TL("multiple")
 		), 1
 	);
 
 	Parameters.Add_Value(
-		NULL	, "CHANNEL_START"	, _TL("Channel Threshold"),
+		NULL	, "CHANNEL_START"	, _TL("Channel Initiation Threshold"),
 		_TL("minimum number of upslope contributing cells to start a channel"),
 		PARAMETER_TYPE_Int, 150, 1, true
 	);
@@ -176,14 +176,14 @@ bool CDiffuse_Pollution_Risk::On_Execute(void)
 {	
 	//-----------------------------------------------------
 	m_pDEM			= Parameters("DEM"         )->asGrid();
-	m_pNetwork		= Parameters("NETWORK"     )->asGrid();
+	m_pDelivery		= Parameters("DELIVERY"    )->asGrid();
 	m_pRisk_Point	= Parameters("RISK_POINT"  )->asGrid();
 	m_pRisk_Diffuse	= Parameters("RISK_DIFFUSE")->asGrid();
 	m_bSingle		= Parameters("METHOD"      )->asInt() == 0;
 
-	DataObject_Set_Colors(m_pNetwork     , 11, SG_COLORS_RED_GREY_BLUE);
-	DataObject_Set_Colors(m_pRisk_Point  , 11, SG_COLORS_YELLOW_BLUE  );
-	DataObject_Set_Colors(m_pRisk_Diffuse, 11, SG_COLORS_YELLOW_BLUE  );
+	DataObject_Set_Colors(m_pDelivery    , 11, SG_COLORS_RED_GREY_GREEN, true);
+	DataObject_Set_Colors(m_pRisk_Point  , 11, SG_COLORS_RED_GREY_GREEN, true);
+	DataObject_Set_Colors(m_pRisk_Diffuse, 11, SG_COLORS_RED_GREY_GREEN, true);
 
 	//-----------------------------------------------------
 	bool	bResult	= false;
@@ -192,9 +192,9 @@ bool CDiffuse_Pollution_Risk::On_Execute(void)
 	{
 		Error_Set(_TL("initialization failed"));
 	}
-	else if( !Set_Network_Index() )
+	else if( !Set_Delivery_Index() )
 	{
-		Error_Set(_TL("network index calculation failed"));
+		Error_Set(_TL("delivery index calculation failed"));
 	}
 	else if( !Get_Risk_Diffuse() )
 	{
@@ -207,7 +207,7 @@ bool CDiffuse_Pollution_Risk::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_FlowDir.Destroy();
-	m_FlowAcc.Destroy();
+	m_RainAcc.Destroy();
 	m_TWI    .Destroy();
 
 	return( bResult );
@@ -265,13 +265,16 @@ bool CDiffuse_Pollution_Risk::Get_Flow_Proportions(int x, int y, double Proporti
 //---------------------------------------------------------
 bool CDiffuse_Pollution_Risk::Set_Flow(void)
 {
-	CSG_Grid	*pWeight	= Parameters("WEIGHT")->asGrid();
+	Process_Set_Text(_TL("initialization"));
 
-	CSG_Grid	*pRain	= Parameters("RAIN")->asGrid  ();
-	double		  Rain	= Parameters("RAIN")->asDouble();
+	CSG_Grid	*pWeight	= Parameters("WEIGHT")->asGrid  ();
+	double		  Weight	= Parameters("WEIGHT")->asDouble();
+
+	CSG_Grid	*pRain		= Parameters("RAIN"  )->asGrid  ();
+	double		  Rain		= Parameters("RAIN"  )->asDouble();
 
 	m_FlowDir.Create(*Get_System(), SG_DATATYPE_Char);
-	m_FlowAcc.Create(*Get_System());
+	m_RainAcc.Create(*Get_System());
 	m_TWI    .Create(*Get_System());
 
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
@@ -281,31 +284,30 @@ bool CDiffuse_Pollution_Risk::Set_Flow(void)
 		if( !m_pDEM->Get_Sorted(n, x, y, true) || (pRain && pRain->is_NoData(x, y)) || !Set_Flow(x, y, pRain ? pRain->asDouble(x, y) : Rain) )
 		{
 			m_FlowDir     .Set_NoData(x, y);
-			m_FlowAcc     .Set_NoData(x, y);
+			m_RainAcc     .Set_NoData(x, y);
 			m_TWI         .Set_NoData(x, y);
 			m_pRisk_Point->Set_NoData(x, y);
 		}
 		else
 		{
-			double	s, a, Flow	= m_FlowAcc.asDouble(x, y);
+			double	s, a;
 
 			m_pDEM->Get_Gradient(x, y, s, a);
 			
 			s	= tan(s);											// tangens of slope
 			a	= (fabs(sin(a)) + fabs(cos(a))) * Get_Cellsize();	// flow width
-			
-			if( s < M_ALMOST_ZERO )	s	= M_ALMOST_ZERO;
-			if( a < M_ALMOST_ZERO )	a	= M_ALMOST_ZERO;
 
-			m_TWI.Set_Value(x, y, log((Flow / a) / s));
+			double	SCA	= m_RainAcc.asDouble(x, y) / a;				// rain * specific catchment area
 
-			if( pWeight->is_NoData(x, y) )
+			m_TWI.Set_Value(x, y, log(SCA / (s < M_ALMOST_ZERO ? M_ALMOST_ZERO : s)));
+
+			if( pWeight && pWeight->is_NoData(x, y) )
 			{
 				m_pRisk_Point->Set_NoData(x, y);
 			}
 			else
 			{
-				m_pRisk_Point->Set_Value(x, y, Flow * s * pWeight->asDouble(x, y));	// Point Scale Risk Calculation according to Milledge et al. 2012
+				m_pRisk_Point->Set_Value(x, y, SCA * s * (pWeight ? pWeight->asDouble(x, y) : Weight));	// Point Scale Risk Calculation according to Milledge et al. 2012
 			}
 		}
 	}
@@ -322,17 +324,17 @@ bool CDiffuse_Pollution_Risk::Set_Flow(int x, int y, double Rain)
 		return( false );
 	}
 
-	double	Flow, d[8];
+	double	d[8];
 
-	m_FlowAcc.Set_Value(x, y, Flow = m_FlowAcc.asDouble(x, y) + Rain);
 	m_FlowDir.Set_Value(x, y, m_pDEM->Get_Gradient_NeighborDir(x, y));
+	m_RainAcc.Set_Value(x, y, Rain = Rain * Get_Cellarea() + m_RainAcc.asDouble(x, y));
 
 	//-----------------------------------------------------
 	if( m_bSingle )
 	{
 		if( Get_System()->Get_Neighbor_Pos(m_FlowDir.asInt(x, y), x, y, x, y) && m_pDEM->is_InGrid(x, y) )
 		{
-			m_FlowAcc.Add_Value(x, y, Flow);
+			m_RainAcc.Add_Value(x, y, Rain);
 		}
 	}
 	else if( Get_Flow_Proportions(x, y, d) )
@@ -341,7 +343,7 @@ bool CDiffuse_Pollution_Risk::Set_Flow(int x, int y, double Rain)
 		{
 			if( d[i] > 0.0 )
 			{
-				m_FlowAcc.Add_Value(Get_xTo(i, x), Get_yTo(i, y), Flow * d[i]);
+				m_RainAcc.Add_Value(Get_xTo(i, x), Get_yTo(i, y), Rain * d[i]);
 			}
 		}
 	}
@@ -358,7 +360,7 @@ bool CDiffuse_Pollution_Risk::Set_Flow(int x, int y, double Rain)
 //---------------------------------------------------------
 // Calculation according to Lane et al. 2004, p. 198.
 //---------------------------------------------------------
-bool CDiffuse_Pollution_Risk::Set_Network_Index(void)
+bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 {
 	//-----------------------------------------------------
 	CSG_Grid	Channel, *pChannel	= Parameters("CHANNEL")->asGrid();
@@ -388,7 +390,7 @@ bool CDiffuse_Pollution_Risk::Set_Network_Index(void)
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("Network Index"));
+	Process_Set_Text(_TL("Delivery Index"));
 
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
@@ -414,11 +416,11 @@ bool CDiffuse_Pollution_Risk::Set_Network_Index(void)
 
 		if( TWI_min < 0.0 )
 		{
-			m_pNetwork->Set_NoData(x, y);
+			m_pDelivery->Set_NoData(x, y);
 		}
 		else
 		{
-			m_pNetwork->Set_Value(x, y, TWI_min);
+			m_pDelivery->Set_Value(x, y, TWI_min);
 		}
 	}
 
@@ -436,6 +438,8 @@ bool CDiffuse_Pollution_Risk::Set_Network_Index(void)
 //---------------------------------------------------------
 bool CDiffuse_Pollution_Risk::Get_Risk_Diffuse(void)
 {
+	Process_Set_Text(_TL("Difuse Pollution Risk"));
+
 	m_pRisk_Diffuse->Assign(0.0);
 
 	//-----------------------------------------------------
@@ -443,13 +447,17 @@ bool CDiffuse_Pollution_Risk::Get_Risk_Diffuse(void)
 	{
 		int		x, y;
 
-		if( !m_pDEM->Get_Sorted(n, x, y, true) || m_pNetwork->is_NoData(x, y) || m_pRisk_Point->is_NoData(x, y) )
+		if( !m_pDEM->Get_Sorted(n, x, y, true) || m_pDelivery->is_NoData(x, y) || m_pRisk_Point->is_NoData(x, y) || m_RainAcc.asDouble(x, y) <= 0.0 )
 		{
 			m_pRisk_Diffuse->Set_NoData(x, y);
 		}
 		else
 		{
-			double d[8], Risk	= m_pRisk_Diffuse->asDouble(x, y) + m_pNetwork->asDouble(x, y) * m_pRisk_Point->asDouble(x, y);
+			double d[8], Risk;
+
+			m_pRisk_Point->Mul_Value(x, y, m_pDelivery->asDouble(x, y));				// locational risk = generation risk * connection risk
+			Risk	= m_pRisk_Diffuse->asDouble(x, y) + m_pRisk_Point->asDouble(x, y);	// risk load = sum of upslope locational risk
+			m_pRisk_Diffuse->Set_Value(x, y, Risk / m_RainAcc.asDouble(x, y));			// risk concentration = risk load / sum of upslope rain
 
 			if( m_bSingle )
 			{
@@ -470,8 +478,6 @@ bool CDiffuse_Pollution_Risk::Get_Risk_Diffuse(void)
 					}
 				}
 			}
-
-			m_pRisk_Diffuse->Set_Value(x, y, Risk / (m_FlowAcc.asDouble(x, y) * Get_Cellsize()));
 		}
 	}
 

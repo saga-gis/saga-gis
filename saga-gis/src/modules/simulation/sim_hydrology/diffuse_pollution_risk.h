@@ -42,7 +42,7 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Olaf Conrad                            //
+//    contact:    Cosima Berger                          //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
 //                Germany                                //
@@ -90,7 +90,7 @@ private:
 
 	bool						m_bSingle;
 
-	CSG_Grid					*m_pDEM, m_FlowDir, m_FlowAcc, m_TWI, *m_pNetwork, *m_pRisk_Point, *m_pRisk_Diffuse;
+	CSG_Grid					*m_pDEM, m_FlowDir, m_RainAcc, m_TWI, *m_pDelivery, *m_pRisk_Point, *m_pRisk_Diffuse;
 	
 
 	bool						Get_Flow_Proportions		(int x, int y, double Proportion[8]);
@@ -98,7 +98,7 @@ private:
 	bool						Set_Flow					(void);
 	bool						Set_Flow					(int x, int y, double Rain);
 
-	bool						Set_Network_Index			(void);
+	bool						Set_Delivery_Index			(void);
 
 	bool						Get_Risk_Diffuse			(void);
 
