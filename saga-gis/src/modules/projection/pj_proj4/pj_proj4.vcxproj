@@ -294,6 +294,7 @@
   <ItemGroup>
     <ClCompile Include="crs_assign.cpp" />
     <ClCompile Include="crs_base.cpp" />
+    <ClCompile Include="crs_distance.cpp" />
     <ClCompile Include="crs_grid_geogcoords.cpp" />
     <ClCompile Include="crs_indicatrix.cpp" />
     <ClCompile Include="crs_transform.cpp" />
@@ -325,6 +326,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="crs_assign.h" />
     <ClInclude Include="crs_base.h" />
+    <ClInclude Include="crs_distance.h" />
     <ClInclude Include="crs_grid_geogcoords.h" />
     <ClInclude Include="crs_indicatrix.h" />
     <ClInclude Include="crs_transform.h" />

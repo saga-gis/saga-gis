@@ -56,6 +56,9 @@
     <ClCompile Include="crs_transform_pointcloud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="crs_distance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -149,6 +152,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="crs_transform_pointcloud.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="crs_distance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

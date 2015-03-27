@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: crs_distance.h 2148 2014-06-10 12:59:52Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    crs_distance.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,107 +54,119 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "crs_transform.h"
-
+#ifndef HEADER_INCLUDED__crs_distance_H
+#define HEADER_INCLUDED__crs_distance_H
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "crs_base.h"
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCRS_Distance_Calculator
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Proj.4") );
+public:
+	CCRS_Distance_Calculator(void);
+	CCRS_Distance_Calculator(const CSG_Projection &Projection, double Epsilon);
+	virtual ~CCRS_Distance_Calculator(void);
 
-	case MLB_INFO_Category:
-		return( _TL("Projection") );
+	bool					Create					(const CSG_Projection &Projection, double Epsilon);
 
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2004-14") );
-
-	case MLB_INFO_Description:
-		return( CSG_CRSProjector::Get_Description() );
-
-	case MLB_INFO_Version:
-		return( _TL("2.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Projection") );
-	}
-}
+	double					Get_Orthodrome			(const TSG_Point &A, const TSG_Point &B, CSG_Shape *pLine);
+	double					Get_Loxodrome			(const TSG_Point &A, const TSG_Point &B, CSG_Shape *pLine);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+private:
 
-#include "crs_assign.h"
-#include "crs_transform_shapes.h"
-#include "crs_transform_grid.h"
+	double					m_Epsilon;
 
-#include "PROJ4_Shapes.h"
-#include "PROJ4_Grid.h"
+	CSG_CRSProjector		m_Projector, m_ProjToGCS;
 
-#include "gcs_lon_range.h"
 
-#include "gcs_graticule.h"
+	double					Get_Distance			(TSG_Point A, TSG_Point B);
 
-#include "crs_indicatrix.h"
-#include "crs_grid_geogcoords.h"
+	void					Add_Segment				(const TSG_Point &A, const TSG_Point &B, CSG_Shape *pLine, double *Length = NULL);
 
-#include "crs_transform_pointcloud.h"
+};
 
-#include "crs_distance.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+class CCRS_Distance_Lines : public CSG_Module
 {
-	switch( i )
-	{
-	case  0:	return( new CCRS_Assign() );
+public:
+	CCRS_Distance_Lines(void);
 
-	case  1:	return( new CCRS_Transform_Shapes    (true ) );
-	case  2:	return( new CCRS_Transform_Shapes    (false) );
-	case  3:	return( new CCRS_Transform_Grid      (true ) );
-	case  4:	return( new CCRS_Transform_Grid      (false) );
-	case 18:	return( new CCRS_Transform_PointCloud(true ) );
-	case 19:	return( new CCRS_Transform_PointCloud(false) );
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
-	case 15:	return( new CCRS_Picker() );
 
-	case 13:	return( new CGCS_Grid_Longitude_Range() );
+protected:
 
-	case 14:	return( new CGCS_Graticule() );
+	virtual bool			On_Execute				(void);
 
-	case 16:	return( new CCRS_Indicatrix() );
-	case 17:	return( new CCRS_Grid_GeogCoords() );
-	case 20:	return( new CCRS_Distance_Lines() );
-	case 21:	return( new CCRS_Distance_Points() );
-	case 22:	return( new CCRS_Distance_Interactive() );
+};
 
-	case  5:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, false) );
-	case  6:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, false) );
-	case  7:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, false) );
-	case  8:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, false) );
-	case  9:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, true) );
-	case 10:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, true) );
-	case 11:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, true) );
-	case 12:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, true) );
 
-	case 23:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCRS_Distance_Points : public CCRS_Base
+{
+public:
+	CCRS_Distance_Points(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCRS_Distance_Interactive : public CSG_Module_Interactive
+{
+public:
+	CCRS_Distance_Interactive(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+
+private:
+
+	CSG_Point				m_Down;
+
+	CSG_Projection			m_Projection;
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -166,8 +176,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__crs_distance_H
