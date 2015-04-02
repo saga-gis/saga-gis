@@ -126,7 +126,7 @@ CPanSharp_IHS::CPanSharp_IHS(void)
 	Parameters.Add_Grid(pNode	, "B_SHARP"	, _TL("Blue")	, _TL(""), PARAMETER_OUTPUT, false);
 
 	Parameters.Add_Grid_List(
-		NULL	, "SHARPEN"		, _TL("Sharpend Channels"),
+		NULL	, "SHARPEN"		, _TL("Sharpened Channels"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -341,7 +341,7 @@ CPanSharp_Brovey::CPanSharp_Brovey(void)
 	Parameters.Add_Grid(pNode	, "B_SHARP"	, _TL("Blue")	, _TL(""), PARAMETER_OUTPUT, false);
 
 	Parameters.Add_Grid_List(
-		NULL	, "SHARPEN"		, _TL("Sharpend Channels"),
+		NULL	, "SHARPEN"		, _TL("Sharpened Channels"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -471,7 +471,7 @@ CPanSharp_CN::CPanSharp_CN(void)
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "SHARPEN"		, _TL("Sharpend Channels"),
+		NULL	, "SHARPEN"		, _TL("Sharpened Channels"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -609,7 +609,7 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "SHARPEN"		, _TL("Sharpend Channels"),
+		NULL	, "SHARPEN"		, _TL("Sharpened Channels"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -621,7 +621,7 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 			_TL("correlation matrix"),
 			_TL("variance-covariance matrix"),
 			_TL("sums-of-squares-and-cross-products matrix")
-		), 1
+		), 2
 	);
 
 	Parameters.Add_Choice(
@@ -640,7 +640,13 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("normalized"),
 			_TL("standardized")
-		), 0
+		), 1
+	);
+
+	Parameters.Add_Value(
+		NULL	, "OVERWRITE"	, _TL("Overwrite"),
+		_TL("overwrite previous output if adequate"),
+		PARAMETER_TYPE_Bool, true
 	);
 }
 
@@ -658,25 +664,23 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 	\
 	if(	pModule == NULL )\
 	{\
-		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("could not find module"), SG_T(LIBRARY)));\
+		Error_Fmt("%s: %s", _TL("could not find module"), SG_T(LIBRARY));\
 	}\
 	else if( pModule->is_Grid() )\
 	{\
 		Process_Set_Text(pModule->Get_Name());\
 		\
-		CSG_Parameters	P_tmp; P_tmp.Assign(pModule->Get_Parameters());\
-		\
-		pModule->Set_Manager(NULL);\
+		pModule->Settings_Push();\
 		\
 		((CSG_Module_Grid *)pModule)->Get_System()->Assign(GRIDSYSTEM);\
 		\
 		if( !(CONDITION) )\
 		{\
-			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), _TL("could not initialize module"), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
+			Error_Fmt("%s: %s.%s", _TL("could not initialize module"), SG_T(LIBRARY), pModule->Get_Name().c_str());\
 		}\
 		else if( !pModule->Execute() )\
 		{\
-			Error_Set(CSG_String::Format(SG_T("%s: %s > %s"), _TL("could not execute module")   , SG_T(LIBRARY), pModule->Get_Name().c_str()));\
+			Error_Fmt("%s: %s.%s", _TL("could not execute module"   ), SG_T(LIBRARY), pModule->Get_Name().c_str());\
 		}\
 		else\
 		{\
@@ -685,12 +689,9 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 		\
 		PARAMETERS.Assign(pModule->Get_Parameters());\
 		\
-		pModule->Get_Parameters()->Assign_Values(&P_tmp);\
+		pModule->Settings_Pop();\
 	}\
 }
-
-//---------------------------------------------------------
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 
 ///////////////////////////////////////////////////////////
@@ -701,19 +702,18 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 bool CPanSharp_PCA::On_Execute(void)
 {
 	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
-
-	//-----------------------------------------------------
 	bool			bResult;
-	CSG_Parameters	P;
+	CSG_Parameters	Tool_Parms;
 	CSG_Table		Eigen;
 
 	//-----------------------------------------------------
-	RUN_MODULE(bResult, "statistics_grid", 8, P, Parameters("GRIDS")->asGridList()->asGrid(0)->Get_System(),
-			SET_PARAMETER("GRIDS"	, Parameters("GRIDS"))
-		&&	SET_PARAMETER("METHOD"	, Parameters("METHOD"))
-		&&	SET_PARAMETER("EIGEN"	, &Eigen)
-		&&	SET_PARAMETER("NFIRST"	, 0)
+	// get the principle components for the low resolution bands
+
+	RUN_MODULE(bResult, "statistics_grid", 8, Tool_Parms, *Parameters("GRIDS")->Get_Parent()->asGrid_System(),
+			SG_MODULE_PARAMETER_SET("GRIDS" , Parameters("GRIDS"))
+		&&	SG_MODULE_PARAMETER_SET("METHOD", Parameters("METHOD"))
+		&&	SG_MODULE_PARAMETER_SET("EIGEN" , &Eigen)
+		&&	SG_MODULE_PARAMETER_SET("NFIRST", 0)	// get all components
 	);
 
 	if( !bResult )
@@ -722,31 +722,38 @@ bool CPanSharp_PCA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter_Grid_List	*pPCA_0	= P.Get_Parameter("PCA")->asGridList();
-	CSG_Parameter_Grid_List	*pPCA_1	= P.Add_Grid_List(NULL, "PCA_1", SG_T(""), SG_T(""), PARAMETER_INPUT, false)->asGridList();
+	CSG_Parameter_Grid_List	*pPCA	= Tool_Parms.Get_Parameter("PCA")->asGridList();
 
-	CSG_Grid	*PCA	= new CSG_Grid[pPCA_0->Get_Count()];
+	int			i, n	= pPCA->Get_Count();
+
+	CSG_Grid	*PCA	= new CSG_Grid[n];
 	CSG_Grid	*pPan	= Parameters("PAN")->asGrid();
+
+	//-----------------------------------------------------
+	// replace first principle component with the high resolution panchromatic band
+
+	Process_Set_Text(_TL("Replace first PC with PAN"));
 
 	double	Offset_Pan, Offset, Scale;
 
-	if( Parameters("PAN_MATCH")->asInt() == 0 )
+	if( Parameters("PAN_MATCH")->asInt() == 0 )	// scale PAN band to fit first PC histogram
 	{
 		Offset_Pan	= pPan->Get_ZMin();
-		Offset		= pPCA_0->asGrid(0)->Get_ZMin();
-		Scale		= pPCA_0->asGrid(0)->Get_ZRange() / pPan->Get_ZRange();
+		Offset		= pPCA->asGrid(0)->Get_ZMin();
+		Scale		= pPCA->asGrid(0)->Get_ZRange() / pPan->Get_ZRange();
 	}
 	else
 	{
 		Offset_Pan	= pPan->Get_Mean();
-		Offset		= pPCA_0->asGrid(0)->Get_Mean();
-		Scale		= pPCA_0->asGrid(0)->Get_StdDev() / pPan->Get_StdDev();
+		Offset		= pPCA->asGrid(0)->Get_Mean();
+		Scale		= pPCA->asGrid(0)->Get_StdDev() / pPan->Get_StdDev();
 	}
 
 	PCA[0].Create(*Get_System());
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pPan->is_NoData(x, y) )
@@ -760,25 +767,37 @@ bool CPanSharp_PCA::On_Execute(void)
 		}
 	}
 
-	pPCA_1->Add_Item(&PCA[0]);
+	//-----------------------------------------------------
+	// resample all other PCs to match the high resolution of the PAN band
 
-	delete(pPCA_0->asGrid(0));
+	TSG_Grid_Interpolation	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
 
-	for(int i=1; i<pPCA_0->Get_Count(); i++)
+	for(i=1; i<n; i++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %s ..."), _TL("Resampling"), pPCA_0->asGrid(i)->Get_Name()));
+		Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), pPCA->asGrid(i)->Get_Name()));
 
 		PCA[i].Create(*Get_System());
-		PCA[i].Assign(pPCA_0->asGrid(i), Interpolation);
-		pPCA_1->Add_Item(&PCA[i]);
-		delete(pPCA_0->asGrid(i));
+		PCA[i].Assign(pPCA->asGrid(i), Interpolation);
+
+		delete(pPCA->asGrid(i));	// PCA tool was unmanaged, so we have to delete the output
+	}
+
+	delete(pPCA->asGrid(0));
+
+	pPCA->Del_Items();
+
+	for(i=0; i<n; i++)
+	{
+		pPCA->Add_Item(&PCA[i]);
 	}
 
 	//-----------------------------------------------------
-	RUN_MODULE(bResult, "statistics_grid", 10, P, *Get_System(),
-			SET_PARAMETER("PCA"		, P("PCA_1"))
-		&&	SET_PARAMETER("GRIDS"	, Parameters("SHARPEN"))
-		&&	SET_PARAMETER("EIGEN"	, &Eigen)
+	// inverse principle component rotation for the high resolution bands
+
+	RUN_MODULE(bResult, "statistics_grid", 10, Tool_Parms, *Get_System(),
+			SG_MODULE_PARAMETER_SET("PCA"  , Tool_Parms("PCA"))
+		&&	SG_MODULE_PARAMETER_SET("GRIDS", Parameters("SHARPEN"))
+		&&	SG_MODULE_PARAMETER_SET("EIGEN", &Eigen)
 	);
 
 	delete[](PCA);
@@ -788,14 +807,29 @@ bool CPanSharp_PCA::On_Execute(void)
 		return( false );
 	}
 
-	Parameters.Set_Parameter("SHARPEN", P.Get_Parameter("GRIDS"));
+	CSG_Parameter_Grid_List	*pHiRes	= Parameters("SHARPEN")->asGridList();
+	CSG_Parameter_Grid_List	*pLoRes	= Parameters("GRIDS"  )->asGridList();
+	CSG_Parameter_Grid_List	*pGrids	= Tool_Parms("GRIDS"  )->asGridList();
 
-	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS"  )->asGridList();
-	CSG_Parameter_Grid_List	*pSharp	= Parameters("SHARPEN")->asGridList();
-
-	for(int j=0; j<pGrids->Get_Count() && j<pSharp->Get_Count(); j++)
+	if( !Parameters("OVERWRITE")->asBool() )
 	{
-		pSharp->asGrid(j)->Set_Name(pGrids->asGrid(j)->Get_Name());
+		pHiRes->Del_Items();
+	}
+
+	for(i=0; i<pLoRes->Get_Count() && i<pGrids->Get_Count(); i++)
+	{
+		if( pHiRes->asGrid(i) )
+		{
+			pHiRes->asGrid(i)->Assign(pGrids->asGrid(i));
+
+			delete(pGrids->asGrid(i));
+		}
+		else
+		{
+			pHiRes->Add_Item(pGrids->asGrid(i));
+		}
+
+		pHiRes->asGrid(i)->Set_Name(pLoRes->asGrid(i)->Get_Name());
 	}
 
 	return( true );
