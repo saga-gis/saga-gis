@@ -299,6 +299,7 @@ CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Param
 
 		case 4:	// Standard deviation
 			Min		= pGrid->Get_Mean() - StdDev * pGrid->Get_StdDev();
+			if( Min < 0.0 ) Min = 0.0;
 			Range	= 2.0 * StdDev * pGrid->Get_StdDev();
 			break;
 		}
