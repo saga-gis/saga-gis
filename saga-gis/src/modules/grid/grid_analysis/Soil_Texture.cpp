@@ -157,8 +157,19 @@ const CSG_String	Description	= _TW(
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int Get_Texture(double Sand, double Clay)
+int Get_Texture_SandClay(double Sand, double Clay)
 {
+	if( Sand < 0.001 ) Sand = 0.001; else if( Sand > 99.99 ) Sand = 99.99;
+	if( Clay < 0.001 ) Clay = 0.001; else if( Clay > 99.99 ) Clay = 99.99;
+
+	if( Sand + Clay >= 99.99 )
+	{
+		double	Sum	= 99.99 / (Sand + Clay);
+
+		Sand	*= Sum;
+		Clay	*= Sum;
+	}
+
 	//-----------------------------------------------------
 	for(int iClass=0; iClass<12; iClass++)
 	{
@@ -183,6 +194,36 @@ int Get_Texture(double Sand, double Clay)
 
 	//-----------------------------------------------------
 	return( -1 );
+}
+
+//---------------------------------------------------------
+int Get_Texture_SandSilt(double Sand, double Silt)
+{
+	return( Get_Texture_SandClay(Sand, 100.0 - (Sand + Silt)) );
+}
+
+//---------------------------------------------------------
+int Get_Texture_SiltClay(double Silt, double Clay)
+{
+	return( Get_Texture_SandClay(100.0 - (Silt + Clay), Clay) );
+}
+
+//---------------------------------------------------------
+int Get_Texture(double Sand, double Silt, double Clay, double &Sum)
+{
+	if( Sand < 0.0 ) Sand = 0.0; else if( Sand > 100.0 ) Sand = 100.0;
+	if( Silt < 0.0 ) Silt = 0.0; else if( Silt > 100.0 ) Silt = 100.0;
+	if( Clay < 0.0 ) Clay = 0.0; else if( Clay > 100.0 ) Clay = 100.0;
+
+	Sum	= Sand + Silt + Clay;
+
+	if( Sum > 0.0 && Sum != 100.0 )
+	{
+		Sand	*= 100.0 / Sum;
+		Clay	*= 100.0 / Sum;
+	}
+
+	return( Get_Texture_SandClay(Sand, Clay) );
 }
 
 
@@ -223,7 +264,7 @@ CSoil_Texture::CSoil_Texture(void)
 	Parameters.Add_Grid(
 		NULL, "TEXTURE"	, _TL("Soil Texture"),
 		_TL("soil texture"),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Grid(
@@ -242,11 +283,11 @@ CSoil_Texture::CSoil_Texture(void)
 bool CSoil_Texture::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pSand		= Parameters("SAND"   )->asGrid();
-	CSG_Grid	*pSilt		= Parameters("SILT"   )->asGrid();
-	CSG_Grid	*pClay		= Parameters("CLAY"   )->asGrid();
-	CSG_Grid	*pTexture	= Parameters("TEXTURE")->asGrid();
-	CSG_Grid	*pSum		= Parameters("SUM"    )->asGrid();
+	CSG_Grid	*pSand	= Parameters("SAND"   )->asGrid();
+	CSG_Grid	*pSilt	= Parameters("SILT"   )->asGrid();
+	CSG_Grid	*pClay	= Parameters("CLAY"   )->asGrid();
+	CSG_Grid	*pClass	= Parameters("TEXTURE")->asGrid();
+	CSG_Grid	*pSum	= Parameters("SUM"    )->asGrid();
 
 	//-----------------------------------------------------
 	if( (pSand ? 1 : 0) + (pSilt ? 1 : 0) + (pClay ? 1 : 0) < 2 )
@@ -257,9 +298,9 @@ bool CSoil_Texture::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pTexture->Set_NoData_Value(-1.0);
+	pClass->Set_NoData_Value(-1.0);
 
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pTexture, "LUT");
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pClass, "LUT");
 
 	if( pLUT && pLUT->asTable() )
 	{
@@ -286,8 +327,8 @@ bool CSoil_Texture::On_Execute(void)
 			pClasses->Del_Record(pClasses->Get_Count() - 1);
 		}
 
-		DataObject_Set_Parameter(pTexture, pLUT);	// Lookup Table
-		DataObject_Set_Parameter(pTexture, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+		DataObject_Set_Parameter(pClass, pLUT);	// Lookup Table
+		DataObject_Set_Parameter(pClass, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 
 	//-----------------------------------------------------
@@ -296,46 +337,37 @@ bool CSoil_Texture::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int		iClass	= -1;
-			double	Sum		= 0.0;
-
-			if(	!(pSand && pSand->is_NoData(x, y))
-			&&	!(pSilt && pSilt->is_NoData(x, y))
-			&&	!(pClay && pClay->is_NoData(x, y)) )
+			if(	(pSand && pSand->is_NoData(x, y))
+			||	(pSilt && pSilt->is_NoData(x, y))
+			||	(pClay && pClay->is_NoData(x, y)) )
 			{
-				double	Sand	= pSand ? pSand->asDouble(x, y) : 100.0 - (pSilt->asDouble(x, y) + pClay->asDouble(x, y));
-				double	Silt	= pSilt ? pSilt->asDouble(x, y) : 100.0 - (pSand->asDouble(x, y) + pClay->asDouble(x, y));
-				double	Clay	= pClay ? pClay->asDouble(x, y) : 100.0 - (pSand->asDouble(x, y) + pSilt->asDouble(x, y));
-
-				if( (Sum = Sand + Silt + Clay) > 0.0 )
-				{
-					if( Sum != 100.0 )
-					{
-						Sand	*= 100.0 / Sum;
-						Clay	*= 100.0 / Sum;
-					}
-
-					iClass	= Get_Texture(Sand, Clay);
-				}
-			}
-
-			if( iClass >= 0 )
-			{
-				pTexture->Set_Value(x, y, iClass);
-
-				if( pSum )
-				{
-					pSum->Set_Value(x, y, Sum);
-				}
+				SG_GRID_PTR_SAFE_SET_NODATA(pClass, x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pSum  , x, y);
 			}
 			else
 			{
-				pTexture->Set_NoData(x, y);
+				int		Class	= -1;
+				double	Sum		= 100.0;
 
-				if( pSum )
+				if( pSand && pSilt && pClay )
 				{
-					pSum->Set_NoData(x, y);
+					Class	= Get_Texture(pSand->asDouble(x, y), pSilt->asDouble(x, y), pClay->asDouble(x, y), Sum);
 				}
+				else if( !pSilt )
+				{
+					Class	= Get_Texture_SandClay(pSand->asDouble(x, y), pClay->asDouble(x, y));
+				}
+				else if( !pClay )
+				{
+					Class	= Get_Texture_SandSilt(pSand->asDouble(x, y), pSilt->asDouble(x, y));
+				}
+				else if( !pSand )
+				{
+					Class	= Get_Texture_SiltClay(pSilt->asDouble(x, y), pClay->asDouble(x, y));
+				}
+
+				SG_GRID_PTR_SAFE_SET_VALUE(pClass, x, y, Class);
+				SG_GRID_PTR_SAFE_SET_VALUE(pSum  , x, y, Sum  );
 			}
 		}
 	}
@@ -429,36 +461,36 @@ bool CSoil_Texture_Table::On_Execute(void)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 
-		int		iClass	= -1;
-		double	Sum		= 0.0;
-
-		if(	!(iSand >= 0 && pRecord->is_NoData(iSand))
-		&&	!(iSilt >= 0 && pRecord->is_NoData(iSilt))
-		&&	!(iClay >= 0 && pRecord->is_NoData(iClay)) )
+		if(	(iSand >= 0 && pRecord->is_NoData(iSand))
+		||	(iSilt >= 0 && pRecord->is_NoData(iSilt))
+		||	(iClay >= 0 && pRecord->is_NoData(iClay)) )
 		{
-			double	Sand	= iSand >= 0 ? pRecord->asDouble(iSand) : 100.0 - (pRecord->asDouble(iSilt) + pRecord->asDouble(iClay));
-			double	Silt	= iSilt >= 0 ? pRecord->asDouble(iSilt) : 100.0 - (pRecord->asDouble(iSand) + pRecord->asDouble(iClay));
-			double	Clay	= iClay >= 0 ? pRecord->asDouble(iClay) : 100.0 - (pRecord->asDouble(iSand) + pRecord->asDouble(iSilt));
-
-			if( (Sum = Sand + Silt + Clay) > 0.0 )
-			{
-				if( Sum != 100.0 )
-				{
-					Sand	*= 100.0 / Sum;
-					Clay	*= 100.0 / Sum;
-				}
-
-				iClass	= Get_Texture(Sand, Clay);
-			}
-		}
-
-		if( iClass >= 0 )
-		{
-			pRecord->Set_Value (iTexture, Classes[iClass].Key);
+			pRecord->Set_NoData(iTexture);
 		}
 		else
 		{
-			pRecord->Set_NoData(iTexture);
+			int		Class	= -1;
+
+			if( iSand >= 0 && iSilt >= 0 && iClay >= 0 )
+			{
+				double	Sum;
+
+				Class	= Get_Texture(pRecord->asDouble(iSand), pRecord->asDouble(iSilt), pRecord->asDouble(iClay), Sum);
+			}
+			else if( iSilt < 0 )
+			{
+				Class	= Get_Texture_SandClay(pRecord->asDouble(iSand), pRecord->asDouble(iClay));
+			}
+			else if( iClay < 0 )
+			{
+				Class	= Get_Texture_SandSilt(pRecord->asDouble(iSand), pRecord->asDouble(iSilt));
+			}
+			else if( iSand < 0 )
+			{
+				Class	= Get_Texture_SiltClay(pRecord->asDouble(iSilt), pRecord->asDouble(iClay));
+			}
+
+			pRecord->Set_Value (iTexture, Classes[Class].Key);
 		}
 	}
 
