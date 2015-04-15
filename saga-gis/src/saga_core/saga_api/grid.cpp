@@ -818,9 +818,10 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy
 //---------------------------------------------------------
 inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4]) const
 {
-	int		ix, iy, jx, jy, nNoData;
+	int		ix, iy, jx, jy, nNoData	= 0;
 
-	for(iy=0, jy=y-1, nNoData=0; iy<4; iy++, jy++)
+	//-----------------------------------------------------
+	for(iy=0, jy=y-1; iy<4; iy++, jy++)
 	{
 		for(ix=0, jx=x-1; ix<4; ix++, jx++)
 		{
@@ -838,32 +839,22 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 	}
 
 	//-----------------------------------------------------
-	if( nNoData >= 16 )
+	if( nNoData > 0 && nNoData < 16 )	// guess missing values as average of surrounding data values
 	{
-		return( false );
-	}
-
-	if( nNoData > 0 )
-	{
-		double	t_xy[4][4];
-
-		for(iy=0; iy<4; iy++)
+		for(int i=0; nNoData>0 && i<16; i++)	// avoid the possibility of endless loop
 		{
-			for(ix=0; ix<4; ix++)
-			{
-				t_xy[ix][iy]	= z_xy[ix][iy];
-			}
-		}
+			double	t_xy[4][4];
 
-		do
-		{
 			for(iy=0; iy<4; iy++)
 			{
 				for(ix=0; ix<4; ix++)
 				{
+					t_xy[ix][iy]	= z_xy[ix][iy];
+
 					if( is_NoData_Value(z_xy[ix][iy]) )
 					{
 						int		n	= 0;
+						double	s	= 0.0;
 
 						for(jy=iy-1; jy<=iy+1; jy++)
 						{
@@ -871,18 +862,10 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 							{
 								for(jx=ix-1; jx<=ix+1; jx++)
 								{
-									if( jx >= 0 && jx < 4 && !(jx == ix && jy == iy) && !is_NoData_Value(z_xy[jx][jy]) )
+									if( jx >= 0 && jx < 4 && !is_NoData_Value(z_xy[jx][jy]) )
 									{
-										if( n == 0 )
-										{
-											t_xy[ix][iy]	 = z_xy[jx][jy];
-										}
-										else
-										{
-											t_xy[ix][iy]	+= z_xy[jx][jy];
-										}
-
-										n++;
+										s	+= z_xy[jx][jy];
+										n	++;
 									}
 								}
 							}
@@ -890,10 +873,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 
 						if( n > 0 )
 						{
-							if( n > 1 )
-							{
-								t_xy[ix][iy]	/= n;
-							}
+							t_xy[ix][iy]	= s / n;
 
 							nNoData--;
 						}
@@ -905,25 +885,23 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 			{
 				for(ix=0; ix<4; ix++)
 				{
-					if( t_xy[ix][iy] != z_xy[ix][iy] )
-					{
-						z_xy[ix][iy]	= t_xy[ix][iy];
-					}
+					z_xy[ix][iy]	= t_xy[ix][iy];
 				}
 			}
 		}
-		while( nNoData > 0 );
 	}
 
-	return( true );
+	//-----------------------------------------------------
+	return( nNoData == 0 );
 }
 
 //---------------------------------------------------------
 inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4][4]) const
 {
-	int		ix, iy, jx, jy, nNoData;
+	int		ix, iy, jx, jy, nNoData	= 0;
 
-	for(iy=0, jy=y-1, nNoData=0; iy<4; iy++, jy++)
+	//-----------------------------------------------------
+	for(iy=0, jy=y-1; iy<4; iy++, jy++)
 	{
 		for(ix=0, jx=x-1; ix<4; ix++, jx++)
 		{
@@ -946,35 +924,25 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 	}
 
 	//-----------------------------------------------------
-	if( nNoData >= 16 )
+	if( nNoData > 0 && nNoData < 16 )	// guess missing values as average of surrounding data values
 	{
-		return( false );
-	}
-
-	if( nNoData > 0 )
-	{
-		double	t_xy[4][4][4];
-
-		for(iy=0; iy<4; iy++)
+		for(int i=0; nNoData>0 && i<16; i++)	// avoid the possibility of endless loop
 		{
-			for(ix=0; ix<4; ix++)
-			{
-				t_xy[0][ix][iy]	= z_xy[0][ix][iy];
-				t_xy[1][ix][iy]	= z_xy[1][ix][iy];
-				t_xy[2][ix][iy]	= z_xy[2][ix][iy];
-				t_xy[3][ix][iy]	= z_xy[3][ix][iy];
-			}
-		}
+			double	t_xy[4][4][4];
 
-		do
-		{
 			for(iy=0; iy<4; iy++)
 			{
 				for(ix=0; ix<4; ix++)
 				{
+					t_xy[0][ix][iy]	 = z_xy[0][ix][iy];
+					t_xy[1][ix][iy]	 = z_xy[1][ix][iy];
+					t_xy[2][ix][iy]	 = z_xy[2][ix][iy];
+					t_xy[3][ix][iy]	 = z_xy[3][ix][iy];
+
 					if( is_NoData_Value(z_xy[0][ix][iy]) )
 					{
 						int		n	= 0;
+						double	s[4]; s[0] = s[1] = s[2] = s[3] = 0;
 
 						for(jy=iy-1; jy<=iy+1; jy++)
 						{
@@ -982,24 +950,13 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 							{
 								for(jx=ix-1; jx<=ix+1; jx++)
 								{
-									if( jx >= 0 && jx < 4 && !(jx == ix && jy == iy) && !is_NoData_Value(z_xy[0][jx][jy]) )
+									if( jx >= 0 && jx < 4 && !is_NoData_Value(z_xy[0][jx][jy]) )
 									{
-										if( n == 0 )
-										{
-											t_xy[0][ix][iy]	 = z_xy[0][jx][jy];
-											t_xy[1][ix][iy]	 = z_xy[1][jx][jy];
-											t_xy[2][ix][iy]	 = z_xy[2][jx][jy];
-											t_xy[3][ix][iy]	 = z_xy[3][jx][jy];
-										}
-										else
-										{
-											t_xy[0][ix][iy]	+= z_xy[0][jx][jy];
-											t_xy[1][ix][iy]	+= z_xy[1][jx][jy];
-											t_xy[2][ix][iy]	+= z_xy[2][jx][jy];
-											t_xy[3][ix][iy]	+= z_xy[3][jx][jy];
-										}
-
-										n++;
+										s[0]	+= z_xy[0][jx][jy];
+										s[1]	+= z_xy[1][jx][jy];
+										s[2]	+= z_xy[2][jx][jy];
+										s[3]	+= z_xy[3][jx][jy];
+										n		++;
 									}
 								}
 							}
@@ -1007,13 +964,10 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 
 						if( n > 0 )
 						{
-							if( n > 1 )
-							{
-								t_xy[0][ix][iy]	/= n;
-								t_xy[1][ix][iy]	/= n;
-								t_xy[2][ix][iy]	/= n;
-								t_xy[3][ix][iy]	/= n;
-							}
+							t_xy[0][ix][iy]	= s[0] / n;
+							t_xy[1][ix][iy]	= s[1] / n;
+							t_xy[2][ix][iy]	= s[2] / n;
+							t_xy[3][ix][iy]	= s[3] / n;
 
 							nNoData--;
 						}
@@ -1025,20 +979,17 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 			{
 				for(ix=0; ix<4; ix++)
 				{
-					if( t_xy[0][ix][iy] != z_xy[0][ix][iy] )
-					{
-						z_xy[0][ix][iy]	= t_xy[0][ix][iy];
-						z_xy[1][ix][iy]	= t_xy[1][ix][iy];
-						z_xy[2][ix][iy]	= t_xy[2][ix][iy];
-						z_xy[3][ix][iy]	= t_xy[3][ix][iy];
-					}
+					z_xy[0][ix][iy]	= t_xy[0][ix][iy];
+					z_xy[1][ix][iy]	= t_xy[1][ix][iy];
+					z_xy[2][ix][iy]	= t_xy[2][ix][iy];
+					z_xy[3][ix][iy]	= t_xy[3][ix][iy];
 				}
 			}
 		}
-		while( nNoData > 0 );
 	}
 
-	return( true );
+	//-----------------------------------------------------
+	return( nNoData == 0 );
 }
 
 
