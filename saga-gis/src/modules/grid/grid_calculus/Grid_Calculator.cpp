@@ -88,6 +88,8 @@ bool _finite(double val)
 //---------------------------------------------------------
 CGrid_Calculator::CGrid_Calculator(void)
 {
+	CSG_Parameter	*pNode;
+
 	//-----------------------------------------------------
 	Set_Name	(_TL("Grid Calculator"));
 
@@ -116,49 +118,61 @@ CGrid_Calculator::CGrid_Calculator(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, _TL("Grids"),
+		NULL	, "GRIDS"			, _TL("Grids"),
 		_TL("in the formula these grids are addressed in order of the list as 'g1, g2, g3, ...'"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "XGRIDS"	, _TL("Grids from different Systems"),
+	pNode	= Parameters.Add_Grid_List(
+		NULL	, "XGRIDS"			, _TL("Grids from different Systems"),
 		_TL("in the formula these grids are addressed in order of the list as 'h1, h2, h3, ...'"),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 
+	Parameters.Add_Choice(
+		pNode	,"INTERPOLATION"	, _TL("Interpolation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("Nearest Neighbor"),
+			_TL("Bilinear Interpolation"),
+			_TL("Inverse Distance Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation")
+		), 4
+	);
+
 	Parameters.Add_Grid(
-		NULL	, "RESULT"	, _TL("Result"),
+		NULL	, "RESULT"			, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 	
 	Parameters.Add_String(
-		NULL	, "FORMULA"	, _TL("Formula"),
+		NULL	, "FORMULA"			, _TL("Formula"),
 		_TL(""),
 		SG_T("(g1 - g2) / (g1 + g2)")
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_String(
-		NULL	, "NAME"	, _TL("Name"),
+	pNode	= Parameters.Add_String(
+		NULL	, "NAME"			, _TL("Name"),
 		_TL(""),
 		_TL("Calculation")
 	);
 
 	Parameters.Add_Value(
-		pNode	, "FNAME"	, _TL("Take Formula"),
+		pNode	, "FNAME"			, _TL("Take Formula"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Value(
-		NULL	, "USE_NODATA"	, _TL("Use NoData"),
+		NULL	, "USE_NODATA"		, _TL("Use NoData"),
 		_TL("Check this in order to include NoData cells in the calculation."),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TYPE"	, _TL("Data Type"),
+		NULL	, "TYPE"			, _TL("Data Type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Bit   ).c_str(),
@@ -182,8 +196,8 @@ CGrid_Calculator::CGrid_Calculator(void)
 //---------------------------------------------------------
 int CGrid_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMULA"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FNAME")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FORMULA")
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), "FNAME") )
 	{
 		if( pParameters->Get_Parameter("FNAME")->asBool() )
 		{
@@ -191,7 +205,18 @@ int CGrid_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 		}
 	}
 
-	return( 0 );
+	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CGrid_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XGRIDS") )
+	{
+		pParameters->Set_Enabled("INTERPOLATION", pParameter->asGridList()->Get_Count() > 0);
+	}
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -203,15 +228,17 @@ int CGrid_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 bool CGrid_Calculator::On_Execute(void)
 {
 	bool					bUseNoData, bPosition[4];
+	int						Interpol;
 	CSG_Formula				Formula;
 	CSG_Parameter_Grid_List	*pGrids, *pXGrids;
 	CSG_Grid				*pResult;
 
 	//-----------------------------------------------------
-	pResult		= Parameters("RESULT"    )->asGrid();
-	pGrids		= Parameters("GRIDS"     )->asGridList();
-	pXGrids		= Parameters("XGRIDS"    )->asGridList();
-	bUseNoData	= Parameters("USE_NODATA")->asBool();
+	pResult		= Parameters("RESULT"       )->asGrid();
+	pGrids		= Parameters("GRIDS"        )->asGridList();
+	pXGrids		= Parameters("XGRIDS"       )->asGridList();
+	bUseNoData	= Parameters("USE_NODATA"   )->asBool();
+	Interpol	= Parameters("INTERPOLATION")->asInt();
 
 	//-----------------------------------------------------
 	if( !Get_Formula(Formula, Parameters("FORMULA")->asString(), pGrids->Get_Count(), pXGrids->Get_Count(), bPosition) )
@@ -272,7 +299,7 @@ bool CGrid_Calculator::On_Execute(void)
 
 			for(i=0; bOkay && i<pXGrids->Get_Count(); i++, n++)
 			{
-				bOkay	= pXGrids->asGrid(i)->Get_Value(px, py, Values[n]);
+				bOkay	= pXGrids->asGrid(i)->Get_Value(px, py, Values[n], Interpol);
 			}
 
 			if( bOkay )
