@@ -321,12 +321,34 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 	//-----------------------------------------------------
 	case ID_CMD_MAP3D_SAVE:
 		{
-			int			FileType;
-			wxString	FileName;
+			int				FileType;
+			wxString		FileName;
+			CSG_Parameters	P(NULL, _TL("Image Resolution"), _TL(""));
 
-			if( DLG_Image_Save(FileName, FileType) )
+			P.Add_Value(NULL, "NX", _TL("Width" ), _TL(""), PARAMETER_TYPE_Int, m_pPanel->GetSize().x, 1, true);
+			P.Add_Value(NULL, "NY", _TL("Height"), _TL(""), PARAMETER_TYPE_Int, m_pPanel->GetSize().y, 1, true);
+
+			if( DLG_Image_Save(FileName, FileType) && DLG_Parameters(&P) )
 			{
-				m_pPanel->Save_asImage(&FileName);
+				Set_Buisy_Cursor(true);
+
+				if( P("NX")->asInt() == m_pPanel->GetSize().x
+				&&  P("NY")->asInt() == m_pPanel->GetSize().y )
+				{
+					m_pPanel->Save_asImage(&FileName);
+				}
+				else
+				{
+					wxSize	Size(m_pPanel->GetSize());
+
+					Freeze();
+					m_pPanel->SetSize(P("NX")->asInt(), P("NY")->asInt());
+					m_pPanel->Save_asImage(&FileName);
+					m_pPanel->SetSize(Size);
+					Thaw();
+				}
+
+				Set_Buisy_Cursor(false);
 			}
 		}
 		return;
