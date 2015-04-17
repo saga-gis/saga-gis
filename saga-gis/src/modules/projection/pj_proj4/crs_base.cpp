@@ -146,7 +146,7 @@ CCRS_Base::CCRS_Base(void)
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "CRS_EPSG"	, _TL("EPSG Code"),
 		_TL(""),
-		PARAMETER_TYPE_Int, m_Projection.Get_EPSG(), -1, true, 99999, true
+		PARAMETER_TYPE_Int, m_Projection.Get_EPSG(), -1, true
 	);
 
 	if( SG_UI_Get_Window_Main() )
