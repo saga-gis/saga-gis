@@ -84,7 +84,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_To_Contour : public CSG_Module_Grid
+class CGrid_To_Contour : public CSG_Module
 {
 public:
 	CGrid_To_Contour(void);
@@ -102,12 +102,17 @@ protected:
 
 private:
 
-	CSG_Grid				*m_pGrid, m_Cols, m_Rows;
+	CSG_Grid				*m_pGrid, m_Edge;
 
 	CSG_Shapes				*m_pContours;
 
 
 	bool					Get_Contour				(double z);
+
+	void					Set_Row					(int x, int y, bool bOn);
+	bool					Get_Row					(int x, int y);
+	void					Set_Col					(int x, int y, bool bOn);
+	bool					Get_Col					(int x, int y);
 
 	bool					Start					(int x, int y, double z, bool bRow);
 
