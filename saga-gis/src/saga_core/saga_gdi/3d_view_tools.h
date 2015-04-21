@@ -111,10 +111,10 @@ public:
 	void				Set_xShift				(double x);
 	void				Set_yShift				(double y);
 	void				Set_zShift				(double z);
-	const TSG_Point_Z &	Get_Shift				(void)	const	{	return( m_Shift   );	}
-	double				Get_xShift				(void)	const	{	return( m_Shift.x );	}
-	double				Get_yShift				(void)	const	{	return( m_Shift.y );	}
-	double				Get_zShift				(void)	const	{	return( m_Shift.z );	}
+	const TSG_Point_Z &	Get_Shift				(void)	const	{	return( m_Shift    );	}
+	double				Get_xShift				(void)	const	{	return( m_Shift.x  );	}
+	double				Get_yShift				(void)	const	{	return( m_Shift.y  );	}
+	double				Get_zShift				(void)	const	{	return( m_Shift.z  );	}
 
 	void				Set_Screen				(int Width, int Height);
 

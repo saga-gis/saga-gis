@@ -416,8 +416,8 @@ void CSG_3DView_Panel::On_Mouse_RUp(wxMouseEvent &event)
 
 	if( m_Down_Screen.x != event.GetX() || m_Down_Screen.y != event.GetY() )
 	{
-		m_Projector.Set_xShift(m_Down_Value.x - GET_MOUSE_X_RELDIFF * 1000.0);
-		m_Projector.Set_yShift(m_Down_Value.y - GET_MOUSE_Y_RELDIFF * 1000.0);
+		m_Projector.Set_xShift(m_Down_Value.x - (m_Down_Screen.x - event.GetX()));
+		m_Projector.Set_yShift(m_Down_Value.y - (m_Down_Screen.y - event.GetY()));
 
 		Update_View();
 		Update_Parent();
@@ -446,7 +446,7 @@ void CSG_3DView_Panel::On_Mouse_MUp(wxMouseEvent &event)
 	if( m_Down_Screen.x != event.GetX() || m_Down_Screen.y != event.GetY() )
 	{
 		m_Projector.Set_yRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
-		m_Projector.Set_zShift   (m_Down_Value.y + GET_MOUSE_Y_RELDIFF * 1000.0);
+		m_Projector.Set_zShift   (m_Down_Value.y + (m_Down_Screen.y - event.GetY()));
 
 		Update_View();
 		Update_Parent();
@@ -465,13 +465,13 @@ void CSG_3DView_Panel::On_Mouse_Motion(wxMouseEvent &event)
 		}
 		else if( event.RightIsDown() )
 		{
-			m_Projector.Set_xShift   (m_Down_Value.x - GET_MOUSE_X_RELDIFF * 1000.0);
-			m_Projector.Set_yShift   (m_Down_Value.y - GET_MOUSE_Y_RELDIFF * 1000.0);
+			m_Projector.Set_xShift   (m_Down_Value.x - (m_Down_Screen.x - event.GetX()));
+			m_Projector.Set_yShift   (m_Down_Value.y - (m_Down_Screen.y - event.GetY()));
 		}
 		else if( event.MiddleIsDown() )
 		{
 			m_Projector.Set_yRotation(m_Down_Value.x + GET_MOUSE_X_RELDIFF * M_PI_180);
-			m_Projector.Set_zShift   (m_Down_Value.y + GET_MOUSE_Y_RELDIFF * 1000.0);
+			m_Projector.Set_zShift   (m_Down_Value.y + (m_Down_Screen.y - event.GetY()));
 		}
 		else
 		{
@@ -488,7 +488,7 @@ void CSG_3DView_Panel::On_Mouse_Wheel(wxMouseEvent &event)
 {
 	if( event.GetWheelRotation() )
 	{
-		m_Projector.Set_zShift(m_Projector.Get_zShift()	+ 0.5 * event.GetWheelRotation());
+		m_Projector.Set_zShift(m_Projector.Get_zShift()	+ event.GetWheelRotation());
 
 		Update_View();
 	}

@@ -147,11 +147,7 @@ bool CSG_3DView_Canvas::Draw(void)
 		m_Data_Min.z + 0.5 * (m_Data_Max.z - m_Data_Min.z)
 	);
 
-	m_Projector.Set_Scale(
-		 (m_Image_NX / (double)m_Image_NY) > ((m_Data_Max.x - m_Data_Min.x) / (m_Data_Max.y - m_Data_Min.y))
-		? m_Image_NX / (m_Data_Max.x - m_Data_Min.x)
-		: m_Image_NY / (m_Data_Max.y - m_Data_Min.y)
-	);
+	m_Projector.Set_Scale(SG_Get_Length(m_Image_NX, m_Image_NY) / SG_Get_Length(m_Data_Max.x - m_Data_Min.x, m_Data_Max.y - m_Data_Min.y));
 
 	//-------------------------------------------------
 	if( m_bStereo == false )

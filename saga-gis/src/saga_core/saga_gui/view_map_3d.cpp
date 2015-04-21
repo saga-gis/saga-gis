@@ -383,7 +383,7 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 	case ID_CMD_MAP3D_SHIFT_Z_LESS   :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() - 10.0);	break;
 	case ID_CMD_MAP3D_SHIFT_Z_MORE   :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() + 10.0);	break;
 
-//	case ID_CMD_MAP3D_DRAW_BOX       :	m_pPanel->m_Parameters("DRAW_BOX"    )->Set_Value(m_pPanel->m_Parameters("DRAW_BOX"    )->asBool() == false    );	break;
+//	case ID_CMD_MAP3D_DRAW_BOX       :	m_pPanel->m_Parameters("DRAW_BOX"    )->Set_Value(m_pPanel->m_Parameters("DRAW_BOX"    )->asBool() ==  true    );	break;
 	case ID_CMD_MAP3D_STEREO         :	m_pPanel->m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"      )->asBool() == false    );	break;
 	case ID_CMD_MAP3D_STEREO_LESS    :	m_pPanel->m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST" )->asDouble() - 2       );	break;
 	case ID_CMD_MAP3D_STEREO_MORE    :	m_pPanel->m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST" )->asDouble() + 2       );	break;
@@ -467,9 +467,10 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 		m_Parameters("CENTRAL"     )->Set_Value(m_pPanel->Get_Projector().is_Central() ? 1 : 0);
 		m_Parameters("CENTRAL_DIST")->Set_Value(m_pPanel->Get_Projector().Get_Central_Distance());
 
-		m_Parameters("BGCOLOR"     )->Set_Value(m_pPanel->m_Parameters("BGCOLOR"    )->asInt());
-		m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"     )->asInt());
-		m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST")->asDouble());
+		m_Parameters("BGCOLOR"     )->Set_Value(m_pPanel->m_Parameters("BGCOLOR"    ));
+		m_Parameters("STEREO"      )->Set_Value(m_pPanel->m_Parameters("STEREO"     ));
+		m_Parameters("STEREO_DIST" )->Set_Value(m_pPanel->m_Parameters("STEREO_DIST"));
+		m_Parameters("DRAW_BOX"    )->Set_Value(m_pPanel->m_Parameters("DRAW_BOX"   ));
 
 		m_Parameters("Z_SCALE"     )->Set_Value(m_pPanel->m_zScale);
 		m_Parameters("DEM_RES"     )->Set_Value(m_pPanel->Get_DEM_Res());
@@ -491,18 +492,14 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 			m_Parameters("SHIFT_Z")->asDouble()
 		);
 
-		m_pPanel->Get_Projector().do_Central(
-			m_Parameters("CENTRAL")->asInt() == 1
-		);
+		m_pPanel->m_Parameters("CENTRAL"     )->Set_Value(m_Parameters("CENTRAL"     ));
+		m_pPanel->m_Parameters("CENTRAL_DIST")->Set_Value(m_Parameters("CENTRAL_DIST"));
 
-		m_pPanel->Get_Projector().Set_Central_Distance(
-			m_Parameters("CENTRAL_DIST")->asDouble()
-		);
-
-		m_pPanel->m_Parameters("BGCOLOR"    )->Set_Value(m_Parameters("BGCOLOR"    )->asInt());
-		m_pPanel->m_Parameters("STEREO"     )->Set_Value(m_Parameters("STEREO"     )->asInt());
-		m_pPanel->m_Parameters("STEREO_DIST")->Set_Value(m_Parameters("STEREO_DIST")->asDouble());
-		m_pPanel->m_Parameters("DRAPE_MODE" )->Set_Value(m_Parameters("DRAPE_MODE" )->asInt());
+		m_pPanel->m_Parameters("BGCOLOR"     )->Set_Value(m_Parameters("BGCOLOR"     ));
+		m_pPanel->m_Parameters("STEREO"      )->Set_Value(m_Parameters("STEREO"      ));
+		m_pPanel->m_Parameters("STEREO_DIST" )->Set_Value(m_Parameters("STEREO_DIST" ));
+		m_pPanel->m_Parameters("DRAPE_MODE"  )->Set_Value(m_Parameters("DRAPE_MODE"  ));
+		m_pPanel->m_Parameters("DRAW_BOX"    )->Set_Value(m_Parameters("DRAW_BOX"    ));
 
 		m_pPanel->m_zScale	= m_Parameters("Z_SCALE")->asDouble();
 
@@ -545,6 +542,12 @@ void CVIEW_Map_3D::Parameters_Create(void)
 		pNode	, "Z_SCALE"		, _TL("Exaggeration"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
+	);
+
+	m_Parameters.Add_Value(
+		pNode	, "DRAW_BOX"	, _TL("Bounding Box"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
 	);
 
 	//-----------------------------------------------------
@@ -597,7 +600,7 @@ void CVIEW_Map_3D::Parameters_Create(void)
 	m_Parameters.Add_Value(
 		pNode	, "CENTRAL_DIST"	, _TL("Perspectivic Distance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 200, 1, true
+		PARAMETER_TYPE_Double, 1500, 1, true
 	);
 
 	//-----------------------------------------------------
