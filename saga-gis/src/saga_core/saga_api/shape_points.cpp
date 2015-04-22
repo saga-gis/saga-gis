@@ -154,6 +154,20 @@ int CSG_Shape_Points::_Add_Part(void)
 }
 
 //---------------------------------------------------------
+int CSG_Shape_Points::Add_Part(CSG_Shape_Part *pPart)
+{
+	if( pPart )
+	{
+		for(int iPoint=0, iPart=Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
+		{
+			Add_Point(pPart->Get_Point(iPoint), iPart);
+		}
+	}
+
+	return( m_nParts );
+}
+
+//---------------------------------------------------------
 int CSG_Shape_Points::Del_Part(int del_Part)
 {
 	if( del_Part >= 0 && del_Part < m_nParts )

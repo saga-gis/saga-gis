@@ -140,6 +140,7 @@ public:
 	virtual int					Ins_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
 	virtual int					Set_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
 
+	virtual int					Add_Part			(class CSG_Shape_Part *pPart)					= 0;
 	virtual int					Del_Part			(int iPart)										= 0;
 	virtual int					Del_Parts			(void)											= 0;
 
@@ -209,6 +210,7 @@ public:
 	virtual int					Set_Point			(double x, double y, int iPoint, int iPart = 0)		{	return( Add_Point(x, y) );	}
 	virtual int					Del_Point			(                    int iPoint, int iPart = 0)		{	return( -1 );				}
 
+	virtual int					Add_Part			(class CSG_Shape_Part *pPart)						{	return( -1 );				}
 	virtual int					Del_Part			(int iPart)											{	return( -1 );				}
 	virtual int					Del_Parts			(void)												{	return( -1 );				}
 
@@ -393,6 +395,7 @@ public:
 	int							Ins_Point			(const TSG_Point &p, int iPoint, int iPart = 0)	{	return( Ins_Point(p.x, p.y, iPoint, iPart) );	}
 	int							Set_Point			(const TSG_Point &p, int iPoint, int iPart = 0)	{	return( Set_Point(p.x, p.y, iPoint, iPart) );	}
 
+	virtual int					Add_Part			(class CSG_Shape_Part *pPart);
 	virtual int					Del_Part			(int iPart);
 	virtual int					Del_Parts			(void);
 
