@@ -93,11 +93,11 @@ protected:
 
 private:
 
-	int						m_Radius, m_Threshold;
+	int						m_Threshold;
 
-	CSG_Grid				m_Kernel, *m_pInput;
+	CSG_Grid				*m_pInput;
 
-	CSG_Class_Statistics	m_Majority;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
 
 	double					Get_Majority	(int x, int y);

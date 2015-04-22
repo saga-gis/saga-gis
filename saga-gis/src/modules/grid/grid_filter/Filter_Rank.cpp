@@ -130,22 +130,19 @@ CFilter_Rank::CFilter_Rank(void)
 //---------------------------------------------------------
 bool CFilter_Rank::On_Execute(void)
 {
-	int			x, y;
-	double		Rank;
-	CSG_Grid	*pResult;
-
-	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT" )->asGrid();
-	pResult		= Parameters("RESULT")->asGrid();
-	Rank		= Parameters("RANK"  )->asInt() / 100.0;
-
 	//-----------------------------------------------------
 	m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0);
 
+	double	Rank	= Parameters("RANK")->asDouble() / 100.0;
+
 	//-----------------------------------------------------
+	m_pInput	= Parameters("INPUT")->asGrid();
+
+	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
+
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= SG_Create_Grid(m_pInput);
+		Input.Create(*m_pInput); pResult = m_pInput; m_pInput = &Input;
 	}
 	else
 	{
@@ -155,10 +152,10 @@ bool CFilter_Rank::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		#pragma omp parallel private(x)
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
 			double	Value;
 
@@ -174,13 +171,9 @@ bool CFilter_Rank::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
+	if( m_pInput == &Input )
 	{
-		m_pInput->Assign(pResult);
-
-		delete(pResult);
-
-		DataObject_Update(m_pInput);
+		DataObject_Update(pResult);
 	}
 
 	m_Kernel.Destroy();

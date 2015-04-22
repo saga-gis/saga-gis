@@ -76,7 +76,7 @@ CFilter_Majority::CFilter_Majority(void)
 
 	Set_Name		(_TL("Majority Filter"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Majority filter for grids."
@@ -101,7 +101,7 @@ CFilter_Majority::CFilter_Majority(void)
 	Parameters.Add_Choice(
 		NULL, "MODE"		, _TL("Search Mode"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Square"),
 			_TL("Circle")
 		), 1
@@ -130,43 +130,19 @@ CFilter_Majority::CFilter_Majority(void)
 //---------------------------------------------------------
 bool CFilter_Majority::On_Execute(void)
 {
-	int			x, y, ix, iy;
-	CSG_Grid	*pResult;
+	//-----------------------------------------------------
+	m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0);
+
+	m_Threshold	= 1 + (int)((1 + m_Kernel.Get_Count()) * Parameters("THRESHOLD")->asDouble() / 100.0);
 
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")	->asGrid();
-	pResult		= Parameters("RESULT")	->asGrid();
-	m_Radius	= Parameters("RADIUS")	->asInt();
+	m_pInput	= Parameters("INPUT")->asGrid();
 
-	//-----------------------------------------------------
-	m_Kernel.Create(SG_DATATYPE_Byte, 1 + 2 * m_Radius, 1 + 2 * m_Radius);
-	m_Kernel.Set_NoData_Value(0.0);
-	m_Kernel.Assign(1.0);
-	m_Kernel.Set_Value(m_Radius, m_Radius, 0.0);
+	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
 
-	if( Parameters("MODE")->asInt() == 1 )
-	{
-		for(y=-m_Radius, iy=0; y<=m_Radius; y++, iy++)
-		{
-			for(x=-m_Radius, ix=0; x<=m_Radius; x++, ix++)
-			{
-				if( x*x + y*y > m_Radius*m_Radius )
-				{
-					m_Kernel.Set_Value(ix, iy, 0.0);
-				}
-			}
-		}
-	}
-
-	m_Majority.Create();
-
-//	m_Threshold	= (int)m_Kernel.Get_NoData_Count();
-	m_Threshold	= 1 + (int)(0.01 * Parameters("THRESHOLD")->asDouble() * (1 + m_Kernel.Get_NCells() - m_Kernel.Get_NoData_Count()));
-
-	//-----------------------------------------------------
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= SG_Create_Grid(m_pInput);
+		Input.Create(*m_pInput); pResult = m_pInput; m_pInput = &Input;
 	}
 	else
 	{
@@ -176,10 +152,10 @@ bool CFilter_Majority::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pInput->is_InGrid(x, y) )
 			{
@@ -193,17 +169,12 @@ bool CFilter_Majority::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
+	if( m_pInput == &Input )
 	{
-		m_pInput->Assign(pResult);
-
-		delete(pResult);
-
-		DataObject_Update(m_pInput);
+		DataObject_Update(pResult);
 	}
 
-	m_Kernel	.Destroy();
-	m_Majority	.Destroy();
+	m_Kernel.Destroy();
 
 	return( true );
 }
@@ -218,25 +189,25 @@ bool CFilter_Majority::On_Execute(void)
 //---------------------------------------------------------
 double CFilter_Majority::Get_Majority(int x, int y)
 {
-	m_Majority.Reset();
+	CSG_Class_Statistics	Majority;
 
-	m_Majority.Add_Value(m_pInput->asDouble(x, y));
+	Majority.Add_Value(m_pInput->asDouble(x, y));
 
-	for(int iy=0, jy=y-m_Radius; iy<m_Kernel.Get_NY(); iy++, jy++)
+	for(int i=0; i<m_Kernel.Get_Count(); i++)
 	{
-		for(int ix=0, jx=x-m_Radius; ix<m_Kernel.Get_NX(); ix++, jx++)
+		int	ix	= m_Kernel.Get_X(i, x);
+		int	iy	= m_Kernel.Get_Y(i, y);
+
+		if( m_pInput->is_InGrid(ix, iy) )
 		{
-			if( m_Kernel.asByte(ix, iy) && m_pInput->is_InGrid(jx, jy) )
-			{
-				m_Majority.Add_Value(m_pInput->asDouble(jx, jy));
-			}
+			Majority.Add_Value(m_pInput->asDouble(ix, iy));
 		}
 	}
 
 	int		Count;
 	double	Value;
 
-	m_Majority.Get_Majority(Value, Count);
+	Majority.Get_Majority(Value, Count);
 
 	return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
 }
