@@ -191,6 +191,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_virtual", "modules\io\io
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_maxent", "modules\imagery\imagery_maxent\imagery_maxent.vcxproj", "{E1C454F8-2E71-485C-B598-F58C2741ECBA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_rivflow", "modules\simulation\sim_rivflow\sim_rivflow.vcxproj", "{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -799,6 +801,14 @@ Global
 		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Release|Win32.Build.0 = Release|Win32
 		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Release|x64.ActiveCfg = Release|x64
 		{E1C454F8-2E71-485C-B598-F58C2741ECBA}.Release|x64.Build.0 = Release|x64
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Debug|Win32.Build.0 = Debug|Win32
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Debug|x64.ActiveCfg = Debug|x64
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Debug|x64.Build.0 = Debug|x64
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Release|Win32.ActiveCfg = Release|Win32
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Release|Win32.Build.0 = Release|Win32
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Release|x64.ActiveCfg = Release|x64
+		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
