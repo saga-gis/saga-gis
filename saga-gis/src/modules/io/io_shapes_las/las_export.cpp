@@ -67,6 +67,7 @@
 #include <liblas/capi/las_version.h>
 #include <fstream>
 #include <iostream>
+#include <cstddef>
 
 
 //---------------------------------------------------------
