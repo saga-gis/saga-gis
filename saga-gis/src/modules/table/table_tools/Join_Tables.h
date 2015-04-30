@@ -116,10 +116,10 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Append_Rows : public CSG_Module  
+class CTable_Append_Cols : public CSG_Module  
 {
 public:
-	CTable_Append_Rows(void);
+	CTable_Append_Cols(void);
 
 
 protected:

@@ -386,9 +386,9 @@ CJoin_Tables_Shapes::CJoin_Tables_Shapes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Append_Rows::CTable_Append_Rows(void)
+CTable_Append_Cols::CTable_Append_Cols(void)
 {
-	Set_Name		(_TL("Append Rows from Table"));
+	Set_Name		(_TL("Append Fields from another Table"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2012"));
 
@@ -421,7 +421,7 @@ CTable_Append_Rows::CTable_Append_Rows(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Append_Rows::On_Execute(void)
+bool CTable_Append_Cols::On_Execute(void)
 {
 	CSG_Table	*pTable, *pOutput, *pAppend;
 
