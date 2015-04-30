@@ -125,7 +125,7 @@ CSG_Module *		Create_Module(int i)
 	case  5:	return( new CTable_Change_Date_Format );
 	case  6:	return( new CTable_Change_Time_Format );
 	case  7:	return( new CTable_Change_Field_Type );
-	case  8:	return( new CTable_Append_Rows );
+	case  8:	return( new CTable_Append_Cols );
 	case  9:	return( new CTable_Change_Color_Format );
 	case 10:	return( new CTable_Text_Replacer );
 	case 11:	return( new CTable_Field_Deletion );
