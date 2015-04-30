@@ -457,6 +457,13 @@ void CWKSP_Map::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Value(
+		pNode_0	, "GCS_POSITION"	, _TL("Position as Geographic Coordinates"),
+		_TL("show mouse position in statusbar using geographic coordinates if possible"),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	//-----------------------------------------------------
+	pNode_1	= m_Parameters.Add_Value(
 		pNode_0	, "SCALE_SHOW"		, _TL("Scale Bar"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameter("SCALE_BAR")->asBool()

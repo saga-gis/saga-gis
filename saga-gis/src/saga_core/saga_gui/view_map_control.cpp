@@ -202,20 +202,71 @@ bool CVIEW_Map_Control::Set_Mode(int Mode)
 //---------------------------------------------------------
 inline void CVIEW_Map_Control::_Set_StatusBar(CSG_Point ptWorld)
 {
-	STATUSBAR_Set_Text(wxString::Format(wxT("X%f"), ptWorld.Get_X()), STATUSBAR_VIEW_X);
-	STATUSBAR_Set_Text(wxString::Format(wxT("Y%f"), ptWorld.Get_Y()), STATUSBAR_VIEW_Y);
+	static bool	bBuisy	= false;
 
-	if( m_Mode == MAP_MODE_DISTANCE )
+	if( bBuisy == false )
 	{
-		STATUSBAR_Set_Text(wxString::Format(wxT("D %f"), m_Distance + m_Distance_Move), STATUSBAR_VIEW_Z);
-	}
-	else if( Get_Active_Layer() )
-	{
-		STATUSBAR_Set_Text(wxString::Format(wxT("Z %s"), Get_Active_Layer()->Get_Value(ptWorld, _Get_World(2.0)).c_str()), STATUSBAR_VIEW_Z);
-	}
-	else
-	{
-		STATUSBAR_Set_Text(wxT("Z"), STATUSBAR_VIEW_Z);
+		bBuisy	= true;
+
+		CSG_Module	*pProjector	= NULL;
+
+		if( m_pMap->Get_Parameter("GCS_POSITION")->asBool() && m_pMap->Get_Projection().is_Okay() && (pProjector = SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 2)) != NULL )	// Coordinate Transformation (Shapes)
+		{
+			if( pProjector->is_Executing() )
+			{
+				pProjector	= NULL;
+			}
+			else
+			{
+				SG_UI_Progress_Lock(true);
+				SG_UI_Msg_Lock     (true);
+
+				CSG_Shapes	prj(SHAPE_TYPE_Point), gcs(SHAPE_TYPE_Point); prj.Add_Shape()->Add_Point(ptWorld); prj.Get_Projection().Assign(m_pMap->Get_Projection());
+
+				pProjector->Settings_Push(NULL);
+
+				if( pProjector->Set_Parameter("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+				&&  pProjector->Set_Parameter("SOURCE"   , &prj)
+				&&  pProjector->Set_Parameter("TARGET"   , &gcs)
+				&&  pProjector->Execute() )
+				{
+					ptWorld	= gcs.Get_Shape(0)->Get_Point(0);
+
+					STATUSBAR_Set_Text(wxString::Format("X %s", SG_Double_To_Degree(ptWorld.Get_X()).c_str()), STATUSBAR_VIEW_X);
+					STATUSBAR_Set_Text(wxString::Format("Y %s", SG_Double_To_Degree(ptWorld.Get_Y()).c_str()), STATUSBAR_VIEW_Y);
+
+					pProjector->Settings_Pop();
+				}
+				else
+				{
+					pProjector->Settings_Pop();		pProjector	= NULL;
+				}
+
+				SG_UI_Progress_Lock(false);
+				SG_UI_Msg_Lock     (false);
+			}
+		}
+
+		if( !pProjector )
+		{
+			STATUSBAR_Set_Text(wxString::Format("X %f", ptWorld.Get_X()), STATUSBAR_VIEW_X);
+			STATUSBAR_Set_Text(wxString::Format("Y %f", ptWorld.Get_Y()), STATUSBAR_VIEW_Y);
+		}
+
+		if( m_Mode == MAP_MODE_DISTANCE )
+		{
+			STATUSBAR_Set_Text(wxString::Format(wxT("D %f"), m_Distance + m_Distance_Move), STATUSBAR_VIEW_Z);
+		}
+		else if( Get_Active_Layer() )
+		{
+			STATUSBAR_Set_Text(wxString::Format(wxT("Z %s"), Get_Active_Layer()->Get_Value(ptWorld, _Get_World(2.0)).c_str()), STATUSBAR_VIEW_Z);
+		}
+		else
+		{
+			STATUSBAR_Set_Text(wxT("Z"), STATUSBAR_VIEW_Z);
+		}
+
+		bBuisy	= false;
 	}
 }
 
