@@ -595,7 +595,7 @@ tools = [
 ['table_tools', 5, 'Change Date Format'],
 ['table_tools', 6, 'Change Time Format'],
 ['table_tools', 7, 'Change Field Type'],
-['table_tools', 8, 'Append Rows from Table'],
+['table_tools', 8, 'Append Fields from another Table'],
 ['table_tools', 9, 'Change Color Format'],
 ['table_tools', 10, 'Replace Text'],
 ['table_tools', 11, 'Delete Fields'],
@@ -612,5 +612,9 @@ tools = [
 ['tin_tools', 4, 'Gradient'],
 ['tin_tools', 5, 'Flow Accumulation (Trace)'],
 ['tin_tools', 6, 'Flow Accumulation (Parallel)'],
-['tin_viewer', 0, '[deprecated] TIN Viewer']
+['tin_viewer', 0, '[deprecated] TIN Viewer'],
+['sim_rivflow', 0, 'RiverBasin'],
+['sim_rivflow', 1, 'LandFlow Version 1.0 (build 3.5.1b)'],
+['sim_rivflow', 3, 'RiverGridGeneration'],
+['sim_rivflow', 4, 'GridCombination']
 ]
