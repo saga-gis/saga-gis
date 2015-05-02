@@ -365,7 +365,7 @@ bool CGrid_Terrain_Map::Generate_Contours()
 	//-----------------------------------------------------
 	if( pContours == NULL )
 	{
-		pContours = SG_Create_Shapes();
+		pContours = SG_Create_Shapes(SHAPE_TYPE_Line);
 		Parameters("CONTOURS")->Set_Value(pContours);
 		DataObject_Add(pContours);
 	}
@@ -390,7 +390,8 @@ bool CGrid_Terrain_Map::Generate_Contours()
 		DataObject_Set_Parameters(pContours, Parms);
 	}
 
-	DataObject_Update(pContours			, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+	pContours->Set_Name(CSG_String::Format(SG_T("Contours_%s"), Parameters("DEM")->asGrid()->Get_Name()));
+	DataObject_Update(pContours, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
 
 	//-----------------------------------------------------
