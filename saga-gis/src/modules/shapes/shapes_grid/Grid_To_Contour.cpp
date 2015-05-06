@@ -225,13 +225,16 @@ bool CGrid_To_Contour::On_Execute(void)
 		zStep	= 1;
 		zMax	= zMin;
 
-		Name.Format("%s [%s %s]", m_pGrid->Get_Name(), _TL("Contour" ), SG_Get_String(zMin ).c_str());
+		Name = Name.Format("%s [%s %s]", m_pGrid->Get_Name(), _TL("Contour" ), SG_Get_String(zMin ).c_str());
 	}
-	else if( zMin < m_pGrid->Get_ZMin() )
+	else
 	{
-		zMin	+= zStep * (int)((m_pGrid->Get_ZMin() - zMin) / zStep);
+		if( zMin < m_pGrid->Get_ZMin() )
+		{
+			zMin	+= zStep * (int)((m_pGrid->Get_ZMin() - zMin) / zStep);
+		}
 
-		Name.Format("%s [%s %s]", m_pGrid->Get_Name(), _TL("Interval"), SG_Get_String(zStep).c_str());
+		Name = Name.Format("%s [%s %s]", m_pGrid->Get_Name(), _TL("Interval"), SG_Get_String(zStep).c_str());
 	}
 
 	if( zMax > m_pGrid->Get_ZMax() )
@@ -485,7 +488,7 @@ bool CGrid_To_Contour::Get_Contour(double z, int x, int y)
 
 		if( pContour->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 		{
-			pContour->Set_Z(z, pContour->Get_Point_Count() - 1, iPart);
+			pContour->Set_Z(z, pContour->Get_Point_Count(iPart) - 1, iPart);
 		}
 
 		if( Get_Contour_Cell(Dir, x, y, bRow) || Get_Contour_Cell(Dir, x, y, bRow) )
