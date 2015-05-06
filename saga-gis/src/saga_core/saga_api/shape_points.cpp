@@ -161,6 +161,9 @@ int CSG_Shape_Points::Add_Part(CSG_Shape_Part *pPart)
 		for(int iPoint=0, iPart=Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
 		{
 			Add_Point(pPart->Get_Point(iPoint), iPart);
+
+			if( Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+				Set_Z(pPart->Get_Z(iPoint), Get_Point_Count(iPart) - 1, iPart);
 		}
 	}
 
