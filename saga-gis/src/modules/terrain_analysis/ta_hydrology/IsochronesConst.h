@@ -40,9 +40,11 @@ protected:
 
 private:
 	CSG_Grid *m_pDEM;
-	CSG_Grid *m_pTime;	
-	void writeTimeOut(int,int,int,int);
+	CSG_Grid *m_pTime;
+	CSG_Grid m_Direction;
+	double	m_dConcTime;
 
+	void _CalculateDistance(int x, int y);
 };
 
 #endif // #ifndef HEADER_INCLUDED__IsochronesConst_H

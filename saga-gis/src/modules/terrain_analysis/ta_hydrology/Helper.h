@@ -27,6 +27,7 @@
 
 #define GLOBAL_BASIN -1
 
+void Init_FlowDirectionsD8(CSG_Grid *pDEM, CSG_Grid *pDirection);
 void getNextCell(CSG_Grid*,int,int,int &,int &);
 void getNextCell(CSG_Grid*,CSG_Grid*,int,int,int&,int&);
 double FlowDistance(CSG_Grid*,CSG_Grid*,int,int,int,int,int);

@@ -23,12 +23,17 @@
 #include "Helper.h"
 #include "IsochronesConst.h"
 
+//-----------------------------------------------------
 CIsochronesConst::CIsochronesConst(void){
 
 	Set_Name(_TL("Isochrones Constant Speed"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Isochrones calculation with constant speed"));
+	Set_Author(_TL("V.Olaya (c) 2004, V.Wichmann (c) 2015"));
+	Set_Description	(_TW("Isochrones calculation with constant speed based on a user "
+						"provided Time of Concentration. For each selected pour point, "
+						"the longest watercourse length and the average slope of the "
+						"watercourse are reported. These can be used to estimate the "
+						"Time of Concentration with one of the empirical equations "
+						"available.\n\n"));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
@@ -38,73 +43,88 @@ CIsochronesConst::CIsochronesConst(void){
 
 	Parameters.Add_Grid(NULL, 
 						"TIME", 
-						_TL("Time Out (h)"), 
+						_TL("Time Out [min]"), 
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						SG_DATATYPE_Double);
 
+	Parameters.Add_Value(
+		NULL, "TIME_OF_CONCENTRATION", _TL("Time of Concentration [min]"),
+		_TL("Time of Concentration [min] used to estimate flow speed."),
+		PARAMETER_TYPE_Double, 60.0, 0.001, true
+	);
+		
+
 }//constructor
 
 
+//-----------------------------------------------------
 CIsochronesConst::~CIsochronesConst(void){
 	On_Execute_Finish();
 }
 
 
-void CIsochronesConst::writeTimeOut(
-        int iX1,
-        int iY1,
-        int iX2,
-        int iY2) {
-	
-    int iNextX, iNextY;
-	double dDist = 1;
-	
-	if (iX1 < 0 || iX1 >= m_pDEM->Get_NX() || iY1 < 0 || iY1 >= m_pDEM->Get_NY()
-            || m_pDEM->is_NoData(iX1,iY1)) {        
-    }// if
-	else {				
-		if (abs(iX1 - iX2 + iY1 - iY2) == 1) {
-            dDist = m_pDEM->Get_Cellsize();
-        }// if
-        else {
-            dDist = 1.414 * m_pDEM->Get_Cellsize();
-        }// else
-		m_pTime->Set_Value(iX1,iY1,m_pTime->asDouble(iX2,iY2) + dDist);        
+//-----------------------------------------------------
+void CIsochronesConst::_CalculateDistance(int x, int y)
+{
+	CSG_Grid_Stack	Stack;
 
-		for (int i = -1; i<2; i++){
-			for (int j = -1; j<2; j++){
-				if (!(i == 0) || !(j == 0)) {
-					getNextCell(m_pDEM, iX1 + i, iY1 + j, iNextX, iNextY);
-					if (iNextY == iY1 && iNextX == iX1) {
-						writeTimeOut(iX1 + i, iY1 + j, iX1, iY1);
-					}// if				
-				}//if				
-			}//for
-		}//for
-    }// else
+	Stack.Push(x, y);
 
-}// method
+	//-----------------------------------------------------
+	while( Stack.Get_Size() > 0 && Process_Get_Okay() )
+	{
+		Stack.Pop(x, y);
 
-bool CIsochronesConst::On_Execute(void){
-	
+		//-------------------------------------------------
+		for(int i=0; i<8; i++)
+		{
+			int	ix	= Get_xFrom(i, x);
+			int	iy	= Get_yFrom(i, y);
+
+			if( m_pDEM->is_InGrid(ix, iy) && i == m_Direction.asInt(ix, iy) )
+			{
+				m_pTime->Set_Value(ix, iy, m_pTime->asDouble(x, y) + Get_Length(i));
+				Stack.Push(ix, iy);
+			}
+		}
+	}
+
+	return;
+}
+
+
+//-----------------------------------------------------
+bool CIsochronesConst::On_Execute(void)
+{	
 	m_pDEM = Parameters("DEM")->asGrid(); 
 	m_pTime = Parameters("TIME")->asGrid();
 	m_pTime->Assign(0.0);
 
-	return true;
+	m_dConcTime = Parameters("TIME_OF_CONCENTRATION")->asDouble();
 
-}//method
+	m_Direction.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Direction.Set_NoData_Value(-1);
 
-bool CIsochronesConst::On_Execute_Finish(void)
-{
+	Init_FlowDirectionsD8(m_pDEM, &m_Direction);
+
 	return( true );
 }
 
+
+//-----------------------------------------------------
+bool CIsochronesConst::On_Execute_Finish(void)
+{
+	m_Direction.Destroy();
+
+	return( true );
+}
+
+
+//-----------------------------------------------------
 bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {	
-	int x,y;
 	int iX, iY;		
 	int iHighX, iHighY;
 
@@ -115,39 +135,56 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interac
 
 	m_pTime->Assign(0.0);
 	
-	writeTimeOut(iX, iY, iX, iY);
+	_CalculateDistance(iX, iY);
     
-	double dMax = m_pTime->Get_ZMax();
+	double	dMax = m_pTime->Get_ZMax();
+	bool	bMaxFound = false;
 
-    for(y=0; y<Get_NY() && Set_Progress(y); y++){		
-		for(x=0; x<Get_NX(); x++){
+    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		if( bMaxFound )
+			break;
+
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
 			double dValue = m_pTime->asDouble(x,y);
-            if (dValue == dMax){
-				iHighX = x;
-				iHighY = y;				
-			}//if
+            
+			if (dValue == dMax)
+			{
+				#pragma omp critical
+				{
+					iHighX = x;
+					iHighY = y;
+					bMaxFound = true;
+				}
+			}
         }// for
     }// for
 	
 	double dMaxDist = m_pTime->Get_ZMax();
-	double dH1 = m_pDEM->asDouble(iX,iY);
-	double dH2 = m_pDEM->asDouble(iHighX,iHighY);
-	double dConcTime = pow(0.87 * pow(dMaxDist / 1000, 3)
-                / (dH2 - dH1),
-                0.385);
-	double dSpeed = dMaxDist / dConcTime;
+	double dH1 = m_pDEM->asDouble(iX, iY);
+	double dH2 = m_pDEM->asDouble(iHighX, iHighY);
+	double dSpeed = dMaxDist / m_dConcTime;
+
+	SG_UI_Msg_Add(SG_T("--------------------------------------------------------------------------------"), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("Longest watercourse length: %.2f m"), dMaxDist), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("Average slope of watercourse: %.2f m/m"), (dH2 - dH1) / dMaxDist), true);
+	SG_UI_Msg_Add(CSG_String::Format(_TL("Average velocity in watercourse: %.2f m/min"), dSpeed), true);
+	SG_UI_Msg_Add(SG_T("--------------------------------------------------------------------------------"), true);
 	
-	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
-		for(x=0; x<Get_NX(); x++){
-			if (m_pTime->asDouble(x,y)){
-				m_pTime->Set_Value(x,y, m_pTime->asDouble(x,y)/dSpeed);
-			}//if
-		}//for
-	}//for
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			m_pTime->Set_Value(x, y, m_pTime->asDouble(x, y) / dSpeed);
+		}
+	}
 
 	m_pTime->Set_NoData_Value(0.0);
 
-	DataObject_Update(m_pTime, true);
+	DataObject_Update(m_pTime, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
 	return (true);
 

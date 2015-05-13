@@ -22,6 +22,19 @@
 
 #include "Helper.h"
 
+void Init_FlowDirectionsD8(CSG_Grid *pDEM, CSG_Grid *pDirection)
+{
+	for(int y=0; y<pDEM->Get_NY() && SG_UI_Process_Set_Progress(y, pDEM->Get_NY()); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<pDEM->Get_NX(); x++)
+		{
+			pDirection->Set_Value(x, y, pDEM->Get_Gradient_NeighborDir(x, y), false);
+		}
+	}
+}
+
+
 void getNextCell(
 		CSG_Grid *g,
 		int iX,
