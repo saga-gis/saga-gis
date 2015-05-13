@@ -73,18 +73,18 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const char * Get_Info(int i)
+CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:			return( "RivFlow" );
-	case MLB_INFO_Author:		return( "Christian Alwardt" );
-	case MLB_INFO_Description:	return( "RiVFlow." );
-	case MLB_INFO_Version:		return( "3.1" );
-	case MLB_INFO_Menu_Path:	return( "Garden|RivFlow" );
+	default:
+	case MLB_INFO_Name:			return( _TL("RivFlow") );
+	case MLB_INFO_Category:		return( _TL("Garden") );
+	case MLB_INFO_Author:		return( SG_T("Christian Alwardt") );
+	case MLB_INFO_Description:	return( _TL("RivFlow.") );
+	case MLB_INFO_Version:		return( SG_T("3.1") );
+	case MLB_INFO_Menu_Path:	return( _TL("Garden|RivFlow") );
 	}
-
-	return( NULL );
 }
 
 
