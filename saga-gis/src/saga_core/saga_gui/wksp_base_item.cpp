@@ -281,13 +281,13 @@ int CWKSP_Base_Item::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{
-		((CWKSP_Base_Item *)pParameter->Get_Owner()->Get_Owner())->
+		return ((CWKSP_Base_Item *)pParameter->Get_Owner()->Get_Owner())->
 			On_Parameter_Changed(pParameter->Get_Owner(), pParameter, Flags);
 	}
 
 	if( g_pACTIVE )
 	{
-		g_pACTIVE->Get_Parameters()->Update_Parameters(pParameter->Get_Owner(), false);
+		return g_pACTIVE->Get_Parameters()->Update_Parameters(pParameter->Get_Owner(), false);
 	}
 
 	return( 0 );
