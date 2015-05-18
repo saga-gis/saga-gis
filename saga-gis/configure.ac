@@ -7,7 +7,7 @@ AC_INIT(saga, 2.2.0, BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([src/saga_core/saga_gui/wksp_data_menu_files.cpp])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE(foreign tar-ustar)
+AM_INIT_AUTOMAKE([foreign tar-ustar subdir-objects])
 
 
 # Checks for programs.
