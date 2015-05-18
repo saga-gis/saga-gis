@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: IsochronesVar.cpp 911 2011-02-14 16:38:15Z reklov_w $
+ * Version $Id$
  *********************************************************/
 /*******************************************************************************
     IsochronesVar.cpp
@@ -27,19 +27,24 @@
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif
 
+
+//-----------------------------------------------------
 CIsochronesVar::CIsochronesVar(void){
 
 	Parameters.Set_Name(_TL("Isochrones Variable Speed"));
+	Set_Author(_TL("V.Olaya (c) 2004, V.Wichmann (c) 2015"));
 	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Cálculo del tiempo de salida con velocidad variable.\r\n"
-		"References:\r\n"
+		"Calculation of isochrones with variable speed.\n"
+		"In case a cell in an optional input grid is NoData, the corresponding parameter value will "
+		"be used instead of skipping this cell.\n\n"
+		"References:\n"
 		"1. Al-Smadi, Mohammad: Incorporating spatial and temporal variation of "
 		"watershed response in a gis-based hydrologic model. Faculty of the Virginia Polythecnic"
-		"Insitute and State University. MsC Thesis. 1998 \r\n"
-		"Available at scholar.lib.vt.edu/theses/available/ etd-121698-112858/unrestricted/smadi.pdf"
+		"Insitute and State University. MsC Thesis. 1998\n"
+		"Available at scholar.lib.vt.edu/theses/available/etd-121698-112858/unrestricted/smadi.pdf"
 		"2. Martínez Álvarez, V.; Dal-Ré Tenreiro, R.; García García, A. I.; Ayuga Téllez, F. "
-		"Modelación distribuida de la escorrentía superficial en pequeñas cuencas mediante SIG. Evaluación experimental.\r\n "
-		"3. Olaya, V. Hidrologia computacional y modelos digitales del terreno. Alqua. 536 pp. 2004"));
+		"Modelación distribuida de la escorrentía superficial en pequeñas cuencas mediante SIG. Evaluación experimental.\n"
+		"3. Olaya, V. Hidrologia computacional y modelos digitales del terreno. Alqua. 536 pp. 2004\n\n"));
 
 	Parameters.Add_Grid(NULL,
 						"DEM",
@@ -140,135 +145,146 @@ CIsochronesVar::CIsochronesVar(void){
 }//constructor
 
 
+//-----------------------------------------------------
 CIsochronesVar::~CIsochronesVar(void){
 	Execute_Finish();
 }
 
 
-void CIsochronesVar::writeTimeOut(
-        int iX1,
-        int iY1,
-        int iX2,
-        int iY2) {
+//-----------------------------------------------------
+void CIsochronesVar::_CalculateTime(int x, int y)
+{
+	CSG_Grid_Stack	Stack;
+	double	dDist = 1;
+    double	dD = 0;
+    double	dSlope;
+    double	dSpeed;
+    double	dQ = 0;
+    double	dH;
+    double	dSup;
+    double	dInf;
+    double	dAcc;
+    double	dArea = 0;
+    double	dPerim;
+    double	dDif;
+    double	dManning;
+	double	dCN;
+    double	dI = 0;
+	int		iIter = 0;
+	int		iDir;
 
-    double dDist = 1;
-    double dD = 0;
-    double dSlope;
-    double dSpeed;
-    double dQ = 0;
-    double dH;
-    double dSup;
-    double dInf;
-    double dAcc;
-    double dArea = 0;
-    double dPerim;
-    double dDif;
-    double dManning;
-	double dCN;
-    double dI = 0;
-	int iIter;
-	int iNextX, iNextY;
 
-	if (iX1 < 0 || iX1 >= m_pDEM->Get_NX() || iY1 < 0 || iY1 >= m_pDEM->Get_NY()
-            || m_pDEM->asFloat(iX1,iY1) == m_pDEM->Get_NoData_Value()) {
-    }// if
-	else {
+	Stack.Push(x, y);
 
-		if (m_pCN!=NULL){
-			dCN = m_pCN->asDouble(iX1, iY1);
-			if (dCN == m_pCN->Get_NoData_Value()) {
-                dCN = m_dCN;
-			}// if
-		}//if
-		else{
+	//-----------------------------------------------------
+	while( Stack.Get_Size() > 0 && Process_Get_Okay() )
+	{
+		Stack.Pop(x, y);
+
+		if (m_pCN != NULL && !m_pCN->is_NoData(x, y))
+		{
+			dCN = m_pCN->asDouble(x, y);
+		}
+		else
+		{
 			dCN = m_dCN;
-		}//else
-		dI = Runoff(m_dRainfall, dCN);
-		dI /= 3600.0;// in mm/s
-        dI /= 1000.0;// m/s of runoff;
+		}
 
-		if (abs(iX1 - iX2 + iY1 - iY2) == 1) {
-            dDist = m_pDEM->Get_Cellsize();
-        }// if
-        else {
-            dDist = 1.44 * m_pDEM->Get_Cellsize();
-        }// else
-		dSlope = m_pSlope->asDouble(iX1,iY1);
+		dI = Runoff(m_dRainfall, dCN);
+		dI /= 3600.0;	// in mm/s
+        dI /= 1000.0;	// m/s of runoff;
+
+		iDir  = m_Direction.asInt(x, y);
+		dDist = Get_Length(iDir);	// length to previous, i.e. successor cell
+
+		dSlope = m_pSlope->asDouble(x, y);
 		dSlope = fabs(tan(dSlope));
 		dSlope = max(0.001, dSlope);
-		dAcc = m_pCatchArea->asDouble(iX1,iY1);
-        if (dAcc < m_dMixedThresh) {
+
+		dAcc = m_pCatchArea->asDouble(x, y);
+
+        if (dAcc < m_dMixedThresh)
+		{
             dD = sqrt(2.0 * dAcc / 3.14159);
-			if (m_pManning!=NULL){
-				dManning = m_pManning->asDouble(iX1, iY1);
-				if (dManning == m_pManning->Get_NoData_Value()) {
-	                dManning = m_dManning;
-		        }// if
-			}//id
-			else{
+			
+			if (m_pManning != NULL && !m_pManning->is_NoData(x, y))
+			{
+				dManning = m_pManning->asDouble(x, y);
+			}
+			else
+			{
 				dManning = m_dManning;
-			}//else
-            dSpeed = max(m_dMinSpeed, pow(dI * dD, 0.4)
-                    * pow(dSlope, 0.3) / pow(dManning, 0.6));
-        }// if
-        else{
-			if (dAcc < m_dChannelThresh) {
+			}
+
+            dSpeed = max(m_dMinSpeed, pow(dI * dD, 0.4) * pow(dSlope, 0.3) / pow(dManning, 0.6));
+        }
+        else
+		{
+			if (dAcc < m_dChannelThresh)
+			{
 				dManning = 0.06;
-			}//if
-			else{
+			}
+			else
+			{
 				dManning= 0.05;
-			}//if
-            dQ = dI * dAcc; // Q m3/s
-            dSup = 60;
-            dInf = 0;
-            dH = 2;
-            dArea = dH * dH / m_dChannelSlope;
-            dPerim = 2.0 * (dH / m_dChannelSlope + sqrt(dH * dH
-					+ pow(dH / m_dChannelSlope, 2.0)));
-            dDif = (sqrt(dSlope)
-                    * pow(dArea, 5.0 / 3.0)
-                    / pow(dPerim, 2.0 / 3.0) / dManning)
-                    - dQ;
-            iIter = 0;
-			do {
-                if (dDif > 0) {
-                    dSup = dH;
-                    dH = (dInf + dH) / 2.0;
-                }// if
-                else if (dDif < 0) {
-                    dInf = dH;
-                    dH = (dSup + dH) / 2.0;
-                }// else if
-                dArea = dH * dH / m_dChannelSlope;
-                dPerim = 2.0 * (dH / m_dChannelSlope + sqrt(dH * dH
-						+ pow(dH / m_dChannelSlope, 2.0)));
-                dDif = (sqrt(dSlope)
-                        * pow(dArea, 5.0 / 3.0)
-                        / pow(dPerim, 2.0 / 3.0) / dManning)
-                        - dQ;
+			}
+
+            dQ		= dI * dAcc; // Q m3/s
+            dSup	= 60;
+            dInf	= 0;
+            dH		= 2;
+            dArea	= dH * dH / m_dChannelSlope;
+            dPerim	= 2.0 * (dH / m_dChannelSlope + sqrt(dH * dH + pow(dH / m_dChannelSlope, 2.0)));
+            dDif	= (sqrt(dSlope) * pow(dArea, 5.0 / 3.0) / pow(dPerim, 2.0 / 3.0) / dManning) - dQ;
+            iIter	= 0;
+
+			do
+			{
+                if (dDif > 0)
+				{
+                    dSup	= dH;
+                    dH		= (dInf + dH) / 2.0;
+                }
+                else if (dDif < 0)
+				{
+                    dInf	= dH;
+                    dH		= (dSup + dH) / 2.0;
+                }
+
+                dArea	= dH * dH / m_dChannelSlope;
+                dPerim	= 2.0 * (dH / m_dChannelSlope + sqrt(dH * dH + pow(dH / m_dChannelSlope, 2.0)));
+                dDif	= (sqrt(dSlope) * pow(dArea, 5.0 / 3.0) / pow(dPerim, 2.0 / 3.0) / dManning) - dQ;
 				iIter++;
-            }while (fabs(dDif) > 0.1);
+            }
+			while (fabs(dDif) > 0.1);
+
             dSpeed = max(m_dMinSpeed, dQ / dArea);
-        }// else
+        }
 
-		m_pTime->Set_Value(iX1,iY1,m_pTime->asDouble(iX2,iY2) + dDist / dSpeed);
-		m_pSpeed->Set_Value(iX1,iY1, dSpeed);
+		int ix = Get_xTo(iDir, x);
+		int iy = Get_yTo(iDir, y);
 
-		for (int i = -1; i<2; i++){
-			for (int j = -1; j<2; j++){
-				if (!(i == 0) || !(j == 0)) {
-					getNextCell(m_pDEM, iX1 + i, iY1 + j, iNextX, iNextY);
-					if (iNextY == iY1 && iNextX == iX1) {
-						writeTimeOut(iX1 + i, iY1 + j, iX1, iY1);
-					}// if
-				}//if
-			}//for
-		}//for
+		m_pTime->Set_Value(x, y, m_pTime->asDouble(ix, iy) + dDist / dSpeed);
+		m_pSpeed->Set_Value(x, y, dSpeed);
 
-    }// else
+		//-------------------------------------------------
+		for(int i=0; i<8; i++)
+		{
+			ix	= Get_xFrom(i, x);
+			iy	= Get_yFrom(i, y);
 
-}// method
+			if( m_pDEM->is_InGrid(ix, iy) && i == m_Direction.asInt(ix, iy) )
+			{
+				Stack.Push(ix, iy);
+			}
+		}
+	}
 
+	return;
+}
+
+
+//-----------------------------------------------------
 double CIsochronesVar::Runoff(
         double dRainfall,
         double dCN) {
@@ -289,22 +305,32 @@ double CIsochronesVar::Runoff(
 
 }// method
 
+
+//-----------------------------------------------------
 void CIsochronesVar::ZeroToNoData(void){
 
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){
-		for(int x=0; x<Get_NX(); x++){
-            if (m_pTime->asDouble(x,y) == 0){
-				m_pTime->Set_Value(x,y,m_pTime->Get_NoData_Value());
-			}//if
-            if (m_pSpeed->asDouble(x,y) == 0){
-				m_pSpeed->Set_Value(x,y,m_pSpeed->Get_NoData_Value());
-			}//if
+    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+            if (m_pTime->asDouble(x, y) == 0)
+			{
+				m_pTime->Set_NoData(x, y);
+			}
+
+            if (m_pSpeed->asDouble(x, y) == 0)
+			{
+				m_pSpeed->Set_NoData(x, y);
+			}
         }// for
     }// for
 
 }//method
 
+
+//-----------------------------------------------------
 bool CIsochronesVar::On_Execute(void){
 
 	m_pDEM = Parameters("DEM")->asGrid();
@@ -322,17 +348,28 @@ bool CIsochronesVar::On_Execute(void){
 	m_dChannelSlope = Parameters("CHANSLOPE")->asDouble();
 	m_dMinSpeed = Parameters("MINSPEED")->asDouble();
 
-	m_pTime->Assign((double)0);
+	m_pTime->Assign(0.0);
 
-	return true;
+	m_Direction.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Direction.Set_NoData_Value(-1);
+
+	Init_FlowDirectionsD8(m_pDEM, &m_Direction);
+
+	return( true );
 
 }//method
 
+
+//-----------------------------------------------------
 bool CIsochronesVar::On_Execute_Finish()
 {
+	m_Direction.Destroy();
+
 	return( true );
 }
 
+
+//-----------------------------------------------------
 bool CIsochronesVar::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	int iX, iY;
@@ -342,20 +379,23 @@ bool CIsochronesVar::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interacti
 		return( false );
 	}
 	
-	m_pTime->Assign((double)0);
+	m_pTime->Assign(0.0);
 
-	writeTimeOut(iX, iY, iX, iY);
+	_CalculateTime(iX, iY);
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++){
-		for(int x=0; x<Get_NX(); x++){
-			m_pTime->Set_Value(x,y,m_pTime->asDouble(x,y)/3600.);
-        }// for
-    }// for
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			m_pTime->Set_Value(x, y, m_pTime->asDouble(x,y)/3600.0);
+        }
+    }
 
 	ZeroToNoData();
 
-	DataObject_Update(m_pTime, true);
+	DataObject_Update(m_pTime, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
-	return (true);
+	return( true );
 
 }//method

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: IsochronesVar.h 1246 2011-11-25 13:42:38Z oconrad $
+ * Version $Id$
  *********************************************************/
 /*******************************************************************************
     IsochronesVar.h
@@ -47,6 +47,7 @@ private:
 	CSG_Grid *m_pCN;
 	CSG_Grid *m_pCatchArea;
 	CSG_Grid *m_pSlope;
+	CSG_Grid m_Direction;
 	double m_dManning;
 	double m_dCN;
 	double m_dRainfall;
@@ -54,9 +55,10 @@ private:
 	double m_dChannelThresh;
 	double m_dChannelSlope;
 	double m_dMinSpeed;
-	void writeTimeOut(int,int,int,int);
 	void ZeroToNoData(void);
 	double Runoff(double, double);
+
+	void _CalculateTime(int x, int y);
 
 };
 
