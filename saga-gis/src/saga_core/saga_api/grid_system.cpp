@@ -77,40 +77,30 @@
 //---------------------------------------------------------
 CSG_Grid_System::CSG_Grid_System(void)
 {
-	m_Cellsize		= -1.0;
-
-	m_NX	= m_NY	= 0;
+	Assign(0.0, 0.0, 0.0, 0, 0);
 }
 
 //---------------------------------------------------------
 CSG_Grid_System::CSG_Grid_System(const CSG_Grid_System &System)
 {
-	m_Cellsize	= -1.0;
-
 	Assign(System);
 }
 
 //---------------------------------------------------------
 CSG_Grid_System::CSG_Grid_System(double Cellsize, const CSG_Rect &Extent)
 {
-	m_Cellsize	= -1.0;
-
 	Assign(Cellsize, Extent);
 }
 
 //---------------------------------------------------------
 CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, double xMax, double yMax)
 {
-	m_Cellsize	= -1.0;
-
 	Assign(Cellsize, xMin, yMin, xMax, yMax);
 }
 
 //---------------------------------------------------------
 CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, int NX, int NY)
 {
-	m_Cellsize	= -1.0;
-
 	Assign(Cellsize, xMin, yMin, NX, NY);
 }
 
@@ -140,25 +130,18 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 		if( bShort )
 		{
 			m_Name.Printf(SG_T("%.*f; %dx %dy; %.*fx %.*fy"),
-				SG_Get_Significant_Decimals(Get_Cellsize()),
-				Get_Cellsize(),
-				Get_NX(),
-				Get_NY(),
-				SG_Get_Significant_Decimals(Get_XMin()), Get_XMin(),
-				SG_Get_Significant_Decimals(Get_YMin()), Get_YMin()
+				SG_Get_Significant_Decimals(Get_Cellsize()), Get_Cellsize(),
+				Get_NX(), Get_NY(),
+				SG_Get_Significant_Decimals(Get_XMin    ()), Get_XMin    (),
+				SG_Get_Significant_Decimals(Get_YMin    ()), Get_YMin    ()
 			);
 		}
 		else
 		{
 			m_Name.Printf(SG_T("%s: %f, %s: %dx/%dy, %s: %fx/%fy"),
-				_TL("Cell size"),
-				Get_Cellsize(),
-				_TL("Number of cells"),
-				Get_NX(),
-				Get_NY(),
-				_TL("Lower left corner"),
-				Get_XMin(),
-				Get_YMin()
+				_TL("Cell size"        ), Get_Cellsize(),
+				_TL("Number of cells"  ), Get_NX(), Get_NY(),
+				_TL("Lower left corner"), Get_XMin(), Get_YMin()
 			);
 		}
 	}
@@ -199,24 +182,38 @@ void CSG_Grid_System::operator = (const CSG_Grid_System &System)
 //---------------------------------------------------------
 bool CSG_Grid_System::Assign(const CSG_Grid_System &System)
 {
-	return( Assign(System.m_Cellsize, System.m_Extent) );
+	m_NX			= System.m_NX;
+	m_NY			= System.m_NY;
+	m_NCells		= System.m_NCells;
+
+	m_Cellsize		= System.m_Cellsize;
+	m_Cellarea		= System.m_Cellarea;
+	m_Diagonal		= System.m_Diagonal;
+
+	m_Extent		= System.m_Extent;
+	m_Extent_Cells	= System.m_Extent_Cells;
+
+	return( is_Valid() );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid_System::Assign(double Cellsize, const CSG_Rect &Extent)
 {
-	return( Assign(Cellsize, Extent.m_rect.xMin, Extent.m_rect.yMin, Extent.m_rect.xMax, Extent.m_rect.yMax) );
+	if( Cellsize > 0.0 && Extent.Get_XRange() >= 0.0 && Extent.Get_YRange() >= 0.0 )
+	{
+		return( Assign(Cellsize, Extent.Get_XMin(), Extent.Get_YMin(),
+			1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
+			1 + (int)(0.5 + Extent.Get_YRange() / Cellsize))
+		);
+	}
+
+	return( Assign(0.0, 0.0, 0.0, 0, 0) );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, double xMax, double yMax)
 {
-	if( Cellsize > 0.0 && xMin < xMax && yMin < yMax )
-	{
-		return( Assign(Cellsize, xMin, yMin, 1 + (int)(0.5 + (xMax - xMin) / Cellsize), 1 + (int)(0.5 + (yMax - yMin) / Cellsize)) );
-	}
-
-	return( Assign(0.0, 0.0, 0.0, 0, 0) );
+	return( Assign(Cellsize, CSG_Rect(xMin, yMin, xMax, yMax)) );
 }
 
 //---------------------------------------------------------
@@ -224,42 +221,41 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 {
 	if( Cellsize > 0.0 && NX > 0 && NY > 0 )
 	{
-		Cellsize	= (sLong)(Cellsize * GRID_SYSTEM_PRECISION)	/ (double)GRID_SYSTEM_PRECISION;
-		xMin		= (sLong)(xMin * GRID_SYSTEM_PRECISION)		/ (double)GRID_SYSTEM_PRECISION;
-		yMin		= (sLong)(yMin * GRID_SYSTEM_PRECISION)		/ (double)GRID_SYSTEM_PRECISION;
+		Cellsize	= (sLong)(Cellsize * GRID_SYSTEM_PRECISION) / (double)GRID_SYSTEM_PRECISION;
+		xMin		= (sLong)(xMin     * GRID_SYSTEM_PRECISION) / (double)GRID_SYSTEM_PRECISION;
+		yMin		= (sLong)(yMin     * GRID_SYSTEM_PRECISION) / (double)GRID_SYSTEM_PRECISION;
 
-		m_NX		= NX;
-		m_NY		= NY;
-		m_NCells	= (sLong)NY * NX;
+		if( Cellsize > 0.0 )
+		{
+			m_NX		= NX;
+			m_NY		= NY;
+			m_NCells	= (sLong)NY * NX;
 
-		m_Cellsize	= Cellsize;
-		m_Cellarea	= Cellsize * Cellsize;
+			m_Cellsize	= Cellsize;
+			m_Cellarea	= Cellsize * Cellsize;
+			m_Diagonal	= Cellsize * sqrt(2.0);
 
-		m_Extent		.Assign(
-			xMin,
-			yMin,
-			xMin + (NX - 1.0) * Cellsize,
-			yMin + (NY - 1.0) * Cellsize
-		);
+			m_Extent.m_rect.xMin	= xMin;
+			m_Extent.m_rect.yMin	= yMin;
+			m_Extent.m_rect.xMax	= xMin + (NX - 1.0) * Cellsize;
+			m_Extent.m_rect.yMax	= yMin + (NY - 1.0) * Cellsize;
 
-		m_Extent_Cells	.Assign(
-			xMin - 0.5 * Cellsize,
-			yMin - 0.5 * Cellsize,
-			xMin + (NX - 0.5) * Cellsize,
-			yMin + (NY - 0.5) * Cellsize
-		);
+			m_Extent_Cells	= m_Extent;
+			m_Extent_Cells.Inflate(0.5 * Cellsize, false);
 
-		m_Diagonal	= Cellsize * sqrt(2.0);
-
-		return( true );
+			return( true );
+		}
 	}
 
-	m_Cellsize		= -1.0;
+	//-----------------------------------------------------
 	m_NX			= 0;
 	m_NY			= 0;
 	m_NCells		= 0;
+
+	m_Cellsize		= 0.0;
 	m_Cellarea		= 0.0;
 	m_Diagonal		= 0.0;
+
 	m_Extent		.Assign(0.0, 0.0, 0.0, 0.0);
 	m_Extent_Cells	.Assign(0.0, 0.0, 0.0, 0.0);
 
@@ -276,7 +272,12 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 //---------------------------------------------------------
 bool CSG_Grid_System::is_Equal(const CSG_Grid_System &System) const
 {
-	return( is_Equal(System.m_Cellsize, System.m_Extent.m_rect) );
+	return( m_Cellsize           == System.m_Cellsize
+		&&  m_NX                 == System.m_NX
+		&&  m_NY                 == System.m_NY
+		&&  m_Extent.m_rect.xMin == System.m_Extent.m_rect.xMin
+		&&  m_Extent.m_rect.yMin == System.m_Extent.m_rect.yMin
+	);
 }
 
 //---------------------------------------------------------
