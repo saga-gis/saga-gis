@@ -239,6 +239,13 @@ bool CWKSP_Module_Manager::Initialise(void)
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Library); i++)
 	{
+		if( !wxFileExists(Library) )
+		{
+			wxFileName	fn(Library);	fn.MakeAbsolute(g_pSAGA->Get_App_Path());
+
+			Library	= fn.GetFullPath();
+		}
+
 		SG_Get_Module_Library_Manager().Add_Library(Library);
 	}
 

@@ -905,31 +905,35 @@ bool		Open_Application(const wxString &Reference, const wxString &Mime_Extension
 {
 	bool		bResult		= false;
 
-	if( Reference.Length() )
+	if( !Reference.IsEmpty() )
 	{
-		wxString	Extension, sReference(Reference);
+		wxString	Extension;
+		wxFileName	FileName(Reference);
 		wxFileType	*pFileType;
 
-		if( Mime_Extension.Length() )
+		if( Reference.Find("ftp:") == 0 || Reference.Find("http:") == 0 || Reference.Find("https:") == 0 )
 		{
-			Extension	= Mime_Extension;
+			Extension	= "html";	// web browser
 		}
-		else if( sReference.Find(SG_T("ftp:")) == 0 || sReference.Find(SG_T("http:")) == 0 || sReference.Find(SG_T("https:")) == 0 )
+		else	// file
 		{
-			Extension	= wxT("html");
-		}
-		else
-		{
-			wxFileName	FileName(Reference);
+			if( !Mime_Extension.IsEmpty() )
+			{
+				Extension	= Mime_Extension;
+			}
+			else
+			{
+				Extension	= FileName.GetExt();
+			}
 
-			Extension	= FileName.GetExt();
+			FileName.MakeAbsolute(g_pSAGA->Get_App_Path());
 		}
 
-		if( Extension.Length() > 0 && (pFileType = wxTheMimeTypesManager->GetFileTypeFromExtension(Extension)) != NULL )
+		if( !Extension.IsEmpty() && (pFileType = wxTheMimeTypesManager->GetFileTypeFromExtension(Extension)) != NULL )
 		{
 			wxString	Command;
 
-			if( pFileType->GetOpenCommand(&Command, wxFileType::MessageParameters(Reference, wxT(""))) )
+			if( pFileType->GetOpenCommand(&Command, wxFileType::MessageParameters(FileName.GetFullPath(), "")) )
 			{
 				MSG_Execution_Add_Line();
 				MSG_Execution_Add(Command, true, true);

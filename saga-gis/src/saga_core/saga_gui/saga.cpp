@@ -140,7 +140,9 @@ bool CSAGA::OnInit(void)
 
 	wxInitAllImageHandlers();
 
-	m_App_Path			= wxFileName(argv[0]).GetPath();
+	wxFileName			App_Path(argv[0]);	App_Path.MakeAbsolute();
+
+	m_App_Path			= App_Path.GetPath();
 
 #if !defined(_DEBUG)
 	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds
