@@ -228,6 +228,11 @@ C3D_Viewer_Globe_Grid_Panel::C3D_Viewer_Globe_Grid_Panel(wxWindow *pParent, CSG_
 	);
 
 	//-----------------------------------------------------
+	m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
+		m_pGrid->Get_Mean() - 1.5 * m_pGrid->Get_StdDev(),
+		m_pGrid->Get_Mean() + 1.5 * m_pGrid->Get_StdDev()
+	);
+
 	Update_Statistics();
 }
 
@@ -299,11 +304,6 @@ void C3D_Viewer_Globe_Grid_Panel::Update_Statistics(void)
 	double	Radius	= m_Parameters("RADIUS")->asDouble();
 	double	zScale	= m_pZ ? m_Parameters("Z_SCALE")->asDouble() : 0.0;
 
-	m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
-		m_pGrid->Get_Mean() - 1.5 * m_pGrid->Get_StdDev(),
-		m_pGrid->Get_Mean() + 1.5 * m_pGrid->Get_StdDev()
-	);
-
 	m_Data_Min.x = m_Data_Max.x = 0.0;
 	m_Data_Min.y = m_Data_Max.y = 0.0;
 	m_Data_Min.z = m_Data_Max.z = 0.0;
@@ -317,15 +317,18 @@ void C3D_Viewer_Globe_Grid_Panel::Update_Statistics(void)
 
 		for(int x=0; x<m_pGrid->Get_NX(); x++, pNode++, wx+=M_DEG_TO_RAD*m_pGrid->Get_Cellsize())
 		{
-			double r	= zScale ? Radius + zScale * m_pZ->asDouble(x, y) : Radius;
-			pNode->z	= r * sin(wy);
-			double s	= r * cos(wy);
-			pNode->x	= s * cos(wx);
-			pNode->y	= s * sin(wx);
+			if( !m_pGrid->is_NoData(x, y) )
+			{
+				double r	= zScale ? Radius + zScale * m_pZ->asDouble(x, y) : Radius;
+				pNode->z	= r * sin(wy);
+				double s	= r * cos(wy);
+				pNode->x	= s * cos(wx);
+				pNode->y	= s * sin(wx);
 
-			if( m_Data_Min.x > pNode->x ) m_Data_Min.x = pNode->x; else if( m_Data_Max.x < pNode->x ) m_Data_Max.x = pNode->x;
-			if( m_Data_Min.y > pNode->y ) m_Data_Min.y = pNode->y; else if( m_Data_Max.y < pNode->y ) m_Data_Max.y = pNode->y;
-			if( m_Data_Min.z > pNode->z ) m_Data_Min.z = pNode->z; else if( m_Data_Max.z < pNode->z ) m_Data_Max.z = pNode->z;
+				if( m_Data_Min.x > pNode->x ) m_Data_Min.x = pNode->x; else if( m_Data_Max.x < pNode->x ) m_Data_Max.x = pNode->x;
+				if( m_Data_Min.y > pNode->y ) m_Data_Min.y = pNode->y; else if( m_Data_Max.y < pNode->y ) m_Data_Max.y = pNode->y;
+				if( m_Data_Min.z > pNode->z ) m_Data_Min.z = pNode->z; else if( m_Data_Max.z < pNode->z ) m_Data_Max.z = pNode->z;
+			}
 		}
 	}
 
