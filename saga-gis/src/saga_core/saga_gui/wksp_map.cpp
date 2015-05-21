@@ -1717,14 +1717,25 @@ void CWKSP_Map::Draw_Frame(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Wi
 	r		= wxRect(rMap.GetLeft()    , rFrame.GetTop()    , rMap.GetWidth(), Width);
 	Draw_Scale(dc, r, rWorld.Get_XMin(), rWorld.Get_XMax()  , true , true , false);
 
-	r		= wxRect(rMap.GetLeft()    , rMap.GetBottom()   , rMap.GetWidth(), Width);
-	Draw_Scale(dc, r, 0.0              , rWorld.Get_XRange(), true , true , true);
-
 	r		= wxRect(rFrame.GetLeft()  , rMap.GetTop()      , Width, rMap.GetHeight());
 	Draw_Scale(dc, r, rWorld.Get_YMin(), rWorld.Get_YMax()  , false, false, false);
 
-	r		= wxRect(rMap.GetRight()   , rMap.GetTop()      , Width, rMap.GetHeight());
-	Draw_Scale(dc, r, 0.0              , rWorld.Get_YRange(), false, false, true);
+	if( is_ScaleBar() )
+	{
+		r		= wxRect(rMap.GetLeft()    , rMap.GetBottom()   , rMap.GetWidth(), Width);
+		Draw_Scale(dc, r, rWorld.Get_XMin(), rWorld.Get_XMax()  , true , true , false);
+
+		r		= wxRect(rMap.GetRight()   , rMap.GetTop()      , Width, rMap.GetHeight());
+		Draw_Scale(dc, r, rWorld.Get_YMin(), rWorld.Get_YMax()  , false, false, false);
+	}
+	else
+	{
+		r		= wxRect(rMap.GetLeft()    , rMap.GetBottom()   , rMap.GetWidth(), Width);
+		Draw_Scale(dc, r, 0.0              , rWorld.Get_XRange(), true , true , true);
+
+		r		= wxRect(rMap.GetRight()   , rMap.GetTop()      , Width, rMap.GetHeight());
+		Draw_Scale(dc, r, 0.0              , rWorld.Get_YRange(), false, false, true);
+	}
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, rFrame.GetLeft(), rFrame.GetTop(), rFrame.GetRight(), rFrame.GetBottom());
 }
