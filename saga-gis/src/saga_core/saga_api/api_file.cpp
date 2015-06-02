@@ -68,6 +68,15 @@
 
 #include "api_core.h"
 
+#if defined(_SAGA_VC)
+	#define SG_FILE_TELL	_ftelli64
+	#define SG_FILE_SEEK	_fseeki64
+	#define SG_FILE_SIZE	__int64
+#else
+	#define SG_FILE_TELL	ftell
+	#define SG_FILE_SEEK	fseek
+	#define SG_FILE_SIZE	long
+#endif
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -165,16 +174,12 @@ bool CSG_File::Close(void)
 }
 
 //---------------------------------------------------------
-long CSG_File::Length(void)	const
+sLong CSG_File::Length(void)	const
 {
 	if( m_pStream )
 	{
-		long	pos, len;
-
-		pos	= ftell(m_pStream);
-		fseek(m_pStream, 0, SEEK_END);
-		len	= ftell(m_pStream);
-		fseek(m_pStream, pos, SEEK_SET);
+		SG_FILE_SIZE	pos	= SG_FILE_TELL(m_pStream);	SG_FILE_SEEK(m_pStream,   0, SEEK_END);
+		SG_FILE_SIZE	len	= SG_FILE_TELL(m_pStream);	SG_FILE_SEEK(m_pStream, pos, SEEK_SET);
 
 		return( len );
 	}
@@ -189,7 +194,7 @@ bool CSG_File::is_EOF(void)	const
 }
 
 //---------------------------------------------------------
-bool CSG_File::Seek(long Offset, int Origin) const
+bool CSG_File::Seek(sLong Offset, int Origin) const
 {
 	switch( Origin )
 	{
@@ -199,25 +204,25 @@ bool CSG_File::Seek(long Offset, int Origin) const
 	case SG_FILE_END:		Origin	= SEEK_END;	break;
 	}
 
-	return( m_pStream ? !fseek(m_pStream, Offset, Origin) : false );
+	return( m_pStream ? !SG_FILE_SEEK(m_pStream, Offset, Origin) : false );
 }
 
 //---------------------------------------------------------
 bool CSG_File::Seek_Start(void) const
 {
-	return( m_pStream && fseek(m_pStream, 0, SEEK_SET) == 0 );
+	return( m_pStream && SG_FILE_SEEK(m_pStream, 0, SEEK_SET) == 0 );
 }
 
 //---------------------------------------------------------
 bool CSG_File::Seek_End(void) const
 {
-	return( m_pStream && fseek(m_pStream, 0, SEEK_END) == 0 );
+	return( m_pStream && SG_FILE_SEEK(m_pStream, 0, SEEK_END) == 0 );
 }
 
 //---------------------------------------------------------
-long CSG_File::Tell(void) const
+sLong CSG_File::Tell(void) const
 {
-	return( m_pStream ? ftell(m_pStream) : -1 );
+	return( m_pStream ? SG_FILE_TELL(m_pStream) : -1 );
 }
 
 //---------------------------------------------------------
