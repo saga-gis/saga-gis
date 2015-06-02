@@ -104,8 +104,6 @@ CTool_Counter::CTool_Counter(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -312,6 +310,141 @@ int CTool_Counter::Read_Text(const SG_Char *String, CSG_String &Text)
 	}
 
 	return( n );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTool_Menus::CTool_Menus(void)
+{
+	//-----------------------------------------------------
+	Set_Name		("Extract Tool and Menu Information");
+
+	Set_Author		("O. Conrad (c) 2015");
+
+	Set_Description	(
+		""
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Table(
+		NULL	, "TOOLS"		, SG_T("Tools"),
+		"",
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Table(
+		NULL	, "MENUS"		, SG_T("Menus"),
+		"",
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL	, "LEVEL"		, SG_T("Level"),
+		"",
+		PARAMETER_TYPE_Int, 0, 0, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTool_Menus::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Table	&Tools	= *Parameters("TOOLS")->asTable();
+
+	Tools.Destroy();
+	Tools.Set_Name("Tools");
+
+	Tools.Add_Field("LIB" , SG_DATATYPE_String);
+	Tools.Add_Field("TOOL", SG_DATATYPE_String);
+	Tools.Add_Field("ID"  , SG_DATATYPE_String);
+	Tools.Add_Field("MENU", SG_DATATYPE_String);
+
+	int	Level	= Parameters("LEVEL")->asInt();
+
+	for(int iLibrary=0; iLibrary<SG_Get_Module_Library_Manager().Get_Count(); iLibrary++)
+	{
+		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(iLibrary);
+
+		for(int iModule=0; iModule<pLibrary->Get_Count(); iModule++)
+		{
+			CSG_Module	*pModule	= pLibrary->Get_Module(iModule);
+
+			if( pModule != NULL && pModule != MLB_INTERFACE_SKIP_MODULE )
+			{
+				CSG_Table_Record	*pTool	= Tools.Add_Record();
+
+				pTool->Set_Value(0, pLibrary->Get_Name());
+				pTool->Set_Value(1, pModule ->Get_Name());
+				pTool->Set_Value(2, pModule ->Get_ID  ());
+
+				CSG_String	s	= pLibrary->Get_Menu(iModule);
+
+				for(int i=0, n=0; i<s.Length() && n<Level; i++)
+				{
+					if( s[i] == '|' )
+					{
+						if( ++n == Level )
+						{
+							s	= s.Left(i);
+						}
+					}
+				}
+
+				pTool->Set_Value(3, s);
+			}
+		}
+	}
+
+	if( !Tools.Get_Count() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table	&Menus	= *Parameters("MENUS")->asTable();
+
+	Menus.Destroy();
+	Menus.Set_Name("Menus");
+
+	Menus.Add_Field("ID"   , SG_DATATYPE_Int);
+	Menus.Add_Field("Menu" , SG_DATATYPE_String);
+	Menus.Add_Field("Count", SG_DATATYPE_Int);
+
+	Tools.Set_Index(3, TABLE_INDEX_Ascending);
+
+	CSG_Table_Record	*pMenu	= NULL;
+
+	CSG_String	s;
+
+	for(int i=0; i<Tools.Get_Count(); i++)
+	{
+		if( !pMenu || s.Cmp(Tools[i].asString(3)) )
+		{
+			pMenu	= Menus.Add_Record();
+
+			pMenu->Set_Value(0, Menus.Get_Count());
+			pMenu->Set_Value(1, s = Tools[i].asString(3));
+			pMenu->Set_Value(2, 1);
+		}
+		else
+		{
+			pMenu->Add_Value(2, 1);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

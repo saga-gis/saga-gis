@@ -112,9 +112,11 @@ CSG_Module *		Create_Module(int i)
 	case  1:	return( new CTL_Union );
 	case  2:	return( new CTL_Merge );
 	case  3:	return( new CTool_Counter );
-	}
+	case  4:	return( new CTool_Menus );
 
-	return( NULL );
+	case  5:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 
