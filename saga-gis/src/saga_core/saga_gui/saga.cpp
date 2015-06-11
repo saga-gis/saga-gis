@@ -289,21 +289,41 @@ int CSAGA::OnExit(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/wfstream.h>
+
+//---------------------------------------------------------
 void CSAGA::_Init_Config(void)
 {
 	wxConfigBase	*pConfig;
 
 #if defined(_SAGA_MSW)
-	wxFileName	fConfig(Get_App_Path(), "saga_gui", "ini");
+	wxString	fPath;
 
-	if(	( fConfig.FileExists() && (!fConfig.IsFileReadable() || !fConfig.IsFileWritable()))
-	||	(!fConfig.FileExists() && (!fConfig.IsDirReadable () || !fConfig.IsDirWritable ())) )
 	{
-		fConfig.Assign(wxGetHomeDir(), "saga_gui", "ini");
-		//fConfig.Assign(wxFileName::GetTempDir(), "saga_gui", "ini");
+		wxFileName	fLocal(Get_App_Path(), "saga_gui", "ini");
+		wxFileName	fUser (wxGetHomeDir(), "saga_gui", "ini");
+	//	wxFileName	fUser (wxStandardPaths::Get().GetUserConfigDir(), "saga_gui", "ini");
+
+		if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fLocal.IsFileWritable() )
+		{
+			wxFileInputStream	is(fLocal.GetFullPath());
+			wxFileOutputStream	os(fUser .GetFullPath());
+			wxFileConfig		ic(is);	ic.Save(os);
+		}
+
+		fPath	=  ( fLocal.FileExists() && (!fLocal.IsFileReadable() || !fLocal.IsFileWritable()))
+				|| (!fLocal.FileExists() && (!fLocal.IsDirReadable () || !fLocal.IsDirWritable ()))
+				? fUser.GetFullPath() : fLocal.GetFullPath();
 	}
 
-	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fConfig.GetFullPath(), fConfig.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+	if( wxFileExists(fPath) )
+	{
+		pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fPath, fPath, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+	}
+	else
+	{
+		pConfig	= new wxConfig;
+	}
 #else
 	pConfig	= new wxConfig;
 #endif
