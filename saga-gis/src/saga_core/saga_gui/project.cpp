@@ -292,6 +292,12 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 			}
 		}
 
+		switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
+		{
+		case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL);	break;
+		case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  );	break;
+		}
+
 		g_pSAGA_Frame->Thaw();
 	}
 

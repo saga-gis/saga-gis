@@ -144,6 +144,16 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		), 2
 	);
 
+	m_Parameters.Add_Choice(
+		pNode	, "PROJECT_MAP_ARRANGE"		, _TL("Map Window Arrangement"),
+		_TL("initial map window arrangement after a project is loaded"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Cascade"),
+			_TL("Tile Horizontally"),
+			_TL("Tile Vertically")
+		), 2
+	);
+
 	m_Parameters.Add_Value(
 		pNode	, "NUMBERING"				, _TL("Numbering of Data Sets"),
 		_TL("Leading zeros for data set numbering. Set to -1 for not using numbers at all."),
@@ -283,9 +293,11 @@ bool CWKSP_Data_Manager::Initialise(void)
 	{
 		return( m_pProject->Load(false) );
 	}
-	else
+	else if( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) )
 	{
-		return( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) && wxFileExists(FileName) && m_pProject->Load(FileName, false, false) );
+		FileName	= Get_FilePath_Absolute(g_pSAGA->Get_App_Path(), FileName);
+
+		return( wxFileExists(FileName) && m_pProject->Load(FileName, false, false) );
 	}
 
 	return( false );
@@ -304,7 +316,7 @@ bool CWKSP_Data_Manager::Finalise(void)
 	wxFileName	fProject(sHome.c_str(), "saga_gui", "cfg");
 #else
 	wxFileName	fProject(g_pSAGA->Get_App_Path(), "saga_gui", "cfg");
-	wxString(getenv("HOME"));
+
 	if(	( fProject.FileExists() && (!fProject.IsFileReadable() || !fProject.IsFileWritable()))
 	||	(!fProject.FileExists() && (!fProject.IsDirReadable () || !fProject.IsDirWritable ())) )
 	{
@@ -331,13 +343,18 @@ bool CWKSP_Data_Manager::Finalise(void)
             wxRemoveFile(fProject.GetFullPath());
 		}
 
-		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), m_pProject->Get_File_Name());
+		CONFIG_Write("/DATA", "PROJECT_FILE", m_pProject->Get_File_Name());
 	}
 	else
 	{	// automatically save and load
 		m_pProject->Save(fProject.GetFullPath(), false);
 
-		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), fProject.GetFullPath());
+		if( fProject.GetPath().Find(g_pSAGA->Get_App_Path()) == 0 )
+		{
+			fProject.MakeRelativeTo(g_pSAGA->Get_App_Path());
+		}
+
+		CONFIG_Write("/DATA", "PROJECT_FILE", fProject.GetFullPath());
 	}
 
 	m_pProject->Clr_File_Name();
