@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: import_clip_resample.h 1380 2012-04-26 12:02:19Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                        Grid_IO                        //
+//                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 import_clip_resample.h                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2015 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,92 +54,48 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__import_clip_resample_H
+#define HEADER_INCLUDED__import_clip_resample_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CImport_Clip_Resample : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grids") );
+public:
+	CImport_Clip_Resample(void);
 
-	case MLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the import and export of gridded data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Grid") );
-	}
-}
+	virtual CSG_String			Get_MenuPath(void)		{	return( _TL("R:Import") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "esri_arcinfo.h"
-#include "surfer.h"
-#include "raw.h"
-#include "xyz.h"
-#include "usgs_srtm.h"
-#include "mola.h"
-#include "srtm30.h"
-#include "bmp_export.h"
-#include "erdas_lan.h"
-#include "grid_table.h"
-#include "wrf.h"
-#include "citygml_import.h"
-#include "import_clip_resample.h"
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0 :	return( new CESRI_ArcInfo_Export );
-	case 1 :	return( new CESRI_ArcInfo_Import );
-	case 2 :	return( new CSurfer_Export );
-	case 3 :	return( new CSurfer_Import );
-	case 4 :	return( new CRaw_Import );
-	case 5 :	return( new CXYZ_Export );
-	case 6 :	return( new CXYZ_Import );
-	case 7 :	return( new CUSGS_SRTM_Import );
-	case 8 :	return( new CMOLA_Import );
-	case 9 :	return( new CSRTM30_Import );
-	case 10:	return( new CBMP_Export );
-	case 11:	return( new CErdas_LAN_Import );
-	case 12:	return( new CGrid_Table_Import );
-	case 13:	return( new CWRF_Import );
-	case 14:	return( new CWRF_Export );
-	case 15:	return( new CCityGML_Import );
-	case 16:	return( new CImport_Clip_Resample );
+	CSG_Grid_System				m_System;
 
-	//-----------------------------------------------------
-	case 17:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+	CSG_Parameter_Grid_List		*m_pGrids;
+
+
+	bool						Load_File				(const CSG_String &File);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -151,8 +105,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__import_clip_resample_H

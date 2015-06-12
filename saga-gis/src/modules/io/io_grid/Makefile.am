@@ -18,6 +18,7 @@ citygml_import.cpp\
 erdas_lan.cpp\
 esri_arcinfo.cpp\
 grid_table.cpp\
+import_clip_resample.cpp\
 MLB_Interface.cpp\
 mola.cpp\
 raw.cpp\
@@ -31,6 +32,7 @@ citygml_import.h\
 erdas_lan.h\
 esri_arcinfo.h\
 grid_table.h\
+import_clip_resample.h\
 MLB_Interface.h\
 mola.h\
 raw.h\
