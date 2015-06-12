@@ -503,6 +503,14 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	case 3:	m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
 	}
 
+	if( m_Parameters("COLORS_TYPE")->asInt() == 1 )	// CLASSIFY_LUT
+	{
+		TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_Parameters("LUT_ATTRIB")->asInt())) ? SG_DATATYPE_Double : SG_DATATYPE_String;
+
+		m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
+		m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+	}
+
 	if( m_iColor >= Get_Shapes()->Get_Field_Count() )
 	{
 		m_iColor	= -1;
@@ -572,8 +580,8 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(pParameter->asInt()))
 									? SG_DATATYPE_Double : SG_DATATYPE_String;
 
-			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
-			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+			pParameters->Get_Parameter("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
+			pParameters->Get_Parameter("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
 		}
 	}
 

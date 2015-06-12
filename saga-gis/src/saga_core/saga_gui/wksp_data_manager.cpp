@@ -144,7 +144,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		), 2
 	);
 
-	m_Parameters.Add_Choice(
+	pNode_1	= m_Parameters.Add_Choice(
 		pNode	, "PROJECT_MAP_ARRANGE"		, _TL("Map Window Arrangement"),
 		_TL("initial map window arrangement after a project is loaded"),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
@@ -153,6 +153,10 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 			_TL("Tile Vertically")
 		), 2
 	);
+
+#ifndef _SAGA_MSW
+	pNode_1->Set_Enabled(false);
+#endif
 
 	m_Parameters.Add_Value(
 		pNode	, "NUMBERING"				, _TL("Numbering of Data Sets"),
