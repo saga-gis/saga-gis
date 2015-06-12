@@ -718,6 +718,8 @@ void CWKSP_Shapes::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
+	DataObject_Changed();
+
 	pColors	= Parameters("COLOR" )->asColors();
 	iField	= Parameters("FIELD" )->asInt();
 	Method	= !SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(iField)) ? 0	// unique values
@@ -849,8 +851,6 @@ void CWKSP_Shapes::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Changed();
-
 	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
 	m_Parameters("LUT_ATTRIB" )->Set_Value(iField);
 
