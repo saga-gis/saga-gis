@@ -223,6 +223,7 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 //			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
 //			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE);
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE_AS);
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_BROWSE);
 			break;
 
 		case DATAOBJECT_TYPE_Table:

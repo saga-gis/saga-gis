@@ -123,6 +123,8 @@ public:
 	bool							Open				(const wxString &File);
 	bool							Open				(int DataType);
 	bool							Open_CMD			(int Cmd_ID);
+	bool							Open_Browser		(void);
+	bool							Open_Browser		(wxArrayString &Projects, const wxString &Directory);
 
 	bool							Save_Modified		(class CWKSP_Base_Item *pItem = NULL, bool bSelections = false);
 	bool							Save_Modified_Sel	(void);

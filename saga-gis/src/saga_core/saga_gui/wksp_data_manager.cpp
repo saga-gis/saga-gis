@@ -502,6 +502,7 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load(true);				break;
 	case ID_CMD_DATA_PROJECT_SAVE:		m_pProject->Save(true);				break;
 	case ID_CMD_DATA_PROJECT_SAVE_AS:	m_pProject->Save();					break;
+	case ID_CMD_DATA_PROJECT_BROWSE:	Open_Browser();						break;
 
 	//-----------------------------------------------------
 	case ID_CMD_TABLES_OPEN:			Open(DATAOBJECT_TYPE_Table);		break;
@@ -694,6 +695,83 @@ bool CWKSP_Data_Manager::Open(int DataType)
 bool CWKSP_Data_Manager::Open_CMD(int Cmd_ID)
 {
 	return( m_pMenu_Files->Recent_Open(Cmd_ID) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Open_Browser(void)
+{
+	//-----------------------------------------------------
+	wxString	Directory	= wxDirSelector(_TL("Browse for Projects"));
+
+	if( Directory.IsEmpty() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxArrayString	Projects;
+
+	Open_Browser(Projects, Directory);
+
+	if( Projects.Count() == 0 )
+	{
+		wxMessageBox(_TL("No projects in directory"), _TL("Browse for Projects"), wxOK|wxICON_EXCLAMATION);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Open Project"), _TL("Browse for Projects"), Projects);
+
+	return( dlg.ShowModal() == wxID_OK && Open(dlg.GetStringSelection()) );
+}
+
+//---------------------------------------------------------
+#include <wx/dir.h>
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Open_Browser(wxArrayString &Projects, const wxString &Directory)
+{
+	wxDir	Dir;
+
+	if( Dir.Open(Directory) )
+	{
+		wxString	FileName;
+
+		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
+		{
+			do
+			{
+				wxFileName	fn(Dir.GetName(), FileName);
+
+				if( !fn.GetExt().CmpNoCase("sprj") )
+				{
+					Projects.Add(fn.GetFullPath());
+				}
+			}
+			while( Dir.GetNext(&FileName) );
+		}
+
+		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_DIRS) )
+		{
+			do
+			{
+				wxFileName	fn(Dir.GetName(), FileName);
+
+				Open_Browser(Projects, fn.GetFullPath());
+			}
+			while( Dir.GetNext(&FileName) );
+		}
+	}
+
+	return( Projects.Count() > 0 );
 }
 
 

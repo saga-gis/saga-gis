@@ -146,6 +146,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( _TL("Add Project") );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( _TL("Save Project") );
 	case ID_CMD_DATA_PROJECT_SAVE_AS:	return( _TL("Save Project As...") );
+	case ID_CMD_DATA_PROJECT_BROWSE:	return( _TL("Browse Projects...") );		
 	case ID_CMD_DATA_LEGEND_COPY:		return( _TL("Copy Legend to Clipboard...") );
 	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( _TL("Increase Legend Size") );
 	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( _TL("Decrease Legend Size") );
