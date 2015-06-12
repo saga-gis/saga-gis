@@ -544,7 +544,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 	CSG_Parameter_Grid_List	*pProbabilities	= Get_Propability_Grids(Classes);
 
-	if( !pProbability->Get_ZRange() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN);
+	if( pProbability && !pProbability->Get_ZRange() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN);
 
 
 	//-----------------------------------------------------
