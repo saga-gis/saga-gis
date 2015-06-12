@@ -772,6 +772,8 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 		return( false );
 	}
 
+	g_pSAGA_Frame->Freeze();
+
 	g_pData->Get_Menu_Files()->Set_Update(false);
 	while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(FileName).w_str()) );
 	g_pData->Get_Menu_Files()->Set_Update(true);
@@ -783,6 +785,14 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 	{
 		while( _Compatibility_Load_Map(Stream, SG_File_Get_Path(FileName).w_str()) );
 	}
+
+	switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )
+	{
+	case 1:	g_pSAGA_Frame->Tile(wxHORIZONTAL);	break;
+	case 2:	g_pSAGA_Frame->Tile(wxVERTICAL  );	break;
+	}
+
+	g_pSAGA_Frame->Thaw();
 
 	return( true );
 }
