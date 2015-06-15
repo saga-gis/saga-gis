@@ -391,11 +391,16 @@ bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, in
 	//-----------------------------------------------------
 	CSG_String	sUsed(Formula.Get_Used_Variables());
 
-	if( nValues != sUsed.Length() )
+	if( nValues < sUsed.Length() )
 	{
-		Error_Fmt("%s (%d < %d)", _TL("The number of supplied values does not fit the number of variables in formula."), nValues, sUsed.Length());
+		Error_Fmt("%s (%d < %d)", _TL("The number of supplied grids is less than the number of variables in formula."), nValues, sUsed.Length());
 
 		return( false );
+	}
+
+	if( nValues > sUsed.Length() )
+	{
+		Message_Add(CSG_String::Format("%s: %s (%d > %d)", _TL("Warning"), _TL("The number of supplied grids exceeds the number of variables in formula."), nValues, sUsed.Length()));
 	}
 
 	//-----------------------------------------------------
