@@ -208,7 +208,10 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		case PARAMETER_TYPE_String         : Parameters.Add_String         (pParent, ID, Name, Desc, Value, false);	break;
 		case PARAMETER_TYPE_Text           : Parameters.Add_String         (pParent, ID, Name, Desc, Value,  true);	break;
 
-		case PARAMETER_TYPE_FilePath       : Parameters.Add_FilePath       (pParent, ID, Name, Desc, Value);	break;
+		case PARAMETER_TYPE_FilePath       : Parameters.Add_FilePath       (pParent, ID, Name, Desc, Parameter.Get_Content("filter"), Value,
+												 Parameter.Get_Property("save"     , Value) && Value.CmpNoCase("TRUE"),
+												 Parameter.Get_Property("directory", Value) && Value.CmpNoCase("TRUE"),
+												 Parameter.Get_Property("multiple" , Value) && Value.CmpNoCase("TRUE"));	break;
 
 		case PARAMETER_TYPE_Choice         : Parameters.Add_Choice         (pParent, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 		case PARAMETER_TYPE_Range          : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst (';').asDouble());	break;
