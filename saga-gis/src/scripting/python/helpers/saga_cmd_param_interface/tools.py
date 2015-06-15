@@ -616,5 +616,6 @@ tools = [
 ['sim_rivflow', 0, 'RiverBasin'],
 ['sim_rivflow', 1, 'LandFlow Version 1.0 (build 3.5.1b)'],
 ['sim_rivflow', 3, 'RiverGridGeneration'],
-['sim_rivflow', 4, 'GridCombination']
+['sim_rivflow', 4, 'GridCombination'],
+['io_grid', 16, 'Import, Clip and Resample Grids']
 ]
