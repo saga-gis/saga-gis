@@ -903,42 +903,52 @@ void		STATUSBAR_Set_Text(const wxString &Text, int iPane)
 //---------------------------------------------------------
 bool		Open_Application(const wxString &Reference, const wxString &Mime_Extension)
 {
-	bool		bResult		= false;
-
-	if( !Reference.IsEmpty() )
+	if( Reference.IsEmpty() )
 	{
-		wxString	Extension;
-		wxFileName	FileName(Reference);
-		wxFileType	*pFileType;
+		return( false );
+	}
 
-		if( Reference.Find("ftp:") == 0 || Reference.Find("http:") == 0 || Reference.Find("https:") == 0 )
+	if( Reference.Find("ftp:"   ) == 0
+	||  Reference.Find("file:"  ) == 0
+	||  Reference.Find("http:"  ) == 0
+	||  Reference.Find("https:" ) == 0
+	||  Reference.Find("mailto:") == 0 )
+	{
+		return( wxLaunchDefaultBrowser(Reference) );
+	}
+
+	//-----------------------------------------------------
+	bool	bResult	= false;
+
+	wxFileName	FileName(Reference);
+
+	if( FileName.IsRelative() )	// very likely that this will not work
+	{
+		FileName.MakeAbsolute(g_pSAGA->Get_App_Path());	// this might not work either, but give it a try
+	}
+
+	//-----------------------------------------------------
+	if( Mime_Extension.IsEmpty() )
+	{
+		if( (bResult = wxLaunchDefaultApplication(FileName.GetFullPath())) == false )
 		{
-			Extension	= "html";	// web browser
+			MSG_Error_Add(wxString::Format("%s:\n%s\n", _TL("failed to launch default application"), FileName.GetFullPath().c_str()));
 		}
-		else	// file
-		{
-			if( !Mime_Extension.IsEmpty() )
-			{
-				Extension	= Mime_Extension;
-			}
-			else
-			{
-				Extension	= FileName.GetExt();
-			}
+	}
 
-			FileName.MakeAbsolute(g_pSAGA->Get_App_Path());
-		}
+	//-----------------------------------------------------
+	else
+	{
+		wxFileType	*pFileType	= wxTheMimeTypesManager->GetFileTypeFromExtension(Mime_Extension);
 
-		if( !Extension.IsEmpty() && (pFileType = wxTheMimeTypesManager->GetFileTypeFromExtension(Extension)) != NULL )
+		if( pFileType )
 		{
 			wxString	Command;
 
-			if( pFileType->GetOpenCommand(&Command, wxFileType::MessageParameters(FileName.GetFullPath(), "")) )
+			if( !pFileType->GetOpenCommand(&Command, wxFileType::MessageParameters(FileName.GetFullPath(), ""))
+			||  !(bResult = wxExecute(Command) == 0) )
 			{
-				MSG_Execution_Add_Line();
-				MSG_Execution_Add(Command, true, true);
-
-				bResult	= wxExecute(Command) == 0;
+				MSG_Error_Add(wxString::Format("%s:\n%s\n", _TL("command execution failed"), Command.c_str()));
 			}
 
 			delete(pFileType);
@@ -951,7 +961,7 @@ bool		Open_Application(const wxString &Reference, const wxString &Mime_Extension
 //---------------------------------------------------------
 bool		Open_WebBrowser(const wxString &Reference)
 {
-	return( Open_Application(Reference, wxT("html")) );
+	return( wxLaunchDefaultBrowser(Reference) );
 }
 
 

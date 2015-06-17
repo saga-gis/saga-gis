@@ -712,7 +712,7 @@ bool CWKSP_Data_Manager::Open_CMD(int Cmd_ID)
 bool CWKSP_Data_Manager::Open_Browser(void)
 {
 	//-----------------------------------------------------
-	wxString	Directory	= wxDirSelector(_TL("Browse for Projects"));
+	wxString	Directory	= wxDirSelector(_TL("Search for Projects"));
 
 	if( Directory.IsEmpty() )
 	{
@@ -726,13 +726,13 @@ bool CWKSP_Data_Manager::Open_Browser(void)
 
 	if( Projects.Count() == 0 )
 	{
-		wxMessageBox(_TL("No projects in directory"), _TL("Browse for Projects"), wxOK|wxICON_EXCLAMATION);
+		wxMessageBox(_TL("No projects in directory"), _TL("Search for Projects"), wxOK|wxICON_EXCLAMATION);
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Open Project"), _TL("Browse for Projects"), Projects);
+	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Open Project"), _TL("Search for Projects"), Projects);
 
 	return( dlg.ShowModal() == wxID_OK && Open(dlg.GetStringSelection()) );
 }
