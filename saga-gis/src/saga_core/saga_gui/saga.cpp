@@ -304,7 +304,7 @@ void CSAGA::_Init_Config(void)
 		wxFileName	fUser (wxGetHomeDir(), "saga_gui", "ini");
 	//	wxFileName	fUser (wxStandardPaths::Get().GetUserConfigDir(), "saga_gui", "ini");
 
-		if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fLocal.IsFileWritable() )
+		if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fLocal.IsFileWritable() && !fUser.FileExists() )
 		{
 			wxFileInputStream	is(fLocal.GetFullPath());
 			wxFileOutputStream	os(fUser .GetFullPath());
