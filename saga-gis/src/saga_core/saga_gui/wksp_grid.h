@@ -106,7 +106,7 @@ public:
 
 	virtual bool				asImage					(CSG_Grid *pImage);
 
-	virtual bool				Update					(CWKSP_Layer *pChanged)	{	return( pChanged == this || pChanged == m_pOverlay[0] || pChanged == m_pOverlay[1] );	}
+	virtual bool				Update					(CWKSP_Layer *pChanged);
 
 	virtual wxMenu *			Edit_Get_Menu			(void);
 	virtual TSG_Rect			Edit_Get_Extent			(void);
@@ -130,11 +130,7 @@ protected:
 
 private:
 
-	bool						m_bOverlay;
-
 	int							m_xSel, m_ySel;
-
-	CWKSP_Grid					*m_pOverlay[2];
 
 
 	void						_LUT_Create				(void);
@@ -145,7 +141,7 @@ private:
 	void						_Save_Image				(void);
 
 	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, int Interpolation);
-	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, int Interpolation, bool bByteWise, int yDC, int axDC, int bxDC, int r, int g, int b);
+	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, int Interpolation, int Mode, CWKSP_Grid *pOverlay[2], int yDC, int axDC, int bxDC);
 	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map);
 
 	void						_Draw_Values			(CWKSP_Map_DC &dc_Map);

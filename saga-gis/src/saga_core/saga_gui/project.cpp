@@ -353,11 +353,11 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	//-----------------------------------------------------
 	ProjectDir	= SG_File_Get_Path(FileName).w_str();
 
-	Project.Set_Name    (SG_T("SAGA_PROJECT"));
-	Project.Add_Property(SG_T("VERSION"), SAGA_VERSION);
+	Project.Set_Name    ("SAGA_PROJECT");
+	Project.Add_Property("VERSION", SAGA_VERSION);
 
 	//-----------------------------------------------------
-	pNode		= Project.Add_Child(SG_T("DATA"));
+	pNode		= Project.Add_Child("DATA");
 
 	if( (pTables = g_pData->Get_Tables()) != NULL )
 	{
@@ -423,7 +423,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	//-----------------------------------------------------
 	if( g_pMaps->Get_Count() > 0 )
 	{
-		pNode		= Project.Add_Child(SG_T("MAPS"));
+		pNode		= Project.Add_Child("MAPS");
 
 		for(i=0; i<g_pMaps->Get_Count(); i++)
 		{
@@ -507,7 +507,21 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	pItem->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false);
+
+	CSG_MetaData	*pEntry	= Entry("PARAMETERS");
+
+	for(int i=0; i<pEntry->Get_Children_Count(); i++)
+	{
+		if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") && !pEntry->Get_Child(i)->Get_Content().is_Empty() )
+		{
+			wxString	s(Get_FilePath_Absolute(ProjectDir, pEntry->Get_Child(i)->Get_Content().w_str()));
+
+			pEntry->Get_Child(i)->Set_Content(&s);
+		}
+	}
+
 	pItem->Parameters_Changed();
 
 	return( true );
@@ -521,16 +535,16 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 		return( false );
 	}
 
-	CSG_MetaData	*pEntry	= Entry.Add_Child(SG_T("DATASET"));
+	CSG_MetaData	*pEntry	= Entry.Add_Child("DATASET");
 
 	switch( pDataObject->Get_ObjectType() )
 	{
 	default:	return( false );
-	case DATAOBJECT_TYPE_Grid:			pEntry->Add_Property(SG_T("type"), SG_T("GRID"));	break;
-	case DATAOBJECT_TYPE_Table:			pEntry->Add_Property(SG_T("type"), SG_T("TABLE"));	break;
-	case DATAOBJECT_TYPE_Shapes:		pEntry->Add_Property(SG_T("type"), SG_T("SHAPES"));	break;
-	case DATAOBJECT_TYPE_TIN:			pEntry->Add_Property(SG_T("type"), SG_T("TIN"));	break;
-	case DATAOBJECT_TYPE_PointCloud:	pEntry->Add_Property(SG_T("type"), SG_T("POINTS"));	break;
+	case DATAOBJECT_TYPE_Grid:			pEntry->Add_Property("type", "GRID"  );	break;
+	case DATAOBJECT_TYPE_Table:			pEntry->Add_Property("type", "TABLE" );	break;
+	case DATAOBJECT_TYPE_Shapes:		pEntry->Add_Property("type", "SHAPES");	break;
+	case DATAOBJECT_TYPE_TIN:			pEntry->Add_Property("type", "TIN"   );	break;
+	case DATAOBJECT_TYPE_PointCloud:	pEntry->Add_Property("type", "POINTS");	break;
 	}
 
 	wxString	s(Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name()));
@@ -541,7 +555,20 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	{
 		pParameters->DataObjects_Check(true);
 
-		pParameters->Serialize(*pEntry->Add_Child(SG_T("PARAMETERS")), true);
+		pParameters->Serialize(*pEntry->Add_Child("PARAMETERS"), true);
+
+		//-------------------------------------------------
+		pEntry	= pEntry->Get_Child("PARAMETERS");
+
+		for(int i=0; i<pEntry->Get_Children_Count(); i++)
+		{
+			if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") && SG_File_Exists(pEntry->Get_Child(i)->Get_Content()) )
+			{
+				wxString	s(Get_FilePath_Relative(ProjectDir, pEntry->Get_Child(i)->Get_Content().w_str()));
+
+				pEntry->Get_Child(i)->Set_Content(&s);
+			}
+		}
 	}
 
 	return( true );
