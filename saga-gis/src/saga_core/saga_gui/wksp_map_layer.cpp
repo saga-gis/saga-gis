@@ -210,12 +210,17 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 
 			if( m_pLayer->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 			{
-				if( (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_1")->asGrid())) != NULL )
+				if( m_pLayer->Get_Parameter("OVERLAY_R")->is_Enabled() && (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_R")->asGrid())) != NULL )
 				{
 					pGrid->Fit_Color_Range(rWorld);
 				}
 
-				if( (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_2")->asGrid())) != NULL )
+				if( m_pLayer->Get_Parameter("OVERLAY_G")->is_Enabled() && (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_R")->asGrid())) != NULL )
+				{
+					pGrid->Fit_Color_Range(rWorld);
+				}
+
+				if( m_pLayer->Get_Parameter("OVERLAY_B")->is_Enabled() && (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_B")->asGrid())) != NULL )
 				{
 					pGrid->Fit_Color_Range(rWorld);
 				}
