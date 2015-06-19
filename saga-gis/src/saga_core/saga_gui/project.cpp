@@ -508,8 +508,6 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	}
 
 	//-----------------------------------------------------
-	pItem->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false);
-
 	CSG_MetaData	*pEntry	= Entry("PARAMETERS");
 
 	for(int i=0; i<pEntry->Get_Children_Count(); i++)
@@ -519,8 +517,23 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 			wxString	s(Get_FilePath_Absolute(ProjectDir, pEntry->Get_Child(i)->Get_Content().w_str()));
 
 			pEntry->Get_Child(i)->Set_Content(&s);
+
+		// if( SG_Compare_SAGA_Version(Version) < 0 )
+			{
+				if( pEntry->Get_Child(i)->Cmp_Property("id", "OVERLAY_1") )
+				{
+					pEntry->Get_Child(i)->Set_Property("id", "OVERLAY_G");
+				}
+
+				if( pEntry->Get_Child(i)->Cmp_Property("id", "OVERLAY_2") )
+				{
+					pEntry->Get_Child(i)->Set_Property("id", "OVERLAY_B");
+				}
+			}
 		}
 	}
+
+	pItem->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false);
 
 	pItem->Parameters_Changed();
 
