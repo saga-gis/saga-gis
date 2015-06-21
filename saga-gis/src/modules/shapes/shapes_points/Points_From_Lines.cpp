@@ -5,7 +5,7 @@
 /*******************************************************************************
     Points_From_Lines.cpp
     Copyright (C) Victor Olaya
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -19,7 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
-*******************************************************************************/ 
+*******************************************************************************/
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -88,9 +88,9 @@ CPoints_From_Lines::CPoints_From_Lines(void)
 //---------------------------------------------------------
 bool CPoints_From_Lines::On_Execute(void)
 {
-	int			iLine, iPart, iPoint, jPoint, nPoints;
-	double		dx, dy, dz, dm, dDist, A_z, B_z, A_m, B_m;
-	TSG_Point	Pt_A, Pt_B;	
+	int			iLine, iPart, iPoint, jPoint;
+	double		dx, dy, dz, dm, dDist, dLine,  A_z, B_z, A_m, B_m;
+	TSG_Point	Pt_A, Pt_B;
 	CSG_Shapes	*pLines, *pPoints;
 	CSG_Shape	*pLine, *pPoint;
 	bool		bAddPtOrder;
@@ -134,7 +134,7 @@ bool CPoints_From_Lines::On_Execute(void)
 				{
 					Pt_A	= Pt_B;
 					Pt_B	= pLine->Get_Point(iPoint, iPart);
-					
+
 					if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 					{
 						A_z = B_z;
@@ -149,17 +149,17 @@ bool CPoints_From_Lines::On_Execute(void)
 
 					dx		= Pt_B.x - Pt_A.x;
 					dy		= Pt_B.y - Pt_A.y;
-					nPoints	= 1 + (int)(sqrt(dx*dx + dy*dy) / dDist);
-					dx		/= nPoints;
-					dy		/= nPoints;
+					dLine	= sqrt(dx*dx + dy*dy);
+					dx		/= dLine;
+					dy		/= dLine;
 
 					if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 					{
-						dz		= (B_z - A_z) / nPoints;
+						dz		= (B_z - A_z) / dLine;
 
 						if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
 						{
-							dm		= (B_m - A_m) / nPoints;
+							dm		= (B_m - A_m) / dLine;
 						}
 					}
 
@@ -182,22 +182,24 @@ bool CPoints_From_Lines::On_Execute(void)
 						iPoints++;
 					}
 
-					for(jPoint=1; jPoint<nPoints; jPoint++)
+					double dLength = 0.0;
+
+					while( dLength + dDist < dLine )
 					{
-						Pt_A.x	+= dx;
-						Pt_A.y	+= dy;
+						Pt_A.x	+= dDist * dx;
+						Pt_A.y	+= dDist * dy;
 
 						pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pPoint	->Add_Point(Pt_A);
 
 						if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 						{
-							A_z	+= dz;
+							A_z	+= dDist * dz;
 							pPoint->Set_Z(A_z, 0);
 
 							if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
 							{
-								A_m	+= dm;
+								A_m	+= dDist * dm;
 								pPoint->Set_M(A_m, 0);
 							}
 						}
@@ -207,6 +209,8 @@ bool CPoints_From_Lines::On_Execute(void)
 							pPoint->Set_Value(pPoints->Get_Field_Count()-1, iPoints);
 							iPoints++;
 						}
+
+						dLength += dDist;
 					}
 				}
 			}
