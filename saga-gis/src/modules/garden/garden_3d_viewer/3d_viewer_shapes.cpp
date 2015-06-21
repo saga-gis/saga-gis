@@ -336,10 +336,10 @@ void C3D_Viewer_Shapes_Panel::Draw_Shape(CSG_Shape *pShape, int Field_Color)
 		case SHAPE_TYPE_Point:
 		case SHAPE_TYPE_Points:
 			{
-				for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					TSG_Point_Z	a;
-					TSG_Point	p	= pShape->Get_Point(0, iPart);
+					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
 					a.x	= p.x;
 					a.y	= p.y;
