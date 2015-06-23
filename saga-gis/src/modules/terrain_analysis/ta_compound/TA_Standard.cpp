@@ -91,7 +91,7 @@ CTA_Standard::CTA_Standard(void)
 	Parameters.Add_Grid  (NULL, "VCURV"      , _TL("Profile Curvature"         ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "CONVERGENCE", _TL("Convergence Index"         ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "SINKS"      , _TL("Closed Depressions"        ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "CAREA"      , _TL("Catchment Area"            ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "CAREA"      , _TL("Total Catchment Area"      ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "WETNESS"    , _TL("Topographic Wetness Index" ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "LSFACTOR"   , _TL("LS-Factor"                 ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Shapes(NULL, "CHANNELS"   , _TL("Channel Network"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line);

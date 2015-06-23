@@ -73,9 +73,9 @@
 //---------------------------------------------------------
 CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 {
-	Set_Name		(_TL("Catchment Area (Recursive)"));
+	Set_Name		(_TL("Flow Accumulation (Recursive)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Recursive upward processing of cells for calculation of flow accumulation and related parameters. "
@@ -123,7 +123,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	// Output...
 
 	Parameters.Add_Grid(
-		NULL	, "FLOWLEN"		, _TL("m_Flow Path Length"),
+		NULL	, "FLOWLEN"		, _TL("Flow Path Length"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -151,6 +151,12 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 		NULL	, "CONVERGENCE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple m_Flow Direction Algorithm (Freeman 1991)"),
 		PARAMETER_TYPE_Double	, 1.1
+	);
+
+	Parameters.Add_Value(
+		NULL	, "WEIGHT_GT_0"	, _TL("Suppress Negative Flow Accumulation Values"),
+		_TL("keep accumulated weights above zero; useful e.g. when accumulating measures of water balance."),
+		PARAMETER_TYPE_Bool, true
 	);
 
 	
@@ -243,8 +249,8 @@ void CFlow_RecursiveUp::On_Destroy(void)
 void CFlow_RecursiveUp::On_Initialize(void)
 {
 	m_pFlowPath	= Parameters("FLOWLEN")->asGrid();
-
 	m_Converge	= Parameters("CONVERGENCE")->asDouble();
+	m_bGT_Zero	= m_pWeight ? Parameters("WEIGHT_GT_0")->asBool() : false;
 }
 
 
@@ -299,32 +305,32 @@ bool CFlow_RecursiveUp::Calculate(int x, int y)
 //---------------------------------------------------------
 void CFlow_RecursiveUp::Get_Flow(int x, int y)
 {
-	int		i, ix, iy, j;
-
-	double	jFlow;
-
-	if( !is_Locked(x,y) )
+	if( is_Locked(x, y) == false )
 	{
-		Lock_Set(x,y);
+		Lock_Set (x, y);
+		Init_Cell(x, y);
 
-		Init_Cell(x,y);
-
-		for(i=0, j=4; i<8; i++, j=(j+1)%8)
+		for(int i=0; i<8; i++)
 		{
-			ix	= Get_xTo(i,x);
-			iy	= Get_yTo(i,y);
+			int	ix	= Get_xTo(i, x);
+			int	iy	= Get_yTo(i, y);
 
-			if( is_InGrid(ix,iy) )
+			if( is_InGrid(ix, iy) )
 			{
-				jFlow	= m_Flow[iy][ix][j];
+				int		iDir	= (i + 4) % 8;
+				double	iFlow	= m_Flow[iy][ix][iDir];
 
-				if( jFlow > 0 )
+				if( iFlow > 0.0 )
 				{
-					Get_Flow(ix,iy);
-
-					Add_Fraction(ix,iy,j,jFlow);
+					Get_Flow    (ix, iy);
+					Add_Fraction(ix, iy, iDir, iFlow);
 				}
 			}
+		}
+
+		if( m_bGT_Zero && m_pCatch->asDouble(x, y) < 0.0 )
+		{
+			m_pCatch->Set_Value(x, y, 0.0);
 		}
 	}
 }

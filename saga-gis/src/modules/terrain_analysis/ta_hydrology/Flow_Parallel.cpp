@@ -73,7 +73,7 @@
 //---------------------------------------------------------
 CFlow_Parallel::CFlow_Parallel(void)
 {
-	Set_Name		(_TL("Catchment Area (Top-Down)"));
+	Set_Name		(_TL("Flow Accumulation (Top-Down)"));
 
 	Set_Author		("O.Conrad (c) 2001-2014, T.Grabs portions (c) 2010");
 
@@ -136,7 +136,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Parameters.Add_Grid(
 		NULL	, "LINEAR_VAL"	, _TL("Linear Flow Threshold Grid"),
-		_TL("optional grid providing values to be compared with linear flow threshold instead of catchment area"),
+		_TL("optional grid providing values to be compared with linear flow threshold instead of flow accumulation"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -168,13 +168,13 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	pNode	= Parameters.Add_Value(
 		NULL	, "LINEAR_DO"	, _TL("Thresholded Linear Flow"),
-		_TL("apply linear flow routing (D8) to all cells, having a catchment area greater than the specified threshold"),
+		_TL("apply linear flow routing (D8) to all cells, having a flow accumulation greater than the specified threshold"),
 		PARAMETER_TYPE_Bool
 	);
 
 	Parameters.Add_Value(
 		pNode	, "LINEAR_MIN"	, _TL("Linear Flow Threshold"),
-		_TL("catchment area threshold (cells) for linear flow routing"),
+		_TL("flow accumulation threshold (cells) for linear flow routing"),
 		PARAMETER_TYPE_Int,	500
 	);
 	
@@ -182,6 +182,12 @@ CFlow_Parallel::CFlow_Parallel(void)
 		NULL	, "CONVERGENCE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
 		PARAMETER_TYPE_Double, 1.1, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "WEIGHT_GT_0"	, _TL("Suppress Negative Flow Accumulation Values"),
+		_TL("keep accumulated weights above zero; useful e.g. when accumulating measures of water balance."),
+		PARAMETER_TYPE_Bool, true
 	);
 }
 
@@ -219,8 +225,9 @@ int CFlow_Parallel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 void CFlow_Parallel::On_Initialize(void)
 {
-	m_pFlowPath	= Parameters("FLOWLEN"    )->asGrid  ();
+	m_pFlowPath	= Parameters("FLOWLEN")->asGrid();
 	m_Converge	= Parameters("CONVERGENCE")->asDouble();
+	m_bGT_Zero	= m_pWeight ? Parameters("WEIGHT_GT_0")->asBool() : false;
 }
 
 
@@ -290,6 +297,11 @@ bool CFlow_Parallel::Set_Flow(void)
 
 		if( m_pDTM->Get_Sorted(n, x, y) )
 		{
+			if( m_bGT_Zero && m_pCatch->asDouble(x, y) < 0.0 )
+			{
+				m_pCatch->Set_Value(x, y, 0.0);
+			}
+
 			if( pLinear_Dir && !pLinear_Dir->is_NoData(x, y) )
 			{
 				Set_D8(x, y, pLinear_Dir->asInt(x, y));

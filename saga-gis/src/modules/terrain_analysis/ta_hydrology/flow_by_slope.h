@@ -86,7 +86,7 @@ public: ////// public members and functions: //////////////
 
 	CFlow_by_Slope(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Flow Accumulation" ));	}
 
 
 protected: /// protected members and functions: ///////////

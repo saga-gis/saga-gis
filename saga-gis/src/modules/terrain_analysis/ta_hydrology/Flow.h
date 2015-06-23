@@ -106,12 +106,14 @@ class ta_hydrology_EXPORT CFlow : public CSG_Module_Grid
 public:
 	CFlow(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Flow Accumulation" ));	}
 
 	void					Set_Point				(int x, int y);
 
 
 protected:
+
+	bool					m_bGT_Zero;
 
 	int						m_Step;
 

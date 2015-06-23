@@ -88,7 +88,7 @@ public:
 	CFlow_AreaDownslope(void);
 	virtual ~CFlow_AreaDownslope(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation" ));	}
 
 
 protected:

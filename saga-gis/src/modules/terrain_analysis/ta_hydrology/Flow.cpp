@@ -89,16 +89,11 @@ CFlow::CFlow(void)
 	m_bPoint	= false;
 
 	//-----------------------------------------------------
-	Set_Description (_TW(
-		""
-	));
-
-	//-----------------------------------------------------
 	Parameters.Add_Grid(NULL, "ELEVATION" , _TL("Elevation"                                ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid(NULL, "SINKROUTE" , _TL("Sink Routes"                              ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "WEIGHT"    , _TL("Weight"                                   ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
-	Parameters.Add_Grid(NULL, "CAREA"     , _TL("Catchment Area"                           ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(NULL, "CAREA"     , _TL("Flow Accumulation"                        ), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Grid(NULL, "VAL_INPUT" , _TL("Input for Mean over Catchment Calculation"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 	Parameters.Add_Grid(NULL, "VAL_MEAN"  , _TL("Mean over Catchment"                      ), _TL(""), PARAMETER_OUTPUT);
@@ -114,6 +109,15 @@ CFlow::CFlow(void)
 		NULL	, "STEP"		, _TL("Step"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "CAREA_UNIT"	, _TL("Flow Accumulation Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("number of cells"),
+			_TL("cell area")
+		), 1
 	);
 }
 
@@ -148,7 +152,12 @@ int CFlow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPar
 		pParameters->Set_Enabled("VAL_MEAN", pParameter->asGrid() != NULL);
 	}
 
-	return( 1 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHT") )
+	{
+		pParameters->Set_Enabled("WEIGHT_GT_0", pParameter->asGrid() != NULL);
+	}
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -187,6 +196,7 @@ bool CFlow::On_Execute(void)
 	m_pAccu_Right	= NULL;
 
 	m_Step			= Parameters("STEP")->asInt();
+	m_bGT_Zero		= false;
 
 	//-----------------------------------------------------
 	On_Initialize();
@@ -275,6 +285,8 @@ void CFlow::Init_Cell(int x, int y)
 //---------------------------------------------------------
 void CFlow::_Finalize(void)
 {
+	bool	bCellsToArea	= Parameters("CAREA_UNIT")->asInt() == 1;
+
 	#pragma omp parallel for
 	for(sLong n=0; n<Get_NCells(); n++)
 	{
@@ -292,7 +304,7 @@ void CFlow::_Finalize(void)
 			//---------------------------------------------
 			double	Catch	= m_pCatch->asDouble(n);
 
-			if( m_pCatch )
+			if( m_pCatch && bCellsToArea )
 			{
 				m_pCatch->Set_Value(n, Catch * Get_System()->Get_Cellarea());
 			}

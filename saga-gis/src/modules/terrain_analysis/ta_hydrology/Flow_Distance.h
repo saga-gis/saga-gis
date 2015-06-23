@@ -88,7 +88,7 @@ public:
 	CFlow_Distance(void);
 	virtual ~CFlow_Distance(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( SG_T("R:Catchment Area") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( SG_T("Flow Accumulation") );	}
 
 
 protected:
