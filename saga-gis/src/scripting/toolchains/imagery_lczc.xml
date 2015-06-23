@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="2.2.0">
+  <group>toolchains</group>
+  <identifier>lczc</identifier>
+  <menu absolute="true">Imagery|Tools</menu>
+  <name>Local Climate Zones Classification</name>
+  <description>created from history</description>
+  <parameters>
+    <option varname="GRID_SYSTEM" type="grid_system">
+      <name>Grid System</name>
+    </option>
+    <option varname="TRAINING" type="file">
+      <name>Training Areas</name>
+      <filter>KML Files|*.kml;*.kmz|All Files|*.*</filter>
+    </option>
+    <option varname="MAJORITY_RADIUS" type="integer">
+      <name>Majority Filter Radius</name>
+	  <value>2</value>
+      <description>majority filter radius</description>
+    </option>
+    <option varname="CLASSES_KML" type="file" save="true">
+      <name>Save LCZC to KML File ...</name>
+      <filter>KML Files|*.kml|All Files|*.*</filter>
+      <value>lczc.kml</value>
+    </option>
+    <option varname="CLASSES_MAJORITY_KML" type="file" save="true">
+      <name>Save LCZC (Filtered) to KML File ...</name>
+      <filter>KML Files|*.kml|All Files|*.*</filter>
+      <value>lczc_filtered.kml</value>
+    </option>
+    <input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
+      <name>Features</name>
+    </input>
+    <output varname="CLASSES" type="grid" parent="GRID_SYSTEM">
+      <name>LCZC</name>
+    </output>
+    <output varname="CLASSES_MAJORITY" type="grid" parent="GRID_SYSTEM">
+      <name>LCZC (Filtered)</name>
+    </output>
+  </parameters>
+  <tools>
+    <tool library="io_gdal" module="3" name="OGR: Import Vector Data">
+      <output id="SHAPES">TRAINING_SINGLE</output>
+      <option id="FILES" varname="1">TRAINING</option>
+      <option id="GEOM_TYPE">9</option>
+    </tool>
+    <tool library="shapes_tools" module="2" name="Merge Layers">
+      <input id="INPUT">TRAINING_SINGLE</input>
+      <option id="SRCINFO">TRUE</option>
+      <option id="MATCH">TRUE</option>
+      <output id="MERGED">TRAINING_MERGED</output>
+    </tool>
+    <tool library="grid_calculus" module="1" name="Grid Calculator">
+      <input  id="GRIDS">FEATURES</input>
+      <option id="INTERPOLATION">0</option>
+      <option id="FORMULA">g1</option>
+      <option id="TYPE">1</option>
+      <output id="RESULT">FEATURE</output>
+    </tool>
+    <tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
+      <input  id="CRS_GRID">FEATURE</input>
+      <input  id="SOURCE">TRAINING_MERGED</input>
+      <output id="TARGET">TRAINING_PROJ</output>
+      <option id="CRS_PROJ4">+proj=utm +zone=15 +datum=WGS84 +units=m +no_defs </option>
+    </tool>
+    <tool library="imagery_vigra" module="9" name="Random Forest Classification (ViGrA)">
+      <input id="FEATURES">FEATURES</input>
+	  <input id="TRAINING">TRAINING_PROJ</input>
+      <option id="BPROBABILITIES">FALSE</option>
+      <option id="FIELD">Source</option>
+      <option id="LABEL_AS_ID">FALSE</option>
+      <option id="DO_MRMR">FALSE</option>
+      <option id="RF_TREE_COUNT">32</option>
+      <option id="RF_TREE_SAMPLES">1.000000</option>
+      <option id="RF_REPLACE">TRUE</option>
+      <option id="RF_SPLIT_MIN_SIZE">1</option>
+      <option id="RF_NODE_FEATURES">1</option>
+      <option id="RF_STRATIFICATION">0</option>
+      <output id="CLASSES">CLASSES</output>
+    </tool>
+    <tool library="io_grid_image" module="2" name="Export Grid to KML">
+      <input id="GRID">CLASSES</input>
+      <option id="FILE" varname="1">CLASSES_KML</option>
+      <option id="COLOURING">5</option>
+      <option id="INTERPOL">false</option>
+    </tool>
+    <tool library="grid_filter" module="6" name="Majority Filter">
+      <option id="MODE">1</option>
+      <option id="THRESHOLD">0.000000</option>
+      <option id="RADIUS" varname="1">MAJORITY_RADIUS</option>
+      <input  id="INPUT">CLASSES</input>
+      <output id="RESULT">CLASSES_MAJORITY</output>
+    </tool>
+    <tool library="io_grid_image" module="2" name="Export Grid to KML">
+      <input id="GRID">CLASSES_MAJORITY</input>
+      <option id="FILE" varname="1">CLASSES_MAJORITY_KML</option>
+      <option id="COLOURING">5</option>
+      <option id="INTERPOL">false</option>
+    </tool>
+  </tools>
+</toolchain>

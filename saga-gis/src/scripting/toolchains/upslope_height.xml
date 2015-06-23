@@ -6,7 +6,7 @@
   <description>
 	This tool calculates the mean height, mean slope and mean aspect of the upslope contributing area.
   </description>
-  <menu>Hydrology|Catchment Area</menu>
+  <menu>Hydrology|Flow Accumulation</menu>
   <parameters>
     <option varname="GRID_SYSTEM" type="grid_system">
       <name>Grid System</name>
