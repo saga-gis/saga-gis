@@ -139,8 +139,11 @@ public:
 	double						Get_xMax			(void)	const	{	return( m_xMin + m_NX * m_Cellsize );	}
 	double						Get_yMax			(void)	const	{	return( m_yMin + m_NY * m_Cellsize );	}
 
-	bool						Needs_Transform		(void)	const	{	return( m_bTransform );	}
-	void						Get_Transform		(CSG_Vector &A, CSG_Matrix &B)	const	{	A	= m_TF_A;	B	= m_TF_B;	}
+	bool						Needs_Transformation(void)	const	{	return( m_bTransform );	}
+	void						Get_Transformation	(CSG_Vector &A, CSG_Matrix &B)				const	{	A	= m_TF_A;	B	= m_TF_B;	}
+	bool						Get_Transformation	(CSG_Grid_System &System, bool bVerbose)	const;
+	bool						Get_Transformation	(CSG_Grid **ppGrid, TSG_Grid_Interpolation Interpolation, bool bVerbose)	const;
+	bool						Get_Transformation	(CSG_Grid **ppGrid, TSG_Grid_Interpolation Interpolation, const CSG_Grid_System &System, bool bVerbose)	const;
 
 	class GDALDriver *			Get_Driver			(void)	const;
 	CSG_String					Get_DriverID		(void)	const;

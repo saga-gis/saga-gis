@@ -74,7 +74,7 @@ CGDAL_Import::CGDAL_Import(void)
 	//-----------------------------------------------------
 	Set_Name	(_TL("GDAL: Import Raster"));
 
-	Set_Author	(SG_T("O.Conrad (c) 2007 (A.Ringeler)"));
+	Set_Author	("O.Conrad (c) 2007 (A.Ringeler)");
 
 	CSG_String	Description;
 
@@ -86,7 +86,7 @@ CGDAL_Import::CGDAL_Import(void)
 		"  http://www.gdal.org</a>\n"
 	);
 
-	Description	+= CSG_String::Format(SG_T("\nGDAL %s:%s\n\n"), _TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str());
+	Description	+= CSG_String::Format("\nGDAL %s:%s\n\n", _TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str());
 
 	Description	+= _TW(
 		"Following raster formats are currently supported:\n"
@@ -95,13 +95,13 @@ CGDAL_Import::CGDAL_Import(void)
 
 	for(int i=0; i<SG_Get_GDAL_Drivers().Get_Count(); i++)
     {
-		Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
+		Description	+= CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>\n",
 			SG_Get_GDAL_Drivers().Get_Description(i).c_str(),
 			SG_Get_GDAL_Drivers().Get_Name       (i).c_str()
 		);
     }
 
-	Description	+= SG_T("</table>");
+	Description	+= "</table>";
 
 	Set_Description(Description);
 
@@ -138,7 +138,7 @@ CGDAL_Import::CGDAL_Import(void)
 	Parameters.Add_Choice(
 		pNode	, "INTERPOL"	, _TL("Interpolation"),
 		_TL("interpolation method to use if grid needs to be aligned to coordinate system"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -161,13 +161,13 @@ CGDAL_Import::CGDAL_Import(void)
 //---------------------------------------------------------
 int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TRANSFORM")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRANSFORM") )
 	{
 		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("SELECTION"))
-	&&  !SG_STR_CMP(pParameter ->Get_Identifier(), SG_T("ALL")) && pParameters->Get_Parameter("BANDS") )
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), "SELECTION")
+	&&  !SG_STR_CMP(pParameter ->Get_Identifier(), "ALL") && pParameters->Get_Parameter("BANDS") )
 	{
 		pParameters->Get_Parameter("BANDS")->Set_Enabled(!pParameter->asBool());
 	}
@@ -200,7 +200,7 @@ bool CGDAL_Import::On_Execute(void)
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
-		Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("loading"), Files[i].c_str()), false);
+		Message_Add(CSG_String::Format("\n%s: %s", _TL("loading"), Files[i].c_str()), false);
 
 		if( DataSet.Open_Read(Files[i]) == false )
 		{
@@ -236,14 +236,14 @@ bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet)
 
 	for(i=0, n=0; i==n; i++)
 	{
-		CSG_MetaData	*pName	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_NAME"), i + 1));
-		CSG_MetaData	*pDesc	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_DESC"), i + 1));
+		CSG_MetaData	*pName	= MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_NAME", i + 1));
+		CSG_MetaData	*pDesc	= MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_DESC", i + 1));
 
 		if( pName )
 		{
 			n++;
 
-			Message_Add(CSG_String::Format(SG_T("\n%s"), pName->Get_Content().c_str()), false);
+			Message_Add(CSG_String::Format("\n%s", pName->Get_Content().c_str()), false);
 
 			P.Add_Value(NULL, pName->Get_Content(), pDesc ? pDesc->Get_Content().c_str() : _TL("unnamed"), SG_T(""), PARAMETER_TYPE_Bool, SG_UI_Get_Window_Main() == NULL);
 		}
@@ -290,19 +290,18 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	CSG_Vector	A;
 	CSG_Matrix	B;
 
-	DataSet.Get_Transform(A, B);
+	DataSet.Get_Transformation(A, B);
 
-	//-----------------------------------------------------
-	Message_Add(SG_T("\n"), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("Driver" ), DataSet.Get_DriverID().c_str()   ), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s: %d"), _TL("Bands"  ), DataSet.Get_Count()              ), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s: %d"), _TL("Rows"   ), DataSet.Get_NX()                 ), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s: %d"), _TL("Columns"), DataSet.Get_NY()                 ), false);
-	Message_Add(SG_T("\n"), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s:"), _TL("Transformation")                               ), false);
-	Message_Add(CSG_String::Format(SG_T("\n  x' = %.6f + x * %.6f + y * %.6f"), A[0], B[0][0], B[0][1]), false);
-	Message_Add(CSG_String::Format(SG_T("\n  y' = %.6f + x * %.6f + y * %.6f"), A[1], B[1][0], B[1][1]), false);
-	Message_Add(SG_T("\n"), false);
+	Message_Add("\n", false);
+	Message_Add(CSG_String::Format("\n%s: %s", _TL("Driver" ), DataSet.Get_DriverID().c_str()   ), false);
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("Bands"  ), DataSet.Get_Count()              ), false);
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("Rows"   ), DataSet.Get_NX()                 ), false);
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("Columns"), DataSet.Get_NY()                 ), false);
+	Message_Add("\n", false);
+	Message_Add(CSG_String::Format("\n%s:", _TL("Transformation")                               ), false);
+	Message_Add(CSG_String::Format("\n  x' = %.6f + x * %.6f + y * %.6f", A[0], B[0][0], B[0][1]), false);
+	Message_Add(CSG_String::Format("\n  y' = %.6f + x * %.6f + y * %.6f", A[1], B[1][0], B[1][1]), false);
+	Message_Add("\n", false);
 
 	//-----------------------------------------------------
 	int			i, n;
@@ -351,35 +350,19 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid_System	Transform;
+	TSG_Grid_Interpolation	Interpolation;
 
-	if( Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transform() )
+	switch( Parameters("INTERPOL")->asInt() )
 	{
-		CSG_Vector	v(2);
-		CSG_Rect	r;
-
-		v[0]	= DataSet.Get_xMin() + 0.5;	v[1]	= DataSet.Get_yMin() + 0.5;	v	= B * v + A;	r.Assign(v[0], v[1], v[0], v[1]);
-		v[0]	= DataSet.Get_xMin() + 0.5;	v[1]	= DataSet.Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
-		v[0]	= DataSet.Get_xMax() - 0.5;	v[1]	= DataSet.Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
-		v[0]	= DataSet.Get_xMax() - 0.5;	v[1]	= DataSet.Get_yMin() + 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
-
-		v[0]	= 1;	v[1] = 0;	v = B * v;	double	dx	= v.Get_Length();
-		v[0]	= 0;	v[1] = 1;	v = B * v;	double	dy	= v.Get_Length();
-
-		if( dx != dy )
-		{
-			Message_Add(CSG_String::Format(SG_T("\n%s: %s\n\t%s: %f"), _TL("warning"), _TL("top-to-bottom and left-to-right cell sizes differ."), _TL("Difference"), fabs(dy - dx)), false);
-
-			if( dx > dy )
-			{
-				dx	= dy;
-			}
-
-			Message_Add(CSG_String::Format(SG_T("\n\t%s: %f\n"), _TL("using cellsize"), dx), false);
-		}
-
-		Transform.Assign(dx, r);
+	default:
+	case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
+	case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
+	case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
+	case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
+	case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
 	}
+
+	bool	bTransform	= Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transformation();
 
 	//-----------------------------------------------------
 	for(i=0, n=0; i<DataSet.Get_Count() && Process_Get_Okay(); i++)
@@ -388,7 +371,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 
 		if( !Bands.Get_Selection_Count() || pBand->is_Selected() )
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("loading band"), i + 1, DataSet.Get_Count()));
+			Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("loading band"), i + 1, DataSet.Get_Count()));
 
 			CSG_Grid	*pGrid	= DataSet.Read(pBand->Get_Index());
 
@@ -396,15 +379,15 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 			{
 				n++;
 
-				if( Transform.is_Valid() )
+				if( bTransform )
 				{
-					Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("band transformation"), i + 1, DataSet.Get_Count()));
+					Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("band transformation"), i + 1, DataSet.Get_Count()));
 
-					Set_Transformation(&pGrid, Transform, A, B);
+					DataSet.Get_Transformation(&pGrid, Interpolation, true);
 				}
 
 				pGrid->Set_Name(DataSet.Get_Count() > 1
-					? CSG_String::Format(SG_T("%s [%s]"), Name.c_str(), pGrid->Get_Name()).c_str()
+					? CSG_String::Format("%s [%s]", Name.c_str(), pGrid->Get_Name()).c_str()
 					: Name.c_str()
 				);
 
@@ -423,83 +406,6 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 
 ///////////////////////////////////////////////////////////
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Grid_System &System, const CSG_Vector &A, const CSG_Matrix &B)
-{
-	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation;
-
-	switch( Parameters("INTERPOL")->asInt() )
-	{
-	default:
-	case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-	case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-	case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-	case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-	case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
-	}
-
-	//-----------------------------------------------------
-	CSG_Matrix	BInv(B.Get_Inverse());
-
-	CSG_Grid	*pImage	= *ppGrid;
-	CSG_Grid	*pWorld	= SG_Create_Grid(System, pImage->Get_Type());
-
-	if( !pWorld )
-	{
-		return( false );
-	}
-
-	*ppGrid	= pWorld;
-
-	pWorld->Set_Name              (pImage->Get_Name        ());
-	pWorld->Set_Description       (pImage->Get_Description ());
-	pWorld->Set_Unit              (pImage->Get_Unit        ());
-	pWorld->Set_Scaling           (pImage->Get_Scaling     (), pImage->Get_Offset());
-	pWorld->Set_NoData_Value_Range(pImage->Get_NoData_Value(), pImage->Get_NoData_hiValue());
-	pWorld->Get_MetaData()	     = pImage->Get_MetaData    ();
-	pWorld->Get_Projection()     = pImage->Get_Projection  ();
-
-	//-----------------------------------------------------
-//	#pragma omp parallel for
-//	for(int y=0; y<pWorld->Get_NY(); y++)
-//	{
-//		Process_Get_Okay();
-
-	for(int y=0; y<pWorld->Get_NY() && Set_Progress(y, pWorld->Get_NY()); y++)
-	{
-		#pragma omp parallel for
-		for(int x=0; x<pWorld->Get_NX(); x++)
-		{
-			double		z;
-			CSG_Vector	vWorld(2), vImage;
-
-			vWorld[0]	= pWorld->Get_XMin() + x * pWorld->Get_Cellsize();
-			vWorld[1]	= pWorld->Get_YMin() + y * pWorld->Get_Cellsize();
-
-			vImage	= BInv * (vWorld - A);
-
-			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation, false, true) )
-			{
-				pWorld->Set_Value(x, y, z);
-			}
-			else
-			{
-				pWorld->Set_NoData(x, y);
-			}
-		}
-	}
-
-	delete(pImage);
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -509,7 +415,7 @@ bool	SG_GDAL_Import	(const CSG_String &File_Name)
 {
 	CGDAL_Import	Import;
 
-	if(	!Import.Get_Parameters()->Set_Parameter(SG_T("FILES"), File_Name, PARAMETER_TYPE_FilePath) )
+	if(	!Import.Get_Parameters()->Set_Parameter("FILES", File_Name, PARAMETER_TYPE_FilePath) )
 	{
 		return( false );
 	}
@@ -519,7 +425,7 @@ bool	SG_GDAL_Import	(const CSG_String &File_Name)
 		return( false );
 	}
 
-	CSG_Parameter_Grid_List	*pGrids	= Import.Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
+	CSG_Parameter_Grid_List	*pGrids	= Import.Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
 
 	for(int i=0; i<pGrids->Get_Count(); i++)
 	{

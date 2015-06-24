@@ -112,6 +112,25 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 		_TL(""),
 		NULL, NULL, true, true
 	);
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Value(
+		NULL	, "TRANSFORM"	, _TL("Transformation"),
+		_TL("apply coordinate transformation if appropriate"),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "INTERPOL"	, _TL("Interpolation"),
+		_TL("interpolation method to use if grid needs to be aligned to coordinate system"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("Nearest Neighbor"),
+			_TL("Bilinear Interpolation"),
+			_TL("Inverse Distance Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation")
+		), 4
+	);
 }
 
 
@@ -142,6 +161,11 @@ int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LEVEL_ALL")) && pParameters->Get_Parameter("LEVEL") )
 	{
 		pParameters->Get_Parameter("LEVEL")->Set_Enabled(!pParameter->asBool());
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TRANSFORM")) )
+	{
+		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(pParameter->asBool());
 	}
 
 	return( 1 );
@@ -353,6 +377,21 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Desc
 	}
 
 	//-----------------------------------------------------
+	TSG_Grid_Interpolation	Interpolation;
+
+	switch( Parameters("INTERPOL")->asInt() )
+	{
+	default:
+	case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
+	case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
+	case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
+	case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
+	case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
+	}
+
+	bool	bTransform	= Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transformation();
+
+	//-----------------------------------------------------
 	for(i=0; i<DataSet.Get_Count() && Set_Progress(i, DataSet.Get_Count()); i++)
 	{
 		CSG_Grid		*pGrid;
@@ -366,6 +405,13 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Desc
 
 			if( (pGrid = DataSet.Read(i)) != NULL )
 			{
+				if( bTransform )
+				{
+					Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("band transformation"), i + 1, DataSet.Get_Count()));
+
+					DataSet.Get_Transformation(&pGrid, Interpolation, true);
+				}
+
 				CSG_String	Name(_TL("unknown"));
 				
 				if( (s = Get_Variable(DataSet, i)) != NULL && *s )	Name	= s;

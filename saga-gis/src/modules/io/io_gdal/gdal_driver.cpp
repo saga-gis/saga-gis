@@ -772,6 +772,141 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid_System &System, bool bVerbose) const
+{
+	CSG_Vector	A;
+	CSG_Matrix	B;
+
+	Get_Transformation(A, B);
+
+	//-----------------------------------------------------
+	if( Needs_Transformation() )
+	{
+		CSG_Vector	v(2);
+		CSG_Rect	r;
+
+		v[0]	= Get_xMin() + 0.5;	v[1]	= Get_yMin() + 0.5;	v	= B * v + A;	r.Assign(v[0], v[1], v[0], v[1]);
+		v[0]	= Get_xMin() + 0.5;	v[1]	= Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
+		v[0]	= Get_xMax() - 0.5;	v[1]	= Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
+		v[0]	= Get_xMax() - 0.5;	v[1]	= Get_yMin() + 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
+
+		v[0]	= 1;	v[1] = 0;	v = B * v;	double	dx	= v.Get_Length();
+		v[0]	= 0;	v[1] = 1;	v = B * v;	double	dy	= v.Get_Length();
+
+		if( dx != dy )
+		{
+			if( bVerbose )
+			{
+				SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %s\n\t%s: %f",
+					_TL("warning"), _TL("top-to-bottom and left-to-right cell sizes differ."), _TL("Difference"), fabs(dy - dx)), false
+				);
+			}
+
+			if( dx > dy )
+			{
+				dx	= dy;
+			}
+
+			if( bVerbose )
+			{
+				SG_UI_Msg_Add_Execution(CSG_String::Format("\n\t%s: %f\n", _TL("using cellsize"), dx), false);
+			}
+		}
+
+		return( System.Assign(dx, r) );
+	}
+
+	//-----------------------------------------------------
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Interpolation	Interpolation, bool bVerbose)	const
+{
+	CSG_Grid_System	System;
+
+	if( Get_Transformation(System, bVerbose) )
+	{
+		return( Get_Transformation(ppGrid, Interpolation, System, bVerbose) );
+	}
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Interpolation	Interpolation, const CSG_Grid_System &System, bool bVerbose)	const
+{
+	if( !System.is_Valid() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Vector	A;
+	CSG_Matrix	B, BInv;
+
+	Get_Transformation(A, B);
+
+	BInv	= B.Get_Inverse();
+
+	//-----------------------------------------------------
+	CSG_Grid	*pImage	= *ppGrid;
+	CSG_Grid	*pWorld	= SG_Create_Grid(System, pImage->Get_Type());
+
+	if( !pWorld )
+	{
+		return( false );
+	}
+
+	*ppGrid	= pWorld;
+
+	pWorld->Set_Name              (pImage->Get_Name        ());
+	pWorld->Set_Description       (pImage->Get_Description ());
+	pWorld->Set_Unit              (pImage->Get_Unit        ());
+	pWorld->Set_Scaling           (pImage->Get_Scaling     (), pImage->Get_Offset());
+	pWorld->Set_NoData_Value_Range(pImage->Get_NoData_Value(), pImage->Get_NoData_hiValue());
+	pWorld->Get_MetaData()	     = pImage->Get_MetaData    ();
+	pWorld->Get_Projection()     = pImage->Get_Projection  ();
+
+	//-----------------------------------------------------
+//	#pragma omp parallel for
+//	for(int y=0; y<pWorld->Get_NY(); y++)
+//	{
+//		Process_Get_Okay();
+
+	for(int y=0; y<pWorld->Get_NY() && SG_UI_Process_Set_Progress(y, pWorld->Get_NY()); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<pWorld->Get_NX(); x++)
+		{
+			double		z;
+			CSG_Vector	vWorld(2), vImage;
+
+			vWorld[0]	= pWorld->Get_XMin() + x * pWorld->Get_Cellsize();
+			vWorld[1]	= pWorld->Get_YMin() + y * pWorld->Get_Cellsize();
+
+			vImage	= BInv * (vWorld - A);
+
+			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation, false, true) )
+			{
+				pWorld->Set_Value(x, y, z);
+			}
+			else
+			{
+				pWorld->Set_NoData(x, y);
+			}
+		}
+	}
+
+	delete(pImage);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
