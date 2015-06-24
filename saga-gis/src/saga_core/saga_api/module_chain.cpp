@@ -467,6 +467,30 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Module_Chain::Tool_Get_Parameter(const CSG_MetaData &Parameter, CSG_Module *pModule, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters)
+{
+	CSG_String	ID	= Parameter.Get_Property("id");
+
+	CSG_Parameter	*pParameters	= pModule->Get_Parameters()->Get_Parameter(Parameter.Get_Property("parms"));
+
+	if( pParameters && pParameters->Get_Type() == PARAMETER_TYPE_Parameters && pParameters->asParameters()->Get_Parameter(ID) )
+	{
+		*ppParameters	= pParameters;
+		*ppParameter	= pParameters->asParameters()->Get_Parameter(ID);
+	}
+	else if( pModule->Get_Parameters(Parameter.Get_Property("parms")) )
+	{
+		*ppParameter	= pModule->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID);
+	}
+	else
+	{
+		*ppParameter	= pModule->Get_Parameters()->Get_Parameter(ID);
+	}
+
+	return( *ppParameter != NULL );
+}
+
+//---------------------------------------------------------
 bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pModule)
 {
 	//-----------------------------------------------------
@@ -481,11 +505,9 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 		CSG_String	ID	= Parameter.Get_Property("id");
 
-		CSG_Parameter	*pParameter	= pModule->Get_Parameters(Parameter.Get_Property("parms"))
-			? pModule->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID)
-			: pModule->Get_Parameters()->Get_Parameter(ID);
+		CSG_Parameter	*pParameter, *pOwner;
 
-		if( !pParameter )
+		if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
 		{
 			Error_Set(CSG_String::Format("%s: %s", _TL("parameter not found"), ID.c_str()));
 
@@ -530,6 +552,11 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 				}
 
 				pParameter->has_Changed();
+
+				if( pOwner )
+				{
+					pOwner->has_Changed();
+				}
 			}
 		}
 		else if( Parameter.Cmp_Name("output") )
@@ -548,11 +575,9 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 		CSG_String	ID	= Parameter.Get_Property("id");
 
-		CSG_Parameter	*pParameter	= pModule->Get_Parameters(Parameter.Get_Property("parms"))
-			? pModule->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID)
-			: pModule->Get_Parameters()->Get_Parameter(ID);
+		CSG_Parameter	*pParameter, *pOwner;
 
-		if( !pParameter )
+		if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
 		{
 			return( false );
 		}

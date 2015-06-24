@@ -128,6 +128,7 @@ private:
 	bool						Data_Finalize			(void);
 
 	bool						Tool_Run				(const CSG_MetaData &Tool);
+	bool						Tool_Get_Parameter		(const CSG_MetaData &Parameter, CSG_Module *pModule, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters);
 	bool						Tool_Initialize			(const CSG_MetaData &Tool, CSG_Module *pModule);
 	bool						Tool_Finalize			(const CSG_MetaData &Tool, CSG_Module *pModule);
 

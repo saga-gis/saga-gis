@@ -4,6 +4,7 @@
   <identifier>lczc</identifier>
   <menu absolute="true">Imagery|Tools</menu>
   <name>Local Climate Zones Classification</name>
+  <author>B. Bechtel, O. Conrad (c) 2015</author>
   <description>created from history</description>
   <parameters>
     <option varname="GRID_SYSTEM" type="grid_system">
@@ -58,10 +59,9 @@
       <output id="RESULT">FEATURE</output>
     </tool>
     <tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
-      <input  id="CRS_GRID">FEATURE</input>
+      <input  id="PICK" parms="CRS_GRID">FEATURE</input>
       <input  id="SOURCE">TRAINING_MERGED</input>
       <output id="TARGET">TRAINING_PROJ</output>
-      <option id="CRS_PROJ4">+proj=utm +zone=15 +datum=WGS84 +units=m +no_defs </option>
     </tool>
     <tool library="imagery_vigra" module="9" name="Random Forest Classification (ViGrA)">
       <input id="FEATURES">FEATURES</input>
