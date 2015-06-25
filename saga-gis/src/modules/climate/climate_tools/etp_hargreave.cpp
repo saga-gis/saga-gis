@@ -69,16 +69,49 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CETP_Hargreave::CETP_Hargreave(void)
+double	Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude_Rad)
+{
+	double	sinLat	= sin(Latitude_Rad);
+	double	cosLat	= cos(Latitude_Rad);
+	double	tanLat	= tan(Latitude_Rad);
+
+	// relative distance between sun and earth on any Julian day
+	double	dR		= 0.033  * cos(DayOfYear * 2.0 * M_PI / 365.0) + 1.0;
+
+	// solar declination in radians and sunset hour angle
+	double	SunHgt	= 0.4093 * sin(DayOfYear * 2.0 * M_PI / 365.0 - 1.405);
+	double	SunDir	= acos(-tanLat * tan(SunHgt));
+
+	// water equivalent of extraterrestrial radiation (mm/day)
+	double	R0		= 15.392 * dR * (SunDir * sinLat * sin(SunHgt) + cosLat * cos(SunHgt) * sin(SunDir));
+
+	return( R0 );
+}
+
+//---------------------------------------------------------
+double	Get_PET_Hargreave	(double R0, double Tmean, double Tmin, double Tmax)
+{
+	return( 0.0023 * R0 * (Tmean + 17.8) * sqrt(Tmax - Tmin) );	// potential evapotranspiration per day
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 {
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name		(_TL("PET (after Hargreave)"));
+	Set_Name		(_TL("PET (after Hargreaves, Grid)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
 		"Estimation of daily potential evapotranspiration from daily average, minimum and maximum temperatures "
@@ -91,6 +124,175 @@ CETP_Hargreave::CETP_Hargreave(void)
 		"- Hargraeves, G.H., Samani, Z.A. (1985): Reference crop evapotranspiration from ambient air temperatures. "
 		"Paper presented in ASAE Regional Meeting, Grand Junction, Colorado. "
 		"<a target=\"_blank\" href=\"http://cagesun.nmsu.edu/~zsamani/papers/Hargreaves_Samani_85.pdf\">online</a>\n"
+		"Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998): Crop evapotranspiration - Guidelines for computing crop water requirements. "
+		"FAO Irrigation and drainage paper 56. "
+		"<a target=\"_blank\" href=\"http://www.fao.org/docrep/X0490E/x0490e00.htm#Contents\">online</a>\n"
+	));
+
+
+	//-----------------------------------------------------
+	// 2. Parameters...
+
+	Parameters.Add_Grid(NULL, "T"    , _TL("Mean Temperature"            ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid(NULL, "T_MIN", _TL("Minimum Temperature"         ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid(NULL, "T_MAX", _TL("Maximum Temperature"         ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid(NULL, "PET"  , _TL("Potential Evapotranspiration"), _TL(""), PARAMETER_OUTPUT);
+
+	Parameters.Add_Value(
+		NULL	, "LAT"		, _TL("Latitude [Degree]"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 53.0, -90.0, true, 90.0, true
+	);
+
+	pNode	= Parameters.Add_Choice(
+		NULL	, "TIME"	, _TL("Time"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("day"),
+			_TL("month")
+		), 0
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "MONTH"	, _TL("Month"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("January"), _TL("February"), _TL("March"    ), _TL("April"  ), _TL("May"     ), _TL("June"    ),
+			_TL("July"   ), _TL("August"  ), _TL("September"), _TL("October"), _TL("November"), _TL("December")
+		), 2
+	);
+
+	Parameters.Add_Value(
+		pNode	, "DAY"		, _TL("Day of Month"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 21, 1, true, 31, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPET_Hargreave_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "T") )
+	{
+		pParameters->Set_Enabled("LAT", pParameter->asGrid() && pParameter->asGrid()->Get_Projection().is_Okay() == false);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") )
+	{
+		pParameters->Set_Enabled("DAY", pParameter->asInt() == 0);
+	}
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPET_Hargreave_Grid::On_Execute(void)
+{
+	//-----------------------------------------------------
+	const int	DaysBefore[12]	= {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
+	const int	DaysCount [12]	= {  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
+
+	//-----------------------------------------------------
+	CSG_Grid	*pTavg	= Parameters("T"    )->asGrid();
+	CSG_Grid	*pTmin	= Parameters("T_MIN")->asGrid();
+	CSG_Grid	*pTmax	= Parameters("T_MAX")->asGrid();
+	CSG_Grid	*pPET	= Parameters("PET"  )->asGrid();
+
+	//-----------------------------------------------------
+	CSG_Grid	Lat, *pLat	= NULL;
+
+	if( pTavg->Get_Projection().is_Okay() )
+	{
+		bool		bResult;
+		CSG_Grid	Lon;
+
+		SG_RUN_MODULE(bResult, "pj_proj4", 17,	// geographic coordinate grids
+				SG_MODULE_PARAMETER_SET("GRID", pTavg)
+			&&	SG_MODULE_PARAMETER_SET("LON" , &Lon)
+			&&	SG_MODULE_PARAMETER_SET("LAT" , &Lat)
+		)
+
+		if( bResult )
+		{
+			pLat	= &Lat;
+		}
+	}
+
+	//-----------------------------------------------------
+	int	Mon	= Parameters("TIME")->asInt() == 0 ? -1 : DaysCount[Parameters("MONTH")->asInt()];
+	int	Day	= DaysBefore[Parameters("MONTH")->asInt()] + Mon < 0 ? Parameters("DAY")->asInt() : Mon / 2;
+
+	double	R0_const	= Get_Radiation_TopOfAtmosphere(Day, Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( pTavg->is_NoData(x, y) || pTmin->is_NoData(x, y) || pTmax->is_NoData(x, y) || (pLat && pLat->is_NoData(x, y)) )
+			{
+				pPET->Set_NoData(x, y);
+			}
+			else
+			{
+				double	PET	= Get_PET_Hargreave(pLat ? Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y) * M_DEG_TO_RAD) : R0_const,
+					pTavg->asDouble(x, y),
+					pTmin->asDouble(x, y),
+					pTmax->asDouble(x, y)
+				);
+
+				pPET->Set_Value(x, y, Mon < 0 ? PET : PET * Mon);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPET_Hargreave_Table::CPET_Hargreave_Table(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	// 1. Info...
+
+	Set_Name		(_TL("PET (after Hargreaves, Table)"));
+
+	Set_Author		("O.Conrad (c) 2011");
+
+	Set_Description	(_TW(
+		"Estimation of daily potential evapotranspiration from daily average, minimum and maximum temperatures "
+		"using Hargreave's empirical equation. In order to estimate extraterrestrial net radiation "
+		"geographic latitude of observation and Julian day have to be supplied too. "
+		"\nReferences:\n"
+		"- Ambikadevi, K.M. (2004): Simulation of Evapotranspiration and Rainfall-runoff for the Stillwater River Watershed in Central Massachusetts. "
+		"Environmental & Water Resources Engineering Masters Projects, University of Massachusetts, Amherst "
+		"<a target=\"_blank\" href=\"http://scholarworks.umass.edu/cee_ewre/22/\">online</a>\n"
+		"- Hargraeves, G.H., Samani, Z.A. (1985): Reference crop evapotranspiration from ambient air temperatures. "
+		"Paper presented in ASAE Regional Meeting, Grand Junction, Colorado. "
+		"<a target=\"_blank\" href=\"http://cagesun.nmsu.edu/~zsamani/papers/Hargreaves_Samani_85.pdf\">online</a>\n"
+		"FAO Irrigation and drainage paper 56. "
+		"<a target=\"_blank\" href=\"http://www.fao.org/docrep/X0490E/x0490e00.htm#Contents\">online</a>\n"
 	));
 
 
@@ -109,7 +311,7 @@ CETP_Hargreave::CETP_Hargreave(void)
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "T"				, _TL("Average Temperature"),
+		pNode	, "T"				, _TL("Mean Temperature"),
 		_TL("")
 	);
 
@@ -136,61 +338,40 @@ CETP_Hargreave::CETP_Hargreave(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CETP_Hargreave::On_Execute(void)
+bool CPET_Hargreave_Table::On_Execute(void)
 {
-	int			fJD, fT, fTmin, fTmax, fET;
-	double		sinLat, cosLat, tanLat;
+	//-----------------------------------------------------
+	int			fDay, fT, fTmin, fTmax, fET;
+	double		Lat;
 	CSG_Table	*pTable;
 
-	//-----------------------------------------------------
-	pTable	= Parameters("TABLE")	->asTable();
-	fJD		= Parameters("JD")		->asInt();
-	fT		= Parameters("T")		->asInt();
-	fTmin	= Parameters("T_MIN")	->asInt();
-	fTmax	= Parameters("T_MAX")	->asInt();
-
-	sinLat	= sin(Parameters("LAT")	->asDouble() * M_DEG_TO_RAD);
-	cosLat	= cos(Parameters("LAT")	->asDouble() * M_DEG_TO_RAD);
-	tanLat	= tan(Parameters("LAT")	->asDouble() * M_DEG_TO_RAD);
-
+	pTable	= Parameters("TABLE")->asTable ();
+	Lat		= Parameters("LAT"  )->asDouble() * M_DEG_TO_RAD;
+	fDay	= Parameters("JD"   )->asInt   ();
+	fT		= Parameters("T"    )->asInt   ();
+	fTmin	= Parameters("T_MIN")->asInt   ();
+	fTmax	= Parameters("T_MAX")->asInt   ();
 	fET		= pTable->Get_Field_Count();
 
-	pTable->Add_Field(SG_T("ET"), SG_DATATYPE_Double);
+	pTable->Add_Field("ET", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-		if( pRecord->is_NoData(fJD) || pRecord->is_NoData(fTmin) || pRecord->is_NoData(fTmax) )
+		if( pRecord->is_NoData(fDay) || pRecord->is_NoData(fTmin) || pRecord->is_NoData(fTmax) )
 		{
 			pRecord->Set_NoData(fET);
 		}
 		else
 		{
-			int		JD;
-			double	T, Tmin, Tmax, dR, SunDir, SunHgt, S0, ET;
-
-			JD		= pRecord->asInt   (fJD  );
-			T		= pRecord->asDouble(fT   );
-			Tmin	= pRecord->asDouble(fTmin);
-			Tmax	= pRecord->asDouble(fTmax);
-
-			// relative distance between sun and earth on any Julian day
-			dR		= 1 + 0.033 * cos(JD * 2.0 * M_PI / 365.0);
-
-			// solar declination in radians
-			SunHgt	= 0.4093    * sin(JD * 2.0 * M_PI / 365.0 - 1.405);
-
-			// sunset hour angle
-			SunDir	= acos(-tanLat * tan(SunHgt));
-
-			// water equivalent of extraterrestrial radiation (mm/day)
-			S0		= 15.392 * dR * (SunDir * sinLat * sin(SunHgt) + cosLat * cos(SunHgt) * sin(SunDir));
-
-			ET		= 0.0023 * S0 * sqrt(Tmax - Tmin) * (T + 17.8);
-
-			pRecord->Set_Value(fET, ET);
+			pRecord->Set_Value(fET, Get_PET_Hargreave(Get_Radiation_TopOfAtmosphere(
+				pRecord->asInt   (fDay ), Lat),
+				pRecord->asDouble(fT   ),
+				pRecord->asDouble(fTmin),
+				pRecord->asDouble(fTmax))
+			);
 		}
 	}
 
@@ -208,7 +389,7 @@ bool CETP_Hargreave::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CETP_Day_To_Hour::CETP_Day_To_Hour(void)
+CPET_Day_To_Hour::CPET_Day_To_Hour(void)
 {
 	CSG_Parameter	*pNode;
 
@@ -217,7 +398,7 @@ CETP_Day_To_Hour::CETP_Day_To_Hour(void)
 
 	Set_Name		(_TL("Daily to Hourly PET"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Derive hourly from daily evapotranspiration using sinusoidal distribution. "
@@ -272,32 +453,32 @@ CETP_Day_To_Hour::CETP_Day_To_Hour(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CETP_Day_To_Hour::On_Execute(void)
+bool CPET_Day_To_Hour::On_Execute(void)
 {
 	int			fJD, fET, fP;
 	double		sinLat, cosLat, sinHgt;
 	CSG_Table	*pDays, *pHours;
 
 	//-----------------------------------------------------
-	pDays	= Parameters("DAYS")	->asTable();
-	pHours	= Parameters("HOURS")	->asTable();
-	fJD		= Parameters("JD")		->asInt();
-	fET		= Parameters("ET")		->asInt();
-	fP		= Parameters("P")		->asInt();
+	pDays	= Parameters("DAYS" )->asTable();
+	pHours	= Parameters("HOURS")->asTable();
+	fJD		= Parameters("JD"   )->asInt();
+	fET		= Parameters("ET"   )->asInt();
+	fP		= Parameters("P"    )->asInt();
 
 	sinLat	= sin(Parameters("LAT")	->asDouble() * M_DEG_TO_RAD);
 	cosLat	= cos(Parameters("LAT")	->asDouble() * M_DEG_TO_RAD);
 	sinHgt	= 0.0;	// -0.0145;	// >> -50'' desired height of horizon
 
 	pHours->Destroy();
-	pHours->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pDays->Get_Name(), _TL("h")));
-	pHours->Add_Field(SG_T("JULIAN_DAY")	, SG_DATATYPE_Int);
-	pHours->Add_Field(SG_T("HOUR")			, SG_DATATYPE_Int);
-	pHours->Add_Field(SG_T("ET")			, SG_DATATYPE_Double);
+	pHours->Set_Name(CSG_String::Format("%s [%s]", pDays->Get_Name(), _TL("h")));
+	pHours->Add_Field("JULIAN_DAY", SG_DATATYPE_Int);
+	pHours->Add_Field("HOUR"      , SG_DATATYPE_Int);
+	pHours->Add_Field("ET"        , SG_DATATYPE_Double);
 
 	if( fP >= 0 )
 	{
-		pHours->Add_Field(SG_T("P")				, SG_DATATYPE_Double);
+		pHours->Add_Field("P", SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

@@ -80,17 +80,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CETP_Hargreave : public CSG_Module
+class CPET_Hargreave_Grid : public CSG_Module_Grid
 {
 public:
-	CETP_Hargreave(void);
+	CPET_Hargreave_Grid(void);
 
-	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("Evapotranspiration") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
 
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 };
 
@@ -100,17 +102,37 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CETP_Day_To_Hour : public CSG_Module
+class CPET_Hargreave_Table : public CSG_Module
 {
 public:
-	CETP_Day_To_Hour(void);
+	CPET_Hargreave_Table(void);
 
-	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("Evapotranspiration") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
 
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool		On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPET_Day_To_Hour : public CSG_Module
+{
+public:
+	CPET_Day_To_Hour(void);
+
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
+
+
+protected:
+
+	virtual bool		On_Execute				(void);
 
 };
 
