@@ -63,6 +63,11 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+#include <gdal.h>
+
+#if defined(GDAL_VERSION_MAJOR) && GDAL_VERSION_MAJOR == 2
+#define USE_GDAL_V2
+#endif
 
 //---------------------------------------------------------
 typedef enum ESG_Geom_Type_Choice_Key
@@ -86,7 +91,6 @@ typedef enum ESG_Geom_Type_Choice_Key
 }
 TSG_Geom_Type_Choice_Key;
 
-
 //---------------------------------------------------------
 const SG_Char	gSG_Geom_Type_Choice_Key_Name[GEOM_TYPE_KEY_Count][32]	=
 {
@@ -107,6 +111,7 @@ const SG_Char	gSG_Geom_Type_Choice_Key_Name[GEOM_TYPE_KEY_Count][32]	=
 	SG_T("wkbGeometryCollection25D")
 };
 
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -122,8 +127,13 @@ public:
 
 	int							Get_Count			(void)						const;
 
+#ifdef USE_GDAL_V2
+	class GDALDriver *			Get_Driver			(const CSG_String &Name)	const;
+	class GDALDriver *			Get_Driver			(int Index)					const;
+#else
 	class OGRSFDriver *			Get_Driver			(const CSG_String &Name)	const;
 	class OGRSFDriver *			Get_Driver			(int Index)					const;
+#endif
 
 	CSG_String					Get_Name			(int Index)					const;
 	CSG_String					Get_Description		(int Index)					const;
@@ -141,7 +151,11 @@ public:
 
 private:
 
+#ifdef USE_GDAL_V2
+	class GDALDriverManager		*m_pDrivers;
+#else
 	class OGRSFDriverRegistrar	*m_pDrivers;
+#endif
 
 };
 
@@ -178,7 +192,11 @@ public:
 
 private:
 
+#ifdef USE_GDAL_V2
+	class GDALDataset			*m_pDataSource;
+#else
 	class OGRDataSource			*m_pDataSource;
+#endif
 
 
 	int							_Get_GeomType_Choice(int iGeomTypeChoice);

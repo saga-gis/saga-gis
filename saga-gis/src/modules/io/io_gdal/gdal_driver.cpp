@@ -832,6 +832,8 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Interpolat
 	{
 		return( Get_Transformation(ppGrid, Interpolation, System, bVerbose) );
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

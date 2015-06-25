@@ -86,12 +86,21 @@ const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef USE_GDAL_V2
+CSG_OGR_Drivers::CSG_OGR_Drivers(void)
+{
+	GDALAllRegister();
+
+	m_pDrivers	= GetGDALDriverManager();
+}
+#else
 CSG_OGR_Drivers::CSG_OGR_Drivers(void)
 {
 	OGRRegisterAll();
 
 	m_pDrivers	= OGRSFDriverRegistrar::GetRegistrar();
 }
+#endif
 
 //---------------------------------------------------------
 CSG_OGR_Drivers::~CSG_OGR_Drivers(void)
@@ -110,13 +119,37 @@ int CSG_OGR_Drivers::Get_Count(void) const
 	return( m_pDrivers->GetDriverCount() );
 }
 
+#ifdef USE_GDAL_V2
+//---------------------------------------------------------
+GDALDriver * CSG_OGR_Drivers::Get_Driver(int Index) const
+{
+	return( m_pDrivers->GetDriver(Index) );
+}
+
+GDALDriver * CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
+{
+	return( m_pDrivers ? m_pDrivers->GetDriverByName(Name) : NULL );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_Drivers::Get_Name(int Index) const
+{
+	return( m_pDrivers->GetDriver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
+{
+	return( m_pDrivers->GetDriver(Index)->GetDescription() );
+}
+
+#else
 //---------------------------------------------------------
 OGRSFDriver * CSG_OGR_Drivers::Get_Driver(int Index) const
 {
 	return( m_pDrivers->GetDriver(Index) );
 }
 
-//---------------------------------------------------------
 OGRSFDriver * CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
 {
 	return( m_pDrivers ? m_pDrivers->GetDriverByName(Name) : NULL );
@@ -161,6 +194,8 @@ CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
 
 	return( s );
 }
+
+#endif
 
 //---------------------------------------------------------
 bool CSG_OGR_Drivers::Can_Read(int Index) const
@@ -330,6 +365,45 @@ CSG_OGR_DataSource::~CSG_OGR_DataSource(void)
 	Destroy();
 }
 
+#ifdef USE_GDAL_V2
+//---------------------------------------------------------
+bool CSG_OGR_DataSource::Create(const CSG_String &File)
+{
+	Destroy();
+
+	m_pDataSource	= (GDALDataset *)GDALOpenEx(File, GDAL_OF_VECTOR, NULL, NULL, NULL);
+
+	return( m_pDataSource != NULL );
+}
+
+bool CSG_OGR_DataSource::Create(const CSG_String &File, const CSG_String &DriverName)
+{
+	GDALDriver	*pDriver;
+
+	Destroy();
+
+	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
+	{
+		m_pDataSource	= pDriver->Create(File, 0, 0, 0, GDT_Unknown, NULL);
+	}
+
+	return( m_pDataSource != NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_OGR_DataSource::Destroy(void)
+{
+	if( m_pDataSource )
+	{
+		GDALClose(m_pDataSource);
+
+		m_pDataSource	= NULL;
+	}
+
+	return( true );
+}
+
+#else
 //---------------------------------------------------------
 bool CSG_OGR_DataSource::Create(const CSG_String &File)
 {
@@ -366,6 +440,8 @@ bool CSG_OGR_DataSource::Destroy(void)
 
 	return( true );
 }
+
+#endif
 
 
 ///////////////////////////////////////////////////////////
