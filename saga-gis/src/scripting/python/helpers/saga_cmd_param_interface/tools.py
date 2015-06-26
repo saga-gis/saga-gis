@@ -29,7 +29,7 @@ tools = [
 ['climate_tools', 3, 'Annual Course of Daily Insolation'],
 ['climate_tools', 4, 'Daily Insolation over Latitude'],
 ['climate_tools', 5, 'Monthly Global by Latitude'],
-['climate_tools', 6, 'PET (after Hargreave)'],
+['climate_tools', 6, 'PET (after Hargreaves, Table)'],
 ['climate_tools', 7, 'Daily to Hourly PET'],
 ['contrib_perego', 0, 'Average With Thereshold 1'],
 ['contrib_perego', 1, 'Average With Thereshold 2'],
@@ -617,5 +617,6 @@ tools = [
 ['sim_rivflow', 1, 'LandFlow Version 1.0 (build 3.5.1b)'],
 ['sim_rivflow', 3, 'RiverGridGeneration'],
 ['sim_rivflow', 4, 'GridCombination'],
-['io_grid', 16, 'Import, Clip and Resample Grids']
+['io_grid', 16, 'Import, Clip and Resample Grids'],
+['climate_tools', 8, 'PET (after Hargreaves, Grid)']
 ]
