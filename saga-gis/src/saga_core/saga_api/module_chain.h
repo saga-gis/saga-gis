@@ -106,6 +106,8 @@ public:
 
 protected:
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
 
 
@@ -113,7 +115,7 @@ private:
 
 	CSG_String					m_Library_Name, m_Menu;
 
-	CSG_MetaData				m_Chain;
+	CSG_MetaData				m_Chain, m_Conditions;
 
 	CSG_Parameters				m_Data;
 
@@ -127,7 +129,10 @@ private:
 	bool						Data_Initialize			(void);
 	bool						Data_Finalize			(void);
 
+	bool						Check_Condition			(const CSG_MetaData &Condition, CSG_Parameters *pData);
+
 	bool						Tool_Run				(const CSG_MetaData &Tool);
+	bool						Tool_Check_Condition	(const CSG_MetaData &Tool);
 	bool						Tool_Get_Parameter		(const CSG_MetaData &Parameter, CSG_Module *pModule, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters);
 	bool						Tool_Initialize			(const CSG_MetaData &Tool, CSG_Module *pModule);
 	bool						Tool_Finalize			(const CSG_MetaData &Tool, CSG_Module *pModule);

@@ -73,7 +73,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_XML_CONTENT(md, id, def)	(md(id) ? md(id)->Get_Content() : CSG_String(def))
+#define GET_XML_CONTENT(md, id, def)		(md(id) ? md(id)->Get_Content() : CSG_String(def))
+
+#define IS_TRUE_STRING(String)				(!String.CmpNoCase("true") || !String.CmpNoCase("1"))
+#define IS_TRUE_PROPERTY(Item, Property)	(Item.Cmp_Property(Property, "true") || Item.Cmp_Property(Property, "1"))
 
 
 ///////////////////////////////////////////////////////////
@@ -104,6 +107,8 @@ void CSG_Module_Chain::Reset(void)
 	Parameters.Del_Parameters();
 
 	m_Chain.Destroy();
+
+	m_Conditions.Destroy();
 
 	m_Menu.Clear();
 }
@@ -157,27 +162,50 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	{
 		const CSG_MetaData	&Parameter	= m_Chain["parameters"][i];
 
-		int			Constraint	= 0;
-		CSG_String	Value, Property, ID	= Parameter.Get_Property("varname");
-
-		if( Parameter.Cmp_Name("input") )
-		{
-			Constraint	= PARAMETER_INPUT;
-		}
-		else if( Parameter.Cmp_Name("output") )
-		{
-			Constraint	= PARAMETER_OUTPUT;
-		}
-		else if( Parameter.Cmp_Name("option") )
-		{
-			Value		= Parameter.Get_Content("value");
-		}
+		CSG_String	ID	= Parameter.Get_Property("varname");
 
 		if( ID.is_Empty() || Parameters(ID) )
 		{
 			continue;
 		}
 
+		//-------------------------------------------------
+		int			Constraint	= 0;
+		CSG_String	Value;
+		bool		bMin = false, bMax = false;
+		double		 Min = 0.0  ,  Max = 0.0;
+
+		if( Parameter.Cmp_Name("input") )
+		{
+			Constraint	= IS_TRUE_PROPERTY(Parameter, "optional") ? PARAMETER_INPUT_OPTIONAL : PARAMETER_INPUT;
+		}
+		else if( Parameter.Cmp_Name("output") )
+		{
+			Constraint	= IS_TRUE_PROPERTY(Parameter, "optional") ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT;
+		}
+		else if( Parameter.Cmp_Name("option") && Parameter("value") )
+		{
+			Value	= Parameter.Get_Content("value");
+
+			bMin	= Parameter["value"].Get_Property("min", Min);
+			bMax	= Parameter["value"].Get_Property("max", Max);
+		}
+
+		//-------------------------------------------------
+		if( Parameter("condition") )
+		{
+			CSG_MetaData	&Conditions	= *m_Conditions.Add_Child(ID);
+
+			for(int j=0; j<Parameter.Get_Children_Count(); j++)	// there might be more than one condition to be checked
+			{
+				if( Parameter[j].Cmp_Name("condition") )
+				{
+					Conditions.Add_Child(Parameter[j]);
+				}
+			}
+		}
+
+		//-------------------------------------------------
 		CSG_String	Name	= Parameter.Get_Content("name"       );
 		CSG_String	Desc	= Parameter.Get_Content("description");
 
@@ -200,23 +228,21 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		case PARAMETER_TYPE_Shapes_List    : Parameters.Add_Shapes_List    (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_TIN_List       : Parameters.Add_TIN_List       (pParent, ID, Name, Desc, Constraint);	break;
 
-		case PARAMETER_TYPE_Bool           : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Bool  ,!Value.CmpNoCase("TRUE"));	break;
-		case PARAMETER_TYPE_Int            : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Int   , Value.asInt   ());	break;
-		case PARAMETER_TYPE_Double         : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Double, Value.asDouble());	break;
-		case PARAMETER_TYPE_Degree         : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Degree, Value.asDouble());	break;
+		case PARAMETER_TYPE_Bool           : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Bool  , IS_TRUE_STRING(Value));	break;
+		case PARAMETER_TYPE_Int            : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Int   , Value.asInt   (), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Double         : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Double, Value.asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Degree         : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Degree, Value.asDouble(), Min, bMin, Max, bMax);	break;
 
 		case PARAMETER_TYPE_String         : Parameters.Add_String         (pParent, ID, Name, Desc, Value, false);	break;
 		case PARAMETER_TYPE_Text           : Parameters.Add_String         (pParent, ID, Name, Desc, Value,  true);	break;
 
 		case PARAMETER_TYPE_FilePath       : Parameters.Add_FilePath       (pParent, ID, Name, Desc, Parameter.Get_Content("filter"), Value,
-												 Parameter.Get_Property("save"     , Property) && Value.CmpNoCase("TRUE"),
-												 Parameter.Get_Property("directory", Property) && Value.CmpNoCase("TRUE"),
-												 Parameter.Get_Property("multiple" , Property) && Value.CmpNoCase("TRUE"));	break;
+												 IS_TRUE_PROPERTY(Parameter, "save"), IS_TRUE_PROPERTY(Parameter, "directory"), IS_TRUE_PROPERTY(Parameter, "multiple" ));	break;
 
 		case PARAMETER_TYPE_Choice         : Parameters.Add_Choice         (pParent, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
-		case PARAMETER_TYPE_Range          : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst (';').asDouble());	break;
+		case PARAMETER_TYPE_Range          : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst (';').asDouble(), Min, bMin, Max, bMax);	break;
 
-		case PARAMETER_TYPE_Table_Field    : Parameters.Add_Table_Field    (pParent, ID, Name, Desc, !Value.CmpNoCase("TRUE"));	break;
+		case PARAMETER_TYPE_Table_Field    : Parameters.Add_Table_Field    (pParent, ID, Name, Desc, (!Value.CmpNoCase("true") || !Value.CmpNoCase("1")));	break;
 		case PARAMETER_TYPE_Table_Fields   : Parameters.Add_Table_Fields   (pParent, ID, Name, Desc);	break;
 
 		case PARAMETER_TYPE_Grid_System    : Parameters.Add_Grid_System    (pParent, ID, Name, Desc);	break;
@@ -227,6 +253,34 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 
 	//-----------------------------------------------------
 	return( is_Okay() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_Module_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	for(int iParameter=0; iParameter<m_Conditions.Get_Children_Count(); iParameter++)
+	{
+		const CSG_MetaData	&Conditions	= m_Conditions[iParameter];
+
+		if( pParameters->Get_Parameter(Conditions.Get_Name()) )
+		{
+			bool	bEnable	= true;
+
+			for(int iCondition=0; bEnable && iCondition<Conditions.Get_Children_Count(); iCondition++)
+			{
+				bEnable	= Check_Condition(Conditions[iCondition], pParameters);
+			}
+
+			pParameters->Get_Parameter(Conditions.Get_Name())->Set_Enabled(bEnable);
+		}
+	}
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -415,6 +469,50 @@ bool CSG_Module_Chain::Data_Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parameters *pData)
+{
+	CSG_String	Type;
+
+	if( !Condition.Cmp_Name("condition") || !Condition.Get_Property("type", Type) )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	if( !Type.CmpNoCase("exists"    ) )	// data object exists
+	{
+		CSG_Parameter	*pParameter	= pData->Get_Parameter(Condition.Get_Content());
+
+		return( pParameter && ((pParameter->is_DataObject() && pParameter->asDataObject()) || (pParameter->is_DataObject_List() && pParameter->asList()->Get_Count())) );
+	}
+
+	if( !Type.CmpNoCase("not_exists") )	// data object does not exist
+	{
+		return( pData->Get_Parameter(Condition.Get_Content()) == NULL );
+	}
+
+	//-----------------------------------------------------
+	double	Value;
+
+	CSG_Parameter	*pOption	= Parameters(Condition.Get_Content());
+
+	if( pOption != NULL && Condition.Get_Property("value", Value) )
+	{
+		if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equals"    ) )	{	if( Value != pOption->asDouble() )	{	return( false );	}	}
+		else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equals") )	{	if( Value == pOption->asDouble() )	{	return( false );	}	}
+		else if( !Type.CmpNoCase("<") || !Type.CmpNoCase("less"      ) )	{	if( Value >= pOption->asDouble() )	{	return( false );	}	}
+		else if( !Type.CmpNoCase(">") || !Type.CmpNoCase("greater"   ) )	{	if( Value <= pOption->asDouble() )	{	return( false );	}	}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 {
 	//-----------------------------------------------------
@@ -423,6 +521,12 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 		Error_Set(_TL("invalid tool definition"));
 
 		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !Tool_Check_Condition(Tool) )	// conditional execution
+	{
+		return( true );
 	}
 
 	//-----------------------------------------------------
@@ -467,9 +571,33 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Module_Chain::Tool_Check_Condition(const CSG_MetaData &Tool)
+{
+	if( Tool("condition") )
+	{
+		for(int i=0; i<Tool.Get_Children_Count(); i++)	// there might be more than one condition to be checked
+		{
+			if( !Check_Condition(Tool[i], &m_Data) )
+			{
+				return( false );
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Module_Chain::Tool_Get_Parameter(const CSG_MetaData &Parameter, CSG_Module *pModule, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters)
 {
 	CSG_String	ID	= Parameter.Get_Property("id");
+
+	*ppParameters	= NULL;
 
 	CSG_Parameter	*pParameters	= pModule->Get_Parameters()->Get_Parameter(Parameter.Get_Property("parms"));
 
@@ -501,7 +629,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 	//-----------------------------------------------------
 	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data objects first
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];
+		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("condition") )	{	continue;	}
 
 		CSG_String	ID	= Parameter.Get_Property("id");
 
@@ -571,7 +699,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 	//-----------------------------------------------------
 	for(i=0; i<Tool.Get_Children_Count(); i++)	// now set options
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];
+		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("condition") )	{	continue;	}
 
 		CSG_String	ID	= Parameter.Get_Property("id");
 
