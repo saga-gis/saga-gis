@@ -2,7 +2,7 @@
 <toolchain saga-version="2.2.0">
   <group>toolchains</group>
   <identifier>lczc</identifier>
-  <menu absolute="true">Imagery|Tools</menu>
+  <menu absolute="true">Imagery|Classification</menu>
   <name>Local Climate Zone Classification</name>
   <author>B. Bechtel, O. Conrad (c) 2015</author>
   <description>
@@ -33,13 +33,13 @@
     </option>
     <option varname="FILE_LCZC" type="file" save="true">
       <name>Save LCZC as...</name>
-	  <value>lczc.kml</value>
+	  <value></value>
       <filter>KML Files|*.kml|All Files|*.*</filter>
     </option>
     <option varname="FILE_LCZC_FILTERED" type="file" save="true">
 	  <condition type="exists">LCZC_FILTERED</condition>
       <name>Save LCZC (Filtered) as...</name>
-	  <value>lczc_filtered.kml</value>
+	  <value></value>
       <filter>KML Files|*.kml|All Files|*.*</filter>
     </option>
     <input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
@@ -90,7 +90,12 @@
       <option id="FILENAME" varname="true">FILE_CLASS_DEF</option>
       <output id="TABLE">CLASS_DEF</output>
     </tool>
+    <tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+      <input id="GRID">LCZC</input>
+      <input id="LUT">CLASS_DEF</input>
+    </tool>
     <tool library="io_grid_image" module="2" name="Export Grid to KML">
+	  <condition type="not_equal" value="">FILE_LCZC</condition>
       <input  id="GRID">LCZC</input>
       <input  id="LUT">CLASS_DEF</input>
       <option id="FILE" varname="true">FILE_LCZC</option>
@@ -103,7 +108,13 @@
       <option id="RADIUS" varname="true">FILTER_RADIUS</option>
       <output id="RESULT">LCZC_FILTERED</output>
     </tool>
+    <tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+	  <condition type="exists">LCZC_FILTERED</condition>
+      <input id="GRID">LCZC_FILTERED</input>
+      <input id="LUT">CLASS_DEF</input>
+    </tool>
     <tool library="io_grid_image" module="2" name="Export Grid to KML">
+	  <condition type="not_equal" value="">FILE_LCZC_FILTERED</condition>
 	  <condition type="exists">LCZC_FILTERED</condition>
       <input  id="GRID">LCZC_FILTERED</input>
       <input  id="LUT">CLASS_DEF</input>

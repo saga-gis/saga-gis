@@ -299,6 +299,7 @@
     <ClCompile Include="Grid_Color_Rotate.cpp" />
     <ClCompile Include="Grid_Color_Triangle.cpp" />
     <ClCompile Include="Grid_Histogram_Surface.cpp" />
+    <ClCompile Include="Grid_LUT_Assign.cpp" />
     <ClCompile Include="Grid_RGB_Composite.cpp" />
     <ClCompile Include="Grid_Terrain_Map.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
@@ -326,6 +327,7 @@
     <ClInclude Include="Grid_Color_Rotate.h" />
     <ClInclude Include="Grid_Color_Triangle.h" />
     <ClInclude Include="Grid_Histogram_Surface.h" />
+    <ClInclude Include="Grid_LUT_Assign.h" />
     <ClInclude Include="Grid_RGB_Composite.h" />
     <ClInclude Include="Grid_Terrain_Map.h" />
     <ClInclude Include="MLB_Interface.h" />

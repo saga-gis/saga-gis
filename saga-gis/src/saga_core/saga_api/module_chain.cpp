@@ -479,6 +479,12 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 	}
 
 	//-----------------------------------------------------
+	if( !Type.CmpNoCase("has_gui"   ) )	// executed from saga_gui ? (tool might offer different parameters if called from saga_cmd, python etc.)
+	{
+		return( IS_TRUE_STRING(Condition.Get_Content()) ? SG_UI_Get_Window_Main() != NULL : SG_UI_Get_Window_Main() == NULL );
+	}
+
+	//-----------------------------------------------------
 	if( !Type.CmpNoCase("exists"    ) )	// data object exists
 	{
 		CSG_Parameter	*pParameter	= pData->Get_Parameter(Condition.Get_Content());
@@ -492,16 +498,78 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 	}
 
 	//-----------------------------------------------------
-	double	Value;
-
 	CSG_Parameter	*pOption	= Parameters(Condition.Get_Content());
 
-	if( pOption != NULL && Condition.Get_Property("value", Value) )
+	if( pOption == NULL )
 	{
-		if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equals"    ) )	{	if( Value != pOption->asDouble() )	{	return( false );	}	}
-		else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equals") )	{	if( Value == pOption->asDouble() )	{	return( false );	}	}
-		else if( !Type.CmpNoCase("<") || !Type.CmpNoCase("less"      ) )	{	if( Value >= pOption->asDouble() )	{	return( false );	}	}
-		else if( !Type.CmpNoCase(">") || !Type.CmpNoCase("greater"   ) )	{	if( Value <= pOption->asDouble() )	{	return( false );	}	}
+		return( true );
+	}
+
+	switch( pOption->Get_Type() )
+	{
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_Bool    :
+		{
+			CSG_String	Value;
+
+			if( Condition.Get_Property("value", Value) )
+			{
+				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	if( IS_TRUE_STRING(Value) == pOption->asBool() )	{	return( false );	}	}
+				else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equal") )	{	if( IS_TRUE_STRING(Value) != pOption->asBool() )	{	return( false );	}	}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_Int     :
+	case PARAMETER_TYPE_Color   :
+	case PARAMETER_TYPE_Choice  :
+		{
+			int		Value;
+
+			if( Condition.Get_Property("value", Value) )
+			{
+				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	if( Value != pOption->asInt() )	{	return( false );	}	}
+				else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equal") )	{	if( Value == pOption->asInt() )	{	return( false );	}	}
+				else if( !Type.CmpNoCase("<") || !Type.CmpNoCase("less"     ) )	{	if( Value >= pOption->asInt() )	{	return( false );	}	}
+				else if( !Type.CmpNoCase(">") || !Type.CmpNoCase("greater"  ) )	{	if( Value <= pOption->asInt() )	{	return( false );	}	}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_Double  :
+	case PARAMETER_TYPE_Degree  :
+		{
+			double	Value;
+
+			if( Condition.Get_Property("value", Value) )
+			{
+				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	if( Value != pOption->asDouble() )	{	return( false );	}	}
+				else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equal") )	{	if( Value == pOption->asDouble() )	{	return( false );	}	}
+				else if( !Type.CmpNoCase("<") || !Type.CmpNoCase("less"     ) )	{	if( Value >= pOption->asDouble() )	{	return( false );	}	}
+				else if( !Type.CmpNoCase(">") || !Type.CmpNoCase("greater"  ) )	{	if( Value <= pOption->asDouble() )	{	return( false );	}	}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_String  :
+	case PARAMETER_TYPE_Text    :
+	case PARAMETER_TYPE_FilePath:
+		{
+			CSG_String	Value;
+
+			Condition.Get_Property("value", Value);	// empty string would return false !!
+
+			{
+				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	if( Value.Cmp(pOption->asString()) != 0 )	{	return( false );	}	}
+				else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equal") )	{	if( Value.Cmp(pOption->asString()) == 0 )	{	return( false );	}	}
+				else if( !Type.CmpNoCase("<") || !Type.CmpNoCase("less"     ) )	{	if( Value.Cmp(pOption->asString()) >= 0 )	{	return( false );	}	}
+				else if( !Type.CmpNoCase(">") || !Type.CmpNoCase("greater"  ) )	{	if( Value.Cmp(pOption->asString()) <= 0 )	{	return( false );	}	}
+			}
+		}
+		break;
 	}
 
 	return( true );

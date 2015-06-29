@@ -20,6 +20,7 @@ Grid_Color_Triangle.cpp\
 Grid_Color_Rotate.cpp\
 Grid_Colors_Fit.cpp\
 Grid_Histogram_Surface.cpp\
+Grid_LUT_Assign.cpp\
 Grid_RGB_Composite.cpp\
 Grid_Terrain_Map.cpp\
 MLB_Interface.cpp\
@@ -30,6 +31,7 @@ Grid_Color_Rotate.h\
 Grid_Color_Triangle.h\
 Grid_Colors_Fit.h\
 Grid_Histogram_Surface.h\
+Grid_LUT_Assign.h\
 Grid_RGB_Composite.h\
 Grid_Terrain_Map.h\
 MLB_Interface.h
