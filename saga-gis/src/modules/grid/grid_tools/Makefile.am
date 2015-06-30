@@ -35,6 +35,7 @@ Grid_Proximity.cpp\
 Grid_Resample.cpp\
 Grid_Shrink_Expand.cpp\
 Grid_SortRaster.cpp\
+Grid_Support_Tool_Chains.cpp\
 Grid_ThresholdBuffer.cpp\
 Grid_Tiling.cpp\
 Grid_Transpose.cpp\
@@ -67,6 +68,7 @@ Grid_Proximity.h\
 Grid_Resample.h\
 Grid_Shrink_Expand.h\
 Grid_SortRaster.h\
+Grid_Support_Tool_Chains.h\
 Grid_ThresholdBuffer.h\
 Grid_Tiling.h\
 Grid_Transpose.h\

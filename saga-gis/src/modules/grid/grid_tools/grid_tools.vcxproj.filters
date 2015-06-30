@@ -110,6 +110,9 @@
     <ClCompile Include="Grid_Transpose.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grid_Support_Tool_Chains.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -257,6 +260,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Grid_Transpose.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid_Support_Tool_Chains.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

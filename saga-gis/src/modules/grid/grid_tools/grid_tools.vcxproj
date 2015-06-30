@@ -315,6 +315,7 @@
     <ClCompile Include="Grid_Resample.cpp" />
     <ClCompile Include="Grid_Shrink_Expand.cpp" />
     <ClCompile Include="Grid_SortRaster.cpp" />
+    <ClCompile Include="Grid_Support_Tool_Chains.cpp" />
     <ClCompile Include="Grid_ThresholdBuffer.cpp" />
     <ClCompile Include="Grid_Tiling.cpp" />
     <ClCompile Include="Grid_Transpose.cpp" />
@@ -364,6 +365,7 @@
     <ClInclude Include="Grid_Resample.h" />
     <ClInclude Include="Grid_Shrink_Expand.h" />
     <ClInclude Include="Grid_SortRaster.h" />
+    <ClInclude Include="Grid_Support_Tool_Chains.h" />
     <ClInclude Include="Grid_ThresholdBuffer.h" />
     <ClInclude Include="Grid_Tiling.h" />
     <ClInclude Include="Grid_Transpose.h" />

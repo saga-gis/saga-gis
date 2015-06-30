@@ -64,13 +64,11 @@
       <option id="MATCH">TRUE</option>
       <output id="MERGED">TRAINING_MERGED</output>
     </tool>
-    <tool library="grid_calculus" module="1" name="Grid Calculator">
-      <input  id="GRIDS">FEATURES</input>
-      <option id="INTERPOLATION">0</option>
-      <option id="FORMULA">g1</option>
-      <option id="TYPE">1</option>
-      <output id="RESULT">FEATURE</output>
-    </tool>
+	<tool library="grid_tools" module="32" name="Select Grid from List">
+	  <input id="GRIDS">FEATURES</input>
+	  <output id="GRID">FEATURE</output>
+	  <option id="INDEX">0</option>
+	</tool>
     <tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
       <input  id="PICK" parms="CRS_GRID">FEATURE</input>
       <input  id="SOURCE">TRAINING_MERGED</input>

@@ -137,6 +137,8 @@ CSG_String Get_Info(int i)
 
 #include "Grid_Transpose.h"
 
+#include "Grid_Support_Tool_Chains.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -177,6 +179,7 @@ CSG_Module *		Create_Module(int i)
 	case 29: 	return( new CGrid_Gaps_Resampling );
 	case 30: 	return( new CGrid_Transpose );
 	case 31: 	return( new CGrid_Clip );
+	case 32: 	return( new CSelect_Grid_From_List );
 
 	case 40:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
