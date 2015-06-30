@@ -415,20 +415,104 @@ bool CWKSP_Module::Execute(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, 
 //---------------------------------------------------------
 void CWKSP_Module::_Save_to_Clipboard(void)
 {
+	//-----------------------------------------------------
+	wxArrayString	Choices;
+
+	Choices.Add(_TL("Tool Chain"));
+	Choices.Add(_TL("Tool Chain with Header"));
+	Choices.Add(_TL("Command Line"));
+	Choices.Add(_TL("Command Line with Header"));
+	Choices.Add(_TL("Python"));
+	Choices.Add(_TL("Python with Header"));
+
+	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Open Project"), _TL("Search for Projects"), Choices);
+
+	if( dlg.ShowModal() == wxID_OK )
+	{
+		CSG_String	s;
+
+		switch( dlg.GetSelection() )
+		{
+		case 0:	s	= _Get_XML   (false);	break;	// Tool Chain
+		case 1:	s	= _Get_XML   ( true);	break;	// Tool Chain with Header
+		case 2:	s	= _Get_CMD   (false);	break;	// Command Line
+		case 3:	s	= _Get_CMD   ( true);	break;	// Command Line with Header
+		case 4:	s	= _Get_Python(false);	break;	// Python
+		case 5:	s	= _Get_Python( true);	break;	// Python with Header
+		}
+
+		if( !s.is_Empty() && wxTheClipboard->Open() )
+		{
+			wxTheClipboard->SetData(new wxTextDataObject(s.c_str()));
+			wxTheClipboard->Close();
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Module::_Save_to_Script(void)
+{
+	wxString	FileName;
+
+	if( DLG_Save(FileName, _TL("Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Bash Script (*.sh)|*.sh|Python Script (*.py)|*.py|SAGA Tool Chain (*.xml)|*.xml")) )
+	{
+		CSG_String	Script;
+
+		if( SG_File_Cmp_Extension(FileName, SG_T("xml")) )
+		{
+			Script	= _Get_XML(true);
+		}
+
+		if( SG_File_Cmp_Extension(FileName, SG_T("bat")) )
+		{
+			Script	= _Get_CMD(true, 0);
+		}
+
+		if( SG_File_Cmp_Extension(FileName, SG_T("sh")) )
+		{
+			Script	= _Get_CMD(true, 1);
+		}
+
+		if( SG_File_Cmp_Extension(FileName, SG_T("py")) )
+		{
+			Script	= _Get_Python(true);
+		}
+
+		//-------------------------------------------------
+		CSG_File	File;
+
+		if( !Script.is_Empty() && File.Open(&FileName, SG_FILE_W, false) )
+		{
+			File.Write(Script);
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CWKSP_Module::_Get_XML(bool bHeader)
+{
 	CSG_MetaData	Tool;	Tool.Set_Name("tool");
 
 	Tool.Add_Property("library", m_pModule->Get_Library());
 	Tool.Add_Property("module" , m_pModule->Get_ID     ());
 	Tool.Add_Property("name"   , m_pModule->Get_Name   ());
 
-	_Save_to_Clipboard(Tool, m_pModule->Get_Parameters());
+	_Get_XML(Tool, m_pModule->Get_Parameters());
 
 	for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
 	{
-		_Save_to_Clipboard(Tool, m_pModule->Get_Parameters());
+		_Get_XML(Tool, m_pModule->Get_Parameters());
 	}
 
-	if( wxTheClipboard->Open() )
+	if( !bHeader )
+	{
+		return( Tool.asText(1) );
+	}
+	else
 	{
 		CSG_MetaData	Tools;	Tools.Set_Name("toolchain");
 
@@ -443,15 +527,205 @@ void CWKSP_Module::_Save_to_Clipboard(void)
 		Tools.Add_Child("parameters");
 		Tools.Add_Child("tools")->Add_Child(Tool);
 
-		CSG_String	s(Tools.asText(1));
-
-		wxTheClipboard->SetData(new wxTextDataObject(s.c_str()));
-		wxTheClipboard->Close();
+		return( Tools.asText(1) );
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Module::_Save_to_Clipboard(CSG_MetaData &Tool, CSG_Parameters *pParameters)
+CSG_String CWKSP_Module::_Get_CMD(bool bHeader, int Type)
+{
+	CSG_String	s;
+
+	if( Type != 0 && Type != 1 )	// default type ??
+	{
+#ifdef _SAGA_MSW
+		Type	= 0;
+#else
+		Type	= 1;
+#endif
+	}
+
+	//-----------------------------------------------------
+	if( Type == 0 )	// DOS/Windows Batch Script
+	{
+		if( bHeader )
+		{
+			s	+= "@ECHO OFF\n\n";
+			s	+= "REM SET SAGA_MLB=C:\\SAGA\\Modules\n";
+			s	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
+			s	+= "REM Tool: ";
+			s	+= m_pModule->Get_Name() + "\n\n";
+		}
+
+		s	+= "saga_cmd ";
+		s	+= m_pModule->Get_Library() + " " + m_pModule->Get_ID();
+
+		_Get_CMD(s, m_pModule->Get_Parameters());
+
+		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+		{
+			_Get_CMD(s, m_pModule->Get_Parameters(i));
+		}
+
+		if( bHeader )
+		{
+			s	+= "\n\nPAUSE\n";
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Type == 1 )	// Bash Shell Script
+	{
+		if( bHeader )
+		{
+			s	+= "#!/bin/bash\n\n";
+			s	+= "# export SAGA_MLB=/usr/lib/saga\n\n";
+			s	+= "# tool: ";
+			s	+= m_pModule->Get_Name() + "\n\n";
+		}
+
+		s	+= "saga_cmd ";
+		s	+= m_pModule->Get_Library() + " " + m_pModule->Get_ID();
+
+		_Get_CMD(s, m_pModule->Get_Parameters());
+
+		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+		{
+			_Get_CMD(s, m_pModule->Get_Parameters(i));
+		}
+	}
+
+	return( s );
+}
+
+//---------------------------------------------------------
+CSG_String CWKSP_Module::_Get_Python(bool bHeader)
+{
+	CSG_String	s;
+
+	//-----------------------------------------------------
+	if( bHeader )
+	{
+		#ifndef _SAGA_MSW
+		s	+= "#! /usr/bin/env python\n";
+		#endif
+		s	+= "# Python script template for SAGA tool execution (automatically created, experimental)\n\n";
+		s	+= "import saga_api, sys, os\n";
+		s	+= "\n";
+		s	+= "##########################################\n";
+	}
+
+	//-----------------------------------------------------
+	s	+= "def Call_SAGA_Module(fDEM):            # pass your input file(s) here\n";
+	s	+= "\n";
+	s	+= "    # ------------------------------------\n";
+	s	+= "    # initialize input dataset(s)\n";
+	s	+= "    dem    = saga_api.SG_Get_Data_Manager().Add_Grid(unicode(fDEM))\n";
+	s	+= "    if dem == None or dem.is_Valid() == 0:\n";
+	s	+= "        print 'ERROR: loading grid [' + fDEM + ']'\n";
+	s	+= "        return 0\n";
+	s	+= "\n";
+	s	+= "    # ------------------------------------\n";
+	s	+= "    # initialize output dataset(s)\n";
+	s	+= "    outgrid = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())\n";
+	s	+= "\n";
+	s	+= "    # ------------------------------------\n";
+	s	+= "    # call module: ";
+	s	+= m_pModule->Get_Name() + "\n";
+	s	+= "    Module = saga_api.SG_Get_Module_Library_Manager().Get_Module('";
+	s	+= m_pModule->Get_Library() + "','" + m_pModule->Get_ID() + "')\n";
+
+	if( m_pModule->Get_Type() == MODULE_TYPE_Grid )
+	{
+		s	+= "    Module.Get_Parameters().Get_Grid_System().Assign(dem.Get_System())\n";
+	}
+
+	s	+= "\n";
+	s	+= "    Parms = Module.Get_Parameters() # default parameter list\n";
+
+	//-------------------------------------------------
+	_Get_Python(s, m_pModule->Get_Parameters());
+
+	for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+	{
+		s	+= "\n";
+		s	+= CSG_String::Format("    Parms = Module.Get_Parameters(%d) # additional parameter list\n", i);
+
+		_Get_Python(s, m_pModule->Get_Parameters(i));
+	}
+
+	//-------------------------------------------------
+	s	+= "\n";
+	s	+= "    if Module.Execute() == 0:\n";
+	s	+= "        print 'Module execution failed!'\n";
+	s	+= "        return 0\n";
+	s	+= "\n";
+	s	+= "    print\n";
+	s	+= "    print 'The module has been executed.'\n";
+	s	+= "    print 'Now you would like to save your output datasets, please edit the script to do so.'\n";
+	s	+= "    return 0                           # remove this line once you have edited the script\n";
+	s	+= "\n";
+	s	+= "    # ------------------------------------\n";
+	s	+= "    # save results\n";
+	s	+= "    path   = os.path.split(fDEM)[0]\n";
+	s	+= "    if path == '':\n";
+	s	+= "        path = './'\n";
+	s	+= "    outgrid.Save(saga_api.CSG_String(path + '/outgrid'))\n";
+	s	+= "\n";
+	s	+= "    print\n";
+	s	+= "    print 'Module successfully executed!'\n";
+	s	+= "    return 1\n";
+	s	+= "\n";
+
+	//-----------------------------------------------------
+	if( bHeader )
+	{
+		s	+= "##########################################\n";
+		s	+= "if __name__ == '__main__':\n";
+		s	+= "    print 'Python - Version ' + sys.version\n";
+		s	+= "    print saga_api.SAGA_API_Get_Version()\n";
+		s	+= "    print\n";
+		s	+= "    print 'Usage: %s <in: filename>'\n";
+		s	+= "    print\n";
+		s	+= "    print 'This is a simple template, please edit the script and add the necessary input and output file(s)!'\n";
+		s	+= "    print 'We will exit the script for now.'\n";
+		s	+= "    sys.exit()                         # remove this line once you have edited the script\n";
+		s	+= "    # This might look like this:\n";
+		s	+= "    # fDEM    = sys.argv[1]\n";
+		s	+= "    # if os.path.split(fDEM)[0] == '':\n";
+		s	+= "    #    fDEM    = './' + fDEM\n";
+		s	+= "    fDEM = './../test_data/test.sgrd'  # remove this line once you have edited the script\n";
+		s	+= "\n\n";
+		s	+= "    saga_api.SG_UI_Msg_Lock(1)\n";
+		s	+= "    if os.name == 'nt':    # Windows\n";
+		s	+= "        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA'] + '/bin/saga_vc_Win32/dll'\n";
+		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules', 0)\n";
+		s	+= "    else:                  # Linux\n";
+		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)\n";
+		s	+= "    saga_api.SG_UI_Msg_Lock(0)\n";
+		s	+= "\n";
+		s	+= "    Call_SAGA_Module(fDEM)             # pass your input file(s) here\n";
+	//	s	+= "    else:\n";
+	//	s	+= "        in__grid    = saga_api.SG_Create_Grid(saga_api.CSG_String(sys.argv[1]))\n";
+	//	s	+= "        out_grid    = saga_api.SG_Create_Grid(grid_in.Get_System())\n";
+	//	s	+= "        in__shapes  = saga_api.SG_Create_Shapes(saga_api.CSG_String(sys.argv[3]))\n";
+	//	s	+= "        out_shapes  = saga_api.SG_Create_Shapes()\n";
+	//	s	+= "\n";
+	//	s	+= "        if Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes) != 0:\n";
+	//	s	+= "            grid_out  .Save(saga_api.CSG_String(sys.argv[2]))\n";
+	//	s	+= "            shapes_out.Save(saga_api.CSG_String(sys.argv[4]))\n";
+	}
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Module::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
@@ -467,7 +741,7 @@ void CWKSP_Module::_Save_to_Clipboard(CSG_MetaData &Tool, CSG_Parameters *pParam
 		switch( p->Get_Type() )
 		{
 		case PARAMETER_TYPE_Parameters  :
-			_Save_to_Clipboard(Tool, p->asParameters());
+			_Get_XML(Tool, p->asParameters());
 			break;
 
 		case PARAMETER_TYPE_Bool        :
@@ -516,179 +790,6 @@ void CWKSP_Module::_Save_to_Clipboard(CSG_MetaData &Tool, CSG_Parameters *pParam
 	}
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Module::_Save_to_Script(void)
-{
-	wxString	FileName;
-
-	if( !DLG_Save(FileName, _TL("Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Bash Script (*.sh)|*.sh|Python Script (*.py)|*.py")) )
-	{
-		return;
-	}
-
-	CSG_String	s;
-
-	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(FileName, SG_T("bat")) )
-	{
-		s	+= "@ECHO OFF\n\n";
-		s	+= "REM SET SAGA_MLB=C:\\SAGA\\Modules\n";
-		s	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
-		s	+= "REM Tool: ";
-		s	+= m_pModule->Get_Name() + "\n\n";
-		s	+= "saga_cmd ";
-		s	+= m_pModule->Get_Library() + " " + m_pModule->Get_ID() + "\n";
-
-		_Save_to_Script_CMD(s, m_pModule->Get_Parameters());
-
-		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
-		{
-			_Save_to_Script_CMD(s, m_pModule->Get_Parameters(i));
-		}
-
-		s	+= "\n\nPAUSE\n";
-	}
-
-	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(FileName, SG_T("sh")) )
-	{
-		s	+= "#!/bin/bash\n\n";
-		s	+= "# export SAGA_MLB=/usr/lib/saga\n\n";
-		s	+= "# tool: ";
-		s	+= m_pModule->Get_Name() + "\n\n";
-		s	+= "saga_cmd ";
-		s	+= m_pModule->Get_Library() + " " + m_pModule->Get_ID() + "\n";
-
-		_Save_to_Script_CMD(s, m_pModule->Get_Parameters());
-
-		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
-		{
-			_Save_to_Script_CMD(s, m_pModule->Get_Parameters(i));
-		}
-	}
-
-	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(FileName, SG_T("py")) )
-	{
-		#ifndef _SAGA_MSW
-		s	+= "#! /usr/bin/env python\n";
-		#endif
-		s	+= "# Python script template for SAGA tool execution (automatically created, experimental)\n\n";
-		s	+= "import saga_api, sys, os\n";
-		s	+= "\n";
-		s	+= "##########################################\n";
-		s	+= "def Call_SAGA_Module(fDEM):            # pass your input file(s) here\n";
-		s	+= "\n";
-		s	+= "    # ------------------------------------\n";
-		s	+= "    # initialize input dataset(s)\n";
-		s	+= "    dem    = saga_api.SG_Get_Data_Manager().Add_Grid(unicode(fDEM))\n";
-		s	+= "    if dem == None or dem.is_Valid() == 0:\n";
-		s	+= "        print 'ERROR: loading grid [' + fDEM + ']'\n";
-		s	+= "        return 0\n";
-		s	+= "\n";
-		s	+= "    # ------------------------------------\n";
-		s	+= "    # initialize output dataset(s)\n";
-		s	+= "    outgrid = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())\n";
-		s	+= "\n";
-		s	+= "    # ------------------------------------\n";
-		s	+= "    # call module: ";
-		s	+= m_pModule->Get_Name() + "\n";
-		s	+= "    Module = saga_api.SG_Get_Module_Library_Manager().Get_Module('";
-		s	+= m_pModule->Get_Library() + "','" + m_pModule->Get_ID() + "')\n";
-
-		if( m_pModule->Get_Type() == MODULE_TYPE_Grid )
-		{
-			s	+= "    Module.Get_Parameters().Get_Grid_System().Assign(dem.Get_System())\n";
-		}
-
-		s	+= "\n";
-		s	+= "    Parms = Module.Get_Parameters() # default parameter list\n";
-
-		//-------------------------------------------------
-		_Save_to_Script_Python(s, m_pModule->Get_Parameters());
-
-		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
-		{
-			s	+= "\n";
-			s	+= CSG_String::Format("    Parms = Module.Get_Parameters(%d) # additional parameter list\n", i);
-
-			_Save_to_Script_Python(s, m_pModule->Get_Parameters(i));
-		}
-
-		//-------------------------------------------------
-		s	+= "\n";
-		s	+= "    if Module.Execute() == 0:\n";
-		s	+= "        print 'Module execution failed!'\n";
-		s	+= "        return 0\n";
-		s	+= "\n";
-		s	+= "    print\n";
-		s	+= "    print 'The module has been executed.'\n";
-		s	+= "    print 'Now you would like to save your output datasets, please edit the script to do so.'\n";
-		s	+= "    return 0                           # remove this line once you have edited the script\n";
-		s	+= "\n";
-		s	+= "    # ------------------------------------\n";
-		s	+= "    # save results\n";
-		s	+= "    path   = os.path.split(fDEM)[0]\n";
-		s	+= "    if path == '':\n";
-		s	+= "        path = './'\n";
-		s	+= "    outgrid.Save(saga_api.CSG_String(path + '/outgrid'))\n";
-		s	+= "\n";
-		s	+= "    print\n";
-		s	+= "    print 'Module successfully executed!'\n";
-		s	+= "    return 1\n";
-		s	+= "\n";
-		s	+= "##########################################\n";
-		s	+= "if __name__ == '__main__':\n";
-		s	+= "    print 'Python - Version ' + sys.version\n";
-		s	+= "    print saga_api.SAGA_API_Get_Version()\n";
-		s	+= "    print\n";
-		s	+= CSG_String::Format("    print 'Usage: %s <in: filename>'\n", FileName.wc_str());
-		s	+= "    print\n";
-		s	+= "    print 'This is a simple template, please edit the script and add the necessary input and output file(s)!'\n";
-		s	+= "    print 'We will exit the script for now.'\n";
-		s	+= "    sys.exit()                         # remove this line once you have edited the script\n";
-		s	+= "    # This might look like this:\n";
-		s	+= "    # fDEM    = sys.argv[1]\n";
-		s	+= "    # if os.path.split(fDEM)[0] == '':\n";
-		s	+= "    #    fDEM    = './' + fDEM\n";
-		s	+= "    fDEM = './../test_data/test.sgrd'  # remove this line once you have edited the script\n";
-		s	+= "\n\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(1)\n";
-		s	+= "    if os.name == 'nt':    # Windows\n";
-		s	+= "        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA'] + '/bin/saga_vc_Win32/dll'\n";
-		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules', 0)\n";
-		s	+= "    else:                  # Linux\n";
-		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(0)\n";
-		s	+= "\n";
-		s	+= "    Call_SAGA_Module(fDEM)             # pass your input file(s) here\n";
-	//	s	+= "    else:\n";
-	//	s	+= "        in__grid    = saga_api.SG_Create_Grid(saga_api.CSG_String(sys.argv[1]))\n";
-	//	s	+= "        out_grid    = saga_api.SG_Create_Grid(grid_in.Get_System())\n";
-	//	s	+= "        in__shapes  = saga_api.SG_Create_Shapes(saga_api.CSG_String(sys.argv[3]))\n";
-	//	s	+= "        out_shapes  = saga_api.SG_Create_Shapes()\n";
-	//	s	+= "\n";
-	//	s	+= "        if Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes) != 0:\n";
-	//	s	+= "            grid_out  .Save(saga_api.CSG_String(sys.argv[2]))\n";
-	//	s	+= "            shapes_out.Save(saga_api.CSG_String(sys.argv[4]))\n";
-	}
-
-	//-----------------------------------------------------
-	CSG_File	File;
-
-	if( File.Open(&FileName, SG_FILE_W, false) && s.Length() > 0 )
-	{
-		File.Write(s);
-	}
-}
-
 //---------------------------------------------------------
 #include "wksp_data_manager.h"
 
@@ -699,7 +800,7 @@ void CWKSP_Module::_Save_to_Script(void)
 #define GET_ID2(p, s)	CSG_String::Format(SG_T("%s_%s"), GET_ID1(p), s).c_str()
 
 //---------------------------------------------------------
-void CWKSP_Module::_Save_to_Script_CMD(CSG_String &Command, CSG_Parameters *pParameters)
+void CWKSP_Module::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
@@ -802,7 +903,7 @@ void CWKSP_Module::_Save_to_Script_CMD(CSG_String &Command, CSG_Parameters *pPar
 }
 
 //---------------------------------------------------------
-void CWKSP_Module::_Save_to_Script_Python(CSG_String &Command, CSG_Parameters *pParameters)
+void CWKSP_Module::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
