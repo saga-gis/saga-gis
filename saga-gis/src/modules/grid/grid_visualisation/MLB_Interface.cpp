@@ -106,7 +106,7 @@ CSG_String Get_Info(int i)
 #include "Grid_Histogram_Surface.h"
 #include "Grid_Aspect_Slope_Map.h"
 #include "Grid_Terrain_Map.h"
-#include "grid_lut_assign.h"
+#include "Grid_LUT_Assign.h"
 
 
 //---------------------------------------------------------
