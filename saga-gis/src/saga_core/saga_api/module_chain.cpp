@@ -560,7 +560,7 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 		{
 			CSG_String	Value;
 
-			Condition.Get_Property("value", Value);	// empty string would return false !!
+			Condition.Get_Property("value", Value);	// no 'if', bcos empty string would return false !!
 
 			{
 				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	if( Value.Cmp(pOption->asString()) != 0 )	{	return( false );	}	}
@@ -569,6 +569,11 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 				else if( !Type.CmpNoCase(">") || !Type.CmpNoCase("greater"  ) )	{	if( Value.Cmp(pOption->asString()) <= 0 )	{	return( false );	}	}
 			}
 		}
+		break;
+
+	//-----------------------------------------------------
+	default:
+		// nop
 		break;
 	}
 
