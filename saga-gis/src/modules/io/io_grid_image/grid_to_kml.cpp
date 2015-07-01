@@ -59,6 +59,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/wfstream.h>
+#include <wx/zipstrm.h>
+
+//---------------------------------------------------------
 #include "grid_to_kml.h"
 
 
@@ -95,7 +99,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("Image File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
 			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
 			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
@@ -104,12 +108,22 @@ CGrid_to_KML::CGrid_to_KML(void)
 		), NULL, true
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "OUTPUT"		, _TL("Output"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("kml and image files"),
+			_TL("kmz, kml and image files"),
+			_TL("kmz file")
+		), 2
+	);
+
 	if( SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_Choice(
 			NULL	, "COLOURING"	, _TL("Colouring"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 				_TL("stretch to grid's standard deviation"),
 				_TL("stretch to grid's value range"),
 				_TL("stretch to specified value range"),
@@ -129,7 +143,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		Parameters.Add_Choice(
 			NULL	, "COLOURING"	, _TL("Colouring"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			CSG_String::Format("%s|%s|%s|%s|%s|",
 				_TL("stretch to grid's standard deviation"),
 				_TL("stretch to grid's value range"),
 				_TL("stretch to specified value range"),
@@ -141,7 +155,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		Parameters.Add_Choice(
 			NULL	, "COL_PALETTE"	, _TL("Color Palette"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 				_TL("DEFAULT"),			_TL("DEFAULT_BRIGHT"),	_TL("BLACK_WHITE"),		_TL("BLACK_RED"),
 				_TL("BLACK_GREEN"),		_TL("BLACK_BLUE"),		_TL("WHITE_RED"),		_TL("WHITE_GREEN"),
 				_TL("WHITE_BLUE"),		_TL("YELLOW_RED"),		_TL("YELLOW_GREEN"),	_TL("YELLOW_BLUE"),
@@ -202,8 +216,6 @@ CGrid_to_KML::CGrid_to_KML(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -235,8 +247,6 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -245,11 +255,10 @@ bool CGrid_to_KML::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bDelete	= false;
 
-	CSG_Parameters	P;
 	CSG_Module		*pModule;
 
-	CSG_Grid	Grid , *pGrid	= Parameters("GRID" )->asGrid(), Image;
-	CSG_Grid	Shade, *pShade	= Parameters("SHADE")->asGrid();
+	CSG_Grid	*pGrid	= Parameters("GRID" )->asGrid(), Image;
+	CSG_Grid	*pShade	= Parameters("SHADE")->asGrid();
 
 	//-----------------------------------------------------
 	int	Method	= Parameters("COLOURING")->asInt();
@@ -275,29 +284,25 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 	else if( pGrid->Get_Projection().Get_Type() != SG_PROJ_TYPE_CS_Geographic )
 	{
-		Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
+		Message_Add(CSG_String::Format("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
 
-		if(	(pModule = SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 4)) == NULL )	// Coordinate Transformation (Grid)
+		if(	(pModule = SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 4)) == NULL )	// Coordinate Transformation (Grid)
 		{
 			return( false );
 		}
 
-		P.Assign(pModule->Get_Parameters());
+		pModule->Settings_Push();
 
-		pModule->Set_Manager(NULL);
-
-		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4"    , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
-		&&  pModule->Get_Parameters()->Set_Parameter("INTERPOLATION", Parameters("INTERPOL")->asBool() ? 4 : 0)
-		&&  pModule->Get_Parameters()->Set_Parameter("SOURCE"       , pGrid)
+		if( pModule->Set_Parameter("CRS_PROJ4"    , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+		&&  pModule->Set_Parameter("INTERPOLATION", Parameters("INTERPOL")->asBool() ? 4 : 0)
+		&&  pModule->Set_Parameter("SOURCE"       , pGrid)
 		&&  pModule->Execute() )
 		{
 			bDelete	= true;
 
 			pGrid	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 
-			if( pShade
-			&&  pModule->Get_Parameters()->Set_Parameter("SOURCE", pShade)
-			&&  pModule->Execute() )
+			if( pShade && pModule->Set_Parameter("SOURCE", pShade) && pModule->Execute() )
 			{
 				pShade	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 			}
@@ -307,48 +312,44 @@ bool CGrid_to_KML::On_Execute(void)
 			}
 		}
 
-		pModule->Get_Parameters()->Assign_Values(&P);
-		pModule->Set_Manager(P.Get_Manager());
+		pModule->Settings_Pop();
 
 		if( !bDelete )
 		{
-			Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("re-projection"), _TL("failed")), false);
+			Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("failed")), false);
 
 			return( false );
 		}
 	}
 
 	//-----------------------------------------------------
-	if(	(pModule = SG_Get_Module_Library_Manager().Get_Module(SG_T("io_grid_image"), 0)) == NULL )	// Export Image
+	if(	(pModule = SG_Get_Module_Library_Manager().Get_Module("io_grid_image", 0)) == NULL )	// Export Image
 	{
 		return( false );
 	}
 
-	P.Assign(pModule->Get_Parameters());
-
-	pModule->Set_Manager(NULL);
-
 	bool	bResult	= false;
 
-	if( pModule->Get_Parameters()->Set_Parameter("GRID"        , pGrid)
-	&&  pModule->Get_Parameters()->Set_Parameter("SHADE"       , pShade)
-	&&  pModule->Get_Parameters()->Set_Parameter("FILE_KML"    , true)
-	&&  pModule->Get_Parameters()->Set_Parameter("FILE"        , Parameters("FILE"))
-	&&  pModule->Get_Parameters()->Set_Parameter("COLOURING"   , Method)
-	&&  pModule->Get_Parameters()->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE"))
-	&&  pModule->Get_Parameters()->Set_Parameter("STDDEV"      , Parameters("STDDEV"))
-	&&  pModule->Get_Parameters()->Set_Parameter("STRETCH"     , Parameters("STRETCH"))
-	&&  pModule->Get_Parameters()->Set_Parameter("LUT"         , Parameters("LUT"))
-	&&  (SG_UI_Get_Window_Main() || pModule->Get_Parameters()->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
+	pModule->Settings_Push();
+
+	if( pModule->Set_Parameter("GRID"        , pGrid)
+	&&  pModule->Set_Parameter("SHADE"       , pShade)
+	&&  pModule->Set_Parameter("FILE_KML"    , true)
+	&&  pModule->Set_Parameter("FILE"        , Parameters("FILE"))
+	&&  pModule->Set_Parameter("COLOURING"   , Method)
+	&&  pModule->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE"))
+	&&  pModule->Set_Parameter("STDDEV"      , Parameters("STDDEV"))
+	&&  pModule->Set_Parameter("STRETCH"     , Parameters("STRETCH"))
+	&&  pModule->Set_Parameter("LUT"         , Parameters("LUT"))
+	&&  (SG_UI_Get_Window_Main() || pModule->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
 	&&  pModule->Execute() )
 	{
 		bResult	= true;
 	}
 
-	//-----------------------------------------------------
-	pModule->Get_Parameters()->Assign_Values(&P);
-	pModule->Set_Manager(P.Get_Manager());
+	pModule->Settings_Pop();
 
+	//-----------------------------------------------------
 	if( bDelete )
 	{
 		delete(pGrid);
@@ -359,6 +360,42 @@ bool CGrid_to_KML::On_Execute(void)
 		}
 	}
 
+//---------------------------------------------------------
+#define ZIP_ADD_FILE(zip, fn, del)	{\
+	wxFileInputStream	*pInput;\
+	\
+	if( SG_File_Exists(fn) && (pInput = new wxFileInputStream(fn)) != NULL )\
+	{\
+		zip.PutNextEntry(SG_File_Get_Name(fn, true).c_str());\
+		zip.Write(*pInput);\
+		delete(pInput);\
+		\
+		if( del )\
+		{\
+			SG_File_Delete(fn);\
+		}\
+	}\
+}
+//---------------------------------------------------------
+
+	if( Parameters("OUTPUT")->asInt() != 0 )	// create kmz
+	{
+		CSG_String	Filename	= Parameters("FILE")->asString();
+		
+		SG_File_Set_Extension(Filename, "kmz");
+
+		wxZipOutputStream	Zip(new wxFileOutputStream(Filename.c_str()));
+
+		ZIP_ADD_FILE(Zip, Parameters("FILE")->asString(), Parameters("OUTPUT")->asInt() != 1);	// the image file itself
+
+		SG_File_Set_Extension(Filename, "kml");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
+		SG_File_Set_Extension(Filename, "pgw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
+		SG_File_Set_Extension(Filename, "tfw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
+		SG_File_Set_Extension(Filename, "jgw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
+		SG_File_Set_Extension(Filename, "bpw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
+	}
+
+	//-----------------------------------------------------
 	return( bResult );
 }
 
