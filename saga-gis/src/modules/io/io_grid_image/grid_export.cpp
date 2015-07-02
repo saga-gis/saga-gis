@@ -101,12 +101,12 @@ CGrid_Export::CGrid_Export(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("Image File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff")
+			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
+			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff"),
+			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
+			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx")
 		), NULL, true
 	);
 
@@ -482,6 +482,8 @@ bool CGrid_Export::On_Execute(void)
 	&&  !SG_File_Cmp_Extension(fName, SG_T("tif")) )
 	{
 		fName	= SG_File_Make_Path(NULL, fName, SG_T("png"));
+
+		Parameters("FILE")->Set_Value(fName);
 	}
 
 	//-----------------------------------------------------
@@ -489,7 +491,7 @@ bool CGrid_Export::On_Execute(void)
 
 	if( !SG_UI_Get_Window_Main() )
 	{
-		if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
+		if(      SG_File_Cmp_Extension(fName, SG_T("jpg")) )
 			pImgHandler = new wxJPEGHandler;
 		else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
 			pImgHandler = new wxPCXHandler;

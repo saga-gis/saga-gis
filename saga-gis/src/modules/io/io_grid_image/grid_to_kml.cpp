@@ -61,6 +61,7 @@
 //---------------------------------------------------------
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
+#include <wx/dir.h>
 
 //---------------------------------------------------------
 #include "grid_to_kml.h"
@@ -100,11 +101,11 @@ CGrid_to_KML::CGrid_to_KML(void)
 		NULL	, "FILE"		, _TL("Image File"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
 			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff")
+			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
+			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff"),
+			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
+			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx")
 		), NULL, true
 	);
 
@@ -361,7 +362,7 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 
 //---------------------------------------------------------
-#define ZIP_ADD_FILE(zip, fn, del)	{\
+#define ZIP_ADD_FILE(zip, fn)	{\
 	wxFileInputStream	*pInput;\
 	\
 	if( SG_File_Exists(fn) && (pInput = new wxFileInputStream(fn)) != NULL )\
@@ -369,30 +370,46 @@ bool CGrid_to_KML::On_Execute(void)
 		zip.PutNextEntry(SG_File_Get_Name(fn, true).c_str());\
 		zip.Write(*pInput);\
 		delete(pInput);\
-		\
-		if( del )\
-		{\
-			SG_File_Delete(fn);\
-		}\
 	}\
 }
 //---------------------------------------------------------
 
 	if( Parameters("OUTPUT")->asInt() != 0 )	// create kmz
 	{
-		CSG_String	Filename	= Parameters("FILE")->asString();
+		CSG_String	Filename	= Parameters("FILE")->asString();	SG_File_Set_Extension(Filename, "kmz");
 		
-		SG_File_Set_Extension(Filename, "kmz");
+		wxDir		dir;
+		wxString	file;
 
-		wxZipOutputStream	Zip(new wxFileOutputStream(Filename.c_str()));
+		//-------------------------------------------------
+		if( dir.Open(SG_File_Get_Path(Filename).c_str()) && dir.GetFirst(&file, wxString::Format("%s.*", SG_File_Get_Name(Filename, false).c_str()), wxDIR_FILES) )
+		{
+			CSG_Strings	Files;
 
-		ZIP_ADD_FILE(Zip, Parameters("FILE")->asString(), Parameters("OUTPUT")->asInt() != 1);	// the image file itself
+			do
+			{
+				if( !SG_File_Cmp_Extension(file, SG_T("kmz")) )
+				{
+					Files	+= SG_File_Make_Path(SG_File_Get_Path(Filename), file);
+				}
+			}
+			while( dir.GetNext(&file) );
 
-		SG_File_Set_Extension(Filename, "kml");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
-		SG_File_Set_Extension(Filename, "pgw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
-		SG_File_Set_Extension(Filename, "tfw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
-		SG_File_Set_Extension(Filename, "jgw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
-		SG_File_Set_Extension(Filename, "bpw");	ZIP_ADD_FILE(Zip, Filename.c_str(), Parameters("OUTPUT")->asInt() != 1);
+			dir.Close();
+
+			//---------------------------------------------
+			wxZipOutputStream	Zip(new wxFileOutputStream(Filename.c_str()));
+
+			for(int i=0; i<Files.Get_Count(); i++)
+			{
+				ZIP_ADD_FILE(Zip, Files[i].c_str());
+
+				if( Parameters("OUTPUT")->asInt() != 1 )	// delete kml, image and associated files
+				{
+					SG_File_Delete(Files[i]);
+				}
+			}
+		}
 	}
 
 	//-----------------------------------------------------
