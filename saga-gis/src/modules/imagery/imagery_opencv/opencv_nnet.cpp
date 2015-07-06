@@ -60,8 +60,8 @@
 
 //---------------------------------------------------------
 #include "opencv_nnet.h"
-#include "opencv\cxcore.h"
-#include "opencv\ml.h"
+#include <opencv/cxcore.h>
+#include <opencv/ml.h>
 
 ///////////////////////////////////////////////////////////
 //														 //
