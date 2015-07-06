@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 #if !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
 // define some dummies
-#include <vigra\matrix.hxx>
+#include <vigra/matrix.hxx>
 class CRandom_Forest
 {
 public:
