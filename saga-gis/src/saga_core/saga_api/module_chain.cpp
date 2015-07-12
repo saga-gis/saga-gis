@@ -76,7 +76,7 @@
 #define GET_XML_CONTENT(md, id, def)		(md(id) ? md(id)->Get_Content() : CSG_String(def))
 
 #define IS_TRUE_STRING(String)				(!String.CmpNoCase("true") || !String.CmpNoCase("1"))
-#define IS_TRUE_PROPERTY(Item, Property)	(Item.Cmp_Property(Property, "true") || Item.Cmp_Property(Property, "1"))
+#define IS_TRUE_PROPERTY(Item, Property)	(Item.Cmp_Property(Property, "true", true) || Item.Cmp_Property(Property, "1"))
 
 
 ///////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 
 	if( !m_Menu.is_Empty() && (m_Menu.Length() < 2 || m_Menu[1] != ':') )
 	{
-		if( m_Chain["menu"].Cmp_Property("absolute", "true", true) || m_Chain["menu"].Cmp_Property("absolute", "1") )
+		if( IS_TRUE_PROPERTY(m_Chain["menu"], "absolute") )
 			m_Menu.Prepend("A:");	// absolute path
 		else
 			m_Menu.Prepend("R:");	// relative path
@@ -393,7 +393,9 @@ bool CSG_Module_Chain::Data_Initialize(void)
 
 	for(int i=0; i<Parameters.Get_Count(); i++)
 	{
-		if( Data_Add(Parameters(i)->Get_Identifier(), Parameters(i)) )
+		CSG_Parameter	*pParameter	= Parameters(i);
+
+		if( !(pParameter->is_DataObject() && !pParameter->asDataObject()) && Data_Add(pParameter->Get_Identifier(), pParameter) )
 		{
 			bResult	= true;
 		}
@@ -451,8 +453,7 @@ bool CSG_Module_Chain::Data_Finalize(void)
 				if( Parameter("colours") )
 				{
 					DataObject_Set_Colors(pParameter->asDataObject(), 11,
-						Parameter["colours"].Get_Content().asInt(),
-						Parameter["colours"].Cmp_Property("revert", "true", true) || Parameter["colours"].Cmp_Property("revert", "1")
+						Parameter["colours"].Get_Content().asInt(), IS_TRUE_PROPERTY(Parameter["colours"], "revert")
 					);
 				}
 			}
@@ -500,7 +501,7 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 
 	if( !Type.CmpNoCase("not_exists") )	// data object does not exist
 	{
-		return( pData->Get_Parameter(Value) == NULL );
+		return( pData->Get_Parameter(Value) == NULL || pData->Get_Parameter(Value)->asDataObject() == NULL );
 	}
 
 	//-----------------------------------------------------
@@ -718,23 +719,21 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 	int		i;
 
 	//-----------------------------------------------------
-	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data objects first
+	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data variables first
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("condition") )	{	continue;	}
-
-		CSG_String	ID	= Parameter.Get_Property("id");
+		const CSG_MetaData	&Parameter	= Tool[i];
 
 		CSG_Parameter	*pParameter, *pOwner;
 
 		if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
 		{
-			Error_Set(CSG_String::Format("%s: %s", _TL("parameter not found"), ID.c_str()));
+			Error_Set(CSG_String::Format("%s: %s", _TL("parameter not found"), Parameter.Get_Property("id")));
 
 			return( false );
 		}
 		else if( Parameter.Cmp_Name("option") )
 		{
-			if( Parameter.Cmp_Property("varname", "1") || Parameter.Cmp_Property("varname", "true", true) )
+			if( IS_TRUE_PROPERTY(Parameter, "varname") )
 			{	// does option want a value from tool chain parameters and do these provide one ?
 				pParameter->Assign(Parameters(Parameter.Get_Content()));
 			}
@@ -749,7 +748,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 			if( !pData )	// each input for this tool should be available now !!!
 			{
-				Error_Set(CSG_String::Format("%s: %s", _TL("input"), ID.c_str()));
+				Error_Set(CSG_String::Format("%s: %s", _TL("input"), Parameter.Get_Property("id")));
 
 				return( false );
 			}
@@ -760,7 +759,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 				{
 					if( !pParameter->Assign(pData) )
 					{
-						Error_Set(CSG_String::Format("%s: %s", _TL("set input"), ID.c_str()));
+						Error_Set(CSG_String::Format("%s: %s", _TL("set input"), Parameter.Get_Property("id")));
 
 						return( false );
 					}
@@ -790,9 +789,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 	//-----------------------------------------------------
 	for(i=0; i<Tool.Get_Children_Count(); i++)	// now set options
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("condition") )	{	continue;	}
-
-		CSG_String	ID	= Parameter.Get_Property("id");
+		const CSG_MetaData	&Parameter	= Tool[i];
 
 		CSG_Parameter	*pParameter, *pOwner;
 
@@ -802,13 +799,28 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 		}
 		else if( Parameter.Cmp_Name("option") )
 		{
-			if( Parameter.Cmp_Property("varname", "1") || Parameter.Cmp_Property("varname", "true", true) )
+			if( IS_TRUE_PROPERTY(Parameter, "varname") )
 			{	// does option want a value from tool chain parameters and do these provide one ?
 				pParameter->Assign(Parameters(Parameter.Get_Content()));
 			}
 			else
 			{
-				pParameter->Set_Value(Parameter.Get_Content());
+				CSG_String	Value(Parameter.Get_Content());
+
+				if( pParameter->Get_Type() == PARAMETER_TYPE_String )
+				{
+					for(int j=0; j<Parameters.Get_Count(); j++)
+					{
+						CSG_String	Var; Var.Printf("$(%s)", Parameters(j)->Get_Identifier());
+
+						if( Value.Find(Var) >= 0 )
+						{
+							Value.Replace(Var, Parameters(j)->asString());
+						}
+					}
+				}
+
+				pParameter->Set_Value(Value);
 			}
 		}
 	}
