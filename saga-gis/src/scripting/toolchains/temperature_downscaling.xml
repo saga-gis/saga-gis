@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="2.2.0">
+	<group>climate</group>
+	<identifier>t_downscale</identifier>
+	<menu absolute="true">Climate|Tools</menu>
+	<name>Lapse Rate Based Temperature Downscaling</name>
+	<author>Conrad (c) 2015</author>
+	<description>
+		The lapse rate based temperature downscaling is quite simple but
+		might perform well for mountainous regions, where a the altitudinal
+		gradient is the main driver for local temperature variation.
+		First, a given lapse rate is used to estimate a sea level temperature from
+		elevations and temperatures at a coarse resolution. Second, the same
+		lapse rate is used to estimate the terrain surface temperature using higher
+		resoluted elevation data with the spline interpolated sea level temperatures
+		from the previous step.
+	</description>
+	
+	<parameters>
+		<option varname="LORES_GRID_SYSTEM" type="grid_system">
+			<name>Coarse Resolution</name>
+		</option>
+		<input varname="LORES_DEM" type="grid" parent="LORES_GRID_SYSTEM">
+			<name>Elevation</name>
+		</input>
+		<input varname="LORES_T" type="grid" parent="LORES_GRID_SYSTEM">
+			<name>Temperature</name>
+		</input>
+		<input varname="LAPSE_RATES" type="grid" parent="LORES_GRID_SYSTEM" optional="true">
+			<name>Lapse Rate</name>
+			<description>lapse rate in degree of temperature per 100 meter</description>
+		</input>
+		<output varname="LORES_SLT" type="grid" parent="LORES_GRID_SYSTEM" optional="true">
+			<name>Temperature at Sea Level</name>
+		</output>
+
+		<option varname="HIRES_GRID_SYSTEM" type="grid_system">
+			<name>High Resolution</name>
+		</option>
+		<input varname="HIRES_DEM" type="grid" parent="HIRES_GRID_SYSTEM">
+			<name>Elevation</name>
+		</input>
+		<output varname="HIRES_T" type="grid" parent="HIRES_GRID_SYSTEM">
+			<name>Temperature</name>
+		</output>
+		
+		<option varname="LAPSE_RATE" type="double">
+			<name>Lapse Rate</name>
+			<value min="0.0">0.6</value>
+			<description>lapse rate in degree of temperature per 100 meter</description>
+			<condition type="not_exists">LAPSE_RATES</condition>
+		</option>
+	</parameters>
+	
+	<tools>
+		<condition type="exists" varname="LAPSE_RATES">
+			<tool library="grid_calculus" module="1" name="Grid Calculator">
+				<input id="GRIDS">LORES_DEM</input>
+				<input id="GRIDS">LORES_T</input>
+				<input id="GRIDS">LAPSE_RATES</input>
+				<output id="RESULT">LORES_SLT</output>
+				<option id="FORMULA">g2 + g1 * g3 / 100</option>
+				<option id="NAME">Temperature at Sea Level</option>
+			</tool>
+			<tool library="grid_calculus" module="1" name="Grid Calculator">
+				<input id="GRIDS">HIRES_DEM</input>
+				<input id="XGRIDS">LORES_SLT</input>
+				<input id="XGRIDS">LAPSE_RATES</input>
+				<output id="RESULT">HIRES_T</output>
+				<option id="FORMULA">h1 - g1 * h2 / 100</option>
+				<option id="NAME">Temperature</option>
+			</tool>
+		</condition>
+
+		<condition type="not_exists" varname="LAPSE_RATES">
+			<tool library="grid_calculus" module="1" name="Grid Calculator">
+				<input id="GRIDS">LORES_DEM</input>
+				<input id="GRIDS">LORES_T</input>
+				<output id="RESULT">LORES_SLT</output>
+				<option id="FORMULA">g2 + g1 * $(LAPSE_RATE) / 100</option>
+				<option id="NAME">Temperature at Sea Level</option>
+			</tool>
+			<tool library="grid_calculus" module="1" name="Grid Calculator">
+				<input id="GRIDS">HIRES_DEM</input>
+				<input id="XGRIDS">LORES_SLT</input>
+				<output id="RESULT">HIRES_T</output>
+				<option id="FORMULA">h1 - g1 * $(LAPSE_RATE) / 100</option>
+				<option id="NAME">Temperature</option>
+			</tool>
+		</condition>
+	</tools>
+</toolchain>
