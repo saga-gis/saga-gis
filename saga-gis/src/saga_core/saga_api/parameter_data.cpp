@@ -2021,7 +2021,10 @@ bool CSG_Parameter_Data_Object_Output::Set_Value(void *Value)
 		{
 			m_pOwner->Get_Manager()->Add(m_pDataObject);
 
-			SG_UI_DataObject_Add(m_pDataObject, false);
+			if( m_pOwner->Get_Manager() == &SG_Get_Data_Manager() )	// prevent that local data manager send their data objects to gui
+			{
+				SG_UI_DataObject_Add(m_pDataObject, false);
+			}
 		}
 	}
 

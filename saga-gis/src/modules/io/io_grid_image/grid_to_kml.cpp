@@ -235,10 +235,12 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("SHADE_BRIGHT")->Set_Enabled(pParameter->asGrid() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") || !SG_STR_CMP(pParameter->Get_Identifier(), "COLOURING") )
 	{
-		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(pParameter->asGrid()
-			&& pParameter->asGrid()->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected
+		CSG_Grid	*pGrid	= pParameters->Get_Parameter("GRID")->asGrid();
+
+		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(
+			pGrid && pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected && pParameters->Get_Parameter("COLOURING")->asInt() < 4
 		);
 	}
 
@@ -273,6 +275,8 @@ bool CGrid_to_KML::On_Execute(void)
 			return( false );
 		}
 
+		Image.Set_Name       (pGrid->Get_Name       ());
+		Image.Set_Description(pGrid->Get_Description());
 		Image.Flip();
 		pGrid	= &Image;
 		Method	= 4;	// rgb coded values
@@ -295,7 +299,7 @@ bool CGrid_to_KML::On_Execute(void)
 		pModule->Settings_Push();
 
 		if( pModule->Set_Parameter("CRS_PROJ4"    , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
-		&&  pModule->Set_Parameter("INTERPOLATION", Parameters("INTERPOL")->asBool() ? 4 : 0)
+		&&  pModule->Set_Parameter("INTERPOLATION", Method < 4 && Parameters("INTERPOL")->asBool() ? 4 : 0)
 		&&  pModule->Set_Parameter("SOURCE"       , pGrid)
 		&&  pModule->Execute() )
 		{
@@ -414,6 +418,206 @@ bool CGrid_to_KML::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGrid_from_KML::CGrid_from_KML(void)
+{
+	Set_Name		(_TL("Import Grids from KML"));
+
+	Set_Author		("O.Conrad (c) 2015");
+
+	Set_Description	(_TW(
+		"Uses 'Import Image' tool to load the ground overlay image files associated with the kml. "
+	));
+
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"		, _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "FILE"		, _TL("KML/KMZ File"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("KML/KMZ Files"), SG_T("*.kml;*.kmz"),
+			_TL("All Files"    ), SG_T("*.*")
+		), NULL, false
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_from_KML::On_Execute(void)
+{
+	//-----------------------------------------------------
+	wxString	Dir, File	= Parameters("FILE")->asString();
+
+	//-----------------------------------------------------
+	bool	bKMZ	= SG_File_Cmp_Extension(File, SG_T("kmz"));
+
+	if( !bKMZ )
+	{
+		Dir	= SG_File_Get_Path(File).c_str();
+	}
+	else	// unzip to temporary directory
+	{
+		Dir	= wxFileName::CreateTempFileName("kml_");
+
+		wxRemoveFile(Dir);
+		wxFileName::Mkdir(Dir);
+
+		wxZipEntry			*pEntry;
+		wxZipInputStream	Zip(new wxFileInputStream(File));
+
+		while( (pEntry = Zip.GetNextEntry()) != NULL )
+		{
+			wxFileName	fn(Dir, pEntry->GetName());
+
+			wxFileOutputStream	*pOutput	= new wxFileOutputStream(fn.GetFullPath());
+
+			pOutput->Write(Zip);
+
+			delete(pOutput);
+			delete(pEntry);
+
+			if( !fn.GetExt().CmpNoCase("kml") )
+			{
+				File	= fn.GetFullPath();
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_MetaData	KML;
+
+	if( !KML.Load(&File) )
+	{
+		Error_Fmt("%s [%s]", _TL("failed to load file"), File.c_str());
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	m_pGrids	= Parameters("GRIDS")->asGridList();
+	m_pGrids->Del_Items();
+
+	Load_KML(Dir, KML);
+
+	//-----------------------------------------------------
+	if( bKMZ && wxDirExists(Dir) )
+	{
+		wxFileName::Rmdir(Dir, wxPATH_RMDIR_FULL|wxPATH_RMDIR_RECURSIVE);
+	}
+
+	//-----------------------------------------------------
+	return( m_pGrids->Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_from_KML::Load_KML(const SG_Char *Dir, const CSG_MetaData &KML)
+{
+	for(int i=0; i<KML.Get_Children_Count(); i++)
+	{
+		if( KML.Get_Child(i)->Cmp_Name("GroundOverlay") )
+		{
+			Load_Overlay(Dir, *KML.Get_Child(i));
+		}
+		else
+		{
+			Load_KML    (Dir, *KML.Get_Child(i));
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_from_KML::Load_Overlay(const SG_Char *Dir, const CSG_MetaData &KML)
+{
+	//-----------------------------------------------------
+	if( !KML("Icon") || !KML["Icon"]("HRef") )
+	{
+		Error_Set(_TL("missing icon tags"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Rect	r;
+
+	if(    !KML("LatLonBox")
+		|| !KML["LatLonBox"]("North") || !KML["LatLonBox"]["North"].Get_Content().asDouble(r.m_rect.yMax)
+		|| !KML["LatLonBox"]("South") || !KML["LatLonBox"]["South"].Get_Content().asDouble(r.m_rect.yMin)
+		|| !KML["LatLonBox"]("East" ) || !KML["LatLonBox"]["East" ].Get_Content().asDouble(r.m_rect.xMax)
+		|| !KML["LatLonBox"]("West" ) || !KML["LatLonBox"]["West" ].Get_Content().asDouble(r.m_rect.xMin) )
+	{
+		Error_Set(_TL("failed to load georeference for KML ground overlay"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxFileName	fn(KML["Icon"]["HRef"].Get_Content().c_str());
+
+	if( !fn.FileExists() )
+	{
+		fn.SetPath(Dir);
+	}
+
+	CSG_Data_Manager	Data;
+
+	if( !Data.Add(&fn.GetFullPath()) || !Data.Get_Grid_System(0) || !Data.Get_Grid_System(0)->Get(0) )
+	{
+		Error_Fmt("%s: %s", _TL("failed to load KML ground overlay icon"), fn.GetFullPath().c_str());
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pIcon	= (CSG_Grid *)Data.Get_Grid_System(0)->Get(0);
+
+	CSG_Grid	*pGrid	= SG_Create_Grid(pIcon->Get_Type(), pIcon->Get_NX(), pIcon->Get_NY(), r.Get_YRange() / (pIcon->Get_NY() - 1), r.Get_XMin(), r.Get_YMin());
+
+	if( KML("Name") && !KML["Name"].Get_Content().is_Empty() )
+		pGrid->Set_Name(KML["Name"].Get_Content());
+
+	if( KML("Description") && !KML["Description"].Get_Content().is_Empty() )
+		pGrid->Set_Name(KML["Description"].Get_Content());
+
+	pGrid->Get_Projection().Assign("+proj=longlat +ellps=WGS84 +datum=WGS84", SG_PROJ_FMT_Proj4);
+
+	#pragma omp parallel for
+	for(int y=0; y<pGrid->Get_NY(); y++)
+	{
+		for(int x=0; x<pGrid->Get_NX(); x++)
+		{
+			pGrid->Set_Value(x, y, pIcon->asDouble(x, y));
+		}
+	}
+
+	m_pGrids->Add_Item(pGrid);
+
+	DataObject_Add(pGrid);
+	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 6);	// Color Classification Type: RGB
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

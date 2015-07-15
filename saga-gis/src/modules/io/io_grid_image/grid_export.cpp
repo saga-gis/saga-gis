@@ -537,29 +537,26 @@ bool CGrid_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("FILE_KML")->asBool() && Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("kml")), SG_FILE_W, false) )
+	if( Parameters("FILE_KML")->asBool() )
 	{
-		Stream.Printf(SG_T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
-		Stream.Printf(SG_T("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"));
-		Stream.Printf(SG_T("  <Folder>\n"));
-		Stream.Printf(SG_T("    <name>Raster exported from SAGA</name>\n"));
-		Stream.Printf(SG_T("    <description>System for Automated Geoscientific Analyses - www.saga-gis.org</description>\n"));
-		Stream.Printf(SG_T("    <GroundOverlay>\n"));
-		Stream.Printf(SG_T("      <name>%s</name>\n")				, pGrid->Get_Name());
-		Stream.Printf(SG_T("      <description>%s</description>\n")	, pGrid->Get_Description());
-		Stream.Printf(SG_T("      <Icon>\n"));
-		Stream.Printf(SG_T("        <href>%s</href>\n")				, SG_File_Get_Name(fName, true).c_str());
-		Stream.Printf(SG_T("      </Icon>\n"));
-		Stream.Printf(SG_T("      <LatLonBox>\n"));
-		Stream.Printf(SG_T("        <north>%.10f</north>\n")			, pGrid->Get_YMax());
-		Stream.Printf(SG_T("        <south>%.10f</south>\n")			, pGrid->Get_YMin());
-		Stream.Printf(SG_T("        <east>%.10f</east>\n")				, pGrid->Get_XMax());
-		Stream.Printf(SG_T("        <west>%.10f</west>\n")				, pGrid->Get_XMin());
-		Stream.Printf(SG_T("        <rotation>0.0</rotation>\n"));
-		Stream.Printf(SG_T("      </LatLonBox>\n"));
-		Stream.Printf(SG_T("    </GroundOverlay>\n"));
-		Stream.Printf(SG_T("  </Folder>\n"));
-		Stream.Printf(SG_T("</kml>\n"));
+		CSG_MetaData	KML;	KML.Set_Name("kml");	KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
+
+	//	CSG_MetaData	*pFolder	= KML.Add_Child("Folder");
+	//	pFolder->Add_Child("name"       , "Raster exported from SAGA");
+	//	pFolder->Add_Child("description", "System for Automated Geoscientific Analyses - www.saga-gis.org");
+	//	CSG_MetaData	*pOverlay	= pFolder->Add_Child("GroundOverlay");
+
+		CSG_MetaData	*pOverlay	= KML.Add_Child("GroundOverlay");
+		pOverlay->Add_Child("name"       , pGrid->Get_Name());
+		pOverlay->Add_Child("description", pGrid->Get_Description());
+		pOverlay->Add_Child("Icon"       )->Add_Child("href", SG_File_Get_Name(fName, true));
+		pOverlay->Add_Child("LatLonBox"  );
+		pOverlay->Get_Child("LatLonBox"  )->Add_Child("north", pGrid->Get_YMax());
+		pOverlay->Get_Child("LatLonBox"  )->Add_Child("south", pGrid->Get_YMin());
+		pOverlay->Get_Child("LatLonBox"  )->Add_Child("east" , pGrid->Get_XMax());
+		pOverlay->Get_Child("LatLonBox"  )->Add_Child("west" , pGrid->Get_XMin());
+
+		KML.Save(fName, SG_T("kml"));
 	}
 
 	//-----------------------------------------------------

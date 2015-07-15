@@ -109,12 +109,13 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:	return( new CGrid_Export );
-	case 1:	return( new CGrid_Import );
-	case 2:	return( new CGrid_to_KML );
-	}
+	case  0:	return( new CGrid_Export );
+	case  1:	return( new CGrid_Import );
+	case  2:	return( new CGrid_to_KML );
+	case  3:	return( new CGrid_from_KML );
 
-	return( NULL );
+	default:	return( NULL );
+	}
 }
 
 

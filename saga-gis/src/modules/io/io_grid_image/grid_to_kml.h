@@ -103,6 +103,35 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_from_KML : public CSG_Module
+{
+public:
+	CGrid_from_KML(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_Parameter_Grid_List	*m_pGrids;
+
+
+	bool					Load_KML				(const SG_Char *Dir, const CSG_MetaData &KML);
+	bool					Load_Overlay			(const SG_Char *Dir, const CSG_MetaData &KML);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
