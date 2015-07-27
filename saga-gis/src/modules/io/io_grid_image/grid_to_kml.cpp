@@ -381,7 +381,7 @@ bool CGrid_to_KML::On_Execute(void)
 	if( Parameters("OUTPUT")->asInt() != 0 )	// create kmz
 	{
 		CSG_String	Filename	= Parameters("FILE")->asString();	SG_File_Set_Extension(Filename, "kmz");
-		
+
 		wxDir		dir;
 		wxString	file;
 
@@ -505,7 +505,7 @@ bool CGrid_from_KML::On_Execute(void)
 
 	if( !KML.Load(&File) )
 	{
-		Error_Fmt("%s [%s]", _TL("failed to load file"), File.c_str());
+		Error_Fmt("%s [%s]", _TL("failed to load file"), File.wc_str());
 
 		return( false );
 	}
@@ -583,10 +583,11 @@ bool CGrid_from_KML::Load_Overlay(const SG_Char *Dir, const CSG_MetaData &KML)
 	}
 
 	CSG_Data_Manager	Data;
+	CSG_String			FullPath = fn.GetFullPath().wc_str();
 
-	if( !Data.Add(&fn.GetFullPath()) || !Data.Get_Grid_System(0) || !Data.Get_Grid_System(0)->Get(0) )
+	if( !Data.Add(FullPath) || !Data.Get_Grid_System(0) || !Data.Get_Grid_System(0)->Get(0) )
 	{
-		Error_Fmt("%s: %s", _TL("failed to load KML ground overlay icon"), fn.GetFullPath().c_str());
+		Error_Fmt("%s: %s", _TL("failed to load KML ground overlay icon"), fn.GetFullPath().wc_str());
 	}
 
 	//-----------------------------------------------------
