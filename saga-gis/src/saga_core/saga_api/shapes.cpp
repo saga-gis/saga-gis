@@ -305,7 +305,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 	{
 		pShapes	= (CSG_Shapes *)pObject;
 
-		Create(pShapes->Get_Type(), pShapes->Get_Name(), pShapes);
+		Create(pShapes->Get_Type(), pShapes->Get_Name(), pShapes, pShapes->Get_Vertex_Type());
 
 		for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
