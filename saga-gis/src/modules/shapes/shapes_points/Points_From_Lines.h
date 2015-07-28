@@ -61,6 +61,13 @@ protected:
 
 	virtual bool				On_Execute		(void);
 
+	virtual int					On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	void						Convert_Add_Points_Segment	(CSG_Shapes *pLines, CSG_Shapes *pPoints, double dDist, bool bAddPtOrder);
+	void						Convert_Add_Points_Line		(CSG_Shapes *pLines, CSG_Shapes *pPoints, double dDist, bool bAddPtOrder);
+	void						Convert_Add_Points_Center	(CSG_Shapes *pLines, CSG_Shapes *pPoints, double dDist, bool bAddPtOrder);
+	void						Convert						(CSG_Shapes *pLines, CSG_Shapes *pPoints, bool bAddPtOrder);
+
 };
 
 
