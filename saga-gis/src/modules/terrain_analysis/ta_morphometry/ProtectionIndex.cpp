@@ -4,7 +4,7 @@
 /*******************************************************************************
     ProtectionIndex.cpp
     Copyright (C) Victor Olaya
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
-*******************************************************************************/ 
+*******************************************************************************/
 
 #include "ProtectionIndex.h"
 
@@ -32,26 +32,26 @@ CProtectionIndex::CProtectionIndex(void){
         "This algorithm analyses the immediate surrounding of each cell up to an given distance and evaluates how the relief protects it.\n"
          "It is equivalent to the positive openness described in: Visualizing Topography by Openness: A New Application of Image Processing to Digital Elevation Models, Photogrammetric Engineering and Remote Sensing(68), No. 3, March 2002, pp. 257-266."));
 
-	Parameters.Add_Grid(NULL, 
+	Parameters.Add_Grid(NULL,
 						"DEM",
-						_TL("Elevation"), 						
-						_TL(""), 
+						_TL("Elevation"),
+						_TL(""),
 						PARAMETER_INPUT);
 
-	Parameters.Add_Grid(NULL, 
-						"PROTECTION", 
-						_TL("Protection Index"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
+	Parameters.Add_Grid(NULL,
+						"PROTECTION",
+						_TL("Protection Index"),
+						_TL(""),
+						PARAMETER_OUTPUT,
+						true,
 						SG_DATATYPE_Float);
 
-	Parameters.Add_Value(NULL, 
-						"RADIUS", 
-						_TL("Radius"), 
-						_TL(""), 
-						PARAMETER_TYPE_Double, 2000, 
-						0.0, 
+	Parameters.Add_Value(NULL,
+						"RADIUS",
+						_TL("Radius"),
+						_TL("The radius in map units"),
+						PARAMETER_TYPE_Double, 2000,
+						0.0,
 						true);
 
 }//constructor
@@ -60,15 +60,15 @@ CProtectionIndex::~CProtectionIndex(void)
 {}
 
 bool CProtectionIndex::On_Execute(void){
-	
+
 	int x,y;
 	double dProtectionIndex;
 	CSG_Grid* pProtectionIndex = Parameters("PROTECTION")->asGrid();
-	
-	m_dRadius = Parameters("RADIUS")->asDouble();
-	m_pDEM = Parameters("DEM")->asGrid(); 
 
-    for(y=0; y<Get_NY() && Set_Progress(y); y++){		
+	m_dRadius = Parameters("RADIUS")->asDouble();
+	m_pDEM = Parameters("DEM")->asGrid();
+
+    for(y=0; y<Get_NY() && Set_Progress(y); y++){
 		for(x=0; x<Get_NX(); x++){
 			dProtectionIndex = getProtectionIndex(x,y);
 			if (dProtectionIndex == NO_DATA){
@@ -78,8 +78,8 @@ bool CProtectionIndex::On_Execute(void){
 				pProtectionIndex->Set_Value(x,y, dProtectionIndex);
 			}//else
 		}//for
-	}//for	
-	
+	}//for
+
 	return true;
 
 }//method
@@ -106,7 +106,7 @@ double CProtectionIndex::getProtectionIndex(int x, int y){
 			else{
 				return NO_DATA;
 			}
-			dDifHeight = m_pDEM->asDouble(x + iDifX[i] * j, y + iDifY[i] * j) 
+			dDifHeight = m_pDEM->asDouble(x + iDifX[i] * j, y + iDifY[i] * j)
 						 - m_pDEM->asDouble(x,y);
 			dAngle = atan (dDifHeight / dDist);
 			if (dAngle > aAngle[i]){
