@@ -85,14 +85,12 @@
 //---------------------------------------------------------
 CWKSP_Map_Layer::CWKSP_Map_Layer(CWKSP_Layer *pLayer)
 {
-	m_pLayer	= pLayer;
+	m_pLayer		= pLayer;
 
-	m_bShow		= true;
+	m_bShow			= true;
+
+	m_bFitColors	= false;
 }
-
-//---------------------------------------------------------
-CWKSP_Map_Layer::~CWKSP_Map_Layer(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -135,7 +133,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 
 	case WKSP_ITEM_Grid:
 		pMenu->AppendSeparator();
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_GRID_FITCOLORS);
+		CMD_Menu_Add_Item(pMenu, true, ID_CMD_MAPS_GRID_FITCOLORS);
 		break;
 	}
 
@@ -201,30 +199,9 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_MAPS_GRID_FITCOLORS:
-		if( m_pLayer->Get_Type() == WKSP_ITEM_Grid )
+		if( (m_bFitColors = !m_bFitColors) == true )
 		{
-			CSG_Rect	rWorld	= ((CWKSP_Map *)Get_Manager())->Get_Extent();
-			CWKSP_Grid	*pGrid	= (CWKSP_Grid *)m_pLayer;
-
-			pGrid->Fit_Color_Range(rWorld);
-
-			if( m_pLayer->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
-			{
-				if( m_pLayer->Get_Parameter("OVERLAY_R")->is_Enabled() && (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_R")->asGrid())) != NULL )
-				{
-					pGrid->Fit_Color_Range(rWorld);
-				}
-
-				if( m_pLayer->Get_Parameter("OVERLAY_G")->is_Enabled() && (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_R")->asGrid())) != NULL )
-				{
-					pGrid->Fit_Color_Range(rWorld);
-				}
-
-				if( m_pLayer->Get_Parameter("OVERLAY_B")->is_Enabled() && (pGrid = (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter("OVERLAY_B")->asGrid())) != NULL )
-				{
-					pGrid->Fit_Color_Range(rWorld);
-				}
-			}
+			Fit_Colors(((CWKSP_Map *)Get_Manager())->Get_Extent());
 		}
 		break;
 	}
@@ -263,6 +240,10 @@ bool CWKSP_Map_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_MAPS_MOVE_BOTTOM:
 		event.Enable(Get_Index() < Get_Manager()->Get_Count() - 1);
 		break;
+
+	case ID_CMD_MAPS_GRID_FITCOLORS:
+		event.Check(m_bFitColors);
+		break;
 	}
 
 	return( true );
@@ -287,6 +268,43 @@ void CWKSP_Map_Layer::Parameters_Changed(void)
 	m_pLayer->Parameters_Changed();
 
 	CWKSP_Base_Item::Parameters_Changed();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define	FIT_OVERLAY_GRID_COLORS(band, extent)	{\
+	CWKSP_Grid	*pGrid	= (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter(band)->asGrid());\
+	if( pGrid && m_pLayer->Get_Parameter(band)->is_Enabled() )\
+	{	pGrid->Fit_Color_Range(extent);	}\
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map_Layer::Fit_Colors(const CSG_Rect &rWorld)
+{
+	if( m_bFitColors )
+	{
+		if( m_pLayer->Get_Type() == WKSP_ITEM_Grid )
+		{
+			((CWKSP_Grid *)m_pLayer)->Fit_Color_Range(rWorld);
+
+			if( m_pLayer->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
+			{
+				FIT_OVERLAY_GRID_COLORS("OVERLAY_R", rWorld);
+				FIT_OVERLAY_GRID_COLORS("OVERLAY_G", rWorld);
+				FIT_OVERLAY_GRID_COLORS("OVERLAY_B", rWorld);
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 

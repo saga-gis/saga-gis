@@ -86,7 +86,6 @@ class CWKSP_Map_Layer : public CWKSP_Base_Item
 {
 public:
 	CWKSP_Map_Layer(class CWKSP_Layer *pLayer);
-	virtual ~CWKSP_Map_Layer(void);
 
 	virtual TWKSP_Item			Get_Type			(void)	{	return( WKSP_ITEM_Map_Layer );	}
 
@@ -105,10 +104,12 @@ public:
 
 	bool						do_Show				(void)	{	return( m_bShow );	}
 
+	bool						Fit_Colors			(const CSG_Rect &rWorld);
+
 
 private:
 
-	bool						m_bShow;
+	bool						m_bShow, m_bFitColors;
 
 	class CWKSP_Layer			*m_pLayer;
 

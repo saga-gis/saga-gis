@@ -842,6 +842,11 @@ void CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 	{
 		View_Refresh(true);
 
+		for(int i=0; i<Get_Count(); i++)
+		{
+			((CWKSP_Map_Layer *)Get_Item(i))->Fit_Colors(Extent);
+		}
+
 		if( m_Parameters("SYNC_MAPS")->asBool() )
 		{
 			_Synchronise_Extents();
