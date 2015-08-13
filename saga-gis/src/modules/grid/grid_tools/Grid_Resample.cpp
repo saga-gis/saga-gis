@@ -180,8 +180,8 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 			}
 		}
 
-		pParameters->Set_Enabled("SCALE_UP"  , Scaling < 0.0);
-		pParameters->Set_Enabled("SCALE_DOWN", Scaling > 0.0);
+		pParameters->Set_Enabled("SCALE_UP"  , Scaling <  0.0);
+		pParameters->Set_Enabled("SCALE_DOWN", Scaling >= 0.0);
 	}
 
 	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
