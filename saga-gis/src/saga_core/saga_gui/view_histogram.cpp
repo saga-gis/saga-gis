@@ -609,8 +609,8 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 			CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
 			pRecord->Set_Value(0, i + 1);
-			pRecord->Set_Value(2, pClassifier->Histogram_Get_Count     (i, false) * dArea);
-			pRecord->Set_Value(1, pClassifier->Histogram_Get_Count     (i, false));
+			pRecord->Set_Value(1, pClassifier->Histogram_Get_Count     (i, false) * dArea);
+			pRecord->Set_Value(2, pClassifier->Histogram_Get_Count     (i, false));
 			pRecord->Set_Value(3, pClassifier->Histogram_Get_Cumulative(i, false));
 			pRecord->Set_Value(4, pClassifier->Get_Class_Name          (i).wx_str());
 			pRecord->Set_Value(5, pClassifier->Get_Class_Value_Minimum (i));
