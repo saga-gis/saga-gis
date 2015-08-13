@@ -1251,7 +1251,7 @@ bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 		wxMemoryDC	dc;
 
 		dc.SelectObject(BMP);
-		Draw_Map(dc, 1.0, wxRect(0, 0, Image.GetWidth(), Image.GetHeight()), false, SG_GET_RGB(MASK_R, MASK_G, MASK_B));
+		Draw_Map(dc, 1.0, wxRect(0, 0, Image.GetWidth(), Image.GetHeight()), LAYER_DRAW_FLAG_NOEDITS, SG_GET_RGB(MASK_R, MASK_G, MASK_B));
 		dc.SelectObject(wxNullBitmap);
 
 		rWorld	= Get_World(wxRect(0, 0, Image.GetWidth(), Image.GetHeight()));
@@ -1360,7 +1360,7 @@ void CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
 	dc.SetBackground(*wxWHITE_BRUSH);
 	dc.Clear();
 
-	Draw_Map(dc, 1.0, r, false);
+	Draw_Map(dc, 1.0, r, LAYER_DRAW_FLAG_NOEDITS);
 
 	if( frame > 0 )
 	{
@@ -1510,7 +1510,7 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 	dc.SetBackground(*wxWHITE_BRUSH);
 	dc.Clear();
 
-	Draw_Map(dc, 1.0, r, false);
+	Draw_Map(dc, 1.0, r, LAYER_DRAW_FLAG_NOEDITS);
 	Draw_Frame(dc, r, Frame);
 
 	dc.SelectObject(wxNullBitmap);
@@ -1637,7 +1637,7 @@ bool CWKSP_Map::_Set_Thumbnail(void)
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
-		Draw_Map(dc, Get_Extent(), 1.0, r, false);
+		Draw_Map(dc, Get_Extent(), 1.0, r, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS);
 
 		dc.SelectObject(wxNullBitmap);
 
@@ -1655,15 +1655,17 @@ bool CWKSP_Map::_Set_Thumbnail(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background)
+void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, int Flags, int Background)
 {
-	Draw_Map(dc, Get_World(rClient), Zoom, rClient, bEdit, Background);
+	Draw_Map(dc, Get_World(rClient), Zoom, rClient, Flags, Background);
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background)
+void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags, int Background)
 {
 	CWKSP_Map_DC	dc_Map(rWorld, rClient, Zoom, Background);
+
+	int	Flag_Labels	= !(Flags & LAYER_DRAW_FLAG_NOLABELS) ? 0 : LAYER_DRAW_FLAG_NOLABELS;
 
 	//-----------------------------------------------------
 	for(int i=Get_Count()-1; i>=0; i--)
@@ -1676,7 +1678,7 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 
 				if( pLayer->do_Show() && pLayer->Get_Layer()->do_Show(Get_Extent()) )
 				{
-					pLayer->Get_Layer()->Draw(dc_Map, bEdit && pLayer->Get_Layer() == Get_Active_Layer());
+					pLayer->Get_Layer()->Draw(dc_Map, !(Flags & LAYER_DRAW_FLAG_NOEDITS) && pLayer->Get_Layer() == Get_Active_Layer() ? Flags : Flag_Labels);
 				}
 			}
 			break;

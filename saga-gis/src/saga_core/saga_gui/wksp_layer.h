@@ -104,7 +104,7 @@ public:
 	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
 	virtual double					Get_Value_Range			(void)								= 0;
 
-	void							Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
+	void							Draw					(CWKSP_Map_DC &dc_Map, int Flags = 0);
 
 	class CWKSP_Layer_Classify *	Get_Classifier			(void)	{	return( m_pClassify );	}
 
@@ -163,7 +163,7 @@ protected:
 	virtual void					On_Update_Views			(bool bAll);
 	virtual void					On_Update_Views			(void)			{}
 
-	virtual void					On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit)	= 0;
+	virtual void					On_Draw					(CWKSP_Map_DC &dc_Map, int Flags)	= 0;
 
 
 private:

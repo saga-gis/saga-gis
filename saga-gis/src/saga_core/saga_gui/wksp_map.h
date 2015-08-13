@@ -184,8 +184,8 @@ public:
 	void						SaveAs_Image_On_Change	(void);
 	void						SaveAs_Image_To_Grid	(CSG_Grid &Grid, int Size);
 
-	void						Draw_Map				(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background = -1);
-	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = -1);
+	void						Draw_Map				(wxDC &dc                        , double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
+	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, int Flags = 0, int Background = -1);
 	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
 	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width);
 	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL);

@@ -460,7 +460,7 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 		wxRect			r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
 		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, SG_GET_RGB(255, 255, 255));
 
-		Draw(dc_Map, false);
+		Draw(dc_Map, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS);
 
 		dc.SelectObject(m_Thumbnail);
 		dc.SetBackground(*wxWHITE_BRUSH);
@@ -628,9 +628,9 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
+void CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	On_Draw(dc_Map, bEdit);
+	On_Draw(dc_Map, Flags);
 }
 
 

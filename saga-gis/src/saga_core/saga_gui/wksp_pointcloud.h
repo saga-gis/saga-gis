@@ -132,7 +132,7 @@ protected:
 
 	void						_LUT_Create				(void);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
+	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
 
 	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color);
 	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius);

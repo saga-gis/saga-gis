@@ -401,7 +401,7 @@ bool CWKSP_TIN::Edit_Set_Attributes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
+void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
 	{
@@ -410,12 +410,12 @@ void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			_Draw_Triangles	(dc_Map);
 		}
 
-		if( m_Parameters("DISPLAY_EDGES")	->asBool() )
+		if( m_Parameters("DISPLAY_EDGES" )->asBool() )
 		{
 			_Draw_Edges		(dc_Map);
 		}
 
-		if( m_Parameters("DISPLAY_POINTS")	->asBool() )
+		if( m_Parameters("DISPLAY_POINTS")->asBool() )
 		{
 			_Draw_Points	(dc_Map);
 		}

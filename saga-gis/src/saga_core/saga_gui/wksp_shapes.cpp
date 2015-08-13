@@ -918,7 +918,7 @@ wxString CWKSP_Shapes::Get_Name_Attribute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
+void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	//-----------------------------------------------------
 	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
@@ -936,7 +936,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		Draw_Initialize(dc);
 
 		//-------------------------------------------------
-		if( bEdit && (m_Edit_pShape || Get_Shapes()->Get_Selection_Count() > 0) )
+		if( (Flags & LAYER_DRAW_FLAG_NOEDITS) == 0 && (m_Edit_pShape || Get_Shapes()->Get_Selection_Count() > 0) )
 		{
 			for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
@@ -1007,7 +1007,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		}
 
 		//-------------------------------------------------
-		if( m_iLabel >= 0 )
+		if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_iLabel >= 0 )
 		{
 			int		iSize	= m_Parameters("LABEL_ATTRIB_SIZE_BY"  )->asInt();
 			double	dSize	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ?

@@ -399,7 +399,7 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc)
 		//-------------------------------------------------
 		if( dc_rMap.GetWidth() > 0 )
 		{
-			m_pMap->Draw_Map(dc, dPaperToDC, dc_rMap, false);
+			m_pMap->Draw_Map(dc, dPaperToDC, dc_rMap, LAYER_DRAW_FLAG_NOEDITS);
 
 			if( dc_MapFrame > 0 )
 			{

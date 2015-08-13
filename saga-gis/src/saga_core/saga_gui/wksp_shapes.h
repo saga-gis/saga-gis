@@ -156,7 +156,7 @@ protected:
 
 	virtual void				On_Update_Views			(void);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
+	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
 
 	bool						Get_Class_Color			(CSG_Shape *pShape, int &Color);
 

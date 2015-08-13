@@ -574,7 +574,7 @@ void CVIEW_Map_Control::Refresh_Map(void)
 		wxMemoryDC	dc;
 
 		dc.SelectObject(m_Bitmap);
-		m_pMap->Draw_Map(dc, 1.0, _Get_Client(), true);
+		m_pMap->Draw_Map(dc, 1.0, _Get_Client());
 		dc.SelectObject(wxNullBitmap);
 
 		m_pParent->Ruler_Refresh();

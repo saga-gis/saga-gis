@@ -125,7 +125,7 @@ protected:
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
+	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
 
 
 private:

@@ -1347,7 +1347,7 @@ bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
+void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	int		Interpolation;
 	double	Transparency;
@@ -1382,9 +1382,12 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 
 			dc_Map.IMG_Draw_End();
 
-			_Draw_Values(dc_Map);
+			if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 )
+			{
+				_Draw_Values(dc_Map);
+			}
 
-			if( bEdit )
+			if( (Flags & LAYER_DRAW_FLAG_NOEDITS) == 0 )
 			{
 				_Draw_Edit(dc_Map);
 			}

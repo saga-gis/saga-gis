@@ -886,7 +886,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
+void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
 	{
