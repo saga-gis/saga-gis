@@ -95,6 +95,7 @@ public:
 	bool							Recent_Open		(int Cmd_ID);
 	void							Recent_Add		(int DataType, const wxString &FileName);
 	void							Recent_Del		(int DataType, const wxString &FileName);
+	bool							Recent_Get		(int DataType, wxArrayString &FileNames, bool bAppend);
 
 
 private:

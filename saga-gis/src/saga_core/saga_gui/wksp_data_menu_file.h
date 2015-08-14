@@ -95,6 +95,7 @@ public:
 
 	void						Add			(const wxString &FileName);
 	void						Del			(const wxString &FileName);
+	bool						Get			(wxArrayString &FileNames, bool bAppend);
 
 	bool						Open		(int Cmd_ID);
 

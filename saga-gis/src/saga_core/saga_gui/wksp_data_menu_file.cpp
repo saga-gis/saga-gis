@@ -321,6 +321,28 @@ void CWKSP_Data_Menu_File::_Del(int Cmd_ID)
 }
 
 
+//---------------------------------------------------------
+bool CWKSP_Data_Menu_File::Get(wxArrayString &FileNames, bool bAppend)
+{
+	if( !bAppend )
+	{
+		FileNames.Clear();
+	}
+
+	if( m_Recent && m_Recent_Count > 0 )
+	{
+		for(int i=0; i<m_Recent_Count; i++)
+		{
+			FileNames.Add(m_Recent[i]);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //

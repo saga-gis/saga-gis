@@ -147,6 +147,17 @@ void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxString &FileName)
 }
 
 //---------------------------------------------------------
+bool CWKSP_Data_Menu_Files::Recent_Get(int DataType, wxArrayString &FileNames, bool bAppend)
+{
+	if( _Get_Menu(DataType) )
+	{
+		return( _Get_Menu(DataType)->Get(FileNames, bAppend) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 {
 	switch( DataType )

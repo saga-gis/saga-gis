@@ -135,12 +135,12 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", _TL("General"), _TL(""));
 
 	m_Parameters.Add_Choice(
-		pNode	, "PROJECT_START"			, _TL("Start Project"),
+		pNode	, "PROJECT_START"			, _TL("Startup Project"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("empty"),
-			_TL("last opened"),
-			_TL("automatically save and load")
+			_TL("last state"),
+			_TL("always ask what to do")
 		), 2
 	);
 
@@ -289,31 +289,8 @@ CWKSP_Data_Manager::~CWKSP_Data_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Initialise(void)
+wxFileName Get_SAGA_GUI_CFG(void)
 {
-	wxString	FileName;
-
-	if( m_pProject->Has_File_Name() )
-	{
-		return( m_pProject->Load(false) );
-	}
-	else if( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) )
-	{
-		FileName	= Get_FilePath_Absolute(g_pSAGA->Get_App_Path(), FileName);
-
-		return( wxFileExists(FileName) && m_pProject->Load(FileName, false, false) );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Data_Manager::Finalise(void)
-{
-	//-----------------------------------------------------
-	CONFIG_Write("/DATA", &m_Parameters);
-
-	//-----------------------------------------------------
 #ifdef _SAGA_LINUX
 //	wxFileName	fProject(wxString(getenv( "HOME"), wxConvFile ), wxT("saga_gui"), wxT("cfg"));
 	CSG_String	sHome(getenv("HOME"));
@@ -330,35 +307,85 @@ bool CWKSP_Data_Manager::Finalise(void)
 
 	fProject.Normalize();
 
+	return( fProject );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Initialise(void)
+{
 	//-----------------------------------------------------
-	if( Get_Count() == 0 || m_Parameters("PROJECT_START")->asInt() == 0 )
-	{	// empty
-		if( fProject.FileExists() )
-		{
-			wxRemoveFile(fProject.GetFullPath());
-		}
+	if( m_pProject->Has_File_Name() )	{	return( m_pProject->Load(false) );	}
+	//-----------------------------------------------------
 
-		CONFIG_Write("/DATA", "PROJECT_FILE", "");
-	}
-	else if( m_Parameters("PROJECT_START")->asInt() == 1 )
-	{	// last opened
-        if( fProject.FileExists() )
-		{
-            wxRemoveFile(fProject.GetFullPath());
-		}
+	//-----------------------------------------------------
+	wxFileName	fProject, fLastState	= Get_SAGA_GUI_CFG();
 
-		CONFIG_Write("/DATA", "PROJECT_FILE", m_pProject->Get_File_Name());
+	switch( m_Parameters("PROJECT_START")->asInt() )
+	{
+	case 0:	// empty
+		return( true );
+
+	case 1:	// last state
+		return( m_pProject->Load(fLastState.GetFullPath(), false, false) );
+
+	case 2:	// always ask what to do
+		{
+			wxArrayString	Projects;
+
+			Projects.Add(wxString::Format("[%s]", _TL("empty")));
+
+			if( fLastState.FileExists() )
+			{
+				Projects.Add(wxString::Format("[%s]", _TL("last state")));
+			}
+
+			m_pMenu_Files->Recent_Get(DATAOBJECT_TYPE_Undefined, Projects, true);
+
+			wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Startup Project"), _TL("Select Startup Project"), Projects);
+
+			if( dlg.ShowModal() != wxID_OK || dlg.GetSelection() == 0 )
+			{	// empty
+				return( true );
+			}
+
+			if( fLastState.FileExists() && dlg.GetSelection() == 1 )
+			{	// last state
+				return( m_pProject->Load(fLastState.GetFullPath(), false, false) );
+			}
+			else
+			{	// recently opened project
+				return( m_pProject->Load(dlg.GetStringSelection(), false, false) );
+			}
+		}
 	}
-	else
-	{	// automatically save and load
+
+	//-----------------------------------------------------
+	//wxString	FileName	= Get_FilePath_Absolute(g_pSAGA->Get_App_Path(), fProject.GetFullPath());
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Finalise(void)
+{
+	//-----------------------------------------------------
+	CONFIG_Write("/DATA", &m_Parameters);
+
+	//-----------------------------------------------------
+	wxFileName	fProject	= Get_SAGA_GUI_CFG();
+
+	if( Get_Count() > 0 )
+	{	// last state
 		m_pProject->Save(fProject.GetFullPath(), false);
 
 		if( fProject.GetPath().Find(g_pSAGA->Get_App_Path()) == 0 )
 		{
 			fProject.MakeRelativeTo(g_pSAGA->Get_App_Path());
 		}
-
-		CONFIG_Write("/DATA", "PROJECT_FILE", fProject.GetFullPath());
+	}
+	else if( fProject.FileExists() )
+	{
+		wxRemoveFile(fProject.GetFullPath());
 	}
 
 	m_pProject->Clr_File_Name();

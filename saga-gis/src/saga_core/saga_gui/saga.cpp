@@ -78,6 +78,7 @@
 #include "saga_frame.h"
 
 #include "wksp.h"
+#include "wksp_data_manager.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -265,6 +266,10 @@ bool CSAGA::OnInit(void)
 		{
 			g_pWKSP->Open(argv[i]);
 		}
+	}
+	else
+	{
+		g_pData->Initialise();
 	}
 
 	//-----------------------------------------------------

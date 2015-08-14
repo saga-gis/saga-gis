@@ -349,14 +349,6 @@ CSAGA_Frame::CSAGA_Frame(void)
 #endif
 
 	Update();
-
-	//-----------------------------------------------------
-	if( g_pSAGA->argc <= 1 && g_pData->Initialise() )
-	{
-		Refresh(false);
-	}
-
-	ProgressBar_Set_Position(0);
 }
 
 //---------------------------------------------------------
