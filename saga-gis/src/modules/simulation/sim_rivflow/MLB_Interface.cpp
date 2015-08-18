@@ -79,11 +79,11 @@ CSG_String Get_Info(int i)
 	{
 	default:
 	case MLB_INFO_Name:			return( _TL("RivFlow") );
-	case MLB_INFO_Category:		return( _TL("Garden") );
-	case MLB_INFO_Author:		return( SG_T("Christian Alwardt") );
+	case MLB_INFO_Category:		return( _TL("Simulation") );
+	case MLB_INFO_Author:		return( "Christian Alwardt" );
 	case MLB_INFO_Description:	return( _TL("RivFlow.") );
-	case MLB_INFO_Version:		return( SG_T("3.1") );
-	case MLB_INFO_Menu_Path:	return( _TL("Garden|RivFlow") );
+	case MLB_INFO_Version:		return( "3.1" );
+	case MLB_INFO_Menu_Path:	return( _TL("Simulation|Hydrology|RivFlow") );
 	}
 }
 
@@ -96,8 +96,6 @@ CSG_String Get_Info(int i)
 #include "RivCourseImpr.h"
 #include "RivGridPrep.h"
 #include "GridComb.h"
-
-//#include "module_dynamics.h"
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
