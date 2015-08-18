@@ -144,6 +144,7 @@ md $(OutDir)include\saga_api
 copy api_core.h $(OutDir)include\saga_api
 copy data_manager.h $(OutDir)include\saga_api
 copy dataobject.h $(OutDir)include\saga_api
+copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
@@ -217,6 +218,7 @@ md $(OutDir)include\saga_api
 copy api_core.h $(OutDir)include\saga_api
 copy data_manager.h $(OutDir)include\saga_api
 copy dataobject.h $(OutDir)include\saga_api
+copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
@@ -289,6 +291,7 @@ md $(OutDir)include\saga_api
 copy api_core.h $(OutDir)include\saga_api
 copy data_manager.h $(OutDir)include\saga_api
 copy dataobject.h $(OutDir)include\saga_api
+copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
@@ -362,6 +365,7 @@ md $(OutDir)include\saga_api
 copy api_core.h $(OutDir)include\saga_api
 copy data_manager.h $(OutDir)include\saga_api
 copy dataobject.h $(OutDir)include\saga_api
+copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
@@ -462,6 +466,7 @@ copy tin.h $(OutDir)include\saga_api
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="data_manager.cpp" />
+    <ClCompile Include="datetime.cpp" />
     <ClCompile Include="geo_classes.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -919,6 +924,7 @@ copy tin.h $(OutDir)include\saga_api
     <ClInclude Include="clipper.hpp" />
     <ClInclude Include="DataObject.h" />
     <ClInclude Include="data_manager.h" />
+    <ClInclude Include="datetime.h" />
     <ClInclude Include="GEO_Tools.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="grid_pyramid.h" />

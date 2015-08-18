@@ -23,6 +23,7 @@ otherinclude_HEADERS = api_core.h \
 compatibility.h \
 data_manager.h \
 dataobject.h \
+datetime.h \
 geo_tools.h \
 grid.h \
 grid_pyramid.h \
@@ -50,6 +51,7 @@ api_translator.cpp\
 clipper.cpp\
 data_manager.cpp\
 dataobject.cpp\
+datetime.cpp\
 geo_classes.cpp\
 geo_functions.cpp\
 grid.cpp\
@@ -109,6 +111,7 @@ api_core.h\
 clipper.hpp\
 data_manager.h\
 dataobject.h\
+datetime.h\
 geo_tools.h\
 grid.h\
 grid_pyramid.h\
