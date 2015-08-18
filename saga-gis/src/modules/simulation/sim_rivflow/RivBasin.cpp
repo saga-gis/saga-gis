@@ -57,15 +57,14 @@
 
 #include "RivBasin.h"
 #include <math.h>
-#include <conio.h>
 #include <sstream>
 #include <fstream>
 
 //ACHTUNG
 //////////////////////////////////////////////////////////////////////
 //Das Schreiben von  Koordinaten als Gridboxwert ist zur			//
-//Zeit auf VIER Stellen beschränkt -> DoubleFormat == [XXXXYYYY]	//
-//Bei der Programmierung berücksichtigen!!!							//
+//Zeit auf VIER Stellen beschraenkt -> DoubleFormat == [XXXXYYYY]	//
+//Bei der Programmierung beruecksichtigen!!!							//
 //																	//
 //////////////////////////////////////////////////////////////////////
 
@@ -87,7 +86,7 @@ CRivBasin::CRivBasin(void)
 
 	Parameters.Add_Grid(
 		NULL, "INPUT"	, "DTM",
-		"Digitales Geländemodell des Flusseinzugsgebietes",
+		"Digitales Gelaendemodell des Flusseinzugsgebietes",
 		PARAMETER_INPUT
 	);
 
@@ -99,19 +98,19 @@ CRivBasin::CRivBasin(void)
 
 	Parameters.Add_Grid(
 		NULL, "INPUT3"	, "statisches Entnahmeraster",
-		"Eingaberaster mit Angaben zur statischen Flächenwasserentnahme.",
+		"Eingaberaster mit Angaben zur statischen Flaechenwasserentnahme.",
 		PARAMETER_INPUT_OPTIONAL
 		//Jahreswerte 	//ACHTUNG auf optionale Eingabe gesetzt -> 'Sicherheits-'Abfrage einbauen
 	);
 
 	Parameters.Add_Value(
-		NULL, "WCons", "Anteilige Flächenwasserentnahme",
+		NULL, "WCons", "Anteilige Flaechenwasserentnahme",
 		"Wenn gesetzt, werden die Werte des statischen Entahmerasters anteilig entnommen und als Raster statWUse ausgegeben",		PARAMETER_TYPE_Bool, false
 	); 
 
 	Parameters.Add_Choice(
-		Parameters("WTHD_NODE")	, "WCons2"	, _TL("Dynamische Flächenwassernutzung..."),
-		_TL("Auswahl der Art der anteiligen Flächenwasserwasserentnahme."),
+		Parameters("WTHD_NODE")	, "WCons2"	, _TL("Dynamische Flaechenwassernutzung..."),
+		_TL("Auswahl der Art der anteiligen Flaechenwasserwasserentnahme."),
 		CSG_String::Format(SG_T("%s|%s"),
 			_TL("...anteilig aus den Flussrasterzellen"),
 			_TL("...anteilig aus Rasterzellen der Teileinzugegebiete")
@@ -126,7 +125,7 @@ CRivBasin::CRivBasin(void)
 
 		Parameters.Add_Grid(
 		NULL, "OUTPUT3"	, "Direc",
-		"Ausgabe der Abflussrichtung für jede Rasterzelle",
+		"Ausgabe der Abflussrichtung fuer jede Rasterzelle",
 		PARAMETER_OUTPUT
 	); // Flussrichtung 0-7		// 7|0 |1
 								// 6|-1|2
@@ -154,17 +153,17 @@ CRivBasin::CRivBasin(void)
 		NULL, "OUTPUT7"	, "BasinShare",
 		"Ausagbe der Rasterzellen des Flusseinzugsgebiets",
 		PARAMETER_OUTPUT
-	); // Grids die in Fluss müden [>0 = Flussgridkoordinate] , Flussgrids [=0] , keine Flussgrid [-1]
+	); // Grids die in Fluss mueden [>0 = Flussgridkoordinate] , Flussgrids [=0] , keine Flussgrid [-1]
 	
 	Parameters.Add_Grid(
 		NULL, "OUTPUT8"	, "statWUse",
-		"Ausagbe der anteiligen Flächenwasserentnahme je Rasterzelle",
+		"Ausagbe der anteiligen Flaechenwasserentnahme je Rasterzelle",
 		PARAMETER_OUTPUT_OPTIONAL
 	); // Flussgrids [>=0] , keine Flussgrid [-1]
 
 	Parameters.Add_Grid(
 		NULL, "OUTPUT9"	, "NumInFlowCells",
-		"Ausgaberaster mit Angabe über die Anzahl der Rasterzellen, die in eine spezifische Rasterzelle (x,y) abfließen",
+		"Ausgaberaster mit Angabe ueber die Anzahl der Rasterzellen, die in eine spezifische Rasterzelle (x,y) abflieszen",
 		PARAMETER_OUTPUT
 	);
 
@@ -176,13 +175,13 @@ CRivBasin::CRivBasin(void)
 
 	Parameters.Add_Value(
 		NULL, "nCr"	, "Hauptgerinne-Speicherkaskade nHG",
-		"Festlegen, wieviele Speicher die ChannelFlow River-Speicherkaskade enthält",
+		"Festlegen, wieviele Speicher die ChannelFlow River-Speicherkaskade enthaelt",
 		PARAMETER_TYPE_Int, 1, 1, true		
 	);
 
 	Parameters.Add_Value(
-		Parameters("FLOW_NODE"), "EnfVmax", "Maximal Geschwindigkeit des Hauptgerinnes berücksichtigen",
-		"Angegebene Maximalgeschwindigkeit im Hauptgerinne bei der Berechnung der durchschnittlichen Fließgeschwindigkeit des Hauptgerinnes berücksichtigen.",
+		Parameters("FLOW_NODE"), "EnfVmax", "Maximal Geschwindigkeit des Hauptgerinnes beruecksichtigen",
+		"Angegebene Maximalgeschwindigkeit im Hauptgerinne bei der Berechnung der durchschnittlichen Flieszgeschwindigkeit des Hauptgerinnes beruecksichtigen.",
 		PARAMETER_TYPE_Bool, true
 	);
 
@@ -213,7 +212,7 @@ bool CRivBasin::On_Execute(void)
 	m_pWCons = Parameters("INPUT3")->asGrid(); //statisches WaterConsumption Grid (Jahreswerte) in [kg m-2 s-1]
 	m_pGrad = Parameters("OUTPUT2")->asGrid();
 	m_pDirec = Parameters("OUTPUT3")->asGrid();
-	m_pRivGrad = Parameters("OUTPUT4")->asGrid(); //Gibt Grid aus, welches nur die Werte des Flussgefälles enhält -> damit später auschließliche Berechnug des max Flussgefälles möglich 
+	m_pRivGrad = Parameters("OUTPUT4")->asGrid(); //Gibt Grid aus, welches nur die Werte des Flussgefaelles enhaelt -> damit spaeter auschlieszliche Berechnug des max Flussgefaelles moeglich 
 	m_pRSpeed = Parameters("OUTPUT5")->asGrid();
 	m_pRaster = Parameters("OUTPUT6")->asGrid();
 	m_pBasinShare = Parameters("OUTPUT7")->asGrid();
@@ -231,7 +230,7 @@ bool CRivBasin::On_Execute(void)
 	m_pRivGrad->Assign(0.0);
 	m_pRSpeed->Assign(0.0);
 	m_pNumInFlowCells->Assign(0.0);
-	m_pBasinShare->Assign(-1.0); // Vorab Werte -1 (kein Flussbasin); Wenn Grid in Fluss mündet > 0 (entspricht Koordinate) oder =0 wenn Flussgrid (>=0 entspricht Flussbasin)
+	m_pBasinShare->Assign(-1.0); // Vorab Werte -1 (kein Flussbasin); Wenn Grid in Fluss muendet > 0 (entspricht Koordinate) oder =0 wenn Flussgrid (>=0 entspricht Flussbasin)
 	
 	if(m_pSharedRivCons)
 		m_pSharedRivCons->Assign(0.0);
@@ -259,7 +258,7 @@ bool CRivBasin::On_Execute(void)
 	std::stringstream lStr0;
 	std::string lStr;
 	lStr0.str("");
-	lStr0 << "Durschnittsgeschwindigkeit für pHG = " << pCr << ": " << res;
+	lStr0 << "Durschnittsgeschwindigkeit fuer pHG = " << pCr << ": " << res;
 	lStr = lStr0.str();
 
 	WriteLog(lStr);
@@ -267,7 +266,7 @@ bool CRivBasin::On_Execute(void)
 
 
 	if(!CRivBasin::Set_BasinShare()) //SetBasin Aufruf
-		Message_Dlg("Achtung, Fehler beim Erzeugen der Flussabhängigen-Anteile wegen nicht gesezter FlussGrids");
+		Message_Dlg("Achtung, Fehler beim Erzeugen der Flussabhaengigen-Anteile wegen nicht gesezter FlussGrids");
 
 	if( !m_pRivGrids )
 	{
@@ -315,7 +314,7 @@ void CRivBasin::Set_RivParam(int x, int y)
 		
 		l = Get_Length(i);	//Weg Mittelpunkt Gitterbox (x,y) nach Gitterboxmitte (ix,iy)
 	
-		dzMax = (z - m_pDTM->asDouble(ix, iy)) / l; //Steigung dz/l entspricht tan(Steigungswinkel) ->Gefälle in Abflussrichtung
+		dzMax = (z - m_pDTM->asDouble(ix, iy)) / l; //Steigung dz/l entspricht tan(Steigungswinkel) ->Gefaelle in Abflussrichtung
 
 	}
 	else // Senke!!
@@ -329,7 +328,7 @@ void CRivBasin::Set_RivParam(int x, int y)
 
 		//--- Werte zur Berechnung der Durchschnittsgeschwindigkeit im HG erfasse
 		if(Parameters("EnfVmax")->asInt() && vMax2 > m_pVTresh)
-			statV = statV + m_pVTresh;	//Falls vMax2 größer als Geschwindigkeitsgrenze m_pVTresh, auf m_pVTresh setzten
+			statV = statV + m_pVTresh;	//Falls vMax2 groeszer als Geschwindigkeitsgrenze m_pVTresh, auf m_pVTresh setzten
 		else
 			statV = statV + vMax2;
 		
@@ -337,15 +336,15 @@ void CRivBasin::Set_RivParam(int x, int y)
 		//-------------------------
 
 
-		m_pRivGrad->Set_Value( x, y, dzMax );	//Flussbezogene Grids: Flussgefälle; (x,y) nach (ix,iy) -> Extra RivGrad-Grid das nur die Gradienten der Fluss-Rasterzellen enthält, damit in LandFlow einfach der MaximalGradient bzw. kmin der Fluss-Rasterzellen bestimmt werden kann  ???
-		m_pRSpeed->Set_Value(x, y, vMax2);		//Flussbezogene Grids: Fließgeschwindigkeit der Flussgrids (lt. vorgegebenen pCr und nCr); (x,y) nach (ix,iy)
-		m_pGrad->Set_Value( x, y, dzMax);		//Allgemeine Grids: Flussgefällewert wird auch in der allgemeinen Gefälledatei gesetzt; (x,y) nach (ix,iy)
-		m_pDirec->Set_Value( x, y, i);			//Allgemeine Grids: Fließrichtung Gitterbox; (x,y) nach (ix,iy)
+		m_pRivGrad->Set_Value( x, y, dzMax );	//Flussbezogene Grids: Flussgefaelle; (x,y) nach (ix,iy) -> Extra RivGrad-Grid das nur die Gradienten der Fluss-Rasterzellen enthaelt, damit in LandFlow einfach der MaximalGradient bzw. kmin der Fluss-Rasterzellen bestimmt werden kann  ???
+		m_pRSpeed->Set_Value(x, y, vMax2);		//Flussbezogene Grids: Flieszgeschwindigkeit der Flussgrids (lt. vorgegebenen pCr und nCr); (x,y) nach (ix,iy)
+		m_pGrad->Set_Value( x, y, dzMax);		//Allgemeine Grids: Flussgefaellewert wird auch in der allgemeinen Gefaelledatei gesetzt; (x,y) nach (ix,iy)
+		m_pDirec->Set_Value( x, y, i);			//Allgemeine Grids: Flieszrichtung Gitterbox; (x,y) nach (ix,iy)
 	}
 	else
 	{
-		m_pGrad->Set_Value( x, y, dzMax);		//Allgemeine Grids: Flussgefällewert wird gesetzt; (x,y) nach (ix,iy)
-		m_pDirec->Set_Value( x, y, i);			//Allgemeine Grids: Fließrichtung Gitterbox; (x,y) nach (ix,iy)
+		m_pGrad->Set_Value( x, y, dzMax);		//Allgemeine Grids: Flussgefaellewert wird gesetzt; (x,y) nach (ix,iy)
+		m_pDirec->Set_Value( x, y, i);			//Allgemeine Grids: Flieszrichtung Gitterbox; (x,y) nach (ix,iy)
 	}
 }
 
@@ -354,7 +353,7 @@ void CRivBasin::Set_RivParam(int x, int y)
 //#########################################################
 
 
-bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin gilt: Riverbox: Wert==0, Zuflussbox: Wert==>>Riverbox-Koordinate [xxxxyyyy] || alle Boxen Ausserhalb RiverBasin: Wert==-1
+bool CRivBasin::Set_BasinShare(void) //Fuer alle Werte innerhalb des RiverBasin gilt: Riverbox: Wert==0, Zuflussbox: Wert==>>Riverbox-Koordinate [xxxxyyyy] || alle Boxen Ausserhalb RiverBasin: Wert==-1
 {
 	if(m_pRivGrids)
 	{
@@ -373,15 +372,15 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 		//Gesamt-Flusseinzugsgebiet und einzelne Flussrasterzelleneinzuggebiete bestimmen und jeweilige Koordinate der Ziel-Flussrasterzelle setzten
 		//---------------------------------------------------------
 
-		for(int l=0; l < m_pDTM->Get_NCells() && Set_Progress_NCells(l); l++) //über alle Zellen des m_pDEM-Grids
+		for(int l=0; l < m_pDTM->Get_NCells() && Set_Progress_NCells(l); l++) //ueber alle Zellen des m_pDEM-Grids
 		{
-			m_pDTM->Get_Sorted(l, x, y); //sortieren der Zellen von höchster (l=0) nach niedrigster...
+			m_pDTM->Get_Sorted(l, x, y); //sortieren der Zellen von hoechster (l=0) nach niedrigster...
 			
-			CellNum = 1; //Initialisierung der Zählung "vorherigerNachbarzellen" für erste Nachbarzelle (falls folgende if-Bedingung nicht erfüllt -> "gegenstandlos")
+			CellNum = 1; //Initialisierung der Zaehlung "vorherigerNachbarzellen" fuer erste Nachbarzelle (falls folgende if-Bedingung nicht erfuellt -> "gegenstandlos")
 			CellNum0 = 0;
 
-			//Erster Durchlauf: Zu "Gipfelzelle l" wird anhand des Abflusses die Mündungszelle im Flussgrid bestimmt (entspricht dem (x,y) für das gilt: m_pRivGrids->asDouble(x,y) != 0 )... 
-			if(m_pNumInFlowCells->asDouble(x,y) == 0 && !m_pDTM->is_NoData(x,y)) //starten nur wenn Gipfelzelle (enstspricht: m_pNumInputCells->asDouble(x,y) == 0); falls != gab es schon eine Zelle die höher war u damit wurde der Zweig schon abgegangen 
+			//Erster Durchlauf: Zu "Gipfelzelle l" wird anhand des Abflusses die Muendungszelle im Flussgrid bestimmt (entspricht dem (x,y) fuer das gilt: m_pRivGrids->asDouble(x,y) != 0 )... 
+			if(m_pNumInFlowCells->asDouble(x,y) == 0 && !m_pDTM->is_NoData(x,y)) //starten nur wenn Gipfelzelle (enstspricht: m_pNumInputCells->asDouble(x,y) == 0); falls != gab es schon eine Zelle die hoeher war u damit wurde der Zweig schon abgegangen 
 			{
 				while( !m_pDTM->is_NoData(x,y) && m_pRivGrids->asDouble(x,y) == 0 )
 				{
@@ -394,7 +393,7 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 						x = Get_xTo(i, x);
 						y = Get_yTo(i, y);
 						
-						if(m_pNumInFlowCells->asDouble(x,y) <= 0) //Wenn Null -> erstes Durchlaufen dieses Astes -> immer plus 1 für Nächstebarchbarzelle
+						if(m_pNumInFlowCells->asDouble(x,y) <= 0) //Wenn Null -> erstes Durchlaufen dieses Astes -> immer plus 1 fuer Naechstebarchbarzelle
 						{
 							CellNum0 = CellNum;
 							CellNum = CellNum + 1;
@@ -402,7 +401,7 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 						else //Ast wurde vorher schon durchlaufen -> vorherige DurchlaufWerte plus die statische Anzahl der Zellen (CellNum) des noch nicht durchlaufenden Astabschnittes 
 							CellNum0 = m_pNumInFlowCells->asDouble(x,y) + CellNum;
 												
-						m_pNumInFlowCells->Set_Value(x, y, CellNum0); //Anzahl voheriger Zellen im Abflusverlauf werden gesetzt... vorher bereits Durchlaufene "Äste" sind berücksichtigt
+						m_pNumInFlowCells->Set_Value(x, y, CellNum0); //Anzahl voheriger Zellen im Abflusverlauf werden gesetzt... vorher bereits Durchlaufene "aeste" sind beruecksichtigt
 
 					}
 					else		//Senke liegt vor
@@ -416,21 +415,21 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 
 				// Bei Zelle (x,y) handelt es sich nun um eine Flussrasterzelle oder eine Senke...
 				
-				if(m_pRivGrids->asDouble(x,y) != 0) //Wenn es eine Flussrasterzelle (also Mündungszelle) ist, Wert für alle alle Flächenrasterzellen setzen, die in die Flussrasterzelle (x,y) münden
+				if(m_pRivGrids->asDouble(x,y) != 0) //Wenn es eine Flussrasterzelle (also Muendungszelle) ist, Wert fuer alle alle Flaechenrasterzellen setzen, die in die Flussrasterzelle (x,y) muenden
 				{
 					
-					m_pBasinShare->Set_Value(x, y, 0); //Mündungsrasterzelle wird auf Null gesetzt
+					m_pBasinShare->Set_Value(x, y, 0); //Muendungsrasterzelle wird auf Null gesetzt
 									
 					//KoordinatenDouble erzeugen FORMAT: xxxxyyyy
 					double r = 0;
 					int u = 10000*x + y;
 					//
 										
-					r = u; //Wert der gesetzt wird : FORMAT: xxxxyyyy (Koordinate der "Ziel"Flussgridbox in die voherige Gitterboxen münden)
+					r = u; //Wert der gesetzt wird : FORMAT: xxxxyyyy (Koordinate der "Ziel"Flussgridbox in die voherige Gitterboxen muenden)
 					
 					m_pDTM->Get_Sorted(l, x, y); //selber Durchlauf nochmal;  von der l-ten Gridbox bis Ziel-Flussfgridbox
 					
-					//Zweiter Durchlauf: Wiederum bei "Gipfelzelle l" beginnend wird nun für alle Gitterzellen auf dem Weg zur Mündungszelle der KoordinatenWert r gesetzt
+					//Zweiter Durchlauf: Wiederum bei "Gipfelzelle l" beginnend wird nun fuer alle Gitterzellen auf dem Weg zur Muendungszelle der KoordinatenWert r gesetzt
 					while( !m_pDTM->is_NoData(x,y) && m_pRivGrids->asDouble(x,y) == 0 )
 					{
 						i = m_pDTM->Get_Gradient_NeighborDir(x, y);
@@ -443,7 +442,7 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 							y = Get_yTo(i, y);						
 						}
 						else
-							{break;} //Nur für den Fall; i = -1 sollte eigentlich nicht mehr möglich sein, da letzte Gridbox ja Flussgridbox...
+							{break;} //Nur fuer den Fall; i = -1 sollte eigentlich nicht mehr moeglich sein, da letzte Gridbox ja Flussgridbox...
 					}
 				}
 				else
@@ -463,7 +462,7 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 
 
 		//-----------------------------------------------------
-		// Anzahl der Gridboxes des Einzugsgebietes zählen:
+		// Anzahl der Gridboxes des Einzugsgebietes zaehlen:
 		for(x=0; x < NX; x++)
 		{
 			for(y=0; y < NY; y++)
@@ -503,21 +502,21 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 						u = 10000*x + y;
 						r = u;
 
-						//alle Rasterzellen finden die in die Flussrasterzelle münden
+						//alle Rasterzellen finden die in die Flussrasterzelle muenden
 						for(int sx=0; sx < NX; sx++)
 						{
 							//#pragma omp parallel for //TEST hier nicht anwendbar
 							for(int sy=0; sy < NY; sy++)
 							{
-								//Wasserverbrauchswerte alle Rasterzellen die in Flussrasterzelle (x,y) münden addieren...
+								//Wasserverbrauchswerte alle Rasterzellen die in Flussrasterzelle (x,y) muenden addieren...
 								if(!m_pDTM->is_NoData(sx,sy) && m_pRivGrids->asDouble(sx,sy) == 0 && m_pBasinShare->asDouble(sx,sy) == r )
 								{
 									if( m_pWCons)
-										conSum = conSum + m_pWCons->asDouble(sx,sy); //Summe der Verbrauchswerte des Teileinzugsgebiets (hier übrige Rasterzellen)
+										conSum = conSum + m_pWCons->asDouble(sx,sy); //Summe der Verbrauchswerte des Teileinzugsgebiets (hier uebrige Rasterzellen)
 
 									sum = sum + 1; //Summe der Rasterzellen des Teileinzuggebiets (ohne Flussrasterzelle)
 
-									cellShare = cellShare + m_pNumInFlowCells->asDouble(sx, sy);	//Summe aller InFlowCell-Werte des Teileinzuggebiets (hier übrige Rasterzellen)
+									cellShare = cellShare + m_pNumInFlowCells->asDouble(sx, sy);	//Summe aller InFlowCell-Werte des Teileinzuggebiets (hier uebrige Rasterzellen)
 								}
 							}
 						}
@@ -529,16 +528,16 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 								m_pSharedRivCons->Set_Value(x, y, conSum);
 							else
 							{
-								//2) Prozemtuale, anteilige Entnahme über das gesamte Teileinzugsgebiet
+								//2) Prozemtuale, anteilige Entnahme ueber das gesamte Teileinzugsgebiet
 												
 								conShare = ( m_pNumInFlowCells->asDouble(x, y) / cellShare ) * conSum;	//Berechnen der anteiligen Entnahme der Flussrasterzelle:
 																										//Summe aller InFlowCell-Werte des Teileinzugsgebiets geteilt durch NumInFlowCells der Flussrasterzelle (x,y) -> Anteilieg Entnahme in Prozent;
 																										//dann mit Gesamtennehame des Teileinzuggebiets conSum multiplizieren -> anteilige Entnahme
 							
 								m_pSharedRivCons->Set_Value(x, y, conShare);							//Setzen der anteiligen Entnahme der Flussrasterzelle 
-								testSum = testSum + conShare;											//PrüfSumme
+								testSum = testSum + conShare;											//PruefSumme
 
-								//Anteilige Entname aller anderen Rasterzellen des Teileinzuggebiets setzen, das in Flussrasterzelle (x,y) münden
+								//Anteilige Entname aller anderen Rasterzellen des Teileinzuggebiets setzen, das in Flussrasterzelle (x,y) muenden
 								for(int sx=0; sx < NX; sx++)
 								{
 									//#pragma omp parallel for //TEST hier nicht anwendbar
@@ -548,7 +547,7 @@ bool CRivBasin::Set_BasinShare(void) //Für alle Werte innerhalb des RiverBasin g
 										{
 											conShare = ( m_pNumInFlowCells->asDouble(sx, sy) / cellShare) * conSum;	//Berechnen der anteiligen Entnahme der Rasterzellen (Methode s. Flussrasterzelle oben)
 											m_pSharedRivCons->Set_Value(sx, sy, conShare);								//Setzen der anteiligen Entnahme der Flussrasterzelle 
-											testSum = testSum + conShare;												//PrüfSumme		
+											testSum = testSum + conShare;												//PruefSumme		
 										}
 									}
 								}
@@ -584,7 +583,7 @@ bool CRivBasin::WriteLog(string s)
 	path = path0.str();
 
 	ofstream myfile;
-	myfile.open(path, ios_base::app);
+	myfile.open(path.c_str(), ios_base::app);
 
 			myfile << s << "\n";
 			Process_Set_Text(CSG_String::Format(SG_T("Schreibe in Logdatei")));

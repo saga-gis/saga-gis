@@ -57,19 +57,17 @@
 
 #include "GridComb.h"
 #include <math.h>
-#include <conio.h>
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <time.h>
-#include <direct.h>
 
 using namespace std;
 
 //ACHTUNG
 //////////////////////////////////////////////////////////////////////
-//ACHTUNG: Bisher keine Fehlerroutine, die auf unterschiedlich große InputGrids im DateiOrdner hinweist -> mögliche Fehlerursache!!!
+//ACHTUNG: Bisher keine Fehlerroutine, die auf unterschiedlich große InputGrids im DateiOrdner hinweist -> moegliche Fehlerursache!!!
 //////////////////////////////////////////////////////////////////////
 
 
@@ -89,8 +87,8 @@ CGridComb::CGridComb(void)
 	// Define your parameters list...
 
 	Parameters.Add_Grid(
-		NULL, "INPUT"	, "Geländemodell (DTM)",
-		"Digitales Geländemodell des Flusseinzugsgebietes",
+		NULL, "INPUT"	, "Gelaendemodell (DTM)",
+		"Digitales Gelaendemodell des Flusseinzugsgebietes",
 		PARAMETER_INPUT
 	);
 
@@ -113,44 +111,44 @@ CGridComb::CGridComb(void)
 
 	Parameters.Add_Value(
 		Parameters("GENERAL_NODE"), "DomW", "Domestic Water",
-		"Berücksichtigung der Domestic Water im resultieren Raster.",
+		"Beruecksichtigung der Domestic Water im resultieren Raster.",
 		PARAMETER_TYPE_Bool, true
 	);
 
 
 	Parameters.Add_Value(
 		Parameters("GENERAL_NODE"), "ElecW", "Electricity Water",
-		"Berücksichtigung der Electricity Water im resultieren Raster.",
+		"Beruecksichtigung der Electricity Water im resultieren Raster.",
 		PARAMETER_TYPE_Bool, true
 	);
 
 
 	Parameters.Add_Value(
 		Parameters("GENERAL_NODE"), "LiveW", "Livestock Water",
-		"Berücksichtigung der Livestock Water im resultieren Raster.",
+		"Beruecksichtigung der Livestock Water im resultieren Raster.",
 		PARAMETER_TYPE_Bool, true
 	);
 
 
 	Parameters.Add_Value(
 		Parameters("GENERAL_NODE"), "ManW", "Manufacturing Water",
-		"Berücksichtigung des Manufacturing Water im resultieren Raster.",
+		"Beruecksichtigung des Manufacturing Water im resultieren Raster.",
 		PARAMETER_TYPE_Bool, true
 	);
 
 
 	Parameters.Add_Value(
 		Parameters("GENERAL_NODE"), "IrrW", "Irrigation Water",
-		"Berücksichtigung des Irrigation Water im resultieren Raster (möglicher Einheitenfehler im WaterGapDatensatz!!).",
+		"Beruecksichtigung des Irrigation Water im resultieren Raster (moeglicher Einheitenfehler im WaterGapDatensatz!!).",
 		PARAMETER_TYPE_Bool, true
 	);
 
 	Parameters.Add_Choice(
-		Parameters("GENERAL_NODE")	, "FvA"	, _TL("Flächenverbrauch-Auswahl (FvA)"),
+		Parameters("GENERAL_NODE")	, "FvA"	, _TL("Flaechenverbrauch-Auswahl (FvA)"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Resultierendes Raster über WasserENTNAHME erstellen"),
-			_TL("Resultierendes Raster über WasserNUTZUNG erstellen")
+			_TL("Resultierendes Raster ueber WasserENTNAHME erstellen"),
+			_TL("Resultierendes Raster ueber WasserNUTZUNG erstellen")
 		), 0
 	);
 	
@@ -177,7 +175,7 @@ bool CGridComb::On_Execute(void)
 	m_pManW = SG_Create_Grid(m_pRefGrid, SG_DATATYPE_Double);
 	m_pIrrW = SG_Create_Grid(m_pRefGrid, SG_DATATYPE_Double);
 
-	m_pFvA = Parameters("FvA")->asInt(); //Auswahlplatzhalter ob Wasserentnahme oder Wassernutzung berücksichtigt werden soll
+	m_pFvA = Parameters("FvA")->asInt(); //Auswahlplatzhalter ob Wasserentnahme oder Wassernutzung beruecksichtigt werden soll
 
 	//-----------------------------------------------------
 	//Startdatum/Zeit erfassen
@@ -192,15 +190,15 @@ bool CGridComb::On_Execute(void)
 	// Do something...
 
 	//-----------------------------------------------------	
-	//SpeicherDateipfad (sfile) für diese Simulation wird generiert und entsprechender Ordner erstellt - Ordnerformat : ddmmyy_HHMM
+	//SpeicherDateipfad (sfile) fuer diese Simulation wird generiert und entsprechender Ordner erstellt - Ordnerformat : ddmmyy_HHMM
 	std::stringstream sPath0;
 	sPath0.str("");
 	char buffer [20];
 	strftime(buffer,20,"%d%m%y_%H%M",timeinfo);
-	sPath0 << m_pDataFolder << "\\Total-" << "FvA" << m_pFvA << "-D" << Parameters("DomW")->asBool() << "E" << Parameters("ElecW")->asBool() << "L" << Parameters("LiveW")->asBool() << "M" << Parameters("ManW")->asBool() << "I" << Parameters("IrrW")->asBool() << "-" << buffer;
+	sPath0 << m_pDataFolder.b_str() << "\\Total-" << "FvA" << m_pFvA << "-D" << Parameters("DomW")->asBool() << "E" << Parameters("ElecW")->asBool() << "L" << Parameters("LiveW")->asBool() << "M" << Parameters("ManW")->asBool() << "I" << Parameters("IrrW")->asBool() << "-" << buffer;
 	std::string m_pSPath;
 	m_pSPath = sPath0.str();							//Speicherdateipfad
-	_mkdir(m_pSPath.c_str());							//Ordner wird erstellt
+	SG_Dir_Create(CSG_String(m_pSPath.c_str()));		//Ordner wird erstellt
 	SPath = m_pSPath.c_str();
 	//-----------------------------------------------------
 
@@ -216,7 +214,7 @@ bool CGridComb::On_Execute(void)
 	}
 
 	if( (m_pFvA == 0) && Parameters("LiveW")->asBool() )
-		Message_Dlg("Hinweis: Für den Livestock liegen nur Wassernutzungsdaten vor. Diese werden deshalb auch für die Kalkulation der Wasserentnahme herangezogen");
+		Message_Dlg("Hinweis: Fuer den Livestock liegen nur Wassernutzungsdaten vor. Diese werden deshalb auch fuer die Kalkulation der Wasserentnahme herangezogen");
 	//-----------------------------------------------------
 
 
@@ -233,9 +231,9 @@ bool CGridComb::On_Execute(void)
 		{
 			CSG_String sDomW;
 			if( m_pFvA == 0 )
-				sDomW.Printf(SG_T("%s/domwith_%d.sgrd"), m_pDataFolder.w_str(), n);
+				sDomW.Printf(SG_T("%s/domwith_%d.sgrd"), m_pDataFolder.c_str(), n);
 			else
-				sDomW.Printf(SG_T("%s/domcon_%d.sgrd"), m_pDataFolder.w_str(), n);
+				sDomW.Printf(SG_T("%s/domcon_%d.sgrd"), m_pDataFolder.c_str(), n);
 			
 			if(!m_pDomW->Create(sDomW))
 				m_pDomW->Assign(0.0);
@@ -245,9 +243,9 @@ bool CGridComb::On_Execute(void)
 		{
 			CSG_String sElecW;
 			if( m_pFvA == 0 )
-				sElecW.Printf(SG_T("%s/elecwith_%d.sgrd"), m_pDataFolder.w_str(), n);
+				sElecW.Printf(SG_T("%s/elecwith_%d.sgrd"), m_pDataFolder.c_str(), n);
 			else
-				sElecW.Printf(SG_T("%s/eleccon_%d.sgrd"), m_pDataFolder.w_str(), n);
+				sElecW.Printf(SG_T("%s/eleccon_%d.sgrd"), m_pDataFolder.c_str(), n);
 			
 			if(!m_pElecW->Create(sElecW))
 				m_pElecW->Assign(0.0);
@@ -256,7 +254,7 @@ bool CGridComb::On_Execute(void)
 		if(Parameters("LiveW")->asBool())
 		{
 			CSG_String sLiveW;
-			sLiveW.Printf(SG_T("%s/livecon_%d.sgrd"), m_pDataFolder.w_str(), n);
+			sLiveW.Printf(SG_T("%s/livecon_%d.sgrd"), m_pDataFolder.c_str(), n);
 			
 			if(!m_pLiveW->Create(sLiveW))
 				m_pLiveW->Assign(0.0);
@@ -266,9 +264,9 @@ bool CGridComb::On_Execute(void)
 		{
 			CSG_String sManW;
 			if( m_pFvA == 0 )
-				sManW.Printf(SG_T("%s/manwith_%d.sgrd"), m_pDataFolder.w_str(), n);
+				sManW.Printf(SG_T("%s/manwith_%d.sgrd"), m_pDataFolder.c_str(), n);
 			else
-				sManW.Printf(SG_T("%s/mancon_%d.sgrd"), m_pDataFolder.w_str(), n);
+				sManW.Printf(SG_T("%s/mancon_%d.sgrd"), m_pDataFolder.c_str(), n);
 			
 			if(!m_pManW->Create(sManW))
 				m_pManW->Assign(0.0);
@@ -282,14 +280,14 @@ bool CGridComb::On_Execute(void)
 			//-----------------------------------------------------
 			//Im Fall von IrrigationData -> extra Monatsschleife
 			//####ACHTUNG!!######
-			//Annahme, dass die Einheit für IrrigationData falsch angegebn ist und in Wirklichkeit und m3/month beträgt,
+			//Annahme, dass die Einheit fuer IrrigationData falsch angegebn ist und in Wirklichkeit und m3/month betraegt,
 			//deshalb wird durch (86400*30) getielt um Einheit m3/s zu erhalten - siehe unten !!
 			for(int i=0; i<12; i++)
 			{
 				if( m_pFvA == 0 )
-					sIrrW.Printf(SG_T("%s/PIrrWW_%d_%d.sgrd"), m_pDataFolder.w_str(), n, i+1);
+					sIrrW.Printf(SG_T("%s/PIrrWW_%d_%d.sgrd"), m_pDataFolder.c_str(), n, i+1);
 				else
-					sIrrW.Printf(SG_T("%s/PIrrUse_%d_%d.sgrd"), m_pDataFolder.w_str(), n, i+1);
+					sIrrW.Printf(SG_T("%s/PIrrUse_%d_%d.sgrd"), m_pDataFolder.c_str(), n, i+1);
 				
 				if(!m_pIrrW->Create(sIrrW))
 					m_pIrrW->Assign(0.0);
@@ -317,7 +315,7 @@ bool CGridComb::On_Execute(void)
 				}
 				CSG_String SaveAsFile;
 					
-				SaveAsFile.Printf(SG_T("%s/TotalWUse_%d_%d.sgrd"), SPath.w_str(), n, i+1);
+				SaveAsFile.Printf(SG_T("%s/TotalWUse_%d_%d.sgrd"), SPath.c_str(), n, i+1);
 										
 				m_pGridComb->Save(SaveAsFile);
 			}
@@ -338,7 +336,7 @@ bool CGridComb::On_Execute(void)
 			
 			CSG_String SaveAsFile;
 			
-			SaveAsFile.Printf(SG_T("%s/TotalWUse_%d.sgrd"), SPath.w_str(), n);
+			SaveAsFile.Printf(SG_T("%s/TotalWUse_%d.sgrd"), SPath.c_str(), n);
 			
 			m_pGridComb->Save(SaveAsFile);
 		}
@@ -380,10 +378,10 @@ bool CGridComb::SaveParameters()
 	time(&rawtime);
 
 	CSG_String sSaveFile;
-	sSaveFile.Printf(SG_T("%s/Parameters.txt"), SPath.w_str() );
+	sSaveFile.Printf(SG_T("%s/Parameters.txt"), SPath.c_str() );
 
 	fstream myfile;
-	myfile.open(sSaveFile.w_str(), ios::out, ios::trunc);
+	myfile.open(sSaveFile.b_str(), ios::out|ios::trunc);
 
 	myfile << "Einstellungen der Grid-Kombination." << "\n\n";
 	myfile << "Timestamp: " << ctime(&rawtime) << "\n\n";
@@ -397,9 +395,9 @@ bool CGridComb::SaveParameters()
 	myfile << "ManW: " << Parameters("ManW")->asBool() << "\n";
 	myfile << "IrrW: " << Parameters("IrrW")->asBool() << "\n\n";
 
-	myfile << "FlächennutzungsAuswahl - WaterWithdrawl [=0] oder WaterConsumption[=1]:" << m_pFvA << "\n\n";
+	myfile << "FlaechennutzungsAuswahl - WaterWithdrawl [=0] oder WaterConsumption[=1]:" << m_pFvA << "\n\n";
 
-	myfile << "SpeicherDateipfad: " << sSaveFile << "\n\n";
+	myfile << "SpeicherDateipfad: " << sSaveFile.b_str() << "\n\n";
 
 	myfile.close();
 

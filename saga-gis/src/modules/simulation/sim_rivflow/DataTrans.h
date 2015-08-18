@@ -75,7 +75,8 @@ private: ///// private members and functions: /////////////
 	CSG_Grid *pSource1, *pSource2;
 	
 	int NX, NY, m_pID, i;
-	bool CDataTrans::Set_TFile(CSG_Grid *pSource1, CSG_Grid *pSource2);
+
+	bool	Set_TFile(CSG_Grid *pSource1, CSG_Grid *pSource2);
 };
 
 

@@ -249,23 +249,23 @@ private: ///// private members and functions: /////////////
 	double Calc_BFlow(int x, int y, double f);
 	double CalcRet(double f, int n);
 	
-	bool CLandFlow::SubBasinId(int x, int y);								//Funktion gibt aus dem m_pSumRunoffDrainage-Raster die Summe der RunOff und Drainage Werte aller Rasterzellen des Teileinzugsgebiets der Flussrasterzelle (x,y)   
-	bool CLandFlow::WConsRiv(int i);
-	void CLandFlow::TestR1Share(int HGx, int HGy);
+	bool SubBasinId(int x, int y);								//Funktion gibt aus dem m_pSumRunoffDrainage-Raster die Summe der RunOff und Drainage Werte aller Rasterzellen des Teileinzugsgebiets der Flussrasterzelle (x,y)   
+	bool WConsRiv(int i);
+	void TestR1Share(int HGx, int HGy);
 
-	void CLandFlow::InitKArray();
-	void CLandFlow::InitNcArray(int p1, int p2, int p3);			//Array von n-Speichern je (x,y) Koordinate 
-	void CLandFlow::InitPArray(int p1, int p2, int p3);
+	void InitKArray();
+	void InitNcArray(int p1, int p2, int p3);			//Array von n-Speichern je (x,y) Koordinate 
+	void InitPArray(int p1, int p2, int p3);
 
-	void CLandFlow::CreateKArray(int p1, int p2, int p3);
-	void CLandFlow::CreateLSMArray(int p1, int p2, int p3);
-	void CLandFlow::CreateNcArray(int p1, int p2, int p3);
-	void CLandFlow::CreatePArray(int p1, int p2, int p3);
+	void CreateKArray(int p1, int p2, int p3);
+	void CreateLSMArray(int p1, int p2, int p3);
+	void CreateNcArray(int p1, int p2, int p3);
+	void CreatePArray(int p1, int p2, int p3);
 
-	void CLandFlow::DeleteKArray();
-	void CLandFlow::DeleteLSMArray();
-	void CLandFlow::DeleteNcArray();
-	void CLandFlow::DeletePArray();
+	void DeleteKArray();
+	void DeleteLSMArray();
+	void DeleteNcArray();
+	void DeletePArray();
 
 	double ReadNCacheFile(bool p0, string s1, int p1, int p2, int p3, int p4, int p5, char p6, int p7, bool p8);
 	double ReadLSMCacheFile(bool p0, string s1, int p1, int p2, int p3, int p4, int p5, char p6, int p7, bool p8);

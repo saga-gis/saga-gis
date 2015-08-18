@@ -57,7 +57,6 @@
 #include "DataTrans.h"
 #include <math.h>
 #include <iostream>
-#include <conio.h>
 #include "stdio.h"
 #include <fstream>
 #include <string>
@@ -161,7 +160,7 @@ bool CDataTrans::Set_TFile(CSG_Grid *pSource1, CSG_Grid *pSource2)
 		file0.str("");
 		file0 << "dataTemp/lsMData-Day" << i+1 << ".txt";
 		file = file0.str();
-		myfile.open(file, ios::out, ios::trunc);
+		myfile.open(file.c_str(), ios::out|ios::trunc);
 
 		for(int x = 0; x < NX; ++x)
 		{

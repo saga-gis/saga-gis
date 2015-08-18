@@ -92,7 +92,7 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "RivBasin.h"
-#include "Landflow.h"
+#include "LandFlow.h"
 #include "RivCourseImpr.h"
 #include "RivGridPrep.h"
 #include "GridComb.h"
