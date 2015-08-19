@@ -635,7 +635,7 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 			return( false );
 		}
 
-		return( pParameter->Set_Value(SG_Get_Data_Manager().Find(&FileName)) );
+		return( pParameter->Set_Value(SG_Get_Data_Manager().Find(&FileName, false)) );
 	}
 
 	else if( pParameter->is_DataObject_List() )
@@ -654,7 +654,7 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 				SG_Get_Data_Manager().Add(&FileName);
 			}
 
-			pParameter->asList()->Add_Item(SG_Get_Data_Manager().Find(&FileName));
+			pParameter->asList()->Add_Item(SG_Get_Data_Manager().Find(&FileName, false));
 		}
 		while( FileNames.Length() > 0 );
 	}

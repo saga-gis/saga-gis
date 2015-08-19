@@ -391,6 +391,8 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 					: Name.c_str()
 				);
 
+				pGrid->Set_File_Name(DataSet.Get_File_Name());
+
 				m_pGrids->Add_Item(pGrid);
 
 				DataObject_Add			(pGrid);

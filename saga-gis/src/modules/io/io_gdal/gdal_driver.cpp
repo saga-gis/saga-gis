@@ -260,6 +260,8 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	double	Transform[6];
 
+	m_File_Name	= File_Name;
+
 	m_Access	= SG_GDAL_IO_READ;
 
 	m_NX		= m_pDataSet->GetRasterXSize();
@@ -299,37 +301,38 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String &Driver, const CSG_String &Options,TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection)
+bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String &Driver, const CSG_String &Options, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection)
 {
-	char		**pOptions 	= NULL;
-	char		**pTokens 	= NULL;	
-	GDALDriver	*pDriver;
-	
-	if (!Options.is_Empty()){
-	  pTokens = CSLTokenizeString2( Options, " ", CSLT_STRIPLEADSPACES);
-	  
-	  for( int i = 0; pTokens != NULL && pTokens[i] != NULL; i++ ){
-	    pOptions = CSLAddString( pOptions,  pTokens[i] );
-	  }
-	}
-	
 	Close();
-	
-	
 
 	//--------------------------------------------------------
+	char	**pOptions	= NULL;
+	
+	if( !Options.is_Empty() )
+	{
+		char	**pTokens	= CSLTokenizeString2(Options, " ", CSLT_STRIPLEADSPACES);
+	  
+		for(int i=0; pTokens && pTokens[i]; i++)
+		{
+			pOptions	= CSLAddString(pOptions, pTokens[i]);
+		}
+	}
+
+	//--------------------------------------------------------
+	GDALDriver	*pDriver;
+
 	if( (pDriver = gSG_GDAL_Drivers.Get_Driver(Driver)) == NULL )
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("driver not found."), Driver.c_str()));
 
 		return( false );
 	}
-	
-	if( !GDALValidateCreationOptions (pDriver, pOptions))
+
+	if( !GDALValidateCreationOptions(pDriver, pOptions) )
 	{
-	  SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("Creation option(s) not supported by the driver"), Options.c_str() ));
-	  
-	  return false;
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("Creation option(s) not supported by the driver"), Options.c_str()));
+
+		return( false );
 	}
 
 	if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
@@ -347,6 +350,8 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 	}
 
 	//--------------------------------------------------------
+	m_File_Name	= File_Name;
+
 	m_Access	= SG_GDAL_IO_WRITE;
 
 	if( Projection.is_Okay() )
@@ -383,17 +388,19 @@ bool CSG_GDAL_DataSet::Close(void)
 		m_pDataSet	= NULL;
 	}
 
+	m_File_Name.Clear();
+
 	m_Access	= SG_GDAL_IO_CLOSED;
 
-	
-	if (strlen(CPLGetLastErrorMsg()) > 3)
+	if( strlen(CPLGetLastErrorMsg()) > 3 )
 	{
-	      SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"),_TL("Dataset creation failed") , SG_STR_MBTOSG(CPLGetLastErrorMsg())));
-	      CPLErrorReset();
-	      
-	      return false;
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("Dataset creation failed"), SG_STR_MBTOSG(CPLGetLastErrorMsg())));
+
+		CPLErrorReset();
+
+		return( false );
 	}
-	
+
 	return( true );
 }
 
@@ -430,6 +437,12 @@ CSG_String CSG_GDAL_DataSet::Get_Name(void)	const
 CSG_String CSG_GDAL_DataSet::Get_Description(void)	const
 {
 	return( m_pDataSet ? m_pDataSet->GetDescription() : "" );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_GDAL_DataSet::Get_File_Name(void)	const
+{
+	return( m_File_Name );
 }
 
 //---------------------------------------------------------

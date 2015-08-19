@@ -149,6 +149,7 @@ public:
 	CSG_String					Get_DriverID		(void)	const;
 	CSG_String					Get_Name			(void)	const;
 	CSG_String					Get_Description		(void)	const;
+	CSG_String					Get_File_Name		(void)	const;
 	const char *				Get_Projection		(void)	const;
 	const char *				Get_MetaData_Item	(const char *pszName, const char *pszDomain = "")							const;
 	const char **				Get_MetaData		(const char *pszDomain = "")												const;
@@ -174,6 +175,8 @@ private:
 	int							m_Access, m_NX, m_NY;
 
 	double						m_xMin, m_yMin, m_Cellsize;
+
+	CSG_String					m_File_Name;
 
 	CSG_Vector					m_TF_A;
 
