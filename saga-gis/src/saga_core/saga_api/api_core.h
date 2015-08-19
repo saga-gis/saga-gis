@@ -117,6 +117,7 @@
 
 //---------------------------------------------------------
 // this is defined by configure, but will not be on a normal application build
+
 #ifndef SIZEOF_LONG
 	#if defined(__alpha) || defined(__sparcv9) || defined(__LP64__) || (defined(__HOS_AIX__) && defined(_LP64))
 		#define SIZEOF_LONG		8
@@ -148,13 +149,8 @@
 #endif	// _TYPEDEF_WORD
 
 //---------------------------------------------------------
-#if SIZEOF_LONG == 4
 	typedef   signed long long	sLong;
 	typedef unsigned long long	uLong;
-#else
-	typedef   signed long		sLong;
-	typedef unsigned long		uLong;
-#endif
 
 //---------------------------------------------------------
 #if defined(_SAGA_MSW)
