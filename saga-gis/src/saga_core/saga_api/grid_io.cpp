@@ -110,7 +110,7 @@ bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_M
 	{
 		Set_Update_Flag();
 
-		Set_File_Name(File_Name);
+		Set_File_Name(File_Name, true);
 
 		Load_MetaData(File_Name);
 
@@ -183,7 +183,7 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int
 	{
 		Set_Modified(false);
 
-		Set_File_Name(sFile_Name);
+		Set_File_Name(sFile_Name, true);
 
 		Save_MetaData(File_Name);
 

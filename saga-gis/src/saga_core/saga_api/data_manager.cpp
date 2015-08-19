@@ -103,11 +103,11 @@ CSG_Data_Collection::~CSG_Data_Collection(void)
 }
 
 //---------------------------------------------------------
-CSG_Data_Object * CSG_Data_Collection::Get(const CSG_String &File) const
+CSG_Data_Object * CSG_Data_Collection::Get(const CSG_String &File, bool bNative) const
 {
 	for(size_t i=0; i<Count(); i++)
 	{
-		if( !File.Cmp(Get(i)->Get_File_Name()) )
+		if( !File.Cmp(Get(i)->Get_File_Name(bNative)) )
 		{
 			return( Get(i) );
 		}
@@ -372,18 +372,18 @@ bool CSG_Data_Manager::Exists(CSG_Data_Object *pObject) const
 }
 
 //---------------------------------------------------------
-CSG_Data_Object *  CSG_Data_Manager::Find(const CSG_String &File) const
+CSG_Data_Object *  CSG_Data_Manager::Find(const CSG_String &File, bool bNative) const
 {
 	CSG_Data_Object	*pObject;
 
-	if( (pObject = m_pTable      ->Get(File)) != NULL )	return( pObject );
-	if( (pObject = m_pTIN        ->Get(File)) != NULL )	return( pObject );
-	if( (pObject = m_pPoint_Cloud->Get(File)) != NULL )	return( pObject );
-	if( (pObject = m_pShapes     ->Get(File)) != NULL )	return( pObject );
+	if( (pObject = m_pTable      ->Get(File, bNative)) != NULL )	return( pObject );
+	if( (pObject = m_pTIN        ->Get(File, bNative)) != NULL )	return( pObject );
+	if( (pObject = m_pPoint_Cloud->Get(File, bNative)) != NULL )	return( pObject );
+	if( (pObject = m_pShapes     ->Get(File, bNative)) != NULL )	return( pObject );
 
 	for(size_t i=0; i<Grid_System_Count(); i++)
 	{
-		if( (pObject = Get_Grid_System(i)->Get(File)) != NULL )	return( pObject );
+		if( (pObject = Get_Grid_System(i)->Get(File, bNative)) != NULL )	return( pObject );
 	}
 
 	return(	NULL );

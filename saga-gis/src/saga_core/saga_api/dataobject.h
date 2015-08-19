@@ -186,8 +186,9 @@ public:
 
 	virtual bool					Save			(const CSG_String &File_Name, int Format = 0)	= 0;
 
-	const SG_Char *					Get_File_Name	(void)	const			{	return( m_File_Name );		}
-	int								Get_File_Type	(void)	const			{	return( m_File_Type );		}
+	void							Set_File_Name	(const CSG_String &File_Name);
+	const SG_Char *					Get_File_Name	(bool bNative = true)	const;
+	int								Get_File_Type	(void)					const;
 
 	virtual bool					Assign			(CSG_Data_Object *pObject);
 
@@ -230,7 +231,7 @@ public:
 
 protected:
 
-	void							Set_File_Name		(const CSG_String &File_Name);
+	void							Set_File_Name		(const CSG_String &File_Name, bool bNative);
 	void							Set_File_Type		(int Type)			{	m_File_Type	= Type;			}
 
 	bool							Load_MetaData		(const SG_Char *File_Name);
@@ -244,7 +245,7 @@ protected:
 
 private:
 
-	bool							m_bModified, m_bUpdate;
+	bool							m_bModified, m_bUpdate, m_File_bNative;
 
 	int								m_File_Type;
 

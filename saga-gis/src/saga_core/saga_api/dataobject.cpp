@@ -144,6 +144,7 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_pProjection		= m_pMetaData->Add_Child(SG_META_SRC_PROJ);
 
 	//-----------------------------------------------------
+	m_File_bNative		= false;
 	m_File_Type			= 0;
 	m_bModified			= true;
 
@@ -193,15 +194,34 @@ void CSG_Data_Object::Set_Description(const CSG_String &Description)
 }
 
 //---------------------------------------------------------
-void CSG_Data_Object::Set_File_Name(const CSG_String &File_Name)
+void CSG_Data_Object::Set_File_Name	(const CSG_String &File_Name)
+{
+	Set_File_Name(File_Name, false);
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object::Set_File_Name(const CSG_String &File_Name, bool bNative)
 {
 	m_File_Name		= File_Name;
+	m_File_bNative	= bNative;
 
 	m_Name			= SG_File_Get_Name(File_Name, false);
 
 	m_bModified		= false;
 
 	m_pFile->Set_Content(m_File_Name);
+}
+
+//---------------------------------------------------------
+const SG_Char * CSG_Data_Object::Get_File_Name(bool bNative)	const
+{
+	return( !bNative || m_File_bNative ? m_File_Name.c_str() : SG_T("") );
+}
+
+//---------------------------------------------------------
+int CSG_Data_Object::Get_File_Type(void)	const
+{
+	return( m_File_Type );
 }
 
 

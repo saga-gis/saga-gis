@@ -367,7 +367,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	_Dec_Array();
 
-	Set_File_Name(File_Name);
+	Set_File_Name(File_Name, true);
 
 	Load_MetaData(File_Name);
 
@@ -430,7 +430,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	Set_Modified(false);
 
-	Set_File_Name(sFile_Name);
+	Set_File_Name(sFile_Name, true);
 
 	Save_MetaData(File_Name);
 

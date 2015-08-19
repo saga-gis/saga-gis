@@ -91,7 +91,7 @@ public:
 	size_t							Count				(void)		const	{	return( m_Objects.Get_Size() );	}
 
 	CSG_Data_Object *				Get					(size_t i)	const	{	return( i < Count() ? ((CSG_Data_Object **)m_Objects.Get_Array())[i] : NULL );	}
-	CSG_Data_Object *				Get					(const CSG_String &File)	const;
+	CSG_Data_Object *				Get					(const CSG_String &File, bool bNative = true)	const;
 
 	virtual bool					Exists				(CSG_Data_Object *pObject)	const;
 
@@ -195,7 +195,7 @@ public:
 	bool								Exists				(CSG_Data_Object *pObject)		const;
 	bool								Exists				(const CSG_Grid_System &System)	const;
 
-	CSG_Data_Object *					Find				(const CSG_String &File)		const;
+	CSG_Data_Object *					Find				(const CSG_String &File, bool bNative = true)	const;
 
 	CSG_String							Get_Summary			(void)	const;
 

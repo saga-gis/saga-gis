@@ -229,7 +229,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 
 	bool	bResult	= _Load_ESRI(File_Name);
 
-	Set_File_Name(File_Name);
+	Set_File_Name(File_Name, true);
 	Load_MetaData(File_Name);
 
 	if( bResult )
@@ -341,7 +341,7 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 	{
 		Set_Modified(false);
 
-		Set_File_Name(File_Name);
+		Set_File_Name(File_Name, true);
 
 		Save_MetaData(File_Name);
 

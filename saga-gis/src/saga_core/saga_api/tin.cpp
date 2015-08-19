@@ -179,7 +179,7 @@ bool CSG_TIN::Create(const CSG_String &File_Name)
 		Get_History().Add_Child(_TL("Created from file"), File_Name);
 		Get_History().Add_Children(Shapes.Get_History());
 
-		Set_File_Name(File_Name);
+		Set_File_Name(File_Name, true);
 		Set_Modified(false);
 		Set_Update_Flag();
 
@@ -392,7 +392,7 @@ bool CSG_TIN::Save(const CSG_String &File_Name, int Format)
 	{
 		Set_Modified(false);
 
-		Set_File_Name(File_Name);
+		Set_File_Name(File_Name, true);
 	}
 
 	return( bResult );

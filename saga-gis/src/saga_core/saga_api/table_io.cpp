@@ -136,7 +136,7 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 
 		Set_Update_Flag();
 
-		Set_File_Name(File_Name);
+		Set_File_Name(File_Name, true);
 
 		Load_MetaData(File_Name);
 
@@ -211,7 +211,7 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 
 		Set_File_Type(Format);
 
-		Set_File_Name(File_Name);
+		Set_File_Name(File_Name, true);
 
 		Save_MetaData(File_Name);
 
