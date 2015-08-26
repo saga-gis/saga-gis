@@ -80,27 +80,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTC_Texture : public CSG_Module_Grid
+class CTC_Parameter_Base : public CSG_Module_Grid
 {
 public:
-	CTC_Texture(void);
+	CTC_Parameter_Base(void);
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	void					On_Construction			(void);
+
+	bool					Get_Parameter			(CSG_Grid *pValues, CSG_Grid *pParameter);
 
 
 private:
 
 	CSG_Grid_Cell_Addressor	m_Kernel;
-
-	CSG_Grid				*m_pDEM, *m_pTexture, *m_pNoise;
-
-
-	int						Get_MedianDiff	(int x, int y);
-
-	int						Get_Texture		(int x, int y);
 
 };
 
@@ -110,7 +107,33 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTC_Convexity : public CSG_Module_Grid
+class CTC_Texture : public CTC_Parameter_Base
+{
+public:
+	CTC_Texture(void);
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_Grid				*m_pDEM;
+
+
+	int						Get_Noise				(int x, int y, double Epsilon = 0.0);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTC_Convexity : public CTC_Parameter_Base
 {
 public:
 	CTC_Convexity(void);
@@ -118,21 +141,15 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	int						m_dLaplace[2];
-
-	CSG_Grid_Cell_Addressor	m_Kernel;
-
-	CSG_Grid				*m_pDEM, *m_pConvexity, *m_pLaplace;
+	CSG_Grid				*m_pDEM;
 
 
-	int						Get_Laplace		(int x, int y);
-
-	int						Get_Convexity	(int x, int y);
+	int						Get_Laplace				(int x, int y, const double Kernel[2], int Type, double Epsilon);
 
 };
 
@@ -159,18 +176,17 @@ protected:
 
 private:
 
-	CSG_Simple_Statistics	stat_Slope, stat_Convexity, stat_Texture;
-
 	double					m_Mean_Slope, m_Mean_Convexity, m_Mean_Texture;
 
-	CSG_Grid				*m_pSlope, *m_pConvexity, *m_pTexture, *m_pLandforms;
+	CSG_Simple_Statistics	m_Stat_Slope, m_Stat_Convexity, m_Stat_Texture;
 
+	CSG_Grid				*m_pSlope, *m_pConvexity, *m_pTexture;
 
-	void					Set_LUT					(int nLevels);
 
 	bool					Get_Classes				(void);
+	int						Get_Class				(int Level, int x, int y, bool bLastLevel);
 
-	void					Get_Class				(int Level, int x, int y, bool bLastLevel);
+	void					Set_LUT					(CSG_Grid *pLandforms, int nLevels);
 
 };
 
