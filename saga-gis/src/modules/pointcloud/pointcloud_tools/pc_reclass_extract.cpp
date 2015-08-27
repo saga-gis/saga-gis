@@ -308,6 +308,8 @@ bool CPC_Reclass_Extract::On_Execute(void)
 			m_pResult->Add_Field(CSG_String::Format(SG_T("%s_reclass"), m_pInput->Get_Field_Name(m_AttrField)), m_pInput->Get_Field_Type(m_AttrField));
 	}
 
+	m_iOrig = 0;	// counter of unchanged points
+
 	//-----------------------------------------------------
 	switch( method )
 	{
@@ -338,6 +340,12 @@ bool CPC_Reclass_Extract::On_Execute(void)
 			Set_Display_Attributes(m_pResult, m_AttrField, sParms);
 	}
 
+	if( m_bExtract)
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points out of %d extracted."), m_pInput->Get_Point_Count()-m_iOrig, m_pInput->Get_Point_Count()), true);
+	else
+		SG_UI_Msg_Add(CSG_String::Format(_TL("%d points out of %d reclassified."), m_pInput->Get_Point_Count()-m_iOrig, m_pInput->Get_Point_Count()), true);
+
+
 	return( true );
 }
 
@@ -354,7 +362,6 @@ void CPC_Reclass_Extract::Reclass_Range(void)
 	bool		otherOpt, noDataOpt, floating;
 	int			opera;
 	double		minValue, maxValue, value, others, noData, noDataValue, newValue;
-
 
 	minValue	= Parameters("MIN")->asDouble();
 	maxValue	= Parameters("MAX")->asDouble();
@@ -373,7 +380,7 @@ void CPC_Reclass_Extract::Reclass_Range(void)
 	else
 		floating = false;
 
-	for (int i=0; i<m_pInput->Get_Point_Count(); i++)
+	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
 	{
 		if( floating == true )
 			value = m_pInput->Get_Value(i, m_AttrField);
@@ -391,7 +398,9 @@ void CPC_Reclass_Extract::Reclass_Range(void)
 			else
 			{
 				if (!m_bExtract)
-					Set_Value(i, value);								// or original value		
+					Set_Value(i, value);								// or original value
+
+				m_iOrig++;
 			}
 		}
 
@@ -407,6 +416,8 @@ void CPC_Reclass_Extract::Reclass_Range(void)
 			{
 				if (!m_bExtract)
 					Set_Value(i, value);								// or original value
+
+				m_iOrig++;
 			}
 		}
 	}
@@ -420,7 +431,6 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 	bool		otherOpt, noDataOpt, floating;
 	int			opera;
 	double		oldValue, newValue, value, others, noData, noDataValue;
-
 
 	oldValue	= Parameters("OLD")->asDouble();
 	newValue	= Parameters("NEW")->asDouble();
@@ -438,8 +448,8 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 	else
 		floating = false;
 
-		
-	for (int i=0; i<m_pInput->Get_Point_Count(); i++)
+
+	for (int i=0; i<m_pInput->Get_Point_Count() && Set_Progress(i, m_pInput->Get_Point_Count()); i++)
 	{
 		if( floating == true )
 			value = m_pInput->Get_Value(i, m_AttrField);
@@ -459,6 +469,8 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 			{
 				if (!m_bExtract)
 					Set_Value(i, value);								// or original value
+
+				m_iOrig++;
 			}
 		}
 
@@ -474,6 +486,8 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 			{
 				if (!m_bExtract)
 					Set_Value(i, value);								// or original value
+
+				m_iOrig++;
 			}
 		}
 
@@ -489,6 +503,8 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 			{
 				if (!m_bExtract)
 					Set_Value(i, value);								// or original value
+
+				m_iOrig++;
 			}
 		}
 
@@ -504,6 +520,8 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 			{
 				if (!m_bExtract)
 					Set_Value(i, value);								// or original value
+
+				m_iOrig++;
 			}
 		}
 
@@ -519,6 +537,8 @@ void CPC_Reclass_Extract::Reclass_Single(void)
 			{
 				if (!m_bExtract)
 					Set_Value(i, value);								// or original value
+
+				m_iOrig++;
 			}
 		}
 	}
@@ -632,6 +652,8 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 			{
 				if (!m_bExtract)
 					Set_Value(i, value);							// or original value
+
+				m_iOrig++;
 			}
 		}
 	}

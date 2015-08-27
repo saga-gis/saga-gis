@@ -102,6 +102,7 @@ private:
 	int				m_Single;
 	bool			m_bExtract, m_bCreateAttrib;
 	int				m_AttrField;
+	int				m_iOrig;
 
 	CSG_PointCloud	*m_pInput, *m_pResult;
 
