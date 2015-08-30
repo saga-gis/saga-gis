@@ -22,6 +22,7 @@ pc_cut.cpp\
 pc_drop_attribute.cpp\
 pc_from_grid.cpp\
 pc_from_shapes.cpp\
+pc_from_table.cpp\
 pc_merge.cpp\
 pc_reclass_extract.cpp\
 pc_thinning_simple.cpp\
@@ -35,6 +36,7 @@ pc_cut.h\
 pc_drop_attribute.h\
 pc_from_grid.h\
 pc_from_shapes.h\
+pc_from_table.h\
 pc_merge.h\
 pc_reclass_extract.h\
 pc_thinning_simple.h\

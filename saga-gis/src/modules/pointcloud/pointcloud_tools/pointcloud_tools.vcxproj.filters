@@ -53,6 +53,9 @@
     <ClCompile Include="pc_merge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pc_from_table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pc_merge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pc_from_table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
