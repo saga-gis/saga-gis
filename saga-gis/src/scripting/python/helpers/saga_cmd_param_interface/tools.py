@@ -620,5 +620,7 @@ tools = [
 ['io_grid', 16, 'Import, Clip and Resample Grids'],
 ['climate_tools', 8, 'PET (after Hargreaves, Grid)'],
 ['grid_visualisation', 10, 'Select Look-up Table for Grid Visualization'],
-['grid_tools', 32, 'Select Grid from List']
+['grid_tools', 32, 'Select Grid from List'],
+['io_grid_image', 3, 'Import Grids from KML'],
+['pointcloud_tools', 13, 'Point Cloud from Table']
 ]
