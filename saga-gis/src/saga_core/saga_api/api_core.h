@@ -348,6 +348,8 @@ public:
 	double							asDouble			(void)								const;
 	bool							asDouble			(double &Value)						const;
 
+	bool							to_ASCII			(char **pString)					const;
+
 
 protected:
 

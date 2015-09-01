@@ -795,6 +795,43 @@ bool CSG_String::asDouble(double &Value) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * This function creates a single char array and fills it
+  * with the ASCII representation of this string object.
+  * If successful pString will point to the adress of the
+  * allocated memory. Freeing memory is in response of the
+  * calling function.
+*/
+//---------------------------------------------------------
+bool CSG_String::to_ASCII(char **pString)	const
+{
+	if( is_Empty() )
+	{
+		return( false );
+	}
+
+	*pString	= (char *)SG_Malloc((1 + Length()) * sizeof(char));
+
+	if( *pString == NULL )
+	{
+		return( false );
+	}
+
+	memcpy(*pString, m_pString->ToAscii(), Length() * sizeof(char));
+
+	(*pString)[Length()]	= '\0';
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Strings::CSG_Strings(void)
 {
 	m_nStrings	= 0;
