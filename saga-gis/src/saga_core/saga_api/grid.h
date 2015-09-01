@@ -380,6 +380,65 @@ private:	///////////////////////////////////////////////
   * CSG_Grid is the data object created for raster handling.
 */
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Grid_File_Info
+{
+//---------------------------------------------------------
+public:		///////////////////////////////////////////////
+
+	//-----------------------------------------------------
+	CSG_Grid_File_Info(void);
+
+								CSG_Grid_File_Info		(const CSG_Grid_File_Info &Info);
+	bool						Create					(const CSG_Grid_File_Info &Info);
+
+								CSG_Grid_File_Info		(const CSG_String &File_Name);
+	bool						Create					(const CSG_String &File_Name);
+
+								CSG_Grid_File_Info		(const CSG_Grid &Grid);
+	bool						Create					(const CSG_Grid &Grid);
+
+	bool						Save					(const CSG_String &File_Name                                                                      , bool bBinary = true);
+	bool						Save					(const CSG_String &File_Name                      , int xStart, int yStart, int xCount, int yCount, bool bBinary = true);
+	static bool					Save					(const CSG_String &File_Name, const CSG_Grid &Grid                                                , bool bBinary = true);
+	static bool					Save					(const CSG_String &File_Name, const CSG_Grid &Grid, int xStart, int yStart, int xCount, int yCount, bool bBinary = true);
+
+
+	//-----------------------------------------------------
+	bool						m_bFlip, m_bSwapBytes;
+
+	sLong						m_Offset;
+
+	double						m_zScale, m_zOffset, m_NoData;
+
+	TSG_Data_Type				m_Type;
+
+	CSG_String					m_Name, m_Description, m_Unit, m_Data_File;
+
+	CSG_Grid_System				m_System;
+
+	CSG_Projection				m_Projection;
+
+
+private:
+
+	void						_On_Construction		(void);
+
+	int							_Get_Key				(CSG_File &Stream, CSG_String &Line);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						CSG_Grid						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+  * CSG_Grid is the data object created for raster handling.
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Grid : public CSG_Data_Object
 {
 //---------------------------------------------------------
@@ -841,8 +900,6 @@ private:	///////////////////////////////////////////////
 	bool						_Save_ASCII				(CSG_File &Stream, int xA, int yA, int xN, int yN, bool bFlip = false);
 	bool						_Load_Native			(const CSG_String &File_Name, TSG_Grid_Memory_Type aMemory_Type, bool bLoadData);
 	bool						_Save_Native			(const CSG_String &File_Name, int xA, int yA, int xN, int yN, bool bBinary = true);
-
-	int							_Load_Native_Get_Key	(CSG_File &Stream, CSG_String &Line);
 
 	bool						_Load_Surfer			(const CSG_String &File_Name, TSG_Grid_Memory_Type aMemory_Type, bool bLoadData);
 

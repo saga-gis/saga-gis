@@ -592,85 +592,25 @@ sLong SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
 	//-----------------------------------------------------
-	CSG_File	Stream;
+	CSG_Grid_File_Info	Info;
 
-	if( !Stream.Open(File_Name, SG_FILE_R, false) )
+	if( !Info.Create(File_Name) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	// Load Header...
+	Set_Name        (Info.m_Name);
+	Set_Description (Info.m_Description);
+	Set_Unit        (Info.m_Unit);
+	Set_NoData_Value(Info.m_NoData);
 
-	bool			hdr_bFlip		= false;
-	bool			hdr_bSwapBytes	= false;
-	sLong			hdr_Offset		= 0;
-	sLong			NX				= 0;
-	sLong			NY				= 0;
-	double			Cellsize		= 0.0;
-	double			xMin			= 0.0;
-	double			yMin			= 0.0;
-	CSG_String		Data_File;
+	m_System		= Info.m_System;
+	m_Type			= Info.m_Type;
+	m_zScale		= Info.m_zScale;
+	m_zOffset		= Info.m_zOffset;
 
-	m_Type	= SG_DATATYPE_Float;	// defaults to float
-
-	do
-	{
-		CSG_String	Value;
-
-		switch( _Load_Native_Get_Key(Stream, Value) )
-		{
-		case GRID_FILE_KEY_NAME           :	Set_Name        (Value);	break;
-		case GRID_FILE_KEY_DESCRIPTION    :	Set_Description (Value);	break;
-		case GRID_FILE_KEY_UNITNAME       :	Set_Unit        (Value);	break;
-
-		case GRID_FILE_KEY_CELLCOUNT_X    :	NX				= Value.asInt   ();	break;
-		case GRID_FILE_KEY_CELLCOUNT_Y    :	NY				= Value.asInt   ();	break;
-		case GRID_FILE_KEY_POSITION_XMIN  :	xMin			= Value.asDouble();	break;
-		case GRID_FILE_KEY_POSITION_YMIN  :	yMin			= Value.asDouble();	break;
-		case GRID_FILE_KEY_CELLSIZE       :	Cellsize		= Value.asDouble();	break;
-		case GRID_FILE_KEY_Z_FACTOR       :	m_zScale		= Value.asDouble();	break;
-		case GRID_FILE_KEY_Z_OFFSET       :	m_zOffset		= Value.asDouble();	break;
-		case GRID_FILE_KEY_NODATA_VALUE   :	Set_NoData_Value(Value.asDouble());	break;
-
-		case GRID_FILE_KEY_DATAFILE_OFFSET:	hdr_Offset		= Value.asInt();	break;
-		case GRID_FILE_KEY_BYTEORDER_BIG  :	hdr_bSwapBytes	= Value.Find(GRID_FILE_KEY_TRUE) >= 0;	break;
-		case GRID_FILE_KEY_TOPTOBOTTOM    :	hdr_bFlip		= Value.Find(GRID_FILE_KEY_TRUE) >= 0;	break;
-
-		case GRID_FILE_KEY_DATAFILE_NAME:
-			if( SG_File_Get_Path(Value).Length() > 0 )
-			{
-				Data_File	= Value;
-			}
-			else
-			{
-				Data_File	= SG_File_Make_Path(SG_File_Get_Path(File_Name), Value);
-			}
-			break;
-
-		case GRID_FILE_KEY_DATAFORMAT:
-			{
-				for(int i=0; i<SG_DATATYPE_Undefined; i++)
-				{
-					if( Value.Find(gSG_Data_Type_Identifier[i]) >= 0 )
-					{
-						m_Type	= (TSG_Data_Type)i;
-
-						break;
-					}
-				}
-			}
-			break;
-		}
-	}
-	while( !Stream.is_EOF() );
-
-	if( !m_System.Assign(Cellsize, xMin, yMin, (int)NX, (int)NY) )
-	{
-		return( false );
-	}
-
-	Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+	Get_Projection().Create(Info.m_Projection);
 
 	//-----------------------------------------------------
 	// Load Data...
@@ -681,28 +621,30 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 	}
 
 	//-----------------------------------------------------
+	CSG_File	Stream;
+
 	if( !SG_Data_Type_is_Numeric(m_Type) )	// ASCII...
 	{
-		if(	Stream.Open(Data_File                                       , SG_FILE_R, false)
+		if(	Stream.Open(Info.m_Data_File                                , SG_FILE_R, false)
 		||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat")), SG_FILE_R, false)
 		||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), SG_FILE_R, false) )
 		{
-			Stream.Seek((long)hdr_Offset);
+			Stream.Seek((long)Info.m_Offset);
 
-			return( _Load_ASCII(Stream, Memory_Type, hdr_bFlip) );
+			return( _Load_ASCII(Stream, Memory_Type, Info.m_bFlip) );
 		}
 	}
 
 	//-----------------------------------------------------
 	else	// Binary...
 	{
-		if( (NX = SG_Grid_Cache_Check(m_System, Get_nValueBytes())) > 0 )
+		if( SG_Grid_Cache_Check(m_System, Get_nValueBytes()) > 0 )
 		{
-			Set_Buffer_Size(NX);
+			Set_Buffer_Size(SG_Grid_Cache_Check(m_System, Get_nValueBytes()));
 
-			if( _Cache_Create(Data_File                                       , m_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip)
-			||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T( "dat")), m_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip)
-			||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), m_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip) )
+			if( _Cache_Create(Info.m_Data_File                                , m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
+			||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T( "dat")), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
+			||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip) )
 			{
 				return( true );
 			}
@@ -712,13 +654,13 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 
 		if( _Memory_Create(Memory_Type) )
 		{
-			if(	Stream.Open(Data_File                                       , SG_FILE_R, true)
+			if(	Stream.Open(Info.m_Data_File                                , SG_FILE_R, true)
 			||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat")), SG_FILE_R, true)
 			||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), SG_FILE_R, true) )
 			{
-				Stream.Seek((long)hdr_Offset);
+				Stream.Seek((long)Info.m_Offset);
 
-				return( _Load_Binary(Stream, m_Type, hdr_bFlip, hdr_bSwapBytes) );
+				return( _Load_Binary(Stream, m_Type, Info.m_bFlip, Info.m_bSwapBytes) );
 			}
 		}
 	}
@@ -729,90 +671,30 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 //---------------------------------------------------------
 bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN, int yN, bool bBinary)
 {
-#ifdef WORDS_BIGENDIAN
-	bool		bBigEndian	= true;
-#else
-	bool		bBigEndian	= false;
-#endif
+	CSG_Grid_File_Info	Info(*this);
 
-	bool		bResult		= false;
-	CSG_File	Stream;
-
-	if(	Stream.Open(File_Name, SG_FILE_W, false) )
+	if(	Info.Save(File_Name, bBinary) )
 	{
-		//-------------------------------------------------
-		// Header...
-
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NAME           ], Get_Name() );
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DESCRIPTION    ], Get_Description() );
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_UNITNAME       ], Get_Unit() );
-		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFORMAT     ], bBinary ? gSG_Data_Type_Identifier[Get_Type()] : SG_T("ASCII") );
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], bBigEndian ? GRID_FILE_KEY_TRUE : GRID_FILE_KEY_FALSE );
-		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_POSITION_XMIN  ], Get_XMin() + Get_Cellsize() * xA );
-		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_POSITION_YMIN  ], Get_YMin() + Get_Cellsize() * yA );
-		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLCOUNT_X    ], xN );
-		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLCOUNT_Y    ], yN );
-		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLSIZE       ], Get_Cellsize() );
-		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_Z_FACTOR       ], m_zScale );
-		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_Z_OFFSET       ], m_zOffset );
-		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NODATA_VALUE   ], Get_NoData_Value() );
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_TOPTOBOTTOM    ], GRID_FILE_KEY_FALSE );
-
-
-		//-------------------------------------------------
-		// Data...
+		CSG_File	Stream;
 
 		if( Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), SG_FILE_W, true) )
 		{
 			if( bBinary )
 			{
-				bResult		= _Save_Binary	(Stream, xA, yA, xN, yN, Get_Type(), false, bBigEndian);
+#ifdef WORDS_BIGENDIAN
+				return( _Save_Binary(Stream, xA, yA, xN, yN, m_Type, false,  true) );
+#else
+				return( _Save_Binary(Stream, xA, yA, xN, yN, m_Type, false, false) );
+#endif
 			}
 			else
 			{
-				bResult		= _Save_ASCII	(Stream, xA, yA, xN, yN);
-			}
-		}
-
-		Get_Projection().Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
-	}
-
-	return( bResult );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CSG_Grid::_Load_Native_Get_Key(CSG_File &Stream, CSG_String &Value)
-{
-	int			i;
-	CSG_String	sLine;
-
-	if( Stream.Read_Line(sLine) && (i = sLine.Find('=')) > 0 )
-	{
-		Value	= sLine.AfterFirst('=');
-		Value.Trim();
-
-		sLine.Remove(i);
-
-		for(i=0; i<GRID_FILE_KEY_Count; i++)
-		{
-			CSG_String	s(gSG_Grid_File_Key_Names[i]);
-
-			if( s.Find(sLine.Left(s.Length())) >= 0 )
-			{
-				return( i );
+				return( _Save_ASCII (Stream, xA, yA, xN, yN) );
 			}
 		}
 	}
 
-	return( -1 );
+	return( false );
 }
 
 
@@ -935,6 +817,258 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 	SG_UI_Process_Set_Ready();
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Grid_File_Info::CSG_Grid_File_Info(void)
+{
+	_On_Construction();
+}
+
+void CSG_Grid_File_Info::_On_Construction(void)
+{
+	m_Name			.Clear();
+	m_Description	.Clear();
+	m_Unit			.Clear();
+	m_System		.Assign(0.0, 0.0, 0.0, 0, 0);
+	m_Type			= SG_DATATYPE_Float;	// defaults to float
+	m_zScale		= 1.0;
+	m_zOffset		= 0;
+	m_NoData		= -99999.0;
+	m_Data_File		.Clear();
+	m_bFlip			= false;
+	m_bSwapBytes	= false;
+	m_Offset		= 0;
+	m_Projection	.Destroy();
+}
+
+//---------------------------------------------------------
+CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_Grid_File_Info &Info)
+{
+	Create(Info);
+}
+
+bool CSG_Grid_File_Info::Create(const CSG_Grid_File_Info &Info)
+{
+	m_Name			= Info.m_Name;
+	m_Description	= Info.m_Description;
+	m_Unit			= Info.m_Unit;
+	m_System		= Info.m_System;
+	m_Type			= Info.m_Type;
+	m_zScale		= Info.m_zScale;
+	m_zOffset		= Info.m_zOffset;
+	m_NoData		= Info.m_NoData;
+	m_Data_File		= Info.m_Data_File;
+	m_bFlip			= Info.m_bFlip;
+	m_bSwapBytes	= Info.m_bSwapBytes;
+	m_Offset		= Info.m_Offset;
+	m_Projection	= Info.m_Projection;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_Grid &Grid)
+{
+	Create(Grid);
+}
+
+bool CSG_Grid_File_Info::Create(const CSG_Grid &Grid)
+{
+	m_Name			= Grid.Get_Name();
+	m_Description	= Grid.Get_Description();
+	m_Unit			= Grid.Get_Unit();
+	m_System		= Grid.Get_System();
+	m_Type			= Grid.Get_Type();
+	m_zScale		= Grid.Get_Scaling();
+	m_zOffset		= Grid.Get_Offset();
+	m_NoData		= Grid.Get_NoData_Value();
+	m_Data_File		.Clear();
+	m_bFlip			= false;
+	m_bSwapBytes	= false;
+	m_Offset		= 0;
+	m_Projection	= Grid.Get_Projection();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_String &File_Name)
+{
+	Create(File_Name);
+}
+
+bool CSG_Grid_File_Info::Create(const CSG_String &File_Name)
+{
+	_On_Construction();
+
+	//-----------------------------------------------------
+	CSG_File	Stream;
+
+	if( !Stream.Open(File_Name, SG_FILE_R, false) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	sLong	NX = 0, NY = 0;
+	double	Cellsize = 0.0, xMin = 0.0, yMin = 0.0;
+
+	do
+	{
+		CSG_String	Value;
+
+		switch( _Get_Key(Stream, Value) )
+		{
+		case GRID_FILE_KEY_NAME           :	m_Name        = Value;	break;
+		case GRID_FILE_KEY_DESCRIPTION    :	m_Description = Value;	break;
+		case GRID_FILE_KEY_UNITNAME       :	m_Unit        = Value;	break;
+
+		case GRID_FILE_KEY_CELLCOUNT_X    :	NX            = Value.asInt   ();	break;
+		case GRID_FILE_KEY_CELLCOUNT_Y    :	NY            = Value.asInt   ();	break;
+		case GRID_FILE_KEY_POSITION_XMIN  :	xMin          = Value.asDouble();	break;
+		case GRID_FILE_KEY_POSITION_YMIN  :	yMin          = Value.asDouble();	break;
+		case GRID_FILE_KEY_CELLSIZE       :	Cellsize      = Value.asDouble();	break;
+
+		case GRID_FILE_KEY_Z_FACTOR       :	m_zScale      = Value.asDouble();	break;
+		case GRID_FILE_KEY_Z_OFFSET       :	m_zOffset     = Value.asDouble();	break;
+		case GRID_FILE_KEY_NODATA_VALUE   :	m_NoData      = Value.asDouble();	break;
+
+		case GRID_FILE_KEY_DATAFILE_OFFSET:	m_Offset      = Value.asInt   ();	break;
+		case GRID_FILE_KEY_BYTEORDER_BIG  :	m_bSwapBytes  = Value.Find(GRID_FILE_KEY_TRUE) >= 0;	break;
+		case GRID_FILE_KEY_TOPTOBOTTOM    :	m_bFlip       = Value.Find(GRID_FILE_KEY_TRUE) >= 0;	break;
+
+		case GRID_FILE_KEY_DATAFILE_NAME:
+			if( SG_File_Get_Path(Value).Length() > 0 )
+			{
+				m_Data_File	= Value;
+			}
+			else
+			{
+				m_Data_File	= SG_File_Make_Path(SG_File_Get_Path(File_Name), Value);
+			}
+			break;
+
+		case GRID_FILE_KEY_DATAFORMAT:
+			{
+				for(int i=0; i<SG_DATATYPE_Undefined; i++)
+				{
+					if( Value.Find(gSG_Data_Type_Identifier[i]) >= 0 )
+					{
+						m_Type	= (TSG_Data_Type)i;
+
+						break;
+					}
+				}
+			}
+			break;
+		}
+	}
+	while( !Stream.is_EOF() );
+
+	//-----------------------------------------------------
+	m_Projection.Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+
+	if( !m_System.Assign(Cellsize, xMin, yMin, (int)NX, (int)NY) )
+	{
+		return( false );
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+int CSG_Grid_File_Info::_Get_Key(CSG_File &Stream, CSG_String &Value)
+{
+	int			i;
+	CSG_String	sLine;
+
+	if( Stream.Read_Line(sLine) && (i = sLine.Find('=')) > 0 )
+	{
+		Value	= sLine.AfterFirst('=');
+		Value.Trim();
+
+		sLine.Remove(i);
+
+		for(i=0; i<GRID_FILE_KEY_Count; i++)
+		{
+			CSG_String	s(gSG_Grid_File_Key_Names[i]);
+
+			if( s.Find(sLine.Left(s.Length())) >= 0 )
+			{
+				return( i );
+			}
+		}
+	}
+
+	return( -1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, bool bBinary)
+{
+	return( Save(File_Name, 0, 0, m_System.Get_NX(), m_System.Get_NY(), bBinary) );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, int xStart, int yStart, int xCount, int yCount, bool bBinary)
+{
+	CSG_File	Stream;
+
+	if(	Stream.Open(File_Name, SG_FILE_W, false) )
+	{
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NAME           ], m_Name                  );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DESCRIPTION    ], m_Description           );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_UNITNAME       ], m_Unit                  );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFORMAT     ], bBinary ? gSG_Data_Type_Identifier[m_Type] : SG_T("ASCII") );
+		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFILE_OFFSET], 0                       );
+#ifdef WORDS_BIGENDIAN
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], true                    );
+#else
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], false                   );
+#endif
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_TOPTOBOTTOM    ], GRID_FILE_KEY_FALSE     );
+		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_POSITION_XMIN  ], xStart * m_System.Get_Cellsize() + m_System.Get_XMin() );
+		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_POSITION_YMIN  ], yStart * m_System.Get_Cellsize() + m_System.Get_YMin() );
+		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLCOUNT_X    ], xCount                  );
+		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLCOUNT_Y    ], yCount                  );
+		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_CELLSIZE       ], m_System.Get_Cellsize() );
+		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_Z_FACTOR       ], m_zScale                );
+		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_Z_OFFSET       ], m_zOffset               );
+		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NODATA_VALUE   ], m_NoData                );
+
+		m_Projection.Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, const CSG_Grid &Grid, bool bBinary)
+{
+	return( Save(File_Name, Grid, 0, 0, Grid.Get_NX(), Grid.Get_NY(), bBinary) );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, const CSG_Grid &Grid, int xStart, int yStart, int xCount, int yCount, bool bBinary)
+{
+	CSG_Grid_File_Info	Info(Grid);
+
+	return( Info.Save(File_Name, xStart, yStart, xCount, yCount, bBinary) );
 }
 
 

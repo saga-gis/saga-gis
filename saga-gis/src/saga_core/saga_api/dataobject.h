@@ -209,6 +209,7 @@ public:
 	const CSG_MetaData &			Get_History		(void)	const			{	return( *m_pHistory );		}
 
 	CSG_Projection &				Get_Projection	(void)					{	return( m_Projection );		}
+	const CSG_Projection &			Get_Projection	(void)	const			{	return( m_Projection );		}
 
 	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
 	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
