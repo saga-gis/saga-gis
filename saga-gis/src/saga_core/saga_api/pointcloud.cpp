@@ -74,8 +74,9 @@
 #define PC_FILE_VERSION		"SGPC01"
 
 #define PC_STR_NBYTES		32
+#define PC_DAT_NBYTES		32
 
-#define PC_GET_NBYTES(type)	(type == SG_DATATYPE_String ? PC_STR_NBYTES : (int)SG_Data_Type_Get_Size(type))
+#define PC_GET_NBYTES(type)	(type == SG_DATATYPE_String ? PC_STR_NBYTES : type == SG_DATATYPE_Date ? PC_DAT_NBYTES : (int)SG_Data_Type_Get_Size(type))
 
 
 ///////////////////////////////////////////////////////////
@@ -360,9 +361,9 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 	}
 
 	//-----------------------------------------------------
-	long		fLength	= Stream.Length();
+	sLong		fLength	= Stream.Length();
 
-	while( _Inc_Array() && Stream.Read(m_Cursor + 1, nPointBytes) && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
+	while( _Inc_Array() && Stream.Read(m_Cursor + 1, nPointBytes) && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
 	{}
 
 	_Dec_Array();
@@ -680,49 +681,59 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Set_Value(int iPoint, int iField, const SG_Char *Value)
+bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, const SG_Char *Value)
 {
-	if( iPoint >= 0 && iPoint < m_nRecords && iField >= 0 && iField < m_nFields && Value && *Value )
+	if( pPoint && iField >= 0 && iField < m_nFields && Value )
 	{
 		CSG_String	s(Value);
 
-		if( m_Field_Type[iField] == SG_DATATYPE_String )
+		switch( m_Field_Type[iField] )
 		{
-			memset(m_Points[iPoint] + m_Field_Offset[iField], 0, PC_STR_NBYTES);
-			memcpy(m_Points[iPoint] + m_Field_Offset[iField], s.b_str(), s.Length() > PC_STR_NBYTES ? PC_STR_NBYTES : s.Length());
-		}
-		else
-		{
-			double	d;
-
-			if( s.asDouble(d) )
+		default:
 			{
-				return( _Set_Field_Value(m_Points[iPoint], iField, d) );
+				double	d;
+
+				return( s.asDouble(d) && _Set_Field_Value(pPoint, iField, d) );
 			}
+			break;
+
+		case SG_DATATYPE_Date:
+		case SG_DATATYPE_String:
+			pPoint	+= m_Field_Offset[iField];
+			memset(pPoint, 0, PC_STR_NBYTES);
+			memcpy(pPoint, s.b_str(), s.Length() > PC_STR_NBYTES ? PC_STR_NBYTES : s.Length());
+			break;
 		}
+
+		return( true );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Get_Value(int iPoint, int iField, CSG_String &Value)	const
+bool CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField, CSG_String &Value)	const
 {
-	if( iPoint >= 0 && iPoint < m_nRecords && iField >= 0 && iField < m_nFields )
+	if( pPoint && iField >= 0 && iField < m_nFields )
 	{
-		if( m_Field_Type[iField] == SG_DATATYPE_String )
+		switch( m_Field_Type[iField] )
 		{
-			char	s[PC_STR_NBYTES + 1];
+		default:
+			Value.Printf("%f", _Get_Field_Value(pPoint, iField));
+			break;
 
-			memcpy(s, m_Points[iPoint] + m_Field_Offset[iField], PC_STR_NBYTES);
+		case SG_DATATYPE_Date:
+		case SG_DATATYPE_String:
+			{
+				char	s[PC_STR_NBYTES + 1];
 
-			s[PC_STR_NBYTES]	= '\0';
+				memcpy(s, pPoint + m_Field_Offset[iField], PC_STR_NBYTES);
 
-			Value	= s;
-		}
-		else
-		{
-			Value.Printf("%f", _Get_Field_Value(m_Points[iPoint], iField));
+				s[PC_STR_NBYTES]	= '\0';
+
+				Value	= s;
+			}
+			break;
 		}
 
 		return( true );
@@ -982,12 +993,22 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 
 		for(int i=0; i<Get_Field_Count(); i++)
 		{
-			Set_Value(i, pShape->asDouble(i));
+			switch( Get_Field_Type(i) )
+			{
+			default:
+				Set_Value(i, pShape->asDouble(i));
+				break;
+
+			case SG_DATATYPE_Date:
+			case SG_DATATYPE_String:
+				Set_Value(i, pShape->asString(i));
+				break;
+			}
 		}
 
 		Set_Value(0, pShape->Get_Point(0).x);
 		Set_Value(1, pShape->Get_Point(0).y);
-		Set_Value(2, pShape->Get_Z(0));
+		Set_Value(2, pShape->Get_Z    (0)  );
 	}
 
 	if( iPoint >= 0 && iPoint < Get_Count() )
@@ -1001,7 +1022,23 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 
 			for(int i=0; i<Get_Field_Count(); i++)
 			{
-				pShape->Set_Value(i, Get_Value(i));
+				switch( Get_Field_Type(i) )
+				{
+				default:
+					pShape->Set_Value(i, Get_Value(i));
+					break;
+
+				case SG_DATATYPE_Date:
+				case SG_DATATYPE_String:
+					{
+						CSG_String	s;
+
+						Get_Value(i, s);
+					
+						pShape->Set_Value(i, s);
+					}
+					break;
+				}
 			}
 
 			m_Shapes_Index	= iPoint;

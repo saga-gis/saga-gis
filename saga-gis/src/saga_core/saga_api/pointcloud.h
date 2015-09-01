@@ -131,16 +131,16 @@ public:
 	int								Get_Point_Count		(void)			const	{	return( m_nRecords );	}
 
 	//-----------------------------------------------------
-	bool							Set_Cursor			(int iPoint)				{	return( (m_Cursor = iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL) != NULL );	}
-	virtual bool					Set_Value			(int iField, double Value)	{	return( _Set_Field_Value(m_Cursor, iField, Value) );	}
-	virtual double					Get_Value			(int iField)	const		{	return( _Get_Field_Value(m_Cursor, iField) );			}
-	double							Get_X				(void)			const		{	return( _Get_Field_Value(m_Cursor, 0) );				}
-	double							Get_Y				(void)			const		{	return( _Get_Field_Value(m_Cursor, 1) );				}
-	double							Get_Z				(void)			const		{	return( _Get_Field_Value(m_Cursor, 2) );				}
-	bool							Set_Attribute		(int iField, double Value)	{	return( Set_Value(iField + 3, Value) );					}
-	double							Get_Attribute		(int iField)	const		{	return( Get_Value(iField + 3) );						}
-	bool							Set_NoData			(int iField)				{	return( Set_Value(iField, Get_NoData_Value()) );	}
-	bool							is_NoData			(int iField)	const		{	return( is_NoData_Value(Get_Value(iField)) );		}
+	bool							Set_Cursor			(int iPoint)							{	return( (m_Cursor = iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL) != NULL );	}
+	virtual bool					Set_Value			(            int iField, double Value)	{	return( _Set_Field_Value(m_Cursor, iField, Value) );	}
+	virtual double					Get_Value			(            int iField)	const		{	return( _Get_Field_Value(m_Cursor, iField) );			}
+	double							Get_X				(void)						const		{	return( _Get_Field_Value(m_Cursor, 0) );				}
+	double							Get_Y				(void)						const		{	return( _Get_Field_Value(m_Cursor, 1) );				}
+	double							Get_Z				(void)						const		{	return( _Get_Field_Value(m_Cursor, 2) );				}
+	bool							Set_Attribute		(            int iField, double Value)	{	return( Set_Value(iField + 3, Value) );					}
+	double							Get_Attribute		(            int iField)	const		{	return( Get_Value(iField + 3) );						}
+	bool							Set_NoData			(            int iField)				{	return( Set_Value(iField, Get_NoData_Value()) );	}
+	bool							is_NoData			(            int iField)	const		{	return( is_NoData_Value(Get_Value(iField)) );		}
 
 	virtual bool					Set_Value			(int iPoint, int iField, double Value)	{	return( _Set_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
 	virtual double					Get_Value			(int iPoint, int iField)	const		{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField) );		}
@@ -152,8 +152,10 @@ public:
 	bool							Set_NoData			(int iPoint, int iField)				{	return( Set_Value(iPoint, iField, Get_NoData_Value()) );}
 	bool							is_NoData			(int iPoint, int iField)	const		{	return( is_NoData_Value(Get_Value(iPoint, iField)) );	}
 
-	virtual bool					Set_Value			(int iPoint, int iField, const SG_Char *Value);
-	virtual bool					Get_Value			(int iPoint, int iField, CSG_String    &Value)	const;
+	virtual bool					Set_Value			(            int iField, const SG_Char *Value)			{	return( _Set_Field_Value(m_Cursor, iField, Value) );	}
+	virtual bool					Get_Value			(            int iField, CSG_String    &Value)	const	{	return( _Get_Field_Value(m_Cursor, iField, Value) );	}
+	virtual bool					Set_Value			(int iPoint, int iField, const SG_Char *Value)			{	return( _Set_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
+	virtual bool					Get_Value			(int iPoint, int iField, CSG_String    &Value)	const	{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
 
 	TSG_Point_Z						Get_Point			(void)			const;
 	TSG_Point_Z						Get_Point			(int iPoint)	const;
@@ -219,8 +221,10 @@ private:
 	bool							_Save				(const CSG_String &File_Name);
 
 	bool							_Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
-	bool							_Set_Field_Value	(char *pPoint, int iField, double Value);
-	double							_Get_Field_Value	(char *pPoint, int iField)	const;
+	bool							_Set_Field_Value	(char *pPoint, int iField, double         Value);
+	double							_Get_Field_Value	(char *pPoint, int iField                      )	const;
+	bool							_Set_Field_Value	(char *pPoint, int iField, const SG_Char *Value);
+	bool							_Get_Field_Value	(char *pPoint, int iField, CSG_String    &Value)	const;
 	int								_Get_Field_Bytes	(TSG_Data_Type Type);
 
 	bool							_Inc_Array			(void);

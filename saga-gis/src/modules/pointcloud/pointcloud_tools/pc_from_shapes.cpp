@@ -120,16 +120,18 @@ CPC_From_Shapes::CPC_From_Shapes(void)
 //---------------------------------------------------------
 bool CPC_From_Shapes::On_Execute(void)
 {
-	int				zField, iField, nFields, *Fields;
+	int				zField, nFields, *Fields;
 	CSG_PointCloud	*pPoints;
 	CSG_Shapes		*pShapes;
 
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	pPoints	= Parameters("POINTS")	->asPointCloud();
-	zField	= Parameters("ZFIELD")	->asInt();
+	pShapes	= Parameters("SHAPES")->asShapes();
+	pPoints	= Parameters("POINTS")->asPointCloud();
+	zField	= Parameters("ZFIELD")->asInt();
 
 	if( !pShapes->is_Valid() )
 	{
+		Error_Set(_TL("invalid input"));
+
 		return( false );
 	}
 
@@ -140,14 +142,13 @@ bool CPC_From_Shapes::On_Execute(void)
 	nFields	= 0;
 	Fields	= new int[pShapes->Get_Field_Count()];
 
-	if( Parameters("OUTPUT")->asInt() == 1 )
+	if( Parameters("OUTPUT")->asInt() == 1 )	// all attributes
 	{
-		for(iField=0, nFields=0; iField<pShapes->Get_Field_Count(); iField++)
+		for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
-			if( iField != zField && SG_Data_Type_Get_Size(pShapes->Get_Field_Type(iField)) > 0 )
+			if( iField != zField && pPoints->Add_Field(pShapes->Get_Field_Name(iField), pShapes->Get_Field_Type(iField)) )
 			{
 				Fields[nFields++]	= iField;
-				pPoints->Add_Field(pShapes->Get_Field_Name(iField), pShapes->Get_Field_Type(iField));
 			}
 		}
 	}
@@ -165,16 +166,25 @@ bool CPC_From_Shapes::On_Execute(void)
 
 				pPoints->Add_Point(p.x, p.y, zField < 0 ? pShape->Get_Z(iPoint, iPart) : pShape->asDouble(zField));
 
-				for(iField=0; iField<nFields; iField++)
+				for(int iField=0, jField=3; iField<nFields; iField++, jField++)
 				{
-					pPoints->Set_Value(3 + iField, pShape->asDouble(Fields[iField]));
+					switch( pPoints->Get_Field_Type(jField) )
+					{
+					case SG_DATATYPE_Double:
+						pPoints->Set_Value(jField, pShape->asDouble(Fields[iField]));
+						break;
+
+					default:
+						pPoints->Set_Value(jField, pShape->asString(Fields[iField]));
+						break;
+					}
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	delete [] Fields;
+	delete[](Fields);
 
 	return( pPoints->Get_Count() > 0 );
 }
