@@ -1029,9 +1029,9 @@ bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, int xStart, int yStar
 
 	if(	Stream.Open(File_Name, SG_FILE_W, false) )
 	{
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NAME           ], m_Name                  );
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DESCRIPTION    ], m_Description           );
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_UNITNAME       ], m_Unit                  );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NAME           ], m_Name       .c_str()   );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DESCRIPTION    ], m_Description.c_str()   );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_UNITNAME       ], m_Unit       .c_str()   );
 		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFORMAT     ], bBinary ? gSG_Data_Type_Identifier[m_Type] : SG_T("ASCII") );
 		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFILE_OFFSET], 0                       );
 #ifdef WORDS_BIGENDIAN
