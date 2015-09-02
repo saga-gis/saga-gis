@@ -161,8 +161,9 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
 
+	m_Grid_Target.Add_Grid("GRID" , _TL("Grid")            , false);
 	m_Grid_Target.Add_Grid("COUNT", _TL("Number of Values"), true);
 }
 
@@ -266,7 +267,7 @@ bool CShapes2Grid::On_Execute(void)
 	//-----------------------------------------------------
 	m_Grid_Target.Cmd_Update(m_pShapes);	// if called from saga_cmd
 
-	if( (m_pGrid = m_Grid_Target.Get_Grid(Get_Grid_Type(Parameters("GRID_TYPE")->asInt()))) == NULL )
+	if( (m_pGrid = m_Grid_Target.Get_Grid("GRID", Get_Grid_Type(Parameters("GRID_TYPE")->asInt()))) == NULL )
 	{
 		return( false );
 	}
@@ -276,7 +277,7 @@ bool CShapes2Grid::On_Execute(void)
 		m_pGrid->Set_NoData_Value(0.0);
 	}
 
-	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), iField < 0 ? _TL("ID") : m_pShapes->Get_Field_Name(iField)));
+	m_pGrid->Set_Name(CSG_String::Format("%s [%s]", m_pShapes->Get_Name(), iField < 0 ? _TL("ID") : m_pShapes->Get_Field_Name(iField)));
 	m_pGrid->Assign_NoData();
 
 	//-------------------------------------------------
@@ -289,7 +290,7 @@ bool CShapes2Grid::On_Execute(void)
 		m_pCount	= &m_Count;
 	}
 
-	m_pCount->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), _TL("Count")));
+	m_pCount->Set_Name(CSG_String::Format("%s [%s]", m_pShapes->Get_Name(), _TL("Count")));
 	m_pCount->Set_NoData_Value(0.0);
 	m_pCount->Assign(0.0);
 

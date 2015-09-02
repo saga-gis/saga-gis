@@ -161,13 +161,13 @@ CKriging_Regression::CKriging_Regression(void)
 	{
 		Parameters.Add_Value(
 			NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
-			_TL(""),
+			_TL("maximum distance for variogram estimation"),
 			PARAMETER_TYPE_Double, -1.0
 		);
 
 		Parameters.Add_Value(
 			NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
-			_TL("initial number of lag distance classes"),
+			_TL("initial number of lag distance classes for variogram estimation"),
 			PARAMETER_TYPE_Int, 100, 1, true
 		);
 
@@ -178,9 +178,9 @@ CKriging_Regression::CKriging_Regression(void)
 		);
 
 		Parameters.Add_String(
-			NULL	, "VAR_MODEL"		, _TL("Model"),
+			NULL	, "VAR_MODEL"		, _TL("Variogram Model"),
 			_TL(""),
-			SG_T("a + b * x")
+			"a + b * x"
 		);
 	}
 
@@ -304,53 +304,30 @@ bool CKriging_Regression::On_Execute(void)
 
 	m_OK.Set_Manager(NULL);
 
-	if( !SG_UI_Get_Window_Main() )	// saga_cmd
-	{
-		if( !m_OK.Set_Parameter("POINTS"           , &Points)
-		||  !m_OK.Set_Parameter("FIELD"            , 2)	// residual
-		||  !m_OK.Set_Parameter("LOG"              , Parameters("LOG"              ))
-		||  !m_OK.Set_Parameter("BLOCK"            , Parameters("BLOCK"            ))
-		||  !m_OK.Set_Parameter("DBLOCK"           , Parameters("DBLOCK"           ))
-		||  !m_OK.Set_Parameter("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
-		||  !m_OK.Set_Parameter("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
-		||  !m_OK.Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
-		||  !m_OK.Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
-		||  !m_OK.Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
-		||  !m_OK.Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
-		||  !m_OK.Set_Parameter("VAR_MAXDIST"      , Parameters("VAR_MAXDIST"      ))
-		||  !m_OK.Set_Parameter("VAR_NCLASSES"     , Parameters("VAR_NCLASSES"     ))
-		||  !m_OK.Set_Parameter("VAR_NSKIP"        , Parameters("VAR_NSKIP"        ))
-		||  !m_OK.Set_Parameter("VAR_MODEL"        , Parameters("VAR_MODEL"        ))
-		||  !m_OK.Set_Parameter("TARGET_DEFINITION", 1)	// grid or grid system
-		||  !m_OK.Set_Parameter("TARGET_PREDICTION", pResiduals)
-		||  !m_OK.Set_Parameter("TARGET_VARIANCE"  , pVariance ) )
-		{
-			Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));
+	if( !m_OK.Set_Parameter("POINTS"           , &Points)
+	||  !m_OK.Set_Parameter("FIELD"            , 2)	// residual
+	||  !m_OK.Set_Parameter("LOG"              , Parameters("LOG"              ))
+	||  !m_OK.Set_Parameter("BLOCK"            , Parameters("BLOCK"            ))
+	||  !m_OK.Set_Parameter("DBLOCK"           , Parameters("DBLOCK"           ))
+	||  !m_OK.Set_Parameter("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
+	||  !m_OK.Set_Parameter("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
+	||  !m_OK.Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
+	||  !m_OK.Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
+	||  !m_OK.Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
+	||  !m_OK.Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
+	||  !m_OK.Set_Parameter("TARGET_DEFINITION", 1)	// grid or grid system
+	||  !m_OK.Set_Parameter("PREDICTION"       , pResiduals)
+	||  !m_OK.Set_Parameter("VARIANCE"         , pVariance )
 
-			return( false );
-		}
-	}
-	else
+	|| (!SG_UI_Get_Window_Main() && (	// saga_cmd
+	    !m_OK.Set_Parameter("VAR_MAXDIST"      , Parameters("VAR_MAXDIST"      ))
+	||  !m_OK.Set_Parameter("VAR_NCLASSES"     , Parameters("VAR_NCLASSES"     ))
+	||  !m_OK.Set_Parameter("VAR_NSKIP"        , Parameters("VAR_NSKIP"        ))
+	||  !m_OK.Set_Parameter("VAR_MODEL"        , Parameters("VAR_MODEL"        )))) )
 	{
-		if( !m_OK.Set_Parameter("POINTS"           , &Points)
-		||  !m_OK.Set_Parameter("FIELD"            , 2)	// residual
-		||  !m_OK.Set_Parameter("LOG"              , Parameters("LOG"              ))
-		||  !m_OK.Set_Parameter("BLOCK"            , Parameters("BLOCK"            ))
-		||  !m_OK.Set_Parameter("DBLOCK"           , Parameters("DBLOCK"           ))
-		||  !m_OK.Set_Parameter("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
-		||  !m_OK.Set_Parameter("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
-		||  !m_OK.Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
-		||  !m_OK.Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
-		||  !m_OK.Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
-		||  !m_OK.Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
-		||  !m_OK.Set_Parameter("DEFINITION"       , 1)	// grid or grid system
-		||  !m_OK.Set_Parameter("PREDICTION"       , pResiduals)
-		||  !m_OK.Set_Parameter("VARIANCE"         , pVariance ) )
-		{
-			Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));
+		Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));
 
-			return( false );
-		}
+		return( false );
 	}
 
 	if( !m_OK.Execute() )

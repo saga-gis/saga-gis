@@ -109,7 +109,7 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")), false);
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
 
 	m_Grid_Target.Add_Grid("QUALITY"  , _TL("Quality"  ), false);
 	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);

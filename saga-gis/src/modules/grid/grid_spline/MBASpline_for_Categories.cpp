@@ -92,7 +92,7 @@ CMBASpline_for_Categories::CMBASpline_for_Categories(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")), false);
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
 
 	m_Grid_Target.Add_Grid("CATEGORIES" , _TL("Categories" ), false);
 	m_Grid_Target.Add_Grid("PROPABILITY", _TL("Propability"), false);
@@ -200,10 +200,10 @@ bool CMBASpline_for_Categories::On_Execute(void)
 		SG_UI_Progress_Lock(true);
 
 		SG_RUN_MODULE_ExitOnError("grid_spline", 4,	// Multilevel B-Spline Interpolation
-				SG_MODULE_PARAMETER_SET("SHAPES"    , &Points)
-			&&	SG_MODULE_PARAMETER_SET("FIELD"     , 1 + i)	// indicator field
-			&&	SG_MODULE_PARAMETER_SET("DEFINITION", 1)		// grid or grid system
-			&&	SG_MODULE_PARAMETER_SET("OUT_GRID"  , &Prop)	// target grid
+				SG_MODULE_PARAMETER_SET("SHAPES"           , &Points)
+			&&	SG_MODULE_PARAMETER_SET("FIELD"            , 1 + i)	// indicator field
+			&&	SG_MODULE_PARAMETER_SET("TARGET_DEFINITION", 1)		// grid or grid system
+			&&	SG_MODULE_PARAMETER_SET("TARGET_OUT_GRID"  , &Prop)	// target grid
 		)
 
 		SG_UI_Progress_Lock(false);

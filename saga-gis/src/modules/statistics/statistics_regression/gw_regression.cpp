@@ -100,7 +100,7 @@ CGW_Regression::CGW_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
+	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
 
 	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);
 	m_Grid_Target.Add_Grid("SLOPE"    , _TL("Slope"    ), false);

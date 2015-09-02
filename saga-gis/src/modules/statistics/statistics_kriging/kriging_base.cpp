@@ -156,7 +156,7 @@ CKriging_Base::CKriging_Base(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")), false);
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
 
 	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
 	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"), true);

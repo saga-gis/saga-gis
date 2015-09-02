@@ -137,7 +137,7 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(SG_UI_Get_Window_Main() ? &Parameters : Add_Parameters("TARGET", _TL("Target System"), _TL("")));
+	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
 }
 
 
