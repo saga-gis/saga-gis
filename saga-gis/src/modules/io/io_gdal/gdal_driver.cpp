@@ -898,8 +898,8 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Interpolat
 			double		z;
 			CSG_Vector	vWorld(2), vImage;
 
-			vWorld[0]	= pWorld->Get_XMin() + x * pWorld->Get_Cellsize();
-			vWorld[1]	= pWorld->Get_YMin() + y * pWorld->Get_Cellsize();
+			vWorld[0]	= pWorld->Get_XMin() + (x - 0.5) * pWorld->Get_Cellsize();
+			vWorld[1]	= pWorld->Get_YMin() + (y + 0.5) * pWorld->Get_Cellsize();
 
 			vImage	= BInv * (vWorld - A);
 
