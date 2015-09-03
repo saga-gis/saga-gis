@@ -170,13 +170,13 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 		{
 			double	Input	= pParameters->Get_Parameter("INPUT")->asGridList()->asGrid(0)->Get_System().Get_Cellsize();
 
-			if( pParameters->Get_Parameter("DEFINITION")->asInt() == 0 )	// user defined
+			if( pParameters->Get_Parameter("TARGET_DEFINITION")->asInt() == 0 )	// user defined
 			{
-				Scaling	= Input - pParameters->Get_Parameter("USER_SIZE")->asDouble();
+				Scaling	= Input - pParameters->Get_Parameter("TARGET_USER_SIZE")->asDouble();
 			}
-			else if( pParameters->Get_Parameter("SYSTEM")->asGrid_System() && pParameters->Get_Parameter("SYSTEM")->asGrid_System()->Get_Cellsize() > 0.0 )
+			else if( pParameters->Get_Parameter("TARGET_SYSTEM")->asGrid_System() && pParameters->Get_Parameter("TARGET_SYSTEM")->asGrid_System()->Get_Cellsize() > 0.0 )
 			{
-				Scaling	= Input - pParameters->Get_Parameter("SYSTEM")->asGrid_System()->Get_Cellsize();
+				Scaling	= Input - pParameters->Get_Parameter("TARGET_SYSTEM")->asGrid_System()->Get_Cellsize();
 			}
 		}
 
