@@ -343,7 +343,7 @@ bool CWKSP_Data_Manager::Initialise(void)
 
 			wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Startup Project"), _TL("Select Startup Project"), Projects);
 
-			if( dlg.ShowModal() != wxID_OK || dlg.GetSelection() == 0 )
+			if( Projects.Count() <= 1 || dlg.ShowModal() != wxID_OK || dlg.GetSelection() == 0 )
 			{	// empty
 				return( true );
 			}

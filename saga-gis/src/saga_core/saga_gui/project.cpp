@@ -497,6 +497,8 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	if( !wxFileExists(File) )
 	{
+		MSG_Error_Add(wxString::Format("%s [%s]", _TL("data file does not exist"), File.c_str()));
+
 		return( false );
 	}
 
@@ -504,6 +506,8 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	if( !pItem || !pItem->Get_Parameters() || !Entry.Get_Child("PARAMETERS") )
 	{
+		MSG_Error_Add(wxString::Format("%s [%s]", _TL("failed to load data"), File.c_str()));
+
 		return( false );
 	}
 
