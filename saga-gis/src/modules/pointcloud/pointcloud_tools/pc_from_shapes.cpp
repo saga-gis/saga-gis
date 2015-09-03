@@ -170,12 +170,13 @@ bool CPC_From_Shapes::On_Execute(void)
 				{
 					switch( pPoints->Get_Field_Type(jField) )
 					{
-					case SG_DATATYPE_Double:
-						pPoints->Set_Value(jField, pShape->asDouble(Fields[iField]));
+					case SG_DATATYPE_Date:
+					case SG_DATATYPE_String:
+						pPoints->Set_Value(jField, pShape->asString(Fields[iField]));
 						break;
 
 					default:
-						pPoints->Set_Value(jField, pShape->asString(Fields[iField]));
+						pPoints->Set_Value(jField, pShape->asDouble(Fields[iField]));
 						break;
 					}
 				}

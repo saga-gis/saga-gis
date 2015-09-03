@@ -160,9 +160,8 @@ bool CPC_From_Table::On_Execute(void)
 			SG_UI_Msg_Add_Error(_TL("Undefined or binary attribute field types are not supported!"));
 			return( false );
 
-		case SG_DATATYPE_String:
 		case SG_DATATYPE_Date:
-		case SG_DATATYPE_Color:
+		case SG_DATATYPE_String:
 			Data_Type = SG_DATATYPE_String;						break;
 
 		default:
