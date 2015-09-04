@@ -20,27 +20,46 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Grid_Value_Replace_Interactive.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void)
 {
-
+	//-----------------------------------------------------
 	Set_Name		(_TL("Change Cell Values"));
-	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description	(_TW("The module allows to interactively change cell values of the input grid. "
-						"Once the module is executed and running, you can use the Action tool to select "
-						"grid cells. While working on a grid, you can change (and apply) the 'New Value' "
-						"and the 'Method' parameters without stopping and re-starting the module.\n\n"
-						));
 
+	Set_Author		("Victor Olaya (c) 2004");
+
+	Set_Description	(_TW(
+		"The module allows to interactively change cell values of the input grid. "
+		"Once the module is executed and running, you can use the Action tool to select "
+		"grid cells. While working on a grid, you can change (and apply) the 'New Value' "
+		"and the 'Method' parameters without stopping and re-starting the module.\n"
+	));
+
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL,	"GRID",	_TL("Grid"), 
+		NULL	, "GRID"	, _TL("Grid"), 
 		_TL("The grid to modify."), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Value(
-		NULL,	"NEWVALUE",	_TL("New Value"), 
+		NULL	, "VALUE"	, _TL("Value"), 
 		_TL("The value to apply."), 
 		PARAMETER_TYPE_Double, 0.0
 	);
@@ -48,59 +67,118 @@ CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Method"),
 		_TL("Choose how to apply the new value."),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("set constant value"),
-			_TL("add value"),
-			_TL("subtract value")
+		CSG_String::Format("%s|%s|%s|",
+			_TL("set"),
+			_TL("add"),
+			_TL("subtract")
 		), 0
 	);
 
-}//constructor
-
-
-CGrid_Value_Replace_Interactive::~CGrid_Value_Replace_Interactive(void)
-{
-	On_Execute_Finish();
-}
-
-
-bool CGrid_Value_Replace_Interactive::On_Execute(void)
-{
-	m_pGrid		= Parameters("GRID")->asGrid();
-
-	return( true );
-}//method
-
-
-bool CGrid_Value_Replace_Interactive::On_Execute_Finish(void)
-{
-	return( true );
-}
-
-bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
-{	
-	int iX, iY;		
+	Parameters.Add_Value(
+		NULL	, "RADIUS"	, _TL("Radius"), 
+		_TL("Change all values within radius."), 
+		PARAMETER_TYPE_Double, 0.0, 0.0, true
+	);
 
 	//-----------------------------------------------------
-	if(	Mode != MODULE_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
-	{
-		return( false );
-	}
+	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
+}
 
-	double	dNewValue	= Parameters("NEWVALUE")->asDouble();
-	int		iMethod		= Parameters("METHOD")->asInt();
 
-	double	dValue		= m_pGrid->asDouble(iX, iY);
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	switch( iMethod )
-	{
-	default:
-	case 0:				m_pGrid->Set_Value(iX, iY, dNewValue);				break;
-	case 1:				m_pGrid->Set_Value(iX, iY, dValue + dNewValue);		break;
-	case 2:				m_pGrid->Set_Value(iX, iY, dValue - dNewValue);		break;
-	}
+//---------------------------------------------------------
+bool CGrid_Value_Replace_Interactive::On_Execute(void)
+{
+	m_pGrid		= Parameters("GRID"  )->asGrid  ();
+	m_Value		= Parameters("VALUE" )->asDouble();
+	m_Method	= Parameters("METHOD")->asInt   ();
 
-	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
+	m_Kernel.Set_Radius(Parameters("RADIUS")->asDouble());
 
 	return( true );
-}//method
+}
+
+//---------------------------------------------------------
+bool CGrid_Value_Replace_Interactive::On_Execute_Finish(void)
+{
+	m_Kernel.Destroy();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+{
+	switch( Mode )
+	{
+	//-----------------------------------------------------
+	case MODULE_INTERACTIVE_LDOWN:
+	case MODULE_INTERACTIVE_MOVE_LDOWN:
+		{
+			TSG_Point_Int	Point;
+
+			if( !Get_Grid_Pos(Point.x, Point.y) )
+			{
+				return( false );
+			}
+
+			if( Mode == MODULE_INTERACTIVE_LDOWN )
+			{
+				m_Last	= Point;
+			}
+			else if( m_Last.x == Point.x && m_Last.y == Point.y )	// don't do it twice for the same point
+			{
+				return( false );
+			}
+
+			if( m_Kernel.Get_Count() <= 1 )
+			{
+				Set_Value(Point.x, Point.y);
+			}
+			else
+			{
+				for(int i=0; i<m_Kernel.Get_Count(); i++)
+				{
+					Set_Value(m_Kernel.Get_X(i, Point.x), m_Kernel.Get_Y(i, Point.y));
+				}
+			}
+
+			DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
+		}
+
+	//-----------------------------------------------------
+	default:
+		return( true );
+	}
+}
+
+//---------------------------------------------------------
+inline void CGrid_Value_Replace_Interactive::Set_Value(int x, int y)
+{
+	if( is_InGrid(x, y) )
+	{
+		switch( m_Method )
+		{
+		default:	m_pGrid->Set_Value(x, y,  m_Value);	break;
+		case  1:	m_pGrid->Add_Value(x, y,  m_Value);	break;
+		case  2:	m_pGrid->Add_Value(x, y, -m_Value);	break;
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

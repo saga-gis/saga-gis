@@ -20,31 +20,73 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Value_Replace_Interactive_H
 #define HEADER_INCLUDED__Grid_Value_Replace_Interactive_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-class CGrid_Value_Replace_Interactive : public CSG_Module_Grid_Interactive {
-
-private:
-	CSG_Grid	*m_pGrid;
-
+class CGrid_Value_Replace_Interactive : public CSG_Module_Grid_Interactive
+{
 public:
 	CGrid_Value_Replace_Interactive(void);
-	virtual ~CGrid_Value_Replace_Interactive(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Values") );	}
 
 
 protected:
-	virtual bool On_Execute(void);
-	virtual bool On_Execute_Finish(void);
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+	virtual bool			On_Execute			(void);
+	virtual bool			On_Execute_Finish	(void);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+
+private:
+
+	int						m_Method;
+
+	double					m_Value;
+
+	TSG_Point_Int			m_Last;
+
+	CSG_Grid				*m_pGrid;
+
+	CSG_Grid_Cell_Addressor	m_Kernel;
+
+
+	void					Set_Value			(int x, int y);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Value_Replace_Interactive_H
