@@ -121,6 +121,7 @@ CSG_Module *		Create_Module(int i)
 	case  4:	return( new CLine_Simplification );
 	case  5:	return( new CLine_Dissolve );
 	case  6:	return( new CLine_Split_with_Lines );
+	case  8:	return( new CLine_Split_at_Points );
 	case  7:	return( new CLine_Smoothing );
 
 	case 10:	return( NULL );

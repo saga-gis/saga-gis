@@ -100,6 +100,29 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CLine_Split_at_Points : public CSG_Module  
+{
+public:
+	CLine_Split_at_Points(void);
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+
+private:
+
+	bool					Get_Intersection	(CSG_Shape *pLine, TSG_Point Point, double Epsilon);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
