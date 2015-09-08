@@ -621,6 +621,9 @@ tools = [
 ['climate_tools', 8, 'PET (after Hargreaves, Grid)'],
 ['grid_visualisation', 10, 'Select Look-up Table for Grid Visualization'],
 ['grid_tools', 32, 'Select Grid from List'],
+['imagery_maxent', 0, 'Maximum Entropy Classifcation'],
+['imagery_maxent', 1, 'Maximum Entropy Presence Prediction'],
 ['io_grid_image', 3, 'Import Grids from KML'],
-['pointcloud_tools', 13, 'Point Cloud from Table']
+['pointcloud_tools', 13, 'Point Cloud from Table'],
+['shapes_lines', 8, 'Split Lines at Points']
 ]
