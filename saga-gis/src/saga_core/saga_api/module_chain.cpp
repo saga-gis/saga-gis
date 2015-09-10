@@ -214,38 +214,50 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		//-------------------------------------------------
 		switch( SG_Parameter_Type_Get_Type(Parameter.Get_Property("type")) )
 		{
-		case PARAMETER_TYPE_PointCloud     : Parameters.Add_PointCloud     (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Grid           : Parameter.Cmp_Property("target", "none") 
-			                               ? Parameters.Add_Grid_Output    (   NULL, ID, Name, Desc)
-			                               : Parameters.Add_Grid           (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Table          : Parameters.Add_Table          (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Shapes         : Parameters.Add_Shapes         (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_TIN            : Parameters.Add_TIN            (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Node             : Parameters.Add_Node           (pParent, ID, Name, Desc);	break;
 
-		case PARAMETER_TYPE_PointCloud_List: Parameters.Add_PointCloud_List(pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Grid_List      : Parameters.Add_Grid_List      (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Table_List     : Parameters.Add_Table_List     (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Shapes_List    : Parameters.Add_Shapes_List    (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_TIN_List       : Parameters.Add_TIN_List       (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Bool             : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Bool  , IS_TRUE_STRING(Value));	break;
+		case PARAMETER_TYPE_Int              : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Int   , Value.asInt   (), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Double           : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Double, Value.asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Degree           : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Degree, Value.asDouble(), Min, bMin, Max, bMax);	break;
 
-		case PARAMETER_TYPE_Bool           : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Bool  , IS_TRUE_STRING(Value));	break;
-		case PARAMETER_TYPE_Int            : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Int   , Value.asInt   (), Min, bMin, Max, bMax);	break;
-		case PARAMETER_TYPE_Double         : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Double, Value.asDouble(), Min, bMin, Max, bMax);	break;
-		case PARAMETER_TYPE_Degree         : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Degree, Value.asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Range            : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst (';').asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Choice           : Parameters.Add_Choice         (pParent, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 
-		case PARAMETER_TYPE_String         : Parameters.Add_String         (pParent, ID, Name, Desc, Value, false);	break;
-		case PARAMETER_TYPE_Text           : Parameters.Add_String         (pParent, ID, Name, Desc, Value,  true);	break;
+		case PARAMETER_TYPE_String           : Parameters.Add_String         (pParent, ID, Name, Desc, Value, false);	break;
+		case PARAMETER_TYPE_Text             : Parameters.Add_String         (pParent, ID, Name, Desc, Value,  true);	break;
 
-		case PARAMETER_TYPE_FilePath       : Parameters.Add_FilePath       (pParent, ID, Name, Desc, Parameter.Get_Content("filter"), Value,
-												 IS_TRUE_PROPERTY(Parameter, "save"), IS_TRUE_PROPERTY(Parameter, "directory"), IS_TRUE_PROPERTY(Parameter, "multiple" ));	break;
+		case PARAMETER_TYPE_FilePath         : Parameters.Add_FilePath       (pParent, ID, Name, Desc, Parameter.Get_Content("filter"), Value,
+												IS_TRUE_PROPERTY(Parameter, "save"     ),
+												IS_TRUE_PROPERTY(Parameter, "directory"),
+												IS_TRUE_PROPERTY(Parameter, "multiple" ));	break;
 
-		case PARAMETER_TYPE_Choice         : Parameters.Add_Choice         (pParent, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
-		case PARAMETER_TYPE_Range          : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst (';').asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Font             : break;
+		case PARAMETER_TYPE_Color            : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Color, Value.asInt());	break;
+		case PARAMETER_TYPE_Colors           : Parameters.Add_Colors         (pParent, ID, Name, Desc);	break;
+		case PARAMETER_TYPE_FixedTable       : break;	// to do ?
 
-		case PARAMETER_TYPE_Table_Field    : Parameters.Add_Table_Field    (pParent, ID, Name, Desc, (!Value.CmpNoCase("true") || !Value.CmpNoCase("1")));	break;
-		case PARAMETER_TYPE_Table_Fields   : Parameters.Add_Table_Fields   (pParent, ID, Name, Desc);	break;
+		case PARAMETER_TYPE_Grid_System      : Parameters.Add_Grid_System    (pParent, ID, Name, Desc);	break;
 
-		case PARAMETER_TYPE_Grid_System    : Parameters.Add_Grid_System    (pParent, ID, Name, Desc);	break;
+		case PARAMETER_TYPE_Table_Field      : Parameters.Add_Table_Field    (pParent, ID, Name, Desc, (!Value.CmpNoCase("true") || !Value.CmpNoCase("1")));	break;
+		case PARAMETER_TYPE_Table_Fields     : Parameters.Add_Table_Fields   (pParent, ID, Name, Desc);	break;
+
+		case PARAMETER_TYPE_Grid             : Parameter.Cmp_Property("target", "none") 
+			                                 ? Parameters.Add_Grid_Output    (   NULL, ID, Name, Desc)
+			                                 : Parameters.Add_Grid           (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Table            : Parameters.Add_Table          (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Shapes           : Parameters.Add_Shapes         (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_TIN              : Parameters.Add_TIN            (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_PointCloud       : Parameters.Add_PointCloud     (pParent, ID, Name, Desc, Constraint);	break;
+
+		case PARAMETER_TYPE_Grid_List        : Parameters.Add_Grid_List      (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Table_List       : Parameters.Add_Table_List     (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Shapes_List      : Parameters.Add_Shapes_List    (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_TIN_List         : Parameters.Add_TIN_List       (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_PointCloud_List  : Parameters.Add_PointCloud_List(pParent, ID, Name, Desc, Constraint);	break;
+
+		case PARAMETER_TYPE_DataObject_Output: break;
+		case PARAMETER_TYPE_Parameters       : break;	// to do ?
 
 		default: break;
 		}
