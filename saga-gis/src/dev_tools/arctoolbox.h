@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: arctoolbox.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     arctoolbox.h                      //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
-//                     Olaf Conrad                       //
+//                 Copyright (C) 2015 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -43,7 +43,7 @@
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Institute for Geography                //
+//                Institute of Geography                 //
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
@@ -53,84 +53,59 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__arctoolbox_H
+#define HEADER_INCLUDED__arctoolbox_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( SG_T("Development Tools") );
-
-	case MLB_INFO_Category:
-		return( _TL("Garden") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2010") );
-
-	case MLB_INFO_Description:
-		return( SG_T("Tools and helpers for the SAGA development.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( SG_T("Garden|Development Tools") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "tl_extract.h"
-#include "tl_union.h"
-#include "tl_merge.h"
-#include "tool_counter.h"
-#include "arctoolbox.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CTL_Extract );
-	case  1:	return( new CTL_Union );
-	case  2:	return( new CTL_Merge );
-	case  3:	return( new CTool_Counter );
-	case  4:	return( new CTool_Menus );
-	case  5:	return( new CArcToolBox );
-
-	case  6:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CArcToolBox : public CSG_Module
+{
+public: ////// public members and functions: //////////////
 
-	MLB_INTERFACE
+	CArcToolBox(void);
 
-//}}AFX_SAGA
+
+protected: /// protected members and functions: ///////////
+
+	virtual bool		On_Execute			(void);
+
+
+private: ///// private members and functions: /////////////
+
+	int					m_ArcVersion;
+
+
+	CSG_String			Get_Formatted		(CSG_String String, int Type);
+	CSG_String			Get_Description		(CSG_Module *pTool, int Type);
+
+	bool				Get_Parameter		(CSG_Parameter *pParameter, CSG_Strings &Info, CSG_Strings &Init, CSG_Strings &Input, CSG_Strings &Output, CSG_MetaData &Descs);
+	bool				Get_Tool			(CSG_Module_Library *pLibrary, int iTool, CSG_String &Code, CSG_MetaData &Description);
+
+	bool				Save				(CSG_Module_Library *pLibrary, const CSG_String &Directory, const CSG_Strings &Names, const CSG_Strings &Codes, const CSG_Strings &Descs);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__arctoolbox_H

@@ -18,11 +18,13 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(UC_DEFS) $(DBGF
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LFLG)
 pkglib_LTLIBRARIES = libdev_tools.la
 libdev_tools_la_SOURCES =\
+arctoolbox.cpp\
 MLB_Interface.cpp\
 tl_extract.cpp\
 tl_merge.cpp\
 tl_union.cpp\
 tool_counter.cpp\
+arctoolbox.h\
 MLB_Interface.h\
 tl_extract.h\
 tl_merge.h\
