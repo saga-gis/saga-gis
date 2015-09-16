@@ -93,7 +93,7 @@ private: ///// private members and functions: /////////////
 	CSG_String			Get_Formatted		(CSG_String String, int Type);
 	CSG_String			Get_Description		(CSG_Module *pTool, int Type);
 
-	bool				Get_Parameter		(CSG_Parameter *pParameter, CSG_Strings &Info, CSG_Strings &Init, CSG_Strings &Input, CSG_Strings &Output, CSG_MetaData &Descs);
+	bool				Get_Parameter		(CSG_Parameter *pParameter, CSG_Strings &Info, CSG_Strings &Init, CSG_MetaData &Descs);
 	bool				Get_Tool			(CSG_Module_Library *pLibrary, int iTool, CSG_String &Code, CSG_MetaData &Description);
 
 	bool				Save				(CSG_Module_Library *pLibrary, const CSG_String &Directory, const CSG_Strings &Names, const CSG_Strings &Codes, const CSG_Strings &Descs);

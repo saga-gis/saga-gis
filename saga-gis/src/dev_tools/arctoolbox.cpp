@@ -88,6 +88,15 @@ CArcToolBox::CArcToolBox(void)
 	);
 
 	Parameters.Add_Choice(
+		NULL	, "BOX_NAMING"	, _TL("Toolbox Naming"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("library file name"),
+			_TL("category and library name")
+		), 0
+	);
+
+	Parameters.Add_Choice(
 		NULL	, "ARC_VERSION"	, _TL("ArcGIS Version"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -257,7 +266,7 @@ const CSG_String	ArcDataTypes[ARC_nTypes][2]	=
 #define	ArcDataType(type, multi)	", datatype=\"" + ArcDataTypes[type][m_ArcVersion] + (multi ? "\", multiValue=True)\n" : "\")\n")
 
 //---------------------------------------------------------
-bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, CSG_Strings &Init, CSG_Strings &Input, CSG_Strings &Output, CSG_MetaData &Descs)
+bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, CSG_Strings &Init, CSG_MetaData &Descs)
 {
 	int		i;
 
@@ -275,9 +284,12 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 	case PARAMETER_TYPE_Grid           :	Info	+= ArcDataType(ARC_Raster   , false);	break;
 	case PARAMETER_TYPE_Grid_List      :	Info	+= ArcDataType(ARC_Raster   ,  true);	break;
 
+	case PARAMETER_TYPE_Table          :	Info	+= ArcDataType(ARC_TableView, false);	break;
+	case PARAMETER_TYPE_Table_List     :	Info	+= ArcDataType(ARC_TableView,  true);	break;
+
 	case PARAMETER_TYPE_Shapes         :
 		Info	+= ArcDataType(ARC_Feature  , false);
-		switch( ((CSG_Parameter_Shapes *)pParameter->Get_Data())->Get_Shape_Type() )
+		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes *)pParameter->Get_Data())->Get_Shape_Type() : SHAPE_TYPE_Undefined )
 		{
 		case SHAPE_TYPE_Point  :	Info	+= "\t\tparam.filter.list = [\"Point\"]\n"     ;	break;
 		case SHAPE_TYPE_Points :	Info	+= "\t\tparam.filter.list = [\"Multipoint\"]\n";	break;
@@ -288,7 +300,7 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 
 	case PARAMETER_TYPE_Shapes_List    :
 		Info	+= ArcDataType(ARC_Feature  ,  true);
-		switch( ((CSG_Parameter_Shapes *)pParameter->Get_Data())->Get_Shape_Type() )
+		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes *)pParameter->Get_Data())->Get_Shape_Type() : SHAPE_TYPE_Undefined )
 		{
 		case SHAPE_TYPE_Point  :	Info	+= "\t\tparam.filter.list = [\"Point\"]\n"     ;	break;
 		case SHAPE_TYPE_Points :	Info	+= "\t\tparam.filter.list = [\"Multipoint\"]\n";	break;
@@ -296,9 +308,6 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 		case SHAPE_TYPE_Polygon:	Info	+= "\t\tparam.filter.list = [\"Polygon\"]\n"   ;	break;
 		}
 		break;
-
-	case PARAMETER_TYPE_Table          :	Info	+= ArcDataType(ARC_TableView, false);	break;
-	case PARAMETER_TYPE_Table_List     :	Info	+= ArcDataType(ARC_TableView,  true);	break;
 
 	case PARAMETER_TYPE_PointCloud     :
 	case PARAMETER_TYPE_PointCloud_List:	return( false );
@@ -383,40 +392,33 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 
 	if( Infos.Get_Count() == 0 )
 	{
-		Infos	+= Info + "\t\tparams = [param]\n";
+		Infos	+= Info + "\t\tparams  = [param]\n";
 	}
 	else
 	{
-		Infos	+= Info + "\t\tparams = params + [param]\n";
+		Infos	+= Info + "\t\tparams += [param]\n";
 	}
 
 //	#	param.filter.type = "ValueList"
-//	#	param.parameterDependencies = [param[0].name]
 //	#	param.schema.clone = True
 
 	//-----------------------------------------------------
 	if( pParameter->is_Option() )
 	{
-		Init	+= CSG_String::Format("\t\tparams = ArcSAGA.Set_Option(params, '%s', parameters[%d].valueAsText)\n",
+		Init	+= CSG_String::Format("\t\tTool.Set_Option('%s', parameters[%d].valueAsText)\n",
 			pParameter->Get_Identifier(), Init.Get_Count()
 		);
 	}
 	else if( pParameter->is_Input() )
 	{
-		Input	+= CSG_String::Format("\t\tArcSAGA.File_Remove_All(%s)\n", pParameter->Get_Identifier());
-
-		Init	+= CSG_String::Format("\t\tparams, %s = ArcSAGA.Set_Input(params, '%s', parameters[%d].valueAsText, '%s')\n",
-			pParameter->Get_Identifier(), pParameter->Get_Identifier(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
+		Init	+= CSG_String::Format("\t\tTool.Set_Input ('%s', parameters[%d].valueAsText, '%s')\n",
+			pParameter->Get_Identifier(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
 		);
 	}
 	else if( pParameter->is_Output() )
 	{
-		Output	+= CSG_String::Format("\t\tArcSAGA.Get_Output(%s, parameters[%d].valueAsText, '%s')\n",
+		Init	+= CSG_String::Format("\t\tTool.Set_Output('%s', parameters[%d].valueAsText, '%s')\n",
 			pParameter->Get_Identifier(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
-		);
-
-		Init	+= CSG_String::Format("\t\tparams, %s = ArcSAGA.Set_Output(params, '%s', parameters[%d].valueAsText, '%s')\n",
-			pParameter->Get_Identifier(), pParameter->Get_Identifier(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
 		);
 	}
 
@@ -484,11 +486,11 @@ bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &
 	}
 
 	//-----------------------------------------------------
-	CSG_Strings	Info, Init, Input, Output;
+	CSG_Strings	Info, Init;
 
 	for(i=0; i<pTool->Get_Parameters()->Get_Count(); i++)
 	{
-		if( !Get_Parameter(pTool->Get_Parameters()->Get_Parameter(i), Info, Init, Input, Output, *Description["tool"]("parameters")) )
+		if( !Get_Parameter(pTool->Get_Parameters()->Get_Parameter(i), Info, Init, *Description["tool"]("parameters")) )
 		{
 			return( false );
 		}
@@ -526,25 +528,14 @@ bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &
 	//-----------------------------------------------------
 	Code	+= "\n";
 	Code	+= "\tdef execute(self, parameters, messages):\n";
-	Code	+= "\t\tparams = None\n";
+	Code	+= "\t\tTool = ArcSAGA.SAGA_Tool('" + pLibrary->Get_Library_Name() + "', '" + pTool->Get_ID() + "')\n";
 
 	for(i=0; i<Init.Get_Count(); i++)
 	{
 		Code	+= Init[i];
 	}
 
-	Code	+= "\t\tArcSAGA.Run_Tool('" + pLibrary->Get_Library_Name() + "', '" + pTool->Get_ID() + "', params)\n";
-
-	for(i=0; i<Output.Get_Count(); i++)
-	{
-		Code	+= Output[i];
-	}
-
-	for(i=0; i<Input.Get_Count(); i++)
-	{
-		Code	+= Input[i];
-	}
-
+	Code	+= "\t\tTool.Run()\n";
 	Code	+= "\t\treturn\n";
 
 	//-----------------------------------------------------
@@ -568,8 +559,9 @@ bool CArcToolBox::Save(CSG_Module_Library *pLibrary, const CSG_String &Directory
 	CSG_String	s;
 	CSG_File	f;
 
-	CSG_String	FileName	= SG_File_Make_Path(Directory, pLibrary->Get_Library_Name(), SG_T(""));
-//	CSG_String	FileName	= SG_File_Make_Path(Directory, pLibrary->Get_Category(), pLibrary->Get_Name());
+	CSG_String	FileName	= Parameters("BOX_NAMING")->asInt() == 0
+		? SG_File_Make_Path(Directory, pLibrary->Get_Library_Name(), SG_T(""))
+		: SG_File_Make_Path(Directory, pLibrary->Get_Category    (), SG_T("")) + " - " + pLibrary->Get_Name();
 
 	if( !f.Open(FileName + ".pyt", SG_FILE_W, true) )
 	{

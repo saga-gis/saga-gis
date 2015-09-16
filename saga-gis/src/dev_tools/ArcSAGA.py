@@ -13,34 +13,6 @@ if os.path.isfile(DIR_SAGA + os.sep + 'saga_cmd.exe') == False:
 
 
 ##########################################
-# Run SAGA Tool
-#_________________________________________
-def Run_Tool(Library, Tool, Parameters):
-	if DIR_SAGA != None:
-		cmd		= [DIR_SAGA + os.sep + 'saga_cmd', '-f=q']
-	else:
-		cmd		= ['saga_cmd', '-f=q']
-	cmd = cmd + [Library, Tool] + Parameters
-
-	if DIR_LOG != None:
-		log_std	= open(DIR_LOG + os.sep + 'arcsaga.log'      , 'a')
-		log_err	= open(DIR_LOG + os.sep + 'arcsaga.error.log', 'a')
-		p		= subprocess.call(cmd, stdout=log_std, stderr=log_err)
-	else:
-		p		= subprocess.call(cmd)
-
-	if p != 0:
-		arcpy.AddMessage('_________________________')
-		arcpy.AddError('...failed to run SAGA tool!')
-		s = 'saga_cmd ' + Library + ' ' + Tool
-		for i in Parameters:
-			s	= s + ' ' + i
-		arcpy.AddMessage(s)
-
-	return p
-
-	
-##########################################
 # File Tools
 #_________________________________________
 def File_Get_TempName(Extension):
@@ -48,169 +20,234 @@ def File_Get_TempName(Extension):
 
 #_________________________________________
 def File_Cmp_Extension(File, Extension):
-	if File == '#' or not File:
-		return False
-	File, ext = os.path.splitext(File)
-	if Extension == ext:
-		return True
+	if File != '#' and File != None:
+		File, ext = os.path.splitext(File)
+		if Extension == ext:
+			return True
 	return False
 
 #_________________________________________
 def File_Set_Extension(File, Extension):
-	if File == '#' or not File:
-		return None
-	File, ext = os.path.splitext(File)
-	File = File + '.' + Extension
-	return File
+	if File != '#' and File != None:
+		File, ext = os.path.splitext(File)
+		File += '.' + Extension
+		return File
+	return None
 
 #_________________________________________
 def File_Remove_All(File_Name):
-	if File_Name == '#' or not File_Name:
-		return
-	Files = File_Set_Extension(File_Name, '*')
-	for File in glob.glob(Files):
-		os.remove(File)
+	if File_Name != '#' and File_Name != None:
+		Files = File_Set_Extension(File_Name, '*')
+		for File in glob.glob(Files):
+			os.remove(File)
 	return
 
 
 ##########################################
-# Parameters
+# The SAGA Tool Execution Class
 #_________________________________________
-def Set_Option(Parameters, Identifier, Value):
-	if Value == '#' or Value == None:
-		return Parameters
+class SAGA_Tool:
 
-	Value.strip()
-	Parameter = ['-' + Identifier, Value]
-	if Parameters == None:
-		return Parameter
-	return Parameters + Parameter
+	######################################
+	# Construction
+	#_____________________________________
+	def __init__(self, Library, Tool):
+		self.Library    = Library
+		self.Tool       = Tool
+		self.Parameters	= None
+		self.Temporary  = None
+		self.Output     = None
 
-#_________________________________________
-def Set_Input(Parameters, Identifier, Value, Type):
-	Files = None
 
-	if Value != '#' and Value != None:
-		List  = ConversionUtils.SplitMultiInputs(Value)
-		for Item in List:
-			if   Type == 'grid'   or Type == 'grid_list':
-				File = Arc_To_SAGA_Raster (Item)
-			elif Type == 'table'  or Type == 'table_list':
-				File = Arc_To_SAGA_Table  (Item)
-			elif Type == 'shapes' or Type == 'shapes_list':
-				File = Arc_To_SAGA_Feature(Item)
-			elif Type == 'points' or Type == 'points_list':
-				File = Arc_To_SAGA_Points (Item)
+	######################################
+	# Execution
+	#_____________________________________
+	def Run(self):
+		if DIR_SAGA != None:
+			cmd = [DIR_SAGA + os.sep + 'saga_cmd', '-f=q']
+		else:
+			cmd =                     ['saga_cmd', '-f=q']
+		cmd += [self.Library, self.Tool] + self.Parameters
+
+		if DIR_LOG != None:
+			log_std = open(DIR_LOG + os.sep + 'arcsaga.log'      , 'a')
+			log_err = open(DIR_LOG + os.sep + 'arcsaga.error.log', 'a')
+			Result  = subprocess.call(cmd, stdout=log_std, stderr=log_err)
+		else:
+			Result  = subprocess.call(cmd)
+
+		if Result != 0:
+			arcpy.AddMessage('_________________________')
+			arcpy.AddError('...failed to run SAGA tool!')
+			Message = 'saga_cmd ' + self.Library + ' ' + self.Tool
+			for Item in self.Parameters:
+				Message += ' ' + Item
+			arcpy.AddMessage(Message)
+			
+		elif self.Output != None:
+			for Data in self.Output:
+				self.Get_Output(Data[0], Data[1], Data[2])
+
+		if self.Temporary != None:
+			for Data in self.Temporary:
+				File_Remove_All(Data)
+
+		return Result
+
+
+	######################################
+	# Data Lists
+	#_____________________________________
+	def Add_Temporary(self, File):
+		if self.Temporary == None:
+			self.Temporary  = [File]
+		else:
+			self.Temporary += [File]
+		return
+
+	#_____________________________________
+	def Add_Output(self, Identifier, File, Type):
+		if self.Output == None:
+			self.Output  = [[Identifier, File, Type]]
+		else:
+			self.Output += [[Identifier, File, Type]]
+		return
+
+
+	######################################
+	# Parameters
+	#_____________________________________
+	def Set_Option(self, Identifier, Value):
+		if Value != '#' and Value != None:
+			Value.strip()
+			if self.Parameters == None:
+				self.Parameters  = ['-' + Identifier, Value]
 			else:
-				File = None
+				self.Parameters += ['-' + Identifier, Value]
+		return
 
-			if File != None:
-				if Files == None:
-					Files = File
+	#_____________________________________
+	def Set_Input(self, Identifier, Value, Type):
+		Files = None
+
+		if Value != '#' and Value != None:
+			List  = ConversionUtils.SplitMultiInputs(Value)
+			for Item in List:
+				if   Type == 'grid'   or Type == 'grid_list':
+					File = Arc_To_SAGA_Raster (Item)
+				elif Type == 'table'  or Type == 'table_list':
+					File = Arc_To_SAGA_Table  (Item)
+				elif Type == 'shapes' or Type == 'shapes_list':
+					File = Arc_To_SAGA_Feature(Item)
+				elif Type == 'points' or Type == 'points_list':
+					File = Arc_To_SAGA_Points (Item)
 				else:
-					Files = Files + ';' + File
+					File = None
 
-	if Files == None:
-		return Parameters, None
+				if File != None:
+					if Files == None:
+						Files = File
+					else:
+						Files = Files + ';' + File
 
-	Parameter = ['-' + Identifier, Files]
+					if File != Item:
+						self.Add_Temporary(File)
 
-	if Parameters == None:
-		return Parameter, Files
-	return Parameters + Parameter, Files
+		if Files != None:
+			self.Set_Option(Identifier, Files)
 
-#_________________________________________
-def Set_Output(Parameters, Identifier, Value, Type):
-	Files = None
+		return Files
 
-	if Value != '#' and Value != None:
-		List  = ConversionUtils.SplitMultiInputs(Value)
-		for Item in List:
-			if   Type == 'grid'   or Type == 'grid_list':
-				File = File_Get_TempName('sgrd')
-			elif Type == 'table'  or Type == 'table_list':
-				if File_Cmp_Extension(Item,  'dbf') == False:
-					File = File_Get_TempName('dbf')
+	#_____________________________________
+	def Set_Output(self, Identifier, Value, Type):
+		Files = None
+
+		if Value != '#' and Value != None:
+			List  = ConversionUtils.SplitMultiInputs(Value)
+			for Item in List:
+				if   Type == 'grid'   or Type == 'grid_list':
+					File = File_Get_TempName('sgrd')
+				elif Type == 'table'  or Type == 'table_list':
+					if File_Cmp_Extension(Item,  'dbf') == False:
+						File = File_Get_TempName('dbf')
+					else:
+						File = Item
+				elif Type == 'shapes' or Type == 'shapes_list':
+					if File_Cmp_Extension(Item,  'shp') == False:
+						File = File_Get_TempName('shp')
+					else:
+						File = Item
+				elif Type == 'points' or Type == 'points_list':
+					File = File_Get_TempName('spc')
 				else:
-					File = Item
-			elif Type == 'shapes' or Type == 'shapes_list':
-				if File_Cmp_Extension(Item,  'shp') == False:
-					arcpy.AddMessage('ext <> shp: ' + Item)
-					File = File_Get_TempName('shp')
-				else:
-					File = Item
-			elif Type == 'points' or Type == 'points_list':
-				File = File_Get_TempName('spc')
-			else:
-				File = None
+					File = None
 
-			if File != None:
-				if Files == None:
-					Files = File
-				else:
-					Files = Files + ';' + File
+				if File != None:
+					if Files == None:
+						Files = File
+					else:
+						Files = Files + ';' + File
 
-	if Files == None:
-		return Parameters, None
+					if File != Item:
+						self.Add_Temporary(File)
 
-	Parameter = ['-' + Identifier, Files]
+		if Files != None:
+			self.Set_Option(Identifier, Files)
+			self.Add_Output(Files, Value, Type)
 
-	if Parameters == None:
-		return Parameter, Files
-	return Parameters + Parameter, Files
+		return Files
 
-#_________________________________________
-def Get_Output(Identifier, Value, Type):
-	if Value != '#' and Value != None:
-		List  = Value.split(';')
-		for Item in List:
-			if   Type == 'grid'   or Type == 'grid_list':
-				SAGA_To_Arc_Raster (Identifier, Item)
-			elif Type == 'table'  or Type == 'table_list':
-				SAGA_To_Arc_Table  (Identifier, Item)
-			elif Type == 'shapes' or Type == 'shapes_list':
-				SAGA_To_Arc_Feature(Identifier, Item)
-			elif Type == 'points' or Type == 'points_list':
-				SAGA_To_Arc_Points (Identifier, Item)
-	return
+	#_____________________________________
+	def Get_Output(self, SagaFile, ArcFile, Type):
+		if ArcFile != '#' and ArcFile != None:
+			List  = ArcFile.split(';')
+			for Item in List:
+				if   Type == 'grid'   or Type == 'grid_list':
+					SAGA_To_Arc_Raster (SagaFile, Item)
+				elif Type == 'table'  or Type == 'table_list':
+					SAGA_To_Arc_Table  (SagaFile, Item)
+				elif Type == 'shapes' or Type == 'shapes_list':
+					SAGA_To_Arc_Feature(SagaFile, Item)
+				elif Type == 'points' or Type == 'points_list':
+					SAGA_To_Arc_Points (SagaFile, Item)
+		return
 
 
 ##########################################
 # Raster Conversion
 #_________________________________________
 def Arc_To_SAGA_Raster(Raster):
-	Raster = ConversionUtils.ValidateInputRaster(Raster)
-
 	Supported = ['tif', 'img', 'asc']
 	for ext in Supported:
 		if File_Cmp_Extension(Raster, ext):
 			return Raster
 
-	arcpy.AddMessage('Export: ' + Raster)
-
-	File   = os.tempnam(None, 'arc_saga_') + '.tif'
+	File   = File_Get_TempName('tif')
+	Raster = ConversionUtils.ValidateInputRaster(Raster)
 	ConversionUtils.CopyRasters(Raster, File, "")
 
 	return File
 
 #_________________________________________
 def SAGA_To_Arc_Raster(File, Raster):
-	arcpy.AddMessage('Import: ' + Raster)
+	Tool = SAGA_Tool('io_gdal', '2') # 'Export Raster to GeoTIFF'
+	Tool.Set_Option('GRIDS', File)
 
 	if File_Cmp_Extension(Raster, 'tif'):
-		if Run_Tool('io_gdal', '2', ['-GRIDS' , File, '-FILE', Raster]) != 0 : # 'Export Raster to GeoTIFF'
-			return 0
+		Tool.Set_Option('FILE', Raster)
+		if Tool.Run() != 0:
+			return False
 	else:
 		GeoTIFF = File_Set_Extension(File, 'tif')
-		if Run_Tool('io_gdal', '2', ['-GRIDS' , File, '-FILE', GeoTIFF]) != 0 : # 'Export Raster to GeoTIFF'
-			return 0
+		Tool.Set_Option('FILE', GeoTIFF)
+		if Tool.Run() != 0:
+			return False
 		GeoTIFF = ConversionUtils.ValidateInputRaster(GeoTIFF)
 		ConversionUtils.CopyRasters(GeoTIFF, Raster, "")
 
-	File_Remove_All(File)
 	Arc_Load_Layer(Raster)
 	
-	return 1
+	return True
 
 
 ##########################################
@@ -220,7 +257,7 @@ def Arc_To_SAGA_Feature(Feature):
 	if File_Cmp_Extension(Feature, 'shp') == True:
 		return Feature
 
-	File = os.tempnam(None, 'arc_saga_') + '.shp'
+	File = File_Get_TempName('.shp')
 	ConversionUtils.CopyFeatures(Feature, File)
 
 	return File
@@ -233,17 +270,17 @@ def SAGA_To_Arc_Feature(File, Feature):
 
 	Arc_Load_Layer(Feature)
 
-	return 1
+	return True
 
 
 ##########################################
-# Feature Conversion
+# Table Conversion
 #_________________________________________
 def Arc_To_SAGA_Table(Table):
 	if File_Cmp_Extension(Table, 'dbf') == True:
 		return Table
 
-	File  = os.tempnam(None, 'arc_saga_') + '.dbf'
+	File  = File_Get_TempName('.dbf')
 	ConversionUtils.CopyRows(Table, File)
 
 	return File
@@ -254,9 +291,7 @@ def SAGA_To_Arc_Table(File, Table):
 		ConversionUtils.CopyRows(File, Table)
 		File_Remove_All(File)
 
-#	Arc_Load_Layer(Table)
-
-	return 1
+	return True
 
 	
 ##########################################
