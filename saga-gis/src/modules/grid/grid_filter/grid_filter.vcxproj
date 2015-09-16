@@ -322,6 +322,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="wombling.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -363,6 +364,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="Pt.h" />
+    <ClInclude Include="wombling.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="geodesic_morph_rec\listfuncs.inc" />

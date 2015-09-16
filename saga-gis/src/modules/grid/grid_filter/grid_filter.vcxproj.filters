@@ -77,6 +77,9 @@
     <ClCompile Include="Filter_Sieve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wombling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -194,6 +197,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Filter_Sieve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wombling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

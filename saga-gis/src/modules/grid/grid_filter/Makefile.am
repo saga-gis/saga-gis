@@ -27,6 +27,7 @@ Filter_Resample.cpp\
 Filter_Sieve.cpp\
 Filter_Terrain_SlopeBased.cpp\
 FilterClumps.cpp\
+wombling.cpp\
 geomrec.cpp\
 ./geodesic_morph_rec/bin_geovinc.c\
 ./geodesic_morph_rec/combcontour.c\
@@ -48,6 +49,7 @@ Filter_Resample.h\
 Filter_Sieve.h\
 Filter_Terrain_SlopeBased.h\
 FilterClumps.h\
+wombling.h\
 geomrec.h\
 ./geodesic_morph_rec/bin_geovinc.h\
 ./geodesic_morph_rec/combcontour.h\
