@@ -174,11 +174,18 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 
 	if( m_Recent_Count > 0 )
 	{
-		m_Recent		= new wxString[m_Recent_Count];
+		m_Recent	= new wxString[m_Recent_Count];
 
-		for(int i=0; i<m_Recent_Count; i++)
+		for(int i=0, n=0; i<m_Recent_Count; i++)
 		{
-			CONFIG_Read(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), m_Recent[i]);
+			wxString	Recent;
+
+			CONFIG_Read(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), Recent);
+
+			if( wxFileExists(Recent) )
+			{
+				m_Recent[n++]	= Recent;
+			}
 		}
 	}
 
@@ -329,17 +336,18 @@ bool CWKSP_Data_Menu_File::Get(wxArrayString &FileNames, bool bAppend)
 		FileNames.Clear();
 	}
 
-	if( m_Recent && m_Recent_Count > 0 )
+	if( m_Recent )
 	{
 		for(int i=0; i<m_Recent_Count; i++)
 		{
-			FileNames.Add(m_Recent[i]);
+			if( wxFileExists(m_Recent[i]) )
+			{
+				FileNames.Add(m_Recent[i]);
+			}
 		}
-
-		return( true );
 	}
 
-	return( false );
+	return( FileNames.Count() > 0 );
 }
 
 
