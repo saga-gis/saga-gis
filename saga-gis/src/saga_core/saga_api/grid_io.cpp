@@ -1051,6 +1051,13 @@ bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, int xStart, int yStar
 
 		m_Projection.Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 
+		if( Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")) + ".aux.xml", SG_FILE_W, false) )	// store srs information that is recognized by ArcGIS
+		{
+			Stream.Write("<PAMDataset>\n<SRS>");
+			Stream.Write(m_Projection.Get_WKT());
+			Stream.Write("</SRS>\n</PAMDataset>\n");
+		}
+
 		return( true );
 	}
 
