@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: diversity_analysis.h 2476 2015-04-22 18:41:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     grid analysis                     //
+//                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 diversity_analysis.h                  //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
-//                     Victor Olaya                      //
+//                 Copyright (C) 2015 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,133 +40,78 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     volaya@ya.com                          //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Victor Olaya Ferrero                   //
-//                Madrid                                 //
-//                Spain                                  //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__diversity_analysis_H
+#define HEADER_INCLUDED__diversity_analysis_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Analysis") );
-
-	case MLB_INFO_Category:
-		return( _TL("Grid") );
-
-	case MLB_INFO_Author:
-		return( _TL("Various authors.") );
-
-	case MLB_INFO_Description:
-		return( _TL("Some Grid Analysis Tools.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Analysis") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Cost_Isotropic.h"
-#include "Cost_Anisotropic.h"
-#include "LeastCostPathProfile.h"
-#include "LeastCostPathProfile_Points.h"
-
-#include "Grid_CVA.h"
-#include "CoveredDistance.h"
-#include "Grid_Pattern.h"
-#include "Grid_LayerOfMaximumValue.h"
-#include "Grid_AHP.h"
-#include "owa.h"
-#include "Grid_AggregationIndex.h"
-#include "CrossClassification.h"
-
-#include "Soil_Texture.h"
-
-#include "fragmentation_standard.h"
-#include "fragmentation_resampling.h"
-#include "fragmentation_classify.h"
-
-#include "Grid_Accumulation_Functions.h"
-#include "Grid_IMCORR.h"
-
-#include "diversity_analysis.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CCost_Isotropic );
-	case  1:	return( new CCost_Anisotropic );
-	case  4:	return( new CLeastCostPathProfile );
-	case  5:	return( new CLeastCostPathProfile_Points );
-
-	case  6:	return( new CGrid_CVA );
-	case  7:	return( new CCoveredDistance );
-	case  8:	return( new CGrid_Pattern );
-	case  9:	return( new CLayerOfMaximumValue );
-	case 10:	return( new CAHP );
-	case 11:	return( new COWA );
-	case 12:	return( new CAggregationIndex );
-	case 13:	return( new CCrossClassification );
-
-	case 14:	return( new CSoil_Texture );
-	case 20:	return( new CSoil_Texture_Table );
-
-	case 15:	return( new CFragmentation_Standard );
-	case 16:	return( new CFragmentation_Resampling );
-	case 17:	return( new CFragmentation_Classify );
-
-	case 18:	return( new CGrid_Accumulation_Functions );
-
-	case 19:	return( new CGrid_IMCORR );
-
-	case 21:	return( new CDiversity_Analysis );
-
-	case 22:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CDiversity_Analysis : public CSG_Module_Grid
+{
+public:
+	CDiversity_Analysis(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	int							m_NB_Step;
+
+	CSG_Grid					*m_pClasses, *m_pDiversity, *m_pSize_Mean, *m_pSize_Skew, *m_pConnectivity;
+
+	CSG_Grid_Cell_Addressor		m_Search;
+
+
+	bool						Get_Diversity			(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__diversity_analysis_H

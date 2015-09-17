@@ -17,6 +17,7 @@ Cost_Anisotropic.cpp\
 Cost_Isotropic.cpp\
 CoveredDistance.cpp\
 CrossClassification.cpp\
+diversity_analysis.cpp\
 fragmentation_base.cpp\
 fragmentation_classify.cpp\
 fragmentation_resampling.cpp\
@@ -38,6 +39,7 @@ Cost_Anisotropic.h\
 Cost_Isotropic.h\
 CoveredDistance.h\
 CrossClassification.h\
+diversity_analysis.h\
 fragmentation_base.h\
 fragmentation_classify.h\
 fragmentation_resampling.h\
