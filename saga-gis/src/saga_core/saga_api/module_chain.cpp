@@ -130,13 +130,28 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	Reset();
 
 	//-----------------------------------------------------
-	if( !m_Chain.Load(File) || !m_Chain.Cmp_Name("toolchain")
-	||  SG_Compare_Version(m_Chain.Get_Property("saga-version"), "2.1.3") < 0
-	||  !m_Chain("identifier") || !m_Chain("parameters") )
+	if( File.Right(sizeof(".pyt.xml")).Make_Lower().Find(".pyt.xml") >= 0 )
 	{
-		Reset();
-
 		return( false );
+	}
+
+	if( !m_Chain.Load(File) )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("failed to load or parse xml file"), File.c_str()));
+
+		Reset();	return( false );
+	}
+
+	if( !m_Chain.Cmp_Name("toolchain") || !m_Chain("identifier") || !m_Chain("parameters") )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("missing tool chain tags"), File.c_str()));
+
+		Reset();	return( false );
+	}
+
+	if( SG_Compare_Version(m_Chain.Get_Property("saga-version"), "2.1.3") < 0 )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("WARNING"), _TL("unsupported tool chain version"), File.c_str()));
 	}
 
 	//-----------------------------------------------------
