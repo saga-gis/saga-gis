@@ -1049,13 +1049,16 @@ bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, int xStart, int yStar
 		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_Z_OFFSET       ], m_zOffset               );
 		Stream.Printf("%s\t= %f\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_NODATA_VALUE   ], m_NoData                );
 
-		m_Projection.Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
-
-		if( Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")) + ".aux.xml", SG_FILE_W, false) )	// store srs information that is recognized by ArcGIS
+		if( m_Projection.is_Okay() )
 		{
-			Stream.Write("<PAMDataset>\n<SRS>");
-			Stream.Write(m_Projection.Get_WKT());
-			Stream.Write("</SRS>\n</PAMDataset>\n");
+			m_Projection.Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+
+			if( Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")) + ".aux.xml", SG_FILE_W, false) )	// store srs information that is recognized by ArcGIS
+			{
+				Stream.Write("<PAMDataset>\n<SRS>");
+				Stream.Write(m_Projection.Get_WKT());
+				Stream.Write("</SRS>\n</PAMDataset>\n");
+			}
 		}
 
 		return( true );
