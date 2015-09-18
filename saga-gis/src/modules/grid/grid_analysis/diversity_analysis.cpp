@@ -137,6 +137,10 @@ CDiversity_Analysis::CDiversity_Analysis(void)
 			_TL("Queen's case")
 		), 1
 	);
+
+	m_Search.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
+	m_Search.Get_Weighting().Set_BandWidth(0.7);
+	m_Search.Get_Weighting().Create_Parameters(&Parameters, false);
 }
 
 
@@ -147,6 +151,8 @@ CDiversity_Analysis::CDiversity_Analysis(void)
 //---------------------------------------------------------
 int CDiversity_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	m_Search.Get_Weighting().Enable_Parameters(pParameters);
+
 	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -176,7 +182,11 @@ bool CDiversity_Analysis::On_Execute(void)
 	DataObject_Set_Colors(m_pConnectivity, 11, SG_COLORS_DEFAULT,  true);
 
 	//-----------------------------------------------------
+	m_Search.Get_Weighting().Set_Parameters(&Parameters);
+	m_Search.Get_Weighting().Set_BandWidth(Parameters("SEARCH_RADIUS")->asDouble() * m_Search.Get_Weighting().Get_BandWidth());
 	m_Search.Set_Radius(Parameters("SEARCH_RADIUS")->asInt(), Parameters("SEARCH_MODE")->asInt() == 0);
+
+	m_bWeighted	= m_Search.Get_Weighting().Get_Weighting() != SG_DISTWGHT_None;
 
 	m_NB_Step	= Parameters("NB_CASE")->asInt() == 0 ? 2 : 1;
 
@@ -212,7 +222,7 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 {
 	int		i, nCells = 0, nConnections = 0, nNeighbours = 0;
 
-	CSG_Class_Statistics	Classes;
+	CSG_Class_Statistics_Weighted	Classes;
 
 	for(i=0; i<m_Search.Get_Count(); i++)
 	{
@@ -223,7 +233,7 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 		{
 			double	iz	= m_pClasses->asDouble(ix, iy);
 
-			Classes.Add_Value(iz);
+			Classes.Add_Value(iz, m_bWeighted ? m_Search.Get_Weight(i) : 1.0);
 
 			nCells++;
 
@@ -245,9 +255,6 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 		}
 	}
 
-	m_pDiversity   ->Set_Value(x, y, Classes.Get_Count());
-	m_pConnectivity->Set_Value(x, y, nNeighbours > 0 ? nConnections / (double)nNeighbours : 0.0);
-
 	//-----------------------------------------------------
 	if( Classes.Get_Count() > 1 )
 	{
@@ -255,34 +262,21 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 
 		for(i=0; i<Classes.Get_Count(); i++)
 		{
-			s	+= Classes.Get_Class_Count(i) / (double)nCells;	// relative sizes!
+			s.Add_Value(Classes.Get_Class_Count(i), m_bWeighted ? Classes.Get_Class_Weight(i) / Classes.Get_Class_Count(i) : 1.0);
 		}
 
-		m_pSize_Mean->Set_Value(x, y, s.Get_Mean());
-
-	//	m_pSize_Skew->Set_Value(x, y, s.Get_StdDev() != 0.0 ? (s.Get_Mean() - s.Get_Median()) / s.Get_StdDev() : 0.0);	// skewness after Pearson
-
-		if( s.Get_Count() > 2 && s.Get_StdDev() > 0.0 )
-		{
-			double	Sum	= 0.0;
-
-			for(i=0; i<Classes.Get_Count(); i++)
-			{
-				Sum	+= pow((s.Get_Value(i) - s.Get_Mean()) / s.Get_StdDev(), 3.0);
-			}
-
-			m_pSize_Skew->Set_Value(x, y, Sum * s.Get_Count() / ((s.Get_Count() - 1) * (s.Get_Count() - 2)));
-		}
-		else
-		{
-			m_pSize_Skew->Set_Value(x, y, 0.0);
-		}
+		m_pDiversity->Set_Value(x, y, s.Get_Sum() * s.Get_Weights());
+		m_pSize_Mean->Set_Value(x, y, s.Get_Mean() / (double)nCells);	// relative size !!!
+		m_pSize_Skew->Set_Value(x, y, s.Get_Skewness());	//	m_pSize_Skew->Set_Value(x, y, s.Get_SkewnessPearson());
 	}
 	else
 	{
+		m_pDiversity->Set_Value(x, y, 1.0);
 		m_pSize_Mean->Set_Value(x, y, 1.0);
 		m_pSize_Skew->Set_Value(x, y, 0.0);
 	}
+
+	m_pConnectivity->Set_Value(x, y, nNeighbours > 0 ? nConnections / (double)nNeighbours : 0.0);
 
 	return( nCells > 0 );
 }
