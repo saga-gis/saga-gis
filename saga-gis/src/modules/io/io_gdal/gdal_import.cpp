@@ -397,6 +397,12 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 
 				DataObject_Add			(pGrid);
 				DataObject_Set_Colors	(pGrid, CSG_Colors(11, SG_COLORS_BLACK_WHITE, false));
+
+				if( DataSet.Get_Count() == 1 )
+				{
+					pGrid->Set_File_Name(DataSet.Get_File_Name());
+					pGrid->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
+				}
 			}
 		}
     }
