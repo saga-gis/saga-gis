@@ -121,7 +121,11 @@ wxString CWKSP_Grid::Get_Description(void)
 
 	DESC_ADD_STR (_TL("Name")				, m_pObject->Get_Name());
 	DESC_ADD_STR (_TL("Description")		, m_pObject->Get_Description());
-	DESC_ADD_STR (_TL("File")				, SG_File_Exists(m_pObject->Get_File_Name()) ? m_pObject->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR (_TL("File")				, SG_File_Exists(m_pObject->Get_File_Name(false)) ? m_pObject->Get_File_Name(false) : _TL("memory"));
+	if( m_pObject->Get_MetaData()("GDAL_DRIVER") )
+	{
+		DESC_ADD_STR (_TL("Driver")			, m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+	}
 	DESC_ADD_STR (_TL("Modified")			, m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
 	DESC_ADD_STR (_TL("Projection")			, m_pObject->Get_Projection().Get_Description().c_str());
 	DESC_ADD_FLT (_TL("West")				, Get_Grid()->Get_XMin());

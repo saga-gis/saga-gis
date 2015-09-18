@@ -65,6 +65,8 @@
 //---------------------------------------------------------
 #include "grid.h"
 
+#include "data_manager.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -97,7 +99,16 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
-	return( new CSG_Grid(File_Name, Type, Memory_Type, bLoadData) );
+	CSG_Grid	*pGrid	= new CSG_Grid(File_Name, Type, Memory_Type, bLoadData);
+
+	if( pGrid->is_Valid() )
+	{
+		return( pGrid );
+	}
+
+	delete(pGrid);
+
+	return( NULL );
 }
 
 //---------------------------------------------------------
@@ -300,7 +311,30 @@ bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Gri
 //---------------------------------------------------------
 bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
-	return( _Load(File_Name, Type, Memory_Type, bLoadData) );
+	Destroy();
+
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load grid"), File_Name.c_str()), true);
+
+	//-----------------------------------------------------
+	if( _Load(File_Name, Type, Memory_Type, bLoadData) )
+	{
+		m_bCreated	= true;
+
+		Set_Update_Flag();
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	Destroy();
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	SG_UI_Msg_Add_Error(_TL("Grid file could not be opened."));
+
+	return( false );
 }
 
 //---------------------------------------------------------

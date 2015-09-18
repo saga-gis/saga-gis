@@ -275,6 +275,8 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 //---------------------------------------------------------
 CWKSP_Data_Manager::~CWKSP_Data_Manager(void)
 {
+	CONFIG_Write("/DATA", &m_Parameters);
+
 	delete(m_pProject);
 	delete(m_pMenu_Files);
 
@@ -368,10 +370,6 @@ bool CWKSP_Data_Manager::Initialise(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Finalise(void)
 {
-	//-----------------------------------------------------
-	CONFIG_Write("/DATA", &m_Parameters);
-
-	//-----------------------------------------------------
 	wxFileName	fProject	= Get_SAGA_GUI_CFG();
 
 	if( Get_Count() > 0 )
@@ -387,8 +385,6 @@ bool CWKSP_Data_Manager::Finalise(void)
 	{
 		wxRemoveFile(fProject.GetFullPath());
 	}
-
-	m_pProject->Clr_File_Name();
 
 	return( true );
 }
@@ -1055,14 +1051,14 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 {
 	if( Get_Count() == 0 )
 	{
-		Finalise();
+		m_pProject->Clr_File_Name();
 
 		return( true );
 	}
 
 	if( (bSilent || DLG_Message_Confirm(_TL("Close all data sets"), _TL("Close"))) && Save_Modified(this) )
 	{
-		Finalise();
+		m_pProject->Clr_File_Name();
 
 		g_pACTIVE->Get_Parameters()->Restore_Parameters();
 		g_pMaps->Close(true);

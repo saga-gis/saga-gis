@@ -412,7 +412,7 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 {
 	if( event.CanVeto() )
 	{
-		if( !g_pModule && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Close(true) )
+		if( !g_pModule && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Finalise() && g_pData->Close(true) )
 		{
 			g_pModules->Finalise();
 

@@ -522,7 +522,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 			pEntry->Get_Child(i)->Set_Content(&s);
 
-		// if( SG_Compare_SAGA_Version(Version) < 0 )
+		//	if( SG_Compare_SAGA_Version(Version) < 0 )
 			{
 				if( pEntry->Get_Child(i)->Cmp_Property("id", "OVERLAY_1") )
 				{
@@ -547,7 +547,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 //---------------------------------------------------------
 bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, CSG_Data_Object *pDataObject, CSG_Parameters *pParameters)
 {
-	if( !pDataObject || !pDataObject->Get_File_Name() || !wxFileExists(pDataObject->Get_File_Name()) )
+	if( !pDataObject || !pDataObject->Get_File_Name(false) || !wxFileExists(pDataObject->Get_File_Name(false)) )
 	{
 		return( false );
 	}
@@ -564,7 +564,7 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	case DATAOBJECT_TYPE_PointCloud:	pEntry->Add_Property("type", "POINTS");	break;
 	}
 
-	wxString	s(Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name()));
+	wxString	s(Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name(false)));
 
 	pEntry->Add_Child("FILE", &s);
 
@@ -707,9 +707,9 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 		{
 			CSG_Data_Object	*pObject	= ((CWKSP_Map_Layer *)pMap->Get_Item(i))->Get_Layer()->Get_Object();
 
-			if( pObject && pObject->Get_File_Name() && wxFileExists(pObject->Get_File_Name()) )
+			if( pObject && pObject->Get_File_Name(false) && wxFileExists(pObject->Get_File_Name(false)) )
 			{
-				wxString	s(Get_FilePath_Relative(ProjectDir, pObject->Get_File_Name()));
+				wxString	s(Get_FilePath_Relative(ProjectDir, pObject->Get_File_Name(false)));
 
 				pEntry->Add_Child("FILE", &s);
 			}
@@ -734,7 +734,7 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(const wxString &FileName)
 {
-	return( g_pData->Get(SG_Get_Data_Manager().Find(&FileName)) );
+	return( g_pData->Get(SG_Get_Data_Manager().Find(&FileName, false)) );
 }
 
 

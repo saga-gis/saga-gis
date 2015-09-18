@@ -1959,30 +1959,30 @@ bool CSG_Parameter_Data_Object::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		if(	m_pDataObject == DATAOBJECT_CREATE )
 		{
-			Entry.Set_Content(SG_T("CREATE"));
+			Entry.Set_Content("CREATE");
 		}
-		else if( m_pDataObject == DATAOBJECT_NOTSET || !SG_File_Exists(m_pDataObject->Get_File_Name()) )
+		else if( m_pDataObject == DATAOBJECT_NOTSET || !SG_File_Exists(m_pDataObject->Get_File_Name(false)) )
 		{
-			Entry.Set_Content(SG_T("NOT SET"));
+			Entry.Set_Content("NOT SET");
 		}
 		else
 		{
-			Entry.Set_Content(m_pDataObject->Get_File_Name());
+			Entry.Set_Content(m_pDataObject->Get_File_Name(false));
 		}
 	}
 	else
 	{
-		if( Entry.Cmp_Content(SG_T("CREATE")) )
+		if( Entry.Cmp_Content("CREATE") )
 		{
 			Set_Value(DATAOBJECT_CREATE);
 		}
-		else if( Entry.Cmp_Content(SG_T("NOT SET")) )
+		else if( Entry.Cmp_Content("NOT SET") )
 		{
 			Set_Value(DATAOBJECT_NOTSET);
 		}
 		else
 		{
-			Set_Value(m_pOwner->Get_Manager() ? m_pOwner->Get_Manager()->Find(Entry.Get_Content()) : NULL);
+			Set_Value(m_pOwner->Get_Manager() ? m_pOwner->Get_Manager()->Find(Entry.Get_Content(), false) : NULL);
 		}
 	}
 

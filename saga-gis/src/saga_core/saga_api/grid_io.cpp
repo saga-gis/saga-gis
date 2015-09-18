@@ -76,6 +76,8 @@
 
 #include "grid.h"
 
+#include "data_manager.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -86,49 +88,59 @@
 //---------------------------------------------------------
 bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
-	bool	bResult;
-
-	//-----------------------------------------------------
-	Destroy();
-
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load grid"), File_Name.c_str()), true);
-
-	if( SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
+	if( _Load_Native(File_Name, Memory_Type, bLoadData) )
 	{
-		bResult	= _Load_Surfer(File_Name, Memory_Type, bLoadData);
-	}
-	else
-	{
-		bResult	= _Load_Native(File_Name, Memory_Type, bLoadData);
-	}
-
-	//-----------------------------------------------------
-	if( bResult )
-	{
-		Set_Update_Flag();
+		Load_MetaData(File_Name);
 
 		Set_File_Name(File_Name, true);
 
-		Load_MetaData(File_Name);
-
-		m_bCreated	= true;
-
-		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		return( true );
 	}
-	else
+
+	Set_File_Name(File_Name, false);
+
+	//-----------------------------------------------------
+	if( _Load_Surfer(File_Name, Memory_Type, bLoadData) )
 	{
-		Destroy();
-
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-
-		SG_UI_Msg_Add_Error(_TL("Grid file could not be opened."));
+		return( true );
 	}
 
 	//-----------------------------------------------------
-	return( bResult );
+	CSG_Data_Manager	tmpMgr;
+
+	if( tmpMgr.Add(File_Name) && tmpMgr.Get_Grid_System(0) && tmpMgr.Get_Grid_System(0)->Get(0) && tmpMgr.Get_Grid_System(0)->Get(0)->is_Valid() )
+	{
+		CSG_Grid	*pGrid	= (CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0);
+
+		if( pGrid->is_Cached() || pGrid->is_Compressed() )
+		{
+			return( Create(*pGrid) );
+		}
+
+		Set_Name			(pGrid->Get_Name());
+		Set_Description		(pGrid->Get_Description());
+
+		m_System			= pGrid->m_System;
+		m_Type				= pGrid->m_Type;
+		m_Values			= pGrid->m_Values;	pGrid->m_Values	= NULL;	// take ownership of data array
+
+		m_zOffset			= pGrid->m_zOffset;
+		m_zScale			= pGrid->m_zScale;
+		m_Unit				= pGrid->m_Unit;
+
+		Get_MetaData  ()	= pGrid->Get_MetaData  ();
+		Get_Projection()	= pGrid->Get_Projection();
+
+		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+		
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -707,6 +719,11 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 //---------------------------------------------------------
 bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
+	if( !SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
