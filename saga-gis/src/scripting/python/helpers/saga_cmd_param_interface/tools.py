@@ -625,5 +625,7 @@ tools = [
 ['imagery_maxent', 1, 'Maximum Entropy Presence Prediction'],
 ['io_grid_image', 3, 'Import Grids from KML'],
 ['pointcloud_tools', 13, 'Point Cloud from Table'],
-['shapes_lines', 8, 'Split Lines at Points']
+['shapes_lines', 8, 'Split Lines at Points'],
+['grid_filter', 16, 'Wombling (Edge Detection)'],
+['grid_analysis', 21, 'Diversity of Categories']
 ]
