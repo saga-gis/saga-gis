@@ -340,6 +340,9 @@ bool CSG_Simple_Statistics::Create(const CSG_Simple_Statistics &Statistics)
 	m_Variance		= Statistics.m_Variance;
 	m_StdDev		= Statistics.m_StdDev;
 
+	m_Kurtosis		= Statistics.m_Kurtosis;
+	m_Skewness		= Statistics.m_Skewness;
+
 	m_bSorted		= Statistics.m_bSorted;
 	m_Values		.Create(Statistics.m_Values);
 
@@ -348,7 +351,9 @@ bool CSG_Simple_Statistics::Create(const CSG_Simple_Statistics &Statistics)
 
 bool CSG_Simple_Statistics::Create(double Mean, double StdDev, sLong Count)
 {
-	m_bEvaluated	= true;
+	Invalidate();
+
+	m_bEvaluated	= 1;
 
 	m_Mean			= Mean;
 	m_StdDev		= StdDev;
@@ -362,9 +367,6 @@ bool CSG_Simple_Statistics::Create(double Mean, double StdDev, sLong Count)
 	m_Minimum		= m_Mean - 1.5 * m_StdDev;
 	m_Maximum		= m_Mean + 1.5 * m_StdDev;
 	m_Range			= m_Maximum - m_Minimum;
-
-	m_bSorted		= false;
-	m_Values		.Destroy();
 
 	return( true );
 }
@@ -387,7 +389,7 @@ bool CSG_Simple_Statistics::Create(const CSG_Vector &Values, bool bHoldValues)
 //---------------------------------------------------------
 void CSG_Simple_Statistics::Invalidate(void)
 {
-	m_bEvaluated	= false;
+	m_bEvaluated	= 0;
 
 	m_nValues		= 0;
 	m_Weights		= 0.0;
@@ -400,6 +402,9 @@ void CSG_Simple_Statistics::Invalidate(void)
 	m_Mean			= 0.0;
 	m_Variance		= 0.0;
 	m_StdDev		= 0.0;
+
+	m_Kurtosis		= 0.0;
+	m_Skewness		= 0.0;
 
 	m_bSorted		= false;
 	m_Values		.Destroy();
@@ -444,7 +449,10 @@ void CSG_Simple_Statistics::Add(const CSG_Simple_Statistics &Statistics)
 	if( m_Maximum < Statistics.m_Maximum )
 		m_Maximum	= Statistics.m_Maximum;
 
-	m_bEvaluated	= false;
+	m_Kurtosis		= 0.0;
+	m_Skewness		= 0.0;
+
+	m_bEvaluated	= 0;
 	m_bSorted		= false;
 }
 
@@ -470,7 +478,7 @@ void CSG_Simple_Statistics::Add_Value(double Value, double Weight)
 		m_Sum			+= Weight * Value;
 		m_Sum2			+= Weight * Value*Value;
 
-		m_bEvaluated	= false;
+		m_bEvaluated	= 0;
 	}
 
 	if( m_Values.Get_Value_Size() > 0 && m_Values.Inc_Array() )
@@ -484,17 +492,53 @@ void CSG_Simple_Statistics::Add_Value(double Value, double Weight)
 }
 
 //---------------------------------------------------------
-void CSG_Simple_Statistics::_Evaluate(void)
+void CSG_Simple_Statistics::_Evaluate(int Level)
 {
-	if( m_Weights > 0.0 )
+	if( m_bEvaluated == 0 && m_Weights > 0.0 )
 	{
+		m_bEvaluated	= 1;
+
 		m_Range			= m_Maximum - m_Minimum;
 		m_Mean			= m_Sum  / m_Weights;
 		m_Variance		= m_Sum2 / m_Weights - m_Mean*m_Mean;
 		m_StdDev		= m_Variance > 0.0 ? sqrt(m_Variance) : 0.0;
-
-		m_bEvaluated	= true;
 	}
+
+	//-----------------------------------------------------
+	if( m_bEvaluated == 1 && Level > 1 )
+	{
+		m_bEvaluated	= 2;
+
+		m_Kurtosis		= 0.0;
+		m_Skewness		= 0.0;
+
+		if( Get_StdDev() > 0.0 && m_Values.Get_Size() > 0 )
+		{
+			for(int i=0; i<Get_Count(); i++)
+			{
+				double	d	= (Get_Value(i) - Get_Mean()) / Get_StdDev();
+
+				m_Kurtosis	+= d*d*d*d;
+				m_Skewness	+= d*d*d;
+			}
+
+			m_Kurtosis	/= Get_Count();
+			m_Skewness	/= Get_Count();
+		//	m_Skewness	*= Get_Count() / ((Get_Count() - 1) * (Get_Count() - 2));
+		}
+	}
+}
+
+//---------------------------------------------------------
+/**
+  * Skewness after Pearson, i.e. the difference of mean and
+  * median divided by standard deviation.
+  * Remark: Skewness calculation is only possible, if statistics
+  * has been created with the bHoldValues flag set to true.
+*/
+double CSG_Simple_Statistics::Get_SkewnessPearson(void)
+{
+	return( Get_StdDev() != 0.0 ? (Get_Mean() - Get_Median()) / Get_StdDev() : 0.0 );
 }
 
 //---------------------------------------------------------
@@ -529,29 +573,11 @@ double CSG_Simple_Statistics::Get_Quantile(double Quantile)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Class_Statistics::CSG_Class_Statistics(void)
-{
-	Create();
-}
-
-//---------------------------------------------------------
-CSG_Class_Statistics::~CSG_Class_Statistics(void)
-{
-	Destroy();
-}
-
-//---------------------------------------------------------
 void CSG_Class_Statistics::Create(void)
 {
 	m_Array.Create(sizeof(TClass), 0, SG_ARRAY_GROWTH_1);
 
 	m_Classes	= NULL;
-}
-
-//---------------------------------------------------------
-void CSG_Class_Statistics::Destroy(void)
-{
-	m_Array.Set_Array(0, (void **)&m_Classes);
 }
 
 //---------------------------------------------------------
@@ -561,7 +587,7 @@ void CSG_Class_Statistics::Add_Value(double Value)
 	{
 		if( m_Classes[i].Value == Value )
 		{
-			m_Classes[i].Count++;
+			m_Classes[i].Count  ++;
 
 			return;
 		}
@@ -590,18 +616,6 @@ int CSG_Class_Statistics::Get_Majority(void)
 	return( Index );
 }
 
-bool CSG_Class_Statistics::Get_Majority(double &Value)
-{
-	int		Count;
-
-	return( Get_Class(Get_Majority(), Value, Count) );
-}
-
-bool CSG_Class_Statistics::Get_Majority(double &Value, int &Count)
-{
-	return( Get_Class(Get_Majority(), Value, Count) && Count > 0 );
-}
-
 //---------------------------------------------------------
 int CSG_Class_Statistics::Get_Minority(void)
 {
@@ -618,16 +632,71 @@ int CSG_Class_Statistics::Get_Minority(void)
 	return( Index );
 }
 
-bool CSG_Class_Statistics::Get_Minority(double &Value)
-{
-	int		Count;
 
-	return( Get_Class(Get_Minority(), Value, Count) );
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Class_Statistics_Weighted::Create(void)
+{
+	m_Array.Create(sizeof(TClass), 0, SG_ARRAY_GROWTH_1);
+
+	m_Classes	= NULL;
 }
 
-bool CSG_Class_Statistics::Get_Minority(double &Value, int &Count)
+//---------------------------------------------------------
+void CSG_Class_Statistics_Weighted::Add_Value(double Value, double Weight)
 {
-	return( Get_Class(Get_Minority(), Value, Count) );
+	for(size_t i=0; i<m_Array.Get_Size(); i++)
+	{
+		if( m_Classes[i].Value == Value )
+		{
+			m_Classes[i].Count  ++;
+			m_Classes[i].Weight	+= Weight;
+
+			return;
+		}
+	}
+
+	if( m_Array.Inc_Array((void **)&m_Classes) )
+	{
+		m_Classes[Get_Count() - 1].Count	= 1;
+		m_Classes[Get_Count() - 1].Value	= Value;
+		m_Classes[Get_Count() - 1].Weight	= Weight;
+	}
+}
+
+//---------------------------------------------------------
+int CSG_Class_Statistics_Weighted::Get_Majority(void)
+{
+	int		Index	= 0;
+
+	for(int i=1; i<Get_Count(); i++)
+	{
+		if( m_Classes[i].Count > m_Classes[Index].Count )
+		{
+			Index	= i;
+		}
+	}
+
+	return( Index );
+}
+
+//---------------------------------------------------------
+int CSG_Class_Statistics_Weighted::Get_Minority(void)
+{
+	int		Index	= 0;
+
+	for(int i=1; i<Get_Count(); i++)
+	{
+		if( m_Classes[i].Count > m_Classes[Index].Count )
+		{
+			Index	= i;
+		}
+	}
+
+	return( Index );
 }
 
 

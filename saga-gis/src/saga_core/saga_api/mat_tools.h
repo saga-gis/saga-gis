@@ -559,18 +559,22 @@ public:
 
 	void						Invalidate			(void);
 
-	bool						is_Evaluated		(void)	const	{	return( m_bEvaluated );	}
+	int							is_Evaluated		(void)	const	{	return( m_bEvaluated );	}
 
 	sLong						Get_Count			(void)	const	{	return( m_nValues );	}
 	double						Get_Weights			(void)	const	{	return( m_Weights );	}
 
-	double						Get_Minimum			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Minimum	);	}
-	double						Get_Maximum			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Maximum	);	}
-	double						Get_Range			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Range	);	}
-	double						Get_Sum				(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Sum		);	}
-	double						Get_Mean			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Mean		);	}
-	double						Get_Variance		(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Variance	);	}
-	double						Get_StdDev			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_StdDev	);	}
+	double						Get_Minimum			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Minimum  );	}
+	double						Get_Maximum			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Maximum  );	}
+	double						Get_Range			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Range    );	}
+	double						Get_Sum				(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Sum      );	}
+	double						Get_Mean			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Mean     );	}
+	double						Get_Variance		(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Variance );	}
+	double						Get_StdDev			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_StdDev   );	}
+
+	double						Get_Kurtosis		(void)		{	if( m_bEvaluated < 2 )	_Evaluate(2); return( m_Kurtosis );	}
+	double						Get_Skewness		(void)		{	if( m_bEvaluated < 2 )	_Evaluate(2); return( m_Skewness );	}
+	double						Get_SkewnessPearson	(void);
 
 	double						Get_Median			(void)		{	return( Get_Quantile(50.0) );	}
 	double						Get_Quantile		(double Quantile);
@@ -590,16 +594,18 @@ public:
 
 protected:
 
-	bool						m_bEvaluated, m_bSorted;
+	bool						m_bSorted;
+
+	int							m_bEvaluated;
 
 	sLong						m_nValues;
 
-	double						m_Weights, m_Sum, m_Sum2, m_Minimum, m_Maximum, m_Range, m_Mean, m_Variance, m_StdDev;
+	double						m_Weights, m_Sum, m_Sum2, m_Minimum, m_Maximum, m_Range, m_Mean, m_Variance, m_StdDev, m_Kurtosis, m_Skewness;
 
 	CSG_Array					m_Values;
 
 
-	void						_Evaluate			(void);
+	void						_Evaluate			(int Level = 1);
 
 };
 
@@ -625,12 +631,11 @@ private:
 
 
 public:
-	 CSG_Class_Statistics(void);
-	~CSG_Class_Statistics(void);
+	         CSG_Class_Statistics			(void)	{	Create ();	}
+	virtual ~CSG_Class_Statistics			(void)	{	Destroy();	}
 
 	void			Create					(void);
-	void			Destroy					(void);
-
+	void			Destroy					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes);	}
 	void			Reset					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes, false);	}
 
 	int				Get_Count				(void)	{	return( (int)m_Array.Get_Size() );	}
@@ -665,6 +670,79 @@ public:
 	}
 
 	void			Add_Value				(double Value);
+
+	int				Get_Majority			(void);
+	bool			Get_Majority			(double &Value            )	{	int	Count; return( Get_Class(Get_Majority(), Value, Count) );	}
+	bool			Get_Majority			(double &Value, int &Count)	{	           return( Get_Class(Get_Majority(), Value, Count) && Count > 0 );	}
+
+	int				Get_Minority			(void);
+	bool			Get_Minority			(double &Value            )	{	int	Count; return( Get_Class(Get_Minority(), Value, Count) );	}
+	bool			Get_Minority			(double &Value, int &Count)	{	           return( Get_Class(Get_Minority(), Value, Count) && Count > 0 );	}
+
+
+private:
+
+	CSG_Array		m_Array;
+
+	TClass			*m_Classes;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Class_Statistics_Weighted
+{
+private:
+
+	typedef struct SClass
+	{
+		int		Count;
+
+		double	Value, Weight;
+	}
+	TClass;
+
+
+public:
+	         CSG_Class_Statistics_Weighted	(void)	{	Create ();	}
+	virtual ~CSG_Class_Statistics_Weighted	(void)	{	Destroy();	}
+
+	void			Create					(void);
+	void			Destroy					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes);	}
+	void			Reset					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes, false);	}
+
+	int				Get_Count				(void)	{	return( (int)m_Array.Get_Size() );	}
+
+	int				Get_Class_Count			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Count : 0 );	}
+	double			Get_Class_Value			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Value : 0 );	}
+	double			Get_Class_Weight		(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Weight : 0 );	}
+
+	bool			Get_Class				(int i, double &Value, int &Count)
+	{
+		if( i >= 0 && i < Get_Count() )
+		{
+			Count	= m_Classes[i].Count;
+			Value	= m_Classes[i].Value;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+	bool			Get_Class				(int i, int &Value, int &Count)
+	{
+		if( i >= 0 && i < Get_Count() )
+		{
+			Count	=      m_Classes[i].Count;
+			Value	= (int)m_Classes[i].Value;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+	void			Add_Value				(double Value, double Weight = 1.0);
 
 	int				Get_Majority			(void);
 	bool			Get_Majority			(double &Value);
