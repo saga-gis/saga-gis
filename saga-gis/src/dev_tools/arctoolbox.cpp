@@ -123,9 +123,11 @@ bool CArcToolBox::On_Execute(void)
 	{
 		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(iLibrary);
 
-		if( !pLibrary->Get_Category().Cmp(_TL("Garden" ))
-		||  !pLibrary->Get_Category().Cmp(_TL("Reports"))
-		||  !pLibrary->Get_Category().Cmp(_TL("TIN"    )) )
+		if( !pLibrary->Get_Category().Cmp(_TL("Garden"    ))
+		||  !pLibrary->Get_Category().Cmp(_TL("Reports"   ))
+		||  !pLibrary->Get_Category().Cmp(_TL("Simulation"))
+		||  !pLibrary->Get_Category().Cmp(_TL("Table"     ))
+		||  !pLibrary->Get_Category().Cmp(_TL("TIN"       )) )
 		{
 			continue;
 		}
@@ -165,14 +167,34 @@ bool CArcToolBox::On_Execute(void)
 //---------------------------------------------------------
 enum
 {
+	FORMAT_ASCII,
 	FORMAT_PLAIN,
 	FORMAT_HTML,
-	FORMAT_HTML_TXT
+	FORMAT_HTML_TXT,
+	FORMAT_FILE
 };
 
 //---------------------------------------------------------
 CSG_String CArcToolBox::Get_Formatted(CSG_String String, int Type)
 {
+	if( Type == FORMAT_FILE )
+	{
+		String.Replace("/", ".");
+
+		return( String );
+	}
+
+	if( Type == FORMAT_ASCII )
+	{
+		String.Replace("ä", "ae");
+		String.Replace("ö", "oe");
+		String.Replace("ü", "ue");
+		String.Replace("Ä", "Ae");
+		String.Replace("Ö", "Oe");
+		String.Replace("Ü", "Ue");
+		String.Replace("ß", "sz");
+	}
+
 	String.Replace("\xb", "");
 	String.Replace("\xB", "");
 
@@ -224,6 +246,40 @@ CSG_String CArcToolBox::Get_Description(CSG_Module *pTool, int Type)
 	return( Get_Formatted(s, Type) );
 }
 
+//---------------------------------------------------------
+CSG_String CArcToolBox::Get_ID(CSG_Parameter *pParameter, const CSG_String &Modifier)
+{
+	CSG_String	ID(pParameter->Get_Owner()->Get_Identifier());
+
+	if( ID.Length() > 0 )
+	{
+		ID	+= SG_T("_");
+	}
+
+	ID	+= pParameter->Get_Identifier();
+
+	if( Modifier.Length() > 0 )
+	{
+		ID	+= SG_T("_") + Modifier;
+	}
+
+	return( ID );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CArcToolBox::Get_GridTarget(CSG_Parameters *pParameters)
+{
+	CSG_Parameter	*pParameter	= pParameters->Get_Parameter("TARGET_DEFINITION");
+
+	if( pParameter && pParameter->Get_Type() == PARAMETER_TYPE_Choice )
+	{
+		return( pParameter );
+	}
+
+
+	return( NULL );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -266,15 +322,15 @@ const CSG_String	ArcDataTypes[ARC_nTypes][2]	=
 #define	ArcDataType(type, multi)	", datatype=\"" + ArcDataTypes[type][m_ArcVersion] + (multi ? "\", multiValue=True)\n" : "\")\n")
 
 //---------------------------------------------------------
-bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, CSG_Strings &Init, CSG_MetaData &Descs)
+bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, CSG_Strings &Init, CSG_MetaData &Descs, const CSG_String &Name, const CSG_String &Identifier)
 {
 	int		i;
 
 	//-----------------------------------------------------
 	CSG_String	Info("\t\tparam = arcpy.Parameter(");
 
-	Info	+=     "displayName=\"" + CSG_String(pParameter->Get_Name      ()) + "\"";
-	Info	+=          ", name=\"" + CSG_String(pParameter->Get_Identifier()) + "\"";
+	Info	+=     "displayName=\"" + Name       + "\"";
+	Info	+=          ", name=\"" + Identifier + "\"";
 	Info	+=     ", direction=\"" + CSG_String(pParameter->is_Output() ? "Output" : "Input") + "\"";
 	Info	+= ", parameterType=\"" + CSG_String(pParameter->is_Option() || pParameter->is_Optional() ? "Optional" : "Required") + "\"";
 
@@ -382,7 +438,6 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 		return( true );
 
 	//-----------------------------------------------------
-	case PARAMETER_TYPE_Parameters:
 	case PARAMETER_TYPE_Font:
 	case PARAMETER_TYPE_Color:
 	case PARAMETER_TYPE_Colors:
@@ -406,26 +461,26 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 	if( pParameter->is_Option() )
 	{
 		Init	+= CSG_String::Format("\t\tTool.Set_Option('%s', parameters[%d].valueAsText)\n",
-			pParameter->Get_Identifier(), Init.Get_Count()
+			Identifier.c_str(), Init.Get_Count()
 		);
 	}
 	else if( pParameter->is_Input() )
 	{
 		Init	+= CSG_String::Format("\t\tTool.Set_Input ('%s', parameters[%d].valueAsText, '%s')\n",
-			pParameter->Get_Identifier(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
+			Identifier.c_str(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
 		);
 	}
 	else if( pParameter->is_Output() )
 	{
 		Init	+= CSG_String::Format("\t\tTool.Set_Output('%s', parameters[%d].valueAsText, '%s')\n",
-			pParameter->Get_Identifier(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
+			Identifier.c_str(), Init.Get_Count(), pParameter->Get_Type_Identifier().c_str()
 		);
 	}
 
 	//-----------------------------------------------------
 	CSG_MetaData	&Desc	= *Descs.Add_Child("param");
 
-	Desc.Add_Property(       "name", pParameter->Get_Identifier());
+	Desc.Add_Property(       "name", Identifier);
 	Desc.Add_Property("displayname", pParameter->Get_Name      ());
 	Desc.Add_Property(       "type", pParameter->is_Option() || pParameter->is_Optional() ? "Optional" : "Required");
 	Desc.Add_Property(  "direction", pParameter->is_Input() ? "Input" : "Output");
@@ -434,6 +489,42 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+//---------------------------------------------------------
+bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, CSG_Strings &Init, CSG_MetaData &Descs, CSG_Parameter *pGridTarget)
+{
+	if( pGridTarget )
+	{
+		if( pGridTarget == pParameter )
+		{
+			return( true );
+		}
+
+		if( pGridTarget == pParameter->Get_Parent() && SG_STR_CMP(pParameter->Get_Identifier(), "TARGET_USER_SIZE") )
+		{
+			return( true );
+		}
+		else if( pParameter->Get_Type() == PARAMETER_TYPE_Grid && !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET_TEMPLATE") )
+		{
+			return( true );
+		}
+	}
+
+	CSG_String	Name(pParameter->Get_Name());
+
+	switch( pParameter->Get_Type() )
+	{
+	default:
+		return( Get_Parameter(pParameter, Infos, Init, Descs, Name, Get_ID(pParameter, "")) );
+
+	case PARAMETER_TYPE_Range:
+		return( Get_Parameter(pParameter->asRange()->Get_LoParm(), Infos, Init, Descs, Name + " (Minimum)", Get_ID(pParameter, "MIN"))
+			&&  Get_Parameter(pParameter->asRange()->Get_HiParm(), Infos, Init, Descs, Name + " (Maximum)", Get_ID(pParameter, "MAX")) );
+
+	case PARAMETER_TYPE_Parameters:
+		return( false );
+	}
 }
 
 
@@ -447,6 +538,11 @@ bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &
 	CSG_Module	*pTool	= pLibrary->Get_Module(iTool);
 
 	if( pTool == NULL || pTool == MLB_INTERFACE_SKIP_MODULE || pTool->needs_GUI() )
+	{
+		return( false );
+	}
+
+	if( pTool->Get_Parameters_Count() > 0 )
 	{
 		return( false );
 	}
@@ -470,7 +566,7 @@ bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &
 
 		CSG_MetaData	&Tool	= *Description.Add_Child("tool");
 		Tool.Add_Property("name"         , CSG_String::Format("tool_%d", iTool));
-		Tool.Add_Property("displayname"  , pTool->Get_Name());
+		Tool.Add_Property("displayname"  , Get_Formatted(pTool->Get_Name(), FORMAT_ASCII));
 		Tool.Add_Property("toolboxalias" , "");
 		Tool.Add_Property("xmlns"        , "");
 	//	Tool.Add_Child   ("arcToolboxHelpPath", "");
@@ -480,7 +576,7 @@ bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &
 		CSG_MetaData	&Info	= *Description.Add_Child("dataIdInfo");
 		Info.Add_Child   ("idCitation")->Add_Child("resTitle", pTool->Get_Name());
 	//	Info.Add_Child   ("idAbs"        , Get_Description(pTool, FORMAT_HTML_TXT));
-		Info.Add_Child   ("idCredit"     , pTool->Get_Author());
+		Info.Add_Child   ("idCredit"     , Get_Formatted(pTool->Get_Author(), FORMAT_ASCII));
 		Info.Add_Child   ("searchKeys");
 		Info("searchKeys")->Add_Child("SAGA");
 	}
@@ -488,9 +584,11 @@ bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &
 	//-----------------------------------------------------
 	CSG_Strings	Info, Init;
 
+	CSG_Parameter	*pGridTarget	= Get_GridTarget(pTool->Get_Parameters());
+
 	for(i=0; i<pTool->Get_Parameters()->Get_Count(); i++)
 	{
-		if( !Get_Parameter(pTool->Get_Parameters()->Get_Parameter(i), Info, Init, *Description["tool"]("parameters")) )
+		if( !Get_Parameter(pTool->Get_Parameters()->Get_Parameter(i), Info, Init, *Description["tool"]("parameters"), pGridTarget) )
 		{
 			return( false );
 		}
@@ -560,8 +658,8 @@ bool CArcToolBox::Save(CSG_Module_Library *pLibrary, const CSG_String &Directory
 	CSG_File	f;
 
 	CSG_String	FileName	= Parameters("BOX_NAMING")->asInt() == 0
-		? SG_File_Make_Path(Directory, pLibrary->Get_Library_Name(), SG_T(""))
-		: SG_File_Make_Path(Directory, pLibrary->Get_Category    (), SG_T("")) + " - " + pLibrary->Get_Name();
+		? SG_File_Make_Path(Directory, Get_Formatted(pLibrary->Get_Library_Name(), FORMAT_FILE), SG_T(""))
+		: SG_File_Make_Path(Directory, Get_Formatted(pLibrary->Get_Category    (), FORMAT_FILE), SG_T("")) + " - " + pLibrary->Get_Name();
 
 	if( !f.Open(FileName + ".pyt", SG_FILE_W, true) )
 	{

@@ -3,13 +3,17 @@ import sys, os, glob, subprocess, arcpy, ConversionUtils
 ##########################################
 # Globals
 #_________________________________________
-DIR_LOG  = None
-#DIR_LOG  = 'C:\\_tmp'
+DIR_SELF = os.path.dirname(__file__)
 
-DIR_SAGA, tail = os.path.split(os.path.dirname(__file__))
-if os.path.isfile(DIR_SAGA + os.sep + 'saga_cmd.exe') == False:
-	DIR_SAGA = None	# SAGA directory has to be in PATH environment variable
-	DIR_SAGA = 'D:\\develop\\saga\\saga-code\\trunk\\saga-gis\\bin\\saga_vc_x64'
+DIR_LOG  = None
+#DIR_LOG  = DIR_SELF
+
+DIR_SAGA = None	# assuming SAGA directory is included in the PATH environment variable
+DIR_SAGA = 'D:\\develop\\saga\\saga-code\\trunk\\saga-gis\\bin\\saga_vc_x64'	# ...or define hard coded path to SAGA directory
+
+dir, tail = os.path.split(DIR_SELF)
+if os.path.isfile(dir + os.sep + 'saga_cmd.exe') == True:
+	DIR_SAGA = dir	# use SAGA instance of this installation
 
 
 ##########################################
@@ -58,32 +62,35 @@ class SAGA_Tool:
 		self.Temporary  = None
 		self.Output     = None
 
+		if DIR_SAGA == None:
+			self.saga_cmd =                     ['saga_cmd']
+		else:
+			self.saga_cmd = [DIR_SAGA + os.sep + 'saga_cmd']
+
 
 	######################################
 	# Execution
 	#_____________________________________
-	def Run(self):
-		if DIR_SAGA != None:
-			cmd = [DIR_SAGA + os.sep + 'saga_cmd', '-f=q']
-		else:
-			cmd =                     ['saga_cmd', '-f=q']
-		cmd += [self.Library, self.Tool] + self.Parameters
+	def Run(self, bIgnoreLog = False):
+		cmd_string  = '_________________________\n'
+		cmd_string += 'saga_cmd ' + self.Library + ' ' + self.Tool
+		for Item in self.Parameters:
+			cmd_string += ' ' + Item
 
-		if DIR_LOG != None:
-			log_std = open(DIR_LOG + os.sep + 'arcsaga.log'      , 'a')
-			log_err = open(DIR_LOG + os.sep + 'arcsaga.error.log', 'a')
-			Result  = subprocess.call(cmd, stdout=log_std, stderr=log_err)
+		cmd    = [self.saga_cmd, '-f=q', self.Library, self.Tool] + self.Parameters
+
+		if bIgnoreLog == False and DIR_LOG != None:
+			cmd_out = open(DIR_LOG + os.sep + 'arcsaga.log'      , 'w')
+			cmd_err = open(DIR_LOG + os.sep + 'arcsaga.error.log', 'w')
+			cmd_out.write(cmd_string)	# print to log file
+			Result = subprocess.call(cmd, stdout=cmd_out, stderr=cmd_err)
 		else:
-			Result  = subprocess.call(cmd)
+			Result = subprocess.call(cmd)
 
 		if Result != 0:
-			arcpy.AddMessage('_________________________')
+			arcpy.AddMessage(cmd_string)
 			arcpy.AddError('...failed to run SAGA tool!')
-			Message = 'saga_cmd ' + self.Library + ' ' + self.Tool
-			for Item in self.Parameters:
-				Message += ' ' + Item
-			arcpy.AddMessage(Message)
-			
+
 		elif self.Output != None:
 			for Data in self.Output:
 				self.Get_Output(Data[0], Data[1], Data[2])
@@ -235,12 +242,12 @@ def SAGA_To_Arc_Raster(File, Raster):
 
 	if File_Cmp_Extension(Raster, 'tif'):
 		Tool.Set_Option('FILE', Raster)
-		if Tool.Run() != 0:
+		if Tool.Run(True) != 0:
 			return False
 	else:
 		GeoTIFF = File_Set_Extension(File, 'tif')
 		Tool.Set_Option('FILE', GeoTIFF)
-		if Tool.Run() != 0:
+		if Tool.Run(True) != 0:
 			return False
 		GeoTIFF = ConversionUtils.ValidateInputRaster(GeoTIFF)
 		ConversionUtils.CopyRasters(GeoTIFF, Raster, "")
@@ -301,10 +308,17 @@ def Arc_Load_Layer(Layer):
 	if Layer == '#' or not Layer:
 		return
 	# ------------------------------------
-	mxd = arcpy.mapping.MapDocument("CURRENT")
-	df  = arcpy.mapping.ListDataFrames(mxd)[0]
-	lyr = arcpy.mapping.Layer(Layer)
-	arcpy.mapping.AddLayer(df, lyr, 'AUTO_ARRANGE')
+	Map_Project = arcpy.mapping.MapDocument("CURRENT")
+	Map_Frame   = arcpy.mapping.ListDataFrames(Map_Project)[0]
+	Map_Layer   = arcpy.mapping.Layer(Layer)
+
+	if Map_Layer.isRasterLayer:
+		if os.path.isfile(DIR_SELF + os.sep + 'grid.lyr') == True:
+			Src_Layer = arcpy.mapping.Layer(DIR_SELF + os.sep + 'grid.lyr')
+			arcpy.mapping.UpdateLayer(Map_Frame, Map_Layer, Src_Layer, True)
+
+	arcpy.mapping.AddLayer(Map_Frame, Map_Layer, 'AUTO_ARRANGE')
+	
 	return
 
 
