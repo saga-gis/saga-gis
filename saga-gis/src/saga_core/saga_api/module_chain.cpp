@@ -142,6 +142,11 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		Reset();	return( false );
 	}
 
+	if( m_Chain.Cmp_Name("toolchains") )	// don't report any error, this xml-file provides info for a category of tool chains
+	{
+		Reset();	return( false );
+	}
+
 	if( !m_Chain.Cmp_Name("toolchain") || !m_Chain("identifier") || !m_Chain("parameters") )
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("missing tool chain tags"), File.c_str()));
