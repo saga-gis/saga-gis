@@ -375,7 +375,7 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 	Fit_Extent(pParameters, pParameter, pSystem);
 
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -383,19 +383,19 @@ int CGrid_Clip::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "EXTENT") )
 	{
-		pParameters->Get_Parameter("XMIN"      )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("XMAX"      )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("YMIN"      )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("YMAX"      )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("NX"        )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("NY"        )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("GRIDSYSTEM")->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("SHAPES"    )->Set_Enabled(pParameter->asInt() == 2);
-		pParameters->Get_Parameter("POLYGONS"  )->Set_Enabled(pParameter->asInt() == 3);
-		pParameters->Get_Parameter("BUFFER"    )->Set_Enabled(pParameter->asInt() != 3);	// no buffering for polygon clip
+		pParameters->Set_Enabled("XMIN"      , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("XMAX"      , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("YMIN"      , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("YMAX"      , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("NX"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("NY"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("GRIDSYSTEM", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("SHAPES"    , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("POLYGONS"  , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("BUFFER"    , pParameter->asInt() != 3);	// no buffering for polygon clip
 	}
 
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

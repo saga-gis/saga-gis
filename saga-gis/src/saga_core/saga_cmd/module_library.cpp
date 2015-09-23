@@ -104,11 +104,11 @@ bool CCMD_Module::Create(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 
 	if( (m_pLibrary = pLibrary) != NULL && (m_pModule = pModule) != NULL )
 	{
-		_Set_Parameters(m_pModule->Get_Parameters(), false);
+		_Set_Parameters(m_pModule->Get_Parameters());
 
 		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
 		{
-			_Set_Parameters(m_pModule->Get_Parameters(i), true);
+			_Set_Parameters(m_pModule->Get_Parameters(i));
 		}
 
 		return( true );
@@ -275,7 +275,7 @@ wxString CCMD_Module::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifie
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bOptional)
+bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 {
 	if( !pParameters )
 	{
@@ -291,14 +291,11 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bOptional)
 			PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
 		).c_str();
 
-		Description.Replace(wxT("\xb2"), wxT("2"));	// unicode problem: quick'n'dirty bug fix, to be replaced
+		Description.Replace(wxT("\xb"), wxT(""));	// unicode problem: quick'n'dirty bug fix, to be replaced
 
 		if( pParameter->is_Input() || pParameter->is_Output() )
 		{
-			m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_NEEDS_SEPARATOR
-			| (pParameter->is_Optional() || pParameter->is_Output() || bOptional
-			  ? wxCMD_LINE_PARAM_OPTIONAL : wxCMD_LINE_OPTION_MANDATORY
-			));
+			m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_NEEDS_SEPARATOR|wxCMD_LINE_PARAM_OPTIONAL);
 		}
 
 		else if( pParameter->is_Option() && !pParameter->is_Information() )
@@ -309,7 +306,7 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters, bool bOptional)
 				break;
 
 			case PARAMETER_TYPE_Parameters:
-				_Set_Parameters(pParameter->asParameters(), true);
+				_Set_Parameters(pParameter->asParameters());
 				break;
 
 			case PARAMETER_TYPE_Bool:
@@ -623,7 +620,16 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 
 	if( !m_CMD.Found(_Get_ID(pParameter), &FileName) )
 	{
-		return( pParameter->is_Optional() );
+		if( !pParameter->is_Optional() )
+		{
+			wxString	Msg(wxString::Format(_TL("The value for the option '%s' must be specified."), _Get_ID(pParameter)));
+
+			CMD_Print_Error(&Msg);
+
+			return( false );
+		}
+
+		return( true );
 	}
 
 	if( pParameter->is_DataObject() )

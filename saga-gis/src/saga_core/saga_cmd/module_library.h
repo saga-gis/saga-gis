@@ -112,7 +112,7 @@ private:
 
 	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = "");
 
-	bool						_Set_Parameters			(CSG_Parameters *pParameters, bool bOptional);
+	bool						_Set_Parameters			(CSG_Parameters *pParameters);
 	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bInitialize);
 
 	bool						_Load_Input				(CSG_Parameter  *pParameter);
