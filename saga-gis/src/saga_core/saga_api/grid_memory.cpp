@@ -426,40 +426,16 @@ void CSG_Grid::_LineBuffer_Set_Value(int x, int y, double Value)
 	{
 		switch( m_Type )
 		{
-		default:
-			break;
-
-		case SG_DATATYPE_Byte:
-			((BYTE   *)pLine->Data)[x]	= (BYTE  )Value;
-			break;
-
-		case SG_DATATYPE_Char:
-			((char   *)pLine->Data)[x]	= (char  )Value;
-			break;
-
-		case SG_DATATYPE_Word:
-			((WORD   *)pLine->Data)[x]	= (WORD  )Value;
-			break;
-
-		case SG_DATATYPE_Short:
-			((short  *)pLine->Data)[x]	= (short )Value;
-			break;
-
-		case SG_DATATYPE_DWord:
-			((DWORD  *)pLine->Data)[x]	= (DWORD )Value;
-			break;
-
-		case SG_DATATYPE_Int:
-			((int    *)pLine->Data)[x]	= (int   )Value;
-			break;
-
-		case SG_DATATYPE_Float:
-			((float  *)pLine->Data)[x]	= (float )Value;
-			break;
-
-		case SG_DATATYPE_Double:
-			((double *)pLine->Data)[x]	= (double)Value;
-			break;
+		case SG_DATATYPE_Byte  :	((BYTE   *)pLine->Data)[x]	= (BYTE  )Value;	break;
+		case SG_DATATYPE_Char  :	((char   *)pLine->Data)[x]	= (char  )Value;	break;
+		case SG_DATATYPE_Word  :	((WORD   *)pLine->Data)[x]	= (WORD  )Value;	break;
+		case SG_DATATYPE_Short :	((short  *)pLine->Data)[x]	= (short )Value;	break;
+		case SG_DATATYPE_DWord :	((DWORD  *)pLine->Data)[x]	= (DWORD )Value;	break;
+		case SG_DATATYPE_Int   :	((int    *)pLine->Data)[x]	= (int   )Value;	break;
+		case SG_DATATYPE_Long  :	((sLong  *)pLine->Data)[x]	= (int   )Value;	break;
+		case SG_DATATYPE_Float :	((float  *)pLine->Data)[x]	= (float )Value;	break;
+		case SG_DATATYPE_Double:	((double *)pLine->Data)[x]	= (double)Value;	break;
+		default:	break;
 		}
 
 		pLine->bModified	= true;
@@ -475,32 +451,16 @@ double CSG_Grid::_LineBuffer_Get_Value(int x, int y) const
 	{
 		switch( m_Type )
 		{
-		default:
-			break;
-
-		case SG_DATATYPE_Byte:
-			return( ((BYTE   *)pLine->Data)[x] );
-
-		case SG_DATATYPE_Char:
-			return( ((char   *)pLine->Data)[x] );
-
-		case SG_DATATYPE_Word:
-			return( ((WORD   *)pLine->Data)[x] );
-
-		case SG_DATATYPE_Short:
-			return( ((short  *)pLine->Data)[x] );
-
-		case SG_DATATYPE_DWord:
-			return( ((DWORD  *)pLine->Data)[x] );
-
-		case SG_DATATYPE_Int:
-			return( ((int    *)pLine->Data)[x] );
-
-		case SG_DATATYPE_Float:
-			return( ((float  *)pLine->Data)[x] );
-
-		case SG_DATATYPE_Double:
-			return( ((double *)pLine->Data)[x] );
+		case SG_DATATYPE_Byte  :	return( (double)((BYTE   *)pLine->Data)[x] );
+		case SG_DATATYPE_Char  :	return( (double)((char   *)pLine->Data)[x] );
+		case SG_DATATYPE_Word  :	return( (double)((WORD   *)pLine->Data)[x] );
+		case SG_DATATYPE_Short :	return( (double)((short  *)pLine->Data)[x] );
+		case SG_DATATYPE_DWord :	return( (double)((DWORD  *)pLine->Data)[x] );
+		case SG_DATATYPE_Int   :	return( (double)((int    *)pLine->Data)[x] );
+		case SG_DATATYPE_Long  :	return( (double)((sLong  *)pLine->Data)[x] );
+		case SG_DATATYPE_Float :	return( (double)((float  *)pLine->Data)[x] );
+		case SG_DATATYPE_Double:	return( (double)((double *)pLine->Data)[x] );
+		default:	break;
 		}
 	}
 

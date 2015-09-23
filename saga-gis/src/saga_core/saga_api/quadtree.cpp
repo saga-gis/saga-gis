@@ -1080,7 +1080,7 @@ bool CSG_Parameters_Search_Points::Get_Points(double x, double y, CSG_Points_Z &
 //---------------------------------------------------------
 bool CSG_Parameters_Search_Points::Get_Points(const TSG_Point &p, CSG_Points_Z &Points)
 {
-	return( m_Search.Get_Nearest_Points(Points, p, m_nPoints_Max, m_Radius, m_Quadrant) >= m_nPoints_Min );
+	return( m_Search.Get_Nearest_Points(Points, p, m_nPoints_Max, m_Radius, m_Quadrant) >= (size_t)m_nPoints_Min );
 }
 
 

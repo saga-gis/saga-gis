@@ -734,15 +734,16 @@ public:		///////////////////////////////////////////////
 		else switch( m_Type )
 		{
 			default:	return( 0.0 );
-			case SG_DATATYPE_Byte:		Value	= ((BYTE   **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Char:		Value	= ((char   **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Word:		Value	= ((WORD   **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Short:		Value	= ((short  **)m_Values)[y][x];	break;
-			case SG_DATATYPE_DWord:		Value	= ((DWORD  **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Int:		Value	= ((int    **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Float:		Value	= ((float  **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Double:	Value	= ((double **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Bit:		Value	=(((BYTE   **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
+			case SG_DATATYPE_Byte:		Value	= (double)((BYTE   **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Char:		Value	= (double)((char   **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Word:		Value	= (double)((WORD   **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Short:		Value	= (double)((short  **)m_Values)[y][x];	break;
+			case SG_DATATYPE_DWord:		Value	= (double)((DWORD  **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Int:		Value	= (double)((int    **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Long:		Value	= (double)((sLong  **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Float:		Value	= (double)((float  **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Double:	Value	= (double)((double **)m_Values)[y][x];	break;
+			case SG_DATATYPE_Bit:		Value	=(double)(((BYTE   **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
 		}
 
 		if( bScaled && is_Scaled() )
@@ -789,6 +790,7 @@ public:		///////////////////////////////////////////////
 			case SG_DATATYPE_Short:		((short  **)m_Values)[y][x]	= SG_ROUND_TO_SHORT(Value);	break;
 			case SG_DATATYPE_DWord:		((DWORD  **)m_Values)[y][x]	= SG_ROUND_TO_DWORD(Value);	break;
 			case SG_DATATYPE_Int:		((int    **)m_Values)[y][x]	= SG_ROUND_TO_INT  (Value);	break;
+			case SG_DATATYPE_Long:		((sLong  **)m_Values)[y][x]	= SG_ROUND_TO_SLONG(Value);	break;
 			case SG_DATATYPE_Float:		((float  **)m_Values)[y][x]	= (float )Value;			break;
 			case SG_DATATYPE_Double:	((double **)m_Values)[y][x]	= (double)Value;			break;
 			case SG_DATATYPE_Bit:		((BYTE   **)m_Values)[y][x / 8]	= Value != 0.0
