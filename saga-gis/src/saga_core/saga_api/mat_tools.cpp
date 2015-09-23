@@ -683,6 +683,9 @@ int CSG_Class_Statistics_Weighted::Get_Majority(void)
 	return( Index );
 }
 
+bool CSG_Class_Statistics_Weighted::Get_Majority(double &Value            )	{	int	Count; return( Get_Class(Get_Majority(), Value, Count) );	}
+bool CSG_Class_Statistics_Weighted::Get_Majority(double &Value, int &Count)	{	           return( Get_Class(Get_Majority(), Value, Count) && Count > 0 );	}
+
 //---------------------------------------------------------
 int CSG_Class_Statistics_Weighted::Get_Minority(void)
 {
@@ -698,6 +701,9 @@ int CSG_Class_Statistics_Weighted::Get_Minority(void)
 
 	return( Index );
 }
+
+bool CSG_Class_Statistics_Weighted::Get_Minority(double &Value            )	{	int	Count; return( Get_Class(Get_Minority(), Value, Count) );	}
+bool CSG_Class_Statistics_Weighted::Get_Minority(double &Value, int &Count)	{	           return( Get_Class(Get_Minority(), Value, Count) && Count > 0 );	}
 
 
 ///////////////////////////////////////////////////////////
