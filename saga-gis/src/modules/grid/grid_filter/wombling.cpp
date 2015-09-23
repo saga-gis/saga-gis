@@ -119,6 +119,18 @@ CWombling::CWombling(void)
 		PARAMETER_TYPE_Double, 10.0, 0.0, true, 180.0, true
 	);
 
+	Parameters.Add_Value(
+		NULL	, "GRIDS_SHOW"	, _TL("Output of Grids"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"		, _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, false
+	);
+
 //	Parameters.Add_Choice(
 //		NULL	, "NEIGHBOUR"	, _TL("Segment Connection"),
 //		_TL(""),
@@ -155,16 +167,45 @@ bool CWombling::On_Execute(void)
 		Get_NX() - 1, Get_NY() - 1
 	);
 
-	CSG_Grid	Slope(System), Aspect(System);
+	CSG_Grid	*pSlope, *pAspect, Slope, Aspect;
 
-	Aspect.Set_NoData_Value(-1.0);
+	if( Parameters("GRIDS_SHOW")->asBool() )
+	{
+		CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+
+		if( pGrids->asGrid(0) && pGrids->asGrid(0)->Get_System().is_Equal(System)
+		&&  pGrids->asGrid(1) && pGrids->asGrid(1)->Get_System().is_Equal(System) )
+		{
+			pSlope	= pGrids->asGrid(0);
+			pAspect	= pGrids->asGrid(1);
+		}
+		else
+		{
+			pGrids->Del_Items();
+
+			pGrids->Add_Item(pSlope  = SG_Create_Grid());
+			pGrids->Add_Item(pAspect = SG_Create_Grid());
+		}
+	}
+	else
+	{
+		pSlope	= &Slope;
+		pAspect	= &Aspect;
+	}
+
+	pSlope ->Create(System);
+	pAspect->Create(System);
+
+	pAspect->Set_NoData_Value(-1.0);
 
 	//-----------------------------------------------------
-	Get_Gradient   (&Slope, &Aspect);
+	Lock_Create();
 
-	Get_Edge_Points(&Slope, &Aspect);
+	Get_Gradient   (pSlope, pAspect);
+	Get_Edge_Points(pSlope, pAspect);
+	Get_Edge_Lines (pSlope, pAspect);
 
-	Get_Edge_Lines (&Slope, &Aspect);
+	Lock_Destroy();
 
 	//-----------------------------------------------------
 	return( true );
@@ -202,13 +243,12 @@ bool CWombling::Get_Edge_Lines(CSG_Grid *pSlope, CSG_Grid *pAspect)
 //---------------------------------------------------------
 inline void CWombling::Get_Edge_Lines(int ix, int iy, int jx, int jy, CSG_Grid *pSlope, CSG_Grid *pAspect, CSG_Shapes *pLines, double Threshold)
 {
-	if( !pSlope->is_NoData(ix, iy) && !pAspect->is_NoData(ix, iy)
-	&&  !pSlope->is_NoData(jx, jy) && !pAspect->is_NoData(jx, jy) )
+	if( !Lock_Get(ix, iy) && !Lock_Get(jx, jy) )
 	{
 		double	i	= pAspect->asDouble(ix, iy);	if( i < 0.0 )	i	+= M_PI_360;	i	= fmod(i, M_PI_360);
 		double	j	= pAspect->asDouble(jx, jy);	if( j < 0.0 )	j	+= M_PI_360;	j	= fmod(j, M_PI_360);
 
-		double	diff	= fmod(fabs(i - j), M_PI_180);
+		double	diff	= i > j ? i - j : j - i;
 
 		if( Threshold == 0.0 || diff <= Threshold )
 		{
@@ -242,17 +282,17 @@ bool CWombling::Get_Edge_Points(CSG_Grid *pSlope, CSG_Grid *pAspect)
 	{
 		for(int x=0; x<Get_NX()-1; x++)
 		{
-			if( !pSlope->is_NoData(x, y) && pSlope->asDouble(x, y) >= Threshold )
+			if( pAspect->is_NoData(x, y) || pSlope->is_NoData(x, y) || pSlope->asDouble(x, y) < Threshold )
+			{
+				Lock_Set(x, y);
+			}
+			else
 			{
 				CSG_Shape	*pPoint	= pPoints->Add_Shape();
 				pPoint->Set_Point(pSlope->Get_System().Get_Grid_to_World(x, y), 0);
 				pPoint->Set_Value(0, pPoints->Get_Count());
 				pPoint->Set_Value(1, pSlope ->asDouble(x, y));
 				pPoint->Set_Value(2, pAspect->asDouble(x, y) * M_RAD_TO_DEG);
-			}
-			else
-			{
-				pSlope->Set_NoData(x, y);
 			}
 		}
 	}
@@ -269,6 +309,9 @@ bool CWombling::Get_Edge_Points(CSG_Grid *pSlope, CSG_Grid *pAspect)
 bool CWombling::Get_Gradient(CSG_Grid *pSlope, CSG_Grid *pAspect)
 {
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	pSlope ->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Wombling Magnitude")));
+	pAspect->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Wombling Direction")));
 
 	for(int y=0; y<Get_NY()-1 && Set_Progress(y); y++)
 	{
@@ -306,8 +349,8 @@ bool CWombling::Get_Gradient(CSG_Grid *pSlope, CSG_Grid *pAspect)
 //---------------------------------------------------------
 inline void CWombling::Get_Gradient(double z[4], double &Slope, double &Aspect)
 {
-	double	a	= 0.5 * Get_Cellsize() * (-z[2] + z[3] + z[0] - z[1]);
-	double	b	= 0.5 * Get_Cellsize() * ( z[2] + z[3] - z[0] - z[1]);
+	double	a	= (-z[2] + z[3] + z[0] - z[1]) * 0.5 / Get_Cellsize();
+	double	b	= ( z[2] + z[3] - z[0] - z[1]) * 0.5 / Get_Cellsize();
 
 	Slope	= sqrt(a*a + b*b);
 	Aspect	= a != 0.0 ? M_PI_180 + atan2(b, a)

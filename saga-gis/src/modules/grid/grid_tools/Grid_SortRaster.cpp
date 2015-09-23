@@ -67,14 +67,10 @@ bool CSortRaster::On_Execute(void)
 
 	CSG_Grid	*pIndex	= Parameters("INDEX")->asGrid();
 
+	pIndex->Set_NoData_Value(-1.0);
+	pIndex->Assign_NoData();
+
 	bool	bDown	= Parameters("ORDER")->asInt() == 1;
-
-	if( pGrid == pIndex )
-	{
-		pIndex	= SG_Create_Grid(pGrid);
-	}
-
-	pIndex->Set_NoData_Value(0.0);
 
 	for(sLong i=0, Index=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 	{
@@ -82,19 +78,8 @@ bool CSortRaster::On_Execute(void)
 
 		if( pGrid->Get_Sorted(i, ix, iy, bDown) )
 		{
-			pIndex->Set_Value(ix, iy, ++Index);
+			pIndex->Set_Value(ix, iy, Index++);
 		}
-		else
-		{
-			pIndex->Set_NoData(ix, iy);
-		}
-	}
-
-	if( pGrid == Parameters("INDEX")->asGrid() )
-	{
-		pGrid->Assign(pIndex);
-
-		delete(pIndex);
 	}
 
 	return( true );
