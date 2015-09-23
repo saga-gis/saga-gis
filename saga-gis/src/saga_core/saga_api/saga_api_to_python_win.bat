@@ -1,31 +1,51 @@
 @echo off
 
 rem #########################################
-set WXWIN=C:\DEVELOP\wxWidgets-3.0.0
-set SAGA=C:\DEVELOP\saga\trunk\saga-gis
-set SWIG=C:\DEVELOP\swigwin-2.0.1
-set PYTHONPATH=C:\Python27
-rem #########################################
+set SWIG=D:\libs\swigwin-3.0.7
+set PYTHONPATH=D:\libs\Python-2.7
+set WXWIN=D:\libs\wxWidgets-3.0.2
+set WXWINLIB=%WXWIN%\lib\vc_dll
+set SAGA=D:\saga\saga-code\trunk\saga-gis\bin\saga_vc_Win32
+rem set WXWINLIB=%WXWIN%\lib\vc_x64_dll
+rem set SAGA=D:\saga\saga-code\trunk\saga-gis\bin\saga_vc_x64
 
 rem #########################################
 echo ________________________________________
 echo SWIG compilation...
-
-"%SWIG%\swig" -c++ -python -includeall -I%SAGA%/src/saga_core/saga_api -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
-
+"%SWIG%\swig" -c++ -python -includeall -I%SAGA%/include/saga_api -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
 echo SWIG compilation finished.
-rem #########################################
 
 rem #########################################
 echo ________________________________________
 echo Python compilation...
-
-rem saga_api_to_python_win.py install
 "%PYTHONPATH%\python.exe" saga_api_to_python_win.py install
+echo Python compilation finished.
 
 copy saga_api.py "%PYTHONPATH%\Lib\site-packages\saga_api.py"
 
-echo Python compilation finished.
+rem #########################################
+echo ________________________________________
+echo post compilation jobs...
+
+set OUTDIR=D:\saga\saga_python
+
+if not exist "%OUTDIR%" mkdir "%OUTDIR%"
+if not exist "%OUTDIR%\Python27" mkdir "%OUTDIR%\Python27"
+if not exist "%OUTDIR%\Python27\Lib" mkdir "%OUTDIR%\Python27\Lib"
+if not exist "%OUTDIR%\Python27\Lib\site-packages" mkdir "%OUTDIR%\Python27\Lib\site-packages"
+
+copy "%PYTHONPATH%\Lib\site-packages\*.*" "%OUTDIR%\Python27\Lib\site-packages"
+
+rem goto FINISH
+
+rem #########################################
+echo ________________________________________
+echo remove temporary files...
+del saga_api.py
+del saga_api_wrap.cxx
+rmdir build /s /q
+
 rem #########################################
 
+:FINISH
 pause
