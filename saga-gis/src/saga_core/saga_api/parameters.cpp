@@ -119,7 +119,7 @@ void CSG_Parameters::_On_Construction(void)
 	m_nParameters		= 0;
 
 	m_Callback			= NULL;
-	m_bCallback			= false;
+	m_bCallback			= true;
 
 	m_pGrid_System		= NULL;
 }
@@ -335,8 +335,10 @@ CSG_Parameter * CSG_Parameters::Add_Choice(CSG_Parameter *pParent, const CSG_Str
 	m_pData		= (CSG_Parameter_Choice *)pParameter->m_pData;
 	m_pData->Set_Items(Items);
 
+	bool	bCallback	= Set_Callback(false);
 	pParameter->Set_Value  (Default);
 	pParameter->Set_Default(Default);
+	Set_Callback(bCallback);
 
 	return( pParameter );
 }
@@ -366,8 +368,10 @@ CSG_Parameter * CSG_Parameters::Add_FilePath(CSG_Parameter *pParent, const CSG_S
 	m_pData->Set_Flag_Multiple	(bMultiple);
 	m_pData->Set_Flag_Directory	(bDirectory);
 
+	bool	bCallback	= Set_Callback(false);
 	pParameter->Set_Value  (Default);
 	pParameter->Set_Default(Default);
+	Set_Callback(bCallback);
 
 	return( pParameter );
 }
@@ -381,8 +385,10 @@ CSG_Parameter * CSG_Parameters::Add_Font(CSG_Parameter *pParent, const CSG_Strin
 
 	if( pInit && *pInit )
 	{
+		bool	bCallback	= Set_Callback(false);
 		pParameter->Set_Value  (pInit);
 		pParameter->Set_Default(pInit);
+		Set_Callback(bCallback);
 	}
 
 	return( pParameter );
@@ -773,7 +779,9 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_Str
 		}
 	}
 
-	pParameter->Set_Value(Value);
+	bool	bCallback	= Set_Callback(false);
+	pParameter->Set_Value  (Value);
+	Set_Callback(bCallback);
 
 	return( pParameter );
 }
@@ -819,8 +827,10 @@ CSG_Parameter * CSG_Parameters::_Add_String(CSG_Parameter *pParent, const CSG_St
 
 	pParameter	= _Add(pParent, Identifier, Name, Description, bLongText ? PARAMETER_TYPE_Text : PARAMETER_TYPE_String, bInformation ? PARAMETER_INFORMATION : 0);
 
+	bool	bCallback	= Set_Callback(false);
 	pParameter->Set_Value  (String);
 	pParameter->Set_Default(String);
+	Set_Callback(bCallback);
 
 	((CSG_Parameter_String *)pParameter->Get_Data())->Set_Password(bPassword);
 

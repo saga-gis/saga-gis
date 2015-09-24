@@ -2656,7 +2656,6 @@ CSG_Parameter_Parameters::CSG_Parameter_Parameters(CSG_Parameter *pOwner, long C
 	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	m_pParameters	= new CSG_Parameters(pOwner->Get_Owner()->Get_Owner(), pOwner->Get_Name(), pOwner->Get_Description(), pOwner->Get_Identifier());
-	m_pParameters	->Set_Callback();
 }
 
 CSG_Parameter_Parameters::~CSG_Parameter_Parameters(void)

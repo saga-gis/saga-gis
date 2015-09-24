@@ -746,8 +746,6 @@ bool CSG_Module_Chain::Tool_Get_Parameter(const CSG_MetaData &Parameter, CSG_Mod
 bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pModule)
 {
 	//-----------------------------------------------------
-	pModule->Set_Callback();	// ???!!!
-
 	int		i;
 
 	//-----------------------------------------------------

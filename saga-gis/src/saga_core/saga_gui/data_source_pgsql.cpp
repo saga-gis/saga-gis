@@ -147,19 +147,9 @@ enum
 	\
 	if(	pModule )\
 	{\
-		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());\
-		\
-		pModule->Set_Manager(NULL);\
-		pModule->Get_Parameters()->Set_Callback(true);\
-		pModule->On_Before_Execution();\
-		\
-		if( (CONDITION) && pModule->Execute() )\
-		{\
-			bRetVal	= true;\
-		}\
-		\
-		pModule->Get_Parameters()->Assign_Values(&P);\
-		pModule->Set_Manager(P.Get_Manager());\
+		pModule->Settings_Push(NULL);\
+		bRetVal	= pModule->On_Before_Execution() && (CONDITION) && pModule->Execute();\
+		pModule->Settings_Pop();\
 	}\
 }
 
