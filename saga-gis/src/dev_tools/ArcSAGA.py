@@ -1,4 +1,4 @@
-import sys, os, glob, subprocess, arcpy, ConversionUtils
+import sys, os, glob, subprocess, arcpy, ConversionUtils, shutil
 
 ##########################################
 # Globals
@@ -6,10 +6,10 @@ import sys, os, glob, subprocess, arcpy, ConversionUtils
 DIR_SELF = os.path.dirname(__file__)
 
 DIR_LOG  = None
-#DIR_LOG  = DIR_SELF
+#DIR_LOG  = DIR_SELF # uncomment to create logs in toolbox directory
 
 DIR_SAGA = None	# assuming SAGA directory is included in the PATH environment variable
-DIR_SAGA = 'D:\\develop\\saga\\saga-code\\trunk\\saga-gis\\bin\\saga_vc_x64'	# ...or define hard coded path to SAGA directory
+#DIR_SAGA = 'D:\\saga\\saga-code\\trunk\\saga-gis\\bin\\saga_vc_x64'	# ...or define hard coded path to SAGA directory
 
 dir, tail = os.path.split(DIR_SELF)
 if os.path.isfile(dir + os.sep + 'saga_cmd.exe') == True:
@@ -26,7 +26,7 @@ def File_Get_TempName(Extension):
 def File_Cmp_Extension(File, Extension):
 	if File != '#' and File != None:
 		File, ext = os.path.splitext(File)
-		if Extension == ext:
+		if '.' + Extension == ext:
 			return True
 	return False
 
@@ -105,6 +105,14 @@ class SAGA_Tool:
 	######################################
 	# Data Lists
 	#_____________________________________
+	def Add_Output(self, Identifier, File, Type):
+		if self.Output == None:
+			self.Output  = [[Identifier, File, Type]]
+		else:
+			self.Output += [[Identifier, File, Type]]
+		return
+
+	#_____________________________________
 	def Add_Temporary(self, File):
 		if self.Temporary == None:
 			self.Temporary  = [File]
@@ -113,12 +121,10 @@ class SAGA_Tool:
 		return
 
 	#_____________________________________
-	def Add_Output(self, Identifier, File, Type):
-		if self.Output == None:
-			self.Output  = [[Identifier, File, Type]]
-		else:
-			self.Output += [[Identifier, File, Type]]
-		return
+	def Get_Temporary(self, Extension):
+		File = File_Get_TempName(Extension)
+		self.Add_Temporary(File)
+		return File
 
 
 	######################################
@@ -173,19 +179,22 @@ class SAGA_Tool:
 			List  = ConversionUtils.SplitMultiInputs(Value)
 			for Item in List:
 				if   Type == 'grid'   or Type == 'grid_list':
-					File = File_Get_TempName('sgrd')
+					if File_Cmp_Extension(Item,   'sdat') == False:
+						File = self.Get_Temporary('sgrd')
+					else:
+						File = File_Set_Extension(Item, 'sgrd')
 				elif Type == 'table'  or Type == 'table_list':
-					if File_Cmp_Extension(Item,  'dbf') == False:
-						File = File_Get_TempName('dbf')
+					if File_Cmp_Extension(Item,   'dbf') == False:
+						File = self.Get_Temporary('dbf')
 					else:
 						File = Item
 				elif Type == 'shapes' or Type == 'shapes_list':
-					if File_Cmp_Extension(Item,  'shp') == False:
-						File = File_Get_TempName('shp')
+					if File_Cmp_Extension(Item,   'shp') == False:
+						File = self.Get_Temporary('shp')
 					else:
 						File = Item
 				elif Type == 'points' or Type == 'points_list':
-					File = File_Get_TempName('spc')
+					File = self.Get_Temporary('spc')
 				else:
 					File = None
 
@@ -194,9 +203,6 @@ class SAGA_Tool:
 						Files = File
 					else:
 						Files = Files + ';' + File
-
-					if File != Item:
-						self.Add_Temporary(File)
 
 		if Files != None:
 			self.Set_Option(Identifier, Files)
@@ -224,7 +230,7 @@ class SAGA_Tool:
 # Raster Conversion
 #_________________________________________
 def Arc_To_SAGA_Raster(Raster):
-	Supported = ['tif', 'img', 'asc']
+	Supported = ['sdat', 'tif', 'img', 'asc']
 	for ext in Supported:
 		if File_Cmp_Extension(Raster, ext):
 			return Raster
@@ -237,20 +243,23 @@ def Arc_To_SAGA_Raster(Raster):
 
 #_________________________________________
 def SAGA_To_Arc_Raster(File, Raster):
-	Tool = SAGA_Tool('io_gdal', '2') # 'Export Raster to GeoTIFF'
-	Tool.Set_Option('GRIDS', File)
+	if File_Cmp_Extension(Raster, 'sdat') == False: # conversion needed
+		Tool = SAGA_Tool('io_gdal', '2') # 'Export Raster to GeoTIFF'
+		Tool.Set_Option('GRIDS', File)
 
-	if File_Cmp_Extension(Raster, 'tif'):
-		Tool.Set_Option('FILE', Raster)
-		if Tool.Run(True) != 0:
-			return False
-	else:
-		GeoTIFF = File_Set_Extension(File, 'tif')
-		Tool.Set_Option('FILE', GeoTIFF)
-		if Tool.Run(True) != 0:
-			return False
-		GeoTIFF = ConversionUtils.ValidateInputRaster(GeoTIFF)
-		ConversionUtils.CopyRasters(GeoTIFF, Raster, "")
+		if File_Cmp_Extension(Raster, 'tif'):
+			arcpy.AddMessage('Output GeoTIFF: ' + File + ' >> ' + Raster)
+			Tool.Set_Option('FILE', Raster)
+			if Tool.Run(True) != 0:
+				return False
+		else:
+			arcpy.AddMessage('Output Convert: ' + File + ' >> ' + Raster)
+			GeoTIFF = File_Set_Extension(File, 'tif')
+			Tool.Set_Option('FILE', GeoTIFF)
+			if Tool.Run(True) != 0:
+				return False
+			GeoTIFF = ConversionUtils.ValidateInputRaster(GeoTIFF)
+			ConversionUtils.CopyRasters(GeoTIFF, Raster, "")
 
 	Arc_Load_Layer(Raster)
 	
