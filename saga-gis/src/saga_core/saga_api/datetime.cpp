@@ -193,6 +193,21 @@ CSG_DateTime & CSG_DateTime::Set_Hour(unsigned short Value)
 	return( *this );
 }
 
+CSG_DateTime & CSG_DateTime::Set_Hour(double Value)
+{
+	m_pDateTime->ResetTime();
+
+	if( Value > 0.0 && Value < 24.0 )
+	{
+		m_pDateTime->SetHour       ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) *   60.0;
+		m_pDateTime->SetMinute     ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) *   60.0;
+		m_pDateTime->SetSecond     ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) * 1000.0;
+		m_pDateTime->SetMillisecond((wxDateTime::wxDateTime_t)Value);
+	}
+
+	return( *this );
+}
+
 //---------------------------------------------------------
 CSG_DateTime & CSG_DateTime::Set_Day(unsigned short Value)
 {
@@ -372,32 +387,32 @@ bool CSG_DateTime::is_StrictlyBetween(const CSG_DateTime &t1, const CSG_DateTime
 //---------------------------------------------------------
 CSG_String CSG_DateTime::Format(const CSG_String &Format)	const
 {
-	wxString	s(m_pDateTime->Format(Format.c_str()));	return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(m_pDateTime->Format(Format.c_str()));	CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Format_Date(void)	const
 {
-	wxString	s(m_pDateTime->FormatDate());			return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(m_pDateTime->FormatDate());			CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Format_Time(void)	const
 {
-	wxString	s(m_pDateTime->FormatTime());			return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(m_pDateTime->FormatTime());			CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Format_ISODate(void)	const
 {
-	wxString	s(m_pDateTime->FormatISODate());		return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(m_pDateTime->FormatISODate());		CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Format_ISOTime(void)	const
 {
-	wxString	s(m_pDateTime->FormatISOTime());		return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(m_pDateTime->FormatISOTime());		CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Format_ISOCombined(char sep)	const
 {
-	wxString	s(m_pDateTime->FormatISOCombined(sep));	return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(m_pDateTime->FormatISOCombined(sep));	CSG_String _s(&s); return( _s );
 }
 
 //---------------------------------------------------------
@@ -448,28 +463,44 @@ bool CSG_DateTime::Parse_ISOTime(const CSG_String &date)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_DateTime::Month CSG_DateTime::Get_Current_Month(void)	{	return( (Month)wxDateTime::GetCurrentMonth() );	}
-int                 CSG_DateTime::Get_Current_Year (void)	{	return(        wxDateTime::GetCurrentYear () );	}
+CSG_DateTime::TSG_DateTime CSG_DateTime::Get_Current_Day(void)
+{
+	CSG_DateTime Now;
+	
+	Now.Set_To_Current();
+	
+	return( Now.Get_Day() );
+}
+
+CSG_DateTime::Month CSG_DateTime::Get_Current_Month(void)
+{
+	return( (Month)wxDateTime::GetCurrentMonth() );
+}
+
+int CSG_DateTime::Get_Current_Year(void)
+{
+	return( wxDateTime::GetCurrentYear() );
+}
 
 //---------------------------------------------------------
 CSG_String CSG_DateTime::Get_MonthName(Month month, NameFlags flags)
 {
-	wxString	s(wxDateTime::GetMonthName         ((wxDateTime::Month)month    , (wxDateTime::NameFlags)flags));	return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(wxDateTime::GetMonthName         ((wxDateTime::Month)month    , (wxDateTime::NameFlags)flags));	CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Get_EnglishMonthName(Month month, NameFlags flags)
 {
-	wxString	s(wxDateTime::GetEnglishMonthName  ((wxDateTime::Month)month    , (wxDateTime::NameFlags)flags));	return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(wxDateTime::GetEnglishMonthName  ((wxDateTime::Month)month    , (wxDateTime::NameFlags)flags));	CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Get_WeekDayName(WeekDay weekday, NameFlags flags)
 {
-	wxString	s(wxDateTime::GetWeekDayName       ((wxDateTime::WeekDay)weekday, (wxDateTime::NameFlags)flags));	return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(wxDateTime::GetWeekDayName       ((wxDateTime::WeekDay)weekday, (wxDateTime::NameFlags)flags));	CSG_String _s(&s); return( _s );
 }
 
 CSG_String CSG_DateTime::Get_EnglishWeekDayName(WeekDay weekday, NameFlags flags)
 {
-	wxString	s(wxDateTime::GetEnglishWeekDayName((wxDateTime::WeekDay)weekday, (wxDateTime::NameFlags)flags));	return( &s ); // CSG_String _s(&s); return( _s );
+	wxString	s(wxDateTime::GetEnglishWeekDayName((wxDateTime::WeekDay)weekday, (wxDateTime::NameFlags)flags));	CSG_String _s(&s); return( _s );
 }
 
 //---------------------------------------------------------
@@ -503,7 +534,95 @@ CSG_DateTime CSG_DateTime::Now(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String CSG_DateTime::Get_Month_Choices(void)
+{
+	CSG_String	Choices;
 
+	Choices.Printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		_TL("January"), _TL("February"), _TL("March"    ), _TL("April"  ), _TL("May"     ), _TL("June"    ),
+		_TL("July"   ), _TL("August"  ), _TL("September"), _TL("October"), _TL("November"), _TL("December")
+	);
+
+	return( Choices );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include "mat_tools.h"
+
+//---------------------------------------------------------
+/**
+  * Calculates the Sun's position for given date and time
+  * as declination and right ascension angles (radians).
+  * Solar coordinates according to
+  * Jean Meeus: Astronomical Algorithms, accuracy of 0.01 degree
+*/
+//---------------------------------------------------------
+bool SG_Get_Sun_Position(const CSG_DateTime &Time, double &RA, double &Dec)
+{
+	//-----------------------------------------------------
+	double	T	= (Time.Get_JDN() - 2451545.0 ) / 36525.0;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.0)
+
+	double	M	= M_DEG_TO_RAD *  (357.52910 + 35999.05030 * T - 0.0001559 * T*T - 0.00000048 * T*T*T);	// mean anomaly
+	double	L	= M_DEG_TO_RAD * ((280.46645 + 36000.76983 * T + 0.0003032 * T*T)						// mean longitude
+							   + ((1.914600 - 0.004817 * T - 0.000014  * T*T) * sin(M)
+							   +  (0.019993 - 0.000101 * T) * sin(2.0 * M) + 0.000290 * sin(3.0 * M)));	// true longitude
+
+	//-----------------------------------------------------
+	// convert ecliptic longitude to right ascension RA and declination delta
+
+	static const double	Ecliptic_Obliquity	= M_DEG_TO_RAD * 23.43929111;
+
+	double	X	= cos(L);
+	double	Y	= cos(Ecliptic_Obliquity) * sin(L);
+	double	Z	= sin(Ecliptic_Obliquity) * sin(L);
+	double	R	= sqrt(1.0 - Z*Z); 
+
+	Dec	= atan2(Z, R);
+	RA	= 2.0 * atan2(Y, (X + R));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+/**
+  * Calculates the Sun's position for given date and time
+  * and position on Earth as given by longitude and latitude (radians).
+  * Height and Azimuth are calculated as radians.
+  * Returns true if Sun is above horizon.
+*/
+//---------------------------------------------------------
+bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth)
+{
+	//-----------------------------------------------------
+	// 1. Get right ascension RA and declination delta
+
+	double	RA, Delta;	SG_Get_Sun_Position(Time, RA, Delta);
+
+	//-----------------------------------------------------
+	// 2. compute sidereal time (radians) at Greenwich local sidereal time at longitude (radians)
+
+	double	T		= (Time.Get_JDN() - 2451545.0 ) / 36525.0;
+
+	double	Theta	= Longitude + M_DEG_TO_RAD * (280.46061837 + 360.98564736629 * (Time.Get_JDN() - 2451545.0) + T*T * (0.000387933 - T / 38710000.0));
+
+	double	Tau		= Theta - RA;	// compute local hour angle (radians)
+
+	//-----------------------------------------------------
+	// 3. convert (tau, delta) to horizon coordinates (h, az) of the observer
+
+	Height	= asin ( sin(Latitude) * sin(Delta) + cos(Latitude) * cos(Delta) * cos(Tau));
+	Azimuth	= atan2(-sin(Tau) * cos(Delta), cos(Latitude) * sin(Delta) - sin(Latitude) * cos(Delta) * cos(Tau));
+//	Azimuth	= atan2(-sin(Tau), cos(Latitude) * tan(Delta) - sin(Latitude) * cos(Tau));	// previous formula gives same result but is better because of division by zero effects...
+
+	return( Height > 0.0 );
+}
 
 
 ///////////////////////////////////////////////////////////

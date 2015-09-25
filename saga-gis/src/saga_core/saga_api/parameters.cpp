@@ -1507,16 +1507,12 @@ bool CSG_Parameters::Get_String(CSG_String &String, bool bOptionsOnly)
 		{
 			CSG_Parameter	*p	= m_Parameters[i];
 
-			if( (!bOptionsOnly || p->is_Option()) && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
+			if( (!bOptionsOnly || p->is_Option()) && p->is_Enabled() && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
 			{
 				bResult	= true;
 
-			//	String.Append(CSG_String::Format(SG_T("[%s] %s: %s\n"),
-			//		p->Get_Type_Name(),
-				String.Append(CSG_String::Format(SG_T("%s: %s\n"),
-					p->Get_Name(),
-					p->asString()
-				));
+			//	String	+= CSG_String::Format("[%s] %s: %s\n", p->Get_Type_Name(), p->Get_Name(), p->asString());
+				String	+= CSG_String::Format("%s: %s\n", p->Get_Name(), p->asString());
 			}
 		}
 	}

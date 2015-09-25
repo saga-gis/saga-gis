@@ -103,6 +103,7 @@ public:
 	CSG_TimeSpan(void)						{	m_span	= 0l       ;	}
 	CSG_TimeSpan(const CSG_TimeSpan &ts)	{	m_span	= ts.m_span;	}
 	CSG_TimeSpan(const sLong &diff)			{	m_span	= diff     ;	}
+	CSG_TimeSpan(double hours)				{	m_span	= (sLong)(1000*60*60 * hours);	}
 	CSG_TimeSpan(long hours, long min = 0, sLong sec = 0, sLong msec = 0)
 	{
 		m_span	= msec + 1000 * (sec + 60 * (min + 60 * hours));
@@ -242,6 +243,7 @@ public:
 	CSG_DateTime &				Set_Second				(unsigned short Value);
 	CSG_DateTime &				Set_Minute				(unsigned short Value);
 	CSG_DateTime &				Set_Hour				(unsigned short Value);
+	CSG_DateTime &				Set_Hour				(double         Value);
 	CSG_DateTime &				Set_Day					(unsigned short Value);
 	CSG_DateTime &				Set_Month				(Month          Value);
 	CSG_DateTime &				Set_Year				(int            Value);
@@ -334,6 +336,7 @@ public:
 
   
 	//-----------------------------------------------------
+	static TSG_DateTime			Get_Current_Day			(void);
 	static Month				Get_Current_Month		(void);
 	static int					Get_Current_Year		(void);
 
@@ -348,7 +351,8 @@ public:
 	static bool					is_LeapYear				(int year = Inv_Year);
 
 	static CSG_DateTime			Now						(void);
- 
+
+	static CSG_String			Get_Month_Choices		(void);
 
 
 private:
@@ -356,6 +360,17 @@ private:
 	class wxDateTime			*m_pDateTime;
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double &RA, double &Dec);
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth);
 
 
 ///////////////////////////////////////////////////////////
