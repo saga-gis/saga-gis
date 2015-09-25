@@ -13,10 +13,12 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMP
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libclimate_tools.la
 libclimate_tools_la_SOURCES =\
+daily_sun.cpp\
 etp_hargreave.cpp\
 grid_levels_interpolation.cpp\
 milankovic.cpp\
 MLB_Interface.cpp\
+daily_sun.h\
 etp_hargreave.h\
 grid_levels_interpolation.h\
 milankovic.h\

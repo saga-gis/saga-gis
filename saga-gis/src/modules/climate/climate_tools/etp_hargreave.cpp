@@ -61,6 +61,8 @@
 //---------------------------------------------------------
 #include "etp_hargreave.h"
 
+#include <saga_api/datetime.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -107,8 +109,6 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("PET (after Hargreaves, Grid)"));
 
 	Set_Author		("O.Conrad (c) 2015");
@@ -131,8 +131,6 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Grid(NULL, "T"    , _TL("Mean Temperature"            ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid(NULL, "T_MIN", _TL("Minimum Temperature"         ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid(NULL, "T_MAX", _TL("Maximum Temperature"         ), _TL(""), PARAMETER_INPUT);
@@ -156,16 +154,13 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 	Parameters.Add_Choice(
 		pNode	, "MONTH"	, _TL("Month"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("January"), _TL("February"), _TL("March"    ), _TL("April"  ), _TL("May"     ), _TL("June"    ),
-			_TL("July"   ), _TL("August"  ), _TL("September"), _TL("October"), _TL("November"), _TL("December")
-		), 2
+		CSG_DateTime::Get_Month_Choices(), CSG_DateTime::Get_Current_Month()
 	);
 
 	Parameters.Add_Value(
 		pNode	, "DAY"		, _TL("Day of Month"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 21, 1, true, 31, true
+		PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Day(), 1, true, 31, true
 	);
 }
 
@@ -229,8 +224,15 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	Mon	= Parameters("TIME")->asInt() == 0 ? -1 : DaysCount[Parameters("MONTH")->asInt()];
-	int	Day	= DaysBefore[Parameters("MONTH")->asInt()] + Mon < 0 ? Parameters("DAY")->asInt() : Mon / 2;
+	int		bDaily	= Parameters("TIME")->asInt() == 0;
+
+	CSG_DateTime	Date(
+		(CSG_DateTime::TSG_DateTime)(bDaily ? Parameters("DAY")->asInt() : 15),
+		(CSG_DateTime::Month)Parameters("MONTH")->asInt()
+	);
+
+	int		Day		= Date.Get_DayOfYear();
+	int		nDays	= Date.Get_NumberOfDays(Parameters("MONTH")->asInt());
 
 	double	R0_const	= Get_Radiation_TopOfAtmosphere(Day, Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
 
@@ -252,7 +254,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 					pTmax->asDouble(x, y)
 				);
 
-				pPET->Set_Value(x, y, Mon < 0 ? PET : PET * Mon);
+				pPET->Set_Value(x, y, bDaily ? PET : PET * nDays);
 			}
 		}
 	}
@@ -274,8 +276,6 @@ CPET_Hargreave_Table::CPET_Hargreave_Table(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("PET (after Hargreaves, Table)"));
 
 	Set_Author		("O.Conrad (c) 2011");
@@ -297,8 +297,6 @@ CPET_Hargreave_Table::CPET_Hargreave_Table(void)
 
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	pNode	= Parameters.Add_Table(
 		NULL	, "TABLE"			, _TL("Data"),
 		_TL(""),
@@ -394,8 +392,6 @@ CPET_Day_To_Hour::CPET_Day_To_Hour(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Daily to Hourly PET"));
 
 	Set_Author		("O.Conrad (c) 2011");
@@ -410,8 +406,6 @@ CPET_Day_To_Hour::CPET_Day_To_Hour(void)
 
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	pNode	= Parameters.Add_Table(
 		NULL	, "DAYS"			, _TL("Daily Data"),
 		_TL(""),

@@ -292,6 +292,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="daily_sun.cpp" />
     <ClCompile Include="etp_hargreave.cpp" />
     <ClCompile Include="grid_levels_interpolation.cpp" />
     <ClCompile Include="milankovic.cpp" />
@@ -313,6 +314,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="daily_sun.h" />
     <ClInclude Include="etp_hargreave.h" />
     <ClInclude Include="grid_levels_interpolation.h" />
     <ClInclude Include="milankovic.h" />

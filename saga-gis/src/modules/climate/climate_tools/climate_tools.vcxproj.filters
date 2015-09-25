@@ -26,6 +26,9 @@
     <ClCompile Include="etp_hargreave.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="daily_sun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -89,6 +92,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="etp_hargreave.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="daily_sun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
