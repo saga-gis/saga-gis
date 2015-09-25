@@ -74,6 +74,8 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+#include <saga_api/datetime.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -97,35 +99,31 @@ protected:
 
 private:
 
-	bool					m_bLocalSVF, m_bBending;
+	bool					m_bLocalSVF;
 
-	int						m_Time, m_Method, m_Shadowing, m_Day_A, m_Day_B, m_dDays, m_bUpdate;
+	int						m_Method, m_Location, m_Shadowing;
 
-	double					m_Solar_Const, m_Hour_A, m_Hour_B, m_dHour, m_Latitude, m_Atmosphere, m_Vapour, m_Transmittance, m_Pressure, m_Water, m_Dust;
+	double					m_Solar_Const, m_Latitude, m_Atmosphere, m_Vapour, m_Transmittance, m_Pressure, m_Water, m_Dust;
 
 	CSG_Grid				*m_pDEM, *m_pVapour, *m_pSVF, *m_pDirect, *m_pDiffus, *m_pTotal, *m_pRatio, *m_pDuration, *m_pSunrise, *m_pSunset,
-							m_Slope, m_Aspect, m_Shade, m_Lat, m_Lon, m_Sol_Height, m_Sol_Azimuth;
+							m_Slope, m_Aspect, m_Shade, m_Lat, m_Lon, m_Sun_Height, m_Sun_Azimuth;
 
 
-	bool					Finalise				(void);
+	bool					Finalize				(void);
 
 	bool					Get_Insolation			(void);
-	bool					Get_Insolation			(int Day);
-	bool					Get_Insolation			(int Day, double Hour);
-	bool					Get_Insolation			(double Sol_Height, double Sol_Azimuth, double Hour);
+	bool					Get_Insolation			(CSG_DateTime Date);
+	bool					Get_Insolation			(CSG_DateTime Date, double Hour);
+	bool					Get_Insolation			(double Sun_Height, double Sun_Azimuth, double Hour);
 
-	double					Get_Air_Mass			(double Sol_Height);
-
-	bool					Get_Irradiance			(int x, int y, double Sol_Height, double Sol_Azimuth, double &Direct, double &Diffus);
+	double					Get_Air_Mass			(double Sun_Height);
+	bool					Get_Irradiance			(int x, int y, double Sun_Height, double Sun_Azimuth, double &Direct, double &Diffus);
 
 	bool					is_Shadowed				(int x, int y);
-	void					Get_Shade_Params		(double Sol_Height, double Sol_Azimuth, double &dx, double &dy, double &dz);
-	bool					Get_Shade				(double Sol_Height, double Sol_Azimuth);
+	void					Get_Shade_Params		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz);
+	bool					Get_Shade				(double Sun_Height, double Sun_Azimuth);
 	void					Set_Shade				(double x, double y, double z, double dx, double dy, double dz);
 	void					Set_Shade_Bended		(double x, double y, double z);
-
-	int						Get_Day_of_Year			(int Month);
-	bool					Get_Solar_Position		(int Day, double Hour, double Lat, double Lon, double &Sol_Height, double &Sol_Azimuth);
 
 };
 
