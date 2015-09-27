@@ -106,6 +106,15 @@ CDaily_Sun::CDaily_Sun(void)
 		_TL(""),
 		PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Day(), 1, true, 31, true
 	);
+
+	Parameters.Add_Choice(
+		NULL	, "TIME"	, _TL("Time"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("local"),
+			_TL("world")
+		)
+	);
 }
 
 
@@ -117,6 +126,19 @@ CDaily_Sun::CDaily_Sun(void)
 int CDaily_Sun::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double SG_Range_Set_0_to_24(double Value)
+{
+	Value	= fmod(Value, 24.0);
+
+	return( Value < 0.0 ? Value	+ 24.0 : Value );
 }
 
 
@@ -152,6 +174,8 @@ bool CDaily_Sun::On_Execute(void)
 	CSG_Grid	*pSunset	= Parameters("SUNSET" )->asGrid();
 	CSG_Grid	*pSunrise	= Parameters("SUNRISE")->asGrid();
 	CSG_Grid	*pDuration	= Parameters("LENGTH" )->asGrid();
+
+	bool	bWorld	= Parameters("TIME")->asInt() == 1;
 
 	//-----------------------------------------------------
 	CSG_DateTime	Time((CSG_DateTime::TSG_DateTime)Parameters("DAY")->asInt(), (CSG_DateTime::Month)Parameters("MONTH")->asInt(), Parameters("YEAR")->asInt());
@@ -204,12 +228,19 @@ bool CDaily_Sun::On_Execute(void)
 				{
 					dT	= acos(dT) * 12.0 / M_PI;
 
-					double	Sunrise	= fmod(12.0 - dT - T, 24.0);	if( Sunrise < 0.0 )	Sunrise	+= 24.0;
-					double	Sunset	= fmod(12.0 + dT - T, 24.0);	if( Sunset  < 0.0 )	Sunset	+= 24.0;
+					double	Sunrise	= SG_Range_Set_0_to_24(12.0 - dT - T);
+					double	Sunset	= SG_Range_Set_0_to_24(12.0 + dT - T);
 
-					pSunrise ->Set_Value(x, y, Sunrise ); // - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.0);
-					pSunset  ->Set_Value(x, y, Sunset  ); // - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.0);
 					pDuration->Set_Value(x, y, Sunset - Sunrise);
+
+					if( bWorld )
+					{
+						Sunrise	= SG_Range_Set_0_to_24(Sunrise - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.0);
+						Sunset	= SG_Range_Set_0_to_24(Sunset  - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.0);
+					}
+
+					pSunrise ->Set_Value(x, y, Sunrise);
+					pSunset  ->Set_Value(x, y, Sunset );
 				}
 			}
 		}

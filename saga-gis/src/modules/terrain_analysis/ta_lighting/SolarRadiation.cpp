@@ -97,8 +97,6 @@ CSolarRadiation::CSolarRadiation(void)
 	Parameters.Add_Grid(NULL, "GRD_DEM"     , _TL("Elevation"                   ), _TL(""), PARAMETER_INPUT           );
 	Parameters.Add_Grid(NULL, "GRD_SVF"     , _TL("Sky View Factor"             ), _TL(""), PARAMETER_INPUT_OPTIONAL  );
 	Parameters.Add_Grid(NULL, "GRD_VAPOUR"  , _TL("Water Vapour Pressure [mbar]"), _TL(""), PARAMETER_INPUT_OPTIONAL  );
-	Parameters.Add_Grid(NULL, "GRD_LAT"     , _TL("Latitude [degree]"           ), _TL(""), PARAMETER_INPUT_OPTIONAL  );
-	Parameters.Add_Grid(NULL, "GRD_LON"     , _TL("Longitude [degree]"          ), _TL(""), PARAMETER_INPUT_OPTIONAL  );
 	Parameters.Add_Grid(NULL, "GRD_DIRECT"  , _TL("Direct Insolation"           ), _TL(""), PARAMETER_OUTPUT          );
 	Parameters.Add_Grid(NULL, "GRD_DIFFUS"  , _TL("Diffuse Insolation"          ), _TL(""), PARAMETER_OUTPUT          );
 	Parameters.Add_Grid(NULL, "GRD_TOTAL"   , _TL("Total Insolation"            ), _TL(""), PARAMETER_OUTPUT_OPTIONAL );
@@ -292,15 +290,15 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PERIOD") )
 	{
-		pParameters->Set_Enabled("GRD_DURATION"  , pParameter->asInt() != 0);
-		pParameters->Set_Enabled("GRD_SUNRISE"   , pParameter->asInt() != 0);
-		pParameters->Set_Enabled("GRD_SUNSET"    , pParameter->asInt() != 0);
 		pParameters->Set_Enabled("MOMENT"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("GRD_DURATION"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("GRD_SUNRISE"   , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("GRD_SUNSET"    , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("UPDATE"        , pParameter->asInt() >= 1);
 		pParameters->Set_Enabled("HOUR_RANGE"    , pParameter->asInt() >= 1);
 		pParameters->Set_Enabled("HOUR_STEP"     , pParameter->asInt() >= 1);
-		pParameters->Set_Enabled("DAYS_STEP"     , pParameter->asInt() == 2);
 		pParameters->Set_Enabled("DATE_B"        , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("DAYS_STEP"     , pParameter->asInt() == 2);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
@@ -334,9 +332,10 @@ bool CSolarRadiation::On_Execute(void)
 	m_pDiffus		= Parameters("GRD_DIFFUS"  )->asGrid();
 	m_pTotal		= Parameters("GRD_TOTAL"   )->asGrid();
 	m_pRatio		= Parameters("GRD_RATIO"   )->asGrid();
-	m_pDuration		= Parameters("GRD_DURATION")->asGrid();
-	m_pSunrise		= Parameters("GRD_SUNRISE" )->asGrid();
-	m_pSunset		= Parameters("GRD_SUNSET"  )->asGrid();
+
+	m_pDuration		= NULL;
+	m_pSunrise		= NULL;
+	m_pSunset		= NULL;
 
 	m_Solar_Const	= Parameters("SOLARCONST"  )->asDouble() / 1000.0;	// >> [kW / m²]
 	m_bLocalSVF		= Parameters("LOCALSVF"    )->asBool  ();
@@ -544,6 +543,10 @@ bool CSolarRadiation::Get_Insolation(void)
 	//-----------------------------------------------------
 	case 1:	// One Day
 
+		m_pDuration	= Parameters("GRD_DURATION")->asGrid();
+		m_pSunrise	= Parameters("GRD_SUNRISE" )->asGrid();
+		m_pSunset	= Parameters("GRD_SUNSET"  )->asGrid();
+
 		return( Get_Insolation(Date) );
 
 	//-----------------------------------------------------
@@ -636,7 +639,7 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 	}
 
 	//-----------------------------------------------------
-	bool	bDay, bWasDay	= false;
+	bool	bWasDay	= false;
 
 	double	Hour_A	= Parameters("HOUR_RANGE")->asRange()->Get_LoVal();
 	double	Hour_B	= Parameters("HOUR_RANGE")->asRange()->Get_HiVal();
@@ -647,14 +650,12 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 
 	for(double Hour=Hour_A; Hour<=Hour_B && Set_Progress(Hour - Hour_A, Hour_B - Hour_A); Hour+=dHour)
 	{
-		Process_Set_Text(Date.Format("%A, %d. %B %Y, %X"));
-
-		SG_UI_Progress_Lock(true);
-
-		bDay	= Get_Insolation(Date, Hour);
+		bool	bDay	= Get_Insolation(Date, Hour);
 
 		if( Update && (bDay || bWasDay) )
 		{
+			SG_UI_Progress_Lock(true);
+
 			bWasDay	= bDay;
 
 			if( Update == 2 )
@@ -672,9 +673,9 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 
 				m_pDirect->Assign(0.0);
 			}
-		}
 
-		SG_UI_Progress_Lock(false);
+			SG_UI_Progress_Lock(false);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -698,6 +699,8 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 {
 	Date.Set_Hour(Hour);
+
+	Process_Set_Text(Date.Format("%A, %d. %B %Y, %X"));
 
 	//-----------------------------------------------------
 	if( m_Location )
@@ -782,22 +785,22 @@ bool CSolarRadiation::Get_Insolation(double Sun_Height, double Sun_Azimuth, doub
 						{
 							if( m_pDuration->is_NoData(x, y) )
 							{
-								m_pDuration	->Set_Value(x, y, dHour);
+								m_pDuration->Set_Value(x, y, dHour);
 							}
 							else
 							{
-								m_pDuration	->Add_Value(x, y, dHour);
+								m_pDuration->Add_Value(x, y, dHour);
 							}
 						}
 
 						if( m_pSunrise && (m_pSunrise->is_NoData(x, y) || m_pSunrise->asDouble(x, y) > Hour) )
 						{
-							m_pSunrise	->Set_Value(x, y, Hour);
+							m_pSunrise->Set_Value(x, y, Hour);
 						}
 
 						if( m_pSunset )
 						{
-							m_pSunset	->Set_Value(x, y, Hour);
+							m_pSunset->Set_Value(x, y, Hour);
 						}
 					}
 				}
@@ -843,17 +846,13 @@ inline double CSolarRadiation::Get_Air_Mass(double Sun_Height)
 //---------------------------------------------------------
 inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, double Sun_Azimuth, double &Direct, double &Diffus)
 {
+	//-----------------------------------------------------
 	if( Sun_Height <= 0.0 )
 	{
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	double	Elevation, Slope, Solar_Angle;
-
-	Elevation	= m_pDEM->asDouble(x, y);
-	Slope		= m_Slope.asDouble(x, y);
-	Solar_Angle	= m_Shade.asDouble(x, y) > 0.0 ? 0.0 : cos(Slope) * cos(Sun_Height - M_PI_090) + sin(Slope) * sin(M_PI_090 - Sun_Height) * cos(Sun_Azimuth - m_Aspect.asDouble(x, y));
+	double	Elevation	= m_pDEM->asDouble(x, y);
 
 	//-----------------------------------------------------
 	if( m_Method == 0 )	// Boehner
@@ -899,7 +898,10 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, dou
 	}
 
 	//-----------------------------------------------------
-	Direct	= Solar_Angle <= 0.0 ? 0.0 : Solar_Angle * Direct * m_Solar_Const;
+	double	Slope		= m_Slope.asDouble(x, y);
+	double	Solar_Angle	= m_Shade.asDouble(x, y) > 0.0 ? 0.0 : cos(Slope) * cos(Sun_Height - M_PI_090) + sin(Slope) * sin(M_PI_090 - Sun_Height) * cos(Sun_Azimuth - m_Aspect.asDouble(x, y));
+
+	Direct		= Solar_Angle <= 0.0 ? 0.0 : Solar_Angle * Direct * m_Solar_Const;
 
 	double	SVF	= m_pSVF && !m_pSVF->is_NoData(x, y) ? m_pSVF->asDouble(x, y) : m_bLocalSVF ? (1.0 + cos(Slope)) / 2.0 : 1.0;
 
