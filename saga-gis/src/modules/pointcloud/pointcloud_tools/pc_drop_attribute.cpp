@@ -84,36 +84,26 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 		"The module can be used to drop attributes from a point cloud. "
 		"In case the output dataset is not set, the attribute(s) will be dropped "
 		"from the input dataset, i.e. the input dataset will be overwritten.\n\n"
-		"Module usage is different between SAGA GUI and SAGA CMD: With "
-		"SAGA GUI you will get prompted to choose the attributes to drop "
-		"once you execute the module. With SAGA CMD you have to provide "
-		"a string with the -FIELDS parameter containing the field numbers "
-		"(separated by semicolon). Field numbers start with 1, e.g. "
-		"-FIELDS=\"5;8;9\".\n\n"
 	));
 
 
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud(
+	CSG_Parameter *pNode = Parameters.Add_PointCloud(
 		NULL	, "INPUT"		,_TL("Input"),
-		_TL("Point Cloud to drop attribute from."),
+		_TL("Point cloud to drop attribute(s) from."),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Fields(
+		pNode	, "FIELDS"		, _TL("Attributes"),
+		_TL("The attribute fields to drop.")
 	);
 
 	Parameters.Add_PointCloud(
 		NULL	, "OUTPUT"		, _TL("Output"),
-		_TL("Point Cloud with attribute dropped."),
+		_TL("Point cloud with attribute(s) dropped."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
-
-	if (!SG_UI_Get_Window_Main())
-	{
-		Parameters.Add_String(
-            NULL	, "FIELDS"    , _TL("Fields"),
-            _TL("The numbers (starting from 1) of the fields to drop, separated by semicolon, e.g. \"5;8;9\""),
-            SG_T("")
-        );
-	}
 }
 
 
@@ -129,9 +119,7 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	CSG_PointCloud		*pInput, *pOutput;
 	CSG_String			sName;
 	CSG_Parameters		sParms;
-
-	CSG_Parameters		P;
-	CSG_String			s;
+	int					*Features, nFeatures;
 	std::set<int>		setCols;
 	std::set<int>::iterator it;
 
@@ -139,6 +127,17 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	pInput	= Parameters("INPUT")->asPointCloud();
 	pOutput	= Parameters("OUTPUT")->asPointCloud();
 
+
+	//-------------------------------------------------
+	Features	= (int *)Parameters("FIELDS")->asPointer();
+	nFeatures	=        Parameters("FIELDS")->asInt    ();
+
+	if( !Features || nFeatures <= 0 )
+	{
+		Error_Set(_TL("You must specify at least one attribute to drop!"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	if( !pOutput || pOutput == pInput )
@@ -148,78 +147,17 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	}
 	else
 	{
-		sName = CSG_String::Format(SG_T("%s_discardedAttr"), pInput->Get_Name());
+		sName = CSG_String::Format(SG_T("%s_droppedAttr"), pInput->Get_Name());
 		pOutput->Create(pInput);
 	}
 	
 
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
+	setCols.clear();
+
+	for( int i=0; i<nFeatures; i++ )
 	{
-		P.Set_Name(_TL("Check the attributes to drop"));
-
-		for(int iAttr=0; iAttr<pInput->Get_Attribute_Count(); iAttr++)
-		{
-			s.Printf(SG_T("ATTR_%03d"), iAttr);
-			P.Add_Value(NULL, s, CSG_String::Format(SG_T("%s"), pInput->Get_Attribute_Name(iAttr)), _TL(""), PARAMETER_TYPE_Bool, false);
-		}
-
-		//-----------------------------------------------------
-		if( Dlg_Parameters(&P, _TL("Field Properties")) )
-		{
-			setCols.clear();
-
-			for(int iAttr=0; iAttr<pInput->Get_Attribute_Count(); iAttr++)
-			{
-				if( P(CSG_String::Format(SG_T("ATTR_%03d" ), iAttr).c_str())->asBool() )
-				{
-					setCols.insert(iAttr + 3);
-				}
-			}
-		}
-		else
-			return( false );
-	}
-	else // CMD
-	{
-		CSG_String		sFields, sPrecision;
-		CSG_String		token;
-		int				iValue;
-
-
-		sFields		= Parameters("FIELDS")->asString();
-
-		CSG_String_Tokenizer   tkz_fields(sFields, ";", SG_TOKEN_STRTOK);
-
-		while( tkz_fields.Has_More_Tokens() )
-		{
-			token	= tkz_fields.Get_Next_Token();
-
-			if( token.Length() == 0 )
-				break;
-
-			if( !token.asInt(iValue) )
-			{
-				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: can't convert to number"));
-				return( false );
-			}
-
-			iValue	-= 1;
-
-			if( iValue < 3 || iValue > pInput->Get_Field_Count()-1 )
-			{
-				SG_UI_Msg_Add_Error(_TL("Error parsing attribute fields: field index out of range"));
-				return( false );
-			}
-			else
-				setCols.insert(iValue);
-		}
-	}
-
-	if( setCols.size() == 0 )
-	{
-		SG_UI_Msg_Add_Error(_TL("You must specify at least one attribute to drop!"));
-		return( false );
+		setCols.insert(Features[i]);
 	}
 
 
