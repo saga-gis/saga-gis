@@ -107,6 +107,12 @@ CPC_Merge::CPC_Merge(void)
 		_TL("Add unique identifier attribute field to output, ID resembles processing order."),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	Parameters.Add_Value(
+		Parameters("ADD_IDENTIFIER")	, "START_VALUE"	, _TL("Start Value"),
+		_TL("The start value to use for the identifier."),
+		PARAMETER_TYPE_Int, 0
+	);
 }
 
 
@@ -126,6 +132,7 @@ bool CPC_Merge::On_Execute(void)
 {
 	CSG_PointCloud		*pMain, *pAdd, *pResult;
 	bool				bID;
+	int					iStartValue;
 	int					iAccept = 0;
 
 	CSG_Parameter_PointCloud_List	*pPointCloudList;
@@ -137,7 +144,7 @@ bool CPC_Merge::On_Execute(void)
 	pPointCloudList		= Parameters("PC_LAYERS")->asPointCloudList();
 	pResult				= Parameters("PC_OUT")->asPointCloud();
 	bID					= Parameters("ADD_IDENTIFIER")->asBool();
-
+	iStartValue			= Parameters("START_VALUE")->asInt();
 
 	pResult->Create(pMain);
 	pResult->Set_Name(CSG_String::Format(_TL("%s_merged"), pMain->Get_Name()));
@@ -163,10 +170,11 @@ bool CPC_Merge::On_Execute(void)
 		}
 
 		if( bID )
-			pResult->Set_Attribute(iAccept, pMain->Get_Attribute_Count(), 0);
+			pResult->Set_Attribute(iAccept, pMain->Get_Attribute_Count(), iStartValue);
 
 		iAccept++;	
 	}
+
 
 	//copy additional layer into destination
 	if( (pPointCloudList = Parameters("PC_LAYERS")->asPointCloudList()) != NULL && pPointCloudList->Get_Count() > 0 )
@@ -211,7 +219,9 @@ bool CPC_Merge::On_Execute(void)
 						}
 
 						if( bID )
-							pResult->Set_Attribute(iAccept, pMain->Get_Attribute_Count(), iLayer + 1);
+						{
+							pResult->Set_Attribute(iAccept, pMain->Get_Attribute_Count(), iLayer + iStartValue + 1);
+						}
 
 						iAccept++;
 					}
@@ -240,6 +250,18 @@ bool CPC_Merge::On_Execute(void)
 	return( true );
 }
 
+
+//---------------------------------------------------------
+int CPC_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ADD_IDENTIFIER")) )
+	{
+		pParameters->Get_Parameter("START_VALUE")->Set_Enabled(pParameter->asBool());
+	}
+
+	//-----------------------------------------------------
+	return (1);
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
