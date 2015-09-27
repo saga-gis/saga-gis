@@ -627,5 +627,6 @@ tools = [
 ['pointcloud_tools', 13, 'Point Cloud from Table'],
 ['shapes_lines', 8, 'Split Lines at Points'],
 ['grid_filter', 16, 'Wombling (Edge Detection)'],
-['grid_analysis', 21, 'Diversity of Categories']
+['grid_analysis', 21, 'Diversity of Categories'],
+['climate_tools', 9, 'Sunrise and Sunset']
 ]
