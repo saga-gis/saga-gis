@@ -282,6 +282,11 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Add_Item(VALUE)\
 )
 
+#define SG_MODULE_SET_DATAOBJECT_LIST(IDENTIFIER, VALUE)	(\
+		pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)\
+	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
+	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Assign(VALUE)\
+)
 
 ///////////////////////////////////////////////////////////
 //														 //
