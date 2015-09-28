@@ -100,6 +100,11 @@ bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_M
 		return( true );
 	}
 
+	if( SG_File_Cmp_Extension(File_Name, SG_T("sgrd")) || SG_File_Cmp_Extension(File_Name, SG_T("dgm")) )
+	{	// couldn't load saga raster ??? then return immediately !!!
+		return( false );
+	}
+
 	Set_File_Name(File_Name, false);
 
 	//-----------------------------------------------------
