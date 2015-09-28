@@ -241,7 +241,7 @@ CSolarRadiation::CSolarRadiation(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "PRESSURE"		, _TL("Atmospheric Pressure [mbar]"),
+		pNode	, "PRESSURE"		, _TL("Barometric Pressure [mbar]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1013, 0.0, true
 	);
@@ -269,6 +269,33 @@ CSolarRadiation::CSolarRadiation(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRD_DEM") && pParameter->asGrid() )
+	{
+		CSG_Shapes	srcCenter(SHAPE_TYPE_Point), dstCenter(SHAPE_TYPE_Point);
+
+		srcCenter.Get_Projection()	= pParameter->asGrid()->Get_Projection();
+		srcCenter.Add_Shape()->Add_Point(pParameter->asGrid()->Get_System().Get_Extent().Get_Center());
+
+		bool	bResult;
+
+		SG_RUN_MODULE(bResult, "pj_proj4", 2,	// Coordinate Transformation (Shapes)
+				SG_MODULE_PARAMETER_SET("SOURCE"   , &srcCenter)
+			&&	SG_MODULE_PARAMETER_SET("TARGET"   , &dstCenter)
+			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", "+proj=longlat +ellps=WGS84 +datum=WGS84")
+		)
+
+		if( bResult )
+		{
+			pParameters->Get_Parameter("LATITUDE")->Set_Value(dstCenter.Get_Shape(0)->Get_Point(0).y);
+		}
+	}
+
+	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -324,52 +351,41 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 bool CSolarRadiation::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pDEM			= Parameters("GRD_DEM"     )->asGrid();
-	m_pVapour		= Parameters("GRD_VAPOUR"  )->asGrid();
-	m_pSVF			= Parameters("GRD_SVF"     )->asGrid();
+	m_pDEM			= Parameters("GRD_DEM"   )->asGrid();
+	m_pVapour		= Parameters("GRD_VAPOUR")->asGrid();
+	m_pSVF			= Parameters("GRD_SVF"   )->asGrid();
 
-	m_pDirect		= Parameters("GRD_DIRECT"  )->asGrid();
-	m_pDiffus		= Parameters("GRD_DIFFUS"  )->asGrid();
-	m_pTotal		= Parameters("GRD_TOTAL"   )->asGrid();
-	m_pRatio		= Parameters("GRD_RATIO"   )->asGrid();
+	m_pDirect		= Parameters("GRD_DIRECT")->asGrid();
+	m_pDiffus		= Parameters("GRD_DIFFUS")->asGrid();
+	m_pTotal		= Parameters("GRD_TOTAL" )->asGrid();
+	m_pRatio		= Parameters("GRD_RATIO" )->asGrid();
 
 	m_pDuration		= NULL;
 	m_pSunrise		= NULL;
 	m_pSunset		= NULL;
 
-	m_Solar_Const	= Parameters("SOLARCONST"  )->asDouble() / 1000.0;	// >> [kW / m²]
-	m_bLocalSVF		= Parameters("LOCALSVF"    )->asBool  ();
-	m_Shadowing		= Parameters("SHADOW"      )->asInt   ();
+	m_Solar_Const	= Parameters("SOLARCONST")->asDouble() / 1000.0;	// >> [kW / m²]
+	m_bLocalSVF		= Parameters("LOCALSVF"  )->asBool  ();
+	m_Shadowing		= Parameters("SHADOW"    )->asInt   ();
 
-	m_Method		= Parameters("METHOD"      )->asInt   ();
-	m_Atmosphere	= Parameters("ATMOSPHERE"  )->asDouble();
-	m_Vapour		= Parameters("VAPOUR"      )->asDouble();
-	m_Transmittance	= Parameters("LUMPED"      )->asDouble() /  100.0;	// percent to ratio
-	m_Pressure		= Parameters("PRESSURE"    )->asDouble();
-	m_Water			= Parameters("WATER"       )->asDouble();
-	m_Dust			= Parameters("DUST"        )->asDouble();
+	m_Method		= Parameters("METHOD"    )->asInt   ();
+	m_Atmosphere	= Parameters("ATMOSPHERE")->asDouble();
+	m_Vapour		= Parameters("VAPOUR"    )->asDouble();
+	m_Transmittance	= Parameters("LUMPED"    )->asDouble() /  100.0;	// percent to ratio
+	m_Pressure		= Parameters("PRESSURE"  )->asDouble();
+	m_Water			= Parameters("WATER"     )->asDouble();
+	m_Dust			= Parameters("DUST"      )->asDouble();
 
 	//-----------------------------------------------------
-	CSG_Colors	Colors(100, SG_COLORS_YELLOW_RED, true);
+	CSG_Colors	Colors(11, SG_COLORS_YELLOW_RED, true);
 
 	Colors.Set_Ramp(SG_GET_RGB(  0,   0,  64), SG_GET_RGB(255, 159,   0),  0, 50);
 	Colors.Set_Ramp(SG_GET_RGB(255, 159,   0), SG_GET_RGB(255, 255, 255), 50, 99);
 
-	DataObject_Set_Colors(m_pDirect  , Colors);
-	DataObject_Set_Colors(m_pDiffus  , Colors);
-	DataObject_Set_Colors(m_pTotal   , Colors);
-	DataObject_Set_Colors(m_pRatio   , 100, SG_COLORS_RED_GREY_BLUE	, true);
-	DataObject_Set_Colors(m_pDuration, 100, SG_COLORS_YELLOW_RED	, true);
-	DataObject_Set_Colors(m_pSunrise , 100, SG_COLORS_YELLOW_RED	, false);
-	DataObject_Set_Colors(m_pSunset  , 100, SG_COLORS_YELLOW_RED	, true);
-
-	if( m_pDuration )	m_pDuration->Assign_NoData();
-	if( m_pSunrise  )	m_pSunrise ->Assign_NoData();
-	if( m_pSunset   )	m_pSunset  ->Assign_NoData();
-
-	if( m_pDuration )	m_pDuration->Set_Unit(_TL("h"));
-	if( m_pSunrise  )	m_pSunrise ->Set_Unit(_TL("h"));
-	if( m_pSunset   )	m_pSunset  ->Set_Unit(_TL("h"));
+	DataObject_Set_Colors(m_pDirect, Colors);
+	DataObject_Set_Colors(m_pDiffus, Colors);
+	DataObject_Set_Colors(m_pTotal , Colors);
+	DataObject_Set_Colors(m_pRatio , 11, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
 	m_Latitude	= Parameters("LATITUDE")->asDouble() * M_DEG_TO_RAD;
@@ -388,15 +404,15 @@ bool CSolarRadiation::On_Execute(void)
 			&&	SG_MODULE_PARAMETER_SET("LAT" , &m_Lat)
 		)
 
-		m_Lat	*= M_DEG_TO_RAD;
-		m_Lon	*= M_DEG_TO_RAD;
+		m_Lat.Set_Scaling(M_DEG_TO_RAD);
+		m_Lon.Set_Scaling(M_DEG_TO_RAD, -M_DEG_TO_RAD * m_Lon.asDouble(Get_NX() / 2, Get_NY() / 2));
 
 		Message_Add(CSG_String::Format("\n%s: %f <-> %f", _TL("Longitude"), M_RAD_TO_DEG * m_Lon.Get_ZMin(), M_RAD_TO_DEG * m_Lon.Get_ZMax()), false);
 		Message_Add(CSG_String::Format("\n%s: %f <-> %f", _TL("Latitude" ), M_RAD_TO_DEG * m_Lat.Get_ZMin(), M_RAD_TO_DEG * m_Lat.Get_ZMax()), false);
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("initialising gradient..."));
+	Process_Set_Text(_TL("Slopes"));
 
 	m_Shade .Create(*Get_System());
 	m_Slope .Create(*Get_System());
@@ -437,8 +453,6 @@ bool CSolarRadiation::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -528,6 +542,14 @@ bool CSolarRadiation::Finalize(void)
 //---------------------------------------------------------
 bool CSolarRadiation::Get_Insolation(void)
 {
+	//-----------------------------------------------------
+	switch( Parameters("PERIOD")->asInt() ? Parameters("UPDATE")->asInt() : 0 )
+	{
+	case 1:	DataObject_Update(m_pDirect                                               , SG_UI_DATAOBJECT_SHOW);	break;
+	case 2:	DataObject_Update(m_pDirect, 0.0, Parameters("UPDATE_STRETCH")->asDouble(), SG_UI_DATAOBJECT_SHOW);	break;
+	}
+
+	//-----------------------------------------------------
 	CSG_DateTime	Date((CSG_DateTime::TSG_DateTime)Parameters("DAY_A")->asInt(), (CSG_DateTime::Month)Parameters("MON_A")->asInt(), Parameters("YEAR_A")->asInt());
 
 	switch( Parameters("PERIOD")->asInt() )
@@ -543,9 +565,9 @@ bool CSolarRadiation::Get_Insolation(void)
 	//-----------------------------------------------------
 	case 1:	// One Day
 
-		m_pDuration	= Parameters("GRD_DURATION")->asGrid();
-		m_pSunrise	= Parameters("GRD_SUNRISE" )->asGrid();
-		m_pSunset	= Parameters("GRD_SUNSET"  )->asGrid();
+		if( !!(m_pDuration = Parameters("GRD_DURATION")->asGrid()) ) { DataObject_Set_Colors(m_pDuration, 11, SG_COLORS_YELLOW_RED,  true); m_pDuration->Assign_NoData(); m_pDuration->Set_Unit(_TL("h")); }
+		if( !!(m_pSunrise  = Parameters("GRD_SUNRISE" )->asGrid()) ) { DataObject_Set_Colors(m_pSunrise , 11, SG_COLORS_YELLOW_RED, false); m_pSunrise ->Assign_NoData(); m_pSunrise ->Set_Unit(_TL("h")); }
+		if( !!(m_pSunset   = Parameters("GRD_SUNSET"  )->asGrid()) ) { DataObject_Set_Colors(m_pSunset  , 11, SG_COLORS_YELLOW_RED,  true); m_pSunset  ->Assign_NoData(); m_pSunset  ->Set_Unit(_TL("h")); }
 
 		return( Get_Insolation(Date) );
 
@@ -596,11 +618,12 @@ bool CSolarRadiation::Get_Insolation(void)
 					SG_UI_Progress_Lock(false);
 				}
 
-				m_pDirect->Assign(&Direct);
-				m_pDiffus->Assign(&Diffus);
+				SG_UI_Progress_Lock(true);
 
-				m_pDirect->Multiply(dDays);
-				m_pDiffus->Multiply(dDays);
+				m_pDirect->Assign(&Direct);	m_pDirect->Multiply(dDays);
+				m_pDiffus->Assign(&Diffus);	m_pDiffus->Multiply(dDays);
+
+				SG_UI_Progress_Lock(false);
 			}
 		}
 
@@ -619,23 +642,17 @@ bool CSolarRadiation::Get_Insolation(void)
 //---------------------------------------------------------
 bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 {
+	SG_UI_Progress_Lock(true);
+
 	//-----------------------------------------------------
 	int			Update	= Parameters("UPDATE")->asInt();
 	double		dUpdate	= Parameters("UPDATE_STRETCH")->asDouble();
-	CSG_Grid	Direct;
+	CSG_Grid	Direct; if( Update ) Direct.Create(*Get_System(), SG_DATATYPE_Float);
 
-	if( Update )
+	switch( Update )
 	{
-		if( Update == 2 )
-		{
-			DataObject_Update(m_pDirect, 0.0, dUpdate, SG_UI_DATAOBJECT_SHOW);
-		}
-		else
-		{
-			DataObject_Update(m_pDirect, SG_UI_DATAOBJECT_SHOW);
-		}
-
-		Direct.Create(*Get_System(), SG_DATATYPE_Float);
+	case 1: DataObject_Update(m_pDirect              , SG_UI_DATAOBJECT_SHOW);	break;
+	case 2: DataObject_Update(m_pDirect, 0.0, dUpdate, SG_UI_DATAOBJECT_SHOW);	break;
 	}
 
 	//-----------------------------------------------------
@@ -650,31 +667,24 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 
 	for(double Hour=Hour_A; Hour<=Hour_B && Set_Progress(Hour - Hour_A, Hour_B - Hour_A); Hour+=dHour)
 	{
+		SG_UI_Progress_Lock(false);
 		bool	bDay	= Get_Insolation(Date, Hour);
+		SG_UI_Progress_Lock(true);
 
 		if( Update && (bDay || bWasDay) )
 		{
-			SG_UI_Progress_Lock(true);
-
 			bWasDay	= bDay;
 
-			if( Update == 2 )
+			switch( Update )
 			{
-				DataObject_Update(m_pDirect, 0.0, dUpdate, SG_UI_DATAOBJECT_SHOW);
-			}
-			else
-			{
-				DataObject_Update(m_pDirect, SG_UI_DATAOBJECT_SHOW);
+			case 1:	DataObject_Update(m_pDirect              , SG_UI_DATAOBJECT_SHOW);	break;
+			case 2:	DataObject_Update(m_pDirect, 0.0, dUpdate, SG_UI_DATAOBJECT_SHOW);	break;
 			}
 
 			if( bDay )
 			{
-				Direct	+= *m_pDirect;
-
-				m_pDirect->Assign(0.0);
+				Direct	+= *m_pDirect;	m_pDirect->Assign(0.0);
 			}
-
-			SG_UI_Progress_Lock(false);
 		}
 	}
 
@@ -686,6 +696,8 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 
 	m_pDirect->Multiply(dHour);
 	m_pDiffus->Multiply(dHour);
+
+	SG_UI_Progress_Lock(false);
 
 	return( true );
 }
@@ -707,12 +719,12 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 	{
 		bool	bDayLight	= false;
 
-		#pragma omp parallel for
-		for(int y=0; y<Get_NY(); y++)
+		for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
 		{
-			for(int x=0; x<Get_NX() && Process_Get_Okay(); x++)
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
-				double	Sun_Height	= -1.0, Sun_Azimuth	= -1.0;
+				double	Sun_Height, Sun_Azimuth;
 
 				if( SG_Get_Sun_Position(Date, m_Lon.asDouble(x, y), m_Lat.asDouble(x, y), Sun_Height, Sun_Azimuth) )
 				{
@@ -753,13 +765,16 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 //---------------------------------------------------------
 bool CSolarRadiation::Get_Insolation(double Sun_Height, double Sun_Azimuth, double Hour)
 {
-	Get_Shade(Sun_Height, Sun_Azimuth);
+	if( !Get_Shade(Sun_Height, Sun_Azimuth) )
+	{
+		return( false );
+	}
 
 	double	dHour	= Parameters("HOUR_STEP")->asDouble();
 
-	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
@@ -828,19 +843,15 @@ inline double CSolarRadiation::Get_Air_Mass(double Sun_Height)
 	};
 
 	//-------------------------------------------------
-	double	Zenith	= M_PI_090 - Sun_Height;
-
-	if( Zenith <= 60.0 * M_DEG_TO_RAD )
+	if( Sun_Height > 30.0 * M_DEG_TO_RAD )
 	{
-		return( 1.0 / cos(Zenith) );
+		return( 1.0 / cos(M_PI_090 - Sun_Height) );
 	}
-	else
-	{
-		double	z	= M_RAD_TO_DEG * Zenith - 60.0;
-		int		i	= (int)z;
 
-		return( Air_Mass[i] + (z - i) * (Air_Mass[i + 1] - Air_Mass[i]) );
-	}
+	double	z	= 30.0 - M_RAD_TO_DEG * Sun_Height;
+	int		i	= (int)z;
+
+	return( Air_Mass[i] + (z - i) * (Air_Mass[i + 1] - Air_Mass[i]) );
 }
 
 //---------------------------------------------------------
@@ -977,8 +988,13 @@ C ====================================================================*/
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz)
+inline bool CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz)
 {
+	if( Sun_Height <= 0.0 )
+	{
+		return( false );
+	}
+
 	dz	= Sun_Azimuth + M_PI_180;
 	dx	= sin(dz);
 	dy	= cos(dz);
@@ -1000,6 +1016,8 @@ inline void CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azim
 	}
 
 	dz	= tan(Sun_Height) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1013,11 +1031,14 @@ bool CSolarRadiation::Get_Shade(double Sun_Height, double Sun_Azimuth)
 	{
 		double	dx, dy, dz;
 
-		Get_Shade_Params(Sun_Height, Sun_Azimuth, dx, dy, dz);
-
-		#pragma omp parallel for
-		for(int y=0; y<Get_NY(); y++)
+		if( !Get_Shade_Params(Sun_Height, Sun_Azimuth, dx, dy, dz) )
 		{
+			return( false );
+		}
+
+		for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
+		{
+			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
 				if( !m_pDEM->is_NoData(x, y) )
@@ -1043,9 +1064,9 @@ bool CSolarRadiation::Get_Shade(double Sun_Height, double Sun_Azimuth)
 	//-----------------------------------------------------
 	else
 	{
-		#pragma omp parallel for
-		for(int y=0; y<Get_NY(); y++)
+		for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
 		{
+			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
 				if( !m_pDEM->is_NoData(x, y) )
@@ -1106,13 +1127,16 @@ void CSolarRadiation::Set_Shade_Bended(double x, double y, double z)
 	{
 		double	dx, dy, dz;
 
-		Get_Shade_Params(m_Sun_Height.asDouble(ix, iy), m_Sun_Azimuth.asDouble(ix, iy), dx, dy, dz);
+		if( !Get_Shade_Params(m_Sun_Height.asDouble(ix, iy), m_Sun_Azimuth.asDouble(ix, iy), dx, dy, dz) )
+		{
+			return;
+		}
 
 		x	+= dx;	ix	= (int)x;
 		y	+= dy;	iy	= (int)y;
 		z	-= dz;
 
-		if( !is_InGrid(ix, iy) )
+		if( !m_pDEM->is_InGrid(ix, iy) )
 		{
 			return;
 		}

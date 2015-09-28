@@ -92,6 +92,7 @@ public:
 
 protected:
 
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
@@ -120,7 +121,7 @@ private:
 	bool					Get_Irradiance			(int x, int y, double Sun_Height, double Sun_Azimuth, double &Direct, double &Diffus);
 
 	bool					is_Shadowed				(int x, int y);
-	void					Get_Shade_Params		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz);
+	bool					Get_Shade_Params		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz);
 	bool					Get_Shade				(double Sun_Height, double Sun_Azimuth);
 	void					Set_Shade				(double x, double y, double z, double dx, double dy, double dz);
 	void					Set_Shade_Bended		(double x, double y, double z);
