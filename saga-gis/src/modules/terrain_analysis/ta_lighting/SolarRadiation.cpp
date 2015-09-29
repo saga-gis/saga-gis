@@ -142,13 +142,13 @@ CSolarRadiation::CSolarRadiation(void)
 		_TL("show direct insolation for each time step."),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("do not update"),
-			_TL("update, colour stretch for each time step"),
-			_TL("update, fixed colour stretch")
+			_TL("fit histogram stretch for each time step"),
+			_TL("constant histogram stretch for all time steps")
 		), 0
 	);
 
 	Parameters.Add_Value(
-		pNode	, "UPDATE_STRETCH"	, _TL("Stretch to..."),
+		pNode	, "UPDATE_STRETCH"	, _TL("Constant Histogram Stretch"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 1.0, 0.0, true
 	);
@@ -273,7 +273,7 @@ CSolarRadiation::CSolarRadiation(void)
 //---------------------------------------------------------
 int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRD_DEM") && pParameter->asGrid() )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRD_DEM") && pParameter->asGrid() && pParameter->asGrid()->Get_Projection().is_Okay() )
 	{
 		CSG_Shapes	srcCenter(SHAPE_TYPE_Point), dstCenter(SHAPE_TYPE_Point);
 
@@ -379,8 +379,8 @@ bool CSolarRadiation::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Colors	Colors(11, SG_COLORS_YELLOW_RED, true);
 
-	Colors.Set_Ramp(SG_GET_RGB(  0,   0,  64), SG_GET_RGB(255, 159,   0),  0, 50);
-	Colors.Set_Ramp(SG_GET_RGB(255, 159,   0), SG_GET_RGB(255, 255, 255), 50, 99);
+	Colors.Set_Ramp(SG_GET_RGB(  0,   0,  64), SG_GET_RGB(255, 159,   0), 0,  5);
+	Colors.Set_Ramp(SG_GET_RGB(255, 159,   0), SG_GET_RGB(255, 255, 255), 5, 10);
 
 	DataObject_Set_Colors(m_pDirect, Colors);
 	DataObject_Set_Colors(m_pDiffus, Colors);
@@ -649,12 +649,6 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 	double		dUpdate	= Parameters("UPDATE_STRETCH")->asDouble();
 	CSG_Grid	Direct; if( Update ) Direct.Create(*Get_System(), SG_DATATYPE_Float);
 
-	switch( Update )
-	{
-	case 1: DataObject_Update(m_pDirect              , SG_UI_DATAOBJECT_SHOW);	break;
-	case 2: DataObject_Update(m_pDirect, 0.0, dUpdate, SG_UI_DATAOBJECT_SHOW);	break;
-	}
-
 	//-----------------------------------------------------
 	bool	bWasDay	= false;
 
@@ -714,6 +708,8 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 
 	Process_Set_Text(Date.Format("%A, %d. %B %Y, %X"));
 
+	double	JDN	= floor(Date.Get_JDN()) - 0.5 + Hour / 24.0;	// relate to UTC, avoid problems with daylight saving time
+
 	//-----------------------------------------------------
 	if( m_Location )
 	{
@@ -726,7 +722,7 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 			{
 				double	Sun_Height, Sun_Azimuth;
 
-				if( SG_Get_Sun_Position(Date, m_Lon.asDouble(x, y), m_Lat.asDouble(x, y), Sun_Height, Sun_Azimuth) )
+				if( SG_Get_Sun_Position(JDN, m_Lon.asDouble(x, y), m_Lat.asDouble(x, y), Sun_Height, Sun_Azimuth) )
 				{
 					bDayLight	= true;
 				}
@@ -747,7 +743,7 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 	{
 		double	Sun_Height, Sun_Azimuth;
 
-		if( SG_Get_Sun_Position(Date, 0.0, m_Latitude, Sun_Height, Sun_Azimuth) )
+		if( SG_Get_Sun_Position(JDN, 0.0, m_Latitude, Sun_Height, Sun_Azimuth) )
 		{
 			return( Get_Insolation(Sun_Height, Sun_Azimuth, Hour) );
 		}
@@ -905,6 +901,11 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, dou
 		{
 			Direct	= pow(m_Transmittance, Air_Mass);
 			Diffus	= 0.271 - 0.294 * Direct;
+		}
+
+		if( Sun_Height < M_RAD_TO_DEG )
+		{
+			Diffus	*= Sun_Height;
 		}
 	}
 
