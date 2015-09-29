@@ -254,6 +254,12 @@ public:
 
 
 	//-----------------------------------------------------
+	CSG_DateTime &				Make_UTC				(bool noDST = false);
+
+	bool						is_DST					(void)	const;
+
+
+	//-----------------------------------------------------
 	CSG_DateTime				Add						(const CSG_TimeSpan &TimeSpan)	const;
 	CSG_DateTime &				Add						(const CSG_TimeSpan &TimeSpan);
 
@@ -334,7 +340,7 @@ public:
 	bool						Parse_ISODate			(const CSG_String &date);
 	bool						Parse_ISOTime			(const CSG_String &date);
 
-  
+
 	//-----------------------------------------------------
 	static TSG_DateTime			Get_Current_Day			(void);
 	static Month				Get_Current_Month		(void);
@@ -369,7 +375,10 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double &RA, double &Dec);
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double &RA, double &Dec);
+
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double Longitude, double Latitude, double &Height, double &Azimuth);
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth);
 
 

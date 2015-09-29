@@ -248,6 +248,26 @@ CSG_DateTime & CSG_DateTime::Reset_Time(void)
 	return( *this );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_DateTime & CSG_DateTime::Make_UTC(bool noDST)
+{
+	m_pDateTime->MakeUTC(noDST);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+bool CSG_DateTime::is_DST(void)	const
+{
+	return( m_pDateTime->IsDST() != 0 );
+}
+
+
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
@@ -564,10 +584,10 @@ CSG_String CSG_DateTime::Get_Month_Choices(void)
   * Jean Meeus: Astronomical Algorithms, accuracy of 0.01 degree
 */
 //---------------------------------------------------------
-bool SG_Get_Sun_Position(const CSG_DateTime &Time, double &RA, double &Dec)
+bool SG_Get_Sun_Position(double JulianDayNumber, double &RA, double &Dec)
 {
 	//-----------------------------------------------------
-	double	T	= (Time.Get_JDN() - 2451545.0 ) / 36525.0;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.0)
+	double	T	= (JulianDayNumber - 2451545.0 ) / 36525.0;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.0)
 
 	double	M	= M_DEG_TO_RAD *  (357.52910 + 35999.05030 * T - 0.0001559 * T*T - 0.00000048 * T*T*T);	// mean anomaly
 	double	L	= M_DEG_TO_RAD * ((280.46645 + 36000.76983 * T + 0.0003032 * T*T)						// mean longitude
@@ -591,6 +611,12 @@ bool SG_Get_Sun_Position(const CSG_DateTime &Time, double &RA, double &Dec)
 }
 
 //---------------------------------------------------------
+bool SG_Get_Sun_Position(const CSG_DateTime &Time, double &RA, double &Dec)
+{
+	return( SG_Get_Sun_Position(Time.Get_JDN(), RA, Dec) );
+}
+
+//---------------------------------------------------------
 /**
   * Calculates the Sun's position for given date and time
   * and position on Earth as given by longitude and latitude (radians).
@@ -598,19 +624,19 @@ bool SG_Get_Sun_Position(const CSG_DateTime &Time, double &RA, double &Dec)
   * Returns true if Sun is above horizon.
 */
 //---------------------------------------------------------
-bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth)
+bool SG_Get_Sun_Position(double JulianDayNumber, double Longitude, double Latitude, double &Height, double &Azimuth)
 {
 	//-----------------------------------------------------
 	// 1. Get right ascension RA and declination delta
 
-	double	RA, Delta;	SG_Get_Sun_Position(Time, RA, Delta);
+	double	RA, Delta;	SG_Get_Sun_Position(JulianDayNumber, RA, Delta);
 
 	//-----------------------------------------------------
 	// 2. compute sidereal time (radians) at Greenwich local sidereal time at longitude (radians)
 
-	double	T		= (Time.Get_JDN() - 2451545.0 ) / 36525.0;
+	double	T		= (JulianDayNumber - 2451545.0 ) / 36525.0;
 
-	double	Theta	= Longitude + M_DEG_TO_RAD * (280.46061837 + 360.98564736629 * (Time.Get_JDN() - 2451545.0) + T*T * (0.000387933 - T / 38710000.0));
+	double	Theta	= Longitude + M_DEG_TO_RAD * (280.46061837 + 360.98564736629 * (JulianDayNumber - 2451545.0) + T*T * (0.000387933 - T / 38710000.0));
 
 	double	Tau		= Theta - RA;	// compute local hour angle (radians)
 
@@ -622,6 +648,12 @@ bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Lati
 //	Azimuth	= atan2(-sin(Tau), cos(Latitude) * tan(Delta) - sin(Latitude) * cos(Tau));	// previous formula gives same result but is better because of division by zero effects...
 
 	return( Height > 0.0 );
+}
+
+//---------------------------------------------------------
+bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth)
+{
+	return( SG_Get_Sun_Position(Time.Get_JDN(), Longitude, Latitude, Height, Azimuth) );
 }
 
 
