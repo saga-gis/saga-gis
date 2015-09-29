@@ -278,10 +278,27 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 		Set_Name              (Grid.Get_Name       ());
 		Set_Description       (Grid.Get_Description());
 		Set_Unit              (Grid.Get_Unit       ());
-		Set_Scaling           (Grid.Get_Scaling(), Grid.Get_Offset());
 		Set_NoData_Value_Range(Grid.Get_NoData_Value(), Grid.Get_NoData_hiValue());
 
-		return( Assign((CSG_Grid *)&Grid, GRID_INTERPOLATION_Undefined) );
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		{
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
+			{
+				if( Grid.is_NoData(x, y) )
+				{
+					Set_NoData(x, y);
+				}
+				else
+				{
+					Set_Value(x, y, Grid.asDouble(x, y, false));
+				}
+			}
+		}
+
+		Set_Scaling(Grid.Get_Scaling(), Grid.Get_Offset());
+
+		return( true );
 	}
 
 	return( false );
