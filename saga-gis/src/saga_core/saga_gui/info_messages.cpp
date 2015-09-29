@@ -300,21 +300,24 @@ void CINFO_Messages::Add_Line(void)
 //---------------------------------------------------------
 void CINFO_Messages::Add_String(wxString sMessage, bool bNewLine, bool bTime, TSG_UI_MSG_STYLE Style)
 {
-	if( bNewLine )
+	if( !sMessage.IsEmpty() )
 	{
-		_Add_Text(wxT("\n"));
+		if( bNewLine )
+		{
+			_Add_Text(wxT("\n"));
+		}
+
+		if( bTime )
+		{
+			Add_Time(false);
+
+			_Add_Text(wxT(" "));
+		}
+
+		_Set_Style(Style);
+
+		_Add_Text(sMessage);
 	}
-
-	if( bTime )
-	{
-		Add_Time(false);
-
-		_Add_Text(wxT(" "));
-	}
-
-	_Set_Style(Style);
-
-	_Add_Text(sMessage);
 }
 
 

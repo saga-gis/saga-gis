@@ -264,6 +264,8 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 	AddRoot(_TL("PostgreSQL Sources"), IMG_ROOT, IMG_ROOT, new CData_Source_PgSQL_Data(TYPE_ROOT));
 
 	//-----------------------------------------------------
+	SG_UI_Msg_Lock(true);
+
 	wxString	Server;
 
 	for(int i=0; CONFIG_Read(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i), Server); i++)
@@ -274,6 +276,8 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 	}
 
 	Update_Sources();
+
+	SG_UI_Msg_Lock(false);
 }
 
 //---------------------------------------------------------
