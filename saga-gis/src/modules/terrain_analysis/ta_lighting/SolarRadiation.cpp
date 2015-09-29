@@ -285,7 +285,7 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		SG_RUN_MODULE(bResult, "pj_proj4", 2,	// Coordinate Transformation (Shapes)
 				SG_MODULE_PARAMETER_SET("SOURCE"   , &srcCenter)
 			&&	SG_MODULE_PARAMETER_SET("TARGET"   , &dstCenter)
-			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", "+proj=longlat +ellps=WGS84 +datum=WGS84")
+			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 		)
 
 		if( bResult )
@@ -939,7 +939,7 @@ C ==================================================================
 C     ***************************************************************
 C     AM    Optical air mass in 1 degree increments for zenith angles
 C           >=60 [LIST, 1968; p. 422]
-C     U     Water content of a vertical slice of atmosphere in cm: 
+C     U     Water content of a vertical slice of atmosphere in cm:
 C           1.5 to 1.7, average=1.68
 C     D     Dust factor: 1=100 ppm (standard); 2=300 ppm
 C     P     Barometric pressure in mb
