@@ -93,6 +93,8 @@
 #define PARAMETER_OPTIONAL					0x04
 #define PARAMETER_INFORMATION				0x08
 #define PARAMETER_IGNORE_PROJECTION			0x10
+#define PARAMETER_NOT_FOR_GUI				0x20
+#define PARAMETER_NOT_FOR_CMD				0x40
 
 #define PARAMETER_INPUT_OPTIONAL			(PARAMETER_INPUT  | PARAMETER_OPTIONAL)
 #define PARAMETER_OUTPUT_OPTIONAL			(PARAMETER_OUTPUT | PARAMETER_OPTIONAL)
@@ -208,6 +210,8 @@ typedef int		(* TSG_PFNC_Parameter_Changed)	(CSG_Parameter *pParameter, int Flag
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Data
 {
+	friend class CSG_Parameter;
+
 public:
 	CSG_Parameter_Data(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_Data(void)	{}
@@ -1266,6 +1270,12 @@ public:
 	bool						is_DataObject_List		(void)	const;
 	bool						is_Parameters			(void)	const;
 	bool						is_Serializable			(void)	const;
+
+	void						Set_UseInGUI			(bool bDoUse = false);
+	void						Set_UseInCMD			(bool bDoUse = false);
+
+	bool						do_UseInGUI				(void)	const	{	return( !(m_pData->Get_Constraint() & PARAMETER_NOT_FOR_GUI)   );	}
+	bool						do_UseInCMD				(void)	const	{	return( !(m_pData->Get_Constraint() & PARAMETER_NOT_FOR_CMD)   );	}
 
 	TSG_Data_Object_Type		Get_DataObject_Type		(void)	const;
 

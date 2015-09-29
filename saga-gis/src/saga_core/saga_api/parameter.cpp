@@ -186,6 +186,39 @@ void CSG_Parameter::_Add_Child(CSG_Parameter *pChild)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSG_Parameter::Set_UseInGUI(bool bDoUse)
+{
+	if( bDoUse )
+	{
+		m_pData->m_Constraint	&= ~PARAMETER_NOT_FOR_GUI;
+	}
+	else
+	{
+		m_pData->m_Constraint	|=  PARAMETER_NOT_FOR_GUI;
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Parameter::Set_UseInCMD(bool bDoUse)
+{
+	if( bDoUse )
+	{
+		m_pData->m_Constraint	&= ~PARAMETER_NOT_FOR_CMD;
+	}
+	else
+	{
+		m_pData->m_Constraint	|=  PARAMETER_NOT_FOR_CMD;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Parameter::Set_Enabled(bool bEnabled)
 {
 	if( m_bEnabled != bEnabled )
