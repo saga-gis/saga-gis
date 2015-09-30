@@ -494,6 +494,11 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 //---------------------------------------------------------
 bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, CSG_Strings &Init, CSG_MetaData &Descs, CSG_Parameter *pGridTarget)
 {
+	if( !pParameter->do_UseInCMD() )
+	{
+		return( true );
+	}
+
 	if( pGridTarget )
 	{
 		if( pGridTarget == pParameter )
