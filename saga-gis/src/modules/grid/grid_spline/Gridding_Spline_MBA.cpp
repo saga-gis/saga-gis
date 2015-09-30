@@ -76,7 +76,7 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 {
 	Set_Name		(_TL("Multilevel B-Spline Interpolation"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Multilevel B-spline algorithm for spatial interpolation of scattered data "
@@ -101,7 +101,6 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("without B-spline refinement"),
 			_TL("with B-spline refinement")
@@ -124,7 +123,7 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 		NULL	, "UPDATE"		, _TL("Update View"),
 		_TL(""),
 		PARAMETER_TYPE_Bool		, false
-	);
+	)->Set_UseInCMD(false);
 }
 
 //---------------------------------------------------------

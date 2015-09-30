@@ -119,14 +119,11 @@ CGDAL_Import::CGDAL_Import(void)
 	);
 
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Value(
-			NULL	, "SELECT"		, _TL("Select from Multiple Bands"),
-			_TL(""),
-			PARAMETER_TYPE_Bool, true
-		);
-	}
+	Parameters.Add_Value(
+		NULL	, "SELECT"		, _TL("Select from Multiple Bands"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Value(

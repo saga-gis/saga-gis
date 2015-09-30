@@ -157,32 +157,29 @@ CKriging_Regression::CKriging_Regression(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	if( !SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Value(
-			NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
-			_TL("maximum distance for variogram estimation"),
-			PARAMETER_TYPE_Double, -1.0
-		);
+	Parameters.Add_Value(
+		NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
+		_TL("maximum distance for variogram estimation"),
+		PARAMETER_TYPE_Double, -1.0
+	)->Set_UseInGUI(false);
 
-		Parameters.Add_Value(
-			NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
-			_TL("initial number of lag distance classes for variogram estimation"),
-			PARAMETER_TYPE_Int, 100, 1, true
-		);
+	Parameters.Add_Value(
+		NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
+		_TL("initial number of lag distance classes for variogram estimation"),
+		PARAMETER_TYPE_Int, 100, 1, true
+	)->Set_UseInGUI(false);
 
-		Parameters.Add_Value(
-			NULL	, "VAR_NSKIP"		, _TL("Skip"),
-			_TL(""),
-			PARAMETER_TYPE_Int, 1, 1, true
-		);
+	Parameters.Add_Value(
+		NULL	, "VAR_NSKIP"		, _TL("Skip"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 1, 1, true
+	)->Set_UseInGUI(false);
 
-		Parameters.Add_String(
-			NULL	, "VAR_MODEL"		, _TL("Variogram Model"),
-			_TL(""),
-			"a + b * x"
-		);
-	}
+	Parameters.Add_String(
+		NULL	, "VAR_MODEL"		, _TL("Variogram Model"),
+		_TL(""),
+		"a + b * x"
+	)->Set_UseInGUI(false);
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------

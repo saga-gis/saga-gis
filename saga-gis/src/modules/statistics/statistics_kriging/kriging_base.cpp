@@ -121,32 +121,32 @@ CKriging_Base::CKriging_Base(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
+	Parameters.Add_Value(
+		NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
+		_TL(""),
+		PARAMETER_TYPE_Double, -1.0
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Value(
+		NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
+		_TL("initial number of lag distance classes"),
+		PARAMETER_TYPE_Int, 100, 1, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Value(
+		NULL	, "VAR_NSKIP"		, _TL("Skip"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 1, 1, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_String(
+		NULL	, "VAR_MODEL"		, _TL("Model"),
+		_TL(""),
+		SG_T("a + b * x")
+	)->Set_UseInGUI(false);
+
 	if( !SG_UI_Get_Window_Main() )
 	{
-		Parameters.Add_Value(
-			NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
-			_TL(""),
-			PARAMETER_TYPE_Double, -1.0
-		);
-
-		Parameters.Add_Value(
-			NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
-			_TL("initial number of lag distance classes"),
-			PARAMETER_TYPE_Int, 100, 1, true
-		);
-
-		Parameters.Add_Value(
-			NULL	, "VAR_NSKIP"		, _TL("Skip"),
-			_TL(""),
-			PARAMETER_TYPE_Int, 1, 1, true
-		);
-
-		Parameters.Add_String(
-			NULL	, "VAR_MODEL"		, _TL("Model"),
-			_TL(""),
-			SG_T("a + b * x")
-		);
-
 		m_pVariogram	= NULL;
 	}
 	else

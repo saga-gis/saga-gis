@@ -458,7 +458,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
-		if(	pParameters->Get_Parameter(i)->Get_Parent() == NULL )
+		if(	pParameters->Get_Parameter(i)->do_UseInGUI() && pParameters->Get_Parameter(i)->Get_Parent() == NULL )
 		{
 			pRoot	= NULL;
 
@@ -536,16 +536,19 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 void CParameters_Control::_Add_Property(wxPGProperty *pParent, CSG_Parameter *pParameter)
 {
-	wxPGProperty	*pProperty	= _Get_Property(pParent, pParameter);
-
-	if( pParameter->Get_Children_Count() > 0 )
+	if( pParameter->do_UseInGUI() )
 	{
-		for(int i=0; i<pParameter->Get_Children_Count(); i++)
-		{
-			_Add_Property(pProperty, pParameter->Get_Child(i));
-		}
+		wxPGProperty	*pProperty	= _Get_Property(pParent, pParameter);
 
-		m_pPG->Expand(pProperty);
+		if( pParameter->Get_Children_Count() > 0 )
+		{
+			for(int i=0; i<pParameter->Get_Children_Count(); i++)
+			{
+				_Add_Property(pProperty, pParameter->Get_Child(i));
+			}
+
+			m_pPG->Expand(pProperty);
+		}
 	}
 }
 

@@ -120,13 +120,6 @@ CTIN_View_Module::CTIN_View_Module(void)
 //---------------------------------------------------------
 bool CTIN_View_Module::On_Execute(void)
 {
-	if( !SG_UI_Get_Window_Main() )
-	{
-		Message_Add(_TL("point cloud viewer can only be run from graphical user interface"));
-
-		return( false );
-	}
-
 	CSG_TIN	*pTIN	= Parameters("TIN")->asTIN();
 
 	if( pTIN->Get_Count() <= 0 )

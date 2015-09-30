@@ -1551,46 +1551,41 @@ int CSG_PG_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_PG_Module::CSG_PG_Module(void)
 {
-	if( !SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_String(
-			NULL	, "PG_HOST"		, _TL("Host"),
-			_TL("Password"),
-			SG_T("")
-		);
+	Parameters.Add_String(
+		NULL	, "PG_HOST"		, _TL("Host"),
+		_TL("Password"),
+		""
+	)->Set_UseInGUI(false);
 
-		Parameters.Add_Value(
-			NULL	, "PG_PORT"		, _TL("Port"),
-			_TL(""),
-			PARAMETER_TYPE_Int, 5432, 0, true
-		);
+	Parameters.Add_Value(
+		NULL	, "PG_PORT"		, _TL("Port"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 5432, 0, true
+	)->Set_UseInGUI(false);
 
-		Parameters.Add_String(
-			NULL	, "PG_NAME"		, _TL("Database"),
-			_TL("Database Name"),
-			SG_T("")
-		);
+	Parameters.Add_String(
+		NULL	, "PG_NAME"		, _TL("Database"),
+		_TL("Database Name"),
+		""
+	)->Set_UseInGUI(false);
 
-		Parameters.Add_String(
-			NULL	, "PG_USER"		, _TL("User"),
-			_TL("User Name"),
-			SG_T("")
-		);
+	Parameters.Add_String(
+		NULL	, "PG_USER"		, _TL("User"),
+		_TL("User Name"),
+		""
+	)->Set_UseInGUI(false);
 
-		Parameters.Add_String(
-			NULL	, "PG_PWD"		, _TL("Password"),
-			_TL("Password"),
-			SG_T("")
-		);
-	}
-	else
-	{
-		Parameters.Add_Choice(
-			NULL	, "CONNECTION", _TL("Available Connections"),
-			_TL(""),
-			""
-		);
-	}
+	Parameters.Add_String(
+		NULL	, "PG_PWD"		, _TL("Password"),
+		_TL("Password"),
+		""
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Choice(
+		NULL	, "CONNECTION"	, _TL("Available Connections"),
+		_TL(""),
+		""
+	)->Set_UseInCMD(false);
 
 	m_pConnection	= NULL;
 }

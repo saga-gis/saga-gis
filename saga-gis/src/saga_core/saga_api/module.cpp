@@ -1185,6 +1185,8 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 #define SUMMARY_ADD_STR(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value)
 #define SUMMARY_ADD_INT(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value)
 
+#define SUMMARY_DO_ADD	(SG_UI_Get_Window_Main() ? Parameters(i)->do_UseInGUI() : Parameters(i)->do_UseInCMD())
+
 //---------------------------------------------------------
 CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, const CSG_String &Description, bool bXML)
 {
@@ -1213,7 +1215,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 		{
 			for(i=0; i<Parameters.Get_Count(); i++)
 			{
-				if( Parameters(i)->is_Input() )
+				if( SUMMARY_DO_ADD && Parameters(i)->is_Input() )
  				{
 					_Add_XML(&m, Parameters(i));
 				}
@@ -1221,7 +1223,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 
 			for(i=0; i<Parameters.Get_Count(); i++)
 			{
-				if( Parameters(i)->is_Output() )
+				if( SUMMARY_DO_ADD && Parameters(i)->is_Output() )
  				{
 					_Add_XML(&m, Parameters(i));
 				}
@@ -1229,7 +1231,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 
 			for(i=0; i<Parameters.Get_Count(); i++)
 			{
-	 			if( Parameters(i)->is_Option()
+				if( SUMMARY_DO_ADD && Parameters(i)->is_Option()
 				&&  Parameters(i)->Get_Type() != PARAMETER_TYPE_Node
 				&&  Parameters(i)->Get_Type() != PARAMETER_TYPE_Grid_System )
  				{
@@ -1299,7 +1301,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			{
 				CSG_Parameter	*pParameter	= Parameters(i);
 
-				if( pParameter->is_Input() )
+				if( SUMMARY_DO_ADD && pParameter->is_Input() )
 				{
 					if( bFirst )
 					{
@@ -1323,7 +1325,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			{
 				CSG_Parameter	*pParameter	= Parameters(i);
 
-				if( pParameter->is_Output() )
+				if( SUMMARY_DO_ADD && pParameter->is_Output() )
 				{
 					if( bFirst )
 					{
@@ -1347,7 +1349,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			{
 				CSG_Parameter	*pParameter	= Parameters(i);
 
-				if( pParameter->is_Option() && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
+				if( SUMMARY_DO_ADD && pParameter->is_Option() && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
 				{
 					if( bFirst )
 					{

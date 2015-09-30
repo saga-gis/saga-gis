@@ -1457,34 +1457,11 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_ODBC_Module::CSG_ODBC_Module(void)
 {
-	if( !SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_String(
-			NULL	, "ODBC_DSN"	, _TL("DSN"),
-			_TL("Data Source Name"),
-			SG_T("")
-		);
+	Parameters.Add_String(NULL, "ODBC_DSN"  , _TL("DSN"              ), _TL("Data Source Name" ), "")->Set_UseInGUI(false);
+	Parameters.Add_String(NULL, "ODBC_USR"  , _TL("User"             ), _TL("User Name"        ), "")->Set_UseInGUI(false);
+	Parameters.Add_String(NULL, "ODBC_PWD"  , _TL("Password"         ), _TL("Password"         ), "")->Set_UseInGUI(false);
 
-		Parameters.Add_String(
-			NULL	, "ODBC_USR"	, _TL("User"),
-			_TL("User Name"),
-			SG_T("")
-		);
-
-		Parameters.Add_String(
-			NULL	, "ODBC_PWD"	, _TL("Password"),
-			_TL("Password"),
-			SG_T("")
-		);
-	}
-	else
-	{
-		Parameters.Add_Choice(
-			NULL	, "CONNECTION"	, _TL("Server Connection"),
-			_TL(""),
-			""
-		);
-	}
+	Parameters.Add_Choice(NULL, "CONNECTION", _TL("Server Connection"), _TL("Server Connection"), "")->Set_UseInCMD(false);
 
 	m_pConnection	= NULL;
 }

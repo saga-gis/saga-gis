@@ -95,9 +95,11 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	}
 
 	//-----------------------------------------------------
+	m_pData			= NULL;
+
 	switch( Type )
 	{
-	default:								m_pData	= NULL;														break;
+	default:	break;
 
 	case PARAMETER_TYPE_Node:				m_pData	= new CSG_Parameter_Node				(this, Constraint);	break;
 
@@ -148,6 +150,13 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 		m_Children		= NULL;
 		break;
 	}
+
+	//-----------------------------------------------------
+	if( m_pParent && m_pParent->m_pData )
+	{
+		Set_UseInCMD(m_pParent->do_UseInCMD());
+		Set_UseInGUI(m_pParent->do_UseInGUI());
+	}
 }
 
 //---------------------------------------------------------
@@ -196,6 +205,11 @@ void CSG_Parameter::Set_UseInGUI(bool bDoUse)
 	{
 		m_pData->m_Constraint	|=  PARAMETER_NOT_FOR_GUI;
 	}
+
+	for(int i=0; i<Get_Children_Count(); i++)
+	{
+		Get_Child(i)->Set_UseInGUI(bDoUse);
+	}
 }
 
 //---------------------------------------------------------
@@ -208,6 +222,11 @@ void CSG_Parameter::Set_UseInCMD(bool bDoUse)
 	else
 	{
 		m_pData->m_Constraint	|=  PARAMETER_NOT_FOR_CMD;
+	}
+
+	for(int i=0; i<Get_Children_Count(); i++)
+	{
+		Get_Child(i)->Set_UseInCMD(bDoUse);
 	}
 }
 
@@ -234,6 +253,16 @@ bool CSG_Parameter::Set_Enabled(bool bEnabled)
 //---------------------------------------------------------
 bool CSG_Parameter::is_Enabled(void) const
 {
+	if( do_UseInGUI() == false && SG_UI_Get_Window_Main() != NULL )
+	{
+		return( false );
+	}
+
+	if( do_UseInCMD() == false && SG_UI_Get_Window_Main() == NULL )
+	{
+		return( false );
+	}
+
 	return( m_bEnabled && (Get_Parent() == NULL || Get_Parent()->is_Enabled()) );
 }
 

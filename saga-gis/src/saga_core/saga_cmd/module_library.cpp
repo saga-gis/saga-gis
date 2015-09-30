@@ -287,6 +287,11 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
+		if( pParameter->do_UseInCMD() == false )
+		{
+			continue;
+		}
+
 		wxString	Description	= pParameter->Get_Description(
 			PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
 		).c_str();
