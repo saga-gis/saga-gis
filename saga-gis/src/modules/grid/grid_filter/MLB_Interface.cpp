@@ -140,8 +140,9 @@ CSG_Module *		Create_Module(int i)
 	case 14:	return( new Cconnectivity_analysis );
 	case 15:	return( new CFilter_Sieve );
 	case 16:	return( new CWombling );
+	case 17:	return( new CWombling_MultiFeature );
 
-	case 17:	return( NULL );
+	case 18:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 }

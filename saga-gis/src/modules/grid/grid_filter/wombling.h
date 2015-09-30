@@ -80,7 +80,47 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWombling : public CSG_Module_Grid
+class CWombling_Base : public CSG_Module_Grid
+{
+public:
+	CWombling_Base(void);
+
+
+protected:
+
+	bool					m_bOrientation;
+
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	bool					Initialize				(CSG_Grid Gradient[2], CSG_Grid *pEdges);
+
+	bool					Get_Gradient			(CSG_Grid Gradient[2], CSG_Grid *pFeature, bool bOrientation);
+
+	bool					Get_Edge_Cells			(CSG_Grid Gradient[2], CSG_Grid *pEdges);
+	bool					Get_Edge_Lines			(CSG_Grid Gradient[2], CSG_Grid *pEdges);
+
+
+private:
+
+	int						m_Neighbour, m_minNeighbours;
+
+	double					m_maxAngle;
+
+
+	void					_Get_Gradient_2x2		(double z[4], double &Slope, double &Aspect);
+
+	bool					_is_Edge_Cell			(CSG_Grid Gradient[2], int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWombling : public CWombling_Base
 {
 public:
 	CWombling(void);
@@ -88,23 +128,27 @@ public:
 
 protected:
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
 	virtual bool			On_Execute				(void);
 
 
-private:
-
-	double					m_TMagnitude, m_TDirection;
+};
 
 
-	void					Get_Gradient			(double z[4], double &Slope, double &Aspect);
-	bool					Get_Gradient			(CSG_Grid *pSlope, CSG_Grid *pAspect);
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	bool					Get_Edge_Points			(CSG_Grid *pSlope, CSG_Grid *pAspect);
+//---------------------------------------------------------
+class CWombling_MultiFeature : public CWombling_Base
+{
+public:
+	CWombling_MultiFeature(void);
 
-	void					Get_Edge_Lines			(int ix, int iy, int jx, int jy, CSG_Grid *pSlope, CSG_Grid *pAspect, CSG_Shapes *pLines, double Threshold);
-	bool					Get_Edge_Lines			(CSG_Grid *pSlope, CSG_Grid *pAspect);
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
 
 };
 
