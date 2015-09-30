@@ -74,53 +74,48 @@
 CFilter::CFilter(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Simple Filter"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Simple standard filters for grids."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+		NULL	, "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+		NULL	, "RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
-		NULL, "MODE"		, _TL("Search Mode"),
+		NULL	, "METHOD"		, _TL("Filter"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
-
-	Parameters.Add_Choice(
-		NULL, "METHOD"		, _TL("Filter"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Smooth"),
 			_TL("Sharpen"),
 			_TL("Edge")
 		), 0
 	);
 
+	Parameters.Add_Choice(
+		NULL	, "MODE"		, _TL("Search Mode"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Square"),
+			_TL("Circle")
+		), 1
+	);
+
 	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius"),
+		NULL	, "RADIUS"		, _TL("Radius"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
@@ -136,59 +131,48 @@ CFilter::CFilter(void)
 //---------------------------------------------------------
 bool CFilter::On_Execute(void)
 {
-	int			Mode, Radius, Method;
-	double		Mean;
-	CSG_Grid	*pResult;
-
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")	->asGrid();
-	pResult		= Parameters("RESULT")	->asGrid();
-	Radius		= Parameters("RADIUS")	->asInt();
-	Mode		= Parameters("MODE")	->asInt();
-	Method		= Parameters("METHOD")	->asInt();
+	m_pInput	= Parameters("INPUT")->asGrid();
 
-	switch( Mode )
-	{
-	case 0:								break;
-	case 1:	m_Radius.Create(Radius);	break;
-	}
+	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
 
-	//-----------------------------------------------------
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= SG_Create_Grid(m_pInput);
+		Parameters("RESULT")->Set_Value(pResult = m_pInput);
+		Input.Create(*m_pInput);
+		m_pInput	= &Input;
 	}
 	else
 	{
-		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Filter")));
-
+		pResult->Set_Name(CSG_String::Format("%s [%s]", m_pInput->Get_Name(), _TL("Filter")));
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
 	}
 
 	//-----------------------------------------------------
+	int	Method	= Parameters("METHOD")->asInt();
+
+	m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0);
+
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( m_pInput->is_InGrid(x, y) )
-			{
-				switch( Mode )
-				{
-				case 0:		Mean	= Get_Mean_Square(x, y, Radius);	break;
-				case 1:		Mean	= Get_Mean_Circle(x, y);			break;
-				}
+			double	Mean;
 
+			if( Get_Mean(x, y, Mean) )
+			{
 				switch( Method )
 				{
-				case 0:	default:	// Smooth...
+				default:	// Smooth...
 					pResult->Set_Value(x, y, Mean);
 					break;
 
-				case 1:				// Sharpen...
+				case  1:	// Sharpen...
 					pResult->Set_Value(x, y, m_pInput->asDouble(x, y) + (m_pInput->asDouble(x, y) - Mean));
 					break;
 
-				case 2:				// Edge...
+				case  2:	// Edge...
 					pResult->Set_Value(x, y, m_pInput->asDouble(x, y) - Mean);
 					break;
 				}
@@ -200,18 +184,9 @@ bool CFilter::On_Execute(void)
 		}
 	}
 
+	m_Kernel.Destroy();
+
 	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
-	{
-		m_pInput->Assign(pResult);
-
-		delete(pResult);
-
-		DataObject_Update(m_pInput);
-	}
-
-	m_Radius.Destroy();
-
 	return( true );
 }
 
@@ -223,44 +198,32 @@ bool CFilter::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CFilter::Get_Mean_Square(int x, int y, int Radius)
+bool CFilter::Get_Mean(int x, int y, double &Value)
 {
-	int		ix, iy, n;
-	double	s;
+	CSG_Simple_Statistics	s;
 
-	for(n=0, s=0.0, iy=y-Radius; iy<=y+Radius; iy++)
+	if( m_pInput->is_InGrid(x, y) )
 	{
-		for(ix=x-Radius; ix<=x+Radius; ix++)
+		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
+			int	ix	= m_Kernel.Get_X(i, x);
+			int	iy	= m_Kernel.Get_Y(i, y);
+
 			if( m_pInput->is_InGrid(ix, iy) )
 			{
 				s	+= m_pInput->asDouble(ix, iy);
-				n	++;
 			}
 		}
 	}
 
-	return( n > 0 ? s / n : m_pInput->Get_NoData_Value() );
-}
-
-//---------------------------------------------------------
-double CFilter::Get_Mean_Circle(int x, int y)
-{
-	int		i, ix, iy, n;
-	double	s;
-
-	for(n=0, s=0.0, i=0; i<m_Radius.Get_nPoints(); i++)
+	if( s.Get_Count() > 0 )
 	{
-		m_Radius.Get_Point(i, x, y, ix, iy);
+		Value	= s.Get_Mean();
 
-		if( m_pInput->is_InGrid(ix, iy) )
-		{
-			s	+= m_pInput->asDouble(ix, iy);
-			n	++;
-		}
+		return( true );
 	}
 
-	return( n > 0 ? s / n : m_pInput->Get_NoData_Value() );
+	return( false );
 }
 
 

@@ -84,39 +84,36 @@
 CGrid_Gaps::CGrid_Gaps(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Close Gaps"));
+	Set_Name		(_TL("Close Gaps"));
 
-	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2002");
 
 	Set_Description	(_TW(
 		"Close gaps of a grid data set (i.e. eliminate no data values). "
 		"If the target is not set, the changes will be stored to the original grid. ")
 	);
 
-
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+		NULL	, "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "MASK"		, _TL("Mask"),
+		NULL	, "MASK"		, _TL("Mask"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Changed Grid"),
+		NULL	, "RESULT"		, _TL("Changed Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-
-	//-----------------------------------------------------
 	Parameters.Add_Value(
-		NULL, "THRESHOLD"	, _TL("Tension Threshold"),
+		NULL	, "THRESHOLD"	, _TL("Tension Threshold"),
 		_TL(""), PARAMETER_TYPE_Double, 0.1
 	);
 }
@@ -135,40 +132,27 @@ CGrid_Gaps::~CGrid_Gaps(void)
 //---------------------------------------------------------
 bool CGrid_Gaps::On_Execute(void)
 {
-	bool	bKillInput;
-
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT")	->asGrid();
-	pMask		= Parameters("MASK")	->asGrid();
+	CSG_Grid	Input;
 
-	if( Parameters("RESULT")->asGrid() == NULL || Parameters("RESULT")->asGrid() == pInput )
+	pInput	= Parameters("INPUT" )->asGrid();
+	pMask	= Parameters("MASK"  )->asGrid();
+	pResult	= Parameters("RESULT")->asGrid();
+
+	if( !pResult || pResult == pInput )
 	{
-		pResult		= pInput;
-		Parameters("RESULT")->Set_Value(pResult);
-
-		pInput		= SG_Create_Grid(pInput);
-		pInput->Assign(pResult);
-
-		bKillInput	= true;
-	}
-	else
-	{
-		pResult		= Parameters("RESULT")->asGrid();
-		pResult->Get_History().Assign(pInput->Get_History());
-
-		bKillInput	= false;
+		Parameters("RESULT")->Set_Value(pResult = pInput);
+		Input.Create(*pInput);
+		Input.Get_History()	= pInput->Get_History();
+		pInput	= &Input;
 	}
 
 	//-----------------------------------------------------
 	Tension_Main();
 
 	//-----------------------------------------------------
-	if( bKillInput )
-	{
-		delete(pInput);
-	}
+	if( Input.is_Valid() )	Parameters("INPUT")->asGrid()->Get_History()	= Input.Get_History();
 
-	//-----------------------------------------------------
 	return( true );
 }
 
