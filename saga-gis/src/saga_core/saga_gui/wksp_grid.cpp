@@ -126,6 +126,10 @@ wxString CWKSP_Grid::Get_Description(void)
 	{
 		DESC_ADD_STR (_TL("Driver")			, m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
 	}
+	if( m_pObject->Get_MetaData()("SURFER_GRID") )
+	{
+		DESC_ADD_STR (_TL("Driver")			, m_pObject->Get_MetaData()["SURFER_GRID"].Get_Content().c_str());
+	}
 	DESC_ADD_STR (_TL("Modified")			, m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
 	DESC_ADD_STR (_TL("Projection")			, m_pObject->Get_Projection().Get_Description().c_str());
 	DESC_ADD_FLT (_TL("West")				, Get_Grid()->Get_XMin());

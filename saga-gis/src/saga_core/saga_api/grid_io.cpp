@@ -761,35 +761,30 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 	//	d	= (r.yMax - r.yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
 
 		//-------------------------------------------------
-		if( !Create(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin, Memory_Type) )
-		{
-			return( false );
-		}
-
-		if( !bLoadData )
-		{
-			return( true );
-		}
-
-		if( Stream.is_EOF() )
+		if( !Create(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin, Memory_Type) || Stream.is_EOF() )
 		{
 			return( false );
 		}
 
 		//-------------------------------------------------
-		float	*fLine	= (float *)SG_Malloc(Get_NX() * sizeof(float));
-
-		for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		if( bLoadData )
 		{
-			Stream.Read(fLine, sizeof(float), Get_NX());
+			float	*fLine	= (float *)SG_Malloc(Get_NX() * sizeof(float));
 
-			for(int x=0; x<Get_NX(); x++)
+			for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
-				Set_Value(x, y, fLine[x]);
+				Stream.Read(fLine, sizeof(float), Get_NX());
+
+				for(int x=0; x<Get_NX(); x++)
+				{
+					Set_Value(x, y, fLine[x]);
+				}
 			}
+
+			SG_Free(fLine);
 		}
 
-		SG_Free(fLine);
+		Get_MetaData().Add_Child("SURFER_GRID", "Surfer Grid (Binary)");
 	}
 
 	//-----------------------------------------------------
@@ -808,35 +803,32 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 	//	d	= (r.yMax - r.yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
 
 		//-------------------------------------------------
-		if( !Create(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin, Memory_Type) && bLoadData && !Stream.is_EOF() )
-		{
-			return( false );
-		}
-
-		if( !bLoadData )
-		{
-			return( true );
-		}
-
-		if( Stream.is_EOF() )
+		if( !Create(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin, Memory_Type) || Stream.is_EOF() )
 		{
 			return( false );
 		}
 
 		//-------------------------------------------------
-		for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		if( bLoadData )
 		{
-			for(int x=0; x<Get_NX(); x++)
+			for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
-				fscanf(Stream.Get_Stream(), "%lf", &d);
+				for(int x=0; x<Get_NX(); x++)
+				{
+					fscanf(Stream.Get_Stream(), "%lf", &d);
 
-				Set_Value(x, y, d);
+					Set_Value(x, y, d);
+				}
 			}
 		}
+
+		Get_MetaData().Add_Child("SURFER_GRID", "Surfer Grid (ASCII)");
 	}
 
 	//-------------------------------------------------
 	SG_UI_Process_Set_Ready();
+
+	Set_File_Name(File_Name);
 
 	return( true );
 }
