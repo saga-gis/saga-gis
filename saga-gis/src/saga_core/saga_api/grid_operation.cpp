@@ -696,47 +696,51 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 {
 	if( is_Intersecting(Grid.Get_Extent()) )
 	{
-		int						x, y;
-		double					xWorld, yWorld, Value;
-		TSG_Grid_Interpolation	Interpolation;
+		TSG_Grid_Interpolation	Interpolation	=
+			Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_XMin() - Grid.Get_XMin(), Get_Cellsize()) == 0.0
+		&&	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_YMin() - Grid.Get_YMin(), Get_Cellsize()) == 0.0
+		?	GRID_INTERPOLATION_NearestNeighbour
+		:	GRID_INTERPOLATION_BSpline;
 
-		Interpolation	=	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_XMin() - Grid.Get_XMin(), Get_Cellsize()) == 0.0
-						&&	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_YMin() - Grid.Get_YMin(), Get_Cellsize()) == 0.0
-						?	GRID_INTERPOLATION_NearestNeighbour
-						:	GRID_INTERPOLATION_BSpline;
-
-		for(y=0, yWorld=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yWorld+=Get_Cellsize())
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
-			for(x=0, xWorld=Get_XMin(); x<Get_NX(); x++, xWorld+=Get_Cellsize())
+			double	yWorld	= Get_YMin() + y * Get_Cellsize();
+
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
-				if( !Grid.Get_Value(xWorld, yWorld, Value, Interpolation, true) )
+				if( !is_NoData(x, y) )
 				{
-					Set_NoData(x, y);
-				}
-				else switch( Operation )
-				{
-				case GRID_OPERATION_Addition:
-					Add_Value(x, y,  Value);
-					break;
+					double	xWorld	= Get_XMin() + x * Get_Cellsize(), Value;
 
-				case GRID_OPERATION_Subtraction:
-					Add_Value(x, y, -Value);
-					break;
-
-				case GRID_OPERATION_Multiplication:
-					Mul_Value(x, y,  Value);
-					break;
-
-				case GRID_OPERATION_Division:
-					if( Value != 0.0 )
+					if( Grid.Get_Value(xWorld, yWorld, Value, Interpolation, false, true) )
 					{
-						Mul_Value(x, y, 1.0 / Value);
+						switch( Operation )
+						{
+						case GRID_OPERATION_Addition:
+							Add_Value(x, y,  Value);
+							break;
+
+						case GRID_OPERATION_Subtraction:
+							Add_Value(x, y, -Value);
+							break;
+
+						case GRID_OPERATION_Multiplication:
+							Mul_Value(x, y,  Value);
+							break;
+
+						case GRID_OPERATION_Division:
+							if( Value != 0.0 )
+							{
+								Mul_Value(x, y, 1.0 / Value);
+							}
+							else
+							{
+								Set_NoData(x, y);
+							}
+							break;
+						}
 					}
-					else
-					{
-						Set_NoData(x, y);
-					}
-					break;
 				}
 			}
 		}

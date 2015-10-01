@@ -88,9 +88,6 @@ public:
 
 protected:
 
-	bool					m_bOrientation;
-
-
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	bool					Initialize				(CSG_Grid Gradient[2], CSG_Grid *pEdges);

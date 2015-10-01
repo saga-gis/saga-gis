@@ -550,14 +550,14 @@ CWombling_MultiFeature::CWombling_MultiFeature(void)
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "ASPECT_CMP"		, _TL("Direction Difference"),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("direction"),
-			_TL("orientation")
-		), 0
-	);
+	//Parameters.Add_Choice(
+	//	NULL	, "ASPECT_CMP"		, _TL("Direction Difference"),
+	//	_TL(""),
+	//	CSG_String::Format("%s|%s|",
+	//		_TL("direction"),
+	//		_TL("orientation")
+	//	), 0
+	//);
 
 	Parameters.Add_Choice(
 		NULL	, "OUTPUT_ADD"		, _TL("Additional Output"),
@@ -573,6 +573,12 @@ CWombling_MultiFeature::CWombling_MultiFeature(void)
 		NULL	, "OUTPUT"			, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "ZERO_AS_NODATA"	, _TL("Zero as No-Data"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 }
 
@@ -618,17 +624,15 @@ bool CWombling_MultiFeature::On_Execute(void)
 	}
 
 	pCount->Set_Name(_TL("Edge Cells"));
-	pCount->Set_NoData_Value(0.0);
 	pCount->Assign(0.0);
-
-	m_bOrientation	= true;
+	pCount->Set_NoData_Value(-1.0);
 
 	//-----------------------------------------------------
 	for(int i=0; i<pFeatures->Get_Count() && Process_Get_Okay(); i++)
 	{
 		Edges.Set_Name(CSG_String::Format("%s [%s]", pFeatures->asGrid(i)->Get_Name(), _TL("Edges")));
 
-		Get_Gradient(Gradient, pFeatures->asGrid(i), Parameters("ASPECT_CMP")->asInt() == 1);
+		Get_Gradient(Gradient, pFeatures->asGrid(i), false);
 
 		Get_Edge_Cells(Gradient, &Edges);
 
@@ -643,6 +647,11 @@ bool CWombling_MultiFeature::On_Execute(void)
 
 			pOutput->asGrid(i)->Create(Parameters("OUTPUT_ADD")->asInt() == 1 ? Gradient[0] : Edges);
 		}
+	}
+
+	if( Parameters("ZERO_AS_NODATA")->asBool() )
+	{
+		pCount->Set_NoData_Value(0.0);
 	}
 
 	//-----------------------------------------------------
