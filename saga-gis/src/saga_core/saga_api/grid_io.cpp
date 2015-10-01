@@ -829,6 +829,7 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 	SG_UI_Process_Set_Ready();
 
 	Set_File_Name(File_Name);
+	Load_MetaData(File_Name);
 
 	return( true );
 }
