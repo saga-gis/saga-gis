@@ -91,6 +91,7 @@ public:
 
 protected:
 
+	virtual bool				On_Before_Execution		(void);
 	virtual bool				On_Execute				(void);
 
 

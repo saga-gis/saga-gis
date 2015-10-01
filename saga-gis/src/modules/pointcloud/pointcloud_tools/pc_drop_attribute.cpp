@@ -96,7 +96,7 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 
 	Parameters.Add_Table_Fields(
 		pNode	, "FIELDS"		, _TL("Attributes"),
-		_TL("The attribute fields to drop.")
+		_TL("The attribute field(s) to drop.")
 	);
 
 	Parameters.Add_PointCloud(
@@ -114,10 +114,19 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CPC_Drop_Attribute::On_Before_Execution(void)
+{
+	if( Parameters("OUTPUT")->asPointCloud() == Parameters("INPUT")->asPointCloud() )
+		Parameters("OUTPUT")->Set_Value(DATAOBJECT_NOTSET);
+
+	return (true);
+}
+
+
+//---------------------------------------------------------
 bool CPC_Drop_Attribute::On_Execute(void)
 {
 	CSG_PointCloud		*pInput, *pOutput;
-	CSG_String			sName;
 	CSG_Parameters		sParms;
 	int					*Features, nFeatures;
 	std::set<int>		setCols;
@@ -140,10 +149,14 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_String		sName;
+	CSG_MetaData	History;
+
 	if( !pOutput || pOutput == pInput )
 	{
 		sName = pInput->Get_Name();
 		pOutput = SG_Create_PointCloud(pInput);
+		History = pInput->Get_History();
 	}
 	else
 	{
@@ -193,9 +206,10 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	if (!Parameters("OUTPUT")->asPointCloud() || Parameters("OUTPUT")->asPointCloud() == pInput )
 	{
 		pInput->Assign(pOutput);
+		pInput->Get_History() = History;
 		pInput->Set_Name(sName);
+		Parameters("OUTPUT")->Set_Value(pInput);
 
-		DataObject_Update(pInput);
 		delete(pOutput);
 
 		DataObject_Get_Parameters(pInput, sParms);
