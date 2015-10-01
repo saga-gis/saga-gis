@@ -157,6 +157,16 @@ CPC_Attribute_Calculator::~CPC_Attribute_Calculator(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CPC_Attribute_Calculator::On_Before_Execution(void)
+{
+	if( Parameters("PC_OUT")->asPointCloud() == Parameters("PC_IN")->asPointCloud() )
+		Parameters("PC_OUT")->Set_Value(DATAOBJECT_NOTSET);
+
+	return (true);
+}
+
+
+//---------------------------------------------------------
 bool CPC_Attribute_Calculator::On_Execute(void)
 {
 	CSG_PointCloud	*pInput, *pResult;
@@ -219,13 +229,14 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	sDatasetName;
+	CSG_String		sName;
+	CSG_MetaData	History;
 
 	if (!pResult || pResult == pInput)
 	{
+		sName = pInput->Get_Name();
 		pResult = SG_Create_PointCloud(pInput);
-
-		sDatasetName = pInput->Get_Name();
+		History = pInput->Get_History();
 	}
 	else
 	{
@@ -278,8 +289,10 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 	if (!Parameters("PC_OUT")->asPointCloud() || Parameters("PC_OUT")->asPointCloud() == pInput)
 	{
 		pInput->Assign(pResult);
-		pInput->Set_Name(sDatasetName);
-		DataObject_Update(pInput);
+		pInput->Get_History() = History;
+		pInput->Set_Name(sName);
+		Parameters("PC_OUT")->Set_Value(pInput);
+
 		delete(pResult);
 	}
 	else
