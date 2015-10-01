@@ -466,6 +466,8 @@ bool CACTIVE::Update(CWKSP_Base_Item *pItem, bool bSave)
 		if( !bSave )
 		{
 			Update_Description();
+
+			m_pHistory->Set_Item(pItem);
 		}
 
 		return( true );
