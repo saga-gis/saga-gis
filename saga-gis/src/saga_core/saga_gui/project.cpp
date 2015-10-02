@@ -284,7 +284,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		//-------------------------------------------------
 		g_pSAGA_Frame->Freeze();
 
-		if( (pNode = Project.Get_Child(SG_T("MAPS"))) != NULL && pNode->Get_Children_Count() > 0 )
+		if( (pNode = Project.Get_Child("MAPS")) != NULL && pNode->Get_Children_Count() > 0 )
 		{
 			for(int j=0; j<pNode->Get_Children_Count(); j++)
 			{
@@ -470,7 +470,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version)
 {
-	if( Entry.Get_Name().Cmp(SG_T("DATASET")) )
+	if( Entry.Get_Name().Cmp("DATASET") || !Entry.Get_Child("FILE") || Entry.Get_Child("FILE")->Get_Content().is_Empty() )
 	{
 		return( false );
 	}
@@ -488,25 +488,22 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 		return( false );
 	}
 
-	if( !Entry.Get_Child(SG_T("FILE")) )
+	//-----------------------------------------------------
+	wxString	File	= Entry.Get_Child("FILE")->Get_Content().c_str();
+
+	if( File.Find("PGSQL") != 0 && wxFileExists(Get_FilePath_Absolute(ProjectDir, File)) )
 	{
-		return( false );
-	}
-
-	wxString	File(Get_FilePath_Absolute(ProjectDir, Entry.Get_Child(SG_T("FILE"))->Get_Content().c_str()));
-
-	if( !wxFileExists(File) )
-	{
-		MSG_Error_Add(wxString::Format("%s [%s]", _TL("data file does not exist"), File.c_str()));
-
-		return( false );
+		File	= Get_FilePath_Absolute(ProjectDir, File);
 	}
 
 	CWKSP_Base_Item	*pItem	= bLoad ? g_pData->Open(File, Type) : _Get_byFileName(File);
 
 	if( !pItem || !pItem->Get_Parameters() || !Entry.Get_Child("PARAMETERS") )
 	{
-		MSG_Error_Add(wxString::Format("%s [%s]", _TL("failed to load data"), File.c_str()));
+		if( bLoad )
+		{
+			MSG_Error_Add(wxString::Format("%s [%s]", _TL("failed to load data"), File.c_str()));
+		}
 
 		return( false );
 	}
@@ -547,7 +544,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 //---------------------------------------------------------
 bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, CSG_Data_Object *pDataObject, CSG_Parameters *pParameters)
 {
-	if( !pDataObject || !pDataObject->Get_File_Name(false) || !wxFileExists(pDataObject->Get_File_Name(false)) )
+	if( !pDataObject || !pDataObject->Get_File_Name(false) || SG_STR_LEN(pDataObject->Get_File_Name(false)) == 0 )
 	{
 		return( false );
 	}
@@ -557,16 +554,27 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	switch( pDataObject->Get_ObjectType() )
 	{
 	default:	return( false );
-	case DATAOBJECT_TYPE_Grid:			pEntry->Add_Property("type", "GRID"  );	break;
-	case DATAOBJECT_TYPE_Table:			pEntry->Add_Property("type", "TABLE" );	break;
-	case DATAOBJECT_TYPE_Shapes:		pEntry->Add_Property("type", "SHAPES");	break;
-	case DATAOBJECT_TYPE_TIN:			pEntry->Add_Property("type", "TIN"   );	break;
+	case DATAOBJECT_TYPE_Grid      :	pEntry->Add_Property("type", "GRID"  );	break;
+	case DATAOBJECT_TYPE_Table     :	pEntry->Add_Property("type", "TABLE" );	break;
+	case DATAOBJECT_TYPE_Shapes    :	pEntry->Add_Property("type", "SHAPES");	break;
+	case DATAOBJECT_TYPE_TIN       :	pEntry->Add_Property("type", "TIN"   );	break;
 	case DATAOBJECT_TYPE_PointCloud:	pEntry->Add_Property("type", "POINTS");	break;
 	}
 
-	wxString	s(Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name(false)));
+	if( wxFileExists(pDataObject->Get_File_Name(false)) )
+	{
+		wxString	s(Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name(false)));
 
-	pEntry->Add_Child("FILE", &s);
+		pEntry->Add_Child("FILE", &s);
+	}
+	else if( pDataObject->Get_MetaData_DB().Get_Children_Count() > 0 )
+	{
+		pEntry->Add_Child("FILE", pDataObject->Get_File_Name(false));
+	}
+	else
+	{
+		return( false );
+	}
 
 	if( pParameters )
 	{
@@ -627,7 +635,14 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 	{
 		if( !pNode->Get_Child(i)->Get_Name().Cmp("FILE") )
 		{
-			CWKSP_Base_Item	*pItem	= _Get_byFileName(Get_FilePath_Absolute(ProjectDir, pNode->Get_Child(i)->Get_Content().w_str()));
+			wxString	FileName(pNode->Get_Child(i)->Get_Content().w_str());
+
+			if( FileName.Find("PGSQL") != 0 )
+			{
+				FileName	= Get_FilePath_Absolute(ProjectDir, FileName);
+			}
+
+			CWKSP_Base_Item	*pItem	= _Get_byFileName(FileName);
 
 			if(	pItem &&
 			(   pItem->Get_Type() == WKSP_ITEM_Grid
@@ -652,7 +667,14 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 	{
 		if( !pNode->Get_Child(i)->Get_Name().Cmp("FILE") )
 		{
-			CWKSP_Base_Item	*pItem	= _Get_byFileName(Get_FilePath_Absolute(ProjectDir, pNode->Get_Child(i)->Get_Content().w_str()));
+			wxString	FileName(pNode->Get_Child(i)->Get_Content().w_str());
+
+			if( FileName.Find("PGSQL") != 0 )
+			{
+				FileName	= Get_FilePath_Absolute(ProjectDir, FileName);
+			}
+
+			CWKSP_Base_Item	*pItem	= _Get_byFileName(FileName);
 
 			if(	pItem &&
 			(   pItem->Get_Type() == WKSP_ITEM_Grid
@@ -707,11 +729,14 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 		{
 			CSG_Data_Object	*pObject	= ((CWKSP_Map_Layer *)pMap->Get_Item(i))->Get_Layer()->Get_Object();
 
-			if( pObject && pObject->Get_File_Name(false) && wxFileExists(pObject->Get_File_Name(false)) )
+			if( pObject && pObject->Get_File_Name(false) && *pObject->Get_File_Name(false) )
 			{
-				wxString	s(Get_FilePath_Relative(ProjectDir, pObject->Get_File_Name(false)));
+				wxString	FileName(pObject->Get_File_Name(false));
 
-				pEntry->Add_Child("FILE", &s);
+				if( FileName.Find("PGSQL") == 0 || wxFileExists(FileName = Get_FilePath_Relative(ProjectDir, FileName)) )
+				{
+					pEntry->Add_Child("FILE", &FileName);
+				}
 			}
 		}
 

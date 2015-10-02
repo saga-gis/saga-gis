@@ -128,6 +128,7 @@ CSG_Module *		Create_Module(int i)
 	case 22:	return( new CShapes_SRID_Update );
 
 	case 30:	return( new CRaster_Load );
+	case 33:	return( new CRaster_Load_Band );
 	case 31:	return( new CRaster_Save );
 	case 32:	return( new CRaster_SRID_Update );
 

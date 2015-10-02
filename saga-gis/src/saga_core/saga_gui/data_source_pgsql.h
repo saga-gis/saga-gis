@@ -86,6 +86,8 @@ public:
 	CData_Source_PgSQL(wxWindow *pParent);
 	virtual ~CData_Source_PgSQL(void);
 
+	void						Autoconnect			(void);
+
 	void						Update_Sources		(void);
 	void						Update_Source		(const wxString &Server);
 
@@ -106,6 +108,7 @@ private:
 	void						On_Table_Info		(wxCommandEvent &event);
 	void						On_Table_Drop		(wxCommandEvent &event);
 
+	bool						Source_Open			(class CData_Source_PgSQL_Data *pData, bool bDialog);
 	void						Source_Open			(const wxTreeItemId &Item);
 	void						Source_Close		(const wxTreeItemId &Item, bool bDelete);
 	void						Sources_Close		(void);

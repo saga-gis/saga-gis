@@ -64,8 +64,8 @@
 
 //---------------------------------------------------------
 #include "grid.h"
-
 #include "data_manager.h"
+#include "module_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -330,13 +330,56 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load grid"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load grid"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
-	if( _Load(File_Name, Type, Memory_Type, bLoadData) )
+	bool	bResult	= _Load(File_Name, Type, Memory_Type, bLoadData);
+
+	if( bResult )
+	{
+		// nop
+	}
+
+	//-----------------------------------------------------
+	else if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
+	{
+		CSG_String	s(File_Name);
+
+		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Band  (s.BeforeFirst(':'));
+
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 33);	// CPGIS_Raster_Load_Band
+
+		if(	(bResult = pModule != NULL) == true )
+		{
+			SG_UI_Msg_Lock(true);
+			pModule->Settings_Push();
+
+			SG_MODULE_PARAMETER_SET("CONNECTION", DBName + " [" + Host + ":" + Port + "]");
+			pModule->On_Before_Execution();
+			pModule->Set_Callback();
+			SG_MODULE_PARAMETER_SET("TABLES"    , Table);
+			pModule->Update_Parameter_States();
+
+			bResult	= pModule->On_Before_Execution()
+				&& SG_MODULE_PARAMETER_SET("BANDS"     , Band)
+				&& SG_MODULE_PARAMETER_SET("GRID"      , this)
+				&& pModule->Execute();
+
+			pModule->Settings_Pop();
+			SG_UI_Msg_Lock(false);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
 	{
 		m_bCreated	= true;
 
+		Set_Modified(false);
 		Set_Update_Flag();
 
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
@@ -348,8 +391,6 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 	Destroy();
 
 	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-
-	SG_UI_Msg_Add_Error(_TL("Grid file could not be opened."));
 
 	return( false );
 }

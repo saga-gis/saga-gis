@@ -99,7 +99,7 @@ public:
 
 	bool						is_Connected			(void)	const	{	return( m_pConnection != NULL );	}
 
-	CSG_String					Get_Connection			(void)	const;
+	CSG_String					Get_Connection			(int Style = 0)	const;
 
 	CSG_String					Get_Host				(void)	const;
 	CSG_String					Get_Port				(void)	const;
@@ -123,6 +123,8 @@ public:
 	bool						Commit					(const CSG_String &SavePoint = "");
 	bool						is_Transaction			(void)	const	{	return( is_Connected() && m_bTransaction );	}
 
+	CSG_MetaData &				Add_MetaData			(CSG_Data_Object &Object, const CSG_String &Table, const CSG_String &Select = "");
+
 	bool						Table_Exists			(const CSG_String &Table_Name)	const;
 
 	bool						Table_Create			(const CSG_String &Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags = 0, bool bCommit = true);
@@ -136,7 +138,8 @@ public:
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Table);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
 
-	bool						Raster_Load				(const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", const CSG_String &Names = "", CSG_Parameter_Grid_List *pList = NULL);
+	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", const CSG_String &Names = "");
+	bool						Raster_Load				(CSG_Grid *pGrid                , const CSG_String &Table, const CSG_String &Where = "");
 	bool						Raster_Save				(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Field);
 	
 

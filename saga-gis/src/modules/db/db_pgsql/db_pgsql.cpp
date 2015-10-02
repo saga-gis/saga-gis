@@ -271,9 +271,16 @@ void CSG_PG_Connection::GUI_Update(void) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_PG_Connection::Get_Connection(void) const
+CSG_String CSG_PG_Connection::Get_Connection(int Style) const
 {
-	return( Get_DBName() + " [" + Get_Host() + ":" + Get_Port() + "]" );
+	switch( Style )
+	{
+	default: return( Get_DBName() + " [" + Get_Host() + ":" + Get_Port() + "]" );
+
+	case  1: return( Get_DBName() );
+
+	case  2: return( "PGSQL:" + Get_Host() + ":" + Get_Port() + ":" + Get_DBName() );
+	}
 }
 
 //---------------------------------------------------------
@@ -346,6 +353,37 @@ bool CSG_PG_Connection::has_PostGIS(double minVersion)
 	return( _Table_Load(t, "SELECT PostGIS_Lib_Version()", "") && t.Get_Count() == 1 && t.Get_Field_Count() == 1
 		&& 0.0001 * t[0][0].asDouble() >= minVersion
 	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_MetaData & CSG_PG_Connection::Add_MetaData(CSG_Data_Object &Object, const CSG_String &Table, const CSG_String &Select)
+{
+	CSG_String	Name(Object.Get_Name());
+	Object.Set_File_Name(Get_Connection(2) + ":" + Table);
+	Object.Set_Name(Name);
+
+	CSG_MetaData	&DB	= Object.Get_MetaData_DB();
+
+	DB.Del_Children();
+
+	DB.Add_Child("DBMS" , "PostgreSQL");
+	DB.Add_Child("HOST" , Get_Host      ());
+	DB.Add_Child("PORT" , Get_Port      ());
+	DB.Add_Child("USER" , Get_User      ());
+	DB.Add_Child("NAME" , Get_DBName    ());
+	DB.Add_Child("TABLE", Table);
+
+	if( !Select.is_Empty() )
+	{
+		DB.Add_Child("SELECT", Select);
+	}
+
+	return( DB );
 }
 
 
@@ -860,6 +898,8 @@ bool CSG_PG_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Table
 	}
 
 	//-----------------------------------------------------
+	Add_MetaData(*((CSG_Table *)&Table), Table_Name);
+
 	return( true );
 }
 
@@ -955,7 +995,14 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 //---------------------------------------------------------
 bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_Name)
 {
-	return( _Table_Load(Table, CSG_String::Format(SG_T("SELECT * FROM \"%s\""), Table_Name.c_str()), Table_Name) );
+	if( _Table_Load(Table, CSG_String::Format(SG_T("SELECT * FROM \"%s\""), Table_Name.c_str()), Table_Name) )
+	{
+		Add_MetaData(Table, Table_Name);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -985,7 +1032,14 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 		Select	+= SG_T(" ORDER BY ") + Order;
 	}
 
-	return( _Table_Load(Table, Select, Table.Get_Name()) );
+	if( _Table_Load(Table, Select, Table.Get_Name()) )
+	{
+		Add_MetaData(Table, Table.Get_Name(), Select);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -1028,7 +1082,14 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 
 	Fields	+= (bBinary ? "ST_AsBinary(" : "ST_AsText(") + Geometry + ") AS __geometry__";
 
-	return( Shapes_Load(pShapes, Name, "SELECT " + Fields + " FROM \"" + Name + "\"", "__geometry__", bBinary, SRID) );
+	if( Shapes_Load(pShapes, Name, "SELECT " + Fields + " FROM \"" + Name + "\"", "__geometry__", bBinary, SRID) )
+	{
+		Add_MetaData(*pShapes, Name);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1168,6 +1229,8 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 	//-----------------------------------------------------
 	PQclear(pResult);
 
+	Add_MetaData(*pShapes, Name, Select);
+
 	return( true );
 }
 
@@ -1177,7 +1240,7 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Raster_Load(const CSG_String &Table, const CSG_String &Where, const CSG_String &Order, const CSG_String &Names, CSG_Parameter_Grid_List *pList)
+bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order, const CSG_String &Names)
 {
 	CSG_Table	Info;
 
@@ -1247,18 +1310,20 @@ bool CSG_PG_Connection::Raster_Load(const CSG_String &Table, const CSG_String &W
 		{
 			if( iBand < Info.Get_Count() )
 			{
-				pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"  ), Table.c_str(), Info[iBand].asString(0)));
+				pGrid->Set_Name(CSG_String::Format("%s [%s]"  , Table.c_str(), Info[iBand].asString(0)));
 			}
 			else
 			{
-				pGrid->Set_Name(CSG_String::Format(SG_T("%s [%02d]"), Table.c_str(), iBand + 1));
+				pGrid->Set_Name(CSG_String::Format("%s [%02d]", Table.c_str(), iBand + 1));
 			}
+
+			Add_MetaData(*pGrid, Table + CSG_String::Format(":%d", iBand)).Add_Child("BAND", iBand);
 
 			SG_Get_Data_Manager().Add(pGrid);
 
-			if( pList )
+			if( pGrids )
 			{
-				pList->Add_Item(pGrid);
+				pGrids->Add_Item(pGrid);
 			}
 
 			nOkay++;
@@ -1273,6 +1338,88 @@ bool CSG_PG_Connection::Raster_Load(const CSG_String &Table, const CSG_String &W
 	PQclear(pResult);
 
 	return( nOkay > 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Raster_Load(CSG_Grid *pGrid, const CSG_String &Table, const CSG_String &Where)
+{
+	CSG_Table	Info;
+
+	if( !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
+	{
+		return( false );
+	}
+
+	CSG_String	Geometry	= Info[0].asString("r_raster_column");
+
+	//-----------------------------------------------------
+	if( !Table_Load(Info, Table, "name", "", Where, "", "") )
+	{
+		Info.Destroy();
+	}
+
+	//-----------------------------------------------------
+	CSG_String	Select	= "COPY (SELECT ST_AsBinary(\"" + Geometry + "\") AS rastbin FROM \"" + Table + "\"";
+
+	if( Where.Length() )	Select	+= SG_T(" WHERE ")    + Where;
+
+	Select	+= ") TO STDOUT WITH (FORMAT 'binary')";
+
+	//-----------------------------------------------------
+	PGresult	*pResult	= PQexec(m_pgConnection, Select);
+
+	if( PQresultStatus(pResult) != PGRES_COPY_OUT )
+	{
+		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
+
+		PQclear(pResult);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	char	*Bytes;
+	int		nBytes;
+
+	if( (nBytes = PQgetCopyData(m_pgConnection, &Bytes, 0)) > 0 )
+	{
+		CSG_Bytes	Band;
+
+		int		Offset	= 25;
+
+		if( *((short *)Bytes) > 0 && nBytes > Offset )
+		{
+			Band.Create((BYTE *)(Bytes + Offset), nBytes - Offset);
+		}
+
+		PQfreemem(Bytes);
+
+		//-------------------------------------------------
+		if( Band.Get_Count() > 0 && CSG_Grid_OGIS_Converter::from_WKBinary(Band, pGrid) )
+		{
+			if( Info.Get_Count() > 0 )
+			{
+				pGrid->Set_Name(CSG_String::Format("%s [%s]", Table.c_str(), Info[0].asString(0)));
+			}
+			else
+			{
+				pGrid->Set_Name(CSG_String::Format("%s [%s]", Table.c_str(), Where.c_str()));
+			}
+
+			Add_MetaData(*pGrid, Table, Where);
+
+			SG_Get_Data_Manager().Add(pGrid);
+
+			PQclear(pResult);
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
+	PQclear(pResult);
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1325,6 +1472,8 @@ bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String 
 
 	//-----------------------------------------------------
 	PQclear(pResult);
+
+	Add_MetaData(*pGrid, Table, Field);
 
 	return( true );
 }

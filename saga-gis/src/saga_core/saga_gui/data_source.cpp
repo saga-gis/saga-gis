@@ -184,6 +184,12 @@ CData_Source::~CData_Source(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CData_Source::Autoconnect(void)
+{
+	m_pPgSQL->Autoconnect();
+}
+
+//---------------------------------------------------------
 bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 {
 	if( pItem == NULL )

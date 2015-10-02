@@ -107,7 +107,7 @@ private:
 
 	void					_Get_Gradient_2x2		(double z[4], double &Slope, double &Aspect);
 
-	bool					_is_Edge_Cell			(CSG_Grid Gradient[2], int x, int y);
+	int						_is_Edge_Cell			(CSG_Grid Gradient[2], int x, int y);
 
 };
 

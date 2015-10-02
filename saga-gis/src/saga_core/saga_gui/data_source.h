@@ -88,6 +88,8 @@ public:
 
 	void							Add_Pages				(void);
 
+	void							Autoconnect				(void);
+
 	class CData_Source_Files *		Get_Files				(void)	{	return( m_pFiles );	}
 
 	bool							Set_Data_Source			(class CWKSP_Base_Item *pItem);

@@ -65,6 +65,7 @@
 //---------------------------------------------------------
 #include "table.h"
 #include "shapes.h"
+#include "module_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -169,7 +170,63 @@ CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format)
 
 bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 {
-	return( _Load(File_Name, Format, NULL) );
+	Destroy();
+
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load table"), File_Name.c_str()), true);
+
+	//-----------------------------------------------------
+	bool	bResult	= _Load(File_Name, Format, NULL);
+
+	if( bResult )
+	{
+		Set_File_Name(File_Name, true);
+		Load_MetaData(File_Name);
+	}
+
+	//-----------------------------------------------------
+	else if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
+	{
+		CSG_String	s(File_Name);
+
+		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 12);	// CPGIS_Table_Load
+
+		if(	(bResult = pModule != NULL) == true )
+		{
+			SG_UI_Msg_Lock(true);
+			pModule->Settings_Push();
+
+			bResult	= pModule->On_Before_Execution()
+				&& SG_MODULE_PARAMETER_SET("CONNECTION", DBName + " [" + Host + ":" + Port + "]")
+				&& SG_MODULE_PARAMETER_SET("TABLES"    , Table)
+				&& SG_MODULE_PARAMETER_SET("TABLE"     , this)
+				&& pModule->Execute();
+
+			pModule->Settings_Pop();
+			SG_UI_Msg_Lock(false);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		Set_Modified(false);
+		Set_Update_Flag();
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	Destroy();
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 //---------------------------------------------------------

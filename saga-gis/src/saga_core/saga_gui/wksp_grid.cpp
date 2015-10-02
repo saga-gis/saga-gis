@@ -119,38 +119,54 @@ wxString CWKSP_Grid::Get_Description(void)
 
 	s	+= wxT("<table border=\"0\">");
 
-	DESC_ADD_STR (_TL("Name")				, m_pObject->Get_Name());
-	DESC_ADD_STR (_TL("Description")		, m_pObject->Get_Description());
-	DESC_ADD_STR (_TL("File")				, SG_File_Exists(m_pObject->Get_File_Name(false)) ? m_pObject->Get_File_Name(false) : _TL("memory"));
-	if( m_pObject->Get_MetaData()("GDAL_DRIVER") )
+	DESC_ADD_STR (_TL("Name"               ), m_pObject->Get_Name());
+	DESC_ADD_STR (_TL("Description"        ), m_pObject->Get_Description());
+
+	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR (_TL("Driver")			, m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+		DESC_ADD_STR (_TL("File"           ), m_pObject->Get_File_Name(false));
+
+		if( m_pObject->Get_MetaData()("GDAL_DRIVER") )
+			DESC_ADD_STR (_TL("Driver"     ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+
+		if( m_pObject->Get_MetaData()("SURFER_GRID") )
+			DESC_ADD_STR (_TL("Driver"     ), m_pObject->Get_MetaData()["SURFER_GRID"].Get_Content().c_str());
 	}
-	if( m_pObject->Get_MetaData()("SURFER_GRID") )
+	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
 	{
-		DESC_ADD_STR (_TL("Driver")			, m_pObject->Get_MetaData()["SURFER_GRID"].Get_Content().c_str());
+		DESC_ADD_STR(_TL("File"            ), m_pObject->Get_File_Name(false));
+		//const CSG_MetaData	&DB	= m_pObject->Get_MetaData_DB();
+		//if( DB("DBMS") ) DESC_ADD_STR (_TL("DBMS"    ), DB["DBMS"].Get_Content().c_str());
+		//if( DB("HOST") ) DESC_ADD_STR (_TL("Host"    ), DB["DBMS"].Get_Content().c_str());
+		//if( DB("PORT") ) DESC_ADD_STR (_TL("Port"    ), DB["DBMS"].Get_Content().c_str());
+		//if( DB("NAME") ) DESC_ADD_STR (_TL("Database"), DB["NAME"].Get_Content().c_str());
 	}
-	DESC_ADD_STR (_TL("Modified")			, m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR (_TL("Projection")			, m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT (_TL("West")				, Get_Grid()->Get_XMin());
-	DESC_ADD_FLT (_TL("East")				, Get_Grid()->Get_XMax());
-	DESC_ADD_FLT (_TL("West-East")			, Get_Grid()->Get_XRange());
-	DESC_ADD_FLT (_TL("South")				, Get_Grid()->Get_YMin());
-	DESC_ADD_FLT (_TL("North")				, Get_Grid()->Get_YMax());
-	DESC_ADD_FLT (_TL("South-North")		, Get_Grid()->Get_YRange());
-	DESC_ADD_FLT (_TL("Cell Size")			, Get_Grid()->Get_Cellsize());
-	DESC_ADD_INT (_TL("Number of Columns")	, Get_Grid()->Get_NX());
-	DESC_ADD_INT (_TL("Number of Rows")		, Get_Grid()->Get_NY());
-	DESC_ADD_LONG(_TL("Number of Cells")	, Get_Grid()->Get_NCells());
-	DESC_ADD_LONG(_TL("No Data Cells")		, Get_Grid()->Get_NoData_Count());
-	DESC_ADD_STR (_TL("Value Type")			, SG_Data_Type_Get_Name(Get_Grid()->Get_Type()).c_str());
-	DESC_ADD_FLT (_TL("Value Minimum")		, Get_Grid()->Get_ZMin());
-	DESC_ADD_FLT (_TL("Value Maximum")		, Get_Grid()->Get_ZMax());
-	DESC_ADD_FLT (_TL("Value Range")		, Get_Grid()->Get_ZRange());
-	DESC_ADD_STR (_TL("No Data Value")		, Get_Grid()->Get_NoData_Value() < Get_Grid()->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), Get_Grid()->Get_NoData_Value(), Get_Grid()->Get_NoData_hiValue()).c_str() : SG_Get_String(Get_Grid()->Get_NoData_Value(), -2).c_str());
-	DESC_ADD_FLT (_TL("Arithmetic Mean")	, Get_Grid()->Get_Mean());
-	DESC_ADD_FLT (_TL("Standard Deviation")	, Get_Grid()->Get_StdDev());
-	DESC_ADD_STR (_TL("Memory Size")		, Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
+	else
+	{
+		DESC_ADD_STR (_TL("File"          ), _TL("memory"));
+	}
+
+	DESC_ADD_STR (_TL("Modified"          ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR (_TL("Projection"        ), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT (_TL("West"              ), Get_Grid()->Get_XMin        ());
+	DESC_ADD_FLT (_TL("East"              ), Get_Grid()->Get_XMax        ());
+	DESC_ADD_FLT (_TL("West-East"         ), Get_Grid()->Get_XRange      ());
+	DESC_ADD_FLT (_TL("South"             ), Get_Grid()->Get_YMin        ());
+	DESC_ADD_FLT (_TL("North"             ), Get_Grid()->Get_YMax        ());
+	DESC_ADD_FLT (_TL("South-North"       ), Get_Grid()->Get_YRange      ());
+	DESC_ADD_FLT (_TL("Cell Size"         ), Get_Grid()->Get_Cellsize    ());
+	DESC_ADD_INT (_TL("Number of Columns" ), Get_Grid()->Get_NX          ());
+	DESC_ADD_INT (_TL("Number of Rows"    ), Get_Grid()->Get_NY          ());
+	DESC_ADD_LONG(_TL("Number of Cells"   ), Get_Grid()->Get_NCells      ());
+	DESC_ADD_LONG(_TL("No Data Cells"     ), Get_Grid()->Get_NoData_Count());
+	DESC_ADD_STR (_TL("Value Type"        ), SG_Data_Type_Get_Name(Get_Grid()->Get_Type()).c_str());
+	DESC_ADD_FLT (_TL("Value Minimum"     ), Get_Grid()->Get_ZMin        ());
+	DESC_ADD_FLT (_TL("Value Maximum"     ), Get_Grid()->Get_ZMax        ());
+	DESC_ADD_FLT (_TL("Value Range"       ), Get_Grid()->Get_ZRange      ());
+	DESC_ADD_STR (_TL("No Data Value"     ), Get_Grid()->Get_NoData_Value() < Get_Grid()->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), Get_Grid()->Get_NoData_Value(), Get_Grid()->Get_NoData_hiValue()).c_str() : SG_Get_String(Get_Grid()->Get_NoData_Value(), -2).c_str());
+	DESC_ADD_FLT (_TL("Arithmetic Mean"   ), Get_Grid()->Get_Mean        ());
+	DESC_ADD_FLT (_TL("Standard Deviation"), Get_Grid()->Get_StdDev      ());
+	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
 
 	if( Get_Grid()->is_Compressed() )
 	{

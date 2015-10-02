@@ -118,12 +118,105 @@ bool CRaster_Load::On_Execute(void)
 
 	pGrids->Del_Items();
 
-	if( !Get_Connection()->Raster_Load(Table, "", "", "", pGrids) )//, "rid=4") )
+	if( !Get_Connection()->Raster_Load(pGrids, Table, "", "", "") )//, "rid=4") )
 	{
 		return( false );
 	}
 
 	return( pGrids->Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CRaster_Load_Band::CRaster_Load_Band(void)
+{
+	Set_Name		(_TL("Import Single Raster Band from PostGIS"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2015"));
+
+	Set_Description	(_TW(
+		"Imports grids from a PostGIS database."
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "GRID"		, _TL("Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TABLES"		, _TL("Tables"),
+		_TL(""),
+		""
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "BANDS"		, _TL("Bands"),
+		_TL(""),
+		""
+	);
+}
+
+//---------------------------------------------------------
+void CRaster_Load_Band::On_Connection_Changed(CSG_Parameters *pParameters)
+{
+	CSG_String	s;
+	CSG_Table	t;
+
+	if( Get_Connection()->Table_Load(t, "raster_columns") )
+	{
+		for(int i=0; i<t.Get_Count(); i++)
+		{
+			s	+= t[i].asString("r_table_name") + CSG_String("|");
+		}
+	}
+
+	pParameters->Get_Parameter("TABLES")->asChoice()->Set_Items(s);
+}
+
+//---------------------------------------------------------
+int CRaster_Load_Band::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLES") )
+	{
+		CSG_String	s;
+		CSG_Table	t;
+
+		if( Get_Connection()->Table_Load(t, pParameter->asString(), "name") )
+		{
+			for(int i=0; i<t.Get_Count(); i++)
+			{
+				s	+= t[i].asString(0) + CSG_String("|");
+			}
+		}
+
+		pParameters->Get_Parameter("BANDS")->asChoice()->Set_Items(s);
+	}
+
+	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+bool CRaster_Load_Band::On_Execute(void)
+{
+	CSG_String	Table	= Parameters("TABLES")->asString(), Where;
+
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	Where.Printf("name='%s'", Parameters("BANDS")->asString());
+
+	if( !Get_Connection()->Raster_Load(pGrid, Table, Where) )
+	{
+		return( false );
+	}
+
+	return( true );
 }
 
 

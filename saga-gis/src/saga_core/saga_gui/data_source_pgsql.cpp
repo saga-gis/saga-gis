@@ -193,21 +193,31 @@ bool	is_Connected	(const CSG_String &Server)
 class CData_Source_PgSQL_Data : public wxTreeItemData
 {
 public:
-    CData_Source_PgSQL_Data(int Type, const CSG_String &Value = SG_T(""), const CSG_String &Server = "")
-		: m_Type(Type), m_Value(Value), m_Server(Server)
+    CData_Source_PgSQL_Data(int Type, const CSG_String &Value = "", const CSG_String &Server = "", const CSG_String &Username = "", const CSG_String &Password = "")
+		: m_Type(Type), m_Value(Value), m_Server(Server), m_Username(Username), m_Password(Password)
 	{}
 
-	int						Get_Type		(void)	const	{	return( m_Type   );	}
-	const CSG_String &		Get_Value		(void)	const	{	return( m_Value  );	}
-	const CSG_String &		Get_Server		(void)	const	{	return( m_Server );	}
+	int						Get_Type		(void)	const	{	return( m_Type     );	}
+	const CSG_String &		Get_Value		(void)	const	{	return( m_Value    );	}
+	const CSG_String &		Get_Server		(void)	const	{	return( m_Server   );	}
+
+	void					Set_Username	(const SG_Char *Username)	{	m_Username	= Username;	}
+	const CSG_String &		Get_Username	(void)	const	{	return( m_Username     );	}
+	void					Set_Password	(const SG_Char *Password)	{	m_Password	= Password;	}
+	const CSG_String &		Get_Password	(void)	const	{	return( m_Password );	}
+
+	CSG_String				Get_Host		(void)  const	{	return( m_Server.AfterLast ('[').BeforeFirst(':') );	}
+	CSG_String				Get_Port		(void)  const	{	return( m_Server.AfterLast (':').BeforeFirst(']') );	}
+	CSG_String				Get_DBName		(void)  const	{	CSG_String s(m_Server.BeforeLast('[')); s.Trim(true); return( s );	}
 
 	bool					is_Connected	(void)	const	{	return( ::is_Connected(m_Server) );	}
+
 
 private:
 
     int						m_Type;
 
-	CSG_String				m_Value, m_Server;
+	CSG_String				m_Value, m_Server, m_Username, m_Password;
 
 };
 
@@ -266,13 +276,20 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 	//-----------------------------------------------------
 	SG_UI_Msg_Lock(true);
 
-	wxString	Server;
+	wxString	Server, User, Password;
 
 	for(int i=0; CONFIG_Read(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i), Server); i++)
 	{
-		Update_Source(AppendItem(GetRootItem(), Server.c_str(), IMG_SRC_CLOSED, IMG_SRC_CLOSED,
-			new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server)
-		));
+		if( Server.Find("|") > 0 )
+		{
+			User     = Server.AfterFirst ('|').BeforeFirst('|');
+			Password = Server.AfterLast  ('|');
+			Server   = Server.BeforeFirst('|');
+		}
+
+		CData_Source_PgSQL_Data	*pData	= new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server, &User, &Password);
+
+		Update_Source(AppendItem(GetRootItem(), Server.c_str(), IMG_SRC_CLOSED, IMG_SRC_CLOSED, pData));
 	}
 
 	Update_Sources();
@@ -286,6 +303,10 @@ CData_Source_PgSQL::~CData_Source_PgSQL(void)
 	wxTreeItemIdValue	Cookie;
 	wxTreeItemId		Item	= GetFirstChild(GetRootItem(), Cookie);
 
+	long Reopen	= 0;
+
+	CONFIG_Read("/DATA", "PROJECT_DB_REOPEN", Reopen);
+
 	CONFIG_Delete(CFG_PGSQL_DIR);
 
 	for(int i=0; Item.IsOk(); )
@@ -294,10 +315,51 @@ CData_Source_PgSQL::~CData_Source_PgSQL(void)
 
 		if( pData && pData->Get_Type() == TYPE_SOURCE )
 		{
-			CONFIG_Write(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i++), pData->Get_Server().c_str());
+			CSG_String	Connection	= pData->Get_Server().c_str();
+
+			if( Reopen != 0 && pData->is_Connected() && !pData->Get_Username().is_Empty() )	// store user and password
+			{
+				Connection	+= "|" + pData->Get_Username() + "|" + pData->Get_Password();
+			}
+
+			CONFIG_Write(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i++), Connection.c_str());
 		}
 
 		Item	= GetNextChild(Item, Cookie);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::Autoconnect(void)
+{
+	long Reopen	= 0;
+
+	CONFIG_Read("/DATA", "PROJECT_DB_REOPEN", Reopen);
+
+	if( Reopen != 0 )
+	{
+		wxTreeItemIdValue	Cookie;
+
+		wxTreeItemId	Item	= GetFirstChild(GetRootItem(), Cookie);
+
+		while( Item.IsOk() )
+		{
+			CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+
+			if( pData->Get_Type() == TYPE_SOURCE && !pData->Get_Username().is_Empty() )
+			{
+				Source_Open(pData, false);
+			}
+
+			Item	= GetNextChild(Item, Cookie);
+		}
 	}
 }
 
@@ -619,6 +681,35 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialog)
+{
+	static	wxString	Username = "postgres", Password = "postgres";
+
+	if( bDialog )
+	{
+		if( !DLG_Login(Username, Password) )
+		{
+			return( false );
+		}
+
+		pData->Set_Username(Username);
+		pData->Set_Password(Password);
+	}
+
+	bool	bResult;
+
+	RUN_MODULE(DB_PGSQL_Get_Connection, bResult,	// CGet_Connection
+			SET_PARAMETER("PG_HOST", pData->Get_Host    ())
+		&&	SET_PARAMETER("PG_PORT", pData->Get_Port    ())
+		&&	SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
+		&&	SET_PARAMETER("PG_USER", pData->Get_Username())
+		&&	SET_PARAMETER("PG_PWD" , pData->Get_Password())
+	);
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
 void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
@@ -636,31 +727,9 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 	{
 		Update_Source(Item);
 	}
-	else
+	else if( !Source_Open(pData, true) )
 	{
-		static	wxString	Username = "postgres", Password = "postgres";
-
-		if( DLG_Login(Username, Password) )
-		{
-			bool	bResult;
-
-			CSG_String	Host	= pData->Get_Server().AfterLast ('[').BeforeFirst(':');
-			CSG_String	Port	= pData->Get_Server().AfterLast (':').BeforeFirst(']');
-			CSG_String	Name	= pData->Get_Server().BeforeLast('['); Name.Trim(true);
-
-			RUN_MODULE(DB_PGSQL_Get_Connection, bResult,	// CGet_Connection
-					SET_PARAMETER("PG_HOST", Host)
-				&&	SET_PARAMETER("PG_PORT", Port)
-				&&	SET_PARAMETER("PG_NAME", Name)
-				&&	SET_PARAMETER("PG_USER", Username)
-				&&	SET_PARAMETER("PG_PWD" , Password)
-			);
-
-			if( !bResult )
-			{
-				DLG_Message_Show_Error(_TL("Could not connect to data source."), _TL("Connect to PostgreSQL"));
-			}
-		}
+		DLG_Message_Show_Error(_TL("Could not connect to data source."), _TL("Connect to PostgreSQL"));
 	}
 }
 

@@ -101,6 +101,12 @@ CWombling_Base::CWombling_Base(void)
 		PARAMETER_TYPE_Double, 30.0, 0.0, true, 180.0, true
 	);
 
+	Parameters.Add_Value(
+		NULL	, "TNEIGHBOUR"		, _TL("Minimum Neighbours"),
+		_TL("Minimum number of neighbouring potential edge cells with similar direction."),
+		PARAMETER_TYPE_Int, 1.0, 0.0, true
+	);
+
 	Parameters.Add_Choice(
 		NULL	, "ALIGNMENT"		, _TL("Alignment"),
 		_TL(""),
@@ -139,8 +145,8 @@ int CWombling_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CWombling_Base::Initialize(CSG_Grid Gradient[2], CSG_Grid *pEdges)
 {
-	m_Neighbour		= Parameters("NEIGHBOUR")->asInt() == 0 ? 2 : 1;
-	m_minNeighbours	= 1;
+	m_Neighbour		= Parameters( "NEIGHBOUR")->asInt() == 0 ? 2 : 1;
+	m_minNeighbours	= Parameters("TNEIGHBOUR")->asInt();
 	m_maxAngle		= Parameters("TDIRECTION")->asDouble() * M_DEG_TO_RAD;
 
 	//-----------------------------------------------------
@@ -264,9 +270,10 @@ bool CWombling_Base::Get_Edge_Cells(CSG_Grid *Gradient, CSG_Grid *pEdges)
 	{
 		pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s.%s", Parameters("FEATURE")->asGrid()->Get_Name(), _TL("Edges")));
 
-		pPoints->Add_Field("ID"       , SG_DATATYPE_Int   );
-		pPoints->Add_Field("MAGNITUDE", SG_DATATYPE_Double);
-		pPoints->Add_Field("DIRECTION", SG_DATATYPE_Double);
+		pPoints->Add_Field("ID"        , SG_DATATYPE_Int   );
+		pPoints->Add_Field("MAGNITUDE" , SG_DATATYPE_Double);
+		pPoints->Add_Field("DIRECTION" , SG_DATATYPE_Double);
+		pPoints->Add_Field("NEIGHBOURS", SG_DATATYPE_Int   );
 	}
 
 	//-----------------------------------------------------
@@ -299,9 +306,11 @@ bool CWombling_Base::Get_Edge_Cells(CSG_Grid *Gradient, CSG_Grid *pEdges)
 		#pragma omp parallel for
 		for(int x=0; x<Gradient[0].Get_NX(); x++)
 		{
-			if( _is_Edge_Cell(Gradient, x, y) )
+			int	n	= _is_Edge_Cell(Gradient, x, y);
+
+			if( n >= m_minNeighbours )
 			{
-				pEdges->Set_Value(x, y, 1.0);
+				pEdges->Set_Value(x, y, n);
 
 				if( pPoints )
 				{
@@ -311,6 +320,7 @@ bool CWombling_Base::Get_Edge_Cells(CSG_Grid *Gradient, CSG_Grid *pEdges)
 					pPoint->Set_Value(0, pPoints->Get_Count());
 					pPoint->Set_Value(1, Gradient[0].asDouble(x, y));
 					pPoint->Set_Value(2, Gradient[1].asDouble(x, y) * M_RAD_TO_DEG);
+					pPoint->Set_Value(3, n);
 				}
 			}
 			else
@@ -327,7 +337,7 @@ bool CWombling_Base::Get_Edge_Cells(CSG_Grid *Gradient, CSG_Grid *pEdges)
 }
 
 //---------------------------------------------------------
-bool CWombling_Base::_is_Edge_Cell(CSG_Grid Gradient[2], int x, int y)
+int CWombling_Base::_is_Edge_Cell(CSG_Grid Gradient[2], int x, int y)
 {
 	int		n	= 0;
 
@@ -345,7 +355,7 @@ bool CWombling_Base::_is_Edge_Cell(CSG_Grid Gradient[2], int x, int y)
 		}
 	}
 
-	return( n >= m_minNeighbours );
+	return( n );
 }
 
 

@@ -81,14 +81,9 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 		return( false );
 	}
 
-	bool		bResult;
-	CSG_String	fName, sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
-
-	Destroy();
-
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load table"), File_Name.c_str()), true);
-
 	//-----------------------------------------------------
+	CSG_String	sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
+
 	if( Format == TABLE_FILETYPE_Undefined )
 	{
 		if( SG_File_Cmp_Extension(File_Name, SG_T("dbf")) )
@@ -101,51 +96,23 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 
 			if( !Separator || *Separator == '\0' )
 			{
-				sSeparator	= SG_T(",");	// comma separated values
+				sSeparator	= ",";	// comma separated values
 			}
-		}
-		else //if( SG_File_Cmp_Extension(File_Name, SG_T("txt")) )
-		{
-			Format	= TABLE_FILETYPE_Text;
 		}
 	}
 
 	//-----------------------------------------------------
 	switch( Format )
 	{
-	case TABLE_FILETYPE_Text:
-		bResult	= _Load_Text (File_Name, true , sSeparator);
-		break;
+	case TABLE_FILETYPE_Text: default:
+		return( _Load_Text (File_Name, true , sSeparator) );
 
 	case TABLE_FILETYPE_Text_NoHeadLine:
-		bResult	= _Load_Text (File_Name, false, sSeparator);
-		break;
+		return( _Load_Text (File_Name, false, sSeparator) );
 
 	case TABLE_FILETYPE_DBase:
-		bResult	= _Load_DBase(File_Name);
-		break;
-
-	default:
-		bResult	= false;
+		return( _Load_DBase(File_Name) );
 	}
-
-	//-----------------------------------------------------
-	if( bResult )
-	{
-		Set_Modified(false);
-
-		Set_Update_Flag();
-
-		Set_File_Name(File_Name, true);
-
-		Load_MetaData(File_Name);
-
-		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-
-		return( true );
-	}
-
-	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }

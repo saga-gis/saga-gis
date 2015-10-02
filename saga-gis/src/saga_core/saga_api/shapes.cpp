@@ -65,6 +65,7 @@
 //---------------------------------------------------------
 #include "shapes.h"
 #include "pointcloud.h"
+#include "module_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -225,31 +226,72 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load shapes"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load shapes"), File_Name.c_str()), true);
 
-	bool	bResult	= _Load_ESRI(File_Name);
-
-	Set_File_Name(File_Name, true);
-	Load_MetaData(File_Name);
+	//-----------------------------------------------------
+	bool	bResult	= SG_File_Exists(File_Name) && _Load_ESRI(File_Name);
 
 	if( bResult )
 	{
-		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		Set_File_Name(File_Name, true);
+		Load_MetaData(File_Name);
 	}
-	else
+
+	//-----------------------------------------------------
+	else if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
-		for(int iShape=Get_Count()-1; iShape >= 0; iShape--)
-		{
-			if( !Get_Shape(iShape)->is_Valid() )
-			{
-				Del_Shape(iShape);
-			}
-		}
+		CSG_String	s(File_Name);
 
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 20);	// CPGIS_Shapes_Load
+
+		if(	(bResult = pModule != NULL) == true )
+		{
+			SG_UI_Msg_Lock(true);
+			pModule->Settings_Push();
+
+			bResult	= pModule->On_Before_Execution()
+				&& SG_MODULE_PARAMETER_SET("CONNECTION", DBName + " [" + Host + ":" + Port + "]")
+				&& SG_MODULE_PARAMETER_SET("TABLES"    , Table)
+				&& SG_MODULE_PARAMETER_SET("SHAPES"    , this)
+				&& pModule->Execute();
+
+			pModule->Settings_Pop();
+			SG_UI_Msg_Lock(false);
+		}
 	}
 
-	return( bResult );
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		Set_Modified(false);
+		Set_Update_Flag();
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	for(int iShape=Get_Count()-1; iShape>=0; iShape--)	// be kind, keep at least those shapes that have been loaded successfully
+	{
+		if( !Get_Shape(iShape)->is_Valid() )
+		{
+			Del_Shape(iShape);
+		}
+	}
+
+	if( Get_Count() <= 0 )
+	{
+		Destroy();
+	}
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 //---------------------------------------------------------
