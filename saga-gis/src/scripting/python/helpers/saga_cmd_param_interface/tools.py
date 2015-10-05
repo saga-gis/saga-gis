@@ -629,5 +629,6 @@ tools = [
 ['grid_filter', 16, 'Wombling (Edge Detection)'],
 ['grid_analysis', 21, 'Diversity of Categories'],
 ['climate_tools', 9, 'Sunrise and Sunset'],
-['grid_filter', 17, 'Wombling for Multiple Features (Edge Detection)']
+['grid_filter', 17, 'Wombling for Multiple Features (Edge Detection)'],
+['db_pgsql', 33, 'Import Single Raster Band from PostGIS']
 ]
