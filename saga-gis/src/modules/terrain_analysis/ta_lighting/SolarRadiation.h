@@ -104,9 +104,9 @@ private:
 
 	int						m_Method, m_Location, m_Shadowing;
 
-	double					m_Solar_Const, m_Latitude, m_Atmosphere, m_Vapour, m_Transmittance, m_Pressure, m_Water, m_Dust;
+	double					m_Solar_Const, m_Latitude, m_Linke, m_Vapour, m_Atmosphere, m_Transmittance, m_Pressure, m_Water, m_Dust;
 
-	CSG_Grid				*m_pDEM, *m_pVapour, *m_pSVF, *m_pDirect, *m_pDiffus, *m_pTotal, *m_pRatio, *m_pDuration, *m_pSunrise, *m_pSunset,
+	CSG_Grid				*m_pDEM, *m_pSVF, *m_pLinke, *m_pVapour, *m_pDirect, *m_pDiffus, *m_pTotal, *m_pRatio, *m_pDuration, *m_pSunrise, *m_pSunset,
 							m_Slope, m_Aspect, m_Shade, m_Lat, m_Lon, m_Sun_Height, m_Sun_Azimuth;
 
 

@@ -88,22 +88,25 @@ CSolarRadiation::CSolarRadiation(void)
 		"<li>Boehner, J., Antonic, O. (2009): Land Surface Parameters Specific to Topo-Climatology. in Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry - Concepts, Software, Applications.</li>"
 		"<li>Oke, T.R. (1988): Boundary Layer Climates. London, Taylor & Francis.</li>"
 		"<li>Wilson, J.P., Gallant, J.C. [Eds.] (2000): Terrain Analysis - Principles and Applications. New York, John Wiley & Sons, Inc.</li>"
+		"<li>Joint Research Centre: <a target=\"_blank\" href=\"http://re.jrc.ec.europa.eu/pvgis/\">GIS solar radiation database for Europe</a> and  <a target=\"_blank\" href=\"http://re.jrc.ec.europa.eu/pvgis/solres/solmod3.htm\">Solar radiation and GIS</a>.</li>"
+		"<li>Hofierka, J., Suri, M. (2002): The solar radiation model for Open source GIS: implementation and applications. International GRASS users conference in Trento, Italy, September 2002. <a target=\"_blank\" href=\"http://skagit.meas.ncsu.edu/~jaroslav/trento/Hofierka_Jaroslav.pdf\">pdf</a>.</li>"
 		"</ul>\n"
 
 		"\n*) Most options should do well, but TAPES-G based diffuse irradiance calculation ('Atmospheric Effects' methods 2 and 3) needs further revision!"
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL, "GRD_DEM"     , _TL("Elevation"                   ), _TL(""), PARAMETER_INPUT           );
-	Parameters.Add_Grid(NULL, "GRD_SVF"     , _TL("Sky View Factor"             ), _TL(""), PARAMETER_INPUT_OPTIONAL  );
-	Parameters.Add_Grid(NULL, "GRD_VAPOUR"  , _TL("Water Vapour Pressure [mbar]"), _TL(""), PARAMETER_INPUT_OPTIONAL  );
-	Parameters.Add_Grid(NULL, "GRD_DIRECT"  , _TL("Direct Insolation"           ), _TL(""), PARAMETER_OUTPUT          );
-	Parameters.Add_Grid(NULL, "GRD_DIFFUS"  , _TL("Diffuse Insolation"          ), _TL(""), PARAMETER_OUTPUT          );
-	Parameters.Add_Grid(NULL, "GRD_TOTAL"   , _TL("Total Insolation"            ), _TL(""), PARAMETER_OUTPUT_OPTIONAL );
-	Parameters.Add_Grid(NULL, "GRD_RATIO"   , _TL("Direct to Diffuse Ratio"     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL );
-	Parameters.Add_Grid(NULL, "GRD_DURATION", _TL("Duration of Insolation"      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL );
-	Parameters.Add_Grid(NULL, "GRD_SUNRISE" , _TL("Sunrise"                     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL );
-	Parameters.Add_Grid(NULL, "GRD_SUNSET"  , _TL("Sunset"                      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL );
+	Parameters.Add_Grid         (NULL, "GRD_DEM"     , _TL("Elevation"                   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid         (NULL, "GRD_SVF"     , _TL("Sky View Factor"             ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid_or_Const(NULL, "GRD_VAPOUR"  , _TL("Water Vapour Pressure [mbar]"), _TL(""), 10.0, 0.0, true);
+	Parameters.Add_Grid_or_Const(NULL, "GRD_LINKE"   , _TL("Linke Turbidity Coefficient" ), _TL(""),  3.0, 0.0, true);
+	Parameters.Add_Grid         (NULL, "GRD_DIRECT"  , _TL("Direct Insolation"           ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid         (NULL, "GRD_DIFFUS"  , _TL("Diffuse Insolation"          ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid         (NULL, "GRD_TOTAL"   , _TL("Total Insolation"            ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         (NULL, "GRD_RATIO"   , _TL("Direct to Diffuse Ratio"     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         (NULL, "GRD_DURATION", _TL("Duration of Insolation"      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         (NULL, "GRD_SUNRISE" , _TL("Sunrise"                     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         (NULL, "GRD_SUNSET"  , _TL("Sunset"                      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
@@ -122,18 +125,19 @@ CSolarRadiation::CSolarRadiation(void)
 		NULL	, "UNITS"			, _TL("Units"),
 		_TL("Units for output radiation values."),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
-			SG_T("kWh / m\xb2"),
-			SG_T("kJ / m\xb2"),
-			SG_T("J / cm\xb2")
+			SG_T("kWh / m2"),
+			SG_T("kJ / m2"),
+			SG_T("J / cm2")
 		), 0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "SHADOW"			, _TL("Shadow"),
-		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow. The first is slightly faster but might show some artifacts."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow, or ignore shadowing effects. The first is slightly faster but might show some artifacts."),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("slim"),
-			_TL("fat")
+			_TL("fat"),
+			_TL("none")
 		), 1
 	);
 
@@ -221,10 +225,11 @@ CSolarRadiation::CSolarRadiation(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Atmospheric Effects"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Height of Atmosphere and Vapour Pressure"),
 			_TL("Air Pressure, Water and Dust Content"),
-			_TL("Lumped Atmospheric Transmittance")
+			_TL("Lumped Atmospheric Transmittance"),
+			_TL("Hofierka and Suri")
 		), 2
 	);
 
@@ -232,12 +237,6 @@ CSolarRadiation::CSolarRadiation(void)
 		pNode	, "ATMOSPHERE"		, _TL("Height of Atmosphere [m]"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 12000.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "VAPOUR"			, _TL("Water Vapour Pressure [mbar]"),
-		_TL("This value is used as constant if no vapour pressure grid is given."),
-		PARAMETER_TYPE_Double		, 10, 0.0, true
 	);
 
 	Parameters.Add_Value(
@@ -300,11 +299,6 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRD_VAPOUR") )
-	{
-		pParameters->Set_Enabled("VAPOUR"        , pParameter->asGrid() == NULL && pParameters->Get_Parameter("METHOD")->asInt() == 0);
-	}
-
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "UPDATE") )
 	{
 		pParameters->Set_Enabled("UPDATE_STRETCH", pParameter->asInt() == 2);
@@ -332,11 +326,12 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 	{
 		pParameters->Set_Enabled("GRD_VAPOUR"    , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("ATMOSPHERE"    , pParameter->asInt() == 0);
-		pParameters->Set_Enabled("VAPOUR"        , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("PRESSURE"      , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("WATER"         , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("DUST"          , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("LUMPED"        , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("GRD_LINKE"     , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("LOCALSVF"      , pParameter->asInt() != 3);
 	}
 
 	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -352,8 +347,11 @@ bool CSolarRadiation::On_Execute(void)
 {
 	//-----------------------------------------------------
 	m_pDEM			= Parameters("GRD_DEM"   )->asGrid();
-	m_pVapour		= Parameters("GRD_VAPOUR")->asGrid();
 	m_pSVF			= Parameters("GRD_SVF"   )->asGrid();
+	m_pVapour		= Parameters("GRD_VAPOUR")->asGrid();
+	m_Vapour		= Parameters("GRD_VAPOUR")->asDouble();
+	m_pLinke		= Parameters("GRD_LINKE" )->asGrid();
+	m_Linke			= Parameters("GRD_LINKE" )->asDouble();
 
 	m_pDirect		= Parameters("GRD_DIRECT")->asGrid();
 	m_pDiffus		= Parameters("GRD_DIFFUS")->asGrid();
@@ -364,13 +362,11 @@ bool CSolarRadiation::On_Execute(void)
 	m_pSunrise		= NULL;
 	m_pSunset		= NULL;
 
-	m_Solar_Const	= Parameters("SOLARCONST")->asDouble() / 1000.0;	// >> [kW / m²]
 	m_bLocalSVF		= Parameters("LOCALSVF"  )->asBool  ();
 	m_Shadowing		= Parameters("SHADOW"    )->asInt   ();
 
 	m_Method		= Parameters("METHOD"    )->asInt   ();
 	m_Atmosphere	= Parameters("ATMOSPHERE")->asDouble();
-	m_Vapour		= Parameters("VAPOUR"    )->asDouble();
 	m_Transmittance	= Parameters("LUMPED"    )->asDouble() /  100.0;	// percent to ratio
 	m_Pressure		= Parameters("PRESSURE"  )->asDouble();
 	m_Water			= Parameters("WATER"     )->asDouble();
@@ -645,9 +641,10 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 	SG_UI_Progress_Lock(true);
 
 	//-----------------------------------------------------
-	int			Update	= Parameters("UPDATE")->asInt();
-	double		dUpdate	= Parameters("UPDATE_STRETCH")->asDouble();
-	CSG_Grid	Direct; if( Update ) Direct.Create(*Get_System(), SG_DATATYPE_Float);
+	int		Update	= Parameters("UPDATE")->asInt();
+	double	dUpdate	= Parameters("UPDATE_STRETCH")->asDouble();
+
+	CSG_Grid	Direct;
 
 	//-----------------------------------------------------
 	bool	bWasDay	= false;
@@ -677,7 +674,16 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 
 			if( bDay )
 			{
-				Direct	+= *m_pDirect;	m_pDirect->Assign(0.0);
+				if( !Direct.is_Valid() )
+				{
+					Direct.Create(*m_pDirect);
+				}
+				else
+				{
+					Direct.Add   (*m_pDirect);
+				}
+				
+				m_pDirect->Assign(0.0);
 			}
 		}
 	}
@@ -709,6 +715,11 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 	Process_Set_Text(Date.Format("%A, %d. %B %Y, %X"));
 
 	double	JDN	= floor(Date.Get_JDN()) - 0.5 + Hour / 24.0;	// relate to UTC, avoid problems with daylight saving time
+
+	//-----------------------------------------------------
+	m_Solar_Const	= Parameters("SOLARCONST")->asDouble() / 1000.0;	// >> [kW / m²]
+
+	m_Solar_Const	*= 1.0 + 0.03344 * cos(Date.Get_DayOfYear() * 2.0 * M_PI / 365.25 - 0.048869);	// corrected for Earth's orbit eccentricity
 
 	//-----------------------------------------------------
 	if( m_Location )
@@ -860,65 +871,126 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, dou
 	}
 
 	double	Elevation	= m_pDEM->asDouble(x, y);
-
-	//-----------------------------------------------------
-	if( m_Method == 0 )	// Boehner
-	{
-		double	A, E, Vapour;
-
-		Vapour	= m_pVapour && !m_pVapour->is_NoData(x, y) ? m_pVapour->asDouble(x, y) : m_Vapour;
-		Vapour	= Vapour > 0.0 ? sqrt(Vapour) : 0.0;
-		E		= 0.9160 - 0.05125 * Vapour;
-		A		= 0.4158 + 0.03990 * Vapour;
-
-		Direct	= pow(E, (1.0 - Elevation / m_Atmosphere) / sin(Sun_Height));
-
-		Diffus	= m_Atmosphere / (m_Atmosphere - Elevation) * (0.0001165 * SG_Get_Square(M_RAD_TO_DEG * Sun_Height) - 0.0152 * M_RAD_TO_DEG * Sun_Height + A);
-		Diffus	= Direct * sin(Sun_Height) * (1.0 / (1.0 - Diffus) - 1.0);
-	}
-
-	//-----------------------------------------------------
-	else				// TAPES
-	{
-		double	Air_Mass	= Get_Air_Mass(Sun_Height) * (m_Pressure / pow(10.0, Elevation * 5.4667E-05)) / 1013.0;
-
-		//-------------------------------------------------
-		if( m_Method == 1 )	// Air Pressure, Water and Dust Content
-		{
-			double	AW, TW, TD, TDC;
-
-			AW		= 1.0 - 0.077 * pow(m_Water * Air_Mass, 0.3);		// absorption by water vapour
-			TW		= pow(0.975, m_Water * Air_Mass);					// scattering by water vapour	| problem (?!): fortran source differs from paper
-			TD		= pow(0.950, m_Water * m_Dust / 100.0);				// scattering by dust			| problem (?!): 100ppm := 1, 300ppm := 2
-			TDC		= pow(0.900, Air_Mass) + 0.026 * (Air_Mass - 1.0);	// scattering by a dust free atmosphere
-
-			Direct	= AW * TW * TD * TDC;
-			Diffus	= 0.5 * (AW - Direct);
-		}
-
-		//-------------------------------------------------
-		else				// Lumped Atmospheric Transmittance
-		{
-			Direct	= pow(m_Transmittance, Air_Mass);
-			Diffus	= 0.271 - 0.294 * Direct;
-		}
-
-		if( Sun_Height < M_RAD_TO_DEG )
-		{
-			Diffus	*= Sun_Height;
-		}
-	}
-
-	//-----------------------------------------------------
 	double	Slope		= m_Slope.asDouble(x, y);
-	double	Solar_Angle	= m_Shade.asDouble(x, y) > 0.0 ? 0.0 : cos(Slope) * cos(Sun_Height - M_PI_090) + sin(Slope) * sin(M_PI_090 - Sun_Height) * cos(Sun_Azimuth - m_Aspect.asDouble(x, y));
+	double	Solar_Angle	= m_Shade.asDouble(x, y) > 0.0 ? 0.0 :	// solar incidence angle measured between the Sun and the inclined surface
+		cos(Slope) * cos(Sun_Height - M_PI_090) + sin(Slope) * sin(M_PI_090 - Sun_Height) * cos(Sun_Azimuth - m_Aspect.asDouble(x, y));
 
-	Direct		= Solar_Angle <= 0.0 ? 0.0 : Solar_Angle * Direct * m_Solar_Const;
+	//-----------------------------------------------------
+	if( m_Method == 3 )	// Hofierka & Suri 2002
+	{
+		double	h_0		= Sun_Height;	// * M_RAD_TO_DEG;	// ???!!
+		double	sin_h_0	= sin(Sun_Height);
+		double	d_exp	= Solar_Angle;
+		double	T_LK	= m_pLinke && !m_pLinke->is_NoData(x, y) ? m_pLinke->asDouble(x, y) : m_Linke;
 
-	double	SVF	= m_pSVF && !m_pSVF->is_NoData(x, y) ? m_pSVF->asDouble(x, y) : m_bLocalSVF ? (1.0 + cos(Slope)) / 2.0 : 1.0;
+		//-------------------------------------------------
+		double	h_0ref	= h_0 + 0.061359 * (0.1594 + 1.123 * h_0 + 0.065656 * h_0*h_0) / (1. + 28.9344 * h_0 + 277.3971 * h_0*h_0);
+		double	m		= exp(-Elevation / 8434.5) / (sin_h_0 + 0.50572 * pow(h_0ref + 6.07995, -1.6364));
+		double	d_R		= m <= 20.0
+			? 1. / ( 6.6296 + 1.7513 * m - 0.1202 * m*m + 0.0065 * m*m*m - 0.00013 * m*m*m*m)
+			: 1. / (10.4    + 0.718  * m);
+		double	B_0c	= m_Solar_Const * exp(-0.8662 * T_LK * m * d_R);
+		double	B_hc	= B_0c * sin_h_0;
 
-	Diffus	= m_Solar_Const * Diffus * SVF;
+		Direct			= B_0c * sin(d_exp);	// B_ic
 
+		//-------------------------------------------------
+		double	Tn		= -0.015843 + 0.030543 * T_LK + 0.0003797 * T_LK*T_LK;
+		double	A1		=  0.26463  - 0.061581 * T_LK + 0.0031408 * T_LK*T_LK;	if( A1 * Tn < 0.0022 )	A1	= 0.0022 / Tn;
+		double	A2		=  2.04020  + 0.018945 * T_LK - 0.011161  * T_LK*T_LK;
+		double	A3		= -1.3025   + 0.039231 * T_LK + 0.0085079 * T_LK*T_LK;
+		double	F_d		= A1 + A2 * sin_h_0 + A3 * sin_h_0*sin_h_0;
+		double	D_hc	= m_Solar_Const * Tn * F_d;
+
+		double	K_b		= B_hc / (m_Solar_Const * sin_h_0);
+		double	F		= 0.5 * (1. + cos(Slope)) + (sin(Slope) - Slope * cos(Slope) - M_PI * SG_Get_Square(sin(Slope / 2.0)));
+
+		if( m_Shade.asDouble(x, y) > 0.0 )	// shadowed surface
+		{
+			Diffus	= D_hc * F * 0.25227;
+		}
+		else if( Sun_Height >= 0.1 )		// sunlit surface, height of Sun above 5.7°
+		{
+			F	*= 0.00263 - 0.712 * K_b - 0.6883 * K_b*K_b;	// * N
+
+			Diffus	= D_hc * F * (1. - K_b) + K_b * sin(d_exp) / sin_h_0;
+		}
+		else
+		{
+			double	A_LN	= Sun_Azimuth - m_Aspect.asDouble(x, y);
+
+			//	if( A_LN < -M_PI_180 ) A_LN += M_PI_360; else if( A_LN > M_PI_180 ) A_LN -= M_PI_360;	// quatsch!!!
+
+			F	*= 0.00263 - 0.712 * K_b - 0.6883 * K_b*K_b;	// * N
+
+			Diffus	= D_hc * F * (1. - K_b) + K_b * sin(Slope) * cos(A_LN) / (0.1 - 0.008 * h_0);
+		}
+
+		if( m_pSVF && !m_pSVF->is_NoData(x, y) )
+		{
+			Diffus	*= m_pSVF->asDouble(x, y);
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		if( m_Method == 0 )	// Boehner
+		{
+			double	A, E, Vapour;
+
+			Vapour	= m_pVapour && !m_pVapour->is_NoData(x, y) ? m_pVapour->asDouble(x, y) : m_Vapour;
+			Vapour	= Vapour > 0.0 ? sqrt(Vapour) : 0.0;
+			E		= 0.9160 - 0.05125 * Vapour;
+			A		= 0.4158 + 0.03990 * Vapour;
+
+			Direct	= pow(E, (1.0 - Elevation / m_Atmosphere) / sin(Sun_Height));
+
+			Diffus	= m_Atmosphere / (m_Atmosphere - Elevation) * (0.0001165 * SG_Get_Square(M_RAD_TO_DEG * Sun_Height) - 0.0152 * M_RAD_TO_DEG * Sun_Height + A);
+			Diffus	= Direct * sin(Sun_Height) * (1.0 / (1.0 - Diffus) - 1.0);
+		}
+
+		//-------------------------------------------------
+		else				// TAPES
+		{
+			double	Air_Mass	= Get_Air_Mass(Sun_Height) * (m_Pressure / pow(10.0, Elevation * 5.4667E-05)) / 1013.0;
+
+			//---------------------------------------------
+			if( m_Method == 1 )	// Air Pressure, Water and Dust Content
+			{
+				double	AW, TW, TD, TDC;
+
+				AW		= 1.0 - 0.077 * pow(m_Water * Air_Mass, 0.3);		// absorption by water vapour
+				TW		= pow(0.975, m_Water * Air_Mass);					// scattering by water vapour	| problem (?!): fortran source differs from paper
+				TD		= pow(0.950, m_Water * m_Dust / 100.0);				// scattering by dust			| problem (?!): 100ppm := 1, 300ppm := 2
+				TDC		= pow(0.900, Air_Mass) + 0.026 * (Air_Mass - 1.0);	// scattering by a dust free atmosphere
+
+				Direct	= AW * TW * TD * TDC;
+				Diffus	= 0.5 * (AW - Direct);
+			}
+
+			//---------------------------------------------
+			else				// Lumped Atmospheric Transmittance
+			{
+				Direct	= pow(m_Transmittance, Air_Mass);
+				Diffus	= 0.271 - 0.294 * Direct;
+			}
+
+			if( Sun_Height < M_RAD_TO_DEG )
+			{
+				Diffus	*= Sun_Height;
+			}
+		}
+
+		//-------------------------------------------------
+		Direct	= Solar_Angle <= 0.0 ? 0.0 : Solar_Angle * Direct * m_Solar_Const;
+
+		double	SVF	= m_pSVF && !m_pSVF->is_NoData(x, y) ? m_pSVF->asDouble(x, y) : m_bLocalSVF ? (1.0 + cos(Slope)) / 2.0 : 1.0;
+
+		Diffus	= m_Solar_Const * Diffus * SVF;
+	}
+
+	//-----------------------------------------------------
 	if( Direct < 0.0 )	{	Direct	= 0.0;	}	else if( Direct > m_Solar_Const )	{	Direct	= m_Solar_Const;	}
 	if( Diffus < 0.0 )	{	Diffus	= 0.0;	}	else if( Diffus > m_Solar_Const )	{	Diffus	= m_Solar_Const;	}
 
@@ -1028,6 +1100,7 @@ bool CSolarRadiation::Get_Shade(double Sun_Height, double Sun_Azimuth)
 
 	m_Shade.Assign(0.0);
 
+	//-----------------------------------------------------
 	if( m_Location == 0 )
 	{
 		double	dx, dy, dz;
@@ -1046,11 +1119,11 @@ bool CSolarRadiation::Get_Shade(double Sun_Height, double Sun_Azimuth)
 				{
 					switch( m_Shadowing )
 					{
-					default:	// slim
+					case 0:	// slim
 						Set_Shade(x, y, m_pDEM->asDouble(x, y), dx, dy, dz);
 						break;
 
-					case 1:		// fat
+					case 1:	// fat
 						Set_Shade(x - dShadow, y - dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
 						Set_Shade(x + dShadow, y - dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
 						Set_Shade(x - dShadow, y + dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
@@ -1074,11 +1147,11 @@ bool CSolarRadiation::Get_Shade(double Sun_Height, double Sun_Azimuth)
 				{
 					switch( m_Shadowing )
 					{
-					default:	// slim
+					case 0:	// slim
 						Set_Shade_Bended(x, y, m_pDEM->asDouble(x, y));
 						break;
 
-					case 1:		// fat
+					case 1:	// fat
 						Set_Shade_Bended(x - dShadow, y - dShadow, m_pDEM->asDouble(x, y));
 						Set_Shade_Bended(x + dShadow, y - dShadow, m_pDEM->asDouble(x, y));
 						Set_Shade_Bended(x - dShadow, y + dShadow, m_pDEM->asDouble(x, y));
@@ -1090,6 +1163,7 @@ bool CSolarRadiation::Get_Shade(double Sun_Height, double Sun_Azimuth)
 		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
 
