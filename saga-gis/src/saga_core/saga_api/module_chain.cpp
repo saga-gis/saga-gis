@@ -270,7 +270,7 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		case PARAMETER_TYPE_TIN              : Parameters.Add_TIN            (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_PointCloud       : Parameters.Add_PointCloud     (pParent, ID, Name, Desc, Constraint);	break;
 
-		case PARAMETER_TYPE_Grid_List        : Parameters.Add_Grid_List      (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Grid_List        : Parameters.Add_Grid_List      (pParent, ID, Name, Desc, Constraint, !IS_TRUE_PROPERTY(Parameter, "no_system"));	break;
 		case PARAMETER_TYPE_Table_List       : Parameters.Add_Table_List     (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_Shapes_List      : Parameters.Add_Shapes_List    (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_TIN_List         : Parameters.Add_TIN_List       (pParent, ID, Name, Desc, Constraint);	break;
@@ -353,19 +353,28 @@ bool CSG_Module_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 		return( false );
 	}
 
-	switch( pData->Get_Type() )
-	{
-	case PARAMETER_TYPE_PointCloud     : m_Data.Add_PointCloud     (NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_Grid           : m_Data.Add_Grid           (NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_Table          : m_Data.Add_Table          (NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_Shapes         : m_Data.Add_Shapes         (NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_TIN            : m_Data.Add_TIN            (NULL, ID, "", "", 0)->Assign(pData);	break;
+	CSG_Parameter	*pParameter	= m_Data(ID);
 
-	case PARAMETER_TYPE_PointCloud_List: m_Data.Add_PointCloud_List(NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_Grid_List      : m_Data.Add_Grid_List      (NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_Table_List     : m_Data.Add_Table_List     (NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_Shapes_List    : m_Data.Add_Shapes_List    (NULL, ID, "", "", 0)->Assign(pData);	break;
-	case PARAMETER_TYPE_TIN_List       : m_Data.Add_TIN_List       (NULL, ID, "", "", 0)->Assign(pData);	break;
+	if( pParameter )	// don't add twice with same identifier
+	{
+		if( pParameter->Get_Type() != pData->Get_Type() )
+		{
+			return( false );
+		}
+	}
+	else switch( pData->Get_Type() )
+	{
+	case PARAMETER_TYPE_PointCloud     : pParameter	= m_Data.Add_PointCloud     (NULL, ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_Grid           : pParameter	= m_Data.Add_Grid           (NULL, ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_Table          : pParameter	= m_Data.Add_Table          (NULL, ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_Shapes         : pParameter	= m_Data.Add_Shapes         (NULL, ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_TIN            : pParameter	= m_Data.Add_TIN            (NULL, ID, "", "", 0       );	break;
+
+	case PARAMETER_TYPE_PointCloud_List: pParameter	= m_Data.Add_PointCloud_List(NULL, ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_Grid_List      : pParameter	= m_Data.Add_Grid_List      (NULL, ID, "", "", 0, false);	break;
+	case PARAMETER_TYPE_Table_List     : pParameter	= m_Data.Add_Table_List     (NULL, ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_Shapes_List    : pParameter	= m_Data.Add_Shapes_List    (NULL, ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_TIN_List       : pParameter	= m_Data.Add_TIN_List       (NULL, ID, "", "", 0       );	break;
 
 	case PARAMETER_TYPE_DataObject_Output:
 		return( true );
@@ -373,6 +382,8 @@ bool CSG_Module_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 	default:
 		return( false );
 	}
+
+	pParameter->Assign(pData);
 
 	if( pData->is_DataObject() )
 	{
@@ -455,6 +466,16 @@ bool CSG_Module_Chain::Data_Finalize(void)
 		}
 		else if( Parameters(i)->is_DataObject_List() )
 		{
+			if( Parameters(i)->is_Output() && m_Data(Parameters(i)->Get_Identifier()) )	// output lists cannot be up-to-date yet
+			{
+				CSG_Parameter	*pData	= m_Data(Parameters(i)->Get_Identifier());
+
+				for(int j=0; j<pData->asList()->Get_Count(); j++)	// csg_parameter::assign() will not work, if parameters data manager is the standard data manager because it checks for existing data sets
+				{
+					Parameters(i)->asList()->Add_Item(pData->asList()->asDataObject(j));
+				}
+			}
+
 			for(int j=0; j<Parameters(i)->asList()->Get_Count(); j++)
 			{
 				m_Data_Manager.Delete(Parameters(i)->asList()->asDataObject(j), true);
@@ -673,13 +694,17 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 
 	bool	bResult	= false;
 
-	if( !Tool_Initialize(Tool, pModule) )
+	if( !pModule->On_Before_Execution() )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+		Error_Fmt("%s [%s].[%s]", _TL("before tool execution check failed"), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+	}
+	else if( !Tool_Initialize(Tool, pModule) )
+	{
+		Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"        ), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
 	}
 	else if( !(bResult = pModule->Execute()) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"     ), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+		Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
 	}
 
 	Tool_Finalize(Tool, pModule);
@@ -811,7 +836,14 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 		{
 			if( !pParameter->Assign(m_Data(Parameter.Get_Content())) )
 			{
-				pParameter->Set_Value(DATAOBJECT_CREATE);
+				if( pParameter->is_DataObject() )
+				{
+					pParameter->Set_Value(DATAOBJECT_CREATE);
+				}
+				else if( pParameter->is_DataObject_List() )
+				{
+					pParameter->asList()->Del_Items();
+				}
 			}
 		}
 	}
@@ -904,7 +936,7 @@ bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModu
 				}
 				else if( pParameter->is_DataObject_List() )
 				{
-					for(int k=0; k<m_Data.Get_Count(); k++)
+					for(int k=0; k<pParameter->asList()->Get_Count(); k++)
 					{
 						if( !Data_Exists(pParameter->asList()->asDataObject(k)) )
 						{
