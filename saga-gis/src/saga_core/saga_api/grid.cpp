@@ -333,7 +333,7 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load grid"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
-	bool	bResult	= _Load(File_Name, Type, Memory_Type, bLoadData);
+	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && _Load(File_Name, Type, Memory_Type, bLoadData);
 
 	if( bResult )
 	{
@@ -349,28 +349,24 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Band  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	rid   (s.BeforeFirst(':').AfterFirst('='));
 
 		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 33);	// CPGIS_Raster_Load_Band
 
 		if(	(bResult = pModule != NULL) == true )
 		{
-			SG_UI_Msg_Lock(true);
+			SG_UI_ProgressAndMsg_Lock(true);
 			pModule->Settings_Push();
 
-			SG_MODULE_PARAMETER_SET("CONNECTION", DBName + " [" + Host + ":" + Port + "]");
-			pModule->On_Before_Execution();
-			pModule->Set_Callback();
-			SG_MODULE_PARAMETER_SET("TABLES"    , Table);
-			pModule->Update_Parameter_States();
-
 			bResult	= pModule->On_Before_Execution()
-				&& SG_MODULE_PARAMETER_SET("BANDS"     , Band)
+				&& SG_MODULE_PARAMETER_SET("CONNECTION", DBName + " [" + Host + ":" + Port + "]")
+				&& SG_MODULE_PARAMETER_SET("TABLES"    , Table)
+				&& SG_MODULE_PARAMETER_SET("RID"       , rid)
 				&& SG_MODULE_PARAMETER_SET("GRID"      , this)
 				&& pModule->Execute();
 
 			pModule->Settings_Pop();
-			SG_UI_Msg_Lock(false);
+			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}
 

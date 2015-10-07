@@ -439,6 +439,20 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void		SG_UI_ProgressAndMsg_Lock	(bool bOn)
+{
+	SG_UI_Progress_Lock(bOn);
+	SG_UI_Msg_Lock     (bOn);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool		SG_UI_DataObject_Add(CSG_Data_Object *pDataObject, int Show)
 {
 	if( gSG_UI_Callback && pDataObject )

@@ -138,8 +138,8 @@ public:
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Table);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
 
-	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", const CSG_String &Names = "");
-	bool						Raster_Load				(CSG_Grid *pGrid                , const CSG_String &Table, const CSG_String &Where = "");
+	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids    , const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "");
+	bool						Raster_Load				(CSG_Grid *pGrid                    , const CSG_String &Table, const CSG_String &Where = "");
 	bool						Raster_Save				(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Field);
 	
 
@@ -162,6 +162,9 @@ private:
 
 	bool						_Table_Load				(CSG_Table &Data, const CSG_String &Select, const CSG_String &Name = "")	const;
 	bool						_Table_Load				(CSG_Table &Data, void *pResult)	const;
+
+	bool						_Raster_Open			(CSG_Table &Info, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", bool bBinary = true);
+	bool						_Raster_Load			(CSG_Grid *pGrid, bool bFirst, bool bBinary = true);
 
 };
 

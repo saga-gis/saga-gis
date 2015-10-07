@@ -87,6 +87,7 @@ enum
 	TYPE_SOURCE,
 	TYPE_TABLE,
 	TYPE_SHAPES,
+	TYPE_GRIDS,
 	TYPE_GRID
 };
 
@@ -101,6 +102,7 @@ enum
 	IMG_POINTS,
 	IMG_LINE,
 	IMG_POLYGON,
+	IMG_GRIDS,
 	IMG_GRID
 };
 
@@ -127,6 +129,7 @@ enum
 	DB_PGSQL_Shapes_SRID_Update	= 22,
 
 	DB_PGSQL_Raster_Load		= 30,
+	DB_PGSQL_Raster_Load_Band	= 33,
 	DB_PGSQL_Raster_Save		= 31,
 	DB_PGSQL_Raster_SRID_Update	= 32
 };
@@ -154,7 +157,7 @@ enum
 }
 
 //---------------------------------------------------------
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 
 ///////////////////////////////////////////////////////////
@@ -261,15 +264,16 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 	: wxTreeCtrl(pParent, ID_WND_DATA_SOURCE_DATABASE)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES);		// IMG_ROOT
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_OFF);		// IMG_SRC_CLOSED
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_ON);		// IMG_SRC_OPENED
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_TABLE);			// IMG_TABLE
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINT);		// IMG_POINT
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINTS);		// IMG_POINTS
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_LINE);		// IMG_LINE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES    );	// IMG_ROOT
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_OFF );	// IMG_SRC_CLOSED
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_ON  );	// IMG_SRC_OPENED
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_TABLE      );	// IMG_TABLE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINT  );	// IMG_POINT
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINTS );	// IMG_POINTS
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_LINE   );	// IMG_LINE
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POLYGON);	// IMG_POLYGON
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID);				// IMG_GRID
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID_MANAGER  );	// IMG_GRIDS
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID          );	// IMG_GRID
 
 	AddRoot(_TL("PostgreSQL Sources"), IMG_ROOT, IMG_ROOT, new CData_Source_PgSQL_Data(TYPE_ROOT));
 
@@ -448,6 +452,7 @@ void CData_Source_PgSQL::On_Item_Activated(wxTreeEvent &event)
 
 	case TYPE_TABLE:
 	case TYPE_SHAPES:
+	case TYPE_GRIDS:
 	case TYPE_GRID:
 		Table_Open(event.GetItem());
 		break;
@@ -495,6 +500,7 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 
 	case TYPE_TABLE:
 	case TYPE_SHAPES:
+	case TYPE_GRIDS:
 	case TYPE_GRID:
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_OPEN);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_RENAME);
@@ -655,11 +661,11 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 				case SHAPE_TYPE_Polygon: Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POLYGON); break;
 				}
 			}
-			else if( !s.Cmp("RASTER" ) ) Append_Table(Item, Tables[i].asString(0), TYPE_GRID  , IMG_GRID   );
+			else if( !s.Cmp("RASTER" ) ) Append_Table(Item, Tables[i].asString(0), TYPE_GRIDS , IMG_GRIDS  );
 			else if( !s.Cmp("TABLE"  ) ) Append_Table(Item, Tables[i].asString(0), TYPE_TABLE , IMG_TABLE  );
 		}
 
-		Expand      (Item);
+		Expand(Item);
 	}
 
 	Thaw();
@@ -670,7 +676,31 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 {
 	CData_Source_PgSQL_Data	*pData	= Parent.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Parent) : NULL; if( pData == NULL )	return;
 
-	AppendItem(Parent, Name, Image, Image, new CData_Source_PgSQL_Data(Type, Name, pData->Get_Server()));
+	wxTreeItemId	Item	= AppendItem(Parent, Name, Image, Image, new CData_Source_PgSQL_Data(Type, Name, pData->Get_Server()));
+
+	if( Type == TYPE_GRIDS )
+	{
+		CSG_Table	Grids;
+
+		bool	bResult;
+
+		RUN_MODULE(DB_PGSQL_Table_Query, bResult,	// CTable_Query
+				SET_PARAMETER("CONNECTION", pData->Get_Server())
+			&&	SET_PARAMETER("TABLES"    , Name)
+			&&	SET_PARAMETER("TABLE"     , &Grids)
+			&&  SET_PARAMETER("FIELDS"    , SG_T("rid, name"))
+		);
+
+		if( bResult )
+		{
+			for(int i=0; i<Grids.Get_Count(); i++)
+			{
+				AppendItem(Item, Grids[i].asString(1), IMG_GRID, IMG_GRID,
+					new CData_Source_PgSQL_Data(TYPE_GRID, CSG_String::Format("%s:rid=%d", Grids[i].asString(1), Grids[i].asInt(0)), pData->Get_Server())
+				);
+			}
+		}
+	}
 }
 
 
@@ -718,9 +748,16 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 	{
 		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Get_Connection);	// CGet_Connection
 
-		if(	pModule && pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters()) )
+		if(	pModule )
 		{
-			pModule->Execute();
+		//	pModule->Settings_Push(&SG_Get_Data_Manager());
+
+			if( pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters()) )
+			{
+				pModule->Execute();
+			}
+
+		//	pModule->Settings_Pop();
 		}
 	}
 	else if( pData->is_Connected() )
@@ -744,9 +781,11 @@ void CData_Source_PgSQL::Source_Close(const wxTreeItemId &Item, bool bDelete)
 
 		if( pModule )
 		{
+			pModule->Settings_Push(&SG_Get_Data_Manager());
 			pModule->On_Before_Execution();
-			pModule->Get_Parameters()->Set_Parameter("CONNECTION", pData->Get_Server());
+			pModule->Set_Parameter("CONNECTION", pData->Get_Server());
 			pModule->Execute();
+			pModule->Settings_Pop();
 		}
 	}
 
@@ -763,7 +802,9 @@ void CData_Source_PgSQL::Sources_Close(void)
 
 	if( pModule )
 	{
+		pModule->Settings_Push(&SG_Get_Data_Manager());
 		pModule->Execute();
+		pModule->Settings_Pop();
 	}
 }
 
@@ -830,16 +871,35 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	}
 
 	//-----------------------------------------------------
+	if( pData->Get_Type() == TYPE_GRIDS )
+	{
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Raster_Load);	// CPGIS_Raster_Load
+
+		if( pModule )
+		{
+			pModule->Settings_Push(&SG_Get_Data_Manager());
+			pModule->On_Before_Execution();
+			pModule->Set_Parameter("CONNECTION", pData->Get_Server());
+			pModule->Set_Parameter("TABLES"    , pData->Get_Value ());
+			pModule->Execute();
+			pModule->Settings_Pop();
+		}
+	}
+
+	//-----------------------------------------------------
 	if( pData->Get_Type() == TYPE_GRID )
 	{
 		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Raster_Load);	// CPGIS_Raster_Load
 
 		if( pModule )
 		{
+			pModule->Settings_Push(&SG_Get_Data_Manager());
 			pModule->On_Before_Execution();
-			pModule->Get_Parameters()->Set_Parameter("CONNECTION", pData->Get_Server());
-			pModule->Get_Parameters()->Set_Parameter("TABLES"    , pData->Get_Value ());
+			pModule->Set_Parameter("CONNECTION", pData->Get_Server());
+			pModule->Set_Parameter("TABLES"    , pData->Get_Value ().BeforeFirst(':'));
+			pModule->Set_Parameter("WHERE"     , pData->Get_Value ().AfterFirst (':'));
 			pModule->Execute();
+			pModule->Settings_Pop();
 		}
 	}
 }
@@ -878,15 +938,18 @@ void CData_Source_PgSQL::Table_Info(const wxTreeItemId &Item)
 
 	if( pModule )
 	{
+		pModule->Settings_Push(&SG_Get_Data_Manager());
 		pModule->On_Before_Execution();
-		pModule->Get_Parameters()->Set_Parameter("CONNECTION", pData->Get_Server());
-		pModule->Get_Parameters()->Set_Parameter("TABLES"    , pData->Get_Value ());
-		pModule->Get_Parameters()->Set_Parameter("TABLE"     , DATAOBJECT_NOTSET  );
+		pModule->Set_Parameter("CONNECTION", pData->Get_Server());
+		pModule->Set_Parameter("TABLES"    , pData->Get_Value ());
+		pModule->Set_Parameter("TABLE"     , DATAOBJECT_NOTSET  );
 		
 		if( pModule->Execute() )
 		{
 			g_pData->Show(pModule->Get_Parameters()->Get_Parameter("TABLE")->asTable());
 		}
+
+		pModule->Settings_Pop();
 	}
 }
 

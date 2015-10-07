@@ -1240,30 +1240,31 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order, const CSG_String &Names)
+bool CSG_PG_Connection::_Raster_Open(CSG_Table &Info, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order, bool bBinary)
 {
-	CSG_Table	Info;
-
+	//-----------------------------------------------------
 	if( !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
 	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not open table"), SG_T("raster_columns")));
+
 		return( false );
 	}
 
-	CSG_String	Geometry	= Info[0].asString("r_raster_column");
+	CSG_String	Field	= Info[0].asString("r_raster_column");
 
 	//-----------------------------------------------------
-	if( Names.is_Empty() || !Table_Load(Info, Table, Names, Where, "", "", Order) )
+	if( !Table_Load(Info, Table, "rid, name", Where, "", "", Order) )
 	{
-		Info.Destroy();
+		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not open raster table"), Table.c_str()));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	bool	bBinary	= true;
+	CSG_String	Select	= "COPY (SELECT ST_AsBinary(\"" + Field + "\") AS rastbin FROM \"" + Table + "\"";
 
-	CSG_String	Select	= "COPY (SELECT ST_AsBinary(\"" + Geometry + "\") AS rastbin FROM \"" + Table + "\"";
-
-	if( Where.Length() )	Select	+= SG_T(" WHERE ")    + Where;
-	if( Order.Length() )	Select	+= SG_T(" ORDER BY ") + Order;
+	if( Where.Length() )	Select	+= " WHERE "    + Where;
+	if( Order.Length() )	Select	+= " ORDER BY " + Order;
 
 	Select	+= ") TO STDOUT";	if( bBinary )	Select	+= " WITH (FORMAT 'binary')";
 
@@ -1279,45 +1280,74 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 		return( false );
 	}
 
+	PQclear(pResult);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::_Raster_Load(CSG_Grid *pGrid, bool bFirst, bool bBinary)
+{
 	//-----------------------------------------------------
 	char	*Bytes;
-	int		nBytes, nOkay, iBand;
+	int		nBytes;
 
-	for(iBand=0, nOkay=0; SG_UI_Process_Get_Okay() && (nBytes = PQgetCopyData(m_pgConnection, &Bytes, 0)) > 0; iBand++)
+	if( (nBytes = PQgetCopyData(m_pgConnection, &Bytes, 0)) <= 0 )
 	{
-		CSG_Bytes	Band;
+		return( false );
+	}
 
-		if( bBinary )
+	//-----------------------------------------------------
+	CSG_Bytes	Band;
+
+	if( bBinary )
+	{
+		int	Offset	= bFirst ? 25 : 6;
+
+		if( *((short *)Bytes) > 0 && nBytes > Offset )
 		{
-			int		Offset	= iBand == 0 ? 25 : 6;
-
-			if( *((short *)Bytes) > 0 && nBytes > Offset )
-			{
-				Band.Create((BYTE *)(Bytes + Offset), nBytes - Offset);
-			}
+			Band.Create((BYTE *)(Bytes + Offset), nBytes - Offset);
 		}
-		else if( nBytes > 3 )
-		{
-			Band.fromHexString(Bytes + 3);
-		}
+	}
+	else if( nBytes > 3 )
+	{
+		Band.fromHexString(Bytes + 3);
+	}
 
-		PQfreemem(Bytes);
+	PQfreemem(Bytes);
 
-		//-------------------------------------------------
+	return( Band.Get_Count() > 0 && CSG_Grid_OGIS_Converter::from_WKBinary(Band, pGrid) );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order)
+{
+	//-----------------------------------------------------
+	bool		bBinary	= true;
+
+	CSG_Table	Info;
+
+	if( !_Raster_Open(Info, Table, Where, Order, bBinary) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int iBand=0; iBand<Info.Get_Count() && SG_UI_Process_Get_Okay(); iBand++)
+	{
 		CSG_Grid	*pGrid	= SG_Create_Grid();
 
-		if( Band.Get_Count() > 0 && CSG_Grid_OGIS_Converter::from_WKBinary(Band, pGrid) )
+		if( !_Raster_Load(pGrid, iBand == 0, bBinary) )
 		{
-			if( iBand < Info.Get_Count() )
-			{
-				pGrid->Set_Name(CSG_String::Format("%s [%s]"  , Table.c_str(), Info[iBand].asString(0)));
-			}
-			else
-			{
-				pGrid->Set_Name(CSG_String::Format("%s [%02d]", Table.c_str(), iBand + 1));
-			}
+			delete(pGrid);
 
-			Add_MetaData(*pGrid, Table + CSG_String::Format(":%d", iBand)).Add_Child("BAND", iBand);
+			return( false );
+		}
+		else
+		{
+			pGrid->Set_Name(Table + " [" + Info[iBand].asString(1) + "]");
+
+			Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[iBand].asInt(0)));
 
 			SG_Get_Data_Manager().Add(pGrid);
 
@@ -1325,19 +1355,11 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 			{
 				pGrids->Add_Item(pGrid);
 			}
-
-			nOkay++;
-		}
-		else
-		{
-			delete(pGrid);
 		}
 	}
 
 	//-----------------------------------------------------
-	PQclear(pResult);
-
-	return( nOkay > 0 );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1345,79 +1367,16 @@ bool CSG_PG_Connection::Raster_Load(CSG_Grid *pGrid, const CSG_String &Table, co
 {
 	CSG_Table	Info;
 
-	if( !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
+	if( _Raster_Open(Info, Table, Where) && _Raster_Load(pGrid, true) )
 	{
-		return( false );
+		pGrid->Set_Name(Table + " [" + Info[0].asString(1) + "]");
+
+		Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[0].asInt(0)));
+
+		SG_Get_Data_Manager().Add(pGrid);
+
+		return( true );
 	}
-
-	CSG_String	Geometry	= Info[0].asString("r_raster_column");
-
-	//-----------------------------------------------------
-	if( !Table_Load(Info, Table, "name", "", Where, "", "") )
-	{
-		Info.Destroy();
-	}
-
-	//-----------------------------------------------------
-	CSG_String	Select	= "COPY (SELECT ST_AsBinary(\"" + Geometry + "\") AS rastbin FROM \"" + Table + "\"";
-
-	if( Where.Length() )	Select	+= SG_T(" WHERE ")    + Where;
-
-	Select	+= ") TO STDOUT WITH (FORMAT 'binary')";
-
-	//-----------------------------------------------------
-	PGresult	*pResult	= PQexec(m_pgConnection, Select);
-
-	if( PQresultStatus(pResult) != PGRES_COPY_OUT )
-	{
-		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
-
-		PQclear(pResult);
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	char	*Bytes;
-	int		nBytes;
-
-	if( (nBytes = PQgetCopyData(m_pgConnection, &Bytes, 0)) > 0 )
-	{
-		CSG_Bytes	Band;
-
-		int		Offset	= 25;
-
-		if( *((short *)Bytes) > 0 && nBytes > Offset )
-		{
-			Band.Create((BYTE *)(Bytes + Offset), nBytes - Offset);
-		}
-
-		PQfreemem(Bytes);
-
-		//-------------------------------------------------
-		if( Band.Get_Count() > 0 && CSG_Grid_OGIS_Converter::from_WKBinary(Band, pGrid) )
-		{
-			if( Info.Get_Count() > 0 )
-			{
-				pGrid->Set_Name(CSG_String::Format("%s [%s]", Table.c_str(), Info[0].asString(0)));
-			}
-			else
-			{
-				pGrid->Set_Name(CSG_String::Format("%s [%s]", Table.c_str(), Where.c_str()));
-			}
-
-			Add_MetaData(*pGrid, Table, Where);
-
-			SG_Get_Data_Manager().Add(pGrid);
-
-			PQclear(pResult);
-
-			return( true );
-		}
-	}
-
-	//-----------------------------------------------------
-	PQclear(pResult);
 
 	return( false );
 }
@@ -1427,8 +1386,10 @@ bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String 
 {
 	CSG_Table	Info;
 
-	if( !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
+	if( !pGrid || !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
 	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not open table"), SG_T("raster_columns")));
+
 		return( false );
 	}
 

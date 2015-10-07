@@ -1961,7 +1961,7 @@ bool CSG_Parameter_Data_Object::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		{
 			Entry.Set_Content("CREATE");
 		}
-		else if( m_pDataObject == DATAOBJECT_NOTSET || !SG_File_Exists(m_pDataObject->Get_File_Name(false)) )
+		else if( m_pDataObject == DATAOBJECT_NOTSET )//|| !SG_File_Exists(m_pDataObject->Get_File_Name(false)) )
 		{
 			Entry.Set_Content("NOT SET");
 		}
@@ -2491,9 +2491,11 @@ bool CSG_Parameter_List::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		for(int i=0; i<Get_Count(); i++)
 		{
-			if( SG_File_Exists(asDataObject(i)->Get_File_Name()) )
+			CSG_String	File	= asDataObject(i)->Get_File_Name(false);
+
+			if( File.BeforeFirst(':').Cmp("PGSQL") || SG_File_Exists(File) )
 			{
-				Entry.Add_Child(SG_T("DATA"), asDataObject(i)->Get_File_Name());
+				Entry.Add_Child(SG_T("DATA"), File);
 			}
 		}
 	}

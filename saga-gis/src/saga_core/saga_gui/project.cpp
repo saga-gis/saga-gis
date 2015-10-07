@@ -513,11 +513,11 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	for(int i=0; i<pEntry->Get_Children_Count(); i++)
 	{
-		if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") && !pEntry->Get_Child(i)->Get_Content().is_Empty() )
+		if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") && !pEntry->Get_Child(i)->Get_Content().is_Empty() && pEntry->Get_Child(i)->Get_Content().BeforeFirst(':').Cmp("PGSQL") )
 		{
-			wxString	s(Get_FilePath_Absolute(ProjectDir, pEntry->Get_Child(i)->Get_Content().w_str()));
+			wxString	File(Get_FilePath_Absolute(ProjectDir, pEntry->Get_Child(i)->Get_Content().w_str()));
 
-			pEntry->Get_Child(i)->Set_Content(&s);
+			pEntry->Get_Child(i)->Set_Content(&File);
 
 		//	if( SG_Compare_SAGA_Version(Version) < 0 )
 			{
@@ -587,11 +587,16 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 		for(int i=0; i<pEntry->Get_Children_Count(); i++)
 		{
-			if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") && SG_File_Exists(pEntry->Get_Child(i)->Get_Content()) )
+			if( !pEntry->Get_Child(i)->Get_Name().CmpNoCase("DATA") )
 			{
-				wxString	s(Get_FilePath_Relative(ProjectDir, pEntry->Get_Child(i)->Get_Content().w_str()));
+				CSG_String	File	= pEntry->Get_Child(i)->Get_Content();
 
-				pEntry->Get_Child(i)->Set_Content(&s);
+				if( File.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File) )
+				{
+					wxString	s(Get_FilePath_Relative(ProjectDir, File.w_str()));
+
+					pEntry->Get_Child(i)->Set_Content(&s);
+				}
 			}
 		}
 	}

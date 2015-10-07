@@ -175,7 +175,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
-	bool	bResult	= _Load(File_Name, Format, NULL);
+	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && _Load(File_Name, Format, NULL);
 
 	if( bResult )
 	{
@@ -197,7 +197,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 
 		if(	(bResult = pModule != NULL) == true )
 		{
-			SG_UI_Msg_Lock(true);
+			SG_UI_ProgressAndMsg_Lock(true);
 			pModule->Settings_Push();
 
 			bResult	= pModule->On_Before_Execution()
@@ -207,7 +207,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 				&& pModule->Execute();
 
 			pModule->Settings_Pop();
-			SG_UI_Msg_Lock(false);
+			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}
 

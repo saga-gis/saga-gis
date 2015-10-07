@@ -90,6 +90,12 @@ CRaster_Load::CRaster_Load(void)
 		_TL(""),
 		""
 	);
+
+	Parameters.Add_String(
+		NULL	, "WHERE"		, _TL("Where"),
+		_TL(""),
+		""
+	);
 }
 
 //---------------------------------------------------------
@@ -118,7 +124,7 @@ bool CRaster_Load::On_Execute(void)
 
 	pGrids->Del_Items();
 
-	if( !Get_Connection()->Raster_Load(pGrids, Table, "", "", "") )//, "rid=4") )
+	if( !Get_Connection()->Raster_Load(pGrids, Table, Parameters("WHERE")->asString()) )
 	{
 		return( false );
 	}
@@ -138,16 +144,15 @@ CRaster_Load_Band::CRaster_Load_Band(void)
 {
 	Set_Name		(_TL("Import Single Raster Band from PostGIS"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2015"));
+	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
 		"Imports grids from a PostGIS database."
 	));
 
-	Parameters.Add_Grid(
+	Parameters.Add_Grid_Output(
 		NULL	, "GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_OUTPUT
+		_TL("")
 	);
 
 	Parameters.Add_Choice(
@@ -160,7 +165,13 @@ CRaster_Load_Band::CRaster_Load_Band(void)
 		NULL	, "BANDS"		, _TL("Bands"),
 		_TL(""),
 		""
-	);
+	)->Set_UseInCMD(false);
+
+	Parameters.Add_String(
+		NULL	, "RID"			, _TL("Raster Band Identifier"),
+		_TL(""),
+		""
+	)->Set_UseInGUI(false);
 }
 
 //---------------------------------------------------------
@@ -168,6 +179,8 @@ void CRaster_Load_Band::On_Connection_Changed(CSG_Parameters *pParameters)
 {
 	CSG_String	s;
 	CSG_Table	t;
+
+	SG_UI_Progress_Lock(true); SG_UI_Msg_Lock(true);
 
 	if( Get_Connection()->Table_Load(t, "raster_columns") )
 	{
@@ -177,7 +190,11 @@ void CRaster_Load_Band::On_Connection_Changed(CSG_Parameters *pParameters)
 		}
 	}
 
+	SG_UI_Progress_Lock(false); SG_UI_Msg_Lock(false);
+
 	pParameters->Get_Parameter("TABLES")->asChoice()->Set_Items(s);
+
+	On_Parameter_Changed(pParameters, pParameters->Get_Parameter("TABLES"));
 }
 
 //---------------------------------------------------------
@@ -188,13 +205,17 @@ int CRaster_Load_Band::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		CSG_String	s;
 		CSG_Table	t;
 
-		if( Get_Connection()->Table_Load(t, pParameter->asString(), "name") )
+		SG_UI_Progress_Lock(true); SG_UI_Msg_Lock(true);
+
+		if( Get_Connection()->Table_Load(t, pParameter->asString(), "rid, name") )
 		{
 			for(int i=0; i<t.Get_Count(); i++)
 			{
-				s	+= t[i].asString(0) + CSG_String("|");
+				s	+= CSG_String::Format("{%d}%s|", t[i].asInt(0), t[i].asString(1));
 			}
 		}
+
+		SG_UI_Progress_Lock(false); SG_UI_Msg_Lock(false);
 
 		pParameters->Get_Parameter("BANDS")->asChoice()->Set_Items(s);
 	}
@@ -207,14 +228,27 @@ bool CRaster_Load_Band::On_Execute(void)
 {
 	CSG_String	Table	= Parameters("TABLES")->asString(), Where;
 
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	CSG_Grid	*pGrid	= SG_Create_Grid();
 
-	Where.Printf("name='%s'", Parameters("BANDS")->asString());
+	if( !SG_UI_Get_Window_Main() || *Parameters("RID")->asString() )
+	{
+		Where.Printf("rid=%s", Parameters("RID")->asString());
+	}
+	else
+	{
+		Where.Printf("rid=%s", Parameters("BANDS")->asChoice()->Get_Item_Data(Parameters("BANDS")->asInt()).c_str());
+	}
 
 	if( !Get_Connection()->Raster_Load(pGrid, Table, Where) )
 	{
+		Error_Fmt("%s: %s (%s)", _TL("could not load raster"), Table.c_str(), Where.c_str());
+
+		delete(pGrid);
+
 		return( false );
 	}
+
+	Parameters("GRID")->Set_Value(pGrid);
 
 	return( true );
 }

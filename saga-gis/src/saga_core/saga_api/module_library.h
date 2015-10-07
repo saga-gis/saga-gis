@@ -243,7 +243,7 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 		\
 		pModule->Settings_Push();\
 		\
-		if( !(CONDITION) )\
+		if( !pModule->On_Before_Execution() || !(CONDITION) )\
 		{\
 			Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
 		}\

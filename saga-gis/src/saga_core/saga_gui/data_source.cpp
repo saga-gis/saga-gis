@@ -184,7 +184,7 @@ CData_Source::~CData_Source(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CData_Source::Autoconnect(void)
+void CData_Source::Autoconnect_DB(void)
 {
 	m_pPgSQL->Autoconnect();
 }

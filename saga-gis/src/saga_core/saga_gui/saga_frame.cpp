@@ -311,9 +311,6 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pTB_ScatterPlot	= CVIEW_ScatterPlot		::_Create_ToolBar();
 
 	//-----------------------------------------------------
-	m_pData_Source->Autoconnect();
-
-	//-----------------------------------------------------
 	m_pLayout->GetPane(GetClientWindow()).Show().Center();
 
 	wxString	s;
@@ -352,6 +349,9 @@ CSAGA_Frame::CSAGA_Frame(void)
 #endif
 
 	Update();
+
+	//-----------------------------------------------------
+	m_pData_Source->Autoconnect_DB();
 }
 
 //---------------------------------------------------------

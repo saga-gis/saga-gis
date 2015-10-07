@@ -88,7 +88,7 @@ public:
 
 	void							Add_Pages				(void);
 
-	void							Autoconnect				(void);
+	void							Autoconnect_DB			(void);
 
 	class CData_Source_Files *		Get_Files				(void)	{	return( m_pFiles );	}
 
