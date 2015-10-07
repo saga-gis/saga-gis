@@ -427,12 +427,12 @@ bool CSG_Array::Inc_Array		(void **pArray)
 //---------------------------------------------------------
 bool CSG_Array::Dec_Array		(bool bShrink)
 {
-	return( m_Values > 0 ? Set_Array(m_nValues - 1, bShrink) : false );
+	return( m_nValues > 0 ? Set_Array(m_nValues - 1, bShrink) : false );
 }
 
 bool CSG_Array::Dec_Array		(void **pArray, bool bShrink)
 {
-	return( m_Values > 0 ? Set_Array(m_nValues - 1, pArray, bShrink) : false );
+	return( m_nValues > 0 ? Set_Array(m_nValues - 1, pArray, bShrink) : false );
 }
 
 
