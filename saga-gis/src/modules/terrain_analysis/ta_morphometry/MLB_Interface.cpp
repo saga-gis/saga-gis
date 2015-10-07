@@ -148,6 +148,7 @@ CSG_Module *		Create_Module(int i)
 	case 24:	return( new CTop_Hat );
 	case 25:	return( new CFuzzy_Landform_Elements );
 	case 26:	return( new CCurvature_UpDownSlope );
+	case 27:	return( new CWind_Exposition );
 
 	case 30:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );

@@ -77,17 +77,24 @@ CWind_Effect::CWind_Effect(void)
 
 	Set_Name		(_TL("Wind Effect (Windward / Leeward Index)"));
 
-	Set_Author		(SG_T("J.Boehner, A.Ringeler (c) 2008, O.Conrad (c) 2011"));
+	Set_Author		("J.Boehner, A.Ringeler (c) 2008, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"The 'Wind Effect' is a dimensionless index. Values below 1 indicate wind shadowed areas "
 		"whereas values above 1 indicate areas exposed to wind, all with regard to the specified "
 		"wind direction. Wind direction, i.e. the direction into which the wind blows, might be "
 		"either constant or variying in space, if a wind direction grid is supplied.\n"
-		"\nReferences:\n"
-		"- Boehner, J., Antonic, O. (2009): 'Land-surface parameters specific to topo-climatology'."
+		"\nReferences:\n<ul>"
+		"<ul><li>"
+		" Boehner, J., Antonic, O. (2009):"
+		" Land-surface parameters specific to topo-climatology."
 		" in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'."
-		" Developments in Soil Science, Volume 33, p.195-226, Elsevier.\n"
+		" Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+		"</li><li>"
+		" Gerlitz, L., Conrad, O., Böhner, J. (2015):"
+		" Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach."
+		" Earth System Dynamics, 6, 1-21. doi:10.5194/esd-6-1-2015."
+		"</li></ul>\n"
 	));
 
 	Parameters.Add_Grid(
@@ -105,7 +112,7 @@ CWind_Effect::CWind_Effect(void)
 	Parameters.Add_Choice(
 		pNode	, "DIR_UNITS"	, _TL("Wind Direction Units"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("radians"),
 			_TL("degree")
 		), 0
@@ -175,8 +182,6 @@ CWind_Effect::CWind_Effect(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -202,13 +207,11 @@ int CWind_Effect::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("PYRAMIDS" , pParameter->asBool() == false);
 	}
 
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -369,8 +372,6 @@ bool CWind_Effect::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -448,8 +449,6 @@ inline bool CWind_Effect::Get_Z(const TSG_Point &Position, double Distance, doub
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -522,8 +521,6 @@ void CWind_Effect::Get_Lee(int x, int y, double &Sum_A, double &Sum_B)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -569,6 +566,172 @@ void CWind_Effect::Get_Lee_Old(int x, int y, double dx, double dy, double &Sum_A
 
 	if( Weight_A > 0.0 )	{	Sum_A	/= Weight_A;	}
 	if( Weight_B > 0.0 )	{	Sum_B	/= Weight_B;	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWind_Exposition::CWind_Exposition(void)
+{
+	Set_Name		(_TL("Wind Exposition Index"));
+
+	Set_Author		("J.Boehner, O.Conrad (c) 2015");
+
+	Set_Description	(_TW(
+		"This tool calculates the average 'Wind Effect Index' for all directions using an angular step. "
+		"Like the 'Wind Effect Index' it is a dimensionless index. Values below 1 indicate wind shadowed areas "
+		"whereas values above 1 indicate areas exposed to wind.\n"
+		"\nReferences:\n"
+		"<ul><li>"
+		" Boehner, J., Antonic, O. (2009):"
+		" Land-surface parameters specific to topo-climatology."
+		" in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'."
+		" Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+		"</li><li>"
+		" Gerlitz, L., Conrad, O., Böhner, J. (2015):"
+		" Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach."
+		" Earth System Dynamics, 6, 1-21. doi:10.5194/esd-6-1-2015."
+		"</li></ul>\n"
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "DEM"			, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "EXPOSITION"	, _TL("Wind Exposition"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL	, "MAXDIST"		, _TL("Search Distance [km]"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 300.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "STEP"		, _TL("Angular Step Size (Degree)"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 15.0, 1.0, true, 45.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "OLDVER"		, _TL("Old Version"),
+		_TL("use old version for constant wind direction (no acceleration and averaging option)"),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "ACCEL"		, _TL("Acceleration"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.5, 1.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "PYRAMIDS"	, _TL("Elevation Averaging"),
+		_TL("use more averaged elevations when looking at increasing distances"),
+		PARAMETER_TYPE_Bool, false
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWind_Exposition::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OLDVER") )
+	{
+		pParameters->Set_Enabled("ACCEL"    , pParameter->asBool() == false);
+		pParameters->Set_Enabled("PYRAMIDS" , pParameter->asBool() == false);
+	}
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWind_Exposition::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Grid	Exposition(*Get_System()), *pExposition	= Parameters("EXPOSITION")->asGrid();
+
+	CSG_Colors	Colors(5);
+
+	Colors.Set_Color(0, 255, 127,  63);
+	Colors.Set_Color(1, 255, 255, 127);
+	Colors.Set_Color(2, 255, 255, 255);
+	Colors.Set_Color(3, 127, 127, 175);
+	Colors.Set_Color(4,   0,   0, 100);
+
+	DataObject_Set_Colors(pExposition, Colors);
+
+	//-----------------------------------------------------
+	CWind_Effect	Tool;
+
+	Tool.Settings_Push(NULL);
+
+	Tool.Set_Parameter("EFFECT"   , &Exposition);
+	Tool.Set_Parameter("DEM"      , Parameters("DEM"     ));
+	Tool.Set_Parameter("MAXDIST"  , Parameters("MAXDIST" ));
+	Tool.Set_Parameter("OLDVER"   , Parameters("OLDVER"  ));
+	Tool.Set_Parameter("ACCEL"    , Parameters("ACCEL"   ));
+	Tool.Set_Parameter("PYRAMIDS" , Parameters("PYRAMIDS"));
+
+	//-----------------------------------------------------
+	int		nDirections	= 0;
+	double	dDirection	= Parameters("STEP")->asDouble();
+
+	for(double Direction=0.0; Direction<360.0 && Process_Get_Okay(); Direction+=dDirection)
+	{
+		Process_Set_Text(CSG_String::Format("%s: %.1f", _TL("Direction"), Direction));
+
+		Tool.Set_Parameter("DIR_CONST", Direction);
+
+		SG_UI_Msg_Lock(true);
+
+		if( Tool.Execute() )
+		{
+			SG_UI_Progress_Lock(true);
+
+			if( nDirections++ == 0 )
+			{
+				pExposition->Assign(&Exposition);
+			}
+			else
+			{
+				pExposition->Add    (Exposition);
+			}
+
+			SG_UI_Progress_Lock(false);
+		}
+
+		SG_UI_Msg_Lock(false);
+	}
+
+	//-----------------------------------------------------
+	if( nDirections > 0 )
+	{
+		pExposition->Multiply(1.0 / (double)nDirections);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

@@ -80,7 +80,7 @@ class CWind_Effect : public CSG_Module_Grid
 public:
 	CWind_Effect(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Climate and Weather" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Climate and Weather") );	}
 
 
 protected:
@@ -111,6 +111,31 @@ private:
 
 	void					Get_Luv_Old				(int x, int y, double dx, double dy, double &Sum_A);
 	void					Get_Lee_Old				(int x, int y, double dx, double dy, double &Sum_A, double &Sum_B);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWind_Exposition : public CSG_Module_Grid
+{
+public:
+	CWind_Exposition(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Climate and Weather") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
 
 };
 

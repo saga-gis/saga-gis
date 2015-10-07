@@ -560,6 +560,7 @@ tools = [
 ['ta_morphometry', 24, 'Valley and Ridge Detection (Top Hat Approach)'],
 ['ta_morphometry', 25, 'Fuzzy Landform Element Classification'],
 ['ta_morphometry', 26, 'Upslope and Downslope Curvature'],
+['ta_morphometry', 27, 'Wind Exposition Index'],
 ['ta_preprocessor', 0, 'Flat Detection'],
 ['ta_preprocessor', 1, 'Sink Drainage Route Detection'],
 ['ta_preprocessor', 2, 'Sink Removal'],
