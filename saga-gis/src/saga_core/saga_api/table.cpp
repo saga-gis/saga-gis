@@ -193,20 +193,45 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
 
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 12);	// CPGIS_Table_Load
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 0);	// CGet_Connections
 
-		if(	(bResult = pModule != NULL) == true )
+		if(	pModule != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
+
+			//---------------------------------------------
+			CSG_Table	Connections;
+			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
+
 			pModule->Settings_Push();
 
-			bResult	= pModule->On_Before_Execution()
-				&& SG_MODULE_PARAMETER_SET("CONNECTION", DBName + " [" + Host + ":" + Port + "]")
-				&& SG_MODULE_PARAMETER_SET("TABLES"    , Table)
-				&& SG_MODULE_PARAMETER_SET("TABLE"     , this)
-				&& pModule->Execute();
+			if( pModule->On_Before_Execution() && SG_MODULE_PARAMETER_SET("CONNECTIONS", &Connections) && pModule->Execute() )	// CGet_Connections
+			{
+				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
+				{
+					if( !Connection.Cmp(Connections[i].asString(0)) )
+					{
+						bResult	= true;
+					}
+				}
+			}
 
 			pModule->Settings_Pop();
+
+			//---------------------------------------------
+			if( bResult && (bResult = (pModule = SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 12)) != NULL) == true )	// CPGIS_Table_Load
+			{
+				pModule->Settings_Push();
+
+				bResult	= pModule->On_Before_Execution()
+					&& SG_MODULE_PARAMETER_SET("CONNECTION", Connection)
+					&& SG_MODULE_PARAMETER_SET("TABLES"    , Table)
+					&& SG_MODULE_PARAMETER_SET("TABLE"     , this)
+					&& pModule->Execute();
+
+				pModule->Settings_Pop();
+			}
+
 			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}

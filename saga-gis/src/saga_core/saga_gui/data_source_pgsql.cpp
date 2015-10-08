@@ -20,13 +20,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-// This file is part of 'MicroCity: Spatial Analysis and //
-// Simulation Framework'. MicroCity is free software;you //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
 // Free Software Foundation; version 2 of the License.   //
 //                                                       //
-// MicroCity is distributed in the hope that it will be  //
+// SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
 // implied warranty of MERCHANTABILITY or FITNESS FOR A  //
 // PARTICULAR PURPOSE. See the GNU General Public        //
@@ -142,22 +142,20 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(MODULE, bRetVal, CONDITION)	{\
-	\
-	bRetVal	= false;\
-	\
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), MODULE);\
+#define RUN_MODULE(MODULE, bManager, CONDITION)	bool bResult = false;\
+{\
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", MODULE);\
 	\
 	if(	pModule )\
 	{\
-		pModule->Settings_Push(NULL);\
-		bRetVal	= pModule->On_Before_Execution() && (CONDITION) && pModule->Execute();\
+		pModule->Settings_Push(bManager ? &SG_Get_Data_Manager() : NULL);\
+		bResult	= pModule->On_Before_Execution() && (CONDITION) && pModule->Execute();\
 		pModule->Settings_Pop();\
 	}\
 }
 
 //---------------------------------------------------------
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Set_Parameter(IDENTIFIER, VALUE)
 
 
 ///////////////////////////////////////////////////////////
@@ -169,10 +167,9 @@ enum
 //---------------------------------------------------------
 bool	is_Connected	(const CSG_String &Server)
 {
-	bool		bResult;
 	CSG_Table	Connections;
 
-	RUN_MODULE(DB_PGSQL_Get_Connections, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
+	RUN_MODULE(DB_PGSQL_Get_Connections, false, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
 	for(int i=0; bResult && i<Connections.Get_Count(); i++)
 	{
@@ -280,10 +277,12 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 	//-----------------------------------------------------
 	SG_UI_Msg_Lock(true);
 
-	wxString	Server, User, Password;
+	wxString	Server;
 
 	for(int i=0; CONFIG_Read(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i), Server); i++)
 	{
+		wxString	User, Password;
+
 		if( Server.Find("|") > 0 )
 		{
 			User     = Server.AfterFirst ('|').BeforeFirst('|');
@@ -501,11 +500,16 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 	case TYPE_TABLE:
 	case TYPE_SHAPES:
 	case TYPE_GRIDS:
-	case TYPE_GRID:
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_OPEN);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_RENAME);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_DELETE);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_INFO);
+		break;
+
+	case TYPE_GRID:
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_OPEN);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_RENAME);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_DELETE);
 		break;
 	}
 
@@ -567,10 +571,9 @@ void CData_Source_PgSQL::Update_Sources(void)
 	}
 
 	//-----------------------------------------------------
-	bool		bResult;
 	CSG_Table	Connections;
 
-	RUN_MODULE(DB_PGSQL_Get_Connections, bResult, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
+	RUN_MODULE(DB_PGSQL_Get_Connections, false, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
 
 	for(int i=0; i<Connections.Get_Count(); i++)
 	{
@@ -634,10 +637,9 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Normal);
 		SetItemImage(Item, IMG_SRC_OPENED, wxTreeItemIcon_Selected);
 
-		bool		bResult;
 		CSG_Table	Tables;
 
-		RUN_MODULE(DB_PGSQL_Table_List, bResult,	// CTable_List
+		RUN_MODULE(DB_PGSQL_Table_List, false,	// CTable_List
 				SET_PARAMETER("CONNECTION", pData->Get_Value())
 			&&	SET_PARAMETER("TABLES"    , &Tables)
 		);
@@ -682,9 +684,7 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 	{
 		CSG_Table	Grids;
 
-		bool	bResult;
-
-		RUN_MODULE(DB_PGSQL_Table_Query, bResult,	// CTable_Query
+		RUN_MODULE(DB_PGSQL_Table_Query, false,	// CTable_Query
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , Name)
 			&&	SET_PARAMETER("TABLE"     , &Grids)
@@ -696,7 +696,7 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 			for(int i=0; i<Grids.Get_Count(); i++)
 			{
 				AppendItem(Item, Grids[i].asString(1), IMG_GRID, IMG_GRID,
-					new CData_Source_PgSQL_Data(TYPE_GRID, CSG_String::Format("%s:rid=%d", Grids[i].asString(1), Grids[i].asInt(0)), pData->Get_Server())
+					new CData_Source_PgSQL_Data(TYPE_GRID, CSG_String::Format("%s:rid=%d", Name, Grids[i].asInt(0)), pData->Get_Server())
 				);
 			}
 		}
@@ -726,9 +726,10 @@ bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialo
 		pData->Set_Password(Password);
 	}
 
-	bool	bResult;
+	//-----------------------------------------------------
+	MSG_General_Add(wxString::Format("%s: %s...", _TL("Connect to Database"), pData->Get_Server().c_str()), true, true);
 
-	RUN_MODULE(DB_PGSQL_Get_Connection, bResult,	// CGet_Connection
+	RUN_MODULE(DB_PGSQL_Get_Connection, false,	// CGet_Connection
 			SET_PARAMETER("PG_HOST", pData->Get_Host    ())
 		&&	SET_PARAMETER("PG_PORT", pData->Get_Port    ())
 		&&	SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
@@ -736,7 +737,16 @@ bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialo
 		&&	SET_PARAMETER("PG_PWD" , pData->Get_Password())
 	);
 
-	return( bResult );
+	if( bResult )
+	{
+		MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -746,18 +756,14 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 
 	if( pData->Get_Type() == TYPE_ROOT )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Get_Connection);	// CGet_Connection
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Get_Connection);	// CGet_Connection
 
 		if(	pModule )
 		{
-		//	pModule->Settings_Push(&SG_Get_Data_Manager());
-
 			if( pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters()) )
 			{
 				pModule->Execute();
 			}
-
-		//	pModule->Settings_Pop();
 		}
 	}
 	else if( pData->is_Connected() )
@@ -777,35 +783,24 @@ void CData_Source_PgSQL::Source_Close(const wxTreeItemId &Item, bool bDelete)
 
 	if( pData->is_Connected() )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Del_Connection);	// CDel_Connection
-
-		if( pModule )
-		{
-			pModule->Settings_Push(&SG_Get_Data_Manager());
-			pModule->On_Before_Execution();
-			pModule->Set_Parameter("CONNECTION", pData->Get_Server());
-			pModule->Execute();
-			pModule->Settings_Pop();
-		}
+		RUN_MODULE(DB_PGSQL_Del_Connection, true, SET_PARAMETER("CONNECTION", pData->Get_Server()));
 	}
 
 	if( bDelete )
 	{
 		Delete(Item);
 	}
+	else
+	{
+		pData->Set_Username(SG_T(""));
+		pData->Set_Password(SG_T(""));
+	}
 }
 
 //---------------------------------------------------------
 void CData_Source_PgSQL::Sources_Close(void)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Del_Connections);	// CDel_Connections
-
-	if( pModule )
-	{
-		pModule->Settings_Push(&SG_Get_Data_Manager());
-		pModule->Execute();
-		pModule->Settings_Pop();
-	}
+	RUN_MODULE(DB_PGSQL_Del_Connections, true, true);
 }
 
 
@@ -825,18 +820,14 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	{
 		CSG_Table	*pTable	= SG_Create_Table();
 
-		bool	bResult;
-
-		RUN_MODULE(DB_PGSQL_Table_Load, bResult,	// CTable_Load
+		RUN_MODULE(DB_PGSQL_Table_Load, true,	// CTable_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
+			&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
 			&&	SET_PARAMETER("TABLE"     , pTable)
 		);
 
 		if( bResult )
 		{
-			SG_Get_Data_Manager().Add(pTable);
-
 			g_pData->Show(pTable, 0);
 		}
 		else
@@ -850,18 +841,14 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	{
 		CSG_Shapes	*pShapes	= SG_Create_Shapes();
 
-		bool	bResult;
-
-		RUN_MODULE(DB_PGSQL_Shapes_Load, bResult,	// CPGIS_Shapes_Load
+		RUN_MODULE(DB_PGSQL_Shapes_Load, true,	// CPGIS_Shapes_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
+			&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
 			&&	SET_PARAMETER("SHAPES"    , pShapes)
 		);
 
 		if( bResult )
 		{
-			SG_Get_Data_Manager().Add(pShapes);
-
 		//	g_pData->Show(pShapes, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
 		}
 		else
@@ -873,34 +860,20 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	//-----------------------------------------------------
 	if( pData->Get_Type() == TYPE_GRIDS )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Raster_Load);	// CPGIS_Raster_Load
-
-		if( pModule )
-		{
-			pModule->Settings_Push(&SG_Get_Data_Manager());
-			pModule->On_Before_Execution();
-			pModule->Set_Parameter("CONNECTION", pData->Get_Server());
-			pModule->Set_Parameter("TABLES"    , pData->Get_Value ());
-			pModule->Execute();
-			pModule->Settings_Pop();
-		}
+		RUN_MODULE(DB_PGSQL_Raster_Load, true,
+				SET_PARAMETER("CONNECTION", pData->Get_Server())
+			&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
+		);
 	}
 
 	//-----------------------------------------------------
 	if( pData->Get_Type() == TYPE_GRID )
 	{
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Raster_Load);	// CPGIS_Raster_Load
-
-		if( pModule )
-		{
-			pModule->Settings_Push(&SG_Get_Data_Manager());
-			pModule->On_Before_Execution();
-			pModule->Set_Parameter("CONNECTION", pData->Get_Server());
-			pModule->Set_Parameter("TABLES"    , pData->Get_Value ().BeforeFirst(':'));
-			pModule->Set_Parameter("WHERE"     , pData->Get_Value ().AfterFirst (':'));
-			pModule->Execute();
-			pModule->Settings_Pop();
-		}
+		RUN_MODULE(DB_PGSQL_Raster_Load, true,
+				SET_PARAMETER("CONNECTION", pData->Get_Server())
+			&&	SET_PARAMETER("TABLES"    , pData->Get_Value ().BeforeFirst(':'))
+			&&	SET_PARAMETER("WHERE"     , pData->Get_Value ().AfterFirst (':'))
+		);
 	}
 }
 
@@ -909,23 +882,47 @@ void CData_Source_PgSQL::Table_Rename(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	wxString	Name	= pData->Get_Value().c_str();
+	wxString	Name	= GetItemText(Item);
 
-	if( DLG_Get_Text(Name, _TL("Rename Table"), _TL("Name")) )
+	switch( pData->Get_Type() )
 	{
-		CSG_String	SQL	= "ALTER TABLE \"" + pData->Get_Value() + "\" RENAME TO \"" + CSG_String(&Name) + "\";";
-
-		bool	bResult;
-
-		RUN_MODULE(DB_PGSQL_Execute_SQL, bResult,
-				SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&&	SET_PARAMETER("SQL"       , SQL)
-		);
-
-		if( bResult )
+	//-----------------------------------------------------
+	case TYPE_GRID:
+		if( DLG_Get_Text(Name, _TL("Rename Raster Band"), _TL("Name")) )
 		{
-			SetItemText(Item, Name);
+			CSG_String	Table	= pData->Get_Value().BeforeFirst(':');
+			CSG_String	rid		= pData->Get_Value().AfterFirst (':');
+			CSG_String	SQL	= "UPDATE \"" + Table + "\" SET name='" + CSG_String(&Name) + "' WHERE " + rid + ";";
+
+			RUN_MODULE(DB_PGSQL_Execute_SQL, false,
+					SET_PARAMETER("CONNECTION", pData->Get_Server())
+				&&	SET_PARAMETER("SQL"       , SQL)
+			);
+
+			if( bResult )
+			{
+				SetItemText(Item, Name);
+			}
 		}
+		break;
+
+	//-----------------------------------------------------
+	default:
+		if( DLG_Get_Text(Name, _TL("Rename Table"), _TL("Name")) )
+		{
+			CSG_String	SQL	= "ALTER TABLE \"" + pData->Get_Value() + "\" RENAME TO \"" + CSG_String(&Name) + "\";";
+
+			RUN_MODULE(DB_PGSQL_Execute_SQL, false,
+					SET_PARAMETER("CONNECTION", pData->Get_Server())
+				&&	SET_PARAMETER("SQL"       , SQL)
+			);
+
+			if( bResult )
+			{
+				SetItemText(Item, Name);
+			}
+		}
+		break;
 	}
 }
 
@@ -934,22 +931,21 @@ void CData_Source_PgSQL::Table_Info(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_pgsql"), DB_PGSQL_Table_Info);
+	CSG_Table	*pTable	= SG_Create_Table();
 
-	if( pModule )
+	RUN_MODULE(DB_PGSQL_Table_Info, true,	// CTable_Info
+			SET_PARAMETER("CONNECTION", pData->Get_Server())
+		&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
+		&&	SET_PARAMETER("TABLE"     , pTable)
+	);
+
+	if( bResult )
 	{
-		pModule->Settings_Push(&SG_Get_Data_Manager());
-		pModule->On_Before_Execution();
-		pModule->Set_Parameter("CONNECTION", pData->Get_Server());
-		pModule->Set_Parameter("TABLES"    , pData->Get_Value ());
-		pModule->Set_Parameter("TABLE"     , DATAOBJECT_NOTSET  );
-		
-		if( pModule->Execute() )
-		{
-			g_pData->Show(pModule->Get_Parameters()->Get_Parameter("TABLE")->asTable());
-		}
-
-		pModule->Settings_Pop();
+		g_pData->Show(pTable, 0);
+	}
+	else
+	{
+		delete(pTable);
 	}
 }
 
@@ -958,27 +954,61 @@ void CData_Source_PgSQL::Table_Drop(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	if( DLG_Message_Confirm(wxString::Format(wxT("%s [%s]"), _TL("Do you really want to delete the table"), pData->Get_Value().c_str()), _TL("Table Deletion")) )
+	wxString	Name	= GetItemText(Item);
+
+	switch( pData->Get_Type() )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Deleting table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
-
-		bool	bResult;
-
-		RUN_MODULE(DB_PGSQL_Table_Drop, bResult,	// CTable_Drop
-				SET_PARAMETER("CONNECTION", pData->Get_Server())
-			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
-		);
-
-		if( bResult )
+	//-----------------------------------------------------
+	case TYPE_GRID:
+		if( DLG_Message_Confirm(wxString::Format("%s [%s]", _TL("Do you really want to delete this raster band"), Name.c_str()), _TL("Raster Band Deletion")) )
 		{
-			Delete(Item);
+			MSG_General_Add(wxString::Format("%s: [%s] %s...", _TL("Deleting raster band"), pData->Get_Server().c_str(), Name.c_str()), true, true);
 
-			MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+			CSG_String	Table	= pData->Get_Value().BeforeFirst(':');
+			CSG_String	rid		= pData->Get_Value().AfterFirst (':');
+			CSG_String	SQL	= "DELETE FROM \"" + Table + "\" WHERE " + rid + ";";
+
+			RUN_MODULE(DB_PGSQL_Execute_SQL, false,
+					SET_PARAMETER("CONNECTION", pData->Get_Server())
+				&&	SET_PARAMETER("SQL"       , SQL)
+			);
+
+			if( bResult )
+			{
+				Delete(Item);
+
+				MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+			}
+			else
+			{
+				MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
+			}
 		}
-		else
+		break;
+
+	//-----------------------------------------------------
+	default:
+		if( DLG_Message_Confirm(wxString::Format("%s [%s]", _TL("Do you really want to delete the table"), pData->Get_Value().c_str()), _TL("Table Deletion")) )
 		{
-			MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
+			MSG_General_Add(wxString::Format("%s: [%s] %s...", _TL("Deleting table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
+
+			RUN_MODULE(DB_PGSQL_Table_Drop, false,	// CTable_Drop
+					SET_PARAMETER("CONNECTION", pData->Get_Server())
+				&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
+			);
+
+			if( bResult )
+			{
+				Delete(Item);
+
+				MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+			}
+			else
+			{
+				MSG_General_Add(_TL("failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
+			}
 		}
+		break;
 	}
 }
 
