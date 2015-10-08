@@ -32,6 +32,9 @@
     <ClCompile Include="classify_supervised_polygons.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="classification_quality.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -101,6 +104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="classify_supervised_polygons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="classification_quality.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

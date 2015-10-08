@@ -74,12 +74,18 @@ CChange_Detection::CChange_Detection(void)
 	CSG_Parameter	*pNode, *pTable;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Change Detection"));
+	Set_Name		(_TL("Confusion Matrix (Grids)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Change detection for classified grids."
+		"Compares two classified grids and creates a confusion matrix "
+		"and derived coefficients. "
+		"Grid classes have to be defined with a look-up table and "
+		"values of both grids must match each other for the "
+		"subsequent comparison. "
+		"A typical application is a change detection analysis "
+		"based on land cover classification of satellite imagery. "
 	));
 
 	//-----------------------------------------------------

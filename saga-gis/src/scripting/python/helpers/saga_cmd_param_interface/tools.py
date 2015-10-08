@@ -632,4 +632,5 @@ tools = [
 ['grid_filter', 17, 'Wombling for Multiple Features (Edge Detection)'],
 ['db_pgsql', 33, 'Import Single Raster Band from PostGIS'],
 ['ta_morphometry', 27, 'Wind Exposition Index']
+['imagery_classification', 7, 'Confusion Matrix (Polygons / Grids)']
 ]
