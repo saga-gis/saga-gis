@@ -75,15 +75,23 @@ CShapes_Split_Randomly::CShapes_Split_Randomly(void)
 	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Randomly splits one shapes layer into to new shapes layers. "
+		"Randomly splits one layer into to two new layers. "
 		"Useful to create a control group for model testing. "
+		"Optionally this can be done category-wise if a category "
+		"field is specified. "
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
+	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"		, _TL("Categories"),
+		_TL(""),
+		true
 	);
 
 	Parameters.Add_Shapes(
@@ -114,8 +122,6 @@ CShapes_Split_Randomly::CShapes_Split_Randomly(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -126,7 +132,7 @@ bool CShapes_Split_Randomly::On_Execute(void)
 
 	if( !pShapes->is_Valid() )
 	{
-		Error_Set(SG_T("invalid input"));
+		Error_Set("invalid input");
 
 		return( false );
 	}
@@ -137,11 +143,60 @@ bool CShapes_Split_Randomly::On_Execute(void)
 	pSplit[0]	= Parameters("A")->asShapes();
 	pSplit[1]	= Parameters("B")->asShapes();
 
-	pSplit[0]->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(100.5 - Percent)), pShapes);
-	pSplit[1]->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(  0.5 + Percent)), pShapes);
+	pSplit[0]->Create(pShapes->Get_Type(), CSG_String::Format("%s [%d%%]", pShapes->Get_Name(), (int)(100.5 - Percent)), pShapes);
+	pSplit[1]->Create(pShapes->Get_Type(), CSG_String::Format("%s [%d%%]", pShapes->Get_Name(), (int)(  0.5 + Percent)), pShapes);
 
 	CSG_Random::Initialize();	// initialize with current time
 
+	//-----------------------------------------------------
+	int	Field	= Parameters("FIELD")->asInt();
+
+	if( Field < 0 )
+	{
+		Split(pShapes, pSplit, Percent);
+	}
+	else	// stratified
+	{
+		CSG_String	Category;
+		CSG_Shapes	Shapes(pShapes->Get_Type(), pShapes->Get_Name(), pShapes);
+
+		pShapes->Set_Index(Field, TABLE_INDEX_Ascending);
+
+		for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape_byIndex(i);
+
+			if( Shapes.Get_Count() == 0 )
+			{
+				Category	= pShape->asString(Field);
+			}
+			else if( Category.Cmp(pShape->asString(Field)) )	// category changed
+			{
+				Category	= pShape->asString(Field);
+
+				Split(&Shapes, pSplit, Percent);
+
+				Shapes.Del_Shapes();
+			}
+
+			Shapes.Add_Shape(pShape);
+		}
+
+		Split(&Shapes, pSplit, Percent);	// don't forget to split last category
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CShapes_Split_Randomly::Split(CSG_Shapes *pShapes, CSG_Shapes *pSplit[2], double Percent)
+{
 	//-----------------------------------------------------
 	if( !Parameters("EXACT")->asBool() )
 	{
@@ -177,9 +232,6 @@ bool CShapes_Split_Randomly::On_Execute(void)
 			pSplit[i < n ? 1 : 0]->Add_Shape(pShapes->Get_Shape(Random[i].asInt(0)));
 		}
 	}
-
-	//-----------------------------------------------------
-	return( true );
 }
 
 

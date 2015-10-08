@@ -77,12 +77,17 @@ class CShapes_Split_Randomly : public CSG_Module
 public:
 	CShapes_Split_Randomly(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Construction") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute		(void);
+
+
+private:
+
+	void						Split			(CSG_Shapes *pShapes, CSG_Shapes *pSplit[2], double Percent);
 
 };
 
