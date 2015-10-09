@@ -351,7 +351,7 @@ bool CSG_PG_Connection::has_PostGIS(double minVersion)
 	CSG_Table	t;
 
 	return( _Table_Load(t, "SELECT PostGIS_Lib_Version()", "") && t.Get_Count() == 1 && t.Get_Field_Count() == 1
-		&& 0.0001 * t[0][0].asDouble() >= minVersion
+		&& t[0][0].asDouble() >= minVersion
 	);
 }
 
@@ -1245,7 +1245,7 @@ bool CSG_PG_Connection::_Raster_Open(CSG_Table &Info, const CSG_String &Table, c
 	//-----------------------------------------------------
 	if( !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not open table"), SG_T("raster_columns")));
+		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not access table"), SG_T("raster_columns")));
 
 		return( false );
 	}
@@ -1255,7 +1255,7 @@ bool CSG_PG_Connection::_Raster_Open(CSG_Table &Info, const CSG_String &Table, c
 	//-----------------------------------------------------
 	if( !Table_Load(Info, Table, "rid, name", Where, "", "", Order) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not open raster table"), Table.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not access raster table"), Table.c_str()));
 
 		return( false );
 	}
@@ -1382,13 +1382,13 @@ bool CSG_PG_Connection::Raster_Load(CSG_Grid *pGrid, const CSG_String &Table, co
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Field)
+bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Name)
 {
 	CSG_Table	Info;
 
 	if( !pGrid || !Table_Load(Info, "raster_columns", "*", CSG_String("r_table_name = '") + Table + "'") || Info.Get_Count() != 1 )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not open table"), SG_T("raster_columns")));
+		SG_UI_Msg_Add_Error(CSG_String::Format("[PostGIS] %s (%s)", _TL("could not access table"), SG_T("raster_columns")));
 
 		return( false );
 	}
@@ -1412,6 +1412,8 @@ bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String 
 		return( false );
 	}
 
+	PQclear(pResult);
+
 	//-----------------------------------------------------
 	CSG_Bytes	Band;
 
@@ -1432,9 +1434,19 @@ bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String 
 	}
 
 	//-----------------------------------------------------
-	PQclear(pResult);
+	Table_Load(Info, Table, "rid");	// CSG_String::Format("SELECT currval('%s_rid_seq')", Table.c_str()));
 
-	Add_MetaData(*pGrid, Table, Field);
+	int	rid	= Info[Info.Get_Count() - 1].asInt(0);
+
+	//-----------------------------------------------------
+	Info	= Get_Field_Desc(Table);
+
+	if( !Name.is_Empty() && Info.Get_Count() > 2 && !SG_STR_CMP("varchar", Info[2].asString(1)) )
+	{
+		Execute(CSG_String::Format("UPDATE %s SET %s='%s' WHERE rid=%d", Table.c_str(), Info[2].asString(0), Name.c_str(), rid));
+	}
+
+	Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", rid));
 
 	return( true );
 }

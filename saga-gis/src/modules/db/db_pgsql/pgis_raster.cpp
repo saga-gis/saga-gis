@@ -268,7 +268,7 @@ CRaster_Save::CRaster_Save(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Export Raster to PostGIS"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Exports grids to a PostGIS database."
@@ -284,6 +284,12 @@ CRaster_Save::CRaster_Save(void)
 		pNode	, "GRIDS"		, _TL("Bands"),
 		_TL(""),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TABLE"		, _TL("Table"),
+		_TL(""),
+		""
 	);
 
 	Parameters.Add_String(
@@ -302,11 +308,45 @@ CRaster_Save::CRaster_Save(void)
 }
 
 //---------------------------------------------------------
+void CRaster_Save::On_Connection_Changed(CSG_Parameters *pParameters)
+{
+	CSG_String	s;
+	CSG_Table	t;
+
+	if( Get_Connection()->Table_Load(t, "raster_columns") )
+	{
+		for(int i=0; i<t.Get_Count(); i++)
+		{
+			s	+= t[i].asString("r_table_name") + CSG_String("|");
+		}
+	}
+
+	s	+= _TL("<not set>") + CSG_String("|");
+
+	pParameters->Get_Parameter("TABLE")->asChoice()->Set_Items(s);
+	pParameters->Get_Parameter("TABLE")->Set_Value(t.Get_Count());
+}
+
+//---------------------------------------------------------
+int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE") )
+	{
+		bool	bCreate	= pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
+
+		pParameters->Set_Enabled("NAME"     , bCreate);
+		pParameters->Set_Enabled("GRID_NAME", bCreate);
+	}
+
+	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 bool CRaster_Save::On_Execute(void)
 {
-	if( !Get_Connection()->Table_Exists(SG_T("spatial_ref_sys")) || !Get_Connection()->Table_Exists(SG_T("geometry_columns")) )
+	if( !Get_Connection()->has_PostGIS(2.0) )
 	{
-		SG_UI_Dlg_Message(_TL("Not a valid PostGIS database!"), _TL("Database Connection Error"));
+		Error_Set(_TL("PostGIS extension missing or too old"));
 
 		return( false );
 	}
@@ -314,21 +354,27 @@ bool CRaster_Save::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	CSG_String	SavePoint, Name	= Parameters("NAME")->asString();
+	CSG_String	SavePoint, Table;
 
-	if( Name.Length() == 0 )
+	Table	= Parameters("TABLE")->asInt() < Parameters("TABLE")->asChoice()->Get_Count() - 1
+		? Parameters("TABLE")->asString()
+		: Parameters("NAME" )->asString();
+
+	if( Table.Length() == 0 )
+	{
+		Error_Set(_TL("no name has been specified for new raster table"));
+
 		return( false );
-
-	bool	bGridName	= Parameters("GRID_NAME")->asBool();
+	}
 
 	//-----------------------------------------------------
 	Get_Connection()->Begin(SavePoint = Get_Connection()->is_Transaction() ? "RASTER_SAVE" : "");
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Exists(Name) )
+	if( !Get_Connection()->Table_Exists(Table) )
 	{
-		CSG_String	SQL	= "CREATE TABLE \"" + Name + "\" (\"rid\" serial PRIMARY KEY, \"raster\" raster"
-			+ (bGridName ? ", \"name\" varchar(64))" : ")");
+		CSG_String	SQL	= "CREATE TABLE \"" + Table + "\" (\"rid\" serial PRIMARY KEY, \"raster\" raster"
+			+ (Parameters("GRID_NAME")->asBool() ? ", \"name\" varchar(64))" : ")");
 		
 		if( !Get_Connection()->Execute(SQL) )
 		{
@@ -341,33 +387,33 @@ bool CRaster_Save::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Count(); i++)
 	{
-		CSG_Bytes	WKB;
+		Process_Set_Text(CSG_String::Format("%s: %s [%d/%d]", _TL("export grid"), pGrids->asGrid(i)->Get_Name(), i + 1, pGrids->Get_Count()));
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %s [%d/%d]"), _TL("export grid"), pGrids->asGrid(i)->Get_Name(), i + 1, pGrids->Get_Count()));
-
-		if( !bGridName )
+		if( !Get_Connection()->Raster_Save(pGrids->asGrid(i), Get_SRID(), Table, pGrids->asGrid(i)->Get_Name()) )
 		{
-			if( !Get_Connection()->Raster_Save(pGrids->asGrid(i), Get_SRID(), Name, "") )
-			{
-				Get_Connection()->Rollback(SavePoint);
+			Get_Connection()->Rollback(SavePoint);
 
-				return( false );
-			}
+			return( false );
 		}
-		else if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), Get_SRID()) )
-		{
-			CSG_String	SQL	= "INSERT INTO \"" + Name + "\" (\"raster\", \"name\") VALUES("
-				+ "ST_AddBand('" + WKB.toHexString() + "'::raster, '"
-				+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL), '"
-				+ pGrids->asGrid(i)->Get_Name() + "')";
 
-			if( !Get_Connection()->Execute(SQL) )
-			{
-				Get_Connection()->Rollback(SavePoint);
+		//{
+		//	CSG_Bytes	WKB;
 
-				return( false );
-			}
-		}
+		//	if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), Get_SRID()) )
+		//	{
+		//		CSG_String	SQL	= "INSERT INTO \"" + Table + "\" (\"raster\", \"name\") VALUES("
+		//			+ "ST_AddBand('" + WKB.toHexString() + "'::raster, '"
+		//			+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL), '"
+		//			+ pGrids->asGrid(i)->Get_Name() + "')";
+
+		//		if( !Get_Connection()->Execute(SQL) )
+		//		{
+		//			Get_Connection()->Rollback(SavePoint);
+
+		//			return( false );
+		//		}
+		//	}
+		//}
 	}
 
 	//-----------------------------------------------------
