@@ -208,7 +208,7 @@ tools = [
 ['grid_visualisation', 9, 'Split RGB Composite'],
 ['imagery_classification', 0, 'Supervised Classification for Grids'],
 ['imagery_classification', 1, 'Cluster Analysis for Grids'],
-['imagery_classification', 2, 'Change Detection'],
+['imagery_classification', 2, 'Confusion Matrix (Grids)'],
 ['imagery_classification', 3, 'Decision Tree'],
 ['imagery_classification', 4, 'Supervised Classification for Shapes'],
 ['imagery_classification', 5, 'Supervised Classification for Tables'],
@@ -631,6 +631,6 @@ tools = [
 ['climate_tools', 9, 'Sunrise and Sunset'],
 ['grid_filter', 17, 'Wombling for Multiple Features (Edge Detection)'],
 ['db_pgsql', 33, 'Import Single Raster Band from PostGIS'],
-['ta_morphometry', 27, 'Wind Exposition Index']
+['ta_morphometry', 27, 'Wind Exposition Index'],
 ['imagery_classification', 7, 'Confusion Matrix (Polygons / Grids)']
 ]
