@@ -217,6 +217,46 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CDatabase_Create : public CSG_Module
+{
+public:
+	CDatabase_Create(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CDatabase_Destroy : public CSG_Module
+{
+public:
+	CDatabase_Destroy(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

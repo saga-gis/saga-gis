@@ -309,7 +309,7 @@ bool CShapes_Save::On_Execute(void)
 
 				CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
 
-				SQL	+= "ST_GeomFromWKB(E'\\\\x" + WKB.toHexString() + CSG_String::Format(SG_T("', %d)"), SRID);
+				SQL	+= "ST_GeomFromWKB(E'\\\\x" + WKB.toHexString() + CSG_String::Format("', %d)", SRID);
 			}
 			else
 			{
@@ -317,7 +317,7 @@ bool CShapes_Save::On_Execute(void)
 
 				CSG_Shapes_OGIS_Converter::to_WKText(pShape, WKT);
 
-				SQL	+= "ST_GeomFromText('" + WKT + CSG_String::Format(SG_T("', %d)"), SRID);
+				SQL	+= "ST_GeomFromText('" + WKT + CSG_String::Format("', %d)", SRID);
 			}
 
 			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
@@ -326,14 +326,20 @@ bool CShapes_Save::On_Execute(void)
 
 				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 				{
-					s.Replace(SG_T("'"), SG_T("\""));
-					s	= SG_T("'") + s + SG_T("'");
+					if( 1 )
+					{
+						char	*_s	= NULL; if( s.to_ASCII(&_s) ) s = _s; SG_FREE_SAFE(_s);
+					}
+
+					s.Replace("'", "\"");
+
+					s	= "'" + s + "'";
 				}
 
-				SQL	+= SG_T(", ")  + s;
+				SQL	+= ", "  + s;
 			}
 
-			SQL	+= SG_T(")");
+			SQL	+= ")";
 
 			if( Get_Connection()->Execute(SQL) )
 			{
@@ -341,7 +347,7 @@ bool CShapes_Save::On_Execute(void)
 			}
 			else
 			{
-				Message_Add(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("could not save shape"), 1 + iShape, pShapes->Get_Count()));
+				Message_Add(CSG_String::Format("%s [%d/%d]", _TL("could not save shape"), 1 + iShape, pShapes->Get_Count()));
 			}
 		}
 	}
@@ -359,6 +365,10 @@ bool CShapes_Save::On_Execute(void)
 	Get_Connection()->Commit(SavePoint);
 
 	Get_Connection()->GUI_Update();
+
+	Get_Connection()->Add_MetaData(*pShapes, Name);
+
+	pShapes->Set_Modified(false);
 
 	return( true );
 }

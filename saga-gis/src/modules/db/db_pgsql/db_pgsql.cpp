@@ -133,6 +133,14 @@ void _Error_Message(PGconn *pConnection)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_PG_Connection::CSG_PG_Connection(void)
+{
+	m_bTransaction	= false;
+
+	m_pConnection	= NULL;
+}
+
+//---------------------------------------------------------
 CSG_PG_Connection::CSG_PG_Connection(const CSG_String &Host, int Port, const CSG_String &Name, const CSG_String &User, const CSG_String &Password, bool bAutoCommit)
 {
 	Create(Host, Port, Name, User, Password, bAutoCommit);
@@ -142,7 +150,9 @@ bool CSG_PG_Connection::Create(const CSG_String &Host, int Port, const CSG_Strin
 {
 	m_bTransaction	= false;
 
-	m_pConnection	= PQsetdbLogin(Host, CSG_String::Format(SG_T("%d"), Port), NULL, NULL, Name, User, Password);
+	m_pConnection	= Name.is_Empty()
+		? PQsetdbLogin(Host, CSG_String::Format("%d", Port), NULL, NULL, NULL, User, Password)
+		: PQsetdbLogin(Host, CSG_String::Format("%d", Port), NULL, NULL, Name, User, Password);
 
 	if( PQstatus(m_pgConnection) != CONNECTION_OK )
 	{
@@ -839,7 +849,20 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 			}
 			else
 			{
-				sprintf(Values[iField], "%s", CSG_String(pRecord->asString(iField)).b_str());
+				CSG_String	Value	= pRecord->asString(iField);
+
+				if( 0 && Table.Get_Field_Type(iField) == SG_DATATYPE_String )
+				{
+					char	*s	= NULL; Value.to_ASCII(&s);
+
+					sprintf(Values[iField], "%s", s ? s : '\0');
+
+					SG_FREE_SAFE(s);
+				}
+				else
+				{
+					sprintf(Values[iField], "%s", Value.b_str());
+				}
 
 				paramValues [iField]	= Values[iField];
 			}

@@ -581,3 +581,178 @@ bool CExecute_SQL::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CDatabase_Create::CDatabase_Create(void)
+{
+	Set_Name		(_TL("Create Database"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2015"));
+
+	Set_Description	(_TW(
+		"Creates a new PostgreSQL Database."
+	));
+
+	Parameters.Add_String(
+		NULL	, "PG_HOST"		, _TL("Host"),
+		_TL("Password"),
+		"localhost"
+	);
+
+	Parameters.Add_Value(
+		NULL	, "PG_PORT"		, _TL("Port"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 5432, 0, true
+	);
+
+	Parameters.Add_String(
+		NULL	, "PG_NAME"		, _TL("Database"),
+		_TL("Database Name"),
+		"geo_test"
+	);
+
+	Parameters.Add_String(
+		NULL	, "PG_USER"		, _TL("User"),
+		_TL("User Name"),
+		"postgres"
+	);
+
+	Parameters.Add_String(
+		NULL	, "PG_PWD"		, _TL("Password"),
+		_TL("Password"),
+		"postgres", false, true
+	);
+}
+
+//---------------------------------------------------------
+bool CDatabase_Create::On_Execute(void)
+{
+	const SG_Char	*Host, *Name, *User, *Password;
+
+	Host		= Parameters("PG_HOST")->asString();
+	int	Port	= Parameters("PG_PORT")->asInt();
+	Name		= Parameters("PG_NAME")->asString(),
+	User		= Parameters("PG_USER")->asString();
+	Password	= Parameters("PG_PWD" )->asString();
+
+	if( SG_PG_Get_Connection_Manager().Get_Connection(CSG_String::Format("%s [%s:%d]", Name, Host, Port)) )
+	{
+		Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("PostgreSQL database is already connected")));
+
+		return( false );
+	}
+
+	CSG_PG_Connection	Connection;
+
+	if( Connection.Create(Host, Port, "", User, Password) && Connection.Execute(CSG_String::Format("CREATE DATABASE %s", Name)) )
+	{
+		CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(Name, User, Password, Host, Port);
+
+		if( pConnection )
+		{
+			if( pConnection->Execute("CREATE EXTENSION postgis") )
+			{
+				Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("PostGIS extension added")));
+			}
+
+			pConnection->GUI_Update();
+
+			return( true );
+		}
+	}
+
+	Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("could not create new PostgreSQL database")));
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CDatabase_Destroy::CDatabase_Destroy(void)
+{
+	Set_Name		(_TL("Drop Database"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2015"));
+
+	Set_Description	(_TW(
+		"Deletes a PostgreSQL Database."
+	));
+
+	Parameters.Add_String(
+		NULL	, "PG_HOST"		, _TL("Host"),
+		_TL("Password"),
+		"localhost"
+	);
+
+	Parameters.Add_Value(
+		NULL	, "PG_PORT"		, _TL("Port"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 5432, 0, true
+	);
+
+	Parameters.Add_String(
+		NULL	, "PG_NAME"		, _TL("Database"),
+		_TL("Database Name"),
+		"geo_test"
+	);
+
+	Parameters.Add_String(
+		NULL	, "PG_USER"		, _TL("User"),
+		_TL("User Name"),
+		"postgres"
+	);
+
+	Parameters.Add_String(
+		NULL	, "PG_PWD"		, _TL("Password"),
+		_TL("Password"),
+		"postgres", false, true
+	);
+}
+
+//---------------------------------------------------------
+bool CDatabase_Destroy::On_Execute(void)
+{
+	const SG_Char	*Host, *Name, *User, *Password;
+
+	Host		= Parameters("PG_HOST")->asString();
+	int	Port	= Parameters("PG_PORT")->asInt();
+	Name		= Parameters("PG_NAME")->asString(),
+	User		= Parameters("PG_USER")->asString();
+	Password	= Parameters("PG_PWD" )->asString();
+
+	if( SG_PG_Get_Connection_Manager().Get_Connection(CSG_String::Format("%s [%s:%d]", Name, Host, Port)) )
+	{
+		if( !SG_PG_Get_Connection_Manager().Del_Connection(CSG_String::Format("%s [%s:%d]", Name, Host, Port), false) )
+		{
+			Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("could not disconnect and drop PostgreSQL database")));
+
+			return( false );
+		}
+	}
+
+	CSG_PG_Connection	Connection;
+
+	if( Connection.Create(Host, Port, "", User, Password) && Connection.Execute(CSG_String::Format("DROP DATABASE IF EXISTS %s", Name)) )
+	{
+		SG_UI_ODBC_Update("");
+
+		return( true );
+	}
+
+	Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("could not drop PostgreSQL database")));
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

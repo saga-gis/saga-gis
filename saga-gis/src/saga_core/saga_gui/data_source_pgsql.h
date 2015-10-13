@@ -99,6 +99,8 @@ private:
 	void						On_Item_Menu		(wxTreeEvent &event);
 
 	void						On_Refresh			(wxCommandEvent &event);
+	void						On_Source_Create	(wxCommandEvent &event);
+	void						On_Source_Drop		(wxCommandEvent &event);
 	void						On_Source_Open		(wxCommandEvent &event);
 	void						On_Source_Close		(wxCommandEvent &event);
 	void						On_Sources_Close	(wxCommandEvent &event);
@@ -108,6 +110,8 @@ private:
 	void						On_Table_Info		(wxCommandEvent &event);
 	void						On_Table_Drop		(wxCommandEvent &event);
 
+	bool						Source_Create		(const wxTreeItemId &Item);
+	bool						Source_Drop			(const wxTreeItemId &Item);
 	bool						Source_Open			(class CData_Source_PgSQL_Data *pData, bool bDialog);
 	void						Source_Open			(const wxTreeItemId &Item);
 	void						Source_Close		(const wxTreeItemId &Item, bool bDelete);
@@ -117,8 +121,10 @@ private:
 	void						Table_Info			(const wxTreeItemId &Item);
 	void						Table_Drop			(const wxTreeItemId &Item);
 
+	wxTreeItemId				Get_Server_Item		(const wxString &Server, bool bCreate);
 	wxTreeItemId				Find_Source			(const wxString &Server);
 	void						Update_Item			(const wxTreeItemId &Item);
+	void						Update_Sources		(const wxTreeItemId &Root);
 	void						Update_Source		(const wxTreeItemId &Item);
 	void						Append_Table		(const wxTreeItemId &Parent, const SG_Char *Name, int Type, int Image);
 

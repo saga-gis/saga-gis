@@ -132,6 +132,9 @@ CSG_Module *		Create_Module(int i)
 	case 31:	return( new CRaster_Save );
 	case 32:	return( new CRaster_SRID_Update );
 
+	case 35:	return( new CDatabase_Create );
+	case 36:	return( new CDatabase_Destroy );
+
 	case 40:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}

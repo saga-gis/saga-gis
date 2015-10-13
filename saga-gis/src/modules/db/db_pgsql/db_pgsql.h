@@ -91,6 +91,15 @@ class db_pgsql_EXPORT CSG_PG_Connection
 
 public:
 
+								CSG_PG_Connection		(void);
+
+								CSG_PG_Connection		(const CSG_String &Host, int Port, const CSG_String &Name, const CSG_String &User, const CSG_String &Password, bool bAutoCommit = false);
+	bool						Create					(const CSG_String &Host, int Port, const CSG_String &Name, const CSG_String &User, const CSG_String &Password, bool bAutoCommit = false);
+
+	virtual ~CSG_PG_Connection(void);
+
+	bool						Destroy					(void);
+
 	static CSG_String			Get_Type_To_SQL			(TSG_Data_Type Type, int Size = 0);
 	static TSG_Data_Type		Get_Type_From_SQL		(int Type);
 	static CSG_String			Get_Raster_Type_To_SQL	(TSG_Data_Type Type);
@@ -142,16 +151,6 @@ public:
 	bool						Raster_Load				(CSG_Grid *pGrid                    , const CSG_String &Table, const CSG_String &Where = "");
 	bool						Raster_Save				(CSG_Grid *pGrid, int SRID, const CSG_String &Table, const CSG_String &Field);
 	
-
-private:
-
-								CSG_PG_Connection		(const CSG_String &Host, int Port, const CSG_String &Name, const CSG_String &User, const CSG_String &Password, bool bAutoCommit = false);
-	bool						Create					(const CSG_String &Host, int Port, const CSG_String &Name, const CSG_String &User, const CSG_String &Password, bool bAutoCommit = false);
-
-	virtual ~CSG_PG_Connection(void);
-
-	bool						Destroy					(void);
-
 
 private:
 

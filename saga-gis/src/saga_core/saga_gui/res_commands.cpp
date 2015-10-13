@@ -123,6 +123,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATASOURCE_REFRESH:		return( _TL("Refresh") );
 
 	case ID_CMD_DB_REFRESH:				return( _TL("Refresh") );
+	case ID_CMD_DB_SOURCE_CREATE:		return( _TL("New") );
+	case ID_CMD_DB_SOURCE_DROP:			return( _TL("Drop") );
 	case ID_CMD_DB_SOURCE_OPEN:			return( _TL("Open") );
 	case ID_CMD_DB_SOURCE_CLOSE:		return( _TL("Close") );
 	case ID_CMD_DB_SOURCE_CLOSE_ALL:	return( _TL("Close All") );

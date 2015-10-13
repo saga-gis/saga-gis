@@ -84,6 +84,7 @@
 enum
 {
 	TYPE_ROOT	= 0,
+	TYPE_SERVER,
 	TYPE_SOURCE,
 	TYPE_TABLE,
 	TYPE_SHAPES,
@@ -95,6 +96,7 @@ enum
 enum
 {
 	IMG_ROOT	= 0,
+	IMG_SERVER,
 	IMG_SRC_CLOSED,
 	IMG_SRC_OPENED,
 	IMG_TABLE,
@@ -109,13 +111,13 @@ enum
 //---------------------------------------------------------
 enum
 {
-	DB_PGSQL_Get_Connections	= 0,
-	DB_PGSQL_Get_Connection		= 1,
-	DB_PGSQL_Del_Connection		= 2,
-	DB_PGSQL_Del_Connections	= 3,
-	DB_PGSQL_Transaction_Start	= 4,
-	DB_PGSQL_Transaction_Stop	= 5,
-	DB_PGSQL_Execute_SQL		= 6,
+	DB_PGSQL_Get_Connections	=  0,
+	DB_PGSQL_Get_Connection		=  1,
+	DB_PGSQL_Del_Connection		=  2,
+	DB_PGSQL_Del_Connections	=  3,
+	DB_PGSQL_Transaction_Start	=  4,
+	DB_PGSQL_Transaction_Stop	=  5,
+	DB_PGSQL_Execute_SQL		=  6,
 
 	DB_PGSQL_Table_List			= 10,
 	DB_PGSQL_Table_Info			= 11,
@@ -131,7 +133,10 @@ enum
 	DB_PGSQL_Raster_Load		= 30,
 	DB_PGSQL_Raster_Load_Band	= 33,
 	DB_PGSQL_Raster_Save		= 31,
-	DB_PGSQL_Raster_SRID_Update	= 32
+	DB_PGSQL_Raster_SRID_Update	= 32,
+
+	DB_PGSQL_DB_Create			= 35,
+	DB_PGSQL_DB_Drop			= 36
 };
 
 
@@ -231,6 +236,8 @@ private:
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CData_Source_PgSQL, wxTreeCtrl)
 	EVT_MENU					(ID_CMD_DB_REFRESH				, CData_Source_PgSQL::On_Refresh)
+	EVT_MENU					(ID_CMD_DB_SOURCE_CREATE		, CData_Source_PgSQL::On_Source_Create)
+	EVT_MENU					(ID_CMD_DB_SOURCE_DROP			, CData_Source_PgSQL::On_Source_Drop)
 	EVT_MENU					(ID_CMD_DB_SOURCE_OPEN			, CData_Source_PgSQL::On_Source_Open)
 	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE			, CData_Source_PgSQL::On_Source_Close)
 	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE_ALL		, CData_Source_PgSQL::On_Sources_Close)
@@ -262,6 +269,7 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES    );	// IMG_ROOT
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCES    );	// IMG_SERVER
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_OFF );	// IMG_SRC_CLOSED
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_SOURCE_ON  );	// IMG_SRC_OPENED
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DB_TABLE      );	// IMG_TABLE
@@ -292,7 +300,7 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 
 		CData_Source_PgSQL_Data	*pData	= new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server, &User, &Password);
 
-		Update_Source(AppendItem(GetRootItem(), Server.c_str(), IMG_SRC_CLOSED, IMG_SRC_CLOSED, pData));
+		Update_Source(AppendItem(Get_Server_Item(Server, true), pData->Get_DBName().c_str(), IMG_SRC_CLOSED, IMG_SRC_CLOSED, pData));
 	}
 
 	Update_Sources();
@@ -303,32 +311,38 @@ CData_Source_PgSQL::CData_Source_PgSQL(wxWindow *pParent)
 //---------------------------------------------------------
 CData_Source_PgSQL::~CData_Source_PgSQL(void)
 {
-	wxTreeItemIdValue	Cookie;
-	wxTreeItemId		Item	= GetFirstChild(GetRootItem(), Cookie);
-
 	long Reopen	= 0;
 
 	CONFIG_Read("/DATA", "PROJECT_DB_REOPEN", Reopen);
 
 	CONFIG_Delete(CFG_PGSQL_DIR);
 
-	for(int i=0; Item.IsOk(); )
+	wxTreeItemIdValue srvCookie; wxTreeItemId srvItem = GetFirstChild(GetRootItem(), srvCookie);
+
+	for(int i=0; srvItem.IsOk(); )
 	{
-		CData_Source_PgSQL_Data	*pData	= (CData_Source_PgSQL_Data *)GetItemData(Item);
+		wxTreeItemIdValue Cookie; wxTreeItemId Item = GetFirstChild(srvItem, Cookie);
 
-		if( pData && pData->Get_Type() == TYPE_SOURCE )
+		while( Item.IsOk() )
 		{
-			CSG_String	Connection	= pData->Get_Server().c_str();
+			CData_Source_PgSQL_Data	*pData	= (CData_Source_PgSQL_Data *)GetItemData(Item);
 
-			if( Reopen != 0 && pData->is_Connected() && !pData->Get_Username().is_Empty() )	// store user and password
+			if( pData && pData->Get_Type() == TYPE_SOURCE )
 			{
-				Connection	+= "|" + pData->Get_Username() + "|" + pData->Get_Password();
+				CSG_String	Connection	= pData->Get_Server().c_str();
+
+				if( Reopen != 0 && pData->is_Connected() && !pData->Get_Username().is_Empty() )	// store user and password
+				{
+					Connection	+= "|" + pData->Get_Username() + "|" + pData->Get_Password();
+				}
+
+				CONFIG_Write(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i++), Connection.c_str());
 			}
 
-			CONFIG_Write(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i++), Connection.c_str());
+			Item	= GetNextChild(Item, Cookie);
 		}
 
-		Item	= GetNextChild(Item, Cookie);
+		srvItem	= GetNextChild(srvItem, srvCookie);
 	}
 }
 
@@ -348,20 +362,25 @@ void CData_Source_PgSQL::Autoconnect(void)
 
 	if( Reopen != 0 )
 	{
-		wxTreeItemIdValue	Cookie;
+		wxTreeItemIdValue srvCookie; wxTreeItemId srvItem = GetFirstChild(GetRootItem(), srvCookie);
 
-		wxTreeItemId	Item	= GetFirstChild(GetRootItem(), Cookie);
-
-		while( Item.IsOk() )
+		while( srvItem.IsOk() )
 		{
-			CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+			wxTreeItemIdValue Cookie; wxTreeItemId Item = GetFirstChild(srvItem, Cookie);
 
-			if( pData->Get_Type() == TYPE_SOURCE && !pData->Get_Username().is_Empty() )
+			while( Item.IsOk() )
 			{
-				Source_Open(pData, false);
+				CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+
+				if( pData->Get_Type() == TYPE_SOURCE && !pData->Get_Username().is_Empty() )
+				{
+					Source_Open(pData, false);
+				}
+
+				Item	= GetNextChild(Item, Cookie);
 			}
 
-			Item	= GetNextChild(Item, Cookie);
+			srvItem	= GetNextChild(srvItem, srvCookie);
 		}
 	}
 }
@@ -377,6 +396,18 @@ void CData_Source_PgSQL::Autoconnect(void)
 void CData_Source_PgSQL::On_Refresh(wxCommandEvent &WXUNUSED(event))
 {
 	Update_Item(GetSelection());
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::On_Source_Create(wxCommandEvent &WXUNUSED(event))
+{
+	Source_Create(GetSelection());
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::On_Source_Drop(wxCommandEvent &WXUNUSED(event))
+{
+	Source_Drop(GetSelection());
 }
 
 //---------------------------------------------------------
@@ -445,6 +476,10 @@ void CData_Source_PgSQL::On_Item_Activated(wxTreeEvent &event)
 		Update_Sources();
 		break;
 
+	case TYPE_SERVER:
+		Update_Sources(event.GetItem());
+		break;
+
 	case TYPE_SOURCE:
 		Source_Open(event.GetItem());
 		break;
@@ -477,6 +512,14 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 	{
 	case TYPE_ROOT:
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CREATE);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_OPEN);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE_ALL);
+		break;
+
+	case TYPE_SERVER:
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CREATE);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_OPEN);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE_ALL);
 		break;
@@ -491,6 +534,7 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 		else
 		{
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_REFRESH);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DROP);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_CLOSE);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_SOURCE_DELETE);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DB_TABLE_FROM_QUERY);
@@ -527,15 +571,48 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxTreeItemId CData_Source_PgSQL::Get_Server_Item(const wxString &Server, bool bCreate)
+{
+	wxString	Name	= Server.AfterFirst('[').BeforeFirst(']');
+
+	wxTreeItemIdValue Cookie; wxTreeItemId Item = GetFirstChild(GetRootItem(), Cookie);
+
+	while( Item.IsOk() )
+	{
+		if( !Name.Cmp(GetItemText(Item)) )
+		{
+			return( Item );
+		}
+
+		Item	= GetNextChild(Item, Cookie);
+	}
+
+	if( bCreate )
+	{
+		Item	= AppendItem(GetRootItem(), Name, IMG_SERVER, IMG_SERVER, new CData_Source_PgSQL_Data(TYPE_SERVER, &Name, &Name));
+
+		SortChildren(GetRootItem());
+		Expand      (GetRootItem());
+	}
+
+	return( Item );
+}
+
+//---------------------------------------------------------
 wxTreeItemId CData_Source_PgSQL::Find_Source(const wxString &Server)
 {
-	wxTreeItemIdValue	Cookie;
+	wxTreeItemId	Item	= Get_Server_Item(Server, false);
 
-	wxTreeItemId	Item	= GetFirstChild(GetRootItem(), Cookie);
-
-	while( Item.IsOk() && Server.Cmp(GetItemText(Item)) )
+	if( Item.IsOk() )
 	{
-		Item	= GetNextChild(Item, Cookie);
+		wxTreeItemIdValue Cookie; Item = GetFirstChild(Item, Cookie);
+
+		wxString	Name	= Server.BeforeLast('['); Name.Trim(true);
+
+		while( Item.IsOk() && Name.Cmp(GetItemText(Item)) )
+		{
+			Item	= GetNextChild(Item, Cookie);
+		}
 	}
 
 	return( Item );
@@ -549,19 +626,18 @@ void CData_Source_PgSQL::Update_Item(const wxTreeItemId &Item)
 	switch( pData->Get_Type() )
 	{
 	case TYPE_ROOT:		Update_Sources();		break;
-	case TYPE_SOURCE:	Update_Source(Item);	break;
+	case TYPE_SERVER:	Update_Sources(Item);	break;
+	case TYPE_SOURCE:	Update_Source (Item);	break;
 	}
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::Update_Sources(void)
+void CData_Source_PgSQL::Update_Sources(const wxTreeItemId &Root)
 {
 	Freeze();
 
 	//-----------------------------------------------------
-	wxTreeItemIdValue	Cookie;
-
-	wxTreeItemId	Item	= GetFirstChild(GetRootItem(), Cookie);
+	wxTreeItemIdValue Cookie; wxTreeItemId Item = GetFirstChild(Root, Cookie);
 
 	while( Item.IsOk() )
 	{
@@ -584,10 +660,23 @@ void CData_Source_PgSQL::Update_Sources(void)
 	}
 
 	//-----------------------------------------------------
-	SortChildren(GetRootItem());
-	Expand      (GetRootItem());
+	SortChildren(Root);
+	Expand      (Root);
 
 	Thaw();
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::Update_Sources(void)
+{
+	wxTreeItemIdValue Cookie; wxTreeItemId Item = GetFirstChild(GetRootItem(), Cookie);
+
+	while( Item.IsOk() )
+	{
+		Update_Sources(Item);
+
+		Item	= GetNextChild(Item, Cookie);
+	}
 }
 
 //---------------------------------------------------------
@@ -604,9 +693,9 @@ void CData_Source_PgSQL::Update_Source(const wxString &Server)
 
 	if( !Item.IsOk() && is_Connected(&Server) )
 	{
-		Item	= AppendItem(GetRootItem(), Server.c_str(), IMG_SRC_OPENED, IMG_SRC_OPENED,
-			new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server)
-		);
+		CData_Source_PgSQL_Data	*pData	= new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server);
+
+		Item	= AppendItem(Get_Server_Item(Server, true), pData->Get_DBName().c_str(), IMG_SRC_OPENED, IMG_SRC_OPENED, pData);
 	}
 
 	Update_Source(Item);
@@ -711,6 +800,65 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
+{
+	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return( false );
+
+	if( pData->Get_Type() == TYPE_ROOT
+	||  pData->Get_Type() == TYPE_SERVER )
+	{
+		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_DB_Create);
+
+		if(	pModule && pModule->On_Before_Execution() )
+		{
+			if( pData->Get_Type() == TYPE_SERVER )
+			{
+				pModule->Set_Parameter("PG_HOST", pData->Get_Host());
+				pModule->Set_Parameter("PG_PORT", pData->Get_Port());
+			}
+
+			if( DLG_Parameters(pModule->Get_Parameters()) )
+			{
+				pModule->Execute();
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CData_Source_PgSQL::Source_Drop(const wxTreeItemId &Item)
+{
+	static	wxString	Username = "postgres", Password = "postgres";
+
+	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return( false );
+
+	if( !DLG_Login(Username, Password, _TL("Drop Database")) )
+	{
+		return( false );
+	}
+
+	pData->Set_Username(Username);
+	pData->Set_Password(Password);
+
+	if( pData->Get_Type() == TYPE_SOURCE && pData->is_Connected() )
+	{
+		RUN_MODULE(DB_PGSQL_DB_Drop, true,	// CDatabase_Drop
+				SET_PARAMETER("PG_HOST", pData->Get_Host    ())
+			&&	SET_PARAMETER("PG_PORT", pData->Get_Port    ())
+			&&	SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
+			&&	SET_PARAMETER("PG_USER", pData->Get_Username())
+			&&	SET_PARAMETER("PG_PWD" , pData->Get_Password())
+		);
+
+		return( bResult );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialog)
 {
 	static	wxString	Username = "postgres", Password = "postgres";
@@ -754,13 +902,20 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	if( pData->Get_Type() == TYPE_ROOT )
+	if( pData->Get_Type() == TYPE_ROOT
+	||  pData->Get_Type() == TYPE_SERVER )
 	{
 		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Get_Connection);	// CGet_Connection
 
-		if(	pModule )
+		if(	pModule && pModule->On_Before_Execution() )
 		{
-			if( pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters()) )
+			if( pData->Get_Type() == TYPE_SERVER )
+			{
+				pModule->Set_Parameter("PG_HOST", pData->Get_Host());
+				pModule->Set_Parameter("PG_PORT", pData->Get_Port());
+			}
+
+			if( DLG_Parameters(pModule->Get_Parameters()) )
 			{
 				pModule->Execute();
 			}
