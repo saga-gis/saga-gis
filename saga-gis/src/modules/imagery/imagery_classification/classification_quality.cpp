@@ -74,7 +74,7 @@ CClassification_Quality::CClassification_Quality(void)
 	CSG_Parameter	*pNode, *pTable;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Confusion Matrix (Polygons / Grids)"));
+	Set_Name		(_TL("Confusion Matrix (Polygons / Grid)"));
 
 	Set_Author		("O.Conrad (c) 2015");
 
@@ -237,23 +237,23 @@ bool CClassification_Quality::On_Execute(void)
 
 	for(int i=0; i<m_Classes.Get_Count(); i++)
 	{
-		sLong	nGrid	= 0;
 		sLong	nPoly	= 0;
+		sLong	nGrid	= 0;
 
 		for(int j=0; j<m_Classes.Get_Count(); j++)
 		{
-			nGrid	+= Confusion[i].asDouble(1 + j);
-			nPoly	+= Confusion[j].asDouble(1 + i);
+			nPoly	+= Confusion[j].asLong(1 + i);
+			nGrid	+= Confusion[i].asLong(1 + j);
 		}
 
 		Classes[i].Set_Value(0, m_Classes[i].asString(0));
 		Classes[i].Set_Value(1, nPoly);
-		Classes[i].Set_Value(2, nPoly <= 0 ? -1. : Confusion[i].asDouble(1 + i) / nPoly);
+		Classes[i].Set_Value(2, nPoly <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nPoly);
 		Classes[i].Set_Value(3, nGrid);
-		Classes[i].Set_Value(4, nGrid <= 0 ? -1. : Confusion[i].asDouble(1 + i) / nGrid);
+		Classes[i].Set_Value(4, nGrid <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nGrid);
 
 		nTotal	+= nPoly;
-		nTrue	+= Confusion[i].asDouble(1 + i);
+		nTrue	+= Confusion[i].asLong(1 + i);
 		nProd	+= nPoly * nGrid;
 	}
 
@@ -262,19 +262,19 @@ bool CClassification_Quality::On_Execute(void)
 
 	Summary.Destroy();
 	Summary.Set_Name(CSG_String::Format("%s [%s - %s]", _TL("Summary"), pPolygons->Get_Name(), pGrid->Get_Name()));
-	Summary.Add_Field("NAME"    , SG_DATATYPE_String);
-	Summary.Add_Field("VALUE"   , SG_DATATYPE_Double);
+	Summary.Add_Field("NAME" , SG_DATATYPE_String);
+	Summary.Add_Field("VALUE", SG_DATATYPE_Double);
 	Summary.Set_Record_Count(2);
 
 	double	k	= nTotal*nTotal - nProd, OA = 0.0;
 
 	if( k != 0.0 )
 	{
-		Summary[0].Set_Value(0, "Kappa"          ); Summary[0].Set_Value(1, k  = (nTotal * nTrue - nProd) / k);
-		Summary[1].Set_Value(0, "Overal Accuracy"); Summary[1].Set_Value(1, OA = nTrue / (double)nTotal);
+		Summary[0].Set_Value(0, "Kappa"           ); Summary[0].Set_Value(1, k  = (nTotal * nTrue - nProd) / k);
+		Summary[1].Set_Value(0, "Overall Accuracy"); Summary[1].Set_Value(1, OA = nTrue / (double)nTotal);
 
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Kappa"          ), k ), false);
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Overal Accuracy"), OA), false);
+		Message_Add(CSG_String::Format("\n%s: %f", _TL("Kappa"           ), k ), false);
+		Message_Add(CSG_String::Format("\n%s: %f", _TL("Overall Accuracy"), OA), false);
 	}
 
 	//-----------------------------------------------------

@@ -74,13 +74,14 @@ CChange_Detection::CChange_Detection(void)
 	CSG_Parameter	*pNode, *pTable;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Confusion Matrix (Grids)"));
+	Set_Name		(_TL("Confusion Matrix (Two Grids)"));
 
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Compares two classified grids and creates a confusion matrix "
-		"and derived coefficients. "
+		"and derived coefficients as well as the combinations of both "
+		"classifications as new grid. "
 		"Grid classes have to be defined with a look-up table and "
 		"values of both grids must match each other for the "
 		"subsequent comparison. "
@@ -90,29 +91,29 @@ CChange_Detection::CChange_Detection(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Grid(
-		NULL	, "INITIAL"		, _TL("Initial State"),
+		NULL	, "ONE"			, _TL("Classification 1"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pTable	= Parameters.Add_Table(pNode, "INI_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Table_Field(pTable, "INI_LUT_MIN", _TL("Value")			, _TL(""), false);
-	Parameters.Add_Table_Field(pTable, "INI_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
-	Parameters.Add_Table_Field(pTable, "INI_LUT_NAM", _TL("Name")			, _TL(""), true);
+	pTable	= Parameters.Add_Table(pNode, "ONE_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Table_Field(pTable, "ONE_LUT_MIN", _TL("Value")			, _TL(""), false);
+	Parameters.Add_Table_Field(pTable, "ONE_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
+	Parameters.Add_Table_Field(pTable, "ONE_LUT_NAM", _TL("Name")			, _TL(""), true);
 
 	pNode	= Parameters.Add_Grid(
-		NULL	, "FINAL"		, _TL("Final State"),
+		NULL	, "TWO"			, _TL("Classification 2"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pTable	= Parameters.Add_Table(pNode, "FIN_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Table_Field(pTable, "FIN_LUT_MIN", _TL("Value")			, _TL(""), false);
-	Parameters.Add_Table_Field(pTable, "FIN_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
-	Parameters.Add_Table_Field(pTable, "FIN_LUT_NAM", _TL("Name")			, _TL(""), true);
+	pTable	= Parameters.Add_Table(pNode, "TWO_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Table_Field(pTable, "TWO_LUT_MIN", _TL("Value")			, _TL(""), false);
+	Parameters.Add_Table_Field(pTable, "TWO_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
+	Parameters.Add_Table_Field(pTable, "TWO_LUT_NAM", _TL("Name")			, _TL(""), true);
 
 	Parameters.Add_Grid(
-		NULL	, "CHANGE"		, _TL("Changes"),
+		NULL	, "COMBINED"	, _TL("Combined Classes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -124,7 +125,7 @@ CChange_Detection::CChange_Detection(void)
 	);
 
 	pNode	= Parameters.Add_Table(
-		NULL	, "CHANGES"		, _TL("Changes"),
+		NULL	, "CONFUSION"	, _TL("Confusion Matrix"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -132,11 +133,23 @@ CChange_Detection::CChange_Detection(void)
 	Parameters.Add_Choice(
 		pNode	, "OUTPUT"		, _TL("Output as..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("cells"),
 			_TL("percent"),
 			_TL("area")
 		), 0
+	);
+
+	Parameters.Add_Table(
+		NULL	, "CLASSES"		, _TL("Class Values"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Table(
+		NULL	, "SUMMARY"		, _TL("Summary"),
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 }
 
@@ -148,18 +161,24 @@ CChange_Detection::CChange_Detection(void)
 //---------------------------------------------------------
 int CChange_Detection::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INI_LUT")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ONE_LUT") )
 	{
-		pParameters->Get_Parameter("INI_LUT_MIN")->Set_Enabled(pParameter->asTable() != NULL);
-		pParameters->Get_Parameter("INI_LUT_MAX")->Set_Enabled(pParameter->asTable() != NULL);
-		pParameters->Get_Parameter("INI_LUT_NAM")->Set_Enabled(pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("ONE_LUT_MIN", pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("ONE_LUT_MAX", pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("ONE_LUT_NAM", pParameter->asTable() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIN_LUT")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TWO_LUT") )
 	{
-		pParameters->Get_Parameter("FIN_LUT_MIN")->Set_Enabled(pParameter->asTable() != NULL);
-		pParameters->Get_Parameter("FIN_LUT_MAX")->Set_Enabled(pParameter->asTable() != NULL);
-		pParameters->Get_Parameter("FIN_LUT_NAM")->Set_Enabled(pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("TWO_LUT_MIN", pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("TWO_LUT_MAX", pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("TWO_LUT_NAM", pParameter->asTable() != NULL);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "NOCHANGE") )
+	{
+		pParameters->Set_Enabled("CLASSES"    , pParameter->asBool());
+		pParameters->Set_Enabled("SUMMARY"    , pParameter->asBool());
 	}
 
 	return( 1 );
@@ -174,33 +193,35 @@ int CChange_Detection::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 bool CChange_Detection::On_Execute(void)
 {
 	bool		bNoChange;
-	int			iInitial, iFinal;
+	int			iOne, iTwo;
 	CSG_Matrix	Identity;
-	CSG_Table	Initial, Final, *pChanges;
-	CSG_Grid	*pInitial, *pFinal, *pChange;
+	CSG_Table	One, Two, *pConfusion, *pClasses, *pSummary;
+	CSG_Grid	*pOne, *pTwo, *pCombined;
 
 	//-----------------------------------------------------
-	pInitial	= Parameters("INITIAL")	->asGrid();
-	pFinal		= Parameters("FINAL")	->asGrid();
-	pChange		= Parameters("CHANGE")	->asGrid();
-	pChanges	= Parameters("CHANGES")	->asTable();
-	bNoChange	= Parameters("NOCHANGE")->asBool();
+	pOne		= Parameters("ONE"      )->asGrid();
+	pTwo		= Parameters("TWO"      )->asGrid();
+	pCombined	= Parameters("COMBINED" )->asGrid();
+	pConfusion	= Parameters("CONFUSION")->asTable();
+	pClasses	= Parameters("CLASSES"  )->asTable();
+	pSummary	= Parameters("SUMMARY"  )->asTable();
+	bNoChange	= Parameters("NOCHANGE" )->asBool();
 
-	if( !Get_Classes(Initial, pInitial, true) )
+	if( !Get_Classes(One, pOne, true) )
 	{
 		Error_Set(_TL("no class definitions for initial state"));
 
 		return( false );
 	}
 
-	if( !Get_Classes(Final, pFinal, false) )
+	if( !Get_Classes(Two, pTwo, false) )
 	{
 		Error_Set(_TL("no class definitions for final state"));
 
 		return( false );
 	}
 
-	if( !Get_Changes(Initial, Final, pChanges, Identity) )
+	if( !Get_Changes(One, Two, pConfusion, Identity) )
 	{
 		return( false );
 	}
@@ -210,18 +231,18 @@ bool CChange_Detection::On_Execute(void)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			iInitial	= Get_Class(Initial, pInitial->asDouble(x, y));
-			iFinal		= Get_Class(Final  , pFinal  ->asDouble(x, y));
+			iOne	= Get_Class(One, pOne->asDouble(x, y));
+			iTwo	= Get_Class(Two, pTwo->asDouble(x, y));
 
-			if( bNoChange || !Identity[iInitial][iFinal] )
+			if( bNoChange || !Identity[iOne][iTwo] )
 			{
-				pChanges->Get_Record(iInitial)->Add_Value(1 + iFinal, 1);
+				pConfusion->Get_Record(iOne)->Add_Value(1 + iTwo, 1);
 
-				pChange->Set_Value(x, y, (pChanges->Get_Field_Count() - 1) * iInitial + iFinal);
+				pCombined->Set_Value(x, y, (pConfusion->Get_Field_Count() - 1) * iOne + iTwo);
 			}
 			else
 			{
-				pChange->Set_Value(x, y, -1);
+				pCombined->Set_Value(x, y, -1);
 			}
 		}
 	}
@@ -229,43 +250,51 @@ bool CChange_Detection::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameters	P;
 
-	if( DataObject_Get_Parameters(pChange, P) && P("COLORS_TYPE") && P("LUT") )
+	if( DataObject_Get_Parameters(pCombined, P) && P("COLORS_TYPE") && P("LUT") )
 	{
 		CSG_Table	*pLUT	= P("LUT")->asTable();
 
-		CSG_Colors	cRandom(pChanges->Get_Count());
+		CSG_Colors	cRandom(pConfusion->Get_Count());
 
 		cRandom.Random();
 
 		pLUT->Del_Records();
 
-		for(iInitial=0; iInitial<pChanges->Get_Count(); iInitial++)
+		for(iOne=0; iOne<pConfusion->Get_Count(); iOne++)
 		{
-			CSG_Colors	cRamp(pChanges->Get_Field_Count() - 1);
+			CSG_Colors	cRamp(pConfusion->Get_Field_Count() - 1);
 
-			cRamp.Set_Ramp(cRandom[iInitial], cRandom[iInitial]);
+			cRamp.Set_Ramp(cRandom[iOne], cRandom[iOne]);
 			cRamp.Set_Ramp_Brighness(225, 50);
 
-			for(iFinal=0; iFinal<pChanges->Get_Field_Count()-1; iFinal++)
+			for(iTwo=0; iTwo<pConfusion->Get_Field_Count()-1; iTwo++)
 			{
-				if( pChanges->Get_Record(iInitial)->asInt(1 + iFinal) > 0 )
+				if( pConfusion->Get_Record(iOne)->asInt(1 + iTwo) > 0 )
 				{
 					CSG_Table_Record	*pClass	= pLUT->Add_Record();
 
-					pClass->Set_Value(0, cRamp.Get_Color(iFinal));
-					pClass->Set_Value(1, CSG_String::Format(SG_T("%s >> %s"), pChanges->Get_Record(iInitial)->asString(0), pChanges->Get_Field_Name(1 + iFinal)));
-					pClass->Set_Value(3, (pChanges->Get_Field_Count() - 1) * iInitial + iFinal);
-					pClass->Set_Value(4, (pChanges->Get_Field_Count() - 1) * iInitial + iFinal);
+					pClass->Set_Value(0, cRamp.Get_Color(iTwo));
+					pClass->Set_Value(1, CSG_String::Format("%s >> %s", pConfusion->Get_Record(iOne)->asString(0), pConfusion->Get_Field_Name(1 + iTwo)));
+					pClass->Set_Value(3, (pConfusion->Get_Field_Count() - 1) * iOne + iTwo);
+					pClass->Set_Value(4, (pConfusion->Get_Field_Count() - 1) * iOne + iTwo);
 				}
 			}
 		}
 
 		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
 
-		DataObject_Set_Parameters(pChange, P);
+		DataObject_Set_Parameters(pCombined, P);
 	}
 
 	//-----------------------------------------------------
+	if( bNoChange )
+	{
+		Get_Quality(*pConfusion, *pClasses, *pSummary);
+
+		pClasses  ->Set_Name(CSG_String::Format("%s [%s - %s]", _TL("Class Values"), pOne->Get_Name(), pTwo->Get_Name()));
+		pSummary  ->Set_Name(CSG_String::Format("%s [%s - %s]", _TL("Summary"     ), pOne->Get_Name(), pTwo->Get_Name()));
+	}
+
 	double	Factor;
 
 	switch( Parameters("OUTPUT")->asInt() )
@@ -277,22 +306,91 @@ bool CChange_Detection::On_Execute(void)
 
 	if( Factor != 1.0 )
 	{
-		for(iInitial=0; iInitial<pChanges->Get_Count(); iInitial++)
+		for(iOne=0; iOne<pConfusion->Get_Count(); iOne++)
 		{
-			for(iFinal=0; iFinal<pChanges->Get_Field_Count()-1; iFinal++)
+			for(iTwo=0; iTwo<pConfusion->Get_Field_Count()-1; iTwo++)
 			{
-				pChanges->Get_Record(iInitial)->Mul_Value(1 + iFinal, Factor);
+				pConfusion->Get_Record(iOne)->Mul_Value(1 + iTwo, Factor);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	pChanges	->Set_Name(CSG_String::Format(SG_T("%s [%s >> %s]"), _TL("Changes"), pInitial->Get_Name(), pFinal->Get_Name()));
-
-	pChange		->Set_Name(CSG_String::Format(SG_T("%s [%s >> %s]"), _TL("Changes"), pInitial->Get_Name(), pFinal->Get_Name()));
-	pChange		->Set_NoData_Value(-1);
+	pConfusion->Set_Name(CSG_String::Format("%s [%s - %s]", _TL("Confusion"   ), pOne->Get_Name(), pTwo->Get_Name()));
+	pCombined ->Set_Name(CSG_String::Format("%s [%s - %s]", _TL("Combination" ), pOne->Get_Name(), pTwo->Get_Name()));
+	pCombined ->Set_NoData_Value(-1);
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CChange_Detection::Get_Quality(CSG_Table &Confusion, CSG_Table &Classes, CSG_Table &Summary)
+{
+	if( Confusion.Get_Count() != Confusion.Get_Field_Count() - 1 )
+	{
+		Message_Add(_TL("Quality assessment is not calculated, because the number of classes in the input grids differ.")); 
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Classes.Destroy();
+	Classes.Add_Field("Class"        , SG_DATATYPE_String);
+	Classes.Add_Field("SumRef"       , SG_DATATYPE_Int);
+	Classes.Add_Field("AccProd"      , SG_DATATYPE_Double);
+	Classes.Add_Field("SumClassified", SG_DATATYPE_Int);
+	Classes.Add_Field("AccUser"      , SG_DATATYPE_Double);
+	Classes.Set_Record_Count(Confusion.Get_Count());
+
+	sLong	nTotal = 0, nTrue = 0, nProd = 0;
+
+	for(int i=0; i<Confusion.Get_Count(); i++)
+	{
+		sLong	nOne	= 0;
+		sLong	nTwo	= 0;
+
+		for(int j=0; j<Confusion.Get_Count(); j++)
+		{
+			nOne	+= Confusion[j].asLong(1 + i);
+			nTwo	+= Confusion[i].asLong(1 + j);
+		}
+
+		Classes[i].Set_Value(0, Confusion[i].asString(0));
+		Classes[i].Set_Value(1, nOne);
+		Classes[i].Set_Value(2, nOne <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nOne);
+		Classes[i].Set_Value(3, nTwo);
+		Classes[i].Set_Value(4, nTwo <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nTwo);
+
+		nTotal	+= nOne;
+		nTrue	+= Confusion[i].asLong(1 + i);
+		nProd	+= nOne * nTwo;
+	}
+
+	//-----------------------------------------------------
+	Summary.Destroy();
+	Summary.Add_Field("NAME" , SG_DATATYPE_String);
+	Summary.Add_Field("VALUE", SG_DATATYPE_Double);
+	Summary.Set_Record_Count(2);
+
+	double	k	= nTotal*nTotal - nProd, OA = 0.0;
+
+	if( k != 0.0 )
+	{
+		Summary[0].Set_Value(0, "Kappa"           ); Summary[0].Set_Value(1, k  = (nTotal * nTrue - nProd) / k);
+		Summary[1].Set_Value(0, "Overall Accuracy"); Summary[1].Set_Value(1, OA = nTrue / (double)nTotal);
+
+		Message_Add(CSG_String::Format("\n%s: %f", _TL("Kappa"           ), k ), false);
+		Message_Add(CSG_String::Format("\n%s: %f", _TL("Overall Accuracy"), OA), false);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -315,16 +413,16 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 
 	Classes.Destroy();
 
-	Classes.Add_Field(_TL("NAME")	, SG_DATATYPE_String);
-	Classes.Add_Field(_TL("MIN")	, SG_DATATYPE_Double);
-	Classes.Add_Field(_TL("MAX")	, SG_DATATYPE_Double);
+	Classes.Add_Field(_TL("NAME"), SG_DATATYPE_String);
+	Classes.Add_Field(_TL("MIN" ), SG_DATATYPE_Double);
+	Classes.Add_Field(_TL("MAX" ), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	if( (pClasses = Parameters(bInitial ? "INI_LUT" : "FIN_LUT")->asTable()) != NULL )
+	if( (pClasses = Parameters(bInitial ? "ONE_LUT" : "TWO_LUT")->asTable()) != NULL )
 	{
-		int	fNam	= Parameters(bInitial ? "INI_LUT_NAM" : "FIN_LUT_NAM")->asInt();
-		int	fMin	= Parameters(bInitial ? "INI_LUT_MIN" : "FIN_LUT_MIN")->asInt();
-		int	fMax	= Parameters(bInitial ? "INI_LUT_MAX" : "FIN_LUT_MAX")->asInt();
+		int	fNam	= Parameters(bInitial ? "ONE_LUT_NAM" : "TWO_LUT_NAM")->asInt();
+		int	fMin	= Parameters(bInitial ? "ONE_LUT_MIN" : "TWO_LUT_MIN")->asInt();
+		int	fMax	= Parameters(bInitial ? "ONE_LUT_MAX" : "TWO_LUT_MAX")->asInt();
 
 		if( fNam < 0 || fNam >= pClasses->Get_Field_Count() )	{	fNam	= fMin;	}
 		if( fMax < 0 || fMax >= pClasses->Get_Field_Count() )	{	fMax	= fMin;	}
@@ -391,44 +489,46 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CChange_Detection::Get_Changes(CSG_Table &Initial, CSG_Table &Final, CSG_Table *pChanges, CSG_Matrix &Identity)
+bool CChange_Detection::Get_Changes(CSG_Table &One, CSG_Table &Two, CSG_Table *pConfusion, CSG_Matrix &Identity)
 {
-	int		iInitial, iFinal;
+	int		iOne, iTwo;
 
 	//-----------------------------------------------------
-	Identity.Create(Final.Get_Count() + 1, Initial.Get_Count() + 1);
+	Identity.Create(Two.Get_Count() + 1, One.Get_Count() + 1);
 
-	for(iInitial=0; iInitial<Initial.Get_Count(); iInitial++)
+	for(iOne=0; iOne<One.Get_Count(); iOne++)
 	{
-		CSG_String	s	= Initial[iInitial].asString(CLASS_NAM);
+		CSG_String	s	= One[iOne].asString(CLASS_NAM);
 
-		for(iFinal=0; iFinal<Final.Get_Count(); iFinal++)
+		for(iTwo=0; iTwo<Two.Get_Count(); iTwo++)
 		{
-			Identity[iInitial][iFinal]	= s.Cmp(Final[iFinal].asString(CLASS_NAM)) ? 0 : 1;
+			Identity[iOne][iTwo]	= s.Cmp(Two[iTwo].asString(CLASS_NAM)) ? 0 : 1;
 		}
 	}
 
-	Identity[Initial.Get_Count()][Final.Get_Count()]	= 1;	// unclassified
+	Identity[One.Get_Count()][Two.Get_Count()]	= 1;	// unclassified
 
 	//-----------------------------------------------------
-	pChanges->Destroy();
+	TSG_Data_Type	Fieldtype	= Parameters("OUTPUT")->asInt() == 0 ? SG_DATATYPE_Long : SG_DATATYPE_Double;
 
-	pChanges->Add_Field(_TL("Name"), SG_DATATYPE_String);
+	pConfusion->Destroy();
 
-	for(iFinal=0; iFinal<Final.Get_Count(); iFinal++)
+	pConfusion->Add_Field(_TL("Name"), SG_DATATYPE_String);
+
+	for(iTwo=0; iTwo<Two.Get_Count(); iTwo++)
 	{
-		pChanges->Add_Field(Final[iFinal].asString(CLASS_NAM), SG_DATATYPE_Double);
+		pConfusion->Add_Field(Two[iTwo].asString(CLASS_NAM), Fieldtype);
 	}
 
-	pChanges->Add_Field(_TL("Unclassified"), SG_DATATYPE_Double);
+	pConfusion->Add_Field(_TL("Unclassified"), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	for(iInitial=0; iInitial<Initial.Get_Count(); iInitial++)
+	for(iOne=0; iOne<One.Get_Count(); iOne++)
 	{
-		pChanges->Add_Record()->Set_Value(0, Initial[iInitial].asString(CLASS_NAM));
+		pConfusion->Add_Record()->Set_Value(0, One[iOne].asString(CLASS_NAM));
 	}
 
-	pChanges->Add_Record()->Set_Value(0, _TL("Unclassified"));
+	pConfusion->Add_Record()->Set_Value(0, _TL("Unclassified"));
 
 	return( true );
 }
