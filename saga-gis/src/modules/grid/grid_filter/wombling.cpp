@@ -303,7 +303,6 @@ bool CWombling_Base::Get_Edge_Cells(CSG_Grid *Gradient, CSG_Grid *pEdges)
 
 	for(y=0; y<Gradient[0].Get_NY() && Set_Progress(y, Gradient[0].Get_NY()); y++)
 	{
-		#pragma omp parallel for
 		for(int x=0; x<Gradient[0].Get_NX(); x++)
 		{
 			int	n	= _is_Edge_Cell(Gradient, x, y);
