@@ -170,7 +170,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	is_Connected	(const CSG_String &Server)
+bool	PGSQL_is_Connected		(const CSG_String &Server)
 {
 	CSG_Table	Connections;
 
@@ -179,6 +179,91 @@ bool	is_Connected	(const CSG_String &Server)
 	for(int i=0; bResult && i<Connections.Get_Count(); i++)
 	{
 		if( !Server.Cmp(Connections[i].asString(0)) )
+		{
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	PGSQL_Get_Connections	(CSG_Strings &Servers, double vPostGIS)
+{
+	Servers.Clear();
+
+	CSG_Table	Connections;
+
+	RUN_MODULE(DB_PGSQL_Get_Connections, false, SET_PARAMETER("CONNECTIONS", &Connections));	// CGet_Connections
+
+	for(int i=0; bResult && i<Connections.Get_Count(); i++)
+	{
+		if( vPostGIS <= 0.0 || vPostGIS <= Connections[i].asDouble("PostGIS") )
+		{
+			Servers	+= Connections[i].asString(0);
+		}
+	}
+
+	return( Servers.Get_Count() > 0 );
+}
+
+//---------------------------------------------------------
+bool	PGSQL_has_Connections	(double vPostGIS)
+{
+	CSG_Strings	Servers;
+
+	return( PGSQL_Get_Connections(Servers, vPostGIS) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	PGSQL_Save_Table	(CSG_Table *pTable)
+{
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Table_Save);
+
+	if(	pModule && pModule->On_Before_Execution() && pModule->Set_Parameter("SHAPES", pTable)
+	&&  DLG_Parameters(pModule->Get_Parameters()) && pModule->Execute() )
+	{
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool	PGSQL_Save_Shapes	(CSG_Shapes *pShapes)
+{
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Shapes_Save);
+
+	if(	pModule && pModule->On_Before_Execution() && pModule->Set_Parameter("SHAPES", pShapes)
+	&&  DLG_Parameters(pModule->Get_Parameters()) && pModule->Execute() )
+	{
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
+{
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Raster_Save);
+
+	if(	pModule && pModule->On_Before_Execution() && pModule->Set_Parameter("NAME", pGrid->Get_Name()) )
+	{
+		pModule->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Del_Items();
+
+		if( pModule->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Add_Item(pGrid)
+		&&  DLG_Parameters(pModule->Get_Parameters()) && pModule->Execute() )
 		{
 			return( true );
 		}
@@ -215,7 +300,7 @@ public:
 	CSG_String				Get_Port		(void)  const	{	return( m_Server.AfterLast (':').BeforeFirst(']') );	}
 	CSG_String				Get_DBName		(void)  const	{	CSG_String s(m_Server.BeforeLast('[')); s.Trim(true); return( s );	}
 
-	bool					is_Connected	(void)	const	{	return( ::is_Connected(m_Server) );	}
+	bool					is_Connected	(void)	const	{	return( PGSQL_is_Connected(m_Server) );	}
 
 
 private:
@@ -691,7 +776,7 @@ void CData_Source_PgSQL::Update_Source(const wxString &Server)
 
 	wxTreeItemId	Item	= Find_Source(Server);
 
-	if( !Item.IsOk() && is_Connected(&Server) )
+	if( !Item.IsOk() && PGSQL_is_Connected(&Server) )
 	{
 		CData_Source_PgSQL_Data	*pData	= new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server);
 

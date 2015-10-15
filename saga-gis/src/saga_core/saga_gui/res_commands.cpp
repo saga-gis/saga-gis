@@ -163,18 +163,9 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLES_OPEN:
 	case ID_CMD_TIN_OPEN:
 	case ID_CMD_POINTCLOUD_OPEN:		return( _TL("Load") );
-
-	case ID_CMD_GRIDS_SAVE:
-	case ID_CMD_SHAPES_SAVE:
-	case ID_CMD_TABLES_SAVE:
-	case ID_CMD_TIN_SAVE:
-	case ID_CMD_POINTCLOUD_SAVE:		return( _TL("Save") );
-
-	case ID_CMD_GRIDS_SAVEAS:
-	case ID_CMD_SHAPES_SAVEAS:
-	case ID_CMD_TABLES_SAVEAS:
-	case ID_CMD_TIN_SAVEAS:
-	case ID_CMD_POINTCLOUD_SAVEAS:		return( _TL("Save As...") );
+	case ID_CMD_DATA_SAVE:				return( _TL("Save") );
+	case ID_CMD_DATA_SAVEAS:			return( _TL("Save as...") );
+	case ID_CMD_DATA_SAVETODB:			return( _TL("Save to Database...") );
 
 	case ID_CMD_GRIDS_SHOW:
 	case ID_CMD_SHAPES_SHOW:

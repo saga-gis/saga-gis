@@ -84,6 +84,8 @@
 #include "view_histogram.h"
 #include "view_scatterplot.h"
 
+#include "data_source_pgsql.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -135,20 +137,23 @@ bool CWKSP_Data_Item::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Base_Item::On_Command(Cmd_ID) );
 
-	case ID_CMD_TABLES_SAVE:
-	case ID_CMD_TIN_SAVE:
-	case ID_CMD_POINTCLOUD_SAVE:
-	case ID_CMD_SHAPES_SAVE:
-	case ID_CMD_GRIDS_SAVE:
+	case ID_CMD_DATA_SAVE:
 		Save(m_pObject->Get_File_Name());
 		break;
 
-	case ID_CMD_TABLES_SAVEAS:
-	case ID_CMD_TIN_SAVEAS:
-	case ID_CMD_POINTCLOUD_SAVEAS:
-	case ID_CMD_SHAPES_SAVEAS:
-	case ID_CMD_GRIDS_SAVEAS:
+	case ID_CMD_DATA_SAVEAS:
 		Save();
+		break;
+
+	case ID_CMD_DATA_SAVETODB:
+		switch( Get_Type() )
+		{
+		case WKSP_ITEM_Table :	PGSQL_Save_Table ((CSG_Table  *)m_pObject);	break;
+		case WKSP_ITEM_Shapes:	PGSQL_Save_Shapes((CSG_Shapes *)m_pObject);	break;
+		case WKSP_ITEM_Grid  :	PGSQL_Save_Grid  ((CSG_Grid   *)m_pObject);	break;
+
+		default:	break;
+		}
 		break;
 	}
 
@@ -163,12 +168,12 @@ bool CWKSP_Data_Item::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Base_Item::On_Command_UI(event) );
 
-	case ID_CMD_TABLES_SAVE:
-	case ID_CMD_TIN_SAVE:
-	case ID_CMD_POINTCLOUD_SAVE:
-	case ID_CMD_SHAPES_SAVE:
-	case ID_CMD_GRIDS_SAVE:
+	case ID_CMD_DATA_SAVE:
 		event.Enable(m_pObject->is_Modified() && m_pObject->Get_File_Name() && *(m_pObject->Get_File_Name()));
+		break;
+
+	case ID_CMD_DATA_SAVETODB:
+		event.Enable(PGSQL_has_Connections());
 		break;
 	}
 
@@ -239,30 +244,29 @@ void CWKSP_Data_Item::On_Create_Parameters(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Item::Save(void)
 {
-	bool		bResult;
+	int	idDlg;
+
+	switch( Get_Type() )
+	{
+	case WKSP_ITEM_Table     :	idDlg	= ID_DLG_TABLES_SAVE    ;	break;
+	case WKSP_ITEM_TIN       :
+	case WKSP_ITEM_Shapes    :	idDlg	= ID_DLG_SHAPES_SAVE    ;	break;
+	case WKSP_ITEM_PointCloud:	idDlg	= ID_DLG_POINTCLOUD_SAVE;	break;
+	case WKSP_ITEM_Grid      :	idDlg	= ID_DLG_GRIDS_SAVE     ;	break;
+
+	default:	return( false );
+	}
 
 	wxString	FileName	= m_pObject->Get_File_Name() && *m_pObject->Get_File_Name()
 		? m_pObject->Get_File_Name()
 		: m_pObject->Get_Name();
 
-	switch( Get_Type() )
+	if( DLG_Save(FileName, idDlg) && m_pObject->Save(&FileName) )
 	{
-	default:					bResult	= false;										break;
-	case WKSP_ITEM_Table:		bResult	= DLG_Save(FileName, ID_DLG_TABLES_SAVE    );	break;
-	case WKSP_ITEM_TIN:
-	case WKSP_ITEM_Shapes:		bResult	= DLG_Save(FileName, ID_DLG_SHAPES_SAVE    );	break;
-	case WKSP_ITEM_PointCloud:	bResult	= DLG_Save(FileName, ID_DLG_POINTCLOUD_SAVE);	break;
-	case WKSP_ITEM_Grid:		bResult	= DLG_Save(FileName, ID_DLG_GRIDS_SAVE     );	break;
+		return( true );
 	}
 
-	if( bResult )
-	{
-		bResult	= m_pObject->Save(&FileName);
-
-		PROCESS_Set_Okay();
-	}
-
-	return( bResult );
+	return( false );
 }
 
 //---------------------------------------------------------

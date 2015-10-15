@@ -80,6 +80,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool	PGSQL_is_Connected		(const CSG_String  &Server);
+
+bool	PGSQL_has_Connections	(double vPostGIS = 0.0);
+bool	PGSQL_Get_Connections	(CSG_Strings &Servers, double vPostGIS = 0.0);
+
+bool	PGSQL_Save_Table		(CSG_Table  *pTable);
+bool	PGSQL_Save_Shapes		(CSG_Shapes *pShapes);
+bool	PGSQL_Save_Grid			(CSG_Grid   *pGrid);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CData_Source_PgSQL : public wxTreeCtrl
 {
 public:

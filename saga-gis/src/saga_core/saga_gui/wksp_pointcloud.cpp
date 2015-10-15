@@ -163,8 +163,8 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SHOW);
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SAVE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SAVEAS);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
 	pMenu->AppendSeparator();

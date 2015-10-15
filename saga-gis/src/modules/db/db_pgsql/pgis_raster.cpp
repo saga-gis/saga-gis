@@ -338,6 +338,21 @@ int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("GRID_NAME", bCreate);
 	}
 
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	{
+		for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+		{
+			CSG_Projection	p	= pParameter->asGridList()->asGrid(i)->Get_Projection();
+
+			if( p.is_Okay() && p.Get_EPSG() > 0 )
+			{
+				Set_SRID(pParameters, p.Get_EPSG());
+
+				break;
+			}
+		}
+	}
+
 	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 

@@ -84,6 +84,8 @@
 #include "wksp_grid_manager.h"
 #include "wksp_grid.h"
 
+#include "data_source_pgsql.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -196,8 +198,12 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SHOW);
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVEAS);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
+	if( PGSQL_has_Connections() )
+	{
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
+	}
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVEAS_IMAGE);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);

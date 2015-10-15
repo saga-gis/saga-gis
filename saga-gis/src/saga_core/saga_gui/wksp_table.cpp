@@ -73,6 +73,8 @@
 #include "view_table.h"
 #include "view_table_diagram.h"
 
+#include "data_source_pgsql.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -161,8 +163,12 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 	if( m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLES_SAVE);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLES_SAVEAS);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
+		if( PGSQL_has_Connections() )
+		{
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
+		}
 	}
 
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLES_SHOW);
