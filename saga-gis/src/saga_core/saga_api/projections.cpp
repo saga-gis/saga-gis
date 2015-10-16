@@ -1825,29 +1825,30 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 	};
 
 	//-----------------------------------------------------
-	Dictionary.Create(SG_T("Proj.4-WKT Dictionary"));
+	Dictionary.Destroy();
+	Dictionary.Set_Name("Proj.4-WKT Dictionary");
 
 	if( Direction == 0 )
 	{
-		Dictionary.Add_Field(SG_T("PROJ4"), SG_DATATYPE_String);
-		Dictionary.Add_Field(SG_T("DIR")  , SG_DATATYPE_String);
-		Dictionary.Add_Field(SG_T("WKT")  , SG_DATATYPE_String);
-		Dictionary.Add_Field(SG_T("DESC") , SG_DATATYPE_String);
+		Dictionary.Add_Field("PROJ4", SG_DATATYPE_String);
+		Dictionary.Add_Field("DIR"  , SG_DATATYPE_String);
+		Dictionary.Add_Field("WKT"  , SG_DATATYPE_String);
+		Dictionary.Add_Field("DESC" , SG_DATATYPE_String);
 
 		for(int i=0; i<n; i++)
 		{
 			CSG_Table_Record	*pRecord	= Dictionary.Add_Record();
 
-			pRecord->Set_Value(0, SG_STR_MBTOSG(Translation[i][0]));
-			pRecord->Set_Value(1, SG_STR_MBTOSG(Translation[i][1]));
-			pRecord->Set_Value(2, SG_STR_MBTOSG(Translation[i][2]));
-			pRecord->Set_Value(3, SG_STR_MBTOSG(Translation[i][3]));
+			pRecord->Set_Value(0, Translation[i][0]);
+			pRecord->Set_Value(1, Translation[i][1]);
+			pRecord->Set_Value(2, Translation[i][2]);
+			pRecord->Set_Value(3, Translation[i][3]);
 		}
 	}
 	else if( Direction > 0 )	// Proj4 to WKT
 	{
-		Dictionary.Add_Field(SG_T("PROJ4"), SG_DATATYPE_String);
-		Dictionary.Add_Field(SG_T("WKT")  , SG_DATATYPE_String);
+		Dictionary.Add_Field("PROJ4", SG_DATATYPE_String);
+		Dictionary.Add_Field("WKT"  , SG_DATATYPE_String);
 
 		for(int i=0; i<n; i++)
 		{
@@ -1855,15 +1856,15 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 			{
 				CSG_Table_Record	*pRecord	= Dictionary.Add_Record();
 
-				pRecord->Set_Value(0, SG_STR_MBTOSG(Translation[i][0]));
-				pRecord->Set_Value(1, SG_STR_MBTOSG(Translation[i][2]));
+				pRecord->Set_Value(0, Translation[i][0]);
+				pRecord->Set_Value(1, Translation[i][2]);
 			}
 		}
 	}
 	else if( Direction < 0 )	// WKT to Proj4
 	{
-		Dictionary.Add_Field(SG_T("WKT")  , SG_DATATYPE_String);
-		Dictionary.Add_Field(SG_T("PROJ4"), SG_DATATYPE_String);
+		Dictionary.Add_Field("WKT"  , SG_DATATYPE_String);
+		Dictionary.Add_Field("PROJ4", SG_DATATYPE_String);
 
 		for(int i=0; i<n; i++)
 		{
@@ -1871,8 +1872,8 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 			{
 				CSG_Table_Record	*pRecord	= Dictionary.Add_Record();
 
-				pRecord->Set_Value(0, SG_STR_MBTOSG(Translation[i][2]));
-				pRecord->Set_Value(1, SG_STR_MBTOSG(Translation[i][0]));
+				pRecord->Set_Value(0, Translation[i][2]);
+				pRecord->Set_Value(1, Translation[i][0]);
 			}
 		}
 	}
