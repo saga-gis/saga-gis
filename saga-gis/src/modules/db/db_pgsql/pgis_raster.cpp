@@ -286,20 +286,20 @@ CRaster_Save::CRaster_Save(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TABLE"		, _TL("Table"),
+	pNode	= Parameters.Add_Choice(
+		NULL	, "TABLE"		, _TL("Add to Table"),
 		_TL(""),
 		""
 	);
 
 	Parameters.Add_String(
-		NULL	, "NAME"		, _TL("Table Name"),
+		pNode	, "NAME"		, _TL("Table Name"),
 		_TL(""),
 		""
 	);
 
 	Parameters.Add_Value(
-		NULL	, "GRID_NAME"	, _TL("Add Grid Name Field"),
+		pNode	, "GRID_NAME"	, _TL("Band Name Field"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
@@ -325,6 +325,9 @@ void CRaster_Save::On_Connection_Changed(CSG_Parameters *pParameters)
 
 	pParameters->Get_Parameter("TABLE")->asChoice()->Set_Items(s);
 	pParameters->Get_Parameter("TABLE")->Set_Value(t.Get_Count());
+
+	On_Parameter_Changed(pParameters, pParameters->Get_Parameter("TABLE"));
+	On_Parameter_Changed(pParameters, pParameters->Get_Parameter("GRIDS"));
 }
 
 //---------------------------------------------------------
