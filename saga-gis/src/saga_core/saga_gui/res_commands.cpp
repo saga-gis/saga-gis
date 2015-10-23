@@ -147,7 +147,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( _TL("Add Project") );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( _TL("Save Project") );
-	case ID_CMD_DATA_PROJECT_SAVE_AS:	return( _TL("Save Project As...") );
+	case ID_CMD_DATA_PROJECT_SAVE_AS:	return( _TL("Save Project as...") );
 	case ID_CMD_DATA_PROJECT_BROWSE:	return( _TL("Search for Projects...") );		
 	case ID_CMD_DATA_LEGEND_COPY:		return( _TL("Copy Legend to Clipboard...") );
 	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( _TL("Increase Legend Size") );
@@ -185,7 +185,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_TABLES_DIAGRAM:			return( _TL("Diagram") );
 
-	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( _TL("Save As Image...") );
+	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( _TL("Save as Image...") );
 	case ID_CMD_GRIDS_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
 	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Histogram Stretch to Minimum/Maximum") );
 	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Histogram Stretch to Standard Deviation") );
@@ -194,6 +194,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_GRIDS_SEL_CLEAR:		return( _TL("Clear Selection") );
 	case ID_CMD_GRIDS_SEL_DELETE:		return( _TL("Delete Selection") );
 
+	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:	return( _TL("Save Attributes as...") );
 	case ID_CMD_SHAPES_EDIT_SHAPE:		return( _TL("Edit Selected Shape") );
 	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:	return( _TL("Clear Selection") );
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:	return( _TL("Invert Selection") );
@@ -213,9 +214,9 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SHOW:						return( _TL("Show Map") );
 	case ID_CMD_MAPS_3D_SHOW:					return( _TL("Show 3D-View") );
 	case ID_CMD_MAPS_LAYOUT_SHOW:				return( _TL("Show Print Layout") );
-	case ID_CMD_MAPS_SAVE_IMAGE:				return( _TL("Save As Image...") );
-	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:		return( _TL("Save As Image when changed") );
-	case ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY:		return( _TL("Save As Image to Workspace") );
+	case ID_CMD_MAPS_SAVE_IMAGE:				return( _TL("Save as Image...") );
+	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:		return( _TL("Save as Image when changed") );
+	case ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY:		return( _TL("Save as Image to Workspace") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( _TL("Copy Map to Clipboard [Ctrl+C]") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard [Ctrl+L]") );
 	case ID_CMD_MAPS_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
@@ -277,14 +278,14 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_STEREO_MORE:		return( _TL("Increase Eye Distance") );
 	case ID_CMD_MAP3D_STEREO:			return( _TL("Anaglyph [S]") );
 	case ID_CMD_MAP3D_INTERPOLATED:		return( _TL("Interpolated Colors") );
-	case ID_CMD_MAP3D_SAVE:				return( _TL("Save As Image...") );
+	case ID_CMD_MAP3D_SAVE:				return( _TL("Save as Image...") );
 	case ID_CMD_MAP3D_SEQ_POS_ADD:		return( _TL("Add Position [A]") );
 	case ID_CMD_MAP3D_SEQ_POS_DEL:		return( _TL("Delete Last Position [D]") );
 	case ID_CMD_MAP3D_SEQ_POS_DEL_ALL:	return( _TL("Delete All Positions") );
 	case ID_CMD_MAP3D_SEQ_POS_EDIT:		return( _TL("Edit Positions") );
 	case ID_CMD_MAP3D_SEQ_PLAY:			return( _TL("Play Once [P]") );
 	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:	return( _TL("Play Loop [L]") );
-	case ID_CMD_MAP3D_SEQ_SAVE:			return( _TL("Play And Save As Images...") );
+	case ID_CMD_MAP3D_SEQ_SAVE:			return( _TL("Play And Save as Images...") );
 
 	case ID_CMD_LAYOUT_PRINT_SETUP:		return( _TL("Print Setup") );
 	case ID_CMD_LAYOUT_PAGE_SETUP:		return( _TL("Page Setup") );
