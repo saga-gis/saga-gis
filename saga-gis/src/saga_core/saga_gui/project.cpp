@@ -563,9 +563,7 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	if( wxFileExists(pDataObject->Get_File_Name(false)) )
 	{
-		wxString	s(Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name(false)));
-
-		pEntry->Add_Child("FILE", &s);
+		pEntry->Add_Child("FILE", SG_File_Get_Path_Relative(ProjectDir, pDataObject->Get_File_Name(false)));
 	}
 	else if( pDataObject->Get_MetaData_DB().Get_Children_Count() > 0 )
 	{
@@ -593,9 +591,7 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 				if( File.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File) )
 				{
-					wxString	s(Get_FilePath_Relative(ProjectDir, File.w_str()));
-
-					pEntry->Get_Child(i)->Set_Content(&s);
+					pEntry->Get_Child(i)->Set_Content(SG_File_Get_Path_Relative(ProjectDir, File.w_str()));
 				}
 			}
 		}
@@ -738,9 +734,13 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 			{
 				wxString	FileName(pObject->Get_File_Name(false));
 
-				if( FileName.Find("PGSQL") == 0 || wxFileExists(FileName = Get_FilePath_Relative(ProjectDir, FileName)) )
+				if( FileName.Find("PGSQL") == 0 )
 				{
 					pEntry->Add_Child("FILE", &FileName);
+				}
+				else if( wxFileExists(FileName) )
+				{
+					pEntry->Add_Child("FILE", SG_File_Get_Path_Relative(ProjectDir, FileName));
 				}
 			}
 		}
