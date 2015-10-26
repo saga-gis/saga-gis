@@ -350,15 +350,23 @@ bool CGrid_Merge::Initialize(void)
 		switch( m_Overlap )
 		{
 		case 4:	// mean
-		case 6:	// feathering
+			if( !m_Weights.Create(m_pMosaic->Get_System(), m_pGrids->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
 			{
-				if( !m_Weights.Create(m_pMosaic->Get_System(), m_Overlap == 4 && m_pGrids->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
-				{
-					Error_Set(_TL("could not create weights grid"));
+				Error_Set(_TL("could not create weights grid"));
 
-					return( false );
-				}
+				return( false );
 			}
+			break;
+
+		case 6:	// feathering
+			if( !m_Weights.Create(m_pMosaic->Get_System(), SG_DATATYPE_Word) )
+			{
+				Error_Set(_TL("could not create weights grid"));
+
+				return( false );
+			}
+
+			m_Weights.Set_Scaling(m_pMosaic->Get_Cellsize());
 			break;
 		}
 
