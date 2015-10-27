@@ -623,6 +623,27 @@ bool CWKSP_Grid::Update(CWKSP_Layer *pChanged)
 //---------------------------------------------------------
 int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GENERAL_Z_FACTOR")
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), "GENERAL_Z_OFFSET") )
+		{
+			double	newFactor	= pParameters->Get_Parameter("GENERAL_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("GENERAL_Z_FACTOR")->asDouble();
+			double	newOffset	= pParameters->Get_Parameter("GENERAL_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("GENERAL_Z_OFFSET")->asDouble();
+
+			if( newFactor != 0.0 && oldFactor != 0.0 )
+			{
+				CSG_Parameter_Range	*newRange	= pParameters->Get_Parameter("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range	*oldRange	= m_Parameters.Get_Parameter("METRIC_ZRANGE")->asRange();
+
+				newRange->Set_LoVal(((oldRange->Get_LoVal() - oldOffset) / oldFactor) * newFactor + newOffset);
+				newRange->Set_HiVal(((oldRange->Get_HiVal() - oldOffset) / oldFactor) * newFactor + newOffset);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
