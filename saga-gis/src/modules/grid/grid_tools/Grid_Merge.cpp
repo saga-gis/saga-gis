@@ -76,10 +76,10 @@ CGrid_Merge::CGrid_Merge(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Mosaicking"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003-12"));
+	Set_Author		("O.Conrad (c) 2003-12");
 
 	Set_Description	(_TW(
-		"Mosaicking several grids to a single new one. Formerly known as 'Merge Grids'."
+		"Merges multiple grids into one single grid."
 	));
 
 	//-----------------------------------------------------
@@ -89,10 +89,16 @@ CGrid_Merge::CGrid_Merge(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Preferred data storage type"),
+	Parameters.Add_String(
+		NULL	, "NAME"		, _TL("Name"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		_TL("Mosaic")
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TYPE"		, _TL("Data Storage Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("1 bit"),
 			_TL("1 byte unsigned integer"),
 			_TL("1 byte signed integer"),
@@ -108,7 +114,7 @@ CGrid_Merge::CGrid_Merge(void)
 	Parameters.Add_Choice(
 		NULL	, "INTERPOL"	, _TL("Interpolation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -120,7 +126,7 @@ CGrid_Merge::CGrid_Merge(void)
 	Parameters.Add_Choice(
 		NULL	, "OVERLAP"		, _TL("Overlapping Areas"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
 			_TL("first"),
 			_TL("last"),
 			_TL("minimum"),
@@ -140,7 +146,7 @@ CGrid_Merge::CGrid_Merge(void)
 	Parameters.Add_Choice(
 		NULL	, "MATCH"		, _TL("Match"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("none"),
 			_TL("regression"),
 			_TL("histogram match")
@@ -153,8 +159,6 @@ CGrid_Merge::CGrid_Merge(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -172,7 +176,7 @@ int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 int CGrid_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OVERLAP")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAP") )
 	{
 		pParameters->Get_Parameter("BLEND_DIST")->Set_Enabled(pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
@@ -182,8 +186,6 @@ int CGrid_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -203,10 +205,6 @@ bool CGrid_Merge::On_Execute(void)
 
 		Set_Weight(pGrid);
 
-		if( i > 0 && m_Overlap == 6 )
-		{
-		}
-
 		Get_Match(i > 0 ? pGrid : NULL);
 
 		int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());
@@ -215,7 +213,7 @@ bool CGrid_Merge::On_Execute(void)
 		//-------------------------------------------------
 		if(	is_Aligned(pGrid) )
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("[%d/%d] %s: %s"), i + 1, m_pGrids->Get_Count(), _TL("copying"), pGrid->Get_Name()));
+			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Count(), _TL("copying"), pGrid->Get_Name()));
 
 			int	nx	= pGrid->Get_NX(); if( nx > m_pMosaic->Get_NX() - ax )	nx	= m_pMosaic->Get_NX() - ax;
 			int	ny	= pGrid->Get_NY(); if( ny > m_pMosaic->Get_NY() - ay )	ny	= m_pMosaic->Get_NY() - ay;
@@ -239,7 +237,7 @@ bool CGrid_Merge::On_Execute(void)
 		//-------------------------------------------------
 		else
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("[%d/%d] %s: %s"), i + 1, m_pGrids->Get_Count(), _TL("resampling"), pGrid->Get_Name()));
+			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Count(), _TL("resampling"), pGrid->Get_Name()));
 
 			if( ax < 0 )	ax	= 0;
 			if( ay < 0 )	ay	= 0;
@@ -290,8 +288,6 @@ bool CGrid_Merge::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -340,46 +336,52 @@ bool CGrid_Merge::Initialize(void)
 	case 8:		Type	= SG_DATATYPE_Double;	break;
 	}
 
-	//-----------------------------------------------------
-	if( (m_pMosaic = m_Grid_Target.Get_Grid(Type)) != NULL )
+	if( (m_pMosaic = m_Grid_Target.Get_Grid(Type)) == NULL )
 	{
-		m_pMosaic->Set_Name(_TL("Mosaic"));
-
-		m_pMosaic->Assign_NoData();
-
-		switch( m_Overlap )
-		{
-		case 4:	// mean
-			if( !m_Weights.Create(m_pMosaic->Get_System(), m_pGrids->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
-			{
-				Error_Set(_TL("could not create weights grid"));
-
-				return( false );
-			}
-			break;
-
-		case 6:	// feathering
-			if( !m_Weights.Create(m_pMosaic->Get_System(), SG_DATATYPE_Word) )
-			{
-				Error_Set(_TL("could not create weights grid"));
-
-				return( false );
-			}
-
-			m_Weights.Set_Scaling(m_pMosaic->Get_Cellsize());
-			break;
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( m_pMosaic->Get_Type() != Type && !m_pMosaic->Create(m_pMosaic->Get_System(), Type) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	m_pMosaic->Set_Name(Parameters("NAME")->asString());
+
+	m_pMosaic->Assign_NoData();
+
+	//-----------------------------------------------------
+	switch( m_Overlap )
+	{
+	case 4:	// mean
+		if( !m_Weights.Create(m_pMosaic->Get_System(), m_pGrids->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
+		{
+			Error_Set(_TL("could not create weights grid"));
+
+			return( false );
+		}
+
+		break;
+
+	case 6:	// feathering
+		if( !m_Weights.Create(m_pMosaic->Get_System(), SG_DATATYPE_Word) )
+		{
+			Error_Set(_TL("could not create weights grid"));
+
+			return( false );
+		}
+
+		m_Weights.Set_Scaling(m_pMosaic->Get_Cellsize());
+
+		break;
+	}
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -508,19 +510,6 @@ inline void CGrid_Merge::Set_Value(int x, int y, double Value, double Weight)
 			}
 		}
 		break;
-
-	case 7:	// feathering
-		if( m_pMosaic->is_NoData(x, y) )
-		{
-			m_pMosaic->Set_Value(x, y, Weight * Value);
-			m_Weights .Set_Value(x, y, Weight);
-		}
-		else
-		{
-			m_pMosaic->Add_Value(x, y, Weight * Value);
-			m_Weights .Add_Value(x, y, Weight);
-		}
-		break;
 	}
 }
 
@@ -549,8 +538,6 @@ inline void CGrid_Merge::Set_Value(int x, int y, CSG_Grid *pGrid, double px, dou
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -664,8 +651,6 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -673,7 +658,7 @@ void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
 {
 	if( pGrid && Parameters("MATCH")->asInt() )
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("matching histogram"), pGrid->Get_Name()));
+		Process_Set_Text(CSG_String::Format("%s: %s", _TL("matching histogram"), pGrid->Get_Name()));
 
 		int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());	if( ax < 0 )	ax	= 0;
 		int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());	if( ay < 0 )	ay	= 0;
