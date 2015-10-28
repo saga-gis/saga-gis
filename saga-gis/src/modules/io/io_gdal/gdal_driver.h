@@ -139,6 +139,9 @@ public:
 	double						Get_xMax			(void)	const	{	return( m_xMin + m_NX * m_Cellsize );	}
 	double						Get_yMax			(void)	const	{	return( m_yMin + m_NY * m_Cellsize );	}
 
+	CSG_Rect					Get_Extent			(bool bTransform = true)	const;
+	CSG_Grid_System				Get_System			(void)	const;
+
 	bool						Needs_Transformation(void)	const	{	return( m_bTransform );	}
 	void						Get_Transformation	(CSG_Vector &A, CSG_Matrix &B)				const	{	A	= m_TF_A;	B	= m_TF_B;	}
 	bool						Get_Transformation	(CSG_Grid_System &System, bool bVerbose)	const;

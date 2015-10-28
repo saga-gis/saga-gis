@@ -788,6 +788,40 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Rect CSG_GDAL_DataSet::Get_Extent(bool bTransform)	const
+{
+	if( bTransform && Needs_Transformation() )
+	{
+		CSG_Grid_System	System;
+
+		if( Get_Transformation(System, false) )
+		{
+			return( System.Get_Extent() );
+		}
+	}
+
+	return( CSG_Rect(Get_xMin(), Get_yMin(), Get_xMax(), Get_yMax()) );
+}
+
+//---------------------------------------------------------
+CSG_Grid_System CSG_GDAL_DataSet::Get_System(void)	const
+{
+	CSG_Grid_System	System;
+
+	if( !Needs_Transformation() || !Get_Transformation(System, false) )
+	{
+		System.Assign(Get_Cellsize(), Get_xMin(), Get_yMin(), Get_NX(), Get_NY());
+	}
+
+	return( System );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid_System &System, bool bVerbose) const
 {
 	CSG_Vector	A;
