@@ -14,6 +14,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMP
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LIBS)
 pkglib_LTLIBRARIES = libio_gdal.la
 libio_gdal_la_SOURCES =\
+gdal_catalogue.cpp\
 gdal_driver.cpp\
 gdal_export.cpp\
 gdal_export_geotiff.cpp\
@@ -24,6 +25,7 @@ ogr_driver.cpp\
 ogr_export.cpp\
 ogr_export_kml.cpp\
 ogr_import.cpp\
+gdal_catalogue.h\
 gdal_driver.h\
 gdal_export.h\
 gdal_export_geotiff.h\

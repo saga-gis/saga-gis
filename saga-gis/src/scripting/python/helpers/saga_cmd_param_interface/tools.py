@@ -634,5 +634,6 @@ tools = [
 ['ta_morphometry', 27, 'Wind Exposition Index'],
 ['imagery_classification', 7, 'Confusion Matrix (Polygons / Grid)'],
 ['db_pgsql', 35, 'Create Database'],
-['db_pgsql', 36, 'Drop Database']
+['db_pgsql', 36, 'Drop Database'],
+['io_gdal', 7, 'Create Raster Catalogue']
 ]

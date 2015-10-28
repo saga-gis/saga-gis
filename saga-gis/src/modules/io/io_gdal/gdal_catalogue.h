@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: gdal_catalogue.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,14 +9,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     Grid_IO_GDAL                      //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   gdal_catalogue.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//                 Copyright (C) 2015 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,101 +40,56 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street 7                        //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__gdal_catalogue_H
+#define HEADER_INCLUDED__gdal_catalogue_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "gdal_driver.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CGDAL_Catalogue : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("GDAL/OGR") );
-
-	case MLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2008" ));
-
-	case MLB_INFO_Description:
-		return( CSG_String::Format(SG_T("%s\n%s %s\n%s: %s"),
-			_TL("Interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL)."),
-			_TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str(),
-			_TL("Homepage"), SG_T("<a target=\"_blank\" href=\"http://www.gdal.org/\">www.gdal.org</a>\n")
-		));
-
-	case MLB_INFO_Version:
-		return( SG_T("2.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File") );
-	}
-}
+public:
+	CGDAL_Catalogue(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "gdal_import.h"
-#include "gdal_export.h"
-#include "gdal_export_geotiff.h"
-#include "gdal_import_netcdf.h"
-#include "gdal_catalogue.h"
+	virtual bool				On_Execute				(void);
 
-#include "ogr_import.h"
-#include "ogr_export.h"
-#include "ogr_export_kml.h"
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CGDAL_Import );
-	case  1:	return( new CGDAL_Export );
-	case  2:	return( new CGDAL_Export_GeoTIFF );
-
-	case  7:	return( new CGDAL_Catalogue );
-
-	case  3:	return( new COGR_Import );
-	case  4:	return( new COGR_Export );
-
-	case  5:	return( new COGR_Export_KML );
-
-	case  6:	return( SG_Get_GDAL_Drivers().Get_Driver("netCDF") ? new CGDAL_Import_NetCDF : NULL );
-
-	//-----------------------------------------------------
-	case  9:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -144,8 +99,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__gdal_catalogue_H

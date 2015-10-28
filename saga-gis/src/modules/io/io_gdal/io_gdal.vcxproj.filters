@@ -44,6 +44,9 @@
     <ClCompile Include="gdal_import_netcdf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gdal_catalogue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gdal_import_netcdf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gdal_catalogue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
