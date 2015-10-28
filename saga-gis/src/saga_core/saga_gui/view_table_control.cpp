@@ -108,6 +108,7 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_GRID_EDITOR_HIDDEN		(CVIEW_Table_Control::On_Edit_Stop)
 	EVT_GRID_CELL_CHANGED		(CVIEW_Table_Control::On_Changed)
 	EVT_GRID_CELL_LEFT_CLICK	(CVIEW_Table_Control::On_LClick)
+	EVT_GRID_CELL_RIGHT_CLICK	(CVIEW_Table_Control::On_RClick)
 	EVT_GRID_LABEL_LEFT_CLICK	(CVIEW_Table_Control::On_LClick_Label)
 	EVT_GRID_LABEL_LEFT_DCLICK	(CVIEW_Table_Control::On_LDClick_Label)
 	EVT_GRID_LABEL_RIGHT_CLICK	(CVIEW_Table_Control::On_RClick_Label)
@@ -123,6 +124,9 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table_Control::On_Field_Rename_UI)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table_Control::On_Field_Type)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table_Control::On_Field_Type_UI)
+
+	EVT_MENU					(ID_CMD_TABLE_FIELD_OPEN_APP	, CVIEW_Table_Control::On_Field_Open)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_OPEN_DATA	, CVIEW_Table_Control::On_Field_Open)
 
 	EVT_MENU					(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add_UI)
@@ -1039,7 +1043,23 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
 
 	//-----------------------------------------------------
-	if( event.ControlDown() )
+	if( event.AltDown() )
+	{
+		if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
+		{
+			if( event.ControlDown() )
+			{
+				g_pData->Open   (pRecord->asString(iField));
+			}
+			else
+			{
+				Open_Application(pRecord->asString(iField));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( event.ControlDown() )
 	{
 		m_pTable->Select(pRecord, true);
 
@@ -1049,14 +1069,6 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 	else if( event.ShiftDown() )
 	{
 		SelectBlock(event.GetRow(), 0, GetGridCursorRow(), GetNumberCols(), false);
-	}
-
-	else if( event.AltDown() )
-	{
-		if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
-		{
-			Open_Application(pRecord->asString(iField));
-		}
 	}
 
 	else
@@ -1081,6 +1093,56 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 	//-----------------------------------------------------
 	SetGridCursor(event.GetRow(), event.GetCol());
 }
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
+{
+	SetGridCursor(event.GetRow(), event.GetCol());
+
+	int					iField		= m_Field_Offset + event.GetCol();
+	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
+
+	//-----------------------------------------------------
+	if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
+	{
+		wxMenu	Menu;
+
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_APP);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_DATA);
+
+		PopupMenu(&Menu, event.GetPosition());
+	//	PopupMenu(&Menu, GetParent()->ScreenToClient(ClientToScreen(event.GetPosition())));
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Field_Open(wxCommandEvent &event)
+{
+	int	iField	= m_Field_Offset + GetGridCursorCol();
+	int	iRecord	=                  GetGridCursorRow();
+
+	if( iField >= 0 && iField<m_pTable->Get_Field_Count() && iRecord >= 0 && iRecord < m_pTable->Get_Count() )
+	{
+		CSG_Table_Record	*pRecord	= m_pRecords[iRecord];
+
+		if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_APP )
+		{
+			Open_Application(pRecord->asString(iField));
+		}
+
+		if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_DATA )
+		{
+			g_pData->Open   (pRecord->asString(iField));
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////

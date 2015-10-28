@@ -114,6 +114,8 @@ public:
 	void						On_Field_Type		(wxCommandEvent  &event);
 	void						On_Field_Type_UI	(wxUpdateUIEvent &event);
 
+	void						On_Field_Open		(wxCommandEvent  &event);
+
 	void						On_Record_Add		(wxCommandEvent  &event);
 	void						On_Record_Add_UI	(wxUpdateUIEvent &event);
 	void						On_Record_Ins		(wxCommandEvent  &event);
@@ -139,6 +141,7 @@ public:
 	void						On_Edit_Stop		(wxGridEvent     &event);
 	void						On_Changed			(wxGridEvent     &event);
 	void						On_LClick			(wxGridEvent     &event);
+	void						On_RClick			(wxGridEvent     &event);
 	void						On_LClick_Label		(wxGridEvent     &event);
 	void						On_RClick_Label		(wxGridEvent     &event);
 	void						On_LDClick_Label	(wxGridEvent     &event);
