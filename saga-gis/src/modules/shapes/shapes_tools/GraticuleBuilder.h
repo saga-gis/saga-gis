@@ -24,18 +24,44 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CGraticuleBuilder : public CSG_Module {
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGraticuleBuilder : public CSG_Module
+{
 public:
 	CGraticuleBuilder(void);
-	virtual ~CGraticuleBuilder(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
-
 
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual int			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
