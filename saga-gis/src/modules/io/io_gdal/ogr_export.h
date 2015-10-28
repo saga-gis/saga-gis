@@ -76,10 +76,12 @@ class COGR_Export : public CSG_Module
 public:
 	COGR_Export(void);
 
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Shapes|Export") );	}
+
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool				On_Execute		(void);
 
 };
 

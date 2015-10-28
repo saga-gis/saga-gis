@@ -71,15 +71,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CGDAL_Export_GeoTIFF : public CSG_Module_Grid
+class CGDAL_Export_GeoTIFF : public CSG_Module_Grid
 {
 public:
 	CGDAL_Export_GeoTIFF(void);
 
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Grid|Export") );	}
+
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool				On_Execute		(void);
 
 };
 

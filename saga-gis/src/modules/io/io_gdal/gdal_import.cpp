@@ -72,7 +72,7 @@ CGDAL_Import::CGDAL_Import(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("GDAL: Import Raster"));
+	Set_Name	(_TL("Import Raster"));
 
 	Set_Author	("O.Conrad (c) 2007 (A.Ringeler)");
 

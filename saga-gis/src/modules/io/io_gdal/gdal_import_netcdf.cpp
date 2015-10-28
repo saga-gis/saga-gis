@@ -72,7 +72,7 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("GDAL: Import NetCDF"));
+	Set_Name		(_TL("Import NetCDF"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2012"));
 

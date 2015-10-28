@@ -76,6 +76,8 @@ class io_gdal_EXPORT CGDAL_Import : public CSG_Module
 public:
 	CGDAL_Import(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid|Import") );	}
+
 
 protected:
 

@@ -69,14 +69,14 @@
 //---------------------------------------------------------
 COGR_Export::COGR_Export(void)
 {
-	Set_Name		(_TL("OGR: Export Vector Data"));
+	Set_Name		(_TL("Export Shapes"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	CSG_String	Description, Formats;
 
 	Description	= _TW(
-		"The \"GDAL Vector Data Export\" module exports vector data to various file formats using the "
+		"The \"OGR Vector Data Export\" module exports vector data to various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"

@@ -76,10 +76,12 @@ class io_gdal_EXPORT CGDAL_Export : public CSG_Module_Grid
 public:
 	CGDAL_Export(void);
 
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Grid|Export") );	}
+
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool				On_Execute		(void);
 
 
 };

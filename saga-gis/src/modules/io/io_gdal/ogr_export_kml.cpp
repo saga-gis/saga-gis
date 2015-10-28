@@ -71,9 +71,9 @@
 //---------------------------------------------------------
 COGR_Export_KML::COGR_Export_KML(void)
 {
-	Set_Name		(_TL("OGR: Export Shapes to KML"));
+	Set_Name		(_TL("Export Shapes to KML"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"This module exports a vector layer to a Google Earth KML Format using "
