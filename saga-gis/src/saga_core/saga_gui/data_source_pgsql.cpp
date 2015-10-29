@@ -170,6 +170,38 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_String &DBName)
+{
+	if( PGSQL_is_Connected(Host, Port, DBName) )
+	{
+		return( true );
+	}
+
+	wxString	Username = "postgres", Password = "postgres";
+
+	if( !DLG_Login(Username, Password, wxString::Format("%s: %s [%s:%s]", _TL("Connect to Database"), DBName.c_str(), Host.c_str(), Port.c_str())) )
+	{
+		return( false );
+	}
+
+	RUN_MODULE(DB_PGSQL_Get_Connection, false,	// CGet_Connection
+			SET_PARAMETER("PG_HOST", Host    )
+		&&	SET_PARAMETER("PG_PORT", Port    )
+		&&	SET_PARAMETER("PG_NAME", DBName  )
+		&&	SET_PARAMETER("PG_USER", Username)
+		&&	SET_PARAMETER("PG_PWD" , Password)
+	);
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool	PGSQL_is_Connected		(const CSG_String &Host, const CSG_String &Port, const CSG_String &DBName)
+{
+	return( PGSQL_is_Connected(DBName + " [" + Host + ":" + Port + "]") );
+}
+
+//---------------------------------------------------------
 bool	PGSQL_is_Connected		(const CSG_String &Server)
 {
 	CSG_Table	Connections;

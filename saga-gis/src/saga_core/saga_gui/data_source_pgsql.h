@@ -20,13 +20,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-// This file is part of 'MicroCity: Spatial Analysis and //
-// Simulation Framework'. MicroCity is free software;you //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
 // Free Software Foundation; version 2 of the License.   //
 //                                                       //
-// MicroCity is distributed in the hope that it will be  //
+// SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
 // implied warranty of MERCHANTABILITY or FITNESS FOR A  //
 // PARTICULAR PURPOSE. See the GNU General Public        //
@@ -80,7 +80,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	PGSQL_is_Connected		(const CSG_String  &Server);
+bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_String &DBName);
+bool	PGSQL_is_Connected		(const CSG_String &Host, const CSG_String &Port, const CSG_String &DBName);
+bool	PGSQL_is_Connected		(const CSG_String &Server);
 
 bool	PGSQL_has_Connections	(double vPostGIS = 0.0);
 bool	PGSQL_Get_Connections	(CSG_Strings &Servers, double vPostGIS = 0.0);

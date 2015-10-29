@@ -99,6 +99,8 @@ private:
 	bool					_Load				(const wxString &FileName, bool bAdd, bool bUpdateMenu);
 	bool					_Save				(const wxString &FileName, bool bSaveModified, bool bUpdateMenu);
 
+	bool					_Load_DBConnections	(CSG_MetaData &Data);
+
 	bool					_Load_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version);
 	bool					_Save_Data			(CSG_MetaData &Entry, const wxString &ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 

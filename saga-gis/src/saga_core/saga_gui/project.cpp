@@ -97,6 +97,8 @@
 #include "wksp_map_graticule.h"
 #include "wksp_layer.h"
 
+#include "data_source_pgsql.h"
+
 #include "project.h"
 
 
@@ -244,23 +246,27 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 	}
 	else if( !wxFileExists(FileName) )
 	{
-		MSG_Error_Add(_TL("file does not exist.")            , true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("file does not exist."            ), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( !Project.Load(&FileName) )
 	{
-		MSG_Error_Add(_TL("could not read project file.")    , true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("could not read project file."    ), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( Project.Get_Name().Cmp(SG_T("SAGA_PROJECT")) )
 	{
-		MSG_Error_Add(_TL("invalid project file.")           , true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(_TL("invalid project file."           ), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( (pNode = Project.Get_Child(SG_T("DATA"))) == NULL || pNode->Get_Children_Count() <= 0 )
 	{
 		MSG_Error_Add(_TL("no data entries in project file."), true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
+	else if( !_Load_DBConnections(*pNode) )
+	{
+		MSG_Error_Add(_TL("could not connect to database."  ), true, true, SG_UI_MSG_STYLE_FAILURE);
+	}
 	else
 	{
-		int			i;
+		int		i;
 
 		CSG_String	Version(Project.Get_Property("VERSION"));
 
@@ -458,6 +464,63 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	PROGRESSBAR_Set_Position(0);
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Project::_Load_DBConnections(CSG_MetaData &Data)
+{
+	int			i;
+	CSG_Strings	Connections;
+
+	for(i=0; i<Data.Get_Children_Count(); i++)
+	{
+		CSG_String	Connection(Data[i].Get_Child("FILE") ? Data[i].Get_Child("FILE")->Get_Content() : "");
+
+		if( !Connection.BeforeFirst(':').Cmp("PGSQL") )
+		{
+			Connection	= Connection.AfterFirst(':');	CSG_String	Host  (Connection.BeforeFirst(':'));
+			Connection	= Connection.AfterFirst(':');	CSG_String	Port  (Connection.BeforeFirst(':'));
+			Connection	= Connection.AfterFirst(':');	CSG_String	DBName(Connection.BeforeFirst(':'));
+
+			Connection	= Host + ":" + Port + ":" + DBName;
+
+			bool	bAdd	= true;
+
+			for(int j=0; j<Connections.Get_Count() && bAdd; j++)
+			{
+				if( !Connection.Cmp(Connections[j]) )
+				{
+					bAdd	= false;
+				}
+			}
+
+			if( bAdd )
+			{
+				Connections	+= Connection;
+			}
+		}
+	}
+
+	for(i=0; i<Connections.Get_Count(); i++)
+	{
+		CSG_String	Host  (Connections[i].BeforeFirst(':'));
+		CSG_String	Port  (Connections[i].AfterFirst (':').BeforeLast(':'));
+		CSG_String	DBName(Connections[i].AfterLast  (':'));
+
+		if( !PGSQL_Connect(Host, Port, DBName) )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
 }
 
 
