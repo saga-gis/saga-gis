@@ -463,21 +463,6 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		PARAMETER_TYPE_Int, 10, 0, true
 	);
 
-#ifdef USE_HTMLINFO
-	//-----------------------------------------------------
-	// HTML Extra info
-
-	m_Parameters.Add_Node(
-		NULL							, "NODE_EXTRAINFO"			, _TL("Html Extra Info"),
-		_TL("")
-	);
-
-	AttributeList_Add(
-		m_Parameters("NODE_EXTRAINFO")	, "EXTRAINFO_ATTRIB"		, _TL("Attribute"),
-		_TL("")
-	);
-#endif
-
 	m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, SG_DATATYPE_String);
 	m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, SG_DATATYPE_String);
 }
@@ -494,18 +479,14 @@ void CWKSP_Shapes::On_DataObject_Changed(void)
 {
 	CWKSP_Layer::On_DataObject_Changed();
 
-	AttributeList_Set(m_Parameters("LUT_ATTRIB")			, false);
-	AttributeList_Set(m_Parameters("METRIC_ATTRIB")		, false);
-	AttributeList_Set(m_Parameters("LABEL_ATTRIB")			, true);
-	AttributeList_Set(m_Parameters("LABEL_ATTRIB_SIZE_BY")	, true);
+	AttributeList_Set(m_Parameters("LUT_ATTRIB"          ), false);
+	AttributeList_Set(m_Parameters("METRIC_ATTRIB"       ), false);
+	AttributeList_Set(m_Parameters("LABEL_ATTRIB"        ), true );
+	AttributeList_Set(m_Parameters("LABEL_ATTRIB_SIZE_BY"), true );
 
 	_Chart_Set_Options();
 
 	m_pTable->DataObject_Changed();
-
-#ifdef USE_HTMLINFO
-	AttributeList_Set(m_Parameters("EXTRAINFO_ATTRIB") , true);
-#endif
 }
 
 //---------------------------------------------------------
@@ -1145,14 +1126,7 @@ void CWKSP_Shapes::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Poin
 //---------------------------------------------------------
 CSG_Parameter * CWKSP_Shapes::AttributeList_Add(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
-	CSG_Parameter *pParameter;
-
-	pParameter	= m_Parameters.Add_Choice(
-		pNode, Identifier, Name, Description,
-		CSG_String::Format(SG_T("%s|"), _TL("<default>")), 0
-	);
-
-	return( pParameter );
+	return( m_Parameters.Add_Choice(pNode, Identifier, Name, Description, CSG_String(_TL("<default>")) + "|") );
 }
 
 //---------------------------------------------------------
@@ -1160,21 +1134,24 @@ void CWKSP_Shapes::AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 {
 	if( pFields && pFields->Get_Type() == PARAMETER_TYPE_Choice )
 	{
-		wxString	s;
+		CSG_String	Items;
 
 		for(int i=0; i<Get_Shapes()->Get_Field_Count(); i++)
 		{
-			s.Append(wxString::Format(wxT("%s|"), Get_Shapes()->Get_Field_Name(i)));
+			Items	+= CSG_String(Get_Shapes()->Get_Field_Name(i)) + "|";
 		}
 
 		if( bAddNoField )
 		{
-			s.Append(wxString::Format(wxT("%s|"), _TL("<none>")));
+			Items	+= CSG_String(_TL("<none>")) + "|";
 		}
 
-		pFields->asChoice()->Set_Items(s);
+		int			iChoice	= pFields->asInt   ();
+		CSG_String	sChoice	= pFields->asString();
 
-		if( bAddNoField )
+		pFields->asChoice()->Set_Items(Items);
+
+		if( bAddNoField && (iChoice < 0 || iChoice >= pFields->asChoice()->Get_Count() || sChoice.Cmp(pFields->asChoice()->Get_Item(iChoice))) )
 		{
 			pFields->Set_Value(Get_Shapes()->Get_Field_Count());
 		}
@@ -1191,23 +1168,18 @@ void CWKSP_Shapes::AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 //---------------------------------------------------------
 CSG_Parameter * CWKSP_Shapes::BrushList_Add(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
-	CSG_Parameter *pParameter;
-
-	pParameter	= m_Parameters.Add_Choice(
-		pNode, Identifier, Name, Description,
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("Opaque"),
-			_TL("Transparent"),
+	return( m_Parameters.Add_Choice(pNode, Identifier, Name, Description,
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+			_TL("Opaque"           ),
+			_TL("Transparent"      ),
 			_TL("Backward Diagonal"),
-			_TL("Cross Diagonal"),
-			_TL("Forward Diagonal"),
-			_TL("Cross"),
-			_TL("Horizontal"),
-			_TL("Vertical")
-		), 0
+			_TL("Cross Diagonal"   ),
+			_TL("Forward Diagonal" ),
+			_TL("Cross"            ),
+			_TL("Horizontal"       ),
+			_TL("Vertical"         )
+		), 0)
 	);
-
-	return( pParameter );
 }
 
 //---------------------------------------------------------
@@ -1215,35 +1187,29 @@ int CWKSP_Shapes::BrushList_Get_Style(int Index)
 {
 	switch( Index )
 	{
-	default:
-	case 0:	return( wxSOLID				);
-	case 1:	return( wxTRANSPARENT		);
-	case 2:	return( wxBDIAGONAL_HATCH	);
-	case 3:	return( wxCROSSDIAG_HATCH	);
-	case 4:	return( wxFDIAGONAL_HATCH	);
-	case 5:	return( wxCROSS_HATCH		);
-	case 6:	return( wxHORIZONTAL_HATCH	);
-	case 7:	return( wxVERTICAL_HATCH	);
+	default:	return( wxSOLID				);
+	case  1:	return( wxTRANSPARENT		);
+	case  2:	return( wxBDIAGONAL_HATCH	);
+	case  3:	return( wxCROSSDIAG_HATCH	);
+	case  4:	return( wxFDIAGONAL_HATCH	);
+	case  5:	return( wxCROSS_HATCH		);
+	case  6:	return( wxHORIZONTAL_HATCH	);
+	case  7:	return( wxVERTICAL_HATCH	);
 	}
 }
 
 //---------------------------------------------------------
 CSG_Parameter * CWKSP_Shapes::PenList_Add(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
-	CSG_Parameter *pParameter;
-
-	pParameter	= m_Parameters.Add_Choice(
-		pNode, Identifier, Name, Description,
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Solid"),
-			_TL("Dotted"),
-			_TL("Long Dashed"),
+	return( m_Parameters.Add_Choice(pNode, Identifier, Name, Description,
+		CSG_String::Format("%s|%s|%s|%s|%s|",
+			_TL("Solid"       ),
+			_TL("Dotted"      ),
+			_TL("Long Dashed" ),
 			_TL("Short Dashed"),
 			_TL("Dot And Dash")
-		), 0
+		), 0)
 	);
-
-	return( pParameter );
 }
 
 //---------------------------------------------------------
@@ -1251,12 +1217,11 @@ int CWKSP_Shapes::PenList_Get_Style(int Index)
 {
 	switch( Index )
 	{
-	default:
-	case 0:	return( wxSOLID );
-	case 1:	return( wxDOT );
-	case 2:	return( wxLONG_DASH );
-	case 3:	return( wxSHORT_DASH );
-	case 4:	return( wxDOT_DASH );
+	default:	return( wxSOLID      );
+	case  1:	return( wxDOT        );
+	case  2:	return( wxLONG_DASH  );
+	case  3:	return( wxSHORT_DASH );
+	case  4:	return( wxDOT_DASH   );
 	}
 }
 
