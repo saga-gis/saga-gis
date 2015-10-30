@@ -129,7 +129,7 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 	bool		bResult;
 	CSG_String	sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Save table"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
@@ -202,8 +202,8 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 //---------------------------------------------------------
 bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator)
 {
-	int			i, iField;
-	long		fLength;
+	int			iField;
+	sLong		fLength;
 	CSG_String	sLine, sField;
 	CSG_File	Stream;
 	CSG_Table	Table;
@@ -225,30 +225,29 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 	}
 
 	//-----------------------------------------------------
-	sLine	+= Separator;
+	sLine.Trim();	// remove leading white space
 
-	while( (i = sLine.Find(Separator)) >= 0 )
+	while( !sLine.is_Empty() )
 	{
-		sField.Clear();
-
-		if( bHeadline )
+		if( sLine[0] == '\"' )	// value in quotas
 		{
-			sField	= sLine.Left(i);
-
-			if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
-			{
-				sField	= sField.AfterFirst('\"').BeforeLast('\"');
-			}
+			sField	= sLine.AfterFirst('\"').BeforeFirst('\"');
+			sLine	= sLine.AfterFirst('\"').AfterFirst ('\"');
+		}
+		else
+		{
+			sField	= sLine.BeforeFirst(*Separator);
 		}
 
-		if( sField.Length() == 0 )
+		sLine	= sLine.AfterFirst(*Separator);
+		sLine.Trim();
+
+		if( !bHeadline || sField.Length() == 0 )
 		{
-			sField.Printf(SG_T("F%02d"), Table.Get_Field_Count() + 1);
+			sField.Printf("F%02d", Table.Get_Field_Count() + 1);
 		}
 
 		Table.Add_Field(sField, SG_DATATYPE_String);
-
-		sLine.Remove(0, i + 1);
 	}
 
 	//-----------------------------------------------------
@@ -264,47 +263,45 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 		Stream.Seek_Start();
 	}
 
-	while( Stream.Read_Line(sLine) && sLine.Length() > 0 && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
+	while( Stream.Read_Line(sLine) && sLine.Length() > 0 && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
 	{
 		CSG_Table_Record	*pRecord	= Table.Add_Record();
 
-		sLine	+= Separator;
+		sLine.Trim();	// remove leading white space
 
-		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		for(iField=0; iField<Table.Get_Field_Count() && !sLine.is_Empty(); iField++)
 		{
-			if( (i = sLine.Find(Separator)) >= 0 )
+			if( sLine[0] == '\"' )	// value in quotas
 			{
-				sField	= sLine.Left(i);
+				sField	= sLine.AfterFirst('\"').BeforeFirst('\"');
+				sLine	= sLine.AfterFirst('\"').AfterFirst ('\"');
 
-				if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
-				{
-					sField	= sField.AfterFirst('\"').BeforeLast('\"');
-
-					Type[iField]	= SG_DATATYPE_String;
-				}
-
-				if( Type[iField] != SG_DATATYPE_String && sField.Length() > 0 )
-				{
-					double	Value;
-
-					if( SG_SSCANF(sField, SG_T("%lf"), &Value) != 1 )
-					{
-						Type[iField]	= SG_DATATYPE_String;
-					}
-					else if( Type[iField] != SG_DATATYPE_Double && Value - (int)Value != 0.0 )
-					{
-						Type[iField]	= SG_DATATYPE_Double;
-					}
-				}
-
-				pRecord->Set_Value(iField, sField);
-
-				sLine.Remove(0, i + 1);
+				Type[iField]	= SG_DATATYPE_String;
 			}
 			else
 			{
-				break;
+				sField	= sLine.BeforeFirst(*Separator);
 			}
+
+			sLine	= sLine.AfterFirst(*Separator);
+			sLine.Trim();
+
+			//---------------------------------------------
+			if( Type[iField] != SG_DATATYPE_String && !sField.is_Empty() )
+			{
+				double	Value;
+
+				if( sField.asDouble(Value) == false )
+				{
+					Type[iField]	= SG_DATATYPE_String;
+				}
+				else if( Type[iField] != SG_DATATYPE_Double && Value - (int)Value != 0.0 )
+				{
+					Type[iField]	= SG_DATATYPE_Double;
+				}
+			}
+
+			pRecord->Set_Value(iField, sField);
 		}
 	}
 
