@@ -596,6 +596,8 @@ bool CSG_Module::Set_Progress(double Position, double Range)
 //---------------------------------------------------------
 bool CSG_Module::Stop_Execution(bool bDialog)
 {
+	m_bExecutes	= false;
+
 	return( SG_UI_Stop_Execution(bDialog) );
 }
 
