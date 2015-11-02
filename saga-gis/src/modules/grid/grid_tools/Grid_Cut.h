@@ -104,9 +104,6 @@ private:
 
 	CSG_Point					m_ptDown;
 
-
-	TSG_Point					Fit_to_Grid				(TSG_Point Point);
-
 };
 
 

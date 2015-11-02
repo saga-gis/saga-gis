@@ -90,31 +90,35 @@ void Fit_Extent(CSG_Parameters *pParameters, CSG_Parameter *pParameter, CSG_Grid
 {
 	if( pSystem && pSystem->is_Valid() )
 	{
-		CSG_Grid_System	s(Fit_Extent(*pSystem, CSG_Rect(
+		CSG_Grid_System	System(Fit_Extent(*pSystem, CSG_Rect(
 			pParameters->Get_Parameter("XMIN")->asDouble(),
 			pParameters->Get_Parameter("YMIN")->asDouble(),
 			pParameters->Get_Parameter("XMAX")->asDouble(),
 			pParameters->Get_Parameter("YMAX")->asDouble()
 		)));
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NX")) )
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "NX") )
 		{
-			s.Assign(s.Get_Cellsize(), s.Get_XMin(), s.Get_YMin(), pParameters->Get_Parameter("NX")->asInt(), s.Get_NY());
+			System.Assign(System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(),
+				pParameters->Get_Parameter("NX")->asInt(), System.Get_NY()
+			);
 		}
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NY")) )
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "NY") )
 		{
-			s.Assign(s.Get_Cellsize(), s.Get_XMin(), s.Get_YMin(), s.Get_NX(), pParameters->Get_Parameter("NY")->asInt());
+			System.Assign(System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(),
+				System.Get_NX(), pParameters->Get_Parameter("NY")->asInt()
+			);
 		}
 
-		if( s.is_Valid() )
+		if( System.is_Valid() )
 		{
-			pParameters->Get_Parameter("XMIN")->Set_Value(s.Get_XMin());
-			pParameters->Get_Parameter("XMAX")->Set_Value(s.Get_XMax());
-			pParameters->Get_Parameter("YMIN")->Set_Value(s.Get_YMin());
-			pParameters->Get_Parameter("YMAX")->Set_Value(s.Get_YMax());
-			pParameters->Get_Parameter("NX"  )->Set_Value(s.Get_NX  ());
-			pParameters->Get_Parameter("NY"  )->Set_Value(s.Get_NY  ());
+			pParameters->Get_Parameter("XMIN")->Set_Value(System.Get_XMin());
+			pParameters->Get_Parameter("XMAX")->Set_Value(System.Get_XMax());
+			pParameters->Get_Parameter("YMIN")->Set_Value(System.Get_YMin());
+			pParameters->Get_Parameter("YMAX")->Set_Value(System.Get_YMax());
+			pParameters->Get_Parameter("NX"  )->Set_Value(System.Get_NX  ());
+			pParameters->Get_Parameter("NY"  )->Set_Value(System.Get_NY  ());
 		}
 	}
 }
@@ -132,7 +136,7 @@ CGrid_Clip_Interactive::CGrid_Clip_Interactive(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Clip Grids"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Clip selected grids to interactively defined extent."
@@ -140,15 +144,21 @@ CGrid_Clip_Interactive::CGrid_Clip_Interactive(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, _TL("Grids"),
+		NULL	, "GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "CLIPPED"	, _TL("Clipped Grids"),
+		NULL	, "CLIPPED"		, _TL("Clipped Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "RUN_ONCE"	, _TL("Run Once"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
@@ -170,12 +180,12 @@ CGrid_Clip_Interactive::CGrid_Clip_Interactive(void)
 //---------------------------------------------------------
 int CGrid_Clip_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( is_Executing() && !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("EXTENT")) )
+	if( is_Executing() && !SG_STR_CMP(pParameters->Get_Identifier(), "EXTENT") )
 	{
 		Fit_Extent(pParameters, pParameter, Get_System());
 	}
 
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
@@ -186,7 +196,7 @@ int CGrid_Clip_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 //---------------------------------------------------------
 bool CGrid_Clip_Interactive::On_Execute(void)
 {
-	m_bDown		= false;
+	m_bDown	= false;
 
 	return( true );
 }
@@ -195,15 +205,6 @@ bool CGrid_Clip_Interactive::On_Execute(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-TSG_Point CGrid_Clip_Interactive::Fit_to_Grid(TSG_Point Point)
-{
-	Point.x	= Get_XMin() + Get_Cellsize() * (int)(0.5 + (Point.x - Get_XMin()) / Get_Cellsize());
-	Point.y	= Get_YMin() + Get_Cellsize() * (int)(0.5 + (Point.y - Get_YMin()) / Get_Cellsize());
-
-	return( Point );
-}
 
 //---------------------------------------------------------
 bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
@@ -215,67 +216,77 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_I
 		if( m_bDown == false )
 		{
 			m_bDown		= true;
-			m_ptDown	= Fit_to_Grid(ptWorld);
+			m_ptDown	= ptWorld;
 		}
 
-		return( true );
+		break;
 
 	//-----------------------------------------------------
 	case MODULE_INTERACTIVE_LUP:
 		if( m_bDown == true )
 		{
 			m_bDown		= false;
-			ptWorld		= Fit_to_Grid(ptWorld);
+			ptWorld		= ptWorld;
 
-			//---------------------------------------------
 			CSG_Grid_System	System	= Fit_Extent(*Get_System(), CSG_Rect(
 				m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y()
 			));
 
 			CSG_Parameters	*pParameters	= Get_Parameters("EXTENT");
 
+			pParameters->Set_Callback(false);
 			pParameters->Get_Parameter("XMIN")->Set_Value(System.Get_XMin());
 			pParameters->Get_Parameter("XMAX")->Set_Value(System.Get_XMax());
 			pParameters->Get_Parameter("YMIN")->Set_Value(System.Get_YMin());
 			pParameters->Get_Parameter("YMAX")->Set_Value(System.Get_YMax());
 			pParameters->Get_Parameter("NX"  )->Set_Value(System.Get_NX  ());
 			pParameters->Get_Parameter("NY"  )->Set_Value(System.Get_NY  ());
+			pParameters->Set_Callback(true);
 
-			if( Dlg_Parameters(pParameters, _TL("Clip to Extent")) )
+			if( !Dlg_Parameters(pParameters, _TL("Clip to Extent")) )
 			{
-				System	= Fit_Extent(*Get_System(), CSG_Rect(
-					pParameters->Get_Parameter("XMIN")->asDouble(),
-					pParameters->Get_Parameter("YMIN")->asDouble(),
-					pParameters->Get_Parameter("XMAX")->asDouble(),
-					pParameters->Get_Parameter("YMAX")->asDouble()
-				));
+				return( false );
+			}
 
-				//-----------------------------------------
-				if( System.is_Valid() )
-				{
-					CSG_Parameter_Grid_List	*pInput		= Parameters("GRIDS"  )->asGridList();
-					CSG_Parameter_Grid_List	*pOutput	= Parameters("CLIPPED")->asGridList();
+			System	= Fit_Extent(*Get_System(), CSG_Rect(
+				pParameters->Get_Parameter("XMIN")->asDouble(),
+				pParameters->Get_Parameter("YMIN")->asDouble(),
+				pParameters->Get_Parameter("XMAX")->asDouble(),
+				pParameters->Get_Parameter("YMAX")->asDouble()
+			));
 
-					for(int i=0; i<pInput->Get_Count(); i++)
-					{
-						CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->asGrid(i)->Get_Type());
+			if( !System.is_Valid() )
+			{
+				return( false );
+			}
 
-						pClip->Assign  (pInput->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
-						pClip->Set_Name(pInput->asGrid(i)->Get_Name());
+			//---------------------------------------------
+			CSG_Parameter_Grid_List	*pInput		= Parameters("GRIDS"  )->asGridList();
+			CSG_Parameter_Grid_List	*pOutput	= Parameters("CLIPPED")->asGridList();
 
-						pOutput->Add_Item(pClip);
-						DataObject_Add   (pClip);
-					}
-				}
+			for(int i=0; i<pInput->Get_Count(); i++)
+			{
+				CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->asGrid(i)->Get_Type());
+
+				pClip->Assign  (pInput->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
+				pClip->Set_Name(pInput->asGrid(i)->Get_Name());
+
+				pOutput->Add_Item(pClip);
+				DataObject_Add   (pClip);
+			}
+
+			if( Parameters("RUN_ONCE")->asBool() )
+			{
+				Stop_Execution(false);
 			}
 		}
 
-		return( true );
+		break;
 
 	//-----------------------------------------------------
 	}
 
-	return( false );
+	return( true );
 }
 
 
@@ -293,7 +304,7 @@ CGrid_Clip::CGrid_Clip(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Clip Grids"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Clip selected grids to specified extent."
@@ -316,7 +327,7 @@ CGrid_Clip::CGrid_Clip(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "EXTENT"		, _TL("Extent"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("user defined"),
 			_TL("grid system"),
 			_TL("shapes extent"),
