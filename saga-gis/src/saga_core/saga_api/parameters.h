@@ -783,6 +783,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 

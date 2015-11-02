@@ -1752,6 +1752,22 @@ void CSG_Parameter_Table_Field::On_Assign(CSG_Parameter_Data *pSource)
 	m_Default	= ((CSG_Parameter_Table_Field *)pSource)->m_Default;
 }
 
+//---------------------------------------------------------
+bool CSG_Parameter_Table_Field::On_Serialize(CSG_MetaData &Entry, bool bSave)
+{
+	if( bSave )
+	{
+		Entry.Set_Property("index", asInt());
+		Entry.Set_Content(asString());
+	}
+	else
+	{
+		return( Set_Value(Entry.Get_Content()) );
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
