@@ -32,6 +32,9 @@
     <ClCompile Include="arctoolbox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tool_py_updater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -101,6 +104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="arctoolbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tool_py_updater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

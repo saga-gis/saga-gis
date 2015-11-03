@@ -565,6 +565,7 @@
     <ClCompile Include="tl_merge.cpp" />
     <ClCompile Include="tl_union.cpp" />
     <ClCompile Include="tool_counter.cpp" />
+    <ClCompile Include="tool_py_updater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -590,6 +591,7 @@
     <ClInclude Include="tl_merge.h" />
     <ClInclude Include="tl_union.h" />
     <ClInclude Include="tool_counter.h" />
+    <ClInclude Include="tool_py_updater.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

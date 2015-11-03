@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: tool_py_updater.h 2332 2014-11-07 14:12:16Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   tool_py_updater.h                   //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2015 by                 //
 //                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,74 +54,41 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__tool_py_updater_H
+#define HEADER_INCLUDED__tool_py_updater_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CTool_Py_Updater : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( SG_T("Development Tools") );
+public:
+	CTool_Py_Updater(void);
 
-	case MLB_INFO_Category:
-		return( _TL("Garden") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2010") );
-
-	case MLB_INFO_Description:
-		return( SG_T("Tools and helpers for the SAGA development.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( SG_T("Garden|Development Tools") );
-	}
-}
+//	virtual CSG_String			Get_MenuPath	(void)	{	return( SG_T("Translation") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "tl_extract.h"
-#include "tl_union.h"
-#include "tl_merge.h"
-#include "tool_counter.h"
-#include "arctoolbox.h"
-#include "tool_py_updater.h"
+	virtual bool				On_Execute		(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CTL_Extract );
-	case  1:	return( new CTL_Union );
-	case  2:	return( new CTL_Merge );
-	case  3:	return( new CTool_Counter );
-	case  4:	return( new CTool_Menus );
-	case  5:	return( new CArcToolBox );
-	case  6:	return( new CTool_Py_Updater );
-
-	case  7:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -131,8 +98,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__tool_py_updater_H
