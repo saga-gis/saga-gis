@@ -89,6 +89,9 @@ public:
 	bool					Save				(bool bSaveAsOnError);
 	bool					Save				(const wxString &FileName, bool bSaveModified);
 
+	bool					Copy				(void);
+	bool					CopyToDB			(void);
+
 
 private:
 
@@ -109,6 +112,8 @@ private:
 
 	class CWKSP_Base_Item *	_Get_byFileName		(const wxString &FileName);
 
+	bool					_Copy_To_File		(class CWKSP_Data_Item *pData, const wxString &Directory);
+	bool					_Copy_To_Database	(class CWKSP_Data_Item *pData, const wxString &Connection);
 
 	//-----------------------------------------------------
 	bool	_Compatibility_Data			(TSG_Data_Type Type, class CSG_Parameters *pParameters, const CSG_String &Version);

@@ -466,18 +466,16 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 
 	pMenu	= new wxMenu(_TL("Data"));
 
-//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-
-//	pMenu->AppendSeparator();
-
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_NEW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 //	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_CLOSE);
 
 	if( Get_Count() > 0 )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE_AS);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_COPY);
+	//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_COPY_DB);
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 	}
@@ -533,12 +531,14 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
-	case ID_CMD_DATA_PROJECT_NEW:		Close(false);						break;
 	case ID_CMD_DATA_PROJECT_OPEN:		m_pProject->Load(false);			break;
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load(true);				break;
+	case ID_CMD_DATA_PROJECT_BROWSE:	Open_Browser();						break;
+	case ID_CMD_DATA_PROJECT_CLOSE:		Close(false);						break;
 	case ID_CMD_DATA_PROJECT_SAVE:		m_pProject->Save(true);				break;
 	case ID_CMD_DATA_PROJECT_SAVE_AS:	m_pProject->Save();					break;
-	case ID_CMD_DATA_PROJECT_BROWSE:	Open_Browser();						break;
+	case ID_CMD_DATA_PROJECT_COPY:		m_pProject->Copy();					break;
+	case ID_CMD_DATA_PROJECT_COPY_DB:	m_pProject->CopyToDB();				break;
 
 	//-----------------------------------------------------
 	case ID_CMD_TABLES_OPEN:			Open(DATAOBJECT_TYPE_Table);		break;
@@ -568,7 +568,7 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
-	case ID_CMD_DATA_PROJECT_NEW:
+	case ID_CMD_DATA_PROJECT_CLOSE:
 		event.Enable(Get_Count() > 0 && g_pModule == NULL);
 		break;
 

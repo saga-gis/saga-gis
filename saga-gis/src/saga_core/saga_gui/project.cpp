@@ -215,6 +215,115 @@ bool CWKSP_Project::Save(const wxString &FileName, bool bSaveModified)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Project::Copy(void)
+{
+	wxString	FileName;
+
+	if( !DLG_Save(FileName, ID_DLG_PROJECT_SAVE) )
+	{
+		return( false );
+	}
+
+	wxFileName	Directory(FileName);
+
+	Directory.AppendDir(Directory.GetFullName());
+
+	if( !Directory.DirExists() )
+	{
+		Directory.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+	}
+
+	size_t	i, j;
+
+	for(j=0; j<SG_Get_Data_Manager().Grid_System_Count(); j++)
+	{
+		for(i=0; i<SG_Get_Data_Manager().Get_Grid_System(j)->Count(); i++)
+		{
+			_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Grid_System(j)->Get(i)), Directory.GetFullPath());
+		}
+	}
+
+	for(i=0; i<SG_Get_Data_Manager().Get_Point_Cloud()->Count(); i++)
+	{
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Point_Cloud()->Get(i)), Directory.GetFullPath());
+	}
+
+	for(i=0; i<SG_Get_Data_Manager().Get_Shapes()->Count(); i++)
+	{
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Shapes()->Get(i)), Directory.GetFullPath());
+	}
+
+	for(i=0; i<SG_Get_Data_Manager().Get_Table()->Count(); i++)
+	{
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_Shapes()->Get(i)), Directory.GetFullPath());
+	}
+
+	for(i=0; i<SG_Get_Data_Manager().Get_TIN()->Count(); i++)
+	{
+		_Copy_To_File(g_pData->Get(SG_Get_Data_Manager().Get_TIN()->Get(i)), Directory.GetFullPath());
+	}
+
+	return( _Save(Directory.GetFullPath(), false, true) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Project::_Copy_To_File(CWKSP_Data_Item *pItem, const wxString &Directory)
+{
+	wxFileName	Path(Directory);
+
+	switch( pItem->Get_Type() )
+	{
+	case WKSP_ITEM_Table     :	Path.SetExt("txt" );	break;
+	case WKSP_ITEM_Shapes    :	Path.SetExt("shp" );	break;
+	case WKSP_ITEM_TIN       :	Path.SetExt("shp" );	break;
+	case WKSP_ITEM_PointCloud:	Path.SetExt("spc" );	break;
+	case WKSP_ITEM_Grid      :	Path.SetExt("sgrd");	break;
+	default:	return( false );
+	}
+
+	//-----------------------------------------------------
+	wxString	Name(pItem->Get_Object()->Get_Name());
+
+	Name.Replace(".", "-");
+	Name.Replace(":", "-");
+
+	Path.SetName(Name);
+
+	for(int i=1; Path.FileExists(); i++)
+	{
+		Path.SetName(Name + wxString::Format("_%d", i));
+	}
+
+	Name	= Path.GetFullPath();
+
+	return( pItem->Get_Object()->Save(&Name) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Project::CopyToDB(void)
+{
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Project::_Copy_To_Database(CWKSP_Data_Item *pItem, const wxString &Connection)
+{
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 {
 	if( wxFileExists(FileName) && !bAdd && g_pData->Get_Count() > 0 )

@@ -321,11 +321,13 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		m_pModules->On_Command(event);
 		break;
 
-	case ID_CMD_DATA_PROJECT_NEW:
 	case ID_CMD_DATA_PROJECT_OPEN:
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:
+	case ID_CMD_DATA_PROJECT_CLOSE:
 	case ID_CMD_DATA_PROJECT_SAVE:
 	case ID_CMD_DATA_PROJECT_SAVE_AS:
+	case ID_CMD_DATA_PROJECT_COPY:
+	case ID_CMD_DATA_PROJECT_COPY_DB:
 	case ID_CMD_DATA_PROJECT_BROWSE:
 	case ID_CMD_TABLES_OPEN:
 	case ID_CMD_SHAPES_OPEN:
@@ -335,12 +337,8 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		m_pData->On_Command(event);
 		break;
 
-	case ID_CMD_WKSP_OPEN:
+	case ID_CMD_DATA_OPEN:
 		Open();
-		break;
-
-	case ID_CMD_WKSP_SAVE:
-		g_pData->On_Command(ID_CMD_DATA_PROJECT_SAVE);
 		break;
 	}
 }
@@ -370,14 +368,17 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 		}
 		break;
 
-	case ID_CMD_WKSP_OPEN:
+	case ID_CMD_DATA_OPEN:
 		break;
 
 	case ID_CMD_MODULES_SEARCH:
 		m_pModules->On_Command_UI(event);
 		break;
 
-	case ID_CMD_WKSP_SAVE:
+	case ID_CMD_DATA_PROJECT_SAVE:
+	case ID_CMD_DATA_PROJECT_SAVE_AS:
+	case ID_CMD_DATA_PROJECT_COPY:
+	case ID_CMD_DATA_PROJECT_COPY_DB:
 		event.Enable(g_pData->Get_Count() > 0);
 		break;
 	}

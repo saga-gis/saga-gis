@@ -1107,8 +1107,8 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 {
 	wxToolBarBase	*pToolBar	= TB_Create(ID_TB_MAIN);
 
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_WKSP_OPEN);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_WKSP_SAVE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_OPEN);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECT_SAVE);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_WKSP_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_ACTIVE_SHOW);

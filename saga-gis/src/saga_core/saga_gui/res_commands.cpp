@@ -113,9 +113,6 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_WKSP_ITEM_SETTINGS_COPY:return( _TL("Copy Settings from other Layer") );
 	case ID_CMD_WKSP_ITEM_SEARCH:		return( _TL("Search for...") );
 
-	case ID_CMD_WKSP_OPEN:				return( _TL("Open") );
-	case ID_CMD_WKSP_SAVE:				return( _TL("Save All") );
-
 	case ID_CMD_INFO_CLEAR:				return( _TL("Clear") );
 	case ID_CMD_INFO_COPY:				return( _TL("Copy") );
 	case ID_CMD_INFO_SELECTALL:			return( _TL("Select All") );
@@ -143,19 +140,28 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MODULES_CHAIN_RELOAD:	return( _TL("Reload") );
 	case ID_CMD_MODULES_CHAIN_EDIT:		return( _TL("Edit") );
 
-	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("Close All") );
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( _TL("Add Project") );
+	case ID_CMD_DATA_PROJECT_BROWSE:	return( _TL("Search for Projects") );		
+	case ID_CMD_DATA_PROJECT_CLOSE:		return( _TL("Close Project") );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( _TL("Save Project") );
 	case ID_CMD_DATA_PROJECT_SAVE_AS:	return( _TL("Save Project as...") );
-	case ID_CMD_DATA_PROJECT_BROWSE:	return( _TL("Search for Projects...") );		
+	case ID_CMD_DATA_PROJECT_COPY:		return( _TL("Copy Project to...") );
+	case ID_CMD_DATA_PROJECT_COPY_DB:	return( _TL("Copy Project to Database") );
+
 	case ID_CMD_DATA_LEGEND_COPY:		return( _TL("Copy Legend to Clipboard...") );
 	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( _TL("Increase Legend Size") );
 	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( _TL("Decrease Legend Size") );
+
 	case ID_CMD_DATA_HISTORY_CLEAR:		return( _TL("Clear History") );
 	case ID_CMD_DATA_HISTORY_TO_MODEL:	return( _TL("Save as Tool Chain") );
 	case ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE:	return( _TL("Collpase Options") );
 	case ID_CMD_DATA_HISTORY_OPTIONS_EXPAND:	return( _TL("Expand Options") );
+
+	case ID_CMD_DATA_OPEN:				return( _TL("Open") );
+	case ID_CMD_DATA_SAVE:				return( _TL("Save") );
+	case ID_CMD_DATA_SAVEAS:			return( _TL("Save as...") );
+	case ID_CMD_DATA_SAVETODB:			return( _TL("Save to Database...") );
 	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
 
 	case ID_CMD_GRIDS_OPEN:
@@ -163,9 +169,6 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLES_OPEN:
 	case ID_CMD_TIN_OPEN:
 	case ID_CMD_POINTCLOUD_OPEN:		return( _TL("Load") );
-	case ID_CMD_DATA_SAVE:				return( _TL("Save") );
-	case ID_CMD_DATA_SAVEAS:			return( _TL("Save as...") );
-	case ID_CMD_DATA_SAVETODB:			return( _TL("Save to Database...") );
 
 	case ID_CMD_GRIDS_SHOW:
 	case ID_CMD_SHAPES_SHOW:
@@ -351,8 +354,8 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_FRAME_ACTIVE_SHOW:		return( ID_IMG_TB_ACTIVE );
 	case ID_CMD_FRAME_INFO_SHOW:		return( ID_IMG_TB_INFO );
 	case ID_CMD_FRAME_HELP:				return( ID_IMG_TB_HELP );
-	case ID_CMD_WKSP_OPEN:				return( ID_IMG_TB_OPEN );
-	case ID_CMD_WKSP_SAVE:				return( ID_IMG_TB_SAVE );
+	case ID_CMD_DATA_OPEN:				return( ID_IMG_TB_OPEN );
+	case ID_CMD_DATA_PROJECT_SAVE:		return( ID_IMG_TB_SAVE );
 	case ID_CMD_MODULES_OPEN:			return( ID_IMG_TB_OPEN_MODULE );
 	case ID_CMD_MODULES_SEARCH:			return( ID_IMG_NB_WKSP_MODULES );
 	case ID_CMD_TABLES_OPEN:			return( ID_IMG_TB_OPEN_TABLE );

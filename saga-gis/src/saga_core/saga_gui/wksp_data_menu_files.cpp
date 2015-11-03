@@ -85,9 +85,7 @@ CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 	m_bUpdate	= true;
 	m_pMenu		= new wxMenu;
 
-	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_WKSP_OPEN);
-	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_WKSP_SAVE);
-	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_NEW);
+	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_OPEN);
 
 	m_pMenu->AppendSeparator();
 	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project")    , m_Projects   .Create(DATAOBJECT_TYPE_Undefined));
