@@ -1303,19 +1303,26 @@ bool CSG_Parameters::DataObjects_Create(void)
 
 			if( pDataObject )
 			{
-				pDataObject->Set_Name(p->Get_Name());
-
-				if( m_pManager )
+				if( p->Set_Value(pDataObject) )
 				{
-					m_pManager->Add(pDataObject);
+					pDataObject->Set_Name(p->Get_Name());
+
+					if( m_pManager )
+					{
+						m_pManager->Add(pDataObject);
+					}
+				}
+				else
+				{
+					delete(pDataObject);
+
+					bResult	= false;
 				}
 			}
 			else
 			{
 				bResult	= p->is_Optional();
 			}
-
-			p->Set_Value(pDataObject);
 		}
 	}
 

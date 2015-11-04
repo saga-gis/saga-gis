@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_SYSTEM_PRECISION 10000000000	// 10 decimal digits, precision used for storing cellsize and extent
+#define GRID_SYSTEM_PRECISION 1000000000000	// 12 decimal digits, precision used for storing cellsize and extent
 
 //---------------------------------------------------------
 CSG_Grid_System::CSG_Grid_System(void)
