@@ -93,8 +93,6 @@ END_EVENT_TABLE()
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -106,29 +104,34 @@ CDLG_About::CDLG_About(void)
 	m_pControl	= new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE);
 
 	//-----------------------------------------------------
-	m_pVersion	=
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
 	pText->AppendText(_Get_Version());
 	m_pControl->AddPage(pText, _TL("Version"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
+	pText->AppendText(_Get_Citation());
+	m_pControl->AddPage(pText, _TL("Citation"), false, -1);
+	pText->ShowPosition(0);
+
+	//-----------------------------------------------------
 	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Logo"), false, -1);
 
 	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
 	pText->AppendText(_Get_Acknowledgements());
 	m_pControl->AddPage(pText, _TL("Acknowledgements"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
 	pText->AppendText(_Get_GPL());
 	m_pControl->AddPage(pText, SG_T("GPL"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
 	pText->AppendText(_Get_LGPL());
 	m_pControl->AddPage(pText, SG_T("LGPL"), false, -1);
 	pText->ShowPosition(0);
@@ -137,14 +140,8 @@ CDLG_About::CDLG_About(void)
 	Set_Positions();
 }
 
-//---------------------------------------------------------
-CDLG_About::~CDLG_About(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -157,23 +154,21 @@ void CDLG_About::Set_Position(wxRect r)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CDLG_About::On_URL_Version(wxTextUrlEvent &event)
 {
-	if( !event.GetMouseEvent().Moving() )
+	if( event.GetMouseEvent().LeftDown() && !event.GetMouseEvent().Moving() )
 	{
-		Open_WebBrowser(m_pVersion->GetValue().Mid(event.GetURLStart(), event.GetURLEnd() - event.GetURLStart()));
+		wxString	Text	= ((wxTextCtrl *)event.GetEventObject())->GetValue();
+
+		Open_WebBrowser(Text.Mid(event.GetURLStart(), event.GetURLEnd() - event.GetURLStart()));
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -290,6 +285,31 @@ wxString CDLG_About::_Get_Version(void)
 
 	return( s );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxString CDLG_About::_Get_Citation(void)
+{
+	return(
+		"\n"
+		"Please provide the following reference in your work if you are using SAGA:\n"
+		"\n_______________________\n\n"
+		"Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Boehner, J. (2015):\n"
+		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4.\n"
+		"Geosci. Model Dev., 8, 1991-2007, doi:10.5194/gmd-8-1991-2015.\n"
+		"\n_______________________\n\n"
+		"http://www.geosci-model-dev.net/8/1991/2015/gmd-8-1991-2015.html"
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxString CDLG_About::_Get_Acknowledgements(void)

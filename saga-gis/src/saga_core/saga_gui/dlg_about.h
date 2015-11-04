@@ -88,7 +88,6 @@ class CDLG_About : public CDLG_Base
 
 public:
 	CDLG_About(void);
-	virtual ~CDLG_About(void);
 
 	void						On_URL_Version			(wxTextUrlEvent &event);
 
@@ -102,10 +101,9 @@ private:
 
 	class wxNotebook			*m_pControl;
 
-	class wxTextCtrl			*m_pVersion;
-
 
 	wxString					_Get_Version			(void);
+	wxString					_Get_Citation			(void);
 	wxString					_Get_Acknowledgements	(void);
 
 	wxString					_Get_GPL				(void);
