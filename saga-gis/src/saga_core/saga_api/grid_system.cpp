@@ -72,7 +72,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_SYSTEM_PRECISION 1000000000000	// 12 decimal digits, precision used for storing cellsize and extent
+#define GRID_SYSTEM_PRECISION 10000000000	// 10 decimal digits, precision used for storing cellsize and extent
+
+//---------------------------------------------------------
+double SG_Get_Limited_Precision(double Value, double Precision)
+{
+	if( Precision > 0.0 )
+	{
+		return( floor(Value * Precision + 0.5) / Precision );
+	}
+
+	return( Value );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_Grid_System::CSG_Grid_System(void)
@@ -221,9 +237,9 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 {
 	if( Cellsize > 0.0 && NX > 0 && NY > 0 )
 	{
-		Cellsize	= (sLong)(Cellsize * GRID_SYSTEM_PRECISION) / (double)GRID_SYSTEM_PRECISION;
-		xMin		= (sLong)(xMin     * GRID_SYSTEM_PRECISION) / (double)GRID_SYSTEM_PRECISION;
-		yMin		= (sLong)(yMin     * GRID_SYSTEM_PRECISION) / (double)GRID_SYSTEM_PRECISION;
+		Cellsize	= SG_Get_Limited_Precision(Cellsize, GRID_SYSTEM_PRECISION);
+		xMin		= SG_Get_Limited_Precision(xMin    , GRID_SYSTEM_PRECISION);
+		yMin		= SG_Get_Limited_Precision(yMin    , GRID_SYSTEM_PRECISION);
 
 		if( Cellsize > 0.0 )
 		{
