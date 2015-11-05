@@ -111,19 +111,19 @@ void CWKSP_Menu_Modules::Update(void)
 	}
 
 	//-----------------------------------------------------
-	int		ID_Menu;
+	wxMenuBar	*pMenuBar	= m_pMenu->GetMenuBar();
 
-	while( (ID_Menu = m_pMenu->GetMenuItemCount()) > 0 )
+	if( pMenuBar )
 	{
-		m_pMenu->Destroy(m_pMenu->GetMenuItems().Item(ID_Menu - 1)->GetData());
+		pMenuBar->Replace(1, new wxMenu, _TL("Geoprocessing"));
 	}
+
+	delete(m_pMenu);	m_pMenu	= new wxMenu;
 
 	//-----------------------------------------------------
 	if( g_pModules->Get_Count() > 0 )
 	{
-		ID_Menu	= ID_CMD_MODULE_START;
-
-		for(int iGroup=0; iGroup<g_pModules->Get_Count(); iGroup++)
+		for(int iGroup=0, ID_Menu=ID_CMD_MODULE_START; iGroup<g_pModules->Get_Count(); iGroup++)
 		{
 			for(int iLibrary=0; iLibrary<g_pModules->Get_Group(iGroup)->Get_Count(); iLibrary++)
 			{
@@ -157,14 +157,20 @@ void CWKSP_Menu_Modules::Update(void)
 		}
 
 		m_pMenu->InsertSeparator(0);
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_OPEN	, 0);
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_SEARCH	, 1);
+
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_OPEN  , 0);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_SEARCH, 1);
 
 		_Set_Recent(m_pMenu);
 	}
 	else
 	{
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_MODULES_OPEN);
+	}
+
+	if( pMenuBar )
+	{
+		delete(pMenuBar->Replace(1, m_pMenu, _TL("Geoprocessing")));
 	}
 }
 
