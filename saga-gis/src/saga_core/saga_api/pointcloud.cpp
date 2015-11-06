@@ -439,6 +439,8 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
+	SG_UI_Process_Set_Ready();
+
 	return( true );
 }
 
@@ -1034,7 +1036,7 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 						CSG_String	s;
 
 						Get_Value(i, s);
-					
+
 						pShape->Set_Value(i, s);
 					}
 					break;
