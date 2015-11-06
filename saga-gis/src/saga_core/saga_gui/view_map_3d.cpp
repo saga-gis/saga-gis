@@ -366,7 +366,18 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 	case ID_CMD_MAP3D_SEQ_POS_DEL_ALL:	m_pPanel->Play_Pos_Clr();	return;
 	case ID_CMD_MAP3D_SEQ_PLAY       :	m_pPanel->Play_Once   ();	return;
 	case ID_CMD_MAP3D_SEQ_PLAY_LOOP  :	m_pPanel->Play_Loop   ();	return;
-	case ID_CMD_MAP3D_SEQ_SAVE       :	m_pPanel->Play_Save   ();	return;
+	case ID_CMD_MAP3D_SEQ_SAVE       :
+		{
+			int			Type;
+			wxString	File;
+
+			if( DLG_Image_Save(File, Type) )
+			{
+				m_pPanel->m_Parameters("PLAY_FILE")->Set_Value(File.wc_str());
+				m_pPanel->Play_Save();
+			}
+		}
+		return;
 
 	//-----------------------------------------------------
 	case ID_CMD_MAP3D_ROTATE_X_LESS  :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() + 4.0 * M_DEG_TO_RAD);	break;
