@@ -180,6 +180,7 @@ public:
 	void						SaveAs_Image			(void);
 	void						SaveAs_Image_Clipboard	(int nx, int ny, int frame);
 	void						SaveAs_Image_Clipboard	(bool bLegend = false);
+	void						SaveAs_Image_To_KMZ		(int nx, int ny);
 	void						SaveAs_Image_To_Memory	(int nx, int ny);
 	void						SaveAs_Image_On_Change	(void);
 	void						SaveAs_Image_To_Grid	(CSG_Grid &Grid, int Size);

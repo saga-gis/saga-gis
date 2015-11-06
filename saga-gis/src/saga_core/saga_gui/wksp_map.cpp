@@ -1384,6 +1384,81 @@ void CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
 }
 
 //---------------------------------------------------------
+void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
+{
+	if( nx < 1 || ny < 1 )
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
+	CSG_Rect		Extent(Get_Extent());
+
+	CSG_Parameters	P(NULL, _TL("Save Map to KMZ"), _TL(""));
+
+	P.Add_FilePath(NULL, "FILE"    , _TL("File"    ), _TL(""), CSG_String::Format("%s|*.kmz|%s|*.*", _TL("KMZ Files"), _TL("All Files")), NULL, true);
+	P.Add_Value   (NULL, "CELLSIZE", _TL("Cellsize"), _TL(""), PARAMETER_TYPE_Double, SG_Get_Rounded_To_SignificantFigures(Extent.Get_XRange() / (double)nx, 2), 0.0, true);
+	P.Add_Value   (NULL, "LOAD"    , _TL("Load"    ), _TL(""), PARAMETER_TYPE_Bool  , true);
+
+	if( !DLG_Parameters(&P) || P("CELLSIZE")->asDouble() <= 0.0 )
+	{
+		return;
+	}
+
+	wxFileName	FileName(P("FILE")->asString());
+
+	if( !FileName.IsOk() )
+	{
+		DLG_Message_Show_Error(_TL("invalid file name"), _TL("Save Map to KMZ"));
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	nx	= Extent.Get_XRange() / P("CELLSIZE")->asDouble();
+	ny	= Extent.Get_YRange() / P("CELLSIZE")->asDouble();
+
+	wxImage		Image(nx, ny);
+
+	if( !Get_Image(Image, Extent) )
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	Map(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
+
+	Map.Set_Name(Get_Name().wx_str());
+	Map.Set_NoData_Value(16711935);
+	Map.Get_Projection().Create(m_Projection);
+
+	for(int y=0, yy=Map.Get_NY()-1; y<Map.Get_NY(); y++, yy--)
+	{
+		for(int x=0; x<Map.Get_NX(); x++)
+		{
+			Map.Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
+		}
+	}
+
+	//-----------------------------------------------------
+	bool	bResult;
+
+	SG_RUN_MODULE(bResult, "io_grid_image", 2,
+			SG_MODULE_PARAMETER_SET("GRID"     , &Map)
+		&&	SG_MODULE_PARAMETER_SET("FILE"     , FileName.GetFullPath().wc_str())
+		&&	SG_MODULE_PARAMETER_SET("COLOURING", 4)	// rgb coded values
+		&&	SG_MODULE_PARAMETER_SET("OUTPUT"   , 2)	// kmz file
+	);
+
+	if( bResult && P("LOAD")->asBool() )
+	{
+		FileName.SetExt("kmz");
+
+		Open_Application(FileName.GetFullPath());
+	}
+}
+
+//---------------------------------------------------------
 void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 {
 	if( nx < 1 || ny < 1 )

@@ -219,6 +219,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_LAYOUT_SHOW:				return( _TL("Show Print Layout") );
 	case ID_CMD_MAPS_SAVE_IMAGE:				return( _TL("Save as Image...") );
 	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:		return( _TL("Save as Image when changed") );
+	case ID_CMD_MAPS_SAVE_IMAGE_TO_KMZ:			return( _TL("Save as KMZ...") );
 	case ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY:		return( _TL("Save as Image to Workspace") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( _TL("Copy Map to Clipboard [Ctrl+C]") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard [Ctrl+L]") );

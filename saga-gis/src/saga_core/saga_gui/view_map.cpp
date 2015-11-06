@@ -101,6 +101,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_GRATICULE_ADD				, CVIEW_Map::On_Map_Graticule)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE					, CVIEW_Map::On_Map_Save_Image)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE		, CVIEW_Map::On_Map_Save_Image_On_Change)
+	EVT_MENU			(ID_CMD_MAPS_SAVE_IMAGE_TO_KMZ			, CVIEW_Map::On_Map_Save_Image_To_KMZ)
 	EVT_MENU			(ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY		, CVIEW_Map::On_Map_Save_Image_To_Memory)
 	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD			, CVIEW_Map::On_Map_Save_Image_Clipboard)
 	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND	, CVIEW_Map::On_Map_Save_Image_ClipboardL)
@@ -171,6 +172,8 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE_TO_KMZ);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND);
 	pMenu->AppendSeparator();
@@ -481,6 +484,12 @@ void CVIEW_Map::On_Map_Save_Image(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Save_Image_On_Change(wxCommandEvent &event)
 {
 	m_pMap->SaveAs_Image_On_Change();
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_Save_Image_To_KMZ(wxCommandEvent &event)
+{
+	m_pMap->SaveAs_Image_To_KMZ(m_pControl->GetClientSize().x, m_pControl->GetClientSize().y);
 }
 
 //---------------------------------------------------------
