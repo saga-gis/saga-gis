@@ -283,12 +283,12 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_STEREO:			return( _TL("Anaglyph [S]") );
 	case ID_CMD_MAP3D_INTERPOLATED:		return( _TL("Interpolated Colors") );
 	case ID_CMD_MAP3D_SAVE:				return( _TL("Save as Image...") );
-	case ID_CMD_MAP3D_SEQ_POS_ADD:		return( _TL("Add Position [A]") );
-	case ID_CMD_MAP3D_SEQ_POS_DEL:		return( _TL("Delete Last Position [D]") );
+	case ID_CMD_MAP3D_SEQ_POS_ADD:		return( _TL("Add Position [Ctrl + A]") );
+	case ID_CMD_MAP3D_SEQ_POS_DEL:		return( _TL("Delete Last Position [Ctrl + D]") );
 	case ID_CMD_MAP3D_SEQ_POS_DEL_ALL:	return( _TL("Delete All Positions") );
 	case ID_CMD_MAP3D_SEQ_POS_EDIT:		return( _TL("Edit Positions") );
-	case ID_CMD_MAP3D_SEQ_PLAY:			return( _TL("Play Once [P]") );
-	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:	return( _TL("Play Loop [L]") );
+	case ID_CMD_MAP3D_SEQ_PLAY:			return( _TL("Play Once [Ctrl + P]") );
+	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:	return( _TL("Play Loop [Ctrl + L]") );
 	case ID_CMD_MAP3D_SEQ_SAVE:			return( _TL("Play And Save as Images...") );
 
 	case ID_CMD_LAYOUT_PRINT_SETUP:		return( _TL("Print Setup") );
