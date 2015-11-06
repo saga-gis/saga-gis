@@ -103,6 +103,9 @@ protected:
 	void						On_Load			(wxCommandEvent &event);
 	void						On_Save			(wxCommandEvent &event);
 
+	void						On_WKSP_Load	(wxCommandEvent &event);
+	void						On_WKSP_Save	(wxCommandEvent &event);
+
 	void						On_Add			(wxCommandEvent &event);
 	void						On_Insert		(wxCommandEvent &event);
 	void						On_Delete		(wxCommandEvent &event);

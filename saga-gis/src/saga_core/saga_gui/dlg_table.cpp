@@ -88,6 +88,8 @@ BEGIN_EVENT_TABLE(CDLG_Table, CDLG_Base)
 	EVT_BUTTON			(ID_BTN_LOAD			, CDLG_Table::On_Load)
 	EVT_BUTTON			(ID_BTN_SAVE			, CDLG_Table::On_Save)
 	EVT_BUTTON			(ID_BTN_ADD				, CDLG_Table::On_Add)
+	EVT_BUTTON			(ID_BTN_TABLE_FROM_WKSP	, CDLG_Table::On_WKSP_Load)
+	EVT_BUTTON			(ID_BTN_TABLE_TO_WKSP	, CDLG_Table::On_WKSP_Save)
 	EVT_BUTTON			(ID_BTN_INSERT			, CDLG_Table::On_Insert)
 	EVT_BUTTON			(ID_BTN_DELETE			, CDLG_Table::On_Delete)
 	EVT_BUTTON			(ID_BTN_DELETE_ALL		, CDLG_Table::On_Delete_All)
@@ -110,7 +112,10 @@ CDLG_Table::CDLG_Table(CSG_Table *pTable, wxString Caption)
 	m_pControl		= new CVIEW_Table_Control(this, m_pTable, TABLE_CTRL_FIXED_COLS);
 
 	Add_Button(ID_BTN_LOAD);
+	Add_Button(ID_BTN_TABLE_FROM_WKSP);
+	Add_Button(-1);
 	Add_Button(ID_BTN_SAVE);
+	Add_Button(ID_BTN_TABLE_TO_WKSP);
 	Add_Button(-1);
 	Add_Button(ID_BTN_ADD);
 	Add_Button(ID_BTN_INSERT);
@@ -204,6 +209,68 @@ void CDLG_Table::On_Save(wxCommandEvent &event)
 		m_pControl->Save(File_Path);
 
 		Refresh();
+	}
+}
+
+//---------------------------------------------------------
+void CDLG_Table::On_WKSP_Load(wxCommandEvent &event)
+{
+	CSG_Data_Collection	*pTables	= SG_Get_Data_Manager().Get_Table();
+
+	if( pTables )
+	{
+		wxArrayString	Names;
+		CSG_Table		Index;
+
+		Index.Add_Field("INDEX", SG_DATATYPE_Int);
+
+		for(size_t i=0; i<pTables->Count(); i++)
+		{
+			CSG_Table	*pTable	= (CSG_Table *)pTables->Get(i);
+
+			if( m_pTable->is_Compatible(pTable) && pTable->Get_Count() > 0 )
+			{
+				Names.Add(pTable->Get_Name());
+				Index.Add_Record()->Set_Value(0, i);
+			}
+		}
+
+		if( Names.Count() > 0 )
+		{
+			wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(), _TL("Tables"), _TL("Load from Workspace"), Names);
+
+			if( dlg.ShowModal() == wxID_OK )
+			{
+				CSG_Table	*pTable	= (CSG_Table *)pTables->Get(Index[dlg.GetSelection()].asInt(0));
+
+				m_pTable->Assign_Values(pTable);
+
+				m_pControl->Update_Table();
+
+				Refresh();
+			}
+
+			return;
+		}
+	}
+
+	DLG_Message_Show(_TL("No compatible table has been found."), CTRL_Get_Name(ID_BTN_TABLE_FROM_WKSP));
+}
+
+//---------------------------------------------------------
+void CDLG_Table::On_WKSP_Save(wxCommandEvent &event)
+{
+	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), _TL("Table Name"), _TL("Save to Workspace"), _TL("Table"));
+
+	if( dlg.ShowModal() == wxID_OK && !dlg.GetValue().IsEmpty() )
+	{
+		CSG_Table	*pTable	= SG_Create_Table(*m_pTable);
+
+		wxString	Name(dlg.GetValue());
+
+		pTable->Set_Name(&Name);
+
+		SG_Get_Data_Manager().Add(pTable);
 	}
 }
 
