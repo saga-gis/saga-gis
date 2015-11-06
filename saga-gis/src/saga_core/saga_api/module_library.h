@@ -235,21 +235,21 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 	\
 	if(	pModule == NULL )\
 	{\
-		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not find tool"), SG_T(LIBRARY)));\
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s [%s]"), _TL("could not find tool"), SG_T(LIBRARY)));\
 	}\
 	else\
 	{\
-		Process_Set_Text(pModule->Get_Name());\
+		SG_UI_Process_Set_Text(pModule->Get_Name());\
 		\
 		pModule->Settings_Push();\
 		\
 		if( !pModule->On_Before_Execution() || !(CONDITION) )\
 		{\
-			Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
 		}\
 		else if( !pModule->Execute() )\
 		{\
-			Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not execute tool"   ), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not execute tool"   ), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
 		}\
 		else\
 		{\
