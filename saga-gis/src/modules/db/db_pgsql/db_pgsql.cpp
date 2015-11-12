@@ -229,19 +229,16 @@ TSG_Data_Type CSG_PG_Connection::Get_Type_From_SQL(int Type)
 	switch( Type )
 	{
 	case SG_PG_VARCHAR:	return( SG_DATATYPE_String );
-	case SG_PG_NAME:	return( SG_DATATYPE_String );
-	case SG_PG_TEXT:	return( SG_DATATYPE_String );
-
-	case SG_PG_INT2:	return( SG_DATATYPE_Short  );	// 2 bytes integer
-	case SG_PG_INT4:	return( SG_DATATYPE_Int    );	// 4 bytes integer
-	case SG_PG_INT8:	return( SG_DATATYPE_Long   );	// 8 bytes integer
-	case SG_PG_FLOAT4:	return( SG_DATATYPE_Float  );	// 4 bytes floating point, inexact
-	case SG_PG_FLOAT8:	return( SG_DATATYPE_Double );	// 8 bytes floating point, inexact
-
-	case SG_PG_BYTEA:	return( SG_DATATYPE_Binary );
+	case SG_PG_NAME   :	return( SG_DATATYPE_String );
+	case SG_PG_TEXT   :	return( SG_DATATYPE_String );
+	case SG_PG_INT2   :	return( SG_DATATYPE_Short  );	// 2 bytes integer
+	case SG_PG_INT4   :	return( SG_DATATYPE_Int    );	// 4 bytes integer
+	case SG_PG_INT8   :	return( SG_DATATYPE_Long   );	// 8 bytes integer
+	case SG_PG_FLOAT4 :	return( SG_DATATYPE_Float  );	// 4 bytes floating point, inexact
+	case SG_PG_FLOAT8 :	return( SG_DATATYPE_Double );	// 8 bytes floating point, inexact
+	case SG_PG_BYTEA  :	return( SG_DATATYPE_Binary );
+	default           :	return( SG_DATATYPE_String );
 	}
-
-	return( SG_DATATYPE_String );
 }
 
 //---------------------------------------------------------
@@ -249,19 +246,18 @@ CSG_String CSG_PG_Connection::Get_Raster_Type_To_SQL(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	case SG_DATATYPE_Bit:		return( "1BB"   );
-	case SG_DATATYPE_Char:		return( "8BSI"  );
-	case SG_DATATYPE_Byte:		return( "8BUI"  );
-	case SG_DATATYPE_Short:		return( "16BSI" );
-	case SG_DATATYPE_Word:		return( "16BUI" );
-	case SG_DATATYPE_Int:		return( "32BSI" );
-	case SG_DATATYPE_DWord:		return( "32BUI" );
-	case SG_DATATYPE_Long:		return( "32BSI" );
-	case SG_DATATYPE_Float:		return( "32BF"  );
+	case SG_DATATYPE_Bit   :	return( "1BB"   );
+	case SG_DATATYPE_Char  :	return( "8BSI"  );
+	case SG_DATATYPE_Byte  :	return( "8BUI"  );
+	case SG_DATATYPE_Short :	return( "16BSI" );
+	case SG_DATATYPE_Word  :	return( "16BUI" );
+	case SG_DATATYPE_Int   :	return( "32BSI" );
+	case SG_DATATYPE_DWord :	return( "32BUI" );
+	case SG_DATATYPE_Long  :	return( "32BSI" );
+	case SG_DATATYPE_Float :	return( "32BF"  );
 	case SG_DATATYPE_Double:	return( "64BF"  );
+	default                :	return( "64BF"  );
 	}
-
-	return( "64BF" );
 }
 
 
@@ -853,9 +849,16 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 
 				if( 0 && Table.Get_Field_Type(iField) == SG_DATATYPE_String )
 				{
-					char	*s	= NULL; Value.to_ASCII(&s);
+					char	*s	= NULL;
 
-					sprintf(Values[iField], "%s", s ? s : '\0');
+					if( Value.to_ASCII(&s) && s && *s )
+					{
+						sprintf(Values[iField], "%s", s);
+					}
+					else
+					{
+						Values[iField][0]	= '\0';
+					}
 
 					SG_FREE_SAFE(s);
 				}

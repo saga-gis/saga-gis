@@ -828,7 +828,7 @@ void CWKSP_Module::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Table_Fields:
-			if( p->asString() != '\0' )
+			if( p->asString() && *p->asString() )
 				Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asString());
 			break;
 
