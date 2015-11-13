@@ -236,20 +236,30 @@ wxString CDLG_About::_Get_Version(void)
 			"DJGPP"
 		#elif	defined(__DIGITALMARS__)
 			"Digital Mars"
+		#elif	defined(__MWERKS__)
+			"CodeWarrior MetroWerks compiler"
+		#elif	defined(__SUNCC__)
+			"Sun CC"
+		#elif	defined(__SUNPRO_CC)
+			"Oracle Solaris Studio"
+		#elif	defined(__SYMANTECC__)
+			"Symantec C++"
+		#elif	defined(__VISAGECPP__)
+			"IBM Visual Age (OS/2)"
+		#elif	defined(__IBMCPP__)
+			"IBM XL C/C++"
+		#elif	defined(__INTEL_COMPILER) || defined(__ICC)
+			"Intel ICC/ICPC"
+		#elif	defined(__PGI)
+			"Portland PGCC/PGCPP"
+		#elif	defined(__clang__)
+			"Clang/LLVM"
 		#elif	defined(__MINGW32__)
 			"MinGW"
 		#elif	defined(__GNUWIN32__)
 			"Gnu-Win32 compiler"
 		#elif	defined(__GNUG__)
 			"Gnu C++"
-		#elif	defined(__MWERKS__)
-			"CodeWarrior MetroWerks compiler"
-		#elif	defined(__SUNCC__)
-			"Sun CC"
-		#elif	defined(__SYMANTECC__)
-			"Symantec C++"
-		#elif	defined(__VISAGECPP__)
-			"IBM Visual Age (OS/2)"
 		#elif	defined(__VISUALC__)	// The value of this macro corresponds to the compiler version: 1020 for 4.2 (the first supported version), 1100 for 5.0, 1200 for 6.0 and so on
 			#if   __VISUALC__ == 1020
 				"Microsoft Visual C++ 4.2"
