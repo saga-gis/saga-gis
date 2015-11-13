@@ -260,7 +260,7 @@ bool	Copy_Grid_To_CVImage(CSG_Grid *pGrid, IplImage *pImage, bool bCheckSize)
 
 			for(int x=0; x<nx; x++)
 			{
-				switch( pImage->depth )
+				switch( (unsigned int)(pImage->depth) )
 				{
 				case IPL_DEPTH_8U:	Row.data.ptr[x]	= pGrid->asByte  (x, y);	break;
 				case IPL_DEPTH_8S:	Row.data.ptr[x]	= pGrid->asChar  (x, y);	break;
@@ -296,7 +296,7 @@ bool	Copy_CVImage_To_Grid(CSG_Grid *pGrid, IplImage *pImage, bool bCheckSize)
 
 			for(int x=0; x<nx; x++)
 			{
-				switch( pImage->depth )
+				switch( (unsigned int)(pImage->depth) )
 				{
 				case IPL_DEPTH_8U:	pGrid->Set_Value(x, y, Row.data.ptr[x]);	break;
 				case IPL_DEPTH_8S:	pGrid->Set_Value(x, y, ((char *)Row.data.ptr)[x]);	break;
