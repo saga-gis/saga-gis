@@ -157,17 +157,17 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 	//-----------------------------------------------------
 	int		i, n, Offset	= pPolygons->Get_Field_Count();
 
-	for(i=0, n=0; i<pFields->Get_Count(); i++)
+	for(i=0; i<pFields->Get_Count(); i++)
 	{
 		CSG_String	sName	= pPoints->Get_Field_Name(pFields->Get_Index(i));
 
-		if( bSum )	{	pPolygons->Add_Field(Get_Field_Name("SUM", sName), SG_DATATYPE_Double);	n++;	}
-		if( bAvg )	{	pPolygons->Add_Field(Get_Field_Name("AVG", sName), SG_DATATYPE_Double);	n++;	}
-		if( bVar )	{	pPolygons->Add_Field(Get_Field_Name("VAR", sName), SG_DATATYPE_Double);	n++;	}
-		if( bDev )	{	pPolygons->Add_Field(Get_Field_Name("DEV", sName), SG_DATATYPE_Double);	n++;	}
-		if( bMin )	{	pPolygons->Add_Field(Get_Field_Name("MIN", sName), SG_DATATYPE_Double);	n++;	}
-		if( bMax )	{	pPolygons->Add_Field(Get_Field_Name("MAX", sName), SG_DATATYPE_Double);	n++;	}
-		if( bNum )	{	pPolygons->Add_Field(Get_Field_Name("NUM", sName), SG_DATATYPE_Int   );	n++;	}
+		if( bSum )	{	pPolygons->Add_Field(Get_Field_Name("SUM", sName), SG_DATATYPE_Double);	}
+		if( bAvg )	{	pPolygons->Add_Field(Get_Field_Name("AVG", sName), SG_DATATYPE_Double);	}
+		if( bVar )	{	pPolygons->Add_Field(Get_Field_Name("VAR", sName), SG_DATATYPE_Double);	}
+		if( bDev )	{	pPolygons->Add_Field(Get_Field_Name("DEV", sName), SG_DATATYPE_Double);	}
+		if( bMin )	{	pPolygons->Add_Field(Get_Field_Name("MIN", sName), SG_DATATYPE_Double);	}
+		if( bMax )	{	pPolygons->Add_Field(Get_Field_Name("MAX", sName), SG_DATATYPE_Double);	}
+		if( bNum )	{	pPolygons->Add_Field(Get_Field_Name("NUM", sName), SG_DATATYPE_Long  );	}
 	}
 
 	//-----------------------------------------------------
@@ -178,7 +178,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
 		//-------------------------------------------------
-		for(i=0; i<pFields->Get_Index(i); i++)
+		for(i=0; i<pFields->Get_Count(); i++)
 		{
 			Statistics[i].Invalidate();
 		}
@@ -201,17 +201,17 @@ bool CPolygonStatisticsFromPoints::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		for(i=0, n=Offset; i<pFields->Get_Index(i); i++)
+		for(i=0, n=Offset; i<pFields->Get_Count(); i++)
 		{
 			if( Statistics[i].Get_Count() > 0 )
 			{
-				if( bSum )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Sum());			}
-				if( bAvg )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Mean());		}
-				if( bVar )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Variance());	}
-				if( bDev )	{	pPolygon->Set_Value (n++, Statistics[i].Get_StdDev());		}
-				if( bMin )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Minimum());		}
-				if( bMax )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Maximum());		}
-				if( bNum )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Count());		}
+				if( bSum )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Sum());				}
+				if( bAvg )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Mean());			}
+				if( bVar )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Variance());		}
+				if( bDev )	{	pPolygon->Set_Value (n++, Statistics[i].Get_StdDev());			}
+				if( bMin )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Minimum());			}
+				if( bMax )	{	pPolygon->Set_Value (n++, Statistics[i].Get_Maximum());			}
+				if( bNum )	{	pPolygon->Set_Value (n++, (double)Statistics[i].Get_Count());	}
 			}
 			else
 			{
