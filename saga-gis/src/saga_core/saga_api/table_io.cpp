@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
+bool CSG_Table::Load(const CSG_String &File_Name, int Format, SG_Char Separator)
 {
 	if( !SG_File_Exists(File_Name) )
 	{
@@ -82,21 +82,19 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 	}
 
 	//-----------------------------------------------------
-	CSG_String	sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
-
 	if( Format == TABLE_FILETYPE_Undefined )
 	{
 		if( SG_File_Cmp_Extension(File_Name, SG_T("dbf")) )
 		{
 			Format	= TABLE_FILETYPE_DBase;
 		}
-		else if( SG_File_Cmp_Extension(File_Name, SG_T("csv")) )
+		else
 		{
 			Format	= TABLE_FILETYPE_Text;
 
-			if( !Separator || *Separator == '\0' )
+			if( Separator == '\0' )
 			{
-				sSeparator	= ",";	// comma separated values
+				Separator	= SG_File_Cmp_Extension(File_Name, SG_T("csv")) ? ',' : '\t';	// comma separated values or tab spaced text
 			}
 		}
 	}
@@ -105,10 +103,10 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 	switch( Format )
 	{
 	case TABLE_FILETYPE_Text: default:
-		return( _Load_Text (File_Name, true , sSeparator) );
+		return( _Load_Text (File_Name, true , Separator) );
 
 	case TABLE_FILETYPE_Text_NoHeadLine:
-		return( _Load_Text (File_Name, false, sSeparator) );
+		return( _Load_Text (File_Name, false, Separator) );
 
 	case TABLE_FILETYPE_DBase:
 		return( _Load_DBase(File_Name) );
@@ -124,11 +122,8 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Separator)
+bool CSG_Table::Save(const CSG_String &File_Name, int Format, SG_Char Separator)
 {
-	bool		bResult;
-	CSG_String	sSeparator(Separator && *Separator ? Separator : SG_T("\t"));
-
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
@@ -138,30 +133,28 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 		{
 			Format	= TABLE_FILETYPE_DBase;
 		}
-		else if( SG_File_Cmp_Extension(File_Name, SG_T("csv")) )
+		else
 		{
 			Format	= TABLE_FILETYPE_Text;
 
-			if( Separator == NULL || *Separator == '\0' )
+			if( Separator == '\0' )
 			{
-				sSeparator	= SG_T(",");	// comma separated values
+				Separator	= SG_File_Cmp_Extension(File_Name, SG_T("csv")) ? ',' : '\t';	// comma separated values or tab spaced text
 			}
-		}
-		else //if( SG_File_Cmp_Extension(File_Name, SG_T("txt")) )
-		{
-			Format	= TABLE_FILETYPE_Text;
 		}
 	}
 
 	//-----------------------------------------------------
+	bool	bResult	= false;
+
 	switch( Format )
 	{
 	case TABLE_FILETYPE_Text:
-		bResult	= _Save_Text (File_Name, true , sSeparator);
+		bResult	= _Save_Text (File_Name, true , Separator);
 		break;
 
 	case TABLE_FILETYPE_Text_NoHeadLine:
-		bResult	= _Save_Text (File_Name, false, sSeparator);
+		bResult	= _Save_Text (File_Name, false, Separator);
 		break;
 
 	case TABLE_FILETYPE_DBase:
@@ -200,7 +193,28 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator)
+int CSG_Table::_Load_Text_Trim(CSG_String &String, const SG_Char Separator)
+{
+	for(size_t i=0; i<String.Length(); i++)
+	{
+		SG_Char	c	= String[i];
+
+		if( c == Separator || (c != ' ' && c != '\t' && c != '\n' && c != '\v' && c != '\f' && c != '\r') )
+		{
+			if( i > 0 )
+			{
+				String	= String.Right(String.Length() - i);
+			}
+
+			return( i );
+		}
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char Separator)
 {
 	int			iField;
 	sLong		fLength;
@@ -225,7 +239,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 	}
 
 	//-----------------------------------------------------
-	sLine.Trim();	// remove leading white space
+	_Load_Text_Trim(sLine, Separator);
 
 	while( !sLine.is_Empty() )
 	{
@@ -236,11 +250,10 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 		}
 		else
 		{
-			sField	= sLine.BeforeFirst(*Separator);
+			sField	= sLine.BeforeFirst(Separator);
 		}
 
-		sLine	= sLine.AfterFirst(*Separator);
-		sLine.Trim();
+		sLine	= sLine.AfterFirst(Separator);	_Load_Text_Trim(sLine, Separator);
 
 		if( !bHeadline || sField.Length() == 0 )
 		{
@@ -267,7 +280,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 	{
 		CSG_Table_Record	*pRecord	= Table.Add_Record();
 
-		sLine.Trim();	// remove leading white space
+		_Load_Text_Trim(sLine, Separator);
 
 		for(iField=0; iField<Table.Get_Field_Count() && !sLine.is_Empty(); iField++)
 		{
@@ -280,11 +293,10 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 			}
 			else
 			{
-				sField	= sLine.BeforeFirst(*Separator);
+				sField	= sLine.BeforeFirst(Separator);
 			}
 
-			sLine	= sLine.AfterFirst(*Separator);
-			sLine.Trim();
+			sLine	= sLine.AfterFirst(Separator);	_Load_Text_Trim(sLine, Separator);
 
 			//---------------------------------------------
 			if( Type[iField] != SG_DATATYPE_String && !sField.is_Empty() )
@@ -344,7 +356,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator)
+bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char Separator)
 {
 	int			iField, iRecord;
 	CSG_File	Stream;
@@ -355,7 +367,7 @@ bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG
 		{
 			for(iField=0; iField<Get_Field_Count(); iField++)
 			{
-				Stream.Printf(SG_T("%s%s"), Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : SG_T("\n"));
+				Stream.Printf(SG_T("%s%c"), Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : '\n');
 			}
 
 			for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
@@ -377,7 +389,7 @@ bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG
 						}
 					}
 
-					Stream.Printf(SG_T("%s"), iField < Get_Field_Count() - 1 ? Separator : SG_T("\n"));
+					Stream.Printf(SG_T("%c"), iField < Get_Field_Count() - 1 ? Separator : '\n');
 				}
 			}
 

@@ -92,9 +92,14 @@ public:
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CTable_Text_Import : public CSG_Module  
@@ -107,9 +112,16 @@ public:
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CTable_Text_Import_Numbers : public CSG_Module  
@@ -122,9 +134,16 @@ public:
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CTable_Text_Import_Fixed_Cols : public CSG_Module  
@@ -137,9 +156,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute(void);
-
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 

@@ -175,7 +175,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
-	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && _Load(File_Name, Format, NULL);
+	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && Load(File_Name, (int)Format, NULL);
 
 	if( bResult )
 	{
@@ -255,7 +255,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
+CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -263,9 +263,9 @@ CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, co
 	Create(File_Name, Format, Separator);
 }
 
-bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
+bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator)
 {
-	return( _Load(File_Name, Format, Separator) );
+	return( Load(File_Name, (int)Format, Separator) );
 }
 
 //---------------------------------------------------------

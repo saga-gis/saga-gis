@@ -223,8 +223,8 @@ public:
 									CSG_Table			(const CSG_String &File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined);
 	bool							Create				(const CSG_String &File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined);
 
-									CSG_Table			(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
-	bool							Create				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
+									CSG_Table			(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator);
+	bool							Create				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator);
 
 									CSG_Table			(CSG_Table *pTemplate);
 	bool							Create				(CSG_Table *pTemplate);
@@ -239,8 +239,9 @@ public:
 	virtual bool					Assign				(CSG_Data_Object *pSource);
 	bool							Assign_Values		(CSG_Table *pTable);
 
+	bool							Load				(const CSG_String &File_Name, int Format, SG_Char Separator);
 	virtual bool					Save				(const CSG_String &File_Name, int Format = 0);
-	virtual bool					Save				(const CSG_String &File_Name, int Format, const SG_Char *Separator);
+	virtual bool					Save				(const CSG_String &File_Name, int Format, SG_Char Separator);
 	bool							Serialize			(CSG_File &Stream, bool bSave);
 
 	//-----------------------------------------------------
@@ -364,9 +365,11 @@ private:
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);
 
-	bool							_Load				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
-	bool							_Load_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator);
-	bool							_Save_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator);
+	int								_Load_Text_Trim		(CSG_String &Text, const SG_Char Separator);
+
+	bool							_Load_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char Separator);
+	bool							_Save_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char Separator);
+
 	bool							_Load_DBase			(const CSG_String &File_Name);
 	bool							_Save_DBase			(const CSG_String &File_Name);
 

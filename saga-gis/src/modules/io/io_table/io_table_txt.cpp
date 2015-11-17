@@ -256,7 +256,7 @@ CTable_Text_Import::CTable_Text_Import(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("tabulator"),
 			SG_T(";"),
 			SG_T(","),
@@ -274,7 +274,7 @@ CTable_Text_Import::CTable_Text_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
 			_TL("CSV Files (*.csv)")	, SG_T("*.csv"),
 			_TL("All Files")			, SG_T("*.*")
@@ -283,20 +283,31 @@ CTable_Text_Import::CTable_Text_Import(void)
 }
 
 //---------------------------------------------------------
+int CTable_Text_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SEPARATOR") )
+	{
+		pParameters->Set_Enabled("SEP_OTHER", pParameter->asInt() >= 4);
+	}
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 bool CTable_Text_Import::On_Execute(void)
 {
 	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	CSG_String	Separator;
+	SG_Char	Separator;
 
 	switch( Parameters("SEPARATOR")->asInt() )
 	{
-	case  0:	Separator	= "\t";	break;
-	case  1:	Separator	=  ";";	break;
-	case  2:	Separator	=  ",";	break;
-	case  3:	Separator	=  " ";	break;
-	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
+	case  0:	Separator	= '\t';	break;
+	case  1:	Separator	=  ';';	break;
+	case  2:	Separator	=  ',';	break;
+	case  3:	Separator	=  ' ';	break;
+	default:	Separator	= *Parameters("SEP_OTHER")->asString();	break;
 	}
 
 	//-----------------------------------------------------
@@ -353,7 +364,7 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("tabulator"),
 			SG_T(";"),
 			SG_T(","),
@@ -371,12 +382,23 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
 			_TL("CSV Files (*.csv)")	, SG_T("*.csv"),
 			_TL("All Files")			, SG_T("*.*")
 		), NULL, false
 	);
+}
+
+//---------------------------------------------------------
+int CTable_Text_Import_Numbers::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SEPARATOR") )
+	{
+		pParameters->Set_Enabled("SEP_OTHER", pParameter->asInt() >= 4);
+	}
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
