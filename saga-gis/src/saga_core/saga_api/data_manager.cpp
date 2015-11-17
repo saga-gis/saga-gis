@@ -521,8 +521,18 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	// LAS Import
 
+	if( !bResult && SG_File_Cmp_Extension(File, SG_T("las"))
+	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module("io_shapes_las", 1)) != NULL
+	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
+	{
+		pImport->Set_Manager(this);
+		bResult	= pImport->Execute();
+		pImport->Set_Manager(&g_Data_Manager);
+	}
 
+	//-----------------------------------------------------
 	return( bResult );
 }
 
