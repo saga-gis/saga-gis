@@ -119,10 +119,15 @@ CDLG_About::CDLG_About(void)
 	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), _TL("Logo"), false, -1);
 
 	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
-	pText->AppendText(_Get_Acknowledgements());
-	m_pControl->AddPage(pText, _TL("Acknowledgements"), false, -1);
-	pText->ShowPosition(0);
+//	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
+//	pText->AppendText(_Get_Acknowledgements());
+//	m_pControl->AddPage(pText, _TL("Acknowledgements"), false, -1);
+//	pText->ShowPosition(0);
+
+//	acknowledgements tab has not been updated since ages.
+//	we remove it now, because we think it is not possible
+//	to pay adequate tribute to all contributors and supporters
+//	through this list. thanks a lot...
 
 	//-----------------------------------------------------
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
