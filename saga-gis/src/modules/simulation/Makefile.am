@@ -1,1 +1,1 @@
-SUBDIRS = sim_cellular_automata sim_ecosystems_hugget sim_erosion sim_fire_spreading sim_hydrology sim_ihacres sim_rivflow
+SUBDIRS = sim_cellular_automata sim_ecosystems_hugget sim_erosion sim_fire_spreading sim_hydrology sim_ihacres sim_qm_of_esp sim_rivflow

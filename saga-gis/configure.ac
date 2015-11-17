@@ -279,6 +279,7 @@ AC_OUTPUT(Makefile \
 	src/modules/simulation/sim_fire_spreading/Makefile \
 	src/modules/simulation/sim_hydrology/Makefile \
 	src/modules/simulation/sim_ihacres/Makefile \
+	src/modules/simulation/sim_qm_of_esp/Makefile \
 	src/modules/simulation/sim_rivflow/Makefile \
 	src/modules/statistics/Makefile \
 	src/modules/statistics/statistics_grid/Makefile \

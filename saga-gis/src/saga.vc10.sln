@@ -376,6 +376,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_rivflow", "modules\simu
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_qm_of_esp", "modules\simulation\sim_qm_of_esp\sim_qm_of_esp.vcxproj", "{C4C61CA0-282B-47D9-8046-C4C33D11C31A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -992,6 +994,14 @@ Global
 		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Release|Win32.Build.0 = Release|Win32
 		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Release|x64.ActiveCfg = Release|x64
 		{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}.Release|x64.Build.0 = Release|x64
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Debug|Win32.Build.0 = Debug|Win32
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Debug|x64.ActiveCfg = Debug|x64
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Debug|x64.Build.0 = Debug|x64
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Release|Win32.ActiveCfg = Release|Win32
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Release|Win32.Build.0 = Release|Win32
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Release|x64.ActiveCfg = Release|x64
+		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
