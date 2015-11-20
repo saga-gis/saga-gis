@@ -310,6 +310,12 @@
     <ClCompile Include="view_map_3d_panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="active_attributes_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_table_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACTIVE.h">
@@ -601,6 +607,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="view_map_3d_panel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="active_attributes_control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dlg_table_control.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

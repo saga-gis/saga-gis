@@ -70,9 +70,9 @@
 #include "res_dialogs.h"
 
 #include "wksp_layer.h"
-#include "view_table_control.h"
 
 #include "active_attributes.h"
+#include "active_attributes_control.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -107,41 +107,26 @@ END_EVENT_TABLE()
 CACTIVE_Attributes::CACTIVE_Attributes(wxWindow *pParent)
 	: wxPanel(pParent, ID_WND_INFO_ATTRIBUTES)//, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
-	m_pAttributes	= new CSG_Table;
-	m_pControl		= new CVIEW_Table_Control(this, m_pAttributes, TABLE_CTRL_FIXED_TABLE|TABLE_CTRL_COL1ISLABEL);
-
 	m_pItem			= NULL;
 
-	//-----------------------------------------------------
+	m_pControl		= new CActive_Attributes_Control(this);
+
 	m_Btn_Apply		= new wxButton(this, ID_BTN_APPLY	, CTRL_Get_Name(ID_BTN_APPLY)	, wxPoint(0, 0));
 	m_Btn_Restore	= new wxButton(this, ID_BTN_RESTORE	, CTRL_Get_Name(ID_BTN_RESTORE)	, wxPoint(0, 0));
 
-	m_btn_height	= m_Btn_Apply->GetDefaultSize().y;
+	m_Btn_Height	= m_Btn_Apply->GetDefaultSize().y;
 
 	m_pSelections	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0);
-
-	//-----------------------------------------------------
-	m_pAttributes->Set_Modified(false);
 }
 
 //---------------------------------------------------------
 CACTIVE_Attributes::~CACTIVE_Attributes(void)
-{
-	delete(m_pAttributes);
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CACTIVE_Attributes::On_Size(wxSizeEvent &WXUNUSED(event))
-{
-	_Set_Positions();
-}
 
 //---------------------------------------------------------
 #define BUTTON_DIST			1
@@ -157,20 +142,20 @@ void CACTIVE_Attributes::_Set_Positions(void)
 
 	if( m_pSelections->GetCount() > 0 )
 	{
-		m_pSelections->SetSize(0, 0, r.GetWidth(), m_btn_height - BUTTON_DIST);
+		m_pSelections->SetSize(0, 0, r.GetWidth(), m_Btn_Height - BUTTON_DIST);
 
-		r.SetTop(m_btn_height);
-		r.SetHeight(r.GetHeight() - m_btn_height * 2);
+		r.SetTop(m_Btn_Height);
+		r.SetHeight(r.GetHeight() - m_Btn_Height * 2);
 	}
 	else
 	{
-		r.SetHeight(r.GetHeight() - m_btn_height);
+		r.SetHeight(r.GetHeight() - m_Btn_Height);
 	}
 
 	m_pControl->SetSize(r);
 
 	r.SetTop(r.GetBottom() + BUTTON_DIST2);
-	r.SetHeight(m_btn_height - BUTTON_DIST);
+	r.SetHeight(m_Btn_Height - BUTTON_DIST);
 	r.SetWidth(r.GetWidth() / nButtons - BUTTON_DIST2);
 	r.SetLeft(BUTTON_DIST);
 
@@ -178,10 +163,14 @@ void CACTIVE_Attributes::_Set_Positions(void)
 	SET_BTN_POS(m_Btn_Restore);
 }
 
+//---------------------------------------------------------
+void CACTIVE_Attributes::On_Size(wxSizeEvent &WXUNUSED(event))
+{
+	_Set_Positions();
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -193,7 +182,7 @@ void CACTIVE_Attributes::On_Apply(wxCommandEvent &event)
 
 void CACTIVE_Attributes::On_Apply_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pAttributes->is_Modified());
+	event.Enable(m_pControl->Get_Table()->is_Modified());
 }
 
 //---------------------------------------------------------
@@ -204,13 +193,11 @@ void CACTIVE_Attributes::On_Restore(wxCommandEvent &event)
 
 void CACTIVE_Attributes::On_Restore_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pAttributes->is_Modified());
+	event.Enable(m_pControl->Get_Table()->is_Modified());
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -228,8 +215,6 @@ void CACTIVE_Attributes::On_Choice(wxCommandEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -269,8 +254,8 @@ void CACTIVE_Attributes::Set_Attributes(void)
 
 	if( m_pItem && m_pItem->Edit_Get_Attributes()->is_Valid() )
 	{
-		m_pAttributes->Assign(m_pItem->Edit_Get_Attributes());
-		m_pAttributes->Set_Modified(false);
+		m_pControl->Get_Table()->Assign(m_pItem->Edit_Get_Attributes());
+		m_pControl->Get_Table()->Set_Modified(false);
 
 		if( _Get_Table() && _Get_Table()->Get_Selection_Count() > 1 )
 		{
@@ -284,13 +269,10 @@ void CACTIVE_Attributes::Set_Attributes(void)
 	}
 	else
 	{
-		m_pAttributes->Destroy();
+		m_pControl->Get_Table()->Destroy();
 	}
 
-	m_pAttributes->Set_Modified(false);
-
-	m_pControl->Set_Labeling(_Get_Table() != NULL);
-
+	m_pControl->Set_Row_Labeling(_Get_Table() != NULL);
 	m_pControl->Update_Table();
 
 	m_pSelections->Show(m_pSelections->GetCount() > 1);
@@ -303,16 +285,14 @@ void CACTIVE_Attributes::Set_Attributes(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CACTIVE_Attributes::Save_Changes(bool bConfirm)
 {
-	if( m_pItem && m_pAttributes->is_Modified() && (!bConfirm || DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes"))) )
+	if( m_pItem && m_pControl->Get_Table()->is_Modified() && (!bConfirm || DLG_Message_Confirm(_TL("Save changes?"), _TL("Attributes"))) )
 	{
-		m_pItem->Edit_Get_Attributes()->Assign_Values(m_pAttributes);
+		m_pItem->Edit_Get_Attributes()->Assign_Values(m_pControl->Get_Table());
 		m_pItem->Edit_Set_Attributes();
 
 		Set_Attributes();

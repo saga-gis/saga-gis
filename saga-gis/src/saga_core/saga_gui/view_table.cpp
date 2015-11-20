@@ -105,8 +105,6 @@ BEGIN_EVENT_TABLE(CVIEW_Table, CVIEW_Base)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_DEL		, CVIEW_Table::On_Record_Del_UI)
 	EVT_MENU					(ID_CMD_TABLE_RECORD_DEL_ALL	, CVIEW_Table::On_Record_Clr)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_DEL_ALL	, CVIEW_Table::On_Record_Clr_UI)
-	EVT_MENU					(ID_CMD_TABLE_SELECTION_TO_TOP	, CVIEW_Table::On_Sel_To_Top)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_SELECTION_TO_TOP	, CVIEW_Table::On_Sel_To_Top_UI)
 END_EVENT_TABLE()
 
 
@@ -289,17 +287,6 @@ void CVIEW_Table::On_Record_Clr(wxCommandEvent &event)
 void CVIEW_Table::On_Record_Clr_UI(wxUpdateUIEvent &event)
 {
 	m_pControl->On_Record_Clr_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Sel_To_Top(wxCommandEvent &event)
-{
-	m_pControl->On_Sel_To_Top(event);
-}
-
-void CVIEW_Table::On_Sel_To_Top_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Sel_To_Top_UI(event);
 }
 
 

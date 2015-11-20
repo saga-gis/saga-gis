@@ -22,6 +22,7 @@ bin_PROGRAMS = saga_gui
 saga_gui_SOURCES =\
 active.cpp\
 active_attributes.cpp\
+active_attributes_control.cpp\
 active_description.cpp\
 active_history.cpp\
 active_HTMLExtraInfo.cpp\
@@ -46,6 +47,7 @@ dlg_list_table.cpp\
 dlg_list_tin.cpp\
 dlg_parameters.cpp\
 dlg_table.cpp\
+dlg_table_control.h\
 dlg_text.cpp\
 helper.cpp\
 info.cpp\
@@ -119,6 +121,7 @@ wksp_tin.cpp\
 wksp_tin_manager.cpp\
 active.h\
 active_attributes.h\
+active_attributes_control.h\
 active_description.h\
 active_history.h\
 active_HTMLExtraInfo.h\
@@ -143,6 +146,7 @@ dlg_list_table.h\
 dlg_list_tin.h\
 dlg_parameters.h\
 dlg_table.h\
+dlg_table_control.h\
 dlg_text.h\
 helper.h\
 info.h\

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: active_attributes_control.h 2665 2015-10-28 12:55:25Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 ACTIVE_Attributes.h                   //
+//              active_attributes_control.h              //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//          Copyright (C) 2015 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,9 +42,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
-#define _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__active_attributes_control_H
+#define _HEADER_INCLUDED__SAGA_GUI__active_attributes_control_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/panel.h>
+#include <wx/grid.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,46 +80,47 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_Attributes : public wxPanel
+class CActive_Attributes_Control : public wxGrid
 {
-	DECLARE_CLASS(CACTIVE_Attributes)
+	DECLARE_CLASS(CActive_Attributes_Control)
 
 public:
-	CACTIVE_Attributes(wxWindow *pParent);
-	virtual ~CACTIVE_Attributes(void);
+	CActive_Attributes_Control(wxWindow *pParent);
+	virtual ~CActive_Attributes_Control(void);
 
-	void								On_Size				(wxSizeEvent     &event);
+	void						On_Field_Open		(wxCommandEvent  &event);
 
-	void								On_Choice			(wxCommandEvent  &event);
+	void						On_Autosize_Cols	(wxCommandEvent  &event);
+	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
-	void								On_Apply			(wxCommandEvent  &event);
-	void								On_Apply_UI			(wxUpdateUIEvent &event);
-	void								On_Restore			(wxCommandEvent  &event);
-	void								On_Restore_UI		(wxUpdateUIEvent &event);
+	void						On_Size				(wxSizeEvent     &event);
+	void						On_Key				(wxKeyEvent      &event);
 
-	void								Set_Item			(class CWKSP_Layer *pItem);
+	void						On_Edit_Start		(wxGridEvent     &event);
+	void						On_Edit_Stop		(wxGridEvent     &event);
+	void						On_Changed			(wxGridEvent     &event);
+	void						On_LClick			(wxGridEvent     &event);
+	void						On_RClick			(wxGridEvent     &event);
+	void						On_LClick_Label		(wxGridEvent     &event);
+	void						On_RClick_Label		(wxGridEvent     &event);
 
-	void								Set_Attributes		(void);
+	void						Set_Row_Labeling	(bool bOn);
 
-	void								Save_Changes		(bool bConfirm);
+	class CSG_Table *			Get_Table			(void)	{	return( m_pTable );	}
 
-
-protected:
-
-	int									m_Btn_Height;
-
-	class wxButton						*m_Btn_Restore, *m_Btn_Apply;
-
-	class wxChoice						*m_pSelections;
-
-	class CActive_Attributes_Control	*m_pControl;
-
-	class CWKSP_Layer					*m_pItem;
+	bool						Update_Table		(void);
 
 
-	void								_Set_Positions		(void);
+private:
 
-	class CSG_Table *					_Get_Table			(void);
+	bool						m_bEditing;
+
+	int							m_Field_Offset;
+
+	class CSG_Table				*m_pTable;
+
+
+	bool						_Set_Record			(int iRecord);
 
 
 //---------------------------------------------------------
@@ -136,4 +135,4 @@ DECLARE_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__active_attributes_control_H

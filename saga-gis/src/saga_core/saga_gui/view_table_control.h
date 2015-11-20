@@ -82,19 +82,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define TABLE_CTRL_FIXED_COLS	0x01
-#define TABLE_CTRL_FIXED_ROWS	0x02
-#define TABLE_CTRL_FIXED_TABLE	(TABLE_CTRL_FIXED_ROWS|TABLE_CTRL_FIXED_COLS)
-#define TABLE_CTRL_COL1ISLABEL	0x04
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CVIEW_Table_Control : public wxGrid
 {
 	DECLARE_CLASS(CVIEW_Table_Control)
@@ -125,9 +112,6 @@ public:
 	void						On_Record_Clr		(wxCommandEvent  &event);
 	void						On_Record_Clr_UI	(wxUpdateUIEvent &event);
 
-	void						On_Sel_To_Top		(wxCommandEvent  &event);
-	void						On_Sel_To_Top_UI	(wxUpdateUIEvent &event);
-
 	void						On_Sel_Only			(wxCommandEvent  &event);
 	void						On_Sel_Only_UI		(wxUpdateUIEvent &event);
 
@@ -147,8 +131,6 @@ public:
 	void						On_LDClick_Label	(wxGridEvent     &event);
 	void						On_Select			(wxGridRangeSelectEvent &event);
 
-	void						Set_Labeling		(bool bOn);
-
 	bool						Update_Table		(void);
 	bool						Update_Selection	(void);
 	bool						Update_Sorting		(int iField, int Direction);
@@ -166,16 +148,14 @@ private:
 
 	bool						m_bSelOnly, m_bEditing;
 
-	int							m_Constraint, m_Field_Offset;
-
-	class CSG_Table_Record		**m_pRecords;
-
 	class CSG_Table				*m_pTable;
 
 
 	void						_Update_Views		(void);
 
-	bool						_Set_Records		(bool bSelection_To_Top = false);
+	CSG_Table_Record *			_Get_Record			(int iRow);
+
+	bool						_Set_Records		(void);
 	bool						_Set_Record			(int iRecord, class CSG_Table_Record *pRecord);
 
 

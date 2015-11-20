@@ -382,6 +382,7 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="active_attributes_control.cpp" />
     <ClCompile Include="active_description.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -568,6 +569,7 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="dlg_table_control.cpp" />
     <ClCompile Include="dlg_text.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1228,6 +1230,7 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
   <ItemGroup>
     <ClInclude Include="ACTIVE.h" />
     <ClInclude Include="ACTIVE_Attributes.h" />
+    <ClInclude Include="active_attributes_control.h" />
     <ClInclude Include="ACTIVE_Description.h" />
     <ClInclude Include="active_history.h" />
     <ClInclude Include="ACTIVE_HTMLExtraInfo.h" />
@@ -1252,6 +1255,7 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
     <ClInclude Include="DLG_List_TIN.h" />
     <ClInclude Include="DLG_Parameters.h" />
     <ClInclude Include="DLG_Table.h" />
+    <ClInclude Include="dlg_table_control.h" />
     <ClInclude Include="DLG_Text.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="INFO.h" />

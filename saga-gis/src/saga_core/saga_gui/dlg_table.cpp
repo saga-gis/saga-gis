@@ -69,7 +69,7 @@
 #include "helper.h"
 
 #include "dlg_table.h"
-#include "view_table_control.h"
+#include "dlg_table_control.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -107,9 +107,8 @@ END_EVENT_TABLE()
 CDLG_Table::CDLG_Table(CSG_Table *pTable, wxString Caption)
 	: CDLG_Base(-1, Caption)
 {
-	m_pTable_Orig	= pTable;
-	m_pTable		= new CSG_Table(*m_pTable_Orig);
-	m_pControl		= new CVIEW_Table_Control(this, m_pTable, TABLE_CTRL_FIXED_COLS);
+	m_pTable	= pTable;
+	m_pControl	= new CDLG_Table_Control(this, m_pTable);
 
 	Add_Button(ID_BTN_LOAD);
 	Add_Button(ID_BTN_TABLE_FROM_WKSP);
@@ -133,9 +132,7 @@ CDLG_Table::CDLG_Table(CSG_Table *pTable, wxString Caption)
 
 //---------------------------------------------------------
 CDLG_Table::~CDLG_Table(void)
-{
-	delete(m_pTable);
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -176,7 +173,7 @@ void CDLG_Table::Set_Position(wxRect r)
 //---------------------------------------------------------
 void CDLG_Table::Save_Changes(void)
 {
-	m_pTable_Orig->Assign(m_pTable);
+	m_pTable->Assign(m_pControl->Get_Table());
 }
 
 
@@ -228,9 +225,10 @@ void CDLG_Table::On_WKSP_Load(wxCommandEvent &event)
 		{
 			CSG_Table	*pTable	= (CSG_Table *)pTables->Get(i);
 
-			if( m_pTable->is_Compatible(pTable) && pTable->Get_Count() > 0 )
+			if( pTable->is_Compatible(m_pTable) && pTable->Get_Count() > 0 )
 			{
 				Names.Add(pTable->Get_Name());
+
 				Index.Add_Record()->Set_Value(0, i);
 			}
 		}
@@ -241,10 +239,7 @@ void CDLG_Table::On_WKSP_Load(wxCommandEvent &event)
 
 			if( dlg.ShowModal() == wxID_OK )
 			{
-				CSG_Table	*pTable	= (CSG_Table *)pTables->Get(Index[dlg.GetSelection()].asInt(0));
-
-				m_pTable->Assign_Values(pTable);
-
+				m_pControl->Get_Table()->Assign_Values((CSG_Table *)pTables->Get(Index[dlg.GetSelection()].asInt(0)));
 				m_pControl->Update_Table();
 
 				Refresh();
@@ -264,7 +259,7 @@ void CDLG_Table::On_WKSP_Save(wxCommandEvent &event)
 
 	if( dlg.ShowModal() == wxID_OK && !dlg.GetValue().IsEmpty() )
 	{
-		CSG_Table	*pTable	= SG_Create_Table(*m_pTable);
+		CSG_Table	*pTable	= SG_Create_Table(*m_pControl->Get_Table());
 
 		wxString	Name(dlg.GetValue());
 
@@ -301,24 +296,26 @@ void CDLG_Table::On_Delete_All(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Table::On_Colors(wxCommandEvent &event)
 {
-	if( m_pTable->Get_Count() > 0 )
+	if( m_pControl->Get_Table()->Get_Count() > 0 )
 	{
 		int		i;
 
-		CSG_Colors	Colors(m_pTable->Get_Count());
+		CSG_Table	*pTable	= m_pControl->Get_Table();
 
-		for(i=0; i<m_pTable->Get_Count(); i++)
+		CSG_Colors	Colors(pTable->Get_Count());
+
+		for(i=0; i<pTable->Get_Count(); i++)
 		{
-			Colors[i]	= m_pTable->Get_Record(i)->asInt(0);
+			Colors[i]	= pTable->Get_Record(i)->asInt(0);
 		}
 
 		if( DLG_Colors(&Colors) )
 		{
-			Colors.Set_Count(m_pTable->Get_Count());
+			Colors.Set_Count(pTable->Get_Count());
 
-			for(i=0; i<m_pTable->Get_Count(); i++)
+			for(i=0; i<pTable->Get_Count(); i++)
 			{
-				m_pTable->Get_Record(i)->Set_Value(0, Colors[i]);
+				pTable->Get_Record(i)->Set_Value(0, Colors[i]);
 			}
 
 			m_pControl->Update_Table();

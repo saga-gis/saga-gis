@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: dlg_table_control.h 2665 2015-10-28 12:55:25Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 ACTIVE_Attributes.h                   //
+//                  dlg_table_control.h                  //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//          Copyright (C) 2015 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,9 +42,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
-#define _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__dlg_table_control_H
+#define _HEADER_INCLUDED__SAGA_GUI__dlg_table_control_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/panel.h>
+#include <wx/grid.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,46 +80,67 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_Attributes : public wxPanel
+class CDLG_Table_Control : public wxGrid
 {
-	DECLARE_CLASS(CACTIVE_Attributes)
+	DECLARE_CLASS(CDLG_Table_Control)
 
 public:
-	CACTIVE_Attributes(wxWindow *pParent);
-	virtual ~CACTIVE_Attributes(void);
+	CDLG_Table_Control(wxWindow *pParent, class CSG_Table *pTable);
+	virtual ~CDLG_Table_Control(void);
 
-	void								On_Size				(wxSizeEvent     &event);
+	void						On_Field_Sort		(wxCommandEvent  &event);
+	void						On_Field_Sort_UI	(wxUpdateUIEvent &event);
 
-	void								On_Choice			(wxCommandEvent  &event);
+	void						On_Field_Open		(wxCommandEvent  &event);
 
-	void								On_Apply			(wxCommandEvent  &event);
-	void								On_Apply_UI			(wxUpdateUIEvent &event);
-	void								On_Restore			(wxCommandEvent  &event);
-	void								On_Restore_UI		(wxUpdateUIEvent &event);
+	void						On_Record_Add		(wxCommandEvent  &event);
+	void						On_Record_Add_UI	(wxUpdateUIEvent &event);
+	void						On_Record_Ins		(wxCommandEvent  &event);
+	void						On_Record_Ins_UI	(wxUpdateUIEvent &event);
+	void						On_Record_Del		(wxCommandEvent  &event);
+	void						On_Record_Del_UI	(wxUpdateUIEvent &event);
+	void						On_Record_Clr		(wxCommandEvent  &event);
 
-	void								Set_Item			(class CWKSP_Layer *pItem);
+	void						On_Autosize_Cols	(wxCommandEvent  &event);
+	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
-	void								Set_Attributes		(void);
+	void						On_Size				(wxSizeEvent     &event);
+	void						On_Key				(wxKeyEvent      &event);
 
-	void								Save_Changes		(bool bConfirm);
+	void						On_Edit_Start		(wxGridEvent     &event);
+	void						On_Edit_Stop		(wxGridEvent     &event);
+	void						On_Changed			(wxGridEvent     &event);
+	void						On_LClick			(wxGridEvent     &event);
+	void						On_RClick			(wxGridEvent     &event);
+	void						On_LClick_Label		(wxGridEvent     &event);
+	void						On_RClick_Label		(wxGridEvent     &event);
+	void						On_LDClick_Label	(wxGridEvent     &event);
+	void						On_Select			(wxGridRangeSelectEvent &event);
+
+	bool						Update_Table		(void);
+	bool						Update_Selection	(void);
+	bool						Update_Sorting		(int iField, int Direction);
+
+	bool						Add_Record			(void);
+	bool						Ins_Record			(void);
+	bool						Del_Record			(void);
+	bool						Del_Records			(void);
+
+	bool						Load				(const wxString &File_Name);
+	bool						Save				(const wxString &File_Name, int Format = 0);
+
+	class CSG_Table *			Get_Table			(void)	{	return( m_pTable );	}
 
 
-protected:
+private:
 
-	int									m_Btn_Height;
+	bool						m_bEditing;
 
-	class wxButton						*m_Btn_Restore, *m_Btn_Apply;
-
-	class wxChoice						*m_pSelections;
-
-	class CActive_Attributes_Control	*m_pControl;
-
-	class CWKSP_Layer					*m_pItem;
+	class CSG_Table				*m_pTable;
 
 
-	void								_Set_Positions		(void);
-
-	class CSG_Table *					_Get_Table			(void);
+	bool						_Set_Records		(void);
+	bool						_Set_Record			(int iRecord, class CSG_Table_Record *pRecord);
 
 
 //---------------------------------------------------------
@@ -136,4 +155,4 @@ DECLARE_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__dlg_table_control_H

@@ -382,17 +382,21 @@ bool CSAGA::Process_Wait(bool bEnforce)
 	static bool			bYield	= false;
 	static wxDateTime	tYield	= wxDateTime::UNow();
 
-	if( !bYield && (bEnforce || m_Process_Frequency <= 0 || (wxDateTime::UNow() - tYield).GetMilliseconds() > m_Process_Frequency) )
+	if( !bYield && (bEnforce || m_Process_Frequency <= 0 || m_Process_Frequency <= (wxDateTime::UNow() - tYield).GetMilliseconds()) )
 	{
 		bYield	= true;
 
-		//	Yield();
-		//	wxSafeYield(g_pSAGA_Frame);
+	//	Yield();
+	//	wxSafeYield(g_pSAGA_Frame);
 
 		while( Pending() && Dispatch() );
 
+		if( m_Process_Frequency > 0 )
+		{
+			tYield	= wxDateTime::UNow();
+		}
+
 		bYield	= false;
-		tYield	= wxDateTime::UNow();
 	}
 
 	return( true );

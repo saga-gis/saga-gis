@@ -121,8 +121,6 @@ private:
 	void							On_Record_Del_UI	(wxUpdateUIEvent &event);
 	void							On_Record_Clr		(wxCommandEvent  &event);
 	void							On_Record_Clr_UI	(wxUpdateUIEvent &event);
-	void							On_Sel_To_Top		(wxCommandEvent  &event);
-	void							On_Sel_To_Top_UI	(wxUpdateUIEvent &event);
 
 
 	//-----------------------------------------------------

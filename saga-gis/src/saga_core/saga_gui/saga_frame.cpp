@@ -138,10 +138,10 @@ public:
 	CSAGA_Frame_StatusBar(wxWindow *parent, wxWindowID id, long style = wxST_SIZEGRIP, const wxString& name = wxT("statusBar"))
 		: wxStatusBar(parent, id, style, name)
 	{
-		m_pProgressBar	= new wxGauge(this, ID_WND_PROGRESSBAR, 100);
+		m_pProgressBar	= new wxGauge(this, ID_WND_PROGRESSBAR, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL|wxGA_SMOOTH);
 	}
 
-	void		On_Size		(wxSizeEvent     &event)
+	void		On_Size		(wxSizeEvent &event)
 	{
 		wxRect	r;
 
@@ -149,8 +149,6 @@ public:
 		{
 			m_pProgressBar->SetSize(r);
 		}
-
-		event.Skip();
 	}
 
 	wxGauge		*m_pProgressBar;
@@ -758,28 +756,26 @@ bool CSAGA_Frame::ProgressBar_Set_Position(int Position)
 {
 	if( Position < 0 )
 	{
-		m_pProgressBar->SetValue(0);
+		Position	= 0;
 	}
-	else
+	else if( Position > 100 )
 	{
-		if( Position > 100 )
-		{
-			Position	= 100;
-		}
-
-		if( m_pProgressBar->GetValue() != Position )
-		{
-			m_pProgressBar->SetValue(Position);
-		}
+		Position	= 100;
 	}
 
-	return( Process_Get_Okay(false) );
+	if( m_pProgressBar->GetValue() != Position )
+	{
+		m_pProgressBar->SetValue(Position);
+	//	m_pProgressBar->SetLabel(wxString::Format("%d%%", Position));
+	}
+
+	return( g_pSAGA->Process_Get_Okay() );
 }
 
 //---------------------------------------------------------
 bool CSAGA_Frame::ProgressBar_Set_Position(double Position, double Range)
 {
-	return( ProgressBar_Set_Position(Range != 0.0 ? (int)(100.0 * Position / Range) : 0) );
+	return( ProgressBar_Set_Position(Range < 0.0 ? 0 : (int)(0.5 + 100.0 * Position / Range)) );
 }
 
 //---------------------------------------------------------

@@ -68,26 +68,11 @@
 #include "res_commands.h"
 #include "res_dialogs.h"
 
-#include "active.h"
-#include "active_attributes.h"
-
 #include "helper.h"
 
 #include "wksp_data_manager.h"
 
 #include "view_table_control.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define FIXED_COLS		((m_Constraint & TABLE_CTRL_FIXED_COLS)   != 0)
-#define FIXED_ROWS		((m_Constraint & TABLE_CTRL_FIXED_ROWS)   != 0)
-#define LABEL_COL		((m_Constraint & TABLE_CTRL_COL1ISLABEL)  != 0)
 
 
 ///////////////////////////////////////////////////////////
@@ -140,9 +125,6 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_MENU					(ID_CMD_TABLE_SELECTION_ONLY	, CVIEW_Table_Control::On_Sel_Only)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_SELECTION_ONLY	, CVIEW_Table_Control::On_Sel_Only_UI)
 
-	EVT_MENU					(ID_CMD_TABLE_SELECTION_TO_TOP	, CVIEW_Table_Control::On_Sel_To_Top)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_SELECTION_TO_TOP	, CVIEW_Table_Control::On_Sel_To_Top_UI)
-
 	EVT_MENU					(ID_CMD_TABLE_AUTOSIZE_COLS		, CVIEW_Table_Control::On_Autosize_Cols)
 	EVT_MENU					(ID_CMD_TABLE_AUTOSIZE_ROWS		, CVIEW_Table_Control::On_Autosize_Rows)
 END_EVENT_TABLE()
@@ -159,64 +141,22 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	: wxGrid(pParent, -1, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS|wxSUNKEN_BORDER)
 {
 	m_pTable		= pTable;
-	m_pRecords		= NULL;
-	m_Constraint	= Constraint;
 	m_bSelOnly		= false;
 	m_bEditing		= false;
 
-	Set_Labeling(false);
+	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 
-	CreateGrid(m_pTable->Get_Record_Count(), m_pTable->Get_Field_Count(), wxGrid::wxGridSelectRows);
+	CreateGrid(0, m_pTable->Get_Field_Count(), wxGrid::wxGridSelectRows);
 
 	Update_Table();
 }
 
 //---------------------------------------------------------
 CVIEW_Table_Control::~CVIEW_Table_Control(void)
-{
-	if( m_pRecords )
-	{
-		SG_Free(m_pRecords);
-	}
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Table_Control::Set_Labeling(bool bOn)
-{
-	if( bOn && m_Field_Offset == 0 )
-	{
-		m_Field_Offset	= 1;
-
-		SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
-	}
-	else if( !bOn && m_Field_Offset != 0 )
-	{
-		m_Field_Offset	= 0;
-
-		SetRowLabelAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
-
-		Freeze();
-
-		for(int i=0; i<GetRows(); i++)
-		{
-			SetRowLabelValue(i, wxString::Format("%d", 1 + i));
-		}
-
-		Thaw();
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -236,7 +176,16 @@ void CVIEW_Table_Control::_Update_Views(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline CSG_Table_Record * CVIEW_Table_Control::_Get_Record(int iRow)
+{
+	return( m_bSelOnly ? m_pTable->Get_Selection(iRow) : m_pTable->Get_Record_byIndex(iRow) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -251,7 +200,7 @@ bool CVIEW_Table_Control::Update_Table(void)
 	BeginBatch();
 
 	//-----------------------------------------------------
-	int	Difference	= (m_pTable->Get_Field_Count() - m_Field_Offset) - GetNumberCols();
+	int	Difference	= (m_pTable->Get_Field_Count()) - GetNumberCols();
 
 	if( Difference > 0 )
 	{
@@ -263,9 +212,9 @@ bool CVIEW_Table_Control::Update_Table(void)
 	}
 
 	//-----------------------------------------------------
-	for(int iCol=0, iField=m_Field_Offset; iField<m_pTable->Get_Field_Count(); iCol++, iField++)
+	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 	{
-		SetColLabelValue(iCol, m_pTable->Get_Field_Name(iField));
+		SetColLabelValue(iField, m_pTable->Get_Field_Name(iField));
 
 		switch( m_pTable->Get_Field_Type(iField) )
 		{
@@ -275,7 +224,7 @@ bool CVIEW_Table_Control::Update_Table(void)
 		case SG_DATATYPE_String:
 		case SG_DATATYPE_Date:
 		case SG_DATATYPE_Binary:
-			SetColFormatCustom(iCol, wxGRID_VALUE_STRING);
+			SetColFormatCustom(iField, wxGRID_VALUE_STRING);
 			break;
 
 		case SG_DATATYPE_Bit:
@@ -286,12 +235,12 @@ bool CVIEW_Table_Control::Update_Table(void)
 		case SG_DATATYPE_ULong:
 		case SG_DATATYPE_Long:
 		case SG_DATATYPE_Color:
-			SetColFormatNumber(iCol);
+			SetColFormatNumber(iField);
 			break;
 
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:
-			SetColFormatFloat(iCol);
+			SetColFormatFloat(iField);
 			break;
 		}
 	}
@@ -303,9 +252,11 @@ bool CVIEW_Table_Control::Update_Table(void)
 }
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
+bool CVIEW_Table_Control::_Set_Records(void)
 {
 	BeginBatch();
+
+	ClearSelection();
 
 	//-----------------------------------------------------
 	if( m_bSelOnly && m_pTable->Get_Selection_Count() <= 0 )
@@ -313,9 +264,9 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 		m_bSelOnly	= false;
 	}
 
-	int	Difference, nRecords	= m_bSelOnly ? m_pTable->Get_Selection_Count() : m_pTable->Get_Count();
+	int	Difference, nRows	= m_bSelOnly ? m_pTable->Get_Selection_Count() : m_pTable->Get_Count();
 
-	if( (Difference = nRecords - GetNumberRows()) > 0 )
+	if( (Difference = nRows - GetNumberRows()) > 0 )
 	{
 		AppendRows(Difference);
 	}
@@ -324,44 +275,11 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 		DeleteRows(0, Difference);
 	}
 
-	m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, nRecords * sizeof(CSG_Table_Record *));
-
-	ClearSelection();
-
 	//-----------------------------------------------------
-	if( m_bSelOnly )
-	{
 	//	#pragma omp parallel for
-		for(int iRecord=0; iRecord<nRecords; iRecord++)
-		{
-			_Set_Record(iRecord, m_pTable->Get_Selection(iRecord));
-		}
-	}
-	else if( !bSelection_To_Top )
+	for(int iRow=0; iRow<nRows; iRow++)
 	{
-	//	#pragma omp parallel for
-		for(int iRecord=0; iRecord<nRecords; iRecord++)
-		{
-			_Set_Record(iRecord, m_pTable->Get_Record_byIndex(iRecord));
-		}
-	}
-	else // if( bSelection_To_Top && m_pTable->Get_Selection_Count() > 0 )
-	{
-		for(int iRecord=0, iSel=0, iNoSel=m_pTable->Get_Selection_Count(); iRecord<nRecords && PROGRESSBAR_Set_Position(iRecord, nRecords); iRecord++)
-		{
-			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
-
-			if( pRecord->is_Selected() )
-			{
-				_Set_Record(iSel  ++, pRecord);
-			}
-			else
-			{
-				_Set_Record(iNoSel++, pRecord);
-			}
-		}
-
-		PROCESS_Set_Okay();
+		_Set_Record(iRow, _Get_Record(iRow));
 	}
 
 	//-----------------------------------------------------
@@ -373,32 +291,32 @@ bool CVIEW_Table_Control::_Set_Records(bool bSelection_To_Top)
 }
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
+bool CVIEW_Table_Control::_Set_Record(int iRow, CSG_Table_Record *pRecord)
 {
-	m_pRecords[iRecord]	= pRecord;
-
-	if( m_Field_Offset )
+	if( !pRecord )
 	{
-		SetRowLabelValue(iRecord, pRecord->asString(0));
+		return( false );
 	}
 
-	for(int iCol=0, iField=m_Field_Offset; iField<m_pTable->Get_Field_Count(); iCol++, iField++)
+	SetRowLabelValue(iRow, wxString::Format("%d", 1 + iRow));
+
+	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 	{
 		switch( m_pTable->Get_Field_Type(iField) )
 		{
 		default:
-			SetCellValue(iRecord, iCol, pRecord->is_NoData(iField) ? SG_T("") : pRecord->asString(iField));
+			SetCellValue(iRow, iField, pRecord->is_NoData(iField) ? SG_T("") : pRecord->asString(iField));
 			break;
 
 		case SG_DATATYPE_Color:
-			SetCellBackgroundColour(iRecord, iCol, Get_Color_asWX(pRecord->asInt(iField)));
+			SetCellBackgroundColour(iRow, iField, Get_Color_asWX(pRecord->asInt(iField)));
 			break;
 		}
 	}
 
-	if( pRecord->is_Selected() )
+	if( !m_bSelOnly && pRecord->is_Selected() )
 	{
-		SelectRow(iRecord, true);
+		SelectRow(iRow, true);
 	}
 
 	return( true );
@@ -406,8 +324,6 @@ bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -433,18 +349,14 @@ bool CVIEW_Table_Control::Update_Sorting(int iField, int Direction)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Add_Record(void)
 {
-	if( !FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
 	{
 		AppendRows();
-
-		m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, GetNumberRows() * sizeof(CSG_Table_Record *));
 
 		_Set_Record(GetNumberRows() - 1, m_pTable->Add_Record());
 
@@ -457,20 +369,13 @@ bool CVIEW_Table_Control::Add_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Ins_Record(void)
 {
-	if( !FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
 	{
 		int		iRecord	= GetGridCursorRow();
 
 		if( iRecord >= 0 && iRecord < GetNumberRows() )
 		{
 			InsertRows(iRecord);
-
-			m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, GetNumberRows() * sizeof(CSG_Table_Record *));
-
-			for(int i=GetNumberRows()-1; i>iRecord; i--)
-			{
-				m_pRecords[i]	= m_pRecords[i - 1];
-			}
 
 			_Set_Record(iRecord, m_pTable->Ins_Record(iRecord));
 
@@ -484,19 +389,17 @@ bool CVIEW_Table_Control::Ins_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Record(void)
 {
-	return( !FIXED_ROWS && m_pTable->Del_Selection() && Update_Table() );
+	return( m_pTable->Del_Selection() && Update_Table() );
 }
 
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Records(void)
 {
-	return( !FIXED_ROWS && m_pTable->Del_Records() && Update_Table() );
+	return( m_pTable->Del_Records() && Update_Table() );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -528,18 +431,11 @@ bool CVIEW_Table_Control::Save(const wxString &File_Name, int Format)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Size(wxSizeEvent &event)//&WXUNUSED(event))
 {
-	if( m_Field_Offset && GetNumberCols() && GetClientSize().x > GetRowLabelSize() )
-	{
-		SetColSize(0, GetClientSize().x - GetRowLabelSize());
-	}
-
 	event.Skip();
 }
 
@@ -550,12 +446,7 @@ void CVIEW_Table_Control::On_Key(wxKeyEvent &event)
 
 	if( event.GetKeyCode() == WXK_RETURN )
 	{
-		if( !m_bEditing && GetParent() == g_pACTIVE->Get_Attributes() )
-		{
-			event.Skip(false);
-
-			g_pACTIVE->Get_Attributes()->Save_Changes(false);
-		}
+		// nop
 	}
 }
 
@@ -578,25 +469,18 @@ void CVIEW_Table_Control::On_Edit_Stop(wxGridEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Changed(wxGridEvent &event)
 {
-	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
+	CSG_Table_Record	*pRecord	= _Get_Record(event.GetRow());
 
 	if( pRecord )
 	{
-		int	iField	= m_Field_Offset + event.GetCol();
+		pRecord->Set_Value(event.GetCol(), GetCellValue(event.GetRow(), event.GetCol()).wx_str());
 
-		if( iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
-		{
-			pRecord->Set_Value(iField, GetCellValue(event.GetRow(), event.GetCol()).wx_str());
-
-			SetCellValue(event.GetRow(), event.GetCol(), pRecord->asString(iField));
-		}
+		SetCellValue(event.GetRow(), event.GetCol(), pRecord->asString(event.GetCol()));
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -693,7 +577,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Field_Add_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(FIXED_COLS == false);
+	event.Enable(true);
 }
 
 //---------------------------------------------------------
@@ -729,7 +613,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(FIXED_COLS == false);
+	event.Enable(m_pTable->Get_Field_Count() > 0);
 }
 
 //---------------------------------------------------------
@@ -919,8 +803,6 @@ void CVIEW_Table_Control::On_Field_Type_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -931,7 +813,7 @@ void CVIEW_Table_Control::On_Record_Add(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Add_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
+	event.Enable(m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
 }
 
 //---------------------------------------------------------
@@ -942,7 +824,7 @@ void CVIEW_Table_Control::On_Record_Ins(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Ins_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
+	event.Enable(m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
 }
 
 //---------------------------------------------------------
@@ -953,7 +835,7 @@ void CVIEW_Table_Control::On_Record_Del(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Del_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && m_pTable->Get_Selection_Count() > 0);
+	event.Enable(m_pTable->Get_Selection_Count() > 0);
 }
 
 //---------------------------------------------------------
@@ -964,7 +846,7 @@ void CVIEW_Table_Control::On_Record_Clr(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Clr_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS);
+	event.Enable(m_pTable->Get_Count() > 0);
 }
 
 
@@ -973,20 +855,6 @@ void CVIEW_Table_Control::On_Record_Clr_UI(wxUpdateUIEvent &event)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Table_Control::On_Sel_To_Top(wxCommandEvent  &event)
-{
-	if( m_pTable->Get_Selection_Count() > 0 )
-	{
-		_Set_Records(true);
-	}
-}
-
-void CVIEW_Table_Control::On_Sel_To_Top_UI(wxUpdateUIEvent &event)
-{
-	event.Enable(m_pTable->Get_Selection_Count() > 0);
-}
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Sel_Only(wxCommandEvent  &event)
@@ -1013,8 +881,6 @@ void CVIEW_Table_Control::On_Sel_Only_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1032,66 +898,47 @@ void CVIEW_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 {
-	int					iField		= m_Field_Offset + event.GetCol();
-	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
+	SetGridCursor(event.GetRow(), event.GetCol());
 
 	//-----------------------------------------------------
 	if( event.AltDown() )
 	{
-		if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
+		if( m_pTable->Get_Field_Type(event.GetCol()) == SG_DATATYPE_String )
 		{
-			if( event.ControlDown() )
-			{
-				g_pData->Open   (pRecord->asString(iField));
-			}
-			else
-			{
-				Open_Application(pRecord->asString(iField));
-			}
+			Open_Application(GetCellValue(event.GetRow(), event.GetCol()));
 		}
 	}
 
 	//-----------------------------------------------------
 	else if( event.ControlDown() )
 	{
-		m_pTable->Select(pRecord, true);
-
-		Update_Selection();
-	}
-
-	else if( event.ShiftDown() )
-	{
-		SelectBlock(event.GetRow(), 0, GetGridCursorRow(), GetNumberCols(), false);
-	}
-
-	else
-	{
-		SelectRow(event.GetRow(), false);
-
-		if( pRecord && iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() && m_pTable->Get_Field_Type(iField) == SG_DATATYPE_Color )
+		if( m_pTable->Get_Field_Type(event.GetCol()) == SG_DATATYPE_String )
 		{
-			long	lValue;
-
-			if( DLG_Color(lValue = pRecord->asInt(iField)) )
-			{
-				pRecord->Set_Value(iField, lValue);
-
-				SetCellBackgroundColour(event.GetRow(), event.GetCol(), Get_Color_asWX(pRecord->asInt(iField)));
-
-				ForceRefresh();
-			}
+			g_pData->Open   (GetCellValue(event.GetRow(), event.GetCol()));
 		}
 	}
 
 	//-----------------------------------------------------
-	SetGridCursor(event.GetRow(), event.GetCol());
+	else if( m_pTable->Get_Field_Type(event.GetCol()) == SG_DATATYPE_Color )
+	{
+		CSG_Table_Record	*pRecord	= _Get_Record(event.GetRow());
+
+		long	lValue;
+
+		if( DLG_Color(lValue = pRecord->asInt(event.GetCol())) )
+		{
+			pRecord->Set_Value(event.GetCol(), lValue);
+
+			SetCellBackgroundColour(event.GetRow(), event.GetCol(), Get_Color_asWX(pRecord->asInt(event.GetCol())));
+
+			ForceRefresh();
+		}
+	}
 }
 
 //---------------------------------------------------------
@@ -1099,11 +946,8 @@ void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
 {
 	SetGridCursor(event.GetRow(), event.GetCol());
 
-	int					iField		= m_Field_Offset + event.GetCol();
-	CSG_Table_Record	*pRecord	= m_pRecords[event.GetRow()];
-
 	//-----------------------------------------------------
-	if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
+	if( m_pTable->Get_Field_Type(event.GetCol()) == SG_DATATYPE_String )
 	{
 		wxMenu	Menu;
 
@@ -1111,72 +955,67 @@ void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_DATA);
 
 		PopupMenu(&Menu, event.GetPosition());
-	//	PopupMenu(&Menu, GetParent()->ScreenToClient(ClientToScreen(event.GetPosition())));
 	}
 }
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Open(wxCommandEvent &event)
 {
-	int	iField	= m_Field_Offset + GetGridCursorCol();
-	int	iRecord	=                  GetGridCursorRow();
-
-	if( iField >= 0 && iField<m_pTable->Get_Field_Count() && iRecord >= 0 && iRecord < m_pTable->Get_Count() )
+	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_APP )
 	{
-		CSG_Table_Record	*pRecord	= m_pRecords[iRecord];
+		Open_Application(GetCellValue(GetGridCursorRow(), GetGridCursorCol()));
+	}
 
-		if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_APP )
-		{
-			Open_Application(pRecord->asString(iField));
-		}
-
-		if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_DATA )
-		{
-			g_pData->Open   (pRecord->asString(iField));
-		}
+	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_DATA )
+	{
+		g_pData->Open   (GetCellValue(GetGridCursorRow(), GetGridCursorCol()));
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick_Label(wxGridEvent &event)
 {
-	if( event.GetCol() >= 0 )
+	if( m_bSelOnly )
 	{
-		SetGridCursor	(GetGridCursorRow(), event.GetCol());
+		// nop
 	}
-	else if( event.GetRow() >= 0 )
+	else if( event.GetRow() != -1 )	// select records
 	{
-		SetGridCursor	(event.GetRow(), GetGridCursorCol());
+		if( event.ControlDown() )
+		{
+			m_pTable->Select(_Get_Record(event.GetRow()), true);
+
+			Update_Selection();
+		}
+		else if( event.ShiftDown() )
+		{
+			SelectBlock(event.GetRow(), 0, GetGridCursorRow(), GetNumberCols(), false);
+		}
+		else
+		{
+			SelectRow(event.GetRow(), false);
+		}
+
+		SetGridCursor(event.GetRow(), GetGridCursorCol());
 	}
-	else
+	else if( event.GetCol() < 0 )
 	{
-	//	SelectAll();
+		ClearSelection();
 	}
 }
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 {
-	wxMenu	Menu;
-
 	//-----------------------------------------------------
 	if( event.GetCol() != -1 )
 	{
-		Menu.SetTitle(wxString::Format(wxT("%s"), _TL("Columns")));
+		wxMenu	Menu(_TL("Columns"));
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_ADD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_DEL);
@@ -1193,7 +1032,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 	//-----------------------------------------------------
 	else if( event.GetRow() != -1 )
 	{
-		Menu.SetTitle(wxString::Format(wxT("%s"), _TL("Rows")));
+		wxMenu	Menu(_TL("Rows"));
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_ADD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_INS);
@@ -1203,12 +1042,8 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		Menu.AppendSeparator();
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
 
-		if( !FIXED_ROWS )
-		{
-			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_SELECTION_TO_TOP);
-			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
-		}
+		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
 
 		PopupMenu(&Menu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);
 	}
@@ -1236,6 +1071,11 @@ void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Update_Selection(void)
 {
+	if( m_bSelOnly )
+	{
+		return( Update_Table() );
+	}
+
 	if( GetBatchCount() == 0 )
 	{
 		BeginBatch();
@@ -1251,11 +1091,11 @@ bool CVIEW_Table_Control::Update_Selection(void)
 			if( m_pTable->Get_Selection_Count() > 0 )
 			{
 				#pragma omp parallel for
-				for(int iRecord=0; iRecord<GetNumberRows(); iRecord++)
+				for(int iRow=0; iRow<GetNumberRows(); iRow++)
 				{
-					if( m_pRecords[iRecord]->is_Selected() )
+					if( _Get_Record(iRow)->is_Selected() )
 					{
-						SelectRow(iRecord, true);
+						SelectRow(iRow, true);
 					}
 				}
 			}
@@ -1274,15 +1114,17 @@ bool CVIEW_Table_Control::Update_Selection(void)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Select(wxGridRangeSelectEvent &event)
 {
-	if( GetBatchCount() == 0 )
+	if( !m_bSelOnly && GetBatchCount() == 0 )
 	{
 		BeginBatch();
 
 		for(int iRow=event.GetTopRow(); iRow<=event.GetBottomRow(); iRow++)
 		{
-			if( m_pRecords[iRow]->is_Selected() != event.Selecting() )
+			CSG_Table_Record	*pRecord	= _Get_Record(iRow);
+
+			if( pRecord->is_Selected() != event.Selecting() )
 			{
-				m_pTable->Select(m_pRecords[iRow], true);
+				m_pTable->Select(pRecord, true);
 			}
 		}
 

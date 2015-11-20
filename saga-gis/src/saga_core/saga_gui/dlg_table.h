@@ -93,9 +93,9 @@ public:
 
 protected:
 
-	class CSG_Table				*m_pTable, *m_pTable_Orig;
+	class CSG_Table				*m_pTable;
 
-	class CVIEW_Table_Control	*m_pControl;
+	class CDLG_Table_Control	*m_pControl;
 
 
 	void						On_Key			(wxKeyEvent     &event);
