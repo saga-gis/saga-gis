@@ -47,7 +47,7 @@ dlg_list_table.cpp\
 dlg_list_tin.cpp\
 dlg_parameters.cpp\
 dlg_table.cpp\
-dlg_table_control.h\
+dlg_table_control.cpp\
 dlg_text.cpp\
 helper.cpp\
 info.cpp\
