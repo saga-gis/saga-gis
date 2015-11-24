@@ -575,7 +575,9 @@ void CVIEW_Table_Control::On_Size(wxSizeEvent &event)//&WXUNUSED(event))
 
 		if( Scroll_Range != m_Scroll_Range )
 		{
+			Freeze();
 			_Update_Records();
+			Thaw();
 		}
 	}
 }
@@ -854,12 +856,18 @@ void CVIEW_Table_Control::On_Cell_Open(wxCommandEvent &event)
 {
 	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_APP )
 	{
-		Open_Application(GetCellValue(GetGridCursorRow(), GetGridCursorCol()));
+		if( !Open_Application(GetCellValue(GetGridCursorRow(), GetGridCursorCol())) )
+		{
+			DLG_Message_Show_Error(_TL("failed"), CMD_Get_Name(ID_CMD_TABLE_FIELD_OPEN_APP));
+		}
 	}
 
 	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_DATA )
 	{
-		g_pData->Open   (GetCellValue(GetGridCursorRow(), GetGridCursorCol()));
+		if( !g_pData->Open   (GetCellValue(GetGridCursorRow(), GetGridCursorCol())) )
+		{
+			DLG_Message_Show_Error(_TL("failed"), CMD_Get_Name(ID_CMD_TABLE_FIELD_OPEN_DATA));
+		}
 	}
 }
 
