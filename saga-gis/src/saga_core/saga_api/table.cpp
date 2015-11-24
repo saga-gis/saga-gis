@@ -819,7 +819,7 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 		{
 			if( is_Indexed() )
 			{
-				m_Index[i]		= m_Index[i - 1];
+				m_Index[i]	= m_Index[i - 1];
 			}
 
 			m_Records[i]			= m_Records[i - 1];
@@ -831,7 +831,8 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 			m_Index[iRecord]	= iRecord;
 		}
 
-		m_Records[iRecord]		= pRecord;
+		pRecord->m_Index	= iRecord;
+		m_Records[iRecord]	= pRecord;
 		m_nRecords++;
 
 		Set_Modified();
@@ -1108,6 +1109,20 @@ bool CSG_Table::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_
 	else
 	{
 		_Index_Destroy();
+	}
+
+	//-----------------------------------------------------
+	if( m_nSelected > 0 )
+	{
+		for(int i=0, n=0; i<m_nRecords && n<m_nSelected; i++)
+		{
+			CSG_Table_Record	*pRecord	= Get_Record_byIndex(i);
+
+			if( pRecord && pRecord->is_Selected() )
+			{
+				m_Selected[n++]	= pRecord->Get_Index();
+			}
+		}
 	}
 
 	return( is_Indexed() );

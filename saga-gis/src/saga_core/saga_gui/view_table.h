@@ -97,30 +97,11 @@ public:
 
 private:
 
-	class CWKSP_Table				*m_pTable;
-
 	class CVIEW_Table_Control		*m_pControl;
 
 
-	void							On_Field_Add		(wxCommandEvent  &event);
-	void							On_Field_Add_UI		(wxUpdateUIEvent &event);
-	void							On_Field_Del		(wxCommandEvent  &event);
-	void							On_Field_Del_UI		(wxUpdateUIEvent &event);
-	void							On_Field_Sort		(wxCommandEvent  &event);
-	void							On_Field_Sort_UI	(wxUpdateUIEvent &event);
-	void							On_Field_Rename		(wxCommandEvent  &event);
-	void							On_Field_Rename_UI	(wxUpdateUIEvent &event);
-	void							On_Field_Type		(wxCommandEvent  &event);
-	void							On_Field_Type_UI	(wxUpdateUIEvent &event);
-
-	void							On_Record_Add		(wxCommandEvent  &event);
-	void							On_Record_Add_UI	(wxUpdateUIEvent &event);
-	void							On_Record_Ins		(wxCommandEvent  &event);
-	void							On_Record_Ins_UI	(wxUpdateUIEvent &event);
-	void							On_Record_Del		(wxCommandEvent  &event);
-	void							On_Record_Del_UI	(wxUpdateUIEvent &event);
-	void							On_Record_Clr		(wxCommandEvent  &event);
-	void							On_Record_Clr_UI	(wxUpdateUIEvent &event);
+	void							On_Command			(wxCommandEvent  &event);
+	void							On_Command_UI		(wxUpdateUIEvent &event);
 
 
 	//-----------------------------------------------------

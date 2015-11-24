@@ -198,12 +198,12 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_GRIDS_SEL_DELETE:		return( _TL("Delete Selection") );
 
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:	return( _TL("Save Attributes as...") );
-	case ID_CMD_SHAPES_EDIT_SHAPE:		return( _TL("Edit Selected Shape") );
+	case ID_CMD_SHAPES_EDIT_SHAPE:		return( _TL("Edit Selection") );
 	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:	return( _TL("Clear Selection") );
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:	return( _TL("Invert Selection") );
 	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	return( _TL("Add Shape") );
 	case ID_CMD_SHAPES_EDIT_ADD_PART:	return( _TL("Add Part") );
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	return( _TL("Delete Selected Shape(s)") );
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	return( _TL("Delete Selection") );
 	case ID_CMD_SHAPES_EDIT_DEL_PART:	return( _TL("Delete Selected Part") );
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:	return( _TL("Delete Selected Point") );
 	case ID_CMD_SHAPES_EDIT_SPLIT:		return( _TL("Split with Line") );
@@ -306,9 +306,10 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_FIELD_OPEN_DATA:	return( _TL("Open as data set") );
 	case ID_CMD_TABLE_RECORD_ADD:		return( _TL("Add Record") );
 	case ID_CMD_TABLE_RECORD_INS:		return( _TL("Insert Record") );
-	case ID_CMD_TABLE_RECORD_DEL:		return( _TL("Delete Selected Record(s)") );
+	case ID_CMD_TABLE_RECORD_DEL:		return( _TL("Delete Selection") );
 	case ID_CMD_TABLE_RECORD_DEL_ALL:	return( _TL("Delete All Records") );
-	case ID_CMD_TABLE_SELECTION_ONLY:	return( _TL("Only Show Selection") );
+	case ID_CMD_TABLE_SELECTION_CLEAR:	return( _TL("Clear Selection") );
+	case ID_CMD_TABLE_SELECTION_ONLY:	return( _TL("Show Selection") );
 	case ID_CMD_TABLE_AUTOSIZE_COLS:	return( _TL("Fit Column Sizes") );
 	case ID_CMD_TABLE_AUTOSIZE_ROWS:	return( _TL("Fit Row Sizes") );
 

@@ -96,11 +96,37 @@ public:
 	bool						Update_Table		(void);
 	bool						Update_Selection	(void);
 
+
+protected:
+
 	virtual void				AdjustScrollbars	(void);
 
 	void						On_Scroll			(wxScrollWinEvent &event);
 	void						On_Key				(wxKeyEvent       &event);
 	void						On_Size				(wxSizeEvent      &event);
+
+	void						On_Edit_Start		(wxGridEvent      &event);
+	void						On_Edit_Stop		(wxGridEvent      &event);
+	void						On_Changed			(wxGridEvent      &event);
+
+	void						On_LClick			(wxGridEvent      &event);
+	void						On_LClick_Label		(wxGridEvent      &event);
+	void						On_LDClick_Label	(wxGridEvent      &event);
+
+	void						On_RClick			(wxGridEvent      &event);
+	void						On_RClick_Label		(wxGridEvent      &event);
+
+	void						On_Select			(wxGridRangeSelectEvent &event);
+
+	void						On_Sel_Only			(wxCommandEvent   &event);
+	void						On_Sel_Only_UI		(wxUpdateUIEvent  &event);
+	void						On_Sel_Clear		(wxCommandEvent   &event);
+	void						On_Sel_Clear_UI		(wxUpdateUIEvent  &event);
+
+	void						On_Autosize_Cols	(wxCommandEvent   &event);
+	void						On_Autosize_Rows	(wxCommandEvent   &event);
+
+	void						On_Cell_Open		(wxCommandEvent   &event);
 
 	void						On_Field_Add		(wxCommandEvent   &event);
 	void						On_Field_Add_UI		(wxUpdateUIEvent  &event);
@@ -113,8 +139,6 @@ public:
 	void						On_Field_Type		(wxCommandEvent   &event);
 	void						On_Field_Type_UI	(wxUpdateUIEvent  &event);
 
-	void						On_Field_Open		(wxCommandEvent   &event);
-
 	void						On_Record_Add		(wxCommandEvent   &event);
 	void						On_Record_Add_UI	(wxUpdateUIEvent  &event);
 	void						On_Record_Ins		(wxCommandEvent   &event);
@@ -124,28 +148,12 @@ public:
 	void						On_Record_Clr		(wxCommandEvent   &event);
 	void						On_Record_Clr_UI	(wxUpdateUIEvent  &event);
 
-	void						On_Sel_Only			(wxCommandEvent   &event);
-	void						On_Sel_Only_UI		(wxUpdateUIEvent  &event);
-
-	void						On_Autosize_Cols	(wxCommandEvent   &event);
-	void						On_Autosize_Rows	(wxCommandEvent   &event);
-
-	void						On_Edit_Start		(wxGridEvent      &event);
-	void						On_Edit_Stop		(wxGridEvent      &event);
-	void						On_Changed			(wxGridEvent      &event);
-	void						On_LClick			(wxGridEvent      &event);
-	void						On_RClick			(wxGridEvent      &event);
-	void						On_LClick_Label		(wxGridEvent      &event);
-	void						On_RClick_Label		(wxGridEvent      &event);
-	void						On_LDClick_Label	(wxGridEvent      &event);
-	void						On_Select			(wxGridRangeSelectEvent &event);
-
 
 private:
 
 	bool						m_bSelOnly, m_bEditing;
 
-	int							m_Scroll_Start, m_Scroll_Range;
+	int							m_Scroll_Start, m_Scroll_Range, m_Cursor;
 
 	class CSG_Table				*m_pTable;
 
@@ -156,10 +164,12 @@ private:
 
 	bool						_Update_Records		(void);
 
+	int							_Get_Record_Count	(void);
 	CSG_Table_Record *			_Get_Record			(int iRow);
 	bool						_Set_Record			(int iRow);
 
-	bool						_Set_Scroll_Start	(int Start, bool bEnforceUpdate = true, bool bCursor = true);
+	int							_Get_Scroll_Start	(int Position);
+	bool						_Set_Scroll_Start	(int Position, bool bEnforceUpdate = true);
 
 
 //---------------------------------------------------------

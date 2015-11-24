@@ -86,25 +86,8 @@ IMPLEMENT_CLASS(CVIEW_Table, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table, CVIEW_Base)
-	EVT_MENU					(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table::On_Field_Add)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table::On_Field_Add_UI)
-	EVT_MENU					(ID_CMD_TABLE_FIELD_DEL			, CVIEW_Table::On_Field_Del)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_DEL			, CVIEW_Table::On_Field_Del_UI)
-	EVT_MENU					(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table::On_Field_Sort)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table::On_Field_Sort_UI)
-	EVT_MENU					(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table::On_Field_Rename)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table::On_Field_Rename_UI)
-	EVT_MENU					(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table::On_Field_Type)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table::On_Field_Type_UI)
-
-	EVT_MENU					(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table::On_Record_Add)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table::On_Record_Add_UI)
-	EVT_MENU					(ID_CMD_TABLE_RECORD_INS		, CVIEW_Table::On_Record_Ins)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_INS		, CVIEW_Table::On_Record_Ins_UI)
-	EVT_MENU					(ID_CMD_TABLE_RECORD_DEL		, CVIEW_Table::On_Record_Del)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_DEL		, CVIEW_Table::On_Record_Del_UI)
-	EVT_MENU					(ID_CMD_TABLE_RECORD_DEL_ALL	, CVIEW_Table::On_Record_Clr)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_DEL_ALL	, CVIEW_Table::On_Record_Clr_UI)
+	EVT_MENU_RANGE		(ID_CMD_TABLE_FIRST, ID_CMD_TABLE_LAST, CVIEW_Table::On_Command)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_TABLE_FIRST, ID_CMD_TABLE_LAST, CVIEW_Table::On_Command_UI)
 END_EVENT_TABLE()
 
 
@@ -191,102 +174,33 @@ void CVIEW_Table::Update_Selection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Table::On_Field_Add(wxCommandEvent &event)
+void CVIEW_Table::On_Command(wxCommandEvent &event)
 {
-	m_pControl->On_Field_Add(event);
-}
-
-void CVIEW_Table::On_Field_Add_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Field_Add_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Field_Del(wxCommandEvent &event)
-{
-	m_pControl->On_Field_Del(event);
-}
-
-void CVIEW_Table::On_Field_Del_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Field_Del_UI(event);
+	switch( event.GetId() )
+	{
+	case ID_CMD_TABLE_FIELD_ADD     :
+	case ID_CMD_TABLE_FIELD_DEL     :
+	case ID_CMD_TABLE_RECORD_ADD    :
+	case ID_CMD_TABLE_RECORD_INS    :
+	case ID_CMD_TABLE_RECORD_DEL    :
+	case ID_CMD_TABLE_RECORD_DEL_ALL:
+		m_pControl->ProcessWindowEvent(event);
+	}
 }
 
 //---------------------------------------------------------
-void CVIEW_Table::On_Field_Sort(wxCommandEvent &event)
+void CVIEW_Table::On_Command_UI(wxUpdateUIEvent &event)
 {
-	m_pControl->On_Field_Sort(event);
-}
-
-void CVIEW_Table::On_Field_Sort_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Field_Sort_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Field_Rename(wxCommandEvent &event)
-{
-	m_pControl->On_Field_Rename(event);
-}
-
-void CVIEW_Table::On_Field_Rename_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Field_Rename_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Field_Type(wxCommandEvent &event)
-{
-	m_pControl->On_Field_Type(event);
-}
-
-void CVIEW_Table::On_Field_Type_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Field_Type_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Record_Add(wxCommandEvent &event)
-{
-	m_pControl->On_Record_Add(event);
-}
-
-void CVIEW_Table::On_Record_Add_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Record_Add_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Record_Ins(wxCommandEvent &event)
-{
-	m_pControl->On_Record_Ins(event);
-}
-
-void CVIEW_Table::On_Record_Ins_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Record_Ins_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Record_Del(wxCommandEvent &event)
-{
-	m_pControl->On_Record_Del(event);
-}
-
-void CVIEW_Table::On_Record_Del_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Record_Del_UI(event);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table::On_Record_Clr(wxCommandEvent &event)
-{
-	m_pControl->On_Record_Clr(event);
-}
-
-void CVIEW_Table::On_Record_Clr_UI(wxUpdateUIEvent &event)
-{
-	m_pControl->On_Record_Clr_UI(event);
+	switch( event.GetId() )
+	{
+	case ID_CMD_TABLE_FIELD_ADD     :
+	case ID_CMD_TABLE_FIELD_DEL     :
+	case ID_CMD_TABLE_RECORD_ADD    :
+	case ID_CMD_TABLE_RECORD_INS    :
+	case ID_CMD_TABLE_RECORD_DEL    :
+	case ID_CMD_TABLE_RECORD_DEL_ALL:
+		m_pControl->ProcessWindowEvent(event);
+	}
 }
 
 

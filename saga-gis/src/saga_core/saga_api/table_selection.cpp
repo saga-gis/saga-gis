@@ -166,8 +166,12 @@ int CSG_Table::Del_Selection(void)
 
 	for(i=m_nRecords-1; i>=0; i--)
 	{
-		if( m_Records[i]->is_Selected() && Del_Record(i) )
+		if( m_Records[i]->is_Selected() )
 		{
+			m_Records[i]->Set_Selected(false);
+
+			Del_Record(i);
+
 			n++;
 		}
 	}
