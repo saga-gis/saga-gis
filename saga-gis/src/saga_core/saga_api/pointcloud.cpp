@@ -214,9 +214,6 @@ void CSG_PointCloud::_On_Construction(void)
 	m_Cursor		= NULL;
 	m_bXYZPrecDbl	= true;
 
-	m_Selected		= NULL;
-	m_nSelected		= 0;
-
 	Set_NoData_Value(-999999);
 
 	Set_Update_Flag();
@@ -225,8 +222,7 @@ void CSG_PointCloud::_On_Construction(void)
 	m_Shapes.Add_Shape();
 	m_Shapes_Index	= -1;
 
-	m_Array_Points  .Create(sizeof(char *), 0, SG_ARRAY_GROWTH_3);
-	m_Array_Selected.Create(sizeof(int   ), 0, SG_ARRAY_GROWTH_3);
+	m_Array_Points.Create(sizeof(char *), 0, SG_ARRAY_GROWTH_3);
 }
 
 //---------------------------------------------------------
@@ -869,15 +865,13 @@ bool CSG_PointCloud::Del_Points(void)
 		SG_Free(m_Points[iPoint]);
 	}
 
-	m_Array_Points  .Destroy();
-	m_Array_Selected.Destroy();
+	m_Array_Points.Destroy();
 
 	m_nRecords	= 0;
 	m_Points	= NULL;
 	m_Cursor	= NULL;
 
-	m_nSelected	= 0;
-	m_Selected	= NULL;
+	m_Selection.Set_Array(0);
 
 	return( true );
 }
@@ -1015,7 +1009,7 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 
 	if( iPoint >= 0 && iPoint < Get_Count() )
 	{
-		if( iPoint != m_Shapes_Index )
+		if(1|| iPoint != m_Shapes_Index )
 		{
 			m_Cursor	= m_Points[iPoint];
 
@@ -1044,6 +1038,8 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 			}
 
 			m_Shapes_Index	= iPoint;
+			pShape->m_Index	= iPoint;
+			pShape->Set_Selected(is_Selected(iPoint));
 		}
 
 		m_Shapes.Set_Modified(false);
@@ -1147,51 +1143,35 @@ CSG_Shape * CSG_PointCloud::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Cop
 //---------------------------------------------------------
 bool CSG_PointCloud::Select(int iRecord, bool bInvert)
 {
-	if( !bInvert )
+	if( !bInvert && Get_Selection_Count() > 0 )
 	{
-		for(int i=0; i<m_nSelected; i++)
+		for(size_t i=0; i<Get_Selection_Count(); i++)
 		{
-			m_Points[m_Selected[i]][0]	&= ~SG_TABLE_REC_FLAG_Selected;
+			m_Points[Get_Selection_Index(i)][0]	&= ~SG_TABLE_REC_FLAG_Selected;
 		}
 
-		m_Array_Selected.Destroy();
-		m_Selected	= NULL;
-		m_nSelected	= 0;
+		m_Selection.Destroy();
 	}
 
 	if( Set_Cursor(iRecord) )
 	{
 		if( (m_Cursor[0] & SG_TABLE_REC_FLAG_Selected) == 0 )	// select
 		{
-			if( m_Array_Selected.Set_Array(m_nSelected + 1, (void **)&m_Selected) )
+			if( _Add_Selection(iRecord) )
 			{
 				m_Cursor[0]	|= SG_TABLE_REC_FLAG_Selected;
-
-				m_Selected[m_nSelected++]	= iRecord;
 
 				return( true );
 			}
 		}
 		else													// deselect
 		{
-			m_Cursor[0]	&= ~SG_TABLE_REC_FLAG_Selected;
-
-			m_nSelected--;
-
-			for(int i=0; i<m_nSelected; i++)
+			if( _Del_Selection(iRecord) )
 			{
-				if( m_Points[iRecord] == m_Points[m_Selected[i]] )
-				{
-					for(; i<m_nSelected; i++)
-					{
-						m_Selected[i]	= m_Selected[i + 1];
-					}
-				}
+				m_Cursor[0]	&= ~SG_TABLE_REC_FLAG_Selected;
+
+				return( true );
 			}
-
-			m_Array_Selected.Set_Array(m_nSelected, (void **)&m_Selected);
-
-			return( true );
 		}
 	}
 
@@ -1226,7 +1206,7 @@ bool CSG_PointCloud::Select(TSG_Rect Extent, bool bInvert)
 		}
 	}
 
-	return( m_nSelected > 0 );
+	return( Get_Selection_Count() > 0 );
 }
 
 //---------------------------------------------------------
@@ -1254,24 +1234,24 @@ bool CSG_PointCloud::is_Selected(int iRecord)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_PointCloud::Get_Selection(int Index)
+CSG_Shape * CSG_PointCloud::Get_Selection(size_t Index)
 {
-	return( Index >= 0 && Index < m_nSelected ? _Set_Shape(m_Selected[Index]) : NULL );
+	return( Index < Get_Selection_Count() ? _Set_Shape(Get_Selection_Index(Index)) : NULL );
 }
 
 //---------------------------------------------------------
 const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
 {
-	if( m_nSelected > 0 && Set_Cursor(m_Selected[0]) )
+	if( Get_Selection_Count() > 0 && Set_Cursor(Get_Selection_Index(0)) )
 	{
 		TSG_Rect	r;
 
 		r.xMin	= r.xMax	= Get_X();
 		r.yMin	= r.yMax	= Get_Y();
 
-		for(int i=1; i<m_nSelected; i++)
+		for(size_t i=1; i<Get_Selection_Count(); i++)
 		{
-			if( Set_Cursor(m_Selected[i]) )
+			if( Set_Cursor(Get_Selection_Index(i)) )
 			{
 				if( Get_X() < r.xMin )	r.xMin	= Get_X();	else if( Get_X() > r.xMax )	r.xMax	= Get_X();
 				if( Get_Y() < r.yMin )	r.yMin	= Get_Y();	else if( Get_Y() > r.yMax )	r.yMax	= Get_Y();
@@ -1296,36 +1276,33 @@ const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
 //---------------------------------------------------------
 int CSG_PointCloud::Del_Selection(void)
 {
-	if( m_nSelected <= 0 )
+	int	n	= 0;
+
+	if( Get_Selection_Count() > 0 )
 	{
-		return( 0 );
-	}
+		m_Selection.Set_Array(0);
 
-	//-----------------------------------------------------
-	int		i, n;
+		m_Cursor	= NULL;
 
-	m_Array_Selected.Set_Array(0, (void **)&m_Selected);
-	m_nSelected	= 0;
-	m_Cursor	= NULL;
-
-	for(i=0, n=0; i<m_nRecords; i++)
-	{
-		if( (m_Points[i][0] & SG_TABLE_REC_FLAG_Selected) != 0 )
+		for(int i=0; i<m_nRecords; i++)
 		{
-			SG_Free(m_Points[i]);
-		}
-		else
-		{
-			if( n < i )
+			if( (m_Points[i][0] & SG_TABLE_REC_FLAG_Selected) != 0 )
 			{
-				m_Points[n]	= m_Points[i];
+				SG_Free(m_Points[i]);
 			}
+			else
+			{
+				if( n < i )
+				{
+					m_Points[n]	= m_Points[i];
+				}
 
-			n++;
+				n++;
+			}
 		}
-	}
 
-	m_Array_Points.Set_Array(m_nRecords = n, (void **)&m_Points);
+		m_Array_Points.Set_Array(m_nRecords = n, (void **)&m_Points);
+	}
 
 	return( n );
 }
@@ -1333,29 +1310,26 @@ int CSG_PointCloud::Del_Selection(void)
 //---------------------------------------------------------
 int CSG_PointCloud::Inv_Selection(void)
 {
-	char	**pPoint;
-	int		i, n;
-
-	n	= m_nRecords - m_nSelected;
-
-	if( m_Array_Selected.Set_Array(n, (void **)&m_Selected) )
+	if( m_Selection.Set_Array((size_t)m_nRecords - Get_Selection_Count()) )
 	{
-		for(i=0, m_nSelected=0, pPoint=m_Points; i<m_nRecords; i++, pPoint++)
-		{
-			if( ((*pPoint)[0] & SG_TABLE_REC_FLAG_Selected) == 0 && m_nSelected < n )
-			{
-				m_Selected[m_nSelected++]	= i;
+		char	**pPoint	= m_Points;
 
-				(*pPoint)[0]	|= SG_TABLE_REC_FLAG_Selected;
+		for(size_t i=0, n=0; i<(size_t)m_nRecords && n<Get_Selection_Count(); i++, pPoint++)
+		{
+			if( ((*pPoint)[0] & SG_TABLE_REC_FLAG_Selected) != 0 )
+			{
+				(*pPoint)[0]	&= ~SG_TABLE_REC_FLAG_Selected;
 			}
 			else
 			{
-				(*pPoint)[0]	&= ~SG_TABLE_REC_FLAG_Selected;
+				(*pPoint)[0]	|= SG_TABLE_REC_FLAG_Selected;
+
+				_Set_Selection(i, n++);
 			}
 		}
 	}
 
-	return( m_nSelected );
+	return( Get_Selection_Count() );
 }
 
 

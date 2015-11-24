@@ -125,6 +125,7 @@ TSG_Table_Index_Order;
 class SAGA_API_DLL_EXPORT CSG_Table_Record
 {
 	friend class CSG_Table;
+	friend class CSG_PointCloud;
 
 public:
 
@@ -309,8 +310,9 @@ public:
 	virtual void					Set_Modified		(bool bModified = true);
 
 	//-----------------------------------------------------
-	int								Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
-	virtual CSG_Table_Record *		Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? Get_Record(m_Selected[Index]) : NULL );	}
+	size_t							Get_Selection_Count	(void)				const	{	return( m_Selection.Get_Size() );	}
+	size_t							Get_Selection_Index	(size_t Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? *((size_t *)m_Selection.Get_Entry(Index)) : m_Selection.Get_Size() );	}
+	virtual CSG_Table_Record *		Get_Selection		(size_t Index = 0)	const	{	return( Get_Record(Get_Selection_Index(Index)) );	}
 
 	virtual bool					is_Selected			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord]->is_Selected() : false );	}
 
@@ -333,7 +335,7 @@ public:
 
 protected:
 
-	int								m_nFields, m_nRecords, m_nBuffer, m_nSelected;
+	int								m_nFields, m_nRecords, m_nBuffer;
 
 	TSG_Data_Type					*m_Field_Type;
 
@@ -341,10 +343,16 @@ protected:
 
 	CSG_Simple_Statistics			**m_Field_Stats;
 
+	CSG_Array						m_Selection;
+
 
 	virtual void					_On_Construction	(void);
 
 	virtual CSG_Table_Record *		_Get_New_Record		(int Index);
+
+	bool							_Add_Selection		(size_t iRecord);
+	bool							_Set_Selection		(size_t iRecord, size_t Index);
+	bool							_Del_Selection		(size_t iRecord);
 
 	bool							_Stats_Invalidate	(void)			const;
 	bool							_Stats_Invalidate	(int iField)	const;
@@ -353,7 +361,7 @@ protected:
 
 private:
 
-	int								*m_Index, m_Index_Field[3], *m_Selected;
+	int								*m_Index, m_Index_Field[3];
 
 	TSG_Table_Index_Order			m_Index_Order[3];
 

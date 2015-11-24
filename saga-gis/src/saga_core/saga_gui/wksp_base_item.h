@@ -87,6 +87,7 @@
 //---------------------------------------------------------
 #define LAYER_DRAW_FLAG_NOEDITS		0x01
 #define LAYER_DRAW_FLAG_NOLABELS	0x02
+#define LAYER_DRAW_FLAG_THUMBNAIL	0x04
 
 
 ///////////////////////////////////////////////////////////

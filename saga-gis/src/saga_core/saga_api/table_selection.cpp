@@ -73,17 +73,75 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Table::_Add_Selection(size_t iRecord)
+{
+	if( m_Selection.Inc_Array() )
+	{
+		return( _Set_Selection(iRecord, m_Selection.Get_Size() - 1) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::_Set_Selection(size_t iRecord, size_t Index)
+{
+	if( Index < m_Selection.Get_Size() )
+	{
+		*((size_t *)m_Selection.Get_Entry(Index))	= iRecord;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::_Del_Selection(size_t iRecord)
+{
+	for(size_t i=0; i<Get_Selection_Count(); i++)
+	{
+		if( iRecord == Get_Selection_Index(i) )
+		{
+			size_t	*Selection	= (size_t *)m_Selection.Get_Array();
+
+			for(size_t j=i+1; j<Get_Selection_Count(); i++, j++)
+			{
+				Selection[i]	= Selection[j];
+			}
+
+			m_Selection.Dec_Array();
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Table::_Destroy_Selection(void)
 {
-	if( m_nSelected > 0 )
+	if( Get_Selection_Count() > 0 )
 	{
-		for(int iRecord=0; iRecord<m_nSelected; iRecord++)
+		for(size_t iRecord=0; iRecord<Get_Selection_Count(); iRecord++)
 		{
-			m_Records[m_Selected[iRecord]]->Set_Selected(false);
+			CSG_Table_Record	*pRecord	= Get_Selection(iRecord);
+
+			if( pRecord )
+			{
+				pRecord->Set_Selected(false);
+			}
 		}
 
-		SG_FREE_SAFE(m_Selected);
-		m_nSelected	= 0;
+		m_Selection.Set_Array(0);
 	}
 
 	return( true );
@@ -115,27 +173,13 @@ bool CSG_Table::Select(int iRecord, bool bInvert)
 	{
 		pRecord->Set_Selected(true);
 
-		m_Selected	= (int *)SG_Realloc(m_Selected, (m_nSelected + 1) * sizeof(int));
-		m_Selected[m_nSelected++]	= iRecord;
+		_Add_Selection(iRecord);
 	}
-	else
+	else // if( pRecord->is_Selected() == true )
 	{
 		pRecord->Set_Selected(false);
 
-		m_nSelected--;
-
-		for(int i=0; i<m_nSelected; i++)
-		{
-			if( iRecord == m_Selected[i] )
-			{
-				for(; i<m_nSelected; i++)
-				{
-					m_Selected[i]	= m_Selected[i + 1];
-				}
-			}
-		}
-
-		m_Selected	= (int *)SG_Realloc(m_Selected, m_nSelected * sizeof(int));
+		_Del_Selection(iRecord);
 	}
 
 	return( true );
@@ -157,28 +201,24 @@ bool CSG_Table::Select(CSG_Table_Record *pRecord, bool bInvert)
 //---------------------------------------------------------
 int CSG_Table::Del_Selection(void)
 {
-	if( m_nSelected <= 0 )
-	{
-		return( 0 );
-	}
+	int	n	= 0;
 
-	int		i, n	= 0;
-
-	for(i=m_nRecords-1; i>=0; i--)
+	if( Get_Selection_Count() > 0 )
 	{
-		if( m_Records[i]->is_Selected() )
+		for(int i=m_nRecords-1; i>=0; i--)
 		{
-			m_Records[i]->Set_Selected(false);
+			if( m_Records[i]->is_Selected() )
+			{
+				m_Records[i]->Set_Selected(false);
 
-			Del_Record(i);
+				Del_Record(i);
 
-			n++;
+				n++;
+			}
 		}
+
+		m_Selection.Set_Array(0);
 	}
-
-	SG_FREE_SAFE(m_Selected);
-
-	m_nSelected	= 0;
 
 	return( n );
 }
@@ -186,14 +226,13 @@ int CSG_Table::Del_Selection(void)
 //---------------------------------------------------------
 int CSG_Table::Inv_Selection(void)
 {
-	CSG_Table_Record	**pRecord	= m_Records + 0;
-
 	if( Get_Record_Count() > 0 )
 	{
-		m_nSelected	= m_nRecords - m_nSelected;
-		m_Selected	= (int *)SG_Realloc(m_Selected, m_nSelected * sizeof(int));
+		m_Selection.Set_Array((size_t)m_nRecords - m_Selection.Get_Size());
 
-		for(int i=0, j=0; i<m_nRecords; i++, pRecord++)
+		CSG_Table_Record	**pRecord	= m_Records + 0;
+
+		for(size_t i=0, n=0; i<(size_t)m_nRecords && n<Get_Selection_Count(); i++, pRecord++)
 		{
 			if( (*pRecord)->is_Selected() )
 			{
@@ -203,7 +242,7 @@ int CSG_Table::Inv_Selection(void)
 			{
 				(*pRecord)->Set_Selected(true);
 
-				m_Selected[j++]	= i;
+				_Set_Selection(i, n++);
 			}
 		}
 	}

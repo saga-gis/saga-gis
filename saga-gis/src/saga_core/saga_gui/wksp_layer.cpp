@@ -460,7 +460,7 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 		wxRect			r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
 		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, SG_GET_RGB(255, 255, 255));
 
-		Draw(dc_Map, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS);
+		Draw(dc_Map, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS|LAYER_DRAW_FLAG_THUMBNAIL);
 
 		dc.SelectObject(m_Thumbnail);
 		dc.SetBackground(*wxWHITE_BRUSH);

@@ -189,7 +189,7 @@ public:
 
 	virtual int						Del_Selection		(void);
 	virtual int						Inv_Selection		(void);
-	virtual CSG_Shape *				Get_Selection		(int Index = 0);
+	virtual CSG_Shape *				Get_Selection		(size_t Index = 0);
 	virtual const CSG_Rect &		Get_Selection_Extent(void);
 
 
@@ -210,9 +210,9 @@ private:
 
 	char							**m_Points, *m_Cursor;
 
-	int								m_nPointBytes, *m_Field_Offset, m_Shapes_Index, *m_Selected;
+	int								m_nPointBytes, *m_Field_Offset, m_Shapes_Index;
 
-	CSG_Array						m_Array_Points, m_Array_Selected;
+	CSG_Array						m_Array_Points;
 
 	CSG_Shapes						m_Shapes;
 

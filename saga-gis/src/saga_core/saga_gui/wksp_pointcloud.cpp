@@ -73,7 +73,7 @@
 
 #include "wksp_pointcloud.h"
 #include "wksp_table.h"
-
+#include "view_table.h"
 #include "view_scatterplot.h"
 
 
@@ -852,6 +852,11 @@ bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, i
 		//-----------------------------------------------------
 		g_pACTIVE->Get_Attributes()->Set_Attributes();
 
+		if( m_pTable->Get_View() )
+		{
+			m_pTable->Get_View()->Update_Selection();
+		}
+
 		Update_Views(false);
 	}
 
@@ -890,7 +895,14 @@ void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
 	{
-		_Draw_Points	(dc_Map);
+		if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 )
+		{
+			_Draw_Points   (dc_Map);
+		}
+		else
+		{
+			_Draw_Thumbnail(dc_Map);
+		}
 
 		dc_Map.IMG_Draw_End();
 	}
@@ -978,7 +990,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 
 	bool	bSelection	= pPoints->Get_Selection_Count() > 0;
 
-	for(int i=0; i<Get_PointCloud()->Get_Count(); i++)
+	for(int i=0; i<pPoints->Get_Count(); i++)
 	{
 		pPoints->Set_Cursor(i);
 
@@ -1005,6 +1017,33 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 					_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
 				}
 			}
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
+{
+	CSG_PointCloud	*pPoints	= Get_PointCloud();
+
+	int	n	= 1 + (int)(pPoints->Get_Count() / (2 * dc_Map.m_rDC.GetWidth() * dc_Map.m_rDC.GetHeight()));
+
+	for(int i=0; i<pPoints->Get_Count(); i+=n)
+	{
+		pPoints->Set_Cursor(i);
+
+		if( !pPoints->is_NoData(m_Color_Field) )
+		{
+			TSG_Point_Z	Point	= pPoints->Get_Point();
+
+			int	x	= (int)dc_Map.xWorld2DC(Point.x);
+			int	y	= (int)dc_Map.yWorld2DC(Point.y);
+
+			int	Color;
+
+			m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_Color_Field), Color);
+
+			dc_Map.IMG_Set_Pixel(x, y, Color);
 		}
 	}
 }

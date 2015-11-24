@@ -313,10 +313,9 @@ void CSG_Table::_On_Construction(void)
 	m_nRecords		= 0;
 	m_nBuffer		= 0;
 
-	m_nSelected		= 0;
-	m_Selected		= NULL;
-
 	m_Index			= NULL;
+
+	m_Selection.Create(sizeof(size_t), 0, SG_ARRAY_GROWTH_3);
 
 	Set_Update_Flag();
 }
@@ -1112,15 +1111,15 @@ bool CSG_Table::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_
 	}
 
 	//-----------------------------------------------------
-	if( m_nSelected > 0 )
+	if( Get_Selection_Count() > 0 )
 	{
-		for(int i=0, n=0; i<m_nRecords && n<m_nSelected; i++)
+		for(size_t i=0, n=0; i<(size_t)m_nRecords && n<Get_Selection_Count(); i++)
 		{
 			CSG_Table_Record	*pRecord	= Get_Record_byIndex(i);
 
 			if( pRecord && pRecord->is_Selected() )
 			{
-				m_Selected[n++]	= pRecord->Get_Index();
+				_Set_Selection(n++, pRecord->Get_Index());
 			}
 		}
 	}
