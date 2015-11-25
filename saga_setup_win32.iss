@@ -34,6 +34,7 @@ Source: "saga_gui.exe"; DestDir: "{app}"
 Source: "saga_cmd.exe"; DestDir: "{app}"
 Source: "*.*"; Excludes: "*.iss,*.ini,*.cfg,*.bak,*.exe,*.bat,*.rtf"; DestDir: "{app}"
 Source: "modules\*.*"; DestDir: "{app}\modules"
+Source: "modules\toolchains\*.*"; DestDir: "{app}\modules\toolchains"
 Source: "dll\*.*"; DestDir: "{app}\dll"
 
 [Icons]
