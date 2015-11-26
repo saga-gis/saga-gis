@@ -153,19 +153,19 @@ bool CTable_Field_Statistics::On_Execute(void)
 		{
 			CSG_Table_Record *pRecord = pTab_out->Add_Record();
 
-			pRecord->Set_Value(0, pTab_in->Get_Field_Name(iFeature));
-			pRecord->Set_Value(1, pTab_in->Get_N(iFeature));
-			pRecord->Set_Value(2, pTab_in->Get_Minimum(iFeature));
-			pRecord->Set_Value(3, pTab_in->Get_Maximum(iFeature));
-			pRecord->Set_Value(4, pTab_in->Get_Range(iFeature));
-			pRecord->Set_Value(5, pTab_in->Get_Sum(iFeature));
-			pRecord->Set_Value(6, pTab_in->Get_Mean(iFeature));
-			pRecord->Set_Value(7, pTab_in->Get_Variance(iFeature));
-			pRecord->Set_Value(8, pTab_in->Get_StdDev(iFeature));
+			pRecord->Set_Value(0, pTab_in->Get_Field_Name(Features[iFeature]));
+			pRecord->Set_Value(1, pTab_in->Get_N(Features[iFeature]));
+			pRecord->Set_Value(2, pTab_in->Get_Minimum(Features[iFeature]));
+			pRecord->Set_Value(3, pTab_in->Get_Maximum(Features[iFeature]));
+			pRecord->Set_Value(4, pTab_in->Get_Range(Features[iFeature]));
+			pRecord->Set_Value(5, pTab_in->Get_Sum(Features[iFeature]));
+			pRecord->Set_Value(6, pTab_in->Get_Mean(Features[iFeature]));
+			pRecord->Set_Value(7, pTab_in->Get_Variance(Features[iFeature]));
+			pRecord->Set_Value(8, pTab_in->Get_StdDev(Features[iFeature]));
 		}
 		else
 		{
-			SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: skipping non-numeric field '%s'!"), pTab_in->Get_Field_Name(iFeature)), true);
+			SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: skipping non-numeric field '%s'!"), pTab_in->Get_Field_Name(Features[iFeature])), true);
 		}
 	}
 
