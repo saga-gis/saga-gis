@@ -149,7 +149,7 @@ bool CTable_Field_Statistics::On_Execute(void)
 	//-----------------------------------------------------
 	for(int iFeature=0; iFeature<nFeatures; iFeature++)
 	{
-		if( SG_Data_Type_is_Numeric(pTab_in->Get_Field_Type(iFeature)) )
+		if( SG_Data_Type_is_Numeric(pTab_in->Get_Field_Type(Features[iFeature])) )
 		{
 			CSG_Table_Record *pRecord = pTab_out->Add_Record();
 
