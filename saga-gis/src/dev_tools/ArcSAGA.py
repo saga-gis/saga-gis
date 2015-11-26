@@ -15,6 +15,8 @@ dir, tail = os.path.split(DIR_SELF)
 if os.path.isfile(dir + os.sep + 'saga_cmd.exe') == True:
 	DIR_SAGA = dir	# use SAGA instance of this installation
 
+CREATE_NO_WINDOW = 0x08000000
+
 
 ##########################################
 # File Tools
@@ -78,14 +80,14 @@ class SAGA_Tool:
 			cmd_string += ' ' + Item
 
 		cmd    = [self.saga_cmd, '-f=q', self.Library, self.Tool] + self.Parameters
-
+		
 		if bIgnoreLog == False and DIR_LOG != None:
 			cmd_out = open(DIR_LOG + os.sep + 'arcsaga.log'      , 'w')
 			cmd_err = open(DIR_LOG + os.sep + 'arcsaga.error.log', 'w')
 			cmd_out.write(cmd_string)	# print to log file
-			Result = subprocess.call(cmd, stdout=cmd_out, stderr=cmd_err)
+			Result = subprocess.call(cmd, creationflags=CREATE_NO_WINDOW, stdout=cmd_out, stderr=cmd_err)
 		else:
-			Result = subprocess.call(cmd)
+			Result = subprocess.call(cmd, creationflags=CREATE_NO_WINDOW)
 
 		if Result != 0:
 			arcpy.AddMessage(cmd_string)
