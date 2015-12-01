@@ -1002,7 +1002,7 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key
 
 			for(x=0; x<nx; x++)
 			{
-				m_Edit_Attributes.Add_Field(CSG_String::Format(SG_T("%d"), x + 1), SG_DATATYPE_Double);
+				m_Edit_Attributes.Add_Field(CSG_String::Format(SG_T("%d"), x + 1), Get_Grid()->Get_Type());
 			}
 
 			for(y=0; y<ny; y++)

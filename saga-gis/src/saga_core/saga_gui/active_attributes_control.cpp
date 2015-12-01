@@ -113,7 +113,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CActive_Attributes_Control::CActive_Attributes_Control(wxWindow *pParent)
-	: wxGrid(pParent, -1, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS|wxSUNKEN_BORDER)
+	: wxGrid(pParent, -1, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS)
 {
 	m_pTable	= new CSG_Table;
 	m_bEditing	= false;
@@ -143,11 +143,11 @@ void CActive_Attributes_Control::Set_Row_Labeling(bool bOn)
 {
 	if( bOn && m_Field_Offset == 0 )
 	{
-		m_Field_Offset	= 1;
+		m_Field_Offset	= 1;	// feature attributes
 	}
 	else if( !bOn && m_Field_Offset != 0 )
 	{
-		m_Field_Offset	= 0;
+		m_Field_Offset	= 0;	// grid cell values
 	}
 }
 
@@ -167,8 +167,6 @@ bool CActive_Attributes_Control::Update_Table(void)
 	}
 
 	BeginBatch();
-
-	ClearSelection();
 
 	//-----------------------------------------------------
 	int	Difference	= (m_pTable->Get_Field_Count() - m_Field_Offset) - GetNumberCols();
@@ -226,18 +224,33 @@ bool CActive_Attributes_Control::Update_Table(void)
 		DeleteRows(0, Difference);
 	}
 
-	//-----------------------------------------------------
+	//-------------------------------------------------
 	for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 	{
 		_Set_Record(iRecord);
 	}
 
-	m_pTable->Set_Modified(false);
-
-	if( GetNumberCols() > 0 )
+	//-----------------------------------------------------
+	if( GetNumberCols() > 0 && GetNumberRows() > 0 )
 	{
 		SetRowLabelSize(wxGRID_AUTOSIZE);
+
+		if( m_Field_Offset )	// feature attributes
+		{
+			if( GetClientSize().x > GetRowLabelSize() )
+			{
+				SetColSize(0, GetClientSize().x - GetRowLabelSize());
+			}
+		}
+		else					// grid cell values
+		{
+			AutoSizeColumns();
+		}
 	}
+
+	Show(GetNumberRows() > 0);
+
+	m_pTable->Set_Modified(false);
 
 	//-----------------------------------------------------
 	EndBatch();
@@ -250,11 +263,11 @@ bool CActive_Attributes_Control::_Set_Record(int iRecord)
 {
 	CSG_Table_Record *pRecord	= m_pTable->Get_Record(iRecord);
 
-	if( m_Field_Offset )
+	if( m_Field_Offset )	// feature attributes
 	{
 		SetRowLabelValue(iRecord, pRecord->asString(0));
 	}
-	else
+	else					// grid cell values
 	{
 		SetRowLabelValue(iRecord, wxString::Format("%d", 1 + iRecord));
 	}
@@ -291,9 +304,12 @@ bool CActive_Attributes_Control::_Set_Record(int iRecord)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Size(wxSizeEvent &event)//&WXUNUSED(event))
 {
-	if( m_Field_Offset && GetNumberCols() && GetClientSize().x > GetRowLabelSize() )
+	if( m_Field_Offset )	// feature attributes
 	{
-		SetColSize(0, GetClientSize().x - GetRowLabelSize());
+		if( GetNumberCols() > 0 && GetClientSize().x > GetRowLabelSize() )
+		{
+			SetColSize(0, GetClientSize().x - GetRowLabelSize());
+		}
 	}
 
 	event.Skip();

@@ -105,7 +105,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CACTIVE_Attributes::CACTIVE_Attributes(wxWindow *pParent)
-	: wxPanel(pParent, ID_WND_INFO_ATTRIBUTES)//, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
+	: wxPanel(pParent, ID_WND_INFO_ATTRIBUTES, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
 	m_pItem			= NULL;
 
