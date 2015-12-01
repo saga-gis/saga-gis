@@ -296,6 +296,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 		Set_Modified(false);
 		Set_Update_Flag();
 
+		SG_UI_Process_Set_Ready();
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
@@ -314,6 +315,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 		Destroy();
 	}
 
+	SG_UI_Process_Set_Ready();
 	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
@@ -412,11 +414,13 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 
 		Save_MetaData(File_Name);
 
+		SG_UI_Process_Set_Ready();
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
 	}
 
+	SG_UI_Process_Set_Ready();
 	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
