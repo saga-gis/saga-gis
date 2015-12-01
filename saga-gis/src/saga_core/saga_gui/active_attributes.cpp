@@ -138,7 +138,7 @@ CACTIVE_Attributes::~CACTIVE_Attributes(void)
 void CACTIVE_Attributes::_Set_Positions(void)
 {
 	int		nButtons	= 2;
-	wxRect	r(wxPoint(0, 0), GetSize());
+	wxRect	r(GetClientSize());
 
 	if( m_pSelections->GetCount() > 0 )
 	{
