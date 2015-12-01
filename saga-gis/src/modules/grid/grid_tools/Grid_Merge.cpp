@@ -306,8 +306,6 @@ bool CGrid_Merge::Initialize(void)
 		return( false );
 	}
 
-	Set_Target(Get_Parameters("TARGET"), m_pGrids);	Dlg_Parameters("TARGET");	// if called from saga_cmd
-
 	//-----------------------------------------------------
 	switch( Parameters("INTERPOL")->asInt() )
 	{

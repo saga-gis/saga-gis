@@ -87,16 +87,23 @@ bool CSG_Grid::Assign(double Value)
 	{
 		if( Value == 0.0 && m_Memory_Type == GRID_MEMORY_Normal )
 		{
-			for(int n=0, m=_Get_nLineBytes(); n<Get_NY(); n++)
+			int	n	= _Get_nLineBytes();
+
+			#pragma omp parallel for
+			for(int y=0; y<Get_NY(); y++)
 			{
-				memset(m_Values[n], 0, m);
+				memset(m_Values[y], 0, n);
 			}
 		}
 		else
 		{
-			for(sLong n=0; n<Get_NCells(); n++)
+			#pragma omp parallel for
+			for(int y=0; y<Get_NY(); y++)
 			{
-				Set_Value(n, Value);
+				for(int x=0; x<Get_NX(); x++)
+				{
+					Set_Value(x, y, Value);
+				}
 			}
 		}
 

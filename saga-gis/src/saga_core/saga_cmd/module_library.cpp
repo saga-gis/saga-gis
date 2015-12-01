@@ -386,9 +386,16 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bInitialize)
 	}
 
 	//-----------------------------------------------------
-	int		i;
+	return( _Get_Options(pParameters, bInitialize)	// options might 'disable' some input, so check all options before the input is checked!
+		&&  _Get_Input  (pParameters)
+		&&  _Get_Options(pParameters, false)		// setting input might have reset some options, so check options one more time!
+	);
+}
 
-	for(i=0; i<pParameters->Get_Count(); i++)
+//---------------------------------------------------------
+bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
+{
+	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
@@ -554,10 +561,16 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bInitialize)
 		}
 	}
 
+	//-----------------------------------------------------
 	m_pModule->Update_Parameter_States();
 
-	//-----------------------------------------------------
-	for(i=0; i<pParameters->Get_Count(); i++)
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CCMD_Module::_Get_Input(CSG_Parameters *pParameters)
+{
+	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
@@ -668,6 +681,8 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 			pParameter->asList()->Add_Item(SG_Get_Data_Manager().Find(&FileName, false));
 		}
 		while( FileNames.Length() > 0 );
+
+		pParameter->has_Changed();
 	}
 
 	return( true );
