@@ -963,6 +963,8 @@ SAGA_API_DLL_EXPORT bool			SG_Dir_Exists				(const SG_Char *Directory);
 SAGA_API_DLL_EXPORT bool			SG_Dir_Create				(const SG_Char *Directory);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Current			(void);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Temp				(void);
+SAGA_API_DLL_EXPORT bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory);
+SAGA_API_DLL_EXPORT bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const SG_Char *Extension = NULL);
 
 SAGA_API_DLL_EXPORT bool			SG_File_Exists				(const SG_Char *FileName);
 SAGA_API_DLL_EXPORT bool			SG_File_Delete				(const SG_Char *FileName);

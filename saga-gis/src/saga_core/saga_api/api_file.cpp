@@ -65,6 +65,7 @@
 //---------------------------------------------------------
 #include <wx/utils.h>
 #include <wx/filename.h>
+#include <wx/dir.h>
 
 #include "api_core.h"
 
@@ -477,14 +478,67 @@ bool			SG_Dir_Create(const SG_Char *Directory)
 CSG_String		SG_Dir_Get_Current(void)
 {
 	wxString cwd = wxFileName::GetCwd();
+
 	return( CSG_String(&cwd) );
 }
 
 //---------------------------------------------------------
 CSG_String		SG_Dir_Get_Temp(void)
 {
-        wxString fname = wxFileName::GetTempDir();
+	wxString fname = wxFileName::GetTempDir();
+
 	return( CSG_String(&fname) );
+}
+
+//---------------------------------------------------------
+bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory)
+{
+	List.Clear();
+
+	wxDir	Dir;
+
+	if( Dir.Open(Directory.c_str()) )
+	{
+		wxString	FileName;
+
+		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_DIRS) )
+		{
+			do
+			{
+				List	+= CSG_String(&FileName);
+			}
+			while( Dir.GetNext(&FileName) );
+		}
+	}
+
+	return( List.Get_Count() > 0 );
+}
+
+//---------------------------------------------------------
+bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const SG_Char *Extension)
+{
+	List.Clear();
+
+	wxDir	Dir;
+
+	if( Dir.Open(Directory.c_str()) )
+	{
+		wxString	FileName;
+
+		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
+		{
+			do
+			{
+				if( !Extension || !*Extension || SG_File_Cmp_Extension(FileName, Extension) )
+				{
+					List	+= CSG_String(&FileName);
+				}
+			}
+			while( Dir.GetNext(&FileName) );
+		}
+	}
+
+	return( List.Get_Count() > 0 );
 }
 
 
