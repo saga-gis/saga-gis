@@ -82,12 +82,49 @@ class CGDAL_Catalogue : public CSG_Module
 public:
 	CGDAL_Catalogue(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid") );	}
+
 
 protected:
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
 
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGDAL_Catalogues : public CSG_Module
+{
+public:
+	CGDAL_Catalogues(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid") );	}
+
+
+protected:
+
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CSG_Strings					m_Extensions;
+
+	CSG_Parameter_Shapes_List	*m_pCatalogues;
+
+
+	CSG_Shapes *				Get_Catalogue			(const CSG_Projection &Projection);
+
+	int							Add_Directory			(const CSG_String &Directory);
+	int							Add_File				(const CSG_String &File);
 
 };
 

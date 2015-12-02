@@ -120,6 +120,7 @@ CSG_Module *		Create_Module(int i)
 	case  2:	return( new CGDAL_Export_GeoTIFF );
 
 	case  7:	return( new CGDAL_Catalogue );
+	case  8:	return( new CGDAL_Catalogues );
 
 	case  3:	return( new COGR_Import );
 	case  4:	return( new COGR_Export );

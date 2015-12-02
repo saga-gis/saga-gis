@@ -505,7 +505,7 @@ bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Director
 		{
 			do
 			{
-				List	+= CSG_String(&FileName);
+				List	+= SG_File_Make_Path(Directory, FileName);
 			}
 			while( Dir.GetNext(&FileName) );
 		}
@@ -531,7 +531,7 @@ bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, cons
 			{
 				if( !Extension || !*Extension || SG_File_Cmp_Extension(FileName, Extension) )
 				{
-					List	+= CSG_String(&FileName);
+					List	+= SG_File_Make_Path(Directory, FileName);
 				}
 			}
 			while( Dir.GetNext(&FileName) );
