@@ -70,7 +70,7 @@
 CGDAL_Catalogue::CGDAL_Catalogue(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Create Raster Catalogue"));
+	Set_Name	(_TL("Create Raster Catalogue from Files"));
 
 	Set_Author	("O.Conrad (c) 2015");
 
@@ -167,7 +167,7 @@ bool CGDAL_Catalogue::On_Execute(void)
 	{
 		CSG_String	Name	= SG_File_Get_Name(Files[i], true);
 
-		Process_Set_Text(CSG_String::Format("\n%s: %s", _TL("loading"), Name.c_str()));
+		Process_Set_Text(CSG_String::Format("\n%s: %s", _TL("analyzing"), Name.c_str()));
 
 		CSG_GDAL_DataSet	DataSet;
 
@@ -218,7 +218,7 @@ bool CGDAL_Catalogue::On_Execute(void)
 CGDAL_Catalogues::CGDAL_Catalogues(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Create Raster Catalogues"));
+	Set_Name	(_TL("Create Raster Catalogues from Directory"));
 
 	Set_Author	("O.Conrad (c) 2015");
 
@@ -259,21 +259,42 @@ CGDAL_Catalogues::CGDAL_Catalogues(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes_List(
-		NULL	, "CATALOGUES"	, _TL("Raster Catalogues"),
+		NULL	, "CATALOGUES"		, _TL("Raster Catalogues"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
+	Parameters.Add_Shapes(
+		NULL	, "CATALOGUE_GCS"	, _TL("Raster Catalogue"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "CATALOGUE_UKN"	, _TL("Raster Catalogue (unknown CRS)"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
+	);
+
 	Parameters.Add_FilePath(
-		NULL	, "DIRECTORY"	, _TL("Directory"),
+		NULL	, "DIRECTORY"		, _TL("Directory"),
 		_TL(""),
 		NULL, NULL, false, true
 	);
 
 	Parameters.Add_String(
-		NULL	, "EXTENSIONS"	, _TL("Extensions"),
+		NULL	, "EXTENSIONS"		, _TL("Extensions"),
 		_TL(""),
-		"sdat; tif"
+		"sgrd; tif"
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "OUTPUT"		, _TL("Output"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("one catalogue for each coordinate system"),
+			_TL("one catalogue using geographic coordinates")
+		), 1
 	);
 }
 
@@ -285,6 +306,13 @@ CGDAL_Catalogues::CGDAL_Catalogues(void)
 //---------------------------------------------------------
 int CGDAL_Catalogues::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OUTPUT") )
+	{
+		pParameters->Set_Enabled("CATALOGUES"   , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("CATALOGUE_GCS", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("CATALOGUE_UKN", pParameter->asInt() == 1);
+	}
+
 	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -315,6 +343,11 @@ bool CGDAL_Catalogues::On_Execute(void)
 	{
 		CSG_String	Extension	= Extensions.Get_Next_Token();	Extension.Trim(true);	Extension.Trim(false);
 
+		if( Extension.CmpNoCase("sgrd") == 0 )	// gdal ignores saga's grid header file, use grid data file instead!
+		{
+			Extension	= "sdat";
+		}
+
 		if( !Extension.is_Empty() )
 		{
 			m_Extensions	+= Extension;
@@ -331,22 +364,67 @@ bool CGDAL_Catalogues::On_Execute(void)
 
 	m_Extensions.Clear();
 
-	if( n > 0 )
+	if( n <= 0 )
 	{
-		Message_Add(CSG_String::Format("\n%s: %d\n", _TL("Number of raster files found in directory"), n), false);
+		Message_Add(CSG_String::Format("\n%s\n", _TL("No raster files have been found in directory.")));
 
-		return( true );
+		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s\n", _TL("No raster files have been found in directory.")));
+	Message_Add(CSG_String::Format("\n%s: %d\n", _TL("Number of raster files found in directory"), n), false);
 
-	return( false );
+	//-----------------------------------------------------
+	if( Parameters("OUTPUT")->asInt() == 1 )	// one catalogue using geographic coordinates
+	{
+		Get_Catalogue(CSG_Projection("+proj=longlat +datum=WGS84", SG_PROJ_FMT_Proj4),
+			Parameters("CATALOGUE_GCS")->asShapes(), _TL("Raster Catalogue")
+		);
+
+		Get_Catalogue(CSG_Projection(),
+			Parameters("CATALOGUE_UKN")->asShapes(), _TL("Raster Catalogue (unknown CRS)")
+		);
+
+		for(int i=m_pCatalogues->Get_Count()-1; i>=0 && Process_Get_Okay(true); i--)
+		{
+			CSG_Shapes	*pCatalogue	= m_pCatalogues->asShapes(i);
+
+			Add_To_Geographic(pCatalogue);
+
+			delete(pCatalogue);
+
+			m_pCatalogues->Del_Item(i);
+		}
+	}
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Shapes * CGDAL_Catalogues::Get_Catalogue(const CSG_Projection &Projection, CSG_Shapes *pCatalogue, const CSG_String &Name)
+{
+	if( pCatalogue )
+	{
+		pCatalogue->Create(SHAPE_TYPE_Polygon, Name);
+
+		pCatalogue->Add_Field("ID"      , SG_DATATYPE_Int   );
+		pCatalogue->Add_Field("NAME"    , SG_DATATYPE_String);
+		pCatalogue->Add_Field("FILE"    , SG_DATATYPE_String);
+		pCatalogue->Add_Field("CRS"     , SG_DATATYPE_String);
+		pCatalogue->Add_Field("BANDS"   , SG_DATATYPE_Int   );
+		pCatalogue->Add_Field("CELLSIZE", SG_DATATYPE_Double);
+		pCatalogue->Add_Field("ROWS"    , SG_DATATYPE_Int   );
+		pCatalogue->Add_Field("COLUMNS" , SG_DATATYPE_Int   );
+
+		pCatalogue->Get_Projection().Create(Projection);
+	}
+
+	return( pCatalogue );
+}
 
 //---------------------------------------------------------
 CSG_Shapes * CGDAL_Catalogues::Get_Catalogue(const CSG_Projection &Projection)
@@ -360,18 +438,7 @@ CSG_Shapes * CGDAL_Catalogues::Get_Catalogue(const CSG_Projection &Projection)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pCatalogue	= SG_Create_Shapes(SHAPE_TYPE_Polygon, CSG_String::Format("%s No.%d", _TL("Raster Catalogue"), 1 + m_pCatalogues->Get_Count()));
-
-	pCatalogue->Add_Field("ID"      , SG_DATATYPE_Int   );
-	pCatalogue->Add_Field("NAME"    , SG_DATATYPE_String);
-	pCatalogue->Add_Field("FILE"    , SG_DATATYPE_String);
-	pCatalogue->Add_Field("CRS"     , SG_DATATYPE_String);
-	pCatalogue->Add_Field("BANDS"   , SG_DATATYPE_Int   );
-	pCatalogue->Add_Field("CELLSIZE", SG_DATATYPE_Double);
-	pCatalogue->Add_Field("ROWS"    , SG_DATATYPE_Int   );
-	pCatalogue->Add_Field("COLUMNS" , SG_DATATYPE_Int   );
-
-	pCatalogue->Get_Projection().Create(Projection);
+	CSG_Shapes	*pCatalogue	= Get_Catalogue(Projection, SG_Create_Shapes(), CSG_String::Format("%s No.%d", _TL("Raster Catalogue"), 1 + m_pCatalogues->Get_Count()));
 
 	m_pCatalogues->Add_Item(pCatalogue);
 
@@ -390,7 +457,7 @@ int CGDAL_Catalogues::Add_Directory(const CSG_String &Directory)
 	{
 		if( SG_Dir_List_Files(List, Directory, m_Extensions[iExtension]) )
 		{
-			for(int i=0; i<List.Get_Count() && Process_Get_Okay(); i++)
+			for(int i=0; i<List.Get_Count() && Process_Get_Okay(true); i++)
 			{
 				n	+= Add_File(List[i]);
 			}
@@ -400,7 +467,7 @@ int CGDAL_Catalogues::Add_Directory(const CSG_String &Directory)
 	//-----------------------------------------------------
 	if( SG_Dir_List_Subdirectories(List, Directory) )
 	{
-		for(int i=0; i<List.Get_Count() && Process_Get_Okay(); i++)
+		for(int i=0; i<List.Get_Count() && Process_Get_Okay(true); i++)
 		{
 			n	+= Add_Directory(List[i]);
 		}
@@ -414,7 +481,7 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 {
 	CSG_String	Name	= SG_File_Get_Name(File, true);
 
-	Process_Set_Text(CSG_String::Format("\n%s: %s", _TL("loading"), Name.c_str()));
+	Process_Set_Text(CSG_String::Format("\n%s: %s", _TL("analyzing"), Name.c_str()));
 
 	//-----------------------------------------------------
 	CSG_GDAL_DataSet	DataSet;
@@ -437,9 +504,16 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 
 	CSG_Shape	*pEntry	= pCatalogue->Add_Shape();
 
+	CSG_String	Filename	= DataSet.Get_File_Name();
+
+	if( SG_File_Cmp_Extension(Filename, SG_T("sdat")) )
+	{
+		SG_File_Set_Extension(Filename, "sgrd");
+	}
+
 	pEntry->Set_Value(0, pCatalogue->Get_Count ());
 	pEntry->Set_Value(1, Name                    );
-	pEntry->Set_Value(2, DataSet.Get_File_Name ());
+	pEntry->Set_Value(2, Filename                );
 	pEntry->Set_Value(3, DataSet.Get_Projection());
 	pEntry->Set_Value(4, DataSet.Get_Count     ());
 	pEntry->Set_Value(5, System.Get_Cellsize   ());
@@ -453,6 +527,46 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 	pEntry->Add_Point(System.Get_XMin(), System.Get_YMin());
 
 	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGDAL_Catalogues::Add_To_Geographic(CSG_Shapes *pCatalogue)
+{
+	CSG_Shapes	Catalogue, *pTarget	= Parameters("CATALOGUE_UKN")->asShapes();
+
+	if( pCatalogue->Get_Projection().is_Okay() )
+	{
+		bool	bResult;
+
+		SG_RUN_MODULE(bResult, "pj_proj4", 2,
+				SG_MODULE_PARAMETER_SET("SOURCE"   , pCatalogue)
+			&&	SG_MODULE_PARAMETER_SET("TARGET"   , &Catalogue)
+			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", Parameters("CATALOGUE_GCS")->asShapes()->Get_Projection().Get_Proj4())
+		);
+
+		if( bResult )
+		{
+			pCatalogue	= &Catalogue;
+
+			pTarget	= Parameters("CATALOGUE_GCS")->asShapes();
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pTarget )
+	{
+		for(int i=0; i<pCatalogue->Get_Count(); i++)
+		{
+			pTarget->Add_Shape(pCatalogue->Get_Shape(i));
+		}
+	}
+
+	return( true );
 }
 
 

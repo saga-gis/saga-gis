@@ -131,9 +131,9 @@ bool COGR_Export_KML::On_Execute(void)
 		bool	bResult;
 
 		SG_RUN_MODULE(bResult, "pj_proj4", 2,
-				pModule->Get_Parameters()->Set_Parameter(SG_T("SOURCE"), pShapes)
-			&&	pModule->Get_Parameters()->Set_Parameter(SG_T("TARGET"), &Shapes)
-			&&	pModule->Get_Parameters()->Set_Parameter(SG_T("CRS_PROJ4"), SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+				SG_MODULE_PARAMETER_SET("SOURCE"   , pShapes)
+			&&	SG_MODULE_PARAMETER_SET("TARGET"   , &Shapes)
+			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 		);
 
 		if( bResult )

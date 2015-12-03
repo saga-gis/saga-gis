@@ -321,6 +321,11 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 
 	Destroy();
 
+	if( Projection.is_Empty() )
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	switch( Format )
 	{

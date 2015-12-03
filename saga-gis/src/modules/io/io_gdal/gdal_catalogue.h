@@ -121,10 +121,13 @@ private:
 	CSG_Parameter_Shapes_List	*m_pCatalogues;
 
 
+	CSG_Shapes *				Get_Catalogue			(const CSG_Projection &Projection, CSG_Shapes *pCatalogue, const CSG_String &Name);
 	CSG_Shapes *				Get_Catalogue			(const CSG_Projection &Projection);
 
 	int							Add_Directory			(const CSG_String &Directory);
 	int							Add_File				(const CSG_String &File);
+
+	bool						Add_To_Geographic		(CSG_Shapes *pCatalogue);
 
 };
 
