@@ -490,9 +490,12 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 //---------------------------------------------------------
 bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 {
-	return(	(!m_Authority.CmpNoCase(Projection.m_Authority) && m_Authority_ID == Projection.m_Authority_ID)
-		||	(!m_Proj4    .CmpNoCase(Projection.m_Proj4))
-	);
+	if( !m_Authority.is_Empty() && !Projection.m_Authority.is_Empty() )
+	{
+		return(	m_Authority.CmpNoCase(Projection.m_Authority) == 0 && m_Authority_ID == Projection.m_Authority_ID );
+	}
+
+	return( m_Proj4.CmpNoCase(Projection.m_Proj4) == 0 );
 }
 
 //---------------------------------------------------------
