@@ -311,8 +311,8 @@ public:
 
 	//-----------------------------------------------------
 	size_t							Get_Selection_Count	(void)				const	{	return( m_Selection.Get_Size() );	}
-	size_t							Get_Selection_Index	(size_t Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? *((size_t *)m_Selection.Get_Entry(Index)) : m_Selection.Get_Size() );	}
-	virtual CSG_Table_Record *		Get_Selection		(size_t Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? Get_Record(Get_Selection_Index(Index)) : NULL );	}
+	size_t							Get_Selection_Index	(size_t Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? *((size_t *)m_Selection.Get_Entry(Index)) : (size_t)Get_Count() );	}
+	virtual CSG_Table_Record *		Get_Selection		(size_t Index = 0)	const	{	return( Index < m_Selection.Get_Size() ? Get_Record((int)Get_Selection_Index(Index)) : NULL );	}
 
 	virtual bool					is_Selected			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord]->is_Selected() : false );	}
 
