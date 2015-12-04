@@ -137,7 +137,7 @@ bool		SG_UI_Process_Get_Okay(bool bBlink)
 {
 	if( gSG_UI_Callback )
 	{
-		CSG_UI_Parameter	p1(gSG_UI_Progress_Lock && bBlink), p2;
+		CSG_UI_Parameter	p1(gSG_UI_Progress_Lock == 0 && bBlink), p2;
 
 		return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, p1, p2) != 0 );
 	}

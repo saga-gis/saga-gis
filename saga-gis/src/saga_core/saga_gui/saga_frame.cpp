@@ -744,7 +744,7 @@ bool CSAGA_Frame::Process_Set_Okay(bool bOkay)
 {
 	StatusBar_Set_Text(_TL("ready"));
 
-	ProgressBar_Set_Position(-1);
+	m_pProgressBar->SetValue(0);
 
 	g_pSAGA->Process_Set_Okay(bOkay);
 
