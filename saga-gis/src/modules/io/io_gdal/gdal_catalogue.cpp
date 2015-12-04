@@ -415,6 +415,7 @@ CSG_Shapes * CGDAL_Catalogues::Get_Catalogue(const CSG_Projection &Projection, C
 		pCatalogue->Add_Field("NAME"    , SG_DATATYPE_String);
 		pCatalogue->Add_Field("FILE"    , SG_DATATYPE_String);
 		pCatalogue->Add_Field("CRS"     , SG_DATATYPE_String);
+		pCatalogue->Add_Field("PROJ4"   , SG_DATATYPE_String);
 		pCatalogue->Add_Field("BANDS"   , SG_DATATYPE_Int   );
 		pCatalogue->Add_Field("CELLSIZE", SG_DATATYPE_Double);
 		pCatalogue->Add_Field("ROWS"    , SG_DATATYPE_Int   );
@@ -492,7 +493,9 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pCatalogue	= Get_Catalogue(CSG_Projection(DataSet.Get_Projection(), SG_PROJ_FMT_WKT));
+	CSG_Projection	Projection(DataSet.Get_Projection(), SG_PROJ_FMT_WKT);
+
+	CSG_Shapes	*pCatalogue	= Get_Catalogue(Projection);
 
 	if( !pCatalogue )
 	{
@@ -515,10 +518,11 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 	pEntry->Set_Value(1, Name                    );
 	pEntry->Set_Value(2, Filename                );
 	pEntry->Set_Value(3, DataSet.Get_Projection());
-	pEntry->Set_Value(4, DataSet.Get_Count     ());
-	pEntry->Set_Value(5, System.Get_Cellsize   ());
-	pEntry->Set_Value(6, System.Get_NX         ());
-	pEntry->Set_Value(7, System.Get_NY         ());
+	pEntry->Set_Value(4, Projection.Get_Proj4  ());
+	pEntry->Set_Value(5, DataSet.Get_Count     ());
+	pEntry->Set_Value(6, System.Get_Cellsize   ());
+	pEntry->Set_Value(7, System.Get_NX         ());
+	pEntry->Set_Value(8, System.Get_NY         ());
 
 	pEntry->Add_Point(System.Get_XMin(), System.Get_YMin());
 	pEntry->Add_Point(System.Get_XMin(), System.Get_YMax());
