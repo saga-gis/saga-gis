@@ -338,13 +338,11 @@ bool CWKSP_Data_Item::DataObject_Changed(void)
 }
 
 //---------------------------------------------------------
-#include "wksp_grid.h"
-
 bool CWKSP_Data_Item::DataObject_Changed(CSG_Parameters *pParameters)
 {
-	if( !pParameters && Get_Type() == WKSP_ITEM_Grid )
+	if( !pParameters )
 	{
-		return( ((CWKSP_Grid *)this)->Fit_Color_Range() );
+		Fit_Colors();
 	}
 
 	m_Parameters.Assign_Values(pParameters);

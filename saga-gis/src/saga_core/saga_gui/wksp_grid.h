@@ -101,7 +101,6 @@ public:
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
-	bool						Fit_Color_Range			(void);
 	bool						Fit_Color_Range			(CSG_Rect rWorld);
 
 	virtual bool				asImage					(CSG_Grid *pImage);
@@ -124,6 +123,8 @@ protected:
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
+
+	virtual bool				Fit_Colors				(void);
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
 

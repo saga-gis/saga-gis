@@ -125,6 +125,8 @@ protected:
 	virtual void					On_DataObject_Changed	(void);
 	virtual void					On_Update_Views			(bool bAll)	{}
 
+	virtual bool					Fit_Colors				(void)	{	return( true );	}
+
 	bool							Add_ScatterPlot			(void);
 
 

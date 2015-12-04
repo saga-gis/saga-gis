@@ -101,7 +101,7 @@ CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 
 	DataObject_Changed();
 
-	Fit_Color_Range();
+	Fit_Colors();
 }
 
 
@@ -1120,7 +1120,7 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Fit_Color_Range(void)
+bool CWKSP_Grid::Fit_Colors(void)
 {
 	switch( g_pData->Get_Parameter("GRID_COLORS_FIT")->asInt() )
 	{

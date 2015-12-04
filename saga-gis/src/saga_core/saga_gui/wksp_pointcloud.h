@@ -110,10 +110,24 @@ public:
 	virtual wxMenu *			Edit_Get_Menu			(void);
 	virtual TSG_Rect			Edit_Get_Extent			(void);
 	virtual bool				Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				Edit_Set_Index			(int Index);
 	virtual bool				Edit_Set_Attributes		(void);
 
 
 protected:
+
+	virtual void				On_Create_Parameters	(void);
+	virtual void				On_DataObject_Changed	(void);
+	virtual void				On_Parameters_Changed	(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
+	virtual void				On_Update_Views			(void);
+
+	virtual bool				Fit_Colors				(void);
+
+	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
+
+
+private:
 
 	int							m_Color_Field, m_PointSize, m_Aggregation;
 
@@ -124,15 +138,7 @@ protected:
 	class CWKSP_Table			*m_pTable;
 
 
-	virtual void				On_Create_Parameters	(void);
-	virtual void				On_DataObject_Changed	(void);
-	virtual void				On_Parameters_Changed	(void);
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
-	virtual void				On_Update_Views			(void);
-
 	void						_LUT_Create				(void);
-
-	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
 
 	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color);
 	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius);

@@ -740,7 +740,11 @@ void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
 		wxMenu	Menu;
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_APP);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_DATA);
+
+		if( GetCellValue(event.GetRow(), event.GetCol()).Find("PGSQL:") == 0 || wxFileExists(GetCellValue(event.GetRow(), event.GetCol())) )
+		{
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_DATA);
+		}
 
 		PopupMenu(&Menu, event.GetPosition());
 	}

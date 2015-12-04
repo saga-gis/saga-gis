@@ -683,6 +683,7 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 				break;
 
 			case WKSP_ITEM_Grid:
+			case WKSP_ITEM_PointCloud:
 				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
 				break;
 
