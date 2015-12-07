@@ -422,8 +422,8 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 //---------------------------------------------------------
 inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
-	dc_Map.dc.SetBrush	(m_Brush);
-	dc_Map.dc.SetPen	(m_Pen);
+	dc_Map.dc.SetBrush(m_Brush);
+	dc_Map.dc.SetPen  (m_Pen  );
 
 	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
 }
@@ -432,87 +432,87 @@ inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection)
 {
 	//-----------------------------------------------------
+	if( m_Brush.IsTransparent() && !m_bOutline && !Selection )
+	{
+		return( false );	// nothing to draw !
+	}
+
+	//-----------------------------------------------------
 	double	dSize;
 
 	if( m_iSize < 0 )	// default size
 	{
 		dSize	= m_Size;
 	}
-	else				// size by attribute
+	else				// size by attribute value
 	{
-		if( m_Size_Scale == 0 )	// take value as is
+		dSize	= pShape->asDouble(m_iSize);
+
+		if( m_Size_Scale != 0 )	// scale to size range
 		{
-			dSize	= pShape->asDouble(m_iSize);
-		}
-		else					// scale to size range
-		{
-			dSize	= (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize + m_Size;
+			dSize	= (dSize - m_Size_Min) * m_dSize + m_Size;
 		}
 	}
 
 	switch( m_Size_Type )
 	{
-	default:
-	case 0:	dSize	*= dc_Map.m_Scale;		break;
-	case 1:	dSize	*= dc_Map.m_World2DC;	break;
+	default:	dSize	*= dc_Map.m_Scale;		break;
+	case  1:	dSize	*= dc_Map.m_World2DC;	break;
 	}
 
 	Size	= (int)(0.5 + dSize);
 
-	//-----------------------------------------------------
-	if( Size > 0 )
+	if( Size <= 0 )
 	{
-		if( Selection )
-		{
-			dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill	, wxSOLID));
-			dc_Map.dc.SetPen  (wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxSOLID));
-		}
-		else
-		{
-			int		Color;
-
-			if( Get_Class_Color(pShape, Color) )
-			{
-				wxBrush	Brush(m_Brush);
-				Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-				dc_Map.dc.SetBrush(Brush);
-
-				if( !m_bOutline )
-				{
-					wxPen	Pen(m_Pen);
-					Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-					dc_Map.dc.SetPen(Pen);
-				}
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	int	Color;
+
+	if( Selection )
+	{
+		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, wxSOLID));
+		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxSOLID));
+	}
+	else if( Get_Class_Color(pShape, Color) )
+	{
+		if( !m_Brush.IsTransparent() )
+		{
+			wxBrush	Brush(m_Brush);	Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+
+			dc_Map.dc.SetBrush(Brush);
+		}
+
+		if( !m_bOutline )
+		{
+			wxPen	Pen  (m_Pen  );	Pen  .SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+
+			dc_Map.dc.SetPen(Pen);
+		}
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	if( m_iSize >= 0 && pShape->is_NoData(m_iSize) )
+	if( m_iSize < 0 || !pShape->is_NoData(m_iSize) )
 	{
-		return;
-	}
+		int		Size;
 
-	//-----------------------------------------------------
-	int		Size;
-
-	if( Draw_Initialize(dc_Map, Size, pShape, Selection) )
-	{
-		TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
-
-		Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
-
-		//-------------------------------------------------
-		if( Selection )
+		if( Draw_Initialize(dc_Map, Size, pShape, Selection) )
 		{
-			Draw_Initialize(dc_Map);
+			TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
+
+			Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
+
+			if( Selection )
+			{
+				dc_Map.dc.SetBrush(m_Brush);
+				dc_Map.dc.SetPen  (m_Pen  );
+			}
 		}
 	}
 }

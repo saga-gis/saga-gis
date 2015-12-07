@@ -211,20 +211,30 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	if( Selection )
 	{
 		dc_Map.dc.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], wxSOLID));
-		dc_Map.dc.SetPen(wxPen(m_Sel_Color, 0, wxSOLID));
+		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, 0, wxSOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 
 		dc_Map.dc.SetBrush(m_Brush);
-		dc_Map.dc.SetPen(m_Pen);
+		dc_Map.dc.SetPen  (m_Pen  );
+
+		return;
 	}
-	else if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
+
+	//-----------------------------------------------------
+	if( m_Brush.IsTransparent() && !m_bOutline )
+	{
+		return;	// nothing to draw !
+	}
+
+	//-----------------------------------------------------
+	if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
 	{
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 	}
 	else if( m_iColor >= 0 && (m_pClassify->Get_Mode() != CLASSIFY_METRIC || !pShape->is_NoData(m_iColor)) )
 	{
-		int		Color;
+		int	Color;
 
 		if( Get_Class_Color(pShape, Color) )
 		{
@@ -241,6 +251,7 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 		}
 	}
 
+	//-----------------------------------------------------
 	if( m_bCentroid )
 	{
 		TSG_Point	Point	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
