@@ -223,6 +223,16 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	);
 
 	//-----------------------------------------------------
+	m_Parameters.Add_Choice(
+		pNode	, "OVERVIEW_ATTR"	, _TL("Overview Content"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("average value"),
+			_TL("number of points")
+		), 0
+	);
+
+	//-----------------------------------------------------
 	m_Extent	= pPoints->Get_Extent();
 
 	m_Selection.Create(sizeof(int), 0, SG_ARRAY_GROWTH_2);
@@ -500,19 +510,25 @@ public:
 		//-------------------------------------------------
 		m_Ratio	= pPoints->Get_Extent().Get_XRange() / pPoints->Get_Extent().Get_YRange();
 
-		m_Count.Create(CSG_Grid_System(m_Ratio > 1.0
+		CSG_Grid_System	System(m_Ratio > 1.0
 			? pPoints->Get_Extent().Get_XRange() / 100.0
 			: pPoints->Get_Extent().Get_YRange() / 100.0,
-			pPoints->Get_Extent()), SG_DATATYPE_Int
+			pPoints->Get_Extent()
 		);
+
+		m_Count.Create(System, SG_DATATYPE_Int);
+		m_Value.Create(System, SG_DATATYPE_Double);
 
 		for(int i=0, x, y; i<pPoints->Get_Count(); i++)
 		{
 			if( m_Count.Get_System().Get_World_to_Grid(x, y, pPoints->Get_X(i), pPoints->Get_Y(i)) ) // && m_Count.is_InGrid(x, y, false) )
 			{
 				m_Count.Add_Value(x, y, 1);
+				m_Value.Add_Value(x, y, pPoints->Get_Z(i));
 			}
 		}
+
+		m_Value.Divide(m_Count);
 
 		int	Size	= GetClientSize().GetWidth();
 
@@ -525,6 +541,8 @@ public:
 
 private:
 
+	bool						m_bCount;
+
 	double						m_Ratio;
 
 	wxPoint						m_Mouse_Down, m_Mouse_Move;
@@ -533,7 +551,7 @@ private:
 
 	wxImage						m_Image;
 
-	CSG_Grid					m_Count;
+	CSG_Grid					m_Count, m_Value;
 
 	C3D_Viewer_PointCloud_Panel	*m_pPanel;
 
@@ -608,6 +626,11 @@ private:
 		case WXK_PAGEDOWN:
 			Set_Size(GetClientSize().GetWidth() / 1.25, GetClientSize().GetHeight() / 1.25, true);
 			break;
+
+		case WXK_SPACE:
+			m_pPanel->m_Parameters("OVERVIEW_ATTR")->Set_Value(m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() ? 0 : 1);
+			Set_Image(true);
+			break;
 		}
 	}
 
@@ -668,26 +691,48 @@ private:
 
 		if( !m_Image.IsOk() || m_Image.GetWidth() != Width )
 		{
-			CSG_Colors	Colors(7, SG_COLORS_RAINBOW);
-			Colors.Set_Color(0, m_pPanel->m_Parameters("BGCOLOR")->asColor());
-			Colors.Set_Count(100);
-
-			double	dCount	= (Colors.Get_Count() - 2.0) / log(1.0 + m_Count.Get_ZMax());
-			double	dx		= m_Count.Get_XRange() / (double)Width ;
-			double	dy		= m_Count.Get_YRange() / (double)Height;
-
 			m_Image.Create(Width, Height, false);
+
+			Set_Image(bRefresh);
+		}
+	}
+
+	//---------------------------------------------------------
+	void						Set_Image		(bool bRefresh)
+	{
+		if( m_Image.IsOk() && m_Count.is_Valid() )
+		{
+			bool	bCount	= m_pPanel->m_Parameters("OVERVIEW_ATTR")->asInt() == 1;
+
+			CSG_Colors	Colors(11, SG_COLORS_RAINBOW);	Colors.Set_Color(0, m_pPanel->m_Parameters("BGCOLOR")->asColor());
+
+			double	dx	= m_Count.Get_XRange() / (double)m_Image.GetWidth ();
+			double	dy	= m_Count.Get_YRange() / (double)m_Image.GetHeight();
+			double	dz	= (Colors.Get_Count() - 2.0) / (bCount ? log(1.0 + m_Count.Get_ZMax()) : 4.0 * m_Value.Get_StdDev());
 
 			#pragma omp parallel for
 			for(int y=0; y<m_Image.GetHeight(); y++)
 			{
-				double	Count, ix = m_Count.Get_XMin(), iy = m_Count.Get_YMax() - y * dy;
+				double	iz, ix = m_Count.Get_XMin(), iy = m_Count.Get_YMax() - y * dy;
 
 				for(int x=0; x<m_Image.GetWidth(); x++, ix+=dx)
 				{
-					int	i	= m_Count.Get_Value(ix, iy, Count) && Count > 0.0 ? (int)(log(1.0 + Count) * dCount) : 0;
+					if( bCount )
+					{
+						iz	= dz * (m_Count.Get_Value(ix, iy, iz) && iz > 0.0 ? log(1.0 + iz) : 0.0);
+					}
+					else if( m_Value.Get_Value(ix, iy, iz) )
+					{
+						iz	= dz * (iz - (m_Value.Get_Mean() - 2.0 * m_Value.Get_StdDev()));
+					}
+					else
+					{
+						iz	= 0.0;
+					}
 
-					m_Image.SetRGB(x, y, Colors.Get_Red(i), Colors.Get_Green(i), Colors.Get_Blue(i));
+					int	ic	= Colors.Get_Interpolated(iz);
+
+					m_Image.SetRGB(x, y, SG_GET_R(ic), SG_GET_G(ic), SG_GET_B(ic));
 				}
 			}
 		}
