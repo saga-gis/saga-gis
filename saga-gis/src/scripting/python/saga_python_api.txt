@@ -1,0 +1,8 @@
+SAGA API - Python Interface
+* MS-Windows Installation *
+
+In order to use the Python interface for the SAGA API you have to extract the files of this archive to the 'site-packages' folder of your Python installation. You also have to make sure that the dynamic link library 'saga_api.dll' can be located by your Python interpreter, either by adding the directory of your SAGA installation to the PATH environment variable or by copying the library to a standard DLL search path (e.g. 'C:\Windows\system32').
+
+
+Important Note:
+For some reason the Python interpreter seems to work only with dynamic link libraries, if these have been compiled with the same compiler version that has been used for the Python interpreter compilation itself. The Python library interfacing the SAGA API, which you find in this archive, has been compiled using Python v2.7 for Win32, which should be compatible with ArcGIS 10. If you want to use a different Python version or a different compiler for the SAGA compilation, you have to ensure that both (Python and SAGA) have been compiled with the same C++ compiler. If this is true you have in a second step to compile the SAGA API Python interface to generate the files you find in this archive. The batch file 'saga_api_to_python.bat' (find it among the SAGA-API sources) will help you doing the latter.

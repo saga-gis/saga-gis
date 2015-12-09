@@ -9,8 +9,6 @@ def grid_contour(fGrid, fLines):
         print 'ERROR: loading grid [' + fGrid + ']'
         return 0
     
-    Lines   = saga_api.SG_Get_Data_Manager().Add_Shapes()
-
     # ------------------------------------
     if os.name == 'nt':    # Windows
         saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/modules/shapes_grid.dll')
@@ -19,9 +17,7 @@ def grid_contour(fGrid, fLines):
 
     m      = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('shapes_grid'), 5) # 'Contour Lines from Grid'
     p      = m.Get_Parameters()
-    p.Get_Grid_System().Assign(Grid.Get_System()) # module needs to use conformant grid system!
     p(saga_api.CSG_String('GRID'   )).Set_Value(Grid)
-    p(saga_api.CSG_String('CONTOUR')).Set_Value(Lines)
     p(saga_api.CSG_String('ZSTEP'  )).Set_Value(25.0)
 
     if m.Execute() == 0:
@@ -29,6 +25,7 @@ def grid_contour(fGrid, fLines):
         return 0
 
     # ------------------------------------
+    Lines = p(saga_api.CSG_String('CONTOUR')).asShapes()
     Lines.Save(saga_api.CSG_String(fLines))
     
     print 'success'
@@ -44,7 +41,7 @@ if __name__ == '__main__':
         print 'Usage: grid_contour.py <in: grid> <out: contour>'
         print '... trying to run with test_data'
         fGrid   = './test.sgrd'
-        fLines  = './test_contours'
+        fLines  = './test_contours.shp'
     else:
         fGrid   = sys.argv[1]
         if os.path.split(fGrid)[0] == '':

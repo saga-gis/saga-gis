@@ -79,12 +79,12 @@ if __name__ == '__main__':
         if os.path.split(fDEM)[0] == '':
             fDEM    = './' + fDEM
 
-    saga_api.SG_UI_Msg_Lock(1)
+    saga_api.SG_UI_Msg_Lock(True)
     if os.name == 'nt':    # Windows
         os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA_32'] + '/dll'
-        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_32' ] + '/modules', 0)
+        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_32' ] + '/modules', False)
     else:                  # Linux
-        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)
-    saga_api.SG_UI_Msg_Lock(0)
+        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], False)
+    saga_api.SG_UI_Msg_Lock(False)
 
     morphometry(fDEM)
