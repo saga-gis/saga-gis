@@ -79,26 +79,22 @@ CTL_Union::CTL_Union(void)
 	Set_Description	(SG_T(""));
 
 	//-----------------------------------------------------
-	CSG_String	Filter;
-	
-	Filter.Printf(SG_T("%s|*.lng;*.txt|%s|*.lng|%s|*.txt|%s|*.*"),
-		SG_T("All recognized Files"),
-		SG_T("SAGA Translation File (*.lng)"),
-		SG_T("Text Files (*.txt)"),
-		SG_T("All Files")
+	Parameters.Add_Table(
+		NULL	, "MASTER"		, SG_T("Translations"),
+		SG_T(""),
+		PARAMETER_INPUT
 	);
 
-	//-----------------------------------------------------
 	Parameters.Add_Table(
-		NULL	, "TARGET"		, SG_T("Translation Table"),
+		NULL	, "IMPORT"		, SG_T("Import Translations"),
+		SG_T(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table(
+		NULL	, "UNION"		, SG_T("Merged Translations"),
 		SG_T(""),
 		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, SG_T("Existing Translations"),
-		SG_T(""),
-		Filter, NULL
 	);
 
 	Parameters.Add_Choice(
@@ -121,50 +117,50 @@ CTL_Union::CTL_Union(void)
 //---------------------------------------------------------
 bool CTL_Union::On_Execute(void)
 {
-	int				Method;
-	CSG_String		File, Translation;
+	//-----------------------------------------------------
 	CSG_Translator	Translator;
-	CSG_Table		*pTarget;
 
-	//-----------------------------------------------------
-	pTarget	= Parameters("TARGET")	->asTable();
-	File	= Parameters("FILE")	->asString();
-	Method	= Parameters("METHOD")	->asInt();
-
-	//-----------------------------------------------------
-	if( pTarget->Get_Count() < 1 || pTarget->Get_Field_Count() < 2 )
+	if( !Translator.Create(Parameters("IMPORT")->asTable(), false) )
 	{
-		Error_Set(SG_T("invalid target table"));
+		Error_Set(SG_T("failed to load import translations"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( !Translator.Create(File, false) )
+	CSG_Table	*pTable	= Parameters("UNION")->asTable();
+
+	pTable->Create(*Parameters("MASTER")->asTable());
+
+	if( pTable->Get_Count() < 1 || pTable->Get_Field_Count() < 2 )
 	{
-		Error_Set(SG_T("failed to load translation file"));
+		Error_Set(SG_T("invalid master table"));
 
 		return( false );
 	}
 
+	int	Method	= Parameters("METHOD")->asInt();
+
 	//-----------------------------------------------------
-	for(int i=0; i<pTarget->Get_Count() && Set_Progress(i, pTarget->Get_Count()); i++)
+	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
-		CSG_Table_Record	*pRecord	= pTarget->Get_Record(i);
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+
+		CSG_String	Translation;
 
 		switch( Method )
 		{
-		case 0: default:	// replace all
+		default:	// replace all
 			if( Translator.Get_Translation(pRecord->asString(0), Translation) )
 			{
 				pRecord->Set_Value(1, Translation);
 			}
 			break;
 
-		case 1:				// only add to empty entries
+		case  1:	// only add to empty entries
 			Translation	= pRecord->asString(1);
 
-			if( Translation.Length() == 0 && Translator.Get_Translation(pRecord->asString(0), Translation) )
+			if( Translation.is_Empty() && Translator.Get_Translation(pRecord->asString(0), Translation) )
 			{
 				pRecord->Set_Value(1, Translation);
 			}

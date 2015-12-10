@@ -2,16 +2,56 @@
 
 REM ___________________________________
 SET SAGA_VERSION=saga_2.2.3
+SET SVN__VERSION=2-2-3
+
 SET SAGA_ROOT=D:\saga\saga-code\trunk
 
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
 SET ISETUP="C:\Program Files (x86)\Inno Setup 5\ISCC.exe"
 SET SVNEXE=svn
-SET SVNVER=2-2-3
 SET DOXEXE=doxygen.exe
 SET SWIGEXE="D:\libs\swigwin-3.0.7\swig.exe"
 SET PYTHONDIR=D:\libs\Python-2.7
 SET PYTHONVER=27
+
+
+REM ___________________________________
+REM ###################################
+REM PRE-RELEASE STEPS
+REM ###################################
+
+ECHO __________________________________
+ECHO ##################################
+ECHO #
+ECHO # MAKE SAGA RELEASE: %SVN__VERSION%
+ECHO #
+ECHO ##################################
+ECHO.
+ECHO Things you should have updated before:
+ECHO - ArcSAGA Tools
+ECHO - Translation Files
+ECHO.
+ECHO Enter 'y' to continue!
+SET /P CONTINUE=
+IF '%CONTINUE%' == 'y' GOTO CONTINUE
+EXIT
+:CONTINUE
+PAUSE
+
+REM ___________________________________
+REM Create a branch
+REM %SVNEXE% copy svn://svn.code.sf.net/p/saga-gis/code-0/trunk svn://svn.code.sf.net/p/saga-gis/code-0/branches/release-%SVN__VERSION% -m "branch release-%SVN__VERSION% created from trunk"
+
+REM ___________________________________
+REM Update saga_cmd parameter interface configuration
+SET SAGA_TOOLS_PY=%SAGA_ROOT%\src\scripting\python\helpers\saga_cmd_param_interface\tools.py
+"%SAGA_ROOT%\bin\saga_vc_Win32\saga_cmd.exe" dev_tools 6 -INPUT="%SAGA_TOOLS_PY%" -OUTPUT="%SAGA_TOOLS_PY%"
+
+
+REM ___________________________________
+REM ###################################
+REM MAKE RELEASE
+REM ###################################
 
 REM ___________________________________
 MKDIR "%SAGA_VERSION%"
@@ -92,7 +132,43 @@ REM The End
 RMDIR /S/Q %SAGA_VERSION%_src
 POPD
 
-REM %SVNEXE% copy svn://svn.code.sf.net/p/saga-gis/code-0/trunk svn://svn.code.sf.net/p/saga-gis/code-0/branches/release-%SVNVER% -m "branch release-%SVNVER% created from trunk"
-REM %SVNEXE% copy https://svn.code.sf.net/p/saga-gis/code-0/trunk https://svn.code.sf.net/p/saga-gis/code-0/branches/release-%SVNVER% -m "branch release-%SVNVER% created from trunk"
+
+REM ___________________________________
+REM ###################################
+REM POST-RELEASE STEPS
+REM ###################################
+
+ECHO __________________________________
+ECHO ##################################
+ECHO #
+ECHO # What is left to do ?!
+ECHO #
+ECHO ##################################
+ECHO.
+ECHO - Don't forget to make the Linux tarball!
+ECHO.    make dist
+ECHO.
+ECHO - Upload all release files
+ECHO.    including an up-to-date 'readme.txt'
+ECHO.
+ECHO - Upload API Documentation to saga-gis.org
+ECHO.
+ECHO - Update version numbers in:
+ECHO.    ./saga_setup_win32.iss
+ECHO.    ./saga_setup_x64.iss
+ECHO.    ./saga_api_Doxyfile
+ECHO.    ./saga-gis/configure.ac
+ECHO.    ./saga-gis/README
+ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
+ECHO.    ./saga-gis/src/scripting/helper/make_saga_release.bat (this file!)
+ECHO.
+ECHO - Create SAGA Module Reference Documentation
+ECHO.    sagadoc-code: ./parse_modules.py
+ECHO.    upload created version folder to saga-gis.org and update link
+ECHO.
+ECHO - Add new bug tracker milestone for next version
+ECHO.    https://sourceforge.net/p/saga-gis/bugs/milestones
+ECHO.
+ECHO - Commit a comment like: SAGA version updated to %SVN__VERSION%
 
 PAUSE
