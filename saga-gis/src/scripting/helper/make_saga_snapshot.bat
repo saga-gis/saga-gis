@@ -1,14 +1,16 @@
 @ECHO OFF
 
 REM ___________________________________
-SET SAGA_VERSION=saga_2.2.3_20151209
+ECHO Enter version number:
+SET /P VERSION=
+ECHO.
+ECHO Enter date of snapshot:
+SET /P DATUM=
+
+SET SAGA_VERSION=saga_%VERSION%_%DATUM%
 SET SAGA_ROOT=D:\saga\saga-code\trunk
 
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
-
-REM ___________________________________
-REM MKDIR "%SAGA_VERSION%"
-REM PUSHD "%SAGA_VERSION%"
 
 REM ___________________________________
 REM win32 Binaries
@@ -21,6 +23,7 @@ RMDIR /S/Q _private
 POPD
 
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
+RMDIR /S/Q "%SAGA_VERSION%_%SAGA_CONFIG%"
 
 REM ___________________________________
 REM x64 Binaries
@@ -33,9 +36,7 @@ RMDIR /S/Q _private
 POPD
 
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
+RMDIR /S/Q "%SAGA_VERSION%_%SAGA_CONFIG%"
 
 REM ___________________________________
-REM The End
-REM POPD
-
 REM PAUSE
