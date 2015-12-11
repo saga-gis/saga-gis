@@ -71,6 +71,7 @@
 #include <wx/toolbar.h>
 #include <wx/tipdlg.h>
 #include <wx/aui/aui.h>
+#include <wx/display.h>
 
 #include <saga_api/saga_api.h>
 
@@ -313,38 +314,43 @@ CSAGA_Frame::CSAGA_Frame(void)
 
 	wxString	s;
 
-	if( CONFIG_Read(wxT("/FL"), wxT("MANAGER"), s) )
+	if( CONFIG_Read("/FL", "MANAGER", s) )
 	{
 		m_pLayout->LoadPerspective(s);
 	}
 
 	_Bar_Show(m_pTB_Main, true);
 
-	//-----------------------------------------------------
 	m_pLayout->Update();
 
-#if !defined(_SAGA_LINUX)
-	Show(true);
-#endif
-
-	int		x, y, dx, dy;
+	//-----------------------------------------------------
 	long	l;
+	wxRect	r, rDefault	= wxGetClientDisplayRect();
 
-	x	= CONFIG_Read(wxT("/FL"), wxT("X" ), l) ? l : -1;
-	y	= CONFIG_Read(wxT("/FL"), wxT("Y" ), l) ? l : -1;
-	dx	= CONFIG_Read(wxT("/FL"), wxT("DX"), l) ? l : 800;
-	dy	= CONFIG_Read(wxT("/FL"), wxT("DY"), l) ? l : 600;
+	rDefault.Deflate((int)(0.1 * rDefault.GetWidth()), (int)(0.1 * rDefault.GetHeight()));
 
-	SetSize(x, y, dx, dy);
+	r.SetLeft  (CONFIG_Read("/FL", "X" , l) ? l : rDefault.GetLeft  ());
+	r.SetTop   (CONFIG_Read("/FL", "Y" , l) ? l : rDefault.GetTop   ());
+	r.SetWidth (CONFIG_Read("/FL", "DX", l) ? l : rDefault.GetWidth ());
+	r.SetHeight(CONFIG_Read("/FL", "DY", l) ? l : rDefault.GetHeight());
 
-	if( !(CONFIG_Read(wxT("/FL"), wxT("STATE"), l) && l == 0) )
+	if( wxDisplay::GetFromPoint(r.GetTopLeft    ()) == wxNOT_FOUND
+	&&  wxDisplay::GetFromPoint(r.GetTopRight   ()) == wxNOT_FOUND
+	&&  wxDisplay::GetFromPoint(r.GetBottomLeft ()) == wxNOT_FOUND
+	&&  wxDisplay::GetFromPoint(r.GetBottomRight()) == wxNOT_FOUND	)
+	{
+		r	= rDefault;
+	}
+
+	SetSize(r);
+
+	if( !(CONFIG_Read("/FL", "STATE", l) && l == 0) )
 	{
 		Maximize();
 	}
 
-#if defined(_SAGA_LINUX)
+	//-----------------------------------------------------
 	Show(true);
-#endif
 
 	Update();
 
@@ -363,19 +369,20 @@ CSAGA_Frame::~CSAGA_Frame(void)
 
 	if( IsMaximized() )
 	{
-		CONFIG_Write(wxT("/FL"), wxT("STATE"), (long)1);
+		CONFIG_Write("/FL", "STATE", (long)1);
 	}
 	else
 	{
-		CONFIG_Write(wxT("/FL"), wxT("STATE"), (long)0);
-		CONFIG_Write(wxT("/FL"), wxT("X"    ), (long)GetPosition().x);
-		CONFIG_Write(wxT("/FL"), wxT("Y"    ), (long)GetPosition().y);
-		CONFIG_Write(wxT("/FL"), wxT("DX"   ), (long)GetSize().x);
-		CONFIG_Write(wxT("/FL"), wxT("DY"   ), (long)GetSize().y);
+		CONFIG_Write("/FL", "STATE", (long)0);
+
+		CONFIG_Write("/FL", "X"    , (long)GetPosition().x);
+		CONFIG_Write("/FL", "Y"    , (long)GetPosition().y);
+		CONFIG_Write("/FL", "DX"   , (long)GetSize    ().x);
+		CONFIG_Write("/FL", "DY"   , (long)GetSize    ().y);
 	}
 
 	//-----------------------------------------------------
-	CONFIG_Write(wxT("/FL"), wxT("MANAGER"), m_pLayout->SavePerspective());
+	CONFIG_Write("/FL", "MANAGER", m_pLayout->SavePerspective());
 
 	m_pLayout->UnInit();
 
@@ -442,6 +449,13 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Size(wxSizeEvent &event)
 {
+	if( wxDisplay::GetFromWindow(this) == wxNOT_FOUND )
+	{
+		wxRect	r	= wxGetClientDisplayRect();	r.Deflate((int)(0.1 * r.GetWidth()), (int)(0.1 * r.GetHeight()));
+
+		SetSize(r);
+	}
+
 	event.Skip();
 }
 
