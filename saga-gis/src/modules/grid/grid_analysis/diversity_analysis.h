@@ -99,7 +99,7 @@ private:
 
 	int							m_NB_Step;
 
-	CSG_Grid					*m_pClasses, *m_pDiversity, *m_pSize_Mean, *m_pSize_Skew, *m_pConnectivity;
+	CSG_Grid					*m_pClasses, *m_pCount, *m_pDiversity, *m_pSize_Mean, *m_pSize_Skew, *m_pConnectivity;
 
 	CSG_Grid_Cell_Addressor		m_Search;
 

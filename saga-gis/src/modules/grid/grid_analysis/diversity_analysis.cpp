@@ -91,8 +91,14 @@ CDiversity_Analysis::CDiversity_Analysis(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DIVERSITY"		, _TL("Number of Categories"),
+		NULL	, "COUNT"			, _TL("Number of Categories"),
 		_TL("number of different categories (unique values) within search area"),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "DIVERSITY"		, _TL("Diversity"),
+		_TL("number of different categories (unique values) per area"),
 		PARAMETER_OUTPUT
 	);
 
@@ -166,16 +172,19 @@ bool CDiversity_Analysis::On_Execute(void)
 {
 	//-----------------------------------------------------
 	m_pClasses		= Parameters("CATEGORIES"  )->asGrid();
+	m_pCount		= Parameters("COUNT"       )->asGrid();
 	m_pDiversity	= Parameters("DIVERSITY"   )->asGrid();
 	m_pSize_Mean	= Parameters("SIZE_MEAN"   )->asGrid();
 	m_pSize_Skew	= Parameters("SIZE_SKEW"   )->asGrid();
 	m_pConnectivity	= Parameters("CONNECTIVITY")->asGrid();
 
-	m_pDiversity	->Set_Name(CSG_String::Format("%s [%s]", m_pClasses->Get_Name(), _TL("Count"       )));
+	m_pCount		->Set_Name(CSG_String::Format("%s [%s]", m_pClasses->Get_Name(), _TL("Count"       )));
+	m_pDiversity	->Set_Name(CSG_String::Format("%s [%s]", m_pClasses->Get_Name(), _TL("Diversity"   )));
 	m_pSize_Mean	->Set_Name(CSG_String::Format("%s [%s]", m_pClasses->Get_Name(), _TL("Average"     )));
 	m_pSize_Skew	->Set_Name(CSG_String::Format("%s [%s]", m_pClasses->Get_Name(), _TL("Skewness"    )));
 	m_pConnectivity	->Set_Name(CSG_String::Format("%s [%s]", m_pClasses->Get_Name(), _TL("Connectivity")));
 
+	DataObject_Set_Colors(m_pCount       , 11, SG_COLORS_DEFAULT, false);
 	DataObject_Set_Colors(m_pDiversity   , 11, SG_COLORS_DEFAULT, false);
 	DataObject_Set_Colors(m_pSize_Mean   , 11, SG_COLORS_DEFAULT,  true);
 	DataObject_Set_Colors(m_pSize_Skew   , 11, SG_COLORS_DEFAULT,  true);
@@ -198,6 +207,7 @@ bool CDiversity_Analysis::On_Execute(void)
 		{
 			if( m_pClasses->is_NoData(x, y) || !Get_Diversity(x, y) )
 			{
+				m_pCount       ->Set_NoData(x, y);
 				m_pDiversity   ->Set_NoData(x, y);
 				m_pSize_Mean   ->Set_NoData(x, y);
 				m_pSize_Skew   ->Set_NoData(x, y);
@@ -258,19 +268,24 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 	//-----------------------------------------------------
 	if( Classes.Get_Count() > 1 )
 	{
-		CSG_Simple_Statistics	s(true);
+		CSG_Simple_Statistics	c, s(true);
 
 		for(i=0; i<Classes.Get_Count(); i++)
 		{
-			s.Add_Value(Classes.Get_Class_Count(i), m_bWeighted ? Classes.Get_Class_Weight(i) / Classes.Get_Class_Count(i) : 1.0);
+			double	w	= m_bWeighted ? Classes.Get_Class_Weight(i) / Classes.Get_Class_Count(i) : 1.0;
+
+			c.Add_Value(w);
+			s.Add_Value(Classes.Get_Class_Count(i), w);
 		}
 
-		m_pDiversity->Set_Value(x, y, s.Get_Sum() * s.Get_Weights());
+		m_pCount    ->Set_Value(x, y, c.Get_Sum ());
+		m_pDiversity->Set_Value(x, y, s.Get_Mean());
 		m_pSize_Mean->Set_Value(x, y, s.Get_Mean() / (double)nCells);	// relative size !!!
 		m_pSize_Skew->Set_Value(x, y, s.Get_Skewness());	//	m_pSize_Skew->Set_Value(x, y, s.Get_SkewnessPearson());
 	}
 	else
 	{
+		m_pCount    ->Set_Value(x, y, 1.0);
 		m_pDiversity->Set_Value(x, y, 1.0);
 		m_pSize_Mean->Set_Value(x, y, 1.0);
 		m_pSize_Skew->Set_Value(x, y, 0.0);
