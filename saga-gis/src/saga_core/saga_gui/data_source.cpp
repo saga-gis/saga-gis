@@ -130,7 +130,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CData_Source::CData_Source(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_DATA_SOURCE, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Data Source"))
+	: wxNotebook(pParent, ID_WND_DATA_SOURCE, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Data Sources"))
 {
 	g_pData_Source	= this;
 
@@ -142,14 +142,24 @@ CData_Source::CData_Source(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_DATA_SOURCE_WEBSERVICE);
 
 	//-----------------------------------------------------
-	m_pFiles	= new CData_Source_Files(this);	m_pFiles->SetName(_TL("File System"));
+	bool	bFiles;
+
+	if( CONFIG_Read("/DATA", "SHOW_FILE_SOURCES", bFiles) && !bFiles )
+	{
+		m_pFiles	= NULL;
+	}
+	else
+	{
+		m_pFiles	= new CData_Source_Files(this);	m_pFiles->SetName(_TL("File System"));
+	}
+
 	m_pODBC		= new CData_Source_ODBC (this);	m_pODBC ->SetName(_TL("ODBC"));
 	m_pPgSQL	= new CData_Source_PgSQL(this);	m_pPgSQL->SetName(_TL("PostgreSQL"));
 
 #if defined(_SAGA_MSW)
-	m_pFiles->Hide();
-	m_pODBC ->Hide();
-	m_pPgSQL->Hide();
+	if( m_pFiles )	m_pFiles->Hide();
+	if( m_pODBC  )	m_pODBC ->Hide();
+	if( m_pPgSQL )	m_pPgSQL->Hide();
 #endif
 }
 
@@ -198,33 +208,36 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	switch( pItem->Get_Type() )
+	if( m_pFiles )
 	{
-	default:
-		break;
+		switch( pItem->Get_Type() )
+		{
+		case WKSP_ITEM_Table:
+			m_pFiles->SetPath(((CWKSP_Table          *)pItem)->Get_Table()->Get_File_Name());
+			break;
 
-	case WKSP_ITEM_Map_Layer:
-		m_pFiles->SetPath(((CWKSP_Map_Layer      *)pItem)->Get_Layer()->Get_Object()->Get_File_Name());
-		break;
+		case WKSP_ITEM_Shapes:
+		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
+		case WKSP_ITEM_Grid:
+			m_pFiles->SetPath(((CWKSP_Layer          *)pItem)->Get_Object()->Get_File_Name(false));
+			break;
 
-	case WKSP_ITEM_Table:
-		m_pFiles->SetPath(((CWKSP_Table          *)pItem)->Get_Table()->Get_File_Name());
-		break;
+		case WKSP_ITEM_Map_Layer:
+			m_pFiles->SetPath(((CWKSP_Map_Layer      *)pItem)->Get_Layer()->Get_Object()->Get_File_Name(false));
+			break;
 
-	case WKSP_ITEM_Shapes:
-	case WKSP_ITEM_TIN:
-	case WKSP_ITEM_PointCloud:
-	case WKSP_ITEM_Grid:
-		m_pFiles->SetPath(((CWKSP_Layer          *)pItem)->Get_Object()->Get_File_Name(false));
-		break;
+		case WKSP_ITEM_Module_Library:
+		//	m_pFiles->SetPath(((CWKSP_Module_Library *)pItem)->Get_File_Name());
+			break;
 
-	case WKSP_ITEM_Module_Library:
-	//	m_pFiles->SetPath(((CWKSP_Module_Library *)pItem)->Get_File_Name());
-		break;
+		case WKSP_ITEM_Module:
+		//	m_pFiles->SetPath(((CWKSP_Module         *)pItem)->Get_File_Name());
+			break;
 
-	case WKSP_ITEM_Module:
-		m_pFiles->SetPath(((CWKSP_Module         *)pItem)->Get_File_Name());
-		break;
+		default:
+			break;
+		}
 	}
 
 	return( true );
@@ -256,6 +269,11 @@ bool CData_Source::Update_ODBC_Source(const wxString &Server)
 //---------------------------------------------------------
 bool CData_Source::_Show_Page(wxWindow *pPage)
 {
+	if( !pPage )
+	{
+		return( false );
+	}
+
 	int		Image_ID	= -1;
 
 	//-----------------------------------------------------

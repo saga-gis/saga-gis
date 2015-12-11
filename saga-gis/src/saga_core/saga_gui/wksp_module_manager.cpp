@@ -145,7 +145,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_Parameters.Add_Value(
 		pNode	, "BEEP"			, _TL("Beep when finished"),
 		_TL(""),
-		PARAMETER_TYPE_Bool	, true
+		PARAMETER_TYPE_Bool	, false
 	);
 
 	m_Parameters.Add_Choice(

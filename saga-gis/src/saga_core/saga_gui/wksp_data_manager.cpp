@@ -168,6 +168,12 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	m_Parameters.Add_Value(
+		pNode	, "SHOW_FILE_SOURCES"		, _TL("Show Data File Sources"),
+		_TL("Show data sources tab for file system. Disabling might speed up start-up. Changes take effect after restart."),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	m_Parameters.Add_Value(
 		pNode	, "NUMBERING"				, _TL("Numbering of Data Sets"),
 		_TL("Leading zeros for data set numbering. Set to -1 for not using numbers at all."),
 		PARAMETER_TYPE_Int, m_Numbering = 2, -1, true
