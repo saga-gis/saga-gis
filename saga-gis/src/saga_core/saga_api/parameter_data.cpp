@@ -1762,7 +1762,16 @@ bool CSG_Parameter_Table_Field::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
-		return( Set_Value(Entry.Get_Content()) );
+		int	idx;
+
+		if( Entry.Get_Property("index", idx) )	// we require this check for backward compatibility, "index" was first introduced with SAGA 2.2.3 (r2671)
+		{
+			return( Set_Value(idx) );
+		}
+		else
+		{
+			return( Set_Value(Entry.Get_Content()) );
+		}
 	}
 
 	return( true );
@@ -1823,7 +1832,7 @@ bool CSG_Parameter_Table_Fields::Set_Value(const CSG_String &Value)
 		else if( sValue.Length() > 0 )
 		{
 			sValue.Trim();
-			
+
 			if( sValue[0] == '[' )
 			{
 				sValue	= sValue.AfterFirst('[').BeforeLast(']');
