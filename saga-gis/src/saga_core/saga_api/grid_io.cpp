@@ -1050,9 +1050,9 @@ bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, int xStart, int yStar
 		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFORMAT     ], bBinary ? gSG_Data_Type_Identifier[m_Type] : SG_T("ASCII") );
 		Stream.Printf("%s\t= %d\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_DATAFILE_OFFSET], 0                       );
 #ifdef WORDS_BIGENDIAN
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], true                    );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], GRID_FILE_KEY_TRUE      );
 #else
-		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], false                   );
+		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_BYTEORDER_BIG  ], GRID_FILE_KEY_FALSE     );
 #endif
 		Stream.Printf("%s\t= %s\n"   , gSG_Grid_File_Key_Names[GRID_FILE_KEY_TOPTOBOTTOM    ], GRID_FILE_KEY_FALSE     );
 		Stream.Printf("%s\t= %.10f\n", gSG_Grid_File_Key_Names[GRID_FILE_KEY_POSITION_XMIN  ], xStart * m_System.Get_Cellsize() + m_System.Get_XMin() );
