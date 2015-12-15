@@ -104,6 +104,13 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 	Parameters.Add_Grid(	NULL, "DEVMEAN"	, _TL("Deviation from Mean Value")	, _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid(	NULL, "PERCENT"	, _TL("Percentile")					, _TL(""), PARAMETER_OUTPUT);
 
+	Parameters.Add_Choice(	NULL, "MODE"	, _TL("Search Mode")				, _TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Square"),
+			_TL("Circle")
+		), 1
+	);
+
 	Parameters.Add_Value(	NULL, "RADIUS"	, _TL("Radius (Cells)")				, _TL(""), PARAMETER_TYPE_Int, 7, 1, true);
 
 	Parameters.Add_Value(	NULL, "BCENTER"	, _TL("Include Center Cell")		, _TL(""), PARAMETER_TYPE_Bool, true);
@@ -144,9 +151,11 @@ bool CGSGrid_Residuals::On_Execute(void)
 	DataObject_Set_Colors(m_pPercent, 100, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
+	bool	bSquare = Parameters("MODE")->asBool() ? false : true;
+
 	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
 
-	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt()) )
+	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt(), bSquare) )
 	{
 		return( false );
 	}
