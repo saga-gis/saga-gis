@@ -325,9 +325,9 @@ int CGDAL_Catalogues::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 bool CGDAL_Catalogues::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_String	Directory	= Parameters("DIRECTORY")->asString();
+	m_Directory	= Parameters("DIRECTORY")->asString();
 
-	if( !SG_Dir_Exists(Directory) )
+	if( !SG_Dir_Exists(m_Directory) )
 	{
 		return( false );
 	}
@@ -360,7 +360,7 @@ bool CGDAL_Catalogues::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	n	= Add_Directory(Directory);
+	int	n	= Add_Directory(m_Directory);
 
 	m_Extensions.Clear();
 
@@ -413,7 +413,8 @@ CSG_Shapes * CGDAL_Catalogues::Get_Catalogue(const CSG_Projection &Projection, C
 
 		pCatalogue->Add_Field("ID"      , SG_DATATYPE_Int   );
 		pCatalogue->Add_Field("NAME"    , SG_DATATYPE_String);
-		pCatalogue->Add_Field("FILE"    , SG_DATATYPE_String);
+		pCatalogue->Add_Field("FILE_ABS", SG_DATATYPE_String);
+		pCatalogue->Add_Field("FILE_REL", SG_DATATYPE_String);
 		pCatalogue->Add_Field("CRS"     , SG_DATATYPE_String);
 		pCatalogue->Add_Field("PROJ4"   , SG_DATATYPE_String);
 		pCatalogue->Add_Field("BANDS"   , SG_DATATYPE_Int   );
@@ -507,22 +508,25 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 
 	CSG_Shape	*pEntry	= pCatalogue->Add_Shape();
 
-	CSG_String	Filename	= DataSet.Get_File_Name();
+	CSG_String	Filename_Absolute	= DataSet.Get_File_Name();
 
-	if( SG_File_Cmp_Extension(Filename, SG_T("sdat")) )
+	if( SG_File_Cmp_Extension(Filename_Absolute, SG_T("sdat")) )
 	{
-		SG_File_Set_Extension(Filename, "sgrd");
+		SG_File_Set_Extension(Filename_Absolute, "sgrd");
 	}
+
+	CSG_String	Filename_Relative	= SG_File_Get_Path_Relative(m_Directory, Filename_Absolute);
 
 	pEntry->Set_Value(0, pCatalogue->Get_Count ());
 	pEntry->Set_Value(1, Name                    );
-	pEntry->Set_Value(2, Filename                );
-	pEntry->Set_Value(3, DataSet.Get_Projection());
-	pEntry->Set_Value(4, Projection.Get_Proj4  ());
-	pEntry->Set_Value(5, DataSet.Get_Count     ());
-	pEntry->Set_Value(6, System.Get_Cellsize   ());
-	pEntry->Set_Value(7, System.Get_NX         ());
-	pEntry->Set_Value(8, System.Get_NY         ());
+	pEntry->Set_Value(2, Filename_Absolute       );
+	pEntry->Set_Value(3, Filename_Relative       );
+	pEntry->Set_Value(4, DataSet.Get_Projection());
+	pEntry->Set_Value(5, Projection.Get_Proj4  ());
+	pEntry->Set_Value(6, DataSet.Get_Count     ());
+	pEntry->Set_Value(7, System.Get_Cellsize   ());
+	pEntry->Set_Value(8, System.Get_NX         ());
+	pEntry->Set_Value(9, System.Get_NY         ());
 
 	pEntry->Add_Point(System.Get_XMin(), System.Get_YMin());
 	pEntry->Add_Point(System.Get_XMin(), System.Get_YMax());

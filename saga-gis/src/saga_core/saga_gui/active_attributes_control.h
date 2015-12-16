@@ -122,6 +122,8 @@ private:
 
 	bool						_Set_Record			(int iRecord);
 
+	bool						_Get_DataSource		(wxString &Source);
+
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()

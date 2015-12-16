@@ -62,6 +62,7 @@
 
 //---------------------------------------------------------
 #include <wx/window.h>
+#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 
@@ -730,6 +731,29 @@ void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CVIEW_Table_Control::_Get_DataSource(wxString &Source)
+{
+	if( Source.Find("PGSQL:") == 0 || wxFileExists(Source) )
+	{
+		return( true );
+	}
+
+	if( m_pTable->Get_File_Name(false) )
+	{
+		wxFileName	fn(Source), dir(m_pTable->Get_File_Name(false));
+
+		if( fn.MakeAbsolute(dir.GetPath()) && fn.Exists() )
+		{
+			Source	= fn.GetFullPath();
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
 {
 	SetGridCursor(event.GetRow(), event.GetCol());
@@ -741,7 +765,9 @@ void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_APP);
 
-		if( GetCellValue(event.GetRow(), event.GetCol()).Find("PGSQL:") == 0 || wxFileExists(GetCellValue(event.GetRow(), event.GetCol())) )
+		wxString	Value	= GetCellValue(event.GetRow(), event.GetCol());
+
+		if( _Get_DataSource(Value) )
 		{
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_DATA);
 		}
@@ -858,9 +884,11 @@ void CVIEW_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Cell_Open(wxCommandEvent &event)
 {
+	wxString	Value	= GetCellValue(GetGridCursorRow(), GetGridCursorCol());
+
 	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_APP )
 	{
-		if( !Open_Application(GetCellValue(GetGridCursorRow(), GetGridCursorCol())) )
+		if( !Open_Application(Value) )
 		{
 			DLG_Message_Show_Error(_TL("failed"), CMD_Get_Name(ID_CMD_TABLE_FIELD_OPEN_APP));
 		}
@@ -868,7 +896,7 @@ void CVIEW_Table_Control::On_Cell_Open(wxCommandEvent &event)
 
 	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_DATA )
 	{
-		if( !g_pData->Open   (GetCellValue(GetGridCursorRow(), GetGridCursorCol())) )
+		if( !_Get_DataSource(Value) || !g_pData->Open(Value) )
 		{
 			DLG_Message_Show_Error(_TL("failed"), CMD_Get_Name(ID_CMD_TABLE_FIELD_OPEN_DATA));
 		}

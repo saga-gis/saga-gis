@@ -60,6 +60,7 @@
 
 //---------------------------------------------------------
 #include <wx/window.h>
+#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 
@@ -73,6 +74,7 @@
 #include "helper.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_data_item.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -445,7 +447,9 @@ void CActive_Attributes_Control::On_RClick(wxGridEvent &event)
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_APP);
 
-		if( GetCellValue(event.GetRow(), event.GetCol()).Find("PGSQL:") == 0 || wxFileExists(GetCellValue(event.GetRow(), event.GetCol())) )
+		wxString	Value	= GetCellValue(event.GetRow(), event.GetCol());
+
+		if( _Get_DataSource(Value) )
 		{
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_DATA);
 		}
@@ -471,9 +475,37 @@ void CActive_Attributes_Control::On_Field_Open(wxCommandEvent &event)
 
 		if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_DATA )
 		{
-			g_pData->Open   (pRecord->asString(iField));
+			wxString	Value	= pRecord->asString(iField);
+
+			if( _Get_DataSource(Value) )
+			{
+				g_pData->Open   (Value);
+			}
 		}
 	}
+}
+
+//---------------------------------------------------------
+bool CActive_Attributes_Control::_Get_DataSource(wxString &Source)
+{
+	if( Source.Find("PGSQL:") == 0 || wxFileExists(Source) )
+	{
+		return( true );
+	}
+
+	if( g_pACTIVE->Get_Active_Data_Item() && g_pACTIVE->Get_Active_Data_Item()->Get_Object()->Get_File_Name(false) )
+	{
+		wxFileName	fn(Source), dir(g_pACTIVE->Get_Active_Data_Item()->Get_Object()->Get_File_Name(false));
+
+		if( fn.MakeAbsolute(dir.GetPath()) && fn.Exists() )
+		{
+			Source	= fn.GetFullPath();
+
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 

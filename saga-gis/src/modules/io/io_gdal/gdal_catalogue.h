@@ -116,6 +116,8 @@ protected:
 
 private:
 
+	CSG_String					m_Directory;
+
 	CSG_Strings					m_Extensions;
 
 	CSG_Parameter_Shapes_List	*m_pCatalogues;

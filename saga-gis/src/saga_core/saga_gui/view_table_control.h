@@ -171,6 +171,8 @@ private:
 	int							_Get_Scroll_Start	(int Position);
 	bool						_Set_Scroll_Start	(int Position, bool bEnforceUpdate = true);
 
+	bool						_Get_DataSource		(wxString &Source);
+
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()
