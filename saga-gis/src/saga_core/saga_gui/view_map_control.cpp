@@ -831,6 +831,8 @@ void CVIEW_Map_Control::On_Mouse_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
+	m_pParent->Activate();
+
 	m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
 
 	_Draw_Inverse(m_Mouse_Down, event.GetPosition());
@@ -848,11 +850,6 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 		{
 			Get_Active_Layer()->Edit_On_Mouse_Down(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event));
 		}
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_DISTANCE:
-		_Distance_Reset();
 		break;
 
 	//-----------------------------------------------------
@@ -887,6 +884,17 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		break;
 
 	//-----------------------------------------------------
+	case MAP_MODE_DISTANCE:
+		if( event.ControlDown() )	// context menu
+		{
+			pMenu	= m_pParent->_Create_Menu();
+		}
+		else	// reset
+		{
+			_Distance_Reset();
+		}
+		break;
+
 	case MAP_MODE_ZOOM:
 		if( event.ControlDown() )	// context menu
 		{
