@@ -661,9 +661,28 @@ void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 {
-	bool	bCaptureMouse	= true;
-
 	m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
+
+	//-----------------------------------------------------
+	if( m_Mode != MAP_MODE_SELECT )	// clipboard copy ?
+	{
+		if( event.ControlDown() )
+		{
+			m_pMap->SaveAs_Image_Clipboard(false);
+
+			return;
+		}
+
+		if( event.AltDown() )
+		{
+			m_pMap->SaveAs_Image_Clipboard(GetClientSize().x, GetClientSize().y, -1);
+
+			return;
+		}
+	}
+
+	//-----------------------------------------------------
+	bool	bCaptureMouse	= true;
 
 	switch( m_Mode )
 	{
@@ -737,6 +756,13 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 		ReleaseMouse();
 	}
 
+	//-----------------------------------------------------
+	if( m_Mode != MAP_MODE_SELECT && (event.ControlDown() || event.AltDown()) )	// clipboard copy ?
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
 	_Draw_Inverse(m_Mouse_Down, event.GetPosition());
 	m_Drag_Mode	= MODULE_INTERACTIVE_DRAG_NONE;
 
@@ -790,19 +816,7 @@ void CVIEW_Map_Control::On_Mouse_LDClick(wxMouseEvent &event)
 		break;
 
 	//-----------------------------------------------------
-	case MAP_MODE_DISTANCE:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_ZOOM:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN_DOWN:
+	default:
 		break;
 	}
 }
@@ -842,15 +856,7 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 		break;
 
 	//-----------------------------------------------------
-	case MAP_MODE_ZOOM:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN:
-		break;
-
-	//-----------------------------------------------------
-	case MAP_MODE_PAN_DOWN:
+	default:
 		break;
 	}
 }
@@ -870,34 +876,40 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		{
 			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_RUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
+		else if( m_pMap->Find_Layer(Get_Active_Layer()) && !Get_Active_Layer()->Edit_On_Mouse_Up(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event)|MODULE_INTERACTIVE_KEY_RIGHT) )
 		{
-			if(	!Get_Active_Layer()->Edit_On_Mouse_Up(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event)|MODULE_INTERACTIVE_KEY_RIGHT)
-			&&	(pMenu = Get_Active_Layer()->Edit_Get_Menu()) != NULL )
-			{
-				PopupMenu(pMenu, event.GetPosition());
-
-				delete(pMenu);
-			}
+			pMenu	= Get_Active_Layer()->Edit_Get_Menu();
+		}
+		else
+		{
+			pMenu	= m_pParent->_Create_Menu();
 		}
 		break;
 
 	//-----------------------------------------------------
-	case MAP_MODE_DISTANCE:
-		break;
-
-	//-----------------------------------------------------
 	case MAP_MODE_ZOOM:
-		_Zoom(_Get_World(event.GetPosition()), false);
+		if( event.ControlDown() )	// context menu
+		{
+			pMenu	= m_pParent->_Create_Menu();
+		}
+		else	// zoom out
+		{
+			_Zoom(_Get_World(event.GetPosition()), false);
+		}
 		break;
 
 	//-----------------------------------------------------
-	case MAP_MODE_PAN:
+	default:
+		pMenu	= m_pParent->_Create_Menu();
 		break;
+	}
 
 	//-----------------------------------------------------
-	case MAP_MODE_PAN_DOWN:
-		break;
+	if( pMenu != NULL )
+	{
+		PopupMenu(pMenu, event.GetPosition());
+
+		delete(pMenu);
 	}
 }
 
