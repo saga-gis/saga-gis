@@ -635,5 +635,11 @@ tools = [
 ['imagery_classification', 6, 'Confusion Matrix (Polygons / Grid)'],
 ['db_pgsql', 35, 'Create Database'],
 ['db_pgsql', 36, 'Drop Database'],
-['io_gdal', 7, 'Create Raster Catalogue']
+['io_gdal', 7, 'Create Raster Catalogue from Files'],
+['io_gdal', 8, 'Create Raster Catalogues from Directory'],
+['sim_qm_of_esp', 0, 'Diffusive Hillslope Evolution (FTCS)'],
+['sim_qm_of_esp', 1, 'Fill Sinks (QM of ESP)'],
+['sim_qm_of_esp', 2, 'Flow Accumulation (QM of ESP)'],
+['sim_qm_of_esp', 3, 'Successive Flow Routing'],
+['sim_qm_of_esp', 4, 'Diffusive Hillslope Evolution (ADI)']
 ]

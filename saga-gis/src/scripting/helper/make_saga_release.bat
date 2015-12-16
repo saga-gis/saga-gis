@@ -1,8 +1,12 @@
 @ECHO OFF
 
 REM ___________________________________
-SET SAGA_VERSION=saga_2.2.3
-SET SVN__VERSION=2-2-3
+SET SAGA_VER_MAJOR=2
+SET SAGA_VER_MINOR=2
+SET SAGA_VER_RELEASE=3
+
+SET SAGA_VERSION=saga_%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
+SET SVN__VERSION=%SAGA_VER_MAJOR%-%SAGA_VER_MINOR%-%SAGA_VER_RELEASE%
 
 SET SAGA_ROOT=D:\saga\saga-code\trunk
 
@@ -30,22 +34,15 @@ ECHO.
 ECHO Things you should have updated before:
 ECHO - ArcSAGA Tools
 ECHO - Translation Files
+ECHO - Python Tools Interface Update
 ECHO.
 ECHO Enter 'y' to continue!
 SET /P CONTINUE=
-IF '%CONTINUE%' == 'y' GOTO CONTINUE
-EXIT
-:CONTINUE
-PAUSE
+IF NOT '%CONTINUE%' == 'y' EXIT
 
 REM ___________________________________
 REM Create a branch
 REM %SVNEXE% copy svn://svn.code.sf.net/p/saga-gis/code-0/trunk svn://svn.code.sf.net/p/saga-gis/code-0/branches/release-%SVN__VERSION% -m "branch release-%SVN__VERSION% created from trunk"
-
-REM ___________________________________
-REM Update saga_cmd parameter interface configuration
-SET SAGA_TOOLS_PY=%SAGA_ROOT%\src\scripting\python\helpers\saga_cmd_param_interface\tools.py
-"%SAGA_ROOT%\bin\saga_vc_Win32\saga_cmd.exe" dev_tools 6 -INPUT="%SAGA_TOOLS_PY%" -OUTPUT="%SAGA_TOOLS_PY%"
 
 
 REM ___________________________________
