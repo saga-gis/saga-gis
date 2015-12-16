@@ -120,16 +120,17 @@ void CView_Map_3DPanel::Update_Statistics(void)
 		Cellsize = m_pDEM->Get_Cellsize();
 
 	m_DEM.Create(CSG_Grid_System(Cellsize, r), SG_DATATYPE_Float);
+	m_DEM.Set_NoData_Value(m_pDEM->Get_NoData_Value());
 
 	for(int y=0; y<m_DEM.Get_NY(); y++)
 	{
-		int	wy	= m_DEM.Get_YMin() + m_DEM.Get_Cellsize() * y;
+		double	wy	= m_DEM.Get_YMin() + y * m_DEM.Get_Cellsize();
 
 		for(int x=0; x<m_DEM.Get_NX(); x++)
 		{
-			double	z;
+			double	z, wx	= m_DEM.Get_XMin() + x * m_DEM.Get_Cellsize();
 
-			if( m_pDEM->Get_Value(m_DEM.Get_XMin() + m_DEM.Get_Cellsize() * x, wy, z) )
+			if( m_pDEM->Get_Value(wx, wy, z, GRID_INTERPOLATION_BSpline, false, true) )
 			{
 				m_DEM.Set_Value(x, y, z);
 			}
