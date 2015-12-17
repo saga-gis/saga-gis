@@ -204,7 +204,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 
 			pHeader->Get_Child(SG_T("Attributes"))->Get_Property(SG_T("Count"), iFieldCount);
 
-			if( !bCopyAttr )
+			if( !bCopyAttr && m_vAttrMapper.size() > 0 )
 			{
 				if( m_vAttrMapper.at(m_vAttrMapper.size()-1) >= iFieldCount-3 )
 				{
@@ -387,7 +387,7 @@ bool CPointCloud_Get_Subset_SPCVF_Base::Get_Subset(bool bCopyAttr)
 				{
 					pPC_out = SG_Create_PointCloud();
 
-					for(size_t iField=0; iField<m_vAttrMapper.size(); iField++)
+					for(int iField=0; iField<(int)m_vAttrMapper.size(); iField++)
 					{
 						if( iField >= pPC->Get_Attribute_Count() )
 							continue;
@@ -967,6 +967,9 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 {
 	switch( Mode )
 	{
+  default:
+    break;
+
 	//-----------------------------------------------------
 	case MODULE_INTERACTIVE_LDOWN:
 
