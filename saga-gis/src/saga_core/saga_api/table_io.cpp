@@ -118,7 +118,7 @@ bool CSG_Table::Load(const CSG_String &File_Name, int Format, SG_Char Separator)
 //---------------------------------------------------------
 bool CSG_Table::Save(const CSG_String &File_Name, int Format)
 {
-	return( Save(File_Name, Format, NULL) );
+	return( Save(File_Name, Format, '\0') );
 }
 
 //---------------------------------------------------------
