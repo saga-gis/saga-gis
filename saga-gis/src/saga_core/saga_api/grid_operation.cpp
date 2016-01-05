@@ -315,120 +315,59 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 	}
 
 	//-----------------------------------------------------
-	Assign_NoData();
+	double	d	= Get_Cellsize() / pGrid->Get_Cellsize();
 
-	CSG_Matrix	S(Get_NY(), Get_NX()), N(Get_NY(), Get_NX());
+	double	ox	= (Get_XMin(true) - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
+	double	py	= (Get_YMin(true) - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
 
-	double	d	= pGrid->Get_Cellsize() / Get_Cellsize();
-
-	//-----------------------------------------------------
-	if( bAreaProportional == false )
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, py+=d)
 	{
-		double	ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
-		double	py	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
+		int		ay	= (int)(bAreaProportional ? floor(py    ) : ceil (py    ));
+		int		by	= (int)(bAreaProportional ? ceil (py + d) : floor(py + d));
 
-		for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
-		{
-			int	iy	= (int)floor(py);
-
-			if( iy >= 0 && iy < Get_NY() )
-			{
-				#pragma omp parallel for
-				for(int x=0; x<pGrid->Get_NX(); x++)
-				{
-					if( !pGrid->is_NoData(x, y) )
-					{
-						int	ix	= (int)floor(ax + x * d);
-						
-						if( ix >= 0 && ix < Get_NX() )
-						{
-							S[ix][iy]	+= pGrid->asDouble(x, y);
-							N[ix][iy]	++;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	else // if( bAreaProportional == true )
-	{
-		double	ax	= ((pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_XMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
-		double	py	= ((pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_YMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
-
-		for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
-		{
-			if( py > -d || py < Get_NY() )
-			{
-				int		iy	= (int)floor(py);
-
-				double	wy	= (py + d) - iy;	wy	= wy < 1.0 ? 1.0 : wy - 1.0; 
-
-				#pragma omp parallel for
-				for(int x=0; x<pGrid->Get_NX(); x++)
-				{
-					if( !pGrid->is_NoData(x, y) )
-					{
-						double	px	= ax + x * d;
-
-						if( px > -d && px < Get_NX() )
-						{
-							int		jy, jx, ix	= (int)floor(px);
-
-							double	wx	= (px + d) - ix;	wx	= wx < 1.0 ? 1.0 : wx - 1.0; 
-
-							double	z	= pGrid->asDouble(x, y);
-
-							if( iy >= 0 && iy < Get_NY() )		// wy > 0.0 is always true
-							{
-								if( ix >= 0 && ix < Get_NX() )	// wx > 0.0 is always true
-								{
-									double	w	= wx * wy;
-									S[ix][iy]	+= w * z;
-									N[ix][iy]	+= w;
-								}
-
-								if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
-								{
-									double	w	= (1.0 - wx) * wy;
-									S[jx][iy]	+= w * z;
-									N[jx][iy]	+= w;
-								}
-							}
-
-							if( wy < 1.0 && (jy = iy + 1) >= 0 && jy < Get_NY() )
-							{
-								if( ix >= 0 && ix < Get_NX() )
-								{
-									double	w	= wx * (1.0 - wy);
-									S[ix][jy]	+= w * z;
-									N[ix][jy]	+= w;
-								}
-
-								if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
-								{
-									double	w	= (1.0 - wx) * (1.0 - wy);
-									S[jx][jy]	+= w * z;
-									N[jx][jy]	+= w;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-	{
+		//-------------------------------------------------
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( N[x][y] > 0.0 )
+			double	px	= ox + x * d;
+
+			int		ax	= (int)(bAreaProportional ? floor(px    ) : ceil (px    ));
+			int		bx	= (int)(bAreaProportional ? ceil (px + d) : floor(px + d));
+
+			CSG_Rect	rMean(px, py, px + d, py + d);
+
+			CSG_Simple_Statistics	s;
+
+			for(int iy=ay; iy<=by; iy++)
 			{
-				Set_Value(x, y, S[x][y] / N[x][y]);
+				if( iy >= 0 && iy < pGrid->Get_NY() )
+				{
+					for(int ix=ax; ix<=bx; ix++)
+					{
+						if( ix >= 0 && ix < pGrid->Get_NX() && !pGrid->is_NoData(ix, iy) )
+						{
+							if( bAreaProportional )
+							{
+								CSG_Rect	r(ix - 0.5, iy - 0.5, ix + 0.5, iy + 0.5);
+
+								if( r.Intersect(rMean) )
+								{
+									s.Add_Value(pGrid->asDouble(ix, iy), r.Get_Area());
+								}
+							}
+							else
+							{
+								s.Add_Value(pGrid->asDouble(ix, iy));
+							}
+						}
+					}
+				}
+			}
+
+			//---------------------------------------------
+			if( s.Get_Count() > 0 )
+			{
+				Set_Value(x, y, s.Get_Mean());
 			}
 			else
 			{
