@@ -60,9 +60,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/protocol/http.h>
-#include <wx/xml/xml.h>
 #include <wx/image.h>
+#include <wx/protocol/http.h>
 
 #include "wms_import.h"
 
@@ -74,449 +73,154 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define V_SRS(Version)	(Version.Contains(SG_T("1.3")) ? SG_T("CRS") : SG_T("SRS"))
-#define S_SRS(Version)	(Version.Cmp(SG_T("1.3.0")) ? SG_T("&SRS=") : SG_T("&CRS="))
-
-#define V_MAP(Version)	(Version.Cmp(SG_T("1.0.0")) ? SG_T("GetMap") : SG_T("Map"))
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CWMS_Capabilities::CWMS_Capabilities(void)
+{}
+
+CWMS_Capabilities::CWMS_Capabilities(const CSG_String &Server, const CSG_String &Version)
 {
-	m_pLayers	= NULL;
-
-	_Reset();
-}
-
-CWMS_Capabilities::CWMS_Capabilities(wxHTTP *pServer, const CSG_String &Directory, CSG_String &Version)
-{
-	m_pLayers	= NULL;
-
-	_Reset();
-
-	Create(pServer, Directory, Version);
+	Create(Server, Version);
 }
 
 //---------------------------------------------------------
 CWMS_Capabilities::~CWMS_Capabilities(void)
-{}
-
-//---------------------------------------------------------
-void CWMS_Capabilities::_Reset(void)
 {
-	m_MaxLayers		= -1;
-	m_MaxWidth		= -1;
-	m_MaxHeight		= -1;
-
-	m_Name			.Clear();
-	m_Title			.Clear();
-	m_Abstract		.Clear();
-	m_Online		.Clear();
-	m_Contact		.Clear();
-	m_Fees			.Clear();
-	m_Access		.Clear();
-	m_Keywords		.Clear();
-
-	m_Formats		.Clear();
-	m_Projections	.Clear();
-
-	m_Layers_Title	.Clear();
-
-	if( m_pLayers )
-	{
-		for(int i=0; i<m_nLayers; i++)
-		{
-			delete(m_pLayers[i]);
-		}
-
-		SG_Free(m_pLayers);
-	}
-
-	m_nLayers		= 0;
-	m_pLayers		= NULL;
+	Destroy();
 }
 
 //---------------------------------------------------------
-bool CWMS_Capabilities::Create(wxHTTP *pServer, const CSG_String &Directory, CSG_String &Version)
+void CWMS_Capabilities::Destroy(void)
 {
-	bool	bResult	= false;
+	m_Name        .Clear();
+	m_Title       .Clear();
+	m_Abstract    .Clear();
+	m_Formats     .Clear();
 
-	_Reset();
+	m_Projections .Clear();
 
-	if( pServer )
-	{
-		CSG_String	sRequest(Directory);
-
-		sRequest	+= SG_T("?SERVICE=WMS");
-		sRequest	+= SG_T("&VERSION=1.3.0");
-		sRequest	+= SG_T("&REQUEST=GetCapabilities");
-
-		//-------------------------------------------------
-		wxInputStream	*pStream;
-
-		if( (pStream = pServer->GetInputStream(sRequest.c_str())) != NULL )
-		{
-			wxXmlDocument	Capabilities;
-
-			if( Capabilities.Load(*pStream) )
-			{
-				bResult	= _Get_Capabilities(Capabilities.GetRoot(), Version);
-
-				Capabilities.Save(CSG_String::Format(SG_T("e:\\%s.xml"), m_Title.c_str()).c_str());
-			}
-
-			delete(pStream);
-		}
-	}
-
-	return( bResult );
+	m_Layers_Name .Clear();
+	m_Layers_Title.Clear();
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxXmlNode * CWMS_Capabilities::_Get_Child(wxXmlNode *pNode, const CSG_String &Name)
-{
-	if( pNode && (pNode = pNode->GetChildren()) != NULL )
-	{
-		do
-		{
-			if( !pNode->GetName().CmpNoCase(Name.c_str()) )
-			{
-				return( pNode );
-			}
-		}
-		while( (pNode = pNode->GetNext()) != NULL );
-	}
-
-	return( NULL );
-}
+#define V_SRS(Version)	(Version.Find("1.3"  ) == 0 ?  "CRS"  :  "SRS"  )
+#define S_SRS(Version)	(Version.Cmp ("1.3.0") == 0 ? "&CRS=" : "&SRS=" )
+#define V_MAP(Version)	(Version.Cmp ("1.0.0") == 0 ? "Map"   : "GetMap")
 
 //---------------------------------------------------------
-bool CWMS_Capabilities::_Get_Child_Content(wxXmlNode *pNode, CSG_String &Value, const CSG_String &Name)
-{
-	if( (pNode = _Get_Child(pNode, Name)) != NULL )
-	{
-		Value	= pNode->GetNodeContent().wc_str();
-
-		return( true );
-	}
-
-	return( false );
-}
+#define CAP_GET_STRING(GROUP, ID, VALUE, MUSTEXIST)	if( GROUP(ID) ) VALUE = GROUP[ID].Get_Content();            else if( !MUSTEXIST ) VALUE = SG_T(""); else return( false );
+#define CAP_GET_DOUBLE(GROUP, ID, VALUE, MUSTEXIST)	if( GROUP(ID) ) VALUE = GROUP[ID].Get_Content().asDouble(); else if( !MUSTEXIST ) VALUE = 0.0;      else return( false );
+#define CAP_GET____INT(GROUP, ID, VALUE, MUSTEXIST)	if( GROUP(ID) ) VALUE = GROUP[ID].Get_Content().asInt   (); else if( !MUSTEXIST ) VALUE = 0;        else return( false );
 
 //---------------------------------------------------------
-bool CWMS_Capabilities::_Get_Child_Content(wxXmlNode *pNode, int &Value, const CSG_String &Name)
+bool CWMS_Capabilities::Create(const CSG_String &Server, const CSG_String &Version)
 {
-	long	lValue;
+	Destroy();
 
-	if( (pNode = _Get_Child(pNode, Name)) != NULL && pNode->GetNodeContent().ToLong(&lValue) )
-	{
-		Value	= lValue;
+	int	i;
 
-		return( true );
-	}
+	CSG_String	s	= "http://" + Server;
 
-	return( false );
-}
+	s	+= "?SERVICE=WMS";
+	s	+= "&VERSION=" + Version;
+	s	+= "&REQUEST=GetCapabilities";
 
-//---------------------------------------------------------
-bool CWMS_Capabilities::_Get_Child_Content(wxXmlNode *pNode, double &Value, const CSG_String &Name)
-{
-	double	dValue;
+	CSG_MetaData	Capabilities;
 
-	if( (pNode = _Get_Child(pNode, Name)) != NULL && pNode->GetNodeContent().ToDouble(&dValue) )
-	{
-		Value	= dValue;
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWMS_Capabilities::_Get_Node_PropVal(wxXmlNode *pNode, CSG_String &Value, const CSG_String &Property)
-{
-	wxString	PropVal;
-
-	if( pNode != NULL && pNode->GetAttribute(Property.c_str(), &PropVal) )
-	{
-		Value	= PropVal.wc_str();
-
-		return( true );
-	}
-
-	return( false );
-}
-
-bool CWMS_Capabilities::_Get_Child_PropVal(wxXmlNode *pNode, CSG_String &Value, const CSG_String &Name, const CSG_String &Property)
-{
-	return( (pNode = _Get_Child(pNode, Name)) != NULL && _Get_Node_PropVal(pNode, Value, Property) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWMS_Capabilities::_Get_Capabilities(wxXmlNode *pRoot, CSG_String &Version)
-{
-	wxXmlNode	*pNode, *pChild;
-
-	//-----------------------------------------------------
-	// 1. Service
-
-	if( (pNode = _Get_Child(pRoot, SG_T("Service"))) == NULL )
-	{
-		return( false );
-	}
-
-	_Get_Node_PropVal (pRoot, Version		, SG_T("version"));
-
-	_Get_Child_Content(pNode, m_Name		, SG_T("Name"));
-	_Get_Child_Content(pNode, m_Title		, SG_T("Title"));
-	_Get_Child_Content(pNode, m_Abstract	, SG_T("Abstract"));
-	_Get_Child_Content(pNode, m_Fees		, SG_T("Fees"));
-	_Get_Child_Content(pNode, m_Access		, SG_T("AccessConstraints"));
-	_Get_Child_Content(pNode, m_MaxLayers	, SG_T("LayerLimit"));
-	_Get_Child_Content(pNode, m_MaxWidth	, SG_T("MaxWidth"));
-	_Get_Child_Content(pNode, m_MaxHeight	, SG_T("MaxHeight"));
-	_Get_Child_PropVal(pNode, m_Online		, SG_T("OnlineResource"), SG_T("xlink:href"));
-
-	if( (pChild = _Get_Child(pNode, SG_T("KeywordList"))) != NULL )
-	{
-		wxXmlNode	*pKeyword	= pChild->GetChildren();
-
-		while( pKeyword )
-		{
-			if( !pKeyword->GetName().CmpNoCase(SG_T("Format")) )
-			{
-				m_Keywords.Add(pKeyword->GetNodeContent().wx_str());
-			}
-
-			pKeyword	= pKeyword->GetNext();
-		}
-	}
-
-	if( (pChild = _Get_Child(pNode, SG_T("ContactInformation"))) != NULL )
-	{
-	}
-
-
-	//-----------------------------------------------------
-	// 2. Capabilities
-
-	if( (pNode = _Get_Child(pRoot, SG_T("Capability"))) == NULL )
+	if( !Capabilities.Create(s) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	// 2.a) Request
-
-	if( (pChild = _Get_Child(_Get_Child(_Get_Child(pNode, SG_T("Request")), V_MAP(Version)), SG_T("Format"))) != NULL )
-	{
-		if( !Version.Cmp(SG_T("1.0.0")) )
-		{
-			pChild	= pChild->GetChildren();
-
-			while( pChild )
-			{
-				m_Formats	+= pChild->GetName().wc_str();
-				m_Formats	+= SG_T("|");
-
-				pChild	= pChild->GetNext();
-			}
-		}
-		else
-		{
-			do
-			{
-				if( !pChild->GetName().CmpNoCase(SG_T("Format")) )
-				{
-					m_Formats	+= pChild->GetNodeContent().wc_str();
-					m_Formats	+= SG_T("|");
-				}
-			}
-			while( (pChild = pChild->GetNext()) != NULL );
-		}
-	}
-
-	//-----------------------------------------------------
-	// 2.b) Exception, Vendor Specific Capabilities, User Defined Symbolization, ...
-
-
-	//-----------------------------------------------------
-	// 2.c) Layers
-
-	if( (pNode = _Get_Child(pNode, SG_T("Layer"))) == NULL )
+	if( !Capabilities.Get_Property("version", m_Version) || !Capabilities("Service") || !Capabilities("Capability") )
 	{
 		return( false );
 	}
 
-	CSG_String	s;
+	const CSG_MetaData	&Service	= Capabilities["Service"];
 
-	if(	!(_Get_Child_PropVal(pNode, s, SG_T("BoundingBox"), SG_T("minx")) && s.asDouble(m_GeoBBox.xMin))
-	||	!(_Get_Child_PropVal(pNode, s, SG_T("BoundingBox"), SG_T("miny")) && s.asDouble(m_GeoBBox.yMin))
-	||	!(_Get_Child_PropVal(pNode, s, SG_T("BoundingBox"), SG_T("maxx")) && s.asDouble(m_GeoBBox.xMax))
-	||	!(_Get_Child_PropVal(pNode, s, SG_T("BoundingBox"), SG_T("maxy")) && s.asDouble(m_GeoBBox.yMax)) )
+	CAP_GET_STRING(Service, "Name"      , m_Name      ,  true);
+	CAP_GET_STRING(Service, "Title"     , m_Title     ,  true);
+	CAP_GET_STRING(Service, "Abstract"  , m_Abstract  ,  true);
+
+	CAP_GET____INT(Service, "LayerLimit", m_LayerLimit, false);
+
+	CAP_GET____INT(Service, "MaxWidth"  , m_MaxWidth  , false);
+	CAP_GET____INT(Service, "MaxHeight" , m_MaxHeight , false);
+
+	//-----------------------------------------------------
+	if( !Capabilities["Capability"]("Request") || !Capabilities["Capability"]["Request"](V_MAP(m_Version)) )
 	{
-		m_GeoBBox.xMin	= m_GeoBBox.yMin	= m_GeoBBox.xMax	= m_GeoBBox.yMax	= 0.0;
+		return( false );
 	}
 
-	_Get_Child_Content(pNode, m_Layers_Title	, SG_T("Title"));
+	const CSG_MetaData	&GetMap	= Capabilities["Capability"]["Request"][V_MAP(m_Version)];
 
-	if( (pChild	= _Get_Child(pNode, V_SRS(Version))) != NULL )
+	for(i=0; i<GetMap.Get_Children_Count(); i++)
 	{
-		do
+		if( GetMap[i].Cmp_Name   ("Format"    )
+		&& (GetMap[i].Cmp_Content("image/png" )
+		||  GetMap[i].Cmp_Content("image/jpeg")
+		||  GetMap[i].Cmp_Content("image/gif" )
+		||  GetMap[i].Cmp_Content("image/tiff")) )
 		{
-			if( !pChild->GetName().CmpNoCase(V_SRS(Version)) )
-			{
-				m_sProjections	.Add(pChild->GetNodeContent().wx_str());
-
-			//	m_Projections	+= Get_EPSG_Name(CSG_String(&pChild->GetNodeContent()));
-				m_Projections	+= SG_T("|");
-			}
+			m_Formats	+= GetMap[i].Get_Content() + "|";
 		}
-		while( (pChild = pChild->GetNext()) != NULL );
 	}
 
-	if( (pChild	= pNode->GetChildren()) != NULL )
+	//-----------------------------------------------------
+	if( !Capabilities["Capability"]("Layer") )
 	{
-		do
+		return( false );
+	}
+
+	const CSG_MetaData	&Layer	= Capabilities["Capability"]["Layer"];
+
+	if( m_Version.Cmp("1.3.0") == 0 )
+	{
+		if( !Layer("EX_GeographicBoundingBox") )
 		{
-			_Get_Layer(pChild);
+			return( false );
 		}
-		while( (pChild = pChild->GetNext()) != NULL );
+
+		CAP_GET_DOUBLE(Layer["EX_GeographicBoundingBox"], "westBoundLongitude", m_Extent.xMin, true);
+		CAP_GET_DOUBLE(Layer["EX_GeographicBoundingBox"], "eastBoundLongitude", m_Extent.xMax, true);
+		CAP_GET_DOUBLE(Layer["EX_GeographicBoundingBox"], "southBoundLatitude", m_Extent.yMin, true);
+		CAP_GET_DOUBLE(Layer["EX_GeographicBoundingBox"], "northBoundLatitude", m_Extent.yMax, true);
+	}
+	else // version < 1.3.0
+	{
+		if( !Layer("LatLonBoundingBox")
+		||  !Layer["LatLonBoundingBox"].Get_Property("minx", m_Extent.xMin)
+		||  !Layer["LatLonBoundingBox"].Get_Property("maxx", m_Extent.xMax)
+		||  !Layer["LatLonBoundingBox"].Get_Property("miny", m_Extent.yMin)
+		||  !Layer["LatLonBoundingBox"].Get_Property("maxy", m_Extent.yMax) )
+		{
+			return( false );
+		}
+	}
+
+	for(i=0; i<Layer.Get_Children_Count(); i++)
+	{
+		if( Layer[i].Cmp_Name(V_SRS(m_Version)) )
+		{
+			m_Projections	+= Layer[i].Get_Content() + "|";
+		}
+
+		else if( Layer[i].Cmp_Name("Layer") )
+		{
+			m_Layers_Name	+= Layer[i].Get_Content("Name" );
+			m_Layers_Title	+= Layer[i].Get_Content("Title");
+		}
 	}
 
 	//-----------------------------------------------------
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWMS_Capabilities::_Get_Layer(wxXmlNode *pNode)
-{
-	if( pNode && !pNode->GetName().CmpNoCase(SG_T("Layer")) )
-	{
-		CWMS_Layer	*pLayer	= new CWMS_Layer;
-
-		if( _Get_Child_Content(pNode, pLayer->m_Name, SG_T("Name")) )
-		{
-			_Get_Child_Content(pNode, pLayer->m_Title, SG_T("Title"));
-
-			//---------------------------------------------
-			m_pLayers	= (CWMS_Layer **)SG_Realloc(m_pLayers, (m_nLayers + 1) * sizeof(CWMS_Layer *));
-			m_pLayers[m_nLayers++]	= pLayer;
-
-			return( true );
-		}
-
-		delete(pLayer);
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_String CWMS_Capabilities::Get_Summary(void)
-{
-	CSG_String	s;
-
-	if( m_Name.Length() > 0 )
-	{
-		s	+= SG_T("\n[Name] ")			+ m_Name		+ SG_T("\n");
-	}
-
-	if( m_Title.Length() > 0 )
-	{
-		s	+= SG_T("\n[Title] ")			+ m_Title		+ SG_T("\n");
-	}
-
-	if( m_Abstract.Length() > 0 )
-	{
-		s	+= SG_T("\n[Abstract] ")		+ m_Abstract	+ SG_T("\n");
-	}
-
-	if( m_Fees.Length() > 0 )
-	{
-		s	+= SG_T("\n[Fees] ")			+ m_Fees		+ SG_T("\n");
-	}
-
-	if( m_Online.Length() > 0 )
-	{
-		s	+= SG_T("\n[Online Resource] ")	+ m_Online		+ SG_T("\n");
-	}
-
-	if( m_Keywords.Get_Count() > 0 )
-	{
-		s	+= SG_T("\n[Keywords] ");
-
-		for(int i=0; i<m_Keywords.Get_Count(); i++)
-		{
-			if( i > 0 )	s	+= SG_T(", ");
-
-			s	+= m_Keywords[i];
-		}
-
-		s	+= SG_T("\n");
-	}
-
-	if( m_MaxLayers > 0 )
-	{
-		s	+= CSG_String::Format(SG_T("\n[Max. Layers] %d\n"), m_MaxLayers);
-	}
-
-	if( m_MaxWidth > 0 )
-	{
-		s	+= CSG_String::Format(SG_T("\n[Max. Width] %d\n"), m_MaxWidth);
-	}
-
-	if( m_MaxHeight > 0 )
-	{
-		s	+= CSG_String::Format(SG_T("\n[Max. Height] %d\n"), m_MaxHeight);
-	}
-
-	if( m_Contact.Length() > 0 )
-	{
-		s	+= SG_T("\n[Contact] ")			+ m_Contact		+ SG_T("\n");
-	}
-
-	if( m_Access.Length() > 0 )
-	{
-		s	+= SG_T("\n[Access] ")			+ m_Access		+ SG_T("\n");
-	}
-
-	return( s );
 }
 
 
@@ -558,51 +262,92 @@ CWMS_Import::CWMS_Import(void)
 		SG_T("ogc.bgs.ac.uk/cgi-bin/BGS_Bedrock_and_Superficial_Geology/wms")	// WGS84: Center -3.5x 55.0y Cellsize 0.005
  	);
 
-	Parameters.Add_String(
-		NULL	, "USERNAME"		, _TL("User Name"),
-		_TL(""),
-		SG_T("")
-	);
+	Parameters.Add_String(NULL, "USERNAME", _TL("User Name"), _TL(""), "");
+	Parameters.Add_String(NULL, "PASSWORD", _TL("Password" ), _TL(""), "", false, true);
 
-	Parameters.Add_String(
-		NULL	, "PASSWORD"		, _TL("Password"),
-		_TL(""),
-		SG_T(""), false, true
-	);
+	//-----------------------------------------------------
+	Parameters.Add_Info_String(NULL, "ABSTRACT", _TL("Abstract"), _TL(""), "", true);
+	Parameters.Add_Value      (NULL, "GCS_XMIN", _TL("Left"    ), _TL(""), PARAMETER_TYPE_Double);
+	Parameters.Add_Value      (NULL, "GCS_XMAX", _TL("Right"   ), _TL(""), PARAMETER_TYPE_Double);
+	Parameters.Add_Value      (NULL, "GCS_YMIN", _TL("Bottom"  ), _TL(""), PARAMETER_TYPE_Double);
+	Parameters.Add_Value      (NULL, "GCS_YMAX", _TL("Top"     ), _TL(""), PARAMETER_TYPE_Double);
+	Parameters.Add_Choice     (NULL, "LAYER"   , _TL("Layer"   ), _TL(""), "");
 }
-
-//---------------------------------------------------------
-CWMS_Import::~CWMS_Import(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWMS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
+	{
+		CWMS_Capabilities	Capabilities;
+
+		if( Capabilities.Create(pParameter->asString(), "1.1.1") )
+		{
+			pParameters->Set_Parameter("ABSTRACT", Capabilities.m_Abstract   );
+			pParameters->Set_Parameter("GCS_XMIN", Capabilities.m_Extent.xMin);
+			pParameters->Set_Parameter("GCS_XMAX", Capabilities.m_Extent.xMax);
+			pParameters->Set_Parameter("GCS_YMIN", Capabilities.m_Extent.yMin);
+			pParameters->Set_Parameter("GCS_YMAX", Capabilities.m_Extent.yMax);
+
+			CSG_String	Items;
+
+			for(int i=0; i<Capabilities.m_Layers_Title.Get_Count(); i++)
+			{
+				Items	+= Capabilities.m_Layers_Title[i] + "|";
+			}
+
+			pParameters->Get_Parameter("LAYER")->asChoice()->Set_Items(Items);
+		}
+	}
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CWMS_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWMS_Import::On_Execute(void)
 {
-	wxHTTP				Server;
-	CSG_String			sServer, sDirectory, sVersion;
+	CSG_String	sServer	= Parameters("SERVER")->asString();
+
+	//-----------------------------------------------------
 	CWMS_Capabilities	Capabilities;
 
-	//-----------------------------------------------------
-	sServer		= Parameters("SERVER")->asString();
-
-	if( sServer.Contains(SG_T("http://")) )
+	if( Capabilities.Create(sServer, "1.1.1") == false )
 	{
-		sServer		= Parameters("SERVER")->asString() + 7;
+		Message_Add(_TL("Unable to get capabilities."));
+
+		return( false );
 	}
 
-	sDirectory	= SG_T("/") + sServer.AfterFirst(SG_T('/'));
-	sServer		= sServer.BeforeFirst(SG_T('/'));
-
 	//-----------------------------------------------------
-	Server.SetUser		(Parameters("USERNAME")->asString());
-	Server.SetPassword	(Parameters("PASSWORD")->asString());
+	if( sServer.Find("http://") == 0 )
+	{
+		sServer	= Parameters("SERVER")->asString() + 7;
+	}
+
+	CSG_String	sPath	= "/" + sServer.AfterFirst('/');
+
+	sServer	= sServer.BeforeFirst('/');
+
+	wxHTTP	Server;
+
+	Server.SetUser    (Parameters("USERNAME")->asString());
+	Server.SetPassword(Parameters("PASSWORD")->asString());
 
 	if( Server.Connect(sServer.c_str()) == false )
 	{
@@ -612,24 +357,7 @@ bool CWMS_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Capabilities.Create(&Server, sDirectory, sVersion) == false )
-	{
-		Message_Add(_TL("Unable to get capabilities."));
-
-		return( false );
-	}
-
-	Message_Add(Capabilities.Get_Summary(), false);
-
-	Message_Add(CSG_String::Format(SG_T("\n%s\nmin: %fx - %fy\nmax: %fx - %fy\n"), _TL("Extent"),
-		Capabilities.m_GeoBBox.xMin,
-		Capabilities.m_GeoBBox.yMin,
-		Capabilities.m_GeoBBox.xMax,
-		Capabilities.m_GeoBBox.yMax), false
-	);
-
-	//-----------------------------------------------------
-	if( Get_Map(&Server, sDirectory, sVersion, Capabilities) == false )
+	if( Get_Map(&Server, sPath, Capabilities) == false )
 	{
 		Message_Add(_TL("Unable to get map."));
 
@@ -661,12 +389,12 @@ bool CWMS_Import::Do_Dialog(CWMS_Capabilities &Cap)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, const CSG_String &Version, CWMS_Capabilities &Cap)
+bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, CWMS_Capabilities &Cap)
 {
 	bool	bResult	= false;
 
 	int				i, n;
-	CSG_Rect		r(Cap.m_GeoBBox);
+	CSG_Rect		r(Cap.m_Extent);
 	CSG_Parameters	p;
 
 	//-----------------------------------------------------
@@ -689,9 +417,9 @@ bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, const CS
 			pNode->Set_Value(i);
 	}
 
-	for(i=0; i<Cap.m_nLayers; i++)
+	for(i=0; i<Cap.m_Layers_Name.Get_Count(); i++)
 	{
-		p.Add_Value(NULL	, Cap.m_pLayers[i]->m_Name, Cap.m_pLayers[i]->m_Title, SG_T(""), PARAMETER_TYPE_Bool, false);
+		p.Add_Value(NULL, Cap.m_Layers_Name[i], Cap.m_Layers_Title[i], "", PARAMETER_TYPE_Bool, false);
 	}
 
 	//-----------------------------------------------------
@@ -717,12 +445,13 @@ bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, const CS
 		//-------------------------------------------------
 		Layers.Clear();
 
-		for(i=0, n=0; i<Cap.m_nLayers; i++)
+		for(i=0, n=0; i<Cap.m_Layers_Name.Get_Count(); i++)
 		{
-			if( p(Cap.m_pLayers[i]->m_Name)->asBool() )
+			if( p(Cap.m_Layers_Name[i])->asBool() )
 			{
-				if( n++ > 0 )	Layers	+= SG_T(",");
-				Layers	+= Cap.m_pLayers[i]->m_Name;
+				if( n++ > 0 )	Layers	+= ",";
+
+				Layers	+= Cap.m_Layers_Name[i];
 			}
 		}
 
@@ -754,13 +483,13 @@ bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, const CS
 		CSG_String	sRequest(Directory);
 
 		sRequest	+= SG_T("?SERVICE=WMS");
-		sRequest	+= SG_T("&VERSION=")	+ Version;
+		sRequest	+= SG_T("&VERSION=")	+ Cap.m_Version;
 		sRequest	+= SG_T("&REQUEST=GetMap");
 
 		sRequest	+= SG_T("&LAYERS=")		+ Layers;
 
-		if( Cap.m_sProjections.Get_Count() > 0 )
-			sRequest	+= S_SRS(Version)		+ Cap.m_sProjections[p("PROJ")->asInt()];
+		if( Cap.m_Projections.Length() > 0 )
+			sRequest	+= CSG_String(S_SRS(Cap.m_Version)) + p("PROJ")->asString();
 
 		sRequest	+= SG_T("&FORMAT=")		+ Format;
 

@@ -80,65 +80,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWMS_Layer
-{
-public:
-	CWMS_Layer(void)			{}
-	virtual ~CWMS_Layer(void)	{}
-
-
-	TSG_Rect			m_GeoBBox;
-
-	CSG_String			m_Name, m_Title;
-
-};
-
-//---------------------------------------------------------
 class CWMS_Capabilities
 {
 public:
 	CWMS_Capabilities(void);
-	CWMS_Capabilities(class wxHTTP *pServer, const CSG_String &Directory, CSG_String &Version);
+	CWMS_Capabilities(const CSG_String &Server, const CSG_String &Version);
 
 	virtual ~CWMS_Capabilities(void);
 
-
-	bool				Create				(class wxHTTP *pServer, const CSG_String &Directory, CSG_String &Version);
-
-	CSG_String			Get_Summary			(void);
+	bool				Create				(const CSG_String &Server, const CSG_String &Version);
+	void				Destroy				(void);
 
 
-	int					m_MaxLayers, m_MaxWidth, m_MaxHeight, m_nLayers;
+	TSG_Rect			m_Extent;
 
-	TSG_Rect			m_GeoBBox;
+	int					m_MaxWidth, m_MaxHeight, m_LayerLimit;
 
-	CSG_String			m_Name, m_Title, m_Abstract, m_Online, m_Contact, m_Fees, m_Access, m_Formats, m_Layers_Title, m_Projections;
+	CSG_String			m_Name, m_Version, m_Title, m_Abstract, m_Formats, m_Projections;
 
-	CSG_Strings			m_Keywords, m_sProjections;
+	CSG_Strings			m_Layers_Name, m_Layers_Title;
 
-	CWMS_Layer			**m_pLayers;
-
-
-private:
-
-	void				_Reset				(void);
-
-	class wxXmlNode *	_Get_Child			(class wxXmlNode *pNode, const CSG_String &Name);
-	bool				_Get_Child_Content	(class wxXmlNode *pNode, CSG_String &Value, const CSG_String &Name);
-	bool				_Get_Child_Content	(class wxXmlNode *pNode, int        &Value, const CSG_String &Name);
-	bool				_Get_Child_Content	(class wxXmlNode *pNode, double     &Value, const CSG_String &Name);
-	bool				_Get_Node_PropVal	(class wxXmlNode *pNode, CSG_String &Value, const CSG_String &Property);
-	bool				_Get_Child_PropVal	(class wxXmlNode *pNode, CSG_String &Value, const CSG_String &Name, const CSG_String &Property);
-
-	bool				_Get_Capabilities	(class wxXmlNode *pRoot, CSG_String &Version);
-	bool				_Get_Layer			(class wxXmlNode *pNode);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -147,19 +113,21 @@ class CWMS_Import : public CSG_Module
 {
 public:
 	CWMS_Import(void);
-	virtual ~CWMS_Import(void);
 
 
 protected:
 
-	virtual bool		On_Execute			(void);
+	virtual int			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	bool				Do_Dialog			(CWMS_Capabilities &Cap);
+	bool				Do_Dialog				(CWMS_Capabilities &Cap);
 
-	bool				Get_Map				(class wxHTTP *pServer, const CSG_String &Directory, const CSG_String &Version, CWMS_Capabilities &Cap);
+	bool				Get_Map					(class wxHTTP *pServer, const CSG_String &Version, CWMS_Capabilities &Cap);
 
 };
 

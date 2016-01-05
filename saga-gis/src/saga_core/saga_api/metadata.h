@@ -106,6 +106,8 @@ public:
 	bool						Load				(CSG_File &Stream);
 	bool						Save				(CSG_File &Stream)			const;
 
+	bool						Load_HTTP			(const CSG_String &Server, const CSG_String &Path, const SG_Char *Username = NULL, const SG_Char *Password = NULL);
+
 	bool						Load_WKT			(const CSG_String &WKT);
 	bool						Save_WKT			(      CSG_String &WKT)		const;
 

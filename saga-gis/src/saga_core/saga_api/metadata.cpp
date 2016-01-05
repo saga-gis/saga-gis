@@ -63,6 +63,7 @@
 #include <wx/xml/xml.h>
 #include <wx/wfstream.h>
 #include <wx/sstream.h>
+#include <wx/protocol/http.h>
 
 #include "metadata.h"
 #include "table.h"
@@ -696,6 +697,15 @@ bool CSG_MetaData::Load(const CSG_String &File, const SG_Char *Extension)
 {
 	Destroy();
 
+	//-----------------------------------------------------
+	if( File.Find("http://") == 0 )
+	{
+		CSG_String	s(File.Right(File.Length() - CSG_String("http://").Length()));
+
+		return( Load_HTTP(s.BeforeFirst('/'), s.AfterFirst('/')) );
+	}
+
+	//-----------------------------------------------------
 	wxXmlDocument	XML;
 
 	if( SG_File_Exists(SG_File_Make_Path(NULL, File, Extension)) && XML.Load(SG_File_Make_Path(NULL, File, Extension).c_str()) )
@@ -705,6 +715,7 @@ bool CSG_MetaData::Load(const CSG_String &File, const SG_Char *Extension)
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	return( false );
 }
 
@@ -834,7 +845,64 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_MetaData::Load_HTTP(const CSG_String &Server, const CSG_String &Path, const SG_Char *Username, const SG_Char *Password)
+{
+	Destroy();
+
+	//-----------------------------------------------------
+	wxHTTP	HTTP;
+
+	if( Username && *Username )	{	HTTP.SetUser    (Username);	}
+	if( Password && *Password )	{	HTTP.SetPassword(Password);	}
+
+	wxString	s	= Server.c_str();
+
+	if( s.Find("http://") == 0 )
+	{
+		s	= s.Right(s.Length() - wxString("http://").Length());
+	}
+
+	if( !HTTP.Connect(s) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	s	= Path.c_str();
+
+	if( s[0] != '/' )
+	{
+		s.Prepend("/");
+	}
+
+	wxInputStream	*pStream	= HTTP.GetInputStream(s);
+
+	if( !pStream )
+	{
+		return( false );
+	}
+
+	wxXmlDocument	XML;
+
+	if( XML.Load(*pStream) )
+	{
+		_Load(XML.GetRoot());
+
+		delete(pStream);
+
+		return( true );
+	}
+
+	delete(pStream);
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
