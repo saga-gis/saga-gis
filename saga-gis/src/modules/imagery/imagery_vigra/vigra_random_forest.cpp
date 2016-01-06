@@ -117,9 +117,16 @@ public:
 	bool						Train_Model				(const CSG_Matrix &Data);
 
 	int							Get_Feature_Count		(void)	{	return( m_Forest.feature_count() );	}
+	int							Get_Class_Count			(void)	{	return( m_Forest.  class_count() );	}
 
 	int							Get_Prediction			(vigra::Matrix<double> features);
 	vigra::Matrix<double>		Get_Probabilities		(vigra::Matrix<double> features);
+
+	double						Get_OOB					(void)	{	return( m_OOB.oob_breiman );	}
+
+	double						Get_Importance			(int iFeature, int iClass)	{	return( m_VI.variable_importance_(iFeature, iClass) );	}
+	double						Get_Importance			(int iFeature)	{	return( m_VI.variable_importance_(iFeature, Get_Class_Count() + 0) );	}
+	double						Get_Gini				(int iFeature)	{	return( m_VI.variable_importance_(iFeature, Get_Class_Count() + 1) );	}
 
 
 private:
@@ -127,7 +134,11 @@ private:
 	CSG_Parameters				*m_pParameters;
 
 	vigra::RandomForest<int>	m_Forest;
-	
+
+	vigra::rf::visitors::OOB_Error					m_OOB;	// visitor to calculate out-of-bag error
+
+	vigra::rf::visitors::VariableImportanceVisitor	m_VI;	// visitor to calculate variable importance
+
 };
 
 
@@ -290,12 +301,11 @@ bool CRandom_Forest::Train_Model(const CSG_Matrix &Data)
 	//-----------------------------------------------------
 	SG_UI_Process_Set_Text(_TL("learning"));
 
-	vigra::rf::visitors::OOB_Error	oob_v;	// construct visitor to calculate out-of-bag error
+	m_Forest.learn(train_features, train_response, vigra::rf::visitors::create_visitor(m_OOB, m_VI));
 
-	m_Forest.learn(train_features, train_response, vigra::rf::visitors::create_visitor(oob_v));
+	SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %f\n", _TL("out-of-bag error"), Get_OOB()), false);
 
-	SG_UI_Msg_Add_Execution(CSG_String::Format(SG_T("\n%s: %f"), _TL("out-of-bag error"), oob_v.oob_breiman), false);
-
+	//-----------------------------------------------------
 #if defined(WITH_HDF5)
 	if( (*m_pParameters)("RF_EXPORT")->asString() && *(*m_pParameters)("RF_EXPORT")->asString() )
 	{
@@ -402,6 +412,12 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Table(
+		NULL	, "IMPORTANCES"			, _TL("Feature Importances"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "TRAINING"			, _TL("Training Areas"),
@@ -442,8 +458,9 @@ int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 	{
 		bool	bTraining	= !SG_File_Exists(pParameter->asString());
 
-		pParameters->Set_Enabled("RF_OPTIONS", bTraining);
-		pParameters->Set_Enabled("TRAINING"  , bTraining);
+		pParameters->Set_Enabled("RF_OPTIONS" , bTraining);
+		pParameters->Set_Enabled("TRAINING"   , bTraining);
+		pParameters->Set_Enabled("IMPORTANCES", bTraining);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_MRMR") )
@@ -456,7 +473,7 @@ int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 		CSG_mRMR::Parameters_Enable(pParameters, pParameter);
 	}
 
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -532,6 +549,39 @@ bool CViGrA_Random_Forest::On_Execute(void)
 		}
 
 		Model.Train_Model(Data);
+
+		//-------------------------------------------------
+		int	iFeature, iClass;
+
+		CSG_Table	*pImportances	= Parameters("IMPORTANCES")->asTable();
+
+		pImportances->Destroy();
+		pImportances->Set_Name(_TL("Feature Importances"));
+
+		pImportances->Add_Field(_TL("Feature"), SG_DATATYPE_String);
+
+		for(iClass=0; iClass<Classes.Get_Count(); iClass++)
+		{
+			pImportances->Add_Field(Classes[iClass].asString(CLASS_NAME), SG_DATATYPE_Double);
+		}
+
+		pImportances->Add_Field(_TL("Permutation Importance"), SG_DATATYPE_Double);
+		pImportances->Add_Field(_TL("Gini Decrease"         ), SG_DATATYPE_Double);
+
+		for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+		{
+			CSG_Table_Record	*pImportance	= pImportances->Add_Record();
+
+			pImportance->Set_Value(0, m_pFeatures[iFeature]->Get_Name());
+
+			for(iClass=0; iClass<Classes.Get_Count(); iClass++)
+			{
+				pImportance->Set_Value(1 + iClass, Model.Get_Importance(iFeature, iClass));
+			}
+
+			pImportance->Set_Value(1 + Classes.Get_Count(), Model.Get_Importance(iFeature));
+			pImportance->Set_Value(2 + Classes.Get_Count(), Model.Get_Gini      (iFeature));
+		}
 	}
 
 
