@@ -78,19 +78,17 @@ class CCluster_ISODATA
 {
 public:
 	CCluster_ISODATA(void);
-	CCluster_ISODATA(size_t nFeatures);
+	CCluster_ISODATA(size_t nFeatures, TSG_Data_Type Data_Type);
 
 	virtual ~CCluster_ISODATA(void);
 
-	bool					Create					(size_t nFeatures);
+	bool					Create					(size_t nFeatures, TSG_Data_Type Data_Type);
 	bool					Destroy					(void);
 
 	size_t					Get_Feature_Count		(void)	{	return( m_nFeatures );	}
 
 	size_t					Get_Sample_Count		(void)	{	return( m_Data.Get_Size() );	}
 	bool					Add_Sample				(const double *Sample);
-	double *				Get_Sample				(size_t iSample)					{	return(  (double *)m_Data.Get_Entry(iSample) );	}
-	double					Get_Sample				(size_t iSample, size_t iFeature)	{	return( ((double *)m_Data.Get_Entry(iSample))[iFeature] );	}
 
 	size_t					Get_Cluster_Count		(void)	{	return( m_nCluster );	}
 	size_t					Get_Cluster_Count		(size_t iCluster)					{	return( cl_m[iCluster]           );	}
@@ -116,6 +114,8 @@ private:
 
 	double					m_Distance, m_Distance_Max, m_StdDev_Max;
 
+	TSG_Data_Type			m_Data_Type;
+
 	CSG_Array				m_Data;
 
 	CSG_Array_Int			cl_m, cl_msc, data_cl;
@@ -128,6 +128,8 @@ private:
 	void					_On_Construction		(void);
 
 	bool					_Initialize				(void);
+
+	double					_Get_Sample				(size_t iSample, size_t iFeature);
 
 	double					_Get_Sample_Distance	(int iSample , int iCluster);
 	double					_Get_Cluster_Distance	(int iCluster, int jCluster);

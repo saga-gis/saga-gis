@@ -193,6 +193,10 @@ int CGrid_Cluster_ISODATA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 bool CGrid_Cluster_ISODATA::On_Execute(void)
 {
+	int		iFeature;
+	sLong	iCell;
+	size_t	iSample, iCluster;
+
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pFeatures	= Parameters("FEATURES")->asGridList();
 
@@ -203,7 +207,29 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 	bool	bNormalize	= Parameters("NORMALIZE")->asBool();
 
 	//-----------------------------------------------------
-	CCluster_ISODATA	Cluster(pFeatures->Get_Count());
+	TSG_Data_Type	Data_Type;
+
+	if( bNormalize )
+	{
+		Data_Type	= SG_DATATYPE_Float;
+	}
+	else
+	{
+		Data_Type	= SG_DATATYPE_Char;
+
+		for(iFeature=0; iFeature<pFeatures->Get_Count(); iFeature++)
+		{
+			if( Data_Type < pFeatures->asGrid(iFeature)->Get_Type() )
+			{
+				Data_Type	= pFeatures->asGrid(iFeature)->Get_Type();
+			}
+		}
+
+		Message_Add(CSG_String::Format("\n%s: %s", _TL("internal data type"), SG_Data_Type_Get_Name(Data_Type).c_str()), false);
+	}
+
+	//-----------------------------------------------------
+	CCluster_ISODATA	Cluster(pFeatures->Get_Count(), Data_Type);
 
 	Cluster.Set_Max_Iterations(Parameters("ITERATIONS" )->asInt   ());
 	Cluster.Set_Ini_Clusters  (Parameters("CLUSTER_INI")->asInt   ());
@@ -213,10 +239,6 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 //	Cluster.Set_Max_StdDev    (Parameters("STDV_MAX"   )->asDouble());
 
 	//-----------------------------------------------------
-	int		iFeature;
-	sLong	iCell;
-	size_t	iSample, iCluster;
-
 	for(iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
 	{
 		CSG_Vector	Features(pFeatures->Get_Count());

@@ -87,21 +87,44 @@ CCluster_ISODATA::CCluster_ISODATA(void)
 }
 
 //---------------------------------------------------------
-CCluster_ISODATA::CCluster_ISODATA(size_t nFeatures)
+CCluster_ISODATA::CCluster_ISODATA(size_t nFeatures, TSG_Data_Type Data_Type)
 {
 	_On_Construction();
 
-	Create(nFeatures);
+	Create(nFeatures, Data_Type);
 }
 
 //---------------------------------------------------------
-bool CCluster_ISODATA::Create(size_t nFeatures)
+bool CCluster_ISODATA::Create(size_t nFeatures, TSG_Data_Type Data_Type)
 {
 	Destroy();
 
+	switch( Data_Type )
+	{
+	case SG_DATATYPE_Bit   :
+		m_Data_Type	= SG_DATATYPE_Byte;
+		break;
+
+	case SG_DATATYPE_Byte  :
+	case SG_DATATYPE_Char  :
+	case SG_DATATYPE_Word  :
+	case SG_DATATYPE_Short :
+	case SG_DATATYPE_DWord :
+	case SG_DATATYPE_Int   :
+	case SG_DATATYPE_ULong :
+	case SG_DATATYPE_Long  :
+	case SG_DATATYPE_Float :
+	case SG_DATATYPE_Double:
+		m_Data_Type	= Data_Type;
+		break;
+
+	default:
+		return( false );
+	}
+
 	m_nFeatures	= nFeatures;
 
-	m_Data.Create(m_nFeatures * sizeof(double), 0, SG_ARRAY_GROWTH_2);
+	m_Data.Create(m_nFeatures * SG_Data_Type_Get_Size(m_Data_Type), 0, SG_ARRAY_GROWTH_2);
 
 	return( m_nFeatures > 0 );
 }
@@ -116,6 +139,7 @@ CCluster_ISODATA::~CCluster_ISODATA(void)
 void CCluster_ISODATA::_On_Construction(void)
 {
 	m_nFeatures		= 0;
+	m_Data_Type		= SG_DATATYPE_Float;
 
 	m_maxIterations	= 999;	// maximum number of iterations
 
@@ -159,17 +183,50 @@ bool CCluster_ISODATA::Add_Sample(const double *Sample)
 {
 	if( m_Data.Inc_Array() )
 	{
-		double	*Data	= (double *)m_Data.Get_Entry(m_Data.Get_Size() - 1);
+		void	*Data	= m_Data.Get_Entry(m_Data.Get_Size() - 1);
 
 		for(size_t iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{
-			Data[iFeature]	= Sample[iFeature];
+			switch( m_Data_Type )
+			{
+			case SG_DATATYPE_Byte  :	((BYTE   *)Data)[iFeature]	= (BYTE  )Sample[iFeature];	break;
+			case SG_DATATYPE_Char  :	((char   *)Data)[iFeature]	= (char  )Sample[iFeature];	break;
+			case SG_DATATYPE_Word  :	((WORD   *)Data)[iFeature]	= (WORD  )Sample[iFeature];	break;
+			case SG_DATATYPE_Short :	((short  *)Data)[iFeature]	= (short )Sample[iFeature];	break;
+			case SG_DATATYPE_DWord :	((DWORD  *)Data)[iFeature]	= (DWORD )Sample[iFeature];	break;
+			case SG_DATATYPE_Int   :	((int    *)Data)[iFeature]	= (int   )Sample[iFeature];	break;
+			case SG_DATATYPE_ULong :	((uLong  *)Data)[iFeature]	= (uLong )Sample[iFeature];	break;
+			case SG_DATATYPE_Long  :	((sLong  *)Data)[iFeature]	= (sLong )Sample[iFeature];	break;
+			case SG_DATATYPE_Float :	((float  *)Data)[iFeature]	= (float )Sample[iFeature];	break;
+			default                :	((double *)Data)[iFeature]	= (double)Sample[iFeature];	break;
+			}
 		}
+
 
 		return( true );
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+inline double CCluster_ISODATA::_Get_Sample(size_t iSample, size_t iFeature)
+{
+	void	*Sample	= m_Data.Get_Entry(iSample);
+
+	switch( m_Data_Type )
+	{
+	case SG_DATATYPE_Byte  :	return( ((BYTE   *)Sample)[iFeature] );
+	case SG_DATATYPE_Char  :	return( ((char   *)Sample)[iFeature] );
+	case SG_DATATYPE_Word  :	return( ((WORD   *)Sample)[iFeature] );
+	case SG_DATATYPE_Short :	return( ((short  *)Sample)[iFeature] );
+	case SG_DATATYPE_DWord :	return( ((DWORD  *)Sample)[iFeature] );
+	case SG_DATATYPE_Int   :	return( ((int    *)Sample)[iFeature] );
+	case SG_DATATYPE_ULong :	return( ((uLong  *)Sample)[iFeature] );
+	case SG_DATATYPE_Long  :	return( ((sLong  *)Sample)[iFeature] );
+	case SG_DATATYPE_Float :	return( ((float  *)Sample)[iFeature] );
+	default                :	return( ((double *)Sample)[iFeature] );
+	}
 }
 
 
@@ -344,7 +401,7 @@ bool CCluster_ISODATA::Run(void)
 
 			for(iFeature=0; iFeature<m_nFeatures; iFeature++)
 			{
-				cl_c[iCluster][iFeature]	+= Get_Sample(iSample, iFeature);
+				cl_c[iCluster][iFeature]	+= _Get_Sample(iSample, iFeature);
 			}
 		}
 
@@ -362,7 +419,7 @@ bool CCluster_ISODATA::Run(void)
 
 		for(iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{
-			cl_c[0][iFeature]	= Get_Sample(0, iFeature);
+			cl_c[0][iFeature]	= _Get_Sample(0, iFeature);
 		}
 	}
 
@@ -429,7 +486,7 @@ bool CCluster_ISODATA::Run(void)
 		{
 			for(iFeature=0; iFeature<m_nFeatures; iFeature++)
 			{
-				cl_c[data_cl[iSample]][iFeature]	+= Get_Sample(iSample, iFeature);
+				cl_c[data_cl[iSample]][iFeature]	+= _Get_Sample(iSample, iFeature);
 			}
 		}
 
@@ -476,7 +533,7 @@ bool CCluster_ISODATA::Run(void)
 			{
 				for(iFeature=0; iFeature<m_nFeatures; iFeature++)
 				{
-					cl_s[data_cl[iSample]][iFeature]	+= SG_Get_Square(Get_Sample(iSample, iFeature) - cl_c[data_cl[iSample]][iFeature]);
+					cl_s[data_cl[iSample]][iFeature]	+= SG_Get_Square(_Get_Sample(iSample, iFeature) - cl_c[data_cl[iSample]][iFeature]);
 				}
 			}
 
@@ -624,11 +681,11 @@ bool CCluster_ISODATA::Run(void)
 //---------------------------------------------------------
 double CCluster_ISODATA::_Get_Sample_Distance(int iSample, int iCluster)
 {
-	double	s	= 0.0, *Sample	= Get_Sample(iSample);
+	double	s	= 0.0;
 
 	for(size_t iFeature=0; iFeature<m_nFeatures; iFeature++)
 	{
-		s	+= SG_Get_Square(Sample[iFeature] - cl_c[iCluster][iFeature]);
+		s	+= SG_Get_Square(_Get_Sample(iSample, iFeature) - cl_c[iCluster][iFeature]);
 	}
 
 	return( sqrt(s) );
