@@ -103,6 +103,7 @@ CSG_String Get_Info(int i)
 #include "decision_tree.h"
 #include "classify_supervised_polygons.h"
 #include "classification_quality.h"
+#include "classify_isocluster.h"
 
 
 //---------------------------------------------------------
@@ -119,8 +120,9 @@ CSG_Module *		Create_Module(int i)
 	case  4:	return( new CPolygon_Classify_Supervised( true) );
 	case  5:	return( new CPolygon_Classify_Supervised(false) );
 	case  6:	return( new CClassification_Quality );
+	case  7:	return( new CGrid_Cluster_ISODATA );
 
-	case  7:	return( NULL );
+	case  8:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 }
