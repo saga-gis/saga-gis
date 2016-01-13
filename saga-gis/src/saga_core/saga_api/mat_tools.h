@@ -866,7 +866,11 @@ public:
 	int							Get_Feature_Count			(void)			{	return( m_nFeatures );				}
 
 	int							Get_Class_Count				(void)			{	return( m_nClasses );				}
-	const CSG_String &			Get_Class_ID				(int iClass)	{	return( m_pClasses[iClass]->m_ID );	}
+
+	const CSG_String &			Get_Class_ID				(int iClass)				{	return( m_pClasses[iClass]->m_ID );	}
+	double						Get_Class_Mean				(int iClass, int iFeature)	{	return( m_pClasses[iClass]->m_Mean[iFeature] );	}
+	double						Get_Class_Minimum			(int iClass, int iFeature)	{	return( m_pClasses[iClass]->m_Min [iFeature] );	}
+	double						Get_Class_Maximum			(int iClass, int iFeature)	{	return( m_pClasses[iClass]->m_Max [iFeature] );	}
 
 	int							Get_Class					(const CSG_String &Class_ID);
 	bool						Get_Class					(const CSG_Vector &Features, int &Class, double &Quality, int Method);
