@@ -877,10 +877,6 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		{
 			pMenu	= Get_Active_Layer()->Edit_Get_Menu();
 		}
-		else
-		{
-			pMenu	= m_pParent->_Create_Menu();
-		}
 		break;
 
 	//-----------------------------------------------------
