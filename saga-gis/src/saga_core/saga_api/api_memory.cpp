@@ -414,9 +414,9 @@ bool CSG_Array::Set_Array(size_t nValues, void **pArray, bool bShrink)
 }
 
 //---------------------------------------------------------
-bool CSG_Array::Inc_Array		(void)
+bool CSG_Array::Inc_Array		(size_t nValues)
 {
-	return( Set_Array(m_nValues + 1) );
+	return( Set_Array(m_nValues + nValues) );
 }
 
 bool CSG_Array::Inc_Array		(void **pArray)
@@ -433,6 +433,56 @@ bool CSG_Array::Dec_Array		(bool bShrink)
 bool CSG_Array::Dec_Array		(void **pArray, bool bShrink)
 {
 	return( m_nValues > 0 ? Set_Array(m_nValues - 1, pArray, bShrink) : false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int * CSG_Array_Int::Create(const CSG_Array_Int &Array)
+{
+	m_Array.Create(Array.m_Array);
+
+	return( (int *)m_Array.Get_Array() );
+}
+
+//---------------------------------------------------------
+int * CSG_Array_Int::Create(size_t nValues, TSG_Array_Growth Growth)
+{
+	m_Array.Create(sizeof(int), nValues, Growth);
+
+	return( (int *)m_Array.Get_Array() );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_Int::Add(int Value)
+{
+	if( Inc_Array() )
+	{
+		Get_Array()[Get_Size() - 1]	= Value;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_Int::Add(const CSG_Array_Int &Array)
+{
+	for(size_t i=0; i<Array.Get_Size(); i++)
+	{
+		if( Add(Array[i]) == false )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
 }
 
 
