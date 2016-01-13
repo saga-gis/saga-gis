@@ -80,6 +80,8 @@ class CGrid_Cluster_Analysis : public CSG_Module_Grid
 public:
 	CGrid_Cluster_Analysis(void);
 
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Unsupervised") );	}
+
 
 protected:
 
@@ -91,7 +93,7 @@ protected:
 private:
 
 	void					Save_Statistics			(CSG_Parameter_Grid_List *pGrids, bool bNormalize, const CSG_Cluster_Analysis &Analysis);
-	void					Save_LUT				(CSG_Grid *pCluster, int nClusters);
+	void					Save_LUT				(CSG_Grid *pCluster);
 
 
 	bool					_On_Execute				(void);

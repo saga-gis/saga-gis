@@ -102,7 +102,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	Parameters.Add_Grid(
 		NULL	, "CLASSES"			, _TL("Classification"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Grid(
@@ -186,6 +186,12 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 			PARAMETER_TYPE_Bool, false
 		);
 	}
+
+	Parameters.Add_Value(
+		NULL	, "RGB_COLORS"	, _TL("Update Colors from Features"),
+		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
+		PARAMETER_TYPE_Bool, true
+	)->Set_UseInCMD(false);
 }
 
 
@@ -210,6 +216,11 @@ int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters,
 		pParameters->Set_Enabled("RELATIVE_PROB"  , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MaximumLikelihood);
 		pParameters->Set_Enabled("THRESHOLD_ANGLE", pParameter->asInt() == SG_CLASSIFY_SUPERVISED_SAM              );
 		pParameters->Set_Enabled("WTA"            , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_WTA              );
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	{
+		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Count() >= 3);
 	}
 
 	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -423,6 +434,10 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 
 	if( pLUT && pLUT->asTable() )
 	{
+		CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+
+		bool	bRGB	= pGrids->Get_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+
 		for(int iClass=0; iClass<Classifier.Get_Class_Count(); iClass++)
 		{
 			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(iClass);
@@ -436,6 +451,17 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 			pClass->Set_Value(2, "");
 			pClass->Set_Value(3, iClass + 1);
 			pClass->Set_Value(4, iClass + 1);
+
+			if( bRGB )
+			{
+				#define SET_COLOR_COMPONENT(c, i)	c = (int)(127 + (Classifier.Get_Class_Mean(iClass, i) - pGrids->asGrid(i)->Get_Mean()) * 127 / pGrids->asGrid(i)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
+
+				int	r; SET_COLOR_COMPONENT(r, 2);
+				int	g; SET_COLOR_COMPONENT(g, 1);
+				int	b; SET_COLOR_COMPONENT(b, 0);
+
+				pClass->Set_Value(0, SG_GET_RGB(r, g, b));
+			}
 		}
 
 		pLUT->asTable()->Set_Record_Count(Classifier.Get_Class_Count());

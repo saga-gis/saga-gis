@@ -74,7 +74,7 @@
 CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Cluster Analysis for Grids"));
+	Set_Name		(_TL("K-Means Clustering for Grids"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2001"));
 
@@ -102,7 +102,7 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 	Parameters.Add_Grid(
 		NULL	, "CLUSTER"		, _TL("Clusters"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Table(
@@ -139,6 +139,12 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 		PARAMETER_TYPE_Bool, false
 	);
 
+	Parameters.Add_Value(
+		NULL	, "RGB_COLORS"	, _TL("Update Colors from Features"),
+		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
+		PARAMETER_TYPE_Bool, true
+	)->Set_UseInCMD(false);
+
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode	=
 	Parameters.Add_Value(NULL	, "OLDVERSION", _TL("Old Version"), _TL("slower but memory saving"), PARAMETER_TYPE_Bool, false);
@@ -147,8 +153,6 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -161,13 +165,16 @@ int CGrid_Cluster_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 		pParameters->Set_Enabled("UPDATEVIEW", pParameter->asBool() == true );
 	}
 
-	return( 1 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	{
+		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Count() >= 3);
+	}
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -195,7 +202,7 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pCluster->Set_NoData_Value(-1.0);
+	pCluster->Set_NoData_Value(0.0);
 
 	for(iElement=0, nElements=0; iElement<Get_NCells() && Set_Progress_NCells(iElement); iElement++)
 	{
@@ -211,11 +218,11 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 		if( bNoData || !Analysis.Add_Element() )
 		{
-			pCluster->Set_Value(iElement, -1);
+			pCluster->Set_Value(iElement, 0);
 		}
 		else
 		{
-			pCluster->Set_Value(iElement, 0);
+			pCluster->Set_Value(iElement, 1);
 
 			for(iFeature=0; iFeature<pGrids->Get_Count(); iFeature++)
 			{
@@ -251,13 +258,13 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 		if( !pCluster->is_NoData(iElement) )
 		{
-			pCluster->Set_Value(iElement, Analysis.Get_Cluster(nElements++));
+			pCluster->Set_Value(iElement, 1 + Analysis.Get_Cluster(nElements++));
 		}
 	}
 
 	Save_Statistics(pGrids, bNormalize, Analysis);
 
-	Save_LUT(pCluster, Analysis.Get_nClusters());
+	Save_LUT(pCluster);
 
 	return( bResult );
 }
@@ -328,37 +335,48 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 }
 
 //---------------------------------------------------------
-void CGrid_Cluster_Analysis::Save_LUT(CSG_Grid *pCluster, int nClusters)
+void CGrid_Cluster_Analysis::Save_LUT(CSG_Grid *pCluster)
 {
-	CSG_Parameters	Parms;
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pCluster, "LUT");
 
-	if( DataObject_Get_Parameters(pCluster, Parms) && Parms("COLORS_TYPE") && Parms("LUT") )
+	if( pLUT && pLUT->asTable() )
 	{
-		CSG_Table_Record	*pClass;
-		CSG_Table			*pLUT	= Parms("LUT")->asTable();
+		CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-		for(int iCluster=0; iCluster<nClusters; iCluster++)
+		CSG_Table	&Statistics	= *Parameters("STATISTICS")->asTable();
+
+		bool	bRGB	= pGrids->Get_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+
+		for(int iCluster=0; iCluster<Statistics.Get_Count(); iCluster++)
 		{
-			if( (pClass = pLUT->Get_Record(iCluster)) == NULL )
+			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(iCluster);
+
+			if( !pClass )
 			{
-				pClass	= pLUT->Add_Record();
-				pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
+				(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
 			}
 
-			pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), iCluster + 1));
-			pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), iCluster + 1));
-			pClass->Set_Value(3, iCluster);
-			pClass->Set_Value(4, iCluster);
+			pClass->Set_Value(1, CSG_String::Format("%s %d", _TL("Cluster"), iCluster + 1));
+			pClass->Set_Value(2, "");
+			pClass->Set_Value(3, iCluster + 1);
+			pClass->Set_Value(4, iCluster + 1);
+
+			if( bRGB )
+			{
+				#define SET_COLOR_COMPONENT(c, i)	c = (int)(127 + (Statistics[iCluster].asDouble(3 + i) - pGrids->asGrid(i)->Get_Mean()) * 127 / pGrids->asGrid(i)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
+
+				int	r; SET_COLOR_COMPONENT(r, 2);
+				int	g; SET_COLOR_COMPONENT(g, 1);
+				int	b; SET_COLOR_COMPONENT(b, 0);
+
+				pClass->Set_Value(0, SG_GET_RGB(r, g, b));
+			}
 		}
 
-		while( pLUT->Get_Record_Count() > nClusters )
-		{
-			pLUT->Del_Record(pLUT->Get_Record_Count() - 1);
-		}
+		pLUT->asTable()->Set_Record_Count(Statistics.Get_Count());
 
-		Parms("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
-
-		DataObject_Set_Parameters(pCluster, Parms);
+		DataObject_Set_Parameter(pCluster, pLUT);
+		DataObject_Set_Parameter(pCluster, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 }
 
@@ -376,7 +394,7 @@ void CGrid_Cluster_Analysis::Save_LUT(CSG_Grid *pCluster, int nClusters)
 //														 //
 ///////////////////////////////////////////////////////////
 //														 //
-//				slow, but safes memory !				 //
+//				slow, but saves memory !				 //
 //														 //
 //														 //
 //														 //
@@ -457,7 +475,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	Save_LUT(pCluster, nCluster);
+	Save_LUT(pCluster);
 
 	//-------------------------------------------------
 	int					iCluster, iFeature;
