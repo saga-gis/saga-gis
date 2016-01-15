@@ -124,6 +124,7 @@ public:
 	virtual ~CSG_GDAL_DataSet(void);
 
 	bool						Open_Read			(const CSG_String &File_Name);
+	bool						Open_Read			(const CSG_String &File_Name, const CSG_Grid_System &System, const CSG_Projection &Projection);
 	bool						Open_Write			(const CSG_String &File_Name, const CSG_String &Driver, const CSG_String &Options, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection);
 	bool						Close				(void);
 
@@ -145,8 +146,8 @@ public:
 	bool						Needs_Transformation(void)	const	{	return( m_bTransform );	}
 	void						Get_Transformation	(CSG_Vector &A, CSG_Matrix &B)				const	{	A	= m_TF_A;	B	= m_TF_B;	}
 	bool						Get_Transformation	(CSG_Grid_System &System, bool bVerbose)	const;
-	bool						Get_Transformation	(CSG_Grid **ppGrid, TSG_Grid_Interpolation Interpolation, bool bVerbose)	const;
-	bool						Get_Transformation	(CSG_Grid **ppGrid, TSG_Grid_Interpolation Interpolation, const CSG_Grid_System &System, bool bVerbose)	const;
+	bool						Get_Transformation	(CSG_Grid **ppGrid, TSG_Grid_Resampling Interpolation, bool bVerbose)	const;
+	bool						Get_Transformation	(CSG_Grid **ppGrid, TSG_Grid_Resampling Interpolation, const CSG_Grid_System &System, bool bVerbose)	const;
 
 	class GDALDriver *			Get_Driver			(void)	const;
 	CSG_String					Get_DriverID		(void)	const;
@@ -185,7 +186,10 @@ private:
 
 	CSG_Matrix					m_TF_B, m_TF_BInv;
 
-	class GDALDataset			*m_pDataSet;
+	class GDALDataset			*m_pDataSet, *m_pVrtSource;
+
+
+	bool						_Set_Transformation	(void);
 
 
 public:

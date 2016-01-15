@@ -60,8 +60,11 @@
 #include "gdal_driver.h"
 
 #include <gdal_priv.h>
+
 #include <cpl_string.h>
 #include <cpl_error.h>
+
+#include <vrtdataset.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -219,7 +222,7 @@ TSG_Data_Type CSG_GDAL_Drivers::Get_SAGA_Type(int Type)
 //---------------------------------------------------------
 CSG_GDAL_DataSet::CSG_GDAL_DataSet(void)
 {
-	m_pDataSet	= NULL;
+	m_pDataSet	= m_pVrtSource	= NULL;
 
 	m_TF_A.Create(2);
 	m_TF_B.Create(2, 2);
@@ -228,7 +231,7 @@ CSG_GDAL_DataSet::CSG_GDAL_DataSet(void)
 //---------------------------------------------------------
 CSG_GDAL_DataSet::CSG_GDAL_DataSet(const CSG_String &File_Name)
 {
-	m_pDataSet	= NULL;
+	m_pDataSet	= m_pVrtSource	= NULL;
 
 	m_TF_A.Create(2);
 	m_TF_B.Create(2, 2);
@@ -258,14 +261,67 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 	}
 
 	//-----------------------------------------------------
-	double	Transform[6];
-
 	m_File_Name	= File_Name;
 
 	m_Access	= SG_GDAL_IO_READ;
 
-	m_NX		= m_pDataSet->GetRasterXSize();
-	m_NY		= m_pDataSet->GetRasterYSize();
+	return( _Set_Transformation() );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_System &System, const CSG_Projection &Projection)
+{
+	Close();
+
+	if( (m_pVrtSource = (GDALDataset *)GDALOpen(File_Name, GA_ReadOnly)) == NULL )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( (m_pDataSet = (VRTDataset *)VRTCreate(System.Get_NX(), System.Get_NY())) == NULL )
+	{
+		Close();
+
+		return( false );
+	}
+
+	if( Projection.is_Okay() )
+	{
+		m_pDataSet->SetProjection(Projection.Get_Proj4());
+	}
+
+	for(int i=0; i<m_pVrtSource->GetRasterCount(); i++)
+	{
+		GDALRasterBand	*pSrcBand	= m_pVrtSource->GetRasterBand(i + 1);
+
+		m_pDataSet->AddBand(pSrcBand->GetRasterDataType());
+
+		VRTSourcedRasterBand	*pVrtBand	= (VRTSourcedRasterBand *)m_pVrtSource->GetRasterBand(i + 1);
+
+		pVrtBand->AddSimpleSource(pVrtBand);
+	}
+
+	//-----------------------------------------------------
+	m_File_Name	= File_Name;
+
+	m_Access	= SG_GDAL_IO_READ;
+
+	return( _Set_Transformation() );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::_Set_Transformation(void)
+{
+	if( !m_pDataSet )
+	{
+		return( false );
+	}
+
+	double	Transform[6];
+
+	m_NX	= m_pDataSet->GetRasterXSize();
+	m_NY	= m_pDataSet->GetRasterYSize();
 
 	if( m_pDataSet->GetGeoTransform(Transform) != CE_None )
 	{
@@ -299,6 +355,11 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String &Driver, const CSG_String &Options, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection)
@@ -383,9 +444,12 @@ bool CSG_GDAL_DataSet::Close(void)
 {
 	if( m_pDataSet )
 	{
-		GDALClose(m_pDataSet);
+		GDALClose(m_pDataSet); m_pDataSet = NULL;
+	}
 
-		m_pDataSet	= NULL;
+	if( m_pVrtSource )
+	{
+		GDALClose(m_pVrtSource); m_pVrtSource = NULL;
 	}
 
 	m_File_Name.Clear();
@@ -871,7 +935,7 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid_System &System, bool bVerbose
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Interpolation	Interpolation, bool bVerbose)	const
+bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling	Interpolation, bool bVerbose)	const
 {
 	CSG_Grid_System	System;
 
@@ -884,7 +948,7 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Interpolat
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Interpolation	Interpolation, const CSG_Grid_System &System, bool bVerbose)	const
+bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling	Interpolation, const CSG_Grid_System &System, bool bVerbose)	const
 {
 	if( !System.is_Valid() )
 	{
