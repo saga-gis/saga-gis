@@ -234,7 +234,6 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 	if( bResult )
 	{
 		Set_File_Name(File_Name, true);
-		Load_MetaData(File_Name);
 	}
 
 	//-----------------------------------------------------
@@ -411,8 +410,6 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 		Set_Modified(false);
 
 		Set_File_Name(File_Name, true);
-
-		Save_MetaData(File_Name);
 
 		SG_UI_Process_Set_Ready();
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);

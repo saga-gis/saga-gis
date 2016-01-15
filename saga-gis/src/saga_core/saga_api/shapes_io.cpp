@@ -340,6 +340,20 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 
+	//-----------------------------------------------------
+	Load_MetaData(File_Name);
+
+	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+
+	if( pFields && pFields->Get_Children_Count() == Get_Field_Count() )
+	{
+		for(iField=0; iField<Get_Field_Count(); iField++)
+		{
+			Set_Field_Name(iField, pFields->Get_Content(iField));
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -632,6 +646,24 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	Get_Projection().Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 
+	//-----------------------------------------------------
+	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+
+	if( !pFields )
+	{
+		pFields	= Get_MetaData_DB().Add_Child("FIELDS");
+	}
+
+	pFields->Del_Children();
+
+	for(iField=0; iField<Get_Field_Count(); iField++)
+	{
+		pFields->Add_Child("FIELD", Get_Field_Name(iField))->Add_Property("TYPE", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
+	}
+
+	Save_MetaData(File_Name);
+
+	//-----------------------------------------------------
 	return( true );
 }
 

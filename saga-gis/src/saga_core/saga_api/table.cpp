@@ -180,7 +180,6 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 	if( bResult )
 	{
 		Set_File_Name(File_Name, true);
-		Load_MetaData(File_Name);
 	}
 
 	//-----------------------------------------------------

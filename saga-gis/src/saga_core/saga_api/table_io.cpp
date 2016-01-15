@@ -102,17 +102,26 @@ bool CSG_Table::Load(const CSG_String &File_Name, int Format, SG_Char Separator)
 	//-----------------------------------------------------
 	switch( Format )
 	{
-	case TABLE_FILETYPE_Text: default:
-		return( _Load_Text (File_Name, true , Separator) );
-
-	case TABLE_FILETYPE_Text_NoHeadLine:
-		return( _Load_Text (File_Name, false, Separator) );
-
-	case TABLE_FILETYPE_DBase:
-		return( _Load_DBase(File_Name) );
+	case TABLE_FILETYPE_Text:   default: if( !_Load_Text (File_Name, true , Separator) ) return( false ); break;
+	case TABLE_FILETYPE_Text_NoHeadLine: if( !_Load_Text (File_Name, false, Separator) ) return( false ); break;
+	case TABLE_FILETYPE_DBase          : if( !_Load_DBase(File_Name                  ) ) return( false ); break;
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	Load_MetaData(File_Name);
+
+	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+
+	if( pFields && pFields->Get_Children_Count() == Get_Field_Count() )
+	{
+		for(int iField=0; iField<Get_Field_Count(); iField++)
+		{
+			Set_Field_Name(iField, pFields->Get_Child(iField)->Get_Name());
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -160,6 +169,21 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, SG_Char Separator)
 	case TABLE_FILETYPE_DBase:
 		bResult	= _Save_DBase(File_Name);
 		break;
+	}
+
+	//-----------------------------------------------------
+	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+
+	if( !pFields )
+	{
+		pFields	= Get_MetaData_DB().Add_Child("FIELDS");
+	}
+
+	pFields->Del_Children();
+
+	for(int iField=0; iField<Get_Field_Count(); )
+	{
+		pFields->Add_Child("FIELD", Get_Field_Name(iField))->Add_Property("TYPE", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
 	}
 
 	//-----------------------------------------------------
