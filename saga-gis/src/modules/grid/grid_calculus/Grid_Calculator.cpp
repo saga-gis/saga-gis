@@ -130,15 +130,14 @@ CGrid_Calculator::CGrid_Calculator(void)
 	);
 
 	Parameters.Add_Choice(
-		pNode	,"INTERPOLATION"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Grid(
@@ -174,7 +173,7 @@ CGrid_Calculator::CGrid_Calculator(void)
 	Parameters.Add_Choice(
 		NULL	, "TYPE"			, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			SG_Data_Type_Get_Name(SG_DATATYPE_Bit   ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
@@ -213,7 +212,7 @@ int CGrid_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XGRIDS") )
 	{
-		pParameters->Set_Enabled("INTERPOLATION", pParameter->asGridList()->Get_Count() > 0);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asGridList()->Get_Count() > 0);
 	}
 
 	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -228,22 +227,31 @@ int CGrid_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 bool CGrid_Calculator::On_Execute(void)
 {
 	bool					bUseNoData, bPosition[4];
-	int						Interpol;
 	CSG_Formula				Formula;
 	CSG_Parameter_Grid_List	*pGrids, *pXGrids;
 	CSG_Grid				*pResult;
 
 	//-----------------------------------------------------
-	pResult		= Parameters("RESULT"       )->asGrid();
-	pGrids		= Parameters("GRIDS"        )->asGridList();
-	pXGrids		= Parameters("XGRIDS"       )->asGridList();
-	bUseNoData	= Parameters("USE_NODATA"   )->asBool();
-	Interpol	= Parameters("INTERPOLATION")->asInt();
+	pResult		= Parameters("RESULT"    )->asGrid();
+	pGrids		= Parameters("GRIDS"     )->asGridList();
+	pXGrids		= Parameters("XGRIDS"    )->asGridList();
+	bUseNoData	= Parameters("USE_NODATA")->asBool();
 
 	//-----------------------------------------------------
 	if( !Get_Formula(Formula, Parameters("FORMULA")->asString(), pGrids->Get_Count(), pXGrids->Get_Count(), bPosition) )
 	{
 		return( false );
+	}
+
+	//-----------------------------------------------------
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
 	}
 
 	//-----------------------------------------------------
@@ -299,7 +307,7 @@ bool CGrid_Calculator::On_Execute(void)
 
 			for(i=0; bOkay && i<pXGrids->Get_Count(); i++, n++)
 			{
-				bOkay	= pXGrids->asGrid(i)->Get_Value(px, py, Values[n], Interpol);
+				bOkay	= pXGrids->asGrid(i)->Get_Value(px, py, Values[n], Resampling);
 			}
 
 			if( bOkay )

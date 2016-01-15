@@ -121,22 +121,19 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "INTERPOL"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL("interpolation method to use if grid needs to be aligned to coordinate system"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -174,8 +171,6 @@ int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -208,8 +203,6 @@ const char * CGDAL_Import_NetCDF::Get_Level(CSG_GDAL_DataSet &DataSet, int iBand
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -225,8 +218,6 @@ CSG_String CGDAL_Import_NetCDF::Get_Time_String(const CSG_String &Time, int Form
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -299,8 +290,6 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -377,16 +366,14 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Desc
 	}
 
 	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation;
+	TSG_Grid_Resampling	Resampling;
 
-	switch( Parameters("INTERPOL")->asInt() )
+	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:
-	case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-	case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-	case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-	case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-	case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
 	}
 
 	bool	bTransform	= Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transformation();
@@ -409,7 +396,7 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Desc
 				{
 					Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("band transformation"), i + 1, DataSet.Get_Count()));
 
-					DataSet.Get_Transformation(&pGrid, Interpolation, true);
+					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}
 
 				CSG_String	Name(_TL("unknown"));

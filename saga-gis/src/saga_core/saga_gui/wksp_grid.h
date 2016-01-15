@@ -141,8 +141,8 @@ private:
 
 	void						_Save_Image				(void);
 
-	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, int Interpolation);
-	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, int Interpolation, int Mode, CWKSP_Grid *pOverlay[2], int yDC, int axDC, int bxDC);
+	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
+	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int Mode, CWKSP_Grid *pOverlay[2], int yDC, int axDC, int bxDC);
 	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map);
 
 	void						_Draw_Values			(CWKSP_Map_DC &dc_Map);

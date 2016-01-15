@@ -402,7 +402,7 @@ bool CGrid_Swath_Profile::Add_Swath(CSG_Shape *pPoint, int iEntry, CSG_Grid *pGr
 {
 	double	Value;
 
-	if( pGrid->Get_Value(pPoint->Get_Point(0), Value, GRID_INTERPOLATION_BSpline, false, true) )
+	if( pGrid->Get_Value(pPoint->Get_Point(0), Value, GRID_RESAMPLING_BSpline, false, true) )
 	{
 		pPoint->Set_Value(iEntry, Value);
 	}
@@ -432,7 +432,7 @@ bool CGrid_Swath_Profile::Add_Swath(CSG_Shape *pPoint, int iEntry, CSG_Grid *pGr
 
 	for( ; iRun<=nRun; iRun+=dRun, Left+=Step)
 	{
-		if( pGrid->Get_Value(Left, Value, GRID_INTERPOLATION_BSpline, false, true) )
+		if( pGrid->Get_Value(Left, Value, GRID_RESAMPLING_BSpline, false, true) )
 		{
 			Statistics	+= Value;
 		}

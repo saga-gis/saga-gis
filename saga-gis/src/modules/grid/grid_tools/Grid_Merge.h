@@ -93,9 +93,11 @@ protected:
 
 private:
 
-	int							m_Overlap, m_Interpolation;
+	int							m_Overlap;
 
 	double						m_dBlend;
+
+	TSG_Grid_Resampling			m_Resampling;
 
 	CSG_Vector					m_Match;
 

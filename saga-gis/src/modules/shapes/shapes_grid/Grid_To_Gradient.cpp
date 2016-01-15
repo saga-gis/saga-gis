@@ -189,7 +189,7 @@ bool CGrid_To_Gradient::On_Execute(void)
 	int						x, y, Step;
 	double					sMin, sRange, ex, ey, d;
 	TSG_Point				p;
-	TSG_Grid_Interpolation	Interpolation;
+	TSG_Grid_Resampling	Interpolation;
 	CSG_Grid_System			System;
 	CSG_Grid				EX, EY, D;
 	CSG_Shapes				*pVectors;
@@ -200,7 +200,7 @@ bool CGrid_To_Gradient::On_Execute(void)
 	m_Style			= Parameters("STYLE")	->asInt();
 	sMin			= Parameters("SIZE")	->asRange()->Get_LoVal() * Step * Get_Cellsize() / 100.0;
 	sRange			= Parameters("SIZE")	->asRange()->Get_HiVal() * Step * Get_Cellsize() / 100.0 - sMin;
-	Interpolation	= Parameters("AGGR")	->asInt() == 0 ? GRID_INTERPOLATION_NearestNeighbour : GRID_INTERPOLATION_Mean_Cells;
+	Interpolation	= Parameters("AGGR")	->asInt() == 0 ? GRID_RESAMPLING_NearestNeighbour : GRID_RESAMPLING_Mean_Cells;
 
 	//-----------------------------------------------------
 	if( Step > Get_NX() || Step > Get_NY() )

@@ -160,7 +160,7 @@ bool CCropToData::On_Execute(void)
 				Get_YMin() + yMin * Get_Cellsize()
 			);
 
-			pGrid->Assign(pGrids->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
+			pGrid->Assign(pGrids->asGrid(i), GRID_RESAMPLING_NearestNeighbour);
 			pGrid->Set_Name(pGrids->asGrid(i)->Get_Name());
 
 			pCropped->Add_Item(pGrid);

@@ -122,28 +122,21 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 0
+		), 3
 	);
 
 	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
 }
 
-//---------------------------------------------------------
-CGrid_Value_Request::~CGrid_Value_Request(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -154,18 +147,25 @@ bool CGrid_Value_Request::On_Execute(void)
 
 	if( m_pGrids->Get_Count() > 0 )
 	{
-		m_Method		= Parameters("METHOD")			->asInt();
-		m_Interpolation	= Parameters("INTERPOLATION")	->asInt();
+		m_Method	= Parameters("METHOD")->asInt();
 
-		m_pTable		= Parameters("VALUES")			->asTable();
+		m_pTable	= Parameters("VALUES")->asTable();
 		m_pTable->Destroy();
 		m_pTable->Set_Name(_TL("Grid Values"));
+
+		switch( Parameters("RESAMPLING")->asInt() )
+		{
+		default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+		case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+		case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+		case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+		}
 
 		switch( m_Method )
 		{
 		case 0: default:
-			m_pTable->Add_Field(_TL("NAME")		, SG_DATATYPE_String);
-			m_pTable->Add_Field(_TL("VALUE")	, SG_DATATYPE_Double);
+			m_pTable->Add_Field(_TL("NAME" ), SG_DATATYPE_String);
+			m_pTable->Add_Field(_TL("VALUE"), SG_DATATYPE_Double);
 
 			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("X World"));
 			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("Y World"));
@@ -179,10 +179,10 @@ bool CGrid_Value_Request::On_Execute(void)
 			break;
 
 		case 1:
-			m_pTable->Add_Field(_TL("X World")		, SG_DATATYPE_Double);
-			m_pTable->Add_Field(_TL("Y World")		, SG_DATATYPE_Double);
-			m_pTable->Add_Field(_TL("X Grid 1")		, SG_DATATYPE_Int);
-			m_pTable->Add_Field(_TL("Y Grid 1")		, SG_DATATYPE_Int);
+			m_pTable->Add_Field(_TL("X World" ), SG_DATATYPE_Double);
+			m_pTable->Add_Field(_TL("Y World" ), SG_DATATYPE_Double);
+			m_pTable->Add_Field(_TL("X Grid 1"), SG_DATATYPE_Int);
+			m_pTable->Add_Field(_TL("Y Grid 1"), SG_DATATYPE_Int);
 
 			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
@@ -224,7 +224,7 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Interpolation, false, true) )
+					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Resampling, false, true) )
 					{
 						m_pTable->Get_Record(iGrid + FIELD_GRIDS)->Set_Value(FIELD_VALUE, Value);
 					}
@@ -254,7 +254,7 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 
 				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Interpolation, false, true) )
+					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Resampling, false, true) )
 					{
 						pRecord->Set_Value(FIELD_GRIDS + iGrid, Value);
 					}

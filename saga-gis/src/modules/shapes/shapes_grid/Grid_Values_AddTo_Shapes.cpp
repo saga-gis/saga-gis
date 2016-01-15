@@ -107,44 +107,39 @@ CGrid_Values_AddTo_Shapes::CGrid_Values_AddTo_Shapes(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "INTERPOL"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CGrid_Values_AddTo_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHAPES")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
 	{
-		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(pParameter->asShapes() && 
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asShapes() && 
 			(  pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Point
 			|| pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Points
 			|| pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line
 		));
 	}
 
-	return( 1 );
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -155,9 +150,8 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 	CSG_Shapes				*pShapes;
 
 	//-----------------------------------------------------
-	pShapes			= Parameters("RESULT"  )->asShapes();
-	pGrids			= Parameters("GRIDS"   )->asGridList();
-	m_Interpolation	= Parameters("INTERPOL")->asInt();
+	pShapes	= Parameters("RESULT")->asShapes();
+	pGrids	= Parameters("GRIDS" )->asGridList();
 
 	//-----------------------------------------------------
 	if( pGrids->Get_Count() <= 0 )
@@ -173,6 +167,15 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 	else if( pShapes != Parameters("SHAPES")->asShapes() )
 	{
 		pShapes->Create(*Parameters("SHAPES")->asShapes());
+	}
+
+	//-----------------------------------------------------
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
 	}
 
 	//-----------------------------------------------------
@@ -224,8 +227,6 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -237,7 +238,7 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Point(CSG_Simple_Statistics &Statistics
 		{
 			double	Value;
 
-			if( pGrid->Get_Value(pShape->Get_Point(iPoint, iPart), Value, m_Interpolation) )
+			if( pGrid->Get_Value(pShape->Get_Point(iPoint, iPart), Value, m_Resampling) )
 			{
 				Statistics	+= Value;
 			}
@@ -247,8 +248,6 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Point(CSG_Simple_Statistics &Statistics
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -265,7 +264,7 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Line(CSG_Simple_Statistics &Statistics,
 
 			TSG_Point	B, A	= pShape->Get_Point(0, iPart);
 
-			if( pGrid->Get_Value(A, Value, m_Interpolation) )
+			if( pGrid->Get_Value(A, Value, m_Resampling) )
 			{
 				Statistics	+= Value;
 			}
@@ -286,7 +285,7 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Line(CSG_Simple_Statistics &Statistics,
 
 					for(double d=0.0; d<Distance; d+=dStep, C.x+=dx, C.y+=dy)
 					{
-						if( pGrid->Get_Value(C, Value, m_Interpolation) )
+						if( pGrid->Get_Value(C, Value, m_Resampling) )
 						{
 							Statistics	+= Value;
 						}
@@ -299,8 +298,6 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Line(CSG_Simple_Statistics &Statistics,
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

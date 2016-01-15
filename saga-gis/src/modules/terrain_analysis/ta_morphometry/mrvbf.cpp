@@ -352,7 +352,7 @@ bool CMRVBF::Get_Values(CSG_Grid *pDEM, CSG_Grid *pSlopes, CSG_Grid *pPercentile
 		ny	= 2 + (int)(pDEM->Get_YRange() / Resolution);
 
 		pDEM->Create(SG_DATATYPE_Float, nx, ny, Resolution, pDEM->Get_XMin(), pDEM->Get_YMin());
-		pDEM->Assign(&Smoothed, GRID_INTERPOLATION_NearestNeighbour);
+		pDEM->Assign(&Smoothed, GRID_RESAMPLING_NearestNeighbour);
 
 		Get_Percentiles(pDEM, pPercentiles, 6);
 
@@ -481,9 +481,6 @@ bool CMRVBF::Get_Slopes(CSG_Grid *pDEM, CSG_Grid *pSlopes)
 //---------------------------------------------------------
 bool CMRVBF::Get_Flatness(CSG_Grid *pSlopes, CSG_Grid *pPercentiles, CSG_Grid *pCF, CSG_Grid *pVF, CSG_Grid *pRF, double T_Slope)
 {
-//	const int	Interpolation	= GRID_INTERPOLATION_Bilinear;
-	const int	Interpolation	= GRID_INTERPOLATION_BSpline;
-
 	if( pSlopes && pSlopes->is_Valid() && pPercentiles && pPercentiles->is_Valid() )
 	{
 		int		x, y;
@@ -493,8 +490,8 @@ bool CMRVBF::Get_Flatness(CSG_Grid *pSlopes, CSG_Grid *pPercentiles, CSG_Grid *p
 		{
 			for(x=0, xp=Get_XMin(); x<Get_NX(); x++, xp+=Get_Cellsize())
 			{
-				if( pSlopes		->Get_Value(xp, yp, Slope     , Interpolation)
-				&&	pPercentiles->Get_Value(xp, yp, Percentile, Interpolation) )
+				if( pSlopes		->Get_Value(xp, yp, Slope     )
+				&&	pPercentiles->Get_Value(xp, yp, Percentile) )
 				{
 					cf	= pCF->asDouble(x, y) * Get_Transformation(Slope, T_Slope, m_P_Slope);
 					vf	= cf * Get_Transformation(      Percentile, m_T_Pctl_V, m_P_Pctl);

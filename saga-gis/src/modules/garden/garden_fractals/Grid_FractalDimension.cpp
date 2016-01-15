@@ -129,7 +129,7 @@ bool CGrid_FractalDimension::On_Execute(void)
 			pGrid->Get_XMax(true), pGrid->Get_YMax(true)
 		));
 
-		g.Assign(pGrid, GRID_INTERPOLATION_BSpline);
+		g.Assign(pGrid, GRID_RESAMPLING_BSpline);
 
 		Get_Area(&g, pTable);
 
@@ -156,7 +156,7 @@ void CGrid_FractalDimension::Get_Area(CSG_Grid *pGrid, CSG_Table *pTable)
 	if( !Get_System()->is_Equal(pGrid->Get_System()) )
 	{
 		g.Create(*Get_System());
-		g.Assign(pGrid, GRID_INTERPOLATION_BSpline);
+		g.Assign(pGrid, GRID_RESAMPLING_BSpline);
 		pGrid	= &g;
 	}
 

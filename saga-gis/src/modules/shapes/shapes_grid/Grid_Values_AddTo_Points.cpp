@@ -104,15 +104,14 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "INTERPOL"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 }
 
@@ -126,15 +125,14 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 //---------------------------------------------------------
 bool CGrid_Values_AddTo_Points::On_Execute(void)
 {
-	int						iShape, iGrid, iField, Offset, Interpolation;
+	int						iShape, iGrid, iField, Offset;
 	double					Value;
 	CSG_Shapes				*pShapes;
 	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
-	pShapes			= Parameters("RESULT")		->asShapes();
-	pGrids			= Parameters("GRIDS" )		->asGridList();
-	Interpolation	= Parameters("INTERPOL")	->asInt();
+	pShapes			= Parameters("RESULT")->asShapes();
+	pGrids			= Parameters("GRIDS" )->asGridList();
 
 	//-----------------------------------------------------
 	if( pGrids->Get_Count() <= 0 )
@@ -161,6 +159,17 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
+
+	//-----------------------------------------------------
 	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
@@ -169,7 +178,7 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 		{
 			CSG_Grid	*pGrid	= pGrids->asGrid(iGrid);
 
-			if( pGrid->Get_Value(pShape->Get_Point(0), Value, Interpolation) )
+			if( pGrid->Get_Value(pShape->Get_Point(0), Value, Resampling) )
 			{
 				pShape->Set_Value(iField, Value);
 			}

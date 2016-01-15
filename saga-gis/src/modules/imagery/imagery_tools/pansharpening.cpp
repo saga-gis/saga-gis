@@ -69,13 +69,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Grid_Interpolation	Get_Interpolation(int Interpolation)
+TSG_Grid_Resampling	Get_Interpolation(int Interpolation)
 {
 	switch( Interpolation )
 	{
-	case 0:				return( GRID_INTERPOLATION_NearestNeighbour );
-	case 1:				return( GRID_INTERPOLATION_Bilinear );
-	case 2: default:	return( GRID_INTERPOLATION_BSpline );
+	case 0:				return( GRID_RESAMPLING_NearestNeighbour );
+	case 1:				return( GRID_RESAMPLING_Bilinear );
+	case 2: default:	return( GRID_RESAMPLING_BSpline );
 	}
 }
 
@@ -160,7 +160,7 @@ CPanSharp_IHS::CPanSharp_IHS(void)
 bool CPanSharp_IHS::On_Execute(void)
 {
 	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
+	TSG_Grid_Resampling	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
 
 	//-----------------------------------------------------
 	int			y;
@@ -366,7 +366,7 @@ CPanSharp_Brovey::CPanSharp_Brovey(void)
 bool CPanSharp_Brovey::On_Execute(void)
 {
 	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
+	TSG_Grid_Resampling	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
 
 	//-----------------------------------------------------
 	CSG_Grid	*pPan, *pR, *pG, *pB;
@@ -496,7 +496,7 @@ CPanSharp_CN::CPanSharp_CN(void)
 bool CPanSharp_CN::On_Execute(void)
 {
 	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
+	TSG_Grid_Resampling	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
 
 	//-----------------------------------------------------
 	int						i;
@@ -770,7 +770,7 @@ bool CPanSharp_PCA::On_Execute(void)
 	//-----------------------------------------------------
 	// resample all other PCs to match the high resolution of the PAN band
 
-	TSG_Grid_Interpolation	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
+	TSG_Grid_Resampling	Interpolation	= Get_Interpolation(Parameters("RESAMPLING")->asInt());
 
 	for(i=1; i<n; i++)
 	{

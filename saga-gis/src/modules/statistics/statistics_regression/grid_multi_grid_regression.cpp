@@ -134,15 +134,14 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Value(
@@ -327,9 +326,18 @@ bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, C
 	CSG_Vector	Sample;
 
 	//-----------------------------------------------------
-	int		Interpolation	= Parameters("INTERPOL")	->asInt();
-	bool	bCoord_X		= Parameters("COORD_X")		->asBool();
-	bool	bCoord_Y		= Parameters("COORD_Y")		->asBool();
+	bool	bCoord_X	= Parameters("COORD_X")->asBool();
+	bool	bCoord_Y	= Parameters("COORD_Y")->asBool();
+
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	Names	+= pDependent->Get_Name();					// Dependent Variable
 
@@ -354,7 +362,7 @@ bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, C
 
 				for(iGrid=0; iGrid<pGrids->Get_Count() && bAdd; iGrid++)
 				{
-					if( pGrids->asGrid(iGrid)->Get_Value(p, zGrid, Interpolation) )
+					if( pGrids->asGrid(iGrid)->Get_Value(p, zGrid, Resampling) )
 					{
 						Sample[1 + iGrid]	= zGrid;
 					}
@@ -395,7 +403,15 @@ bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrids
 	int			iGrid, nGrids, x, y;
 	TSG_Point	p;
 
-	int		Interpolation	= Parameters("INTERPOL")->asInt();
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	CSG_Grid	**ppGrids	= (CSG_Grid **)SG_Malloc(m_Regression.Get_nPredictors() * sizeof(CSG_Grid *));
 
@@ -441,7 +457,7 @@ bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrids
 			{
 				double	zGrid;
 
-				if( ppGrids[iGrid]->Get_Value(p, zGrid, Interpolation) )
+				if( ppGrids[iGrid]->Get_Value(p, zGrid, Resampling) )
 				{
 					z	+= m_Regression.Get_RCoeff(iGrid) * zGrid;
 				}

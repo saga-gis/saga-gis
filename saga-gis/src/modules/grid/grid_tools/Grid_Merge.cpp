@@ -112,15 +112,14 @@ CGrid_Merge::CGrid_Merge(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "INTERPOL"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 0
+		), 3
 	);
 
 	Parameters.Add_Choice(
@@ -307,14 +306,12 @@ bool CGrid_Merge::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	switch( Parameters("INTERPOL")->asInt() )
+	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:
-	case 0:	m_Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;	// Nearest Neighbor
-	case 1:	m_Interpolation	= GRID_INTERPOLATION_Bilinear;			break;	// Bilinear Interpolation
-	case 2:	m_Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;	// Inverse Distance Interpolation
-	case 3:	m_Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;	// Bicubic Spline Interpolation
-	case 4:	m_Interpolation	= GRID_INTERPOLATION_BSpline;			break;	// B-Spline Interpolation
+	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
 	}
 
 	//-----------------------------------------------------
@@ -516,13 +513,13 @@ inline void CGrid_Merge::Set_Value(int x, int y, CSG_Grid *pGrid, double px, dou
 {
 	double	z;
 
-	if( pGrid->Get_Value(px, py, z, m_Interpolation) )
+	if( pGrid->Get_Value(px, py, z, m_Resampling) )
 	{
 		if( m_Weight.is_Valid() )
 		{
 			double	w;
 
-			if( m_Weight.Get_Value(px, py, w, GRID_INTERPOLATION_BSpline, true) )
+			if( m_Weight.Get_Value(px, py, w, GRID_RESAMPLING_BSpline, true) )
 			{
 				Set_Value(x, y, z, w);
 			}
@@ -676,7 +673,7 @@ void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
 				{
 					double	z, px	= m_pMosaic->Get_XMin() + x * m_pMosaic->Get_Cellsize();
 
-					if( pGrid->Get_Value(px, py, z, GRID_INTERPOLATION_NearestNeighbour) )
+					if( pGrid->Get_Value(px, py, z, GRID_RESAMPLING_NearestNeighbour) )
 					{
 						Z[0].Add_Row(z);
 						Z[1].Add_Row(m_pMosaic->asDouble(x, y));

@@ -214,15 +214,14 @@ CKriging_Regression::CKriging_Regression(void)
 	);
 
 	Parameters.Add_Choice(
-		pNode	,"INTERPOL"		, _TL("Grid Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	///////////////////////////////////////////////////////
@@ -286,7 +285,7 @@ bool CKriging_Regression::On_Execute(void)
 		&&	SG_MODULE_PARAMETER_SET("INFO_COEFF", Parameters("INFO_COEFF"))
 		&&	SG_MODULE_PARAMETER_SET("INFO_MODEL", Parameters("INFO_MODEL"))
 		&&	SG_MODULE_PARAMETER_SET("INFO_STEPS", Parameters("INFO_STEPS"))
-		&&	SG_MODULE_PARAMETER_SET("INTERPOL"  , Parameters("INTERPOL"  ))
+		&&	SG_MODULE_PARAMETER_SET("RESAMPLING", Parameters("RESAMPLING"))
 		&&	SG_MODULE_PARAMETER_SET("COORD_X"   , Parameters("COORD_X"   ))
 		&&	SG_MODULE_PARAMETER_SET("COORD_Y"   , Parameters("COORD_Y"   ))
 		&&	SG_MODULE_PARAMETER_SET("INTERCEPT" , Parameters("INTERCEPT" ))

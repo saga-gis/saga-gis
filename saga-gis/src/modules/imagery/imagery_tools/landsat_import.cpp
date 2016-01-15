@@ -347,9 +347,9 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 
 	switch( Parameters("INTERPOLATION")->asInt() )
 	{
-	case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-	case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear        ;	break;
-	default:	Interpolation	= GRID_INTERPOLATION_BSpline         ;	break;
+	case  0:	Interpolation	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Interpolation	= GRID_RESAMPLING_Bilinear        ;	break;
+	default:	Interpolation	= GRID_RESAMPLING_BSpline         ;	break;
 	}
 
 	Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);

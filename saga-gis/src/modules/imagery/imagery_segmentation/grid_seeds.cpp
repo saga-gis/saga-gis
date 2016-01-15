@@ -197,10 +197,10 @@ bool CGrid_Seeds::On_Execute(void)
 
 			SG_UI_Progress_Lock(true);
 
-			Smoothed.Assign(pFeatures->asGrid(i), GRID_INTERPOLATION_Mean_Cells);
+			Smoothed.Assign(pFeatures->asGrid(i), GRID_RESAMPLING_Mean_Cells);
 
 			m_pFeatures[i]	= new CSG_Grid(*Get_System(), SG_DATATYPE_Float);
-			m_pFeatures[i]	->Assign(&Smoothed, GRID_INTERPOLATION_BSpline);
+			m_pFeatures[i]	->Assign(&Smoothed, GRID_RESAMPLING_BSpline);
 			m_pFeatures[i]	->Set_Name(pFeatures->asGrid(i)->Get_Name());
 
 			SG_UI_Progress_Lock(false);

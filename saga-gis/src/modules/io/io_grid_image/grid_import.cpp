@@ -409,7 +409,7 @@ void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, 
 		{
 			XSrc	= DInv * (XTgt - A);
 
-			if( pSource->Get_Value(XSrc[0], XSrc[1], z, GRID_INTERPOLATION_NearestNeighbour, false, true) )
+			if( pSource->Get_Value(XSrc[0], XSrc[1], z, GRID_RESAMPLING_NearestNeighbour, false, true) )
 			{
 				pTarget->Set_Value(x, y, z);
 			}

@@ -124,15 +124,14 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		pNode	, "INTERPOLATION"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neigbhor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Value(
@@ -178,7 +177,13 @@ int CCRS_Transform_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 {
-	m_Interpolation	= Parameters("INTERPOLATION")->asInt();
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	//-----------------------------------------------------
 	if( m_bList )
@@ -250,7 +255,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 	if( pGrid->Get_Projection().is_Okay() && m_Projector.Set_Source(pGrid->Get_Projection())
 	&&  Get_Target_System(pGrid->Get_System(), true) )
 	{
-		TSG_Data_Type	Type	= m_Interpolation == 0 || Parameters("KEEP_TYPE")->asBool() ? pGrid->Get_Type() : SG_DATATYPE_Float;
+		TSG_Data_Type	Type	= m_Resampling == GRID_RESAMPLING_NearestNeighbour || Parameters("KEEP_TYPE")->asBool() ? pGrid->Get_Type() : SG_DATATYPE_Float;
 
 		return( Transform(pGrid, m_Grid_Target.Get_Grid("GRID", Type)) );
 	}
@@ -335,7 +340,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 					xSource	+= 360.0;
 				}
 
-				if( pGrid->Get_Value(xSource, ySource, z, m_Interpolation) )
+				if( pGrid->Get_Value(xSource, ySource, z, m_Resampling) )
 				{
 					pTarget->Set_Value(x, y, z);
 				}
@@ -385,7 +390,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 	for(i=0; i<pSources->Get_Count(); i++)
 	{
 		CSG_Grid	*pSource	= pSources->asGrid(i);
-		CSG_Grid	*pTarget	= SG_Create_Grid(Target_System, m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float);
+		CSG_Grid	*pTarget	= SG_Create_Grid(Target_System, m_Resampling == GRID_RESAMPLING_NearestNeighbour ? pSource->Get_Type() : SG_DATATYPE_Float);
 
 		if( pTarget )
 		{
@@ -422,7 +427,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 
 				for(i=0; i<pTargets->Get_Count(); i++)
 				{
-					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Interpolation) )
+					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Resampling) )
 					{
 						pTargets->asGrid(n + i)->Set_Value(x, y, z);
 					}

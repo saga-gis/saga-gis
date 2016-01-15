@@ -829,7 +829,6 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 	m_sY.Printf(SG_T("%s"), pGrid_Y->Get_Name());
 
 	bool	bEqual			= m_pGrid->Get_System() == pGrid_Y->Get_System();
-	int		Interpolation	= GRID_INTERPOLATION_BSpline;
 	int		maxSamples		= m_Options("SAMPLES_MAX")->asInt();
 	double	Step			= maxSamples > 0 && m_pGrid->Get_NCells() > maxSamples ? m_pGrid->Get_NCells() / maxSamples : 1.0;
 
@@ -855,7 +854,7 @@ bool CVIEW_ScatterPlot::_Initialize_Grids()
 
 				double	z;
 
-				if(	pGrid_Y->Get_Value(p, z, Interpolation, false, true) )
+				if(	pGrid_Y->Get_Value(p, z, GRID_RESAMPLING_BSpline, false, true) )
 				{
 					m_Regression.Add_Values(m_pGrid->asDouble(iCell), z);
 				}
@@ -897,7 +896,7 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape((int)i);
 
-		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(0), z, GRID_INTERPOLATION_BSpline, false, true) )
+		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(0), z, GRID_RESAMPLING_BSpline, false, true) )
 		{
 			m_Regression.Add_Values(z, pShape->asDouble(Field));
 		}

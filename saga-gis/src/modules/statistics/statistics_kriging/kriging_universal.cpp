@@ -95,15 +95,14 @@ CKriging_Universal::CKriging_Universal(void)
 	);
 
 	Parameters.Add_Choice(
-		pNode	,"INTERPOL"		, _TL("Grid Interpolation"),
+		pNode	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Value(
@@ -122,8 +121,15 @@ CKriging_Universal::CKriging_Universal(void)
 bool CKriging_Universal::On_Initialize(void)
 {
 	m_pGrids		= Parameters("PREDICTORS")->asGridList();
-	m_Interpolation	= Parameters("INTERPOL"  )->asInt();
 	m_bCoords		= Parameters("COORDS"    )->asBool();
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	//-----------------------------------------------------
 	if( m_Search.Do_Use_All(true) )	// global
@@ -217,7 +223,7 @@ bool CKriging_Universal::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
 
 			for(k=0, j=n+1; k<nGrids; k++, j++)
 			{
-				W[i][j]	= W[j][i]	= m_pGrids->asGrid(k)->Get_Value(Points.Get_X(i), Points.Get_Y(i), m_Interpolation);
+				W[i][j]	= W[j][i]	= m_pGrids->asGrid(k)->Get_Value(Points.Get_X(i), Points.Get_Y(i), m_Resampling);
 			}
 
 			for(k=0, j=n+nGrids+1; k<nCoords; k++, j++)
@@ -286,7 +292,7 @@ bool CKriging_Universal::Get_Value(const TSG_Point &p, double &z, double &v)
 
 		for(i=0, j=n+1; i<nGrids; i++, j++)
 		{
-			if( !m_pGrids->asGrid(i)->Get_Value(p, G[j], m_Interpolation) )
+			if( !m_pGrids->asGrid(i)->Get_Value(p, G[j], m_Resampling) )
 			{
 				return( false );
 			}

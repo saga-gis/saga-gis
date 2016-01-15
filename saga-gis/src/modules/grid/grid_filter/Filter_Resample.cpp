@@ -148,7 +148,7 @@ bool CFilter_Resample::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	Grid(CSG_Grid_System(Cellsize, Get_XMin(), Get_YMin(), Get_XMax(), Get_YMax()), SG_DATATYPE_Float);
 
-	Grid.Assign(pGrid, GRID_INTERPOLATION_Mean_Cells);
+	Grid.Assign(pGrid, GRID_RESAMPLING_Mean_Cells);
 
 	//-----------------------------------------------------
 	pLoPass->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Low Pass")));

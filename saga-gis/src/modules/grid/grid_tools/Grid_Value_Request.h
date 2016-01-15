@@ -79,7 +79,6 @@ class CGrid_Value_Request : public CSG_Module_Interactive
 {
 public:
 	CGrid_Value_Request(void);
-	virtual ~CGrid_Value_Request(void);
 
 	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Values") );	}
 
@@ -93,7 +92,9 @@ protected:
 
 private:
 
-	int						m_Method, m_Interpolation;
+	int						m_Method;
+	
+	TSG_Grid_Resampling		m_Resampling;
 
 	CSG_Table				*m_pTable;
 
@@ -101,4 +102,12 @@ private:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Value_Request_H

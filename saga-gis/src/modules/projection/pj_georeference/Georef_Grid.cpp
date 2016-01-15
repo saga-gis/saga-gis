@@ -127,15 +127,14 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("nearest neigbhour"),
-			_TL("bilinear"),
-			_TL("inverse distance"),
-			_TL("bicubic spline"),
-			_TL("B-spline")
-		), 4
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
+			_TL("Bilinear Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation")
+		), 3
 	);
 
 	Parameters.Add_Value(
@@ -181,7 +180,7 @@ int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("ORDER", pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "INTERPOLATION") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RESAMPLING") )
 	{
 		pParameters->Set_Enabled("BYTEWISE", pParameter->asInt() > 0);
 	}
@@ -261,9 +260,17 @@ bool CGeoref_Grid::Get_Conversion(void)
 	}
 
 	//-----------------------------------------------------
-	int	Interpolation	= Parameters("INTERPOLATION")->asInt();
+	TSG_Grid_Resampling	Resampling;
 
-	CSG_Grid	*pReferenced	= m_Grid_Target.Get_Grid(Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float);
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
+
+	CSG_Grid	*pReferenced	= m_Grid_Target.Get_Grid(Resampling == GRID_RESAMPLING_NearestNeighbour ? pSource->Get_Type() : SG_DATATYPE_Float);
 
 	if( !pReferenced )
 	{
@@ -273,7 +280,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Set_Grid(pSource, pReferenced, Interpolation) )
+	if( !Set_Grid(pSource, pReferenced, Resampling) )
 	{
 		Error_Set(_TL("failed to project target grid"));
 
@@ -375,7 +382,7 @@ inline void CGeoref_Grid::Add_Target_Extent(CSG_Rect &Extent, double x, double y
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, int Interpolation)
+bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, TSG_Grid_Resampling Resampling)
 {
 	if( !pGrid || !pReferenced || !m_Engine.is_Okay() )
 	{
@@ -402,7 +409,7 @@ bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, int Interpol
 			double		z;
 			TSG_Point	p	= pReferenced->Get_System().Get_Grid_to_World(x, y);
 
-			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Interpolation, bBytewise) )
+			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Resampling, bBytewise) )
 			{
 				pReferenced->Set_Value(x, y, z);
 			}

@@ -88,7 +88,7 @@ protected:
 
 private:
 
-	int						m_Interpolation;
+	TSG_Grid_Resampling		m_Resampling;
 
 	CSG_Regression			m_Regression;
 

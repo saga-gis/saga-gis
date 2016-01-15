@@ -130,7 +130,7 @@ void CView_Map_3DPanel::Update_Statistics(void)
 		{
 			double	z, wx	= m_DEM.Get_XMin() + x * m_DEM.Get_Cellsize();
 
-			if( m_pDEM->Get_Value(wx, wy, z, GRID_INTERPOLATION_BSpline, false, true) )
+			if( m_pDEM->Get_Value(wx, wy, z, GRID_RESAMPLING_BSpline, false, true) )
 			{
 				m_DEM.Set_Value(x, y, z);
 			}

@@ -224,7 +224,7 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 	for(i=0; i<m_nPredictors; i++)
 	{
 		m_pPredictors[i]	= SG_Create_Grid(m_pDependent->Get_System());
-		m_pPredictors[i]	->Assign(pPredictors->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);	// GRID_INTERPOLATION_Mean_Cells
+		m_pPredictors[i]	->Assign(pPredictors->asGrid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
 
 		m_pModel     [i]	= SG_Create_Grid(m_pDependent->Get_System());
 		m_pModel     [i]	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPredictors->asGrid(i)->Get_Name(), _TL("Factor")));
@@ -291,7 +291,7 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 //---------------------------------------------------------
 bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value, double &Residual)
 {
-	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_INTERPOLATION_BSpline) )
+	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_RESAMPLING_BSpline) )
 	{
 		return( false );
 	}
@@ -300,8 +300,8 @@ bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value, double 
 
 	for(int i=0; i<m_nPredictors; i++)
 	{
-		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_INTERPOLATION_BSpline, false, true)
-		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_INTERPOLATION_BSpline, false, true) )
+		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_RESAMPLING_BSpline, false, true)
+		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_RESAMPLING_BSpline, false, true) )
 		{
 			return( false );
 		}
@@ -309,7 +309,7 @@ bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value, double 
 		Value	+= Model * Predictor;
 	}
 
-	if( !m_pResiduals->Get_Value(x, y, Residual, GRID_INTERPOLATION_BSpline) )
+	if( !m_pResiduals->Get_Value(x, y, Residual, GRID_RESAMPLING_BSpline) )
 	{
 		Residual	= 0.0;
 	}

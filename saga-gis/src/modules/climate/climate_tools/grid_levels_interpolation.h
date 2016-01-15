@@ -96,7 +96,9 @@ private:
 
 	bool						m_Linear_bSorted, m_Spline_bAll;
 
-	int							m_xSource, m_hMethod, m_vMethod, m_Trend_Order;
+	int							m_xSource, m_vMethod, m_Trend_Order;
+
+	TSG_Grid_Resampling			m_hMethod;
 
 	CSG_Table					*m_pXTable;
 

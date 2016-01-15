@@ -610,27 +610,27 @@ bool CSG_Grid::is_Compatible(int NX, int NY, double Cellsize, double xMin, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
+double CSG_Grid::Get_Value(TSG_Point Position, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
 {
 	double	Value;
 
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
+	return( Get_Value(Position.x, Position.y, Value, Resampling, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
 }
 
-double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
+double CSG_Grid::Get_Value(double xPosition, double yPosition, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
 {
 	double	Value;
 
-	return( Get_Value(xPosition, yPosition, Value, Interpolation, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
+	return( Get_Value(xPosition, yPosition, Value, Resampling, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
 }
 
-bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
+bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
 {
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bByteWise, bOnlyValidCells) );
+	return( Get_Value(Position.x, Position.y, Value, Resampling, bByteWise, bOnlyValidCells) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bByteWise, bool bOnlyValidCells) const
+bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
 {
 	if(	m_System.Get_Extent(true).Contains(xPosition, yPosition) )
 	{
@@ -642,26 +642,22 @@ bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int 
 
 		if( !bOnlyValidCells || is_InGrid(x + (int)(0.5 + dx), y + (int)(0.5 + dy)) )
 		{
-			switch( Interpolation )
+			switch( Resampling )
 			{
-			case GRID_INTERPOLATION_NearestNeighbour:
+			case GRID_RESAMPLING_NearestNeighbour:
 				Value	= _Get_ValAtPos_NearestNeighbour(x, y, dx, dy);
 				break;
 
-			case GRID_INTERPOLATION_Bilinear:
+			case GRID_RESAMPLING_Bilinear:
 				Value	= _Get_ValAtPos_BiLinear		(x, y, dx, dy, bByteWise);
 				break;
 
-			case GRID_INTERPOLATION_InverseDistance:
-				Value	= _Get_ValAtPos_InverseDistance	(x, y, dx, dy, bByteWise);
-				break;
-
-			case GRID_INTERPOLATION_BicubicSpline:
+			case GRID_RESAMPLING_BicubicSpline:
 				Value	= _Get_ValAtPos_BiCubicSpline	(x, y, dx, dy, bByteWise);
 				break;
 
 			default:
-			case GRID_INTERPOLATION_BSpline:
+			case GRID_RESAMPLING_BSpline:
 				Value	= _Get_ValAtPos_BSpline			(x, y, dx, dy, bByteWise);
 				break;
 			}
@@ -740,91 +736,43 @@ inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double d
 }
 
 //---------------------------------------------------------
-#define INVERSEDIST_ADD(ix, iy, dsx, dsy)		if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt((dsx)*(dsx) + (dsy)*(dsy)); n += d;\
-													z += d * asDouble(ix, iy); }
-
-#define INVERSEDIST_ADD_BYTE(ix, iy, dsx, dsy)	if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt((dsx)*(dsx) + (dsy)*(dsy)); n += d; v = asInt(ix, iy);\
-													z[0] += d * SG_GET_BYTE_0(v);\
-													z[1] += d * SG_GET_BYTE_1(v);\
-													z[2] += d * SG_GET_BYTE_2(v);\
-													z[3] += d * SG_GET_BYTE_3(v); }
-
-inline double CSG_Grid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, double dy, bool bByteWise) const
-{
-	if( dx > 0.0 || dy > 0.0 )
-	{
-		if( !bByteWise )
-		{
-			double	z = 0.0, n = 0.0, d;
-
-			INVERSEDIST_ADD(x    , y    ,       dx,       dy);
-			INVERSEDIST_ADD(x + 1, y    , 1.0 - dx,       dy);
-			INVERSEDIST_ADD(x    , y + 1,       dx, 1.0 - dy);
-			INVERSEDIST_ADD(x + 1, y + 1, 1.0 - dx, 1.0 - dy);
-
-			if( n > 0.0 )
-			{
-				return( z / n );
-			}
-		}
-		else
-		{
-			sLong	v;
-			double	z[4], n = 0.0, d;
-
-			z[0] = z[1] = z[2] = z[3] = 0.0;
-
-			INVERSEDIST_ADD_BYTE(x    , y    ,       dx,       dy);
-			INVERSEDIST_ADD_BYTE(x + 1, y    , 1.0 - dx,       dy);
-			INVERSEDIST_ADD_BYTE(x    , y + 1,       dx, 1.0 - dy);
-			INVERSEDIST_ADD_BYTE(x + 1, y + 1, 1.0 - dx, 1.0 - dy);
-
-			if( n > 0.0 )
-			{
-				z[0]	/= n;
-				z[1]	/= n;
-				z[2]	/= n;
-				z[3]	/= n;
-
-				return( SG_GET_LONG(z[0], z[1], z[2], z[3]) );
-			}
-		}
-	}
-	else
-	{
-		return( asDouble(x, y) );
-	}
-
-	return( Get_NoData_Value() );
-}
-
-//---------------------------------------------------------
 inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double z_xy[4][4]) const
 {
-	double	a0, a2, a3, b1, b2, b3, c[4];
+	#define BiCubicSpline(d, z) (z[1] + 0.5 * d * (z[2] - z[0] + d * (2 * z[0] - 5 * z[1] + 4 * z[2] - z[3] + d * (3 * (z[1] - z[2]) + z[3] - z[0]))))
 
-	for(int i=0; i<4; i++)
-	{
-		a0		= z_xy[0][i] - z_xy[1][i];
-		a2		= z_xy[2][i] - z_xy[1][i];
-		a3		= z_xy[3][i] - z_xy[1][i];
+	double	z_x[4];
 
-		b1		= -a0 / 3.0 + a2       - a3 / 6.0;
-		b2		=  a0 / 2.0 + a2 / 2.0;
-		b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
+	z_x[0]	= BiCubicSpline(dy, z_xy[0]);
+	z_x[1]	= BiCubicSpline(dy, z_xy[1]);
+	z_x[2]	= BiCubicSpline(dy, z_xy[2]);
+	z_x[3]	= BiCubicSpline(dy, z_xy[3]);
 
-		c[i]	= z_xy[1][i] + b1 * dx + b2 * dx*dx + b3 * dx*dx*dx;
-	}
+	return( BiCubicSpline(dx, z_x) );
 
-	a0		= c[0] - c[1];
-	a2		= c[2] - c[1];
-	a3		= c[3] - c[1];
+	//double	a0, a2, a3, b1, b2, b3, c[4];
 
-	b1		= -a0 / 3.0 + a2       - a3 / 6.0;
-	b2		=  a0 / 2.0 + a2 / 2.0;
-	b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
+	//for(int i=0; i<4; i++)
+	//{
+	//	a0		= z_xy[0][i] - z_xy[1][i];
+	//	a2		= z_xy[2][i] - z_xy[1][i];
+	//	a3		= z_xy[3][i] - z_xy[1][i];
 
-	return( c[1] + b1 * dy + b2 * dy*dy + b3 * dy*dy*dy );
+	//	b1		= -a0 / 3.0 + a2       - a3 / 6.0;
+	//	b2		=  a0 / 2.0 + a2 / 2.0;
+	//	b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
+
+	//	c[i]	= z_xy[1][i] + b1 * dx + b2 * dx*dx + b3 * dx*dx*dx;
+	//}
+
+	//a0		= c[0] - c[1];
+	//a2		= c[2] - c[1];
+	//a3		= c[3] - c[1];
+
+	//b1		= -a0 / 3.0 + a2       - a3 / 6.0;
+	//b2		=  a0 / 2.0 + a2 / 2.0;
+	//b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
+
+	//return( c[1] + b1 * dy + b2 * dy*dy + b3 * dy*dy*dy );
 }
 
 inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double dy, bool bByteWise) const
@@ -859,38 +807,34 @@ inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, dou
 //---------------------------------------------------------
 inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[4][4]) const
 {
-	int		i, ix, iy;
-	double	z, px, py, Rx[4], Ry[4];
+	double	Rx[4], Ry[4];
 
-	for(i=0, px=-1.0-dx, py=-1.0-dy; i<4; i++, px++, py++)
+	for(int i=0; i<4; i++)
 	{
-		Rx[i]	= 0.0;
-		Ry[i]	= 0.0;
+		double	d, s;
 
-		if( (z = px + 2.0) > 0.0 )
-			Rx[i]	+=        z*z*z;
-		if( (z = px + 1.0) > 0.0 )
-			Rx[i]	+= -4.0 * z*z*z;
-		if( (z = px + 0.0) > 0.0 )
-			Rx[i]	+=  6.0 * z*z*z;
-		if( (z = px - 1.0) > 0.0 )
-			Rx[i]	+= -4.0 * z*z*z;
-		if( (z = py + 2.0) > 0.0 )
-			Ry[i]	+=        z*z*z;
-		if( (z = py + 1.0) > 0.0 )
-			Ry[i]	+= -4.0 * z*z*z;
-		if( (z = py + 0.0) > 0.0 )
-			Ry[i]	+=  6.0 * z*z*z;
-		if( (z = py - 1.0) > 0.0 )
-			Ry[i]	+= -4.0 * z*z*z;
+		s	= 0.0;
+		if( (d = i - dx + 1.0) > 0.0 )	s	+=        d*d*d;
+		if( (d = i - dx + 0.0) > 0.0 )	s	+= -4.0 * d*d*d;
+		if( (d = i - dx - 1.0) > 0.0 )	s	+=  6.0 * d*d*d;
+		if( (d = i - dx - 2.0) > 0.0 )	s	+= -4.0 * d*d*d;
+	//	if( (d = i - dx - 3.0) > 0.0 )	s	+=        d*d*d;
+		Rx[i]	= s / 6.0;
 
-		Rx[i]	/= 6.0;
-		Ry[i]	/= 6.0;
+		s	= 0.0;
+		if( (d = i - dy + 1.0) > 0.0 )	s	+=        d*d*d;
+		if( (d = i - dy + 0.0) > 0.0 )	s	+= -4.0 * d*d*d;
+		if( (d = i - dy - 1.0) > 0.0 )	s	+=  6.0 * d*d*d;
+		if( (d = i - dy - 2.0) > 0.0 )	s	+= -4.0 * d*d*d;
+	//	if( (d = i - dy - 3.0) > 0.0 )	s	+=        d*d*d;
+		Ry[i]	= s / 6.0;
 	}
 
-	for(iy=0, z=0.0; iy<4; iy++)
+	double	z	= 0.0;
+
+	for(int iy=0; iy<4; iy++)
 	{
-		for(ix=0; ix<4; ix++)
+		for(int ix=0; ix<4; ix++)
 		{
 			z	+= z_xy[ix][iy] * Rx[ix] * Ry[iy];
 		}
@@ -952,53 +896,41 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 	}
 
 	//-----------------------------------------------------
-	if( nNoData > 0 && nNoData < 16 )	// guess missing values as average of surrounding data values
+	for(int i=0; nNoData>0 && nNoData<16 && i<16; i++)	// guess missing values as average of surrounding data values
 	{
-		for(int i=0; nNoData>0 && i<16; i++)	// avoid the possibility of endless loop
+		double	t_xy[4][4];
+
+		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
 		{
-			double	t_xy[4][4];
+			t_xy[ix][iy]	= z_xy[ix][iy];
+		}
 
-			for(iy=0; iy<4; iy++)
+		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
+		{
+			if( is_NoData_Value(t_xy[ix][iy]) )
 			{
-				for(ix=0; ix<4; ix++)
+				int		n	= 0;
+				double	s	= 0.0;
+
+				for(jy=iy-1; jy<=iy+1; jy++)	for(jx=ix-1; jx<=ix+1; jx++)
 				{
-					t_xy[ix][iy]	= z_xy[ix][iy];
-
-					if( is_NoData_Value(z_xy[ix][iy]) )
+					if( is_InGrid(jx + x - 1, jy + y - 1) )
 					{
-						int		n	= 0;
-						double	s	= 0.0;
-
-						for(jy=iy-1; jy<=iy+1; jy++)
-						{
-							if( jy >= 0 && jy < 4 )
-							{
-								for(jx=ix-1; jx<=ix+1; jx++)
-								{
-									if( jx >= 0 && jx < 4 && !is_NoData_Value(z_xy[jx][jy]) )
-									{
-										s	+= z_xy[jx][jy];
-										n	++;
-									}
-								}
-							}
-						}
-
-						if( n > 0 )
-						{
-							t_xy[ix][iy]	= s / n;
-
-							nNoData--;
-						}
+						s	+= asDouble(jx + x - 1, jy + y - 1);
+						n	++;
+					}
+					else if( jy >= 0 && jy < 4 && jx >= 0 && jx < 4 && !is_NoData_Value(t_xy[jx][jy]) )
+					{
+						s	+= t_xy[jx][jy];
+						n	++;
 					}
 				}
-			}
 
-			for(iy=0; iy<4; iy++)
-			{
-				for(ix=0; ix<4; ix++)
+				if( n > 0 )
 				{
-					z_xy[ix][iy]	= t_xy[ix][iy];
+					z_xy[ix][iy]	= s / n;
+
+					nNoData--;
 				}
 			}
 		}
@@ -1020,16 +952,16 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 		{
 			if( is_InGrid(jx, jy) )
 			{
-				int		v	= asInt(jx, jy);
+				int	z	= asInt(jx, jy);
 
-				z_xy[0][ix][iy]	= SG_GET_BYTE_0(v);
-				z_xy[1][ix][iy]	= SG_GET_BYTE_1(v);
-				z_xy[2][ix][iy]	= SG_GET_BYTE_2(v);
-				z_xy[3][ix][iy]	= SG_GET_BYTE_3(v);
+				z_xy[0][ix][iy]	= SG_GET_BYTE_0(z);
+				z_xy[1][ix][iy]	= SG_GET_BYTE_1(z);
+				z_xy[2][ix][iy]	= SG_GET_BYTE_2(z);
+				z_xy[3][ix][iy]	= SG_GET_BYTE_3(z);
 			}
 			else
 			{
-				z_xy[0][ix][iy]	= Get_NoData_Value();
+				z_xy[0][ix][iy]	= -1;
 
 				nNoData++;
 			}
@@ -1037,65 +969,55 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 	}
 
 	//-----------------------------------------------------
-	if( nNoData > 0 && nNoData < 16 )	// guess missing values as average of surrounding data values
+	for(int i=0; nNoData>0 && nNoData<16 && i<16; i++)	// guess missing values as average of surrounding data values
 	{
-		for(int i=0; nNoData>0 && i<16; i++)	// avoid the possibility of endless loop
+		double	t_xy[4][4][4];
+
+		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
 		{
-			double	t_xy[4][4][4];
+			t_xy[0][ix][iy]	= z_xy[0][ix][iy];
+			t_xy[1][ix][iy]	= z_xy[1][ix][iy];
+			t_xy[2][ix][iy]	= z_xy[2][ix][iy];
+			t_xy[3][ix][iy]	= z_xy[3][ix][iy];
+		}
 
-			for(iy=0; iy<4; iy++)
+		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
+		{
+			if( t_xy[0][ix][iy] < 0 )
 			{
-				for(ix=0; ix<4; ix++)
+				int		n	= 0;
+				double	s[4]; s[0] = s[1] = s[2] = s[3] = 0.0;
+
+				for(jy=iy-1; jy<=iy+1; jy++)	for(jx=ix-1; jx<=ix+1; jx++)
 				{
-					t_xy[0][ix][iy]	 = z_xy[0][ix][iy];
-					t_xy[1][ix][iy]	 = z_xy[1][ix][iy];
-					t_xy[2][ix][iy]	 = z_xy[2][ix][iy];
-					t_xy[3][ix][iy]	 = z_xy[3][ix][iy];
-
-					if( is_NoData_Value(z_xy[0][ix][iy]) )
+					if( is_InGrid(jx + x - 1, jy + y - 1) )
 					{
-						int		n	= 0;
-						double	s[4]; s[0] = s[1] = s[2] = s[3] = 0;
+						int	z	= asInt(jx + x - 1, jy + y - 1);
 
-						for(jy=iy-1; jy<=iy+1; jy++)
-						{
-							if( jy >= 0 && jy < 4 )
-							{
-								for(jx=ix-1; jx<=ix+1; jx++)
-								{
-									if( jx >= 0 && jx < 4 && !is_NoData_Value(z_xy[0][jx][jy]) )
-									{
-										s[0]	+= z_xy[0][jx][jy];
-										s[1]	+= z_xy[1][jx][jy];
-										s[2]	+= z_xy[2][jx][jy];
-										s[3]	+= z_xy[3][jx][jy];
-										n		++;
-									}
-								}
-							}
-						}
-
-						if( n > 0 )
-						{
-							t_xy[0][ix][iy]	= s[0] / n;
-							t_xy[1][ix][iy]	= s[1] / n;
-							t_xy[2][ix][iy]	= s[2] / n;
-							t_xy[3][ix][iy]	= s[3] / n;
-
-							nNoData--;
-						}
+						s[0]	+= SG_GET_BYTE_0(z);
+						s[1]	+= SG_GET_BYTE_1(z);
+						s[2]	+= SG_GET_BYTE_2(z);
+						s[3]	+= SG_GET_BYTE_3(z);
+						n		++;
+					}
+					else if( jy >= 0 && jy < 4 && jx >= 0 && jx < 4 && !is_NoData_Value(t_xy[0][jx][jy]) )
+					{
+						s[0]	+= t_xy[0][jx][jy];
+						s[1]	+= t_xy[1][jx][jy];
+						s[2]	+= t_xy[2][jx][jy];
+						s[3]	+= t_xy[3][jx][jy];
+						n		++;
 					}
 				}
-			}
 
-			for(iy=0; iy<4; iy++)
-			{
-				for(ix=0; ix<4; ix++)
+				if( n > 0 )
 				{
-					z_xy[0][ix][iy]	= t_xy[0][ix][iy];
-					z_xy[1][ix][iy]	= t_xy[1][ix][iy];
-					z_xy[2][ix][iy]	= t_xy[2][ix][iy];
-					z_xy[3][ix][iy]	= t_xy[3][ix][iy];
+					z_xy[0][ix][iy]	= s[0] / n;
+					z_xy[1][ix][iy]	= s[1] / n;
+					z_xy[2][ix][iy]	= s[2] / n;
+					z_xy[3][ix][iy]	= s[3] / n;
+
+					nNoData--;
 				}
 			}
 		}

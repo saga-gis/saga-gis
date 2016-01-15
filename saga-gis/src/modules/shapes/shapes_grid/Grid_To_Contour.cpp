@@ -272,7 +272,7 @@ bool CGrid_To_Contour::On_Execute(void)
 			return( false );
 		}
 
-		Grid.Assign(m_pGrid, GRID_INTERPOLATION_BSpline);
+		Grid.Assign(m_pGrid, GRID_RESAMPLING_BSpline);
 
 		m_pGrid	= &Grid;
 	}

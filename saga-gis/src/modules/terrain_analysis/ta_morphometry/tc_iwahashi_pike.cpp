@@ -178,7 +178,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 
 		CSG_Grid	Values(CSG_Grid_System(Cellsize, Get_XMin(), Get_YMin(), Get_XMax(), Get_YMax()), SG_DATATYPE_Float);
 
-		Values.Assign(pValues, GRID_INTERPOLATION_Mean_Cells);
+		Values.Assign(pValues, GRID_RESAMPLING_Mean_Cells);
 
 		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
@@ -189,7 +189,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 			{
 				double	z, px	= Get_XMin() + x * Get_Cellsize();
 
-				if( pValues->is_NoData(x, y) || !Values.Get_Value(px, py, z, GRID_INTERPOLATION_BSpline) )
+				if( pValues->is_NoData(x, y) || !Values.Get_Value(px, py, z, GRID_RESAMPLING_BSpline) )
 				{
 					pParameter->Set_NoData(x, y);
 				}

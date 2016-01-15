@@ -103,15 +103,14 @@ CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Value(
@@ -189,7 +188,15 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 		pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps")));
 	}
 
-	TSG_Grid_Interpolation	Interpolation	= (TSG_Grid_Interpolation)Parameters("INTERPOLATION")->asInt();
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	double	Grow	= Parameters("GROW")->asDouble();
 
@@ -211,7 +218,7 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 			CSG_Grid	Patch(CSG_Grid_System(Size, Get_System()->Get_Extent()));
 
 			SG_UI_Progress_Lock(true);
-			Patch.Assign(pGrid, GRID_INTERPOLATION_BSpline);
+			Patch.Assign(pGrid, GRID_RESAMPLING_BSpline);
 			SG_UI_Progress_Lock(false);
 
 			nCells	= 0;
@@ -229,7 +236,7 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 
 						if( Patch.is_InGrid_byPos(px, py) )
 						{
-							pGrid->Set_Value(x, y, Patch.Get_Value(px, py, Interpolation));
+							pGrid->Set_Value(x, y, Patch.Get_Value(px, py, Resampling));
 						}
 						else
 						{
@@ -269,7 +276,7 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 
 						if( pPatch->is_InGrid_byPos(px, py) )
 						{
-							pGrid->Set_Value(x, y, pPatch->Get_Value(px, py, Interpolation));
+							pGrid->Set_Value(x, y, pPatch->Get_Value(px, py, Resampling));
 
 							break;
 						}
@@ -287,43 +294,6 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 
 	return( true );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-/*/---------------------------------------------------------
-bool CGrid_Gaps_Resampling::On_Execute(void)
-{
-	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= Parameters("RESULT")->asGrid();
-	CSG_Grid	*pMask	= Parameters("MASK"  )->asGrid();
-
-	if( pGrid == NULL )
-	{
-		pGrid	= Parameters("INPUT")->asGrid();
-	}
-	else
-	{
-		pGrid->Assign(Parameters("INPUT")->asGrid());
-		pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps")));
-	}
-
-	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation	= (TSG_Grid_Interpolation)Parameters("INTERPOLATION")->asInt();
-
-
-	//-----------------------------------------------------
-	if( pGrid == Parameters("INPUT")->asGrid() )
-	{
-		DataObject_Update(pGrid);
-	}
-
-	return( true );
-}/**/
 
 
 ///////////////////////////////////////////////////////////

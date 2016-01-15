@@ -177,14 +177,13 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 		);
 
 		m_Parameters.Add_Choice(
-			pNode_1	, "DRAPE_MODE"	, _TL("Map Draping Interpolation"),
+			pNode_1	, "DRAPE_MODE"	, _TL("Map Drape Resampling"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-				_TL("None"),
-				_TL("Bilinear"),
-				_TL("Inverse Distance"),
-				_TL("Bicubic Spline"),
-				_TL("B-Spline")
+			CSG_String::Format("%s|%s|%s|%s|",
+				_TL("Nearest Neighbour"),
+				_TL("Bilinear Interpolation"),
+				_TL("Bicubic Spline Interpolation"),
+				_TL("B-Spline Interpolation")
 			), 0
 		);
 	}
@@ -533,7 +532,14 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 		m_bBox			= m_Parameters("DRAW_BOX"   )->asBool  ();
 		m_bStereo		= m_Parameters("STEREO"     )->asBool  ();
 		m_dStereo		= m_Parameters("STEREO_DIST")->asDouble();
-		m_Drape_Mode	= m_pDrape ? m_Parameters("DRAPE_MODE" )->asInt() : 0;
+
+		switch( m_Parameters("DRAPE_MODE")->asInt() )
+		{
+		default:	m_Drape_Mode	= GRID_RESAMPLING_NearestNeighbour;	break;
+		case  1:	m_Drape_Mode	= GRID_RESAMPLING_Bilinear;			break;
+		case  2:	m_Drape_Mode	= GRID_RESAMPLING_BicubicSpline;	break;
+		case  3:	m_Drape_Mode	= GRID_RESAMPLING_BSpline;			break;
+		}
 
 		m_Projector.do_Central          (m_Parameters("CENTRAL")->asInt() == 1);
 		m_Projector.Set_Central_Distance(m_Parameters("CENTRAL_DIST")->asDouble());

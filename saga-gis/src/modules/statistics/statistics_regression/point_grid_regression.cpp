@@ -121,23 +121,20 @@ CPoint_Grid_Regression::CPoint_Grid_Regression(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Regression Function"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 			_TL("Y = a + b * X (linear)"),
 			_TL("Y = a + b / X"),
 			_TL("Y = a / (b - X)"),
@@ -169,7 +166,14 @@ bool CPoint_Grid_Regression::On_Execute(void)
 	pShapes			= Parameters("POINTS"    )->asShapes();
 	iAttribute		= Parameters("ATTRIBUTE" )->asInt();
 	pResiduals		= Parameters("RESIDUAL"  )->asShapes();
-	m_Interpolation	= Parameters("INTERPOL"  )->asInt();
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	switch( Parameters("METHOD")->asInt() )
 	{
@@ -246,7 +250,7 @@ bool CPoint_Grid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes
 			{
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					if( pGrid->Get_Value(Point = pShape->Get_Point(iPoint, iPart), zGrid, m_Interpolation) )
+					if( pGrid->Get_Value(Point = pShape->Get_Point(iPoint, iPart), zGrid, m_Resampling) )
 					{
 						m_Regression.Add_Values(zGrid, zShape);
 

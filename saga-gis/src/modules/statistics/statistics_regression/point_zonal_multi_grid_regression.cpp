@@ -128,15 +128,14 @@ CPoint_Zonal_Multi_Grid_Regression::CPoint_Zonal_Multi_Grid_Regression(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Value(
@@ -256,7 +255,7 @@ bool CPoint_Zonal_Multi_Grid_Regression::On_Execute(void)
 				&& SG_MODULE_PARAMETER_SET("REGRESSION", &Regression             )
 				&& SG_MODULE_PARAMETER_SET("POINTS"    , &Selection              )
 				&& SG_MODULE_PARAMETER_SET("ATTRIBUTE" , Parameters("ATTRIBUTE" ))
-				&& SG_MODULE_PARAMETER_SET("INTERPOL"  , Parameters("INTERPOL"  ))
+				&& SG_MODULE_PARAMETER_SET("RESAMPLING", Parameters("RESAMPLING"))
 				&& SG_MODULE_PARAMETER_SET("COORD_X"   , Parameters("COORD_X"   ))
 				&& SG_MODULE_PARAMETER_SET("COORD_Y"   , Parameters("COORD_Y"   ))
 				&& SG_MODULE_PARAMETER_SET("INTERCEPT" , Parameters("INTERCEPT" ))
@@ -322,7 +321,15 @@ bool CPoint_Zonal_Multi_Grid_Regression::Set_Residuals(CSG_Shapes *pPoints, CSG_
 	pResiduals->Add_Field("TREND"	, SG_DATATYPE_Double);
 	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
-	int	Interpolation	= Parameters("INTERPOL")->asInt();
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	//-----------------------------------------------------
 	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
@@ -340,7 +347,7 @@ bool CPoint_Zonal_Multi_Grid_Regression::Set_Residuals(CSG_Shapes *pPoints, CSG_
 					double		zGrid;
 					TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
 
-					if( pRegression->Get_Value(Point, zGrid, Interpolation) )
+					if( pRegression->Get_Value(Point, zGrid, Resampling) )
 					{
 						CSG_Shape	*pResidual	= pResiduals->Add_Shape();
 

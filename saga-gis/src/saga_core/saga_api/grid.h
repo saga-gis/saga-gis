@@ -165,23 +165,22 @@ const SG_Char	gSG_Grid_File_Key_Names[GRID_FILE_KEY_Count][32]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_Interpolation
+typedef enum ESG_Grid_Resampling
 {
-	GRID_INTERPOLATION_NearestNeighbour	= 0,
-	GRID_INTERPOLATION_Bilinear,
-	GRID_INTERPOLATION_InverseDistance,
-	GRID_INTERPOLATION_BicubicSpline,
-	GRID_INTERPOLATION_BSpline,
+	GRID_RESAMPLING_NearestNeighbour	= 0,
+	GRID_RESAMPLING_Bilinear,
+	GRID_RESAMPLING_BicubicSpline,
+	GRID_RESAMPLING_BSpline,
 
-	GRID_INTERPOLATION_Mean_Nodes,
-	GRID_INTERPOLATION_Mean_Cells,
-	GRID_INTERPOLATION_Minimum,
-	GRID_INTERPOLATION_Maximum,
-	GRID_INTERPOLATION_Majority,
+	GRID_RESAMPLING_Mean_Nodes,
+	GRID_RESAMPLING_Mean_Cells,
+	GRID_RESAMPLING_Minimum,
+	GRID_RESAMPLING_Maximum,
+	GRID_RESAMPLING_Majority,
 
-	GRID_INTERPOLATION_Undefined
+	GRID_RESAMPLING_Undefined
 }
-TSG_Grid_Interpolation;
+TSG_Grid_Resampling;
 
 //---------------------------------------------------------
 typedef enum ESG_Grid_Operation
@@ -568,7 +567,7 @@ public:		///////////////////////////////////////////////
 
 	virtual bool				Assign						(double Value = 0.0);
 	virtual bool				Assign						(CSG_Data_Object *pObject);
-	virtual bool				Assign						(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation);
+	virtual bool				Assign						(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation);
 
 	void						Flip						(void);
 	void						Mirror						(void);
@@ -699,10 +698,10 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Get Value...
 
-	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	double						Get_Value(double xPos, double yPos,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	double						Get_Value(TSG_Point Position      ,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	bool						Get_Value(double xPos, double yPos, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	bool						Get_Value(TSG_Point Position      , double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
 
 	virtual BYTE				asByte	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(x, y, bScaled)) );	}
 	virtual BYTE				asByte	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(   n, bScaled)) );	}
@@ -923,7 +922,7 @@ private:	///////////////////////////////////////////////
 	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4])					 const;
 	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4][4])				 const;
 
-	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Interpolation Interpolation);
+	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Resampling Interpolation);
 	bool						_Assign_MeanValue		(CSG_Grid *pSource, bool bAreaProportional);
 	bool						_Assign_ExtremeValue	(CSG_Grid *pSource, bool bMaximum);
 	bool						_Assign_Majority		(CSG_Grid *pSource);

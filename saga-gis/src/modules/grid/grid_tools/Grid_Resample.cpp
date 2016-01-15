@@ -105,10 +105,9 @@ CGrid_Resample::CGrid_Resample(void)
 	Parameters.Add_Choice(
 		NULL	, "SCALE_UP"	, _TL("Upscaling Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation"),
 			_TL("Mean Value"),
@@ -116,20 +115,19 @@ CGrid_Resample::CGrid_Resample(void)
 			_TL("Minimum Value"),
 			_TL("Maximum Value"),
 			_TL("Majority")
-		), 6
+		), 5
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "SCALE_DOWN"	, _TL("Downscaling Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	//-----------------------------------------------------
@@ -221,33 +219,31 @@ bool CGrid_Resample::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation;
+	TSG_Grid_Resampling	Resampling;
 
 	if( Input.Get_Cellsize() < Output.Get_Cellsize() )	// Up-Scaling...
 	{
 		switch( Parameters("SCALE_UP")->asInt() )
 		{
-		case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-		case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-		case  2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-		case  3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-		case  4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
-		case  5:	Interpolation	= GRID_INTERPOLATION_Mean_Nodes;		break;
-		case  6:	Interpolation	= GRID_INTERPOLATION_Mean_Cells;		break;
-		case  7:	Interpolation	= GRID_INTERPOLATION_Minimum;			break;
-		case  8:	Interpolation	= GRID_INTERPOLATION_Maximum;			break;
-		case  9:	Interpolation	= GRID_INTERPOLATION_Majority;			break;
+		default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+		case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+		case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+		case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+		case  4:	Resampling	= GRID_RESAMPLING_Mean_Nodes;		break;
+		case  5:	Resampling	= GRID_RESAMPLING_Mean_Cells;		break;
+		case  6:	Resampling	= GRID_RESAMPLING_Minimum;			break;
+		case  7:	Resampling	= GRID_RESAMPLING_Maximum;			break;
+		case  8:	Resampling	= GRID_RESAMPLING_Majority;			break;
 		}
 	}
 	else	// Down-Scaling...
 	{
 		switch( Parameters("SCALE_DOWN")->asInt() )
 		{
-		case  0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-		case  1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-		case  2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-		case  3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-		case  4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
+		default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+		case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+		case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+		case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
 		}
 	}
 
@@ -262,7 +258,7 @@ bool CGrid_Resample::On_Execute(void)
 			Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined
 		);
 
-		pOutput->Assign(pInput, Interpolation);
+		pOutput->Assign(pInput, Resampling);
 		pOutput->Set_Name(pInput->Get_Name());
 
 		pOutputs->Add_Item(pOutput);

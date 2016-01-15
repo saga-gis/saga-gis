@@ -110,13 +110,12 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 	Parameters.Add_Choice(
 		NULL	, "H_METHOD"		, _TL("Horizontal Interpolation Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Choice(
@@ -198,12 +197,19 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 	m_pXTable			= Parameters("X_TABLE"      )->asTable();
 
 	m_xSource			= Parameters("X_SOURCE"     )->asInt();
-	m_hMethod			= Parameters("H_METHOD"     )->asInt();
 	m_vMethod			= Parameters("V_METHOD"     )->asInt();
 
 	m_Linear_bSorted	= Parameters("LINEAR_SORTED")->asBool();
 	m_Spline_bAll		= Parameters("SPLINE_ALL"   )->asBool() == false;
 	m_Trend_Order		= Parameters("TREND_ORDER"  )->asInt();
+
+	switch( Parameters("H_METHOD")->asInt() )
+	{
+	default:	m_hMethod	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	m_hMethod	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	m_hMethod	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	m_hMethod	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	//-----------------------------------------------------
 	if( m_pVariables->Get_Count() != (m_xSource == 0 ? m_pXTable->Get_Count() : m_pXGrids->Get_Count()) )

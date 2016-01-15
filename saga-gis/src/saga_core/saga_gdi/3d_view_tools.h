@@ -162,9 +162,11 @@ protected:
 
 	bool						m_bBox, m_bStereo;
 
-	int							m_bgColor, m_Drape_Mode;
-
+	int							m_bgColor;
+	
 	double						m_dStereo;
+
+	TSG_Grid_Resampling			m_Drape_Mode;
 
 	TSG_Point_Z					m_Data_Min, m_Data_Max;
 

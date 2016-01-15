@@ -133,10 +133,10 @@ bool CSG_Grid::Assign(double Value)
 bool CSG_Grid::Assign(CSG_Data_Object *pObject)
 {
 	return( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType()
-		&&  Assign((CSG_Grid *)pObject, GRID_INTERPOLATION_Undefined) );
+		&&  Assign((CSG_Grid *)pObject, GRID_RESAMPLING_Undefined) );
 }
 
-bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
+bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation)
 {
 	//-----------------------------------------------------
 	if(	!is_Valid() || !pGrid || !pGrid->is_Valid() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
@@ -172,42 +172,41 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 	&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
 	&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0	)
 	{
-		bResult	= _Assign_Interpolated(pGrid, GRID_INTERPOLATION_NearestNeighbour);
+		bResult	= _Assign_Interpolated(pGrid, GRID_RESAMPLING_NearestNeighbour);
 	}
 
 	//---------------------------------------------------------
 	else switch( Interpolation )
 	{
-	case GRID_INTERPOLATION_NearestNeighbour:
-	case GRID_INTERPOLATION_Bilinear:
-	case GRID_INTERPOLATION_InverseDistance:
-	case GRID_INTERPOLATION_BicubicSpline:
-	case GRID_INTERPOLATION_BSpline:
+	case GRID_RESAMPLING_NearestNeighbour:
+	case GRID_RESAMPLING_Bilinear:
+	case GRID_RESAMPLING_BicubicSpline:
+	case GRID_RESAMPLING_BSpline:
 		bResult	= _Assign_Interpolated(pGrid, Interpolation);
 		break;
 
-	case GRID_INTERPOLATION_Mean_Nodes:
-	case GRID_INTERPOLATION_Mean_Cells:
-		bResult	= _Assign_MeanValue   (pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
+	case GRID_RESAMPLING_Mean_Nodes:
+	case GRID_RESAMPLING_Mean_Cells:
+		bResult	= _Assign_MeanValue   (pGrid, Interpolation != GRID_RESAMPLING_Mean_Nodes);
 		break;
 
-	case GRID_INTERPOLATION_Minimum:
-	case GRID_INTERPOLATION_Maximum:
-		bResult	= _Assign_ExtremeValue(pGrid, Interpolation == GRID_INTERPOLATION_Maximum);
+	case GRID_RESAMPLING_Minimum:
+	case GRID_RESAMPLING_Maximum:
+		bResult	= _Assign_ExtremeValue(pGrid, Interpolation == GRID_RESAMPLING_Maximum);
 		break;
 
-	case GRID_INTERPOLATION_Majority:
+	case GRID_RESAMPLING_Majority:
 		bResult	= _Assign_Majority    (pGrid);
 		break;
 
 	default:
 		if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
 		{
-			bResult	= _Assign_Interpolated(pGrid, GRID_INTERPOLATION_BSpline);
+			bResult	= _Assign_Interpolated(pGrid, GRID_RESAMPLING_BSpline);
 		}
 		else											// Up-Scaling...
 		{
-			bResult	= _Assign_MeanValue(pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
+			bResult	= _Assign_MeanValue(pGrid, Interpolation != GRID_RESAMPLING_Mean_Nodes);
 		}
 		break;
 	}
@@ -232,7 +231,7 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
+bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation)
 {
 	double	py	= Get_YMin();
 
@@ -478,7 +477,7 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 //---------------------------------------------------------
 CSG_Grid & CSG_Grid::operator = (const CSG_Grid &Grid)
 {
-	Assign((CSG_Grid *)&Grid, GRID_INTERPOLATION_Undefined);
+	Assign((CSG_Grid *)&Grid, GRID_RESAMPLING_Undefined);
 
 	return( *this );
 }
@@ -642,11 +641,11 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 {
 	if( is_Intersecting(Grid.Get_Extent()) )
 	{
-		TSG_Grid_Interpolation	Interpolation	=
+		TSG_Grid_Resampling	Interpolation	=
 			Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_XMin() - Grid.Get_XMin(), Get_Cellsize()) == 0.0
 		&&	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_YMin() - Grid.Get_YMin(), Get_Cellsize()) == 0.0
-		?	GRID_INTERPOLATION_NearestNeighbour
-		:	GRID_INTERPOLATION_BSpline;
+		?	GRID_RESAMPLING_NearestNeighbour
+		:	GRID_RESAMPLING_BSpline;
 
 		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{

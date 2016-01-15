@@ -242,7 +242,7 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 		if( m_dimModel.Get_Cellsize() > Get_Cellsize() )	// scaling
 		{
 			m_pPredictors[i]	= SG_Create_Grid(m_dimModel);
-			m_pPredictors[i]	->Assign(pPredictors->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);	// GRID_INTERPOLATION_Mean_Cells
+			m_pPredictors[i]	->Assign(pPredictors->asGrid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
 		}
 		else
 		{
@@ -329,7 +329,9 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 	}
 
 	//-----------------------------------------------------
-	int	iPredictor, Interpolation	= GRID_INTERPOLATION_BSpline;
+	int	iPredictor;
+	
+	TSG_Grid_Resampling	Resampling	= GRID_RESAMPLING_BSpline;
 
 	m_Points.Create   (SHAPE_TYPE_Point);
 	m_Points.Set_Name (Parameters("DEPENDENT")->asString());
@@ -353,7 +355,7 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 
 			for(iPredictor=0; bAdd && iPredictor<m_nPredictors; iPredictor++)
 			{
-				if( !pPredictors->asGrid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Interpolation) )
+				if( !pPredictors->asGrid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Resampling) )
 				{
 					bAdd	= false;
 				}
@@ -512,7 +514,7 @@ bool CGW_Multi_Regression_Grid::Set_Model(void)
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::Set_Model(double x, double y, double &Value)
 {
-	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_INTERPOLATION_BSpline) )
+	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_RESAMPLING_BSpline) )
 	{
 		return( false );
 	}
@@ -521,8 +523,8 @@ bool CGW_Multi_Regression_Grid::Set_Model(double x, double y, double &Value)
 
 	for(int i=0; i<m_nPredictors; i++)
 	{
-		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_INTERPOLATION_BSpline)
-		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_INTERPOLATION_NearestNeighbour) )
+		if( !m_pModel     [i]->Get_Value(x, y, Model    , GRID_RESAMPLING_BSpline)
+		||  !m_pPredictors[i]->Get_Value(x, y, Predictor, GRID_RESAMPLING_NearestNeighbour) )
 		{
 			return( false );
 		}

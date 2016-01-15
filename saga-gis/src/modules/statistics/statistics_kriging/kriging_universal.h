@@ -101,7 +101,7 @@ private:
 
 	bool					m_bCoords;
 
-	int						m_Interpolation;
+	TSG_Grid_Resampling		m_Resampling;
 
 	CSG_Parameter_Grid_List	*m_pGrids;
 

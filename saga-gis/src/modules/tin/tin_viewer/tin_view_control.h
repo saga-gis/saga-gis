@@ -134,11 +134,13 @@ public:
 
 private:
 
-	int							m_Color_Mode, m_Size_Def, m_cWire, m_Interpolation;
-
+	int							m_Color_Mode, m_Size_Def, m_cWire;
+	
 	double						m_xDown, m_yDown, m_cMin, m_cScale, m_Size_Scale;
 
 	double						r_sin_x, r_sin_y, r_sin_z, r_cos_x, r_cos_y, r_cos_z, r_xc, r_yc, r_zc, r_Scale, r_Scale_z;
+
+	TSG_Grid_Resampling			m_Resampling;
 
 	CSG_Rect					m_Extent;
 

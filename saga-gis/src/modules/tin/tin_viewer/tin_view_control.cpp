@@ -200,14 +200,13 @@ CTIN_View_Control::CTIN_View_Control(wxWindow *pParent, CSG_TIN *pTIN, int Field
 	if( m_pRGB )
 	{
 		m_pSettings->Add_Choice(
-			pNode	, "RGB_INTERPOL", _TL("Map Draping Interpolation"),
+			pNode	, "RGB_INTERPOL"	, _TL("Map Draping Interpolation"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-				_TL("[VAL] None"),
-				_TL("[VAL] Bilinear"),
-				_TL("[VAL] Inverse Distance"),
-				_TL("[VAL] Bicubic Spline"),
-				_TL("[VAL] B-Spline")
+			CSG_String::Format("%s|%s|%s|%s|",
+				_TL("Nearest Neighbour"),
+				_TL("Bilinear Interpolation"),
+				_TL("Bicubic Spline Interpolation"),
+				_TL("B-Spline Interpolation")
 			), 0
 		);
 	}
@@ -523,7 +522,13 @@ bool CTIN_View_Control::_Draw_Image(void)
 
 	if( m_bRGB )
 	{
-		m_Interpolation	= m_Settings("RGB_INTERPOL")->asInt();
+		switch( m_Settings("RGB_INTERPOL")->asInt() )
+		{
+		default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+		case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+		case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+		case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+		}
 	}
 
 	//-------------------------------------------------
@@ -925,7 +930,7 @@ inline void CTIN_View_Control::_Draw_Triangle_Line(int y, double xa, double xb, 
 
 			if( m_bRGB )
 			{
-				if( m_pRGB->Get_Value(c, d, c, m_Interpolation, false, true) )
+				if( m_pRGB->Get_Value(c, d, c, m_Resampling, false, true) )
 				{
 					_Draw_Pixel(x, y, z, _Dim_Color(c, dim));
 				}

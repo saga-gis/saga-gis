@@ -128,15 +128,14 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 	);
 
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
+		Parameters("TARGET_NODE")	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neigbhor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 
@@ -173,15 +172,24 @@ int CGEOTRANS_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 {
-	int				Interpolation;
 	TSG_Data_Type	Type;
 	TSG_Rect		Extent;
 	CSG_Grid		*pSource, *pGrid;
 
 	//-----------------------------------------------------
-	pSource			= Parameters("SOURCE"       )->asGrid();
-	Interpolation	= Parameters("INTERPOLATION")->asInt();
-	Type			= Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
+
+	//-----------------------------------------------------
+	pSource	= Parameters("SOURCE")->asGrid();
+	Type	= Resampling == GRID_RESAMPLING_NearestNeighbour ? pSource->Get_Type() : SG_DATATYPE_Float;
 
 	//-----------------------------------------------------
 	if( Get_Target_Extent(pSource, Extent, true) )
@@ -191,7 +199,7 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 
 	if( Dlg_Parameters("TARGET") && (pGrid = m_Grid_Target.Get_Grid(Type)) != NULL )
 	{
-		return( Set_Grid(pSource, pGrid, Interpolation) );
+		return( Set_Grid(pSource, pGrid, Resampling) );
 	}
 
 	return( false );
@@ -293,7 +301,7 @@ bool CGEOTRANS_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGEOTRANS_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpol)
+bool CGEOTRANS_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, TSG_Grid_Resampling Resampling)
 {
 	int			x, y;
 	double		z;
@@ -335,7 +343,7 @@ bool CGEOTRANS_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpol
 
 				if( Get_Converted(Pt_Source) )
 				{
-					if( pSource->Get_Value(Pt_Source, z, Interpol) )
+					if( pSource->Get_Value(Pt_Source, z, Resampling) )
 					{
 						pTarget->Set_Value(x, y, z);
 					}

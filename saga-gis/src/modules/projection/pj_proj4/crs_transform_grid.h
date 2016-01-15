@@ -91,7 +91,7 @@ private:
 
 	bool						m_bList;
 
-	int							m_Interpolation;
+	TSG_Grid_Resampling			m_Resampling;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 

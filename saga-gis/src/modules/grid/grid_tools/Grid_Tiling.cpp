@@ -236,7 +236,7 @@ bool CGrid_Tiling::On_Execute(void)
 	CSG_String				FilePath, BaseName;
 	TSG_Data_Type			Type;
 	TSG_Rect				Extent;
-	TSG_Grid_Interpolation	Interpolation;
+	TSG_Grid_Resampling	Interpolation;
 	CSG_Grid				*pGrid, *pTile;
 	CSG_Parameter_Grid_List	*pTiles;
 
@@ -263,7 +263,7 @@ bool CGrid_Tiling::On_Execute(void)
 		dx				= dCell * nx;
 		dy				= dCell * ny;
 		Type			= pGrid->Get_Type();
-		Interpolation	= GRID_INTERPOLATION_NearestNeighbour;
+		Interpolation	= GRID_RESAMPLING_NearestNeighbour;
 		break;
 
 	case 1:
@@ -277,7 +277,7 @@ bool CGrid_Tiling::On_Execute(void)
 		nx				= (int)(dx / dCell);
 		ny				= (int)(dy / dCell);
 		Type			= pGrid->Get_Type();
-		Interpolation	= GRID_INTERPOLATION_Undefined;
+		Interpolation	= GRID_RESAMPLING_Undefined;
 		break;
 	}
 

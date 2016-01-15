@@ -148,7 +148,7 @@ bool CGrid_Mask::On_Execute(void)
 	{
 		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
-			if( !pMasked->is_NoData(x, y) && !pMask->Get_Value(p, z, GRID_INTERPOLATION_NearestNeighbour) )
+			if( !pMasked->is_NoData(x, y) && !pMask->Get_Value(p, z, GRID_RESAMPLING_NearestNeighbour) )
 			{
 				pMasked->Set_NoData(x, y);
 			}

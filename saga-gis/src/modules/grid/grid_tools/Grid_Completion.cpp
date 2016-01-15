@@ -78,7 +78,7 @@ CGrid_Completion::CGrid_Completion(void)
 
 	Set_Name		(_TL("Patching"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Fill gaps of a grid with data from another grid. "
@@ -107,15 +107,14 @@ CGrid_Completion::CGrid_Completion(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "INTERPOLATION"	, _TL("Interpolation Method"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 }
 
@@ -126,55 +125,68 @@ CGrid_Completion::~CGrid_Completion(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//	Run													 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Completion::On_Execute(void)
 {
-	int					x, y;
-	double				xPos, yPos, Value;
-	TSG_Grid_Interpolation	Interpolation;
-	CSG_Grid				*pGrid, *pAdditional;
+	CSG_Grid	*pPatch	= Parameters("ADDITIONAL")->asGrid();
+	CSG_Grid	*pGrid	= Parameters("COMPLETED" )->asGrid();
 
-	pAdditional		= Parameters("ADDITIONAL")	->asGrid();
-	pGrid			= Parameters("COMPLETED")	->asGrid();
-
-	if( pGrid->is_Intersecting(pAdditional->Get_Extent()) )
+	if( !pGrid->is_Intersecting(pPatch->Get_Extent()) )
 	{
-		if( pGrid != Parameters("ORIGINAL")->asGrid() )
+		Error_Set(_TL("Nothing to do: there is no intersection with additonal grid."));
+
+		return( false );
+	}
+
+	if( pGrid != Parameters("ORIGINAL")->asGrid() )
+	{
+		Process_Set_Text(_TL("Copying original data..."));
+
+		pGrid->Assign(Parameters("ORIGINAL")->asGrid());
+	}
+
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
+
+	Process_Set_Text(_TL("Data completion..."));
+
+	int		x, y;
+	double	xWorld, yWorld, Value;
+
+	for(y=0, yWorld=Get_YMin(); y<Get_NY() && yWorld<=pPatch->Get_YMax() && Set_Progress(y, Get_NY()); y++, yWorld+=Get_Cellsize())
+	{
+		if( yWorld >= pPatch->Get_YMin() )
 		{
-			Process_Set_Text(_TL("Copying original data..."));
-
-			pGrid->Assign(Parameters("ORIGINAL")->asGrid());
-		}
-
-		Interpolation	= (TSG_Grid_Interpolation)Parameters("INTERPOLATION")->asInt();
-
-		Process_Set_Text(_TL("Data completion..."));
-
-		for(y=0, yPos=Get_YMin(); y<Get_NY() && Set_Progress(y, Get_NY()); y++, yPos+=Get_Cellsize())
-		{
-			if( yPos >= pAdditional->Get_YMin() )
+			for(x=0, xWorld=Get_XMin(); x<Get_NX() && xWorld<=pPatch->Get_XMax(); x++, xWorld+=Get_Cellsize())
 			{
-				for(x=0, xPos=Get_XMin(); x<Get_NX() && xPos<=pAdditional->Get_XMax(); x++, xPos+=Get_Cellsize())
+				if( pGrid->is_NoData(x, y) && xWorld >= pPatch->Get_XMin() )
 				{
-					if( pGrid->is_NoData(x, y) && xPos >= pAdditional->Get_XMin() )
+					if( pPatch->Get_Value(xWorld, yWorld, Value, Resampling) )
 					{
-						if( !pAdditional->is_NoData_Value(Value = pAdditional->Get_Value(xPos, yPos, Interpolation)) )
-						{
-							pGrid->Set_Value(x, y, Value);
-						}
+						pGrid->Set_Value(x, y, Value);
 					}
 				}
 			}
 		}
-
-		return( true );
 	}
 
-	Error_Set(_TL("Nothing to do: there is no intersection with additonal grid."));
-
-	return( false );
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

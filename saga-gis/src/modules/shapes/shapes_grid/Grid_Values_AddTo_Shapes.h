@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	int							m_Interpolation;
+	TSG_Grid_Resampling			m_Resampling;
 
 
 	void						Get_Data_Point			(CSG_Simple_Statistics &Statistics, CSG_Shape *pShape, CSG_Grid *pGrid);

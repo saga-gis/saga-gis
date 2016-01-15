@@ -369,7 +369,7 @@ bool CTopographic_Correction::Get_Illumination(void)
 	if( !pDEM->Get_System().is_Equal(*Get_System()) )
 	{
 		DEM.Create(*Get_System());
-		DEM.Assign(pDEM, pDEM->Get_Cellsize() > Get_Cellsize() ? GRID_INTERPOLATION_BSpline : GRID_INTERPOLATION_Mean_Cells);
+		DEM.Assign(pDEM, pDEM->Get_Cellsize() > Get_Cellsize() ? GRID_RESAMPLING_BSpline : GRID_RESAMPLING_Mean_Cells);
 		pDEM	= &DEM;
 	}
 

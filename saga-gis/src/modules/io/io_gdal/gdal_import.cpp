@@ -133,15 +133,14 @@ CGDAL_Import::CGDAL_Import(void)
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "INTERPOL"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"	, _TL("Resampling"),
 		_TL("interpolation method to use if grid needs to be aligned to coordinate system"),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
-			_TL("Nearest Neighbor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	//-----------------------------------------------------
@@ -151,8 +150,6 @@ CGDAL_Import::CGDAL_Import(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -160,7 +157,7 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRANSFORM") )
 	{
-		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(pParameter->asBool());
+		pParameters->Get_Parameter("RESAMPLING")->Set_Enabled(pParameter->asBool());
 	}
 
 	if( !SG_STR_CMP(pParameters->Get_Identifier(), "SELECTION")
@@ -174,8 +171,6 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -347,16 +342,14 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	}
 
 	//-----------------------------------------------------
-	TSG_Grid_Interpolation	Interpolation;
+	TSG_Grid_Resampling	Resampling;
 
-	switch( Parameters("INTERPOL")->asInt() )
+	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:
-	case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-	case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-	case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-	case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-	case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
 	}
 
 	bool	bTransform	= Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transformation();
@@ -380,7 +373,7 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 				{
 					Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("band transformation"), i + 1, DataSet.Get_Count()));
 
-					DataSet.Get_Transformation(&pGrid, Interpolation, true);
+					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}
 
 				pGrid->Set_Name(DataSet.Get_Count() > 1

@@ -331,15 +331,14 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
+		NULL	, "RESAMPLING"		, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neigbhor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 
 	Parameters.Add_Choice(
@@ -403,10 +402,20 @@ bool CDirect_Georeferencing::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pDEM			= Parameters("DEM"          )->asGrid();
-	double		zRef			= Parameters("ZREF"         )->asDouble();
-	int			Interpolation	= Parameters("INTERPOLATION")->asInt();
-	bool		bFlip			= Parameters("ROW_ORDER"    )->asInt() == 1;
+	CSG_Grid	*pDEM	= Parameters("DEM"      )->asGrid();
+	double		zRef	= Parameters("ZREF"     )->asDouble();
+	bool		bFlip	= Parameters("ROW_ORDER")->asInt() == 1;
+
+	//-----------------------------------------------------
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	//-----------------------------------------------------
 	TSG_Point	p[4];
@@ -524,7 +533,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 			for(int i=0; i<pInput->Get_Count(); i++)
 			{
-				if( pInput->asGrid(i)->Get_Value(p.x, p.y, pz, Interpolation) )
+				if( pInput->asGrid(i)->Get_Value(p.x, p.y, pz, Resampling) )
 				{
 					pOutput->asGrid(i)->Set_Value(x, y, pz);
 				}

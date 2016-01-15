@@ -128,15 +128,14 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Interpolation"),
+		Parameters("TARGET_NODE"), "RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Nearest Neigbhor"),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 4
+		), 3
 	);
 }
 
@@ -175,7 +174,13 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 {
 	TSG_Rect	Extent;
 
-	m_Interpolation	= Parameters("INTERPOLATION")->asInt();
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+	}
 
 	//-----------------------------------------------------
 	if( m_bInputList )
@@ -207,7 +212,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 
 			for(int i=0; i<pSources->Get_Count(); i++)
 			{
-				pTargets->Add_Item(SG_Create_Grid(System, m_Interpolation == 0 ? pSources->asGrid(i)->Get_Type() : SG_DATATYPE_Float));
+				pTargets->Add_Item(SG_Create_Grid(System, m_Resampling == 0 ? pSources->asGrid(i)->Get_Type() : SG_DATATYPE_Float));
 
 				Init_Target(pSources->asGrid(i), pTargets->asGrid(i));
 			}
@@ -231,7 +236,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 			return( false );
 		}
 
-		CSG_Grid	*pTarget	= m_Grid_Target.Get_Grid(m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float);
+		CSG_Grid	*pTarget	= m_Grid_Target.Get_Grid(m_Resampling == 0 ? pSource->Get_Type() : SG_DATATYPE_Float);
 
 		//-------------------------------------------------
 		if( pTarget )
@@ -284,7 +289,7 @@ bool CPROJ4_Grid::Set_Grids(CSG_Parameter_Grid_List *pSources, CSG_Parameter_Gri
 
 				for(i=0; i<pSources->Get_Count(); i++)
 				{
-					if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Interpolation) )
+					if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Resampling) )
 					{
 						pTargets->asGrid(i)->Set_Value(x, y, z);
 					}
@@ -331,7 +336,7 @@ bool CPROJ4_Grid::Set_Shapes(CSG_Parameter_Grid_List *pSources, CSG_Shapes *pTar
 
 						for(i=0; i<pSources->Get_Count(); i++)
 						{
-							if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Interpolation) )
+							if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Resampling) )
 							{
 								pShape->Set_Value(i, z);
 							}
@@ -382,7 +387,7 @@ bool CPROJ4_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget)
 					if( pX )	pX->Set_Value(x, y, Pt_Source.x);
 					if( pY )	pY->Set_Value(x, y, Pt_Source.y);
 
-					if( pSource->Get_Value(Pt_Source, z, m_Interpolation) )
+					if( pSource->Get_Value(Pt_Source, z, m_Resampling) )
 					{
 						pTarget->Set_Value(x, y, z);
 					}

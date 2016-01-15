@@ -106,7 +106,7 @@ private:
 	bool						Get_Target_Extent		(CSG_Rect &Extent, bool bEdge);
 	void						Add_Target_Extent		(CSG_Rect &Extent, double x, double y);
 
-	bool						Set_Grid				(CSG_Grid *pGrid, CSG_Grid   *pReferenced, int Interpolation);
+	bool						Set_Grid				(CSG_Grid *pGrid, CSG_Grid   *pReferenced, TSG_Grid_Resampling Resampling);
 	bool						Set_Points				(CSG_Grid *pGrid, CSG_Shapes *pReferenced);
 
 };

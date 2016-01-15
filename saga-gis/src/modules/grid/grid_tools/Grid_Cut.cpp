@@ -273,7 +273,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_I
 				pClip->Set_Unit              (pInput->asGrid(i)->Get_Unit());
 				pClip->Set_NoData_Value_Range(pInput->asGrid(i)->Get_NoData_Value(), pInput->asGrid(i)->Get_NoData_hiValue());
 				pClip->Set_Scaling           (pInput->asGrid(i)->Get_Scaling(), pInput->asGrid(i)->Get_Offset());
-				pClip->Assign                (pInput->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
+				pClip->Assign                (pInput->asGrid(i), GRID_RESAMPLING_NearestNeighbour);
 
 				pOutput->Add_Item(pClip);
 				DataObject_Add   (pClip);
@@ -484,7 +484,7 @@ bool CGrid_Clip::On_Execute(void)
 		pClip->Set_Unit              (pInput->asGrid(i)->Get_Unit());
 		pClip->Set_NoData_Value_Range(pInput->asGrid(i)->Get_NoData_Value(), pInput->asGrid(i)->Get_NoData_hiValue());
 		pClip->Set_Scaling           (pInput->asGrid(i)->Get_Scaling(), pInput->asGrid(i)->Get_Offset());
-		pClip->Assign                (pInput->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
+		pClip->Assign                (pInput->asGrid(i), GRID_RESAMPLING_NearestNeighbour);
 
 		if( Mask.is_Valid() ) // && Parameters("EXTENT")->asInt() == 3 )	// polygon clip
 		{
