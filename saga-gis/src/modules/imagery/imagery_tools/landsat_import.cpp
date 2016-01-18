@@ -113,13 +113,14 @@ CLandsat_Import::CLandsat_Import(void)
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "INTERPOLATION"	, _TL("Interpolation"),
+		pNode	, "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
-			_TL("Cubic Convolution")
-		), 2
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation")
+		), 3
 	);
 
 	pNode	= Parameters.Add_Value(
@@ -172,7 +173,7 @@ int CLandsat_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROJECTION") )
 	{
-		pParameters->Set_Enabled("INTERPOLATION", pParameter->asInt() == 2);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_RGB") )
@@ -343,22 +344,13 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 		return( NULL );
 	}
 
-	int	Interpolation;
-
-	switch( Parameters("INTERPOLATION")->asInt() )
-	{
-	case  0:	Interpolation	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Interpolation	= GRID_RESAMPLING_Bilinear        ;	break;
-	default:	Interpolation	= GRID_RESAMPLING_BSpline         ;	break;
-	}
-
 	Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
 
 	pModule->Settings_Push(NULL);
 
-	if( pModule->Set_Parameter("CRS_PROJ4"    , Proj4        )
-	&&  pModule->Set_Parameter("INTERPOLATION", Interpolation)
-	&&  pModule->Set_Parameter("SOURCE"       , pGrid        )
+	if( pModule->Set_Parameter("CRS_PROJ4" , Proj4)
+	&&  pModule->Set_Parameter("SOURCE"    , pGrid)
+	&&  pModule->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
 	&&  pModule->Execute() )
 	{
 		pGrid	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();

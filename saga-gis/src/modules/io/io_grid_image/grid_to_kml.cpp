@@ -199,8 +199,8 @@ CGrid_to_KML::CGrid_to_KML(void)
 	);
 
 	Parameters.Add_Value(
-        NULL	, "INTERPOL"	, _TL("Interpolation"),
-        _TL("interpolate values if projection is needed"),
+        NULL	, "RESAMPLING"	, _TL("Interpolation"),
+        _TL("resampling method used when projection is needed"),
         PARAMETER_TYPE_Bool, true
     );
 
@@ -239,7 +239,7 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	{
 		CSG_Grid	*pGrid	= pParameters->Get_Parameter("GRID")->asGrid();
 
-		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(
+		pParameters->Get_Parameter("RESAMPLING")->Set_Enabled(
 			pGrid && pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected && pParameters->Get_Parameter("COLOURING")->asInt() < 4
 		);
 	}
@@ -298,9 +298,9 @@ bool CGrid_to_KML::On_Execute(void)
 
 		pModule->Settings_Push();
 
-		if( pModule->Set_Parameter("CRS_PROJ4"    , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
-		&&  pModule->Set_Parameter("INTERPOLATION", Method < 4 && Parameters("INTERPOL")->asBool() ? 4 : 0)
-		&&  pModule->Set_Parameter("SOURCE"       , pGrid)
+		if( pModule->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+		&&  pModule->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
+		&&  pModule->Set_Parameter("SOURCE"    , pGrid)
 		&&  pModule->Execute() )
 		{
 			bDelete	= true;

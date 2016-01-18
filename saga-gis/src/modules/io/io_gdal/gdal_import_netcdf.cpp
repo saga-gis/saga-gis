@@ -140,29 +140,29 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 //---------------------------------------------------------
 int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_FILE")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SAVE_FILE") )
 	{
-		pParameters->Get_Parameter("SAVE_PATH")->Set_Enabled(pParameter->asBool());
+		pParameters->Get_Parameter("SAVE_PATH" )->Set_Enabled(pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("VARS_ALL" )) && pParameters->Get_Parameter("VARS") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VARS_ALL" ) && pParameters->Get_Parameter("VARS") )
 	{
-		pParameters->Get_Parameter("VARS" )->Set_Enabled(!pParameter->asBool());
+		pParameters->Get_Parameter("VARS"      )->Set_Enabled(!pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TIME_ALL" )) && pParameters->Get_Parameter("TIME") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TIME_ALL" ) && pParameters->Get_Parameter("TIME") )
 	{
-		pParameters->Get_Parameter("TIME" )->Set_Enabled(!pParameter->asBool());
+		pParameters->Get_Parameter("TIME"      )->Set_Enabled(!pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LEVEL_ALL")) && pParameters->Get_Parameter("LEVEL") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LEVEL_ALL") && pParameters->Get_Parameter("LEVEL") )
 	{
-		pParameters->Get_Parameter("LEVEL")->Set_Enabled(!pParameter->asBool());
+		pParameters->Get_Parameter("LEVEL"     )->Set_Enabled(!pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TRANSFORM")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRANSFORM") )
 	{
-		pParameters->Get_Parameter("INTERPOL")->Set_Enabled(pParameter->asBool());
+		pParameters->Get_Parameter("RESAMPLING")->Set_Enabled(pParameter->asBool());
 	}
 
 	return( 1 );
