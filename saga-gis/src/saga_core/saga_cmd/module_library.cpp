@@ -683,6 +683,11 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 		while( FileNames.Length() > 0 );
 
 		pParameter->has_Changed();
+
+		if( pParameter->Get_Parent() && pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
+		{
+			pParameter->Get_Parent()->has_Changed();
+		}
 	}
 
 	return( true );

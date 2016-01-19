@@ -144,17 +144,23 @@ CGrid_Resample::CGrid_Resample(void)
 //---------------------------------------------------------
 int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") && pParameter->asGrid_System() )
 	{
-		if( pParameter->asGrid_System() )
-		{
-			CSG_Grid_System	Input	= *pParameter->asGrid_System();
+		CSG_Grid_System	Input	= *pParameter->asGrid_System();
 
-			m_Grid_Target.Set_User_Defined(pParameters, Input.Get_Extent(), Input.Get_NY(), false, 0);
-		}
+		m_Grid_Target.Set_User_Defined(pParameters, Input.Get_Extent(), Input.Get_NY(), false, 0);
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	if(0&& !SG_UI_Get_Window_Main() && !SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") && pParameter->asGridList()->Get_Count() > 0 )
+	{
+		CSG_Grid_System	Input = pParameter->asGridList()->asGrid(0)->Get_System();
+
+		m_Grid_Target.Set_User_Defined(pParameters, Input.Get_Extent(), Input.Get_NY(), false, 0);
+	}
+
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -182,7 +188,9 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 		pParameters->Set_Enabled("SCALE_DOWN", Scaling >= 0.0);
 	}
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
