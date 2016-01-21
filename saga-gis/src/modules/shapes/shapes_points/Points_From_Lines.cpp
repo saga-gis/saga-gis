@@ -149,7 +149,7 @@ bool CPoints_From_Lines::On_Execute(void)
 	{
 		Convert(pLines, pPoints, bAddPtOrder);
 	}
-	
+
 
 	return( true );
 }
@@ -302,6 +302,7 @@ void CPoints_From_Lines::Convert_Add_Points_Line(CSG_Shapes *pLines, CSG_Shapes 
 				}
 			}
 
+
 			for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 			{
 				Pt_A	= Pt_B;
@@ -322,6 +323,13 @@ void CPoints_From_Lines::Convert_Add_Points_Line(CSG_Shapes *pLines, CSG_Shapes 
 				dx		= Pt_B.x - Pt_A.x;
 				dy		= Pt_B.y - Pt_A.y;
 				dLine	= sqrt(dx*dx + dy*dy);
+
+				if ( dOffset > dLine )
+				{
+					dOffset = dOffset - dLine;
+					continue;
+				}
+
 				dx		/= dLine;
 				dy		/= dLine;
 
@@ -512,7 +520,7 @@ void CPoints_From_Lines::Convert_Add_Points_Center(CSG_Shapes *pLines, CSG_Shape
 		// create line part from center to end of line
 		CSG_Shapes	SplitLines;
 		CSG_Shape	*pSplitLine;
-		
+
 		SplitLines.Create(pLines->Get_Type(), pLines->Get_Name(), pLines, pLines->Get_Vertex_Type());
 
 		int iPartOffset = 0;
@@ -577,7 +585,7 @@ void CPoints_From_Lines::Convert_Add_Points_Center(CSG_Shapes *pLines, CSG_Shape
 
 		//---------------------------------------------------------
 		// create line part from center to start of line
-		
+
 		SplitLines.Create(pLines->Get_Type(), pLines->Get_Name(), pLines, pLines->Get_Vertex_Type());
 
 		iPartOffset = 0;
@@ -639,8 +647,8 @@ void CPoints_From_Lines::Convert_Add_Points_Center(CSG_Shapes *pLines, CSG_Shape
 		Convert_Add_Points_Line(&SplitLines, pPoints, dDist, bAddPtOrder);
 
 	} // for iLine
-			
-	
+
+
 	return;
 }
 
