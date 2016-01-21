@@ -181,7 +181,7 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, SG_Char Separator)
 
 	pFields->Del_Children();
 
-	for(int iField=0; iField<Get_Field_Count(); )
+	for(int iField=0; iField<Get_Field_Count(); iField++)
 	{
 		pFields->Add_Child("FIELD", Get_Field_Name(iField))->Add_Property("TYPE", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
 	}
