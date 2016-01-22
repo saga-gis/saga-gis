@@ -93,7 +93,6 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "Cost_Isotropic.h"
-#include "Cost_Anisotropic.h"
 #include "LeastCostPathProfile.h"
 #include "LeastCostPathProfile_Points.h"
 
