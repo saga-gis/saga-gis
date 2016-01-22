@@ -745,6 +745,9 @@ void CWKSP_Module::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Bool        :
+			pChild	= Tool.Add_Child("option", p->asBool() ? "true" : "false");
+			break;
+
 		case PARAMETER_TYPE_Int         :
 		case PARAMETER_TYPE_Double      :
 		case PARAMETER_TYPE_Degree      :
