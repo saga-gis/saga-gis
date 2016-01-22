@@ -97,7 +97,7 @@ CSG_Module_Grid::~CSG_Module_Grid(void)
 //---------------------------------------------------------
 bool CSG_Module_Grid::Set_Progress_NCells(sLong iCell)
 {
-	if( Get_System()->is_Valid() && (Get_System()->Get_NCells() <= 100 || !(iCell % (Get_System()->Get_NCells() / 100))) )
+	if( Get_System()->is_Valid() )
 	{
 		return( CSG_Module::Set_Progress((double)iCell, (double)Get_System()->Get_NCells()) );
 	}
