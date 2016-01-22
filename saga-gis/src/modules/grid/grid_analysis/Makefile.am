@@ -13,7 +13,6 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMP
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libgrid_analysis.la
 libgrid_analysis_la_SOURCES =\
-Cost_Anisotropic.cpp\
 Cost_Isotropic.cpp\
 CoveredDistance.cpp\
 CrossClassification.cpp\
@@ -33,9 +32,7 @@ LeastCostPathProfile.cpp\
 LeastCostPathProfile_Points.cpp\
 MLB_Interface.cpp\
 owa.cpp\
-PointsEx.cpp\
 Soil_Texture.cpp\
-Cost_Anisotropic.h\
 Cost_Isotropic.h\
 CoveredDistance.h\
 CrossClassification.h\
@@ -55,7 +52,6 @@ LeastCostPathProfile.h\
 LeastCostPathProfile_Points.h\
 MLB_Interface.h\
 owa.h\
-PointsEx.h\
 Soil_Texture.h
 
 libgrid_analysis_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)

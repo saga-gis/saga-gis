@@ -20,152 +20,287 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Cost_Isotropic.h"
 
-#define NO_DATA -1.
 
-CCost_Isotropic::CCost_Isotropic(void)
-{	 
-	
-	Set_Name		(_TL("Accumulated Cost (Isotropic)"));
-	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CCost_Accumulated::CCost_Accumulated(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Set_Name		(_TL("Accumulated Cost"));
+
+	Set_Author		("Victor Olaya (c) 2004");
+
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Calculate Accumulated Cost (Isotropic)"));
+		"Calculation of accumulated cost, either isotropic or anisotropic, if direction of maximum cost is specified. "
+	));
 
-	Parameters.Add_Grid(NULL, 
-						"COST", 
-						_TL("Cost Grid"), 
-						_TL(""), 
-						PARAMETER_INPUT);
-	
-	Parameters.Add_Grid(NULL, 
-						"POINTS",
-						_TL("Destination Points"), 
-						_TL(""),
-						PARAMETER_INPUT);
-	
-	Parameters.Add_Grid(NULL, 
-						"ACCCOST", 
-						_TL("Accumulated Cost"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Double);
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		NULL	, "DEST_TYPE"	, _TL("Input Type of Destinations"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Point"),
+			_TL("Grid")
+		), 1
+	);
 
-	Parameters.Add_Grid(NULL, 
-						"CLOSESTPT", 
-						_TL("Closest Point"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Int);
+	Parameters.Add_Shapes(
+		NULL	, "DEST_POINTS"	, _TL("Destinations"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
 
-	Parameters.Add_Value(NULL,
-						"THRESHOLD",
-						_TL("Threshold for different route"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						0.);
+	Parameters.Add_Grid(
+		NULL	, "DEST_GRID"	, _TL("Destinations"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "COST"		, _TL("Local Cost"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	pNode	= Parameters.Add_Grid(
+		NULL	, "DIR_MAXCOST"	, _TL("Direction of Maximum Cost"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "DIR_UNIT"	, _TL("Units of Direction"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("radians"),
+			_TL("degree")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		pNode	, "DIR_K"		, _TL("K Factor"),
+		_TL("effective friction = stated friction ^f , where f = cos(DifAngle)^k."),
+		PARAMETER_TYPE_Double, 2
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "ACCUMULATED"	, _TL("Accumulated Cost"), 
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "ALLOCATION"	, _TL("Allocation"), 
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Value(
+		NULL	, "THRESHOLD"	, _TL("Threshold for different route"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.0, 0.0, true
+	);
 }
 
-CCost_Isotropic::~CCost_Isotropic(void)
-{}
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CCost_Isotropic::On_Execute(void)
+//---------------------------------------------------------
+int CCost_Accumulated::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	
-	int iPoint = 1;
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIR_MAXCOST") )
+	{
+		pParameters->Set_Enabled("DIR_UNIT", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("DIR_K"   , pParameter->asGrid() != NULL);
+	}
 
-	m_dThreshold = Parameters("THRESHOLD")->asDouble();
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DEST_TYPE") )
+	{
+		pParameters->Set_Enabled("DEST_POINTS", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("DEST_GRID"  , pParameter->asInt() == 1);
+	}
 
-	m_pAccCostGrid = Parameters("ACCCOST")->asGrid(); 
-	m_pCostGrid = Parameters("COST")->asGrid(); 
-	m_pClosestPtGrid = Parameters("CLOSESTPT")->asGrid(); 
-	m_pPointsGrid = Parameters("POINTS")->asGrid(); 
-	
-	m_pAccCostGrid->Assign(NO_DATA);
-	m_pClosestPtGrid->Assign(NO_DATA);
-
-	m_pAccCostGrid->Set_NoData_Value(NO_DATA);
-	m_pClosestPtGrid->Set_NoData_Value(NO_DATA);
-
-	m_CentralPoints.Clear();
-	m_AdjPoints.Clear();
-
-	m_CentralPoints.Clear();				
-
-	for(int y=0; y<Get_NY(); y++){		
-		for(int x=0; x<Get_NX(); x++){
-			if (!m_pPointsGrid->is_NoData(x,y)){				
-				m_CentralPoints.Add(x,y,iPoint);
-				m_pAccCostGrid->Set_Value(x,y,0.0);
-				m_pClosestPtGrid->Set_Value(x,y,iPoint);
-				iPoint++;
-			}//if
-		}//for
-	}//for
-
-	CalculateCost();
-
-	return true;
-
-}//method
-
-void CCost_Isotropic::CalculateCost(){
-    
-    double dCost=0;
-	int iPoint;
-	int iX,iY;
-	int iUsedCells=0;
-	int iTotalCells=Get_NX()*Get_NY();
-	
-	while (m_CentralPoints.Get_Count()!=0){
-        
-		for (int iPt=0; iPt<m_CentralPoints.Get_Count();iPt++){	        
-	    
-			iX=m_CentralPoints.Get_X(iPt);
-			iY=m_CentralPoints.Get_Y(iPt);
-			iPoint = m_CentralPoints.Get_ClosestPoint(iPt);
-
-			for (int i = -1; i < 2; i++) {        
-				for (int j = -1; j < 2; j++) { 
-					if (m_pCostGrid->is_InGrid(iX+i,iY+j)){							     			            		
-						if (m_pCostGrid->is_NoData(iX,iY) || m_pCostGrid->is_NoData(iX+i,iY+j)){				            							            			
-						}//if
-						else{
-							double dPartialCost=(m_pCostGrid->asDouble(iX,iY)+m_pCostGrid->asDouble(iX+i,iY+j))/2.0;
-							dCost = m_pAccCostGrid->asDouble(iX,iY) + dPartialCost * M_GET_LENGTH(i, j);					
-							if (m_pAccCostGrid->asDouble(iX+i,iY+j)==NO_DATA || 
-									m_pAccCostGrid->asDouble(iX+i,iY+j)>dCost + m_dThreshold){								
-								m_pAccCostGrid->Set_Value(iX+i,iY+j,dCost);
-								m_pClosestPtGrid->Set_Value(iX+i,iY+j,iPoint);
-								m_AdjPoints.Add(iX+i,iY+j,iPoint);	
-								iUsedCells++;								
-							}//if							
-						}//else			            	       		
-					}//if 
-				}// for
-			}// for
-		}//for
-
-		m_CentralPoints.Clear();
-		for (int i=0; i<m_AdjPoints.Get_Count(); i++){
-			iX = m_AdjPoints.Get_X(i);
-			iY = m_AdjPoints.Get_Y(i);
-			iPoint = m_AdjPoints.Get_ClosestPoint(i);
-			m_CentralPoints.Add(iX,iY, iPoint);
-		}//for
-		m_AdjPoints.Clear();
-		
-		//DataObject_Update(m_pAccCostGrid, true); 
-
-		Set_Progress((double)iUsedCells,(double)iTotalCells);
-
-	}//while
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
 
 
-	
-}//method
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCost_Accumulated::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Grid	*pCost			= Parameters("COST"       )->asGrid();
+	CSG_Grid	*pAccumulated	= Parameters("ACCUMULATED")->asGrid();
+	CSG_Grid	*pAllocation	= Parameters("ALLOCATION" )->asGrid();
+
+	m_pDirection	= Parameters("DIR_MAXCOST")->asGrid();
+	m_bDegree		= Parameters("DIR_UNIT"   )->asInt() == 1;
+	m_dK			= Parameters("DIR_K"      )->asDouble();
+
+	//-----------------------------------------------------
+	CPoints	Points;
+
+	pAccumulated->Set_NoData_Value(-1.0); pAccumulated->Assign_NoData();
+	pAllocation ->Set_NoData_Value(-1.0); pAllocation ->Assign_NoData();
+
+	if( Parameters("DEST_TYPE")->asInt() == 0 )	// Point
+	{
+		CSG_Shapes	*pDestinations	= Parameters("DEST_POINTS")->asShapes();
+
+		for(int i=0, x, y; i<pDestinations->Get_Count(); i++)
+		{
+			if( Get_System()->Get_World_to_Grid(x, y, pDestinations->Get_Shape(i)->Get_Point(0)) )
+			{
+				Points.Add(x, y, 1 + Points.Get_Count());
+				pAccumulated->Set_Value(x, y, 0.0);
+				pAllocation ->Set_Value(x, y, Points.Get_Count());
+			}
+		}
+	}
+	else										// Grid
+	{
+		CSG_Grid	*pDestinations	= Parameters("DEST_GRID")->asGrid();
+
+		for(int y=0; y<Get_NY(); y++)	for(int x=0; x<Get_NX(); x++)
+		{
+			if( !pDestinations->is_NoData(x, y) && !pCost->is_NoData(x, y) )
+			{
+				Points.Add(x, y, 1 + Points.Get_Count());
+				pAccumulated->Set_Value(x, y, 0.0);
+				pAllocation ->Set_Value(x, y, Points.Get_Count());
+			}
+		}
+	}
+
+	if( Points.Get_Count() < 1 )
+	{
+		Error_Set(_TL("no destination points in grid area."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	double	Threshold	= Parameters("THRESHOLD")->asDouble();
+
+	sLong	nProcessed	= Points.Get_Count();
+
+	while( Points.Get_Count() > 0 && Set_Progress_NCells(nProcessed) )
+	{
+		Process_Set_Text(CSG_String::Format("%s: %d", _TL("cells in process"), Points.Get_Count()));
+
+		CPoints	Next;	int	iPoint;
+
+		for(iPoint=0; iPoint<Points.Get_Count(); iPoint++)
+		{
+			TSG_Point_Int	p	= Points.Get_Point(iPoint);
+
+			double	Cost	= pCost       ->asDouble(p.x, p.y);
+			double	Accu	= pAccumulated->asDouble(p.x, p.y);
+
+			for(int i=0; i<8; i++)
+			{
+				int	ix	= Get_xTo(i, p.x);
+				int	iy	= Get_yTo(i, p.y);
+
+				if( pCost->is_InGrid(ix, iy) )
+				{
+					double	dCost	= Accu + Get_CostInDirection(p, i) * (Cost + pCost->asDouble(ix, iy)) / 2.0;
+
+					bool	bProcessed	= !pAccumulated->is_NoData(ix, iy);
+
+					if( !bProcessed || pAccumulated->asDouble(ix, iy) > dCost + Threshold )
+					{
+						if( !bProcessed )
+						{
+							nProcessed++;
+						}
+
+						Next.Add(ix, iy, Points.Get_Allocation(iPoint));
+
+						pAccumulated->Set_Value(ix, iy, dCost);
+						pAllocation ->Set_Value(ix, iy, Points.Get_Allocation(iPoint));
+					}
+				}
+			}
+		}
+
+		//-------------------------------------------------
+		Points.Clear();
+
+		for(iPoint=0; iPoint<Next.Get_Count(); iPoint++)
+		{
+			TSG_Point_Int	p	= Next.Get_Point(iPoint);
+
+			if( pAllocation->asInt(p.x, p.y) == Next.Get_Allocation(iPoint) )
+			{
+				Points.Add(p.x, p.y, Next.Get_Allocation(iPoint));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
 
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline double CCost_Accumulated::Get_CostInDirection(const TSG_Point_Int &p, int i)
+{
+	if( m_pDirection && m_pDirection->is_InGrid(p.x, p.y) )
+	{
+		int	ix	= Get_xTo(i, p.x);
+		int	iy	= Get_yTo(i, p.y);
+
+		if( m_pDirection->is_InGrid(ix, iy) )
+		{
+			static const double	dAngles[8]	= {	0.0, M_PI_045, M_PI_090, M_PI_135, M_PI_180, M_PI_225, M_PI_270, M_PI_315 };
+
+			double	d1	= m_pDirection->asDouble(p.x, p.y);
+			double	d2	= m_pDirection->asDouble( ix,  iy);
+
+			d1	= pow(cos(fabs((m_bDegree ? M_DEG_TO_RAD * d1 : d1) - dAngles[i])), m_dK);
+			d2	= pow(cos(fabs((m_bDegree ? M_DEG_TO_RAD * d2 : d2) - dAngles[i])), m_dK);
+
+			return( Get_UnitLength(i) * (d1 + d2) / 2.0 );
+		}
+	}
+
+	return( Get_UnitLength(i) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

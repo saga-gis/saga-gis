@@ -125,8 +125,7 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CCost_Isotropic );
-	case  1:	return( new CCost_Anisotropic );
+	case  0:	return( new CCost_Accumulated );
 	case  4:	return( new CLeastCostPathProfile );
 	case  5:	return( new CLeastCostPathProfile_Points );
 

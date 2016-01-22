@@ -22,39 +22,87 @@
 #ifndef HEADER_INCLUDED__Cost_Isotropic_H
 #define HEADER_INCLUDED__Cost_Isotropic_H
 
-#include "MLB_Interface.h"
-#include "PointsEx.h"
 
-class CCost_Isotropic : public CSG_Module_Grid
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCost_Accumulated : public CSG_Module_Grid
 {
 public:
 
-	CCost_Isotropic(void);
-	virtual ~CCost_Isotropic(void);
+	CCost_Accumulated(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Cost Analysis") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Cost Analysis") );	}
 
 
 protected:	
 
-	bool					On_Execute		(void);
+	int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	bool					On_Execute				(void);
 
 
 private:
 
-	double					m_dThreshold;
+	bool					m_bDegree;
 
-	CPointsEx				m_CentralPoints;
-	CPointsEx				m_AdjPoints;
+	double					m_dK;
 
-	CSG_Grid					*m_pCostGrid;
-	CSG_Grid					*m_pPointsGrid;	
-	CSG_Grid					*m_pAccCostGrid;
-	CSG_Grid					*m_pClosestPtGrid;
+	CSG_Grid				*m_pDirection;
 
 
-	void					CalculateCost	(void);
-	
+	double					Get_CostInDirection		(const TSG_Point_Int &p, int i);
+
+
+//---------------------------------------------------------
+private:
+
+	class CPoints
+	{
+	public:
+		CPoints(void)	{}
+
+		void				Clear			(void)	{	m_Points.Clear();	m_Allocation.Destroy();	}
+
+		bool				Add				(int x, int y, int iAllocation)
+		{
+			return( m_Points.Add(x, y) && m_Allocation.Add(iAllocation) );
+		}
+
+		int					Get_Count		(void)	{	return( m_Points.Get_Count() );	}
+		TSG_Point_Int		Get_Point		(int i)	{	return( m_Points    [i] );	}
+		int					Get_Allocation	(int i)	{	return( m_Allocation[i] );	}
+
+
+	private:
+
+		CSG_Points_Int		m_Points;
+
+		CSG_Array_Int		m_Allocation;
+
+	};
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Cost_Isotropic_H
