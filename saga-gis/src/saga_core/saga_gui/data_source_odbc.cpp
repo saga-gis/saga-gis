@@ -295,13 +295,16 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 	\
 	if(	pModule )\
 	{\
+		SG_UI_Msg_Lock(true);\
 		pModule->Settings_Push(NULL);\
 		bRetVal	= pModule->On_Before_Execution() && (CONDITION) && pModule->Execute();\
 		pModule->Settings_Pop();\
+		SG_UI_Msg_Lock(false);\
 	}\
 }
 
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+//---------------------------------------------------------
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Set_Parameter(IDENTIFIER, VALUE)
 
 //---------------------------------------------------------
 bool CData_Source_ODBC::is_Connected(const CSG_String &Server)
@@ -453,7 +456,9 @@ void CData_Source_ODBC::Source_Close_All(void)
 
 	if( pModule )
 	{
+		SG_UI_Msg_Lock(true);
 		pModule->Execute();
+		SG_UI_Msg_Lock(false);
 	}
 }
 
@@ -466,9 +471,11 @@ void CData_Source_ODBC::Source_Close(const wxTreeItemId &Item)
 
 	if( pModule )
 	{
+		SG_UI_Msg_Lock(true);
 		pModule->On_Before_Execution();
 		pModule->Get_Parameters()->Set_Parameter("SERVERS", pData->Get_Value());
 		pModule->Execute();
+		SG_UI_Msg_Lock(false);
 	}
 }
 

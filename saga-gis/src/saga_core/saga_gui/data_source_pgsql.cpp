@@ -153,9 +153,11 @@ enum
 	\
 	if(	pModule )\
 	{\
+		SG_UI_Msg_Lock(true);\
 		pModule->Settings_Push(bManager ? &SG_Get_Data_Manager() : NULL);\
 		bResult	= pModule->On_Before_Execution() && (CONDITION) && pModule->Execute();\
 		pModule->Settings_Pop();\
+		SG_UI_Msg_Lock(false);\
 	}\
 }
 
@@ -262,11 +264,17 @@ bool	PGSQL_Save_Table	(CSG_Table *pTable)
 {
 	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Table_Save);
 
-	if(	pModule && pModule->On_Before_Execution() && pModule->Set_Parameter("SHAPES", pTable)
+	SG_UI_Msg_Lock(true);
+
+	if(	pModule && pModule->On_Before_Execution() && pModule->Set_Parameter("TABLE", pTable)
 	&&  DLG_Parameters(pModule->Get_Parameters()) && pModule->Execute() )
 	{
+		SG_UI_Msg_Lock(false);
+
 		return( true );
 	}
+
+	SG_UI_Msg_Lock(false);
 
 	return( false );
 }
@@ -276,11 +284,17 @@ bool	PGSQL_Save_Shapes	(CSG_Shapes *pShapes)
 {
 	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Shapes_Save);
 
+	SG_UI_Msg_Lock(true);
+
 	if(	pModule && pModule->On_Before_Execution() && pModule->Set_Parameter("SHAPES", pShapes)
 	&&  DLG_Parameters(pModule->Get_Parameters()) && pModule->Execute() )
 	{
+		SG_UI_Msg_Lock(false);
+
 		return( true );
 	}
+
+	SG_UI_Msg_Lock(false);
 
 	return( false );
 }
@@ -290,6 +304,8 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 {
 	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Raster_Save);
 
+	SG_UI_Msg_Lock(true);
+
 	if(	pModule && pModule->On_Before_Execution() && pModule->Set_Parameter("NAME", pGrid->Get_Name()) )
 	{
 		pModule->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Del_Items();
@@ -297,9 +313,13 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 		if( pModule->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Add_Item(pGrid)
 		&&  DLG_Parameters(pModule->Get_Parameters()) && pModule->Execute() )
 		{
+			SG_UI_Msg_Lock(false);
+
 			return( true );
 		}
 	}
+
+	SG_UI_Msg_Lock(false);
 
 	return( false );
 }
@@ -926,6 +946,8 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 	{
 		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_DB_Create);
 
+		SG_UI_Msg_Lock(true);
+
 		if(	pModule && pModule->On_Before_Execution() )
 		{
 			if( pData->Get_Type() == TYPE_SERVER )
@@ -939,6 +961,8 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 				pModule->Execute();
 			}
 		}
+
+		SG_UI_Msg_Lock(false);
 	}
 
 	return( true );
@@ -1024,6 +1048,8 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 	{
 		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Get_Connection);	// CGet_Connection
 
+		SG_UI_Msg_Lock(true);
+
 		if(	pModule && pModule->On_Before_Execution() )
 		{
 			if( pData->Get_Type() == TYPE_SERVER )
@@ -1037,6 +1063,8 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 				pModule->Execute();
 			}
 		}
+
+		SG_UI_Msg_Lock(false);
 	}
 	else if( pData->is_Connected() )
 	{
