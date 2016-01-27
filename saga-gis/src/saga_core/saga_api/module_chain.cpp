@@ -169,6 +169,11 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown")));
 	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description")));
 
+	CSG_String	Description	= Get_Description();
+	Description.Replace("[[", "<");	// support for xml/html tags
+	Description.Replace("]]", ">");
+	Set_Description(Description);
+
 	if( !m_Menu.is_Empty() && (m_Menu.Length() < 2 || m_Menu[1] != ':') )
 	{
 		if( IS_TRUE_PROPERTY(m_Chain["menu"], "absolute") )
@@ -649,6 +654,12 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 {
 	//-----------------------------------------------------
+	if( Tool.Cmp_Name("comment") )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	if( Tool.Cmp_Name("condition") )
 	{
 		if( !Check_Condition(Tool, &m_Data) )
@@ -681,7 +692,7 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 
 	if(	!(pModule = SG_Get_Module_Library_Manager().Get_Module(Tool.Get_Property("library"), Module)) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("could not find tool"),  Tool.Get_Property("library"), Module.c_str());
+		Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Module.c_str());
 
 		return( false );
 	}
@@ -780,7 +791,11 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 		CSG_Parameter	*pParameter, *pOwner;
 
-		if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
+		if( Parameter.Cmp_Name("comment") )
+		{
+			continue;
+		}
+		else if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
 		{
 			Error_Set(CSG_String::Format("%s: %s", _TL("parameter not found"), Parameter.Get_Property("id")));
 
@@ -855,7 +870,11 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 
 		CSG_Parameter	*pParameter, *pOwner;
 
-		if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
+		if( Parameter.Cmp_Name("comment") )
+		{
+			continue;
+		}
+		else if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
 		{
 			return( false );
 		}
