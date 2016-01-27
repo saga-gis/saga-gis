@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>travel_time_analysis</group>
+  <identifier>travel_time_analysis</identifier>
+  <name>Travel Time Analysis</name>
+	<menu>Grid|Analysis|Travel Time Analysis</menu>
+	<description>
+		The travel time tools were created to join together and automate a number of processing steps in order to simplify service access modelling. The purpose of these tools is to create a simple open source way of calculating travel time to services to facilitate rapid testing of multiple travel scenarios.
+
+		Two tools have been created using  SAGA GIS Tool Chains. The SAGA Tool Chains capability uses a simple xml scripting code that allows the joining of multiple SAGA processes. The two tools produced are (1) for land cover grid creation and (2) travel time calculation, the latter requiring the output of the first. Separating the two tools allows for simpler and faster execution to test multiple scenarios  with the Travel Time Grid creation tool without having to recalculate the base land cover grid each analysis iteration.
+
+		Find further information at [[a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"]]Rohan Fisher's Travel Time Modelling with SAGA[[/a]] web site.
+
+		References:
+		[[ul]]
+		[[li]]Myers, Bronwyn A., Rohan P. Fisher, Nelson Nelson, and Suzanne Belton. "Defining Remoteness from Health Care: Integrated Research on Accessing Emergency Maternal Care in Indonesia." (2015).[[/li]]
+		[[li]]Ray, Nicolas, and Steeve Ebener. "AccessMod 3.0: computing geographic coverage and accessibility to health care services using anisotropic movement of patients." International Journal of Health Geographics 7.1 (2008): 63.[[/li]]
+		[[/ul]]
+	</description>
+</toolchains>
