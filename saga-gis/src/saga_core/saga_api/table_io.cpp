@@ -116,7 +116,7 @@ bool CSG_Table::Load(const CSG_String &File_Name, int Format, SG_Char Separator)
 	{
 		for(int iField=0; iField<Get_Field_Count(); iField++)
 		{
-			Set_Field_Name(iField, pFields->Get_Child(iField)->Get_Name());
+			Set_Field_Name(iField, pFields->Get_Content(iField));
 		}
 	}
 
