@@ -1002,6 +1002,9 @@ CSG_Module_Chains::CSG_Module_Chains(const CSG_String &Library_Name, const CSG_S
 		m_Name			= GET_XML_CONTENT(XML, "name"       , m_Library_Name);
 		m_Description	= GET_XML_CONTENT(XML, "description", _TL("no description"));
 		m_Menu			= GET_XML_CONTENT(XML, "menu"       , _TL("Tool Chains"));
+
+		m_Description.Replace("[[", "<");	// support for xml/html tags
+		m_Description.Replace("]]", ">");
 	}
 
 	//-----------------------------------------------------

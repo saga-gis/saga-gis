@@ -7,7 +7,7 @@
 	<description>
 		Perform travel time calculation.
 
-		Find further information at [[a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"]]Rohan Fisher's Travel Time Modelling with SAGA[[/a]] web site.
+		Find further information at Rohan Fisher's web page on [[a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"]]Travel Time Modelling with SAGA[[/a]].
 
 		References:
 		[[ul]]
@@ -28,7 +28,7 @@
 		</input>
 		<input varname="LANDCOVER_TO_TRAVELTIME" type="table">
 			<name>Travel Times</name>
-			<description>This table supplies average travel times per cell (in seconds) for each land cover type</description>
+			<description>This table supplies average travel times through a cell (in seconds) for each land cover type</description>
 		</input>
 		<input varname="FIELD_LANDCOVER" type="table_field" parent="LANDCOVER_TO_TRAVELTIME">
 			<name>Land Cover ID</name>

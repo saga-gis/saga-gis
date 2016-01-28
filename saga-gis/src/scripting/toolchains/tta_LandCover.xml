@@ -8,7 +8,7 @@
 		Prepare your scenario for subsequent travel time analysis with information on topography, road network, and vegetation cover.
 		Topography is used for automated channel network delineation. Resulting channels are categorized by their Strahler order. In the final land cover map channels use numbers above 100 (i.e. '101, 102, 103, ...' representing increasing Strahler orders). Likewise roads use numbers above 200 with the exact number based on the attribute chosen to specify the road type (i.e. 201, 202, 203, ...). Vegetation cover takes the original numbers for the final map, so these should not intermingle with numbers used for channel and road representation.
 
-		Find further information at [[a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"]]Rohan Fisher's Travel Time Modelling with SAGA[[/a]] web site.
+		Find further information at Rohan Fisher's web page on [[a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"]]Travel Time Modelling with SAGA[[/a]].
 
 		References:
 		[[ul]]
@@ -35,10 +35,13 @@
 			<name>Land Cover</name>
 			<colours>14</colours>
 		</output>
+		<output varname="CHANNEL_LINES" type="shapes">
+			<name>Channel Network</name>
+		</output>
 		<input varname="ROAD_LINES" type="shapes">
 			<name>Roads</name>
 		</input>
-		<option varname="ATTRIBUTE" type="table_field" parent="ROAD_LINES">
+		<option varname="ROAD_CLASS" type="table_field" parent="ROAD_LINES">
 			<name>Attribute</name>
 			<description>attribute specifying road's type with regard to travel time</description>
 		</option>
@@ -87,10 +90,10 @@
 			<output id="RESULT">ROADS_GRID</output>
 		</tool>
 		<tool library="grid_gridding" module="0" name="Shapes to Grid">
-			<option id="MULTIPLE">3</option>
+			<option id="MULTIPLE">2</option>
 			<option id="TARGET_DEFINITION">1</option>
 			<input  id="INPUT">ROAD_LINES</input>
-			<option id="FIELD" varname="1">ATTRIBUTE</option>
+			<option id="FIELD" varname="1">ROAD_CLASS</option>
 			<output id="GRID">ROADS_GRID</output>
 		</tool>
 		<tool library="grid_calculus" module="1" name="Grid Calculator">
@@ -102,12 +105,12 @@
 			<output id="RESULT">ROADS_GRID</output>
 		</tool>
 
-		<comment> 3.) combine channels, roads, vegetation</comment>
+		<comment> 3.) combine roads, channels, vegetation</comment>
 		<tool library="grid_calculus" module="1" name="Grid Calculator">
-			<option id="FORMULA">ifelse(gt(g1,0), 100+g1, ifelse(gt(g2,0), 200+g2, g3))</option>
+			<option id="FORMULA">ifelse(gt(g1,0), 200+g1, ifelse(gt(g2,0), 100+g2, g3))</option>
 			<option id="TYPE">4</option>
-			<input  id="GRIDS">CHANNEL_GRID</input>
 			<input  id="GRIDS">ROADS_GRID</input>
+			<input  id="GRIDS">CHANNEL_GRID</input>
 			<input  id="GRIDS">VEGETATION</input>
 			<output id="RESULT">LANDCOVER</output>
 		</tool>

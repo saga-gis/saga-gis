@@ -9,7 +9,7 @@
 
 		Two tools have been created using  SAGA GIS Tool Chains. The SAGA Tool Chains capability uses a simple xml scripting code that allows the joining of multiple SAGA processes. The two tools produced are (1) for land cover grid creation and (2) travel time calculation, the latter requiring the output of the first. Separating the two tools allows for simpler and faster execution to test multiple scenarios  with the Travel Time Grid creation tool without having to recalculate the base land cover grid each analysis iteration.
 
-		Find further information at [[a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"]]Rohan Fisher's Travel Time Modelling with SAGA[[/a]] web site.
+		Find further information at Rohan Fisher's web page on [[a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"]]Travel Time Modelling with SAGA[[/a]].
 
 		References:
 		[[ul]]
