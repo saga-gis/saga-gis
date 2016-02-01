@@ -1017,42 +1017,44 @@ bool CSG_Grid::DeStandardise(double Mean, double StdDev)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)	const
+/**
+  * Returns the direction to which the downward gradient is
+  * steepest. This implements the Deterministic 8 (D8) algorithm
+  * for identifying a single flow direction based on elevation
+  * data. Direction is numbered clock-wise beginning with 0 for
+  * the North. If no direction can be identified result will be a -1.
+  * If 'bDown' is not true the cell that the direction is pointing
+  * to might have a higher value than the center cell. If 'bNoEdges'
+  * is true a -1 will be returned for all cells that are at the
+  * edge of the data area.
+*/
+//---------------------------------------------------------
+int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bDown, bool bNoEdges)	const
 {
-	int		i, ix, iy, Direction;
-	double	z, dz, dzMax;
-
-	Direction	= -1;
+	int	Direction	= -1;
 
 	if( is_InGrid(x, y) )
 	{
-		z		= asDouble(x, y);
-		dzMax	= 0.0;
+		double	z	= asDouble(x, y), dzMax	= 0.0;
 
-		for(i=0; i<8; i++)
+		for(int i=0; i<8; i++)
 		{
-			ix	= m_System.Get_xTo(i, x);
-			iy	= m_System.Get_yTo(i, y);
+			int	ix	= m_System.Get_xTo(i, x);
+			int	iy	= m_System.Get_yTo(i, y);
 
-			if( !is_InGrid(ix, iy) )
+			if( is_InGrid(ix, iy) )
 			{
-				if( 1 )	// flag 'bStopOnNoData'
+				double	dz	= (z - asDouble(ix, iy)) / m_System.Get_Length(i);
+
+				if( (!bDown || dz > 0.0) && (Direction < 0 || dzMax < dz) )
 				{
-					return( -1 );
+					dzMax		= dz;
+					Direction	= i;
 				}
 			}
-			else
+			else if( bNoEdges )
 			{
-				dz	= (z - asDouble(ix, iy)) / m_System.Get_Length(i);
-
-				if( (bMustBeLower && dz > 0.0) || !bMustBeLower )
-				{
-					if( Direction < 0 || (dz > dzMax) )
-					{
-						Direction	= i;
-						dzMax		= dz;
-					}
-				}
+				return( -1 );
 			}
 		}
 	}
@@ -1061,54 +1063,47 @@ int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)	const
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Get_Gradient(int x, int y, double &Decline, double &Azimuth) const
+/**
+  * Calculates the gradient of a cell interpreting all grid cell values
+  * as elevation surface. Calculation uses the formulas proposed
+  * by Zevenbergen & Thorne (1986).
+*/
+//---------------------------------------------------------
+bool CSG_Grid::Get_Gradient(int x, int y, double &Incline, double &Azimuth) const
 {
-	int		i, ix, iy, iDir;
-	double	z, zm[4], G, H;
-
 	if( is_InGrid(x, y) )
 	{
-		z		= asDouble(x, y);
+		double	z	= asDouble(x, y), dz[4];
 
-		for(i=0, iDir=0; i<4; i++, iDir+=2)
+		for(int i=0; i<8; i+=2)
 		{
-			ix		= m_System.Get_xTo(iDir, x);
-			iy		= m_System.Get_yTo(iDir, y);
+			int	ix	= m_System.Get_xTo(i, x);
+			int	iy	= m_System.Get_yTo(i, y);
 
 			if( is_InGrid(ix, iy) )
 			{
-				zm[i]	= asDouble(ix, iy) - z;
+				dz[i]	= asDouble(ix, iy) - z;
+			}
+			else if( is_InGrid(ix = m_System.Get_xFrom(i, x), iy = m_System.Get_yFrom(i, y)) )
+			{
+				dz[i]	= z - asDouble(ix, iy);
 			}
 			else
 			{
-				ix		= m_System.Get_xFrom(iDir, x);
-				iy		= m_System.Get_yFrom(iDir, y);
-
-				if( is_InGrid(ix, iy) )
-				{
-					zm[i]	= z - asDouble(ix, iy);
-				}
-				else
-				{
-					zm[i]	= 0.0;
-				}
+				dz[i]	= 0.0;
 			}
 		}
 
-		G		= (zm[0] - zm[2]) / (2.0 * Get_Cellsize());
-        H		= (zm[1] - zm[3]) / (2.0 * Get_Cellsize());
+		double G	= (dz[0] - dz[2]) / (2.0 * m_System.Get_Cellsize());
+        double H	= (dz[1] - dz[3]) / (2.0 * m_System.Get_Cellsize());
 
-		Decline	= atan(sqrt(G*G + H*H));
-
-		if( G != 0.0 )
-			Azimuth	= M_PI_180 + atan2(H, G);
-		else
-			Azimuth	= H > 0.0 ? M_PI_270 : (H < 0.0 ? M_PI_090 : -1.0);
+		Incline	= atan(sqrt(G*G + H*H));
+		Azimuth	= G != 0.0 ? M_PI_180 + atan2(H, G) : H > 0.0 ? M_PI_270 : H < 0.0 ? M_PI_090 : -1.0;
 
 		return( true );
 	}
 
-	Decline	= 0.0;
+	Incline	=  0.0;
 	Azimuth	= -1.0;
 
 	return( false );
