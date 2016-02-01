@@ -75,80 +75,87 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CLeastCostPathProfile::CLeastCostPathProfile(void)
 {
-	Parameters.Set_Name(_TL("Least Cost Path"));
-	Parameters.Set_Description(_TW(
+	Set_Name		(_TL("Least Cost Path"));
+
+	Set_Author		("Victor Olaya (c) 2004");
+
+	Set_Description	(_TW(
 		"Creates a least cost past profile using an accumulated cost surface."
-		"\n(c) 2004 Victor Olaya, Goettingen.\nemail: oconrad@gwdg.de\n")
-	);
+	));
 
 	Parameters.Add_Grid(
-		NULL, "DEM"		, 
-		_TL("Accumulated cost"),
-		_TL("Accumulated cost"),
+		NULL	, "DEM"		, _TL("Accumulated cost"),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL, 
-		"VALUES", 
-		_TL("Values"),
+		NULL	, "VALUES"	, _TL("Values"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes(
-		NULL, 
-		"POINTS", 
-		_TL("Profile (points)"),
+		NULL	, "POINTS"	, _TL("Profile Points"),
 		_TL(""),
-		PARAMETER_OUTPUT, 
-		SHAPE_TYPE_Point
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
-		NULL, 
-		"LINE", 
-		_TL("Profile (lines)"),
+		NULL	, "LINE"	, _TL("Profile Line"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 }
 
-//---------------------------------------------------------
-CLeastCostPathProfile::~CLeastCostPathProfile(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLeastCostPathProfile::On_Execute(void)
 {
-	m_pDEM		= Parameters("DEM")		->asGrid();
-	m_pValues	= Parameters("VALUES")	->asGridList();
-	m_pPoints	= Parameters("POINTS")	->asShapes();
-	m_pLine		= Parameters("LINE")	->asShapes();
+	m_pDEM		= Parameters("DEM"   )->asGrid    ();
+	m_pValues	= Parameters("VALUES")->asGridList();
+	m_pPoints	= Parameters("POINTS")->asShapes  ();
+	m_pLines	= Parameters("LINE"  )->asShapes  ();
 
-	DataObject_Update(m_pDEM, true);
+	//-----------------------------------------------------
+	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", _TL("Profile"), m_pDEM->Get_Name()));
+
+	m_pPoints->Add_Field("ID", SG_DATATYPE_Int   );
+	m_pPoints->Add_Field("D" , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("X" , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Y" , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z" , SG_DATATYPE_Double);
+
+	for(int i=0; i<m_pValues->Get_Count(); i++)
+	{
+		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+	}
+
+	//-----------------------------------------------------
+	m_pLines->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", _TL("Profile"), m_pDEM->Get_Name()));
+	m_pLines->Add_Field("ID", SG_DATATYPE_Int);
+	m_pLine	= m_pLines->Add_Shape();
+	m_pLine->Set_Value(0, 1);
+
+	//-----------------------------------------------------
+//	DataObject_Update(m_pDEM, true);
+
+	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
 
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -158,155 +165,83 @@ bool CLeastCostPathProfile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_In
 	switch( Mode )
 	{
 	case MODULE_INTERACTIVE_LDOWN:
-		Set_Profile(Get_System()->Fit_to_Grid_System(ptWorld));
-		break;
-	}
+	case MODULE_INTERACTIVE_MOVE_LDOWN:
+		return( Set_Profile(Get_System()->Fit_to_Grid_System(ptWorld)) );
 
-	return( true );
+	default:
+		return( false );
+	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLeastCostPathProfile::Set_Profile(TSG_Point ptWorld)
 {
-	int			x, y, i;
+	m_pPoints->Del_Shapes();
+	m_pLine  ->Del_Parts();
 
 	//-----------------------------------------------------
-	if( Get_System()->Get_World_to_Grid(x, y, ptWorld) && m_pDEM->is_InGrid(x, y) )
+	int		x, y, Direction;
+
+	if( Get_Grid_Pos(x, y) )
 	{
-		m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
-
-		m_pPoints->Add_Field("ID"	, SG_DATATYPE_Int);
-		m_pPoints->Add_Field("D"	, SG_DATATYPE_Double);
-		m_pPoints->Add_Field("X"	, SG_DATATYPE_Double);
-		m_pPoints->Add_Field("Y"	, SG_DATATYPE_Double);
-		m_pPoints->Add_Field("Z"	, SG_DATATYPE_Double);
-
-		for(i=0; i<m_pValues->Get_Count(); i++)
+		while( Add_Point(x, y) && (Direction = m_pDEM->Get_Gradient_NeighborDir(x, y, true, false)) >= 0 )
 		{
-			m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+			x	+= Get_xTo(Direction);
+			y	+= Get_yTo(Direction);
 		}
-
-		//-----------------------------------------------------
-		m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
-		m_pLine->Add_Field("ID", SG_DATATYPE_Int);
-		m_pLine->Add_Shape()->Set_Value(0, 1);
-
-		//-----------------------------------------------------
-		Set_Profile(x, y);
-
-		//-----------------------------------------------------
-		DataObject_Update(m_pLine	, false);
-		DataObject_Update(m_pPoints	, false);
-
-		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	DataObject_Update(m_pLines , false);
+	DataObject_Update(m_pPoints, false);
+
+	return( m_pPoints->Get_Count() > 0 );
 }
-
-//---------------------------------------------------------
-void CLeastCostPathProfile::Set_Profile(int iX, int iY)
-{
-	int iNextX, iNextY;
-
-	iNextX = iX;
-	iNextY = iY;
-	do {
-		iX = iNextX;
-		iY = iNextY;
-		getNextCell(m_pDEM, iX, iY, iNextX, iNextY);
-	
-	}while (Add_Point(iX, iY) 
-			&& (iX != iNextX || iY != iNextY));
-	
-}
-
-
-void CLeastCostPathProfile::getNextCell(CSG_Grid *g,
-										int iX,
-										int iY,
-										int &iNextX,
-										int &iNextY) {
-
-    float fMaxSlope;
-    float fSlope;
-
-    fMaxSlope = 0;
-    fSlope = 0;
-
-    if (iX < 1 || iX >= g->Get_NX()-1 || iY < 1 || iY >= g->Get_NY()-1
-            || g->is_NoData(iX,iY)) {
-        iNextX = iX;
-		iNextY = iY;
-		return;
-    }// if
-
-    for (int i = -1; i < 2; i++) {
-        for (int j = -1; j < 2; j++) {                	
-            if (!g->is_NoData(iX+i,iY+j)){
-                fSlope = (g->asFloat(iX+i,iY+j)
-                         - g->asFloat(iX,iY));                                				
-                if (fSlope <= fMaxSlope) {
-                    iNextX = iX+i;
-					iNextY = iY+j;                        
-                    fMaxSlope = fSlope;
-                }// if
-            }//if                    
-        }// for
-    }// for
-
-}// method
 
 //---------------------------------------------------------
 bool CLeastCostPathProfile::Add_Point(int x, int y)
 {
-	int			i;
-	double		Distance;
-	TSG_Point	Point;
-	CSG_Shape		*pPoint, *pLast;
-
-	if( m_pDEM->is_InGrid(x, y) )
+	if( !m_pDEM->is_InGrid(x, y) )
 	{
-		Point	= Get_System()->Get_Grid_to_World(x, y);
-
-		if( m_pPoints->Get_Count() == 0 )
-		{
-			Distance	= 0.0;
-		}
-		else
-		{
-			pLast		= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
-			Distance	= SG_Get_Distance(Point, pLast->Get_Point(0));
-			Distance	+= pLast->asDouble(1);
-		}
-
-		pPoint	= m_pPoints->Add_Shape();
-		pPoint->Add_Point(Point);
-
-		pPoint->Set_Value(0, m_pPoints->Get_Count());
-		pPoint->Set_Value(1, Distance);
-		pPoint->Set_Value(2, Point.x);
-		pPoint->Set_Value(3, Point.y);
-		pPoint->Set_Value(4, m_pDEM->asDouble(x, y));
-
-		for(i=0; i<m_pValues->Get_Count(); i++)
-		{
-			pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y));
-		}
-
-		m_pLine->Get_Shape(0)->Add_Point(Point);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	TSG_Point	Point	= Get_System()->Get_Grid_to_World(x, y);
+
+	double	Distance	= 0.0;
+
+	if( m_pPoints->Get_Count() > 0 )
+	{
+		CSG_Shape	*pLast	= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
+
+		Distance	= SG_Get_Distance(Point, pLast->Get_Point(0)) + pLast->asDouble(1);
+	}
+
+	//-----------------------------------------------------
+	CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
+
+	pPoint->Add_Point(Point);
+
+	pPoint->Set_Value(0, m_pPoints->Get_Count());
+	pPoint->Set_Value(1, Distance);
+	pPoint->Set_Value(2, Point.x);
+	pPoint->Set_Value(3, Point.y);
+	pPoint->Set_Value(4, m_pDEM->asDouble(x, y));
+
+	for(int i=0; i<m_pValues->Get_Count(); i++)
+	{
+		pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y));
+	}
+
+	m_pLine->Add_Point(Point);
+
+	return( true );
 }
 
 

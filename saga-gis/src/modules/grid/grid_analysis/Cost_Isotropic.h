@@ -42,6 +42,45 @@
 //---------------------------------------------------------
 class CCost_Accumulated : public CSG_Module_Grid
 {
+private:
+
+	class CPoints
+	{
+	public:
+		CPoints(void)
+		{
+			m_Points.Create(sizeof(TSG_Point_Int), 0, SG_ARRAY_GROWTH_1);
+		}
+
+		void					Clear			(void)	{	m_Points.Set_Array(0, false);	}
+
+		bool					Add				(int x, int y)
+		{
+			if( m_Points.Inc_Array() )
+			{
+				TSG_Point_Int	*p	= (TSG_Point_Int *)m_Points.Get_Entry(m_Points.Get_Size() - 1);
+
+				p->x	= x;
+				p->y	= y;
+
+				return( true );
+			}
+
+			return( false );
+		}
+
+		int						Get_Count		(void)	{	return( (int)m_Points.Get_Size() );	}
+		const TSG_Point_Int &	operator []		(int i)	{	return( *((TSG_Point_Int *)m_Points.Get_Entry(i)) );	}
+
+
+	private:
+
+		CSG_Array				m_Points;
+
+	};
+
+
+//---------------------------------------------------------
 public:
 
 	CCost_Accumulated(void);
@@ -62,39 +101,17 @@ private:
 
 	double					m_dK;
 
-	CSG_Grid				*m_pDirection;
+	CSG_Grid				*m_pCost, *m_pDirection, *m_pAccumulated, *m_pAllocation;
 
 
-	double					Get_CostInDirection		(const TSG_Point_Int &p, int i);
+	bool					Get_Destinations		(CPoints &Points);
+
+	bool					Get_Cost				(CPoints &Points);
+
+	bool					Get_Allocation			(void);
+	int						Get_Allocation			(int x, int y);
 
 
-//---------------------------------------------------------
-private:
-
-	class CPoints
-	{
-	public:
-		CPoints(void)	{}
-
-		void				Clear			(void)	{	m_Points.Clear();	m_Allocation.Destroy();	}
-
-		bool				Add				(int x, int y, int iAllocation)
-		{
-			return( m_Points.Add(x, y) && m_Allocation.Add(iAllocation) );
-		}
-
-		int					Get_Count		(void)	{	return( m_Points.Get_Count() );	}
-		TSG_Point_Int		Get_Point		(int i)	{	return( m_Points    [i] );	}
-		int					Get_Allocation	(int i)	{	return( m_Allocation[i] );	}
-
-
-	private:
-
-		CSG_Points_Int		m_Points;
-
-		CSG_Array_Int		m_Allocation;
-
-	};
 };
 
 

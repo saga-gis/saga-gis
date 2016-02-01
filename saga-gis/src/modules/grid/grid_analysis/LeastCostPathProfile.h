@@ -79,31 +79,31 @@ class CLeastCostPathProfile : public CSG_Module_Grid_Interactive
 {
 public:
 	CLeastCostPathProfile(void);
-	virtual ~CLeastCostPathProfile(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Cost Analysis") );	}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Cost Analysis") );	}
 
 protected:
 
-	virtual bool				On_Execute(void);
-	virtual bool				On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute			(void);
+
+	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
 
-	CSG_Shapes						*m_pPoints, *m_pLine;
+	CSG_Shapes					*m_pPoints, *m_pLines;
 
-	CSG_Grid						*m_pDEM;
+	CSG_Shape					*m_pLine;
+
+	CSG_Grid					*m_pDEM;
 
 	CSG_Parameter_Grid_List		*m_pValues;
 
 
-	bool						Set_Profile(TSG_Point ptWorld);
-	void						Set_Profile(int x, int y);
+	bool						Set_Profile			(TSG_Point ptWorld);
 
-	bool						Add_Point(int x, int y);
+	bool						Add_Point			(int x, int y);
 
-	void						getNextCell(CSG_Grid *g, int iX, int iY, int &iNextX, int &iNextY);
 };
 
 

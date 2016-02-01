@@ -78,27 +78,26 @@ class CLeastCostPathProfile_Points : public CSG_Module_Grid
 {
 public:
 	CLeastCostPathProfile_Points(void);
-	virtual ~CLeastCostPathProfile_Points(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Cost Analysis") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Cost Analysis") );	}
+
 
 protected:
 
-	virtual bool				On_Execute(void);
+	virtual bool				On_Execute		(void);
 
 
 private:
 
 	CSG_Grid					*m_pDEM;
 
+	CSG_Shapes					*m_pPoints, *m_pLines;
+
 	CSG_Parameter_Grid_List		*m_pValues;
 
 
-	void						Set_Profile(int x, int y, CSG_Shapes *pPoints, CSG_Shapes *pLine);
+	bool						Add_Point		(int x, int y);
 
-	bool						Add_Point(int x, int y, CSG_Shapes *pPoints, CSG_Shapes *pLine);
-
-	void						getNextCell(CSG_Grid *g, int iX, int iY, int &iNextX, int &iNextY);
 };
 
 
