@@ -637,6 +637,12 @@ void CSG_Table_DBase::Flush_Record(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Table_DBase::isDeleted(void)
+{
+	return( m_hFile && *m_Record == '*' );
+}
+
+//---------------------------------------------------------
 bool CSG_Table_DBase::asInt(int iField, int &Value)
 {
 	double	d;

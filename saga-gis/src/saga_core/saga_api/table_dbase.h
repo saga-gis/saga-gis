@@ -143,6 +143,8 @@ public:
 	void						Flush_Record		(void);
 
 	//-----------------------------------------------------
+	bool						isDeleted			(void);
+
 	bool						asInt				(int iField, int    &Value);
 	bool						asDouble			(int iField, double &Value);
 	CSG_String					asString			(int iField);

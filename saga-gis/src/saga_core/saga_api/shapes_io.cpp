@@ -194,7 +194,11 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 			return( false );
 		}
 
-		if( Content.asInt(0) != Type )
+		if( fDBF.isDeleted() )
+		{
+			// nop
+		}
+		else if( Content.asInt(0) != Type )
 		{
 			if( Content.asInt(0) == 0 )
 			{
