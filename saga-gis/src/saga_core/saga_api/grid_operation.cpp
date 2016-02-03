@@ -1075,16 +1075,16 @@ bool CSG_Grid::Get_Gradient(int x, int y, double &Incline, double &Azimuth) cons
 	{
 		double	z	= asDouble(x, y), dz[4];
 
-		for(int i=0; i<8; i+=2)
+		for(int i=0, iDir=0; i<4; i++, iDir+=2)
 		{
-			int	ix	= m_System.Get_xTo(i, x);
-			int	iy	= m_System.Get_yTo(i, y);
+			int	ix	= m_System.Get_xTo(iDir, x);
+			int	iy	= m_System.Get_yTo(iDir, y);
 
 			if( is_InGrid(ix, iy) )
 			{
 				dz[i]	= asDouble(ix, iy) - z;
 			}
-			else if( is_InGrid(ix = m_System.Get_xFrom(i, x), iy = m_System.Get_yFrom(i, y)) )
+			else if( is_InGrid(ix = m_System.Get_xFrom(iDir, x), iy = m_System.Get_yFrom(iDir, y)) )
 			{
 				dz[i]	= z - asDouble(ix, iy);
 			}
