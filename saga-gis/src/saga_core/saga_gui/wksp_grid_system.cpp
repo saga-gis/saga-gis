@@ -106,9 +106,9 @@ wxString CWKSP_Grid_System::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Grid System"));
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Grid System"));
 
-	s	+= wxT("<table border=\"0\">");
+	s	+= "<table border=\"0\">";
 
 	DESC_ADD_STR (_TL("Name")				, Get_Name());
 	DESC_ADD_INT (_TL("Number of Grids")	, Get_Count());

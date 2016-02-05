@@ -680,11 +680,42 @@ CWKSP_Module_Group::~CWKSP_Module_Group(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SUMMARY_ADD_STR(label, value)	wxString::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
+#define SUMMARY_ADD_INT(label, value)	wxString::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
+
+//---------------------------------------------------------
 wxString CWKSP_Module_Group::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b>: %d<br>"), _TL("Tool Libraries"), Get_Count());
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Tool Libraries"));
+
+	s	+= "<table border=\"0\">";
+
+	s	+= SUMMARY_ADD_STR(_TL("Category" ), Get_Name().c_str());
+	s	+= SUMMARY_ADD_INT(_TL("Libraries"), Get_Count());
+
+	s	+= "</table>";
+
+	//-----------------------------------------------------
+	s	+= wxString::Format("<hr><h4>%s</h4><table border=\"0\">", _TL("Tool Libraries"));
+
+	s	+= wxString::Format("<tr align=\"left\"><th>%s</th><th>%s</th><th>%s</th></tr>",
+			_TL("Library"),
+			_TL("Name"   ),
+			_TL("Tools"  )
+		);
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		s	+= wxString::Format("<tr><td valign=\"top\"><i>%s</i></td><td valign=\"top\">%s</td><td valign=\"top\" align=\"right\">%d</td></tr>",
+				Get_Library(i)->Get_Library()->Get_Library_Name().c_str(),
+				Get_Library(i)->Get_Name().c_str(),
+				Get_Library(i)->Get_Count()
+			);
+	}
+
+	s	+= "</table>";
 
 	return( s );
 }

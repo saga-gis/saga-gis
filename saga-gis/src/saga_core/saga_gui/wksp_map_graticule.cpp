@@ -277,9 +277,9 @@ wxString CWKSP_Map_Graticule::Get_Description(void)
 {
 	wxString	s;
 
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Shapes"));
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Shapes"));
 
-	s	+= wxT("<table border=\"0\">");
+	s	+= "<table border=\"0\">";
 
 	//-----------------------------------------------------
 	DESC_ADD_STR(_TL("Name")			, m_Parameters("NAME")->asString());

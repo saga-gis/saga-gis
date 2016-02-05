@@ -201,10 +201,10 @@ enum
 void				STATUSBAR_Set_Text				(const wxString &Text, int iPane = 0);
 
 //---------------------------------------------------------
-#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
-#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
-#define DESC_ADD_LONG(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%lld</td></tr>"), label, value))
-#define DESC_ADD_FLT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, SG_Get_String(value, -20).c_str()))
+#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>"), label, value))
+#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>"), label, value))
+#define DESC_ADD_LONG(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%lld</td></tr>"), label, value))
+#define DESC_ADD_FLT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>"), label, SG_Get_String(value, -20).c_str()))
 
 
 ///////////////////////////////////////////////////////////

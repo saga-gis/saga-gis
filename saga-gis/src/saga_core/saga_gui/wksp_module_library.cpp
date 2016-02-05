@@ -201,49 +201,17 @@ wxString CWKSP_Module_Library::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Module_Library::Get_Description(void)
 {
-	wxString	s;
-
-	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Tool Library"));
-
-	s	+= wxT("<table border=\"0\">");
-
-	DESC_ADD_STR(_TL("Name")	, m_pLibrary->Get_Name     ().c_str());
-	DESC_ADD_STR(_TL("Author")	, m_pLibrary->Get_Author   ().c_str());
-	DESC_ADD_STR(_TL("Version")	, m_pLibrary->Get_Version  ().c_str());
-	DESC_ADD_STR(_TL("File")	, m_pLibrary->Get_File_Name().c_str());
-
-	s	+= wxT("</table><hr>");
-
-	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b><br>"), _TL("Description"));
-
-	wxString	sDesc;
-
 	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
-		sDesc	= Get_Online_Module_Description(m_pLibrary->Get_File_Name().c_str());
+		wxString	Description	= Get_Online_Module_Description(m_pLibrary->Get_File_Name().c_str());
+
+		if( !Description.IsEmpty() )
+		{
+			return( Description );
+		}
 	}
 
-	s	+= sDesc.Length() > 0 ? sDesc.c_str() : m_pLibrary->Get_Description().c_str();
-
-	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<hr><b>%s:<ul>"), _TL("Tools"));
-
-	for(int iModule=0; iModule<Get_Count(); iModule++)
-	{
-		s	+= wxString::Format(wxT("<li>[%s] %s</li>"),
-				Get_Module(iModule)->Get_Module()->Get_ID  ().c_str(),
-				Get_Module(iModule)->Get_Module()->Get_Name().c_str()
-			);
-	}
-
-	s	+= wxT("</ul>");
-
-	//-----------------------------------------------------
-	s.Replace(wxT("\n"), wxT("<br>"));
-
-	return( s );
+	return( m_pLibrary->Get_Summary(SG_SUMMARY_FMT_HTML).c_str() );
 }
 
 //---------------------------------------------------------

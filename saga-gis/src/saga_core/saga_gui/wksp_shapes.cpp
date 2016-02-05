@@ -120,9 +120,9 @@ wxString CWKSP_Shapes::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b>"), _TL("Shapes"));
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Shapes"));
 
-	s	+= wxT("<table border=\"0\">");
+	s	+= "<table border=\"0\">";
 
 	DESC_ADD_STR(_TL("Name"            ), m_pObject->Get_Name());
 	DESC_ADD_STR(_TL("Description"     ), m_pObject->Get_Description());

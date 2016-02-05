@@ -1184,8 +1184,8 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 }
 
 //---------------------------------------------------------
-#define SUMMARY_ADD_STR(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value)
-#define SUMMARY_ADD_INT(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value)
+#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("<tr valign=\"top\"><td ><b>%s</b></td><td >%s</td></tr>", label, value)
+#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr valign=\"top\"><td ><b>%s</b></td><td >%d</td></tr>", label, value)
 
 #define SUMMARY_DO_ADD	(SG_UI_Get_Window_Main() ? Parameters(i)->do_UseInGUI() : Parameters(i)->do_UseInCMD())
 
@@ -1206,12 +1206,12 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 		m.Add_Property(SG_XML_MODULE_ATT_AUTHOR, Get_Author     ());
 		m.Add_Child   (SG_XML_DESCRIPTION      , Get_Description());
 		m.Add_Child   (SG_XML_MENU             , Get_MenuPath   ());
-		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Grid        () ? SG_T("true") : SG_T("false"));
-		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Interactive () ? SG_T("true") : SG_T("false"));
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Grid        () ? "true" : "false");
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Interactive () ? "true" : "false");
 
 	//	CSG_MetaData	*pChild	= m.Add_Child(SG_XML_SPECIFICATION);
-	//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID    , is_Grid        () ? SG_T("true") : SG_T("false"));
-	//	pChild->Add_Property(SG_XML_SPEC_ATT_INTERA  , is_Interactive () ? SG_T("true") : SG_T("false"));
+	//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID    , is_Grid        () ? "true" : "false");
+	//	pChild->Add_Property(SG_XML_SPEC_ATT_INTERA  , is_Interactive () ? "true" : "false");
 
 		if( bParameters )
 		{
@@ -1248,43 +1248,43 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 	//-----------------------------------------------------
 	else
 	{
-		s	+= CSG_String::Format(SG_T("<b>%s</b><table border=\"0\">"), _TL("Tool"));
+		s	+= CSG_String::Format("<h4>%s</h4><table border=\"0\">", _TL("Tool"));
 
-		SUMMARY_ADD_STR(_TL("Name"  ), Get_Name  ().c_str());
-		SUMMARY_ADD_STR(_TL("ID"    ), Get_ID    ().c_str());
-		SUMMARY_ADD_STR(_TL("Author"), Get_Author().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Name"  ), Get_Name  ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("ID"    ), Get_ID    ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Author"), Get_Author().c_str());
 
 		if( is_Interactive() && is_Grid() )
 		{
-			SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format(SG_T("%s, %s"), _TL("grid"), _TL("interactive")).c_str() );
+			s	+= SUMMARY_ADD_STR(_TL("Specification"), CSG_String::Format("%s, %s", _TL("grid"), _TL("interactive")).c_str() );
 		}
 		else if( is_Interactive() )
 		{
-			SUMMARY_ADD_STR(_TL("Specification"), _TL("interactive"));
+			s	+= SUMMARY_ADD_STR(_TL("Specification"), _TL("interactive"));
 		}
 		else if( is_Grid() )
 		{
-			SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
+			s	+= SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
 		}
 
 		if( Get_Type() == MODULE_TYPE_Chain )
 		{
-			SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
+			s	+= SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
 		}
 
 		if( Menu.Length() > 0 )
 		{
 			CSG_String	sMenu(Menu);
 
-			sMenu.Replace(SG_T("|"), SG_T(" <b>></b> "));
+			sMenu.Replace("|", " <b>></b> ");
 
-			SUMMARY_ADD_STR(_TL("Menu"  ), sMenu.c_str());
+			s	+= SUMMARY_ADD_STR(_TL("Menu"  ), sMenu.c_str());
 		}
 
-		s	+= SG_T("</table><hr>");
+		s	+= "</table>";
 
 		//-------------------------------------------------
-		s	+= CSG_String::Format(SG_T("<b>%s</b><br>"), _TL("Description"));
+		s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Description"));
 
 		s	+= Description.Length() > 0 ? Description : Get_Description();
 
@@ -1293,8 +1293,8 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 		{
 			bool	bFirst, bOptionals	= false;
 
-			s	+= CSG_String::Format(SG_T("<hr><b>%s</b><br>"), _TL("Parameters"));
-			s	+= CSG_String::Format(SG_T("<table border=\"1\" width=\"100%%\" valign=\"top\" cellpadding=\"5\" rules=\"all\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n"),
+			s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Parameters"));
+			s	+= CSG_String::Format("<table border=\"1\" width=\"100%%\" valign=\"top\" cellpadding=\"5\" rules=\"all\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
 					_TL("Name"), _TL("Type"), _TL("Identifier"), _TL("Description"), _TL("Constraints")
 				);
 
@@ -1308,10 +1308,10 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 					if( bFirst )
 					{
 						bFirst	= false;
-						s	+= CSG_String::Format(SG_T("<tr><th colspan=\"5\">%s</th></tr>"), _TL("Input"));
+						s	+= CSG_String::Format("<tr><th colspan=\"5\">%s</th></tr>", _TL("Input"));
 					}
 
-					s	+= CSG_String::Format(SG_T("<tr><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"),
+					s	+= CSG_String::Format("<tr><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 						pParameter->Get_Name(),
 						pParameter->is_Optional() ? SG_T(" (*)") : SG_T(" "),
 						pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(),
@@ -1374,11 +1374,11 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			}
 
 			//---------------------------------------------
-			s	+= SG_T("</table>");
+			s	+= "</table>";
 
 			if( bOptionals )
 			{
-				s	+= CSG_String::Format(SG_T("(*) <i>%s</i>"), _TL("optional"));
+				s	+= CSG_String::Format("(*) <i>%s</i>", _TL("optional"));
 			}
 		}
 	}
