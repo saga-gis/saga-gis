@@ -531,39 +531,42 @@ bool CSG_Module_Chain::Data_Finalize(void)
 bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parameters *pData)
 {
 	//-----------------------------------------------------
-	CSG_String	Type, Value;
+	CSG_String	Type;
 
 	if( !Condition.Cmp_Name("condition") || !Condition.Get_Property("type", Type) )
 	{
 		return( true );
 	}
 
-	if( !Condition.Get_Property("variable", Value) )
+	//-----------------------------------------------------
+	CSG_String	Variable;
+
+	if( !Condition.Get_Property("variable", Variable) )
 	{
-		Value	= Condition.Get_Content();
+		Variable	= Condition.Get_Content();
 	}
 
 	//-----------------------------------------------------
 	if( !Type.CmpNoCase("has_gui"   ) )	// executed from saga_gui ? (tool might offer different parameters if called from saga_cmd, python etc.)
 	{
-		return( IS_TRUE_STRING(Value) ? SG_UI_Get_Window_Main() != NULL : SG_UI_Get_Window_Main() == NULL );
+		return( IS_TRUE_STRING(Variable) ? SG_UI_Get_Window_Main() != NULL : SG_UI_Get_Window_Main() == NULL );
 	}
 
 	//-----------------------------------------------------
 	if( !Type.CmpNoCase("exists"    ) )	// data object exists
 	{
-		CSG_Parameter	*pParameter	= pData->Get_Parameter(Value);
+		CSG_Parameter	*pParameter	= pData->Get_Parameter(Variable);
 
 		return( pParameter && ((pParameter->is_DataObject() && pParameter->asDataObject()) || (pParameter->is_DataObject_List() && pParameter->asList()->Get_Count())) );
 	}
 
 	if( !Type.CmpNoCase("not_exists") )	// data object does not exist
 	{
-		return( pData->Get_Parameter(Value) == NULL || pData->Get_Parameter(Value)->asDataObject() == NULL );
+		return( pData->Get_Parameter(Variable) == NULL || pData->Get_Parameter(Variable)->asDataObject() == NULL );
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pOption	= Parameters(Value);
+	CSG_Parameter	*pOption	= pData->Get_Parameter(Variable);
 
 	if( pOption == NULL )
 	{
@@ -579,8 +582,8 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 
 			if( Condition.Get_Property("value", Value) )
 			{
-				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	if( IS_TRUE_STRING(Value) == pOption->asBool() )	{	return( false );	}	}
-				else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equal") )	{	if( IS_TRUE_STRING(Value) != pOption->asBool() )	{	return( false );	}	}
+				if(      !Type.CmpNoCase("=") || !Type.CmpNoCase("equal"    ) )	{	return( (IS_TRUE_STRING(Value) ?  pOption->asBool() : !pOption->asBool()) );	}
+				else if( !Type.CmpNoCase("!") || !Type.CmpNoCase("not_equal") )	{	return( (IS_TRUE_STRING(Value) ? !pOption->asBool() :  pOption->asBool()) );	}
 			}
 		}
 		break;
@@ -662,7 +665,7 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 	//-----------------------------------------------------
 	if( Tool.Cmp_Name("condition") )
 	{
-		if( !Check_Condition(Tool, &m_Data) )
+		if( !Check_Condition(Tool, &m_Data) || !Check_Condition(Tool, &Parameters) )
 		{
 			return( true );
 		}

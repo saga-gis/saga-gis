@@ -2274,7 +2274,7 @@ bool CSG_Parameter_Shapes::Set_Value(void *Value)
 
 		if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 		{
-			pChild->Set_Value(m_pDataObject && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
+			pChild->Set_Value(m_pDataObject && m_pDataObject != DATAOBJECT_CREATE && pChild->is_Optional() ? ((CSG_Table *)m_pDataObject)->Get_Field_Count() : 0);
 		}
 		else if( pChild->Get_Type() == PARAMETER_TYPE_Table_Fields )
 		{
