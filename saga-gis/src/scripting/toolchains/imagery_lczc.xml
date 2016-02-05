@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="2.2.0">
-	<group>toolchains</group>
+	<group>imagery</group>
 	<identifier>lczc</identifier>
 	<menu absolute="true">Imagery|Classification</menu>
 	<name>Local Climate Zone Classification</name>
