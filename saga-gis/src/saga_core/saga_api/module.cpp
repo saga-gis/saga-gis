@@ -1184,8 +1184,8 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 }
 
 //---------------------------------------------------------
-#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("<tr valign=\"top\"><td ><b>%s</b></td><td >%s</td></tr>", label, value)
-#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr valign=\"top\"><td ><b>%s</b></td><td >%d</td></tr>", label, value)
+#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
+#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
 
 #define SUMMARY_DO_ADD	(SG_UI_Get_Window_Main() ? Parameters(i)->do_UseInGUI() : Parameters(i)->do_UseInCMD())
 
