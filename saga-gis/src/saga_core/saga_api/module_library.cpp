@@ -734,14 +734,10 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 
 		s	+= CSG_String::Format("\n%d %s (%d %s):\n", Get_Count(), _TL("loaded tool libraries"), nModules, _TL("tools"));
 
-		s	+= "<table border=\"0\">";
-
 		for(i=0; i<Get_Count(); i++)
 		{
-			s	+= SUMMARY_ADD_STR(Get_Library(i)->Get_Library_Name().c_str(), Get_Library(i)->Get_Library_Name().c_str());
+			s	+= " - " + Get_Library(i)->Get_Library_Name() + "\n";
 		}
-
-		s	+= "</table>";
 
 		break;
 
