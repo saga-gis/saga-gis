@@ -500,7 +500,7 @@ private:
 
 	int							m_maxRadius, m_nPoints, *m_nPoints_R;
 
-	typedef struct
+	typedef struct SSG_Grid_Radius
 	{
 		int						x, y;
 
@@ -828,7 +828,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
+enum ESG_Classify_Supervised
 {
 	SG_CLASSIFY_SUPERVISED_BinaryEncoding	= 0,
 	SG_CLASSIFY_SUPERVISED_ParallelEpiped,
@@ -951,15 +951,6 @@ enum ESG_mRMR_Method
 {
 	SG_mRMR_Method_MID	= 0,	// Mutual Information Difference (MID)
 	SG_mRMR_Method_MIQ			// Mutual Information Quotient (MIQ)
-};
-
-//---------------------------------------------------------
-enum
-{
-	SG_mRMR_SELFLD_RANK	= 0,
-	SG_mRMR_SELFLD_INDEX,
-	SG_mRMR_SELFLD_NAME,
-	SG_mRMR_SELFLD_SCORE
 };
 
 
@@ -1506,7 +1497,7 @@ public:
 
 
 	//-----------------------------------------------------
-	typedef struct 
+	typedef struct SSG_Formula_Item
 	{
 		SG_Char					*name;
 		TSG_PFNC_Formula_1		f;			
@@ -1519,7 +1510,7 @@ public:
 private:
 
 	//-----------------------------------------------------
-	typedef struct 
+	typedef struct SMAT_Formula
 	{
 		SG_Char					*code;
 		double					*ctable;

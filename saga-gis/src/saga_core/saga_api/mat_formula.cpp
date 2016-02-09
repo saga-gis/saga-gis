@@ -166,6 +166,18 @@ static double f_fmod(double x, double val)
 }
 
 //---------------------------------------------------------
+static double f_rand_u(double min, double max)
+{
+	return( CSG_Random::Get_Uniform(min, max) );
+}
+
+//---------------------------------------------------------
+static double f_rand_g(double mean, double stdv)
+{
+	return( CSG_Random::Get_Gaussian(mean, stdv) );
+}
+
+//---------------------------------------------------------
 static double f_ifelse(double condition, double x, double y)
 {
 	return( condition ? x : y );
@@ -202,7 +214,9 @@ static CSG_Formula::TSG_Formula_Item gSG_Functions[MAX_CTABLE]	=
 	{SG_T("ifelse"), (TSG_PFNC_Formula_1) f_ifelse, 3, 0},	// 18
 	{SG_T("log"   ),                      log10   , 1, 0},	// 19
 	{SG_T("pow"   ), (TSG_PFNC_Formula_1) f_pow   , 2, 0},	// 20
-	{SG_T("sqr"   ), (TSG_PFNC_Formula_1) f_sqr   , 1, 0},	// 11
+	{SG_T("sqr"   ), (TSG_PFNC_Formula_1) f_sqr   , 1, 0},	// 21
+	{SG_T("rand_u"), (TSG_PFNC_Formula_1) f_rand_u, 2, 0},	// 22
+	{SG_T("rand_g"), (TSG_PFNC_Formula_1) f_rand_g, 2, 0},	// 23
 	{NULL          ,                      NULL    , 0, 0}
 };
 
@@ -252,37 +266,41 @@ bool CSG_Formula::Destroy(void)
 //---------------------------------------------------------
 CSG_String CSG_Formula::Get_Help_Operators(void)
 {
-	return( SG_Translate(
-		SG_T("+ Addition\n")
-		SG_T("- Subtraction\n")
-		SG_T("* Multiplication\n")
-		SG_T("/ Division\n")
-		SG_T("^ power\n")
-		SG_T("abs(x)          - absolute value\n")
-		SG_T("sqr(x)          - square\n")
-		SG_T("sqrt(x)         - square root\n")
-		SG_T("ln(x)           - natural logarithm\n")
-		SG_T("log(x)          - base 10 logarithm\n")
-		SG_T("exp(x)          - exponential\n")
-		SG_T("pow(x, y)       - power with mantisse x and exponent y\n")
-		SG_T("sin(x)          - sine\n")
-		SG_T("cos(x)          - cosine\n")
-		SG_T("tan(x)          - tangent\n")
-		SG_T("asin(x)         - arcsine\n")
-		SG_T("acos(x)         - arccosine\n")
-		SG_T("atan(x)         - arctangent\n")
-		SG_T("atan2(x, y)     - arctangent of x/y\n")
-		SG_T("gt(x, y)        - the result is 1.0, if x is greater than y else 0.0\n")
-		SG_T("x > y           - the result is 1.0, if x is greater than y else 0.0\n")
-		SG_T("lt(x, y)        - the result is 1.0, if x is less than y, else 0.0\n")
-		SG_T("x < y           - the result is 1.0, if x is less than y, else 0.0\n")
-		SG_T("eq(x, y)        - the result is 1.0, if x equals y, else 0.0\n")
-		SG_T("x = y           - the result is 1.0, if x equals y, else 0.0\n")
-		SG_T("mod(x, y)       - returns the floating point remainder of x/y\n")
-		SG_T("ifelse(c, x, y) - if condition c is not 0.0 the result is x, else y\n")
-		SG_T("int(x)          - integer part of floating point value x\n")
-		SG_T("pi()            - returns the value of Pi\n")
-	));
+	CSG_String	s;
+
+	s	+= CSG_String::Format("+               - %s\n", _TL("Addition"));
+	s	+= CSG_String::Format("-               - %s\n", _TL("Subtraction"));
+	s	+= CSG_String::Format("*               - %s\n", _TL("Multiplication"));
+	s	+= CSG_String::Format("/               - %s\n", _TL("Division"));
+	s	+= CSG_String::Format("^               - %s\n", _TL("Power"));
+	s	+= CSG_String::Format("abs(x)          - %s\n", _TL("Absolute Value"));
+	s	+= CSG_String::Format("sqr(x)          - %s\n", _TL("Square"));
+	s	+= CSG_String::Format("sqrt(x)         - %s\n", _TL("Square Root"));
+	s	+= CSG_String::Format("ln(x)           - %s\n", _TL("Natural Logarithm"));
+	s	+= CSG_String::Format("log(x)          - %s\n", _TL("Base 10 Logarithm"));
+	s	+= CSG_String::Format("exp(x)          - %s\n", _TL("Exponential"));
+	s	+= CSG_String::Format("pow(x, y)       - %s\n", _TL("Returns x raised to the power of y"));
+	s	+= CSG_String::Format("sin(x)          - %s\n", _TL("Sine"));
+	s	+= CSG_String::Format("cos(x)          - %s\n", _TL("Cosine"));
+	s	+= CSG_String::Format("tan(x)          - %s\n", _TL("Tangent"));
+	s	+= CSG_String::Format("asin(x)         - %s\n", _TL("Arcsine"));
+	s	+= CSG_String::Format("acos(x)         - %s\n", _TL("Arccosine"));
+	s	+= CSG_String::Format("atan(x)         - %s\n", _TL("Arctangent"));
+	s	+= CSG_String::Format("atan2(x, y)     - %s\n", _TL("Arctangent of x/y"));
+	s	+= CSG_String::Format("gt(x, y)        - %s\n", _TL("Returns true (1), if x is greater than y, else false (0)"));
+	s	+= CSG_String::Format("x > y           - %s\n", _TL("Returns true (1), if x is greater than y, else false (0)"));
+	s	+= CSG_String::Format("lt(x, y)        - %s\n", _TL("Returns true (1), if x is less than y, else false (0)"));
+	s	+= CSG_String::Format("x < y           - %s\n", _TL("Returns true (1), if x is less than y, else false (0)"));
+	s	+= CSG_String::Format("eq(x, y)        - %s\n", _TL("Returns true (1), if x equals y, else false (0)"));
+	s	+= CSG_String::Format("x = y           - %s\n", _TL("Returns true (1), if x equals y, else false (0)"));
+	s	+= CSG_String::Format("mod(x, y)       - %s\n", _TL("Returns the floating point remainder of x/y"));
+	s	+= CSG_String::Format("int(x)          - %s\n", _TL("Returns the integer part of floating point value x"));
+	s	+= CSG_String::Format("ifelse(c, x, y) - %s\n", _TL("Returns x, if condition c is true (i.e. not 0), else y"));
+	s	+= CSG_String::Format("rand_u(x, y)    - %s\n", _TL("Random number, uniform distribution with minimum x and maximum y"));
+	s	+= CSG_String::Format("rand_g(x, y)    - %s\n", _TL("Random number, Gaussian distribution with mean x and standard deviation y"));
+	s	+= CSG_String::Format("pi()            - %s\n", _TL("Returns the value of Pi"));
+
+	return( s );
 }
 
 //---------------------------------------------------------
@@ -290,7 +308,7 @@ bool CSG_Formula::Get_Error(CSG_String &Message)
 {
 	if( m_bError )
 	{
-		Message	 = CSG_String::Format(SG_T("%s %s %d\n"), _TL("Error in formula"), _TL("at position"), m_Error_Position);
+		Message	 = CSG_String::Format("%s %s %d\n", _TL("Error in formula"), _TL("at position"), m_Error_Position);
 
 		if( m_Error_Position < 0 || m_Error_Position >= (int)m_sFormula.Length() )
 		{
@@ -298,14 +316,14 @@ bool CSG_Formula::Get_Error(CSG_String &Message)
 		}
 		else
 		{
-			Message	+= m_sFormula.Left (m_Error_Position) + SG_T(" [")
-					+  m_sFormula      [m_Error_Position] + SG_T("] ")
+			Message	+= m_sFormula.Left (m_Error_Position) + " ["
+					+  m_sFormula      [m_Error_Position] + "] "
 					+  m_sFormula.Right(m_sFormula.Length() - (m_Error_Position + 1));
 		}
 
-		Message	+= SG_T("\n");
+		Message	+= "\n";
 		Message	+= m_sError;
-		Message	+= SG_T("\n");
+		Message	+= "\n";
 
 		return( true );
 	}

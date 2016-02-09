@@ -1051,7 +1051,7 @@ public:
 	int							Get_Y				(int Index, int Offset = 0)	const	{	return( Offset + (Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asInt(1) : 0) );	}
 
 	double						Get_Distance		(int Index)	const					{	return( Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asDouble(2) : -1.0 );	}
-	double						Get_Weight			(int Index)	const					{	return( Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asDouble(3) : -1.0 );	}
+	double						Get_Weight			(int Index)	const					{	return( Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asDouble(3) :  0.0 );	}
 
 	bool						Get_Values			(int Index, int &x, int &y, double &Distance, double &Weight, bool bOffset = false)	const
 	{

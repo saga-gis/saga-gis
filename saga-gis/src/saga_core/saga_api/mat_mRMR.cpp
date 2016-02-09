@@ -92,6 +92,15 @@
 //---------------------------------------------------------
 #define DELETE_ARRAY(p)	if( p )	{	delete[]p;	p	= NULL;	}
 
+//---------------------------------------------------------
+enum ESG_mRMR_Selection
+{
+	SG_mRMR_SELECTION_RANK	= 0,
+	SG_mRMR_SELECTION_INDEX,
+	SG_mRMR_SELECTION_NAME,
+	SG_mRMR_SELECTION_SCORE
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -256,17 +265,17 @@ int CSG_mRMR::Get_Count	(void) const
 
 int CSG_mRMR::Get_Index(int i) const
 {
-	return( m_pSelection->Get_Record(i)->asInt   (SG_mRMR_SELFLD_INDEX) );
+	return( m_pSelection->Get_Record(i)->asInt   (SG_mRMR_SELECTION_INDEX) );
 }
 
 CSG_String CSG_mRMR::Get_Name(int i) const
 {
-	return( m_pSelection->Get_Record(i)->asString(SG_mRMR_SELFLD_NAME ) );
+	return( m_pSelection->Get_Record(i)->asString(SG_mRMR_SELECTION_NAME ) );
 }
 
 double CSG_mRMR::Get_Score(int i) const
 {
-	return( m_pSelection->Get_Record(i)->asDouble(SG_mRMR_SELFLD_SCORE) );
+	return( m_pSelection->Get_Record(i)->asDouble(SG_mRMR_SELECTION_SCORE) );
 }
 
 
@@ -524,10 +533,10 @@ bool CSG_mRMR::Discretize(double Threshold)
 #define ADD_FEATURE(rank, score)	{\
 	CSG_Table_Record	*pFeature	= m_pSelection->Add_Record();\
 	\
-	pFeature->Set_Value(SG_mRMR_SELFLD_RANK , rank + 1);\
-	pFeature->Set_Value(SG_mRMR_SELFLD_INDEX, feaInd[rank]);\
-	pFeature->Set_Value(SG_mRMR_SELFLD_NAME , m_VarNames[feaInd[rank]]);\
-	pFeature->Set_Value(SG_mRMR_SELFLD_SCORE, score);\
+	pFeature->Set_Value(SG_mRMR_SELECTION_RANK , rank + 1);\
+	pFeature->Set_Value(SG_mRMR_SELECTION_INDEX, feaInd[rank]);\
+	pFeature->Set_Value(SG_mRMR_SELECTION_NAME , m_VarNames[feaInd[rank]]);\
+	pFeature->Set_Value(SG_mRMR_SELECTION_SCORE, score);\
 	\
 	ADD_MESSAGE(CSG_String::Format(SG_T("%d \t %d \t %s \t %5.3f"),\
 		rank + 1, feaInd[rank], m_VarNames[feaInd[rank]].c_str(), score)\
