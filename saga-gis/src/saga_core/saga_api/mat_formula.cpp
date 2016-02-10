@@ -178,6 +178,18 @@ static double f_rand_g(double mean, double stdv)
 }
 
 //---------------------------------------------------------
+static double f_and(double x, double y)
+{
+	return( x != 0.0 && y != 0.0 ? 1.0 : 0.0 );
+}
+
+//---------------------------------------------------------
+static double f_or(double x, double y)
+{
+	return( x != 0.0 || y != 0.0 ? 1.0 : 0.0 );
+}
+
+//---------------------------------------------------------
 static double f_ifelse(double condition, double x, double y)
 {
 	return( condition ? x : y );
@@ -194,29 +206,31 @@ static double f_ifelse(double condition, double x, double y)
 //---------------------------------------------------------
 static CSG_Formula::TSG_Formula_Item gSG_Functions[MAX_CTABLE]	=
 {
-	{SG_T("exp"   ),                      exp     , 1, 0},	//  1
-	{SG_T("ln"    ),                      log     , 1, 0},	//  2
-	{SG_T("sin"   ),                      sin     , 1, 0},	//  3
-	{SG_T("cos"   ),                      cos     , 1, 0},	//  4
-	{SG_T("tan"   ),                      tan     , 1, 0},	//  5
-	{SG_T("asin"  ),                      asin    , 1, 0},	//  6
-	{SG_T("acos"  ),                      acos    , 1, 0},	//  7
-	{SG_T("atan"  ),                      atan    , 1, 0},	//  8
-	{SG_T("atan2" ), (TSG_PFNC_Formula_1) f_atan2 , 2, 0},	//  9
-	{SG_T("abs"   ),                      fabs    , 1, 0},	// 10
-	{SG_T("sqrt"  ),                      sqrt    , 1, 0},	// 11
-	{SG_T("gt"    ), (TSG_PFNC_Formula_1) f_gt    , 2, 0},	// 12
-	{SG_T("lt"    ), (TSG_PFNC_Formula_1) f_lt    , 2, 0},	// 13
-	{SG_T("eq"    ), (TSG_PFNC_Formula_1) f_eq    , 2, 0},	// 14
-	{SG_T("pi"    ), (TSG_PFNC_Formula_1) f_pi    , 0, 0},	// 15
+	{SG_T("exp"   ), (TSG_PFNC_Formula_1) exp     , 1, 0},	//  1
+	{SG_T("ln"    ), (TSG_PFNC_Formula_1) log     , 1, 0},	//  2
+	{SG_T("sin"   ), (TSG_PFNC_Formula_1) sin     , 1, 0},	//  3
+	{SG_T("cos"   ), (TSG_PFNC_Formula_1) cos     , 1, 0},	//  4
+	{SG_T("tan"   ), (TSG_PFNC_Formula_1) tan     , 1, 0},	//  5
+	{SG_T("asin"  ), (TSG_PFNC_Formula_1) asin    , 1, 0},	//  6
+	{SG_T("acos"  ), (TSG_PFNC_Formula_1) acos    , 1, 0},	//  7
+	{SG_T("atan"  ), (TSG_PFNC_Formula_1) atan    , 1, 0},	//  8
+	{SG_T("atan2" ), (TSG_PFNC_Formula_2) f_atan2 , 2, 0},	//  9
+	{SG_T("abs"   ), (TSG_PFNC_Formula_1) fabs    , 1, 0},	// 10
+	{SG_T("sqrt"  ), (TSG_PFNC_Formula_1) sqrt    , 1, 0},	// 11
+	{SG_T("gt"    ), (TSG_PFNC_Formula_2) f_gt    , 2, 0},	// 12
+	{SG_T("lt"    ), (TSG_PFNC_Formula_2) f_lt    , 2, 0},	// 13
+	{SG_T("eq"    ), (TSG_PFNC_Formula_2) f_eq    , 2, 0},	// 14
+	{SG_T("pi"    ), (TSG_PFNC_Formula_0) f_pi    , 0, 0},	// 15
 	{SG_T("int"   ), (TSG_PFNC_Formula_1) f_int   , 1, 0},	// 16
-	{SG_T("mod"   ), (TSG_PFNC_Formula_1) f_fmod  , 2, 0},	// 17
-	{SG_T("ifelse"), (TSG_PFNC_Formula_1) f_ifelse, 3, 0},	// 18
-	{SG_T("log"   ),                      log10   , 1, 0},	// 19
-	{SG_T("pow"   ), (TSG_PFNC_Formula_1) f_pow   , 2, 0},	// 20
+	{SG_T("mod"   ), (TSG_PFNC_Formula_2) f_fmod  , 2, 0},	// 17
+	{SG_T("ifelse"), (TSG_PFNC_Formula_3) f_ifelse, 3, 0},	// 18
+	{SG_T("log"   ), (TSG_PFNC_Formula_1) log10   , 1, 0},	// 19
+	{SG_T("pow"   ), (TSG_PFNC_Formula_2) f_pow   , 2, 0},	// 20
 	{SG_T("sqr"   ), (TSG_PFNC_Formula_1) f_sqr   , 1, 0},	// 21
-	{SG_T("rand_u"), (TSG_PFNC_Formula_1) f_rand_u, 2, 0},	// 22
-	{SG_T("rand_g"), (TSG_PFNC_Formula_1) f_rand_g, 2, 0},	// 23
+	{SG_T("rand_u"), (TSG_PFNC_Formula_2) f_rand_u, 2, 1},	// 22
+	{SG_T("rand_g"), (TSG_PFNC_Formula_2) f_rand_g, 2, 1},	// 23
+	{SG_T("and"   ), (TSG_PFNC_Formula_2) f_and   , 2, 0},	// 24
+	{SG_T("or"    ), (TSG_PFNC_Formula_2) f_or    , 2, 0},	// 25
 	{NULL          ,                      NULL    , 0, 0}
 };
 
@@ -264,41 +278,89 @@ bool CSG_Formula::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Formula::Get_Help_Operators(void)
+CSG_String CSG_Formula::Get_Help_Operators(bool bHTML, const CSG_String Additional[][2])
 {
+	const int	nOperators	= 33;
+
+	CSG_String	Operators[nOperators][2]	=
+	{
+		{	"+"              , _TL("Addition")	},
+		{	"-"              , _TL("Subtraction")	},
+		{	"*"              , _TL("Multiplication")	},
+		{	"/"              , _TL("Division")	},
+		{	"abs(x)"         , _TL("Absolute Value")	},
+		{	"mod(x, y)"      , _TL("Returns the floating point remainder of x/y")	},
+		{	"int(x)"         , _TL("Returns the integer part of floating point value x")	},
+		{	"sqr(x)"         , _TL("Square")	},
+		{	"sqrt(x)"        , _TL("Square Root")	},
+		{	"exp(x)"         , _TL("Exponential")	},
+		{	"pow(x, y)"      , _TL("Returns x raised to the power of y")	},
+		{	"x ^ y"          , _TL("Returns x raised to the power of y")	},
+		{	"ln(x)"          , _TL("Natural Logarithm")	},
+		{	"log(x)"         , _TL("Base 10 Logarithm")	},
+		{	"pi()"           , _TL("Returns the value of Pi")	},
+		{	"sin(x)"         , _TL("Sine")	},
+		{	"cos(x)"         , _TL("Cosine")	},
+		{	"tan(x)"         , _TL("Tangent")	},
+		{	"asin(x)"        , _TL("Arcsine")	},
+		{	"acos(x)"        , _TL("Arccosine")	},
+		{	"atan(x)"        , _TL("Arctangent")	},
+		{	"atan2(x, y)"    , _TL("Arctangent of x/y")	},
+		{	"gt(x, y)"       , _TL("Returns true (1), if x is greater than y, else false (0)")	},
+		{	"x > y"          , _TL("Returns true (1), if x is greater than y, else false (0)")	},
+		{	"lt(x, y)"       , _TL("Returns true (1), if x is less than y, else false (0)")	},
+		{	"x < y"          , _TL("Returns true (1), if x is less than y, else false (0)")	},
+		{	"eq(x, y)"       , _TL("Returns true (1), if x equals y, else false (0)")	},
+		{	"x = y"          , _TL("Returns true (1), if x equals y, else false (0)")	},
+		{	"and(x, y)"      , _TL("Returns true (1), if both x and y are true (i.e. not 0)")	},
+		{	"or(x, y)"       , _TL("Returns true (1), if at least one of both x and y is true (i.e. not 0)")	},
+		{	"ifelse(c, x, y)", _TL("Returns x, if condition c is true (i.e. not 0), else y")	},
+		{	"rand_u(x, y)"   , _TL("Random number, uniform distribution with minimum x and maximum y")	},
+		{	"rand_g(x, y)"   , _TL("Random number, Gaussian distribution with mean x and standard deviation y")	}
+	};
+
+	//-----------------------------------------------------
+	int			i;
 	CSG_String	s;
 
-	s	+= CSG_String::Format("+               - %s\n", _TL("Addition"));
-	s	+= CSG_String::Format("-               - %s\n", _TL("Subtraction"));
-	s	+= CSG_String::Format("*               - %s\n", _TL("Multiplication"));
-	s	+= CSG_String::Format("/               - %s\n", _TL("Division"));
-	s	+= CSG_String::Format("^               - %s\n", _TL("Power"));
-	s	+= CSG_String::Format("abs(x)          - %s\n", _TL("Absolute Value"));
-	s	+= CSG_String::Format("sqr(x)          - %s\n", _TL("Square"));
-	s	+= CSG_String::Format("sqrt(x)         - %s\n", _TL("Square Root"));
-	s	+= CSG_String::Format("ln(x)           - %s\n", _TL("Natural Logarithm"));
-	s	+= CSG_String::Format("log(x)          - %s\n", _TL("Base 10 Logarithm"));
-	s	+= CSG_String::Format("exp(x)          - %s\n", _TL("Exponential"));
-	s	+= CSG_String::Format("pow(x, y)       - %s\n", _TL("Returns x raised to the power of y"));
-	s	+= CSG_String::Format("sin(x)          - %s\n", _TL("Sine"));
-	s	+= CSG_String::Format("cos(x)          - %s\n", _TL("Cosine"));
-	s	+= CSG_String::Format("tan(x)          - %s\n", _TL("Tangent"));
-	s	+= CSG_String::Format("asin(x)         - %s\n", _TL("Arcsine"));
-	s	+= CSG_String::Format("acos(x)         - %s\n", _TL("Arccosine"));
-	s	+= CSG_String::Format("atan(x)         - %s\n", _TL("Arctangent"));
-	s	+= CSG_String::Format("atan2(x, y)     - %s\n", _TL("Arctangent of x/y"));
-	s	+= CSG_String::Format("gt(x, y)        - %s\n", _TL("Returns true (1), if x is greater than y, else false (0)"));
-	s	+= CSG_String::Format("x > y           - %s\n", _TL("Returns true (1), if x is greater than y, else false (0)"));
-	s	+= CSG_String::Format("lt(x, y)        - %s\n", _TL("Returns true (1), if x is less than y, else false (0)"));
-	s	+= CSG_String::Format("x < y           - %s\n", _TL("Returns true (1), if x is less than y, else false (0)"));
-	s	+= CSG_String::Format("eq(x, y)        - %s\n", _TL("Returns true (1), if x equals y, else false (0)"));
-	s	+= CSG_String::Format("x = y           - %s\n", _TL("Returns true (1), if x equals y, else false (0)"));
-	s	+= CSG_String::Format("mod(x, y)       - %s\n", _TL("Returns the floating point remainder of x/y"));
-	s	+= CSG_String::Format("int(x)          - %s\n", _TL("Returns the integer part of floating point value x"));
-	s	+= CSG_String::Format("ifelse(c, x, y) - %s\n", _TL("Returns x, if condition c is true (i.e. not 0), else y"));
-	s	+= CSG_String::Format("rand_u(x, y)    - %s\n", _TL("Random number, uniform distribution with minimum x and maximum y"));
-	s	+= CSG_String::Format("rand_g(x, y)    - %s\n", _TL("Random number, Gaussian distribution with mean x and standard deviation y"));
-	s	+= CSG_String::Format("pi()            - %s\n", _TL("Returns the value of Pi"));
+	if( bHTML )
+	{
+		s	+= "<table border=\"0\">";
+
+		for(i=0; i<nOperators; i++)
+		{
+			CSG_String	op	= Operators[i][0]; op.Replace("<", "&lt;");
+
+			s	+= "<tr><td><b>" + op + "</b></td><td>" + Operators[i][1] + "</td></tr>";
+		}
+
+		if( Additional )
+		{
+			for(i=0; !Additional[i][0].is_Empty(); i++)
+			{
+				CSG_String	op	= Additional[i][0]; op.Replace("<", "&lt;");
+
+				s	+= "<tr><td><b>" + op + "</b></td><td>" + Additional[i][1] + "</td></tr>";
+			}
+		}
+
+		s	+= "</table>";
+	}
+	else
+	{
+		for(i=0; i<nOperators; i++)
+		{
+			s	+= Operators[i][0] + " - " + Operators[i][1] + "\n";
+		}
+
+		if( Additional )
+		{
+			for(i=0; !Additional[i][0].is_Empty(); i++)
+			{
+				s	+= Additional[i][0] + " - " + Additional[i][1] + "\n";
+			}
+		}
+	}
 
 	return( s );
 }
@@ -518,25 +580,25 @@ double CSG_Formula::_Get_Value(const double *Parameters, TMAT_Formula func) cons
 
 		case '>':
 			y		= *--bufp;
-			result	= y < *(--bufp) ? 1.0 : 0.0;
+			result	= y <  *(--bufp) ? 1.0 : 0.0;
 			*bufp++	= result;
 			break;
 
 		case '<':
 			y		= *--bufp;
-			result	= y > *(--bufp) ? 1.0 : 0.0;
+			result	= y >  *(--bufp) ? 1.0 : 0.0;
 			*bufp++	= result;
 			break;
 
 		case '&':
 			y		= *--bufp;
-			result	= y != 0.0 && *(--bufp) != 0.0 ? 1.0 : 0.0;
+			result	= y && *(--bufp) ? 1.0 : 0.0;
 			*bufp++	= result;
 			break;
 
 		case '|':
 			y		= *--bufp;
-			result	= y != 0.0 || *(--bufp) != 0.0 ? 1.0 : 0.0;
+			result	= y || *(--bufp) ? 1.0 : 0.0;
 			*bufp++	= result;
 			break;
 
@@ -549,20 +611,20 @@ double CSG_Formula::_Get_Value(const double *Parameters, TMAT_Formula func) cons
 
 			case 1:
 				x		= *--bufp;
-				*bufp++	= gSG_Functions[*function++].f(x);
+				*bufp++	= ((TSG_PFNC_Formula_1)gSG_Functions[*function++].f)(x);
 				break;
 
 			case 2:
 				y		= *--bufp;
 				x		= *--bufp;
-				*bufp++	=((TSG_PFNC_Formula_2)gSG_Functions[*function++].f)(x, y);
+				*bufp++	= ((TSG_PFNC_Formula_2)gSG_Functions[*function++].f)(x, y);
 				break;
 
 			case 3:
 				z		= *--bufp;
 				y		= *--bufp;
 				x		= *--bufp;
-				*bufp++	=((TSG_PFNC_Formula_3)gSG_Functions[*function++].f)(x, y, z);
+				*bufp++	= ((TSG_PFNC_Formula_3)gSG_Functions[*function++].f)(x, y, z);
 				break;
 
 			default:

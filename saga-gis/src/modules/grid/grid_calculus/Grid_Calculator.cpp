@@ -93,7 +93,7 @@ CGrid_Calculator::CGrid_Calculator(void)
 	//-----------------------------------------------------
 	Set_Name	(_TL("Grid Calculator"));
 
-	Set_Author	(_TL("A.Ringeler (c) 2003"));
+	Set_Author	("A.Ringeler (c) 2003");
 
 	CSG_String	s(_TW(
 		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula. "
@@ -102,17 +102,20 @@ CGrid_Calculator::CGrid_Calculator(void)
 		"(i.e.: g1, g2, g3, ... correspond to the first, second, third, ... grid in list). "
 		"Grids from other systems than the default one can be addressed likewise using the letter 'h' "
 		"(h1, h2, h3, ...), which correspond to the \'Grids from different Systems\' list.\n"
-		"Example:\t sin(g1) * g2 + h1\n"
-		"the same using indices: sin(g1) * g2 + g3\n\n"
+		"\n"
+		"Example:\t sin(g1) * g2 + 2 * h1\n"
+		"\n"
 		"The following operators are available for the formula definition:\n"
 	));
 
-	s	+= CSG_Formula::Get_Help_Operators();
+	const CSG_String	Operators[3][2]	=
+	{
+		{	"xpos(), ypos()", _TL("Get the x/y coordinates for the current cell")	},
+		{	"row(), col()"  , _TL("Get the current cell's column/row index"     )	},
+		{	"", ""	}
+	};
 
-	s	+= _TW(
-		"xpos(), ypos() - get the x/y coordinates of the current cell\n"
-		"row(), col() - get the current cell's column/row index\n"
-	);
+	s	+= CSG_Formula::Get_Help_Operators(true, Operators);
 
 	Set_Description(s);
 
@@ -399,14 +402,14 @@ bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, in
 	//-----------------------------------------------------
 	CSG_String	sUsed(Formula.Get_Used_Variables());
 
-	if( nValues < sUsed.Length() )
+	if( nValues < (int)sUsed.Length() )
 	{
 		Error_Fmt("%s (%d < %d)", _TL("The number of supplied grids is less than the number of variables in formula."), nValues, sUsed.Length());
 
 		return( false );
 	}
 
-	if( nValues > sUsed.Length() )
+	if( nValues > (int)sUsed.Length() )
 	{
 		Message_Add(CSG_String::Format("%s: %s (%d > %d)", _TL("Warning"), _TL("The number of supplied grids exceeds the number of variables in formula."), nValues, sUsed.Length()));
 	}

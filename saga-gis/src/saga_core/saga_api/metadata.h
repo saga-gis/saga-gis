@@ -157,7 +157,7 @@ public:
 	const CSG_MetaData &		operator []			(int Index)					const	{	return( *Get_Child(Index           ) );	}
 	const CSG_MetaData &		operator []			(const CSG_String &Name)	const	{	return( *Get_Child(_Get_Child(Name)) );	}
 
-	bool						is_Valid			(void)						const	{	return( this != NULL );					}
+	bool						is_Valid			(void)						const;
 
 	int							Get_Property_Count	(void)						const	{	return( m_Prop_Names.Get_Count() );	}
 	const CSG_String &			Get_Property_Name	(int i)						const	{	return( m_Prop_Names [i] );			}

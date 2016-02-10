@@ -1475,7 +1475,7 @@ public:
 
 	bool						Destroy				(void);
 
-	static CSG_String			Get_Help_Operators	(void);
+	static CSG_String			Get_Help_Operators	(bool bHTML = true, const CSG_String Additional[][2] = NULL);
 
 	bool						Get_Error			(CSG_String &Message);
 
@@ -1499,10 +1499,10 @@ public:
 	//-----------------------------------------------------
 	typedef struct SSG_Formula_Item
 	{
-		SG_Char					*name;
-		TSG_PFNC_Formula_1		f;			
-		int						n_pars;		
-		int						varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
+		SG_Char		*name;
+		void		*f;			
+		int			n_pars;		
+		int			varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
 	}
 	TSG_Formula_Item;
 
