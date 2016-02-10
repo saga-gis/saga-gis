@@ -1479,8 +1479,7 @@ public:
 
 	bool						Get_Error			(CSG_String &Message);
 
-	int							Add_Function		(const SG_Char *Name, void *f, int N_of_Pars, int Varying);
-	int							Del_Function		(SG_Char *Name);
+	int							Add_Function		(const SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
 
 	bool						Set_Formula			(const CSG_String &Formula);
 	CSG_String					Get_Formula			(void)	const	{	return( m_sFormula );	}
@@ -1499,10 +1498,10 @@ public:
 	//-----------------------------------------------------
 	typedef struct SSG_Formula_Item
 	{
-		SG_Char		*name;
-		void		*f;			
-		int			n_pars;		
-		int			varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
+		const SG_Char		*name;
+		TSG_PFNC_Formula_1	f;			
+		int					n_pars;		
+		int					varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
 	}
 	TSG_Formula_Item;
 

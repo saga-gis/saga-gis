@@ -151,6 +151,11 @@ CFit::CFit(void)
 	Parameters.Add_Value(NULL, "ITER", _TL("Iterationen"), _TL(""), PARAMETER_TYPE_Int, 1000, 1, true);
 	
 	Parameters.Add_Value(NULL, "LAMDA", _TL("Max Lamda"), _TL(""), PARAMETER_TYPE_Double, 10000, 1, true);
+
+	Formel.Add_Function(SG_T("NUG"), (TSG_PFNC_Formula_1) NUG, 1, 0);
+	Formel.Add_Function(SG_T("SPH"), (TSG_PFNC_Formula_1) SPH, 2, 0);
+	Formel.Add_Function(SG_T("EXP"), (TSG_PFNC_Formula_1) EXP, 2, 0);
+	Formel.Add_Function(SG_T("LIN"), (TSG_PFNC_Formula_1) LIN, 2, 0);
 }
 
 int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -212,12 +217,6 @@ bool CFit::On_Execute(void)
 
 	const SG_Char *formel	=	Parameters("FORMEL")->asString();
 
-	Formel.Add_Function(SG_T("NUG"), (TSG_PFNC_Formula_1) NUG, 1, 0);
-	Formel.Add_Function(SG_T("SPH"), (TSG_PFNC_Formula_1) SPH, 2, 0);
-	Formel.Add_Function(SG_T("EXP"), (TSG_PFNC_Formula_1) EXP, 2, 0);
-    Formel.Add_Function(SG_T("LIN"), (TSG_PFNC_Formula_1) LIN, 2, 0);
-	
-	
 	Formel.Set_Formula(formel);
 	
 	

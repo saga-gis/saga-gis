@@ -214,24 +214,24 @@ static CSG_Formula::TSG_Formula_Item gSG_Functions[MAX_CTABLE]	=
 	{SG_T("asin"  ), (TSG_PFNC_Formula_1) asin    , 1, 0},	//  6
 	{SG_T("acos"  ), (TSG_PFNC_Formula_1) acos    , 1, 0},	//  7
 	{SG_T("atan"  ), (TSG_PFNC_Formula_1) atan    , 1, 0},	//  8
-	{SG_T("atan2" ), (TSG_PFNC_Formula_2) f_atan2 , 2, 0},	//  9
+	{SG_T("atan2" ), (TSG_PFNC_Formula_1) f_atan2 , 2, 0},	//  9
 	{SG_T("abs"   ), (TSG_PFNC_Formula_1) fabs    , 1, 0},	// 10
 	{SG_T("sqrt"  ), (TSG_PFNC_Formula_1) sqrt    , 1, 0},	// 11
-	{SG_T("gt"    ), (TSG_PFNC_Formula_2) f_gt    , 2, 0},	// 12
-	{SG_T("lt"    ), (TSG_PFNC_Formula_2) f_lt    , 2, 0},	// 13
-	{SG_T("eq"    ), (TSG_PFNC_Formula_2) f_eq    , 2, 0},	// 14
-	{SG_T("pi"    ), (TSG_PFNC_Formula_0) f_pi    , 0, 0},	// 15
+	{SG_T("gt"    ), (TSG_PFNC_Formula_1) f_gt    , 2, 0},	// 12
+	{SG_T("lt"    ), (TSG_PFNC_Formula_1) f_lt    , 2, 0},	// 13
+	{SG_T("eq"    ), (TSG_PFNC_Formula_1) f_eq    , 2, 0},	// 14
+	{SG_T("pi"    ), (TSG_PFNC_Formula_1) f_pi    , 0, 0},	// 15
 	{SG_T("int"   ), (TSG_PFNC_Formula_1) f_int   , 1, 0},	// 16
-	{SG_T("mod"   ), (TSG_PFNC_Formula_2) f_fmod  , 2, 0},	// 17
-	{SG_T("ifelse"), (TSG_PFNC_Formula_3) f_ifelse, 3, 0},	// 18
+	{SG_T("mod"   ), (TSG_PFNC_Formula_1) f_fmod  , 2, 0},	// 17
+	{SG_T("ifelse"), (TSG_PFNC_Formula_1) f_ifelse, 3, 0},	// 18
 	{SG_T("log"   ), (TSG_PFNC_Formula_1) log10   , 1, 0},	// 19
-	{SG_T("pow"   ), (TSG_PFNC_Formula_2) f_pow   , 2, 0},	// 20
+	{SG_T("pow"   ), (TSG_PFNC_Formula_1) f_pow   , 2, 0},	// 20
 	{SG_T("sqr"   ), (TSG_PFNC_Formula_1) f_sqr   , 1, 0},	// 21
-	{SG_T("rand_u"), (TSG_PFNC_Formula_2) f_rand_u, 2, 1},	// 22
-	{SG_T("rand_g"), (TSG_PFNC_Formula_2) f_rand_g, 2, 1},	// 23
-	{SG_T("and"   ), (TSG_PFNC_Formula_2) f_and   , 2, 0},	// 24
-	{SG_T("or"    ), (TSG_PFNC_Formula_2) f_or    , 2, 0},	// 25
-	{NULL          ,                      NULL    , 0, 0}
+	{SG_T("rand_u"), (TSG_PFNC_Formula_1) f_rand_u, 2, 1},	// 22
+	{SG_T("rand_g"), (TSG_PFNC_Formula_1) f_rand_g, 2, 1},	// 23
+	{SG_T("and"   ), (TSG_PFNC_Formula_1) f_and   , 2, 0},	// 24
+	{SG_T("or"    ), (TSG_PFNC_Formula_1) f_or    , 2, 0},	// 25
+	{          NULL,                          NULL, 0, 0}
 };
 
 
@@ -682,50 +682,13 @@ const SG_Char * CSG_Formula::Get_Used_Variables(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// If the function exists, it is deleted and a non-negative
-// value is returned. Otherwise, -1 is returned.
-// Original library functions may not be deleted.
-//
-int CSG_Formula::Del_Function(SG_Char *name)
-{
-	int		place	 = _Get_Function(name);
-
-	if( place == -1 )
-	{
-		return( -1 );	// there is an error message already
-	}
-
-	if( place < STD_FNC_NUM )
-	{
-		_Set_Error(_TL("original functions may not be deleted"));
-
-		return( -1 );
-	}
-
-	free(gSG_Functions[place].name);
-
-	TSG_Formula_Item	*pFunction;
-
-	for(pFunction=&gSG_Functions[place]; pFunction->f!=NULL; pFunction++)
-	{
-		pFunction->name		= (pFunction + 1)->name;
-		pFunction->f		= (pFunction + 1)->f;
-		pFunction->n_pars	= (pFunction + 1)->n_pars;
-	}
-
-	_Set_Error();
-
-	return( (int)(pFunction - gSG_Functions) );
-}
-
-//---------------------------------------------------------
 // int varying;  Does the result of the function vary
 // even when the parameters stay the same?
 // varying = 1 for e.g. random - number generators.
 // Result: 0 is rendered if there is an error
 // 1 is rendered otherwise
 //
-int CSG_Formula::Add_Function(const SG_Char *name, void *f, int n_pars, int varying)
+int CSG_Formula::Add_Function(const SG_Char *name, TSG_PFNC_Formula_1 f, int n_pars, int varying)
 {
 	TSG_Formula_Item *where;
 	
@@ -759,16 +722,7 @@ int CSG_Formula::Add_Function(const SG_Char *name, void *f, int n_pars, int vary
 	}
 	else 
 	{
-		where->name	=(SG_Char *)calloc(SG_STR_LEN(name) + 1, sizeof(SG_Char));
-
-		if( where->name == NULL )
-		{
-			_Set_Error(_TL("no memory"));
-
-			return( 0 );
-		}
-
-		SG_STR_CPY(where->name, name);
+		where->name		= name;
 		where->f		= f;
 		where->varying	= varying;
 		where->n_pars	= n_pars;
