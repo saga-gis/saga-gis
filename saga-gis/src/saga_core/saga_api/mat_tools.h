@@ -1479,7 +1479,7 @@ public:
 
 	bool						Get_Error			(CSG_String &Message);
 
-	int							Add_Function		(const SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
+	int							Add_Function		(const SG_Char *Name, void *f, int N_of_Pars, int Varying);
 	int							Del_Function		(SG_Char *Name);
 
 	bool						Set_Formula			(const CSG_String &Formula);
