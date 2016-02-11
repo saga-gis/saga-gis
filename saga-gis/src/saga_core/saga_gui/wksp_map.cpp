@@ -1409,9 +1409,15 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 
 	if( !FileName.IsOk() )
 	{
-		DLG_Message_Show_Error(_TL("invalid file name"), _TL("Save Map to KMZ"));
+		FileName.AssignTempFileName("saga_map");
+		FileName.SetExt("kmz");
 
-		return;
+		if( !FileName.IsOk() )
+		{
+			DLG_Message_Show_Error(_TL("invalid file name"), _TL("Save Map to KMZ"));
+
+			return;
+		}
 	}
 
 	//-----------------------------------------------------
@@ -1452,8 +1458,6 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 
 	if( bResult && P("LOAD")->asBool() )
 	{
-		FileName.SetExt("kmz");
-
 		Open_Application(FileName.GetFullPath());
 	}
 }
