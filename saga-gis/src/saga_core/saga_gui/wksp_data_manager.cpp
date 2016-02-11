@@ -371,7 +371,7 @@ bool CWKSP_Data_Manager::Initialise(void)
 			}
 			else
 			{	// recently opened project
-				return( m_pProject->Load(dlg.GetStringSelection(), false, false) );
+				return( m_pProject->Load(dlg.GetStringSelection(), false, true) );
 			}
 		}
 	}

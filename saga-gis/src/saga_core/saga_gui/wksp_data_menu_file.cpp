@@ -257,6 +257,14 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 		}
 
 		//-------------------------------------------------
+		for(i=m_Recent_Count-1; i>=0; i--)
+		{
+			if( !m_Recent[i].IsEmpty() && !wxFileExists(m_Recent[i]) )
+			{
+				Del(m_Recent[i]);
+			}
+		}
+
 		for(i=0, bFirst=false; i<m_Recent_Count; i++)
 		{
 			if( m_Recent[i].Length() > 0 )
@@ -301,7 +309,7 @@ void CWKSP_Data_Menu_File::Add(const wxString &FileName)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_File::Del(const wxString &FileName)
 {
-	if( m_Recent && m_Recent_Count > 0 )
+	if( m_Recent && m_Recent_Count > 0 && !FileName.IsEmpty() )
 	{
 		wxString	s_tmp(FileName);
 
