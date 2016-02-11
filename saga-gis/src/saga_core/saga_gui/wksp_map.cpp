@@ -232,18 +232,18 @@ wxString CWKSP_Map::Get_Description(void)
 {
 	wxString	s;
 
-	s	+= wxString::Format("<b>%s</b>", _TL("Map"));
+	//-----------------------------------------------------
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Map"));
 
 	s	+= "<table border=\"0\">";
 
-	s	+= wxString::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Name")  , m_Name.c_str());
-
-	s	+= wxString::Format("<tr><td>%s</td><td>%d</td></tr>", _TL("Layers"), Get_Count());
-
-	s	+= wxString::Format("<tr><td>%s</td><td>%s</td></tr>", _TL("Coordinate System"), m_Projection.Get_Description().c_str());
+	DESC_ADD_STR(_TL("Name"             ), m_Name.c_str());
+	DESC_ADD_INT(_TL("Layers"           ), Get_Count());
+	DESC_ADD_STR(_TL("Coordinate System"), m_Projection.Get_Description().c_str());
 
 	s	+= "</table>";
 
+	//-----------------------------------------------------
 	return( s );
 }
 

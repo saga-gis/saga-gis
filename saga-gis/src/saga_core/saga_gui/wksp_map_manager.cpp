@@ -220,8 +220,16 @@ wxString CWKSP_Map_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("%d %s"), Get_Count(), Get_Count() == 1 ? _TL("Map") : _TL("Maps"));
+	//-----------------------------------------------------
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Maps"));
 
+	s	+= "<table border=\"0\">";
+
+	DESC_ADD_INT(_TL("Number of Maps"), Get_Count());
+
+	s	+= "</table>";
+
+	//-----------------------------------------------------
 	return( s );
 }
 
