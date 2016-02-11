@@ -263,17 +263,17 @@ int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CENTRAL") )
 	{
-		pParameters->Get_Parameter("CENTRAL_DIST")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Set_Enabled("CENTRAL_DIST", pParameter->asInt() == 1);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_DRAPE") )
 	{
-		pParameters->Get_Parameter("DRAPE_MODE")->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("DRAPE_MODE"  , pParameter->asBool());
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "STEREO") )
 	{
-		pParameters->Get_Parameter("STEREO_DIST")->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("STEREO_DIST" , pParameter->asBool());
 	}
 
 	return( 1 );
@@ -528,12 +528,12 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	//-----------------------------------------------------
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
-		m_bgColor		= m_Parameters("BGCOLOR"    )->asColor ();
-		m_bBox			= m_Parameters("DRAW_BOX"   )->asBool  ();
-		m_bStereo		= m_Parameters("STEREO"     )->asBool  ();
-		m_dStereo		= m_Parameters("STEREO_DIST")->asDouble();
+		m_bgColor	= m_Parameters("BGCOLOR"    )->asColor ();
+		m_bBox		= m_Parameters("DRAW_BOX"   )->asBool  ();
+		m_bStereo	= m_Parameters("STEREO"     )->asBool  ();
+		m_dStereo	= m_Parameters("STEREO_DIST")->asDouble();
 
-		switch( m_Parameters("DRAPE_MODE")->asInt() )
+		switch( m_Parameters("DRAPE_MODE") ? m_Parameters("DRAPE_MODE")->asInt() : 0 )
 		{
 		default:	m_Drape_Mode	= GRID_RESAMPLING_NearestNeighbour;	break;
 		case  1:	m_Drape_Mode	= GRID_RESAMPLING_Bilinear;			break;
