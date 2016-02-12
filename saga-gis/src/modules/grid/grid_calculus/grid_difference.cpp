@@ -73,7 +73,7 @@ CGrid_Difference::CGrid_Difference(void)
 {
 	Set_Name		(_TL("Grid Difference"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		""
@@ -106,18 +106,17 @@ CGrid_Difference::CGrid_Difference(void)
 //---------------------------------------------------------
 bool CGrid_Difference::On_Execute(void)
 {
-	CSG_Grid	*pA, *pB, *pC;
-
 	//-----------------------------------------------------
-	pA	= Parameters("A")->asGrid();
-	pB	= Parameters("B")->asGrid();
-	pC	= Parameters("C")->asGrid();
+	CSG_Grid	*pA	= Parameters("A")->asGrid();
+	CSG_Grid	*pB	= Parameters("B")->asGrid();
+	CSG_Grid	*pC	= Parameters("C")->asGrid();
 
-	DataObject_Set_Colors(pC, 100, SG_COLORS_RED_GREY_BLUE);
+	DataObject_Set_Colors(pC, 11, SG_COLORS_RED_GREY_BLUE);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pA->is_NoData(x, y) || pB->is_NoData(x, y) )
@@ -147,7 +146,7 @@ CGrid_Division::CGrid_Division(void)
 {
 	Set_Name		(_TL("Grid Division"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		""
@@ -180,18 +179,17 @@ CGrid_Division::CGrid_Division(void)
 //---------------------------------------------------------
 bool CGrid_Division::On_Execute(void)
 {
-	CSG_Grid	*pA, *pB, *pC;
-
 	//-----------------------------------------------------
-	pA	= Parameters("A")->asGrid();
-	pB	= Parameters("B")->asGrid();
-	pC	= Parameters("C")->asGrid();
+	CSG_Grid	*pA	= Parameters("A")->asGrid();
+	CSG_Grid	*pB	= Parameters("B")->asGrid();
+	CSG_Grid	*pC	= Parameters("C")->asGrid();
 
-	DataObject_Set_Colors(pC, 100, SG_COLORS_RED_GREY_BLUE);
+	DataObject_Set_Colors(pC, 11, SG_COLORS_RED_GREY_BLUE);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pA->is_NoData(x, y) || pB->is_NoData(x, y) || pB->asDouble(x, y) == 0.0 )
@@ -221,7 +219,7 @@ CGrids_Sum::CGrids_Sum(void)
 {
 	Set_Name		(_TL("Grids Sum"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Cellwise addition of grid values."
@@ -238,6 +236,12 @@ CGrids_Sum::CGrids_Sum(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Value(
+		NULL	, "NODATA"	, _TL("Count No Data as Zero"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -248,14 +252,9 @@ CGrids_Sum::CGrids_Sum(void)
 //---------------------------------------------------------
 bool CGrids_Sum::On_Execute(void)
 {
-	CSG_Grid				*pResult;
-	CSG_Parameter_Grid_List	*pGrids;
-
 	//-----------------------------------------------------
-	pGrids	= Parameters("GRIDS")	->asGridList();
-	pResult	= Parameters("RESULT")	->asGrid();
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS" )->asGridList();
 
-	//-----------------------------------------------------
 	if( pGrids->Get_Count() < 1 )
 	{
 		Error_Set(_TL("no grid in list"));
@@ -264,8 +263,14 @@ bool CGrids_Sum::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+
+	bool	bNoData	= Parameters("NODATA")->asBool();
+
+	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			int		n	= 0;
@@ -280,7 +285,7 @@ bool CGrids_Sum::On_Execute(void)
 				}
 			}
 
-			if( n == pGrids->Get_Count() )
+			if( bNoData ? n > 0 : n == pGrids->Get_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}
@@ -307,7 +312,7 @@ CGrids_Product::CGrids_Product(void)
 {
 	Set_Name		(_TL("Grids Product"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Cellwise multiplication of grid values."
@@ -324,6 +329,12 @@ CGrids_Product::CGrids_Product(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Value(
+		NULL	, "NODATA"	, _TL("Count No Data as Zero"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -334,14 +345,9 @@ CGrids_Product::CGrids_Product(void)
 //---------------------------------------------------------
 bool CGrids_Product::On_Execute(void)
 {
-	CSG_Grid				*pResult;
-	CSG_Parameter_Grid_List	*pGrids;
-
 	//-----------------------------------------------------
-	pGrids	= Parameters("GRIDS")	->asGridList();
-	pResult	= Parameters("RESULT")	->asGrid();
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS" )->asGridList();
 
-	//-----------------------------------------------------
 	if( pGrids->Get_Count() < 1 )
 	{
 		Error_Set(_TL("no grid in list"));
@@ -350,8 +356,14 @@ bool CGrids_Product::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+
+	bool	bNoData	= Parameters("NODATA")->asBool();
+
+	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			int		n	= 0;
@@ -372,7 +384,7 @@ bool CGrids_Product::On_Execute(void)
 				}
 			}
 
-			if( n == pGrids->Get_Count() )
+			if( bNoData ? n > 0 : n == pGrids->Get_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}
