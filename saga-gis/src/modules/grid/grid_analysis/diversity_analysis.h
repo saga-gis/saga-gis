@@ -95,11 +95,9 @@ protected:
 
 private:
 
-	bool						m_bWeighted;
+	int							m_Radius, m_NB_Step, m_Normalize;
 
-	int							m_NB_Step;
-
-	CSG_Grid					*m_pClasses, *m_pCount, *m_pDiversity, *m_pSize_Mean, *m_pSize_Skew, *m_pConnectivity;
+	CSG_Grid					*m_pClasses, *m_pCount, *m_pDiversity, *m_pConnectivity, *m_pConnectedAvg;
 
 	CSG_Grid_Cell_Addressor		m_Search;
 
