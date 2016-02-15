@@ -20,6 +20,7 @@ gdal_export.cpp\
 gdal_export_geotiff.cpp\
 gdal_import.cpp\
 gdal_import_netcdf.cpp\
+gdal_import_wms.cpp\
 MLB_Interface.cpp\
 ogr_driver.cpp\
 ogr_export.cpp\
@@ -31,6 +32,7 @@ gdal_export.h\
 gdal_export_geotiff.h\
 gdal_import.h\
 gdal_import_netcdf.h\
+gdal_import_wms.h\
 MLB_Interface.h\
 ogr_driver.h\
 ogr_export.h\

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: gdal_import_wms.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,15 +8,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                     Grid_IO_GDAL                      //
+//                    Module Library                     //
+//                                                       //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   gdal_import_wms.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//            Copyright (C) 2015 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,105 +40,66 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street 7                        //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__gdal_import_wms_H
+#define HEADER_INCLUDED__gdal_import_wms_H
 
+//---------------------------------------------------------
 #include "gdal_driver.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CGDAL_Import_WMS : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("GDAL/OGR") );
+public:
+	CGDAL_Import_WMS(void);
 
-	case MLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2008" ));
-
-	case MLB_INFO_Description:
-		return( CSG_String::Format(SG_T("%s\n%s %s\n%s: %s"),
-			_TL("Interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL)."),
-			_TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str(),
-			_TL("Homepage"), SG_T("<a target=\"_blank\" href=\"http://www.gdal.org/\">www.gdal.org</a>\n")
-		));
-
-	case MLB_INFO_Version:
-		return( SG_T("2.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File") );
-	}
-}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid|Import") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "gdal_import.h"
-#include "gdal_export.h"
-#include "gdal_export_geotiff.h"
-#include "gdal_import_netcdf.h"
-#include "gdal_import_wms.h"
-#include "gdal_catalogue.h"
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-#include "ogr_import.h"
-#include "ogr_export.h"
-#include "ogr_export_kml.h"
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CGDAL_Import );
-	case  1:	return( new CGDAL_Export );
-	case  2:	return( new CGDAL_Export_GeoTIFF );
+	bool						Set_Image				(CSG_Grid *pBands[3]);
 
-	case  7:	return( new CGDAL_Catalogue );
-	case  8:	return( new CGDAL_Catalogues );
+	bool						Get_Projected			(CSG_Grid *pBands[3], CSG_Grid *pTarget);
 
-	case  3:	return( new COGR_Import );
-	case  4:	return( new COGR_Export );
+	bool						Get_Bands				(CSG_Grid *pBands[3], const CSG_Grid_System &System);
 
-	case  5:	return( new COGR_Export_KML );
+	CSG_String					Get_Request				(const CSG_String &Server);
 
-	case  6:	return( SG_Get_GDAL_Drivers().Get_Driver("netCDF") ? new CGDAL_Import_NetCDF : MLB_INTERFACE_SKIP_MODULE );
+	bool						Get_System				(CSG_Grid_System &System, CSG_Grid *pTarget);
 
-	case  9:	return( new CGDAL_Import_WMS );
-
-	//-----------------------------------------------------
-	case 10:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -148,8 +109,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__gdal_import_wms_H

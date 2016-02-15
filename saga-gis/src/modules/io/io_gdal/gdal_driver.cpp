@@ -269,7 +269,7 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_System &System, const CSG_Projection &Projection)
+bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_System &System)
 {
 	Close();
 
@@ -286,20 +286,49 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 		return( false );
 	}
 
-	if( Projection.is_Okay() )
+	m_pDataSet->SetProjection(m_pVrtSource->GetProjectionRef());
+
+	double	Transform[6]	=
 	{
-		m_pDataSet->SetProjection(Projection.Get_Proj4());
+		System.Get_XMin(true), System.Get_Cellsize(), 0.0,
+		System.Get_YMax(true), 0.0, -System.Get_Cellsize()
+	};
+
+	m_pDataSet->SetGeoTransform(Transform);
+
+	//-----------------------------------------------------
+	m_pVrtSource->GetGeoTransform(Transform);
+
+	if( Transform[2] != 0.0 || Transform[4] != 0.0 )
+	{
+		return( false );	// geotransform is rotated, this configuration is not supported...
 	}
 
+	int	xOff	= (int)floor((System.Get_XMin  (true) - Transform[0]) /      Transform[1]  + 0.001);
+	int	yOff	= (int)floor((System.Get_YMax  (true) - Transform[3]) /      Transform[5]  + 0.001);
+	int	xSize	= (int)     ( System.Get_XRange(true)                 /      Transform[1]  + 0.5  );
+	int	ySize	= (int)     ( System.Get_YRange(true)                 / fabs(Transform[5]) + 0.5  );
+
+	//-----------------------------------------------------
 	for(int i=0; i<m_pVrtSource->GetRasterCount(); i++)
 	{
 		GDALRasterBand	*pSrcBand	= m_pVrtSource->GetRasterBand(i + 1);
 
 		m_pDataSet->AddBand(pSrcBand->GetRasterDataType());
 
-		VRTSourcedRasterBand	*pVrtBand	= (VRTSourcedRasterBand *)m_pVrtSource->GetRasterBand(i + 1);
+		VRTSourcedRasterBand	*pVrtBand	= (VRTSourcedRasterBand *)m_pDataSet->GetRasterBand(i + 1);
 
-		pVrtBand->AddSimpleSource(pVrtBand);
+		VRTSimpleSource			*pSrcSimple = new VRTSimpleSource();
+
+	//	pSrcSimple->SetResampling(pszResampling);
+
+		pVrtBand->ConfigureSource(pSrcSimple, pSrcBand, 0,
+			xOff, yOff, xSize, ySize, 0, 0, System.Get_NX(), System.Get_NY()
+		//	0, 0, m_pVrtSource->GetRasterXSize(), m_pVrtSource->GetRasterYSize(), 0, 0, System.Get_NX(), System.Get_NY()
+		);
+
+		pVrtBand->AddSource(pSrcSimple);
+	//	pVrtBand->AddSimpleSource(pSrcBand);
 	}
 
 	//-----------------------------------------------------
