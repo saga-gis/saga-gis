@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: wksp_map_basemap.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      VIEW_Map.h                       //
+//                 wksp_map_basemap.h                  //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//          Copyright (C) 2014 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -42,9 +42,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Map_H
-#define _HEADER_INCLUDED__SAGA_GUI__VIEW_Map_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_map_basemap_H
+#define _HEADER_INCLUDED__SAGA_GUI__wksp_map_basemap_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "view_base.h"
+#include "wksp_base_item.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,72 +80,43 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVIEW_Map : public CVIEW_Base
+class CWKSP_Map_BaseMap : public CWKSP_Base_Item
 {
 public:
-	CVIEW_Map(class CWKSP_Map *pMap, int Frame_Width);
+	CWKSP_Map_BaseMap(CSG_MetaData *pEntry = NULL);
+	virtual ~CWKSP_Map_BaseMap(void);
 
-	static class wxToolBarBase *	_Create_ToolBar				(void);
-	static class wxMenu *			_Create_Menu				(void);
+	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Map_BaseMap );	}
 
-	virtual void					Do_Update					(void);
+	virtual wxString			Get_Name				(void);
+	virtual wxString			Get_Description			(void);
 
-	class CVIEW_Map_Control *		Get_Map_Control				(void)	{	return( m_pControl );	}
+	virtual wxMenu *			Get_Menu				(void);
 
-	void							Ruler_Set_Width				(int Width);
-	void							Ruler_Set_Position			(int x, int y);
-	void							Ruler_Refresh				(void);
+	virtual bool				On_Command				(int Cmd_ID);
+	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
+	virtual void				Parameters_Changed		(void);
+
+	bool						do_Show					(void)	{	return( m_bShow );	}
+
+	class CWKSP_Map *			Get_Map					(void)	{	return( (class CWKSP_Map *)Get_Manager() );	}
+
+	bool						Draw					(class CWKSP_Map_DC &dc);
+
+	bool						Load					(CSG_MetaData &Entry);
+	bool						Save					(CSG_MetaData &Entry);
 
 
 private:
 
-	int								m_Ruler_Size;
+	bool						m_bShow;
 
-	class CWKSP_Map					*m_pMap;
-
-	class CVIEW_Map_Control			*m_pControl;
-
-	class CVIEW_Ruler				*m_pRuler_X1, *m_pRuler_X2, *m_pRuler_Y1, *m_pRuler_Y2;
+	CSG_Grid					m_BaseMap;
 
 
-	void							_Set_Positions				(void);
-
-	void							On_Paint					(wxPaintEvent    &event);
-	void							On_Size						(wxSizeEvent     &event);
-	void							On_Key_Down					(wxKeyEvent      &event);
-
-	virtual void					On_Command_UI				(wxUpdateUIEvent &event);
-
-	void							On_Map_3D_Show				(wxCommandEvent  &event);
-	void							On_Map_Layout_Show			(wxCommandEvent  &event);
-	void							On_Map_Save_Image			(wxCommandEvent  &event);
-	void							On_Map_Save_Image_On_Change	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_To_KMZ	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_To_Memory	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_Clipboard	(wxCommandEvent  &event);
-	void							On_Map_Save_Image_ClipboardL(wxCommandEvent  &event);
-
-	void							On_Map_Zoom_Full			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Back			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Forward			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Layer			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Selection		(wxCommandEvent  &event);
-	void							On_Map_Zoom_Extent			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Synchronize		(wxCommandEvent  &event);
-	void							On_Map_ScaleBar				(wxCommandEvent  &event);
-	void							On_Map_North_Arrow			(wxCommandEvent  &event);
-	void							On_Map_Graticule			(wxCommandEvent  &event);
-	void							On_Map_BaseMap				(wxCommandEvent  &event);
-
-	void							On_Map_Mode_Zoom			(wxCommandEvent  &event);
-	void							On_Map_Mode_Pan				(wxCommandEvent  &event);
-	void							On_Map_Mode_Select			(wxCommandEvent  &event);
-	void							On_Map_Mode_Distance		(wxCommandEvent  &event);
-
-
-	//-----------------------------------------------------
-	DECLARE_CLASS(CVIEW_Map)
-	DECLARE_EVENT_TABLE()
+	bool						Set_BaseMap				(const CSG_Grid_System &System);
 
 };
 
@@ -159,4 +128,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Map_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_map_basemap_H

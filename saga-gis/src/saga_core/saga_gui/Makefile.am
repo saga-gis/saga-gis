@@ -94,6 +94,7 @@ wksp_layer.cpp\
 wksp_layer_classify.cpp\
 wksp_layer_legend.cpp\
 wksp_map.cpp\
+wksp_map_basemap.cpp\
 wksp_map_buttons.cpp\
 wksp_map_control.cpp\
 wksp_map_dc.cpp\
@@ -193,6 +194,7 @@ wksp_layer.h\
 wksp_layer_classify.h\
 wksp_layer_legend.h\
 wksp_map.h\
+wksp_map_basemap.h\
 wksp_map_buttons.h\
 wksp_map_control.h\
 wksp_map_dc.h\

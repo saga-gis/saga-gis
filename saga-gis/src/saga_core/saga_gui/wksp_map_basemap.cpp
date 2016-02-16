@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: wksp_map_graticule.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: wksp_map_basemap.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                wksp_map_graticule.cpp                 //
+//                  wksp_map_basemap.cpp                 //
 //                                                       //
-//          Copyright (C) 2014 by Olaf Conrad            //
+//          Copyright (C) 2016 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -69,7 +69,7 @@
 #include "res_commands.h"
 
 #include "wksp_map.h"
-#include "wksp_map_graticule.h"
+#include "wksp_map_basemap.h"
 #include "wksp_map_dc.h"
 
 
@@ -80,15 +80,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
+CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 {
 	m_bShow		= true;
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode, *pNode_1;
 
-	m_Parameters.Set_Name      ("GRATICULE");
-	m_Parameters.Set_Identifier("GRATICULE");
+	m_Parameters.Set_Name      ("BASEMAP");
+	m_Parameters.Set_Identifier("BASEMAP");
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL"	,_TL("General")	, _TL(""));
@@ -96,34 +96,16 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 	m_Parameters.Add_String(
 		pNode	, "NAME"		, _TL("Name"),
 		_TL(""),
-		_TL("Graticule")
+		_TL("Base Map")
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "INTERVAL"	, _TL("Interval"),
+	m_Parameters.Add_Choice(
+		pNode	, "SERVER"		, _TL("Server"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("fixed interval"),
-			_TL("fitted interval")
-		), 1
-	);
-
-	m_Parameters.Add_Value(
-		pNode_1	, "FIXED"		, _TL("Fixed Interval (Degree)"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 20.0
-	);
-
-	m_Parameters.Add_Value(
-		pNode_1	, "FITTED"		, _TL("Number of Intervals"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 5, 1, true
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "RESOLUTION"	, _TL("Minimum Resolution (Degree)"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.5, 0.0, true
+		CSG_String::Format("%s|%s|",
+			_TL("Open Street Map"),
+			_TL("MapQuest")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -143,83 +125,9 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_DISPLAY"	,_TL("Display")	, _TL(""));
 
 	m_Parameters.Add_Value(
-		pNode	, "COLOR"		, _TL("Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color, SG_COLOR_GREY
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "SIZE"		, _TL("Size"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
-	);
-
-	m_Parameters.Add_Value(
 		pNode	, "TRANSPARENCY", _TL("Transparency [%]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
-	);
-
-	m_Parameters.Add_Choice(
-		pNode	, "LINE_STYLE"	, _TL("Line Style"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("Solid style"),
-			_TL("Dotted style"),
-			_TL("Long dashed style"),
-			_TL("Short dashed style"), 
-			_TL("Dot and dash style"),
-			_TL("Backward diagonal hatch"),
-			_TL("Cross-diagonal hatch"),
-			_TL("Forward diagonal hatch"),
-			_TL("Cross hatch"),
-			_TL("Horizontal hatch"),
-			_TL("Vertical hatch")
-		//	_TL("Use the stipple bitmap")
-		//	_TL("Use the user dashes")
-		//	_TL("No pen is used")
-		), 4
-	);
-
-	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "LABEL"		, _TL("Label"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	m_Parameters.Add_Font(
-		pNode_1	, "LABEL_FONT"	, _TL("Font"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Value(
-		pNode_1	, "LABEL_SIZE"	, _TL("Size"),
-		_TL("Font size given as percentage of map size."),
-		PARAMETER_TYPE_Double, 2, 0.0, true, 10.0, true
-	);
-
-	m_Parameters.Add_Choice(
-		pNode_1	, "LABEL_EFFECT", _TL("Boundary Effect"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("none"),
-			_TL("full frame"),
-			_TL("top"),
-			_TL("top left"),
-			_TL("left"),
-			_TL("bottom left"),
-			_TL("bottom"),
-			_TL("bottom right"),
-			_TL("right"),
-			_TL("top right")
-		), 1
-	);
-
-	m_Parameters.Add_Value(
-		pNode_1	, "LABEL_EFFCOL", _TL("Boundary Effect Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
 	);
 
 	//-----------------------------------------------------
@@ -230,7 +138,7 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 }
 
 //---------------------------------------------------------
-CWKSP_Map_Graticule::~CWKSP_Map_Graticule(void)
+CWKSP_Map_BaseMap::~CWKSP_Map_BaseMap(void)
 {}
 
 
@@ -241,15 +149,15 @@ CWKSP_Map_Graticule::~CWKSP_Map_Graticule(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_Graticule::Load(CSG_MetaData &Entry)
+bool CWKSP_Map_BaseMap::Load(CSG_MetaData &Entry)
 {
 	return( m_Parameters.Serialize(Entry, false) );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map_Graticule::Save(CSG_MetaData &Entry)
+bool CWKSP_Map_BaseMap::Save(CSG_MetaData &Entry)
 {
-	return( m_Parameters.Serialize(*Entry.Add_Child("GRATICULE"), true) );
+	return( m_Parameters.Serialize(*Entry.Add_Child("BASEMAP"), true) );
 }
 
 
@@ -260,7 +168,7 @@ bool CWKSP_Map_Graticule::Save(CSG_MetaData &Entry)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Map_Graticule::Get_Name(void)
+wxString CWKSP_Map_BaseMap::Get_Name(void)
 {
 	wxString	Name(m_Parameters("NAME")->asString());
 
@@ -273,12 +181,12 @@ wxString CWKSP_Map_Graticule::Get_Name(void)
 }
 
 //---------------------------------------------------------
-wxString CWKSP_Map_Graticule::Get_Description(void)
+wxString CWKSP_Map_BaseMap::Get_Description(void)
 {
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Graticule"));
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Base Map"));
 
 	s	+= "<table border=\"0\">";
 
@@ -292,7 +200,7 @@ wxString CWKSP_Map_Graticule::Get_Description(void)
 }
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Map_Graticule::Get_Menu(void)
+wxMenu * CWKSP_Map_BaseMap::Get_Menu(void)
 {
 	wxMenu	*pMenu	= new wxMenu(m_Parameters("NAME")->asString());
 
@@ -315,7 +223,7 @@ wxMenu * CWKSP_Map_Graticule::Get_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_Graticule::On_Command(int Cmd_ID)
+bool CWKSP_Map_BaseMap::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
@@ -354,7 +262,7 @@ bool CWKSP_Map_Graticule::On_Command(int Cmd_ID)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map_Graticule::On_Command_UI(wxUpdateUIEvent &event)
+bool CWKSP_Map_BaseMap::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
@@ -387,27 +295,13 @@ bool CWKSP_Map_Graticule::On_Command_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Map_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
+int CWKSP_Map_BaseMap::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INTERVAL") )
 		{
-			pParameters->Set_Enabled("FIXED"       , pParameter->asInt() == 0);
-			pParameters->Set_Enabled("FITTED"      , pParameter->asInt() == 1);
-		}
-
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_ALWAYS") )
-		{
-			pParameters->Set_Enabled("SHOW_RANGE"  , pParameter->asBool() == false);
-		}
-
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL") )
-		{
-			pParameters->Set_Enabled("LABEL_FONT"  , pParameter->asBool());
-			pParameters->Set_Enabled("LABEL_SIZE"  , pParameter->asBool());
-			pParameters->Set_Enabled("LABEL_EFFECT", pParameter->asBool());
-			pParameters->Set_Enabled("LABEL_EFFCOL", pParameter->asBool());
+			pParameters->Set_Enabled("FIXED", pParameter->asInt() == 0);
 		}
 	}
 
@@ -415,9 +309,11 @@ int CWKSP_Map_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 }
 
 //---------------------------------------------------------
-void CWKSP_Map_Graticule::Parameters_Changed(void)
+void CWKSP_Map_BaseMap::Parameters_Changed(void)
 {
 	CWKSP_Base_Item::Parameters_Changed();
+
+	m_BaseMap.Destroy();	// forcing a base map refresh
 
 	Get_Map()->View_Refresh(true);
 }
@@ -430,36 +326,31 @@ void CWKSP_Map_Graticule::Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
+bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 {
-	bool	bResult	= false;
+	m_BaseMap.Destroy();
 
-	m_Graticule  .Create(SHAPE_TYPE_Line );
-	m_Coordinates.Create(SHAPE_TYPE_Point);
-
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 14);
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("io_gdal", 9);
 
 	if(	pModule && Get_Map()->Get_Projection().is_Okay() )
 	{
 		SG_UI_Msg_Lock     (true);
 		SG_UI_Progress_Lock(true);
 
+		m_BaseMap.Create(System, SG_DATATYPE_Int);
+		m_BaseMap.Get_Projection()	= Get_Map()->Get_Projection();
+
 		pModule->Settings_Push();
 
-		if( pModule->Set_Parameter("XMIN"      , Extent.Get_XMin())
-		&&  pModule->Set_Parameter("XMAX"      , Extent.Get_XMax())
-		&&  pModule->Set_Parameter("YMIN"      , Extent.Get_YMin())
-		&&  pModule->Set_Parameter("YMAX"      , Extent.Get_YMax())
-		&&  pModule->Set_Parameter("INTERVAL"  , m_Parameters("INTERVAL"))
-		&&  pModule->Set_Parameter("FIXED"     , m_Parameters("FIXED"))
-		&&  pModule->Set_Parameter("FITTED"    , m_Parameters("FITTED"))
-		&&  pModule->Set_Parameter("RESOLUTION", m_Parameters("RESOLUTION"))
-		&&  pModule->Set_Parameter("GRATICULE" , &m_Graticule)
-		&&  pModule->Set_Parameter("COORDS"    , &m_Coordinates)
-		&&  pModule->Set_Parameter("CRS_PROJ4" , Get_Map()->Get_Projection().Get_Proj4())
+		if( pModule->Set_Parameter("TARGET"    , &m_BaseMap)
+		&&  pModule->Set_Parameter("TARGET_MAP", &m_BaseMap)
+		&&  pModule->Set_Parameter("SERVER"    , m_Parameters("SERVER"))
 		&&  pModule->On_Before_Execution() && pModule->Execute() )
 		{
-			bResult	= true;
+		}
+		else
+		{
+			m_BaseMap.Destroy();
 		}
 
 		pModule->Settings_Pop();
@@ -468,7 +359,7 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 		SG_UI_Progress_Lock(false);
 	}
 
-	return( bResult );
+	return( m_BaseMap.is_Valid() );
 }
 
 
@@ -479,13 +370,8 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
+bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
 {
-	if( !Get_Graticule(dc_Map.m_rWorld) || m_Graticule.Get_Count() <= 0 )
-	{
-		return( false );
-	}
-
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{
 		CSG_Parameter_Range	*pRange	= m_Parameters("SHOW_RANGE")->asRange();
@@ -498,114 +384,26 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	CWKSP_Map_DC	*pDC	= m_Parameters("TRANSPARENCY")->asDouble() > 0.0 ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(255, 255, 255)) : NULL;
-	CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
+	CSG_Grid_System	System(dc_Map.m_DC2World, dc_Map.m_rWorld.Get_XMin(), dc_Map.m_rWorld.Get_YMin(), dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
 
-	//-----------------------------------------------------
-	wxPen	Pen(m_Parameters("COLOR")->asColor(), m_Parameters("SIZE")->asInt());
-
-	switch( m_Parameters("LINE_STYLE")->asInt() )
+	if( !System.is_Equal(m_BaseMap.Get_System()) && !Set_BaseMap(System) )
 	{
-	default:
-	case  0:	Pen.SetStyle(wxSOLID           );	break; // Solid style.
-	case  1:	Pen.SetStyle(wxDOT             );	break; // Dotted style.
-	case  2:	Pen.SetStyle(wxLONG_DASH       );	break; // Long dashed style.
-	case  3:	Pen.SetStyle(wxSHORT_DASH      );	break; // Short dashed style.
-	case  4:	Pen.SetStyle(wxDOT_DASH        );	break; // Dot and dash style.
-	case  5:	Pen.SetStyle(wxBDIAGONAL_HATCH );	break; // Backward diagonal hatch.
-	case  6:	Pen.SetStyle(wxCROSSDIAG_HATCH );	break; // Cross-diagonal hatch.
-	case  7:	Pen.SetStyle(wxFDIAGONAL_HATCH );	break; // Forward diagonal hatch.
-	case  8:	Pen.SetStyle(wxCROSS_HATCH     );	break; // Cross hatch.
-	case  9:	Pen.SetStyle(wxHORIZONTAL_HATCH);	break; // Horizontal hatch.
-	case 10:	Pen.SetStyle(wxVERTICAL_HATCH  );	break; // Vertical hatch.
-//	case 11:	Pen.SetStyle(wxSTIPPLE         );	break; // Use the stipple bitmap. 
-//	case 12:	Pen.SetStyle(wxUSER_DASH       );	break; // Use the user dashes: see wxPen::SetDashes.
-//	case 13:	Pen.SetStyle(wxTRANSPARENT     );	break; // No pen is used.
+		return( false );
 	}
 
-	dc.dc.SetPen(Pen);
-
 	//-----------------------------------------------------
-	for(int iLine=0; iLine<m_Graticule.Get_Count(); iLine++)
+	if( dc_Map.IMG_Draw_Begin(m_Parameters("TRANSPARENCY")->asDouble()) )
 	{
-		CSG_Shape	*pLine	= m_Graticule.Get_Shape(iLine);
-
-		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		#pragma omp parallel for
+		for(int y=0; y<m_BaseMap.Get_NY(); y++)	for(int x=0, yy=m_BaseMap.Get_NY()-y-1; x<m_BaseMap.Get_NX(); x++)
 		{
-			if( pLine->Get_Point_Count(iPart) > 1 )
-			{
-				TSG_Point_Int	B, A	= dc.World2DC(pLine->Get_Point(0, iPart));
-
-				for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
-				{
-					B		= A;
-					A		= dc.World2DC(pLine->Get_Point(iPoint, iPart));
-
-					dc.dc.DrawLine(A.x, A.y, B.x, B.y);
-				}
-			}
+			dc_Map.IMG_Set_Pixel(x, y, m_BaseMap.asInt(x, yy));
 		}
+
+		dc_Map.IMG_Draw_End();
 	}
 
 	//-----------------------------------------------------
-	if( m_Parameters("LABEL")->asBool() )
-	{
-		int	Size	= (int)(0.5 + 0.01 * m_Parameters("LABEL_SIZE")->asDouble()
-		*	( dc.m_rDC.GetWidth() < dc.m_rDC.GetHeight()
-			? dc.m_rDC.GetWidth() : dc.m_rDC.GetHeight() )
-		);
-
-		if( Size > 2 )
-		{
-			int			Effect;
-			wxColour	Effect_Color	= Get_Color_asWX(m_Parameters("LABEL_EFFCOL")->asInt());
-			wxFont		Font	= Get_Font(m_Parameters("LABEL_FONT"));
-
-			Font.SetPointSize(Size);
-
-			dc.dc.SetFont(Font);
-			dc.dc.SetTextForeground(m_Parameters("LABEL_FONT")->asColor());
-
-			switch( m_Parameters("LABEL_EFFECT")->asInt() )
-			{
-			default:	Effect	= TEXTEFFECT_NONE;			break;
-			case 1:		Effect	= TEXTEFFECT_FRAME;			break;
-			case 2:		Effect	= TEXTEFFECT_TOP;			break;
-			case 3:		Effect	= TEXTEFFECT_TOPLEFT;		break;
-			case 4:		Effect	= TEXTEFFECT_LEFT;			break;
-			case 5:		Effect	= TEXTEFFECT_BOTTOMLEFT;	break;
-			case 6:		Effect	= TEXTEFFECT_BOTTOM;		break;
-			case 7:		Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
-			case 8:		Effect	= TEXTEFFECT_RIGHT;			break;
-			case 9:		Effect	= TEXTEFFECT_TOPRIGHT;		break;
-			}
-
-			for(int iPoint=0; iPoint<m_Coordinates.Get_Count(); iPoint++)
-			{
-				CSG_Shape	*pPoint	= m_Coordinates.Get_Shape(iPoint);
-
-				TSG_Point_Int	p(dc.World2DC(pPoint->Get_Point(0)));
-				wxString		Type(pPoint->asString(0));
-
-				int	Align	= !Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT
-							: !Type.Cmp("LAT_MAX") ? TEXTALIGN_CENTERRIGHT
-							: !Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER
-							: !Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER
-							: TEXTALIGN_CENTER;
-
-				Draw_Text(dc.dc, Align, p.x, p.y, 0.0, pPoint->asString(1), Effect, Effect_Color);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( pDC )
-	{
-		dc_Map.Draw_DC(dc, m_Parameters("TRANSPARENCY")->asDouble() / 100.0);
-
-		delete(pDC);
-	}
-
 	return( true );
 }
 

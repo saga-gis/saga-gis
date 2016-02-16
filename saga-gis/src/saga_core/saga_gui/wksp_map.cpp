@@ -81,6 +81,7 @@
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
 #include "wksp_map_graticule.h"
+#include "wksp_map_basemap.h"
 #include "wksp_map_buttons.h"
 
 #include "wksp_layer_legend.h"
@@ -259,8 +260,11 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYOUT_SHOW);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SCALEBAR);
+//	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_NORTH_ARROW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_GRATICULE_ADD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_BASEMAP_ADD);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SYNCHRONIZE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_PROJECTION);
 	pMenu->AppendSeparator();
@@ -319,6 +323,10 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 		Add_Graticule();
 		break;
 
+	case ID_CMD_MAPS_BASEMAP_ADD:
+		Add_BaseMap();
+		break;
+
 	case ID_CMD_MAPS_PROJECTION:
 		Set_Projection();
 		break;
@@ -368,6 +376,7 @@ bool CWKSP_Map::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_MAPS_GRATICULE_ADD:
+	case ID_CMD_MAPS_BASEMAP_ADD:
 		event.Enable(Get_Count() > 0 && m_Projection.is_Okay());
 		break;
 	}
@@ -806,6 +815,27 @@ CWKSP_Map_Graticule * CWKSP_Map::Add_Graticule(CSG_MetaData *pEntry)
 }
 
 //---------------------------------------------------------
+class CWKSP_Map_BaseMap * CWKSP_Map::Add_BaseMap(CSG_MetaData *pEntry)
+{
+	CWKSP_Map_BaseMap	*pItem;
+
+	if( (Get_Count() > 0 && m_Projection.is_Okay()) || pEntry )
+	{
+		g_pMaps->Add(this);
+
+		Add_Item(pItem = new CWKSP_Map_BaseMap(pEntry));
+
+		Move_Top(pItem);
+
+		View_Refresh(true);
+
+		return( pItem );
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Map::Add_Copy(CWKSP_Base_Item *pItem)
 {
 	if( pItem )
@@ -817,11 +847,20 @@ CWKSP_Base_Item * CWKSP_Map::Add_Copy(CWKSP_Base_Item *pItem)
 
 		if( pItem->Get_Type() == WKSP_ITEM_Map_Graticule )
 		{
-			CWKSP_Map_Graticule	*pGraticule	= Add_Graticule();
+			CWKSP_Map_Graticule	*pItem	= Add_Graticule();
 
-			pGraticule->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
+			pItem->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
 
-			return( pGraticule );
+			return( pItem );
+		}
+
+		if( pItem->Get_Type() == WKSP_ITEM_Map_BaseMap )
+		{
+			CWKSP_Map_BaseMap	*pItem	= Add_BaseMap();
+
+			pItem->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
+
+			return( pItem );
 		}
 	}
 
@@ -1768,6 +1807,17 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 		case WKSP_ITEM_Map_Graticule:
 			{
 				CWKSP_Map_Graticule	*pLayer	= (CWKSP_Map_Graticule *)Get_Item(i);
+
+				if( pLayer->do_Show() )//&& pLayer->Get_Graticule(Get_Extent()) )
+				{
+					pLayer->Draw(dc_Map);
+				}
+			}
+			break;
+
+		case WKSP_ITEM_Map_BaseMap:
+			{
+				CWKSP_Map_BaseMap	*pLayer	= (CWKSP_Map_BaseMap *)Get_Item(i);
 
 				if( pLayer->do_Show() )//&& pLayer->Get_Graticule(Get_Extent()) )
 				{

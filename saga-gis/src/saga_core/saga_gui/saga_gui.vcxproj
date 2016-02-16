@@ -1012,6 +1012,7 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="wksp_map_basemap.cpp" />
     <ClCompile Include="wksp_map_buttons.cpp" />
     <ClCompile Include="wksp_map_control.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1302,6 +1303,7 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
     <ClInclude Include="WKSP_Layer_Classify.h" />
     <ClInclude Include="WKSP_Layer_Legend.h" />
     <ClInclude Include="WKSP_Map.h" />
+    <ClInclude Include="wksp_map_basemap.h" />
     <ClInclude Include="wksp_map_buttons.h" />
     <ClInclude Include="WKSP_Map_Control.h" />
     <ClInclude Include="WKSP_Map_DC.h" />

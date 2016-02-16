@@ -227,6 +227,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SCALEBAR:					return( _TL("Scale Bar") );
 	case ID_CMD_MAPS_PROJECTION:				return( _TL("Spatial Reference") );
 	case ID_CMD_MAPS_GRATICULE_ADD:				return( _TL("Add Graticule") );
+	case ID_CMD_MAPS_BASEMAP_ADD:				return( _TL("Add Base Map") );
 	case ID_CMD_MAPS_LAYER_SHOW:				return( _TL("Show Layer") );
 	case ID_CMD_MAPS_MOVE_TOP:					return( _TL("Move To Top") );
 	case ID_CMD_MAPS_MOVE_BOTTOM:				return( _TL("Move To Bottom") );
@@ -243,6 +244,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP_LAYOUT_SHOW:				return( CMD_Get_Name(ID_CMD_MAPS_LAYOUT_SHOW) );
 	case ID_CMD_MAP_SCALEBAR:					return( CMD_Get_Name(ID_CMD_MAPS_SCALEBAR) );
 	case ID_CMD_MAP_GRATICULE_ADD:				return( CMD_Get_Name(ID_CMD_MAPS_GRATICULE_ADD) );
+	case ID_CMD_MAP_BASEMAP_ADD:				return( CMD_Get_Name(ID_CMD_MAPS_BASEMAP_ADD) );
 	case ID_CMD_MAP_SAVE_IMAGE:					return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE) );
 	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:		return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE) );
 	case ID_CMD_MAP_SYNCHRONIZE:				return( CMD_Get_Name(ID_CMD_MAPS_SYNCHRONIZE) );
@@ -386,6 +388,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAP_SYNCHRONIZE:		return( ID_IMG_TB_MAP_SYNCHRONIZE );
 	case ID_CMD_MAP_SCALEBAR:			return( ID_IMG_TB_MAP_SCALEBAR );
 	case ID_CMD_MAP_GRATICULE_ADD:				break;
+	case ID_CMD_MAP_BASEMAP_ADD:				break;
 	case ID_CMD_MAP_LEGEND_VERTICAL:	return( ID_IMG_TB_MAP_LEGEND_VERTICAL );
 	case ID_CMD_MAP_LEGEND_HORIZONTAL:	return( ID_IMG_TB_MAP_LEGEND_HORIZONTAL );
 

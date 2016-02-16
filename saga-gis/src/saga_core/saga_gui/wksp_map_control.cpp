@@ -92,6 +92,7 @@ enum
 	IMG_MAP_MANAGER		= 1,
 	IMG_MAP,
 	IMG_MAP_GRATICULE,
+	IMG_MAP_BASEMAP,
 	IMG_SHAPES_POINT,
 	IMG_SHAPES_POINTS,
 	IMG_SHAPES_LINE,
@@ -144,6 +145,7 @@ CWKSP_Map_Control::CWKSP_Map_Control(wxWindow *pParent)
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MAP_MANAGER);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MAP);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MAP_GRATICULE);
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MAP_BASEMAP);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINT);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POINTS);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_LINE);
@@ -176,8 +178,8 @@ int CWKSP_Map_Control::OnCompareItems(const wxTreeItemId &item1, const wxTreeIte
 {
 	CWKSP_Base_Item	*p1, *p2;
 
-	if(	(p1 = (CWKSP_Base_Item *)GetItemData(item1)) != NULL && (p1->Get_Type() == WKSP_ITEM_Map_Layer || p1->Get_Type() == WKSP_ITEM_Map_Graticule)
-	&&	(p2 = (CWKSP_Base_Item *)GetItemData(item2)) != NULL && (p2->Get_Type() == WKSP_ITEM_Map_Layer || p2->Get_Type() == WKSP_ITEM_Map_Graticule) )
+	if(	(p1 = (CWKSP_Base_Item *)GetItemData(item1)) != NULL && (p1->Get_Type() == WKSP_ITEM_Map_Layer || p1->Get_Type() == WKSP_ITEM_Map_Graticule || p1->Get_Type() == WKSP_ITEM_Map_BaseMap)
+	&&	(p2 = (CWKSP_Base_Item *)GetItemData(item2)) != NULL && (p2->Get_Type() == WKSP_ITEM_Map_Layer || p2->Get_Type() == WKSP_ITEM_Map_Graticule || p2->Get_Type() == WKSP_ITEM_Map_BaseMap) )
 	{
 		return( p1->Get_Index() - p2->Get_Index() );
 	}
@@ -200,6 +202,11 @@ inline int CWKSP_Map_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 		if( pItem->Get_Type() == WKSP_ITEM_Map_Graticule )
 		{
 			return( IMG_MAP_GRATICULE );
+		}
+
+		if( pItem->Get_Type() == WKSP_ITEM_Map_BaseMap )
+		{
+			return( IMG_MAP_BASEMAP );
 		}
 
 		if( pItem->Get_Type() == WKSP_ITEM_Map_Layer )
@@ -288,7 +295,10 @@ void CWKSP_Map_Control::On_Drag_Begin(wxTreeEvent &event)
 {
 	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)GetItemData(event.GetItem());
 
-	if( pItem && (pItem->Get_Type() == WKSP_ITEM_Map_Layer || pItem->Get_Type() == WKSP_ITEM_Map_Graticule) )
+	if( pItem
+	&& (pItem->Get_Type() == WKSP_ITEM_Map_Layer
+	 || pItem->Get_Type() == WKSP_ITEM_Map_Graticule
+	 || pItem->Get_Type() == WKSP_ITEM_Map_BaseMap) )
 	{
 		m_draggedItem	= event.GetItem();
 
@@ -300,8 +310,9 @@ void CWKSP_Map_Control::On_Drag_Begin(wxTreeEvent &event)
 void CWKSP_Map_Control::On_Drag_End(wxTreeEvent &event)
 {
 	if( event.GetItem().IsOk()
-	&& (  ((CWKSP_Base_Item *)GetItemData(m_draggedItem))->Get_Type() == WKSP_ITEM_Map_Layer
-	   || ((CWKSP_Base_Item *)GetItemData(m_draggedItem))->Get_Type() == WKSP_ITEM_Map_Graticule ) )
+	&& (((CWKSP_Base_Item *)GetItemData(m_draggedItem))->Get_Type() == WKSP_ITEM_Map_Layer
+	 || ((CWKSP_Base_Item *)GetItemData(m_draggedItem))->Get_Type() == WKSP_ITEM_Map_Graticule
+	 || ((CWKSP_Base_Item *)GetItemData(m_draggedItem))->Get_Type() == WKSP_ITEM_Map_BaseMap ) )
 	{
 		CWKSP_Map		*pDst_Map, *pSrc_Map;
 		CWKSP_Base_Item	*pSrc, *pDst, *pCpy;
@@ -323,6 +334,7 @@ void CWKSP_Map_Control::On_Drag_End(wxTreeEvent &event)
 
 		case WKSP_ITEM_Map_Layer:
 		case WKSP_ITEM_Map_Graticule:
+		case WKSP_ITEM_Map_BaseMap:
 			pDst_Map	= (CWKSP_Map *)pDst->Get_Manager();
 			break;
 		}

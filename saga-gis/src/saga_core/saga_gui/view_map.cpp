@@ -99,6 +99,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_SCALEBAR					, CVIEW_Map::On_Map_ScaleBar)
 	EVT_MENU			(ID_CMD_MAP_NORTH_ARROW					, CVIEW_Map::On_Map_North_Arrow)
 	EVT_MENU			(ID_CMD_MAP_GRATICULE_ADD				, CVIEW_Map::On_Map_Graticule)
+	EVT_MENU			(ID_CMD_MAP_BASEMAP_ADD					, CVIEW_Map::On_Map_BaseMap)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE					, CVIEW_Map::On_Map_Save_Image)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE		, CVIEW_Map::On_Map_Save_Image_On_Change)
 	EVT_MENU			(ID_CMD_MAPS_SAVE_IMAGE_TO_KMZ			, CVIEW_Map::On_Map_Save_Image_To_KMZ)
@@ -165,9 +166,11 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 //	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_3D_SHOW);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_LAYOUT_SHOW);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SCALEBAR);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_NORTH_ARROW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_GRATICULE_ADD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_BASEMAP_ADD);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
@@ -450,6 +453,7 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_MAP_GRATICULE_ADD:
+	case ID_CMD_MAP_BASEMAP_ADD:
 		event.Enable(m_pMap->Get_Count() > 0 && m_pMap->Get_Projection().is_Okay());
 		break;
 	}
@@ -569,6 +573,12 @@ void CVIEW_Map::On_Map_North_Arrow(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Graticule(wxCommandEvent &event)
 {
 	m_pMap->Add_Graticule();
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_BaseMap(wxCommandEvent &event)
+{
+	m_pMap->Add_BaseMap();
 }
 
 //---------------------------------------------------------

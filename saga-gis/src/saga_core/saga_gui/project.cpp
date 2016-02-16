@@ -95,6 +95,7 @@
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
 #include "wksp_map_graticule.h"
+#include "wksp_map_basemap.h"
 #include "wksp_layer.h"
 
 #include "data_source_pgsql.h"
@@ -920,6 +921,11 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Graticule )
 		{
 			((CWKSP_Map_Graticule *)pMap->Get_Item(i))->Save(*pEntry);
+		}
+
+		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_BaseMap )
+		{
+			((CWKSP_Map_BaseMap *)pMap->Get_Item(i))->Save(*pEntry);
 		}
 	}
 
