@@ -65,6 +65,8 @@
 
 #include "res_commands.h"
 
+#include "helper.h"
+
 #include "wksp_data_manager.h"
 
 #include "wksp_map_manager.h"
@@ -102,7 +104,15 @@ wxString CWKSP_Grid_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><br>%d %s"), _TL("Grids"), Get_Count(), Get_Count() == 1 ? _TL("grid system") : _TL("grid systems"));
+	//-----------------------------------------------------
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Grids"));
+
+	s	+= "<table border=\"0\">";
+
+	DESC_ADD_INT(_TL("Grid Systems"), Get_Count      ());
+	DESC_ADD_INT(_TL("Grids"       ), Get_Items_Count());
+
+	s	+= wxT("</table>");
 
 	return( s );
 }

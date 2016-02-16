@@ -65,6 +65,8 @@
 
 #include "res_commands.h"
 
+#include "helper.h"
+
 #include "wksp_shapes_type.h"
 
 #include "wksp_shapes_point.h"
@@ -104,7 +106,14 @@ wxString CWKSP_Shapes_Type::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s:</b>%d<br>"), Get_Name().c_str(), Get_Count());
+	//-----------------------------------------------------
+	s	+= wxString::Format("<h4>%s</h4>", Get_Name().c_str());
+
+	s	+= "<table border=\"0\">";
+
+	DESC_ADD_INT(Get_Name().c_str(), Get_Count());
+
+	s	+= wxT("</table>");
 
 	return( s );
 }

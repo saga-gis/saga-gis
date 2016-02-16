@@ -65,6 +65,8 @@
 
 #include "res_commands.h"
 
+#include "helper.h"
+
 #include "wksp_data_manager.h"
 
 #include "wksp_map_manager.h"
@@ -102,12 +104,19 @@ wxString CWKSP_Shapes_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><br>"), _TL("Shapes"));
+	//-----------------------------------------------------
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Shapes"));
+
+	s	+= "<table border=\"0\">";
+
+	DESC_ADD_INT(_TL("Shape Layers"), Get_Items_Count());
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		s.Append(wxString::Format(wxT("%s: %d<br>"), Get_Item(i)->Get_Name().c_str(), ((CWKSP_Base_Manager *)Get_Item(i))->Get_Count()));
+		DESC_ADD_INT(Get_Item(i)->Get_Name().c_str(), ((CWKSP_Base_Manager *)Get_Item(i))->Get_Count());
 	}
+
+	s	+= wxT("</table>");
 
 	return( s );
 }
