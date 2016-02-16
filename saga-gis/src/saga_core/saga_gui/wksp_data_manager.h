@@ -103,6 +103,7 @@ public:
 	virtual bool					On_Command			(int Cmd_ID);
 	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
 
+	virtual CSG_Parameters *		Get_Parameters		(void);
 	virtual void					Parameters_Changed	(void);
 
 	CWKSP_Base_Manager *			Get_Manager			(TSG_Data_Object_Type Type, bool bAdd = false);
@@ -144,10 +145,16 @@ public:
 
 	int								Get_Numbering		(void)	const	{	return( m_Numbering );	}
 
+	bool							Sel_Update			(void);
+
 
 private:
 
 	int								m_Numbering;
+
+	wxArrayTreeItemIds				m_Sel_Items;
+
+	CSG_Parameters					m_Sel_Parms;
 
 	class CWKSP_Project				*m_pProject;
 

@@ -151,7 +151,6 @@ CWKSP_Base_Control::CWKSP_Base_Control(wxWindow *pParent, wxWindowID id)
 	: wxTreeCtrl(pParent, id, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
 	m_pManager	= NULL;
-	m_bUpdating	= false;
 
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_NOITEMS);
@@ -420,38 +419,13 @@ bool CWKSP_Base_Control::_Del_Item_Confirm(CWKSP_Base_Item *pItem)
 //---------------------------------------------------------
 int CWKSP_Base_Control::Get_Selection_Count(void)
 {
-	if( GetWindowStyle() & wxTR_MULTIPLE )
-	{
-		wxArrayTreeItemIds	IDs;
-
-		return( GetSelections(IDs) );
-	}
-	else
-	{
-		wxTreeItemId	ID	= GetSelection();
-
-		return( ID.IsOk() ? 1 : 0 );
-	}
+	return( GetSelection().IsOk() ? 1 : 0 );
 }
 
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(void)
 {
-	wxTreeItemId	ID;
-
-	if( GetWindowStyle() & wxTR_MULTIPLE )
-	{
-		wxArrayTreeItemIds	IDs;
-
-		if( GetSelections(IDs) == 1 )
-		{
-			ID	= IDs[0];
-		}
-	}
-	else
-	{
-		ID	= GetSelection();
-	}
+	wxTreeItemId	ID	= GetSelection();
 
 	return( ID.IsOk() ? (CWKSP_Base_Item *)GetItemData(ID) : NULL );
 }
@@ -459,43 +433,14 @@ CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(void)
 //---------------------------------------------------------
 bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMultipleSelection)
 {
-	if( pItem && pItem->Get_Control() == this && pItem->GetId().IsOk() )
+	if( !pItem || !pItem->GetId().IsOk() || pItem->Get_Control() != this )
 	{
-		if( GetWindowStyle() & wxTR_MULTIPLE )
-		{
-			if( bKeepMultipleSelection )
-			{
-				ToggleItemSelection(pItem->GetId());
-			}
-			else
-			{
-				m_bUpdating	= true;
-				SelectItem(pItem->GetId());
-				m_bUpdating	= false;
-
-				wxArrayTreeItemIds	IDs;
-				
-				if( GetSelections(IDs) > 1 )
-				{
-					for(size_t i=0; i<IDs.Count(); i++)
-					{
-						if( IDs[i] != pItem->GetId() )
-						{
-							UnselectItem(IDs[i]);
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			SelectItem(pItem->GetId());
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	SelectItem(pItem->GetId());
+
+	return( true );
 }
 
 
@@ -1029,7 +974,7 @@ void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 {
-	if( g_pACTIVE && (!m_bUpdating || Get_Item_Selected()) )
+	if( g_pACTIVE && Get_Item_Selected() )
 	{
 		g_pACTIVE->Set_Active(Get_Item_Selected());
 	}

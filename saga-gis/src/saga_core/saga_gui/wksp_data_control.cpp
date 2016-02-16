@@ -70,6 +70,8 @@
 #include "res_controls.h"
 #include "res_images.h"
 
+#include "active.h"
+
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
 #include "wksp_data_layers.h"
@@ -155,7 +157,9 @@ CWKSP_Data_Control	*g_pData_Ctrl	= NULL;
 CWKSP_Data_Control::CWKSP_Data_Control(wxWindow *pParent)
 	: CWKSP_Base_Control(pParent, ID_WND_WKSP_DATA)
 {
-	g_pData_Ctrl	= this;
+	g_pData_Ctrl		= this;
+
+	m_bUpdate_Selection	= false;
 
 	SetWindowStyle(wxTR_HAS_BUTTONS|wxTR_MULTIPLE);
 
@@ -276,6 +280,83 @@ void CWKSP_Data_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item 
 bool CWKSP_Data_Control::Close(bool bSilent)
 {
 	return( _Del_Item(m_pManager, bSilent) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWKSP_Data_Control::Get_Selection_Count(void)
+{
+	wxArrayTreeItemIds	IDs;
+
+	return( GetSelections(IDs) );
+}
+
+//---------------------------------------------------------
+CWKSP_Base_Item * CWKSP_Data_Control::Get_Item_Selected(void)
+{
+	if( m_bUpdate_Selection )
+	{
+		return( NULL );
+	}
+
+	Get_Manager()->Sel_Update();
+
+	wxArrayTreeItemIds	IDs;	GetSelections(IDs);
+
+	switch( IDs.Count() )
+	{
+	case  0:
+		return( NULL );
+
+	case  1:
+		return( (CWKSP_Base_Item *)GetItemData(IDs[0]) );
+
+	default: // IDs.Count() > 1
+		return( m_pManager );
+	}
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMultipleSelection)
+{
+	if( !pItem || !pItem->GetId().IsOk() || pItem->Get_Control() != this )
+	{
+		return( false );
+	}
+
+	if( bKeepMultipleSelection )
+	{
+		ToggleItemSelection(pItem->GetId());
+	}
+	else
+	{
+		m_bUpdate_Selection	= true;
+		SelectItem(pItem->GetId());
+		m_bUpdate_Selection	= false;
+
+		wxArrayTreeItemIds	IDs;
+				
+		if( GetSelections(IDs) > 1 )
+		{
+			for(size_t i=0; i<IDs.Count(); i++)
+			{
+				if( IDs[i] != pItem->GetId() )
+				{
+					UnselectItem(IDs[i]);
+				}
+			}
+		}
+	}
+
+	g_pACTIVE->Set_Active(Get_Item_Selected());
+
+	return( true );
 }
 
 

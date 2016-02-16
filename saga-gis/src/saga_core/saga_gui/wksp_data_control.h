@@ -90,16 +90,23 @@ public:
 	CWKSP_Data_Control(wxWindow *pParent);
 	virtual ~CWKSP_Data_Control(void);
 
-	class CWKSP_Data_Manager *	Get_Manager		(void)	{	return( (class CWKSP_Data_Manager *)m_pManager );	}
+	class CWKSP_Data_Manager *	Get_Manager			(void)	{	return( (class CWKSP_Data_Manager *)m_pManager );	}
 
-	void						Add_Item		(class CWKSP_Base_Manager *pManager, class CWKSP_Base_Item *pItem);
+	void						Add_Item			(class CWKSP_Base_Manager *pManager, class CWKSP_Base_Item *pItem);
 
-	bool						Close			(bool bSilent);
+	bool						Close				(bool bSilent);
+
+	virtual int					Get_Selection_Count	(void);
+	virtual CWKSP_Base_Item *	Get_Item_Selected	(void);
+	virtual bool				Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
 
 
 private:
 
-	int							_Get_Image_ID	(class CWKSP_Base_Item *pItem);
+	bool						m_bUpdate_Selection;
+
+
+	int							_Get_Image_ID		(class CWKSP_Base_Item *pItem);
 
 
 //---------------------------------------------------------

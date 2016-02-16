@@ -132,7 +132,7 @@ CWKSP_Base_Item::CWKSP_Base_Item(void)
 	m_ID		= 0;
 
 	m_Parameters.Create(this, _TL(""), _TL(""));
-	m_Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
+	m_Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
 }
 
 //---------------------------------------------------------
@@ -208,6 +208,7 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 	case WKSP_ITEM_Map:
 	case WKSP_ITEM_Map_Layer:
 	case WKSP_ITEM_Map_Graticule:
+	case WKSP_ITEM_Map_BaseMap:
 		return( g_pMap_Ctrl );
 	}
 }
@@ -255,7 +256,7 @@ CSG_Parameters * CWKSP_Base_Item::Get_Parameters(void)
 //---------------------------------------------------------
 CSG_Parameter * CWKSP_Base_Item::Get_Parameter(const CSG_String &Identifier)
 {
-	return( Get_Parameters() ? Get_Parameters()->Get_Parameter(Identifier) : NULL );
+	return( m_Parameters.Get_Parameter(Identifier) );
 }
 
 //---------------------------------------------------------
@@ -277,7 +278,7 @@ void CWKSP_Base_Item::Parameters_Changed(void)
 }
 
 //---------------------------------------------------------
-int CWKSP_Base_Item::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
+int CWKSP_Base_Item::Parameter_Callback(CSG_Parameter *pParameter, int Flags)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{

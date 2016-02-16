@@ -127,6 +127,7 @@ typedef enum
 	WKSP_ITEM_Map,
 	WKSP_ITEM_Map_Layer,
 	WKSP_ITEM_Map_Graticule,
+	WKSP_ITEM_Map_BaseMap,
 
 	WKSP_ITEM_Undefined
 }
@@ -184,6 +185,9 @@ protected:
 	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 
+	static int						Parameter_Callback		(CSG_Parameter *pParameter, int Flags);
+
+
 private:
 
 	bool							m_bManager;
@@ -191,9 +195,6 @@ private:
 	int								m_ID;
 
 	CWKSP_Base_Manager				*m_pManager;
-
-
-	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
 
 };
 

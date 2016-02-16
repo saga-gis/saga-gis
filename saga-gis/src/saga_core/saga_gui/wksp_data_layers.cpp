@@ -258,7 +258,17 @@ bool CWKSP_Data_Button::_Set_Active(bool bKeepOthers)
 	{
 		SetFocus();
 
-		g_pData_Ctrl->SelectChildren(m_pItem->GetId());
+		if( !bKeepOthers )
+		{
+			g_pData_Ctrl->SelectChildren(m_pItem->GetId());
+		}
+		else
+		{
+			for(int i=0; i<((CWKSP_Base_Manager *)m_pItem)->Get_Count(); i++)
+			{
+				g_pData_Ctrl->Set_Item_Selected(((CWKSP_Base_Manager *)m_pItem)->Get_Item(i), true);
+			}
+		}
 
 		g_pData_Buttons->Refresh(false);
 

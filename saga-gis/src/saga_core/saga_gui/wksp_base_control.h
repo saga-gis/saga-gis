@@ -90,9 +90,9 @@ public:
 	CWKSP_Base_Control(wxWindow *pParent, wxWindowID id);
 	virtual ~CWKSP_Base_Control(void);
 
-	int							Get_Selection_Count	(void);
-	class CWKSP_Base_Item *		Get_Item_Selected	(void);
-	bool						Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
+	virtual int					Get_Selection_Count	(void);
+	virtual CWKSP_Base_Item *	Get_Item_Selected	(void);
+	virtual bool				Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
 
 	void						On_Command			(wxCommandEvent  &event);
 	void						On_Command_UI		(wxUpdateUIEvent &event);
@@ -110,8 +110,6 @@ public:
 
 
 protected:
-
-	bool						m_bUpdating;
 
 	class CWKSP_Base_Manager	*m_pManager;
 

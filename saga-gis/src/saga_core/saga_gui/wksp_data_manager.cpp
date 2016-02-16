@@ -128,6 +128,9 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_pProject		= new CWKSP_Project;
 	m_pMenu_Files	= new CWKSP_Data_Menu_Files;
 
+	m_Sel_Parms.Create(this, _TL("Selection"), _TL(""));
+	m_Sel_Parms.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
+
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode, *pNode_1, *pNode_2;
 
@@ -422,45 +425,26 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf(wxT("<b>%s</b><br>"), _TL("Data"));
+	//-----------------------------------------------------
+	s	+= wxString::Format("<h4>%s</h4>", _TL("Data"));
 
-	if( Get_Count() <= 0 )
+	s	+= "<table border=\"0\">";
+
+	DESC_ADD_INT(_TL("Number of Data Sets"), Get_Count());
+
+	if( m_pProject->Has_File_Name() )
 	{
-		s.Append(_TL("No data loaded."));
+		DESC_ADD_STR(_TL("Project File"), m_pProject->Get_File_Name());
 	}
-	else
-	{
-		if( m_pProject->Has_File_Name() )
-		{
-			s.Append(wxString::Format(wxT("%s: %s<br>"), _TL("Project File"), m_pProject->Get_File_Name()));
-		}
 
-		if( Get_Tables() )
-		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Tables"), Get_Tables()->Get_Count()));
-		}
+	DESC_ADD_INT(_TL("Tables"      ), Get_Tables     () ? Get_Tables     ()->Get_Count      () : 0);
+	DESC_ADD_INT(_TL("Shapes"      ), Get_Shapes     () ? Get_Shapes     ()->Get_Items_Count() : 0);
+	DESC_ADD_INT(_TL("TIN"         ), Get_TINs       () ? Get_TINs       ()->Get_Count      () : 0);
+	DESC_ADD_INT(_TL("Point Clouds"), Get_PointClouds() ? Get_PointClouds()->Get_Count      () : 0);
+	DESC_ADD_INT(_TL("Grid Systems"), Get_Grids      () ? Get_Grids      ()->Get_Count      () : 0);
+	DESC_ADD_INT(_TL("Grids"       ), Get_Grids      () ? Get_Grids      ()->Get_Items_Count() : 0);
 
-		if( Get_Shapes() )
-		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Shapes"), Get_Shapes()->Get_Items_Count()));
-		}
-
-		if( Get_TINs() )
-		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("TIN"), Get_TINs()->Get_Count()));
-		}
-
-		if( Get_PointClouds() )
-		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Point Clouds"), Get_PointClouds()->Get_Count()));
-		}
-
-		if( Get_Grids() )
-		{
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Grid Systems"), Get_Grids()->Get_Count()));
-			s.Append(wxString::Format(wxT("%s: %d<br>"), _TL("Grids"), Get_Grids()->Get_Items_Count()));
-		}
-	}
+	s	+= wxT("</table>");
 
 	return( s );
 }
@@ -600,6 +584,18 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameters * CWKSP_Data_Manager::Get_Parameters(void)
+{
+	if( m_Sel_Parms.Get_Count() > 0 )
+	{
+		return( &m_Sel_Parms );
+	}
+
+	//-----------------------------------------------------
+	return( m_Parameters.Get_Count() > 0 ? &m_Parameters : NULL );
+}
 
 //---------------------------------------------------------
 void CWKSP_Data_Manager::Parameters_Changed(void)
@@ -1258,6 +1254,47 @@ bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Sel_Update(void)
+{
+	Get_Control()->GetSelections(m_Sel_Items);
+
+	if( m_Sel_Items.Count() <= 1 )
+	{
+		m_Sel_Items.Clear();
+
+		m_Sel_Parms.Del_Parameters();
+	}
+	else
+	{
+		m_Sel_Parms.Assign_Parameters(((CWKSP_Base_Item *)Get_Control()->GetItemData(m_Sel_Items[0]))->Get_Parameters());
+
+		for(size_t iID=1; iID<m_Sel_Items.Count(); iID++)
+		{
+			CSG_Parameters	*pParms	= ((CWKSP_Base_Item *)Get_Control()->GetItemData(m_Sel_Items[iID]))->Get_Parameters();
+
+			for(int i=m_Sel_Parms.Get_Count()-1; pParms && i>=0; i--)
+			{
+				CSG_Parameter	*pParm	= pParms->Get_Parameter(m_Sel_Parms[i].Get_Identifier());
+					
+				if( !pParm || pParm->Get_Type() != m_Sel_Parms[i].Get_Type() )
+				{
+					m_Sel_Parms.Del_Parameter(i);
+				}
+			}
+		}
+	}
+
+	return( true );
 }
 
 
