@@ -89,19 +89,25 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "TARGET"	, _TL("Target System"),
+	CSG_Parameter	*pNode	= Parameters.Add_Grid(
+		NULL	, "TARGET"		, _TL("Target System"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
+	)->Get_Parent();
+
+	Parameters.Add_Grid(
+		pNode	, "TARGET_MAP"	, _TL("Target Map"),
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid_Output(
-		NULL	, "MAP"		, _TL("Map"),
+		NULL	, "MAP"			, _TL("Map"),
 		_TL("")
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "SERVER"	, _TL("Server"),
+		NULL	, "SERVER"		, _TL("Server"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("Open Street Map"),
@@ -132,9 +138,10 @@ int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET") )
 	{
-		pParameters->Set_Enabled("XRANGE", pParameter->asGrid() == NULL);
-		pParameters->Set_Enabled("YRANGE", pParameter->asGrid() == NULL);
-		pParameters->Set_Enabled("NX "   , pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("TARGET_MAP", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("XRANGE"    , pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("YRANGE"    , pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("NX"        , pParameter->asGrid() == NULL);
 	}
 
 	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
@@ -209,10 +216,16 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 
 	rTarget.Get_Projection()	= pTarget->Get_Projection();
 
-	rTarget.Add_Shape()->Add_Point(pTarget->Get_XMin(true), pTarget->Get_YMin(true));
-	rTarget.Add_Shape()->Add_Point(pTarget->Get_XMin(true), pTarget->Get_YMax(true));
-	rTarget.Add_Shape()->Add_Point(pTarget->Get_XMax(true), pTarget->Get_YMax(true));
-	rTarget.Add_Shape()->Add_Point(pTarget->Get_XMax(true), pTarget->Get_YMin(true));
+	CSG_Rect	Extent	= pTarget->Get_Extent(true);
+
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YMin   ());
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YCenter());
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XMin   (), Extent.Get_YMax   ());
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMax   ());
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YMax   ());
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YCenter());
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XMax   (), Extent.Get_YMin   ());
+	rTarget.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ());
 
 	//-----------------------------------------------------
 	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 2);	// Coordinate Transformation (Shapes);
@@ -294,10 +307,23 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pMap	= SG_Create_Grid(pBands[0]->Get_System(), SG_DATATYPE_Int);
+	CSG_Grid	*pMap	= Parameters("TARGET_MAP")->asGrid();
+
+	if( !pMap )
+	{
+		pMap	= SG_Create_Grid();
+	}
+
+	if( !pMap->Get_System().is_Equal(pBands[0]->Get_System()) )
+	{
+		pMap->Create(pBands[0]->Get_System(), SG_DATATYPE_Int);
+	}
+
+	pMap->Set_Name(_TL("Open Street Map"));
 
 	pMap->Get_Projection()	= pBands[0]->Get_Projection();
 
+	//-----------------------------------------------------
 	#pragma omp parallel for
 	for(int y=0; y<pMap->Get_NY(); y++)	for(int x=0; x<pMap->Get_NX(); x++)
 	{
@@ -308,12 +334,10 @@ bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
 	delete(pBands[1]);
 	delete(pBands[2]);
 
-	pMap->Set_Name(_TL("Open Street Map"));
+	Parameters("MAP")->Set_Value(pMap);
 
 	DataObject_Add(pMap);
 	DataObject_Set_Parameter(pMap, "COLORS_TYPE", 6);	// RGB Coded Values
-
-	Parameters("MAP")->Set_Value(pMap);
 
 	return( true );
 }

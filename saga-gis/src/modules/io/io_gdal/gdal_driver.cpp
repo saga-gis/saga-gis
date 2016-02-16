@@ -471,14 +471,20 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 //---------------------------------------------------------
 bool CSG_GDAL_DataSet::Close(void)
 {
-	if( m_pDataSet )
-	{
-		GDALClose(m_pDataSet); m_pDataSet = NULL;
-	}
-
 	if( m_pVrtSource )
 	{
 		GDALClose(m_pVrtSource); m_pVrtSource = NULL;
+
+		if( m_pDataSet )
+		{
+		//	GDALClose(m_pDataSet);	// this crashes in debug mode!!!(???)
+			m_pDataSet = NULL;
+		}
+	}
+
+	if( m_pDataSet )
+	{
+		GDALClose(m_pDataSet); m_pDataSet = NULL;
 	}
 
 	m_File_Name.Clear();
