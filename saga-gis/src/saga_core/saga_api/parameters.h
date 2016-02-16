@@ -1271,6 +1271,8 @@ public:
 	bool						is_DataObject_List		(void)	const;
 	bool						is_Parameters			(void)	const;
 	bool						is_Serializable			(void)	const;
+	bool						is_Compatible			(CSG_Parameter *pParameter)	const;
+	bool						is_Value_Equal			(CSG_Parameter *pParameter)	const;
 
 	void						Set_UseInGUI			(bool bDoUse = false);
 	void						Set_UseInCMD			(bool bDoUse = false);
@@ -1494,6 +1496,7 @@ public:
 
 	bool						Assign					(CSG_Parameters *pSource);
 	bool						Assign_Values			(CSG_Parameters *pSource);
+	bool						Assign_Parameters		(CSG_Parameters *pSource);
 
 	bool						Serialize				(const CSG_String &File_Name, bool bSave);
 	bool						Serialize				(CSG_MetaData &Entry        , bool bSave);

@@ -380,6 +380,79 @@ bool CSG_Parameter::is_Serializable(void)	const
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::is_Compatible(CSG_Parameter *pParameter)	const
+{
+	if( !pParameter || pParameter->Get_Type() != Get_Type() )
+	{
+		return( false );
+	}
+
+	switch( Get_Type() )
+	{
+	default:
+		return( true );
+
+	case PARAMETER_TYPE_Choice   :
+		break;
+	}
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
+{
+	if( !pParameter || pParameter->Get_Type() != Get_Type() )
+	{
+		return( false );
+	}
+
+	switch( Get_Type() )
+	{
+	case PARAMETER_TYPE_Undefined:	break;
+
+	case PARAMETER_TYPE_Bool     :	return( pParameter->asBool  () == asBool  () );
+	case PARAMETER_TYPE_Choice   :
+	case PARAMETER_TYPE_Color    :
+	case PARAMETER_TYPE_Int      :	return( pParameter->asInt   () == asInt   () );
+	case PARAMETER_TYPE_Degree   :
+	case PARAMETER_TYPE_Double   :	return( pParameter->asDouble() == asDouble() );
+
+	case PARAMETER_TYPE_Range    :	return( pParameter->asRange()->Get_LoVal() == asRange()->Get_LoVal()
+										&&  pParameter->asRange()->Get_HiVal() == asRange()->Get_HiVal() );
+
+	case PARAMETER_TYPE_Text     :
+	case PARAMETER_TYPE_FilePath :
+	case PARAMETER_TYPE_String   :	return( SG_STR_CMP(pParameter->asString(), asString()) );
+
+	case PARAMETER_TYPE_Font:
+
+	case PARAMETER_TYPE_Colors   :
+
+	case PARAMETER_TYPE_FixedTable:
+
+	case PARAMETER_TYPE_Grid_System:
+	case PARAMETER_TYPE_Table_Field:
+	case PARAMETER_TYPE_Table_Fields:
+
+	case PARAMETER_TYPE_PointCloud:
+	case PARAMETER_TYPE_Grid:
+	case PARAMETER_TYPE_Table:
+	case PARAMETER_TYPE_Shapes:
+	case PARAMETER_TYPE_TIN:
+
+	case PARAMETER_TYPE_Grid_List:
+	case PARAMETER_TYPE_Table_List:
+	case PARAMETER_TYPE_Shapes_List:
+	case PARAMETER_TYPE_TIN_List:
+	case PARAMETER_TYPE_PointCloud_List:
+
+	case PARAMETER_TYPE_DataObject_Output:
+
+	default:
+		return( false );
+	}
+}
+
+//---------------------------------------------------------
 TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
 {
 	switch( Get_Type() )

@@ -1161,25 +1161,60 @@ bool CSG_Parameters::Assign(CSG_Parameters *pSource)
 //---------------------------------------------------------
 bool CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
 {
-	if( pSource && pSource != this )
+	if( !pSource || pSource == this )
 	{
-		int		i, n;
-
-		for(i=0, n=0; i<pSource->Get_Count(); i++)
-		{
-			CSG_Parameter	*pParameter	= Get_Parameter(pSource->Get_Parameter(i)->Get_Identifier());
-
-			if( pParameter && pParameter->Get_Type() == pSource->Get_Parameter(i)->Get_Type() )
-			{
-				pParameter->Assign(pSource->Get_Parameter(i));
-				n++;
-			}
-		}
-
-		return( n > 0 );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	int		i, n;
+
+	for(i=0, n=0; i<pSource->Get_Count(); i++)
+	{
+		CSG_Parameter	*pParameter	= Get_Parameter(pSource->Get_Parameter(i)->Get_Identifier());
+
+		if( pParameter && pParameter->Get_Type() == pSource->Get_Parameter(i)->Get_Type() )
+		{
+			pParameter->Assign(pSource->Get_Parameter(i));
+			n++;
+		}
+	}
+
+	return( n > 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Assign_Parameters(CSG_Parameters *pSource)
+{
+	if( !pSource || pSource == this )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int		i;
+
+	Del_Parameters();
+
+	for(i=0; i<pSource->m_nParameters; i++)
+	{
+		_Add(pSource->m_Parameters[i]);
+	}
+
+	for(i=0; i<pSource->m_nParameters; i++)
+	{
+		if( Get_Parameter(i) && pSource->m_Parameters[i]->m_pParent )
+		{
+			Get_Parameter(i)->m_pParent	= Get_Parameter(pSource->m_Parameters[i]->m_pParent->Get_Identifier());
+		}
+	}
+
+	if( pSource->m_pGrid_System )
+	{
+		m_pGrid_System	= Get_Parameter(pSource->m_pGrid_System->Get_Identifier());
+	}
+
+	return( m_nParameters == pSource->m_nParameters );
 }
 
 
