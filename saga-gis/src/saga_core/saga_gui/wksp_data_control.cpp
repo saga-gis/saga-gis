@@ -305,21 +305,19 @@ CWKSP_Base_Item * CWKSP_Data_Control::Get_Item_Selected(void)
 		return( NULL );
 	}
 
-	Get_Manager()->Sel_Update();
-
-	wxArrayTreeItemIds	IDs;	GetSelections(IDs);
-
-	switch( IDs.Count() )
+	if( Get_Manager()->MultiSelect_Check() )
 	{
-	case  0:
-		return( NULL );
-
-	case  1:
-		return( (CWKSP_Base_Item *)GetItemData(IDs[0]) );
-
-	default: // IDs.Count() > 1
 		return( m_pManager );
 	}
+
+	wxArrayTreeItemIds	IDs;
+
+	if( GetSelections(IDs) == 1 )
+	{
+		return( (CWKSP_Base_Item *)GetItemData(IDs[0]) );
+	}
+
+	return( NULL );
 }
 
 //---------------------------------------------------------

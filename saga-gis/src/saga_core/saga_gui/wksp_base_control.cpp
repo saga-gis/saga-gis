@@ -974,9 +974,14 @@ void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 {
-	if( g_pACTIVE && Get_Item_Selected() )
+	if( g_pACTIVE )
 	{
-		g_pACTIVE->Set_Active(Get_Item_Selected());
+		CWKSP_Base_Item	*pItem	= Get_Item_Selected();
+
+		if( pItem )
+		{
+			g_pACTIVE->Set_Active(pItem);
+		}
 	}
 
 	event.Skip();

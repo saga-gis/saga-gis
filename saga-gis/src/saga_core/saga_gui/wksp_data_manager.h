@@ -145,7 +145,8 @@ public:
 
 	int								Get_Numbering		(void)	const	{	return( m_Numbering );	}
 
-	bool							Sel_Update			(void);
+	bool							MultiSelect_Check	(void);
+	bool							MultiSelect_Update	(void);
 
 
 private:
@@ -154,7 +155,7 @@ private:
 
 	wxArrayTreeItemIds				m_Sel_Items;
 
-	CSG_Parameters					m_Sel_Parms;
+	CSG_Parameters					m_Sel_Parms[2];
 
 	class CWKSP_Project				*m_pProject;
 

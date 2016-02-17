@@ -403,14 +403,6 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 void CWKSP_Layer::On_Parameters_Changed(void)
 {
-	m_pObject->Set_Name       (m_Parameters("OBJECT_NAME")->asString());
-	m_pObject->Set_Description(m_Parameters("OBJECT_DESC")->asString());
-
-	m_pObject->Set_NoData_Value_Range(
-		m_Parameters("GENERAL_NODATA")->asRange()->Get_LoVal(),
-		m_Parameters("GENERAL_NODATA")->asRange()->Get_HiVal()
-	);
-
 	//-----------------------------------------------------
 	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), m_Parameters("METRIC_COLORS")->asColors());
 

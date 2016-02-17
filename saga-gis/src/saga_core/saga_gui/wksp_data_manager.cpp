@@ -128,9 +128,6 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_pProject		= new CWKSP_Project;
 	m_pMenu_Files	= new CWKSP_Data_Menu_Files;
 
-	m_Sel_Parms.Create(this, _TL("Selection"), _TL(""));
-	m_Sel_Parms.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
-
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode, *pNode_1, *pNode_2;
 
@@ -588,18 +585,22 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 CSG_Parameters * CWKSP_Data_Manager::Get_Parameters(void)
 {
-	if( m_Sel_Parms.Get_Count() > 0 )
+	if( m_Sel_Parms[0].Get_Count() > 0 )
 	{
-		return( &m_Sel_Parms );
+		return( &m_Sel_Parms[0] );
 	}
 
-	//-----------------------------------------------------
 	return( m_Parameters.Get_Count() > 0 ? &m_Parameters : NULL );
 }
 
 //---------------------------------------------------------
 void CWKSP_Data_Manager::Parameters_Changed(void)
 {
+	if( MultiSelect_Update() )
+	{
+		return;
+	}
+
 	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR" )->asString());
 	SG_Grid_Cache_Set_Automatic   (m_Parameters("GRID_CACHE_AUTO"   )->asBool  ());
 	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD")->asDouble());
@@ -1264,35 +1265,130 @@ bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Sel_Update(void)
+bool CWKSP_Data_Manager::MultiSelect_Check(void)
 {
-	Get_Control()->GetSelections(m_Sel_Items);
+	wxArrayTreeItemIds	IDs;
 
-	if( m_Sel_Items.Count() <= 1 )
+	if( Get_Control()->GetSelections(IDs) > 1 )
 	{
-		m_Sel_Items.Clear();
+		TWKSP_Item	Type	= WKSP_ITEM_Undefined;
 
-		m_Sel_Parms.Del_Parameters();
-	}
-	else
-	{
-		m_Sel_Parms.Assign_Parameters(((CWKSP_Base_Item *)Get_Control()->GetItemData(m_Sel_Items[0]))->Get_Parameters());
-
-		for(size_t iID=1; iID<m_Sel_Items.Count(); iID++)
+		for(size_t iID=0; iID<IDs.Count(); iID++)
 		{
-			CSG_Parameters	*pParms	= ((CWKSP_Base_Item *)Get_Control()->GetItemData(m_Sel_Items[iID]))->Get_Parameters();
+			CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)Get_Control()->GetItemData(IDs[iID]);
 
-			for(int i=m_Sel_Parms.Get_Count()-1; pParms && i>=0; i--)
+			switch( pItem->Get_Type() )
 			{
-				CSG_Parameter	*pParm	= pParms->Get_Parameter(m_Sel_Parms[i].Get_Identifier());
-					
-				if( !pParm || pParm->Get_Type() != m_Sel_Parms[i].Get_Type() )
+			default                  :	pItem	= NULL;	break;
+			case WKSP_ITEM_Table     :
+			case WKSP_ITEM_Shapes    :
+			case WKSP_ITEM_TIN       :
+			case WKSP_ITEM_PointCloud:
+			case WKSP_ITEM_Grid      :	break;
+			}
+
+			//---------------------------------------------
+			if( pItem )
+			{
+				if( Type == WKSP_ITEM_Undefined )
 				{
-					m_Sel_Parms.Del_Parameter(i);
+					Type	= pItem->Get_Type();
+
+					m_Sel_Parms[0].Assign(pItem->Get_Parameters());
+
+					m_Sel_Items.Clear();
+
+					m_Sel_Items.Add(IDs[iID]);
+				}
+				else if( Type == pItem->Get_Type() )
+				{
+					m_Sel_Items.Add(IDs[iID]);
+
+					for(int i=m_Sel_Parms[0].Get_Count()-1; i>=0; i--)
+					{
+						if( !m_Sel_Parms[0][i].is_Compatible(pItem->Get_Parameters()->Get_Parameter(i)) )
+						{
+							m_Sel_Parms[0].Del_Parameter(i);
+						}
+						else if( !m_Sel_Parms[0][i].is_Value_Equal(pItem->Get_Parameters()->Get_Parameter(i)) )
+						{
+							if( m_Sel_Parms[0][i].is_DataObject() )
+							{
+								m_Sel_Parms[0][i].Set_Value(DATAOBJECT_NOTSET);
+							}
+							else switch( m_Sel_Parms[0][i].Get_Type() )
+							{
+							default:
+								m_Sel_Parms[0][i].Restore_Default();
+								break;
+
+							case PARAMETER_TYPE_String:
+							case PARAMETER_TYPE_Text:
+							case PARAMETER_TYPE_FilePath:
+								m_Sel_Parms[0][i].Set_Value(CSG_String(""));
+								break;
+							}
+						}
+					}
+				}
+				else //  Type != pItem->Get_Type()
+				{
+					IDs.Clear();
 				}
 			}
 		}
+
+		//-------------------------------------------------
+		if( IDs.Count() > 0 )
+		{
+			m_Sel_Parms[1]	= m_Sel_Parms[0];
+
+			if( g_pACTIVE->Get_Active() == this )
+			{
+				g_pACTIVE->Get_Parameters()->Update_Parameters(&m_Sel_Parms[0], false);
+			//	g_pACTIVE->Get_Parameters()->Set_Parameters(this);
+			}
+
+			return( true );
+		}
 	}
+
+	//-----------------------------------------------------
+	m_Sel_Items.Clear();
+
+	m_Sel_Parms[0].Destroy();
+	m_Sel_Parms[1].Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::MultiSelect_Update(void)
+{
+	if( m_Sel_Items.Count() == 0 )
+	{
+		return( false );
+	}
+
+	for(int i=m_Sel_Parms[0].Get_Count()-1; i>=0; i--)	// remove unchanged parameters from backup list (:= 1)
+	{
+		if( m_Sel_Parms[0][i].is_Value_Equal(&m_Sel_Parms[1][i]) )
+		{
+			m_Sel_Parms[0].Del_Parameter(i);
+		}
+	}
+
+	for(size_t iID=0; iID<m_Sel_Items.Count(); iID++)	// assign changed values to selected data set parameters
+	{
+		CWKSP_Data_Item	*pItem	= (CWKSP_Data_Item *)Get_Control()->GetItemData(m_Sel_Items[iID]);
+
+		pItem->Get_Parameters()->Assign_Values(&m_Sel_Parms[0]);
+
+		pItem->Parameters_Changed();
+	}
+
+	m_Sel_Parms[1].Assign_Values(&m_Sel_Parms[0]);	// restore from backup list with updated values
+	m_Sel_Parms[0].Assign       (&m_Sel_Parms[1]);
 
 	return( true );
 }
