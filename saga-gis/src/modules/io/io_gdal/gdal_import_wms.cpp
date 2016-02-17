@@ -16,7 +16,7 @@
 //                                                       //
 //                  gdal_import_wms.cpp                  //
 //                                                       //
-//            Copyright (C) 2015 O. Conrad               //
+//            Copyright (C) 2016 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -69,6 +69,8 @@
 //---------------------------------------------------------
 CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 {
+	CSG_Parameter	*pNode;
+
 	//-----------------------------------------------------
 	Set_Name	(_TL("Import Open Street Map Image"));
 
@@ -77,7 +79,7 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	CSG_String	Description;
 
 	Description	= _TW(
-		"The \"Import OSM Image\" tool imports a map image from a Web Map Service (WMS) using the "
+		"The \"Import OSM Image\" tool imports a map image from a Tile Mapping Service (TMS) using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
@@ -89,7 +91,7 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Grid(
+	pNode	= Parameters.Add_Grid(
 		NULL	, "TARGET"		, _TL("Target System"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
@@ -106,20 +108,56 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 		_TL("")
 	);
 
-	Parameters.Add_Choice(
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Choice(
 		NULL	, "SERVER"		, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Open Street Map"),
-			_TL("MapQuest")
+			_TL("MapQuest"),
+			_TL("user defined")
 		), 0
 	);
 
-	Parameters.Add_Range(NULL	, "XRANGE"	, _TL("X-Range" ), _TL(""), -20037508.34, 20037508.34, -20037508.34, true, 20037508.34, true);
-	Parameters.Add_Range(NULL	, "YRANGE"	, _TL("Y-Range" ), _TL(""), -20037508.34, 20037508.34, -20037508.34, true, 20037508.34, true);
-	Parameters.Add_Value(NULL	, "NX"		, _TL("Columns" ), _TL(""), PARAMETER_TYPE_Int   , 600, 1, true);
-//	Parameters.Add_Value(NULL	, "NY"		, _TL("Rows"    ), _TL(""), PARAMETER_TYPE_Int   , 500, 1, true);
-//	Parameters.Add_Value(NULL	, "CELLSIZE", _TL("Cellsize"), _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true);
+	Parameters.Add_Value(
+		pNode	, "BLOCKSIZE"	, _TL("Block Size"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 256, 32, true
+	);
+
+	Parameters.Add_String(
+		pNode	, "SERVER_USER"	, _TL("Server"),
+		_TL(""),
+		"tile.openstreetmap.org"
+	);
+
+	pNode	= Parameters.Add_Value(
+		NULL	, "CACHE"		, _TL("Cache"),
+		_TL("Enable local disk cache. Allows for offline operation."),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_FilePath(
+		pNode	, "CACHE_DIR"	, _TL("Cache Directory"),
+		_TL("If not specified the cache will be created in the current user's temporary directory."),
+		NULL, NULL, false, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "GRAYSCALE"	, _TL("Gray Scale Image"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Node(NULL, "TARGET_NODE", _TL("Target Grid"), _TL(""));
+
+	Parameters.Add_Value(pNode, "XMIN", _TL("West"   ), _TL(""), PARAMETER_TYPE_Double, -20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Value(pNode, "YMIN", _TL("South"  ), _TL(""), PARAMETER_TYPE_Double, -20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Value(pNode, "XMAX", _TL("East"   ), _TL(""), PARAMETER_TYPE_Double,  20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Value(pNode, "YMAX", _TL("North"  ), _TL(""), PARAMETER_TYPE_Double,  20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Value(pNode, "NX"  , _TL("Columns"), _TL(""), PARAMETER_TYPE_Int, 600, 1, true);
+	Parameters.Add_Value(pNode, "NY"  , _TL("Rows"   ), _TL(""), PARAMETER_TYPE_Int, 600, 1, true);
 }
 
 
@@ -130,6 +168,55 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 //---------------------------------------------------------
 int CGDAL_Import_WMS::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	CSG_Parameter	*pXMin	= pParameters->Get_Parameter("XMIN");
+	CSG_Parameter	*pYMin	= pParameters->Get_Parameter("YMIN");
+	CSG_Parameter	*pXMax	= pParameters->Get_Parameter("XMAX");
+	CSG_Parameter	*pYMax	= pParameters->Get_Parameter("YMAX");
+	CSG_Parameter	*pNX	= pParameters->Get_Parameter("NX"  );
+	CSG_Parameter	*pNY	= pParameters->Get_Parameter("NY"  );
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NX") )
+	{
+		double	d	= fabs(pXMax->asDouble() - pXMin->asDouble()) / pNX->asDouble();
+		pNY  ->Set_Value(fabs(pYMax->asDouble() - pYMin->asDouble()) / d);
+		pYMax->Set_Value(pYMin->asDouble() + d * pNY->asDouble());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NY") )
+	{
+		double	d	= fabs(pYMax->asDouble() - pYMin->asDouble()) / pNY->asDouble();
+		pNX  ->Set_Value(fabs(pXMax->asDouble() - pXMin->asDouble()) / d);
+		pXMax->Set_Value(pXMin->asDouble() + d * pNX->asDouble());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XMIN") )
+	{
+		double	d	= fabs(pYMax->asDouble() - pYMin->asDouble()) / pNY->asDouble();
+		pNX  ->Set_Value(fabs(pXMax->asDouble() - pXMin->asDouble()) / d);
+		pXMax->Set_Value(pXMin->asDouble() + d * pNX->asDouble());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "YMIN") )
+	{
+		double	d	= fabs(pXMax->asDouble() - pXMin->asDouble()) / pNX->asDouble();
+		pNY  ->Set_Value(fabs(pYMax->asDouble() - pYMin->asDouble()) / d);
+		pYMax->Set_Value(pYMin->asDouble() + d * pNY->asDouble());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XMAX") )
+	{
+		double	d	= fabs(pYMax->asDouble() - pYMin->asDouble()) / pNY->asDouble();
+		pNX  ->Set_Value(fabs(pXMax->asDouble() - pXMin->asDouble()) / d);
+		pYMax->Set_Value(pYMax->asDouble() - d * pNY->asDouble());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "YMAX") )
+	{
+		double	d	= fabs(pXMax->asDouble() - pXMin->asDouble()) / pNX->asDouble();
+		pNY  ->Set_Value(fabs(pYMax->asDouble() - pYMin->asDouble()) / d);
+		pXMax->Set_Value(pXMax->asDouble() - d * pNX->asDouble());
+	}
+
 	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
@@ -138,10 +225,18 @@ int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET") )
 	{
-		pParameters->Set_Enabled("TARGET_MAP", pParameter->asGrid() != NULL);
-		pParameters->Set_Enabled("XRANGE"    , pParameter->asGrid() == NULL);
-		pParameters->Set_Enabled("YRANGE"    , pParameter->asGrid() == NULL);
-		pParameters->Set_Enabled("NX"        , pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("TARGET_MAP" , pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("TARGET_NODE", pParameter->asGrid() == NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
+	{
+		pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() == 2);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CACHE") )
+	{
+		pParameters->Set_Enabled("CACHE_DIR", pParameter->asBool());
 	}
 
 	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
@@ -195,10 +290,8 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 	if( !pTarget )
 	{
 		CSG_Rect	Extent(
-			Parameters("XRANGE")->asRange()->Get_LoVal(),
-			Parameters("YRANGE")->asRange()->Get_LoVal(),
-			Parameters("XRANGE")->asRange()->Get_HiVal(),
-			Parameters("YRANGE")->asRange()->Get_HiVal()
+			Parameters("XMIN")->asDouble(), Parameters("YMIN")->asDouble(),
+			Parameters("XMAX")->asDouble(), Parameters("YMAX")->asDouble()
 		);
 
 		double	Cellsize	= Extent.Get_XRange() / Parameters("NX")->asDouble();
@@ -242,7 +335,8 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 	&&  SG_MODULE_PARAMETER_SET("TARGET"    , &rSource)
 	&&  pModule->Execute() )
 	{
-		double	Cellsize	= rSource.Get_Extent().Get_XRange() / Parameters("NX")->asDouble();
+		double	Cellsize	= rSource.Get_Extent().Get_XRange() / pTarget->Get_NX() < rSource.Get_Extent().Get_YRange() / pTarget->Get_NY()
+							? rSource.Get_Extent().Get_XRange() / pTarget->Get_NX() : rSource.Get_Extent().Get_YRange() / pTarget->Get_NY();
 
 		System.Assign(Cellsize, rSource.Get_Extent());
 
@@ -324,10 +418,21 @@ bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
 	pMap->Get_Projection()	= pBands[0]->Get_Projection();
 
 	//-----------------------------------------------------
+	bool	bGrayscale	= Parameters("GRAYSCALE")->asBool();
+
 	#pragma omp parallel for
 	for(int y=0; y<pMap->Get_NY(); y++)	for(int x=0; x<pMap->Get_NX(); x++)
 	{
-		pMap->Set_Value(x, y, SG_GET_RGB(pBands[0]->asInt(x, y), pBands[1]->asInt(x, y), pBands[2]->asInt(x, y)));
+		if( bGrayscale )
+		{
+			double	z	= (pBands[0]->asInt(x, y) + pBands[1]->asInt(x, y) + pBands[2]->asInt(x, y)) / 3.0;
+
+			pMap->Set_Value(x, y, SG_GET_RGB(z, z, z));
+		}
+		else
+		{
+			pMap->Set_Value(x, y, SG_GET_RGB(pBands[0]->asInt(x, y), pBands[1]->asInt(x, y), pBands[2]->asInt(x, y)));
+		}
 	}
 
 	delete(pBands[0]);
@@ -355,8 +460,9 @@ bool CGDAL_Import_WMS::Get_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &Sys
 
 	switch( Parameters("SERVER")->asInt() )
 	{
-	default:	Server	= "http://tile.openstreetmap.org"          ;	break;
-	case  1:	Server	= "http://otile1.mqcdn.com/tiles/1.0.0/osm";	break;	// MapQuest
+	default:	Server	= "tile.openstreetmap.org"             ;	break;	// Open Street Map
+	case  1:	Server	= "otile1.mqcdn.com/tiles/1.0.0/osm"   ;	break;	// MapQuest
+	case  2:	Server	= Parameters("SERVER_USER")->asString();	break;	// user defined
 	}
 
 	//-----------------------------------------------------
@@ -409,9 +515,9 @@ CSG_String CGDAL_Import_WMS::Get_Request(const CSG_String &Server)
 	XML.Set_Name("GDAL_WMS");
 
 	//-----------------------------------------------------
-	pEntry	= XML.Add_Child("Service");	pEntry->Add_Property("name" , "TMS");
+	pEntry	= XML.Add_Child("Service");	pEntry->Add_Property("name", "TMS");
 
-	pEntry->Add_Child("ServerUrl"  , Server + "/${z}/${x}/${y}.png");
+	pEntry->Add_Child("ServerUrl"  , "http://" + Server + "/${z}/${x}/${y}.png");
 
 	//-----------------------------------------------------
 	pEntry	= XML.Add_Child("DataWindow");		// Define size and extents of the data. (required, except for TiledWMS and VirtualEarth)
@@ -428,13 +534,25 @@ CSG_String CGDAL_Import_WMS::Get_Request(const CSG_String &Server)
 	//-----------------------------------------------------
 	pEntry	= XML.Add_Child("Projection", "EPSG:3857");	// Image projection (optional, defaults to value reported by mini-driver or EPSG:4326)
 	pEntry	= XML.Add_Child("BandsCount",           3);	// Number of bands/channels, 1 for grayscale data, 3 for RGB, 4 for RGBA. (optional, defaults to 3)
-	pEntry	= XML.Add_Child("BlockSizeX",         256);	// Block size in pixels. (optional, defaults to 1024, except for VirtualEarth)
-	pEntry	= XML.Add_Child("BlockSizeY",         256);
+
+	int	Blocksize	= Parameters("BLOCKSIZE")->asInt();
+	pEntry	= XML.Add_Child("BlockSizeX", Blocksize);	// Block size in pixels. (optional, defaults to 1024, except for VirtualEarth)
+	pEntry	= XML.Add_Child("BlockSizeY", Blocksize);
 
 	//-----------------------------------------------------
-	pEntry	= XML.Add_Child("Cache");
+	if( Parameters("CACHE")->asBool() )
+	{
+		pEntry	= XML.Add_Child("Cache");
 
-	pEntry->Add_Child("Path", SG_File_Make_Path(SG_Dir_Get_Temp(), SG_T("gdalwmscache")));
+		CSG_String	Path	= Parameters("CACHE_DIR")->asString();
+
+		if( !SG_Dir_Exists(Path) )
+		{
+			Path	= SG_Dir_Get_Temp();
+		}
+
+		pEntry->Add_Child("Path", SG_File_Make_Path(Path, SG_T("gdalwmscache")));
+	}
 
 	//-----------------------------------------------------
 	return( XML.asText(2) );

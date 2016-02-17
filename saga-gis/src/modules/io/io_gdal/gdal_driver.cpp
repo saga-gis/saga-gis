@@ -314,21 +314,25 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 	{
 		GDALRasterBand	*pSrcBand	= m_pVrtSource->GetRasterBand(i + 1);
 
-		m_pDataSet->AddBand(pSrcBand->GetRasterDataType());
+		m_pDataSet->AddBand(pSrcBand->GetRasterDataType(), NULL);
 
 		VRTSourcedRasterBand	*pVrtBand	= (VRTSourcedRasterBand *)m_pDataSet->GetRasterBand(i + 1);
 
-		VRTSimpleSource			*pSrcSimple = new VRTSimpleSource();
-
-	//	pSrcSimple->SetResampling(pszResampling);
-
-		pVrtBand->ConfigureSource(pSrcSimple, pSrcBand, 0,
+		pVrtBand->AddSimpleSource(pSrcBand,
 			xOff, yOff, xSize, ySize, 0, 0, System.Get_NX(), System.Get_NY()
-		//	0, 0, m_pVrtSource->GetRasterXSize(), m_pVrtSource->GetRasterYSize(), 0, 0, System.Get_NX(), System.Get_NY()
 		);
 
-		pVrtBand->AddSource(pSrcSimple);
-	//	pVrtBand->AddSimpleSource(pSrcBand);
+//#if GDAL_VERSION_MAJOR >= 2	// instead of pVrtBand->AddSimpleSource(...)
+//		VRTSimpleSource	*pSrcSimple = new VRTSimpleSource();
+//
+//	//	pSrcSimple->SetResampling(pszResampling);
+//
+//		pVrtBand->ConfigureSource(pSrcSimple, pSrcBand, 0,
+//			xOff, yOff, xSize, ySize, 0, 0, System.Get_NX(), System.Get_NY()
+//		);
+//
+//		pVrtBand->AddSource(pSrcSimple);
+//#endif
 	}
 
 	//-----------------------------------------------------
@@ -477,7 +481,7 @@ bool CSG_GDAL_DataSet::Close(void)
 
 		if( m_pDataSet )
 		{
-		//	GDALClose(m_pDataSet);	// this crashes in debug mode!!!(???)
+		//	GDALClose(m_pDataSet);	// this crashes in debug mode, gdal2.0dev!!!(???)
 			m_pDataSet = NULL;
 		}
 	}

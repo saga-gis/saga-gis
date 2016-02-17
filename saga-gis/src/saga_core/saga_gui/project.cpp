@@ -859,9 +859,17 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 				g_pMaps->Add((CWKSP_Layer *)pItem, pMap);
 			}
 		}
-		else
+		else if( !pNode->Get_Child(i)->Get_Name().Cmp("PARAMETERS") )
 		{
-			pMap->Add_Graticule(pNode->Get_Child(i));
+			if( pNode->Get_Child(i)->Cmp_Property("name", "GRATICULE") )
+			{
+				pMap->Add_Graticule(pNode->Get_Child(i));
+			}
+
+			if( pNode->Get_Child(i)->Cmp_Property("name", "BASEMAP") )
+			{
+				pMap->Add_BaseMap  (pNode->Get_Child(i));
+			}
 		}
 	}
 
@@ -925,7 +933,7 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 
 		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_BaseMap )
 		{
-			((CWKSP_Map_BaseMap *)pMap->Get_Item(i))->Save(*pEntry);
+			((CWKSP_Map_BaseMap   *)pMap->Get_Item(i))->Save(*pEntry);
 		}
 	}
 

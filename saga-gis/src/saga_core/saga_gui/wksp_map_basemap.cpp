@@ -130,6 +130,12 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
 
+	m_Parameters.Add_Value(
+		pNode	, "GRAYSCALE"	, _TL("Gray Scale Image"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
 	//-----------------------------------------------------
 	if( pEntry )
 	{
@@ -143,8 +149,6 @@ CWKSP_Map_BaseMap::~CWKSP_Map_BaseMap(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -162,8 +166,6 @@ bool CWKSP_Map_BaseMap::Save(CSG_MetaData &Entry)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -217,8 +219,6 @@ wxMenu * CWKSP_Map_BaseMap::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -290,8 +290,6 @@ bool CWKSP_Map_BaseMap::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -321,8 +319,6 @@ void CWKSP_Map_BaseMap::Parameters_Changed(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -344,7 +340,8 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 
 		if( pModule->Set_Parameter("TARGET"    , &m_BaseMap)
 		&&  pModule->Set_Parameter("TARGET_MAP", &m_BaseMap)
-		&&  pModule->Set_Parameter("SERVER"    , m_Parameters("SERVER"))
+		&&  pModule->Set_Parameter("SERVER"    , m_Parameters("SERVER"   ))
+		&&  pModule->Set_Parameter("GRAYSCALE" , m_Parameters("GRAYSCALE"))
 		&&  pModule->On_Before_Execution() && pModule->Execute() )
 		{
 		}
@@ -364,8 +361,6 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -392,7 +387,7 @@ bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	if( dc_Map.IMG_Draw_Begin(m_Parameters("TRANSPARENCY")->asDouble()) )
+	if( dc_Map.IMG_Draw_Begin(m_Parameters("TRANSPARENCY")->asDouble() / 100.0) )
 	{
 		#pragma omp parallel for
 		for(int y=0; y<m_BaseMap.Get_NY(); y++)	for(int x=0, yy=m_BaseMap.Get_NY()-y-1; x<m_BaseMap.Get_NX(); x++)
