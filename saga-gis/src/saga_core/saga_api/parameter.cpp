@@ -382,74 +382,125 @@ bool CSG_Parameter::is_Serializable(void)	const
 //---------------------------------------------------------
 bool CSG_Parameter::is_Compatible(CSG_Parameter *pParameter)	const
 {
-	if( !pParameter || pParameter->Get_Type() != Get_Type() )
+	if( pParameter && pParameter->Get_Type() == Get_Type() )
 	{
-		return( false );
+		switch( Get_Type() )
+		{
+		//-------------------------------------------------
+		case PARAMETER_TYPE_Choice           :
+			{
+				bool	bResult	= pParameter->asChoice()->Get_Count() == asChoice()->Get_Count();
+
+				for(int i=0; bResult && i<asChoice()->Get_Count(); i++)
+				{
+					bResult	= SG_STR_CMP(pParameter->asChoice()->Get_Item(i), asChoice()->Get_Item(i)) == 0;
+				}
+
+				return( bResult );
+			}
+
+		//-------------------------------------------------
+		case PARAMETER_TYPE_FixedTable       :	return( pParameter->asTable()->is_Compatible(asTable()) );
+
+		//-------------------------------------------------
+		default:	return( true );
+		}
 	}
 
-	switch( Get_Type() )
-	{
-	default:
-		return( true );
-
-	case PARAMETER_TYPE_Choice   :
-		break;
-	}
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 {
-	if( !pParameter || pParameter->Get_Type() != Get_Type() )
+	if( pParameter && pParameter->Get_Type() == Get_Type() )
 	{
-		return( false );
+		switch( Get_Type() )
+		{
+		case PARAMETER_TYPE_Node             :	return( true );
+
+		//-------------------------------------------------
+		case PARAMETER_TYPE_Bool             :	return( pParameter->asBool  () == asBool  () );
+		case PARAMETER_TYPE_Table_Field      :
+		case PARAMETER_TYPE_Choice           :
+		case PARAMETER_TYPE_Color            :
+		case PARAMETER_TYPE_Int              :	return( pParameter->asInt   () == asInt   () );
+		case PARAMETER_TYPE_Degree           :
+		case PARAMETER_TYPE_Double           :	return( pParameter->asDouble() == asDouble() );
+
+		case PARAMETER_TYPE_Table_Fields     :
+		case PARAMETER_TYPE_Font             :
+		case PARAMETER_TYPE_Text             :
+		case PARAMETER_TYPE_FilePath         :
+		case PARAMETER_TYPE_String           :	return( SG_STR_CMP(pParameter->asString(), asString()) == 0 );
+
+		case PARAMETER_TYPE_Range            :	return( pParameter->asRange()->Get_LoVal() == asRange()->Get_LoVal()
+													&&  pParameter->asRange()->Get_HiVal() == asRange()->Get_HiVal() );
+
+		case PARAMETER_TYPE_Grid_System      :	return( pParameter->asGrid_System()->is_Equal(*asGrid_System()) );
+
+		//-------------------------------------------------
+		case PARAMETER_TYPE_Colors           :
+			{
+				bool	bResult	= pParameter->asColors()->Get_Count() == asColors()->Get_Count();
+
+				for(int i=0; bResult && i<asColors()->Get_Count(); i++)
+				{
+					bResult	= pParameter->asColors()->Get_Color(i) == asColors()->Get_Color(i);
+				}
+
+				return( bResult );
+			}
+
+		//-------------------------------------------------
+		case PARAMETER_TYPE_FixedTable       :
+			{
+				bool	bResult	= pParameter->asTable()->is_Compatible(asTable()) && pParameter->asTable()->Get_Count() == asTable()->Get_Count();
+
+				for(int i=0; bResult && i<asTable()->Get_Count(); i++)
+				{
+					CSG_Table_Record *pA = pParameter->asTable()->Get_Record(i), *pB = asTable()->Get_Record(i);
+
+					for(int j=0; bResult && j<asTable()->Get_Field_Count(); j++)
+					{
+						bResult	= SG_STR_CMP(pA->asString(j), pB->asString(j)) == 0;
+					}
+				}
+
+				return( bResult );
+			}
+
+		//-------------------------------------------------
+		case PARAMETER_TYPE_DataObject_Output:
+		case PARAMETER_TYPE_Grid             :
+		case PARAMETER_TYPE_Table            :
+		case PARAMETER_TYPE_Shapes           :
+		case PARAMETER_TYPE_TIN              :
+		case PARAMETER_TYPE_PointCloud       :	return( pParameter->asDataObject() == asDataObject() );
+
+		//-------------------------------------------------
+		case PARAMETER_TYPE_Grid_List        :
+		case PARAMETER_TYPE_Table_List       :
+		case PARAMETER_TYPE_Shapes_List      :
+		case PARAMETER_TYPE_TIN_List         :
+		case PARAMETER_TYPE_PointCloud_List  :
+			{
+				bool	bResult	= pParameter->asList()->Get_Count() == asList()->Get_Count();
+
+				for(int i=0; bResult && i<asList()->Get_Count(); i++)
+				{
+					bResult	= pParameter->asList()->asDataObject(i) == asList()->asDataObject(i);
+				}
+
+				return( bResult );
+			}
+
+		//-------------------------------------------------
+		default:	break;
+		}
 	}
 
-	switch( Get_Type() )
-	{
-	case PARAMETER_TYPE_Undefined:	break;
-
-	case PARAMETER_TYPE_Bool     :	return( pParameter->asBool  () == asBool  () );
-	case PARAMETER_TYPE_Choice   :
-	case PARAMETER_TYPE_Color    :
-	case PARAMETER_TYPE_Int      :	return( pParameter->asInt   () == asInt   () );
-	case PARAMETER_TYPE_Degree   :
-	case PARAMETER_TYPE_Double   :	return( pParameter->asDouble() == asDouble() );
-
-	case PARAMETER_TYPE_Range    :	return( pParameter->asRange()->Get_LoVal() == asRange()->Get_LoVal()
-										&&  pParameter->asRange()->Get_HiVal() == asRange()->Get_HiVal() );
-
-	case PARAMETER_TYPE_Text     :
-	case PARAMETER_TYPE_FilePath :
-	case PARAMETER_TYPE_String   :	return( SG_STR_CMP(pParameter->asString(), asString()) );
-
-	case PARAMETER_TYPE_Font:
-
-	case PARAMETER_TYPE_Colors   :
-
-	case PARAMETER_TYPE_FixedTable:
-
-	case PARAMETER_TYPE_Grid_System:
-	case PARAMETER_TYPE_Table_Field:
-	case PARAMETER_TYPE_Table_Fields:
-
-	case PARAMETER_TYPE_PointCloud:
-	case PARAMETER_TYPE_Grid:
-	case PARAMETER_TYPE_Table:
-	case PARAMETER_TYPE_Shapes:
-	case PARAMETER_TYPE_TIN:
-
-	case PARAMETER_TYPE_Grid_List:
-	case PARAMETER_TYPE_Table_List:
-	case PARAMETER_TYPE_Shapes_List:
-	case PARAMETER_TYPE_TIN_List:
-	case PARAMETER_TYPE_PointCloud_List:
-
-	case PARAMETER_TYPE_DataObject_Output:
-
-	default:
-		return( false );
-	}
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -457,16 +508,16 @@ TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
 {
 	switch( Get_Type() )
 	{
-	default:								return( DATAOBJECT_TYPE_Undefined );
-	case PARAMETER_TYPE_Grid:
-	case PARAMETER_TYPE_Grid_List:			return( DATAOBJECT_TYPE_Grid );
-	case PARAMETER_TYPE_Table:
-	case PARAMETER_TYPE_Table_List:			return( DATAOBJECT_TYPE_Table );
-	case PARAMETER_TYPE_Shapes:
-	case PARAMETER_TYPE_Shapes_List:		return( DATAOBJECT_TYPE_Shapes );
-	case PARAMETER_TYPE_TIN:
-	case PARAMETER_TYPE_TIN_List:			return( DATAOBJECT_TYPE_TIN );
-	case PARAMETER_TYPE_PointCloud:
+	default                            :	return( DATAOBJECT_TYPE_Undefined  );
+	case PARAMETER_TYPE_Grid           :
+	case PARAMETER_TYPE_Grid_List      :	return( DATAOBJECT_TYPE_Grid       );
+	case PARAMETER_TYPE_Table          :
+	case PARAMETER_TYPE_Table_List     :	return( DATAOBJECT_TYPE_Table      );
+	case PARAMETER_TYPE_Shapes         :
+	case PARAMETER_TYPE_Shapes_List    :	return( DATAOBJECT_TYPE_Shapes     );
+	case PARAMETER_TYPE_TIN            :
+	case PARAMETER_TYPE_TIN_List       :	return( DATAOBJECT_TYPE_TIN        );
+	case PARAMETER_TYPE_PointCloud     :
 	case PARAMETER_TYPE_PointCloud_List:	return( DATAOBJECT_TYPE_PointCloud );
 	}
 }

@@ -289,6 +289,12 @@ void CSG_Parameters::Set_Enabled(const CSG_String &Identifier, bool bEnabled)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Parameter(CSG_Parameter *pParameter)
+{
+	return( _Add(pParameter) );
+}
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_Node(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
 	return( _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Node, PARAMETER_INFORMATION) );
@@ -311,6 +317,32 @@ CSG_Parameter * CSG_Parameters::Add_Value(CSG_Parameter *pParent, const CSG_Stri
 CSG_Parameter * CSG_Parameters::Add_Info_Value(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, double Value)
 {
 	return( _Add_Value(pParent, Identifier, Name, Description,  true, Type, Value, 0.0, false, 0.0, false) );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Bool  (CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool   Value)
+{
+	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Bool  , Value ? 1.0 : 0.0) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Int   (CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int    Value, int    Minimum, bool bMinimum, int    Maximum, bool bMaximum)
+{
+	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Int   , Value, Minimum, bMinimum, Maximum, bMaximum) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Double(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+{
+	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Double, Value, Minimum, bMinimum, Maximum, bMaximum) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Degree(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+{
+	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Degree, Value, Minimum, bMinimum, Maximum, bMaximum) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Color (CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int    Value)
+{
+	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Color , Value) );
 }
 
 //---------------------------------------------------------
