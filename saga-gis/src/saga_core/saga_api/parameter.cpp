@@ -403,6 +403,19 @@ bool CSG_Parameter::is_Compatible(CSG_Parameter *pParameter)	const
 		case PARAMETER_TYPE_FixedTable       :	return( pParameter->asTable()->is_Compatible(asTable()) );
 
 		//-------------------------------------------------
+		case PARAMETER_TYPE_Parameters       :
+			{
+				bool	bResult	= pParameter->asParameters()->Get_Count() == asParameters()->Get_Count();
+
+				for(int i=0; bResult && i<asParameters()->Get_Count(); i++)
+				{
+					bResult	= pParameter->asParameters()->Get_Parameter(i)->is_Compatible(asParameters()->Get_Parameter(i));
+				}
+
+				return( bResult );
+			}
+
+		//-------------------------------------------------
 		default:	return( true );
 		}
 	}
@@ -490,6 +503,19 @@ bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 				for(int i=0; bResult && i<asList()->Get_Count(); i++)
 				{
 					bResult	= pParameter->asList()->asDataObject(i) == asList()->asDataObject(i);
+				}
+
+				return( bResult );
+			}
+
+		//-------------------------------------------------
+		case PARAMETER_TYPE_Parameters       :
+			{
+				bool	bResult	= pParameter->asParameters()->Get_Count() == asParameters()->Get_Count();
+
+				for(int i=0; bResult && i<asParameters()->Get_Count(); i++)
+				{
+					bResult	= pParameter->asParameters()->Get_Parameter(i)->is_Value_Equal(asParameters()->Get_Parameter(i));
 				}
 
 				return( bResult );

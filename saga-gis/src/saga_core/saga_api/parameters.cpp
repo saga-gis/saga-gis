@@ -951,16 +951,21 @@ bool CSG_Parameters::Del_Parameter(int iParameter)
 {
 	if( m_Parameters && iParameter >= 0 && iParameter < m_nParameters )
 	{
-		delete(m_Parameters[iParameter]);
+		CSG_Parameter	*pParameter	= m_Parameters[iParameter];
 
-		m_nParameters--;
-
-		for(; iParameter<m_nParameters; iParameter++)
+		for(m_nParameters--; iParameter<m_nParameters; iParameter++)
 		{
 			m_Parameters[iParameter]	= m_Parameters[iParameter + 1];
 		}
 
 		m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, m_nParameters * sizeof(CSG_Parameter *));
+
+		for(iParameter=pParameter->Get_Children_Count()-1; iParameter>=0; iParameter--)
+		{
+			Del_Parameter(pParameter->Get_Child(iParameter)->Get_Identifier());
+		}
+
+		delete(pParameter);
 
 		return( true );
 	}
