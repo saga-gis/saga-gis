@@ -106,7 +106,7 @@ public:
 };
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CLakeFlood : public CSG_Module_Grid
+class CLakeFlood : public CSG_Module_Grid
 {
 public:
 	CLakeFlood(void);
@@ -133,7 +133,7 @@ private:
 };
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CLakeFloodInteractive : public CSG_Module_Grid_Interactive
+class CLakeFloodInteractive : public CSG_Module_Grid_Interactive
 {
 public:
 	CLakeFloodInteractive(void);

@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CFlow_Parallel : public CFlow  
+class CFlow_Parallel : public CFlow  
 {
 public:
 	CFlow_Parallel(void);
@@ -105,12 +105,12 @@ private:
 	void					Check_Route		(int x, int y);
 
 	void					Set_D8			(int x, int y, int Direction = -1);
-	void					Set_Rho8		(int x, int y );
-	void					Set_DInf		(int x, int y );
-	void					Set_MFD			(int x, int y );
-	void					Set_MMDGFD		(int x, int y );	
-	void					Set_MDInf		(int x, int y );	
-	void					Set_BRM			(int x, int y );
+	void					Set_Rho8		(int x, int y);
+	void					Set_DInf		(int x, int y);
+	void					Set_MFD			(int x, int y);
+	void					Set_MMDGFD		(int x, int y);	
+	void					Set_MDInf		(int x, int y);	
+	void					Set_BRM			(int x, int y);
 
 	//-----------------------------------------------------
 	int						BRM_kgexp[8], BRM_idreh[8];

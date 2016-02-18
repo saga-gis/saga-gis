@@ -101,7 +101,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CFlow : public CSG_Module_Grid  
+class CFlow : public CSG_Module_Grid  
 {
 public:
 	CFlow(void);
@@ -113,14 +113,13 @@ public:
 
 protected:
 
-	bool					m_bGT_Zero;
-
 	int						m_Step;
 
 	double					m_Converge;
 
-	CSG_Grid				*m_pDTM, *m_pRoute, *m_pWeight, *m_pCatch, *m_pFlowPath, *m_pVal_Input, *m_pVal_Mean,
-							*m_pMaterial, *m_pTarget, *m_pAccu_Tot, *m_pAccu_Left, *m_pAccu_Right;
+	CSG_Grid				*m_pDTM, *m_pRoute, *m_pWeights, *m_pFlow, *m_pFlow_Length,
+							*m_pVal_Input, *m_pVal_Mean,
+							*m_pAccu_Material, *m_pAccu_Target, *m_pAccu_Total, *m_pAccu_Left, *m_pAccu_Right;
 
 
 	virtual	int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);

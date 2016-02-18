@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CFlow_Distance : public CSG_Module_Grid  
+class CFlow_Distance : public CSG_Module_Grid  
 {
 public:
 	CFlow_Distance(void);

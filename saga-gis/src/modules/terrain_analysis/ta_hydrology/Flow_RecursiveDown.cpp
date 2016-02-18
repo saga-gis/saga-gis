@@ -84,7 +84,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 {
 	Set_Name		(_TL("Flow Accumulation (Flow Tracing)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Flow tracing algorithms for calculations of flow accumulation and related parameters. "
@@ -115,7 +115,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Rho 8"),
 			_TL("Kinematic Routing Algorithm"),
 			_TL("DEMON")
@@ -141,8 +141,6 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -252,8 +250,6 @@ void CFlow_RecursiveDown::On_Finalize(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -275,7 +271,7 @@ bool CFlow_RecursiveDown::Calculate(int x, int y)
 {
 	double	qFlow;
 
-	if( !m_pDTM->is_NoData(x, y) && (qFlow = m_pWeight ? m_pWeight->asDouble(x, y) : 1.0) > 0.0 )
+	if( !m_pDTM->is_NoData(x, y) && (qFlow = m_pWeights ? m_pWeights->asDouble(x, y) : 1.0) > 0.0 )
 	{
 		Src_Value	= m_pVal_Mean && !m_pVal_Input->is_NoData(x, y) ? m_pVal_Input->asDouble(x, y) : 0.0;
 
@@ -299,21 +295,17 @@ bool CFlow_RecursiveDown::Calculate(int x, int y)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CFlow_RecursiveDown::Add_Flow(int x, int y, double Fraction)
 {
-	if( m_pCatch    )	{	m_pCatch   ->Add_Value(x, y, Fraction);	}
+	if( m_pFlow     )	{	m_pFlow    ->Add_Value(x, y, Fraction);	}
 	if( m_pVal_Mean )	{	m_pVal_Mean->Add_Value(x, y, Fraction * Src_Value );	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

@@ -75,7 +75,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 {
 	Set_Name		(_TL("Flow Accumulation (Top-Down)"));
 
-	Set_Author		("O.Conrad (c) 2001-2014, T.Grabs portions (c) 2010");
+	Set_Author		("O.Conrad (c) 2001-2016, T.Grabs portions (c) 2010");
 
 	Set_Description	(_TW(
 		"Top-down processing of cells for calculation of flow accumulation and related parameters. "
@@ -129,8 +129,8 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "FLOWLEN"		, _TL("Flow Path Length"),
-		_TL(""),
+		NULL	, "FLOW_LENGTH"	, _TL("Flow Path Length"),
+		_TL("average distance that a cell's accumulated flow travelled"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -151,7 +151,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),
@@ -185,16 +185,20 @@ CFlow_Parallel::CFlow_Parallel(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "WEIGHT_GT_0"	, _TL("Suppress Negative Flow Accumulation Values"),
-		_TL("keep accumulated weights above zero; useful e.g. when accumulating measures of water balance."),
+		NULL	, "NO_NEGATIVES", _TL("Prevent Negative Flow Accumulation"),
+		_TL("when using weights: do not transport negative flow, set it to zero instead; useful e.g. when accumulating measures of water balance."),
 		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "WEIGHT_LOSS"	, _TL("Loss through Negative Weights"),
+		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occured"),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -212,28 +216,34 @@ int CFlow_Parallel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 		pParameters->Set_Enabled("LINEAR_VAL", pParameter->asBool());
 	}
 
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHTS") )
+	{
+		pParameters->Set_Enabled("NO_NEGATIVES", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("WEIGHT_LOSS" , pParameter->asGrid() != NULL && Parameters("NO_NEGATIVES")->asBool());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NO_NEGATIVES") )
+	{
+		pParameters->Set_Enabled("WEIGHT_LOSS" , pParameter->asBool());
+	}
+
 	return( CFlow::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CFlow_Parallel::On_Initialize(void)
 {
-	m_pFlowPath	= Parameters("FLOWLEN")->asGrid();
-	m_Converge	= Parameters("CONVERGENCE")->asDouble();
-	m_bGT_Zero	= m_pWeight ? Parameters("WEIGHT_GT_0")->asBool() : false;
+	m_pFlow_Length	= Parameters("FLOW_LENGTH")->asGrid();
+	m_Converge		= Parameters("CONVERGENCE")->asDouble();
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -263,8 +273,6 @@ bool CFlow_Parallel::Calculate(int x, int y)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -291,22 +299,37 @@ bool CFlow_Parallel::Set_Flow(void)
 	CSG_Grid	*pLinear_Dir	= Parameters("LINEAR_DIR")->asGrid();
 
 	//-----------------------------------------------------
+	bool	bNoNegatives	= m_pWeights ? Parameters("NO_NEGATIVES")->asBool() : false;
+
+	CSG_Grid	*pLoss	= Parameters("WEIGHT_LOSS")->asGrid();
+
+	if( bNoNegatives && pLoss )
+	{
+		pLoss->Assign_NoData();
+	}
+
+	//-----------------------------------------------------
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
 		int		x, y;
 
 		if( m_pDTM->Get_Sorted(n, x, y) )
 		{
-			if( m_bGT_Zero && m_pCatch->asDouble(x, y) < 0.0 )
+			if( bNoNegatives && m_pFlow->asDouble(x, y) < 0.0 )
 			{
-				m_pCatch->Set_Value(x, y, 0.0);
+				if( pLoss )
+				{
+					pLoss->Set_Value(x, y, fabs(m_pFlow->asDouble(x, y)));
+				}
+
+				m_pFlow->Set_Value(x, y, 0.0);
 			}
 
 			if( pLinear_Dir && !pLinear_Dir->is_NoData(x, y) )
 			{
 				Set_D8(x, y, pLinear_Dir->asInt(x, y));
 			}
-			else if( dLinear > 0.0 && dLinear <= (pLinear_Val && !pLinear_Val->is_NoData(x, y) ? pLinear_Val->asDouble(x, y) : m_pCatch->asDouble(x, y)) )
+			else if( dLinear > 0.0 && dLinear <= (pLinear_Val && !pLinear_Val->is_NoData(x, y) ? pLinear_Val->asDouble(x, y) : m_pFlow->asDouble(x, y)) )
 			{
 				Set_D8(x, y, pLinear_Dir && !pLinear_Dir->is_NoData(x, y) ? pLinear_Dir->asInt(x, y) : -1);
 			}

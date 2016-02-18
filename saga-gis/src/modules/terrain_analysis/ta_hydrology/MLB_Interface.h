@@ -67,13 +67,6 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
-//---------------------------------------------------------
-#ifdef ta_hydrology_EXPORTS
-	#define	ta_hydrology_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	ta_hydrology_EXPORT	_SAGA_DLL_IMPORT
-#endif
-
 
 ///////////////////////////////////////////////////////////
 //														 //

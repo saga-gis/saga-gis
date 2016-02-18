@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CFlow_RecursiveUp : public CFlow
+class CFlow_RecursiveUp : public CFlow
 {
 public:
 	CFlow_RecursiveUp(void);
@@ -90,26 +90,32 @@ public:
 
 protected:
 
-	virtual void			On_Initialize	(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			Calculate		(void);
-	virtual bool			Calculate		(int x, int y);
+	virtual void			On_Initialize			(void);
+
+	virtual bool			Calculate				(void);
+	virtual bool			Calculate				(int x, int y);
 
 
 private:
 
+	bool					m_bNoNegatives;
+
 	double					***m_Flow;
+	
+	CSG_Grid				*m_pLoss;
 
 
 	void					On_Create		(void);
 	void					On_Destroy		(void);
 
-	void					Get_Flow		(int x, int y );
+	void					Get_Flow		(int x, int y);
 
-	void					Set_D8			(int x, int y );
-	void					Set_Rho8		(int x, int y );
-	void					Set_DInf		(int x, int y );
-	void					Set_MFD			(int x, int y );
+	void					Set_D8			(int x, int y);
+	void					Set_Rho8		(int x, int y);
+	void					Set_DInf		(int x, int y);
+	void					Set_MFD			(int x, int y);
 };
 
 

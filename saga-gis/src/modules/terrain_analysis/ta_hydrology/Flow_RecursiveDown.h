@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CFlow_RecursiveDown : public CFlow  
+class CFlow_RecursiveDown : public CFlow  
 {
 public:
 	CFlow_RecursiveDown(void);

@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CTWI : public CSG_Module_Grid
+class CTWI : public CSG_Module_Grid
 {
 public:
 	CTWI(void);
@@ -105,7 +105,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CStream_Power : public CSG_Module_Grid
+class CStream_Power : public CSG_Module_Grid
 {
 public:
 	CStream_Power(void);
@@ -128,7 +128,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CLS_Factor : public CSG_Module_Grid
+class CLS_Factor : public CSG_Module_Grid
 {
 public:
 	CLS_Factor(void);
@@ -158,7 +158,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CTCI_Low : public CSG_Module_Grid
+class CTCI_Low : public CSG_Module_Grid
 {
 public:
 	CTCI_Low(void);

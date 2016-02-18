@@ -110,32 +110,23 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 
 	//-----------------------------------------------------
-	// Input...
-
 	Parameters.Add_Grid(
 		NULL	, "TARGETS"		, _TL("Target Areas"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-
-	//-----------------------------------------------------
-	// Output...
-
 	Parameters.Add_Grid(
-		NULL	, "FLOWLEN"		, _TL("Flow Path Length"),
-		_TL(""),
+		NULL	, "FLOW_LENGTH"	, _TL("Flow Path Length"),
+		_TL("average distance that a cell's accumulated flow travelled"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-
 	//-----------------------------------------------------
-	// Method...
-
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Deterministic Infinity"),
@@ -145,8 +136,6 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 
 	//-----------------------------------------------------
-	// Options...
-
 	Parameters.Add_Value(
 		NULL	, "CONVERGENCE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple m_Flow Direction Algorithm (Freeman 1991)"),
@@ -154,22 +143,45 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "WEIGHT_GT_0"	, _TL("Suppress Negative Flow Accumulation Values"),
-		_TL("keep accumulated weights above zero; useful e.g. when accumulating measures of water balance."),
+		NULL	, "NO_NEGATIVES", _TL("Prevent Negative Flow Accumulation"),
+		_TL("when using weights: do not transport negative flow, set it to zero instead; useful e.g. when accumulating measures of water balance."),
 		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "WEIGHT_LOSS"	, _TL("Loss through Negative Weights"),
+		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occured"),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	
 	//-----------------------------------------------------
-	// Initialisations...
-
 	m_Flow	= NULL;
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CFlow_RecursiveUp::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("CONVERGENCE", pParameter->asInt() == 4 || pParameter->asInt() == 5);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHTS") )
+	{
+		pParameters->Set_Enabled("NO_NEGATIVES", pParameter->asGrid() != NULL);
+	}
+
+	return( CFlow::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -241,22 +253,25 @@ void CFlow_RecursiveUp::On_Destroy(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CFlow_RecursiveUp::On_Initialize(void)
 {
-	m_pFlowPath	= Parameters("FLOWLEN")->asGrid();
-	m_Converge	= Parameters("CONVERGENCE")->asDouble();
-	m_bGT_Zero	= m_pWeight ? Parameters("WEIGHT_GT_0")->asBool() : false;
+	m_pFlow_Length	= Parameters("FLOW_LENGTH")->asGrid();
+	m_Converge		= Parameters("CONVERGENCE")->asDouble();
+
+	m_bNoNegatives	= m_pWeights ? Parameters("NO_NEGATIVES")->asBool() : false;
+	m_pLoss			= Parameters("WEIGHT_LOSS")->asGrid();
+
+	if( m_bNoNegatives && m_pLoss )
+	{
+		m_pLoss->Assign_NoData();
+	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -298,8 +313,6 @@ bool CFlow_RecursiveUp::Calculate(int x, int y)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -328,17 +341,20 @@ void CFlow_RecursiveUp::Get_Flow(int x, int y)
 			}
 		}
 
-		if( m_bGT_Zero && m_pCatch->asDouble(x, y) < 0.0 )
+		if( m_bNoNegatives && m_pFlow->asDouble(x, y) < 0.0 )
 		{
-			m_pCatch->Set_Value(x, y, 0.0);
+			if( m_pLoss )
+			{
+				m_pLoss->Set_Value(x, y, fabs(m_pFlow->asDouble(x, y)));
+			}
+
+			m_pFlow->Set_Value(x, y, 0.0);
 		}
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
