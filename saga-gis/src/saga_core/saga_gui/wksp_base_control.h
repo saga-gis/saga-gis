@@ -91,7 +91,7 @@ public:
 	virtual ~CWKSP_Base_Control(void);
 
 	virtual int					Get_Selection_Count	(void);
-	virtual CWKSP_Base_Item *	Get_Item_Selected	(void);
+	virtual CWKSP_Base_Item *	Get_Item_Selected	(bool bUpdate = false);
 	virtual bool				Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
 
 	void						On_Command			(wxCommandEvent  &event);

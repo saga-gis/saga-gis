@@ -86,6 +86,7 @@
 #include "wksp_table_manager.h"
 #include "wksp_table.h"
 #include "wksp_shapes_manager.h"
+#include "wksp_shapes.h"
 #include "wksp_tin_manager.h"
 #include "wksp_pointcloud_manager.h"
 #include "wksp_grid_manager.h"
@@ -449,9 +450,20 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu;
+	if( m_Sel_Items.Count() > 0 )
+	{
+		wxMenu	*pMenu	= new wxMenu;
 
-	pMenu	= new wxMenu(_TL("Data"));
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SHOW);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_LOAD);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
+
+		return( pMenu );
+	}
+
+	//-----------------------------------------------------
+	wxMenu	*pMenu	= new wxMenu(_TL("Data"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 //	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
@@ -1265,13 +1277,33 @@ bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+size_t CWKSP_Data_Manager::MultiSelect_Count(void)
+{
+	return( m_Sel_Items.Count() );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Data_Manager::MultiSelect_Check(void)
 {
+	enum
+	{
+		TYPE_Table,
+		TYPE_Shapes_Point,
+		TYPE_Shapes_Points,
+		TYPE_Shapes_Line,
+		TYPE_Shapes_Polygon,
+		TYPE_TIN,
+		TYPE_PointCloud,
+		TYPE_Grid,
+		TYPE_Undefined
+	};
+
+	//-----------------------------------------------------
 	wxArrayTreeItemIds	IDs;
 
 	if( Get_Control()->GetSelections(IDs) > 1 )
 	{
-		TWKSP_Item	Type	= WKSP_ITEM_Undefined;
+		int	iType, Type	= TYPE_Undefined;
 
 		for(size_t iID=0; iID<IDs.Count(); iID++)
 		{
@@ -1279,20 +1311,28 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 
 			switch( pItem->Get_Type() )
 			{
-			default                  :	pItem	= NULL;	break;
-			case WKSP_ITEM_Table     :
-			case WKSP_ITEM_Shapes    :
-			case WKSP_ITEM_TIN       :
-			case WKSP_ITEM_PointCloud:
-			case WKSP_ITEM_Grid      :	break;
+			default                    :	iType	= TYPE_Undefined     ;	break;
+			case WKSP_ITEM_Table       :	iType	= TYPE_Table         ;	break;
+			case WKSP_ITEM_TIN         :	iType	= TYPE_TIN           ;	break;
+			case WKSP_ITEM_PointCloud  :	iType	= TYPE_PointCloud    ;	break;
+			case WKSP_ITEM_Grid        :	iType	= TYPE_Grid          ;	break;
+			case WKSP_ITEM_Shapes      :	switch( ((CWKSP_Shapes *)pItem)->Get_Shapes()->Get_Type() )
+				{
+				default                :	iType	= TYPE_Undefined     ;	break;
+				case SHAPE_TYPE_Point  :	iType	= TYPE_Shapes_Point  ;	break;
+				case SHAPE_TYPE_Points :	iType	= TYPE_Shapes_Points ;	break;
+				case SHAPE_TYPE_Line   :	iType	= TYPE_Shapes_Line   ;	break;
+				case SHAPE_TYPE_Polygon:	iType	= TYPE_Shapes_Polygon;	break;
+				}
+				break;
 			}
 
 			//---------------------------------------------
-			if( pItem )
+			if( iType != TYPE_Undefined )
 			{
-				if( Type == WKSP_ITEM_Undefined )
+				if( Type == TYPE_Undefined )
 				{
-					Type	= pItem->Get_Type();
+					Type	= iType;
 
 					m_Sel_Parms[0].Assign(pItem->Get_Parameters());
 
@@ -1300,38 +1340,52 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 
 					m_Sel_Items.Add(IDs[iID]);
 				}
-				else if( Type == pItem->Get_Type() )
+				else if( Type == iType )
 				{
 					m_Sel_Items.Add(IDs[iID]);
 
-					for(int i=m_Sel_Parms[0].Get_Count()-1; i>=0; i--)
+					for(int i=0; i<m_Sel_Parms[0].Get_Count(); i++)
 					{
-						if( !m_Sel_Parms[0][i].is_Compatible(pItem->Get_Parameters()->Get_Parameter(i)) )
+						CSG_Parameter	&Parameter	= m_Sel_Parms[0][i];
+						
+						CSG_Parameter	*pParameter	= pItem->Get_Parameters()->Get_Parameter(Parameter.Get_Identifier());
+
+						if( !Parameter.is_Compatible(pParameter) )
 						{
-							m_Sel_Parms[0].Del_Parameter(i);
+							m_Sel_Parms[0].Del_Parameter(i--);
 						}
-						else if( !m_Sel_Parms[0][i].is_Value_Equal(pItem->Get_Parameters()->Get_Parameter(i)) )
+						else if( !Parameter.is_Value_Equal(pParameter) )
 						{
-							if( m_Sel_Parms[0][i].is_DataObject() )
+							if( Parameter.is_DataObject() )
 							{
-								m_Sel_Parms[0][i].Set_Value(DATAOBJECT_NOTSET);
+								Parameter.Set_Value(DATAOBJECT_NOTSET);
 							}
-							else switch( m_Sel_Parms[0][i].Get_Type() )
+							else if( Parameter.is_DataObject_List() )
+							{
+								Parameter.asList()->Del_Items();
+							}
+							else switch( Parameter.Get_Type() )
 							{
 							default:
-								m_Sel_Parms[0][i].Restore_Default();
+								Parameter.Restore_Default();
 								break;
 
-							case PARAMETER_TYPE_String:
-							case PARAMETER_TYPE_Text:
-							case PARAMETER_TYPE_FilePath:
-								m_Sel_Parms[0][i].Set_Value(CSG_String(""));
-								break;
+							case PARAMETER_TYPE_Bool       :
+							case PARAMETER_TYPE_Int        :
+							case PARAMETER_TYPE_Double     :
+							case PARAMETER_TYPE_Degree     :
+							case PARAMETER_TYPE_Color      :
+							case PARAMETER_TYPE_Table_Field:
+							case PARAMETER_TYPE_Choice     :	Parameter.Set_Value(0.0);	break;
+
+							case PARAMETER_TYPE_String     :
+							case PARAMETER_TYPE_Text       :
+							case PARAMETER_TYPE_FilePath   :	Parameter.Set_Value(CSG_String(""));	break;
 							}
 						}
 					}
 				}
-				else //  Type != pItem->Get_Type()
+				else //  Type != iType
 				{
 					IDs.Clear();
 				}
@@ -1346,7 +1400,6 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 			if( g_pACTIVE->Get_Active() == this )
 			{
 				g_pACTIVE->Get_Parameters()->Update_Parameters(&m_Sel_Parms[0], false);
-			//	g_pACTIVE->Get_Parameters()->Set_Parameters(this);
 			}
 
 			return( true );
@@ -1370,11 +1423,13 @@ bool CWKSP_Data_Manager::MultiSelect_Update(void)
 		return( false );
 	}
 
-	for(int i=m_Sel_Parms[0].Get_Count()-1; i>=0; i--)	// remove unchanged parameters from backup list (:= 1)
+	CSG_Parameters	Changed;
+
+	for(int i=0; i<m_Sel_Parms[0].Get_Count(); i++)		// compare to backup list [1] to detect changed parameters
 	{
-		if( m_Sel_Parms[0][i].is_Value_Equal(&m_Sel_Parms[1][i]) )
+		if( !m_Sel_Parms[0][i].is_Value_Equal(&m_Sel_Parms[1][i]) )
 		{
-			m_Sel_Parms[0].Del_Parameter(i);
+			Changed.Add_Parameter(&m_Sel_Parms[0][i]);
 		}
 	}
 
@@ -1382,13 +1437,12 @@ bool CWKSP_Data_Manager::MultiSelect_Update(void)
 	{
 		CWKSP_Data_Item	*pItem	= (CWKSP_Data_Item *)Get_Control()->GetItemData(m_Sel_Items[iID]);
 
-		pItem->Get_Parameters()->Assign_Values(&m_Sel_Parms[0]);
+		pItem->Get_Parameters()->Assign_Values(&Changed);
 
 		pItem->Parameters_Changed();
 	}
 
-	m_Sel_Parms[1].Assign_Values(&m_Sel_Parms[0]);	// restore from backup list with updated values
-	m_Sel_Parms[0].Assign       (&m_Sel_Parms[1]);
+	m_Sel_Parms[1].Assign_Values(&m_Sel_Parms[0]);		// update backup list with changed values
 
 	return( true );
 }

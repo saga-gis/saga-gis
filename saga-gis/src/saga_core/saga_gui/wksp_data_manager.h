@@ -145,6 +145,7 @@ public:
 
 	int								Get_Numbering		(void)	const	{	return( m_Numbering );	}
 
+	size_t							MultiSelect_Count	(void);
 	bool							MultiSelect_Check	(void);
 	bool							MultiSelect_Update	(void);
 

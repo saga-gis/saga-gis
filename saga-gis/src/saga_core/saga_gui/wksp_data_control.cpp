@@ -298,16 +298,21 @@ int CWKSP_Data_Control::Get_Selection_Count(void)
 }
 
 //---------------------------------------------------------
-CWKSP_Base_Item * CWKSP_Data_Control::Get_Item_Selected(void)
+CWKSP_Base_Item * CWKSP_Data_Control::Get_Item_Selected(bool bUpdate)
 {
 	if( m_bUpdate_Selection )
 	{
 		return( NULL );
 	}
 
-	if( Get_Manager()->MultiSelect_Check() )
+	if( bUpdate )
 	{
-		return( m_pManager );
+		Get_Manager()->MultiSelect_Check();
+	}
+
+	if( Get_Manager()->MultiSelect_Count() > 0 )
+	{
+		return( Get_Manager() );
 	}
 
 	wxArrayTreeItemIds	IDs;

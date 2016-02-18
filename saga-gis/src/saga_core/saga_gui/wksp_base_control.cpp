@@ -423,7 +423,7 @@ int CWKSP_Base_Control::Get_Selection_Count(void)
 }
 
 //---------------------------------------------------------
-CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(void)
+CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(bool bUpdate)
 {
 	wxTreeItemId	ID	= GetSelection();
 
@@ -453,34 +453,17 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 //---------------------------------------------------------
 wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
 {
-	wxMenu			*pMenu	= NULL;
 	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
 
 	if( pItem )
 	{
-		pMenu	= pItem->Get_Menu();
-	}
-	else if( GetWindowStyle() & wxTR_MULTIPLE )
-	{
-		wxArrayTreeItemIds	IDs;
-
-		if( GetSelections(IDs) > 0 )
-		{
-			pMenu	= new wxMenu;
-
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SHOW);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_LOAD);
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
-		}
+		return(	pItem->Get_Menu() );
 	}
 
-	if( pMenu == NULL )
-	{
-		pMenu	= new wxMenu;
+	//-----------------------------------------------------
+	wxMenu	*pMenu	= new wxMenu;
 
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-	}
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 
 	return( pMenu );
 }
@@ -976,7 +959,7 @@ void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 {
 	if( g_pACTIVE )
 	{
-		CWKSP_Base_Item	*pItem	= Get_Item_Selected();
+		CWKSP_Base_Item	*pItem	= Get_Item_Selected(true);
 
 		if( pItem )
 		{
