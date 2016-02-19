@@ -87,23 +87,23 @@ class CGrid_Statistics_AddTo_Polygon : public CSG_Module_Grid
 public:
 	CGrid_Statistics_AddTo_Polygon(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Grid Values") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Grid Values") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_Grid				m_Index;
+	bool					Get_Simple				(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles, CSG_Grid &Index);
+	bool					Get_Simple_Index		(CSG_Shapes *pPolygons, CSG_Grid &Index);
 
-
-	bool					Get_Statistics		(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles);
-	bool					Get_Statistics_Alt	(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles);
-
-	bool					Get_Index			(CSG_Shapes *pPolygons);
+	bool					Get_Precise				(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles, bool bParallelized);
+	bool					Get_Precise				(CSG_Grid *pGrid, CSG_Shape_Polygon *pPolygon, CSG_Simple_Statistics &Statistics, bool bQuantiles, int Method);
 
 };
 

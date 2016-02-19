@@ -100,21 +100,29 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("standard"),
-			_TL("shape wise, supports overlapping polygons")
-		), 0
-	);
-
-	Parameters.Add_Choice(
 		NULL	, "NAMING"		, _TL("Field Naming"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("grid number"),
 			_TL("grid name")
 		), 1
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("simple and fast"),
+			_TL("polygon wise (cell centers)"),
+			_TL("polygon wise (cell area)"),
+			_TL("polygon wise (cell area weighted)")
+		), 0
+	);
+
+	Parameters.Add_Bool(
+		NULL	, "PARALLELIZED"	, _TL("Use Multiple Cores"),
+		_TL(""),
+		false
 	);
 
 	//-----------------------------------------------------
@@ -141,7 +149,21 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Statistics_AddTo_Polygon::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("PARALLELIZED", pParameter->asInt() != 0 && SG_OMP_Get_Max_Num_Threads() > 1);
+	}
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -200,10 +222,16 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	Naming	= Parameters("NAMING")->asInt();
-	int	Method	= Parameters("METHOD")->asInt();
+	bool	bParallelized	= Parameters("PARALLELIZED")->is_Enabled() && Parameters("PARALLELIZED")->asBool();
 
-	if( Method == 0 && !Get_Index(pPolygons) )
+	int		Naming			= Parameters("NAMING")->asInt();
+
+	int		Method			= Parameters("METHOD")->asInt();
+
+	//-----------------------------------------------------
+	CSG_Grid	Index;
+
+	if( Method == 0 && !Get_Simple_Index(pPolygons, Index) )
 	{
 		Error_Set(_TL("no grids in selection"));
 
@@ -225,8 +253,8 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	{
 		Process_Set_Text(CSG_String::Format("[%d/%d] %s", 1 + iGrid, pGrids->Get_Count(), pGrids->asGrid(iGrid)->Get_Name()));
 
-		if( (Method == 0 && Get_Statistics    (pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0))
-		||  (Method == 1 && Get_Statistics_Alt(pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0)) )
+		if( (Method == 0 && Get_Simple (pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0, Index))
+		||  (Method != 0 && Get_Precise(pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0, bParallelized)) )
 		{
 			nFields	= pPolygons->Get_Field_Count();
 
@@ -302,12 +330,126 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles, bool bParallelized)
+{
+	int	Method	= Parameters("METHOD")->asInt();
+
+	if( bParallelized )
+	{
+		#pragma omp parallel for
+		for(int i=0; i<pPolygons->Get_Count(); i++)
+		{
+			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bQuantiles, Method);
+		}
+	}
+	else
+	{
+		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+		{
+			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bQuantiles, Method);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Polygon *pPolygon, CSG_Simple_Statistics &Statistics, bool bQuantiles, int Method)
+{
+	//-----------------------------------------------------
+	CSG_Shapes	Intersect(SHAPE_TYPE_Polygon);
+
+	CSG_Shape_Polygon	*pCell, *pArea;
+
+	if( Method == 3 )	// polygon wise (cell area weighted)
+	{
+		pCell	= (CSG_Shape_Polygon *)Intersect.Add_Shape();
+		pArea	= (CSG_Shape_Polygon *)Intersect.Add_Shape();
+	}
+
+	//-----------------------------------------------------
+	Statistics.Create(bQuantiles);
+
+	int	ax	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()) - 1;	if( ax < 0         )	ax	= 0;
+	int	bx	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()) + 1;	if( bx >= Get_NX() )	bx	= Get_NX() - 1;
+	int	ay	= Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin()) - 1;	if( ay < 0         )	ay	= 0;
+	int	by	= Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax()) + 1;	if( by >= Get_NY() )	by	= Get_NY() - 1;
+
+	TSG_Point	Center;
+	TSG_Rect	Cell;
+
+	//-----------------------------------------------------
+	Center.y	= Get_System()->Get_yGrid_to_World(ay);
+	Cell.yMin	= Center.y - 0.5 * Get_Cellsize();
+	Cell.yMax	= Cell.yMin + Get_Cellsize();
+		
+	for(int y=ay; y<=by; y++, Center.y+=Get_Cellsize(), Cell.yMin+=Get_Cellsize(), Cell.yMax+=Get_Cellsize())
+	{
+		Center.x	= Get_System()->Get_xGrid_to_World(ax);
+		Cell.xMin	= Center.x - 0.5 * Get_Cellsize();
+		Cell.xMax	= Cell.xMin + Get_Cellsize();
+
+		for(int x=ax; x<=bx; x++, Center.x+=Get_Cellsize(), Cell.xMin+=Get_Cellsize(), Cell.xMax+=Get_Cellsize())
+		{
+			if( !pGrid->is_NoData(x, y) )
+			{
+				switch( Method )
+				{
+				//-----------------------------------------
+				default:	// polygon wise (cell centers)
+					if( pPolygon->Contains(Center) )
+					{
+						Statistics	+= pGrid->asDouble(x, y);
+					}
+					break;
+
+				//-----------------------------------------
+				case  2:	// polygon wise (cell area)
+					if( pPolygon->Intersects(Cell) )
+					{
+						Statistics	+= pGrid->asDouble(x, y);
+					}
+					break;
+
+				//-----------------------------------------
+				case  3:	// polygon wise (cell area weighted)
+					switch( pPolygon->Intersects(Cell) )
+					{
+					case INTERSECTION_None     :	break;
+					case INTERSECTION_Identical:
+					case INTERSECTION_Contains :	Statistics.Add_Value(pGrid->asDouble(x, y),       Get_Cellarea());	break;
+					case INTERSECTION_Contained:	Statistics.Add_Value(pGrid->asDouble(x, y), pPolygon->Get_Area());	break;
+					case INTERSECTION_Overlaps :
+						pCell->Del_Parts();
+
+						pCell->Add_Point(Cell.xMin, Cell.yMin);	pCell->Add_Point(Cell.xMin, Cell.yMax);
+						pCell->Add_Point(Cell.xMax, Cell.yMax);	pCell->Add_Point(Cell.xMax, Cell.yMin);
+
+						if( SG_Polygon_Intersection(pPolygon, pCell, pArea) )
+						{
+							Statistics.Add_Value(pGrid->asDouble(x, y), pArea->Get_Area());
+						}
+						break;
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Statistics(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles)
+bool CGrid_Statistics_AddTo_Polygon::Get_Simple(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles, CSG_Grid &Index)
 {
 	int		i;
 
@@ -320,7 +462,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Statistics(CSG_Grid *pGrid, CSG_Shapes 
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( (i = m_Index.asInt(x, y)) >= 0 && i < pPolygons->Get_Count() )
+			if( !pGrid->is_NoData(x, y) && (i = Index.asInt(x, y)) >= 0 && i < pPolygons->Get_Count() )
 			{
 				Statistics[i]	+= pGrid->asDouble(x, y);
 			}
@@ -331,47 +473,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Statistics(CSG_Grid *pGrid, CSG_Shapes 
 }
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Statistics_Alt(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles)
-{
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
-	{
-		Statistics[i].Create(bQuantiles);
-
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
-
-		int	ax	= Get_System()->Get_xWorld_to_Grid(pPolygons->Get_Extent().Get_XMin()) - 1;	if( ax < 0         )	ax	= 0;
-		int	bx	= Get_System()->Get_xWorld_to_Grid(pPolygons->Get_Extent().Get_XMax()) + 1;	if( bx >= Get_NX() )	bx	= Get_NX() - 1;
-		int	ay	= Get_System()->Get_yWorld_to_Grid(pPolygons->Get_Extent().Get_YMin()) - 1;	if( ay < 0         )	ay	= 0;
-		int	by	= Get_System()->Get_yWorld_to_Grid(pPolygons->Get_Extent().Get_YMax()) + 1;	if( by >= Get_NY() )	by	= Get_NY() - 1;
-
-		double	py	= Get_System()->Get_yGrid_to_World(ay);
-
-		for(int y=ay; y<=by; y++, py+=Get_Cellsize())
-		{
-			double	px	= Get_System()->Get_xGrid_to_World(ax);
-
-			for(int x=ax; x<=bx; x++, px+=Get_Cellsize())
-			{
-				if( !pGrid->is_NoData(x, y) && pPolygon->Contains(px, py) )
-				{
-					Statistics[i]	+= pGrid->asDouble(x, y);
-				}
-			}
-		}
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Index(CSG_Shapes *pPolygons)
+bool CGrid_Statistics_AddTo_Polygon::Get_Simple_Index(CSG_Shapes *pPolygons, CSG_Grid &Index)
 {
 	bool		bFill, *bCrossing;
 	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
@@ -381,15 +483,15 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Index(CSG_Shapes *pPolygons)
 	CSG_Shape	*pPolygon;
 
 	//-----------------------------------------------------
-	m_Index.Create(*Get_System(), pPolygons->Get_Count() < 32767 ? SG_DATATYPE_Short : SG_DATATYPE_Int);
-	m_Index.Assign(-1.0);
+	Index.Create(*Get_System(), pPolygons->Get_Count() < 32767 ? SG_DATATYPE_Short : SG_DATATYPE_Int);
+	Index.Assign(-1.0);
 
 	bCrossing	= (bool *)SG_Malloc(Get_NX() * sizeof(bool));
 
 	//-----------------------------------------------------
 	for(iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
 	{
-		pPolygon		= pPolygons->Get_Shape(iShape);
+		pPolygon	= pPolygons->Get_Shape(iShape);
 		Extent		= pPolygon->Get_Extent().m_rect;
 
 		xStart		= Get_System()->Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
@@ -448,7 +550,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Index(CSG_Shapes *pPolygons)
 
 					if( bFill )
 					{
-						m_Index.Set_Value(x, y, iShape);
+						Index.Set_Value(x, y, iShape);
 					}
 				}
 			}
