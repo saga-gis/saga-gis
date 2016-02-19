@@ -135,7 +135,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 		_TW("Number of processors to use for parallelization. Should be set to the number "
 		    "of physical processors, and not to the total number of physical and logical processors "
 			"on systems supporting hyper-threading."),
-		PARAMETER_TYPE_Int	, SG_Get_Max_Num_Threads_Omp(), 1, true, SG_Get_Max_Num_Procs_Omp(), true
+		PARAMETER_TYPE_Int	, SG_OMP_Get_Max_Num_Threads(), 1, true, SG_OMP_Get_Max_Num_Procs(), true
 	);
 #endif
 
@@ -231,7 +231,7 @@ bool CWKSP_Module_Manager::Initialise(void)
 	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
 
 #ifdef _OPENMP
-	SG_Set_Max_Num_Threads_Omp(m_Parameters("OMP_THREADS_MAX")->asInt());
+	SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());
 #endif
 
 	//-----------------------------------------------------
@@ -458,7 +458,7 @@ void CWKSP_Module_Manager::Parameters_Changed(void)
 	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
 
 #ifdef _OPENMP
-	SG_Set_Max_Num_Threads_Omp(m_Parameters("OMP_THREADS_MAX")->asInt());
+	SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());
 #endif
 
 	m_pMenu_Modules->Update();

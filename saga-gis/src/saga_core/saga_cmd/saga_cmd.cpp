@@ -519,12 +519,12 @@ bool		Check_Flags		(const CSG_String &Argument)
 		#ifdef _OPENMP
 		int	nCores	= 1;
 
-		if( !CSG_String(Argument).AfterFirst('=').asInt(nCores) || nCores > SG_Get_Max_Num_Procs_Omp() )
+		if( !CSG_String(Argument).AfterFirst('=').asInt(nCores) || nCores > SG_OMP_Get_Max_Num_Procs() )
 		{
-			nCores	= SG_Get_Max_Num_Procs_Omp();
+			nCores	= SG_OMP_Get_Max_Num_Procs();
 		}
 
-		SG_Set_Max_Num_Threads_Omp(nCores);
+		SG_OMP_Set_Max_Num_Threads(nCores);
 		#endif // _OPENMP
 
 		return( true );
@@ -614,7 +614,7 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("tool        "), pModule ->Get_Name     ().c_str());
 			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("author      "), pModule ->Get_Author   ().c_str());
 		#ifdef _OPENMP
-			SG_PRINTF(SG_T("%s:\t%d [%d]\n"), _TL("processors  "), SG_Get_Max_Num_Threads_Omp(), SG_Get_Max_Num_Procs_Omp());
+			SG_PRINTF(SG_T("%s:\t%d [%d]\n"), _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
 		#endif // _OPENMP
 			SG_PRINTF(SG_T("____________________________\n\n"));
 		}

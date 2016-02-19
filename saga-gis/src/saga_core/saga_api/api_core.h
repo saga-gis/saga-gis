@@ -170,11 +170,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef _OPENMP
-SAGA_API_DLL_EXPORT int		SG_Get_Max_Num_Threads_Omp		(void);
-SAGA_API_DLL_EXPORT void	SG_Set_Max_Num_Threads_Omp		(int iCores);
-SAGA_API_DLL_EXPORT int		SG_Get_Max_Num_Procs_Omp		(void);
-#endif
+SAGA_API_DLL_EXPORT void			SG_OMP_Set_Max_Num_Threads	(int iCores);
+SAGA_API_DLL_EXPORT int				SG_OMP_Get_Max_Num_Threads	(void);
+SAGA_API_DLL_EXPORT int				SG_OMP_Get_Max_Num_Procs	(void);
 
 
 ///////////////////////////////////////////////////////////
