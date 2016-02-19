@@ -333,12 +333,15 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 	if( SG_MODULE_PARAMETER_SET("CRS_PROJ4" , SG_T("+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +k=1.0"))
 	&&  SG_MODULE_PARAMETER_SET("SOURCE"    , &rTarget)
 	&&  SG_MODULE_PARAMETER_SET("TARGET"    , &rSource)
+	&&  SG_MODULE_PARAMETER_SET("PRECISE"   , true)
 	&&  pModule->Execute() )
 	{
-		double	Cellsize	= rSource.Get_Extent().Get_XRange() / pTarget->Get_NX() < rSource.Get_Extent().Get_YRange() / pTarget->Get_NY()
-							? rSource.Get_Extent().Get_XRange() / pTarget->Get_NX() : rSource.Get_Extent().Get_YRange() / pTarget->Get_NY();
+		Extent	= rSource.Get_Extent();
 
-		System.Assign(Cellsize, rSource.Get_Extent());
+		double	Cellsize	= Extent.Get_XRange() / pTarget->Get_NX() < Extent.Get_YRange() / pTarget->Get_NY()
+							? Extent.Get_XRange() / pTarget->Get_NX() : Extent.Get_YRange() / pTarget->Get_NY();
+
+		System.Assign(Cellsize, Extent);
 
 		pModule->Settings_Pop();
 
@@ -349,6 +352,7 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 
 	return( false );
 }
+
 
 ///////////////////////////////////////////////////////////
 //														 //
