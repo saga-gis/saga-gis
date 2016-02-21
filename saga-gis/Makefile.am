@@ -9,7 +9,7 @@ ACLOCAL_AMFLAGS = -I m4
 # additional directories to package
 EXTRA_DIST = ./src/scripting
 
-toolchainsdir = $(libdir)/saga/toolchains
+toolchainsdir = $(pkgdatadir)/toolchains
 
 install-data-hook:
 	test -d $(toolchainsdir) || mkdir -p $(toolchainsdir)
