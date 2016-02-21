@@ -2070,7 +2070,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	this.showCoords = showCoords;\n"
 		"	//initialize array of timestamp/layertoLoad values\n"
 		"	this.nrLayerToLoad = new Array();\n"
-		"	this.timestamp = null; //holds the timestamp after a zoom or pan occured\n"
+		"	this.timestamp = null; //holds the timestamp after a zoom or pan occurred\n"
 		"	//initialize coordinate display if showCoords == true\n"
 		"	if (this.showCoords == true) {\n"
 		"		//add event listener for coordinate display\n"

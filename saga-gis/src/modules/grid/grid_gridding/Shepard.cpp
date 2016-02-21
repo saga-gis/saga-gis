@@ -147,7 +147,7 @@ void CShepard2d::GetValue(double px, double py, double &q)
 }
 
 /*/////////////////////////////////////////////////////////////////////////////////////
-The folowing source ist an automatic translation 
+The following source ist an automatic translation 
 with f2c of Module 660 in TOMS
  
 QSHEP2D: Fortran routines implementing the quadratic Shepard method for

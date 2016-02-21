@@ -317,7 +317,7 @@ void ParseVars(int& zeile, int& pos)
 					}
 					else if (subz[l-1] == ')')
 					{
-						printf("loadig files not suported");
+						printf("loading files not supported");
 						return;
 						/*
 						int posk;

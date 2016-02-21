@@ -122,7 +122,7 @@ CTOBIA::CTOBIA(void)
 		);
 
 	Parameters.Add_Grid(
-		NULL, "E", "TOBIA classes", "Resulting TOBIA classses (1-7) grid", PARAMETER_OUTPUT
+		NULL, "E", "TOBIA classes", "Resulting TOBIA classes (1-7) grid", PARAMETER_OUTPUT
 		);
 
 	Parameters.Add_Grid(

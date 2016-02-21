@@ -62,7 +62,7 @@ CGrid_Plotter::CGrid_Plotter(void)
 	Set_Description(_TW(
 		"Generate a grid based on a functional expression.\n"
 		"The function interpreter uses an expression parser "
-		"that offers the folowing operators:\n\n"
+		"that offers the following operators:\n\n"
 		"+ Addition\n"
 		"- Subtraction\n"
 		"* Multiplication\n"
