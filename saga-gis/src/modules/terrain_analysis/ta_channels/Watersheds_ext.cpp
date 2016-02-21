@@ -617,7 +617,7 @@ CSG_Shape * CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons)
 							}
 							else
 							{
-								return( false );
+								return( NULL );
 							}
 						}
 					}
