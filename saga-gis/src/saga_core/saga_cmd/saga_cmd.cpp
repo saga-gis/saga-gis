@@ -89,8 +89,8 @@ bool		Check_First		(const CSG_String &Argument);
 bool		Check_Flags		(const CSG_String &Argument);
 
 void		Print_Libraries	(void);
-void		Print_Modules	(CSG_Module_Library *pLibrary);
-void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule);
+void		Print_Tools		(CSG_Module_Library *pLibrary);
+void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pTool);
 
 void		Print_Logo		(void);
 void		Print_Get_Help	(void);
@@ -193,8 +193,6 @@ bool		Run(int argc, char *argv[])
 	//-----------------------------------------------------
 	if( argc <= 1 )
 	{
-		CMD_Print_Error(_TL("no arguments for saga call"));
-
 		Print_Libraries();
 
 		return( false );
@@ -222,7 +220,7 @@ bool		Run(int argc, char *argv[])
 bool		Execute(int argc, char *argv[])
 {
 	CSG_Module_Library	*pLibrary;
-	CSG_Module			*pModule;
+	CSG_Module			*pTool;
 
 	if( argc == 1 || (pLibrary = SG_Get_Module_Library_Manager().Get_Library(CSG_String(argv[1]), true)) == NULL )
 	{
@@ -231,31 +229,31 @@ bool		Execute(int argc, char *argv[])
 		return( false );
 	}
 
-	if( argc == 2 || (pModule = pLibrary->Get_Module(argv[2])) == NULL )
+	if( argc == 2 || (pTool = pLibrary->Get_Module(argv[2])) == NULL )
 	{
-		Print_Modules(pLibrary);
+		Print_Tools(pLibrary);
 
 		return( false );
 	}
 
 	if( argc == 3 && CMD_Get_XML() )
 	{	// Just output tool synopsis as XML-tagged text, then return.
-		SG_PRINTF(pModule->Get_Summary(true, "", "", true).c_str());
+		SG_PRINTF(pTool->Get_Summary(true, "", "", true).c_str());
 
 		return( true );
 	}
 
-	if( pModule->needs_GUI() )
+	if( pTool->needs_GUI() )
 	{
-		CMD_Print_Error(_TL("tool needs graphical user interface"), pModule->Get_Name());
+		CMD_Print_Error(_TL("tool needs graphical user interface"), pTool->Get_Name());
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	Print_Execution(pLibrary, pModule);
+	Print_Execution(pLibrary, pTool);
 
-	CCMD_Module	CMD_Module(pLibrary, pModule);
+	CCMD_Module	CMD_Module(pLibrary, pTool);
 
 	return( CMD_Module.Execute(argc - 2, argv + 2) );
 }
@@ -395,7 +393,8 @@ bool		Load_Libraries(void)
 	wxString	Path, CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
 
     #if defined(_SAGA_LINUX)
-		Load_Libraries(wxT(MODULE_LIBRARY_PATH));
+		Load_Libraries(MODULE_LIBRARY_PATH);
+		Load_Libraries(SHARE_PATH);	// look for tool chains
 	#else
 		wxString	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
 
@@ -477,6 +476,13 @@ bool		Check_First		(const CSG_String &Argument)
 //---------------------------------------------------------
 bool		Check_Flags		(const CSG_String &Argument)
 {
+#if   defined(_SAGA_LINUX)
+	CSG_String	Path_Shared	= SHARE_PATH;
+#elif defined(_SAGA_MSW)
+	CSG_String	Path_Shared	= SG_File_Get_Path(SG_UI_Get_Application_Path());
+#endif
+
+	//-----------------------------------------------------
 	CSG_String	s(Argument.BeforeFirst(SG_T('=')));
 
 	if( !s.CmpNoCase("-f") || !s.CmpNoCase("--flags") )
@@ -488,24 +494,29 @@ bool		Check_Flags		(const CSG_String &Argument)
 		CMD_Set_Interactive  (s.Find('i') >= 0                  );	// i: allow user interaction
 		CMD_Set_XML          (s.Find('x') >= 0                  );	// x: message output as xml
 
+		//-------------------------------------------------
 		if( s.Find('l') >= 0 )	// l: load translation dictionary
 		{
-			SG_Get_Translator() .Create(SG_File_Make_Path(SG_File_Get_Path(SG_UI_Get_Application_Path()),
-				SG_T("saga"    ), SG_T("lng")), false);
+			SG_Printf(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
+
+			SG_Printf(CSG_String::Format("\n%s.\n",
+				SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
+				? _TL("success") : _TL("failed")
+			));
 		}
 
+		//-------------------------------------------------
 		if( s.Find('p') >= 0 )	// p: load projections dictionary
 		{
-#if defined(_SAGA_LINUX)
-		SG_Get_Projections().Create(SG_File_Make_Path(SG_File_Get_Path( CSG_String(SHARE_PATH)),
-			SG_T("saga_prj"), SG_T("srs")));
-#endif
-#if defined(_SAGA_MSW)
-		SG_Get_Projections().Create(SG_File_Make_Path(SG_File_Get_Path(SG_UI_Get_Application_Path()),
-			SG_T("saga_prj"), SG_T("srs")));
-#endif
+			SG_Printf(CSG_String::Format("\n%s:", _TL("loading spatial reference system database")));
+
+			SG_Printf(CSG_String::Format("\n%s.\n",
+				SG_Get_Projections().Create(SG_File_Make_Path(Path_Shared, SG_T("saga_prj"), SG_T("srs")))
+				? _TL("success") : _TL("failed")
+			));
 		}
 
+		//-------------------------------------------------
 		if( s.Find('o') >= 0 )	// o: load old style naming, has no effect if l-flag is set.
 		{
 			SG_Set_OldStyle_Naming();
@@ -514,6 +525,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	else if( !s.CmpNoCase("-c") || !s.CmpNoCase("--cores") )
 	{
 		#ifdef _OPENMP
@@ -530,6 +542,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	else if( !s.CmpNoCase("-s") || !s.CmpNoCase("--story") )
 	{
 		int	Depth;
@@ -542,6 +555,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	return( false );
 }
 
@@ -555,8 +569,6 @@ bool		Check_Flags		(const CSG_String &Argument)
 //---------------------------------------------------------
 void		Print_Libraries	(void)
 {
-	CMD_Print_Error(_TL("select a library"));
-
 	if( CMD_Get_Show_Messages() )
 	{
 		if( CMD_Get_XML() )
@@ -567,16 +579,16 @@ void		Print_Libraries	(void)
 		{
 			CMD_Print(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
 
+			CMD_Print_Error(_TL("select a library"));
+
 			Print_Get_Help();
 		}
 	}
 }
 
 //---------------------------------------------------------
-void		Print_Modules	(CSG_Module_Library *pLibrary)
+void		Print_Tools		(CSG_Module_Library *pLibrary)
 {
-	CMD_Print_Error(_TL("select a tool"));
-
 	if( CMD_Get_Show_Messages() )
 	{
 		if( CMD_Get_XML() )
@@ -587,13 +599,15 @@ void		Print_Modules	(CSG_Module_Library *pLibrary)
 		{
 			CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
 
+			CMD_Print_Error(_TL("select a tool"));
+
 			Print_Get_Help();
 		}
 	}
 }
 
 //---------------------------------------------------------
-void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
+void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pTool)
 {
 	if( CMD_Get_Show_Messages() )
 	{
@@ -608,13 +622,13 @@ void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 		else
 		{
 			SG_PRINTF(SG_T("____________________________\n"));
-			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library path"), SG_File_Get_Path(pLibrary->Get_File_Name()       ).c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library name"), SG_File_Get_Name(pLibrary->Get_File_Name(), false).c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("library     "), pLibrary->Get_Name     ().c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("tool        "), pModule ->Get_Name     ().c_str());
-			SG_PRINTF(SG_T("%s:\t%s\n"     ), _TL("author      "), pModule ->Get_Author   ().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("library path"), SG_File_Get_Path(pLibrary->Get_File_Name()       ).c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("library name"), SG_File_Get_Name(pLibrary->Get_File_Name(), false).c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("library     "), pLibrary->Get_Name  ().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("tool        "), pTool   ->Get_Name  ().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("author      "), pTool   ->Get_Author().c_str());
 		#ifdef _OPENMP
-			SG_PRINTF(SG_T("%s:\t%d [%d]\n"), _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
+			SG_PRINTF(SG_T("%s: %d [%d]\n"), _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
 		#endif // _OPENMP
 			SG_PRINTF(SG_T("____________________________\n\n"));
 		}

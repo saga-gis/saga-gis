@@ -177,13 +177,21 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
 
-		s	+= CSG_String::Format("\n%s:\n", _TL("tools"));
+		s	+= CSG_String::Format("\n%s:\t", _TL("Library" )) + Get_Info(MLB_INFO_Name    );
+		s	+= CSG_String::Format("\n%s:\t", _TL("Category")) + Get_Info(MLB_INFO_Category);
+
+		if( !Get_File_Name().is_Empty() )
+		{
+			s	+= CSG_String::Format("\n%s:\t", _TL("File"    )) + Get_File_Name();
+		}
+
+		s	+= CSG_String::Format("\n\n%s:\n", _TL("Tools"));
 
 		for(i=0; i<Get_Count(); i++)
 		{
 			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_FLAT || !Get_Module(i)->is_Interactive()) )
 			{
-				s	+= " " + Get_Module(i)->Get_ID() + "\t- " + Get_Module(i)->Get_Name() + "\n";
+				s	+= " " + Get_Module(i)->Get_ID() + "\t" + Get_Module(i)->Get_Name() + "\n";
 			}
 		}
 
@@ -717,12 +725,31 @@ CSG_Module * CSG_Module_Library_Manager::Get_Module(const CSG_String &Library, c
 CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 {
 	//-----------------------------------------------------
-	int			i, nModules;
+	int			i, nTools;
 
-	for(i=0, nModules=0; i<Get_Count(); i++)
+	CSG_Table	Libraries;
+
+	Libraries.Add_Field("LIB"  , SG_DATATYPE_String);
+	Libraries.Add_Field("TOOLS", SG_DATATYPE_Int   );
+	Libraries.Add_Field("NAME" , SG_DATATYPE_String);
+	Libraries.Add_Field("PATH" , SG_DATATYPE_String);
+
+	for(i=0, nTools=0; i<Get_Count(); i++)
 	{
-		nModules	+= Get_Library(i)->Get_Count();
+		if( Get_Library(i)->Get_Count() > 0 )
+		{
+			nTools	+= Get_Library(i)->Get_Count();
+
+			Libraries.Add_Record();
+
+			Libraries[i].Set_Value(0, Get_Library(i)->Get_Library_Name());
+			Libraries[i].Set_Value(1, Get_Library(i)->Get_Count());
+			Libraries[i].Set_Value(2, Get_Library(i)->Get_Name());
+			Libraries[i].Set_Value(3, SG_File_Get_Path(Get_Library(i)->Get_File_Name()));
+		}
 	}
+
+	Libraries.Set_Index(0, TABLE_INDEX_Ascending);
 
 	//-----------------------------------------------------
 	CSG_String	s;
@@ -732,11 +759,11 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
 
-		s	+= CSG_String::Format("\n%d %s (%d %s):\n", Get_Count(), _TL("loaded tool libraries"), nModules, _TL("tools"));
+		s	+= CSG_String::Format("\n%d %s (%d %s):\n", Libraries.Get_Count(), _TL("loaded tool libraries"), nTools, _TL("tools"));
 
-		for(i=0; i<Get_Count(); i++)
+		for(i=0; i<Libraries.Get_Count(); i++)
 		{
-			s	+= " - " + Get_Library(i)->Get_Library_Name() + "\n";
+			s	+= CSG_String::Format(" - %s\n", Libraries[i].asString(0));
 		}
 
 		break;
@@ -748,8 +775,8 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 
 		s	+= "<table border=\"0\">";
 
-		s	+= SUMMARY_ADD_INT(_TL("Libraries"), Get_Count());
-		s	+= SUMMARY_ADD_INT(_TL("Tools"    ), nModules);
+		s	+= SUMMARY_ADD_INT(_TL("Libraries"), Libraries.Get_Count());
+		s	+= SUMMARY_ADD_INT(_TL("Tools"    ), nTools);
 
 		s	+= "</table>";
 
@@ -762,13 +789,13 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 				_TL("Location")
 			);
 
-		for(i=0; i<Get_Count(); i++)
+		for(i=0; i<Libraries.Get_Count(); i++)
 		{
 			s	+= CSG_String::Format("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>",
-					Get_Library(i)->Get_Library_Name().c_str(),
-					Get_Library(i)->Get_Count(),
-					Get_Library(i)->Get_Name().c_str(),
-					SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str()
+					Libraries[i].asString(0),
+					Libraries[i].asInt   (1),
+					Libraries[i].asString(2),
+					Libraries[i].asString(3)
 				);
 		}
 
@@ -783,11 +810,9 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 		s	+= CSG_String::Format("\n<%s>", SG_XML_SYSTEM);
 		s	+= CSG_String::Format("\n<%s>%s</%s>", SG_XML_SYSTEM_VER, SAGA_VERSION, SG_XML_SYSTEM_VER);
 
-		for(int i=0; i<SG_Get_Module_Library_Manager().Get_Count(); i++)
+		for(int i=0; i<Libraries.Get_Count(); i++)
 		{
-			s	+= CSG_String::Format("\n\t<%s %s=\"%s\"/>", SG_XML_LIBRARY, SG_XML_LIBRARY_NAME,
-				SG_Get_Module_Library_Manager().Get_Library(i)->Get_Library_Name().c_str()
-			);
+			s	+= CSG_String::Format("\n\t<%s %s=\"%s\"/>", SG_XML_LIBRARY, SG_XML_LIBRARY_NAME, Libraries[i].asString(0));
 		}
 
 		s	+= CSG_String::Format("\n</%s>", SG_XML_SYSTEM);
