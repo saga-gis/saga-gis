@@ -49,6 +49,8 @@ Filter_Resample.h\
 Filter_Sieve.h\
 Filter_Terrain_SlopeBased.h\
 FilterClumps.h\
+Filter_in_Polygon.cpp\
+Filter_in_Polygon.h\
 wombling.h\
 geomrec.h\
 ./geodesic_morph_rec/bin_geovinc.h\
