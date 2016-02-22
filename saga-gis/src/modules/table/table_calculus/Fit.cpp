@@ -136,7 +136,7 @@ CFit::CFit(void)
 		"abs(x)\n"
 		"sqrt(x)\n\n"
 
-		"For Variogram - Fitting you can use the folowing Variogram - Models:\n"
+		"For Variogram - Fitting you can use the following Variogram - Models:\n"
 		"NUG(x)\n"
 		"SPH(x,a)\n"
 		"EXP(x,a)\n"

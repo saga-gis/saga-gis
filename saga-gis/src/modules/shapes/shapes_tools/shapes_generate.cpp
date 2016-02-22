@@ -78,9 +78,9 @@ CShapes_Generate::CShapes_Generate(void)
 	Set_Author(_TL("Volker Wichmann (c) 2012, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module allows to generate point, line or polygon shapes from "
-		"a table with x and y coordinates and an identifier. The table must "
-		"be sorted in vertex order.\n\n"
+		"The module allows one to generate point, line or polygon shapes "
+		"from a table with x and y coordinates and an identifier. The table "
+		"must be sorted in vertex order.\n\n"
 		"The identifier has different meanings:\n\n"
 		"* Point Shapes: The identifier is arbitrary\n\n"
 		"* Line Shapes: The identifier is unique for each line\n\n"
