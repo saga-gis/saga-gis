@@ -252,8 +252,8 @@ bool CWKSP_Module_Manager::Initialise(void)
 	if( SG_Get_Module_Library_Manager().Get_Count() == 0 )
 	{
 #if defined(_SAGA_LINUX)
-	if( (SG_Get_Module_Library_Manager().Add_Directory(SG_T(MODULE_LIBRARY_PATH), false)
-	   + SG_Get_Module_Library_Manager().Add_Directory(SG_T(SHARE_PATH         ), false)) == 0 )
+	if( (SG_Get_Module_Library_Manager().Add_Directory(wxT(MODULE_LIBRARY_PATH), false)
+	   + SG_Get_Module_Library_Manager().Add_Directory(wxT(SHARE_PATH         ), false)) == 0 )
 #endif
 		SG_Get_Module_Library_Manager().Add_Directory(g_pSAGA->Get_App_Path(), true);
 	}
