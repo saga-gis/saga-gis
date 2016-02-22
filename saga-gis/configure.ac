@@ -167,6 +167,19 @@ AC_ARG_ENABLE(openmp,
 
 AC_SUBST(GOMPFLAGS)
 
+AC_ARG_ENABLE(triangle,
+        AS_HELP_STRING([--disable-triangle],[ Compile without triangle.c (only free for non-commercial usage), and use qhull instead (requires qhull)]),
+	,
+	[use_triangle=yes])
+
+AM_CONDITIONAL(TRIANGLE, [test x$use_triangle = xyes])
+
+if test "x$use_triangle" != xyes; then
+    AC_MSG_RESULT([        Triangle disabled])
+    AC_CHECK_LIB(qhull, qh_qhull, , 
+      AC_MSG_FAILURE([--disable-triangle was given but test for qhull failed]))
+ fi
+
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
     AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
     AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")

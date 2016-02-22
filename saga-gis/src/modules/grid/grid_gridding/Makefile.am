@@ -34,7 +34,6 @@ Shepard.cpp\
 ./nn/nnai.c\
 ./nn/nncommon.c\
 ./nn/nnpi.c\
-./nn/triangle.c\
 Interpolation.h\
 Interpolation_AngularDistance.h\
 Interpolation_InverseDistance.h\
@@ -51,8 +50,15 @@ Shepard.h\
 ./nn/istack.h\
 ./nn/nan.h\
 ./nn/nn.h\
-./nn/triangle.h\
 ./nn/version.h
+
+if TRIANGLE
+libgrid_gridding_la_SOURCES +=\
+./nn/triangle.c\
+./nn/triangle.h
+else
+AM_CFLAGS          = -DUSE_QHULL
+endif
 
 libgrid_gridding_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
