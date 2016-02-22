@@ -180,6 +180,17 @@ if test "x$use_triangle" != xyes; then
       AC_MSG_FAILURE([--disable-triangle was given but test for qhull failed]))
  fi
 
+AC_ARG_ENABLE(libfire,
+        AS_HELP_STRING([--disable-libfire],[ Compile without libfire (only free for non-commercial usage)]),
+	,
+	[use_libfire=yes])
+
+AM_CONDITIONAL(LIBFIRE, [test x$use_libfire = xyes])
+
+if test "x$use_libfire" != xyes; then
+    AC_MSG_RESULT([        Libfire disabled])
+fi
+
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
     AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
     AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")
