@@ -71,7 +71,6 @@
 
 #include "active.h"
 #include "active_attributes.h"
-#include "active_HTMLExtraInfo.h"
 
 #include "wksp_shapes.h"
 

@@ -31,9 +31,6 @@
     <ClCompile Include="active_history.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ACTIVE_HTMLExtraInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="active_legend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -331,9 +328,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="active_history.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ACTIVE_HTMLExtraInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="active_legend.h">

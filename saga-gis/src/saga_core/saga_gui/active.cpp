@@ -82,7 +82,6 @@
 #include "active_history.h"
 #include "active_attributes.h"
 #include "active_legend.h"
-#include "active_HTMLExtraInfo.h"
 
 #include "wksp_module.h"
 
