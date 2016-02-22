@@ -255,7 +255,7 @@ bool CFlow::On_Execute(void)
 //---------------------------------------------------------
 void CFlow::Init_Cell(int x, int y)
 {
-	double	Weight	= m_pWeights ? m_pWeights->asDouble(x, y) : 1.0;
+	double	Weight	= !m_pWeights ? 1.0 : m_pWeights->is_NoData(x, y) ? 0.0 : m_pWeights->asDouble(x, y);
 
 	ADD_GRID_CELL_VAL(x, y, m_pFlow, Weight);
 
@@ -327,7 +327,7 @@ void CFlow::_Finalize(void)
 				else
 				{
 					double	Material	= m_pAccu_Material ? m_pAccu_Material->asDouble(n) : 1.0;
-					double	Weight		= m_pWeights       ? m_pWeights      ->asDouble(n) : 1.0;
+					double	Weight		= !m_pWeights ? 1.0 : m_pWeights->is_NoData(n) ? 0.0 : m_pWeights->asDouble(n);
 
 					if( m_pAccu_Left  )	{	m_pAccu_Left ->Add_Value(n, - 0.5 * Weight * Material);	}
 					if( m_pAccu_Right )	{	m_pAccu_Right->Add_Value(n, - 0.5 * Weight * Material);	}
