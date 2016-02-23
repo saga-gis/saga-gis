@@ -17,7 +17,7 @@ AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
-AC_CHECK_LIB([cv], [cvGetRows], CVFOUND=1,,)
+AC_CHECK_LIB([opencv_core], [cvGetRows], CVFOUND=1,,)
 AC_CHECK_LIB([geotrans], [Set_Mercator_Coordinates])
 AC_CHECK_LIB([fftw3],[fftw_execute],FFTWFOUND=1,)
 AC_CHECK_LIB([jasper], [jas_calloc],JASPERFOUND=1,,)
