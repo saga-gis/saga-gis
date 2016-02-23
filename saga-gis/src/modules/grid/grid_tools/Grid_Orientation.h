@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Grid_Orientation.h                   //
+//                 Grid_Orientation.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                Copyright (C) 2016 by                  //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -65,28 +63,83 @@
 #define HEADER_INCLUDED__Grid_Orientation_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-class CGrid_Orientation : public CSG_Module_Grid  
+class CGrid_Copy : public CSG_Module_Grid
 {
 public:
-	CGrid_Orientation(void);
-	virtual ~CGrid_Orientation(void);
+	CGrid_Copy(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Tools") );	}
 
 
 protected:
 
-	virtual bool		On_Execute(void);
-
-
-private:
-
+	virtual bool			On_Execute		(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Invert : public CSG_Module_Grid
+{
+public:
+	CGrid_Invert(void);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Tools") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Mirror : public CSG_Module_Grid
+{
+public:
+	CGrid_Mirror(void);
+
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Tools") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Orientation_H

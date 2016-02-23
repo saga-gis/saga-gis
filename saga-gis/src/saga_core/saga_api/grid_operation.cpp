@@ -662,19 +662,10 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 					{
 						switch( Operation )
 						{
-						case GRID_OPERATION_Addition:
-							Add_Value(x, y,  Value);
-							break;
-
-						case GRID_OPERATION_Subtraction:
-							Add_Value(x, y, -Value);
-							break;
-
-						case GRID_OPERATION_Multiplication:
-							Mul_Value(x, y,  Value);
-							break;
-
-						case GRID_OPERATION_Division:
+						case GRID_OPERATION_Addition      :	Add_Value(x, y,  Value);	break;
+						case GRID_OPERATION_Subtraction   :	Add_Value(x, y, -Value);	break;
+						case GRID_OPERATION_Multiplication:	Mul_Value(x, y,  Value);	break;
+						case GRID_OPERATION_Division      :
 							if( Value != 0.0 )
 							{
 								Mul_Value(x, y, 1.0 / Value);
@@ -693,24 +684,17 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 		SG_UI_Process_Set_Ready();
 
 		//-------------------------------------------------
+		CSG_String	Name;
+
 		switch( Operation )
 		{
-		case GRID_OPERATION_Addition:
-			Get_History().Add_Child(SG_T("GRID_OPERATION"), Grid.Get_Name())->Add_Property(SG_T("NAME"), _TL("Addition"));
-			break;
-
-		case GRID_OPERATION_Subtraction:
-			Get_History().Add_Child(SG_T("GRID_OPERATION"), Grid.Get_Name())->Add_Property(SG_T("NAME"), _TL("Subtraction"));
-			break;
-
-		case GRID_OPERATION_Multiplication:
-			Get_History().Add_Child(SG_T("GRID_OPERATION"), Grid.Get_Name())->Add_Property(SG_T("NAME"), _TL("Multiplication"));
-			break;
-
-		case GRID_OPERATION_Division:
-			Get_History().Add_Child(SG_T("GRID_OPERATION"), Grid.Get_Name())->Add_Property(SG_T("NAME"), _TL("Division"));
-			break;
+		case GRID_OPERATION_Addition      :	Name	= _TL("Addition"      );	break;
+		case GRID_OPERATION_Subtraction   :	Name	= _TL("Subtraction"   );	break;
+		case GRID_OPERATION_Multiplication:	Name	= _TL("Multiplication");	break;
+		case GRID_OPERATION_Division      :	Name	= _TL("Division"      );	break;
 		}
+
+		Get_History().Add_Child("GRID_OPERATION", Grid.Get_Name())->Add_Property("NAME", Name);
 
 		Get_History().Add_Children(((CSG_Grid *)&Grid)->Get_History());
 	}
@@ -722,41 +706,42 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
 {
 	//-----------------------------------------------------
+	CSG_String	Name;
+
 	switch( Operation )
 	{
-	case GRID_OPERATION_Addition:
+	case GRID_OPERATION_Addition      :
+		Name	=  _TL("Addition");
 		if( Value == 0.0 )
 			return( *this );
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), _TL("Addition"));
 		break;
 
-	case GRID_OPERATION_Subtraction:
+	case GRID_OPERATION_Subtraction   :
+		Name	=  _TL("Subtraction");
 		if( Value == 0.0 )
 			return( *this );
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), _TL("Subtraction"));
 		Value	= -Value;
 		break;
 
 	case GRID_OPERATION_Multiplication:
+		Name	=  _TL("Multiplication");
 		if( Value == 1.0 )
 			return( *this );
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), _TL("Multiplication"));
 		break;
 
-	case GRID_OPERATION_Division:
+	case GRID_OPERATION_Division      :
+		Name	=  _TL("Division");
 		if( Value == 0.0 )
 			return( *this );
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), _TL("Division"));
 		Value	= 1.0 / Value;
 		break;
 	}
 
+	Get_History().Add_Child("GRID_OPERATION", Value)->Add_Property("NAME", Name);
+
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
@@ -764,22 +749,17 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 			{
 				switch( Operation )
 				{
-				case GRID_OPERATION_Addition:
-				case GRID_OPERATION_Subtraction:
-					Add_Value(x, y, Value);
-					break;
+				case GRID_OPERATION_Addition      :
+				case GRID_OPERATION_Subtraction   :	Add_Value(x, y, Value);	break;
 
 				case GRID_OPERATION_Multiplication:
-				case GRID_OPERATION_Division:
-					Mul_Value(x, y, Value);
-					break;
+				case GRID_OPERATION_Division      :	Mul_Value(x, y, Value);	break;
 				}
 			}
 		}
 	}
 
-	SG_UI_Process_Set_Ready();
-
+	//-----------------------------------------------------
 	return( *this );
 }
 
@@ -793,17 +773,15 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 //---------------------------------------------------------
 void CSG_Grid::Invert(void)
 {
-	int		x, y;
-	double	zMin, zMax;
-
 	if( is_Valid() && Get_ZRange() > 0.0 )
 	{
-		zMin	= Get_ZMin();
-		zMax	= Get_ZMax();
+		double	zMin	= Get_ZMin();
+		double	zMax	= Get_ZMax();
 
-		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
 				if( !is_NoData(x, y) )
 				{
@@ -812,71 +790,47 @@ void CSG_Grid::Invert(void)
 			}
 		}
 
-		SG_UI_Process_Set_Ready();
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), _TL("Inversion"));
+		Get_History().Add_Child("GRID_OPERATION", _TL("Inverted"));
 	}
 }
 
 //---------------------------------------------------------
 void CSG_Grid::Flip(void)
 {
-	int		x, yA, yB;
-	double	*Line, d;
-
 	if( is_Valid() )
 	{
-		Line	= (double *)SG_Malloc(Get_NX() * sizeof(double));
-
-		for(yA=0, yB=Get_NY()-1; yA<yB && SG_UI_Process_Set_Progress(2 * yA, Get_NY()); yA++, yB--)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int yA=0, yB=Get_NX()-1; yA<yB; yA++, yB--)
 			{
-				Line[x]	= asDouble(x, yA);
-			}
-
-			for(x=0; x<Get_NX(); x++)
-			{
-				d		= Line[x];
-				Line[x]	= asDouble(x, yB);
+				double	d	   = asDouble(x, yA);
+				Set_Value(x, yA, asDouble(x, yB));
 				Set_Value(x, yB, d);
-			}
-
-			for(x=0; x<Get_NX(); x++)
-			{
-				Set_Value(x, yA, Line[x]);
 			}
 		}
 
-		SG_UI_Process_Set_Ready();
-
-		SG_Free(Line);
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), _TL("Vertically mirrored"));
+		Get_History().Add_Child("GRID_OPERATION", _TL("Mirrored vertically"));
 	}
 }
 
 //---------------------------------------------------------
 void CSG_Grid::Mirror(void)
 {
-	int		xA, xB, y;
-	double	d;
-
 	if( is_Valid() )
 	{
-		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
 		{
-			for(xA=0, xB=Get_NX()-1; xA<xB; xA++, xB--)
+			for(int xA=0, xB=Get_NX()-1; xA<xB; xA++, xB--)
 			{
-				d			=    asDouble(xA, y);
+				double	d	   = asDouble(xA, y);
 				Set_Value(xA, y, asDouble(xB, y));
 				Set_Value(xB, y, d);
 			}
 		}
 
-		SG_UI_Process_Set_Ready();
-
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), _TL("Horizontally mirrored"));
+		Get_History().Add_Child("GRID_OPERATION", _TL("Mirrored horizontally"));
 	}
 }
 
@@ -890,92 +844,80 @@ void CSG_Grid::Mirror(void)
 //---------------------------------------------------------
 bool CSG_Grid::Normalise(void)
 {
-	if( !is_Valid() || Get_ZRange() <= 0.0 )
+	if( is_Valid() && Get_ZRange() > 0.0 )
 	{
-		return( false );
-	}
+		double	zMin	= Get_ZMin  ();
+		double	zRange	= Get_ZRange();
 
-	SG_UI_Process_Set_Text(_TL("Normalisation"));
-
-	double	zMin	= Get_ZMin();
-	double	zRange	= Get_ZRange();
-
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-	{
 		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		for(int y=0; y<Get_NY(); y++)
 		{
-			if( !is_NoData(x, y) )
+			for(int x=0; x<Get_NX(); x++)
 			{
-				Set_Value(x, y, (asDouble(x, y) - zMin) / zRange);
+				if( !is_NoData(x, y) )
+				{
+					Set_Value(x, y, (asDouble(x, y) - zMin) / zRange);
+				}
 			}
 		}
+
+		Get_History().Add_Child("GRID_OPERATION", _TL("Normalisation"));
+
+		return( true );
 	}
 
-	SG_UI_Process_Set_Ready();
-
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), _TL("Normalisation"));
-
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid::DeNormalise(double Minimum, double Maximum)
 {
-	if( !is_Valid() || Minimum > Maximum )
-	{
-		return( false );
-	}
-
-	SG_UI_Process_Set_Text(_TL("Denormalisation"));
-
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	if( is_Valid() && Minimum < Maximum )
 	{
 		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		for(int y=0; y<Get_NY(); y++)
 		{
-			if( !is_NoData(x, y) )
+			for(int x=0; x<Get_NX(); x++)
 			{
-				Set_Value(x, y, Minimum + asDouble(x, y) * (Maximum - Minimum));
+				if( !is_NoData(x, y) )
+				{
+					Set_Value(x, y, Minimum + asDouble(x, y) * (Maximum - Minimum));
+				}
 			}
 		}
+
+		Get_History().Add_Child("GRID_OPERATION", _TL("Denormalisation"));
+
+		return( true );
 	}
 
-	SG_UI_Process_Set_Ready();
-
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), _TL("Denormalisation"));
-
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid::Standardise(void)
 {
-	if( !is_Valid() || Get_StdDev() <= 0.0 )
+	if( is_Valid() && Get_StdDev() > 0.0 )
 	{
-		return( false );
-	}
+		double	Mean	= Get_Mean  ();
+		double	StdDev	= Get_StdDev();
 
-	SG_UI_Process_Set_Text(_TL("Standardisation"));
-
-	double	Mean	= Get_Mean();
-	double	StdDev	= Get_StdDev();
-
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-	{
 		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		for(int y=0; y<Get_NY(); y++)
 		{
-			if( !is_NoData(x, y) )
+			for(int x=0; x<Get_NX(); x++)
 			{
-				Set_Value(x, y, (asDouble(x, y) - Mean) / StdDev);
+				if( !is_NoData(x, y) )
+				{
+					Set_Value(x, y, (asDouble(x, y) - Mean) / StdDev);
+				}
 			}
 		}
+
+		Get_History().Add_Child("GRID_OPERATION", _TL("Standardisation"));
+
+		return( true );
 	}
-
-	SG_UI_Process_Set_Ready();
-
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), _TL("Standardisation"));
 
 	return( false );
 }
@@ -983,30 +925,26 @@ bool CSG_Grid::Standardise(void)
 //---------------------------------------------------------
 bool CSG_Grid::DeStandardise(double Mean, double StdDev)
 {
-	if( !is_Valid() || StdDev <= 0.0 )
-	{
-		return( false );
-	}
-
-	SG_UI_Process_Set_Text(_TL("Destandardisation"));
-
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	if( is_Valid() && StdDev > 0.0 )
 	{
 		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		for(int y=0; y<Get_NY(); y++)
 		{
-			if( !is_NoData(x, y) )
+			for(int x=0; x<Get_NX(); x++)
 			{
-				Set_Value(x, y, Mean + asDouble(x, y) * StdDev);
+				if( !is_NoData(x, y) )
+				{
+					Set_Value(x, y, Mean + asDouble(x, y) * StdDev);
+				}
 			}
 		}
+
+		Get_History().Add_Child("GRID_OPERATION", _TL("Destandardisation"));
+
+		return( true );
 	}
 
-	SG_UI_Process_Set_Ready();
-
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), _TL("Destandardisation"));
-
-	return( true );
+	return( false );
 }
 
 

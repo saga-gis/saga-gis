@@ -149,37 +149,49 @@ CSG_Module *		Create_Module(int i)
 	{
 	case  0:	return( new CGrid_Resample );
 	case  1:	return( new CGrid_Aggregate );
+
 	case  2:	return( new CGrid_Clip_Interactive );
+	case 31: 	return( new CGrid_Clip );
+
 	case  3:	return( new CGrid_Merge );
 	case  4: 	return( new CConstantGrid );
+
 	case  5:	return( new CGrid_Completion );
 	case  6:	return( new CGrid_Gaps_OneCell );
 	case  7:	return( new CGrid_Gaps );
+	case 25: 	return( new CGrid_Gaps_Spline_Fill );
+	case 29: 	return( new CGrid_Gaps_Resampling );
+
 	case  8:	return( new CGrid_Buffer );
 	case  9: 	return( new CThresholdBuffer );
 	case 10:	return( new CGrid_Proximity_Buffer );
+
 	case 11:	return( new CGrid_Value_Type );
 	case 12:	return( new CGrid_Value_Replace );
 	case 13:	return( new CGrid_Value_Replace_Interactive );
 	case 14:	return( new CGrid_Value_Request );
 	case 15:	return( new CGrid_Value_Reclassify );
 	case 16:	return( new CGrid_Fill );
+
 	case 17: 	return( new CCropToData );
+
 	case 18: 	return( new CInvertNoData );
-	case 19:	return( new CGrid_Orientation );
+
 	case 20: 	return( new CCombineGrids );
 	case 21: 	return( new CSortRaster );
 	case 22: 	return( new CGridsFromTableAndGrid );
 	case 23: 	return( new CCreateGridSystem );
 	case 24: 	return( new CGrid_Mask );
-	case 25: 	return( new CGrid_Gaps_Spline_Fill );
+
 	case 26: 	return( new CGrid_Proximity );
 	case 27: 	return( new CGrid_Tiling );
 	case 28: 	return( new CGrid_Shrink_Expand );
-	case 29: 	return( new CGrid_Gaps_Resampling );
 	case 30: 	return( new CGrid_Transpose );
-	case 31: 	return( new CGrid_Clip );
 	case 32: 	return( new CSelect_Grid_From_List );
+
+	case 33:	return( new CGrid_Copy );
+	case 34:	return( new CGrid_Invert );
+	case 35:	return( new CGrid_Mirror );
 
 	case 40:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
