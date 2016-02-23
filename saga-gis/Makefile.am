@@ -11,9 +11,4 @@ EXTRA_DIST = ./src/scripting
 
 toolchainsdir = $(pkgdatadir)/toolchains
 
-install-data-hook:
-	test -d $(toolchainsdir) || mkdir -p $(toolchainsdir)
-	cp src/scripting/toolchains/*.xml $(toolchainsdir)
-
-dist-hook:
-		rm -rf `find $(distdir)/src/scripting -type d -name .svn`
+dist_toolchains_DATA = src/scripting/toolchains/*.xml
