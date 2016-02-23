@@ -299,6 +299,7 @@
     <ClCompile Include="FilterClumps.cpp" />
     <ClCompile Include="Filter_3x3.cpp" />
     <ClCompile Include="Filter_Gauss.cpp" />
+    <ClCompile Include="Filter_in_Polygon.cpp" />
     <ClCompile Include="Filter_LoG.cpp" />
     <ClCompile Include="Filter_Majority.cpp" />
     <ClCompile Include="Filter_Morphology.cpp" />
@@ -338,6 +339,7 @@
     <ClInclude Include="FilterClumps.h" />
     <ClInclude Include="Filter_3x3.h" />
     <ClInclude Include="Filter_Gauss.h" />
+    <ClInclude Include="Filter_in_Polygon.h" />
     <ClInclude Include="Filter_LoG.h" />
     <ClInclude Include="Filter_Majority.h" />
     <ClInclude Include="Filter_Morphology.h" />
