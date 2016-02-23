@@ -14,6 +14,15 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMP
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(LOCAL_LIBS) -ljasper
 pkglib_LTLIBRARIES = libio_grid_grib2.la
 libio_grid_grib2_la_SOURCES =\
+grib2_import.cpp\
+MLB_Interface.cpp\
+grib2_import.h\
+MLB_Interface.h
+
+if SYSTEM_GRIB2C 
+AM_LDFLAGS        +=-lgrib2c
+else
+libio_grid_grib2_la_SOURCES +=\
 ./g2clib-1.0.4/cmplxpack.c\
 ./g2clib-1.0.4/compack.c\
 ./g2clib-1.0.4/comunpack.c\
@@ -61,10 +70,7 @@ libio_grid_grib2_la_SOURCES =\
 ./g2clib-1.0.4/drstemplates.h\
 ./g2clib-1.0.4/grib2.h\
 ./g2clib-1.0.4/gridtemplates.h\
-./g2clib-1.0.4/pdstemplates.h\
-grib2_import.cpp\
-MLB_Interface.cpp\
-grib2_import.h\
-MLB_Interface.h
+./g2clib-1.0.4/pdstemplates.h
+endif
 
 libio_grid_grib2_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

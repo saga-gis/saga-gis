@@ -27,6 +27,7 @@ AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found
 AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
+AC_CHECK_HEADER(grib2.h,[ AC_CHECK_LIB(grib2c, main,GRIB2FOUND=1)])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -206,6 +207,14 @@ fi
     DISABLELIBHARU="-D_SAGA_DONOTUSE_HARU"
     HARU_LIB=""
   fi
+
+AC_ARG_WITH(system_grib2c, 
+	AS_HELP_STRING([--with-system_grib2c],[Use system version of grib2c instead of embedded copy, requires this library (and the header) to be found.]),
+	AC_MSG_RESULT([        using system grib2c]);
+	system_grib2c=true
+	,
+	)
+AM_CONDITIONAL(SYSTEM_GRIB2C, test -n "$GRIB2FOUND" -a x$system_grib2c=xtrue)
 
 AC_SUBST(HARU_LIB)
 AC_SUBST(DISABLELIBHARU)
