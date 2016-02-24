@@ -385,8 +385,8 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 
 				m_pGrids->Add_Item(pGrid);
 
-				DataObject_Add			(pGrid);
-				DataObject_Set_Colors	(pGrid, CSG_Colors(11, SG_COLORS_BLACK_WHITE, false));
+				DataObject_Add       (pGrid);
+				DataObject_Set_Colors(pGrid, CSG_Colors(11, SG_COLORS_RAINBOW, false));
 
 				if( DataSet.Get_Count() == 1 )
 				{
