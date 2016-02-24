@@ -647,5 +647,8 @@ tools = [
 ['grid_tools', 34, 'Invert Grid'],
 ['grid_tools', 35, 'Mirror Grid'],
 ['imagery_classification', 7, 'ISODATA Clustering for Grids'],
-['io_gdal', 9, 'Import Open Street Map Image']
+['io_gdal', 9, 'Import Open Street Map Image'],
+['sim_hydrology', 5, 'Surface and Gradient'],
+['sim_hydrology', 6, 'Concentration'],
+['sim_hydrology', 7, 'Surface, Gradient and Concentration']
 ]
