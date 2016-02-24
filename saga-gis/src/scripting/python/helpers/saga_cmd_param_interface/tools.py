@@ -98,7 +98,7 @@ tools = [
 ['garden_learn_to_program', 12, '13: Reprojecting a shapes layer'],
 ['garden_learn_to_program', 13, '14: Vectorising channel lines'],
 ['garden_webservices', 0, 'Import a Map via Web Map Service (WMS)'],
-['grid_analysis', 0, 'Accumulated Cost (Isotropic)'],
+['grid_analysis', 0, 'Accumulated Cost'],
 ['grid_analysis', 1, 'Accumulated Cost (Anisotropic)'],
 ['grid_analysis', 5, 'Least Cost Paths'],
 ['grid_analysis', 6, 'Change Vector Analysis'],
@@ -207,7 +207,7 @@ tools = [
 ['grid_visualisation', 8, 'Terrain Map View'],
 ['grid_visualisation', 9, 'Split RGB Composite'],
 ['imagery_classification', 0, 'Supervised Classification for Grids'],
-['imagery_classification', 1, 'Cluster Analysis for Grids'],
+['imagery_classification', 1, 'K-Means Clustering for Grids'],
 ['imagery_classification', 2, 'Confusion Matrix (Two Grids)'],
 ['imagery_classification', 3, 'Decision Tree'],
 ['imagery_classification', 4, 'Supervised Classification for Shapes'],
@@ -641,5 +641,11 @@ tools = [
 ['sim_qm_of_esp', 1, 'Fill Sinks (QM of ESP)'],
 ['sim_qm_of_esp', 2, 'Flow Accumulation (QM of ESP)'],
 ['sim_qm_of_esp', 3, 'Successive Flow Routing'],
-['sim_qm_of_esp', 4, 'Diffusive Hillslope Evolution (ADI)']
+['sim_qm_of_esp', 4, 'Diffusive Hillslope Evolution (ADI)'],
+['grid_filter', 18, 'Simple Filter within shapes'],
+['grid_tools', 33, 'Copy Grid'],
+['grid_tools', 34, 'Invert Grid'],
+['grid_tools', 35, 'Mirror Grid'],
+['imagery_classification', 7, 'ISODATA Clustering for Grids'],
+['io_gdal', 9, 'Import Open Street Map Image']
 ]

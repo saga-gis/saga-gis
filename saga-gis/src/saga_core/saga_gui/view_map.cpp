@@ -169,6 +169,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SCALEBAR);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_NORTH_ARROW);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_GRATICULE_ADD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_BASEMAP_ADD);
 	pMenu->AppendSeparator();
