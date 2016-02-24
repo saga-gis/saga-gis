@@ -102,6 +102,7 @@ CSG_String Get_Info(int i)
 #include "topmodel.h"
 #include "WaterRetentionCapacity.h"
 #include "diffuse_pollution_risk.h"
+#include "diffusion_gradient_concentration.h"
 
 
 //---------------------------------------------------------
@@ -116,8 +117,11 @@ CSG_Module *		Create_Module(int i)
 	case  2:	return( new CTOPMODEL );
 	case  3:	return( new CWaterRetentionCapacity );
 	case  4:	return( new CDiffuse_Pollution_Risk );
+	case  5:	return( new CSim_Diffusion_Gradient );
+	case  6:	return( new CSim_Diffusion_Concentration );
+	case  7:	return( new CSim_Diffusion_Gradient_And_Concentration );
 
-	case  5:	return( NULL );
+	case  9:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 }

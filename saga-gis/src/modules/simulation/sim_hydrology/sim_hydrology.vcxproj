@@ -294,6 +294,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="diffuse_pollution_risk.cpp" />
+    <ClCompile Include="diffusion_gradient_concentration.cpp" />
     <ClCompile Include="DVWK_SoilMoisture.cpp" />
     <ClCompile Include="idw.cpp" />
     <ClCompile Include="KinWav_D8.cpp" />
@@ -319,6 +320,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="diffuse_pollution_risk.h" />
+    <ClInclude Include="diffusion_gradient_concentration.h" />
     <ClInclude Include="DVWK_SoilMoisture.h" />
     <ClInclude Include="idw.h" />
     <ClInclude Include="KinWav_D8.h" />
