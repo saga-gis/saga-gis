@@ -1041,7 +1041,7 @@ bool CSG_Grid::On_Update(void)
 	{
 		m_zStats.Invalidate();
 
-		for(int y=0; y<Get_NY() && SG_UI_Process_Get_Okay(); y++)
+		for(int y=0; y<Get_NY(); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
