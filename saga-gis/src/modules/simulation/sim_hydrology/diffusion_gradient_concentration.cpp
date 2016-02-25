@@ -62,9 +62,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define MASK_LAND	0
 #define MASK_LAKE	1
-#define MASK_INLET	100
-#define MASK_OUTLET	0
+#define MASK_INLET	2
+#define MASK_OUTLET	3
 
 //---------------------------------------------------------
 CSG_String	Description	= _TW(
@@ -74,7 +75,9 @@ CSG_String	Description	= _TW(
 	"shallow water bodies with in- and outflow, where monitoring data show concentration "
 	"growth or decrease between the inflow and the outflow points. Parameters are for "
 	"example nutrients like nitrate, which is reduced by denitrification process inside "
-	"the water body. "
+	"the water body.\n"
+	"Values of mask grid are expected to be 1 for water area, 2 for inlet, 3 for outlet and "
+	"0 for non water.\n"
 	"\n"
 	"\nReferences:\n"
 	"<ul><li>"
@@ -168,16 +171,7 @@ bool CSim_Diffusion_Gradient::On_Execute(void)
 //---------------------------------------------------------
 inline bool CSim_Diffusion_Gradient::is_Lake(int x, int y)
 {
-	if( m_pMask->is_InGrid(x, y) )
-	{
-		switch( m_pMask->asInt(x, y) )
-		{
-		case MASK_LAKE: case MASK_INLET: case MASK_OUTLET:
-			return( true );
-		}
-	}
-
-	return( false );
+	return( m_pMask->Get_System().is_InGrid(x, y) && m_pMask->asInt(x, y) != MASK_LAND );
 }
 
 
@@ -196,10 +190,10 @@ bool CSim_Diffusion_Gradient::Surface_Initialise(CSG_Grid *pSurface)
 		{
 			switch( m_pMask->asInt(x, y) )
 			{
-			case MASK_INLET:	nIn++;	pSurface->Set_Value	(x, y, 100.0);	break;
-			case MASK_LAKE:				pSurface->Set_Value	(x, y,  50.0);	break;
-			case MASK_OUTLET:	nOut++;	pSurface->Set_Value	(x, y,   0.0);	break;
-			default:					pSurface->Set_NoData(x, y);			break;
+			case MASK_INLET : nIn++;  pSurface->Set_Value (x, y, 100.0); break;
+			case MASK_LAKE  :         pSurface->Set_Value (x, y,  50.0); break;
+			case MASK_OUTLET: nOut++; pSurface->Set_Value (x, y,   0.0); break;
+			default         :         pSurface->Set_NoData(x, y       ); break;
 			}
 		}
 	}
@@ -264,7 +258,7 @@ double CSim_Diffusion_Gradient::Surface_Set_Means(CSG_Grid *pSurface)
 	}
 
 	//-----------------------------------------------------
-	double	s, d, dMax	= 0.0;
+	double	dMax	= 0.0;
 
 	for(y=0; y<Get_NY(); y++)
 	{
@@ -272,26 +266,22 @@ double CSim_Diffusion_Gradient::Surface_Set_Means(CSG_Grid *pSurface)
 		{
 			switch( m_pMask->asInt(x, y) )
 			{
-			case MASK_INLET:
-				pSurface->Set_Value(x, y, 100.0);
-				break;
-
-			case MASK_OUTLET:
-				pSurface->Set_Value(x, y,   0.0);
-				break;
-
-			case MASK_LAKE:
-				s	= m_Tmp.asDouble(x, y);
-				d	= fabs(pSurface->asDouble(x, y) - s);
-
-				if( d > 0.0 )
+			case MASK_INLET :	pSurface->Set_Value(x, y, 100.0);	break;
+			case MASK_OUTLET:	pSurface->Set_Value(x, y,   0.0);	break;
+			case MASK_LAKE  :
 				{
-					if( dMax <= 0.0 || d > dMax )
-					{
-						dMax	= d;
-					}
+					double	s	= m_Tmp.asDouble(x, y);
+					double	d	= fabs(pSurface->asDouble(x, y) - s);
 
-					pSurface->Set_Value(x, y, s);
+					if( d > 0.0 )
+					{
+						if( dMax <= 0.0 || d > dMax )
+						{
+							dMax	= d;
+						}
+
+						pSurface->Set_Value(x, y, s);
+					}
 				}
 				break;
 			}
@@ -666,10 +656,10 @@ bool CSim_Diffusion_Concentration::_Concentration_Initialise(CSG_Grid *pConcentr
 		{
 			switch( m_pMask->asInt(x, y) )
 			{
-			case MASK_LAKE:		pConcentration->Set_Value	(x, y, 0.0      );	break;
-			case MASK_OUTLET:	pConcentration->Set_Value	(x, y, 0.0      );	break;
-			case MASK_INLET:	pConcentration->Set_Value	(x, y, m_Conc_In);	break;
-			default:			pConcentration->Set_NoData	(x, y           );	break;
+			case MASK_LAKE  :	pConcentration->Set_Value (x, y, 0.0      );	break;
+			case MASK_OUTLET:	pConcentration->Set_Value (x, y, 0.0      );	break;
+			case MASK_INLET :	pConcentration->Set_Value (x, y, m_Conc_In);	break;
+			default         :	pConcentration->Set_NoData(x, y           );	break;
 			}
 		}
 	}
