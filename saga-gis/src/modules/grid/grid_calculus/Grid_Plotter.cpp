@@ -51,85 +51,142 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 #include "Grid_Plotter.h"
 
-CGrid_Plotter::CGrid_Plotter(void)
-{
-	Set_Name(_TL("Function"));
-	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
-	Set_Description(_TW(
-		"Generate a grid based on a functional expression.\n"
-		"The function interpreter uses an expression parser "
-		"that offers the following operators:\n\n"
-		"+ Addition\n"
-		"- Subtraction\n"
-		"* Multiplication\n"
-		"/ Division\n"
-		"^ power\n"
-		"sin(a)\n"
-		"cos(a)\n"
-		"tan(a)\n"
-		"asin(a)\n"
-		"acos(a)\n"
-		"atan(a)\n"
-		"atan2(a,b)\n"
-		"abs(a)\n"
-		"int(a)\n"
-		"sqrt(a)\n"
-		"int(a)\n"
-		"mod(a,b)\n"
-		"gt(a,b) returns 1 if a greater b\n"
-		"lt(a,b) returns 1 if a lower b\n"
-		"eq(a,b) returns 1 if a equal b\n"
-		"The Variablen are x and y\n"
-		"Example: sin(x*x+y*y)/(x*x+y*y)\n")
-	);
 
-	Parameters.Add_Grid(	NULL, "RESULT"	, _TL("Function"), _TL(""), PARAMETER_OUTPUT);
-
-	Parameters.Add_Value(	NULL, "XMIN"	, _TL("xmin")	, _TL(""), PARAMETER_TYPE_Double,-5);
-	Parameters.Add_Value(	NULL, "XMAX"	, _TL("xmax")	, _TL(""), PARAMETER_TYPE_Double,5);
-	Parameters.Add_Value(	NULL, "YMIN"	, _TL("ymin")	, _TL(""), PARAMETER_TYPE_Double,-5);
-	Parameters.Add_Value(	NULL, "YMAX"	, _TL("ymax")	, _TL(""), PARAMETER_TYPE_Double,5);
-	Parameters.Add_String(	NULL, "FORMUL"	, _TL("Formula")	, _TL(""), _TL("sin(x*x + y*y)"));
-}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid_Plotter::~CGrid_Plotter(void)
-{}
+CGrid_Plotter::CGrid_Plotter(void)
+{
+	Set_Name	(_TL("Function Plotter"));
+
+	Set_Author	("A.Ringeler (c) 2003");
+
+	CSG_String	s(_TW(
+		"Generate a grid based on a functional expression. "
+		"The function interpreter uses an formula expression "
+		"parser that offers the following operators:\n"
+	));
+
+	s	+= CSG_Formula::Get_Help_Operators(true);
+
+	Set_Description(s);
+
+	//-----------------------------------------------------
+	CSG_Parameter	*pNode	= Parameters.Add_String(
+		NULL	, "FORMULA"	, _TL("Formula"),
+		_TL(""),
+		"sin(x*x + y*y)"
+	);
+
+	Parameters.Add_Range(
+		pNode	, "X_RANGE"	, _TL("X Range"),
+		_TL(""),
+		0.0, 10.0
+	);
+
+	Parameters.Add_Range(
+		pNode	, "Y_RANGE"	, _TL("Y Range"),
+		_TL(""),
+		0.0, 10.0
+	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+
+	m_Grid_Target.Add_Grid("FUNCTION", _TL("Function"), false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Plotter::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Plotter::On_Execute(void)
 {
-	pResult		= Parameters("RESULT")->asGrid();
-
-	double xmin	= Parameters("XMIN")->asDouble();
-	double ymin	= Parameters("YMIN")->asDouble();
-	double xmax	= Parameters("XMAX")->asDouble();
-	double ymax	= Parameters("YMAX")->asDouble();
-
-	const SG_Char *formel  = Parameters("FORMUL")->asString();
-
-	CSG_Formula Formel;
-
-	Formel.Set_Formula(formel);
-
-	CSG_String Msg;
-	if (Formel.Get_Error(Msg))
+	//-----------------------------------------------------
+	CSG_Formula	Formula;
+	
+	if( !Formula.Set_Formula(Parameters("FORMULA")->asString()) )
 	{
-		Message_Add(Msg);
-		
-		return false;
+		CSG_String	Message;
+
+		if( !Formula.Get_Error(Message) )
+		{
+			Message	= _TL("unknown errror parsing formula");
+		}
+
+		Error_Set(Message);
+
+		return( false );
 	}
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-	for(int x=0; x<Get_NX(); x++)
+	//-----------------------------------------------------
+	CSG_Grid	*pFunction	= m_Grid_Target.Get_Grid("FUNCTION");
+
+	if( !pFunction )
 	{
-		pResult->Set_Value(x,y,Formel.Get_Value(SG_T("xy"),(xmax-xmin)*((double)x/Get_NX())+xmin,(ymax-ymin)*((double)y/Get_NY())+ymin)); 
+		Error_Set(_TL("could not create target grid"));
+
+		return( false );
 	}
+
+	//-----------------------------------------------------
+	double xMin		= Parameters("X_RANGE")->asRange()->Get_LoVal();
+	double xRange	= Parameters("X_RANGE")->asRange()->Get_HiVal() - xMin;
+
+	double yMin		= Parameters("Y_RANGE")->asRange()->Get_LoVal();
+	double yRange	= Parameters("Y_RANGE")->asRange()->Get_HiVal() - yMin;
+
+	//-----------------------------------------------------
+	for(int y=0; y<pFunction->Get_NY() && Set_Progress(y); y++)
+	{
+		double	py	= yMin + yRange * (y / (double)pFunction->Get_NY());
+
+		#pragma omp parallel for
+		for(int x=0; x<pFunction->Get_NX(); x++)
+		{
+			double	px	= xMin + xRange * (x / (double)pFunction->Get_NX());
+
+			pFunction->Set_Value(x, y, Formula.Get_Value(SG_T("xy"), px, py));
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

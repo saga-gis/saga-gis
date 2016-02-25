@@ -75,24 +75,33 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Plotter : public CSG_Module_Grid
+class CGrid_Plotter : public CSG_Module
 {
 public:
 	CGrid_Plotter(void);
-	virtual ~CGrid_Plotter(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Grid Generation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid Generation") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 	
-	CSG_Grid					*pInput, *pResult;
-	
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Plotter_H
