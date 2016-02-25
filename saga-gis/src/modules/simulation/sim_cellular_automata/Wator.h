@@ -87,24 +87,28 @@ class CWator : public CSG_Module
 public:
 	CWator(void);
 
-	virtual bool			needs_GUI		(void)	{	return( true );	}
+	virtual bool				needs_GUI				(void)	{	return( true );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	int						Fish_Birth, Shark_Birth, Shark_Starve;
+	int							m_Fish_Birth, m_Shark_Birth, m_Shark_Starve;
 
-	sLong					nFishes, nSharks;
+	sLong						m_nFishes, m_nSharks;
 
-	CSG_Grid				*pWator, *pNext, *pAge, *pStarve;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+	CSG_Grid					*m_pWator, m_Next, m_Age, m_Starve;
 
 
-	bool					Next_Cycle(void);
+	bool						Next_Cycle				(void);
 
 };
 

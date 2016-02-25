@@ -62,7 +62,6 @@
 
 //---------------------------------------------------------
 #include "Life.h"
-#include <time.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -75,108 +74,100 @@
 CLife::CLife(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Conway's Game of Life"));
 
-	Set_Name(_TL("Conway's Life"));
-
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Conway's Life - a cellular automat.\n\n"
-
+		"Conway's Game of Life - a classical cellular automat.\n"
+		"\n"
 		"Reference:\n"
 		"- Eigen, M., Winkler, R. (1985): "
 		"'Das Spiel - Naturgesetze steuern den Zufall', "
-		"Muenchen, 404p.\n")
-	);
-
+		"Muenchen, 404p.\n"
+	));
 
 	//-----------------------------------------------------
-	// 2. Grids...
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
 
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"	, _TL("Grid"),
-		_TL("")
-	);
+	m_Grid_Target.Add_Grid("LIFE", _TL("Life"), false);
 
+	//-----------------------------------------------------
 	Parameters.Add_Value(
-		NULL	, "NX"		, _TL("Width (Cells)"),
+		NULL	, "FADECOLOR"	, _TL("Fade Color Count"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "NY"		, _TL("Height (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
-
-	Parameters.Add_Value(
-		NULL, "FADECOLOR"	, _TL("Fade Color Count"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 63, 1, true, 255, true
+		PARAMETER_TYPE_Int, 64, 1, true, 255, true
 	);
 }
-
-//---------------------------------------------------------
-CLife::~CLife(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CLife::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLife::On_Execute(void)
 {
-	int		x, y, i;
-
 	//-----------------------------------------------------
-	pLife	= SG_Create_Grid(SG_DATATYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
-	pLife->Set_Name(_TL("Conway's Life"));
-	Parameters("GRID")->Set_Value(pLife);
+	m_pLife	= m_Grid_Target.Get_Grid("LIFE", SG_DATATYPE_Byte);
 
-	nColors	= Parameters("FADECOLOR")->asInt();
-	DataObject_Set_Colors(pLife, nColors, SG_COLORS_YELLOW_BLUE);
-
-	pCount	= SG_Create_Grid(pLife);
-
-	//-----------------------------------------------------
-	srand((unsigned)time(NULL));
-
-	pLife->Assign(0.0);
-
-	for(y=0; y<pLife->Get_NY(); y++)
+	if( !m_pLife )
 	{
-		for(x=0; x<pLife->Get_NX(); x++)
+		Error_Set(_TL("could not create target grid"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	m_nColors	= Parameters("FADECOLOR")->asInt();
+
+	for(int y=0; y<m_pLife->Get_NY(); y++)
+	{
+		for(int x=0; x<m_pLife->Get_NX(); x++)
 		{
-			if( rand() > RAND_MAX / 2 )
-			{
-				pLife->Set_Value(x, y, 1);
-			}
+			m_pLife->Set_Value(x, y, CSG_Random::Get_Uniform(0, 100) < 50 ? 0 : m_nColors);
 		}
 	}
 
-	Next_Cycle();
-	DataObject_Update(pLife, 0, nColors, true);
+	//-----------------------------------------------------
+	m_pLife->Set_Name(_TL("Conway's Game of Life"));
+	m_pLife->Set_NoData_Value(-1);
+
+	DataObject_Add       (m_pLife);
+	DataObject_Set_Colors(m_pLife, 11, SG_COLORS_WHITE_BLUE);
+	DataObject_Update    (m_pLife, 0, m_nColors, SG_UI_DATAOBJECT_SHOW);
 
 	//-----------------------------------------------------
-	for(i=1; Process_Get_Okay(true) && Next_Cycle(); i++)
-	{
-		DataObject_Update(pLife);
+	int		i;
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d"), _TL("Life Cycle"), i));
+	m_Count.Create(m_pLife->Get_System(), SG_DATATYPE_Byte);
+
+	for(i=1; Process_Get_Okay(true) && Next_Cycle(i > m_nColors); i++)
+	{
+		Process_Set_Text(CSG_String::Format("%s: %d", _TL("Life Cycle"), i));
+
+		DataObject_Update(m_pLife, 0, m_nColors);
 	}
 
-	//-----------------------------------------------------
-	delete(pCount);
+	m_Count.Destroy();
 
+	//-----------------------------------------------------
 	if( is_Progress() )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s %d %s"), _TL("Dead after"), i, _TL("Life Cycles")));
+		Message_Add(CSG_String::Format("\n%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles")), false);
 	}
 
 	return( true );
@@ -185,54 +176,41 @@ bool CLife::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLife::Next_Cycle(void)
+bool CLife::Next_Cycle(bool bCheck4Change)
 {
-	bool	bContinue;
-	int		x, y, i, ix, iy;
+	//-----------------------------------------------------
+	bool	bContinue	= bCheck4Change ? false : true;
+
+	int		y;
 
 	//-----------------------------------------------------
-	bContinue	= false;
-
-	pCount->Assign();
-
-	//-----------------------------------------------------
-	for(y=0; y<pLife->Get_NY(); y++)
+	#pragma omp parallel for private(y)
+	for(y=0; y<m_pLife->Get_NY(); y++)
 	{
-		for(x=0; x<pLife->Get_NX(); x++)
+		for(int x=0; x<m_pLife->Get_NX(); x++)
 		{
-			if( (i = pLife->asByte(x, y)) == 0 )
+			int		n	= 0;
+
+			for(int i=0; i<8; i++)
 			{
-				for(i=0; i<8; i++)
+				int	ix	= CSG_Grid_System::Get_xTo(i, x);;
+				int iy	= CSG_Grid_System::Get_yTo(i, y);;
+
+				if( ix < 0 ) ix = m_pLife->Get_NX() - 1; else if( ix >= m_pLife->Get_NX() ) ix = 0;
+				if( iy < 0 ) iy = m_pLife->Get_NY() - 1; else if( iy >= m_pLife->Get_NY() ) iy = 0;
+
+				if( m_pLife->asByte(ix, iy) == m_nColors )
 				{
-					ix	= pLife->Get_System().Get_xTo(i, x);
-					if( ix < 0 )
-					{
-						ix	= pLife->Get_NX() - 1;
-					}
-					else if( ix >= pLife->Get_NX() )
-					{
-						ix	= 0;
-					}
-
-					iy	= pLife->Get_System().Get_yTo(i, y);
-					if( iy < 0 )
-					{
-						iy	= pLife->Get_NY() - 1;
-					}
-					else if( iy >= pLife->Get_NY() )
-					{
-						iy	= 0;
-					}
-
-					pCount->Add_Value(ix, iy, 1);
+					n++;
 				}
 			}
-			else if( i > 1 && i < nColors )
+
+			m_Count.Set_Value(x, y, n);
+
+			if( bCheck4Change && m_pLife->asByte(x, y) > 0 && m_pLife->asByte(x, y) < m_nColors - 1 )
 			{
 				bContinue	= true;
 			}
@@ -240,37 +218,32 @@ bool CLife::Next_Cycle(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<pLife->Get_NY(); y++)
+	#pragma omp parallel for private(y)
+	for(y=0; y<m_pLife->Get_NY(); y++)
 	{
-		for(x=0; x<pLife->Get_NX(); x++)
+		for(int x=0; x<m_pLife->Get_NX(); x++)
 		{
-			i	= pCount->asByte(x, y);
+			int		n	= m_Count.asByte(x, y);
 
-			switch( i )
+			switch( n )
 			{
-			case 2:
-				i	= pLife->asByte(x, y);
-
-				if( i > 0 && i < nColors )
+			case  2:	// keep status
+				if( m_pLife->asByte(x, y) > 0 && m_pLife->asByte(x, y) < m_nColors )
 				{
-					pLife->Add_Value(x, y, 1);
+					m_pLife->Add_Value(x, y, -1);
 				}
 				break;
 
-			case 3:
-				pLife->Set_Value(x, y, 0);
+			case  3:	// birth
+				{
+					m_pLife->Set_Value(x, y, m_nColors);
+				}
 				break;
 
-			default:
-				i	= pLife->asByte(x, y);
-
-				if( i < 1 )
+			default:	// death
+				if( m_pLife->asByte(x, y) > 0 )
 				{
-					pLife->Set_Value(x, y, 1);
-				}
-				else if( i < nColors )
-				{
-					pLife->Add_Value(x, y, 1);
+					m_pLife->Add_Value(x, y, -1);
 				}
 			}
 		}

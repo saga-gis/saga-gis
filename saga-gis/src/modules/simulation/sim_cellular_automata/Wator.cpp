@@ -62,7 +62,6 @@
 
 //---------------------------------------------------------
 #include "Wator.h"
-#include <time.h>
 
 //---------------------------------------------------------
 #define FISH	1
@@ -78,12 +77,12 @@
 //---------------------------------------------------------
 CWator::CWator(void)
 {
-	CSG_Parameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Wa-Tor"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Wa-Tor - an ecological simulation of predator-prey populations - "
@@ -92,71 +91,48 @@ CWator::CWator(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"			, _TL("Grid"),
-		_TL("")
-	);
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
 
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "NODE_GRID"		, _TL("New Grid Dimensions"),
-		_TL("If grid is not set, a new one will be created using chosen width and height.")
-	);
+	m_Grid_Target.Add_Grid("GRID", _TL("Wa-Tor"), false);
 
-	Parameters.Add_Value(
-		pNode_0	, "NX"				, _TL("Width (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
-
-	Parameters.Add_Value(
-		pNode_0	, "NY"				, _TL("Height (Cells)"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
-
-	pNode_0	= Parameters.Add_Grid(
-		NULL	, "RESULT"			, _TL("Wa-Tor"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL	, true, SG_DATATYPE_Byte
-	);
-
-	pNode_1	= Parameters.Add_Value(
-		pNode_0	, "REFRESH"			, _TL("Refresh"),
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Value(
+		NULL	, "REFRESH"			, _TL("Refresh"),
 		_TL(""),
 		PARAMETER_TYPE_Bool			, true
 	);
 
-	pNode_1	= Parameters.Add_Value(
-		pNode_0	, "INIT_FISH"		, _TL("Initial Number of Fishes [%]"),
+	Parameters.Add_Value(
+		pNode	, "INIT_FISH"		, _TL("Initial Number of Fishes [%]"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 30.0, 0.0, true, 100.0, true
 	);
 
-	pNode_1	= Parameters.Add_Value(
-		pNode_0	, "INIT_SHARK"		, _TL("Initial Number of Sharks [%]"),
+	Parameters.Add_Value(
+		pNode	, "INIT_SHARK"		, _TL("Initial Number of Sharks [%]"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 7.5, 0.0, true, 100.0, true
 	);
 
-	pNode_0	= Parameters.Add_Table(
+	Parameters.Add_Table(
 		NULL	, "TABLE"			, _TL("Cycles"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode_0	= Parameters.Add_Value(
+	Parameters.Add_Value(
 		NULL	, "FISH_BIRTH"		, _TL("Birth Rate of Fishes"),
 		_TL(""),
 		PARAMETER_TYPE_Int			,  3.0, 0.0, true
 	);
 
-	pNode_0	= Parameters.Add_Value(
+	Parameters.Add_Value(
 		NULL	, "SHARK_BIRTH"		, _TL("Birth Rate of Sharks"),
 		_TL(""),
 		PARAMETER_TYPE_Int			, 12.0, 0.0, true
 	);
 
-	pNode_0	= Parameters.Add_Value(
+	Parameters.Add_Value(
 		NULL	, "SHARK_STARVE"	, _TL("Max. Starvation Time for Sharks"),
 		_TL(""),
 		PARAMETER_TYPE_Int			,  4.0, 0.0, true
@@ -166,133 +142,144 @@ CWator::CWator(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWator::On_Execute(void)
 {
-	bool			bRefresh;
-	int				x, y, i;
-	double			perc, Fish_perc, Shark_perc;
-	CSG_Colors			Colors;
-	CSG_Table			*pTable;
-	CSG_Table_Record	*pRecord;
-
 	//-----------------------------------------------------
-	if( (pWator = Parameters("RESULT")->asGrid()) == NULL )
+	m_pWator	= m_Grid_Target.Get_Grid("GRID", SG_DATATYPE_Byte);
+
+	if( !m_pWator )
 	{
-		bRefresh	= true;
-		pWator		= SG_Create_Grid(SG_DATATYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
-		Parameters("GRID")->Set_Value(pWator);
-	}
-	else
-	{
-		bRefresh	= Parameters("REFRESH")->asBool();
+		Error_Set(_TL("could not create target grid"));
+
+		return( false );
 	}
 
-	pWator->Set_Name(_TL("Wa-Tor"));
+	//-----------------------------------------------------
+	m_pWator->Set_Name(_TL("Wa-Tor"));
+	m_pWator->Set_NoData_Value(-1);
 
-	Colors.Set_Count(3);
-	Colors.Set_Color(0, SG_GET_RGB(  0,   0,   0));
-	Colors.Set_Color(1, SG_GET_RGB(  0, 255,   0));
-	Colors.Set_Color(2, SG_GET_RGB(255,   0,   0));
-	DataObject_Set_Colors(pWator, Colors);
-	DataObject_Update(pWator, 0, 3, SG_UI_DATAOBJECT_SHOW);
+	CSG_Colors	Colors(3);
+
+	Colors.Set_Color(0, SG_COLOR_BLACK);
+	Colors.Set_Color(1, SG_COLOR_GREEN);
+	Colors.Set_Color(2, SG_COLOR_RED  );
+
+	DataObject_Add       (m_pWator);
+	DataObject_Set_Colors(m_pWator, Colors);
+	DataObject_Update    (m_pWator, 0, 2, SG_UI_DATAOBJECT_SHOW);
 
 	//-----------------------------------------------------
-	Fish_Birth		= Parameters("FISH_BIRTH")	->asInt();
-	Shark_Birth		= Parameters("SHARK_BIRTH")	->asInt();
-	Shark_Starve	= Parameters("SHARK_STARVE")->asInt();
-
-	pTable			= Parameters("TABLE")		->asTable();
-	pTable->Destroy();
-	pTable->Set_Name(_TL("Wa-Tor"));
-	pTable->Add_Field("Cycle"	, SG_DATATYPE_Int);
-	pTable->Add_Field("Fishes"	, SG_DATATYPE_Int);
-	pTable->Add_Field("Sharks"	, SG_DATATYPE_Int);
-
-	pNext			= SG_Create_Grid(pWator, SG_DATATYPE_Byte);
-	pAge			= SG_Create_Grid(pWator, SG_DATATYPE_Byte);
-	pStarve			= SG_Create_Grid(pWator, SG_DATATYPE_Byte);
-
-	srand((unsigned)time(NULL));
-
-	//-----------------------------------------------------
-	if( bRefresh )
+	if( Parameters("REFRESH")->asBool() )
 	{
-		pWator->Assign(0.0);
+		double	Fish_perc	= Parameters("INIT_FISH" )->asDouble();
+		double	Shark_perc	= Parameters("INIT_SHARK")->asDouble() + Fish_perc;
 
-		Fish_perc		= Parameters("INIT_FISH" )->asDouble();
-		Shark_perc		= Parameters("INIT_SHARK")->asDouble() + Fish_perc;
-
-		for(y=0; y<pWator->Get_NY(); y++)
+		#pragma omp parallel for
+		for(int y=0; y<m_pWator->Get_NY(); y++)
 		{
-			for(x=0; x<pWator->Get_NX(); x++)
+			for(int x=0; x<m_pWator->Get_NX(); x++)
 			{
-				perc	= 100.0 * (double)rand() / (double)RAND_MAX;
+				double	perc	= CSG_Random::Get_Uniform(0, 100);
 
 				if( perc <= Fish_perc )
 				{
-					pWator	->Set_Value(x, y, FISH);
+					m_pWator->Set_Value(x, y, FISH);
 				}
 				else if( perc <= Shark_perc )
 				{
-					pWator	->Set_Value(x, y, SHARK);
+					m_pWator->Set_Value(x, y, SHARK);
+				}
+				else
+				{
+					m_pWator->Set_Value(x, y, 0);
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	pAge	->Assign();
-	pStarve	->Assign();
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	for(y=0; y<pWator->Get_NY(); y++)
+	pTable->Destroy();
+	pTable->Set_Name(_TL("Wa-Tor"));
+
+	pTable->Add_Field("Cycle" , SG_DATATYPE_Int);
+	pTable->Add_Field("Fishes", SG_DATATYPE_Int);
+	pTable->Add_Field("Sharks", SG_DATATYPE_Int);
+
+	//-----------------------------------------------------
+	m_Fish_Birth	= Parameters("FISH_BIRTH"  )->asInt();
+	m_Shark_Birth	= Parameters("SHARK_BIRTH" )->asInt();
+	m_Shark_Starve	= Parameters("SHARK_STARVE")->asInt();
+
+	m_Next  .Create(m_pWator, SG_DATATYPE_Byte);
+	m_Age   .Create(m_pWator, SG_DATATYPE_Byte);
+	m_Starve.Create(m_pWator, SG_DATATYPE_Byte);
+
+	#pragma omp parallel for
+	for(int y=0; y<m_pWator->Get_NY(); y++)
 	{
-		for(x=0; x<pWator->Get_NX(); x++)
+		for(int x=0; x<m_pWator->Get_NX(); x++)
 		{
-			switch( pWator->asByte(x, y) )
+			switch( m_pWator->asByte(x, y) )
 			{
 			case FISH:
-				pAge	->Set_Value(x, y, Fish_Birth	* (double)rand() / (double)RAND_MAX);
+				m_Age   .Set_Value(x, y, CSG_Random::Get_Uniform(0.0, m_Fish_Birth  ));
 				break;
 
 			case SHARK:
-				pAge	->Set_Value(x, y, Shark_Birth	* (double)rand() / (double)RAND_MAX);
-				pStarve	->Set_Value(x, y, Shark_Starve	* (double)rand() / (double)RAND_MAX);
+				m_Age   .Set_Value(x, y, CSG_Random::Get_Uniform(0.0, m_Shark_Birth ));
+				m_Starve.Set_Value(x, y, CSG_Random::Get_Uniform(0.0, m_Shark_Starve));
 				break;
 			}
 		}
 	}
 
 	//-----------------------------------------------------
+	int		i;
+
 	SG_UI_Progress_Lock(true);
 
 	for(i=1; Process_Get_Okay(true) && Next_Cycle(); i++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d"), _TL("Life Cycle"), i));
+		Process_Set_Text(CSG_String::Format("%s: %d", _TL("Life Cycle"), i));
 
-		pRecord	= pTable->Add_Record();
+		CSG_Table_Record	*pRecord	= pTable->Add_Record();
+
 		pRecord->Set_Value(0, i);
-		pRecord->Set_Value(1, nFishes);
-		pRecord->Set_Value(2, nSharks);
+		pRecord->Set_Value(1, m_nFishes);
+		pRecord->Set_Value(2, m_nSharks);
 
-		DataObject_Update(pWator, 0, 3);
+		DataObject_Update(m_pWator, 0, 2);
 		DataObject_Update(pTable);
 	}
 
 	SG_UI_Progress_Lock(false);
 
 	//-----------------------------------------------------
-	delete(pNext);
-	delete(pAge);
-	delete(pStarve);
+	m_Next  .Destroy();
+	m_Age   .Destroy();
+	m_Starve.Destroy();
 
 	if( is_Progress() )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s %d %s"), _TL("Dead after"), i, _TL("Life Cycles")));
+		Message_Add(CSG_String::Format("%s %d %s", _TL("Dead after"), i, _TL("Life Cycles")));
 	}
 
 	return( true );
@@ -306,12 +293,12 @@ bool CWator::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_NEIGHBOR			{	ix = pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = pWator->Get_NX() - 1; else if( ix >= pWator->Get_NX() ) ix = 0;\
-									iy = pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = pWator->Get_NY() - 1; else if( iy >= pWator->Get_NY() ) iy = 0;	}
+#define GET_NEIGHBOR			{	ix = m_pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = m_pWator->Get_NX() - 1; else if( ix >= m_pWator->Get_NX() ) ix = 0;\
+									iy = m_pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = m_pWator->Get_NY() - 1; else if( iy >= m_pWator->Get_NY() ) iy = 0;	}
 
 #define GET_NEIGHBOR_RANDOMLY	{	i = iNeighbor[(int)((double)rand() * nNeighbors / (double)RAND_MAX)];\
-									ix = pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = pWator->Get_NX() - 1; else if( ix >= pWator->Get_NX() ) ix = 0;\
-									iy = pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = pWator->Get_NY() - 1; else if( iy >= pWator->Get_NY() ) iy = 0;	}
+									ix = m_pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = m_pWator->Get_NX() - 1; else if( ix >= m_pWator->Get_NX() ) ix = 0;\
+									iy = m_pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = m_pWator->Get_NY() - 1; else if( iy >= m_pWator->Get_NY() ) iy = 0;	}
 
 //---------------------------------------------------------
 bool CWator::Next_Cycle(void)
@@ -323,37 +310,37 @@ bool CWator::Next_Cycle(void)
 			Age, Starve;
 
 	//-----------------------------------------------------
-	nFishes	= 0;
-	nSharks	= 0;
+	m_nFishes	= 0;
+	m_nSharks	= 0;
 
-	pNext->Assign(0.0);
+	m_Next.Assign(0.0);
 
 	switch( iDir )
 	{
-	default:
-	case 3:	ay	= pWator->Get_NY() - 1;	dy	= -1;	ax	= pWator->Get_NX() - 1;	dx	= -1;	iDir=0;	break;
-	case 2:	ay	= 0;					dy	=  1;	ax	= pWator->Get_NX() - 1;	dx	= -1;	iDir++;	break;
-	case 1:	ay	= pWator->Get_NY() - 1;	dy	= -1;	ax	= 0;					dx	=  1;	iDir++;	break;
-	case 0:	ay	= 0;					dy	=  1;	ax	= 0;					dx	=  1;	iDir++;	break;
+	default: ay	= m_pWator->Get_NY() - 1; dy = -1; ax = m_pWator->Get_NX() - 1; dx = -1; iDir=0; break;
+	case  2: ay	= 0;                      dy =  1; ax = m_pWator->Get_NX() - 1; dx = -1; iDir++; break;
+	case  1: ay	= m_pWator->Get_NY() - 1; dy = -1; ax = 0;                      dx =  1; iDir++; break;
+	case  0: ay	= 0;                      dy =  1; ax = 0;                      dx =  1; iDir++; break;
 	}
 
 	//-----------------------------------------------------
-	for(yy=0, y=ay; yy<pWator->Get_NY(); yy++, y+=dy)
+	for(yy=0, y=ay; yy<m_pWator->Get_NY(); yy++, y+=dy)
 	{
-		for(xx=0, x=ax; xx<pWator->Get_NX(); xx++, x+=dx)
+		for(xx=0, x=ax; xx<m_pWator->Get_NX(); xx++, x+=dx)
 		{
-			if( pWator->asByte(x, y) == FISH )
+			if( m_pWator->asByte(x, y) == FISH )
 			{
-				nFishes++;
+				m_nFishes++;
 
-				Age		= pAge->asInt(x, y) + 1;
-				pAge->Set_Value(x, y, 0);
+				Age		= m_Age.asInt(x, y) + 1;
+
+				m_Age.Set_Value(x, y, 0);
 
 				for(i=0, nNeighbors=0; i<8; i++)
 				{
 					GET_NEIGHBOR;
 
-					if( pWator->asByte(ix, iy) == 0 && pNext->asByte(ix, iy) == 0 )
+					if( m_pWator->asByte(ix, iy) == 0 && m_Next.asByte(ix, iy) == 0 )
 					{
 						iNeighbor[nNeighbors++]	= i;
 					}
@@ -363,48 +350,49 @@ bool CWator::Next_Cycle(void)
 				{
 					GET_NEIGHBOR_RANDOMLY;
 
-					pNext	->Set_Value(ix, iy, FISH);
-					pAge	->Set_Value(ix, iy, Age >= Fish_Birth ? 0 : Age);
+					m_Next.Set_Value(ix, iy, FISH);
+					m_Age .Set_Value(ix, iy, Age >= m_Fish_Birth ? 0 : Age);
 
-					if( Age >= Fish_Birth )
+					if( Age >= m_Fish_Birth )
 					{
-						pNext	->Set_Value( x,  y, FISH);
-						pAge	->Set_Value( x,  y, Fish_Birth * (double)rand() / (double)RAND_MAX);
+						m_Next.Set_Value(x, y, FISH);
+						m_Age .Set_Value(x, y, CSG_Random::Get_Uniform(0, m_Fish_Birth));
 					}
 					else
 					{
-						pWator	->Set_Value( x,  y, 0);
+						m_pWator->Set_Value(x, y, 0);
 					}
 				}
 				else
 				{
-					pNext	->Set_Value( x,  y, FISH);
-					pAge	->Set_Value( x,  y, Age >= Fish_Birth ? 0 : Fish_Birth);
+					m_Next.Set_Value(x, y, FISH);
+					m_Age .Set_Value(x, y, Age >= m_Fish_Birth ? 0 : m_Fish_Birth);
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	for(yy=0, y=ay; yy<pWator->Get_NY(); yy++, y+=dy)
+	for(yy=0, y=ay; yy<m_pWator->Get_NY(); yy++, y+=dy)
 	{
-		for(xx=0, x=ax; xx<pWator->Get_NX(); xx++, x+=dx)
+		for(xx=0, x=ax; xx<m_pWator->Get_NX(); xx++, x+=dx)
 		{
-			if( pWator->asByte(x, y) == SHARK )
+			if( m_pWator->asByte(x, y) == SHARK )
 			{
-				nSharks++;
+				m_nSharks++;
 
-				Age		= pAge->asInt(x, y) + 1;
-				pAge->Set_Value(x, y, 0);
+				Age		= m_Age.asInt(x, y) + 1;
 
-				Starve	= pStarve->asInt(x, y) + 1;
-				pStarve->Set_Value(x, y, 0);
+				m_Age.Set_Value(x, y, 0);
+
+				Starve	= m_Starve.asInt(x, y) + 1;
+				m_Starve.Set_Value(x, y, 0);
 
 				for(i=0, nNeighbors=0; i<8; i++)
 				{
 					GET_NEIGHBOR;
 
-					if( pNext->asByte(ix, iy) == FISH )
+					if( m_Next.asByte(ix, iy) == FISH )
 					{
 						iNeighbor[nNeighbors++]	= i;
 					}
@@ -414,31 +402,30 @@ bool CWator::Next_Cycle(void)
 				{
 					GET_NEIGHBOR_RANDOMLY;
 
-					nFishes--;
-					pWator	->Set_Value(ix, iy, 0);
+					m_nFishes--;
+					m_pWator->Set_Value(ix, iy, 0);
+					m_Next   .Set_Value(ix, iy, SHARK);
+					m_Age    .Set_Value(ix, iy, Age >= m_Shark_Birth ? 0 : Age);
+					m_Starve .Set_Value(ix, iy, 0);
 
-					pNext	->Set_Value(ix, iy, SHARK);
-					pAge	->Set_Value(ix, iy, Age >= Shark_Birth ? 0 : Age);
-					pStarve	->Set_Value(ix, iy, 0);
-
-					if( Age >= Shark_Birth )
+					if( Age >= m_Shark_Birth )
 					{
-						pNext	->Set_Value( x,  y, SHARK);
-						pAge	->Set_Value( x,  y, Shark_Birth * (double)rand() / (double)RAND_MAX);
-						pStarve	->Set_Value( x,  y, 0);
+						m_Next   .Set_Value(x, y, SHARK);
+						m_Age    .Set_Value(x, y, CSG_Random::Get_Uniform(0, m_Shark_Birth));
+						m_Starve .Set_Value(x, y, 0);
 					}
 					else
 					{
-						pWator	->Set_Value( x,  y, 0);
+						m_pWator->Set_Value(x, y, 0);
 					}
 				}
-				else if( Starve <= Shark_Starve )
+				else if( Starve <= m_Shark_Starve )
 				{
 					for(i=0, nNeighbors=0; i<8; i++)
 					{
 						GET_NEIGHBOR;
 
-						if( pWator->asByte(ix, iy) == 0 && pNext->asByte(ix, iy) == 0 )
+						if( m_pWator->asByte(ix, iy) == 0 && m_Next.asByte(ix, iy) == 0 )
 						{
 							iNeighbor[nNeighbors++]	= i;
 						}
@@ -448,39 +435,47 @@ bool CWator::Next_Cycle(void)
 					{
 						GET_NEIGHBOR_RANDOMLY;
 
-						pNext	->Set_Value(ix, iy, SHARK);
-						pAge	->Set_Value(ix, iy, Age >= Shark_Birth ? 0 : Age);
-						pStarve	->Set_Value(ix, iy, Starve);
+						m_Next  .Set_Value(ix, iy, SHARK);
+						m_Age   .Set_Value(ix, iy, Age >= m_Shark_Birth ? 0 : Age);
+						m_Starve.Set_Value(ix, iy, Starve);
 
-						if( Age >= Shark_Birth )
+						if( Age >= m_Shark_Birth )
 						{
-							pNext	->Set_Value( x,  y, SHARK);
-							pAge	->Set_Value( x,  y, Shark_Birth * (double)rand() / (double)RAND_MAX);
-							pStarve	->Set_Value( x,  y, Starve);
+							m_Next   .Set_Value(x, y, SHARK);
+							m_Age    .Set_Value(x, y, CSG_Random::Get_Uniform(0, m_Shark_Birth));
+							m_Starve .Set_Value(x, y, Starve);
 						}
 						else
 						{
-							pWator	->Set_Value( x,  y, 0);
+							m_pWator	->Set_Value( x,  y, 0);
 						}
 					}
 					else
 					{
-						pNext	->Set_Value( x,  y, SHARK);
-						pAge	->Set_Value( x,  y, Age >= Shark_Birth ? 0 : Shark_Birth);
-						pStarve	->Set_Value( x,  y, Starve);
+						m_Next  .Set_Value(x, y, SHARK);
+						m_Age   .Set_Value(x, y, Age >= m_Shark_Birth ? 0 : m_Shark_Birth);
+						m_Starve.Set_Value(x, y, Starve);
 					}
 				}
 				else
 				{
-					nSharks--;
+					m_nSharks--;
 				}
 			}
 		}
 	}
 
-	pWator->Assign(pNext);
+	//-----------------------------------------------------
+	#pragma omp parallel for private(x, y)
+	for(y=0; y<m_pWator->Get_NY(); y++)
+	{
+		for(x=0; x<m_pWator->Get_NX(); x++)
+		{
+			m_pWator->Set_Value(x, y, m_Next.asByte(x, y));
+		}
+	}
 
-	return( (nFishes > 0 && nFishes < pWator->Get_NCells()) || nSharks > 0 );
+	return( (m_nFishes > 0 && m_nFishes < m_pWator->Get_NCells()) || m_nSharks > 0 );
 }
 
 

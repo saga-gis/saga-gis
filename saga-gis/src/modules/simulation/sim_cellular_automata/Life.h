@@ -86,24 +86,27 @@ class CLife : public CSG_Module
 {
 public:
 	CLife(void);
-	virtual ~CLife(void);
 
-	virtual bool			needs_GUI		(void)	{	return( true );	}
+	virtual bool				needs_GUI				(void)	{	return( true );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	int						nColors;
+	int							m_nColors;
 
-	CSG_Grid					*pLife, *pCount;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+	CSG_Grid					*m_pLife, m_Count;
 
 
-	bool					Next_Cycle(void);
+	bool						Next_Cycle				(bool bCheck4Change);
 
 };
 
