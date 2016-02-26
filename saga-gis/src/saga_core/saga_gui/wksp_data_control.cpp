@@ -69,6 +69,7 @@
 #include "res_commands.h"
 #include "res_controls.h"
 #include "res_images.h"
+#include "res_dialogs.h"
 
 #include "active.h"
 
@@ -358,6 +359,44 @@ bool CWKSP_Data_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 	}
 
 	g_pACTIVE->Set_Active(Get_Item_Selected());
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Control::_Del_Active(bool bSilent)
+{
+	wxArrayTreeItemIds	IDs;
+
+	if( GetSelections(IDs) == 0 )
+	{
+		return( true );
+	}
+
+	if( !bSilent && !DLG_Message_Confirm(ID_DLG_DELETE) && !g_pData->Save_Modified_Sel() )
+	{
+		return( false );
+	}
+
+	m_bUpdate_Selection	= true;
+
+	UnselectAll();
+
+	g_pACTIVE->Set_Active(NULL);
+
+	for(size_t i=0; i<IDs.GetCount(); i++)
+	{
+		if( IDs[i].IsOk() )
+		{
+			_Del_Item((CWKSP_Base_Item *)GetItemData(IDs[i]), true);
+		}
+	}
+
+	m_bUpdate_Selection	= false;
+
+	Get_Manager()->MultiSelect_Check();
+
+	SetFocus();
 
 	return( true );
 }

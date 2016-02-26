@@ -120,7 +120,7 @@ protected:
 	bool						_Del_Item			(class CWKSP_Base_Item *pItem, bool bSilent);
 	bool						_Del_Item_Confirm	(class CWKSP_Base_Item *pItem);
 
-	bool						_Del_Active			(bool bSilent);
+	virtual bool				_Del_Active			(bool bSilent);
 
 	bool						_Show_Active		(void);
 

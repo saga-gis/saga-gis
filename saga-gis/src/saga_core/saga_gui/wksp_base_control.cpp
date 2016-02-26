@@ -483,33 +483,11 @@ bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 		return( false );
 	}
 
-	if( GetWindowStyle() & wxTR_MULTIPLE )
+	wxTreeItemId	ID	= GetSelection();
+
+	if( ID.IsOk() )
 	{
-		wxArrayTreeItemIds	IDs;
-
-		if( GetSelections(IDs) > 0 && (bSilent || DLG_Message_Confirm(ID_DLG_DELETE)) && (m_pManager->Get_Type() != WKSP_ITEM_Data_Manager || g_pData->Save_Modified_Sel()) )
-		{
-			UnselectAll();
-
-			for(size_t i=0; i<IDs.GetCount(); i++)
-			{
-				if( IDs[i].IsOk() )
-				{
-					_Del_Item((CWKSP_Base_Item *)GetItemData(IDs[i]), true);
-				}
-			}
-
-			SetFocus();
-		}
-	}
-	else
-	{
-		wxTreeItemId	ID	= GetSelection();
-
-		if( ID.IsOk() )
-		{
-			_Del_Item((CWKSP_Base_Item *)GetItemData(ID), bSilent);
-		}
+		_Del_Item((CWKSP_Base_Item *)GetItemData(ID), bSilent);
 	}
 
 	return( true );

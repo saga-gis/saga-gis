@@ -101,10 +101,12 @@ public:
 	virtual bool				Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
 
 
-private:
+protected:
 
 	bool						m_bUpdate_Selection;
 
+
+	virtual bool				_Del_Active			(bool bSilent);
 
 	int							_Get_Image_ID		(class CWKSP_Base_Item *pItem);
 
