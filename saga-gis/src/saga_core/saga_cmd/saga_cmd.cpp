@@ -824,7 +824,7 @@ void		Create_Example	(void)
 		"saga_cmd %%FLAGS%% ta_preprocessor      2 -DEM=dem.sgrd -DEM_PREPROC=dem.sgrd\n"
 		"saga_cmd %%FLAGS%% ta_lighting          0 -ELEVATION=dem.sgrd -SHADE=shade.sgrd -METHOD=0 -AZIMUTH=-45 -DECLINATION=45\n"
 		"saga_cmd %%FLAGS%% ta_morphometry       0 -ELEVATION=dem.sgrd -SLOPE=slope.sgrd -ASPECT=aspect.sgrd -C_CROS=hcurv.sgrd -C_LONG=vcurv.sgrd\n"
-		"saga_cmd %%FLAGS%% ta_hydrology         0 -ELEVATION=dem.sgrd -CAREA=carea.sgrd\n"
+		"saga_cmd %%FLAGS%% ta_hydrology         0 -ELEVATION=dem.sgrd -FLOW=flow.sgrd\n"
 		"\n"
 		"ECHO ____________________________\n"
 		"ECHO run saga cmd script\n"

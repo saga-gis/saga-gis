@@ -256,7 +256,7 @@ bool CWETNESS::On_Execute(void)
 
 		RUN_MODULE("ta_hydrology"			, 0,
 				SET_PARAMETER("ELEVATION"	, &DEM)
-			&&	SET_PARAMETER("CAREA"		, pB)
+			&&	SET_PARAMETER("FLOW"		, pB)
 			&&	SET_PARAMETER("METHOD"		, Parameters("METHOD"))
 		)
 	}
@@ -264,7 +264,7 @@ bool CWETNESS::On_Execute(void)
 	{
 		RUN_MODULE("ta_hydrology"			, 0,
 				SET_PARAMETER("ELEVATION"	, pDEM)
-			&&	SET_PARAMETER("CAREA"		, pB)
+			&&	SET_PARAMETER("FLOW"		, pB)
 			&&	SET_PARAMETER("METHOD"		, Parameters("METHOD"))
 		)
 	}

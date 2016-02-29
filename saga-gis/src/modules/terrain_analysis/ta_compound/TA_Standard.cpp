@@ -91,7 +91,7 @@ CTA_Standard::CTA_Standard(void)
 	Parameters.Add_Grid  (NULL, "VCURV"      , _TL("Profile Curvature"         ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "CONVERGENCE", _TL("Convergence Index"         ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "SINKS"      , _TL("Closed Depressions"        ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "CAREA"      , _TL("Total Catchment Area"      ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  (NULL, "FLOW"       , _TL("Total Catchment Area"      ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "WETNESS"    , _TL("Topographic Wetness Index" ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  (NULL, "LSFACTOR"   , _TL("LS-Factor"                 ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Shapes(NULL, "CHANNELS"   , _TL("Channel Network"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line);
@@ -177,14 +177,14 @@ bool CTA_Standard::On_Execute(void)
 	//-----------------------------------------------------
 	SG_RUN_MODULE_ExitOnError("ta_hydrology"       , 0,
 			SG_MODULE_PARAMETER_SET("ELEVATION"    , &DEMP)	// << preprocessed DEM
-		&&	SG_MODULE_PARAMETER_SET("CAREA"        , Parameters("CAREA"))
+		&&	SG_MODULE_PARAMETER_SET("FLOW"         , Parameters("FLOW"))
 		&&	SG_MODULE_PARAMETER_SET("METHOD"       , 4)		// MFD
 	)
 
 	//-----------------------------------------------------
 	SG_RUN_MODULE_ExitOnError("ta_hydrology"       , 19,
 			SG_MODULE_PARAMETER_SET("DEM"          , &DEMP)
-		&&	SG_MODULE_PARAMETER_SET("TCA"          , Parameters("CAREA"))
+		&&	SG_MODULE_PARAMETER_SET("TCA"          , Parameters("FLOW"))
 		&&	SG_MODULE_PARAMETER_SET("WIDTH"        , &TMP2)
 		&&	SG_MODULE_PARAMETER_SET("SCA"          , &TMP1)	// >> specific catchment area
 		&&	SG_MODULE_PARAMETER_SET("METHOD"       , 1)
