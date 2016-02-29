@@ -224,20 +224,19 @@ bool CTA_Standard::On_Execute(void)
 	)
 
 	//-----------------------------------------------------
-	SG_RUN_MODULE_ExitOnError("grid_tools"         , 19,	// grid orientation
-			SG_MODULE_PARAMETER_SET("INPUT"        , &DEMP)
-		&&	SG_MODULE_PARAMETER_SET("RESULT"       , &TMP1)
-		&&	SG_MODULE_PARAMETER_SET("METHOD"       , 3)	// invert
+	SG_RUN_MODULE_ExitOnError("grid_tools"         , 34,	// invert grid
+			SG_MODULE_PARAMETER_SET("GRID"         , &DEMP)
+		&&	SG_MODULE_PARAMETER_SET("INVERSE"      , &TMP1)
 	)
 
-	SG_RUN_MODULE_ExitOnError("ta_channels"        , 6,	// strahler order
+	SG_RUN_MODULE_ExitOnError("ta_channels"        ,  6,	// strahler order
 			SG_MODULE_PARAMETER_SET("DEM"          , &TMP1)
 		&&	SG_MODULE_PARAMETER_SET("STRAHLER"     , &TMP2)
 	)
 
 	TMP2.Set_NoData_Value_Range(0, 4);
 
-	SG_RUN_MODULE_ExitOnError("ta_channels"        , 3,	// vertical channel network distance
+	SG_RUN_MODULE_ExitOnError("ta_channels"        ,  3,	// vertical channel network distance
 			SG_MODULE_PARAMETER_SET("ELEVATION"    , &TMP1)
 		&&	SG_MODULE_PARAMETER_SET("CHANNELS"     , &TMP2)
 		&&	SG_MODULE_PARAMETER_SET("DISTANCE"     , Parameters("VALL_DEPTH"))
@@ -245,7 +244,7 @@ bool CTA_Standard::On_Execute(void)
 
 	Parameters("VALL_DEPTH")->asGrid()->Set_Name(_TL("Valley Depth"));
 
-	SG_RUN_MODULE_ExitOnError("grid_calculus"      , 1,	// grid calculator
+	SG_RUN_MODULE_ExitOnError("grid_calculus"      ,  1,	// grid calculator
 			SG_MODULE_PARAMETER_SET("RESULT"       , Parameters("RSP"))
 		&&	SG_MODULE_PARAMETER_SET("FORMULA"      , SG_T("g1 / (g1 + g2)"))
 		&&	SG_MODULE_PARAMETER_SET("NAME"         , _TL("Relative Slope Position"))

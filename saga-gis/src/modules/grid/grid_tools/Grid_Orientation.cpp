@@ -160,7 +160,7 @@ bool CGrid_Invert::On_Execute(void)
 	{
 		pGrid->Create(*Parameters("GRID")->asGrid());
 
-		pGrid->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), Parameters("METHOD")->asString()));
+		pGrid->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Inverse")));
 	}
 
 	//-----------------------------------------------------
@@ -250,7 +250,7 @@ bool CGrid_Mirror::On_Execute(void)
 	{
 		pGrid->Create(*Parameters("GRID")->asGrid());
 
-		pGrid->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), Parameters("METHOD")->asString()));
+		pGrid->Set_Name(CSG_String::Format("%s [%s %s]", pGrid->Get_Name(), _TL("mirrored"), Parameters("METHOD")->asString()));
 	}
 
 	//-----------------------------------------------------
