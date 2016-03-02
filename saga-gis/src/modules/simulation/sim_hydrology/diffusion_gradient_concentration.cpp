@@ -62,13 +62,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MASK_LAND	0
 #define MASK_LAKE	1
 #define MASK_INLET	2
 #define MASK_OUTLET	3
 
 //---------------------------------------------------------
-CSG_String	Description	= _TW(
+static const CSG_String	Description	= _TW(
 	"Cellular automata are simple computational operators, but despite their simplicity, "
 	"they allow the simulation of highly complex processes. This tool has been created to "
 	"apply the concept of cellular automata to simulate diffusion and flow processes in "
@@ -79,14 +78,12 @@ CSG_String	Description	= _TW(
 	"Values of mask grid are expected to be 1 for water area, 2 for inlet, 3 for outlet and "
 	"0 for non water.\n"
 	"\n"
-	"\nReferences:\n"
-	"<ul><li>"
-	"Heinrich, R. / Conrad, O. (2008): "
-	"Diffusion, Flow and Concentration Gradient Simulation with SAGA GIS using Cellular Automata Methods. "
-	"In: Böhner, J. / Blaschke / T., Montanarella, L. [Eds.]: SAGA – Seconds Out. "
-	"Hamburger Beiträge zur Physischen Geographie und Landschaftsökologie, Vol.19, p59-70. "
-	"<a href=\"http://downloads.sourceforge.net/saga-gis/hbpl19_07.pdf\">online</a> "
-	"</li></ul>"
+	"References:\n<ul>"
+	"<li>Heinrich, R. / Conrad, O. (2008):"
+	" Diffusion, Flow and Concentration Gradient Simulation with SAGA GIS using Cellular Automata Methods."
+	" In: Boehner, J. / Blaschke, T. / Montanarella, L. [Eds.]:"
+	" SAGA - Seconds Out. Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, Vol.19, p59-70,"
+	" <a href=\"http://downloads.sourceforge.net/saga-gis/hbpl19_07.pdf\">online</a>.</li></ul>\n"
 );
 
 
@@ -171,7 +168,14 @@ bool CSim_Diffusion_Gradient::On_Execute(void)
 //---------------------------------------------------------
 inline bool CSim_Diffusion_Gradient::is_Lake(int x, int y)
 {
-	return( m_pMask->Get_System().is_InGrid(x, y) && m_pMask->asInt(x, y) != MASK_LAND );
+	if( is_InGrid(x, y) )
+	{
+		int	Mask	= m_pMask->asInt(x, y);
+
+		return( Mask == MASK_LAKE || Mask == MASK_INLET || Mask == MASK_OUTLET );
+	}
+
+	return( false );
 }
 
 
