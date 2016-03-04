@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           istack.h
@@ -21,17 +18,23 @@
 #if !defined(_ISTACK_H)
 #define _ISTACK_H
 
-typedef struct {
+#if !defined(_ISTACK_STRUCT)
+#define _ISTACK_STRUCT
+struct istack;
+typedef struct istack istack;
+#endif
+
+struct istack {
     int n;
     int nallocated;
     int* v;
-} istack;
+};
 
-int istack_contains(istack* s, int v);
-istack* istack_create();
+istack* istack_create(void);
 void istack_destroy(istack* s);
 void istack_push(istack* s, int v);
 int istack_pop(istack* s);
+int istack_contains(istack* s, int v);
 void istack_reset(istack* s);
 
 #endif

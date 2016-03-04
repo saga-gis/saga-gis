@@ -77,113 +77,134 @@ CInterpolation_NaturalNeighbour::CInterpolation_NaturalNeighbour(void)
 {
 	Set_Name		(_TL("Natural Neighbour"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Natural Neighbour method for grid interpolation from irregular distributed points.")
+		"Natural Neighbour method for grid interpolation from irregular distributed points. "
+		"This tool makes use of the 'nn - Natural Neighbours interpolation library' created "
+		"and maintained by Pavel Sakov, CSIRO Marine Research. "
+		"Find more information about this library at:\n"
+		"<a href=\"http://github.com/sakov/nn-c\">github.com/sakov/nn-c</a>."
+	));
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"	, _TL("Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Linear"),
+			_TL("Sibson"),
+			_TL("Non-Sibsonian")
+		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SIBSON"	, _TL("Sibson"),
-		_TL(""),
-		PARAMETER_TYPE_Bool	, true
+	Parameters.Add_Double(
+		NULL	, "WEIGHT"	, _TL("Minimum Weight"),
+		_TL("restricts extrapolation by assigning minimal allowed weight for a vertex (normally \"-1\" or so; lower values correspond to lower reliability; \"0\" means no extrapolation)"),
+		0.0, 0.0, false, 0.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CInterpolation_NaturalNeighbour::Interpolate(void)
 {
-	int			i, n, x, y;
-	double		zMin, zMax;
-	TSG_Point	p;
-
-	nn_rule		= Parameters("SIBSON")->asBool() ? SIBSON : NON_SIBSONIAN;
-
 	//-----------------------------------------------------
-	point	*pSrc	= (point  *)SG_Malloc(m_pShapes->Get_Count() * sizeof(point));
-	double	*zSrc	= (double *)SG_Malloc(m_pShapes->Get_Count() * sizeof(double));
+	// initialize points
 
-	for(i=0, n=0; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++)
+	int		 nn_nPoints	= 0;
+	point	*nn_pPoints	= (point *)SG_Malloc(m_pShapes->Get_Count() * sizeof(point));
+
+	for(int iPoint=0; iPoint<m_pShapes->Get_Count() && Set_Progress(iPoint, m_pShapes->Get_Count()); iPoint++)
 	{
-		CSG_Shape	*pShape	= m_pShapes->Get_Shape(i);
+		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iPoint);
 
 		if( !pShape->is_NoData(m_zField) )
 		{
-			pSrc[n].x	= pShape->Get_Point(0).x;
-			pSrc[n].y	= pShape->Get_Point(0).y;
-			pSrc[n].z	= zSrc[n]	= pShape->asDouble(m_zField);
+			nn_pPoints[nn_nPoints].x	= pShape->Get_Point(0).x;
+			nn_pPoints[nn_nPoints].y	= pShape->Get_Point(0).y;
+			nn_pPoints[nn_nPoints].z	= pShape->asDouble(m_zField);
 
-			if( n == 0 )
-				zMin	= zMax	= pSrc[n].z;
-			else if( zMin > pSrc[n].z )
-				zMin	= pSrc[n].z;
-			else if( zMax < pSrc[n].z )
-				zMax	= pSrc[n].z;
-
-			n++;
+			nn_nPoints++;
 		}
 	}
 
-	Process_Set_Text(_TL("triangulating"));
-	delaunay	*pTIN	= delaunay_build(n, pSrc, 0, NULL, 0, NULL);
-
-	//-----------------------------------------------------
-	double	*xDst	= (double *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(double));
-	double	*yDst	= (double *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(double));
-	double	*zDst	= (double *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(double));
-
-	for(y=0, i=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
+	if( nn_nPoints < 3 )
 	{
-		for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize(), i++)
-		{
-			xDst[i]	= p.x;
-			yDst[i]	= p.y;
-			zDst[i]	= NaN;
-		}
+		SG_FREE_SAFE(nn_pPoints);
+
+		Error_Set(_TL("less than 3 valid points"));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("creating interpolator"));
-	nnai	*pNN	= nnai_build(pTIN, (long)m_pGrid->Get_NCells(), xDst, yDst);
+	// initialize grid
 
+	int		 nn_nCells;
+	point	*nn_pCells	= NULL;
+
+	points_generate(
+		m_pGrid->Get_XMin(), m_pGrid->Get_XMax(),
+		m_pGrid->Get_YMin(), m_pGrid->Get_YMax(),
+		m_pGrid->Get_NX  (), m_pGrid->Get_NY  (),
+		&nn_nCells, &nn_pCells
+	);
+
+	if( nn_nCells != m_pGrid->Get_NCells() )
+	{
+		SG_FREE_SAFE(nn_pPoints);
+		SG_FREE_SAFE(nn_pCells );
+
+		Error_Set(_TL("grid cells array creation"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
     Process_Set_Text(_TL("interpolating"));
-    nnai_interpolate(pNN, zSrc, zDst);
+
+	double	Weight	= Parameters("WEIGHT")->asDouble();
+
+	switch( Parameters("METHOD")->asInt() )
+	{
+	case  0:
+        lpi_interpolate_points (nn_nPoints, nn_pPoints        , nn_nCells, nn_pCells);
+		break;
+
+	default:
+		nn_rule	= SIBSON;
+        nnpi_interpolate_points(nn_nPoints, nn_pPoints, Weight, nn_nCells, nn_pCells);
+		break;
+
+	case  2:
+		nn_rule	= NON_SIBSONIAN;
+        nnpi_interpolate_points(nn_nPoints, nn_pPoints, Weight, nn_nCells, nn_pCells);
+		break;
+	}
 
 	//-----------------------------------------------------
-	for(y=0, i=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
+	#pragma omp parallel for
+	for(int iCell=0; iCell<m_pGrid->Get_NCells(); iCell++)
 	{
-		for(x=0; x<m_pGrid->Get_NX(); x++, i++)
-		{
-			double	z	= zDst[i];
+		double	z	= nn_pCells[iCell].z;
 
-			if( zMin <= z && z <= zMax )
-			{
-				m_pGrid->Set_Value(x, y, z);
-			}
-			else
-			{
-				m_pGrid->Set_NoData(x, y);
-			}
+		if( SG_is_NaN(z) )
+		{
+			m_pGrid->Set_NoData(iCell);
+		}
+		else
+		{
+			m_pGrid->Set_Value(iCell, z);
 		}
 	}
 
 	//-----------------------------------------------------
-	nnai_destroy(pNN);
-
-	delaunay_destroy(pTIN);
-
-	SG_Free(xDst);
-	SG_Free(yDst);
-	SG_Free(zDst);
-	SG_Free(zSrc);
-	SG_Free(pSrc);
+	SG_FREE_SAFE(nn_pPoints);
+	SG_FREE_SAFE(nn_pCells );
 
 	//-----------------------------------------------------
 	return( true );

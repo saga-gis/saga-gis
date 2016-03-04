@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           istack.c
@@ -25,19 +22,22 @@
 #include <string.h>
 #include "istack.h"
 
-static void istack_init(istack* s)
+istack* istack_create(void)
 {
+    istack* s = malloc(sizeof(istack));
+
     s->n = 0;
     s->nallocated = STACK_NSTART;
-    s->v = (int *)malloc(STACK_NSTART * sizeof(int));
+    s->v = malloc(STACK_NSTART * sizeof(int));
+    return s;
 }
 
-istack* istack_create()
+void istack_destroy(istack* s)
 {
-    istack* s = (istack *)malloc(sizeof(istack));
-
-    istack_init(s);
-    return s;
+    if (s != NULL) {
+        free(s->v);
+        free(s);
+    }
 }
 
 void istack_reset(istack* s)
@@ -58,8 +58,8 @@ int istack_contains(istack* s, int v)
 void istack_push(istack* s, int v)
 {
     if (s->n == s->nallocated) {
-        s->v = (int *)realloc(s->v, (s->nallocated + STACK_NINC) * sizeof(int));
-        s->nallocated += STACK_NINC;
+        s->nallocated *= 2;
+        s->v = realloc(s->v, s->nallocated * sizeof(int));
     }
 
     s->v[s->n] = v;
@@ -72,10 +72,12 @@ int istack_pop(istack* s)
     return s->v[s->n];
 }
 
-void istack_destroy(istack* s)
+int istack_getnentries(istack* s)
 {
-    if (s != NULL) {
-        free(s->v);
-        free(s);
-    }
+    return s->n;
+}
+
+int* istack_getentries(istack* s)
+{
+    return s->v;
 }

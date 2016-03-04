@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           nan.h
@@ -22,22 +19,22 @@
 #if !defined(_NAN_H)
 #define _NAN_H
 
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
 
-#if defined(__GNUC__)
-	static const double NaN = 0.0 / 0.0;
+static const double NaN = 0.0 / 0.0;
 
-#elif defined(BIG_ENDIAN) || defined(_BIG_ENDIAN)
-	static const long long lNaN = 0x7fffffffffffffff;
-	#define NaN (*(double*)&lNaN)
+#elif defined(_WIN32)
 
-#elif defined(_SAGA_VC)
-	static const __int64 lNaN = 0xfff8000000000000;
-	#define NaN (*(double*)&lNaN)
+static unsigned _int64 lNaN = ((unsigned _int64) 1 << 63) - 1;
+
+#define NaN (*(double*)&lNaN)
 
 #else
-	static const long long lNaN = 0xfff8000000000000;
-	#define NaN (*(double*)&lNaN)
-#endif
 
+static const long long lNaN = ((unsigned long long) 1 << 63) - 1;
+
+#define NaN (*(double*)&lNaN)
+
+#endif
 
 #endif

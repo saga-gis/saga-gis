@@ -33,6 +33,7 @@ Shepard.cpp\
 ./nn/lpi.c\
 ./nn/nnai.c\
 ./nn/nncommon.c\
+./nn/nncommon-vulnerable.c\
 ./nn/nnpi.c\
 Interpolation.h\
 Interpolation_AngularDistance.h\
@@ -45,11 +46,13 @@ kernel_density.h\
 MLB_Interface.h\
 Shapes2Grid.h\
 Shepard.h\
+./nn/config.h\
 ./nn/delaunay.h\
 ./nn/hash.h\
 ./nn/istack.h\
 ./nn/nan.h\
 ./nn/nn.h\
+./nn/nn_internal.h\
 ./nn/version.h
 
 if TRIANGLE

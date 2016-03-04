@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           linear.c
@@ -28,6 +25,8 @@
 #include <stdio.h>
 #include "nan.h"
 #include "delaunay.h"
+#include "nn.h"
+#include "nn_internal.h"
 
 typedef struct {
     double w[3];
@@ -48,10 +47,10 @@ int delaunay_xytoi(delaunay* d, point* p, int seed);
 lpi* lpi_build(delaunay* d)
 {
     int i;
-    lpi* l = (lpi *)malloc(sizeof(lpi));
+    lpi* l = malloc(sizeof(lpi));
 
     l->d = d;
-    l->weights = (lweights *)malloc(d->ntriangles * sizeof(lweights));
+    l->weights = malloc(d->ntriangles * sizeof(lweights));
 
     for (i = 0; i < d->ntriangles; ++i) {
         triangle* t = &d->triangles[i];
@@ -119,8 +118,7 @@ void lpi_interpolate_point(lpi* l, point* p)
         p->z = NaN;
 }
 
-/* Linearly interpolates data from one array of points for another array of
- * points.
+/* Linearly interpolates data in an array of points.
  *
  * @param nin Number of input points
  * @param pin Array of input points [pin]

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           hash.h
@@ -49,6 +46,8 @@ hashtable* ht_create(int size, ht_keycp cp, ht_keyeq eq, ht_key2hash hash);
 hashtable* ht_create_d1(int size);      /* double[1] */
 hashtable* ht_create_d2(int size);      /* double[2] */
 hashtable* ht_create_str(int size);     /* char* */
+hashtable* ht_create_i1(int size);      /* int[1] */
+hashtable* ht_create_i2(int size);      /* int[2] */
 
 /** Destroys a hash table.
  * (Take care of deallocating data by ht_process() prior to destroying the
@@ -94,5 +93,26 @@ void* ht_delete(hashtable* table, void* key);
  * @param func The action function
  */
 void ht_process(hashtable* table, void (*func) (void*));
+
+/** Get the number of committed entries.
+ *
+ * @param table The hash table
+ * @return The number of committed entries
+ */
+int ht_getnentries(hashtable* table);
+
+/** Get the size of the table.
+ *
+ * @param table The hash table
+ * @return The size of the table
+ */
+int ht_getsize(hashtable* table);
+
+/** Get the number of table elements filled.
+ *
+ * @param table The hash table
+ * @return The number of table elements filled
+ */
+int ht_getnfilled(hashtable* table);
 
 #endif                          /* _HASH_H */

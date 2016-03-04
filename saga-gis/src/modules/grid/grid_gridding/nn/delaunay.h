@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           delaunay.h
@@ -14,7 +11,9 @@
  *
  * Description:    None
  *
- * Revisions:      None
+ * Revisions:      30/10/2007 PS: Added fields nflags, nflagsallocated and
+ *                   flagids for flag accounting, to make it possible to reset
+ *                   only engaged flags rather than the whole array.
  *
  *****************************************************************************/
 
@@ -37,11 +36,25 @@ typedef struct {
     double r;
 } circle;
 
-#if !defined(_ISTACK_H)
+#if !defined(_ISTACK_STRUCT)
+#define _ISTACK_STRUCT
 struct istack;
 typedef struct istack istack;
 #endif
 
+#if !defined(_DELAUNAY_STRUCT)
+#define _DELAUNAY_STRUCT
+struct delaunay;
+typedef struct delaunay delaunay;
+#endif
+
+/** Structure to perform the Delaunay triangulation of a given array of points.
+ *
+ * Contains a deep copy of the input array of points.
+ * Contains triangles, circles and edges resulted from the triangulation.
+ * Contains neighbour triangles for each triangle.
+ * Contains point to triangle map.
+ */
 struct delaunay {
     int npoints;
     point* points;
@@ -74,6 +87,19 @@ struct delaunay {
                                  * new search */
     istack* t_in;
     istack* t_out;
+
+    /*
+     * to keep track of flags set to 1 in the case of very large data sets
+     */
+    int nflags;
+    int nflagsallocated;
+    int* flagids;
 };
+
+/*
+ * delaunay_build() and delaunay_destroy() belong to "nn.h"
+ */
+void delaunay_circles_find(delaunay* d, point* p, int* n, int** out);
+int delaunay_xytoi(delaunay* d, point* p, int seed);
 
 #endif

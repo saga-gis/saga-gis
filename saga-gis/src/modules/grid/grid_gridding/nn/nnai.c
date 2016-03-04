@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           nnai.c
@@ -13,12 +10,12 @@
  * Purpose:        Code for:
  *                 -- Natural Neighbours Array Interpolator
  *
- * Description:    `nnai' is a tructure for conducting
- *                 consequitive Natural Neighbours interpolations on a given
- *                 spatial data set in a given array of points. It allows to
- *                 modify Z coordinate of data in between interpolations.
- *                 `nnai' is the fastest of the three Natural
- *                 Neighbours interpolators in `nn' library.
+ * Description:    `nnai' is a structure for conducting repeated Natural
+ *                 Neighbours interpolations when locations of input and output
+ *                 data points do not change. It re-uses interpolation weights
+ *                 calculated during initialisation and can be substantially
+ *                 faster than the more generic Natural Neighbours Point
+ *                 Interpolator `nnpi'.
  *
  * Revisions:      None
  *
@@ -28,9 +25,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "nn.h"
-#include "delaunay.h"
 #include "nan.h"
+#include "delaunay.h"
+#include "nn.h"
+#include "nn_internal.h"
 
 typedef struct {
     int nvertices;
@@ -47,24 +45,16 @@ struct nnai {
     nn_weights* weights;
 };
 
-void nn_quit(char* format, ...);
-void nnpi_calculate_weights(nnpi* nn);
-int nnpi_get_nvertices(nnpi* nn);
-int* nnpi_get_vertices(nnpi* nn);
-double* nnpi_get_weights(nnpi* nn);
-void nnpi_normalize_weights(nnpi* nn);
-void nnpi_reset(nnpi* nn);
-void nnpi_set_point(nnpi* nn, point* p);
-
-/* Builds Natural Neighbours array interpolator. This includes calculation of
- * weights used in nnai_interpolate().
+/** Builds Natural Neighbours array interpolator.
+ *
+ * This includes calculation of weights used in nnai_interpolate().
  *
  * @param d Delaunay triangulation
  * @return Natural Neighbours interpolation
  */
-nnai* nnai_build(delaunay* d, long n, double* x, double* y)
+nnai* nnai_build(delaunay* d, int n, double* x, double* y)
 {
-    nnai* nn = (nnai *)malloc(sizeof(nnai));
+    nnai* nn = malloc(sizeof(nnai));
     nnpi* nnpi = nnpi_create(d);
     int* vertices;
     double* weights;
@@ -75,11 +65,11 @@ nnai* nnai_build(delaunay* d, long n, double* x, double* y)
 
     nn->d = d;
     nn->n = n;
-    nn->x = (double *)malloc(n * sizeof(double));
+    nn->x = malloc(n * sizeof(double));
     memcpy(nn->x, x, n * sizeof(double));
-    nn->y = (double *)malloc(n * sizeof(double));
+    nn->y = malloc(n * sizeof(double));
     memcpy(nn->y, y, n * sizeof(double));
-    nn->weights = (nn_weights *)malloc(n * sizeof(nn_weights));
+    nn->weights = malloc(n * sizeof(nn_weights));
 
     for (i = 0; i < n; ++i) {
         nn_weights* w = &nn->weights[i];
@@ -88,18 +78,15 @@ nnai* nnai_build(delaunay* d, long n, double* x, double* y)
         p.x = x[i];
         p.y = y[i];
 
-        nnpi_reset(nnpi);
-        nnpi_set_point(nnpi, &p);
-        nnpi_calculate_weights(nnpi);
-        nnpi_normalize_weights(nnpi);
+        nnpi_calculate_weights(nnpi, &p);
 
         vertices = nnpi_get_vertices(nnpi);
         weights = nnpi_get_weights(nnpi);
 
         w->nvertices = nnpi_get_nvertices(nnpi);
-        w->vertices = (int *)malloc(w->nvertices * sizeof(int));
+        w->vertices = malloc(w->nvertices * sizeof(int));
         memcpy(w->vertices, vertices, w->nvertices * sizeof(int));
-        w->weights = (double *)malloc(w->nvertices * sizeof(double));
+        w->weights = malloc(w->nvertices * sizeof(double));
         memcpy(w->weights, weights, w->nvertices * sizeof(double));
     }
 
@@ -130,7 +117,7 @@ void nnai_destroy(nnai* nn)
 }
 
 /* Conducts NN interpolation in a fixed array of output points using 
- * data specified for a fixed array of input points. Uses pre-calculated
+ * data specified in a fixed array of input points. Uses pre-calculated
  * weights.
  *
  * @param nn NN array interpolator
@@ -160,7 +147,11 @@ void nnai_interpolate(nnai* nn, double* zin, double* zout)
     }
 }
 
-/** Sets minimal allowed weight for Natural Neighbours interpolation.
+/* Sets minimal allowed weight for Natural Neighbours interpolation.
+ *
+ * For Sibson interpolation, setting wmin = 0 is equivalent to interpolating
+ * inside convex hall of the data only (returning NaNs otherwise).
+ *
  * @param nn Natural Neighbours array interpolator
  * @param wmin Minimal allowed weight
  */
@@ -192,21 +183,17 @@ static double franke(double x, double y)
         - 0.2 * exp(-SQ(x - 4.0) - SQ(y - 7.0));
 }
 
-/* *INDENT-OFF* */
 static void usage()
 {
-    printf(
-"Usage: nn_test [-v|-V] [-n <nin> <nxout>]\n"
-"Options:\n"
-"  -a              -- use non-Sibsonian interpolation rule\n"
-"  -n <nin> <nout>:\n"
-"            <nin> -- number of input points (default = 10000)\n"
-"           <nout> -- number of output points per side (default = 64)\n"
-"  -v              -- verbose\n"
-"  -V              -- very verbose\n"
-);
+    printf("Usage: nnai_test [-v|-V] [-n <nin> <nxout>]\n");
+    printf("Options:\n");
+    printf("  -a              -- use non-Sibsonian interpolation rule\n");
+    printf("  -n <nin> <nout>:\n");
+    printf("            <nin> -- number of input points (default = 10000)\n");
+    printf("           <nout> -- number of output points per side (default = 64)\n");
+    printf("  -v              -- verbose\n");
+    printf("  -V              -- very verbose\n");
 }
-/* *INDENT-ON* */
 
 int main(int argc, char* argv[])
 {
@@ -272,8 +259,8 @@ int main(int argc, char* argv[])
      */
     printf("  generating data:\n");
     fflush(stdout);
-    pin = (point *)malloc(nin * sizeof(point));
-    zin = (double *)malloc(nin * sizeof(double));
+    pin = malloc(nin * sizeof(point));
+    zin = malloc(nin * sizeof(double));
     for (i = 0; i < nin; ++i) {
         point* p = &pin[i];
 
@@ -295,10 +282,10 @@ int main(int argc, char* argv[])
     /*
      * generate output points 
      */
-    points_generate2(-0.1, 1.1, -0.1, 1.1, nx, nx, &nout, &pout);
-    xout = (double *)malloc(nout * sizeof(double));
-    yout = (double *)malloc(nout * sizeof(double));
-    zout = (double *)malloc(nout * sizeof(double));
+    points_generate(-0.1, 1.1, -0.1, 1.1, nx, nx, &nout, &pout);
+    xout = malloc(nout * sizeof(double));
+    yout = malloc(nout * sizeof(double));
+    zout = malloc(nout * sizeof(double));
     for (i = 0; i < nout; ++i) {
         point* p = &pout[i];
 
@@ -346,6 +333,9 @@ int main(int argc, char* argv[])
     if (!nn_verbose)
         printf("    control point: (%f, %f, %f) (expected z = %f)\n", xout[cpi], yout[cpi], zout[cpi], franke(xout[cpi], yout[cpi]));
 
+    /*
+     * interpolate one more time
+     */
     printf("  interpolating one more time:\n");
     fflush(stdout);
     nnai_interpolate(nn, zin, zout);
@@ -364,6 +354,9 @@ int main(int argc, char* argv[])
     if (!nn_verbose)
         printf("    control point: (%f, %f, %f) (expected z = %f)\n", xout[cpi], yout[cpi], zout[cpi], franke(xout[cpi], yout[cpi]));
 
+    /*
+     * change the data
+     */
     printf("  entering new data:\n");
     fflush(stdout);
     for (i = 0; i < nin; ++i) {
@@ -375,6 +368,9 @@ int main(int argc, char* argv[])
             printf("    (%f, %f, %f)\n", p->x, p->y, p->z);
     }
 
+    /*
+     * interpolate
+     */
     printf("  interpolating:\n");
     fflush(stdout);
     nnai_interpolate(nn, zin, zout);
@@ -385,6 +381,9 @@ int main(int argc, char* argv[])
     if (!nn_verbose)
         printf("    control point: (%f, %f, %f) (expected z = %f)\n", xout[cpi], yout[cpi], zout[cpi], xout[cpi] * xout[cpi] - yout[cpi] * yout[cpi]);
 
+    /*
+     * restore old data
+     */
     printf("  restoring data:\n");
     fflush(stdout);
     for (i = 0; i < nin; ++i) {
@@ -396,6 +395,9 @@ int main(int argc, char* argv[])
             printf("    (%f, %f, %f)\n", p->x, p->y, p->z);
     }
 
+    /*
+     * interpolate
+     */
     printf("  interpolating:\n");
     fflush(stdout);
     nnai_interpolate(nn, zin, zout);

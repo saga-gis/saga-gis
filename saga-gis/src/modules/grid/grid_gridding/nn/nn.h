@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           nn.h
@@ -21,14 +18,14 @@
 #if !defined(_NN_H)
 #define _NN_H
 
-//---------------------------------------------------------
 #ifdef __cplusplus
 extern "C" {
 #endif
-//---------------------------------------------------------
 
 typedef enum { SIBSON, NON_SIBSONIAN } NN_RULE;
 
+/* "point" is a basic data structure in this package.
+ */
 #if !defined(_POINT_STRUCT)
 #define _POINT_STRUCT
 typedef struct {
@@ -38,31 +35,68 @@ typedef struct {
 } point;
 #endif
 
+/* Constructors for interpolators in this package require Delaunay
+ * triangulation of the input data.
+ */
+#if !defined(_DELAUNAY_STRUCT)
+#define _DELAUNAY_STRUCT
+struct delaunay;
+typedef struct delaunay delaunay;
+#endif
+
+/** Builds Delaunay triangulation of the given array of points.
+ *
+ * @param np Number of points
+ * @param points Array of points [np] (input)
+ * @param ns Number of forced segments
+ * @param segments Array of (forced) segment endpoint indices [2*ns]
+ * @param nh Number of holes
+ * @param holes Array of hole (x,y) coordinates [2*nh]
+ * @return Delaunay triangulation structure with triangulation results
+ */
+delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh, double holes[]);
+
+/** Destroys Delaunay triangulation.
+ *
+ * @param d Structure to be destroyed
+ */
+void delaunay_destroy(delaunay* d);
+
 /** Smoothes the input point array by averaging the input x,y and z values
  ** for each cell within virtual rectangular nx by ny grid. The corners of the
  ** grid are created from min and max values of the input array. It also frees
  ** the original array and returns results and new dimension via original
  ** data and size pointers.
  *
- * @param pn Pointer to number of points (input/output)
- * @param ppoints Pointer to array of points (input/output) [*pn]
+ * @param n Pointer to number of points (input/output)
+ * @param p Pointer to array of points (input/output) [*n]
  * @param nx Number of x nodes in decimation
  * @param ny Number of y nodes in decimation
  */
-void points_thin(int* n, point** points, int nx, int ny);
+void points_thingrid(int* n, point** p, int nx, int ny);
 
-/** Generates rectangular grid nx by ny using min and max x and y values from
- ** the input point array. Allocates space for the output point array, be sure
- ** to free it when necessary!
+/** Smoothes the input point array by averaging the input data (X,Y and Z
+ ** values) until the sum of the distances between points does not exceed the
+ ** specified maximum value. It also frees the original array and returns
+ ** results and new dimension via original data and size pointers. 
+ *
+ * @param n Pointer to number of points (input/output)
+ * @param p Pointer to array of points (input/output) [*n]
+ * @param rmax Maximum allowed accumulated distance
+ */
+void points_thinlin(int* n, point** p, double rmax);
+
+/* Calculates X and/or Y ranges of the input array of points. If necessary,
+ * adjusts the range according to the zoom value.
  *
  * @param n Number of points
- * @param points Array of points [n]
- * @param nx Number of x nodes
- * @param ny Number of y nodes
- * @param nout Pointer to number of output points
- * @param pout Ppointer to array of output points [*nout]
+ * @param points Array of points
+ * @param xmin Min X value if *xmin = NaN on input, not changed otherwise
+ * @param xmax Max X value if *xmax = NaN on input, not changed otherwise
+ * @param ymin Min Y value if *ymin = NaN on input, not changed otherwise
+ * @param ymax Max Y value if *ymax = NaN on input, not changed otherwise
  */
-void points_generate1(int n, point points[], int nx, int ny, double zoom, int* nout, point** pout);
+void points_getrange(int n, point points[], double zoom, double* xmin, double* xmax, double* ymin, double* ymax);
 
 /** Generates rectangular grid nx by ny using specified min and max x and y 
  ** values. Allocates space for the output point array, be sure to free it
@@ -78,7 +112,7 @@ void points_generate1(int n, point points[], int nx, int ny, double zoom, int* n
  * @param nout Pointer to number of output points
  * @param pout Pointer to array of output points [*nout]
  */
-void points_generate2(double xmin, double xmax, double ymin, double ymax, int nx, int ny, int* nout, point** pout);
+void points_generate(double xmin, double xmax, double ymin, double ymax, int nx, int ny, int* nout, point** pout);
 
 /** Reads array of points from a columnar file.
  *
@@ -106,39 +140,12 @@ double points_scaletosquare(int n, point* points);
  */
 void points_scale(int n, point* points, double k);
 
-/** Structure to perform the Delaunay triangulation of a given array of points.
+/** `lpi' -- "Linear Point Interpolator" is a structure for linear
+ ** interpolation of data on a "point-to-point" basis.
  *
- * Contains a deep copy of the input array of points.
- * Contains triangles, circles and edges resulted from the triangulation.
- * Contains neighbour triangles for each triangle.
- * Contains point to triangle map.
- */
-struct delaunay;
-typedef struct delaunay delaunay;
-
-/** Builds Delaunay triangulation of the given array of points.
- *
- * @param np Number of points
- * @param points Array of points [np] (input)
- * @param ns Number of forced segments
- * @param segments Array of (forced) segment endpoint indices [2*ns]
- * @param nh Number of holes
- * @param holes Array of hole (x,y) coordinates [2*nh]
- * @return Delaunay triangulation with triangulation results
- */
-delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh, double holes[]);
-
-/** Destroys Delaunay triangulation.
- *
- * @param d Structure to be destroyed
- */
-void delaunay_destroy(delaunay* d);
-
-/** `lpi' -- "linear point interpolator" is a structure for
- * conducting linear interpolation on a given data on a "point-to-point" basis.
- * It interpolates linearly within each triangle resulted from the Delaunay
- * triangluation of input data. `lpi' is much faster than all
- * Natural Neighbours interpolators below.
+ * `lpi' interpolates linearly within each triangle resulted from the Delaunay
+ * triangluation of the input data. `lpi' is much faster than all Natural
+ * Neighbours interpolators below.
  */
 struct lpi;
 typedef struct lpi lpi;
@@ -163,8 +170,7 @@ void lpi_destroy(lpi* l);
  */
 void lpi_interpolate_point(lpi* l, point* p);
 
-/* Linearly interpolates data from one array of points for another array of
- * points.
+/** Linearly interpolates data in an array of points.
  *
  * @param nin Number of input points
  * @param pin Array of input points [pin]
@@ -173,12 +179,12 @@ void lpi_interpolate_point(lpi* l, point* p);
  */
 void lpi_interpolate_points(int nin, point pin[], int nout, point pout[]);
 
-/** `nnpi' -- "Natural Neighbours point interpolator" is a
- * structure for conducting Natural Neighbours interpolation on a given data on
- * a "point-to-point" basis. Because it involves weight calculation for each
- * next output point, it is not particularly suitable for consequitive
- * interpolations on the same set of observation points -- use 
- * `nnhpi' or `nnai' in these cases.
+/** `nnpi' -- "Natural Neighbours Point Interpolator" is a structure for
+ ** Natural Neighbours interpolation of data on a "point-to-point" basis.
+ *
+ * Because it involves weight calculation for each output point, it is not
+ * designed to take advantage of consequitive interpolations on the same 
+ * sets of input and output points -- use `nnhpi' or `nnai' in these cases.
  */
 struct nnpi;
 typedef struct nnpi nnpi;
@@ -196,15 +202,14 @@ nnpi* nnpi_create(delaunay* d);
  */
 void nnpi_destroy(nnpi* nn);
 
-/** Finds Natural Neighbours-interpolated value in a point.
+/** Performs Natural Neighbours interpolation in a point.
  *
  * @param nn NN point interpolator
  * @param p Point to be interpolated (p->x, p->y -- input; p->z -- output)
  */
 void nnpi_interpolate_point(nnpi* nn, point* p);
 
-/** Natural Neighbours-interpolates data in one array of points for another
- ** array of points.
+/** Performs Natural Neighbours interpolation in an array of points.
  *
  * @param nin Number of input points
  * @param pin Array of input points [pin]
@@ -215,16 +220,21 @@ void nnpi_interpolate_point(nnpi* nn, point* p);
 void nnpi_interpolate_points(int nin, point pin[], double wmin, int nout, point pout[]);
 
 /** Sets minimal allowed weight for Natural Neighbours interpolation.
+ *
+ * For Sibson interpolation, setting wmin = 0 is equivalent to interpolating
+ * inside convex hall of the data only (returning NaNs otherwise).
+ *
  * @param nn Natural Neighbours point interpolator
  * @param wmin Minimal allowed weight
  */
 void nnpi_setwmin(nnpi* nn, double wmin);
 
-/** `nnhpi' is a structure for conducting consequitive
- * Natural Neighbours interpolations on a given spatial data set in a random
- * sequence of points from a set of finite size, taking advantage of repeated
- * interpolations in the same point. It allows to modify Z
- * coordinate of data between interpolations.
+/** `nnhpi' -- "Natural Neighbours Hashing Point Interpolator" -- is a
+ ** structure for conducting consequitive Natural Neighbours interpolations
+ ** from the same set of observation points, designed to take advantage of
+ ** repeated interpolations in the same point. It allows to modify Z
+ ** coordinate of observed data between interpolations (because this does not
+ ** affect the interpolant weights).
  */
 struct nnhpi;
 typedef struct nnhpi nnhpi;
@@ -243,7 +253,7 @@ nnhpi* nnhpi_create(delaunay* d, int size);
  */
 void nnhpi_destroy(nnhpi* nn);
 
-/** Finds Natural Neighbours-interpolated value in a point.
+/** Performs Natural Neighbours interpolation in a point.
  *
  * @param nnhpi NN hashing point interpolator
  * @param p Point to be interpolated (p->x, p->y -- input; p->z -- output)
@@ -251,6 +261,7 @@ void nnhpi_destroy(nnhpi* nn);
 void nnhpi_interpolate(nnhpi* nn, point* p);
 
 /** Modifies interpolated data.
+ *
  * Finds point* pd in the underlying Delaunay triangulation such that
  * pd->x = p->x and pd->y = p->y, and copies p->z to pd->z. Exits with error
  * if the point is not found.
@@ -261,27 +272,35 @@ void nnhpi_interpolate(nnhpi* nn, point* p);
 void nnhpi_modify_data(nnhpi* nn, point* p);
 
 /** Sets minimal allowed weight for Natural Neighbours interpolation.
+ *
+ * For Sibson interpolation, setting wmin = 0 is equivalent to interpolating
+ * inside convex hall of the data only (returning NaNs otherwise).
+ *
  * @param nn Natural Neighbours point hashing interpolator
  * @param wmin Minimal allowed weight
  */
 void nnhpi_setwmin(nnhpi* nn, double wmin);
 
-/* `nnai' is a tructure for conducting consequitive Natural
- * Neighbours interpolations on a given spatial data set in a given array of
- * points. It allows to modify Z coordinate of data between interpolations.
- * `nnai' is the fastest of the three Natural Neighbours
- * interpolators here.
+/** `nnai' -- "Natural Neighbours Array Interpolator" is a structure for
+ ** conducting consequitive Natural Neighbours interpolations from the same
+ ** set of observation points in the same set of points. It allows to modify Z
+ ** coordinate of data between interpolations (because this does not
+ ** affect the interpolant weights).
+ *
+ * `nnai' is the fastest of the three Natural Neighbours interpolators in `nn'
+ * library.
  */
 struct nnai;
 typedef struct nnai nnai;
 
-/** Builds Natural Neighbours array interpolator. This includes calculation of
- * weights used in nnai_interpolate().
+/** Builds Natural Neighbours array interpolator.
+ *
+ * This includes calculation of weights used in nnai_interpolate().
  *
  * @param d Delaunay triangulation
  * @return Natural Neighbours interpolation
  */
-nnai* nnai_build(delaunay* d, long n, double* x, double* y);
+nnai* nnai_build(delaunay* d, int n, double* x, double* y);
 
 /** Destroys Natural Neighbours array interpolator.
  *
@@ -290,8 +309,8 @@ nnai* nnai_build(delaunay* d, long n, double* x, double* y);
 void nnai_destroy(nnai* nn);
 
 /** Conducts NN interpolation in a fixed array of output points using 
- * data specified for a fixed array of input points. Uses pre-calculated
- * weights.
+ ** data specified in a fixed array of input points. Uses pre-calculated
+ ** weights.
  *
  * @param nn NN array interpolator
  * @param zin input data [nn->d->npoints]
@@ -300,6 +319,10 @@ void nnai_destroy(nnai* nn);
 void nnai_interpolate(nnai* nn, double* zin, double* zout);
 
 /** Sets minimal allowed weight for Natural Neighbours interpolation.
+ *
+ * For Sibson interpolation, setting wmin = 0 is equivalent to interpolating
+ * inside convex hall of the input data only (returning NaNs otherwise).
+ *
  * @param nn Natural Neighbours array interpolator
  * @param wmin Minimal allowed weight
  */
@@ -312,9 +335,10 @@ void nnai_setwmin(nnai* nn, double wmin);
  */
 extern int nn_verbose;
 
-/* Switches between weight calculation methods.
- * SIBSON -- classic Sibson method
- * NON_SIBSONIAN -- simpler and (I think) more robust method
+/* Switches between different formulations for NN weights.
+ * SIBSON -- classic formulation by Sibson
+ * NON_SIBSONIAN -- alternative formulation by Belikov & Semenov
+ *                  
  */
 extern NN_RULE nn_rule;
 
@@ -327,16 +351,8 @@ extern char* nn_version;
  */
 extern int nn_test_vertice;
 
-//---------------------------------------------------------
-#include <float.h>
-
-#include "delaunay.h"
-#include "nan.h"
-
 #ifdef __cplusplus
-}	// extern "C" {
+}
 #endif
-//---------------------------------------------------------
-
 
 #endif                          /* _NN_H */

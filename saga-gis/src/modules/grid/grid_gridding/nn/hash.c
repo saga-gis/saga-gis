@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /******************************************************************************
  *
  * File:           hash.c
@@ -20,9 +17,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 #include "hash.h"
 
 #define INT_PER_DOUBLE 2
+#define BYTE_PER_INT 4
 
 /** A hash table consists of an array of these buckets.
  */
@@ -52,17 +51,11 @@ struct hashtable {
  */
 hashtable* ht_create(int size, ht_keycp cp, ht_keyeq eq, ht_key2hash hash)
 {
-    hashtable* table = (hashtable *)malloc(sizeof(hashtable));
+    hashtable* table = malloc(sizeof(hashtable));
     ht_bucket** bucket;
     int i;
 
-    assert(sizeof(double) == INT_PER_DOUBLE * sizeof(int));
-    /*
-     * (used in d1hash() and d2hash()) 
-     */
-
-    if (table == NULL)
-        return NULL;
+    assert(table != NULL);
 
     if (size <= 0) {
         free(table);
@@ -70,7 +63,8 @@ hashtable* ht_create(int size, ht_keycp cp, ht_keyeq eq, ht_key2hash hash)
     }
 
     table->size = size;
-    table->table = (ht_bucket **)malloc(sizeof(ht_bucket*) * size);
+    table->table = malloc(sizeof(ht_bucket*) * size);
+    assert(table->table != NULL);
     bucket = table->table;
 
     if (bucket == NULL) {
@@ -138,9 +132,8 @@ void* ht_insert(hashtable* table, void* key, void* data)
      * pointing at it. 
      */
     if ((table->table)[val] == NULL) {
-        bucket = (ht_bucket *)malloc(sizeof(ht_bucket));
-        if (bucket == NULL)
-            return NULL;
+        bucket = malloc(sizeof(ht_bucket));
+        assert(bucket != NULL);
 
         bucket->key = table->cp(key);
         bucket->next = NULL;
@@ -152,7 +145,7 @@ void* ht_insert(hashtable* table, void* key, void* data)
         table->naccum++;
         table->nhash++;
 
-        return bucket->data;
+        return NULL;
     }
 
     /*
@@ -179,8 +172,7 @@ void* ht_insert(hashtable* table, void* key, void* data)
      * was larger than this one. 
      */
     bucket = (ht_bucket*) malloc(sizeof(ht_bucket));
-    if (bucket == NULL)
-        return 0;
+    assert(bucket != NULL);
     bucket->key = table->cp(key);
     bucket->data = data;
     bucket->next = (table->table)[val];
@@ -190,7 +182,7 @@ void* ht_insert(hashtable* table, void* key, void* data)
     table->n++;
     table->naccum++;
 
-    return data;
+    return NULL;
 }
 
 /* Returns a pointer to the data associated with a key.  If the key has
@@ -296,7 +288,7 @@ void ht_process(hashtable* table, void (*func) (void*))
 
 static unsigned int strhash(void* key)
 {
-    char* str = (char*) key;
+    char* str = key;
     unsigned int hashvalue = 0;
 
     while (*str != 0) {
@@ -310,19 +302,19 @@ static unsigned int strhash(void* key)
 
 static void* strcp(void* key)
 {
-    return strdup((const char *)key);
+    return strdup(key);
 }
 
 static int streq(void* key1, void* key2)
 {
-    return !strcmp((const char *)key1, (const char *)key2);
+    return !strcmp(key1, key2);
 }
 
 /* functions for for double keys */
 
 static unsigned int d1hash(void* key)
 {
-    unsigned int* v = (unsigned int*) key;
+    unsigned int* v = key;
 
 #if INT_PER_DOUBLE == 2
     return v[0] + v[1];
@@ -333,14 +325,14 @@ static unsigned int d1hash(void* key)
 
 static void* d1cp(void* key)
 {
-    double* newkey = (double *)malloc(sizeof(double));
+    double* newkey = malloc(sizeof(double));
 
     *newkey = *(double*) key;
 
     return newkey;
 }
 
-int d1eq(void* key1, void* key2)
+static int d1eq(void* key1, void* key2)
 {
     return *(double*) key1 == *(double*) key2;
 }
@@ -349,11 +341,9 @@ int d1eq(void* key1, void* key2)
  * functions for for double[2] keys 
  */
 
-#include "math.h"
-
 static unsigned int d2hash(void* key)
 {
-    unsigned int* v = (unsigned int*) key;
+    unsigned int* v = key;
 
 #if INT_PER_DOUBLE == 2
     /*
@@ -368,7 +358,7 @@ static unsigned int d2hash(void* key)
 
 static void* d2cp(void* key)
 {
-    double* newkey = (double *)malloc(sizeof(double) * 2);
+    double* newkey = malloc(sizeof(double) * 2);
 
     newkey[0] = ((double*) key)[0];
     newkey[1] = ((double*) key)[1];
@@ -381,13 +371,68 @@ static int d2eq(void* key1, void* key2)
     return (((double*) key1)[0] == ((double*) key2)[0]) && (((double*) key1)[1] == ((double*) key2)[1]);
 }
 
+/* 
+ * functions for for int[1] keys 
+ */
+
+static unsigned int i1hash(void* key)
+{
+    return ((unsigned int*) key)[0];
+}
+
+static void* i1cp(void* key)
+{
+    int* newkey = malloc(sizeof(int));
+
+    newkey[0] = ((int*) key)[0];
+
+    return newkey;
+}
+
+static int i1eq(void* key1, void* key2)
+{
+    return (((int*) key1)[0] == ((int*) key2)[0]);
+}
+
+/* 
+ * functions for for int[2] keys 
+ */
+
+static unsigned int i2hash(void* key)
+{
+#if BYTE_PER_INT >= 4
+    unsigned int* v = key;
+
+    return v[0] + (v[1] << 16);
+#else
+#error not implemented
+#endif
+}
+
+static void* i2cp(void* key)
+{
+    int* newkey = malloc(sizeof(int) * 2);
+
+    newkey[0] = ((int*) key)[0];
+    newkey[1] = ((int*) key)[1];
+
+    return newkey;
+}
+
+static int i2eq(void* key1, void* key2)
+{
+    return (((int*) key1)[0] == ((int*) key2)[0]) && (((int*) key1)[1] == ((int*) key2)[1]);
+}
+
 hashtable* ht_create_d1(int size)
 {
+    assert(sizeof(double) == INT_PER_DOUBLE * sizeof(int));
     return ht_create(size, d1cp, d1eq, d1hash);
 }
 
 hashtable* ht_create_d2(int size)
 {
+    assert(sizeof(double) == INT_PER_DOUBLE * sizeof(int));
     return ht_create(size, d2cp, d2eq, d2hash);
 }
 
@@ -396,7 +441,33 @@ hashtable* ht_create_str(int size)
     return ht_create(size, strcp, streq, strhash);
 }
 
-#ifdef HT_TEST
+hashtable* ht_create_i1(int size)
+{
+    return ht_create(size, i1cp, i1eq, i1hash);
+}
+
+hashtable* ht_create_i2(int size)
+{
+    assert(sizeof(int) == BYTE_PER_INT);
+    return ht_create(size, i2cp, i2eq, i2hash);
+}
+
+int ht_getnentries(hashtable* table)
+{
+    return table->n;
+}
+
+int ht_getsize(hashtable* table)
+{
+    return table->size;
+}
+
+int ht_getnfilled(hashtable* table)
+{
+    return table->nhash;
+}
+
+#if defined(HT_TEST)
 
 #include <stdio.h>
 #include <limits.h>

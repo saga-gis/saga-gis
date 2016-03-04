@@ -116,6 +116,8 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <CompileAs>
+      </CompileAs>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -316,8 +318,12 @@
     <ClCompile Include="nn\istack.c" />
     <ClCompile Include="nn\lpi.c" />
     <ClCompile Include="nn\nnai.c" />
+    <ClCompile Include="nn\nncommon-vulnerable.c" />
     <ClCompile Include="nn\nncommon.c" />
-    <ClCompile Include="nn\nnpi.c" />
+    <ClCompile Include="nn\nnpi.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </CompileAs>
+    </ClCompile>
     <ClCompile Include="nn\triangle.c" />
     <ClCompile Include="Shapes2Grid.cpp" />
     <ClCompile Include="Shepard.cpp" />
@@ -349,11 +355,13 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="nn\config.h" />
     <ClInclude Include="nn\delaunay.h" />
     <ClInclude Include="nn\hash.h" />
     <ClInclude Include="nn\istack.h" />
     <ClInclude Include="nn\nan.h" />
     <ClInclude Include="nn\nn.h" />
+    <ClInclude Include="nn\nn_internal.h" />
     <ClInclude Include="nn\triangle.h" />
     <ClInclude Include="nn\version.h" />
     <ClInclude Include="Shapes2Grid.h" />
