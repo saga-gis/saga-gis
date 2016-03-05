@@ -237,6 +237,7 @@ install-data-hook:
 	mv saga_dic.txt saga_prj.dic;
 
 dist-hook:
-	 cp -Rp $(srcdir)/res/* $(distdir)/res/
+	chmod -x $(srcdir)/res/*.*
+	cp -Rp $(srcdir)/res/* $(distdir)/res/
 
 SUBDIRS=man 
