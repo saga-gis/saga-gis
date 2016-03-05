@@ -109,7 +109,7 @@ CLeastCostPathProfile_Points::CLeastCostPathProfile_Points(void)
 
 	Parameters.Add_Grid_List(
 		NULL	, "VALUES"	, _TL("Values"),
-		_TL("Allows to write cell values from additional grids to the output"),
+		_TL("Allows writing cell values from additional grids to the output"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 

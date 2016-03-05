@@ -103,7 +103,7 @@ CGrid_Profile_From_Lines::CGrid_Profile_From_Lines(void)
 
 	Parameters.Add_Table_Field(
 		pNode	, "NAME"		, _TL("Name"),
-		_TL("naming for splitted lines"),
+		_TL("Naming for split lines"),
 		true
 	);
 

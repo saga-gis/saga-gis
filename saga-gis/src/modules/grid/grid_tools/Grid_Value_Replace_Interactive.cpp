@@ -45,7 +45,7 @@ CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void)
 	Set_Author		("Victor Olaya (c) 2004");
 
 	Set_Description	(_TW(
-		"The module allows to interactively change cell values of the input grid. "
+		"The module allows one to interactively change cell values of the input grid. "
 		"Once the module is executed and running, you can use the Action tool to select "
 		"grid cells. While working on a grid, you can change (and apply) the 'New Value' "
 		"and the 'Method' parameters without stopping and re-starting the module.\n"

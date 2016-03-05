@@ -134,7 +134,7 @@ bool CLine_Split_with_Lines::On_Execute(void)
 
 	//--------------------------------------------------------
 	pIntersect->Create(SHAPE_TYPE_Line,
-		CSG_String::Format(SG_T("%s [%s: %s]"), pLines->Get_Name(), _TL("Splitted"), pSplit->Get_Name()),
+		CSG_String::Format(SG_T("%s [%s: %s]"), pLines->Get_Name(), _TL("Split"), pSplit->Get_Name()),
 		pLines
 	);
 
@@ -304,7 +304,7 @@ bool CLine_Split_at_Points::On_Execute(void)
 
 	//--------------------------------------------------------
 	pIntersect->Create(SHAPE_TYPE_Line,
-		CSG_String::Format(SG_T("%s [%s: %s]"), pLines->Get_Name(), _TL("Splitted"), pSplit->Get_Name()),
+		CSG_String::Format(SG_T("%s [%s: %s]"), pLines->Get_Name(), _TL("Split"), pSplit->Get_Name()),
 		pLines
 	);
 

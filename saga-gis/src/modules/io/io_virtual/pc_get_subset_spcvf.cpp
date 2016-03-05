@@ -584,7 +584,7 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows to retrieve a point cloud from a virtual "
+		"The module allows one to retrieve a point cloud from a virtual "
 		"point cloud dataset by applying the provided area-of-interest "
 		"(AOI). The extent of the AOI can be provided either as polygon "
 		"shapefile, grid or by coordinates. Optionally, an overlap can "
@@ -892,7 +892,7 @@ CPointCloud_Get_Subset_SPCVF_Interactive::CPointCloud_Get_Subset_SPCVF_Interacti
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows to retrieve a point cloud from a virtual "
+		"The module allows one to retrieve a point cloud from a virtual "
 		"point cloud dataset by dragging a box (AOI) in a Map View.\n"
 		"Optionally, the query can be constrained by providing an "
 		"attribute field and a value range that must be met.\n"

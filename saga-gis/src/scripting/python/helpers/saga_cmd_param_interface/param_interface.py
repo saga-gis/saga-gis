@@ -10,8 +10,8 @@
 # purpose:
 # generate a simple text-based description of the saga_cmd parameter
 # interface of a SAGA binary installation.
-# this allows to detect changes in the parameter interface of different
-# SAGA versions.
+# this allows one to detect changes in the parameter interface of
+# different SAGA versions.
 #
 # usage:
 # in order to run this script, you have to edit the "environment.py"

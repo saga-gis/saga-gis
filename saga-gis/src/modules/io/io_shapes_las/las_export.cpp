@@ -95,7 +95,7 @@ CLAS_Export::CLAS_Export(void)
 
 	CSG_String		Description(_TW(
 		"This module exports a SAGA Point Cloud as ASPRS LAS file (version 1.2) "
-		"using the \"libLAS\" library. It allows to write Point Data Record Formats 1 to 4. "
+		"using the \"libLAS\" library. It allows writing Point Data Record Formats 1 to 4. "
 		"Please have a look at the <a href=\"http://www.asprs.org/society/committees/standards/lidar_exchange_format.html\""
 		">ASPRS LAS 1.2 Format Specification</a> for "
 		"more information on the attributes supported with each format.\n"

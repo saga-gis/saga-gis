@@ -129,7 +129,7 @@ CHillShade::CHillShade(void)
 
 	Parameters.Add_Value(
 		NULL	, "EXAGGERATION"	, _TL("Exaggeration"),
-		_TL("The terrain exaggeration factor allows to increase the shading contrasts in flat areas."),
+		_TL("The terrain exaggeration factor allows one to increase the shading contrasts in flat areas."),
 		PARAMETER_TYPE_Double		, 4
 	);
 

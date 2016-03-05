@@ -83,7 +83,7 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
 
 	Set_Description	(_TW(
 					"Exports a point cloud to a text file. Once the module is executed, "
-					"a pop-up dialog allows to specify the fields to be exported and their "
+					"a pop-up dialog allows one to specify the fields to be exported and their "
 					"decimal precision.\n\n"
 					"Module usage is different between SAGA GUI and SAGA CMD: With "
 					"SAGA GUI you will get prompted to choose the fields to export "

@@ -79,11 +79,11 @@ CPointCloud_Remove_Overlap_From_SPCVF::CPointCloud_Remove_Overlap_From_SPCVF(voi
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows to remove the overlap from point cloud "
+		"The module allows one to remove the overlap from point cloud "
 		"tiles created from a virtual point cloud dataset. The "
 		"tiles must have been created with an overlap and a spcvf "
 		"tile info file must have been outputted too. The latter "
-		"decribes the original bounding boxes of the tiles (i.e. "
+		"describes the original bounding boxes of the tiles (i.e. "
 		"without overlap) and is used by this module to remove "
 		"the overlap.\n"
 		"A virtual point cloud dataset is a simple XML format "

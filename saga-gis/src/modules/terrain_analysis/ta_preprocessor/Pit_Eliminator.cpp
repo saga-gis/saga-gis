@@ -118,7 +118,7 @@ CPit_Eliminator::CPit_Eliminator(void)
 	Parameters.Add_Value(
 		NULL	, "THRSHEIGHT"	, _TL("Threshold Height"),
 		_TW("The parameter describes the maximum depth of a sink to be considered for removal [map units]. "
-			"This allows to exclude deeper sinks from filling."),
+			"This makes it possible to exclude deeper sinks from filling."),
 		PARAMETER_TYPE_Double	, 100
 	);
 }

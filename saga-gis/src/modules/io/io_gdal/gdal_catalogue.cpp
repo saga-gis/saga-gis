@@ -226,7 +226,7 @@ CGDAL_Catalogues::CGDAL_Catalogues(void)
 
 	Description	= _TW(
 		"Creates raster catalogues from all raster files found in the selected directory. "
-		"Catalogues are splitted according to the coordinate reference system used by the "
+		"Catalogues are split according to the coordinate reference system used by the "
 		"different raster files. Output are polygon layers that show the extent for each "
 		"raster file in it. Each extent is attributed with the original file path and "
 		"raster system properties.\n"
