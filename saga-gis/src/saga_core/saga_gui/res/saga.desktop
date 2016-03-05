@@ -6,3 +6,4 @@ Type=Application
 Exec=saga_gui
 Icon=saga
 Categories=Science;Education;Geography;
+Keywords=gis;spatial;geospatial;
