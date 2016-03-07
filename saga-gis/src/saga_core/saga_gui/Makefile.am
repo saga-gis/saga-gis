@@ -226,12 +226,22 @@ dist_applications_DATA = res/saga.desktop
 pixmapdir = $(datadir)/pixmaps
 dist_pixmap_DATA = res/saga.png
 
+ICON_SIZES = 8 16 24 32 48 64 72 80 96 128 192
+
+install-icons:
+	@for size in $(ICON_SIZES); do \
+		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps; \
+		$(INSTALL_DATA) res/saga_icon_$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/saga.png; \
+	done; \
+	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/256x256/apps; \
+	$(INSTALL_DATA) res/saga.png $(DESTDIR)$(datadir)/icons/hicolor/256x256/apps/saga.png
+
 appdatadir = $(datadir)/appdata
 dist_appdata_DATA = res/saga.appdata.xml
 
 dist_pkgdata_DATA = res/saga_tip.txt res/saga_dic.txt res/saga_srs.txt
 
-install-data-hook:
+install-data-hook: install-icons
 	cd $(DESTDIR)/$(pkgdatadir); \
 	mv saga_srs.txt saga_prj.srs; \
 	mv saga_dic.txt saga_prj.dic;
