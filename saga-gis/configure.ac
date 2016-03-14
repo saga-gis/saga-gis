@@ -198,6 +198,19 @@ fi
     AM_CONDITIONAL(HAVE_VIGRA, test -n "$VIGRAFOUND" -a -n "$FFTWFOUND")
     AM_CONDITIONAL(HAVE_HARU, test -n "$HARUFOUND")
 
+
+  if test -n "$CVFOUND" ; then 
+    AC_MSG_RESULT([        Building with OpenCV])
+  fi
+
+  if test -n "$LASFOUND" ; then 
+    AC_MSG_RESULT([        Building with libLAS])
+  fi
+
+  if test -n "$VIGRAFOUND" -a -n "$FFTWFOUND" ; then 
+    AC_MSG_RESULT([        Building with VIGRA])
+  fi
+
   if test -n "$HARUFOUND" ; then 
     AC_MSG_RESULT([        using lhpdf (libharu) from system libs.])
     DISABLELIBHARU=""
@@ -207,6 +220,7 @@ fi
     DISABLELIBHARU="-D_SAGA_DONOTUSE_HARU"
     HARU_LIB=""
   fi
+
 
 AC_ARG_WITH(system_grib2c, 
 	AS_HELP_STRING([--with-system_grib2c],[Use system version of grib2c instead of embedded copy, requires this library (and the header) to be found.]),
