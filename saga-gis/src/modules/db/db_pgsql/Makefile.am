@@ -4,12 +4,10 @@
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
-if SAGA_UNICODE
-DEP_DEFS = -D_SAGA_UNICODE
-endif
-DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+
+DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE
 CXX_INCS           = -I$(top_srcdir)/src/saga_core $(POSTGRESQL_CFLAGS)
-AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
+AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = $(DEP_LFLG) $(POSTGRESQL_LDFLAGS) $(DEP_LIBS) -shared -lpq -avoid-version
 pkglib_LTLIBRARIES = libdb_pgsql.la
 libdb_pgsql_la_SOURCES =\

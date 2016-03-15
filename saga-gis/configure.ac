@@ -82,9 +82,7 @@ fi
 
 # wxwidgets
 # the test could be extended to check for wx-config --version too
-if test "`wx-config --list | grep unicode`" != "" ; then
-  AM_CONDITIONAL(SAGA_UNICODE, true)
-else
+if test "`wx-config --list | grep unicode`" == "" ; then
   AC_MSG_ERROR(SAGA requires a unicode build of wxGTK)
   exit
 fi

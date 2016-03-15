@@ -4,13 +4,11 @@
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
-if SAGA_UNICODE
-UC_DEFS = -D_SAGA_UNICODE
-endif
+
 DEP_LIBS = `gdal-config --libs`
-DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE
 CXX_INCS           = -I$(top_srcdir)/src/saga_core `gdal-config --cflags`
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LIBS)
 pkglib_LTLIBRARIES = libio_gdal.la
 libio_gdal_la_SOURCES =\

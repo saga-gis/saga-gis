@@ -9,13 +9,10 @@ MLIBPATH = "MODULE_LIBRARY_PATH=\"$(libdir)/saga\""
 MSHAREPATH = "SHARE_PATH=\"$(prefix)/share/saga\""
 
 BASEFLAGS = -fPIC -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -D$(MLIBPATH) -D$(MSHAREPATH) $(DBGFLAGS) $(INCS)
-if SAGA_UNICODE
+
 AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=yes --cxxflags` -D_SAGA_UNICODE $(GOMPFLAGS)
 AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs adv,aui,base,core,html,net,propgrid,xml`
-else
-AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=no --cxxflags` $(GOMPFLAGS)
-AM_LDFLAGS = -fPIC `wx-config --unicode=no --libs adv,aui,base,core,html,net,propgrid,xml`
-endif
+
 
 bin_PROGRAMS = saga_gui
 

@@ -4,16 +4,14 @@
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
+
 if SAGA_PYTHON
 SAGAPYTHONFLAGS= -D_SAGA_PYTHON
 endif
-if SAGA_UNICODE
+
 AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=yes --cxxflags base` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS $(DISABLELIBHARU) $(DBGFLAGS) $(SAGAPYTHONFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=yes --libs base` $(HARU_LIB) $(SAGAPYTHONFLAGS)
-else
-AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS $(DISABLELIBHARU) $(DBGFLAGS) $(GOMPFLAGS)
-AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=no --libs` $(HARU_LIB)
-endif
+
 libsaga_api_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 
 lib_LTLIBRARIES = libsaga_api.la
@@ -132,11 +130,10 @@ tin.h
 install-exec-hook:
 	-ldconfig
 
-if SAGA_UNICODE
-SWIGUNICODEFLAGS = -D_SWIG_WCHAR -D_SAGA_UNICODE
-endif
 
 if SAGA_PYTHON
+SWIGUNICODEFLAGS = -D_SWIG_WCHAR -D_SAGA_UNICODE
+
 _saga_api_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(SWIGUNICODEFLAGS) $(DISABLELIBHARU)
 _saga_api_la_LDFLAGS = -module -release $(VERSION) $(SWIG_LIB)
 nodist__saga_api_la_SOURCES = saga_api_wrap.cxx

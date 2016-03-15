@@ -4,13 +4,11 @@
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
-if SAGA_UNICODE
-UC_DEFS = -D_SAGA_UNICODE
-endif
+
 if HAVE_HARU 
-DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(DISABLELIBHARU) $(GOMPFLAGS)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(DISABLELIBHARU) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(HARU_LIB)
 pkglib_LTLIBRARIES = libdocs_pdf.la
 libdocs_pdf_la_SOURCES =\

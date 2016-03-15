@@ -4,13 +4,11 @@
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
-if SAGA_UNICODE
-UC_DEFS = -D_SAGA_UNICODE
-endif
+
 if HAVE_VIGRA
-DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version -lvigraimpex -lfftw3
 pkglib_LTLIBRARIES = libimagery_vigra.la
 libimagery_vigra_la_SOURCES =\
