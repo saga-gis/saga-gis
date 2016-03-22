@@ -220,11 +220,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid", "modules\io\io_gr
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid_grib2", "modules\io\io_grid_grib2\io_grid_grib2.vcxproj", "{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid_image", "modules\io\io_grid_image\io_grid_image.vcxproj", "{22B99CFB-7BE2-49BD-B52B-EF652280B1A4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
@@ -746,14 +741,6 @@ Global
 		{7F0748EE-36B6-4F09-883A-B2D5C17CD857}.Release|Win32.Build.0 = Release|Win32
 		{7F0748EE-36B6-4F09-883A-B2D5C17CD857}.Release|x64.ActiveCfg = Release|x64
 		{7F0748EE-36B6-4F09-883A-B2D5C17CD857}.Release|x64.Build.0 = Release|x64
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Debug|Win32.Build.0 = Debug|Win32
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Debug|x64.ActiveCfg = Debug|x64
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Debug|x64.Build.0 = Debug|x64
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Release|Win32.ActiveCfg = Release|Win32
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Release|Win32.Build.0 = Release|Win32
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Release|x64.ActiveCfg = Release|x64
-		{5475BE2A-0AE2-4989-9BCB-5EE18AAE7F3A}.Release|x64.Build.0 = Release|x64
 		{22B99CFB-7BE2-49BD-B52B-EF652280B1A4}.Debug|Win32.ActiveCfg = Debug|Win32
 		{22B99CFB-7BE2-49BD-B52B-EF652280B1A4}.Debug|Win32.Build.0 = Debug|Win32
 		{22B99CFB-7BE2-49BD-B52B-EF652280B1A4}.Debug|x64.ActiveCfg = Debug|x64

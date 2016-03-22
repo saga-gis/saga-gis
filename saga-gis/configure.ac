@@ -297,7 +297,6 @@ AC_OUTPUT(Makefile \
 	src/modules/io/io_gdal/Makefile \
 	src/modules/io/io_gps/Makefile \
 	src/modules/io/io_grid/Makefile \
-	src/modules/io/io_grid_grib2/Makefile \
 	src/modules/io/io_grid_image/Makefile \
 	src/modules/io/io_shapes/Makefile \
 	src/modules/io/io_shapes_dxf/Makefile \
