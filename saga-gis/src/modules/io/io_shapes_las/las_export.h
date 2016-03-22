@@ -87,7 +87,7 @@ class CLAS_Export : public CSG_Module
 public:
 	CLAS_Export(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Export") );	}
 
 
 protected:

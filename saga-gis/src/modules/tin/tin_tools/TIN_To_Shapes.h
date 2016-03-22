@@ -81,7 +81,7 @@ public:
 	CTIN_To_Shapes(void);
 	virtual ~CTIN_To_Shapes(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Conversion") );	}
 
 
 protected:

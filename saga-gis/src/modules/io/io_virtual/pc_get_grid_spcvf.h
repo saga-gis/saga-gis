@@ -126,7 +126,7 @@ class CPointCloud_Get_Grid_SPCVF : public CSG_Module
 public:
 	CPointCloud_Get_Grid_SPCVF(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Point Cloud") );	}
 
 
 protected:
@@ -149,7 +149,7 @@ class CPointCloud_Get_Grid_SPCVF_Interactive : public CSG_Module_Interactive
 public:
 	CPointCloud_Get_Grid_SPCVF_Interactive(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Point Cloud") );	}
 
 
 protected:

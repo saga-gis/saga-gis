@@ -80,7 +80,7 @@ class CESRI_ArcInfo_Import : public CSG_Module
 public:
 	CESRI_ArcInfo_Import(void);
 
-	virtual CSG_String		Get_MenuPath		(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath		(void)		{	return( _TL("Import") );	}
 
 
 protected:
@@ -112,7 +112,7 @@ class CESRI_ArcInfo_Export : public CSG_Module_Grid
 public:
 	CESRI_ArcInfo_Export(void);
 
-	virtual CSG_String		Get_MenuPath		(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath		(void)		{	return( _TL("Export") );	}
 
 
 protected:

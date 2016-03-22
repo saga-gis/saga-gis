@@ -75,7 +75,7 @@ class CPanSharp_IHS : public CSG_Module_Grid
 public:
 	CPanSharp_IHS(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:
@@ -95,7 +95,7 @@ class CPanSharp_Brovey : public CSG_Module_Grid
 public:
 	CPanSharp_Brovey(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:
@@ -115,7 +115,7 @@ class CPanSharp_CN : public CSG_Module_Grid
 public:
 	CPanSharp_CN(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:
@@ -135,7 +135,7 @@ class CPanSharp_PCA : public CSG_Module_Grid
 public:
 	CPanSharp_PCA(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Image Sharpening") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Image Sharpening") );	}
 
 
 protected:

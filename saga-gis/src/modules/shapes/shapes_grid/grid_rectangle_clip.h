@@ -86,7 +86,7 @@ class CGrid_Rectangle_Clip : public CSG_Module
 public:
 	CGrid_Rectangle_Clip(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Spatial Extent") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Spatial Extent") );	}
 
 
 protected:

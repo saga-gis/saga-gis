@@ -81,7 +81,7 @@ class CGrid_Values_AddTo_Points : public CSG_Module
 public:
 	CGrid_Values_AddTo_Points(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Grid Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Grid Values") );	}
 
 
 protected:

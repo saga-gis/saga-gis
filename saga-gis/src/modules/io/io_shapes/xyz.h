@@ -83,7 +83,7 @@ class CXYZ_Export : public CSG_Module
 public:
 	CXYZ_Export(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Export") );	}
 
 
 protected:
@@ -102,7 +102,7 @@ class CXYZ_Import : public CSG_Module
 public:
 	CXYZ_Import(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Import") );	}
 
 
 protected:

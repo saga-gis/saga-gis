@@ -85,7 +85,7 @@ class CMBASpline_for_Categories : public CSG_Module
 public:
 	CMBASpline_for_Categories(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Spline Interpolation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Spline Interpolation") );	}
 
 
 protected:

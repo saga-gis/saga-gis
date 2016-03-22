@@ -85,7 +85,7 @@ class CGrid_Metric_Conversion : public CSG_Module_Grid
 public:
 	CGrid_Metric_Conversion(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Conversions") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Conversions") );	}
 
 
 protected:

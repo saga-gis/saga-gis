@@ -78,7 +78,7 @@ class CPC_From_Grid : public CSG_Module_Grid
 public:
 	CPC_From_Grid(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Conversion") );	}
 
 
 protected:

@@ -78,7 +78,7 @@ public:
 	CMass_Balance_Index(void);
 	virtual ~CMass_Balance_Index(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Indices" ));	}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Indices" ));	}
 
 
 protected:

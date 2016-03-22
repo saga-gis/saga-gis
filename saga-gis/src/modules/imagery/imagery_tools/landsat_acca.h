@@ -86,7 +86,7 @@ public:
 
 	CLandsat_ACCA(void);
 
-	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("R:Landsat") );	}
+	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("Landsat") );	}
 
 
 protected:

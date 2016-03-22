@@ -80,7 +80,7 @@ class CSAGA_Wetness_Index : public CSG_Module_Grid
 public:
 	CSAGA_Wetness_Index(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Topographic Indices" ));	}
 
 
 protected:

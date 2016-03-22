@@ -81,7 +81,7 @@ public:
 	CTIN_From_Grid(void);
 	virtual ~CTIN_From_Grid(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Conversion") );	}
 
 
 protected:

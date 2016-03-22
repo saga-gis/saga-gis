@@ -43,7 +43,7 @@ class CSlopeLength : public CSG_Module_Grid
 public:
 	CSlopeLength(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Miscellaneous") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Miscellaneous") );	}
 
 
 protected:

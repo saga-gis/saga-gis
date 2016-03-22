@@ -89,7 +89,7 @@ class CGrid_To_Contour : public CSG_Module
 public:
 	CGrid_To_Contour(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Vectorization") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Vectorization") );	}
 
 
 protected:

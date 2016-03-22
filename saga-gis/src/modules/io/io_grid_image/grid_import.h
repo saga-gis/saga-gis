@@ -87,7 +87,7 @@ class io_grid_image_EXPORT CGrid_Import : public CSG_Module
 public:
 	CGrid_Import(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Import") );	}
 
 
 protected:

@@ -85,7 +85,7 @@ class CRaster_Load : public CSG_PG_Module
 public:
 	CRaster_Load(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Raster") );	}
 
 
 protected:
@@ -108,7 +108,7 @@ class CRaster_Load_Band : public CSG_PG_Module
 public:
 	CRaster_Load_Band(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Raster") );	}
 
 
 protected:
@@ -132,7 +132,7 @@ class CRaster_Save : public CSG_PG_Module
 public:
 	CRaster_Save(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Raster") );	}
 
 
 protected:
@@ -156,7 +156,7 @@ class CRaster_SRID_Update : public CSG_PG_Module
 public:
 	CRaster_SRID_Update(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Raster") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Raster") );	}
 
 
 protected:

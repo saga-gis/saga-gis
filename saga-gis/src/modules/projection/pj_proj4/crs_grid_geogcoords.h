@@ -78,7 +78,7 @@ class CCRS_Grid_GeogCoords : public CSG_Module_Grid
 public:
 	CCRS_Grid_GeogCoords(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Tools") );	}
 
 
 protected:

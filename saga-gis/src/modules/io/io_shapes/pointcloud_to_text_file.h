@@ -88,7 +88,7 @@ class CPointcloud_To_Text_File : public CSG_Module
 public:
 	CPointcloud_To_Text_File(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Export") );	}
 
 
 protected:

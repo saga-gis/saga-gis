@@ -115,7 +115,7 @@ class pj_proj4_EXPORT CCRS_Picker : public CCRS_Base
 public:
 	CCRS_Picker(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Tools") );	}
 
 
 protected:

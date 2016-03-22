@@ -161,7 +161,7 @@ class CLAS_Info : public CSG_Module
 public:
 	CLAS_Info(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
 
 protected:

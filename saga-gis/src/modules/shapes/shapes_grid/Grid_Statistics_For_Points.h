@@ -85,7 +85,7 @@ class CGrid_Statistics_For_Points : public CSG_Module_Grid
 public:
 	CGrid_Statistics_For_Points(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Grid Values") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Grid Values") );	}
 
 
 protected:

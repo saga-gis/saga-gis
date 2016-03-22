@@ -85,7 +85,7 @@ class CGet_Connections : public CSG_Module
 public:
 	CGet_Connections(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -141,7 +141,7 @@ class CDel_Connections : public CSG_Module
 public:
 	CDel_Connections(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -163,7 +163,7 @@ class CTransaction_Start : public CSG_PG_Module
 public:
 	CTransaction_Start(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -185,7 +185,7 @@ class CTransaction_Stop : public CSG_PG_Module
 public:
 	CTransaction_Stop(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -205,7 +205,7 @@ class CExecute_SQL : public CSG_PG_Module
 public:
 	CExecute_SQL(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -225,7 +225,7 @@ class CDatabase_Create : public CSG_Module
 public:
 	CDatabase_Create(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -245,7 +245,7 @@ class CDatabase_Destroy : public CSG_Module
 public:
 	CDatabase_Destroy(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

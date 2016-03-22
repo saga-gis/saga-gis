@@ -87,7 +87,7 @@ class CTable_List : public CSG_ODBC_Module
 public:
 	CTable_List(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CTable_Info : public CSG_ODBC_Module
 public:
 	CTable_Info(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -129,7 +129,7 @@ class CTable_Load : public CSG_ODBC_Module
 public:
 	CTable_Load(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tables") );	}
 
 
 protected:
@@ -151,7 +151,7 @@ class CTable_Save : public CSG_ODBC_Module
 public:
 	CTable_Save(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tables") );	}
 
 
 protected:
@@ -173,7 +173,7 @@ class CTable_Drop : public CSG_ODBC_Module
 public:
 	CTable_Drop(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tables") );	}
 
 
 protected:
@@ -195,7 +195,7 @@ class CTable_Query : public CSG_ODBC_Module
 public:
 	CTable_Query(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tables") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tables") );	}
 
 
 protected:

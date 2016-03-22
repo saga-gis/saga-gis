@@ -85,7 +85,7 @@ class CLandsat_TOAR : public CSG_Module
 public:
 	CLandsat_TOAR(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("R:Landsat") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Landsat") );	}
 
 
 protected:

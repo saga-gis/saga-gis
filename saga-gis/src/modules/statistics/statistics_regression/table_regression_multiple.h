@@ -92,7 +92,7 @@ class CTable_Regression_Multiple : public CTable_Regression_Multiple_Base
 public:
 	CTable_Regression_Multiple(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Table") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Table") );	}
 
 };
 
@@ -102,7 +102,7 @@ class CTable_Regression_Multiple_Shapes : public CTable_Regression_Multiple_Base
 public:
 	CTable_Regression_Multiple_Shapes(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Shapes") );	}
 
 };
 

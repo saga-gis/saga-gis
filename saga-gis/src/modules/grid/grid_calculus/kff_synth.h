@@ -81,7 +81,7 @@ class Ckff_synthesis : public CSG_Module
 public:
 	Ckff_synthesis (void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Grid Generation") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Grid Generation") );	}
 
 
 protected:

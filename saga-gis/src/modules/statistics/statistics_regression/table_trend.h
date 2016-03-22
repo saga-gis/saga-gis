@@ -98,7 +98,7 @@ class CTable_Trend : public CTable_Trend_Base
 public:
 	CTable_Trend(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Table") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Table") );	}
 
 };
 
@@ -108,7 +108,7 @@ class CTable_Trend_Shapes : public CTable_Trend_Base
 public:
 	CTable_Trend_Shapes(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Shapes") );	}
 
 };
 

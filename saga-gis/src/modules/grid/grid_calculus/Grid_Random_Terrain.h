@@ -53,7 +53,7 @@ class CGrid_Random_Terrain : public CSG_Module
 public:
 	CGrid_Random_Terrain(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Grid Generation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid Generation") );	}
 
 
 protected:

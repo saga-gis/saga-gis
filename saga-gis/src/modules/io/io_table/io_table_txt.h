@@ -87,7 +87,7 @@ class CTable_Text_Export : public CSG_Module
 public:
 	CTable_Text_Export(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Export") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CTable_Text_Import : public CSG_Module
 public:
 	CTable_Text_Import(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Import") );	}
 
 
 protected:
@@ -129,7 +129,7 @@ class CTable_Text_Import_Numbers : public CSG_Module
 public:
 	CTable_Text_Import_Numbers(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Import") );	}
 
 
 protected:
@@ -151,7 +151,7 @@ class CTable_Text_Import_Fixed_Cols : public CSG_Module
 public:
 	CTable_Text_Import_Fixed_Cols(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Import") );	}
 
 
 protected:

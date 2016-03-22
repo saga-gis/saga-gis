@@ -85,7 +85,7 @@ class CSVG_Export : public CSG_Module
 public:
 	CSVG_Export(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Export") );	}
 
 
 protected:
@@ -117,7 +117,7 @@ class CSVG_Import : public CSG_Module
 public:
 	CSVG_Import(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
 
 protected:

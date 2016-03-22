@@ -78,7 +78,7 @@ class CPointCloud_From_File : public CSG_Module
 public:
 	CPointCloud_From_File(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Import") );	}
 
 
 protected:

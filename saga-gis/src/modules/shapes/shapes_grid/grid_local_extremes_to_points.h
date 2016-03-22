@@ -78,7 +78,7 @@ class CGrid_Local_Extremes_to_Points : public CSG_Module_Grid
 public:
 	CGrid_Local_Extremes_to_Points(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Grid Values") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Grid Values") );	}
 
 
 protected:

@@ -112,7 +112,7 @@ public:
 	CLakeFlood(void);
 	virtual ~CLakeFlood(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Miscellaneous") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Miscellaneous") );	}
 
 
 protected:
@@ -139,7 +139,7 @@ public:
 	CLakeFloodInteractive(void);
 	virtual ~CLakeFloodInteractive(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Miscellaneous") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Miscellaneous") );	}
 
 
 protected:

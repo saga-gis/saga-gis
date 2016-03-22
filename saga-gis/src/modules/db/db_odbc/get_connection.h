@@ -87,7 +87,7 @@ class CGet_Servers : public CSG_Module
 public:
 	CGet_Servers(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -145,7 +145,7 @@ class CDel_Connections : public CSG_Module
 public:
 	CDel_Connections(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -167,7 +167,7 @@ class CTransaction : public CSG_ODBC_Module
 public:
 	CTransaction(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -189,7 +189,7 @@ class CExecute_SQL : public CSG_ODBC_Module
 public:
 	CExecute_SQL(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

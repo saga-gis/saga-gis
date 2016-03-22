@@ -75,7 +75,7 @@ public:
 	CSurfer_Import(void);
 	virtual ~CSurfer_Import(void);
 
-	virtual CSG_String		Get_MenuPath(void)				{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath(void)				{	return( _TL("Import") );	}
 
 
 protected:
@@ -94,7 +94,7 @@ public:
 	CSurfer_Export(void);
 	virtual ~CSurfer_Export(void);
 
-	virtual CSG_String		Get_MenuPath(void)				{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath(void)				{	return( _TL("Export") );	}
 
 
 protected:

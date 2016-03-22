@@ -165,14 +165,18 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	m_ID			= GET_XML_CONTENT(m_Chain, "identifier" , "");
 	m_Library		= GET_XML_CONTENT(m_Chain, "group"      , "toolchains");
 	m_Menu			= GET_XML_CONTENT(m_Chain, "menu"       , "");
-	Set_Name         (GET_XML_CONTENT(m_Chain, "name"       , _TL("Not Named")));
-	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown")));
-	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description")));
+	Set_Name         (GET_XML_CONTENT(m_Chain, "name"       , _TL("Not Named"     )));
+	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown"       )));
+	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description")));	Set_Description(SG_Translate(Get_Description()));
+
+	Set_Name(SG_Translate(Get_Name()));
 
 	CSG_String	Description	= Get_Description();
 	Description.Replace("[[", "<");	// support for xml/html tags
 	Description.Replace("]]", ">");
 	Set_Description(Description);
+
+	m_Menu	= SG_Translate(m_Menu);
 
 	if( !m_Menu.is_Empty() && (m_Menu.Length() < 2 || m_Menu[1] != ':') )
 	{
@@ -231,8 +235,8 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		}
 
 		//-------------------------------------------------
-		CSG_String	Name	= Parameter.Get_Content("name"       );
-		CSG_String	Desc	= Parameter.Get_Content("description");
+		CSG_String	Name	= SG_Translate(Parameter.Get_Content("name"       ));
+		CSG_String	Desc	= SG_Translate(Parameter.Get_Content("description"));
 
 		CSG_Parameter	*pParent	= Parameters(Parameter.Get_Property("parent"));
 

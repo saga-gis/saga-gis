@@ -78,7 +78,7 @@ class CGCS_Graticule : public CCRS_Base
 public:
 	CGCS_Graticule(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

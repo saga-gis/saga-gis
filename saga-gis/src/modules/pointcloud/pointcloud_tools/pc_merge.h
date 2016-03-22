@@ -81,7 +81,7 @@ public:
 	CPC_Merge(void);
 	virtual ~CPC_Merge(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

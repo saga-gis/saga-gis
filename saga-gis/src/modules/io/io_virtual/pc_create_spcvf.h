@@ -88,7 +88,7 @@ class CPointCloud_Create_SPCVF : public CSG_Module
 public:
 	CPointCloud_Create_SPCVF(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Point Cloud") );	}
 
 
 protected:

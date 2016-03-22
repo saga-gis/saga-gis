@@ -78,7 +78,7 @@ class CGrid_Levels_Interpolation : public CSG_Module_Grid
 public:
 	CGrid_Levels_Interpolation(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

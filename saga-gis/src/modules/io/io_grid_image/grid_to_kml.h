@@ -85,7 +85,7 @@ class CGrid_to_KML : public CSG_Module_Grid
 public:
 	CGrid_to_KML(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Export") );	}
 
 
 protected:
@@ -111,7 +111,7 @@ class CGrid_from_KML : public CSG_Module
 public:
 	CGrid_from_KML(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
 protected:

@@ -76,7 +76,7 @@ class CSoil_Texture : public CSG_Module_Grid
 public:
 	CSoil_Texture(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Soil Analysis") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Soil Analysis") );	}
 
 
 protected:
@@ -96,7 +96,7 @@ class CSoil_Texture_Table : public CSG_Module
 public:
 	CSoil_Texture_Table(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Soil Analysis") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Soil Analysis") );	}
 
 
 protected:

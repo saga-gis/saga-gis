@@ -87,7 +87,7 @@ class CPolygon_Overlay : public CSG_Module
 public:
 	CPolygon_Overlay(const CSG_String &Name);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Overlay") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Overlay") );	}
 
 
 protected:

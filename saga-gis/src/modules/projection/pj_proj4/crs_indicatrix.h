@@ -78,7 +78,7 @@ class CCRS_Indicatrix : public CCRS_Transform
 public:
 	CCRS_Indicatrix(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Tools") );	}
 
 
 

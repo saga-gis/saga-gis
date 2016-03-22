@@ -86,7 +86,7 @@ class CPC_Cluster_Analysis : public CSG_Module
 public:
 	CPC_Cluster_Analysis(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Classification") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Classification") );	}
 
 
 protected:

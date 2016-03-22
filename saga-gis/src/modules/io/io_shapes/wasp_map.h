@@ -77,7 +77,7 @@ class CWASP_MAP_Export : public CSG_Module
 public:
 	CWASP_MAP_Export(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Export") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Export") );	}
 
 
 protected:
@@ -98,7 +98,7 @@ class CWASP_MAP_Import : public CSG_Module
 public:
 	CWASP_MAP_Import(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
 protected:

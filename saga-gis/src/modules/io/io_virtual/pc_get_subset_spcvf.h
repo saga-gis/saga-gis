@@ -128,7 +128,7 @@ class CPointCloud_Get_Subset_SPCVF : public CSG_Module
 public:
 	CPointCloud_Get_Subset_SPCVF(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Point Cloud") );	}
 
 
 protected:
@@ -151,7 +151,7 @@ class CPointCloud_Get_Subset_SPCVF_Interactive : public CSG_Module_Interactive
 public:
 	CPointCloud_Get_Subset_SPCVF_Interactive(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Point Cloud") );	}
 
 
 protected:

@@ -86,7 +86,7 @@ public: ////// public members and functions: //////////////
 
 	CCityGML_Import(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
 protected: /// protected members and functions: ///////////

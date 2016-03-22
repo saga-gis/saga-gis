@@ -87,7 +87,7 @@ class CSurfer_BLN_Import : public CSG_Module
 public:
 	CSurfer_BLN_Import(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CSurfer_BLN_Export : public CSG_Module
 public:
 	CSurfer_BLN_Export(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Export") );	}
 
 
 protected:

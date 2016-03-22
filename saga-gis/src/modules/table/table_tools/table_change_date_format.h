@@ -85,7 +85,7 @@ class CTable_Change_Date_Format : public CSG_Module
 public:
 	CTable_Change_Date_Format(void);
 
-//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
 
 protected:
@@ -106,7 +106,7 @@ class CTable_Change_Time_Format : public CSG_Module
 public:
 	CTable_Change_Time_Format(void);
 
-//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+//	virtual CSG_String			Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
 
 protected:

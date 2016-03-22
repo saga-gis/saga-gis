@@ -80,7 +80,7 @@ class pj_proj4_EXPORT CPROJ4_Grid : public CPROJ4_Base
 public:
 	CPROJ4_Grid(int Interface, bool bInputList);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Alternatives") );	}
 
 
 protected:

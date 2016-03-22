@@ -86,7 +86,7 @@ class CPC_Drop_Attribute : public CSG_Module
 public:
 	CPC_Drop_Attribute(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

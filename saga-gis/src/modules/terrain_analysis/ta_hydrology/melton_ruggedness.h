@@ -84,7 +84,7 @@ class CMelton_Ruggedness : public CSG_Module_Grid
 public:
 	CMelton_Ruggedness(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Topographic Indices" ));	}
 
 
 protected:

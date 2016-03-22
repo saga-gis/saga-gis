@@ -114,7 +114,7 @@ class CWRF_Import : public CSG_Module
 public:
 	CWRF_Import(void);
 
-	virtual CSG_String		Get_MenuPath			(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath			(void)		{	return( _TL("Import") );	}
 
 
 protected:
@@ -142,7 +142,7 @@ class CWRF_Export : public CSG_Module_Grid
 public:
 	CWRF_Export(void);
 
-	virtual CSG_String		Get_MenuPath			(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath			(void)		{	return( _TL("Export") );	}
 
 
 protected:

@@ -80,7 +80,7 @@ class CPC_From_Table : public CSG_Module
 public:
 	CPC_From_Table(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Conversion") );	}
 
 
 protected:

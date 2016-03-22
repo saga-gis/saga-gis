@@ -85,7 +85,7 @@ class CLAS_Import : public CSG_Module
 public:
 	CLAS_Import(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
 
 protected:

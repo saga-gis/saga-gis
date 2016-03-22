@@ -78,7 +78,7 @@ class CImport_Clip_Resample : public CSG_Module
 public:
 	CImport_Clip_Resample(void);
 
-	virtual CSG_String			Get_MenuPath(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String			Get_MenuPath(void)		{	return( _TL("Import") );	}
 
 
 protected:

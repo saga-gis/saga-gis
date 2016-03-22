@@ -87,7 +87,7 @@ class CTWI : public CSG_Module_Grid
 public:
 	CTWI(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Topographic Indices" ));	}
 
 
 protected:
@@ -110,7 +110,7 @@ class CStream_Power : public CSG_Module_Grid
 public:
 	CStream_Power(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Topographic Indices" ));	}
 
 
 protected:
@@ -133,7 +133,7 @@ class CLS_Factor : public CSG_Module_Grid
 public:
 	CLS_Factor(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Topographic Indices" ));	}
 
 
 protected:
@@ -163,7 +163,7 @@ class CTCI_Low : public CSG_Module_Grid
 public:
 	CTCI_Low(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Topographic Indices" ));	}
 
 
 protected:

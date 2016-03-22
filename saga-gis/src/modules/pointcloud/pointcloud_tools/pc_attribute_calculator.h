@@ -87,7 +87,7 @@ public:
 	CPC_Attribute_Calculator(void);
 	virtual ~CPC_Attribute_Calculator(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

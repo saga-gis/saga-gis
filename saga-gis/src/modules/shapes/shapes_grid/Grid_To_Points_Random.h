@@ -81,7 +81,7 @@ public:
 	CGrid_To_Points_Random(void);
 	virtual ~CGrid_To_Points_Random(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("R:Vectorization") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Vectorization") );	}
 
 
 protected:

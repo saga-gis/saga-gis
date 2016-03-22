@@ -32,7 +32,7 @@ public:
 	CSinuosity(void);
 	virtual ~CSinuosity(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Dynamics" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Dynamics" ));	}
 
 protected:
 	virtual bool On_Execute(void);

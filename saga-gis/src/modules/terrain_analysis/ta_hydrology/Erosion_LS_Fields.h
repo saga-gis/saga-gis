@@ -85,7 +85,7 @@ class CErosion_LS_Fields : public CSG_Module_Grid
 public:
 	CErosion_LS_Fields(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Topographic Indices" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Topographic Indices" ));	}
 
 
 protected:

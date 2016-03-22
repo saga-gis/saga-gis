@@ -86,7 +86,7 @@ public: ////// public members and functions: //////////////
 
 	CPolygon_Shared_Edges(void);
 
-//	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("R:Landsat") );	}
+//	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Landsat") );	}
 
 
 protected: /// protected members and functions: ///////////
@@ -123,7 +123,7 @@ public: ////// public members and functions: //////////////
 
 	CPolygon_Vertex_Check(void);
 
-//	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("R:Landsat") );	}
+//	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Landsat") );	}
 
 
 protected: /// protected members and functions: ///////////

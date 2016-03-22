@@ -85,7 +85,7 @@ class CShapes_Load : public CSG_PG_Module
 public:
 	CShapes_Load(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Shapes") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ class CShapes_Save : public CSG_PG_Module
 public:
 	CShapes_Save(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Shapes") );	}
 
 
 protected:
@@ -129,7 +129,7 @@ class CShapes_SRID_Update : public CSG_PG_Module
 public:
 	CShapes_SRID_Update(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Shapes") );	}
 
 
 protected:

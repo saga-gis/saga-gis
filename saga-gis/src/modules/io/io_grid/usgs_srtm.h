@@ -76,7 +76,7 @@ public:
 	CUSGS_SRTM_Import(void);
 	virtual ~CUSGS_SRTM_Import(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
 
 protected:

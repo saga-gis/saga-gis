@@ -88,7 +88,7 @@ class CPointCloud_Remove_Overlap_From_SPCVF : public CSG_Module
 public:
 	CPointCloud_Remove_Overlap_From_SPCVF(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("R:Point Cloud") );	}
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Point Cloud") );	}
 
 
 protected:

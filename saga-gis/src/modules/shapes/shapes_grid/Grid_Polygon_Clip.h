@@ -76,7 +76,7 @@ public:
 	// constructor
 	CGrid_Polygon_Clip(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("R:Spatial Extent") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Spatial Extent") );	}
 
 
 protected:

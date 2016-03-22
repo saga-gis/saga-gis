@@ -84,7 +84,7 @@ public:
 	CGStat_Export(void);
 	virtual ~CGStat_Export(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Export") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Export") );	}
 
 
 protected:
@@ -107,7 +107,7 @@ public:
 	CGStat_Import(void);
 	virtual ~CGStat_Import(void);
 
-	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("R:Import") );	}
+	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Import") );	}
 
 
 protected:

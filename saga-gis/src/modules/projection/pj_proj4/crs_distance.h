@@ -110,7 +110,7 @@ class CCRS_Distance_Lines : public CSG_Module
 public:
 	CCRS_Distance_Lines(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -130,7 +130,7 @@ class CCRS_Distance_Points : public CCRS_Base
 public:
 	CCRS_Distance_Points(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -150,7 +150,7 @@ class CCRS_Distance_Interactive : public CSG_Module_Interactive
 public:
 	CCRS_Distance_Interactive(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

@@ -87,7 +87,7 @@ class pj_geotrans_EXPORT CGEOTRANS_Grid : public CGEOTRANS_Base
 public:
 	CGEOTRANS_Grid(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Alternatives") );	}
 
 
 protected:
