@@ -102,9 +102,15 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_Parameters.Add_Choice(
 		pNode	, "SERVER"		, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Open Street Map"),
-			_TL("MapQuest")
+			_TL("MapQuest"),
+			_TL("Google Map"),
+			_TL("Google Satellite"),
+			_TL("Google Hybrid"),
+			_TL("Google Terrain"),
+			_TL("Google Terrain, Streets and Water"),
+			_TL("ArcGIS MapServer Tiles")
 		), 0
 	);
 

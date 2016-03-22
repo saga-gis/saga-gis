@@ -72,14 +72,14 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("Import Open Street Map Image"));
+	Set_Name	(_TL("Import TMS Image"));
 
 	Set_Author	("O.Conrad (c) 2016");
 
 	CSG_String	Description;
 
 	Description	= _TW(
-		"The \"Import OSM Image\" tool imports a map image from a Tile Mapping Service (TMS) using the "
+		"The \"Import TMS Image\" tool imports a map image from a Tile Mapping Service (TMS) using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
@@ -112,9 +112,15 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "SERVER"		, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Open Street Map"),
 			_TL("MapQuest"),
+			_TL("Google Map"),
+			_TL("Google Satellite"),
+			_TL("Google Hybrid"),
+			_TL("Google Terrain"),
+			_TL("Google Terrain, Streets and Water"),
+			_TL("ArcGIS MapServer Tiles"),
 			_TL("user defined")
 		), 0
 	);
@@ -460,19 +466,9 @@ bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
 bool CGDAL_Import_WMS::Get_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &System)
 {
 	//-----------------------------------------------------
-	CSG_String	Server;
-
-	switch( Parameters("SERVER")->asInt() )
-	{
-	default:	Server	= "tile.openstreetmap.org"             ;	break;	// Open Street Map
-	case  1:	Server	= "otile1.mqcdn.com/tiles/1.0.0/osm"   ;	break;	// MapQuest
-	case  2:	Server	= Parameters("SERVER_USER")->asString();	break;	// user defined
-	}
-
-	//-----------------------------------------------------
 	CSG_GDAL_DataSet	DataSet;
 
-	if( DataSet.Open_Read(Get_Request(Server), System) == false || DataSet.Get_Count() != 3 )
+	if( DataSet.Open_Read(Get_Request(), System) == false || DataSet.Get_Count() != 3 )
 	{
 		return( false );
 	}
@@ -512,8 +508,25 @@ bool CGDAL_Import_WMS::Get_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &Sys
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CGDAL_Import_WMS::Get_Request(const CSG_String &Server)
+CSG_String CGDAL_Import_WMS::Get_Request(void)
 {
+	CSG_String	Server, Projection	= "EPSG:900913";
+
+	switch( Parameters("SERVER")->asInt() )
+	{
+	default:	Server	= "tile.openstreetmap.org/${z}/${x}/${y}.png"                          ; Projection = "EPSG:3857";	break;	// Open Street Map
+	case  1:	Server	= "otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png"                ; Projection = "EPSG:3857";	break;	// MapQuest
+	case  2:	Server	= "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Map
+	case  3:	Server	= "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Satellite
+	case  4:	Server	= "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Hybrid
+	case  5:	Server	= "mt.google.com/vt/lyrs=t&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain
+	case  6:	Server	= "mt.google.com/vt/lyrs=p&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain, Streets and Water
+	case  7:	Server	= "services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}";	break;	// ArcGIS MapServer Tiles
+	case  8:	Server	= Parameters("SERVER_USER")->asString()                                                          ;	break;	// user defined
+//	case  x:	Server	= "s3.amazonaws.com/com.modestmaps.bluemarble/${z}-r${y}-c${x}.jpg"                              ;	break;	// Blue Marble
+	}
+
+	//-----------------------------------------------------
 	CSG_MetaData	XML, *pEntry;
 
 	XML.Set_Name("GDAL_WMS");
@@ -521,7 +534,7 @@ CSG_String CGDAL_Import_WMS::Get_Request(const CSG_String &Server)
 	//-----------------------------------------------------
 	pEntry	= XML.Add_Child("Service");	pEntry->Add_Property("name", "TMS");
 
-	pEntry->Add_Child("ServerUrl"  , "http://" + Server + "/${z}/${x}/${y}.png");
+	pEntry->Add_Child("ServerUrl"  , "http://" + Server);
 
 	//-----------------------------------------------------
 	pEntry	= XML.Add_Child("DataWindow");		// Define size and extents of the data. (required, except for TiledWMS and VirtualEarth)
@@ -536,8 +549,12 @@ CSG_String CGDAL_Import_WMS::Get_Request(const CSG_String &Server)
 	pEntry->Add_Child("YOrigin"    ,        "top");		// Can be used to define the position of the Y origin with respect to the tile grid. Possible values are 'top', 'bottom', and 'default', where the default behavior is mini-driver-specific. (TMS mini-driver only, optional, defaults to 'bottom' for TMS)
 
 	//-----------------------------------------------------
-	pEntry	= XML.Add_Child("Projection", "EPSG:3857");	// Image projection (optional, defaults to value reported by mini-driver or EPSG:4326)
-	pEntry	= XML.Add_Child("BandsCount",           3);	// Number of bands/channels, 1 for grayscale data, 3 for RGB, 4 for RGBA. (optional, defaults to 3)
+	if( !Projection.is_Empty() )
+	{
+		pEntry	= XML.Add_Child("Projection", Projection);	// Image projection (optional, defaults to value reported by mini-driver or EPSG:4326)
+	}
+
+	pEntry	= XML.Add_Child("BandsCount",         3);	// Number of bands/channels, 1 for grayscale data, 3 for RGB, 4 for RGBA. (optional, defaults to 3)
 
 	int	Blocksize	= Parameters("BLOCKSIZE")->asInt();
 	pEntry	= XML.Add_Child("BlockSizeX", Blocksize);	// Block size in pixels. (optional, defaults to 1024, except for VirtualEarth)

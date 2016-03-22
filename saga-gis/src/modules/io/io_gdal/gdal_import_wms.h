@@ -95,7 +95,7 @@ private:
 
 	bool						Get_Bands				(CSG_Grid *pBands[3], const CSG_Grid_System &System);
 
-	CSG_String					Get_Request				(const CSG_String &Server);
+	CSG_String					Get_Request				(void);
 
 	bool						Get_System				(CSG_Grid_System &System, CSG_Grid *pTarget);
 
