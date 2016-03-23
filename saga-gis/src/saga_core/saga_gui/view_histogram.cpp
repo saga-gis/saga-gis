@@ -489,6 +489,8 @@ IMPLEMENT_CLASS(CVIEW_Histogram, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
+	EVT_SIZE			(CVIEW_Histogram::On_Size)
+
 	EVT_MENU			(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative)
 	EVT_UPDATE_UI		(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative_UI)
 	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_Histogram::On_AsTable)
@@ -505,6 +507,7 @@ CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
 	: CVIEW_Base(pLayer, ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
 {
 	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
+	m_pControl->SetSize(GetClientSize());
 }
 
 
@@ -548,6 +551,17 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 void CVIEW_Histogram::Do_Update(void)
 {
 	m_pControl->Update_Histogram();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_Size(wxSizeEvent &event)
+{
+	m_pControl->SetSize(GetClientSize());
 }
 
 

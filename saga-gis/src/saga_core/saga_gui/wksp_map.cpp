@@ -1120,7 +1120,7 @@ void CWKSP_Map::Set_Projection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map::View_Opened(wxMDIChildFrame *pView)
+bool CWKSP_Map::View_Opened(MDI_ChildFrame *pView)
 {
     if( wxDynamicCast(pView, CVIEW_Map   ) != NULL )    {	m_pView		= (CVIEW_Map    *)pView;	return( true );	}
     if( wxDynamicCast(pView, CVIEW_Map_3D) != NULL )	{	m_pView_3D	= (CVIEW_Map_3D *)pView;	return( true );	}
@@ -1130,7 +1130,7 @@ bool CWKSP_Map::View_Opened(wxMDIChildFrame *pView)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::View_Closes(wxMDIChildFrame *pView)
+void CWKSP_Map::View_Closes(MDI_ChildFrame *pView)
 {
 	if( pView == m_pView    )	m_pView		= NULL;
 	if( pView == m_pView_3D )	m_pView_3D	= NULL;

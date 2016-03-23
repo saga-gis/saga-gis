@@ -98,6 +98,8 @@ private:
 	class CVIEW_Table_Diagram_Control	*m_pControl;
 
 
+	void								On_Size				(wxSizeEvent    &event);
+
 	void								On_Parameters		(wxCommandEvent &event);
 	void								On_Size_Fit			(wxCommandEvent &event);
 	void								On_Size_Inc			(wxCommandEvent &event);

@@ -86,14 +86,14 @@ IMPLEMENT_CLASS(CVIEW_Table, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table, CVIEW_Base)
+	EVT_SIZE			(CVIEW_Table::On_Size)
+
 	EVT_MENU_RANGE		(ID_CMD_TABLE_FIRST, ID_CMD_TABLE_LAST, CVIEW_Table::On_Command)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_TABLE_FIRST, ID_CMD_TABLE_LAST, CVIEW_Table::On_Command_UI)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -102,14 +102,13 @@ CVIEW_Table::CVIEW_Table(CWKSP_Table *pTable)
 	: CVIEW_Base(pTable, ID_VIEW_TABLE, pTable->Get_Name(), ID_IMG_WND_TABLE, false)
 {
 	m_pControl	= new CVIEW_Table_Control(this, pTable->Get_Table(), 0);
+	m_pControl->SetSize(GetClientSize());
 
 	Do_Show();
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -150,7 +149,16 @@ wxToolBarBase * CVIEW_Table::_Create_ToolBar(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table::On_Size(wxSizeEvent &event)
+{
+	m_pControl->SetSize(GetClientSize());
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -168,8 +176,6 @@ void CVIEW_Table::Update_Selection(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

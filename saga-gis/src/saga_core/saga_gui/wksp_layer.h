@@ -115,7 +115,7 @@ public:
 	virtual bool					Show					(class CWKSP_Map *pMap);
 	virtual bool					Show					(int Flags = 0);
 	virtual bool					Update					(CWKSP_Layer *pChanged);
-	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
+	virtual bool					View_Closes				(class MDI_ChildFrame *pView);
 	virtual bool					asImage					(CSG_Grid *pImage)		{	return( false );	}
 
 

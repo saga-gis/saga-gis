@@ -301,7 +301,7 @@ bool CWKSP_Table::Show(int Flags)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Table::View_Closes(wxMDIChildFrame *pView)
+bool CWKSP_Table::View_Closes(MDI_ChildFrame *pView)
 {
 	if( pView == m_pView    )	m_pView		= NULL;
 	if( pView == m_pDiagram )	m_pDiagram	= NULL;

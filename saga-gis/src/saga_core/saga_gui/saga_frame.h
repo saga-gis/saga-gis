@@ -72,7 +72,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef MDI_TABBED
+#include <wx/aui/tabmdi.h>
+#define MDI_ParentFrame	wxAuiMDIParentFrame
+#else
 #include <wx/mdi.h>
+#define MDI_ParentFrame	wxMDIParentFrame
+#endif
 
 //---------------------------------------------------------
 class CSAGA_Frame_Layout;
@@ -85,7 +91,7 @@ class CSAGA_Frame_Layout;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSAGA_Frame : public wxMDIParentFrame
+class CSAGA_Frame : public MDI_ParentFrame
 {
 public:
 

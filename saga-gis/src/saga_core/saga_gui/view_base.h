@@ -72,7 +72,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef MDI_TABBED
+#include <wx/aui/tabmdi.h>
+#define MDI_ChildFrame	wxAuiMDIChildFrame
+#else
 #include <wx/mdi.h>
+#define MDI_ChildFrame	wxMDIChildFrame
+#endif
+
+//---------------------------------------------------------
 #include <wx/menu.h>
 
 
@@ -83,7 +91,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVIEW_Base : public wxMDIChildFrame
+class CVIEW_Base : public MDI_ChildFrame
 {
 public:
 	CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Caption, int Icon_ID, bool bShow = true);

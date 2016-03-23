@@ -983,14 +983,15 @@ IMPLEMENT_CLASS(CVIEW_Table_Diagram, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Diagram, CVIEW_Base)
+	EVT_SIZE			(CVIEW_Table_Diagram::On_Size)
+	EVT_KEY_DOWN		(CVIEW_Table_Diagram::On_Key_Down)
+
 	EVT_MENU			(ID_CMD_DIAGRAM_PARAMETERS		, CVIEW_Table_Diagram::On_Parameters)
 	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_FIT		, CVIEW_Table_Diagram::On_Size_Fit)
 	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_INC		, CVIEW_Table_Diagram::On_Size_Inc)
 	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_DEC		, CVIEW_Table_Diagram::On_Size_Dec)
 
 	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD	, CVIEW_Table_Diagram::On_SaveToClipboard)
-
-	EVT_KEY_DOWN		(CVIEW_Table_Diagram::On_Key_Down)
 END_EVENT_TABLE()
 
 
@@ -1005,6 +1006,7 @@ CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
 	SYS_Set_Color_BG_Window(this);
 
 	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
+	m_pControl->SetSize(GetClientSize());
 
 	if( m_pControl->Set_Parameters() )
 	{
@@ -1069,33 +1071,9 @@ void CVIEW_Table_Diagram::Do_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Table_Diagram::On_Parameters(wxCommandEvent &event)
+void CVIEW_Table_Diagram::On_Size(wxSizeEvent &event)
 {
-	m_pControl->Set_Parameters();
-}
-
-//---------------------------------------------------------
-void CVIEW_Table_Diagram::On_Size_Fit(wxCommandEvent &event)
-{
-	m_pControl->Fit_Size();
-}
-
-//---------------------------------------------------------
-void CVIEW_Table_Diagram::On_Size_Inc(wxCommandEvent &event)
-{
-	m_pControl->Inc_Size();
-}
-
-//---------------------------------------------------------
-void CVIEW_Table_Diagram::On_Size_Dec(wxCommandEvent &event)
-{
-	m_pControl->Dec_Size();
-}
-
-//---------------------------------------------------------
-void CVIEW_Table_Diagram::On_SaveToClipboard(wxCommandEvent &event)
-{
-	m_pControl->SaveToClipboard();
+	m_pControl->SetSize(GetClientSize());
 }
 
 //---------------------------------------------------------
@@ -1123,6 +1101,41 @@ void CVIEW_Table_Diagram::On_Key_Down(wxKeyEvent &event)
 		}
 		break;
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_Parameters(wxCommandEvent &event)
+{
+	m_pControl->Set_Parameters();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_Size_Fit(wxCommandEvent &event)
+{
+	m_pControl->Fit_Size();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_Size_Inc(wxCommandEvent &event)
+{
+	m_pControl->Inc_Size();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_Size_Dec(wxCommandEvent &event)
+{
+	m_pControl->Dec_Size();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_SaveToClipboard(wxCommandEvent &event)
+{
+	m_pControl->SaveToClipboard();
 }
 
 

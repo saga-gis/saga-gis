@@ -108,7 +108,7 @@ public:
 	void							Toggle_Diagram			(void);
 
 	virtual bool					Show					(int Flags = 0);
-	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
+	virtual bool					View_Closes				(class MDI_ChildFrame *pView);
 
 
 private:

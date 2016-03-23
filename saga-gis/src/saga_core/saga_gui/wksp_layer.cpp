@@ -705,7 +705,7 @@ void CWKSP_Layer::On_Update_Views(bool bAll)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::View_Closes(wxMDIChildFrame *pView)
+bool CWKSP_Layer::View_Closes(MDI_ChildFrame *pView)
 {
 	if( pView == m_pHistogram )
 	{

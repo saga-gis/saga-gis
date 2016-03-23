@@ -99,6 +99,7 @@ private:
 
 	class CVIEW_Histogram_Control	*m_pControl;
 
+	void							On_Size				(wxSizeEvent     &event);
 
 	void							On_Cumulative		(wxCommandEvent  &event);
 	void							On_Cumulative_UI	(wxUpdateUIEvent &event);

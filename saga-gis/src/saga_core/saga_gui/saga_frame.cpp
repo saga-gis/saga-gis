@@ -190,7 +190,7 @@ CSAGA_Frame	*g_pSAGA_Frame	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CSAGA_Frame, wxMDIParentFrame)
+BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
 	EVT_CLOSE			(CSAGA_Frame::On_Close)
 	EVT_SIZE			(CSAGA_Frame::On_Size)
 
@@ -243,8 +243,15 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef MDI_TABBED
+#define MDI_PARENT_FRAME_STYLE	wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE|wxFRAME_NO_WINDOW_MENU
+#else
+#define MDI_PARENT_FRAME_STYLE	wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE|wxFRAME_NO_WINDOW_MENU|wxHSCROLL|wxVSCROLL
+#endif
+
+//---------------------------------------------------------
 CSAGA_Frame::CSAGA_Frame(void)
-	: wxMDIParentFrame(NULL, ID_WND_MAIN, SAGA_CAPTION, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE|wxHSCROLL|wxVSCROLL|wxFRAME_NO_WINDOW_MENU)
+	: MDI_ParentFrame(NULL, ID_WND_MAIN, SAGA_CAPTION, wxDefaultPosition, wxDefaultSize, MDI_PARENT_FRAME_STYLE)
 {
 	//-----------------------------------------------------
 	g_pSAGA_Frame		= this;
@@ -679,7 +686,7 @@ void CSAGA_Frame::On_Command_Module_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Command_Child(wxCommandEvent &event)
 {
-	wxMDIChildFrame	*pChild;
+	MDI_ChildFrame	*pChild;
 
 	if( (pChild = GetActiveChild()) != NULL )
 	{

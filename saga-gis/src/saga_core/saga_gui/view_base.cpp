@@ -87,10 +87,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CVIEW_Base, wxMDIChildFrame);
+IMPLEMENT_CLASS(CVIEW_Base, MDI_ChildFrame);
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CVIEW_Base, wxMDIChildFrame)
+BEGIN_EVENT_TABLE(CVIEW_Base, MDI_ChildFrame)
 	EVT_SIZE			(CVIEW_Base::On_Size)
 	EVT_ACTIVATE		(CVIEW_Base::On_Activate)
 END_EVENT_TABLE()
@@ -104,7 +104,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Base::CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Caption, int Icon_ID, bool bShow)
-	: wxMDIChildFrame(g_pSAGA_Frame, -1, Caption, MDI_Get_Def_Position(), MDI_Get_Def_Size(), wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
+	: MDI_ChildFrame(g_pSAGA_Frame, -1, Caption, MDI_Get_Def_Position(), MDI_Get_Def_Size(), wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
 {
 	m_pOwner		= pOwner;
 	m_View_ID		= View_ID;
@@ -112,7 +112,9 @@ CVIEW_Base::CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Capt
 	m_Size_Min.x	= 0;
 	m_Size_Min.y	= 0;
 
+#ifndef MDI_TABBED
 	SetStatusBarPane(-1);
+#endif
 
 	SetIcon(IMG_Get_Icon(Icon_ID));
 
@@ -166,7 +168,9 @@ void CVIEW_Base::Do_Show(void)
 		break;
 	}
 
+#ifndef MDI_TABBED
 	Show();
+#endif
 
 	Activate();
 }

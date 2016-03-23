@@ -109,8 +109,8 @@ public:
 	virtual bool					Show					(int Flags = 0)	= 0;
 	virtual bool					Update					(CWKSP_Data_Item *pChanged)		{	return( pChanged == this );	}
 
-	virtual bool					View_Opened				(class wxMDIChildFrame *pView);
-	virtual bool					View_Closes				(class wxMDIChildFrame *pView);
+	virtual bool					View_Opened				(class MDI_ChildFrame *pView);
+	virtual bool					View_Closes				(class MDI_ChildFrame *pView);
 
 	virtual bool					Update_Views			(bool bAll = true);
 

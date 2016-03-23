@@ -387,7 +387,7 @@ bool CWKSP_Data_Item::Add_ScatterPlot(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Item::View_Opened(wxMDIChildFrame *pView)
+bool CWKSP_Data_Item::View_Opened(MDI_ChildFrame *pView)
 {
 	if( m_Views.Index(pView) == wxNOT_FOUND )	// only add once
 	{
@@ -400,7 +400,7 @@ bool CWKSP_Data_Item::View_Opened(wxMDIChildFrame *pView)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Item::View_Closes(wxMDIChildFrame *pView)
+bool CWKSP_Data_Item::View_Closes(MDI_ChildFrame *pView)
 {
 	if( m_Views.Index(pView) != wxNOT_FOUND )
 	{

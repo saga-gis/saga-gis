@@ -100,6 +100,8 @@ private:
 	class CVIEW_Table_Control		*m_pControl;
 
 
+	void							On_Size				(wxSizeEvent     &event);
+
 	void							On_Command			(wxCommandEvent  &event);
 	void							On_Command_UI		(wxUpdateUIEvent &event);
 

@@ -127,6 +127,7 @@ CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
 	CreateStatusBar(MAP3D_STATUSBAR_COUNT);
 
 	m_pPanel	= new CView_Map_3DPanel(this, pMap);
+	m_pPanel->SetSize(GetClientSize());
 
 	//-----------------------------------------------------
 	Parameters_Create();
