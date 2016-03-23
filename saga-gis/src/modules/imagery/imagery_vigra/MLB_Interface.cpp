@@ -140,8 +140,8 @@ CSG_Module *		Create_Module(int i)
 	case  6:	return( new CViGrA_FFT_Inverse );
 	case  7:	return( new CViGrA_FFT_Real );
 	case  8:	return( new CViGrA_FFT_Filter );
-	case  9:	return( new CViGrA_Random_Forest );
-	case 10:	return( new CViGrA_RF_Presence );
+	case  9:	return( new_CViGrA_Random_Forest );
+	case 10:	return( new_CViGrA_RF_Presence );
 
 	default:	return( NULL );
 	}

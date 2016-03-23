@@ -61,40 +61,13 @@
 //---------------------------------------------------------
 #include "vigra_random_forest.h"
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#if !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
-// define some dummies
-#include <vigra/matrix.hxx>
-class CRandom_Forest
-{
-public:
-	CRandom_Forest(CSG_Parameters *pParameters)	{}
-	static bool				Parameters_Create	(CSG_Parameters &Parameters)		{	return( true );	}
-	bool					Load_Model			(bool bLoadNow)						{	return( true );	}
-	bool					Train_Model			(const CSG_Matrix &Data)			{	return( true );	}
-	int						Get_Feature_Count	(void)								{	return( 0 );	}
-	int						Get_Prediction		(vigra::Matrix<double> features)	{	return( 0 );	}
-	vigra::Matrix<double>	Get_Probabilities	(vigra::Matrix<double> features)	{	vigra::Matrix<double> p(0, 0); return( p );	}
-};
-#else
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+#if defined(VIGRA_VERSION_MAJOR) && VIGRA_VERSION_MAJOR >= 1 && VIGRA_VERSION_MINOR >= 10
 
 //---------------------------------------------------------
 #include <vigra/random_forest.hxx>
 
+//---------------------------------------------------------
 #define WITH_HDF5
 #if defined(WITH_HDF5)
 #include <vigra/random_forest_hdf5_impex.hxx>
@@ -336,14 +309,6 @@ vigra::Matrix<double> CRandom_Forest::Get_Probabilities(vigra::Matrix<double> fe
 
 	return( p );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#endif // !defined(VIGRA_VERSION_MAJOR) || VIGRA_VERSION_MAJOR < 1 || VIGRA_VERSION_MINOR < 10
 
 
 ///////////////////////////////////////////////////////////
@@ -1202,6 +1167,16 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data, int x, int y, int ID)
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // defined(VIGRA_VERSION_MAJOR) && VIGRA_VERSION_MAJOR >= 1 && VIGRA_VERSION_MINOR >= 10
 
 
 ///////////////////////////////////////////////////////////

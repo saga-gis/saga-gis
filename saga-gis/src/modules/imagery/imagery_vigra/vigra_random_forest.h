@@ -72,6 +72,9 @@
 //---------------------------------------------------------
 #include "vigra.h"
 
+//---------------------------------------------------------
+#if defined(VIGRA_VERSION_MAJOR) && VIGRA_VERSION_MAJOR >= 1 && VIGRA_VERSION_MINOR >= 10
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -144,6 +147,24 @@ private:
 	bool						Get_Training			(CSG_Matrix &Data, int x, int y, int ID);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define new_CViGrA_Random_Forest	new CViGrA_Random_Forest
+#define new_CViGrA_RF_Presence		new CViGrA_RF_Presence
+
+#else // defined(VIGRA_VERSION_MAJOR) && VIGRA_VERSION_MAJOR >= 1 && VIGRA_VERSION_MINOR >= 10
+
+#define new_CViGrA_Random_Forest	MLB_INTERFACE_SKIP_MODULE
+#define new_CViGrA_RF_Presence		MLB_INTERFACE_SKIP_MODULE
+
+#endif
 
 
 ///////////////////////////////////////////////////////////
