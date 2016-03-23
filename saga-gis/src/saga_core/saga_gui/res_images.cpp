@@ -373,6 +373,11 @@ wxImage		IMG_Get_Image(int ID_IMG, int size)
 	return( IMG_Get_Image(ID_IMG).Rescale(size, size) );
 }
 
+wxImage		IMG_Get_Image(int ID_IMG, wxSize size)
+{
+	return( IMG_Get_Image(ID_IMG).Rescale(size.GetWidth(), size.GetHeight()) );
+}
+
 //---------------------------------------------------------
 wxBitmap	IMG_Get_Bitmap(int ID_IMG)
 {
@@ -380,6 +385,11 @@ wxBitmap	IMG_Get_Bitmap(int ID_IMG)
 }
 
 wxBitmap	IMG_Get_Bitmap(int ID_IMG, int size)
+{
+	return( wxBitmap(IMG_Get_Image(ID_IMG, size)) );
+}
+
+wxBitmap	IMG_Get_Bitmap(int ID_IMG, wxSize size)
 {
 	return( wxBitmap(IMG_Get_Image(ID_IMG, size)) );
 }

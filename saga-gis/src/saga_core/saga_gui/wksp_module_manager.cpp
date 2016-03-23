@@ -202,6 +202,15 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 			_TL("All Files")
 		)
 	);
+
+	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_LOOK", _TL("Appearance"), _TL(""));
+
+	m_Parameters.Add_Int(
+		pNode	, "LOOK_TB_SIZE"		, _TL("Tool Bar Button Size"),
+		_TL("Tool bar button sizes. A restart of SAGA is required to have the changes take effect!"),
+		16, 16, true
+	);
 }
 
 //---------------------------------------------------------

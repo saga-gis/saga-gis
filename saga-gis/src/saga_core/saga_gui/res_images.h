@@ -240,9 +240,11 @@ enum ID_IMAGES
 
 //---------------------------------------------------------
 wxImage			IMG_Get_Image	(int ID_IMG);
-wxImage			IMG_Get_Image	(int ID_IMG, int size);
+wxImage			IMG_Get_Image	(int ID_IMG, int    size);
+wxImage			IMG_Get_Image	(int ID_IMG, wxSize size);
 wxBitmap		IMG_Get_Bitmap	(int ID_IMG);
-wxBitmap		IMG_Get_Bitmap	(int ID_IMG, int size);
+wxBitmap		IMG_Get_Bitmap	(int ID_IMG, int    size);
+wxBitmap		IMG_Get_Bitmap	(int ID_IMG, wxSize size);
 wxIcon			IMG_Get_Icon	(int ID_IMG);
 wxCursor		IMG_Get_Cursor	(int ID_IMG);
 

@@ -307,16 +307,6 @@ CSAGA_Frame::CSAGA_Frame(void)
 	_Create_MenuBar();
 
 	//-----------------------------------------------------
-	m_pTB_Main			= 						  _Create_ToolBar();
-	m_pTB_Map			= CVIEW_Map				::_Create_ToolBar();
-	m_pTB_Map_3D		= CVIEW_Map_3D			::_Create_ToolBar();
-	m_pTB_Layout		= CVIEW_Layout			::_Create_ToolBar();
-	m_pTB_Table			= CVIEW_Table			::_Create_ToolBar();
-	m_pTB_Diagram		= CVIEW_Table_Diagram	::_Create_ToolBar();
-	m_pTB_Histogram		= CVIEW_Histogram		::_Create_ToolBar();
-	m_pTB_ScatterPlot	= CVIEW_ScatterPlot		::_Create_ToolBar();
-
-	//-----------------------------------------------------
 	m_pLayout->GetPane(GetClientWindow()).Show().Center();
 
 	wxString	s;
@@ -325,6 +315,16 @@ CSAGA_Frame::CSAGA_Frame(void)
 	{
 		m_pLayout->LoadPerspective(s);
 	}
+
+	//-----------------------------------------------------
+	m_pTB_Main			= 						  _Create_ToolBar();
+	m_pTB_Map			= CVIEW_Map				::_Create_ToolBar();
+	m_pTB_Map_3D		= CVIEW_Map_3D			::_Create_ToolBar();
+	m_pTB_Layout		= CVIEW_Layout			::_Create_ToolBar();
+	m_pTB_Table			= CVIEW_Table			::_Create_ToolBar();
+	m_pTB_Diagram		= CVIEW_Table_Diagram	::_Create_ToolBar();
+	m_pTB_Histogram		= CVIEW_Histogram		::_Create_ToolBar();
+	m_pTB_ScatterPlot	= CVIEW_ScatterPlot		::_Create_ToolBar();
 
 	_Bar_Show(m_pTB_Main, true);
 
@@ -1075,14 +1075,13 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define TOOLBAR_SIZE_IMG		16
-
-//---------------------------------------------------------
 wxToolBarBase * CSAGA_Frame::TB_Create(int ID)
 {
+	int	Size	= g_pModules->Get_Parameter("LOOK_TB_SIZE")->asInt();
+
 	wxToolBar	*pToolBar	= new wxToolBar(this, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT|wxTB_NODIVIDER);
 
-	pToolBar->SetToolBitmapSize(wxSize(TOOLBAR_SIZE_IMG, TOOLBAR_SIZE_IMG));
+	pToolBar->SetToolBitmapSize(wxSize(Size, Size));
 
 	return( pToolBar );
 }
@@ -1108,9 +1107,9 @@ void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxString &Name)
 void CSAGA_Frame::TB_Add_Item(wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID)
 {
 	if( bCheck )
-		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
+		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), pToolBar->GetToolBitmapSize()), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
 	else
-		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID));
+		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), pToolBar->GetToolBitmapSize()), CMD_Get_Help(Cmd_ID));
 }
 
 //---------------------------------------------------------
