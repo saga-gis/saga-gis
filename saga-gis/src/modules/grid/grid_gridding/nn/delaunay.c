@@ -32,7 +32,6 @@
 #include <string.h>
 #include <limits.h>
 #include <float.h>
-#include "triangle.h"
 #include "istack.h"
 #include "nan.h"
 #include "delaunay.h"
@@ -49,6 +48,11 @@
 #define N_SEARCH_TURNON 20
 #define N_FLAGS_TURNON 1000
 #define N_FLAGS_INC 100
+
+//---------------------------------------------------------
+#ifndef USE_QHULL
+
+#include "triangle.h"
 
 static void tio_init(struct triangulateio* tio)
 {
@@ -316,6 +320,233 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
     return d;
 }
 
+//---------------------------------------------------------
+#else /* USE_QHULL */
+
+#include <qhull/qhull_a.h>
+
+/* returns 1 if a,b,c are clockwise ordered */
+static int cw(delaunay *d, triangle *t)
+{
+  point* pa = &d->points[t->vids[0]];
+  point* pb = &d->points[t->vids[1]];
+  point* pc = &d->points[t->vids[2]];
+
+  return ((pb->x - pa->x)*(pc->y - pa->y) < (pc->x - pa->x)*(pb->y - pa->y));
+}
+
+delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh, double holes[])
+{
+  delaunay* d = (delaunay *)malloc(sizeof(delaunay));
+
+  coordT *qpoints;                     /* array of coordinates for each point */
+  boolT ismalloc = False;              /* True if qhull should free points */
+  char flags[64] = "qhull d Qbb Qt";   /* option flags for qhull */
+  facetT *facet,*neighbor,**neighborp; /* variables to walk through facets */
+  vertexT *vertex, **vertexp;          /* variables to walk through vertex */
+
+  int curlong, totlong;                /* memory remaining after qh_memfreeshort */
+  FILE *outfile = stdout;
+  FILE *errfile = stderr;              /* error messages from qhull code */
+
+  int i, j;
+  int exitcode;
+  int dim, ntriangles;
+  int numfacets, numsimplicial, numridges, totneighbors, numcoplanars, numtricoplanars;	 
+    
+  dim = 2;
+
+  assert(sizeof(realT) == sizeof(double)); /* Qhull was compiled with doubles? */
+
+  if (np == 0 || ns > 0 || nh > 0) {
+    fprintf(stderr, "segments=%d holes=%d\n, aborting Qhull implementation, use 'triangle' instead.\n", ns, nh);
+    free(d);
+    return NULL;
+  }
+
+  qpoints = (coordT *) malloc(np * (dim+1) * sizeof(coordT));
+
+  for (i=0; i<np; i++) {
+    qpoints[i*dim] = points[i].x;
+    qpoints[i*dim+1] = points[i].y;
+  }
+   
+  if (!nn_verbose)
+    outfile = NULL;
+  if (nn_verbose)
+    strcat(flags, " s");
+  if (nn_verbose > 1)
+    strcat(flags, " Ts");
+
+  if (nn_verbose)
+    fflush(stderr);
+
+  /*
+   * climax 
+   */
+
+  exitcode = qh_new_qhull (dim, np, qpoints, ismalloc,
+			   flags, outfile, errfile);
+
+  if(!exitcode) {
+
+    if (nn_verbose)
+      fflush(stderr);
+
+    d->xmin = DBL_MAX;
+    d->xmax = -DBL_MAX;
+    d->ymin = DBL_MAX;
+    d->ymax = -DBL_MAX;
+
+    d->npoints = np;
+    d->points = malloc(np * sizeof(point));
+    for (i = 0; i < np; ++i) {
+      point* p = &d->points[i];
+
+      p->x = points[i].x;
+      p->y = points[i].y;
+      p->z = points[i].z;
+
+      if (p->x < d->xmin)
+	d->xmin = p->x;
+      if (p->x > d->xmax)
+	d->xmax = p->x;
+      if (p->y < d->ymin)
+	d->ymin = p->y;
+      if (p->y > d->ymax)
+	d->ymax = p->y;
+    }
+
+    if (nn_verbose) {
+      fprintf(stderr, "input:\n");
+      for (i = 0; i < np; ++i) {
+	point* p = &d->points[i];
+
+	fprintf(stderr, "  %d: %15.7g %15.7g %15.7g\n",
+		i, p->x, p->y, p->z);
+      }
+    }
+
+    qh_findgood_all (qh facet_list);
+    qh_countfacets (qh facet_list, NULL, !qh_ALL, &numfacets,
+		    &numsimplicial, &totneighbors, &numridges,
+		    &numcoplanars, &numtricoplanars);
+
+    ntriangles = 0;
+    FORALLfacets {
+      if (!facet->upperdelaunay && facet->simplicial)
+	ntriangles++;
+    }
+
+    d->ntriangles = ntriangles;
+    d->triangles = malloc(d->ntriangles * sizeof(triangle));
+    d->neighbours = malloc(d->ntriangles * sizeof(triangle_neighbours));
+    d->circles = malloc(d->ntriangles * sizeof(circle));
+
+    if (nn_verbose)
+      fprintf(stderr, "triangles:\tneighbors:\n");
+
+    i = 0;      
+    FORALLfacets {
+      if (!facet->upperdelaunay && facet->simplicial) {
+	triangle* t = &d->triangles[i];        
+	triangle_neighbours* n = &d->neighbours[i];
+	circle* c = &d->circles[i];
+
+	j = 0;
+	FOREACHvertex_(facet->vertices)
+	  t->vids[j++] = qh_pointid(vertex->point);
+
+	j = 0;
+	FOREACHneighbor_(facet)
+	  n->tids[j++] = neighbor->visitid ? neighbor->visitid - 1 : - 1;
+
+	/* Put triangle vertices in counterclockwise order, as
+	 * 'triangle' do.
+	 * The same needs to be done with the neighbors.
+	 *
+	 * The following works, i.e., it seems that Qhull maintains a
+	 * relationship between the vertices and the neighbors
+	 * triangles, but that is not said anywhere, so if this stop
+	 * working in a future Qhull release, you know what you have
+	 * to do, reorder the neighbors.
+	 */
+
+	if(cw(d, t)) {
+	  int tmp = t->vids[1];
+	  t->vids[1] = t->vids[2];
+	  t->vids[2] = tmp;
+
+	  tmp = n->tids[1];
+	  n->tids[1] = n->tids[2];
+	  n->tids[2] = tmp;
+	}
+
+	circle_build1(c, &d->points[t->vids[0]], &d->points[t->vids[1]],
+		     &d->points[t->vids[2]]);
+
+	if (nn_verbose)
+            fprintf(stderr, "  %d: (%d,%d,%d)\t(%d,%d,%d)\n",
+		    i, t->vids[0], t->vids[1], t->vids[2], n->tids[0],
+		    n->tids[1], n->tids[2]);
+
+	i++;
+      }
+    }
+
+    d->flags = calloc(d->ntriangles, sizeof(int));
+
+    d->n_point_triangles = calloc(d->npoints, sizeof(int));
+    for (i = 0; i < d->ntriangles; ++i) {
+      triangle* t = &d->triangles[i];
+
+      for (j = 0; j < 3; ++j)
+	d->n_point_triangles[t->vids[j]]++;
+    }
+    d->point_triangles = malloc(d->npoints * sizeof(int*));
+    for (i = 0; i < d->npoints; ++i) {
+      if (d->n_point_triangles[i] > 0)
+	d->point_triangles[i] = malloc(d->n_point_triangles[i] * sizeof(int));
+      else
+	d->point_triangles[i] = NULL;
+      d->n_point_triangles[i] = 0;
+    }
+    for (i = 0; i < d->ntriangles; ++i) {
+      triangle* t = &d->triangles[i];
+
+      for (j = 0; j < 3; ++j) {
+	int vid = t->vids[j];
+
+	d->point_triangles[vid][d->n_point_triangles[vid]] = i;
+	d->n_point_triangles[vid]++;
+      }
+    }
+
+    d->nedges = 0;
+    d->edges = NULL;
+
+    d->t_in = NULL;
+    d->t_out = NULL;
+    d->first_id = -1;
+
+  } else {
+    free(d);
+    d = NULL;
+  }
+
+  free(qpoints);
+  qh_freeqhull(!qh_ALL);                 /* free long memory */
+  qh_memfreeshort (&curlong, &totlong);  /* free short memory and memory allocator */
+  if (curlong || totlong) 
+    fprintf (errfile,
+	     "qhull: did not free %d bytes of long memory (%d pieces)\n",
+	     totlong, curlong);
+
+  return d;
+}
+#endif /* USE_QHULL */
+
+
 /* Destroys Delaunay triangulation.
  *
  * @param d Structure to be destroyed
@@ -335,6 +566,12 @@ void delaunay_destroy(delaunay* d)
     }
     if (d->nedges > 0)
         free(d->edges);
+#ifdef USE_QHULL
+    /* This is a shallow copy if we're not using qhull so we don't
+     * need to free it */
+    if (d->points != NULL)
+        free(d->points);
+#endif
     if (d->n_point_triangles != NULL)
         free(d->n_point_triangles);
     if (d->flags != NULL)
