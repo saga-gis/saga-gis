@@ -49,6 +49,35 @@
 #define N_FLAGS_TURNON 1000
 #define N_FLAGS_INC 100
 
+static delaunay* delaunay_create()
+{
+    delaunay* d = malloc(sizeof(delaunay));
+
+    d->npoints = 0;
+    d->points = NULL;
+    d->xmin = DBL_MAX;
+    d->xmax = -DBL_MAX;
+    d->ymin = DBL_MAX;
+    d->ymax = -DBL_MAX;
+    d->ntriangles = 0;
+    d->triangles = NULL;
+    d->circles = NULL;
+    d->neighbours = NULL;
+    d->n_point_triangles = NULL;
+    d->point_triangles = NULL;
+    d->nedges = 0;
+    d->edges = NULL;
+    d->flags = NULL;
+    d->first_id = -1;
+    d->t_in = NULL;
+    d->t_out = NULL;
+    d->nflags = 0;
+    d->nflagsallocated = 0;
+    d->flagids = NULL;
+
+    return d;
+}
+
 //---------------------------------------------------------
 #ifndef USE_QHULL
 
@@ -111,35 +140,6 @@ static void tio_destroy(struct triangulateio* tio)
         free(tio->edgemarkerlist);
     if (tio->normlist != NULL)
         free(tio->normlist);
-}
-
-static delaunay* delaunay_create()
-{
-    delaunay* d = malloc(sizeof(delaunay));
-
-    d->npoints = 0;
-    d->points = NULL;
-    d->xmin = DBL_MAX;
-    d->xmax = -DBL_MAX;
-    d->ymin = DBL_MAX;
-    d->ymax = -DBL_MAX;
-    d->ntriangles = 0;
-    d->triangles = NULL;
-    d->circles = NULL;
-    d->neighbours = NULL;
-    d->n_point_triangles = NULL;
-    d->point_triangles = NULL;
-    d->nedges = 0;
-    d->edges = NULL;
-    d->flags = NULL;
-    d->first_id = -1;
-    d->t_in = NULL;
-    d->t_out = NULL;
-    d->nflags = 0;
-    d->nflagsallocated = 0;
-    d->flagids = NULL;
-
-    return d;
 }
 
 static void tio2delaunay(struct triangulateio* tio_out, delaunay* d)
@@ -337,7 +337,7 @@ static int cw(delaunay *d, triangle *t)
 
 delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh, double holes[])
 {
-  delaunay* d = (delaunay *)malloc(sizeof(delaunay));
+  delaunay* d = delaunay_create();
 
   coordT *qpoints;                     /* array of coordinates for each point */
   boolT ismalloc = False;              /* True if qhull should free points */
