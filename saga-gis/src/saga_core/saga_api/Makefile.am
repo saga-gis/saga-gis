@@ -10,7 +10,7 @@ SAGAPYTHONFLAGS= -D_SAGA_PYTHON
 endif
 
 AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=yes --cxxflags base` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS $(DISABLELIBHARU) $(DBGFLAGS) $(SAGAPYTHONFLAGS) $(GOMPFLAGS)
-AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=yes --libs base` $(HARU_LIB) $(SAGAPYTHONFLAGS)
+AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=yes --libs base,net,xml,html` $(HARU_LIB) $(SAGAPYTHONFLAGS)
 
 libsaga_api_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 
