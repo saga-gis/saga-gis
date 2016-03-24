@@ -324,8 +324,11 @@ bool CLAS_Export::On_Execute(void)
 	}
 
 
-	for( int i=0; i<pPoints->Get_Count() && SG_UI_Process_Set_Progress(i, pPoints->Get_Count()); i++ )
+	for( int i=0; i<pPoints->Get_Count(); i++ )
 	{
+		if (i % 100000 == 0)
+			SG_UI_Process_Set_Progress(i, pPoints->Get_Count());
+
 		cntRead++;
 
 		liblas::LASPoint	point;

@@ -504,7 +504,8 @@ bool CLAS_Info::Summarize_Points(liblas::LASReader *pReader, LASPointSummary *pS
 	//-----------------------------------------------------
 	while( bValid )
 	{
-		SG_UI_Process_Set_Progress(i, headerPts);
+		if (i % 100000 == 0)
+			SG_UI_Process_Set_Progress(i, headerPts);
 
 		pSummary->x = p.GetX();
 		if( pSummary->x < pSummary->pmin.GetX() )					pSummary->pmin.SetX(pSummary->x);

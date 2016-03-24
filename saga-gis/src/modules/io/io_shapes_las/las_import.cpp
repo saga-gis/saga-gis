@@ -285,7 +285,7 @@ bool CLAS_Import::On_Execute(void)
 		try {
 			while( reader.ReadNextPoint() )
 			{
-				if (iPoint % 100000)
+				if (iPoint % 100000 == 0)
 					SG_UI_Process_Set_Progress(iPoint, header.GetPointRecordsCount()); 
 
 				liblas::LASPoint const& point = reader.GetPoint();
