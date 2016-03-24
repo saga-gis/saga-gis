@@ -66,6 +66,7 @@
 #include <saga_api/saga_api.h>
 
 #include "saga.h"
+#include "saga_frame.h"
 
 #include "res_commands.h"
 #include "res_dialogs.h"
@@ -77,6 +78,8 @@
 #include "wksp_module_library.h"
 #include "wksp_module_menu.h"
 #include "wksp_module.h"
+
+#include "wksp_data_manager.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -109,7 +112,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_Parameters.Add_Choice(
 		pNode	, "START_LOGO"		, _TL("Show Logo at Start Up"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("do not show"),
 			_TL("only during start up phase"),
 			_TL("20 seconds"),
@@ -151,7 +154,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_Parameters.Add_Choice(
 		pNode	, "HELP_SOURCE"		, _TL("Tool Description Source"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("built-in"),
 			_TL("online")
 		), 0
@@ -169,7 +172,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_Parameters.Add_FilePath(
 		pNode	, "LNG_FILE_DIC"	, _TL("Language Translations"),
 		_TL("Dictionary for translations from built-in (English) to local language (editable text table). You need to restart SAGA to apply the changes."),
-		CSG_String::Format(SG_T("%s|*.lng|%s|*.txt|%s|*.*"),
+		CSG_String::Format("%s|*.lng|%s|*.txt|%s|*.*",
 			_TL("Dictionary Files (*.lng)"),
 			_TL("Text Table (*.txt)"),
 			_TL("All Files")
@@ -178,8 +181,8 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 
 	m_Parameters.Add_FilePath(
 		pNode	, "CRS_FILE_SRS"		, _TL("CRS Database"),
-		_TL("Database with Coordinate Reference System (CRS) definitions. A restart of SAGA is required to have the changes take effect!"),
-		CSG_String::Format(SG_T("%s|*.srs|%s|*.*"),
+		_TL("Database with Coordinate Reference System (CRS) definitions. You need to restart SAGA to apply the changes."),
+		CSG_String::Format("%s|*.srs|%s|*.*",
 			_TL("Spatial Reference System Files (*.srs)"),
 			_TL("All Files")
 		)
@@ -187,8 +190,8 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 
 	m_Parameters.Add_FilePath(
 		pNode	, "CRS_FILE_DIC"		, _TL("CRS Dictionary"),
-		_TL("Dictionary for Proj.4/OGC WKT translations. A restart of SAGA is required to have the changes take effect!"),
-		CSG_String::Format(SG_T("%s|*.dic|%s|*.*"),
+		_TL("Dictionary for Proj.4/OGC WKT translations. You need to restart SAGA to apply the changes."),
+		CSG_String::Format("%s|*.dic|%s|*.*",
 			_TL("Dictionary Files (*.dic)"),
 			_TL("All Files")
 		)
@@ -197,7 +200,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_Parameters.Add_FilePath(
 		pNode	, "TOOL_MENUS"			, _TL("User defined tool menus"),
 		_TL("User defined tool menus."),
-		CSG_String::Format(SG_T("%s|*.xml|%s|*.*"),
+		CSG_String::Format("%s|*.xml|%s|*.*",
 			_TL("XML Files (*.xml)"),
 			_TL("All Files")
 		)
@@ -208,7 +211,7 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 
 	m_Parameters.Add_Int(
 		pNode	, "LOOK_TB_SIZE"		, _TL("Tool Bar Button Size"),
-		_TL("Tool bar button sizes. A restart of SAGA is required to have the changes take effect!"),
+		_TL("Tool bar button sizes. You need to restart SAGA to apply the changes."),
 		16, 16, true
 	);
 }
@@ -309,6 +312,66 @@ bool CWKSP_Module_Manager::Finalise(void)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWKSP_Module_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
+{
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+		if( g_pSAGA_Frame && g_pData )
+		{
+			if( !SG_STR_CMP(pParameter->Get_Identifier(), "LNG_OLDSTYLE")
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "LNG_FILE_DIC")
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_FILE_SRS")
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_FILE_DIC")
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "LOOK_TB_SIZE") )
+			{
+				if( DLG_Message_Confirm(_TL("Restart now ?"), _TL("Restart SAGA to apply the changes")) && g_pData->Close(true) )
+				{
+					m_Parameters.Assign_Values(pParameters);
+
+					g_pSAGA_Frame->Close(true);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( CWKSP_Base_Manager::On_Parameter_Changed(pParameters, pParameter, Flags) );
+}
+
+//---------------------------------------------------------
+void CWKSP_Module_Manager::Parameters_Changed(void)
+{
+	CWKSP_Base_Item::Parameters_Changed();
+
+	if( m_Parameters("SAVE_CONFIG")->asBool() == false )
+	{
+		CONFIG_Write("/MODULES", &m_Parameters);
+	}
+
+	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
+
+	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
+
+#ifdef _OPENMP
+	SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());
+#endif
+
+	m_pMenu_Modules->Update();
+}
+
+//---------------------------------------------------------
+bool CWKSP_Module_Manager::Do_Beep(void)
+{
+	return( m_Parameters("BEEP")->asBool() );
 }
 
 
@@ -446,38 +509,6 @@ void CWKSP_Module_Manager::On_Execute_UI(wxUpdateUIEvent &event)
 		event.Enable(true);
 		event.Check(false);
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Module_Manager::Parameters_Changed(void)
-{
-	CWKSP_Base_Item::Parameters_Changed();
-
-	if( m_Parameters("SAVE_CONFIG")->asBool() == false )
-	{
-		CONFIG_Write("/MODULES", &m_Parameters);
-	}
-
-	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
-
-	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
-
-#ifdef _OPENMP
-	SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());
-#endif
-
-	m_pMenu_Modules->Update();
-}
-
-//---------------------------------------------------------
-bool CWKSP_Module_Manager::Do_Beep(void)
-{
-	return( m_Parameters("BEEP")->asBool() );
 }
 
 

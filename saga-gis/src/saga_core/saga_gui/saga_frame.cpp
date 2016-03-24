@@ -298,10 +298,10 @@ CSAGA_Frame::CSAGA_Frame(void)
 //	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_ALLOW_ACTIVE_PANE);
 
 	//-----------------------------------------------------
-	_Bar_Add(m_pINFO		= new CINFO       (this), 0, 0);	m_pINFO			->Add_Pages();
-	_Bar_Add(m_pWKSP		= new CWKSP       (this), 2, 1);	m_pWKSP			->Add_Pages();
-	_Bar_Add(m_pData_Source	= new CData_Source(this), 2, 1);	m_pData_Source	->Add_Pages();
-	_Bar_Add(m_pActive		= new CACTIVE     (this), 2, 0);	m_pActive		->Add_Pages();
+	_Bar_Add(m_pINFO        = new CINFO       (this), 0, 0); m_pINFO       ->Add_Pages();
+	_Bar_Add(m_pWKSP        = new CWKSP       (this), 2, 1); m_pWKSP       ->Add_Pages();
+	_Bar_Add(m_pData_Source = new CData_Source(this), 2, 1); m_pData_Source->Add_Pages();
+	_Bar_Add(m_pActive      = new CACTIVE     (this), 2, 0); m_pActive     ->Add_Pages();
 
 	//-----------------------------------------------------
 	_Create_MenuBar();
@@ -317,14 +317,14 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 
 	//-----------------------------------------------------
-	m_pTB_Main			= 						  _Create_ToolBar();
-	m_pTB_Map			= CVIEW_Map				::_Create_ToolBar();
-	m_pTB_Map_3D		= CVIEW_Map_3D			::_Create_ToolBar();
-	m_pTB_Layout		= CVIEW_Layout			::_Create_ToolBar();
-	m_pTB_Table			= CVIEW_Table			::_Create_ToolBar();
-	m_pTB_Diagram		= CVIEW_Table_Diagram	::_Create_ToolBar();
-	m_pTB_Histogram		= CVIEW_Histogram		::_Create_ToolBar();
-	m_pTB_ScatterPlot	= CVIEW_ScatterPlot		::_Create_ToolBar();
+	m_pTB_Main			=                      _Create_ToolBar();
+	m_pTB_Map			= CVIEW_Map          ::_Create_ToolBar();
+	m_pTB_Map_3D		= CVIEW_Map_3D       ::_Create_ToolBar();
+	m_pTB_Layout		= CVIEW_Layout       ::_Create_ToolBar();
+	m_pTB_Table			= CVIEW_Table        ::_Create_ToolBar();
+	m_pTB_Diagram		= CVIEW_Table_Diagram::_Create_ToolBar();
+	m_pTB_Histogram		= CVIEW_Histogram    ::_Create_ToolBar();
+	m_pTB_ScatterPlot	= CVIEW_ScatterPlot  ::_Create_ToolBar();
 
 	_Bar_Show(m_pTB_Main, true);
 
@@ -1016,23 +1016,22 @@ void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position, int Row)
 {
 	wxAuiPaneInfo	Pane;
 
-	Pane.Name			(pWindow->GetName());
-	Pane.Caption		(pWindow->GetName());
-	Pane.MinSize		(100, 100);
-	Pane.BestSize		(400, 400);
-	Pane.FloatingSize	(400, 400);
-	Pane.Position		(0);
-	Pane.Layer			(Row);
-	Pane.Row			(Row);
+	Pane.Name        (wxString::Format("PANE_%d", pWindow->GetId()));
+	Pane.Caption     (pWindow->GetName());
+	Pane.MinSize     (100, 100);
+	Pane.BestSize    (400, 400);
+	Pane.FloatingSize(400, 400);
+	Pane.Position    (0);
+	Pane.Layer       (Row);
+	Pane.Row         (Row);
 
 	switch( Position )
 	{
-	default:
-	case 0:	Pane.Bottom();	break;
-	case 1:	Pane.Right ();	break;
-	case 2:	Pane.Left  ();	break;
-	case 3:	Pane.Top   ();	break;
-	case 4:	Pane.Center();	break;
+	default:	Pane.Bottom();	break;
+	case  1:	Pane.Right ();	break;
+	case  2:	Pane.Left  ();	break;
+	case  3:	Pane.Top   ();	break;
+	case  4:	Pane.Center();	break;
 	}
 
 	m_pLayout->AddPane(pWindow, Pane);
@@ -1092,14 +1091,14 @@ void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxString &Name)
 	pToolBar->Realize();
 
 	m_pLayout->AddPane(pToolBar, wxAuiPaneInfo()
-		.Name			(Name)
-		.Caption		(Name)
-		.ToolbarPane	()
-		.Top			()
-		.LeftDockable	(false)
-		.RightDockable	(false)
-		.Hide			()
-		.BestSize		(pToolBar->GetBestSize())
+		.Name         (wxString::Format("PANE_%d", pToolBar->GetId()))
+		.Caption      (Name)
+		.ToolbarPane  ()
+		.Top          ()
+		.LeftDockable (false)
+		.RightDockable(false)
+		.Hide         ()
+		.BestSize     (pToolBar->GetBestSize())
 	);
 }
 

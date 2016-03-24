@@ -103,6 +103,7 @@ public:
 	virtual bool					On_Command			(int Cmd_ID);
 	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
 
+	virtual int						On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 	virtual void					Parameters_Changed	(void);
 
 	void							On_Execute			(wxCommandEvent  &event);

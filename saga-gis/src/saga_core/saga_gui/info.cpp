@@ -138,9 +138,9 @@ CINFO::CINFO(wxWindow *pParent)
 //---------------------------------------------------------
 void CINFO::Add_Pages(void)
 {
-	AddPage(m_pGeneral	, _TL("General")	, false, IMG_MESSAGES);
+	AddPage(m_pGeneral  , _TL("General"  ), false, IMG_MESSAGES);
 	AddPage(m_pExecution, _TL("Execution"), false, IMG_EXECUTION);
-	AddPage(m_pErrors	, _TL("Errors")	, false, IMG_ERROR);
+	AddPage(m_pErrors   , _TL("Errors"   ), false, IMG_ERROR);
 }
 
 //---------------------------------------------------------
