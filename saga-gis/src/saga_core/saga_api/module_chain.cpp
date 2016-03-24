@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_XML_CONTENT(md, id, def)		(md(id) ? md(id)->Get_Content() : CSG_String(def))
+#define GET_XML_CONTENT(XML, ID, DEFAULT, TRANSLATE)	(!XML(ID) ? CSG_String(DEFAULT) : !TRANSLATE ? XML[ID].Get_Content() : CSG_String(SG_Translate(XML[ID].Get_Content())))
 
 #define IS_TRUE_STRING(String)				(!String.CmpNoCase("true") || !String.CmpNoCase("1"))
 #define IS_TRUE_PROPERTY(Item, Property)	(Item.Cmp_Property(Property, "true", true) || Item.Cmp_Property(Property, "1"))
@@ -162,21 +162,17 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 	//-----------------------------------------------------
 	m_File_Name		= File;
 
-	m_ID			= GET_XML_CONTENT(m_Chain, "identifier" , "");
-	m_Library		= GET_XML_CONTENT(m_Chain, "group"      , "toolchains");
-	m_Menu			= GET_XML_CONTENT(m_Chain, "menu"       , "");
-	Set_Name         (GET_XML_CONTENT(m_Chain, "name"       , _TL("Not Named"     )));
-	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown"       )));
-	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description")));	Set_Description(SG_Translate(Get_Description()));
-
-	Set_Name(SG_Translate(Get_Name()));
+	m_ID			= GET_XML_CONTENT(m_Chain, "identifier" ,     ""               , false) ;
+	m_Library		= GET_XML_CONTENT(m_Chain, "group"      ,     "toolchains"     , false) ;
+	m_Menu			= GET_XML_CONTENT(m_Chain, "menu"       ,     ""               ,  true) ;
+	Set_Name         (GET_XML_CONTENT(m_Chain, "name"       , _TL("Not Named"     ),  true));
+	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown"       ), false));
+	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description"),  true));
 
 	CSG_String	Description	= Get_Description();
 	Description.Replace("[[", "<");	// support for xml/html tags
 	Description.Replace("]]", ">");
 	Set_Description(Description);
-
-	m_Menu	= SG_Translate(m_Menu);
 
 	if( !m_Menu.is_Empty() && (m_Menu.Length() < 2 || m_Menu[1] != ':') )
 	{
@@ -1006,9 +1002,9 @@ CSG_Module_Chains::CSG_Module_Chains(const CSG_String &Library_Name, const CSG_S
 			XML.Destroy();
 		}
 
-		m_Name			= GET_XML_CONTENT(XML, "name"       , m_Library_Name);
-		m_Description	= GET_XML_CONTENT(XML, "description", _TL("no description"));
-		m_Menu			= GET_XML_CONTENT(XML, "menu"       , _TL("Tool Chains"));
+		m_Name			= GET_XML_CONTENT(XML, "name"       , m_Library_Name       , true);
+		m_Description	= GET_XML_CONTENT(XML, "description", _TL("no description"), true);
+		m_Menu			= GET_XML_CONTENT(XML, "menu"       , _TL("Tool Chains"   ), true);
 
 		m_Description.Replace("[[", "<");	// support for xml/html tags
 		m_Description.Replace("]]", ">");

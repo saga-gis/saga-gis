@@ -92,7 +92,7 @@ CTL_Extract::CTL_Extract(void)
 	Parameters.Add_FilePath(
 		NULL	, "DIRECTORY"	, SG_T("Sources Directory"),
 		SG_T(""),
-		NULL, SG_T("H:/saga/saga_2/src"), false, true
+		NULL, SG_T("D:/saga/saga-code/trunk/saga-gis/src"), false, true
 	);
 
 	Parameters.Add_Value(
@@ -133,7 +133,7 @@ bool CTL_Extract::On_Execute(void)
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("number of scanned files"), nFiles), false);
+	Message_Add(CSG_String::Format("\n%s: %d", SG_T("number of scanned files"), nFiles), false);
 		
 	if( Elements.Get_Count() <= 0 )
 	{
@@ -142,10 +142,10 @@ bool CTL_Extract::On_Execute(void)
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("number of translatable elements"), Elements.Get_Count()), false);
+	Message_Add(CSG_String::Format("\n%s: %d", SG_T("number of translatable elements"), Elements.Get_Count()), false);
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("collecting elements"));
+	Process_Set_Text(SG_T("collecting elements"));
 
 	CSG_String	Text;
 
@@ -154,7 +154,7 @@ bool CTL_Extract::On_Execute(void)
 	CSG_Table	*pTarget	= Parameters("TARGET")->asTable();
 
 	pTarget->Destroy();
-	pTarget->Set_Name(_TL("Translatable Elements"));
+	pTarget->Set_Name(SG_T("Translatable Elements"));
 
 	pTarget->Add_Field("TEXT"       , SG_DATATYPE_String);
 	pTarget->Add_Field("TRANSLATION", SG_DATATYPE_String);
@@ -230,6 +230,17 @@ int CTL_Extract::Read_Directory(const SG_Char *Directory, CSG_Table &Elements)
 		while( Dir.GetNext(&Name) );
 	}
 
+	if(	Dir.GetFirst(&Name, "*.xml", wxDIR_FILES|wxDIR_HIDDEN) )
+	{
+		do
+		{
+			File.SetFullName(Name);
+
+			nFiles	+= Read_ToolChain(s = File.GetFullPath(), Elements);
+		}
+		while( Dir.GetNext(&Name) );
+	}
+
 	if(	Dir.GetFirst(&Name, "*"    , wxDIR_DIRS |wxDIR_HIDDEN) )
 	{
 		do
@@ -261,7 +272,7 @@ int CTL_Extract::Read_File(const SG_Char *File, CSG_Table &Elements)
 		return( 0 );
 	}
 
-	Process_Set_Text(CSG_String::Format("%s: %s", _TL("scanning"), File));
+	Process_Set_Text(CSG_String::Format("%s: %s", SG_T("scanning"), File));
 
 	//-----------------------------------------------------
 	CSG_String	String, Text;
@@ -272,7 +283,7 @@ int CTL_Extract::Read_File(const SG_Char *File, CSG_Table &Elements)
 	}
 
 	//-----------------------------------------------------
-	const SG_Char	Function[3][4]	= {	SG_T("LNG"), SG_T("_TL"), SG_T("_TW") };
+	const SG_Char	Function[2][4]	= {	SG_T("_TL"), SG_T("_TW") };
 
 	const SG_Char	*p		= String;
 
@@ -281,8 +292,7 @@ int CTL_Extract::Read_File(const SG_Char *File, CSG_Table &Elements)
 	while( *p != '\0' )
 	{
 		if(	!(p[0] == Function[0][0] && p[1] == Function[0][1] && p[2] == Function[0][2])
-		&&	!(p[0] == Function[1][0] && p[1] == Function[1][1] && p[2] == Function[1][2])
-		&&	!(p[0] == Function[2][0] && p[1] == Function[2][1] && p[2] == Function[2][2] && bLong) )
+		&&	!(p[0] == Function[1][0] && p[1] == Function[1][1] && p[2] == Function[1][2] && bLong) )
 		{
 			p	++;
 		}
@@ -303,11 +313,6 @@ int CTL_Extract::Read_File(const SG_Char *File, CSG_Table &Elements)
 	return( 1 );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 int CTL_Extract::Read_Text(const SG_Char *String, CSG_String &Text)
 {
@@ -322,6 +327,10 @@ int CTL_Extract::Read_Text(const SG_Char *String, CSG_String &Text)
 			if( String[n] == '(' )
 			{
 				Level	= 0;
+			}
+			else if( !isspace(String[n]) )
+			{
+				Level	= 2;	// exit !
 			}
 		}
 		else if( Level == 0 )
@@ -355,6 +364,63 @@ int CTL_Extract::Read_Text(const SG_Char *String, CSG_String &Text)
 	}
 
 	return( n );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define GET_XML_CONTENT(XML, ID)	if( XML(ID) && !XML[ID].Get_Content().is_Empty() ) {\
+	CSG_Table_Record	*pRecord	= Elements.Add_Record();\
+	pRecord->Set_Value(0, XML[ID].Get_Content());\
+	pRecord->Set_Value(1, File);\
+}
+
+//---------------------------------------------------------
+int CTL_Extract::Read_ToolChain(const SG_Char *File, CSG_Table &Elements)
+{
+	//-----------------------------------------------------
+	CSG_MetaData	Chain;
+
+	if( Chain.Load(File) )
+	{
+		Process_Set_Text(CSG_String::Format("%s: %s", SG_T("scanning"), File));
+
+		//-------------------------------------------------
+		if( Chain.Cmp_Name("toolchains") )
+		{
+			GET_XML_CONTENT(Chain, "name"       );
+			GET_XML_CONTENT(Chain, "menu"       );
+		//	GET_XML_CONTENT(Chain, "description");
+
+			return( 1 );
+		}
+
+		//-------------------------------------------------
+		if( Chain.Cmp_Name("toolchain") )
+		{
+			GET_XML_CONTENT(Chain, "name"       );
+			GET_XML_CONTENT(Chain, "menu"       );
+		//	GET_XML_CONTENT(Chain, "description");
+
+			if( Chain("parameters") )
+			{
+				for(int i=0; i<Chain["parameters"].Get_Children_Count(); i++)
+				{
+					const CSG_MetaData	&Parameter	= Chain["parameters"][i];
+
+					GET_XML_CONTENT(Parameter, "name"       );
+					GET_XML_CONTENT(Parameter, "description");
+				}
+			}
+
+			return( 1 );
+		}
+	}
+
+	return( 0 );
 }
 
 

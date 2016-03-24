@@ -89,8 +89,11 @@ protected:
 private:
 
 	int							Read_Directory	(const SG_Char *Directory, CSG_Table &Elements);
+
 	int							Read_File		(const SG_Char *File     , CSG_Table &Elements);
 	int							Read_Text		(const SG_Char *String, CSG_String &Text);
+
+	int							Read_ToolChain	(const SG_Char *File     , CSG_Table &Elements);
 
 };
 

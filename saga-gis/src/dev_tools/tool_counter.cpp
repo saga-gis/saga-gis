@@ -128,7 +128,7 @@ bool CTool_Counter::On_Execute(void)
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("number of scanned files"), nFiles), false);
+	Message_Add(CSG_String::Format("\n%s: %d", SG_T("number of scanned files"), nFiles), false);
 
 	//-----------------------------------------------------
 	return( true );
@@ -189,7 +189,7 @@ int CTool_Counter::Read_Directory(const SG_Char *Directory, CSG_Table &Elements)
 //---------------------------------------------------------
 int CTool_Counter::Read_File(const SG_Char *File, CSG_Table &Elements)
 {
-	Process_Set_Text(CSG_String::Format("%s: %s", _TL("scanning"), File));
+	Process_Set_Text(CSG_String::Format("%s: %s", SG_T("scanning"), File));
 
 	//-----------------------------------------------------
 	CSG_String	Lib	= SG_File_Get_Path(File).BeforeLast('\\').AfterLast('\\');

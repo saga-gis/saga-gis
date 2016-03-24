@@ -72,7 +72,7 @@
 CArcToolBox::CArcToolBox(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("ArcSAGA Toolboxes"));
+	Set_Name	("ArcSAGA Toolboxes");
 
 	Set_Author	("O.Conrad (c) 2015");
 
@@ -82,23 +82,23 @@ CArcToolBox::CArcToolBox(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
-		NULL	, "DIRECTORY"	, _TL("Output Directory"),
-		_TL(""),
+		NULL	, "DIRECTORY"	, "Output Directory",
+		"",
 		NULL, NULL, true, true
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "BOX_NAMING"	, _TL("Toolbox Naming"),
-		_TL(""),
+		NULL	, "BOX_NAMING"	, "Toolbox Naming",
+		"",
 		CSG_String::Format("%s|%s|",
-			_TL("library file name"),
-			_TL("category and library name")
+			"library file name",
+			"category and library name"
 		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "ARC_VERSION"	, _TL("ArcGIS Version"),
-		_TL(""),
+		NULL	, "ARC_VERSION"	, "ArcGIS Version",
+		"",
 		CSG_String::Format("%s|%s|",
 			SG_T("10.1"),
 			SG_T("10.2, 10.3")
@@ -123,16 +123,16 @@ bool CArcToolBox::On_Execute(void)
 	{
 		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(iLibrary);
 
-		if( !pLibrary->Get_Category().Cmp(_TL("Garden"    ))
-		||  !pLibrary->Get_Category().Cmp(_TL("Reports"   ))
-		||  !pLibrary->Get_Category().Cmp(_TL("Simulation"))
-		||  !pLibrary->Get_Category().Cmp(_TL("Table"     ))
-		||  !pLibrary->Get_Category().Cmp(_TL("TIN"       )) )
+		if( !pLibrary->Get_Category().Cmp("Garden"    )
+		||  !pLibrary->Get_Category().Cmp("Reports"   )
+		||  !pLibrary->Get_Category().Cmp("Simulation")
+		||  !pLibrary->Get_Category().Cmp("Table"     )
+		||  !pLibrary->Get_Category().Cmp("TIN"       ) )
 		{
 			continue;
 		}
 
-		Process_Set_Text(CSG_String::Format("%s: %s", _TL("Library"), pLibrary->Get_Library_Name().c_str()));
+		Process_Set_Text(CSG_String::Format("%s: %s", SG_T("Library"), pLibrary->Get_Library_Name().c_str()));
 
 		CSG_Strings	Names, Codes, Descs;
 
@@ -154,7 +154,7 @@ bool CArcToolBox::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format("%s: %d", _TL("Number of added tools"), nTools));
+	Message_Add(CSG_String::Format("%s: %d", SG_T("Number of added tools"), nTools));
 
 	return( true );
 }
