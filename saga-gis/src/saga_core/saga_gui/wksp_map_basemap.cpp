@@ -99,10 +99,10 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 		_TL("Base Map")
 	);
 
-	m_Parameters.Add_Choice(
+	pNode_1	= m_Parameters.Add_Choice(
 		pNode	, "SERVER"		, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Open Street Map"),
 			_TL("MapQuest"),
 			_TL("Google Map"),
@@ -110,8 +110,15 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 			_TL("Google Hybrid"),
 			_TL("Google Terrain"),
 			_TL("Google Terrain, Streets and Water"),
-			_TL("ArcGIS MapServer Tiles")
+			_TL("ArcGIS MapServer Tiles"),
+			_TL("user defined")
 		), 0
+	);
+
+	m_Parameters.Add_String(
+		pNode_1	, "SERVER_USER"	, _TL("Server"),
+		_TL(""),
+		"tile.openstreetmap.org/${z}/${x}/${y}.png"
 	);
 
 	//-----------------------------------------------------
@@ -130,16 +137,22 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_DISPLAY"	,_TL("Display")	, _TL(""));
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		pNode	, "TRANSPARENCY", _TL("Transparency [%]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
+		0.0, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Bool(
 		pNode	, "GRAYSCALE"	, _TL("Gray Scale Image"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
+	);
+
+	m_Parameters.Add_Double(
+		pNode	, "RESOLUTION"	, _TL("Resolution"),
+		_TL("resolution measured in screen pixels"),
+		1.0, 1.0, true
 	);
 
 	//-----------------------------------------------------
@@ -202,6 +215,16 @@ wxString CWKSP_Map_BaseMap::Get_Description(void)
 	DESC_ADD_STR(_TL("Projection"), Get_Map()->Get_Projection().Get_Description().c_str());
 
 	s	+= wxT("</table>");
+
+	//-----------------------------------------------------
+	s	+= "<hr>";
+	s	+= _TL("Be sure to read and understand the usage agreement or terms of service before you use a base map server.");
+	s	+= "<ul>";
+	s	+= "<li><a href=\"www.openstreetmap.org\">Open Street Map</a></li>";
+	s	+= "<li><a href=\"open.mapquest.co.uk\">MapQuest</a></li>";
+	s	+= "<li><a href=\"maps.google.com/intl/en/help/terms_maps.html\">Google Maps</a></li>";
+	s	+= "<li><a href=\"services.arcgisonline.com\">ArcGIS MapServer</a></li>";
+	s	+= "</ul>";
 
 	//-----------------------------------------------------
 	return( s );
@@ -303,9 +326,9 @@ int CWKSP_Map_BaseMap::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INTERVAL") )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
 		{
-			pParameters->Set_Enabled("FIXED", pParameter->asInt() == 0);
+			pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= 8);	// user defined
 		}
 	}
 
@@ -340,16 +363,35 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 		SG_UI_Progress_Lock(true);
 
 		m_BaseMap.Create(System, SG_DATATYPE_Int);
-		m_BaseMap.Get_Projection()	= Get_Map()->Get_Projection();
+
+		CSG_Grid	*pBaseMap, BaseMap;
+		
+		if( m_Parameters("RESOLUTION")->asDouble() > 1.0 )
+		{
+			BaseMap.Create(CSG_Grid_System(m_Parameters("RESOLUTION")->asDouble() * System.Get_Cellsize(), System.Get_Extent(true)), SG_DATATYPE_Int);
+
+			pBaseMap	= &BaseMap;
+		}
+		else
+		{
+			pBaseMap	= &m_BaseMap;
+		}
+
+		pBaseMap->Get_Projection()	= Get_Map()->Get_Projection();
 
 		pModule->Settings_Push();
 
-		if( pModule->Set_Parameter("TARGET"    , &m_BaseMap)
-		&&  pModule->Set_Parameter("TARGET_MAP", &m_BaseMap)
-		&&  pModule->Set_Parameter("SERVER"    , m_Parameters("SERVER"   ))
-		&&  pModule->Set_Parameter("GRAYSCALE" , m_Parameters("GRAYSCALE"))
+		if( pModule->Set_Parameter("TARGET"     , pBaseMap)
+		&&  pModule->Set_Parameter("TARGET_MAP" , pBaseMap)
+		&&  pModule->Set_Parameter("SERVER"     , m_Parameters("SERVER"     ))
+		&&  pModule->Set_Parameter("SERVER_USER", m_Parameters("SERVER_USER"))
+		&&  pModule->Set_Parameter("GRAYSCALE"  , m_Parameters("GRAYSCALE"  ))
 		&&  pModule->On_Before_Execution() && pModule->Execute() )
 		{
+			if( &m_BaseMap != pBaseMap )
+			{
+				m_BaseMap.Assign(pBaseMap, GRID_RESAMPLING_NearestNeighbour);
+			}
 		}
 		else
 		{

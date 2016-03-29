@@ -134,7 +134,7 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	Parameters.Add_String(
 		pNode	, "SERVER_USER"	, _TL("Server"),
 		_TL(""),
-		"tile.openstreetmap.org"
+		"tile.openstreetmap.org/${z}/${x}/${y}.png"
 	);
 
 	pNode	= Parameters.Add_Value(
