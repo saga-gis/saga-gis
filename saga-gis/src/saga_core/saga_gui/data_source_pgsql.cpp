@@ -139,6 +139,10 @@ enum
 	DB_PGSQL_DB_Drop			= 36
 };
 
+//---------------------------------------------------------
+static	wxString	g_Username	= "postgres";
+static	wxString	g_Password	= "postgres";
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -179,19 +183,17 @@ bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_
 		return( true );
 	}
 
-	wxString	Username = "postgres", Password = "postgres";
-
-	if( !DLG_Login(Username, Password, wxString::Format("%s: %s [%s:%s]", _TL("Connect to Database"), DBName.c_str(), Host.c_str(), Port.c_str())) )
+	if( !DLG_Login(g_Username, g_Password, wxString::Format("%s: %s [%s:%s]", _TL("Connect to Database"), DBName.c_str(), Host.c_str(), Port.c_str())) )
 	{
 		return( false );
 	}
 
 	RUN_MODULE(DB_PGSQL_Get_Connection, false,	// CGet_Connection
-			SET_PARAMETER("PG_HOST", Host    )
-		&&	SET_PARAMETER("PG_PORT", Port    )
-		&&	SET_PARAMETER("PG_NAME", DBName  )
-		&&	SET_PARAMETER("PG_USER", Username)
-		&&	SET_PARAMETER("PG_PWD" , Password)
+			SET_PARAMETER("PG_HOST",   Host    )
+		&&	SET_PARAMETER("PG_PORT",   Port    )
+		&&	SET_PARAMETER("PG_NAME",   DBName  )
+		&&	SET_PARAMETER("PG_USER", g_Username)
+		&&	SET_PARAMETER("PG_PWD" , g_Password)
 	);
 
 	return( bResult );
@@ -971,17 +973,15 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 //---------------------------------------------------------
 bool CData_Source_PgSQL::Source_Drop(const wxTreeItemId &Item)
 {
-	static	wxString	Username = "postgres", Password = "postgres";
-
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return( false );
 
-	if( !DLG_Login(Username, Password, _TL("Drop Database")) )
+	if( !DLG_Login(g_Username, g_Password, _TL("Drop Database")) )
 	{
 		return( false );
 	}
 
-	pData->Set_Username(Username);
-	pData->Set_Password(Password);
+	pData->Set_Username(g_Username);
+	pData->Set_Password(g_Password);
 
 	if( pData->Get_Type() == TYPE_SOURCE && pData->is_Connected() )
 	{
@@ -993,7 +993,12 @@ bool CData_Source_PgSQL::Source_Drop(const wxTreeItemId &Item)
 			&&	SET_PARAMETER("PG_PWD" , pData->Get_Password())
 		);
 
-		return( bResult );
+		if( bResult )
+		{
+			Delete(Item);
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -1002,17 +1007,15 @@ bool CData_Source_PgSQL::Source_Drop(const wxTreeItemId &Item)
 //---------------------------------------------------------
 bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialog)
 {
-	static	wxString	Username = "postgres", Password = "postgres";
-
 	if( bDialog )
 	{
-		if( !DLG_Login(Username, Password) )
+		if( !DLG_Login(g_Username, g_Password) )
 		{
 			return( false );
 		}
 
-		pData->Set_Username(Username);
-		pData->Set_Password(Password);
+		pData->Set_Username(g_Username);
+		pData->Set_Password(g_Password);
 	}
 
 	//-----------------------------------------------------
