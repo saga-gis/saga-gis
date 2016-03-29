@@ -591,7 +591,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		break;
 
 	case PARAMETER_TYPE_String:
-		pProperty	= new wxStringProperty		(Name, ID, pParameter->asString());
+		pProperty	= new wxLongStringProperty	(Name, ID, pParameter->asString());
 		break;
 
 	case PARAMETER_TYPE_Color:
