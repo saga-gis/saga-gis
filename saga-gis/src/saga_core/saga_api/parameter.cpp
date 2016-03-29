@@ -1158,7 +1158,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	//-----------------------------------------------------
 	m_bFitToCells	= bFitToCells;
 
-	double	Size	= r.Get_YRange() / ((m_bFitToCells ? 1 : 0) + Rows);
+	double	Size	= r.Get_YRange() / (m_bFitToCells ? Rows : Rows - 1);
 
 	if( Rounding > 0 )
 	{
@@ -1198,7 +1198,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, d
 		return( false );
 	}
 
-	CSG_Rect	Extent(xMin, yMin, xMin + Size * nx, yMin + Size * ny);
+	CSG_Rect	Extent(xMin, yMin, xMin + Size * (nx - 1), yMin + Size * (ny - 1));
 
 	if( bFitToCells )
 	{
