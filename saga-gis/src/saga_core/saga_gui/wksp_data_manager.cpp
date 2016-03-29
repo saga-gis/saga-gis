@@ -69,6 +69,7 @@
 #include <saga_api/saga_api.h>
 
 #include "saga.h"
+#include "saga_frame.h"
 
 #include "res_commands.h"
 #include "res_dialogs.h"
@@ -1085,6 +1086,9 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 		m_pProject->Clr_File_Name();
 
 		g_pACTIVE->Get_Parameters()->Restore_Parameters();
+
+		g_pSAGA_Frame->Close_Children();
+
 		g_pMaps->Close(true);
 
 		return( g_pData_Ctrl->Close(true) );

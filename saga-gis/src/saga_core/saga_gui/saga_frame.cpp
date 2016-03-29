@@ -592,10 +592,7 @@ void CSAGA_Frame::On_Frame_Close_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Frame_Close_All(wxCommandEvent &WXUNUSED(event))
 {
-	while( GetActiveChild() != NULL )
-	{
-		delete(GetActiveChild());
-	}
+	Close_Children();
 }
 
 void CSAGA_Frame::On_Frame_Close_All_UI(wxUpdateUIEvent &event)
@@ -884,6 +881,42 @@ wxWindow * CSAGA_Frame::Top_Window_Get(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSAGA_Frame::Close_Children(void)
+{
+	while( GetActiveChild() != NULL )
+	{
+		delete(GetActiveChild());
+	}
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::Tile(wxOrientation orient)
+{
+#ifdef MDI_TABBED
+	// nop yet
+#else
+	int		n	= 0;
+
+	for(wxWindowList::const_iterator Child=GetChildren().begin(); Child!=GetChildren().end(); Child++)
+	{
+		if( wxDynamicCast(*Child, wxMDIChildFrame) )
+		{
+			n++;
+		}
+	}
+
+	if( n == 1 && GetActiveChild() )
+	{
+		GetActiveChild()->Maximize();
+	}
+	else
+	{
+		MDI_ParentFrame::Tile(orient);
+	}
+#endif
+}
 
 //---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)

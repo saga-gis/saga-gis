@@ -164,6 +164,10 @@ public:
 	wxWindow *					Top_Window_Get				(void);
 
 	//-----------------------------------------------------
+    virtual void				Tile						(wxOrientation orient = wxHORIZONTAL);
+
+	void						Close_Children				(void);
+
 	void						On_Child_Activates			(int View_ID);
 
 	void						Set_Pane_Caption			(wxWindow *pWindow, const wxString &Caption);
