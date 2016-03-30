@@ -591,7 +591,14 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		break;
 
 	case PARAMETER_TYPE_String:
-		pProperty	= new wxLongStringProperty	(Name, ID, pParameter->asString());
+		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
+		{
+			pProperty	= new wxStringProperty		(Name, ID, pParameter->asString());
+		}
+		else
+		{
+			pProperty	= new wxLongStringProperty	(Name, ID, pParameter->asString());
+		}
 		break;
 
 	case PARAMETER_TYPE_Color:
