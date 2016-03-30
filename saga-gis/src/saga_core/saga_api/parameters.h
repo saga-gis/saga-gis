@@ -1203,12 +1203,10 @@ public:
 	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, bool bFitToCells = false, int Rounding = 2);
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells = false);
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale = 4  , bool bFitToCells = false, int Rounding = 2);
-
-	bool						Cmd_Update				(const TSG_Rect &Extent);
-	bool						Cmd_Update				(CSG_Shapes *pPoints);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, int Rounding = 2);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale = 4  , int Rounding = 2);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny);
+	bool						Set_User_Defined		(CSG_Parameters *pParameters, const CSG_Grid_System &System);
 
 	CSG_Grid_System				Get_System				(void);
 

@@ -144,25 +144,12 @@ CGrid_Resample::CGrid_Resample(void)
 //---------------------------------------------------------
 int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") && pParameter->asGrid_System() )
 	{
-		CSG_Grid_System	*pSystem	= pParameter->asGrid_System();
-
-		if( pSystem && pSystem->is_Valid() )
-		{
-			bool	bCells	= Parameters("TARGET_USER_FITS")->asInt() == 1;
-
-			m_Grid_Target.Set_User_Defined(pParameters,
-				pSystem->Get_XMin(bCells), pSystem->Get_YMin(bCells),
-				pSystem->Get_Cellsize(),
-				pSystem->Get_NX(), pSystem->Get_NY(), bCells
-			);
-		}
+		m_Grid_Target.Set_User_Defined(pParameters, *pParameter->asGrid_System());
 	}
-	else
-	{
-		m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
-	}
+
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
 
 	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }

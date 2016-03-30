@@ -152,17 +152,20 @@ int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 		pParameters->Set_Parameter("DW_BANDWIDTH", GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CGW_Multi_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Search.On_Parameters_Enable(pParameters, pParameter);
-
 	m_Weighting.Enable_Parameters(pParameters);
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Search     .On_Parameters_Enable(pParameters, pParameter);
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -227,11 +230,9 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Cmd_Update(m_pPoints);	// if called from saga_cmd
-
 	m_Weighting.Set_Parameters(&Parameters);
 
-	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY");
+	m_pQuality		= m_Grid_Target.Get_Grid("QUALITY"  );
 	m_pIntercept	= m_Grid_Target.Get_Grid("INTERCEPT");
 
 	if( !m_pQuality || !m_pIntercept )

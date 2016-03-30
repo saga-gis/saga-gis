@@ -111,13 +111,17 @@ int CMBASpline_for_Categories::On_Parameter_Changed(CSG_Parameters *pParameters,
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CMBASpline_for_Categories::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -148,8 +152,6 @@ bool CMBASpline_for_Categories::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Grid	*pGrid, *pProp, Prop;
-
-	m_Grid_Target.Cmd_Update(&Points);	// if called from saga_cmd
 
 	if( !(pGrid = m_Grid_Target.Get_Grid("CATEGORIES", nCategories < 128 ? SG_DATATYPE_Char : SG_DATATYPE_Int))
 	||  !(pProp = m_Grid_Target.Get_Grid("PROPABILITY")) )

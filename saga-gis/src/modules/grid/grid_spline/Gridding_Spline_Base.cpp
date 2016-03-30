@@ -119,16 +119,20 @@ int CGridding_Spline_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asGrid()->Get_Extent(), pParameter->asGrid()->Get_NY(), false, 0);
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asGrid()->Get_System());
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CGridding_Spline_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -165,8 +169,6 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	{
 		CSG_Grid	*pPoints	= Parameters("GRID")->asGrid();
 
-		m_Grid_Target.Cmd_Update(pPoints->Get_Extent());	// if called from saga_cmd
-
 		if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 		{
 			return( false );
@@ -179,8 +181,6 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	else
 	{
 		CSG_Shapes	*pPoints	= Parameters("SHAPES")->asShapes();
-
-		m_Grid_Target.Cmd_Update(pPoints);					// if called from saga_cmd
 
 		if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 		{

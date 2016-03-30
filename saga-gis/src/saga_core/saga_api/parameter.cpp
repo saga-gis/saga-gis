@@ -950,15 +950,15 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 	);
 
 	//-----------------------------------------------------
+	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_SIZE", _TL("Cellsize"), _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true);
 	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_XMIN", _TL("Left"    ), _TL(""), PARAMETER_TYPE_Double,   0.0);
 	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_XMAX", _TL("Right"   ), _TL(""), PARAMETER_TYPE_Double, 100.0);
 	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_YMIN", _TL("Bottom"  ), _TL(""), PARAMETER_TYPE_Double,   0.0);
 	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_YMAX", _TL("Top"     ), _TL(""), PARAMETER_TYPE_Double, 100.0);
-	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_SIZE", _TL("Cellsize"), _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true);
 	m_pParameters->Add_Info_Value(pNode, m_Prefix + "USER_COLS", _TL("Columns" ), _TL(""), PARAMETER_TYPE_Int   , 100);
 	m_pParameters->Add_Info_Value(pNode, m_Prefix + "USER_ROWS", _TL("Rows"    ), _TL(""), PARAMETER_TYPE_Int   , 100);
 	m_pParameters->Add_Choice    (pNode, m_Prefix + "USER_FITS", _TL("Fit"     ), _TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("nodes"),
 			_TL("cells")
 		), 0
@@ -994,11 +994,11 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 		return( false );
 	}
 
+	CSG_Parameter	*pSize	= pParameters->Get_Parameter(m_Prefix + "USER_SIZE");
 	CSG_Parameter	*pXMin	= pParameters->Get_Parameter(m_Prefix + "USER_XMIN");
 	CSG_Parameter	*pXMax	= pParameters->Get_Parameter(m_Prefix + "USER_XMAX");
 	CSG_Parameter	*pYMin	= pParameters->Get_Parameter(m_Prefix + "USER_YMIN");
 	CSG_Parameter	*pYMax	= pParameters->Get_Parameter(m_Prefix + "USER_YMAX");
-	CSG_Parameter	*pSize	= pParameters->Get_Parameter(m_Prefix + "USER_SIZE");
 	CSG_Parameter	*pRows	= pParameters->Get_Parameter(m_Prefix + "USER_ROWS");
 	CSG_Parameter	*pCols	= pParameters->Get_Parameter(m_Prefix + "USER_COLS");
 	CSG_Parameter	*pFits	= pParameters->Get_Parameter(m_Prefix + "USER_FITS");
@@ -1061,6 +1061,10 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 	{
 		pSize->Set_Value(Size	= r.Get_YRange() / pRows->asDouble());
 	}
+	else
+	{
+		return( true );	// none of the relevant parameters did change
+	}
 
 	//-----------------------------------------------------
 	pCols->Set_Value(1 + (int)((r.Get_XRange()) / Size));
@@ -1075,8 +1079,6 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 	pXMax->Set_Value(r.Get_XMax());
 	pYMin->Set_Value(r.Get_YMin());
 	pYMax->Set_Value(r.Get_YMax());
-
-	pFits->Set_Value(m_bFitToCells);
 
 	return( true );
 }
@@ -1094,11 +1096,11 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 		return( false );
 	}
 
+	pParameters->Set_Enabled(m_Prefix + "USER_SIZE", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_XMIN", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_XMAX", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_YMIN", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_YMAX", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_SIZE", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_ROWS", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_COLS", pParameter->asInt() == 0);
 	pParameters->Set_Enabled(m_Prefix + "USER_FITS", pParameter->asInt() == 0);
@@ -1110,15 +1112,14 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 
 //---------------------------------------------------------
 /**
-  * Initializes the grid system from Extent and number of rows.
-  * If bFitToCells is true, the extent is deflated by half a cell size,
-  * so automatically adjusting the extent based on grid nodes to
-  * an extent based on the grid cells. If Rounding is greater than
-  * zero it specifies the number of significant figures to which
-  * the cell size is rounded and also adjuts the extent coordinates
+  * Initializes the grid system from extent and number of rows.
+  * Extent calculation is done for grid nodes and will automatically
+  * become adjusted to match the grid cells if necessary. If Rounding is
+  * greater than zero it specifies the number of significant figures to which
+  * the cell size is rounded and also adjusts the extent coordinates
   * to be a multiple of cell size.
 */
-bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, bool bFitToCells, int Rounding)
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, int Rounding)
 {
 	if( !SG_UI_Get_Window_Main() )	// no cancel button, so set parameters directly
 	{
@@ -1130,16 +1131,12 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 		return( false );
 	}
 
-	if( Rows < 1 )
+	if( Rows < 1 && (Rows = m_pParameters->Get_Parameter(m_Prefix + "USER_ROWS")->asInt()) < 1 )
 	{
-		Rows	= m_pParameters->Get_Parameter(m_Prefix + "USER_ROWS")->asInt();
-
-		if( Rows < 1 )
-		{
-			Rows	= 100;
-		}
+		Rows	= 100;
 	}
 
+	//-----------------------------------------------------
 	CSG_Rect	r(Extent);
 
 	if( r.Get_XRange() == 0.0 && r.Get_YRange() == 0.0 )
@@ -1156,9 +1153,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 	}
 
 	//-----------------------------------------------------
-	m_bFitToCells	= bFitToCells;
-
-	double	Size	= r.Get_YRange() / (m_bFitToCells ? Rows : Rows - 1);
+	double	Size	= r.Get_YRange() / (Rows - 1);
 
 	if( Rounding > 0 )
 	{
@@ -1169,21 +1164,25 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 		r.m_rect.yMax	= Size * ceil (r.m_rect.yMax / Size);
 	}
 
-	//-----------------------------------------------------
-	int		Cols	= (bFitToCells ? 0 : 1) + (int)(r.Get_XRange() / Size);
+	int		Cols	= 1 + (int)(r.Get_XRange() / Size);
 
-	r.m_rect.xMax	= r.Get_XMin() + Cols * Size;
+	r.m_rect.xMax	= r.Get_XMin() + (Cols - 1) * Size;
+
+	//-----------------------------------------------------
+	if( (m_bFitToCells = pParameters->Get_Parameter(m_Prefix + "USER_FITS")->asInt() == 1) == true )
+	{
+		r.Inflate(0.5 * Size, false);
+	}
 
 	bool	bCallback	= pParameters->Set_Callback(false);
 
-	pParameters->Set_Parameter(m_Prefix + "USER_XMIN", r.Get_XMin() );
-	pParameters->Set_Parameter(m_Prefix + "USER_XMAX", r.Get_XMax() );
-	pParameters->Set_Parameter(m_Prefix + "USER_YMIN", r.Get_YMin() );
-	pParameters->Set_Parameter(m_Prefix + "USER_YMAX", r.Get_YMax() );
-	pParameters->Set_Parameter(m_Prefix + "USER_SIZE", Size         );
-	pParameters->Set_Parameter(m_Prefix + "USER_COLS", Cols         );
-	pParameters->Set_Parameter(m_Prefix + "USER_ROWS", Rows         );
-	pParameters->Set_Parameter(m_Prefix + "USER_FITS", m_bFitToCells);
+	pParameters->Set_Parameter(m_Prefix + "USER_SIZE", Size        );
+	pParameters->Set_Parameter(m_Prefix + "USER_XMIN", r.Get_XMin());
+	pParameters->Set_Parameter(m_Prefix + "USER_XMAX", r.Get_XMax());
+	pParameters->Set_Parameter(m_Prefix + "USER_YMIN", r.Get_YMin());
+	pParameters->Set_Parameter(m_Prefix + "USER_YMAX", r.Get_YMax());
+	pParameters->Set_Parameter(m_Prefix + "USER_COLS", Cols        );
+	pParameters->Set_Parameter(m_Prefix + "USER_ROWS", Rows        );
 
 	pParameters->Set_Callback(bCallback);
 
@@ -1191,78 +1190,49 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, c
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny, bool bFitToCells)
-{
-	if( Size <= 0.0 || nx < 1 || ny < 1 )
-	{
-		return( false );
-	}
-
-	CSG_Rect	Extent(xMin, yMin, xMin + Size * (nx - 1), yMin + Size * (ny - 1));
-
-	if( bFitToCells )
-	{
-		Extent.m_rect.xMax	+= Size;
-		Extent.m_rect.yMax	+= Size;
-	}
-
-	return( Set_User_Defined(pParameters, Extent, ny, bFitToCells, 0) );
-}
-
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale, bool bFitToCells, int Rounding)
+/**
+  * Initializes the grid system from 'pPoints' extent and fits number of columns/rows to the average point density.
+  * Number of columns/rows can be increased if 'Scale' is greater than 1.
+*/
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale, int Rounding)
 {
 	if( !pPoints || pPoints->Get_Count() <= 0 || pPoints->Get_Extent().Get_Area() <= 0.0 )
 	{
 		return( false );
 	}
 
-	double	d	= sqrt(pPoints->Get_Extent().Get_Area() / pPoints->Get_Count());	// edge length of a square given as average area per point (cell size)
+	CSG_Rect	r	= pPoints->Get_Extent();
 
-	int	Rows	= (int)(0.5 + pPoints->Get_Extent().Get_YRange() / d);	if( Scale > 1 ) Rows *= Scale;
+	double	Size	= sqrt(r.Get_Area() / pPoints->Get_Count());	// edge length of a square given as average area per point (cell size)
 
-	return( Set_User_Defined(pParameters, pPoints->Get_Extent(), Rows, bFitToCells, Rounding) );
-}
+	int		Rows	= 1 + (int)(0.5 + r.Get_YRange() / Size);
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Cmd_Update(const TSG_Rect &Extent)
-{
-	if( m_pParameters && !SG_UI_Get_Window_Main() )	// tool is run by saga_cmd ...
+	if( Scale > 1 )
 	{
-		if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() )	// ... but tool is not run as part of a tool chain
-		{
-			Set_User_Defined(m_pParameters, Extent);
-
-			SG_UI_Dlg_Parameters(m_pParameters, m_pParameters->Get_Name());
-
-			return( true );
-		}
+		Rows	*= Scale;
 	}
 
-	return( false );
+	r.Inflate(Size, false);
+
+	return( Set_User_Defined(pParameters, r, Rows, Rounding) );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Cmd_Update(CSG_Shapes *pPoints)
+/**
+  * Initializes the grid system from 'System', if it represents a valid grid system.
+*/
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const CSG_Grid_System &System)
 {
-	if( m_pParameters && !SG_UI_Get_Window_Main() )	// tool is run by saga_cmd ...
-	{
-		if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() )	// ... but tool is not run as part of a tool chain
-		{
-			Set_User_Defined(m_pParameters, pPoints);
+	return( System.is_Valid() && Set_User_Defined(pParameters, System.Get_Extent(), System.Get_NY(), 0) );
+}
 
-			SG_UI_Dlg_Parameters(m_pParameters, m_pParameters->Get_Name());
-
-			return( true );
-		}
-	}
-
-	return( false );
+//---------------------------------------------------------
+/**
+  * Initializes the grid system from lower left cell center coordinate, cell size and number of columns and rows (nx, ny).
+*/
+bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, double xMin, double yMin, double Cellsize, int nx, int ny)
+{
+	return( Set_User_Defined(pParameters, CSG_Grid_System(Cellsize, xMin, yMin, nx, ny)) );
 }
 
 

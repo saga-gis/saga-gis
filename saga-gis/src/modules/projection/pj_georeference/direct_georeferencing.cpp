@@ -378,13 +378,17 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 //---------------------------------------------------------
 int CDirect_Georeferencing::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CDirect_Georeferencing::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -448,7 +452,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 	CSG_Grid_System	System(Cellsize, r);
 
-	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), r, Get_NX());
+	m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), System);
 
 	if( !Dlg_Parameters("TARGET") )
 	{

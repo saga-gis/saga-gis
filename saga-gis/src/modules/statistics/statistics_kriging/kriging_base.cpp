@@ -192,7 +192,9 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -203,9 +205,10 @@ int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 		pParameters->Set_Enabled("DBLOCK", pParameter->asBool());	// block size
 	}
 
-	m_Search.On_Parameters_Enable(pParameters, pParameter);
+	m_Search     .On_Parameters_Enable(pParameters, pParameter);
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -307,8 +310,6 @@ bool CKriging_Base::On_Execute(void)
 //---------------------------------------------------------
 bool CKriging_Base::_Initialise_Grids(void)
 {
-	m_Grid_Target.Cmd_Update(m_pPoints);	// if called from saga_cmd
-
 	if( (m_pGrid = m_Grid_Target.Get_Grid("PREDICTION")) != NULL )
 	{
 		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s.%s [%s]"), Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str()));

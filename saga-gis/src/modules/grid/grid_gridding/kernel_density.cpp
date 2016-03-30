@@ -150,13 +150,17 @@ int CKernel_Density::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		m_Grid_Target.Set_User_Defined(pParameters, Extent);
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CKernel_Density::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -185,8 +189,6 @@ bool CKernel_Density::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Cmd_Update(pPoints);	// if called from saga_cmd
-
 	if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 	{
 		return( false );

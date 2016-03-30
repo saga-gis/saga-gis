@@ -177,30 +177,34 @@ CShapes2Grid::CShapes2Grid(void)
 //---------------------------------------------------------
 int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CShapes2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") )
 	{
 		pParameters->Set_Enabled("LINE_TYPE", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line);
 		pParameters->Set_Enabled("POLY_TYPE", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OUTPUT")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OUTPUT") )
 	{
 		pParameters->Set_Enabled("FIELD"    , pParameter->asInt() == 2);
 		pParameters->Set_Enabled("MULTIPLE" , pParameter->asInt() == 2);
 	}
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -265,8 +269,6 @@ bool CShapes2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Cmd_Update(m_pShapes);	// if called from saga_cmd
-
 	if( (m_pGrid = m_Grid_Target.Get_Grid("GRID", Get_Grid_Type(Parameters("GRID_TYPE")->asInt()))) == NULL )
 	{
 		return( false );

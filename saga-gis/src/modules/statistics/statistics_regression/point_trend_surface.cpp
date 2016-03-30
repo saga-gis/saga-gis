@@ -155,7 +155,9 @@ int CPoint_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -166,7 +168,9 @@ int CPoint_Trend_Surface::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 		pParameters->Set_Enabled("NODE_USER", pParameter->asInt() == 4);
 	}
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -210,15 +214,13 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	Set_Message();
 
 	//-----------------------------------------------------
-	m_Grid_Target.Cmd_Update(pPoints);	// if called from saga_cmd
-
 	if( (pRegression = m_Grid_Target.Get_Grid()) == NULL )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	pRegression->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("ATTRIBUTE")->asString(), _TL("Trend Surface")));
+	pRegression->Set_Name(CSG_String::Format("%s [%s]", Parameters("ATTRIBUTE")->asString(), _TL("Trend Surface")));
 
 	Set_Regression(pRegression);
 
