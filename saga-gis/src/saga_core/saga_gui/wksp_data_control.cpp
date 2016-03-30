@@ -373,7 +373,7 @@ bool CWKSP_Data_Control::_Del_Active(bool bSilent)
 		return( true );
 	}
 
-	if( !bSilent && !DLG_Message_Confirm(ID_DLG_DELETE) && !g_pData->Save_Modified_Sel() )
+	if( !bSilent && (!DLG_Message_Confirm(ID_DLG_DELETE) || !g_pData->Save_Modified_Sel()) )
 	{
 		return( false );
 	}
