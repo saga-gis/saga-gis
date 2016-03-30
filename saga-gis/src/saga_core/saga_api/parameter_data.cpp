@@ -96,6 +96,7 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_Int:				return( _TL("Integer") );
 	case PARAMETER_TYPE_Double:				return( _TL("Floating point") );
 	case PARAMETER_TYPE_Degree:				return( _TL("Degree") );
+	case PARAMETER_TYPE_Date:				return( _TL("Date") );
 	case PARAMETER_TYPE_Range:				return( _TL("Value range") );
 	case PARAMETER_TYPE_Choice:				return( _TL("Choice") );
 
@@ -141,6 +142,7 @@ CSG_String SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_Int:				return( SG_T("integer") );
 	case PARAMETER_TYPE_Double:				return( SG_T("double") );
 	case PARAMETER_TYPE_Degree:				return( SG_T("degree") );
+	case PARAMETER_TYPE_Date:				return( SG_T("date") );
 	case PARAMETER_TYPE_Range:				return( SG_T("range") );
 	case PARAMETER_TYPE_Choice:				return( SG_T("choice") );
 
@@ -181,6 +183,7 @@ TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 	if( !Identifier.Cmp(SG_T("integer"		)) )	{	return( PARAMETER_TYPE_Int					);	}
 	if( !Identifier.Cmp(SG_T("double"		)) )	{	return( PARAMETER_TYPE_Double				);	}
 	if( !Identifier.Cmp(SG_T("degree"		)) )	{	return( PARAMETER_TYPE_Degree				);	}
+	if( !Identifier.Cmp(SG_T("date"			)) )	{	return( PARAMETER_TYPE_Date					);	}
 	if( !Identifier.Cmp(SG_T("range"		)) )	{	return( PARAMETER_TYPE_Range				);	}
 	if( !Identifier.Cmp(SG_T("choice"		)) )	{	return( PARAMETER_TYPE_Choice				);	}
 
@@ -283,14 +286,14 @@ const SG_Char * CSG_Parameter_Data::asString(void)
 }
 
 //---------------------------------------------------------
-void CSG_Parameter_Data::Set_Default(int            Value)
+void CSG_Parameter_Data::Set_Default(int Value)
 {
-	m_Default.Printf(SG_T("%d"), Value);
+	m_Default.Printf("%d", Value);
 }
 
-void CSG_Parameter_Data::Set_Default(double         Value)
+void CSG_Parameter_Data::Set_Default(double Value)
 {
-	m_Default.Printf(SG_T("%f"), Value);
+	m_Default.Printf("%f", Value);
 }
 
 void CSG_Parameter_Data::Set_Default(const CSG_String &Value)
@@ -706,6 +709,94 @@ const SG_Char * CSG_Parameter_Degree::asString(void)
 	m_String	= SG_Double_To_Degree(asDouble());
 
 	return( m_String );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Date							 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter_Date::CSG_Parameter_Date(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
+{}
+
+CSG_Parameter_Date::~CSG_Parameter_Date(void)
+{}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Date::Restore_Default(void)
+{
+	return( Set_Value(m_Default) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Date::Set_Value(int Value)
+{
+	return( Set_Value((double)Value) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Date::Set_Value(double Value)
+{
+	m_Date.Set(Value);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Date::Set_Value(const CSG_String &Value)
+{
+	return( m_Date.Parse_Date(Value) );
+}
+
+//---------------------------------------------------------
+int CSG_Parameter_Date::asInt(void)	const
+{
+	return( (int)asDouble() );
+}
+
+//---------------------------------------------------------
+double CSG_Parameter_Date::asDouble(void)	const
+{
+	return( m_Date.Get_JDN() );
+}
+
+//---------------------------------------------------------
+const SG_Char * CSG_Parameter_Date::asString(void)
+{
+	m_String	= m_Date.Format_Date();
+
+	return( m_String );
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Date::Set_Date(const CSG_DateTime &Date)
+{
+	m_Date	= Date;
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Date::On_Assign(CSG_Parameter_Data *pSource)
+{
+	m_Date	= ((CSG_Parameter_Date *)pSource)->m_Date;
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Date::On_Serialize(CSG_MetaData &Entry, bool bSave)
+{
+	if( bSave )
+	{
+		Entry.Set_Content(asString());
+	}
+	else
+	{
+		Set_Value(Entry.Get_Content());
+	}
+
+	return( true );
 }
 
 

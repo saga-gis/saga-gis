@@ -664,3 +664,121 @@ bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Lati
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <time.h>
+
+//---------------------------------------------------------
+CSG_Time_Converter::CSG_Time_Converter(void)
+{
+	m_sec		= 0;
+	m_min		= 0;
+	m_hour		= 0;
+	m_day		= 0;
+	m_mon		= 0;
+	m_year		= 0;
+
+	m_StrFmt	= SG_TIME_STRFMT_YMD_hms;
+}
+
+//---------------------------------------------------------
+CSG_Time_Converter::CSG_Time_Converter(int Time, TSG_Time_Format Format)
+{
+	Set_Time(Time, Format);
+}
+
+//---------------------------------------------------------
+bool CSG_Time_Converter::Set_Time(int Time, TSG_Time_Format Format)
+{
+	switch( Format )
+	{
+	default:
+		{
+			return( false );
+		}
+
+	//-----------------------------------------------------
+	case SG_TIME_FMT_Seconds_Unix:
+		{
+			time_t		tUnix	= Time;
+			struct tm	t;
+
+			#ifdef _SAGA_LINUX
+				t	= *gmtime(&tUnix);
+			#else
+				gmtime_s(&t, &tUnix);
+			#endif
+			
+			m_sec	= t.tm_sec;
+			m_min	= t.tm_min;
+			m_hour	= t.tm_hour;
+			m_day	= t.tm_mday;
+			m_mon	= t.tm_mon;
+			m_year	= t.tm_year + 1900;
+		}
+		break;
+
+	//-----------------------------------------------------
+	case SG_TIME_FMT_Hours_AD:
+		{
+			long	d, n;
+			double	h;
+
+			h		= 1721424.0 + (Time - 12.0) / 24.0;
+			d		= (long)h;		// Truncate to integral day
+			h		= h - d + 0.5;	// Fractional part of calendar day
+			if( h >= 1.0 )			// Is it really the next calendar day?
+			{
+				h--;
+				d++;
+			}
+
+			h		= 24.0 * (h);
+			m_hour	= (int)h;
+			h		= 60.0 * (h - m_hour);
+			m_min	= (int)h;
+			h		= 60.0 * (h - m_min);
+			m_sec	= (int)h;
+
+			d		= d + 68569;
+			n		= 4 * d / 146097;
+			d		= d - (146097 * n + 3) / 4;
+			m_year	= 4000 * (d + 1) / 1461001;
+			d		= d - 1461 * m_year / 4 + 31;	// 1461 = 365.25 * 4
+			m_mon	= 80 * d / 2447;
+			m_day	= d - 2447 * m_mon / 80;
+			d		= m_mon / 11;
+			m_mon	= m_mon + 2 - 12 * d;
+			m_year	= 100 * (n - 49) + m_year + d;
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Time_Converter::Get_String(void) const
+{
+	CSG_String	s;
+
+	s.Printf(SG_T("%04d.%02d.%02d %02d:%02d:%02d"), m_year, m_mon, m_day, m_hour, m_min, m_sec);
+
+	return( s );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Time_Converter::Get_String(int Time, TSG_Time_Format Format)
+{
+	CSG_Time_Converter	tc(Time, Format);
+
+	return( tc.Get_String() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

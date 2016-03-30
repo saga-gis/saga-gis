@@ -107,6 +107,7 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	case PARAMETER_TYPE_Int:				m_pData	= new CSG_Parameter_Int					(this, Constraint);	break;
 	case PARAMETER_TYPE_Double:				m_pData	= new CSG_Parameter_Double				(this, Constraint);	break;
 	case PARAMETER_TYPE_Degree:				m_pData	= new CSG_Parameter_Degree				(this, Constraint);	break;
+	case PARAMETER_TYPE_Date:				m_pData	= new CSG_Parameter_Date				(this, Constraint);	break;
 	case PARAMETER_TYPE_Range:				m_pData	= new CSG_Parameter_Range				(this, Constraint);	break;
 	case PARAMETER_TYPE_Choice:				m_pData	= new CSG_Parameter_Choice				(this, Constraint);	break;
 
@@ -291,6 +292,7 @@ bool CSG_Parameter::is_Option(void)	const
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
+		case PARAMETER_TYPE_Date:
 		case PARAMETER_TYPE_Range:
 		case PARAMETER_TYPE_Choice:
 
@@ -438,6 +440,7 @@ bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 		case PARAMETER_TYPE_Choice           :
 		case PARAMETER_TYPE_Color            :
 		case PARAMETER_TYPE_Int              :	return( pParameter->asInt   () == asInt   () );
+		case PARAMETER_TYPE_Date             :
 		case PARAMETER_TYPE_Degree           :
 		case PARAMETER_TYPE_Double           :	return( pParameter->asDouble() == asDouble() );
 

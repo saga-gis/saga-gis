@@ -62,6 +62,7 @@
 
 //---------------------------------------------------------
 #include <wx/propgrid/manager.h>
+#include <wx/datectrl.h>
 
 #include <saga_api/saga_api.h>
 
@@ -254,12 +255,10 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 {
 	_Set_Parameter(event.GetPropertyName());
 
-	if( event.GetProperty() )
-	{
-		m_pPG->SelectProperty(event.GetProperty());
-	}
-
-	event.Skip();
+	//if( event.GetProperty() )
+	//{
+	//	m_pPG->SelectProperty(event.GetProperty());
+	//}
 }
 
 
@@ -590,6 +589,10 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		pProperty	= new CParameters_PG_Degree	(Name, ID, pParameter);
 		break;
 
+	case PARAMETER_TYPE_Date:
+		pProperty	= new wxDateProperty		(Name, ID, pParameter->asDouble());	// from JDN
+		break;
+
 	case PARAMETER_TYPE_String:
 		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
 		{
@@ -689,6 +692,10 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 			pProperty->SetAttribute(wxPG_FLOAT_PRECISION	, (long)16);
 			break;
 
+		case PARAMETER_TYPE_Date:
+			pProperty->SetAttribute(wxPG_DATE_PICKER_STYLE, (long)(wxDP_DROPDOWN|wxDP_SHOWCENTURY));
+			break;
+
 		case PARAMETER_TYPE_String:
 			if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
 			{
@@ -778,10 +785,16 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 
 		if( pParameter )
 		{
+			m_bModified	= true;
+
 			switch( pParameter->Get_Type() )
 			{
 			default:
 				break;
+
+			case PARAMETER_TYPE_Date:
+				pParameter->Set_Value(((wxDateProperty *)pProperty)->GetDateValue().GetJDN());
+				return;
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
@@ -789,23 +802,21 @@ void CParameters_Control::_Set_Parameter(const wxString &Identifier)
 				break;
 
 			case PARAMETER_TYPE_Bool:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsBool		(pProperty));
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsBool(pProperty));
 				break;
 
 			case PARAMETER_TYPE_Int:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsInt		(pProperty));
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsInt(pProperty));
 				break;
 
 			case PARAMETER_TYPE_Double:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsDouble	(pProperty));
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsDouble(pProperty));
 				break;
 
 			case PARAMETER_TYPE_Color:
 				pParameter->Set_Value(Get_Color_asInt(((wxColourProperty *)pProperty)->GetVal().m_colour));
 				break;
 			}
-
-			m_bModified	= true;
 
 			_Update_Parameters();
 		}
@@ -861,6 +872,17 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 
 		case PARAMETER_TYPE_Degree:
 			((CParameters_PG_Degree *)pProperty)->Update();
+			break;
+
+		case PARAMETER_TYPE_Date:
+			{
+				wxDateTime	Date(pParameter->asDouble());
+
+				if( ((wxDateProperty *)pProperty)->GetDateValue() != Date )
+				{
+					((wxDateProperty *)pProperty)->SetDateValue(Date);
+				}
+			}
 			break;
 
 		case PARAMETER_TYPE_Choice:

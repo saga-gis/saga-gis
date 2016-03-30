@@ -79,6 +79,7 @@
 #include "shapes.h"
 #include "tin.h"
 #include "pointcloud.h"
+#include "datetime.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -123,6 +124,7 @@ typedef enum ESG_Parameter_Type
 	PARAMETER_TYPE_Int,
 	PARAMETER_TYPE_Double,
 	PARAMETER_TYPE_Degree,
+	PARAMETER_TYPE_Date,
 
 	PARAMETER_TYPE_Range,
 	PARAMETER_TYPE_Choice,
@@ -430,6 +432,45 @@ public:
 	virtual bool				Set_Value				(const CSG_String &Value);
 
 	virtual const SG_Char *		asString				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_Date : public CSG_Parameter_Data
+{
+public:
+	CSG_Parameter_Date(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Date(void);
+
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Date );	}
+
+	virtual bool				Set_Value				(int               Value);
+	virtual bool				Set_Value				(double            Value);
+	virtual bool				Set_Value				(const CSG_String &Value);
+
+	virtual int					asInt					(void)	const;
+	virtual double				asDouble				(void)	const;
+
+	virtual const SG_Char *		asString				(void);
+
+	virtual bool				Restore_Default			(void);
+
+	void						Set_Date				(const CSG_DateTime &Date);
+	const CSG_DateTime &		Get_Date				(void)	const	{	return( m_Date );	}
+
+
+protected:
+
+	CSG_DateTime				m_Date;
+
+
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -1323,6 +1364,7 @@ public:
 	CSG_Parameters *			asParameters			(void)	const	{	return( (CSG_Parameters  *)m_pData->asPointer() );	}
 
 	CSG_Parameter_Value *		asValue					(void)	const	{	return( (CSG_Parameter_Value           *)m_pData );	}
+	CSG_Parameter_Date *		asDate					(void)	const	{	return( (CSG_Parameter_Date            *)m_pData );	}
 	CSG_Parameter_Choice *		asChoice				(void)	const	{	return( (CSG_Parameter_Choice          *)m_pData );	}
 	CSG_Parameter_Range *		asRange					(void)	const	{	return( (CSG_Parameter_Range           *)m_pData );	}
 	CSG_Parameter_File_Name *	asFilePath				(void)	const	{	return( (CSG_Parameter_File_Name       *)m_pData );	}
@@ -1448,6 +1490,7 @@ public:
 	CSG_Parameter *				Add_Int					(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int    Value = 0  , int    Minimum = 0  , bool bMinimum = false, int    Maximum = 0  , bool bMaximum = false);
 	CSG_Parameter *				Add_Double				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
 	CSG_Parameter *				Add_Degree				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
+	CSG_Parameter *				Add_Date				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value = 0.0);	// Julian Day Number
 	CSG_Parameter *				Add_Color				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int    Value = 0);
 
 	CSG_Parameter *				Add_Range				(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);

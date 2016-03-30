@@ -340,6 +340,11 @@ CSG_Parameter * CSG_Parameters::Add_Degree(CSG_Parameter *pParent, const CSG_Str
 	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Degree, Value, Minimum, bMinimum, Maximum, bMaximum) );
 }
 
+CSG_Parameter * CSG_Parameters::Add_Date(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value)	// Julian Day Number
+{
+	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Date  , Value) );
+}
+
 CSG_Parameter * CSG_Parameters::Add_Color (CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int    Value)
 {
 	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Color , Value) );
@@ -775,16 +780,16 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_Str
 {
 	switch( Type )	// Check if Type is valid...
 	{
-	case PARAMETER_TYPE_Bool:
-	case PARAMETER_TYPE_Int:
+	case PARAMETER_TYPE_Bool  :
+	case PARAMETER_TYPE_Int   :
 	case PARAMETER_TYPE_Double:
 	case PARAMETER_TYPE_Degree:
-	case PARAMETER_TYPE_Color:
+	case PARAMETER_TYPE_Date  :
+	case PARAMETER_TYPE_Color :
 		break;
 
-	default:
-		Type	= PARAMETER_TYPE_Double;	// if not valid set Type to [double]...
-		break;
+	default:	// if not valid set Type to [double]...
+		Type	= PARAMETER_TYPE_Double;
 	}
 
 	CSG_Parameter	*pParameter	= _Add(pParent, Identifier, Name, Description, Type, bInformation ? PARAMETER_INFORMATION : 0);
@@ -798,22 +803,30 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_Str
 			((CSG_Parameter_Value *)pParameter->m_pData)->Set_Minimum(Minimum, bMinimum);
 			((CSG_Parameter_Value *)pParameter->m_pData)->Set_Maximum(Maximum, bMaximum);
 		}
-
-		if( Type == PARAMETER_TYPE_Bool
-		||  Type == PARAMETER_TYPE_Int
-		||  Type == PARAMETER_TYPE_Color )
-		{
-			pParameter->Set_Default((int)Value);
-		}
-		else
-		{
-			pParameter->Set_Default(     Value);
-		}
 	}
 
 	bool	bCallback	= Set_Callback(false);
 	pParameter->Set_Value  (Value);
 	Set_Callback(bCallback);
+
+	if( !bInformation )
+	{
+		switch( Type )
+		{
+		case PARAMETER_TYPE_Bool  :
+		case PARAMETER_TYPE_Int   :
+		case PARAMETER_TYPE_Color :
+			pParameter->Set_Default((int)Value);
+			break;
+
+		case PARAMETER_TYPE_Date  :
+			pParameter->Set_Default(pParameter->asString());
+			break;
+
+		default:
+			pParameter->Set_Default(     Value);
+		}
+	}
 
 	return( pParameter );
 }

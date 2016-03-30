@@ -73,7 +73,7 @@
 //---------------------------------------------------------
 CSolarRadiation::CSolarRadiation(void)
 {
-	CSG_Parameter	*pNode, *pNode_2;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Potential Incoming Solar Radiation"));
@@ -209,17 +209,17 @@ CSolarRadiation::CSolarRadiation(void)
 	);
 
 	//-----------------------------------------------------
-	pNode_2	= Parameters.Add_Node(pNode, "DATE_A", _TL("Date"), _TL(""));
+	Parameters.Add_Date(
+		pNode	, "DATE_A"			, _TL("Date"),
+		_TL(""),
+		CSG_DateTime::Now().Get_JDN()
+	);
 
-	Parameters.Add_Value (pNode_2,  "DAY_A", _TL("Day"  ), _TL(""), PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Day(), 1, true, 31, true);
-	Parameters.Add_Choice(pNode_2,  "MON_A", _TL("Month"), _TL(""), CSG_DateTime::Get_Month_Choices(), CSG_DateTime::Get_Current_Month());
-	Parameters.Add_Value (pNode_2, "YEAR_A", _TL("Year" ), _TL(""), PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Year());
-
-	pNode_2	= Parameters.Add_Node(pNode, "DATE_B", _TL("2nd Date (End of Range)"), _TL(""));
-
-	Parameters.Add_Value (pNode_2,  "DAY_B", _TL("Day"  ), _TL(""), PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Day(), 1, true, 31, true);
-	Parameters.Add_Choice(pNode_2,  "MON_B", _TL("Month"), _TL(""), CSG_DateTime::Get_Month_Choices(), CSG_DateTime::Get_Current_Month());
-	Parameters.Add_Value (pNode_2, "YEAR_B", _TL("Year" ), _TL(""), PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Year());
+	Parameters.Add_Date(
+		pNode	, "DATE_B"			, _TL("2nd Date (End of Range)"),
+		_TL(""),
+		CSG_DateTime::Now().Get_JDN()
+	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Choice(
@@ -546,7 +546,7 @@ bool CSolarRadiation::Get_Insolation(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_DateTime	Date((CSG_DateTime::TSG_DateTime)Parameters("DAY_A")->asInt(), (CSG_DateTime::Month)Parameters("MON_A")->asInt(), Parameters("YEAR_A")->asInt());
+	CSG_DateTime	Date(Parameters("DATE_A")->asDate()->Get_Date());
 
 	switch( Parameters("PERIOD")->asInt() )
 	{
@@ -570,7 +570,7 @@ bool CSolarRadiation::Get_Insolation(void)
 	//-----------------------------------------------------
 	case 2:	// Range of Days
 		{
-			CSG_DateTime	Stop((CSG_DateTime::TSG_DateTime)Parameters("DAY_B")->asInt(), (CSG_DateTime::Month)Parameters("MON_B")->asInt(), Parameters("YEAR_B")->asInt());
+			CSG_DateTime	Stop(Parameters("DATE_B")->asDate()->Get_Date());
 
 			int	dDays	= Parameters("DAYS_STEP")->asInt();
 
