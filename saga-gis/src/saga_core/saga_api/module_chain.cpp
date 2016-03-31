@@ -246,6 +246,8 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 		case PARAMETER_TYPE_Double           : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Double, Value.asDouble(), Min, bMin, Max, bMax);	break;
 		case PARAMETER_TYPE_Degree           : Parameters.Add_Value          (pParent, ID, Name, Desc, PARAMETER_TYPE_Degree, Value.asDouble(), Min, bMin, Max, bMax);	break;
 
+		case PARAMETER_TYPE_Date             : Parameters.Add_Date           (pParent, ID, Name, Desc, 0.0)->Set_Value(Value);	break;
+
 		case PARAMETER_TYPE_Range            : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst (';').asDouble(), Min, bMin, Max, bMax);	break;
 		case PARAMETER_TYPE_Choice           : Parameters.Add_Choice         (pParent, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 
@@ -1153,6 +1155,7 @@ bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_M
 			case PARAMETER_TYPE_Int         :
 			case PARAMETER_TYPE_Double      :
 			case PARAMETER_TYPE_Degree      :
+			case PARAMETER_TYPE_Date        :
 			case PARAMETER_TYPE_Range       :
 			case PARAMETER_TYPE_String      :
 			case PARAMETER_TYPE_Text        :

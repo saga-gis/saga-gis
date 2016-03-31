@@ -731,7 +731,7 @@ void CWKSP_Module::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 	{
 		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
 
-		if( !p->is_Enabled() )
+		if( !p->is_Enabled() || p->is_Information() )
 		{
 			continue;
 		}
@@ -751,6 +751,7 @@ void CWKSP_Module::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 		case PARAMETER_TYPE_Int         :
 		case PARAMETER_TYPE_Double      :
 		case PARAMETER_TYPE_Degree      :
+		case PARAMETER_TYPE_Date        :
 		case PARAMETER_TYPE_Range       :
 		case PARAMETER_TYPE_String      :
 		case PARAMETER_TYPE_Text        :
@@ -809,7 +810,7 @@ void CWKSP_Module::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 	{
 		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
 
-		if( !p->is_Enabled() )
+		if( !p->is_Enabled() || p->is_Information() )
 		{
 			continue;
 		}
@@ -845,6 +846,7 @@ void CWKSP_Module::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T("MAX")), p->asRange()->Get_HiVal());
 			break;
 
+		case PARAMETER_TYPE_Date:
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:
@@ -912,7 +914,7 @@ void CWKSP_Module::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 	{
 		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
 
-		if( !p->is_Enabled() )
+		if( !p->is_Enabled() || p->is_Information() )
 		{
 			continue;
 		}
@@ -946,6 +948,7 @@ void CWKSP_Module::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).asRange().Set_HiVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_HiVal());
 			break;
 
+		case PARAMETER_TYPE_Date:
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:

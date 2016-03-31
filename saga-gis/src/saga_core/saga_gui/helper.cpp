@@ -713,6 +713,7 @@ bool		CONFIG_Read(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 	case PARAMETER_TYPE_Degree  :
 		return( pConfig->Read(Entry, &d) && pParameter->Set_Value(d) );
 
+	case PARAMETER_TYPE_Date    :
 	case PARAMETER_TYPE_String  :
 	case PARAMETER_TYPE_Text    :
 	case PARAMETER_TYPE_FilePath:
@@ -771,6 +772,7 @@ bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_Degree  :
 			return( pConfig->Write(Entry, pParameter->asDouble()) );
 
+		case PARAMETER_TYPE_Date    :
 		case PARAMETER_TYPE_String  :
 		case PARAMETER_TYPE_Text    :
 		case PARAMETER_TYPE_FilePath:
