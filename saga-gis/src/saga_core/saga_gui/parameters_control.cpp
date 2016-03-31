@@ -253,12 +253,9 @@ void CParameters_Control::On_PG_Selected(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 {
-	_Set_Parameter(event.GetPropertyName());
+	_Set_Parameter(event.GetProperty());
 
-	//if( event.GetProperty() )
-	//{
-	//	m_pPG->SelectProperty(event.GetProperty());
-	//}
+	event.Skip();
 }
 
 
@@ -773,52 +770,56 @@ bool CParameters_Control::_Get_Enabled(CSG_Parameter *pParameter)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CParameters_Control::_Set_Parameter(const wxString &Identifier)
+CSG_Parameter * CParameters_Control::_Get_Parameter(wxPGProperty *pProperty)
 {
-	wxPGProperty	*pProperty	= m_pPG->GetProperty(Identifier);
+	return( pProperty ? m_pParameters->Get_Parameter(pProperty->GetBaseName().wx_str()) : NULL );
+}
 
-	if( pProperty )
+//---------------------------------------------------------
+void CParameters_Control::_Set_Parameter(wxPGProperty *pProperty)
+{
+	CSG_Parameter	*pParameter	=  _Get_Parameter(pProperty);
+
+	if( pParameter )
 	{
-		CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(
-			!pProperty->IsSubProperty() ? Identifier.wx_str() : Identifier.AfterLast(wxT('.')).wx_str()
-		);
+		m_bModified	= true;
 
-		if( pParameter )
+		switch( pParameter->Get_Type() )
 		{
-			m_bModified	= true;
+		default:
+			break;
 
-			switch( pParameter->Get_Type() )
-			{
-			default:
-				break;
+		case PARAMETER_TYPE_Date:
+			pParameter->Set_Value(((wxDateProperty *)pProperty)->GetDateValue().GetJDN());
+			break;
 
-			case PARAMETER_TYPE_Date:
-				pParameter->Set_Value(((wxDateProperty *)pProperty)->GetDateValue().GetJDN());
-				return;
+		case PARAMETER_TYPE_String:
+		case PARAMETER_TYPE_FilePath:
+			pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).wx_str());
+			break;
 
-			case PARAMETER_TYPE_String:
-			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsString(pProperty).wx_str());
-				break;
+		case PARAMETER_TYPE_Bool:
+			pParameter->Set_Value(m_pPG->GetPropertyValueAsBool(pProperty));
+			break;
 
-			case PARAMETER_TYPE_Bool:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsBool(pProperty));
-				break;
+		case PARAMETER_TYPE_Int:
+			pParameter->Set_Value(m_pPG->GetPropertyValueAsInt(pProperty));
+			break;
 
-			case PARAMETER_TYPE_Int:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsInt(pProperty));
-				break;
+		case PARAMETER_TYPE_Double:
+			pParameter->Set_Value(m_pPG->GetPropertyValueAsDouble(pProperty));
+			break;
 
-			case PARAMETER_TYPE_Double:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsDouble(pProperty));
-				break;
+		case PARAMETER_TYPE_Color:
+			pParameter->Set_Value(Get_Color_asInt(((wxColourProperty *)pProperty)->GetVal().m_colour));
+			break;
+		}
 
-			case PARAMETER_TYPE_Color:
-				pParameter->Set_Value(Get_Color_asInt(((wxColourProperty *)pProperty)->GetVal().m_colour));
-				break;
-			}
-
+		if( pParameter->Get_Type() != PARAMETER_TYPE_Date )
+		{
 			_Update_Parameters();
+
+			m_pPG->SelectProperty(pProperty);
 		}
 	}
 }

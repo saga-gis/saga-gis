@@ -141,22 +141,6 @@ CSolarRadiation::CSolarRadiation(void)
 		), 1
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "UPDATE"			, _TL("Update"),
-		_TL("show direct insolation for each time step."),
-		CSG_String::Format("%s|%s|%s|",
-			_TL("do not update"),
-			_TL("fit histogram stretch for each time step"),
-			_TL("constant histogram stretch for all time steps")
-		), 0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "UPDATE_STRETCH"	, _TL("Constant Histogram Stretch"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 1.0, 0.0, true
-	);
-
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Choice(
 		NULL	, "LOCATION"		, _TL("Location"),
@@ -184,6 +168,26 @@ CSolarRadiation::CSolarRadiation(void)
 		), 1
 	);
 
+	pNode	= Parameters.Add_Date(
+		pNode	, "DAY"				, _TL("Day"),
+		_TL(""),
+		CSG_DateTime::Now().Get_JDN()
+	);
+
+	Parameters.Add_Date(
+		pNode	, "DAY_STOP"		, _TL("Last Day"),
+		_TL(""),
+		CSG_DateTime::Now().Get_JDN()
+	);
+
+	Parameters.Add_Value(
+		pNode	, "DAYS_STEP"		, _TL("Resolution [d]"),
+		_TL("Time step size for a range of days calculation given in days."),
+		PARAMETER_TYPE_Int			, 5, 1, true
+	);
+
+	pNode	= Parameters("PERIOD");
+
 	Parameters.Add_Value(
 		pNode	, "MOMENT"			, _TL("Moment [h]"),
 		_TL(""),
@@ -197,28 +201,9 @@ CSolarRadiation::CSolarRadiation(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "HOUR_STEP"		, _TL("Time Resolution [h]: Day"),
+		pNode	, "HOUR_STEP"		, _TL("Resolution [h]"),
 		_TL("Time step size for a day's calculation given in hours."),
 		PARAMETER_TYPE_Double		, 0.5, 0.0, true, 24.0, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "DAYS_STEP"		, _TL("Time Resolution [d]: Range of Days"),
-		_TL("Time step size for a range of days calculation given in days."),
-		PARAMETER_TYPE_Int			, 5, 1, true
-	);
-
-	//-----------------------------------------------------
-	Parameters.Add_Date(
-		pNode	, "DATE_A"			, _TL("Date"),
-		_TL(""),
-		CSG_DateTime::Now().Get_JDN()
-	);
-
-	Parameters.Add_Date(
-		pNode	, "DATE_B"			, _TL("2nd Date (End of Range)"),
-		_TL(""),
-		CSG_DateTime::Now().Get_JDN()
 	);
 
 	//-----------------------------------------------------
@@ -261,6 +246,23 @@ CSolarRadiation::CSolarRadiation(void)
 		pNode	, "LUMPED"			, _TL("Lumped Atmospheric Transmittance [Percent]"),
 		_TL("The transmittance of the atmosphere, usually between 60 and 80 percent."),
 		PARAMETER_TYPE_Double, 70, 0.0, true, 100.0, true
+	);
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Choice(
+		NULL	, "UPDATE"			, _TL("Update"),
+		_TL("show direct insolation for each time step."),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("do not update"),
+			_TL("fit histogram stretch for each time step"),
+			_TL("constant histogram stretch for all time steps")
+		), 0
+	);	pNode->Set_UseInCMD(false);
+
+	Parameters.Add_Value(
+		pNode	, "UPDATE_STRETCH"	, _TL("Constant Histogram Stretch"),
+		_TL(""),
+		PARAMETER_TYPE_Double		, 1.0, 0.0, true
 	);
 }
 
@@ -318,7 +320,7 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		pParameters->Set_Enabled("UPDATE"        , pParameter->asInt() >= 1);
 		pParameters->Set_Enabled("HOUR_RANGE"    , pParameter->asInt() >= 1);
 		pParameters->Set_Enabled("HOUR_STEP"     , pParameter->asInt() >= 1);
-		pParameters->Set_Enabled("DATE_B"        , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("DAY_STOP"      , pParameter->asInt() == 2);
 		pParameters->Set_Enabled("DAYS_STEP"     , pParameter->asInt() == 2);
 	}
 
@@ -546,7 +548,7 @@ bool CSolarRadiation::Get_Insolation(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_DateTime	Date(Parameters("DATE_A")->asDate()->Get_Date());
+	CSG_DateTime	Date(Parameters("DAY")->asDate()->Get_Date());
 
 	switch( Parameters("PERIOD")->asInt() )
 	{
@@ -570,7 +572,7 @@ bool CSolarRadiation::Get_Insolation(void)
 	//-----------------------------------------------------
 	case 2:	// Range of Days
 		{
-			CSG_DateTime	Stop(Parameters("DATE_B")->asDate()->Get_Date());
+			CSG_DateTime	Stop(Parameters("DAY_STOP")->asDate()->Get_Date());
 
 			int	dDays	= Parameters("DAYS_STEP")->asInt();
 

@@ -74,8 +74,6 @@
 //---------------------------------------------------------
 #include "api_core.h"
 
-#include <limits.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -211,7 +209,7 @@ public:
 
 	enum Year		// invalid value for the year
 	{
-		Inv_Year	= SHRT_MIN	// should hold in wxDateTime_t
+		Inv_Year	= -32768	// should hold in wxDateTime_t
 	};
 
 	enum NameFlags	// flags for GetWeekDayName and GetMonthName

@@ -61,8 +61,6 @@
 //---------------------------------------------------------
 #include "daily_sun.h"
 
-#include <saga_api/datetime.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -89,22 +87,10 @@ CDaily_Sun::CDaily_Sun(void)
 	Parameters.Add_Grid(NULL, "LENGTH" , _TL("Day Length"   ), _TL(""), PARAMETER_OUTPUT);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "YEAR"	, _TL("Year"),
-		_TL(""),
-		PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Year()
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "MONTH"	, _TL("Month"),
-		_TL(""),
-		CSG_DateTime::Get_Month_Choices(), CSG_DateTime::Get_Current_Month()
-	);
-
-	Parameters.Add_Value(
+	Parameters.Add_Date(
 		NULL	, "DAY"		, _TL("Day of Month"),
 		_TL(""),
-		PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Day(), 1, true, 31, true
+		CSG_DateTime::Now().Get_JDN()
 	);
 
 	Parameters.Add_Choice(
@@ -178,7 +164,7 @@ bool CDaily_Sun::On_Execute(void)
 	bool	bWorld	= Parameters("TIME")->asInt() == 1;
 
 	//-----------------------------------------------------
-	CSG_DateTime	Time((CSG_DateTime::TSG_DateTime)Parameters("DAY")->asInt(), (CSG_DateTime::Month)Parameters("MONTH")->asInt(), Parameters("YEAR")->asInt());
+	CSG_DateTime	Time(Parameters("DAY")->asDate()->Get_Date());
 
 	Time.Reset_Time();
 

@@ -61,6 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/datetime.h>
+
 #include "callback.h"
 
 #include "module_library.h"
@@ -296,7 +298,7 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 			PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
 		).c_str();
 
-		Description.Replace(wxT("\xb"), wxT(""));	// unicode problem: quick'n'dirty bug fix, to be replaced
+		Description.Replace("\xb", "");	// unicode problem: quick'n'dirty bug fix, to be replaced
 
 		if( pParameter->is_Input() || pParameter->is_Output() )
 		{
@@ -330,12 +332,16 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 
 			case PARAMETER_TYPE_Double:
 			case PARAMETER_TYPE_Degree:
-				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Date:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_DATE  , wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
 			case PARAMETER_TYPE_Range:
-				m_CMD.AddOption(_Get_ID(pParameter, wxT("MIN")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				m_CMD.AddOption(_Get_ID(pParameter, wxT("MAX")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				m_CMD.AddOption(_Get_ID(pParameter, "MIN"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				m_CMD.AddOption(_Get_ID(pParameter, "MAX"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
 			case PARAMETER_TYPE_String:
@@ -351,11 +357,11 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_System:
 				if( pParameter->Get_Children_Count() == 0 )
 				{
-					m_CMD.AddOption(_Get_ID(pParameter, wxT("NX")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter, wxT("NY")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter, wxT( "X")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter, wxT( "Y")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter, wxT( "D")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter, "NX"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter, "NY"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,  "X"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,  "Y"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,  "D"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				}
 				break;
 			}
@@ -476,13 +482,24 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 				}
 				break;
 
+			case PARAMETER_TYPE_Date:
+				{
+					wxDateTime	Date;
+
+					if( m_CMD.Found(_Get_ID(pParameter), &Date) )
+					{
+						pParameter->Set_Value(Date.GetJDN());
+					}
+				}
+				break;
+
 			case PARAMETER_TYPE_Range:
-				if( m_CMD.Found(_Get_ID(pParameter, wxT("MIN")), &s) && s.ToDouble(&d) )
+				if( m_CMD.Found(_Get_ID(pParameter, "MIN"), &s) && s.ToDouble(&d) )
 				{
 					pParameter->asRange()->Set_LoVal(d);
 				}
 
-				if( m_CMD.Found(_Get_ID(pParameter, wxT("MAX")), &s) && s.ToDouble(&d) )
+				if( m_CMD.Found(_Get_ID(pParameter, "MAX"), &s) && s.ToDouble(&d) )
 				{
 					pParameter->asRange()->Set_HiVal(d);
 				}
@@ -520,9 +537,9 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 				{
 					if( pParameter->asFilePath()->is_Multiple() )
 					{
-						s.Prepend(wxT("\""));
-						s.Replace(wxT(";"), wxT("\" \""));
-						s.Append (wxT("\""));
+						s.Prepend("\"");
+						s.Replace(";", "\" \"");
+						s.Append ("\"");
 					}
 
 					pParameter->Set_Value(CSG_String(&s));
@@ -543,11 +560,11 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 					long	nx, ny;
 					double	d, x, y;
 
-					if(	!m_CMD.Found(_Get_ID(pParameter, wxT("NX")), &nx)
-					||	!m_CMD.Found(_Get_ID(pParameter, wxT("NY")), &ny)
-					||	!m_CMD.Found(_Get_ID(pParameter, wxT( "X")), &s) || !s.ToDouble(&x)
-					||	!m_CMD.Found(_Get_ID(pParameter, wxT( "Y")), &s) || !s.ToDouble(&y)
-					||	!m_CMD.Found(_Get_ID(pParameter, wxT( "D")), &s) || !s.ToDouble(&d) )
+					if(	!m_CMD.Found(_Get_ID(pParameter, "NX"), &nx)
+					||	!m_CMD.Found(_Get_ID(pParameter, "NY"), &ny)
+					||	!m_CMD.Found(_Get_ID(pParameter,  "X"), &s) || !s.ToDouble(&x)
+					||	!m_CMD.Found(_Get_ID(pParameter,  "Y"), &s) || !s.ToDouble(&y)
+					||	!m_CMD.Found(_Get_ID(pParameter,  "D"), &s) || !s.ToDouble(&d) )
 					{
 						pParameter->asGrid_System()->Assign(-1, 0.0, 0.0, 0, 0);
 					}

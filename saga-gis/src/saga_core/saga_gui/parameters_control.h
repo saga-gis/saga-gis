@@ -128,7 +128,8 @@ private:
 	void						_Add_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
 	class wxPGProperty *		_Get_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
 
-	void						_Set_Parameter		(const wxString &Identifier);
+	void						_Set_Parameter		(wxPGProperty *pProperty);
+	class CSG_Parameter *		_Get_Parameter		(wxPGProperty *pProperty);
 	void						_Update_Parameters	(void);
 	void						_Update_Parameter	(class CSG_Parameter *pParameter);
 	void						_Init_Pararameters	(void);
