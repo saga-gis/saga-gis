@@ -328,7 +328,7 @@ int CTL_Extract::Read_Text(const SG_Char *String, CSG_String &Text)
 			{
 				Level	= 0;
 			}
-			else if( !isspace(String[n]) )
+			else if( isspace(String[n]) )
 			{
 				Level	= 2;	// exit !
 			}
