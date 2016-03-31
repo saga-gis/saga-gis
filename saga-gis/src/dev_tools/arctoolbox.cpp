@@ -91,8 +91,8 @@ CArcToolBox::CArcToolBox(void)
 		NULL	, "BOX_NAMING"	, "Toolbox Naming",
 		"",
 		CSG_String::Format("%s|%s|",
-			"library file name",
-			"category and library name"
+			SG_T("library file name"),
+			SG_T("category and library name")
 		), 0
 	);
 
@@ -401,6 +401,7 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 		Info	+= CSG_String::Format("\t\tparam.value = \"%s\"\n", pParameter->asString());
 		break;
 
+	case PARAMETER_TYPE_Date:
 	case PARAMETER_TYPE_String:
 	case PARAMETER_TYPE_Text:
 		Info	+= ArcDataType(ARC_String   , false);
