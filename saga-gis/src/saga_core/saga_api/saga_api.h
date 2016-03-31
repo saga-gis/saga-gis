@@ -128,8 +128,8 @@
 //---------------------------------------------------------
 #define SAGA_MAJOR_VERSION		2
 #define SAGA_MINOR_VERSION		2
-#define SAGA_RELEASE_NUMBER		6
-#define SAGA_VERSION			SG_T("2.2.6")
+#define SAGA_RELEASE_NUMBER		7
+#define SAGA_VERSION			SG_T("2.2.7")
 
 
 ///////////////////////////////////////////////////////////
