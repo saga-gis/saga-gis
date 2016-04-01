@@ -624,7 +624,7 @@ bool CSG_Solar_Position::Get_CosZenith(double RLAT, double SIND, double COSD, do
 
 	if( SJSD+CJCD <= 0.0 )
 	{
-		// Constant nightime at this latitude
+		// Constant nighttime at this latitude
 	//	DAWN	= 999999;
 	//	DUSK	= 999999;
 		COSZT	= 0.0;
@@ -653,7 +653,7 @@ bool CSG_Solar_Position::Get_CosZenith(double RLAT, double SIND, double COSD, do
 	//	SDAWN	= -SDUSK;
 	//	S2DAWN	= -S2DUSK;
 
-		// Nightime at initial and final times with daylight in between
+		// Nighttime at initial and final times with daylight in between
 		double	ECOSZ, QCOSZ;
 		ECOSZ	= SJSD*(2*DUSK) + CJCD*(2*SDUSK);
 		QCOSZ	= SJSD*ECOSZ + CJCD*(SJSD*(2*SDUSK)

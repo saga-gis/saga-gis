@@ -463,7 +463,7 @@ bool COpenCV_NNet::On_Execute(void)
 	//-------------------------------------------------
 	// Now train the network
 
-	// TODO: Integrate init weights and indicies for record selection
+	// TODO: Integrate init weights and indices for record selection
 	// mat_Weights  = GetMatrix(t_Weights, i_matType);
 	// mat_Indices = GetMatrix(t_Indices, i_matType);
 	

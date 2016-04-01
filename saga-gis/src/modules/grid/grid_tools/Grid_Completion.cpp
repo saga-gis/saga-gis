@@ -135,7 +135,7 @@ bool CGrid_Completion::On_Execute(void)
 
 	if( !pGrid->is_Intersecting(pPatch->Get_Extent()) )
 	{
-		Error_Set(_TL("Nothing to do: there is no intersection with additonal grid."));
+		Error_Set(_TL("Nothing to do: there is no intersection with additional grid."));
 
 		return( false );
 	}

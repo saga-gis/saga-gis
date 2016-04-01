@@ -403,7 +403,7 @@ double CFlow_MassFlux::Get_Area(int x, int y)
 
 			d	= Get_Flow(ix, iy, i);
 
-			if( d > 0.0 )				// which portion drains ith neigbour into this cell???
+			if( d > 0.0 )				// which portion drains ith neighbour into this cell???
 			{
 				m_Area.Add_Value(x, y, d * Get_Area(ix, iy));	// then recursive call of this function...
 			}

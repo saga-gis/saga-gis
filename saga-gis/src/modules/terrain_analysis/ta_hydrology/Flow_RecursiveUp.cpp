@@ -150,7 +150,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 	Parameters.Add_Grid(
 		NULL	, "WEIGHT_LOSS"	, _TL("Loss through Negative Weights"),
-		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occured"),
+		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occurred"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 

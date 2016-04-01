@@ -94,7 +94,7 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 	Set_Author		("V.Wichmann & O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Regions with valid data in the input grid can be shrinked or expanded by a certain amount (radius). "
+		"Regions with valid data in the input grid can be shrunk or expanded by a certain amount (radius). "
 		"Shrinking just sets the border of regions with valid data to NoData, expanding sets NoData "
 		"cells along the border of regions with valid data to a new valid value, computed by the method "
 		"selected (min, max, mean, majority).\n\n"

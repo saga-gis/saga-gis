@@ -1419,7 +1419,7 @@ void CGrid_IMCORR::cross(std::vector<double>& UNORMC , std::vector<std::vector<d
 	// take inverse fft of cser
 	fft2(cser,nsnew,-1); // real signal format (house) again
 
-	//Extract usefull valid correlation
+	//Extract useful valid correlation
 	int ncol = nsnew[0] - nrnew[0] +1;
 	int nrow = nsnew[1] - nrnew[1] +1;
 	int denom = (int)(ChipSearch[0].size() * ChipSearch.size());
