@@ -210,7 +210,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SHAPES_EDIT_MERGE:		return( _TL("Merge Selection") );
 	case ID_CMD_SHAPES_EDIT_MOVE:		return( _TL("Move") );
 
-	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( _TL("Set Range to Minmum/Maximum") );
+	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( _TL("Set Range to Minimum/Maximum") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:		return( _TL("Set Range to Standard Deviation (1.5)") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:		return( _TL("Set Range to Standard Deviation (2.0)") );
 
