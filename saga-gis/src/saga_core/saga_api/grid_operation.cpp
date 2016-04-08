@@ -802,7 +802,7 @@ void CSG_Grid::Flip(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			for(int yA=0, yB=Get_NX()-1; yA<yB; yA++, yB--)
+			for(int yA=0, yB=Get_NY()-1; yA<yB; yA++, yB--)
 			{
 				double	d	   = asDouble(x, yA);
 				Set_Value(x, yA, asDouble(x, yB));
