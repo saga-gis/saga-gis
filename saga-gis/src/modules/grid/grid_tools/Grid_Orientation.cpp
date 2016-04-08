@@ -293,11 +293,8 @@ bool CGrid_Mirror::On_Execute(void)
 		{
 			for(int ya=0, yb=Get_NY()-1; ya<=yb && SG_UI_Process_Set_Progress(ya, Get_NY()/2); ya++, yb--)
 			{
-				#pragma omp parallel for
-				for(int xa=0; xa<=Get_NX()/2; xa++)
+				for(int xa=0, xb=Get_NX()-1; xa<=xb; xa++, xb--)
 				{
-					int	xb	= Get_NX() - xa - 1;
-
 					if( ya < yb && xa < xb )
 					{
 						double	d              = pGrid->asDouble(xa, ya);
