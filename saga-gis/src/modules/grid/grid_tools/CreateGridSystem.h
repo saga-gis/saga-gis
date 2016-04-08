@@ -75,21 +75,25 @@
 
 
 //---------------------------------------------------------
-class grid_tools_EXPORT CCreateGridSystem : public CSG_Module
+class CCreateGridSystem : public CSG_Module
 {
 public:
 	CCreateGridSystem(void);
-	virtual ~CCreateGridSystem(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid System") );	}
 
 
 protected:
 
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
 
 
 private:
+
+	CSG_Grid_System				Get_Adjusted			(double Cellsize, TSG_Rect Extent);
 
 };
 
