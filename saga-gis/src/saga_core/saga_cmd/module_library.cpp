@@ -340,8 +340,8 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_Range:
-				m_CMD.AddOption(_Get_ID(pParameter, "MIN"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-				m_CMD.AddOption(_Get_ID(pParameter, "MAX"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				m_CMD.AddOption(_Get_ID(pParameter, "MIN"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+				m_CMD.AddOption(_Get_ID(pParameter, "MAX"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
 			case PARAMETER_TYPE_String:
@@ -359,9 +359,9 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 				{
 					m_CMD.AddOption(_Get_ID(pParameter, "NX"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
 					m_CMD.AddOption(_Get_ID(pParameter, "NY"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter,  "X"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter,  "Y"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter,  "D"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,  "X"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,  "Y"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,  "D"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
 				}
 				break;
 			}
@@ -476,7 +476,7 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 
 			case PARAMETER_TYPE_Double:
 			case PARAMETER_TYPE_Degree:
-				if( m_CMD.Found(_Get_ID(pParameter), &s) && s.ToDouble(&d) )
+				if( m_CMD.Found(_Get_ID(pParameter), &d) )
 				{
 					pParameter->Set_Value(d);
 				}
@@ -494,12 +494,12 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 				break;
 
 			case PARAMETER_TYPE_Range:
-				if( m_CMD.Found(_Get_ID(pParameter, "MIN"), &s) && s.ToDouble(&d) )
+				if( m_CMD.Found(_Get_ID(pParameter, "MIN"), &d) )
 				{
 					pParameter->asRange()->Set_LoVal(d);
 				}
 
-				if( m_CMD.Found(_Get_ID(pParameter, "MAX"), &s) && s.ToDouble(&d) )
+				if( m_CMD.Found(_Get_ID(pParameter, "MAX"), &d) )
 				{
 					pParameter->asRange()->Set_HiVal(d);
 				}
@@ -558,13 +558,13 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 				if( pParameter->Get_Children_Count() == 0 )
 				{
 					long	nx, ny;
-					double	d, x, y;
+					double	 x,  y;
 
 					if(	!m_CMD.Found(_Get_ID(pParameter, "NX"), &nx)
 					||	!m_CMD.Found(_Get_ID(pParameter, "NY"), &ny)
-					||	!m_CMD.Found(_Get_ID(pParameter,  "X"), &s) || !s.ToDouble(&x)
-					||	!m_CMD.Found(_Get_ID(pParameter,  "Y"), &s) || !s.ToDouble(&y)
-					||	!m_CMD.Found(_Get_ID(pParameter,  "D"), &s) || !s.ToDouble(&d) )
+					||	!m_CMD.Found(_Get_ID(pParameter,  "X"), &x )
+					||	!m_CMD.Found(_Get_ID(pParameter,  "Y"), &y )
+					||	!m_CMD.Found(_Get_ID(pParameter,  "D"), &d ) )
 					{
 						pParameter->asGrid_System()->Assign(-1, 0.0, 0.0, 0, 0);
 					}
