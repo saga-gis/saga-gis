@@ -29,12 +29,12 @@
     </tool>
     <tool library="ta_hydrology" module="0" name="Catchment Area (Top-Down)">
       <input id="ELEVATION">DEM_PREPROC</input>
-      <output id="CAREA">CAREA</output>
+      <output id="FLOW">FLOW</output>
       <option id="METHOD" varname="true">FLOW_METHOD</option>
     </tool>
     <tool library="ta_hydrology" module="19" name="Flow Width and Specific Catchment Area">
       <input id="DEM">DEM_PREPROC</input>
-      <input id="TCA">CAREA</input>
+      <input id="TCA">FLOW</input>
       <output id="SCA">SCA</output>
       <option id="METHOD">2</option>
     </tool>
