@@ -1355,9 +1355,9 @@ int CSG_Formula::max_size(const SG_Char *source)
 	{
 		if( isalpha(*scan) && (*scan != SG_T('E')) )
 		{
-			if( isalpha(*(scan + 1)) )
+			if( isalpha(*(scan + 1)) || isdigit(*(scan + 1)) )
 			{
-				// it is a function name, it will be counted later on
+				// must be a function name (combination of letters and digits, e.g. sin(..), atan2(..))
 			}
 			else if( *(scan + 1) == SG_T('(') )
 			{
