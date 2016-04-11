@@ -81,6 +81,14 @@ CImport_Clip_Resample::CImport_Clip_Resample(void)
 	));
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pNode;
+
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"		, _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
 	Parameters.Add_FilePath(
 		NULL	, "FILES"		, _TL("Image Files"),
 		_TL(""),
@@ -90,23 +98,70 @@ CImport_Clip_Resample::CImport_Clip_Resample(void)
 		), NULL, false, false, true
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	//-----------------------------------------------------
+	Parameters.Add_Bool(
+		NULL	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		false
 	);
 
+	pNode	= Parameters.Add_Bool(
+		NULL	, "NODATA"		, _TL("User Defined No-Data Value"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Double(
+		pNode	, "NODATA_VAL"	, _TL("No-Data Value"),
+		_TL("")
+	);
+
+	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "CLIP"		, _TL("Region of Interest"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+		_TL("bounding box for clipping"),
+		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CELLSIZE"	, _TL("Target Cell Size"),
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Bool(
+		NULL	, "RESAMPLE"	, _TL("Resample"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
+		true
 	);
+
+	Parameters.Add_Double(
+		pNode	, "CELLSIZE"	, _TL("Cell Size"),
+		_TL(""),
+		100.0, 0.0, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CImport_Clip_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CImport_Clip_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NODATA") )
+	{
+		pParameters->Set_Enabled("NODATA_VAL", pParameter->asBool());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RESAMPLE") )
+	{
+		pParameters->Set_Enabled("CELLSIZE"  , pParameter->asBool());
+	}
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -126,15 +181,11 @@ bool CImport_Clip_Resample::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pClip	= Parameters("CLIP")->asShapes();
-
-	m_System.Assign(Parameters("CELLSIZE")->asDouble(), pClip->Get_Extent());
-
-	//-----------------------------------------------------
 	m_pGrids	= Parameters("GRIDS")->asGridList();
 
 	m_pGrids->Del_Items();
 
+	//-----------------------------------------------------
 	for(int i=0; i<Files.Get_Count() && Process_Get_Okay(); i++)
 	{
 		Load_File(Files[i]);
@@ -161,7 +212,7 @@ bool CImport_Clip_Resample::Load_File(const CSG_String &File)
 
 	if( !Grids.Add(File) || !Grids.Get_Grid_System(0) || !Grids.Get_Grid_System(0)->Get(0) )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("could not load file"), File.c_str()));
+		Error_Set(CSG_String::Format("%s: %s", _TL("could not load file"), File.c_str()));
 
 		return( false );
 	}
@@ -172,23 +223,72 @@ bool CImport_Clip_Resample::Load_File(const CSG_String &File)
 	{
 		for(size_t iGrid=0; iGrid<Grids.Get_Grid_System(iSystem)->Count(); iGrid++)
 		{
-			CSG_Grid	*pImport	= (CSG_Grid *)Grids.Get_Grid_System(iSystem)->Get(iGrid);
-
-			if( m_System.Get_Extent().Intersects(pImport->Get_Extent()) )
+			if( Load_Grid((CSG_Grid *)Grids.Get_Grid_System(iSystem)->Get(iGrid)) )
 			{
-				CSG_Grid	*pGrid	= SG_Create_Grid(m_System, SG_DATATYPE_Float);
-
-				pGrid->Assign  (pImport);
-				pGrid->Set_Name(pImport->Get_Name());
-
-				m_pGrids->Add_Item(pGrid);
-
 				n++;
 			}
 		}
 	}
 
 	return( n > 0 );
+}
+
+//---------------------------------------------------------
+bool CImport_Clip_Resample::Load_Grid(CSG_Grid *pImport)
+{
+	CSG_Grid_System	System	= pImport->Get_System();
+
+	//-----------------------------------------------------
+	const CSG_Rect	*pClip	= Parameters("CLIP")->asShapes() ? &Parameters("CLIP")->asShapes()->Get_Extent() : NULL;
+
+	if( pClip )
+	{
+		if( !pClip->Intersects(System.Get_Extent()) )
+		{
+			return( false );
+		}
+
+		TSG_Rect	Extent	= System.Get_Extent();
+
+		if( pClip->Get_XMin() > System.Get_XMin() )	Extent.xMin	= System.Fit_xto_Grid_System(pClip->Get_XMin());
+		if( pClip->Get_XMax() < System.Get_XMax() )	Extent.xMax	= System.Fit_xto_Grid_System(pClip->Get_XMax());
+		if( pClip->Get_YMin() > System.Get_YMin() )	Extent.yMin	= System.Fit_yto_Grid_System(pClip->Get_YMin());
+		if( pClip->Get_YMax() < System.Get_YMax() )	Extent.yMax	= System.Fit_yto_Grid_System(pClip->Get_YMax());
+
+		System.Assign(System.Get_Cellsize(), Extent);
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("RESAMPLE")->asBool() )
+	{
+		double	Cellsize	= Parameters("CELLSIZE")->asDouble();
+
+		if( Cellsize > 0.0 && Cellsize != System.Get_Cellsize() )
+		{
+			System.Assign(Cellsize, System.Get_Extent());
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("NODATA")->asBool() )
+	{
+		pImport->Set_NoData_Value(Parameters("NODATA_VAL")->asDouble());
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= SG_Create_Grid(System, Parameters("KEEP_TYPE")->asBool() ? pImport->Get_Type() : SG_DATATYPE_Float);
+
+	if( pGrid )
+	{
+		pGrid->Assign  (pImport);
+		pGrid->Set_Name(pImport->Get_Name());
+
+		m_pGrids->Add_Item(pGrid);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
