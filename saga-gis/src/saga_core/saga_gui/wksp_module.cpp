@@ -361,6 +361,8 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 			bResult		= m_pModule->Execute();
 
+			m_pModule->On_After_Execution();
+
 			g_pACTIVE->Get_Parameters()->Update_Parameters(m_pModule->Get_Parameters(), false);
 
 			if( m_pModule->is_Interactive() )

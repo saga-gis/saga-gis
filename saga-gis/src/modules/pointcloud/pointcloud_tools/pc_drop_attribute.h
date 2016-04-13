@@ -86,19 +86,14 @@ class CPC_Drop_Attribute : public CSG_Module
 public:
 	CPC_Drop_Attribute(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
-	virtual bool				On_Execute				(void);
+	virtual bool			On_Execute				(void);
 
-
-private:
-
-	void						Set_Display_Attributes(CSG_PointCloud *pPC, CSG_Parameters &sParms);
-
+	virtual bool			On_After_Execution		(void);
 
 };
 

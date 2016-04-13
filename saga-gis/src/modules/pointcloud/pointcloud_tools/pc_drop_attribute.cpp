@@ -75,17 +75,15 @@
 //---------------------------------------------------------
 CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 {
+	Set_Name		(_TL("Drop Point Cloud Attributes"));
 
-	Set_Name(_TL("Drop Point Cloud Attributes"));
-
-	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
+	Set_Author		("Volker Wichmann (c) 2010, LASERDATA GmbH");
 
 	Set_Description	(_TW(
 		"The module can be used to drop attributes from a point cloud. "
 		"In case the output dataset is not set, the attribute(s) will be dropped "
 		"from the input dataset, i.e. the input dataset will be overwritten.\n\n"
 	));
-
 
 	//-----------------------------------------------------
 	CSG_Parameter *pNode = Parameters.Add_PointCloud(
@@ -109,37 +107,14 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CPC_Drop_Attribute::On_Before_Execution(void)
-{
-	if( Parameters("OUTPUT")->asPointCloud() == Parameters("INPUT")->asPointCloud() )
-		Parameters("OUTPUT")->Set_Value(DATAOBJECT_NOTSET);
-
-	return (true);
-}
-
 
 //---------------------------------------------------------
 bool CPC_Drop_Attribute::On_Execute(void)
 {
-	CSG_PointCloud		*pInput, *pOutput;
-	CSG_Parameters		sParms;
-	int					*Features, nFeatures;
-	std::set<int>		setCols;
-	std::set<int>::iterator it;
-
-
-	pInput	= Parameters("INPUT")->asPointCloud();
-	pOutput	= Parameters("OUTPUT")->asPointCloud();
-
-
 	//-------------------------------------------------
-	Features	= (int *)Parameters("FIELDS")->asPointer();
-	nFeatures	=        Parameters("FIELDS")->asInt    ();
+	int	*Features	= (int *)Parameters("FIELDS")->asPointer();
+	int	nFeatures	=        Parameters("FIELDS")->asInt    ();
 
 	if( !Features || nFeatures <= 0 )
 	{
@@ -149,48 +124,43 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_String		sName;
-	CSG_MetaData	History;
+	CSG_PointCloud	*pInput		= Parameters("INPUT" )->asPointCloud();
+	CSG_PointCloud	*pOutput	= Parameters("OUTPUT")->asPointCloud(), Output;
 
 	if( !pOutput || pOutput == pInput )
 	{
-		sName = pInput->Get_Name();
-		pOutput = SG_Create_PointCloud(pInput);
-		History = pInput->Get_History();
+		pOutput	= &Output;
 	}
-	else
-	{
-		sName = CSG_String::Format(SG_T("%s_droppedAttr"), pInput->Get_Name());
-		pOutput->Create(pInput);
-	}
-	
+
+	pOutput->Create(pInput);
 
 	//-----------------------------------------------------
+	int	i;
+
+	std::set<int>			setCols;
+	std::set<int>::iterator it;
+
 	setCols.clear();
 
-	for( int i=0; i<nFeatures; i++ )
+	for(i=0; i<nFeatures; i++)
 	{
 		setCols.insert(Features[i]);
 	}
 
-
-	//-----------------------------------------------------
-	int j = 0;
-	for(it=setCols.begin(); it!=setCols.end(); it++)
+	for(i=0, it=setCols.begin(); it!=setCols.end(); i++, it++)
 	{
-		pOutput->Del_Field(*it - j);
-		j++;
+		pOutput->Del_Field(*it - i);
 	}
 
-	DataObject_Update(pOutput);
-
-	for(int i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
+	//-----------------------------------------------------
+	for(i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		pOutput->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 
 		for(int j=0, k=0; j<pInput->Get_Attribute_Count(); j++, k++)
 		{
-			it = setCols.find(j + 3);
+			it	= setCols.find(j + 3);
+
 			if( it != setCols.end() )
 			{
 				k--;
@@ -201,52 +171,50 @@ bool CPC_Drop_Attribute::On_Execute(void)
 		}
 	}
 
-
 	//-----------------------------------------------------
-	if (!Parameters("OUTPUT")->asPointCloud() || Parameters("OUTPUT")->asPointCloud() == pInput )
+	if( pOutput == &Output )
 	{
+		CSG_MetaData	History	= pInput->Get_History();
+		CSG_String		Name	= pInput->Get_Name   ();
+
 		pInput->Assign(pOutput);
+
 		pInput->Get_History() = History;
-		pInput->Set_Name(sName);
-		Parameters("OUTPUT")->Set_Value(pInput);
-
-		delete(pOutput);
-
-		DataObject_Get_Parameters(pInput, sParms);
-		Set_Display_Attributes(pInput, sParms);
+		pInput->Set_Name(Name);
 	}
 	else
 	{
-		pOutput->Set_Name(sName);
-		DataObject_Update(pOutput);
-
-		DataObject_Get_Parameters(pOutput, sParms);
-		Set_Display_Attributes(pOutput, sParms);
+		pOutput->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Dropped Attributes")));
 	}
-
 
 	//-----------------------------------------------------
 	return( true );
 }
 
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-void CPC_Drop_Attribute::Set_Display_Attributes(CSG_PointCloud *pPC, CSG_Parameters &sParms)
+bool CPC_Drop_Attribute::On_After_Execution(void)
 {
-	if (sParms("METRIC_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
-		&& sParms("METRIC_ZRANGE") && sParms("DISPLAY_VALUE_AGGREGATE"))
+	CSG_PointCloud	*pOutput	= Parameters("OUTPUT")->asPointCloud();
+
+	if( pOutput == NULL )
 	{
-		sParms("DISPLAY_VALUE_AGGREGATE")->Set_Value(3);		// highest z
-		sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
-		sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
-		sParms("METRIC_ATTRIB")->Set_Value(2);					// z attrib
-		sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPC->Get_Minimum(2), pPC->Get_Maximum(2));
+		pOutput	= Parameters("INPUT")->asPointCloud();
 	}
 
-	DataObject_Set_Parameters(pPC, sParms);
-	DataObject_Update(pPC);
+	DataObject_Set_Parameter(pOutput, "DISPLAY_VALUE_AGGREGATE",  3);	// highest z
+	DataObject_Set_Parameter(pOutput, "METRIC_COLORS"          , 12);	// number of colors
+	DataObject_Set_Parameter(pOutput, "COLORS_TYPE"            ,  3);	// graduated color
+	DataObject_Set_Parameter(pOutput, "METRIC_ATTRIB"          ,  2);	// z attrib
+	DataObject_Set_Parameter(pOutput, "METRIC_ZRANGE", 100, 300);
 
-	return;
+	DataObject_Set_Colors(pOutput, 11, SG_COLORS_RAINBOW);
+
+	return( true );
 }
 
 

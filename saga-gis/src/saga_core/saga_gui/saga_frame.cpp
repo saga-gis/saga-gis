@@ -793,7 +793,7 @@ bool CSAGA_Frame::ProgressBar_Set_Position(int Position)
 //---------------------------------------------------------
 bool CSAGA_Frame::ProgressBar_Set_Position(double Position, double Range)
 {
-	return( ProgressBar_Set_Position(Range < 0.0 ? 0 : (int)(0.5 + 100.0 * Position / Range)) );
+	return( ProgressBar_Set_Position(Range > 0.0 ? (int)(0.5 + 100.0 * Position / Range) : 0) );
 }
 
 //---------------------------------------------------------
