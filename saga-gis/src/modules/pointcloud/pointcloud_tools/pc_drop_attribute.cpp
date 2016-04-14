@@ -221,7 +221,7 @@ bool CPC_Drop_Attribute::On_After_Execution(void)
 
 	if( pOutput == Parameters("INPUT")->asPointCloud() )
 	{
-		Parameters("OUTPUT")->Set_Value(NULL);
+		Parameters("OUTPUT")->Set_Value(DATAOBJECT_NOTSET);
 	}
 
 	return( true );
