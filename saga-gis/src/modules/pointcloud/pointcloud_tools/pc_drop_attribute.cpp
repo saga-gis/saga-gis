@@ -181,6 +181,8 @@ bool CPC_Drop_Attribute::On_Execute(void)
 
 		pInput->Get_History() = History;
 		pInput->Set_Name(Name);
+
+		Parameters("OUTPUT")->Set_Value(pInput);
 	}
 	else
 	{
@@ -210,9 +212,17 @@ bool CPC_Drop_Attribute::On_After_Execution(void)
 	DataObject_Set_Parameter(pOutput, "METRIC_COLORS"          , 12);	// number of colors
 	DataObject_Set_Parameter(pOutput, "COLORS_TYPE"            ,  3);	// graduated color
 	DataObject_Set_Parameter(pOutput, "METRIC_ATTRIB"          ,  2);	// z attrib
-	DataObject_Set_Parameter(pOutput, "METRIC_ZRANGE", 100, 300);
+	DataObject_Set_Parameter(pOutput, "METRIC_ZRANGE",
+		pOutput->Get_Mean(2) - 2.0 * pOutput->Get_StdDev(2),
+		pOutput->Get_Mean(2) + 2.0 * pOutput->Get_StdDev(2)
+	);
 
 	DataObject_Set_Colors(pOutput, 11, SG_COLORS_RAINBOW);
+
+	if( pOutput == Parameters("INPUT")->asPointCloud() )
+	{
+		Parameters("OUTPUT")->Set_Value(NULL);
+	}
 
 	return( true );
 }
