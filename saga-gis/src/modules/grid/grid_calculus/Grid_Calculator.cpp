@@ -108,10 +108,11 @@ CGrid_Calculator::CGrid_Calculator(void)
 		"The following operators are available for the formula definition:\n"
 	));
 
-	const CSG_String	Operators[3][2]	=
+	const CSG_String	Operators[4][2]	=
 	{
 		{	"xpos(), ypos()", _TL("Get the x/y coordinates for the current cell")	},
 		{	"row(), col()"  , _TL("Get the current cell's column/row index"     )	},
+		{	"nodata()"      , _TL("Returns resulting grid's no-data value"      )	},
 		{	"", ""	}
 	};
 
@@ -227,6 +228,14 @@ int CGrid_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double	g_NoData_Value	= -99999.;
+
+double	Get_NoData_Value(void)
+{
+	return( g_NoData_Value );
+}
+
+//---------------------------------------------------------
 bool CGrid_Calculator::On_Execute(void)
 {
 	bool					bUseNoData, bPosition[4];
@@ -241,6 +250,8 @@ bool CGrid_Calculator::On_Execute(void)
 	bUseNoData	= Parameters("USE_NODATA")->asBool();
 
 	//-----------------------------------------------------
+	Formula.Add_Function(SG_T("nodata"), (TSG_PFNC_Formula_1)Get_NoData_Value, 0, 0);
+
 	if( !Get_Formula(Formula, Parameters("FORMULA")->asString(), pGrids->Get_Count(), pXGrids->Get_Count(), bPosition) )
 	{
 		return( false );
@@ -280,6 +291,8 @@ bool CGrid_Calculator::On_Execute(void)
 	}
 
 	pResult->Set_Name(Parameters("NAME")->asString());
+
+	g_NoData_Value	= pResult->Get_NoData_Value();
 
 	int	nValues	= pGrids->Get_Count() + pXGrids->Get_Count()
 		+ (bPosition[0] ? 1 : 0)
