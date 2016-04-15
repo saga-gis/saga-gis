@@ -431,10 +431,9 @@ bool CValley_Depth::On_Execute(void)
 	CSG_Grid	Ridges (*Get_System(), SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
-	RUN_MODULE("grid_tools"					, 19,	// grid orientation
-			SET_PARAMETER("INPUT"			, Parameters("ELEVATION"))
-		&&	SET_PARAMETER("RESULT"			, &Inverse)
-		&&	SET_PARAMETER("METHOD"			, 3)	// invert
+	RUN_MODULE("grid_tools"					, 34,	// grid orientation
+			SET_PARAMETER("GRID"			, Parameters("ELEVATION"))
+		&&	SET_PARAMETER("INVERSE"			, &Inverse)
 	)
 
 	RUN_MODULE("ta_channels"				, 6,	// strahler order
