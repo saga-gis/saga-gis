@@ -114,6 +114,7 @@ CSG_String Get_Info(int i)
 #include "Grid_InvertNoData.h"
 #include "GridsFromTableAndGrid.h"
 
+#include "Grid_Value_NoData.h"
 #include "Grid_Value_Type.h"
 #include "Grid_Value_Replace.h"
 #include "Grid_Value_Replace_Interactive.h"
@@ -166,11 +167,13 @@ CSG_Module *		Create_Module(int i)
 	case  9: 	return( new CThresholdBuffer );
 	case 10:	return( new CGrid_Proximity_Buffer );
 
+	case 36:	return( new CGrid_Value_NoData );
 	case 11:	return( new CGrid_Value_Type );
 	case 12:	return( new CGrid_Value_Replace );
 	case 13:	return( new CGrid_Value_Replace_Interactive );
 	case 14:	return( new CGrid_Value_Request );
 	case 15:	return( new CGrid_Value_Reclassify );
+
 	case 16:	return( new CGrid_Fill );
 
 	case 17: 	return( new CCropToData );

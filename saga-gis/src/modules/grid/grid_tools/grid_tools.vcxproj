@@ -320,6 +320,7 @@
     <ClCompile Include="Grid_ThresholdBuffer.cpp" />
     <ClCompile Include="Grid_Tiling.cpp" />
     <ClCompile Include="Grid_Transpose.cpp" />
+    <ClCompile Include="Grid_Value_NoData.cpp" />
     <ClCompile Include="Grid_Value_Reclassify.cpp" />
     <ClCompile Include="Grid_Value_Replace.cpp" />
     <ClCompile Include="Grid_Value_Replace_Interactive.cpp" />
@@ -370,6 +371,7 @@
     <ClInclude Include="Grid_ThresholdBuffer.h" />
     <ClInclude Include="Grid_Tiling.h" />
     <ClInclude Include="Grid_Transpose.h" />
+    <ClInclude Include="Grid_Value_NoData.h" />
     <ClInclude Include="Grid_Value_Reclassify.h" />
     <ClInclude Include="Grid_Value_Replace.h" />
     <ClInclude Include="Grid_Value_Replace_Interactive.h" />
