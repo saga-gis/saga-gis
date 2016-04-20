@@ -733,7 +733,11 @@ void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::_Get_DataSource(wxString &Source)
 {
-	if( Source.Find("PGSQL:") == 0 || wxFileExists(Source) )
+	if( Source.Find("PGSQL:" ) == 0
+	||	Source.Find("ftp://" ) == 0
+	||	Source.Find("http://") == 0
+	||	Source.Find("file://") == 0
+	||  wxFileExists(Source) )
 	{
 		return( true );
 	}
