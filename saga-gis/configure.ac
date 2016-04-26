@@ -26,6 +26,7 @@ AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found
 AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
+AC_CHECK_HEADER([dxflib/dl_dxf.h],AC_CHECK_LIB(libdxf,DL_ArcData,LIBDXFFOUND=1)])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -187,6 +188,14 @@ AM_CONDITIONAL(LIBFIRE, [test x$use_libfire = xyes])
 if test "x$use_libfire" != xyes; then
     AC_MSG_RESULT([        Libfire disabled])
 fi
+
+
+AC_ARG_WITH(system_dxflib,
+    AS_HELP_STRING([--with-system-dxflib],[Use system version of dxflib instead of embedded copy, requires this library (and the header files)]),
+    AC_MSG_RESULT([        using system libdxf]),
+    system_libdxf=true,
+    )
+AM_CONDITIONAL(SYSTEM_DXFLIB, test -n "$LIBDXFFOUND" -a x$system_libdxf=xtrue)
 
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
     AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")

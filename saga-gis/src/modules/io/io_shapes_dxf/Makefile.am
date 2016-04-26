@@ -13,10 +13,15 @@ pkglib_LTLIBRARIES = libio_shapes_dxf.la
 libio_shapes_dxf_la_SOURCES =\
 dxf_import.cpp\
 MLB_Interface.cpp\
+dxf_import.h\
+MLB_Interface.h
+
+if SYSTEM_DXFLIB
+AM_LDFLAGS       += -ldxflib
+else
+libio_shapes_dxf_la_SOURCES +=\
 ./dxflib/dl_dxf.cpp\
 ./dxflib/dl_writer_ascii.cpp\
-dxf_import.h\
-MLB_Interface.h\
 ./dxflib/dl_attributes.h\
 ./dxflib/dl_codes.h\
 ./dxflib/dl_creationadapter.h\
@@ -29,4 +34,4 @@ MLB_Interface.h\
 ./dxflib/dl_writer_ascii.h
 
 libio_shapes_dxf_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
-
+endif
