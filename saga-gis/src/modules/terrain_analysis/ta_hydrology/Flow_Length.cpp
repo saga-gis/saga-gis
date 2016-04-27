@@ -163,12 +163,7 @@ bool CFlow_Length::On_Execute(void)
 
 					if( pDistance->is_InGrid(ix, iy) )
 					{
-						Distance	= pDistance->asDouble(ix, iy) + Get_Length(i);
-						
-						if( pWeights )
-						{
-							Distance	*= pWeights->asDouble(ix, iy);
-						}
+						Distance	= pDistance->asDouble(ix, iy) + Get_Length(i) * (pWeights ? pWeights->asDouble(ix, iy) : 1.0);
 					}
 				}
 
@@ -200,12 +195,7 @@ bool CFlow_Length::On_Execute(void)
 
 					if( pDEM->is_InGrid(ix, iy) )
 					{
-						double	Distance	= pDistance->asDouble(x, y) + Get_Length(i);
-						
-						if( pWeights )
-						{
-							Distance	*= pWeights->asDouble(x, y);
-						}
+						double	Distance	= pDistance->asDouble(x, y) + Get_Length(i) * (pWeights ? pWeights->asDouble(x, y) : 1.0);
 
 						if( pDistance->is_NoData(ix, iy) || pDistance->asDouble(ix, iy) < Distance )
 						{
