@@ -339,7 +339,7 @@ bool		Execute_Script(const CSG_String &Script)
 {
 	if( CMD_Get_Show_Messages() )
 	{
-		CMD_Print(CSG_String::Format(SG_T("%s: %s"), _TL("Running Script"), Script.c_str()));
+		CMD_Print(CSG_String::Format("%s: %s", _TL("Running Script"), Script.c_str()));
 	}
 
 	CSG_File	Stream;
@@ -483,11 +483,11 @@ bool		Check_Flags		(const CSG_String &Argument)
 #endif
 
 	//-----------------------------------------------------
-	CSG_String	s(Argument.BeforeFirst(SG_T('=')));
+	CSG_String	s(Argument.BeforeFirst('='));
 
 	if( !s.CmpNoCase("-f") || !s.CmpNoCase("--flags") )
 	{
-		s	= CSG_String(Argument).AfterFirst(SG_T('='));
+		s	= CSG_String(Argument).AfterFirst('=');
 
 		CMD_Set_Show_Progress(s.Find('q') < 0 && s.Find('s') < 0);	// q, s: no progress report
 		CMD_Set_Show_Messages(s.Find('r') < 0 && s.Find('s') < 0);	// r, s: no messages report

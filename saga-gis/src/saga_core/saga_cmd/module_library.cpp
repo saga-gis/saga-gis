@@ -289,6 +289,17 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
+		//-------------------------------------------------
+		if( pParameter->is_DataObject() )	// reset data object parameters, avoids problems when tool is called more than once without un-/reloading
+		{
+			pParameter->Set_Value(DATAOBJECT_NOTSET);
+		}
+		else if( pParameter->is_DataObject_List() )
+		{
+			pParameter->asList()->Del_Items();
+		}
+
+		//-------------------------------------------------
 		if( pParameter->do_UseInCMD() == false )
 		{
 			continue;
@@ -305,6 +316,7 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 			m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_NEEDS_SEPARATOR|wxCMD_LINE_PARAM_OPTIONAL);
 		}
 
+		//-------------------------------------------------
 		else if( pParameter->is_Option() && !pParameter->is_Information() )
 		{
 			switch( pParameter->Get_Type() )
