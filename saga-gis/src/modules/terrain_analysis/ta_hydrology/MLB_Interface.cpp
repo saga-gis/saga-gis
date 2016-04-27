@@ -98,6 +98,7 @@ CSG_String Get_Info(int i)
 #include "Flow_AreaDownslope.h"
 
 #include "Flow_Distance.h"
+#include "Flow_Length.h"
 #include "SlopeLength.h"
 
 #include "EdgeContamination.h"
@@ -144,7 +145,6 @@ CSG_Module *		Create_Module(int i)
 	case 11:	return( new CSinuosity );
 	case 12:	return( new CFlowDepth );
 	case 13:	return( new CEdgeContamination );
-	case 14:	return( MLB_INTERFACE_SKIP_MODULE );	// removed: CTopographicIndices
 	case 15:	return( new CSAGA_Wetness_Index );
 	case 16:	return( new CLakeFlood );
 	case 17:	return( new CLakeFloodInteractive );
@@ -157,9 +157,11 @@ CSG_Module *		Create_Module(int i)
 	case 24:	return( new CTCI_Low );
 	case 25:	return( new CErosion_LS_Fields );
 	case 26:	return( new CFlow_by_Slope );
-	}
+	case 27:	return( new CFlow_Length );
 
-	return( NULL );
+	case 28:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 

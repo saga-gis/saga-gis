@@ -89,6 +89,9 @@
     <ClCompile Include="flow_by_slope.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Flow_Length.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -215,6 +218,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="flow_by_slope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flow_Length.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

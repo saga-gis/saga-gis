@@ -302,6 +302,7 @@
     <ClCompile Include="Flow_AreaUpslope.cpp" />
     <ClCompile Include="flow_by_slope.cpp" />
     <ClCompile Include="Flow_Distance.cpp" />
+    <ClCompile Include="Flow_Length.cpp" />
     <ClCompile Include="flow_massflux.cpp" />
     <ClCompile Include="Flow_Parallel.cpp" />
     <ClCompile Include="Flow_RecursiveDown.cpp" />
@@ -345,6 +346,7 @@
     <ClInclude Include="Flow_BRM.h" />
     <ClInclude Include="flow_by_slope.h" />
     <ClInclude Include="Flow_Distance.h" />
+    <ClInclude Include="Flow_Length.h" />
     <ClInclude Include="flow_massflux.h" />
     <ClInclude Include="Flow_Parallel.h" />
     <ClInclude Include="Flow_RecursiveDown.h" />

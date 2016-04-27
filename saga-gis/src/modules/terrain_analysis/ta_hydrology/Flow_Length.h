@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: Flow_Distance.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: Flow_Length.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    Flow_Distance.h                    //
+//                     Flow_Length.h                     //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Flow_Distance_H
-#define HEADER_INCLUDED__Flow_Distance_H
+#ifndef HEADER_INCLUDED__Flow_Length_H
+#define HEADER_INCLUDED__Flow_Length_H
 
 
 ///////////////////////////////////////////////////////////
@@ -82,11 +80,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFlow_Distance : public CSG_Module_Grid  
+class CFlow_Length : public CSG_Module_Grid  
 {
 public:
-	CFlow_Distance(void);
-	virtual ~CFlow_Distance(void);
+	CFlow_Length(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation") );	}
 
@@ -94,17 +91,6 @@ public:
 protected:
 
 	virtual bool			On_Execute		(void);
-
-
-private:
-
-	double					m_Converge;
-
-	CSG_Grid					*m_pDTM, *m_pLength, *m_pWeight;
-
-
-	void					Set_Length_D8	(int x, int y);
-	void					Set_Length_MFD	(int x, int y);
 
 };
 
@@ -116,4 +102,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Flow_Distance_H
+#endif // #ifndef HEADER_INCLUDED__Flow_Length_H
