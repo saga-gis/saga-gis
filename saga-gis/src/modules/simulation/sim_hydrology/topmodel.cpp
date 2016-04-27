@@ -89,7 +89,7 @@ CTOPMODEL::CTOPMODEL(void)
 		"(Centre for Research on Environmental Systems and Statistics, "
 		"Institute of Environmental and Biological Sciences, "
 		"Lancaster University, Lancaster LA1 4YQ, UK) "
-		"and the C translation of the Fortran source codes implementated in GRASS.\n\n"
+		"and the C translation of the Fortran source codes implemented in GRASS.\n\n"
 
 		"This program allows single or multiple subcatchment calculations "
 		"but with single average rainfall and potential evapotranspiration "
