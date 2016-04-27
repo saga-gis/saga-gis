@@ -19,27 +19,58 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Buffer_H
 #define HEADER_INCLUDED__Grid_Buffer_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CGrid_Buffer : public CSG_Module_Grid
 {
 public:
 	CGrid_Buffer(void);
-	virtual ~CGrid_Buffer(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Distances") );	}
 
 
 protected:
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
 
 };
 
 #endif // #ifndef HEADER_INCLUDED__Grid_Buffer_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -20,107 +20,146 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Grid_Buffer.h"
 
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
+//---------------------------------------------------------
+enum
+{
+	EMPTY	= 0,
+	BUFFER	= 1,
+	FEATURE	= 2
+};
 
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
 
-int BUFFER = 1;
-int FEATURE = 2;
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CGrid_Buffer::CGrid_Buffer(void){
+//---------------------------------------------------------
+CGrid_Buffer::CGrid_Buffer(void)
+{
+	CSG_Parameter	*pNode;
 
-	Set_Name(_TL("Grid Buffer"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Name		(_TL("Grid Buffer"));
+
+	Set_Author		("Victor Olaya (c) 2004");
+
 	Set_Description	(_TW(
-		"The module allows one to buffer features. The features must be encoded by values greater zero. "
-		"With the buffer distance method 'cell value', the buffer distance must be encoded in the "
-		"features grid. The output buffer grid is encoded as follows: one inside the buffer, two "
-		"at feature locations.\n\n"));
+		"This tool creates buffers around features in a grid. Features are defined by any value greater than zero. "
+		"With the buffer distance method 'cell's value', the feature grid's cell values are used as buffer distance. "
+		"In any case the buffer distance has to be specified using map units. "
+		"The output buffer grid cell values refer to 1 := inside the buffer, 2 := feature location. "
+	));
 
-	Parameters.Add_Grid(NULL,
-						"FEATURES",
-						_TL("Features Grid"),
-						_TL("Grid with features to be buffered."),
-						PARAMETER_INPUT);
+	Parameters.Add_Grid(
+		NULL	, "FEATURES"	, _TL("Features"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Grid(NULL,
-						"BUFFER",
-						_TL("Buffer Grid"),
-						_TL(""),
-						PARAMETER_OUTPUT,
-						true,
-						SG_DATATYPE_Byte);
+	Parameters.Add_Grid(
+		NULL	, "BUFFER"		, _TL("Buffer"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
+	);
 
-	Parameters.Add_Value(NULL,
-						"DIST",
-						_TL("Distance"),
-						_TL("Buffer distance [map units]."),
-						PARAMETER_TYPE_Double,
-						1000);
+	pNode	= Parameters.Add_Choice(
+		NULL	, "TYPE"		, _TL("Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("fixed"),
+			_TL("cell's value")
+		), 0
+	);
 
-	Parameters.Add_Choice(NULL,
-						"BUFFERTYPE",
-						_TL("Buffer Distance"),
-						_TL(""),
-						_TL("Fixed|Cell value|"),
-						0);
-}//constructor
+	Parameters.Add_Double(
+		pNode	, "DISTANCE"	, _TL("Distance"),
+		_TL("Fixed buffer distance given in map units."),
+		1000.0, 0.0, true
+	);
+}
 
 
-CGrid_Buffer::~CGrid_Buffer(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CGrid_Buffer::On_Execute(void){
+//---------------------------------------------------------
+int CGrid_Buffer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TYPE") )
+	{
+		pParameters->Set_Enabled("DISTANCE", pParameter->asInt() == 0);
+	}
 
-	CSG_Grid* pFeatures = Parameters("FEATURES")->asGrid();
-	CSG_Grid* pGrid_Buffer = Parameters("BUFFER")->asGrid();
-	int iBufferType = Parameters("BUFFERTYPE")->asInt();
-	double dBufDist = Parameters("DIST")->asDouble() / pFeatures->Get_Cellsize();
-	int iBufFixedDist = (int) (dBufDist + 2.0);
-	double dDist = 0;
-	int iBufDist;
-	double dValue = 0;
-	int x2=0, y2=0;
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
 
-	pGrid_Buffer->Assign(0.0);
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){
-		for(int x=0; x<Get_NX(); x++){
-            dValue = pFeatures->asDouble(x,y);
-			if (dValue != 0 && !pFeatures->is_NoData(x,y)){
-				if (iBufferType==1){
-					dBufDist = dValue / pFeatures->Get_Cellsize();
-					iBufDist = (int) (dBufDist + 2.0);
-				}//if
-				else{
-					iBufDist = iBufFixedDist;
-				}//else
-				for	(int i=-iBufDist ; i<iBufDist ; i++){
-					for (int j=-iBufDist ; j<iBufDist ; j++){
-						x2 = max(min(Get_NX()-1,x+i),0);
-						y2 = max(min(Get_NY()-1,y+j),0);
-						dDist= M_GET_LENGTH(x-x2, y-y2);
-						if (dDist<=dBufDist){
-							dValue = pFeatures->asDouble(x2,y2);
-							if (dValue != 0 && dValue!= pFeatures->Get_NoData_Value()){
-								pGrid_Buffer->Set_Value(x2,y2,FEATURE);
-							}//if
-							else{
-								pGrid_Buffer->Set_Value(x2,y2,BUFFER);
-							}//else
-						}//if
-					}//for
-				}//for
-			}//if
-		}//for
-	}//for
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+bool CGrid_Buffer::On_Execute(void)
+{
+	CSG_Grid	*pFeatures	= Parameters("FEATURES")->asGrid();
+	CSG_Grid	*pBuffer	= Parameters("BUFFER"  )->asGrid();
+
+	pBuffer->Set_NoData_Value(EMPTY);
+	pBuffer->Assign_NoData();
+	pBuffer->Set_Name(CSG_String::Format("%s [%s]", pFeatures->Get_Name(), _TL("Buffer")));
+
+	bool	bFixed	= Parameters("TYPE")->asInt() == 0;
+
+	int	Distance	= (int)(0.5 + Parameters("DISTANCE")->asDouble() / Get_Cellsize());
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !pFeatures->is_NoData(x, y) && pFeatures->asDouble(x, y) > 0.0 )
+			{
+				if( !bFixed )
+				{
+					Distance	= (int)(0.5 + pFeatures->asDouble(x, y) / Get_Cellsize());
+				}
+
+				for(int iy=y-Distance; iy<=y+Distance; iy++)
+				{
+					for(int ix=x-Distance; ix<=x+Distance; ix++)
+					{
+						if( is_InGrid(ix, iy) && pBuffer->is_NoData(ix, iy) && SG_Get_Distance(x, y, ix, iy) <= Distance )
+						{
+							pBuffer->Set_Value(ix, iy, pFeatures->is_NoData(ix, iy) || pFeatures->asDouble(ix, iy) <= 0.0
+								? BUFFER : FEATURE
+							);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
+}
 
-}//method
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
