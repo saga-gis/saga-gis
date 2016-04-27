@@ -26,7 +26,7 @@ AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found
 AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
-AC_CHECK_HEADER([dxflib/dl_dxf.h],AC_CHECK_LIB(libdxf,DL_ArcData,LIBDXFFOUND=1)])
+AC_CHECK_HEADER([dxflib/dl_dxf.h],[AC_CHECK_LIB(libdxf,DL_ArcData,LIBDXFFOUND=1)])
 
 # Checks for header files.
 AC_HEADER_STDC
