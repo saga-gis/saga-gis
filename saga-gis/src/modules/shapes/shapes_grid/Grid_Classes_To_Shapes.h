@@ -80,12 +80,14 @@ class CGrid_Classes_To_Shapes : public CSG_Module_Grid
 public:
 	CGrid_Classes_To_Shapes(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Vectorization") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Vectorization") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
@@ -97,12 +99,13 @@ private:
 	CSG_Shapes				*m_pPolygons;
 
 
-	bool					Get_Classes		(void);
+	bool					Get_Classes				(void);
+	CSG_String				Get_Class_Name			(double Value, CSG_Table *pLUT);
 
-	bool					Get_Edges		(void);
-	bool					Get_Edge		(int x, int y, int i, int Class);
+	bool					Get_Edges				(void);
+	bool					Get_Edge				(int x, int y, int i, int Class);
 
-	bool					Split_Polygons	(void);
+	bool					Split_Polygons			(void);
 
 };
 

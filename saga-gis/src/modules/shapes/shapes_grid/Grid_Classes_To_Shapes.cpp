@@ -76,12 +76,11 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Vectorising Grid Classes"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Vectorising grid classes."
 	));
-
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -96,19 +95,19 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(
+	CSG_Parameter	*pNode	= Parameters.Add_Choice(
 		NULL	, "CLASS_ALL"	, _TL("Class Selection"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("one single class specified by class identifier"),
 			_TL("all classes")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CLASS_ID"	, _TL("Class Identifier"),
+	Parameters.Add_Double(
+		pNode	, "CLASS_ID"	, _TL("Class Identifier"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1
+		1.0
 	);
 
 	Parameters.Add_Choice(
@@ -130,7 +129,21 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Classes_To_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CLASS_ALL") )
+	{
+		pParameters->Set_Enabled("CLASS_ID", pParameter->asInt() == 0);
+	}
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -159,34 +172,38 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::Get_Classes(void)
 {
-	sLong		i;
-	int			id, x, y;
-	double		Value;
-	CSG_Grid	*pGrid;
-
 	//-----------------------------------------------------
-	pGrid		= Parameters("GRID")		->asGrid();
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
-	m_pPolygons	= Parameters("POLYGONS")	->asShapes();
+	m_pPolygons	= Parameters("POLYGONS")->asShapes();
 
 	m_pPolygons->Create(SHAPE_TYPE_Polygon);
 
-	m_pPolygons->Add_Field(pGrid->Get_Name(), SG_DATATYPE_Double);
-	m_pPolygons->Add_Field(SG_T("ID")		, SG_DATATYPE_Int);
-	m_pPolygons->Add_Field(SG_T("NAME")		, SG_DATATYPE_String);
+	m_pPolygons->Add_Field("ID"   , SG_DATATYPE_Int   );
+	m_pPolygons->Add_Field("VALUE", pGrid->Get_Type ());
+	m_pPolygons->Add_Field("NAME" , SG_DATATYPE_String);
 
-	DataObject_Set_Parameter(m_pPolygons, DataObject_Get_Parameter(pGrid, "LUT"));			// Lookup Table
 	DataObject_Set_Parameter(m_pPolygons, DataObject_Get_Parameter(pGrid, "COLORS_TYPE"));	// Color Classification Type: Lookup Table
-	DataObject_Set_Parameter(m_pPolygons, "LUT_ATTRIB", 0);								// Color Attribute
+	DataObject_Set_Parameter(m_pPolygons, DataObject_Get_Parameter(pGrid, "LUT"        ));	// Lookup Table
+	DataObject_Set_Parameter(m_pPolygons, "LUT_ATTRIB", 1);
 
 	m_pPolygons->Set_Name(pGrid->Get_Name());
+
+	//-----------------------------------------------------
+	CSG_Table	*pLUT	= NULL;
+
+	if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1 )	// Color Classification Type: Lookup Table == 1
+	{
+		if( DataObject_Get_Parameter(pGrid, "LUT") )
+		{
+			pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
+		}
+	}
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("class identification"));
@@ -194,6 +211,8 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	m_Classes.Create(pGrid->Get_System(), SG_DATATYPE_Int);
 	m_Classes.Set_NoData_Value(-1);
 	m_Classes.Assign_NoData();
+
+	double	Value	= 0.0;
 
 	//-----------------------------------------------------
 	if( Parameters("CLASS_ALL")->asInt() == 1 )
@@ -205,7 +224,9 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 			return( false );
 		}
 
-		for(i=0, id=-1; i<Get_NCells() && Set_Progress_NCells(i); i++)
+		int	x, y, id	= -1;
+
+		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
 			if( pGrid->Get_Sorted(i, x, y, false) )
 			{
@@ -213,9 +234,9 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 				{
 					CSG_Shape	*pPolygon	= m_pPolygons->Add_Shape();
 
-					pPolygon->Set_Value(0, Value = pGrid->asDouble(x, y));
-					pPolygon->Set_Value(1, 1 + id++);
-					pPolygon->Set_Value(2, CSG_String::Format(SG_T("%d"), m_pPolygons->Get_Count()));
+					pPolygon->Set_Value(0, 1 + id++);
+					pPolygon->Set_Value(1, Value = pGrid->asDouble(x, y));
+					pPolygon->Set_Value(2, Get_Class_Name(Value, pLUT));
 				}
 
 				m_Classes.Set_Value(x, y, id);
@@ -228,13 +249,13 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	{
 		CSG_Shape	*pPolygon	= m_pPolygons->Add_Shape();
 
-		pPolygon->Set_Value(0, Value = Parameters("CLASS_ID")->asDouble());
-		pPolygon->Set_Value(1, m_pPolygons->Get_Count());
-		pPolygon->Set_Value(2, CSG_String::Format(SG_T("%d"), m_pPolygons->Get_Count()));
+		pPolygon->Set_Value(0, m_pPolygons->Get_Count());
+		pPolygon->Set_Value(1, Value = Parameters("CLASS_ID")->asDouble());
+		pPolygon->Set_Value(2, Get_Class_Name(Value, pLUT));
 
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
 				if( pGrid->asDouble(x, y) == Value )
 				{
@@ -248,10 +269,32 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	return( m_pPolygons->Get_Count() > 0 );
 }
 
+//---------------------------------------------------------
+#define LUT_NAM 1
+#define LUT_MIN	3
+#define LUT_MAX	4
+
+CSG_String CGrid_Classes_To_Shapes::Get_Class_Name(double Value, CSG_Table *pLUT)
+{
+	if( pLUT )	// using LUT ?
+	{
+		for(int i=0; i<pLUT->Get_Count(); i++)
+		{
+			CSG_Table_Record	*pClass	= pLUT->Get_Record(i);
+
+			if( Value >= pClass->asDouble(LUT_MIN)
+			&&  Value <= pClass->asDouble(LUT_MAX) )
+			{
+				return( pClass->asString(LUT_NAM) );
+			}
+		}
+	}
+
+	return( SG_Get_String(Value, -2) );
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -427,8 +470,6 @@ bool CGrid_Classes_To_Shapes::Get_Edge(int x, int y, int i, int Class)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -533,8 +574,6 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
