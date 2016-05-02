@@ -223,7 +223,7 @@ dist_applications_DATA = res/saga.desktop
 pixmapdir = $(datadir)/pixmaps
 dist_pixmap_DATA = res/saga.png
 
-ICON_SIZES = 8 16 24 32 48 64 72 80 96 128 192
+ICON_SIZES = 8 16 22 24 32 48 64 72 80 96 128 192
 
 install-icons:
 	@for size in $(ICON_SIZES); do \
