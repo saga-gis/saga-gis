@@ -197,11 +197,14 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	//-----------------------------------------------------
 	CSG_Table	*pLUT	= NULL;
 
-	if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1 )	// Color Classification Type: Lookup Table == 1
+	if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE") )
 	{
-		if( DataObject_Get_Parameter(pGrid, "LUT") )
+		if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1 )	// Color Classification Type: Lookup Table == 1
 		{
-			pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
+			if( DataObject_Get_Parameter(pGrid, "LUT") )
+			{
+				pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
+			}
 		}
 	}
 
