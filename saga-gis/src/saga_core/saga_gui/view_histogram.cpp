@@ -63,7 +63,7 @@
 //---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/toolbar.h>
-#include <wx/scrolwin.h>
+#include <wx/clipbrd.h>
 
 #include "res_commands.h"
 #include "res_controls.h"
@@ -88,66 +88,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVIEW_Histogram_Control : public wxScrolledWindow
-{
-public:
-	CVIEW_Histogram_Control(wxWindow *pParent, class CWKSP_Layer *pLayer);
-
-	bool							Update_Histogram	(void);
-
-	bool							Get_Cumulative		(void)	{	return( m_bCumulative );	}
-	void							Set_Cumulative		(bool bOn);
-
-	void							Draw				(wxDC &dc, wxRect rDraw);
-
-	void							ToClipboard			(void);
-
-
-private:
-
-	bool							m_bCumulative, m_bMouse_Down;
-
-	wxPoint							m_Mouse_Down, m_Mouse_Move;
-
-	class CWKSP_Layer				*m_pLayer;
-
-
-	void							On_Mouse_Motion		(wxMouseEvent &event);
-	void							On_Mouse_LDown		(wxMouseEvent &event);
-	void							On_Mouse_LUp		(wxMouseEvent &event);
-	void							On_Mouse_RDown		(wxMouseEvent &event);
-
-	void							On_Size				(wxSizeEvent  &event);
-	void							On_Paint			(wxPaintEvent &event);
-
-	void							_Draw_Histogram		(wxDC &dc, wxRect r);
-	void							_Draw_Frame			(wxDC &dc, wxRect r);
-	wxRect							_Draw_Get_rDiagram	(wxRect r);
-
-
-private:
-
-	DECLARE_EVENT_TABLE()
-	DECLARE_CLASS(CVIEW_Histogram_Control)
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+IMPLEMENT_CLASS(CVIEW_Histogram, CVIEW_Base);
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CVIEW_Histogram_Control, wxScrolledWindow);
+BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
+	EVT_PAINT		(CVIEW_Histogram::On_Paint)
+	EVT_SIZE		(CVIEW_Histogram::On_Size)
 
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CVIEW_Histogram_Control, wxScrolledWindow)
-	EVT_PAINT			(CVIEW_Histogram_Control::On_Paint)
-	EVT_SIZE			(CVIEW_Histogram_Control::On_Size)
-	EVT_MOTION			(CVIEW_Histogram_Control::On_Mouse_Motion)
-	EVT_LEFT_DOWN		(CVIEW_Histogram_Control::On_Mouse_LDown)
-	EVT_LEFT_UP			(CVIEW_Histogram_Control::On_Mouse_LUp)
-	EVT_RIGHT_DOWN		(CVIEW_Histogram_Control::On_Mouse_RDown)
+	EVT_MOTION		(CVIEW_Histogram::On_Mouse_Motion)
+	EVT_LEFT_DOWN	(CVIEW_Histogram::On_Mouse_LDown)
+	EVT_LEFT_UP		(CVIEW_Histogram::On_Mouse_LUp)
+	EVT_RIGHT_DOWN	(CVIEW_Histogram::On_Mouse_RDown)
+
+	EVT_MENU		(ID_CMD_HISTOGRAM_CUMULATIVE  , CVIEW_Histogram::On_Cumulative)
+	EVT_MENU		(ID_CMD_HISTOGRAM_AS_TABLE    , CVIEW_Histogram::On_AsTable)
+	EVT_MENU		(ID_CMD_HISTOGRAM_TO_CLIPBOARD, CVIEW_Histogram::On_ToClipboard)
 END_EVENT_TABLE()
 
 
@@ -156,8 +111,8 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CVIEW_Histogram_Control::CVIEW_Histogram_Control(wxWindow *pParent, CWKSP_Layer *pLayer)
-	: wxScrolledWindow(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
+CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
+	: CVIEW_Base(pLayer, ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
 {
 	SYS_Set_Color_BG_Window(this);
 
@@ -166,7 +121,7 @@ CVIEW_Histogram_Control::CVIEW_Histogram_Control(wxWindow *pParent, CWKSP_Layer 
 	m_bCumulative	= false;
 	m_bMouse_Down	= false;
 
-	Update_Histogram();
+	Do_Update();
 }
 
 
@@ -175,26 +130,43 @@ CVIEW_Histogram_Control::CVIEW_Histogram_Control(wxWindow *pParent, CWKSP_Layer 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Histogram_Control::Update_Histogram(void)
+wxMenu * CVIEW_Histogram::_Create_Menu(void)
+{
+	wxMenu	*pMenu	= new wxMenu;
+
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+
+	return( pMenu );
+}
+
+//---------------------------------------------------------
+wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
+{
+	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_HISTOGRAM);
+
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
+//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+
+	CMD_ToolBar_Add(pToolBar, _TL("Histogram"));
+
+	return( pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Histogram::Do_Update(void)
 {
 	if( m_pLayer->Get_Classifier()->Histogram_Update() )
 	{
 		Refresh();
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram_Control::Set_Cumulative(bool bOn)
-{
-	if( m_bCumulative != bOn )
-	{
-		m_bCumulative	= bOn;
-
-		Refresh();
 	}
 }
 
@@ -204,143 +176,20 @@ void CVIEW_Histogram_Control::Set_Cumulative(bool bOn)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Histogram_Control::On_Mouse_Motion(wxMouseEvent &event)
+void CVIEW_Histogram::Draw(wxDC &dc, wxRect r)
 {
-	if( m_bMouse_Down )
-	{
-		wxClientDC	dc(this);
-		wxRect		r(_Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
-		dc.SetLogicalFunction(wxINVERT);
-
-		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
-		m_Mouse_Move	= event.GetPosition();
-		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram_Control::On_Mouse_LDown(wxMouseEvent &event)
-{
-	switch( m_pLayer->Get_Classifier()->Get_Mode() )
-	{
-	default:
-		break;
-
-	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
-	case CLASSIFY_SHADE:
-	case CLASSIFY_OVERLAY:
-		m_bMouse_Down	= true;
-		m_Mouse_Move	= m_Mouse_Down	= event.GetPosition();
-
-		CaptureMouse();
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram_Control::On_Mouse_LUp(wxMouseEvent &event)
-{
-	if( m_bMouse_Down )
-	{
-		ReleaseMouse();
-
-		m_bMouse_Down	= false;
-		m_Mouse_Move	= event.GetPosition();
-
-		wxRect	r(_Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
-
-		m_pLayer->Set_Color_Range(
-			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
-				(double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
-			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
-				(double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
-		);
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
-{
-	switch( m_pLayer->Get_Classifier()->Get_Mode() )
-	{
-	default:
-		break;
-
-	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
-	case CLASSIFY_SHADE:
-	case CLASSIFY_OVERLAY:
-		switch( m_pLayer->Get_Type() )
-		{
-		default:
-			return;
-
-		case WKSP_ITEM_Grid:
-			m_pLayer->Set_Color_Range(
-				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMin(),
-				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMax()
-			);
-			break;
-
-		case WKSP_ITEM_Shapes:
-			m_pLayer->Set_Color_Range(
-				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
-				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
-			);
-			break;
-
-		case WKSP_ITEM_PointCloud:
-			m_pLayer->Set_Color_Range(
-				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
-				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
-			);
-			break;
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Histogram_Control::On_Size(wxSizeEvent &WXUNUSED(event))
-{
-	Refresh();
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram_Control::On_Paint(wxPaintEvent &event)
-{
-	wxPaintDC	dc(this);
-	wxRect		r(wxPoint(0, 0), GetClientSize());
-
-	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
-
-	Draw(dc, r);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Histogram_Control::Draw(wxDC &dc, wxRect rDraw)
-{
-	wxRect		r(_Draw_Get_rDiagram(rDraw));
-	wxFont		Font;
-
+	wxFont	Font;
 	Font.SetFamily(wxSWISS);
 	dc.SetFont(Font);
 
-	_Draw_Histogram	(dc, r);
-	_Draw_Frame		(dc, r);
+	r	= Draw_Get_rDiagram(r);
+
+	Draw_Histogram(dc, r);
+	Draw_Frame    (dc, r);
 }
 
 //---------------------------------------------------------
-void CVIEW_Histogram_Control::_Draw_Histogram(wxDC &dc, wxRect r)
+void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 {
 	int		nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
 
@@ -373,7 +222,7 @@ void CVIEW_Histogram_Control::_Draw_Histogram(wxDC &dc, wxRect r)
 }
 
 //---------------------------------------------------------
-void CVIEW_Histogram_Control::_Draw_Frame(wxDC &dc, wxRect r)
+void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 {
 	const int	dyFont		= 12,
 				Precision	= 3;
@@ -436,7 +285,7 @@ void CVIEW_Histogram_Control::_Draw_Frame(wxDC &dc, wxRect r)
 }
 
 //---------------------------------------------------------
-wxRect CVIEW_Histogram_Control::_Draw_Get_rDiagram(wxRect r)
+wxRect CVIEW_Histogram::Draw_Get_rDiagram(wxRect r)
 {
 	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
@@ -452,116 +301,127 @@ wxRect CVIEW_Histogram_Control::_Draw_Get_rDiagram(wxRect r)
 	));
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include <wx/clipbrd.h>
-
-void CVIEW_Histogram_Control::ToClipboard(void)
+void CVIEW_Histogram::On_Paint(wxPaintEvent &event)
 {
-	wxBitmap	BMP(GetSize());
-	wxMemoryDC	dc;
-	
-	dc.SelectObject(BMP);
-	dc.SetBackground(*wxWHITE_BRUSH);
-	dc.Clear();
+	wxPaintDC	dc(this);
+	wxRect		r(wxPoint(0, 0), GetClientSize());
 
-	Draw(dc, wxRect(BMP.GetSize()));
+	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
-	dc.SelectObject(wxNullBitmap);
+	Draw(dc, r);
+}
 
-	if( wxTheClipboard->Open() )
+//---------------------------------------------------------
+void CVIEW_Histogram::On_Size(wxSizeEvent &WXUNUSED(event))
+{
+	Refresh();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_Mouse_Motion(wxMouseEvent &event)
+{
+	if( m_bMouse_Down )
 	{
-		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
-		pBMP->SetBitmap(BMP);
-		wxTheClipboard->SetData(pBMP);
-		wxTheClipboard->Close();
+		wxClientDC	dc(this);
+		wxRect		r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
+		dc.SetLogicalFunction(wxINVERT);
+
+		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
+		m_Mouse_Move	= event.GetPosition();
+		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
 	}
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CVIEW_Histogram, CVIEW_Base);
-
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
-	EVT_SIZE			(CVIEW_Histogram::On_Size)
-
-	EVT_MENU			(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative)
-	EVT_UPDATE_UI		(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative_UI)
-	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_Histogram::On_AsTable)
-	EVT_MENU			(ID_CMD_HISTOGRAM_TO_CLIPBOARD  , CVIEW_Histogram::On_ToClipboard)
-END_EVENT_TABLE()
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
-	: CVIEW_Base(pLayer, ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM)
+void CVIEW_Histogram::On_Mouse_LDown(wxMouseEvent &event)
 {
-	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
-	m_pControl->SetSize(GetClientSize());
-}
+	switch( m_pLayer->Get_Classifier()->Get_Mode() )
+	{
+	default:
+		break;
 
+	case CLASSIFY_GRADUATED:
+	case CLASSIFY_METRIC:
+	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
+		m_bMouse_Down	= true;
+		m_Mouse_Move	= m_Mouse_Down	= event.GetPosition();
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxMenu * CVIEW_Histogram::_Create_Menu(void)
-{
-	wxMenu	*pMenu	= new wxMenu;
-
-	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
-	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
-
-	return( pMenu );
+		CaptureMouse();
+	}
 }
 
 //---------------------------------------------------------
-wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
+void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_HISTOGRAM);
+	if( m_bMouse_Down )
+	{
+		ReleaseMouse();
 
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
-//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+		m_bMouse_Down	= false;
+		m_Mouse_Move	= event.GetPosition();
 
-	CMD_ToolBar_Add(pToolBar, _TL("Histogram"));
+		wxRect	r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
 
-	return( pToolBar );
+		m_pLayer->Set_Color_Range(
+			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
+				(double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
+			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
+				(double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
+		);
+	}
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CVIEW_Histogram::Do_Update(void)
+void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
 {
-	m_pControl->Update_Histogram();
-}
+	switch( m_pLayer->Get_Classifier()->Get_Mode() )
+	{
+	default:
+		break;
 
+	case CLASSIFY_GRADUATED:
+	case CLASSIFY_METRIC:
+	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
+		switch( m_pLayer->Get_Type() )
+		{
+		default:
+			return;
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+		case WKSP_ITEM_Grid:
+			m_pLayer->Set_Color_Range(
+				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMin(),
+				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMax()
+			);
+			break;
 
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Size(wxSizeEvent &event)
-{
-	m_pControl->SetSize(GetClientSize());
+		case WKSP_ITEM_Shapes:
+			m_pLayer->Set_Color_Range(
+				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
+				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
+			);
+			break;
+
+		case WKSP_ITEM_PointCloud:
+			m_pLayer->Set_Color_Range(
+				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
+				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
+			);
+			break;
+		}
+	}
 }
 
 
@@ -578,7 +438,7 @@ void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_HISTOGRAM_CUMULATIVE:
-		On_Cumulative_UI(event);
+		event.Check(m_bCumulative);
 		break;
 	}
 }
@@ -586,12 +446,9 @@ void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
 {
-	m_pControl->Set_Cumulative(!m_pControl->Get_Cumulative());
-}
+	m_bCumulative	= !m_bCumulative;
 
-void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
-{
-	event.Check(m_pControl->Get_Cumulative());
+	Refresh();
 }
 
 //---------------------------------------------------------
@@ -639,7 +496,24 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_ToClipboard(wxCommandEvent &event)
 {
-	m_pControl->ToClipboard();
+	wxBitmap	BMP(GetSize());
+	wxMemoryDC	dc;
+	
+	dc.SelectObject(BMP);
+	dc.SetBackground(*wxWHITE_BRUSH);
+	dc.Clear();
+
+	Draw(dc, wxRect(BMP.GetSize()));
+
+	dc.SelectObject(wxNullBitmap);
+
+	if( wxTheClipboard->Open() )
+	{
+		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		pBMP->SetBitmap(BMP);
+		wxTheClipboard->SetData(pBMP);
+		wxTheClipboard->Close();
+	}
 }
 
 

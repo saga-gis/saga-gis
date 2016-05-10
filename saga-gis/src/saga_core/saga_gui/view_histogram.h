@@ -97,12 +97,28 @@ public:
 
 private:
 
-	class CVIEW_Histogram_Control	*m_pControl;
+	bool							m_bCumulative, m_bMouse_Down;
 
+	wxPoint							m_Mouse_Down, m_Mouse_Move;
+
+	class CWKSP_Layer				*m_pLayer;
+
+
+	void							Draw				(wxDC &dc, wxRect r);
+	void							Draw_Histogram		(wxDC &dc, wxRect r);
+	void							Draw_Frame			(wxDC &dc, wxRect r);
+	wxRect							Draw_Get_rDiagram	(wxRect r);
+
+	void							On_Paint			(wxPaintEvent    &event);
 	void							On_Size				(wxSizeEvent     &event);
 
-	void							On_Cumulative		(wxCommandEvent  &event);
+	void							On_Mouse_Motion		(wxMouseEvent    &event);
+	void							On_Mouse_LDown		(wxMouseEvent    &event);
+	void							On_Mouse_LUp		(wxMouseEvent    &event);
+	void							On_Mouse_RDown		(wxMouseEvent    &event);
+
 	void							On_Cumulative_UI	(wxUpdateUIEvent &event);
+	void							On_Cumulative		(wxCommandEvent  &event);
 	void							On_AsTable			(wxCommandEvent  &event);
 	void							On_ToClipboard		(wxCommandEvent  &event);
 
