@@ -248,7 +248,7 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 
 		case PARAMETER_TYPE_Date             : Parameters.Add_Date           (pParent, ID, Name, Desc, 0.0)->Set_Value(Value);	break;
 
-		case PARAMETER_TYPE_Range            : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst (';').asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Range            : Parameters.Add_Range          (pParent, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble(), Min, bMin, Max, bMax);	break;
 		case PARAMETER_TYPE_Choice           : Parameters.Add_Choice         (pParent, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 
 		case PARAMETER_TYPE_String           : Parameters.Add_String         (pParent, ID, Name, Desc, Value, false);	break;
@@ -722,6 +722,8 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 	{
 		Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
 	}
+
+	pModule->On_After_Execution();
 
 	Tool_Finalize(Tool, pModule);
 

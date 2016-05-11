@@ -50,8 +50,8 @@
       <input id="DEM">ELEVATION</input>
       <output id="TPI">TPI</output>
       <option id="STANDARD">no</option>
-      <option id="RADIUS">[0.000000] - [1000.000000]</option>
       <option id="DW_WEIGHTING">0</option>
+      <option id="RADIUS" varname="true">TPI_RADIUS</option>
     </tool>
     <tool library="ta_hydrology" module="15" name="SAGA Wetness Index">
       <input id="DEM">ELEVATION</input>

@@ -488,6 +488,8 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Range );		}
 
+	virtual bool				Set_Value				(const CSG_String &Value);
+
 	virtual const SG_Char *		asString				(void);
 
 	bool						Set_Range				(double loVal, double hiVal);

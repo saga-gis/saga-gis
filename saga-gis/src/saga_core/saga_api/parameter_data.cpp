@@ -814,13 +814,13 @@ CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint)
 
 	if( (m_Constraint & PARAMETER_INFORMATION) != 0 )
 	{
-		m_pLo	= m_pRange->Add_Info_Value(m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		m_pHi	= m_pRange->Add_Info_Value(m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pLo	= m_pRange->Add_Info_Value(m_pOwner, "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pHi	= m_pRange->Add_Info_Value(m_pOwner, "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 	else
 	{
-		m_pLo	= m_pRange->Add_Value     (m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		m_pHi	= m_pRange->Add_Value     (m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pLo	= m_pRange->Add_Value     (m_pOwner, "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pHi	= m_pRange->Add_Value     (m_pOwner, "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 }
 
@@ -832,9 +832,15 @@ CSG_Parameter_Range::~CSG_Parameter_Range(void)
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Range::asString(void)
 {
-	m_String.Printf(SG_T("[%f] - [%f]"), Get_LoVal(), Get_HiVal());
+	m_String.Printf("%f; %f", Get_LoVal(), Get_HiVal());
 
 	return( m_String );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Range::Set_Value(const CSG_String &Value)
+{
+	return( Set_Range(Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble()) );
 }
 
 //---------------------------------------------------------
