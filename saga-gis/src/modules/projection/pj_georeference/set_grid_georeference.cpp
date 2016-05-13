@@ -74,7 +74,7 @@ CSet_Grid_Georeference::CSet_Grid_Georeference(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Define Georeference for Grids"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"This tool simply allows definition of grid's cellsize and position. "
@@ -97,75 +97,83 @@ CSet_Grid_Georeference::CSet_Grid_Georeference(void)
 	);
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pNode;
+
 	Parameters.Add_Choice(
-		NULL	, "DEFINITION"	,_TL("Definition"),
+		NULL	, "DEFINITION"	, _TL("Definition"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
-			_TL("cellsize and lower left center coordinates"),
-			_TL("cellsize and lower left corner coordinates"),
-			_TL("cellsize and upper left center coordinates"),
-			_TL("cellsize and upper left corner coordinates"),
-			_TL("lower left and upper right center coordinates"),
-			_TL("lower left and upper right corner coordinates")
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("cellsize and lower left cell coordinates"),
+			_TL("cellsize and upper left cell coordinates"),
+			_TL("lower left cell coordinates and left to right range"),
+			_TL("lower left cell coordinates and lower to upper range")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SIZE"		, _TL("Cellsize"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	pNode	= Parameters.Add_Grid_System(
+		NULL	, "SYSTEM"		, _TL("Grid System"),
+		_TL("")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "XMIN"		, _TL("Left"),
-		_TL(""),
-		PARAMETER_TYPE_Double
-	);
+	Parameters.Add_Double(pNode, "SIZE", _TL("Cellsize"), _TL(""), 1.0, 0.0, true);
 
-	Parameters.Add_Value(
-		NULL	, "YMIN"		, _TL("Lower"),
-		_TL(""),
-		PARAMETER_TYPE_Double
-	);
+	Parameters.Add_Double(pNode, "XMIN", _TL("Left"    ), _TL(""));
+	Parameters.Add_Double(pNode, "XMAX", _TL("Right"   ), _TL(""));
+	Parameters.Add_Double(pNode, "YMIN", _TL("Lower"   ), _TL(""));
+	Parameters.Add_Double(pNode, "YMAX", _TL("Upper"   ), _TL(""));
 
-	Parameters.Add_Value(
-		NULL	, "XMAX"		, _TL("Right"),
+	Parameters.Add_Choice(
+		pNode	, "CELL_REF"	, _TL("Cell Reference"),
 		_TL(""),
-		PARAMETER_TYPE_Double
-	);
-
-	Parameters.Add_Value(
-		NULL	, "YMAX"		, _TL("Upper"),
-		_TL(""),
-		PARAMETER_TYPE_Double
+		CSG_String::Format("%s|%s|",
+			_TL("center"),
+			_TL("corner")
+		), 0
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CSet_Grid_Georeference::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CSet_Grid_Georeference::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DEFINITION") )
+	CSG_Grid_System	System	= *pParameters->Get_Parameter("SYSTEM")->asGrid_System();
+
+	if( System.is_Valid() )
 	{
-		pParameters->Get_Parameter("SIZE")->Set_Enabled(pParameter->asInt()  < 4);
-		pParameters->Get_Parameter("XMAX")->Set_Enabled(pParameter->asInt() >= 4);
-		pParameters->Get_Parameter("YMAX")->Set_Enabled(pParameter->asInt() >= 2);
-		pParameters->Get_Parameter("YMIN")->Set_Enabled(pParameter->asInt() >= 4 || pParameter->asInt() < 2);
+		pParameters->Set_Enabled("SIZE"    , false);
+		pParameters->Set_Enabled("XMIN"    , false);
+		pParameters->Set_Enabled("YMIN"    , false);
+		pParameters->Set_Enabled("XMAX"    , false);
+		pParameters->Set_Enabled("YMAX"    , false);
+		pParameters->Set_Enabled("CELL_REF", false);
+	}
+	else
+	{
+		int	Definition	= pParameters->Get_Parameter("DEFINITION")->asInt();
+
+		pParameters->Set_Enabled("SIZE"    , Definition <  2);
+		pParameters->Set_Enabled("XMIN"    , true);
+		pParameters->Set_Enabled("YMIN"    , Definition == 0 || Definition >= 2);
+		pParameters->Set_Enabled("XMAX"    , Definition == 2);
+		pParameters->Set_Enabled("YMAX"    , Definition == 1 || Definition == 3);
+		pParameters->Set_Enabled("CELL_REF", true);
 	}
 
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -181,50 +189,42 @@ bool CSet_Grid_Georeference::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	xMin, yMin, size;
+	CSG_Grid_System	System	= *Parameters("SYSTEM")->asGrid_System();
 
+	double	size	= System.is_Valid() ? System.Get_Cellsize() : Parameters("SIZE")->asDouble();
+	double	xMin	= System.is_Valid() ? System.Get_XMin    () : Parameters("XMIN")->asDouble();
+	double	yMin	= System.is_Valid() ? System.Get_YMin    () : Parameters("YMIN")->asDouble();
+	double	xMax	= System.is_Valid() ? System.Get_XMax    () : Parameters("XMAX")->asDouble();
+	double	yMax	= System.is_Valid() ? System.Get_YMax    () : Parameters("YMAX")->asDouble();
+
+	if( !System.is_Valid() && Parameters("CELL_REF")->asInt() == 1 )	// corner to center coordinates
+	{
+		xMin	+= 0.5 * size;
+		yMin	+= 0.5 * size;
+		xMax	-= 0.5 * size;
+		yMax	-= 0.5 * size;
+	}
+
+	//-----------------------------------------------------
 	switch( Parameters("DEFINITION")->asInt() )
 	{
-	case 0:	// cellsize and lower left center coordinates
-		size	= Parameters("SIZE")->asDouble();
-		xMin	= Parameters("XMIN")->asDouble();
-		yMin	= Parameters("YMIN")->asDouble();
+	case 0:	// cellsize and lower left cell coordinates
 		break;
 
-	case 1:	// cellsize and lower left corner coordinates
-		size	= Parameters("SIZE")->asDouble();
-		xMin	= Parameters("XMIN")->asDouble() + size * 0.5;
-		yMin	= Parameters("YMIN")->asDouble() + size * 0.5;
+	case 1:	// cellsize and upper left cell coordinates
+		yMin	= yMax - size * Get_NY();
 		break;
 
-	case 2:	// cellsize and upper left center coordinates
-		size	= Parameters("SIZE")->asDouble();
-		xMin	= Parameters("XMIN")->asDouble();
-		yMin	= Parameters("YMAX")->asDouble() - size * Get_NY();
+	case 2:	// lower left cell coordinates and left to right range
+		size	= (xMax - xMin) / Get_NX();
 		break;
 
-	case 3:	// cellsize and upper left corner coordinates
-		size	= Parameters("SIZE")->asDouble();
-		xMin	= Parameters("XMIN")->asDouble() + size * 0.5;
-		yMin	= Parameters("YMAX")->asDouble() - size * (0.5 + Get_NY());
-		break;
-
-	case 4:	// lower left and upper right center coordinates
-		size	= (Parameters("XMAX")->asDouble() - Parameters("XMIN")->asDouble()) / Get_NX();
-		xMin	= Parameters("XMIN")->asDouble();
-		yMin	= Parameters("YMIN")->asDouble();
-		break;
-
-	case 5:	// lower left and upper right corner coordinates
-		size	= (Parameters("XMAX")->asDouble() - Parameters("XMIN")->asDouble()) / (Get_NX() + 1);
-		xMin	= Parameters("XMIN")->asDouble() + size * 0.5;
-		yMin	= Parameters("YMIN")->asDouble() + size * 0.5;
+	case 3:	// lower left cell coordinates and lower to upper range
+		size	= (yMax - yMin) / Get_NY();
 		break;
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid_System	System;
-
 	if( !System.Assign(size, xMin, yMin, Get_NX(), Get_NY()) )
 	{
 		return( false );
