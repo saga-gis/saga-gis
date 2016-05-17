@@ -60,6 +60,13 @@
 #ifndef HEADER_INCLUDED__gdal_import_H
 #define HEADER_INCLUDED__gdal_import_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "gdal_driver.h"
 
@@ -71,7 +78,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CGDAL_Import : public CSG_Module
+class CGDAL_Import : public CSG_Module
 {
 public:
 	CGDAL_Import(void);
@@ -81,9 +88,9 @@ public:
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
@@ -91,18 +98,12 @@ private:
 	CSG_Parameter_Grid_List		*m_pGrids;
 
 
-	bool						Load_Sub				(CSG_GDAL_DataSet &DataSet);
-	bool						Load					(CSG_GDAL_DataSet &DataSet, const CSG_String &Name);
+	static int					On_Selection_Changed	(CSG_Parameter *pParameter, int Flags);
+
+	bool						Load					(const CSG_String &File);
+	bool						Load_Subset				(CSG_GDAL_DataSet &DataSet);
 
 };
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-io_gdal_EXPORT	bool	SG_GDAL_Import	(const CSG_String &File_Name);
 
 
 ///////////////////////////////////////////////////////////

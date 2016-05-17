@@ -417,7 +417,12 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-		if( pParameter->is_Input() )
+		if( pParameter->do_UseInCMD() == false )
+		{
+			// ignore here
+		}
+
+		else if( pParameter->is_Input() )
 		{
 			// nop now, loading options first
 		}

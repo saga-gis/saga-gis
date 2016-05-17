@@ -119,17 +119,31 @@ CGDAL_Import::CGDAL_Import(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
+	Parameters.Add_String(
+		NULL	, "SELECTION"	, _TL("Select from Multiple Bands"),
+		_TL("Semicolon separated list of band indexes. Do not set to select all bands for import."),
+		""
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Bool(
 		NULL	, "SELECT"		, _TL("Select from Multiple Bands"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	)->Set_UseInCMD(false);
 
+	pNode	= SG_UI_Get_Window_Main() ? Parameters("SELECT") : NULL;
+
+	Parameters.Add_Bool(
+		pNode	, "SELECT_SORT"	, _TL("Alphanumeric Sorting"),
+		_TL(""),
+		true
+	);
+
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Value(
+	pNode	= Parameters.Add_Bool(
 		NULL	, "TRANSFORM"	, _TL("Transformation"),
 		_TL("align grid to coordinate system"),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	Parameters.Add_Choice(
@@ -142,9 +156,6 @@ CGDAL_Import::CGDAL_Import(void)
 			_TL("B-Spline Interpolation")
 		), 3
 	);
-
-	//-----------------------------------------------------
-	Add_Parameters("SELECTION", _TL("Select from Multiple Bands"), _TL(""));
 }
 
 
@@ -157,16 +168,34 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRANSFORM") )
 	{
-		pParameters->Get_Parameter("RESAMPLING")->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("RESAMPLING" , pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), "SELECTION")
-	&&  !SG_STR_CMP(pParameter ->Get_Identifier(), "ALL") && pParameters->Get_Parameter("BANDS") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SELECT") )
 	{
-		pParameters->Get_Parameter("BANDS")->Set_Enabled(!pParameter->asBool());
+		pParameters->Set_Enabled("SELECT_SORT", pParameter->asBool());
 	}
 
-	return( 1 );
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CGDAL_Import::On_Selection_Changed(CSG_Parameter *pParameter, int Flags)
+{
+	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	{
+		if( Flags & PARAMETER_CHECK_ENABLE )
+		{
+			if( !SG_STR_CMP(pParameter->Get_Identifier(), "ALL") )
+			{
+				pParameter->Get_Owner()->Set_Enabled("BANDS", pParameter->asBool() == false);
+			}
+		}
+
+		return( 1 );
+	}
+
+	return( 0 );
 }
 
 
@@ -177,33 +206,27 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGDAL_Import::On_Execute(void)
 {
-	CSG_Strings			Files;
-	CSG_GDAL_DataSet	DataSet;
+	CSG_Strings	Files;
 
-	//-----------------------------------------------------
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	m_pGrids	= Parameters("GRIDS")->asGridList();
-	m_pGrids	->Del_Items();
+	(m_pGrids = Parameters("GRIDS")->asGridList())->Del_Items();
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
 		Message_Add(CSG_String::Format("\n%s: %s", _TL("loading"), Files[i].c_str()), false);
 
-		if( DataSet.Open_Read(Files[i]) == false )
+		if( Load(Files[i]) == false )
 		{
 			Message_Add(_TL("failed: could not find a suitable import driver"));
 		}
-		else
-		{
-			Load(DataSet, SG_File_Get_Name(Files[i], false));
-		}
 	}
 
+	//-----------------------------------------------------
 	return( m_pGrids->Get_Count() > 0 );
 }
 
@@ -213,131 +236,83 @@ bool CGDAL_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet)
+bool CGDAL_Import::Load(const CSG_String &File)
 {
-	CSG_MetaData	MetaData;
+	//-----------------------------------------------------
+	CSG_GDAL_DataSet	DataSet;
 
-	if( !DataSet.Get_MetaData(MetaData, "SUBDATASETS") )
+	if( DataSet.Open_Read(File) == false )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int				i, n;
-	CSG_Parameters	P;
-
-	for(i=0, n=0; i==n; i++)
+	if( DataSet.Get_Count() < 1 )
 	{
-		CSG_MetaData	*pName	= MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_NAME", i + 1));
-		CSG_MetaData	*pDesc	= MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_DESC", i + 1));
+		return( Load_Subset(DataSet) );
+	}
 
-		if( pName )
+	//-----------------------------------------------------
+	CSG_Table	Bands;	Bands.Add_Field("NAME", SG_DATATYPE_String);
+
+	{
+		for(int i=0; i<DataSet.Get_Count(); i++)
 		{
-			n++;
-
-			Message_Add(CSG_String::Format("\n%s", pName->Get_Content().c_str()), false);
-
-			P.Add_Value(NULL, pName->Get_Content(), pDesc ? pDesc->Get_Content().c_str() : _TL("unnamed"), SG_T(""), PARAMETER_TYPE_Bool, SG_UI_Get_Window_Main() == NULL);
+			Bands.Add_Record()->Set_Value(0, DataSet.Get_Name(i));
 		}
 	}
 
-	if( SG_UI_Get_Window_Main() && !Dlg_Parameters(&P, _TL("Select from Subdatasets...")) )	// with gui
+	if( Parameters("SELECT_SORT")->asBool() )
 	{
-		return( false );
+		Bands.Set_Index(0, TABLE_INDEX_Ascending);
 	}
 
 	//-----------------------------------------------------
-	for(i=0, n=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
+	if( DataSet.Get_Count() > 1 )
 	{
-		if( P(i)->asBool() && DataSet.Open_Read(P(i)->Get_Identifier()) && Load(DataSet, P(i)->Get_Name()) )
+		if( !SG_UI_Get_Window_Main() )
 		{
-			n++;
-		}
-	}
+			CSG_String_Tokenizer	Indexes(Parameters("SELECTION")->asString(), ";,");
 
-	//---------------------------------------------
-	return( n > 0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
-{
-	if( !DataSet.is_Reading() )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( DataSet.Get_Count() <= 0 )
-	{
-		return( Load_Sub(DataSet) );
-	}
-
-	//-----------------------------------------------------
-	CSG_Vector	A;
-	CSG_Matrix	B;
-
-	DataSet.Get_Transformation(A, B);
-
-	Message_Add("\n", false);
-	Message_Add(CSG_String::Format("\n%s: %s", _TL("Driver" ), DataSet.Get_DriverID().c_str()   ), false);
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("Bands"  ), DataSet.Get_Count()              ), false);
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("Rows"   ), DataSet.Get_NX()                 ), false);
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("Columns"), DataSet.Get_NY()                 ), false);
-	Message_Add("\n", false);
-	Message_Add(CSG_String::Format("\n%s:", _TL("Transformation")                               ), false);
-	Message_Add(CSG_String::Format("\n  x' = %.6f + x * %.6f + y * %.6f", A[0], B[0][0], B[0][1]), false);
-	Message_Add(CSG_String::Format("\n  y' = %.6f + x * %.6f + y * %.6f", A[1], B[1][0], B[1][1]), false);
-	Message_Add("\n", false);
-
-	//-----------------------------------------------------
-	int			i, n;
-	CSG_Table	Bands;
-
-	Bands.Add_Field("NAME", SG_DATATYPE_String);
-
-	for(i=0; i<DataSet.Get_Count(); i++)
-	{
-		Bands.Add_Record()->Set_Value(0, DataSet.Get_Name(i));
-	}
-
-	Bands.Set_Index(0, TABLE_INDEX_Ascending);
-
-	//-----------------------------------------------------
-	if( Parameters("SELECT") && Parameters("SELECT")->asBool() && DataSet.Get_Count() > 1 )
-	{
-		CSG_Parameters	*pSelection	= Get_Parameters("SELECTION");
-		pSelection->Add_Value(NULL, "ALL", _TL("Load all bands"), _TL(""), PARAMETER_TYPE_Bool, false);
-		CSG_Parameter	*pNode	= pSelection->Add_Node(NULL, "BANDS", _TL("Bands"), _TL(""));
-
-		for(i=0; i<Bands.Get_Count(); i++)
-		{
-			CSG_Table_Record	*pBand	= Bands.Get_Record_byIndex(i);
-
-			pSelection->Add_Value(pNode, SG_Get_String(i, 0), pBand->asString(0), _TL(""), PARAMETER_TYPE_Bool, false);
-		}
-
-		if( Dlg_Parameters("SELECTION") )
-		{
-			for(i=0; i<Bands.Get_Count(); i++)
+			while( Indexes.Has_More_Tokens() )
 			{
-				if( pSelection->Get_Parameter(0)->asBool() || pSelection->Get_Parameter(i + 2)->asBool() )
+				int	i;
+
+				if( Indexes.Get_Next_Token().asInt(i) )
 				{
-					Bands.Select(Bands.Get_Record_byIndex(i)->Get_Index(), true);
+					Bands.Select(Bands[i].Get_Index(), true);
 				}
 			}
 		}
-
-		pSelection->Del_Parameters();
-
-		if( Bands.Get_Selection_Count() <= 0 )
+		else if( Parameters("SELECT")->asBool() )
 		{
-			return( false );
+			CSG_Parameters	Selection(this, _TL("Select from Multiple Bands"), _TL(""), SG_T("SELECTION"));
+
+			Selection.Set_Callback_On_Parameter_Changed(&On_Selection_Changed);
+
+			Selection.Add_Bool(NULL, "ALL"  , _TL("Load all bands"), _TL(""), false);
+			Selection.Add_Node(NULL, "BANDS", _TL("Bands"         ), _TL(""));
+
+			for(int i=0; i<Bands.Get_Count(); i++)
+			{
+				Selection.Add_Bool(Selection(1), SG_Get_String(i, 0), Bands[i].asString(0), _TL(""), false);
+			}
+
+			if( Dlg_Parameters(&Selection, _TL("Select from Multiple Bands")) )
+			{
+				for(int i=0; i<Bands.Get_Count(); i++)
+				{
+					if( Selection(0)->asBool() || Selection(i + 2)->asBool() )
+					{
+						Bands.Select(Bands[i].Get_Index(), true);
+					}
+				}
+			}
+
+			if( Bands.Get_Selection_Count() <= 0 )
+			{
+				return( false );
+			}
 		}
 	}
 
@@ -352,84 +327,119 @@ bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
 	}
 
+	CSG_Vector	A;	CSG_Matrix	B;	DataSet.Get_Transformation(A, B);
+
 	bool	bTransform	= Parameters("TRANSFORM")->asBool() && DataSet.Needs_Transformation();
 
 	//-----------------------------------------------------
-	for(i=0, n=0; i<DataSet.Get_Count() && Process_Get_Okay(); i++)
+	Message_Add("\n", false);
+	Message_Add(CSG_String::Format("\n%s: %s", _TL("Driver" ), DataSet.Get_DriverID().c_str()), false);
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("Bands"  ), DataSet.Get_Count   ()        ), false);
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("Rows"   ), DataSet.Get_NX      ()        ), false);
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("Columns"), DataSet.Get_NY      ()        ), false);
+	Message_Add("\n", false);
+
+	if( DataSet.Needs_Transformation() )
 	{
-		CSG_Table_Record	*pBand	= Bands.Get_Record_byIndex(i);
+		Message_Add(CSG_String::Format("\n%s:", _TL("Transformation")                               ), false);
+		Message_Add(CSG_String::Format("\n  x' = %.6f + x * %.6f + y * %.6f", A[0], B[0][0], B[0][1]), false);
+		Message_Add(CSG_String::Format("\n  y' = %.6f + x * %.6f + y * %.6f", A[1], B[1][0], B[1][1]), false);
+		Message_Add("\n", false);
+	}
 
-		if( !Bands.Get_Selection_Count() || pBand->is_Selected() )
+	//-----------------------------------------------------
+	for(int i=0; i<DataSet.Get_Count() && Process_Get_Okay(); i++)
+	{
+		if( !Bands.Get_Selection_Count() || Bands[i].is_Selected() )
 		{
-			Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("loading band"), i + 1, DataSet.Get_Count()));
+			CSG_String	Message	= "%s: " + SG_File_Get_Name(File, false);	if( DataSet.Get_Count() > 1 )	Message	+= CSG_String::Format(" [%d/%d]", i + 1, DataSet.Get_Count());
 
-			CSG_Grid	*pGrid	= DataSet.Read(pBand->Get_Index());
+			Process_Set_Text(CSG_String::Format(Message.c_str(), _TL("loading")));
+
+			CSG_Grid	*pGrid	= DataSet.Read(Bands[i].Get_Index());
 
 			if( pGrid != NULL )
 			{
-				n++;
-
 				if( bTransform )
 				{
-					Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("band transformation"), i + 1, DataSet.Get_Count()));
+					Process_Set_Text(CSG_String::Format(Message.c_str(), _TL("translation")));
 
 					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}
 
-				pGrid->Set_Name(DataSet.Get_Count() > 1
-					? CSG_String::Format("%s [%s]", Name.c_str(), pGrid->Get_Name()).c_str()
-					: Name.c_str()
-				);
-
+				pGrid->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
 				pGrid->Set_File_Name(DataSet.Get_File_Name());
+				pGrid->Set_Name(SG_File_Get_Name(File, false) + (DataSet.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%s]", Bands[i].asString(0))));
 
 				m_pGrids->Add_Item(pGrid);
 
 				DataObject_Add       (pGrid);
 				DataObject_Set_Colors(pGrid, CSG_Colors(11, SG_COLORS_RAINBOW, false));
-
-				if( DataSet.Get_Count() == 1 )
-				{
-					pGrid->Set_File_Name(DataSet.Get_File_Name());
-					pGrid->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
-				}
 			}
 		}
     }
 
 	//-----------------------------------------------------
-	return( n > 0 );
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	SG_GDAL_Import	(const CSG_String &File_Name)
+bool CGDAL_Import::Load_Subset(CSG_GDAL_DataSet &DataSet)
 {
-	CGDAL_Import	Import;
+	CSG_MetaData	MetaData;
 
-	if(	!Import.Get_Parameters()->Set_Parameter("FILES", File_Name, PARAMETER_TYPE_FilePath) )
+	if( !DataSet.Get_MetaData(MetaData, "SUBDATASETS") )
 	{
 		return( false );
 	}
 
-	if(	!Import.Execute() )
+	//-----------------------------------------------------
+	int		i;
+
+	CSG_Parameters	Subsets;
+
+	for(i=0; ; i++)
+	{
+		CSG_String	ID	= CSG_String::Format("SUBDATASET_%d_", i + 1);
+
+		if( MetaData(ID + "NAME") )
+		{
+			Subsets.Add_Bool(NULL,
+				MetaData.Get_Content(ID + "NAME"),
+				MetaData.Get_Content(ID + "DESC"),
+				"", SG_UI_Get_Window_Main() == NULL
+			);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	//-----------------------------------------------------
+	if( SG_UI_Get_Window_Main() && !Dlg_Parameters(&Subsets, _TL("Select from Subdatasets...")) )	// with gui
 	{
 		return( false );
 	}
 
-	CSG_Parameter_Grid_List	*pGrids	= Import.Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
-
-	for(int i=0; i<pGrids->Get_Count(); i++)
+	//-----------------------------------------------------
+	for(i=0; i<Subsets.Get_Count() && Process_Get_Okay(false); i++)
 	{
-		SG_UI_DataObject_Add(pGrids->asGrid(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
+		if( Subsets(i)->asBool() )
+		{
+			if( Load(Subsets(i)->Get_Identifier()) == false )
+			{
+				Error_Fmt("%s: %s", _TL("failed to import subset"), Subsets(i)->Get_Name());
+			}
+		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
 
