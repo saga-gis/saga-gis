@@ -61,6 +61,13 @@
 #ifndef HEADER_INCLUDED__Shapes_Cut_Interactive_H
 #define HEADER_INCLUDED__Shapes_Cut_Interactive_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "shapes_cut.h"
 
@@ -76,7 +83,6 @@ class CShapes_Cut_Interactive : public CSG_Module_Interactive
 {
 public:
 	CShapes_Cut_Interactive(void);
-	virtual ~CShapes_Cut_Interactive(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
@@ -86,12 +92,13 @@ protected:
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
+
 	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
 
-	bool						m_bDown;
+	bool						m_bDown, m_bConfirm;
 
 	int							m_Method;
 
@@ -100,7 +107,7 @@ private:
 	CSG_Shapes					*m_pShapes, *m_pCut, *m_pExtent;
 
 
-	bool						Get_Extent				(CSG_Rect &r);
+	bool						Get_Extent				(CSG_Rect &Extent);
 
 };
 

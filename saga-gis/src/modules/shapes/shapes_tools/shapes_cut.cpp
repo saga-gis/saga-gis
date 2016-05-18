@@ -58,8 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "shapes_cut.h"
 
 
@@ -72,131 +70,107 @@
 //---------------------------------------------------------
 bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut)
 {
-	if( pCut && pShapes && pShapes->is_Valid() && pPolygons && pPolygons->is_Valid() && pPolygons->Get_Extent().Intersects(pShapes->Get_Extent()) )
+	if( !pCut || !pShapes || !pShapes->is_Valid() || !pPolygons || !pPolygons->is_Valid() || !pPolygons->Get_Extent().Intersects(pShapes->Get_Extent()) || pPolygons->Get_Type() != SHAPE_TYPE_Polygon )
 	{
-		pCut->Create(
-			pShapes->Get_Type(),
-			CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Cut")),
-			pShapes
-		);
+		return( false );
+	}
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	pCut->Create(pShapes->Get_Type(), CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Cut")), pShapes, pShapes->Get_Vertex_Type());
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		bool	bAdd	= false;
+
+		for(int iPolygon=0; !bAdd && iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
-			bool		bAdd;
-			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-			if( Method == 2 )		// center
+			switch( Method )
 			{
-				bAdd	= false;
+			case  2:	// center
+				bAdd	= pPolygon->Contains(pShapes->Get_Type() == SHAPE_TYPE_Polygon
+					? ((CSG_Shape_Polygon *)pShape)->Get_Centroid() : pShape->Get_Extent().Get_Center()
+				);
+				break;
 
-				TSG_Point	Center;
+			case  1:	// intersects
+				bAdd	= pPolygon->Intersects(pShape) != INTERSECTION_None;
+				break;
 
-				if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
-					Center	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
-				else
-					Center	= pShape->Get_Extent().Get_Center();
-
-				if( pPolygons->Select(Center) )
-				{
-					bAdd	= true;
-				}
-			}
-			else if( Method == 1 )	// intersects
-			{
-				bAdd	= false;
-
-				for(int iPart=0; iPart<pShape->Get_Part_Count() && !bAdd; iPart++)
-				{
-					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart) && !bAdd; iPoint++)
-					{
-						if( pPolygons->Select(pShape->Get_Point(iPoint, iPart)) )
-						{
-							bAdd	= true;
-						}
-					}
-				}
-			}
-			else					// completely contained
-			{
-				bAdd	= true;
-
-				for(int iPart=0; iPart<pShape->Get_Part_Count() && bAdd; iPart++)
-				{
-					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart) && bAdd; iPoint++)
-					{
-						if( pPolygons->Select(pShape->Get_Point(iPoint, iPart)) == false )
-						{
-							bAdd	= false;
-						}
-					}
-				}
-			}
-
-			if( bAdd )
-			{
-				pCut->Add_Shape(pShape);
+			default:	// completely contained
+				bAdd	= pPolygon->Intersects(pShape) == INTERSECTION_Contains;
+				break;
 			}
 		}
 
-		return( pCut->Get_Count() > 0 );
+		//-------------------------------------------------
+		if( bAdd )
+		{
+			pCut->Add_Shape(pShape);
+		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( pCut->Get_Count() > 0 );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut)
 {
-	if( pCut && pShapes && pShapes->is_Valid() && Extent.Intersects(pShapes->Get_Extent()) )
+	if( !pCut || !pShapes || !pShapes->is_Valid() || !Extent.Intersects(pShapes->Get_Extent()) )
 	{
-		pCut->Create(
-			pShapes->Get_Type(),
-			CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Cut")),
-			pShapes
-		);
-
-		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			bool		bAdd;
-			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
-
-			if( Method == 2 )	// center
-			{
-				bAdd	= pShapes->Get_Type() == SHAPE_TYPE_Polygon
-						? Extent.Contains(((CSG_Shape_Polygon *)pShape)->Get_Centroid())
-						: Extent.Contains(pShape->Get_Extent().Get_Center());
-			}
-			else				// completely contained, intersects
-			{
-				switch( pShape->Intersects(Extent) )
-				{
-				case INTERSECTION_Identical:
-				case INTERSECTION_Contained:
-					bAdd	= true;
-					break;
-
-				case INTERSECTION_Overlaps:
-				case INTERSECTION_Contains:
-					bAdd	= Method == 1;
-					break;
-
-				default:
-					bAdd	= false;
-					break;
-				}
-			}
-
-			if( bAdd )
-			{
-				pCut->Add_Shape(pShape);
-			}
-		}
-
-		return( pCut->Get_Count() > 0 );
+		return( false );
 	}
 
-	return( false );
+	pCut->Create(pShapes->Get_Type(), CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Cut")), pShapes, pShapes->Get_Vertex_Type());
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		bool	bAdd;
+
+		switch( Method )
+		{
+		case  2:	// center
+			bAdd	= Extent.Contains(pShapes->Get_Type() == SHAPE_TYPE_Polygon
+				? ((CSG_Shape_Polygon *)pShape)->Get_Centroid() : pShape->Get_Extent().Get_Center()
+			);
+			break;
+
+		case  1:	// intersects
+			bAdd	= pShape->Intersects(Extent) != INTERSECTION_None;
+			break;
+
+		default:	// completely contained
+			bAdd	= pShape->Intersects(Extent) == INTERSECTION_Contained;
+			break;
+		}
+
+		//-------------------------------------------------
+		if( bAdd )
+		{
+			pCut->Add_Shape(pShape);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( pCut->Get_Count() > 0 );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_Shapes * Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes)
@@ -213,6 +187,7 @@ CSG_Shapes * Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes)
 	return( NULL );
 }
 
+//---------------------------------------------------------
 CSG_Shapes * Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes)
 {
 	CSG_Shapes	*pCut	= SG_Create_Shapes();
@@ -227,14 +202,19 @@ CSG_Shapes * Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes)
 	return( NULL );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 CSG_String Cut_Methods_Str(void)
 {
-	return( CSG_String::Format(SG_T("%s|%s|%s|"),
+	return( CSG_String::Format("%s|%s|%s|",
 		_TL("completely contained"),
 		_TL("intersects"),
-		_TL("center"))
-	);
+		_TL("center")
+	));
 }
 
 //---------------------------------------------------------
@@ -252,7 +232,7 @@ bool Cut_Set_Extent(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear)
 		{
 			CSG_Shape	*pShape	= pExtent->Add_Shape();
 
-			pShape->Set_Value(SG_T("ID"), pExtent->Get_Count());
+			pShape->Set_Value("ID", pExtent->Get_Count());
 
 			pShape->Add_Point(Extent.Get_XMin(), Extent.Get_YMin());
 			pShape->Add_Point(Extent.Get_XMin(), Extent.Get_YMax());
@@ -279,7 +259,7 @@ CShapes_Cut::CShapes_Cut(void)
 {
 	Set_Name		(_TL("Cut Shapes Layer"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2006"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		""
@@ -307,14 +287,13 @@ CShapes_Cut::CShapes_Cut(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		Cut_Methods_Str(), 0
+		Cut_Methods_Str(), 1
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TARGET"		, _TL("Extent"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("user defined"),
 			_TL("grid project"),
 			_TL("shapes layer extent"),
@@ -323,235 +302,186 @@ CShapes_Cut::CShapes_Cut(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParameters;
+	Parameters.Add_Double(NULL, "AX", _TL("Left"            ), _TL(""), 0.0);
+	Parameters.Add_Double(NULL, "BX", _TL("Right"           ), _TL(""), 1.0);
+	Parameters.Add_Double(NULL, "AY", _TL("Bottom"          ), _TL(""), 0.0);
+	Parameters.Add_Double(NULL, "BY", _TL("Top"             ), _TL(""), 1.0);
+	Parameters.Add_Double(NULL, "DX", _TL("Horizontal Range"), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double(NULL, "DY", _TL("Vertical Range"  ), _TL(""), 1.0, 0.0, true);
 
-	pParameters	= Add_Parameters("CUT", _TL("Extent"), _TL(""));
-
-	pParameters->Add_Value(
-		NULL, "AX"	, _TL("Left")				, _TL(""), PARAMETER_TYPE_Double
+	Parameters.Add_Grid_System(
+		NULL	, "GRID_SYS"	, _TL("Grid System"),
+		_TL("")
 	);
 
-	pParameters->Add_Value(
-		NULL, "BX"	, _TL("Right")				, _TL(""), PARAMETER_TYPE_Double
+	Parameters.Add_Shapes(
+		NULL	, "SHAPES_EXT"	, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT
 	);
 
-	pParameters->Add_Value(
-		NULL, "AY"	, _TL("Bottom")				, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "BY"	, _TL("Top")				, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "DX"	, _TL("Horizontal Range")	, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
-	pParameters->Add_Value(
-		NULL, "DY"	, _TL("Vertical Range")		, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
-	pParameters	= Add_Parameters("GRID", _TL("Extent"), _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL, "GRID", _TL("Grid Project")		, _TL("")
-	);
-
-	pParameters	= Add_Parameters("SHAPES", _TL("Extent"), _TL(""));
-
-	pParameters->Add_Shapes(
-		NULL, "SHAPES", _TL("Shapes")			, _TL(""), PARAMETER_INPUT
-	);
-
-	pParameters	= Add_Parameters("POLYGONS", _TL("Polygons"), _TL(""));
-
-	pParameters->Add_Shapes(
-		NULL, "POLYGONS", _TL("Polygons")		, _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	Parameters.Add_Shapes(
+		NULL	, "POLYGONS"	, _TL("Polygons"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	{
+		if( pParameter->asShapesList()->Get_Count() > 0 )
+		{
+			CSG_Rect	Extent(pParameter->asShapesList()->asShapes(0)->Get_Extent());
+
+			for(int i=1; i<pParameter->asShapesList()->Get_Count(); i++)
+			{
+				Extent.Union(pParameter->asShapesList()->asShapes(i)->Get_Extent());
+			}
+
+			pParameters->Set_Parameter("AX", Extent.Get_XMin  ());
+			pParameters->Set_Parameter("AY", Extent.Get_YMin  ());
+			pParameters->Set_Parameter("BX", Extent.Get_XMax  ());
+			pParameters->Set_Parameter("BY", Extent.Get_YMax  ());
+			pParameters->Set_Parameter("DX", Extent.Get_XRange());
+			pParameters->Set_Parameter("DY", Extent.Get_YRange());
+		}
+	}
+
+	else if( pParameters->Get_Parameter("TARGET")->asInt() == 0 )
+	{
+		double	ax	= pParameters->Get_Parameter("AX")->asDouble();
+		double	ay	= pParameters->Get_Parameter("AY")->asDouble();
+		double	bx	= pParameters->Get_Parameter("BX")->asDouble();
+		double	by	= pParameters->Get_Parameter("BY")->asDouble();
+		double	dx	= pParameters->Get_Parameter("DX")->asDouble();
+		double	dy	= pParameters->Get_Parameter("DY")->asDouble();
+
+		if( ax > bx )	{	double	d	= ax;	ax	= bx;	bx	= d;	}
+		if( ay > by )	{	double	d	= ay;	ay	= by;	by	= d;	}
+
+		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), "DX") )
+		{
+			bx	= ax + dx;
+		}
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "AX")
+			||   !SG_STR_CMP(pParameter->Get_Identifier(), "BX") )
+		{
+			dx	= bx - ax;
+		}
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "DY") )
+		{
+			by	= ay + dy;
+		}
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "AY")
+			||   !SG_STR_CMP(pParameter->Get_Identifier(), "BY") )
+		{
+			dy	= by - ay;
+		}
+
+		pParameters->Set_Parameter("AX", ax);
+		pParameters->Set_Parameter("AY", ay);
+		pParameters->Set_Parameter("BX", bx);
+		pParameters->Set_Parameter("BY", by);
+		pParameters->Set_Parameter("DX", dx);
+		pParameters->Set_Parameter("DY", dy);
+	}
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CShapes_Cut::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET") )
+	{
+		pParameters->Set_Enabled("AX"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("AY"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("BX"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("BY"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("DX"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("DY"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("GRID_SYS"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("SHAPES_EXT", pParameter->asInt() == 2);
+		pParameters->Set_Enabled("POLYGONS"  , pParameter->asInt() == 3);
+	}
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CShapes_Cut::On_Execute(void)
 {
-	int							Method;
-	CSG_Shapes					*pExtent, *pCut;
-	CSG_Parameter_Shapes_List	*pShapes, *pCuts;
+	CSG_Parameter_Shapes_List	*pShapes	= Parameters("SHAPES")->asShapesList();
 
-	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapesList();
-	pCuts	= Parameters("CUT")		->asShapesList();
-	pExtent	= Parameters("EXTENT")	->asShapes();
-	Method	= Parameters("METHOD")	->asInt();
-
-	//-----------------------------------------------------
-	if( pShapes->Get_Count() > 0 )
+	if( pShapes->Get_Count() < 1 )
 	{
-		int			iLayer;
-		CSG_Rect	r(pShapes->asShapes(0)->Get_Extent());
-
-		for(iLayer=1; iLayer<pShapes->Get_Count(); iLayer++)
-		{
-			r.Union(pShapes->asShapes(iLayer)->Get_Extent());
-		}
-
-		if( Get_Extent(r) )
-		{
-			pCuts->Del_Items();
-
-			Cut_Set_Extent(r, pExtent, true);
-
-			for(iLayer=0; iLayer<pShapes->Get_Count(); iLayer++)
-			{
-				if( m_pPolygons )
-				{
-					if( Cut_Shapes(m_pPolygons, Method, pShapes->asShapes(iLayer), pCut = SG_Create_Shapes()) )
-						pCuts->Add_Item(pCut);
-					else
-						delete(pCut);
-				}
-				else
-				{
-					if( Cut_Shapes(r, Method, pShapes->asShapes(iLayer), pCut = SG_Create_Shapes()) )
-						pCuts->Add_Item(pCut);
-					else
-						delete(pCut);
-				}
-			}
-
-			return( pCuts->Get_Count() > 0 );
-		}
+		return( false );
 	}
 
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CShapes_Cut::Get_Extent(CSG_Rect &r)
-{
-	m_pPolygons	= NULL;
+	//-----------------------------------------------------
+	CSG_Rect	Extent;
+	CSG_Shapes	*pPolygons	= NULL;
 
 	switch( Parameters("TARGET")->asInt() )
 	{
-	//-----------------------------------------------------
 	case 0:	// user defined
-		Get_Parameters("CUT")->Get_Parameter("AX")->Set_Value(r.Get_XMin());
-		Get_Parameters("CUT")->Get_Parameter("AY")->Set_Value(r.Get_YMin());
-		Get_Parameters("CUT")->Get_Parameter("BX")->Set_Value(r.Get_XMax());
-		Get_Parameters("CUT")->Get_Parameter("BY")->Set_Value(r.Get_YMax());
-		Get_Parameters("CUT")->Get_Parameter("DX")->Set_Value(r.Get_XRange());
-		Get_Parameters("CUT")->Get_Parameter("DY")->Set_Value(r.Get_YRange());
-
-		if( Dlg_Parameters("CUT") )
-		{
-			r.Assign(
-				Get_Parameters("CUT")->Get_Parameter("AX")->asDouble(),
-				Get_Parameters("CUT")->Get_Parameter("AY")->asDouble(),
-				Get_Parameters("CUT")->Get_Parameter("BX")->asDouble(),
-				Get_Parameters("CUT")->Get_Parameter("BY")->asDouble()
-			);
-
-			return( true );
-		}
+		Extent.Assign(
+			Parameters("AX")->asDouble(),
+			Parameters("AY")->asDouble(),
+			Parameters("BX")->asDouble(),
+			Parameters("BY")->asDouble()
+		);
 		break;
 
-	//-----------------------------------------------------
 	case 1:	// grid project
-		if( Dlg_Parameters("GRID") )
-		{
-			r.Assign(Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid_System()->Get_Extent());
-
-			return( true );
-		}
+		Extent.Assign(Parameters("GRID_SYS")->asGrid_System()->Get_Extent());
 		break;
 
-	//-----------------------------------------------------
 	case 2:	// shapes extent
-		if( Dlg_Parameters("SHAPES") )
-		{
-			r.Assign(Get_Parameters("SHAPES")->Get_Parameter("SHAPES")->asShapes()->Get_Extent());
-
-			return( true );
-		}
+		Extent.Assign(Parameters("SHAPES_EXT")->asShapes()->Get_Extent());
 		break;
+
+	case 3:	// polygons
+		pPolygons	= Parameters("POLYGONS")->asShapes();
+		break;
+	}
 
 	//-----------------------------------------------------
-	case 3:	// polygons
-		if( Dlg_Parameters("POLYGONS") )
-		{
-			r.Assign(Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes()->Get_Extent());
+	CSG_Parameter_Shapes_List	*pCuts	= Parameters("CUT")->asShapesList();
 
-			m_pPolygons	= Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes();
+	pCuts->Del_Items();
 
-			return( true );
-		}
-		break;
-	}
+	Cut_Set_Extent(Extent, Parameters("EXTENT")->asShapes(), true);
 
-	return( false );
-}
+	int	Method	= Parameters("METHOD")->asInt();
 
-//---------------------------------------------------------
-int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CUT")) )
+	for(int i=0; i<pShapes->Get_Count(); i++)
 	{
-		double	ax, ay, bx, by, dx, dy, d;
+		CSG_Shapes	*pCut	= pPolygons
+			? Cut_Shapes(pPolygons, Method, pShapes->asShapes(i))
+			: Cut_Shapes(Extent   , Method, pShapes->asShapes(i));
 
-		ax	= pParameters->Get_Parameter("AX")->asDouble();
-		ay	= pParameters->Get_Parameter("AY")->asDouble();
-		bx	= pParameters->Get_Parameter("BX")->asDouble();
-		by	= pParameters->Get_Parameter("BY")->asDouble();
-		dx	= pParameters->Get_Parameter("DX")->asDouble();
-		dy	= pParameters->Get_Parameter("DY")->asDouble();
-
-		if( ax > bx )	{	d	= ax;	ax	= bx;	bx	= d;	}
-		if( ay > by )	{	d	= ay;	ay	= by;	by	= d;	}
-
-		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DX")) )
+		if( pCut )
 		{
-			bx	= ax + dx;
+			pCuts->Add_Item(pCut);
 		}
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AX"))
-			||	 !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BX")) )
-		{
-			dx	= bx - ax;
-		}
-
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DY")) )
-		{
-			by	= ay + dy;
-		}
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AY"))
-			||	 !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BY")) )
-		{
-			dy	= by - ay;
-		}
-
-		pParameters->Get_Parameter("AX")->Set_Value(ax);
-		pParameters->Get_Parameter("AY")->Set_Value(ay);
-		pParameters->Get_Parameter("BX")->Set_Value(bx);
-		pParameters->Get_Parameter("BY")->Set_Value(by);
-		pParameters->Get_Parameter("DX")->Set_Value(dx);
-		pParameters->Get_Parameter("DY")->Set_Value(dy);
-
-		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( pCuts->Get_Count() > 0 );
 }
 
 

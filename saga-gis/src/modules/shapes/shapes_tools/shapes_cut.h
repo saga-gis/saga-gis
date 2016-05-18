@@ -84,8 +84,6 @@ bool			Cut_Set_Extent	(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear);
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -100,16 +98,9 @@ public:
 protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
-
-
-private:
-
-	CSG_Shapes					*m_pPolygons;
-
-
-	bool						Get_Extent				(CSG_Rect &r);
 
 };
 
