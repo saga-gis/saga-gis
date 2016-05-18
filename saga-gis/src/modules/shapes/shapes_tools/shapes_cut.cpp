@@ -97,7 +97,7 @@ bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shap
 			{
 			case  2:	// center
 				bAdd	= pPolygon->Contains(pShapes->Get_Type() == SHAPE_TYPE_Polygon
-					? ((CSG_Shape_Polygon *)pShape)->Get_Centroid() : pShape->Get_Extent().Get_Center()
+					? ((CSG_Shape_Polygon *)pShape)->Get_Centroid() : (TSG_Point)pShape->Get_Extent().Get_Center()
 				);
 				break;
 
@@ -169,7 +169,7 @@ bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pC
 		{
 		case  2:	// center
 			bAdd	= Extent.Contains(pShapes->Get_Type() == SHAPE_TYPE_Polygon
-				? ((CSG_Shape_Polygon *)pShape)->Get_Centroid() : pShape->Get_Extent().Get_Center()
+				? ((CSG_Shape_Polygon *)pShape)->Get_Centroid() : (TSG_Point)pShape->Get_Extent().Get_Center()
 			);
 			break;
 
