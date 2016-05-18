@@ -72,9 +72,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes *	Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes);
+CSG_Shapes *	Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes                  , double Overlap = 0.0);
+bool			Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut, double Overlap = 0.0);
+
 CSG_Shapes *	Cut_Shapes		(CSG_Rect    Extent   , int Method, CSG_Shapes *pShapes);
-bool			Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut);
 bool			Cut_Shapes		(CSG_Rect    Extent   , int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut);
 
 CSG_String		Cut_Methods_Str	(void);
