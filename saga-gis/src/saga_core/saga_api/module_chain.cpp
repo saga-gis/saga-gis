@@ -387,7 +387,7 @@ bool CSG_Module_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 		return( true );
 
 	default:
-		return( false );
+		return( true );
 	}
 
 	pParameter->Assign(pData);
@@ -439,19 +439,20 @@ bool CSG_Module_Chain::Data_Initialize(void)
 {
 	m_Data.Set_Manager(NULL);
 
-	bool	bResult	= false;
-
 	for(int i=0; i<Parameters.Get_Count(); i++)
 	{
 		CSG_Parameter	*pParameter	= Parameters(i);
 
-		if( !(pParameter->is_DataObject() && !pParameter->asDataObject()) && Data_Add(pParameter->Get_Identifier(), pParameter) )
+		if( !(pParameter->is_DataObject() && !pParameter->asDataObject()) )
 		{
-			bResult	= true;
+			if( !Data_Add(pParameter->Get_Identifier(), pParameter) )
+			{
+				return( false );
+			}
 		}
 	}
 
-	return( bResult );
+	return( true );
 }
 
 //---------------------------------------------------------
