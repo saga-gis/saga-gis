@@ -278,7 +278,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 			{
 				int	i;
 
-				if( Indexes.Get_Next_Token().asInt(i) )
+				if( Indexes.Get_Next_Token().asInt(i) && i >= 0 && i < Bands.Get_Count() )
 				{
 					Bands.Select(Bands[i].Get_Index(), true);
 				}
