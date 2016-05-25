@@ -64,8 +64,14 @@
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+#include "opencv2/core/version.hpp"
+
+#if CV_MAJOR_VERSION == 2
+
 #include <opencv/cxcore.h>
 #include <opencv/ml.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -106,6 +112,22 @@ private:
 	virtual CvMat**				GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids, int type, CSG_Shapes *s_areas, int i_classId, CSG_Grid *g_evalOut, CSG_Grid *g_evalOutCert);
 	virtual CSG_Vector			GetClassVectorByName(CSG_Shapes *s_areas, const SG_Char *s_class, int i_classId); 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define new_COpenCV_NNet	new COpenCV_NNet
+
+#else // CV_MAJOR_VERSION == 2
+
+#define new_COpenCV_NNet	MLB_INTERFACE_SKIP_MODULE
+
+#endif
 
 
 ///////////////////////////////////////////////////////////

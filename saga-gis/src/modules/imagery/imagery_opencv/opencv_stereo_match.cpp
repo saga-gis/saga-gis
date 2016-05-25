@@ -61,6 +61,8 @@
 //---------------------------------------------------------
 #include "opencv_stereo_match.h"
 
+#if CV_MAJOR_VERSION == 2
+
 #include "opencv2/calib3d/calib3d.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 //#include "opencv2/imgcodecs.hpp"
@@ -722,3 +724,5 @@ int main(int argc, char** argv)
     return 0;
 }
 /**/
+
+#endif // CV_MAJOR_VERSION == 2

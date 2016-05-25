@@ -15,6 +15,8 @@ libimagery_opencv_la_SOURCES =\
 MLB_Interface.cpp\
 opencv.cpp\
 opencv_fourier.cpp\
+opencv_ml.cpp\
+opencv_ml_tools.cpp\
 opencv_morphology.cpp\
 opencv_nnet.cpp\
 opencv_stereo_match.cpp\
@@ -22,6 +24,7 @@ opencv_svd.cpp\
 MLB_Interface.h\
 opencv.h\
 opencv_fourier.h\
+opencv_ml.h\
 opencv_morphology.h\
 opencv_nnet.h\
 opencv_stereo_match.h\

@@ -60,8 +60,9 @@
 
 //---------------------------------------------------------
 #include "opencv_nnet.h"
-#include <opencv/cxcore.h>
-#include <opencv/ml.h>
+
+#if CV_MAJOR_VERSION == 2
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -74,7 +75,7 @@ COpenCV_NNet::COpenCV_NNet(void)
 {
 	CSG_Parameter	*pNodeTrainData, *pNodeTrainAreas, *pNodeTopology, *pNodeActFun, *pNodeRPROP, *pNodeBPROP, *pNodeData;
 
-	Set_Name		(_TL("Neural Networks (OpenCV)"));
+	Set_Name		(_TL("[deprecated] Neural Networks (OpenCV)"));
 
 	Set_Author		(SG_T("Luca Piras"));
 
@@ -953,3 +954,5 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 	mat_array[1] = mat_outputData;
 	return mat_array;
 }
+
+#endif // CV_MAJOR_VERSION == 2

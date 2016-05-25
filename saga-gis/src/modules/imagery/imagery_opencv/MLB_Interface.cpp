@@ -109,6 +109,7 @@ CSG_String Get_Info(int i)
 #include "opencv_svd.h"
 #include "opencv_nnet.h"
 #include "opencv_stereo_match.h"
+#include "opencv_ml.h"
 
 
 //---------------------------------------------------------
@@ -121,11 +122,20 @@ CSG_Module *		Create_Module(int i)
 	case  0:	return( new COpenCV_Morphology );
 	case  1:	return( new COpenCV_FFT );
 	case  2:	return( new COpenCV_SVD );
-	case  3:	return( new COpenCV_NNet );
-	case  4:	return( new COpenCV_Stereo_Match );
-	}
+	case  3:	return( new_COpenCV_NNet );
+	case  4:	return( new_COpenCV_Stereo_Match );
 
-	return( NULL );
+	case  5:	return( new_COpenCV_ML_NBayes );
+	case  6:	return( new_COpenCV_ML_KNN );
+	case  7:	return( new_COpenCV_ML_SVM );
+	case  8:	return( new_COpenCV_ML_DTrees );
+	case  9:	return( new_COpenCV_ML_Boost );
+	case 10:	return( new_COpenCV_ML_RTrees );
+	case 11:	return( new_COpenCV_ML_ANN );
+
+	case 12:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	}
 }
 
 
