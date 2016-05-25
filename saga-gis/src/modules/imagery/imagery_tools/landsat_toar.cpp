@@ -89,7 +89,7 @@ enum
 #define PRM_IN(sensor, id)				CSG_String::Format("DN_%s%02d", CSG_String(sensor).c_str(), id)
 #define PRM_OUT(sensor, id)				CSG_String::Format("RF_%s%02d", CSG_String(sensor).c_str(), id)
 #define PRM_ADD_BAND__IN(sensor, id)	Parameters.Add_Grid(pNode, PRM_IN (sensor, id), CSG_String::Format("%s %s %d", _TL("DN")         , _TL("Band"), id), _TL(""), PARAMETER_INPUT_OPTIONAL);
-#define PRM_ADD_BAND_OUT(sensor, id)	Parameters.Add_Grid(pNode, PRM_OUT(sensor, id), CSG_String::Format("%s %s %d", _TL("Reflectance"), _TL("Band"), id), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Byte);
+#define PRM_ADD_BAND_OUT(sensor, id)	Parameters.Add_Grid(pNode, PRM_OUT(sensor, id), CSG_String::Format("%s %s %d", _TL("Reflectance"), _TL("Band"), id), _TL(""), PARAMETER_OUTPUT, true, SG_STR_CMP(sensor, "OLI") ? SG_DATATYPE_Byte : SG_DATATYPE_Word);
 #define PRM_ENABLE_OUTPUT(sensor, id)	pParameters->Set_Enabled(PRM_OUT(sensor, id), pParameters->Get_Parameter(PRM_IN(sensor, id)) && pParameters->Get_Parameter(PRM_IN(sensor, id))->asGrid())
 
 //---------------------------------------------------------
@@ -475,9 +475,11 @@ CSG_Grid * CLandsat_TOAR::Get_Band_Output(int iBand, int Sensor)
 
 		if( pOutput )
 		{
+			TSG_Data_Type	DataType	= Sensor == oli8 ? SG_DATATYPE_Word : SG_DATATYPE_Byte;
+
 			if( !pOutput->asGrid() )
 			{
-				CSG_Grid	*pGrid	= SG_Create_Grid(pInput, SG_DATATYPE_Byte);
+				CSG_Grid	*pGrid	= SG_Create_Grid(pInput, DataType);
 
 				if( pGrid && pGrid->is_Valid() && pGrid->Get_System() == pInput->Get_System() )
 				{
@@ -684,6 +686,8 @@ bool CLandsat_TOAR::On_Execute(void)
 	sAll	+= GET_DESC_FLT(_TL("Solar Height")          , lsat.sun_elev);
 	sAll	+= GET_DESC_STR(_TL("Atmospheric Correction"), Parameters("AC_METHOD")->asString());
 
+	double	MaxVal	= Sensor != oli8 ? 255. : 65535.;
+
 	//-----------------------------------------------------
 	for(iBand=0; iBand<lsat.bands && Process_Get_Okay(); iBand++)
 	{
@@ -699,25 +703,25 @@ bool CLandsat_TOAR::On_Execute(void)
 		if( bRadiance )
 		{
 			pOutput->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Radiance"   )));
-			pOutput->asGrid()->Set_NoData_Value(255.0);
+			pOutput->asGrid()->Set_NoData_Value(MaxVal);
 
 			double	min	= lsat_qcal2rad(pInput->Get_ZMin(), &lsat.band[iBand]);
 			double	max	= lsat_qcal2rad(pInput->Get_ZMax(), &lsat.band[iBand]);
 
-			pOutput->asGrid()->Set_Scaling((max - min) / 254.0, min);
+			pOutput->asGrid()->Set_Scaling((max - min) / (MaxVal - 1.0), min);
 		}
 		else if( lsat.band[iBand].thermal )
 		{
 			pOutput->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Temperature")));
 			pOutput->Set_Unit(_TL("Kelvin"));
-			pOutput->asGrid()->Set_NoData_Value(255.0);
-			pOutput->asGrid()->Set_Scaling(0.5, 200.0);
+			pOutput->asGrid()->Set_NoData_Value(MaxVal);
+			pOutput->asGrid()->Set_Scaling(150.0 / (MaxVal - 1.0), 183.16);	// -90°C to 60°C
 		}
 		else
 		{
 			pOutput->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Reflectance")));
-			pOutput->asGrid()->Set_NoData_Value(255.0);
-			pOutput->asGrid()->Set_Scaling(1.0 / 254.0);
+			pOutput->asGrid()->Set_NoData_Value(MaxVal);
+			pOutput->asGrid()->Set_Scaling(1.0 / (MaxVal - 1.0));
 		}
 
 		//-------------------------------------------------
