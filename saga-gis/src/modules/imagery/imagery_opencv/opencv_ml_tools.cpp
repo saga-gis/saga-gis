@@ -220,14 +220,14 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		), 0
 	);
 
-	Parameters.Add_Double(pNode, "C" , _TL("C" ), _TL(""), 0.0, 0.0, true);
-	Parameters.Add_Double(pNode, "NU", _TL("Nu"), _TL(""), 0.0, 0.0, true);
-	Parameters.Add_Double(pNode, "P" , _TL("P" ), _TL(""), 0.0, 0.0, true);
+	Parameters.Add_Double(pNode, "C" , _TL("C" ), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double(pNode, "NU", _TL("Nu"), _TL(""), 0.5, 0.0, true);
+	Parameters.Add_Double(pNode, "P" , _TL("P" ), _TL(""), 0.5, 0.0, true);
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "KERNEL"		, _TL("Kernel Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 			_TL("linear"),
 			_TL("polynomial"),
 			_TL("radial basis function"),
@@ -235,12 +235,12 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 			_TL("exponential chi2"),
 			_TL("histogram intersection"),
 			_TL("custom")
-		), 2
+		), 1
 	);
 
-	Parameters.Add_Double(pNode, "COEF0" , _TL("Coefficient 0"), _TL(""), 0.0, 0.0, true);
-	Parameters.Add_Double(pNode, "DEGREE", _TL("Degree"       ), _TL(""), 0.0, 0.0, true);
-	Parameters.Add_Double(pNode, "GAMMA" , _TL("Gamma"        ), _TL(""), 0.0, 0.0, true);
+	Parameters.Add_Double(pNode, "COEF0" , _TL("Coefficient 0"), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double(pNode, "DEGREE", _TL("Degree"       ), _TL(""), 0.5, 0.0, true);
+	Parameters.Add_Double(pNode, "GAMMA" , _TL("Gamma"        ), _TL(""), 1.0, 0.0, true);
 }
 
 //---------------------------------------------------------
@@ -310,7 +310,7 @@ Ptr<StatModel> COpenCV_ML_SVM::Get_Model(void)
 
 //---------------------------------------------------------
 COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
-	: COpenCV_ML(true)
+	: COpenCV_ML(false)
 {
 	Set_Name		(_TL("Decision Tree Classification (OpenCV)"));
 
@@ -321,31 +321,76 @@ COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 		"Decision Tree classification of gridded features.\n"
 		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
 	));
+
+	Parameters.Add_Int(
+		NULL	, "MAX_DEPTH"		, _TL("Maximum Tree Depth"),
+		_TL("The maximum possible depth of the tree. That is the training algorithms attempts to split a node while its depth is less than maxDepth. The root node has zero depth."),
+		100, 1, true
+	);
+
+	Parameters.Add_Int(
+		NULL	, "MIN_SAMPLES"		, _TL("Minimum Sample Count"),
+		_TL("If the number of samples in a node is less than this parameter then the node will not be split."),
+		10, 2, true
+	);
+
+	Parameters.Add_Int(
+		NULL	, "MAX_CATEGRS"		, _TL("Maximum Categories"),
+		_TL("Cluster possible values of a categorical variable into K<=maxCategories clusters to find a suboptimal split."),
+		10, 1, true
+	);
+
+	//Parameters.Add_Int(
+	//	NULL	, "CV_FOLDS"		, _TL("CV Folds"),
+	//	_TL("If CVFolds > 1 then algorithms prunes the built decision tree using K-fold cross-validation procedure where K is equal to CVFolds. Default value is 10."),
+	//	10, 0, true
+	//);
+
+	Parameters.Add_Bool(
+		NULL	, "1SE_RULE"		, _TL("Use 1SE Rule"),
+		_TL("If true then a pruning will be harsher. This will make a tree more compact and more resistant to the training data noise but a bit less accurate."),
+		true
+	);
+
+	Parameters.Add_Bool(
+		NULL	, "TRUNC_PRUNED"	, _TL("Truncate Pruned Trees"),
+		_TL("If true then pruned branches are physically removed from the tree. Otherwise they are retained and it is possible to get results from the original unpruned (or pruned less aggressively) tree."),
+		true
+	);
+
+	Parameters.Add_Double(
+		NULL	, "REG_ACCURACY"	, _TL("Regression Accuracy"),
+		_TL("Termination criteria for regression trees. If all absolute differences between an estimated value in a node and values of train samples in this node are less than this parameter then the node will not be split further."),
+		 0.01, 0.0, true
+	);
+
+//	Parameters.Add_Bool(
+//		NULL	, "SURROGATES"		, _TL("Use Surrogates"),
+//		_TL("If true then surrogate splits will be built. These splits allow to work with missing data and compute variable importance correctly."),
+//		 false
+//	);
 }
 
 //---------------------------------------------------------
-int COpenCV_ML_DTrees::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+Ptr<DTrees> COpenCV_ML_DTrees::Get_Trees(void)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ALGORITHM") )
-	{
-		pParameters->Set_Enabled("EMAX", pParameter->asInt() == 1);
-	}
-
-	//-----------------------------------------------------
-	return( COpenCV_ML::On_Parameters_Enable(pParameters, pParameter) );
+	return( DTrees::create() );
 }
 
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(void)
 {
-	Ptr<DTrees>	Model	= DTrees::create();
+	Ptr<DTrees>	Model	= Get_Trees();
 
-	Model->setMaxDepth          (8);
-	Model->setMinSampleCount    (2);
-	Model->setUseSurrogates     (false);
-	Model->setCVFolds           (0); // the number of cross-validation folds
-	Model->setUse1SERule        (false);
-	Model->setTruncatePrunedTree(false);
+	Model->setMaxDepth          (Parameters("MAX_DEPTH"   )->asInt   ());
+	Model->setMinSampleCount    (Parameters("MIN_SAMPLES" )->asInt   ());
+	Model->setMaxCategories     (Parameters("MAX_CATEGRS" )->asInt   ());
+//	Model->setCVFolds           (Parameters("CV_FOLDS"    )->asInt   ());
+	Model->setCVFolds           (0);
+	Model->setUse1SERule        (Parameters("1SE_RULE"    )->asBool  ());
+	Model->setTruncatePrunedTree(Parameters("TRUNC_PRUNED")->asBool  ());
+	Model->setRegressionAccuracy(Parameters("REG_ACCURACY")->asDouble());
+//	Model->setUseSurrogates     (Parameters("SURROGATES"  )->asBool  ());
 
 	return(	Model );
 }
@@ -353,13 +398,10 @@ Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 COpenCV_ML_Boost::COpenCV_ML_Boost(void)
-	: COpenCV_ML(false)
 {
 	Set_Name		(_TL("Boosting Classification (OpenCV)"));
 
@@ -370,31 +412,48 @@ COpenCV_ML_Boost::COpenCV_ML_Boost(void)
 		"Boosted Trees classification of gridded features.\n"
 		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
 	));
+
+	Parameters.Add_Int(
+		NULL	, "WEAK_COUNT"		, _TL("Weak Count"),
+		_TL("The number of weak classifiers."),
+		100, 0, true
+	);
+
+	Parameters.Add_Double(
+		NULL	, "WGT_TRIM_RATE"	, _TL("Weight Trim Rate"),
+		_TL("A threshold between 0 and 1 used to save computational time. Set this parameter to 0 to turn off this functionality."),
+		0.95, 0.0, true, 1.0, true
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "BOOST_TYPE"	, _TL("Boost Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|",
+			_TL("Discrete AdaBoost"),
+			_TL("Real AdaBoost"),
+			_TL("LogitBoost"),
+			_TL("Gentle AdaBoost")
+		), 1
+	);
 }
 
 //---------------------------------------------------------
-int COpenCV_ML_Boost::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ALGORITHM") )
-	{
-		pParameters->Set_Enabled("EMAX", pParameter->asInt() == 1);
-	}
-
-	//-----------------------------------------------------
-	return( COpenCV_ML::On_Parameters_Enable(pParameters, pParameter) );
-}
-
-//---------------------------------------------------------
-Ptr<StatModel> COpenCV_ML_Boost::Get_Model(void)
+Ptr<DTrees> COpenCV_ML_Boost::Get_Trees(void)
 {
 	Ptr<Boost>	Model	= Boost::create();
 
-	Model->setBoostType     (Boost::DISCRETE);
-	Model->setWeakCount     (100);
-	Model->setWeightTrimRate(0.95);
-	Model->setMaxDepth      (2);
-	Model->setUseSurrogates (false);
-	Model->setPriors        (Mat());
+	Model->setWeakCount         (Parameters("WEAK_COUNT"   )->asInt   ());
+	Model->setWeightTrimRate    (Parameters("WGT_TRIM_RATE")->asDouble());
+
+	switch( Parameters("BOOST_TYPE")->asInt() )
+	{
+	default:	Model->setBoostType(Boost::DISCRETE);	break;
+	case  1:	Model->setBoostType(Boost::REAL    );	break;
+	case  2:	Model->setBoostType(Boost::LOGIT   );	break;
+	case  3:	Model->setBoostType(Boost::GENTLE  );	break;
+	}
+
+//	Model->setPriors        (Mat());
 
 	return(	Model );
 }
@@ -402,13 +461,10 @@ Ptr<StatModel> COpenCV_ML_Boost::Get_Model(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
-	: COpenCV_ML(false)
 {
 	Set_Name		(_TL("Random Forest Classification (OpenCV)"));
 
@@ -419,35 +475,26 @@ COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
 		"Random Forest classification of gridded features.\n"
 		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
 	));
+
+	Parameters.Add_Int(
+		NULL	, "ACTIVE_VARS"	, _TL("Active Variable Count"),
+		_TL("The size of the randomly selected subset of features at each tree node and that are used to find the best split(s). If you set it to 0 then the size will be set to the square root of the total number of features."),
+		0, 0, true
+	);
 }
 
 //---------------------------------------------------------
-int COpenCV_ML_RTrees::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ALGORITHM") )
-	{
-		pParameters->Set_Enabled("EMAX", pParameter->asInt() == 1);
-	}
-
-	//-----------------------------------------------------
-	return( COpenCV_ML::On_Parameters_Enable(pParameters, pParameter) );
-}
-
-//---------------------------------------------------------
-Ptr<StatModel> COpenCV_ML_RTrees::Get_Model(void)
+Ptr<DTrees> COpenCV_ML_RTrees::Get_Trees(void)
 {
 	Ptr<RTrees>	Model	= RTrees::create();
 
-	Model->setMaxDepth              (4);
-	Model->setMinSampleCount        (2);
-	Model->setRegressionAccuracy    (0.f);
-	Model->setUseSurrogates         (false);
-	Model->setMaxCategories         (16);
-	Model->setPriors                (Mat());
+	Model->setActiveVarCount(Parameters("ACTIVE_VARS")->asInt());
+
 	Model->setCalculateVarImportance(false);
-	Model->setActiveVarCount        (1);
 
 	Model->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 5, 0));
+
+//	Model->setPriors                (Mat());
 
 	return(	Model );
 }

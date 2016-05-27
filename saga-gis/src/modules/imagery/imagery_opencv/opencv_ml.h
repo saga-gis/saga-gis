@@ -93,7 +93,7 @@ class COpenCV_ML : public CSG_Module_Grid
 public:
 	COpenCV_ML(bool bProbability);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Imagery|Classification|Machine Learning") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Imagery|Classification|Machine Learning (OpenCV)") );	}
 
 
 protected:
@@ -209,19 +209,14 @@ public:
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
 	virtual Ptr<StatModel>		Get_Model				(void);
+
+	virtual Ptr<DTrees>			Get_Trees				(void);
 
 };
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-class COpenCV_ML_Boost : public COpenCV_ML
+class COpenCV_ML_Boost : public COpenCV_ML_DTrees
 {
 public:
 	COpenCV_ML_Boost(void);
@@ -229,19 +224,12 @@ public:
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual Ptr<StatModel>		Get_Model				(void);
+	virtual Ptr<DTrees>			Get_Trees				(void);
 
 };
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-class COpenCV_ML_RTrees : public COpenCV_ML
+class COpenCV_ML_RTrees : public COpenCV_ML_DTrees
 {
 public:
 	COpenCV_ML_RTrees(void);
@@ -249,9 +237,7 @@ public:
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual Ptr<StatModel>		Get_Model				(void);
+	virtual Ptr<DTrees>			Get_Trees				(void);
 
 };
 

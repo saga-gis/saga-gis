@@ -74,7 +74,11 @@
 
 #include "opencv2/core/version.hpp"
 
-#if CV_MAJOR_VERSION == 2
+#if CV_MAJOR_VERSION == 3
+
+#include <opencv2/calib3d.hpp>
+
+using namespace cv;
 
 
 ///////////////////////////////////////////////////////////
@@ -89,13 +93,17 @@ class COpenCV_Stereo_Match : public CSG_Module_Grid
 public:
 	COpenCV_Stereo_Match(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Garden|Imagery") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Garden|Imagery") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual bool				On_Execute				(void);
+
+
+private:
 
 };
 
@@ -109,7 +117,7 @@ protected:
 //---------------------------------------------------------
 #define new_COpenCV_Stereo_Match	new COpenCV_Stereo_Match
 
-#else // CV_MAJOR_VERSION == 2
+#else // CV_MAJOR_VERSION == 3
 
 #define new_COpenCV_Stereo_Match	MLB_INTERFACE_SKIP_MODULE
 
