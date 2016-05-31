@@ -295,7 +295,11 @@ bool CGDAL_Import::Load(const CSG_String &File)
 
 			for(int i=0; i<Bands.Get_Count(); i++)
 			{
-				Selection.Add_Bool(Selection(1), SG_Get_String(i, 0), Bands[i].asString(0), _TL(""), false);
+				Selection.Add_Bool(Selection(1), SG_Get_String(i, 0), Bands[i].asString(0), CSG_String::Format("%s: %d\n%s: %d\n%s: %s",
+					_TL("List Order"), i,
+					_TL("Index"     ), Bands[i].Get_Index(),
+					_TL("Name"      ), Bands[i].asString(0)), false
+				);
 			}
 
 			if( Dlg_Parameters(&Selection, _TL("Select from Multiple Bands")) )
@@ -370,6 +374,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 				pGrid->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
 				pGrid->Set_File_Name(DataSet.Get_File_Name());
 				pGrid->Set_Name(SG_File_Get_Name(File, false) + (DataSet.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%s]", Bands[i].asString(0))));
+				pGrid->Set_Description(DataSet.Get_Description(Bands[i].Get_Index()));
 
 				m_pGrids->Add_Item(pGrid);
 
