@@ -66,6 +66,7 @@
 #include <wx/utils.h>
 #include <wx/filename.h>
 #include <wx/dir.h>
+#include <wx/wxcrtvararg.h>
 
 #include "api_core.h"
 

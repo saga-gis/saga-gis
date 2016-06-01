@@ -68,6 +68,8 @@
 #include <wx/string.h>
 #include <wx/datetime.h>
 #include <wx/tokenzr.h>
+#include <wx/wxcrt.h>
+#include <wx/wxcrtvararg.h>
 
 #include "api_core.h"
 

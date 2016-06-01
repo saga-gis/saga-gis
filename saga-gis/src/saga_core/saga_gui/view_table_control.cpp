@@ -533,9 +533,9 @@ void CVIEW_Table_Control::On_Key(wxKeyEvent &event)
 {
 	if     ( event.GetKeyCode() == WXK_UP       )
 	{
-		if( GetCursorRow() > 0 )
+		if( GetGridCursorRow() > 0 )
 		{
-			SetGridCursor(GetCursorRow() - 1, GetCursorColumn());
+			SetGridCursor(GetGridCursorRow() - 1, GetGridCursorCol());
 		}
 		else
 		{
@@ -544,9 +544,9 @@ void CVIEW_Table_Control::On_Key(wxKeyEvent &event)
 	}
 	else if( event.GetKeyCode() == WXK_DOWN     )
 	{
-		if( GetCursorRow() < m_Scroll_Range - 1 )
+		if( GetGridCursorRow() < m_Scroll_Range - 1 )
 		{
-			SetGridCursor(GetCursorRow() + 1, GetCursorColumn());
+			SetGridCursor(GetGridCursorRow() + 1, GetGridCursorCol());
 		}
 		else
 		{
