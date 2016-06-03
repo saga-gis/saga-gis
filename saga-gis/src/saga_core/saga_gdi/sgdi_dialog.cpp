@@ -118,13 +118,13 @@ CSGDI_Dialog::CSGDI_Dialog(const wxString &Name, int Style)
 
 	if( Style & SGDI_DLG_STYLE_CTRLS_RIGHT )
 	{
-		pSizer->Add(m_pSizer_Output	, 1, wxALIGN_RIGHT|wxALL|wxEXPAND, SGDI_CTRL_SPACE);
-		pSizer->Add(m_pSizer_Ctrl	, 0, wxALIGN_LEFT |wxALL|wxEXPAND, SGDI_CTRL_SPACE);
+		pSizer->Add(m_pSizer_Output	, 1, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
+		pSizer->Add(m_pSizer_Ctrl	, 0, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
 	}
 	else
 	{
-		pSizer->Add(m_pSizer_Ctrl	, 0, wxALIGN_LEFT |wxALL|wxEXPAND, SGDI_CTRL_SPACE);
-		pSizer->Add(m_pSizer_Output	, 1, wxALIGN_RIGHT|wxALL|wxEXPAND, SGDI_CTRL_SPACE);
+		pSizer->Add(m_pSizer_Ctrl	, 0, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
+		pSizer->Add(m_pSizer_Output	, 1, wxALL|wxEXPAND, SGDI_CTRL_SPACE);
 	}
 
 	pSizer->FitInside(this);
@@ -178,7 +178,7 @@ wxButton * CSGDI_Dialog::Add_Button(const wxString &Name, int ID, const wxSize &
 {
 	wxButton	*pButton	= new wxButton(this, ID, Name, wxDefaultPosition, Size);
 
-	m_pSizer_Ctrl->Add(pButton, 0, wxALIGN_CENTER|wxALL|wxEXPAND, SGDI_CTRL_SMALLSPACE);
+	m_pSizer_Ctrl->Add(pButton, 0, wxALL|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	return( pButton );
 }
@@ -192,8 +192,8 @@ wxChoice * CSGDI_Dialog::Add_Choice(const wxString &Name, const wxArrayString &C
 	pLabel	->SetForegroundColour(m_Ctrl_Color);
 	pChoice	->SetSelection(iSelect);
 
-	m_pSizer_Ctrl->Add(pLabel , 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP   |wxEXPAND, SGDI_CTRL_SMALLSPACE);
-	m_pSizer_Ctrl->Add(pChoice, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
+	m_pSizer_Ctrl->Add(pLabel , 0, wxLEFT|wxRIGHT|wxTOP   |wxEXPAND, SGDI_CTRL_SMALLSPACE);
+	m_pSizer_Ctrl->Add(pChoice, 0, wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	return( pChoice );
 }
@@ -222,7 +222,7 @@ wxTextCtrl * CSGDI_Dialog::Add_TextCtrl(const wxString &Name, int Style, const w
 	pLabel	->SetForegroundColour(m_Ctrl_Color);
 
 	m_pSizer_Ctrl->Add(pLabel   ,       0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP            , SGDI_CTRL_SMALLSPACE);
-	m_pSizer_Ctrl->Add(pTextCtrl, Stretch, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
+	m_pSizer_Ctrl->Add(pTextCtrl, Stretch,                wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	if( Style & wxTE_READONLY )
 	{
@@ -252,7 +252,7 @@ CSGDI_Slider * CSGDI_Dialog::Add_Slider(const wxString &Name, double Value, doub
 
 	m_pSizer_Ctrl	->Add(pLabel , 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxTOP            , SGDI_CTRL_SMALLSPACE);
 //	m_pSizer_Ctrl	->Add(pSizer_, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
-	m_pSizer_Ctrl	->Add(pSlider, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
+	m_pSizer_Ctrl	->Add(pSlider, 0,                wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND, SGDI_CTRL_SMALLSPACE);
 
 	return( pSlider );
 }

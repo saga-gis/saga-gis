@@ -130,8 +130,8 @@ CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	//-----------------------------------------------------
 	wxBoxSizer	*Sizer	= new wxBoxSizer(wxVERTICAL);
 
-	Sizer->Add(m_pControl, wxSizerFlags(1).Align(wxALIGN_TOP   ).Expand());
-	Sizer->Add(m_pFilter , wxSizerFlags(0).Align(wxALIGN_BOTTOM).Expand());
+	Sizer->Add(m_pControl, wxSizerFlags(1).Expand());
+	Sizer->Add(m_pFilter , wxSizerFlags(0).Expand());
 
 	SetSizerAndFit(Sizer);
 }
