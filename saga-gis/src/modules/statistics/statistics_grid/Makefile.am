@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libstatistics_grid.la
 libstatistics_grid_la_SOURCES =\
+categorical_variation.cpp\
 fast_representativeness.cpp\
 grid_autocorrelation.cpp\
 grid_latlon_statistics.cpp\
@@ -23,6 +24,7 @@ GSGrid_Variance.cpp\
 GSGrid_Variance_Radius.cpp\
 GSGrid_Zonal_Statistics.cpp\
 MLB_Interface.cpp\
+categorical_variation.h\
 fast_representativeness.h\
 grid_autocorrelation.h\
 grid_latlon_statistics.h\

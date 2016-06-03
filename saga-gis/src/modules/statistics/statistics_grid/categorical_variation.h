@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: categorical_variation.h 1922 2014-01-09 10:28:46Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                categorical_variation.h                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,88 +54,58 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__categorical_variation_H
+#define HEADER_INCLUDED__categorical_variation_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CCategorical_Variation : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grids") );
-
-	case MLB_INFO_Category:
-		return( _TL("Spatial and Geostatistics") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O.Conrad, V.Wichmann (c) 2002-10" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for spatial and geostatistical analyses.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Spatial and Geostatistics|Grids") );
-	}
-}
+public:
+	CCategorical_Variation(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "fast_representativeness.h"
-#include "GSGrid_Residuals.h"
-#include "GSGrid_Variance.h"
-#include "GSGrid_Variance_Radius.h"
-#include "GSGrid_Statistics.h"
-#include "GSGrid_Zonal_Statistics.h"
-#include "GSGrid_Directional_Statistics.h"
-#include "grid_autocorrelation.h"
-#include "grid_pca.h"
-#include "multiband_variation.h"
-#include "grid_latlon_statistics.h"
-#include "categorical_variation.h"
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFast_Representativeness );
-	case  1:	return( new CGSGrid_Residuals );
-	case  2:	return( new CGSGrid_Variance );
-	case  3:	return( new CGSGrid_Variance_Radius );
-	case  4:	return( new CGSGrid_Statistics );
-	case  5:	return( new CGSGrid_Zonal_Statistics );
-	case  6:	return( new CGSGrid_Directional_Statistics );
-	case  7:	return( new CGrid_Autocorrelation );
-	case  8:	return( new CGrid_PCA );
-	case  9:	return( new CMultiBand_Variation );
-	case 10:	return( new CGrid_PCA_Inverse );
-	case 11:	return( new CGrid_Statistics_Latitudinal );
-	case 12:	return( new CGrid_Statistics_Meridional );
-	case 13:	return( new CGSGrid_Statistics_To_Table );
-	case 14:	return( new CCategorical_Variation );
+	CSG_Grid_Cell_Addressor	m_Cells;
 
-	case 15:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+	CSG_Parameter_Grid_List	*m_pGrids;
+
+	CSG_Grid				*m_pCategories, *m_pCoincidence, *m_pMaj_Count, *m_pMaj_Value;
+
+
+	bool					Get_Variation			(int x, int y);
+	bool					Get_Variation			(int x, int y, int &nValues, int &nIdent, int &nIdent_Max);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -147,8 +115,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__categorical_variation_H
