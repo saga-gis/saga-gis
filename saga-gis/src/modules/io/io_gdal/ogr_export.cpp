@@ -69,11 +69,11 @@
 //---------------------------------------------------------
 COGR_Export::COGR_Export(void)
 {
-	Set_Name		(_TL("Export Shapes"));
+	Set_Name	(_TL("Export Shapes"));
 
-	Set_Author		("O.Conrad (c) 2008");
+	Set_Author	("O.Conrad (c) 2008");
 
-	CSG_String	Description, Formats;
+	CSG_String	Description, Formats, Filter;
 
 	Description	= _TW(
 		"The \"OGR Vector Data Export\" module exports vector data to various file formats using the "
@@ -81,43 +81,57 @@ COGR_Export::COGR_Export(void)
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
 		"  http://www.gdal.org</a>\n"
-		"\n"
-		"Following vector formats are currently supported:\n"
-		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
 	);
+
+	Description	+= CSG_String::Format("\nGDAL %s:%s\n\n", _TL("Version"), SG_Get_OGR_Drivers().Get_Version().c_str());
+
+	Description	+= _TL("Following vector formats are currently supported:");
+
+	Description	+= CSG_String::Format("\n<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>\n",
+		_TL("ID"), _TL("Name"), _TL("Extension")
+	);
+
+	Filter.Printf("%s|*.*", _TL("All Files"));
 
 	for(int i=0; i<SG_Get_OGR_Drivers().Get_Count(); i++)
     {
-		if( SG_Get_OGR_Drivers().Can_Write(i) )
+		if( SG_Get_OGR_Drivers().is_Vector(i) && SG_Get_OGR_Drivers().Can_Write(i) )
 		{
-			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				SG_Get_OGR_Drivers().Get_Name(i).c_str(),
-				SG_Get_OGR_Drivers().Get_Description(i).c_str()
-			);
+			CSG_String	ID		= SG_Get_OGR_Drivers().Get_Description(i).c_str();
+			CSG_String	Name	= SG_Get_OGR_Drivers().Get_Name       (i).c_str();
+			CSG_String	Ext		= SG_Get_OGR_Drivers().Get_Extension  (i).c_str();
 
-			Formats		+= CSG_String::Format(SG_T("%s|"), SG_Get_OGR_Drivers().Get_Name(i).c_str());
+			Description	+= "<tr><td>" + ID + "</td><td>" + Name + "</td><td>" + Ext + "</td></tr>";
+			Formats		+= "{" + ID + "}" + Name + "|";
+
+			if( !Ext.is_Empty() )
+			{
+				Ext.Replace("/", ";");
+
+				Filter	+= "|" + Name + "|*." + Ext;
+			}
 		}
     }
 
-	Description	+= SG_T("</table>");
+	Description	+= "</table>";
 
 	Set_Description(Description);
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL, "SHAPES"	, _TL("Shapes"),
+		NULL	, "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
+		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		NULL, NULL, true
+		Filter, NULL, true
 	);
 
 	Parameters.Add_Choice(
-		NULL, "FORMAT"	, _TL("Format"),
+		NULL	, "FORMAT"	, _TL("Format"),
 		_TL(""),
 		Formats
 	);
@@ -133,25 +147,23 @@ COGR_Export::COGR_Export(void)
 //---------------------------------------------------------
 bool COGR_Export::On_Execute(void)
 {
-	CSG_String			File_Name;
-	CSG_Shapes			*pShapes;
 	CSG_OGR_DataSource	DataSource;
 
-	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	File_Name	= Parameters("FILE")	->asString();
+	if( !DataSource.Create(Parameters("FILE")->asString(), Parameters("FORMAT")->asString()) )
+	{
+		Error_Set(_TL("data set creation failed"));
 
-	//-----------------------------------------------------
-	if( DataSource.Create(File_Name, Parameters("FORMAT")->asString()) == false )
-	{
-		Message_Add(_TL("Could not create data source."));
-	}
-	else if( DataSource.Write(pShapes, Parameters("FORMAT")->asString()) )
-	{
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( !DataSource.Write(Parameters("SHAPES")->asShapes()) )
+	{
+		Error_Set(_TL("failed to write data"));
+
+		return( false );
+	}
+
+	return( true );
 }
 
 

@@ -119,11 +119,13 @@ const SG_Char	gSG_Geom_Type_Choice_Key_Name[GEOM_TYPE_KEY_Count][32]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CSG_OGR_Drivers
+class CSG_OGR_Drivers
 {
 public:
 	CSG_OGR_Drivers(void);
 	virtual ~CSG_OGR_Drivers(void);
+
+	CSG_String					Get_Version			(void)						const;
 
 	int							Get_Count			(void)						const;
 
@@ -137,6 +139,9 @@ public:
 
 	CSG_String					Get_Name			(int Index)					const;
 	CSG_String					Get_Description		(int Index)					const;
+	CSG_String					Get_Extension		(int Index)					const;
+
+	bool						is_Vector			(int Index)					const;
 
 	bool						Can_Read			(int Index)					const;
 	bool						Can_Write			(int Index)					const;
@@ -160,7 +165,7 @@ private:
 };
 
 //---------------------------------------------------------
-io_gdal_EXPORT const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void);
+const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -168,7 +173,7 @@ io_gdal_EXPORT const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CSG_OGR_DataSource
+class CSG_OGR_DataSource
 {
 public:
 	CSG_OGR_DataSource(void);
@@ -187,7 +192,7 @@ public:
 	CSG_Projection				Get_Projection		(int iLayer);
 
 	CSG_Shapes *				Read				(int iLayer, int iGeomTypeChoice);
-	bool						Write				(CSG_Shapes *pShapes, const CSG_String &DriverName);
+	bool						Write				(CSG_Shapes *pShapes);
 
 
 private:

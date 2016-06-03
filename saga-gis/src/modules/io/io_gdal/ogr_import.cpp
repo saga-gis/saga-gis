@@ -73,7 +73,7 @@ COGR_Import::COGR_Import(void)
 
 	Set_Author	("O.Conrad (c) 2008");
 
-	CSG_String	Description;
+	CSG_String	Description, Filter, Filter_All;
 
 	Description	= _TW(
 		"The \"OGR Vector Data Import\" module imports vector data from various file/database formats using the "
@@ -81,48 +81,64 @@ COGR_Import::COGR_Import(void)
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
 		"  http://www.gdal.org</a>\n"
-		"\n"
-		"Following vector data formats are currently supported:\n"
-		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
+	);
+
+	Description	+= CSG_String::Format("\nGDAL %s:%s\n\n", _TL("Version"), SG_Get_OGR_Drivers().Get_Version().c_str());
+
+	Description	+= _TL("Following raster formats are currently supported:");
+
+	Description	+= CSG_String::Format("\n<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>",
+		_TL("ID"), _TL("Name"), _TL("Extension")
 	);
 
 	for(int i=0; i<SG_Get_OGR_Drivers().Get_Count(); i++)
     {
-		if( SG_Get_OGR_Drivers().Can_Read(i) )
+		if( SG_Get_OGR_Drivers().is_Vector(i) && SG_Get_OGR_Drivers().Can_Read(i) )
 		{
-			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				SG_Get_OGR_Drivers().Get_Name(i).c_str(),
-				SG_Get_OGR_Drivers().Get_Description(i).c_str()
-			);
+			CSG_String	ID		= SG_Get_OGR_Drivers().Get_Description(i).c_str();
+			CSG_String	Name	= SG_Get_OGR_Drivers().Get_Name       (i).c_str();
+			CSG_String	Ext		= SG_Get_OGR_Drivers().Get_Extension  (i).c_str();
+
+			Description	+= "<tr><td>" + ID + "</td><td>" + Name + "</td><td>" + Ext + "</td></tr>";
+
+			if( !Ext.is_Empty() )
+			{
+				Ext.Replace("/", ";");
+
+				Filter		+= Name + "|*." + Ext + "|";
+				Filter_All	+= (Filter_All.is_Empty() ? "*." : ";*.") + Ext;
+			}
 		}
     }
 
-	Description	+= SG_T("</table>");
+	Description	+= "</table>";
 
 	Set_Description(Description);
 
+	Filter.Prepend(CSG_String::Format("%s|%s|" , _TL("All Recognized Files"), Filter_All.c_str()));
+	Filter.Append (CSG_String::Format("%s|*.*" , _TL("All Files")));
+
 	//-----------------------------------------------------
 	Parameters.Add_Shapes_List(
-		NULL, "SHAPES"	, _TL("Shapes"),
+		NULL	, "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath(
-		NULL, "FILES"	, _TL("Files"),
+		NULL	, "FILES"	, _TL("Files"),
 		_TL(""),
-		NULL, NULL, false, false, true
+		Filter, NULL, false, false, true
 	);
 
 	CSG_String	sChoices;
 	for(int i=0; i<GEOM_TYPE_KEY_Count; i++)
 	{
-		sChoices += gSG_Geom_Type_Choice_Key_Name[i];
-		sChoices += SG_T("|");
+		sChoices += gSG_Geom_Type_Choice_Key_Name[i];	sChoices += "|";
 	}
 
 	Parameters.Add_Choice(
-		NULL, "GEOM_TYPE"	, _TL("Geometry Type"),
+		NULL	, "GEOM_TYPE"	, _TL("Geometry Type"),
 		_TL("Some OGR drivers are unable to determine the geometry type automatically, please choose the appropriate one in this case"),
 		sChoices,
 		0

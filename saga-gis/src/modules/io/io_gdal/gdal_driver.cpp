@@ -155,15 +155,21 @@ CSG_String CSG_GDAL_Drivers::Get_Extension(int Index) const
 }
 
 //---------------------------------------------------------
+bool CSG_GDAL_Drivers::is_Raster(int Index) const
+{
+	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_RASTER, false) );
+}
+
+//---------------------------------------------------------
 bool CSG_GDAL_Drivers::Can_Read(int Index) const
 {
-	return( Index >= 0 && Index < Get_Count() );	// ? CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) != 0 : false );
+	return( Get_Driver(Index) != NULL );	// ? CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) != 0 : false );
 }
 
 //---------------------------------------------------------
 bool CSG_GDAL_Drivers::Can_Write(int Index) const
 {
-	return( Index >= 0 && Index < Get_Count() ? CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) != 0 : false );
+	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) );
 }
 
 

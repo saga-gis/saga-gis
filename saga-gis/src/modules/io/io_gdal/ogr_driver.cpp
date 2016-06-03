@@ -114,6 +114,12 @@ CSG_OGR_Drivers::~CSG_OGR_Drivers(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String CSG_OGR_Drivers::Get_Version(void) const
+{
+	return( GDALVersionInfo("RELEASE_NAME") );
+}
+
+//---------------------------------------------------------
 int CSG_OGR_Drivers::Get_Count(void) const
 {
 	return( m_pDrivers->GetDriverCount() );
@@ -141,6 +147,12 @@ CSG_String CSG_OGR_Drivers::Get_Name(int Index) const
 CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
 {
 	return( m_pDrivers->GetDriver(Index)->GetDescription() );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_Drivers::Get_Extension(int Index) const
+{
+	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_EXTENSION) );
 }
 
 #else
@@ -194,8 +206,13 @@ CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
 
 	return( s );
 }
-
 #endif
+
+//---------------------------------------------------------
+bool CSG_OGR_Drivers::is_Vector(int Index) const
+{
+	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_VECTOR, false) );
+}
 
 //---------------------------------------------------------
 bool CSG_OGR_Drivers::Can_Read(int Index) const
@@ -206,7 +223,7 @@ bool CSG_OGR_Drivers::Can_Read(int Index) const
 //---------------------------------------------------------
 bool CSG_OGR_Drivers::Can_Write(int Index) const
 {
-	return( Get_Driver(Index) != NULL );//&& Get_Driver(Index)->TestCapability(ODrCCreateDataSource) );
+	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) );
 }
 
 
@@ -728,7 +745,7 @@ bool CSG_OGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes, const CSG_String &DriverName)
+bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 {
 	if( !m_pDataSource || !pShapes || !pShapes->is_Valid() )
 	{
@@ -755,7 +772,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes, const CSG_String &DriverName
 	}
 
 	//-------------------------------------------------
-	if( SG_STR_CMP(DriverName, "DXF") )
+	if( SG_STR_CMP(m_pDataSource->GetDriver()->GetDescription(), "DXF") )
 	{
 		// the dxf driver does not support arbitrary field creation and returns OGRERR_FAILURE;
 		// it seems like there is no method in OGR to check whether a driver supports field creation or not;

@@ -93,10 +93,10 @@ COGR_Export_KML::COGR_Export_KML(void)
 	);
 
 	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
+		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
 		CSG_String::Format(
-			SG_T("%s|*.kml;*.kml|%s|*.*"),
+			"%s|*.kml;*.kml|%s|*.*",
 			_TL("KML files (*.kml)"),
 			_TL("All Files")
 		), NULL, true
@@ -113,11 +113,7 @@ COGR_Export_KML::COGR_Export_KML(void)
 //---------------------------------------------------------
 bool COGR_Export_KML::On_Execute(void)
 {
-	CSG_String	File_Name, Driver_Name = "KML";
-	CSG_Shapes	*pShapes, Shapes;
-
-	pShapes		= Parameters("SHAPES")->asShapes();
-	File_Name	= Parameters("FILE"  )->asString();
+	CSG_Shapes	Shapes, *pShapes	= Parameters("SHAPES")->asShapes();
 
 	//-----------------------------------------------------
 	if( pShapes->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Undefined )
@@ -126,7 +122,7 @@ bool COGR_Export_KML::On_Execute(void)
 	}
 	else if( pShapes->Get_Projection().Get_Type() != SG_PROJ_TYPE_CS_Geographic )
 	{
-		Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pShapes->Get_Projection().Get_Name().c_str()), false);
+		Message_Add(CSG_String::Format("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pShapes->Get_Projection().Get_Name().c_str()), false);
 
 		bool	bResult;
 
@@ -140,27 +136,32 @@ bool COGR_Export_KML::On_Execute(void)
 		{
 			pShapes	= &Shapes;
 
-			Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("re-projection"), _TL("success")), false);
+			Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("success")), false);
 		}
 		else
 		{
-			Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("re-projection"), _TL("failed")), false);
+			Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("failed" )), false);
 		}
 	}
 
 	//-----------------------------------------------------
 	CSG_OGR_DataSource	DataSource;
 
-	if( DataSource.Create(File_Name, Driver_Name) == false )
+	if( !DataSource.Create(Parameters("FILE")->asString(), "KML") )
 	{
-		Message_Add(_TL("could not create KML file"));
-	}
-	else if( DataSource.Write(pShapes, Driver_Name) )
-	{
-		return( true );
+		Error_Set(_TL("KML file creation failed"));
+
+		return( false );
 	}
 
-	return( false );
+	if( !DataSource.Write(pShapes) )
+	{
+		Error_Set(_TL("failed to store data"));
+
+		return( false );
+	}
+
+	return( true );
 }
 
 

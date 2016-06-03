@@ -76,7 +76,7 @@ CGDAL_Import::CGDAL_Import(void)
 
 	Set_Author	("O.Conrad (c) 2007 (A.Ringeler)");
 
-	CSG_String	Description;
+	CSG_String	Description, Filter, Filter_All;
 
 	Description	= _TW(
 		"The \"GDAL Raster Import\" module imports grid data from various file formats using the "
@@ -88,22 +88,38 @@ CGDAL_Import::CGDAL_Import(void)
 
 	Description	+= CSG_String::Format("\nGDAL %s:%s\n\n", _TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str());
 
-	Description	+= _TW(
-		"Following raster formats are currently supported:\n"
-		"<table border=\"1\"><tr><th>ID</th><th>Name</th></tr>\n"
+	Description	+= _TL("Following raster formats are currently supported:");
+
+	Description	+= CSG_String::Format("\n<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>",
+		_TL("ID"), _TL("Name"), _TL("Extension")
 	);
 
 	for(int i=0; i<SG_Get_GDAL_Drivers().Get_Count(); i++)
     {
-		Description	+= CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>\n",
-			SG_Get_GDAL_Drivers().Get_Description(i).c_str(),
-			SG_Get_GDAL_Drivers().Get_Name       (i).c_str()
-		);
+		if( SG_Get_GDAL_Drivers().is_Raster(i) && SG_Get_GDAL_Drivers().Can_Read(i) )
+		{
+			CSG_String	ID		= SG_Get_GDAL_Drivers().Get_Description(i).c_str();
+			CSG_String	Name	= SG_Get_GDAL_Drivers().Get_Name       (i).c_str();
+			CSG_String	Ext		= SG_Get_GDAL_Drivers().Get_Extension  (i).c_str();
+
+			Description	+= "<tr><td>" + ID + "</td><td>" + Name + "</td><td>" + Ext + "</td></tr>";
+
+			if( !Ext.is_Empty() )
+			{
+				Ext.Replace("/", ";");
+
+				Filter		+= Name + "|*." + Ext + "|";
+				Filter_All	+= (Filter_All.is_Empty() ? "*." : ";*.") + Ext;
+			}
+		}
     }
 
 	Description	+= "</table>";
 
 	Set_Description(Description);
+
+	Filter.Prepend(CSG_String::Format("%s|%s|" , _TL("All Recognized Files"), Filter_All.c_str()));
+	Filter.Append (CSG_String::Format("%s|*.*" , _TL("All Files")));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
@@ -115,7 +131,7 @@ CGDAL_Import::CGDAL_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILES"		, _TL("Files"),
 		_TL(""),
-		NULL, NULL, false, false, true
+		Filter, NULL, false, false, true
 	);
 
 	//-----------------------------------------------------

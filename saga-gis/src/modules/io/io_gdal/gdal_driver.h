@@ -88,6 +88,8 @@ public:
 	CSG_String					Get_Description		(int Index)					const;
 	CSG_String					Get_Extension		(int Index)					const;
 
+	bool						is_Raster			(int Index)					const;
+
 	bool						Can_Read			(int Index)					const;
 	bool						Can_Write			(int Index)					const;
 

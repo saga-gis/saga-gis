@@ -74,7 +74,7 @@ CGDAL_Export::CGDAL_Export(void)
 
 	Set_Author	("O.Conrad (c) 2007");
 
-	CSG_String	Description, Formats;
+	CSG_String	Description, Formats, Filter;
 
 	Description	= _TW(
 		"The \"GDAL Raster Export\" module exports one or more grids to various file formats using the "
@@ -84,57 +84,63 @@ CGDAL_Export::CGDAL_Export(void)
 		"  http://www.gdal.org</a>\n"
 	);
 
-	Description	+= CSG_String::Format(SG_T("\nGDAL %s:%s\n\n"), _TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str());
+	Description	+= CSG_String::Format("\nGDAL %s:%s\n\n", _TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str());
 
-	Description	+= _TW(
-		"Following raster formats are currently supported:\n"
-		"<table border=\"1\"><tr><th>ID</th><th>Name</th></tr>\n"
+	Description	+= _TL("Following raster formats are currently supported:");
+
+	Description	+= CSG_String::Format("\n<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>\n",
+		_TL("ID"), _TL("Name"), _TL("Extension")
 	);
+
+	Filter.Printf("%s|*.*", _TL("All Files"));
 
 	for(int i=0; i<SG_Get_GDAL_Drivers().Get_Count(); i++)
     {
-		if( SG_Get_GDAL_Drivers().Can_Write(i) )
+		if( SG_Get_GDAL_Drivers().is_Raster(i) && SG_Get_GDAL_Drivers().Can_Write(i) )
 		{
-			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				SG_Get_GDAL_Drivers().Get_Description(i).c_str(),
-				SG_Get_GDAL_Drivers().Get_Name       (i).c_str()
-			);
+			CSG_String	ID		= SG_Get_GDAL_Drivers().Get_Description(i).c_str();
+			CSG_String	Name	= SG_Get_GDAL_Drivers().Get_Name       (i).c_str();
+			CSG_String	Ext		= SG_Get_GDAL_Drivers().Get_Extension  (i).c_str();
 
-			Formats		+= CSG_String::Format(SG_T("{%s}%s|"),
-				SG_Get_GDAL_Drivers().Get_Description(i).c_str(),
-				SG_Get_GDAL_Drivers().Get_Name       (i).c_str()
-			);
+			Description	+= "<tr><td>" + ID + "</td><td>" + Name + "</td><td>" + Ext + "</td></tr>";
+			Formats		+= "{" + ID + "}" + Name + "|";
+
+			if( !Ext.is_Empty() )
+			{
+				Ext.Replace("/", ";");
+
+				Filter	+= "|" + Name + "|*." + Ext;
+			}
 		}
     }
 
-	Description	+= SG_T("</table>");
+	Description	+= "</table>";
 
 	Set_Description(Description);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL, "GRIDS"	, _TL("Grid(s)"),
-		_TL("The SAGA grids to be exported."),
+		NULL	, "GRIDS"		, _TL("Grid(s)"),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
+		NULL	, "FILE"		, _TL("File"),
 		_TL("The GDAL dataset to be created."),
-		NULL, NULL, true
+		Filter, NULL, true
 	);
 
 	Parameters.Add_Choice(
-		NULL, "FORMAT"	, _TL("Format"),
+		NULL	, "FORMAT"		, _TL("Format"),
 		_TL("The GDAL raster format (driver) to be used."),
 		Formats
 	);
 
 	Parameters.Add_Choice(
-		NULL, "TYPE"	, _TL("Data Type"),
+		NULL	, "TYPE"		, _TL("Data Type"),
 		_TL("The GDAL datatype of the created dataset."),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("match input data"),
 			_TL("8 bit unsigned integer"),
 			_TL("16 bit unsigned integer"),
@@ -146,22 +152,21 @@ CGDAL_Export::CGDAL_Export(void)
 		), 0
 	);
 	
-	Parameters.Add_Value(
-		NULL, "SET_NODATA"		, _TL("Set Custom NoData"),
+	Parameters.Add_Bool(
+		NULL	, "SET_NODATA"	, _TL("Set Custom NoData"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, 0.0
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL, "NODATA"		, _TL("NoData Value"),
+	Parameters.Add_Double(
+		NULL	, "NODATA"		, _TL("NoData Value"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	Parameters.Add_String(
-		NULL, "OPTIONS"	, _TL("Creation Options"),
-		_TL("A space separated list of key-value pairs (K=V)."), _TL("")
-		
+		NULL	, "OPTIONS"		, _TL("Creation Options"),
+		_TL("A space separated list of key-value pairs (K=V)."), _TL("")		
 	);
 }
 
