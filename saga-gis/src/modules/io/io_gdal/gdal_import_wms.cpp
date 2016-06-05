@@ -510,12 +510,12 @@ bool CGDAL_Import_WMS::Get_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &Sys
 //---------------------------------------------------------
 CSG_String CGDAL_Import_WMS::Get_Request(void)
 {
-	CSG_String	Server, Projection	= "EPSG:900913";
+	CSG_String	Server, Projection	= "EPSG:3857";
 
 	switch( Parameters("SERVER")->asInt() )
 	{
-	default:	Server	= "tile.openstreetmap.org/${z}/${x}/${y}.png"                          ; Projection = "EPSG:3857";	break;	// Open Street Map
-	case  1:	Server	= "otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png"                ; Projection = "EPSG:3857";	break;	// MapQuest
+	default:	Server	= "tile.openstreetmap.org/${z}/${x}/${y}.png"                                                    ;	break;	// Open Street Map
+	case  1:	Server	= "otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png"                                          ;	break;	// MapQuest
 	case  2:	Server	= "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Map
 	case  3:	Server	= "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Satellite
 	case  4:	Server	= "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Hybrid
