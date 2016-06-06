@@ -263,9 +263,20 @@ bool CWKSP_Map_Control::Del_Item(CWKSP_Map *pMap, CWKSP_Base_Item *pItem)
 {
 	if( pMap && pItem )
 	{
-		pItem	= pItem->Get_Type() == WKSP_ITEM_Map_Layer
-				? pMap->Find_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer())
-				: pMap->Find_Layer( (CWKSP_Layer     *)pItem);
+		switch( pItem->Get_Type() )
+		{
+		case WKSP_ITEM_Map_Graticule:
+		case WKSP_ITEM_Map_BaseMap:
+			break;
+
+		case WKSP_ITEM_Map_Layer:
+			pItem	= pMap->Find_Layer(((CWKSP_Map_Layer *)pItem)->Get_Layer());
+			break;
+
+		default:
+			pItem	= pMap->Find_Layer(((CWKSP_Layer     *)pItem));
+			break;
+		}
 
 		bool	bRefresh	= pMap->Get_Count() > 1;
 

@@ -67,6 +67,7 @@
 #include "dc_helper.h"
 
 #include "res_commands.h"
+#include "res_dialogs.h"
 
 #include "wksp_map.h"
 #include "wksp_map_basemap.h"
@@ -326,6 +327,11 @@ int CWKSP_Map_BaseMap::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_ALWAYS") )
+		{
+			pParameters->Set_Enabled("SHOW_RANGE", pParameter->asBool() == false);
+		}
+
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
 		{
 			pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= 8);	// user defined
@@ -343,6 +349,17 @@ void CWKSP_Map_BaseMap::Parameters_Changed(void)
 	m_BaseMap.Destroy();	// forcing a base map refresh
 
 	Get_Map()->View_Refresh(true);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Map_BaseMap::Dlg_Parameters(void)
+{
+	return( DLG_Parameters(&m_Parameters) );
 }
 
 

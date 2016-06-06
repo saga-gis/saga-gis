@@ -99,6 +99,8 @@ public:
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 	virtual void				Parameters_Changed		(void);
 
+	bool						Dlg_Parameters			(void);
+
 	bool						do_Show					(void)	{	return( m_bShow );	}
 
 	class CWKSP_Map *			Get_Map					(void)	{	return( (class CWKSP_Map *)Get_Manager() );	}

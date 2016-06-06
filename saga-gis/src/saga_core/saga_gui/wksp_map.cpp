@@ -825,6 +825,11 @@ class CWKSP_Map_BaseMap * CWKSP_Map::Add_BaseMap(CSG_MetaData *pEntry)
 
 		Add_Item(pItem = new CWKSP_Map_BaseMap(pEntry));
 
+		if( !pEntry )
+		{
+			pItem->Dlg_Parameters();
+		}
+
 		Move_Top(pItem);
 
 		View_Refresh(true);
@@ -847,20 +852,24 @@ CWKSP_Base_Item * CWKSP_Map::Add_Copy(CWKSP_Base_Item *pItem)
 
 		if( pItem->Get_Type() == WKSP_ITEM_Map_Graticule )
 		{
-			CWKSP_Map_Graticule	*pItem	= Add_Graticule();
+			CWKSP_Map_Graticule	*pCopy	= Add_Graticule();
 
-			pItem->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
+			pCopy->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
 
-			return( pItem );
+			return( pCopy );
 		}
 
 		if( pItem->Get_Type() == WKSP_ITEM_Map_BaseMap )
 		{
-			CWKSP_Map_BaseMap	*pItem	= Add_BaseMap();
+			CSG_MetaData	Settings;
 
-			pItem->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
+			pItem->Get_Parameters()->Serialize(Settings, true);
 
-			return( pItem );
+			CWKSP_Map_BaseMap	*pCopy	= Add_BaseMap(&Settings);
+
+		//	pItem->Get_Parameters()->Assign_Values(pItem->Get_Parameters());
+
+			return( pCopy );
 		}
 	}
 
