@@ -165,6 +165,16 @@ AC_ARG_ENABLE(openmp,
 
 AC_SUBST(GOMPFLAGS)
 
+
+# gdal
+AX_LIB_GDAL([1.7])
+if test `echo $GDAL_VERSION|cut -d. -f1` -ge 2; then
+  GDAL2FLAGS="-DUSE_GDAL_V2"
+else
+   GDAL2FLAGS=""
+fi
+AC_SUBST(GDAL2FLAGS)
+
 AC_ARG_ENABLE(triangle,
         AS_HELP_STRING([--disable-triangle],[ Compile without triangle.c (only free for non-commercial usage), and use qhull instead (requires qhull)]),
 	,

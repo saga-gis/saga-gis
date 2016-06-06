@@ -5,9 +5,9 @@ if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 
-DEP_LIBS = `gdal-config --libs`
+DEP_LIBS = $(GDAL_CFLAGS)
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE
-CXX_INCS           = -I$(top_srcdir)/src/saga_core `gdal-config --cflags`
+CXX_INCS           = -I$(top_srcdir)/src/saga_core $(GDAL_CFLAGS) $(GDAL2FLAGS)
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LIBS)
 pkglib_LTLIBRARIES = libio_gdal.la
