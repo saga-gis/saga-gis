@@ -157,7 +157,11 @@ CSG_String CSG_GDAL_Drivers::Get_Extension(int Index) const
 //---------------------------------------------------------
 bool CSG_GDAL_Drivers::is_Raster(int Index) const
 {
+#ifdef USE_GDAL_V2
 	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_RASTER, false) );
+#else
+	return( true );
+#endif
 }
 
 //---------------------------------------------------------
