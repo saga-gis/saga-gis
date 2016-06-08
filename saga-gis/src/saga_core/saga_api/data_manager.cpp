@@ -535,7 +535,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Lock(true);
+	SG_UI_Msg_Lock(false);
 
 	return( bResult );
 }
