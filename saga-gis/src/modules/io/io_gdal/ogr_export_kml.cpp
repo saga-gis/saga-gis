@@ -145,7 +145,7 @@ bool COGR_Export_KML::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_OGR_DataSource	DataSource;
+	CSG_OGR_DataSet	DataSource;
 
 	if( !DataSource.Create(Parameters("FILE")->asString(), "KML") )
 	{

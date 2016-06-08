@@ -153,8 +153,8 @@ COGR_Import::COGR_Import(void)
 //---------------------------------------------------------
 bool COGR_Import::On_Execute(void)
 {
-	CSG_Strings			Files;
-	CSG_OGR_DataSource	DataSource;
+	CSG_Strings		Files;
+	CSG_OGR_DataSet	DataSource;
 
 	//-----------------------------------------------------
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
@@ -186,6 +186,11 @@ bool COGR_Import::On_Execute(void)
 				if( pShapes )
 				{
 					Parameters("SHAPES")->asShapesList()->Add_Item(pShapes);
+
+					pShapes->Get_MetaData().Add_Child("GDAL_DRIVER", DataSource.Get_DriverID());
+					pShapes->Set_File_Name(Files[iFile]);
+					pShapes->Set_Name(SG_File_Get_Name(Files[iFile], false) + (DataSource.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%s]", 1 + iLayer)));
+					pShapes->Set_Description(DataSource.Get_Description(iLayer));
 				}
 			}
 		}

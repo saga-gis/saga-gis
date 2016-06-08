@@ -470,15 +470,17 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 //---------------------------------------------------------
 bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 {
+	if( !SG_File_Exists(File) )
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	bool		bResult	= false;
 
 	CSG_Module	*pImport;
 
-	if( !SG_File_Exists(File) )
-	{
-		return( false );
-	}
+	SG_UI_Msg_Lock(true);
 
 	//-----------------------------------------------------
 	// Image Import
@@ -533,6 +535,8 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	SG_UI_Msg_Lock(true);
+
 	return( bResult );
 }
 

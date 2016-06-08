@@ -389,36 +389,36 @@ int CSG_OGR_Drivers::Get_Data_Type(TSG_Data_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_OGR_DataSource::CSG_OGR_DataSource(void)
+CSG_OGR_DataSet::CSG_OGR_DataSet(void)
 {
-	m_pDataSource	= NULL;
+	m_pDataSet	= NULL;
 }
 
-CSG_OGR_DataSource::CSG_OGR_DataSource(const CSG_String &File)
+CSG_OGR_DataSet::CSG_OGR_DataSet(const CSG_String &File)
 {
-	m_pDataSource	= NULL;
+	m_pDataSet	= NULL;
 
 	Create(File);
 }
 
 //---------------------------------------------------------
-CSG_OGR_DataSource::~CSG_OGR_DataSource(void)
+CSG_OGR_DataSet::~CSG_OGR_DataSet(void)
 {
 	Destroy();
 }
 
 #ifdef USE_GDAL_V2
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::Create(const CSG_String &File)
+bool CSG_OGR_DataSet::Create(const CSG_String &File)
 {
 	Destroy();
 
-	m_pDataSource	= (GDALDataset *)GDALOpenEx(File, GDAL_OF_VECTOR, NULL, NULL, NULL);
+	m_pDataSet	= (GDALDataset *)GDALOpenEx(File, GDAL_OF_VECTOR, NULL, NULL, NULL);
 
-	return( m_pDataSource != NULL );
+	return( m_pDataSet != NULL );
 }
 
-bool CSG_OGR_DataSource::Create(const CSG_String &File, const CSG_String &DriverName)
+bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName)
 {
 	GDALDriver	*pDriver;
 
@@ -426,37 +426,76 @@ bool CSG_OGR_DataSource::Create(const CSG_String &File, const CSG_String &Driver
 
 	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
 	{
-		m_pDataSource	= pDriver->Create(File, 0, 0, 0, GDT_Unknown, NULL);
+		m_pDataSet	= pDriver->Create(File, 0, 0, 0, GDT_Unknown, NULL);
 	}
 
-	return( m_pDataSource != NULL );
+	return( m_pDataSet != NULL );
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::Destroy(void)
+bool CSG_OGR_DataSet::Destroy(void)
 {
-	if( m_pDataSource )
+	if( m_pDataSet )
 	{
-		GDALClose(m_pDataSource);
+		GDALClose(m_pDataSet);
 
-		m_pDataSource	= NULL;
+		m_pDataSet	= NULL;
 	}
 
 	return( true );
 }
 
+//---------------------------------------------------------
+CSG_String CSG_OGR_DataSet::Get_DriverID(void)	const
+{
+	return( m_pDataSet && m_pDataSet->GetDriver() && m_pDataSet->GetDriver()->GetDescription() ? m_pDataSet->GetDriver()->GetDescription() : "" );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_DataSet::Get_Description(void)	const
+{
+	return( m_pDataSet ? m_pDataSet->GetDescription() : "" );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_DataSet::Get_Description(int i)	const
+{
+	CSG_String		Description;
+
+	OGRLayer	*pLayer	= Get_Layer(i);
+
+	if( pLayer != NULL )
+	{
+		char	**pMetaData	= pLayer->GetMetadata() + 0;
+
+		if( pMetaData )
+		{
+			while( *pMetaData )
+			{
+				CSG_String	s(*pMetaData);
+
+				Description	+= s + "\n";
+
+				pMetaData++;
+			}
+		}
+	}
+
+	return( Description );
+}
+
 #else
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::Create(const CSG_String &File)
+bool CSG_OGR_DataSet::Create(const CSG_String &File)
 {
 	Destroy();
 
-	m_pDataSource	= OGRSFDriverRegistrar::Open(File);
+	m_pDataSet	= OGRSFDriverRegistrar::Open(File);
 
-	return( m_pDataSource != NULL );
+	return( m_pDataSet != NULL );
 }
 
-bool CSG_OGR_DataSource::Create(const CSG_String &File, const CSG_String &DriverName)
+bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName)
 {
 	OGRSFDriver	*pDriver;
 
@@ -464,24 +503,29 @@ bool CSG_OGR_DataSource::Create(const CSG_String &File, const CSG_String &Driver
 
 	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
 	{
-		m_pDataSource	= pDriver->CreateDataSource(File, NULL);
+		m_pDataSet	= pDriver->CreateDataSource(File, NULL);
 	}
 
-	return( m_pDataSource != NULL );
+	return( m_pDataSet != NULL );
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::Destroy(void)
+bool CSG_OGR_DataSet::Destroy(void)
 {
-	if( m_pDataSource )
+	if( m_pDataSet )
 	{
-		OGRDataSource::DestroyDataSource(m_pDataSource);
+		OGRDataSource::DestroyDataSource(m_pDataSet);
 
-		m_pDataSource	= NULL;
+		m_pDataSet	= NULL;
 	}
 
 	return( true );
 }
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_DataSet::Get_DriverID   (void)	const	{	return( "" );	}
+CSG_String CSG_OGR_DataSet::Get_Description(void)	const	{	return( "" );	}
+CSG_String CSG_OGR_DataSet::Get_Description(int i)	const	{	return( "" );	}
 
 #endif
 
@@ -493,29 +537,29 @@ bool CSG_OGR_DataSource::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_OGR_DataSource::Get_Count(void)
+int CSG_OGR_DataSet::Get_Count(void)	const
 {
-	if( m_pDataSource )
+	if( m_pDataSet )
 	{
-		return( m_pDataSource->GetLayerCount() );
+		return( m_pDataSet->GetLayerCount() );
 	}
 
 	return( 0 );
 }
 
 //---------------------------------------------------------
-OGRLayer * CSG_OGR_DataSource::Get_Layer(int iLayer)
+OGRLayer * CSG_OGR_DataSet::Get_Layer(int iLayer)	const
 {
-	if( m_pDataSource && iLayer >= 0 && iLayer < m_pDataSource->GetLayerCount() )
+	if( m_pDataSet && iLayer >= 0 && iLayer < m_pDataSet->GetLayerCount() )
 	{
-		return( m_pDataSource->GetLayer(iLayer) );
+		return( m_pDataSet->GetLayer(iLayer) );
 	}
 
 	return( NULL );
 }
 
 //---------------------------------------------------------
-TSG_Shape_Type CSG_OGR_DataSource::Get_Type(int iLayer)
+TSG_Shape_Type CSG_OGR_DataSet::Get_Type(int iLayer)	const
 {
 	if( Get_Layer(iLayer) )
 	{
@@ -526,7 +570,7 @@ TSG_Shape_Type CSG_OGR_DataSource::Get_Type(int iLayer)
 }
 
 //---------------------------------------------------------
-TSG_Vertex_Type CSG_OGR_DataSource::Get_Coordinate_Type(int iLayer)
+TSG_Vertex_Type CSG_OGR_DataSet::Get_Coordinate_Type(int iLayer)	const
 {
 	if( Get_Layer(iLayer) )
 	{
@@ -537,7 +581,7 @@ TSG_Vertex_Type CSG_OGR_DataSource::Get_Coordinate_Type(int iLayer)
 }
 
 //---------------------------------------------------------
-CSG_Projection CSG_OGR_DataSource::Get_Projection(int iLayer)
+CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 {
 	CSG_Projection	Projection;
 
@@ -573,7 +617,7 @@ CSG_Projection CSG_OGR_DataSource::Get_Projection(int iLayer)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer, int iGeomTypeChoice)
+CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 {
 	//-----------------------------------------------------
 	OGRLayer	*pLayer	= Get_Layer(iLayer);
@@ -649,7 +693,7 @@ CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer, int iGeomTypeChoice)
 }
 
 //---------------------------------------------------------
-int CSG_OGR_DataSource::_Get_GeomType_Choice(int iGeomTypeChoice)
+int CSG_OGR_DataSet::_Get_GeomType_Choice(int iGeomTypeChoice)
 {
 	switch( iGeomTypeChoice )
 	{
@@ -673,7 +717,7 @@ int CSG_OGR_DataSource::_Get_GeomType_Choice(int iGeomTypeChoice)
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
+bool CSG_OGR_DataSet::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
 {
 	if( pShape && pGeometry )
 	{
@@ -725,7 +769,7 @@ bool CSG_OGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometr
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
+bool CSG_OGR_DataSet::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
 {
 	if( pShape && pLine && pLine->getNumPoints() > 0 )
 	{
@@ -745,7 +789,7 @@ bool CSG_OGR_DataSource::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
+bool CSG_OGR_DataSet::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 {
 	if( pShape && pPolygon )
 	{
@@ -770,9 +814,9 @@ bool CSG_OGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
+bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 {
-	if( !m_pDataSource || !pShapes || !pShapes->is_Valid() )
+	if( !m_pDataSet || !pShapes || !pShapes->is_Valid() )
 	{
 		return( false );
 	}
@@ -787,7 +831,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 	//	pSRS	->importFromProj4(pShapes->Get_Projection().Get_Proj4());
 	}
 
-	OGRLayer	*pLayer	= m_pDataSource->CreateLayer(CSG_String(pShapes->Get_Name()), pSRS,
+	OGRLayer	*pLayer	= m_pDataSet->CreateLayer(CSG_String(pShapes->Get_Name()), pSRS,
 		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY)
 	);
 
@@ -798,7 +842,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 
 	//-------------------------------------------------
 #ifdef USE_GDAL_V2
-	if( SG_STR_CMP(m_pDataSource->GetDriver()->GetDescription(), "DXF") )
+	if( SG_STR_CMP(m_pDataSet->GetDriver()->GetDescription(), "DXF") )
 	{
 		// the dxf driver does not support arbitrary field creation and returns OGRERR_FAILURE;
 		// it seems like there is no method in OGR to check whether a driver supports field creation or not;
@@ -863,7 +907,7 @@ bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, bool bZ)
+bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, bool bZ)
 {
 	if( !pShape || !pFeature )
 	{
@@ -954,7 +998,7 @@ bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, int iPart, bool bZ)
+bool CSG_OGR_DataSet::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, int iPart, bool bZ)
 {
 	if( pLine && pShape && iPart >= 0 && iPart < pShape->Get_Part_Count() )
 	{

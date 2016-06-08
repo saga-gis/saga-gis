@@ -173,23 +173,27 @@ const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_OGR_DataSource
+class CSG_OGR_DataSet
 {
 public:
-	CSG_OGR_DataSource(void);
-	CSG_OGR_DataSource(const CSG_String &File);
-	CSG_OGR_DataSource(const CSG_String &File, const CSG_String &DriverName);
-	virtual ~CSG_OGR_DataSource(void);
+	CSG_OGR_DataSet(void);
+	CSG_OGR_DataSet(const CSG_String &File);
+	CSG_OGR_DataSet(const CSG_String &File, const CSG_String &DriverName);
+	virtual ~CSG_OGR_DataSet(void);
 
 	bool						Create				(const CSG_String &File);
 	bool						Create				(const CSG_String &File, const CSG_String &DriverName);
 	bool						Destroy				(void);
 
-	int							Get_Count			(void);
-	class OGRLayer *			Get_Layer			(int iLayer);
-	TSG_Shape_Type				Get_Type			(int iLayer);
-	TSG_Vertex_Type				Get_Coordinate_Type	(int iLayer);
-	CSG_Projection				Get_Projection		(int iLayer);
+	CSG_String					Get_DriverID		(void)			const;
+	CSG_String					Get_Description		(void)			const;
+	CSG_String					Get_Description		(int iLayer)	const;
+
+	int							Get_Count			(void)			const;
+	class OGRLayer *			Get_Layer			(int iLayer)	const;
+	TSG_Shape_Type				Get_Type			(int iLayer)	const;
+	TSG_Vertex_Type				Get_Coordinate_Type	(int iLayer)	const;
+	CSG_Projection				Get_Projection		(int iLayer)	const;
 
 	CSG_Shapes *				Read				(int iLayer, int iGeomTypeChoice);
 	bool						Write				(CSG_Shapes *pShapes);
@@ -198,9 +202,9 @@ public:
 private:
 
 #ifdef USE_GDAL_V2
-	class GDALDataset			*m_pDataSource;
+	class GDALDataset			*m_pDataSet;
 #else
-	class OGRDataSource			*m_pDataSource;
+	class OGRDataSource			*m_pDataSet;
 #endif
 
 

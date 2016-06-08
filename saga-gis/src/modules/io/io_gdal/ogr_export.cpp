@@ -147,7 +147,7 @@ COGR_Export::COGR_Export(void)
 //---------------------------------------------------------
 bool COGR_Export::On_Execute(void)
 {
-	CSG_OGR_DataSource	DataSource;
+	CSG_OGR_DataSet	DataSource;
 
 	if( !DataSource.Create(Parameters("FILE")->asString(), Parameters("FORMAT")->asString()) )
 	{
