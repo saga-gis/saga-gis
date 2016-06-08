@@ -85,7 +85,7 @@ CSG_PG_Connections &	SG_PG_Get_Connection_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void _Error_Message(const CSG_String &Message, const CSG_String &Additional = SG_T(""))
+void _Error_Message(const CSG_String &Message, const CSG_String &Additional = "")
 {
 	SG_UI_Msg_Add_Execution(Message, true, SG_UI_MSG_STYLE_FAILURE);
 
@@ -93,9 +93,9 @@ void _Error_Message(const CSG_String &Message, const CSG_String &Additional = SG
 
 	if( Additional.Length() > 0 )
 	{
-		s	+= SG_T(":\n");
+		s	+= ":\n";
 		s	+= Additional;
-		s	+= SG_T("\n");
+		s	+= "\n";
 	}
 
 	SG_UI_Msg_Add_Error(s);
@@ -207,7 +207,7 @@ CSG_String CSG_PG_Connection::Get_Type_To_SQL(TSG_Data_Type Type, int Size)
 {
 	switch( Type )
 	{
-	case SG_DATATYPE_String:	return( CSG_String::Format(SG_T("varchar(%d)"), Size > 0 ? Size : 1) );
+	case SG_DATATYPE_String:	return( CSG_String::Format("varchar(%d)", Size > 0 ? Size : 1) );
 	case SG_DATATYPE_Date:		return( "varchar(16)"      );
 	case SG_DATATYPE_Char:		return( "char(1)"          );
 	case SG_DATATYPE_Byte:		return( "smallint"         );
@@ -318,7 +318,7 @@ CSG_String CSG_PG_Connection::Get_Version(void) const
 {
 	int	Version	= PQserverVersion(m_pgConnection);
 
-	return( CSG_String::Format(SG_T("%d.%d.%d"),
+	return( CSG_String::Format("%d.%d.%d",
 		(Version / 100) / 100,
 		(Version / 100) % 100,
 		(Version % 100)
@@ -467,7 +467,7 @@ CSG_Table CSG_PG_Connection::Get_Field_Desc(const CSG_String &Table_Name) const
 {
 	CSG_Table	Fields;
 
-	Fields.Set_Name(CSG_String::Format(SG_T("%s [%s]"), Table_Name.c_str(), _TL("Field Description")));
+	Fields.Set_Name(CSG_String::Format("%s [%s]", Table_Name.c_str(), _TL("Field Description")));
 
 	Fields.Add_Field(_TL("NAME"     ), SG_DATATYPE_String);
 	Fields.Add_Field(_TL("TYPE"     ), SG_DATATYPE_String);
@@ -518,7 +518,7 @@ CSG_String CSG_PG_Connection::Get_Field_Names(const CSG_String &Table_Name) cons
 	for(int i=0; i<Fields.Get_Count(); i++)
 	{
 		Names	+= Fields[i].asString(3);
-		Names	+= SG_T("|");
+		Names	+= "|";
 	}
 
 	return( Names );
@@ -541,28 +541,29 @@ bool CSG_PG_Connection::Execute(const CSG_String &SQL, CSG_Table *pTable)
 	switch( PQresultStatus(pResult) )
 	{
 	default:
-		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
-
 		bResult	= false;
+		PQclear(pResult);
+		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
 		break;
 
 	case PGRES_COMMAND_OK:
 		bResult	= true;
+		PQclear(pResult);
 		break;
 
 	case PGRES_TUPLES_OK:
 		if( pTable )
 		{
-			_Table_Load(*pTable, pResult);
-
+			bResult	= _Table_Load(*pTable, pResult);
 			pTable->Set_Name(_TL("Query Result"));
 		}
-
-		bResult	= true;
+		else
+		{
+			bResult	= true;
+			PQclear(pResult);
+		}
 		break;
 	}
-
-	PQclear(pResult);
 
 	return( bResult );
 }
@@ -698,7 +699,7 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Tab
 	int			iField;
 	CSG_String	SQL;
 
-	SQL.Printf(SG_T("CREATE TABLE \"%s\"("), Table_Name.c_str());
+	SQL.Printf("CREATE TABLE \"%s\"(", Table_Name.c_str());
 
 	//-----------------------------------------------------
 	for(iField=0; iField<Table.Get_Field_Count(); iField++)
@@ -711,21 +712,21 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Tab
 		{
 			if( (Flag & SG_PG_UNIQUE) != 0 )
 			{
-				s	+= SG_T(" UNIQUE");
+				s	+= " UNIQUE";
 			}
 
 			if( (Flag & SG_PG_NOT_NULL) != 0 )
 			{
-				s	+= SG_T(" NOT NULL");
+				s	+= " NOT NULL";
 			}
 		}
 
 		if( iField > 0 )
 		{
-			SQL	+= SG_T(", ");
+			SQL	+= ", ";
 		}
 
-		SQL	+= CSG_String::Format(SG_T("%s %s"), Table.Get_Field_Name(iField), s.c_str());
+		SQL	+= CSG_String::Format("%s %s", Table.Get_Field_Name(iField), s.c_str());
 	}
 
 	//-----------------------------------------------------
@@ -737,19 +738,19 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Tab
 		{
 			if( (Flags[iField] & SG_PG_PRIMARY_KEY) != 0 )
 			{
-				s	+= s.Length() == 0 ? SG_T(", PRIMARY KEY(") : SG_T(", ");
+				s	+= s.Length() == 0 ? ", PRIMARY KEY(" : ", ";
 				s	+= Table.Get_Field_Name(iField);
 			}
 		}
 
 		if( s.Length() > 0 )
 		{
-			SQL	+= s + SG_T(")");
+			SQL	+= s + ")";
 		}
 	}
 
 	//-----------------------------------------------------
-	SQL	+= SG_T(")");
+	SQL	+= ")";
 
 	return( Execute(SQL) );
 }
@@ -764,7 +765,7 @@ bool CSG_PG_Connection::Table_Drop(const CSG_String &Table_Name, bool bCommit)
 		return( false );
 	}
 
-	return( Execute(CSG_String::Format(SG_T("DROP TABLE \"%s\""), Table_Name.c_str())) );
+	return( Execute(CSG_String::Format("DROP TABLE \"%s\"", Table_Name.c_str())) );
 }
 
 
@@ -801,7 +802,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 
 	for(iField=0; iField<nFields; iField++)
 	{
-		Insert	+= CSG_String::Format(SG_T("$%d%c"), 1 + iField, iField < nFields - 1 ? SG_T(',') : SG_T(')'));
+		Insert	+= CSG_String::Format("$%d%c", 1 + iField, iField < nFields - 1 ? SG_T(',') : SG_T(')'));
 
 		paramFormats[iField]	= Table.Get_Field_Type(iField) == SG_DATATYPE_Binary ? 1 : 0;
 
@@ -828,7 +829,9 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 	}
 
 	//-----------------------------------------------------
-	for(int iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+	bool	bResult	= true;
+
+	for(int iRecord=0; iRecord<Table.Get_Count() && bResult && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
 	{
 		CSG_Table_Record	*pRecord	= Table.Get_Record(iRecord);
 
@@ -871,7 +874,16 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 			}
 		}
 
-		PQexecParams(m_pgConnection, Insert, nFields, NULL, paramValues, paramLengths, paramFormats, 0);
+		PGresult *pResult = PQexecParams(m_pgConnection, Insert, nFields, NULL, paramValues, paramLengths, paramFormats, 0);
+
+		if( PQresultStatus(pResult) != PGRES_TUPLES_OK )
+		{
+			_Error_Message(_TL("SQL execution failed"), m_pgConnection);
+
+			bResult	= false;
+		}
+
+		PQclear(pResult);
 	}
 
 	//-----------------------------------------------------
@@ -889,7 +901,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 	SG_Free(paramFormats);
 //	SG_Free(paramTypes);
 
-	return( true );
+	return( bResult );
 }
 
 
@@ -940,13 +952,9 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select, 
 	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
 
 	//-----------------------------------------------------
-	PGresult	*pResult	= PQexec(m_pgConnection, Select);
-
-	bool	bResult	= _Table_Load(Table, pResult);
+	bool	bResult	= _Table_Load(Table, PQexec(m_pgConnection, Select));
 
 	Table.Set_Name(Name);
-
-	PQclear(pResult);
 
 	return( bResult );
 }
@@ -960,6 +968,8 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 	if( PQresultStatus(pResult) != PGRES_TUPLES_OK )
 	{
 		_Error_Message(_TL("SQL execution failed"), m_pgConnection);
+
+		PQclear(pResult);
 
 		return( false );
 	}
@@ -1015,13 +1025,15 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 	}
 
 	//-----------------------------------------------------
+	PQclear(pResult);
+
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_Name)
 {
-	if( _Table_Load(Table, CSG_String::Format(SG_T("SELECT * FROM \"%s\""), Table_Name.c_str()), Table_Name) )
+	if( _Table_Load(Table, CSG_String::Format("SELECT * FROM \"%s\"", Table_Name.c_str()), Table_Name) )
 	{
 		Add_MetaData(Table, Table_Name);
 
@@ -1036,26 +1048,26 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 {
 	CSG_String	Select;
 
-	Select.Printf(SG_T("SELECT %s %s FROM %s"), bDistinct ? SG_T("DISTINCT") : SG_T("ALL"), Fields.c_str(), Tables.c_str());
+	Select.Printf("SELECT %s %s FROM %s", bDistinct ? SG_T("DISTINCT") : SG_T("ALL"), Fields.c_str(), Tables.c_str());
 
 	if( Where.Length() )
 	{
-		Select	+= SG_T(" WHERE ") + Where;
+		Select	+= " WHERE " + Where;
 	}
 
 	if( Group.Length() )
 	{
-		Select	+= SG_T(" GROUP BY ") + Group;
+		Select	+= " GROUP BY " + Group;
 
 		if( Having.Length() )
 		{
-			Select	+= SG_T(" HAVING ") + Having;
+			Select	+= " HAVING " + Having;
 		}
 	}
 
 	if( Order.Length() )
 	{
-		Select	+= SG_T(" ORDER BY ") + Order;
+		Select	+= " ORDER BY " + Order;
 	}
 
 	if( _Table_Load(Table, Select, Table.Get_Name()) )
@@ -1100,7 +1112,7 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 	{
 		if( Geometry.Cmp(Info[i].asString(0)) )
 		{
-			Fields	+= CSG_String::Format(SG_T("\"%s\","), Info[i].asString(0));
+			Fields	+= CSG_String::Format("\"%s\",", Info[i].asString(0));
 		}
 	}
 
@@ -1652,7 +1664,7 @@ int CSG_PG_Connections::Get_Servers(CSG_String &Servers)
 
 	for(int i=0; i<s.Get_Count(); i++)
 	{
-		Servers	+= s[i] + SG_T("|");
+		Servers	+= s[i] + "|";
 	}
 
 	return( s.Get_Count() );
