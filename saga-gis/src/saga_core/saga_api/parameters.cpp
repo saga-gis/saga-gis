@@ -1429,7 +1429,10 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 		//-------------------------------------------------
 		else
 		{
-			if( p->Get_Type() == PARAMETER_TYPE_Shapes && p->asShapes() && p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined )
+			if( p->Get_Type() == PARAMETER_TYPE_Shapes
+			&&  p->asShapes() != DATAOBJECT_NOTSET
+			&&  p->asShapes() != DATAOBJECT_CREATE
+			&&  p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined )
 			{
 				if( m_pManager && !m_pManager->Delete(p->asShapes()) )
 				{
@@ -1442,7 +1445,9 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 			//---------------------------------------------
 			if( p->is_Output() )
 			{
-				if( p->is_DataObject() && p->asDataObject() )
+				if( p->is_DataObject()
+				&&  p->asDataObject() != DATAOBJECT_NOTSET
+				&&  p->asDataObject() != DATAOBJECT_CREATE )
 				{
 					CSG_Data_Object	*pObject	= p->asDataObject();
 
@@ -1506,7 +1511,9 @@ bool CSG_Parameters::DataObjects_Get_Projection(CSG_Projection &Projection)	cons
 			}
 			else if( p->is_Input() )
 			{
-				if( p->is_DataObject() && p->asDataObject() )
+				if( p->is_DataObject()
+				&&  p->asDataObject() != DATAOBJECT_NOTSET
+				&&  p->asDataObject() != DATAOBJECT_CREATE )
 				{
 					P	= p->asDataObject()->Get_Projection();
 
@@ -1563,7 +1570,9 @@ bool CSG_Parameters::DataObjects_Set_Projection(const CSG_Projection &Projection
 			}
 			else if( p->is_Output() )
 			{
-				if( p->is_DataObject() && p->asDataObject() )
+				if( p->is_DataObject()
+				&&  p->asDataObject() != DATAOBJECT_NOTSET
+				&&  p->asDataObject() != DATAOBJECT_CREATE )
 				{
 					p->asDataObject()->Get_Projection()	= Projection;
 				}
