@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 {
-	Set_Name		(_TL("Cut Shapes Layer"));
+	Set_Name		(_TL("Copy Selected Shapes"));
 
 	Set_Author		("O.Conrad (c) 2006");
 
@@ -88,7 +88,7 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "CUT"		, _TL("Cut"),
+		NULL	, "CUT"		, _TL("Selection"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -168,6 +168,17 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 		pParameters->Set_Parameter("BY", by);
 		pParameters->Set_Parameter("DX", dx);
 		pParameters->Set_Parameter("DY", dy);
+	}
+
+	//-----------------------------------------------------
+	else if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() )
+	{
+		CSG_Shapes	*pCut	= pParameters->Get_Parameter("CUT")->asShapes();
+
+		if( pCut != DATAOBJECT_NOTSET && pCut != DATAOBJECT_CREATE && pCut->Get_Type() != pParameter->asShapes()->Get_Type() )
+		{
+			pParameters->Get_Parameter("CUT")->Set_Value(DATAOBJECT_CREATE);
+		}
 	}
 
 	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );

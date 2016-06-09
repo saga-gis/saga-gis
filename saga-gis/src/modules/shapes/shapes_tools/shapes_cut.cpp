@@ -263,7 +263,7 @@ bool Cut_Set_Extent(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear)
 //---------------------------------------------------------
 CShapes_Cut::CShapes_Cut(void)
 {
-	Set_Name		(_TL("Cut Shapes Layer"));
+	Set_Name		(_TL("Copy Selected Shapes"));
 
 	Set_Author		("O.Conrad (c) 2006");
 
@@ -279,7 +279,7 @@ CShapes_Cut::CShapes_Cut(void)
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL	, "CUT"			, _TL("Cut"),
+		NULL	, "CUT"			, _TL("Selection"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
