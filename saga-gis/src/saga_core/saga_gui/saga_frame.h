@@ -72,7 +72,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef MDI_TABBED
+#if !defined(_SAGA_MSW)
+#define MDI_TABBED
+#endif
+
+#if defined(MDI_TABBED)
 #include <wx/aui/tabmdi.h>
 #define MDI_ParentFrame	wxAuiMDIParentFrame
 #else
