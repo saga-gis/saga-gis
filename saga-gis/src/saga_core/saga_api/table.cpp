@@ -1118,7 +1118,7 @@ bool CSG_Table::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_
 
 			if( pRecord && pRecord->is_Selected() )
 			{
-				_Set_Selection(n++, pRecord->Get_Index());
+				_Set_Selection(pRecord->Get_Index(), n++);
 			}
 		}
 	}

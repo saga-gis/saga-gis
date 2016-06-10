@@ -131,14 +131,9 @@ bool CSG_Table::_Destroy_Selection(void)
 {
 	if( Get_Selection_Count() > 0 )
 	{
-		for(size_t iRecord=0; iRecord<Get_Selection_Count(); iRecord++)
+		for(size_t iRecord=0; iRecord<m_nRecords; iRecord++)
 		{
-			CSG_Table_Record	*pRecord	= Get_Selection(iRecord);
-
-			if( pRecord )
-			{
-				pRecord->Set_Selected(false);
-			}
+			m_Records[iRecord]->Set_Selected(false);
 		}
 
 		m_Selection.Set_Array(0);

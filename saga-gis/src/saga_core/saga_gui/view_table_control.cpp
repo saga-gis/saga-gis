@@ -443,6 +443,8 @@ bool CVIEW_Table_Control::_Update_Sorting(int iField, int Direction)
 {
 	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
+		m_Cursor	= -1;
+
 		switch( Direction )
 		{
 		default:	m_pTable->Toggle_Index(iField);	break;
@@ -672,51 +674,46 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick_Label(wxGridEvent &event)
 {
-	if( m_bSelOnly )
+	if( !m_bSelOnly )
 	{
-		// nop
-	}
-	else if( event.GetRow() < 0 )
-	{
-		if( event.GetCol() < 0 && m_pTable->Get_Selection_Count() > 0 )	// deselect everything
+		if( event.GetRow() >= 0 )	// select records
 		{
-			m_pTable->Select();
-
-			Update_Selection();	_Update_Views();
-		}
-	}
-	else // if( event.GetRow() >= 0 )	// select records
-	{
-		if( !event.ControlDown() )
-		{
-			m_pTable->Select();
-
-			if( !event.ShiftDown() || m_Cursor < 0 || m_Cursor >= m_pTable->Get_Count() )
+			if( event.ControlDown() )
 			{
+				m_pTable->Select(_Get_Record(event.GetRow()), true);
+			}
+			else if( !event.ShiftDown() )
+			{
+				m_pTable->Select();	// deselect everything
+
 				m_pTable->Select(_Get_Record(event.GetRow()), false);
 			}
-			else // if( event.ShiftDown() )
+			else if( m_Cursor >= 0 && m_Cursor < m_pTable->Get_Count() )
 			{
-				int	iFirst	= m_Scroll_Start + event.GetRow() <= m_Cursor ? m_Scroll_Start + event.GetRow() : m_Cursor;
-				int	iLast	= m_Scroll_Start + event.GetRow() >  m_Cursor ? m_Scroll_Start + event.GetRow() : m_Cursor;
+				int	iFirst	= m_Scroll_Start + event.GetRow() <= m_Cursor ? m_Scroll_Start + event.GetRow() : m_Cursor + 1;
+				int	iLast	= m_Scroll_Start + event.GetRow() >  m_Cursor ? m_Scroll_Start + event.GetRow() : m_Cursor - 1;
 
 				for(int iRecord=iFirst; iRecord<=iLast; iRecord++)
 				{
-					m_pTable->Select(iRecord, true);
+					m_pTable->Select(m_pTable->Get_Record_byIndex(iRecord)->Get_Index(), true);
 				}
 			}
-		}
-		else // if( event.ControlDown() )
-		{
-			m_pTable->Select(_Get_Record(event.GetRow()), true);
-		}
 
-		Update_Selection();	_Update_Views();
+			Update_Selection();	_Update_Views();
+		}
+		else if( event.GetCol() < 0 )
+		{
+			m_pTable->Select();	// deselect everything
+
+			Update_Selection();	_Update_Views();
+		}
 	}
 
 	m_Cursor	= m_Scroll_Start + event.GetRow();
 
 	SetGridCursor(event.GetRow(), GetGridCursorCol());
+
+	GetGridWindow()->SetFocus();
 }
 
 //---------------------------------------------------------
