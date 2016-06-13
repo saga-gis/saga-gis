@@ -160,7 +160,7 @@ bool CPointCloud_Create_SPCVF::On_Execute(void)
 	int							iDatasetCount = 0;
 	double						dPointCount = 0.0;
 	double						dZMin = std::numeric_limits<double>::max();
-	double						dZMax = std::numeric_limits<double>::min();
+	double						dZMax = -std::numeric_limits<double>::max();
 
 	//-----------------------------------------------------
 	sFileName		= Parameters("FILENAME")->asString();
