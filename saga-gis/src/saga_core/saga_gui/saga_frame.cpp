@@ -207,6 +207,20 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
 	EVT_UPDATE_UI		(ID_CMD_FRAME_TILE_VERT			, CSAGA_Frame::On_Frame_vTile_UI)
 	EVT_MENU			(ID_CMD_FRAME_ARRANGEICONS		, CSAGA_Frame::On_Frame_ArrangeIcons)
 	EVT_UPDATE_UI		(ID_CMD_FRAME_ARRANGEICONS		, CSAGA_Frame::On_Frame_ArrangeIcons_UI)
+	EVT_MENU			(ID_CMD_FRAME_UNSPLIT			, CSAGA_Frame::On_Frame_Unsplit)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_UNSPLIT			, CSAGA_Frame::On_Frame_Unsplit_UI)
+	EVT_MENU			(ID_CMD_FRAME_SPLIT_LEFT		, CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_LEFT		, CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU			(ID_CMD_FRAME_SPLIT_RIGHT		, CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_RIGHT		, CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU			(ID_CMD_FRAME_SPLIT_TOP			, CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_TOP			, CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU			(ID_CMD_FRAME_SPLIT_BOTTOM		, CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_BOTTOM		, CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU			(ID_CMD_FRAME_SPLIT_ALL_HORZ	, CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_ALL_HORZ	, CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU			(ID_CMD_FRAME_SPLIT_ALL_VERT	, CSAGA_Frame::On_Frame_Split)
+	EVT_UPDATE_UI		(ID_CMD_FRAME_SPLIT_ALL_VERT	, CSAGA_Frame::On_Frame_Split_UI)
 	EVT_MENU			(ID_CMD_FRAME_NEXT				, CSAGA_Frame::On_Frame_Next)
 	EVT_UPDATE_UI		(ID_CMD_FRAME_NEXT				, CSAGA_Frame::On_Frame_Next_UI)
 	EVT_MENU			(ID_CMD_FRAME_PREVIOUS			, CSAGA_Frame::On_Frame_Previous)
@@ -510,9 +524,129 @@ void CSAGA_Frame::On_Tips(wxCommandEvent &WXUNUSED(event))
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSAGA_Frame::On_Frame_Unsplit(wxCommandEvent &WXUNUSED(event))
+{
+#ifdef MDI_TABBED
+	int		i, n	= GetNotebook()->GetPageCount();
+
+	if( n > 1 )
+	{
+		GetNotebook()->Freeze();
+
+		class CPage { public: wxWindow *pPage; wxString Text; wxBitmap Bmp; };
+
+		CPage	*pPages	= new CPage[n];
+
+		for(i=n-1; i>=0; i--)
+		{
+			pPages[i].pPage	= GetNotebook()->GetPage      (i);
+			pPages[i].Text	= GetNotebook()->GetPageText  (i);
+			pPages[i].Bmp	= GetNotebook()->GetPageBitmap(i);
+
+			GetNotebook()->RemovePage(i);
+		}
+
+		for(i=0; i<n; i++)
+		{
+			GetNotebook()->AddPage(pPages[i].pPage, pPages[i].Text, false, pPages[i].Bmp);
+		}
+
+		delete[](pPages);
+
+		GetNotebook()->Thaw();
+	}
+#endif
+}
+
+void CSAGA_Frame::On_Frame_Unsplit_UI(wxUpdateUIEvent &event)
+{
+#ifdef MDI_TABBED
+	event.Enable(GetNotebook()->GetPageCount() > 1);
+#endif
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::On_Frame_Split(wxCommandEvent &event)
+{
+#ifdef MDI_TABBED
+	int		n	= GetNotebook()->GetPageCount();
+
+	if( n > 1 )
+	{
+		GetNotebook()->Freeze();
+
+		int	iActive	= GetNotebook()->GetSelection(); if( iActive < 0 ) iActive = 0;
+		int	nSqrt	= (int)sqrt((double)n);
+
+		switch( event.GetId() )
+		{
+		case ID_CMD_FRAME_SPLIT_LEFT  : GetNotebook()->Split(iActive, wxLEFT  ); break;
+		case ID_CMD_FRAME_SPLIT_RIGHT : GetNotebook()->Split(iActive, wxRIGHT ); break;
+		case ID_CMD_FRAME_SPLIT_TOP   : GetNotebook()->Split(iActive, wxTOP   ); break;
+		case ID_CMD_FRAME_SPLIT_BOTTOM: GetNotebook()->Split(iActive, wxBOTTOM); break;
+
+		case ID_CMD_FRAME_SPLIT_ALL_HORZ:
+			{
+				for(int i=n-1, iRow=0; i>0; i--, iRow++)
+				{
+					GetNotebook()->Split(i, wxLEFT);
+				}
+			}
+			break;
+
+		case ID_CMD_FRAME_SPLIT_ALL_VERT:
+			{
+				for(int i=n-1, iRow=0; i>0; i--, iRow++)
+				{
+					GetNotebook()->Split(i, wxBOTTOM);
+				}
+			}
+			break;
+		}
+
+		GetNotebook()->Thaw();
+	}
+#endif
+}
+
+void CSAGA_Frame::On_Frame_Split_UI(wxUpdateUIEvent &event)
+{
+#ifdef MDI_TABBED
+	event.Enable(GetNotebook()->GetPageCount() > 1);
+#endif
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::Tile(wxOrientation orient)
+{
+#ifndef MDI_TABBED
+	int		n	= 0;
+
+	for(wxWindowList::const_iterator Child=GetChildren().begin(); Child!=GetChildren().end(); Child++)
+	{
+		if( wxDynamicCast(*Child, wxMDIChildFrame) )
+		{
+			n++;
+		}
+	}
+
+	if( n == 1 && GetActiveChild() )
+	{
+		GetActiveChild()->Maximize();
+	}
+	else
+	{
+		MDI_ParentFrame::Tile(orient);
+	}
+#endif
+}
+
+//---------------------------------------------------------
 void CSAGA_Frame::On_Frame_Cascade(wxCommandEvent &WXUNUSED(event))
 {
+#ifndef MDI_TABBED
 	Cascade();
+#endif
 }
 
 void CSAGA_Frame::On_Frame_Cascade_UI(wxUpdateUIEvent &event)
@@ -892,33 +1026,6 @@ void CSAGA_Frame::Close_Children(void)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::Tile(wxOrientation orient)
-{
-#ifdef MDI_TABBED
-	// nop yet
-#else
-	int		n	= 0;
-
-	for(wxWindowList::const_iterator Child=GetChildren().begin(); Child!=GetChildren().end(); Child++)
-	{
-		if( wxDynamicCast(*Child, wxMDIChildFrame) )
-		{
-			n++;
-		}
-	}
-
-	if( n == 1 && GetActiveChild() )
-	{
-		GetActiveChild()->Maximize();
-	}
-	else
-	{
-		MDI_ParentFrame::Tile(orient);
-	}
-#endif
-}
-
-//---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
 	wxString		Title;
@@ -993,7 +1100,20 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	CMD_Menu_Add_Item(pMenu_Window,  true, ID_CMD_FRAME_DATA_SOURCE_SHOW);
 	CMD_Menu_Add_Item(pMenu_Window,  true, ID_CMD_FRAME_INFO_SHOW);
 
-#ifdef __WXMSW__
+#if defined(MDI_TABBED)
+	wxMenu	*pMenu_Split	= new wxMenu;
+	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_LEFT);
+	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_RIGHT);
+	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_TOP);
+	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_BOTTOM);
+	pMenu_Split->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_ALL_HORZ);
+	CMD_Menu_Add_Item(pMenu_Split, false, ID_CMD_FRAME_SPLIT_ALL_VERT);
+
+	pMenu_Window->AppendSeparator();
+	pMenu_Window->AppendSubMenu(pMenu_Split, _TL("Split"));
+	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_UNSPLIT);
+#elif defined(__WXMSW__)
 	pMenu_Window->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_CASCADE);
 	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_TILE_HORZ);

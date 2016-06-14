@@ -93,10 +93,18 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_FRAME_TILE_HORZ:		return( _TL("Tile Horizontally") );
 	case ID_CMD_FRAME_TILE_VERT:		return( _TL("Tile Vertically") );
 	case ID_CMD_FRAME_ARRANGEICONS:		return( _TL("Arrange Icons") );
+	case ID_CMD_FRAME_UNSPLIT:			return( _TL("Unsplit") );
+	case ID_CMD_FRAME_SPLIT_LEFT:		return( _TL("Left") );
+	case ID_CMD_FRAME_SPLIT_RIGHT:		return( _TL("Right") );
+	case ID_CMD_FRAME_SPLIT_TOP:		return( _TL("Top") );
+	case ID_CMD_FRAME_SPLIT_BOTTOM:		return( _TL("Bottom") );
+	case ID_CMD_FRAME_SPLIT_ALL_HORZ:	return( _TL("Horizontally") );
+	case ID_CMD_FRAME_SPLIT_ALL_VERT:	return( _TL("Vertically") );
 	case ID_CMD_FRAME_NEXT:				return( _TL("Next") );
 	case ID_CMD_FRAME_PREVIOUS:			return( _TL("Previous") );
 	case ID_CMD_FRAME_CLOSE:			return( _TL("Close") );
 	case ID_CMD_FRAME_CLOSE_ALL:		return( _TL("Close All") );
+	case ID_CMD_FRAME_CLOSE_ALL_OTHERS:	return( _TL("Close All But This") );
 
 	case ID_CMD_FRAME_INFO_SHOW:		return( _TL("Show Message Window") );
 	case ID_CMD_FRAME_DATA_SOURCE_SHOW:	return( _TL("Show Data Source Window") );

@@ -120,6 +120,10 @@ public:
 	void						On_Frame_vTile_UI			(wxUpdateUIEvent &event);
 	void						On_Frame_ArrangeIcons		(wxCommandEvent  &event);
 	void						On_Frame_ArrangeIcons_UI	(wxUpdateUIEvent &event);
+	void						On_Frame_Unsplit			(wxCommandEvent  &event);
+	void						On_Frame_Unsplit_UI			(wxUpdateUIEvent &event);
+	void						On_Frame_Split				(wxCommandEvent  &event);
+	void						On_Frame_Split_UI			(wxUpdateUIEvent &event);
 	void						On_Frame_Next				(wxCommandEvent  &event);
 	void						On_Frame_Next_UI			(wxUpdateUIEvent &event);
 	void						On_Frame_Previous			(wxCommandEvent  &event);
