@@ -2623,9 +2623,11 @@ bool CSG_Parameter_List::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
+		Del_Items();
+
 		for(int i=0; i<Entry.Get_Children_Count(); i++)
 		{
-			CSG_Data_Object	*pObject	= m_pOwner->Get_Manager() ? m_pOwner->Get_Manager()->Find(Entry.Get_Content()) : NULL;
+			CSG_Data_Object	*pObject	= m_pOwner->Get_Manager() ? m_pOwner->Get_Manager()->Find(Entry.Get_Content(i), false) : NULL;
 
 			if( pObject )
 			{
