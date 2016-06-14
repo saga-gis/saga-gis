@@ -244,6 +244,13 @@ bool COpenCV_ML::_Finalize(void)
 	//-----------------------------------------------------
 	m_Classes.Destroy();
 
+	m_pClasses->Set_Name(Get_Name());
+
+	if( m_pProbability )
+	{
+		m_pProbability->Set_Name(Get_Name() + " [" + _TL("Probability") + "]");
+	}
+
 	return( true );
 }
 

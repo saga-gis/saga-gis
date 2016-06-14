@@ -325,13 +325,13 @@ COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 	Parameters.Add_Int(
 		NULL	, "MAX_DEPTH"		, _TL("Maximum Tree Depth"),
 		_TL("The maximum possible depth of the tree. That is the training algorithms attempts to split a node while its depth is less than maxDepth. The root node has zero depth."),
-		100, 1, true
+		10, 1, true
 	);
 
 	Parameters.Add_Int(
 		NULL	, "MIN_SAMPLES"		, _TL("Minimum Sample Count"),
 		_TL("If the number of samples in a node is less than this parameter then the node will not be split."),
-		10, 2, true
+		2, 2, true
 	);
 
 	Parameters.Add_Int(
