@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1383 2012-04-26 15:44:11Z oconrad $
+ * Version $Id: bioclimatic_vars.h 1380 2012-04-26 12:02:19Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   bioclimatic_vars.h                  //
 //                                                       //
-//                 Copyright (C) 2012 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,82 +54,66 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__bioclimatic_vars_H
+#define HEADER_INCLUDED__bioclimatic_vars_H
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include <saga_api/saga_api.h>
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define NVARS	19
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CBioclimatic_Vars : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Tools") );
+public:
+	CBioclimatic_Vars(void);
 
-	case MLB_INFO_Category:
-		return( _TL("Climate") );
-
-	case MLB_INFO_Author:
-		return( SG_T("O.Conrad (c) 2012") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for weather and climate data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Climate") );
-	}
-}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "grid_levels_interpolation.h"
-#include "milankovic.h"
-#include "etp_hargreave.h"
-#include "daily_sun.h"
-#include "bioclimatic_vars.h"
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0: 	return( new CGrid_Levels_to_Surface );
-	case  1: 	return( new CGrid_Levels_to_Points );
+	CSG_Parameter_Grid_List		*m_pT, *m_pTmin, *m_pTmax, *m_pP;
 
-	case  2:	return( new CMilankovic );
-	case  3:	return( new CMilankovic_SR_Location );
-	case  4:	return( new CMilankovic_SR_Day_Location );
-	case  5:	return( new CMilankovic_SR_Monthly_Global );
+	CSG_Grid					*m_pVars[NVARS];
 
-	case  8:	return( new CPET_Hargreave_Grid );
-	case  6:	return( new CPET_Hargreave_Table );
-	case  7:	return( new CPET_Day_To_Hour );
 
-	case  9:	return( new CDaily_Sun );
+	void						Set_NoData				(int x, int y);
+	bool						Set_Variables			(int x, int y);
 
-	case 10:	return( new CBioclimatic_Vars );
-
-	//-----------------------------------------------------
-	case 11:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -139,8 +123,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__bioclimatic_vars_H
