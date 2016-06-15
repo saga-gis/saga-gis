@@ -110,6 +110,7 @@ CSG_String Get_Info(int i)
 #include "svg.h"
 #include "pointcloud_to_text_file.h"
 #include "wktb.h"
+#include "citygml_import.h"
 
 
 //---------------------------------------------------------
@@ -140,6 +141,11 @@ CSG_Module *		Create_Module(int i)
 	case 18:	return( new CPointcloud_To_Text_File );
 	case 19:	return( new CWKT_Import );
 	case 20:	return( new CWKT_Export );
+	case 21:	return( new CCityGML_Import );
+
+	//-----------------------------------------------------
+	case 22:	return( NULL );
+	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 
 	return( NULL );

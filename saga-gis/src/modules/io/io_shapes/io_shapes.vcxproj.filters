@@ -56,6 +56,9 @@
     <ClCompile Include="wktb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="citygml_import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -149,6 +152,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wktb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="citygml_import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

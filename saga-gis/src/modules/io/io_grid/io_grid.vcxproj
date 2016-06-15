@@ -294,7 +294,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bmp_export.cpp" />
-    <ClCompile Include="citygml_import.cpp" />
     <ClCompile Include="erdas_lan.cpp" />
     <ClCompile Include="esri_arcinfo.cpp" />
     <ClCompile Include="grid_table.cpp" />
@@ -325,7 +324,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="bmp_export.h" />
-    <ClInclude Include="citygml_import.h" />
     <ClInclude Include="erdas_lan.h" />
     <ClInclude Include="esri_arcinfo.h" />
     <ClInclude Include="grid_table.h" />

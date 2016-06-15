@@ -15,6 +15,7 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LFLG)
 pkglib_LTLIBRARIES = libio_shapes.la
 libio_shapes_la_SOURCES =\
 atlas_bna.cpp\
+citygml_import.cpp\
 generate.cpp\
 gpx.cpp\
 gstat.cpp\
@@ -29,6 +30,7 @@ wasp_map.cpp\
 wktb.cpp\
 xyz.cpp\
 atlas_bna.h\
+citygml_import.h\
 generate.h\
 gpx.h\
 gstat.h\

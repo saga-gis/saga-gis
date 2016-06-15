@@ -9,7 +9,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                        io_grid                        //
+//                      io_shapes                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

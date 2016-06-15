@@ -108,7 +108,6 @@ CSG_String Get_Info(int i)
 #include "erdas_lan.h"
 #include "grid_table.h"
 #include "wrf.h"
-#include "citygml_import.h"
 #include "import_clip_resample.h"
 
 
@@ -134,7 +133,6 @@ CSG_Module *		Create_Module(int i)
 	case 12:	return( new CGrid_Table_Import );
 	case 13:	return( new CWRF_Import );
 	case 14:	return( new CWRF_Export );
-	case 15:	return( new CCityGML_Import );
 	case 16:	return( new CImport_Clip_Resample );
 
 	//-----------------------------------------------------

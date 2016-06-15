@@ -50,9 +50,6 @@
     <ClCompile Include="wrf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="citygml_import.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="import_clip_resample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -143,9 +140,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wrf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="citygml_import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="import_clip_resample.h">
