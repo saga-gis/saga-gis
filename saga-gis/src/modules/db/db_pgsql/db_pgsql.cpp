@@ -876,7 +876,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 
 		PGresult *pResult = PQexecParams(m_pgConnection, Insert, nFields, NULL, paramValues, paramLengths, paramFormats, 0);
 
-		if( PQresultStatus(pResult) != PGRES_TUPLES_OK )
+		if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
 		{
 			_Error_Message(_TL("SQL execution failed"), m_pgConnection);
 
