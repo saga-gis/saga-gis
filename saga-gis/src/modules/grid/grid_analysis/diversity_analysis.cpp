@@ -252,7 +252,7 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 
 	for(int iCell=0; iCell<m_Search.Get_Count(); iCell++)
 	{
-		if( iRadius < m_Search.Get_Distance(iCell) )
+		if( iRadius < m_Search.Get_Distance(iCell) && iRadius < m_Radius )
 		{
 			Counters[iRadius++].m_nClasses	= Classes.Get_Count();
 		}
@@ -285,6 +285,8 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 			}
 		}
 	}
+
+	Counters[iRadius].m_nClasses	= Classes.Get_Count();
 
 	//-----------------------------------------------------
 	int		nCells = 0, nNeighbours = 0, nConnections = 0;
