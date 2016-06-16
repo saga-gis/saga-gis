@@ -1292,8 +1292,10 @@ public:
 	class CSG_Data_Manager *	Get_Manager				(void)	const;
 
 	const SG_Char *				Get_Identifier			(void)	const;
+	bool						Set_Name				(const CSG_String &Name);
 	const SG_Char *				Get_Name				(void)	const;
 	const SG_Char *				Get_Description			(void)	const;
+	bool						Set_Description			(const CSG_String &Description);
 	CSG_String					Get_Description			(int Flags)								const;
 	CSG_String					Get_Description			(int Flags, const SG_Char *Separator)	const;
 

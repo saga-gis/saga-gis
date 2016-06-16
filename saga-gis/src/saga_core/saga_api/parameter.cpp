@@ -571,17 +571,30 @@ const SG_Char * CSG_Parameter::Get_Identifier(void)	const
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::Set_Name(const CSG_String &Name)
+{
+	m_Name	= Name;
+
+	return( true );
+}
+
 const SG_Char * CSG_Parameter::Get_Name(void)	const
 {
 	return( m_Name );
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::Set_Description(const CSG_String &Description)
+{
+	m_Description	= Description;
+
+	return( true );
+}
+
 const SG_Char * CSG_Parameter::Get_Description(void)	const
 {
 	return( m_Description );
 }
-
 
 //---------------------------------------------------------
 CSG_String CSG_Parameter::Get_Description(int Flags)	const
