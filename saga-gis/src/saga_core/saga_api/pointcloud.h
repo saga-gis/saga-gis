@@ -156,6 +156,10 @@ public:
 	virtual bool					Get_Value			(            int iField, CSG_String    &Value)	const	{	return( _Get_Field_Value(m_Cursor, iField, Value) );	}
 	virtual bool					Set_Value			(int iPoint, int iField, const SG_Char *Value)			{	return( _Set_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
 	virtual bool					Get_Value			(int iPoint, int iField, CSG_String    &Value)	const	{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
+	virtual bool					Set_Attribute		(            int iField, const SG_Char *Value)			{	return( Set_Value(iField + 3, Value) );			}
+	virtual bool					Get_Attribute		(            int iField, CSG_String    &Value)	const	{	return( Get_Value(iField + 3, Value) );			}
+	virtual bool					Set_Attribute		(int iPoint, int iField, const SG_Char *Value)			{	return( Set_Value(iPoint, iField + 3, Value) );	}
+	virtual bool					Get_Attribute		(int iPoint, int iField, CSG_String    &Value)	const	{	return( Get_Value(iPoint, iField + 3, Value) );	}
 
 	TSG_Point_Z						Get_Point			(void)			const;
 	TSG_Point_Z						Get_Point			(int iPoint)	const;
