@@ -206,6 +206,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	bool					bSkipHeader;
 	char					fieldSep;
 	std::vector<int>		vCol;
+	std::vector<int>		vTypes;
 	std::ifstream			tabStream;
     std::string				tabLine;
 	double					lines;
@@ -232,7 +233,6 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     pPoints->Create();
     pPoints->Set_Name(SG_File_Get_Name(fileName, false));
     Parameters("POINTS")->Set_Value(pPoints);
-    DataObject_Add(pPoints);
 
 
     //-----------------------------------------------------
@@ -240,12 +240,13 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     {
         nAttribs	= Parameters("ATTRIBS")		->asInt();
 
-        Types.Printf(SG_T("%s|%s|%s|%s|%s|"),
+        Types.Printf(SG_T("%s|%s|%s|%s|%s|%s|"),
             _TL("1 byte integer"),
             _TL("2 byte integer"),
             _TL("4 byte integer"),
             _TL("4 byte floating point"),
-            _TL("8 byte floating point")
+            _TL("8 byte floating point"),
+            _TL("string")
         );
 
         P.Set_Name(_TL("Attribute Field Properties"));
@@ -276,6 +277,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
                     Name		 = P(CSG_String::Format(SG_T("FIELD_%03d" ), iField + 1).c_str())->asString();
                     iType		 = P(CSG_String::Format(SG_T("TYPE_%03d"  ), iField + 1).c_str())->asInt();
                     vCol.push_back(P(CSG_String::Format(SG_T("COLUMN_%03d"), iField + 1).c_str())->asInt() - 1);
+                    vTypes.push_back(iType);
 
                     pPoints->Add_Field(Name, Get_Data_Type(iType));
                 }
@@ -289,8 +291,6 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		CSG_String		    sFields, sNames, sTypes;
 		CSG_String		    token;
 		int				    iValue;
-		std::vector<int>	vTypes;
-
 
 		sFields		= Parameters("FIELDS")->asString();
 		sNames		= Parameters("FIELDNAMES")->asString();
@@ -351,7 +351,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 			if( token.Length() == 0 )
 				break;
 
-			pPoints->Add_Field(token, Get_Data_Type(vTypes.at(iter)));
+			pPoints->Add_Field(token, Get_Data_Type(vTypes[iter]));
 
 			iter++;
 		}
@@ -420,23 +420,23 @@ bool CPointCloud_From_Text_File::On_Execute(void)
         }
 
         //parse line tokens
-		std::vector<double> fieldValues;
-		fieldValues.resize(vCol.size());
-
 		x = strtod(tabCols[xField].c_str(), NULL);
         y = strtod(tabCols[yField].c_str(), NULL);
         z = strtod(tabCols[zField].c_str(), NULL);
 
-		for( int i=0; i<(int)vCol.size(); i++ )
-		{
-			fieldValues[i] = strtod(tabCols.at(vCol.at(i)).c_str(), NULL);
-		}
-
-		pPoints->Add_Point(x, y, z);
+        pPoints->Add_Point(x, y, z);
 
 		for( int i=0; i<(int)vCol.size(); i++ )
 		{
-			pPoints->Set_Attribute(i, fieldValues[i]);
+			switch( Get_Data_Type(vTypes[i]) )
+			{
+			case SG_DATATYPE_String:
+				pPoints->Set_Attribute(i, SG_STR_MBTOSG(tabCols[vCol[i]].c_str()));
+				break;
+			default:
+				pPoints->Set_Attribute(i, strtod(tabCols[vCol[i]].c_str(), NULL));
+				break;
+			}
 		}
     }
 
@@ -478,6 +478,7 @@ TSG_Data_Type CPointCloud_From_Text_File::Get_Data_Type(int iType)
     case 2:	return( SG_DATATYPE_Int );
     case 3:	return( SG_DATATYPE_Float );
     case 4:	return( SG_DATATYPE_Double );
+    case 5: return( SG_DATATYPE_String );
     }
 }
 

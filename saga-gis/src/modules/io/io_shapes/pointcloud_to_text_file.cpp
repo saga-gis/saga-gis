@@ -323,12 +323,16 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		CSG_String	sLine;
+		CSG_String	sLine, s;
 
 		for(size_t i=0; i<vCol.size(); i++)
 		{
 			switch (pPoints->Get_Field_Type(vCol.at(i)))
 			{
+			case SG_DATATYPE_String:
+				pPoints->Get_Value(iPoint, vCol.at(i), s);
+				sLine += s;
+				break;
 			case SG_DATATYPE_Double:
 			case SG_DATATYPE_Float:
 				sLine += SG_Get_String(pPoints->Get_Value(iPoint, vCol.at(i)), vPrecision.at(i), false);
