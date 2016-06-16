@@ -108,7 +108,75 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 	Set_Author		("O.Conrad (c) 2016");
 
 	Set_Description	(_TW(
-		""
+		"This tool calculates biogically meaningful variables from "
+		"monthly climate data (mean, minimum and maximum temperature "
+		"and precipitation), as provided e.g. by the <a href=\"http://worldclim.org\">"
+		"WorldClim - Global Climate Data</a> project.\n"
+		"<p>"
+		"The implementation follows the definitions given by Jeremy van der Wal at "
+		"<a href=\"https://rforge.net/doc/packages/climates/bioclim.html\">BioClim - Bioclimatic Variables</a>:<ol>"
+		"<li><b>Annual Mean Temperature:</b>"
+		" The mean of all the monthly mean temperatures."
+		" Each monthly mean temperature is the mean of that month's maximum and minimum temperature.</li>"
+		"<li><b>Mean Diurnal Range:</b>"
+		" The annual mean of all the monthly diurnal temperature ranges."
+		" Each monthly diurnal range is the difference between that month's maximum and minimum temperature.</li>"
+		"<li><b>Isothermality:</b>"
+		" The mean diurnal range (parameter 2) divided by the annual temperature range (parameter 7).</li>"
+		"<li><b>Temperature Seasonality:</b>"
+		" returns either<ul><li>"
+		" the temperature coefficient of variation as the standard deviation of the monthly mean temperatures"
+		" expressed as a percentage of the mean of those temperatures (i.e. the annual mean). For this calculation,"
+		" the mean in degrees Kelvin is used. This avoids the possibility of having to divide by zero,"
+		" but does mean that the values are usually quite small.</li><li>"
+		" the standard deviation of the monthly mean temperatures.</li></ul>"
+		"<li><b>Maximum Temperature of Warmest Period:</b>"
+		" The highest temperature of any monthly maximum temperature.</li>"
+		"<li><b>Minimum Temperature of Coldest Period:</b>"
+		" The lowest temperature of any monthly minimum temperature.</li>"
+		"<li><b>Temperature Annual Range:</b>"
+		" The difference between the Maximum Temperature of Warmest Period"
+		" and the Minimum Temperature of Coldest Period.</li>"
+		"<li><b>Mean Temperature of Wettest Quarter:</b>"
+		" The wettest quarter of the year is determined (to the nearest month),"
+		" and the mean temperature of this period is calculated.</li>"
+		"<li><b>Mean Temperature of Driest Quarter:</b>"
+		" The driest quarter of the year is determined (to the nearest month),"
+		" and the mean temperature of this period is calculated.</li>"
+		"<li><b>Mean Temperature of Warmest Quarter:</b>"
+		" The warmest quarter of the year is determined (to the nearest month),"
+		" and the mean temperature of this period is calculated.</li>"
+		"<li><b>Mean Temperature of Coldest Quarter:</b>"
+		" The coldest quarter of the year is determined (to the nearest month),"
+		" and the mean temperature of this period is calculated.</li>"
+		"<li><b>Annual Precipitation:</b>"
+		" The sum of all the monthly precipitation estimates.</li>"
+		"<li><b>Precipitation of Wettest Period:</b>"
+		" The precipitation of the wettest month.</li>"
+		"<li><b>Precipitation of Driest Period:</b>"
+		" The precipitation of the driest month.</li>"
+		"<li><b>Precipitation Seasonality:</b>"
+		" The Coefficient of Variation is the standard deviation of"
+		" the monthly precipitation estimates expressed as a percentage of the"
+		" mean of those estimates (i.e. the annual mean).</li>"
+		"<li><b>Precipitation of Wettest Quarter:</b>"
+		" The wettest quarter of the year is determined (to the nearest month),"
+		" and the total precipitation over this period is calculated.</li>"
+		"<li><b>Precipitation of Driest Quarter:</b>"
+		" The driest quarter of the year is determined (to the nearest month),"
+		" and the total precipitation over this period is calculated.</li>"
+		"<li><b>Precipitation of Warmest Quarter:</b>"
+		" The warmest quarter of the year is determined (to the nearest month),"
+		" and the total precipitation over this period is calculated.</li>"
+		"<li><b>Precipitation of Coldest Quarter:</b>"
+		" The coldest quarter of the year is determined (to the nearest month),"
+		" and the total precipitation over this period is calculated.</li>"
+		"</ol></p><p>"
+		"The quarterly parameters are not aligned to any calendar quarters. "
+		"BioClim's definition of a quarter is any consecutive 3 months. "
+		"For example, the driest quarter will be the 3 consecutive months that "
+		"are drier than any other set of 3 consecutive months."
+		"</p>"
 	));
 
 	//-----------------------------------------------------
@@ -141,6 +209,15 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 	{
 		Parameters.Add_Grid(NULL, CSG_String::Format("BIO_%02d", i + 1), Vars[i][0], Vars[i][1], PARAMETER_OUTPUT);
 	}
+
+	Parameters.Add_Choice(
+		NULL	, "SEASONALITY"	, _TL("Temperature Seasonality"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Coefficient of Variation"),
+			_TL("Standard Deviation")
+		), 1
+	);
 }
 
 
@@ -178,15 +255,36 @@ bool CBioclimatic_Vars::On_Execute(void)
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	CSG_Colors	Colors(10);
+
+	Colors.Set_Color(0, 254, 135, 000);
+	Colors.Set_Color(1, 254, 194, 063);
+	Colors.Set_Color(2, 254, 254, 126);
+	Colors.Set_Color(3, 231, 231, 227);
+	Colors.Set_Color(4, 132, 222, 254);
+	Colors.Set_Color(5, 042, 163, 239);
+	Colors.Set_Color(6, 000, 105, 224);
+	Colors.Set_Color(7, 000, 047, 210);
+	Colors.Set_Color(8, 000, 001, 156);
+	Colors.Set_Color(9, 000, 000, 103);
+
 	for(int i=0; i<NVARS; i++)
 	{
 		m_pVars[i]	= Parameters(CSG_String::Format("BIO_%02d", i + 1))->asGrid();
+
+		if( i > 10 )	// Precipitation
+		{
+			DataObject_Set_Colors(m_pVars[i], Colors);
+		}
 	}
+
+	m_Seasonality	= Parameters("SEASONALITY")->asInt();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-	//	#pragma omp parallel for
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !Set_Variables(x, y) )
@@ -274,8 +372,15 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 		SG_GRID_PTR_SAFE_SET_NODATA(m_pVars[ 2], x, y);
 	}
 
-	// Temperature Seasonality (standard deviation *100)
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 3], x, y, 100.0 * sT.Get_StdDev());
+	// Temperature Seasonality
+	if( m_Seasonality == 0 )
+	{	// standard deviation of the mean temperatures expressed as a percentage of the mean of those temperatures (i.e. the annual mean)
+		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 3], x, y, 100.0 * sT.Get_StdDev() / (sT.Get_Mean() + 273.15));
+	}
+	else
+	{	// standard deviation * 100
+		SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 3], x, y, 100.0 * sT.Get_StdDev());
+	}
 
 	// Max Temperature of Warmest Month
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[ 4], x, y, sTmax.Get_Maximum());
@@ -325,78 +430,6 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	//-----------------------------------------------------
 	return( true );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-/*
-Source: Jeremy VanDerWal, Bioclim - Bioclimatic Variables (https://rforge.net/doc/packages/climates/bioclim.html)
-
-The quarterly parameters are not aligned to any calendar quarters. BIOCLIM's definition of a quarter is any 13 consecutive weeks, (or any consecutive 3 months if running with a monthly time step). For example, the driest quarter will be the 13 consecutive weeks that are drier than any other set of 13 consecutive weeks.
-
-    Annual Mean Temperature
-    The mean of all the weekly mean temperatures. Each weekly mean temperature is the mean of that week's maximum and minimum temperature.
-
-    Mean Diurnal Range(Mean(period max-min))
-    The mean of all the weekly diurnal temperature ranges. Each weekly diurnal range is the difference between that week's maximum and minimum temperature.
-
-    Isothermality 2/7
-    The mean diurnal range (parameter 2) divided by the Annual Temperature Range (parameter 7).
-
-    Temperature Seasonality
-    ANUCLIM (cov=TRUE) returns the temperature Coefficient of Variation (C of V) as the standard deviation of the weekly mean temperatures expressed as a percentage of the mean of those temperatures (i.e. the annual mean). For this calculation, the mean in degrees Kelvin is used. This avoids the possibility of having to divide by zero, but does mean that the values are usually quite small.
-    Worldclim (cov=FALSE) returns the the standard deviation of the weekly mean temperatures.
-
-    Max Temperature of Warmest Period
-    The highest temperature of any weekly maximum temperature.
-
-    Min Temperature of Coldest Period
-    The lowest temperature of any weekly minimum temperature.
-
-    Temperature Annual Range (5-6)
-    The difference between the Max Temperature of Warmest Period and the Min Temperature of Coldest Period.
-
-    Mean Temperature of Wettest Quarter
-    The wettest quarter of the year is determined (to the nearest week), and the mean temperature of this period is calculated.
-
-    Mean Temperature of Driest Quarter
-    The driest quarter of the year is determined (to the nearest week), and the mean temperature of this period is calculated.
-
-    Mean Temperature of Warmest Quarter
-    The warmest quarter of the year is determined (to the nearest week), and the mean temperature of this period is calculated.
-
-    Mean Temperature of Coldest Quarter
-    The coldest quarter of the year is determined (to the nearest week), and the mean temperature of this period is calculated.
-
-    Annual Precipitation
-    The sum of all the monthly precipitation estimates.
-
-    Precipitation of Wettest Period
-    The precipitation of the wettest week or month, depending on the time step.
-
-    Precipitation of Driest Period
-    The precipitation of the driest week or month, depending on the time step.
-
-    Precipitation Seasonality(C of V)
-    The Coefficient of Variation (C of V) is the standard deviation of the weekly precipitation estimates expressed as a percentage of the mean of those estimates (i.e. the annual mean).
-
-    Precipitation of Wettest Quarter
-    The wettest quarter of the year is determined (to the nearest week), and the total precipitation over this period is calculated.
-
-    Precipitation of Driest Quarter
-    The driest quarter of the year is determined (to the nearest week), and the total precipitation over this period is calculated.
-
-    Precipitation of Warmest Quarter
-    The warmest quarter of the year is determined (to the nearest week), and the total precipitation over this period is calculated.
-
-    Precipitation of Coldest Quarter
-    The coldest quarter of the year is determined (to the nearest week), and the total precipitation over this period is calculated.
-/**/
 
 
 ///////////////////////////////////////////////////////////

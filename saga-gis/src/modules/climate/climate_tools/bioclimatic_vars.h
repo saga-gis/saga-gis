@@ -105,6 +105,8 @@ protected:
 
 private:
 
+	int							m_Seasonality;
+
 	CSG_Parameter_Grid_List		*m_pT, *m_pTmin, *m_pTmax, *m_pP;
 
 	CSG_Grid					*m_pVars[NVARS];
