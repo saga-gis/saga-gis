@@ -112,16 +112,27 @@ CSG_String	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 //---------------------------------------------------------
 int		g_History_Depth	= -1;
 
-//---------------------------------------------------------
 void	SG_Set_History_Depth			(int Depth)
 {
 	g_History_Depth	= Depth;
 }
 
-//---------------------------------------------------------
 int		SG_Get_History_Depth			(void)
 {
 	return( g_History_Depth );
+}
+
+//---------------------------------------------------------
+int		g_History_Ignore_Lists	= true;
+
+void	SG_Set_History_Ignore_Lists		(int Ignore)
+{
+	g_History_Ignore_Lists	= Ignore != 0;
+}
+
+int		SG_Get_History_Ignore_Lists		(void)
+{
+	return( g_History_Ignore_Lists );
 }
 
 

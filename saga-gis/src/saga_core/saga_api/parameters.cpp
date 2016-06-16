@@ -1628,9 +1628,9 @@ bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 
 	if( Get_String(s, bOptionsOnly) )
 	{
-		SG_UI_Msg_Add_Execution(SG_T("\n"), false);
+		SG_UI_Msg_Add_Execution("\n", false);
 		SG_UI_Msg_Add_Execution(bOptionsOnly ? _TL("Options") : _TL("Parameters"), false);
-		SG_UI_Msg_Add_Execution(SG_T("\n"), false);
+		SG_UI_Msg_Add_Execution("\n", false);
 		SG_UI_Msg_Add_Execution(s, false, SG_UI_MSG_STYLE_01);
 
 		return( true );
@@ -1725,9 +1725,11 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 					{
 						pObject	= p->asList()->asDataObject(j);
 
-						pEntry	= pList->Add_Child(*pList, false); pEntry->Set_Name("INPUT");
+						pEntry	= pList->Add_Child(*pList, false);
 
-						if( pObject->Get_History().Get_Children_Count() > 0 )
+						pEntry->Set_Name(pObject->Get_Name());
+						
+						if( !SG_Get_History_Ignore_Lists() && pObject->Get_History().Get_Children_Count() > 0 )
 						{
 							pEntry->Add_Children(pObject->Get_History());
 						}

@@ -154,6 +154,8 @@ SAGA_API_DLL_EXPORT CSG_String	SG_Get_DataObject_Name			(TSG_Data_Object_Type Ty
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT void		SG_Set_History_Depth			(int Depth);
 SAGA_API_DLL_EXPORT int			SG_Get_History_Depth			(void);
+SAGA_API_DLL_EXPORT void		SG_Set_History_Ignore_Lists		(int Ignore);
+SAGA_API_DLL_EXPORT int			SG_Get_History_Ignore_Lists		(void);
 
 
 ///////////////////////////////////////////////////////////

@@ -169,43 +169,52 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		), 0
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Bool(
 		pNode	, "SHOW_FILE_SOURCES"		, _TL("Show Data File Sources"),
 		_TL("Show data sources tab for file system. Disabling might speed up start-up. Changes take effect after restart."),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Int(
 		pNode	, "NUMBERING"				, _TL("Numbering of Data Sets"),
 		_TL("Leading zeros for data set numbering. Set to -1 for not using numbers at all."),
-		PARAMETER_TYPE_Int, m_Numbering = 2, -1, true
+		m_Numbering = 2, -1, true
 	);
 
-	m_Parameters.Add_Value(
+	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_HISTORY", _TL("History"), _TL(""));
+
+	m_Parameters.Add_Int(
 		pNode	, "HISTORY_DEPTH"			, _TL("History Depth"),
 		_TL("Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off."),
-		PARAMETER_TYPE_Int, SG_Get_History_Depth(), -1, true
+		SG_Get_History_Depth(), -1, true
+	);
+
+	m_Parameters.Add_Bool(
+		pNode	, "HISTORY_LISTS"			, _TL("Ignore Input Lists"),
+		_TL(""),
+		SG_Get_History_Ignore_Lists() != 0
 	);
 
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_THUMBNAILS", _TL("Thumbnails"), _TL(""));
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Int(
 		pNode	, "THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 75, 10, true
+		75, 10, true
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Bool(
 		pNode	, "THUMBNAIL_CATEGORY"	, _TL("Show Categories"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Color(
 		pNode	, "THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
+		Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
 	);
 
 	//-----------------------------------------------------
@@ -224,40 +233,40 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		), 1
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		pNode_2	, "GRID_COLORS_FIT_STDDEV"	, _TL("Standard Deviation"),
 		_TL("Multiple of Standard Deviation used as default for histogram stretch."),
-		PARAMETER_TYPE_Double, 2.0, 0.01, true
+		2.0, 0.01, true
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		pNode_2	, "GRID_COLORS_FIT_PCTL"	, _TL("Percentile"),
 		_TL("Percentile used as default for histogram stretch."),
-		PARAMETER_TYPE_Double, 2.0, 0.0, true, 50.0, true
+		2.0, 0.0, true, 50.0, true
 	);
 
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Node(pNode, "NODE_GRID_SELECTION", _TL("Selection"), _TL(""));
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Int(
 		pNode_1	, "GRID_SELECT_MAX"			, _TL("Maximum Selection"),
 		_TL("Maximum number of rows/columns in selection of grid cells."),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
 	//-----------------------------------------------------
 	pNode_1	= m_Parameters.Add_Node(pNode, "NODE_GRID_CACHE", _TL("File Caching"), _TL(""));
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Bool(
 		pNode_1	, "GRID_CACHE_AUTO"		, _TL("Automatic"),
 		_TL("Activate file caching automatically, if memory size exceeds the threshold value."),
-		PARAMETER_TYPE_Bool, SG_Grid_Cache_Get_Automatic()
+		SG_Grid_Cache_Get_Automatic()
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		pNode_1	, "GRID_CACHE_THRSHLD"	, _TL("Threshold for automatic mode [MB]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
+		SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 	);
 
 	m_Parameters.Add_Choice(
@@ -284,7 +293,8 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD")->asDouble());
 	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM")->asInt   ());
 
-	SG_Set_History_Depth(m_Parameters("HISTORY_DEPTH")->asInt());
+	SG_Set_History_Depth          (m_Parameters("HISTORY_DEPTH"     )->asInt   ());
+	SG_Set_History_Ignore_Lists   (m_Parameters("HISTORY_LISTS"     )->asInt   ());
 
 	m_Numbering	= m_Parameters("NUMBERING")->asInt();
 }
@@ -619,7 +629,8 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD")->asDouble());
 	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM")->asInt   ());
 
-	SG_Set_History_Depth(m_Parameters("HISTORY_DEPTH")->asInt());
+	SG_Set_History_Depth          (m_Parameters("HISTORY_DEPTH"     )->asInt   ());
+	SG_Set_History_Ignore_Lists   (m_Parameters("HISTORY_LISTS"     )->asInt   ());
 
 	m_Numbering	= m_Parameters("NUMBERING")->asInt();
 
@@ -838,7 +849,7 @@ bool CWKSP_Data_Manager::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
 {
 	CSG_Parameters	Parameters(this, _TL("Save Modified Data"), _TL(""));
 
-	Parameters.Add_Value(NULL, "SAVE_ALL", _TL("Save all"), _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Bool(NULL, "SAVE_ALL", _TL("Save all"), _TL(""), false);
 
 	wxFileName	Directory(m_pProject->Get_File_Name());
 
@@ -1022,19 +1033,19 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode;
 
-	if( (pNode = pParameters->Get_Parameter(CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()))) == NULL )
+	if( (pNode = pParameters->Get_Parameter(CSG_String::Format("%d", (long)pItem->Get_Manager()))) == NULL )
 	{
-		pNode	= pParameters->Add_Node(NULL, CSG_String::Format(SG_T("%d"), (long)pItem->Get_Manager()), pItem->Get_Manager()->Get_Name().wx_str(), SG_T(""));
+		pNode	= pParameters->Add_Node(NULL, CSG_String::Format("%d", (long)pItem->Get_Manager()), pItem->Get_Manager()->Get_Name().wx_str(), SG_T(""));
 	}			
 
-	pNode	= pParameters->Add_Value(
-		pNode, CSG_String::Format(SG_T("%d")     , (long)pObject),
-		pItem->Get_Name().wx_str(), SG_T(""), PARAMETER_TYPE_Bool, false
+	pNode	= pParameters->Add_Bool(
+		pNode, CSG_String::Format("%d"     , (long)pObject), pItem->Get_Name().wx_str(),
+		"", false
 	);
 
 	pParameters->Add_FilePath(
-		pNode, CSG_String::Format(SG_T("%d FILE"), (long)pObject),
-		_TL("File"), SG_T(""), Filter, Path.GetFullPath(), true
+		pNode, CSG_String::Format("%d FILE", (long)pObject), _TL("File"),
+		"", Filter, Path.GetFullPath(), true
 	);
 
 	return( true );
