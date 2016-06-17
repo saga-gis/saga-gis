@@ -143,7 +143,7 @@ CVIEW_Base::~CVIEW_Base(void)
 
 	if( g_pSAGA_Frame )
 	{
-		g_pSAGA_Frame->On_Child_Activates(-1);
+//		g_pSAGA_Frame->On_Child_Activates(-1);
 	}
 }
 
@@ -172,7 +172,8 @@ void CVIEW_Base::Do_Show(void)
 	Show();
 #endif
 
-	Activate();
+//	Activate();
+	g_pSAGA_Frame->On_Child_Activates(m_View_ID);
 }
 
 //---------------------------------------------------------
@@ -229,12 +230,9 @@ void CVIEW_Base::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CVIEW_Base::On_Activate(wxActivateEvent &event)
 {
-	if( event.GetActive() )
+	if( g_pSAGA_Frame )
 	{
-		if( g_pSAGA_Frame )
-		{
-			g_pSAGA_Frame->On_Child_Activates(m_View_ID);
-		}
+		g_pSAGA_Frame->On_Child_Activates(event.GetActive() ? m_View_ID : -1);
 	}
 }
 

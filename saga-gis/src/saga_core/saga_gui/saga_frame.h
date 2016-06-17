@@ -175,7 +175,7 @@ public:
     virtual void				Tile						(wxOrientation orient = wxHORIZONTAL);
 
 	void						Close_Children				(void);
-
+	int							Get_Children_Count			(void);
 	void						On_Child_Activates			(int View_ID);
 
 	void						Set_Pane_Caption			(wxWindow *pWindow, const wxString &Caption);

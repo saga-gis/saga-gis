@@ -410,6 +410,8 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	delete(m_pLayout);
 
 	//-----------------------------------------------------
+	On_Child_Activates(-1);
+
 	delete(m_pMN_Table);
 	delete(m_pMN_Diagram);
 	delete(m_pMN_Map);
@@ -620,15 +622,7 @@ void CSAGA_Frame::On_Frame_Split_UI(wxUpdateUIEvent &event)
 void CSAGA_Frame::Tile(wxOrientation orient)
 {
 #ifndef MDI_TABBED
-	int		n	= 0;
-
-	for(wxWindowList::const_iterator Child=GetChildren().begin(); Child!=GetChildren().end(); Child++)
-	{
-		if( wxDynamicCast(*Child, wxMDIChildFrame) )
-		{
-			n++;
-		}
-	}
+	int		n	= Get_Children_Count();
 
 	if( n == 1 && GetActiveChild() )
 	{
@@ -1026,8 +1020,33 @@ void CSAGA_Frame::Close_Children(void)
 }
 
 //---------------------------------------------------------
+int CSAGA_Frame::Get_Children_Count(void)
+{
+#ifdef MDI_TABBED
+	return( GetNotebook()->GetPageCount() );
+#else
+	int		n	= 0;
+
+	for(wxWindowList::const_iterator Child=GetChildren().begin(); Child!=GetChildren().end(); Child++)
+	{
+		if( wxDynamicCast(*Child, wxMDIChildFrame) )
+		{
+			n++;
+		}
+	}
+
+	return( n );
+#endif
+}
+
+//---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
+	if( View_ID < 0 && Get_Children_Count() > 1 )	// another child will be activated next!
+	{
+		return;
+	}
+
 	wxString		Title;
 	wxMenu			*pMenu		= NULL;
 	wxToolBarBase	*pToolBar	= NULL;
