@@ -80,7 +80,7 @@ CPC_Cut::CPC_Cut(void)
 	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-15"));
 
 	Set_Description	(_TW(
-		"This modules allows one to extract subsets from one or several "
+		"This tool allows one to extract subsets from one or several "
 		"point cloud datasets. The area-of-interest "
 		"is defined either by bounding box coordinates, the extent of a grid system or "
 		"a shapes layer, or by polygons of a shapes layer. Note that the latter "
@@ -255,9 +255,14 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 					{
 						pCut->Add_Point(pPoints->Get_X(), pPoints->Get_Y(), pPoints->Get_Z());
 
-						for(int j=0; j<pPoints->Get_Field_Count() - 3; j++)
+						for (int j=0; j<pPoints->Get_Attribute_Count(); j++)
 						{
-							pCut->Set_Attribute(j, pPoints->Get_Attribute(j));
+							switch (pPoints->Get_Attribute_Type(j))
+							{
+							default:					pCut->Set_Attribute(j, pPoints->Get_Attribute(i, j));		break;
+							case SG_DATATYPE_Date:
+							case SG_DATATYPE_String:	CSG_String sAttr; pPoints->Get_Attribute(i, j, sAttr); pCut->Set_Attribute(j, sAttr);		break;
+							}
 						}
 					}
 				}
@@ -306,9 +311,14 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 					{
 						pCut->Add_Point(pPoints->Get_X(), pPoints->Get_Y(), pPoints->Get_Z());
 
-						for(int j=0; j<pPoints->Get_Field_Count() - 3; j++)
+						for (int j=0; j<pPoints->Get_Attribute_Count(); j++)
 						{
-							pCut->Set_Attribute(j, pPoints->Get_Attribute(j));
+							switch (pPoints->Get_Attribute_Type(j))
+							{
+							default:					pCut->Set_Attribute(j, pPoints->Get_Attribute(i, j));		break;
+							case SG_DATATYPE_Date:
+							case SG_DATATYPE_String:	CSG_String sAttr; pPoints->Get_Attribute(i, j, sAttr); pCut->Set_Attribute(j, sAttr);		break;
+							}
 						}
 					}
 				}
@@ -367,10 +377,10 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-15"));
 
 	Set_Description	(_TW(
-		"This modules allows one to extract subsets from one or several "
+		"This tool allows one to extract subsets from one or several "
 		"point cloud datasets. The area-of-interest "
 		"is interactively defined either by dragging a box or by digitizing a polygon.\n"
-		"Best practice is to display the Point Cloud in a new Map View first and then "
+		"Best practice is to display the point cloud in a new Map View first and then "
 		"execute the module. Use the Action tool to define the AOI.\n\n"
 	));
 
@@ -442,8 +452,10 @@ bool CPC_Cut_Interactive::On_Execute(void)
 			DataObject_Add(m_pAOI, true);
 		}
 		else if( m_pAOI->Get_Field_Count() < 1)
+		{
+			m_pAOI->Destroy();
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
-
+		}
 
 		CSG_Parameters	sParms;
 		if( DataObject_Get_Parameters(m_pAOI, sParms) && sParms("DISPLAY_BRUSH") && sParms("OUTLINE_COLOR"))
@@ -455,8 +467,20 @@ bool CPC_Cut_Interactive::On_Execute(void)
 		}
 	}
 	else
-		Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_BOX);
+	{
+		if( m_pAOI != NULL )
+		{
+			m_pAOI->Destroy();
+			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
+		}
 
+		Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_BOX);
+	}
+
+	if( m_pAOI != NULL )
+	{
+		m_pAOI->Set_Name(_TL("AOI_Cutter"));
+	}
 
 	//-----------------------------------------------------
 	return( true );
@@ -513,6 +537,18 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 				);
 
 				CPC_Cut::Get_Cut(m_pPointsList, m_pCutList, r, m_bInverse);
+
+				if( m_pAOI != NULL )
+				{
+					m_pAOI	->Del_Records();
+					m_pAOI	->Add_Shape();
+
+					m_pAOI->Get_Shape(0)->Add_Point(r.Get_XMin(), r.Get_YMin());
+					m_pAOI->Get_Shape(0)->Add_Point(r.Get_XMin(), r.Get_YMax());
+					m_pAOI->Get_Shape(0)->Add_Point(r.Get_XMax(), r.Get_YMax());
+					m_pAOI->Get_Shape(0)->Add_Point(r.Get_XMax(), r.Get_YMin());
+					m_pAOI->Get_Shape(0)->Add_Point(r.Get_XMin(), r.Get_YMin());
+				}
 			}
 
 			return( true );
