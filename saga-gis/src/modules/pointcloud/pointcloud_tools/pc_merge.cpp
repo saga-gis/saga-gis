@@ -76,7 +76,7 @@ CPC_Merge::CPC_Merge(void)
 
 	Set_Author		(SG_T("Magnus Bremer (c) 2012"));
 
-	Set_Description	(_TW("The module can be used to merge Point Clouds.\n"
+	Set_Description	(_TW("The module can be used to merge point clouds.\n"
 						 "The attribute fields of the merged point cloud resemble those "
 						 "of the main point cloud. In order to merge the attributes of the "
 						 "additional point cloud layers, these must be consistent "
@@ -166,7 +166,12 @@ bool CPC_Merge::On_Execute(void)
 
 		for(int iField=0; iField<pMain->Get_Attribute_Count(); iField++)
 		{
-			pResult->Set_Attribute(iAccept, iField, pMain->Get_Attribute(i, iField));
+			switch (pMain->Get_Attribute_Type(iField))
+			{
+			default:					pResult->Set_Attribute(iAccept, iField, pMain->Get_Attribute(i, iField));		break;
+			case SG_DATATYPE_Date:
+			case SG_DATATYPE_String:	CSG_String sAttr; pMain->Get_Attribute(i, iField, sAttr); pResult->Set_Attribute(iAccept, iField, sAttr);		break;
+			}
 		}
 
 		if( bID )
@@ -213,7 +218,14 @@ bool CPC_Merge::On_Execute(void)
 						for(int iField=0; iField<pMain->Get_Attribute_Count(); iField++)
 						{
 							if( FieldMapping[iField] > -1 )
-								pResult->Set_Attribute(iAccept, iField, pAdd->Get_Attribute(i, FieldMapping[iField]));
+							{
+								switch (pAdd->Get_Attribute_Type(iField))
+								{
+								default:					pResult->Set_Attribute(iAccept, iField, pAdd->Get_Attribute(i, FieldMapping[iField]));		break;
+								case SG_DATATYPE_Date:
+								case SG_DATATYPE_String:	CSG_String sAttr; pAdd->Get_Attribute(i, FieldMapping[iField], sAttr); pResult->Set_Attribute(iAccept, iField, sAttr);		break;
+								}
+							}
 							else
 								pResult->Set_Attribute(iAccept, iField, pMain->Get_NoData_Value());
 						}
