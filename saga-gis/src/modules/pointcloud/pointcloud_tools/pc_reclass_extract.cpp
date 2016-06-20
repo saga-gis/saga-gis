@@ -668,7 +668,14 @@ void CPC_Reclass_Extract::Set_Value(int i, double value)
 	m_pResult->Add_Point(m_pInput->Get_X(i), m_pInput->Get_Y(i), m_pInput->Get_Z(i));
 
 	for (int j=0; j<m_pInput->Get_Attribute_Count(); j++)
-		m_pResult->Set_Attribute(j, m_pInput->Get_Attribute(i, j));
+	{
+		switch (m_pInput->Get_Attribute_Type(j))
+		{
+		default:					m_pResult->Set_Attribute(j, m_pInput->Get_Attribute(i, j));		break;
+		case SG_DATATYPE_Date:
+		case SG_DATATYPE_String:	CSG_String sAttr; m_pInput->Get_Attribute(i, j, sAttr); m_pResult->Set_Attribute(j, sAttr);		break;
+		}
+	}
 
 	if (!m_bExtract)
 	{
