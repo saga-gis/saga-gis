@@ -167,7 +167,12 @@ bool CPC_Drop_Attribute::On_Execute(void)
 				continue;
 			}
 
-			pOutput->Set_Attribute(k, pInput->Get_Attribute(i, j));
+			switch (pInput->Get_Attribute_Type(j))
+			{
+			default:					pOutput->Set_Attribute(k, pInput->Get_Attribute(i, j));		break;
+			case SG_DATATYPE_Date:
+			case SG_DATATYPE_String:	CSG_String sAttr; pInput->Get_Attribute(i, j, sAttr); pOutput->Set_Attribute(k, sAttr);		break;
+			}
 		}
 	}
 
