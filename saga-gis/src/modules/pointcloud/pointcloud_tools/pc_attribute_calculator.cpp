@@ -156,27 +156,18 @@ CPC_Attribute_Calculator::~CPC_Attribute_Calculator(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-bool CPC_Attribute_Calculator::On_Before_Execution(void)
-{
-	if( Parameters("PC_OUT")->asPointCloud() == Parameters("PC_IN")->asPointCloud() )
-		Parameters("PC_OUT")->Set_Value(DATAOBJECT_NOTSET);
-
-	return (true);
-}
-
 
 //---------------------------------------------------------
 bool CPC_Attribute_Calculator::On_Execute(void)
 {
-	CSG_PointCloud	*pInput, *pResult;
+	CSG_PointCloud	*pPC_in, *pPC_out, PC_out;
 	TSG_Data_Type	Type;
 	bool			bUseNoData;
 
 
 	//---------------------------------------------------------
-	pInput		= Parameters("PC_IN")->asPointCloud();
-	pResult		= Parameters("PC_OUT")->asPointCloud();
+	pPC_in		= Parameters("PC_IN")->asPointCloud();
+	pPC_out		= Parameters("PC_OUT")->asPointCloud();
 	bUseNoData	= Parameters("USE_NODATA")->asBool();
 
 	switch( Parameters("TYPE")->asInt() )
@@ -194,21 +185,20 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 
 
 	//-----------------------------------------------------
-	if( !pInput->is_Valid() || pInput->Get_Field_Count() <= 0 || pInput->Get_Record_Count() <= 0 )
+	if( !pPC_in->is_Valid() || pPC_in->Get_Field_Count() <= 0 || pPC_in->Get_Record_Count() <= 0 )
 	{
 		Error_Set(_TL("invalid point cloud"));
 
 		return( false );
 	}
 
-
 	//-----------------------------------------------------
 	CSG_Formula	Formula;
 
-	int		nFields		= pInput->Get_Field_Count();
+	int		nFields		= pPC_in->Get_Field_Count();
 	int		*pFields	= new int[nFields];
 
-	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pInput, pFields, nFields)) )
+	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pPC_in, pFields, nFields)) )
 	{
 		CSG_String	Message;
 
@@ -228,43 +218,42 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 		return( false );
 	}
 
+
 	//-----------------------------------------------------
-	CSG_String		sName;
-	CSG_MetaData	History;
-
-	if (!pResult || pResult == pInput)
+	if (!pPC_out || pPC_out == pPC_in)
 	{
-		sName = pInput->Get_Name();
-		pResult = SG_Create_PointCloud(pInput);
-		History = pInput->Get_History();
-	}
-	else
-	{
-		pResult->Create(pInput);
-
-		pResult->Set_Name(CSG_String::Format(SG_T("%s_%s"), pInput->Get_Name(), Parameters("NAME")->asString()));
+		pPC_out = &PC_out;
 	}
 
-	pResult->Add_Field(Parameters("NAME")->asString(), Type);
+	pPC_out->Create(pPC_in);
+
+	pPC_out->Add_Field(Parameters("NAME")->asString(), Type);
 
 
 	//---------------------------------------------------------
 	CSG_Vector	Values(nFields);
 
-	for( int i=0; i<pInput->Get_Point_Count() && Set_Progress(i, pInput->Get_Point_Count()); i++ )
+	for( int i=0; i<pPC_in->Get_Point_Count() && Set_Progress(i, pPC_in->Get_Point_Count()); i++ )
 	{
 		bool	bOkay	= true;
 
-		pResult->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
+		pPC_out->Add_Point(pPC_in->Get_X(i), pPC_in->Get_Y(i), pPC_in->Get_Z(i));
 
-		for( int iField=2; iField<pInput->Get_Field_Count(); iField++ )
-			pResult->Set_Value(i, iField, pInput->Get_Value(i, iField));
+		for (int j=0; j<pPC_in->Get_Attribute_Count(); j++)
+		{
+			switch (pPC_in->Get_Attribute_Type(j))
+			{
+			default:					pPC_out->Set_Attribute(i, j, pPC_in->Get_Attribute(i, j));		break;
+			case SG_DATATYPE_Date:
+			case SG_DATATYPE_String:	CSG_String sAttr; pPC_in->Get_Attribute(i, j, sAttr); pPC_out->Set_Attribute(i, j, sAttr);		break;
+			}
+		}
 
 		for( int iField=0; iField<nFields && bOkay; iField++ )
 		{
-			if( !pInput->is_NoData(i, pFields[iField]) || bUseNoData )
+			if( !pPC_in->is_NoData(i, pFields[iField]) || bUseNoData )
 			{
-				Values[iField]	= pInput->Get_Value(i, pFields[iField]);
+				Values[iField]	= pPC_in->Get_Value(i, pFields[iField]);
 			}
 			else
 			{
@@ -274,32 +263,35 @@ bool CPC_Attribute_Calculator::On_Execute(void)
 
 		if( bOkay )
 		{
-			pResult->Set_Value(i, pInput->Get_Field_Count(), Formula.Get_Value(Values.Get_Data(), nFields));
+			pPC_out->Set_Value(i, pPC_in->Get_Field_Count(), Formula.Get_Value(Values.Get_Data(), nFields));
 		}
 		else
 		{
-			pResult->Set_NoData(i, pInput->Get_Field_Count());
+			pPC_out->Set_NoData(i, pPC_in->Get_Field_Count());
 		}
 	}
 
 
 	delete[](pFields);
 
-	//-----------------------------------------------------
-	if (!Parameters("PC_OUT")->asPointCloud() || Parameters("PC_OUT")->asPointCloud() == pInput)
-	{
-		pInput->Assign(pResult);
-		pInput->Get_History() = History;
-		pInput->Set_Name(sName);
-		Parameters("PC_OUT")->Set_Value(pInput);
 
-		delete(pResult);
+	//-----------------------------------------------------
+	if (pPC_out == &PC_out)
+	{
+		CSG_MetaData	History	= pPC_in->Get_History();
+		CSG_String		sName	= pPC_in->Get_Name();
+
+		pPC_in->Assign(pPC_out);
+
+		pPC_in->Get_History() = History;
+		pPC_in->Set_Name(sName);
+
+		Parameters("PC_OUT")->Set_Value(pPC_in);
 	}
 	else
 	{
-		DataObject_Update(pResult);
+		pPC_out->Set_Name(CSG_String::Format(SG_T("%s_%s"), pPC_in->Get_Name(), Parameters("NAME")->asString()));
 	}
-
 
 	return (true);
 
@@ -356,4 +348,31 @@ int CPC_Attribute_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, 
 
     return (true);
 
+}
+
+//---------------------------------------------------------
+bool CPC_Attribute_Calculator::On_After_Execution(void)
+{
+	CSG_PointCloud	*pPC_out	= Parameters("PC_OUT")->asPointCloud();
+
+	if (pPC_out == NULL)
+	{
+		pPC_out = Parameters("PC_IN")->asPointCloud();
+	}
+
+	DataObject_Set_Parameter(pPC_out, "DISPLAY_VALUE_AGGREGATE", 3);
+	DataObject_Set_Parameter(pPC_out, "COLORS_TYPE", 2);
+	DataObject_Set_Parameter(pPC_out, "METRIC_ATTRIB", 2);
+	DataObject_Set_Parameter(pPC_out, "METRIC_ZRANGE", pPC_out->Get_Minimum(2), pPC_out->Get_Maximum(2));
+
+	CSG_Colors	Colors;
+	Colors.Set_Default(255);
+	DataObject_Set_Colors(pPC_out, Colors);
+
+	if (pPC_out == Parameters("PC_IN")->asPointCloud())
+	{
+		Parameters("PC_OUT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return (true);
 }
