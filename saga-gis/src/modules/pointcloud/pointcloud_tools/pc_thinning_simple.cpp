@@ -127,8 +127,8 @@ bool CPC_Thinning_Simple::On_Execute(void)
 
 
 	pResult->Create(pInput);
-	pResult->Set_Name(CSG_String::Format(SG_T("%s_thinned"), pInput->Get_Name()));
 	pResult->Assign(pInput);
+	pResult->Set_Name(CSG_String::Format(SG_T("%s_thinned"), pInput->Get_Name()));
 
 	for (int i=step; i<pInput->Get_Point_Count() && Set_Progress(i, pInput->Get_Point_Count()); i+=step)
 	{
