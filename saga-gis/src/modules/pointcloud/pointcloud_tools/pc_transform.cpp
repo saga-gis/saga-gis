@@ -283,8 +283,15 @@ bool CPC_Transform::On_Execute(void)
 
 		pOut->Add_Point(Q.x, Q.y, Q.z);
 
-		for (int iField=0; iField<pIn->Get_Attribute_Count(); iField++)
-			pOut->Set_Attribute(iPoint, iField, pIn->Get_Attribute(iPoint, iField));
+		for (int j=0; j<pIn->Get_Attribute_Count(); j++)
+		{
+			switch (pIn->Get_Attribute_Type(j))
+			{
+			default:					pOut->Set_Attribute(iPoint, j, pIn->Get_Attribute(iPoint, j));		break;
+			case SG_DATATYPE_Date:
+			case SG_DATATYPE_String:	CSG_String sAttr; pIn->Get_Attribute(iPoint, j, sAttr); pOut->Set_Attribute(iPoint, j, sAttr);		break;
+			}
+		}
 	}
 
 	//-----------------------------------------------------
