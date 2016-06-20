@@ -499,15 +499,9 @@ bool CVIEW_Table_Control::_Set_Scroll_Start(int Position, bool bEnforceUpdate)
 //---------------------------------------------------------
 void CVIEW_Table_Control::AdjustScrollbars(void)
 {
-	Freeze();
-	
-	wxGrid::AdjustScrollbars();
-
 	m_Scroll_Range	= (GetClientSize().y - GetColLabelSize()) / GetDefaultRowSize();
 
 	SetScrollbar(wxVERTICAL, m_Scroll_Start, m_Scroll_Range, _Get_Record_Count());
-
-	Thaw();
 }
 
 //---------------------------------------------------------
