@@ -96,13 +96,11 @@ protected:
 
 private:
 
-	bool					m_bUpdateView;
-
 	int						*m_Features, m_nFeatures, clustField, *nMembers;
 
 	double					**Centroids, *Variances;
 
-	CSG_PointCloud			*pInput, *pResult;
+	CSG_PointCloud			*pPC_in, *pPC_out, PC_out;
 
 	std::vector< std::vector<double> >	vValues;	
 
@@ -110,6 +108,8 @@ private:
 
 	double					MinimumDistance	(long &nElements, int nCluster);
 	double					HillClimbing	(long &nElements, int nCluster);
+
+	virtual bool			On_After_Execution(void);
 
 };
 
