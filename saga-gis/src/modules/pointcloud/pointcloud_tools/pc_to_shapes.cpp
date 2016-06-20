@@ -132,7 +132,12 @@ bool CPC_To_Shapes::On_Execute(void)
 
 		for(iField=2; iField<pPoints->Get_Field_Count(); iField++)
 		{
-			pShape->Set_Value(iField - 2, pPoints->Get_Value(iField));
+			switch (pPoints->Get_Field_Type(iField))
+			{
+			default:					pShape->Set_Value(iField - 2, pPoints->Get_Value(iField));		break;
+			case SG_DATATYPE_Date:
+			case SG_DATATYPE_String:	CSG_String sAttr; pPoints->Get_Value(iField, sAttr); pShape->Set_Value(iField - 2, sAttr);		break;
+			}
 		}
 	}
 
