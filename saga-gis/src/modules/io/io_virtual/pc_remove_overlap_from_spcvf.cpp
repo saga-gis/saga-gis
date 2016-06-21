@@ -202,9 +202,14 @@ bool CPointCloud_Remove_Overlap_From_SPCVF::On_Execute(void)
 			{
 				pPC_out->Add_Point(pPC->Get_X(iPoint), pPC->Get_Y(iPoint), pPC->Get_Z(iPoint));
 
-				for(int iField=0; iField<pPC->Get_Attribute_Count(); iField++)
+				for (int j=0; j<pPC->Get_Attribute_Count(); j++)
 				{
-					pPC_out->Set_Attribute(iField, pPC->Get_Attribute(iPoint, iField));
+					switch (pPC->Get_Attribute_Type(j))
+					{
+					default:					pPC_out->Set_Attribute(j, pPC->Get_Attribute(iPoint, j));		break;
+					case SG_DATATYPE_Date:
+					case SG_DATATYPE_String:	CSG_String sAttr; pPC->Get_Attribute(iPoint, j, sAttr); pPC_out->Set_Attribute(j, sAttr);		break;
+					}
 				}
 			}
 		}
