@@ -163,6 +163,8 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	CreateGrid(0, 0, wxGrid::wxGridSelectRows);
 
 	Update_Table();
+
+	wxGrid::AdjustScrollbars();
 }
 
 //---------------------------------------------------------
@@ -502,6 +504,18 @@ void CVIEW_Table_Control::AdjustScrollbars(void)
 	m_Scroll_Range	= (GetClientSize().y - GetColLabelSize()) / GetDefaultRowSize();
 
 	SetScrollbar(wxVERTICAL, m_Scroll_Start, m_Scroll_Range, _Get_Record_Count());
+
+	//-----------------------------------------------------
+	int	Range	= 0;
+
+	for(int i=0; i<GetNumberCols(); i++)
+	{
+		Range	+= GetColSize(i);
+	}
+
+	int	Thumb	= (GetClientSize().x - GetRowLabelSize()), dx, dy;	GetScrollPixelsPerUnit(&dx, &dy);
+
+	SetScrollbar(wxHORIZONTAL, GetScrollPos(wxHORIZONTAL), Thumb / dx, Range / dx);
 }
 
 //---------------------------------------------------------
