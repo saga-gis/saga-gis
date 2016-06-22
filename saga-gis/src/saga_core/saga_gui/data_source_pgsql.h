@@ -125,6 +125,7 @@ private:
 	void						On_Sources_Close	(wxCommandEvent &event);
 	void						On_Source_Delete	(wxCommandEvent &event);
 	void						On_Table_Open		(wxCommandEvent &event);
+	void						On_Table_From_Query	(wxCommandEvent &event);
 	void						On_Table_Rename		(wxCommandEvent &event);
 	void						On_Table_Info		(wxCommandEvent &event);
 	void						On_Table_Drop		(wxCommandEvent &event);
@@ -136,6 +137,7 @@ private:
 	void						Source_Close		(const wxTreeItemId &Item, bool bDelete);
 	void						Sources_Close		(void);
 	void						Table_Open			(const wxTreeItemId &Item);
+	void						Table_From_Query	(const wxTreeItemId &Item);
 	void						Table_Rename		(const wxTreeItemId &Item);
 	void						Table_Info			(const wxTreeItemId &Item);
 	void						Table_Drop			(const wxTreeItemId &Item);

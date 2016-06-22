@@ -382,6 +382,7 @@ BEGIN_EVENT_TABLE(CData_Source_PgSQL, wxTreeCtrl)
 	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE_ALL		, CData_Source_PgSQL::On_Sources_Close)
 	EVT_MENU					(ID_CMD_DB_SOURCE_DELETE		, CData_Source_PgSQL::On_Source_Delete)
 	EVT_MENU					(ID_CMD_DB_TABLE_OPEN			, CData_Source_PgSQL::On_Table_Open)
+	EVT_MENU					(ID_CMD_DB_TABLE_FROM_QUERY		, CData_Source_PgSQL::On_Table_From_Query)
 	EVT_MENU					(ID_CMD_DB_TABLE_RENAME			, CData_Source_PgSQL::On_Table_Rename)
 	EVT_MENU					(ID_CMD_DB_TABLE_INFO			, CData_Source_PgSQL::On_Table_Info)
 	EVT_MENU					(ID_CMD_DB_TABLE_DELETE			, CData_Source_PgSQL::On_Table_Drop)
@@ -577,6 +578,12 @@ void CData_Source_PgSQL::On_Source_Delete(wxCommandEvent &WXUNUSED(event))
 void CData_Source_PgSQL::On_Table_Open(wxCommandEvent &WXUNUSED(event))
 {
 	Table_Open(GetSelection());
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::On_Table_From_Query(wxCommandEvent &WXUNUSED(event))
+{
+	Table_From_Query(GetSelection());
 }
 
 //---------------------------------------------------------
@@ -1178,6 +1185,32 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 			&&	SET_PARAMETER("WHERE"     , pData->Get_Value ().AfterFirst (':'))
 		);
 	}
+}
+
+//---------------------------------------------------------
+void CData_Source_PgSQL::Table_From_Query(const wxTreeItemId &Item)
+{
+	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
+
+	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", DB_PGSQL_Table_Query);
+
+	SG_UI_Msg_Lock(true);
+
+	if(	pModule && pModule->On_Before_Execution() )
+	{
+		if( pData->Get_Type() == TYPE_SERVER )
+		{
+			pModule->Set_Parameter("PG_HOST", pData->Get_Host());
+			pModule->Set_Parameter("PG_PORT", pData->Get_Port());
+		}
+
+		if( DLG_Parameters(pModule->Get_Parameters()) )
+		{
+			pModule->Execute();
+		}
+	}
+
+	SG_UI_Msg_Lock(false);
 }
 
 //---------------------------------------------------------
