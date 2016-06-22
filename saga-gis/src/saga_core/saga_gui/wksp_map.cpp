@@ -830,7 +830,11 @@ class CWKSP_Map_BaseMap * CWKSP_Map::Add_BaseMap(CSG_MetaData *pEntry)
 			pItem->Dlg_Parameters();
 		}
 
-		Move_Top(pItem);
+		switch( pItem->Get_Parameter("POSITION")->asInt() )
+		{
+		default: Move_Bottom(pItem); break;
+		case  0: Move_Top   (pItem); break;
+		}
 
 		View_Refresh(true);
 

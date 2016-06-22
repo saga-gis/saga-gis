@@ -157,6 +157,16 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	);
 
 	//-----------------------------------------------------
+	m_Parameters.Add_Choice(
+		pNode	, "POSITION"	, _TL("Position"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("top"),
+			_TL("bottom")
+		), 1
+	)->Set_Enabled(false);
+
+	//-----------------------------------------------------
 	if( pEntry )
 	{
 		Load(*pEntry);
@@ -359,7 +369,13 @@ void CWKSP_Map_BaseMap::Parameters_Changed(void)
 //---------------------------------------------------------
 bool CWKSP_Map_BaseMap::Dlg_Parameters(void)
 {
-	return( DLG_Parameters(&m_Parameters) );
+	m_Parameters("POSITION")->Set_Enabled(true);
+
+	bool	bResult	= DLG_Parameters(&m_Parameters);
+	
+	m_Parameters("POSITION")->Set_Enabled(false);
+
+	return( bResult );
 }
 
 
